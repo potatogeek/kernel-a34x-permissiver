@@ -13,13 +13,17 @@
 #include "xfs_sb.h"
 #include "xfs_mount.h"
 #include "xfs_defer.h"
+<<<<<<< HEAD
 #include "xfs_da_format.h"
 #include "xfs_da_btree.h"
+=======
+>>>>>>> upstream/android-13
 #include "xfs_inode.h"
 #include "xfs_trans.h"
 #include "xfs_log.h"
 #include "xfs_log_priv.h"
 #include "xfs_log_recover.h"
+<<<<<<< HEAD
 #include "xfs_inode_item.h"
 #include "xfs_extfree_item.h"
 #include "xfs_trans_priv.h"
@@ -36,6 +40,18 @@
 #include "xfs_buf_item.h"
 #include "xfs_refcount_item.h"
 #include "xfs_bmap_item.h"
+=======
+#include "xfs_trans_priv.h"
+#include "xfs_alloc.h"
+#include "xfs_ialloc.h"
+#include "xfs_trace.h"
+#include "xfs_icache.h"
+#include "xfs_error.h"
+#include "xfs_buf_item.h"
+#include "xfs_ag.h"
+#include "xfs_quota.h"
+
+>>>>>>> upstream/android-13
 
 #define BLK_AVG(blk1, blk2)	((blk1+blk2) >> 1)
 
@@ -59,6 +75,7 @@ xlog_do_recovery_pass(
         struct xlog *, xfs_daddr_t, xfs_daddr_t, int, xfs_daddr_t *);
 
 /*
+<<<<<<< HEAD
  * This structure is used during recovery to record the buf log items which
  * have been canceled and should not be replayed.
  */
@@ -70,6 +87,8 @@ struct xfs_buf_cancel {
 };
 
 /*
+=======
+>>>>>>> upstream/android-13
  * Sector aligned buffer routines for buffer create/read/write/access
  */
 
@@ -79,7 +98,11 @@ struct xfs_buf_cancel {
  * are valid, false otherwise.
  */
 static inline bool
+<<<<<<< HEAD
 xlog_verify_bp(
+=======
+xlog_verify_bno(
+>>>>>>> upstream/android-13
 	struct xlog	*log,
 	xfs_daddr_t	blk_no,
 	int		bbcount)
@@ -92,6 +115,7 @@ xlog_verify_bp(
 }
 
 /*
+<<<<<<< HEAD
  * Allocate a buffer to hold log data.  The buffer needs to be able
  * to map to a range of nbblks basic blocks at any valid (basic
  * block) offset within the log.
@@ -103,18 +127,35 @@ xlog_get_bp(
 {
 	struct xfs_buf	*bp;
 
+=======
+ * Allocate a buffer to hold log data.  The buffer needs to be able to map to
+ * a range of nbblks basic blocks at any valid offset within the log.
+ */
+static char *
+xlog_alloc_buffer(
+	struct xlog	*log,
+	int		nbblks)
+{
+>>>>>>> upstream/android-13
 	/*
 	 * Pass log block 0 since we don't have an addr yet, buffer will be
 	 * verified on read.
 	 */
+<<<<<<< HEAD
 	if (!xlog_verify_bp(log, 0, nbblks)) {
 		xfs_warn(log->l_mp, "Invalid block length (0x%x) for buffer",
 			nbblks);
 		XFS_ERROR_REPORT(__func__, XFS_ERRLEVEL_HIGH, log->l_mp);
+=======
+	if (XFS_IS_CORRUPT(log->l_mp, !xlog_verify_bno(log, 0, nbblks))) {
+		xfs_warn(log->l_mp, "Invalid block length (0x%x) for buffer",
+			nbblks);
+>>>>>>> upstream/android-13
 		return NULL;
 	}
 
 	/*
+<<<<<<< HEAD
 	 * We do log I/O in units of log sectors (a power-of-2
 	 * multiple of the basic block size), so we round up the
 	 * requested size to accommodate the basic blocks required
@@ -129,10 +170,25 @@ xlog_get_bp(
 	 * done in basic blocks (sector size 1).  But otherwise we
 	 * extend the buffer by one extra log sector to ensure
 	 * there's space to accommodate this possibility.
+=======
+	 * We do log I/O in units of log sectors (a power-of-2 multiple of the
+	 * basic block size), so we round up the requested size to accommodate
+	 * the basic blocks required for complete log sectors.
+	 *
+	 * In addition, the buffer may be used for a non-sector-aligned block
+	 * offset, in which case an I/O of the requested size could extend
+	 * beyond the end of the buffer.  If the requested size is only 1 basic
+	 * block it will never straddle a sector boundary, so this won't be an
+	 * issue.  Nor will this be a problem if the log I/O is done in basic
+	 * blocks (sector size 1).  But otherwise we extend the buffer by one
+	 * extra log sector to ensure there's space to accommodate this
+	 * possibility.
+>>>>>>> upstream/android-13
 	 */
 	if (nbblks > 1 && log->l_sectBBsize > 1)
 		nbblks += log->l_sectBBsize;
 	nbblks = round_up(nbblks, log->l_sectBBsize);
+<<<<<<< HEAD
 
 	bp = xfs_buf_get_uncached(log->l_mp->m_logdev_targp, nbblks, 0);
 	if (bp)
@@ -145,12 +201,16 @@ xlog_put_bp(
 	xfs_buf_t	*bp)
 {
 	xfs_buf_free(bp);
+=======
+	return kvzalloc(BBTOB(nbblks), GFP_KERNEL | __GFP_RETRY_MAYFAIL);
+>>>>>>> upstream/android-13
 }
 
 /*
  * Return the address of the start of the given block number's data
  * in a log buffer.  The buffer covers a log sector-aligned region.
  */
+<<<<<<< HEAD
 STATIC char *
 xlog_align(
 	struct xlog	*log,
@@ -182,11 +242,36 @@ xlog_bread_noalign(
 			 "Invalid log block/length (0x%llx, 0x%x) for buffer",
 			 blk_no, nbblks);
 		XFS_ERROR_REPORT(__func__, XFS_ERRLEVEL_HIGH, log->l_mp);
+=======
+static inline unsigned int
+xlog_align(
+	struct xlog	*log,
+	xfs_daddr_t	blk_no)
+{
+	return BBTOB(blk_no & ((xfs_daddr_t)log->l_sectBBsize - 1));
+}
+
+static int
+xlog_do_io(
+	struct xlog		*log,
+	xfs_daddr_t		blk_no,
+	unsigned int		nbblks,
+	char			*data,
+	unsigned int		op)
+{
+	int			error;
+
+	if (XFS_IS_CORRUPT(log->l_mp, !xlog_verify_bno(log, blk_no, nbblks))) {
+		xfs_warn(log->l_mp,
+			 "Invalid log block/length (0x%llx, 0x%x) for buffer",
+			 blk_no, nbblks);
+>>>>>>> upstream/android-13
 		return -EFSCORRUPTED;
 	}
 
 	blk_no = round_down(blk_no, log->l_sectBBsize);
 	nbblks = round_up(nbblks, log->l_sectBBsize);
+<<<<<<< HEAD
 
 	ASSERT(nbblks > 0);
 	ASSERT(nbblks <= bp->b_length);
@@ -199,19 +284,49 @@ xlog_bread_noalign(
 	error = xfs_buf_submit(bp);
 	if (error && !XFS_FORCED_SHUTDOWN(log->l_mp))
 		xfs_buf_ioerror_alert(bp, __func__);
+=======
+	ASSERT(nbblks > 0);
+
+	error = xfs_rw_bdev(log->l_targ->bt_bdev, log->l_logBBstart + blk_no,
+			BBTOB(nbblks), data, op);
+	if (error && !xlog_is_shutdown(log)) {
+		xfs_alert(log->l_mp,
+			  "log recovery %s I/O error at daddr 0x%llx len %d error %d",
+			  op == REQ_OP_WRITE ? "write" : "read",
+			  blk_no, nbblks, error);
+	}
+>>>>>>> upstream/android-13
 	return error;
 }
 
 STATIC int
+<<<<<<< HEAD
+=======
+xlog_bread_noalign(
+	struct xlog	*log,
+	xfs_daddr_t	blk_no,
+	int		nbblks,
+	char		*data)
+{
+	return xlog_do_io(log, blk_no, nbblks, data, REQ_OP_READ);
+}
+
+STATIC int
+>>>>>>> upstream/android-13
 xlog_bread(
 	struct xlog	*log,
 	xfs_daddr_t	blk_no,
 	int		nbblks,
+<<<<<<< HEAD
 	struct xfs_buf	*bp,
+=======
+	char		*data,
+>>>>>>> upstream/android-13
 	char		**offset)
 {
 	int		error;
 
+<<<<<<< HEAD
 	error = xlog_bread_noalign(log, blk_no, nbblks, bp);
 	if (error)
 		return error;
@@ -254,11 +369,20 @@ xlog_bread_offset(
  * The buffer is kept locked across the write and is returned locked.
  * This can only be used for synchronous log writes.
  */
+=======
+	error = xlog_do_io(log, blk_no, nbblks, data, REQ_OP_READ);
+	if (!error)
+		*offset = data + xlog_align(log, blk_no);
+	return error;
+}
+
+>>>>>>> upstream/android-13
 STATIC int
 xlog_bwrite(
 	struct xlog	*log,
 	xfs_daddr_t	blk_no,
 	int		nbblks,
+<<<<<<< HEAD
 	struct xfs_buf	*bp)
 {
 	int		error;
@@ -288,6 +412,11 @@ xlog_bwrite(
 		xfs_buf_ioerror_alert(bp, __func__);
 	xfs_buf_relse(bp);
 	return error;
+=======
+	char		*data)
+{
+	return xlog_do_io(log, blk_no, nbblks, data, REQ_OP_WRITE);
+>>>>>>> upstream/android-13
 }
 
 #ifdef DEBUG
@@ -323,6 +452,7 @@ xlog_header_check_recover(
 	 * (XLOG_FMT_UNKNOWN). This stops us from trying to recover
 	 * a dirty log created in IRIX.
 	 */
+<<<<<<< HEAD
 	if (unlikely(head->h_fmt != cpu_to_be32(XLOG_FMT))) {
 		xfs_warn(mp,
 	"dirty log written in incompatible format - can't recover");
@@ -336,6 +466,19 @@ xlog_header_check_recover(
 		xlog_header_check_dump(mp, head);
 		XFS_ERROR_REPORT("xlog_header_check_recover(2)",
 				 XFS_ERRLEVEL_HIGH, mp);
+=======
+	if (XFS_IS_CORRUPT(mp, head->h_fmt != cpu_to_be32(XLOG_FMT))) {
+		xfs_warn(mp,
+	"dirty log written in incompatible format - can't recover");
+		xlog_header_check_dump(mp, head);
+		return -EFSCORRUPTED;
+	}
+	if (XFS_IS_CORRUPT(mp, !uuid_equal(&mp->m_sb.sb_uuid,
+					   &head->h_fs_uuid))) {
+		xfs_warn(mp,
+	"dirty log entry has mismatched uuid - can't recover");
+		xlog_header_check_dump(mp, head);
+>>>>>>> upstream/android-13
 		return -EFSCORRUPTED;
 	}
 	return 0;
@@ -358,16 +501,24 @@ xlog_header_check_mount(
 		 * by IRIX and continue.
 		 */
 		xfs_warn(mp, "null uuid in log - IRIX style log");
+<<<<<<< HEAD
 	} else if (unlikely(!uuid_equal(&mp->m_sb.sb_uuid, &head->h_fs_uuid))) {
 		xfs_warn(mp, "log has mismatched uuid - can't recover");
 		xlog_header_check_dump(mp, head);
 		XFS_ERROR_REPORT("xlog_header_check_mount",
 				 XFS_ERRLEVEL_HIGH, mp);
+=======
+	} else if (XFS_IS_CORRUPT(mp, !uuid_equal(&mp->m_sb.sb_uuid,
+						  &head->h_fs_uuid))) {
+		xfs_warn(mp, "log has mismatched uuid - can't recover");
+		xlog_header_check_dump(mp, head);
+>>>>>>> upstream/android-13
 		return -EFSCORRUPTED;
 	}
 	return 0;
 }
 
+<<<<<<< HEAD
 STATIC void
 xlog_recover_iodone(
 	struct xfs_buf	*bp)
@@ -396,6 +547,8 @@ xlog_recover_iodone(
 	xfs_buf_ioend(bp);
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * This routine finds (to an approximation) the first block in the physical
  * log which contains the given cycle.  It uses a binary search algorithm.
@@ -405,7 +558,11 @@ xlog_recover_iodone(
 STATIC int
 xlog_find_cycle_start(
 	struct xlog	*log,
+<<<<<<< HEAD
 	struct xfs_buf	*bp,
+=======
+	char		*buffer,
+>>>>>>> upstream/android-13
 	xfs_daddr_t	first_blk,
 	xfs_daddr_t	*last_blk,
 	uint		cycle)
@@ -419,7 +576,11 @@ xlog_find_cycle_start(
 	end_blk = *last_blk;
 	mid_blk = BLK_AVG(first_blk, end_blk);
 	while (mid_blk != first_blk && mid_blk != end_blk) {
+<<<<<<< HEAD
 		error = xlog_bread(log, mid_blk, 1, bp, &offset);
+=======
+		error = xlog_bread(log, mid_blk, 1, buffer, &offset);
+>>>>>>> upstream/android-13
 		if (error)
 			return error;
 		mid_cycle = xlog_get_cycle(offset);
@@ -455,7 +616,11 @@ xlog_find_verify_cycle(
 {
 	xfs_daddr_t	i, j;
 	uint		cycle;
+<<<<<<< HEAD
 	xfs_buf_t	*bp;
+=======
+	char		*buffer;
+>>>>>>> upstream/android-13
 	xfs_daddr_t	bufblks;
 	char		*buf = NULL;
 	int		error = 0;
@@ -469,7 +634,11 @@ xlog_find_verify_cycle(
 	bufblks = 1 << ffs(nbblks);
 	while (bufblks > log->l_logBBsize)
 		bufblks >>= 1;
+<<<<<<< HEAD
 	while (!(bp = xlog_get_bp(log, bufblks))) {
+=======
+	while (!(buffer = xlog_alloc_buffer(log, bufblks))) {
+>>>>>>> upstream/android-13
 		bufblks >>= 1;
 		if (bufblks < log->l_sectBBsize)
 			return -ENOMEM;
@@ -480,7 +649,11 @@ xlog_find_verify_cycle(
 
 		bcount = min(bufblks, (start_blk + nbblks - i));
 
+<<<<<<< HEAD
 		error = xlog_bread(log, i, bcount, bp, &buf);
+=======
+		error = xlog_bread(log, i, bcount, buffer, &buf);
+>>>>>>> upstream/android-13
 		if (error)
 			goto out;
 
@@ -498,10 +671,30 @@ xlog_find_verify_cycle(
 	*new_blk = -1;
 
 out:
+<<<<<<< HEAD
 	xlog_put_bp(bp);
 	return error;
 }
 
+=======
+	kmem_free(buffer);
+	return error;
+}
+
+static inline int
+xlog_logrec_hblks(struct xlog *log, struct xlog_rec_header *rh)
+{
+	if (xfs_has_logv2(log->l_mp)) {
+		int	h_size = be32_to_cpu(rh->h_size);
+
+		if ((be32_to_cpu(rh->h_version) & XLOG_VERSION_2) &&
+		    h_size > XLOG_HEADER_CYCLE_SIZE)
+			return DIV_ROUND_UP(h_size, XLOG_HEADER_CYCLE_SIZE);
+	}
+	return 1;
+}
+
+>>>>>>> upstream/android-13
 /*
  * Potentially backup over partial log record write.
  *
@@ -522,7 +715,11 @@ xlog_find_verify_log_record(
 	int			extra_bblks)
 {
 	xfs_daddr_t		i;
+<<<<<<< HEAD
 	xfs_buf_t		*bp;
+=======
+	char			*buffer;
+>>>>>>> upstream/android-13
 	char			*offset = NULL;
 	xlog_rec_header_t	*head = NULL;
 	int			error = 0;
@@ -532,12 +729,23 @@ xlog_find_verify_log_record(
 
 	ASSERT(start_blk != 0 || *last_blk != start_blk);
 
+<<<<<<< HEAD
 	if (!(bp = xlog_get_bp(log, num_blks))) {
 		if (!(bp = xlog_get_bp(log, 1)))
 			return -ENOMEM;
 		smallmem = 1;
 	} else {
 		error = xlog_bread(log, start_blk, num_blks, bp, &offset);
+=======
+	buffer = xlog_alloc_buffer(log, num_blks);
+	if (!buffer) {
+		buffer = xlog_alloc_buffer(log, 1);
+		if (!buffer)
+			return -ENOMEM;
+		smallmem = 1;
+	} else {
+		error = xlog_bread(log, start_blk, num_blks, buffer, &offset);
+>>>>>>> upstream/android-13
 		if (error)
 			goto out;
 		offset += ((num_blks - 1) << BBSHIFT);
@@ -549,12 +757,20 @@ xlog_find_verify_log_record(
 			xfs_warn(log->l_mp,
 		"Log inconsistent (didn't find previous header)");
 			ASSERT(0);
+<<<<<<< HEAD
 			error = -EIO;
+=======
+			error = -EFSCORRUPTED;
+>>>>>>> upstream/android-13
 			goto out;
 		}
 
 		if (smallmem) {
+<<<<<<< HEAD
 			error = xlog_bread(log, i, 1, bp, &offset);
+=======
+			error = xlog_bread(log, i, 1, buffer, &offset);
+>>>>>>> upstream/android-13
 			if (error)
 				goto out;
 		}
@@ -592,6 +808,7 @@ xlog_find_verify_log_record(
 	 * reset last_blk.  Only when last_blk points in the middle of a log
 	 * record do we update last_blk.
 	 */
+<<<<<<< HEAD
 	if (xfs_sb_version_haslogv2(&log->l_mp->m_sb)) {
 		uint	h_size = be32_to_cpu(head->h_size);
 
@@ -601,13 +818,20 @@ xlog_find_verify_log_record(
 	} else {
 		xhdrs = 1;
 	}
+=======
+	xhdrs = xlog_logrec_hblks(log, head);
+>>>>>>> upstream/android-13
 
 	if (*last_blk - i + extra_bblks !=
 	    BTOBB(be32_to_cpu(head->h_len)) + xhdrs)
 		*last_blk = i;
 
 out:
+<<<<<<< HEAD
 	xlog_put_bp(bp);
+=======
+	kmem_free(buffer);
+>>>>>>> upstream/android-13
 	return error;
 }
 
@@ -629,7 +853,11 @@ xlog_find_head(
 	struct xlog	*log,
 	xfs_daddr_t	*return_head_blk)
 {
+<<<<<<< HEAD
 	xfs_buf_t	*bp;
+=======
+	char		*buffer;
+>>>>>>> upstream/android-13
 	char		*offset;
 	xfs_daddr_t	new_blk, first_blk, start_blk, last_blk, head_blk;
 	int		num_scan_bblks;
@@ -659,6 +887,7 @@ xlog_find_head(
 	}
 
 	first_blk = 0;			/* get cycle # of 1st block */
+<<<<<<< HEAD
 	bp = xlog_get_bp(log, 1);
 	if (!bp)
 		return -ENOMEM;
@@ -666,13 +895,28 @@ xlog_find_head(
 	error = xlog_bread(log, 0, 1, bp, &offset);
 	if (error)
 		goto bp_err;
+=======
+	buffer = xlog_alloc_buffer(log, 1);
+	if (!buffer)
+		return -ENOMEM;
+
+	error = xlog_bread(log, 0, 1, buffer, &offset);
+	if (error)
+		goto out_free_buffer;
+>>>>>>> upstream/android-13
 
 	first_half_cycle = xlog_get_cycle(offset);
 
 	last_blk = head_blk = log_bbnum - 1;	/* get cycle # of last block */
+<<<<<<< HEAD
 	error = xlog_bread(log, last_blk, 1, bp, &offset);
 	if (error)
 		goto bp_err;
+=======
+	error = xlog_bread(log, last_blk, 1, buffer, &offset);
+	if (error)
+		goto out_free_buffer;
+>>>>>>> upstream/android-13
 
 	last_half_cycle = xlog_get_cycle(offset);
 	ASSERT(last_half_cycle != 0);
@@ -740,9 +984,16 @@ xlog_find_head(
 		 *                           ^ we want to locate this spot
 		 */
 		stop_on_cycle = last_half_cycle;
+<<<<<<< HEAD
 		if ((error = xlog_find_cycle_start(log, bp, first_blk,
 						&head_blk, last_half_cycle)))
 			goto bp_err;
+=======
+		error = xlog_find_cycle_start(log, buffer, first_blk, &head_blk,
+				last_half_cycle);
+		if (error)
+			goto out_free_buffer;
+>>>>>>> upstream/android-13
 	}
 
 	/*
@@ -762,7 +1013,11 @@ xlog_find_head(
 		if ((error = xlog_find_verify_cycle(log,
 						start_blk, num_scan_bblks,
 						stop_on_cycle, &new_blk)))
+<<<<<<< HEAD
 			goto bp_err;
+=======
+			goto out_free_buffer;
+>>>>>>> upstream/android-13
 		if (new_blk != -1)
 			head_blk = new_blk;
 	} else {		/* need to read 2 parts of log */
@@ -799,7 +1054,11 @@ xlog_find_head(
 		if ((error = xlog_find_verify_cycle(log, start_blk,
 					num_scan_bblks - (int)head_blk,
 					(stop_on_cycle - 1), &new_blk)))
+<<<<<<< HEAD
 			goto bp_err;
+=======
+			goto out_free_buffer;
+>>>>>>> upstream/android-13
 		if (new_blk != -1) {
 			head_blk = new_blk;
 			goto validate_head;
@@ -815,7 +1074,11 @@ xlog_find_head(
 		if ((error = xlog_find_verify_cycle(log,
 					start_blk, (int)head_blk,
 					stop_on_cycle, &new_blk)))
+<<<<<<< HEAD
 			goto bp_err;
+=======
+			goto out_free_buffer;
+>>>>>>> upstream/android-13
 		if (new_blk != -1)
 			head_blk = new_blk;
 	}
@@ -834,13 +1097,21 @@ validate_head:
 		if (error == 1)
 			error = -EIO;
 		if (error)
+<<<<<<< HEAD
 			goto bp_err;
+=======
+			goto out_free_buffer;
+>>>>>>> upstream/android-13
 	} else {
 		start_blk = 0;
 		ASSERT(head_blk <= INT_MAX);
 		error = xlog_find_verify_log_record(log, start_blk, &head_blk, 0);
 		if (error < 0)
+<<<<<<< HEAD
 			goto bp_err;
+=======
+			goto out_free_buffer;
+>>>>>>> upstream/android-13
 		if (error == 1) {
 			/* We hit the beginning of the log during our search */
 			start_blk = log_bbnum - (num_scan_bblks - head_blk);
@@ -853,6 +1124,7 @@ validate_head:
 			if (error == 1)
 				error = -EIO;
 			if (error)
+<<<<<<< HEAD
 				goto bp_err;
 			if (new_blk != log_bbnum)
 				head_blk = new_blk;
@@ -861,6 +1133,16 @@ validate_head:
 	}
 
 	xlog_put_bp(bp);
+=======
+				goto out_free_buffer;
+			if (new_blk != log_bbnum)
+				head_blk = new_blk;
+		} else if (error)
+			goto out_free_buffer;
+	}
+
+	kmem_free(buffer);
+>>>>>>> upstream/android-13
 	if (head_blk == log_bbnum)
 		*return_head_blk = 0;
 	else
@@ -873,9 +1155,14 @@ validate_head:
 	 */
 	return 0;
 
+<<<<<<< HEAD
  bp_err:
 	xlog_put_bp(bp);
 
+=======
+out_free_buffer:
+	kmem_free(buffer);
+>>>>>>> upstream/android-13
 	if (error)
 		xfs_warn(log->l_mp, "failed to find log head");
 	return error;
@@ -895,7 +1182,11 @@ xlog_rseek_logrec_hdr(
 	xfs_daddr_t		head_blk,
 	xfs_daddr_t		tail_blk,
 	int			count,
+<<<<<<< HEAD
 	struct xfs_buf		*bp,
+=======
+	char			*buffer,
+>>>>>>> upstream/android-13
 	xfs_daddr_t		*rblk,
 	struct xlog_rec_header	**rhead,
 	bool			*wrapped)
@@ -914,7 +1205,11 @@ xlog_rseek_logrec_hdr(
 	 */
 	end_blk = head_blk > tail_blk ? tail_blk : 0;
 	for (i = (int) head_blk - 1; i >= end_blk; i--) {
+<<<<<<< HEAD
 		error = xlog_bread(log, i, 1, bp, &offset);
+=======
+		error = xlog_bread(log, i, 1, buffer, &offset);
+>>>>>>> upstream/android-13
 		if (error)
 			goto out_error;
 
@@ -933,7 +1228,11 @@ xlog_rseek_logrec_hdr(
 	 */
 	if (tail_blk >= head_blk && found != count) {
 		for (i = log->l_logBBsize - 1; i >= (int) tail_blk; i--) {
+<<<<<<< HEAD
 			error = xlog_bread(log, i, 1, bp, &offset);
+=======
+			error = xlog_bread(log, i, 1, buffer, &offset);
+>>>>>>> upstream/android-13
 			if (error)
 				goto out_error;
 
@@ -969,7 +1268,11 @@ xlog_seek_logrec_hdr(
 	xfs_daddr_t		head_blk,
 	xfs_daddr_t		tail_blk,
 	int			count,
+<<<<<<< HEAD
 	struct xfs_buf		*bp,
+=======
+	char			*buffer,
+>>>>>>> upstream/android-13
 	xfs_daddr_t		*rblk,
 	struct xlog_rec_header	**rhead,
 	bool			*wrapped)
@@ -988,7 +1291,11 @@ xlog_seek_logrec_hdr(
 	 */
 	end_blk = head_blk > tail_blk ? head_blk : log->l_logBBsize - 1;
 	for (i = (int) tail_blk; i <= end_blk; i++) {
+<<<<<<< HEAD
 		error = xlog_bread(log, i, 1, bp, &offset);
+=======
+		error = xlog_bread(log, i, 1, buffer, &offset);
+>>>>>>> upstream/android-13
 		if (error)
 			goto out_error;
 
@@ -1006,7 +1313,11 @@ xlog_seek_logrec_hdr(
 	 */
 	if (tail_blk > head_blk && found != count) {
 		for (i = 0; i < (int) head_blk; i++) {
+<<<<<<< HEAD
 			error = xlog_bread(log, i, 1, bp, &offset);
+=======
+			error = xlog_bread(log, i, 1, buffer, &offset);
+>>>>>>> upstream/android-13
 			if (error)
 				goto out_error;
 
@@ -1069,22 +1380,35 @@ xlog_verify_tail(
 	int			hsize)
 {
 	struct xlog_rec_header	*thead;
+<<<<<<< HEAD
 	struct xfs_buf		*bp;
+=======
+	char			*buffer;
+>>>>>>> upstream/android-13
 	xfs_daddr_t		first_bad;
 	int			error = 0;
 	bool			wrapped;
 	xfs_daddr_t		tmp_tail;
 	xfs_daddr_t		orig_tail = *tail_blk;
 
+<<<<<<< HEAD
 	bp = xlog_get_bp(log, 1);
 	if (!bp)
+=======
+	buffer = xlog_alloc_buffer(log, 1);
+	if (!buffer)
+>>>>>>> upstream/android-13
 		return -ENOMEM;
 
 	/*
 	 * Make sure the tail points to a record (returns positive count on
 	 * success).
 	 */
+<<<<<<< HEAD
 	error = xlog_seek_logrec_hdr(log, head_blk, *tail_blk, 1, bp,
+=======
+	error = xlog_seek_logrec_hdr(log, head_blk, *tail_blk, 1, buffer,
+>>>>>>> upstream/android-13
 			&tmp_tail, &thead, &wrapped);
 	if (error < 0)
 		goto out;
@@ -1113,8 +1437,13 @@ xlog_verify_tail(
 			break;
 
 		/* skip to the next record; returns positive count on success */
+<<<<<<< HEAD
 		error = xlog_seek_logrec_hdr(log, head_blk, first_bad, 2, bp,
 				&tmp_tail, &thead, &wrapped);
+=======
+		error = xlog_seek_logrec_hdr(log, head_blk, first_bad, 2,
+				buffer, &tmp_tail, &thead, &wrapped);
+>>>>>>> upstream/android-13
 		if (error < 0)
 			goto out;
 
@@ -1129,7 +1458,11 @@ xlog_verify_tail(
 		"Tail block (0x%llx) overwrite detected. Updated to 0x%llx",
 			 orig_tail, *tail_blk);
 out:
+<<<<<<< HEAD
 	xlog_put_bp(bp);
+=======
+	kmem_free(buffer);
+>>>>>>> upstream/android-13
 	return error;
 }
 
@@ -1151,13 +1484,21 @@ xlog_verify_head(
 	struct xlog		*log,
 	xfs_daddr_t		*head_blk,	/* in/out: unverified head */
 	xfs_daddr_t		*tail_blk,	/* out: tail block */
+<<<<<<< HEAD
 	struct xfs_buf		*bp,
+=======
+	char			*buffer,
+>>>>>>> upstream/android-13
 	xfs_daddr_t		*rhead_blk,	/* start blk of last record */
 	struct xlog_rec_header	**rhead,	/* ptr to last record */
 	bool			*wrapped)	/* last rec. wraps phys. log */
 {
 	struct xlog_rec_header	*tmp_rhead;
+<<<<<<< HEAD
 	struct xfs_buf		*tmp_bp;
+=======
+	char			*tmp_buffer;
+>>>>>>> upstream/android-13
 	xfs_daddr_t		first_bad;
 	xfs_daddr_t		tmp_rhead_blk;
 	int			found;
@@ -1168,6 +1509,7 @@ xlog_verify_head(
 	 * Check the head of the log for torn writes. Search backwards from the
 	 * head until we hit the tail or the maximum number of log record I/Os
 	 * that could have been in flight at one time. Use a temporary buffer so
+<<<<<<< HEAD
 	 * we don't trash the rhead/bp pointers from the caller.
 	 */
 	tmp_bp = xlog_get_bp(log, 1);
@@ -1177,6 +1519,17 @@ xlog_verify_head(
 				      XLOG_MAX_ICLOGS, tmp_bp, &tmp_rhead_blk,
 				      &tmp_rhead, &tmp_wrapped);
 	xlog_put_bp(tmp_bp);
+=======
+	 * we don't trash the rhead/buffer pointers from the caller.
+	 */
+	tmp_buffer = xlog_alloc_buffer(log, 1);
+	if (!tmp_buffer)
+		return -ENOMEM;
+	error = xlog_rseek_logrec_hdr(log, *head_blk, *tail_blk,
+				      XLOG_MAX_ICLOGS, tmp_buffer,
+				      &tmp_rhead_blk, &tmp_rhead, &tmp_wrapped);
+	kmem_free(tmp_buffer);
+>>>>>>> upstream/android-13
 	if (error < 0)
 		return error;
 
@@ -1203,10 +1556,17 @@ xlog_verify_head(
 		 *
 		 * Note that xlog_find_tail() clears the blocks at the new head
 		 * (i.e., the records with invalid CRC) if the cycle number
+<<<<<<< HEAD
 		 * matches the the current cycle.
 		 */
 		found = xlog_rseek_logrec_hdr(log, first_bad, *tail_blk, 1, bp,
 					      rhead_blk, rhead, wrapped);
+=======
+		 * matches the current cycle.
+		 */
+		found = xlog_rseek_logrec_hdr(log, first_bad, *tail_blk, 1,
+				buffer, rhead_blk, rhead, wrapped);
+>>>>>>> upstream/android-13
 		if (found < 0)
 			return found;
 		if (found == 0)		/* XXX: right thing to do here? */
@@ -1266,7 +1626,11 @@ xlog_check_unmount_rec(
 	xfs_daddr_t		*tail_blk,
 	struct xlog_rec_header	*rhead,
 	xfs_daddr_t		rhead_blk,
+<<<<<<< HEAD
 	struct xfs_buf		*bp,
+=======
+	char			*buffer,
+>>>>>>> upstream/android-13
 	bool			*clean)
 {
 	struct xlog_op_header	*op_head;
@@ -1287,6 +1651,7 @@ xlog_check_unmount_rec(
 	 * below. We won't want to clear the unmount record if there is one, so
 	 * we pass the lsn of the unmount record rather than the block after it.
 	 */
+<<<<<<< HEAD
 	if (xfs_sb_version_haslogv2(&log->l_mp->m_sb)) {
 		int	h_size = be32_to_cpu(rhead->h_size);
 		int	h_version = be32_to_cpu(rhead->h_version);
@@ -1303,13 +1668,20 @@ xlog_check_unmount_rec(
 		hblks = 1;
 	}
 
+=======
+	hblks = xlog_logrec_hblks(log, rhead);
+>>>>>>> upstream/android-13
 	after_umount_blk = xlog_wrap_logbno(log,
 			rhead_blk + hblks + BTOBB(be32_to_cpu(rhead->h_len)));
 
 	if (*head_blk == after_umount_blk &&
 	    be32_to_cpu(rhead->h_num_logops) == 1) {
 		umount_data_blk = xlog_wrap_logbno(log, rhead_blk + hblks);
+<<<<<<< HEAD
 		error = xlog_bread(log, umount_data_blk, 1, bp, &offset);
+=======
+		error = xlog_bread(log, umount_data_blk, 1, buffer, &offset);
+>>>>>>> upstream/android-13
 		if (error)
 			return error;
 
@@ -1388,7 +1760,11 @@ xlog_find_tail(
 {
 	xlog_rec_header_t	*rhead;
 	char			*offset = NULL;
+<<<<<<< HEAD
 	xfs_buf_t		*bp;
+=======
+	char			*buffer;
+>>>>>>> upstream/android-13
 	int			error;
 	xfs_daddr_t		rhead_blk;
 	xfs_lsn_t		tail_lsn;
@@ -1402,11 +1778,19 @@ xlog_find_tail(
 		return error;
 	ASSERT(*head_blk < INT_MAX);
 
+<<<<<<< HEAD
 	bp = xlog_get_bp(log, 1);
 	if (!bp)
 		return -ENOMEM;
 	if (*head_blk == 0) {				/* special case */
 		error = xlog_bread(log, 0, 1, bp, &offset);
+=======
+	buffer = xlog_alloc_buffer(log, 1);
+	if (!buffer)
+		return -ENOMEM;
+	if (*head_blk == 0) {				/* special case */
+		error = xlog_bread(log, 0, 1, buffer, &offset);
+>>>>>>> upstream/android-13
 		if (error)
 			goto done;
 
@@ -1422,6 +1806,7 @@ xlog_find_tail(
 	 * block. This wraps all the way back around to the head so something is
 	 * seriously wrong if we can't find it.
 	 */
+<<<<<<< HEAD
 	error = xlog_rseek_logrec_hdr(log, *head_blk, *head_blk, 1, bp,
 				      &rhead_blk, &rhead, &wrapped);
 	if (error < 0)
@@ -1429,6 +1814,16 @@ xlog_find_tail(
 	if (!error) {
 		xfs_warn(log->l_mp, "%s: couldn't find sync record", __func__);
 		return -EIO;
+=======
+	error = xlog_rseek_logrec_hdr(log, *head_blk, *head_blk, 1, buffer,
+				      &rhead_blk, &rhead, &wrapped);
+	if (error < 0)
+		goto done;
+	if (!error) {
+		xfs_warn(log->l_mp, "%s: couldn't find sync record", __func__);
+		error = -EFSCORRUPTED;
+		goto done;
+>>>>>>> upstream/android-13
 	}
 	*tail_blk = BLOCK_LSN(be64_to_cpu(rhead->h_tail_lsn));
 
@@ -1443,7 +1838,11 @@ xlog_find_tail(
 	 * state to determine whether recovery is necessary.
 	 */
 	error = xlog_check_unmount_rec(log, head_blk, tail_blk, rhead,
+<<<<<<< HEAD
 				       rhead_blk, bp, &clean);
+=======
+				       rhead_blk, buffer, &clean);
+>>>>>>> upstream/android-13
 	if (error)
 		goto done;
 
@@ -1460,7 +1859,11 @@ xlog_find_tail(
 	if (!clean) {
 		xfs_daddr_t	orig_head = *head_blk;
 
+<<<<<<< HEAD
 		error = xlog_verify_head(log, head_blk, tail_blk, bp,
+=======
+		error = xlog_verify_head(log, head_blk, tail_blk, buffer,
+>>>>>>> upstream/android-13
 					 &rhead_blk, &rhead, &wrapped);
 		if (error)
 			goto done;
@@ -1471,7 +1874,11 @@ xlog_find_tail(
 				       wrapped);
 			tail_lsn = atomic64_read(&log->l_tail_lsn);
 			error = xlog_check_unmount_rec(log, head_blk, tail_blk,
+<<<<<<< HEAD
 						       rhead, rhead_blk, bp,
+=======
+						       rhead, rhead_blk, buffer,
+>>>>>>> upstream/android-13
 						       &clean);
 			if (error)
 				goto done;
@@ -1484,7 +1891,11 @@ xlog_find_tail(
 	 * headers if we have a filesystem using non-persistent counters.
 	 */
 	if (clean)
+<<<<<<< HEAD
 		log->l_mp->m_flags |= XFS_MOUNT_WAS_CLEAN;
+=======
+		set_bit(XFS_OPSTATE_CLEAN, &log->l_mp->m_opstate);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Make sure that there are no blocks in front of the head
@@ -1505,11 +1916,19 @@ xlog_find_tail(
 	 * But... if the -device- itself is readonly, just skip this.
 	 * We can't recover this device anyway, so it won't matter.
 	 */
+<<<<<<< HEAD
 	if (!xfs_readonly_buftarg(log->l_mp->m_logdev_targp))
 		error = xlog_clear_stale_blocks(log, tail_lsn);
 
 done:
 	xlog_put_bp(bp);
+=======
+	if (!xfs_readonly_buftarg(log->l_targ))
+		error = xlog_clear_stale_blocks(log, tail_lsn);
+
+done:
+	kmem_free(buffer);
+>>>>>>> upstream/android-13
 
 	if (error)
 		xfs_warn(log->l_mp, "failed to locate log tail");
@@ -1537,7 +1956,11 @@ xlog_find_zeroed(
 	struct xlog	*log,
 	xfs_daddr_t	*blk_no)
 {
+<<<<<<< HEAD
 	xfs_buf_t	*bp;
+=======
+	char		*buffer;
+>>>>>>> upstream/android-13
 	char		*offset;
 	uint	        first_cycle, last_cycle;
 	xfs_daddr_t	new_blk, last_blk, start_blk;
@@ -1547,21 +1970,35 @@ xlog_find_zeroed(
 	*blk_no = 0;
 
 	/* check totally zeroed log */
+<<<<<<< HEAD
 	bp = xlog_get_bp(log, 1);
 	if (!bp)
 		return -ENOMEM;
 	error = xlog_bread(log, 0, 1, bp, &offset);
 	if (error)
 		goto bp_err;
+=======
+	buffer = xlog_alloc_buffer(log, 1);
+	if (!buffer)
+		return -ENOMEM;
+	error = xlog_bread(log, 0, 1, buffer, &offset);
+	if (error)
+		goto out_free_buffer;
+>>>>>>> upstream/android-13
 
 	first_cycle = xlog_get_cycle(offset);
 	if (first_cycle == 0) {		/* completely zeroed log */
 		*blk_no = 0;
+<<<<<<< HEAD
 		xlog_put_bp(bp);
+=======
+		kmem_free(buffer);
+>>>>>>> upstream/android-13
 		return 1;
 	}
 
 	/* check partially zeroed log */
+<<<<<<< HEAD
 	error = xlog_bread(log, log_bbnum-1, 1, bp, &offset);
 	if (error)
 		goto bp_err;
@@ -1569,13 +2006,28 @@ xlog_find_zeroed(
 	last_cycle = xlog_get_cycle(offset);
 	if (last_cycle != 0) {		/* log completely written to */
 		xlog_put_bp(bp);
+=======
+	error = xlog_bread(log, log_bbnum-1, 1, buffer, &offset);
+	if (error)
+		goto out_free_buffer;
+
+	last_cycle = xlog_get_cycle(offset);
+	if (last_cycle != 0) {		/* log completely written to */
+		kmem_free(buffer);
+>>>>>>> upstream/android-13
 		return 0;
 	}
 
 	/* we have a partially zeroed log */
 	last_blk = log_bbnum-1;
+<<<<<<< HEAD
 	if ((error = xlog_find_cycle_start(log, bp, 0, &last_blk, 0)))
 		goto bp_err;
+=======
+	error = xlog_find_cycle_start(log, buffer, 0, &last_blk, 0);
+	if (error)
+		goto out_free_buffer;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Validate the answer.  Because there is no way to guarantee that
@@ -1598,7 +2050,11 @@ xlog_find_zeroed(
 	 */
 	if ((error = xlog_find_verify_cycle(log, start_blk,
 					 (int)num_scan_bblks, 0, &new_blk)))
+<<<<<<< HEAD
 		goto bp_err;
+=======
+		goto out_free_buffer;
+>>>>>>> upstream/android-13
 	if (new_blk != -1)
 		last_blk = new_blk;
 
@@ -1610,11 +2066,19 @@ xlog_find_zeroed(
 	if (error == 1)
 		error = -EIO;
 	if (error)
+<<<<<<< HEAD
 		goto bp_err;
 
 	*blk_no = last_blk;
 bp_err:
 	xlog_put_bp(bp);
+=======
+		goto out_free_buffer;
+
+	*blk_no = last_blk;
+out_free_buffer:
+	kmem_free(buffer);
+>>>>>>> upstream/android-13
 	if (error)
 		return error;
 	return 1;
@@ -1640,7 +2104,11 @@ xlog_add_record(
 	recp->h_magicno = cpu_to_be32(XLOG_HEADER_MAGIC_NUM);
 	recp->h_cycle = cpu_to_be32(cycle);
 	recp->h_version = cpu_to_be32(
+<<<<<<< HEAD
 			xfs_sb_version_haslogv2(&log->l_mp->m_sb) ? 2 : 1);
+=======
+			xfs_has_logv2(log->l_mp) ? 2 : 1);
+>>>>>>> upstream/android-13
 	recp->h_lsn = cpu_to_be64(xlog_assign_lsn(cycle, block));
 	recp->h_tail_lsn = cpu_to_be64(xlog_assign_lsn(tail_cycle, tail_block));
 	recp->h_fmt = cpu_to_be32(XLOG_FMT);
@@ -1657,7 +2125,11 @@ xlog_write_log_records(
 	int		tail_block)
 {
 	char		*offset;
+<<<<<<< HEAD
 	xfs_buf_t	*bp;
+=======
+	char		*buffer;
+>>>>>>> upstream/android-13
 	int		balign, ealign;
 	int		sectbb = log->l_sectBBsize;
 	int		end_block = start_block + blocks;
@@ -1674,7 +2146,11 @@ xlog_write_log_records(
 	bufblks = 1 << ffs(blocks);
 	while (bufblks > log->l_logBBsize)
 		bufblks >>= 1;
+<<<<<<< HEAD
 	while (!(bp = xlog_get_bp(log, bufblks))) {
+=======
+	while (!(buffer = xlog_alloc_buffer(log, bufblks))) {
+>>>>>>> upstream/android-13
 		bufblks >>= 1;
 		if (bufblks < sectbb)
 			return -ENOMEM;
@@ -1686,9 +2162,15 @@ xlog_write_log_records(
 	 */
 	balign = round_down(start_block, sectbb);
 	if (balign != start_block) {
+<<<<<<< HEAD
 		error = xlog_bread_noalign(log, start_block, 1, bp);
 		if (error)
 			goto out_put_bp;
+=======
+		error = xlog_bread_noalign(log, start_block, 1, buffer);
+		if (error)
+			goto out_free_buffer;
+>>>>>>> upstream/android-13
 
 		j = start_block - balign;
 	}
@@ -1705,29 +2187,47 @@ xlog_write_log_records(
 		 */
 		ealign = round_down(end_block, sectbb);
 		if (j == 0 && (start_block + endcount > ealign)) {
+<<<<<<< HEAD
 			offset = bp->b_addr + BBTOB(ealign - start_block);
 			error = xlog_bread_offset(log, ealign, sectbb,
 							bp, offset);
+=======
+			error = xlog_bread_noalign(log, ealign, sectbb,
+					buffer + BBTOB(ealign - start_block));
+>>>>>>> upstream/android-13
 			if (error)
 				break;
 
 		}
 
+<<<<<<< HEAD
 		offset = xlog_align(log, start_block, endcount, bp);
+=======
+		offset = buffer + xlog_align(log, start_block);
+>>>>>>> upstream/android-13
 		for (; j < endcount; j++) {
 			xlog_add_record(log, offset, cycle, i+j,
 					tail_cycle, tail_block);
 			offset += BBSIZE;
 		}
+<<<<<<< HEAD
 		error = xlog_bwrite(log, start_block, endcount, bp);
+=======
+		error = xlog_bwrite(log, start_block, endcount, buffer);
+>>>>>>> upstream/android-13
 		if (error)
 			break;
 		start_block += endcount;
 		j = 0;
 	}
 
+<<<<<<< HEAD
  out_put_bp:
 	xlog_put_bp(bp);
+=======
+out_free_buffer:
+	kmem_free(buffer);
+>>>>>>> upstream/android-13
 	return error;
 }
 
@@ -1777,11 +2277,18 @@ xlog_clear_stale_blocks(
 		 * the distance from the beginning of the log to the
 		 * tail.
 		 */
+<<<<<<< HEAD
 		if (unlikely(head_block < tail_block || head_block >= log->l_logBBsize)) {
 			XFS_ERROR_REPORT("xlog_clear_stale_blocks(1)",
 					 XFS_ERRLEVEL_LOW, log->l_mp);
 			return -EFSCORRUPTED;
 		}
+=======
+		if (XFS_IS_CORRUPT(log->l_mp,
+				   head_block < tail_block ||
+				   head_block >= log->l_logBBsize))
+			return -EFSCORRUPTED;
+>>>>>>> upstream/android-13
 		tail_distance = tail_block + (log->l_logBBsize - head_block);
 	} else {
 		/*
@@ -1789,11 +2296,18 @@ xlog_clear_stale_blocks(
 		 * so the distance from the head to the tail is just
 		 * the tail block minus the head block.
 		 */
+<<<<<<< HEAD
 		if (unlikely(head_block >= tail_block || head_cycle != (tail_cycle + 1))){
 			XFS_ERROR_REPORT("xlog_clear_stale_blocks(2)",
 					 XFS_ERRLEVEL_LOW, log->l_mp);
 			return -EFSCORRUPTED;
 		}
+=======
+		if (XFS_IS_CORRUPT(log->l_mp,
+				   head_block >= tail_block ||
+				   head_cycle != tail_cycle + 1))
+			return -EFSCORRUPTED;
+>>>>>>> upstream/android-13
 		tail_distance = tail_block - head_block;
 	}
 
@@ -1863,12 +2377,102 @@ xlog_clear_stale_blocks(
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+/*
+ * Release the recovered intent item in the AIL that matches the given intent
+ * type and intent id.
+ */
+void
+xlog_recover_release_intent(
+	struct xlog		*log,
+	unsigned short		intent_type,
+	uint64_t		intent_id)
+{
+	struct xfs_ail_cursor	cur;
+	struct xfs_log_item	*lip;
+	struct xfs_ail		*ailp = log->l_ailp;
+
+	spin_lock(&ailp->ail_lock);
+	for (lip = xfs_trans_ail_cursor_first(ailp, &cur, 0); lip != NULL;
+	     lip = xfs_trans_ail_cursor_next(ailp, &cur)) {
+		if (lip->li_type != intent_type)
+			continue;
+		if (!lip->li_ops->iop_match(lip, intent_id))
+			continue;
+
+		spin_unlock(&ailp->ail_lock);
+		lip->li_ops->iop_release(lip);
+		spin_lock(&ailp->ail_lock);
+		break;
+	}
+
+	xfs_trans_ail_cursor_done(&cur);
+	spin_unlock(&ailp->ail_lock);
+}
+
+int
+xlog_recover_iget(
+	struct xfs_mount	*mp,
+	xfs_ino_t		ino,
+	struct xfs_inode	**ipp)
+{
+	int			error;
+
+	error = xfs_iget(mp, NULL, ino, 0, 0, ipp);
+	if (error)
+		return error;
+
+	error = xfs_qm_dqattach(*ipp);
+	if (error) {
+		xfs_irele(*ipp);
+		return error;
+	}
+
+	if (VFS_I(*ipp)->i_nlink == 0)
+		xfs_iflags_set(*ipp, XFS_IRECOVERY);
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 /******************************************************************************
  *
  *		Log recover routines
  *
  ******************************************************************************
  */
+<<<<<<< HEAD
+=======
+static const struct xlog_recover_item_ops *xlog_recover_item_ops[] = {
+	&xlog_buf_item_ops,
+	&xlog_inode_item_ops,
+	&xlog_dquot_item_ops,
+	&xlog_quotaoff_item_ops,
+	&xlog_icreate_item_ops,
+	&xlog_efi_item_ops,
+	&xlog_efd_item_ops,
+	&xlog_rui_item_ops,
+	&xlog_rud_item_ops,
+	&xlog_cui_item_ops,
+	&xlog_cud_item_ops,
+	&xlog_bui_item_ops,
+	&xlog_bud_item_ops,
+};
+
+static const struct xlog_recover_item_ops *
+xlog_find_item_ops(
+	struct xlog_recover_item		*item)
+{
+	unsigned int				i;
+
+	for (i = 0; i < ARRAY_SIZE(xlog_recover_item_ops); i++)
+		if (ITEM_TYPE(item) == xlog_recover_item_ops[i]->item_type)
+			return xlog_recover_item_ops[i];
+
+	return NULL;
+}
+>>>>>>> upstream/android-13
 
 /*
  * Sort the log items in the transaction.
@@ -1925,12 +2529,17 @@ xlog_recover_reorder_trans(
 	struct xlog_recover	*trans,
 	int			pass)
 {
+<<<<<<< HEAD
 	xlog_recover_item_t	*item, *n;
+=======
+	struct xlog_recover_item *item, *n;
+>>>>>>> upstream/android-13
 	int			error = 0;
 	LIST_HEAD(sort_list);
 	LIST_HEAD(cancel_list);
 	LIST_HEAD(buffer_list);
 	LIST_HEAD(inode_buffer_list);
+<<<<<<< HEAD
 	LIST_HEAD(inode_list);
 
 	list_splice_init(&trans->r_itemq, &sort_list);
@@ -1973,6 +2582,19 @@ xlog_recover_reorder_trans(
 			xfs_warn(log->l_mp,
 				"%s: unrecognized type of log operation",
 				__func__);
+=======
+	LIST_HEAD(item_list);
+
+	list_splice_init(&trans->r_itemq, &sort_list);
+	list_for_each_entry_safe(item, n, &sort_list, ri_list) {
+		enum xlog_recover_reorder	fate = XLOG_REORDER_ITEM_LIST;
+
+		item->ri_ops = xlog_find_item_ops(item);
+		if (!item->ri_ops) {
+			xfs_warn(log->l_mp,
+				"%s: unrecognized type of log operation (%d)",
+				__func__, ITEM_TYPE(item));
+>>>>>>> upstream/android-13
 			ASSERT(0);
 			/*
 			 * return the remaining items back to the transaction
@@ -1980,6 +2602,7 @@ xlog_recover_reorder_trans(
 			 */
 			if (!list_empty(&sort_list))
 				list_splice_init(&sort_list, &trans->r_itemq);
+<<<<<<< HEAD
 			error = -EIO;
 			goto out;
 		}
@@ -1990,6 +2613,40 @@ out:
 		list_splice(&buffer_list, &trans->r_itemq);
 	if (!list_empty(&inode_list))
 		list_splice_tail(&inode_list, &trans->r_itemq);
+=======
+			error = -EFSCORRUPTED;
+			break;
+		}
+
+		if (item->ri_ops->reorder)
+			fate = item->ri_ops->reorder(item);
+
+		switch (fate) {
+		case XLOG_REORDER_BUFFER_LIST:
+			list_move_tail(&item->ri_list, &buffer_list);
+			break;
+		case XLOG_REORDER_CANCEL_LIST:
+			trace_xfs_log_recover_item_reorder_head(log,
+					trans, item, pass);
+			list_move(&item->ri_list, &cancel_list);
+			break;
+		case XLOG_REORDER_INODE_BUFFER_LIST:
+			list_move(&item->ri_list, &inode_buffer_list);
+			break;
+		case XLOG_REORDER_ITEM_LIST:
+			trace_xfs_log_recover_item_reorder_tail(log,
+							trans, item, pass);
+			list_move_tail(&item->ri_list, &item_list);
+			break;
+		}
+	}
+
+	ASSERT(list_empty(&sort_list));
+	if (!list_empty(&buffer_list))
+		list_splice(&buffer_list, &trans->r_itemq);
+	if (!list_empty(&item_list))
+		list_splice_tail(&item_list, &trans->r_itemq);
+>>>>>>> upstream/android-13
 	if (!list_empty(&inode_buffer_list))
 		list_splice_tail(&inode_buffer_list, &trans->r_itemq);
 	if (!list_empty(&cancel_list))
@@ -1997,6 +2654,7 @@ out:
 	return error;
 }
 
+<<<<<<< HEAD
 /*
  * Build up the table of buf cancel records so that we don't replay
  * cancelled data in the second pass.  For buffer records that are
@@ -4145,6 +4803,17 @@ xlog_recover_commit_pass2(
 		ASSERT(0);
 		return -EIO;
 	}
+=======
+void
+xlog_buf_readahead(
+	struct xlog		*log,
+	xfs_daddr_t		blkno,
+	uint			len,
+	const struct xfs_buf_ops *ops)
+{
+	if (!xlog_is_buffer_cancelled(log, blkno, len))
+		xfs_buf_readahead(log->l_mp->m_ddev_targp, blkno, len, ops);
+>>>>>>> upstream/android-13
 }
 
 STATIC int
@@ -4158,8 +4827,17 @@ xlog_recover_items_pass2(
 	int				error = 0;
 
 	list_for_each_entry(item, item_list, ri_list) {
+<<<<<<< HEAD
 		error = xlog_recover_commit_pass2(log, trans,
 					  buffer_list, item);
+=======
+		trace_xfs_log_recover_item_recover(log, trans, item,
+				XLOG_RECOVER_PASS2);
+
+		if (item->ri_ops->commit_pass2)
+			error = item->ri_ops->commit_pass2(log, buffer_list,
+					item, trans->r_lsn);
+>>>>>>> upstream/android-13
 		if (error)
 			return error;
 	}
@@ -4196,12 +4874,25 @@ xlog_recover_commit_trans(
 		return error;
 
 	list_for_each_entry_safe(item, next, &trans->r_itemq, ri_list) {
+<<<<<<< HEAD
 		switch (pass) {
 		case XLOG_RECOVER_PASS1:
 			error = xlog_recover_commit_pass1(log, trans, item);
 			break;
 		case XLOG_RECOVER_PASS2:
 			xlog_recover_ra_pass2(log, item);
+=======
+		trace_xfs_log_recover_item_recover(log, trans, item, pass);
+
+		switch (pass) {
+		case XLOG_RECOVER_PASS1:
+			if (item->ri_ops->commit_pass1)
+				error = item->ri_ops->commit_pass1(log, item);
+			break;
+		case XLOG_RECOVER_PASS2:
+			if (item->ri_ops->ra_pass2)
+				item->ri_ops->ra_pass2(log, item);
+>>>>>>> upstream/android-13
 			list_move_tail(&item->ri_list, &ra_list);
 			items_queued++;
 			if (items_queued >= XLOG_RECOVER_COMMIT_QUEUE_MAX) {
@@ -4238,9 +4929,15 @@ STATIC void
 xlog_recover_add_item(
 	struct list_head	*head)
 {
+<<<<<<< HEAD
 	xlog_recover_item_t	*item;
 
 	item = kmem_zalloc(sizeof(xlog_recover_item_t), KM_SLEEP);
+=======
+	struct xlog_recover_item *item;
+
+	item = kmem_zalloc(sizeof(struct xlog_recover_item), 0);
+>>>>>>> upstream/android-13
 	INIT_LIST_HEAD(&item->ri_list);
 	list_add_tail(&item->ri_list, head);
 }
@@ -4252,7 +4949,11 @@ xlog_recover_add_to_cont_trans(
 	char			*dp,
 	int			len)
 {
+<<<<<<< HEAD
 	xlog_recover_item_t	*item;
+=======
+	struct xlog_recover_item *item;
+>>>>>>> upstream/android-13
 	char			*ptr, *old_ptr;
 	int			old_len;
 
@@ -4264,7 +4965,11 @@ xlog_recover_add_to_cont_trans(
 		ASSERT(len <= sizeof(struct xfs_trans_header));
 		if (len > sizeof(struct xfs_trans_header)) {
 			xfs_warn(log->l_mp, "%s: bad header length", __func__);
+<<<<<<< HEAD
 			return -EIO;
+=======
+			return -EFSCORRUPTED;
+>>>>>>> upstream/android-13
 		}
 
 		xlog_recover_add_item(&trans->r_itemq);
@@ -4275,12 +4980,23 @@ xlog_recover_add_to_cont_trans(
 	}
 
 	/* take the tail entry */
+<<<<<<< HEAD
 	item = list_entry(trans->r_itemq.prev, xlog_recover_item_t, ri_list);
+=======
+	item = list_entry(trans->r_itemq.prev, struct xlog_recover_item,
+			  ri_list);
+>>>>>>> upstream/android-13
 
 	old_ptr = item->ri_buf[item->ri_cnt-1].i_addr;
 	old_len = item->ri_buf[item->ri_cnt-1].i_len;
 
+<<<<<<< HEAD
 	ptr = kmem_realloc(old_ptr, len + old_len, KM_SLEEP);
+=======
+	ptr = kvrealloc(old_ptr, old_len, len + old_len, GFP_KERNEL);
+	if (!ptr)
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 	memcpy(&ptr[old_len], dp, len);
 	item->ri_buf[item->ri_cnt-1].i_len += len;
 	item->ri_buf[item->ri_cnt-1].i_addr = ptr;
@@ -4309,7 +5025,11 @@ xlog_recover_add_to_trans(
 	int			len)
 {
 	struct xfs_inode_log_format	*in_f;			/* any will do */
+<<<<<<< HEAD
 	xlog_recover_item_t	*item;
+=======
+	struct xlog_recover_item *item;
+>>>>>>> upstream/android-13
 	char			*ptr;
 
 	if (!len)
@@ -4320,13 +5040,21 @@ xlog_recover_add_to_trans(
 			xfs_warn(log->l_mp, "%s: bad header magic number",
 				__func__);
 			ASSERT(0);
+<<<<<<< HEAD
 			return -EIO;
+=======
+			return -EFSCORRUPTED;
+>>>>>>> upstream/android-13
 		}
 
 		if (len > sizeof(struct xfs_trans_header)) {
 			xfs_warn(log->l_mp, "%s: bad header length", __func__);
 			ASSERT(0);
+<<<<<<< HEAD
 			return -EIO;
+=======
+			return -EFSCORRUPTED;
+>>>>>>> upstream/android-13
 		}
 
 		/*
@@ -4340,18 +5068,31 @@ xlog_recover_add_to_trans(
 		return 0;
 	}
 
+<<<<<<< HEAD
 	ptr = kmem_alloc(len, KM_SLEEP);
+=======
+	ptr = kmem_alloc(len, 0);
+>>>>>>> upstream/android-13
 	memcpy(ptr, dp, len);
 	in_f = (struct xfs_inode_log_format *)ptr;
 
 	/* take the tail entry */
+<<<<<<< HEAD
 	item = list_entry(trans->r_itemq.prev, xlog_recover_item_t, ri_list);
+=======
+	item = list_entry(trans->r_itemq.prev, struct xlog_recover_item,
+			  ri_list);
+>>>>>>> upstream/android-13
 	if (item->ri_total != 0 &&
 	     item->ri_total == item->ri_cnt) {
 		/* tail item is in use, get a new one */
 		xlog_recover_add_item(&trans->r_itemq);
 		item = list_entry(trans->r_itemq.prev,
+<<<<<<< HEAD
 					xlog_recover_item_t, ri_list);
+=======
+					struct xlog_recover_item, ri_list);
+>>>>>>> upstream/android-13
 	}
 
 	if (item->ri_total == 0) {		/* first region to be added */
@@ -4362,15 +5103,34 @@ xlog_recover_add_to_trans(
 				  in_f->ilf_size);
 			ASSERT(0);
 			kmem_free(ptr);
+<<<<<<< HEAD
 			return -EIO;
+=======
+			return -EFSCORRUPTED;
+>>>>>>> upstream/android-13
 		}
 
 		item->ri_total = in_f->ilf_size;
 		item->ri_buf =
 			kmem_zalloc(item->ri_total * sizeof(xfs_log_iovec_t),
+<<<<<<< HEAD
 				    KM_SLEEP);
 	}
 	ASSERT(item->ri_total > item->ri_cnt);
+=======
+				    0);
+	}
+
+	if (item->ri_total <= item->ri_cnt) {
+		xfs_warn(log->l_mp,
+	"log item region count (%d) overflowed size (%d)",
+				item->ri_cnt, item->ri_total);
+		ASSERT(0);
+		kmem_free(ptr);
+		return -EFSCORRUPTED;
+	}
+
+>>>>>>> upstream/android-13
 	/* Description region is ri_buf[0] */
 	item->ri_buf[item->ri_cnt].i_addr = ptr;
 	item->ri_buf[item->ri_cnt].i_len  = len;
@@ -4388,7 +5148,11 @@ STATIC void
 xlog_recover_free_trans(
 	struct xlog_recover	*trans)
 {
+<<<<<<< HEAD
 	xlog_recover_item_t	*item, *n;
+=======
+	struct xlog_recover_item *item, *n;
+>>>>>>> upstream/android-13
 	int			i;
 
 	hlist_del_init(&trans->r_list);
@@ -4457,7 +5221,11 @@ xlog_recovery_process_trans(
 	default:
 		xfs_warn(log->l_mp, "%s: bad flag 0x%x", __func__, flags);
 		ASSERT(0);
+<<<<<<< HEAD
 		error = -EIO;
+=======
+		error = -EFSCORRUPTED;
+>>>>>>> upstream/android-13
 		break;
 	}
 	if (error || freeit)
@@ -4502,7 +5270,11 @@ xlog_recover_ophdr_to_trans(
 	 * This is a new transaction so allocate a new recovery container to
 	 * hold the recovery ops that will follow.
 	 */
+<<<<<<< HEAD
 	trans = kmem_zalloc(sizeof(struct xlog_recover), KM_SLEEP);
+=======
+	trans = kmem_zalloc(sizeof(struct xlog_recover), 0);
+>>>>>>> upstream/android-13
 	trans->r_log_tid = tid;
 	trans->r_lsn = be64_to_cpu(rhead->h_lsn);
 	INIT_LIST_HEAD(&trans->r_itemq);
@@ -4537,7 +5309,11 @@ xlog_recover_process_ophdr(
 		xfs_warn(log->l_mp, "%s: bad clientid 0x%x",
 			__func__, ohead->oh_clientid);
 		ASSERT(0);
+<<<<<<< HEAD
 		return -EIO;
+=======
+		return -EFSCORRUPTED;
+>>>>>>> upstream/android-13
 	}
 
 	/*
@@ -4547,7 +5323,11 @@ xlog_recover_process_ophdr(
 	if (dp + len > end) {
 		xfs_warn(log->l_mp, "%s: bad length 0x%x", __func__, len);
 		WARN_ON(1);
+<<<<<<< HEAD
 		return -EIO;
+=======
+		return -EFSCORRUPTED;
+>>>>>>> upstream/android-13
 	}
 
 	trans = xlog_recover_ophdr_to_trans(rhash, rhead, ohead);
@@ -4640,6 +5420,7 @@ xlog_recover_process_data(
 	return 0;
 }
 
+<<<<<<< HEAD
 /* Recover the EFI if necessary. */
 STATIC int
 xlog_recover_process_efi(
@@ -4848,6 +5629,73 @@ xlog_finish_defer_ops(
 	return xfs_trans_commit(tp);
 }
 
+=======
+/* Take all the collected deferred ops and finish them in order. */
+static int
+xlog_finish_defer_ops(
+	struct xfs_mount	*mp,
+	struct list_head	*capture_list)
+{
+	struct xfs_defer_capture *dfc, *next;
+	struct xfs_trans	*tp;
+	struct xfs_inode	*ip;
+	int			error = 0;
+
+	list_for_each_entry_safe(dfc, next, capture_list, dfc_list) {
+		struct xfs_trans_res	resv;
+
+		/*
+		 * Create a new transaction reservation from the captured
+		 * information.  Set logcount to 1 to force the new transaction
+		 * to regrant every roll so that we can make forward progress
+		 * in recovery no matter how full the log might be.
+		 */
+		resv.tr_logres = dfc->dfc_logres;
+		resv.tr_logcount = 1;
+		resv.tr_logflags = XFS_TRANS_PERM_LOG_RES;
+
+		error = xfs_trans_alloc(mp, &resv, dfc->dfc_blkres,
+				dfc->dfc_rtxres, XFS_TRANS_RESERVE, &tp);
+		if (error) {
+			xfs_force_shutdown(mp, SHUTDOWN_LOG_IO_ERROR);
+			return error;
+		}
+
+		/*
+		 * Transfer to this new transaction all the dfops we captured
+		 * from recovering a single intent item.
+		 */
+		list_del_init(&dfc->dfc_list);
+		xfs_defer_ops_continue(dfc, tp, &ip);
+
+		error = xfs_trans_commit(tp);
+		if (ip) {
+			xfs_iunlock(ip, XFS_ILOCK_EXCL);
+			xfs_irele(ip);
+		}
+		if (error)
+			return error;
+	}
+
+	ASSERT(list_empty(capture_list));
+	return 0;
+}
+
+/* Release all the captured defer ops and capture structures in this list. */
+static void
+xlog_abort_defer_ops(
+	struct xfs_mount		*mp,
+	struct list_head		*capture_list)
+{
+	struct xfs_defer_capture	*dfc;
+	struct xfs_defer_capture	*next;
+
+	list_for_each_entry_safe(dfc, next, capture_list, dfc_list) {
+		list_del_init(&dfc->dfc_list);
+		xfs_defer_ops_release(mp, dfc);
+	}
+}
+>>>>>>> upstream/android-13
 /*
  * When this is called, all of the log intent items which did not have
  * corresponding log done items should be in the AIL.  What we do now
@@ -4868,15 +5716,24 @@ STATIC int
 xlog_recover_process_intents(
 	struct xlog		*log)
 {
+<<<<<<< HEAD
 	struct xfs_trans	*parent_tp;
 	struct xfs_ail_cursor	cur;
 	struct xfs_log_item	*lip;
 	struct xfs_ail		*ailp;
 	int			error;
+=======
+	LIST_HEAD(capture_list);
+	struct xfs_ail_cursor	cur;
+	struct xfs_log_item	*lip;
+	struct xfs_ail		*ailp;
+	int			error = 0;
+>>>>>>> upstream/android-13
 #if defined(DEBUG) || defined(XFS_WARN)
 	xfs_lsn_t		last_lsn;
 #endif
 
+<<<<<<< HEAD
 	/*
 	 * The intent recovery handlers commit transactions to complete recovery
 	 * for individual intents, but any new deferred operations that are
@@ -4897,6 +5754,16 @@ xlog_recover_process_intents(
 	last_lsn = xlog_assign_lsn(log->l_curr_cycle, log->l_curr_block);
 #endif
 	while (lip != NULL) {
+=======
+	ailp = log->l_ailp;
+	spin_lock(&ailp->ail_lock);
+#if defined(DEBUG) || defined(XFS_WARN)
+	last_lsn = xlog_assign_lsn(log->l_curr_cycle, log->l_curr_block);
+#endif
+	for (lip = xfs_trans_ail_cursor_first(ailp, &cur, 0);
+	     lip != NULL;
+	     lip = xfs_trans_ail_cursor_next(ailp, &cur)) {
+>>>>>>> upstream/android-13
 		/*
 		 * We're done when we see something other than an intent.
 		 * There should be no intents left in the AIL now.
@@ -4918,6 +5785,7 @@ xlog_recover_process_intents(
 
 		/*
 		 * NOTE: If your intent processing routine can create more
+<<<<<<< HEAD
 		 * deferred ops, you /must/ attach them to the dfops in this
 		 * routine or else those subsequent intents will get
 		 * replayed in the wrong order!
@@ -4947,6 +5815,34 @@ out:
 		error = xlog_finish_defer_ops(parent_tp);
 	xfs_trans_cancel(parent_tp);
 
+=======
+		 * deferred ops, you /must/ attach them to the capture list in
+		 * the recover routine or else those subsequent intents will be
+		 * replayed in the wrong order!
+		 */
+		spin_unlock(&ailp->ail_lock);
+		error = lip->li_ops->iop_recover(lip, &capture_list);
+		spin_lock(&ailp->ail_lock);
+		if (error) {
+			trace_xlog_intent_recovery_failed(log->l_mp, error,
+					lip->li_ops->iop_recover);
+			break;
+		}
+	}
+
+	xfs_trans_ail_cursor_done(&cur);
+	spin_unlock(&ailp->ail_lock);
+	if (error)
+		goto err;
+
+	error = xlog_finish_defer_ops(log->l_mp, &capture_list);
+	if (error)
+		goto err;
+
+	return 0;
+err:
+	xlog_abort_defer_ops(log->l_mp, &capture_list);
+>>>>>>> upstream/android-13
 	return error;
 }
 
@@ -4954,12 +5850,19 @@ out:
  * A cancel occurs when the mount has failed and we're bailing out.
  * Release all pending log intent items so they don't pin the AIL.
  */
+<<<<<<< HEAD
 STATIC int
+=======
+STATIC void
+>>>>>>> upstream/android-13
 xlog_recover_cancel_intents(
 	struct xlog		*log)
 {
 	struct xfs_log_item	*lip;
+<<<<<<< HEAD
 	int			error = 0;
+=======
+>>>>>>> upstream/android-13
 	struct xfs_ail_cursor	cur;
 	struct xfs_ail		*ailp;
 
@@ -4979,6 +5882,7 @@ xlog_recover_cancel_intents(
 			break;
 		}
 
+<<<<<<< HEAD
 		switch (lip->li_type) {
 		case XFS_LI_EFI:
 			xlog_recover_cancel_efi(log->l_mp, ailp, lip);
@@ -4994,12 +5898,20 @@ xlog_recover_cancel_intents(
 			break;
 		}
 
+=======
+		spin_unlock(&ailp->ail_lock);
+		lip->li_ops->iop_release(lip);
+		spin_lock(&ailp->ail_lock);
+>>>>>>> upstream/android-13
 		lip = xfs_trans_ail_cursor_next(ailp, &cur);
 	}
 
 	xfs_trans_ail_cursor_done(&cur);
 	spin_unlock(&ailp->ail_lock);
+<<<<<<< HEAD
 	return error;
+=======
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -5014,7 +5926,11 @@ xlog_recover_clear_agi_bucket(
 {
 	xfs_trans_t	*tp;
 	xfs_agi_t	*agi;
+<<<<<<< HEAD
 	xfs_buf_t	*agibp;
+=======
+	struct xfs_buf	*agibp;
+>>>>>>> upstream/android-13
 	int		offset;
 	int		error;
 
@@ -5026,7 +5942,11 @@ xlog_recover_clear_agi_bucket(
 	if (error)
 		goto out_abort;
 
+<<<<<<< HEAD
 	agi = XFS_BUF_TO_AGI(agibp);
+=======
+	agi = agibp->b_addr;
+>>>>>>> upstream/android-13
 	agi->agi_unlinked[bucket] = cpu_to_be32(NULLAGINO);
 	offset = offsetof(xfs_agi_t, agi_unlinked) +
 		 (sizeof(xfs_agino_t) * bucket);
@@ -5066,9 +5986,16 @@ xlog_recover_process_one_iunlink(
 	/*
 	 * Get the on disk inode to find the next inode in the bucket.
 	 */
+<<<<<<< HEAD
 	error = xfs_imap_to_bp(mp, NULL, &ip->i_imap, &dip, &ibp, 0, 0);
 	if (error)
 		goto fail_iput;
+=======
+	error = xfs_imap_to_bp(mp, NULL, &ip->i_imap, &ibp);
+	if (error)
+		goto fail_iput;
+	dip = xfs_buf_offset(ibp, ip->i_imap.im_boffset);
+>>>>>>> upstream/android-13
 
 	xfs_iflags_clear(ip, XFS_IRECOVERY);
 	ASSERT(VFS_I(ip)->i_nlink == 0);
@@ -5078,12 +6005,15 @@ xlog_recover_process_one_iunlink(
 	agino = be32_to_cpu(dip->di_next_unlinked);
 	xfs_buf_relse(ibp);
 
+<<<<<<< HEAD
 	/*
 	 * Prevent any DMAPI event from being sent when the reference on
 	 * the inode is dropped.
 	 */
 	ip->i_d.di_dmevmask = 0;
 
+=======
+>>>>>>> upstream/android-13
 	xfs_irele(ip);
 	return agino;
 
@@ -5103,6 +6033,7 @@ xlog_recover_process_one_iunlink(
 }
 
 /*
+<<<<<<< HEAD
  * xlog_iunlink_recover
  *
  * This is called during recovery to process any inodes which
@@ -5113,11 +6044,35 @@ xlog_recover_process_one_iunlink(
  * lists when it has been fully truncated and is freed.  The
  * freeing of the inode and its removal from the list must be
  * atomic.
+=======
+ * Recover AGI unlinked lists
+ *
+ * This is called during recovery to process any inodes which we unlinked but
+ * not freed when the system crashed.  These inodes will be on the lists in the
+ * AGI blocks. What we do here is scan all the AGIs and fully truncate and free
+ * any inodes found on the lists. Each inode is removed from the lists when it
+ * has been fully truncated and is freed. The freeing of the inode and its
+ * removal from the list must be atomic.
+ *
+ * If everything we touch in the agi processing loop is already in memory, this
+ * loop can hold the cpu for a long time. It runs without lock contention,
+ * memory allocation contention, the need wait for IO, etc, and so will run
+ * until we either run out of inodes to process, run low on memory or we run out
+ * of log space.
+ *
+ * This behaviour is bad for latency on single CPU and non-preemptible kernels,
+ * and can prevent other filesystem work (such as CIL pushes) from running. This
+ * can lead to deadlocks if the recovery process runs out of log reservation
+ * space. Hence we need to yield the CPU when there is other kernel work
+ * scheduled on this CPU to ensure other scheduled work can run without undue
+ * latency.
+>>>>>>> upstream/android-13
  */
 STATIC void
 xlog_recover_process_iunlinks(
 	struct xlog	*log)
 {
+<<<<<<< HEAD
 	xfs_mount_t	*mp;
 	xfs_agnumber_t	agno;
 	xfs_agi_t	*agi;
@@ -5133,6 +6088,19 @@ xlog_recover_process_iunlinks(
 		 * Find the agi for this ag.
 		 */
 		error = xfs_read_agi(mp, NULL, agno, &agibp);
+=======
+	struct xfs_mount	*mp = log->l_mp;
+	struct xfs_perag	*pag;
+	xfs_agnumber_t		agno;
+	struct xfs_agi		*agi;
+	struct xfs_buf		*agibp;
+	xfs_agino_t		agino;
+	int			bucket;
+	int			error;
+
+	for_each_perag(mp, agno, pag) {
+		error = xfs_read_agi(mp, NULL, pag->pag_agno, &agibp);
+>>>>>>> upstream/android-13
 		if (error) {
 			/*
 			 * AGI is b0rked. Don't process it.
@@ -5151,21 +6119,43 @@ xlog_recover_process_iunlinks(
 		 * buffer reference though, so that it stays pinned in memory
 		 * while we need the buffer.
 		 */
+<<<<<<< HEAD
 		agi = XFS_BUF_TO_AGI(agibp);
+=======
+		agi = agibp->b_addr;
+>>>>>>> upstream/android-13
 		xfs_buf_unlock(agibp);
 
 		for (bucket = 0; bucket < XFS_AGI_UNLINKED_BUCKETS; bucket++) {
 			agino = be32_to_cpu(agi->agi_unlinked[bucket]);
 			while (agino != NULLAGINO) {
 				agino = xlog_recover_process_one_iunlink(mp,
+<<<<<<< HEAD
 							agno, agino, bucket);
+=======
+						pag->pag_agno, agino, bucket);
+				cond_resched();
+>>>>>>> upstream/android-13
 			}
 		}
 		xfs_buf_rele(agibp);
 	}
+<<<<<<< HEAD
 }
 
 STATIC int
+=======
+
+	/*
+	 * Flush the pending unlinked inodes to ensure that the inactivations
+	 * are fully completed on disk and the incore inodes can be reclaimed
+	 * before we signal that recovery is complete.
+	 */
+	xfs_inodegc_flush(mp);
+}
+
+STATIC void
+>>>>>>> upstream/android-13
 xlog_unpack_data(
 	struct xlog_rec_header	*rhead,
 	char			*dp,
@@ -5179,7 +6169,11 @@ xlog_unpack_data(
 		dp += BBSIZE;
 	}
 
+<<<<<<< HEAD
 	if (xfs_sb_version_haslogv2(&log->l_mp->m_sb)) {
+=======
+	if (xfs_has_logv2(log->l_mp)) {
+>>>>>>> upstream/android-13
 		xlog_in_core_2_t *xhdr = (xlog_in_core_2_t *)rhead;
 		for ( ; i < BTOBB(be32_to_cpu(rhead->h_len)); i++) {
 			j = i / (XLOG_HEADER_CYCLE_SIZE / BBSIZE);
@@ -5188,8 +6182,11 @@ xlog_unpack_data(
 			dp += BBSIZE;
 		}
 	}
+<<<<<<< HEAD
 
 	return 0;
+=======
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -5204,11 +6201,17 @@ xlog_recover_process(
 	int			pass,
 	struct list_head	*buffer_list)
 {
+<<<<<<< HEAD
 	int			error;
 	__le32			old_crc = rhead->h_crc;
 	__le32			crc;
 
 
+=======
+	__le32			old_crc = rhead->h_crc;
+	__le32			crc;
+
+>>>>>>> upstream/android-13
 	crc = xlog_cksum(log, rhead, dp, be32_to_cpu(rhead->h_len));
 
 	/*
@@ -5231,7 +6234,11 @@ xlog_recover_process(
 	 * the kernel from one that does not add CRCs by default.
 	 */
 	if (crc != old_crc) {
+<<<<<<< HEAD
 		if (old_crc || xfs_sb_version_hascrc(&log->l_mp->m_sb)) {
+=======
+		if (old_crc || xfs_has_crc(log->l_mp)) {
+>>>>>>> upstream/android-13
 			xfs_alert(log->l_mp,
 		"log record CRC mismatch: found 0x%x, expected 0x%x.",
 					le32_to_cpu(old_crc),
@@ -5243,6 +6250,7 @@ xlog_recover_process(
 		 * If the filesystem is CRC enabled, this mismatch becomes a
 		 * fatal log corruption failure.
 		 */
+<<<<<<< HEAD
 		if (xfs_sb_version_hascrc(&log->l_mp->m_sb))
 			return -EFSCORRUPTED;
 	}
@@ -5250,6 +6258,15 @@ xlog_recover_process(
 	error = xlog_unpack_data(rhead, dp, log);
 	if (error)
 		return error;
+=======
+		if (xfs_has_crc(log->l_mp)) {
+			XFS_ERROR_REPORT(__func__, XFS_ERRLEVEL_LOW, log->l_mp);
+			return -EFSCORRUPTED;
+		}
+	}
+
+	xlog_unpack_data(rhead, dp, log);
+>>>>>>> upstream/android-13
 
 	return xlog_recover_process_data(log, rhash, rhead, dp, pass,
 					 buffer_list);
@@ -5259,6 +6276,7 @@ STATIC int
 xlog_valid_rec_header(
 	struct xlog		*log,
 	struct xlog_rec_header	*rhead,
+<<<<<<< HEAD
 	xfs_daddr_t		blkno)
 {
 	int			hlen;
@@ -5288,6 +6306,36 @@ xlog_valid_rec_header(
 				XFS_ERRLEVEL_LOW, log->l_mp);
 		return -EFSCORRUPTED;
 	}
+=======
+	xfs_daddr_t		blkno,
+	int			bufsize)
+{
+	int			hlen;
+
+	if (XFS_IS_CORRUPT(log->l_mp,
+			   rhead->h_magicno != cpu_to_be32(XLOG_HEADER_MAGIC_NUM)))
+		return -EFSCORRUPTED;
+	if (XFS_IS_CORRUPT(log->l_mp,
+			   (!rhead->h_version ||
+			   (be32_to_cpu(rhead->h_version) &
+			    (~XLOG_VERSION_OKBITS))))) {
+		xfs_warn(log->l_mp, "%s: unrecognised log version (%d).",
+			__func__, be32_to_cpu(rhead->h_version));
+		return -EFSCORRUPTED;
+	}
+
+	/*
+	 * LR body must have data (or it wouldn't have been written)
+	 * and h_len must not be greater than LR buffer size.
+	 */
+	hlen = be32_to_cpu(rhead->h_len);
+	if (XFS_IS_CORRUPT(log->l_mp, hlen <= 0 || hlen > bufsize))
+		return -EFSCORRUPTED;
+
+	if (XFS_IS_CORRUPT(log->l_mp,
+			   blkno > log->l_logBBsize || blkno > INT_MAX))
+		return -EFSCORRUPTED;
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -5311,7 +6359,11 @@ xlog_do_recovery_pass(
 	xfs_daddr_t		blk_no, rblk_no;
 	xfs_daddr_t		rhead_blk;
 	char			*offset;
+<<<<<<< HEAD
 	xfs_buf_t		*hbp, *dbp;
+=======
+	char			*hbp, *dbp;
+>>>>>>> upstream/android-13
 	int			error = 0, h_size, h_len;
 	int			error2 = 0;
 	int			bblks, split_bblks;
@@ -5330,13 +6382,21 @@ xlog_do_recovery_pass(
 	 * Read the header of the tail block and get the iclog buffer size from
 	 * h_size.  Use this to tell how many sectors make up the log header.
 	 */
+<<<<<<< HEAD
 	if (xfs_sb_version_haslogv2(&log->l_mp->m_sb)) {
+=======
+	if (xfs_has_logv2(log->l_mp)) {
+>>>>>>> upstream/android-13
 		/*
 		 * When using variable length iclogs, read first sector of
 		 * iclog header and extract the header size from it.  Get a
 		 * new hbp that is the correct size.
 		 */
+<<<<<<< HEAD
 		hbp = xlog_get_bp(log, 1);
+=======
+		hbp = xlog_alloc_buffer(log, 1);
+>>>>>>> upstream/android-13
 		if (!hbp)
 			return -ENOMEM;
 
@@ -5345,9 +6405,12 @@ xlog_do_recovery_pass(
 			goto bread_err1;
 
 		rhead = (xlog_rec_header_t *)offset;
+<<<<<<< HEAD
 		error = xlog_valid_rec_header(log, rhead, tail_blk);
 		if (error)
 			goto bread_err1;
+=======
+>>>>>>> upstream/android-13
 
 		/*
 		 * xfsprogs has a bug where record length is based on lsunit but
@@ -5362,6 +6425,7 @@ xlog_do_recovery_pass(
 		 */
 		h_size = be32_to_cpu(rhead->h_size);
 		h_len = be32_to_cpu(rhead->h_len);
+<<<<<<< HEAD
 		if (h_len > h_size) {
 			if (h_len <= log->l_mp->m_logbsize &&
 			    be32_to_cpu(rhead->h_num_logops) == 1) {
@@ -5382,19 +6446,47 @@ xlog_do_recovery_pass(
 			hbp = xlog_get_bp(log, hblks);
 		} else {
 			hblks = 1;
+=======
+		if (h_len > h_size && h_len <= log->l_mp->m_logbsize &&
+		    rhead->h_num_logops == cpu_to_be32(1)) {
+			xfs_warn(log->l_mp,
+		"invalid iclog size (%d bytes), using lsunit (%d bytes)",
+				 h_size, log->l_mp->m_logbsize);
+			h_size = log->l_mp->m_logbsize;
+		}
+
+		error = xlog_valid_rec_header(log, rhead, tail_blk, h_size);
+		if (error)
+			goto bread_err1;
+
+		hblks = xlog_logrec_hblks(log, rhead);
+		if (hblks != 1) {
+			kmem_free(hbp);
+			hbp = xlog_alloc_buffer(log, hblks);
+>>>>>>> upstream/android-13
 		}
 	} else {
 		ASSERT(log->l_sectBBsize == 1);
 		hblks = 1;
+<<<<<<< HEAD
 		hbp = xlog_get_bp(log, 1);
+=======
+		hbp = xlog_alloc_buffer(log, 1);
+>>>>>>> upstream/android-13
 		h_size = XLOG_BIG_RECORD_BSIZE;
 	}
 
 	if (!hbp)
 		return -ENOMEM;
+<<<<<<< HEAD
 	dbp = xlog_get_bp(log, BTOBB(h_size));
 	if (!dbp) {
 		xlog_put_bp(hbp);
+=======
+	dbp = xlog_alloc_buffer(log, BTOBB(h_size));
+	if (!dbp) {
+		kmem_free(hbp);
+>>>>>>> upstream/android-13
 		return -ENOMEM;
 	}
 
@@ -5409,7 +6501,11 @@ xlog_do_recovery_pass(
 			/*
 			 * Check for header wrapping around physical end-of-log
 			 */
+<<<<<<< HEAD
 			offset = hbp->b_addr;
+=======
+			offset = hbp;
+>>>>>>> upstream/android-13
 			split_hblks = 0;
 			wrapped_hblks = 0;
 			if (blk_no + hblks <= log->l_logBBsize) {
@@ -5445,15 +6541,24 @@ xlog_do_recovery_pass(
 				 *   - order is important.
 				 */
 				wrapped_hblks = hblks - split_hblks;
+<<<<<<< HEAD
 				error = xlog_bread_offset(log, 0,
 						wrapped_hblks, hbp,
+=======
+				error = xlog_bread_noalign(log, 0,
+						wrapped_hblks,
+>>>>>>> upstream/android-13
 						offset + BBTOB(split_hblks));
 				if (error)
 					goto bread_err2;
 			}
 			rhead = (xlog_rec_header_t *)offset;
 			error = xlog_valid_rec_header(log, rhead,
+<<<<<<< HEAD
 						split_hblks ? blk_no : 0);
+=======
+					split_hblks ? blk_no : 0, h_size);
+>>>>>>> upstream/android-13
 			if (error)
 				goto bread_err2;
 
@@ -5477,7 +6582,11 @@ xlog_do_recovery_pass(
 			} else {
 				/* This log record is split across the
 				 * physical end of log */
+<<<<<<< HEAD
 				offset = dbp->b_addr;
+=======
+				offset = dbp;
+>>>>>>> upstream/android-13
 				split_bblks = 0;
 				if (blk_no != log->l_logBBsize) {
 					/* some data is before the physical
@@ -5506,8 +6615,13 @@ xlog_do_recovery_pass(
 				 *   _first_, then the log start (LR header end)
 				 *   - order is important.
 				 */
+<<<<<<< HEAD
 				error = xlog_bread_offset(log, 0,
 						bblks - split_bblks, dbp,
+=======
+				error = xlog_bread_noalign(log, 0,
+						bblks - split_bblks,
+>>>>>>> upstream/android-13
 						offset + BBTOB(split_bblks));
 				if (error)
 					goto bread_err2;
@@ -5534,7 +6648,11 @@ xlog_do_recovery_pass(
 			goto bread_err2;
 
 		rhead = (xlog_rec_header_t *)offset;
+<<<<<<< HEAD
 		error = xlog_valid_rec_header(log, rhead, blk_no);
+=======
+		error = xlog_valid_rec_header(log, rhead, blk_no, h_size);
+>>>>>>> upstream/android-13
 		if (error)
 			goto bread_err2;
 
@@ -5555,9 +6673,15 @@ xlog_do_recovery_pass(
 	}
 
  bread_err2:
+<<<<<<< HEAD
 	xlog_put_bp(dbp);
  bread_err1:
 	xlog_put_bp(hbp);
+=======
+	kmem_free(dbp);
+ bread_err1:
+	kmem_free(hbp);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Submit buffers that have been added from the last record processed,
@@ -5614,7 +6738,11 @@ xlog_do_log_recovery(
 	 */
 	log->l_buf_cancel_table = kmem_zalloc(XLOG_BC_TABLE_SIZE *
 						 sizeof(struct list_head),
+<<<<<<< HEAD
 						 KM_SLEEP);
+=======
+						 0);
+>>>>>>> upstream/android-13
 	for (i = 0; i < XLOG_BC_TABLE_SIZE; i++)
 		INIT_LIST_HEAD(&log->l_buf_cancel_table[i]);
 
@@ -5651,6 +6779,7 @@ xlog_do_log_recovery(
  */
 STATIC int
 xlog_do_recover(
+<<<<<<< HEAD
 	struct xlog	*log,
 	xfs_daddr_t	head_blk,
 	xfs_daddr_t	tail_blk)
@@ -5659,6 +6788,16 @@ xlog_do_recover(
 	int		error;
 	xfs_buf_t	*bp;
 	xfs_sb_t	*sbp;
+=======
+	struct xlog		*log,
+	xfs_daddr_t		head_blk,
+	xfs_daddr_t		tail_blk)
+{
+	struct xfs_mount	*mp = log->l_mp;
+	struct xfs_buf		*bp = mp->m_sb_bp;
+	struct xfs_sb		*sbp = &mp->m_sb;
+	int			error;
+>>>>>>> upstream/android-13
 
 	trace_xfs_log_recover(log, head_blk, tail_blk);
 
@@ -5669,12 +6808,17 @@ xlog_do_recover(
 	if (error)
 		return error;
 
+<<<<<<< HEAD
 	/*
 	 * If IO errors happened during recovery, bail out.
 	 */
 	if (XFS_FORCED_SHUTDOWN(mp)) {
 		return -EIO;
 	}
+=======
+	if (xlog_is_shutdown(log))
+		return -EIO;
+>>>>>>> upstream/android-13
 
 	/*
 	 * We now update the tail_lsn since much of the recovery has completed
@@ -5688,6 +6832,7 @@ xlog_do_recover(
 	xlog_assign_tail_lsn(mp);
 
 	/*
+<<<<<<< HEAD
 	 * Now that we've finished replaying all buffer and inode
 	 * updates, re-read in the superblock and reverify it.
 	 */
@@ -5701,6 +6846,17 @@ xlog_do_recover(
 	if (error) {
 		if (!XFS_FORCED_SHUTDOWN(mp)) {
 			xfs_buf_ioerror_alert(bp, __func__);
+=======
+	 * Now that we've finished replaying all buffer and inode updates,
+	 * re-read the superblock and reverify it.
+	 */
+	xfs_buf_lock(bp);
+	xfs_buf_hold(bp);
+	error = _xfs_buf_read(bp, XBF_READ);
+	if (error) {
+		if (!xlog_is_shutdown(log)) {
+			xfs_buf_ioerror_alert(bp, __this_address);
+>>>>>>> upstream/android-13
 			ASSERT(0);
 		}
 		xfs_buf_relse(bp);
@@ -5708,11 +6864,19 @@ xlog_do_recover(
 	}
 
 	/* Convert superblock from on-disk format */
+<<<<<<< HEAD
 	sbp = &mp->m_sb;
 	xfs_sb_from_disk(sbp, XFS_BUF_TO_SBP(bp));
 	xfs_buf_relse(bp);
 
 	/* re-initialise in-core superblock and geometry structures */
+=======
+	xfs_sb_from_disk(sbp, bp->b_addr);
+	xfs_buf_relse(bp);
+
+	/* re-initialise in-core superblock and geometry structures */
+	mp->m_features |= xfs_sb_version_to_features(sbp);
+>>>>>>> upstream/android-13
 	xfs_reinit_percpu_counters(mp);
 	error = xfs_initialize_perag(mp, sbp->sb_agcount, &mp->m_maxagi);
 	if (error) {
@@ -5724,7 +6888,11 @@ xlog_do_recover(
 	xlog_recover_check_summary(log);
 
 	/* Normal transactions can now occur */
+<<<<<<< HEAD
 	log->l_flags &= ~XLOG_ACTIVE_RECOVERY;
+=======
+	clear_bit(XLOG_ACTIVE_RECOVERY, &log->l_opstate);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -5750,7 +6918,11 @@ xlog_recover(
 	 * could not be verified. Check the superblock LSN against the current
 	 * LSN now that it's known.
 	 */
+<<<<<<< HEAD
 	if (xfs_sb_version_hascrc(&log->l_mp->m_sb) &&
+=======
+	if (xfs_has_crc(log->l_mp) &&
+>>>>>>> upstream/android-13
 	    !xfs_log_check_lsn(log->l_mp, log->l_mp->m_sb.sb_lsn))
 		return -EINVAL;
 
@@ -5777,7 +6949,11 @@ xlog_recover(
 		 * (e.g. unsupported transactions, then simply reject the
 		 * attempt at recovery before touching anything.
 		 */
+<<<<<<< HEAD
 		if (XFS_SB_VERSION_NUM(&log->l_mp->m_sb) == XFS_SB_VERSION_5 &&
+=======
+		if (xfs_sb_is_v5(&log->l_mp->m_sb) &&
+>>>>>>> upstream/android-13
 		    xfs_sb_has_incompat_log_feature(&log->l_mp->m_sb,
 					XFS_SB_FEAT_INCOMPAT_LOG_UNKNOWN)) {
 			xfs_warn(log->l_mp,
@@ -5793,7 +6969,11 @@ xlog_recover(
 
 		/*
 		 * Delay log recovery if the debug hook is set. This is debug
+<<<<<<< HEAD
 		 * instrumention to coordinate simulation of I/O failures with
+=======
+		 * instrumentation to coordinate simulation of I/O failures with
+>>>>>>> upstream/android-13
 		 * log recovery.
 		 */
 		if (xfs_globals.log_recovery_delay) {
@@ -5808,12 +6988,17 @@ xlog_recover(
 						     : "internal");
 
 		error = xlog_do_recover(log, head_blk, tail_blk);
+<<<<<<< HEAD
 		log->l_flags |= XLOG_RECOVERY_NEEDED;
+=======
+		set_bit(XLOG_RECOVERY_NEEDED, &log->l_opstate);
+>>>>>>> upstream/android-13
 	}
 	return error;
 }
 
 /*
+<<<<<<< HEAD
  * In the first part of recovery we replay inodes and buffers and build
  * up the list of extent free items which need to be processed.  Here
  * we process the extent free items and clean up the on disk unlinked
@@ -5821,11 +7006,20 @@ xlog_recover(
  * that the root and real-time bitmap inodes can be read in from disk in
  * between the two stages.  This is necessary so that we can free space
  * in the real-time portion of the file system.
+=======
+ * In the first part of recovery we replay inodes and buffers and build up the
+ * list of intents which need to be processed. Here we process the intents and
+ * clean up the on disk unlinked inode lists. This is separated from the first
+ * part of recovery so that the root and real-time bitmap inodes can be read in
+ * from disk in between the two stages.  This is necessary so that we can free
+ * space in the real-time portion of the file system.
+>>>>>>> upstream/android-13
  */
 int
 xlog_recover_finish(
 	struct xlog	*log)
 {
+<<<<<<< HEAD
 	/*
 	 * Now we're ready to do the transactions needed for the
 	 * rest of recovery.  Start with completing all the extent
@@ -5874,6 +7068,58 @@ xlog_recover_cancel(
 		error = xlog_recover_cancel_intents(log);
 
 	return error;
+=======
+	int	error;
+
+	error = xlog_recover_process_intents(log);
+	if (error) {
+		/*
+		 * Cancel all the unprocessed intent items now so that we don't
+		 * leave them pinned in the AIL.  This can cause the AIL to
+		 * livelock on the pinned item if anyone tries to push the AIL
+		 * (inode reclaim does this) before we get around to
+		 * xfs_log_mount_cancel.
+		 */
+		xlog_recover_cancel_intents(log);
+		xfs_alert(log->l_mp, "Failed to recover intents");
+		xfs_force_shutdown(log->l_mp, SHUTDOWN_LOG_IO_ERROR);
+		return error;
+	}
+
+	/*
+	 * Sync the log to get all the intents out of the AIL.  This isn't
+	 * absolutely necessary, but it helps in case the unlink transactions
+	 * would have problems pushing the intents out of the way.
+	 */
+	xfs_log_force(log->l_mp, XFS_LOG_SYNC);
+
+	/*
+	 * Now that we've recovered the log and all the intents, we can clear
+	 * the log incompat feature bits in the superblock because there's no
+	 * longer anything to protect.  We rely on the AIL push to write out the
+	 * updated superblock after everything else.
+	 */
+	if (xfs_clear_incompat_log_features(log->l_mp)) {
+		error = xfs_sync_sb(log->l_mp, false);
+		if (error < 0) {
+			xfs_alert(log->l_mp,
+	"Failed to clear log incompat features on recovery");
+			return error;
+		}
+	}
+
+	xlog_recover_process_iunlinks(log);
+	xlog_recover_check_summary(log);
+	return 0;
+}
+
+void
+xlog_recover_cancel(
+	struct xlog	*log)
+{
+	if (xlog_recovery_needed(log))
+		xlog_recover_cancel_intents(log);
+>>>>>>> upstream/android-13
 }
 
 #if defined(DEBUG)
@@ -5883,6 +7129,7 @@ xlog_recover_cancel(
  */
 STATIC void
 xlog_recover_check_summary(
+<<<<<<< HEAD
 	struct xlog	*log)
 {
 	xfs_mount_t	*mp;
@@ -5894,12 +7141,26 @@ xlog_recover_check_summary(
 	uint64_t	itotal;
 	uint64_t	ifree;
 	int		error;
+=======
+	struct xlog		*log)
+{
+	struct xfs_mount	*mp = log->l_mp;
+	struct xfs_perag	*pag;
+	struct xfs_buf		*agfbp;
+	struct xfs_buf		*agibp;
+	xfs_agnumber_t		agno;
+	uint64_t		freeblks;
+	uint64_t		itotal;
+	uint64_t		ifree;
+	int			error;
+>>>>>>> upstream/android-13
 
 	mp = log->l_mp;
 
 	freeblks = 0LL;
 	itotal = 0LL;
 	ifree = 0LL;
+<<<<<<< HEAD
 	for (agno = 0; agno < mp->m_sb.sb_agcount; agno++) {
 		error = xfs_read_agf(mp, NULL, agno, 0, &agfbp);
 		if (error) {
@@ -5907,17 +7168,36 @@ xlog_recover_check_summary(
 						__func__, agno, error);
 		} else {
 			agfp = XFS_BUF_TO_AGF(agfbp);
+=======
+	for_each_perag(mp, agno, pag) {
+		error = xfs_read_agf(mp, NULL, pag->pag_agno, 0, &agfbp);
+		if (error) {
+			xfs_alert(mp, "%s agf read failed agno %d error %d",
+						__func__, pag->pag_agno, error);
+		} else {
+			struct xfs_agf	*agfp = agfbp->b_addr;
+
+>>>>>>> upstream/android-13
 			freeblks += be32_to_cpu(agfp->agf_freeblks) +
 				    be32_to_cpu(agfp->agf_flcount);
 			xfs_buf_relse(agfbp);
 		}
 
+<<<<<<< HEAD
 		error = xfs_read_agi(mp, NULL, agno, &agibp);
 		if (error) {
 			xfs_alert(mp, "%s agi read failed agno %d error %d",
 						__func__, agno, error);
 		} else {
 			struct xfs_agi	*agi = XFS_BUF_TO_AGI(agibp);
+=======
+		error = xfs_read_agi(mp, NULL, pag->pag_agno, &agibp);
+		if (error) {
+			xfs_alert(mp, "%s agi read failed agno %d error %d",
+						__func__, pag->pag_agno, error);
+		} else {
+			struct xfs_agi	*agi = agibp->b_addr;
+>>>>>>> upstream/android-13
 
 			itotal += be32_to_cpu(agi->agi_count);
 			ifree += be32_to_cpu(agi->agi_freecount);

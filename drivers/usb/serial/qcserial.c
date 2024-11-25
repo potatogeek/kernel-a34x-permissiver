@@ -165,6 +165,12 @@ static const struct usb_device_id id_table[] = {
 	{DEVICE_SWI(0x1199, 0x907b)},	/* Sierra Wireless EM74xx */
 	{DEVICE_SWI(0x1199, 0x9090)},	/* Sierra Wireless EM7565 QDL */
 	{DEVICE_SWI(0x1199, 0x9091)},	/* Sierra Wireless EM7565 */
+<<<<<<< HEAD
+=======
+	{DEVICE_SWI(0x1199, 0x90d2)},	/* Sierra Wireless EM9191 QDL */
+	{DEVICE_SWI(0x1199, 0xc080)},	/* Sierra Wireless EM7590 QDL */
+	{DEVICE_SWI(0x1199, 0xc081)},	/* Sierra Wireless EM7590 */
+>>>>>>> upstream/android-13
 	{DEVICE_SWI(0x413c, 0x81a2)},	/* Dell Wireless 5806 Gobi(TM) 4G LTE Mobile Broadband Card */
 	{DEVICE_SWI(0x413c, 0x81a3)},	/* Dell Wireless 5570 HSPA+ (42Mbps) Mobile Broadband Card */
 	{DEVICE_SWI(0x413c, 0x81a4)},	/* Dell Wireless 5570e HSPA+ (42Mbps) Mobile Broadband Card */
@@ -243,11 +249,19 @@ static int qcprobe(struct usb_serial *serial, const struct usb_device_id *id)
 		/* QDL mode */
 		/* Gobi 2000 has a single altsetting, older ones have two */
 		if (serial->interface->num_altsetting == 2)
+<<<<<<< HEAD
 			intf = &serial->interface->altsetting[1];
 		else if (serial->interface->num_altsetting > 2)
 			goto done;
 
 		if (intf->desc.bNumEndpoints == 2 &&
+=======
+			intf = usb_altnum_to_altsetting(serial->interface, 1);
+		else if (serial->interface->num_altsetting > 2)
+			goto done;
+
+		if (intf && intf->desc.bNumEndpoints == 2 &&
+>>>>>>> upstream/android-13
 		    usb_endpoint_is_bulk_in(&intf->endpoint[0].desc) &&
 		    usb_endpoint_is_bulk_out(&intf->endpoint[1].desc)) {
 			dev_dbg(dev, "QDL port found\n");
@@ -366,9 +380,14 @@ static int qcprobe(struct usb_serial *serial, const struct usb_device_id *id)
 		 * a specific function, while the subclass indicate a
 		 * specific firmware source
 		 *
+<<<<<<< HEAD
 		 * This is a blacklist of functions known to be
 		 * non-serial.  The rest are assumed to be serial and
 		 * will be handled by this driver
+=======
+		 * This is a list of functions known to be non-serial.  The rest
+		 * are assumed to be serial and will be handled by this driver
+>>>>>>> upstream/android-13
 		 */
 		switch (intf->desc.bInterfaceProtocol) {
 			/* QMI combined (qmi_wwan) */

@@ -1,13 +1,23 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * V4L2 asynchronous subdevice registration API
  *
  * Copyright (C) 2012-2013, Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  */
 
+=======
+ */
+
+#include <linux/debugfs.h>
+>>>>>>> upstream/android-13
 #include <linux/device.h>
 #include <linux/err.h>
 #include <linux/i2c.h>
@@ -17,6 +27,10 @@
 #include <linux/mutex.h>
 #include <linux/of.h>
 #include <linux/platform_device.h>
+<<<<<<< HEAD
+=======
+#include <linux/seq_file.h>
+>>>>>>> upstream/android-13
 #include <linux/slab.h>
 #include <linux/types.h>
 
@@ -53,10 +67,19 @@ static int v4l2_async_notifier_call_complete(struct v4l2_async_notifier *n)
 	return n->ops->complete(n);
 }
 
+<<<<<<< HEAD
 static bool match_i2c(struct v4l2_subdev *sd, struct v4l2_async_subdev *asd)
 {
 #if IS_ENABLED(CONFIG_I2C)
 	struct i2c_client *client = i2c_verify_client(sd->dev);
+=======
+static bool match_i2c(struct v4l2_async_notifier *notifier,
+		      struct v4l2_subdev *sd, struct v4l2_async_subdev *asd)
+{
+#if IS_ENABLED(CONFIG_I2C)
+	struct i2c_client *client = i2c_verify_client(sd->dev);
+
+>>>>>>> upstream/android-13
 	return client &&
 		asd->match.i2c.adapter_id == client->adapter->nr &&
 		asd->match.i2c.address == client->addr;
@@ -65,6 +88,7 @@ static bool match_i2c(struct v4l2_subdev *sd, struct v4l2_async_subdev *asd)
 #endif
 }
 
+<<<<<<< HEAD
 static bool match_devname(struct v4l2_subdev *sd,
 			  struct v4l2_async_subdev *asd)
 {
@@ -83,27 +107,116 @@ static bool match_custom(struct v4l2_subdev *sd, struct v4l2_async_subdev *asd)
 		return true;
 
 	return asd->match.custom.match(sd->dev, asd);
+=======
+static bool match_fwnode(struct v4l2_async_notifier *notifier,
+			 struct v4l2_subdev *sd, struct v4l2_async_subdev *asd)
+{
+	struct fwnode_handle *other_fwnode;
+	struct fwnode_handle *dev_fwnode;
+	bool asd_fwnode_is_ep;
+	bool sd_fwnode_is_ep;
+	struct device *dev;
+
+	/*
+	 * Both the subdev and the async subdev can provide either an endpoint
+	 * fwnode or a device fwnode. Start with the simple case of direct
+	 * fwnode matching.
+	 */
+	if (sd->fwnode == asd->match.fwnode)
+		return true;
+
+	/*
+	 * Check the same situation for any possible secondary assigned to the
+	 * subdev's fwnode
+	 */
+	if (!IS_ERR_OR_NULL(sd->fwnode->secondary) &&
+	    sd->fwnode->secondary == asd->match.fwnode)
+		return true;
+
+	/*
+	 * Otherwise, check if the sd fwnode and the asd fwnode refer to an
+	 * endpoint or a device. If they're of the same type, there's no match.
+	 * Technically speaking this checks if the nodes refer to a connected
+	 * endpoint, which is the simplest check that works for both OF and
+	 * ACPI. This won't make a difference, as drivers should not try to
+	 * match unconnected endpoints.
+	 */
+	sd_fwnode_is_ep = fwnode_graph_is_endpoint(sd->fwnode);
+	asd_fwnode_is_ep = fwnode_graph_is_endpoint(asd->match.fwnode);
+
+	if (sd_fwnode_is_ep == asd_fwnode_is_ep)
+		return false;
+
+	/*
+	 * The sd and asd fwnodes are of different types. Get the device fwnode
+	 * parent of the endpoint fwnode, and compare it with the other fwnode.
+	 */
+	if (sd_fwnode_is_ep) {
+		dev_fwnode = fwnode_graph_get_port_parent(sd->fwnode);
+		other_fwnode = asd->match.fwnode;
+	} else {
+		dev_fwnode = fwnode_graph_get_port_parent(asd->match.fwnode);
+		other_fwnode = sd->fwnode;
+	}
+
+	fwnode_handle_put(dev_fwnode);
+
+	if (dev_fwnode != other_fwnode)
+		return false;
+
+	/*
+	 * We have a heterogeneous match. Retrieve the struct device of the side
+	 * that matched on a device fwnode to print its driver name.
+	 */
+	if (sd_fwnode_is_ep)
+		dev = notifier->v4l2_dev ? notifier->v4l2_dev->dev
+		    : notifier->sd->dev;
+	else
+		dev = sd->dev;
+
+	if (dev && dev->driver) {
+		if (sd_fwnode_is_ep)
+			dev_warn(dev, "Driver %s uses device fwnode, incorrect match may occur\n",
+				 dev->driver->name);
+		dev_notice(dev, "Consider updating driver %s to match on endpoints\n",
+			   dev->driver->name);
+	}
+
+	return true;
+>>>>>>> upstream/android-13
 }
 
 static LIST_HEAD(subdev_list);
 static LIST_HEAD(notifier_list);
 static DEFINE_MUTEX(list_lock);
 
+<<<<<<< HEAD
 static struct v4l2_async_subdev *v4l2_async_find_match(
 	struct v4l2_async_notifier *notifier, struct v4l2_subdev *sd)
 {
 	bool (*match)(struct v4l2_subdev *, struct v4l2_async_subdev *);
+=======
+static struct v4l2_async_subdev *
+v4l2_async_find_match(struct v4l2_async_notifier *notifier,
+		      struct v4l2_subdev *sd)
+{
+	bool (*match)(struct v4l2_async_notifier *notifier,
+		      struct v4l2_subdev *sd, struct v4l2_async_subdev *asd);
+>>>>>>> upstream/android-13
 	struct v4l2_async_subdev *asd;
 
 	list_for_each_entry(asd, &notifier->waiting, list) {
 		/* bus_type has been verified valid before */
 		switch (asd->match_type) {
+<<<<<<< HEAD
 		case V4L2_ASYNC_MATCH_CUSTOM:
 			match = match_custom;
 			break;
 		case V4L2_ASYNC_MATCH_DEVNAME:
 			match = match_devname;
 			break;
+=======
+>>>>>>> upstream/android-13
 		case V4L2_ASYNC_MATCH_I2C:
 			match = match_i2c;
 			break;
@@ -117,16 +230,48 @@ static struct v4l2_async_subdev *v4l2_async_find_match(
 		}
 
 		/* match cannot be NULL here */
+<<<<<<< HEAD
 		if (match(sd, asd))
+=======
+		if (match(notifier, sd, asd))
+>>>>>>> upstream/android-13
 			return asd;
 	}
 
 	return NULL;
 }
 
+<<<<<<< HEAD
 /* Find the sub-device notifier registered by a sub-device driver. */
 static struct v4l2_async_notifier *v4l2_async_find_subdev_notifier(
 	struct v4l2_subdev *sd)
+=======
+/* Compare two async sub-device descriptors for equivalence */
+static bool asd_equal(struct v4l2_async_subdev *asd_x,
+		      struct v4l2_async_subdev *asd_y)
+{
+	if (asd_x->match_type != asd_y->match_type)
+		return false;
+
+	switch (asd_x->match_type) {
+	case V4L2_ASYNC_MATCH_I2C:
+		return asd_x->match.i2c.adapter_id ==
+			asd_y->match.i2c.adapter_id &&
+			asd_x->match.i2c.address ==
+			asd_y->match.i2c.address;
+	case V4L2_ASYNC_MATCH_FWNODE:
+		return asd_x->match.fwnode == asd_y->match.fwnode;
+	default:
+		break;
+	}
+
+	return false;
+}
+
+/* Find the sub-device notifier registered by a sub-device driver. */
+static struct v4l2_async_notifier *
+v4l2_async_find_subdev_notifier(struct v4l2_subdev *sd)
+>>>>>>> upstream/android-13
 {
 	struct v4l2_async_notifier *n;
 
@@ -138,8 +283,13 @@ static struct v4l2_async_notifier *v4l2_async_find_subdev_notifier(
 }
 
 /* Get v4l2_device related to the notifier if one can be found. */
+<<<<<<< HEAD
 static struct v4l2_device *v4l2_async_notifier_find_v4l2_dev(
 	struct v4l2_async_notifier *notifier)
+=======
+static struct v4l2_device *
+v4l2_async_notifier_find_v4l2_dev(struct v4l2_async_notifier *notifier)
+>>>>>>> upstream/android-13
 {
 	while (notifier->parent)
 		notifier = notifier->parent;
@@ -150,8 +300,13 @@ static struct v4l2_device *v4l2_async_notifier_find_v4l2_dev(
 /*
  * Return true if all child sub-device notifiers are complete, false otherwise.
  */
+<<<<<<< HEAD
 static bool v4l2_async_notifier_can_complete(
 	struct v4l2_async_notifier *notifier)
+=======
+static bool
+v4l2_async_notifier_can_complete(struct v4l2_async_notifier *notifier)
+>>>>>>> upstream/android-13
 {
 	struct v4l2_subdev *sd;
 
@@ -174,8 +329,13 @@ static bool v4l2_async_notifier_can_complete(
  * Complete the master notifier if possible. This is done when all async
  * sub-devices have been bound; v4l2_device is also available then.
  */
+<<<<<<< HEAD
 static int v4l2_async_notifier_try_complete(
 	struct v4l2_async_notifier *notifier)
+=======
+static int
+v4l2_async_notifier_try_complete(struct v4l2_async_notifier *notifier)
+>>>>>>> upstream/android-13
 {
 	/* Quick check whether there are still more sub-devices here. */
 	if (!list_empty(&notifier->waiting))
@@ -196,8 +356,13 @@ static int v4l2_async_notifier_try_complete(
 	return v4l2_async_notifier_call_complete(notifier);
 }
 
+<<<<<<< HEAD
 static int v4l2_async_notifier_try_all_subdevs(
 	struct v4l2_async_notifier *notifier);
+=======
+static int
+v4l2_async_notifier_try_all_subdevs(struct v4l2_async_notifier *notifier);
+>>>>>>> upstream/android-13
 
 static int v4l2_async_match_notify(struct v4l2_async_notifier *notifier,
 				   struct v4l2_device *v4l2_dev,
@@ -243,8 +408,13 @@ static int v4l2_async_match_notify(struct v4l2_async_notifier *notifier,
 }
 
 /* Test all async sub-devices in a notifier for a match. */
+<<<<<<< HEAD
 static int v4l2_async_notifier_try_all_subdevs(
 	struct v4l2_async_notifier *notifier)
+=======
+static int
+v4l2_async_notifier_try_all_subdevs(struct v4l2_async_notifier *notifier)
+>>>>>>> upstream/android-13
 {
 	struct v4l2_device *v4l2_dev =
 		v4l2_async_notifier_find_v4l2_dev(notifier);
@@ -281,14 +451,26 @@ again:
 static void v4l2_async_cleanup(struct v4l2_subdev *sd)
 {
 	v4l2_device_unregister_subdev(sd);
+<<<<<<< HEAD
 	/* Subdevice driver will reprobe and put the subdev back onto the list */
+=======
+	/*
+	 * Subdevice driver will reprobe and put the subdev back
+	 * onto the list
+	 */
+>>>>>>> upstream/android-13
 	list_del_init(&sd->async_list);
 	sd->asd = NULL;
 }
 
 /* Unbind all sub-devices in the notifier tree. */
+<<<<<<< HEAD
 static void v4l2_async_notifier_unbind_all_subdevs(
 	struct v4l2_async_notifier *notifier)
+=======
+static void
+v4l2_async_notifier_unbind_all_subdevs(struct v4l2_async_notifier *notifier)
+>>>>>>> upstream/android-13
 {
 	struct v4l2_subdev *sd, *tmp;
 
@@ -308,6 +490,7 @@ static void v4l2_async_notifier_unbind_all_subdevs(
 	notifier->parent = NULL;
 }
 
+<<<<<<< HEAD
 /* See if an fwnode can be found in a notifier's lists. */
 static bool __v4l2_async_notifier_fwnode_has_async_subdev(
 	struct v4l2_async_notifier *notifier, struct fwnode_handle *fwnode)
@@ -322,15 +505,32 @@ static bool __v4l2_async_notifier_fwnode_has_async_subdev(
 		if (asd->match.fwnode == fwnode)
 			return true;
 	}
+=======
+/* See if an async sub-device can be found in a notifier's lists. */
+static bool
+__v4l2_async_notifier_has_async_subdev(struct v4l2_async_notifier *notifier,
+				       struct v4l2_async_subdev *asd)
+{
+	struct v4l2_async_subdev *asd_y;
+	struct v4l2_subdev *sd;
+
+	list_for_each_entry(asd_y, &notifier->waiting, list)
+		if (asd_equal(asd, asd_y))
+			return true;
+>>>>>>> upstream/android-13
 
 	list_for_each_entry(sd, &notifier->done, async_list) {
 		if (WARN_ON(!sd->asd))
 			continue;
 
+<<<<<<< HEAD
 		if (sd->asd->match_type != V4L2_ASYNC_MATCH_FWNODE)
 			continue;
 
 		if (sd->asd->match.fwnode == fwnode)
+=======
+		if (asd_equal(asd, sd->asd))
+>>>>>>> upstream/android-13
 			return true;
 	}
 
@@ -338,6 +538,7 @@ static bool __v4l2_async_notifier_fwnode_has_async_subdev(
 }
 
 /*
+<<<<<<< HEAD
  * Find out whether an async sub-device was set up for an fwnode already or
  * whether it exists in a given notifier before @this_index.
  */
@@ -364,11 +565,39 @@ static bool v4l2_async_notifier_fwnode_has_async_subdev(
 	list_for_each_entry(notifier, &notifier_list, list)
 		if (__v4l2_async_notifier_fwnode_has_async_subdev(
 			    notifier, fwnode))
+=======
+ * Find out whether an async sub-device was set up already or
+ * whether it exists in a given notifier before @this_index.
+ * If @this_index < 0, search the notifier's entire @asd_list.
+ */
+static bool
+v4l2_async_notifier_has_async_subdev(struct v4l2_async_notifier *notifier,
+				     struct v4l2_async_subdev *asd,
+				     int this_index)
+{
+	struct v4l2_async_subdev *asd_y;
+	int j = 0;
+
+	lockdep_assert_held(&list_lock);
+
+	/* Check that an asd is not being added more than once. */
+	list_for_each_entry(asd_y, &notifier->asd_list, asd_list) {
+		if (this_index >= 0 && j++ >= this_index)
+			break;
+		if (asd_equal(asd, asd_y))
+			return true;
+	}
+
+	/* Check that an asd does not exist in other notifiers. */
+	list_for_each_entry(notifier, &notifier_list, list)
+		if (__v4l2_async_notifier_has_async_subdev(notifier, asd))
+>>>>>>> upstream/android-13
 			return true;
 
 	return false;
 }
 
+<<<<<<< HEAD
 static int __v4l2_async_notifier_register(struct v4l2_async_notifier *notifier)
 {
 	struct device *dev =
@@ -380,11 +609,53 @@ static int __v4l2_async_notifier_register(struct v4l2_async_notifier *notifier)
 	if (notifier->num_subdevs > V4L2_MAX_SUBDEVS)
 		return -EINVAL;
 
+=======
+static int v4l2_async_notifier_asd_valid(struct v4l2_async_notifier *notifier,
+					 struct v4l2_async_subdev *asd,
+					 int this_index)
+{
+	struct device *dev =
+		notifier->v4l2_dev ? notifier->v4l2_dev->dev : NULL;
+
+	if (!asd)
+		return -EINVAL;
+
+	switch (asd->match_type) {
+	case V4L2_ASYNC_MATCH_I2C:
+	case V4L2_ASYNC_MATCH_FWNODE:
+		if (v4l2_async_notifier_has_async_subdev(notifier, asd,
+							 this_index)) {
+			dev_dbg(dev, "subdev descriptor already listed in this or other notifiers\n");
+			return -EEXIST;
+		}
+		break;
+	default:
+		dev_err(dev, "Invalid match type %u on %p\n",
+			asd->match_type, asd);
+		return -EINVAL;
+	}
+
+	return 0;
+}
+
+void v4l2_async_notifier_init(struct v4l2_async_notifier *notifier)
+{
+	INIT_LIST_HEAD(&notifier->asd_list);
+}
+EXPORT_SYMBOL(v4l2_async_notifier_init);
+
+static int __v4l2_async_notifier_register(struct v4l2_async_notifier *notifier)
+{
+	struct v4l2_async_subdev *asd;
+	int ret, i = 0;
+
+>>>>>>> upstream/android-13
 	INIT_LIST_HEAD(&notifier->waiting);
 	INIT_LIST_HEAD(&notifier->done);
 
 	mutex_lock(&list_lock);
 
+<<<<<<< HEAD
 	for (i = 0; i < notifier->num_subdevs; i++) {
 		asd = notifier->subdevs[i];
 
@@ -408,6 +679,13 @@ static int __v4l2_async_notifier_register(struct v4l2_async_notifier *notifier)
 			ret = -EINVAL;
 			goto err_unlock;
 		}
+=======
+	list_for_each_entry(asd, &notifier->asd_list, asd_list) {
+		ret = v4l2_async_notifier_asd_valid(notifier, asd, i++);
+		if (ret)
+			goto err_unlock;
+
+>>>>>>> upstream/android-13
 		list_add_tail(&asd->list, &notifier->waiting);
 	}
 
@@ -474,8 +752,13 @@ int v4l2_async_subdev_notifier_register(struct v4l2_subdev *sd,
 }
 EXPORT_SYMBOL(v4l2_async_subdev_notifier_register);
 
+<<<<<<< HEAD
 static void __v4l2_async_notifier_unregister(
 	struct v4l2_async_notifier *notifier)
+=======
+static void
+__v4l2_async_notifier_unregister(struct v4l2_async_notifier *notifier)
+>>>>>>> upstream/android-13
 {
 	if (!notifier || (!notifier->v4l2_dev && !notifier->sd))
 		return;
@@ -498,6 +781,7 @@ void v4l2_async_notifier_unregister(struct v4l2_async_notifier *notifier)
 }
 EXPORT_SYMBOL(v4l2_async_notifier_unregister);
 
+<<<<<<< HEAD
 void v4l2_async_notifier_cleanup(struct v4l2_async_notifier *notifier)
 {
 	unsigned int i;
@@ -508,11 +792,22 @@ void v4l2_async_notifier_cleanup(struct v4l2_async_notifier *notifier)
 	for (i = 0; i < notifier->num_subdevs; i++) {
 		struct v4l2_async_subdev *asd = notifier->subdevs[i];
 
+=======
+static void __v4l2_async_notifier_cleanup(struct v4l2_async_notifier *notifier)
+{
+	struct v4l2_async_subdev *asd, *tmp;
+
+	if (!notifier || !notifier->asd_list.next)
+		return;
+
+	list_for_each_entry_safe(asd, tmp, &notifier->asd_list, asd_list) {
+>>>>>>> upstream/android-13
 		switch (asd->match_type) {
 		case V4L2_ASYNC_MATCH_FWNODE:
 			fwnode_handle_put(asd->match.fwnode);
 			break;
 		default:
+<<<<<<< HEAD
 			WARN_ON_ONCE(true);
 			break;
 		}
@@ -528,6 +823,120 @@ void v4l2_async_notifier_cleanup(struct v4l2_async_notifier *notifier)
 }
 EXPORT_SYMBOL_GPL(v4l2_async_notifier_cleanup);
 
+=======
+			break;
+		}
+
+		list_del(&asd->asd_list);
+		kfree(asd);
+	}
+}
+
+void v4l2_async_notifier_cleanup(struct v4l2_async_notifier *notifier)
+{
+	mutex_lock(&list_lock);
+
+	__v4l2_async_notifier_cleanup(notifier);
+
+	mutex_unlock(&list_lock);
+}
+EXPORT_SYMBOL_GPL(v4l2_async_notifier_cleanup);
+
+int __v4l2_async_notifier_add_subdev(struct v4l2_async_notifier *notifier,
+				   struct v4l2_async_subdev *asd)
+{
+	int ret;
+
+	mutex_lock(&list_lock);
+
+	ret = v4l2_async_notifier_asd_valid(notifier, asd, -1);
+	if (ret)
+		goto unlock;
+
+	list_add_tail(&asd->asd_list, &notifier->asd_list);
+
+unlock:
+	mutex_unlock(&list_lock);
+	return ret;
+}
+EXPORT_SYMBOL_GPL(__v4l2_async_notifier_add_subdev);
+
+struct v4l2_async_subdev *
+__v4l2_async_notifier_add_fwnode_subdev(struct v4l2_async_notifier *notifier,
+					struct fwnode_handle *fwnode,
+					unsigned int asd_struct_size)
+{
+	struct v4l2_async_subdev *asd;
+	int ret;
+
+	asd = kzalloc(asd_struct_size, GFP_KERNEL);
+	if (!asd)
+		return ERR_PTR(-ENOMEM);
+
+	asd->match_type = V4L2_ASYNC_MATCH_FWNODE;
+	asd->match.fwnode = fwnode_handle_get(fwnode);
+
+	ret = __v4l2_async_notifier_add_subdev(notifier, asd);
+	if (ret) {
+		fwnode_handle_put(fwnode);
+		kfree(asd);
+		return ERR_PTR(ret);
+	}
+
+	return asd;
+}
+EXPORT_SYMBOL_GPL(__v4l2_async_notifier_add_fwnode_subdev);
+
+struct v4l2_async_subdev *
+__v4l2_async_notifier_add_fwnode_remote_subdev(struct v4l2_async_notifier *notif,
+					       struct fwnode_handle *endpoint,
+					       unsigned int asd_struct_size)
+{
+	struct v4l2_async_subdev *asd;
+	struct fwnode_handle *remote;
+
+	remote = fwnode_graph_get_remote_port_parent(endpoint);
+	if (!remote)
+		return ERR_PTR(-ENOTCONN);
+
+	asd = __v4l2_async_notifier_add_fwnode_subdev(notif, remote,
+						      asd_struct_size);
+	/*
+	 * Calling __v4l2_async_notifier_add_fwnode_subdev grabs a refcount,
+	 * so drop the one we got in fwnode_graph_get_remote_port_parent.
+	 */
+	fwnode_handle_put(remote);
+	return asd;
+}
+EXPORT_SYMBOL_GPL(__v4l2_async_notifier_add_fwnode_remote_subdev);
+
+struct v4l2_async_subdev *
+__v4l2_async_notifier_add_i2c_subdev(struct v4l2_async_notifier *notifier,
+				     int adapter_id, unsigned short address,
+				     unsigned int asd_struct_size)
+{
+	struct v4l2_async_subdev *asd;
+	int ret;
+
+	asd = kzalloc(asd_struct_size, GFP_KERNEL);
+	if (!asd)
+		return ERR_PTR(-ENOMEM);
+
+	asd->match_type = V4L2_ASYNC_MATCH_I2C;
+	asd->match.i2c.adapter_id = adapter_id;
+	asd->match.i2c.address = address;
+
+	ret = __v4l2_async_notifier_add_subdev(notifier, asd);
+	if (ret) {
+		kfree(asd);
+		return ERR_PTR(ret);
+	}
+
+	return asd;
+}
+EXPORT_SYMBOL_GPL(__v4l2_async_notifier_add_i2c_subdev);
+
+>>>>>>> upstream/android-13
 int v4l2_async_register_subdev(struct v4l2_subdev *sd)
 {
 	struct v4l2_async_notifier *subdev_notifier;
@@ -598,10 +1007,20 @@ EXPORT_SYMBOL(v4l2_async_register_subdev);
 
 void v4l2_async_unregister_subdev(struct v4l2_subdev *sd)
 {
+<<<<<<< HEAD
 	mutex_lock(&list_lock);
 
 	__v4l2_async_notifier_unregister(sd->subdev_notifier);
 	v4l2_async_notifier_cleanup(sd->subdev_notifier);
+=======
+	if (!sd->async_list.next)
+		return;
+
+	mutex_lock(&list_lock);
+
+	__v4l2_async_notifier_unregister(sd->subdev_notifier);
+	__v4l2_async_notifier_cleanup(sd->subdev_notifier);
+>>>>>>> upstream/android-13
 	kfree(sd->subdev_notifier);
 	sd->subdev_notifier = NULL;
 
@@ -618,3 +1037,86 @@ void v4l2_async_unregister_subdev(struct v4l2_subdev *sd)
 	mutex_unlock(&list_lock);
 }
 EXPORT_SYMBOL(v4l2_async_unregister_subdev);
+<<<<<<< HEAD
+=======
+
+static void print_waiting_subdev(struct seq_file *s,
+				 struct v4l2_async_subdev *asd)
+{
+	switch (asd->match_type) {
+	case V4L2_ASYNC_MATCH_I2C:
+		seq_printf(s, " [i2c] dev=%d-%04x\n", asd->match.i2c.adapter_id,
+			   asd->match.i2c.address);
+		break;
+	case V4L2_ASYNC_MATCH_FWNODE: {
+		struct fwnode_handle *devnode, *fwnode = asd->match.fwnode;
+
+		devnode = fwnode_graph_is_endpoint(fwnode) ?
+			  fwnode_graph_get_port_parent(fwnode) :
+			  fwnode_handle_get(fwnode);
+
+		seq_printf(s, " [fwnode] dev=%s, node=%pfw\n",
+			   devnode->dev ? dev_name(devnode->dev) : "nil",
+			   fwnode);
+
+		fwnode_handle_put(devnode);
+		break;
+	}
+	}
+}
+
+static const char *
+v4l2_async_notifier_name(struct v4l2_async_notifier *notifier)
+{
+	if (notifier->v4l2_dev)
+		return notifier->v4l2_dev->name;
+	else if (notifier->sd)
+		return notifier->sd->name;
+	else
+		return "nil";
+}
+
+static int pending_subdevs_show(struct seq_file *s, void *data)
+{
+	struct v4l2_async_notifier *notif;
+	struct v4l2_async_subdev *asd;
+
+	mutex_lock(&list_lock);
+
+	list_for_each_entry(notif, &notifier_list, list) {
+		seq_printf(s, "%s:\n", v4l2_async_notifier_name(notif));
+		list_for_each_entry(asd, &notif->waiting, list)
+			print_waiting_subdev(s, asd);
+	}
+
+	mutex_unlock(&list_lock);
+
+	return 0;
+}
+DEFINE_SHOW_ATTRIBUTE(pending_subdevs);
+
+static struct dentry *v4l2_async_debugfs_dir;
+
+static int __init v4l2_async_init(void)
+{
+	v4l2_async_debugfs_dir = debugfs_create_dir("v4l2-async", NULL);
+	debugfs_create_file("pending_async_subdevices", 0444,
+			    v4l2_async_debugfs_dir, NULL,
+			    &pending_subdevs_fops);
+
+	return 0;
+}
+
+static void __exit v4l2_async_exit(void)
+{
+	debugfs_remove_recursive(v4l2_async_debugfs_dir);
+}
+
+subsys_initcall(v4l2_async_init);
+module_exit(v4l2_async_exit);
+
+MODULE_AUTHOR("Guennadi Liakhovetski <g.liakhovetski@gmx.de>");
+MODULE_AUTHOR("Sakari Ailus <sakari.ailus@linux.intel.com>");
+MODULE_AUTHOR("Ezequiel Garcia <ezequiel@collabora.com>");
+MODULE_LICENSE("GPL");
+>>>>>>> upstream/android-13

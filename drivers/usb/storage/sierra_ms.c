@@ -129,15 +129,21 @@ int sierra_ms_init(struct us_data *us)
 	int result, retries;
 	struct swoc_info *swocInfo;
 	struct usb_device *udev;
+<<<<<<< HEAD
 	struct Scsi_Host *sh;
+=======
+>>>>>>> upstream/android-13
 
 	retries = 3;
 	result = 0;
 	udev = us->pusb_dev;
 
+<<<<<<< HEAD
 	sh = us_to_host(us);
 	scsi_get_host_dev(sh);
 
+=======
+>>>>>>> upstream/android-13
 	/* Force Modem mode */
 	if (swi_tru_install == TRU_FORCE_MODEM) {
 		usb_stor_dbg(us, "SWIMS: Forcing Modem Mode\n");
@@ -194,8 +200,12 @@ int sierra_ms_init(struct us_data *us)
 		kfree(swocInfo);
 	}
 complete:
+<<<<<<< HEAD
 	result = device_create_file(&us->pusb_intf->dev, &dev_attr_truinst);
 
 	return 0;
+=======
+	return device_create_file(&us->pusb_intf->dev, &dev_attr_truinst);
+>>>>>>> upstream/android-13
 }
 

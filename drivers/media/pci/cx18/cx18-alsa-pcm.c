@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  ALSA PCM device for the
  *  ALSA interface to cx18 PCM capture streams
@@ -6,6 +10,7 @@
  *  Copyright (C) 2009  Devin Heitmueller <dheitmueller@kernellabs.com>
  *
  *  Portions of this work were sponsored by ONELAN Limited.
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -16,11 +21,16 @@
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
 #include <linux/kernel.h>
+<<<<<<< HEAD
 #include <linux/vmalloc.h>
+=======
+>>>>>>> upstream/android-13
 
 #include <media/v4l2-device.h>
 
@@ -210,6 +220,7 @@ static int snd_cx18_pcm_capture_close(struct snd_pcm_substream *substream)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int snd_cx18_pcm_ioctl(struct snd_pcm_substream *substream,
 		     unsigned int cmd, void *arg)
 {
@@ -271,6 +282,8 @@ static int snd_cx18_pcm_hw_free(struct snd_pcm_substream *substream)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int snd_cx18_pcm_prepare(struct snd_pcm_substream *substream)
 {
 	struct snd_cx18_card *cxsc = snd_pcm_substream_chip(substream);
@@ -300,6 +313,7 @@ snd_pcm_uframes_t snd_cx18_pcm_pointer(struct snd_pcm_substream *substream)
 	return hwptr_done;
 }
 
+<<<<<<< HEAD
 static struct page *snd_pcm_get_vmalloc_page(struct snd_pcm_substream *subs,
 					     unsigned long offset)
 {
@@ -318,6 +332,14 @@ static const struct snd_pcm_ops snd_cx18_pcm_capture_ops = {
 	.trigger	= snd_cx18_pcm_trigger,
 	.pointer	= snd_cx18_pcm_pointer,
 	.page		= snd_pcm_get_vmalloc_page,
+=======
+static const struct snd_pcm_ops snd_cx18_pcm_capture_ops = {
+	.open		= snd_cx18_pcm_capture_open,
+	.close		= snd_cx18_pcm_capture_close,
+	.prepare	= snd_cx18_pcm_prepare,
+	.trigger	= snd_cx18_pcm_trigger,
+	.pointer	= snd_cx18_pcm_pointer,
+>>>>>>> upstream/android-13
 };
 
 int snd_cx18_pcm_create(struct snd_cx18_card *cxsc)
@@ -343,9 +365,16 @@ int snd_cx18_pcm_create(struct snd_cx18_card *cxsc)
 
 	snd_pcm_set_ops(sp, SNDRV_PCM_STREAM_CAPTURE,
 			&snd_cx18_pcm_capture_ops);
+<<<<<<< HEAD
 	sp->info_flags = 0;
 	sp->private_data = cxsc;
 	strlcpy(sp->name, cx->card_name, sizeof(sp->name));
+=======
+	snd_pcm_set_managed_buffer_all(sp, SNDRV_DMA_TYPE_VMALLOC, NULL, 0, 0);
+	sp->info_flags = 0;
+	sp->private_data = cxsc;
+	strscpy(sp->name, cx->card_name, sizeof(sp->name));
+>>>>>>> upstream/android-13
 
 	return 0;
 

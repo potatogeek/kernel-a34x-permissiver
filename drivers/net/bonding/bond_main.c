@@ -41,6 +41,11 @@
 #include <linux/in.h>
 #include <net/ip.h>
 #include <linux/ip.h>
+<<<<<<< HEAD
+=======
+#include <linux/icmp.h>
+#include <linux/icmpv6.h>
+>>>>>>> upstream/android-13
 #include <linux/tcp.h>
 #include <linux/udp.h>
 #include <linux/slab.h>
@@ -77,10 +82,20 @@
 #include <net/pkt_sched.h>
 #include <linux/rculist.h>
 #include <net/flow_dissector.h>
+<<<<<<< HEAD
 #include <net/switchdev.h>
 #include <net/bonding.h>
 #include <net/bond_3ad.h>
 #include <net/bond_alb.h>
+=======
+#include <net/xfrm.h>
+#include <net/bonding.h>
+#include <net/bond_3ad.h>
+#include <net/bond_alb.h>
+#if IS_ENABLED(CONFIG_TLS_DEVICE)
+#include <net/tls.h>
+#endif
+>>>>>>> upstream/android-13
 
 #include "bonding_priv.h"
 
@@ -162,7 +177,11 @@ module_param(xmit_hash_policy, charp, 0);
 MODULE_PARM_DESC(xmit_hash_policy, "balance-alb, balance-tlb, balance-xor, 802.3ad hashing method; "
 				   "0 for layer 2 (default), 1 for layer 3+4, "
 				   "2 for layer 2+3, 3 for encap layer 2+3, "
+<<<<<<< HEAD
 				   "4 for encap layer 3+4");
+=======
+				   "4 for encap layer 3+4, 5 for vlan+srcmac");
+>>>>>>> upstream/android-13
 module_param(arp_interval, int, 0);
 MODULE_PARM_DESC(arp_interval, "arp interval in milliseconds");
 module_param_array(arp_ip_target, charp, NULL, 0);
@@ -201,6 +220,54 @@ atomic_t netpoll_block_tx = ATOMIC_INIT(0);
 
 unsigned int bond_net_id __read_mostly;
 
+<<<<<<< HEAD
+=======
+static const struct flow_dissector_key flow_keys_bonding_keys[] = {
+	{
+		.key_id = FLOW_DISSECTOR_KEY_CONTROL,
+		.offset = offsetof(struct flow_keys, control),
+	},
+	{
+		.key_id = FLOW_DISSECTOR_KEY_BASIC,
+		.offset = offsetof(struct flow_keys, basic),
+	},
+	{
+		.key_id = FLOW_DISSECTOR_KEY_IPV4_ADDRS,
+		.offset = offsetof(struct flow_keys, addrs.v4addrs),
+	},
+	{
+		.key_id = FLOW_DISSECTOR_KEY_IPV6_ADDRS,
+		.offset = offsetof(struct flow_keys, addrs.v6addrs),
+	},
+	{
+		.key_id = FLOW_DISSECTOR_KEY_TIPC,
+		.offset = offsetof(struct flow_keys, addrs.tipckey),
+	},
+	{
+		.key_id = FLOW_DISSECTOR_KEY_PORTS,
+		.offset = offsetof(struct flow_keys, ports),
+	},
+	{
+		.key_id = FLOW_DISSECTOR_KEY_ICMP,
+		.offset = offsetof(struct flow_keys, icmp),
+	},
+	{
+		.key_id = FLOW_DISSECTOR_KEY_VLAN,
+		.offset = offsetof(struct flow_keys, vlan),
+	},
+	{
+		.key_id = FLOW_DISSECTOR_KEY_FLOW_LABEL,
+		.offset = offsetof(struct flow_keys, tags),
+	},
+	{
+		.key_id = FLOW_DISSECTOR_KEY_GRE_KEYID,
+		.offset = offsetof(struct flow_keys, keyid),
+	},
+};
+
+static struct flow_dissector flow_keys_bonding __read_mostly;
+
+>>>>>>> upstream/android-13
 /*-------------------------- Forward declarations ---------------------------*/
 
 static int bond_init(struct net_device *bond_dev);
@@ -232,8 +299,11 @@ const char *bond_mode_name(int mode)
 	return names[mode];
 }
 
+<<<<<<< HEAD
 /*---------------------------------- VLAN -----------------------------------*/
 
+=======
+>>>>>>> upstream/android-13
 /**
  * bond_dev_queue_xmit - Prepare skb for xmit.
  *
@@ -241,7 +311,11 @@ const char *bond_mode_name(int mode)
  * @skb: hw accel VLAN tagged skb to transmit
  * @slave_dev: slave that is supposed to xmit this skbuff
  */
+<<<<<<< HEAD
 void bond_dev_queue_xmit(struct bonding *bond, struct sk_buff *skb,
+=======
+netdev_tx_t bond_dev_queue_xmit(struct bonding *bond, struct sk_buff *skb,
+>>>>>>> upstream/android-13
 			struct net_device *slave_dev)
 {
 	skb->dev = slave_dev;
@@ -251,11 +325,53 @@ void bond_dev_queue_xmit(struct bonding *bond, struct sk_buff *skb,
 	skb_set_queue_mapping(skb, qdisc_skb_cb(skb)->slave_dev_queue_mapping);
 
 	if (unlikely(netpoll_tx_running(bond->dev)))
+<<<<<<< HEAD
 		bond_netpoll_send_skb(bond_get_slave_by_dev(bond, slave_dev), skb);
 	else
 		dev_queue_xmit(skb);
 }
 
+=======
+		return bond_netpoll_send_skb(bond_get_slave_by_dev(bond, slave_dev), skb);
+
+	return dev_queue_xmit(skb);
+}
+
+bool bond_sk_check(struct bonding *bond)
+{
+	switch (BOND_MODE(bond)) {
+	case BOND_MODE_8023AD:
+	case BOND_MODE_XOR:
+		if (bond->params.xmit_policy == BOND_XMIT_POLICY_LAYER34)
+			return true;
+		fallthrough;
+	default:
+		return false;
+	}
+}
+
+static bool bond_xdp_check(struct bonding *bond)
+{
+	switch (BOND_MODE(bond)) {
+	case BOND_MODE_ROUNDROBIN:
+	case BOND_MODE_ACTIVEBACKUP:
+		return true;
+	case BOND_MODE_8023AD:
+	case BOND_MODE_XOR:
+		/* vlan+srcmac is not supported with XDP as in most cases the 802.1q
+		 * payload is not in the packet due to hardware offload.
+		 */
+		if (bond->params.xmit_policy != BOND_XMIT_POLICY_VLAN_SRCMAC)
+			return true;
+		fallthrough;
+	default:
+		return false;
+	}
+}
+
+/*---------------------------------- VLAN -----------------------------------*/
+
+>>>>>>> upstream/android-13
 /* In the following 2 functions, bond_vlan_rx_add_vid and bond_vlan_rx_kill_vid,
  * We don't protect the slave list iteration with a lock because:
  * a. This operation is performed in IOCTL context,
@@ -275,6 +391,10 @@ void bond_dev_queue_xmit(struct bonding *bond, struct sk_buff *skb,
 /**
  * bond_vlan_rx_add_vid - Propagates adding an id to slaves
  * @bond_dev: bonding net device that got called
+<<<<<<< HEAD
+=======
+ * @proto: network protocol ID
+>>>>>>> upstream/android-13
  * @vid: vlan id being added
  */
 static int bond_vlan_rx_add_vid(struct net_device *bond_dev,
@@ -308,6 +428,10 @@ unwind:
 /**
  * bond_vlan_rx_kill_vid - Propagates deleting an id to slaves
  * @bond_dev: bonding net device that got called
+<<<<<<< HEAD
+=======
+ * @proto: network protocol ID
+>>>>>>> upstream/android-13
  * @vid: vlan id being removed
  */
 static int bond_vlan_rx_kill_vid(struct net_device *bond_dev,
@@ -326,6 +450,228 @@ static int bond_vlan_rx_kill_vid(struct net_device *bond_dev,
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+/*---------------------------------- XFRM -----------------------------------*/
+
+#ifdef CONFIG_XFRM_OFFLOAD
+/**
+ * bond_ipsec_add_sa - program device with a security association
+ * @xs: pointer to transformer state struct
+ **/
+static int bond_ipsec_add_sa(struct xfrm_state *xs)
+{
+	struct net_device *bond_dev = xs->xso.dev;
+	struct bond_ipsec *ipsec;
+	struct bonding *bond;
+	struct slave *slave;
+	int err;
+
+	if (!bond_dev)
+		return -EINVAL;
+
+	rcu_read_lock();
+	bond = netdev_priv(bond_dev);
+	slave = rcu_dereference(bond->curr_active_slave);
+	if (!slave) {
+		rcu_read_unlock();
+		return -ENODEV;
+	}
+
+	if (!slave->dev->xfrmdev_ops ||
+	    !slave->dev->xfrmdev_ops->xdo_dev_state_add ||
+	    netif_is_bond_master(slave->dev)) {
+		slave_warn(bond_dev, slave->dev, "Slave does not support ipsec offload\n");
+		rcu_read_unlock();
+		return -EINVAL;
+	}
+
+	ipsec = kmalloc(sizeof(*ipsec), GFP_ATOMIC);
+	if (!ipsec) {
+		rcu_read_unlock();
+		return -ENOMEM;
+	}
+	xs->xso.real_dev = slave->dev;
+
+	err = slave->dev->xfrmdev_ops->xdo_dev_state_add(xs);
+	if (!err) {
+		ipsec->xs = xs;
+		INIT_LIST_HEAD(&ipsec->list);
+		spin_lock_bh(&bond->ipsec_lock);
+		list_add(&ipsec->list, &bond->ipsec_list);
+		spin_unlock_bh(&bond->ipsec_lock);
+	} else {
+		kfree(ipsec);
+	}
+	rcu_read_unlock();
+	return err;
+}
+
+static void bond_ipsec_add_sa_all(struct bonding *bond)
+{
+	struct net_device *bond_dev = bond->dev;
+	struct bond_ipsec *ipsec;
+	struct slave *slave;
+
+	rcu_read_lock();
+	slave = rcu_dereference(bond->curr_active_slave);
+	if (!slave)
+		goto out;
+
+	if (!slave->dev->xfrmdev_ops ||
+	    !slave->dev->xfrmdev_ops->xdo_dev_state_add ||
+	    netif_is_bond_master(slave->dev)) {
+		spin_lock_bh(&bond->ipsec_lock);
+		if (!list_empty(&bond->ipsec_list))
+			slave_warn(bond_dev, slave->dev,
+				   "%s: no slave xdo_dev_state_add\n",
+				   __func__);
+		spin_unlock_bh(&bond->ipsec_lock);
+		goto out;
+	}
+
+	spin_lock_bh(&bond->ipsec_lock);
+	list_for_each_entry(ipsec, &bond->ipsec_list, list) {
+		ipsec->xs->xso.real_dev = slave->dev;
+		if (slave->dev->xfrmdev_ops->xdo_dev_state_add(ipsec->xs)) {
+			slave_warn(bond_dev, slave->dev, "%s: failed to add SA\n", __func__);
+			ipsec->xs->xso.real_dev = NULL;
+		}
+	}
+	spin_unlock_bh(&bond->ipsec_lock);
+out:
+	rcu_read_unlock();
+}
+
+/**
+ * bond_ipsec_del_sa - clear out this specific SA
+ * @xs: pointer to transformer state struct
+ **/
+static void bond_ipsec_del_sa(struct xfrm_state *xs)
+{
+	struct net_device *bond_dev = xs->xso.dev;
+	struct bond_ipsec *ipsec;
+	struct bonding *bond;
+	struct slave *slave;
+
+	if (!bond_dev)
+		return;
+
+	rcu_read_lock();
+	bond = netdev_priv(bond_dev);
+	slave = rcu_dereference(bond->curr_active_slave);
+
+	if (!slave)
+		goto out;
+
+	if (!xs->xso.real_dev)
+		goto out;
+
+	WARN_ON(xs->xso.real_dev != slave->dev);
+
+	if (!slave->dev->xfrmdev_ops ||
+	    !slave->dev->xfrmdev_ops->xdo_dev_state_delete ||
+	    netif_is_bond_master(slave->dev)) {
+		slave_warn(bond_dev, slave->dev, "%s: no slave xdo_dev_state_delete\n", __func__);
+		goto out;
+	}
+
+	slave->dev->xfrmdev_ops->xdo_dev_state_delete(xs);
+out:
+	spin_lock_bh(&bond->ipsec_lock);
+	list_for_each_entry(ipsec, &bond->ipsec_list, list) {
+		if (ipsec->xs == xs) {
+			list_del(&ipsec->list);
+			kfree(ipsec);
+			break;
+		}
+	}
+	spin_unlock_bh(&bond->ipsec_lock);
+	rcu_read_unlock();
+}
+
+static void bond_ipsec_del_sa_all(struct bonding *bond)
+{
+	struct net_device *bond_dev = bond->dev;
+	struct bond_ipsec *ipsec;
+	struct slave *slave;
+
+	rcu_read_lock();
+	slave = rcu_dereference(bond->curr_active_slave);
+	if (!slave) {
+		rcu_read_unlock();
+		return;
+	}
+
+	spin_lock_bh(&bond->ipsec_lock);
+	list_for_each_entry(ipsec, &bond->ipsec_list, list) {
+		if (!ipsec->xs->xso.real_dev)
+			continue;
+
+		if (!slave->dev->xfrmdev_ops ||
+		    !slave->dev->xfrmdev_ops->xdo_dev_state_delete ||
+		    netif_is_bond_master(slave->dev)) {
+			slave_warn(bond_dev, slave->dev,
+				   "%s: no slave xdo_dev_state_delete\n",
+				   __func__);
+		} else {
+			slave->dev->xfrmdev_ops->xdo_dev_state_delete(ipsec->xs);
+		}
+		ipsec->xs->xso.real_dev = NULL;
+	}
+	spin_unlock_bh(&bond->ipsec_lock);
+	rcu_read_unlock();
+}
+
+/**
+ * bond_ipsec_offload_ok - can this packet use the xfrm hw offload
+ * @skb: current data packet
+ * @xs: pointer to transformer state struct
+ **/
+static bool bond_ipsec_offload_ok(struct sk_buff *skb, struct xfrm_state *xs)
+{
+	struct net_device *bond_dev = xs->xso.dev;
+	struct net_device *real_dev;
+	struct slave *curr_active;
+	struct bonding *bond;
+	int err;
+
+	bond = netdev_priv(bond_dev);
+	rcu_read_lock();
+	curr_active = rcu_dereference(bond->curr_active_slave);
+	real_dev = curr_active->dev;
+
+	if (BOND_MODE(bond) != BOND_MODE_ACTIVEBACKUP) {
+		err = false;
+		goto out;
+	}
+
+	if (!xs->xso.real_dev) {
+		err = false;
+		goto out;
+	}
+
+	if (!real_dev->xfrmdev_ops ||
+	    !real_dev->xfrmdev_ops->xdo_dev_offload_ok ||
+	    netif_is_bond_master(real_dev)) {
+		err = false;
+		goto out;
+	}
+
+	err = real_dev->xfrmdev_ops->xdo_dev_offload_ok(skb, xs);
+out:
+	rcu_read_unlock();
+	return err;
+}
+
+static const struct xfrmdev_ops bond_xfrmdev_ops = {
+	.xdo_dev_state_add = bond_ipsec_add_sa,
+	.xdo_dev_state_delete = bond_ipsec_del_sa,
+	.xdo_dev_offload_ok = bond_ipsec_offload_ok,
+};
+#endif /* CONFIG_XFRM_OFFLOAD */
+
+>>>>>>> upstream/android-13
 /*------------------------------- Link status -------------------------------*/
 
 /* Set the carrier state for the master according to the state of its
@@ -448,7 +794,11 @@ static int bond_check_dev_link(struct bonding *bond,
 			BMSR_LSTATUS : 0;
 
 	/* Ethtool can't be used, fallback to MII ioctls. */
+<<<<<<< HEAD
 	ioctl = slave_ops->ndo_do_ioctl;
+=======
+	ioctl = slave_ops->ndo_eth_ioctl;
+>>>>>>> upstream/android-13
 	if (ioctl) {
 		/* TODO: set pointer to correct ioctl on a per team member
 		 *       bases to make this more efficient. that is, once
@@ -463,7 +813,11 @@ static int bond_check_dev_link(struct bonding *bond,
 		 */
 
 		/* Yes, the mii is overlaid on the ifreq.ifr_ifru */
+<<<<<<< HEAD
 		strncpy(ifr.ifr_name, slave_dev->name, IFNAMSIZ);
+=======
+		strscpy_pad(ifr.ifr_name, slave_dev->name, IFNAMSIZ);
+>>>>>>> upstream/android-13
 		mii = if_mii(&ifr);
 		if (ioctl(slave_dev, &ifr, SIOCGMIIPHY) == 0) {
 			mii->reg_num = MII_BMSR;
@@ -472,7 +826,11 @@ static int bond_check_dev_link(struct bonding *bond,
 		}
 	}
 
+<<<<<<< HEAD
 	/* If reporting, report that either there's no dev->do_ioctl,
+=======
+	/* If reporting, report that either there's no ndo_eth_ioctl,
+>>>>>>> upstream/android-13
 	 * or both SIOCGMIIREG and get_link failed (meaning that we
 	 * cannot report link status).  If not reporting, pretend
 	 * we're ok.
@@ -609,6 +967,7 @@ static void bond_hw_addr_swap(struct bonding *bond, struct slave *new_active,
  *
  * Should be called with RTNL held.
  */
+<<<<<<< HEAD
 static void bond_set_dev_addr(struct net_device *bond_dev,
 			      struct net_device *slave_dev)
 {
@@ -617,6 +976,23 @@ static void bond_set_dev_addr(struct net_device *bond_dev,
 	memcpy(bond_dev->dev_addr, slave_dev->dev_addr, slave_dev->addr_len);
 	bond_dev->addr_assign_type = NET_ADDR_STOLEN;
 	call_netdevice_notifiers(NETDEV_CHANGEADDR, bond_dev);
+=======
+static int bond_set_dev_addr(struct net_device *bond_dev,
+			     struct net_device *slave_dev)
+{
+	int err;
+
+	slave_dbg(bond_dev, slave_dev, "bond_dev=%p slave_dev=%p slave_dev->addr_len=%d\n",
+		  bond_dev, slave_dev, slave_dev->addr_len);
+	err = dev_pre_changeaddr_notify(bond_dev, slave_dev->dev_addr, NULL);
+	if (err)
+		return err;
+
+	memcpy(bond_dev->dev_addr, slave_dev->dev_addr, slave_dev->addr_len);
+	bond_dev->addr_assign_type = NET_ADDR_STOLEN;
+	call_netdevice_notifiers(NETDEV_CHANGEADDR, bond_dev);
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static struct slave *bond_get_old_active(struct bonding *bond,
@@ -652,8 +1028,17 @@ static void bond_do_fail_over_mac(struct bonding *bond,
 
 	switch (bond->params.fail_over_mac) {
 	case BOND_FOM_ACTIVE:
+<<<<<<< HEAD
 		if (new_active)
 			bond_set_dev_addr(bond->dev, new_active->dev);
+=======
+		if (new_active) {
+			rv = bond_set_dev_addr(bond->dev, new_active->dev);
+			if (rv)
+				slave_err(bond->dev, new_active->dev, "Error %d setting bond MAC from slave\n",
+					  -rv);
+		}
+>>>>>>> upstream/android-13
 		break;
 	case BOND_FOM_FOLLOW:
 		/* if new_active && old_active, swap them
@@ -680,10 +1065,17 @@ static void bond_do_fail_over_mac(struct bonding *bond,
 		}
 
 		rv = dev_set_mac_address(new_active->dev,
+<<<<<<< HEAD
 					 (struct sockaddr *)&ss);
 		if (rv) {
 			netdev_err(bond->dev, "Error %d setting MAC of slave %s\n",
 				   -rv, new_active->dev->name);
+=======
+					 (struct sockaddr *)&ss, NULL);
+		if (rv) {
+			slave_err(bond->dev, new_active->dev, "Error %d setting MAC of new active slave\n",
+				  -rv);
+>>>>>>> upstream/android-13
 			goto out;
 		}
 
@@ -695,10 +1087,17 @@ static void bond_do_fail_over_mac(struct bonding *bond,
 		ss.ss_family = old_active->dev->type;
 
 		rv = dev_set_mac_address(old_active->dev,
+<<<<<<< HEAD
 					 (struct sockaddr *)&ss);
 		if (rv)
 			netdev_err(bond->dev, "Error %d setting MAC of slave %s\n",
 				   -rv, new_active->dev->name);
+=======
+					 (struct sockaddr *)&ss, NULL);
+		if (rv)
+			slave_err(bond->dev, old_active->dev, "Error %d setting MAC of old active slave\n",
+				  -rv);
+>>>>>>> upstream/android-13
 out:
 		break;
 	default:
@@ -782,21 +1181,39 @@ static bool bond_should_notify_peers(struct bonding *bond)
 	slave = rcu_dereference(bond->curr_active_slave);
 	rcu_read_unlock();
 
+<<<<<<< HEAD
 	netdev_dbg(bond->dev, "bond_should_notify_peers: slave %s\n",
 		   slave ? slave->dev->name : "NULL");
 
 	if (!slave || !bond->send_peer_notif ||
+=======
+	if (!slave || !bond->send_peer_notif ||
+	    bond->send_peer_notif %
+	    max(1, bond->params.peer_notif_delay) != 0 ||
+>>>>>>> upstream/android-13
 	    !netif_carrier_ok(bond->dev) ||
 	    test_bit(__LINK_STATE_LINKWATCH_PENDING, &slave->dev->state))
 		return false;
 
+<<<<<<< HEAD
+=======
+	netdev_dbg(bond->dev, "bond_should_notify_peers: slave %s\n",
+		   slave ? slave->dev->name : "NULL");
+
+>>>>>>> upstream/android-13
 	return true;
 }
 
 /**
+<<<<<<< HEAD
  * change_active_interface - change the active slave into the specified one
  * @bond: our bonding struct
  * @new: the new slave to make the active one
+=======
+ * bond_change_active_slave - change the active slave into the specified one
+ * @bond: our bonding struct
+ * @new_active: the new slave to make the active one
+>>>>>>> upstream/android-13
  *
  * Set the new slave to the bond's settings and unset them on the old
  * curr_active_slave.
@@ -819,14 +1236,26 @@ void bond_change_active_slave(struct bonding *bond, struct slave *new_active)
 	if (old_active == new_active)
 		return;
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_XFRM_OFFLOAD
+	bond_ipsec_del_sa_all(bond);
+#endif /* CONFIG_XFRM_OFFLOAD */
+
+>>>>>>> upstream/android-13
 	if (new_active) {
 		new_active->last_link_up = jiffies;
 
 		if (new_active->link == BOND_LINK_BACK) {
 			if (bond_uses_primary(bond)) {
+<<<<<<< HEAD
 				netdev_info(bond->dev, "making interface %s the new active one %d ms earlier\n",
 					    new_active->dev->name,
 					    (bond->params.updelay - new_active->delay) * bond->params.miimon);
+=======
+				slave_info(bond->dev, new_active->dev, "making interface the new active one %d ms earlier\n",
+					   (bond->params.updelay - new_active->delay) * bond->params.miimon);
+>>>>>>> upstream/android-13
 			}
 
 			new_active->delay = 0;
@@ -839,10 +1268,15 @@ void bond_change_active_slave(struct bonding *bond, struct slave *new_active)
 			if (bond_is_lb(bond))
 				bond_alb_handle_link_change(bond, new_active, BOND_LINK_UP);
 		} else {
+<<<<<<< HEAD
 			if (bond_uses_primary(bond)) {
 				netdev_info(bond->dev, "making interface %s the new active one\n",
 					    new_active->dev->name);
 			}
+=======
+			if (bond_uses_primary(bond))
+				slave_info(bond->dev, new_active->dev, "making interface the new active one\n");
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -878,18 +1312,38 @@ void bond_change_active_slave(struct bonding *bond, struct slave *new_active)
 
 			if (netif_running(bond->dev)) {
 				bond->send_peer_notif =
+<<<<<<< HEAD
 					bond->params.num_peer_notif;
+=======
+					bond->params.num_peer_notif *
+					max(1, bond->params.peer_notif_delay);
+>>>>>>> upstream/android-13
 				should_notify_peers =
 					bond_should_notify_peers(bond);
 			}
 
 			call_netdevice_notifiers(NETDEV_BONDING_FAILOVER, bond->dev);
+<<<<<<< HEAD
 			if (should_notify_peers)
 				call_netdevice_notifiers(NETDEV_NOTIFY_PEERS,
 							 bond->dev);
 		}
 	}
 
+=======
+			if (should_notify_peers) {
+				bond->send_peer_notif--;
+				call_netdevice_notifiers(NETDEV_NOTIFY_PEERS,
+							 bond->dev);
+			}
+		}
+	}
+
+#ifdef CONFIG_XFRM_OFFLOAD
+	bond_ipsec_add_sa_all(bond);
+#endif /* CONFIG_XFRM_OFFLOAD */
+
+>>>>>>> upstream/android-13
 	/* resend IGMP joins since active slave has changed or
 	 * all were sent on curr_active_slave.
 	 * resend only if bond is brought up with the affected
@@ -929,7 +1383,11 @@ void bond_select_active_slave(struct bonding *bond)
 			return;
 
 		if (netif_carrier_ok(bond->dev))
+<<<<<<< HEAD
 			netdev_info(bond->dev, "first active interface up!\n");
+=======
+			netdev_info(bond->dev, "active interface up!\n");
+>>>>>>> upstream/android-13
 		else
 			netdev_info(bond->dev, "now running without any active interface!\n");
 	}
@@ -963,7 +1421,12 @@ static inline void slave_disable_netpoll(struct slave *slave)
 		return;
 
 	slave->np = NULL;
+<<<<<<< HEAD
 	__netpoll_free_async(np);
+=======
+
+	__netpoll_free(np);
+>>>>>>> upstream/android-13
 }
 
 static void bond_poll_controller(struct net_device *bond_dev)
@@ -1044,6 +1507,16 @@ static netdev_features_t bond_fix_features(struct net_device *dev,
 	netdev_features_t mask;
 	struct slave *slave;
 
+<<<<<<< HEAD
+=======
+#if IS_ENABLED(CONFIG_TLS_DEVICE)
+	if (bond_sk_check(bond))
+		features |= BOND_TLS_FEATURES;
+	else
+		features &= ~BOND_TLS_FEATURES;
+#endif
+
+>>>>>>> upstream/android-13
 	mask = features;
 
 	features &= ~NETIF_F_ONE_FOR_ALL;
@@ -1060,11 +1533,23 @@ static netdev_features_t bond_fix_features(struct net_device *dev,
 }
 
 #define BOND_VLAN_FEATURES	(NETIF_F_HW_CSUM | NETIF_F_SG | \
+<<<<<<< HEAD
 				 NETIF_F_FRAGLIST | NETIF_F_ALL_TSO | \
 				 NETIF_F_HIGHDMA | NETIF_F_LRO)
 
 #define BOND_ENC_FEATURES	(NETIF_F_HW_CSUM | NETIF_F_SG | \
 				 NETIF_F_RXCSUM | NETIF_F_ALL_TSO)
+=======
+				 NETIF_F_FRAGLIST | NETIF_F_GSO_SOFTWARE | \
+				 NETIF_F_HIGHDMA | NETIF_F_LRO)
+
+#define BOND_ENC_FEATURES	(NETIF_F_HW_CSUM | NETIF_F_SG | \
+				 NETIF_F_RXCSUM | NETIF_F_GSO_SOFTWARE)
+
+#define BOND_MPLS_FEATURES	(NETIF_F_HW_CSUM | NETIF_F_SG | \
+				 NETIF_F_GSO_SOFTWARE)
+
+>>>>>>> upstream/android-13
 
 static void bond_compute_features(struct bonding *bond)
 {
@@ -1072,6 +1557,13 @@ static void bond_compute_features(struct bonding *bond)
 					IFF_XMIT_DST_RELEASE_PERM;
 	netdev_features_t vlan_features = BOND_VLAN_FEATURES;
 	netdev_features_t enc_features  = BOND_ENC_FEATURES;
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_XFRM_OFFLOAD
+	netdev_features_t xfrm_features  = BOND_XFRM_FEATURES;
+#endif /* CONFIG_XFRM_OFFLOAD */
+	netdev_features_t mpls_features  = BOND_MPLS_FEATURES;
+>>>>>>> upstream/android-13
 	struct net_device *bond_dev = bond->dev;
 	struct list_head *iter;
 	struct slave *slave;
@@ -1082,6 +1574,10 @@ static void bond_compute_features(struct bonding *bond)
 	if (!bond_has_slaves(bond))
 		goto done;
 	vlan_features &= NETIF_F_ALL_FOR_ALL;
+<<<<<<< HEAD
+=======
+	mpls_features &= NETIF_F_ALL_FOR_ALL;
+>>>>>>> upstream/android-13
 
 	bond_for_each_slave(bond, slave, iter) {
 		vlan_features = netdev_increment_features(vlan_features,
@@ -1090,6 +1586,20 @@ static void bond_compute_features(struct bonding *bond)
 		enc_features = netdev_increment_features(enc_features,
 							 slave->dev->hw_enc_features,
 							 BOND_ENC_FEATURES);
+<<<<<<< HEAD
+=======
+
+#ifdef CONFIG_XFRM_OFFLOAD
+		xfrm_features = netdev_increment_features(xfrm_features,
+							  slave->dev->hw_enc_features,
+							  BOND_XFRM_FEATURES);
+#endif /* CONFIG_XFRM_OFFLOAD */
+
+		mpls_features = netdev_increment_features(mpls_features,
+							  slave->dev->mpls_features,
+							  BOND_MPLS_FEATURES);
+
+>>>>>>> upstream/android-13
 		dst_release_flag &= slave->dev->priv_flags;
 		if (slave->dev->hard_header_len > max_hard_header_len)
 			max_hard_header_len = slave->dev->hard_header_len;
@@ -1103,8 +1613,16 @@ done:
 	bond_dev->vlan_features = vlan_features;
 	bond_dev->hw_enc_features = enc_features | NETIF_F_GSO_ENCAP_ALL |
 				    NETIF_F_HW_VLAN_CTAG_TX |
+<<<<<<< HEAD
 				    NETIF_F_HW_VLAN_STAG_TX |
 				    NETIF_F_GSO_UDP_L4;
+=======
+				    NETIF_F_HW_VLAN_STAG_TX;
+#ifdef CONFIG_XFRM_OFFLOAD
+	bond_dev->hw_enc_features |= xfrm_features;
+#endif /* CONFIG_XFRM_OFFLOAD */
+	bond_dev->mpls_features = mpls_features;
+>>>>>>> upstream/android-13
 	bond_dev->gso_max_segs = gso_max_segs;
 	netif_set_gso_max_size(bond_dev, gso_max_size);
 
@@ -1194,7 +1712,11 @@ static rx_handler_result_t bond_handle_frame(struct sk_buff **pskb)
 	skb->dev = bond->dev;
 
 	if (BOND_MODE(bond) == BOND_MODE_ALB &&
+<<<<<<< HEAD
 	    bond->dev->priv_flags & IFF_BRIDGE_PORT &&
+=======
+	    netif_is_bridge_port(bond->dev) &&
+>>>>>>> upstream/android-13
 	    skb->pkt_type == PACKET_HOST) {
 
 		if (unlikely(skb_cow_head(skb,
@@ -1243,6 +1765,11 @@ static enum netdev_lag_hash bond_lag_hash_type(struct bonding *bond,
 		return NETDEV_LAG_HASH_E23;
 	case BOND_XMIT_POLICY_ENCAP34:
 		return NETDEV_LAG_HASH_E34;
+<<<<<<< HEAD
+=======
+	case BOND_XMIT_POLICY_VLAN_SRCMAC:
+		return NETDEV_LAG_HASH_VLAN_SRCMAC;
+>>>>>>> upstream/android-13
 	default:
 		return NETDEV_LAG_HASH_UNKNOWN;
 	}
@@ -1310,6 +1837,10 @@ static struct slave *bond_alloc_slave(struct bonding *bond,
 
 	slave->bond = bond;
 	slave->dev = slave_dev;
+<<<<<<< HEAD
+=======
+	INIT_DELAYED_WORK(&slave->notify_work, bond_netdev_notify_work);
+>>>>>>> upstream/android-13
 
 	if (bond_kobj_init(slave))
 		return NULL;
@@ -1322,7 +1853,10 @@ static struct slave *bond_alloc_slave(struct bonding *bond,
 			return NULL;
 		}
 	}
+<<<<<<< HEAD
 	INIT_DELAYED_WORK(&slave->notify_work, bond_netdev_notify_work);
+=======
+>>>>>>> upstream/android-13
 
 	return slave;
 }
@@ -1374,6 +1908,23 @@ void bond_lower_state_changed(struct slave *slave)
 	netdev_lower_state_changed(slave->dev, &info);
 }
 
+<<<<<<< HEAD
+=======
+#define BOND_NL_ERR(bond_dev, extack, errmsg) do {		\
+	if (extack)						\
+		NL_SET_ERR_MSG(extack, errmsg);			\
+	else							\
+		netdev_err(bond_dev, "Error: %s\n", errmsg);	\
+} while (0)
+
+#define SLAVE_NL_ERR(bond_dev, slave_dev, extack, errmsg) do {		\
+	if (extack)							\
+		NL_SET_ERR_MSG(extack, errmsg);				\
+	else								\
+		slave_err(bond_dev, slave_dev, "Error: %s\n", errmsg);	\
+} while (0)
+
+>>>>>>> upstream/android-13
 /* enslave device <slave> to bond device <master> */
 int bond_enslave(struct net_device *bond_dev, struct net_device *slave_dev,
 		 struct netlink_ext_ack *extack)
@@ -1385,30 +1936,54 @@ int bond_enslave(struct net_device *bond_dev, struct net_device *slave_dev,
 	int link_reporting;
 	int res = 0, i;
 
+<<<<<<< HEAD
 	if (!bond->params.use_carrier &&
 	    slave_dev->ethtool_ops->get_link == NULL &&
 	    slave_ops->ndo_do_ioctl == NULL) {
 		netdev_warn(bond_dev, "no link monitoring support for %s\n",
 			    slave_dev->name);
+=======
+	if (slave_dev->flags & IFF_MASTER &&
+	    !netif_is_bond_master(slave_dev)) {
+		BOND_NL_ERR(bond_dev, extack,
+			    "Device type (master device) cannot be enslaved");
+		return -EPERM;
+	}
+
+	if (!bond->params.use_carrier &&
+	    slave_dev->ethtool_ops->get_link == NULL &&
+	    slave_ops->ndo_eth_ioctl == NULL) {
+		slave_warn(bond_dev, slave_dev, "no link monitoring support\n");
+>>>>>>> upstream/android-13
 	}
 
 	/* already in-use? */
 	if (netdev_is_rx_handler_busy(slave_dev)) {
+<<<<<<< HEAD
 		NL_SET_ERR_MSG(extack, "Device is in use and cannot be enslaved");
 		netdev_err(bond_dev,
 			   "Error: Device is in use and cannot be enslaved\n");
+=======
+		SLAVE_NL_ERR(bond_dev, slave_dev, extack,
+			     "Device is in use and cannot be enslaved");
+>>>>>>> upstream/android-13
 		return -EBUSY;
 	}
 
 	if (bond_dev == slave_dev) {
+<<<<<<< HEAD
 		NL_SET_ERR_MSG(extack, "Cannot enslave bond to itself.");
 		netdev_err(bond_dev, "cannot enslave bond to itself.\n");
+=======
+		BOND_NL_ERR(bond_dev, extack, "Cannot enslave bond to itself.");
+>>>>>>> upstream/android-13
 		return -EPERM;
 	}
 
 	/* vlan challenged mutual exclusion */
 	/* no need to lock since we're protected by rtnl_lock */
 	if (slave_dev->features & NETIF_F_VLAN_CHALLENGED) {
+<<<<<<< HEAD
 		netdev_dbg(bond_dev, "%s is NETIF_F_VLAN_CHALLENGED\n",
 			   slave_dev->name);
 		if (vlan_uses_dev(bond_dev)) {
@@ -1426,15 +2001,37 @@ int bond_enslave(struct net_device *bond_dev, struct net_device *slave_dev,
 			   slave_dev->name);
 	}
 
+=======
+		slave_dbg(bond_dev, slave_dev, "is NETIF_F_VLAN_CHALLENGED\n");
+		if (vlan_uses_dev(bond_dev)) {
+			SLAVE_NL_ERR(bond_dev, slave_dev, extack,
+				     "Can not enslave VLAN challenged device to VLAN enabled bond");
+			return -EPERM;
+		} else {
+			slave_warn(bond_dev, slave_dev, "enslaved VLAN challenged slave. Adding VLANs will be blocked as long as it is part of bond.\n");
+		}
+	} else {
+		slave_dbg(bond_dev, slave_dev, "is !NETIF_F_VLAN_CHALLENGED\n");
+	}
+
+	if (slave_dev->features & NETIF_F_HW_ESP)
+		slave_dbg(bond_dev, slave_dev, "is esp-hw-offload capable\n");
+
+>>>>>>> upstream/android-13
 	/* Old ifenslave binaries are no longer supported.  These can
 	 * be identified with moderate accuracy by the state of the slave:
 	 * the current ifenslave will set the interface down prior to
 	 * enslaving it; the old ifenslave will not.
 	 */
 	if (slave_dev->flags & IFF_UP) {
+<<<<<<< HEAD
 		NL_SET_ERR_MSG(extack, "Device can not be enslaved while up");
 		netdev_err(bond_dev, "%s is up - this may be due to an out of date ifenslave\n",
 			   slave_dev->name);
+=======
+		SLAVE_NL_ERR(bond_dev, slave_dev, extack,
+			     "Device can not be enslaved while up");
+>>>>>>> upstream/android-13
 		return -EPERM;
 	}
 
@@ -1447,14 +2044,23 @@ int bond_enslave(struct net_device *bond_dev, struct net_device *slave_dev,
 	 */
 	if (!bond_has_slaves(bond)) {
 		if (bond_dev->type != slave_dev->type) {
+<<<<<<< HEAD
 			netdev_dbg(bond_dev, "change device type from %d to %d\n",
 				   bond_dev->type, slave_dev->type);
+=======
+			slave_dbg(bond_dev, slave_dev, "change device type from %d to %d\n",
+				  bond_dev->type, slave_dev->type);
+>>>>>>> upstream/android-13
 
 			res = call_netdevice_notifiers(NETDEV_PRE_TYPE_CHANGE,
 						       bond_dev);
 			res = notifier_to_errno(res);
 			if (res) {
+<<<<<<< HEAD
 				netdev_err(bond_dev, "refused to change device type\n");
+=======
+				slave_err(bond_dev, slave_dev, "refused to change device type\n");
+>>>>>>> upstream/android-13
 				return -EBUSY;
 			}
 
@@ -1473,32 +2079,53 @@ int bond_enslave(struct net_device *bond_dev, struct net_device *slave_dev,
 						 bond_dev);
 		}
 	} else if (bond_dev->type != slave_dev->type) {
+<<<<<<< HEAD
 		NL_SET_ERR_MSG(extack, "Device type is different from other slaves");
 		netdev_err(bond_dev, "%s ether type (%d) is different from other slaves (%d), can not enslave it\n",
 			   slave_dev->name, slave_dev->type, bond_dev->type);
+=======
+		SLAVE_NL_ERR(bond_dev, slave_dev, extack,
+			     "Device type is different from other slaves");
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
 	if (slave_dev->type == ARPHRD_INFINIBAND &&
 	    BOND_MODE(bond) != BOND_MODE_ACTIVEBACKUP) {
+<<<<<<< HEAD
 		NL_SET_ERR_MSG(extack, "Only active-backup mode is supported for infiniband slaves");
 		netdev_warn(bond_dev, "Type (%d) supports only active-backup mode\n",
 			    slave_dev->type);
+=======
+		SLAVE_NL_ERR(bond_dev, slave_dev, extack,
+			     "Only active-backup mode is supported for infiniband slaves");
+>>>>>>> upstream/android-13
 		res = -EOPNOTSUPP;
 		goto err_undo_flags;
 	}
 
 	if (!slave_ops->ndo_set_mac_address ||
 	    slave_dev->type == ARPHRD_INFINIBAND) {
+<<<<<<< HEAD
 		netdev_warn(bond_dev, "The slave device specified does not support setting the MAC address\n");
+=======
+		slave_warn(bond_dev, slave_dev, "The slave device specified does not support setting the MAC address\n");
+>>>>>>> upstream/android-13
 		if (BOND_MODE(bond) == BOND_MODE_ACTIVEBACKUP &&
 		    bond->params.fail_over_mac != BOND_FOM_ACTIVE) {
 			if (!bond_has_slaves(bond)) {
 				bond->params.fail_over_mac = BOND_FOM_ACTIVE;
+<<<<<<< HEAD
 				netdev_warn(bond_dev, "Setting fail_over_mac to active for active-backup mode\n");
 			} else {
 				NL_SET_ERR_MSG(extack, "Slave device does not support setting the MAC address, but fail_over_mac is not set to active");
 				netdev_err(bond_dev, "The slave device specified does not support setting the MAC address, but fail_over_mac is not set to active\n");
+=======
+				slave_warn(bond_dev, slave_dev, "Setting fail_over_mac to active for active-backup mode\n");
+			} else {
+				SLAVE_NL_ERR(bond_dev, slave_dev, extack,
+					     "Slave device does not support setting the MAC address, but fail_over_mac is not set to active");
+>>>>>>> upstream/android-13
 				res = -EOPNOTSUPP;
 				goto err_undo_flags;
 			}
@@ -1511,8 +2138,16 @@ int bond_enslave(struct net_device *bond_dev, struct net_device *slave_dev,
 	 * address to be the same as the slave's.
 	 */
 	if (!bond_has_slaves(bond) &&
+<<<<<<< HEAD
 	    bond->dev->addr_assign_type == NET_ADDR_RANDOM)
 		bond_set_dev_addr(bond->dev, slave_dev);
+=======
+	    bond->dev->addr_assign_type == NET_ADDR_RANDOM) {
+		res = bond_set_dev_addr(bond->dev, slave_dev);
+		if (res)
+			goto err_undo_flags;
+	}
+>>>>>>> upstream/android-13
 
 	new_slave = bond_alloc_slave(bond, slave_dev);
 	if (!new_slave) {
@@ -1529,7 +2164,11 @@ int bond_enslave(struct net_device *bond_dev, struct net_device *slave_dev,
 	new_slave->original_mtu = slave_dev->mtu;
 	res = dev_set_mtu(slave_dev, bond->dev->mtu);
 	if (res) {
+<<<<<<< HEAD
 		netdev_dbg(bond_dev, "Error %d calling dev_set_mtu\n", res);
+=======
+		slave_err(bond_dev, slave_dev, "Error %d calling dev_set_mtu\n", res);
+>>>>>>> upstream/android-13
 		goto err_free;
 	}
 
@@ -1547,9 +2186,16 @@ int bond_enslave(struct net_device *bond_dev, struct net_device *slave_dev,
 		 */
 		memcpy(ss.__data, bond_dev->dev_addr, bond_dev->addr_len);
 		ss.ss_family = slave_dev->type;
+<<<<<<< HEAD
 		res = dev_set_mac_address(slave_dev, (struct sockaddr *)&ss);
 		if (res) {
 			netdev_dbg(bond_dev, "Error %d calling set_mac_address\n", res);
+=======
+		res = dev_set_mac_address(slave_dev, (struct sockaddr *)&ss,
+					  extack);
+		if (res) {
+			slave_err(bond_dev, slave_dev, "Error %d calling set_mac_address\n", res);
+>>>>>>> upstream/android-13
 			goto err_restore_mtu;
 		}
 	}
@@ -1558,9 +2204,15 @@ int bond_enslave(struct net_device *bond_dev, struct net_device *slave_dev,
 	slave_dev->flags |= IFF_SLAVE;
 
 	/* open the slave since the application closed it */
+<<<<<<< HEAD
 	res = dev_open(slave_dev);
 	if (res) {
 		netdev_dbg(bond_dev, "Opening slave %s failed\n", slave_dev->name);
+=======
+	res = dev_open(slave_dev, extack);
+	if (res) {
+		slave_err(bond_dev, slave_dev, "Opening slave failed\n");
+>>>>>>> upstream/android-13
 		goto err_restore_mac;
 	}
 
@@ -1579,8 +2231,12 @@ int bond_enslave(struct net_device *bond_dev, struct net_device *slave_dev,
 
 	res = vlan_vids_add_by_dev(slave_dev, bond_dev);
 	if (res) {
+<<<<<<< HEAD
 		netdev_err(bond_dev, "Couldn't add bond vlan ids to %s\n",
 			   slave_dev->name);
+=======
+		slave_err(bond_dev, slave_dev, "Couldn't add bond vlan ids\n");
+>>>>>>> upstream/android-13
 		goto err_close;
 	}
 
@@ -1610,12 +2266,19 @@ int bond_enslave(struct net_device *bond_dev, struct net_device *slave_dev,
 			 * supported); thus, we don't need to change
 			 * the messages for netif_carrier.
 			 */
+<<<<<<< HEAD
 			netdev_warn(bond_dev, "MII and ETHTOOL support not available for interface %s, and arp_interval/arp_ip_target module parameters not specified, thus bonding will not detect link failures! see bonding.txt for details\n",
 				    slave_dev->name);
 		} else if (link_reporting == -1) {
 			/* unable get link status using mii/ethtool */
 			netdev_warn(bond_dev, "can't get link status from interface %s; the network driver associated with this interface does not support MII or ETHTOOL link status reporting, thus miimon has no effect on this interface\n",
 				    slave_dev->name);
+=======
+			slave_warn(bond_dev, slave_dev, "MII and ETHTOOL support not available for slave, and arp_interval/arp_ip_target module parameters not specified, thus bonding will not detect link failures! see bonding.txt for details\n");
+		} else if (link_reporting == -1) {
+			/* unable get link status using mii/ethtool */
+			slave_warn(bond_dev, slave_dev, "can't get link status from slave; the network driver associated with this interface does not support MII or ETHTOOL link status reporting, thus miimon has no effect on this interface\n");
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -1649,9 +2312,15 @@ int bond_enslave(struct net_device *bond_dev, struct net_device *slave_dev,
 
 	if (new_slave->link != BOND_LINK_DOWN)
 		new_slave->last_link_up = jiffies;
+<<<<<<< HEAD
 	netdev_dbg(bond_dev, "Initial state of slave_dev is BOND_LINK_%s\n",
 		   new_slave->link == BOND_LINK_DOWN ? "DOWN" :
 		   (new_slave->link == BOND_LINK_UP ? "UP" : "BACK"));
+=======
+	slave_dbg(bond_dev, slave_dev, "Initial state of slave is BOND_LINK_%s\n",
+		  new_slave->link == BOND_LINK_DOWN ? "DOWN" :
+		  (new_slave->link == BOND_LINK_UP ? "UP" : "BACK"));
+>>>>>>> upstream/android-13
 
 	if (bond_uses_primary(bond) && bond->params.primary[0]) {
 		/* if there is a primary slave, remember it */
@@ -1692,7 +2361,11 @@ int bond_enslave(struct net_device *bond_dev, struct net_device *slave_dev,
 		bond_set_slave_inactive_flags(new_slave, BOND_SLAVE_NOTIFY_NOW);
 		break;
 	default:
+<<<<<<< HEAD
 		netdev_dbg(bond_dev, "This slave is always active in trunk mode\n");
+=======
+		slave_dbg(bond_dev, slave_dev, "This slave is always active in trunk mode\n");
+>>>>>>> upstream/android-13
 
 		/* always active in trunk mode */
 		bond_set_active_slave(new_slave);
@@ -1711,7 +2384,11 @@ int bond_enslave(struct net_device *bond_dev, struct net_device *slave_dev,
 #ifdef CONFIG_NET_POLL_CONTROLLER
 	if (bond->dev->npinfo) {
 		if (slave_enable_netpoll(new_slave)) {
+<<<<<<< HEAD
 			netdev_info(bond_dev, "master_dev is using netpoll, but new slave device does not support netpoll\n");
+=======
+			slave_info(bond_dev, slave_dev, "master_dev is using netpoll, but new slave device does not support netpoll\n");
+>>>>>>> upstream/android-13
 			res = -EBUSY;
 			goto err_detach;
 		}
@@ -1724,12 +2401,17 @@ int bond_enslave(struct net_device *bond_dev, struct net_device *slave_dev,
 	res = netdev_rx_handler_register(slave_dev, bond_handle_frame,
 					 new_slave);
 	if (res) {
+<<<<<<< HEAD
 		netdev_dbg(bond_dev, "Error %d calling netdev_rx_handler_register\n", res);
+=======
+		slave_dbg(bond_dev, slave_dev, "Error %d calling netdev_rx_handler_register\n", res);
+>>>>>>> upstream/android-13
 		goto err_detach;
 	}
 
 	res = bond_master_upper_dev_link(bond, new_slave, extack);
 	if (res) {
+<<<<<<< HEAD
 		netdev_dbg(bond_dev, "Error %d calling bond_master_upper_dev_link\n", res);
 		goto err_unregister;
 	}
@@ -1742,6 +2424,20 @@ int bond_enslave(struct net_device *bond_dev, struct net_device *slave_dev,
 
 	bond->nest_level = dev_get_nest_level(bond_dev) + 1;
 
+=======
+		slave_dbg(bond_dev, slave_dev, "Error %d calling bond_master_upper_dev_link\n", res);
+		goto err_unregister;
+	}
+
+	bond_lower_state_changed(new_slave);
+
+	res = bond_sysfs_slave_add(new_slave);
+	if (res) {
+		slave_dbg(bond_dev, slave_dev, "Error %d calling bond_sysfs_slave_add\n", res);
+		goto err_upper_unlink;
+	}
+
+>>>>>>> upstream/android-13
 	/* If the mode uses primary, then the following is handled by
 	 * bond_change_active_slave().
 	 */
@@ -1790,10 +2486,49 @@ int bond_enslave(struct net_device *bond_dev, struct net_device *slave_dev,
 		bond_update_slave_arr(bond, NULL);
 
 
+<<<<<<< HEAD
 	netdev_info(bond_dev, "Enslaving %s as %s interface with %s link\n",
 		    slave_dev->name,
 		    bond_is_active_slave(new_slave) ? "an active" : "a backup",
 		    new_slave->link != BOND_LINK_DOWN ? "an up" : "a down");
+=======
+	if (!slave_dev->netdev_ops->ndo_bpf ||
+	    !slave_dev->netdev_ops->ndo_xdp_xmit) {
+		if (bond->xdp_prog) {
+			SLAVE_NL_ERR(bond_dev, slave_dev, extack,
+				     "Slave does not support XDP");
+			res = -EOPNOTSUPP;
+			goto err_sysfs_del;
+		}
+	} else if (bond->xdp_prog) {
+		struct netdev_bpf xdp = {
+			.command = XDP_SETUP_PROG,
+			.flags   = 0,
+			.prog    = bond->xdp_prog,
+			.extack  = extack,
+		};
+
+		if (dev_xdp_prog_count(slave_dev) > 0) {
+			SLAVE_NL_ERR(bond_dev, slave_dev, extack,
+				     "Slave has XDP program loaded, please unload before enslaving");
+			res = -EOPNOTSUPP;
+			goto err_sysfs_del;
+		}
+
+		res = slave_dev->netdev_ops->ndo_bpf(slave_dev, &xdp);
+		if (res < 0) {
+			/* ndo_bpf() sets extack error message */
+			slave_dbg(bond_dev, slave_dev, "Error %d calling ndo_bpf\n", res);
+			goto err_sysfs_del;
+		}
+		if (bond->xdp_prog)
+			bpf_prog_inc(bond->xdp_prog);
+	}
+
+	slave_info(bond_dev, slave_dev, "Enslaving as %s interface with %s link\n",
+		   bond_is_active_slave(new_slave) ? "an active" : "a backup",
+		   new_slave->link != BOND_LINK_DOWN ? "an up" : "a down");
+>>>>>>> upstream/android-13
 
 	/* enslave is successful */
 	bond_queue_slave_event(new_slave);
@@ -1839,7 +2574,11 @@ err_restore_mac:
 		bond_hw_addr_copy(ss.__data, new_slave->perm_hwaddr,
 				  new_slave->dev->addr_len);
 		ss.ss_family = slave_dev->type;
+<<<<<<< HEAD
 		dev_set_mac_address(slave_dev, (struct sockaddr *)&ss);
+=======
+		dev_set_mac_address(slave_dev, (struct sockaddr *)&ss, NULL);
+>>>>>>> upstream/android-13
 	}
 
 err_restore_mtu:
@@ -1889,8 +2628,12 @@ static int __bond_release_one(struct net_device *bond_dev,
 	/* slave is not a slave or master is not master of this slave */
 	if (!(slave_dev->flags & IFF_SLAVE) ||
 	    !netdev_has_upper_dev(slave_dev, bond_dev)) {
+<<<<<<< HEAD
 		netdev_dbg(bond_dev, "cannot release %s\n",
 			   slave_dev->name);
+=======
+		slave_dbg(bond_dev, slave_dev, "cannot release slave\n");
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -1899,8 +2642,12 @@ static int __bond_release_one(struct net_device *bond_dev,
 	slave = bond_get_slave_by_dev(bond, slave_dev);
 	if (!slave) {
 		/* not a slave of this bond */
+<<<<<<< HEAD
 		netdev_info(bond_dev, "%s not enslaved\n",
 			    slave_dev->name);
+=======
+		slave_info(bond_dev, slave_dev, "interface not enslaved\n");
+>>>>>>> upstream/android-13
 		unblock_netpoll_tx();
 		return -EINVAL;
 	}
@@ -1912,7 +2659,21 @@ static int __bond_release_one(struct net_device *bond_dev,
 	/* recompute stats just before removing the slave */
 	bond_get_stats(bond->dev, &bond->bond_stats);
 
+<<<<<<< HEAD
 	bond_upper_dev_unlink(bond, slave);
+=======
+	if (bond->xdp_prog) {
+		struct netdev_bpf xdp = {
+			.command = XDP_SETUP_PROG,
+			.flags   = 0,
+			.prog	 = NULL,
+			.extack  = NULL,
+		};
+		if (slave_dev->netdev_ops->ndo_bpf(slave_dev, &xdp))
+			slave_warn(bond_dev, slave_dev, "failed to unload XDP program\n");
+	}
+
+>>>>>>> upstream/android-13
 	/* unregister rx_handler early so bond_handle_frame wouldn't be called
 	 * for this slave anymore.
 	 */
@@ -1921,12 +2682,22 @@ static int __bond_release_one(struct net_device *bond_dev,
 	if (BOND_MODE(bond) == BOND_MODE_8023AD)
 		bond_3ad_unbind_slave(slave);
 
+<<<<<<< HEAD
 	if (bond_mode_can_use_xmit_hash(bond))
 		bond_update_slave_arr(bond, slave);
 
 	netdev_info(bond_dev, "Releasing %s interface %s\n",
 		    bond_is_active_slave(slave) ? "active" : "backup",
 		    slave_dev->name);
+=======
+	bond_upper_dev_unlink(bond, slave);
+
+	if (bond_mode_can_use_xmit_hash(bond))
+		bond_update_slave_arr(bond, slave);
+
+	slave_info(bond_dev, slave_dev, "Releasing %s interface\n",
+		    bond_is_active_slave(slave) ? "active" : "backup");
+>>>>>>> upstream/android-13
 
 	oldcurrent = rcu_access_pointer(bond->curr_active_slave);
 
@@ -1936,9 +2707,14 @@ static int __bond_release_one(struct net_device *bond_dev,
 		     BOND_MODE(bond) != BOND_MODE_ACTIVEBACKUP)) {
 		if (ether_addr_equal_64bits(bond_dev->dev_addr, slave->perm_hwaddr) &&
 		    bond_has_slaves(bond))
+<<<<<<< HEAD
 			netdev_warn(bond_dev, "the permanent HWaddr of %s - %pM - is still in use by %s - set the HWaddr of %s to a different address to avoid conflicts\n",
 				    slave_dev->name, slave->perm_hwaddr,
 				    bond_dev->name, slave_dev->name);
+=======
+			slave_warn(bond_dev, slave_dev, "the permanent HWaddr of slave - %pM - is still in use by bond - set the HWaddr of slave to a different address to avoid conflicts\n",
+				   slave->perm_hwaddr);
+>>>>>>> upstream/android-13
 	}
 
 	if (rtnl_dereference(bond->primary_slave) == slave)
@@ -1966,6 +2742,7 @@ static int __bond_release_one(struct net_device *bond_dev,
 		bond_select_active_slave(bond);
 	}
 
+<<<<<<< HEAD
 	if (!bond_has_slaves(bond)) {
 		bond_set_carrier(bond);
 		eth_hw_addr_random(bond_dev);
@@ -1973,6 +2750,11 @@ static int __bond_release_one(struct net_device *bond_dev,
 	} else {
 		bond->nest_level = dev_get_nest_level(bond_dev) + 1;
 	}
+=======
+	bond_set_carrier(bond);
+	if (!bond_has_slaves(bond))
+		eth_hw_addr_random(bond_dev);
+>>>>>>> upstream/android-13
 
 	unblock_netpoll_tx();
 	synchronize_rcu();
@@ -1986,8 +2768,12 @@ static int __bond_release_one(struct net_device *bond_dev,
 	bond_compute_features(bond);
 	if (!(bond_dev->features & NETIF_F_VLAN_CHALLENGED) &&
 	    (old_features & NETIF_F_VLAN_CHALLENGED))
+<<<<<<< HEAD
 		netdev_info(bond_dev, "last VLAN challenged slave %s left bond %s - VLAN blocking is removed\n",
 			    slave_dev->name, bond_dev->name);
+=======
+		slave_info(bond_dev, slave_dev, "last VLAN challenged slave left bond - VLAN blocking is removed\n");
+>>>>>>> upstream/android-13
 
 	vlan_vids_del_by_dev(slave_dev, bond_dev);
 
@@ -2023,7 +2809,11 @@ static int __bond_release_one(struct net_device *bond_dev,
 		bond_hw_addr_copy(ss.__data, slave->perm_hwaddr,
 				  slave->dev->addr_len);
 		ss.ss_family = slave_dev->type;
+<<<<<<< HEAD
 		dev_set_mac_address(slave_dev, (struct sockaddr *)&ss);
+=======
+		dev_set_mac_address(slave_dev, (struct sockaddr *)&ss, NULL);
+>>>>>>> upstream/android-13
 	}
 
 	if (unregister)
@@ -2048,8 +2838,13 @@ int bond_release(struct net_device *bond_dev, struct net_device *slave_dev)
 /* First release a slave and then destroy the bond if no more slaves are left.
  * Must be under rtnl_lock when this function is called.
  */
+<<<<<<< HEAD
 static int  bond_release_and_destroy(struct net_device *bond_dev,
 				     struct net_device *slave_dev)
+=======
+static int bond_release_and_destroy(struct net_device *bond_dev,
+				    struct net_device *slave_dev)
+>>>>>>> upstream/android-13
 {
 	struct bonding *bond = netdev_priv(bond_dev);
 	int ret;
@@ -2058,8 +2853,12 @@ static int  bond_release_and_destroy(struct net_device *bond_dev,
 	if (ret == 0 && !bond_has_slaves(bond) &&
 	    bond_dev->reg_state != NETREG_UNREGISTERING) {
 		bond_dev->priv_flags |= IFF_DISABLE_NETPOLL;
+<<<<<<< HEAD
 		netdev_info(bond_dev, "Destroying bond %s\n",
 			    bond_dev->name);
+=======
+		netdev_info(bond_dev, "Destroying bond\n");
+>>>>>>> upstream/android-13
 		bond_remove_proc_entry(bond);
 		unregister_netdevice(bond_dev);
 	}
@@ -2069,6 +2868,10 @@ static int  bond_release_and_destroy(struct net_device *bond_dev,
 static void bond_info_query(struct net_device *bond_dev, struct ifbond *info)
 {
 	struct bonding *bond = netdev_priv(bond_dev);
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	bond_fill_ifbond(bond, info);
 }
 
@@ -2116,6 +2919,7 @@ static int bond_miimon_inspect(struct bonding *bond)
 			commit++;
 			slave->delay = bond->params.downdelay;
 			if (slave->delay) {
+<<<<<<< HEAD
 				netdev_info(bond->dev, "link status down for %sinterface %s, disabling it in %d ms\n",
 					    (BOND_MODE(bond) ==
 					     BOND_MODE_ACTIVEBACKUP) ?
@@ -2125,15 +2929,31 @@ static int bond_miimon_inspect(struct bonding *bond)
 					    bond->params.downdelay * bond->params.miimon);
 			}
 			/*FALLTHRU*/
+=======
+				slave_info(bond->dev, slave->dev, "link status down for %sinterface, disabling it in %d ms\n",
+					   (BOND_MODE(bond) ==
+					    BOND_MODE_ACTIVEBACKUP) ?
+					    (bond_is_active_slave(slave) ?
+					     "active " : "backup ") : "",
+					   bond->params.downdelay * bond->params.miimon);
+			}
+			fallthrough;
+>>>>>>> upstream/android-13
 		case BOND_LINK_FAIL:
 			if (link_state) {
 				/* recovered before downdelay expired */
 				bond_propose_link_state(slave, BOND_LINK_UP);
 				slave->last_link_up = jiffies;
+<<<<<<< HEAD
 				netdev_info(bond->dev, "link status up again after %d ms for interface %s\n",
 					    (bond->params.downdelay - slave->delay) *
 					    bond->params.miimon,
 					    slave->dev->name);
+=======
+				slave_info(bond->dev, slave->dev, "link status up again after %d ms\n",
+					   (bond->params.downdelay - slave->delay) *
+					   bond->params.miimon);
+>>>>>>> upstream/android-13
 				commit++;
 				continue;
 			}
@@ -2156,6 +2976,7 @@ static int bond_miimon_inspect(struct bonding *bond)
 			slave->delay = bond->params.updelay;
 
 			if (slave->delay) {
+<<<<<<< HEAD
 				netdev_info(bond->dev, "link status up for interface %s, enabling it in %d ms\n",
 					    slave->dev->name,
 					    ignore_updelay ? 0 :
@@ -2170,6 +2991,20 @@ static int bond_miimon_inspect(struct bonding *bond)
 					    (bond->params.updelay - slave->delay) *
 					    bond->params.miimon,
 					    slave->dev->name);
+=======
+				slave_info(bond->dev, slave->dev, "link status up, enabling it in %d ms\n",
+					   ignore_updelay ? 0 :
+					   bond->params.updelay *
+					   bond->params.miimon);
+			}
+			fallthrough;
+		case BOND_LINK_BACK:
+			if (!link_state) {
+				bond_propose_link_state(slave, BOND_LINK_DOWN);
+				slave_info(bond->dev, slave->dev, "link status down again after %d ms\n",
+					   (bond->params.updelay - slave->delay) *
+					   bond->params.miimon);
+>>>>>>> upstream/android-13
 				commit++;
 				continue;
 			}
@@ -2234,9 +3069,14 @@ static void bond_miimon_commit(struct bonding *bond)
 			    bond_needs_speed_duplex(bond)) {
 				slave->link = BOND_LINK_DOWN;
 				if (net_ratelimit())
+<<<<<<< HEAD
 					netdev_warn(bond->dev,
 						    "failed to get link speed/duplex for %s\n",
 						    slave->dev->name);
+=======
+					slave_warn(bond->dev, slave->dev,
+						   "failed to get link speed/duplex\n");
+>>>>>>> upstream/android-13
 				continue;
 			}
 			bond_set_slave_link_state(slave, BOND_LINK_UP,
@@ -2252,10 +3092,16 @@ static void bond_miimon_commit(struct bonding *bond)
 				bond_set_active_slave(slave);
 			}
 
+<<<<<<< HEAD
 			netdev_info(bond->dev, "link status definitely up for interface %s, %u Mbps %s duplex\n",
 				    slave->dev->name,
 				    slave->speed == SPEED_UNKNOWN ? 0 : slave->speed,
 				    slave->duplex ? "full" : "half");
+=======
+			slave_info(bond->dev, slave->dev, "link status definitely up, %u Mbps %s duplex\n",
+				   slave->speed == SPEED_UNKNOWN ? 0 : slave->speed,
+				   slave->duplex ? "full" : "half");
+>>>>>>> upstream/android-13
 
 			bond_miimon_link_change(bond, slave, BOND_LINK_UP);
 
@@ -2276,8 +3122,12 @@ static void bond_miimon_commit(struct bonding *bond)
 				bond_set_slave_inactive_flags(slave,
 							      BOND_SLAVE_NOTIFY_NOW);
 
+<<<<<<< HEAD
 			netdev_info(bond->dev, "link status definitely down for interface %s, disabling it\n",
 				    slave->dev->name);
+=======
+			slave_info(bond->dev, slave->dev, "link status definitely down, disabling slave\n");
+>>>>>>> upstream/android-13
 
 			bond_miimon_link_change(bond, slave, BOND_LINK_DOWN);
 
@@ -2287,8 +3137,13 @@ static void bond_miimon_commit(struct bonding *bond)
 			continue;
 
 		default:
+<<<<<<< HEAD
 			netdev_err(bond->dev, "invalid new link %d on slave %s\n",
 				   slave->link_new_state, slave->dev->name);
+=======
+			slave_err(bond->dev, slave->dev, "invalid new link %d on slave\n",
+				  slave->link_new_state);
+>>>>>>> upstream/android-13
 			bond_propose_link_state(slave, BOND_LINK_NOCHANGE);
 
 			continue;
@@ -2315,6 +3170,10 @@ static void bond_mii_monitor(struct work_struct *work)
 	struct bonding *bond = container_of(work, struct bonding,
 					    mii_work.work);
 	bool should_notify_peers = false;
+<<<<<<< HEAD
+=======
+	bool commit;
+>>>>>>> upstream/android-13
 	unsigned long delay;
 	struct slave *slave;
 	struct list_head *iter;
@@ -2325,12 +3184,28 @@ static void bond_mii_monitor(struct work_struct *work)
 		goto re_arm;
 
 	rcu_read_lock();
+<<<<<<< HEAD
 
 	should_notify_peers = bond_should_notify_peers(bond);
 
 	if (bond_miimon_inspect(bond)) {
 		rcu_read_unlock();
 
+=======
+	should_notify_peers = bond_should_notify_peers(bond);
+	commit = !!bond_miimon_inspect(bond);
+	if (bond->send_peer_notif) {
+		rcu_read_unlock();
+		if (rtnl_trylock()) {
+			bond->send_peer_notif--;
+			rtnl_unlock();
+		}
+	} else {
+		rcu_read_unlock();
+	}
+
+	if (commit) {
+>>>>>>> upstream/android-13
 		/* Race avoidance with bond_close cancel of workqueue */
 		if (!rtnl_trylock()) {
 			delay = 1;
@@ -2344,8 +3219,12 @@ static void bond_mii_monitor(struct work_struct *work)
 		bond_miimon_commit(bond);
 
 		rtnl_unlock();	/* might sleep, hold no other locks */
+<<<<<<< HEAD
 	} else
 		rcu_read_unlock();
+=======
+	}
+>>>>>>> upstream/android-13
 
 re_arm:
 	if (bond->params.miimon)
@@ -2359,22 +3238,39 @@ re_arm:
 	}
 }
 
+<<<<<<< HEAD
 static int bond_upper_dev_walk(struct net_device *upper, void *data)
 {
 	__be32 ip = *((__be32 *)data);
+=======
+static int bond_upper_dev_walk(struct net_device *upper,
+			       struct netdev_nested_priv *priv)
+{
+	__be32 ip = *(__be32 *)priv->data;
+>>>>>>> upstream/android-13
 
 	return ip == bond_confirm_addr(upper, 0, ip);
 }
 
 static bool bond_has_this_ip(struct bonding *bond, __be32 ip)
 {
+<<<<<<< HEAD
+=======
+	struct netdev_nested_priv priv = {
+		.data = (void *)&ip,
+	};
+>>>>>>> upstream/android-13
 	bool ret = false;
 
 	if (ip == bond_confirm_addr(bond->dev, 0, ip))
 		return true;
 
 	rcu_read_lock();
+<<<<<<< HEAD
 	if (netdev_walk_all_upper_dev_rcu(bond->dev, bond_upper_dev_walk, &ip))
+=======
+	if (netdev_walk_all_upper_dev_rcu(bond->dev, bond_upper_dev_walk, &priv))
+>>>>>>> upstream/android-13
 		ret = true;
 	rcu_read_unlock();
 
@@ -2385,6 +3281,7 @@ static bool bond_has_this_ip(struct bonding *bond, __be32 ip)
  * switches in VLAN mode (especially if ports are configured as
  * "native" to a VLAN) might not pass non-tagged frames.
  */
+<<<<<<< HEAD
 static void bond_arp_send(struct net_device *slave_dev, int arp_op,
 			  __be32 dest_ip, __be32 src_ip,
 			  struct bond_vlan_tag *tags)
@@ -2394,6 +3291,18 @@ static void bond_arp_send(struct net_device *slave_dev, int arp_op,
 
 	netdev_dbg(slave_dev, "arp %d on slave %s: dst %pI4 src %pI4\n",
 		   arp_op, slave_dev->name, &dest_ip, &src_ip);
+=======
+static void bond_arp_send(struct slave *slave, int arp_op, __be32 dest_ip,
+			  __be32 src_ip, struct bond_vlan_tag *tags)
+{
+	struct sk_buff *skb;
+	struct bond_vlan_tag *outer_tag = tags;
+	struct net_device *slave_dev = slave->dev;
+	struct net_device *bond_dev = slave->bond->dev;
+
+	slave_dbg(bond_dev, slave_dev, "arp %d on slave: dst %pI4 src %pI4\n",
+		  arp_op, &dest_ip, &src_ip);
+>>>>>>> upstream/android-13
 
 	skb = arp_create(arp_op, ETH_P_ARP, dest_ip, slave_dev, src_ip,
 			 NULL, slave_dev->dev_addr, NULL);
@@ -2415,8 +3324,13 @@ static void bond_arp_send(struct net_device *slave_dev, int arp_op,
 			continue;
 		}
 
+<<<<<<< HEAD
 		netdev_dbg(slave_dev, "inner tag: proto %X vid %X\n",
 			   ntohs(outer_tag->vlan_proto), tags->vlan_id);
+=======
+		slave_dbg(bond_dev, slave_dev, "inner tag: proto %X vid %X\n",
+			  ntohs(outer_tag->vlan_proto), tags->vlan_id);
+>>>>>>> upstream/android-13
 		skb = vlan_insert_tag_set_proto(skb, tags->vlan_proto,
 						tags->vlan_id);
 		if (!skb) {
@@ -2428,8 +3342,13 @@ static void bond_arp_send(struct net_device *slave_dev, int arp_op,
 	}
 	/* Set the outer tag */
 	if (outer_tag->vlan_id) {
+<<<<<<< HEAD
 		netdev_dbg(slave_dev, "outer tag: proto %X vid %X\n",
 			   ntohs(outer_tag->vlan_proto), outer_tag->vlan_id);
+=======
+		slave_dbg(bond_dev, slave_dev, "outer tag: proto %X vid %X\n",
+			  ntohs(outer_tag->vlan_proto), outer_tag->vlan_id);
+>>>>>>> upstream/android-13
 		__vlan_hwaccel_put_tag(skb, outer_tag->vlan_proto,
 				       outer_tag->vlan_id);
 	}
@@ -2486,7 +3405,12 @@ static void bond_arp_send_all(struct bonding *bond, struct slave *slave)
 	int i;
 
 	for (i = 0; i < BOND_MAX_ARP_TARGETS && targets[i]; i++) {
+<<<<<<< HEAD
 		netdev_dbg(bond->dev, "basa: target %pI4\n", &targets[i]);
+=======
+		slave_dbg(bond->dev, slave->dev, "%s: target %pI4\n",
+			  __func__, &targets[i]);
+>>>>>>> upstream/android-13
 		tags = NULL;
 
 		/* Find out through which dev should the packet go */
@@ -2497,10 +3421,17 @@ static void bond_arp_send_all(struct bonding *bond, struct slave *slave)
 			 * probe to generate any traffic (arp_validate=0)
 			 */
 			if (bond->params.arp_validate)
+<<<<<<< HEAD
 				net_warn_ratelimited("%s: no route to arp_ip_target %pI4 and arp_validate is set\n",
 						     bond->dev->name,
 						     &targets[i]);
 			bond_arp_send(slave->dev, ARPOP_REQUEST, targets[i],
+=======
+				pr_warn_once("%s: no route to arp_ip_target %pI4 and arp_validate is set\n",
+					     bond->dev->name,
+					     &targets[i]);
+			bond_arp_send(slave, ARPOP_REQUEST, targets[i],
+>>>>>>> upstream/android-13
 				      0, tags);
 			continue;
 		}
@@ -2517,7 +3448,11 @@ static void bond_arp_send_all(struct bonding *bond, struct slave *slave)
 			goto found;
 
 		/* Not our device - skip */
+<<<<<<< HEAD
 		netdev_dbg(bond->dev, "no path to arp_ip_target %pI4 via rt.dev %s\n",
+=======
+		slave_dbg(bond->dev, slave->dev, "no path to arp_ip_target %pI4 via rt.dev %s\n",
+>>>>>>> upstream/android-13
 			   &targets[i], rt->dst.dev ? rt->dst.dev->name : "NULL");
 
 		ip_rt_put(rt);
@@ -2526,8 +3461,12 @@ static void bond_arp_send_all(struct bonding *bond, struct slave *slave)
 found:
 		addr = bond_confirm_addr(rt->dst.dev, targets[i], 0);
 		ip_rt_put(rt);
+<<<<<<< HEAD
 		bond_arp_send(slave->dev, ARPOP_REQUEST, targets[i],
 			      addr, tags);
+=======
+		bond_arp_send(slave, ARPOP_REQUEST, targets[i], addr, tags);
+>>>>>>> upstream/android-13
 		kfree(tags);
 	}
 }
@@ -2537,15 +3476,25 @@ static void bond_validate_arp(struct bonding *bond, struct slave *slave, __be32 
 	int i;
 
 	if (!sip || !bond_has_this_ip(bond, tip)) {
+<<<<<<< HEAD
 		netdev_dbg(bond->dev, "bva: sip %pI4 tip %pI4 not found\n",
 			   &sip, &tip);
+=======
+		slave_dbg(bond->dev, slave->dev, "%s: sip %pI4 tip %pI4 not found\n",
+			   __func__, &sip, &tip);
+>>>>>>> upstream/android-13
 		return;
 	}
 
 	i = bond_get_targets_ip(bond->params.arp_targets, sip);
 	if (i == -1) {
+<<<<<<< HEAD
 		netdev_dbg(bond->dev, "bva: sip %pI4 not found in targets\n",
 			   &sip);
+=======
+		slave_dbg(bond->dev, slave->dev, "%s: sip %pI4 not found in targets\n",
+			   __func__, &sip);
+>>>>>>> upstream/android-13
 		return;
 	}
 	slave->last_rx = jiffies;
@@ -2573,8 +3522,13 @@ int bond_arp_rcv(const struct sk_buff *skb, struct bonding *bond,
 
 	alen = arp_hdr_len(bond->dev);
 
+<<<<<<< HEAD
 	netdev_dbg(bond->dev, "bond_arp_rcv: skb->dev %s\n",
 		   skb->dev->name);
+=======
+	slave_dbg(bond->dev, slave->dev, "%s: skb->dev %s\n",
+		   __func__, skb->dev->name);
+>>>>>>> upstream/android-13
 
 	if (alen > skb_headlen(skb)) {
 		arp = kmalloc(alen, GFP_ATOMIC);
@@ -2598,10 +3552,17 @@ int bond_arp_rcv(const struct sk_buff *skb, struct bonding *bond,
 	arp_ptr += 4 + bond->dev->addr_len;
 	memcpy(&tip, arp_ptr, 4);
 
+<<<<<<< HEAD
 	netdev_dbg(bond->dev, "bond_arp_rcv: %s/%d av %d sv %d sip %pI4 tip %pI4\n",
 		   slave->dev->name, bond_slave_state(slave),
 		     bond->params.arp_validate, slave_do_arp_validate(bond, slave),
 		     &sip, &tip);
+=======
+	slave_dbg(bond->dev, slave->dev, "%s: %s/%d av %d sv %d sip %pI4 tip %pI4\n",
+		  __func__, slave->dev->name, bond_slave_state(slave),
+		  bond->params.arp_validate, slave_do_arp_validate(bond, slave),
+		  &sip, &tip);
+>>>>>>> upstream/android-13
 
 	curr_active_slave = rcu_dereference(bond->curr_active_slave);
 	curr_arp_slave = rcu_dereference(bond->current_arp_slave);
@@ -2704,12 +3665,19 @@ static void bond_loadbalance_arp_mon(struct bonding *bond)
 				 * is closed.
 				 */
 				if (!oldcurrent) {
+<<<<<<< HEAD
 					netdev_info(bond->dev, "link status definitely up for interface %s\n",
 						    slave->dev->name);
 					do_failover = 1;
 				} else {
 					netdev_info(bond->dev, "interface %s is now up\n",
 						    slave->dev->name);
+=======
+					slave_info(bond->dev, slave->dev, "link status definitely up\n");
+					do_failover = 1;
+				} else {
+					slave_info(bond->dev, slave->dev, "interface is now up\n");
+>>>>>>> upstream/android-13
 				}
 			}
 		} else {
@@ -2728,8 +3696,12 @@ static void bond_loadbalance_arp_mon(struct bonding *bond)
 				if (slave->link_failure_count < UINT_MAX)
 					slave->link_failure_count++;
 
+<<<<<<< HEAD
 				netdev_info(bond->dev, "interface %s is now down\n",
 					    slave->dev->name);
+=======
+				slave_info(bond->dev, slave->dev, "interface is now down\n");
+>>>>>>> upstream/android-13
 
 				if (slave == oldcurrent)
 					do_failover = 1;
@@ -2882,8 +3854,12 @@ static void bond_ab_arp_commit(struct bonding *bond)
 					RCU_INIT_POINTER(bond->current_arp_slave, NULL);
 				}
 
+<<<<<<< HEAD
 				netdev_info(bond->dev, "link status definitely up for interface %s\n",
 					    slave->dev->name);
+=======
+				slave_info(bond->dev, slave->dev, "link status definitely up\n");
+>>>>>>> upstream/android-13
 
 				if (!rtnl_dereference(bond->curr_active_slave) ||
 				    slave == rtnl_dereference(bond->primary_slave))
@@ -2902,8 +3878,12 @@ static void bond_ab_arp_commit(struct bonding *bond)
 			bond_set_slave_inactive_flags(slave,
 						      BOND_SLAVE_NOTIFY_NOW);
 
+<<<<<<< HEAD
 			netdev_info(bond->dev, "link status definitely down for interface %s, disabling it\n",
 				    slave->dev->name);
+=======
+			slave_info(bond->dev, slave->dev, "link status definitely down, disabling slave\n");
+>>>>>>> upstream/android-13
 
 			if (slave == rtnl_dereference(bond->curr_active_slave)) {
 				RCU_INIT_POINTER(bond->current_arp_slave, NULL);
@@ -2926,8 +3906,14 @@ static void bond_ab_arp_commit(struct bonding *bond)
 			continue;
 
 		default:
+<<<<<<< HEAD
 			netdev_err(bond->dev, "impossible: new_link %d on slave %s\n",
 				   slave->link_new_state, slave->dev->name);
+=======
+			slave_err(bond->dev, slave->dev,
+				  "impossible: link_new_state %d on slave\n",
+				  slave->link_new_state);
+>>>>>>> upstream/android-13
 			continue;
 		}
 
@@ -2996,8 +3982,12 @@ static bool bond_ab_arp_probe(struct bonding *bond)
 			bond_set_slave_inactive_flags(slave,
 						      BOND_SLAVE_NOTIFY_LATER);
 
+<<<<<<< HEAD
 			netdev_info(bond->dev, "backup interface %s is now down\n",
 				    slave->dev->name);
+=======
+			slave_info(bond->dev, slave->dev, "backup interface is now down\n");
+>>>>>>> upstream/android-13
 		}
 		if (slave == curr_arp_slave)
 			found = true;
@@ -3109,19 +4099,33 @@ static int bond_master_netdev_event(unsigned long event,
 {
 	struct bonding *event_bond = netdev_priv(bond_dev);
 
+<<<<<<< HEAD
+=======
+	netdev_dbg(bond_dev, "%s called\n", __func__);
+
+>>>>>>> upstream/android-13
 	switch (event) {
 	case NETDEV_CHANGENAME:
 		return bond_event_changename(event_bond);
 	case NETDEV_UNREGISTER:
 		bond_remove_proc_entry(event_bond);
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_XFRM_OFFLOAD
+		xfrm_dev_state_flush(dev_net(bond_dev), bond_dev, true);
+#endif /* CONFIG_XFRM_OFFLOAD */
+>>>>>>> upstream/android-13
 		break;
 	case NETDEV_REGISTER:
 		bond_create_proc_entry(event_bond);
 		break;
+<<<<<<< HEAD
 	case NETDEV_NOTIFY_PEERS:
 		if (event_bond->send_peer_notif)
 			event_bond->send_peer_notif--;
 		break;
+=======
+>>>>>>> upstream/android-13
 	default:
 		break;
 	}
@@ -3140,12 +4144,25 @@ static int bond_slave_netdev_event(unsigned long event,
 	 * before netdev_rx_handler_register is called in which case
 	 * slave will be NULL
 	 */
+<<<<<<< HEAD
 	if (!slave)
 		return NOTIFY_DONE;
+=======
+	if (!slave) {
+		netdev_dbg(slave_dev, "%s called on NULL slave\n", __func__);
+		return NOTIFY_DONE;
+	}
+
+>>>>>>> upstream/android-13
 	bond_dev = slave->bond->dev;
 	bond = slave->bond;
 	primary = rtnl_dereference(bond->primary_slave);
 
+<<<<<<< HEAD
+=======
+	slave_dbg(bond_dev, slave_dev, "%s called\n", __func__);
+
+>>>>>>> upstream/android-13
 	switch (event) {
 	case NETDEV_UNREGISTER:
 		if (bond_dev->type != ARPHRD_ETHER)
@@ -3172,7 +4189,11 @@ static int bond_slave_netdev_event(unsigned long event,
 
 		if (BOND_MODE(bond) == BOND_MODE_8023AD)
 			bond_3ad_adapter_speed_duplex_changed(slave);
+<<<<<<< HEAD
 		/* Fallthrough */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case NETDEV_DOWN:
 		/* Refresh slave-array if applicable!
 		 * If the setup does not use miimon or arpmon (mode-specific!),
@@ -3247,7 +4268,12 @@ static int bond_netdev_event(struct notifier_block *this,
 {
 	struct net_device *event_dev = netdev_notifier_info_to_dev(ptr);
 
+<<<<<<< HEAD
 	netdev_dbg(event_dev, "event: %lx\n", event);
+=======
+	netdev_dbg(event_dev, "%s received %s\n",
+		   __func__, netdev_cmd_to_name(event));
+>>>>>>> upstream/android-13
 
 	if (!(event_dev->priv_flags & IFF_BONDING))
 		return NOTIFY_DONE;
@@ -3255,16 +4281,24 @@ static int bond_netdev_event(struct notifier_block *this,
 	if (event_dev->flags & IFF_MASTER) {
 		int ret;
 
+<<<<<<< HEAD
 		netdev_dbg(event_dev, "IFF_MASTER\n");
+=======
+>>>>>>> upstream/android-13
 		ret = bond_master_netdev_event(event, event_dev);
 		if (ret != NOTIFY_DONE)
 			return ret;
 	}
 
+<<<<<<< HEAD
 	if (event_dev->flags & IFF_SLAVE) {
 		netdev_dbg(event_dev, "IFF_SLAVE\n");
 		return bond_slave_netdev_event(event, event_dev);
 	}
+=======
+	if (event_dev->flags & IFF_SLAVE)
+		return bond_slave_netdev_event(event, event_dev);
+>>>>>>> upstream/android-13
 
 	return NOTIFY_DONE;
 }
@@ -3275,6 +4309,7 @@ static struct notifier_block bond_netdev_notifier = {
 
 /*---------------------------- Hashing Policies -----------------------------*/
 
+<<<<<<< HEAD
 /* L2 hash helper */
 static inline u32 bond_eth_hash(struct sk_buff *skb)
 {
@@ -3319,10 +4354,188 @@ static bool bond_flow_dissect(struct bonding *bond, struct sk_buff *skb,
 	}
 	if (bond->params.xmit_policy == BOND_XMIT_POLICY_LAYER34 && proto >= 0)
 		fk->ports.ports = skb_flow_get_ports(skb, noff, proto);
+=======
+/* Helper to access data in a packet, with or without a backing skb.
+ * If skb is given the data is linearized if necessary via pskb_may_pull.
+ */
+static inline const void *bond_pull_data(struct sk_buff *skb,
+					 const void *data, int hlen, int n)
+{
+	if (likely(n <= hlen))
+		return data;
+	else if (skb && likely(pskb_may_pull(skb, n)))
+		return skb->head;
+
+	return NULL;
+}
+
+/* L2 hash helper */
+static inline u32 bond_eth_hash(struct sk_buff *skb, const void *data, int mhoff, int hlen)
+{
+	struct ethhdr *ep;
+
+	data = bond_pull_data(skb, data, hlen, mhoff + sizeof(struct ethhdr));
+	if (!data)
+		return 0;
+
+	ep = (struct ethhdr *)(data + mhoff);
+	return ep->h_dest[5] ^ ep->h_source[5] ^ be16_to_cpu(ep->h_proto);
+}
+
+static bool bond_flow_ip(struct sk_buff *skb, struct flow_keys *fk, const void *data,
+			 int hlen, __be16 l2_proto, int *nhoff, int *ip_proto, bool l34)
+{
+	const struct ipv6hdr *iph6;
+	const struct iphdr *iph;
+
+	if (l2_proto == htons(ETH_P_IP)) {
+		data = bond_pull_data(skb, data, hlen, *nhoff + sizeof(*iph));
+		if (!data)
+			return false;
+
+		iph = (const struct iphdr *)(data + *nhoff);
+		iph_to_flow_copy_v4addrs(fk, iph);
+		*nhoff += iph->ihl << 2;
+		if (!ip_is_fragment(iph))
+			*ip_proto = iph->protocol;
+	} else if (l2_proto == htons(ETH_P_IPV6)) {
+		data = bond_pull_data(skb, data, hlen, *nhoff + sizeof(*iph6));
+		if (!data)
+			return false;
+
+		iph6 = (const struct ipv6hdr *)(data + *nhoff);
+		iph_to_flow_copy_v6addrs(fk, iph6);
+		*nhoff += sizeof(*iph6);
+		*ip_proto = iph6->nexthdr;
+	} else {
+		return false;
+	}
+
+	if (l34 && *ip_proto >= 0)
+		fk->ports.ports = __skb_flow_get_ports(skb, *nhoff, *ip_proto, data, hlen);
+>>>>>>> upstream/android-13
 
 	return true;
 }
 
+<<<<<<< HEAD
+=======
+static u32 bond_vlan_srcmac_hash(struct sk_buff *skb, const void *data, int mhoff, int hlen)
+{
+	u32 srcmac_vendor = 0, srcmac_dev = 0;
+	struct ethhdr *mac_hdr;
+	u16 vlan = 0;
+	int i;
+
+	data = bond_pull_data(skb, data, hlen, mhoff + sizeof(struct ethhdr));
+	if (!data)
+		return 0;
+	mac_hdr = (struct ethhdr *)(data + mhoff);
+
+	for (i = 0; i < 3; i++)
+		srcmac_vendor = (srcmac_vendor << 8) | mac_hdr->h_source[i];
+
+	for (i = 3; i < ETH_ALEN; i++)
+		srcmac_dev = (srcmac_dev << 8) | mac_hdr->h_source[i];
+
+	if (skb && skb_vlan_tag_present(skb))
+		vlan = skb_vlan_tag_get(skb);
+
+	return vlan ^ srcmac_vendor ^ srcmac_dev;
+}
+
+/* Extract the appropriate headers based on bond's xmit policy */
+static bool bond_flow_dissect(struct bonding *bond, struct sk_buff *skb, const void *data,
+			      __be16 l2_proto, int nhoff, int hlen, struct flow_keys *fk)
+{
+	bool l34 = bond->params.xmit_policy == BOND_XMIT_POLICY_LAYER34;
+	int ip_proto = -1;
+
+	switch (bond->params.xmit_policy) {
+	case BOND_XMIT_POLICY_ENCAP23:
+	case BOND_XMIT_POLICY_ENCAP34:
+		memset(fk, 0, sizeof(*fk));
+		return __skb_flow_dissect(NULL, skb, &flow_keys_bonding,
+					  fk, data, l2_proto, nhoff, hlen, 0);
+	default:
+		break;
+	}
+
+	fk->ports.ports = 0;
+	memset(&fk->icmp, 0, sizeof(fk->icmp));
+	if (!bond_flow_ip(skb, fk, data, hlen, l2_proto, &nhoff, &ip_proto, l34))
+		return false;
+
+	/* ICMP error packets contains at least 8 bytes of the header
+	 * of the packet which generated the error. Use this information
+	 * to correlate ICMP error packets within the same flow which
+	 * generated the error.
+	 */
+	if (ip_proto == IPPROTO_ICMP || ip_proto == IPPROTO_ICMPV6) {
+		skb_flow_get_icmp_tci(skb, &fk->icmp, data, nhoff, hlen);
+		if (ip_proto == IPPROTO_ICMP) {
+			if (!icmp_is_err(fk->icmp.type))
+				return true;
+
+			nhoff += sizeof(struct icmphdr);
+		} else if (ip_proto == IPPROTO_ICMPV6) {
+			if (!icmpv6_is_err(fk->icmp.type))
+				return true;
+
+			nhoff += sizeof(struct icmp6hdr);
+		}
+		return bond_flow_ip(skb, fk, data, hlen, l2_proto, &nhoff, &ip_proto, l34);
+	}
+
+	return true;
+}
+
+static u32 bond_ip_hash(u32 hash, struct flow_keys *flow, int xmit_policy)
+{
+	hash ^= (__force u32)flow_get_u32_dst(flow) ^
+		(__force u32)flow_get_u32_src(flow);
+	hash ^= (hash >> 16);
+	hash ^= (hash >> 8);
+
+	/* discard lowest hash bit to deal with the common even ports pattern */
+	if (xmit_policy == BOND_XMIT_POLICY_LAYER34 ||
+		xmit_policy == BOND_XMIT_POLICY_ENCAP34)
+		return hash >> 1;
+
+	return hash;
+}
+
+/* Generate hash based on xmit policy. If @skb is given it is used to linearize
+ * the data as required, but this function can be used without it if the data is
+ * known to be linear (e.g. with xdp_buff).
+ */
+static u32 __bond_xmit_hash(struct bonding *bond, struct sk_buff *skb, const void *data,
+			    __be16 l2_proto, int mhoff, int nhoff, int hlen)
+{
+	struct flow_keys flow;
+	u32 hash;
+
+	if (bond->params.xmit_policy == BOND_XMIT_POLICY_VLAN_SRCMAC)
+		return bond_vlan_srcmac_hash(skb, data, mhoff, hlen);
+
+	if (bond->params.xmit_policy == BOND_XMIT_POLICY_LAYER2 ||
+	    !bond_flow_dissect(bond, skb, data, l2_proto, nhoff, hlen, &flow))
+		return bond_eth_hash(skb, data, mhoff, hlen);
+
+	if (bond->params.xmit_policy == BOND_XMIT_POLICY_LAYER23 ||
+	    bond->params.xmit_policy == BOND_XMIT_POLICY_ENCAP23) {
+		hash = bond_eth_hash(skb, data, mhoff, hlen);
+	} else {
+		if (flow.icmp.id)
+			memcpy(&hash, &flow.icmp, sizeof(hash));
+		else
+			memcpy(&hash, &flow.ports.ports, sizeof(hash));
+	}
+
+	return bond_ip_hash(hash, &flow, bond->params.xmit_policy);
+}
+
+>>>>>>> upstream/android-13
 /**
  * bond_xmit_hash - generate a hash value based on the xmit policy
  * @bond: bonding device
@@ -3333,13 +4546,17 @@ static bool bond_flow_dissect(struct bonding *bond, struct sk_buff *skb,
  */
 u32 bond_xmit_hash(struct bonding *bond, struct sk_buff *skb)
 {
+<<<<<<< HEAD
 	struct flow_keys flow;
 	u32 hash;
 
+=======
+>>>>>>> upstream/android-13
 	if (bond->params.xmit_policy == BOND_XMIT_POLICY_ENCAP34 &&
 	    skb->l4_hash)
 		return skb->hash;
 
+<<<<<<< HEAD
 	if (bond->params.xmit_policy == BOND_XMIT_POLICY_LAYER2 ||
 	    !bond_flow_dissect(bond, skb, &flow))
 		return bond_eth_hash(skb);
@@ -3355,6 +4572,31 @@ u32 bond_xmit_hash(struct bonding *bond, struct sk_buff *skb)
 	hash ^= (hash >> 8);
 
 	return hash >> 1;
+=======
+	return __bond_xmit_hash(bond, skb, skb->data, skb->protocol,
+				skb_mac_offset(skb), skb_network_offset(skb),
+				skb_headlen(skb));
+}
+
+/**
+ * bond_xmit_hash_xdp - generate a hash value based on the xmit policy
+ * @bond: bonding device
+ * @xdp: buffer to use for headers
+ *
+ * The XDP variant of bond_xmit_hash.
+ */
+static u32 bond_xmit_hash_xdp(struct bonding *bond, struct xdp_buff *xdp)
+{
+	struct ethhdr *eth;
+
+	if (xdp->data + sizeof(struct ethhdr) > xdp->data_end)
+		return 0;
+
+	eth = (struct ethhdr *)xdp->data;
+
+	return __bond_xmit_hash(bond, NULL, xdp->data, eth->h_proto, 0,
+				sizeof(struct ethhdr), xdp->data_end - xdp->data);
+>>>>>>> upstream/android-13
 }
 
 /*-------------------------- Device entry points ----------------------------*/
@@ -3473,12 +4715,55 @@ static void bond_fold_stats(struct rtnl_link_stats64 *_res,
 	}
 }
 
+<<<<<<< HEAD
 static int bond_get_nest_level(struct net_device *bond_dev)
 {
 	struct bonding *bond = netdev_priv(bond_dev);
 
 	return bond->nest_level;
 }
+=======
+#ifdef CONFIG_LOCKDEP
+static int bond_get_lowest_level_rcu(struct net_device *dev)
+{
+	struct net_device *ldev, *next, *now, *dev_stack[MAX_NEST_DEV + 1];
+	struct list_head *niter, *iter, *iter_stack[MAX_NEST_DEV + 1];
+	int cur = 0, max = 0;
+
+	now = dev;
+	iter = &dev->adj_list.lower;
+
+	while (1) {
+		next = NULL;
+		while (1) {
+			ldev = netdev_next_lower_dev_rcu(now, &iter);
+			if (!ldev)
+				break;
+
+			next = ldev;
+			niter = &ldev->adj_list.lower;
+			dev_stack[cur] = now;
+			iter_stack[cur++] = iter;
+			if (max <= cur)
+				max = cur;
+			break;
+		}
+
+		if (!next) {
+			if (!cur)
+				return max;
+			next = dev_stack[--cur];
+			niter = iter_stack[cur];
+		}
+
+		now = next;
+		iter = niter;
+	}
+
+	return max;
+}
+#endif
+>>>>>>> upstream/android-13
 
 static void bond_get_stats(struct net_device *bond_dev,
 			   struct rtnl_link_stats64 *stats)
@@ -3487,11 +4772,25 @@ static void bond_get_stats(struct net_device *bond_dev,
 	struct rtnl_link_stats64 temp;
 	struct list_head *iter;
 	struct slave *slave;
+<<<<<<< HEAD
 
 	spin_lock_nested(&bond->stats_lock, bond_get_nest_level(bond_dev));
 	memcpy(stats, &bond->bond_stats, sizeof(*stats));
 
 	rcu_read_lock();
+=======
+	int nest_level = 0;
+
+
+	rcu_read_lock();
+#ifdef CONFIG_LOCKDEP
+	nest_level = bond_get_lowest_level_rcu(bond_dev);
+#endif
+
+	spin_lock_nested(&bond->stats_lock, nest_level);
+	memcpy(stats, &bond->bond_stats, sizeof(*stats));
+
+>>>>>>> upstream/android-13
 	bond_for_each_slave_rcu(bond, slave, iter) {
 		const struct rtnl_link_stats64 *new =
 			dev_get_stats(slave->dev, &temp);
@@ -3501,6 +4800,7 @@ static void bond_get_stats(struct net_device *bond_dev,
 		/* save off the slave stats for the next run */
 		memcpy(&slave->slave_stats, new, sizeof(*new));
 	}
+<<<<<<< HEAD
 	rcu_read_unlock();
 
 	memcpy(&bond->bond_stats, stats, sizeof(*stats));
@@ -3521,6 +4821,21 @@ static int bond_do_ioctl(struct net_device *bond_dev, struct ifreq *ifr, int cmd
 	int res = 0;
 
 	netdev_dbg(bond_dev, "bond_ioctl: cmd=%d\n", cmd);
+=======
+
+	memcpy(&bond->bond_stats, stats, sizeof(*stats));
+	spin_unlock(&bond->stats_lock);
+	rcu_read_unlock();
+}
+
+static int bond_eth_ioctl(struct net_device *bond_dev, struct ifreq *ifr, int cmd)
+{
+	struct bonding *bond = netdev_priv(bond_dev);
+	struct mii_ioctl_data *mii = NULL;
+	int res;
+
+	netdev_dbg(bond_dev, "bond_eth_ioctl: cmd=%d\n", cmd);
+>>>>>>> upstream/android-13
 
 	switch (cmd) {
 	case SIOCGMIIPHY:
@@ -3529,7 +4844,11 @@ static int bond_do_ioctl(struct net_device *bond_dev, struct ifreq *ifr, int cmd
 			return -EINVAL;
 
 		mii->phy_id = 0;
+<<<<<<< HEAD
 		/* Fall Through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case SIOCGMIIREG:
 		/* We do this again just in case we were called by SIOCGMIIREG
 		 * instead of SIOCGMIIPHY.
@@ -3545,7 +4864,32 @@ static int bond_do_ioctl(struct net_device *bond_dev, struct ifreq *ifr, int cmd
 		}
 
 		return 0;
+<<<<<<< HEAD
 	case BOND_INFO_QUERY_OLD:
+=======
+	default:
+		res = -EOPNOTSUPP;
+	}
+
+	return res;
+}
+
+static int bond_do_ioctl(struct net_device *bond_dev, struct ifreq *ifr, int cmd)
+{
+	struct bonding *bond = netdev_priv(bond_dev);
+	struct net_device *slave_dev = NULL;
+	struct ifbond k_binfo;
+	struct ifbond __user *u_binfo = NULL;
+	struct ifslave k_sinfo;
+	struct ifslave __user *u_sinfo = NULL;
+	struct bond_opt_value newval;
+	struct net *net;
+	int res = 0;
+
+	netdev_dbg(bond_dev, "bond_ioctl: cmd=%d\n", cmd);
+
+	switch (cmd) {
+>>>>>>> upstream/android-13
 	case SIOCBONDINFOQUERY:
 		u_binfo = (struct ifbond __user *)ifr->ifr_data;
 
@@ -3557,7 +4901,10 @@ static int bond_do_ioctl(struct net_device *bond_dev, struct ifreq *ifr, int cmd
 			return -EFAULT;
 
 		return 0;
+<<<<<<< HEAD
 	case BOND_SLAVE_INFO_QUERY_OLD:
+=======
+>>>>>>> upstream/android-13
 	case SIOCBONDSLAVEINFOQUERY:
 		u_sinfo = (struct ifslave __user *)ifr->ifr_data;
 
@@ -3581,11 +4928,16 @@ static int bond_do_ioctl(struct net_device *bond_dev, struct ifreq *ifr, int cmd
 
 	slave_dev = __dev_get_by_name(net, ifr->ifr_slave);
 
+<<<<<<< HEAD
 	netdev_dbg(bond_dev, "slave_dev=%p:\n", slave_dev);
+=======
+	slave_dbg(bond_dev, slave_dev, "slave_dev=%p:\n", slave_dev);
+>>>>>>> upstream/android-13
 
 	if (!slave_dev)
 		return -ENODEV;
 
+<<<<<<< HEAD
 	netdev_dbg(bond_dev, "slave_dev->name=%s:\n", slave_dev->name);
 	switch (cmd) {
 	case BOND_ENSLAVE_OLD:
@@ -3602,6 +4954,18 @@ static int bond_do_ioctl(struct net_device *bond_dev, struct ifreq *ifr, int cmd
 		res = 0;
 		break;
 	case BOND_CHANGE_ACTIVE_OLD:
+=======
+	switch (cmd) {
+	case SIOCBONDENSLAVE:
+		res = bond_enslave(bond_dev, slave_dev, NULL);
+		break;
+	case SIOCBONDRELEASE:
+		res = bond_release(bond_dev, slave_dev);
+		break;
+	case SIOCBONDSETHWADDR:
+		res = bond_set_dev_addr(bond_dev, slave_dev);
+		break;
+>>>>>>> upstream/android-13
 	case SIOCBONDCHANGEACTIVE:
 		bond_opt_initstr(&newval, slave_dev->name);
 		res = __bond_opt_set_notify(bond, BOND_OPT_ACTIVE_SLAVE,
@@ -3614,6 +4978,32 @@ static int bond_do_ioctl(struct net_device *bond_dev, struct ifreq *ifr, int cmd
 	return res;
 }
 
+<<<<<<< HEAD
+=======
+static int bond_siocdevprivate(struct net_device *bond_dev, struct ifreq *ifr,
+			       void __user *data, int cmd)
+{
+	struct ifreq ifrdata = { .ifr_data = data };
+
+	switch (cmd) {
+	case BOND_INFO_QUERY_OLD:
+		return bond_do_ioctl(bond_dev, &ifrdata, SIOCBONDINFOQUERY);
+	case BOND_SLAVE_INFO_QUERY_OLD:
+		return bond_do_ioctl(bond_dev, &ifrdata, SIOCBONDSLAVEINFOQUERY);
+	case BOND_ENSLAVE_OLD:
+		return bond_do_ioctl(bond_dev, ifr, SIOCBONDENSLAVE);
+	case BOND_RELEASE_OLD:
+		return bond_do_ioctl(bond_dev, ifr, SIOCBONDRELEASE);
+	case BOND_SETHWADDR_OLD:
+		return bond_do_ioctl(bond_dev, ifr, SIOCBONDSETHWADDR);
+	case BOND_CHANGE_ACTIVE_OLD:
+		return bond_do_ioctl(bond_dev, ifr, SIOCBONDCHANGEACTIVE);
+	}
+
+	return -EOPNOTSUPP;
+}
+
+>>>>>>> upstream/android-13
 static void bond_change_rx_flags(struct net_device *bond_dev, int change)
 {
 	struct bonding *bond = netdev_priv(bond_dev);
@@ -3655,6 +5045,7 @@ static int bond_neigh_init(struct neighbour *n)
 	const struct net_device_ops *slave_ops;
 	struct neigh_parms parms;
 	struct slave *slave;
+<<<<<<< HEAD
 	int ret;
 
 	slave = bond_first_slave(bond);
@@ -3681,6 +5072,37 @@ static int bond_neigh_init(struct neighbour *n)
 		return 0;
 
 	return parms.neigh_setup(n);
+=======
+	int ret = 0;
+
+	rcu_read_lock();
+	slave = bond_first_slave_rcu(bond);
+	if (!slave)
+		goto out;
+	slave_ops = slave->dev->netdev_ops;
+	if (!slave_ops->ndo_neigh_setup)
+		goto out;
+
+	/* TODO: find another way [1] to implement this.
+	 * Passing a zeroed structure is fragile,
+	 * but at least we do not pass garbage.
+	 *
+	 * [1] One way would be that ndo_neigh_setup() never touch
+	 *     struct neigh_parms, but propagate the new neigh_setup()
+	 *     back to ___neigh_create() / neigh_parms_alloc()
+	 */
+	memset(&parms, 0, sizeof(parms));
+	ret = slave_ops->ndo_neigh_setup(slave->dev, &parms);
+
+	if (ret)
+		goto out;
+
+	if (parms.neigh_setup)
+		ret = parms.neigh_setup(n);
+out:
+	rcu_read_unlock();
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 /* The bonding ndo_neigh_setup is called at init time beofre any
@@ -3712,7 +5134,11 @@ static int bond_change_mtu(struct net_device *bond_dev, int new_mtu)
 	netdev_dbg(bond_dev, "bond=%p, new_mtu=%d\n", bond, new_mtu);
 
 	bond_for_each_slave(bond, slave, iter) {
+<<<<<<< HEAD
 		netdev_dbg(bond_dev, "s %p c_m %p\n",
+=======
+		slave_dbg(bond_dev, slave->dev, "s %p c_m %p\n",
+>>>>>>> upstream/android-13
 			   slave, slave->dev->netdev_ops->ndo_change_mtu);
 
 		res = dev_set_mtu(slave->dev, new_mtu);
@@ -3726,8 +5152,13 @@ static int bond_change_mtu(struct net_device *bond_dev, int new_mtu)
 			 * means changing their mtu from timer context, which
 			 * is probably not a good idea.
 			 */
+<<<<<<< HEAD
 			netdev_dbg(bond_dev, "err %d %s\n", res,
 				   slave->dev->name);
+=======
+			slave_dbg(bond_dev, slave->dev, "err %d setting mtu to %d\n",
+				  res, new_mtu);
+>>>>>>> upstream/android-13
 			goto unwind;
 		}
 	}
@@ -3745,10 +5176,16 @@ unwind:
 			break;
 
 		tmp_res = dev_set_mtu(rollback_slave->dev, bond_dev->mtu);
+<<<<<<< HEAD
 		if (tmp_res) {
 			netdev_dbg(bond_dev, "unwind err %d dev %s\n",
 				   tmp_res, rollback_slave->dev->name);
 		}
+=======
+		if (tmp_res)
+			slave_dbg(bond_dev, rollback_slave->dev, "unwind err %d\n",
+				  tmp_res);
+>>>>>>> upstream/android-13
 	}
 
 	return res;
@@ -3772,7 +5209,11 @@ static int bond_set_mac_address(struct net_device *bond_dev, void *addr)
 		return bond_alb_set_mac_address(bond_dev, addr);
 
 
+<<<<<<< HEAD
 	netdev_dbg(bond_dev, "bond=%p\n", bond);
+=======
+	netdev_dbg(bond_dev, "%s: bond=%p\n", __func__, bond);
+>>>>>>> upstream/android-13
 
 	/* If fail_over_mac is enabled, do nothing and return success.
 	 * Returning an error causes ifenslave to fail.
@@ -3785,8 +5226,14 @@ static int bond_set_mac_address(struct net_device *bond_dev, void *addr)
 		return -EADDRNOTAVAIL;
 
 	bond_for_each_slave(bond, slave, iter) {
+<<<<<<< HEAD
 		netdev_dbg(bond_dev, "slave %p %s\n", slave, slave->dev->name);
 		res = dev_set_mac_address(slave->dev, addr);
+=======
+		slave_dbg(bond_dev, slave->dev, "%s: slave=%p\n",
+			  __func__, slave);
+		res = dev_set_mac_address(slave->dev, addr, NULL);
+>>>>>>> upstream/android-13
 		if (res) {
 			/* TODO: consider downing the slave
 			 * and retry ?
@@ -3794,7 +5241,12 @@ static int bond_set_mac_address(struct net_device *bond_dev, void *addr)
 			 * breakage anyway until ARP finish
 			 * updating, so...
 			 */
+<<<<<<< HEAD
 			netdev_dbg(bond_dev, "err %d %s\n", res, slave->dev->name);
+=======
+			slave_dbg(bond_dev, slave->dev, "%s: err %d\n",
+				  __func__, res);
+>>>>>>> upstream/android-13
 			goto unwind;
 		}
 	}
@@ -3815,10 +5267,17 @@ unwind:
 			break;
 
 		tmp_res = dev_set_mac_address(rollback_slave->dev,
+<<<<<<< HEAD
 					      (struct sockaddr *)&tmp_ss);
 		if (tmp_res) {
 			netdev_dbg(bond_dev, "unwind err %d dev %s\n",
 				   tmp_res, rollback_slave->dev->name);
+=======
+					      (struct sockaddr *)&tmp_ss, NULL);
+		if (tmp_res) {
+			slave_dbg(bond_dev, rollback_slave->dev, "%s: unwind err %d\n",
+				   __func__, tmp_res);
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -3826,6 +5285,7 @@ unwind:
 }
 
 /**
+<<<<<<< HEAD
  * bond_xmit_slave_id - transmit skb through slave with slave_id
  * @bond: bonding device that is transmitting
  * @skb: buffer to transmit
@@ -3836,6 +5296,17 @@ unwind:
  * The skb is consumed in all cases, thus the function is void.
  */
 static void bond_xmit_slave_id(struct bonding *bond, struct sk_buff *skb, int slave_id)
+=======
+ * bond_get_slave_by_id - get xmit slave with slave_id
+ * @bond: bonding device that is transmitting
+ * @slave_id: slave id up to slave_cnt-1 through which to transmit
+ *
+ * This function tries to get slave with slave_id but in case
+ * it fails, it tries to find the first available slave for transmission.
+ */
+static struct slave *bond_get_slave_by_id(struct bonding *bond,
+					  int slave_id)
+>>>>>>> upstream/android-13
 {
 	struct list_head *iter;
 	struct slave *slave;
@@ -3844,10 +5315,15 @@ static void bond_xmit_slave_id(struct bonding *bond, struct sk_buff *skb, int sl
 	/* Here we start from the slave with slave_id */
 	bond_for_each_slave_rcu(bond, slave, iter) {
 		if (--i < 0) {
+<<<<<<< HEAD
 			if (bond_slave_can_tx(slave)) {
 				bond_dev_queue_xmit(bond, skb, slave->dev);
 				return;
 			}
+=======
+			if (bond_slave_can_tx(slave))
+				return slave;
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -3856,6 +5332,7 @@ static void bond_xmit_slave_id(struct bonding *bond, struct sk_buff *skb, int sl
 	bond_for_each_slave_rcu(bond, slave, iter) {
 		if (--i < 0)
 			break;
+<<<<<<< HEAD
 		if (bond_slave_can_tx(slave)) {
 			bond_dev_queue_xmit(bond, skb, slave->dev);
 			return;
@@ -3863,6 +5340,13 @@ static void bond_xmit_slave_id(struct bonding *bond, struct sk_buff *skb, int sl
 	}
 	/* no slave that can tx has been found */
 	bond_tx_drop(bond->dev, skb);
+=======
+		if (bond_slave_can_tx(slave))
+			return slave;
+	}
+	/* no slave that can tx has been found */
+	return NULL;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -3884,24 +5368,42 @@ static u32 bond_rr_gen_slave_id(struct bonding *bond)
 		slave_id = prandom_u32();
 		break;
 	case 1:
+<<<<<<< HEAD
 		slave_id = bond->rr_tx_counter;
+=======
+		slave_id = this_cpu_inc_return(*bond->rr_tx_counter);
+>>>>>>> upstream/android-13
 		break;
 	default:
 		reciprocal_packets_per_slave =
 			bond->params.reciprocal_packets_per_slave;
+<<<<<<< HEAD
 		slave_id = reciprocal_divide(bond->rr_tx_counter,
 					     reciprocal_packets_per_slave);
 		break;
 	}
 	bond->rr_tx_counter++;
+=======
+		slave_id = this_cpu_inc_return(*bond->rr_tx_counter);
+		slave_id = reciprocal_divide(slave_id,
+					     reciprocal_packets_per_slave);
+		break;
+	}
+>>>>>>> upstream/android-13
 
 	return slave_id;
 }
 
+<<<<<<< HEAD
 static netdev_tx_t bond_xmit_roundrobin(struct sk_buff *skb,
 					struct net_device *bond_dev)
 {
 	struct bonding *bond = netdev_priv(bond_dev);
+=======
+static struct slave *bond_xmit_roundrobin_slave_get(struct bonding *bond,
+						    struct sk_buff *skb)
+{
+>>>>>>> upstream/android-13
 	struct slave *slave;
 	int slave_cnt;
 	u32 slave_id;
@@ -3923,22 +5425,93 @@ static netdev_tx_t bond_xmit_roundrobin(struct sk_buff *skb,
 		if (iph->protocol == IPPROTO_IGMP) {
 			slave = rcu_dereference(bond->curr_active_slave);
 			if (slave)
+<<<<<<< HEAD
 				bond_dev_queue_xmit(bond, skb, slave->dev);
 			else
 				bond_xmit_slave_id(bond, skb, 0);
 			return NETDEV_TX_OK;
+=======
+				return slave;
+			return bond_get_slave_by_id(bond, 0);
+>>>>>>> upstream/android-13
 		}
 	}
 
 non_igmp:
 	slave_cnt = READ_ONCE(bond->slave_cnt);
 	if (likely(slave_cnt)) {
+<<<<<<< HEAD
 		slave_id = bond_rr_gen_slave_id(bond);
 		bond_xmit_slave_id(bond, skb, slave_id % slave_cnt);
 	} else {
 		bond_tx_drop(bond_dev, skb);
 	}
 	return NETDEV_TX_OK;
+=======
+		slave_id = bond_rr_gen_slave_id(bond) % slave_cnt;
+		return bond_get_slave_by_id(bond, slave_id);
+	}
+	return NULL;
+}
+
+static struct slave *bond_xdp_xmit_roundrobin_slave_get(struct bonding *bond,
+							struct xdp_buff *xdp)
+{
+	struct slave *slave;
+	int slave_cnt;
+	u32 slave_id;
+	const struct ethhdr *eth;
+	void *data = xdp->data;
+
+	if (data + sizeof(struct ethhdr) > xdp->data_end)
+		goto non_igmp;
+
+	eth = (struct ethhdr *)data;
+	data += sizeof(struct ethhdr);
+
+	/* See comment on IGMP in bond_xmit_roundrobin_slave_get() */
+	if (eth->h_proto == htons(ETH_P_IP)) {
+		const struct iphdr *iph;
+
+		if (data + sizeof(struct iphdr) > xdp->data_end)
+			goto non_igmp;
+
+		iph = (struct iphdr *)data;
+
+		if (iph->protocol == IPPROTO_IGMP) {
+			slave = rcu_dereference(bond->curr_active_slave);
+			if (slave)
+				return slave;
+			return bond_get_slave_by_id(bond, 0);
+		}
+	}
+
+non_igmp:
+	slave_cnt = READ_ONCE(bond->slave_cnt);
+	if (likely(slave_cnt)) {
+		slave_id = bond_rr_gen_slave_id(bond) % slave_cnt;
+		return bond_get_slave_by_id(bond, slave_id);
+	}
+	return NULL;
+}
+
+static netdev_tx_t bond_xmit_roundrobin(struct sk_buff *skb,
+					struct net_device *bond_dev)
+{
+	struct bonding *bond = netdev_priv(bond_dev);
+	struct slave *slave;
+
+	slave = bond_xmit_roundrobin_slave_get(bond, skb);
+	if (likely(slave))
+		return bond_dev_queue_xmit(bond, skb, slave->dev);
+
+	return bond_tx_drop(bond_dev, skb);
+}
+
+static struct slave *bond_xmit_activebackup_slave_get(struct bonding *bond)
+{
+	return rcu_dereference(bond->curr_active_slave);
+>>>>>>> upstream/android-13
 }
 
 /* In active-backup mode, we know that bond->curr_active_slave is always valid if
@@ -3950,6 +5523,7 @@ static netdev_tx_t bond_xmit_activebackup(struct sk_buff *skb,
 	struct bonding *bond = netdev_priv(bond_dev);
 	struct slave *slave;
 
+<<<<<<< HEAD
 	slave = rcu_dereference(bond->curr_active_slave);
 	if (slave)
 		bond_dev_queue_xmit(bond, skb, slave->dev);
@@ -3957,6 +5531,13 @@ static netdev_tx_t bond_xmit_activebackup(struct sk_buff *skb,
 		bond_tx_drop(bond_dev, skb);
 
 	return NETDEV_TX_OK;
+=======
+	slave = bond_xmit_activebackup_slave_get(bond);
+	if (slave)
+		return bond_dev_queue_xmit(bond, skb, slave->dev);
+
+	return bond_tx_drop(bond_dev, skb);
+>>>>>>> upstream/android-13
 }
 
 /* Use this to update slave_array when (a) it's not appropriate to update
@@ -3990,6 +5571,64 @@ err:
 	bond_slave_arr_work_rearm(bond, 1);
 }
 
+<<<<<<< HEAD
+=======
+static void bond_skip_slave(struct bond_up_slave *slaves,
+			    struct slave *skipslave)
+{
+	int idx;
+
+	/* Rare situation where caller has asked to skip a specific
+	 * slave but allocation failed (most likely!). BTW this is
+	 * only possible when the call is initiated from
+	 * __bond_release_one(). In this situation; overwrite the
+	 * skipslave entry in the array with the last entry from the
+	 * array to avoid a situation where the xmit path may choose
+	 * this to-be-skipped slave to send a packet out.
+	 */
+	for (idx = 0; slaves && idx < slaves->count; idx++) {
+		if (skipslave == slaves->arr[idx]) {
+			slaves->arr[idx] =
+				slaves->arr[slaves->count - 1];
+			slaves->count--;
+			break;
+		}
+	}
+}
+
+static void bond_set_slave_arr(struct bonding *bond,
+			       struct bond_up_slave *usable_slaves,
+			       struct bond_up_slave *all_slaves)
+{
+	struct bond_up_slave *usable, *all;
+
+	usable = rtnl_dereference(bond->usable_slaves);
+	rcu_assign_pointer(bond->usable_slaves, usable_slaves);
+	kfree_rcu(usable, rcu);
+
+	all = rtnl_dereference(bond->all_slaves);
+	rcu_assign_pointer(bond->all_slaves, all_slaves);
+	kfree_rcu(all, rcu);
+}
+
+static void bond_reset_slave_arr(struct bonding *bond)
+{
+	struct bond_up_slave *usable, *all;
+
+	usable = rtnl_dereference(bond->usable_slaves);
+	if (usable) {
+		RCU_INIT_POINTER(bond->usable_slaves, NULL);
+		kfree_rcu(usable, rcu);
+	}
+
+	all = rtnl_dereference(bond->all_slaves);
+	if (all) {
+		RCU_INIT_POINTER(bond->all_slaves, NULL);
+		kfree_rcu(all, rcu);
+	}
+}
+
+>>>>>>> upstream/android-13
 /* Build the usable slaves array in control path for modes that use xmit-hash
  * to determine the slave interface -
  * (a) BOND_MODE_8023AD
@@ -4000,6 +5639,7 @@ err:
  */
 int bond_update_slave_arr(struct bonding *bond, struct slave *skipslave)
 {
+<<<<<<< HEAD
 	struct slave *slave;
 	struct list_head *iter;
 	struct bond_up_slave *new_arr, *old_arr;
@@ -4015,11 +5655,28 @@ int bond_update_slave_arr(struct bonding *bond, struct slave *skipslave)
 	if (!new_arr) {
 		ret = -ENOMEM;
 		pr_err("Failed to build slave-array.\n");
+=======
+	struct bond_up_slave *usable_slaves = NULL, *all_slaves = NULL;
+	struct slave *slave;
+	struct list_head *iter;
+	int agg_id = 0;
+	int ret = 0;
+
+	might_sleep();
+
+	usable_slaves = kzalloc(struct_size(usable_slaves, arr,
+					    bond->slave_cnt), GFP_KERNEL);
+	all_slaves = kzalloc(struct_size(all_slaves, arr,
+					 bond->slave_cnt), GFP_KERNEL);
+	if (!usable_slaves || !all_slaves) {
+		ret = -ENOMEM;
+>>>>>>> upstream/android-13
 		goto out;
 	}
 	if (BOND_MODE(bond) == BOND_MODE_8023AD) {
 		struct ad_info ad_info;
 
+<<<<<<< HEAD
 		if (bond_3ad_get_active_agg_info(bond, &ad_info)) {
 			pr_debug("bond_3ad_get_active_agg_info failed\n");
 			kfree_rcu(new_arr, rcu);
@@ -4036,6 +5693,26 @@ int bond_update_slave_arr(struct bonding *bond, struct slave *skipslave)
 		agg_id = ad_info.aggregator_id;
 	}
 	bond_for_each_slave(bond, slave, iter) {
+=======
+		spin_lock_bh(&bond->mode_lock);
+		if (bond_3ad_get_active_agg_info(bond, &ad_info)) {
+			spin_unlock_bh(&bond->mode_lock);
+			pr_debug("bond_3ad_get_active_agg_info failed\n");
+			/* No active aggragator means it's not safe to use
+			 * the previous array.
+			 */
+			bond_reset_slave_arr(bond);
+			goto out;
+		}
+		spin_unlock_bh(&bond->mode_lock);
+		agg_id = ad_info.aggregator_id;
+	}
+	bond_for_each_slave(bond, slave, iter) {
+		if (skipslave == slave)
+			continue;
+
+		all_slaves->arr[all_slaves->count++] = slave;
+>>>>>>> upstream/android-13
 		if (BOND_MODE(bond) == BOND_MODE_8023AD) {
 			struct aggregator *agg;
 
@@ -4045,6 +5722,7 @@ int bond_update_slave_arr(struct bonding *bond, struct slave *skipslave)
 		}
 		if (!bond_slave_can_tx(slave))
 			continue;
+<<<<<<< HEAD
 		if (skipslave == slave)
 			continue;
 
@@ -4084,6 +5762,63 @@ out:
 	return ret;
 }
 
+=======
+
+		slave_dbg(bond->dev, slave->dev, "Adding slave to tx hash array[%d]\n",
+			  usable_slaves->count);
+
+		usable_slaves->arr[usable_slaves->count++] = slave;
+	}
+
+	bond_set_slave_arr(bond, usable_slaves, all_slaves);
+	return ret;
+out:
+	if (ret != 0 && skipslave) {
+		bond_skip_slave(rtnl_dereference(bond->all_slaves),
+				skipslave);
+		bond_skip_slave(rtnl_dereference(bond->usable_slaves),
+				skipslave);
+	}
+	kfree_rcu(all_slaves, rcu);
+	kfree_rcu(usable_slaves, rcu);
+
+	return ret;
+}
+
+static struct slave *bond_xmit_3ad_xor_slave_get(struct bonding *bond,
+						 struct sk_buff *skb,
+						 struct bond_up_slave *slaves)
+{
+	struct slave *slave;
+	unsigned int count;
+	u32 hash;
+
+	hash = bond_xmit_hash(bond, skb);
+	count = slaves ? READ_ONCE(slaves->count) : 0;
+	if (unlikely(!count))
+		return NULL;
+
+	slave = slaves->arr[hash % count];
+	return slave;
+}
+
+static struct slave *bond_xdp_xmit_3ad_xor_slave_get(struct bonding *bond,
+						     struct xdp_buff *xdp)
+{
+	struct bond_up_slave *slaves;
+	unsigned int count;
+	u32 hash;
+
+	hash = bond_xmit_hash_xdp(bond, xdp);
+	slaves = rcu_dereference(bond->usable_slaves);
+	count = slaves ? READ_ONCE(slaves->count) : 0;
+	if (unlikely(!count))
+		return NULL;
+
+	return slaves->arr[hash % count];
+}
+
+>>>>>>> upstream/android-13
 /* Use this Xmit function for 3AD as well as XOR modes. The current
  * usable slave array is formed in the control path. The xmit function
  * just calculates hash and sends the packet out.
@@ -4092,6 +5827,7 @@ static netdev_tx_t bond_3ad_xor_xmit(struct sk_buff *skb,
 				     struct net_device *dev)
 {
 	struct bonding *bond = netdev_priv(dev);
+<<<<<<< HEAD
 	struct slave *slave;
 	struct bond_up_slave *slaves;
 	unsigned int count;
@@ -4106,6 +5842,17 @@ static netdev_tx_t bond_3ad_xor_xmit(struct sk_buff *skb,
 	}
 
 	return NETDEV_TX_OK;
+=======
+	struct bond_up_slave *slaves;
+	struct slave *slave;
+
+	slaves = rcu_dereference(bond->usable_slaves);
+	slave = bond_xmit_3ad_xor_slave_get(bond, skb, slaves);
+	if (likely(slave))
+		return bond_dev_queue_xmit(bond, skb, slave->dev);
+
+	return bond_tx_drop(dev, skb);
+>>>>>>> upstream/android-13
 }
 
 /* in broadcast mode, we send everything to all usable interfaces. */
@@ -4115,6 +5862,7 @@ static netdev_tx_t bond_xmit_broadcast(struct sk_buff *skb,
 	struct bonding *bond = netdev_priv(bond_dev);
 	struct slave *slave = NULL;
 	struct list_head *iter;
+<<<<<<< HEAD
 
 	bond_for_each_slave_rcu(bond, slave, iter) {
 		if (bond_is_last_slave(bond, slave))
@@ -4122,11 +5870,28 @@ static netdev_tx_t bond_xmit_broadcast(struct sk_buff *skb,
 		if (bond_slave_is_up(slave) && slave->link == BOND_LINK_UP) {
 			struct sk_buff *skb2 = skb_clone(skb, GFP_ATOMIC);
 
+=======
+	bool xmit_suc = false;
+	bool skb_used = false;
+
+	bond_for_each_slave_rcu(bond, slave, iter) {
+		struct sk_buff *skb2;
+
+		if (!(bond_slave_is_up(slave) && slave->link == BOND_LINK_UP))
+			continue;
+
+		if (bond_is_last_slave(bond, slave)) {
+			skb2 = skb;
+			skb_used = true;
+		} else {
+			skb2 = skb_clone(skb, GFP_ATOMIC);
+>>>>>>> upstream/android-13
 			if (!skb2) {
 				net_err_ratelimited("%s: Error: %s: skb_clone() failed\n",
 						    bond_dev->name, __func__);
 				continue;
 			}
+<<<<<<< HEAD
 			bond_dev_queue_xmit(bond, skb2, slave->dev);
 		}
 	}
@@ -4136,6 +5901,22 @@ static netdev_tx_t bond_xmit_broadcast(struct sk_buff *skb,
 		bond_tx_drop(bond_dev, skb);
 
 	return NETDEV_TX_OK;
+=======
+		}
+
+		if (bond_dev_queue_xmit(bond, skb2, slave->dev) == NETDEV_TX_OK)
+			xmit_suc = true;
+	}
+
+	if (!skb_used)
+		dev_kfree_skb_any(skb);
+
+	if (xmit_suc)
+		return NETDEV_TX_OK;
+
+	atomic_long_inc(&bond_dev->tx_dropped);
+	return NET_XMIT_DROP;
+>>>>>>> upstream/android-13
 }
 
 /*------------------------- Device initialization ---------------------------*/
@@ -4168,8 +5949,12 @@ static inline int bond_slave_override(struct bonding *bond,
 
 
 static u16 bond_select_queue(struct net_device *dev, struct sk_buff *skb,
+<<<<<<< HEAD
 			     struct net_device *sb_dev,
 			     select_queue_fallback_t fallback)
+=======
+			     struct net_device *sb_dev)
+>>>>>>> upstream/android-13
 {
 	/* This helper function exists to help dev_pick_tx get the correct
 	 * destination queue.  Using a helper function skips a call to
@@ -4189,6 +5974,140 @@ static u16 bond_select_queue(struct net_device *dev, struct sk_buff *skb,
 	return txq;
 }
 
+<<<<<<< HEAD
+=======
+static struct net_device *bond_xmit_get_slave(struct net_device *master_dev,
+					      struct sk_buff *skb,
+					      bool all_slaves)
+{
+	struct bonding *bond = netdev_priv(master_dev);
+	struct bond_up_slave *slaves;
+	struct slave *slave = NULL;
+
+	switch (BOND_MODE(bond)) {
+	case BOND_MODE_ROUNDROBIN:
+		slave = bond_xmit_roundrobin_slave_get(bond, skb);
+		break;
+	case BOND_MODE_ACTIVEBACKUP:
+		slave = bond_xmit_activebackup_slave_get(bond);
+		break;
+	case BOND_MODE_8023AD:
+	case BOND_MODE_XOR:
+		if (all_slaves)
+			slaves = rcu_dereference(bond->all_slaves);
+		else
+			slaves = rcu_dereference(bond->usable_slaves);
+		slave = bond_xmit_3ad_xor_slave_get(bond, skb, slaves);
+		break;
+	case BOND_MODE_BROADCAST:
+		break;
+	case BOND_MODE_ALB:
+		slave = bond_xmit_alb_slave_get(bond, skb);
+		break;
+	case BOND_MODE_TLB:
+		slave = bond_xmit_tlb_slave_get(bond, skb);
+		break;
+	default:
+		/* Should never happen, mode already checked */
+		WARN_ONCE(true, "Unknown bonding mode");
+		break;
+	}
+
+	if (slave)
+		return slave->dev;
+	return NULL;
+}
+
+static void bond_sk_to_flow(struct sock *sk, struct flow_keys *flow)
+{
+	switch (sk->sk_family) {
+#if IS_ENABLED(CONFIG_IPV6)
+	case AF_INET6:
+		if (sk->sk_ipv6only ||
+		    ipv6_addr_type(&sk->sk_v6_daddr) != IPV6_ADDR_MAPPED) {
+			flow->control.addr_type = FLOW_DISSECTOR_KEY_IPV6_ADDRS;
+			flow->addrs.v6addrs.src = inet6_sk(sk)->saddr;
+			flow->addrs.v6addrs.dst = sk->sk_v6_daddr;
+			break;
+		}
+		fallthrough;
+#endif
+	default: /* AF_INET */
+		flow->control.addr_type = FLOW_DISSECTOR_KEY_IPV4_ADDRS;
+		flow->addrs.v4addrs.src = inet_sk(sk)->inet_rcv_saddr;
+		flow->addrs.v4addrs.dst = inet_sk(sk)->inet_daddr;
+		break;
+	}
+
+	flow->ports.src = inet_sk(sk)->inet_sport;
+	flow->ports.dst = inet_sk(sk)->inet_dport;
+}
+
+/**
+ * bond_sk_hash_l34 - generate a hash value based on the socket's L3 and L4 fields
+ * @sk: socket to use for headers
+ *
+ * This function will extract the necessary field from the socket and use
+ * them to generate a hash based on the LAYER34 xmit_policy.
+ * Assumes that sk is a TCP or UDP socket.
+ */
+static u32 bond_sk_hash_l34(struct sock *sk)
+{
+	struct flow_keys flow;
+	u32 hash;
+
+	bond_sk_to_flow(sk, &flow);
+
+	/* L4 */
+	memcpy(&hash, &flow.ports.ports, sizeof(hash));
+	/* L3 */
+	return bond_ip_hash(hash, &flow, BOND_XMIT_POLICY_LAYER34);
+}
+
+static struct net_device *__bond_sk_get_lower_dev(struct bonding *bond,
+						  struct sock *sk)
+{
+	struct bond_up_slave *slaves;
+	struct slave *slave;
+	unsigned int count;
+	u32 hash;
+
+	slaves = rcu_dereference(bond->usable_slaves);
+	count = slaves ? READ_ONCE(slaves->count) : 0;
+	if (unlikely(!count))
+		return NULL;
+
+	hash = bond_sk_hash_l34(sk);
+	slave = slaves->arr[hash % count];
+
+	return slave->dev;
+}
+
+static struct net_device *bond_sk_get_lower_dev(struct net_device *dev,
+						struct sock *sk)
+{
+	struct bonding *bond = netdev_priv(dev);
+	struct net_device *lower = NULL;
+
+	rcu_read_lock();
+	if (bond_sk_check(bond))
+		lower = __bond_sk_get_lower_dev(bond, sk);
+	rcu_read_unlock();
+
+	return lower;
+}
+
+#if IS_ENABLED(CONFIG_TLS_DEVICE)
+static netdev_tx_t bond_tls_device_xmit(struct bonding *bond, struct sk_buff *skb,
+					struct net_device *dev)
+{
+	if (likely(bond_get_slave_by_dev(bond, tls_get_ctx(skb->sk)->netdev)))
+		return bond_dev_queue_xmit(bond, skb, tls_get_ctx(skb->sk)->netdev);
+	return bond_tx_drop(dev, skb);
+}
+#endif
+
+>>>>>>> upstream/android-13
 static netdev_tx_t __bond_start_xmit(struct sk_buff *skb, struct net_device *dev)
 {
 	struct bonding *bond = netdev_priv(dev);
@@ -4197,6 +6116,14 @@ static netdev_tx_t __bond_start_xmit(struct sk_buff *skb, struct net_device *dev
 	    !bond_slave_override(bond, skb))
 		return NETDEV_TX_OK;
 
+<<<<<<< HEAD
+=======
+#if IS_ENABLED(CONFIG_TLS_DEVICE)
+	if (skb->sk && tls_is_sk_tx_device_offloaded(skb->sk))
+		return bond_tls_device_xmit(bond, skb, dev);
+#endif
+
+>>>>>>> upstream/android-13
 	switch (BOND_MODE(bond)) {
 	case BOND_MODE_ROUNDROBIN:
 		return bond_xmit_roundrobin(skb, dev);
@@ -4215,8 +6142,12 @@ static netdev_tx_t __bond_start_xmit(struct sk_buff *skb, struct net_device *dev
 		/* Should never happen, mode already checked */
 		netdev_err(dev, "Unknown bonding mode %d\n", BOND_MODE(bond));
 		WARN_ON_ONCE(1);
+<<<<<<< HEAD
 		bond_tx_drop(dev, skb);
 		return NETDEV_TX_OK;
+=======
+		return bond_tx_drop(dev, skb);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -4235,12 +6166,184 @@ static netdev_tx_t bond_start_xmit(struct sk_buff *skb, struct net_device *dev)
 	if (bond_has_slaves(bond))
 		ret = __bond_start_xmit(skb, dev);
 	else
+<<<<<<< HEAD
 		bond_tx_drop(dev, skb);
+=======
+		ret = bond_tx_drop(dev, skb);
+>>>>>>> upstream/android-13
 	rcu_read_unlock();
 
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+static struct net_device *
+bond_xdp_get_xmit_slave(struct net_device *bond_dev, struct xdp_buff *xdp)
+{
+	struct bonding *bond = netdev_priv(bond_dev);
+	struct slave *slave;
+
+	/* Caller needs to hold rcu_read_lock() */
+
+	switch (BOND_MODE(bond)) {
+	case BOND_MODE_ROUNDROBIN:
+		slave = bond_xdp_xmit_roundrobin_slave_get(bond, xdp);
+		break;
+
+	case BOND_MODE_ACTIVEBACKUP:
+		slave = bond_xmit_activebackup_slave_get(bond);
+		break;
+
+	case BOND_MODE_8023AD:
+	case BOND_MODE_XOR:
+		slave = bond_xdp_xmit_3ad_xor_slave_get(bond, xdp);
+		break;
+
+	default:
+		/* Should never happen. Mode guarded by bond_xdp_check() */
+		netdev_err(bond_dev, "Unknown bonding mode %d for xdp xmit\n", BOND_MODE(bond));
+		WARN_ON_ONCE(1);
+		return NULL;
+	}
+
+	if (slave)
+		return slave->dev;
+
+	return NULL;
+}
+
+static int bond_xdp_xmit(struct net_device *bond_dev,
+			 int n, struct xdp_frame **frames, u32 flags)
+{
+	int nxmit, err = -ENXIO;
+
+	rcu_read_lock();
+
+	for (nxmit = 0; nxmit < n; nxmit++) {
+		struct xdp_frame *frame = frames[nxmit];
+		struct xdp_frame *frames1[] = {frame};
+		struct net_device *slave_dev;
+		struct xdp_buff xdp;
+
+		xdp_convert_frame_to_buff(frame, &xdp);
+
+		slave_dev = bond_xdp_get_xmit_slave(bond_dev, &xdp);
+		if (!slave_dev) {
+			err = -ENXIO;
+			break;
+		}
+
+		err = slave_dev->netdev_ops->ndo_xdp_xmit(slave_dev, 1, frames1, flags);
+		if (err < 1)
+			break;
+	}
+
+	rcu_read_unlock();
+
+	/* If error happened on the first frame then we can pass the error up, otherwise
+	 * report the number of frames that were xmitted.
+	 */
+	if (err < 0)
+		return (nxmit == 0 ? err : nxmit);
+
+	return nxmit;
+}
+
+static int bond_xdp_set(struct net_device *dev, struct bpf_prog *prog,
+			struct netlink_ext_ack *extack)
+{
+	struct bonding *bond = netdev_priv(dev);
+	struct list_head *iter;
+	struct slave *slave, *rollback_slave;
+	struct bpf_prog *old_prog;
+	struct netdev_bpf xdp = {
+		.command = XDP_SETUP_PROG,
+		.flags   = 0,
+		.prog    = prog,
+		.extack  = extack,
+	};
+	int err;
+
+	ASSERT_RTNL();
+
+	if (!bond_xdp_check(bond))
+		return -EOPNOTSUPP;
+
+	old_prog = bond->xdp_prog;
+	bond->xdp_prog = prog;
+
+	bond_for_each_slave(bond, slave, iter) {
+		struct net_device *slave_dev = slave->dev;
+
+		if (!slave_dev->netdev_ops->ndo_bpf ||
+		    !slave_dev->netdev_ops->ndo_xdp_xmit) {
+			SLAVE_NL_ERR(dev, slave_dev, extack,
+				     "Slave device does not support XDP");
+			err = -EOPNOTSUPP;
+			goto err;
+		}
+
+		if (dev_xdp_prog_count(slave_dev) > 0) {
+			SLAVE_NL_ERR(dev, slave_dev, extack,
+				     "Slave has XDP program loaded, please unload before enslaving");
+			err = -EOPNOTSUPP;
+			goto err;
+		}
+
+		err = slave_dev->netdev_ops->ndo_bpf(slave_dev, &xdp);
+		if (err < 0) {
+			/* ndo_bpf() sets extack error message */
+			slave_err(dev, slave_dev, "Error %d calling ndo_bpf\n", err);
+			goto err;
+		}
+		if (prog)
+			bpf_prog_inc(prog);
+	}
+
+	if (prog) {
+		static_branch_inc(&bpf_master_redirect_enabled_key);
+	} else if (old_prog) {
+		bpf_prog_put(old_prog);
+		static_branch_dec(&bpf_master_redirect_enabled_key);
+	}
+
+	return 0;
+
+err:
+	/* unwind the program changes */
+	bond->xdp_prog = old_prog;
+	xdp.prog = old_prog;
+	xdp.extack = NULL; /* do not overwrite original error */
+
+	bond_for_each_slave(bond, rollback_slave, iter) {
+		struct net_device *slave_dev = rollback_slave->dev;
+		int err_unwind;
+
+		if (slave == rollback_slave)
+			break;
+
+		err_unwind = slave_dev->netdev_ops->ndo_bpf(slave_dev, &xdp);
+		if (err_unwind < 0)
+			slave_err(dev, slave_dev,
+				  "Error %d when unwinding XDP program change\n", err_unwind);
+		else if (xdp.prog)
+			bpf_prog_inc(xdp.prog);
+	}
+	return err;
+}
+
+static int bond_xdp(struct net_device *dev, struct netdev_bpf *xdp)
+{
+	switch (xdp->command) {
+	case XDP_SETUP_PROG:
+		return bond_xdp_set(dev, xdp->prog, xdp->extack);
+	default:
+		return -EINVAL;
+	}
+}
+
+>>>>>>> upstream/android-13
 static u32 bond_mode_bcast_speed(struct slave *slave, u32 speed)
 {
 	if (speed == 0 || speed == SPEED_UNKNOWN)
@@ -4290,7 +6393,10 @@ static void bond_ethtool_get_drvinfo(struct net_device *bond_dev,
 				     struct ethtool_drvinfo *drvinfo)
 {
 	strlcpy(drvinfo->driver, DRV_NAME, sizeof(drvinfo->driver));
+<<<<<<< HEAD
 	strlcpy(drvinfo->version, DRV_VERSION, sizeof(drvinfo->version));
+=======
+>>>>>>> upstream/android-13
 	snprintf(drvinfo->fw_version, sizeof(drvinfo->fw_version), "%d",
 		 BOND_ABI_VERSION);
 }
@@ -4309,7 +6415,13 @@ static const struct net_device_ops bond_netdev_ops = {
 	.ndo_start_xmit		= bond_start_xmit,
 	.ndo_select_queue	= bond_select_queue,
 	.ndo_get_stats64	= bond_get_stats,
+<<<<<<< HEAD
 	.ndo_do_ioctl		= bond_do_ioctl,
+=======
+	.ndo_eth_ioctl		= bond_eth_ioctl,
+	.ndo_siocbond		= bond_do_ioctl,
+	.ndo_siocdevprivate	= bond_siocdevprivate,
+>>>>>>> upstream/android-13
 	.ndo_change_rx_flags	= bond_change_rx_flags,
 	.ndo_set_rx_mode	= bond_set_rx_mode,
 	.ndo_change_mtu		= bond_change_mtu,
@@ -4317,7 +6429,10 @@ static const struct net_device_ops bond_netdev_ops = {
 	.ndo_neigh_setup	= bond_neigh_setup,
 	.ndo_vlan_rx_add_vid	= bond_vlan_rx_add_vid,
 	.ndo_vlan_rx_kill_vid	= bond_vlan_rx_kill_vid,
+<<<<<<< HEAD
 	.ndo_get_lock_subclass  = bond_get_nest_level,
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_NET_POLL_CONTROLLER
 	.ndo_netpoll_setup	= bond_netpoll_setup,
 	.ndo_netpoll_cleanup	= bond_netpoll_cleanup,
@@ -4327,6 +6442,14 @@ static const struct net_device_ops bond_netdev_ops = {
 	.ndo_del_slave		= bond_release,
 	.ndo_fix_features	= bond_fix_features,
 	.ndo_features_check	= passthru_features_check,
+<<<<<<< HEAD
+=======
+	.ndo_get_xmit_slave	= bond_xmit_get_slave,
+	.ndo_sk_get_lower_dev	= bond_sk_get_lower_dev,
+	.ndo_bpf		= bond_xdp,
+	.ndo_xdp_xmit           = bond_xdp_xmit,
+	.ndo_xdp_get_xmit_slave = bond_xdp_get_xmit_slave,
+>>>>>>> upstream/android-13
 };
 
 static const struct device_type bond_type = {
@@ -4336,8 +6459,17 @@ static const struct device_type bond_type = {
 static void bond_destructor(struct net_device *bond_dev)
 {
 	struct bonding *bond = netdev_priv(bond_dev);
+<<<<<<< HEAD
 	if (bond->wq)
 		destroy_workqueue(bond->wq);
+=======
+
+	if (bond->wq)
+		destroy_workqueue(bond->wq);
+
+	if (bond->rr_tx_counter)
+		free_percpu(bond->rr_tx_counter);
+>>>>>>> upstream/android-13
 }
 
 void bond_setup(struct net_device *bond_dev)
@@ -4345,7 +6477,10 @@ void bond_setup(struct net_device *bond_dev)
 	struct bonding *bond = netdev_priv(bond_dev);
 
 	spin_lock_init(&bond->mode_lock);
+<<<<<<< HEAD
 	spin_lock_init(&bond->stats_lock);
+=======
+>>>>>>> upstream/android-13
 	bond->params = bonding_defaults;
 
 	/* Initialize pointers */
@@ -4367,6 +6502,16 @@ void bond_setup(struct net_device *bond_dev)
 	bond_dev->priv_flags |= IFF_BONDING | IFF_UNICAST_FLT | IFF_NO_QUEUE;
 	bond_dev->priv_flags &= ~(IFF_XMIT_DST_RELEASE | IFF_TX_SKB_SHARING);
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_XFRM_OFFLOAD
+	/* set up xfrm device ops (only supported in active-backup right now) */
+	bond_dev->xfrmdev_ops = &bond_xfrmdev_ops;
+	INIT_LIST_HEAD(&bond->ipsec_list);
+	spin_lock_init(&bond->ipsec_lock);
+#endif /* CONFIG_XFRM_OFFLOAD */
+
+>>>>>>> upstream/android-13
 	/* don't acquire bond device's netif_tx_lock when transmitting */
 	bond_dev->features |= NETIF_F_LLTX;
 
@@ -4384,9 +6529,25 @@ void bond_setup(struct net_device *bond_dev)
 				NETIF_F_HW_VLAN_CTAG_RX |
 				NETIF_F_HW_VLAN_CTAG_FILTER;
 
+<<<<<<< HEAD
 	bond_dev->hw_features |= NETIF_F_GSO_ENCAP_ALL | NETIF_F_GSO_UDP_L4;
 	bond_dev->features |= bond_dev->hw_features;
 	bond_dev->features |= NETIF_F_HW_VLAN_CTAG_TX | NETIF_F_HW_VLAN_STAG_TX;
+=======
+	bond_dev->hw_features |= NETIF_F_GSO_ENCAP_ALL;
+	bond_dev->features |= bond_dev->hw_features;
+	bond_dev->features |= NETIF_F_HW_VLAN_CTAG_TX | NETIF_F_HW_VLAN_STAG_TX;
+#ifdef CONFIG_XFRM_OFFLOAD
+	bond_dev->hw_features |= BOND_XFRM_FEATURES;
+	/* Only enable XFRM features if this is an active-backup config */
+	if (BOND_MODE(bond) == BOND_MODE_ACTIVEBACKUP)
+		bond_dev->features |= BOND_XFRM_FEATURES;
+#endif /* CONFIG_XFRM_OFFLOAD */
+#if IS_ENABLED(CONFIG_TLS_DEVICE)
+	if (bond_sk_check(bond))
+		bond_dev->features |= BOND_TLS_FEATURES;
+#endif
+>>>>>>> upstream/android-13
 }
 
 /* Destroy a bonding device.
@@ -4395,9 +6556,15 @@ void bond_setup(struct net_device *bond_dev)
 static void bond_uninit(struct net_device *bond_dev)
 {
 	struct bonding *bond = netdev_priv(bond_dev);
+<<<<<<< HEAD
 	struct list_head *iter;
 	struct slave *slave;
 	struct bond_up_slave *arr;
+=======
+	struct bond_up_slave *usable, *all;
+	struct list_head *iter;
+	struct slave *slave;
+>>>>>>> upstream/android-13
 
 	bond_netpoll_cleanup(bond_dev);
 
@@ -4406,10 +6573,23 @@ static void bond_uninit(struct net_device *bond_dev)
 		__bond_release_one(bond_dev, slave->dev, true, true);
 	netdev_info(bond_dev, "Released all slaves\n");
 
+<<<<<<< HEAD
 	arr = rtnl_dereference(bond->slave_arr);
 	if (arr) {
 		RCU_INIT_POINTER(bond->slave_arr, NULL);
 		kfree_rcu(arr, rcu);
+=======
+	usable = rtnl_dereference(bond->usable_slaves);
+	if (usable) {
+		RCU_INIT_POINTER(bond->usable_slaves, NULL);
+		kfree_rcu(usable, rcu);
+	}
+
+	all = rtnl_dereference(bond->all_slaves);
+	if (all) {
+		RCU_INIT_POINTER(bond->all_slaves, NULL);
+		kfree_rcu(all, rcu);
+>>>>>>> upstream/android-13
 	}
 
 	list_del(&bond->bond_list);
@@ -4768,7 +6948,13 @@ static int bond_check_params(struct bond_params *params)
 	params->arp_all_targets = arp_all_targets_value;
 	params->updelay = updelay;
 	params->downdelay = downdelay;
+<<<<<<< HEAD
 	params->use_carrier = use_carrier;
+=======
+	params->peer_notif_delay = 0;
+	params->use_carrier = use_carrier;
+	params->lacp_active = 1;
+>>>>>>> upstream/android-13
 	params->lacp_fast = lacp_fast;
 	params->primary[0] = 0;
 	params->primary_reselect = primary_reselect_value;
@@ -4794,10 +6980,15 @@ static int bond_check_params(struct bond_params *params)
 			(struct reciprocal_value) { 0 };
 	}
 
+<<<<<<< HEAD
 	if (primary) {
 		strncpy(params->primary, primary, IFNAMSIZ);
 		params->primary[IFNAMSIZ - 1] = 0;
 	}
+=======
+	if (primary)
+		strscpy_pad(params->primary, primary, sizeof(params->primary));
+>>>>>>> upstream/android-13
 
 	memcpy(params->arp_targets, arp_target, sizeof(arp_target));
 
@@ -4816,7 +7007,20 @@ static int bond_init(struct net_device *bond_dev)
 	if (!bond->wq)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	bond->nest_level = SINGLE_DEPTH_NESTING;
+=======
+	if (BOND_MODE(bond) == BOND_MODE_ROUNDROBIN) {
+		bond->rr_tx_counter = alloc_percpu(u32);
+		if (!bond->rr_tx_counter) {
+			destroy_workqueue(bond->wq);
+			bond->wq = NULL;
+			return -ENOMEM;
+		}
+	}
+
+	spin_lock_init(&bond->stats_lock);
+>>>>>>> upstream/android-13
 	netdev_lockdep_set_classes(bond_dev);
 
 	list_add_tail(&bond->bond_list, &bn->dev_list);
@@ -4931,8 +7135,11 @@ static int __init bonding_init(void)
 	int i;
 	int res;
 
+<<<<<<< HEAD
 	pr_info("%s", bond_version);
 
+=======
+>>>>>>> upstream/android-13
 	res = bond_check_params(&bonding_defaults);
 	if (res)
 		goto out;
@@ -4953,6 +7160,13 @@ static int __init bonding_init(void)
 			goto err;
 	}
 
+<<<<<<< HEAD
+=======
+	skb_flow_dissector_init(&flow_keys_bonding,
+				flow_keys_bonding_keys,
+				ARRAY_SIZE(flow_keys_bonding_keys));
+
+>>>>>>> upstream/android-13
 	register_netdevice_notifier(&bond_netdev_notifier);
 out:
 	return res;
@@ -4983,6 +7197,10 @@ static void __exit bonding_exit(void)
 module_init(bonding_init);
 module_exit(bonding_exit);
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
 MODULE_VERSION(DRV_VERSION);
 MODULE_DESCRIPTION(DRV_DESCRIPTION ", v" DRV_VERSION);
+=======
+MODULE_DESCRIPTION(DRV_DESCRIPTION);
+>>>>>>> upstream/android-13
 MODULE_AUTHOR("Thomas Davis, tadavis@lbl.gov and many others");

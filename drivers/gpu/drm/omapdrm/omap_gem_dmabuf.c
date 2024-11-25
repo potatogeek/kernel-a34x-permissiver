@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2011 Texas Instruments Incorporated - http://www.ti.com/
  * Author: Rob Clark <rob.clark@linaro.org>
@@ -16,6 +17,18 @@
  */
 
 #include <linux/dma-buf.h>
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2011 Texas Instruments Incorporated - https://www.ti.com/
+ * Author: Rob Clark <rob.clark@linaro.org>
+ */
+
+#include <linux/dma-buf.h>
+#include <linux/highmem.h>
+
+#include <drm/drm_prime.h>
+>>>>>>> upstream/android-13
 
 #include "omap_drv.h"
 
@@ -75,7 +88,11 @@ static int omap_gem_dmabuf_begin_cpu_access(struct dma_buf *buffer,
 {
 	struct drm_gem_object *obj = buffer->priv;
 	struct page **pages;
+<<<<<<< HEAD
 	if (omap_gem_flags(obj) & OMAP_BO_TILED) {
+=======
+	if (omap_gem_flags(obj) & OMAP_BO_TILED_MASK) {
+>>>>>>> upstream/android-13
 		/* TODO we would need to pin at least part of the buffer to
 		 * get de-tiled view.  For now just reject it.
 		 */
@@ -93,6 +110,7 @@ static int omap_gem_dmabuf_end_cpu_access(struct dma_buf *buffer,
 	return 0;
 }
 
+<<<<<<< HEAD
 static void *omap_gem_dmabuf_kmap(struct dma_buf *buffer,
 		unsigned long page_num)
 {
@@ -112,6 +130,8 @@ static void omap_gem_dmabuf_kunmap(struct dma_buf *buffer,
 	kunmap(pages[page_num]);
 }
 
+=======
+>>>>>>> upstream/android-13
 static int omap_gem_dmabuf_mmap(struct dma_buf *buffer,
 		struct vm_area_struct *vma)
 {
@@ -131,6 +151,7 @@ static const struct dma_buf_ops omap_dmabuf_ops = {
 	.release = drm_gem_dmabuf_release,
 	.begin_cpu_access = omap_gem_dmabuf_begin_cpu_access,
 	.end_cpu_access = omap_gem_dmabuf_end_cpu_access,
+<<<<<<< HEAD
 	.map = omap_gem_dmabuf_kmap,
 	.unmap = omap_gem_dmabuf_kunmap,
 	.mmap = omap_gem_dmabuf_mmap,
@@ -138,6 +159,12 @@ static const struct dma_buf_ops omap_dmabuf_ops = {
 
 struct dma_buf *omap_gem_prime_export(struct drm_device *dev,
 		struct drm_gem_object *obj, int flags)
+=======
+	.mmap = omap_gem_dmabuf_mmap,
+};
+
+struct dma_buf *omap_gem_prime_export(struct drm_gem_object *obj, int flags)
+>>>>>>> upstream/android-13
 {
 	DEFINE_DMA_BUF_EXPORT_INFO(exp_info);
 
@@ -146,7 +173,11 @@ struct dma_buf *omap_gem_prime_export(struct drm_device *dev,
 	exp_info.flags = flags;
 	exp_info.priv = obj;
 
+<<<<<<< HEAD
 	return drm_gem_dmabuf_export(dev, &exp_info);
+=======
+	return drm_gem_dmabuf_export(obj->dev, &exp_info);
+>>>>>>> upstream/android-13
 }
 
 /* -----------------------------------------------------------------------------
@@ -168,7 +199,11 @@ struct drm_gem_object *omap_gem_prime_import(struct drm_device *dev,
 			 * Importing dmabuf exported from out own gem increases
 			 * refcount on gem itself instead of f_count of dmabuf.
 			 */
+<<<<<<< HEAD
 			drm_gem_object_reference(obj);
+=======
+			drm_gem_object_get(obj);
+>>>>>>> upstream/android-13
 			return obj;
 		}
 	}

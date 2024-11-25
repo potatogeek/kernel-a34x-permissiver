@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Real-time clock driver for MPC5121
  *
  * Copyright 2007, Domen Puncer <domen.puncer@telargo.com>
  * Copyright 2008, Freescale Semiconductor, Inc. All rights reserved.
  * Copyright 2011, Dmitry Eremin-Solenikov
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -114,7 +121,11 @@ static int mpc5121_rtc_read_time(struct device *dev, struct rtc_time *tm)
 	 */
 	now = in_be32(&regs->actual_time) + in_be32(&regs->target_time);
 
+<<<<<<< HEAD
 	rtc_time_to_tm(now, tm);
+=======
+	rtc_time64_to_tm(now, tm);
+>>>>>>> upstream/android-13
 
 	/*
 	 * update second minute hour registers
@@ -129,16 +140,24 @@ static int mpc5121_rtc_set_time(struct device *dev, struct rtc_time *tm)
 {
 	struct mpc5121_rtc_data *rtc = dev_get_drvdata(dev);
 	struct mpc5121_rtc_regs __iomem *regs = rtc->regs;
+<<<<<<< HEAD
 	int ret;
+=======
+>>>>>>> upstream/android-13
 	unsigned long now;
 
 	/*
 	 * The actual_time register is read only so we write the offset
 	 * between it and linux time to the target_time register.
 	 */
+<<<<<<< HEAD
 	ret = rtc_tm_to_time(tm, &now);
 	if (ret == 0)
 		out_be32(&regs->target_time, now - in_be32(&regs->actual_time));
+=======
+	now = rtc_tm_to_time64(tm);
+	out_be32(&regs->target_time, now - in_be32(&regs->actual_time));
+>>>>>>> upstream/android-13
 
 	/*
 	 * update second minute hour registers
@@ -318,10 +337,17 @@ static int mpc5121_rtc_probe(struct platform_device *op)
 	if (!rtc)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	rtc->regs = of_iomap(op->dev.of_node, 0);
 	if (!rtc->regs) {
 		dev_err(&op->dev, "%s: couldn't map io space\n", __func__);
 		return -ENOSYS;
+=======
+	rtc->regs = devm_platform_ioremap_resource(op, 0);
+	if (IS_ERR(rtc->regs)) {
+		dev_err(&op->dev, "%s: couldn't map io space\n", __func__);
+		return PTR_ERR(rtc->regs);
+>>>>>>> upstream/android-13
 	}
 
 	device_init_wakeup(&op->dev, 1);
@@ -329,8 +355,13 @@ static int mpc5121_rtc_probe(struct platform_device *op)
 	platform_set_drvdata(op, rtc);
 
 	rtc->irq = irq_of_parse_and_map(op->dev.of_node, 1);
+<<<<<<< HEAD
 	err = request_irq(rtc->irq, mpc5121_rtc_handler, 0,
 						"mpc5121-rtc", &op->dev);
+=======
+	err = devm_request_irq(&op->dev, rtc->irq, mpc5121_rtc_handler, 0,
+			       "mpc5121-rtc", &op->dev);
+>>>>>>> upstream/android-13
 	if (err) {
 		dev_err(&op->dev, "%s: could not request irq: %i\n",
 							__func__, rtc->irq);
@@ -338,14 +369,34 @@ static int mpc5121_rtc_probe(struct platform_device *op)
 	}
 
 	rtc->irq_periodic = irq_of_parse_and_map(op->dev.of_node, 0);
+<<<<<<< HEAD
 	err = request_irq(rtc->irq_periodic, mpc5121_rtc_handler_upd,
 				0, "mpc5121-rtc_upd", &op->dev);
+=======
+	err = devm_request_irq(&op->dev, rtc->irq_periodic,
+			       mpc5121_rtc_handler_upd, 0, "mpc5121-rtc_upd",
+			       &op->dev);
+>>>>>>> upstream/android-13
 	if (err) {
 		dev_err(&op->dev, "%s: could not request irq: %i\n",
 						__func__, rtc->irq_periodic);
 		goto out_dispose2;
 	}
 
+<<<<<<< HEAD
+=======
+	rtc->rtc = devm_rtc_allocate_device(&op->dev);
+	if (IS_ERR(rtc->rtc)) {
+		err = PTR_ERR(rtc->rtc);
+		goto out_dispose2;
+	}
+
+	rtc->rtc->ops = &mpc5200_rtc_ops;
+	rtc->rtc->uie_unsupported = 1;
+	rtc->rtc->range_min = RTC_TIMESTAMP_BEGIN_0000;
+	rtc->rtc->range_max = 65733206399ULL; /* 4052-12-31 23:59:59 */
+
+>>>>>>> upstream/android-13
 	if (of_device_is_compatible(op->dev.of_node, "fsl,mpc5121-rtc")) {
 		u32 ka;
 		ka = in_be32(&rtc->regs->keep_alive);
@@ -354,6 +405,7 @@ static int mpc5121_rtc_probe(struct platform_device *op)
 				"mpc5121-rtc: Battery or oscillator failure!\n");
 			out_be32(&rtc->regs->keep_alive, ka);
 		}
+<<<<<<< HEAD
 
 		rtc->rtc = devm_rtc_device_register(&op->dev, "mpc5121-rtc",
 						&mpc5121_rtc_ops, THIS_MODULE);
@@ -378,6 +430,28 @@ out_dispose2:
 out_dispose:
 	irq_dispose_mapping(rtc->irq);
 	iounmap(rtc->regs);
+=======
+		rtc->rtc->ops = &mpc5121_rtc_ops;
+		/*
+		 * This is a limitation of the driver that abuses the target
+		 * time register, the actual maximum year for the mpc5121 is
+		 * also 4052.
+		 */
+		rtc->rtc->range_min = 0;
+		rtc->rtc->range_max = U32_MAX;
+	}
+
+	err = devm_rtc_register_device(rtc->rtc);
+	if (err)
+		goto out_dispose2;
+
+	return 0;
+
+out_dispose2:
+	irq_dispose_mapping(rtc->irq_periodic);
+out_dispose:
+	irq_dispose_mapping(rtc->irq);
+>>>>>>> upstream/android-13
 
 	return err;
 }
@@ -391,9 +465,12 @@ static int mpc5121_rtc_remove(struct platform_device *op)
 	out_8(&regs->alm_enable, 0);
 	out_8(&regs->int_enable, in_8(&regs->int_enable) & ~0x1);
 
+<<<<<<< HEAD
 	iounmap(rtc->regs);
 	free_irq(rtc->irq, &op->dev);
 	free_irq(rtc->irq_periodic, &op->dev);
+=======
+>>>>>>> upstream/android-13
 	irq_dispose_mapping(rtc->irq);
 	irq_dispose_mapping(rtc->irq_periodic);
 

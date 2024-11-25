@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Tracing hooks
  *
  * Copyright (C) 2008-2009 Red Hat, Inc.  All rights reserved.
  *
+<<<<<<< HEAD
  * This copyrighted material is made available to anyone wishing to use,
  * modify, copy, or redistribute it subject to the terms and conditions
  * of the GNU General Public License v.2.
  *
+=======
+>>>>>>> upstream/android-13
  * This file defines hook entry points called by core code where
  * user tracing/debugging support might need to do something.  These
  * entry points are called tracehook_*().  Each hook declared below
@@ -57,13 +64,22 @@ struct linux_binprm;
 /*
  * ptrace report for syscall entry and exit looks identical.
  */
+<<<<<<< HEAD
 static inline int ptrace_report_syscall(struct pt_regs *regs)
+=======
+static inline int ptrace_report_syscall(struct pt_regs *regs,
+					unsigned long message)
+>>>>>>> upstream/android-13
 {
 	int ptrace = current->ptrace;
 
 	if (!(ptrace & PT_PTRACED))
 		return 0;
 
+<<<<<<< HEAD
+=======
+	current->ptrace_message = message;
+>>>>>>> upstream/android-13
 	ptrace_notify(SIGTRAP | ((ptrace & PT_TRACESYSGOOD) ? 0x80 : 0));
 
 	/*
@@ -76,6 +92,10 @@ static inline int ptrace_report_syscall(struct pt_regs *regs)
 		current->exit_code = 0;
 	}
 
+<<<<<<< HEAD
+=======
+	current->ptrace_message = 0;
+>>>>>>> upstream/android-13
 	return fatal_signal_pending(current);
 }
 
@@ -83,11 +103,20 @@ static inline int ptrace_report_syscall(struct pt_regs *regs)
  * tracehook_report_syscall_entry - task is about to attempt a system call
  * @regs:		user register state of current task
  *
+<<<<<<< HEAD
  * This will be called if %TIF_SYSCALL_TRACE has been set, when the
  * current task has just entered the kernel for a system call.
  * Full user register state is available here.  Changing the values
  * in @regs can affect the system call number and arguments to be tried.
  * It is safe to block here, preventing the system call from beginning.
+=======
+ * This will be called if %SYSCALL_WORK_SYSCALL_TRACE or
+ * %SYSCALL_WORK_SYSCALL_EMU have been set, when the current task has just
+ * entered the kernel for a system call.  Full user register state is
+ * available here.  Changing the values in @regs can affect the system
+ * call number and arguments to be tried.  It is safe to block here,
+ * preventing the system call from beginning.
+>>>>>>> upstream/android-13
  *
  * Returns zero normally, or nonzero if the calling arch code should abort
  * the system call.  That must prevent normal entry so no system call is
@@ -101,7 +130,11 @@ static inline int ptrace_report_syscall(struct pt_regs *regs)
 static inline __must_check int tracehook_report_syscall_entry(
 	struct pt_regs *regs)
 {
+<<<<<<< HEAD
 	return ptrace_report_syscall(regs);
+=======
+	return ptrace_report_syscall(regs, PTRACE_EVENTMSG_SYSCALL_ENTRY);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -109,20 +142,30 @@ static inline __must_check int tracehook_report_syscall_entry(
  * @regs:		user register state of current task
  * @step:		nonzero if simulating single-step or block-step
  *
+<<<<<<< HEAD
  * This will be called if %TIF_SYSCALL_TRACE has been set, when the
  * current task has just finished an attempted system call.  Full
+=======
+ * This will be called if %SYSCALL_WORK_SYSCALL_TRACE has been set, when
+ * the current task has just finished an attempted system call.  Full
+>>>>>>> upstream/android-13
  * user register state is available here.  It is safe to block here,
  * preventing signals from being processed.
  *
  * If @step is nonzero, this report is also in lieu of the normal
  * trap that would follow the system call instruction because
  * user_enable_block_step() or user_enable_single_step() was used.
+<<<<<<< HEAD
  * In this case, %TIF_SYSCALL_TRACE might not be set.
+=======
+ * In this case, %SYSCALL_WORK_SYSCALL_TRACE might not be set.
+>>>>>>> upstream/android-13
  *
  * Called without locks, just before checking for pending signals.
  */
 static inline void tracehook_report_syscall_exit(struct pt_regs *regs, int step)
 {
+<<<<<<< HEAD
 	if (step) {
 		siginfo_t info;
 		clear_siginfo(&info);
@@ -132,6 +175,12 @@ static inline void tracehook_report_syscall_exit(struct pt_regs *regs, int step)
 	}
 
 	ptrace_report_syscall(regs);
+=======
+	if (step)
+		user_single_step_report(regs);
+	else
+		ptrace_report_syscall(regs, PTRACE_EVENTMSG_SYSCALL_EXIT);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -183,17 +232,60 @@ static inline void set_notify_resume(struct task_struct *task)
  */
 static inline void tracehook_notify_resume(struct pt_regs *regs)
 {
+<<<<<<< HEAD
 	/*
 	 * The caller just cleared TIF_NOTIFY_RESUME. This barrier
 	 * pairs with task_work_add()->set_notify_resume() after
+=======
+	clear_thread_flag(TIF_NOTIFY_RESUME);
+	/*
+	 * This barrier pairs with task_work_add()->set_notify_resume() after
+>>>>>>> upstream/android-13
 	 * hlist_add_head(task->task_works);
 	 */
 	smp_mb__after_atomic();
 	if (unlikely(current->task_works))
 		task_work_run();
 
+<<<<<<< HEAD
 	mem_cgroup_handle_over_high();
 	blkcg_maybe_throttle_current();
+=======
+#ifdef CONFIG_KEYS_REQUEST_CACHE
+	if (unlikely(current->cached_requested_key)) {
+		key_put(current->cached_requested_key);
+		current->cached_requested_key = NULL;
+	}
+#endif
+
+	mem_cgroup_handle_over_high();
+	blkcg_maybe_throttle_current();
+
+	rseq_handle_notify_resume(NULL, regs);
+}
+
+/*
+ * called by exit_to_user_mode_loop() if ti_work & _TIF_NOTIFY_SIGNAL. This
+ * is currently used by TWA_SIGNAL based task_work, which requires breaking
+ * wait loops to ensure that task_work is noticed and run.
+ */
+static inline void tracehook_notify_signal(void)
+{
+	clear_thread_flag(TIF_NOTIFY_SIGNAL);
+	smp_mb__after_atomic();
+	if (current->task_works)
+		task_work_run();
+}
+
+/*
+ * Called when we have work to process from exit_to_user_mode_loop()
+ */
+static inline void set_notify_signal(struct task_struct *task)
+{
+	if (!test_and_set_tsk_thread_flag(task, TIF_NOTIFY_SIGNAL) &&
+	    !wake_up_state(task, TASK_INTERRUPTIBLE))
+		kick_process(task);
+>>>>>>> upstream/android-13
 }
 
 #endif	/* <linux/tracehook.h> */

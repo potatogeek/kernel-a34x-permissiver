@@ -12,8 +12,13 @@
 #include <linux/mmc/mmc.h>
 #include <linux/scatterlist.h>
 #include <linux/workqueue.h>
+<<<<<<< HEAD
 
 #include "greybus.h"
+=======
+#include <linux/greybus.h>
+
+>>>>>>> upstream/android-13
 #include "gbphy.h"
 
 struct gb_sdio_host {
@@ -33,7 +38,10 @@ struct gb_sdio_host {
 	bool			read_only;
 };
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 #define GB_SDIO_RSP_R1_R5_R6_R7	(GB_SDIO_RSP_PRESENT | GB_SDIO_RSP_CRC | \
 				 GB_SDIO_RSP_OPCODE)
 #define GB_SDIO_RSP_R3_R4	(GB_SDIO_RSP_PRESENT)
@@ -67,7 +75,10 @@ static void _gb_sdio_set_host_caps(struct gb_sdio_host *host, u32 r)
 		((r & GB_SDIO_CAP_8_BIT_DATA) ? MMC_CAP_8_BIT_DATA : 0) |
 		((r & GB_SDIO_CAP_MMC_HS) ? MMC_CAP_MMC_HIGHSPEED : 0) |
 		((r & GB_SDIO_CAP_SD_HS) ? MMC_CAP_SD_HIGHSPEED : 0) |
+<<<<<<< HEAD
 		((r & GB_SDIO_CAP_ERASE) ? MMC_CAP_ERASE : 0) |
+=======
+>>>>>>> upstream/android-13
 		((r & GB_SDIO_CAP_1_2V_DDR) ? MMC_CAP_1_2V_DDR : 0) |
 		((r & GB_SDIO_CAP_1_8V_DDR) ? MMC_CAP_1_8V_DDR : 0) |
 		((r & GB_SDIO_CAP_POWER_OFF_CARD) ? MMC_CAP_POWER_OFF_CARD : 0) |
@@ -275,7 +286,11 @@ static int _gb_sdio_send(struct gb_sdio_host *host, struct mmc_data *data,
 		return -ENOMEM;
 
 	request = operation->request->payload;
+<<<<<<< HEAD
 	request->data_flags = (data->flags >> 8);
+=======
+	request->data_flags = data->flags >> 8;
+>>>>>>> upstream/android-13
 	request->data_blocks = cpu_to_le16(nblocks);
 	request->data_blksz = cpu_to_le16(data->blksz);
 
@@ -329,7 +344,11 @@ static int _gb_sdio_recv(struct gb_sdio_host *host, struct mmc_data *data,
 		return -ENOMEM;
 
 	request = operation->request->payload;
+<<<<<<< HEAD
 	request->data_flags = (data->flags >> 8);
+=======
+	request->data_flags = data->flags >> 8;
+>>>>>>> upstream/android-13
 	request->data_blocks = cpu_to_le16(nblocks);
 	request->data_blksz = cpu_to_le16(data->blksz);
 
@@ -606,9 +625,15 @@ static void gb_mmc_set_ios(struct mmc_host *mmc, struct mmc_ios *ios)
 		vdd = 1 << (ios->vdd - GB_SDIO_VDD_SHIFT);
 	request.vdd = cpu_to_le32(vdd);
 
+<<<<<<< HEAD
 	request.bus_mode = (ios->bus_mode == MMC_BUSMODE_OPENDRAIN ?
 			    GB_SDIO_BUSMODE_OPENDRAIN :
 			    GB_SDIO_BUSMODE_PUSHPULL);
+=======
+	request.bus_mode = ios->bus_mode == MMC_BUSMODE_OPENDRAIN ?
+			    GB_SDIO_BUSMODE_OPENDRAIN :
+			    GB_SDIO_BUSMODE_PUSHPULL;
+>>>>>>> upstream/android-13
 
 	switch (ios->power_mode) {
 	case MMC_POWER_OFF:

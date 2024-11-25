@@ -11,6 +11,7 @@
 static struct rc_map_table tevii_nec[] = {
 	{ 0x0a, KEY_POWER2},
 	{ 0x0c, KEY_MUTE},
+<<<<<<< HEAD
 	{ 0x11, KEY_1},
 	{ 0x12, KEY_2},
 	{ 0x13, KEY_3},
@@ -21,6 +22,18 @@ static struct rc_map_table tevii_nec[] = {
 	{ 0x18, KEY_8},
 	{ 0x19, KEY_9},
 	{ 0x10, KEY_0},
+=======
+	{ 0x11, KEY_NUMERIC_1},
+	{ 0x12, KEY_NUMERIC_2},
+	{ 0x13, KEY_NUMERIC_3},
+	{ 0x14, KEY_NUMERIC_4},
+	{ 0x15, KEY_NUMERIC_5},
+	{ 0x16, KEY_NUMERIC_6},
+	{ 0x17, KEY_NUMERIC_7},
+	{ 0x18, KEY_NUMERIC_8},
+	{ 0x19, KEY_NUMERIC_9},
+	{ 0x10, KEY_NUMERIC_0},
+>>>>>>> upstream/android-13
 	{ 0x1c, KEY_MENU},
 	{ 0x0f, KEY_VOLUMEDOWN},
 	{ 0x1a, KEY_LAST},

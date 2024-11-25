@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * LTC2952 (PowerPath) driver
  *
  * Copyright (C) 2014, Xsens Technologies BV <info@xsens.com>
  * Maintainer: René Moll <linux@r-moll.nl>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
@@ -14,6 +19,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  * ----------------------------------------
  * - Description
  * ----------------------------------------
@@ -50,7 +57,10 @@
  *
  * The driver requires a non-shared, edge-triggered interrupt on the trigger
  * GPIO.
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -62,9 +72,17 @@
 #include <linux/slab.h>
 #include <linux/kmod.h>
 #include <linux/module.h>
+<<<<<<< HEAD
 #include <linux/mod_devicetable.h>
 #include <linux/gpio/consumer.h>
 #include <linux/reboot.h>
+=======
+#include <linux/panic_notifier.h>
+#include <linux/mod_devicetable.h>
+#include <linux/gpio/consumer.h>
+#include <linux/reboot.h>
+#include <linux/property.h>
+>>>>>>> upstream/android-13
 
 struct ltc2952_poweroff {
 	struct hrtimer timer_trigger;
@@ -104,7 +122,10 @@ static enum hrtimer_restart ltc2952_poweroff_timer_wde(struct hrtimer *timer)
 {
 	ktime_t now;
 	int state;
+<<<<<<< HEAD
 	unsigned long overruns;
+=======
+>>>>>>> upstream/android-13
 	struct ltc2952_poweroff *data = to_ltc2952(timer, timer_wde);
 
 	if (data->kernel_panic)
@@ -114,7 +135,11 @@ static enum hrtimer_restart ltc2952_poweroff_timer_wde(struct hrtimer *timer)
 	gpiod_set_value(data->gpio_watchdog, !state);
 
 	now = hrtimer_cb_get_time(timer);
+<<<<<<< HEAD
 	overruns = hrtimer_forward(timer, now, data->wde_interval);
+=======
+	hrtimer_forward(timer, now, data->wde_interval);
+>>>>>>> upstream/android-13
 
 	return HRTIMER_RESTART;
 }
@@ -170,8 +195,13 @@ static void ltc2952_poweroff_kill(void)
 
 static void ltc2952_poweroff_default(struct ltc2952_poweroff *data)
 {
+<<<<<<< HEAD
 	data->wde_interval = 300L * 1E6L;
 	data->trigger_delay = ktime_set(2, 500L*1E6L);
+=======
+	data->wde_interval = 300L * NSEC_PER_MSEC;
+	data->trigger_delay = ktime_set(2, 500L * NSEC_PER_MSEC);
+>>>>>>> upstream/android-13
 
 	hrtimer_init(&data->timer_trigger, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
 	data->timer_trigger.function = ltc2952_poweroff_timer_trigger;
@@ -183,10 +213,23 @@ static void ltc2952_poweroff_default(struct ltc2952_poweroff *data)
 static int ltc2952_poweroff_init(struct platform_device *pdev)
 {
 	int ret;
+<<<<<<< HEAD
+=======
+	u32 trigger_delay_ms;
+>>>>>>> upstream/android-13
 	struct ltc2952_poweroff *data = platform_get_drvdata(pdev);
 
 	ltc2952_poweroff_default(data);
 
+<<<<<<< HEAD
+=======
+	if (!device_property_read_u32(&pdev->dev, "trigger-delay-ms",
+				      &trigger_delay_ms)) {
+		data->trigger_delay = ktime_set(trigger_delay_ms / MSEC_PER_SEC,
+			(trigger_delay_ms % MSEC_PER_SEC) * NSEC_PER_MSEC);
+	}
+
+>>>>>>> upstream/android-13
 	data->gpio_watchdog = devm_gpiod_get(&pdev->dev, "watchdog",
 					     GPIOD_OUT_LOW);
 	if (IS_ERR(data->gpio_watchdog)) {

@@ -16,33 +16,61 @@ obj-$(CONFIG_DMATEST) += dmatest.o
 obj-$(CONFIG_ALTERA_MSGDMA) += altera-msgdma.o
 obj-$(CONFIG_AMBA_PL08X) += amba-pl08x.o
 obj-$(CONFIG_AMCC_PPC440SPE_ADMA) += ppc4xx/
+<<<<<<< HEAD
+=======
+obj-$(CONFIG_AMD_PTDMA) += ptdma/
+>>>>>>> upstream/android-13
 obj-$(CONFIG_AT_HDMAC) += at_hdmac.o
 obj-$(CONFIG_AT_XDMAC) += at_xdmac.o
 obj-$(CONFIG_AXI_DMAC) += dma-axi-dmac.o
 obj-$(CONFIG_BCM_SBA_RAID) += bcm-sba-raid.o
+<<<<<<< HEAD
 obj-$(CONFIG_COH901318) += coh901318.o coh901318_lli.o
 obj-$(CONFIG_DMA_BCM2835) += bcm2835-dma.o
 obj-$(CONFIG_DMA_JZ4740) += dma-jz4740.o
+=======
+obj-$(CONFIG_DMA_BCM2835) += bcm2835-dma.o
+>>>>>>> upstream/android-13
 obj-$(CONFIG_DMA_JZ4780) += dma-jz4780.o
 obj-$(CONFIG_DMA_SA11X0) += sa11x0-dma.o
 obj-$(CONFIG_DMA_SUN4I) += sun4i-dma.o
 obj-$(CONFIG_DMA_SUN6I) += sun6i-dma.o
 obj-$(CONFIG_DW_AXI_DMAC) += dw-axi-dmac/
 obj-$(CONFIG_DW_DMAC_CORE) += dw/
+<<<<<<< HEAD
 obj-$(CONFIG_EP93XX_DMA) += ep93xx_dma.o
 obj-$(CONFIG_FSL_DMA) += fsldma.o
 obj-$(CONFIG_FSL_EDMA) += fsl-edma.o
 obj-$(CONFIG_FSL_RAID) += fsl_raid.o
+=======
+obj-$(CONFIG_DW_EDMA) += dw-edma/
+obj-$(CONFIG_EP93XX_DMA) += ep93xx_dma.o
+obj-$(CONFIG_FSL_DMA) += fsldma.o
+obj-$(CONFIG_FSL_EDMA) += fsl-edma.o fsl-edma-common.o
+obj-$(CONFIG_MCF_EDMA) += mcf-edma.o fsl-edma-common.o
+obj-$(CONFIG_FSL_QDMA) += fsl-qdma.o
+obj-$(CONFIG_FSL_RAID) += fsl_raid.o
+obj-$(CONFIG_HISI_DMA) += hisi_dma.o
+>>>>>>> upstream/android-13
 obj-$(CONFIG_HSU_DMA) += hsu/
 obj-$(CONFIG_IMG_MDC_DMA) += img-mdc-dma.o
 obj-$(CONFIG_IMX_DMA) += imx-dma.o
 obj-$(CONFIG_IMX_SDMA) += imx-sdma.o
 obj-$(CONFIG_INTEL_IDMA64) += idma64.o
 obj-$(CONFIG_INTEL_IOATDMA) += ioat/
+<<<<<<< HEAD
 obj-$(CONFIG_INTEL_IOP_ADMA) += iop-adma.o
 obj-$(CONFIG_INTEL_MIC_X100_DMA) += mic_x100_dma.o
 obj-$(CONFIG_K3_DMA) += k3dma.o
 obj-$(CONFIG_LPC18XX_DMAMUX) += lpc18xx-dmamux.o
+=======
+obj-y += idxd/
+obj-$(CONFIG_INTEL_IOP_ADMA) += iop-adma.o
+obj-$(CONFIG_K3_DMA) += k3dma.o
+obj-$(CONFIG_LPC18XX_DMAMUX) += lpc18xx-dmamux.o
+obj-$(CONFIG_MILBEAUT_HDMAC) += milbeaut-hdmac.o
+obj-$(CONFIG_MILBEAUT_XDMAC) += milbeaut-xdmac.o
+>>>>>>> upstream/android-13
 obj-$(CONFIG_MMP_PDMA) += mmp_pdma.o
 obj-$(CONFIG_MMP_TDMA) += mmp_tdma.o
 obj-$(CONFIG_MOXART_DMA) += moxart-dma.o
@@ -54,11 +82,20 @@ obj-$(CONFIG_MX3_IPU) += ipu/
 obj-$(CONFIG_NBPFAXI_DMA) += nbpfaxi.o
 obj-$(CONFIG_OWL_DMA) += owl-dma.o
 obj-$(CONFIG_PCH_DMA) += pch_dma.o
+<<<<<<< HEAD
 obj-$(CONFIG_PL330_DMA) += pl330.o
 obj-$(CONFIG_PPC_BESTCOMM) += bestcomm/
 obj-$(CONFIG_PXA_DMA) += pxa_dma.o
 obj-$(CONFIG_RENESAS_DMA) += sh/
 obj-$(CONFIG_SIRF_DMA) += sirf-dma.o
+=======
+obj-$(CONFIG_PL330_DMA) += pl330.o samsung-dma.o
+obj-$(CONFIG_PLX_DMA) += plx_dma.o
+obj-$(CONFIG_PPC_BESTCOMM) += bestcomm/
+obj-$(CONFIG_PXA_DMA) += pxa_dma.o
+obj-$(CONFIG_RENESAS_DMA) += sh/
+obj-$(CONFIG_SF_PDMA) += sf-pdma/
+>>>>>>> upstream/android-13
 obj-$(CONFIG_STE_DMA40) += ste_dma40.o ste_dma40_ll.o
 obj-$(CONFIG_STM32_DMA) += stm32-dma.o
 obj-$(CONFIG_STM32_DMAMUX) += stm32-dmamux.o
@@ -69,9 +106,18 @@ obj-$(CONFIG_TXX9_DMAC) += txx9dmac.o
 obj-$(CONFIG_TEGRA20_APB_DMA) += tegra20-apb-dma.o
 obj-$(CONFIG_TEGRA210_ADMA) += tegra210-adma.o
 obj-$(CONFIG_TIMB_DMA) += timb_dma.o
+<<<<<<< HEAD
 obj-$(CONFIG_XGENE_DMA) += xgene-dma.o
 obj-$(CONFIG_ZX_DMA) += zx_dma.o
 obj-$(CONFIG_ST_FDMA) += st_fdma.o
+=======
+obj-$(CONFIG_UNIPHIER_MDMAC) += uniphier-mdmac.o
+obj-$(CONFIG_UNIPHIER_XDMAC) += uniphier-xdmac.o
+obj-$(CONFIG_XGENE_DMA) += xgene-dma.o
+obj-$(CONFIG_ST_FDMA) += st_fdma.o
+obj-$(CONFIG_FSL_DPAA2_QDMA) += fsl-dpaa2-qdma/
+obj-$(CONFIG_INTEL_LDMA) += lgm/
+>>>>>>> upstream/android-13
 
 obj-y += mediatek/
 obj-y += qcom/

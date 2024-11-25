@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  hdac-ext-stream.c - HD-audio extended stream operations.
  *
@@ -5,6 +9,7 @@
  *  Author: Jeeja KP <jeeja.kp@intel.com>
  *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  *
+<<<<<<< HEAD
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; version 2 of the License.
@@ -14,6 +19,8 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  */
 
@@ -114,6 +121,7 @@ void snd_hdac_stream_free_all(struct hdac_bus *bus)
 }
 EXPORT_SYMBOL_GPL(snd_hdac_stream_free_all);
 
+<<<<<<< HEAD
 /**
  * snd_hdac_ext_stream_decouple - decouple the hdac stream
  * @bus: HD-audio core bus
@@ -122,12 +130,20 @@ EXPORT_SYMBOL_GPL(snd_hdac_stream_free_all);
  */
 void snd_hdac_ext_stream_decouple(struct hdac_bus *bus,
 				struct hdac_ext_stream *stream, bool decouple)
+=======
+void snd_hdac_ext_stream_decouple_locked(struct hdac_bus *bus,
+					 struct hdac_ext_stream *stream,
+					 bool decouple)
+>>>>>>> upstream/android-13
 {
 	struct hdac_stream *hstream = &stream->hstream;
 	u32 val;
 	int mask = AZX_PPCTL_PROCEN(hstream->index);
 
+<<<<<<< HEAD
 	spin_lock_irq(&bus->reg_lock);
+=======
+>>>>>>> upstream/android-13
 	val = readw(bus->ppcap + AZX_REG_PP_PPCTL) & mask;
 
 	if (decouple && !val)
@@ -136,12 +152,33 @@ void snd_hdac_ext_stream_decouple(struct hdac_bus *bus,
 		snd_hdac_updatel(bus->ppcap, AZX_REG_PP_PPCTL, mask, 0);
 
 	stream->decoupled = decouple;
+<<<<<<< HEAD
+=======
+}
+EXPORT_SYMBOL_GPL(snd_hdac_ext_stream_decouple_locked);
+
+/**
+ * snd_hdac_ext_stream_decouple - decouple the hdac stream
+ * @bus: HD-audio core bus
+ * @stream: HD-audio ext core stream object to initialize
+ * @decouple: flag to decouple
+ */
+void snd_hdac_ext_stream_decouple(struct hdac_bus *bus,
+				  struct hdac_ext_stream *stream, bool decouple)
+{
+	spin_lock_irq(&bus->reg_lock);
+	snd_hdac_ext_stream_decouple_locked(bus, stream, decouple);
+>>>>>>> upstream/android-13
 	spin_unlock_irq(&bus->reg_lock);
 }
 EXPORT_SYMBOL_GPL(snd_hdac_ext_stream_decouple);
 
 /**
+<<<<<<< HEAD
  * snd_hdac_ext_linkstream_start - start a stream
+=======
+ * snd_hdac_ext_link_stream_start - start a stream
+>>>>>>> upstream/android-13
  * @stream: HD-audio ext core stream to start
  */
 void snd_hdac_ext_link_stream_start(struct hdac_ext_stream *stream)
@@ -260,6 +297,10 @@ hdac_ext_link_stream_assign(struct hdac_bus *bus,
 		return NULL;
 	}
 
+<<<<<<< HEAD
+=======
+	spin_lock_irq(&bus->reg_lock);
+>>>>>>> upstream/android-13
 	list_for_each_entry(stream, &bus->stream_list, list) {
 		struct hdac_ext_stream *hstream = container_of(stream,
 						struct hdac_ext_stream,
@@ -274,17 +315,28 @@ hdac_ext_link_stream_assign(struct hdac_bus *bus,
 		}
 
 		if (!hstream->link_locked) {
+<<<<<<< HEAD
 			snd_hdac_ext_stream_decouple(bus, hstream, true);
+=======
+			snd_hdac_ext_stream_decouple_locked(bus, hstream, true);
+>>>>>>> upstream/android-13
 			res = hstream;
 			break;
 		}
 	}
 	if (res) {
+<<<<<<< HEAD
 		spin_lock_irq(&bus->reg_lock);
 		res->link_locked = 1;
 		res->link_substream = substream;
 		spin_unlock_irq(&bus->reg_lock);
 	}
+=======
+		res->link_locked = 1;
+		res->link_substream = substream;
+	}
+	spin_unlock_irq(&bus->reg_lock);
+>>>>>>> upstream/android-13
 	return res;
 }
 
@@ -300,6 +352,10 @@ hdac_ext_host_stream_assign(struct hdac_bus *bus,
 		return NULL;
 	}
 
+<<<<<<< HEAD
+=======
+	spin_lock_irq(&bus->reg_lock);
+>>>>>>> upstream/android-13
 	list_for_each_entry(stream, &bus->stream_list, list) {
 		struct hdac_ext_stream *hstream = container_of(stream,
 						struct hdac_ext_stream,
@@ -309,18 +365,30 @@ hdac_ext_host_stream_assign(struct hdac_bus *bus,
 
 		if (!stream->opened) {
 			if (!hstream->decoupled)
+<<<<<<< HEAD
 				snd_hdac_ext_stream_decouple(bus, hstream, true);
+=======
+				snd_hdac_ext_stream_decouple_locked(bus, hstream, true);
+>>>>>>> upstream/android-13
 			res = hstream;
 			break;
 		}
 	}
 	if (res) {
+<<<<<<< HEAD
 		spin_lock_irq(&bus->reg_lock);
 		res->hstream.opened = 1;
 		res->hstream.running = 0;
 		res->hstream.substream = substream;
 		spin_unlock_irq(&bus->reg_lock);
 	}
+=======
+		res->hstream.opened = 1;
+		res->hstream.running = 0;
+		res->hstream.substream = substream;
+	}
+	spin_unlock_irq(&bus->reg_lock);
+>>>>>>> upstream/android-13
 
 	return res;
 }
@@ -386,15 +454,28 @@ void snd_hdac_ext_stream_release(struct hdac_ext_stream *stream, int type)
 		break;
 
 	case HDAC_EXT_STREAM_TYPE_HOST:
+<<<<<<< HEAD
 		if (stream->decoupled && !stream->link_locked)
 			snd_hdac_ext_stream_decouple(bus, stream, false);
+=======
+		spin_lock_irq(&bus->reg_lock);
+		if (stream->decoupled && !stream->link_locked)
+			snd_hdac_ext_stream_decouple_locked(bus, stream, false);
+		spin_unlock_irq(&bus->reg_lock);
+>>>>>>> upstream/android-13
 		snd_hdac_stream_release(&stream->hstream);
 		break;
 
 	case HDAC_EXT_STREAM_TYPE_LINK:
+<<<<<<< HEAD
 		if (stream->decoupled && !stream->hstream.opened)
 			snd_hdac_ext_stream_decouple(bus, stream, false);
 		spin_lock_irq(&bus->reg_lock);
+=======
+		spin_lock_irq(&bus->reg_lock);
+		if (stream->decoupled && !stream->hstream.opened)
+			snd_hdac_ext_stream_decouple_locked(bus, stream, false);
+>>>>>>> upstream/android-13
 		stream->link_locked = 0;
 		stream->link_substream = NULL;
 		spin_unlock_irq(&bus->reg_lock);
@@ -538,7 +619,10 @@ EXPORT_SYMBOL_GPL(snd_hdac_ext_stream_set_dpibr);
 
 /**
  * snd_hdac_ext_stream_set_lpib - sets the lpib value of a stream
+<<<<<<< HEAD
  * @bus: HD-audio core bus
+=======
+>>>>>>> upstream/android-13
  * @stream: hdac_ext_stream
  * @value: lpib value to set
  */

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2010 Broadcom Corporation
  *
@@ -12,6 +13,11 @@
  * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION
  * OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+=======
+// SPDX-License-Identifier: ISC
+/*
+ * Copyright (c) 2010 Broadcom Corporation
+>>>>>>> upstream/android-13
  */
 
 #include <linux/types.h>
@@ -27,6 +33,10 @@
 #include <linux/mmc/sdio_ids.h>
 #include <linux/mmc/sdio_func.h>
 #include <linux/mmc/card.h>
+<<<<<<< HEAD
+=======
+#include <linux/mmc/core.h>
+>>>>>>> upstream/android-13
 #include <linux/semaphore.h>
 #include <linux/firmware.h>
 #include <linux/module.h>
@@ -52,6 +62,25 @@
 /* watermark expressed in number of words */
 #define DEFAULT_F2_WATERMARK    0x8
 #define CY_4373_F2_WATERMARK    0x40
+<<<<<<< HEAD
+=======
+#define CY_4373_F1_MESBUSYCTRL  (CY_4373_F2_WATERMARK | SBSDIO_MESBUSYCTRL_ENAB)
+#define CY_43012_F2_WATERMARK    0x60
+#define CY_43012_MES_WATERMARK  0x50
+#define CY_43012_MESBUSYCTRL    (CY_43012_MES_WATERMARK | \
+				 SBSDIO_MESBUSYCTRL_ENAB)
+#define CY_4339_F2_WATERMARK    48
+#define CY_4339_MES_WATERMARK	80
+#define CY_4339_MESBUSYCTRL	(CY_4339_MES_WATERMARK | \
+				 SBSDIO_MESBUSYCTRL_ENAB)
+#define CY_43455_F2_WATERMARK	0x60
+#define CY_43455_MES_WATERMARK	0x50
+#define CY_43455_MESBUSYCTRL	(CY_43455_MES_WATERMARK | \
+				 SBSDIO_MESBUSYCTRL_ENAB)
+#define CY_435X_F2_WATERMARK	0x40
+#define CY_435X_F1_MESBUSYCTRL	(CY_435X_F2_WATERMARK | \
+				 SBSDIO_MESBUSYCTRL_ENAB)
+>>>>>>> upstream/android-13
 
 #ifdef DEBUG
 
@@ -323,6 +352,7 @@ struct rte_console {
 #define MAX_KSO_ATTEMPTS (PMU_MAX_TRANSITION_DLY/KSO_WAIT_US)
 #define BRCMF_SDIO_MAX_ACCESS_ERRORS	5
 
+<<<<<<< HEAD
 /*
  * Conversion of 802.1D priority to precedence level
  */
@@ -332,6 +362,8 @@ static uint prio2prec(u32 prio)
 	       (prio^2) : prio;
 }
 
+=======
+>>>>>>> upstream/android-13
 #ifdef DEBUG
 /* Device console log buffer state */
 struct brcmf_console {
@@ -560,7 +592,11 @@ enum brcmf_sdio_frmtype {
 	BRCMF_SDIO_FT_SUB,
 };
 
+<<<<<<< HEAD
 #define SDIOD_DRVSTR_KEY(chip, pmu)     (((chip) << 16) | (pmu))
+=======
+#define SDIOD_DRVSTR_KEY(chip, pmu)     (((unsigned int)(chip) << 16) | (pmu))
+>>>>>>> upstream/android-13
 
 /* SDIO Pad drive strength to select value mappings */
 struct sdiod_drive_str {
@@ -619,11 +655,30 @@ BRCMF_FW_DEF(43362, "brcmfmac43362-sdio");
 BRCMF_FW_DEF(4339, "brcmfmac4339-sdio");
 BRCMF_FW_DEF(43430A0, "brcmfmac43430a0-sdio");
 /* Note the names are not postfixed with a1 for backward compatibility */
+<<<<<<< HEAD
 BRCMF_FW_DEF(43430A1, "brcmfmac43430-sdio");
 BRCMF_FW_DEF(43455, "brcmfmac43455-sdio");
 BRCMF_FW_DEF(4354, "brcmfmac4354-sdio");
 BRCMF_FW_DEF(4356, "brcmfmac4356-sdio");
 BRCMF_FW_DEF(4373, "brcmfmac4373-sdio");
+=======
+BRCMF_FW_CLM_DEF(43430A1, "brcmfmac43430-sdio");
+BRCMF_FW_DEF(43430B0, "brcmfmac43430b0-sdio");
+BRCMF_FW_CLM_DEF(43455, "brcmfmac43455-sdio");
+BRCMF_FW_DEF(43456, "brcmfmac43456-sdio");
+BRCMF_FW_CLM_DEF(4354, "brcmfmac4354-sdio");
+BRCMF_FW_CLM_DEF(4356, "brcmfmac4356-sdio");
+BRCMF_FW_DEF(4359, "brcmfmac4359-sdio");
+BRCMF_FW_CLM_DEF(4373, "brcmfmac4373-sdio");
+BRCMF_FW_CLM_DEF(43012, "brcmfmac43012-sdio");
+BRCMF_FW_CLM_DEF(43752, "brcmfmac43752-sdio");
+
+/* firmware config files */
+MODULE_FIRMWARE(BRCMF_FW_DEFAULT_PATH "brcmfmac*-sdio.*.txt");
+
+/* per-board firmware binaries */
+MODULE_FIRMWARE(BRCMF_FW_DEFAULT_PATH "brcmfmac*-sdio.*.bin");
+>>>>>>> upstream/android-13
 
 static const struct brcmf_firmware_mapping brcmf_sdio_fwnames[] = {
 	BRCMF_FW_ENTRY(BRCM_CC_43143_CHIP_ID, 0xFFFFFFFF, 43143),
@@ -639,6 +694,7 @@ static const struct brcmf_firmware_mapping brcmf_sdio_fwnames[] = {
 	BRCMF_FW_ENTRY(BRCM_CC_43362_CHIP_ID, 0xFFFFFFFE, 43362),
 	BRCMF_FW_ENTRY(BRCM_CC_4339_CHIP_ID, 0xFFFFFFFF, 4339),
 	BRCMF_FW_ENTRY(BRCM_CC_43430_CHIP_ID, 0x00000001, 43430A0),
+<<<<<<< HEAD
 	BRCMF_FW_ENTRY(BRCM_CC_43430_CHIP_ID, 0xFFFFFFFE, 43430A1),
 	BRCMF_FW_ENTRY(BRCM_CC_4345_CHIP_ID, 0xFFFFFFC0, 43455),
 	BRCMF_FW_ENTRY(BRCM_CC_4354_CHIP_ID, 0xFFFFFFFF, 4354),
@@ -646,6 +702,22 @@ static const struct brcmf_firmware_mapping brcmf_sdio_fwnames[] = {
 	BRCMF_FW_ENTRY(CY_CC_4373_CHIP_ID, 0xFFFFFFFF, 4373)
 };
 
+=======
+	BRCMF_FW_ENTRY(BRCM_CC_43430_CHIP_ID, 0x00000002, 43430A1),
+	BRCMF_FW_ENTRY(BRCM_CC_43430_CHIP_ID, 0xFFFFFFFC, 43430B0),
+	BRCMF_FW_ENTRY(BRCM_CC_4345_CHIP_ID, 0x00000200, 43456),
+	BRCMF_FW_ENTRY(BRCM_CC_4345_CHIP_ID, 0xFFFFFDC0, 43455),
+	BRCMF_FW_ENTRY(BRCM_CC_4354_CHIP_ID, 0xFFFFFFFF, 4354),
+	BRCMF_FW_ENTRY(BRCM_CC_4356_CHIP_ID, 0xFFFFFFFF, 4356),
+	BRCMF_FW_ENTRY(BRCM_CC_4359_CHIP_ID, 0xFFFFFFFF, 4359),
+	BRCMF_FW_ENTRY(CY_CC_4373_CHIP_ID, 0xFFFFFFFF, 4373),
+	BRCMF_FW_ENTRY(CY_CC_43012_CHIP_ID, 0xFFFFFFFF, 43012),
+	BRCMF_FW_ENTRY(CY_CC_43752_CHIP_ID, 0xFFFFFFFF, 43752)
+};
+
+#define TXCTL_CREDITS	2
+
+>>>>>>> upstream/android-13
 static void pkt_align(struct sk_buff *p, int len, int align)
 {
 	uint datalign;
@@ -659,8 +731,27 @@ static void pkt_align(struct sk_buff *p, int len, int align)
 /* To check if there's window offered */
 static bool data_ok(struct brcmf_sdio *bus)
 {
+<<<<<<< HEAD
 	return (u8)(bus->tx_max - bus->tx_seq) != 0 &&
 	       ((u8)(bus->tx_max - bus->tx_seq) & 0x80) == 0;
+=======
+	u8 tx_rsv = 0;
+
+	/* Reserve TXCTL_CREDITS credits for txctl when it is ready to send */
+	if (bus->ctrl_frame_stat)
+		tx_rsv = TXCTL_CREDITS;
+
+	return (bus->tx_max - bus->tx_seq - tx_rsv) != 0 &&
+	       ((bus->tx_max - bus->tx_seq - tx_rsv) & 0x80) == 0;
+
+}
+
+/* To check if there's window offered */
+static bool txctl_ok(struct brcmf_sdio *bus)
+{
+	return (bus->tx_max - bus->tx_seq) != 0 &&
+	       ((bus->tx_max - bus->tx_seq) & 0x80) == 0;
+>>>>>>> upstream/android-13
 }
 
 static int
@@ -683,6 +774,17 @@ brcmf_sdio_kso_control(struct brcmf_sdio *bus, bool on)
 	/* 1st KSO write goes to AOS wake up core if device is asleep  */
 	brcmf_sdiod_writeb(bus->sdiodev, SBSDIO_FUNC1_SLEEPCSR, wr_val, &err);
 
+<<<<<<< HEAD
+=======
+	/* In case of 43012 chip, the chip could go down immediately after
+	 * KSO bit is cleared. So the further reads of KSO register could
+	 * fail. Thereby just bailing out immediately after clearing KSO
+	 * bit, to avoid polling of KSO bit.
+	 */
+	if (!on && bus->ci->chip == CY_CC_43012_CHIP_ID)
+		return err;
+
+>>>>>>> upstream/android-13
 	if (on) {
 		/* device WAKEUP through KSO:
 		 * write bit 0 & read back until
@@ -1090,8 +1192,13 @@ static u32 brcmf_sdio_hostmail(struct brcmf_sdio *bus)
 
 	/* dongle indicates the firmware has halted/crashed */
 	if (hmb_data & HMB_DATA_FWHALT) {
+<<<<<<< HEAD
 		brcmf_err("mailbox indicates firmware halted\n");
 		brcmf_dev_coredump(&sdiod->func1->dev);
+=======
+		brcmf_dbg(SDIO, "mailbox indicates firmware halted\n");
+		brcmf_fw_crashed(&sdiod->func1->dev);
+>>>>>>> upstream/android-13
 	}
 
 	/* Dongle recomposed rx frames, accept them again */
@@ -1260,7 +1367,11 @@ static void brcmf_sdio_free_glom(struct brcmf_sdio *bus)
 	}
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * brcmfmac sdio bus specific header
  * This is the lowest layer header wrapped on the packets transmitted between
  * host and WiFi dongle which contains information needed for SDIO core and
@@ -1313,7 +1424,11 @@ static void brcmf_sdio_free_glom(struct brcmf_sdio *bus)
 static inline u8 brcmf_sdio_getdatoffset(u8 *swheader)
 {
 	u32 hdrvalue;
+<<<<<<< HEAD
 	hdrvalue = *(u32 *)swheader;
+=======
+	hdrvalue = le32_to_cpu(*(__le32 *)swheader);
+>>>>>>> upstream/android-13
 	return (u8)((hdrvalue & SDPCM_DOFFSET_MASK) >> SDPCM_DOFFSET_SHIFT);
 }
 
@@ -1322,7 +1437,11 @@ static inline bool brcmf_sdio_fromevntchan(u8 *swheader)
 	u32 hdrvalue;
 	u8 ret;
 
+<<<<<<< HEAD
 	hdrvalue = *(u32 *)swheader;
+=======
+	hdrvalue = le32_to_cpu(*(__le32 *)swheader);
+>>>>>>> upstream/android-13
 	ret = (u8)((hdrvalue & SDPCM_CHANNEL_MASK) >> SDPCM_CHANNEL_SHIFT);
 
 	return (ret == SDPCM_EVENT_CHANNEL);
@@ -1480,7 +1599,11 @@ static u8 brcmf_sdio_rxglom(struct brcmf_sdio *bus, u8 rxseq)
 	struct sk_buff *pfirst, *pnext;
 
 	int errcode;
+<<<<<<< HEAD
 	u8 doff, sfdoff;
+=======
+	u8 doff;
+>>>>>>> upstream/android-13
 
 	struct brcmf_sdio_hdrinfo rd_new;
 
@@ -1614,7 +1737,10 @@ static u8 brcmf_sdio_rxglom(struct brcmf_sdio *bus, u8 rxseq)
 
 		/* Remove superframe header, remember offset */
 		skb_pull(pfirst, rd_new.dat_offset);
+<<<<<<< HEAD
 		sfdoff = rd_new.dat_offset;
+=======
+>>>>>>> upstream/android-13
 		num = 0;
 
 		/* Validate all the subframe headers */
@@ -1678,7 +1804,11 @@ static u8 brcmf_sdio_rxglom(struct brcmf_sdio *bus, u8 rxseq)
 				brcmf_rx_event(bus->sdiodev->dev, pfirst);
 			else
 				brcmf_rx_frame(bus->sdiodev->dev, pfirst,
+<<<<<<< HEAD
 					       false);
+=======
+					       false, false);
+>>>>>>> upstream/android-13
 			bus->sdcnt.rxglompkts++;
 		}
 
@@ -2012,7 +2142,11 @@ static uint brcmf_sdio_readframes(struct brcmf_sdio *bus, uint maxframes)
 			brcmf_rx_event(bus->sdiodev->dev, pkt);
 		else
 			brcmf_rx_frame(bus->sdiodev->dev, pkt,
+<<<<<<< HEAD
 				       false);
+=======
+				       false, false);
+>>>>>>> upstream/android-13
 
 		/* prepare the descriptor for the next read */
 		rd->len = rd->len_nxtfrm << 4;
@@ -2209,7 +2343,11 @@ brcmf_sdio_txpkt_prep(struct brcmf_sdio *bus, struct sk_buff_head *pktq,
 	 * length of the chain (including padding)
 	 */
 	if (bus->txglom)
+<<<<<<< HEAD
 		brcmf_sdio_update_hwhdr(pktq->next->data, total_len);
+=======
+		brcmf_sdio_update_hwhdr(__skb_peek(pktq)->data, total_len);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -2417,6 +2555,17 @@ static int brcmf_sdio_tx_ctrlframe(struct brcmf_sdio *bus, u8 *frame, u16 len)
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+static bool brcmf_chip_is_ulp(struct brcmf_chip *ci)
+{
+	if (ci->chip == CY_CC_43012_CHIP_ID)
+		return true;
+	else
+		return false;
+}
+
+>>>>>>> upstream/android-13
 static void brcmf_sdio_bus_stop(struct device *dev)
 {
 	struct brcmf_bus *bus_if = dev_get_drvdata(dev);
@@ -2424,7 +2573,11 @@ static void brcmf_sdio_bus_stop(struct device *dev)
 	struct brcmf_sdio *bus = sdiodev->bus;
 	struct brcmf_core *core = bus->sdio_core;
 	u32 local_hostintmask;
+<<<<<<< HEAD
 	u8 saveclk;
+=======
+	u8 saveclk, bpreq;
+>>>>>>> upstream/android-13
 	int err;
 
 	brcmf_dbg(TRACE, "Enter\n");
@@ -2451,9 +2604,20 @@ static void brcmf_sdio_bus_stop(struct device *dev)
 		/* Force backplane clocks to assure F2 interrupt propagates */
 		saveclk = brcmf_sdiod_readb(sdiodev, SBSDIO_FUNC1_CHIPCLKCSR,
 					    &err);
+<<<<<<< HEAD
 		if (!err)
 			brcmf_sdiod_writeb(sdiodev, SBSDIO_FUNC1_CHIPCLKCSR,
 					   (saveclk | SBSDIO_FORCE_HT), &err);
+=======
+		if (!err) {
+			bpreq = saveclk;
+			bpreq |= brcmf_chip_is_ulp(bus->ci) ?
+				SBSDIO_HT_AVAIL_REQ : SBSDIO_FORCE_HT;
+			brcmf_sdiod_writeb(sdiodev,
+					   SBSDIO_FUNC1_CHIPCLKCSR,
+					   bpreq, &err);
+		}
+>>>>>>> upstream/android-13
 		if (err)
 			brcmf_err("Failed to force clock for F2: err %d\n",
 				  err);
@@ -2646,7 +2810,11 @@ static void brcmf_sdio_dpc(struct brcmf_sdio *bus)
 	brcmf_sdio_clrintr(bus);
 
 	if (bus->ctrl_frame_stat && (bus->clkstate == CLK_AVAIL) &&
+<<<<<<< HEAD
 	    data_ok(bus)) {
+=======
+	    txctl_ok(bus)) {
+>>>>>>> upstream/android-13
 		sdio_claim_host(bus->sdiodev->func1);
 		if (bus->ctrl_frame_stat) {
 			err = brcmf_sdio_tx_ctrlframe(bus,  bus->ctrl_frame_buf,
@@ -2654,6 +2822,12 @@ static void brcmf_sdio_dpc(struct brcmf_sdio *bus)
 			bus->ctrl_frame_err = err;
 			wmb();
 			bus->ctrl_frame_stat = false;
+<<<<<<< HEAD
+=======
+			if (err)
+				brcmf_err("sdio ctrlframe tx failed err=%d\n",
+					  err);
+>>>>>>> upstream/android-13
 		}
 		sdio_release_host(bus->sdiodev->func1);
 		brcmf_sdio_wait_event_wakeup(bus);
@@ -2756,7 +2930,17 @@ static int brcmf_sdio_bus_txdata(struct device *dev, struct sk_buff *pkt)
 	skb_push(pkt, bus->tx_hdrlen);
 	/* precondition: IS_ALIGNED((unsigned long)(pkt->data), 2) */
 
+<<<<<<< HEAD
 	prec = prio2prec((pkt->priority & PRIOMASK));
+=======
+	/* In WLAN, priority is always set by the AP using WMM parameters
+	 * and this need not always follow the standard 802.1d priority.
+	 * Based on AP WMM config, map from 802.1d priority to corresponding
+	 * precedence level.
+	 */
+	prec = brcmf_map_prio_to_prec(bus_if->drvr->config,
+				      (pkt->priority & PRIOMASK));
+>>>>>>> upstream/android-13
 
 	/* Check for existing queue, current flow-control,
 			 pending event, or pending clock */
@@ -2990,6 +3174,7 @@ static int brcmf_sdio_trap_info(struct seq_file *seq, struct brcmf_sdio *bus,
 	if (error < 0)
 		return error;
 
+<<<<<<< HEAD
 	seq_printf(seq,
 		   "dongle trap info: type 0x%x @ epc 0x%08x\n"
 		   "  cpsr 0x%08x spsr 0x%08x sp 0x%08x\n"
@@ -3005,6 +3190,37 @@ static int brcmf_sdio_trap_info(struct seq_file *seq, struct brcmf_sdio *bus,
 		   le32_to_cpu(tr.r4), le32_to_cpu(tr.r5),
 		   le32_to_cpu(tr.r6), le32_to_cpu(tr.r7));
 
+=======
+	if (seq)
+		seq_printf(seq,
+			   "dongle trap info: type 0x%x @ epc 0x%08x\n"
+			   "  cpsr 0x%08x spsr 0x%08x sp 0x%08x\n"
+			   "  lr   0x%08x pc   0x%08x offset 0x%x\n"
+			   "  r0   0x%08x r1   0x%08x r2 0x%08x r3 0x%08x\n"
+			   "  r4   0x%08x r5   0x%08x r6 0x%08x r7 0x%08x\n",
+			   le32_to_cpu(tr.type), le32_to_cpu(tr.epc),
+			   le32_to_cpu(tr.cpsr), le32_to_cpu(tr.spsr),
+			   le32_to_cpu(tr.r13), le32_to_cpu(tr.r14),
+			   le32_to_cpu(tr.pc), sh->trap_addr,
+			   le32_to_cpu(tr.r0), le32_to_cpu(tr.r1),
+			   le32_to_cpu(tr.r2), le32_to_cpu(tr.r3),
+			   le32_to_cpu(tr.r4), le32_to_cpu(tr.r5),
+			   le32_to_cpu(tr.r6), le32_to_cpu(tr.r7));
+	else
+		pr_debug("dongle trap info: type 0x%x @ epc 0x%08x\n"
+			 "  cpsr 0x%08x spsr 0x%08x sp 0x%08x\n"
+			 "  lr   0x%08x pc   0x%08x offset 0x%x\n"
+			 "  r0   0x%08x r1   0x%08x r2 0x%08x r3 0x%08x\n"
+			 "  r4   0x%08x r5   0x%08x r6 0x%08x r7 0x%08x\n",
+			 le32_to_cpu(tr.type), le32_to_cpu(tr.epc),
+			 le32_to_cpu(tr.cpsr), le32_to_cpu(tr.spsr),
+			 le32_to_cpu(tr.r13), le32_to_cpu(tr.r14),
+			 le32_to_cpu(tr.pc), sh->trap_addr,
+			 le32_to_cpu(tr.r0), le32_to_cpu(tr.r1),
+			 le32_to_cpu(tr.r2), le32_to_cpu(tr.r3),
+			 le32_to_cpu(tr.r4), le32_to_cpu(tr.r5),
+			 le32_to_cpu(tr.r6), le32_to_cpu(tr.r7));
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -3058,8 +3274,15 @@ static int brcmf_sdio_checkdied(struct brcmf_sdio *bus)
 	else if (sh.flags & SDPCM_SHARED_ASSERT)
 		brcmf_err("assertion in dongle\n");
 
+<<<<<<< HEAD
 	if (sh.flags & SDPCM_SHARED_TRAP)
 		brcmf_err("firmware trap in dongle\n");
+=======
+	if (sh.flags & SDPCM_SHARED_TRAP) {
+		brcmf_err("firmware trap in dongle\n");
+		brcmf_sdio_trap_info(NULL, bus, &sh);
+	}
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -3346,20 +3569,60 @@ err:
 	return bcmerror;
 }
 
+<<<<<<< HEAD
+=======
+static bool brcmf_sdio_aos_no_decode(struct brcmf_sdio *bus)
+{
+	if (bus->ci->chip == CY_CC_43012_CHIP_ID ||
+	    bus->ci->chip == CY_CC_43752_CHIP_ID)
+		return true;
+	else
+		return false;
+}
+
+>>>>>>> upstream/android-13
 static void brcmf_sdio_sr_init(struct brcmf_sdio *bus)
 {
 	int err = 0;
 	u8 val;
+<<<<<<< HEAD
 
 	brcmf_dbg(TRACE, "Enter\n");
 
+=======
+	u8 wakeupctrl;
+	u8 cardcap;
+	u8 chipclkcsr;
+
+	brcmf_dbg(TRACE, "Enter\n");
+
+	if (brcmf_chip_is_ulp(bus->ci)) {
+		wakeupctrl = SBSDIO_FUNC1_WCTRL_ALPWAIT_SHIFT;
+		chipclkcsr = SBSDIO_HT_AVAIL_REQ;
+	} else {
+		wakeupctrl = SBSDIO_FUNC1_WCTRL_HTWAIT_SHIFT;
+		chipclkcsr = SBSDIO_FORCE_HT;
+	}
+
+	if (brcmf_sdio_aos_no_decode(bus)) {
+		cardcap = SDIO_CCCR_BRCM_CARDCAP_CMD_NODEC;
+	} else {
+		cardcap = (SDIO_CCCR_BRCM_CARDCAP_CMD14_SUPPORT |
+			   SDIO_CCCR_BRCM_CARDCAP_CMD14_EXT);
+	}
+
+>>>>>>> upstream/android-13
 	val = brcmf_sdiod_readb(bus->sdiodev, SBSDIO_FUNC1_WAKEUPCTRL, &err);
 	if (err) {
 		brcmf_err("error reading SBSDIO_FUNC1_WAKEUPCTRL\n");
 		return;
 	}
+<<<<<<< HEAD
 
 	val |= 1 << SBSDIO_FUNC1_WCTRL_HTWAIT_SHIFT;
+=======
+	val |= 1 << wakeupctrl;
+>>>>>>> upstream/android-13
 	brcmf_sdiod_writeb(bus->sdiodev, SBSDIO_FUNC1_WAKEUPCTRL, val, &err);
 	if (err) {
 		brcmf_err("error writing SBSDIO_FUNC1_WAKEUPCTRL\n");
@@ -3368,8 +3631,12 @@ static void brcmf_sdio_sr_init(struct brcmf_sdio *bus)
 
 	/* Add CMD14 Support */
 	brcmf_sdiod_func0_wb(bus->sdiodev, SDIO_CCCR_BRCM_CARDCAP,
+<<<<<<< HEAD
 			     (SDIO_CCCR_BRCM_CARDCAP_CMD14_SUPPORT |
 			      SDIO_CCCR_BRCM_CARDCAP_CMD14_EXT),
+=======
+			     cardcap,
+>>>>>>> upstream/android-13
 			     &err);
 	if (err) {
 		brcmf_err("error writing SDIO_CCCR_BRCM_CARDCAP\n");
@@ -3377,7 +3644,11 @@ static void brcmf_sdio_sr_init(struct brcmf_sdio *bus)
 	}
 
 	brcmf_sdiod_writeb(bus->sdiodev, SBSDIO_FUNC1_CHIPCLKCSR,
+<<<<<<< HEAD
 			   SBSDIO_FORCE_HT, &err);
+=======
+			   chipclkcsr, &err);
+>>>>>>> upstream/android-13
 	if (err) {
 		brcmf_err("error writing SBSDIO_FUNC1_CHIPCLKCSR\n");
 		return;
@@ -3428,8 +3699,13 @@ static int brcmf_sdio_bus_preinit(struct device *dev)
 	struct brcmf_sdio_dev *sdiodev = bus_if->bus_priv.sdio;
 	struct brcmf_sdio *bus = sdiodev->bus;
 	struct brcmf_core *core = bus->sdio_core;
+<<<<<<< HEAD
 	uint pad_size;
 	u32 value;
+=======
+	u32 value;
+	__le32 iovar;
+>>>>>>> upstream/android-13
 	int err;
 
 	/* maxctl provided by common layer */
@@ -3450,16 +3726,28 @@ static int brcmf_sdio_bus_preinit(struct device *dev)
 	 */
 	if (core->rev < 12) {
 		/* for sdio core rev < 12, disable txgloming */
+<<<<<<< HEAD
 		value = 0;
 		err = brcmf_iovar_data_set(dev, "bus:txglom", &value,
 					   sizeof(u32));
+=======
+		iovar = 0;
+		err = brcmf_iovar_data_set(dev, "bus:txglom", &iovar,
+					   sizeof(iovar));
+>>>>>>> upstream/android-13
 	} else {
 		/* otherwise, set txglomalign */
 		value = sdiodev->settings->bus.sdio.sd_sgentry_align;
 		/* SDIO ADMA requires at least 32 bit alignment */
+<<<<<<< HEAD
 		value = max_t(u32, value, ALIGNMENT);
 		err = brcmf_iovar_data_set(dev, "bus:txglomalign", &value,
 					   sizeof(u32));
+=======
+		iovar = cpu_to_le32(max_t(u32, value, ALIGNMENT));
+		err = brcmf_iovar_data_set(dev, "bus:txglomalign", &iovar,
+					   sizeof(iovar));
+>>>>>>> upstream/android-13
 	}
 
 	if (err < 0)
@@ -3468,10 +3756,16 @@ static int brcmf_sdio_bus_preinit(struct device *dev)
 	bus->tx_hdrlen = SDPCM_HWHDR_LEN + SDPCM_SWHDR_LEN;
 	if (sdiodev->sg_support) {
 		bus->txglom = false;
+<<<<<<< HEAD
 		value = 1;
 		pad_size = bus->sdiodev->func2->cur_blksize << 1;
 		err = brcmf_iovar_data_set(bus->sdiodev->dev, "bus:rxglom",
 					   &value, sizeof(u32));
+=======
+		iovar = cpu_to_le32(1);
+		err = brcmf_iovar_data_set(bus->sdiodev->dev, "bus:rxglom",
+					   &iovar, sizeof(iovar));
+>>>>>>> upstream/android-13
 		if (err < 0) {
 			/* bus:rxglom is allowed to fail */
 			err = 0;
@@ -3539,7 +3833,11 @@ void brcmf_sdio_trigger_dpc(struct brcmf_sdio *bus)
 	}
 }
 
+<<<<<<< HEAD
 void brcmf_sdio_isr(struct brcmf_sdio *bus)
+=======
+void brcmf_sdio_isr(struct brcmf_sdio *bus, bool in_isr)
+>>>>>>> upstream/android-13
 {
 	brcmf_dbg(TRACE, "Enter\n");
 
@@ -3550,7 +3848,11 @@ void brcmf_sdio_isr(struct brcmf_sdio *bus)
 
 	/* Count the interrupt call */
 	bus->sdcnt.intrcount++;
+<<<<<<< HEAD
 	if (in_interrupt())
+=======
+	if (in_isr)
+>>>>>>> upstream/android-13
 		atomic_set(&bus->ipend, 1);
 	else
 		if (brcmf_sdio_intr_rstatus(bus)) {
@@ -3816,7 +4118,11 @@ static u32 brcmf_sdio_buscore_read32(void *ctx, u32 addr)
 	 * It can be identified as 4339 by looking at the chip revision. It
 	 * is corrected here so the chip.c module has the right info.
 	 */
+<<<<<<< HEAD
 	if (addr == CORE_CC_REG(SI_ENUM_BASE, chipid) &&
+=======
+	if (addr == CORE_CC_REG(SI_ENUM_BASE_DEFAULT, chipid) &&
+>>>>>>> upstream/android-13
 	    (sdiodev->func1->device == SDIO_DEVICE_ID_BROADCOM_4339 ||
 	     sdiodev->func1->device == SDIO_DEVICE_ID_BROADCOM_4335_4339)) {
 		rev = (val & CID_REV_MASK) >> CID_REV_SHIFT;
@@ -3852,12 +4158,23 @@ brcmf_sdio_probe_attach(struct brcmf_sdio *bus)
 	int reg_addr;
 	u32 reg_val;
 	u32 drivestrength;
+<<<<<<< HEAD
+=======
+	u32 enum_base;
+>>>>>>> upstream/android-13
 
 	sdiodev = bus->sdiodev;
 	sdio_claim_host(sdiodev->func1);
 
+<<<<<<< HEAD
 	pr_debug("F1 signature read @0x18000000=0x%4x\n",
 		 brcmf_sdiod_readl(sdiodev, SI_ENUM_BASE, NULL));
+=======
+	enum_base = brcmf_chip_enum_base(sdiodev->func1->device);
+
+	pr_debug("F1 signature read @0x%08x=0x%4x\n", enum_base,
+		 brcmf_sdiod_readl(sdiodev, enum_base, NULL));
+>>>>>>> upstream/android-13
 
 	/*
 	 * Force PLL off until brcmf_chip_attach()
@@ -3876,7 +4193,12 @@ brcmf_sdio_probe_attach(struct brcmf_sdio *bus)
 		goto fail;
 	}
 
+<<<<<<< HEAD
 	bus->ci = brcmf_chip_attach(sdiodev, &brcmf_sdio_buscore_ops);
+=======
+	bus->ci = brcmf_chip_attach(sdiodev, sdiodev->func1->device,
+				    &brcmf_sdio_buscore_ops);
+>>>>>>> upstream/android-13
 	if (IS_ERR(bus->ci)) {
 		brcmf_err("brcmf_chip_attach failed!\n");
 		bus->ci = NULL;
@@ -4047,6 +4369,38 @@ int brcmf_sdio_get_fwname(struct device *dev, const char *ext, u8 *fw_name)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static int brcmf_sdio_bus_reset(struct device *dev)
+{
+	int ret = 0;
+	struct brcmf_bus *bus_if = dev_get_drvdata(dev);
+	struct brcmf_sdio_dev *sdiodev = bus_if->bus_priv.sdio;
+
+	brcmf_dbg(SDIO, "Enter\n");
+
+	/* start by unregistering irqs */
+	brcmf_sdiod_intr_unregister(sdiodev);
+
+	brcmf_sdiod_remove(sdiodev);
+
+	/* reset the adapter */
+	sdio_claim_host(sdiodev->func1);
+	mmc_hw_reset(sdiodev->func1->card->host);
+	sdio_release_host(sdiodev->func1);
+
+	brcmf_bus_change_state(sdiodev->bus_if, BRCMF_BUS_DOWN);
+
+	ret = brcmf_sdiod_probe(sdiodev);
+	if (ret) {
+		brcmf_err("Failed to probe after sdio device reset: ret %d\n",
+			  ret);
+	}
+
+	return ret;
+}
+
+>>>>>>> upstream/android-13
 static const struct brcmf_bus_ops brcmf_sdio_bus_ops = {
 	.stop = brcmf_sdio_bus_stop,
 	.preinit = brcmf_sdio_bus_preinit,
@@ -4058,7 +4412,12 @@ static const struct brcmf_bus_ops brcmf_sdio_bus_ops = {
 	.get_ramsize = brcmf_sdio_bus_get_ramsize,
 	.get_memdump = brcmf_sdio_bus_get_memdump,
 	.get_fwname = brcmf_sdio_get_fwname,
+<<<<<<< HEAD
 	.debugfs_create = brcmf_sdio_debugfs_create
+=======
+	.debugfs_create = brcmf_sdio_debugfs_create,
+	.reset = brcmf_sdio_bus_reset
+>>>>>>> upstream/android-13
 };
 
 #define BRCMF_SDIO_FW_CODE	0
@@ -4074,7 +4433,11 @@ static void brcmf_sdio_firmware_callback(struct device *dev, int err,
 	const struct firmware *code;
 	void *nvram;
 	u32 nvram_len;
+<<<<<<< HEAD
 	u8 saveclk;
+=======
+	u8 saveclk, bpreq;
+>>>>>>> upstream/android-13
 	u8 devctl;
 
 	brcmf_dbg(TRACE, "Enter: dev=%s, err=%d\n", dev_name(dev), err);
@@ -4108,8 +4471,16 @@ static void brcmf_sdio_firmware_callback(struct device *dev, int err,
 	/* Force clocks on backplane to be sure F2 interrupt propagates */
 	saveclk = brcmf_sdiod_readb(sdiod, SBSDIO_FUNC1_CHIPCLKCSR, &err);
 	if (!err) {
+<<<<<<< HEAD
 		brcmf_sdiod_writeb(sdiod, SBSDIO_FUNC1_CHIPCLKCSR,
 				   (saveclk | SBSDIO_FORCE_HT), &err);
+=======
+		bpreq = saveclk;
+		bpreq |= brcmf_chip_is_ulp(bus->ci) ?
+			SBSDIO_HT_AVAIL_REQ : SBSDIO_FORCE_HT;
+		brcmf_sdiod_writeb(sdiod, SBSDIO_FUNC1_CHIPCLKCSR,
+				   bpreq, &err);
+>>>>>>> upstream/android-13
 	}
 	if (err) {
 		brcmf_err("Failed to force clock for F2: err %d\n", err);
@@ -4132,7 +4503,12 @@ static void brcmf_sdio_firmware_callback(struct device *dev, int err,
 				   bus->hostintmask, NULL);
 
 		switch (sdiod->func1->device) {
+<<<<<<< HEAD
 		case SDIO_DEVICE_ID_CYPRESS_4373:
+=======
+		case SDIO_DEVICE_ID_BROADCOM_CYPRESS_4373:
+		case SDIO_DEVICE_ID_BROADCOM_CYPRESS_43752:
+>>>>>>> upstream/android-13
 			brcmf_dbg(INFO, "set F2 watermark to 0x%x*4 bytes\n",
 				  CY_4373_F2_WATERMARK);
 			brcmf_sdiod_writeb(sdiod, SBSDIO_WATERMARK,
@@ -4143,8 +4519,67 @@ static void brcmf_sdio_firmware_callback(struct device *dev, int err,
 			brcmf_sdiod_writeb(sdiod, SBSDIO_DEVICE_CTL, devctl,
 					   &err);
 			brcmf_sdiod_writeb(sdiod, SBSDIO_FUNC1_MESBUSYCTRL,
+<<<<<<< HEAD
 					   CY_4373_F2_WATERMARK |
 					   SBSDIO_MESBUSYCTRL_ENAB, &err);
+=======
+					   CY_4373_F1_MESBUSYCTRL, &err);
+			break;
+		case SDIO_DEVICE_ID_BROADCOM_CYPRESS_43012:
+			brcmf_dbg(INFO, "set F2 watermark to 0x%x*4 bytes\n",
+				  CY_43012_F2_WATERMARK);
+			brcmf_sdiod_writeb(sdiod, SBSDIO_WATERMARK,
+					   CY_43012_F2_WATERMARK, &err);
+			devctl = brcmf_sdiod_readb(sdiod, SBSDIO_DEVICE_CTL,
+						   &err);
+			devctl |= SBSDIO_DEVCTL_F2WM_ENAB;
+			brcmf_sdiod_writeb(sdiod, SBSDIO_DEVICE_CTL, devctl,
+					   &err);
+			brcmf_sdiod_writeb(sdiod, SBSDIO_FUNC1_MESBUSYCTRL,
+					   CY_43012_MESBUSYCTRL, &err);
+			break;
+		case SDIO_DEVICE_ID_BROADCOM_4329:
+		case SDIO_DEVICE_ID_BROADCOM_4339:
+			brcmf_dbg(INFO, "set F2 watermark to 0x%x*4 bytes\n",
+				  CY_4339_F2_WATERMARK);
+			brcmf_sdiod_writeb(sdiod, SBSDIO_WATERMARK,
+					   CY_4339_F2_WATERMARK, &err);
+			devctl = brcmf_sdiod_readb(sdiod, SBSDIO_DEVICE_CTL,
+						   &err);
+			devctl |= SBSDIO_DEVCTL_F2WM_ENAB;
+			brcmf_sdiod_writeb(sdiod, SBSDIO_DEVICE_CTL, devctl,
+					   &err);
+			brcmf_sdiod_writeb(sdiod, SBSDIO_FUNC1_MESBUSYCTRL,
+					   CY_4339_MESBUSYCTRL, &err);
+			break;
+		case SDIO_DEVICE_ID_BROADCOM_43455:
+			brcmf_dbg(INFO, "set F2 watermark to 0x%x*4 bytes\n",
+				  CY_43455_F2_WATERMARK);
+			brcmf_sdiod_writeb(sdiod, SBSDIO_WATERMARK,
+					   CY_43455_F2_WATERMARK, &err);
+			devctl = brcmf_sdiod_readb(sdiod, SBSDIO_DEVICE_CTL,
+						   &err);
+			devctl |= SBSDIO_DEVCTL_F2WM_ENAB;
+			brcmf_sdiod_writeb(sdiod, SBSDIO_DEVICE_CTL, devctl,
+					   &err);
+			brcmf_sdiod_writeb(sdiod, SBSDIO_FUNC1_MESBUSYCTRL,
+					   CY_43455_MESBUSYCTRL, &err);
+			break;
+		case SDIO_DEVICE_ID_BROADCOM_4359:
+		case SDIO_DEVICE_ID_BROADCOM_4354:
+		case SDIO_DEVICE_ID_BROADCOM_4356:
+			brcmf_dbg(INFO, "set F2 watermark to 0x%x*4 bytes\n",
+				  CY_435X_F2_WATERMARK);
+			brcmf_sdiod_writeb(sdiod, SBSDIO_WATERMARK,
+					   CY_435X_F2_WATERMARK, &err);
+			devctl = brcmf_sdiod_readb(sdiod, SBSDIO_DEVICE_CTL,
+						   &err);
+			devctl |= SBSDIO_DEVCTL_F2WM_ENAB;
+			brcmf_sdiod_writeb(sdiod, SBSDIO_DEVICE_CTL, devctl,
+					   &err);
+			brcmf_sdiod_writeb(sdiod, SBSDIO_FUNC1_MESBUSYCTRL,
+					   CY_435X_F1_MESBUSYCTRL, &err);
+>>>>>>> upstream/android-13
 			break;
 		default:
 			brcmf_sdiod_writeb(sdiod, SBSDIO_WATERMARK,
@@ -4154,7 +4589,11 @@ static void brcmf_sdio_firmware_callback(struct device *dev, int err,
 	} else {
 		/* Disable F2 again */
 		sdio_disable_func(sdiod->func2);
+<<<<<<< HEAD
 		goto release;
+=======
+		goto checkdied;
+>>>>>>> upstream/android-13
 	}
 
 	if (brcmf_chip_sr_capable(bus->ci)) {
@@ -4166,6 +4605,15 @@ static void brcmf_sdio_firmware_callback(struct device *dev, int err,
 	}
 
 	if (err == 0) {
+<<<<<<< HEAD
+=======
+		/* Assign bus interface call back */
+		sdiod->bus_if->dev = sdiod->dev;
+		sdiod->bus_if->ops = &brcmf_sdio_bus_ops;
+		sdiod->bus_if->chip = bus->ci->chip;
+		sdiod->bus_if->chiprev = bus->ci->chiprev;
+
+>>>>>>> upstream/android-13
 		/* Allow full data communication using DPC from now on. */
 		brcmf_sdiod_change_state(bus->sdiodev, BRCMF_SDIOD_DATA);
 
@@ -4175,6 +4623,7 @@ static void brcmf_sdio_firmware_callback(struct device *dev, int err,
 	}
 
 	/* If we didn't come up, turn off backplane clock */
+<<<<<<< HEAD
 	if (err != 0)
 		brcmf_sdio_clkctl(bus, CLK_NONE, false);
 
@@ -4191,11 +4640,40 @@ static void brcmf_sdio_firmware_callback(struct device *dev, int err,
 	if (err != 0) {
 		brcmf_err("brcmf_attach failed\n");
 		goto fail;
+=======
+	if (err != 0) {
+		brcmf_sdio_clkctl(bus, CLK_NONE, false);
+		goto checkdied;
+	}
+
+	sdio_release_host(sdiod->func1);
+
+	err = brcmf_alloc(sdiod->dev, sdiod->settings);
+	if (err) {
+		brcmf_err("brcmf_alloc failed\n");
+		goto claim;
+	}
+
+	/* Attach to the common layer, reserve hdr space */
+	err = brcmf_attach(sdiod->dev);
+	if (err != 0) {
+		brcmf_err("brcmf_attach failed\n");
+		goto free;
+>>>>>>> upstream/android-13
 	}
 
 	/* ready */
 	return;
 
+<<<<<<< HEAD
+=======
+free:
+	brcmf_free(sdiod->dev);
+claim:
+	sdio_claim_host(sdiod->func1);
+checkdied:
+	brcmf_sdio_checkdied(bus);
+>>>>>>> upstream/android-13
 release:
 	sdio_release_host(sdiod->func1);
 fail:
@@ -4222,6 +4700,10 @@ brcmf_sdio_prepare_fw_request(struct brcmf_sdio *bus)
 
 	fwreq->items[BRCMF_SDIO_FW_CODE].type = BRCMF_FW_TYPE_BINARY;
 	fwreq->items[BRCMF_SDIO_FW_NVRAM].type = BRCMF_FW_TYPE_NVRAM;
+<<<<<<< HEAD
+=======
+	fwreq->board_type = bus->sdiodev->settings->board_type;
+>>>>>>> upstream/android-13
 
 	return fwreq;
 }
@@ -4249,7 +4731,11 @@ struct brcmf_sdio *brcmf_sdio_probe(struct brcmf_sdio_dev *sdiodev)
 	bus->tx_seq = SDPCM_SEQ_WRAP - 1;
 
 	/* single-threaded workqueue */
+<<<<<<< HEAD
 	wq = alloc_ordered_workqueue("brcmf_wq/%s", WQ_MEM_RECLAIM,
+=======
+	wq = alloc_ordered_workqueue("brcmf_wq/%s", WQ_MEM_RECLAIM | WQ_HIGHPRI,
+>>>>>>> upstream/android-13
 				     dev_name(&sdiodev->func1->dev));
 	if (!wq) {
 		brcmf_err("insufficient memory to create txworkqueue\n");
@@ -4352,6 +4838,10 @@ void brcmf_sdio_remove(struct brcmf_sdio *bus)
 		brcmf_sdiod_intr_unregister(bus->sdiodev);
 
 		brcmf_detach(bus->sdiodev->dev);
+<<<<<<< HEAD
+=======
+		brcmf_free(bus->sdiodev->dev);
+>>>>>>> upstream/android-13
 
 		cancel_work_sync(&bus->datawork);
 		if (bus->brcmf_wq)
@@ -4422,4 +4912,7 @@ int brcmf_sdio_sleep(struct brcmf_sdio *bus, bool sleep)
 
 	return ret;
 }
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13

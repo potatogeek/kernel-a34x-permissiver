@@ -9,8 +9,12 @@ struct matrix_keymap_data;
 #define EP93XX_KEYPAD_DIAG_MODE		(1<<1)	/* diagnostic mode */
 #define EP93XX_KEYPAD_BACK_DRIVE	(1<<2)	/* back driving mode */
 #define EP93XX_KEYPAD_TEST_MODE		(1<<3)	/* scan only column 0 */
+<<<<<<< HEAD
 #define EP93XX_KEYPAD_KDIV		(1<<4)	/* 1/4 clock or 1/16 clock */
 #define EP93XX_KEYPAD_AUTOREPEAT	(1<<5)	/* enable key autorepeat */
+=======
+#define EP93XX_KEYPAD_AUTOREPEAT	(1<<4)	/* enable key autorepeat */
+>>>>>>> upstream/android-13
 
 /**
  * struct ep93xx_keypad_platform_data - platform specific device structure
@@ -24,6 +28,10 @@ struct ep93xx_keypad_platform_data {
 	unsigned int	debounce;
 	unsigned int	prescale;
 	unsigned int	flags;
+<<<<<<< HEAD
+=======
+	unsigned int	clk_rate;
+>>>>>>> upstream/android-13
 };
 
 #define EP93XX_MATRIX_ROWS		(8)

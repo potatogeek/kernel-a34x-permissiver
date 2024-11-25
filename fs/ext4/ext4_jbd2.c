@@ -7,6 +7,31 @@
 
 #include <trace/events/ext4.h>
 
+<<<<<<< HEAD
+=======
+int ext4_inode_journal_mode(struct inode *inode)
+{
+	if (EXT4_JOURNAL(inode) == NULL)
+		return EXT4_INODE_WRITEBACK_DATA_MODE;	/* writeback */
+	/* We do not support data journalling with delayed allocation */
+	if (!S_ISREG(inode->i_mode) ||
+	    ext4_test_inode_flag(inode, EXT4_INODE_EA_INODE) ||
+	    test_opt(inode->i_sb, DATA_FLAGS) == EXT4_MOUNT_JOURNAL_DATA ||
+	    (ext4_test_inode_flag(inode, EXT4_INODE_JOURNAL_DATA) &&
+	    !test_opt(inode->i_sb, DELALLOC))) {
+		/* We do not support data journalling for encrypted data */
+		if (S_ISREG(inode->i_mode) && IS_ENCRYPTED(inode))
+			return EXT4_INODE_ORDERED_DATA_MODE;  /* ordered */
+		return EXT4_INODE_JOURNAL_DATA_MODE;	/* journal data */
+	}
+	if (test_opt(inode->i_sb, DATA_FLAGS) == EXT4_MOUNT_ORDERED_DATA)
+		return EXT4_INODE_ORDERED_DATA_MODE;	/* ordered */
+	if (test_opt(inode->i_sb, DATA_FLAGS) == EXT4_MOUNT_WRITEBACK_DATA)
+		return EXT4_INODE_WRITEBACK_DATA_MODE;	/* writeback */
+	BUG();
+}
+
+>>>>>>> upstream/android-13
 /* Just increment the non-pointer handle value */
 static handle_t *ext4_get_nojournal(void)
 {
@@ -48,8 +73,12 @@ static int ext4_journal_check_start(struct super_block *sb)
 	if (unlikely(ext4_forced_shutdown(EXT4_SB(sb))))
 		return -EIO;
 
+<<<<<<< HEAD
 	/* @fs.sec -- 2b51c18e3186a30147fd8c0e277b77c937163f9a -- */
 	if (sb_rdonly(sb) && ext4_journal_current_handle() == NULL)
+=======
+	if (sb_rdonly(sb))
+>>>>>>> upstream/android-13
 		return -EROFS;
 	WARN_ON(sb->s_writers.frozen == SB_FREEZE_COMPLETE);
 	journal = EXT4_SB(sb)->s_journal;
@@ -59,28 +88,49 @@ static int ext4_journal_check_start(struct super_block *sb)
 	 * take the FS itself readonly cleanly.
 	 */
 	if (journal && is_journal_aborted(journal)) {
+<<<<<<< HEAD
 		ext4_abort(sb, "Detected aborted journal");
+=======
+		ext4_abort(sb, -journal->j_errno, "Detected aborted journal");
+>>>>>>> upstream/android-13
 		return -EROFS;
 	}
 	return 0;
 }
 
 handle_t *__ext4_journal_start_sb(struct super_block *sb, unsigned int line,
+<<<<<<< HEAD
 				  int type, int blocks, int rsv_blocks)
+=======
+				  int type, int blocks, int rsv_blocks,
+				  int revoke_creds)
+>>>>>>> upstream/android-13
 {
 	journal_t *journal;
 	int err;
 
+<<<<<<< HEAD
 	trace_ext4_journal_start(sb, blocks, rsv_blocks, _RET_IP_);
+=======
+	trace_ext4_journal_start(sb, blocks, rsv_blocks, revoke_creds,
+				 _RET_IP_);
+>>>>>>> upstream/android-13
 	err = ext4_journal_check_start(sb);
 	if (err < 0)
 		return ERR_PTR(err);
 
 	journal = EXT4_SB(sb)->s_journal;
+<<<<<<< HEAD
 	if (!journal)
 		return ext4_get_nojournal();
 	return jbd2__journal_start(journal, blocks, rsv_blocks, GFP_NOFS,
 				   type, line);
+=======
+	if (!journal || (EXT4_SB(sb)->s_mount_state & EXT4_FC_REPLAY))
+		return ext4_get_nojournal();
+	return jbd2__journal_start(journal, blocks, rsv_blocks, revoke_creds,
+				   GFP_NOFS, type, line);
+>>>>>>> upstream/android-13
 }
 
 int __ext4_journal_stop(const char *where, unsigned int line, handle_t *handle)
@@ -120,8 +170,13 @@ handle_t *__ext4_journal_start_reserved(handle_t *handle, unsigned int line,
 		return ext4_get_nojournal();
 
 	sb = handle->h_journal->j_private;
+<<<<<<< HEAD
 	trace_ext4_journal_start_reserved(sb, handle->h_buffer_credits,
 					  _RET_IP_);
+=======
+	trace_ext4_journal_start_reserved(sb,
+				jbd2_handle_buffer_credits(handle), _RET_IP_);
+>>>>>>> upstream/android-13
 	err = ext4_journal_check_start(sb);
 	if (err < 0) {
 		jbd2_journal_free_reserved(handle);
@@ -134,6 +189,24 @@ handle_t *__ext4_journal_start_reserved(handle_t *handle, unsigned int line,
 	return handle;
 }
 
+<<<<<<< HEAD
+=======
+int __ext4_journal_ensure_credits(handle_t *handle, int check_cred,
+				  int extend_cred, int revoke_cred)
+{
+	if (!ext4_handle_valid(handle))
+		return 0;
+	if (is_handle_aborted(handle))
+		return -EROFS;
+	if (jbd2_handle_buffer_credits(handle) >= check_cred &&
+	    handle->h_revoke_credits >= revoke_cred)
+		return 0;
+	extend_cred = max(0, extend_cred - jbd2_handle_buffer_credits(handle));
+	revoke_cred = max(0, revoke_cred - handle->h_revoke_credits);
+	return ext4_journal_extend(handle, extend_cred, revoke_cred);
+}
+
+>>>>>>> upstream/android-13
 static void ext4_journal_abort_handle(const char *caller, unsigned int line,
 				      const char *err_fn,
 				      struct buffer_head *bh,
@@ -159,6 +232,7 @@ static void ext4_journal_abort_handle(const char *caller, unsigned int line,
 	jbd2_journal_abort_handle(handle);
 }
 
+<<<<<<< HEAD
 int __ext4_journal_get_write_access(const char *where, unsigned int line,
 				    handle_t *handle, struct buffer_head *bh)
 {
@@ -173,6 +247,56 @@ int __ext4_journal_get_write_access(const char *where, unsigned int line,
 						  handle, err);
 	}
 	return err;
+=======
+static void ext4_check_bdev_write_error(struct super_block *sb)
+{
+	struct address_space *mapping = sb->s_bdev->bd_inode->i_mapping;
+	struct ext4_sb_info *sbi = EXT4_SB(sb);
+	int err;
+
+	/*
+	 * If the block device has write error flag, it may have failed to
+	 * async write out metadata buffers in the background. In this case,
+	 * we could read old data from disk and write it out again, which
+	 * may lead to on-disk filesystem inconsistency.
+	 */
+	if (errseq_check(&mapping->wb_err, READ_ONCE(sbi->s_bdev_wb_err))) {
+		spin_lock(&sbi->s_bdev_wb_lock);
+		err = errseq_check_and_advance(&mapping->wb_err, &sbi->s_bdev_wb_err);
+		spin_unlock(&sbi->s_bdev_wb_lock);
+		if (err)
+			ext4_error_err(sb, -err,
+				       "Error while async write back metadata");
+	}
+}
+
+int __ext4_journal_get_write_access(const char *where, unsigned int line,
+				    handle_t *handle, struct super_block *sb,
+				    struct buffer_head *bh,
+				    enum ext4_journal_trigger_type trigger_type)
+{
+	int err;
+
+	might_sleep();
+
+	if (bh->b_bdev->bd_super)
+		ext4_check_bdev_write_error(bh->b_bdev->bd_super);
+
+	if (ext4_handle_valid(handle)) {
+		err = jbd2_journal_get_write_access(handle, bh);
+		if (err) {
+			ext4_journal_abort_handle(where, line, __func__, bh,
+						  handle, err);
+			return err;
+		}
+	}
+	if (trigger_type == EXT4_JTR_NONE || !ext4_has_metadata_csum(sb))
+		return 0;
+	BUG_ON(trigger_type >= EXT4_JOURNAL_TRIGGER_COUNT);
+	jbd2_journal_set_triggers(bh,
+		&EXT4_SB(sb)->s_journal_triggers[trigger_type].tr_triggers);
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -183,9 +307,12 @@ int __ext4_journal_get_write_access(const char *where, unsigned int line,
  * "bh" may be NULL: a metadata block may have been freed from memory
  * but there may still be a record of it in the journal, and that record
  * still needs to be revoked.
+<<<<<<< HEAD
  *
  * If the handle isn't valid we're not journaling, but we still need to
  * call into ext4_journal_revoke() to put the buffer head.
+=======
+>>>>>>> upstream/android-13
  */
 int __ext4_forget(const char *where, unsigned int line, handle_t *handle,
 		  int is_metadata, struct inode *inode,
@@ -235,14 +362,20 @@ int __ext4_forget(const char *where, unsigned int line, handle_t *handle,
 	if (err) {
 		ext4_journal_abort_handle(where, line, __func__,
 					  bh, handle, err);
+<<<<<<< HEAD
 		__ext4_abort(inode->i_sb, where, line,
 			   "error %d when attempting revoke", err);
+=======
+		__ext4_error(inode->i_sb, where, line, true, -err, 0,
+			     "error %d when attempting revoke", err);
+>>>>>>> upstream/android-13
 	}
 	BUFFER_TRACE(bh, "exit");
 	return err;
 }
 
 int __ext4_journal_get_create_access(const char *where, unsigned int line,
+<<<<<<< HEAD
 				handle_t *handle, struct buffer_head *bh)
 {
 	int err = 0;
@@ -254,6 +387,29 @@ int __ext4_journal_get_create_access(const char *where, unsigned int line,
 						  bh, handle, err);
 	}
 	return err;
+=======
+				handle_t *handle, struct super_block *sb,
+				struct buffer_head *bh,
+				enum ext4_journal_trigger_type trigger_type)
+{
+	int err;
+
+	if (!ext4_handle_valid(handle))
+		return 0;
+
+	err = jbd2_journal_get_create_access(handle, bh);
+	if (err) {
+		ext4_journal_abort_handle(where, line, __func__, bh, handle,
+					  err);
+		return err;
+	}
+	if (trigger_type == EXT4_JTR_NONE || !ext4_has_metadata_csum(sb))
+		return 0;
+	BUG_ON(trigger_type >= EXT4_JOURNAL_TRIGGER_COUNT);
+	jbd2_journal_set_triggers(bh,
+		&EXT4_SB(sb)->s_journal_triggers[trigger_type].tr_triggers);
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 int __ext4_handle_dirty_metadata(const char *where, unsigned int line,
@@ -266,6 +422,10 @@ int __ext4_handle_dirty_metadata(const char *where, unsigned int line,
 
 	set_buffer_meta(bh);
 	set_buffer_prio(bh);
+<<<<<<< HEAD
+=======
+	set_buffer_uptodate(bh);
+>>>>>>> upstream/android-13
 	if (ext4_handle_valid(handle)) {
 		err = jbd2_journal_dirty_metadata(handle, bh);
 		/* Errors can only happen due to aborted journal or a nasty bug */
@@ -279,7 +439,11 @@ int __ext4_handle_dirty_metadata(const char *where, unsigned int line,
 				       handle->h_type,
 				       handle->h_line_no,
 				       handle->h_requested_credits,
+<<<<<<< HEAD
 				       handle->h_buffer_credits, err);
+=======
+				       jbd2_handle_buffer_credits(handle), err);
+>>>>>>> upstream/android-13
 				return err;
 			}
 			ext4_error_inode(inode, where, line,
@@ -290,7 +454,12 @@ int __ext4_handle_dirty_metadata(const char *where, unsigned int line,
 					 handle->h_type,
 					 handle->h_line_no,
 					 handle->h_requested_credits,
+<<<<<<< HEAD
 					 handle->h_buffer_credits, err);
+=======
+					 jbd2_handle_buffer_credits(handle),
+					 err);
+>>>>>>> upstream/android-13
 		}
 	} else {
 		if (inode)
@@ -300,6 +469,7 @@ int __ext4_handle_dirty_metadata(const char *where, unsigned int line,
 		if (inode && inode_needs_sync(inode)) {
 			sync_dirty_buffer(bh);
 			if (buffer_req(bh) && !buffer_uptodate(bh)) {
+<<<<<<< HEAD
 				struct ext4_super_block *es;
 
 				es = EXT4_SB(inode->i_sb)->s_es;
@@ -307,6 +477,10 @@ int __ext4_handle_dirty_metadata(const char *where, unsigned int line,
 					cpu_to_le64(bh->b_blocknr);
 				ext4_error_inode(inode, where, line,
 						 bh->b_blocknr,
+=======
+				ext4_error_inode_err(inode, where, line,
+						     bh->b_blocknr, EIO,
+>>>>>>> upstream/android-13
 					"IO error syncing itable block");
 				err = -EIO;
 			}
@@ -314,6 +488,7 @@ int __ext4_handle_dirty_metadata(const char *where, unsigned int line,
 	}
 	return err;
 }
+<<<<<<< HEAD
 
 int __ext4_handle_dirty_super(const char *where, unsigned int line,
 			      handle_t *handle, struct super_block *sb)
@@ -340,3 +515,5 @@ int __ext4_handle_dirty_super(const char *where, unsigned int line,
 		mark_buffer_dirty(bh);
 	return err;
 }
+=======
+>>>>>>> upstream/android-13

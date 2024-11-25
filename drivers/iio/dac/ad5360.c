@@ -1,10 +1,17 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Analog devices AD5360, AD5361, AD5362, AD5363, AD5370, AD5371, AD5373
  * multi-channel Digital to Analog Converters driver
  *
  * Copyright 2011 Analog Devices Inc.
+<<<<<<< HEAD
  *
  * Licensed under the GPL-2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/device.h>
@@ -68,6 +75,10 @@ struct ad5360_chip_info {
  * @chip_info:		chip model specific constants, available modes etc
  * @vref_reg:		vref supply regulators
  * @ctrl:		control register cache
+<<<<<<< HEAD
+=======
+ * @lock:		lock to protect the data buffer during SPI ops
+>>>>>>> upstream/android-13
  * @data:		spi transfer buffers
  */
 
@@ -76,6 +87,10 @@ struct ad5360_state {
 	const struct ad5360_chip_info	*chip_info;
 	struct regulator_bulk_data	vref_reg[3];
 	unsigned int			ctrl;
+<<<<<<< HEAD
+=======
+	struct mutex			lock;
+>>>>>>> upstream/android-13
 
 	/*
 	 * DMA (thus cache coherency maintenance) requires the
@@ -206,10 +221,18 @@ static int ad5360_write(struct iio_dev *indio_dev, unsigned int cmd,
 	unsigned int addr, unsigned int val, unsigned int shift)
 {
 	int ret;
+<<<<<<< HEAD
 
 	mutex_lock(&indio_dev->mlock);
 	ret = ad5360_write_unlocked(indio_dev, cmd, addr, val, shift);
 	mutex_unlock(&indio_dev->mlock);
+=======
+	struct ad5360_state *st = iio_priv(indio_dev);
+
+	mutex_lock(&st->lock);
+	ret = ad5360_write_unlocked(indio_dev, cmd, addr, val, shift);
+	mutex_unlock(&st->lock);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -230,7 +253,11 @@ static int ad5360_read(struct iio_dev *indio_dev, unsigned int type,
 		},
 	};
 
+<<<<<<< HEAD
 	mutex_lock(&indio_dev->mlock);
+=======
+	mutex_lock(&st->lock);
+>>>>>>> upstream/android-13
 
 	st->data[0].d32 = cpu_to_be32(AD5360_CMD(AD5360_CMD_SPECIAL_FUNCTION) |
 		AD5360_ADDR(AD5360_REG_SF_READBACK) |
@@ -241,7 +268,11 @@ static int ad5360_read(struct iio_dev *indio_dev, unsigned int type,
 	if (ret >= 0)
 		ret = be32_to_cpu(st->data[1].d32) & 0xffff;
 
+<<<<<<< HEAD
 	mutex_unlock(&indio_dev->mlock);
+=======
+	mutex_unlock(&st->lock);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -253,7 +284,11 @@ static ssize_t ad5360_read_dac_powerdown(struct device *dev,
 	struct iio_dev *indio_dev = dev_to_iio_dev(dev);
 	struct ad5360_state *st = iio_priv(indio_dev);
 
+<<<<<<< HEAD
 	return sprintf(buf, "%d\n", (bool)(st->ctrl & AD5360_SF_CTRL_PWR_DOWN));
+=======
+	return sysfs_emit(buf, "%d\n", (bool)(st->ctrl & AD5360_SF_CTRL_PWR_DOWN));
+>>>>>>> upstream/android-13
 }
 
 static int ad5360_update_ctrl(struct iio_dev *indio_dev, unsigned int set,
@@ -262,7 +297,11 @@ static int ad5360_update_ctrl(struct iio_dev *indio_dev, unsigned int set,
 	struct ad5360_state *st = iio_priv(indio_dev);
 	unsigned int ret;
 
+<<<<<<< HEAD
 	mutex_lock(&indio_dev->mlock);
+=======
+	mutex_lock(&st->lock);
+>>>>>>> upstream/android-13
 
 	st->ctrl |= set;
 	st->ctrl &= ~clr;
@@ -270,7 +309,11 @@ static int ad5360_update_ctrl(struct iio_dev *indio_dev, unsigned int set,
 	ret = ad5360_write_unlocked(indio_dev, AD5360_CMD_SPECIAL_FUNCTION,
 			AD5360_REG_SF_CTRL, st->ctrl, 0);
 
+<<<<<<< HEAD
 	mutex_unlock(&indio_dev->mlock);
+=======
+	mutex_unlock(&st->lock);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -474,12 +517,20 @@ static int ad5360_probe(struct spi_device *spi)
 	st->chip_info = &ad5360_chip_info_tbl[type];
 	st->spi = spi;
 
+<<<<<<< HEAD
 	indio_dev->dev.parent = &spi->dev;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->name = spi_get_device_id(spi)->name;
 	indio_dev->info = &ad5360_info;
 	indio_dev->modes = INDIO_DIRECT_MODE;
 	indio_dev->num_channels = st->chip_info->num_channels;
 
+<<<<<<< HEAD
+=======
+	mutex_init(&st->lock);
+
+>>>>>>> upstream/android-13
 	ret = ad5360_alloc_channels(indio_dev);
 	if (ret) {
 		dev_err(&spi->dev, "Failed to allocate channel spec: %d\n", ret);

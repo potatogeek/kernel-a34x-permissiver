@@ -13,8 +13,12 @@
 
 #define MAX_RECVBUF_SZ (10240)
 
+<<<<<<< HEAD
 struct phy_stat
 {
+=======
+struct phy_stat {
+>>>>>>> upstream/android-13
 	unsigned int phydw0;
 
 	unsigned int phydw1;

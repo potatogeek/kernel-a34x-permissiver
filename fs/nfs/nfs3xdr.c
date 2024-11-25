@@ -21,6 +21,10 @@
 #include <linux/nfs3.h>
 #include <linux/nfs_fs.h>
 #include <linux/nfsacl.h>
+<<<<<<< HEAD
+=======
+#include "nfstrace.h"
+>>>>>>> upstream/android-13
 #include "internal.h"
 
 #define NFSDBG_FACILITY		NFSDBG_XDR
@@ -32,6 +36,10 @@
  * Declare the space requirements for NFS arguments and replies as
  * number of 32bit-words
  */
+<<<<<<< HEAD
+=======
+#define NFS3_pagepad_sz		(1) /* Page padding */
+>>>>>>> upstream/android-13
 #define NFS3_fhandle_sz		(1+16)
 #define NFS3_fh_sz		(NFS3_fhandle_sz)	/* shorthand */
 #define NFS3_post_op_fh_sz	(1+NFS3_fh_sz)
@@ -69,13 +77,22 @@
 #define NFS3_removeres_sz	(NFS3_setattrres_sz)
 #define NFS3_lookupres_sz	(1+NFS3_fh_sz+(2 * NFS3_post_op_attr_sz))
 #define NFS3_accessres_sz	(1+NFS3_post_op_attr_sz+1)
+<<<<<<< HEAD
 #define NFS3_readlinkres_sz	(1+NFS3_post_op_attr_sz+1)
 #define NFS3_readres_sz		(1+NFS3_post_op_attr_sz+3)
+=======
+#define NFS3_readlinkres_sz	(1+NFS3_post_op_attr_sz+1+NFS3_pagepad_sz)
+#define NFS3_readres_sz		(1+NFS3_post_op_attr_sz+3+NFS3_pagepad_sz)
+>>>>>>> upstream/android-13
 #define NFS3_writeres_sz	(1+NFS3_wcc_data_sz+4)
 #define NFS3_createres_sz	(1+NFS3_post_op_fh_sz+NFS3_post_op_attr_sz+NFS3_wcc_data_sz)
 #define NFS3_renameres_sz	(1+(2 * NFS3_wcc_data_sz))
 #define NFS3_linkres_sz		(1+NFS3_post_op_attr_sz+NFS3_wcc_data_sz)
+<<<<<<< HEAD
 #define NFS3_readdirres_sz	(1+NFS3_post_op_attr_sz+2)
+=======
+#define NFS3_readdirres_sz	(1+NFS3_post_op_attr_sz+2+NFS3_pagepad_sz)
+>>>>>>> upstream/android-13
 #define NFS3_fsstatres_sz	(1+NFS3_post_op_attr_sz+13)
 #define NFS3_fsinfores_sz	(1+NFS3_post_op_attr_sz+12)
 #define NFS3_pathconfres_sz	(1+NFS3_post_op_attr_sz+6)
@@ -85,7 +102,12 @@
 #define ACL3_setaclargs_sz	(NFS3_fh_sz+1+ \
 				XDR_QUADLEN(NFS_ACL_INLINE_BUFSIZE))
 #define ACL3_getaclres_sz	(1+NFS3_post_op_attr_sz+1+ \
+<<<<<<< HEAD
 				XDR_QUADLEN(NFS_ACL_INLINE_BUFSIZE))
+=======
+				XDR_QUADLEN(NFS_ACL_INLINE_BUFSIZE)+\
+				NFS3_pagepad_sz)
+>>>>>>> upstream/android-13
 #define ACL3_setaclres_sz	(1+NFS3_post_op_attr_sz)
 
 static int nfs3_stat_to_errno(enum nfs_stat);
@@ -104,6 +126,7 @@ static const umode_t nfs_type2fmt[] = {
 	[NF3FIFO] = S_IFIFO,
 };
 
+<<<<<<< HEAD
 /*
  * While encoding arguments, set up the reply buffer in advance to
  * receive reply data directly into the page cache.
@@ -130,6 +153,22 @@ static void print_overflow_msg(const char *func, const struct xdr_stream *xdr)
 }
 
 
+=======
+static struct user_namespace *rpc_userns(const struct rpc_clnt *clnt)
+{
+	if (clnt && clnt->cl_cred)
+		return clnt->cl_cred->user_ns;
+	return &init_user_ns;
+}
+
+static struct user_namespace *rpc_rqst_userns(const struct rpc_rqst *rqstp)
+{
+	if (rqstp->rq_task)
+		return rpc_userns(rqstp->rq_task->tk_client);
+	return &init_user_ns;
+}
+
+>>>>>>> upstream/android-13
 /*
  * Encode/decode NFSv3 basic data types
  *
@@ -152,6 +191,7 @@ static int decode_uint32(struct xdr_stream *xdr, u32 *value)
 	__be32 *p;
 
 	p = xdr_inline_decode(xdr, 4);
+<<<<<<< HEAD
 	if (unlikely(p == NULL))
 		goto out_overflow;
 	*value = be32_to_cpup(p);
@@ -159,6 +199,12 @@ static int decode_uint32(struct xdr_stream *xdr, u32 *value)
 out_overflow:
 	print_overflow_msg(__func__, xdr);
 	return -EIO;
+=======
+	if (unlikely(!p))
+		return -EIO;
+	*value = be32_to_cpup(p);
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int decode_uint64(struct xdr_stream *xdr, u64 *value)
@@ -166,6 +212,7 @@ static int decode_uint64(struct xdr_stream *xdr, u64 *value)
 	__be32 *p;
 
 	p = xdr_inline_decode(xdr, 8);
+<<<<<<< HEAD
 	if (unlikely(p == NULL))
 		goto out_overflow;
 	xdr_decode_hyper(p, value);
@@ -173,6 +220,12 @@ static int decode_uint64(struct xdr_stream *xdr, u64 *value)
 out_overflow:
 	print_overflow_msg(__func__, xdr);
 	return -EIO;
+=======
+	if (unlikely(!p))
+		return -EIO;
+	xdr_decode_hyper(p, value);
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -212,14 +265,24 @@ static int decode_inline_filename3(struct xdr_stream *xdr,
 	u32 count;
 
 	p = xdr_inline_decode(xdr, 4);
+<<<<<<< HEAD
 	if (unlikely(p == NULL))
 		goto out_overflow;
+=======
+	if (unlikely(!p))
+		return -EIO;
+>>>>>>> upstream/android-13
 	count = be32_to_cpup(p);
 	if (count > NFS3_MAXNAMLEN)
 		goto out_nametoolong;
 	p = xdr_inline_decode(xdr, count);
+<<<<<<< HEAD
 	if (unlikely(p == NULL))
 		goto out_overflow;
+=======
+	if (unlikely(!p))
+		return -EIO;
+>>>>>>> upstream/android-13
 	*name = (const char *)p;
 	*length = count;
 	return 0;
@@ -227,9 +290,12 @@ static int decode_inline_filename3(struct xdr_stream *xdr,
 out_nametoolong:
 	dprintk("NFS: returned filename too long: %u\n", count);
 	return -ENAMETOOLONG;
+<<<<<<< HEAD
 out_overflow:
 	print_overflow_msg(__func__, xdr);
 	return -EIO;
+=======
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -250,8 +316,13 @@ static int decode_nfspath3(struct xdr_stream *xdr)
 	__be32 *p;
 
 	p = xdr_inline_decode(xdr, 4);
+<<<<<<< HEAD
 	if (unlikely(p == NULL))
 		goto out_overflow;
+=======
+	if (unlikely(!p))
+		return -EIO;
+>>>>>>> upstream/android-13
 	count = be32_to_cpup(p);
 	if (unlikely(count >= xdr->buf->page_len || count > NFS3_MAXPATHLEN))
 		goto out_nametoolong;
@@ -268,9 +339,12 @@ out_cheating:
 	dprintk("NFS: server cheating in pathname result: "
 		"count %u > recvd %u\n", count, recvd);
 	return -EIO;
+<<<<<<< HEAD
 out_overflow:
 	print_overflow_msg(__func__, xdr);
 	return -EIO;
+=======
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -304,6 +378,7 @@ static int decode_cookieverf3(struct xdr_stream *xdr, __be32 *verifier)
 	__be32 *p;
 
 	p = xdr_inline_decode(xdr, NFS3_COOKIEVERFSIZE);
+<<<<<<< HEAD
 	if (unlikely(p == NULL))
 		goto out_overflow;
 	memcpy(verifier, p, NFS3_COOKIEVERFSIZE);
@@ -311,6 +386,12 @@ static int decode_cookieverf3(struct xdr_stream *xdr, __be32 *verifier)
 out_overflow:
 	print_overflow_msg(__func__, xdr);
 	return -EIO;
+=======
+	if (unlikely(!p))
+		return -EIO;
+	memcpy(verifier, p, NFS3_COOKIEVERFSIZE);
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -331,6 +412,7 @@ static int decode_writeverf3(struct xdr_stream *xdr, struct nfs_write_verifier *
 	__be32 *p;
 
 	p = xdr_inline_decode(xdr, NFS3_WRITEVERFSIZE);
+<<<<<<< HEAD
 	if (unlikely(p == NULL))
 		goto out_overflow;
 	memcpy(verifier->data, p, NFS3_WRITEVERFSIZE);
@@ -338,6 +420,12 @@ static int decode_writeverf3(struct xdr_stream *xdr, struct nfs_write_verifier *
 out_overflow:
 	print_overflow_msg(__func__, xdr);
 	return -EIO;
+=======
+	if (unlikely(!p))
+		return -EIO;
+	memcpy(verifier->data, p, NFS3_WRITEVERFSIZE);
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -365,6 +453,7 @@ static int decode_nfsstat3(struct xdr_stream *xdr, enum nfs_stat *status)
 	__be32 *p;
 
 	p = xdr_inline_decode(xdr, 4);
+<<<<<<< HEAD
 	if (unlikely(p == NULL))
 		goto out_overflow;
 	*status = be32_to_cpup(p);
@@ -372,6 +461,18 @@ static int decode_nfsstat3(struct xdr_stream *xdr, enum nfs_stat *status)
 out_overflow:
 	print_overflow_msg(__func__, xdr);
 	return -EIO;
+=======
+	if (unlikely(!p))
+		return -EIO;
+	if (unlikely(*p != cpu_to_be32(NFS3_OK)))
+		goto out_status;
+	*status = 0;
+	return 0;
+out_status:
+	*status = be32_to_cpup(p);
+	trace_nfs_xdr_status(xdr, (int)*status);
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -454,6 +555,7 @@ static int decode_nfs_fh3(struct xdr_stream *xdr, struct nfs_fh *fh)
 	__be32 *p;
 
 	p = xdr_inline_decode(xdr, 4);
+<<<<<<< HEAD
 	if (unlikely(p == NULL))
 		goto out_overflow;
 	length = be32_to_cpup(p++);
@@ -462,15 +564,30 @@ static int decode_nfs_fh3(struct xdr_stream *xdr, struct nfs_fh *fh)
 	p = xdr_inline_decode(xdr, length);
 	if (unlikely(p == NULL))
 		goto out_overflow;
+=======
+	if (unlikely(!p))
+		return -EIO;
+	length = be32_to_cpup(p++);
+	if (unlikely(length > NFS3_FHSIZE || length == 0))
+		goto out_toobig;
+	p = xdr_inline_decode(xdr, length);
+	if (unlikely(!p))
+		return -EIO;
+>>>>>>> upstream/android-13
 	fh->size = length;
 	memcpy(fh->data, p, length);
 	return 0;
 out_toobig:
+<<<<<<< HEAD
 	dprintk("NFS: file handle size (%u) too big\n", length);
 	return -E2BIG;
 out_overflow:
 	print_overflow_msg(__func__, xdr);
 	return -EIO;
+=======
+	trace_nfs_xdr_bad_filehandle(xdr, NFSERR_BADHANDLE);
+	return -E2BIG;
+>>>>>>> upstream/android-13
 }
 
 static void zero_nfs_fh3(struct nfs_fh *fh)
@@ -486,14 +603,24 @@ static void zero_nfs_fh3(struct nfs_fh *fh)
  *		uint32	nseconds;
  *	};
  */
+<<<<<<< HEAD
 static __be32 *xdr_encode_nfstime3(__be32 *p, const struct timespec *timep)
 {
 	*p++ = cpu_to_be32(timep->tv_sec);
+=======
+static __be32 *xdr_encode_nfstime3(__be32 *p, const struct timespec64 *timep)
+{
+	*p++ = cpu_to_be32((u32)timep->tv_sec);
+>>>>>>> upstream/android-13
 	*p++ = cpu_to_be32(timep->tv_nsec);
 	return p;
 }
 
+<<<<<<< HEAD
 static __be32 *xdr_decode_nfstime3(__be32 *p, struct timespec *timep)
+=======
+static __be32 *xdr_decode_nfstime3(__be32 *p, struct timespec64 *timep)
+>>>>>>> upstream/android-13
 {
 	timep->tv_sec = be32_to_cpup(p++);
 	timep->tv_nsec = be32_to_cpup(p++);
@@ -560,9 +687,15 @@ static __be32 *xdr_decode_nfstime3(__be32 *p, struct timespec *timep)
  *		set_mtime	mtime;
  *	};
  */
+<<<<<<< HEAD
 static void encode_sattr3(struct xdr_stream *xdr, const struct iattr *attr)
 {
 	struct timespec ts;
+=======
+static void encode_sattr3(struct xdr_stream *xdr, const struct iattr *attr,
+		struct user_namespace *userns)
+{
+>>>>>>> upstream/android-13
 	u32 nbytes;
 	__be32 *p;
 
@@ -595,13 +728,21 @@ static void encode_sattr3(struct xdr_stream *xdr, const struct iattr *attr)
 
 	if (attr->ia_valid & ATTR_UID) {
 		*p++ = xdr_one;
+<<<<<<< HEAD
 		*p++ = cpu_to_be32(from_kuid(&init_user_ns, attr->ia_uid));
+=======
+		*p++ = cpu_to_be32(from_kuid_munged(userns, attr->ia_uid));
+>>>>>>> upstream/android-13
 	} else
 		*p++ = xdr_zero;
 
 	if (attr->ia_valid & ATTR_GID) {
 		*p++ = xdr_one;
+<<<<<<< HEAD
 		*p++ = cpu_to_be32(from_kgid(&init_user_ns, attr->ia_gid));
+=======
+		*p++ = cpu_to_be32(from_kgid_munged(userns, attr->ia_gid));
+>>>>>>> upstream/android-13
 	} else
 		*p++ = xdr_zero;
 
@@ -612,10 +753,15 @@ static void encode_sattr3(struct xdr_stream *xdr, const struct iattr *attr)
 		*p++ = xdr_zero;
 
 	if (attr->ia_valid & ATTR_ATIME_SET) {
+<<<<<<< HEAD
 		struct timespec ts;
 		*p++ = xdr_two;
 		ts = timespec64_to_timespec(attr->ia_atime);
 		p = xdr_encode_nfstime3(p, &ts);
+=======
+		*p++ = xdr_two;
+		p = xdr_encode_nfstime3(p, &attr->ia_atime);
+>>>>>>> upstream/android-13
 	} else if (attr->ia_valid & ATTR_ATIME) {
 		*p++ = xdr_one;
 	} else
@@ -623,8 +769,12 @@ static void encode_sattr3(struct xdr_stream *xdr, const struct iattr *attr)
 
 	if (attr->ia_valid & ATTR_MTIME_SET) {
 		*p++ = xdr_two;
+<<<<<<< HEAD
 		ts = timespec64_to_timespec(attr->ia_mtime);
 		xdr_encode_nfstime3(p, &ts);
+=======
+		xdr_encode_nfstime3(p, &attr->ia_mtime);
+>>>>>>> upstream/android-13
 	} else if (attr->ia_valid & ATTR_MTIME) {
 		*p = xdr_one;
 	} else
@@ -650,23 +800,40 @@ static void encode_sattr3(struct xdr_stream *xdr, const struct iattr *attr)
  *		nfstime3	ctime;
  *	};
  */
+<<<<<<< HEAD
 static int decode_fattr3(struct xdr_stream *xdr, struct nfs_fattr *fattr)
+=======
+static int decode_fattr3(struct xdr_stream *xdr, struct nfs_fattr *fattr,
+		struct user_namespace *userns)
+>>>>>>> upstream/android-13
 {
 	umode_t fmode;
 	__be32 *p;
 
 	p = xdr_inline_decode(xdr, NFS3_fattr_sz << 2);
+<<<<<<< HEAD
 	if (unlikely(p == NULL))
 		goto out_overflow;
+=======
+	if (unlikely(!p))
+		return -EIO;
+>>>>>>> upstream/android-13
 
 	p = xdr_decode_ftype3(p, &fmode);
 
 	fattr->mode = (be32_to_cpup(p++) & ~S_IFMT) | fmode;
 	fattr->nlink = be32_to_cpup(p++);
+<<<<<<< HEAD
 	fattr->uid = make_kuid(&init_user_ns, be32_to_cpup(p++));
 	if (!uid_valid(fattr->uid))
 		goto out_uid;
 	fattr->gid = make_kgid(&init_user_ns, be32_to_cpup(p++));
+=======
+	fattr->uid = make_kuid(userns, be32_to_cpup(p++));
+	if (!uid_valid(fattr->uid))
+		goto out_uid;
+	fattr->gid = make_kgid(userns, be32_to_cpup(p++));
+>>>>>>> upstream/android-13
 	if (!gid_valid(fattr->gid))
 		goto out_gid;
 
@@ -691,9 +858,12 @@ out_uid:
 out_gid:
 	dprintk("NFS: returned invalid gid\n");
 	return -EINVAL;
+<<<<<<< HEAD
 out_overflow:
 	print_overflow_msg(__func__, xdr);
 	return -EIO;
+=======
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -706,11 +876,17 @@ out_overflow:
  *		void;
  *	};
  */
+<<<<<<< HEAD
 static int decode_post_op_attr(struct xdr_stream *xdr, struct nfs_fattr *fattr)
+=======
+static int decode_post_op_attr(struct xdr_stream *xdr, struct nfs_fattr *fattr,
+		struct user_namespace *userns)
+>>>>>>> upstream/android-13
 {
 	__be32 *p;
 
 	p = xdr_inline_decode(xdr, 4);
+<<<<<<< HEAD
 	if (unlikely(p == NULL))
 		goto out_overflow;
 	if (*p != xdr_zero)
@@ -719,6 +895,13 @@ static int decode_post_op_attr(struct xdr_stream *xdr, struct nfs_fattr *fattr)
 out_overflow:
 	print_overflow_msg(__func__, xdr);
 	return -EIO;
+=======
+	if (unlikely(!p))
+		return -EIO;
+	if (*p != xdr_zero)
+		return decode_fattr3(xdr, fattr, userns);
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -734,8 +917,13 @@ static int decode_wcc_attr(struct xdr_stream *xdr, struct nfs_fattr *fattr)
 	__be32 *p;
 
 	p = xdr_inline_decode(xdr, NFS3_wcc_attr_sz << 2);
+<<<<<<< HEAD
 	if (unlikely(p == NULL))
 		goto out_overflow;
+=======
+	if (unlikely(!p))
+		return -EIO;
+>>>>>>> upstream/android-13
 
 	fattr->valid |= NFS_ATTR_FATTR_PRESIZE
 		| NFS_ATTR_FATTR_PRECHANGE
@@ -748,9 +936,12 @@ static int decode_wcc_attr(struct xdr_stream *xdr, struct nfs_fattr *fattr)
 	fattr->pre_change_attr = nfs_timespec_to_change_attr(&fattr->pre_ctime);
 
 	return 0;
+<<<<<<< HEAD
 out_overflow:
 	print_overflow_msg(__func__, xdr);
 	return -EIO;
+=======
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -774,6 +965,7 @@ static int decode_pre_op_attr(struct xdr_stream *xdr, struct nfs_fattr *fattr)
 	__be32 *p;
 
 	p = xdr_inline_decode(xdr, 4);
+<<<<<<< HEAD
 	if (unlikely(p == NULL))
 		goto out_overflow;
 	if (*p != xdr_zero)
@@ -785,13 +977,28 @@ out_overflow:
 }
 
 static int decode_wcc_data(struct xdr_stream *xdr, struct nfs_fattr *fattr)
+=======
+	if (unlikely(!p))
+		return -EIO;
+	if (*p != xdr_zero)
+		return decode_wcc_attr(xdr, fattr);
+	return 0;
+}
+
+static int decode_wcc_data(struct xdr_stream *xdr, struct nfs_fattr *fattr,
+		struct user_namespace *userns)
+>>>>>>> upstream/android-13
 {
 	int error;
 
 	error = decode_pre_op_attr(xdr, fattr);
 	if (unlikely(error))
 		goto out;
+<<<<<<< HEAD
 	error = decode_post_op_attr(xdr, fattr);
+=======
+	error = decode_post_op_attr(xdr, fattr, userns);
+>>>>>>> upstream/android-13
 out:
 	return error;
 }
@@ -809,15 +1016,23 @@ out:
 static int decode_post_op_fh3(struct xdr_stream *xdr, struct nfs_fh *fh)
 {
 	__be32 *p = xdr_inline_decode(xdr, 4);
+<<<<<<< HEAD
 	if (unlikely(p == NULL))
 		goto out_overflow;
+=======
+	if (unlikely(!p))
+		return -EIO;
+>>>>>>> upstream/android-13
 	if (*p != xdr_zero)
 		return decode_nfs_fh3(xdr, fh);
 	zero_nfs_fh3(fh);
 	return 0;
+<<<<<<< HEAD
 out_overflow:
 	print_overflow_msg(__func__, xdr);
 	return -EIO;
+=======
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -896,7 +1111,11 @@ static void nfs3_xdr_enc_setattr3args(struct rpc_rqst *req,
 {
 	const struct nfs3_sattrargs *args = data;
 	encode_nfs_fh3(xdr, args->fh);
+<<<<<<< HEAD
 	encode_sattr3(xdr, args->sattr);
+=======
+	encode_sattr3(xdr, args->sattr, rpc_rqst_userns(req));
+>>>>>>> upstream/android-13
 	encode_sattrguard3(xdr, args);
 }
 
@@ -954,8 +1173,13 @@ static void nfs3_xdr_enc_readlink3args(struct rpc_rqst *req,
 	const struct nfs3_readlinkargs *args = data;
 
 	encode_nfs_fh3(xdr, args->fh);
+<<<<<<< HEAD
 	prepare_reply_buffer(req, args->pages, args->pgbase,
 					args->pglen, NFS3_readlinkres_sz);
+=======
+	rpc_prepare_reply_pages(req, args->pages, args->pgbase, args->pglen,
+				NFS3_readlinkres_sz - NFS3_pagepad_sz);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -984,10 +1208,19 @@ static void nfs3_xdr_enc_read3args(struct rpc_rqst *req,
 				   const void *data)
 {
 	const struct nfs_pgio_args *args = data;
+<<<<<<< HEAD
 
 	encode_read3args(xdr, args);
 	prepare_reply_buffer(req, args->pages, args->pgbase,
 					args->count, NFS3_readres_sz);
+=======
+	unsigned int replen = args->replen ? args->replen :
+					     NFS3_readres_sz - NFS3_pagepad_sz;
+
+	encode_read3args(xdr, args);
+	rpc_prepare_reply_pages(req, args->pages, args->pgbase,
+				args->count, replen);
+>>>>>>> upstream/android-13
 	req->rq_rcv_buf.flags |= XDRBUF_READ;
 }
 
@@ -1056,13 +1289,22 @@ static void nfs3_xdr_enc_write3args(struct rpc_rqst *req,
  *	};
  */
 static void encode_createhow3(struct xdr_stream *xdr,
+<<<<<<< HEAD
 			      const struct nfs3_createargs *args)
+=======
+			      const struct nfs3_createargs *args,
+			      struct user_namespace *userns)
+>>>>>>> upstream/android-13
 {
 	encode_uint32(xdr, args->createmode);
 	switch (args->createmode) {
 	case NFS3_CREATE_UNCHECKED:
 	case NFS3_CREATE_GUARDED:
+<<<<<<< HEAD
 		encode_sattr3(xdr, args->sattr);
+=======
+		encode_sattr3(xdr, args->sattr, userns);
+>>>>>>> upstream/android-13
 		break;
 	case NFS3_CREATE_EXCLUSIVE:
 		encode_createverf3(xdr, args->verifier);
@@ -1079,7 +1321,11 @@ static void nfs3_xdr_enc_create3args(struct rpc_rqst *req,
 	const struct nfs3_createargs *args = data;
 
 	encode_diropargs3(xdr, args->fh, args->name, args->len);
+<<<<<<< HEAD
 	encode_createhow3(xdr, args);
+=======
+	encode_createhow3(xdr, args, rpc_rqst_userns(req));
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1097,7 +1343,11 @@ static void nfs3_xdr_enc_mkdir3args(struct rpc_rqst *req,
 	const struct nfs3_mkdirargs *args = data;
 
 	encode_diropargs3(xdr, args->fh, args->name, args->len);
+<<<<<<< HEAD
 	encode_sattr3(xdr, args->sattr);
+=======
+	encode_sattr3(xdr, args->sattr, rpc_rqst_userns(req));
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1114,11 +1364,20 @@ static void nfs3_xdr_enc_mkdir3args(struct rpc_rqst *req,
  *	};
  */
 static void encode_symlinkdata3(struct xdr_stream *xdr,
+<<<<<<< HEAD
 				const void *data)
 {
 	const struct nfs3_symlinkargs *args = data;
 
 	encode_sattr3(xdr, args->sattr);
+=======
+				const void *data,
+				struct user_namespace *userns)
+{
+	const struct nfs3_symlinkargs *args = data;
+
+	encode_sattr3(xdr, args->sattr, userns);
+>>>>>>> upstream/android-13
 	encode_nfspath3(xdr, args->pages, args->pathlen);
 }
 
@@ -1129,7 +1388,11 @@ static void nfs3_xdr_enc_symlink3args(struct rpc_rqst *req,
 	const struct nfs3_symlinkargs *args = data;
 
 	encode_diropargs3(xdr, args->fromfh, args->fromname, args->fromlen);
+<<<<<<< HEAD
 	encode_symlinkdata3(xdr, args);
+=======
+	encode_symlinkdata3(xdr, args, rpc_rqst_userns(req));
+>>>>>>> upstream/android-13
 	xdr->buf->flags |= XDRBUF_WRITE;
 }
 
@@ -1158,24 +1421,44 @@ static void nfs3_xdr_enc_symlink3args(struct rpc_rqst *req,
  *	};
  */
 static void encode_devicedata3(struct xdr_stream *xdr,
+<<<<<<< HEAD
 			       const struct nfs3_mknodargs *args)
 {
 	encode_sattr3(xdr, args->sattr);
+=======
+			       const struct nfs3_mknodargs *args,
+			       struct user_namespace *userns)
+{
+	encode_sattr3(xdr, args->sattr, userns);
+>>>>>>> upstream/android-13
 	encode_specdata3(xdr, args->rdev);
 }
 
 static void encode_mknoddata3(struct xdr_stream *xdr,
+<<<<<<< HEAD
 			      const struct nfs3_mknodargs *args)
+=======
+			      const struct nfs3_mknodargs *args,
+			      struct user_namespace *userns)
+>>>>>>> upstream/android-13
 {
 	encode_ftype3(xdr, args->type);
 	switch (args->type) {
 	case NF3CHR:
 	case NF3BLK:
+<<<<<<< HEAD
 		encode_devicedata3(xdr, args);
 		break;
 	case NF3SOCK:
 	case NF3FIFO:
 		encode_sattr3(xdr, args->sattr);
+=======
+		encode_devicedata3(xdr, args, userns);
+		break;
+	case NF3SOCK:
+	case NF3FIFO:
+		encode_sattr3(xdr, args->sattr, userns);
+>>>>>>> upstream/android-13
 		break;
 	case NF3REG:
 	case NF3DIR:
@@ -1192,7 +1475,11 @@ static void nfs3_xdr_enc_mknod3args(struct rpc_rqst *req,
 	const struct nfs3_mknodargs *args = data;
 
 	encode_diropargs3(xdr, args->fh, args->name, args->len);
+<<<<<<< HEAD
 	encode_mknoddata3(xdr, args);
+=======
+	encode_mknoddata3(xdr, args, rpc_rqst_userns(req));
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1279,8 +1566,13 @@ static void nfs3_xdr_enc_readdir3args(struct rpc_rqst *req,
 	const struct nfs3_readdirargs *args = data;
 
 	encode_readdir3args(xdr, args);
+<<<<<<< HEAD
 	prepare_reply_buffer(req, args->pages, 0,
 				args->count, NFS3_readdirres_sz);
+=======
+	rpc_prepare_reply_pages(req, args->pages, 0, args->count,
+				NFS3_readdirres_sz - NFS3_pagepad_sz);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1321,8 +1613,13 @@ static void nfs3_xdr_enc_readdirplus3args(struct rpc_rqst *req,
 	const struct nfs3_readdirargs *args = data;
 
 	encode_readdirplus3args(xdr, args);
+<<<<<<< HEAD
 	prepare_reply_buffer(req, args->pages, 0,
 				args->count, NFS3_readdirres_sz);
+=======
+	rpc_prepare_reply_pages(req, args->pages, 0, args->count,
+				NFS3_readdirres_sz - NFS3_pagepad_sz);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1365,10 +1662,19 @@ static void nfs3_xdr_enc_getacl3args(struct rpc_rqst *req,
 
 	encode_nfs_fh3(xdr, args->fh);
 	encode_uint32(xdr, args->mask);
+<<<<<<< HEAD
 	if (args->mask & (NFS_ACL | NFS_DFACL))
 		prepare_reply_buffer(req, args->pages, 0,
 					NFSACL_MAXPAGES << PAGE_SHIFT,
 					ACL3_getaclres_sz);
+=======
+	if (args->mask & (NFS_ACL | NFS_DFACL)) {
+		rpc_prepare_reply_pages(req, args->pages, 0,
+					NFSACL_MAXPAGES << PAGE_SHIFT,
+					ACL3_getaclres_sz - NFS3_pagepad_sz);
+		req->rq_rcv_buf.flags |= XDRBUF_SPARSE_PAGES;
+	}
+>>>>>>> upstream/android-13
 }
 
 static void nfs3_xdr_enc_setacl3args(struct rpc_rqst *req,
@@ -1435,7 +1741,11 @@ static int nfs3_xdr_dec_getattr3res(struct rpc_rqst *req,
 		goto out;
 	if (status != NFS3_OK)
 		goto out_default;
+<<<<<<< HEAD
 	error = decode_fattr3(xdr, result);
+=======
+	error = decode_fattr3(xdr, result, rpc_rqst_userns(req));
+>>>>>>> upstream/android-13
 out:
 	return error;
 out_default:
@@ -1470,7 +1780,11 @@ static int nfs3_xdr_dec_setattr3res(struct rpc_rqst *req,
 	error = decode_nfsstat3(xdr, &status);
 	if (unlikely(error))
 		goto out;
+<<<<<<< HEAD
 	error = decode_wcc_data(xdr, result);
+=======
+	error = decode_wcc_data(xdr, result, rpc_rqst_userns(req));
+>>>>>>> upstream/android-13
 	if (unlikely(error))
 		goto out;
 	if (status != NFS3_OK)
@@ -1505,6 +1819,10 @@ static int nfs3_xdr_dec_lookup3res(struct rpc_rqst *req,
 				   struct xdr_stream *xdr,
 				   void *data)
 {
+<<<<<<< HEAD
+=======
+	struct user_namespace *userns = rpc_rqst_userns(req);
+>>>>>>> upstream/android-13
 	struct nfs3_diropres *result = data;
 	enum nfs_stat status;
 	int error;
@@ -1517,6 +1835,7 @@ static int nfs3_xdr_dec_lookup3res(struct rpc_rqst *req,
 	error = decode_nfs_fh3(xdr, result->fh);
 	if (unlikely(error))
 		goto out;
+<<<<<<< HEAD
 	error = decode_post_op_attr(xdr, result->fattr);
 	if (unlikely(error))
 		goto out;
@@ -1525,6 +1844,16 @@ out:
 	return error;
 out_default:
 	error = decode_post_op_attr(xdr, result->dir_attr);
+=======
+	error = decode_post_op_attr(xdr, result->fattr, userns);
+	if (unlikely(error))
+		goto out;
+	error = decode_post_op_attr(xdr, result->dir_attr, userns);
+out:
+	return error;
+out_default:
+	error = decode_post_op_attr(xdr, result->dir_attr, userns);
+>>>>>>> upstream/android-13
 	if (unlikely(error))
 		goto out;
 	return nfs3_stat_to_errno(status);
@@ -1560,7 +1889,11 @@ static int nfs3_xdr_dec_access3res(struct rpc_rqst *req,
 	error = decode_nfsstat3(xdr, &status);
 	if (unlikely(error))
 		goto out;
+<<<<<<< HEAD
 	error = decode_post_op_attr(xdr, result->fattr);
+=======
+	error = decode_post_op_attr(xdr, result->fattr, rpc_rqst_userns(req));
+>>>>>>> upstream/android-13
 	if (unlikely(error))
 		goto out;
 	if (status != NFS3_OK)
@@ -1601,7 +1934,11 @@ static int nfs3_xdr_dec_readlink3res(struct rpc_rqst *req,
 	error = decode_nfsstat3(xdr, &status);
 	if (unlikely(error))
 		goto out;
+<<<<<<< HEAD
 	error = decode_post_op_attr(xdr, result);
+=======
+	error = decode_post_op_attr(xdr, result, rpc_rqst_userns(req));
+>>>>>>> upstream/android-13
 	if (unlikely(error))
 		goto out;
 	if (status != NFS3_OK)
@@ -1641,8 +1978,13 @@ static int decode_read3resok(struct xdr_stream *xdr,
 	__be32 *p;
 
 	p = xdr_inline_decode(xdr, 4 + 4 + 4);
+<<<<<<< HEAD
 	if (unlikely(p == NULL))
 		goto out_overflow;
+=======
+	if (unlikely(!p))
+		return -EIO;
+>>>>>>> upstream/android-13
 	count = be32_to_cpup(p++);
 	eof = be32_to_cpup(p++);
 	ocount = be32_to_cpup(p++);
@@ -1665,15 +2007,19 @@ out_cheating:
 	count = recvd;
 	eof = 0;
 	goto out;
+<<<<<<< HEAD
 out_overflow:
 	print_overflow_msg(__func__, xdr);
 	return -EIO;
+=======
+>>>>>>> upstream/android-13
 }
 
 static int nfs3_xdr_dec_read3res(struct rpc_rqst *req, struct xdr_stream *xdr,
 				 void *data)
 {
 	struct nfs_pgio_res *result = data;
+<<<<<<< HEAD
 	enum nfs_stat status;
 	int error;
 
@@ -1681,11 +2027,26 @@ static int nfs3_xdr_dec_read3res(struct rpc_rqst *req, struct xdr_stream *xdr,
 	if (unlikely(error))
 		goto out;
 	error = decode_post_op_attr(xdr, result->fattr);
+=======
+	unsigned int pos;
+	enum nfs_stat status;
+	int error;
+
+	pos = xdr_stream_pos(xdr);
+	error = decode_nfsstat3(xdr, &status);
+	if (unlikely(error))
+		goto out;
+	error = decode_post_op_attr(xdr, result->fattr, rpc_rqst_userns(req));
+>>>>>>> upstream/android-13
 	if (unlikely(error))
 		goto out;
 	result->op_status = status;
 	if (status != NFS3_OK)
 		goto out_status;
+<<<<<<< HEAD
+=======
+	result->replen = 3 + ((xdr_stream_pos(xdr) - pos) >> 2);
+>>>>>>> upstream/android-13
 	error = decode_read3resok(xdr, result);
 out:
 	return error;
@@ -1726,22 +2087,34 @@ static int decode_write3resok(struct xdr_stream *xdr,
 	__be32 *p;
 
 	p = xdr_inline_decode(xdr, 4 + 4);
+<<<<<<< HEAD
 	if (unlikely(p == NULL))
 		goto out_overflow;
+=======
+	if (unlikely(!p))
+		return -EIO;
+>>>>>>> upstream/android-13
 	result->count = be32_to_cpup(p++);
 	result->verf->committed = be32_to_cpup(p++);
 	if (unlikely(result->verf->committed > NFS_FILE_SYNC))
 		goto out_badvalue;
 	if (decode_writeverf3(xdr, &result->verf->verifier))
+<<<<<<< HEAD
 		goto out_eio;
+=======
+		return -EIO;
+>>>>>>> upstream/android-13
 	return result->count;
 out_badvalue:
 	dprintk("NFS: bad stable_how value: %u\n", result->verf->committed);
 	return -EIO;
+<<<<<<< HEAD
 out_overflow:
 	print_overflow_msg(__func__, xdr);
 out_eio:
 	return -EIO;
+=======
+>>>>>>> upstream/android-13
 }
 
 static int nfs3_xdr_dec_write3res(struct rpc_rqst *req, struct xdr_stream *xdr,
@@ -1754,7 +2127,11 @@ static int nfs3_xdr_dec_write3res(struct rpc_rqst *req, struct xdr_stream *xdr,
 	error = decode_nfsstat3(xdr, &status);
 	if (unlikely(error))
 		goto out;
+<<<<<<< HEAD
 	error = decode_wcc_data(xdr, result->fattr);
+=======
+	error = decode_wcc_data(xdr, result->fattr, rpc_rqst_userns(req));
+>>>>>>> upstream/android-13
 	if (unlikely(error))
 		goto out;
 	result->op_status = status;
@@ -1788,14 +2165,23 @@ out_status:
  *	};
  */
 static int decode_create3resok(struct xdr_stream *xdr,
+<<<<<<< HEAD
 			       struct nfs3_diropres *result)
+=======
+			       struct nfs3_diropres *result,
+			       struct user_namespace *userns)
+>>>>>>> upstream/android-13
 {
 	int error;
 
 	error = decode_post_op_fh3(xdr, result->fh);
 	if (unlikely(error))
 		goto out;
+<<<<<<< HEAD
 	error = decode_post_op_attr(xdr, result->fattr);
+=======
+	error = decode_post_op_attr(xdr, result->fattr, userns);
+>>>>>>> upstream/android-13
 	if (unlikely(error))
 		goto out;
 	/* The server isn't required to return a file handle.
@@ -1804,7 +2190,11 @@ static int decode_create3resok(struct xdr_stream *xdr,
 	 * values for the new object. */
 	if (result->fh->size == 0)
 		result->fattr->valid = 0;
+<<<<<<< HEAD
 	error = decode_wcc_data(xdr, result->dir_attr);
+=======
+	error = decode_wcc_data(xdr, result->dir_attr, userns);
+>>>>>>> upstream/android-13
 out:
 	return error;
 }
@@ -1813,6 +2203,10 @@ static int nfs3_xdr_dec_create3res(struct rpc_rqst *req,
 				   struct xdr_stream *xdr,
 				   void *data)
 {
+<<<<<<< HEAD
+=======
+	struct user_namespace *userns = rpc_rqst_userns(req);
+>>>>>>> upstream/android-13
 	struct nfs3_diropres *result = data;
 	enum nfs_stat status;
 	int error;
@@ -1822,11 +2216,19 @@ static int nfs3_xdr_dec_create3res(struct rpc_rqst *req,
 		goto out;
 	if (status != NFS3_OK)
 		goto out_default;
+<<<<<<< HEAD
 	error = decode_create3resok(xdr, result);
 out:
 	return error;
 out_default:
 	error = decode_wcc_data(xdr, result->dir_attr);
+=======
+	error = decode_create3resok(xdr, result, userns);
+out:
+	return error;
+out_default:
+	error = decode_wcc_data(xdr, result->dir_attr, userns);
+>>>>>>> upstream/android-13
 	if (unlikely(error))
 		goto out;
 	return nfs3_stat_to_errno(status);
@@ -1861,7 +2263,11 @@ static int nfs3_xdr_dec_remove3res(struct rpc_rqst *req,
 	error = decode_nfsstat3(xdr, &status);
 	if (unlikely(error))
 		goto out;
+<<<<<<< HEAD
 	error = decode_wcc_data(xdr, result->dir_attr);
+=======
+	error = decode_wcc_data(xdr, result->dir_attr, rpc_rqst_userns(req));
+>>>>>>> upstream/android-13
 	if (unlikely(error))
 		goto out;
 	if (status != NFS3_OK)
@@ -1896,6 +2302,10 @@ static int nfs3_xdr_dec_rename3res(struct rpc_rqst *req,
 				   struct xdr_stream *xdr,
 				   void *data)
 {
+<<<<<<< HEAD
+=======
+	struct user_namespace *userns = rpc_rqst_userns(req);
+>>>>>>> upstream/android-13
 	struct nfs_renameres *result = data;
 	enum nfs_stat status;
 	int error;
@@ -1903,10 +2313,17 @@ static int nfs3_xdr_dec_rename3res(struct rpc_rqst *req,
 	error = decode_nfsstat3(xdr, &status);
 	if (unlikely(error))
 		goto out;
+<<<<<<< HEAD
 	error = decode_wcc_data(xdr, result->old_fattr);
 	if (unlikely(error))
 		goto out;
 	error = decode_wcc_data(xdr, result->new_fattr);
+=======
+	error = decode_wcc_data(xdr, result->old_fattr, userns);
+	if (unlikely(error))
+		goto out;
+	error = decode_wcc_data(xdr, result->new_fattr, userns);
+>>>>>>> upstream/android-13
 	if (unlikely(error))
 		goto out;
 	if (status != NFS3_OK)
@@ -1940,6 +2357,10 @@ out_status:
 static int nfs3_xdr_dec_link3res(struct rpc_rqst *req, struct xdr_stream *xdr,
 				 void *data)
 {
+<<<<<<< HEAD
+=======
+	struct user_namespace *userns = rpc_rqst_userns(req);
+>>>>>>> upstream/android-13
 	struct nfs3_linkres *result = data;
 	enum nfs_stat status;
 	int error;
@@ -1947,10 +2368,17 @@ static int nfs3_xdr_dec_link3res(struct rpc_rqst *req, struct xdr_stream *xdr,
 	error = decode_nfsstat3(xdr, &status);
 	if (unlikely(error))
 		goto out;
+<<<<<<< HEAD
 	error = decode_post_op_attr(xdr, result->fattr);
 	if (unlikely(error))
 		goto out;
 	error = decode_wcc_data(xdr, result->dir_attr);
+=======
+	error = decode_post_op_attr(xdr, result->fattr, userns);
+	if (unlikely(error))
+		goto out;
+	error = decode_wcc_data(xdr, result->dir_attr, userns);
+>>>>>>> upstream/android-13
 	if (unlikely(error))
 		goto out;
 	if (status != NFS3_OK)
@@ -1999,18 +2427,31 @@ out_status:
 int nfs3_decode_dirent(struct xdr_stream *xdr, struct nfs_entry *entry,
 		       bool plus)
 {
+<<<<<<< HEAD
 	struct nfs_entry old = *entry;
+=======
+	struct user_namespace *userns = rpc_userns(entry->server->client);
+>>>>>>> upstream/android-13
 	__be32 *p;
 	int error;
 	u64 new_cookie;
 
 	p = xdr_inline_decode(xdr, 4);
+<<<<<<< HEAD
 	if (unlikely(p == NULL))
 		goto out_overflow;
 	if (*p == xdr_zero) {
 		p = xdr_inline_decode(xdr, 4);
 		if (unlikely(p == NULL))
 			goto out_overflow;
+=======
+	if (unlikely(!p))
+		return -EAGAIN;
+	if (*p == xdr_zero) {
+		p = xdr_inline_decode(xdr, 4);
+		if (unlikely(!p))
+			return -EAGAIN;
+>>>>>>> upstream/android-13
 		if (*p == xdr_zero)
 			return -EAGAIN;
 		entry->eof = 1;
@@ -2019,6 +2460,7 @@ int nfs3_decode_dirent(struct xdr_stream *xdr, struct nfs_entry *entry,
 
 	error = decode_fileid3(xdr, &entry->ino);
 	if (unlikely(error))
+<<<<<<< HEAD
 		return error;
 
 	error = decode_inline_filename3(xdr, &entry->name, &entry->len);
@@ -2028,14 +2470,31 @@ int nfs3_decode_dirent(struct xdr_stream *xdr, struct nfs_entry *entry,
 	error = decode_cookie3(xdr, &new_cookie);
 	if (unlikely(error))
 		return error;
+=======
+		return -EAGAIN;
+
+	error = decode_inline_filename3(xdr, &entry->name, &entry->len);
+	if (unlikely(error))
+		return -EAGAIN;
+
+	error = decode_cookie3(xdr, &new_cookie);
+	if (unlikely(error))
+		return -EAGAIN;
+>>>>>>> upstream/android-13
 
 	entry->d_type = DT_UNKNOWN;
 
 	if (plus) {
 		entry->fattr->valid = 0;
+<<<<<<< HEAD
 		error = decode_post_op_attr(xdr, entry->fattr);
 		if (unlikely(error))
 			return error;
+=======
+		error = decode_post_op_attr(xdr, entry->fattr, userns);
+		if (unlikely(error))
+			return -EAGAIN;
+>>>>>>> upstream/android-13
 		if (entry->fattr->valid & NFS_ATTR_FATTR_V3)
 			entry->d_type = nfs_umode_to_dtype(entry->fattr->mode);
 
@@ -2046,6 +2505,7 @@ int nfs3_decode_dirent(struct xdr_stream *xdr, struct nfs_entry *entry,
 
 		/* In fact, a post_op_fh3: */
 		p = xdr_inline_decode(xdr, 4);
+<<<<<<< HEAD
 		if (unlikely(p == NULL))
 			goto out_overflow;
 		if (*p != xdr_zero) {
@@ -2055,6 +2515,14 @@ int nfs3_decode_dirent(struct xdr_stream *xdr, struct nfs_entry *entry,
 					goto out_truncated;
 				return error;
 			}
+=======
+		if (unlikely(!p))
+			return -EAGAIN;
+		if (*p != xdr_zero) {
+			error = decode_nfs_fh3(xdr, entry->fh);
+			if (unlikely(error))
+				return -EAGAIN;
+>>>>>>> upstream/android-13
 		} else
 			zero_nfs_fh3(entry->fh);
 	}
@@ -2063,6 +2531,7 @@ int nfs3_decode_dirent(struct xdr_stream *xdr, struct nfs_entry *entry,
 	entry->cookie = new_cookie;
 
 	return 0;
+<<<<<<< HEAD
 
 out_overflow:
 	print_overflow_msg(__func__, xdr);
@@ -2071,6 +2540,8 @@ out_truncated:
 	dprintk("NFS: directory entry contains invalid file handle\n");
 	*entry = old;
 	return -EAGAIN;
+=======
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -2108,11 +2579,20 @@ static int decode_dirlist3(struct xdr_stream *xdr)
 }
 
 static int decode_readdir3resok(struct xdr_stream *xdr,
+<<<<<<< HEAD
 				struct nfs3_readdirres *result)
 {
 	int error;
 
 	error = decode_post_op_attr(xdr, result->dir_attr);
+=======
+				struct nfs3_readdirres *result,
+				struct user_namespace *userns)
+{
+	int error;
+
+	error = decode_post_op_attr(xdr, result->dir_attr, userns);
+>>>>>>> upstream/android-13
 	if (unlikely(error))
 		goto out;
 	/* XXX: do we need to check if result->verf != NULL ? */
@@ -2137,11 +2617,19 @@ static int nfs3_xdr_dec_readdir3res(struct rpc_rqst *req,
 		goto out;
 	if (status != NFS3_OK)
 		goto out_default;
+<<<<<<< HEAD
 	error = decode_readdir3resok(xdr, result);
 out:
 	return error;
 out_default:
 	error = decode_post_op_attr(xdr, result->dir_attr);
+=======
+	error = decode_readdir3resok(xdr, result, rpc_rqst_userns(req));
+out:
+	return error;
+out_default:
+	error = decode_post_op_attr(xdr, result->dir_attr, rpc_rqst_userns(req));
+>>>>>>> upstream/android-13
 	if (unlikely(error))
 		goto out;
 	return nfs3_stat_to_errno(status);
@@ -2178,8 +2666,13 @@ static int decode_fsstat3resok(struct xdr_stream *xdr,
 	__be32 *p;
 
 	p = xdr_inline_decode(xdr, 8 * 6 + 4);
+<<<<<<< HEAD
 	if (unlikely(p == NULL))
 		goto out_overflow;
+=======
+	if (unlikely(!p))
+		return -EIO;
+>>>>>>> upstream/android-13
 	p = xdr_decode_size3(p, &result->tbytes);
 	p = xdr_decode_size3(p, &result->fbytes);
 	p = xdr_decode_size3(p, &result->abytes);
@@ -2188,9 +2681,12 @@ static int decode_fsstat3resok(struct xdr_stream *xdr,
 	xdr_decode_size3(p, &result->afiles);
 	/* ignore invarsec */
 	return 0;
+<<<<<<< HEAD
 out_overflow:
 	print_overflow_msg(__func__, xdr);
 	return -EIO;
+=======
+>>>>>>> upstream/android-13
 }
 
 static int nfs3_xdr_dec_fsstat3res(struct rpc_rqst *req,
@@ -2204,7 +2700,11 @@ static int nfs3_xdr_dec_fsstat3res(struct rpc_rqst *req,
 	error = decode_nfsstat3(xdr, &status);
 	if (unlikely(error))
 		goto out;
+<<<<<<< HEAD
 	error = decode_post_op_attr(xdr, result->fattr);
+=======
+	error = decode_post_op_attr(xdr, result->fattr, rpc_rqst_userns(req));
+>>>>>>> upstream/android-13
 	if (unlikely(error))
 		goto out;
 	if (status != NFS3_OK)
@@ -2250,8 +2750,13 @@ static int decode_fsinfo3resok(struct xdr_stream *xdr,
 	__be32 *p;
 
 	p = xdr_inline_decode(xdr, 4 * 7 + 8 + 8 + 4);
+<<<<<<< HEAD
 	if (unlikely(p == NULL))
 		goto out_overflow;
+=======
+	if (unlikely(!p))
+		return -EIO;
+>>>>>>> upstream/android-13
 	result->rtmax  = be32_to_cpup(p++);
 	result->rtpref = be32_to_cpup(p++);
 	result->rtmult = be32_to_cpup(p++);
@@ -2264,10 +2769,16 @@ static int decode_fsinfo3resok(struct xdr_stream *xdr,
 
 	/* ignore properties */
 	result->lease_time = 0;
+<<<<<<< HEAD
 	return 0;
 out_overflow:
 	print_overflow_msg(__func__, xdr);
 	return -EIO;
+=======
+	result->change_attr_type = NFS4_CHANGE_TYPE_IS_UNDEFINED;
+	result->xattr_support = 0;
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int nfs3_xdr_dec_fsinfo3res(struct rpc_rqst *req,
@@ -2281,7 +2792,11 @@ static int nfs3_xdr_dec_fsinfo3res(struct rpc_rqst *req,
 	error = decode_nfsstat3(xdr, &status);
 	if (unlikely(error))
 		goto out;
+<<<<<<< HEAD
 	error = decode_post_op_attr(xdr, result->fattr);
+=======
+	error = decode_post_op_attr(xdr, result->fattr, rpc_rqst_userns(req));
+>>>>>>> upstream/android-13
 	if (unlikely(error))
 		goto out;
 	if (status != NFS3_OK)
@@ -2323,15 +2838,23 @@ static int decode_pathconf3resok(struct xdr_stream *xdr,
 	__be32 *p;
 
 	p = xdr_inline_decode(xdr, 4 * 6);
+<<<<<<< HEAD
 	if (unlikely(p == NULL))
 		goto out_overflow;
+=======
+	if (unlikely(!p))
+		return -EIO;
+>>>>>>> upstream/android-13
 	result->max_link = be32_to_cpup(p++);
 	result->max_namelen = be32_to_cpup(p);
 	/* ignore remaining fields */
 	return 0;
+<<<<<<< HEAD
 out_overflow:
 	print_overflow_msg(__func__, xdr);
 	return -EIO;
+=======
+>>>>>>> upstream/android-13
 }
 
 static int nfs3_xdr_dec_pathconf3res(struct rpc_rqst *req,
@@ -2345,7 +2868,11 @@ static int nfs3_xdr_dec_pathconf3res(struct rpc_rqst *req,
 	error = decode_nfsstat3(xdr, &status);
 	if (unlikely(error))
 		goto out;
+<<<<<<< HEAD
 	error = decode_post_op_attr(xdr, result->fattr);
+=======
+	error = decode_post_op_attr(xdr, result->fattr, rpc_rqst_userns(req));
+>>>>>>> upstream/android-13
 	if (unlikely(error))
 		goto out;
 	if (status != NFS3_OK)
@@ -2388,7 +2915,11 @@ static int nfs3_xdr_dec_commit3res(struct rpc_rqst *req,
 	error = decode_nfsstat3(xdr, &status);
 	if (unlikely(error))
 		goto out;
+<<<<<<< HEAD
 	error = decode_wcc_data(xdr, result->fattr);
+=======
+	error = decode_wcc_data(xdr, result->fattr, rpc_rqst_userns(req));
+>>>>>>> upstream/android-13
 	if (unlikely(error))
 		goto out;
 	result->op_status = status;
@@ -2406,14 +2937,23 @@ out_status:
 #ifdef CONFIG_NFS_V3_ACL
 
 static inline int decode_getacl3resok(struct xdr_stream *xdr,
+<<<<<<< HEAD
 				      struct nfs3_getaclres *result)
+=======
+				      struct nfs3_getaclres *result,
+				      struct user_namespace *userns)
+>>>>>>> upstream/android-13
 {
 	struct posix_acl **acl;
 	unsigned int *aclcnt;
 	size_t hdrlen;
 	int error;
 
+<<<<<<< HEAD
 	error = decode_post_op_attr(xdr, result->fattr);
+=======
+	error = decode_post_op_attr(xdr, result->fattr, userns);
+>>>>>>> upstream/android-13
 	if (unlikely(error))
 		goto out;
 	error = decode_uint32(xdr, &result->mask);
@@ -2461,7 +3001,11 @@ static int nfs3_xdr_dec_getacl3res(struct rpc_rqst *req,
 		goto out;
 	if (status != NFS3_OK)
 		goto out_default;
+<<<<<<< HEAD
 	error = decode_getacl3resok(xdr, result);
+=======
+	error = decode_getacl3resok(xdr, result, rpc_rqst_userns(req));
+>>>>>>> upstream/android-13
 out:
 	return error;
 out_default:
@@ -2480,7 +3024,11 @@ static int nfs3_xdr_dec_setacl3res(struct rpc_rqst *req,
 		goto out;
 	if (status != NFS3_OK)
 		goto out_default;
+<<<<<<< HEAD
 	error = decode_post_op_attr(xdr, result);
+=======
+	error = decode_post_op_attr(xdr, result, rpc_rqst_userns(req));
+>>>>>>> upstream/android-13
 out:
 	return error;
 out_default:

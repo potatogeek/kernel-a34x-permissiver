@@ -2,7 +2,10 @@
 #ifndef __TRIGGER_H_
 #define __TRIGGER_H_ 1
 
+<<<<<<< HEAD
 #include "util/debug.h"
+=======
+>>>>>>> upstream/android-13
 #include "asm/bug.h"
 
 /*

@@ -20,6 +20,10 @@ snd-hda-codec-analog-objs :=	patch_analog.o
 snd-hda-codec-idt-objs :=	patch_sigmatel.o
 snd-hda-codec-si3054-objs :=	patch_si3054.o
 snd-hda-codec-cirrus-objs :=	patch_cirrus.o
+<<<<<<< HEAD
+=======
+snd-hda-codec-cs8409-objs :=	patch_cs8409.o patch_cs8409-tables.o
+>>>>>>> upstream/android-13
 snd-hda-codec-ca0110-objs :=	patch_ca0110.o
 snd-hda-codec-ca0132-objs :=	patch_ca0132.o
 snd-hda-codec-conexant-objs :=	patch_conexant.o
@@ -37,6 +41,10 @@ obj-$(CONFIG_SND_HDA_CODEC_ANALOG) += snd-hda-codec-analog.o
 obj-$(CONFIG_SND_HDA_CODEC_SIGMATEL) += snd-hda-codec-idt.o
 obj-$(CONFIG_SND_HDA_CODEC_SI3054) += snd-hda-codec-si3054.o
 obj-$(CONFIG_SND_HDA_CODEC_CIRRUS) += snd-hda-codec-cirrus.o
+<<<<<<< HEAD
+=======
+obj-$(CONFIG_SND_HDA_CODEC_CS8409) += snd-hda-codec-cs8409.o
+>>>>>>> upstream/android-13
 obj-$(CONFIG_SND_HDA_CODEC_CA0110) += snd-hda-codec-ca0110.o
 obj-$(CONFIG_SND_HDA_CODEC_CA0132) += snd-hda-codec-ca0132.o
 obj-$(CONFIG_SND_HDA_CODEC_CONEXANT) += snd-hda-codec-conexant.o

@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 2011 Samsung Electronics Co., Ltd.
  * Authors:
  *	Inki Dae <inki.dae@samsung.com>
  *	Joonyoung Shim <jy0922.shim@samsung.com>
  *	Seung-Woo Kim <sw0312.kim@samsung.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
@@ -31,6 +36,35 @@
 #include "exynos_drm_vidi.h"
 #include "exynos_drm_g2d.h"
 #include "exynos_drm_iommu.h"
+=======
+ */
+
+#include <linux/component.h>
+#include <linux/dma-mapping.h>
+#include <linux/platform_device.h>
+#include <linux/pm_runtime.h>
+#include <linux/uaccess.h>
+
+#include <drm/drm_atomic.h>
+#include <drm/drm_atomic_helper.h>
+#include <drm/drm_drv.h>
+#include <drm/drm_fb_helper.h>
+#include <drm/drm_file.h>
+#include <drm/drm_fourcc.h>
+#include <drm/drm_ioctl.h>
+#include <drm/drm_probe_helper.h>
+#include <drm/drm_vblank.h>
+#include <drm/exynos_drm.h>
+
+#include "exynos_drm_drv.h"
+#include "exynos_drm_fb.h"
+#include "exynos_drm_fbdev.h"
+#include "exynos_drm_g2d.h"
+#include "exynos_drm_gem.h"
+#include "exynos_drm_ipp.h"
+#include "exynos_drm_plane.h"
+#include "exynos_drm_vidi.h"
+>>>>>>> upstream/android-13
 
 #define DRIVER_NAME	"exynos"
 #define DRIVER_DESC	"Samsung SoC DRM"
@@ -74,6 +108,7 @@ static void exynos_drm_postclose(struct drm_device *dev, struct drm_file *file)
 	file->driver_priv = NULL;
 }
 
+<<<<<<< HEAD
 static const struct vm_operations_struct exynos_drm_gem_vm_ops = {
 	.fault = exynos_drm_gem_fault,
 	.open = drm_gem_vm_open,
@@ -85,11 +120,19 @@ static const struct drm_ioctl_desc exynos_ioctls[] = {
 			DRM_AUTH | DRM_RENDER_ALLOW),
 	DRM_IOCTL_DEF_DRV(EXYNOS_GEM_MAP, exynos_drm_gem_map_ioctl,
 			DRM_AUTH | DRM_RENDER_ALLOW),
+=======
+static const struct drm_ioctl_desc exynos_ioctls[] = {
+	DRM_IOCTL_DEF_DRV(EXYNOS_GEM_CREATE, exynos_drm_gem_create_ioctl,
+			DRM_RENDER_ALLOW),
+	DRM_IOCTL_DEF_DRV(EXYNOS_GEM_MAP, exynos_drm_gem_map_ioctl,
+			DRM_RENDER_ALLOW),
+>>>>>>> upstream/android-13
 	DRM_IOCTL_DEF_DRV(EXYNOS_GEM_GET, exynos_drm_gem_get_ioctl,
 			DRM_RENDER_ALLOW),
 	DRM_IOCTL_DEF_DRV(EXYNOS_VIDI_CONNECTION, vidi_connection_ioctl,
 			DRM_AUTH),
 	DRM_IOCTL_DEF_DRV(EXYNOS_G2D_GET_VER, exynos_g2d_get_ver_ioctl,
+<<<<<<< HEAD
 			DRM_AUTH | DRM_RENDER_ALLOW),
 	DRM_IOCTL_DEF_DRV(EXYNOS_G2D_SET_CMDLIST, exynos_g2d_set_cmdlist_ioctl,
 			DRM_AUTH | DRM_RENDER_ALLOW),
@@ -105,6 +148,23 @@ static const struct drm_ioctl_desc exynos_ioctls[] = {
 			DRM_AUTH | DRM_RENDER_ALLOW),
 	DRM_IOCTL_DEF_DRV(EXYNOS_IPP_COMMIT, exynos_drm_ipp_commit_ioctl,
 			DRM_AUTH | DRM_RENDER_ALLOW),
+=======
+			DRM_RENDER_ALLOW),
+	DRM_IOCTL_DEF_DRV(EXYNOS_G2D_SET_CMDLIST, exynos_g2d_set_cmdlist_ioctl,
+			DRM_RENDER_ALLOW),
+	DRM_IOCTL_DEF_DRV(EXYNOS_G2D_EXEC, exynos_g2d_exec_ioctl,
+			DRM_RENDER_ALLOW),
+	DRM_IOCTL_DEF_DRV(EXYNOS_IPP_GET_RESOURCES,
+			exynos_drm_ipp_get_res_ioctl,
+			DRM_RENDER_ALLOW),
+	DRM_IOCTL_DEF_DRV(EXYNOS_IPP_GET_CAPS, exynos_drm_ipp_get_caps_ioctl,
+			DRM_RENDER_ALLOW),
+	DRM_IOCTL_DEF_DRV(EXYNOS_IPP_GET_LIMITS,
+			exynos_drm_ipp_get_limits_ioctl,
+			DRM_RENDER_ALLOW),
+	DRM_IOCTL_DEF_DRV(EXYNOS_IPP_COMMIT, exynos_drm_ipp_commit_ioctl,
+			DRM_RENDER_ALLOW),
+>>>>>>> upstream/android-13
 };
 
 static const struct file_operations exynos_drm_driver_fops = {
@@ -118,12 +178,18 @@ static const struct file_operations exynos_drm_driver_fops = {
 	.release	= drm_release,
 };
 
+<<<<<<< HEAD
 static struct drm_driver exynos_drm_driver = {
 	.driver_features	= DRIVER_MODESET | DRIVER_GEM | DRIVER_PRIME
+=======
+static const struct drm_driver exynos_drm_driver = {
+	.driver_features	= DRIVER_MODESET | DRIVER_GEM
+>>>>>>> upstream/android-13
 				  | DRIVER_ATOMIC | DRIVER_RENDER,
 	.open			= exynos_drm_open,
 	.lastclose		= drm_fb_helper_lastclose,
 	.postclose		= exynos_drm_postclose,
+<<<<<<< HEAD
 	.gem_free_object_unlocked = exynos_drm_gem_free_object,
 	.gem_vm_ops		= &exynos_drm_gem_vm_ops,
 	.dumb_create		= exynos_drm_gem_dumb_create,
@@ -135,6 +201,13 @@ static struct drm_driver exynos_drm_driver = {
 	.gem_prime_import_sg_table	= exynos_drm_gem_prime_import_sg_table,
 	.gem_prime_vmap		= exynos_drm_gem_prime_vmap,
 	.gem_prime_vunmap	= exynos_drm_gem_prime_vunmap,
+=======
+	.dumb_create		= exynos_drm_gem_dumb_create,
+	.prime_handle_to_fd	= drm_gem_prime_handle_to_fd,
+	.prime_fd_to_handle	= drm_gem_prime_fd_to_handle,
+	.gem_prime_import	= exynos_drm_gem_prime_import,
+	.gem_prime_import_sg_table	= exynos_drm_gem_prime_import_sg_table,
+>>>>>>> upstream/android-13
 	.gem_prime_mmap		= exynos_drm_gem_prime_mmap,
 	.ioctls			= exynos_ioctls,
 	.num_ioctls		= ARRAY_SIZE(exynos_ioctls),
@@ -149,6 +222,7 @@ static struct drm_driver exynos_drm_driver = {
 static int exynos_drm_suspend(struct device *dev)
 {
 	struct drm_device *drm_dev = dev_get_drvdata(dev);
+<<<<<<< HEAD
 	struct exynos_drm_private *private;
 
 	if (!drm_dev)
@@ -166,11 +240,16 @@ static int exynos_drm_suspend(struct device *dev)
 	}
 
 	return 0;
+=======
+
+	return  drm_mode_config_helper_suspend(drm_dev);
+>>>>>>> upstream/android-13
 }
 
 static void exynos_drm_resume(struct device *dev)
 {
 	struct drm_device *drm_dev = dev_get_drvdata(dev);
+<<<<<<< HEAD
 	struct exynos_drm_private *private;
 
 	if (!drm_dev)
@@ -180,6 +259,10 @@ static void exynos_drm_resume(struct device *dev)
 	drm_atomic_helper_resume(drm_dev, private->suspend_state);
 	exynos_drm_fbdev_resume(drm_dev);
 	drm_kms_helper_poll_enable(drm_dev);
+=======
+
+	drm_mode_config_helper_resume(drm_dev);
+>>>>>>> upstream/android-13
 }
 
 static const struct dev_pm_ops exynos_drm_pm_ops = {
@@ -197,8 +280,12 @@ struct exynos_drm_driver_info {
 
 #define DRM_COMPONENT_DRIVER	BIT(0)	/* supports component framework */
 #define DRM_VIRTUAL_DEVICE	BIT(1)	/* create virtual platform device */
+<<<<<<< HEAD
 #define DRM_DMA_DEVICE		BIT(2)	/* can be used for dma allocations */
 #define DRM_FIMC_DEVICE		BIT(3)	/* devices shared with V4L2 subsystem */
+=======
+#define DRM_FIMC_DEVICE		BIT(2)	/* devices shared with V4L2 subsystem */
+>>>>>>> upstream/android-13
 
 #define DRV_PTR(drv, cond) (IS_ENABLED(cond) ? &drv : NULL)
 
@@ -209,6 +296,7 @@ struct exynos_drm_driver_info {
 static struct exynos_drm_driver_info exynos_drm_drivers[] = {
 	{
 		DRV_PTR(fimd_driver, CONFIG_DRM_EXYNOS_FIMD),
+<<<<<<< HEAD
 		DRM_COMPONENT_DRIVER | DRM_DMA_DEVICE
 	}, {
 		DRV_PTR(exynos5433_decon_driver, CONFIG_DRM_EXYNOS5433_DECON),
@@ -219,6 +307,18 @@ static struct exynos_drm_driver_info exynos_drm_drivers[] = {
 	}, {
 		DRV_PTR(mixer_driver, CONFIG_DRM_EXYNOS_MIXER),
 		DRM_COMPONENT_DRIVER | DRM_DMA_DEVICE
+=======
+		DRM_COMPONENT_DRIVER
+	}, {
+		DRV_PTR(exynos5433_decon_driver, CONFIG_DRM_EXYNOS5433_DECON),
+		DRM_COMPONENT_DRIVER
+	}, {
+		DRV_PTR(decon_driver, CONFIG_DRM_EXYNOS7_DECON),
+		DRM_COMPONENT_DRIVER
+	}, {
+		DRV_PTR(mixer_driver, CONFIG_DRM_EXYNOS_MIXER),
+		DRM_COMPONENT_DRIVER
+>>>>>>> upstream/android-13
 	}, {
 		DRV_PTR(mic_driver, CONFIG_DRM_EXYNOS_MIC),
 		DRM_COMPONENT_DRIVER
@@ -272,9 +372,13 @@ static struct component_match *exynos_drm_match_add(struct device *dev)
 		if (!info->driver || !(info->flags & DRM_COMPONENT_DRIVER))
 			continue;
 
+<<<<<<< HEAD
 		while ((d = bus_find_device(&platform_bus_type, p,
 					    &info->driver->driver,
 					    (void *)platform_bus_type.match))) {
+=======
+		while ((d = platform_find_device_by_driver(p, &info->driver->driver))) {
+>>>>>>> upstream/android-13
 			put_device(p);
 
 			if (!(info->flags & DRM_FIMC_DEVICE) ||
@@ -289,6 +393,7 @@ static struct component_match *exynos_drm_match_add(struct device *dev)
 	return match ?: ERR_PTR(-ENODEV);
 }
 
+<<<<<<< HEAD
 static struct device *exynos_drm_get_dma_device(void)
 {
 	int i;
@@ -310,13 +415,19 @@ static struct device *exynos_drm_get_dma_device(void)
 	return NULL;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int exynos_drm_bind(struct device *dev)
 {
 	struct exynos_drm_private *private;
 	struct drm_encoder *encoder;
 	struct drm_device *drm;
 	unsigned int clone_mask;
+<<<<<<< HEAD
 	int cnt, ret;
+=======
+	int ret;
+>>>>>>> upstream/android-13
 
 	drm = drm_dev_alloc(&exynos_drm_driver, dev);
 	if (IS_ERR(drm))
@@ -334,6 +445,7 @@ static int exynos_drm_bind(struct device *dev)
 	dev_set_drvdata(dev, drm);
 	drm->dev_private = (void *)private;
 
+<<<<<<< HEAD
 	/* the first real CRTC device is used for all dma mapping operations */
 	private->dma_dev = exynos_drm_get_dma_device();
 	if (!private->dma_dev) {
@@ -351,15 +463,23 @@ static int exynos_drm_bind(struct device *dev)
 		goto err_free_private;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	drm_mode_config_init(drm);
 
 	exynos_drm_mode_config_init(drm);
 
 	/* setup possible_clones. */
+<<<<<<< HEAD
 	cnt = 0;
 	clone_mask = 0;
 	list_for_each_entry(encoder, &drm->mode_config.encoder_list, head)
 		clone_mask |= (1 << (cnt++));
+=======
+	clone_mask = 0;
+	list_for_each_entry(encoder, &drm->mode_config.encoder_list, head)
+		clone_mask |= drm_encoder_mask(encoder);
+>>>>>>> upstream/android-13
 
 	list_for_each_entry(encoder, &drm->mode_config.encoder_list, head)
 		encoder->possible_clones = clone_mask;
@@ -375,6 +495,7 @@ static int exynos_drm_bind(struct device *dev)
 
 	drm_mode_config_reset(drm);
 
+<<<<<<< HEAD
 	/*
 	 * enable drm irq mode.
 	 * - with irq_enabled = true, we can use the vblank feature.
@@ -385,6 +506,8 @@ static int exynos_drm_bind(struct device *dev)
 	 */
 	drm->irq_enabled = true;
 
+=======
+>>>>>>> upstream/android-13
 	/* init kms poll for handling hpd */
 	drm_kms_helper_poll_init(drm);
 
@@ -407,8 +530,12 @@ err_unbind_all:
 	component_unbind_all(drm->dev, drm);
 err_mode_config_cleanup:
 	drm_mode_config_cleanup(drm);
+<<<<<<< HEAD
 	drm_release_iommu_mapping(drm);
 err_free_private:
+=======
+	exynos_drm_cleanup_dma(drm);
+>>>>>>> upstream/android-13
 	kfree(private);
 err_free_drm:
 	drm_dev_put(drm);
@@ -427,7 +554,11 @@ static void exynos_drm_unbind(struct device *dev)
 
 	component_unbind_all(drm->dev, drm);
 	drm_mode_config_cleanup(drm);
+<<<<<<< HEAD
 	drm_release_iommu_mapping(drm);
+=======
+	exynos_drm_cleanup_dma(drm);
+>>>>>>> upstream/android-13
 
 	kfree(drm->dev_private);
 	drm->dev_private = NULL;
@@ -481,9 +612,14 @@ static void exynos_drm_unregister_devices(void)
 		if (!info->driver || !(info->flags & DRM_VIRTUAL_DEVICE))
 			continue;
 
+<<<<<<< HEAD
 		while ((dev = bus_find_device(&platform_bus_type, NULL,
 					    &info->driver->driver,
 					    (void *)platform_bus_type.match))) {
+=======
+		while ((dev = platform_find_device_by_driver(NULL,
+						&info->driver->driver))) {
+>>>>>>> upstream/android-13
 			put_device(dev);
 			platform_device_unregister(to_platform_device(dev));
 		}

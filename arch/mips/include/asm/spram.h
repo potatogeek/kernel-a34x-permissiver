@@ -5,7 +5,11 @@
 #if defined(CONFIG_MIPS_SPRAM)
 extern __init void spram_config(void);
 #else
+<<<<<<< HEAD
 static inline void spram_config(void) { };
+=======
+static inline void spram_config(void) { }
+>>>>>>> upstream/android-13
 #endif /* CONFIG_MIPS_SPRAM */
 
 #endif /* _MIPS_SPRAM_H */

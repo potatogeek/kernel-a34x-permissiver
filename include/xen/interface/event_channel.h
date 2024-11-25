@@ -220,7 +220,11 @@ struct evtchn_expand_array {
 #define EVTCHNOP_set_priority    13
 struct evtchn_set_priority {
 	/* IN parameters. */
+<<<<<<< HEAD
 	uint32_t port;
+=======
+	evtchn_port_t port;
+>>>>>>> upstream/android-13
 	uint32_t priority;
 };
 

@@ -30,13 +30,20 @@
 #include <linux/init.h>
 #include <linux/highmem.h>
 #include <linux/pagemap.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
+=======
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 #include <linux/gfp.h>
 
 #include <asm/setup.h>
 #include <asm/segment.h>
 #include <asm/page.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/sections.h>
 
 /*
@@ -67,8 +74,15 @@ void __init paging_init(void)
 	 * Initialize the bad page table and bad page to point
 	 * to a couple of allocated pages.
 	 */
+<<<<<<< HEAD
 	empty_zero_page = (unsigned long)alloc_bootmem_pages(PAGE_SIZE);
 	memset((void *)empty_zero_page, 0, PAGE_SIZE);
+=======
+	empty_zero_page = (unsigned long)memblock_alloc(PAGE_SIZE, PAGE_SIZE);
+	if (!empty_zero_page)
+		panic("%s: Failed to allocate %lu bytes align=0x%lx\n",
+		      __func__, PAGE_SIZE, PAGE_SIZE);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Set up SFC/DFC registers (user data space).
@@ -81,10 +95,17 @@ void __init paging_init(void)
 		 start_mem, end_mem);
 
 	{
+<<<<<<< HEAD
 		unsigned long zones_size[MAX_NR_ZONES] = {0, };
 
 		zones_size[ZONE_NORMAL] = (end_mem - PAGE_OFFSET) >> PAGE_SHIFT;
 		free_area_init(zones_size);
+=======
+		unsigned long max_zone_pfn[MAX_NR_ZONES] = {0, };
+
+		max_zone_pfn[ZONE_NORMAL] = end_mem >> PAGE_SHIFT;
+		free_area_init(max_zone_pfn);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -96,6 +117,7 @@ void __init mem_init(void)
 	max_mapnr = MAP_NR(high_memory);
 
 	/* this will put all low memory onto the freelists */
+<<<<<<< HEAD
 	free_all_bootmem();
 
 	mem_init_print_info(NULL);
@@ -113,4 +135,7 @@ void
 free_initmem(void)
 {
 	free_initmem_default(-1);
+=======
+	memblock_free_all();
+>>>>>>> upstream/android-13
 }

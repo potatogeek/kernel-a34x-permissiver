@@ -67,12 +67,18 @@ static int vidioc_querycap(struct file *file, void *priv,
 {
 	struct si4713_usb_device *radio = video_drvdata(file);
 
+<<<<<<< HEAD
 	strlcpy(v->driver, "radio-usb-si4713", sizeof(v->driver));
 	strlcpy(v->card, "Si4713 FM Transmitter", sizeof(v->card));
 	usb_make_path(radio->usbdev, v->bus_info, sizeof(v->bus_info));
 	v->device_caps = V4L2_CAP_MODULATOR | V4L2_CAP_RDS_OUTPUT;
 	v->capabilities = v->device_caps | V4L2_CAP_DEVICE_CAPS;
 
+=======
+	strscpy(v->driver, "radio-usb-si4713", sizeof(v->driver));
+	strscpy(v->card, "Si4713 FM Transmitter", sizeof(v->card));
+	usb_make_path(radio->usbdev, v->bus_info, sizeof(v->bus_info));
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -417,7 +423,11 @@ static int usb_si4713_probe(struct usb_interface *intf,
 	struct si4713_usb_device *radio;
 	struct i2c_adapter *adapter;
 	struct v4l2_subdev *sd;
+<<<<<<< HEAD
 	int retval = -ENOMEM;
+=======
+	int retval;
+>>>>>>> upstream/android-13
 
 	dev_info(&intf->dev, "Si4713 development board discovered: (%04X:%04X)\n",
 			id->idVendor, id->idProduct);
@@ -467,7 +477,11 @@ static int usb_si4713_probe(struct usb_interface *intf,
 
 	radio->vdev.ctrl_handler = sd->ctrl_handler;
 	radio->v4l2_dev.release = usb_si4713_video_device_release;
+<<<<<<< HEAD
 	strlcpy(radio->vdev.name, radio->v4l2_dev.name,
+=======
+	strscpy(radio->vdev.name, radio->v4l2_dev.name,
+>>>>>>> upstream/android-13
 		sizeof(radio->vdev.name));
 	radio->vdev.v4l2_dev = &radio->v4l2_dev;
 	radio->vdev.fops = &usb_si4713_fops;
@@ -475,6 +489,10 @@ static int usb_si4713_probe(struct usb_interface *intf,
 	radio->vdev.lock = &radio->lock;
 	radio->vdev.release = video_device_release_empty;
 	radio->vdev.vfl_dir = VFL_DIR_TX;
+<<<<<<< HEAD
+=======
+	radio->vdev.device_caps = V4L2_CAP_MODULATOR | V4L2_CAP_RDS_OUTPUT;
+>>>>>>> upstream/android-13
 
 	video_set_drvdata(&radio->vdev, radio);
 

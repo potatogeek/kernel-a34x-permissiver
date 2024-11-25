@@ -34,6 +34,32 @@
 #include "dc.h"
 
 struct dp_mst_stream_allocation_table;
+<<<<<<< HEAD
+=======
+struct aux_payload;
+enum aux_return_code_type;
+
+/*
+ * Allocate memory accessible by the GPU
+ *
+ * frame buffer allocations must be aligned to a 4096-byte boundary
+ *
+ * Returns virtual address, sets addr to physical address
+ */
+void *dm_helpers_allocate_gpu_mem(
+		struct dc_context *ctx,
+		enum dc_gpu_mem_alloc_type type,
+		size_t size,
+		long long *addr);
+
+/*
+ * Free the GPU-accessible memory at the virtual address pvMem
+ */
+void dm_helpers_free_gpu_mem(
+		struct dc_context *ctx,
+		enum dc_gpu_mem_alloc_type type,
+		void *pvMem);
+>>>>>>> upstream/android-13
 
 enum dc_edid_status dm_helpers_parse_edid_caps(
 	struct dc_context *ctx,
@@ -58,6 +84,16 @@ bool dm_helpers_dp_mst_write_payload_allocation_table(
 		bool enable);
 
 /*
+<<<<<<< HEAD
+=======
+ * poll pending down reply
+ */
+void dm_helpers_dp_mst_poll_pending_down_reply(
+	struct dc_context *ctx,
+	const struct dc_link *link);
+
+/*
+>>>>>>> upstream/android-13
  * Clear payload allocation table before enable MST DP link.
  */
 void dm_helpers_dp_mst_clear_payload_allocation_table(
@@ -67,7 +103,11 @@ void dm_helpers_dp_mst_clear_payload_allocation_table(
 /*
  * Polls for ACT (allocation change trigger) handled and
  */
+<<<<<<< HEAD
 bool dm_helpers_dp_mst_poll_for_allocation_change_trigger(
+=======
+enum act_return_status dm_helpers_dp_mst_poll_for_allocation_change_trigger(
+>>>>>>> upstream/android-13
 		struct dc_context *ctx,
 		const struct dc_stream_state *stream);
 /*
@@ -85,7 +125,11 @@ bool dm_helpers_dp_mst_start_top_mgr(
 
 void dm_helpers_dp_mst_stop_top_mgr(
 		struct dc_context *ctx,
+<<<<<<< HEAD
 		const struct dc_link *link);
+=======
+		struct dc_link *link);
+>>>>>>> upstream/android-13
 /**
  * OS specific aux read callback.
  */
@@ -111,9 +155,22 @@ bool dm_helpers_submit_i2c(
 		const struct dc_link *link,
 		struct i2c_command *cmd);
 
+<<<<<<< HEAD
 bool dm_helpers_is_dp_sink_present(
 		struct dc_link *link);
 
+=======
+bool dm_helpers_dp_write_dsc_enable(
+		struct dc_context *ctx,
+		const struct dc_stream_state *stream,
+		bool enable
+);
+bool dm_helpers_is_dp_sink_present(
+		struct dc_link *link);
+
+void dm_helpers_mst_enable_stream_features(const struct dc_stream_state *stream);
+
+>>>>>>> upstream/android-13
 enum dc_edid_status dm_helpers_read_local_edid(
 		struct dc_context *ctx,
 		struct dc_link *link,
@@ -123,4 +180,20 @@ void dm_set_dcn_clocks(
 		struct dc_context *ctx,
 		struct dc_clocks *clks);
 
+<<<<<<< HEAD
+=======
+bool dm_helpers_dmub_outbox_interrupt_control(struct dc_context *ctx, bool enable);
+
+void dm_helpers_smu_timeout(struct dc_context *ctx, unsigned int msg_id, unsigned int param, unsigned int timeout_us);
+
+// 0x1 = Result_OK, 0xFE = Result_UnkmownCmd
+#define IS_SMU_TIMEOUT(result) \
+	(!(result == 0x1 || result == 0xFE))
+
+int dm_helper_dmub_aux_transfer_sync(
+		struct dc_context *ctx,
+		const struct dc_link *link,
+		struct aux_payload *payload,
+		enum aux_return_code_type *operation_result);
+>>>>>>> upstream/android-13
 #endif /* __DM_HELPERS__ */

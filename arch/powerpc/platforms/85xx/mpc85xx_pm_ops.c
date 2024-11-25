@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * MPC85xx PM operators
  *
  * Copyright 2015 Freescale Semiconductor Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) "%s: " fmt, __func__
@@ -21,6 +28,10 @@
 
 static struct ccsr_guts __iomem *guts;
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_FSL_PMC
+>>>>>>> upstream/android-13
 static void mpc85xx_irq_mask(int cpu)
 {
 
@@ -53,6 +64,10 @@ static void mpc85xx_cpu_up_prepare(int cpu)
 {
 
 }
+<<<<<<< HEAD
+=======
+#endif
+>>>>>>> upstream/android-13
 
 static void mpc85xx_freeze_time_base(bool freeze)
 {
@@ -80,10 +95,18 @@ static const struct of_device_id mpc85xx_smp_guts_ids[] = {
 
 static const struct fsl_pm_ops mpc85xx_pm_ops = {
 	.freeze_time_base = mpc85xx_freeze_time_base,
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_FSL_PMC
+>>>>>>> upstream/android-13
 	.irq_mask = mpc85xx_irq_mask,
 	.irq_unmask = mpc85xx_irq_unmask,
 	.cpu_die = mpc85xx_cpu_die,
 	.cpu_up_prepare = mpc85xx_cpu_up_prepare,
+<<<<<<< HEAD
+=======
+#endif
+>>>>>>> upstream/android-13
 };
 
 int __init mpc85xx_setup_pmc(void)
@@ -98,9 +121,15 @@ int __init mpc85xx_setup_pmc(void)
 			pr_err("Could not map guts node address\n");
 			return -ENOMEM;
 		}
+<<<<<<< HEAD
 	}
 
 	qoriq_pm_ops = &mpc85xx_pm_ops;
 
+=======
+		qoriq_pm_ops = &mpc85xx_pm_ops;
+	}
+
+>>>>>>> upstream/android-13
 	return 0;
 }

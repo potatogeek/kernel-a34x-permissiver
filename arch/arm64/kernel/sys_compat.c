@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Based on arch/arm/kernel/sys_arm.c
  *
  * Copyright (C) People who wrote linux/arch/i386/kernel/sys_i386.c
  * Copyright (C) 1995, 1996 Russell King.
  * Copyright (C) 2012 ARM Ltd.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -16,6 +21,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/compat.h>
@@ -52,7 +59,11 @@ __do_compat_cache_op(unsigned long start, unsigned long end)
 			dsb(ish);
 		}
 
+<<<<<<< HEAD
 		ret = __flush_cache_user_range(start, start + chunk);
+=======
+		ret = caches_clean_inval_user_pou(start, start + chunk);
+>>>>>>> upstream/android-13
 		if (ret)
 			return ret;
 
@@ -69,7 +80,11 @@ do_compat_cache_op(unsigned long start, unsigned long end, int flags)
 	if (end < start || flags)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	if (!access_ok(VERIFY_READ, (const void __user *)start, end - start))
+=======
+	if (!access_ok((const void __user *)start, end - start))
+>>>>>>> upstream/android-13
 		return -EFAULT;
 
 	return __do_compat_cache_op(start, end);
@@ -79,7 +94,11 @@ do_compat_cache_op(unsigned long start, unsigned long end, int flags)
  */
 long compat_arm_syscall(struct pt_regs *regs, int scno)
 {
+<<<<<<< HEAD
 	siginfo_t info;
+=======
+	unsigned long addr;
+>>>>>>> upstream/android-13
 
 	switch (scno) {
 	/*
@@ -122,6 +141,7 @@ long compat_arm_syscall(struct pt_regs *regs, int scno)
 		break;
 	}
 
+<<<<<<< HEAD
 	clear_siginfo(&info);
 	info.si_signo = SIGILL;
 	info.si_errno = 0;
@@ -130,5 +150,11 @@ long compat_arm_syscall(struct pt_regs *regs, int scno)
 			 (compat_thumb_mode(regs) ? 2 : 4);
 
 	arm64_notify_die("Oops - bad compat syscall(2)", regs, &info, scno);
+=======
+	addr = instruction_pointer(regs) - (compat_thumb_mode(regs) ? 2 : 4);
+
+	arm64_notify_die("Oops - bad compat syscall(2)", regs,
+			 SIGILL, ILL_ILLTRP, addr, scno);
+>>>>>>> upstream/android-13
 	return 0;
 }

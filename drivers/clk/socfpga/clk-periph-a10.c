@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2015 Altera Corporation. All rights reserved
  *
@@ -12,6 +13,11 @@
  *
  * You should have received a copy of the GNU General Public License along with
  * this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2015 Altera Corporation. All rights reserved
+>>>>>>> upstream/android-13
  */
 #include <linux/slab.h>
 #include <linux/clk-provider.h>
@@ -51,11 +57,20 @@ static u8 clk_periclk_get_parent(struct clk_hw *hwclk)
 {
 	struct socfpga_periph_clk *socfpgaclk = to_socfpga_periph_clk(hwclk);
 	u32 clk_src;
+<<<<<<< HEAD
 
 	clk_src = readl(socfpgaclk->hw.reg);
 	if (streq(hwclk->init->name, SOCFPGA_MPU_FREE_CLK) ||
 	    streq(hwclk->init->name, SOCFPGA_NOC_FREE_CLK) ||
 	    streq(hwclk->init->name, SOCFPGA_SDMMC_FREE_CLK))
+=======
+	const char *name = clk_hw_get_name(hwclk);
+
+	clk_src = readl(socfpgaclk->hw.reg);
+	if (streq(name, SOCFPGA_MPU_FREE_CLK) ||
+	    streq(name, SOCFPGA_NOC_FREE_CLK) ||
+	    streq(name, SOCFPGA_SDMMC_FREE_CLK))
+>>>>>>> upstream/android-13
 		return (clk_src >> CLK_MGR_FREE_SHIFT) &
 			CLK_MGR_FREE_MASK;
 	else
@@ -71,11 +86,19 @@ static __init void __socfpga_periph_init(struct device_node *node,
 	const struct clk_ops *ops)
 {
 	u32 reg;
+<<<<<<< HEAD
 	struct clk *clk;
 	struct socfpga_periph_clk *periph_clk;
 	const char *clk_name = node->name;
 	const char *parent_name[SOCFPGA_MAX_PARENTS];
 	struct clk_init_data init = {};
+=======
+	struct clk_hw *hw_clk;
+	struct socfpga_periph_clk *periph_clk;
+	const char *clk_name = node->name;
+	const char *parent_name[SOCFPGA_MAX_PARENTS];
+	struct clk_init_data init;
+>>>>>>> upstream/android-13
 	int rc;
 	u32 fixed_div;
 	u32 div_reg[3];
@@ -114,12 +137,22 @@ static __init void __socfpga_periph_init(struct device_node *node,
 
 	periph_clk->hw.hw.init = &init;
 
+<<<<<<< HEAD
 	clk = clk_register(NULL, &periph_clk->hw.hw);
 	if (WARN_ON(IS_ERR(clk))) {
 		kfree(periph_clk);
 		return;
 	}
 	rc = of_clk_add_provider(node, of_clk_src_simple_get, clk);
+=======
+	hw_clk = &periph_clk->hw.hw;
+
+	if (clk_hw_register(NULL, hw_clk)) {
+		kfree(periph_clk);
+		return;
+	}
+	rc = of_clk_add_provider(node, of_clk_src_simple_get, hw_clk);
+>>>>>>> upstream/android-13
 	if (rc < 0) {
 		pr_err("Could not register clock provider for node:%s\n",
 		       clk_name);
@@ -129,7 +162,11 @@ static __init void __socfpga_periph_init(struct device_node *node,
 	return;
 
 err_clk:
+<<<<<<< HEAD
 	clk_unregister(clk);
+=======
+	clk_hw_unregister(hw_clk);
+>>>>>>> upstream/android-13
 }
 
 void __init socfpga_a10_periph_init(struct device_node *node)

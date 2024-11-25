@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Helper module for board specific I2C bus registration
  *
  * Copyright (C) 2009 Nokia Corporation.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -17,6 +22,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "soc.h"
@@ -53,6 +60,7 @@ int omap_i2c_reset(struct omap_hwmod *oh)
 	u16 i2c_con;
 	int c = 0;
 
+<<<<<<< HEAD
 	if (oh->class->rev == OMAP_I2C_IP_VERSION_2) {
 		i2c_con = OMAP4_I2C_CON_OFFSET;
 	} else if (oh->class->rev == OMAP_I2C_IP_VERSION_1) {
@@ -62,6 +70,12 @@ int omap_i2c_reset(struct omap_hwmod *oh)
 		     oh->name);
 		return -EINVAL;
 	}
+=======
+	if (soc_is_omap24xx() || soc_is_omap34xx() || soc_is_am35xx())
+		i2c_con = OMAP2_I2C_CON_OFFSET;
+	else
+		i2c_con = OMAP4_I2C_CON_OFFSET;
+>>>>>>> upstream/android-13
 
 	/* Disable I2C */
 	v = omap_hwmod_read(oh, i2c_con);

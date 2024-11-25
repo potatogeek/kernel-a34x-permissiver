@@ -9,10 +9,14 @@
  *  http://people.redhat.com/mingo/cfs-scheduler/tools/pipe-test-1m.c
  * Ported to perf by Hitoshi Mitake <mitake@dcl.info.waseda.ac.jp>
  */
+<<<<<<< HEAD
 #include "../perf.h"
 #include "../util/util.h"
 #include <subcmd/parse-options.h>
 #include "../builtin.h"
+=======
+#include <subcmd/parse-options.h>
+>>>>>>> upstream/android-13
 #include "bench.h"
 
 #include <unistd.h>
@@ -159,7 +163,11 @@ int bench_sched_pipe(int argc, const char **argv)
 		result_usec += diff.tv_usec;
 
 		printf(" %14s: %lu.%03lu [sec]\n\n", "Total time",
+<<<<<<< HEAD
 		       diff.tv_sec,
+=======
+		       (unsigned long) diff.tv_sec,
+>>>>>>> upstream/android-13
 		       (unsigned long) (diff.tv_usec / USEC_PER_MSEC));
 
 		printf(" %14lf usecs/op\n",
@@ -171,7 +179,11 @@ int bench_sched_pipe(int argc, const char **argv)
 
 	case BENCH_FORMAT_SIMPLE:
 		printf("%lu.%03lu\n",
+<<<<<<< HEAD
 		       diff.tv_sec,
+=======
+		       (unsigned long) diff.tv_sec,
+>>>>>>> upstream/android-13
 		       (unsigned long) (diff.tv_usec / USEC_PER_MSEC));
 		break;
 

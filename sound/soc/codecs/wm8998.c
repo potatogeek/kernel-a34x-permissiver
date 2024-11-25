@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * wm8998.c -- ALSA SoC Audio driver for WM8998 codecs
  *
  * Copyright 2015 Cirrus Logic, Inc.
  *
  * Author: Richard Fitzgerald <rf@opensource.wolfsonmicro.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -46,7 +53,11 @@ static int wm8998_asrc_ev(struct snd_soc_dapm_widget *w,
 
 	switch (event) {
 	case SND_SOC_DAPM_PRE_PMU:
+<<<<<<< HEAD
 		val = snd_soc_component_read32(component, ARIZONA_ASRC_RATE1);
+=======
+		val = snd_soc_component_read(component, ARIZONA_ASRC_RATE1);
+>>>>>>> upstream/android-13
 		val &= ARIZONA_ASRC_RATE1_MASK;
 		val >>= ARIZONA_ASRC_RATE1_SHIFT;
 
@@ -54,13 +65,21 @@ static int wm8998_asrc_ev(struct snd_soc_dapm_widget *w,
 		case 0:
 		case 1:
 		case 2:
+<<<<<<< HEAD
 			val = snd_soc_component_read32(component,
+=======
+			val = snd_soc_component_read(component,
+>>>>>>> upstream/android-13
 					   ARIZONA_SAMPLE_RATE_1 + val);
 			if (val >= 0x11) {
 				dev_warn(component->dev,
 					 "Unsupported ASRC rate1 (%s)\n",
 					 arizona_sample_rate_val_to_name(val));
+<<<<<<< HEAD
 			return -EINVAL;
+=======
+				return -EINVAL;
+>>>>>>> upstream/android-13
 			}
 			break;
 		default:
@@ -70,7 +89,11 @@ static int wm8998_asrc_ev(struct snd_soc_dapm_widget *w,
 			return -EINVAL;
 		}
 
+<<<<<<< HEAD
 		val = snd_soc_component_read32(component, ARIZONA_ASRC_RATE2);
+=======
+		val = snd_soc_component_read(component, ARIZONA_ASRC_RATE2);
+>>>>>>> upstream/android-13
 		val &= ARIZONA_ASRC_RATE2_MASK;
 		val >>= ARIZONA_ASRC_RATE2_SHIFT;
 
@@ -78,7 +101,11 @@ static int wm8998_asrc_ev(struct snd_soc_dapm_widget *w,
 		case 8:
 		case 9:
 			val -= 0x8;
+<<<<<<< HEAD
 			val = snd_soc_component_read32(component,
+=======
+			val = snd_soc_component_read(component,
+>>>>>>> upstream/android-13
 					   ARIZONA_ASYNC_SAMPLE_RATE_1 + val);
 			if (val >= 0x11) {
 				dev_warn(component->dev,
@@ -626,6 +653,7 @@ SND_SOC_DAPM_MUX("AEC2 Loopback", ARIZONA_DAC_AEC_CONTROL_2,
 
 SND_SOC_DAPM_AIF_OUT("AIF1TX1", NULL, 0,
 		     ARIZONA_AIF1_TX_ENABLES, ARIZONA_AIF1TX1_ENA_SHIFT, 0),
+<<<<<<< HEAD
 SND_SOC_DAPM_AIF_OUT("AIF1TX2", NULL, 0,
 		     ARIZONA_AIF1_TX_ENABLES, ARIZONA_AIF1TX2_ENA_SHIFT, 0),
 SND_SOC_DAPM_AIF_OUT("AIF1TX3", NULL, 0,
@@ -635,10 +663,22 @@ SND_SOC_DAPM_AIF_OUT("AIF1TX4", NULL, 0,
 SND_SOC_DAPM_AIF_OUT("AIF1TX5", NULL, 0,
 		     ARIZONA_AIF1_TX_ENABLES, ARIZONA_AIF1TX5_ENA_SHIFT, 0),
 SND_SOC_DAPM_AIF_OUT("AIF1TX6", NULL, 0,
+=======
+SND_SOC_DAPM_AIF_OUT("AIF1TX2", NULL, 1,
+		     ARIZONA_AIF1_TX_ENABLES, ARIZONA_AIF1TX2_ENA_SHIFT, 0),
+SND_SOC_DAPM_AIF_OUT("AIF1TX3", NULL, 2,
+		     ARIZONA_AIF1_TX_ENABLES, ARIZONA_AIF1TX3_ENA_SHIFT, 0),
+SND_SOC_DAPM_AIF_OUT("AIF1TX4", NULL, 3,
+		     ARIZONA_AIF1_TX_ENABLES, ARIZONA_AIF1TX4_ENA_SHIFT, 0),
+SND_SOC_DAPM_AIF_OUT("AIF1TX5", NULL, 4,
+		     ARIZONA_AIF1_TX_ENABLES, ARIZONA_AIF1TX5_ENA_SHIFT, 0),
+SND_SOC_DAPM_AIF_OUT("AIF1TX6", NULL, 5,
+>>>>>>> upstream/android-13
 		     ARIZONA_AIF1_TX_ENABLES, ARIZONA_AIF1TX6_ENA_SHIFT, 0),
 
 SND_SOC_DAPM_AIF_IN("AIF1RX1", NULL, 0,
 		    ARIZONA_AIF1_RX_ENABLES, ARIZONA_AIF1RX1_ENA_SHIFT, 0),
+<<<<<<< HEAD
 SND_SOC_DAPM_AIF_IN("AIF1RX2", NULL, 0,
 		    ARIZONA_AIF1_RX_ENABLES, ARIZONA_AIF1RX2_ENA_SHIFT, 0),
 SND_SOC_DAPM_AIF_IN("AIF1RX3", NULL, 0,
@@ -648,10 +688,22 @@ SND_SOC_DAPM_AIF_IN("AIF1RX4", NULL, 0,
 SND_SOC_DAPM_AIF_IN("AIF1RX5", NULL, 0,
 		    ARIZONA_AIF1_RX_ENABLES, ARIZONA_AIF1RX5_ENA_SHIFT, 0),
 SND_SOC_DAPM_AIF_IN("AIF1RX6", NULL, 0,
+=======
+SND_SOC_DAPM_AIF_IN("AIF1RX2", NULL, 1,
+		    ARIZONA_AIF1_RX_ENABLES, ARIZONA_AIF1RX2_ENA_SHIFT, 0),
+SND_SOC_DAPM_AIF_IN("AIF1RX3", NULL, 2,
+		    ARIZONA_AIF1_RX_ENABLES, ARIZONA_AIF1RX3_ENA_SHIFT, 0),
+SND_SOC_DAPM_AIF_IN("AIF1RX4", NULL, 3,
+		    ARIZONA_AIF1_RX_ENABLES, ARIZONA_AIF1RX4_ENA_SHIFT, 0),
+SND_SOC_DAPM_AIF_IN("AIF1RX5", NULL, 4,
+		    ARIZONA_AIF1_RX_ENABLES, ARIZONA_AIF1RX5_ENA_SHIFT, 0),
+SND_SOC_DAPM_AIF_IN("AIF1RX6", NULL, 5,
+>>>>>>> upstream/android-13
 		    ARIZONA_AIF1_RX_ENABLES, ARIZONA_AIF1RX6_ENA_SHIFT, 0),
 
 SND_SOC_DAPM_AIF_OUT("AIF2TX1", NULL, 0,
 		     ARIZONA_AIF2_TX_ENABLES, ARIZONA_AIF2TX1_ENA_SHIFT, 0),
+<<<<<<< HEAD
 SND_SOC_DAPM_AIF_OUT("AIF2TX2", NULL, 0,
 		     ARIZONA_AIF2_TX_ENABLES, ARIZONA_AIF2TX2_ENA_SHIFT, 0),
 SND_SOC_DAPM_AIF_OUT("AIF2TX3", NULL, 0,
@@ -661,10 +713,22 @@ SND_SOC_DAPM_AIF_OUT("AIF2TX4", NULL, 0,
 SND_SOC_DAPM_AIF_OUT("AIF2TX5", NULL, 0,
 		     ARIZONA_AIF2_TX_ENABLES, ARIZONA_AIF2TX5_ENA_SHIFT, 0),
 SND_SOC_DAPM_AIF_OUT("AIF2TX6", NULL, 0,
+=======
+SND_SOC_DAPM_AIF_OUT("AIF2TX2", NULL, 1,
+		     ARIZONA_AIF2_TX_ENABLES, ARIZONA_AIF2TX2_ENA_SHIFT, 0),
+SND_SOC_DAPM_AIF_OUT("AIF2TX3", NULL, 2,
+		     ARIZONA_AIF2_TX_ENABLES, ARIZONA_AIF2TX3_ENA_SHIFT, 0),
+SND_SOC_DAPM_AIF_OUT("AIF2TX4", NULL, 3,
+		     ARIZONA_AIF2_TX_ENABLES, ARIZONA_AIF2TX4_ENA_SHIFT, 0),
+SND_SOC_DAPM_AIF_OUT("AIF2TX5", NULL, 4,
+		     ARIZONA_AIF2_TX_ENABLES, ARIZONA_AIF2TX5_ENA_SHIFT, 0),
+SND_SOC_DAPM_AIF_OUT("AIF2TX6", NULL, 5,
+>>>>>>> upstream/android-13
 		     ARIZONA_AIF2_TX_ENABLES, ARIZONA_AIF2TX6_ENA_SHIFT, 0),
 
 SND_SOC_DAPM_AIF_IN("AIF2RX1", NULL, 0,
 		    ARIZONA_AIF2_RX_ENABLES, ARIZONA_AIF2RX1_ENA_SHIFT, 0),
+<<<<<<< HEAD
 SND_SOC_DAPM_AIF_IN("AIF2RX2", NULL, 0,
 		    ARIZONA_AIF2_RX_ENABLES, ARIZONA_AIF2RX2_ENA_SHIFT, 0),
 SND_SOC_DAPM_AIF_IN("AIF2RX3", NULL, 0,
@@ -674,11 +738,23 @@ SND_SOC_DAPM_AIF_IN("AIF2RX4", NULL, 0,
 SND_SOC_DAPM_AIF_IN("AIF2RX5", NULL, 0,
 		    ARIZONA_AIF2_RX_ENABLES, ARIZONA_AIF2RX5_ENA_SHIFT, 0),
 SND_SOC_DAPM_AIF_IN("AIF2RX6", NULL, 0,
+=======
+SND_SOC_DAPM_AIF_IN("AIF2RX2", NULL, 1,
+		    ARIZONA_AIF2_RX_ENABLES, ARIZONA_AIF2RX2_ENA_SHIFT, 0),
+SND_SOC_DAPM_AIF_IN("AIF2RX3", NULL, 2,
+		    ARIZONA_AIF2_RX_ENABLES, ARIZONA_AIF2RX3_ENA_SHIFT, 0),
+SND_SOC_DAPM_AIF_IN("AIF2RX4", NULL, 3,
+		    ARIZONA_AIF2_RX_ENABLES, ARIZONA_AIF2RX4_ENA_SHIFT, 0),
+SND_SOC_DAPM_AIF_IN("AIF2RX5", NULL, 4,
+		    ARIZONA_AIF2_RX_ENABLES, ARIZONA_AIF2RX5_ENA_SHIFT, 0),
+SND_SOC_DAPM_AIF_IN("AIF2RX6", NULL, 5,
+>>>>>>> upstream/android-13
 		    ARIZONA_AIF2_RX_ENABLES, ARIZONA_AIF2RX6_ENA_SHIFT, 0),
 
 SND_SOC_DAPM_AIF_IN("SLIMRX1", NULL, 0,
 		    ARIZONA_SLIMBUS_RX_CHANNEL_ENABLE,
 		    ARIZONA_SLIMRX1_ENA_SHIFT, 0),
+<<<<<<< HEAD
 SND_SOC_DAPM_AIF_IN("SLIMRX2", NULL, 0,
 		    ARIZONA_SLIMBUS_RX_CHANNEL_ENABLE,
 		    ARIZONA_SLIMRX2_ENA_SHIFT, 0),
@@ -686,12 +762,22 @@ SND_SOC_DAPM_AIF_IN("SLIMRX3", NULL, 0,
 		    ARIZONA_SLIMBUS_RX_CHANNEL_ENABLE,
 		    ARIZONA_SLIMRX3_ENA_SHIFT, 0),
 SND_SOC_DAPM_AIF_IN("SLIMRX4", NULL, 0,
+=======
+SND_SOC_DAPM_AIF_IN("SLIMRX2", NULL, 1,
+		    ARIZONA_SLIMBUS_RX_CHANNEL_ENABLE,
+		    ARIZONA_SLIMRX2_ENA_SHIFT, 0),
+SND_SOC_DAPM_AIF_IN("SLIMRX3", NULL, 2,
+		    ARIZONA_SLIMBUS_RX_CHANNEL_ENABLE,
+		    ARIZONA_SLIMRX3_ENA_SHIFT, 0),
+SND_SOC_DAPM_AIF_IN("SLIMRX4", NULL, 3,
+>>>>>>> upstream/android-13
 		    ARIZONA_SLIMBUS_RX_CHANNEL_ENABLE,
 		    ARIZONA_SLIMRX4_ENA_SHIFT, 0),
 
 SND_SOC_DAPM_AIF_OUT("SLIMTX1", NULL, 0,
 		     ARIZONA_SLIMBUS_TX_CHANNEL_ENABLE,
 		     ARIZONA_SLIMTX1_ENA_SHIFT, 0),
+<<<<<<< HEAD
 SND_SOC_DAPM_AIF_OUT("SLIMTX2", NULL, 0,
 		     ARIZONA_SLIMBUS_TX_CHANNEL_ENABLE,
 		     ARIZONA_SLIMTX2_ENA_SHIFT, 0),
@@ -705,17 +791,40 @@ SND_SOC_DAPM_AIF_OUT("SLIMTX5", NULL, 0,
 		     ARIZONA_SLIMBUS_TX_CHANNEL_ENABLE,
 		     ARIZONA_SLIMTX5_ENA_SHIFT, 0),
 SND_SOC_DAPM_AIF_OUT("SLIMTX6", NULL, 0,
+=======
+SND_SOC_DAPM_AIF_OUT("SLIMTX2", NULL, 1,
+		     ARIZONA_SLIMBUS_TX_CHANNEL_ENABLE,
+		     ARIZONA_SLIMTX2_ENA_SHIFT, 0),
+SND_SOC_DAPM_AIF_OUT("SLIMTX3", NULL, 2,
+		     ARIZONA_SLIMBUS_TX_CHANNEL_ENABLE,
+		     ARIZONA_SLIMTX3_ENA_SHIFT, 0),
+SND_SOC_DAPM_AIF_OUT("SLIMTX4", NULL, 3,
+		     ARIZONA_SLIMBUS_TX_CHANNEL_ENABLE,
+		     ARIZONA_SLIMTX4_ENA_SHIFT, 0),
+SND_SOC_DAPM_AIF_OUT("SLIMTX5", NULL, 4,
+		     ARIZONA_SLIMBUS_TX_CHANNEL_ENABLE,
+		     ARIZONA_SLIMTX5_ENA_SHIFT, 0),
+SND_SOC_DAPM_AIF_OUT("SLIMTX6", NULL, 5,
+>>>>>>> upstream/android-13
 		     ARIZONA_SLIMBUS_TX_CHANNEL_ENABLE,
 		     ARIZONA_SLIMTX6_ENA_SHIFT, 0),
 
 SND_SOC_DAPM_AIF_OUT("AIF3TX1", NULL, 0,
 		     ARIZONA_AIF3_TX_ENABLES, ARIZONA_AIF3TX1_ENA_SHIFT, 0),
+<<<<<<< HEAD
 SND_SOC_DAPM_AIF_OUT("AIF3TX2", NULL, 0,
+=======
+SND_SOC_DAPM_AIF_OUT("AIF3TX2", NULL, 1,
+>>>>>>> upstream/android-13
 		     ARIZONA_AIF3_TX_ENABLES, ARIZONA_AIF3TX2_ENA_SHIFT, 0),
 
 SND_SOC_DAPM_AIF_IN("AIF3RX1", NULL, 0,
 		    ARIZONA_AIF3_RX_ENABLES, ARIZONA_AIF3RX1_ENA_SHIFT, 0),
+<<<<<<< HEAD
 SND_SOC_DAPM_AIF_IN("AIF3RX2", NULL, 0,
+=======
+SND_SOC_DAPM_AIF_IN("AIF3RX2", NULL, 1,
+>>>>>>> upstream/android-13
 		    ARIZONA_AIF3_RX_ENABLES, ARIZONA_AIF3RX2_ENA_SHIFT, 0),
 
 SND_SOC_DAPM_PGA_E("OUT1L", SND_SOC_NOPM,
@@ -1164,8 +1273,13 @@ static struct snd_soc_dai_driver wm8998_dai[] = {
 			 .formats = WM8998_FORMATS,
 		 },
 		.ops = &arizona_dai_ops,
+<<<<<<< HEAD
 		.symmetric_rates = 1,
 		.symmetric_samplebits = 1,
+=======
+		.symmetric_rate = 1,
+		.symmetric_sample_bits = 1,
+>>>>>>> upstream/android-13
 	},
 	{
 		.name = "wm8998-aif2",
@@ -1186,8 +1300,13 @@ static struct snd_soc_dai_driver wm8998_dai[] = {
 			 .formats = WM8998_FORMATS,
 		 },
 		.ops = &arizona_dai_ops,
+<<<<<<< HEAD
 		.symmetric_rates = 1,
 		.symmetric_samplebits = 1,
+=======
+		.symmetric_rate = 1,
+		.symmetric_sample_bits = 1,
+>>>>>>> upstream/android-13
 	},
 	{
 		.name = "wm8998-aif3",
@@ -1208,8 +1327,13 @@ static struct snd_soc_dai_driver wm8998_dai[] = {
 			 .formats = WM8998_FORMATS,
 		 },
 		.ops = &arizona_dai_ops,
+<<<<<<< HEAD
 		.symmetric_rates = 1,
 		.symmetric_samplebits = 1,
+=======
+		.symmetric_rate = 1,
+		.symmetric_sample_bits = 1,
+>>>>>>> upstream/android-13
 	},
 	{
 		.name = "wm8998-slim1",
@@ -1319,6 +1443,10 @@ static const struct snd_soc_component_driver soc_component_dev_wm8998 = {
 	.remove			= wm8998_component_remove,
 	.set_sysclk		= arizona_set_sysclk,
 	.set_pll		= wm8998_set_fll,
+<<<<<<< HEAD
+=======
+	.set_jack		= arizona_jack_set_jack,
+>>>>>>> upstream/android-13
 	.controls		= wm8998_snd_controls,
 	.num_controls		= ARRAY_SIZE(wm8998_snd_controls),
 	.dapm_widgets		= wm8998_dapm_widgets,
@@ -1353,6 +1481,14 @@ static int wm8998_probe(struct platform_device *pdev)
 	wm8998->core.arizona = arizona;
 	wm8998->core.num_inputs = 3;	/* IN1L, IN1R, IN2 */
 
+<<<<<<< HEAD
+=======
+	/* This may return -EPROBE_DEFER, so do this early on */
+	ret = arizona_jack_codec_dev_probe(&wm8998->core, &pdev->dev);
+	if (ret)
+		return ret;
+
+>>>>>>> upstream/android-13
 	for (i = 0; i < ARRAY_SIZE(wm8998->fll); i++)
 		wm8998->fll[i].vco_mult = 1;
 
@@ -1395,6 +1531,10 @@ err_spk_irqs:
 	arizona_free_spk_irqs(arizona);
 err_pm_disable:
 	pm_runtime_disable(&pdev->dev);
+<<<<<<< HEAD
+=======
+	arizona_jack_codec_dev_remove(&wm8998->core);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -1408,6 +1548,11 @@ static int wm8998_remove(struct platform_device *pdev)
 
 	arizona_free_spk_irqs(arizona);
 
+<<<<<<< HEAD
+=======
+	arizona_jack_codec_dev_remove(&wm8998->core);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 

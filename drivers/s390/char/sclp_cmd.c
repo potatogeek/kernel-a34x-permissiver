@@ -20,13 +20,20 @@
 #include <linux/mmzone.h>
 #include <linux/memory.h>
 #include <linux/module.h>
+<<<<<<< HEAD
 #include <linux/platform_device.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/ctl_reg.h>
 #include <asm/chpid.h>
 #include <asm/setup.h>
 #include <asm/page.h>
 #include <asm/sclp.h>
 #include <asm/numa.h>
+<<<<<<< HEAD
+=======
+#include <asm/facility.h>
+>>>>>>> upstream/android-13
 
 #include "sclp.h"
 
@@ -87,14 +94,27 @@ out:
 int _sclp_get_core_info(struct sclp_core_info *info)
 {
 	int rc;
+<<<<<<< HEAD
+=======
+	int length = test_facility(140) ? EXT_SCCB_READ_CPU : PAGE_SIZE;
+>>>>>>> upstream/android-13
 	struct read_cpu_info_sccb *sccb;
 
 	if (!SCLP_HAS_CPU_INFO)
 		return -EOPNOTSUPP;
+<<<<<<< HEAD
 	sccb = (void *) get_zeroed_page(GFP_KERNEL | GFP_DMA);
 	if (!sccb)
 		return -ENOMEM;
 	sccb->header.length = sizeof(*sccb);
+=======
+
+	sccb = (void *)__get_free_pages(GFP_KERNEL | GFP_DMA | __GFP_ZERO, get_order(length));
+	if (!sccb)
+		return -ENOMEM;
+	sccb->header.length = length;
+	sccb->header.control_mask[2] = 0x80;
+>>>>>>> upstream/android-13
 	rc = sclp_sync_request_timeout(SCLP_CMDW_READ_CPU_INFO, sccb,
 				       SCLP_QUEUE_INTERVAL);
 	if (rc)
@@ -107,7 +127,11 @@ int _sclp_get_core_info(struct sclp_core_info *info)
 	}
 	sclp_fill_core_info(info, sccb);
 out:
+<<<<<<< HEAD
 	free_page((unsigned long) sccb);
+=======
+	free_pages((unsigned long) sccb, get_order(length));
+>>>>>>> upstream/android-13
 	return rc;
 }
 
@@ -164,7 +188,10 @@ static DEFINE_MUTEX(sclp_mem_mutex);
 static LIST_HEAD(sclp_mem_list);
 static u8 sclp_max_storage_id;
 static DECLARE_BITMAP(sclp_storage_ids, 256);
+<<<<<<< HEAD
 static int sclp_mem_state_changed;
+=======
+>>>>>>> upstream/android-13
 
 struct memory_increment {
 	struct list_head list;
@@ -355,8 +382,11 @@ static int sclp_mem_notifier(struct notifier_block *nb,
 		rc = -EINVAL;
 		break;
 	}
+<<<<<<< HEAD
 	if (!rc)
 		sclp_mem_state_changed = 1;
+=======
+>>>>>>> upstream/android-13
 	mutex_unlock(&sclp_mem_mutex);
 	return rc ? NOTIFY_BAD : NOTIFY_OK;
 }
@@ -397,16 +427,27 @@ static void __init add_memory_merged(u16 rn)
 		goto skip_add;
 	if (start + size > VMEM_MAX_PHYS)
 		size = VMEM_MAX_PHYS - start;
+<<<<<<< HEAD
 	if (memory_end_set && (start >= memory_end))
 		goto skip_add;
 	if (memory_end_set && (start + size > memory_end))
 		size = memory_end - start;
+=======
+	if (start >= ident_map_size)
+		goto skip_add;
+	if (start + size > ident_map_size)
+		size = ident_map_size - start;
+>>>>>>> upstream/android-13
 	block_size = memory_block_size_bytes();
 	align_to_block_size(&start, &size, block_size);
 	if (!size)
 		goto skip_add;
 	for (addr = start; addr < start + size; addr += block_size)
+<<<<<<< HEAD
 		add_memory(numa_pfn_to_nid(PFN_DOWN(addr)), addr, block_size);
+=======
+		add_memory(0, addr, block_size, MHP_NONE);
+>>>>>>> upstream/android-13
 skip_add:
 	first_rn = rn;
 	num = 1;
@@ -452,6 +493,7 @@ static void __init insert_increment(u16 rn, int standby, int assigned)
 	list_add(&new_incr->list, prev);
 }
 
+<<<<<<< HEAD
 static int sclp_mem_freeze(struct device *dev)
 {
 	if (!sclp_mem_state_changed)
@@ -487,6 +529,14 @@ static int __init sclp_detect_standby_memory(void)
 	int i, id, assigned, rc;
 
 	if (OLDMEM_BASE) /* No standby memory in kdump mode */
+=======
+static int __init sclp_detect_standby_memory(void)
+{
+	struct read_storage_sccb *sccb;
+	int i, id, assigned, rc;
+
+	if (oldmem_data.start) /* No standby memory in kdump mode */
+>>>>>>> upstream/android-13
 		return 0;
 	if ((sclp.facilities & 0xe00000000000ULL) != 0xe00000000000ULL)
 		return 0;
@@ -498,7 +548,11 @@ static int __init sclp_detect_standby_memory(void)
 	for (id = 0; id <= sclp_max_storage_id; id++) {
 		memset(sccb, 0, PAGE_SIZE);
 		sccb->header.length = PAGE_SIZE;
+<<<<<<< HEAD
 		rc = sclp_sync_request(0x00040001 | id << 8, sccb);
+=======
+		rc = sclp_sync_request(SCLP_CMDW_READ_STORAGE_INFO | id << 8, sccb);
+>>>>>>> upstream/android-13
 		if (rc)
 			goto out;
 		switch (sccb->header.response_code) {
@@ -535,6 +589,7 @@ static int __init sclp_detect_standby_memory(void)
 	rc = register_memory_notifier(&sclp_mem_nb);
 	if (rc)
 		goto out;
+<<<<<<< HEAD
 	rc = platform_driver_register(&sclp_mem_pdrv);
 	if (rc)
 		goto out;
@@ -546,6 +601,9 @@ static int __init sclp_detect_standby_memory(void)
 	goto out;
 out_driver:
 	platform_driver_unregister(&sclp_mem_pdrv);
+=======
+	sclp_add_standby_memory();
+>>>>>>> upstream/android-13
 out:
 	free_page((unsigned long) sccb);
 	return rc;

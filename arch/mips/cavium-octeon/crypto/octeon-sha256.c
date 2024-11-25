@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Cryptographic API.
  *
@@ -11,6 +15,7 @@
  * Copyright (c) Andrew McDonald <andrew@mcdonald.org.uk>
  * Copyright (c) 2002 James Morris <jmorris@intercode.com.au>
  * SHA224 Support Copyright 2007 Intel Corporation <jonathan.lynch@intel.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -20,6 +25,12 @@
 
 #include <linux/mm.h>
 #include <crypto/sha.h>
+=======
+ */
+
+#include <linux/mm.h>
+#include <crypto/sha2.h>
+>>>>>>> upstream/android-13
 #include <linux/init.h>
 #include <linux/types.h>
 #include <linux/module.h>

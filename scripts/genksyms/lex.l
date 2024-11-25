@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* Lexical analysis for genksyms.
    Copyright 1996, 1997 Linux International.
 
@@ -20,6 +21,18 @@
    along with this program; if not, write to the Free Software Foundation,
    Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.  */
 
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Lexical analysis for genksyms.
+ * Copyright 1996, 1997 Linux International.
+ *
+ * New implementation contributed by Richard Henderson <rth@tamu.edu>
+ * Based on original work by Bjorn Ekwall <bj0rn@blox.se>
+ *
+ * Taken from Linux modutils 2.4.22.
+ */
+>>>>>>> upstream/android-13
 
 %{
 
@@ -130,13 +143,21 @@ yylex(void)
 {
   static enum {
     ST_NOTSTARTED, ST_NORMAL, ST_ATTRIBUTE, ST_ASM, ST_TYPEOF, ST_TYPEOF_1,
+<<<<<<< HEAD
     ST_BRACKET, ST_BRACE, ST_EXPRESSION,
     ST_TABLE_1, ST_TABLE_2, ST_TABLE_3, ST_TABLE_4,
     ST_TABLE_5, ST_TABLE_6
+=======
+    ST_BRACKET, ST_BRACE, ST_EXPRESSION, ST_STATIC_ASSERT,
+>>>>>>> upstream/android-13
   } lexstate = ST_NOTSTARTED;
 
   static int suppress_type_lookup, dont_want_brace_phrase;
   static struct string_list *next_node;
+<<<<<<< HEAD
+=======
+  static char *source_file;
+>>>>>>> upstream/android-13
 
   int token, count = 0;
   struct string_list *cur_node;
@@ -213,6 +234,14 @@ repeat:
 
 		  case EXPORT_SYMBOL_KEYW:
 		      goto fini;
+<<<<<<< HEAD
+=======
+
+		  case STATIC_ASSERT_KEYW:
+		    lexstate = ST_STATIC_ASSERT;
+		    count = 0;
+		    goto repeat;
+>>>>>>> upstream/android-13
 		  }
 	      }
 	    if (!suppress_type_lookup)
@@ -242,7 +271,10 @@ repeat:
 	  lexstate = ST_EXPRESSION;
 	  break;
 
+<<<<<<< HEAD
 	case DOTS:
+=======
+>>>>>>> upstream/android-13
 	default:
 	  APP;
 	  break;
@@ -413,6 +445,7 @@ repeat:
 	}
       break;
 
+<<<<<<< HEAD
     case ST_TABLE_1:
       goto repeat;
 
@@ -462,6 +495,25 @@ repeat:
 	default:
 	  APP;
 	  break;
+=======
+    case ST_STATIC_ASSERT:
+      APP;
+      switch (token)
+	{
+	case '(':
+	  ++count;
+	  goto repeat;
+	case ')':
+	  if (--count == 0)
+	    {
+	      lexstate = ST_NORMAL;
+	      token = STATIC_ASSERT_PHRASE;
+	      break;
+	    }
+	  goto repeat;
+	default:
+	  goto repeat;
+>>>>>>> upstream/android-13
 	}
       break;
 

@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  Routines for control of the AK4114 via I2C and 4-wire serial interface
  *  IEC958 (S/PDIF) receiver by Asahi Kasei
  *  Copyright (c) by Jaroslav Kysela <perex@perex.cz>
+<<<<<<< HEAD
  *
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -18,6 +23,8 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/slab.h>
@@ -86,7 +93,11 @@ int snd_ak4114_create(struct snd_card *card,
 	struct ak4114 *chip;
 	int err = 0;
 	unsigned char reg;
+<<<<<<< HEAD
 	static struct snd_device_ops ops = {
+=======
+	static const struct snd_device_ops ops = {
+>>>>>>> upstream/android-13
 		.dev_free =     snd_ak4114_dev_free,
 	};
 
@@ -112,7 +123,12 @@ int snd_ak4114_create(struct snd_card *card,
 	chip->rcs0 = reg_read(chip, AK4114_REG_RCS0) & ~(AK4114_QINT | AK4114_CINT);
 	chip->rcs1 = reg_read(chip, AK4114_REG_RCS1);
 
+<<<<<<< HEAD
 	if ((err = snd_device_new(card, SNDRV_DEV_CODEC, chip, &ops)) < 0)
+=======
+	err = snd_device_new(card, SNDRV_DEV_CODEC, chip, &ops);
+	if (err < 0)
+>>>>>>> upstream/android-13
 		goto __fail;
 
 	if (r_ak4114)
@@ -333,7 +349,11 @@ static int snd_ak4114_spdif_qget(struct snd_kcontrol *kcontrol,
 }
 
 /* Don't forget to change AK4114_CONTROLS define!!! */
+<<<<<<< HEAD
 static struct snd_kcontrol_new snd_ak4114_iec958_controls[] = {
+=======
+static const struct snd_kcontrol_new snd_ak4114_iec958_controls[] = {
+>>>>>>> upstream/android-13
 {
 	.iface =	SNDRV_CTL_ELEM_IFACE_PCM,
 	.name =		"IEC958 Parity Errors",
@@ -465,9 +485,14 @@ static void snd_ak4114_proc_regs_read(struct snd_info_entry *entry,
 
 static void snd_ak4114_proc_init(struct ak4114 *ak4114)
 {
+<<<<<<< HEAD
 	struct snd_info_entry *entry;
 	if (!snd_card_proc_new(ak4114->card, "ak4114", &entry))
 		snd_info_set_text_ops(entry, ak4114, snd_ak4114_proc_regs_read);
+=======
+	snd_card_ro_proc_new(ak4114->card, "ak4114", ak4114,
+			     snd_ak4114_proc_regs_read);
+>>>>>>> upstream/android-13
 }
 
 int snd_ak4114_build(struct ak4114 *ak4114,

@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * Host AP crypto routines
  *
  * Copyright (c) 2002-2003, Jouni Malinen <jkmaline@cc.hut.fi>
  * Portions Copyright (C) 2004, Intel Corporation <jketreno@linux.intel.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation. See README and COPYING for
  * more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -181,7 +188,11 @@ struct ieee80211_crypto_ops *ieee80211_get_crypto_ops(const char *name)
 }
 
 
+<<<<<<< HEAD
 static void *ieee80211_crypt_null_init(int keyidx) { return (void *) 1; }
+=======
+static void *ieee80211_crypt_null_init(int keyidx) { return (void *)1; }
+>>>>>>> upstream/android-13
 static void ieee80211_crypt_null_deinit(void *priv) {}
 
 static struct ieee80211_crypto_ops ieee80211_crypt_null = {

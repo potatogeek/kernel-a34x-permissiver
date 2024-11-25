@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * (C) 2012 Pablo Neira Ayuso <pablo@netfilter.org>
  *
@@ -5,6 +6,12 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation (or any later at your option).
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * (C) 2012 Pablo Neira Ayuso <pablo@netfilter.org>
+ *
+>>>>>>> upstream/android-13
  * This software has been sponsored by Vyatta Inc. <http://www.vyatta.com>
  */
 #include <linux/init.h>
@@ -78,8 +85,13 @@ nfnl_cthelper_parse_tuple(struct nf_conntrack_tuple *tuple,
 	int err;
 	struct nlattr *tb[NFCTH_TUPLE_MAX+1];
 
+<<<<<<< HEAD
 	err = nla_parse_nested(tb, NFCTH_TUPLE_MAX, attr,
 			       nfnl_cthelper_tuple_pol, NULL);
+=======
+	err = nla_parse_nested_deprecated(tb, NFCTH_TUPLE_MAX, attr,
+					  nfnl_cthelper_tuple_pol, NULL);
+>>>>>>> upstream/android-13
 	if (err < 0)
 		return err;
 
@@ -139,8 +151,13 @@ nfnl_cthelper_expect_policy(struct nf_conntrack_expect_policy *expect_policy,
 	int err;
 	struct nlattr *tb[NFCTH_POLICY_MAX+1];
 
+<<<<<<< HEAD
 	err = nla_parse_nested(tb, NFCTH_POLICY_MAX, attr,
 			       nfnl_cthelper_expect_pol, NULL);
+=======
+	err = nla_parse_nested_deprecated(tb, NFCTH_POLICY_MAX, attr,
+					  nfnl_cthelper_expect_pol, NULL);
+>>>>>>> upstream/android-13
 	if (err < 0)
 		return err;
 
@@ -149,7 +166,11 @@ nfnl_cthelper_expect_policy(struct nf_conntrack_expect_policy *expect_policy,
 	    !tb[NFCTH_POLICY_EXPECT_TIMEOUT])
 		return -EINVAL;
 
+<<<<<<< HEAD
 	nla_strlcpy(expect_policy->name,
+=======
+	nla_strscpy(expect_policy->name,
+>>>>>>> upstream/android-13
 		    tb[NFCTH_POLICY_NAME], NF_CT_HELPER_NAME_LEN);
 	expect_policy->max_expected =
 		ntohl(nla_get_be32(tb[NFCTH_POLICY_EXPECT_MAX]));
@@ -176,8 +197,14 @@ nfnl_cthelper_parse_expect_policy(struct nf_conntrack_helper *helper,
 	struct nlattr *tb[NFCTH_POLICY_SET_MAX+1];
 	unsigned int class_max;
 
+<<<<<<< HEAD
 	ret = nla_parse_nested(tb, NFCTH_POLICY_SET_MAX, attr,
 			       nfnl_cthelper_expect_policy_set, NULL);
+=======
+	ret = nla_parse_nested_deprecated(tb, NFCTH_POLICY_SET_MAX, attr,
+					  nfnl_cthelper_expect_policy_set,
+					  NULL);
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		return ret;
 
@@ -235,10 +262,17 @@ nfnl_cthelper_create(const struct nlattr * const tb[],
 	if (ret < 0)
 		goto err1;
 
+<<<<<<< HEAD
 	nla_strlcpy(helper->name,
 		    tb[NFCTH_NAME], NF_CT_HELPER_NAME_LEN);
 	size = ntohl(nla_get_be32(tb[NFCTH_PRIV_DATA_LEN]));
 	if (size > FIELD_SIZEOF(struct nf_conn_help, data)) {
+=======
+	nla_strscpy(helper->name,
+		    tb[NFCTH_NAME], NF_CT_HELPER_NAME_LEN);
+	size = ntohl(nla_get_be32(tb[NFCTH_PRIV_DATA_LEN]));
+	if (size > sizeof_field(struct nf_conn_help, data)) {
+>>>>>>> upstream/android-13
 		ret = -ENOMEM;
 		goto err2;
 	}
@@ -290,8 +324,13 @@ nfnl_cthelper_update_policy_one(const struct nf_conntrack_expect_policy *policy,
 	struct nlattr *tb[NFCTH_POLICY_MAX + 1];
 	int err;
 
+<<<<<<< HEAD
 	err = nla_parse_nested(tb, NFCTH_POLICY_MAX, attr,
 			       nfnl_cthelper_expect_pol, NULL);
+=======
+	err = nla_parse_nested_deprecated(tb, NFCTH_POLICY_MAX, attr,
+					  nfnl_cthelper_expect_pol, NULL);
+>>>>>>> upstream/android-13
 	if (err < 0)
 		return err;
 
@@ -362,8 +401,14 @@ static int nfnl_cthelper_update_policy(struct nf_conntrack_helper *helper,
 	unsigned int class_max;
 	int err;
 
+<<<<<<< HEAD
 	err = nla_parse_nested(tb, NFCTH_POLICY_SET_MAX, attr,
 			       nfnl_cthelper_expect_policy_set, NULL);
+=======
+	err = nla_parse_nested_deprecated(tb, NFCTH_POLICY_SET_MAX, attr,
+					  nfnl_cthelper_expect_policy_set,
+					  NULL);
+>>>>>>> upstream/android-13
 	if (err < 0)
 		return err;
 
@@ -381,10 +426,21 @@ static int
 nfnl_cthelper_update(const struct nlattr * const tb[],
 		     struct nf_conntrack_helper *helper)
 {
+<<<<<<< HEAD
 	int ret;
 
 	if (tb[NFCTH_PRIV_DATA_LEN])
 		return -EBUSY;
+=======
+	u32 size;
+	int ret;
+
+	if (tb[NFCTH_PRIV_DATA_LEN]) {
+		size = ntohl(nla_get_be32(tb[NFCTH_PRIV_DATA_LEN]));
+		if (size != helper->data_len)
+			return -EBUSY;
+	}
+>>>>>>> upstream/android-13
 
 	if (tb[NFCTH_POLICY]) {
 		ret = nfnl_cthelper_update_policy(helper, tb[NFCTH_POLICY]);
@@ -409,10 +465,15 @@ nfnl_cthelper_update(const struct nlattr * const tb[],
 	return 0;
 }
 
+<<<<<<< HEAD
 static int nfnl_cthelper_new(struct net *net, struct sock *nfnl,
 			     struct sk_buff *skb, const struct nlmsghdr *nlh,
 			     const struct nlattr * const tb[],
 			     struct netlink_ext_ack *extack)
+=======
+static int nfnl_cthelper_new(struct sk_buff *skb, const struct nfnl_info *info,
+			     const struct nlattr * const tb[])
+>>>>>>> upstream/android-13
 {
 	const char *helper_name;
 	struct nf_conntrack_helper *cur, *helper = NULL;
@@ -442,7 +503,11 @@ static int nfnl_cthelper_new(struct net *net, struct sock *nfnl,
 		     tuple.dst.protonum != cur->tuple.dst.protonum))
 			continue;
 
+<<<<<<< HEAD
 		if (nlh->nlmsg_flags & NLM_F_EXCL)
+=======
+		if (info->nlh->nlmsg_flags & NLM_F_EXCL)
+>>>>>>> upstream/android-13
 			return -EEXIST;
 
 		helper = cur;
@@ -463,7 +528,11 @@ nfnl_cthelper_dump_tuple(struct sk_buff *skb,
 {
 	struct nlattr *nest_parms;
 
+<<<<<<< HEAD
 	nest_parms = nla_nest_start(skb, NFCTH_TUPLE | NLA_F_NESTED);
+=======
+	nest_parms = nla_nest_start(skb, NFCTH_TUPLE);
+>>>>>>> upstream/android-13
 	if (nest_parms == NULL)
 		goto nla_put_failure;
 
@@ -488,7 +557,11 @@ nfnl_cthelper_dump_policy(struct sk_buff *skb,
 	int i;
 	struct nlattr *nest_parms1, *nest_parms2;
 
+<<<<<<< HEAD
 	nest_parms1 = nla_nest_start(skb, NFCTH_POLICY | NLA_F_NESTED);
+=======
+	nest_parms1 = nla_nest_start(skb, NFCTH_POLICY);
+>>>>>>> upstream/android-13
 	if (nest_parms1 == NULL)
 		goto nla_put_failure;
 
@@ -497,8 +570,12 @@ nfnl_cthelper_dump_policy(struct sk_buff *skb,
 		goto nla_put_failure;
 
 	for (i = 0; i < helper->expect_class_max + 1; i++) {
+<<<<<<< HEAD
 		nest_parms2 = nla_nest_start(skb,
 				(NFCTH_POLICY_SET+i) | NLA_F_NESTED);
+=======
+		nest_parms2 = nla_nest_start(skb, (NFCTH_POLICY_SET + i));
+>>>>>>> upstream/android-13
 		if (nest_parms2 == NULL)
 			goto nla_put_failure;
 
@@ -528,11 +605,15 @@ nfnl_cthelper_fill_info(struct sk_buff *skb, u32 portid, u32 seq, u32 type,
 			int event, struct nf_conntrack_helper *helper)
 {
 	struct nlmsghdr *nlh;
+<<<<<<< HEAD
 	struct nfgenmsg *nfmsg;
+=======
+>>>>>>> upstream/android-13
 	unsigned int flags = portid ? NLM_F_MULTI : 0;
 	int status;
 
 	event = nfnl_msg_type(NFNL_SUBSYS_CTHELPER, event);
+<<<<<<< HEAD
 	nlh = nlmsg_put(skb, portid, seq, event, sizeof(*nfmsg), flags);
 	if (nlh == NULL)
 		goto nlmsg_failure;
@@ -542,6 +623,13 @@ nfnl_cthelper_fill_info(struct sk_buff *skb, u32 portid, u32 seq, u32 type,
 	nfmsg->version = NFNETLINK_V0;
 	nfmsg->res_id = 0;
 
+=======
+	nlh = nfnl_msg_put(skb, portid, seq, event, flags, AF_UNSPEC,
+			   NFNETLINK_V0, 0);
+	if (!nlh)
+		goto nlmsg_failure;
+
+>>>>>>> upstream/android-13
 	if (nla_put_string(skb, NFCTH_NAME, helper->name))
 		goto nla_put_failure;
 
@@ -614,10 +702,15 @@ out:
 	return skb->len;
 }
 
+<<<<<<< HEAD
 static int nfnl_cthelper_get(struct net *net, struct sock *nfnl,
 			     struct sk_buff *skb, const struct nlmsghdr *nlh,
 			     const struct nlattr * const tb[],
 			     struct netlink_ext_ack *extack)
+=======
+static int nfnl_cthelper_get(struct sk_buff *skb, const struct nfnl_info *info,
+			     const struct nlattr * const tb[])
+>>>>>>> upstream/android-13
 {
 	int ret = -ENOENT;
 	struct nf_conntrack_helper *cur;
@@ -630,11 +723,19 @@ static int nfnl_cthelper_get(struct net *net, struct sock *nfnl,
 	if (!capable(CAP_NET_ADMIN))
 		return -EPERM;
 
+<<<<<<< HEAD
 	if (nlh->nlmsg_flags & NLM_F_DUMP) {
 		struct netlink_dump_control c = {
 			.dump = nfnl_cthelper_dump_table,
 		};
 		return netlink_dump_start(nfnl, skb, nlh, &c);
+=======
+	if (info->nlh->nlmsg_flags & NLM_F_DUMP) {
+		struct netlink_dump_control c = {
+			.dump = nfnl_cthelper_dump_table,
+		};
+		return netlink_dump_start(info->sk, skb, info->nlh, &c);
+>>>>>>> upstream/android-13
 	}
 
 	if (tb[NFCTH_NAME])
@@ -666,14 +767,20 @@ static int nfnl_cthelper_get(struct net *net, struct sock *nfnl,
 		}
 
 		ret = nfnl_cthelper_fill_info(skb2, NETLINK_CB(skb).portid,
+<<<<<<< HEAD
 					      nlh->nlmsg_seq,
 					      NFNL_MSG_TYPE(nlh->nlmsg_type),
+=======
+					      info->nlh->nlmsg_seq,
+					      NFNL_MSG_TYPE(info->nlh->nlmsg_type),
+>>>>>>> upstream/android-13
 					      NFNL_MSG_CTHELPER_NEW, cur);
 		if (ret <= 0) {
 			kfree_skb(skb2);
 			break;
 		}
 
+<<<<<<< HEAD
 		ret = netlink_unicast(nfnl, skb2, NETLINK_CB(skb).portid,
 				      MSG_DONTWAIT);
 		if (ret > 0)
@@ -689,6 +796,17 @@ static int nfnl_cthelper_del(struct net *net, struct sock *nfnl,
 			     struct sk_buff *skb, const struct nlmsghdr *nlh,
 			     const struct nlattr * const tb[],
 			     struct netlink_ext_ack *extack)
+=======
+		ret = nfnetlink_unicast(skb2, info->net, NETLINK_CB(skb).portid);
+		break;
+	}
+
+	return ret;
+}
+
+static int nfnl_cthelper_del(struct sk_buff *skb, const struct nfnl_info *info,
+			     const struct nlattr * const tb[])
+>>>>>>> upstream/android-13
 {
 	char *helper_name = NULL;
 	struct nf_conntrack_helper *cur;
@@ -750,6 +868,7 @@ static const struct nla_policy nfnl_cthelper_policy[NFCTH_MAX+1] = {
 };
 
 static const struct nfnl_callback nfnl_cthelper_cb[NFNL_MSG_CTHELPER_MAX] = {
+<<<<<<< HEAD
 	[NFNL_MSG_CTHELPER_NEW]		= { .call = nfnl_cthelper_new,
 					    .attr_count = NFCTH_MAX,
 					    .policy = nfnl_cthelper_policy },
@@ -759,6 +878,26 @@ static const struct nfnl_callback nfnl_cthelper_cb[NFNL_MSG_CTHELPER_MAX] = {
 	[NFNL_MSG_CTHELPER_DEL]		= { .call = nfnl_cthelper_del,
 					    .attr_count = NFCTH_MAX,
 					    .policy = nfnl_cthelper_policy },
+=======
+	[NFNL_MSG_CTHELPER_NEW]	= {
+		.call		= nfnl_cthelper_new,
+		.type		= NFNL_CB_MUTEX,
+		.attr_count	= NFCTH_MAX,
+		.policy		= nfnl_cthelper_policy
+	},
+	[NFNL_MSG_CTHELPER_GET] = {
+		.call		= nfnl_cthelper_get,
+		.type		= NFNL_CB_MUTEX,
+		.attr_count	= NFCTH_MAX,
+		.policy		= nfnl_cthelper_policy
+	},
+	[NFNL_MSG_CTHELPER_DEL]	= {
+		.call		= nfnl_cthelper_del,
+		.type		= NFNL_CB_MUTEX,
+		.attr_count	= NFCTH_MAX,
+		.policy		= nfnl_cthelper_policy
+	},
+>>>>>>> upstream/android-13
 };
 
 static const struct nfnetlink_subsystem nfnl_cthelper_subsys = {

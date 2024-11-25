@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2013, The Linux Foundation. All rights reserved.
  *
@@ -9,6 +10,11 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2013, The Linux Foundation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -82,6 +88,7 @@ static const char * const mmcc_xo_mmpll0_dsi_hdmi_gpll0[] = {
 	"dsi1pll",
 };
 
+<<<<<<< HEAD
 static const struct parent_map mmcc_xo_mmpll0_1_2_gpll0_map[] = {
 	{ P_XO, 0 },
 	{ P_MMPLL0, 1 },
@@ -98,6 +105,8 @@ static const char * const mmcc_xo_mmpll0_1_2_gpll0[] = {
 	"mmpll2",
 };
 
+=======
+>>>>>>> upstream/android-13
 static const struct parent_map mmcc_xo_mmpll0_1_3_gpll0_map[] = {
 	{ P_XO, 0 },
 	{ P_MMPLL0, 1 },
@@ -460,6 +469,7 @@ static struct clk_rcg2 mdp_clk_src = {
 	},
 };
 
+<<<<<<< HEAD
 static struct clk_rcg2 gfx3d_clk_src = {
 	.cmd_rcgr = 0x4000,
 	.hid_width = 5,
@@ -472,6 +482,8 @@ static struct clk_rcg2 gfx3d_clk_src = {
 	},
 };
 
+=======
+>>>>>>> upstream/android-13
 static struct freq_tbl ftbl_camss_jpeg_jpeg0_2_clk[] = {
 	F(75000000, P_GPLL0, 8, 0, 0),
 	F(133330000, P_GPLL0, 4.5, 0, 0),
@@ -2419,7 +2431,10 @@ static struct clk_regmap *mmcc_msm8974_clocks[] = {
 	[VFE0_CLK_SRC] = &vfe0_clk_src.clkr,
 	[VFE1_CLK_SRC] = &vfe1_clk_src.clkr,
 	[MDP_CLK_SRC] = &mdp_clk_src.clkr,
+<<<<<<< HEAD
 	[GFX3D_CLK_SRC] = &gfx3d_clk_src.clkr,
+=======
+>>>>>>> upstream/android-13
 	[JPEG0_CLK_SRC] = &jpeg0_clk_src.clkr,
 	[JPEG1_CLK_SRC] = &jpeg1_clk_src.clkr,
 	[JPEG2_CLK_SRC] = &jpeg2_clk_src.clkr,

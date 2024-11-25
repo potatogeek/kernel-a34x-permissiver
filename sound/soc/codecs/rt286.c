@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * rt286.c  --  RT286 ALSA SoC audio codec driver
  *
  * Copyright 2013 Realtek Semiconductor Corp.
  * Author: Bard Liao <bardliao@realtek.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -258,11 +265,24 @@ static int rt286_jack_detect(struct rt286_priv *rt286, bool *hp, bool *mic)
 				msleep(300);
 				regmap_read(rt286->regmap,
 					RT286_CBJ_CTRL2, &val);
+<<<<<<< HEAD
 				if (0x0070 == (val & 0x0070))
 					*mic = true;
 				else
 					*mic = false;
 			}
+=======
+				if (0x0070 == (val & 0x0070)) {
+					*mic = true;
+				} else {
+					*mic = false;
+					regmap_update_bits(rt286->regmap,
+						RT286_CBJ_CTRL1,
+						0xfcc0, 0xc400);
+				}
+			}
+
+>>>>>>> upstream/android-13
 			regmap_update_bits(rt286->regmap,
 				RT286_DC_GAIN, 0x200, 0x0);
 
@@ -278,6 +298,7 @@ static int rt286_jack_detect(struct rt286_priv *rt286, bool *hp, bool *mic)
 		regmap_read(rt286->regmap, RT286_GET_MIC1_SENSE, &buf);
 		*mic = buf & 0x80000000;
 	}
+<<<<<<< HEAD
 	if (!*mic) {
 		snd_soc_dapm_disable_pin(dapm, "HV");
 		snd_soc_dapm_disable_pin(dapm, "VREF");
@@ -285,6 +306,15 @@ static int rt286_jack_detect(struct rt286_priv *rt286, bool *hp, bool *mic)
 	if (!*hp)
 		snd_soc_dapm_disable_pin(dapm, "LDO1");
 	snd_soc_dapm_sync(dapm);
+=======
+
+	if (!*hp) {
+		snd_soc_dapm_disable_pin(dapm, "HV");
+		snd_soc_dapm_disable_pin(dapm, "VREF");
+		snd_soc_dapm_disable_pin(dapm, "LDO1");
+		snd_soc_dapm_sync(dapm);
+	}
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -299,10 +329,17 @@ static void rt286_jack_detect_work(struct work_struct *work)
 
 	rt286_jack_detect(rt286, &hp, &mic);
 
+<<<<<<< HEAD
 	if (hp == true)
 		status |= SND_JACK_HEADPHONE;
 
 	if (mic == true)
+=======
+	if (hp)
+		status |= SND_JACK_HEADPHONE;
+
+	if (mic)
+>>>>>>> upstream/android-13
 		status |= SND_JACK_MICROPHONE;
 
 	snd_soc_jack_report(rt286->jack, status,
@@ -723,7 +760,10 @@ static int rt286_hw_params(struct snd_pcm_substream *substream,
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	d_len_code = 0;
+=======
+>>>>>>> upstream/android-13
 	switch (params_width(params)) {
 	/* bit 6:4 Bits per Sample */
 	case 16:
@@ -927,10 +967,17 @@ static irqreturn_t rt286_irq(int irq, void *data)
 	/* Clear IRQ */
 	regmap_update_bits(rt286->regmap, RT286_IRQ_CTRL, 0x1, 0x1);
 
+<<<<<<< HEAD
 	if (hp == true)
 		status |= SND_JACK_HEADPHONE;
 
 	if (mic == true)
+=======
+	if (hp)
+		status |= SND_JACK_HEADPHONE;
+
+	if (mic)
+>>>>>>> upstream/android-13
 		status |= SND_JACK_MICROPHONE;
 
 	snd_soc_jack_report(rt286->jack, status,
@@ -1023,7 +1070,11 @@ static struct snd_soc_dai_driver rt286_dai[] = {
 			.formats = RT286_FORMATS,
 		},
 		.ops = &rt286_aif_dai_ops,
+<<<<<<< HEAD
 		.symmetric_rates = 1,
+=======
+		.symmetric_rate = 1,
+>>>>>>> upstream/android-13
 	},
 	{
 		.name = "rt286-aif2",
@@ -1043,7 +1094,11 @@ static struct snd_soc_dai_driver rt286_dai[] = {
 			.formats = RT286_FORMATS,
 		},
 		.ops = &rt286_aif_dai_ops,
+<<<<<<< HEAD
 		.symmetric_rates = 1,
+=======
+		.symmetric_rate = 1,
+>>>>>>> upstream/android-13
 	},
 
 };
@@ -1085,11 +1140,19 @@ static const struct i2c_device_id rt286_i2c_id[] = {
 };
 MODULE_DEVICE_TABLE(i2c, rt286_i2c_id);
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_ACPI
+>>>>>>> upstream/android-13
 static const struct acpi_device_id rt286_acpi_match[] = {
 	{ "INT343A", 0 },
 	{},
 };
 MODULE_DEVICE_TABLE(acpi, rt286_acpi_match);
+<<<<<<< HEAD
+=======
+#endif
+>>>>>>> upstream/android-13
 
 static const struct dmi_system_id force_combo_jack_table[] = {
 	{
@@ -1208,7 +1271,11 @@ static int rt286_i2c_probe(struct i2c_client *i2c,
 	mdelay(10);
 
 	if (!rt286->pdata.gpio2_en)
+<<<<<<< HEAD
 		regmap_write(rt286->regmap, RT286_SET_DMIC2_DEFAULT, 0x4000);
+=======
+		regmap_write(rt286->regmap, RT286_SET_DMIC2_DEFAULT, 0x40);
+>>>>>>> upstream/android-13
 	else
 		regmap_write(rt286->regmap, RT286_SET_DMIC2_DEFAULT, 0);
 

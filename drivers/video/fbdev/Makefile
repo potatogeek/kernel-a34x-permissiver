@@ -14,7 +14,10 @@ obj-$(CONFIG_FB_WMT_GE_ROPS)   += wmt_ge_rops.o
 obj-$(CONFIG_FB_AMIGA)            += amifb.o c2p_planar.o
 obj-$(CONFIG_FB_ARC)              += arcfb.o
 obj-$(CONFIG_FB_CLPS711X)	  += clps711x-fb.o
+<<<<<<< HEAD
 obj-$(CONFIG_FB_CLPS711X_OLD)	  += clps711xfb.o
+=======
+>>>>>>> upstream/android-13
 obj-$(CONFIG_FB_CYBER2000)        += cyber2000fb.o
 obj-$(CONFIG_FB_GRVGA)            += grvga.o
 obj-$(CONFIG_FB_PM2)              += pm2fb.o
@@ -32,7 +35,10 @@ obj-$(CONFIG_FB_VIA)		  += via/
 obj-$(CONFIG_FB_KYRO)             += kyro/
 obj-$(CONFIG_FB_SAVAGE)		  += savage/
 obj-$(CONFIG_FB_GEODE)		  += geode/
+<<<<<<< HEAD
 obj-$(CONFIG_FB_MBX)		  += mbx/
+=======
+>>>>>>> upstream/android-13
 obj-$(CONFIG_FB_NEOMAGIC)         += neofb.o
 obj-$(CONFIG_FB_3DFX)             += tdfxfb.o
 obj-$(CONFIG_FB_CONTROL)          += controlfb.o
@@ -77,8 +83,11 @@ obj-$(CONFIG_FB_ATMEL)		  += atmel_lcdfb.o
 obj-$(CONFIG_FB_PVR2)             += pvr2fb.o
 obj-$(CONFIG_FB_VOODOO1)          += sstfb.o
 obj-$(CONFIG_FB_ARMCLCD)	  += amba-clcd.o
+<<<<<<< HEAD
 obj-$(CONFIG_ARCH_NOMADIK)	  += amba-clcd-nomadik.o
 obj-$(CONFIG_PLAT_VERSATILE_CLCD) += amba-clcd-versatile.o
+=======
+>>>>>>> upstream/android-13
 obj-$(CONFIG_FB_GOLDFISH)         += goldfishfb.o
 obj-$(CONFIG_FB_68328)            += 68328fb.o
 obj-$(CONFIG_FB_GBE)              += gbefb.o
@@ -119,9 +128,12 @@ obj-y                             += omap2/
 obj-$(CONFIG_XEN_FBDEV_FRONTEND)  += xen-fbfront.o
 obj-$(CONFIG_FB_CARMINE)          += carminefb.o
 obj-$(CONFIG_FB_MB862XX)	  += mb862xx/
+<<<<<<< HEAD
 obj-$(CONFIG_FB_NUC900)           += nuc900fb.o
 obj-$(CONFIG_FB_JZ4740)		  += jz4740_fb.o
 obj-$(CONFIG_FB_PUV3_UNIGFX)      += fb-puv3.o
+=======
+>>>>>>> upstream/android-13
 obj-$(CONFIG_FB_HYPERV)		  += hyperv_fb.o
 obj-$(CONFIG_FB_OPENCORES)	  += ocfb.o
 obj-$(CONFIG_FB_SM712)		  += sm712fb.o
@@ -134,7 +146,10 @@ obj-$(CONFIG_FB_VGA16)            += vga16fb.o
 obj-$(CONFIG_FB_OF)               += offb.o
 obj-$(CONFIG_FB_MX3)		  += mx3fb.o
 obj-$(CONFIG_FB_DA8XX)		  += da8xx-fb.o
+<<<<<<< HEAD
 obj-$(CONFIG_FB_MXS)		  += mxsfb.o
+=======
+>>>>>>> upstream/android-13
 obj-$(CONFIG_FB_SSD1307)	  += ssd1307fb.o
 obj-$(CONFIG_FB_SIMPLE)           += simplefb.o
 

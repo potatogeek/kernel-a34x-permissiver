@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  Dummy soundcard
  *  Copyright (c) by Jaroslav Kysela <perex@perex.cz>
@@ -16,6 +17,12 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ *  Dummy soundcard
+ *  Copyright (c) by Jaroslav Kysela <perex@perex.cz>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -39,7 +46,10 @@
 MODULE_AUTHOR("Jaroslav Kysela <perex@perex.cz>");
 MODULE_DESCRIPTION("Dummy soundcard (/dev/null)");
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
 MODULE_SUPPORTED_DEVICE("{{ALSA,Dummy soundcard}}");
+=======
+>>>>>>> upstream/android-13
 
 #define MAX_PCM_DEVICES		4
 #define MAX_PCM_SUBSTREAMS	128
@@ -131,7 +141,11 @@ struct dummy_model {
 
 struct snd_dummy {
 	struct snd_card *card;
+<<<<<<< HEAD
 	struct dummy_model *model;
+=======
+	const struct dummy_model *model;
+>>>>>>> upstream/android-13
 	struct snd_pcm *pcm;
 	struct snd_pcm_hardware pcm_hw;
 	spinlock_t mixer_lock;
@@ -158,13 +172,21 @@ static int emu10k1_playback_constraints(struct snd_pcm_runtime *runtime)
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct dummy_model model_emu10k1 = {
+=======
+static const struct dummy_model model_emu10k1 = {
+>>>>>>> upstream/android-13
 	.name = "emu10k1",
 	.playback_constraints = emu10k1_playback_constraints,
 	.buffer_bytes_max = 128 * 1024,
 };
 
+<<<<<<< HEAD
 static struct dummy_model model_rme9652 = {
+=======
+static const struct dummy_model model_rme9652 = {
+>>>>>>> upstream/android-13
 	.name = "rme9652",
 	.buffer_bytes_max = 26 * 64 * 1024,
 	.formats = SNDRV_PCM_FMTBIT_S32_LE,
@@ -174,7 +196,11 @@ static struct dummy_model model_rme9652 = {
 	.periods_max = 2,
 };
 
+<<<<<<< HEAD
 static struct dummy_model model_ice1712 = {
+=======
+static const struct dummy_model model_ice1712 = {
+>>>>>>> upstream/android-13
 	.name = "ice1712",
 	.buffer_bytes_max = 256 * 1024,
 	.formats = SNDRV_PCM_FMTBIT_S32_LE,
@@ -184,7 +210,11 @@ static struct dummy_model model_ice1712 = {
 	.periods_max = 1024,
 };
 
+<<<<<<< HEAD
 static struct dummy_model model_uda1341 = {
+=======
+static const struct dummy_model model_uda1341 = {
+>>>>>>> upstream/android-13
 	.name = "uda1341",
 	.buffer_bytes_max = 16380,
 	.formats = SNDRV_PCM_FMTBIT_S16_LE,
@@ -194,7 +224,11 @@ static struct dummy_model model_uda1341 = {
 	.periods_max = 255,
 };
 
+<<<<<<< HEAD
 static struct dummy_model model_ac97 = {
+=======
+static const struct dummy_model model_ac97 = {
+>>>>>>> upstream/android-13
 	.name = "ac97",
 	.formats = SNDRV_PCM_FMTBIT_S16_LE,
 	.channels_min = 2,
@@ -204,7 +238,11 @@ static struct dummy_model model_ac97 = {
 	.rate_max = 48000,
 };
 
+<<<<<<< HEAD
 static struct dummy_model model_ca0106 = {
+=======
+static const struct dummy_model model_ca0106 = {
+>>>>>>> upstream/android-13
 	.name = "ca0106",
 	.formats = SNDRV_PCM_FMTBIT_S16_LE,
 	.buffer_bytes_max = ((65536-64)*8),
@@ -218,7 +256,11 @@ static struct dummy_model model_ca0106 = {
 	.rate_max = 192000,
 };
 
+<<<<<<< HEAD
 static struct dummy_model *dummy_models[] = {
+=======
+static const struct dummy_model *dummy_models[] = {
+>>>>>>> upstream/android-13
 	&model_emu10k1,
 	&model_rme9652,
 	&model_ice1712,
@@ -250,7 +292,11 @@ struct dummy_systimer_pcm {
 static void dummy_systimer_rearm(struct dummy_systimer_pcm *dpcm)
 {
 	mod_timer(&dpcm->timer, jiffies +
+<<<<<<< HEAD
 		(dpcm->frac_period_rest + dpcm->rate - 1) / dpcm->rate);
+=======
+		DIV_ROUND_UP(dpcm->frac_period_rest, dpcm->rate));
+>>>>>>> upstream/android-13
 }
 
 static void dummy_systimer_update(struct dummy_systimer_pcm *dpcm)
@@ -543,6 +589,7 @@ static int dummy_pcm_hw_params(struct snd_pcm_substream *substream,
 		substream->runtime->dma_bytes = params_buffer_bytes(hw_params);
 		return 0;
 	}
+<<<<<<< HEAD
 	return snd_pcm_lib_malloc_pages(substream,
 					params_buffer_bytes(hw_params));
 }
@@ -552,12 +599,19 @@ static int dummy_pcm_hw_free(struct snd_pcm_substream *substream)
 	if (fake_buffer)
 		return 0;
 	return snd_pcm_lib_free_pages(substream);
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int dummy_pcm_open(struct snd_pcm_substream *substream)
 {
 	struct snd_dummy *dummy = snd_pcm_substream_chip(substream);
+<<<<<<< HEAD
 	struct dummy_model *model = dummy->model;
+=======
+	const struct dummy_model *model = dummy->model;
+>>>>>>> upstream/android-13
 	struct snd_pcm_runtime *runtime = substream->runtime;
 	const struct dummy_timer_ops *ops;
 	int err;
@@ -666,23 +720,37 @@ static struct page *dummy_pcm_page(struct snd_pcm_substream *substream,
 	return virt_to_page(dummy_page[substream->stream]); /* the same page */
 }
 
+<<<<<<< HEAD
 static struct snd_pcm_ops dummy_pcm_ops = {
 	.open =		dummy_pcm_open,
 	.close =	dummy_pcm_close,
 	.ioctl =	snd_pcm_lib_ioctl,
 	.hw_params =	dummy_pcm_hw_params,
 	.hw_free =	dummy_pcm_hw_free,
+=======
+static const struct snd_pcm_ops dummy_pcm_ops = {
+	.open =		dummy_pcm_open,
+	.close =	dummy_pcm_close,
+	.hw_params =	dummy_pcm_hw_params,
+>>>>>>> upstream/android-13
 	.prepare =	dummy_pcm_prepare,
 	.trigger =	dummy_pcm_trigger,
 	.pointer =	dummy_pcm_pointer,
 };
 
+<<<<<<< HEAD
 static struct snd_pcm_ops dummy_pcm_ops_no_buf = {
 	.open =		dummy_pcm_open,
 	.close =	dummy_pcm_close,
 	.ioctl =	snd_pcm_lib_ioctl,
 	.hw_params =	dummy_pcm_hw_params,
 	.hw_free =	dummy_pcm_hw_free,
+=======
+static const struct snd_pcm_ops dummy_pcm_ops_no_buf = {
+	.open =		dummy_pcm_open,
+	.close =	dummy_pcm_close,
+	.hw_params =	dummy_pcm_hw_params,
+>>>>>>> upstream/android-13
 	.prepare =	dummy_pcm_prepare,
 	.trigger =	dummy_pcm_trigger,
 	.pointer =	dummy_pcm_pointer,
@@ -696,7 +764,11 @@ static int snd_card_dummy_pcm(struct snd_dummy *dummy, int device,
 			      int substreams)
 {
 	struct snd_pcm *pcm;
+<<<<<<< HEAD
 	struct snd_pcm_ops *ops;
+=======
+	const struct snd_pcm_ops *ops;
+>>>>>>> upstream/android-13
 	int err;
 
 	err = snd_pcm_new(dummy->card, "Dummy PCM", device,
@@ -714,9 +786,15 @@ static int snd_card_dummy_pcm(struct snd_dummy *dummy, int device,
 	pcm->info_flags = 0;
 	strcpy(pcm->name, "Dummy PCM");
 	if (!fake_buffer) {
+<<<<<<< HEAD
 		snd_pcm_lib_preallocate_pages_for_all(pcm,
 			SNDRV_DMA_TYPE_CONTINUOUS,
 			snd_dma_continuous_data(GFP_KERNEL),
+=======
+		snd_pcm_set_managed_buffer_all(pcm,
+			SNDRV_DMA_TYPE_CONTINUOUS,
+			NULL,
+>>>>>>> upstream/android-13
 			0, 64*1024);
 	}
 	return 0;
@@ -875,7 +953,11 @@ static int snd_dummy_iobox_put(struct snd_kcontrol *kcontrol,
 	return changed;
 }
 
+<<<<<<< HEAD
 static struct snd_kcontrol_new snd_dummy_controls[] = {
+=======
+static const struct snd_kcontrol_new snd_dummy_controls[] = {
+>>>>>>> upstream/android-13
 DUMMY_VOLUME("Master Volume", 0, MIXER_ADDR_MASTER),
 DUMMY_CAPSRC("Master Capture Switch", 0, MIXER_ADDR_MASTER),
 DUMMY_VOLUME("Synth Volume", 0, MIXER_ADDR_SYNTH),
@@ -927,10 +1009,17 @@ static int snd_card_dummy_new_mixer(struct snd_dummy *dummy)
 static void print_formats(struct snd_dummy *dummy,
 			  struct snd_info_buffer *buffer)
 {
+<<<<<<< HEAD
 	int i;
 
 	for (i = 0; i <= SNDRV_PCM_FORMAT_LAST; i++) {
 		if (dummy->pcm_hw.formats & (1ULL << i))
+=======
+	snd_pcm_format_t i;
+
+	pcm_for_each_format(i) {
+		if (dummy->pcm_hw.formats & pcm_format_to_bits(i))
+>>>>>>> upstream/android-13
 			snd_iprintf(buffer, " %s", snd_pcm_format_name(i));
 	}
 }
@@ -938,7 +1027,11 @@ static void print_formats(struct snd_dummy *dummy,
 static void print_rates(struct snd_dummy *dummy,
 			struct snd_info_buffer *buffer)
 {
+<<<<<<< HEAD
 	static int rates[] = {
+=======
+	static const int rates[] = {
+>>>>>>> upstream/android-13
 		5512, 8000, 11025, 16000, 22050, 32000, 44100, 48000,
 		64000, 88200, 96000, 176400, 192000,
 	};
@@ -970,7 +1063,11 @@ struct dummy_hw_field {
 	.offset = offsetof(struct snd_pcm_hardware, item), \
 	.size = sizeof(dummy_pcm_hardware.item) }
 
+<<<<<<< HEAD
 static struct dummy_hw_field fields[] = {
+=======
+static const struct dummy_hw_field fields[] = {
+>>>>>>> upstream/android-13
 	FIELD_ENTRY(formats, "%#llx"),
 	FIELD_ENTRY(rates, "%#x"),
 	FIELD_ENTRY(rate_min, "%d"),
@@ -1037,6 +1134,7 @@ static void dummy_proc_write(struct snd_info_entry *entry,
 
 static void dummy_proc_init(struct snd_dummy *chip)
 {
+<<<<<<< HEAD
 	struct snd_info_entry *entry;
 
 	if (!snd_card_proc_new(chip->card, "dummy_pcm", &entry)) {
@@ -1045,6 +1143,10 @@ static void dummy_proc_init(struct snd_dummy *chip)
 		entry->mode |= 0200;
 		entry->private_data = chip;
 	}
+=======
+	snd_card_rw_proc_new(chip->card, "dummy_pcm", chip,
+			     dummy_proc_read, dummy_proc_write);
+>>>>>>> upstream/android-13
 }
 #else
 #define dummy_proc_init(x)
@@ -1054,12 +1156,21 @@ static int snd_dummy_probe(struct platform_device *devptr)
 {
 	struct snd_card *card;
 	struct snd_dummy *dummy;
+<<<<<<< HEAD
 	struct dummy_model *m = NULL, **mdl;
 	int idx, err;
 	int dev = devptr->id;
 
 	err = snd_card_new(&devptr->dev, index[dev], id[dev], THIS_MODULE,
 			   sizeof(struct snd_dummy), &card);
+=======
+	const struct dummy_model *m = NULL, **mdl;
+	int idx, err;
+	int dev = devptr->id;
+
+	err = snd_devm_card_new(&devptr->dev, index[dev], id[dev], THIS_MODULE,
+				sizeof(struct snd_dummy), &card);
+>>>>>>> upstream/android-13
 	if (err < 0)
 		return err;
 	dummy = card->private_data;
@@ -1080,7 +1191,11 @@ static int snd_dummy_probe(struct platform_device *devptr)
 			pcm_substreams[dev] = MAX_PCM_SUBSTREAMS;
 		err = snd_card_dummy_pcm(dummy, idx, pcm_substreams[dev]);
 		if (err < 0)
+<<<<<<< HEAD
 			goto __nodev;
+=======
+			return err;
+>>>>>>> upstream/android-13
 	}
 
 	dummy->pcm_hw = dummy_pcm_hardware;
@@ -1111,7 +1226,11 @@ static int snd_dummy_probe(struct platform_device *devptr)
 
 	err = snd_card_dummy_new_mixer(dummy);
 	if (err < 0)
+<<<<<<< HEAD
 		goto __nodev;
+=======
+		return err;
+>>>>>>> upstream/android-13
 	strcpy(card->driver, "Dummy");
 	strcpy(card->shortname, "Dummy");
 	sprintf(card->longname, "Dummy %i", dev + 1);
@@ -1119,6 +1238,7 @@ static int snd_dummy_probe(struct platform_device *devptr)
 	dummy_proc_init(dummy);
 
 	err = snd_card_register(card);
+<<<<<<< HEAD
 	if (err == 0) {
 		platform_set_drvdata(devptr, card);
 		return 0;
@@ -1131,6 +1251,11 @@ static int snd_dummy_probe(struct platform_device *devptr)
 static int snd_dummy_remove(struct platform_device *devptr)
 {
 	snd_card_free(platform_get_drvdata(devptr));
+=======
+	if (err < 0)
+		return err;
+	platform_set_drvdata(devptr, card);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1138,10 +1263,15 @@ static int snd_dummy_remove(struct platform_device *devptr)
 static int snd_dummy_suspend(struct device *pdev)
 {
 	struct snd_card *card = dev_get_drvdata(pdev);
+<<<<<<< HEAD
 	struct snd_dummy *dummy = card->private_data;
 
 	snd_power_change_state(card, SNDRV_CTL_POWER_D3hot);
 	snd_pcm_suspend_all(dummy->pcm);
+=======
+
+	snd_power_change_state(card, SNDRV_CTL_POWER_D3hot);
+>>>>>>> upstream/android-13
 	return 0;
 }
 	
@@ -1163,7 +1293,10 @@ static SIMPLE_DEV_PM_OPS(snd_dummy_pm, snd_dummy_suspend, snd_dummy_resume);
 
 static struct platform_driver snd_dummy_driver = {
 	.probe		= snd_dummy_probe,
+<<<<<<< HEAD
 	.remove		= snd_dummy_remove,
+=======
+>>>>>>> upstream/android-13
 	.driver		= {
 		.name	= SND_DUMMY_DRIVER,
 		.pm	= SND_DUMMY_PM_OPS,

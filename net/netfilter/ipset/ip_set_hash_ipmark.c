@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* Copyright (C) 2003-2013 Jozsef Kadlecsik <kadlec@blackhole.kfki.hu>
  * Copyright (C) 2013 Smoothwall Ltd. <vytas.dauksa@smoothwall.net>
  *
@@ -5,6 +6,10 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  */
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/* Copyright (C) 2003-2013 Jozsef Kadlecsik <kadlec@netfilter.org> */
+>>>>>>> upstream/android-13
 
 /* Kernel module implementing an IP set type: the hash:ip,mark type */
 
@@ -26,7 +31,12 @@
 
 #define IPSET_TYPE_REV_MIN	0
 /*				1	   Forceadd support */
+<<<<<<< HEAD
 #define IPSET_TYPE_REV_MAX	2	/* skbinfo support  */
+=======
+/*				2	   skbinfo support */
+#define IPSET_TYPE_REV_MAX	3	/* bucketsize, initval support  */
+>>>>>>> upstream/android-13
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Vytas Dauksa <vytas.dauksa@smoothwall.net>");
@@ -47,7 +57,11 @@ struct hash_ipmark4_elem {
 
 /* Common functions */
 
+<<<<<<< HEAD
 static inline bool
+=======
+static bool
+>>>>>>> upstream/android-13
 hash_ipmark4_data_equal(const struct hash_ipmark4_elem *ip1,
 			const struct hash_ipmark4_elem *ip2,
 			u32 *multi)
@@ -69,7 +83,11 @@ nla_put_failure:
 	return true;
 }
 
+<<<<<<< HEAD
 static inline void
+=======
+static void
+>>>>>>> upstream/android-13
 hash_ipmark4_data_next(struct hash_ipmark4_elem *next,
 		       const struct hash_ipmark4_elem *d)
 {
@@ -125,6 +143,11 @@ hash_ipmark4_uadt(struct ip_set *set, struct nlattr *tb[],
 
 	e.mark = ntohl(nla_get_be32(tb[IPSET_ATTR_MARK]));
 	e.mark &= h->markmask;
+<<<<<<< HEAD
+=======
+	if (e.mark == 0 && e.ip == 0)
+		return -IPSET_ERR_HASH_ELEM;
+>>>>>>> upstream/android-13
 
 	if (adt == IPSET_TEST ||
 	    !(tb[IPSET_ATTR_IP_TO] || tb[IPSET_ATTR_CIDR])) {
@@ -137,8 +160,16 @@ hash_ipmark4_uadt(struct ip_set *set, struct nlattr *tb[],
 		ret = ip_set_get_hostipaddr4(tb[IPSET_ATTR_IP_TO], &ip_to);
 		if (ret)
 			return ret;
+<<<<<<< HEAD
 		if (ip > ip_to)
 			swap(ip, ip_to);
+=======
+		if (ip > ip_to) {
+			if (e.mark == 0 && ip_to == 0)
+				return -IPSET_ERR_HASH_ELEM;
+			swap(ip, ip_to);
+		}
+>>>>>>> upstream/android-13
 	} else if (tb[IPSET_ATTR_CIDR]) {
 		u8 cidr = nla_get_u8(tb[IPSET_ATTR_CIDR]);
 
@@ -147,6 +178,12 @@ hash_ipmark4_uadt(struct ip_set *set, struct nlattr *tb[],
 		ip_set_mask_from_to(ip, ip_to, cidr);
 	}
 
+<<<<<<< HEAD
+=======
+	if (((u64)ip_to - ip + 1) > IPSET_MAX_RANGE)
+		return -ERANGE;
+
+>>>>>>> upstream/android-13
 	if (retried)
 		ip = ntohl(h->next.ip);
 	for (; ip <= ip_to; ip++) {
@@ -170,7 +207,11 @@ struct hash_ipmark6_elem {
 
 /* Common functions */
 
+<<<<<<< HEAD
 static inline bool
+=======
+static bool
+>>>>>>> upstream/android-13
 hash_ipmark6_data_equal(const struct hash_ipmark6_elem *ip1,
 			const struct hash_ipmark6_elem *ip2,
 			u32 *multi)
@@ -192,7 +233,11 @@ nla_put_failure:
 	return true;
 }
 
+<<<<<<< HEAD
 static inline void
+=======
+static void
+>>>>>>> upstream/android-13
 hash_ipmark6_data_next(struct hash_ipmark6_elem *next,
 		       const struct hash_ipmark6_elem *d)
 {
@@ -279,12 +324,21 @@ static struct ip_set_type hash_ipmark_type __read_mostly = {
 	.family		= NFPROTO_UNSPEC,
 	.revision_min	= IPSET_TYPE_REV_MIN,
 	.revision_max	= IPSET_TYPE_REV_MAX,
+<<<<<<< HEAD
+=======
+	.create_flags[IPSET_TYPE_REV_MAX] = IPSET_CREATE_FLAG_BUCKETSIZE,
+>>>>>>> upstream/android-13
 	.create		= hash_ipmark_create,
 	.create_policy	= {
 		[IPSET_ATTR_MARKMASK]	= { .type = NLA_U32 },
 		[IPSET_ATTR_HASHSIZE]	= { .type = NLA_U32 },
 		[IPSET_ATTR_MAXELEM]	= { .type = NLA_U32 },
+<<<<<<< HEAD
 		[IPSET_ATTR_PROBES]	= { .type = NLA_U8 },
+=======
+		[IPSET_ATTR_INITVAL]	= { .type = NLA_U32 },
+		[IPSET_ATTR_BUCKETSIZE]	= { .type = NLA_U8 },
+>>>>>>> upstream/android-13
 		[IPSET_ATTR_RESIZE]	= { .type = NLA_U8  },
 		[IPSET_ATTR_TIMEOUT]	= { .type = NLA_U32 },
 		[IPSET_ATTR_CADT_FLAGS]	= { .type = NLA_U32 },

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #ifndef _CHIP_H
 #define _CHIP_H
 /*
@@ -47,14 +48,27 @@
  *
  */
 
+=======
+/* SPDX-License-Identifier: GPL-2.0 or BSD-3-Clause */
+/*
+ * Copyright(c) 2015 - 2020 Intel Corporation.
+ */
+
+#ifndef _CHIP_H
+#define _CHIP_H
+>>>>>>> upstream/android-13
 /*
  * This file contains all of the defines that is specific to the HFI chip
  */
 
 /* sizes */
+<<<<<<< HEAD
 #define CCE_NUM_MSIX_VECTORS 256
 #define CCE_NUM_INT_CSRS 12
 #define CCE_NUM_INT_MAP_CSRS 96
+=======
+#define BITS_PER_REGISTER (BITS_PER_BYTE * sizeof(u64))
+>>>>>>> upstream/android-13
 #define NUM_INTERRUPT_SOURCES 768
 #define RXE_NUM_CONTEXTS 160
 #define RXE_PER_CONTEXT_SIZE 0x1000	/* 4k */
@@ -161,17 +175,43 @@
 	(CR_CREDIT_RETURN_DUE_TO_FORCE_MASK << \
 	CR_CREDIT_RETURN_DUE_TO_FORCE_SHIFT)
 
+<<<<<<< HEAD
 /* interrupt source numbers */
 #define IS_GENERAL_ERR_START	  0
 #define IS_SDMAENG_ERR_START	 16
 #define IS_SENDCTXT_ERR_START	 32
 #define IS_SDMA_START		192 /* includes SDmaProgress,SDmaIdle */
+=======
+/* Specific IRQ sources */
+#define CCE_ERR_INT		  0
+#define RXE_ERR_INT		  1
+#define MISC_ERR_INT		  2
+#define PIO_ERR_INT		  4
+#define SDMA_ERR_INT		  5
+#define EGRESS_ERR_INT		  6
+#define TXE_ERR_INT		  7
+#define PBC_INT			240
+#define GPIO_ASSERT_INT		241
+#define QSFP1_INT		242
+#define QSFP2_INT		243
+#define TCRIT_INT		244
+
+/* interrupt source ranges */
+#define IS_FIRST_SOURCE		CCE_ERR_INT
+#define IS_GENERAL_ERR_START		  0
+#define IS_SDMAENG_ERR_START		 16
+#define IS_SENDCTXT_ERR_START		 32
+#define IS_SDMA_START			192
+#define IS_SDMA_PROGRESS_START		208
+#define IS_SDMA_IDLE_START		224
+>>>>>>> upstream/android-13
 #define IS_VARIOUS_START		240
 #define IS_DC_START			248
 #define IS_RCVAVAIL_START		256
 #define IS_RCVURGENT_START		416
 #define IS_SENDCREDIT_START		576
 #define IS_RESERVED_START		736
+<<<<<<< HEAD
 #define IS_MAX_SOURCES		768
 
 /* derived interrupt source values */
@@ -189,6 +229,23 @@
 /* absolute interrupt numbers for QSFP1Int and QSFP2Int */
 #define QSFP1_INT		242
 #define QSFP2_INT		243
+=======
+#define IS_LAST_SOURCE			767
+
+/* derived interrupt source values */
+#define IS_GENERAL_ERR_END		7
+#define IS_SDMAENG_ERR_END		31
+#define IS_SENDCTXT_ERR_END		191
+#define IS_SDMA_END                     207
+#define IS_SDMA_PROGRESS_END            223
+#define IS_SDMA_IDLE_END		239
+#define IS_VARIOUS_END			244
+#define IS_DC_END			255
+#define IS_RCVAVAIL_END			415
+#define IS_RCVURGENT_END		575
+#define IS_SENDCREDIT_END		735
+#define IS_RESERVED_END			IS_LAST_SOURCE
+>>>>>>> upstream/android-13
 
 /* DCC_CFG_PORT_CONFIG logical link states */
 #define LSTATE_DOWN    0x1
@@ -345,6 +402,11 @@
 #define MAX_EAGER_BUFFER       (256 * 1024)
 #define MAX_EAGER_BUFFER_TOTAL (64 * (1 << 20)) /* max per ctxt 64MB */
 #define MAX_EXPECTED_BUFFER    (2048 * 1024)
+<<<<<<< HEAD
+=======
+#define HFI1_MIN_HDRQ_EGRBUF_CNT 32
+#define HFI1_MAX_HDRQ_EGRBUF_CNT 16352
+>>>>>>> upstream/android-13
 
 /*
  * Receive expected base and count and eager base and count increment -
@@ -686,6 +748,13 @@ static inline u32 chip_rcv_array_count(struct hfi1_devdata *dd)
 	return read_csr(dd, RCV_ARRAY_CNT);
 }
 
+<<<<<<< HEAD
+=======
+u8 encode_rcv_header_entry_size(u8 size);
+int hfi1_validate_rcvhdrcnt(struct hfi1_devdata *dd, uint thecnt);
+void set_hdrq_regs(struct hfi1_devdata *dd, u8 ctxt, u8 entsize, u16 hdrcnt);
+
+>>>>>>> upstream/android-13
 u64 create_pbc(struct hfi1_pportdata *ppd, u64 flags, int srate_mbs, u32 vl,
 	       u32 dw_len);
 
@@ -791,6 +860,10 @@ void clear_linkup_counters(struct hfi1_devdata *dd);
 u32 hdrqempty(struct hfi1_ctxtdata *rcd);
 int is_ax(struct hfi1_devdata *dd);
 int is_bx(struct hfi1_devdata *dd);
+<<<<<<< HEAD
+=======
+bool is_urg_masked(struct hfi1_ctxtdata *rcd);
+>>>>>>> upstream/android-13
 u32 read_physical_state(struct hfi1_devdata *dd);
 u32 chip_to_opa_pstate(struct hfi1_devdata *dd, u32 chip_pstate);
 const char *opa_lstate_name(u32 lstate);
@@ -802,11 +875,14 @@ int acquire_lcb_access(struct hfi1_devdata *dd, int sleep_ok);
 int release_lcb_access(struct hfi1_devdata *dd, int sleep_ok);
 #define LCB_START DC_LCB_CSRS
 #define LCB_END   DC_8051_CSRS /* next block is 8051 */
+<<<<<<< HEAD
 static inline int is_lcb_offset(u32 offset)
 {
 	return (offset >= LCB_START && offset < LCB_END);
 }
 
+=======
+>>>>>>> upstream/android-13
 extern uint num_vls;
 
 extern uint disable_integrity;
@@ -844,6 +920,13 @@ static inline int idx_from_vl(int vl)
 /* Per device counter indexes */
 enum {
 	C_RCV_OVF = 0,
+<<<<<<< HEAD
+=======
+	C_RX_LEN_ERR,
+	C_RX_SHORT_ERR,
+	C_RX_ICRC_ERR,
+	C_RX_EBP,
+>>>>>>> upstream/android-13
 	C_RX_TID_FULL,
 	C_RX_TID_INVALID,
 	C_RX_TID_FLGMS,
@@ -914,6 +997,10 @@ enum {
 	C_SW_PIO_WAIT,
 	C_SW_PIO_DRAIN,
 	C_SW_KMEM_WAIT,
+<<<<<<< HEAD
+=======
+	C_SW_TID_WAIT,
+>>>>>>> upstream/android-13
 	C_SW_SEND_SCHED,
 	C_SDMA_DESC_FETCHED_CNT,
 	C_SDMA_INT_CNT,
@@ -1228,6 +1315,10 @@ enum {
 	C_SW_IBP_RDMA_SEQ,
 	C_SW_IBP_UNALIGNED,
 	C_SW_IBP_SEQ_NAK,
+<<<<<<< HEAD
+=======
+	C_SW_IBP_RC_CRWAITS,
+>>>>>>> upstream/android-13
 	C_SW_CPU_RC_ACKS,
 	C_SW_CPU_RC_QACKS,
 	C_SW_CPU_RC_DELAYED_COMP,
@@ -1417,6 +1508,25 @@ void hfi1_read_link_quality(struct hfi1_devdata *dd, u8 *link_quality);
 void hfi1_init_vnic_rsm(struct hfi1_devdata *dd);
 void hfi1_deinit_vnic_rsm(struct hfi1_devdata *dd);
 
+<<<<<<< HEAD
+=======
+irqreturn_t general_interrupt(int irq, void *data);
+irqreturn_t sdma_interrupt(int irq, void *data);
+irqreturn_t receive_context_interrupt(int irq, void *data);
+irqreturn_t receive_context_thread(int irq, void *data);
+irqreturn_t receive_context_interrupt_napi(int irq, void *data);
+
+int set_intr_bits(struct hfi1_devdata *dd, u16 first, u16 last, bool set);
+void init_qsfp_int(struct hfi1_devdata *dd);
+void clear_all_interrupts(struct hfi1_devdata *dd);
+void remap_intr(struct hfi1_devdata *dd, int isrc, int msix_intr);
+void remap_sdma_interrupts(struct hfi1_devdata *dd, int engine, int msix_intr);
+void reset_interrupts(struct hfi1_devdata *dd);
+u8 hfi1_get_qp_map(struct hfi1_devdata *dd, u8 idx);
+void hfi1_init_aip_rsm(struct hfi1_devdata *dd);
+void hfi1_deinit_aip_rsm(struct hfi1_devdata *dd);
+
+>>>>>>> upstream/android-13
 /*
  * Interrupt source table.
  *

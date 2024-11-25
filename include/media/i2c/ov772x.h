@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * ov772x Camera
  *
  * Copyright (C) 2008 Renesas Solutions Corp.
  * Kuninori Morimoto <morimoto.kuninori@renesas.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __OV772X_H__
@@ -49,7 +56,11 @@ struct ov772x_edge_ctrl {
 }
 
 /**
+<<<<<<< HEAD
  * ov772x_camera_info -	ov772x driver interface structure
+=======
+ * struct ov772x_camera_info -	ov772x driver interface structure
+>>>>>>> upstream/android-13
  * @flags:		Sensor configuration flags
  * @edgectrl:		Sensor edge control
  */

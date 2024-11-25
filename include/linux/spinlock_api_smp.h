@@ -96,7 +96,11 @@ static inline int __raw_spin_trylock(raw_spinlock_t *lock)
 
 /*
  * If lockdep is enabled then we use the non-preemption spin-ops
+<<<<<<< HEAD
  * even on CONFIG_PREEMPT, because lockdep assumes that interrupts are
+=======
+ * even on CONFIG_PREEMPTION, because lockdep assumes that interrupts are
+>>>>>>> upstream/android-13
  * not re-enabled during lock-acquire (which the preempt-spin-ops do):
  */
 #if !defined(CONFIG_GENERIC_LOCKBREAK) || defined(CONFIG_DEBUG_LOCK_ALLOC)
@@ -147,7 +151,11 @@ static inline void __raw_spin_lock(raw_spinlock_t *lock)
 
 static inline void __raw_spin_unlock(raw_spinlock_t *lock)
 {
+<<<<<<< HEAD
 	spin_release(&lock->dep_map, 1, _RET_IP_);
+=======
+	spin_release(&lock->dep_map, _RET_IP_);
+>>>>>>> upstream/android-13
 	do_raw_spin_unlock(lock);
 	preempt_enable();
 }
@@ -155,7 +163,11 @@ static inline void __raw_spin_unlock(raw_spinlock_t *lock)
 static inline void __raw_spin_unlock_irqrestore(raw_spinlock_t *lock,
 					    unsigned long flags)
 {
+<<<<<<< HEAD
 	spin_release(&lock->dep_map, 1, _RET_IP_);
+=======
+	spin_release(&lock->dep_map, _RET_IP_);
+>>>>>>> upstream/android-13
 	do_raw_spin_unlock(lock);
 	local_irq_restore(flags);
 	preempt_enable();
@@ -163,7 +175,11 @@ static inline void __raw_spin_unlock_irqrestore(raw_spinlock_t *lock,
 
 static inline void __raw_spin_unlock_irq(raw_spinlock_t *lock)
 {
+<<<<<<< HEAD
 	spin_release(&lock->dep_map, 1, _RET_IP_);
+=======
+	spin_release(&lock->dep_map, _RET_IP_);
+>>>>>>> upstream/android-13
 	do_raw_spin_unlock(lock);
 	local_irq_enable();
 	preempt_enable();
@@ -171,7 +187,11 @@ static inline void __raw_spin_unlock_irq(raw_spinlock_t *lock)
 
 static inline void __raw_spin_unlock_bh(raw_spinlock_t *lock)
 {
+<<<<<<< HEAD
 	spin_release(&lock->dep_map, 1, _RET_IP_);
+=======
+	spin_release(&lock->dep_map, _RET_IP_);
+>>>>>>> upstream/android-13
 	do_raw_spin_unlock(lock);
 	__local_bh_enable_ip(_RET_IP_, SOFTIRQ_LOCK_OFFSET);
 }
@@ -187,6 +207,13 @@ static inline int __raw_spin_trylock_bh(raw_spinlock_t *lock)
 	return 0;
 }
 
+<<<<<<< HEAD
 #include <linux/rwlock_api_smp.h>
+=======
+/* PREEMPT_RT has its own rwlock implementation */
+#ifndef CONFIG_PREEMPT_RT
+#include <linux/rwlock_api_smp.h>
+#endif
+>>>>>>> upstream/android-13
 
 #endif /* __LINUX_SPINLOCK_API_SMP_H */

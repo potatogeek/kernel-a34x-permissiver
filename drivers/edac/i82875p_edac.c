@@ -262,7 +262,10 @@ static void i82875p_check(struct mem_ctl_info *mci)
 {
 	struct i82875p_error_info info;
 
+<<<<<<< HEAD
 	edac_dbg(1, "MC%d\n", mci->mc_idx);
+=======
+>>>>>>> upstream/android-13
 	i82875p_get_error_info(mci, &info);
 	i82875p_process_error_info(mci, &info, 1);
 }

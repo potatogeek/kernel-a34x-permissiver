@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
  /******************************************************************************
  * Nuvoton TPM I2C Device Driver Interface for WPCT301/NPCT501/NPCT6XX,
  * based on the TCG TPM Interface Spec version 1.2.
@@ -8,6 +12,7 @@
  * Copyright (C) 2013, Obsidian Research Corp.
  *  Jason Gunthorpe <jgunthorpe@obsidianresearch.com>
  *
+<<<<<<< HEAD
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 2 of the License, or
@@ -21,6 +26,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see http://www.gnu.org/licenses/>.
  *
+=======
+>>>>>>> upstream/android-13
  * Nuvoton contact information: APC.Support@nuvoton.com
  *****************************************************************************/
 
@@ -454,6 +461,7 @@ static int i2c_nuvoton_send(struct tpm_chip *chip, u8 *buf, size_t len)
 		return rc;
 	}
 	ordinal = be32_to_cpu(*((__be32 *) (buf + 6)));
+<<<<<<< HEAD
 	if (chip->flags & TPM_CHIP_FLAG_TPM2)
 		duration = tpm2_calc_ordinal_duration(chip, ordinal);
 	else
@@ -462,6 +470,14 @@ static int i2c_nuvoton_send(struct tpm_chip *chip, u8 *buf, size_t len)
 	rc = i2c_nuvoton_wait_for_data_avail(chip, duration, &priv->read_queue);
 	if (rc) {
 		dev_err(dev, "%s() timeout command duration\n", __func__);
+=======
+	duration = tpm_calc_ordinal_duration(chip, ordinal);
+
+	rc = i2c_nuvoton_wait_for_data_avail(chip, duration, &priv->read_queue);
+	if (rc) {
+		dev_err(dev, "%s() timeout command duration %ld\n",
+			__func__, duration);
+>>>>>>> upstream/android-13
 		i2c_nuvoton_ready(chip);
 		return rc;
 	}

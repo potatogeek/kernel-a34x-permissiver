@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2011 Calxeda, Inc.
  * Based on PPC version Copyright 2007 MontaVista Software, Inc.
@@ -13,6 +14,12 @@
  *
  * You should have received a copy of the GNU General Public License along with
  * this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright 2011 Calxeda, Inc.
+ * Based on PPC version Copyright 2007 MontaVista Software, Inc.
+>>>>>>> upstream/android-13
  */
 #ifndef ASM_EDAC_H
 #define ASM_EDAC_H

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2017 Linus Walleij <linus.walleij@linaro.org>
  * Parts of this file were based on sources as follows:
@@ -7,6 +11,7 @@
  * Copyright (C) 2007 Dave Airlie <airlied@linux.ie>
  * Copyright (C) 2011 Texas Instruments
  * Copyright (C) 2017 Eric Anholt
+<<<<<<< HEAD
  *
  * This program is free software and is provided to you under the terms of the
  * GNU General Public License version 2 as published by the Free Software
@@ -15,15 +20,29 @@
  */
 #include <linux/clk.h>
 #include <linux/version.h>
+=======
+ */
+
+#include <linux/clk.h>
+>>>>>>> upstream/android-13
 #include <linux/dma-buf.h>
 #include <linux/of_graph.h>
 #include <linux/delay.h>
 
+<<<<<<< HEAD
 #include <drm/drmP.h>
 #include <drm/drm_panel.h>
 #include <drm/drm_gem_cma_helper.h>
 #include <drm/drm_gem_framebuffer_helper.h>
 #include <drm/drm_fb_cma_helper.h>
+=======
+#include <drm/drm_fb_cma_helper.h>
+#include <drm/drm_fourcc.h>
+#include <drm/drm_gem_atomic_helper.h>
+#include <drm/drm_gem_cma_helper.h>
+#include <drm/drm_panel.h>
+#include <drm/drm_vblank.h>
+>>>>>>> upstream/android-13
 
 #include "tve200_drm.h"
 
@@ -166,7 +185,12 @@ static void tve200_display_enable(struct drm_simple_display_pipe *pipe,
 	/* Vsync IRQ at start of Vsync at first */
 	ctrl1 |= TVE200_VSTSTYPE_VSYNC;
 
+<<<<<<< HEAD
 	if (connector->display_info.bus_flags & DRM_BUS_FLAG_PIXDATA_NEGEDGE)
+=======
+	if (connector->display_info.bus_flags &
+	    DRM_BUS_FLAG_PIXDATA_DRIVE_NEGEDGE)
+>>>>>>> upstream/android-13
 		ctrl1 |= TVE200_CTRL_TVCLKP;
 
 	if ((mode->hdisplay == 352 && mode->vdisplay == 240) || /* SIF(525) */
@@ -318,7 +342,10 @@ static const struct drm_simple_display_pipe_funcs tve200_display_funcs = {
 	.enable = tve200_display_enable,
 	.disable = tve200_display_disable,
 	.update = tve200_display_update,
+<<<<<<< HEAD
 	.prepare_fb = drm_gem_fb_simple_display_pipe_prepare_fb,
+=======
+>>>>>>> upstream/android-13
 	.enable_vblank = tve200_display_enable_vblank,
 	.disable_vblank = tve200_display_disable_vblank,
 };

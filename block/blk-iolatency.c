@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * Block rq-qos base io controller
  *
@@ -117,9 +121,28 @@ struct child_latency_info {
 	atomic_t scale_cookie;
 };
 
+<<<<<<< HEAD
 struct iolatency_grp {
 	struct blkg_policy_data pd;
 	struct blk_rq_stat __percpu *stats;
+=======
+struct percentile_stats {
+	u64 total;
+	u64 missed;
+};
+
+struct latency_stat {
+	union {
+		struct percentile_stats ps;
+		struct blk_rq_stat rqs;
+	};
+};
+
+struct iolatency_grp {
+	struct blkg_policy_data pd;
+	struct latency_stat __percpu *stats;
+	struct latency_stat cur_stat;
+>>>>>>> upstream/android-13
 	struct blk_iolatency *blkiolat;
 	struct rq_depth rq_depth;
 	struct rq_wait rq_wait;
@@ -134,6 +157,10 @@ struct iolatency_grp {
 	/* Our current number of IO's for the last summation. */
 	u64 nr_samples;
 
+<<<<<<< HEAD
+=======
+	bool ssd;
+>>>>>>> upstream/android-13
 	struct child_latency_info child_lat;
 };
 
@@ -174,6 +201,7 @@ static inline struct blkcg_gq *lat_to_blkg(struct iolatency_grp *iolat)
 	return pd_to_blkg(&iolat->pd);
 }
 
+<<<<<<< HEAD
 static inline bool iolatency_may_queue(struct iolatency_grp *iolat,
 				       wait_queue_entry_t *wait,
 				       bool first_block)
@@ -183,11 +211,99 @@ static inline bool iolatency_may_queue(struct iolatency_grp *iolat,
 	if (first_block && waitqueue_active(&rqw->wait) &&
 	    rqw->wait.head.next != &wait->entry)
 		return false;
+=======
+static inline void latency_stat_init(struct iolatency_grp *iolat,
+				     struct latency_stat *stat)
+{
+	if (iolat->ssd) {
+		stat->ps.total = 0;
+		stat->ps.missed = 0;
+	} else
+		blk_rq_stat_init(&stat->rqs);
+}
+
+static inline void latency_stat_sum(struct iolatency_grp *iolat,
+				    struct latency_stat *sum,
+				    struct latency_stat *stat)
+{
+	if (iolat->ssd) {
+		sum->ps.total += stat->ps.total;
+		sum->ps.missed += stat->ps.missed;
+	} else
+		blk_rq_stat_sum(&sum->rqs, &stat->rqs);
+}
+
+static inline void latency_stat_record_time(struct iolatency_grp *iolat,
+					    u64 req_time)
+{
+	struct latency_stat *stat = get_cpu_ptr(iolat->stats);
+	if (iolat->ssd) {
+		if (req_time >= iolat->min_lat_nsec)
+			stat->ps.missed++;
+		stat->ps.total++;
+	} else
+		blk_rq_stat_add(&stat->rqs, req_time);
+	put_cpu_ptr(stat);
+}
+
+static inline bool latency_sum_ok(struct iolatency_grp *iolat,
+				  struct latency_stat *stat)
+{
+	if (iolat->ssd) {
+		u64 thresh = div64_u64(stat->ps.total, 10);
+		thresh = max(thresh, 1ULL);
+		return stat->ps.missed < thresh;
+	}
+	return stat->rqs.mean <= iolat->min_lat_nsec;
+}
+
+static inline u64 latency_stat_samples(struct iolatency_grp *iolat,
+				       struct latency_stat *stat)
+{
+	if (iolat->ssd)
+		return stat->ps.total;
+	return stat->rqs.nr_samples;
+}
+
+static inline void iolat_update_total_lat_avg(struct iolatency_grp *iolat,
+					      struct latency_stat *stat)
+{
+	int exp_idx;
+
+	if (iolat->ssd)
+		return;
+
+	/*
+	 * calc_load() takes in a number stored in fixed point representation.
+	 * Because we are using this for IO time in ns, the values stored
+	 * are significantly larger than the FIXED_1 denominator (2048).
+	 * Therefore, rounding errors in the calculation are negligible and
+	 * can be ignored.
+	 */
+	exp_idx = min_t(int, BLKIOLATENCY_NR_EXP_FACTORS - 1,
+			div64_u64(iolat->cur_win_nsec,
+				  BLKIOLATENCY_EXP_BUCKET_SIZE));
+	iolat->lat_avg = calc_load(iolat->lat_avg,
+				   iolatency_exp_factors[exp_idx],
+				   stat->rqs.mean);
+}
+
+static void iolat_cleanup_cb(struct rq_wait *rqw, void *private_data)
+{
+	atomic_dec(&rqw->inflight);
+	wake_up(&rqw->wait);
+}
+
+static bool iolat_acquire_inflight(struct rq_wait *rqw, void *private_data)
+{
+	struct iolatency_grp *iolat = private_data;
+>>>>>>> upstream/android-13
 	return rq_wait_inc_below(rqw, iolat->rq_depth.max_depth);
 }
 
 static void __blkcg_iolatency_throttle(struct rq_qos *rqos,
 				       struct iolatency_grp *iolat,
+<<<<<<< HEAD
 				       spinlock_t *lock, bool issue_as_root,
 				       bool use_memdelay)
 	__releases(lock)
@@ -197,6 +313,13 @@ static void __blkcg_iolatency_throttle(struct rq_qos *rqos,
 	unsigned use_delay = atomic_read(&lat_to_blkg(iolat)->use_delay);
 	DEFINE_WAIT(wait);
 	bool first_block = true;
+=======
+				       bool issue_as_root,
+				       bool use_memdelay)
+{
+	struct rq_wait *rqw = &iolat->rq_wait;
+	unsigned use_delay = atomic_read(&lat_to_blkg(iolat)->use_delay);
+>>>>>>> upstream/android-13
 
 	if (use_delay)
 		blkcg_schedule_throttle(rqos->q, use_memdelay);
@@ -213,6 +336,7 @@ static void __blkcg_iolatency_throttle(struct rq_qos *rqos,
 		return;
 	}
 
+<<<<<<< HEAD
 	if (iolatency_may_queue(iolat, &wait, first_block))
 		return;
 
@@ -234,6 +358,9 @@ static void __blkcg_iolatency_throttle(struct rq_qos *rqos,
 	} while (1);
 
 	finish_wait(&rqw->wait, &wait);
+=======
+	rq_qos_wait(rqw, iolat, iolat_acquire_inflight, iolat_cleanup_cb);
+>>>>>>> upstream/android-13
 }
 
 #define SCALE_DOWN_FACTOR 2
@@ -257,7 +384,11 @@ static void scale_cookie_change(struct blk_iolatency *blkiolat,
 				struct child_latency_info *lat_info,
 				bool up)
 {
+<<<<<<< HEAD
 	unsigned long qd = blk_queue_depth(blkiolat->rqos.q);
+=======
+	unsigned long qd = blkiolat->rqos.q->nr_requests;
+>>>>>>> upstream/android-13
 	unsigned long scale = scale_amount(qd, up);
 	unsigned long old = atomic_read(&lat_info->scale_cookie);
 	unsigned long max_scale = qd << 1;
@@ -297,10 +428,16 @@ static void scale_cookie_change(struct blk_iolatency *blkiolat,
  */
 static void scale_change(struct iolatency_grp *iolat, bool up)
 {
+<<<<<<< HEAD
 	unsigned long qd = blk_queue_depth(iolat->blkiolat->rqos.q);
 	unsigned long scale = scale_amount(qd, up);
 	unsigned long old = iolat->rq_depth.max_depth;
 	bool changed = false;
+=======
+	unsigned long qd = iolat->blkiolat->rqos.q->nr_requests;
+	unsigned long scale = scale_amount(qd, up);
+	unsigned long old = iolat->rq_depth.max_depth;
+>>>>>>> upstream/android-13
 
 	if (old > qd)
 		old = qd;
@@ -310,15 +447,23 @@ static void scale_change(struct iolatency_grp *iolat, bool up)
 			return;
 
 		if (old < qd) {
+<<<<<<< HEAD
 			changed = true;
+=======
+>>>>>>> upstream/android-13
 			old += scale;
 			old = min(old, qd);
 			iolat->rq_depth.max_depth = old;
 			wake_up_all(&iolat->rq_wait.wait);
 		}
+<<<<<<< HEAD
 	} else if (old > 1) {
 		old >>= 1;
 		changed = true;
+=======
+	} else {
+		old >>= 1;
+>>>>>>> upstream/android-13
 		iolat->rq_depth.max_depth = max(old, 1UL);
 	}
 }
@@ -371,7 +516,11 @@ static void check_scale_change(struct iolatency_grp *iolat)
 		 * scale down event.
 		 */
 		samples_thresh = lat_info->nr_samples * 5;
+<<<<<<< HEAD
 		samples_thresh = div64_u64(samples_thresh, 100);
+=======
+		samples_thresh = max(1ULL, div64_u64(samples_thresh, 100));
+>>>>>>> upstream/android-13
 		if (iolat->nr_samples <= samples_thresh)
 			return;
 	}
@@ -393,6 +542,7 @@ static void check_scale_change(struct iolatency_grp *iolat)
 	scale_change(iolat, direction > 0);
 }
 
+<<<<<<< HEAD
 static void blkcg_iolatency_throttle(struct rq_qos *rqos, struct bio *bio,
 				     spinlock_t *lock)
 {
@@ -400,11 +550,18 @@ static void blkcg_iolatency_throttle(struct rq_qos *rqos, struct bio *bio,
 	struct blkcg *blkcg;
 	struct blkcg_gq *blkg;
 	struct request_queue *q = rqos->q;
+=======
+static void blkcg_iolatency_throttle(struct rq_qos *rqos, struct bio *bio)
+{
+	struct blk_iolatency *blkiolat = BLKIOLATENCY(rqos);
+	struct blkcg_gq *blkg = bio->bi_blkg;
+>>>>>>> upstream/android-13
 	bool issue_as_root = bio_issue_as_root_blkg(bio);
 
 	if (!blk_iolatency_enabled(blkiolat))
 		return;
 
+<<<<<<< HEAD
 	rcu_read_lock();
 	blkcg = bio_blkcg(bio);
 	bio_associate_blkcg(bio, &blkcg->css);
@@ -425,6 +582,8 @@ static void blkcg_iolatency_throttle(struct rq_qos *rqos, struct bio *bio,
 	bio_associate_blkg(bio, blkg);
 out:
 	rcu_read_unlock();
+=======
+>>>>>>> upstream/android-13
 	while (blkg && blkg->parent) {
 		struct iolatency_grp *iolat = blkg_to_lat(blkg);
 		if (!iolat) {
@@ -433,7 +592,11 @@ out:
 		}
 
 		check_scale_change(iolat);
+<<<<<<< HEAD
 		__blkcg_iolatency_throttle(rqos, iolat, lock, issue_as_root,
+=======
+		__blkcg_iolatency_throttle(rqos, iolat, issue_as_root,
+>>>>>>> upstream/android-13
 				     (bio->bi_opf & REQ_SWAP) == REQ_SWAP);
 		blkg = blkg->parent;
 	}
@@ -445,7 +608,10 @@ static void iolatency_record_time(struct iolatency_grp *iolat,
 				  struct bio_issue *issue, u64 now,
 				  bool issue_as_root)
 {
+<<<<<<< HEAD
 	struct blk_rq_stat *rq_stat;
+=======
+>>>>>>> upstream/android-13
 	u64 start = bio_issue_time(issue);
 	u64 req_time;
 
@@ -471,9 +637,13 @@ static void iolatency_record_time(struct iolatency_grp *iolat,
 		return;
 	}
 
+<<<<<<< HEAD
 	rq_stat = get_cpu_ptr(iolat->stats);
 	blk_rq_stat_add(rq_stat, req_time);
 	put_cpu_ptr(rq_stat);
+=======
+	latency_stat_record_time(iolat, req_time);
+>>>>>>> upstream/android-13
 }
 
 #define BLKIOLATENCY_MIN_ADJUST_TIME (500 * NSEC_PER_MSEC)
@@ -484,6 +654,7 @@ static void iolatency_check_latencies(struct iolatency_grp *iolat, u64 now)
 	struct blkcg_gq *blkg = lat_to_blkg(iolat);
 	struct iolatency_grp *parent;
 	struct child_latency_info *lat_info;
+<<<<<<< HEAD
 	struct blk_rq_stat stat;
 	unsigned long flags;
 	int cpu, exp_idx;
@@ -495,6 +666,19 @@ static void iolatency_check_latencies(struct iolatency_grp *iolat, u64 now)
 		s = per_cpu_ptr(iolat->stats, cpu);
 		blk_rq_stat_sum(&stat, s);
 		blk_rq_stat_init(s);
+=======
+	struct latency_stat stat;
+	unsigned long flags;
+	int cpu;
+
+	latency_stat_init(iolat, &stat);
+	preempt_disable();
+	for_each_online_cpu(cpu) {
+		struct latency_stat *s;
+		s = per_cpu_ptr(iolat->stats, cpu);
+		latency_stat_sum(iolat, &stat, s);
+		latency_stat_init(iolat, s);
+>>>>>>> upstream/android-13
 	}
 	preempt_enable();
 
@@ -504,6 +688,7 @@ static void iolatency_check_latencies(struct iolatency_grp *iolat, u64 now)
 
 	lat_info = &parent->child_lat;
 
+<<<<<<< HEAD
 	/*
 	 * calc_load() takes in a number stored in fixed point representation.
 	 * Because we are using this for IO time in ns, the values stored
@@ -520,11 +705,18 @@ static void iolatency_check_latencies(struct iolatency_grp *iolat, u64 now)
 
 	/* Everything is ok and we don't need to adjust the scale. */
 	if (stat.mean <= iolat->min_lat_nsec &&
+=======
+	iolat_update_total_lat_avg(iolat, &stat);
+
+	/* Everything is ok and we don't need to adjust the scale. */
+	if (latency_sum_ok(iolat, &stat) &&
+>>>>>>> upstream/android-13
 	    atomic_read(&lat_info->scale_cookie) == DEFAULT_SCALE_COOKIE)
 		return;
 
 	/* Somebody beat us to the punch, just bail. */
 	spin_lock_irqsave(&lat_info->lock, flags);
+<<<<<<< HEAD
 	lat_info->nr_samples -= iolat->nr_samples;
 	lat_info->nr_samples += stat.nr_samples;
 	iolat->nr_samples = stat.nr_samples;
@@ -536,11 +728,33 @@ static void iolatency_check_latencies(struct iolatency_grp *iolat, u64 now)
 
 	if (stat.mean <= iolat->min_lat_nsec &&
 	    stat.nr_samples >= BLKIOLATENCY_MIN_GOOD_SAMPLES) {
+=======
+
+	latency_stat_sum(iolat, &iolat->cur_stat, &stat);
+	lat_info->nr_samples -= iolat->nr_samples;
+	lat_info->nr_samples += latency_stat_samples(iolat, &iolat->cur_stat);
+	iolat->nr_samples = latency_stat_samples(iolat, &iolat->cur_stat);
+
+	if ((lat_info->last_scale_event >= now ||
+	    now - lat_info->last_scale_event < BLKIOLATENCY_MIN_ADJUST_TIME))
+		goto out;
+
+	if (latency_sum_ok(iolat, &iolat->cur_stat) &&
+	    latency_sum_ok(iolat, &stat)) {
+		if (latency_stat_samples(iolat, &iolat->cur_stat) <
+		    BLKIOLATENCY_MIN_GOOD_SAMPLES)
+			goto out;
+>>>>>>> upstream/android-13
 		if (lat_info->scale_grp == iolat) {
 			lat_info->last_scale_event = now;
 			scale_cookie_change(iolat->blkiolat, lat_info, true);
 		}
+<<<<<<< HEAD
 	} else if (stat.mean > iolat->min_lat_nsec) {
+=======
+	} else if (lat_info->scale_lat == 0 ||
+		   lat_info->scale_lat >= iolat->min_lat_nsec) {
+>>>>>>> upstream/android-13
 		lat_info->last_scale_event = now;
 		if (!lat_info->scale_grp ||
 		    lat_info->scale_lat > iolat->min_lat_nsec) {
@@ -549,6 +763,10 @@ static void iolatency_check_latencies(struct iolatency_grp *iolat, u64 now)
 		}
 		scale_cookie_change(iolat->blkiolat, lat_info, false);
 	}
+<<<<<<< HEAD
+=======
+	latency_stat_init(iolat, &iolat->cur_stat);
+>>>>>>> upstream/android-13
 out:
 	spin_unlock_irqrestore(&lat_info->lock, flags);
 }
@@ -559,13 +777,21 @@ static void blkcg_iolatency_done_bio(struct rq_qos *rqos, struct bio *bio)
 	struct rq_wait *rqw;
 	struct iolatency_grp *iolat;
 	u64 window_start;
+<<<<<<< HEAD
 	u64 now = ktime_to_ns(ktime_get());
+=======
+	u64 now;
+>>>>>>> upstream/android-13
 	bool issue_as_root = bio_issue_as_root_blkg(bio);
 	bool enabled = false;
 	int inflight = 0;
 
 	blkg = bio->bi_blkg;
+<<<<<<< HEAD
 	if (!blkg)
+=======
+	if (!blkg || !bio_flagged(bio, BIO_TRACKED))
+>>>>>>> upstream/android-13
 		return;
 
 	iolat = blkg_to_lat(bio->bi_blkg);
@@ -576,6 +802,10 @@ static void blkcg_iolatency_done_bio(struct rq_qos *rqos, struct bio *bio)
 	if (!enabled)
 		return;
 
+<<<<<<< HEAD
+=======
+	now = ktime_to_ns(ktime_get());
+>>>>>>> upstream/android-13
 	while (blkg && blkg->parent) {
 		iolat = blkg_to_lat(blkg);
 		if (!iolat) {
@@ -640,7 +870,11 @@ static void blkiolatency_timer_fn(struct timer_list *t)
 		 * We could be exiting, don't access the pd unless we have a
 		 * ref on the blkg.
 		 */
+<<<<<<< HEAD
 		if (!blkg_try_get(blkg))
+=======
+		if (!blkg_tryget(blkg))
+>>>>>>> upstream/android-13
 			continue;
 
 		iolat = blkg_to_lat(blkg);
@@ -693,7 +927,11 @@ int blk_iolatency_init(struct request_queue *q)
 		return -ENOMEM;
 
 	rqos = &blkiolat->rqos;
+<<<<<<< HEAD
 	rqos->id = RQ_QOS_CGROUP;
+=======
+	rqos->id = RQ_QOS_LATENCY;
+>>>>>>> upstream/android-13
 	rqos->ops = &blkcg_iolatency_ops;
 	rqos->q = q;
 
@@ -757,7 +995,10 @@ static ssize_t iolatency_set_limit(struct kernfs_open_file *of, char *buf,
 {
 	struct blkcg *blkcg = css_to_blkcg(of_css(of));
 	struct blkcg_gq *blkg;
+<<<<<<< HEAD
 	struct blk_iolatency *blkiolat;
+=======
+>>>>>>> upstream/android-13
 	struct blkg_conf_ctx ctx;
 	struct iolatency_grp *iolat;
 	char *p, *tok;
@@ -771,7 +1012,10 @@ static ssize_t iolatency_set_limit(struct kernfs_open_file *of, char *buf,
 		return ret;
 
 	iolat = blkg_to_lat(ctx.blkg);
+<<<<<<< HEAD
 	blkiolat = iolat->blkiolat;
+=======
+>>>>>>> upstream/android-13
 	p = ctx.body;
 
 	ret = -EINVAL;
@@ -802,7 +1046,15 @@ static ssize_t iolatency_set_limit(struct kernfs_open_file *of, char *buf,
 
 	enable = iolatency_set_min_lat_nsec(blkg, lat_val);
 	if (enable) {
+<<<<<<< HEAD
 		WARN_ON_ONCE(!blk_get_queue(blkg->q));
+=======
+		if (!blk_get_queue(blkg->q)) {
+			ret = -ENODEV;
+			goto out;
+		}
+
+>>>>>>> upstream/android-13
 		blkg_get(blkg);
 	}
 
@@ -855,6 +1107,7 @@ static int iolatency_print_limit(struct seq_file *sf, void *v)
 	return 0;
 }
 
+<<<<<<< HEAD
 static size_t iolatency_pd_stat(struct blkg_policy_data *pd, char *buf,
 				size_t size)
 {
@@ -880,6 +1133,68 @@ static struct blkg_policy_data *iolatency_pd_alloc(gfp_t gfp, int node)
 		return NULL;
 	iolat->stats = __alloc_percpu_gfp(sizeof(struct blk_rq_stat),
 				       __alignof__(struct blk_rq_stat), gfp);
+=======
+static bool iolatency_ssd_stat(struct iolatency_grp *iolat, struct seq_file *s)
+{
+	struct latency_stat stat;
+	int cpu;
+
+	latency_stat_init(iolat, &stat);
+	preempt_disable();
+	for_each_online_cpu(cpu) {
+		struct latency_stat *s;
+		s = per_cpu_ptr(iolat->stats, cpu);
+		latency_stat_sum(iolat, &stat, s);
+	}
+	preempt_enable();
+
+	if (iolat->rq_depth.max_depth == UINT_MAX)
+		seq_printf(s, " missed=%llu total=%llu depth=max",
+			(unsigned long long)stat.ps.missed,
+			(unsigned long long)stat.ps.total);
+	else
+		seq_printf(s, " missed=%llu total=%llu depth=%u",
+			(unsigned long long)stat.ps.missed,
+			(unsigned long long)stat.ps.total,
+			iolat->rq_depth.max_depth);
+	return true;
+}
+
+static bool iolatency_pd_stat(struct blkg_policy_data *pd, struct seq_file *s)
+{
+	struct iolatency_grp *iolat = pd_to_lat(pd);
+	unsigned long long avg_lat;
+	unsigned long long cur_win;
+
+	if (!blkcg_debug_stats)
+		return false;
+
+	if (iolat->ssd)
+		return iolatency_ssd_stat(iolat, s);
+
+	avg_lat = div64_u64(iolat->lat_avg, NSEC_PER_USEC);
+	cur_win = div64_u64(iolat->cur_win_nsec, NSEC_PER_MSEC);
+	if (iolat->rq_depth.max_depth == UINT_MAX)
+		seq_printf(s, " depth=max avg_lat=%llu win=%llu",
+			avg_lat, cur_win);
+	else
+		seq_printf(s, " depth=%u avg_lat=%llu win=%llu",
+			iolat->rq_depth.max_depth, avg_lat, cur_win);
+	return true;
+}
+
+static struct blkg_policy_data *iolatency_pd_alloc(gfp_t gfp,
+						   struct request_queue *q,
+						   struct blkcg *blkcg)
+{
+	struct iolatency_grp *iolat;
+
+	iolat = kzalloc_node(sizeof(*iolat), gfp, q->node);
+	if (!iolat)
+		return NULL;
+	iolat->stats = __alloc_percpu_gfp(sizeof(struct latency_stat),
+				       __alignof__(struct latency_stat), gfp);
+>>>>>>> upstream/android-13
 	if (!iolat->stats) {
 		kfree(iolat);
 		return NULL;
@@ -896,6 +1211,7 @@ static void iolatency_pd_init(struct blkg_policy_data *pd)
 	u64 now = ktime_to_ns(ktime_get());
 	int cpu;
 
+<<<<<<< HEAD
 	for_each_possible_cpu(cpu) {
 		struct blk_rq_stat *stat;
 		stat = per_cpu_ptr(iolat->stats, cpu);
@@ -905,6 +1221,23 @@ static void iolatency_pd_init(struct blkg_policy_data *pd)
 	rq_wait_init(&iolat->rq_wait);
 	spin_lock_init(&iolat->child_lat.lock);
 	iolat->rq_depth.queue_depth = blk_queue_depth(blkg->q);
+=======
+	if (blk_queue_nonrot(blkg->q))
+		iolat->ssd = true;
+	else
+		iolat->ssd = false;
+
+	for_each_possible_cpu(cpu) {
+		struct latency_stat *stat;
+		stat = per_cpu_ptr(iolat->stats, cpu);
+		latency_stat_init(iolat, stat);
+	}
+
+	latency_stat_init(iolat, &iolat->cur_stat);
+	rq_wait_init(&iolat->rq_wait);
+	spin_lock_init(&iolat->child_lat.lock);
+	iolat->rq_depth.queue_depth = blkg->q->nr_requests;
+>>>>>>> upstream/android-13
 	iolat->rq_depth.max_depth = UINT_MAX;
 	iolat->rq_depth.default_depth = iolat->rq_depth.queue_depth;
 	iolat->blkiolat = blkiolat;
@@ -974,7 +1307,11 @@ static int __init iolatency_init(void)
 
 static void __exit iolatency_exit(void)
 {
+<<<<<<< HEAD
 	return blkcg_policy_unregister(&blkcg_policy_iolatency);
+=======
+	blkcg_policy_unregister(&blkcg_policy_iolatency);
+>>>>>>> upstream/android-13
 }
 
 module_init(iolatency_init);

@@ -5,6 +5,7 @@
 struct sigcontext {
 	unsigned long	oldmask;
 
+<<<<<<< HEAD
 #if defined(__SH5__) || defined(CONFIG_CPU_SH5)
 	/* CPU registers */
 	unsigned long long sc_regs[63];
@@ -17,6 +18,8 @@ struct sigcontext {
 	unsigned int sc_fpscr;
 	unsigned int sc_fpvalid;
 #else
+=======
+>>>>>>> upstream/android-13
 	/* CPU registers */
 	unsigned long sc_regs[16];
 	unsigned long sc_pc;
@@ -32,7 +35,10 @@ struct sigcontext {
 	unsigned int sc_fpscr;
 	unsigned int sc_fpul;
 	unsigned int sc_ownedfp;
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 };
 
 #endif /* __ASM_SH_SIGCONTEXT_H */

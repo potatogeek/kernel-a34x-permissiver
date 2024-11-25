@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * NVMe over Fabrics common host code.
  * Copyright (c) 2015-2016 HGST, a Western Digital Company.
@@ -10,6 +11,12 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
+=======
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * NVMe over Fabrics common host code.
+ * Copyright (c) 2015-2016 HGST, a Western Digital Company.
+>>>>>>> upstream/android-13
  */
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 #include <linux/init.h>
@@ -113,6 +120,7 @@ int nvmf_get_address(struct nvme_ctrl *ctrl, char *buf, int size)
 	int len = 0;
 
 	if (ctrl->opts->mask & NVMF_OPT_TRADDR)
+<<<<<<< HEAD
 		len += snprintf(buf, size, "traddr=%s", ctrl->opts->traddr);
 	if (ctrl->opts->mask & NVMF_OPT_TRSVCID)
 		len += snprintf(buf + len, size - len, "%strsvcid=%s",
@@ -121,6 +129,19 @@ int nvmf_get_address(struct nvme_ctrl *ctrl, char *buf, int size)
 		len += snprintf(buf + len, size - len, "%shost_traddr=%s",
 				(len) ? "," : "", ctrl->opts->host_traddr);
 	len += snprintf(buf + len, size - len, "\n");
+=======
+		len += scnprintf(buf, size, "traddr=%s", ctrl->opts->traddr);
+	if (ctrl->opts->mask & NVMF_OPT_TRSVCID)
+		len += scnprintf(buf + len, size - len, "%strsvcid=%s",
+				(len) ? "," : "", ctrl->opts->trsvcid);
+	if (ctrl->opts->mask & NVMF_OPT_HOST_TRADDR)
+		len += scnprintf(buf + len, size - len, "%shost_traddr=%s",
+				(len) ? "," : "", ctrl->opts->host_traddr);
+	if (ctrl->opts->mask & NVMF_OPT_HOST_IFACE)
+		len += scnprintf(buf + len, size - len, "%shost_iface=%s",
+				(len) ? "," : "", ctrl->opts->host_iface);
+	len += scnprintf(buf + len, size - len, "\n");
+>>>>>>> upstream/android-13
 
 	return len;
 }
@@ -158,7 +179,11 @@ int nvmf_reg_read32(struct nvme_ctrl *ctrl, u32 off, u32 *val)
 	cmd.prop_get.fctype = nvme_fabrics_type_property_get;
 	cmd.prop_get.offset = cpu_to_le32(off);
 
+<<<<<<< HEAD
 	ret = __nvme_submit_sync_cmd(ctrl->admin_q, &cmd, &res, NULL, 0, 0,
+=======
+	ret = __nvme_submit_sync_cmd(ctrl->fabrics_q, &cmd, &res, NULL, 0, 0,
+>>>>>>> upstream/android-13
 			NVME_QID_ANY, 0, 0);
 
 	if (ret >= 0)
@@ -195,17 +220,28 @@ EXPORT_SYMBOL_GPL(nvmf_reg_read32);
  */
 int nvmf_reg_read64(struct nvme_ctrl *ctrl, u32 off, u64 *val)
 {
+<<<<<<< HEAD
 	struct nvme_command cmd;
 	union nvme_result res;
 	int ret;
 
 	memset(&cmd, 0, sizeof(cmd));
+=======
+	struct nvme_command cmd = { };
+	union nvme_result res;
+	int ret;
+
+>>>>>>> upstream/android-13
 	cmd.prop_get.opcode = nvme_fabrics_command;
 	cmd.prop_get.fctype = nvme_fabrics_type_property_get;
 	cmd.prop_get.attrib = 1;
 	cmd.prop_get.offset = cpu_to_le32(off);
 
+<<<<<<< HEAD
 	ret = __nvme_submit_sync_cmd(ctrl->admin_q, &cmd, &res, NULL, 0, 0,
+=======
+	ret = __nvme_submit_sync_cmd(ctrl->fabrics_q, &cmd, &res, NULL, 0, 0,
+>>>>>>> upstream/android-13
 			NVME_QID_ANY, 0, 0);
 
 	if (ret >= 0)
@@ -241,17 +277,27 @@ EXPORT_SYMBOL_GPL(nvmf_reg_read64);
  */
 int nvmf_reg_write32(struct nvme_ctrl *ctrl, u32 off, u32 val)
 {
+<<<<<<< HEAD
 	struct nvme_command cmd;
 	int ret;
 
 	memset(&cmd, 0, sizeof(cmd));
+=======
+	struct nvme_command cmd = { };
+	int ret;
+
+>>>>>>> upstream/android-13
 	cmd.prop_set.opcode = nvme_fabrics_command;
 	cmd.prop_set.fctype = nvme_fabrics_type_property_set;
 	cmd.prop_set.attrib = 0;
 	cmd.prop_set.offset = cpu_to_le32(off);
 	cmd.prop_set.value = cpu_to_le64(val);
 
+<<<<<<< HEAD
 	ret = __nvme_submit_sync_cmd(ctrl->admin_q, &cmd, NULL, NULL, 0, 0,
+=======
+	ret = __nvme_submit_sync_cmd(ctrl->fabrics_q, &cmd, NULL, NULL, 0, 0,
+>>>>>>> upstream/android-13
 			NVME_QID_ANY, 0, 0);
 	if (unlikely(ret))
 		dev_err(ctrl->device,
@@ -262,6 +308,7 @@ int nvmf_reg_write32(struct nvme_ctrl *ctrl, u32 off, u32 val)
 EXPORT_SYMBOL_GPL(nvmf_reg_write32);
 
 /**
+<<<<<<< HEAD
  * nvmf_log_connect_error() - Error-parsing-diagnostic print
  * out function for connect() errors.
  *
@@ -275,15 +322,32 @@ EXPORT_SYMBOL_GPL(nvmf_reg_write32);
  * @cmd: This is the SQE portion of a submission capsule.
  *
  * @data: This is the "Data" portion of a submission capsule.
+=======
+ * nvmf_log_connect_error() - Error-parsing-diagnostic print out function for
+ * 				connect() errors.
+ * @ctrl:	The specific /dev/nvmeX device that had the error.
+ * @errval:	Error code to be decoded in a more human-friendly
+ * 		printout.
+ * @offset:	For use with the NVMe error code
+ * 		NVME_SC_CONNECT_INVALID_PARAM.
+ * @cmd:	This is the SQE portion of a submission capsule.
+ * @data:	This is the "Data" portion of a submission capsule.
+>>>>>>> upstream/android-13
  */
 static void nvmf_log_connect_error(struct nvme_ctrl *ctrl,
 		int errval, int offset, struct nvme_command *cmd,
 		struct nvmf_connect_data *data)
 {
+<<<<<<< HEAD
 	int err_sctype = errval & (~NVME_SC_DNR);
 
 	switch (err_sctype) {
 
+=======
+	int err_sctype = errval & ~NVME_SC_DNR;
+
+	switch (err_sctype) {
+>>>>>>> upstream/android-13
 	case (NVME_SC_CONNECT_INVALID_PARAM):
 		if (offset >> 16) {
 			char *inv_data = "Connect Invalid Data Parameter";
@@ -326,30 +390,50 @@ static void nvmf_log_connect_error(struct nvme_ctrl *ctrl,
 			}
 		}
 		break;
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	case NVME_SC_CONNECT_INVALID_HOST:
 		dev_err(ctrl->device,
 			"Connect for subsystem %s is not allowed, hostnqn: %s\n",
 			data->subsysnqn, data->hostnqn);
 		break;
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	case NVME_SC_CONNECT_CTRL_BUSY:
 		dev_err(ctrl->device,
 			"Connect command failed: controller is busy or not available\n");
 		break;
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	case NVME_SC_CONNECT_FORMAT:
 		dev_err(ctrl->device,
 			"Connect incompatible format: %d",
 			cmd->connect.recfmt);
 		break;
+<<<<<<< HEAD
 
+=======
+	case NVME_SC_HOST_PATH_ERROR:
+		dev_err(ctrl->device,
+			"Connect command failed: host path error\n");
+		break;
+>>>>>>> upstream/android-13
 	default:
 		dev_err(ctrl->device,
 			"Connect command failed, error wo/DNR bit: %d\n",
 			err_sctype);
 		break;
+<<<<<<< HEAD
 	} /* switch (err_sctype) */
+=======
+	}
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -374,12 +458,19 @@ static void nvmf_log_connect_error(struct nvme_ctrl *ctrl,
  */
 int nvmf_connect_admin_queue(struct nvme_ctrl *ctrl)
 {
+<<<<<<< HEAD
 	struct nvme_command cmd;
+=======
+	struct nvme_command cmd = { };
+>>>>>>> upstream/android-13
 	union nvme_result res;
 	struct nvmf_connect_data *data;
 	int ret;
 
+<<<<<<< HEAD
 	memset(&cmd, 0, sizeof(cmd));
+=======
+>>>>>>> upstream/android-13
 	cmd.connect.opcode = nvme_fabrics_command;
 	cmd.connect.fctype = nvme_fabrics_type_connect;
 	cmd.connect.qid = 0;
@@ -387,10 +478,18 @@ int nvmf_connect_admin_queue(struct nvme_ctrl *ctrl)
 
 	/*
 	 * Set keep-alive timeout in seconds granularity (ms * 1000)
+<<<<<<< HEAD
 	 * and add a grace period for controller kato enforcement
 	 */
 	cmd.connect.kato = ctrl->opts->discovery_nqn ? 0 :
 		cpu_to_le32((ctrl->kato + NVME_KATO_GRACE) * 1000);
+=======
+	 */
+	cmd.connect.kato = cpu_to_le32(ctrl->kato * 1000);
+
+	if (ctrl->opts->disable_sqflow)
+		cmd.connect.cattr |= NVME_CONNECT_DISABLE_SQFLOW;
+>>>>>>> upstream/android-13
 
 	data = kzalloc(sizeof(*data), GFP_KERNEL);
 	if (!data)
@@ -401,7 +500,11 @@ int nvmf_connect_admin_queue(struct nvme_ctrl *ctrl)
 	strncpy(data->subsysnqn, ctrl->opts->subsysnqn, NVMF_NQN_SIZE);
 	strncpy(data->hostnqn, ctrl->opts->host->nqn, NVMF_NQN_SIZE);
 
+<<<<<<< HEAD
 	ret = __nvme_submit_sync_cmd(ctrl->admin_q, &cmd, &res,
+=======
+	ret = __nvme_submit_sync_cmd(ctrl->fabrics_q, &cmd, &res,
+>>>>>>> upstream/android-13
 			data, sizeof(*data), 0, NVME_QID_ANY, 1,
 			BLK_MQ_REQ_RESERVED | BLK_MQ_REQ_NOWAIT);
 	if (ret) {
@@ -440,17 +543,30 @@ EXPORT_SYMBOL_GPL(nvmf_connect_admin_queue);
  */
 int nvmf_connect_io_queue(struct nvme_ctrl *ctrl, u16 qid)
 {
+<<<<<<< HEAD
 	struct nvme_command cmd;
+=======
+	struct nvme_command cmd = { };
+>>>>>>> upstream/android-13
 	struct nvmf_connect_data *data;
 	union nvme_result res;
 	int ret;
 
+<<<<<<< HEAD
 	memset(&cmd, 0, sizeof(cmd));
+=======
+>>>>>>> upstream/android-13
 	cmd.connect.opcode = nvme_fabrics_command;
 	cmd.connect.fctype = nvme_fabrics_type_connect;
 	cmd.connect.qid = cpu_to_le16(qid);
 	cmd.connect.sqsize = cpu_to_le16(ctrl->sqsize);
 
+<<<<<<< HEAD
+=======
+	if (ctrl->opts->disable_sqflow)
+		cmd.connect.cattr |= NVME_CONNECT_DISABLE_SQFLOW;
+
+>>>>>>> upstream/android-13
 	data = kzalloc(sizeof(*data), GFP_KERNEL);
 	if (!data)
 		return -ENOMEM;
@@ -536,6 +652,7 @@ static struct nvmf_transport_ops *nvmf_lookup_transport(
 	return NULL;
 }
 
+<<<<<<< HEAD
 /*
  * For something we're not in a state to send to the device the default action
  * is to busy it and retry it after the controller state is recovered.  However,
@@ -592,6 +709,8 @@ bool __nvmf_check_ready(struct nvme_ctrl *ctrl, struct request *rq,
 }
 EXPORT_SYMBOL_GPL(__nvmf_check_ready);
 
+=======
+>>>>>>> upstream/android-13
 static const match_table_t opt_tokens = {
 	{ NVMF_OPT_TRANSPORT,		"transport=%s"		},
 	{ NVMF_OPT_TRADDR,		"traddr=%s"		},
@@ -604,8 +723,21 @@ static const match_table_t opt_tokens = {
 	{ NVMF_OPT_KATO,		"keep_alive_tmo=%d"	},
 	{ NVMF_OPT_HOSTNQN,		"hostnqn=%s"		},
 	{ NVMF_OPT_HOST_TRADDR,		"host_traddr=%s"	},
+<<<<<<< HEAD
 	{ NVMF_OPT_HOST_ID,		"hostid=%s"		},
 	{ NVMF_OPT_DUP_CONNECT,		"duplicate_connect"	},
+=======
+	{ NVMF_OPT_HOST_IFACE,		"host_iface=%s"		},
+	{ NVMF_OPT_HOST_ID,		"hostid=%s"		},
+	{ NVMF_OPT_DUP_CONNECT,		"duplicate_connect"	},
+	{ NVMF_OPT_DISABLE_SQFLOW,	"disable_sqflow"	},
+	{ NVMF_OPT_HDR_DIGEST,		"hdr_digest"		},
+	{ NVMF_OPT_DATA_DIGEST,		"data_digest"		},
+	{ NVMF_OPT_NR_WRITE_QUEUES,	"nr_write_queues=%d"	},
+	{ NVMF_OPT_NR_POLL_QUEUES,	"nr_poll_queues=%d"	},
+	{ NVMF_OPT_TOS,			"tos=%d"		},
+	{ NVMF_OPT_FAIL_FAST_TMO,	"fast_io_fail_tmo=%d"	},
+>>>>>>> upstream/android-13
 	{ NVMF_OPT_ERR,			NULL			}
 };
 
@@ -623,8 +755,17 @@ static int nvmf_parse_options(struct nvmf_ctrl_options *opts,
 	opts->queue_size = NVMF_DEF_QUEUE_SIZE;
 	opts->nr_io_queues = num_online_cpus();
 	opts->reconnect_delay = NVMF_DEF_RECONNECT_DELAY;
+<<<<<<< HEAD
 	opts->kato = NVME_DEFAULT_KATO;
 	opts->duplicate_connect = false;
+=======
+	opts->kato = 0;
+	opts->duplicate_connect = false;
+	opts->fast_io_fail_tmo = NVMF_DEF_FAIL_FAST_TMO;
+	opts->hdr_digest = false;
+	opts->data_digest = false;
+	opts->tos = -1; /* < 0 == use transport default */
+>>>>>>> upstream/android-13
 
 	options = o = kstrdup(buf, GFP_KERNEL);
 	if (!options)
@@ -731,6 +872,7 @@ static int nvmf_parse_options(struct nvmf_ctrl_options *opts,
 				pr_warn("keep_alive_tmo 0 won't execute keep alives!!!\n");
 			}
 			opts->kato = token;
+<<<<<<< HEAD
 
 			if (opts->discovery_nqn && opts->kato) {
 				pr_err("Discovery controllers cannot accept KATO != 0\n");
@@ -738,6 +880,8 @@ static int nvmf_parse_options(struct nvmf_ctrl_options *opts,
 				goto out;
 			}
 
+=======
+>>>>>>> upstream/android-13
 			break;
 		case NVMF_OPT_CTRL_LOSS_TMO:
 			if (match_int(args, &token)) {
@@ -749,6 +893,20 @@ static int nvmf_parse_options(struct nvmf_ctrl_options *opts,
 				pr_warn("ctrl_loss_tmo < 0 will reconnect forever\n");
 			ctrl_loss_tmo = token;
 			break;
+<<<<<<< HEAD
+=======
+		case NVMF_OPT_FAIL_FAST_TMO:
+			if (match_int(args, &token)) {
+				ret = -EINVAL;
+				goto out;
+			}
+
+			if (token >= 0)
+				pr_warn("I/O fail on reconnect controller after %d sec\n",
+					token);
+			opts->fast_io_fail_tmo = token;
+			break;
+>>>>>>> upstream/android-13
 		case NVMF_OPT_HOSTNQN:
 			if (opts->host) {
 				pr_err("hostnqn already user-assigned: %s\n",
@@ -769,7 +927,10 @@ static int nvmf_parse_options(struct nvmf_ctrl_options *opts,
 				ret = -EINVAL;
 				goto out;
 			}
+<<<<<<< HEAD
 			nvmf_host_put(opts->host);
+=======
+>>>>>>> upstream/android-13
 			opts->host = nvmf_host_add(p);
 			kfree(p);
 			if (!opts->host) {
@@ -798,6 +959,18 @@ static int nvmf_parse_options(struct nvmf_ctrl_options *opts,
 			kfree(opts->host_traddr);
 			opts->host_traddr = p;
 			break;
+<<<<<<< HEAD
+=======
+		case NVMF_OPT_HOST_IFACE:
+			p = match_strdup(args);
+			if (!p) {
+				ret = -ENOMEM;
+				goto out;
+			}
+			kfree(opts->host_iface);
+			opts->host_iface = p;
+			break;
+>>>>>>> upstream/android-13
 		case NVMF_OPT_HOST_ID:
 			p = match_strdup(args);
 			if (!p) {
@@ -816,6 +989,58 @@ static int nvmf_parse_options(struct nvmf_ctrl_options *opts,
 		case NVMF_OPT_DUP_CONNECT:
 			opts->duplicate_connect = true;
 			break;
+<<<<<<< HEAD
+=======
+		case NVMF_OPT_DISABLE_SQFLOW:
+			opts->disable_sqflow = true;
+			break;
+		case NVMF_OPT_HDR_DIGEST:
+			opts->hdr_digest = true;
+			break;
+		case NVMF_OPT_DATA_DIGEST:
+			opts->data_digest = true;
+			break;
+		case NVMF_OPT_NR_WRITE_QUEUES:
+			if (match_int(args, &token)) {
+				ret = -EINVAL;
+				goto out;
+			}
+			if (token <= 0) {
+				pr_err("Invalid nr_write_queues %d\n", token);
+				ret = -EINVAL;
+				goto out;
+			}
+			opts->nr_write_queues = token;
+			break;
+		case NVMF_OPT_NR_POLL_QUEUES:
+			if (match_int(args, &token)) {
+				ret = -EINVAL;
+				goto out;
+			}
+			if (token <= 0) {
+				pr_err("Invalid nr_poll_queues %d\n", token);
+				ret = -EINVAL;
+				goto out;
+			}
+			opts->nr_poll_queues = token;
+			break;
+		case NVMF_OPT_TOS:
+			if (match_int(args, &token)) {
+				ret = -EINVAL;
+				goto out;
+			}
+			if (token < 0) {
+				pr_err("Invalid type of service %d\n", token);
+				ret = -EINVAL;
+				goto out;
+			}
+			if (token > 255) {
+				pr_warn("Clamping type of service to 255\n");
+				token = 255;
+			}
+			opts->tos = token;
+			break;
+>>>>>>> upstream/android-13
 		default:
 			pr_warn("unknown parameter or missing value '%s' in ctrl creation request\n",
 				p);
@@ -825,6 +1050,7 @@ static int nvmf_parse_options(struct nvmf_ctrl_options *opts,
 	}
 
 	if (opts->discovery_nqn) {
+<<<<<<< HEAD
 		opts->kato = 0;
 		opts->nr_io_queues = 0;
 		opts->duplicate_connect = true;
@@ -834,6 +1060,25 @@ static int nvmf_parse_options(struct nvmf_ctrl_options *opts,
 	else
 		opts->max_reconnects = DIV_ROUND_UP(ctrl_loss_tmo,
 						opts->reconnect_delay);
+=======
+		opts->nr_io_queues = 0;
+		opts->nr_write_queues = 0;
+		opts->nr_poll_queues = 0;
+		opts->duplicate_connect = true;
+	} else {
+		if (!opts->kato)
+			opts->kato = NVME_DEFAULT_KATO;
+	}
+	if (ctrl_loss_tmo < 0) {
+		opts->max_reconnects = -1;
+	} else {
+		opts->max_reconnects = DIV_ROUND_UP(ctrl_loss_tmo,
+						opts->reconnect_delay);
+		if (ctrl_loss_tmo < opts->fast_io_fail_tmo)
+			pr_warn("failfast tmo (%d) larger than controller loss tmo (%d)\n",
+				opts->fast_io_fail_tmo, ctrl_loss_tmo);
+	}
+>>>>>>> upstream/android-13
 
 	if (!opts->host) {
 		kref_get(&nvmf_default_host->ref);
@@ -867,6 +1112,39 @@ static int nvmf_check_required_opts(struct nvmf_ctrl_options *opts,
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+bool nvmf_ip_options_match(struct nvme_ctrl *ctrl,
+		struct nvmf_ctrl_options *opts)
+{
+	if (!nvmf_ctlr_matches_baseopts(ctrl, opts) ||
+	    strcmp(opts->traddr, ctrl->opts->traddr) ||
+	    strcmp(opts->trsvcid, ctrl->opts->trsvcid))
+		return false;
+
+	/*
+	 * Checking the local address is rough. In most cases, none is specified
+	 * and the host port is selected by the stack.
+	 *
+	 * Assume no match if:
+	 * -  local address is specified and address is not the same
+	 * -  local address is not specified but remote is, or vice versa
+	 *    (admin using specific host_traddr when it matters).
+	 */
+	if ((opts->mask & NVMF_OPT_HOST_TRADDR) &&
+	    (ctrl->opts->mask & NVMF_OPT_HOST_TRADDR)) {
+		if (strcmp(opts->host_traddr, ctrl->opts->host_traddr))
+			return false;
+	} else if ((opts->mask & NVMF_OPT_HOST_TRADDR) ||
+		   (ctrl->opts->mask & NVMF_OPT_HOST_TRADDR)) {
+		return false;
+	}
+
+	return true;
+}
+EXPORT_SYMBOL_GPL(nvmf_ip_options_match);
+
+>>>>>>> upstream/android-13
 static int nvmf_check_allowed_opts(struct nvmf_ctrl_options *opts,
 		unsigned int allowed_opts)
 {
@@ -895,6 +1173,10 @@ void nvmf_free_options(struct nvmf_ctrl_options *opts)
 	kfree(opts->trsvcid);
 	kfree(opts->subsysnqn);
 	kfree(opts->host_traddr);
+<<<<<<< HEAD
+=======
+	kfree(opts->host_iface);
+>>>>>>> upstream/android-13
 	kfree(opts);
 }
 EXPORT_SYMBOL_GPL(nvmf_free_options);
@@ -902,10 +1184,19 @@ EXPORT_SYMBOL_GPL(nvmf_free_options);
 #define NVMF_REQUIRED_OPTS	(NVMF_OPT_TRANSPORT | NVMF_OPT_NQN)
 #define NVMF_ALLOWED_OPTS	(NVMF_OPT_QUEUE_SIZE | NVMF_OPT_NR_IO_QUEUES | \
 				 NVMF_OPT_KATO | NVMF_OPT_HOSTNQN | \
+<<<<<<< HEAD
 				 NVMF_OPT_HOST_ID | NVMF_OPT_DUP_CONNECT)
 
 static struct nvme_ctrl *
 nvmf_create_ctrl(struct device *dev, const char *buf, size_t count)
+=======
+				 NVMF_OPT_HOST_ID | NVMF_OPT_DUP_CONNECT |\
+				 NVMF_OPT_DISABLE_SQFLOW |\
+				 NVMF_OPT_FAIL_FAST_TMO)
+
+static struct nvme_ctrl *
+nvmf_create_ctrl(struct device *dev, const char *buf)
+>>>>>>> upstream/android-13
 {
 	struct nvmf_ctrl_options *opts;
 	struct nvmf_transport_ops *ops;
@@ -1000,7 +1291,11 @@ static ssize_t nvmf_dev_write(struct file *file, const char __user *ubuf,
 		goto out_unlock;
 	}
 
+<<<<<<< HEAD
 	ctrl = nvmf_create_ctrl(nvmf_device, buf, count);
+=======
+	ctrl = nvmf_create_ctrl(nvmf_device, buf);
+>>>>>>> upstream/android-13
 	if (IS_ERR(ctrl)) {
 		ret = PTR_ERR(ctrl);
 		goto out_unlock;
@@ -1115,6 +1410,10 @@ static void __exit nvmf_exit(void)
 	class_destroy(nvmf_class);
 	nvmf_host_put(nvmf_default_host);
 
+<<<<<<< HEAD
+=======
+	BUILD_BUG_ON(sizeof(struct nvmf_common_command) != 64);
+>>>>>>> upstream/android-13
 	BUILD_BUG_ON(sizeof(struct nvmf_connect_command) != 64);
 	BUILD_BUG_ON(sizeof(struct nvmf_property_get_command) != 64);
 	BUILD_BUG_ON(sizeof(struct nvmf_property_set_command) != 64);

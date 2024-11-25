@@ -1,18 +1,28 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * IMG SPFI controller driver
  *
  * Copyright (C) 2007,2008,2013 Imagination Technologies Ltd.
  * Copyright (C) 2014 Google, Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
  * version 2, as published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
 #include <linux/delay.h>
 #include <linux/dmaengine.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/interrupt.h>
 #include <linux/io.h>
 #include <linux/irq.h>
@@ -105,10 +115,13 @@ struct img_spfi {
 	bool rx_dma_busy;
 };
 
+<<<<<<< HEAD
 struct img_spfi_device_data {
 	bool gpio_requested;
 };
 
+=======
+>>>>>>> upstream/android-13
 static inline u32 spfi_readl(struct img_spfi *spfi, u32 reg)
 {
 	return readl(spfi->regs + reg);
@@ -445,6 +458,7 @@ static int img_spfi_unprepare(struct spi_master *master,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int img_spfi_setup(struct spi_device *spi)
 {
 	int ret = -EINVAL;
@@ -493,6 +507,8 @@ static void img_spfi_cleanup(struct spi_device *spi)
 	}
 }
 
+=======
+>>>>>>> upstream/android-13
 static void img_spfi_config(struct spi_master *master, struct spi_device *spi,
 			    struct spi_transfer *xfer)
 {
@@ -662,15 +678,39 @@ static int img_spfi_probe(struct platform_device *pdev)
 			master->max_speed_hz = max_speed_hz;
 	}
 
+<<<<<<< HEAD
 	master->setup = img_spfi_setup;
 	master->cleanup = img_spfi_cleanup;
+=======
+>>>>>>> upstream/android-13
 	master->transfer_one = img_spfi_transfer_one;
 	master->prepare_message = img_spfi_prepare;
 	master->unprepare_message = img_spfi_unprepare;
 	master->handle_err = img_spfi_handle_err;
+<<<<<<< HEAD
 
 	spfi->tx_ch = dma_request_slave_channel(spfi->dev, "tx");
 	spfi->rx_ch = dma_request_slave_channel(spfi->dev, "rx");
+=======
+	master->use_gpio_descriptors = true;
+
+	spfi->tx_ch = dma_request_chan(spfi->dev, "tx");
+	if (IS_ERR(spfi->tx_ch)) {
+		ret = PTR_ERR(spfi->tx_ch);
+		spfi->tx_ch = NULL;
+		if (ret == -EPROBE_DEFER)
+			goto disable_pm;
+	}
+
+	spfi->rx_ch = dma_request_chan(spfi->dev, "rx");
+	if (IS_ERR(spfi->rx_ch)) {
+		ret = PTR_ERR(spfi->rx_ch);
+		spfi->rx_ch = NULL;
+		if (ret == -EPROBE_DEFER)
+			goto disable_pm;
+	}
+
+>>>>>>> upstream/android-13
 	if (!spfi->tx_ch || !spfi->rx_ch) {
 		if (spfi->tx_ch)
 			dma_release_channel(spfi->tx_ch);

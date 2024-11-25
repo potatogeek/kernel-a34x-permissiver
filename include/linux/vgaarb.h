@@ -33,6 +33,11 @@
 
 #include <video/vga.h>
 
+<<<<<<< HEAD
+=======
+struct pci_dev;
+
+>>>>>>> upstream/android-13
 /* Legacy VGA regions */
 #define VGA_RSRC_NONE	       0x00
 #define VGA_RSRC_LEGACY_IO     0x01
@@ -42,6 +47,7 @@
 #define VGA_RSRC_NORMAL_IO     0x04
 #define VGA_RSRC_NORMAL_MEM    0x08
 
+<<<<<<< HEAD
 /* Passing that instead of a pci_dev to use the system "default"
  * device, that is the one used by vgacon. Archs will probably
  * have to provide their own vga_default_device();
@@ -78,6 +84,47 @@ extern int vga_get(struct pci_dev *pdev, unsigned int rsrc, int interruptible);
 #else
 static inline int vga_get(struct pci_dev *pdev, unsigned int rsrc, int interruptible) { return 0; }
 #endif
+=======
+#ifdef CONFIG_VGA_ARB
+void vga_set_legacy_decoding(struct pci_dev *pdev, unsigned int decodes);
+int vga_get(struct pci_dev *pdev, unsigned int rsrc, int interruptible);
+void vga_put(struct pci_dev *pdev, unsigned int rsrc);
+struct pci_dev *vga_default_device(void);
+void vga_set_default_device(struct pci_dev *pdev);
+int vga_remove_vgacon(struct pci_dev *pdev);
+int vga_client_register(struct pci_dev *pdev,
+		unsigned int (*set_decode)(struct pci_dev *pdev, bool state));
+#else /* CONFIG_VGA_ARB */
+static inline void vga_set_legacy_decoding(struct pci_dev *pdev,
+		unsigned int decodes)
+{
+};
+static inline int vga_get(struct pci_dev *pdev, unsigned int rsrc,
+		int interruptible)
+{
+	return 0;
+}
+static inline void vga_put(struct pci_dev *pdev, unsigned int rsrc)
+{
+}
+static inline struct pci_dev *vga_default_device(void)
+{
+	return NULL;
+}
+static inline void vga_set_default_device(struct pci_dev *pdev)
+{
+}
+static inline int vga_remove_vgacon(struct pci_dev *pdev)
+{
+	return 0;
+}
+static inline int vga_client_register(struct pci_dev *pdev,
+		unsigned int (*set_decode)(struct pci_dev *pdev, bool state))
+{
+	return 0;
+}
+#endif /* CONFIG_VGA_ARB */
+>>>>>>> upstream/android-13
 
 /**
  * vga_get_interruptible
@@ -109,6 +156,7 @@ static inline int vga_get_uninterruptible(struct pci_dev *pdev,
        return vga_get(pdev, rsrc, 0);
 }
 
+<<<<<<< HEAD
 #if defined(CONFIG_VGA_ARB)
 extern int vga_tryget(struct pci_dev *pdev, unsigned int rsrc);
 #else
@@ -154,5 +202,11 @@ static inline int vga_client_register(struct pci_dev *pdev, void *cookie,
 	return 0;
 }
 #endif
+=======
+static inline void vga_client_unregister(struct pci_dev *pdev)
+{
+	vga_client_register(pdev, NULL);
+}
+>>>>>>> upstream/android-13
 
 #endif /* LINUX_VGA_H */

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  *
  *	verify_cpu.S - Code for cpu long mode and SSE verification. This
@@ -9,9 +13,12 @@
  *	Copyright (c) 2007  Vivek Goyal (vgoyal@in.ibm.com)
  *	Copyright (c) 2010  Kees Cook (kees.cook@canonical.com)
  *
+<<<<<<< HEAD
  * 	This source code is licensed under the GNU General Public License,
  * 	Version 2.  See the file COPYING for more details.
  *
+=======
+>>>>>>> upstream/android-13
  *	This is a common code for verification whether CPU supports
  * 	long mode and SSE or not. It is not called directly instead this
  *	file is included at various places and compiled in that context.
@@ -33,7 +40,11 @@
 #include <asm/cpufeatures.h>
 #include <asm/msr-index.h>
 
+<<<<<<< HEAD
 ENTRY(verify_cpu)
+=======
+SYM_FUNC_START_LOCAL(verify_cpu)
+>>>>>>> upstream/android-13
 	pushf				# Save caller passed flags
 	push	$0			# Kill any dangerous flags
 	popf
@@ -134,9 +145,18 @@ ENTRY(verify_cpu)
 .Lverify_cpu_no_longmode:
 	popf				# Restore caller passed flags
 	movl $1,%eax
+<<<<<<< HEAD
 	ret
 .Lverify_cpu_sse_ok:
 	popf				# Restore caller passed flags
 	xorl %eax, %eax
 	ret
 ENDPROC(verify_cpu)
+=======
+	RET
+.Lverify_cpu_sse_ok:
+	popf				# Restore caller passed flags
+	xorl %eax, %eax
+	RET
+SYM_FUNC_END(verify_cpu)
+>>>>>>> upstream/android-13

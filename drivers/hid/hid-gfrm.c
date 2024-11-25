@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * HID driver for Google Fiber TV Box remote controls
  *
  * Copyright (c) 2014-2015 Google Inc.
  *
  * Author: Petri Gynther <pgynther@google.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; either version 2 of the License, or (at your option)
  * any later version.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/device.h>
 #include <linux/hid.h>
@@ -127,12 +134,15 @@ done:
 	return ret;
 }
 
+<<<<<<< HEAD
 static void gfrm_remove(struct hid_device *hdev)
 {
 	hid_hw_stop(hdev);
 	hid_set_drvdata(hdev, NULL);
 }
 
+=======
+>>>>>>> upstream/android-13
 static const struct hid_device_id gfrm_devices[] = {
 	{ HID_BLUETOOTH_DEVICE(0x58, 0x2000),
 		.driver_data = GFRM100 },
@@ -146,7 +156,10 @@ static struct hid_driver gfrm_driver = {
 	.name = "gfrm",
 	.id_table = gfrm_devices,
 	.probe = gfrm_probe,
+<<<<<<< HEAD
 	.remove = gfrm_remove,
+=======
+>>>>>>> upstream/android-13
 	.input_mapping = gfrm_input_mapping,
 	.raw_event = gfrm_raw_event,
 	.input_configured = gfrm_input_configured,

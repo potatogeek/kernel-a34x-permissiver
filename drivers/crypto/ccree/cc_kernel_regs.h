@@ -1,5 +1,9 @@
 /* SPDX-License-Identifier: GPL-2.0 */
+<<<<<<< HEAD
 /* Copyright (C) 2012-2018 ARM Limited or its affiliates. */
+=======
+/* Copyright (C) 2012-2019 ARM Limited (or its affiliates). */
+>>>>>>> upstream/android-13
 
 #ifndef __CC_CRYS_KERNEL_H__
 #define __CC_CRYS_KERNEL_H__

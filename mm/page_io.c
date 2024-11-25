@@ -25,6 +25,7 @@
 #include <linux/psi.h>
 #include <linux/uio.h>
 #include <linux/sched/task.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
 
 static struct bio *get_swap_bio(gfp_t gfp_flags,
@@ -47,6 +48,8 @@ static struct bio *get_swap_bio(gfp_t gfp_flags,
 	}
 	return bio;
 }
+=======
+>>>>>>> upstream/android-13
 
 void end_swap_bio_write(struct bio *bio)
 {
@@ -64,9 +67,15 @@ void end_swap_bio_write(struct bio *bio)
 		 */
 		set_page_dirty(page);
 #ifndef CONFIG_ZRAM
+<<<<<<< HEAD
 		pr_alert("Write-error on swap-device (%u:%u:%llu)\n",
 			 MAJOR(bio_dev(bio)), MINOR(bio_dev(bio)),
 			 (unsigned long long)bio->bi_iter.bi_sector);
+=======
+		pr_alert_ratelimited("Write-error on swap-device (%u:%u:%llu)\n",
+				     MAJOR(bio_dev(bio)), MINOR(bio_dev(bio)),
+				     (unsigned long long)bio->bi_iter.bi_sector);
+>>>>>>> upstream/android-13
 #endif
 		ClearPageReclaim(page);
 	}
@@ -74,6 +83,7 @@ void end_swap_bio_write(struct bio *bio)
 	bio_put(bio);
 }
 
+<<<<<<< HEAD
 static void swap_slot_free_notify(struct page *page)
 {
 	struct swap_info_struct *sis;
@@ -123,6 +133,8 @@ static void swap_slot_free_notify(struct page *page)
 	}
 }
 
+=======
+>>>>>>> upstream/android-13
 static void end_swap_bio_read(struct bio *bio)
 {
 	struct page *page = bio_first_page_all(bio);
@@ -131,20 +143,36 @@ static void end_swap_bio_read(struct bio *bio)
 	if (bio->bi_status) {
 		SetPageError(page);
 		ClearPageUptodate(page);
+<<<<<<< HEAD
 		pr_alert("Read-error on swap-device (%u:%u:%llu)\n",
 			 MAJOR(bio_dev(bio)), MINOR(bio_dev(bio)),
 			 (unsigned long long)bio->bi_iter.bi_sector);
+=======
+		pr_alert_ratelimited("Read-error on swap-device (%u:%u:%llu)\n",
+				     MAJOR(bio_dev(bio)), MINOR(bio_dev(bio)),
+				     (unsigned long long)bio->bi_iter.bi_sector);
+>>>>>>> upstream/android-13
 		goto out;
 	}
 
 	SetPageUptodate(page);
+<<<<<<< HEAD
 	swap_slot_free_notify(page);
+=======
+>>>>>>> upstream/android-13
 out:
 	unlock_page(page);
 	WRITE_ONCE(bio->bi_private, NULL);
 	bio_put(bio);
+<<<<<<< HEAD
 	wake_up_process(waiter);
 	put_task_struct(waiter);
+=======
+	if (waiter) {
+		blk_wake_io_task(waiter);
+		put_task_struct(waiter);
+	}
+>>>>>>> upstream/android-13
 }
 
 int generic_swapfile_activate(struct swap_info_struct *sis,
@@ -167,7 +195,11 @@ int generic_swapfile_activate(struct swap_info_struct *sis,
 	blocks_per_page = PAGE_SIZE >> blkbits;
 
 	/*
+<<<<<<< HEAD
 	 * Map all the blocks into the extent list.  This code doesn't try
+=======
+	 * Map all the blocks into the extent tree.  This code doesn't try
+>>>>>>> upstream/android-13
 	 * to be very smart.
 	 */
 	probe_block = 0;
@@ -180,8 +212,14 @@ int generic_swapfile_activate(struct swap_info_struct *sis,
 
 		cond_resched();
 
+<<<<<<< HEAD
 		first_block = bmap(inode, probe_block);
 		if (first_block == 0)
+=======
+		first_block = probe_block;
+		ret = bmap(inode, &first_block);
+		if (ret || !first_block)
+>>>>>>> upstream/android-13
 			goto bad_bmap;
 
 		/*
@@ -196,9 +234,17 @@ int generic_swapfile_activate(struct swap_info_struct *sis,
 					block_in_page++) {
 			sector_t block;
 
+<<<<<<< HEAD
 			block = bmap(inode, probe_block + block_in_page);
 			if (block == 0)
 				goto bad_bmap;
+=======
+			block = probe_block + block_in_page;
+			ret = bmap(inode, &block);
+			if (ret || !block)
+				goto bad_bmap;
+
+>>>>>>> upstream/android-13
 			if (block != first_block + block_in_page) {
 				/* Discontiguity */
 				probe_block++;
@@ -253,6 +299,19 @@ int swap_writepage(struct page *page, struct writeback_control *wbc)
 		unlock_page(page);
 		goto out;
 	}
+<<<<<<< HEAD
+=======
+	/*
+	 * Arch code may have to preserve more data than just the page
+	 * contents, e.g. memory tags.
+	 */
+	ret = arch_prepare_to_swap(page);
+	if (ret) {
+		set_page_dirty(page);
+		unlock_page(page);
+		goto out;
+	}
+>>>>>>> upstream/android-13
 	if (frontswap_store(page) == 0) {
 		set_page_writeback(page);
 		unlock_page(page);
@@ -270,9 +329,34 @@ static inline void count_swpout_vm_event(struct page *page)
 	if (unlikely(PageTransHuge(page)))
 		count_vm_event(THP_SWPOUT);
 #endif
+<<<<<<< HEAD
 	count_vm_events(PSWPOUT, hpage_nr_pages(page));
 }
 
+=======
+	count_vm_events(PSWPOUT, thp_nr_pages(page));
+}
+
+#if defined(CONFIG_MEMCG) && defined(CONFIG_BLK_CGROUP)
+static void bio_associate_blkg_from_page(struct bio *bio, struct page *page)
+{
+	struct cgroup_subsys_state *css;
+	struct mem_cgroup *memcg;
+
+	memcg = page_memcg(page);
+	if (!memcg)
+		return;
+
+	rcu_read_lock();
+	css = cgroup_e_css(memcg->css.cgroup, &io_cgrp_subsys);
+	bio_associate_blkg_from_css(bio, css);
+	rcu_read_unlock();
+}
+#else
+#define bio_associate_blkg_from_page(bio, page)		do { } while (0)
+#endif /* CONFIG_MEMCG && CONFIG_BLK_CGROUP */
+
+>>>>>>> upstream/android-13
 int __swap_writepage(struct page *page, struct writeback_control *wbc,
 		bio_end_io_t end_write_func)
 {
@@ -281,7 +365,11 @@ int __swap_writepage(struct page *page, struct writeback_control *wbc,
 	struct swap_info_struct *sis = page_swap_info(page);
 
 	VM_BUG_ON_PAGE(!PageSwapCache(page), page);
+<<<<<<< HEAD
 	if (sis->flags & SWP_FILE) {
+=======
+	if (data_race(sis->flags & SWP_FS_OPS)) {
+>>>>>>> upstream/android-13
 		struct kiocb kiocb;
 		struct file *swap_file = sis->swap_file;
 		struct address_space *mapping = swap_file->f_mapping;
@@ -292,7 +380,11 @@ int __swap_writepage(struct page *page, struct writeback_control *wbc,
 		};
 		struct iov_iter from;
 
+<<<<<<< HEAD
 		iov_iter_bvec(&from, ITER_BVEC | WRITE, &bv, 1, PAGE_SIZE);
+=======
+		iov_iter_bvec(&from, WRITE, &bv, 1, PAGE_SIZE);
+>>>>>>> upstream/android-13
 		init_sync_kiocb(&kiocb, swap_file);
 		kiocb.ki_pos = page_file_offset(page);
 
@@ -322,13 +414,18 @@ int __swap_writepage(struct page *page, struct writeback_control *wbc,
 		return ret;
 	}
 
+<<<<<<< HEAD
 	ret = bdev_write_page(sis->bdev, map_swap_page(page, &sis->bdev),
 			      page, wbc);
+=======
+	ret = bdev_write_page(sis->bdev, swap_page_sector(page), page, wbc);
+>>>>>>> upstream/android-13
 	if (!ret) {
 		count_swpout_vm_event(page);
 		return 0;
 	}
 
+<<<<<<< HEAD
 	ret = 0;
 	bio = get_swap_bio(GFP_NOIO, page, end_write_func);
 	if (bio == NULL) {
@@ -339,12 +436,27 @@ int __swap_writepage(struct page *page, struct writeback_control *wbc,
 	}
 	bio->bi_opf = REQ_OP_WRITE | REQ_SWAP | wbc_to_write_flags(wbc);
 	bio_associate_blkcg_from_page(bio, page);
+=======
+	bio = bio_alloc(GFP_NOIO, 1);
+	bio_set_dev(bio, sis->bdev);
+	bio->bi_iter.bi_sector = swap_page_sector(page);
+	bio->bi_opf = REQ_OP_WRITE | REQ_SWAP | wbc_to_write_flags(wbc);
+	bio->bi_end_io = end_write_func;
+	bio_add_page(bio, page, thp_size(page), 0);
+
+	bio_associate_blkg_from_page(bio, page);
+>>>>>>> upstream/android-13
 	count_swpout_vm_event(page);
 	set_page_writeback(page);
 	unlock_page(page);
 	submit_bio(bio);
+<<<<<<< HEAD
 out:
 	return ret;
+=======
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 int swap_readpage(struct page *page, bool synchronous)
@@ -373,7 +485,11 @@ int swap_readpage(struct page *page, bool synchronous)
 		goto out;
 	}
 
+<<<<<<< HEAD
 	if (sis->flags & SWP_FILE) {
+=======
+	if (data_race(sis->flags & SWP_FS_OPS)) {
+>>>>>>> upstream/android-13
 		struct file *swap_file = sis->swap_file;
 		struct address_space *mapping = swap_file->f_mapping;
 
@@ -383,6 +499,7 @@ int swap_readpage(struct page *page, bool synchronous)
 		goto out;
 	}
 
+<<<<<<< HEAD
 	ret = bdev_read_page(sis->bdev, map_swap_page(page, &sis->bdev), page);
 	if (!ret) {
 		if (trylock_page(page)) {
@@ -402,13 +519,40 @@ int swap_readpage(struct page *page, bool synchronous)
 		goto out;
 	}
 	disk = bio->bi_disk;
+=======
+	if (sis->flags & SWP_SYNCHRONOUS_IO) {
+		ret = bdev_read_page(sis->bdev, swap_page_sector(page), page);
+		if (!ret) {
+			count_vm_event(PSWPIN);
+			goto out;
+		}
+	}
+
+	ret = 0;
+	bio = bio_alloc(GFP_KERNEL, 1);
+	bio_set_dev(bio, sis->bdev);
+	bio->bi_opf = REQ_OP_READ;
+	bio->bi_iter.bi_sector = swap_page_sector(page);
+	bio->bi_end_io = end_swap_bio_read;
+	bio_add_page(bio, page, thp_size(page), 0);
+
+	disk = bio->bi_bdev->bd_disk;
+>>>>>>> upstream/android-13
 	/*
 	 * Keep this task valid during swap readpage because the oom killer may
 	 * attempt to access it in the page fault retry time check.
 	 */
+<<<<<<< HEAD
 	get_task_struct(current);
 	bio->bi_private = current;
 	bio_set_op_attrs(bio, REQ_OP_READ, 0);
+=======
+	if (synchronous) {
+		bio->bi_opf |= REQ_HIPRI;
+		get_task_struct(current);
+		bio->bi_private = current;
+	}
+>>>>>>> upstream/android-13
 	count_vm_event(PSWPIN);
 	bio_get(bio);
 	qc = submit_bio(bio);
@@ -417,8 +561,13 @@ int swap_readpage(struct page *page, bool synchronous)
 		if (!READ_ONCE(bio->bi_private))
 			break;
 
+<<<<<<< HEAD
 		if (!blk_poll(disk->queue, qc))
 			break;
+=======
+		if (!blk_poll(disk->queue, qc, true))
+			blk_io_schedule();
+>>>>>>> upstream/android-13
 	}
 	__set_current_state(TASK_RUNNING);
 	bio_put(bio);
@@ -432,7 +581,11 @@ int swap_set_page_dirty(struct page *page)
 {
 	struct swap_info_struct *sis = page_swap_info(page);
 
+<<<<<<< HEAD
 	if (sis->flags & SWP_FILE) {
+=======
+	if (data_race(sis->flags & SWP_FS_OPS)) {
+>>>>>>> upstream/android-13
 		struct address_space *mapping = sis->swap_file->f_mapping;
 
 		VM_BUG_ON_PAGE(!PageSwapCache(page), page);

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * Copyright(c) 2003 - 2014 Intel Corporation. All rights reserved.
@@ -17,6 +18,13 @@
  *
  * The full GNU General Public License is included in this distribution in the
  * file called LICENSE.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/******************************************************************************
+ *
+ * Copyright(c) 2003 - 2014 Intel Corporation. All rights reserved.
+ * Copyright (C) 2019 Intel Corporation
+>>>>>>> upstream/android-13
  *
  * Contact Information:
  *  Intel Linux Wireless <linuxwifi@intel.com>
@@ -135,9 +143,15 @@ static int iwl_led_cmd(struct iwl_priv *priv,
 	}
 
 	led_cmd.on = iwl_blink_compensation(priv, on,
+<<<<<<< HEAD
 				priv->cfg->base_params->led_compensation);
 	led_cmd.off = iwl_blink_compensation(priv, off,
 				priv->cfg->base_params->led_compensation);
+=======
+				priv->trans->trans_cfg->base_params->led_compensation);
+	led_cmd.off = iwl_blink_compensation(priv, off,
+				priv->trans->trans_cfg->base_params->led_compensation);
+>>>>>>> upstream/android-13
 
 	ret = iwl_send_led_cmd(priv, &led_cmd);
 	if (!ret) {

@@ -3,7 +3,13 @@
 #define _LINUX_IOMMU_HELPER_H
 
 #include <linux/bug.h>
+<<<<<<< HEAD
 #include <linux/kernel.h>
+=======
+#include <linux/log2.h>
+#include <linux/math.h>
+#include <linux/types.h>
+>>>>>>> upstream/android-13
 
 static inline unsigned long iommu_device_max_index(unsigned long size,
 						   unsigned long offset,

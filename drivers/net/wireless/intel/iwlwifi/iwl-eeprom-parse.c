@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * This file is provided under a dual BSD/GPLv2 license.  When using or
@@ -61,6 +62,13 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *****************************************************************************/
+=======
+// SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause
+/*
+ * Copyright (C) 2005-2014, 2018-2020 Intel Corporation
+ * Copyright (C) 2015 Intel Mobile Communications GmbH
+ */
+>>>>>>> upstream/android-13
 #include <linux/types.h>
 #include <linux/slab.h>
 #include <linux/export.h>
@@ -327,6 +335,7 @@ enum iwl_eeprom_enhanced_txpwr_flags {
 };
 
 /**
+<<<<<<< HEAD
  * iwl_eeprom_enhanced_txpwr structure
  * @flags: entry flags
  * @channel: channel number
@@ -336,6 +345,17 @@ enum iwl_eeprom_enhanced_txpwr_flags {
  * @delta_20_in_40: 20-in-40 deltas (hi/lo)
  * @mimo2_max_pwr: mimo2 max power in 1/2 dBm
  * @mimo3_max_pwr: mimo3 max power in 1/2 dBm
+=======
+ * struct iwl_eeprom_enhanced_txpwr
+ * @flags: entry flags
+ * @channel: channel number
+ * @chain_a_max: chain a max power in 1/2 dBm
+ * @chain_b_max: chain b max power in 1/2 dBm
+ * @chain_c_max: chain c max power in 1/2 dBm
+ * @delta_20_in_40: 20-in-40 deltas (hi/lo)
+ * @mimo2_max: mimo2 max power in 1/2 dBm
+ * @mimo3_max: mimo3 max power in 1/2 dBm
+>>>>>>> upstream/android-13
  *
  * This structure presents the enhanced regulatory tx power limit layout
  * in an EEPROM image.
@@ -731,12 +751,20 @@ int iwl_init_sband_channels(struct iwl_nvm_data *data,
 #define MAX_BIT_RATE_40_MHZ	150 /* Mbps */
 #define MAX_BIT_RATE_20_MHZ	72 /* Mbps */
 
+<<<<<<< HEAD
 void iwl_init_ht_hw_capab(const struct iwl_cfg *cfg,
+=======
+void iwl_init_ht_hw_capab(struct iwl_trans *trans,
+>>>>>>> upstream/android-13
 			  struct iwl_nvm_data *data,
 			  struct ieee80211_sta_ht_cap *ht_info,
 			  enum nl80211_band band,
 			  u8 tx_chains, u8 rx_chains)
 {
+<<<<<<< HEAD
+=======
+	const struct iwl_cfg *cfg = trans->cfg;
+>>>>>>> upstream/android-13
 	int max_bit_rate = 0;
 
 	tx_chains = hweight8(tx_chains);
@@ -745,7 +773,13 @@ void iwl_init_ht_hw_capab(const struct iwl_cfg *cfg,
 	else
 		rx_chains = hweight8(rx_chains);
 
+<<<<<<< HEAD
 	if (!(data->sku_cap_11n_enable) || !cfg->ht_params) {
+=======
+	if (!(data->sku_cap_11n_enable) ||
+	    (iwlwifi_mod_params.disable_11n & IWL_DISABLE_HT_ALL) ||
+	    !cfg->ht_params) {
+>>>>>>> upstream/android-13
 		ht_info->ht_supported = false;
 		return;
 	}
@@ -766,12 +800,20 @@ void iwl_init_ht_hw_capab(const struct iwl_cfg *cfg,
 	if (cfg->ht_params->ldpc)
 		ht_info->cap |= IEEE80211_HT_CAP_LDPC_CODING;
 
+<<<<<<< HEAD
 	if ((cfg->mq_rx_supported &&
 	     iwlwifi_mod_params.amsdu_size == IWL_AMSDU_DEF) ||
 	     iwlwifi_mod_params.amsdu_size >= IWL_AMSDU_8K)
 		ht_info->cap |= IEEE80211_HT_CAP_MAX_AMSDU;
 
 	ht_info->ampdu_factor = cfg->max_ht_ampdu_exponent;
+=======
+	if (trans->trans_cfg->mq_rx_supported ||
+	    iwlwifi_mod_params.amsdu_size >= IWL_AMSDU_8K)
+		ht_info->cap |= IEEE80211_HT_CAP_MAX_AMSDU;
+
+	ht_info->ampdu_factor = IEEE80211_HT_MAX_AMPDU_64K;
+>>>>>>> upstream/android-13
 	ht_info->ampdu_density = IEEE80211_HT_MPDU_DENSITY_4;
 
 	ht_info->mcs.rx_mask[0] = 0xFF;
@@ -806,10 +848,18 @@ void iwl_init_ht_hw_capab(const struct iwl_cfg *cfg,
 	}
 }
 
+<<<<<<< HEAD
 static void iwl_init_sbands(struct device *dev, const struct iwl_cfg *cfg,
 			    struct iwl_nvm_data *data,
 			    const u8 *eeprom, size_t eeprom_size)
 {
+=======
+static void iwl_init_sbands(struct iwl_trans *trans, const struct iwl_cfg *cfg,
+			    struct iwl_nvm_data *data,
+			    const u8 *eeprom, size_t eeprom_size)
+{
+	struct device *dev = trans->dev;
+>>>>>>> upstream/android-13
 	int n_channels = iwl_init_channel_map(dev, cfg, data,
 					      eeprom, eeprom_size);
 	int n_used = 0;
@@ -821,7 +871,11 @@ static void iwl_init_sbands(struct device *dev, const struct iwl_cfg *cfg,
 	sband->n_bitrates = N_RATES_24;
 	n_used += iwl_init_sband_channels(data, sband, n_channels,
 					  NL80211_BAND_2GHZ);
+<<<<<<< HEAD
 	iwl_init_ht_hw_capab(cfg, data, &sband->ht_cap, NL80211_BAND_2GHZ,
+=======
+	iwl_init_ht_hw_capab(trans, data, &sband->ht_cap, NL80211_BAND_2GHZ,
+>>>>>>> upstream/android-13
 			     data->valid_tx_ant, data->valid_rx_ant);
 
 	sband = &data->bands[NL80211_BAND_5GHZ];
@@ -830,7 +884,11 @@ static void iwl_init_sbands(struct device *dev, const struct iwl_cfg *cfg,
 	sband->n_bitrates = N_RATES_52;
 	n_used += iwl_init_sband_channels(data, sband, n_channels,
 					  NL80211_BAND_5GHZ);
+<<<<<<< HEAD
 	iwl_init_ht_hw_capab(cfg, data, &sband->ht_cap, NL80211_BAND_5GHZ,
+=======
+	iwl_init_ht_hw_capab(trans, data, &sband->ht_cap, NL80211_BAND_5GHZ,
+>>>>>>> upstream/android-13
 			     data->valid_tx_ant, data->valid_rx_ant);
 
 	if (n_channels != n_used)
@@ -841,18 +899,30 @@ static void iwl_init_sbands(struct device *dev, const struct iwl_cfg *cfg,
 /* EEPROM data functions */
 
 struct iwl_nvm_data *
+<<<<<<< HEAD
 iwl_parse_eeprom_data(struct device *dev, const struct iwl_cfg *cfg,
 		      const u8 *eeprom, size_t eeprom_size)
 {
 	struct iwl_nvm_data *data;
+=======
+iwl_parse_eeprom_data(struct iwl_trans *trans, const struct iwl_cfg *cfg,
+		      const u8 *eeprom, size_t eeprom_size)
+{
+	struct iwl_nvm_data *data;
+	struct device *dev = trans->dev;
+>>>>>>> upstream/android-13
 	const void *tmp;
 	u16 radio_cfg, sku;
 
 	if (WARN_ON(!cfg || !cfg->eeprom_params))
 		return NULL;
 
+<<<<<<< HEAD
 	data = kzalloc(sizeof(*data) +
 		       sizeof(struct ieee80211_channel) * IWL_NUM_CHANNELS,
+=======
+	data = kzalloc(struct_size(data, channels, IWL_NUM_CHANNELS),
+>>>>>>> upstream/android-13
 		       GFP_KERNEL);
 	if (!data)
 		return NULL;
@@ -920,7 +990,11 @@ iwl_parse_eeprom_data(struct device *dev, const struct iwl_cfg *cfg,
 		goto err_free;
 	}
 
+<<<<<<< HEAD
 	iwl_init_sbands(dev, cfg, data, eeprom, eeprom_size);
+=======
+	iwl_init_sbands(trans, cfg, data, eeprom, eeprom_size);
+>>>>>>> upstream/android-13
 
 	return data;
  err_free:

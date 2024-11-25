@@ -12,12 +12,18 @@
 #include <linux/console.h>
 #include <linux/init.h>
 #include <linux/interrupt.h>
+<<<<<<< HEAD
 #include <linux/mc146818rtc.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/param.h>
 #include <linux/sched.h>
 
 #include <asm/bootinfo.h>
+<<<<<<< HEAD
 #include <asm/mc146818-time.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/mipsregs.h>
 #include <asm/mmu_context.h>
 #include <asm/sgialib.h>

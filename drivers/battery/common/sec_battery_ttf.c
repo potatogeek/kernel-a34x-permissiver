@@ -78,6 +78,10 @@ static int get_current_soc( char *name)
 	return value.intval;
 }
 
+<<<<<<< HEAD
+=======
+#define FULL_CAPACITY 850
+>>>>>>> upstream/android-13
 int sec_calc_ttf(struct sec_battery_info * battery, unsigned int ttf_curr)
 {
 	struct sec_cv_slope *cv_data = battery->ttf_d->cv_data;
@@ -89,16 +93,23 @@ int sec_calc_ttf(struct sec_battery_info * battery, unsigned int ttf_curr)
 	}
 
 	total_time = get_cc_cv_time(battery, ttf_curr, get_current_soc(battery->pdata->fuelgauge_name), true);
+<<<<<<< HEAD
 	if (is_full_capacity(battery->fs)) {
 		int now_full_cap = get_full_capacity(battery->fs);
 
 		pr_info("%s: time to %d percent\n", __func__, now_full_cap);
 		total_time -= get_cc_cv_time(battery, ttf_curr, (now_full_cap * 10), false);
+=======
+	if (battery->batt_full_capacity > 0 && battery->batt_full_capacity < 100) {
+		pr_info("%s: time to 85 percent\n", __func__);
+		total_time -= get_cc_cv_time(battery, ttf_curr, FULL_CAPACITY, false);
+>>>>>>> upstream/android-13
 	}
 
 	return total_time;
 }
 
+<<<<<<< HEAD
 int sec_get_ttf_standard_curr(struct sec_battery_info *battery)
 {
 	int charge = 0;
@@ -200,12 +211,15 @@ static void init_ttf(struct sec_ttf_data *ttf_d)
 	ttf_d->old_timetofull = -1;
 }
 
+=======
+>>>>>>> upstream/android-13
 void sec_bat_calc_time_to_full(struct sec_battery_info * battery)
 {
 	if (delayed_work_pending(&battery->ttf_d->timetofull_work)) {
 		pr_info("%s: keep time_to_full(%5d sec)\n", __func__, battery->ttf_d->timetofull);
 	} else if (check_ttf_state(battery->capacity, battery->status) &&
 		!battery->wc_tx_enable && !skip_ttf_event(battery->misc_event)) {
+<<<<<<< HEAD
 		int charge = 0, ttf = 0;
 
 		charge = sec_get_ttf_standard_curr(battery);
@@ -218,6 +232,69 @@ void sec_bat_calc_time_to_full(struct sec_battery_info * battery)
 	}
 }
 
+=======
+		int charge = 0;
+
+		if (is_hv_wire_12v_type(battery->cable_type)) {
+			charge = battery->ttf_d->ttf_hv_12v_charge_current;
+#if IS_ENABLED(CONFIG_WIRELESS_CHARGING)
+		} else if (is_hv_wireless_type(battery->cable_type) ||
+			battery->cable_type == SEC_BATTERY_CABLE_PREPARE_WIRELESS_HV ||
+			battery->cable_type == SEC_BATTERY_CABLE_PREPARE_WIRELESS_20) {
+			if (sec_bat_hv_wc_normal_mode_check(battery))
+				charge = battery->ttf_d->ttf_wireless_charge_current;
+			else if ((battery->cable_type == SEC_BATTERY_CABLE_PREPARE_WIRELESS_20 && !sec_bat_get_lpmode()) ||
+				battery->cable_type == SEC_BATTERY_CABLE_HV_WIRELESS_20)
+				charge = battery->ttf_d->ttf_predict_wc20_charge_current;
+			else
+				charge = battery->ttf_d->ttf_hv_wireless_charge_current;
+		} else if (is_nv_wireless_type(battery->cable_type)) {
+			charge = battery->ttf_d->ttf_wireless_charge_current;
+#endif
+		} else if (is_hv_wire_type(battery->cable_type)) {
+			charge = battery->ttf_d->ttf_hv_charge_current;
+		} else if (is_pd_apdo_wire_type(battery->cable_type) ||
+			(is_pd_fpdo_wire_type(battery->cable_type) && battery->hv_pdo)) {
+			if (battery->pd_max_charge_power > HV_CHARGER_STATUS_STANDARD4) {
+				charge = battery->ttf_d->ttf_dc45_charge_current;
+			} else if (battery->pd_max_charge_power > HV_CHARGER_STATUS_STANDARD3) {
+				charge = battery->ttf_d->ttf_dc25_charge_current;
+			} else if (battery->pd_max_charge_power <= battery->pdata->pd_charging_charge_power &&
+				battery->pdata->charging_current[battery->cable_type].fast_charging_current >= \
+				battery->pdata->max_charging_current) { /* same PD power with AFC */
+				charge = battery->ttf_d->ttf_hv_charge_current;
+			} else { /* other PD charging */
+				charge = (battery->pd_max_charge_power / 5) > battery->pdata->charging_current[battery->cable_type].fast_charging_current ?
+					battery->pdata->charging_current[battery->cable_type].fast_charging_current : (battery->pd_max_charge_power / 5);
+			}
+		} else {
+			charge = (battery->max_charge_power / 5) > battery->pdata->charging_current[battery->cable_type].fast_charging_current ?
+					battery->pdata->charging_current[battery->cable_type].fast_charging_current : (battery->max_charge_power / 5);
+		}
+
+		battery->ttf_d->timetofull = sec_calc_ttf(battery, charge);
+		dev_info(battery->dev, "%s: T: %5d sec, passed time: %5ld, current: %d\n",
+				__func__, battery->ttf_d->timetofull, battery->charging_passed_time, charge);
+	} else {
+		battery->ttf_d->timetofull = -1;
+	}
+}
+
+#if IS_ENABLED(CONFIG_WIRELESS_CHARGING)
+void sec_bat_predict_wc20_time_to_full_current(struct sec_battery_info *battery, int info_idx)
+{
+	if (info_idx < 0)
+		battery->ttf_d->ttf_predict_wc20_charge_current = 0;
+	else
+		battery->ttf_d->ttf_predict_wc20_charge_current =
+			battery->pdata->wireless_power_info[info_idx].ttf_charge_current;
+
+	pr_info("%s: %dmA \n", __func__, battery->ttf_d->ttf_predict_wc20_charge_current);
+}
+EXPORT_SYMBOL_KUNIT(sec_bat_predict_wc20_time_to_full_current);
+#endif
+
+>>>>>>> upstream/android-13
 int sec_ttf_parse_dt(struct sec_battery_info *battery)
 {
 	struct device_node *np;
@@ -259,6 +336,7 @@ int sec_ttf_parse_dt(struct sec_battery_info *battery)
 			__func__, pdata->ttf_hv_wireless_charge_current);
 	}
 
+<<<<<<< HEAD
 	ret = of_property_read_u32(np, "battery,ttf_wc20_wireless_charge_current",
 					&pdata->ttf_wc20_wireless_charge_current);
 	if (ret) {
@@ -275,6 +353,15 @@ int sec_ttf_parse_dt(struct sec_battery_info *battery)
 			bpdata->charging_current[SEC_BATTERY_CABLE_HV_WIRELESS_20].fast_charging_current - 300;
 		pr_info("%s: ttf_wc21_wireless_charge_current is Empty, Default value %d\n",
 			__func__, pdata->ttf_wc21_wireless_charge_current);
+=======
+	ret = of_property_read_u32(np, "battery,ttf_hv_12v_wireless_charge_current",
+					&pdata->ttf_hv_12v_wireless_charge_current);
+	if (ret) {
+		pdata->ttf_hv_12v_wireless_charge_current =
+			bpdata->charging_current[SEC_BATTERY_CABLE_HV_WIRELESS_20].fast_charging_current - 300;
+		pr_info("%s: ttf_hv_12v_wireless_charge_current is Empty, Default value %d\n",
+			__func__, pdata->ttf_hv_12v_wireless_charge_current);
+>>>>>>> upstream/android-13
 	}
 
 	ret = of_property_read_u32(np, "battery,ttf_wireless_charge_current",
@@ -303,6 +390,7 @@ int sec_ttf_parse_dt(struct sec_battery_info *battery)
 			__func__, pdata->ttf_dc45_charge_current);
 	}
 
+<<<<<<< HEAD
 	ret = of_property_read_u32(np, "battery,ttf_fpdo_dc_charge_current",
 					&pdata->ttf_fpdo_dc_charge_current);
 	if (ret) {
@@ -311,6 +399,8 @@ int sec_ttf_parse_dt(struct sec_battery_info *battery)
 			__func__, pdata->ttf_fpdo_dc_charge_current);
 	}
 
+=======
+>>>>>>> upstream/android-13
 	ret = of_property_read_u32(np, "battery,ttf_capacity",
 					   &pdata->ttf_capacity);
 	if (ret < 0) {
@@ -406,7 +496,11 @@ void ttf_init(struct sec_battery_info *battery)
 		pr_err("Failed to allocate memory\n");
 	}
 	sec_ttf_parse_dt(battery);
+<<<<<<< HEAD
 	init_ttf(battery->ttf_d);
+=======
+	battery->ttf_d->timetofull = -1;
+>>>>>>> upstream/android-13
 
 	INIT_DELAYED_WORK(&battery->ttf_d->timetofull_work, sec_bat_time_to_full_work);
 }

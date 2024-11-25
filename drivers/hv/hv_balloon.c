@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 2012, Microsoft Corporation.
  *
  * Author:
  *   K. Y. Srinivasan <kys@microsoft.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published
@@ -14,6 +19,8 @@
  * NON INFRINGEMENT.  See the GNU General Public License for more
  * details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -31,8 +38,17 @@
 #include <linux/memory.h>
 #include <linux/notifier.h>
 #include <linux/percpu_counter.h>
+<<<<<<< HEAD
 
 #include <linux/hyperv.h>
+=======
+#include <linux/page_reporting.h>
+
+#include <linux/hyperv.h>
+#include <asm/hyperv-tlfs.h>
+
+#include <asm/mshyperv.h>
+>>>>>>> upstream/android-13
 
 #define CREATE_TRACE_POINTS
 #include "hv_trace_balloon.h"
@@ -351,8 +367,11 @@ struct dm_unballoon_response {
  *
  * mem_range: Memory range to hot add.
  *
+<<<<<<< HEAD
  * On Linux we currently don't support this since we cannot hot add
  * arbitrary granularity of memory.
+=======
+>>>>>>> upstream/android-13
  */
 
 struct dm_hot_add {
@@ -467,6 +486,10 @@ struct hot_add_wrk {
 	struct work_struct wrk;
 };
 
+<<<<<<< HEAD
+=======
+static bool allow_hibernation;
+>>>>>>> upstream/android-13
 static bool hot_add = true;
 static bool do_hot_add;
 /*
@@ -487,7 +510,11 @@ module_param(pressure_report_delay, uint, (S_IRUGO | S_IWUSR));
 MODULE_PARM_DESC(pressure_report_delay, "Delay in secs in reporting pressure");
 static atomic_t trans_id = ATOMIC_INIT(0);
 
+<<<<<<< HEAD
 static int dm_ring_size = (5 * PAGE_SIZE);
+=======
+static int dm_ring_size = VMBUS_RING_SIZE(16 * 1024);
+>>>>>>> upstream/android-13
 
 /*
  * Driver specific state.
@@ -503,10 +530,17 @@ enum hv_dm_state {
 };
 
 
+<<<<<<< HEAD
 static __u8 recv_buffer[PAGE_SIZE];
 static __u8 *send_buffer;
 #define PAGES_IN_2M	512
 #define HA_CHUNK (32 * 1024)
+=======
+static __u8 recv_buffer[HV_HYP_PAGE_SIZE];
+static __u8 balloon_up_send_buffer[HV_HYP_PAGE_SIZE];
+#define PAGES_IN_2M (2 * 1024 * 1024 / PAGE_SIZE)
+#define HA_CHUNK (128 * 1024 * 1024 / PAGE_SIZE)
+>>>>>>> upstream/android-13
 
 struct hv_dynmem_device {
 	struct hv_device *dev;
@@ -541,7 +575,10 @@ struct hv_dynmem_device {
 	 * State to synchronize hot-add.
 	 */
 	struct completion  ol_waitevent;
+<<<<<<< HEAD
 	bool ha_waiting;
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * This thread handles hot-add
 	 * requests from the host as well as notifying
@@ -572,6 +609,11 @@ struct hv_dynmem_device {
 	 * The negotiated version agreed by host.
 	 */
 	__u32 version;
+<<<<<<< HEAD
+=======
+
+	struct page_reporting_dev_info pr_dev_info;
+>>>>>>> upstream/android-13
 };
 
 static struct hv_dynmem_device dm_device;
@@ -642,10 +684,14 @@ static int hv_memory_notifier(struct notifier_block *nb, unsigned long val,
 	switch (val) {
 	case MEM_ONLINE:
 	case MEM_CANCEL_ONLINE:
+<<<<<<< HEAD
 		if (dm_device.ha_waiting) {
 			dm_device.ha_waiting = false;
 			complete(&dm_device.ol_waitevent);
 		}
+=======
+		complete(&dm_device.ol_waitevent);
+>>>>>>> upstream/android-13
 		break;
 
 	case MEM_OFFLINE:
@@ -681,6 +727,7 @@ static struct notifier_block hv_memory_nb = {
 /* Check if the particular page is backed and can be onlined and online it. */
 static void hv_page_online_one(struct hv_hotadd_state *has, struct page *pg)
 {
+<<<<<<< HEAD
 	if (!has_pfn_is_backed(has, page_to_pfn(pg)))
 		return;
 
@@ -690,6 +737,20 @@ static void hv_page_online_one(struct hv_hotadd_state *has, struct page *pg)
 	__online_page_free(pg);
 
 	WARN_ON_ONCE(!spin_is_locked(&dm_device.ha_lock));
+=======
+	if (!has_pfn_is_backed(has, page_to_pfn(pg))) {
+		if (!PageOffline(pg))
+			__SetPageOffline(pg);
+		return;
+	}
+	if (PageOffline(pg))
+		__ClearPageOffline(pg);
+
+	/* This frame is currently backed; online the page. */
+	generic_online_page(pg, 0);
+
+	lockdep_assert_held(&dm_device.ha_lock);
+>>>>>>> upstream/android-13
 	dm_device.num_pages_onlined++;
 }
 
@@ -731,12 +792,20 @@ static void hv_mem_hot_add(unsigned long start, unsigned long size,
 		has->covered_end_pfn +=  processed_pfn;
 		spin_unlock_irqrestore(&dm_device.ha_lock, flags);
 
+<<<<<<< HEAD
 		init_completion(&dm_device.ol_waitevent);
 		dm_device.ha_waiting = !memhp_auto_online;
 
 		nid = memory_add_physaddr_to_nid(PFN_PHYS(start_pfn));
 		ret = add_memory(nid, PFN_PHYS((start_pfn)),
 				(HA_CHUNK << PAGE_SHIFT));
+=======
+		reinit_completion(&dm_device.ol_waitevent);
+
+		nid = memory_add_physaddr_to_nid(PFN_PHYS(start_pfn));
+		ret = add_memory(nid, PFN_PHYS((start_pfn)),
+				(HA_CHUNK << PAGE_SHIFT), MHP_MERGE_RESOURCE);
+>>>>>>> upstream/android-13
 
 		if (ret) {
 			pr_err("hot_add memory failed error is %d\n", ret);
@@ -758,6 +827,7 @@ static void hv_mem_hot_add(unsigned long start, unsigned long size,
 		}
 
 		/*
+<<<<<<< HEAD
 		 * Wait for the memory block to be onlined when memory onlining
 		 * is done outside of kernel (memhp_auto_online). Since the hot
 		 * add has succeeded, it is ok to proceed even if the pages in
@@ -767,11 +837,25 @@ static void hv_mem_hot_add(unsigned long start, unsigned long size,
 		if (dm_device.ha_waiting)
 			wait_for_completion_timeout(&dm_device.ol_waitevent,
 						    5*HZ);
+=======
+		 * Wait for memory to get onlined. If the kernel onlined the
+		 * memory when adding it, this will return directly. Otherwise,
+		 * it will wait for user space to online the memory. This helps
+		 * to avoid adding memory faster than it is getting onlined. As
+		 * adding succeeded, it is ok to proceed even if the memory was
+		 * not onlined in time.
+		 */
+		wait_for_completion_timeout(&dm_device.ol_waitevent, 5 * HZ);
+>>>>>>> upstream/android-13
 		post_status(&dm_device);
 	}
 }
 
+<<<<<<< HEAD
 static void hv_online_page(struct page *pg)
+=======
+static void hv_online_page(struct page *pg, unsigned int order)
+>>>>>>> upstream/android-13
 {
 	struct hv_hotadd_state *has;
 	unsigned long flags;
@@ -780,10 +864,18 @@ static void hv_online_page(struct page *pg)
 	spin_lock_irqsave(&dm_device.ha_lock, flags);
 	list_for_each_entry(has, &dm_device.ha_region_list, list) {
 		/* The page belongs to a different HAS. */
+<<<<<<< HEAD
 		if ((pfn < has->start_pfn) || (pfn >= has->end_pfn))
 			continue;
 
 		hv_page_online_one(has, pg);
+=======
+		if ((pfn < has->start_pfn) ||
+				(pfn + (1UL << order) > has->end_pfn))
+			continue;
+
+		hv_bring_pgs_online(has, pfn, 1UL << order);
+>>>>>>> upstream/android-13
 		break;
 	}
 	spin_unlock_irqrestore(&dm_device.ha_lock, flags);
@@ -1017,7 +1109,10 @@ static void hot_add_req(struct work_struct *dummy)
 		 * that need to be hot-added while ensuring the alignment
 		 * and size requirements of Linux as it relates to hot-add.
 		 */
+<<<<<<< HEAD
 		region_start = pg_start;
+=======
+>>>>>>> upstream/android-13
 		region_size = (pfn_cnt / HA_CHUNK) * HA_CHUNK;
 		if (pfn_cnt % HA_CHUNK)
 			region_size += HA_CHUNK;
@@ -1057,8 +1152,17 @@ static void hot_add_req(struct work_struct *dummy)
 	else
 		resp.result = 0;
 
+<<<<<<< HEAD
 	if (!do_hot_add || (resp.page_count == 0))
 		pr_err("Memory hot add failed\n");
+=======
+	if (!do_hot_add || resp.page_count == 0) {
+		if (!allow_hibernation)
+			pr_err("Memory hot add failed\n");
+		else
+			pr_info("Ignore hot-add request!\n");
+	}
+>>>>>>> upstream/android-13
 
 	dm->state = DM_INITIALIZED;
 	resp.hdr.trans_id = atomic_inc_return(&trans_id);
@@ -1080,7 +1184,11 @@ static void process_info(struct hv_dynmem_device *dm, struct dm_info_msg *msg)
 			__u64 *max_page_count = (__u64 *)&info_hdr[1];
 
 			pr_info("Max. dynamic memory size: %llu MB\n",
+<<<<<<< HEAD
 				(*max_page_count) >> (20 - PAGE_SHIFT));
+=======
+				(*max_page_count) >> (20 - HV_HYP_PAGE_SHIFT));
+>>>>>>> upstream/android-13
 		}
 
 		break;
@@ -1092,6 +1200,10 @@ static void process_info(struct hv_dynmem_device *dm, struct dm_info_msg *msg)
 static unsigned long compute_balloon_floor(void)
 {
 	unsigned long min_pages;
+<<<<<<< HEAD
+=======
+	unsigned long nr_pages = totalram_pages();
+>>>>>>> upstream/android-13
 #define MB2PAGES(mb) ((mb) << (20 - PAGE_SHIFT))
 	/* Simple continuous piecewiese linear function:
 	 *  max MiB -> min MiB  gradient
@@ -1104,6 +1216,7 @@ static unsigned long compute_balloon_floor(void)
 	 *    8192       744    (1/16)
 	 *   32768      1512	(1/32)
 	 */
+<<<<<<< HEAD
 	if (totalram_pages < MB2PAGES(128))
 		min_pages = MB2PAGES(8) + (totalram_pages >> 1);
 	else if (totalram_pages < MB2PAGES(512))
@@ -1114,6 +1227,18 @@ static unsigned long compute_balloon_floor(void)
 		min_pages = MB2PAGES(232) + (totalram_pages >> 4);
 	else
 		min_pages = MB2PAGES(488) + (totalram_pages >> 5);
+=======
+	if (nr_pages < MB2PAGES(128))
+		min_pages = MB2PAGES(8) + (nr_pages >> 1);
+	else if (nr_pages < MB2PAGES(512))
+		min_pages = MB2PAGES(40) + (nr_pages >> 2);
+	else if (nr_pages < MB2PAGES(2048))
+		min_pages = MB2PAGES(104) + (nr_pages >> 3);
+	else if (nr_pages < MB2PAGES(8192))
+		min_pages = MB2PAGES(232) + (nr_pages >> 4);
+	else
+		min_pages = MB2PAGES(488) + (nr_pages >> 5);
+>>>>>>> upstream/android-13
 #undef MB2PAGES
 	return min_pages;
 }
@@ -1200,8 +1325,15 @@ static void free_balloon_pages(struct hv_dynmem_device *dm,
 
 	for (i = 0; i < num_pages; i++) {
 		pg = pfn_to_page(i + start_frame);
+<<<<<<< HEAD
 		__free_page(pg);
 		dm->num_pages_ballooned--;
+=======
+		__ClearPageOffline(pg);
+		__free_page(pg);
+		dm->num_pages_ballooned--;
+		adjust_managed_page_count(pg, 1);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -1212,12 +1344,20 @@ static unsigned int alloc_balloon_pages(struct hv_dynmem_device *dm,
 					struct dm_balloon_response *bl_resp,
 					int alloc_unit)
 {
+<<<<<<< HEAD
 	unsigned int i = 0;
+=======
+	unsigned int i, j;
+>>>>>>> upstream/android-13
 	struct page *pg;
 
 	for (i = 0; i < num_pages / alloc_unit; i++) {
 		if (bl_resp->hdr.size + sizeof(union dm_mem_page_range) >
+<<<<<<< HEAD
 			PAGE_SIZE)
+=======
+			HV_HYP_PAGE_SIZE)
+>>>>>>> upstream/android-13
 			return i * alloc_unit;
 
 		/*
@@ -1241,6 +1381,15 @@ static unsigned int alloc_balloon_pages(struct hv_dynmem_device *dm,
 		if (alloc_unit != 1)
 			split_page(pg, get_order(alloc_unit << PAGE_SHIFT));
 
+<<<<<<< HEAD
+=======
+		/* mark all pages offline */
+		for (j = 0; j < alloc_unit; j++) {
+			__SetPageOffline(pg + j);
+			adjust_managed_page_count(pg + j, -1);
+		}
+
+>>>>>>> upstream/android-13
 		bl_resp->range_count++;
 		bl_resp->range_array[i].finfo.start_page =
 			page_to_pfn(pg);
@@ -1266,9 +1415,15 @@ static void balloon_up(struct work_struct *dummy)
 
 	/*
 	 * We will attempt 2M allocations. However, if we fail to
+<<<<<<< HEAD
 	 * allocate 2M chunks, we will go back to 4k allocations.
 	 */
 	alloc_unit = 512;
+=======
+	 * allocate 2M chunks, we will go back to PAGE_SIZE allocations.
+	 */
+	alloc_unit = PAGES_IN_2M;
+>>>>>>> upstream/android-13
 
 	avail_pages = si_mem_available();
 	floor = compute_balloon_floor();
@@ -1283,8 +1438,13 @@ static void balloon_up(struct work_struct *dummy)
 	}
 
 	while (!done) {
+<<<<<<< HEAD
 		bl_resp = (struct dm_balloon_response *)send_buffer;
 		memset(send_buffer, 0, PAGE_SIZE);
+=======
+		memset(balloon_up_send_buffer, 0, HV_HYP_PAGE_SIZE);
+		bl_resp = (struct dm_balloon_response *)balloon_up_send_buffer;
+>>>>>>> upstream/android-13
 		bl_resp->hdr.type = DM_BALLOON_RESPONSE;
 		bl_resp->hdr.size = sizeof(struct dm_balloon_response);
 		bl_resp->more_pages = 1;
@@ -1482,7 +1642,11 @@ static void balloon_onchannelcallback(void *context)
 
 	memset(recv_buffer, 0, sizeof(recv_buffer));
 	vmbus_recvpacket(dev->channel, recv_buffer,
+<<<<<<< HEAD
 			 PAGE_SIZE, &recvlen, &requestid);
+=======
+			 HV_HYP_PAGE_SIZE, &recvlen, &requestid);
+>>>>>>> upstream/android-13
 
 	if (recvlen > 0) {
 		dm_msg = (struct dm_message *)recv_buffer;
@@ -1500,6 +1664,14 @@ static void balloon_onchannelcallback(void *context)
 			break;
 
 		case DM_BALLOON_REQUEST:
+<<<<<<< HEAD
+=======
+			if (allow_hibernation) {
+				pr_info("Ignore balloon-up request!\n");
+				break;
+			}
+
+>>>>>>> upstream/android-13
 			if (dm->state == DM_BALLOON_UP)
 				pr_warn("Currently ballooning\n");
 			bal_msg = (struct dm_balloon *)recv_buffer;
@@ -1509,6 +1681,14 @@ static void balloon_onchannelcallback(void *context)
 			break;
 
 		case DM_UNBALLOON_REQUEST:
+<<<<<<< HEAD
+=======
+			if (allow_hibernation) {
+				pr_info("Ignore balloon-down request!\n");
+				break;
+			}
+
+>>>>>>> upstream/android-13
 			dm->state = DM_BALLOON_DOWN;
 			balloon_down(dm,
 				 (struct dm_unballoon_request *)recv_buffer);
@@ -1548,13 +1728,18 @@ static void balloon_onchannelcallback(void *context)
 			break;
 
 		default:
+<<<<<<< HEAD
 			pr_warn("Unhandled message: type: %d\n", dm_hdr->type);
+=======
+			pr_warn_ratelimited("Unhandled message: type: %d\n", dm_hdr->type);
+>>>>>>> upstream/android-13
 
 		}
 	}
 
 }
 
+<<<<<<< HEAD
 static int balloon_probe(struct hv_device *dev,
 			const struct hv_vmbus_device_id *dev_id)
 {
@@ -1607,6 +1792,142 @@ static int balloon_probe(struct hv_device *dev,
 #endif
 
 	hv_set_drvdata(dev, &dm_device);
+=======
+/* Hyper-V only supports reporting 2MB pages or higher */
+#define HV_MIN_PAGE_REPORTING_ORDER	9
+#define HV_MIN_PAGE_REPORTING_LEN (HV_HYP_PAGE_SIZE << HV_MIN_PAGE_REPORTING_ORDER)
+static int hv_free_page_report(struct page_reporting_dev_info *pr_dev_info,
+		    struct scatterlist *sgl, unsigned int nents)
+{
+	unsigned long flags;
+	struct hv_memory_hint *hint;
+	int i;
+	u64 status;
+	struct scatterlist *sg;
+
+	WARN_ON_ONCE(nents > HV_MEMORY_HINT_MAX_GPA_PAGE_RANGES);
+	WARN_ON_ONCE(sgl->length < HV_MIN_PAGE_REPORTING_LEN);
+	local_irq_save(flags);
+	hint = *(struct hv_memory_hint **)this_cpu_ptr(hyperv_pcpu_input_arg);
+	if (!hint) {
+		local_irq_restore(flags);
+		return -ENOSPC;
+	}
+
+	hint->type = HV_EXT_MEMORY_HEAT_HINT_TYPE_COLD_DISCARD;
+	hint->reserved = 0;
+	for_each_sg(sgl, sg, nents, i) {
+		union hv_gpa_page_range *range;
+
+		range = &hint->ranges[i];
+		range->address_space = 0;
+		/* page reporting only reports 2MB pages or higher */
+		range->page.largepage = 1;
+		range->page.additional_pages =
+			(sg->length / HV_MIN_PAGE_REPORTING_LEN) - 1;
+		range->page_size = HV_GPA_PAGE_RANGE_PAGE_SIZE_2MB;
+		range->base_large_pfn =
+			page_to_hvpfn(sg_page(sg)) >> HV_MIN_PAGE_REPORTING_ORDER;
+	}
+
+	status = hv_do_rep_hypercall(HV_EXT_CALL_MEMORY_HEAT_HINT, nents, 0,
+				     hint, NULL);
+	local_irq_restore(flags);
+	if ((status & HV_HYPERCALL_RESULT_MASK) != HV_STATUS_SUCCESS) {
+		pr_err("Cold memory discard hypercall failed with status %llx\n",
+			status);
+		return -EINVAL;
+	}
+
+	return 0;
+}
+
+static void enable_page_reporting(void)
+{
+	int ret;
+
+	/* Essentially, validating 'PAGE_REPORTING_MIN_ORDER' is big enough. */
+	if (pageblock_order < HV_MIN_PAGE_REPORTING_ORDER) {
+		pr_debug("Cold memory discard is only supported on 2MB pages and above\n");
+		return;
+	}
+
+	if (!hv_query_ext_cap(HV_EXT_CAPABILITY_MEMORY_COLD_DISCARD_HINT)) {
+		pr_debug("Cold memory discard hint not supported by Hyper-V\n");
+		return;
+	}
+
+	BUILD_BUG_ON(PAGE_REPORTING_CAPACITY > HV_MEMORY_HINT_MAX_GPA_PAGE_RANGES);
+	dm_device.pr_dev_info.report = hv_free_page_report;
+	ret = page_reporting_register(&dm_device.pr_dev_info);
+	if (ret < 0) {
+		dm_device.pr_dev_info.report = NULL;
+		pr_err("Failed to enable cold memory discard: %d\n", ret);
+	} else {
+		pr_info("Cold memory discard hint enabled\n");
+	}
+}
+
+static void disable_page_reporting(void)
+{
+	if (dm_device.pr_dev_info.report) {
+		page_reporting_unregister(&dm_device.pr_dev_info);
+		dm_device.pr_dev_info.report = NULL;
+	}
+}
+
+static int ballooning_enabled(void)
+{
+	/*
+	 * Disable ballooning if the page size is not 4k (HV_HYP_PAGE_SIZE),
+	 * since currently it's unclear to us whether an unballoon request can
+	 * make sure all page ranges are guest page size aligned.
+	 */
+	if (PAGE_SIZE != HV_HYP_PAGE_SIZE) {
+		pr_info("Ballooning disabled because page size is not 4096 bytes\n");
+		return 0;
+	}
+
+	return 1;
+}
+
+static int hot_add_enabled(void)
+{
+	/*
+	 * Disable hot add on ARM64, because we currently rely on
+	 * memory_add_physaddr_to_nid() to get a node id of a hot add range,
+	 * however ARM64's memory_add_physaddr_to_nid() always return 0 and
+	 * DM_MEM_HOT_ADD_REQUEST doesn't have the NUMA node information for
+	 * add_memory().
+	 */
+	if (IS_ENABLED(CONFIG_ARM64)) {
+		pr_info("Memory hot add disabled on ARM64\n");
+		return 0;
+	}
+
+	return 1;
+}
+
+static int balloon_connect_vsp(struct hv_device *dev)
+{
+	struct dm_version_request version_req;
+	struct dm_capabilities cap_msg;
+	unsigned long t;
+	int ret;
+
+	/*
+	 * max_pkt_size should be large enough for one vmbus packet header plus
+	 * our receive buffer size. Hyper-V sends messages up to
+	 * HV_HYP_PAGE_SIZE bytes long on balloon channel.
+	 */
+	dev->channel->max_pkt_size = HV_HYP_PAGE_SIZE * 2;
+
+	ret = vmbus_open(dev->channel, dm_ring_size, dm_ring_size, NULL, 0,
+			 balloon_onchannelcallback, dev);
+	if (ret)
+		return ret;
+
+>>>>>>> upstream/android-13
 	/*
 	 * Initiate the hand shake with the host and negotiate
 	 * a version that the host can support. We start with the
@@ -1622,16 +1943,27 @@ static int balloon_probe(struct hv_device *dev,
 	dm_device.version = version_req.version.version;
 
 	ret = vmbus_sendpacket(dev->channel, &version_req,
+<<<<<<< HEAD
 				sizeof(struct dm_version_request),
 				(unsigned long)NULL,
 				VM_PKT_DATA_INBAND, 0);
 	if (ret)
 		goto probe_error2;
+=======
+			       sizeof(struct dm_version_request),
+			       (unsigned long)NULL, VM_PKT_DATA_INBAND, 0);
+	if (ret)
+		goto out;
+>>>>>>> upstream/android-13
 
 	t = wait_for_completion_timeout(&dm_device.host_event, 5*HZ);
 	if (t == 0) {
 		ret = -ETIMEDOUT;
+<<<<<<< HEAD
 		goto probe_error2;
+=======
+		goto out;
+>>>>>>> upstream/android-13
 	}
 
 	/*
@@ -1639,8 +1971,13 @@ static int balloon_probe(struct hv_device *dev,
 	 * fail the probe function.
 	 */
 	if (dm_device.state == DM_INIT_ERROR) {
+<<<<<<< HEAD
 		ret = -ETIMEDOUT;
 		goto probe_error2;
+=======
+		ret = -EPROTO;
+		goto out;
+>>>>>>> upstream/android-13
 	}
 
 	pr_info("Using Dynamic Memory protocol version %u.%u\n",
@@ -1655,8 +1992,18 @@ static int balloon_probe(struct hv_device *dev,
 	cap_msg.hdr.size = sizeof(struct dm_capabilities);
 	cap_msg.hdr.trans_id = atomic_inc_return(&trans_id);
 
+<<<<<<< HEAD
 	cap_msg.caps.cap_bits.balloon = 1;
 	cap_msg.caps.cap_bits.hot_add = 1;
+=======
+	/*
+	 * When hibernation (i.e. virtual ACPI S4 state) is enabled, the host
+	 * currently still requires the bits to be set, so we have to add code
+	 * to fail the host's hot-add and balloon up/down requests, if any.
+	 */
+	cap_msg.caps.cap_bits.balloon = ballooning_enabled();
+	cap_msg.caps.cap_bits.hot_add = hot_add_enabled();
+>>>>>>> upstream/android-13
 
 	/*
 	 * Specify our alignment requirements as it relates
@@ -1673,16 +2020,27 @@ static int balloon_probe(struct hv_device *dev,
 	cap_msg.max_page_number = -1;
 
 	ret = vmbus_sendpacket(dev->channel, &cap_msg,
+<<<<<<< HEAD
 				sizeof(struct dm_capabilities),
 				(unsigned long)NULL,
 				VM_PKT_DATA_INBAND, 0);
 	if (ret)
 		goto probe_error2;
+=======
+			       sizeof(struct dm_capabilities),
+			       (unsigned long)NULL, VM_PKT_DATA_INBAND, 0);
+	if (ret)
+		goto out;
+>>>>>>> upstream/android-13
 
 	t = wait_for_completion_timeout(&dm_device.host_event, 5*HZ);
 	if (t == 0) {
 		ret = -ETIMEDOUT;
+<<<<<<< HEAD
 		goto probe_error2;
+=======
+		goto out;
+>>>>>>> upstream/android-13
 	}
 
 	/*
@@ -1690,6 +2048,7 @@ static int balloon_probe(struct hv_device *dev,
 	 * fail the probe function.
 	 */
 	if (dm_device.state == DM_INIT_ERROR) {
+<<<<<<< HEAD
 		ret = -ETIMEDOUT;
 		goto probe_error2;
 	}
@@ -1709,6 +2068,76 @@ probe_error1:
 	vmbus_close(dev->channel);
 probe_error0:
 	kfree(send_buffer);
+=======
+		ret = -EPROTO;
+		goto out;
+	}
+
+	return 0;
+out:
+	vmbus_close(dev->channel);
+	return ret;
+}
+
+static int balloon_probe(struct hv_device *dev,
+			 const struct hv_vmbus_device_id *dev_id)
+{
+	int ret;
+
+	allow_hibernation = hv_is_hibernation_supported();
+	if (allow_hibernation)
+		hot_add = false;
+
+#ifdef CONFIG_MEMORY_HOTPLUG
+	do_hot_add = hot_add;
+#else
+	do_hot_add = false;
+#endif
+	dm_device.dev = dev;
+	dm_device.state = DM_INITIALIZING;
+	dm_device.next_version = DYNMEM_PROTOCOL_VERSION_WIN8;
+	init_completion(&dm_device.host_event);
+	init_completion(&dm_device.config_event);
+	INIT_LIST_HEAD(&dm_device.ha_region_list);
+	spin_lock_init(&dm_device.ha_lock);
+	INIT_WORK(&dm_device.balloon_wrk.wrk, balloon_up);
+	INIT_WORK(&dm_device.ha_wrk.wrk, hot_add_req);
+	dm_device.host_specified_ha_region = false;
+
+#ifdef CONFIG_MEMORY_HOTPLUG
+	set_online_page_callback(&hv_online_page);
+	init_completion(&dm_device.ol_waitevent);
+	register_memory_notifier(&hv_memory_nb);
+#endif
+
+	hv_set_drvdata(dev, &dm_device);
+
+	ret = balloon_connect_vsp(dev);
+	if (ret != 0)
+		return ret;
+
+	enable_page_reporting();
+	dm_device.state = DM_INITIALIZED;
+
+	dm_device.thread =
+		 kthread_run(dm_thread_func, &dm_device, "hv_balloon");
+	if (IS_ERR(dm_device.thread)) {
+		ret = PTR_ERR(dm_device.thread);
+		goto probe_error;
+	}
+
+	return 0;
+
+probe_error:
+	dm_device.state = DM_INIT_ERROR;
+	dm_device.thread  = NULL;
+	disable_page_reporting();
+	vmbus_close(dev->channel);
+#ifdef CONFIG_MEMORY_HOTPLUG
+	unregister_memory_notifier(&hv_memory_nb);
+	restore_online_page_callback(&hv_online_page);
+#endif
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -1725,12 +2154,21 @@ static int balloon_remove(struct hv_device *dev)
 	cancel_work_sync(&dm->balloon_wrk.wrk);
 	cancel_work_sync(&dm->ha_wrk.wrk);
 
+<<<<<<< HEAD
 	vmbus_close(dev->channel);
 	kthread_stop(dm->thread);
 	kfree(send_buffer);
 #ifdef CONFIG_MEMORY_HOTPLUG
 	restore_online_page_callback(&hv_online_page);
 	unregister_memory_notifier(&hv_memory_nb);
+=======
+	kthread_stop(dm->thread);
+	disable_page_reporting();
+	vmbus_close(dev->channel);
+#ifdef CONFIG_MEMORY_HOTPLUG
+	unregister_memory_notifier(&hv_memory_nb);
+	restore_online_page_callback(&hv_online_page);
+>>>>>>> upstream/android-13
 #endif
 	spin_lock_irqsave(&dm_device.ha_lock, flags);
 	list_for_each_entry_safe(has, tmp, &dm->ha_region_list, list) {
@@ -1746,6 +2184,62 @@ static int balloon_remove(struct hv_device *dev)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static int balloon_suspend(struct hv_device *hv_dev)
+{
+	struct hv_dynmem_device *dm = hv_get_drvdata(hv_dev);
+
+	tasklet_disable(&hv_dev->channel->callback_event);
+
+	cancel_work_sync(&dm->balloon_wrk.wrk);
+	cancel_work_sync(&dm->ha_wrk.wrk);
+
+	if (dm->thread) {
+		kthread_stop(dm->thread);
+		dm->thread = NULL;
+		vmbus_close(hv_dev->channel);
+	}
+
+	tasklet_enable(&hv_dev->channel->callback_event);
+
+	return 0;
+
+}
+
+static int balloon_resume(struct hv_device *dev)
+{
+	int ret;
+
+	dm_device.state = DM_INITIALIZING;
+
+	ret = balloon_connect_vsp(dev);
+
+	if (ret != 0)
+		goto out;
+
+	dm_device.thread =
+		 kthread_run(dm_thread_func, &dm_device, "hv_balloon");
+	if (IS_ERR(dm_device.thread)) {
+		ret = PTR_ERR(dm_device.thread);
+		dm_device.thread = NULL;
+		goto close_channel;
+	}
+
+	dm_device.state = DM_INITIALIZED;
+	return 0;
+close_channel:
+	vmbus_close(dev->channel);
+out:
+	dm_device.state = DM_INIT_ERROR;
+#ifdef CONFIG_MEMORY_HOTPLUG
+	unregister_memory_notifier(&hv_memory_nb);
+	restore_online_page_callback(&hv_online_page);
+#endif
+	return ret;
+}
+
+>>>>>>> upstream/android-13
 static const struct hv_vmbus_device_id id_table[] = {
 	/* Dynamic Memory Class ID */
 	/* 525074DC-8985-46e2-8057-A307DC18A502 */
@@ -1760,6 +2254,11 @@ static  struct hv_driver balloon_drv = {
 	.id_table = id_table,
 	.probe =  balloon_probe,
 	.remove =  balloon_remove,
+<<<<<<< HEAD
+=======
+	.suspend = balloon_suspend,
+	.resume = balloon_resume,
+>>>>>>> upstream/android-13
 	.driver = {
 		.probe_type = PROBE_PREFER_ASYNCHRONOUS,
 	},

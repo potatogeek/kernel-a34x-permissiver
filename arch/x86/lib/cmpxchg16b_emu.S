@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *	This program is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU General Public License
@@ -5,6 +6,9 @@
  *	of the License.
  *
  */
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 #include <linux/linkage.h>
 #include <asm/percpu.h>
 
@@ -19,7 +23,11 @@
  * %rcx : high 64 bits of new value
  * %al  : Operation successful
  */
+<<<<<<< HEAD
 ENTRY(this_cpu_cmpxchg16b_emu)
+=======
+SYM_FUNC_START(this_cpu_cmpxchg16b_emu)
+>>>>>>> upstream/android-13
 
 #
 # Emulate 'cmpxchg16b %gs:(%rsi)' except we return the result in %al not
@@ -43,11 +51,21 @@ ENTRY(this_cpu_cmpxchg16b_emu)
 
 	popfq
 	mov $1, %al
+<<<<<<< HEAD
 	ret
+=======
+	RET
+>>>>>>> upstream/android-13
 
 .Lnot_same:
 	popfq
 	xor %al,%al
+<<<<<<< HEAD
 	ret
 
 ENDPROC(this_cpu_cmpxchg16b_emu)
+=======
+	RET
+
+SYM_FUNC_END(this_cpu_cmpxchg16b_emu)
+>>>>>>> upstream/android-13

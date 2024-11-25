@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2018 The Linux Foundation. All rights reserved.
  *
@@ -12,17 +13,34 @@
  * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+=======
+/* SPDX-License-Identifier: ISC */
+/*
+ * Copyright (c) 2018 The Linux Foundation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #ifndef _SNOC_H_
 #define _SNOC_H_
 
+<<<<<<< HEAD
 #include "hw.h"
 #include "ce.h"
+=======
+#include <linux/notifier.h>
+
+#include "hw.h"
+#include "ce.h"
+#include "qmi.h"
+>>>>>>> upstream/android-13
 
 struct ath10k_snoc_drv_priv {
 	enum ath10k_hw_rev hw_rev;
 	u64 dma_mask;
+<<<<<<< HEAD
+=======
+	u32 msa_size;
+>>>>>>> upstream/android-13
 };
 
 struct snoc_state {
@@ -51,6 +69,7 @@ struct ath10k_snoc_ce_irq {
 	u32 irq_line;
 };
 
+<<<<<<< HEAD
 struct ath10k_wcn3990_vreg_info {
 	struct regulator *reg;
 	const char *name;
@@ -67,10 +86,32 @@ struct ath10k_wcn3990_clk_info {
 	u32 freq;
 	bool required;
 };
+=======
+enum ath10k_snoc_flags {
+	ATH10K_SNOC_FLAG_REGISTERED,
+	ATH10K_SNOC_FLAG_UNREGISTERING,
+	ATH10K_SNOC_FLAG_MODEM_STOPPED,
+	ATH10K_SNOC_FLAG_RECOVERY,
+	ATH10K_SNOC_FLAG_8BIT_HOST_CAP_QUIRK,
+};
+
+struct clk_bulk_data;
+struct regulator_bulk_data;
+>>>>>>> upstream/android-13
 
 struct ath10k_snoc {
 	struct platform_device *dev;
 	struct ath10k *ar;
+<<<<<<< HEAD
+=======
+	unsigned int use_tz;
+	struct ath10k_firmware {
+		struct device *dev;
+		dma_addr_t fw_start_addr;
+		struct iommu_domain *iommu_domain;
+		size_t mapped_mem_size;
+	} fw;
+>>>>>>> upstream/android-13
 	void __iomem *mem;
 	dma_addr_t mem_pa;
 	struct ath10k_snoc_target_info target_info;
@@ -79,8 +120,22 @@ struct ath10k_snoc {
 	struct ath10k_snoc_ce_irq ce_irqs[CE_COUNT_MAX];
 	struct ath10k_ce ce;
 	struct timer_list rx_post_retry;
+<<<<<<< HEAD
 	struct ath10k_wcn3990_vreg_info *vreg;
 	struct ath10k_wcn3990_clk_info *clk;
+=======
+	struct regulator_bulk_data *vregs;
+	size_t num_vregs;
+	struct clk_bulk_data *clks;
+	size_t num_clks;
+	struct ath10k_qmi *qmi;
+	struct notifier_block nb;
+	void *notifier;
+	unsigned long flags;
+	bool xo_cal_supported;
+	u32 xo_cal_data;
+	DECLARE_BITMAP(pending_ce_irqs, CE_COUNT_MAX);
+>>>>>>> upstream/android-13
 };
 
 static inline struct ath10k_snoc *ath10k_snoc_priv(struct ath10k *ar)
@@ -88,7 +143,12 @@ static inline struct ath10k_snoc *ath10k_snoc_priv(struct ath10k *ar)
 	return (struct ath10k_snoc *)ar->drv_priv;
 }
 
+<<<<<<< HEAD
 void ath10k_snoc_write32(struct ath10k *ar, u32 offset, u32 value);
 u32 ath10k_snoc_read32(struct ath10k *ar, u32 offset);
+=======
+int ath10k_snoc_fw_indication(struct ath10k *ar, u64 type);
+void ath10k_snoc_fw_crashed_dump(struct ath10k *ar);
+>>>>>>> upstream/android-13
 
 #endif /* _SNOC_H_ */

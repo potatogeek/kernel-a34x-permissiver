@@ -94,7 +94,11 @@ static unsigned do_csum(const unsigned char *buff, unsigned len)
 				    : "m" (*(unsigned long *)buff), 
 				    "r" (zero),  "0" (result));
 				--count; 
+<<<<<<< HEAD
 					buff += 8;
+=======
+				buff += 8;
+>>>>>>> upstream/android-13
 			}
 			result = add32_with_carry(result>>32,
 						  result&0xffffffff); 

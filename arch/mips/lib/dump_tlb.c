@@ -10,8 +10,13 @@
 
 #include <asm/hazards.h>
 #include <asm/mipsregs.h>
+<<<<<<< HEAD
 #include <asm/page.h>
 #include <asm/pgtable.h>
+=======
+#include <asm/mmu_context.h>
+#include <asm/page.h>
+>>>>>>> upstream/android-13
 #include <asm/tlbdebug.h>
 
 void dump_tlb_regs(void)
@@ -73,12 +78,20 @@ static inline const char *msk2str(unsigned int mask)
 
 static void dump_tlb(int first, int last)
 {
+<<<<<<< HEAD
 	unsigned long s_entryhi, entryhi, asid;
+=======
+	unsigned long s_entryhi, entryhi, asid, mmid;
+>>>>>>> upstream/android-13
 	unsigned long long entrylo0, entrylo1, pa;
 	unsigned int s_index, s_pagemask, s_guestctl1 = 0;
 	unsigned int pagemask, guestctl1 = 0, c0, c1, i;
 	unsigned long asidmask = cpu_asid_mask(&current_cpu_data);
 	int asidwidth = DIV_ROUND_UP(ilog2(asidmask) + 1, 4);
+<<<<<<< HEAD
+=======
+	unsigned long s_mmid;
+>>>>>>> upstream/android-13
 #ifdef CONFIG_32BIT
 	bool xpa = cpu_has_xpa && (read_c0_pagegrain() & PG_ELPA);
 	int pwidth = xpa ? 11 : 8;
@@ -92,7 +105,16 @@ static void dump_tlb(int first, int last)
 	s_pagemask = read_c0_pagemask();
 	s_entryhi = read_c0_entryhi();
 	s_index = read_c0_index();
+<<<<<<< HEAD
 	asid = s_entryhi & asidmask;
+=======
+
+	if (cpu_has_mmid)
+		asid = s_mmid = read_c0_memorymapid();
+	else
+		asid = s_entryhi & asidmask;
+
+>>>>>>> upstream/android-13
 	if (cpu_has_guestid)
 		s_guestctl1 = read_c0_guestctl1();
 
@@ -105,6 +127,15 @@ static void dump_tlb(int first, int last)
 		entryhi	 = read_c0_entryhi();
 		entrylo0 = read_c0_entrylo0();
 		entrylo1 = read_c0_entrylo1();
+<<<<<<< HEAD
+=======
+
+		if (cpu_has_mmid)
+			mmid = read_c0_memorymapid();
+		else
+			mmid = entryhi & asidmask;
+
+>>>>>>> upstream/android-13
 		if (cpu_has_guestid)
 			guestctl1 = read_c0_guestctl1();
 
@@ -124,8 +155,12 @@ static void dump_tlb(int first, int last)
 		 * leave only a single G bit set after a machine check exception
 		 * due to duplicate TLB entry.
 		 */
+<<<<<<< HEAD
 		if (!((entrylo0 | entrylo1) & ENTRYLO_G) &&
 		    (entryhi & asidmask) != asid)
+=======
+		if (!((entrylo0 | entrylo1) & ENTRYLO_G) && (mmid != asid))
+>>>>>>> upstream/android-13
 			continue;
 
 		/*
@@ -138,7 +173,11 @@ static void dump_tlb(int first, int last)
 
 		pr_cont("va=%0*lx asid=%0*lx",
 			vwidth, (entryhi & ~0x1fffUL),
+<<<<<<< HEAD
 			asidwidth, entryhi & asidmask);
+=======
+			asidwidth, mmid);
+>>>>>>> upstream/android-13
 		if (cpu_has_guestid)
 			pr_cont(" gid=%02lx",
 				(guestctl1 & MIPS_GCTL1_RID)

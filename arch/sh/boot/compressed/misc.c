@@ -111,11 +111,20 @@ void __stack_chk_fail(void)
 	error("stack-protector: Kernel stack is corrupted\n");
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_SUPERH64
 #define stackalign	8
 #else
 #define stackalign	4
 #endif
+=======
+/* Needed because vmlinux.lds.h references this */
+void ftrace_stub(void)
+{
+}
+
+#define stackalign	4
+>>>>>>> upstream/android-13
 
 #define STACK_SIZE (4096)
 long __attribute__ ((aligned(stackalign))) user_stack[STACK_SIZE];
@@ -125,14 +134,20 @@ void decompress_kernel(void)
 {
 	unsigned long output_addr;
 
+<<<<<<< HEAD
 #ifdef CONFIG_SUPERH64
 	output_addr = (CONFIG_MEMORY_START + 0x2000);
 #else
+=======
+>>>>>>> upstream/android-13
 	output_addr = __pa((unsigned long)&_text+PAGE_SIZE);
 #if defined(CONFIG_29BIT)
 	output_addr |= P2SEG;
 #endif
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 
 	output = (unsigned char *)output_addr;
 	free_mem_ptr = (unsigned long)&_end;

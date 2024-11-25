@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * Copyright(c) 2009-2012  Realtek Corporation. All rights reserved.
@@ -22,6 +23,10 @@
  * Larry Finger <Larry.Finger@lwfinger.net>
  *
  *****************************************************************************/
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+/* Copyright(c) 2009-2012  Realtek Corporation.*/
+>>>>>>> upstream/android-13
 
 #ifndef __RTL92CU_TABLE__H_
 #define __RTL92CU_TABLE__H_
@@ -53,6 +58,7 @@ extern u32 RTL8192CUAGCTAB_2TARRAY[RTL8192CUAGCTAB_2TARRAYLENGTH];
 #define RTL8192CUAGCTAB_1TARRAYLENGTH	320
 extern u32 RTL8192CUAGCTAB_1TARRAY[RTL8192CUAGCTAB_1TARRAYLENGTH];
 
+<<<<<<< HEAD
 #define RTL8192CUPHY_REG_1T_HPArrayLength 378
 extern u32 RTL8192CUPHY_REG_1T_HPArray[RTL8192CUPHY_REG_1T_HPArrayLength];
 
@@ -63,5 +69,17 @@ extern u32 RTL8192CUPHY_REG_Array_PG_HP[RTL8192CUPHY_REG_Array_PG_HPLength];
 extern u32 RTL8192CURadioA_1T_HPArray[RTL8192CURadioA_1T_HPArrayLength];
 #define RTL8192CUAGCTAB_1T_HPArrayLength 320
 extern u32 Rtl8192CUAGCTAB_1T_HPArray[RTL8192CUAGCTAB_1T_HPArrayLength];
+=======
+#define RTL8192CUPHY_REG_1T_HPARRAYLENGTH 378
+extern u32 RTL8192CUPHY_REG_1T_HPARRAY[RTL8192CUPHY_REG_1T_HPARRAYLENGTH];
+
+#define RTL8192CUPHY_REG_ARRAY_PG_HPLENGTH 336
+extern u32 RTL8192CUPHY_REG_ARRAY_PG_HP[RTL8192CUPHY_REG_ARRAY_PG_HPLENGTH];
+
+#define RTL8192CURADIOA_1T_HPARRAYLENGTH 282
+extern u32 RTL8192CURADIOA_1T_HPARRAY[RTL8192CURADIOA_1T_HPARRAYLENGTH];
+#define RTL8192CUAGCTAB_1T_HPARRAYLENGTH 320
+extern u32 RTL8192CUAGCTAB_1T_HPARRAY[RTL8192CUAGCTAB_1T_HPARRAYLENGTH];
+>>>>>>> upstream/android-13
 
 #endif

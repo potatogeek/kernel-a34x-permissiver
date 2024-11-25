@@ -7,6 +7,10 @@
 
 #include <linux/ktime.h>
 #include <linux/tracepoint.h>
+<<<<<<< HEAD
+=======
+#include <sound/jack.h>
+>>>>>>> upstream/android-13
 
 #define DAPM_DIRECT "(direct)"
 #define DAPM_ARROW(dir) (((dir) == SND_SOC_DAPM_DIR_OUT) ? "->" : "<-")

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * k10temp.c - AMD Family 10h/11h/12h/14h/15h/16h processor hardware monitoring
  *
@@ -20,6 +21,26 @@
 #include <linux/err.h>
 #include <linux/hwmon.h>
 #include <linux/hwmon-sysfs.h>
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * k10temp.c - AMD Family 10h/11h/12h/14h/15h/16h/17h
+ *		processor hardware monitoring
+ *
+ * Copyright (c) 2009 Clemens Ladisch <clemens@ladisch.de>
+ * Copyright (c) 2020 Guenter Roeck <linux@roeck-us.net>
+ *
+ * Implementation notes:
+ * - CCD register address information as well as the calculation to
+ *   convert raw register values is from https://github.com/ocerman/zenpower.
+ *   The information is not confirmed from chip datasheets, but experiments
+ *   suggest that it provides reasonable temperature values.
+ */
+
+#include <linux/bitops.h>
+#include <linux/err.h>
+#include <linux/hwmon.h>
+>>>>>>> upstream/android-13
 #include <linux/init.h>
 #include <linux/module.h>
 #include <linux/pci.h>
@@ -43,22 +64,38 @@ static DEFINE_MUTEX(nb_smu_ind_mutex);
 #endif
 
 /* CPUID function 0x80000001, ebx */
+<<<<<<< HEAD
 #define CPUID_PKGTYPE_MASK	0xf0000000
+=======
+#define CPUID_PKGTYPE_MASK	GENMASK(31, 28)
+>>>>>>> upstream/android-13
 #define CPUID_PKGTYPE_F		0x00000000
 #define CPUID_PKGTYPE_AM2R2_AM3	0x10000000
 
 /* DRAM controller (PCI function 2) */
 #define REG_DCT0_CONFIG_HIGH		0x094
+<<<<<<< HEAD
 #define  DDR3_MODE			0x00000100
 
 /* miscellaneous (PCI function 3) */
 #define REG_HARDWARE_THERMAL_CONTROL	0x64
 #define  HTC_ENABLE			0x00000001
+=======
+#define  DDR3_MODE			BIT(8)
+
+/* miscellaneous (PCI function 3) */
+#define REG_HARDWARE_THERMAL_CONTROL	0x64
+#define  HTC_ENABLE			BIT(0)
+>>>>>>> upstream/android-13
 
 #define REG_REPORTED_TEMPERATURE	0xa4
 
 #define REG_NORTHBRIDGE_CAPABILITIES	0xe8
+<<<<<<< HEAD
 #define  NB_CAP_HTC			0x00000400
+=======
+#define  NB_CAP_HTC			BIT(10)
+>>>>>>> upstream/android-13
 
 /*
  * For F15h M60h and M70h, REG_HARDWARE_THERMAL_CONTROL
@@ -69,8 +106,41 @@ static DEFINE_MUTEX(nb_smu_ind_mutex);
 #define F15H_M60H_HARDWARE_TEMP_CTRL_OFFSET	0xd8200c64
 #define F15H_M60H_REPORTED_TEMP_CTRL_OFFSET	0xd8200ca4
 
+<<<<<<< HEAD
 /* F17h M01h Access througn SMN */
 #define F17H_M01H_REPORTED_TEMP_CTRL_OFFSET	0x00059800
+=======
+/* Common for Zen CPU families (Family 17h and 18h and 19h) */
+#define ZEN_REPORTED_TEMP_CTRL_BASE		0x00059800
+
+#define ZEN_CCD_TEMP(offset, x)			(ZEN_REPORTED_TEMP_CTRL_BASE + \
+						 (offset) + ((x) * 4))
+#define ZEN_CCD_TEMP_VALID			BIT(11)
+#define ZEN_CCD_TEMP_MASK			GENMASK(10, 0)
+
+#define ZEN_CUR_TEMP_SHIFT			21
+#define ZEN_CUR_TEMP_RANGE_SEL_MASK		BIT(19)
+
+#define ZEN_SVI_BASE				0x0005A000
+
+/* F17h thermal registers through SMN */
+#define F17H_M01H_SVI_TEL_PLANE0		(ZEN_SVI_BASE + 0xc)
+#define F17H_M01H_SVI_TEL_PLANE1		(ZEN_SVI_BASE + 0x10)
+#define F17H_M31H_SVI_TEL_PLANE0		(ZEN_SVI_BASE + 0x14)
+#define F17H_M31H_SVI_TEL_PLANE1		(ZEN_SVI_BASE + 0x10)
+
+#define F17H_M01H_CFACTOR_ICORE			1000000	/* 1A / LSB	*/
+#define F17H_M01H_CFACTOR_ISOC			250000	/* 0.25A / LSB	*/
+#define F17H_M31H_CFACTOR_ICORE			1000000	/* 1A / LSB	*/
+#define F17H_M31H_CFACTOR_ISOC			310000	/* 0.31A / LSB	*/
+
+/* F19h thermal registers through SMN */
+#define F19H_M01_SVI_TEL_PLANE0			(ZEN_SVI_BASE + 0x14)
+#define F19H_M01_SVI_TEL_PLANE1			(ZEN_SVI_BASE + 0x10)
+
+#define F19H_M01H_CFACTOR_ICORE			1000000	/* 1A / LSB	*/
+#define F19H_M01H_CFACTOR_ISOC			310000	/* 0.31A / LSB	*/
+>>>>>>> upstream/android-13
 
 struct k10temp_data {
 	struct pci_dev *pdev;
@@ -78,9 +148,24 @@ struct k10temp_data {
 	void (*read_tempreg)(struct pci_dev *pdev, u32 *regval);
 	int temp_offset;
 	u32 temp_adjust_mask;
+<<<<<<< HEAD
 	bool show_tdie;
 };
 
+=======
+	u32 show_temp;
+	bool is_zen;
+	u32 ccd_offset;
+};
+
+#define TCTL_BIT	0
+#define TDIE_BIT	1
+#define TCCD_BIT(x)	((x) + 2)
+
+#define HAVE_TEMP(d, channel)	((d)->show_temp & BIT(channel))
+#define HAVE_TDIE(d)		HAVE_TEMP(d, TDIE_BIT)
+
+>>>>>>> upstream/android-13
 struct tctl_offset {
 	u8 model;
 	char const *id;
@@ -129,6 +214,7 @@ static void read_tempreg_nb_f15(struct pci_dev *pdev, u32 *regval)
 			  F15H_M60H_REPORTED_TEMP_CTRL_OFFSET, regval);
 }
 
+<<<<<<< HEAD
 static void read_tempreg_nb_f17(struct pci_dev *pdev, u32 *regval)
 {
 	amd_smn_read(amd_pci_dev_to_node_id(pdev),
@@ -142,11 +228,27 @@ static unsigned int get_raw_temp(struct k10temp_data *data)
 
 	data->read_tempreg(data->pdev, &regval);
 	temp = (regval >> 21) * 125;
+=======
+static void read_tempreg_nb_zen(struct pci_dev *pdev, u32 *regval)
+{
+	amd_smn_read(amd_pci_dev_to_node_id(pdev),
+		     ZEN_REPORTED_TEMP_CTRL_BASE, regval);
+}
+
+static long get_raw_temp(struct k10temp_data *data)
+{
+	u32 regval;
+	long temp;
+
+	data->read_tempreg(data->pdev, &regval);
+	temp = (regval >> ZEN_CUR_TEMP_SHIFT) * 125;
+>>>>>>> upstream/android-13
 	if (regval & data->temp_adjust_mask)
 		temp -= 49000;
 	return temp;
 }
 
+<<<<<<< HEAD
 static ssize_t temp1_input_show(struct device *dev,
 				struct device_attribute *attr, char *buf)
 {
@@ -259,6 +361,142 @@ static const struct attribute_group k10temp_group = {
 };
 __ATTRIBUTE_GROUPS(k10temp);
 
+=======
+static const char *k10temp_temp_label[] = {
+	"Tctl",
+	"Tdie",
+	"Tccd1",
+	"Tccd2",
+	"Tccd3",
+	"Tccd4",
+	"Tccd5",
+	"Tccd6",
+	"Tccd7",
+	"Tccd8",
+};
+
+static int k10temp_read_labels(struct device *dev,
+			       enum hwmon_sensor_types type,
+			       u32 attr, int channel, const char **str)
+{
+	switch (type) {
+	case hwmon_temp:
+		*str = k10temp_temp_label[channel];
+		break;
+	default:
+		return -EOPNOTSUPP;
+	}
+	return 0;
+}
+
+static int k10temp_read_temp(struct device *dev, u32 attr, int channel,
+			     long *val)
+{
+	struct k10temp_data *data = dev_get_drvdata(dev);
+	u32 regval;
+
+	switch (attr) {
+	case hwmon_temp_input:
+		switch (channel) {
+		case 0:		/* Tctl */
+			*val = get_raw_temp(data);
+			if (*val < 0)
+				*val = 0;
+			break;
+		case 1:		/* Tdie */
+			*val = get_raw_temp(data) - data->temp_offset;
+			if (*val < 0)
+				*val = 0;
+			break;
+		case 2 ... 9:		/* Tccd{1-8} */
+			amd_smn_read(amd_pci_dev_to_node_id(data->pdev),
+				     ZEN_CCD_TEMP(data->ccd_offset, channel - 2),
+						  &regval);
+			*val = (regval & ZEN_CCD_TEMP_MASK) * 125 - 49000;
+			break;
+		default:
+			return -EOPNOTSUPP;
+		}
+		break;
+	case hwmon_temp_max:
+		*val = 70 * 1000;
+		break;
+	case hwmon_temp_crit:
+		data->read_htcreg(data->pdev, &regval);
+		*val = ((regval >> 16) & 0x7f) * 500 + 52000;
+		break;
+	case hwmon_temp_crit_hyst:
+		data->read_htcreg(data->pdev, &regval);
+		*val = (((regval >> 16) & 0x7f)
+			- ((regval >> 24) & 0xf)) * 500 + 52000;
+		break;
+	default:
+		return -EOPNOTSUPP;
+	}
+	return 0;
+}
+
+static int k10temp_read(struct device *dev, enum hwmon_sensor_types type,
+			u32 attr, int channel, long *val)
+{
+	switch (type) {
+	case hwmon_temp:
+		return k10temp_read_temp(dev, attr, channel, val);
+	default:
+		return -EOPNOTSUPP;
+	}
+}
+
+static umode_t k10temp_is_visible(const void *_data,
+				  enum hwmon_sensor_types type,
+				  u32 attr, int channel)
+{
+	const struct k10temp_data *data = _data;
+	struct pci_dev *pdev = data->pdev;
+	u32 reg;
+
+	switch (type) {
+	case hwmon_temp:
+		switch (attr) {
+		case hwmon_temp_input:
+			if (!HAVE_TEMP(data, channel))
+				return 0;
+			break;
+		case hwmon_temp_max:
+			if (channel || data->is_zen)
+				return 0;
+			break;
+		case hwmon_temp_crit:
+		case hwmon_temp_crit_hyst:
+			if (channel || !data->read_htcreg)
+				return 0;
+
+			pci_read_config_dword(pdev,
+					      REG_NORTHBRIDGE_CAPABILITIES,
+					      &reg);
+			if (!(reg & NB_CAP_HTC))
+				return 0;
+
+			data->read_htcreg(data->pdev, &reg);
+			if (!(reg & HTC_ENABLE))
+				return 0;
+			break;
+		case hwmon_temp_label:
+			/* Show temperature labels only on Zen CPUs */
+			if (!data->is_zen || !HAVE_TEMP(data, channel))
+				return 0;
+			break;
+		default:
+			return 0;
+		}
+		break;
+	default:
+		return 0;
+	}
+	return 0444;
+}
+
+>>>>>>> upstream/android-13
 static bool has_erratum_319(struct pci_dev *pdev)
 {
 	u32 pkg_type, reg_dram_cfg;
@@ -293,8 +531,54 @@ static bool has_erratum_319(struct pci_dev *pdev)
 	       (boot_cpu_data.x86_model == 4 && boot_cpu_data.x86_stepping <= 2);
 }
 
+<<<<<<< HEAD
 static int k10temp_probe(struct pci_dev *pdev,
 				   const struct pci_device_id *id)
+=======
+static const struct hwmon_channel_info *k10temp_info[] = {
+	HWMON_CHANNEL_INFO(temp,
+			   HWMON_T_INPUT | HWMON_T_MAX |
+			   HWMON_T_CRIT | HWMON_T_CRIT_HYST |
+			   HWMON_T_LABEL,
+			   HWMON_T_INPUT | HWMON_T_LABEL,
+			   HWMON_T_INPUT | HWMON_T_LABEL,
+			   HWMON_T_INPUT | HWMON_T_LABEL,
+			   HWMON_T_INPUT | HWMON_T_LABEL,
+			   HWMON_T_INPUT | HWMON_T_LABEL,
+			   HWMON_T_INPUT | HWMON_T_LABEL,
+			   HWMON_T_INPUT | HWMON_T_LABEL,
+			   HWMON_T_INPUT | HWMON_T_LABEL,
+			   HWMON_T_INPUT | HWMON_T_LABEL),
+	NULL
+};
+
+static const struct hwmon_ops k10temp_hwmon_ops = {
+	.is_visible = k10temp_is_visible,
+	.read = k10temp_read,
+	.read_string = k10temp_read_labels,
+};
+
+static const struct hwmon_chip_info k10temp_chip_info = {
+	.ops = &k10temp_hwmon_ops,
+	.info = k10temp_info,
+};
+
+static void k10temp_get_ccd_support(struct pci_dev *pdev,
+				    struct k10temp_data *data, int limit)
+{
+	u32 regval;
+	int i;
+
+	for (i = 0; i < limit; i++) {
+		amd_smn_read(amd_pci_dev_to_node_id(pdev),
+			     ZEN_CCD_TEMP(data->ccd_offset, i), &regval);
+		if (regval & ZEN_CCD_TEMP_VALID)
+			data->show_temp |= BIT(TCCD_BIT(i));
+	}
+}
+
+static int k10temp_probe(struct pci_dev *pdev, const struct pci_device_id *id)
+>>>>>>> upstream/android-13
 {
 	int unreliable = has_erratum_319(pdev);
 	struct device *dev = &pdev->dev;
@@ -317,16 +601,61 @@ static int k10temp_probe(struct pci_dev *pdev,
 		return -ENOMEM;
 
 	data->pdev = pdev;
+<<<<<<< HEAD
+=======
+	data->show_temp |= BIT(TCTL_BIT);	/* Always show Tctl */
+>>>>>>> upstream/android-13
 
 	if (boot_cpu_data.x86 == 0x15 &&
 	    ((boot_cpu_data.x86_model & 0xf0) == 0x60 ||
 	     (boot_cpu_data.x86_model & 0xf0) == 0x70)) {
 		data->read_htcreg = read_htcreg_nb_f15;
 		data->read_tempreg = read_tempreg_nb_f15;
+<<<<<<< HEAD
 	} else if (boot_cpu_data.x86 == 0x17) {
 		data->temp_adjust_mask = 0x80000;
 		data->read_tempreg = read_tempreg_nb_f17;
 		data->show_tdie = true;
+=======
+	} else if (boot_cpu_data.x86 == 0x17 || boot_cpu_data.x86 == 0x18) {
+		data->temp_adjust_mask = ZEN_CUR_TEMP_RANGE_SEL_MASK;
+		data->read_tempreg = read_tempreg_nb_zen;
+		data->is_zen = true;
+
+		switch (boot_cpu_data.x86_model) {
+		case 0x1:	/* Zen */
+		case 0x8:	/* Zen+ */
+		case 0x11:	/* Zen APU */
+		case 0x18:	/* Zen+ APU */
+			data->ccd_offset = 0x154;
+			k10temp_get_ccd_support(pdev, data, 4);
+			break;
+		case 0x31:	/* Zen2 Threadripper */
+		case 0x60:	/* Renoir */
+		case 0x68:	/* Lucienne */
+		case 0x71:	/* Zen2 */
+			data->ccd_offset = 0x154;
+			k10temp_get_ccd_support(pdev, data, 8);
+			break;
+		}
+	} else if (boot_cpu_data.x86 == 0x19) {
+		data->temp_adjust_mask = ZEN_CUR_TEMP_RANGE_SEL_MASK;
+		data->read_tempreg = read_tempreg_nb_zen;
+		data->is_zen = true;
+
+		switch (boot_cpu_data.x86_model) {
+		case 0x0 ... 0x1:	/* Zen3 SP3/TR */
+		case 0x21:		/* Zen3 Ryzen Desktop */
+		case 0x50 ... 0x5f:	/* Green Sardine */
+			data->ccd_offset = 0x154;
+			k10temp_get_ccd_support(pdev, data, 8);
+			break;
+		case 0x40 ... 0x4f:	/* Yellow Carp */
+			data->ccd_offset = 0x300;
+			k10temp_get_ccd_support(pdev, data, 8);
+			break;
+		}
+>>>>>>> upstream/android-13
 	} else {
 		data->read_htcreg = read_htcreg_pci;
 		data->read_tempreg = read_tempreg_pci;
@@ -337,13 +666,23 @@ static int k10temp_probe(struct pci_dev *pdev,
 
 		if (boot_cpu_data.x86 == entry->model &&
 		    strstr(boot_cpu_data.x86_model_id, entry->id)) {
+<<<<<<< HEAD
+=======
+			data->show_temp |= BIT(TDIE_BIT);	/* show Tdie */
+>>>>>>> upstream/android-13
 			data->temp_offset = entry->offset;
 			break;
 		}
 	}
 
+<<<<<<< HEAD
 	hwmon_dev = devm_hwmon_device_register_with_groups(dev, "k10temp", data,
 							   k10temp_groups);
+=======
+	hwmon_dev = devm_hwmon_device_register_with_info(dev, "k10temp", data,
+							 &k10temp_chip_info,
+							 NULL);
+>>>>>>> upstream/android-13
 	return PTR_ERR_OR_ZERO(hwmon_dev);
 }
 
@@ -360,6 +699,16 @@ static const struct pci_device_id k10temp_id_table[] = {
 	{ PCI_VDEVICE(AMD, PCI_DEVICE_ID_AMD_16H_M30H_NB_F3) },
 	{ PCI_VDEVICE(AMD, PCI_DEVICE_ID_AMD_17H_DF_F3) },
 	{ PCI_VDEVICE(AMD, PCI_DEVICE_ID_AMD_17H_M10H_DF_F3) },
+<<<<<<< HEAD
+=======
+	{ PCI_VDEVICE(AMD, PCI_DEVICE_ID_AMD_17H_M30H_DF_F3) },
+	{ PCI_VDEVICE(AMD, PCI_DEVICE_ID_AMD_17H_M60H_DF_F3) },
+	{ PCI_VDEVICE(AMD, PCI_DEVICE_ID_AMD_17H_M70H_DF_F3) },
+	{ PCI_VDEVICE(AMD, PCI_DEVICE_ID_AMD_19H_DF_F3) },
+	{ PCI_VDEVICE(AMD, PCI_DEVICE_ID_AMD_19H_M40H_DF_F3) },
+	{ PCI_VDEVICE(AMD, PCI_DEVICE_ID_AMD_19H_M50H_DF_F3) },
+	{ PCI_VDEVICE(HYGON, PCI_DEVICE_ID_AMD_17H_DF_F3) },
+>>>>>>> upstream/android-13
 	{}
 };
 MODULE_DEVICE_TABLE(pci, k10temp_id_table);

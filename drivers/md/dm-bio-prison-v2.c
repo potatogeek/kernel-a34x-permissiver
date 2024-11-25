@@ -177,11 +177,18 @@ bool dm_cell_get_v2(struct dm_bio_prison_v2 *prison,
 		    struct dm_bio_prison_cell_v2 **cell_result)
 {
 	int r;
+<<<<<<< HEAD
 	unsigned long flags;
 
 	spin_lock_irqsave(&prison->lock, flags);
 	r = __get(prison, key, lock_level, inmate, cell_prealloc, cell_result);
 	spin_unlock_irqrestore(&prison->lock, flags);
+=======
+
+	spin_lock_irq(&prison->lock);
+	r = __get(prison, key, lock_level, inmate, cell_prealloc, cell_result);
+	spin_unlock_irq(&prison->lock);
+>>>>>>> upstream/android-13
 
 	return r;
 }
@@ -261,11 +268,18 @@ int dm_cell_lock_v2(struct dm_bio_prison_v2 *prison,
 		    struct dm_bio_prison_cell_v2 **cell_result)
 {
 	int r;
+<<<<<<< HEAD
 	unsigned long flags;
 
 	spin_lock_irqsave(&prison->lock, flags);
 	r = __lock(prison, key, lock_level, cell_prealloc, cell_result);
 	spin_unlock_irqrestore(&prison->lock, flags);
+=======
+
+	spin_lock_irq(&prison->lock);
+	r = __lock(prison, key, lock_level, cell_prealloc, cell_result);
+	spin_unlock_irq(&prison->lock);
+>>>>>>> upstream/android-13
 
 	return r;
 }
@@ -285,11 +299,17 @@ void dm_cell_quiesce_v2(struct dm_bio_prison_v2 *prison,
 			struct dm_bio_prison_cell_v2 *cell,
 			struct work_struct *continuation)
 {
+<<<<<<< HEAD
 	unsigned long flags;
 
 	spin_lock_irqsave(&prison->lock, flags);
 	__quiesce(prison, cell, continuation);
 	spin_unlock_irqrestore(&prison->lock, flags);
+=======
+	spin_lock_irq(&prison->lock);
+	__quiesce(prison, cell, continuation);
+	spin_unlock_irq(&prison->lock);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(dm_cell_quiesce_v2);
 
@@ -309,11 +329,18 @@ int dm_cell_lock_promote_v2(struct dm_bio_prison_v2 *prison,
 			    unsigned new_lock_level)
 {
 	int r;
+<<<<<<< HEAD
 	unsigned long flags;
 
 	spin_lock_irqsave(&prison->lock, flags);
 	r = __promote(prison, cell, new_lock_level);
 	spin_unlock_irqrestore(&prison->lock, flags);
+=======
+
+	spin_lock_irq(&prison->lock);
+	r = __promote(prison, cell, new_lock_level);
+	spin_unlock_irq(&prison->lock);
+>>>>>>> upstream/android-13
 
 	return r;
 }
@@ -329,7 +356,11 @@ static bool __unlock(struct dm_bio_prison_v2 *prison,
 	bio_list_init(&cell->bios);
 
 	if (cell->shared_count) {
+<<<<<<< HEAD
 		cell->exclusive_lock = 0;
+=======
+		cell->exclusive_lock = false;
+>>>>>>> upstream/android-13
 		return false;
 	}
 
@@ -342,11 +373,18 @@ bool dm_cell_unlock_v2(struct dm_bio_prison_v2 *prison,
 		       struct bio_list *bios)
 {
 	bool r;
+<<<<<<< HEAD
 	unsigned long flags;
 
 	spin_lock_irqsave(&prison->lock, flags);
 	r = __unlock(prison, cell, bios);
 	spin_unlock_irqrestore(&prison->lock, flags);
+=======
+
+	spin_lock_irq(&prison->lock);
+	r = __unlock(prison, cell, bios);
+	spin_unlock_irq(&prison->lock);
+>>>>>>> upstream/android-13
 
 	return r;
 }

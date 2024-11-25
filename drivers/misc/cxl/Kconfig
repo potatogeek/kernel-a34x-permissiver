@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #
 # IBM Coherent Accelerator (CXL) compatible devices
 #
 
 config CXL_BASE
 	bool
+<<<<<<< HEAD
 	default n
 	select PPC_COPRO_BASE
 
@@ -15,12 +20,19 @@ config CXL_LIB
 	bool
 	default n
 
+=======
+	select PPC_COPRO_BASE
+
+>>>>>>> upstream/android-13
 config CXL
 	tristate "Support for IBM Coherent Accelerators (CXL)"
 	depends on PPC_POWERNV && PCI_MSI && EEH
 	select CXL_BASE
+<<<<<<< HEAD
 	select CXL_AFU_DRIVER_OPS
 	select CXL_LIB
+=======
+>>>>>>> upstream/android-13
 	default m
 	help
 	  Select this option to enable driver support for IBM Coherent

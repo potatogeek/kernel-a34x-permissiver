@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) Sistina Software, Inc.  1997-2003 All rights reserved.
  * Copyright (C) 2004-2007 Red Hat, Inc.  All rights reserved.
@@ -5,6 +6,12 @@
  * This copyrighted material is made available to anyone wishing to use,
  * modify, copy, or redistribute it subject to the terms and conditions
  * of the GNU General Public License version 2.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) Sistina Software, Inc.  1997-2003 All rights reserved.
+ * Copyright (C) 2004-2007 Red Hat, Inc.  All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -45,6 +52,7 @@
 #include "util.h"
 #include "sys.h"
 #include "xattr.h"
+<<<<<<< HEAD
 
 #define args_neq(a1, a2, x) ((a1)->ar_##x != (a2)->ar_##x)
 
@@ -298,6 +306,16 @@ int gfs2_mount_args(struct gfs2_args *args, char *options)
 	return 0;
 }
 
+=======
+#include "lops.h"
+
+enum dinode_demise {
+	SHOULD_DELETE_DINODE,
+	SHOULD_NOT_DELETE_DINODE,
+	SHOULD_DEFER_EVICTION,
+};
+
+>>>>>>> upstream/android-13
 /**
  * gfs2_jindex_free - Clear all the journal index information
  * @sdp: The GFS2 superblock
@@ -315,11 +333,21 @@ void gfs2_jindex_free(struct gfs2_sbd *sdp)
 	sdp->sd_journals = 0;
 	spin_unlock(&sdp->sd_jindex_spin);
 
+<<<<<<< HEAD
 	while (!list_empty(&list)) {
 		jd = list_entry(list.next, struct gfs2_jdesc, jd_list);
 		gfs2_free_journal_extents(jd);
 		list_del(&jd->jd_list);
 		iput(jd->jd_inode);
+=======
+	sdp->sd_jdesc = NULL;
+	while (!list_empty(&list)) {
+		jd = list_first_entry(&list, struct gfs2_jdesc, jd_list);
+		gfs2_free_journal_extents(jd);
+		list_del(&jd->jd_list);
+		iput(jd->jd_inode);
+		jd->jd_inode = NULL;
+>>>>>>> upstream/android-13
 		kfree(jd);
 	}
 }
@@ -327,6 +355,7 @@ void gfs2_jindex_free(struct gfs2_sbd *sdp)
 static struct gfs2_jdesc *jdesc_find_i(struct list_head *head, unsigned int jid)
 {
 	struct gfs2_jdesc *jd;
+<<<<<<< HEAD
 	int found = 0;
 
 	list_for_each_entry(jd, head, jd_list) {
@@ -340,6 +369,14 @@ static struct gfs2_jdesc *jdesc_find_i(struct list_head *head, unsigned int jid)
 		jd = NULL;
 
 	return jd;
+=======
+
+	list_for_each_entry(jd, head, jd_list) {
+		if (jd->jd_jid == jid)
+			return jd;
+	}
+	return NULL;
+>>>>>>> upstream/android-13
 }
 
 struct gfs2_jdesc *gfs2_jdesc_find(struct gfs2_sbd *sdp, unsigned int jid)
@@ -372,6 +409,7 @@ int gfs2_jdesc_check(struct gfs2_jdesc *jd)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int init_threads(struct gfs2_sbd *sdp)
 {
 	struct task_struct *p;
@@ -399,6 +437,8 @@ fail:
 	return error;
 }
 
+=======
+>>>>>>> upstream/android-13
 /**
  * gfs2_make_fs_rw - Turn a Read-Only FS into a Read-Write one
  * @sdp: the filesystem
@@ -410,6 +450,7 @@ int gfs2_make_fs_rw(struct gfs2_sbd *sdp)
 {
 	struct gfs2_inode *ip = GFS2_I(sdp->sd_jdesc->jd_inode);
 	struct gfs2_glock *j_gl = ip->i_gl;
+<<<<<<< HEAD
 	struct gfs2_holder freeze_gh;
 	struct gfs2_log_header_host head;
 	int error;
@@ -433,6 +474,22 @@ int gfs2_make_fs_rw(struct gfs2_sbd *sdp)
 		gfs2_consist(sdp);
 		error = -EIO;
 		goto fail;
+=======
+	struct gfs2_log_header_host head;
+	int error;
+
+	j_gl->gl_ops->go_inval(j_gl, DIO_METADATA);
+	if (gfs2_withdrawn(sdp))
+		return -EIO;
+
+	error = gfs2_find_jhead(sdp->sd_jdesc, &head, false);
+	if (error || gfs2_withdrawn(sdp))
+		return error;
+
+	if (!(head.lh_flags & GFS2_LOG_HEAD_UNMOUNT)) {
+		gfs2_consist(sdp);
+		return -EIO;
+>>>>>>> upstream/android-13
 	}
 
 	/*  Initialize some head of the log stuff  */
@@ -440,6 +497,7 @@ int gfs2_make_fs_rw(struct gfs2_sbd *sdp)
 	gfs2_log_pointers_init(sdp, head.lh_blkno);
 
 	error = gfs2_quota_init(sdp);
+<<<<<<< HEAD
 	if (error)
 		goto fail;
 
@@ -455,6 +513,10 @@ fail:
 fail_threads:
 	kthread_stop(sdp->sd_quotad_process);
 	kthread_stop(sdp->sd_logd_process);
+=======
+	if (!error && !gfs2_withdrawn(sdp))
+		set_bit(SDF_JOURNAL_LIVE, &sdp->sd_flags);
+>>>>>>> upstream/android-13
 	return error;
 }
 
@@ -467,7 +529,11 @@ void gfs2_statfs_change_in(struct gfs2_statfs_change_host *sc, const void *buf)
 	sc->sc_dinodes = be64_to_cpu(str->sc_dinodes);
 }
 
+<<<<<<< HEAD
 static void gfs2_statfs_change_out(const struct gfs2_statfs_change_host *sc, void *buf)
+=======
+void gfs2_statfs_change_out(const struct gfs2_statfs_change_host *sc, void *buf)
+>>>>>>> upstream/android-13
 {
 	struct gfs2_statfs_change *str = buf;
 
@@ -480,9 +546,14 @@ int gfs2_statfs_init(struct gfs2_sbd *sdp)
 {
 	struct gfs2_inode *m_ip = GFS2_I(sdp->sd_statfs_inode);
 	struct gfs2_statfs_change_host *m_sc = &sdp->sd_statfs_master;
+<<<<<<< HEAD
 	struct gfs2_inode *l_ip = GFS2_I(sdp->sd_sc_inode);
 	struct gfs2_statfs_change_host *l_sc = &sdp->sd_statfs_local;
 	struct buffer_head *m_bh, *l_bh;
+=======
+	struct gfs2_statfs_change_host *l_sc = &sdp->sd_statfs_local;
+	struct buffer_head *m_bh;
+>>>>>>> upstream/android-13
 	struct gfs2_holder gh;
 	int error;
 
@@ -501,6 +572,7 @@ int gfs2_statfs_init(struct gfs2_sbd *sdp)
 				      sizeof(struct gfs2_dinode));
 		spin_unlock(&sdp->sd_statfs_spin);
 	} else {
+<<<<<<< HEAD
 		error = gfs2_meta_inode_buffer(l_ip, &l_bh);
 		if (error)
 			goto out_m_bh;
@@ -516,6 +588,17 @@ int gfs2_statfs_init(struct gfs2_sbd *sdp)
 	}
 
 out_m_bh:
+=======
+		spin_lock(&sdp->sd_statfs_spin);
+		gfs2_statfs_change_in(m_sc, m_bh->b_data +
+				      sizeof(struct gfs2_dinode));
+		gfs2_statfs_change_in(l_sc, sdp->sd_sc_bh->b_data +
+				      sizeof(struct gfs2_dinode));
+		spin_unlock(&sdp->sd_statfs_spin);
+
+	}
+
+>>>>>>> upstream/android-13
 	brelse(m_bh);
 out:
 	gfs2_glock_dq_uninit(&gh);
@@ -528,6 +611,7 @@ void gfs2_statfs_change(struct gfs2_sbd *sdp, s64 total, s64 free,
 	struct gfs2_inode *l_ip = GFS2_I(sdp->sd_sc_inode);
 	struct gfs2_statfs_change_host *l_sc = &sdp->sd_statfs_local;
 	struct gfs2_statfs_change_host *m_sc = &sdp->sd_statfs_master;
+<<<<<<< HEAD
 	struct buffer_head *l_bh;
 	s64 x, y;
 	int need_sync = 0;
@@ -538,12 +622,23 @@ void gfs2_statfs_change(struct gfs2_sbd *sdp, s64 total, s64 free,
 		return;
 
 	gfs2_trans_add_meta(l_ip->i_gl, l_bh);
+=======
+	s64 x, y;
+	int need_sync = 0;
+
+	gfs2_trans_add_meta(l_ip->i_gl, sdp->sd_sc_bh);
+>>>>>>> upstream/android-13
 
 	spin_lock(&sdp->sd_statfs_spin);
 	l_sc->sc_total += total;
 	l_sc->sc_free += free;
 	l_sc->sc_dinodes += dinodes;
+<<<<<<< HEAD
 	gfs2_statfs_change_out(l_sc, l_bh->b_data + sizeof(struct gfs2_dinode));
+=======
+	gfs2_statfs_change_out(l_sc, sdp->sd_sc_bh->b_data +
+			       sizeof(struct gfs2_dinode));
+>>>>>>> upstream/android-13
 	if (sdp->sd_args.ar_statfs_percent) {
 		x = 100 * l_sc->sc_free;
 		y = m_sc->sc_free * sdp->sd_args.ar_statfs_percent;
@@ -552,20 +647,31 @@ void gfs2_statfs_change(struct gfs2_sbd *sdp, s64 total, s64 free,
 	}
 	spin_unlock(&sdp->sd_statfs_spin);
 
+<<<<<<< HEAD
 	brelse(l_bh);
+=======
+>>>>>>> upstream/android-13
 	if (need_sync)
 		gfs2_wake_up_statfs(sdp);
 }
 
+<<<<<<< HEAD
 void update_statfs(struct gfs2_sbd *sdp, struct buffer_head *m_bh,
 		   struct buffer_head *l_bh)
+=======
+void update_statfs(struct gfs2_sbd *sdp, struct buffer_head *m_bh)
+>>>>>>> upstream/android-13
 {
 	struct gfs2_inode *m_ip = GFS2_I(sdp->sd_statfs_inode);
 	struct gfs2_inode *l_ip = GFS2_I(sdp->sd_sc_inode);
 	struct gfs2_statfs_change_host *m_sc = &sdp->sd_statfs_master;
 	struct gfs2_statfs_change_host *l_sc = &sdp->sd_statfs_local;
 
+<<<<<<< HEAD
 	gfs2_trans_add_meta(l_ip->i_gl, l_bh);
+=======
+	gfs2_trans_add_meta(l_ip->i_gl, sdp->sd_sc_bh);
+>>>>>>> upstream/android-13
 	gfs2_trans_add_meta(m_ip->i_gl, m_bh);
 
 	spin_lock(&sdp->sd_statfs_spin);
@@ -573,7 +679,11 @@ void update_statfs(struct gfs2_sbd *sdp, struct buffer_head *m_bh,
 	m_sc->sc_free += l_sc->sc_free;
 	m_sc->sc_dinodes += l_sc->sc_dinodes;
 	memset(l_sc, 0, sizeof(struct gfs2_statfs_change));
+<<<<<<< HEAD
 	memset(l_bh->b_data + sizeof(struct gfs2_dinode),
+=======
+	memset(sdp->sd_sc_bh->b_data + sizeof(struct gfs2_dinode),
+>>>>>>> upstream/android-13
 	       0, sizeof(struct gfs2_statfs_change));
 	gfs2_statfs_change_out(m_sc, m_bh->b_data + sizeof(struct gfs2_dinode));
 	spin_unlock(&sdp->sd_statfs_spin);
@@ -583,6 +693,7 @@ int gfs2_statfs_sync(struct super_block *sb, int type)
 {
 	struct gfs2_sbd *sdp = sb->s_fs_info;
 	struct gfs2_inode *m_ip = GFS2_I(sdp->sd_statfs_inode);
+<<<<<<< HEAD
 	struct gfs2_inode *l_ip = GFS2_I(sdp->sd_sc_inode);
 	struct gfs2_statfs_change_host *m_sc = &sdp->sd_statfs_master;
 	struct gfs2_statfs_change_host *l_sc = &sdp->sd_statfs_local;
@@ -591,6 +702,14 @@ int gfs2_statfs_sync(struct super_block *sb, int type)
 	int error;
 
 	sb_start_write(sb);
+=======
+	struct gfs2_statfs_change_host *m_sc = &sdp->sd_statfs_master;
+	struct gfs2_statfs_change_host *l_sc = &sdp->sd_statfs_local;
+	struct gfs2_holder gh;
+	struct buffer_head *m_bh;
+	int error;
+
+>>>>>>> upstream/android-13
 	error = gfs2_glock_nq_init(m_ip->i_gl, LM_ST_EXCLUSIVE, GL_NOCACHE,
 				   &gh);
 	if (error)
@@ -609,6 +728,7 @@ int gfs2_statfs_sync(struct super_block *sb, int type)
 	}
 	spin_unlock(&sdp->sd_statfs_spin);
 
+<<<<<<< HEAD
 	error = gfs2_meta_inode_buffer(l_ip, &l_bh);
 	if (error)
 		goto out_bh;
@@ -618,18 +738,31 @@ int gfs2_statfs_sync(struct super_block *sb, int type)
 		goto out_bh2;
 
 	update_statfs(sdp, m_bh, l_bh);
+=======
+	error = gfs2_trans_begin(sdp, 2 * RES_DINODE, 0);
+	if (error)
+		goto out_bh;
+
+	update_statfs(sdp, m_bh);
+>>>>>>> upstream/android-13
 	sdp->sd_statfs_force_sync = 0;
 
 	gfs2_trans_end(sdp);
 
+<<<<<<< HEAD
 out_bh2:
 	brelse(l_bh);
+=======
+>>>>>>> upstream/android-13
 out_bh:
 	brelse(m_bh);
 out_unlock:
 	gfs2_glock_dq_uninit(&gh);
 out:
+<<<<<<< HEAD
 	sb_end_write(sb);
+=======
+>>>>>>> upstream/android-13
 	return error;
 }
 
@@ -642,14 +775,21 @@ struct lfcc {
  * gfs2_lock_fs_check_clean - Stop all writes to the FS and check that all
  *                            journals are clean
  * @sdp: the file system
+<<<<<<< HEAD
  * @state: the state to put the transaction lock into
  * @t_gh: the hold on the transaction lock
+=======
+>>>>>>> upstream/android-13
  *
  * Returns: errno
  */
 
+<<<<<<< HEAD
 static int gfs2_lock_fs_check_clean(struct gfs2_sbd *sdp,
 				    struct gfs2_holder *freeze_gh)
+=======
+static int gfs2_lock_fs_check_clean(struct gfs2_sbd *sdp)
+>>>>>>> upstream/android-13
 {
 	struct gfs2_inode *ip;
 	struct gfs2_jdesc *jd;
@@ -674,13 +814,23 @@ static int gfs2_lock_fs_check_clean(struct gfs2_sbd *sdp,
 	}
 
 	error = gfs2_glock_nq_init(sdp->sd_freeze_gl, LM_ST_EXCLUSIVE,
+<<<<<<< HEAD
 				   GL_NOCACHE, freeze_gh);
+=======
+				   LM_FLAG_NOEXP, &sdp->sd_freeze_gh);
+	if (error)
+		goto out;
+>>>>>>> upstream/android-13
 
 	list_for_each_entry(jd, &sdp->sd_jindex_list, jd_list) {
 		error = gfs2_jdesc_check(jd);
 		if (error)
 			break;
+<<<<<<< HEAD
 		error = gfs2_find_jhead(jd, &lh);
+=======
+		error = gfs2_find_jhead(jd, &lh, false);
+>>>>>>> upstream/android-13
 		if (error)
 			break;
 		if (!(lh.lh_flags & GFS2_LOG_HEAD_UNMOUNT)) {
@@ -690,11 +840,19 @@ static int gfs2_lock_fs_check_clean(struct gfs2_sbd *sdp,
 	}
 
 	if (error)
+<<<<<<< HEAD
 		gfs2_glock_dq_uninit(freeze_gh);
 
 out:
 	while (!list_empty(&list)) {
 		lfcc = list_entry(list.next, struct lfcc, list);
+=======
+		gfs2_freeze_unlock(&sdp->sd_freeze_gh);
+
+out:
+	while (!list_empty(&list)) {
+		lfcc = list_first_entry(&list, struct lfcc, list);
+>>>>>>> upstream/android-13
 		list_del(&lfcc->list);
 		gfs2_glock_dq_uninit(&lfcc->gh);
 		kfree(lfcc);
@@ -800,14 +958,22 @@ static void gfs2_dirty_inode(struct inode *inode, int flags)
 	int need_endtrans = 0;
 	int ret;
 
+<<<<<<< HEAD
 	if (!(flags & I_DIRTY_INODE))
 		return;
 	if (unlikely(test_bit(SDF_SHUTDOWN, &sdp->sd_flags)))
+=======
+	if (unlikely(gfs2_withdrawn(sdp)))
+>>>>>>> upstream/android-13
 		return;
 	if (!gfs2_glock_is_locked_by_me(ip->i_gl)) {
 		ret = gfs2_glock_nq_init(ip->i_gl, LM_ST_EXCLUSIVE, 0, &gh);
 		if (ret) {
 			fs_err(sdp, "dirty_inode: glock %d\n", ret);
+<<<<<<< HEAD
+=======
+			gfs2_dump_glock(NULL, ip->i_gl, true);
+>>>>>>> upstream/android-13
 			return;
 		}
 		need_unlock = 1;
@@ -844,6 +1010,7 @@ out:
  * Returns: errno
  */
 
+<<<<<<< HEAD
 static int gfs2_make_fs_ro(struct gfs2_sbd *sdp)
 {
 	struct gfs2_holder freeze_gh;
@@ -872,6 +1039,44 @@ static int gfs2_make_fs_ro(struct gfs2_sbd *sdp)
 	gfs2_quota_cleanup(sdp);
 
 	return error;
+=======
+void gfs2_make_fs_ro(struct gfs2_sbd *sdp)
+{
+	int log_write_allowed = test_bit(SDF_JOURNAL_LIVE, &sdp->sd_flags);
+
+	gfs2_flush_delete_work(sdp);
+	if (!log_write_allowed && current == sdp->sd_quotad_process)
+		fs_warn(sdp, "The quotad daemon is withdrawing.\n");
+	else if (sdp->sd_quotad_process)
+		kthread_stop(sdp->sd_quotad_process);
+	sdp->sd_quotad_process = NULL;
+
+	if (!log_write_allowed && current == sdp->sd_logd_process)
+		fs_warn(sdp, "The logd daemon is withdrawing.\n");
+	else if (sdp->sd_logd_process)
+		kthread_stop(sdp->sd_logd_process);
+	sdp->sd_logd_process = NULL;
+
+	if (log_write_allowed) {
+		gfs2_quota_sync(sdp->sd_vfs, 0);
+		gfs2_statfs_sync(sdp->sd_vfs, 0);
+
+		gfs2_log_flush(sdp, NULL, GFS2_LOG_HEAD_FLUSH_SHUTDOWN |
+			       GFS2_LFC_MAKE_FS_RO);
+		wait_event_timeout(sdp->sd_log_waitq,
+				   gfs2_log_is_empty(sdp),
+				   HZ * 5);
+		gfs2_assert_warn(sdp, gfs2_log_is_empty(sdp));
+	} else {
+		wait_event_timeout(sdp->sd_log_waitq,
+				   gfs2_log_is_empty(sdp),
+				   HZ * 5);
+	}
+	gfs2_quota_cleanup(sdp);
+
+	if (!log_write_allowed)
+		sdp->sd_vfs->s_flags |= SB_RDONLY;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -883,7 +1088,10 @@ static int gfs2_make_fs_ro(struct gfs2_sbd *sdp)
 static void gfs2_put_super(struct super_block *sb)
 {
 	struct gfs2_sbd *sdp = sb->s_fs_info;
+<<<<<<< HEAD
 	int error;
+=======
+>>>>>>> upstream/android-13
 	struct gfs2_jdesc *jd;
 
 	/* No more recovery requests */
@@ -904,10 +1112,17 @@ restart:
 	spin_unlock(&sdp->sd_jindex_spin);
 
 	if (!sb_rdonly(sb)) {
+<<<<<<< HEAD
 		error = gfs2_make_fs_ro(sdp);
 		if (error)
 			gfs2_io_error(sdp);
 	}
+=======
+		gfs2_make_fs_ro(sdp);
+	}
+	WARN_ON(gfs2_withdrawing(sdp));
+
+>>>>>>> upstream/android-13
 	/*  At this point, we're through modifying the disk  */
 
 	/*  Release stuff  */
@@ -921,11 +1136,22 @@ restart:
 	gfs2_glock_put(sdp->sd_freeze_gl);
 
 	if (!sdp->sd_args.ar_spectator) {
+<<<<<<< HEAD
 		gfs2_glock_dq_uninit(&sdp->sd_journal_gh);
 		gfs2_glock_dq_uninit(&sdp->sd_jinode_gh);
 		gfs2_glock_dq_uninit(&sdp->sd_sc_gh);
 		gfs2_glock_dq_uninit(&sdp->sd_qc_gh);
 		iput(sdp->sd_sc_inode);
+=======
+		if (gfs2_holder_initialized(&sdp->sd_journal_gh))
+			gfs2_glock_dq_uninit(&sdp->sd_journal_gh);
+		if (gfs2_holder_initialized(&sdp->sd_jinode_gh))
+			gfs2_glock_dq_uninit(&sdp->sd_jinode_gh);
+		brelse(sdp->sd_sc_bh);
+		gfs2_glock_dq_uninit(&sdp->sd_sc_gh);
+		gfs2_glock_dq_uninit(&sdp->sd_qc_gh);
+		free_local_statfs_inodes(sdp);
+>>>>>>> upstream/android-13
 		iput(sdp->sd_qc_inode);
 	}
 
@@ -941,11 +1167,19 @@ restart:
 
 	/*  At this point, we're through participating in the lockspace  */
 	gfs2_sys_fs_del(sdp);
+<<<<<<< HEAD
+=======
+	free_sbd(sdp);
+>>>>>>> upstream/android-13
 }
 
 /**
  * gfs2_sync_fs - sync the filesystem
  * @sb: the superblock
+<<<<<<< HEAD
+=======
+ * @wait: true to wait for completion
+>>>>>>> upstream/android-13
  *
  * Flushes the log to disk.
  */
@@ -969,6 +1203,7 @@ void gfs2_freeze_func(struct work_struct *work)
 	struct super_block *sb = sdp->sd_vfs;
 
 	atomic_inc(&sb->s_active);
+<<<<<<< HEAD
 	error = gfs2_glock_nq_init(sdp->sd_freeze_gl, LM_ST_SHARED, 0,
 				   &freeze_gh);
 	if (error) {
@@ -988,6 +1223,24 @@ void gfs2_freeze_func(struct work_struct *work)
 		gfs2_glock_dq_uninit(&freeze_gh);
 	}
 	deactivate_super(sb);
+=======
+	error = gfs2_freeze_lock(sdp, &freeze_gh, 0);
+	if (error) {
+		gfs2_assert_withdraw(sdp, 0);
+	} else {
+		atomic_set(&sdp->sd_freeze_state, SFS_UNFROZEN);
+		error = thaw_super(sb);
+		if (error) {
+			fs_info(sdp, "GFS2: couldn't thaw filesystem: %d\n",
+				error);
+			gfs2_assert_withdraw(sdp, 0);
+		}
+		gfs2_freeze_unlock(&freeze_gh);
+	}
+	deactivate_super(sb);
+	clear_bit_unlock(SDF_FS_FROZEN, &sdp->sd_flags);
+	wake_up_bit(&sdp->sd_flags, SDF_FS_FROZEN);
+>>>>>>> upstream/android-13
 	return;
 }
 
@@ -1008,6 +1261,7 @@ static int gfs2_freeze(struct super_block *sb)
 		goto out;
 	}
 
+<<<<<<< HEAD
 	if (test_bit(SDF_SHUTDOWN, &sdp->sd_flags)) {
 		error = -EINVAL;
 		goto out;
@@ -1032,6 +1286,31 @@ static int gfs2_freeze(struct super_block *sb)
 		msleep(1000);
 	}
 	error = 0;
+=======
+	for (;;) {
+		if (gfs2_withdrawn(sdp)) {
+			error = -EINVAL;
+			goto out;
+		}
+
+		error = gfs2_lock_fs_check_clean(sdp);
+		if (!error)
+			break;
+
+		if (error == -EBUSY)
+			fs_err(sdp, "waiting for recovery before freeze\n");
+		else if (error == -EIO) {
+			fs_err(sdp, "Fatal IO error: cannot freeze gfs2 due "
+			       "to recovery error.\n");
+			goto out;
+		} else {
+			fs_err(sdp, "error freezing FS: %d\n", error);
+		}
+		fs_err(sdp, "retrying...\n");
+		msleep(1000);
+	}
+	set_bit(SDF_FS_FROZEN, &sdp->sd_flags);
+>>>>>>> upstream/android-13
 out:
 	mutex_unlock(&sdp->sd_freeze_mutex);
 	return error;
@@ -1054,6 +1333,7 @@ static int gfs2_unfreeze(struct super_block *sb)
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	gfs2_glock_dq_uninit(&sdp->sd_freeze_gh);
 	mutex_unlock(&sdp->sd_freeze_mutex);
 	return 0;
@@ -1061,6 +1341,15 @@ static int gfs2_unfreeze(struct super_block *sb)
 
 /**
  * statfs_fill - fill in the sg for a given RG
+=======
+	gfs2_freeze_unlock(&sdp->sd_freeze_gh);
+	mutex_unlock(&sdp->sd_freeze_mutex);
+	return wait_on_bit(&sdp->sd_flags, SDF_FS_FROZEN, TASK_INTERRUPTIBLE);
+}
+
+/**
+ * statfs_slow_fill - fill in the sg for a given RG
+>>>>>>> upstream/android-13
  * @rgd: the RG
  * @sc: the sc structure
  *
@@ -1158,7 +1447,11 @@ static int gfs2_statfs_slow(struct gfs2_sbd *sdp, struct gfs2_statfs_change_host
 /**
  * gfs2_statfs_i - Do a statfs
  * @sdp: the filesystem
+<<<<<<< HEAD
  * @sg: the sg structure
+=======
+ * @sc: the sc structure
+>>>>>>> upstream/android-13
  *
  * Returns: errno
  */
@@ -1189,8 +1482,13 @@ static int gfs2_statfs_i(struct gfs2_sbd *sdp, struct gfs2_statfs_change_host *s
 
 /**
  * gfs2_statfs - Gather and return stats about the filesystem
+<<<<<<< HEAD
  * @sb: The superblock
  * @statfsbuf: The buffer
+=======
+ * @dentry: The name of the link
+ * @buf: The buffer
+>>>>>>> upstream/android-13
  *
  * Returns: 0 on success or error code
  */
@@ -1227,6 +1525,7 @@ static int gfs2_statfs(struct dentry *dentry, struct kstatfs *buf)
 }
 
 /**
+<<<<<<< HEAD
  * gfs2_remount_fs - called when the FS is remounted
  * @sb:  the filesystem
  * @flags:  the remount flags
@@ -1307,6 +1606,8 @@ static int gfs2_remount_fs(struct super_block *sb, int *flags, char *data)
 }
 
 /**
+=======
+>>>>>>> upstream/android-13
  * gfs2_drop_inode - Drop an inode (test for remote unlink)
  * @inode: The inode to drop
  *
@@ -1344,9 +1645,15 @@ static int gfs2_drop_inode(struct inode *inode)
 		struct gfs2_glock *gl = ip->i_iopen_gh.gh_gl;
 
 		gfs2_glock_hold(gl);
+<<<<<<< HEAD
 		if (queue_work(gfs2_delete_workqueue, &gl->gl_delete) == 0)
 			gfs2_glock_queue_put(gl);
 		return false;
+=======
+		if (!gfs2_queue_delete_work(gl, 0))
+			gfs2_glock_queue_put(gl);
+		return 0;
+>>>>>>> upstream/android-13
 	}
 
 	return generic_drop_inode(inode);
@@ -1510,7 +1817,12 @@ static int gfs2_dinode_dealloc(struct gfs2_inode *ip)
 		goto out_qs;
 	}
 
+<<<<<<< HEAD
 	error = gfs2_glock_nq_init(rgd->rd_gl, LM_ST_EXCLUSIVE, 0, &gh);
+=======
+	error = gfs2_glock_nq_init(rgd->rd_gl, LM_ST_EXCLUSIVE,
+				   LM_FLAG_NODE_SCOPE, &gh);
+>>>>>>> upstream/android-13
 	if (error)
 		goto out_qs;
 
@@ -1548,6 +1860,198 @@ static void gfs2_glock_put_eventually(struct gfs2_glock *gl)
 		gfs2_glock_put(gl);
 }
 
+<<<<<<< HEAD
+=======
+static bool gfs2_upgrade_iopen_glock(struct inode *inode)
+{
+	struct gfs2_inode *ip = GFS2_I(inode);
+	struct gfs2_sbd *sdp = GFS2_SB(inode);
+	struct gfs2_holder *gh = &ip->i_iopen_gh;
+	long timeout = 5 * HZ;
+	int error;
+
+	gh->gh_flags |= GL_NOCACHE;
+	gfs2_glock_dq_wait(gh);
+
+	/*
+	 * If there are no other lock holders, we'll get the lock immediately.
+	 * Otherwise, the other nodes holding the lock will be notified about
+	 * our locking request.  If they don't have the inode open, they'll
+	 * evict the cached inode and release the lock.  Otherwise, if they
+	 * poke the inode glock, we'll take this as an indication that they
+	 * still need the iopen glock and that they'll take care of deleting
+	 * the inode when they're done.  As a last resort, if another node
+	 * keeps holding the iopen glock without showing any activity on the
+	 * inode glock, we'll eventually time out.
+	 *
+	 * Note that we're passing the LM_FLAG_TRY_1CB flag to the first
+	 * locking request as an optimization to notify lock holders as soon as
+	 * possible.  Without that flag, they'd be notified implicitly by the
+	 * second locking request.
+	 */
+
+	gfs2_holder_reinit(LM_ST_EXCLUSIVE, LM_FLAG_TRY_1CB | GL_NOCACHE, gh);
+	error = gfs2_glock_nq(gh);
+	if (error != GLR_TRYFAILED)
+		return !error;
+
+	gfs2_holder_reinit(LM_ST_EXCLUSIVE, GL_ASYNC | GL_NOCACHE, gh);
+	error = gfs2_glock_nq(gh);
+	if (error)
+		return false;
+
+	timeout = wait_event_interruptible_timeout(sdp->sd_async_glock_wait,
+		!test_bit(HIF_WAIT, &gh->gh_iflags) ||
+		test_bit(GLF_DEMOTE, &ip->i_gl->gl_flags),
+		timeout);
+	if (!test_bit(HIF_HOLDER, &gh->gh_iflags)) {
+		gfs2_glock_dq(gh);
+		return false;
+	}
+	return true;
+}
+
+/**
+ * evict_should_delete - determine whether the inode is eligible for deletion
+ * @inode: The inode to evict
+ * @gh: The glock holder structure
+ *
+ * This function determines whether the evicted inode is eligible to be deleted
+ * and locks the inode glock.
+ *
+ * Returns: the fate of the dinode
+ */
+static enum dinode_demise evict_should_delete(struct inode *inode,
+					      struct gfs2_holder *gh)
+{
+	struct gfs2_inode *ip = GFS2_I(inode);
+	struct super_block *sb = inode->i_sb;
+	struct gfs2_sbd *sdp = sb->s_fs_info;
+	int ret;
+
+	if (test_bit(GIF_ALLOC_FAILED, &ip->i_flags)) {
+		BUG_ON(!gfs2_glock_is_locked_by_me(ip->i_gl));
+		goto should_delete;
+	}
+
+	if (test_bit(GIF_DEFERRED_DELETE, &ip->i_flags))
+		return SHOULD_DEFER_EVICTION;
+
+	/* Deletes should never happen under memory pressure anymore.  */
+	if (WARN_ON_ONCE(current->flags & PF_MEMALLOC))
+		return SHOULD_DEFER_EVICTION;
+
+	/* Must not read inode block until block type has been verified */
+	ret = gfs2_glock_nq_init(ip->i_gl, LM_ST_EXCLUSIVE, GL_SKIP, gh);
+	if (unlikely(ret)) {
+		glock_clear_object(ip->i_iopen_gh.gh_gl, ip);
+		ip->i_iopen_gh.gh_flags |= GL_NOCACHE;
+		gfs2_glock_dq_uninit(&ip->i_iopen_gh);
+		return SHOULD_DEFER_EVICTION;
+	}
+
+	if (gfs2_inode_already_deleted(ip->i_gl, ip->i_no_formal_ino))
+		return SHOULD_NOT_DELETE_DINODE;
+	ret = gfs2_check_blk_type(sdp, ip->i_no_addr, GFS2_BLKST_UNLINKED);
+	if (ret)
+		return SHOULD_NOT_DELETE_DINODE;
+
+	if (test_bit(GIF_INVALID, &ip->i_flags)) {
+		ret = gfs2_inode_refresh(ip);
+		if (ret)
+			return SHOULD_NOT_DELETE_DINODE;
+	}
+
+	/*
+	 * The inode may have been recreated in the meantime.
+	 */
+	if (inode->i_nlink)
+		return SHOULD_NOT_DELETE_DINODE;
+
+should_delete:
+	if (gfs2_holder_initialized(&ip->i_iopen_gh) &&
+	    test_bit(HIF_HOLDER, &ip->i_iopen_gh.gh_iflags)) {
+		if (!gfs2_upgrade_iopen_glock(inode)) {
+			gfs2_holder_uninit(&ip->i_iopen_gh);
+			return SHOULD_NOT_DELETE_DINODE;
+		}
+	}
+	return SHOULD_DELETE_DINODE;
+}
+
+/**
+ * evict_unlinked_inode - delete the pieces of an unlinked evicted inode
+ * @inode: The inode to evict
+ */
+static int evict_unlinked_inode(struct inode *inode)
+{
+	struct gfs2_inode *ip = GFS2_I(inode);
+	int ret;
+
+	if (S_ISDIR(inode->i_mode) &&
+	    (ip->i_diskflags & GFS2_DIF_EXHASH)) {
+		ret = gfs2_dir_exhash_dealloc(ip);
+		if (ret)
+			goto out;
+	}
+
+	if (ip->i_eattr) {
+		ret = gfs2_ea_dealloc(ip);
+		if (ret)
+			goto out;
+	}
+
+	if (!gfs2_is_stuffed(ip)) {
+		ret = gfs2_file_dealloc(ip);
+		if (ret)
+			goto out;
+	}
+
+	/* We're about to clear the bitmap for the dinode, but as soon as we
+	   do, gfs2_create_inode can create another inode at the same block
+	   location and try to set gl_object again. We clear gl_object here so
+	   that subsequent inode creates don't see an old gl_object. */
+	glock_clear_object(ip->i_gl, ip);
+	ret = gfs2_dinode_dealloc(ip);
+	gfs2_inode_remember_delete(ip->i_gl, ip->i_no_formal_ino);
+out:
+	return ret;
+}
+
+/*
+ * evict_linked_inode - evict an inode whose dinode has not been unlinked
+ * @inode: The inode to evict
+ */
+static int evict_linked_inode(struct inode *inode)
+{
+	struct super_block *sb = inode->i_sb;
+	struct gfs2_sbd *sdp = sb->s_fs_info;
+	struct gfs2_inode *ip = GFS2_I(inode);
+	struct address_space *metamapping;
+	int ret;
+
+	gfs2_log_flush(sdp, ip->i_gl, GFS2_LOG_HEAD_FLUSH_NORMAL |
+		       GFS2_LFC_EVICT_INODE);
+	metamapping = gfs2_glock2aspace(ip->i_gl);
+	if (test_bit(GLF_DIRTY, &ip->i_gl->gl_flags)) {
+		filemap_fdatawrite(metamapping);
+		filemap_fdatawait(metamapping);
+	}
+	write_inode_now(inode, 1);
+	gfs2_ail_flush(ip->i_gl, 0);
+
+	ret = gfs2_trans_begin(sdp, 0, sdp->sd_jdesc->jd_blocks);
+	if (ret)
+		return ret;
+
+	/* Needs to be done before glock release & also in a transaction */
+	truncate_inode_pages(&inode->i_data, 0);
+	truncate_inode_pages(metamapping, 0);
+	gfs2_trans_end(sdp);
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 /**
  * gfs2_evict_inode - Remove an inode from cache
  * @inode: The inode to evict
@@ -1575,8 +2079,12 @@ static void gfs2_evict_inode(struct inode *inode)
 	struct gfs2_sbd *sdp = sb->s_fs_info;
 	struct gfs2_inode *ip = GFS2_I(inode);
 	struct gfs2_holder gh;
+<<<<<<< HEAD
 	struct address_space *metamapping;
 	int error;
+=======
+	int ret;
+>>>>>>> upstream/android-13
 
 	if (test_bit(GIF_FREE_VFS_INODE, &ip->i_flags)) {
 		clear_inode(inode);
@@ -1586,6 +2094,7 @@ static void gfs2_evict_inode(struct inode *inode)
 	if (inode->i_nlink || sb_rdonly(sb))
 		goto out;
 
+<<<<<<< HEAD
 	if (test_bit(GIF_ALLOC_FAILED, &ip->i_flags)) {
 		BUG_ON(!gfs2_glock_is_locked_by_me(ip->i_gl));
 		gfs2_holder_mark_uninitialized(&gh);
@@ -1695,10 +2204,25 @@ out_unlock:
 		}
 		gfs2_holder_uninit(&ip->i_iopen_gh);
 	}
+=======
+	gfs2_holder_mark_uninitialized(&gh);
+	ret = evict_should_delete(inode, &gh);
+	if (ret == SHOULD_DEFER_EVICTION)
+		goto out;
+	if (ret == SHOULD_DELETE_DINODE)
+		ret = evict_unlinked_inode(inode);
+	else
+		ret = evict_linked_inode(inode);
+
+	if (gfs2_rs_active(&ip->i_res))
+		gfs2_rs_deltree(&ip->i_res);
+
+>>>>>>> upstream/android-13
 	if (gfs2_holder_initialized(&gh)) {
 		glock_clear_object(ip->i_gl, ip);
 		gfs2_glock_dq_uninit(&gh);
 	}
+<<<<<<< HEAD
 	if (error && error != GLR_TRYFAILED && error != -EROFS)
 		fs_warn(sdp, "gfs2_evict_inode: %d\n", error);
 out:
@@ -1713,15 +2237,45 @@ out:
 	gfs2_glock_add_to_lru(ip->i_gl);
 	gfs2_glock_put_eventually(ip->i_gl);
 	ip->i_gl = NULL;
+=======
+	if (ret && ret != GLR_TRYFAILED && ret != -EROFS)
+		fs_warn(sdp, "gfs2_evict_inode: %d\n", ret);
+out:
+	truncate_inode_pages_final(&inode->i_data);
+	if (ip->i_qadata)
+		gfs2_assert_warn(sdp, ip->i_qadata->qa_ref == 0);
+	gfs2_rs_deltree(&ip->i_res);
+	gfs2_ordered_del_inode(ip);
+	clear_inode(inode);
+	gfs2_dir_hash_inval(ip);
+>>>>>>> upstream/android-13
 	if (gfs2_holder_initialized(&ip->i_iopen_gh)) {
 		struct gfs2_glock *gl = ip->i_iopen_gh.gh_gl;
 
 		glock_clear_object(gl, ip);
+<<<<<<< HEAD
 		ip->i_iopen_gh.gh_flags |= GL_NOCACHE;
 		gfs2_glock_hold(gl);
 		gfs2_glock_dq_uninit(&ip->i_iopen_gh);
 		gfs2_glock_put_eventually(gl);
 	}
+=======
+		if (test_bit(HIF_HOLDER, &ip->i_iopen_gh.gh_iflags)) {
+			ip->i_iopen_gh.gh_flags |= GL_NOCACHE;
+			gfs2_glock_dq(&ip->i_iopen_gh);
+		}
+		gfs2_glock_hold(gl);
+		gfs2_holder_uninit(&ip->i_iopen_gh);
+		gfs2_glock_put_eventually(gl);
+	}
+	if (ip->i_gl) {
+		glock_clear_object(ip->i_gl, ip);
+		wait_on_bit_io(&ip->i_flags, GIF_GLOP_PENDING, TASK_UNINTERRUPTIBLE);
+		gfs2_glock_add_to_lru(ip->i_gl);
+		gfs2_glock_put_eventually(ip->i_gl);
+		ip->i_gl = NULL;
+	}
+>>>>>>> upstream/android-13
 }
 
 static struct inode *gfs2_alloc_inode(struct super_block *sb)
@@ -1729,6 +2283,7 @@ static struct inode *gfs2_alloc_inode(struct super_block *sb)
 	struct gfs2_inode *ip;
 
 	ip = kmem_cache_alloc(gfs2_inode_cachep, GFP_KERNEL);
+<<<<<<< HEAD
 	if (ip) {
 		ip->i_flags = 0;
 		ip->i_gl = NULL;
@@ -1748,11 +2303,60 @@ static void gfs2_i_callback(struct rcu_head *head)
 static void gfs2_destroy_inode(struct inode *inode)
 {
 	call_rcu(&inode->i_rcu, gfs2_i_callback);
+=======
+	if (!ip)
+		return NULL;
+	ip->i_flags = 0;
+	ip->i_gl = NULL;
+	gfs2_holder_mark_uninitialized(&ip->i_iopen_gh);
+	memset(&ip->i_res, 0, sizeof(ip->i_res));
+	RB_CLEAR_NODE(&ip->i_res.rs_node);
+	ip->i_rahead = 0;
+	return &ip->i_inode;
+}
+
+static void gfs2_free_inode(struct inode *inode)
+{
+	kmem_cache_free(gfs2_inode_cachep, GFS2_I(inode));
+}
+
+extern void free_local_statfs_inodes(struct gfs2_sbd *sdp)
+{
+	struct local_statfs_inode *lsi, *safe;
+
+	/* Run through the statfs inodes list to iput and free memory */
+	list_for_each_entry_safe(lsi, safe, &sdp->sd_sc_inodes_list, si_list) {
+		if (lsi->si_jid == sdp->sd_jdesc->jd_jid)
+			sdp->sd_sc_inode = NULL; /* belongs to this node */
+		if (lsi->si_sc_inode)
+			iput(lsi->si_sc_inode);
+		list_del(&lsi->si_list);
+		kfree(lsi);
+	}
+}
+
+extern struct inode *find_local_statfs_inode(struct gfs2_sbd *sdp,
+					     unsigned int index)
+{
+	struct local_statfs_inode *lsi;
+
+	/* Return the local (per node) statfs inode in the
+	 * sdp->sd_sc_inodes_list corresponding to the 'index'. */
+	list_for_each_entry(lsi, &sdp->sd_sc_inodes_list, si_list) {
+		if (lsi->si_jid == index)
+			return lsi->si_sc_inode;
+	}
+	return NULL;
+>>>>>>> upstream/android-13
 }
 
 const struct super_operations gfs2_super_ops = {
 	.alloc_inode		= gfs2_alloc_inode,
+<<<<<<< HEAD
 	.destroy_inode		= gfs2_destroy_inode,
+=======
+	.free_inode		= gfs2_free_inode,
+>>>>>>> upstream/android-13
 	.write_inode		= gfs2_write_inode,
 	.dirty_inode		= gfs2_dirty_inode,
 	.evict_inode		= gfs2_evict_inode,
@@ -1761,7 +2365,10 @@ const struct super_operations gfs2_super_ops = {
 	.freeze_super		= gfs2_freeze,
 	.thaw_super		= gfs2_unfreeze,
 	.statfs			= gfs2_statfs,
+<<<<<<< HEAD
 	.remount_fs		= gfs2_remount_fs,
+=======
+>>>>>>> upstream/android-13
 	.drop_inode		= gfs2_drop_inode,
 	.show_options		= gfs2_show_options,
 };

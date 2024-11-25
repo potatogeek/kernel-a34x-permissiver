@@ -163,8 +163,15 @@ static int alx_get_link_ksettings(struct net_device *netdev,
 		}
 	}
 
+<<<<<<< HEAD
 	cmd->base.speed = hw->link_speed;
 	cmd->base.duplex = hw->duplex;
+=======
+	mutex_lock(&alx->mtx);
+	cmd->base.speed = hw->link_speed;
+	cmd->base.duplex = hw->duplex;
+	mutex_unlock(&alx->mtx);
+>>>>>>> upstream/android-13
 
 	ethtool_convert_legacy_u32_to_link_mode(cmd->link_modes.supported,
 						supported);
@@ -181,8 +188,12 @@ static int alx_set_link_ksettings(struct net_device *netdev,
 	struct alx_hw *hw = &alx->hw;
 	u32 adv_cfg;
 	u32 advertising;
+<<<<<<< HEAD
 
 	ASSERT_RTNL();
+=======
+	int ret;
+>>>>>>> upstream/android-13
 
 	ethtool_convert_link_mode_to_legacy_u32(&advertising,
 						cmd->link_modes.advertising);
@@ -200,7 +211,16 @@ static int alx_set_link_ksettings(struct net_device *netdev,
 	}
 
 	hw->adv_cfg = adv_cfg;
+<<<<<<< HEAD
 	return alx_setup_speed_duplex(hw, adv_cfg, hw->flowctrl);
+=======
+
+	mutex_lock(&alx->mtx);
+	ret = alx_setup_speed_duplex(hw, adv_cfg, hw->flowctrl);
+	mutex_unlock(&alx->mtx);
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static void alx_get_pauseparam(struct net_device *netdev,
@@ -209,10 +229,18 @@ static void alx_get_pauseparam(struct net_device *netdev,
 	struct alx_priv *alx = netdev_priv(netdev);
 	struct alx_hw *hw = &alx->hw;
 
+<<<<<<< HEAD
+=======
+	mutex_lock(&alx->mtx);
+>>>>>>> upstream/android-13
 	pause->autoneg = !!(hw->flowctrl & ALX_FC_ANEG &&
 			    hw->adv_cfg & ADVERTISED_Autoneg);
 	pause->tx_pause = !!(hw->flowctrl & ALX_FC_TX);
 	pause->rx_pause = !!(hw->flowctrl & ALX_FC_RX);
+<<<<<<< HEAD
+=======
+	mutex_unlock(&alx->mtx);
+>>>>>>> upstream/android-13
 }
 
 
@@ -232,7 +260,11 @@ static int alx_set_pauseparam(struct net_device *netdev,
 	if (pause->autoneg)
 		fc |= ALX_FC_ANEG;
 
+<<<<<<< HEAD
 	ASSERT_RTNL();
+=======
+	mutex_lock(&alx->mtx);
+>>>>>>> upstream/android-13
 
 	/* restart auto-neg for auto-mode */
 	if (hw->adv_cfg & ADVERTISED_Autoneg) {
@@ -245,8 +277,15 @@ static int alx_set_pauseparam(struct net_device *netdev,
 
 	if (reconfig_phy) {
 		err = alx_setup_speed_duplex(hw, hw->adv_cfg, fc);
+<<<<<<< HEAD
 		if (err)
 			return err;
+=======
+		if (err) {
+			mutex_unlock(&alx->mtx);
+			return err;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	/* flow control on mac */
@@ -254,6 +293,10 @@ static int alx_set_pauseparam(struct net_device *netdev,
 		alx_cfg_mac_flowcontrol(hw, fc);
 
 	hw->flowctrl = fc;
+<<<<<<< HEAD
+=======
+	mutex_unlock(&alx->mtx);
+>>>>>>> upstream/android-13
 
 	return 0;
 }

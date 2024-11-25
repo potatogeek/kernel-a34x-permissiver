@@ -23,8 +23,11 @@
 
 #include <linux/uaccess.h>
 #include <asm/ptrace.h>
+<<<<<<< HEAD
 #include <asm/pgalloc.h>
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/cacheflush.h>	/* flush_sig_insns */
 #include <asm/switch_to.h>
 
@@ -67,7 +70,11 @@ struct rt_signal_frame {
  */
 static inline bool invalid_frame_pointer(void __user *fp, int fplen)
 {
+<<<<<<< HEAD
 	if ((((unsigned long) fp) & 15) || !__access_ok((unsigned long)fp, fplen))
+=======
+	if ((((unsigned long) fp) & 15) || !access_ok(fp, fplen))
+>>>>>>> upstream/android-13
 		return true;
 
 	return false;
@@ -137,7 +144,11 @@ asmlinkage void do_sigreturn(struct pt_regs *regs)
 	return;
 
 segv_and_exit:
+<<<<<<< HEAD
 	force_sig(SIGSEGV, current);
+=======
+	force_sig(SIGSEGV);
+>>>>>>> upstream/android-13
 }
 
 asmlinkage void do_rt_sigreturn(struct pt_regs *regs)
@@ -196,7 +207,11 @@ asmlinkage void do_rt_sigreturn(struct pt_regs *regs)
 	set_current_blocked(&set);
 	return;
 segv:
+<<<<<<< HEAD
 	force_sig(SIGSEGV, current);
+=======
+	force_sig(SIGSEGV);
+>>>>>>> upstream/android-13
 }
 
 static inline void __user *get_sigframe(struct ksignal *ksig, struct pt_regs *regs, unsigned long framesize)
@@ -246,7 +261,11 @@ static int setup_frame(struct ksignal *ksig, struct pt_regs *regs,
 		get_sigframe(ksig, regs, sigframe_size);
 
 	if (invalid_frame_pointer(sf, sigframe_size)) {
+<<<<<<< HEAD
 		do_exit(SIGILL);
+=======
+		force_exit_sig(SIGILL);
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -338,7 +357,11 @@ static int setup_rt_frame(struct ksignal *ksig, struct pt_regs *regs,
 	sf = (struct rt_signal_frame __user *)
 		get_sigframe(ksig, regs, sigframe_size);
 	if (invalid_frame_pointer(sf, sigframe_size)) {
+<<<<<<< HEAD
 		do_exit(SIGILL);
+=======
+		force_exit_sig(SIGILL);
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -402,8 +425,13 @@ static int setup_rt_frame(struct ksignal *ksig, struct pt_regs *regs,
 	else {
 		regs->u_regs[UREG_I7] = (unsigned long)(&(sf->insns[0]) - 2);
 
+<<<<<<< HEAD
 		/* mov __NR_sigreturn, %g1 */
 		err |= __put_user(0x821020d8, &sf->insns[0]);
+=======
+		/* mov __NR_rt_sigreturn, %g1 */
+		err |= __put_user(0x82102065, &sf->insns[0]);
+>>>>>>> upstream/android-13
 
 		/* t 0x10 */
 		err |= __put_user(0x91d02010, &sf->insns[1]);
@@ -442,7 +470,11 @@ static inline void syscall_restart(unsigned long orig_i0, struct pt_regs *regs,
 	case ERESTARTSYS:
 		if (!(sa->sa_flags & SA_RESTART))
 			goto no_system_call_restart;
+<<<<<<< HEAD
 		/* fallthrough */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case ERESTARTNOINTR:
 		regs->u_regs[UREG_I0] = orig_i0;
 		regs->pc -= 4;
@@ -508,6 +540,10 @@ static void do_signal(struct pt_regs *regs, unsigned long orig_i0)
 				regs->pc -= 4;
 				regs->npc -= 4;
 				pt_regs_clear_syscall(regs);
+<<<<<<< HEAD
+=======
+				fallthrough;
+>>>>>>> upstream/android-13
 			case ERESTART_RESTARTBLOCK:
 				regs->u_regs[UREG_G1] = __NR_restart_syscall;
 				regs->pc -= 4;
@@ -522,12 +558,19 @@ static void do_signal(struct pt_regs *regs, unsigned long orig_i0)
 void do_notify_resume(struct pt_regs *regs, unsigned long orig_i0,
 		      unsigned long thread_info_flags)
 {
+<<<<<<< HEAD
 	if (thread_info_flags & _TIF_SIGPENDING)
 		do_signal(regs, orig_i0);
 	if (thread_info_flags & _TIF_NOTIFY_RESUME) {
 		clear_thread_flag(TIF_NOTIFY_RESUME);
 		tracehook_notify_resume(regs);
 	}
+=======
+	if (thread_info_flags & (_TIF_SIGPENDING | _TIF_NOTIFY_SIGNAL))
+		do_signal(regs, orig_i0);
+	if (thread_info_flags & _TIF_NOTIFY_RESUME)
+		tracehook_notify_resume(regs);
+>>>>>>> upstream/android-13
 }
 
 asmlinkage int do_sys_sigstack(struct sigstack __user *ssptr,

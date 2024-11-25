@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2010-2011 Canonical Ltd <jeremy.kerr@canonical.com>
  * Copyright (C) 2011-2012 Mike Turquette, Linaro Ltd <mturquette@linaro.org>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * Gated clock implementation
  */
 
@@ -26,6 +33,25 @@
  * parent - fixed parent.  No clk_set_parent support
  */
 
+<<<<<<< HEAD
+=======
+static inline u32 clk_gate_readl(struct clk_gate *gate)
+{
+	if (gate->flags & CLK_GATE_BIG_ENDIAN)
+		return ioread32be(gate->reg);
+
+	return readl(gate->reg);
+}
+
+static inline void clk_gate_writel(struct clk_gate *gate, u32 val)
+{
+	if (gate->flags & CLK_GATE_BIG_ENDIAN)
+		iowrite32be(val, gate->reg);
+	else
+		writel(val, gate->reg);
+}
+
+>>>>>>> upstream/android-13
 /*
  * It works on following logic:
  *
@@ -43,7 +69,11 @@ static void clk_gate_endisable(struct clk_hw *hw, int enable)
 {
 	struct clk_gate *gate = to_clk_gate(hw);
 	int set = gate->flags & CLK_GATE_SET_TO_DISABLE ? 1 : 0;
+<<<<<<< HEAD
 	unsigned long uninitialized_var(flags);
+=======
+	unsigned long flags;
+>>>>>>> upstream/android-13
 	u32 reg;
 
 	set ^= enable;
@@ -58,7 +88,11 @@ static void clk_gate_endisable(struct clk_hw *hw, int enable)
 		if (set)
 			reg |= BIT(gate->bit_idx);
 	} else {
+<<<<<<< HEAD
 		reg = clk_readl(gate->reg);
+=======
+		reg = clk_gate_readl(gate);
+>>>>>>> upstream/android-13
 
 		if (set)
 			reg |= BIT(gate->bit_idx);
@@ -66,7 +100,11 @@ static void clk_gate_endisable(struct clk_hw *hw, int enable)
 			reg &= ~BIT(gate->bit_idx);
 	}
 
+<<<<<<< HEAD
 	clk_writel(reg, gate->reg);
+=======
+	clk_gate_writel(gate, reg);
+>>>>>>> upstream/android-13
 
 	if (gate->lock)
 		spin_unlock_irqrestore(gate->lock, flags);
@@ -91,7 +129,11 @@ int clk_gate_is_enabled(struct clk_hw *hw)
 	u32 reg;
 	struct clk_gate *gate = to_clk_gate(hw);
 
+<<<<<<< HEAD
 	reg = clk_readl(gate->reg);
+=======
+	reg = clk_gate_readl(gate);
+>>>>>>> upstream/android-13
 
 	/* if a set bit disables this clk, flip it before masking */
 	if (gate->flags & CLK_GATE_SET_TO_DISABLE)
@@ -110,6 +152,7 @@ const struct clk_ops clk_gate_ops = {
 };
 EXPORT_SYMBOL_GPL(clk_gate_ops);
 
+<<<<<<< HEAD
 /**
  * clk_hw_register_gate - register a gate clock with the clock framework
  * @dev: device that is registering this clock
@@ -123,13 +166,24 @@ EXPORT_SYMBOL_GPL(clk_gate_ops);
  */
 struct clk_hw *clk_hw_register_gate(struct device *dev, const char *name,
 		const char *parent_name, unsigned long flags,
+=======
+struct clk_hw *__clk_hw_register_gate(struct device *dev,
+		struct device_node *np, const char *name,
+		const char *parent_name, const struct clk_hw *parent_hw,
+		const struct clk_parent_data *parent_data,
+		unsigned long flags,
+>>>>>>> upstream/android-13
 		void __iomem *reg, u8 bit_idx,
 		u8 clk_gate_flags, spinlock_t *lock)
 {
 	struct clk_gate *gate;
 	struct clk_hw *hw;
 	struct clk_init_data init = {};
+<<<<<<< HEAD
 	int ret;
+=======
+	int ret = -EINVAL;
+>>>>>>> upstream/android-13
 
 	if (clk_gate_flags & CLK_GATE_HIWORD_MASK) {
 		if (bit_idx > 15) {
@@ -145,9 +199,20 @@ struct clk_hw *clk_hw_register_gate(struct device *dev, const char *name,
 
 	init.name = name;
 	init.ops = &clk_gate_ops;
+<<<<<<< HEAD
 	init.flags = flags | CLK_IS_BASIC;
 	init.parent_names = parent_name ? &parent_name : NULL;
 	init.num_parents = parent_name ? 1 : 0;
+=======
+	init.flags = flags;
+	init.parent_names = parent_name ? &parent_name : NULL;
+	init.parent_hws = parent_hw ? &parent_hw : NULL;
+	init.parent_data = parent_data;
+	if (parent_name || parent_hw || parent_data)
+		init.num_parents = 1;
+	else
+		init.num_parents = 0;
+>>>>>>> upstream/android-13
 
 	/* struct clk_gate assignments */
 	gate->reg = reg;
@@ -157,15 +222,28 @@ struct clk_hw *clk_hw_register_gate(struct device *dev, const char *name,
 	gate->hw.init = &init;
 
 	hw = &gate->hw;
+<<<<<<< HEAD
 	ret = clk_hw_register(dev, hw);
+=======
+	if (dev || !np)
+		ret = clk_hw_register(dev, hw);
+	else if (np)
+		ret = of_clk_hw_register(np, hw);
+>>>>>>> upstream/android-13
 	if (ret) {
 		kfree(gate);
 		hw = ERR_PTR(ret);
 	}
 
 	return hw;
+<<<<<<< HEAD
 }
 EXPORT_SYMBOL_GPL(clk_hw_register_gate);
+=======
+
+}
+EXPORT_SYMBOL_GPL(__clk_hw_register_gate);
+>>>>>>> upstream/android-13
 
 struct clk *clk_register_gate(struct device *dev, const char *name,
 		const char *parent_name, unsigned long flags,

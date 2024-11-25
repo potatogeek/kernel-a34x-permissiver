@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Codec driver for ST STA32x 2.1-channel high-efficiency digital audio system
  *
@@ -9,11 +13,14 @@
  *	  Mark Brown <broonie@opensource.wolfsonmicro.com>
  *	Freescale Semiconductor, Inc.
  *	  Timur Tabi <timur@freescale.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ":%s:%d: " fmt, __func__, __LINE__
@@ -21,6 +28,10 @@
 #include <linux/module.h>
 #include <linux/moduleparam.h>
 #include <linux/init.h>
+<<<<<<< HEAD
+=======
+#include <linux/clk.h>
+>>>>>>> upstream/android-13
 #include <linux/delay.h>
 #include <linux/pm.h>
 #include <linux/i2c.h>
@@ -142,6 +153,10 @@ static const char *sta32x_supply_names[] = {
 /* codec private data */
 struct sta32x_priv {
 	struct regmap *regmap;
+<<<<<<< HEAD
+=======
+	struct clk *xti_clk;
+>>>>>>> upstream/android-13
 	struct regulator_bulk_data supplies[ARRAY_SIZE(sta32x_supply_names)];
 	struct snd_soc_component *component;
 	struct sta32x_platform_data *pdata;
@@ -399,9 +414,15 @@ static void sta32x_watchdog(struct work_struct *work)
 	unsigned int confa, confa_cached;
 
 	/* check if sta32x has reset itself */
+<<<<<<< HEAD
 	confa_cached = snd_soc_component_read32(component, STA32X_CONFA);
 	regcache_cache_bypass(sta32x->regmap, true);
 	confa = snd_soc_component_read32(component, STA32X_CONFA);
+=======
+	confa_cached = snd_soc_component_read(component, STA32X_CONFA);
+	regcache_cache_bypass(sta32x->regmap, true);
+	confa = snd_soc_component_read(component, STA32X_CONFA);
+>>>>>>> upstream/android-13
 	regcache_cache_bypass(sta32x->regmap, false);
 	if (confa != confa_cached) {
 		regcache_mark_dirty(sta32x->regmap);
@@ -699,7 +720,11 @@ static int sta32x_hw_params(struct snd_pcm_substream *substream,
 	switch (params_width(params)) {
 	case 24:
 		dev_dbg(component->dev, "24bit\n");
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 32:
 		dev_dbg(component->dev, "24bit or 32bit\n");
 		switch (sta32x->format) {
@@ -882,17 +907,37 @@ static int sta32x_probe(struct snd_soc_component *component)
 
 	sta32x->component = component;
 
+<<<<<<< HEAD
+=======
+	if (sta32x->xti_clk) {
+		ret = clk_prepare_enable(sta32x->xti_clk);
+		if (ret != 0) {
+			dev_err(component->dev,
+				"Failed to enable clock: %d\n", ret);
+			return ret;
+		}
+	}
+
+>>>>>>> upstream/android-13
 	ret = regulator_bulk_enable(ARRAY_SIZE(sta32x->supplies),
 				    sta32x->supplies);
 	if (ret != 0) {
 		dev_err(component->dev, "Failed to enable supplies: %d\n", ret);
+<<<<<<< HEAD
 		return ret;
+=======
+		goto err_clk_disable_unprepare;
+>>>>>>> upstream/android-13
 	}
 
 	ret = sta32x_startup_sequence(sta32x);
 	if (ret < 0) {
 		dev_err(component->dev, "Failed to startup device\n");
+<<<<<<< HEAD
 		return ret;
+=======
+		goto err_regulator_bulk_disable;
+>>>>>>> upstream/android-13
 	}
 
 	/* CONFA */
@@ -976,6 +1021,16 @@ static int sta32x_probe(struct snd_soc_component *component)
 	regulator_bulk_disable(ARRAY_SIZE(sta32x->supplies), sta32x->supplies);
 
 	return 0;
+<<<<<<< HEAD
+=======
+
+err_regulator_bulk_disable:
+	regulator_bulk_disable(ARRAY_SIZE(sta32x->supplies), sta32x->supplies);
+err_clk_disable_unprepare:
+	if (sta32x->xti_clk)
+		clk_disable_unprepare(sta32x->xti_clk);
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static void sta32x_remove(struct snd_soc_component *component)
@@ -984,6 +1039,12 @@ static void sta32x_remove(struct snd_soc_component *component)
 
 	sta32x_watchdog_stop(sta32x);
 	regulator_bulk_disable(ARRAY_SIZE(sta32x->supplies), sta32x->supplies);
+<<<<<<< HEAD
+=======
+
+	if (sta32x->xti_clk)
+		clk_disable_unprepare(sta32x->xti_clk);
+>>>>>>> upstream/android-13
 }
 
 static const struct snd_soc_component_driver sta32x_component = {
@@ -1041,6 +1102,11 @@ static int sta32x_probe_dt(struct device *dev, struct sta32x_priv *sta32x)
 	of_property_read_u8(np, "st,ch3-output-mapping",
 			    &pdata->ch3_output_mapping);
 
+<<<<<<< HEAD
+=======
+	if (of_get_property(np, "st,fault-detect-recovery", NULL))
+		pdata->fault_detect_recovery = 1;
+>>>>>>> upstream/android-13
 	if (of_get_property(np, "st,thermal-warning-recovery", NULL))
 		pdata->thermal_warning_recovery = 1;
 	if (of_get_property(np, "st,thermal-warning-adjustment", NULL))
@@ -1098,6 +1164,20 @@ static int sta32x_i2c_probe(struct i2c_client *i2c,
 	}
 #endif
 
+<<<<<<< HEAD
+=======
+	/* Clock */
+	sta32x->xti_clk = devm_clk_get(dev, "xti");
+	if (IS_ERR(sta32x->xti_clk)) {
+		ret = PTR_ERR(sta32x->xti_clk);
+
+		if (ret == -EPROBE_DEFER)
+			return ret;
+
+		sta32x->xti_clk = NULL;
+	}
+
+>>>>>>> upstream/android-13
 	/* GPIOs */
 	sta32x->gpiod_nreset = devm_gpiod_get_optional(dev, "reset",
 						       GPIOD_OUT_LOW);

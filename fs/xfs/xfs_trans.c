@@ -11,15 +11,29 @@
 #include "xfs_log_format.h"
 #include "xfs_trans_resv.h"
 #include "xfs_mount.h"
+<<<<<<< HEAD
 #include "xfs_inode.h"
+=======
+>>>>>>> upstream/android-13
 #include "xfs_extent_busy.h"
 #include "xfs_quota.h"
 #include "xfs_trans.h"
 #include "xfs_trans_priv.h"
 #include "xfs_log.h"
+<<<<<<< HEAD
 #include "xfs_trace.h"
 #include "xfs_error.h"
 #include "xfs_defer.h"
+=======
+#include "xfs_log_priv.h"
+#include "xfs_trace.h"
+#include "xfs_error.h"
+#include "xfs_defer.h"
+#include "xfs_inode.h"
+#include "xfs_dquot_item.h"
+#include "xfs_dquot.h"
+#include "xfs_icache.h"
+>>>>>>> upstream/android-13
 
 kmem_zone_t	*xfs_trans_zone;
 
@@ -68,11 +82,19 @@ xfs_trans_free(
 	xfs_extent_busy_clear(tp->t_mountp, &tp->t_busy, false);
 
 	trace_xfs_trans_free(tp, _RET_IP_);
+<<<<<<< HEAD
 	atomic_dec(&tp->t_mountp->m_active_trans);
 	if (!(tp->t_flags & XFS_TRANS_NO_WRITECOUNT))
 		sb_end_intwrite(tp->t_mountp->m_super);
 	xfs_trans_free_dqinfo(tp);
 	kmem_zone_free(xfs_trans_zone, tp);
+=======
+	xfs_trans_clear_context(tp);
+	if (!(tp->t_flags & XFS_TRANS_NO_WRITECOUNT))
+		sb_end_intwrite(tp->t_mountp->m_super);
+	xfs_trans_free_dqinfo(tp);
+	kmem_cache_free(xfs_trans_zone, tp);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -91,7 +113,11 @@ xfs_trans_dup(
 
 	trace_xfs_trans_dup(tp, _RET_IP_);
 
+<<<<<<< HEAD
 	ntp = kmem_zone_zalloc(xfs_trans_zone, KM_SLEEP);
+=======
+	ntp = kmem_cache_zalloc(xfs_trans_zone, GFP_KERNEL | __GFP_NOFAIL);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Initialize the new transaction structure.
@@ -108,7 +134,12 @@ xfs_trans_dup(
 
 	ntp->t_flags = XFS_TRANS_PERM_LOG_RES |
 		       (tp->t_flags & XFS_TRANS_RESERVE) |
+<<<<<<< HEAD
 		       (tp->t_flags & XFS_TRANS_NO_WRITECOUNT);
+=======
+		       (tp->t_flags & XFS_TRANS_NO_WRITECOUNT) |
+		       (tp->t_flags & XFS_TRANS_RES_FDBLKS);
+>>>>>>> upstream/android-13
 	/* We gave our writer reference to the new transaction */
 	tp->t_flags |= XFS_TRANS_NO_WRITECOUNT;
 	ntp->t_ticket = xfs_log_ticket_get(tp->t_ticket);
@@ -119,14 +150,22 @@ xfs_trans_dup(
 
 	ntp->t_rtx_res = tp->t_rtx_res - tp->t_rtx_res_used;
 	tp->t_rtx_res = tp->t_rtx_res_used;
+<<<<<<< HEAD
 	ntp->t_pflags = tp->t_pflags;
+=======
+
+	xfs_trans_switch_context(tp, ntp);
+>>>>>>> upstream/android-13
 
 	/* move deferred ops over to the new tp */
 	xfs_defer_move(ntp, tp);
 
 	xfs_trans_dup_dqinfo(tp, ntp);
+<<<<<<< HEAD
 
 	atomic_inc(&tp->t_mountp->m_active_trans);
+=======
+>>>>>>> upstream/android-13
 	return ntp;
 }
 
@@ -151,11 +190,17 @@ xfs_trans_reserve(
 	uint			blocks,
 	uint			rtextents)
 {
+<<<<<<< HEAD
 	int		error = 0;
 	bool		rsvd = (tp->t_flags & XFS_TRANS_RESERVE) != 0;
 
 	/* Mark this thread as being in a transaction */
 	current_set_flags_nested(&tp->t_pflags, PF_MEMALLOC_NOFS);
+=======
+	struct xfs_mount	*mp = tp->t_mountp;
+	int			error = 0;
+	bool			rsvd = (tp->t_flags & XFS_TRANS_RESERVE) != 0;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Attempt to reserve the needed disk blocks by decrementing
@@ -163,11 +208,17 @@ xfs_trans_reserve(
 	 * fail if the count would go below zero.
 	 */
 	if (blocks > 0) {
+<<<<<<< HEAD
 		error = xfs_mod_fdblocks(tp->t_mountp, -((int64_t)blocks), rsvd);
 		if (error != 0) {
 			current_restore_flags_nested(&tp->t_pflags, PF_MEMALLOC_NOFS);
 			return -ENOSPC;
 		}
+=======
+		error = xfs_mod_fdblocks(mp, -((int64_t)blocks), rsvd);
+		if (error != 0)
+			return -ENOSPC;
+>>>>>>> upstream/android-13
 		tp->t_blk_res += blocks;
 	}
 
@@ -192,9 +243,15 @@ xfs_trans_reserve(
 
 		if (tp->t_ticket != NULL) {
 			ASSERT(resp->tr_logflags & XFS_TRANS_PERM_LOG_RES);
+<<<<<<< HEAD
 			error = xfs_log_regrant(tp->t_mountp, tp->t_ticket);
 		} else {
 			error = xfs_log_reserve(tp->t_mountp,
+=======
+			error = xfs_log_regrant(mp, tp->t_ticket);
+		} else {
+			error = xfs_log_reserve(mp,
+>>>>>>> upstream/android-13
 						resp->tr_logres,
 						resp->tr_logcount,
 						&tp->t_ticket, XFS_TRANSACTION,
@@ -214,7 +271,11 @@ xfs_trans_reserve(
 	 * fail if the count would go below zero.
 	 */
 	if (rtextents > 0) {
+<<<<<<< HEAD
 		error = xfs_mod_frextents(tp->t_mountp, -((int64_t)rtextents));
+=======
+		error = xfs_mod_frextents(mp, -((int64_t)rtextents));
+>>>>>>> upstream/android-13
 		if (error) {
 			error = -ENOSPC;
 			goto undo_log;
@@ -230,7 +291,11 @@ xfs_trans_reserve(
 	 */
 undo_log:
 	if (resp->tr_logres > 0) {
+<<<<<<< HEAD
 		xfs_log_done(tp->t_mountp, tp->t_ticket, NULL, false);
+=======
+		xfs_log_ticket_ungrant(mp->m_log, tp->t_ticket);
+>>>>>>> upstream/android-13
 		tp->t_ticket = NULL;
 		tp->t_log_res = 0;
 		tp->t_flags &= ~XFS_TRANS_PERM_LOG_RES;
@@ -238,12 +303,18 @@ undo_log:
 
 undo_blocks:
 	if (blocks > 0) {
+<<<<<<< HEAD
 		xfs_mod_fdblocks(tp->t_mountp, (int64_t)blocks, rsvd);
 		tp->t_blk_res = 0;
 	}
 
 	current_restore_flags_nested(&tp->t_pflags, PF_MEMALLOC_NOFS);
 
+=======
+		xfs_mod_fdblocks(mp, (int64_t)blocks, rsvd);
+		tp->t_blk_res = 0;
+	}
+>>>>>>> upstream/android-13
 	return error;
 }
 
@@ -257,6 +328,10 @@ xfs_trans_alloc(
 	struct xfs_trans	**tpp)
 {
 	struct xfs_trans	*tp;
+<<<<<<< HEAD
+=======
+	bool			want_retry = true;
+>>>>>>> upstream/android-13
 	int			error;
 
 	/*
@@ -264,11 +339,19 @@ xfs_trans_alloc(
 	 * GFP_NOFS allocation context so that we avoid lockdep false positives
 	 * by doing GFP_KERNEL allocations inside sb_start_intwrite().
 	 */
+<<<<<<< HEAD
 	tp = kmem_zone_zalloc(xfs_trans_zone,
 		(flags & XFS_TRANS_NOFS) ? KM_NOFS : KM_SLEEP);
 
 	if (!(flags & XFS_TRANS_NO_WRITECOUNT))
 		sb_start_intwrite(mp->m_super);
+=======
+retry:
+	tp = kmem_cache_zalloc(xfs_trans_zone, GFP_KERNEL | __GFP_NOFAIL);
+	if (!(flags & XFS_TRANS_NO_WRITECOUNT))
+		sb_start_intwrite(mp->m_super);
+	xfs_trans_set_context(tp);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Zero-reservation ("empty") transactions can't modify anything, so
@@ -276,7 +359,12 @@ xfs_trans_alloc(
 	 */
 	WARN_ON(resp->tr_logres > 0 &&
 		mp->m_super->s_writers.frozen == SB_FREEZE_COMPLETE);
+<<<<<<< HEAD
 	atomic_inc(&mp->m_active_trans);
+=======
+	ASSERT(!(flags & XFS_TRANS_RES_FDBLKS) ||
+	       xfs_has_lazysbcount(mp));
+>>>>>>> upstream/android-13
 
 	tp->t_magic = XFS_TRANS_HEADER_MAGIC;
 	tp->t_flags = flags;
@@ -287,6 +375,22 @@ xfs_trans_alloc(
 	tp->t_firstblock = NULLFSBLOCK;
 
 	error = xfs_trans_reserve(tp, resp, blocks, rtextents);
+<<<<<<< HEAD
+=======
+	if (error == -ENOSPC && want_retry) {
+		xfs_trans_cancel(tp);
+
+		/*
+		 * We weren't able to reserve enough space for the transaction.
+		 * Flush the other speculative space allocations to free space.
+		 * Do not perform a synchronous scan because callers can hold
+		 * other locks.
+		 */
+		xfs_blockgc_flush_all(mp);
+		want_retry = false;
+		goto retry;
+	}
+>>>>>>> upstream/android-13
 	if (error) {
 		xfs_trans_cancel(tp);
 		return error;
@@ -300,6 +404,7 @@ xfs_trans_alloc(
 
 /*
  * Create an empty transaction with no reservation.  This is a defensive
+<<<<<<< HEAD
  * mechanism for routines that query metadata without actually modifying
  * them -- if the metadata being queried is somehow cross-linked (think a
  * btree block pointer that points higher in the tree), we risk deadlock.
@@ -309,6 +414,21 @@ xfs_trans_alloc(
  *
  * Note the zero-length reservation; this transaction MUST be cancelled
  * without any dirty data.
+=======
+ * mechanism for routines that query metadata without actually modifying them --
+ * if the metadata being queried is somehow cross-linked (think a btree block
+ * pointer that points higher in the tree), we risk deadlock.  However, blocks
+ * grabbed as part of a transaction can be re-grabbed.  The verifiers will
+ * notice the corrupt block and the operation will fail back to userspace
+ * without deadlocking.
+ *
+ * Note the zero-length reservation; this transaction MUST be cancelled without
+ * any dirty data.
+ *
+ * Callers should obtain freeze protection to avoid a conflict with fs freezing
+ * where we can be grabbing buffers at the same time that freeze is trying to
+ * drain the buffer LRU list.
+>>>>>>> upstream/android-13
  */
 int
 xfs_trans_alloc_empty(
@@ -348,12 +468,20 @@ xfs_trans_mod_sb(
 	switch (field) {
 	case XFS_TRANS_SB_ICOUNT:
 		tp->t_icount_delta += delta;
+<<<<<<< HEAD
 		if (xfs_sb_version_haslazysbcount(&mp->m_sb))
+=======
+		if (xfs_has_lazysbcount(mp))
+>>>>>>> upstream/android-13
 			flags &= ~XFS_TRANS_SB_DIRTY;
 		break;
 	case XFS_TRANS_SB_IFREE:
 		tp->t_ifree_delta += delta;
+<<<<<<< HEAD
 		if (xfs_sb_version_haslazysbcount(&mp->m_sb))
+=======
+		if (xfs_has_lazysbcount(mp))
+>>>>>>> upstream/android-13
 			flags &= ~XFS_TRANS_SB_DIRTY;
 		break;
 	case XFS_TRANS_SB_FDBLOCKS:
@@ -366,9 +494,29 @@ xfs_trans_mod_sb(
 			tp->t_blk_res_used += (uint)-delta;
 			if (tp->t_blk_res_used > tp->t_blk_res)
 				xfs_force_shutdown(mp, SHUTDOWN_CORRUPT_INCORE);
+<<<<<<< HEAD
 		}
 		tp->t_fdblocks_delta += delta;
 		if (xfs_sb_version_haslazysbcount(&mp->m_sb))
+=======
+		} else if (delta > 0 && (tp->t_flags & XFS_TRANS_RES_FDBLKS)) {
+			int64_t	blkres_delta;
+
+			/*
+			 * Return freed blocks directly to the reservation
+			 * instead of the global pool, being careful not to
+			 * overflow the trans counter. This is used to preserve
+			 * reservation across chains of transaction rolls that
+			 * repeatedly free and allocate blocks.
+			 */
+			blkres_delta = min_t(int64_t, delta,
+					     UINT_MAX - tp->t_blk_res);
+			tp->t_blk_res += blkres_delta;
+			delta -= blkres_delta;
+		}
+		tp->t_fdblocks_delta += delta;
+		if (xfs_has_lazysbcount(mp))
+>>>>>>> upstream/android-13
 			flags &= ~XFS_TRANS_SB_DIRTY;
 		break;
 	case XFS_TRANS_SB_RES_FDBLOCKS:
@@ -378,7 +526,11 @@ xfs_trans_mod_sb(
 		 * be applied to the on-disk superblock.
 		 */
 		tp->t_res_fdblocks_delta += delta;
+<<<<<<< HEAD
 		if (xfs_sb_version_haslazysbcount(&mp->m_sb))
+=======
+		if (xfs_has_lazysbcount(mp))
+>>>>>>> upstream/android-13
 			flags &= ~XFS_TRANS_SB_DIRTY;
 		break;
 	case XFS_TRANS_SB_FREXTENTS:
@@ -403,7 +555,10 @@ xfs_trans_mod_sb(
 		tp->t_res_frextents_delta += delta;
 		break;
 	case XFS_TRANS_SB_DBLOCKS:
+<<<<<<< HEAD
 		ASSERT(delta > 0);
+=======
+>>>>>>> upstream/android-13
 		tp->t_dblocks_delta += delta;
 		break;
 	case XFS_TRANS_SB_AGCOUNT:
@@ -449,6 +604,7 @@ xfs_trans_apply_sb_deltas(
 	xfs_trans_t	*tp)
 {
 	xfs_dsb_t	*sbp;
+<<<<<<< HEAD
 	xfs_buf_t	*bp;
 	int		whole = 0;
 
@@ -461,11 +617,22 @@ xfs_trans_apply_sb_deltas(
 	ASSERT((tp->t_fdblocks_delta + tp->t_res_fdblocks_delta) ==
 	       (tp->t_ag_freeblks_delta + tp->t_ag_flist_delta +
 		tp->t_ag_btree_delta));
+=======
+	struct xfs_buf	*bp;
+	int		whole = 0;
+
+	bp = xfs_trans_getsb(tp);
+	sbp = bp->b_addr;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Only update the superblock counters if we are logging them
 	 */
+<<<<<<< HEAD
 	if (!xfs_sb_version_haslazysbcount(&(tp->t_mountp->m_sb))) {
+=======
+	if (!xfs_has_lazysbcount((tp->t_mountp))) {
+>>>>>>> upstream/android-13
 		if (tp->t_icount_delta)
 			be64_add_cpu(&sbp->sb_icount, tp->t_icount_delta);
 		if (tp->t_ifree_delta)
@@ -530,6 +697,7 @@ xfs_trans_apply_sb_deltas(
 				  sizeof(sbp->sb_frextents) - 1);
 }
 
+<<<<<<< HEAD
 STATIC int
 xfs_sb_mod8(
 	uint8_t			*field,
@@ -581,6 +749,11 @@ xfs_sb_mod64(
 /*
  * xfs_trans_unreserve_and_mod_sb() is called to release unused reservations
  * and apply superblock counter changes to the in-core superblock.  The
+=======
+/*
+ * xfs_trans_unreserve_and_mod_sb() is called to release unused reservations and
+ * apply superblock counter changes to the in-core superblock.  The
+>>>>>>> upstream/android-13
  * t_res_fdblocks_delta and t_res_frextents_delta fields are explicitly NOT
  * applied to the in-core superblock.  The idea is that that has already been
  * done.
@@ -589,7 +762,16 @@ xfs_sb_mod64(
  * used block counts are not updated in the on disk superblock. In this case,
  * XFS_TRANS_SB_DIRTY will not be set when the transaction is updated but we
  * still need to update the incore superblock with the changes.
+<<<<<<< HEAD
  */
+=======
+ *
+ * Deltas for the inode count are +/-64, hence we use a large batch size of 128
+ * so we don't need to take the counter lock on every update.
+ */
+#define XFS_ICOUNT_BATCH	128
+
+>>>>>>> upstream/android-13
 void
 xfs_trans_unreserve_and_mod_sb(
 	struct xfs_trans	*tp)
@@ -606,7 +788,11 @@ xfs_trans_unreserve_and_mod_sb(
 	if (tp->t_blk_res > 0)
 		blkdelta = tp->t_blk_res;
 	if ((tp->t_fdblocks_delta != 0) &&
+<<<<<<< HEAD
 	    (xfs_sb_version_haslazysbcount(&mp->m_sb) ||
+=======
+	    (xfs_has_lazysbcount(mp) ||
+>>>>>>> upstream/android-13
 	     (tp->t_flags & XFS_TRANS_SB_DIRTY)))
 	        blkdelta += tp->t_fdblocks_delta;
 
@@ -616,7 +802,11 @@ xfs_trans_unreserve_and_mod_sb(
 	    (tp->t_flags & XFS_TRANS_SB_DIRTY))
 		rtxdelta += tp->t_frextents_delta;
 
+<<<<<<< HEAD
 	if (xfs_sb_version_haslazysbcount(&mp->m_sb) ||
+=======
+	if (xfs_has_lazysbcount(mp) ||
+>>>>>>> upstream/android-13
 	     (tp->t_flags & XFS_TRANS_SB_DIRTY)) {
 		idelta = tp->t_icount_delta;
 		ifreedelta = tp->t_ifree_delta;
@@ -625,6 +815,7 @@ xfs_trans_unreserve_and_mod_sb(
 	/* apply the per-cpu counters */
 	if (blkdelta) {
 		error = xfs_mod_fdblocks(mp, blkdelta, rsvd);
+<<<<<<< HEAD
 		if (error)
 			goto out;
 	}
@@ -640,12 +831,24 @@ xfs_trans_unreserve_and_mod_sb(
 		if (error)
 			goto out_undo_icount;
 	}
+=======
+		ASSERT(!error);
+	}
+
+	if (idelta)
+		percpu_counter_add_batch(&mp->m_icount, idelta,
+					 XFS_ICOUNT_BATCH);
+
+	if (ifreedelta)
+		percpu_counter_add(&mp->m_ifree, ifreedelta);
+>>>>>>> upstream/android-13
 
 	if (rtxdelta == 0 && !(tp->t_flags & XFS_TRANS_SB_DIRTY))
 		return;
 
 	/* apply remaining deltas */
 	spin_lock(&mp->m_sb_lock);
+<<<<<<< HEAD
 	if (rtxdelta) {
 		error = xfs_sb_mod64(&mp->m_sb.sb_frextents, rtxdelta);
 		if (error)
@@ -735,6 +938,28 @@ out_undo_fdblocks:
 		xfs_mod_fdblocks(mp, -blkdelta, rsvd);
 out:
 	ASSERT(error == 0);
+=======
+	mp->m_sb.sb_fdblocks += tp->t_fdblocks_delta + tp->t_res_fdblocks_delta;
+	mp->m_sb.sb_icount += idelta;
+	mp->m_sb.sb_ifree += ifreedelta;
+	mp->m_sb.sb_frextents += rtxdelta;
+	mp->m_sb.sb_dblocks += tp->t_dblocks_delta;
+	mp->m_sb.sb_agcount += tp->t_agcount_delta;
+	mp->m_sb.sb_imax_pct += tp->t_imaxpct_delta;
+	mp->m_sb.sb_rextsize += tp->t_rextsize_delta;
+	mp->m_sb.sb_rbmblocks += tp->t_rbmblocks_delta;
+	mp->m_sb.sb_rblocks += tp->t_rblocks_delta;
+	mp->m_sb.sb_rextents += tp->t_rextents_delta;
+	mp->m_sb.sb_rextslog += tp->t_rextslog_delta;
+	spin_unlock(&mp->m_sb_lock);
+
+	/*
+	 * Debug checks outside of the spinlock so they don't lock up the
+	 * machine if they fail.
+	 */
+	ASSERT(mp->m_sb.sb_imax_pct >= 0);
+	ASSERT(mp->m_sb.sb_rextslog >= 0);
+>>>>>>> upstream/android-13
 	return;
 }
 
@@ -767,10 +992,16 @@ xfs_trans_del_item(
 }
 
 /* Detach and unlock all of the items in a transaction */
+<<<<<<< HEAD
 void
 xfs_trans_free_items(
 	struct xfs_trans	*tp,
 	xfs_lsn_t		commit_lsn,
+=======
+static void
+xfs_trans_free_items(
+	struct xfs_trans	*tp,
+>>>>>>> upstream/android-13
 	bool			abort)
 {
 	struct xfs_log_item	*lip, *next;
@@ -779,11 +1010,18 @@ xfs_trans_free_items(
 
 	list_for_each_entry_safe(lip, next, &tp->t_items, li_trans) {
 		xfs_trans_del_item(lip);
+<<<<<<< HEAD
 		if (commit_lsn != NULLCOMMITLSN)
 			lip->li_ops->iop_committing(lip, commit_lsn);
 		if (abort)
 			set_bit(XFS_LI_ABORTED, &lip->li_flags);
 		lip->li_ops->iop_unlock(lip);
+=======
+		if (abort)
+			set_bit(XFS_LI_ABORTED, &lip->li_flags);
+		if (lip->li_ops->iop_release)
+			lip->li_ops->iop_release(lip);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -804,7 +1042,12 @@ xfs_log_item_batch_insert(
 	for (i = 0; i < nr_items; i++) {
 		struct xfs_log_item *lip = log_items[i];
 
+<<<<<<< HEAD
 		lip->li_ops->iop_unpin(lip, 0);
+=======
+		if (lip->li_ops->iop_unpin)
+			lip->li_ops->iop_unpin(lip, 0);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -815,7 +1058,11 @@ xfs_log_item_batch_insert(
  *
  * If we are called with the aborted flag set, it is because a log write during
  * a CIL checkpoint commit has failed. In this case, all the items in the
+<<<<<<< HEAD
  * checkpoint have already gone through iop_commited and iop_unlock, which
+=======
+ * checkpoint have already gone through iop_committed and iop_committing, which
+>>>>>>> upstream/android-13
  * means that checkpoint commit abort handling is treated exactly the same
  * as an iclog write error even though we haven't started any IO yet. Hence in
  * this case all we need to do is iop_committed processing, followed by an
@@ -833,7 +1080,11 @@ xfs_trans_committed_bulk(
 	struct xfs_ail		*ailp,
 	struct xfs_log_vec	*log_vector,
 	xfs_lsn_t		commit_lsn,
+<<<<<<< HEAD
 	int			aborted)
+=======
+	bool			aborted)
+>>>>>>> upstream/android-13
 {
 #define LOG_ITEM_BATCH_SIZE	32
 	struct xfs_log_item	*log_items[LOG_ITEM_BATCH_SIZE];
@@ -852,7 +1103,20 @@ xfs_trans_committed_bulk(
 
 		if (aborted)
 			set_bit(XFS_LI_ABORTED, &lip->li_flags);
+<<<<<<< HEAD
 		item_lsn = lip->li_ops->iop_committed(lip, commit_lsn);
+=======
+
+		if (lip->li_ops->flags & XFS_ITEM_RELEASE_WHEN_COMMITTED) {
+			lip->li_ops->iop_release(lip);
+			continue;
+		}
+
+		if (lip->li_ops->iop_committed)
+			item_lsn = lip->li_ops->iop_committed(lip, commit_lsn);
+		else
+			item_lsn = commit_lsn;
+>>>>>>> upstream/android-13
 
 		/* item_lsn of -1 means the item needs no further processing */
 		if (XFS_LSN_CMP(item_lsn, (xfs_lsn_t)-1) == 0)
@@ -863,8 +1127,14 @@ xfs_trans_committed_bulk(
 		 * object into the AIL as we are in a shutdown situation.
 		 */
 		if (aborted) {
+<<<<<<< HEAD
 			ASSERT(XFS_FORCED_SHUTDOWN(ailp->ail_mount));
 			lip->li_ops->iop_unpin(lip, 1);
+=======
+			ASSERT(xfs_is_shutdown(ailp->ail_mount));
+			if (lip->li_ops->iop_unpin)
+				lip->li_ops->iop_unpin(lip, 1);
+>>>>>>> upstream/android-13
 			continue;
 		}
 
@@ -882,7 +1152,12 @@ xfs_trans_committed_bulk(
 				xfs_trans_ail_update(ailp, lip, item_lsn);
 			else
 				spin_unlock(&ailp->ail_lock);
+<<<<<<< HEAD
 			lip->li_ops->iop_unpin(lip, 0);
+=======
+			if (lip->li_ops->iop_unpin)
+				lip->li_ops->iop_unpin(lip, 0);
+>>>>>>> upstream/android-13
 			continue;
 		}
 
@@ -922,7 +1197,11 @@ __xfs_trans_commit(
 	bool			regrant)
 {
 	struct xfs_mount	*mp = tp->t_mountp;
+<<<<<<< HEAD
 	xfs_lsn_t		commit_lsn = -1;
+=======
+	xfs_csn_t		commit_seq = 0;
+>>>>>>> upstream/android-13
 	int			error = 0;
 	int			sync = tp->t_flags & XFS_TRANS_SYNC;
 
@@ -950,7 +1229,11 @@ __xfs_trans_commit(
 	if (!(tp->t_flags & XFS_TRANS_DIRTY))
 		goto out_unreserve;
 
+<<<<<<< HEAD
 	if (XFS_FORCED_SHUTDOWN(mp)) {
+=======
+	if (xfs_is_shutdown(mp)) {
+>>>>>>> upstream/android-13
 		error = -EIO;
 		goto out_unreserve;
 	}
@@ -964,9 +1247,14 @@ __xfs_trans_commit(
 		xfs_trans_apply_sb_deltas(tp);
 	xfs_trans_apply_dquot_deltas(tp);
 
+<<<<<<< HEAD
 	xfs_log_commit_cil(mp, tp, &commit_lsn, regrant);
 
 	current_restore_flags_nested(&tp->t_pflags, PF_MEMALLOC_NOFS);
+=======
+	xlog_cil_commit(mp->m_log, tp, &commit_seq, regrant);
+
+>>>>>>> upstream/android-13
 	xfs_trans_free(tp);
 
 	/*
@@ -974,7 +1262,11 @@ __xfs_trans_commit(
 	 * log out now and wait for it.
 	 */
 	if (sync) {
+<<<<<<< HEAD
 		error = xfs_log_force_lsn(mp, commit_lsn, XFS_LOG_SYNC, NULL);
+=======
+		error = xfs_log_force_seq(mp, commit_seq, XFS_LOG_SYNC, NULL);
+>>>>>>> upstream/android-13
 		XFS_STATS_INC(mp, xs_trans_sync);
 	} else {
 		XFS_STATS_INC(mp, xs_trans_async);
@@ -992,6 +1284,7 @@ out_unreserve:
 	 */
 	xfs_trans_unreserve_and_mod_dquots(tp);
 	if (tp->t_ticket) {
+<<<<<<< HEAD
 		commit_lsn = xfs_log_done(mp, tp->t_ticket, NULL, regrant);
 		if (commit_lsn == -1 && !error)
 			error = -EIO;
@@ -999,6 +1292,15 @@ out_unreserve:
 	}
 	current_restore_flags_nested(&tp->t_pflags, PF_MEMALLOC_NOFS);
 	xfs_trans_free_items(tp, NULLCOMMITLSN, !!error);
+=======
+		if (regrant && !xlog_is_shutdown(mp->m_log))
+			xfs_log_ticket_regrant(mp->m_log, tp->t_ticket);
+		else
+			xfs_log_ticket_ungrant(mp->m_log, tp->t_ticket);
+		tp->t_ticket = NULL;
+	}
+	xfs_trans_free_items(tp, !!error);
+>>>>>>> upstream/android-13
 	xfs_trans_free(tp);
 
 	XFS_STATS_INC(mp, xs_trans_empty);
@@ -1037,22 +1339,35 @@ xfs_trans_cancel(
 	 * filesystem.  This happens in paths where we detect
 	 * corruption and decide to give up.
 	 */
+<<<<<<< HEAD
 	if (dirty && !XFS_FORCED_SHUTDOWN(mp)) {
+=======
+	if (dirty && !xfs_is_shutdown(mp)) {
+>>>>>>> upstream/android-13
 		XFS_ERROR_REPORT("xfs_trans_cancel", XFS_ERRLEVEL_LOW, mp);
 		xfs_force_shutdown(mp, SHUTDOWN_CORRUPT_INCORE);
 	}
 #ifdef DEBUG
+<<<<<<< HEAD
 	if (!dirty && !XFS_FORCED_SHUTDOWN(mp)) {
 		struct xfs_log_item *lip;
 
 		list_for_each_entry(lip, &tp->t_items, li_trans)
 			ASSERT(!(lip->li_type == XFS_LI_EFD));
+=======
+	if (!dirty && !xfs_is_shutdown(mp)) {
+		struct xfs_log_item *lip;
+
+		list_for_each_entry(lip, &tp->t_items, li_trans)
+			ASSERT(!xlog_item_is_intent_done(lip));
+>>>>>>> upstream/android-13
 	}
 #endif
 	xfs_trans_unreserve_and_mod_sb(tp);
 	xfs_trans_unreserve_and_mod_dquots(tp);
 
 	if (tp->t_ticket) {
+<<<<<<< HEAD
 		xfs_log_done(mp, tp->t_ticket, NULL, false);
 		tp->t_ticket = NULL;
 	}
@@ -1061,6 +1376,13 @@ xfs_trans_cancel(
 	current_restore_flags_nested(&tp->t_pflags, PF_MEMALLOC_NOFS);
 
 	xfs_trans_free_items(tp, NULLCOMMITLSN, dirty);
+=======
+		xfs_log_ticket_ungrant(mp->m_log, tp->t_ticket);
+		tp->t_ticket = NULL;
+	}
+
+	xfs_trans_free_items(tp, dirty);
+>>>>>>> upstream/android-13
 	xfs_trans_free(tp);
 }
 
@@ -1111,3 +1433,186 @@ xfs_trans_roll(
 	tres.tr_logflags = XFS_TRANS_PERM_LOG_RES;
 	return xfs_trans_reserve(*tpp, &tres, 0, 0);
 }
+<<<<<<< HEAD
+=======
+
+/*
+ * Allocate an transaction, lock and join the inode to it, and reserve quota.
+ *
+ * The caller must ensure that the on-disk dquots attached to this inode have
+ * already been allocated and initialized.  The caller is responsible for
+ * releasing ILOCK_EXCL if a new transaction is returned.
+ */
+int
+xfs_trans_alloc_inode(
+	struct xfs_inode	*ip,
+	struct xfs_trans_res	*resv,
+	unsigned int		dblocks,
+	unsigned int		rblocks,
+	bool			force,
+	struct xfs_trans	**tpp)
+{
+	struct xfs_trans	*tp;
+	struct xfs_mount	*mp = ip->i_mount;
+	bool			retried = false;
+	int			error;
+
+retry:
+	error = xfs_trans_alloc(mp, resv, dblocks,
+			rblocks / mp->m_sb.sb_rextsize,
+			force ? XFS_TRANS_RESERVE : 0, &tp);
+	if (error)
+		return error;
+
+	xfs_ilock(ip, XFS_ILOCK_EXCL);
+	xfs_trans_ijoin(tp, ip, 0);
+
+	error = xfs_qm_dqattach_locked(ip, false);
+	if (error) {
+		/* Caller should have allocated the dquots! */
+		ASSERT(error != -ENOENT);
+		goto out_cancel;
+	}
+
+	error = xfs_trans_reserve_quota_nblks(tp, ip, dblocks, rblocks, force);
+	if ((error == -EDQUOT || error == -ENOSPC) && !retried) {
+		xfs_trans_cancel(tp);
+		xfs_iunlock(ip, XFS_ILOCK_EXCL);
+		xfs_blockgc_free_quota(ip, 0);
+		retried = true;
+		goto retry;
+	}
+	if (error)
+		goto out_cancel;
+
+	*tpp = tp;
+	return 0;
+
+out_cancel:
+	xfs_trans_cancel(tp);
+	xfs_iunlock(ip, XFS_ILOCK_EXCL);
+	return error;
+}
+
+/*
+ * Allocate an transaction in preparation for inode creation by reserving quota
+ * against the given dquots.  Callers are not required to hold any inode locks.
+ */
+int
+xfs_trans_alloc_icreate(
+	struct xfs_mount	*mp,
+	struct xfs_trans_res	*resv,
+	struct xfs_dquot	*udqp,
+	struct xfs_dquot	*gdqp,
+	struct xfs_dquot	*pdqp,
+	unsigned int		dblocks,
+	struct xfs_trans	**tpp)
+{
+	struct xfs_trans	*tp;
+	bool			retried = false;
+	int			error;
+
+retry:
+	error = xfs_trans_alloc(mp, resv, dblocks, 0, 0, &tp);
+	if (error)
+		return error;
+
+	error = xfs_trans_reserve_quota_icreate(tp, udqp, gdqp, pdqp, dblocks);
+	if ((error == -EDQUOT || error == -ENOSPC) && !retried) {
+		xfs_trans_cancel(tp);
+		xfs_blockgc_free_dquots(mp, udqp, gdqp, pdqp, 0);
+		retried = true;
+		goto retry;
+	}
+	if (error) {
+		xfs_trans_cancel(tp);
+		return error;
+	}
+
+	*tpp = tp;
+	return 0;
+}
+
+/*
+ * Allocate an transaction, lock and join the inode to it, and reserve quota
+ * in preparation for inode attribute changes that include uid, gid, or prid
+ * changes.
+ *
+ * The caller must ensure that the on-disk dquots attached to this inode have
+ * already been allocated and initialized.  The ILOCK will be dropped when the
+ * transaction is committed or cancelled.
+ */
+int
+xfs_trans_alloc_ichange(
+	struct xfs_inode	*ip,
+	struct xfs_dquot	*new_udqp,
+	struct xfs_dquot	*new_gdqp,
+	struct xfs_dquot	*new_pdqp,
+	bool			force,
+	struct xfs_trans	**tpp)
+{
+	struct xfs_trans	*tp;
+	struct xfs_mount	*mp = ip->i_mount;
+	struct xfs_dquot	*udqp;
+	struct xfs_dquot	*gdqp;
+	struct xfs_dquot	*pdqp;
+	bool			retried = false;
+	int			error;
+
+retry:
+	error = xfs_trans_alloc(mp, &M_RES(mp)->tr_ichange, 0, 0, 0, &tp);
+	if (error)
+		return error;
+
+	xfs_ilock(ip, XFS_ILOCK_EXCL);
+	xfs_trans_ijoin(tp, ip, XFS_ILOCK_EXCL);
+
+	error = xfs_qm_dqattach_locked(ip, false);
+	if (error) {
+		/* Caller should have allocated the dquots! */
+		ASSERT(error != -ENOENT);
+		goto out_cancel;
+	}
+
+	/*
+	 * For each quota type, skip quota reservations if the inode's dquots
+	 * now match the ones that came from the caller, or the caller didn't
+	 * pass one in.  The inode's dquots can change if we drop the ILOCK to
+	 * perform a blockgc scan, so we must preserve the caller's arguments.
+	 */
+	udqp = (new_udqp != ip->i_udquot) ? new_udqp : NULL;
+	gdqp = (new_gdqp != ip->i_gdquot) ? new_gdqp : NULL;
+	pdqp = (new_pdqp != ip->i_pdquot) ? new_pdqp : NULL;
+	if (udqp || gdqp || pdqp) {
+		unsigned int	qflags = XFS_QMOPT_RES_REGBLKS;
+
+		if (force)
+			qflags |= XFS_QMOPT_FORCE_RES;
+
+		/*
+		 * Reserve enough quota to handle blocks on disk and reserved
+		 * for a delayed allocation.  We'll actually transfer the
+		 * delalloc reservation between dquots at chown time, even
+		 * though that part is only semi-transactional.
+		 */
+		error = xfs_trans_reserve_quota_bydquots(tp, mp, udqp, gdqp,
+				pdqp, ip->i_nblocks + ip->i_delayed_blks,
+				1, qflags);
+		if ((error == -EDQUOT || error == -ENOSPC) && !retried) {
+			xfs_trans_cancel(tp);
+			xfs_blockgc_free_dquots(mp, udqp, gdqp, pdqp, 0);
+			retried = true;
+			goto retry;
+		}
+		if (error)
+			goto out_cancel;
+	}
+
+	*tpp = tp;
+	return 0;
+
+out_cancel:
+	xfs_trans_cancel(tp);
+	return error;
+}
+>>>>>>> upstream/android-13

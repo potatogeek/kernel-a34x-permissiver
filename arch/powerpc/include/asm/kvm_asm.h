@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -11,6 +12,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+>>>>>>> upstream/android-13
  *
  * Copyright IBM Corp. 2008
  *
@@ -84,7 +89,10 @@
 #define BOOK3S_INTERRUPT_INST_STORAGE	0x400
 #define BOOK3S_INTERRUPT_INST_SEGMENT	0x480
 #define BOOK3S_INTERRUPT_EXTERNAL	0x500
+<<<<<<< HEAD
 #define BOOK3S_INTERRUPT_EXTERNAL_LEVEL	0x501
+=======
+>>>>>>> upstream/android-13
 #define BOOK3S_INTERRUPT_EXTERNAL_HV	0x502
 #define BOOK3S_INTERRUPT_ALIGNMENT	0x600
 #define BOOK3S_INTERRUPT_PROGRAM	0x700
@@ -134,8 +142,12 @@
 #define BOOK3S_IRQPRIO_EXTERNAL			14
 #define BOOK3S_IRQPRIO_DECREMENTER		15
 #define BOOK3S_IRQPRIO_PERFORMANCE_MONITOR	16
+<<<<<<< HEAD
 #define BOOK3S_IRQPRIO_EXTERNAL_LEVEL		17
 #define BOOK3S_IRQPRIO_MAX			18
+=======
+#define BOOK3S_IRQPRIO_MAX			17
+>>>>>>> upstream/android-13
 
 #define BOOK3S_HFLAG_DCBZ32			0x1
 #define BOOK3S_HFLAG_SLB			0x2
@@ -160,6 +172,10 @@
 #define KVM_GUEST_MODE_SKIP	2
 #define KVM_GUEST_MODE_GUEST_HV	3
 #define KVM_GUEST_MODE_HOST_HV	4
+<<<<<<< HEAD
+=======
+#define KVM_GUEST_MODE_HV_P9	5 /* ISA >= v3.0 path */
+>>>>>>> upstream/android-13
 
 #define KVM_INST_FETCH_FAILED	-1
 

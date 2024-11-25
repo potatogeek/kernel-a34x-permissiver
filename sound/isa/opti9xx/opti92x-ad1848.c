@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
     card-opti92x-ad1848.c - driver for OPTi 82c92x based soundcards.
     Copyright (C) 1998-2000 by Massimo Piccioni <dafastidio@libero.it>
@@ -7,6 +11,7 @@
 
     Thanks to Maria Grazia Pollarini, Salvatore Vassallo.
 
+<<<<<<< HEAD
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or
@@ -20,6 +25,8 @@
     You should have received a copy of the GNU General Public License
     along with this program; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+=======
+>>>>>>> upstream/android-13
 */
 
 
@@ -48,6 +55,7 @@ MODULE_AUTHOR("Massimo Piccioni <dafastidio@libero.it>");
 MODULE_LICENSE("GPL");
 #ifdef OPTi93X
 MODULE_DESCRIPTION("OPTi93X");
+<<<<<<< HEAD
 MODULE_SUPPORTED_DEVICE("{{OPTi,82C931/3}}");
 #else	/* OPTi93X */
 #ifdef CS4231
@@ -59,6 +67,13 @@ MODULE_DESCRIPTION("OPTi92X - AD1848");
 MODULE_SUPPORTED_DEVICE("{{OPTi,82C924 (AD1848)},"
 		"{OPTi,82C925 (AD1848)},"
 	        "{OAK,Mozart}}");
+=======
+#else	/* OPTi93X */
+#ifdef CS4231
+MODULE_DESCRIPTION("OPTi92X - CS4231");
+#else	/* CS4231 */
+MODULE_DESCRIPTION("OPTi92X - AD1848");
+>>>>>>> upstream/android-13
 #endif	/* CS4231 */
 #endif	/* OPTi93X */
 
@@ -175,7 +190,11 @@ MODULE_DEVICE_TABLE(pnp_card, snd_opti9xx_pnpids);
 
 #define DEV_NAME KBUILD_MODNAME
 
+<<<<<<< HEAD
 static char * snd_opti9xx_names[] = {
+=======
+static const char * const snd_opti9xx_names[] = {
+>>>>>>> upstream/android-13
 	"unknown",
 	"82C928",	"82C929",
 	"82C924",	"82C925",
@@ -185,7 +204,11 @@ static char * snd_opti9xx_names[] = {
 static int snd_opti9xx_init(struct snd_opti9xx *chip,
 			    unsigned short hardware)
 {
+<<<<<<< HEAD
 	static int opti9xx_mc_size[] = {7, 7, 10, 10, 2, 2, 2};
+=======
+	static const int opti9xx_mc_size[] = {7, 7, 10, 10, 2, 2, 2};
+>>>>>>> upstream/android-13
 
 	chip->hardware = hardware;
 	strcpy(chip->name, snd_opti9xx_names[hardware]);
@@ -261,7 +284,11 @@ static unsigned char snd_opti9xx_read(struct snd_opti9xx *chip,
 			retval = inb(chip->mc_base + 9);
 			break;
 		}
+<<<<<<< HEAD
 		/* Fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 
 	case OPTi9XX_HW_82C928:
 	case OPTi9XX_HW_82C929:
@@ -304,7 +331,11 @@ static void snd_opti9xx_write(struct snd_opti9xx *chip, unsigned char reg,
 			outb(value, chip->mc_base + 9);
 			break;
 		}
+<<<<<<< HEAD
 		/* Fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 
 	case OPTi9XX_HW_82C928:
 	case OPTi9XX_HW_82C929:
@@ -355,7 +386,11 @@ static int snd_opti9xx_configure(struct snd_opti9xx *chip,
 		snd_opti9xx_write_mask(chip, OPTi9XX_MC_REG(4), 0xf0, 0xfc);
 		/* enable wave audio */
 		snd_opti9xx_write_mask(chip, OPTi9XX_MC_REG(6), 0x02, 0x02);
+<<<<<<< HEAD
 		/* Fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 
 	case OPTi9XX_HW_82C925:
 		/* enable WSS mode */
@@ -392,7 +427,13 @@ static int snd_opti9xx_configure(struct snd_opti9xx *chip,
 	case OPTi9XX_HW_82C931:
 		/* disable 3D sound (set GPIO1 as output, low) */
 		snd_opti9xx_write_mask(chip, OPTi9XX_MC_REG(20), 0x04, 0x0c);
+<<<<<<< HEAD
 	case OPTi9XX_HW_82C933: /* FALL THROUGH */
+=======
+		fallthrough;
+
+	case OPTi9XX_HW_82C933:
+>>>>>>> upstream/android-13
 		/*
 		 * The BTC 1817DW has QS1000 wavetable which is connected
 		 * to the serial digital input of the OPTI931.
@@ -403,7 +444,13 @@ static int snd_opti9xx_configure(struct snd_opti9xx *chip,
 		 * or digital input signal.
 		 */
 		snd_opti9xx_write_mask(chip, OPTi9XX_MC_REG(26), 0x01, 0x01);
+<<<<<<< HEAD
 	case OPTi9XX_HW_82C930: /* FALL THROUGH */
+=======
+		fallthrough;
+
+	case OPTi9XX_HW_82C930:
+>>>>>>> upstream/android-13
 		snd_opti9xx_write_mask(chip, OPTi9XX_MC_REG(6), 0x02, 0x03);
 		snd_opti9xx_write_mask(chip, OPTi9XX_MC_REG(3), 0x00, 0xff);
 		snd_opti9xx_write_mask(chip, OPTi9XX_MC_REG(4), 0x10 |
@@ -563,7 +610,11 @@ static const DECLARE_TLV_DB_SCALE(db_scale_5bit_3db_step, -9300, 300, 0);
 static const DECLARE_TLV_DB_SCALE(db_scale_5bit, -4650, 150, 0);
 static const DECLARE_TLV_DB_SCALE(db_scale_4bit_12db_max, -3300, 300, 0);
 
+<<<<<<< HEAD
 static struct snd_kcontrol_new snd_opti93x_controls[] = {
+=======
+static const struct snd_kcontrol_new snd_opti93x_controls[] = {
+>>>>>>> upstream/android-13
 WSS_DOUBLE("Master Playback Switch", 0,
 		OPTi93X_OUT_LEFT, OPTi93X_OUT_RIGHT, 7, 7, 1, 1),
 WSS_DOUBLE_TLV("Master Playback Volume", 0,
@@ -668,16 +719,28 @@ static irqreturn_t snd_opti93x_interrupt(int irq, void *dev_id)
 
 #endif /* OPTi93X */
 
+<<<<<<< HEAD
 static int snd_opti9xx_read_check(struct snd_opti9xx *chip)
+=======
+static int snd_opti9xx_read_check(struct snd_card *card,
+				  struct snd_opti9xx *chip)
+>>>>>>> upstream/android-13
 {
 	unsigned char value;
 #ifdef OPTi93X
 	unsigned long flags;
 #endif
 
+<<<<<<< HEAD
 	chip->res_mc_base = request_region(chip->mc_base, chip->mc_base_size,
 					   "OPTi9xx MC");
 	if (chip->res_mc_base == NULL)
+=======
+	chip->res_mc_base =
+		devm_request_region(card->dev, chip->mc_base,
+				    chip->mc_base_size, "OPTi9xx MC");
+	if (!chip->res_mc_base)
+>>>>>>> upstream/android-13
 		return -EBUSY;
 #ifndef OPTi93X
 	value = snd_opti9xx_read(chip, OPTi9XX_MC_REG(1));
@@ -685,9 +748,16 @@ static int snd_opti9xx_read_check(struct snd_opti9xx *chip)
 		if (value == snd_opti9xx_read(chip, OPTi9XX_MC_REG(1)))
 			return 0;
 #else	/* OPTi93X */
+<<<<<<< HEAD
 	chip->res_mc_indir = request_region(chip->mc_indir_index, 2,
 					    "OPTi93x MC");
 	if (chip->res_mc_indir == NULL)
+=======
+	chip->res_mc_indir =
+		devm_request_region(card->dev, chip->mc_indir_index, 2,
+				    "OPTi93x MC");
+	if (!chip->res_mc_indir)
+>>>>>>> upstream/android-13
 		return -EBUSY;
 
 	spin_lock_irqsave(&chip->lock, flags);
@@ -700,10 +770,17 @@ static int snd_opti9xx_read_check(struct snd_opti9xx *chip)
 	if (snd_opti9xx_read(chip, OPTi9XX_MC_REG(7)) == 0xff - value)
 		return 0;
 
+<<<<<<< HEAD
 	release_and_free_resource(chip->res_mc_indir);
 	chip->res_mc_indir = NULL;
 #endif	/* OPTi93X */
 	release_and_free_resource(chip->res_mc_base);
+=======
+	devm_release_resource(card->dev, chip->res_mc_indir);
+	chip->res_mc_indir = NULL;
+#endif	/* OPTi93X */
+	devm_release_resource(card->dev, chip->res_mc_base);
+>>>>>>> upstream/android-13
 	chip->res_mc_base = NULL;
 
 	return -ENODEV;
@@ -723,7 +800,11 @@ static int snd_card_opti9xx_detect(struct snd_card *card,
 		if (err < 0)
 			return err;
 
+<<<<<<< HEAD
 		err = snd_opti9xx_read_check(chip);
+=======
+		err = snd_opti9xx_read_check(card, chip);
+>>>>>>> upstream/android-13
 		if (err == 0)
 			return 1;
 #ifdef OPTi93X
@@ -803,6 +884,7 @@ static int snd_card_opti9xx_pnp(struct snd_opti9xx *chip,
 }
 #endif	/* CONFIG_PNP */
 
+<<<<<<< HEAD
 static void snd_card_opti9xx_free(struct snd_card *card)
 {
 	struct snd_opti9xx *chip = card->private_data;
@@ -822,6 +904,11 @@ static void snd_card_opti9xx_free(struct snd_card *card)
 static int snd_opti9xx_probe(struct snd_card *card)
 {
 	static long possible_ports[] = {0x530, 0xe80, 0xf40, 0x604, -1};
+=======
+static int snd_opti9xx_probe(struct snd_card *card)
+{
+	static const long possible_ports[] = {0x530, 0xe80, 0xf40, 0x604, -1};
+>>>>>>> upstream/android-13
 	int error;
 	int xdma2;
 	struct snd_opti9xx *chip = card->private_data;
@@ -874,14 +961,23 @@ static int snd_opti9xx_probe(struct snd_card *card)
 		return error;
 #endif
 #ifdef OPTi93X
+<<<<<<< HEAD
 	error = request_irq(irq, snd_opti93x_interrupt,
 			    0, DEV_NAME" - WSS", chip);
+=======
+	error = devm_request_irq(card->dev, irq, snd_opti93x_interrupt,
+				 0, DEV_NAME" - WSS", chip);
+>>>>>>> upstream/android-13
 	if (error < 0) {
 		snd_printk(KERN_ERR "opti9xx: can't grab IRQ %d\n", irq);
 		return error;
 	}
 #endif
 	chip->irq = irq;
+<<<<<<< HEAD
+=======
+	card->sync_irq = chip->irq;
+>>>>>>> upstream/android-13
 	strcpy(card->driver, chip->name);
 	sprintf(card->shortname, "OPTi %s", card->driver);
 #if defined(CS4231) || defined(OPTi93X)
@@ -944,11 +1040,18 @@ static int snd_opti9xx_card_new(struct device *pdev, struct snd_card **cardp)
 	struct snd_card *card;
 	int err;
 
+<<<<<<< HEAD
 	err = snd_card_new(pdev, index, id, THIS_MODULE,
 			   sizeof(struct snd_opti9xx), &card);
 	if (err < 0)
 		return err;
 	card->private_free = snd_card_opti9xx_free;
+=======
+	err = snd_devm_card_new(pdev, index, id, THIS_MODULE,
+				sizeof(struct snd_opti9xx), &card);
+	if (err < 0)
+		return err;
+>>>>>>> upstream/android-13
 	*cardp = card;
 	return 0;
 }
@@ -970,6 +1073,7 @@ static int snd_opti9xx_isa_probe(struct device *devptr,
 {
 	struct snd_card *card;
 	int error;
+<<<<<<< HEAD
 	static long possible_mpu_ports[] = {0x300, 0x310, 0x320, 0x330, -1};
 #ifdef OPTi93X
 	static int possible_irqs[] = {5, 9, 10, 11, 7, -1};
@@ -984,31 +1088,68 @@ static int snd_opti9xx_isa_probe(struct device *devptr,
 
 	if (mpu_port == SNDRV_AUTO_PORT) {
 		if ((mpu_port = snd_legacy_find_free_ioport(possible_mpu_ports, 2)) < 0) {
+=======
+	static const long possible_mpu_ports[] = {0x300, 0x310, 0x320, 0x330, -1};
+#ifdef OPTi93X
+	static const int possible_irqs[] = {5, 9, 10, 11, 7, -1};
+#else
+	static const int possible_irqs[] = {9, 10, 11, 7, -1};
+#endif	/* OPTi93X */
+	static const int possible_mpu_irqs[] = {5, 9, 10, 7, -1};
+	static const int possible_dma1s[] = {3, 1, 0, -1};
+#if defined(CS4231) || defined(OPTi93X)
+	static const int possible_dma2s[][2] = {{1,-1}, {0,-1}, {-1,-1}, {0,-1}};
+#endif	/* CS4231 || OPTi93X */
+
+	if (mpu_port == SNDRV_AUTO_PORT) {
+		mpu_port = snd_legacy_find_free_ioport(possible_mpu_ports, 2);
+		if (mpu_port < 0) {
+>>>>>>> upstream/android-13
 			snd_printk(KERN_ERR "unable to find a free MPU401 port\n");
 			return -EBUSY;
 		}
 	}
 	if (irq == SNDRV_AUTO_IRQ) {
+<<<<<<< HEAD
 		if ((irq = snd_legacy_find_free_irq(possible_irqs)) < 0) {
+=======
+		irq = snd_legacy_find_free_irq(possible_irqs);
+		if (irq < 0) {
+>>>>>>> upstream/android-13
 			snd_printk(KERN_ERR "unable to find a free IRQ\n");
 			return -EBUSY;
 		}
 	}
 	if (mpu_irq == SNDRV_AUTO_IRQ) {
+<<<<<<< HEAD
 		if ((mpu_irq = snd_legacy_find_free_irq(possible_mpu_irqs)) < 0) {
+=======
+		mpu_irq = snd_legacy_find_free_irq(possible_mpu_irqs);
+		if (mpu_irq < 0) {
+>>>>>>> upstream/android-13
 			snd_printk(KERN_ERR "unable to find a free MPU401 IRQ\n");
 			return -EBUSY;
 		}
 	}
 	if (dma1 == SNDRV_AUTO_DMA) {
+<<<<<<< HEAD
 		if ((dma1 = snd_legacy_find_free_dma(possible_dma1s)) < 0) {
+=======
+		dma1 = snd_legacy_find_free_dma(possible_dma1s);
+		if (dma1 < 0) {
+>>>>>>> upstream/android-13
 			snd_printk(KERN_ERR "unable to find a free DMA1\n");
 			return -EBUSY;
 		}
 	}
 #if defined(CS4231) || defined(OPTi93X)
 	if (dma2 == SNDRV_AUTO_DMA) {
+<<<<<<< HEAD
 		if ((dma2 = snd_legacy_find_free_dma(possible_dma2s[dma1 % 4])) < 0) {
+=======
+		dma2 = snd_legacy_find_free_dma(possible_dma2s[dma1 % 4]);
+		if (dma2 < 0) {
+>>>>>>> upstream/android-13
 			snd_printk(KERN_ERR "unable to find a free DMA2\n");
 			return -EBUSY;
 		}
@@ -1019,6 +1160,7 @@ static int snd_opti9xx_isa_probe(struct device *devptr,
 	if (error < 0)
 		return error;
 
+<<<<<<< HEAD
 	if ((error = snd_card_opti9xx_detect(card, card->private_data)) < 0) {
 		snd_card_free(card);
 		return error;
@@ -1027,10 +1169,19 @@ static int snd_opti9xx_isa_probe(struct device *devptr,
 		snd_card_free(card);
 		return error;
 	}
+=======
+	error = snd_card_opti9xx_detect(card, card->private_data);
+	if (error < 0)
+		return error;
+	error = snd_opti9xx_probe(card);
+	if (error < 0)
+		return error;
+>>>>>>> upstream/android-13
 	dev_set_drvdata(devptr, card);
 	return 0;
 }
 
+<<<<<<< HEAD
 static int snd_opti9xx_isa_remove(struct device *devptr,
 				  unsigned int dev)
 {
@@ -1038,6 +1189,8 @@ static int snd_opti9xx_isa_remove(struct device *devptr,
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PM
 static int snd_opti9xx_suspend(struct snd_card *card)
 {
@@ -1082,7 +1235,10 @@ static int snd_opti9xx_isa_resume(struct device *dev, unsigned int n)
 static struct isa_driver snd_opti9xx_driver = {
 	.match		= snd_opti9xx_isa_match,
 	.probe		= snd_opti9xx_isa_probe,
+<<<<<<< HEAD
 	.remove		= snd_opti9xx_isa_remove,
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PM
 	.suspend	= snd_opti9xx_isa_suspend,
 	.resume		= snd_opti9xx_isa_resume,
@@ -1121,6 +1277,7 @@ static int snd_opti9xx_pnp_probe(struct pnp_card_link *pcard,
 		hw = OPTi9XX_HW_82C931;
 		break;
 	default:
+<<<<<<< HEAD
 		snd_card_free(card);
 		return -ENODEV;
 	}
@@ -1139,6 +1296,22 @@ static int snd_opti9xx_pnp_probe(struct pnp_card_link *pcard,
 		snd_card_free(card);
 		return error;
 	}
+=======
+		return -ENODEV;
+	}
+
+	error = snd_opti9xx_init(chip, hw);
+	if (error)
+		return error;
+	error = snd_opti9xx_read_check(card, chip);
+	if (error) {
+		snd_printk(KERN_ERR "OPTI chip not found\n");
+		return error;
+	}
+	error = snd_opti9xx_probe(card);
+	if (error < 0)
+		return error;
+>>>>>>> upstream/android-13
 	pnp_set_card_drvdata(pcard, card);
 	snd_opti9xx_pnp_is_probed = 1;
 	return 0;
@@ -1146,8 +1319,11 @@ static int snd_opti9xx_pnp_probe(struct pnp_card_link *pcard,
 
 static void snd_opti9xx_pnp_remove(struct pnp_card_link *pcard)
 {
+<<<<<<< HEAD
 	snd_card_free(pnp_get_card_drvdata(pcard));
 	pnp_set_card_drvdata(pcard, NULL);
+=======
+>>>>>>> upstream/android-13
 	snd_opti9xx_pnp_is_probed = 0;
 }
 

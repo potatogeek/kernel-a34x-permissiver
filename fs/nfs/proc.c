@@ -91,6 +91,11 @@ nfs_proc_get_root(struct nfs_server *server, struct nfs_fh *fhandle,
 	info->dtpref = fsinfo.tsize;
 	info->maxfilesize = 0x7FFFFFFF;
 	info->lease_time = 0;
+<<<<<<< HEAD
+=======
+	info->change_attr_type = NFS4_CHANGE_TYPE_IS_UNDEFINED;
+	info->xattr_support = 0;
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -108,10 +113,22 @@ nfs_proc_getattr(struct nfs_server *server, struct nfs_fh *fhandle,
 		.rpc_resp	= fattr,
 	};
 	int	status;
+<<<<<<< HEAD
 
 	dprintk("NFS call  getattr\n");
 	nfs_fattr_init(fattr);
 	status = rpc_call_sync(server->client, &msg, 0);
+=======
+	unsigned short task_flags = 0;
+
+	/* Is this is an attribute revalidation, subject to softreval? */
+	if (inode && (server->flags & NFS_MOUNT_SOFTREVAL))
+		task_flags |= RPC_TASK_TIMEOUT;
+
+	dprintk("NFS call  getattr\n");
+	nfs_fattr_init(fattr);
+	status = rpc_call_sync(server->client, &msg, task_flags);
+>>>>>>> upstream/android-13
 	dprintk("NFS reply getattr: %d\n", status);
 	return status;
 }
@@ -147,14 +164,23 @@ nfs_proc_setattr(struct dentry *dentry, struct nfs_fattr *fattr,
 }
 
 static int
+<<<<<<< HEAD
 nfs_proc_lookup(struct inode *dir, const struct qstr *name,
+=======
+nfs_proc_lookup(struct inode *dir, struct dentry *dentry,
+>>>>>>> upstream/android-13
 		struct nfs_fh *fhandle, struct nfs_fattr *fattr,
 		struct nfs4_label *label)
 {
 	struct nfs_diropargs	arg = {
 		.fh		= NFS_FH(dir),
+<<<<<<< HEAD
 		.name		= name->name,
 		.len		= name->len
+=======
+		.name		= dentry->d_name.name,
+		.len		= dentry->d_name.len
+>>>>>>> upstream/android-13
 	};
 	struct nfs_diropok	res = {
 		.fh		= fhandle,
@@ -166,10 +192,22 @@ nfs_proc_lookup(struct inode *dir, const struct qstr *name,
 		.rpc_resp	= &res,
 	};
 	int			status;
+<<<<<<< HEAD
 
 	dprintk("NFS call  lookup %s\n", name->name);
 	nfs_fattr_init(fattr);
 	status = rpc_call_sync(NFS_CLIENT(dir), &msg, 0);
+=======
+	unsigned short task_flags = 0;
+
+	/* Is this is an attribute revalidation, subject to softreval? */
+	if (nfs_lookup_is_soft_revalidate(dentry))
+		task_flags |= RPC_TASK_TIMEOUT;
+
+	dprintk("NFS call  lookup %pd2\n", dentry);
+	nfs_fattr_init(fattr);
+	status = rpc_call_sync(NFS_CLIENT(dir), &msg, task_flags);
+>>>>>>> upstream/android-13
 	dprintk("NFS reply lookup: %d\n", status);
 	return status;
 }
@@ -489,6 +527,7 @@ nfs_proc_rmdir(struct inode *dir, const struct qstr *name)
  * sure it is syntactically correct; the entries itself are decoded
  * from nfs_readdir by calling the decode_entry function directly.
  */
+<<<<<<< HEAD
 static int
 nfs_proc_readdir(struct dentry *dentry, struct rpc_cred *cred,
 		 u64 cookie, struct page **pages, unsigned int count, bool plus)
@@ -499,16 +538,37 @@ nfs_proc_readdir(struct dentry *dentry, struct rpc_cred *cred,
 		.cookie		= cookie,
 		.count		= count,
 		.pages		= pages,
+=======
+static int nfs_proc_readdir(struct nfs_readdir_arg *nr_arg,
+			    struct nfs_readdir_res *nr_res)
+{
+	struct inode		*dir = d_inode(nr_arg->dentry);
+	struct nfs_readdirargs	arg = {
+		.fh		= NFS_FH(dir),
+		.cookie		= nr_arg->cookie,
+		.count		= nr_arg->page_len,
+		.pages		= nr_arg->pages,
+>>>>>>> upstream/android-13
 	};
 	struct rpc_message	msg = {
 		.rpc_proc	= &nfs_procedures[NFSPROC_READDIR],
 		.rpc_argp	= &arg,
+<<<<<<< HEAD
 		.rpc_cred	= cred,
 	};
 	int			status;
 
 	dprintk("NFS call  readdir %d\n", (unsigned int)cookie);
 	status = rpc_call_sync(NFS_CLIENT(dir), &msg, 0);
+=======
+		.rpc_cred	= nr_arg->cred,
+	};
+	int			status;
+
+	dprintk("NFS call  readdir %llu\n", (unsigned long long)nr_arg->cookie);
+	status = rpc_call_sync(NFS_CLIENT(dir), &msg, 0);
+	nr_res->verf[0] = nr_res->verf[1] = 0;
+>>>>>>> upstream/android-13
 
 	nfs_invalidate_atime(dir);
 
@@ -710,7 +770,11 @@ const struct nfs_rpc_ops nfs_v2_clientops = {
 	.file_ops	= &nfs_file_operations,
 	.getroot	= nfs_proc_get_root,
 	.submount	= nfs_submount,
+<<<<<<< HEAD
 	.try_mount	= nfs_try_mount,
+=======
+	.try_get_tree	= nfs_try_get_tree,
+>>>>>>> upstream/android-13
 	.getattr	= nfs_proc_getattr,
 	.setattr	= nfs_proc_setattr,
 	.lookup		= nfs_proc_lookup,

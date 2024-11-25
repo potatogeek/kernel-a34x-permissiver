@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  linux/drivers/char/ttyprintk.c
  *
  *  Copyright (C) 2010  Samo Pogacnik
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the smems of the GNU General Public License as published by
  * the Free Software Foundation; version 2 of the License.
+=======
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -38,6 +45,11 @@ static struct ttyprintk_port tpk_port;
  */
 #define TPK_STR_SIZE 508 /* should be bigger then max expected line length */
 #define TPK_MAX_ROOM 4096 /* we could assume 4K for instance */
+<<<<<<< HEAD
+=======
+#define TPK_PREFIX KERN_SOH __stringify(CONFIG_TTY_PRINTK_LEVEL)
+
+>>>>>>> upstream/android-13
 static int tpk_curr;
 
 static char tpk_buffer[TPK_STR_SIZE + 4];
@@ -46,19 +58,27 @@ static void tpk_flush(void)
 {
 	if (tpk_curr > 0) {
 		tpk_buffer[tpk_curr] = '\0';
+<<<<<<< HEAD
 		pr_info("[U] %s\n", tpk_buffer);
+=======
+		printk(TPK_PREFIX "[U] %s\n", tpk_buffer);
+>>>>>>> upstream/android-13
 		tpk_curr = 0;
 	}
 }
 
 static int tpk_printk(const unsigned char *buf, int count)
 {
+<<<<<<< HEAD
 	int i = tpk_curr;
 
 	if (buf == NULL) {
 		tpk_flush();
 		return i;
 	}
+=======
+	int i;
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < count; i++) {
 		if (tpk_curr >= TPK_STR_SIZE) {
@@ -101,12 +121,15 @@ static int tpk_open(struct tty_struct *tty, struct file *filp)
 static void tpk_close(struct tty_struct *tty, struct file *filp)
 {
 	struct ttyprintk_port *tpkp = tty->driver_data;
+<<<<<<< HEAD
 	unsigned long flags;
 
 	spin_lock_irqsave(&tpkp->spinlock, flags);
 	/* flush tpk_printk buffer */
 	tpk_printk(NULL, 0);
 	spin_unlock_irqrestore(&tpkp->spinlock, flags);
+=======
+>>>>>>> upstream/android-13
 
 	tty_port_close(&tpkp->port, tty, filp);
 }
@@ -121,7 +144,10 @@ static int tpk_write(struct tty_struct *tty,
 	unsigned long flags;
 	int ret;
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	/* exclusive use of tpk_printk within this tty */
 	spin_lock_irqsave(&tpkp->spinlock, flags);
 	ret = tpk_printk(buf, count);
@@ -133,12 +159,17 @@ static int tpk_write(struct tty_struct *tty,
 /*
  * TTY operations write_room function.
  */
+<<<<<<< HEAD
 static int tpk_write_room(struct tty_struct *tty)
+=======
+static unsigned int tpk_write_room(struct tty_struct *tty)
+>>>>>>> upstream/android-13
 {
 	return TPK_MAX_ROOM;
 }
 
 /*
+<<<<<<< HEAD
  * TTY operations ioctl function.
  */
 static int tpk_ioctl(struct tty_struct *tty,
@@ -160,6 +191,8 @@ static int tpk_ioctl(struct tty_struct *tty,
 }
 
 /*
+=======
+>>>>>>> upstream/android-13
  * TTY operations hangup function.
  */
 static void tpk_hangup(struct tty_struct *tty)
@@ -169,22 +202,52 @@ static void tpk_hangup(struct tty_struct *tty)
 	tty_port_hangup(&tpkp->port);
 }
 
+<<<<<<< HEAD
+=======
+/*
+ * TTY port operations shutdown function.
+ */
+static void tpk_port_shutdown(struct tty_port *tport)
+{
+	struct ttyprintk_port *tpkp =
+		container_of(tport, struct ttyprintk_port, port);
+	unsigned long flags;
+
+	spin_lock_irqsave(&tpkp->spinlock, flags);
+	tpk_flush();
+	spin_unlock_irqrestore(&tpkp->spinlock, flags);
+}
+
+>>>>>>> upstream/android-13
 static const struct tty_operations ttyprintk_ops = {
 	.open = tpk_open,
 	.close = tpk_close,
 	.write = tpk_write,
 	.write_room = tpk_write_room,
+<<<<<<< HEAD
 	.ioctl = tpk_ioctl,
 	.hangup = tpk_hangup,
 };
 
 static const struct tty_port_operations null_ops = { };
+=======
+	.hangup = tpk_hangup,
+};
+
+static const struct tty_port_operations tpk_port_ops = {
+	.shutdown = tpk_port_shutdown,
+};
+>>>>>>> upstream/android-13
 
 static struct tty_driver *ttyprintk_driver;
 
 static int __init ttyprintk_init(void)
 {
+<<<<<<< HEAD
 	int ret = -ENOMEM;
+=======
+	int ret;
+>>>>>>> upstream/android-13
 
 	spin_lock_init(&tpk_port.spinlock);
 
@@ -196,7 +259,11 @@ static int __init ttyprintk_init(void)
 		return PTR_ERR(ttyprintk_driver);
 
 	tty_port_init(&tpk_port.port);
+<<<<<<< HEAD
 	tpk_port.port.ops = &null_ops;
+=======
+	tpk_port.port.ops = &tpk_port_ops;
+>>>>>>> upstream/android-13
 
 	ttyprintk_driver->driver_name = "ttyprintk";
 	ttyprintk_driver->name = "ttyprintk";
@@ -217,7 +284,11 @@ static int __init ttyprintk_init(void)
 	return 0;
 
 error:
+<<<<<<< HEAD
 	put_tty_driver(ttyprintk_driver);
+=======
+	tty_driver_kref_put(ttyprintk_driver);
+>>>>>>> upstream/android-13
 	tty_port_destroy(&tpk_port.port);
 	return ret;
 }
@@ -225,7 +296,11 @@ error:
 static void __exit ttyprintk_exit(void)
 {
 	tty_unregister_driver(ttyprintk_driver);
+<<<<<<< HEAD
 	put_tty_driver(ttyprintk_driver);
+=======
+	tty_driver_kref_put(ttyprintk_driver);
+>>>>>>> upstream/android-13
 	tty_port_destroy(&tpk_port.port);
 }
 

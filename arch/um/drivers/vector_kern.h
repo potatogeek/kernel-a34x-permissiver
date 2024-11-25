@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2002 2007 Jeff Dike (jdike@{addtoit,linux.intel}.com)
  * Licensed under the GPL
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+/*
+ * Copyright (C) 2002 2007 Jeff Dike (jdike@{addtoit,linux.intel}.com)
+>>>>>>> upstream/android-13
  */
 
 #ifndef __UM_VECTOR_KERN_H
@@ -29,10 +35,19 @@
 #define VECTOR_TX (1 << 1)
 #define VECTOR_BPF (1 << 2)
 #define VECTOR_QDISC_BYPASS (1 << 3)
+<<<<<<< HEAD
+=======
+#define VECTOR_BPF_FLASH (1 << 4)
+>>>>>>> upstream/android-13
 
 #define ETH_MAX_PACKET 1500
 #define ETH_HEADER_OTHER 32 /* just in case someone decides to go mad on QnQ */
 
+<<<<<<< HEAD
+=======
+#define MAX_FILTER_PROG (2 << 16)
+
+>>>>>>> upstream/android-13
 struct vector_queue {
 	struct mmsghdr *mmsg_vector;
 	void **skbuff_vector;
@@ -116,13 +131,26 @@ struct vector_private {
 	bool rexmit_scheduled;
 	bool opened;
 	bool in_write_poll;
+<<<<<<< HEAD
+=======
+	bool in_error;
+
+	/* guest allowed to use ethtool flash to load bpf */
+	bool bpf_via_flash;
+>>>>>>> upstream/android-13
 
 	/* ethtool stats */
 
 	struct vector_estats estats;
+<<<<<<< HEAD
 	void *bpf;
 
 	char user[0];
+=======
+	struct sock_fprog *bpf;
+
+	char user[];
+>>>>>>> upstream/android-13
 };
 
 extern int build_transport_data(struct vector_private *vp);

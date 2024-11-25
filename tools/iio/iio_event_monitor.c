@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* Industrialio event test code.
  *
  * Copyright (c) 2011-2012 Lars-Peter Clausen <lars@metafoo.de>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
  * the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * This program is primarily intended as an example application.
  * Reads the current buffer setup from sysfs and starts a short capture
  * from the specified device, pretty printing the result after appropriate
@@ -17,6 +24,10 @@
 
 #include <unistd.h>
 #include <stdlib.h>
+<<<<<<< HEAD
+=======
+#include <dirent.h>
+>>>>>>> upstream/android-13
 #include <stdbool.h>
 #include <stdio.h>
 #include <errno.h>
@@ -60,6 +71,10 @@ static const char * const iio_chan_type_name_spec[] = {
 	[IIO_GRAVITY] = "gravity",
 	[IIO_POSITIONRELATIVE] = "positionrelative",
 	[IIO_PHASE] = "phase",
+<<<<<<< HEAD
+=======
+	[IIO_MASSCONCENTRATION] = "massconcentration",
+>>>>>>> upstream/android-13
 };
 
 static const char * const iio_ev_type_text[] = {
@@ -114,7 +129,18 @@ static const char * const iio_modifier_names[] = {
 	[IIO_MOD_I] = "i",
 	[IIO_MOD_Q] = "q",
 	[IIO_MOD_CO2] = "co2",
+<<<<<<< HEAD
 	[IIO_MOD_VOC] = "voc",
+=======
+	[IIO_MOD_ETHANOL] = "ethanol",
+	[IIO_MOD_H2] = "h2",
+	[IIO_MOD_VOC] = "voc",
+	[IIO_MOD_PM1] = "pm1",
+	[IIO_MOD_PM2P5] = "pm2p5",
+	[IIO_MOD_PM4] = "pm4",
+	[IIO_MOD_PM10] = "pm10",
+	[IIO_MOD_O2] = "o2",
+>>>>>>> upstream/android-13
 };
 
 static bool event_is_known(struct iio_event_data *event)
@@ -156,6 +182,10 @@ static bool event_is_known(struct iio_event_data *event)
 	case IIO_GRAVITY:
 	case IIO_POSITIONRELATIVE:
 	case IIO_PHASE:
+<<<<<<< HEAD
+=======
+	case IIO_MASSCONCENTRATION:
+>>>>>>> upstream/android-13
 		break;
 	default:
 		return false;
@@ -199,7 +229,18 @@ static bool event_is_known(struct iio_event_data *event)
 	case IIO_MOD_I:
 	case IIO_MOD_Q:
 	case IIO_MOD_CO2:
+<<<<<<< HEAD
 	case IIO_MOD_VOC:
+=======
+	case IIO_MOD_ETHANOL:
+	case IIO_MOD_H2:
+	case IIO_MOD_VOC:
+	case IIO_MOD_PM1:
+	case IIO_MOD_PM2P5:
+	case IIO_MOD_PM4:
+	case IIO_MOD_PM10:
+	case IIO_MOD_O2:
+>>>>>>> upstream/android-13
 		break;
 	default:
 		return false;
@@ -267,14 +308,60 @@ static void print_event(struct iio_event_data *event)
 	printf("\n");
 }
 
+<<<<<<< HEAD
+=======
+/* Enable or disable events in sysfs if the knob is available */
+static void enable_events(char *dev_dir, int enable)
+{
+	const struct dirent *ent;
+	char evdir[256];
+	int ret;
+	DIR *dp;
+
+	snprintf(evdir, sizeof(evdir), FORMAT_EVENTS_DIR, dev_dir);
+	evdir[sizeof(evdir)-1] = '\0';
+
+	dp = opendir(evdir);
+	if (!dp) {
+		fprintf(stderr, "Enabling/disabling events: can't open %s\n",
+			evdir);
+		return;
+	}
+
+	while (ent = readdir(dp), ent) {
+		if (iioutils_check_suffix(ent->d_name, "_en")) {
+			printf("%sabling: %s\n",
+			       enable ? "En" : "Dis",
+			       ent->d_name);
+			ret = write_sysfs_int(ent->d_name, evdir,
+					      enable);
+			if (ret < 0)
+				fprintf(stderr, "Failed to enable/disable %s\n",
+					ent->d_name);
+		}
+	}
+
+	if (closedir(dp) == -1) {
+		perror("Enabling/disabling channels: "
+		       "Failed to close directory");
+		return;
+	}
+}
+
+>>>>>>> upstream/android-13
 int main(int argc, char **argv)
 {
 	struct iio_event_data event;
 	const char *device_name;
+<<<<<<< HEAD
+=======
+	char *dev_dir_name = NULL;
+>>>>>>> upstream/android-13
 	char *chrdev_name;
 	int ret;
 	int dev_num;
 	int fd, event_fd;
+<<<<<<< HEAD
 
 	if (argc <= 1) {
 		fprintf(stderr, "Usage: %s <device_name>\n", argv[0]);
@@ -283,6 +370,24 @@ int main(int argc, char **argv)
 
 	device_name = argv[1];
 
+=======
+	bool all_events = false;
+
+	if (argc == 2) {
+		device_name = argv[1];
+	} else if (argc == 3) {
+		device_name = argv[2];
+		if (!strcmp(argv[1], "-a"))
+			all_events = true;
+	} else {
+		fprintf(stderr,
+			"Usage: iio_event_monitor [options] <device_name>\n"
+			"Listen and display events from IIO devices\n"
+			"  -a         Auto-activate all available events\n");
+		return -1;
+	}
+
+>>>>>>> upstream/android-13
 	dev_num = find_type_by_name(device_name, "iio:device");
 	if (dev_num >= 0) {
 		printf("Found IIO device with name %s with device number %d\n",
@@ -290,6 +395,13 @@ int main(int argc, char **argv)
 		ret = asprintf(&chrdev_name, "/dev/iio:device%d", dev_num);
 		if (ret < 0)
 			return -ENOMEM;
+<<<<<<< HEAD
+=======
+		/* Look up sysfs dir as well if we can */
+		ret = asprintf(&dev_dir_name, "%siio:device%d", iio_dir, dev_num);
+		if (ret < 0)
+			return -ENOMEM;
+>>>>>>> upstream/android-13
 	} else {
 		/*
 		 * If we can't find an IIO device by name assume device_name is
@@ -300,6 +412,12 @@ int main(int argc, char **argv)
 			return -ENOMEM;
 	}
 
+<<<<<<< HEAD
+=======
+	if (all_events && dev_dir_name)
+		enable_events(dev_dir_name, 1);
+
+>>>>>>> upstream/android-13
 	fd = open(chrdev_name, 0);
 	if (fd == -1) {
 		ret = -errno;
@@ -352,6 +470,13 @@ int main(int argc, char **argv)
 		perror("Failed to close event file");
 
 error_free_chrdev_name:
+<<<<<<< HEAD
+=======
+	/* Disable events after use */
+	if (all_events && dev_dir_name)
+		enable_events(dev_dir_name, 0);
+
+>>>>>>> upstream/android-13
 	free(chrdev_name);
 
 	return ret;

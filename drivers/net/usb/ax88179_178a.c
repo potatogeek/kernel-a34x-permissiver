@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * ASIX AX88179/178A USB 3.0/2.0 to Gigabit Ethernet Devices
  *
  * Copyright (C) 2011-2013 ASIX
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License
@@ -15,6 +20,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -43,6 +50,10 @@
 #define AX_ACCESS_PHY				0x02
 #define AX_ACCESS_EEPROM			0x04
 #define AX_ACCESS_EFUS				0x05
+<<<<<<< HEAD
+=======
+#define AX_RELOAD_EEPROM_EFUSE			0x06
+>>>>>>> upstream/android-13
 #define AX_PAUSE_WATERLVL_HIGH			0x54
 #define AX_PAUSE_WATERLVL_LOW			0x55
 
@@ -623,6 +634,84 @@ ax88179_get_eeprom(struct net_device *net, struct ethtool_eeprom *eeprom,
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static int
+ax88179_set_eeprom(struct net_device *net, struct ethtool_eeprom *eeprom,
+		   u8 *data)
+{
+	struct usbnet *dev = netdev_priv(net);
+	u16 *eeprom_buff;
+	int first_word;
+	int last_word;
+	int ret;
+	int i;
+
+	netdev_dbg(net, "write EEPROM len %d, offset %d, magic 0x%x\n",
+		   eeprom->len, eeprom->offset, eeprom->magic);
+
+	if (eeprom->len == 0)
+		return -EINVAL;
+
+	if (eeprom->magic != AX88179_EEPROM_MAGIC)
+		return -EINVAL;
+
+	first_word = eeprom->offset >> 1;
+	last_word = (eeprom->offset + eeprom->len - 1) >> 1;
+
+	eeprom_buff = kmalloc_array(last_word - first_word + 1, sizeof(u16),
+				    GFP_KERNEL);
+	if (!eeprom_buff)
+		return -ENOMEM;
+
+	/* align data to 16 bit boundaries, read the missing data from
+	   the EEPROM */
+	if (eeprom->offset & 1) {
+		ret = ax88179_read_cmd(dev, AX_ACCESS_EEPROM, first_word, 1, 2,
+				       &eeprom_buff[0]);
+		if (ret < 0) {
+			netdev_err(net, "Failed to read EEPROM at offset 0x%02x.\n", first_word);
+			goto free;
+		}
+	}
+
+	if ((eeprom->offset + eeprom->len) & 1) {
+		ret = ax88179_read_cmd(dev, AX_ACCESS_EEPROM, last_word, 1, 2,
+				       &eeprom_buff[last_word - first_word]);
+		if (ret < 0) {
+			netdev_err(net, "Failed to read EEPROM at offset 0x%02x.\n", last_word);
+			goto free;
+		}
+	}
+
+	memcpy((u8 *)eeprom_buff + (eeprom->offset & 1), data, eeprom->len);
+
+	for (i = first_word; i <= last_word; i++) {
+		netdev_dbg(net, "write to EEPROM at offset 0x%02x, data 0x%04x\n",
+			   i, eeprom_buff[i - first_word]);
+		ret = ax88179_write_cmd(dev, AX_ACCESS_EEPROM, i, 1, 2,
+					&eeprom_buff[i - first_word]);
+		if (ret < 0) {
+			netdev_err(net, "Failed to write EEPROM at offset 0x%02x.\n", i);
+			goto free;
+		}
+		msleep(20);
+	}
+
+	/* reload EEPROM data */
+	ret = ax88179_write_cmd(dev, AX_RELOAD_EEPROM_EFUSE, 0x0000, 0, 0, NULL);
+	if (ret < 0) {
+		netdev_err(net, "Failed to reload EEPROM data\n");
+		goto free;
+	}
+
+	ret = 0;
+free:
+	kfree(eeprom_buff);
+	return ret;
+}
+
+>>>>>>> upstream/android-13
 static int ax88179_get_link_ksettings(struct net_device *net,
 				      struct ethtool_link_ksettings *cmd)
 {
@@ -796,7 +885,11 @@ static int ax88179_set_eee(struct net_device *net, struct ethtool_eee *edata)
 {
 	struct usbnet *dev = netdev_priv(net);
 	struct ax88179_data *priv = (struct ax88179_data *)dev->data;
+<<<<<<< HEAD
 	int ret = -EOPNOTSUPP;
+=======
+	int ret;
+>>>>>>> upstream/android-13
 
 	priv->eee_enabled = edata->eee_enabled;
 	if (!priv->eee_enabled) {
@@ -834,11 +927,19 @@ static const struct ethtool_ops ax88179_ethtool_ops = {
 	.set_wol		= ax88179_set_wol,
 	.get_eeprom_len		= ax88179_get_eeprom_len,
 	.get_eeprom		= ax88179_get_eeprom,
+<<<<<<< HEAD
+=======
+	.set_eeprom		= ax88179_set_eeprom,
+>>>>>>> upstream/android-13
 	.get_eee		= ax88179_get_eee,
 	.set_eee		= ax88179_set_eee,
 	.nway_reset		= usbnet_nway_reset,
 	.get_link_ksettings	= ax88179_get_link_ksettings,
 	.set_link_ksettings	= ax88179_set_link_ksettings,
+<<<<<<< HEAD
+=======
+	.get_ts_info		= ethtool_op_get_ts_info,
+>>>>>>> upstream/android-13
 };
 
 static void ax88179_set_multicast(struct net_device *net)
@@ -965,11 +1066,19 @@ static const struct net_device_ops ax88179_netdev_ops = {
 	.ndo_stop		= usbnet_stop,
 	.ndo_start_xmit		= usbnet_start_xmit,
 	.ndo_tx_timeout		= usbnet_tx_timeout,
+<<<<<<< HEAD
 	.ndo_get_stats64	= usbnet_get_stats64,
 	.ndo_change_mtu		= ax88179_change_mtu,
 	.ndo_set_mac_address	= ax88179_set_mac_addr,
 	.ndo_validate_addr	= eth_validate_addr,
 	.ndo_do_ioctl		= ax88179_ioctl,
+=======
+	.ndo_get_stats64	= dev_get_tstats64,
+	.ndo_change_mtu		= ax88179_change_mtu,
+	.ndo_set_mac_address	= ax88179_set_mac_addr,
+	.ndo_validate_addr	= eth_validate_addr,
+	.ndo_eth_ioctl		= ax88179_ioctl,
+>>>>>>> upstream/android-13
 	.ndo_set_rx_mode	= ax88179_set_multicast,
 	.ndo_set_features	= ax88179_set_features,
 };
@@ -1226,6 +1335,37 @@ static int ax88179_led_setting(struct usbnet *dev)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static void ax88179_get_mac_addr(struct usbnet *dev)
+{
+	u8 mac[ETH_ALEN];
+
+	memset(mac, 0, sizeof(mac));
+
+	/* Maybe the boot loader passed the MAC address via device tree */
+	if (!eth_platform_get_mac_address(&dev->udev->dev, mac)) {
+		netif_dbg(dev, ifup, dev->net,
+			  "MAC address read from device tree");
+	} else {
+		ax88179_read_cmd(dev, AX_ACCESS_MAC, AX_NODE_ID, ETH_ALEN,
+				 ETH_ALEN, mac);
+		netif_dbg(dev, ifup, dev->net,
+			  "MAC address read from ASIX chip");
+	}
+
+	if (is_valid_ether_addr(mac)) {
+		memcpy(dev->net->dev_addr, mac, ETH_ALEN);
+	} else {
+		netdev_info(dev->net, "invalid MAC address, using random\n");
+		eth_hw_addr_random(dev->net);
+	}
+
+	ax88179_write_cmd(dev, AX_ACCESS_MAC, AX_NODE_ID, ETH_ALEN, ETH_ALEN,
+			  dev->net->dev_addr);
+}
+
+>>>>>>> upstream/android-13
 static int ax88179_bind(struct usbnet *dev, struct usb_interface *intf)
 {
 	u8 buf[5];
@@ -1252,8 +1392,13 @@ static int ax88179_bind(struct usbnet *dev, struct usb_interface *intf)
 	ax88179_write_cmd(dev, AX_ACCESS_MAC, AX_CLK_SELECT, 1, 1, tmp);
 	msleep(100);
 
+<<<<<<< HEAD
 	ax88179_read_cmd(dev, AX_ACCESS_MAC, AX_NODE_ID, ETH_ALEN,
 			 ETH_ALEN, dev->net->dev_addr);
+=======
+	/* Read MAC address from DTB or asix chip */
+	ax88179_get_mac_addr(dev);
+>>>>>>> upstream/android-13
 	memcpy(dev->net->perm_addr, dev->net->dev_addr, ETH_ALEN);
 
 	/* RX bulk configuration */
@@ -1373,6 +1518,7 @@ static int ax88179_rx_fixup(struct usbnet *dev, struct sk_buff *skb)
 	u16 hdr_off;
 	u32 *pkt_hdr;
 
+<<<<<<< HEAD
 	/* This check is no longer done by usbnet */
 	if (skb->len < dev->net->hard_header_len)
 		return 0;
@@ -1386,11 +1532,39 @@ static int ax88179_rx_fixup(struct usbnet *dev, struct sk_buff *skb)
 	pkt_hdr = (u32 *)(skb->data + hdr_off);
 
 	while (pkt_cnt--) {
+=======
+	/* At the end of the SKB, there's a header telling us how many packets
+	 * are bundled into this buffer and where we can find an array of
+	 * per-packet metadata (which contains elements encoded into u16).
+	 */
+	if (skb->len < 4)
+		return 0;
+	skb_trim(skb, skb->len - 4);
+	rx_hdr = get_unaligned_le32(skb_tail_pointer(skb));
+	pkt_cnt = (u16)rx_hdr;
+	hdr_off = (u16)(rx_hdr >> 16);
+
+	if (pkt_cnt == 0)
+		return 0;
+
+	/* Make sure that the bounds of the metadata array are inside the SKB
+	 * (and in front of the counter at the end).
+	 */
+	if (pkt_cnt * 2 + hdr_off > skb->len)
+		return 0;
+	pkt_hdr = (u32 *)(skb->data + hdr_off);
+
+	/* Packets must not overlap the metadata array */
+	skb_trim(skb, hdr_off);
+
+	for (; ; pkt_cnt--, pkt_hdr++) {
+>>>>>>> upstream/android-13
 		u16 pkt_len;
 
 		le32_to_cpus(pkt_hdr);
 		pkt_len = (*pkt_hdr >> 16) & 0x1fff;
 
+<<<<<<< HEAD
 		/* Check CRC or runt packet */
 		if ((*pkt_hdr & AX_RXHDR_CRC_ERR) ||
 		    (*pkt_hdr & AX_RXHDR_DROP_ERR)) {
@@ -1411,12 +1585,30 @@ static int ax88179_rx_fixup(struct usbnet *dev, struct sk_buff *skb)
 
 		ax_skb = skb_clone(skb, GFP_ATOMIC);
 		if (ax_skb) {
+=======
+		if (pkt_len > skb->len)
+			return 0;
+
+		/* Check CRC or runt packet */
+		if (((*pkt_hdr & (AX_RXHDR_CRC_ERR | AX_RXHDR_DROP_ERR)) == 0) &&
+		    pkt_len >= 2 + ETH_HLEN) {
+			bool last = (pkt_cnt == 0);
+
+			if (last) {
+				ax_skb = skb;
+			} else {
+				ax_skb = skb_clone(skb, GFP_ATOMIC);
+				if (!ax_skb)
+					return 0;
+			}
+>>>>>>> upstream/android-13
 			ax_skb->len = pkt_len;
 			/* Skip IP alignment pseudo header */
 			skb_pull(ax_skb, 2);
 			skb_set_tail_pointer(ax_skb, ax_skb->len);
 			ax_skb->truesize = pkt_len + sizeof(struct sk_buff);
 			ax88179_rx_checksum(ax_skb, pkt_hdr);
+<<<<<<< HEAD
 			usbnet_skb_return(dev, ax_skb);
 		} else {
 			return 0;
@@ -1426,6 +1618,19 @@ static int ax88179_rx_fixup(struct usbnet *dev, struct sk_buff *skb)
 		pkt_hdr++;
 	}
 	return 1;
+=======
+
+			if (last)
+				return 1;
+
+			usbnet_skb_return(dev, ax_skb);
+		}
+
+		/* Trim this packet away from the SKB */
+		if (!skb_pull(skb, (pkt_len + 7) & 0xFFF8))
+			return 0;
+	}
+>>>>>>> upstream/android-13
 }
 
 static struct sk_buff *
@@ -1435,6 +1640,10 @@ ax88179_tx_fixup(struct usbnet *dev, struct sk_buff *skb, gfp_t flags)
 	int frame_size = dev->maxpacket;
 	int mss = skb_shinfo(skb)->gso_size;
 	int headroom;
+<<<<<<< HEAD
+=======
+	void *ptr;
+>>>>>>> upstream/android-13
 
 	tx_hdr1 = skb->len;
 	tx_hdr2 = mss;
@@ -1449,6 +1658,7 @@ ax88179_tx_fixup(struct usbnet *dev, struct sk_buff *skb, gfp_t flags)
 		return NULL;
 	}
 
+<<<<<<< HEAD
 	skb_push(skb, 4);
 	cpu_to_le32s(&tx_hdr2);
 	skb_copy_to_linear_data(skb, &tx_hdr2, 4);
@@ -1456,6 +1666,11 @@ ax88179_tx_fixup(struct usbnet *dev, struct sk_buff *skb, gfp_t flags)
 	skb_push(skb, 4);
 	cpu_to_le32s(&tx_hdr1);
 	skb_copy_to_linear_data(skb, &tx_hdr1, 4);
+=======
+	ptr = skb_push(skb, 8);
+	put_unaligned_le32(tx_hdr1, ptr);
+	put_unaligned_le32(tx_hdr2, ptr + 4);
+>>>>>>> upstream/android-13
 
 	return skb;
 }
@@ -1558,8 +1773,13 @@ static int ax88179_reset(struct usbnet *dev)
 	/* Ethernet PHY Auto Detach*/
 	ax88179_auto_detach(dev, 0);
 
+<<<<<<< HEAD
 	ax88179_read_cmd(dev, AX_ACCESS_MAC, AX_NODE_ID, ETH_ALEN, ETH_ALEN,
 			 dev->net->dev_addr);
+=======
+	/* Read MAC address from DTB or asix chip */
+	ax88179_get_mac_addr(dev);
+>>>>>>> upstream/android-13
 
 	/* RX bulk configuration */
 	memcpy(tmp, &AX88179_BULKIN_SIZE[0], 5);
@@ -1741,6 +1961,35 @@ static const struct driver_info belkin_info = {
 	.tx_fixup = ax88179_tx_fixup,
 };
 
+<<<<<<< HEAD
+=======
+static const struct driver_info toshiba_info = {
+	.description = "Toshiba USB Ethernet Adapter",
+	.bind	= ax88179_bind,
+	.unbind = ax88179_unbind,
+	.status = ax88179_status,
+	.link_reset = ax88179_link_reset,
+	.reset	= ax88179_reset,
+	.stop = ax88179_stop,
+	.flags	= FLAG_ETHER | FLAG_FRAMING_AX,
+	.rx_fixup = ax88179_rx_fixup,
+	.tx_fixup = ax88179_tx_fixup,
+};
+
+static const struct driver_info mct_info = {
+	.description = "MCT USB 3.0 Gigabit Ethernet Adapter",
+	.bind	= ax88179_bind,
+	.unbind	= ax88179_unbind,
+	.status	= ax88179_status,
+	.link_reset = ax88179_link_reset,
+	.reset	= ax88179_reset,
+	.stop	= ax88179_stop,
+	.flags	= FLAG_ETHER | FLAG_FRAMING_AX,
+	.rx_fixup = ax88179_rx_fixup,
+	.tx_fixup = ax88179_tx_fixup,
+};
+
+>>>>>>> upstream/android-13
 static const struct usb_device_id products[] = {
 {
 	/* ASIX AX88179 10/100/1000 */
@@ -1774,6 +2023,17 @@ static const struct usb_device_id products[] = {
 	/* Belkin B2B128 USB 3.0 Hub + Gigabit Ethernet Adapter */
 	USB_DEVICE(0x050d, 0x0128),
 	.driver_info = (unsigned long)&belkin_info,
+<<<<<<< HEAD
+=======
+}, {
+	/* Toshiba USB 3.0 GBit Ethernet Adapter */
+	USB_DEVICE(0x0930, 0x0a13),
+	.driver_info = (unsigned long)&toshiba_info,
+}, {
+	/* Magic Control Technology U3-A9003 USB 3.0 Gigabit Ethernet Adapter */
+	USB_DEVICE(0x0711, 0x0179),
+	.driver_info = (unsigned long)&mct_info,
+>>>>>>> upstream/android-13
 },
 	{ },
 };

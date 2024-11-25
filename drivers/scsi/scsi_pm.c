@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *	scsi_pm.c	Copyright (C) 2010 Alan Stern
  *
@@ -8,6 +12,10 @@
 #include <linux/pm_runtime.h>
 #include <linux/export.h>
 #include <linux/async.h>
+<<<<<<< HEAD
+=======
+#include <linux/blk-pm.h>
+>>>>>>> upstream/android-13
 
 #include <scsi/scsi.h>
 #include <scsi/scsi_device.h>
@@ -16,9 +24,12 @@
 
 #include "scsi_priv.h"
 
+<<<<<<< HEAD
 static int do_scsi_runtime_resume(struct device *dev,
 				  const struct dev_pm_ops *pm);
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PM_SLEEP
 
 static int do_scsi_suspend(struct device *dev, const struct dev_pm_ops *pm)
@@ -80,7 +91,11 @@ static int scsi_dev_type_resume(struct device *dev,
 	scsi_device_resume(to_scsi_device(dev));
 	dev_dbg(dev, "scsi resume: %d\n", err);
 
+<<<<<<< HEAD
 	if (err == 0 && (cb != do_scsi_runtime_resume)) {
+=======
+	if (err == 0) {
+>>>>>>> upstream/android-13
 		pm_runtime_disable(dev);
 		err = pm_runtime_set_active(dev);
 		pm_runtime_enable(dev);
@@ -95,8 +110,12 @@ static int scsi_dev_type_resume(struct device *dev,
 		if (!err && scsi_is_sdev_device(dev)) {
 			struct scsi_device *sdev = to_scsi_device(dev);
 
+<<<<<<< HEAD
 			if (sdev->request_queue->dev)
 				blk_set_runtime_active(sdev->request_queue);
+=======
+			blk_set_runtime_active(sdev->request_queue);
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -177,11 +196,15 @@ static int scsi_bus_resume_common(struct device *dev,
 
 static int scsi_bus_prepare(struct device *dev)
 {
+<<<<<<< HEAD
 	if (scsi_is_sdev_device(dev)) {
 		/* sd probing uses async_schedule.  Wait until it finishes. */
 		async_synchronize_full_domain(&scsi_sd_probe_domain);
 
 	} else if (scsi_is_host_device(dev)) {
+=======
+	if (scsi_is_host_device(dev)) {
+>>>>>>> upstream/android-13
 		/* Wait until async scanning is finished */
 		scsi_complete_async_scans();
 	}
@@ -228,6 +251,7 @@ static int scsi_bus_restore(struct device *dev)
 #define scsi_bus_poweroff		NULL
 #define scsi_bus_restore		NULL
 
+<<<<<<< HEAD
 static inline int
 scsi_dev_type_suspend(struct device *dev,
 		      int (*cb)(struct device *, const struct dev_pm_ops *))
@@ -255,12 +279,17 @@ static int do_scsi_runtime_resume(struct device *dev,
 	return pm && pm->runtime_resume ? pm->runtime_resume(dev) : 0;
 }
 
+=======
+#endif /* CONFIG_PM_SLEEP */
+
+>>>>>>> upstream/android-13
 static int sdev_runtime_suspend(struct device *dev)
 {
 	const struct dev_pm_ops *pm = dev->driver ? dev->driver->pm : NULL;
 	struct scsi_device *sdev = to_scsi_device(dev);
 	int err = 0;
 
+<<<<<<< HEAD
 	if (!sdev->request_queue->dev) {
 		err = scsi_dev_type_suspend(dev, do_scsi_runtime_suspend);
 		if (err == -EAGAIN)
@@ -269,6 +298,8 @@ static int sdev_runtime_suspend(struct device *dev)
 		return err;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	err = blk_pre_runtime_suspend(sdev->request_queue);
 	if (err)
 		return err;
@@ -298,6 +329,7 @@ static int sdev_runtime_resume(struct device *dev)
 	const struct dev_pm_ops *pm = dev->driver ? dev->driver->pm : NULL;
 	int err = 0;
 
+<<<<<<< HEAD
 	if (!sdev->request_queue->dev)
 		return scsi_dev_type_resume(dev, do_scsi_runtime_resume);
 
@@ -305,6 +337,12 @@ static int sdev_runtime_resume(struct device *dev)
 	if (pm && pm->runtime_resume)
 		err = pm->runtime_resume(dev);
 	blk_post_runtime_resume(sdev->request_queue, err);
+=======
+	blk_pre_runtime_resume(sdev->request_queue);
+	if (pm && pm->runtime_resume)
+		err = pm->runtime_resume(dev);
+	blk_post_runtime_resume(sdev->request_queue);
+>>>>>>> upstream/android-13
 
 	return err;
 }

@@ -1,14 +1,23 @@
+<<<<<<< HEAD
 /*
  *  This program is free software; you can redistribute it and/or modify it
  *  under the terms of the GNU General Public License version 2 as published
  *  by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+>>>>>>> upstream/android-13
  *
  * Copyright (C) 2010 John Crispin <john@phrozen.org>
  */
 
 #include <linux/export.h>
 #include <linux/clk.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
+=======
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 #include <linux/of_fdt.h>
 
 #include <asm/bootinfo.h>
@@ -46,10 +55,13 @@ int ltq_soc_type(void)
 	return soc_info.type;
 }
 
+<<<<<<< HEAD
 void __init prom_free_prom_memory(void)
 {
 }
 
+=======
+>>>>>>> upstream/android-13
 static void __init prom_init_cmdline(void)
 {
 	int argc = fw_arg0;
@@ -79,11 +91,16 @@ void __init plat_mem_setup(void)
 
 	set_io_port_base((unsigned long) KSEG1);
 
+<<<<<<< HEAD
 	if (fw_passed_dtb) /* UHI interface */
 		dtb = (void *)fw_passed_dtb;
 	else if (__dtb_start != __dtb_end)
 		dtb = (void *)__dtb_start;
 	else
+=======
+	dtb = get_fdt();
+	if (dtb == NULL)
+>>>>>>> upstream/android-13
 		panic("no dtb found");
 
 	/*

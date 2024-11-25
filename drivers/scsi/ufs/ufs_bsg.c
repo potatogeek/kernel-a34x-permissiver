@@ -11,13 +11,21 @@ static int ufs_bsg_get_query_desc_size(struct ufs_hba *hba, int *desc_len,
 {
 	int desc_size = be16_to_cpu(qr->length);
 	int desc_id = qr->idn;
+<<<<<<< HEAD
 	int ret;
+=======
+>>>>>>> upstream/android-13
 
 	if (desc_size <= 0)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	ret = ufshcd_map_desc_id_to_length(hba, desc_id, desc_len);
 	if (ret || !*desc_len)
+=======
+	ufshcd_map_desc_id_to_length(hba, desc_id, desc_len);
+	if (!*desc_len)
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	*desc_len = min_t(int, *desc_len, desc_size);
@@ -48,6 +56,12 @@ static int ufs_bsg_alloc_desc_buffer(struct ufs_hba *hba, struct bsg_job *job,
 	struct utp_upiu_query *qr;
 	u8 *descp;
 
+<<<<<<< HEAD
+=======
+	if (desc_op == UPIU_QUERY_OPCODE_WRITE_ATTR)
+		return -EINVAL;
+
+>>>>>>> upstream/android-13
 	if (desc_op != UPIU_QUERY_OPCODE_WRITE_DESC &&
 	    desc_op != UPIU_QUERY_OPCODE_READ_DESC)
 		goto out;
@@ -98,7 +112,11 @@ static int ufs_bsg_request(struct bsg_job *job)
 
 	bsg_reply->reply_payload_rcv_len = 0;
 
+<<<<<<< HEAD
 	pm_runtime_get_sync(hba->dev);
+=======
+	ufshcd_rpm_get_sync(hba);
+>>>>>>> upstream/android-13
 
 	msgcode = bsg_request->msgcode;
 	switch (msgcode) {
@@ -106,10 +124,19 @@ static int ufs_bsg_request(struct bsg_job *job)
 		desc_op = bsg_request->upiu_req.qr.opcode;
 		ret = ufs_bsg_alloc_desc_buffer(hba, job, &desc_buff,
 						&desc_len, desc_op);
+<<<<<<< HEAD
 		if (ret)
 			goto out;
 
 		/* fall through */
+=======
+		if (ret) {
+			ufshcd_rpm_put_sync(hba);
+			goto out;
+		}
+
+		fallthrough;
+>>>>>>> upstream/android-13
 	case UPIU_TRANSACTION_NOP_OUT:
 	case UPIU_TRANSACTION_TASK_REQ:
 		ret = ufshcd_exec_raw_upiu_cmd(hba, &bsg_request->upiu_req,
@@ -137,7 +164,11 @@ static int ufs_bsg_request(struct bsg_job *job)
 		break;
 	}
 
+<<<<<<< HEAD
 	pm_runtime_put_sync(hba->dev);
+=======
+	ufshcd_rpm_put_sync(hba);
+>>>>>>> upstream/android-13
 
 	if (!desc_buff)
 		goto out;
@@ -162,6 +193,10 @@ out:
 
 /**
  * ufs_bsg_remove - detach and remove the added ufs-bsg node
+<<<<<<< HEAD
+=======
+ * @hba: per adapter object
+>>>>>>> upstream/android-13
  *
  * Should be called when unloading the driver.
  */
@@ -172,6 +207,11 @@ void ufs_bsg_remove(struct ufs_hba *hba)
 	if (!hba->bsg_queue)
 		return;
 
+<<<<<<< HEAD
+=======
+	bsg_remove_queue(hba->bsg_queue);
+
+>>>>>>> upstream/android-13
 	device_del(bsg_dev);
 	put_device(bsg_dev);
 }
@@ -206,7 +246,11 @@ int ufs_bsg_probe(struct ufs_hba *hba)
 	if (ret)
 		goto out;
 
+<<<<<<< HEAD
 	q = bsg_setup_queue(bsg_dev, dev_name(bsg_dev), ufs_bsg_request, 0);
+=======
+	q = bsg_setup_queue(bsg_dev, dev_name(bsg_dev), ufs_bsg_request, NULL, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(q)) {
 		ret = PTR_ERR(q);
 		goto out;

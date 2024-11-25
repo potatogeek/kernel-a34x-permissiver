@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * linux/mm/process_vm_access.c
  *
  * Copyright (C) 2010-2011 Christopher Yeoh <cyeoh@au1.ibm.com>, IBM Corp.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -9,6 +14,11 @@
  * 2 of the License, or (at your option) any later version.
  */
 
+=======
+ */
+
+#include <linux/compat.h>
+>>>>>>> upstream/android-13
 #include <linux/mm.h>
 #include <linux/uio.h>
 #include <linux/sched.h>
@@ -19,10 +29,13 @@
 #include <linux/syscalls.h>
 #include <linux/task_integrity.h>
 
+<<<<<<< HEAD
 #ifdef CONFIG_COMPAT
 #include <linux/compat.h>
 #endif
 
+=======
+>>>>>>> upstream/android-13
 /**
  * process_vm_rw_pages - read/write pages from task specified
  * @pages: array of pointers to pages we want to copy
@@ -47,12 +60,20 @@ static int process_vm_rw_pages(struct page **pages,
 		if (copy > len)
 			copy = len;
 
+<<<<<<< HEAD
 		if (vm_write) {
 			copied = copy_page_from_iter(page, offset, copy, iter);
 			set_page_dirty_lock(page);
 		} else {
 			copied = copy_page_to_iter(page, offset, copy, iter);
 		}
+=======
+		if (vm_write)
+			copied = copy_page_from_iter(page, offset, copy, iter);
+		else
+			copied = copy_page_to_iter(page, offset, copy, iter);
+
+>>>>>>> upstream/android-13
 		len -= copied;
 		if (copied < copy && iov_iter_count(iter))
 			return -EFAULT;
@@ -101,7 +122,11 @@ static int process_vm_rw_single_vec(unsigned long addr,
 		flags |= FOLL_WRITE;
 
 	while (!rc && nr_pages && iov_iter_count(iter)) {
+<<<<<<< HEAD
 		int pages = min(nr_pages, max_pages_per_loop);
+=======
+		int pinned_pages = min(nr_pages, max_pages_per_loop);
+>>>>>>> upstream/android-13
 		int locked = 1;
 		size_t bytes;
 
@@ -110,6 +135,7 @@ static int process_vm_rw_single_vec(unsigned long addr,
 		 * access remotely because task/mm might not
 		 * current/current->mm
 		 */
+<<<<<<< HEAD
 		down_read(&mm->mmap_sem);
 		pages = get_user_pages_remote(task, mm, pa, pages, flags,
 					      process_pages, NULL, &locked);
@@ -119,6 +145,18 @@ static int process_vm_rw_single_vec(unsigned long addr,
 			return -EFAULT;
 
 		bytes = pages * PAGE_SIZE - start_offset;
+=======
+		mmap_read_lock(mm);
+		pinned_pages = pin_user_pages_remote(mm, pa, pinned_pages,
+						     flags, process_pages,
+						     NULL, &locked);
+		if (locked)
+			mmap_read_unlock(mm);
+		if (pinned_pages <= 0)
+			return -EFAULT;
+
+		bytes = pinned_pages * PAGE_SIZE - start_offset;
+>>>>>>> upstream/android-13
 		if (bytes > len)
 			bytes = len;
 
@@ -127,10 +165,19 @@ static int process_vm_rw_single_vec(unsigned long addr,
 					 vm_write);
 		len -= bytes;
 		start_offset = 0;
+<<<<<<< HEAD
 		nr_pages -= pages;
 		pa += pages * PAGE_SIZE;
 		while (pages)
 			put_page(process_pages[--pages]);
+=======
+		nr_pages -= pinned_pages;
+		pa += pinned_pages * PAGE_SIZE;
+
+		/* If vm_write is set, the pages need to be made dirty: */
+		unpin_user_pages_dirty_lock(process_pages, pinned_pages,
+					    vm_write);
+>>>>>>> upstream/android-13
 	}
 
 	return rc;
@@ -209,7 +256,11 @@ static ssize_t process_vm_rw_core(pid_t pid, struct iov_iter *iter,
 	if (!mm || IS_ERR(mm)) {
 		rc = IS_ERR(mm) ? PTR_ERR(mm) : -ESRCH;
 		/*
+<<<<<<< HEAD
 		 * Explicitly map EACCES to EPERM as EPERM is a more a
+=======
+		 * Explicitly map EACCES to EPERM as EPERM is a more
+>>>>>>> upstream/android-13
 		 * appropriate error code for process_vw_readv/writev
 		 */
 		if (rc == -EACCES)
@@ -270,7 +321,11 @@ static ssize_t process_vm_rw(pid_t pid,
 	struct iovec iovstack_l[UIO_FASTIOV];
 	struct iovec iovstack_r[UIO_FASTIOV];
 	struct iovec *iov_l = iovstack_l;
+<<<<<<< HEAD
 	struct iovec *iov_r = iovstack_r;
+=======
+	struct iovec *iov_r;
+>>>>>>> upstream/android-13
 	struct iov_iter iter;
 	ssize_t rc;
 	int dir = vm_write ? WRITE : READ;
@@ -283,6 +338,7 @@ static ssize_t process_vm_rw(pid_t pid,
 	if (rc < 0)
 		return rc;
 	if (!iov_iter_count(&iter))
+<<<<<<< HEAD
 		goto free_iovecs;
 
 	rc = rw_copy_check_uvector(CHECK_IOVEC_ONLY, rvec, riovcnt, UIO_FASTIOV,
@@ -297,6 +353,20 @@ free_iovecs:
 		kfree(iov_r);
 	kfree(iov_l);
 
+=======
+		goto free_iov_l;
+	iov_r = iovec_from_user(rvec, riovcnt, UIO_FASTIOV, iovstack_r,
+				in_compat_syscall());
+	if (IS_ERR(iov_r)) {
+		rc = PTR_ERR(iov_r);
+		goto free_iov_l;
+	}
+	rc = process_vm_rw_core(pid, &iter, iov_r, riovcnt, flags, vm_write);
+	if (iov_r != iovstack_r)
+		kfree(iov_r);
+free_iov_l:
+	kfree(iov_l);
+>>>>>>> upstream/android-13
 	return rc;
 }
 
@@ -314,6 +384,7 @@ SYSCALL_DEFINE6(process_vm_writev, pid_t, pid,
 {
 	return process_vm_rw(pid, lvec, liovcnt, rvec, riovcnt, flags, 1);
 }
+<<<<<<< HEAD
 
 #ifdef CONFIG_COMPAT
 
@@ -379,3 +450,5 @@ COMPAT_SYSCALL_DEFINE6(process_vm_writev, compat_pid_t, pid,
 }
 
 #endif
+=======
+>>>>>>> upstream/android-13

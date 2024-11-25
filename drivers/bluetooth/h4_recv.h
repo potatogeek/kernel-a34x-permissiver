@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  *
  *  Generic Bluetooth HCI UART driver
  *
  *  Copyright (C) 2015-2018  Intel Corporation
+<<<<<<< HEAD
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -19,6 +24,8 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <asm/unaligned.h>
@@ -67,9 +74,12 @@ static inline struct sk_buff *h4_recv_buf(struct hci_dev *hdev,
 	while (count) {
 		int i, len;
 
+<<<<<<< HEAD
 		if (!count)
 			break;
 
+=======
+>>>>>>> upstream/android-13
 		if (!skb) {
 			for (i = 0; i < pkts_count; i++) {
 				if (buffer[0] != (&pkts[i])->type)

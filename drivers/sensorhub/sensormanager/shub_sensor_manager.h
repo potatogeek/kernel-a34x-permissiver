@@ -24,9 +24,18 @@
 struct shub_sensor;
 
 struct sensor_manager_t {
+<<<<<<< HEAD
 	struct shub_sensor *sensor_list[SENSOR_TYPE_MAX];
 	uint64_t sensor_probe_state[2];
 	uint64_t scontext_probe_state[2];
+=======
+/*
+ *	index 0 : for sensor legacy hal sensors, type < SENSOR_TYPE_LEGACY_MAX
+ *	index 2,3 : for scontext sensors, type > SENSOR_TYPE_LEGACY_MAX
+ */
+	uint64_t sensor_probe_state[3];
+	struct shub_sensor *sensor_list[SENSOR_TYPE_MAX];
+>>>>>>> upstream/android-13
 	struct sensor_spec_t *sensor_spec;
 	bool is_fs_ready;
 };
@@ -45,7 +54,10 @@ void print_sensor_debug(int type);
 int parsing_bypass_data(char *dataframe, int *index, int frame_len);
 int parsing_meta_data(char *dataframe, int *index, int frame_len);
 int parsing_scontext_data(char *dataframe, int *index, int frame_len);
+<<<<<<< HEAD
 int parsing_big_data(char *dataframe, int *index, int frame_len);
+=======
+>>>>>>> upstream/android-13
 
 int open_sensors_calibration(void);
 int sync_sensors_attribute(void); /* sensor hub is ready or reset*/
@@ -54,18 +66,29 @@ int refresh_sensors(struct device *dev);
 struct shub_sensor *get_sensor(int type);
 struct sensor_event *get_sensor_event(int type);
 
+<<<<<<< HEAD
 int get_sensors_legacy_probe_state(uint64_t *buf);
 int get_sensors_legacy_enable_state(uint64_t *buf);
+=======
+uint64_t get_sensors_legacy_probe_state(void);
+uint64_t get_sensors_legacy_enable_state(void);
+>>>>>>> upstream/android-13
 int get_sensors_scontext_probe_state(uint64_t *buf);
 
 bool get_sensor_probe_state(int type);
 bool get_sensor_enabled(int type);
 unsigned int get_total_sensor_spec(char *buf);
+<<<<<<< HEAD
 unsigned int get_bigdata_wakeup_reason(char *buf);
+=======
+>>>>>>> upstream/android-13
 
 void fs_ready_cb(void);
 
 void get_sensor_vendor_name(int vendor_type, char *vendor_name);
 
+<<<<<<< HEAD
 void print_big_data(void);
+=======
+>>>>>>> upstream/android-13
 #endif /* __SENSOR_MANAGER_H_ */

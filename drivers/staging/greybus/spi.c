@@ -7,8 +7,13 @@
  */
 
 #include <linux/module.h>
+<<<<<<< HEAD
 
 #include "greybus.h"
+=======
+#include <linux/greybus.h>
+
+>>>>>>> upstream/android-13
 #include "gbphy.h"
 #include "spilib.h"
 

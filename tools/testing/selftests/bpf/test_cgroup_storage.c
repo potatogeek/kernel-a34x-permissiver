@@ -4,6 +4,10 @@
 #include <linux/filter.h>
 #include <stdio.h>
 #include <stdlib.h>
+<<<<<<< HEAD
+=======
+#include <sys/sysinfo.h>
+>>>>>>> upstream/android-13
 
 #include "bpf_rlimit.h"
 #include "cgroup_helpers.h"
@@ -15,22 +19,53 @@ char bpf_log_buf[BPF_LOG_BUF_SIZE];
 int main(int argc, char **argv)
 {
 	struct bpf_insn prog[] = {
+<<<<<<< HEAD
+=======
+		BPF_LD_MAP_FD(BPF_REG_1, 0), /* percpu map fd */
+		BPF_MOV64_IMM(BPF_REG_2, 0), /* flags, not used */
+		BPF_RAW_INSN(BPF_JMP | BPF_CALL, 0, 0, 0,
+			     BPF_FUNC_get_local_storage),
+		BPF_LDX_MEM(BPF_DW, BPF_REG_3, BPF_REG_0, 0),
+		BPF_ALU64_IMM(BPF_ADD, BPF_REG_3, 0x1),
+		BPF_STX_MEM(BPF_DW, BPF_REG_0, BPF_REG_3, 0),
+
+>>>>>>> upstream/android-13
 		BPF_LD_MAP_FD(BPF_REG_1, 0), /* map fd */
 		BPF_MOV64_IMM(BPF_REG_2, 0), /* flags, not used */
 		BPF_RAW_INSN(BPF_JMP | BPF_CALL, 0, 0, 0,
 			     BPF_FUNC_get_local_storage),
 		BPF_MOV64_IMM(BPF_REG_1, 1),
+<<<<<<< HEAD
 		BPF_STX_XADD(BPF_DW, BPF_REG_0, BPF_REG_1, 0),
 		BPF_LDX_MEM(BPF_W, BPF_REG_1, BPF_REG_0, 0),
+=======
+		BPF_ATOMIC_OP(BPF_DW, BPF_ADD, BPF_REG_0, BPF_REG_1, 0),
+		BPF_LDX_MEM(BPF_DW, BPF_REG_1, BPF_REG_0, 0),
+>>>>>>> upstream/android-13
 		BPF_ALU64_IMM(BPF_AND, BPF_REG_1, 0x1),
 		BPF_MOV64_REG(BPF_REG_0, BPF_REG_1),
 		BPF_EXIT_INSN(),
 	};
 	size_t insns_cnt = sizeof(prog) / sizeof(struct bpf_insn);
 	int error = EXIT_FAILURE;
+<<<<<<< HEAD
 	int map_fd, prog_fd, cgroup_fd;
 	struct bpf_cgroup_storage_key key;
 	unsigned long long value;
+=======
+	int map_fd, percpu_map_fd, prog_fd, cgroup_fd;
+	struct bpf_cgroup_storage_key key;
+	unsigned long long value;
+	unsigned long long *percpu_value;
+	int cpu, nproc;
+
+	nproc = get_nprocs_conf();
+	percpu_value = malloc(sizeof(*percpu_value) * nproc);
+	if (!percpu_value) {
+		printf("Not enough memory for per-cpu area (%d cpus)\n", nproc);
+		goto err;
+	}
+>>>>>>> upstream/android-13
 
 	map_fd = bpf_create_map(BPF_MAP_TYPE_CGROUP_STORAGE, sizeof(key),
 				sizeof(value), 0, 0);
@@ -39,7 +74,19 @@ int main(int argc, char **argv)
 		goto out;
 	}
 
+<<<<<<< HEAD
 	prog[0].imm = map_fd;
+=======
+	percpu_map_fd = bpf_create_map(BPF_MAP_TYPE_PERCPU_CGROUP_STORAGE,
+				       sizeof(key), sizeof(value), 0, 0);
+	if (percpu_map_fd < 0) {
+		printf("Failed to create map: %s\n", strerror(errno));
+		goto out;
+	}
+
+	prog[0].imm = percpu_map_fd;
+	prog[7].imm = map_fd;
+>>>>>>> upstream/android-13
 	prog_fd = bpf_load_program(BPF_PROG_TYPE_CGROUP_SKB,
 				   prog, insns_cnt, "GPL", 0,
 				   bpf_log_buf, BPF_LOG_BUF_SIZE);
@@ -48,6 +95,7 @@ int main(int argc, char **argv)
 		goto out;
 	}
 
+<<<<<<< HEAD
 	if (setup_cgroup_environment()) {
 		printf("Failed to setup cgroup environment\n");
 		goto err;
@@ -64,6 +112,9 @@ int main(int argc, char **argv)
 		printf("Failed to join cgroup\n");
 		goto err;
 	}
+=======
+	cgroup_fd = cgroup_setup_and_join(TEST_CGROUP);
+>>>>>>> upstream/android-13
 
 	/* Attach the bpf program */
 	if (bpf_prog_attach(prog_fd, cgroup_fd, BPF_CGROUP_INET_EGRESS, 0)) {
@@ -77,7 +128,19 @@ int main(int argc, char **argv)
 	}
 
 	if (bpf_map_lookup_elem(map_fd, &key, &value)) {
+<<<<<<< HEAD
 		printf("Failed to lookup cgroup storage\n");
+=======
+		printf("Failed to lookup cgroup storage 0\n");
+		goto err;
+	}
+
+	for (cpu = 0; cpu < nproc; cpu++)
+		percpu_value[cpu] = 1000;
+
+	if (bpf_map_update_elem(percpu_map_fd, &key, percpu_value, 0)) {
+		printf("Failed to update the data in the cgroup storage\n");
+>>>>>>> upstream/android-13
 		goto err;
 	}
 
@@ -120,11 +183,37 @@ int main(int argc, char **argv)
 		goto err;
 	}
 
+<<<<<<< HEAD
+=======
+	/* Check the final value of the counter in the percpu local storage */
+
+	for (cpu = 0; cpu < nproc; cpu++)
+		percpu_value[cpu] = 0;
+
+	if (bpf_map_lookup_elem(percpu_map_fd, &key, percpu_value)) {
+		printf("Failed to lookup the per-cpu cgroup storage\n");
+		goto err;
+	}
+
+	value = 0;
+	for (cpu = 0; cpu < nproc; cpu++)
+		value += percpu_value[cpu];
+
+	if (value != nproc * 1000 + 6) {
+		printf("Unexpected data in the per-cpu cgroup storage\n");
+		goto err;
+	}
+
+>>>>>>> upstream/android-13
 	error = 0;
 	printf("test_cgroup_storage:PASS\n");
 
 err:
 	cleanup_cgroup_environment();
+<<<<<<< HEAD
+=======
+	free(percpu_value);
+>>>>>>> upstream/android-13
 
 out:
 	return error;

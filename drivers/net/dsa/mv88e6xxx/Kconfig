@@ -1,6 +1,14 @@
+<<<<<<< HEAD
 config NET_DSA_MV88E6XXX
 	tristate "Marvell 88E6xxx Ethernet switch fabric support"
 	depends on NET_DSA
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+config NET_DSA_MV88E6XXX
+	tristate "Marvell 88E6xxx Ethernet switch fabric support"
+	depends on NET_DSA
+	depends on PTP_1588_CLOCK_OPTIONAL
+>>>>>>> upstream/android-13
 	select IRQ_DOMAIN
 	select NET_DSA_TAG_EDSA
 	select NET_DSA_TAG_DSA
@@ -8,6 +16,7 @@ config NET_DSA_MV88E6XXX
 	  This driver adds support for most of the Marvell 88E6xxx models of
 	  Ethernet switch chips, except 88E6060.
 
+<<<<<<< HEAD
 config NET_DSA_MV88E6XXX_GLOBAL2
 	bool "Switch Global 2 Registers support"
 	default y
@@ -25,6 +34,12 @@ config NET_DSA_MV88E6XXX_PTP
 	depends on NET_DSA_MV88E6XXX_GLOBAL2
 	imply NETWORK_PHY_TIMESTAMPING
 	imply PTP_1588_CLOCK
+=======
+config NET_DSA_MV88E6XXX_PTP
+	bool "PTP support for Marvell 88E6xxx"
+	default n
+	depends on NET_DSA_MV88E6XXX && PTP_1588_CLOCK
+>>>>>>> upstream/android-13
 	help
 	  Say Y to enable PTP hardware timestamping on Marvell 88E6xxx switch
 	  chips that support it.

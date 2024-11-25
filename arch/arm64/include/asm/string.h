@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2013 ARM Ltd.
  *
@@ -12,22 +13,39 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) 2013 ARM Ltd.
+>>>>>>> upstream/android-13
  */
 #ifndef __ASM_STRING_H
 #define __ASM_STRING_H
 
+<<<<<<< HEAD
 #ifndef CONFIG_KASAN
+=======
+#if !(defined(CONFIG_KASAN_GENERIC) || defined(CONFIG_KASAN_SW_TAGS))
+>>>>>>> upstream/android-13
 #define __HAVE_ARCH_STRRCHR
 extern char *strrchr(const char *, int c);
 
 #define __HAVE_ARCH_STRCHR
 extern char *strchr(const char *, int c);
 
+<<<<<<< HEAD
+=======
+#ifndef CONFIG_KASAN_HW_TAGS
+>>>>>>> upstream/android-13
 #define __HAVE_ARCH_STRCMP
 extern int strcmp(const char *, const char *);
 
 #define __HAVE_ARCH_STRNCMP
 extern int strncmp(const char *, const char *, __kernel_size_t);
+<<<<<<< HEAD
+=======
+#endif
+>>>>>>> upstream/android-13
 
 #define __HAVE_ARCH_STRLEN
 extern __kernel_size_t strlen(const char *);
@@ -59,7 +77,12 @@ extern void *__memset(void *, int, __kernel_size_t);
 void memcpy_flushcache(void *dst, const void *src, size_t cnt);
 #endif
 
+<<<<<<< HEAD
 #if defined(CONFIG_KASAN) && !defined(__SANITIZE_ADDRESS__)
+=======
+#if (defined(CONFIG_KASAN_GENERIC) || defined(CONFIG_KASAN_SW_TAGS)) && \
+	!defined(__SANITIZE_ADDRESS__)
+>>>>>>> upstream/android-13
 
 /*
  * For files that are not instrumented (e.g. mm/slub.c) we

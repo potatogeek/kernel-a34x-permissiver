@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2015 Broadcom Corporation
  *
@@ -9,6 +10,11 @@
  * kind, whether express or implied; without even the implied warranty
  * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+/*
+ * Copyright (C) 2015 Broadcom Corporation
+>>>>>>> upstream/android-13
  */
 
 #ifndef _LINUX_BCM_PHY_LIB_H
@@ -17,8 +23,35 @@
 #include <linux/brcmphy.h>
 #include <linux/phy.h>
 
+<<<<<<< HEAD
 int bcm_phy_write_exp(struct phy_device *phydev, u16 reg, u16 val);
 int bcm_phy_read_exp(struct phy_device *phydev, u16 reg);
+=======
+/* 28nm only register definitions */
+#define MISC_ADDR(base, channel)	base, channel
+
+#define DSP_TAP10			MISC_ADDR(0x0a, 0)
+#define PLL_PLLCTRL_1			MISC_ADDR(0x32, 1)
+#define PLL_PLLCTRL_2			MISC_ADDR(0x32, 2)
+#define PLL_PLLCTRL_4			MISC_ADDR(0x33, 0)
+
+#define AFE_RXCONFIG_0			MISC_ADDR(0x38, 0)
+#define AFE_RXCONFIG_1			MISC_ADDR(0x38, 1)
+#define AFE_RXCONFIG_2			MISC_ADDR(0x38, 2)
+#define AFE_RX_LP_COUNTER		MISC_ADDR(0x38, 3)
+#define AFE_TX_CONFIG			MISC_ADDR(0x39, 0)
+#define AFE_VDCA_ICTRL_0		MISC_ADDR(0x39, 1)
+#define AFE_VDAC_OTHERS_0		MISC_ADDR(0x39, 3)
+#define AFE_HPF_TRIM_OTHERS		MISC_ADDR(0x3a, 0)
+
+
+int __bcm_phy_write_exp(struct phy_device *phydev, u16 reg, u16 val);
+int __bcm_phy_read_exp(struct phy_device *phydev, u16 reg);
+int __bcm_phy_modify_exp(struct phy_device *phydev, u16 reg, u16 mask, u16 set);
+int bcm_phy_write_exp(struct phy_device *phydev, u16 reg, u16 val);
+int bcm_phy_read_exp(struct phy_device *phydev, u16 reg);
+int bcm_phy_modify_exp(struct phy_device *phydev, u16 reg, u16 mask, u16 set);
+>>>>>>> upstream/android-13
 
 static inline int bcm_phy_write_exp_sel(struct phy_device *phydev,
 					u16 reg, u16 val)
@@ -38,8 +71,23 @@ int bcm_phy_write_shadow(struct phy_device *phydev, u16 shadow,
 			 u16 val);
 int bcm_phy_read_shadow(struct phy_device *phydev, u16 shadow);
 
+<<<<<<< HEAD
 int bcm_phy_ack_intr(struct phy_device *phydev);
 int bcm_phy_config_intr(struct phy_device *phydev);
+=======
+int __bcm_phy_write_rdb(struct phy_device *phydev, u16 rdb, u16 val);
+int bcm_phy_write_rdb(struct phy_device *phydev, u16 rdb, u16 val);
+int __bcm_phy_read_rdb(struct phy_device *phydev, u16 rdb);
+int bcm_phy_read_rdb(struct phy_device *phydev, u16 rdb);
+int __bcm_phy_modify_rdb(struct phy_device *phydev, u16 rdb, u16 mask,
+			 u16 set);
+int bcm_phy_modify_rdb(struct phy_device *phydev, u16 rdb, u16 mask,
+		       u16 set);
+
+int bcm_phy_ack_intr(struct phy_device *phydev);
+int bcm_phy_config_intr(struct phy_device *phydev);
+irqreturn_t bcm_phy_handle_interrupt(struct phy_device *phydev);
+>>>>>>> upstream/android-13
 
 int bcm_phy_enable_apd(struct phy_device *phydev, bool dll_pwr_down);
 
@@ -53,5 +101,17 @@ int bcm_phy_get_sset_count(struct phy_device *phydev);
 void bcm_phy_get_strings(struct phy_device *phydev, u8 *data);
 void bcm_phy_get_stats(struct phy_device *phydev, u64 *shadow,
 		       struct ethtool_stats *stats, u64 *data);
+<<<<<<< HEAD
+=======
+void bcm_phy_r_rc_cal_reset(struct phy_device *phydev);
+int bcm_phy_28nm_a0b0_afe_config_init(struct phy_device *phydev);
+int bcm_phy_enable_jumbo(struct phy_device *phydev);
+
+int bcm_phy_cable_test_get_status_rdb(struct phy_device *phydev,
+				      bool *finished);
+int bcm_phy_cable_test_start_rdb(struct phy_device *phydev);
+int bcm_phy_cable_test_start(struct phy_device *phydev);
+int bcm_phy_cable_test_get_status(struct phy_device *phydev, bool *finished);
+>>>>>>> upstream/android-13
 
 #endif /* _LINUX_BCM_PHY_LIB_H */

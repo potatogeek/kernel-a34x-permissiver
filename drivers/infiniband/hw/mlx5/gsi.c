@@ -35,6 +35,7 @@
 struct mlx5_ib_gsi_wr {
 	struct ib_cqe cqe;
 	struct ib_wc wc;
+<<<<<<< HEAD
 	int send_flags;
 	bool completed:1;
 };
@@ -64,15 +65,27 @@ static struct mlx5_ib_gsi_qp *gsi_qp(struct ib_qp *qp)
 	return container_of(qp, struct mlx5_ib_gsi_qp, ibqp);
 }
 
+=======
+	bool completed:1;
+};
+
+>>>>>>> upstream/android-13
 static bool mlx5_ib_deth_sqpn_cap(struct mlx5_ib_dev *dev)
 {
 	return MLX5_CAP_GEN(dev->mdev, set_deth_sqpn);
 }
 
 /* Call with gsi->lock locked */
+<<<<<<< HEAD
 static void generate_completions(struct mlx5_ib_gsi_qp *gsi)
 {
 	struct ib_cq *gsi_cq = gsi->ibqp.send_cq;
+=======
+static void generate_completions(struct mlx5_ib_qp *mqp)
+{
+	struct mlx5_ib_gsi_qp *gsi = &mqp->gsi;
+	struct ib_cq *gsi_cq = mqp->ibqp.send_cq;
+>>>>>>> upstream/android-13
 	struct mlx5_ib_gsi_wr *wr;
 	u32 index;
 
@@ -83,10 +96,14 @@ static void generate_completions(struct mlx5_ib_gsi_qp *gsi)
 		if (!wr->completed)
 			break;
 
+<<<<<<< HEAD
 		if (gsi->sq_sig_type == IB_SIGNAL_ALL_WR ||
 		    wr->send_flags & IB_SEND_SIGNALED)
 			WARN_ON_ONCE(mlx5_ib_generate_wc(gsi_cq, &wr->wc));
 
+=======
+		WARN_ON_ONCE(mlx5_ib_generate_wc(gsi_cq, &wr->wc));
+>>>>>>> upstream/android-13
 		wr->completed = false;
 	}
 
@@ -98,6 +115,10 @@ static void handle_single_completion(struct ib_cq *cq, struct ib_wc *wc)
 	struct mlx5_ib_gsi_qp *gsi = cq->cq_context;
 	struct mlx5_ib_gsi_wr *wr =
 		container_of(wc->wr_cqe, struct mlx5_ib_gsi_wr, cqe);
+<<<<<<< HEAD
+=======
+	struct mlx5_ib_qp *mqp = container_of(gsi, struct mlx5_ib_qp, gsi);
+>>>>>>> upstream/android-13
 	u64 wr_id;
 	unsigned long flags;
 
@@ -106,6 +127,7 @@ static void handle_single_completion(struct ib_cq *cq, struct ib_wc *wc)
 	wr_id = wr->wc.wr_id;
 	wr->wc = *wc;
 	wr->wc.wr_id = wr_id;
+<<<<<<< HEAD
 	wr->wc.qp = &gsi->ibqp;
 
 	generate_completions(gsi);
@@ -145,15 +167,52 @@ struct ib_qp *mlx5_ib_gsi_create_qp(struct ib_pd *pd,
 	gsi->outstanding_wrs = kcalloc(init_attr->cap.max_send_wr,
 				       sizeof(*gsi->outstanding_wrs),
 				       GFP_KERNEL);
+=======
+	wr->wc.qp = &mqp->ibqp;
+
+	generate_completions(mqp);
+	spin_unlock_irqrestore(&gsi->lock, flags);
+}
+
+int mlx5_ib_create_gsi(struct ib_pd *pd, struct mlx5_ib_qp *mqp,
+		       struct ib_qp_init_attr *attr)
+{
+	struct mlx5_ib_dev *dev = to_mdev(pd->device);
+	struct mlx5_ib_gsi_qp *gsi;
+	struct ib_qp_init_attr hw_init_attr = *attr;
+	const u8 port_num = attr->port_num;
+	int num_qps = 0;
+	int ret;
+
+	if (mlx5_ib_deth_sqpn_cap(dev)) {
+		if (MLX5_CAP_GEN(dev->mdev,
+				 port_type) == MLX5_CAP_PORT_TYPE_IB)
+			num_qps = pd->device->attrs.max_pkeys;
+		else if (dev->lag_active)
+			num_qps = MLX5_MAX_PORTS;
+	}
+
+	gsi = &mqp->gsi;
+	gsi->tx_qps = kcalloc(num_qps, sizeof(*gsi->tx_qps), GFP_KERNEL);
+	if (!gsi->tx_qps)
+		return -ENOMEM;
+
+	gsi->outstanding_wrs =
+		kcalloc(attr->cap.max_send_wr, sizeof(*gsi->outstanding_wrs),
+			GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!gsi->outstanding_wrs) {
 		ret = -ENOMEM;
 		goto err_free_tx;
 	}
 
+<<<<<<< HEAD
 	mutex_init(&gsi->mutex);
 
 	mutex_lock(&dev->devr.mutex);
 
+=======
+>>>>>>> upstream/android-13
 	if (dev->devr.ports[port_num - 1].gsi) {
 		mlx5_ib_warn(dev, "GSI QP already exists on port %d\n",
 			     port_num);
@@ -163,12 +222,19 @@ struct ib_qp *mlx5_ib_gsi_create_qp(struct ib_pd *pd,
 	gsi->num_qps = num_qps;
 	spin_lock_init(&gsi->lock);
 
+<<<<<<< HEAD
 	gsi->cap = init_attr->cap;
 	gsi->sq_sig_type = init_attr->sq_sig_type;
 	gsi->ibqp.qp_num = 1;
 	gsi->port_num = port_num;
 
 	gsi->cq = ib_alloc_cq(pd->device, gsi, init_attr->cap.max_send_wr, 0,
+=======
+	gsi->cap = attr->cap;
+	gsi->port_num = port_num;
+
+	gsi->cq = ib_alloc_cq(pd->device, gsi, attr->cap.max_send_wr, 0,
+>>>>>>> upstream/android-13
 			      IB_POLL_SOFTIRQ);
 	if (IS_ERR(gsi->cq)) {
 		mlx5_ib_warn(dev, "unable to create send CQ for GSI QP. error %ld\n",
@@ -184,6 +250,10 @@ struct ib_qp *mlx5_ib_gsi_create_qp(struct ib_pd *pd,
 		hw_init_attr.cap.max_send_sge = 0;
 		hw_init_attr.cap.max_inline_data = 0;
 	}
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	gsi->rx_qp = ib_create_qp(pd, &hw_init_attr);
 	if (IS_ERR(gsi->rx_qp)) {
 		mlx5_ib_warn(dev, "unable to create hardware GSI QP. error %ld\n",
@@ -192,15 +262,21 @@ struct ib_qp *mlx5_ib_gsi_create_qp(struct ib_pd *pd,
 		goto err_destroy_cq;
 	}
 
+<<<<<<< HEAD
 	dev->devr.ports[init_attr->port_num - 1].gsi = gsi;
 
 	mutex_unlock(&dev->devr.mutex);
 
 	return &gsi->ibqp;
+=======
+	dev->devr.ports[attr->port_num - 1].gsi = gsi;
+	return 0;
+>>>>>>> upstream/android-13
 
 err_destroy_cq:
 	ib_free_cq(gsi->cq);
 err_free_wrs:
+<<<<<<< HEAD
 	mutex_unlock(&dev->devr.mutex);
 	kfree(gsi->outstanding_wrs);
 err_free_tx:
@@ -214,22 +290,43 @@ int mlx5_ib_gsi_destroy_qp(struct ib_qp *qp)
 {
 	struct mlx5_ib_dev *dev = to_mdev(qp->device);
 	struct mlx5_ib_gsi_qp *gsi = gsi_qp(qp);
+=======
+	kfree(gsi->outstanding_wrs);
+err_free_tx:
+	kfree(gsi->tx_qps);
+	return ret;
+}
+
+int mlx5_ib_destroy_gsi(struct mlx5_ib_qp *mqp)
+{
+	struct mlx5_ib_dev *dev = to_mdev(mqp->ibqp.device);
+	struct mlx5_ib_gsi_qp *gsi = &mqp->gsi;
+>>>>>>> upstream/android-13
 	const int port_num = gsi->port_num;
 	int qp_index;
 	int ret;
 
+<<<<<<< HEAD
 	mlx5_ib_dbg(dev, "destroying GSI QP\n");
 
 	mutex_lock(&dev->devr.mutex);
+=======
+>>>>>>> upstream/android-13
 	ret = ib_destroy_qp(gsi->rx_qp);
 	if (ret) {
 		mlx5_ib_warn(dev, "unable to destroy hardware GSI QP. error %d\n",
 			     ret);
+<<<<<<< HEAD
 		mutex_unlock(&dev->devr.mutex);
 		return ret;
 	}
 	dev->devr.ports[port_num - 1].gsi = NULL;
 	mutex_unlock(&dev->devr.mutex);
+=======
+		return ret;
+	}
+	dev->devr.ports[port_num - 1].gsi = NULL;
+>>>>>>> upstream/android-13
 	gsi->rx_qp = NULL;
 
 	for (qp_index = 0; qp_index < gsi->num_qps; ++qp_index) {
@@ -243,8 +340,11 @@ int mlx5_ib_gsi_destroy_qp(struct ib_qp *qp)
 
 	kfree(gsi->outstanding_wrs);
 	kfree(gsi->tx_qps);
+<<<<<<< HEAD
 	kfree(gsi);
 
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -261,16 +361,25 @@ static struct ib_qp *create_gsi_ud_qp(struct mlx5_ib_gsi_qp *gsi)
 			.max_send_sge = gsi->cap.max_send_sge,
 			.max_inline_data = gsi->cap.max_inline_data,
 		},
+<<<<<<< HEAD
 		.sq_sig_type = gsi->sq_sig_type,
 		.qp_type = IB_QPT_UD,
 		.create_flags = mlx5_ib_create_qp_sqpn_qp1(),
+=======
+		.qp_type = IB_QPT_UD,
+		.create_flags = MLX5_IB_QP_CREATE_SQPN_QP1,
+>>>>>>> upstream/android-13
 	};
 
 	return ib_create_qp(pd, &init_attr);
 }
 
 static int modify_to_rts(struct mlx5_ib_gsi_qp *gsi, struct ib_qp *qp,
+<<<<<<< HEAD
 			 u16 qp_index)
+=======
+			 u16 pkey_index)
+>>>>>>> upstream/android-13
 {
 	struct mlx5_ib_dev *dev = to_mdev(qp->device);
 	struct ib_qp_attr attr;
@@ -279,7 +388,11 @@ static int modify_to_rts(struct mlx5_ib_gsi_qp *gsi, struct ib_qp *qp,
 
 	mask = IB_QP_STATE | IB_QP_PKEY_INDEX | IB_QP_QKEY | IB_QP_PORT;
 	attr.qp_state = IB_QPS_INIT;
+<<<<<<< HEAD
 	attr.pkey_index = qp_index;
+=======
+	attr.pkey_index = pkey_index;
+>>>>>>> upstream/android-13
 	attr.qkey = IB_QP1_QKEY;
 	attr.port_num = gsi->port_num;
 	ret = ib_modify_qp(qp, &attr, mask);
@@ -313,12 +426,24 @@ static void setup_qp(struct mlx5_ib_gsi_qp *gsi, u16 qp_index)
 {
 	struct ib_device *device = gsi->rx_qp->device;
 	struct mlx5_ib_dev *dev = to_mdev(device);
+<<<<<<< HEAD
+=======
+	int pkey_index = qp_index;
+	struct mlx5_ib_qp *mqp;
+>>>>>>> upstream/android-13
 	struct ib_qp *qp;
 	unsigned long flags;
 	u16 pkey;
 	int ret;
 
+<<<<<<< HEAD
 	ret = ib_query_pkey(device, gsi->port_num, qp_index, &pkey);
+=======
+	if (MLX5_CAP_GEN(dev->mdev,  port_type) != MLX5_CAP_PORT_TYPE_IB)
+		pkey_index = 0;
+
+	ret = ib_query_pkey(device, gsi->port_num, pkey_index, &pkey);
+>>>>>>> upstream/android-13
 	if (ret) {
 		mlx5_ib_warn(dev, "unable to read P_Key at port %d, index %d\n",
 			     gsi->port_num, qp_index);
@@ -347,7 +472,14 @@ static void setup_qp(struct mlx5_ib_gsi_qp *gsi, u16 qp_index)
 		return;
 	}
 
+<<<<<<< HEAD
 	ret = modify_to_rts(gsi, qp, qp_index);
+=======
+	mqp = to_mqp(qp);
+	if (dev->lag_active)
+		mqp->gsi_lag_port = qp_index + 1;
+	ret = modify_to_rts(gsi, qp, pkey_index);
+>>>>>>> upstream/android-13
 	if (ret)
 		goto err_destroy_qp;
 
@@ -362,6 +494,7 @@ err_destroy_qp:
 	WARN_ON_ONCE(qp);
 }
 
+<<<<<<< HEAD
 static void setup_qps(struct mlx5_ib_gsi_qp *gsi)
 {
 	u16 qp_index;
@@ -370,15 +503,24 @@ static void setup_qps(struct mlx5_ib_gsi_qp *gsi)
 		setup_qp(gsi, qp_index);
 }
 
+=======
+>>>>>>> upstream/android-13
 int mlx5_ib_gsi_modify_qp(struct ib_qp *qp, struct ib_qp_attr *attr,
 			  int attr_mask)
 {
 	struct mlx5_ib_dev *dev = to_mdev(qp->device);
+<<<<<<< HEAD
 	struct mlx5_ib_gsi_qp *gsi = gsi_qp(qp);
+=======
+	struct mlx5_ib_qp *mqp = to_mqp(qp);
+	struct mlx5_ib_gsi_qp *gsi = &mqp->gsi;
+	u16 qp_index;
+>>>>>>> upstream/android-13
 	int ret;
 
 	mlx5_ib_dbg(dev, "modifying GSI QP to state %d\n", attr->qp_state);
 
+<<<<<<< HEAD
 	mutex_lock(&gsi->mutex);
 	ret = ib_modify_qp(gsi->rx_qp, attr, attr_mask);
 	if (ret) {
@@ -393,12 +535,27 @@ unlock:
 	mutex_unlock(&gsi->mutex);
 
 	return ret;
+=======
+	ret = ib_modify_qp(gsi->rx_qp, attr, attr_mask);
+	if (ret) {
+		mlx5_ib_warn(dev, "unable to modify GSI rx QP: %d\n", ret);
+		return ret;
+	}
+
+	if (to_mqp(gsi->rx_qp)->state != IB_QPS_RTS)
+		return 0;
+
+	for (qp_index = 0; qp_index < gsi->num_qps; ++qp_index)
+		setup_qp(gsi, qp_index);
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 int mlx5_ib_gsi_query_qp(struct ib_qp *qp, struct ib_qp_attr *qp_attr,
 			 int qp_attr_mask,
 			 struct ib_qp_init_attr *qp_init_attr)
 {
+<<<<<<< HEAD
 	struct mlx5_ib_gsi_qp *gsi = gsi_qp(qp);
 	int ret;
 
@@ -407,13 +564,28 @@ int mlx5_ib_gsi_query_qp(struct ib_qp *qp, struct ib_qp_attr *qp_attr,
 	qp_init_attr->cap = gsi->cap;
 	mutex_unlock(&gsi->mutex);
 
+=======
+	struct mlx5_ib_qp *mqp = to_mqp(qp);
+	struct mlx5_ib_gsi_qp *gsi = &mqp->gsi;
+	int ret;
+
+	ret = ib_query_qp(gsi->rx_qp, qp_attr, qp_attr_mask, qp_init_attr);
+	qp_init_attr->cap = gsi->cap;
+>>>>>>> upstream/android-13
 	return ret;
 }
 
 /* Call with gsi->lock locked */
+<<<<<<< HEAD
 static int mlx5_ib_add_outstanding_wr(struct mlx5_ib_gsi_qp *gsi,
 				      struct ib_ud_wr *wr, struct ib_wc *wc)
 {
+=======
+static int mlx5_ib_add_outstanding_wr(struct mlx5_ib_qp *mqp,
+				      struct ib_ud_wr *wr, struct ib_wc *wc)
+{
+	struct mlx5_ib_gsi_qp *gsi = &mqp->gsi;
+>>>>>>> upstream/android-13
 	struct mlx5_ib_dev *dev = to_mdev(gsi->rx_qp->device);
 	struct mlx5_ib_gsi_wr *gsi_wr;
 
@@ -442,13 +614,18 @@ static int mlx5_ib_add_outstanding_wr(struct mlx5_ib_gsi_qp *gsi,
 }
 
 /* Call with gsi->lock locked */
+<<<<<<< HEAD
 static int mlx5_ib_gsi_silent_drop(struct mlx5_ib_gsi_qp *gsi,
 				    struct ib_ud_wr *wr)
+=======
+static int mlx5_ib_gsi_silent_drop(struct mlx5_ib_qp *mqp, struct ib_ud_wr *wr)
+>>>>>>> upstream/android-13
 {
 	struct ib_wc wc = {
 		{ .wr_id = wr->wr.wr_id },
 		.status = IB_WC_SUCCESS,
 		.opcode = IB_WC_SEND,
+<<<<<<< HEAD
 		.qp = &gsi->ibqp,
 	};
 	int ret;
@@ -458,6 +635,17 @@ static int mlx5_ib_gsi_silent_drop(struct mlx5_ib_gsi_qp *gsi,
 		return ret;
 
 	generate_completions(gsi);
+=======
+		.qp = &mqp->ibqp,
+	};
+	int ret;
+
+	ret = mlx5_ib_add_outstanding_wr(mqp, wr, &wc);
+	if (ret)
+		return ret;
+
+	generate_completions(mqp);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -466,11 +654,23 @@ static int mlx5_ib_gsi_silent_drop(struct mlx5_ib_gsi_qp *gsi,
 static struct ib_qp *get_tx_qp(struct mlx5_ib_gsi_qp *gsi, struct ib_ud_wr *wr)
 {
 	struct mlx5_ib_dev *dev = to_mdev(gsi->rx_qp->device);
+<<<<<<< HEAD
 	int qp_index = wr->pkey_index;
 
 	if (!mlx5_ib_deth_sqpn_cap(dev))
 		return gsi->rx_qp;
 
+=======
+	struct mlx5_ib_ah *ah = to_mah(wr->ah);
+	int qp_index = wr->pkey_index;
+
+	if (!gsi->num_qps)
+		return gsi->rx_qp;
+
+	if (dev->lag_active && ah->xmit_port)
+		qp_index = ah->xmit_port - 1;
+
+>>>>>>> upstream/android-13
 	if (qp_index >= gsi->num_qps)
 		return NULL;
 
@@ -480,7 +680,12 @@ static struct ib_qp *get_tx_qp(struct mlx5_ib_gsi_qp *gsi, struct ib_ud_wr *wr)
 int mlx5_ib_gsi_post_send(struct ib_qp *qp, const struct ib_send_wr *wr,
 			  const struct ib_send_wr **bad_wr)
 {
+<<<<<<< HEAD
 	struct mlx5_ib_gsi_qp *gsi = gsi_qp(qp);
+=======
+	struct mlx5_ib_qp *mqp = to_mqp(qp);
+	struct mlx5_ib_gsi_qp *gsi = &mqp->gsi;
+>>>>>>> upstream/android-13
 	struct ib_qp *tx_qp;
 	unsigned long flags;
 	int ret;
@@ -493,14 +698,22 @@ int mlx5_ib_gsi_post_send(struct ib_qp *qp, const struct ib_send_wr *wr,
 		spin_lock_irqsave(&gsi->lock, flags);
 		tx_qp = get_tx_qp(gsi, &cur_wr);
 		if (!tx_qp) {
+<<<<<<< HEAD
 			ret = mlx5_ib_gsi_silent_drop(gsi, &cur_wr);
+=======
+			ret = mlx5_ib_gsi_silent_drop(mqp, &cur_wr);
+>>>>>>> upstream/android-13
 			if (ret)
 				goto err;
 			spin_unlock_irqrestore(&gsi->lock, flags);
 			continue;
 		}
 
+<<<<<<< HEAD
 		ret = mlx5_ib_add_outstanding_wr(gsi, &cur_wr, NULL);
+=======
+		ret = mlx5_ib_add_outstanding_wr(mqp, &cur_wr, NULL);
+>>>>>>> upstream/android-13
 		if (ret)
 			goto err;
 
@@ -524,17 +737,29 @@ err:
 int mlx5_ib_gsi_post_recv(struct ib_qp *qp, const struct ib_recv_wr *wr,
 			  const struct ib_recv_wr **bad_wr)
 {
+<<<<<<< HEAD
 	struct mlx5_ib_gsi_qp *gsi = gsi_qp(qp);
+=======
+	struct mlx5_ib_qp *mqp = to_mqp(qp);
+	struct mlx5_ib_gsi_qp *gsi = &mqp->gsi;
+>>>>>>> upstream/android-13
 
 	return ib_post_recv(gsi->rx_qp, wr, bad_wr);
 }
 
 void mlx5_ib_gsi_pkey_change(struct mlx5_ib_gsi_qp *gsi)
 {
+<<<<<<< HEAD
 	if (!gsi)
 		return;
 
 	mutex_lock(&gsi->mutex);
 	setup_qps(gsi);
 	mutex_unlock(&gsi->mutex);
+=======
+	u16 qp_index;
+
+	for (qp_index = 0; qp_index < gsi->num_qps; ++qp_index)
+		setup_qp(gsi, qp_index);
+>>>>>>> upstream/android-13
 }

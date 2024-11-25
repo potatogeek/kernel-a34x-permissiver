@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * sm3_base.h - core logic for SM3 implementations
  *
  * Copyright (C) 2017 ARM Limited or its affiliates.
  * Written by Gilad Ben-Yossef <gilad@benyossef.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -17,10 +22,21 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
+=======
+ */
+
+#ifndef _CRYPTO_SM3_BASE_H
+#define _CRYPTO_SM3_BASE_H
+
+>>>>>>> upstream/android-13
 #include <crypto/internal/hash.h>
 #include <crypto/sm3.h>
 #include <linux/crypto.h>
 #include <linux/module.h>
+<<<<<<< HEAD
+=======
+#include <linux/string.h>
+>>>>>>> upstream/android-13
 #include <asm/unaligned.h>
 
 typedef void (sm3_block_fn)(struct sm3_state *sst, u8 const *src, int blocks);
@@ -112,6 +128,14 @@ static inline int sm3_base_finish(struct shash_desc *desc, u8 *out)
 	for (i = 0; i < SM3_DIGEST_SIZE / sizeof(__be32); i++)
 		put_unaligned_be32(sctx->state[i], digest++);
 
+<<<<<<< HEAD
 	*sctx = (struct sm3_state){};
 	return 0;
 }
+=======
+	memzero_explicit(sctx, sizeof(*sctx));
+	return 0;
+}
+
+#endif /* _CRYPTO_SM3_BASE_H */
+>>>>>>> upstream/android-13

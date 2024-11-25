@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  linux/arch/arm/mach-pxa/stargate2.c
  *
@@ -6,10 +10,13 @@
  *  Copyright:	Intel Corp.
  *
  *  Modified 2009:  Jonathan Cameron <jic23@cam.ac.uk>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2 as
  *  published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -337,6 +344,7 @@ static struct platform_device stargate2_flash_device = {
 	.num_resources = 1,
 };
 
+<<<<<<< HEAD
 static struct pxa2xx_spi_master pxa_ssp_master_0_info = {
 	.num_chipselect = 1,
 };
@@ -346,6 +354,17 @@ static struct pxa2xx_spi_master pxa_ssp_master_1_info = {
 };
 
 static struct pxa2xx_spi_master pxa_ssp_master_2_info = {
+=======
+static struct pxa2xx_spi_controller pxa_ssp_master_0_info = {
+	.num_chipselect = 1,
+};
+
+static struct pxa2xx_spi_controller pxa_ssp_master_1_info = {
+	.num_chipselect = 1,
+};
+
+static struct pxa2xx_spi_controller pxa_ssp_master_2_info = {
+>>>>>>> upstream/android-13
 	.num_chipselect = 1,
 };
 
@@ -436,9 +455,12 @@ static int imote2_mci_get_ro(struct device *dev)
 static struct pxamci_platform_data imote2_mci_platform_data = {
 	.ocr_mask = MMC_VDD_32_33 | MMC_VDD_33_34, /* default anyway */
 	.get_ro = imote2_mci_get_ro,
+<<<<<<< HEAD
 	.gpio_card_detect = -1,
 	.gpio_card_ro	= -1,
 	.gpio_power = -1,
+=======
+>>>>>>> upstream/android-13
 };
 
 static struct gpio_led imote2_led_pins[] = {
@@ -800,6 +822,13 @@ static const struct property_entry pca9500_eeprom_properties[] = {
 	{ }
 };
 
+<<<<<<< HEAD
+=======
+static const struct software_node pca9500_eeprom_node = {
+	.properties = pca9500_eeprom_properties,
+};
+
+>>>>>>> upstream/android-13
 /**
  * stargate2_reset_bluetooth() reset the bluecore to ensure consistent state
  **/
@@ -935,7 +964,11 @@ static struct i2c_board_info __initdata stargate2_i2c_board_info[] = {
 	}, {
 		.type = "24c02",
 		.addr = 0x57,
+<<<<<<< HEAD
 		.properties = pca9500_eeprom_properties,
+=======
+		.swnode = &pca9500_eeprom_node,
+>>>>>>> upstream/android-13
 	}, {
 		.type = "max1238",
 		.addr = 0x35,

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Functions for the OPL4 proc file
  * Copyright (c) 2003 by Clemens Ladisch <clemens@ladisch.de>
@@ -15,6 +16,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Functions for the OPL4 proc file
+ * Copyright (c) 2003 by Clemens Ladisch <clemens@ladisch.de>
+>>>>>>> upstream/android-13
  */
 
 #include "opl4_local.h"
@@ -89,7 +96,11 @@ static ssize_t snd_opl4_mem_proc_write(struct snd_info_entry *entry,
 	return count;
 }
 
+<<<<<<< HEAD
 static struct snd_info_entry_ops snd_opl4_mem_proc_ops = {
+=======
+static const struct snd_info_entry_ops snd_opl4_mem_proc_ops = {
+>>>>>>> upstream/android-13
 	.open = snd_opl4_mem_proc_open,
 	.release = snd_opl4_mem_proc_release,
 	.read = snd_opl4_mem_proc_read,
@@ -114,10 +125,13 @@ int snd_opl4_create_proc(struct snd_opl4 *opl4)
 		entry->c.ops = &snd_opl4_mem_proc_ops;
 		entry->module = THIS_MODULE;
 		entry->private_data = opl4;
+<<<<<<< HEAD
 		if (snd_info_register(entry) < 0) {
 			snd_info_free_entry(entry);
 			entry = NULL;
 		}
+=======
+>>>>>>> upstream/android-13
 	}
 	opl4->proc_entry = entry;
 	return 0;

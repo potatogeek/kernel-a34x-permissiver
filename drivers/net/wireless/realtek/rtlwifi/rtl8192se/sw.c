@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * Copyright(c) 2009-2012  Realtek Corporation.
@@ -22,6 +23,10 @@
  * Larry Finger <Larry.Finger@lwfinger.net>
  *
  *****************************************************************************/
+=======
+// SPDX-License-Identifier: GPL-2.0
+/* Copyright(c) 2009-2012  Realtek Corporation.*/
+>>>>>>> upstream/android-13
 
 #include "../wifi.h"
 #include "../core.h"
@@ -33,7 +38,10 @@
 #include "dm.h"
 #include "fw.h"
 #include "hw.h"
+<<<<<<< HEAD
 #include "sw.h"
+=======
+>>>>>>> upstream/android-13
 #include "trx.h"
 #include "led.h"
 
@@ -88,8 +96,13 @@ static void rtl92se_fw_cb(const struct firmware *firmware, void *context)
 	struct rt_firmware *pfirmware = NULL;
 	char *fw_name = "rtlwifi/rtl8192sefw.bin";
 
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_ERR, DBG_LOUD,
 			 "Firmware callback routine entered!\n");
+=======
+	rtl_dbg(rtlpriv, COMP_ERR, DBG_LOUD,
+		"Firmware callback routine entered!\n");
+>>>>>>> upstream/android-13
 	complete(&rtlpriv->firmware_loading_complete);
 	if (!firmware) {
 		pr_err("Firmware %s not available\n", fw_name);
@@ -183,8 +196,11 @@ static int rtl92s_init_sw_vars(struct ieee80211_hw *hw)
 	rtlpriv->psc.inactiveps = rtlpriv->cfg->mod_params->inactiveps;
 	rtlpriv->psc.swctrl_lps = rtlpriv->cfg->mod_params->swctrl_lps;
 	rtlpriv->psc.fwctrl_lps = rtlpriv->cfg->mod_params->fwctrl_lps;
+<<<<<<< HEAD
 	rtlpriv->cfg->mod_params->sw_crypto =
 		rtlpriv->cfg->mod_params->sw_crypto;
+=======
+>>>>>>> upstream/android-13
 	if (!rtlpriv->psc.inactiveps)
 		pr_info("Power Save off (module option)\n");
 	if (!rtlpriv->psc.fwctrl_lps)

@@ -37,6 +37,10 @@
 
 #include <rdma/ib_user_verbs.h>
 #include <rdma/ib_addr.h>
+<<<<<<< HEAD
+=======
+#include <rdma/uverbs_ioctl.h>
+>>>>>>> upstream/android-13
 
 #include "usnic_abi.h"
 #include "usnic_ib.h"
@@ -159,13 +163,19 @@ static int usnic_ib_fill_create_qp_resp(struct usnic_ib_qp_grp *qp_grp,
 
 	err = ib_copy_to_udata(udata, &resp, sizeof(resp));
 	if (err) {
+<<<<<<< HEAD
 		usnic_err("Failed to copy udata for %s", us_ibdev->ib_dev.name);
+=======
+		usnic_err("Failed to copy udata for %s",
+			  dev_name(&us_ibdev->ib_dev.dev));
+>>>>>>> upstream/android-13
 		return err;
 	}
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct usnic_ib_qp_grp*
 find_free_vf_and_create_qp_grp(struct usnic_ib_dev *us_ibdev,
 				struct usnic_ib_pd *pd,
@@ -177,18 +187,37 @@ find_free_vf_and_create_qp_grp(struct usnic_ib_dev *us_ibdev,
 	struct usnic_ib_qp_grp *qp_grp;
 	struct device *dev, **dev_list;
 	int i;
+=======
+static int
+find_free_vf_and_create_qp_grp(struct ib_qp *qp,
+			       struct usnic_transport_spec *trans_spec,
+			       struct usnic_vnic_res_spec *res_spec)
+{
+	struct usnic_ib_dev *us_ibdev = to_usdev(qp->device);
+	struct usnic_ib_pd *pd = to_upd(qp->pd);
+	struct usnic_ib_vf *vf;
+	struct usnic_vnic *vnic;
+	struct usnic_ib_qp_grp *qp_grp = to_uqp_grp(qp);
+	struct device *dev, **dev_list;
+	int i, ret;
+>>>>>>> upstream/android-13
 
 	BUG_ON(!mutex_is_locked(&us_ibdev->usdev_lock));
 
 	if (list_empty(&us_ibdev->vf_dev_list)) {
 		usnic_info("No vfs to allocate\n");
+<<<<<<< HEAD
 		return NULL;
+=======
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 	}
 
 	if (usnic_ib_share_vf) {
 		/* Try to find resouces on a used vf which is in pd */
 		dev_list = usnic_uiom_get_dev_list(pd->umem_pd);
 		if (IS_ERR(dev_list))
+<<<<<<< HEAD
 			return ERR_CAST(dev_list);
 		for (i = 0; dev_list[i]; i++) {
 			dev = dev_list[i];
@@ -209,6 +238,28 @@ find_free_vf_and_create_qp_grp(struct usnic_ib_dev *us_ibdev,
 				goto qp_grp_check;
 			}
 			spin_unlock(&vf->lock);
+=======
+			return PTR_ERR(dev_list);
+		for (i = 0; dev_list[i]; i++) {
+			dev = dev_list[i];
+			vf = dev_get_drvdata(dev);
+			mutex_lock(&vf->lock);
+			vnic = vf->vnic;
+			if (!usnic_vnic_check_room(vnic, res_spec)) {
+				usnic_dbg("Found used vnic %s from %s\n",
+						dev_name(&us_ibdev->ib_dev.dev),
+						pci_name(usnic_vnic_get_pdev(
+									vnic)));
+				ret = usnic_ib_qp_grp_create(qp_grp,
+							     us_ibdev->ufdev,
+							     vf, pd, res_spec,
+							     trans_spec);
+
+				mutex_unlock(&vf->lock);
+				goto qp_grp_check;
+			}
+			mutex_unlock(&vf->lock);
+>>>>>>> upstream/android-13
 
 		}
 		usnic_uiom_free_dev_list(dev_list);
@@ -217,6 +268,7 @@ find_free_vf_and_create_qp_grp(struct usnic_ib_dev *us_ibdev,
 
 	/* Try to find resources on an unused vf */
 	list_for_each_entry(vf, &us_ibdev->vf_dev_list, link) {
+<<<<<<< HEAD
 		spin_lock(&vf->lock);
 		vnic = vf->vnic;
 		if (vf->qp_grp_ref_cnt == 0 &&
@@ -242,6 +294,33 @@ qp_grp_check:
 		return ERR_PTR(qp_grp ? PTR_ERR(qp_grp) : -ENOMEM);
 	}
 	return qp_grp;
+=======
+		mutex_lock(&vf->lock);
+		vnic = vf->vnic;
+		if (vf->qp_grp_ref_cnt == 0 &&
+		    usnic_vnic_check_room(vnic, res_spec) == 0) {
+			ret = usnic_ib_qp_grp_create(qp_grp, us_ibdev->ufdev,
+						     vf, pd, res_spec,
+						     trans_spec);
+
+			mutex_unlock(&vf->lock);
+			goto qp_grp_check;
+		}
+		mutex_unlock(&vf->lock);
+	}
+
+	usnic_info("No free qp grp found on %s\n",
+		   dev_name(&us_ibdev->ib_dev.dev));
+	return -ENOMEM;
+
+qp_grp_check:
+	if (ret) {
+		usnic_err("Failed to allocate qp_grp\n");
+		if (usnic_ib_share_vf)
+			usnic_uiom_free_dev_list(dev_list);
+	}
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static void qp_grp_destroy(struct usnic_ib_qp_grp *qp_grp)
@@ -250,9 +329,15 @@ static void qp_grp_destroy(struct usnic_ib_qp_grp *qp_grp)
 
 	WARN_ON(qp_grp->state != IB_QPS_RESET);
 
+<<<<<<< HEAD
 	spin_lock(&vf->lock);
 	usnic_ib_qp_grp_destroy(qp_grp);
 	spin_unlock(&vf->lock);
+=======
+	mutex_lock(&vf->lock);
+	usnic_ib_qp_grp_destroy(qp_grp);
+	mutex_unlock(&vf->lock);
+>>>>>>> upstream/android-13
 }
 
 static int create_qp_validate_user_data(struct usnic_ib_create_qp_cmd cmd)
@@ -267,7 +352,11 @@ static int create_qp_validate_user_data(struct usnic_ib_create_qp_cmd cmd)
 /* Start of ib callback functions */
 
 enum rdma_link_layer usnic_ib_port_link_layer(struct ib_device *device,
+<<<<<<< HEAD
 						u8 port_num)
+=======
+					      u32 port_num)
+>>>>>>> upstream/android-13
 {
 	return IB_LINK_LAYER_ETHERNET;
 }
@@ -322,7 +411,10 @@ int usnic_ib_query_device(struct ib_device *ibdev,
 	props->max_mcast_grp = 0;
 	props->max_mcast_qp_attach = 0;
 	props->max_total_mcast_qp_attach = 0;
+<<<<<<< HEAD
 	props->max_map_per_fmr = 0;
+=======
+>>>>>>> upstream/android-13
 	/* Owned by Userspace
 	 * max_qp_wr, max_sge, max_sge_rd, max_cqe */
 	mutex_unlock(&us_ibdev->usdev_lock);
@@ -330,7 +422,11 @@ int usnic_ib_query_device(struct ib_device *ibdev,
 	return 0;
 }
 
+<<<<<<< HEAD
 int usnic_ib_query_port(struct ib_device *ibdev, u8 port,
+=======
+int usnic_ib_query_port(struct ib_device *ibdev, u32 port,
+>>>>>>> upstream/android-13
 				struct ib_port_attr *props)
 {
 	struct usnic_ib_dev *us_ibdev = to_usdev(ibdev);
@@ -356,6 +452,7 @@ int usnic_ib_query_port(struct ib_device *ibdev, u8 port,
 
 	if (!us_ibdev->ufdev->link_up) {
 		props->state = IB_PORT_DOWN;
+<<<<<<< HEAD
 		props->phys_state = 3;
 	} else if (!us_ibdev->ufdev->inaddr) {
 		props->state = IB_PORT_INIT;
@@ -363,11 +460,24 @@ int usnic_ib_query_port(struct ib_device *ibdev, u8 port,
 	} else {
 		props->state = IB_PORT_ACTIVE;
 		props->phys_state = 5;
+=======
+		props->phys_state = IB_PORT_PHYS_STATE_DISABLED;
+	} else if (!us_ibdev->ufdev->inaddr) {
+		props->state = IB_PORT_INIT;
+		props->phys_state =
+			IB_PORT_PHYS_STATE_PORT_CONFIGURATION_TRAINING;
+	} else {
+		props->state = IB_PORT_ACTIVE;
+		props->phys_state = IB_PORT_PHYS_STATE_LINK_UP;
+>>>>>>> upstream/android-13
 	}
 
 	props->port_cap_flags = 0;
 	props->gid_tbl_len = 1;
+<<<<<<< HEAD
 	props->pkey_tbl_len = 1;
+=======
+>>>>>>> upstream/android-13
 	props->bad_pkey_cntr = 0;
 	props->qkey_viol_cntr = 0;
 	props->max_mtu = IB_MTU_4096;
@@ -418,7 +528,11 @@ err_out:
 	return err;
 }
 
+<<<<<<< HEAD
 int usnic_ib_query_gid(struct ib_device *ibdev, u8 port, int index,
+=======
+int usnic_ib_query_gid(struct ib_device *ibdev, u32 port, int index,
+>>>>>>> upstream/android-13
 				union ib_gid *gid)
 {
 
@@ -437,6 +551,7 @@ int usnic_ib_query_gid(struct ib_device *ibdev, u8 port, int index,
 	return 0;
 }
 
+<<<<<<< HEAD
 struct net_device *usnic_get_netdev(struct ib_device *device, u8 port_num)
 {
 	struct usnic_ib_dev *us_ibdev = to_usdev(device);
@@ -498,6 +613,35 @@ struct ib_qp *usnic_ib_create_qp(struct ib_pd *pd,
 	struct usnic_ib_dev *us_ibdev;
 	struct usnic_ib_qp_grp *qp_grp;
 	struct usnic_ib_ucontext *ucontext;
+=======
+int usnic_ib_alloc_pd(struct ib_pd *ibpd, struct ib_udata *udata)
+{
+	struct usnic_ib_pd *pd = to_upd(ibpd);
+	void *umem_pd;
+
+	umem_pd = pd->umem_pd = usnic_uiom_alloc_pd();
+	if (IS_ERR_OR_NULL(umem_pd)) {
+		return umem_pd ? PTR_ERR(umem_pd) : -ENOMEM;
+	}
+
+	return 0;
+}
+
+int usnic_ib_dealloc_pd(struct ib_pd *pd, struct ib_udata *udata)
+{
+	usnic_uiom_dealloc_pd((to_upd(pd))->umem_pd);
+	return 0;
+}
+
+int usnic_ib_create_qp(struct ib_qp *ibqp, struct ib_qp_init_attr *init_attr,
+		       struct ib_udata *udata)
+{
+	int err;
+	struct usnic_ib_dev *us_ibdev;
+	struct usnic_ib_qp_grp *qp_grp = to_uqp_grp(ibqp);
+	struct usnic_ib_ucontext *ucontext = rdma_udata_to_drv_context(
+		udata, struct usnic_ib_ucontext, ibucontext);
+>>>>>>> upstream/android-13
 	int cq_cnt;
 	struct usnic_vnic_res_spec res_spec;
 	struct usnic_ib_create_qp_cmd cmd;
@@ -505,30 +649,52 @@ struct ib_qp *usnic_ib_create_qp(struct ib_pd *pd,
 
 	usnic_dbg("\n");
 
+<<<<<<< HEAD
 	ucontext = to_uucontext(pd->uobject->context);
 	us_ibdev = to_usdev(pd->device);
 
 	if (init_attr->create_flags)
 		return ERR_PTR(-EINVAL);
+=======
+	us_ibdev = to_usdev(ibqp->device);
+
+	if (init_attr->create_flags)
+		return -EOPNOTSUPP;
+>>>>>>> upstream/android-13
 
 	err = ib_copy_from_udata(&cmd, udata, sizeof(cmd));
 	if (err) {
 		usnic_err("%s: cannot copy udata for create_qp\n",
+<<<<<<< HEAD
 				us_ibdev->ib_dev.name);
 		return ERR_PTR(-EINVAL);
+=======
+			  dev_name(&us_ibdev->ib_dev.dev));
+		return -EINVAL;
+>>>>>>> upstream/android-13
 	}
 
 	err = create_qp_validate_user_data(cmd);
 	if (err) {
 		usnic_err("%s: Failed to validate user data\n",
+<<<<<<< HEAD
 				us_ibdev->ib_dev.name);
 		return ERR_PTR(-EINVAL);
+=======
+			  dev_name(&us_ibdev->ib_dev.dev));
+		return -EINVAL;
+>>>>>>> upstream/android-13
 	}
 
 	if (init_attr->qp_type != IB_QPT_UD) {
 		usnic_err("%s asked to make a non-UD QP: %d\n",
+<<<<<<< HEAD
 				us_ibdev->ib_dev.name, init_attr->qp_type);
 		return ERR_PTR(-EINVAL);
+=======
+			  dev_name(&us_ibdev->ib_dev.dev), init_attr->qp_type);
+		return -EOPNOTSUPP;
+>>>>>>> upstream/android-13
 	}
 
 	trans_spec = cmd.spec;
@@ -536,6 +702,7 @@ struct ib_qp *usnic_ib_create_qp(struct ib_pd *pd,
 	cq_cnt = (init_attr->send_cq == init_attr->recv_cq) ? 1 : 2;
 	res_spec = min_transport_spec[trans_spec.trans_type];
 	usnic_vnic_res_spec_update(&res_spec, USNIC_VNIC_RES_TYPE_CQ, cq_cnt);
+<<<<<<< HEAD
 	qp_grp = find_free_vf_and_create_qp_grp(us_ibdev, to_upd(pd),
 						&trans_spec,
 						&res_spec);
@@ -543,6 +710,11 @@ struct ib_qp *usnic_ib_create_qp(struct ib_pd *pd,
 		err = qp_grp ? PTR_ERR(qp_grp) : -ENOMEM;
 		goto out_release_mutex;
 	}
+=======
+	err = find_free_vf_and_create_qp_grp(ibqp, &trans_spec, &res_spec);
+	if (err)
+		goto out_release_mutex;
+>>>>>>> upstream/android-13
 
 	err = usnic_ib_fill_create_qp_resp(qp_grp, udata);
 	if (err) {
@@ -554,16 +726,27 @@ struct ib_qp *usnic_ib_create_qp(struct ib_pd *pd,
 	list_add_tail(&qp_grp->link, &ucontext->qp_grp_list);
 	usnic_ib_log_vf(qp_grp->vf);
 	mutex_unlock(&us_ibdev->usdev_lock);
+<<<<<<< HEAD
 	return &qp_grp->ibqp;
+=======
+	return 0;
+>>>>>>> upstream/android-13
 
 out_release_qp_grp:
 	qp_grp_destroy(qp_grp);
 out_release_mutex:
 	mutex_unlock(&us_ibdev->usdev_lock);
+<<<<<<< HEAD
 	return ERR_PTR(err);
 }
 
 int usnic_ib_destroy_qp(struct ib_qp *qp)
+=======
+	return err;
+}
+
+int usnic_ib_destroy_qp(struct ib_qp *qp, struct ib_udata *udata)
+>>>>>>> upstream/android-13
 {
 	struct usnic_ib_qp_grp *qp_grp;
 	struct usnic_ib_vf *vf;
@@ -592,6 +775,12 @@ int usnic_ib_modify_qp(struct ib_qp *ibqp, struct ib_qp_attr *attr,
 	int status;
 	usnic_dbg("\n");
 
+<<<<<<< HEAD
+=======
+	if (attr_mask & ~IB_QP_ATTR_STANDARD_BITS)
+		return -EOPNOTSUPP;
+
+>>>>>>> upstream/android-13
 	qp_grp = to_uqp_grp(ibqp);
 
 	mutex_lock(&qp_grp->vf->pf->usdev_lock);
@@ -612,6 +801,7 @@ out_unlock:
 	return status;
 }
 
+<<<<<<< HEAD
 struct ib_cq *usnic_ib_create_cq(struct ib_device *ibdev,
 				 const struct ib_cq_init_attr *attr,
 				 struct ib_ucontext *context,
@@ -634,6 +824,19 @@ int usnic_ib_destroy_cq(struct ib_cq *cq)
 {
 	usnic_dbg("\n");
 	kfree(cq);
+=======
+int usnic_ib_create_cq(struct ib_cq *ibcq, const struct ib_cq_init_attr *attr,
+		       struct ib_udata *udata)
+{
+	if (attr->flags)
+		return -EOPNOTSUPP;
+
+	return 0;
+}
+
+int usnic_ib_destroy_cq(struct ib_cq *cq, struct ib_udata *udata)
+{
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -666,17 +869,26 @@ err_free:
 	return ERR_PTR(err);
 }
 
+<<<<<<< HEAD
 int usnic_ib_dereg_mr(struct ib_mr *ibmr)
+=======
+int usnic_ib_dereg_mr(struct ib_mr *ibmr, struct ib_udata *udata)
+>>>>>>> upstream/android-13
 {
 	struct usnic_ib_mr *mr = to_umr(ibmr);
 
 	usnic_dbg("va 0x%lx length 0x%zx\n", mr->umem->va, mr->umem->length);
 
+<<<<<<< HEAD
 	usnic_uiom_reg_release(mr->umem, ibmr->uobject->context);
+=======
+	usnic_uiom_reg_release(mr->umem);
+>>>>>>> upstream/android-13
 	kfree(mr);
 	return 0;
 }
 
+<<<<<<< HEAD
 struct ib_ucontext *usnic_ib_alloc_ucontext(struct ib_device *ibdev,
 							struct ib_udata *udata)
 {
@@ -688,26 +900,48 @@ struct ib_ucontext *usnic_ib_alloc_ucontext(struct ib_device *ibdev,
 	if (!context)
 		return ERR_PTR(-ENOMEM);
 
+=======
+int usnic_ib_alloc_ucontext(struct ib_ucontext *uctx, struct ib_udata *udata)
+{
+	struct ib_device *ibdev = uctx->device;
+	struct usnic_ib_ucontext *context = to_ucontext(uctx);
+	struct usnic_ib_dev *us_ibdev = to_usdev(ibdev);
+	usnic_dbg("\n");
+
+>>>>>>> upstream/android-13
 	INIT_LIST_HEAD(&context->qp_grp_list);
 	mutex_lock(&us_ibdev->usdev_lock);
 	list_add_tail(&context->link, &us_ibdev->ctx_list);
 	mutex_unlock(&us_ibdev->usdev_lock);
 
+<<<<<<< HEAD
 	return &context->ibucontext;
 }
 
 int usnic_ib_dealloc_ucontext(struct ib_ucontext *ibcontext)
+=======
+	return 0;
+}
+
+void usnic_ib_dealloc_ucontext(struct ib_ucontext *ibcontext)
+>>>>>>> upstream/android-13
 {
 	struct usnic_ib_ucontext *context = to_uucontext(ibcontext);
 	struct usnic_ib_dev *us_ibdev = to_usdev(ibcontext->device);
 	usnic_dbg("\n");
 
 	mutex_lock(&us_ibdev->usdev_lock);
+<<<<<<< HEAD
 	BUG_ON(!list_empty(&context->qp_grp_list));
 	list_del(&context->link);
 	mutex_unlock(&us_ibdev->usdev_lock);
 	kfree(context);
 	return 0;
+=======
+	WARN_ON_ONCE(!list_empty(&context->qp_grp_list));
+	list_del(&context->link);
+	mutex_unlock(&us_ibdev->usdev_lock);
+>>>>>>> upstream/android-13
 }
 
 int usnic_ib_mmap(struct ib_ucontext *context,
@@ -761,6 +995,7 @@ int usnic_ib_mmap(struct ib_ucontext *context,
 	return -EINVAL;
 }
 
+<<<<<<< HEAD
 /* In ib callbacks section -  Start of stub funcs */
 struct ib_ah *usnic_ib_create_ah(struct ib_pd *pd,
 				 struct rdma_ah_attr *ah_attr,
@@ -814,3 +1049,5 @@ struct ib_mr *usnic_ib_get_dma_mr(struct ib_pd *pd, int acc)
 
 /* In ib callbacks section - End of stub funcs */
 /* End of ib callbacks section */
+=======
+>>>>>>> upstream/android-13

@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * wm8996.c - WM8996 audio codec interface
  *
  * Copyright 2011-2 Wolfson Microelectronics PLC.
  * Author: Mark Brown <broonie@opensource.wolfsonmicro.com>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute  it and/or modify it
  *  under  the terms of  the GNU General  Public License as published by the
  *  Free Software Foundation;  either version 2 of the  License, or (at your
  *  option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -347,7 +354,11 @@ static void wm8996_set_retune_mobile(struct snd_soc_component *component, int bl
 	switch (block) {
 	case 0:
 		base = WM8996_DSP1_RX_EQ_GAINS_1;
+<<<<<<< HEAD
 		if (snd_soc_component_read32(component, WM8996_POWER_MANAGEMENT_8) &
+=======
+		if (snd_soc_component_read(component, WM8996_POWER_MANAGEMENT_8) &
+>>>>>>> upstream/android-13
 		    WM8996_DSP1RX_SRC)
 			iface = 1;
 		else
@@ -355,7 +366,11 @@ static void wm8996_set_retune_mobile(struct snd_soc_component *component, int bl
 		break;
 	case 1:
 		base = WM8996_DSP1_RX_EQ_GAINS_2;
+<<<<<<< HEAD
 		if (snd_soc_component_read32(component, WM8996_POWER_MANAGEMENT_8) &
+=======
+		if (snd_soc_component_read(component, WM8996_POWER_MANAGEMENT_8) &
+>>>>>>> upstream/android-13
 		    WM8996_DSP2RX_SRC)
 			iface = 1;
 		else
@@ -390,7 +405,11 @@ static void wm8996_set_retune_mobile(struct snd_soc_component *component, int bl
 	/* The EQ will be disabled while reconfiguring it, remember the
 	 * current configuration. 
 	 */
+<<<<<<< HEAD
 	save = snd_soc_component_read32(component, base);
+=======
+	save = snd_soc_component_read(component, base);
+>>>>>>> upstream/android-13
 	save &= WM8996_DSP1RX_EQ_ENA;
 
 	for (i = 0; i < ARRAY_SIZE(pdata->retune_mobile_cfgs[best].regs); i++)
@@ -676,7 +695,11 @@ static void wait_for_dc_servo(struct snd_soc_component *component, u16 mask)
 			timeout--;
 		}
 
+<<<<<<< HEAD
 		ret = snd_soc_component_read32(component, WM8996_DC_SERVO_2);
+=======
+		ret = snd_soc_component_read(component, WM8996_DC_SERVO_2);
+>>>>>>> upstream/android-13
 		dev_dbg(component->dev, "DC servo state: %x\n", ret);
 	} while (timeout && ret & mask);
 
@@ -1745,7 +1768,11 @@ static int wm8996_hw_params(struct snd_pcm_substream *substream,
 	switch (dai->id) {
 	case 0:
 		if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK ||
+<<<<<<< HEAD
 		    (snd_soc_component_read32(component, WM8996_GPIO_1)) & WM8996_GP1_FN_MASK) {
+=======
+		    (snd_soc_component_read(component, WM8996_GPIO_1)) & WM8996_GP1_FN_MASK) {
+>>>>>>> upstream/android-13
 			aifdata_reg = WM8996_AIF1RX_DATA_CONFIGURATION;
 			lrclk_reg = WM8996_AIF1_RX_LRCLK_1;
 		} else {
@@ -1756,7 +1783,11 @@ static int wm8996_hw_params(struct snd_pcm_substream *substream,
 		break;
 	case 1:
 		if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK ||
+<<<<<<< HEAD
 		    (snd_soc_component_read32(component, WM8996_GPIO_2)) & WM8996_GP2_FN_MASK) {
+=======
+		    (snd_soc_component_read(component, WM8996_GPIO_2)) & WM8996_GP2_FN_MASK) {
+>>>>>>> upstream/android-13
 			aifdata_reg = WM8996_AIF2RX_DATA_CONFIGURATION;
 			lrclk_reg = WM8996_AIF2_RX_LRCLK_1;
 		} else {
@@ -1826,7 +1857,11 @@ static int wm8996_set_sysclk(struct snd_soc_dai *dai,
 		return 0;
 
 	/* Disable SYSCLK while we reconfigure */
+<<<<<<< HEAD
 	old = snd_soc_component_read32(component, WM8996_AIF_CLOCKING_1) & WM8996_SYSCLK_ENA;
+=======
+	old = snd_soc_component_read(component, WM8996_AIF_CLOCKING_1) & WM8996_SYSCLK_ENA;
+>>>>>>> upstream/android-13
 	snd_soc_component_update_bits(component, WM8996_AIF_CLOCKING_1,
 			    WM8996_SYSCLK_ENA, 0);
 
@@ -1858,7 +1893,11 @@ static int wm8996_set_sysclk(struct snd_soc_dai *dai,
 	case 24576000:
 		ratediv = WM8996_SYSCLK_DIV;
 		wm8996->sysclk /= 2;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 11289600:
 	case 12288000:
 		snd_soc_component_update_bits(component, WM8996_AIF_RATE,
@@ -2082,7 +2121,11 @@ static int wm8996_set_fll(struct snd_soc_component *component, int fll_id, int s
 	snd_soc_component_write(component, WM8996_FLL_EFS_1, fll_div.lambda);
 
 	/* Enable the bandgap if it's not already enabled */
+<<<<<<< HEAD
 	ret = snd_soc_component_read32(component, WM8996_FLL_CONTROL_1);
+=======
+	ret = snd_soc_component_read(component, WM8996_FLL_CONTROL_1);
+>>>>>>> upstream/android-13
 	if (!(ret & WM8996_FLL_ENA))
 		wm8996_bg_enable(component);
 
@@ -2110,7 +2153,11 @@ static int wm8996_set_fll(struct snd_soc_component *component, int fll_id, int s
 		timeout *= 10;
 	else
 		/* ensure timeout of atleast 1 jiffies */
+<<<<<<< HEAD
 		timeout = timeout/2 ? : 1;
+=======
+		timeout = (timeout/2) ? : 1;
+>>>>>>> upstream/android-13
 
 	for (retry = 0; retry < 10; retry++) {
 		time_left = wait_for_completion_timeout(&wm8996->fll_lock,
@@ -2121,7 +2168,11 @@ static int wm8996_set_fll(struct snd_soc_component *component, int fll_id, int s
 			break;
 		}
 
+<<<<<<< HEAD
 		ret = snd_soc_component_read32(component, WM8996_INTERRUPT_RAW_STATUS_2);
+=======
+		ret = snd_soc_component_read(component, WM8996_INTERRUPT_RAW_STATUS_2);
+>>>>>>> upstream/android-13
 		if (ret & WM8996_FLL_LOCK_STS)
 			break;
 	}
@@ -2228,6 +2279,12 @@ static void wm8996_free_gpio(struct wm8996_priv *wm8996)
 
 /**
  * wm8996_detect - Enable default WM8996 jack detection
+<<<<<<< HEAD
+=======
+ * @component: ASoC component
+ * @jack: jack pointer
+ * @polarity_cb: polarity callback
+>>>>>>> upstream/android-13
  *
  * The WM8996 has advanced accessory detection support for headsets.
  * This function provides a default implementation which integrates
@@ -2295,7 +2352,11 @@ static void wm8996_hpdet_irq(struct snd_soc_component *component)
 	 */
 	report = SND_JACK_HEADPHONE;
 
+<<<<<<< HEAD
 	reg = snd_soc_component_read32(component, WM8996_HEADPHONE_DETECT_2);
+=======
+	reg = snd_soc_component_read(component, WM8996_HEADPHONE_DETECT_2);
+>>>>>>> upstream/android-13
 	if (reg < 0) {
 		dev_err(component->dev, "Failed to read HPDET status\n");
 		goto out;
@@ -2328,7 +2389,11 @@ out:
 	wm8996->detecting = false;
 
 	/* If the output isn't running re-clamp it */
+<<<<<<< HEAD
 	if (!(snd_soc_component_read32(component, WM8996_POWER_MANAGEMENT_1) &
+=======
+	if (!(snd_soc_component_read(component, WM8996_POWER_MANAGEMENT_1) &
+>>>>>>> upstream/android-13
 	      (WM8996_HPOUT1L_ENA | WM8996_HPOUT1R_RMV_SHORT)))
 		snd_soc_component_update_bits(component, WM8996_ANALOGUE_HP_1,
 				    WM8996_HPOUT1L_RMV_SHORT |
@@ -2387,7 +2452,11 @@ static void wm8996_micd(struct snd_soc_component *component)
 	struct wm8996_priv *wm8996 = snd_soc_component_get_drvdata(component);
 	int val, reg;
 
+<<<<<<< HEAD
 	val = snd_soc_component_read32(component, WM8996_MIC_DETECT_3);
+=======
+	val = snd_soc_component_read(component, WM8996_MIC_DETECT_3);
+>>>>>>> upstream/android-13
 
 	dev_dbg(component->dev, "Microphone event: %x\n", val);
 
@@ -2453,7 +2522,11 @@ static void wm8996_micd(struct snd_soc_component *component)
 			return;
 		}
 
+<<<<<<< HEAD
 		reg = snd_soc_component_read32(component, WM8996_ACCESSORY_DETECT_MODE_2);
+=======
+		reg = snd_soc_component_read(component, WM8996_ACCESSORY_DETECT_MODE_2);
+>>>>>>> upstream/android-13
 		reg ^= WM8996_HPOUT1FB_SRC | WM8996_MICD_SRC |
 			WM8996_MICD_BIAS_SRC;
 		snd_soc_component_update_bits(component, WM8996_ACCESSORY_DETECT_MODE_2,
@@ -2490,13 +2563,21 @@ static irqreturn_t wm8996_irq(int irq, void *data)
 	struct wm8996_priv *wm8996 = snd_soc_component_get_drvdata(component);
 	int irq_val;
 
+<<<<<<< HEAD
 	irq_val = snd_soc_component_read32(component, WM8996_INTERRUPT_STATUS_2);
+=======
+	irq_val = snd_soc_component_read(component, WM8996_INTERRUPT_STATUS_2);
+>>>>>>> upstream/android-13
 	if (irq_val < 0) {
 		dev_err(component->dev, "Failed to read IRQ status: %d\n",
 			irq_val);
 		return IRQ_NONE;
 	}
+<<<<<<< HEAD
 	irq_val &= ~snd_soc_component_read32(component, WM8996_INTERRUPT_STATUS_2_MASK);
+=======
+	irq_val &= ~snd_soc_component_read(component, WM8996_INTERRUPT_STATUS_2_MASK);
+>>>>>>> upstream/android-13
 
 	if (!irq_val)
 		return IRQ_NONE;
@@ -2801,8 +2882,14 @@ static int wm8996_i2c_probe(struct i2c_client *i2c,
 
 	/* This should really be moved into the regulator core */
 	for (i = 0; i < ARRAY_SIZE(wm8996->supplies); i++) {
+<<<<<<< HEAD
 		ret = regulator_register_notifier(wm8996->supplies[i].consumer,
 						  &wm8996->disable_nb[i]);
+=======
+		ret = devm_regulator_register_notifier(
+						wm8996->supplies[i].consumer,
+						&wm8996->disable_nb[i]);
+>>>>>>> upstream/android-13
 		if (ret != 0) {
 			dev_err(&i2c->dev,
 				"Failed to register regulator notifier: %d\n",
@@ -3071,16 +3158,22 @@ err:
 static int wm8996_i2c_remove(struct i2c_client *client)
 {
 	struct wm8996_priv *wm8996 = i2c_get_clientdata(client);
+<<<<<<< HEAD
 	int i;
+=======
+>>>>>>> upstream/android-13
 
 	wm8996_free_gpio(wm8996);
 	if (wm8996->pdata.ldo_ena > 0) {
 		gpio_set_value_cansleep(wm8996->pdata.ldo_ena, 0);
 		gpio_free(wm8996->pdata.ldo_ena);
 	}
+<<<<<<< HEAD
 	for (i = 0; i < ARRAY_SIZE(wm8996->supplies); i++)
 		regulator_unregister_notifier(wm8996->supplies[i].consumer,
 					      &wm8996->disable_nb[i]);
+=======
+>>>>>>> upstream/android-13
 
 	return 0;
 }

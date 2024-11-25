@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * INET		An implementation of the TCP/IP protocol suite for the LINUX
  *		operating system.  INET is implemented using the  BSD Socket
@@ -8,11 +12,14 @@
  * Authors:	Alexey Kuznetsov, <kuznet@ms2.inr.ac.ru>
  *		Thomas Graf <tgraf@suug.ch>
  *
+<<<<<<< HEAD
  *		This program is free software; you can redistribute it and/or
  *		modify it under the terms of the GNU General Public License
  *		as published by the Free Software Foundation; either version
  *		2 of the License, or (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  * Fixes:
  *		Rani Assaf	:	local_rule cannot be deleted
  *		Marc Boucher	:	routing by fwmark
@@ -31,7 +38,13 @@
 #include <net/route.h>
 #include <net/tcp.h>
 #include <net/ip_fib.h>
+<<<<<<< HEAD
 #include <net/fib_rules.h>
+=======
+#include <net/nexthop.h>
+#include <net/fib_rules.h>
+#include <linux/indirect_call_wrapper.h>
+>>>>>>> upstream/android-13
 
 struct fib4_rule {
 	struct fib_rule		common;
@@ -68,9 +81,16 @@ bool fib4_rule_default(const struct fib_rule *rule)
 }
 EXPORT_SYMBOL_GPL(fib4_rule_default);
 
+<<<<<<< HEAD
 int fib4_rules_dump(struct net *net, struct notifier_block *nb)
 {
 	return fib_rules_dump(net, nb, AF_INET);
+=======
+int fib4_rules_dump(struct net *net, struct notifier_block *nb,
+		    struct netlink_ext_ack *extack)
+{
+	return fib_rules_dump(net, nb, AF_INET, extack);
+>>>>>>> upstream/android-13
 }
 
 unsigned int fib4_rules_seq_read(struct net *net)
@@ -105,8 +125,14 @@ int __fib_lookup(struct net *net, struct flowi4 *flp,
 }
 EXPORT_SYMBOL_GPL(__fib_lookup);
 
+<<<<<<< HEAD
 static int fib4_rule_action(struct fib_rule *rule, struct flowi *flp,
 			    int flags, struct fib_lookup_arg *arg)
+=======
+INDIRECT_CALLABLE_SCOPE int fib4_rule_action(struct fib_rule *rule,
+					     struct flowi *flp, int flags,
+					     struct fib_lookup_arg *arg)
+>>>>>>> upstream/android-13
 {
 	int err = -EAGAIN;
 	struct fib_table *tbl;
@@ -140,13 +166,27 @@ static int fib4_rule_action(struct fib_rule *rule, struct flowi *flp,
 	return err;
 }
 
+<<<<<<< HEAD
 static bool fib4_rule_suppress(struct fib_rule *rule, struct fib_lookup_arg *arg)
+=======
+INDIRECT_CALLABLE_SCOPE bool fib4_rule_suppress(struct fib_rule *rule,
+						int flags,
+						struct fib_lookup_arg *arg)
+>>>>>>> upstream/android-13
 {
 	struct fib_result *result = (struct fib_result *) arg->result;
 	struct net_device *dev = NULL;
 
+<<<<<<< HEAD
 	if (result->fi)
 		dev = result->fi->fib_dev;
+=======
+	if (result->fi) {
+		struct fib_nh_common *nhc = fib_info_nhc(result->fi, 0);
+
+		dev = nhc->nhc_dev;
+	}
+>>>>>>> upstream/android-13
 
 	/* do not accept result if the route does
 	 * not meet the required prefix length
@@ -168,7 +208,12 @@ suppress_route:
 	return true;
 }
 
+<<<<<<< HEAD
 static int fib4_rule_match(struct fib_rule *rule, struct flowi *fl, int flags)
+=======
+INDIRECT_CALLABLE_SCOPE int fib4_rule_match(struct fib_rule *rule,
+					    struct flowi *fl, int flags)
+>>>>>>> upstream/android-13
 {
 	struct fib4_rule *r = (struct fib4_rule *) rule;
 	struct flowi4 *fl4 = &fl->u.ip4;
@@ -198,11 +243,23 @@ static int fib4_rule_match(struct fib_rule *rule, struct flowi *fl, int flags)
 
 static struct fib_table *fib_empty_table(struct net *net)
 {
+<<<<<<< HEAD
 	u32 id;
 
 	for (id = 1; id <= RT_TABLE_MAX; id++)
 		if (!fib_get_table(net, id))
 			return fib_new_table(net, id);
+=======
+	u32 id = 1;
+
+	while (1) {
+		if (!fib_get_table(net, id))
+			return fib_new_table(net, id);
+
+		if (id++ == RT_TABLE_MAX)
+			break;
+	}
+>>>>>>> upstream/android-13
 	return NULL;
 }
 
@@ -254,7 +311,11 @@ static int fib4_rule_configure(struct fib_rule *rule, struct sk_buff *skb,
 	if (tb[FRA_FLOW]) {
 		rule4->tclassid = nla_get_u32(tb[FRA_FLOW]);
 		if (rule4->tclassid)
+<<<<<<< HEAD
 			net->ipv4.fib_num_tclassid_users++;
+=======
+			atomic_inc(&net->ipv4.fib_num_tclassid_users);
+>>>>>>> upstream/android-13
 	}
 #endif
 
@@ -286,7 +347,11 @@ static int fib4_rule_delete(struct fib_rule *rule)
 
 #ifdef CONFIG_IP_ROUTE_CLASSID
 	if (((struct fib4_rule *)rule)->tclassid)
+<<<<<<< HEAD
 		net->ipv4.fib_num_tclassid_users--;
+=======
+		atomic_dec(&net->ipv4.fib_num_tclassid_users);
+>>>>>>> upstream/android-13
 #endif
 	net->ipv4.fib_has_custom_rules = true;
 

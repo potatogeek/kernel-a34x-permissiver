@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2016, Cyril Bur, IBM Corp.
  *
@@ -6,6 +7,12 @@
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright 2016, Cyril Bur, IBM Corp.
+ *
+>>>>>>> upstream/android-13
  * Syscalls can be performed provided the transactions are suspended.
  * The exec() class of syscall is unique as a new process is loaded.
  *
@@ -31,6 +38,10 @@ static char *path;
 static int test_exec(void)
 {
 	SKIP_IF(!have_htm());
+<<<<<<< HEAD
+=======
+	SKIP_IF(htm_is_synthetic());
+>>>>>>> upstream/android-13
 
 	asm __volatile__(
 		"tbegin.;"

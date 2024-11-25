@@ -25,6 +25,14 @@
 #ifndef __MOCK_UNCORE_H
 #define __MOCK_UNCORE_H
 
+<<<<<<< HEAD
 void mock_uncore_init(struct drm_i915_private *i915);
+=======
+struct drm_i915_private;
+struct intel_uncore;
+
+void mock_uncore_init(struct intel_uncore *uncore,
+		      struct drm_i915_private *i915);
+>>>>>>> upstream/android-13
 
 #endif /* !__MOCK_UNCORE_H */

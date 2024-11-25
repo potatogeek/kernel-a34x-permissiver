@@ -46,10 +46,19 @@ extern const struct file_operations coda_ioctl_operations;
 /* operations shared over more than one file */
 int coda_open(struct inode *i, struct file *f);
 int coda_release(struct inode *i, struct file *f);
+<<<<<<< HEAD
 int coda_permission(struct inode *inode, int mask);
 int coda_revalidate_inode(struct inode *);
 int coda_getattr(const struct path *, struct kstat *, u32, unsigned int);
 int coda_setattr(struct dentry *, struct iattr *);
+=======
+int coda_permission(struct user_namespace *mnt_userns, struct inode *inode,
+		    int mask);
+int coda_revalidate_inode(struct inode *);
+int coda_getattr(struct user_namespace *, const struct path *, struct kstat *,
+		 u32, unsigned int);
+int coda_setattr(struct user_namespace *, struct dentry *, struct iattr *);
+>>>>>>> upstream/android-13
 
 /* this file:  heloers */
 char *coda_f2s(struct CodaFid *f);
@@ -59,6 +68,7 @@ void coda_vattr_to_iattr(struct inode *, struct coda_vattr *);
 void coda_iattr_to_vattr(struct iattr *, struct coda_vattr *);
 unsigned short coda_flags_to_cflags(unsigned short);
 
+<<<<<<< HEAD
 /* sysctl.h */
 void coda_sysctl_init(void);
 void coda_sysctl_clean(void);
@@ -75,6 +85,8 @@ void coda_sysctl_clean(void);
 
 #define CODA_FREE(ptr, size) kvfree((ptr))
 
+=======
+>>>>>>> upstream/android-13
 /* inode to cnode access functions */
 
 static inline struct coda_inode_info *ITOC(struct inode *inode)

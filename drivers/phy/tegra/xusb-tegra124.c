@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2014, NVIDIA CORPORATION.  All rights reserved.
  *
@@ -9,6 +10,11 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2014, NVIDIA CORPORATION.  All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/delay.h>
@@ -1430,6 +1436,11 @@ tegra124_usb2_port_map(struct tegra_xusb_port *port)
 }
 
 static const struct tegra_xusb_port_ops tegra124_usb2_port_ops = {
+<<<<<<< HEAD
+=======
+	.release = tegra_xusb_usb2_port_release,
+	.remove = tegra_xusb_usb2_port_remove,
+>>>>>>> upstream/android-13
 	.enable = tegra124_usb2_port_enable,
 	.disable = tegra124_usb2_port_disable,
 	.map = tegra124_usb2_port_map,
@@ -1451,6 +1462,10 @@ tegra124_ulpi_port_map(struct tegra_xusb_port *port)
 }
 
 static const struct tegra_xusb_port_ops tegra124_ulpi_port_ops = {
+<<<<<<< HEAD
+=======
+	.release = tegra_xusb_ulpi_port_release,
+>>>>>>> upstream/android-13
 	.enable = tegra124_ulpi_port_enable,
 	.disable = tegra124_ulpi_port_disable,
 	.map = tegra124_ulpi_port_map,
@@ -1472,6 +1487,10 @@ tegra124_hsic_port_map(struct tegra_xusb_port *port)
 }
 
 static const struct tegra_xusb_port_ops tegra124_hsic_port_ops = {
+<<<<<<< HEAD
+=======
+	.release = tegra_xusb_hsic_port_release,
+>>>>>>> upstream/android-13
 	.enable = tegra124_hsic_port_enable,
 	.disable = tegra124_hsic_port_disable,
 	.map = tegra124_hsic_port_map,
@@ -1655,6 +1674,11 @@ tegra124_usb3_port_map(struct tegra_xusb_port *port)
 }
 
 static const struct tegra_xusb_port_ops tegra124_usb3_port_ops = {
+<<<<<<< HEAD
+=======
+	.release = tegra_xusb_usb3_port_release,
+	.remove = tegra_xusb_usb3_port_remove,
+>>>>>>> upstream/android-13
 	.enable = tegra124_usb3_port_enable,
 	.disable = tegra124_usb3_port_disable,
 	.map = tegra124_usb3_port_map,
@@ -1721,6 +1745,16 @@ static const struct tegra_xusb_padctl_ops tegra124_xusb_padctl_ops = {
 	.hsic_set_idle = tegra124_hsic_set_idle,
 };
 
+<<<<<<< HEAD
+=======
+static const char * const tegra124_xusb_padctl_supply_names[] = {
+	"avdd-pll-utmip",
+	"avdd-pll-erefe",
+	"avdd-pex-pll",
+	"hvdd-pex-pll-e",
+};
+
+>>>>>>> upstream/android-13
 const struct tegra_xusb_padctl_soc tegra124_xusb_padctl_soc = {
 	.num_pads = ARRAY_SIZE(tegra124_pads),
 	.pads = tegra124_pads,
@@ -1743,6 +1777,11 @@ const struct tegra_xusb_padctl_soc tegra124_xusb_padctl_soc = {
 		},
 	},
 	.ops = &tegra124_xusb_padctl_ops,
+<<<<<<< HEAD
+=======
+	.supply_names = tegra124_xusb_padctl_supply_names,
+	.num_supplies = ARRAY_SIZE(tegra124_xusb_padctl_supply_names),
+>>>>>>> upstream/android-13
 };
 EXPORT_SYMBOL_GPL(tegra124_xusb_padctl_soc);
 

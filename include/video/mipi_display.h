@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Defines for Mobile Industry Processor Interface (MIPI(R))
  * Display Working Group standards: DSI, DCS, DBI, DPI
@@ -5,10 +9,13 @@
  * Copyright (C) 2010 Guennadi Liakhovetski <g.liakhovetski@gmx.de>
  * Copyright (C) 2006 Nokia Corporation
  * Author: Imre Deak <imre.deak@nokia.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef MIPI_DISPLAY_H
 #define MIPI_DISPLAY_H
@@ -42,9 +49,12 @@ enum {
 	MIPI_DSI_DCS_READ				= 0x06,
 	MIPI_DSI_EXECUTE_QUEUE				= 0x16,
 
+<<<<<<< HEAD
 	MIPI_DSI_DCS_COMPRESSION_MODE                   = 0x07,
 	MIPI_DSI_PPS_LONG_WRITE                         = 0x0A,
 
+=======
+>>>>>>> upstream/android-13
 	MIPI_DSI_SET_MAXIMUM_RETURN_PACKET_SIZE		= 0x37,
 
 	MIPI_DSI_NULL_PACKET				= 0x09,
@@ -114,7 +124,11 @@ enum {
 	MIPI_DCS_WRITE_MEMORY_START	= 0x2C,
 	MIPI_DCS_WRITE_LUT		= 0x2D,
 	MIPI_DCS_READ_MEMORY_START	= 0x2E,
+<<<<<<< HEAD
 	MIPI_DCS_SET_PARTIAL_AREA	= 0x30,
+=======
+	MIPI_DCS_SET_PARTIAL_ROWS	= 0x30,		/* MIPI DCS 1.02 - MIPI_DCS_SET_PARTIAL_AREA before that */
+>>>>>>> upstream/android-13
 	MIPI_DCS_SET_PARTIAL_COLUMNS	= 0x31,
 	MIPI_DCS_SET_SCROLL_AREA	= 0x33,
 	MIPI_DCS_SET_TEAR_OFF		= 0x34,

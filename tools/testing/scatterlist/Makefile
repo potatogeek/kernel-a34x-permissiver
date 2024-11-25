@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 CFLAGS += -I. -I../../include -g -O2 -Wall -fsanitize=address
 LDFLAGS += -fsanitize=address -fsanitize=undefined
 TARGETS = main
@@ -13,7 +17,11 @@ targets: include $(TARGETS)
 main: $(OFILES)
 
 clean:
+<<<<<<< HEAD
 	$(RM) $(TARGETS) $(OFILES) scatterlist.c linux/scatterlist.h linux/highmem.h linux/kmemleak.h asm/io.h
+=======
+	$(RM) $(TARGETS) $(OFILES) scatterlist.c linux/scatterlist.h linux/highmem.h linux/kmemleak.h linux/slab.h asm/io.h
+>>>>>>> upstream/android-13
 	@rmdir asm
 
 scatterlist.c: ../../../lib/scatterlist.c
@@ -27,4 +35,8 @@ include: ../../../include/linux/scatterlist.h
 	@touch asm/io.h
 	@touch linux/highmem.h
 	@touch linux/kmemleak.h
+<<<<<<< HEAD
+=======
+	@touch linux/slab.h
+>>>>>>> upstream/android-13
 	@cp $< linux/scatterlist.h

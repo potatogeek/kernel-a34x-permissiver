@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  ISA Plug & Play support
  *  Copyright (c) by Jaroslav Kysela <perex@perex.cz>
@@ -15,6 +16,12 @@
  *   You should have received a copy of the GNU General Public License
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ *  ISA Plug & Play support
+ *  Copyright (c) by Jaroslav Kysela <perex@perex.cz>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -47,7 +54,11 @@ static ssize_t isapnp_proc_bus_read(struct file *file, char __user * buf,
 		nbytes = size - pos;
 	cnt = nbytes;
 
+<<<<<<< HEAD
 	if (!access_ok(VERIFY_WRITE, buf, cnt))
+=======
+	if (!access_ok(buf, cnt))
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	isapnp_cfg_begin(dev->card->number, dev->number);
@@ -62,15 +73,22 @@ static ssize_t isapnp_proc_bus_read(struct file *file, char __user * buf,
 	return nbytes;
 }
 
+<<<<<<< HEAD
 static const struct file_operations isapnp_proc_bus_file_operations = {
 	.owner	= THIS_MODULE,
 	.llseek = isapnp_proc_bus_lseek,
 	.read = isapnp_proc_bus_read,
+=======
+static const struct proc_ops isapnp_proc_bus_proc_ops = {
+	.proc_lseek	= isapnp_proc_bus_lseek,
+	.proc_read	= isapnp_proc_bus_read,
+>>>>>>> upstream/android-13
 };
 
 static int isapnp_proc_attach_device(struct pnp_dev *dev)
 {
 	struct pnp_card *bus = dev->card;
+<<<<<<< HEAD
 	struct proc_dir_entry *de, *e;
 	char name[16];
 
@@ -86,6 +104,22 @@ static int isapnp_proc_attach_device(struct pnp_dev *dev)
 	if (!e)
 		return -ENOMEM;
 	proc_set_size(e, 256);
+=======
+	char name[16];
+
+	if (!bus->procdir) {
+		sprintf(name, "%02x", bus->number);
+		bus->procdir = proc_mkdir(name, isapnp_proc_bus_dir);
+		if (!bus->procdir)
+			return -ENOMEM;
+	}
+	sprintf(name, "%02x", dev->number);
+	dev->procent = proc_create_data(name, S_IFREG | S_IRUGO, bus->procdir,
+					    &isapnp_proc_bus_proc_ops, dev);
+	if (!dev->procent)
+		return -ENOMEM;
+	proc_set_size(dev->procent, 256);
+>>>>>>> upstream/android-13
 	return 0;
 }
 

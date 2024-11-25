@@ -34,6 +34,10 @@
 
 #include <linux/module.h>
 #include <linux/fs.h>
+<<<<<<< HEAD
+=======
+#include <linux/fs_context.h>
+>>>>>>> upstream/android-13
 #include <linux/mount.h>
 #include <linux/pagemap.h>
 #include <linux/init.h>
@@ -426,6 +430,7 @@ bail:
 	return ret;
 }
 
+<<<<<<< HEAD
 static int remove_file(struct dentry *parent, char *name)
 {
 	struct dentry *tmp;
@@ -499,6 +504,23 @@ bail:
 	inode_unlock(d_inode(root));
 	dput(root);
 	return ret;
+=======
+static int remove_device_files(struct super_block *sb,
+			       struct qib_devdata *dd)
+{
+	struct dentry *dir;
+	char unit[10];
+
+	snprintf(unit, sizeof(unit), "%u", dd->unit);
+	dir = lookup_one_len_unlocked(unit, sb->s_root, strlen(unit));
+
+	if (IS_ERR(dir)) {
+		pr_err("Lookup of %s failed\n", unit);
+		return PTR_ERR(dir);
+	}
+	simple_recursive_removal(dir, NULL);
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -506,10 +528,17 @@ bail:
  * after device init.  The direct add_cntr_files() call handles adding
  * them from the init code, when the fs is already mounted.
  */
+<<<<<<< HEAD
 static int qibfs_fill_super(struct super_block *sb, void *data, int silent)
 {
 	struct qib_devdata *dd, *tmp;
 	unsigned long flags;
+=======
+static int qibfs_fill_super(struct super_block *sb, struct fs_context *fc)
+{
+	struct qib_devdata *dd;
+	unsigned long index;
+>>>>>>> upstream/android-13
 	int ret;
 
 	static const struct tree_descr files[] = {
@@ -524,6 +553,7 @@ static int qibfs_fill_super(struct super_block *sb, void *data, int silent)
 		goto bail;
 	}
 
+<<<<<<< HEAD
 	spin_lock_irqsave(&qib_devs_lock, flags);
 
 	list_for_each_entry_safe(dd, tmp, &qib_dev_list, list) {
@@ -536,10 +566,19 @@ static int qibfs_fill_super(struct super_block *sb, void *data, int silent)
 
 	spin_unlock_irqrestore(&qib_devs_lock, flags);
 
+=======
+	xa_for_each(&qib_dev_table, index, dd) {
+		ret = add_cntr_files(sb, dd);
+		if (ret)
+			goto bail;
+	}
+
+>>>>>>> upstream/android-13
 bail:
 	return ret;
 }
 
+<<<<<<< HEAD
 static struct dentry *qibfs_mount(struct file_system_type *fs_type, int flags,
 			const char *dev_name, void *data)
 {
@@ -551,6 +590,26 @@ static struct dentry *qibfs_mount(struct file_system_type *fs_type, int flags,
 	return ret;
 }
 
+=======
+static int qibfs_get_tree(struct fs_context *fc)
+{
+	int ret = get_tree_single(fc, qibfs_fill_super);
+	if (ret == 0)
+		qib_super = fc->root->d_sb;
+	return ret;
+}
+
+static const struct fs_context_operations qibfs_context_ops = {
+	.get_tree	= qibfs_get_tree,
+};
+
+static int qibfs_init_fs_context(struct fs_context *fc)
+{
+	fc->ops = &qibfs_context_ops;
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static void qibfs_kill_super(struct super_block *s)
 {
 	kill_litter_super(s);
@@ -589,7 +648,11 @@ int qibfs_remove(struct qib_devdata *dd)
 static struct file_system_type qibfs_fs_type = {
 	.owner =        THIS_MODULE,
 	.name =         "ipathfs",
+<<<<<<< HEAD
 	.mount =        qibfs_mount,
+=======
+	.init_fs_context = qibfs_init_fs_context,
+>>>>>>> upstream/android-13
 	.kill_sb =      qibfs_kill_super,
 };
 MODULE_ALIAS_FS("ipathfs");

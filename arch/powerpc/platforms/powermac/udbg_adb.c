@@ -194,7 +194,11 @@ int __init udbg_adb_init(int force_btext)
 	 */
 	for_each_node_by_name(np, "keyboard") {
 		struct device_node *parent = of_get_parent(np);
+<<<<<<< HEAD
 		int found = (parent && strcmp(parent->type, "adb") == 0);
+=======
+		int found = of_node_is_type(parent, "adb");
+>>>>>>> upstream/android-13
 		of_node_put(parent);
 		if (found)
 			break;

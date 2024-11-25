@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /**
  * uniphier_thermal.c - Socionext UniPhier thermal driver
  *
@@ -16,6 +17,15 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0
+/**
+ * uniphier_thermal.c - Socionext UniPhier thermal driver
+ * Copyright 2014      Panasonic Corporation
+ * Copyright 2016-2017 Socionext Inc.
+ * Author:
+ *	Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/bitops.h>

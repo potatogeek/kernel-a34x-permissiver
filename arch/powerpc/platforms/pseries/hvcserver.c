@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * hvcserver.c
  * Copyright (C) 2004 Ryan S Arnold, IBM Corporation
  *
  * PPC64 virtual I/O console server support.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +22,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -58,7 +65,11 @@ static int hvcs_convert(long to_convert)
 		case H_LONG_BUSY_ORDER_10_SEC:
 		case H_LONG_BUSY_ORDER_100_SEC:
 			return -EBUSY;
+<<<<<<< HEAD
 		case H_FUNCTION: /* fall through */
+=======
+		case H_FUNCTION:
+>>>>>>> upstream/android-13
 		default:
 			return -EPERM;
 	}

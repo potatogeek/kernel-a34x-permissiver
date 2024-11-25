@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
 * alc5632.h  --  ALC5632 ALSA SoC Audio Codec
 *
@@ -9,10 +13,13 @@
 *           Marc Dietrich <marvin24@gmx.de>
 *
 * Based on alc5623.h by Arnaud Patard
+<<<<<<< HEAD
 *
 * This program is free software; you can redistribute it and/or modify
 * it under the terms of the GNU General Public License version 2 as
 * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
 */
 
 #ifndef _ALC5632_H

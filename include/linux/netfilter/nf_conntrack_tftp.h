@@ -4,6 +4,14 @@
 
 #define TFTP_PORT 69
 
+<<<<<<< HEAD
+=======
+#include <linux/netfilter.h>
+#include <linux/skbuff.h>
+#include <linux/types.h>
+#include <net/netfilter/nf_conntrack_expect.h>
+
+>>>>>>> upstream/android-13
 struct tftphdr {
 	__be16 opcode;
 };

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * AD5024, AD5025, AD5044, AD5045, AD5064, AD5064-1, AD5065, AD5625, AD5625R,
  * AD5627, AD5627R, AD5628, AD5629R, AD5645R, AD5647R, AD5648, AD5665, AD5665R,
@@ -6,8 +10,11 @@
  * Digital to analog converters driver
  *
  * Copyright 2011 Analog Devices Inc.
+<<<<<<< HEAD
  *
  * Licensed under the GPL-2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/device.h>
@@ -69,8 +76,13 @@ enum ad5064_regmap_type {
  * struct ad5064_chip_info - chip specific information
  * @shared_vref:	whether the vref supply is shared between channels
  * @internal_vref:	internal reference voltage. 0 if the chip has no
+<<<<<<< HEAD
 			internal vref.
  * @channel:		channel specification
+=======
+ *			internal vref.
+ * @channels:		channel specification
+>>>>>>> upstream/android-13
  * @num_channels:	number of channels
  * @regmap_type:	register map layout variant
  */
@@ -99,6 +111,10 @@ typedef int (*ad5064_write_func)(struct ad5064_state *st, unsigned int cmd,
  * @use_internal_vref:	set to true if the internal reference voltage should be
  *			used.
  * @write:		register write callback
+<<<<<<< HEAD
+=======
+ * @lock:		maintain consistency between cached and dev state
+>>>>>>> upstream/android-13
  * @data:		i2c/spi transfer buffers
  */
 
@@ -112,6 +128,10 @@ struct ad5064_state {
 	bool				use_internal_vref;
 
 	ad5064_write_func		write;
+<<<<<<< HEAD
+=======
+	struct mutex lock;
+>>>>>>> upstream/android-13
 
 	/*
 	 * DMA (thus cache coherency maintenance) requires the
@@ -248,11 +268,19 @@ static int ad5064_set_powerdown_mode(struct iio_dev *indio_dev,
 	struct ad5064_state *st = iio_priv(indio_dev);
 	int ret;
 
+<<<<<<< HEAD
 	mutex_lock(&indio_dev->mlock);
 	st->pwr_down_mode[chan->channel] = mode + 1;
 
 	ret = ad5064_sync_powerdown_mode(st, chan);
 	mutex_unlock(&indio_dev->mlock);
+=======
+	mutex_lock(&st->lock);
+	st->pwr_down_mode[chan->channel] = mode + 1;
+
+	ret = ad5064_sync_powerdown_mode(st, chan);
+	mutex_unlock(&st->lock);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -276,7 +304,11 @@ static ssize_t ad5064_read_dac_powerdown(struct iio_dev *indio_dev,
 {
 	struct ad5064_state *st = iio_priv(indio_dev);
 
+<<<<<<< HEAD
 	return sprintf(buf, "%d\n", st->pwr_down[chan->channel]);
+=======
+	return sysfs_emit(buf, "%d\n", st->pwr_down[chan->channel]);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t ad5064_write_dac_powerdown(struct iio_dev *indio_dev,
@@ -291,11 +323,19 @@ static ssize_t ad5064_write_dac_powerdown(struct iio_dev *indio_dev,
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	mutex_lock(&indio_dev->mlock);
 	st->pwr_down[chan->channel] = pwr_down;
 
 	ret = ad5064_sync_powerdown_mode(st, chan);
 	mutex_unlock(&indio_dev->mlock);
+=======
+	mutex_lock(&st->lock);
+	st->pwr_down[chan->channel] = pwr_down;
+
+	ret = ad5064_sync_powerdown_mode(st, chan);
+	mutex_unlock(&st->lock);
+>>>>>>> upstream/android-13
 	return ret ? ret : len;
 }
 
@@ -349,12 +389,20 @@ static int ad5064_write_raw(struct iio_dev *indio_dev,
 		if (val >= (1 << chan->scan_type.realbits) || val < 0)
 			return -EINVAL;
 
+<<<<<<< HEAD
 		mutex_lock(&indio_dev->mlock);
+=======
+		mutex_lock(&st->lock);
+>>>>>>> upstream/android-13
 		ret = ad5064_write(st, AD5064_CMD_WRITE_INPUT_N_UPDATE_N,
 				chan->address, val, chan->scan_type.shift);
 		if (ret == 0)
 			st->dac_cache[chan->channel] = val;
+<<<<<<< HEAD
 		mutex_unlock(&indio_dev->mlock);
+=======
+		mutex_unlock(&st->lock);
+>>>>>>> upstream/android-13
 		break;
 	default:
 		ret = -EINVAL;
@@ -786,7 +834,11 @@ static const char * const ad5064_vref_names[] = {
 	"vrefD",
 };
 
+<<<<<<< HEAD
 static const char * const ad5064_vref_name(struct ad5064_state *st,
+=======
+static const char *ad5064_vref_name(struct ad5064_state *st,
+>>>>>>> upstream/android-13
 	unsigned int vref)
 {
 	return st->chip_info->shared_vref ? "vref" : ad5064_vref_names[vref];
@@ -856,6 +908,10 @@ static int ad5064_probe(struct device *dev, enum ad5064_type type,
 		return  -ENOMEM;
 
 	st = iio_priv(indio_dev);
+<<<<<<< HEAD
+=======
+	mutex_init(&st->lock);
+>>>>>>> upstream/android-13
 	dev_set_drvdata(dev, indio_dev);
 
 	st->chip_info = &ad5064_chip_info_tbl[type];
@@ -872,7 +928,10 @@ static int ad5064_probe(struct device *dev, enum ad5064_type type,
 			return ret;
 	}
 
+<<<<<<< HEAD
 	indio_dev->dev.parent = dev;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->name = name;
 	indio_dev->info = &ad5064_info;
 	indio_dev->modes = INDIO_DIRECT_MODE;

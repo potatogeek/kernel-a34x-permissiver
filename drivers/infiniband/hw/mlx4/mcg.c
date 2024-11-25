@@ -673,7 +673,11 @@ static void mlx4_ib_mcg_work_handler(struct work_struct *work)
 			if (!list_empty(&group->pending_list))
 				req = list_first_entry(&group->pending_list,
 						struct mcast_req, group_list);
+<<<<<<< HEAD
 			if ((method == IB_MGMT_METHOD_GET_RESP)) {
+=======
+			if (method == IB_MGMT_METHOD_GET_RESP) {
+>>>>>>> upstream/android-13
 					if (req) {
 						send_reply_to_slave(req->func, group, &req->sa_mad, status);
 						--group->func[req->func].num_pend_reqs;
@@ -944,7 +948,11 @@ int mlx4_ib_mcg_multiplex_handler(struct ib_device *ibdev, int port,
 	switch (sa_mad->mad_hdr.method) {
 	case IB_MGMT_METHOD_SET:
 		may_create = 1;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case IB_SA_METHOD_DELETE:
 		req = kzalloc(sizeof *req, GFP_KERNEL);
 		if (!req)
@@ -988,11 +996,16 @@ int mlx4_ib_mcg_multiplex_handler(struct ib_device *ibdev, int port,
 }
 
 static ssize_t sysfs_show_group(struct device *dev,
+<<<<<<< HEAD
 		struct device_attribute *attr, char *buf)
+=======
+				struct device_attribute *attr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct mcast_group *group =
 		container_of(attr, struct mcast_group, dentry);
 	struct mcast_req *req = NULL;
+<<<<<<< HEAD
 	char pending_str[40];
 	char state_str[40];
 	ssize_t len = 0;
@@ -1035,6 +1048,60 @@ static ssize_t sysfs_show_group(struct device *dev,
 		(be32_to_cpu(group->rec.sl_flowlabel_hoplimit) & 0x0fffff00) >> 8,
 		be32_to_cpu(group->rec.sl_flowlabel_hoplimit) & 0x000000ff,
 		group->rec.proxy_join);
+=======
+	char state_str[40];
+	char pending_str[40];
+	int len;
+	int i;
+	u32 hoplimit;
+
+	if (group->state == MCAST_IDLE)
+		scnprintf(state_str, sizeof(state_str), "%s",
+			  get_state_string(group->state));
+	else
+		scnprintf(state_str, sizeof(state_str), "%s(TID=0x%llx)",
+			  get_state_string(group->state),
+			  be64_to_cpu(group->last_req_tid));
+
+	if (list_empty(&group->pending_list)) {
+		scnprintf(pending_str, sizeof(pending_str), "No");
+	} else {
+		req = list_first_entry(&group->pending_list, struct mcast_req,
+				       group_list);
+		scnprintf(pending_str, sizeof(pending_str), "Yes(TID=0x%llx)",
+			  be64_to_cpu(req->sa_mad.mad_hdr.tid));
+	}
+
+	len = sysfs_emit(buf, "%1d [%02d,%02d,%02d] %4d %4s %5s     ",
+			 group->rec.scope_join_state & 0xf,
+			 group->members[2],
+			 group->members[1],
+			 group->members[0],
+			 atomic_read(&group->refcount),
+			 pending_str,
+			 state_str);
+
+	for (i = 0; i < MAX_VFS; i++) {
+		if (group->func[i].state == MCAST_MEMBER)
+			len += sysfs_emit_at(buf, len, "%d[%1x] ", i,
+					     group->func[i].join_state);
+	}
+
+	hoplimit = be32_to_cpu(group->rec.sl_flowlabel_hoplimit);
+	len += sysfs_emit_at(buf, len,
+			     "\t\t(%4hx %4x %2x %2x %2x %2x %2x %4x %4x %2x %2x)\n",
+			     be16_to_cpu(group->rec.pkey),
+			     be32_to_cpu(group->rec.qkey),
+			     (group->rec.mtusel_mtu & 0xc0) >> 6,
+			     (group->rec.mtusel_mtu & 0x3f),
+			     group->rec.tclass,
+			     (group->rec.ratesel_rate & 0xc0) >> 6,
+			     (group->rec.ratesel_rate & 0x3f),
+			     (hoplimit & 0xf0000000) >> 28,
+			     (hoplimit & 0x0fffff00) >> 8,
+			     (hoplimit & 0x000000ff),
+			     group->rec.proxy_join);
+>>>>>>> upstream/android-13
 
 	return len;
 }

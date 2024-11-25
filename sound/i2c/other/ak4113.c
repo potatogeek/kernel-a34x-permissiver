@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  Routines for control of the AK4113 via I2C/4-wire serial interface
  *  IEC958 (S/PDIF) receiver by Asahi Kasei
  *  Copyright (c) by Jaroslav Kysela <perex@perex.cz>
  *  Copyright (c) by Pavel Hofman <pavel.hofman@ivitera.com>
+<<<<<<< HEAD
  *
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -19,6 +24,8 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/slab.h>
@@ -75,7 +82,11 @@ int snd_ak4113_create(struct snd_card *card, ak4113_read_t *read,
 	struct ak4113 *chip;
 	int err;
 	unsigned char reg;
+<<<<<<< HEAD
 	static struct snd_device_ops ops = {
+=======
+	static const struct snd_device_ops ops = {
+>>>>>>> upstream/android-13
 		.dev_free =     snd_ak4113_dev_free,
 	};
 
@@ -364,7 +375,11 @@ static int snd_ak4113_spdif_qget(struct snd_kcontrol *kcontrol,
 }
 
 /* Don't forget to change AK4113_CONTROLS define!!! */
+<<<<<<< HEAD
 static struct snd_kcontrol_new snd_ak4113_iec958_controls[] = {
+=======
+static const struct snd_kcontrol_new snd_ak4113_iec958_controls[] = {
+>>>>>>> upstream/android-13
 {
 	.iface =	SNDRV_CTL_ELEM_IFACE_PCM,
 	.name =		"IEC958 Parity Errors",
@@ -492,9 +507,14 @@ static void snd_ak4113_proc_regs_read(struct snd_info_entry *entry,
 
 static void snd_ak4113_proc_init(struct ak4113 *ak4113)
 {
+<<<<<<< HEAD
 	struct snd_info_entry *entry;
 	if (!snd_card_proc_new(ak4113->card, "ak4113", &entry))
 		snd_info_set_text_ops(entry, ak4113, snd_ak4113_proc_regs_read);
+=======
+	snd_card_ro_proc_new(ak4113->card, "ak4113", ak4113,
+			     snd_ak4113_proc_regs_read);
+>>>>>>> upstream/android-13
 }
 
 int snd_ak4113_build(struct ak4113 *ak4113,

@@ -306,7 +306,11 @@ csio_hw_get_vpd_params(struct csio_hw *hw, struct csio_vpd *p)
 	uint8_t *vpd, csum;
 	const struct t4_vpd_hdr *v;
 	/* To get around compilation warning from strstrip */
+<<<<<<< HEAD
 	char *s;
+=======
+	char __always_unused *s;
+>>>>>>> upstream/android-13
 
 	if (csio_is_valid_vpd(hw))
 		return 0;
@@ -793,10 +797,17 @@ csio_hw_get_flash_params(struct csio_hw *hw)
 			goto found;
 		}
 
+<<<<<<< HEAD
 	/* Decode Flash part size.  The code below looks repetative with
 	 * common encodings, but that's not guaranteed in the JEDEC
 	 * specification for the Read JADEC ID command.  The only thing that
 	 * we're guaranteed by the JADEC specification is where the
+=======
+	/* Decode Flash part size.  The code below looks repetitive with
+	 * common encodings, but that's not guaranteed in the JEDEC
+	 * specification for the Read JEDEC ID command.  The only thing that
+	 * we're guaranteed by the JEDEC specification is where the
+>>>>>>> upstream/android-13
 	 * Manufacturer ID is in the returned result.  After that each
 	 * Manufacturer ~could~ encode things completely differently.
 	 * Note, all Flash parts must have 64KB sectors.
@@ -983,8 +994,13 @@ retry:
 			waiting -= 50;
 
 			/*
+<<<<<<< HEAD
 			 * If neither Error nor Initialialized are indicated
 			 * by the firmware keep waiting till we exaust our
+=======
+			 * If neither Error nor Initialized are indicated
+			 * by the firmware keep waiting till we exhaust our
+>>>>>>> upstream/android-13
 			 * timeout ... and then retry if we haven't exhausted
 			 * our retries ...
 			 */
@@ -1738,7 +1754,11 @@ static void csio_link_l1cfg(struct link_config *lc, uint16_t fw_caps,
 	 * Convert Common Code Forward Error Control settings into the
 	 * Firmware's API.  If the current Requested FEC has "Automatic"
 	 * (IEEE 802.3) specified, then we use whatever the Firmware
+<<<<<<< HEAD
 	 * sent us as part of it's IEEE 802.3-based interpratation of
+=======
+	 * sent us as part of it's IEEE 802.3-based interpretation of
+>>>>>>> upstream/android-13
 	 * the Transceiver Module EPROM FEC parameters.  Otherwise we
 	 * use whatever is in the current Requested FEC settings.
 	 */
@@ -2834,7 +2854,11 @@ csio_hws_configuring(struct csio_hw *hw, enum csio_hw_ev evt)
 }
 
 /*
+<<<<<<< HEAD
  * csio_hws_initializing - Initialiazing state
+=======
+ * csio_hws_initializing - Initializing state
+>>>>>>> upstream/android-13
  * @hw - HW module
  * @evt - Event
  *
@@ -2939,7 +2963,11 @@ csio_hws_quiescing(struct csio_hw *hw, enum csio_hw_ev evt)
 		case CSIO_HWE_FW_DLOAD:
 			csio_set_state(&hw->sm, csio_hws_resetting);
 			/* Download firmware */
+<<<<<<< HEAD
 			/* Fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 
 		case CSIO_HWE_HBA_RESET:
 			csio_set_state(&hw->sm, csio_hws_resetting);
@@ -3049,7 +3077,11 @@ csio_hws_removing(struct csio_hw *hw, enum csio_hw_ev evt)
 		if (!csio_is_hw_master(hw))
 			break;
 		/*
+<<<<<<< HEAD
 		 * The BYE should have alerady been issued, so we cant
+=======
+		 * The BYE should have already been issued, so we can't
+>>>>>>> upstream/android-13
 		 * use the mailbox interface. Hence we use the PL_RST
 		 * register directly.
 		 */
@@ -3104,7 +3136,11 @@ csio_hws_pcierr(struct csio_hw *hw, enum csio_hw_ev evt)
  *
  *	A table driven interrupt handler that applies a set of masks to an
  *	interrupt status word and performs the corresponding actions if the
+<<<<<<< HEAD
  *	interrupts described by the mask have occured.  The actions include
+=======
+ *	interrupts described by the mask have occurred.  The actions include
+>>>>>>> upstream/android-13
  *	optionally emitting a warning or alert message. The table is terminated
  *	by an entry specifying mask 0.  Returns the number of fatal interrupt
  *	conditions.
@@ -4219,7 +4255,11 @@ csio_mgmtm_exit(struct csio_mgmtm *mgmtm)
  * @hw:		Pointer to HW module.
  *
  * It is assumed that the initialization is a synchronous operation.
+<<<<<<< HEAD
  * So when we return afer posting the event, the HW SM should be in
+=======
+ * So when we return after posting the event, the HW SM should be in
+>>>>>>> upstream/android-13
  * the ready state, if there were no errors during init.
  */
 int

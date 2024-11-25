@@ -14,7 +14,11 @@
 
 #include "card.h"
 
+<<<<<<< HEAD
 static const struct mmc_fixup mmc_blk_fixups[] = {
+=======
+static const struct mmc_fixup __maybe_unused mmc_blk_fixups[] = {
+>>>>>>> upstream/android-13
 #define INAND_CMD38_ARG_EXT_CSD  113
 #define INAND_CMD38_ARG_ERASE    0x00
 #define INAND_CMD38_ARG_TRIM     0x01
@@ -102,7 +106,11 @@ static const struct mmc_fixup mmc_blk_fixups[] = {
 	END_FIXUP
 };
 
+<<<<<<< HEAD
 static const struct mmc_fixup mmc_ext_csd_fixups[] = {
+=======
+static const struct mmc_fixup __maybe_unused mmc_ext_csd_fixups[] = {
+>>>>>>> upstream/android-13
 	/*
 	 * Certain Hynix eMMC 4.41 cards might get broken when HPI feature
 	 * is used so disable the HPI feature for such buggy cards.
@@ -120,7 +128,11 @@ static const struct mmc_fixup mmc_ext_csd_fixups[] = {
 };
 
 
+<<<<<<< HEAD
 static const struct mmc_fixup sdio_fixup_methods[] = {
+=======
+static const struct mmc_fixup __maybe_unused sdio_fixup_methods[] = {
+>>>>>>> upstream/android-13
 	SDIO_FIXUP(SDIO_VENDOR_ID_TI_WL1251, SDIO_DEVICE_ID_TI_WL1251,
 		   add_quirk, MMC_QUIRK_NONSTD_FUNC_IF),
 
@@ -139,7 +151,11 @@ static const struct mmc_fixup sdio_fixup_methods[] = {
 	SDIO_FIXUP(SDIO_VENDOR_ID_MARVELL, SDIO_DEVICE_ID_MARVELL_8797_F0,
 		   add_quirk, MMC_QUIRK_BROKEN_IRQ_POLLING),
 
+<<<<<<< HEAD
 	SDIO_FIXUP(SDIO_VENDOR_ID_MARVELL, SDIO_DEVICE_ID_MARVELL_8887WLAN,
+=======
+	SDIO_FIXUP(SDIO_VENDOR_ID_MARVELL, SDIO_DEVICE_ID_MARVELL_8887_F0,
+>>>>>>> upstream/android-13
 		   add_limit_rate_quirk, 150000000),
 
 	END_FIXUP
@@ -166,7 +182,11 @@ static inline void mmc_fixup_device(struct mmc_card *card,
 		    (f->ext_csd_rev == EXT_CSD_REV_ANY ||
 		     f->ext_csd_rev == card->ext_csd.rev) &&
 		    rev >= f->rev_start && rev <= f->rev_end) {
+<<<<<<< HEAD
 			dev_dbg(&card->dev, "calling %pf\n", f->vendor_fixup);
+=======
+			dev_dbg(&card->dev, "calling %ps\n", f->vendor_fixup);
+>>>>>>> upstream/android-13
 			f->vendor_fixup(card, f->data);
 		}
 	}

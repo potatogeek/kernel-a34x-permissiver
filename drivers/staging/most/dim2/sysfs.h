@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+>>>>>>> upstream/android-13
 /*
  * sysfs.h - MediaLB sysfs information
  *
@@ -16,6 +20,7 @@ struct medialb_bus {
 	struct kobject kobj_group;
 };
 
+<<<<<<< HEAD
 struct device;
 
 int dim2_sysfs_probe(struct device *dev);
@@ -27,4 +32,6 @@ void dim2_sysfs_destroy(struct device *dev);
  */
 bool dim2_sysfs_get_state_cb(void);
 
+=======
+>>>>>>> upstream/android-13
 #endif	/* DIM2_SYSFS_H */

@@ -11,12 +11,22 @@
 #include "btree.h"
 #include "request.h"
 #include "writeback.h"
+<<<<<<< HEAD
+=======
+#include "features.h"
+>>>>>>> upstream/android-13
 
 #include <linux/blkdev.h>
 #include <linux/sort.h>
 #include <linux/sched/clock.h>
 
+<<<<<<< HEAD
 /* Default is -1; we skip past it for struct cached_dev's cache mode */
+=======
+extern bool bcache_is_reboot;
+
+/* Default is 0 ("writethrough") */
+>>>>>>> upstream/android-13
 static const char * const bch_cache_modes[] = {
 	"writethrough",
 	"writeback",
@@ -31,7 +41,11 @@ static const char * const bch_reada_cache_policies[] = {
 	NULL
 };
 
+<<<<<<< HEAD
 /* Default is -1; we skip past it for stop_when_cache_set_failed */
+=======
+/* Default is 0 ("auto") */
+>>>>>>> upstream/android-13
 static const char * const bch_stop_on_failure_modes[] = {
 	"auto",
 	"always",
@@ -73,6 +87,11 @@ read_attribute(written);
 read_attribute(btree_written);
 read_attribute(metadata_written);
 read_attribute(active_journal_entries);
+<<<<<<< HEAD
+=======
+read_attribute(backing_dev_name);
+read_attribute(backing_dev_uuid);
+>>>>>>> upstream/android-13
 
 sysfs_time_stats_attribute(btree_gc,	sec, ms);
 sysfs_time_stats_attribute(btree_split, sec, us);
@@ -84,16 +103,32 @@ read_attribute(btree_used_percent);
 read_attribute(average_key_size);
 read_attribute(dirty_data);
 read_attribute(bset_tree_stats);
+<<<<<<< HEAD
+=======
+read_attribute(feature_compat);
+read_attribute(feature_ro_compat);
+read_attribute(feature_incompat);
+>>>>>>> upstream/android-13
 
 read_attribute(state);
 read_attribute(cache_read_races);
 read_attribute(reclaim);
+<<<<<<< HEAD
 read_attribute(flush_write);
 read_attribute(retry_flush_write);
+=======
+read_attribute(reclaimed_journal_buckets);
+read_attribute(flush_write);
+>>>>>>> upstream/android-13
 read_attribute(writeback_keys_done);
 read_attribute(writeback_keys_failed);
 read_attribute(io_errors);
 read_attribute(congested);
+<<<<<<< HEAD
+=======
+read_attribute(cutoff_writeback);
+read_attribute(cutoff_writeback_sync);
+>>>>>>> upstream/android-13
 rw_attribute(congested_read_threshold_us);
 rw_attribute(congested_write_threshold_us);
 
@@ -107,10 +142,20 @@ rw_attribute(writeback_running);
 rw_attribute(writeback_percent);
 rw_attribute(writeback_delay);
 rw_attribute(writeback_rate);
+<<<<<<< HEAD
+=======
+rw_attribute(writeback_consider_fragment);
+>>>>>>> upstream/android-13
 
 rw_attribute(writeback_rate_update_seconds);
 rw_attribute(writeback_rate_i_term_inverse);
 rw_attribute(writeback_rate_p_term_inverse);
+<<<<<<< HEAD
+=======
+rw_attribute(writeback_rate_fp_term_low);
+rw_attribute(writeback_rate_fp_term_mid);
+rw_attribute(writeback_rate_fp_term_high);
+>>>>>>> upstream/android-13
 rw_attribute(writeback_rate_minimum);
 read_attribute(writeback_rate_debug);
 
@@ -123,7 +168,10 @@ rw_attribute(io_disable);
 rw_attribute(discard);
 rw_attribute(running);
 rw_attribute(label);
+<<<<<<< HEAD
 rw_attribute(readahead);
+=======
+>>>>>>> upstream/android-13
 rw_attribute(errors);
 rw_attribute(io_error_limit);
 rw_attribute(io_error_halflife);
@@ -135,6 +183,11 @@ rw_attribute(expensive_debug_checks);
 rw_attribute(cache_replacement_policy);
 rw_attribute(btree_shrinker_disabled);
 rw_attribute(copy_gc_enabled);
+<<<<<<< HEAD
+=======
+rw_attribute(idle_max_writeback_rate);
+rw_attribute(gc_after_writeback);
+>>>>>>> upstream/android-13
 rw_attribute(size);
 
 static ssize_t bch_snprint_string_list(char *buf,
@@ -146,7 +199,11 @@ static ssize_t bch_snprint_string_list(char *buf,
 	size_t i;
 
 	for (i = 0; list[i]; i++)
+<<<<<<< HEAD
 		out += snprintf(out, buf + size - out,
+=======
+		out += scnprintf(out, buf + size - out,
+>>>>>>> upstream/android-13
 				i == selected ? "[%s] " : "%s ", list[i]);
 
 	out[-1] = '\n';
@@ -183,6 +240,10 @@ SHOW(__bch_cached_dev)
 	var_printf(bypass_torture_test,	"%i");
 	var_printf(writeback_metadata,	"%i");
 	var_printf(writeback_running,	"%i");
+<<<<<<< HEAD
+=======
+	var_printf(writeback_consider_fragment,	"%i");
+>>>>>>> upstream/android-13
 	var_print(writeback_delay);
 	var_print(writeback_percent);
 	sysfs_hprint(writeback_rate,
@@ -193,6 +254,12 @@ SHOW(__bch_cached_dev)
 	var_print(writeback_rate_update_seconds);
 	var_print(writeback_rate_i_term_inverse);
 	var_print(writeback_rate_p_term_inverse);
+<<<<<<< HEAD
+=======
+	var_print(writeback_rate_fp_term_low);
+	var_print(writeback_rate_fp_term_mid);
+	var_print(writeback_rate_fp_term_high);
+>>>>>>> upstream/android-13
 	var_print(writeback_rate_minimum);
 
 	if (attr == &sysfs_writeback_rate_debug) {
@@ -240,7 +307,10 @@ SHOW(__bch_cached_dev)
 	var_printf(partial_stripes_expensive,	"%u");
 
 	var_hprint(sequential_cutoff);
+<<<<<<< HEAD
 	var_hprint(readahead);
+=======
+>>>>>>> upstream/android-13
 
 	sysfs_print(running,		atomic_read(&dc->running));
 	sysfs_print(state,		states[BDEV_STATE(&dc->sb)]);
@@ -252,6 +322,22 @@ SHOW(__bch_cached_dev)
 		return strlen(buf);
 	}
 
+<<<<<<< HEAD
+=======
+	if (attr == &sysfs_backing_dev_name) {
+		snprintf(buf, BDEVNAME_SIZE + 1, "%s", dc->backing_dev_name);
+		strcat(buf, "\n");
+		return strlen(buf);
+	}
+
+	if (attr == &sysfs_backing_dev_uuid) {
+		/* convert binary uuid into 36-byte string plus '\0' */
+		snprintf(buf, 36+1, "%pU", dc->sb.uuid);
+		strcat(buf, "\n");
+		return strlen(buf);
+	}
+
+>>>>>>> upstream/android-13
 #undef var
 	return 0;
 }
@@ -265,18 +351,36 @@ STORE(__cached_dev)
 	struct cache_set *c;
 	struct kobj_uevent_env *env;
 
+<<<<<<< HEAD
+=======
+	/* no user space access if system is rebooting */
+	if (bcache_is_reboot)
+		return -EBUSY;
+
+>>>>>>> upstream/android-13
 #define d_strtoul(var)		sysfs_strtoul(var, dc->var)
 #define d_strtoul_nonzero(var)	sysfs_strtoul_clamp(var, dc->var, 1, INT_MAX)
 #define d_strtoi_h(var)		sysfs_hatoi(var, dc->var)
 
 	sysfs_strtoul(data_csum,	dc->disk.data_csum);
 	d_strtoul(verify);
+<<<<<<< HEAD
 	d_strtoul(bypass_torture_test);
 	d_strtoul(writeback_metadata);
 	d_strtoul(writeback_running);
 	d_strtoul(writeback_delay);
 
 	sysfs_strtoul_clamp(writeback_percent, dc->writeback_percent, 0, 40);
+=======
+	sysfs_strtoul_bool(bypass_torture_test, dc->bypass_torture_test);
+	sysfs_strtoul_bool(writeback_metadata, dc->writeback_metadata);
+	sysfs_strtoul_bool(writeback_running, dc->writeback_running);
+	sysfs_strtoul_bool(writeback_consider_fragment, dc->writeback_consider_fragment);
+	sysfs_strtoul_clamp(writeback_delay, dc->writeback_delay, 0, UINT_MAX);
+
+	sysfs_strtoul_clamp(writeback_percent, dc->writeback_percent,
+			    0, bch_cutoff_writeback);
+>>>>>>> upstream/android-13
 
 	if (attr == &sysfs_writeback_rate) {
 		ssize_t ret;
@@ -301,6 +405,19 @@ STORE(__cached_dev)
 	sysfs_strtoul_clamp(writeback_rate_p_term_inverse,
 			    dc->writeback_rate_p_term_inverse,
 			    1, UINT_MAX);
+<<<<<<< HEAD
+=======
+	sysfs_strtoul_clamp(writeback_rate_fp_term_low,
+			    dc->writeback_rate_fp_term_low,
+			    1, dc->writeback_rate_fp_term_mid - 1);
+	sysfs_strtoul_clamp(writeback_rate_fp_term_mid,
+			    dc->writeback_rate_fp_term_mid,
+			    dc->writeback_rate_fp_term_low + 1,
+			    dc->writeback_rate_fp_term_high - 1);
+	sysfs_strtoul_clamp(writeback_rate_fp_term_high,
+			    dc->writeback_rate_fp_term_high,
+			    dc->writeback_rate_fp_term_mid + 1, UINT_MAX);
+>>>>>>> upstream/android-13
 	sysfs_strtoul_clamp(writeback_rate_minimum,
 			    dc->writeback_rate_minimum,
 			    1, UINT_MAX);
@@ -316,14 +433,25 @@ STORE(__cached_dev)
 	sysfs_strtoul_clamp(sequential_cutoff,
 			    dc->sequential_cutoff,
 			    0, UINT_MAX);
+<<<<<<< HEAD
 	d_strtoi_h(readahead);
+=======
+>>>>>>> upstream/android-13
 
 	if (attr == &sysfs_clear_stats)
 		bch_cache_accounting_clear(&dc->accounting);
 
 	if (attr == &sysfs_running &&
+<<<<<<< HEAD
 	    strtoul_or_return(buf))
 		bch_cached_dev_run(dc);
+=======
+	    strtoul_or_return(buf)) {
+		v = bch_cached_dev_run(dc);
+		if (v)
+			return v;
+	}
+>>>>>>> upstream/android-13
 
 	if (attr == &sysfs_cache_mode) {
 		v = __sysfs_match_string(bch_cache_modes, -1, buf);
@@ -371,7 +499,11 @@ STORE(__cached_dev)
 		if (!env)
 			return -ENOMEM;
 		add_uevent_var(env, "DRIVER=bcache");
+<<<<<<< HEAD
 		add_uevent_var(env, "CACHED_UUID=%pU", dc->sb.uuid),
+=======
+		add_uevent_var(env, "CACHED_UUID=%pU", dc->sb.uuid);
+>>>>>>> upstream/android-13
 		add_uevent_var(env, "CACHED_LABEL=%s", buf);
 		kobject_uevent_env(&disk_to_dev(dc->disk.disk)->kobj,
 				   KOBJ_CHANGE,
@@ -392,7 +524,11 @@ STORE(__cached_dev)
 				return size;
 		}
 		if (v == -ENOENT)
+<<<<<<< HEAD
 			pr_err("Can't attach %s: cache set not found", buf);
+=======
+			pr_err("Can't attach %s: cache set not found\n", buf);
+>>>>>>> upstream/android-13
 		return v;
 	}
 
@@ -410,11 +546,40 @@ STORE(bch_cached_dev)
 	struct cached_dev *dc = container_of(kobj, struct cached_dev,
 					     disk.kobj);
 
+<<<<<<< HEAD
 	mutex_lock(&bch_register_lock);
 	size = __cached_dev_store(kobj, attr, buf, size);
 
 	if (attr == &sysfs_writeback_running)
 		bch_writeback_queue(dc);
+=======
+	/* no user space access if system is rebooting */
+	if (bcache_is_reboot)
+		return -EBUSY;
+
+	mutex_lock(&bch_register_lock);
+	size = __cached_dev_store(kobj, attr, buf, size);
+
+	if (attr == &sysfs_writeback_running) {
+		/* dc->writeback_running changed in __cached_dev_store() */
+		if (IS_ERR_OR_NULL(dc->writeback_thread)) {
+			/*
+			 * reject setting it to 1 via sysfs if writeback
+			 * kthread is not created yet.
+			 */
+			if (dc->writeback_running) {
+				dc->writeback_running = false;
+				pr_err("%s: failed to run non-existent writeback thread\n",
+						dc->disk.disk->disk_name);
+			}
+		} else
+			/*
+			 * writeback kthread will check if dc->writeback_running
+			 * is true or false.
+			 */
+			bch_writeback_queue(dc);
+	}
+>>>>>>> upstream/android-13
 
 	/*
 	 * Only set BCACHE_DEV_WB_RUNNING when cached device attached to
@@ -445,9 +610,19 @@ static struct attribute *bch_cached_dev_files[] = {
 	&sysfs_writeback_delay,
 	&sysfs_writeback_percent,
 	&sysfs_writeback_rate,
+<<<<<<< HEAD
 	&sysfs_writeback_rate_update_seconds,
 	&sysfs_writeback_rate_i_term_inverse,
 	&sysfs_writeback_rate_p_term_inverse,
+=======
+	&sysfs_writeback_consider_fragment,
+	&sysfs_writeback_rate_update_seconds,
+	&sysfs_writeback_rate_i_term_inverse,
+	&sysfs_writeback_rate_p_term_inverse,
+	&sysfs_writeback_rate_fp_term_low,
+	&sysfs_writeback_rate_fp_term_mid,
+	&sysfs_writeback_rate_fp_term_high,
+>>>>>>> upstream/android-13
 	&sysfs_writeback_rate_minimum,
 	&sysfs_writeback_rate_debug,
 	&sysfs_io_errors,
@@ -461,11 +636,19 @@ static struct attribute *bch_cached_dev_files[] = {
 	&sysfs_running,
 	&sysfs_state,
 	&sysfs_label,
+<<<<<<< HEAD
 	&sysfs_readahead,
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_BCACHE_DEBUG
 	&sysfs_verify,
 	&sysfs_bypass_torture_test,
 #endif
+<<<<<<< HEAD
+=======
+	&sysfs_backing_dev_name,
+	&sysfs_backing_dev_uuid,
+>>>>>>> upstream/android-13
 	NULL
 };
 KTYPE(bch_cached_dev);
@@ -495,6 +678,13 @@ STORE(__bch_flash_dev)
 					       kobj);
 	struct uuid_entry *u = &d->c->uuids[d->id];
 
+<<<<<<< HEAD
+=======
+	/* no user space access if system is rebooting */
+	if (bcache_is_reboot)
+		return -EBUSY;
+
+>>>>>>> upstream/android-13
 	sysfs_strtoul(data_csum,	d->data_csum);
 
 	if (attr == &sysfs_size) {
@@ -651,10 +841,17 @@ SHOW(__bch_cache_set)
 {
 	struct cache_set *c = container_of(kobj, struct cache_set, kobj);
 
+<<<<<<< HEAD
 	sysfs_print(synchronous,		CACHE_SYNC(&c->sb));
 	sysfs_print(journal_delay_ms,		c->journal_delay_ms);
 	sysfs_hprint(bucket_size,		bucket_bytes(c));
 	sysfs_hprint(block_size,		block_bytes(c));
+=======
+	sysfs_print(synchronous,		CACHE_SYNC(&c->cache->sb));
+	sysfs_print(journal_delay_ms,		c->journal_delay_ms);
+	sysfs_hprint(bucket_size,		bucket_bytes(c->cache));
+	sysfs_hprint(block_size,		block_bytes(c->cache));
+>>>>>>> upstream/android-13
 	sysfs_print(tree_depth,			c->root->level);
 	sysfs_print(root_usage_percent,		bch_root_usage(c));
 
@@ -677,12 +874,21 @@ SHOW(__bch_cache_set)
 	sysfs_print(reclaim,
 		    atomic_long_read(&c->reclaim));
 
+<<<<<<< HEAD
 	sysfs_print(flush_write,
 		    atomic_long_read(&c->flush_write));
 
 	sysfs_print(retry_flush_write,
 		    atomic_long_read(&c->retry_flush_write));
 
+=======
+	sysfs_print(reclaimed_journal_buckets,
+		    atomic_long_read(&c->reclaimed_journal_buckets));
+
+	sysfs_print(flush_write,
+		    atomic_long_read(&c->flush_write));
+
+>>>>>>> upstream/android-13
 	sysfs_print(writeback_keys_done,
 		    atomic_long_read(&c->writeback_keys_done));
 	sysfs_print(writeback_keys_failed,
@@ -703,6 +909,12 @@ SHOW(__bch_cache_set)
 	sysfs_print(congested_write_threshold_us,
 		    c->congested_write_threshold_us);
 
+<<<<<<< HEAD
+=======
+	sysfs_print(cutoff_writeback, bch_cutoff_writeback);
+	sysfs_print(cutoff_writeback_sync, bch_cutoff_writeback_sync);
+
+>>>>>>> upstream/android-13
 	sysfs_print(active_journal_entries,	fifo_used(&c->journal.pin));
 	sysfs_printf(verify,			"%i", c->verify);
 	sysfs_printf(key_merging_disabled,	"%i", c->key_merging_disabled);
@@ -711,12 +923,28 @@ SHOW(__bch_cache_set)
 	sysfs_printf(gc_always_rewrite,		"%i", c->gc_always_rewrite);
 	sysfs_printf(btree_shrinker_disabled,	"%i", c->shrinker_disabled);
 	sysfs_printf(copy_gc_enabled,		"%i", c->copy_gc_enabled);
+<<<<<<< HEAD
+=======
+	sysfs_printf(idle_max_writeback_rate,	"%i",
+		     c->idle_max_writeback_rate_enabled);
+	sysfs_printf(gc_after_writeback,	"%i", c->gc_after_writeback);
+>>>>>>> upstream/android-13
 	sysfs_printf(io_disable,		"%i",
 		     test_bit(CACHE_SET_IO_DISABLE, &c->flags));
 
 	if (attr == &sysfs_bset_tree_stats)
 		return bch_bset_print_stats(c, buf);
 
+<<<<<<< HEAD
+=======
+	if (attr == &sysfs_feature_compat)
+		return bch_print_cache_set_feature_compat(c, buf, PAGE_SIZE);
+	if (attr == &sysfs_feature_ro_compat)
+		return bch_print_cache_set_feature_ro_compat(c, buf, PAGE_SIZE);
+	if (attr == &sysfs_feature_incompat)
+		return bch_print_cache_set_feature_incompat(c, buf, PAGE_SIZE);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 SHOW_LOCKED(bch_cache_set)
@@ -726,6 +954,13 @@ STORE(__bch_cache_set)
 	struct cache_set *c = container_of(kobj, struct cache_set, kobj);
 	ssize_t v;
 
+<<<<<<< HEAD
+=======
+	/* no user space access if system is rebooting */
+	if (bcache_is_reboot)
+		return -EBUSY;
+
+>>>>>>> upstream/android-13
 	if (attr == &sysfs_unregister)
 		bch_cache_set_unregister(c);
 
@@ -735,8 +970,13 @@ STORE(__bch_cache_set)
 	if (attr == &sysfs_synchronous) {
 		bool sync = strtoul_or_return(buf);
 
+<<<<<<< HEAD
 		if (sync != CACHE_SYNC(&c->sb)) {
 			SET_CACHE_SYNC(&c->sb, sync);
+=======
+		if (sync != CACHE_SYNC(&c->cache->sb)) {
+			SET_CACHE_SYNC(&c->cache->sb, sync);
+>>>>>>> upstream/android-13
 			bcache_write_super(c);
 		}
 	}
@@ -760,6 +1000,7 @@ STORE(__bch_cache_set)
 		bch_cache_accounting_clear(&c->accounting);
 	}
 
+<<<<<<< HEAD
 	if (attr == &sysfs_trigger_gc) {
 		/*
 		 * Garbage collection thread only works when sectors_to_gc < 0,
@@ -775,6 +1016,10 @@ STORE(__bch_cache_set)
 		atomic_set(&c->sectors_to_gc, -1);
 		wake_up_gc(c);
 	}
+=======
+	if (attr == &sysfs_trigger_gc)
+		force_wake_up_gc(c);
+>>>>>>> upstream/android-13
 
 	if (attr == &sysfs_prune_cache) {
 		struct shrink_control sc;
@@ -784,10 +1029,19 @@ STORE(__bch_cache_set)
 		c->shrink.scan_objects(&c->shrink, &sc);
 	}
 
+<<<<<<< HEAD
 	sysfs_strtoul(congested_read_threshold_us,
 		      c->congested_read_threshold_us);
 	sysfs_strtoul(congested_write_threshold_us,
 		      c->congested_write_threshold_us);
+=======
+	sysfs_strtoul_clamp(congested_read_threshold_us,
+			    c->congested_read_threshold_us,
+			    0, UINT_MAX);
+	sysfs_strtoul_clamp(congested_write_threshold_us,
+			    c->congested_write_threshold_us,
+			    0, UINT_MAX);
+>>>>>>> upstream/android-13
 
 	if (attr == &sysfs_errors) {
 		v = __sysfs_match_string(error_actions, -1, buf);
@@ -797,8 +1051,12 @@ STORE(__bch_cache_set)
 		c->on_error = v;
 	}
 
+<<<<<<< HEAD
 	if (attr == &sysfs_io_error_limit)
 		c->error_limit = strtoul_or_return(buf);
+=======
+	sysfs_strtoul_clamp(io_error_limit, c->error_limit, 0, UINT_MAX);
+>>>>>>> upstream/android-13
 
 	/* See count_io_errors() for why 88 */
 	if (attr == &sysfs_io_error_halflife) {
@@ -818,6 +1076,7 @@ STORE(__bch_cache_set)
 		if (v) {
 			if (test_and_set_bit(CACHE_SET_IO_DISABLE,
 					     &c->flags))
+<<<<<<< HEAD
 				pr_warn("CACHE_SET_IO_DISABLE already set");
 		} else {
 			if (!test_and_clear_bit(CACHE_SET_IO_DISABLE,
@@ -833,6 +1092,34 @@ STORE(__bch_cache_set)
 	sysfs_strtoul(gc_always_rewrite,	c->gc_always_rewrite);
 	sysfs_strtoul(btree_shrinker_disabled,	c->shrinker_disabled);
 	sysfs_strtoul(copy_gc_enabled,		c->copy_gc_enabled);
+=======
+				pr_warn("CACHE_SET_IO_DISABLE already set\n");
+		} else {
+			if (!test_and_clear_bit(CACHE_SET_IO_DISABLE,
+						&c->flags))
+				pr_warn("CACHE_SET_IO_DISABLE already cleared\n");
+		}
+	}
+
+	sysfs_strtoul_clamp(journal_delay_ms,
+			    c->journal_delay_ms,
+			    0, USHRT_MAX);
+	sysfs_strtoul_bool(verify,		c->verify);
+	sysfs_strtoul_bool(key_merging_disabled, c->key_merging_disabled);
+	sysfs_strtoul(expensive_debug_checks,	c->expensive_debug_checks);
+	sysfs_strtoul_bool(gc_always_rewrite,	c->gc_always_rewrite);
+	sysfs_strtoul_bool(btree_shrinker_disabled, c->shrinker_disabled);
+	sysfs_strtoul_bool(copy_gc_enabled,	c->copy_gc_enabled);
+	sysfs_strtoul_bool(idle_max_writeback_rate,
+			   c->idle_max_writeback_rate_enabled);
+
+	/*
+	 * write gc_after_writeback here may overwrite an already set
+	 * BCH_DO_AUTO_GC, it doesn't matter because this flag will be
+	 * set in next chance.
+	 */
+	sysfs_strtoul_clamp(gc_after_writeback, c->gc_after_writeback, 0, 1);
+>>>>>>> upstream/android-13
 
 	return size;
 }
@@ -849,6 +1136,13 @@ STORE(bch_cache_set_internal)
 {
 	struct cache_set *c = container_of(kobj, struct cache_set, internal);
 
+<<<<<<< HEAD
+=======
+	/* no user space access if system is rebooting */
+	if (bcache_is_reboot)
+		return -EBUSY;
+
+>>>>>>> upstream/android-13
 	return bch_cache_set_store(&c->kobj, attr, buf, size);
 }
 
@@ -898,8 +1192,13 @@ static struct attribute *bch_cache_set_internal_files[] = {
 	&sysfs_bset_tree_stats,
 	&sysfs_cache_read_races,
 	&sysfs_reclaim,
+<<<<<<< HEAD
 	&sysfs_flush_write,
 	&sysfs_retry_flush_write,
+=======
+	&sysfs_reclaimed_journal_buckets,
+	&sysfs_flush_write,
+>>>>>>> upstream/android-13
 	&sysfs_writeback_keys_done,
 	&sysfs_writeback_keys_failed,
 
@@ -913,13 +1212,28 @@ static struct attribute *bch_cache_set_internal_files[] = {
 	&sysfs_gc_always_rewrite,
 	&sysfs_btree_shrinker_disabled,
 	&sysfs_copy_gc_enabled,
+<<<<<<< HEAD
 	&sysfs_io_disable,
+=======
+	&sysfs_idle_max_writeback_rate,
+	&sysfs_gc_after_writeback,
+	&sysfs_io_disable,
+	&sysfs_cutoff_writeback,
+	&sysfs_cutoff_writeback_sync,
+	&sysfs_feature_compat,
+	&sysfs_feature_ro_compat,
+	&sysfs_feature_incompat,
+>>>>>>> upstream/android-13
 	NULL
 };
 KTYPE(bch_cache_set_internal);
 
 static int __bch_cache_cmp(const void *l, const void *r)
 {
+<<<<<<< HEAD
+=======
+	cond_resched();
+>>>>>>> upstream/android-13
 	return *((uint16_t *)r) - *((uint16_t *)l);
 }
 
@@ -982,11 +1296,19 @@ SHOW(__bch_cache)
 		       !cached[n - 1])
 			--n;
 
+<<<<<<< HEAD
 		unused = ca->sb.nbuckets - n;
 
 		while (cached < p + n &&
 		       *cached == BTREE_PRIO)
 			cached++, n--;
+=======
+		while (cached < p + n &&
+		       *cached == BTREE_PRIO) {
+			cached++;
+			n--;
+		}
+>>>>>>> upstream/android-13
 
 		for (i = 0; i < n; i++)
 			sum += INITIAL_PRIO - cached[i];
@@ -1033,6 +1355,13 @@ STORE(__bch_cache)
 	struct cache *ca = container_of(kobj, struct cache, kobj);
 	ssize_t v;
 
+<<<<<<< HEAD
+=======
+	/* no user space access if system is rebooting */
+	if (bcache_is_reboot)
+		return -EBUSY;
+
+>>>>>>> upstream/android-13
 	if (attr == &sysfs_discard) {
 		bool v = strtoul_or_return(buf);
 

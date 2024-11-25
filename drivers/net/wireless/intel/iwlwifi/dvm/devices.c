@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * Copyright(c) 2008 - 2014 Intel Corporation. All rights reserved.
@@ -17,6 +18,13 @@
  *
  * The full GNU General Public License is included in this distribution in the
  * file called LICENSE.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/******************************************************************************
+ *
+ * Copyright(c) 2008 - 2014 Intel Corporation. All rights reserved.
+ * Copyright (C) 2019 Intel Corporation
+>>>>>>> upstream/android-13
  *
  * Contact Information:
  *  Intel Linux Wireless <linuxwifi@intel.com>
@@ -24,6 +32,11 @@
  *
  *****************************************************************************/
 
+<<<<<<< HEAD
+=======
+#include <linux/units.h>
+
+>>>>>>> upstream/android-13
 /*
  * DVM device-specific data & functions
  */
@@ -70,8 +83,13 @@ static void iwl1000_nic_config(struct iwl_priv *priv)
 
 /**
  * iwl_beacon_time_mask_low - mask of lower 32 bit of beacon time
+<<<<<<< HEAD
  * @priv -- pointer to iwl_priv data structure
  * @tsf_bits -- number of bits need to shift for masking)
+=======
+ * @priv: pointer to iwl_priv data structure
+ * @tsf_bits: number of bits need to shift for masking)
+>>>>>>> upstream/android-13
  */
 static inline u32 iwl_beacon_time_mask_low(struct iwl_priv *priv,
 					   u16 tsf_bits)
@@ -81,8 +99,13 @@ static inline u32 iwl_beacon_time_mask_low(struct iwl_priv *priv,
 
 /**
  * iwl_beacon_time_mask_high - mask of higher 32 bit of beacon time
+<<<<<<< HEAD
  * @priv -- pointer to iwl_priv data structure
  * @tsf_bits -- number of bits need to shift for masking)
+=======
+ * @priv: pointer to iwl_priv data structure
+ * @tsf_bits: number of bits need to shift for masking)
+>>>>>>> upstream/android-13
  */
 static inline u32 iwl_beacon_time_mask_high(struct iwl_priv *priv,
 					    u16 tsf_bits)
@@ -359,7 +382,11 @@ static s32 iwl_temp_calib_to_offset(struct iwl_priv *priv)
 static void iwl5150_set_ct_threshold(struct iwl_priv *priv)
 {
 	const s32 volt2temp_coef = IWL_5150_VOLTAGE_TO_TEMPERATURE_COEFF;
+<<<<<<< HEAD
 	s32 threshold = (s32)CELSIUS_TO_KELVIN(CT_KILL_THRESHOLD_LEGACY) -
+=======
+	s32 threshold = (s32)celsius_to_kelvin(CT_KILL_THRESHOLD_LEGACY) -
+>>>>>>> upstream/android-13
 			iwl_temp_calib_to_offset(priv);
 
 	priv->hw_params.ct_kill_threshold = threshold * volt2temp_coef;
@@ -395,7 +422,11 @@ static void iwl5150_temperature(struct iwl_priv *priv)
 	vt = le32_to_cpu(priv->statistics.common.temperature);
 	vt = vt / IWL_5150_VOLTAGE_TO_TEMPERATURE_COEFF + offset;
 	/* now vt hold the temperature in Kelvin */
+<<<<<<< HEAD
 	priv->temperature = KELVIN_TO_CELSIUS(vt);
+=======
+	priv->temperature = kelvin_to_celsius(vt);
+>>>>>>> upstream/android-13
 	iwl_tt_handler(priv);
 }
 
@@ -498,7 +529,11 @@ static void iwl6000_set_ct_threshold(struct iwl_priv *priv)
 /* NIC configuration for 6000 series */
 static void iwl6000_nic_config(struct iwl_priv *priv)
 {
+<<<<<<< HEAD
 	switch (priv->cfg->device_family) {
+=======
+	switch (priv->trans->trans_cfg->device_family) {
+>>>>>>> upstream/android-13
 	case IWL_DEVICE_FAMILY_6005:
 	case IWL_DEVICE_FAMILY_6030:
 	case IWL_DEVICE_FAMILY_6000:

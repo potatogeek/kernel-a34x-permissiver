@@ -26,13 +26,21 @@
  *         PREEMPT_MASK:	0x000000ff
  *         SOFTIRQ_MASK:	0x0000ff00
  *         HARDIRQ_MASK:	0x000f0000
+<<<<<<< HEAD
  *             NMI_MASK:	0x00100000
+=======
+ *             NMI_MASK:	0x00f00000
+>>>>>>> upstream/android-13
  * PREEMPT_NEED_RESCHED:	0x80000000
  */
 #define PREEMPT_BITS	8
 #define SOFTIRQ_BITS	8
 #define HARDIRQ_BITS	4
+<<<<<<< HEAD
 #define NMI_BITS	1
+=======
+#define NMI_BITS	4
+>>>>>>> upstream/android-13
 
 #define PREEMPT_SHIFT	0
 #define SOFTIRQ_SHIFT	(PREEMPT_SHIFT + PREEMPT_BITS)
@@ -53,9 +61,12 @@
 
 #define SOFTIRQ_DISABLE_OFFSET	(2 * SOFTIRQ_OFFSET)
 
+<<<<<<< HEAD
 /* We use the MSB mostly because its available */
 #define PREEMPT_NEED_RESCHED	0x80000000
 
+=======
+>>>>>>> upstream/android-13
 #define PREEMPT_DISABLED	(PREEMPT_DISABLE_OFFSET + PREEMPT_ENABLED)
 
 /*
@@ -80,6 +91,7 @@
 /* preempt_count() and related functions, depends on PREEMPT_NEED_RESCHED */
 #include <asm/preempt.h>
 
+<<<<<<< HEAD
 #define hardirq_count()	(preempt_count() & HARDIRQ_MASK)
 #define softirq_count()	(preempt_count() & SOFTIRQ_MASK)
 #define irq_count()	(preempt_count() & (HARDIRQ_MASK | SOFTIRQ_MASK \
@@ -97,14 +109,46 @@
  *
  * Note: due to the BH disabled confusion: in_softirq(),in_interrupt() really
  *       should not be used in new code.
+=======
+#define nmi_count()	(preempt_count() & NMI_MASK)
+#define hardirq_count()	(preempt_count() & HARDIRQ_MASK)
+#ifdef CONFIG_PREEMPT_RT
+# define softirq_count()	(current->softirq_disable_cnt & SOFTIRQ_MASK)
+#else
+# define softirq_count()	(preempt_count() & SOFTIRQ_MASK)
+#endif
+#define irq_count()	(nmi_count() | hardirq_count() | softirq_count())
+
+/*
+ * Macros to retrieve the current execution context:
+ *
+ * in_nmi()		- We're in NMI context
+ * in_hardirq()		- We're in hard IRQ context
+ * in_serving_softirq()	- We're in softirq context
+ * in_task()		- We're in task context
+ */
+#define in_nmi()		(nmi_count())
+#define in_hardirq()		(hardirq_count())
+#define in_serving_softirq()	(softirq_count() & SOFTIRQ_OFFSET)
+#define in_task()		(!(in_nmi() | in_hardirq() | in_serving_softirq()))
+
+/*
+ * The following macros are deprecated and should not be used in new code:
+ * in_irq()       - Obsolete version of in_hardirq()
+ * in_softirq()   - We have BH disabled, or are processing softirqs
+ * in_interrupt() - We're in NMI,IRQ,SoftIRQ context or have BH disabled
+>>>>>>> upstream/android-13
  */
 #define in_irq()		(hardirq_count())
 #define in_softirq()		(softirq_count())
 #define in_interrupt()		(irq_count())
+<<<<<<< HEAD
 #define in_serving_softirq()	(softirq_count() & SOFTIRQ_OFFSET)
 #define in_nmi()		(preempt_count() & NMI_MASK)
 #define in_task()		(!(preempt_count() & \
 				   (NMI_MASK | HARDIRQ_MASK | SOFTIRQ_OFFSET)))
+=======
+>>>>>>> upstream/android-13
 
 /*
  * The preempt_count offset after preempt_disable();
@@ -118,7 +162,15 @@
 /*
  * The preempt_count offset after spin_lock()
  */
+<<<<<<< HEAD
 #define PREEMPT_LOCK_OFFSET	PREEMPT_DISABLE_OFFSET
+=======
+#if !defined(CONFIG_PREEMPT_RT)
+#define PREEMPT_LOCK_OFFSET	PREEMPT_DISABLE_OFFSET
+#else
+#define PREEMPT_LOCK_OFFSET	0
+#endif
+>>>>>>> upstream/android-13
 
 /*
  * The preempt_count offset needed for things like:
@@ -185,7 +237,11 @@ do { \
 
 #define preemptible()	(preempt_count() == 0 && !irqs_disabled())
 
+<<<<<<< HEAD
 #ifdef CONFIG_PREEMPT
+=======
+#ifdef CONFIG_PREEMPTION
+>>>>>>> upstream/android-13
 #define preempt_enable() \
 do { \
 	barrier(); \
@@ -206,7 +262,11 @@ do { \
 		__preempt_schedule(); \
 } while (0)
 
+<<<<<<< HEAD
 #else /* !CONFIG_PREEMPT */
+=======
+#else /* !CONFIG_PREEMPTION */
+>>>>>>> upstream/android-13
 #define preempt_enable() \
 do { \
 	barrier(); \
@@ -220,7 +280,11 @@ do { \
 } while (0)
 
 #define preempt_check_resched() do { } while (0)
+<<<<<<< HEAD
 #endif /* CONFIG_PREEMPT */
+=======
+#endif /* CONFIG_PREEMPTION */
+>>>>>>> upstream/android-13
 
 #define preempt_disable_notrace() \
 do { \
@@ -325,4 +389,74 @@ static inline void preempt_notifier_init(struct preempt_notifier *notifier,
 
 #endif
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_SMP
+
+/*
+ * Migrate-Disable and why it is undesired.
+ *
+ * When a preempted task becomes elegible to run under the ideal model (IOW it
+ * becomes one of the M highest priority tasks), it might still have to wait
+ * for the preemptee's migrate_disable() section to complete. Thereby suffering
+ * a reduction in bandwidth in the exact duration of the migrate_disable()
+ * section.
+ *
+ * Per this argument, the change from preempt_disable() to migrate_disable()
+ * gets us:
+ *
+ * - a higher priority tasks gains reduced wake-up latency; with preempt_disable()
+ *   it would have had to wait for the lower priority task.
+ *
+ * - a lower priority tasks; which under preempt_disable() could've instantly
+ *   migrated away when another CPU becomes available, is now constrained
+ *   by the ability to push the higher priority task away, which might itself be
+ *   in a migrate_disable() section, reducing it's available bandwidth.
+ *
+ * IOW it trades latency / moves the interference term, but it stays in the
+ * system, and as long as it remains unbounded, the system is not fully
+ * deterministic.
+ *
+ *
+ * The reason we have it anyway.
+ *
+ * PREEMPT_RT breaks a number of assumptions traditionally held. By forcing a
+ * number of primitives into becoming preemptible, they would also allow
+ * migration. This turns out to break a bunch of per-cpu usage. To this end,
+ * all these primitives employ migirate_disable() to restore this implicit
+ * assumption.
+ *
+ * This is a 'temporary' work-around at best. The correct solution is getting
+ * rid of the above assumptions and reworking the code to employ explicit
+ * per-cpu locking or short preempt-disable regions.
+ *
+ * The end goal must be to get rid of migrate_disable(), alternatively we need
+ * a schedulability theory that does not depend on abritrary migration.
+ *
+ *
+ * Notes on the implementation.
+ *
+ * The implementation is particularly tricky since existing code patterns
+ * dictate neither migrate_disable() nor migrate_enable() is allowed to block.
+ * This means that it cannot use cpus_read_lock() to serialize against hotplug,
+ * nor can it easily migrate itself into a pending affinity mask change on
+ * migrate_enable().
+ *
+ *
+ * Note: even non-work-conserving schedulers like semi-partitioned depends on
+ *       migration, so migrate_disable() is not only a problem for
+ *       work-conserving schedulers.
+ *
+ */
+extern void migrate_disable(void);
+extern void migrate_enable(void);
+
+#else
+
+static inline void migrate_disable(void) { }
+static inline void migrate_enable(void) { }
+
+#endif /* CONFIG_SMP */
+
+>>>>>>> upstream/android-13
 #endif /* __LINUX_PREEMPT_H */

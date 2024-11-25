@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  *  cx18 driver PCI memory mapped IO access routines
  *
  *  Copyright (C) 2007  Hans Verkuil <hverkuil@xs4all.nl>
  *  Copyright (C) 2008  Andy Walls <awalls@md.metrocast.net>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -13,6 +18,8 @@
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef CX18_IO_H
@@ -23,7 +30,11 @@
 /*
  * Readback and retry of MMIO access for reliability:
  * The concept was suggested by Steve Toth <stoth@linuxtv.org>.
+<<<<<<< HEAD
  * The implmentation is the fault of Andy Walls <awalls@md.metrocast.net>.
+=======
+ * The implementation is the fault of Andy Walls <awalls@md.metrocast.net>.
+>>>>>>> upstream/android-13
  *
  * *write* functions are implied to retry the mmio unless suffixed with _noretry
  * *read* functions never retry the mmio (it never helps to do so)

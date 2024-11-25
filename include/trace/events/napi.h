@@ -3,7 +3,11 @@
 #define TRACE_SYSTEM napi
 
 #if !defined(_TRACE_NAPI_H) || defined(TRACE_HEADER_MULTI_READ)
+<<<<<<< HEAD
 #define _TRACE_NAPI_H_
+=======
+#define _TRACE_NAPI_H
+>>>>>>> upstream/android-13
 
 #include <linux/netdevice.h>
 #include <linux/tracepoint.h>
@@ -38,7 +42,11 @@ TRACE_EVENT(napi_poll,
 
 #undef NO_DEV
 
+<<<<<<< HEAD
 #endif /* _TRACE_NAPI_H_ */
+=======
+#endif /* _TRACE_NAPI_H */
+>>>>>>> upstream/android-13
 
 /* This part must be outside protection */
 #include <trace/define_trace.h>

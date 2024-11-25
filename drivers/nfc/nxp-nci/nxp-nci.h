@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2014  NXP Semiconductors  All rights reserved.
  *
@@ -5,6 +9,7 @@
  *
  * Derived from PN544 device driver:
  * Copyright (C) 2012  Intel Corporation. All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -17,6 +22,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
 */
 
 #ifndef __LOCAL_NXP_NCI_H_
@@ -25,7 +32,10 @@
 #include <linux/completion.h>
 #include <linux/firmware.h>
 #include <linux/nfc.h>
+<<<<<<< HEAD
 #include <linux/platform_data/nxp-nci.h>
+=======
+>>>>>>> upstream/android-13
 
 #include <net/nfc/nci_core.h>
 

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * CE4100's SPI device is more or less the same one as found on PXA
  *
@@ -8,6 +9,20 @@
 #include <linux/of_device.h>
 #include <linux/pci.h>
 #include <linux/platform_device.h>
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * PCI glue driver for SPI PXA2xx compatible controllers.
+ * CE4100's SPI device is more or less the same one as found on PXA.
+ *
+ * Copyright (C) 2016, 2021 Intel Corporation
+ */
+#include <linux/clk-provider.h>
+#include <linux/module.h>
+#include <linux/pci.h>
+#include <linux/platform_device.h>
+
+>>>>>>> upstream/android-13
 #include <linux/spi/pxa2xx_spi.h>
 
 #include <linux/dmaengine.h>
@@ -36,6 +51,11 @@ struct pxa_spi_info {
 	void *tx_param;
 	void *rx_param;
 
+<<<<<<< HEAD
+=======
+	int dma_burst_size;
+
+>>>>>>> upstream/android-13
 	int (*setup)(struct pci_dev *pdev, struct pxa_spi_info *c);
 };
 
@@ -72,14 +92,32 @@ static bool lpss_dma_filter(struct dma_chan *chan, void *param)
 	return true;
 }
 
+<<<<<<< HEAD
 static int lpss_spi_setup(struct pci_dev *dev, struct pxa_spi_info *c)
 {
 	struct pci_dev *dma_dev;
+=======
+static void lpss_dma_put_device(void *dma_dev)
+{
+	pci_dev_put(dma_dev);
+}
+
+static int lpss_spi_setup(struct pci_dev *dev, struct pxa_spi_info *c)
+{
+	struct pci_dev *dma_dev;
+	int ret;
+>>>>>>> upstream/android-13
 
 	c->num_chipselect = 1;
 	c->max_clk_rate = 50000000;
 
 	dma_dev = pci_get_slot(dev->bus, PCI_DEVFN(PCI_SLOT(dev->devfn), 0));
+<<<<<<< HEAD
+=======
+	ret = devm_add_action_or_reset(&dev->dev, lpss_dma_put_device, dma_dev);
+	if (ret)
+		return ret;
+>>>>>>> upstream/android-13
 
 	if (c->tx_param) {
 		struct dw_dma_slave *slave = c->tx_param;
@@ -103,8 +141,14 @@ static int lpss_spi_setup(struct pci_dev *dev, struct pxa_spi_info *c)
 
 static int mrfld_spi_setup(struct pci_dev *dev, struct pxa_spi_info *c)
 {
+<<<<<<< HEAD
 	struct pci_dev *dma_dev = pci_get_slot(dev->bus, PCI_DEVFN(21, 0));
 	struct dw_dma_slave *tx, *rx;
+=======
+	struct dw_dma_slave *tx, *rx;
+	struct pci_dev *dma_dev;
+	int ret;
+>>>>>>> upstream/android-13
 
 	switch (PCI_FUNC(dev->devfn)) {
 	case 0:
@@ -129,6 +173,14 @@ static int mrfld_spi_setup(struct pci_dev *dev, struct pxa_spi_info *c)
 		return -ENODEV;
 	}
 
+<<<<<<< HEAD
+=======
+	dma_dev = pci_get_slot(dev->bus, PCI_DEVFN(21, 0));
+	ret = devm_add_action_or_reset(&dev->dev, lpss_dma_put_device, dma_dev);
+	if (ret)
+		return ret;
+
+>>>>>>> upstream/android-13
 	tx = c->tx_param;
 	tx->dma_dev = &dma_dev->dev;
 
@@ -136,6 +188,10 @@ static int mrfld_spi_setup(struct pci_dev *dev, struct pxa_spi_info *c)
 	rx->dma_dev = &dma_dev->dev;
 
 	c->dma_filter = lpss_dma_filter;
+<<<<<<< HEAD
+=======
+	c->dma_burst_size = 8;
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -175,7 +231,11 @@ static struct pxa_spi_info spi_info_configs[] = {
 		.rx_param = &bsw2_rx_param,
 	},
 	[PORT_MRFLD] = {
+<<<<<<< HEAD
 		.type = PXA27x_SSP,
+=======
+		.type = MRFLD_SSP,
+>>>>>>> upstream/android-13
 		.max_clk_rate = 25000000,
 		.setup = mrfld_spi_setup,
 	},
@@ -207,7 +267,11 @@ static int pxa2xx_spi_pci_probe(struct pci_dev *dev,
 	struct platform_device_info pi;
 	int ret;
 	struct platform_device *pdev;
+<<<<<<< HEAD
 	struct pxa2xx_spi_master spi_pdata;
+=======
+	struct pxa2xx_spi_controller spi_pdata;
+>>>>>>> upstream/android-13
 	struct ssp_device *ssp;
 	struct pxa_spi_info *c;
 	char buf[40];
@@ -233,8 +297,15 @@ static int pxa2xx_spi_pci_probe(struct pci_dev *dev,
 	spi_pdata.tx_param = c->tx_param;
 	spi_pdata.rx_param = c->rx_param;
 	spi_pdata.enable_dma = c->rx_param && c->tx_param;
+<<<<<<< HEAD
 
 	ssp = &spi_pdata.ssp;
+=======
+	spi_pdata.dma_burst_size = c->dma_burst_size ? c->dma_burst_size : 1;
+
+	ssp = &spi_pdata.ssp;
+	ssp->dev = &dev->dev;
+>>>>>>> upstream/android-13
 	ssp->phys_base = pci_resource_start(dev, 0);
 	ssp->mmio_base = pcim_iomap_table(dev)[0];
 	ssp->port_id = (c->port_id >= 0) ? c->port_id : dev->devfn;
@@ -248,9 +319,15 @@ static int pxa2xx_spi_pci_probe(struct pci_dev *dev,
 	ssp->irq = pci_irq_vector(dev, 0);
 
 	snprintf(buf, sizeof(buf), "pxa2xx-spi.%d", ssp->port_id);
+<<<<<<< HEAD
 	ssp->clk = clk_register_fixed_rate(&dev->dev, buf , NULL, 0,
 					   c->max_clk_rate);
 	 if (IS_ERR(ssp->clk))
+=======
+	ssp->clk = clk_register_fixed_rate(&dev->dev, buf, NULL, 0,
+					   c->max_clk_rate);
+	if (IS_ERR(ssp->clk))
+>>>>>>> upstream/android-13
 		return PTR_ERR(ssp->clk);
 
 	memset(&pi, 0, sizeof(pi));
@@ -275,7 +352,11 @@ static int pxa2xx_spi_pci_probe(struct pci_dev *dev,
 static void pxa2xx_spi_pci_remove(struct pci_dev *dev)
 {
 	struct platform_device *pdev = pci_get_drvdata(dev);
+<<<<<<< HEAD
 	struct pxa2xx_spi_master *spi_pdata;
+=======
+	struct pxa2xx_spi_controller *spi_pdata;
+>>>>>>> upstream/android-13
 
 	spi_pdata = dev_get_platdata(&pdev->dev);
 
@@ -291,6 +372,11 @@ static const struct pci_device_id pxa2xx_spi_pci_devices[] = {
 	{ PCI_VDEVICE(INTEL, 0x2290), PORT_BSW1 },
 	{ PCI_VDEVICE(INTEL, 0x22ac), PORT_BSW2 },
 	{ PCI_VDEVICE(INTEL, 0x2e6a), PORT_CE4100 },
+<<<<<<< HEAD
+=======
+	{ PCI_VDEVICE(INTEL, 0x9c65), PORT_LPT0 },
+	{ PCI_VDEVICE(INTEL, 0x9c66), PORT_LPT1 },
+>>>>>>> upstream/android-13
 	{ PCI_VDEVICE(INTEL, 0x9ce5), PORT_LPT0 },
 	{ PCI_VDEVICE(INTEL, 0x9ce6), PORT_LPT1 },
 	{ }

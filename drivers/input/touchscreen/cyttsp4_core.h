@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * cyttsp4_core.h
  * Cypress TrueTouch(TM) Standard Product V4 Core driver module.
@@ -8,6 +12,7 @@
  *
  * Copyright (C) 2012 Cypress Semiconductor
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * version 2, and only version 2, as published by the
@@ -20,6 +25,9 @@
  *
  * Contact Cypress Semiconductor at www.cypress.com <ttdrivers@cypress.com>
  *
+=======
+ * Contact Cypress Semiconductor at www.cypress.com <ttdrivers@cypress.com>
+>>>>>>> upstream/android-13
  */
 
 #ifndef _LINUX_CYTTSP4_CORE_H
@@ -243,6 +251,7 @@ enum cyttsp4_tch_abs {	/* for ordering within the extracted touch data array */
 	CY_TCH_NUM_ABS
 };
 
+<<<<<<< HEAD
 static const char * const cyttsp4_tch_abs_string[] = {
 	[CY_TCH_X]	= "X",
 	[CY_TCH_Y]	= "Y",
@@ -257,6 +266,8 @@ static const char * const cyttsp4_tch_abs_string[] = {
 	[CY_TCH_NUM_ABS] = "INVALID"
 };
 
+=======
+>>>>>>> upstream/android-13
 struct cyttsp4_touch {
 	int abs[CY_TCH_NUM_ABS];
 };

@@ -35,6 +35,9 @@ extern void *prom_early_alloc(unsigned long size);
 /* for building the device tree */
 extern void of_pdt_build_devicetree(phandle root_node, struct of_pdt_ops *ops);
 
+<<<<<<< HEAD
 extern void (*of_pdt_build_more)(struct device_node *dp);
 
+=======
+>>>>>>> upstream/android-13
 #endif /* _LINUX_OF_PDT_H */

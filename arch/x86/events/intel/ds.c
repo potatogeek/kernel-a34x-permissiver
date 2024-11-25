@@ -7,6 +7,10 @@
 #include <asm/perf_event.h>
 #include <asm/tlbflush.h>
 #include <asm/insn.h>
+<<<<<<< HEAD
+=======
+#include <asm/io.h>
+>>>>>>> upstream/android-13
 
 #include "../perf_event.h"
 
@@ -35,7 +39,13 @@ union intel_x86_pebs_dse {
 		unsigned int ld_dse:4;
 		unsigned int ld_stlb_miss:1;
 		unsigned int ld_locked:1;
+<<<<<<< HEAD
 		unsigned int ld_reserved:26;
+=======
+		unsigned int ld_data_blk:1;
+		unsigned int ld_addr_blk:1;
+		unsigned int ld_reserved:24;
+>>>>>>> upstream/android-13
 	};
 	struct {
 		unsigned int st_l1d_hit:1;
@@ -44,6 +54,15 @@ union intel_x86_pebs_dse {
 		unsigned int st_locked:1;
 		unsigned int st_reserved2:26;
 	};
+<<<<<<< HEAD
+=======
+	struct {
+		unsigned int st_lat_dse:4;
+		unsigned int st_lat_stlb_miss:1;
+		unsigned int st_lat_locked:1;
+		unsigned int ld_reserved3:26;
+	};
+>>>>>>> upstream/android-13
 };
 
 
@@ -197,6 +216,66 @@ static u64 load_latency_data(u64 status)
 	if (dse.ld_locked)
 		val |= P(LOCK, LOCKED);
 
+<<<<<<< HEAD
+=======
+	/*
+	 * Ice Lake and earlier models do not support block infos.
+	 */
+	if (!x86_pmu.pebs_block) {
+		val |= P(BLK, NA);
+		return val;
+	}
+	/*
+	 * bit 6: load was blocked since its data could not be forwarded
+	 *        from a preceding store
+	 */
+	if (dse.ld_data_blk)
+		val |= P(BLK, DATA);
+
+	/*
+	 * bit 7: load was blocked due to potential address conflict with
+	 *        a preceding store
+	 */
+	if (dse.ld_addr_blk)
+		val |= P(BLK, ADDR);
+
+	if (!dse.ld_data_blk && !dse.ld_addr_blk)
+		val |= P(BLK, NA);
+
+	return val;
+}
+
+static u64 store_latency_data(u64 status)
+{
+	union intel_x86_pebs_dse dse;
+	u64 val;
+
+	dse.val = status;
+
+	/*
+	 * use the mapping table for bit 0-3
+	 */
+	val = pebs_data_source[dse.st_lat_dse];
+
+	/*
+	 * bit 4: TLB access
+	 * 0 = did not miss 2nd level TLB
+	 * 1 = missed 2nd level TLB
+	 */
+	if (dse.st_lat_stlb_miss)
+		val |= P(TLB, MISS) | P(TLB, L2);
+	else
+		val |= P(TLB, HIT) | P(TLB, L1) | P(TLB, L2);
+
+	/*
+	 * bit 5: locked prefix
+	 */
+	if (dse.st_lat_locked)
+		val |= P(LOCK, LOCKED);
+
+	val |= P(BLK, NA);
+
+>>>>>>> upstream/android-13
 	return val;
 }
 
@@ -337,7 +416,11 @@ static int alloc_pebs_buffer(int cpu)
 	struct debug_store *ds = hwev->ds;
 	size_t bsiz = x86_pmu.pebs_buffer_size;
 	int max, node = cpu_to_node(cpu);
+<<<<<<< HEAD
 	void *buffer, *ibuffer, *cea;
+=======
+	void *buffer, *insn_buff, *cea;
+>>>>>>> upstream/android-13
 
 	if (!x86_pmu.pebs)
 		return 0;
@@ -351,12 +434,21 @@ static int alloc_pebs_buffer(int cpu)
 	 * buffer then.
 	 */
 	if (x86_pmu.intel_cap.pebs_format < 2) {
+<<<<<<< HEAD
 		ibuffer = kzalloc_node(PEBS_FIXUP_SIZE, GFP_KERNEL, node);
 		if (!ibuffer) {
 			dsfree_pages(buffer, bsiz);
 			return -ENOMEM;
 		}
 		per_cpu(insn_buffer, cpu) = ibuffer;
+=======
+		insn_buff = kzalloc_node(PEBS_FIXUP_SIZE, GFP_KERNEL, node);
+		if (!insn_buff) {
+			dsfree_pages(buffer, bsiz);
+			return -ENOMEM;
+		}
+		per_cpu(insn_buffer, cpu) = insn_buff;
+>>>>>>> upstream/android-13
 	}
 	hwev->ds_pebs_vaddr = buffer;
 	/* Update the cpu entry area mapping */
@@ -641,8 +733,13 @@ int intel_pmu_drain_bts_buffer(void)
 	rcu_read_lock();
 	perf_prepare_sample(&header, &data, event, &regs);
 
+<<<<<<< HEAD
 	if (perf_output_begin(&handle, event, header.size *
 			      (top - base - skip)))
+=======
+	if (perf_output_begin(&handle, &data, event,
+			      header.size * (top - base - skip)))
+>>>>>>> upstream/android-13
 		goto unlock;
 
 	for (at = base; at < top; at++) {
@@ -669,9 +766,15 @@ unlock:
 
 static inline void intel_pmu_drain_pebs_buffer(void)
 {
+<<<<<<< HEAD
 	struct pt_regs regs;
 
 	x86_pmu.drain_pebs(&regs);
+=======
+	struct perf_sample_data data;
+
+	x86_pmu.drain_pebs(NULL, &data);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -713,6 +816,16 @@ struct event_constraint intel_glm_pebs_event_constraints[] = {
 	EVENT_CONSTRAINT_END
 };
 
+<<<<<<< HEAD
+=======
+struct event_constraint intel_grt_pebs_event_constraints[] = {
+	/* Allow all events as PEBS with no flags */
+	INTEL_PLD_CONSTRAINT(0x5d0, 0xf),
+	INTEL_PSD_CONSTRAINT(0x6d0, 0xf),
+	EVENT_CONSTRAINT_END
+};
+
+>>>>>>> upstream/android-13
 struct event_constraint intel_nehalem_pebs_event_constraints[] = {
 	INTEL_PLD_CONSTRAINT(0x100b, 0xf),      /* MEM_INST_RETIRED.* */
 	INTEL_FLAGS_EVENT_CONSTRAINT(0x0f, 0xf),    /* MEM_UNCORE_RETIRED.* */
@@ -849,16 +962,71 @@ struct event_constraint intel_skl_pebs_event_constraints[] = {
 	EVENT_CONSTRAINT_END
 };
 
+<<<<<<< HEAD
 struct event_constraint *intel_pebs_constraints(struct perf_event *event)
 {
+=======
+struct event_constraint intel_icl_pebs_event_constraints[] = {
+	INTEL_FLAGS_UEVENT_CONSTRAINT(0x01c0, 0x100000000ULL),	/* old INST_RETIRED.PREC_DIST */
+	INTEL_FLAGS_UEVENT_CONSTRAINT(0x0100, 0x100000000ULL),	/* INST_RETIRED.PREC_DIST */
+	INTEL_FLAGS_UEVENT_CONSTRAINT(0x0400, 0x800000000ULL),	/* SLOTS */
+
+	INTEL_PLD_CONSTRAINT(0x1cd, 0xff),			/* MEM_TRANS_RETIRED.LOAD_LATENCY */
+	INTEL_FLAGS_UEVENT_CONSTRAINT_DATALA_LD(0x1d0, 0xf),	/* MEM_INST_RETIRED.LOAD */
+	INTEL_FLAGS_UEVENT_CONSTRAINT_DATALA_ST(0x2d0, 0xf),	/* MEM_INST_RETIRED.STORE */
+
+	INTEL_FLAGS_EVENT_CONSTRAINT_DATALA_LD_RANGE(0xd1, 0xd4, 0xf), /* MEM_LOAD_*_RETIRED.* */
+
+	INTEL_FLAGS_EVENT_CONSTRAINT(0xd0, 0xf),		/* MEM_INST_RETIRED.* */
+
+	/*
+	 * Everything else is handled by PMU_FL_PEBS_ALL, because we
+	 * need the full constraints from the main table.
+	 */
+
+	EVENT_CONSTRAINT_END
+};
+
+struct event_constraint intel_spr_pebs_event_constraints[] = {
+	INTEL_FLAGS_UEVENT_CONSTRAINT(0x100, 0x100000000ULL),	/* INST_RETIRED.PREC_DIST */
+	INTEL_FLAGS_UEVENT_CONSTRAINT(0x0400, 0x800000000ULL),
+
+	INTEL_FLAGS_EVENT_CONSTRAINT(0xc0, 0xfe),
+	INTEL_PLD_CONSTRAINT(0x1cd, 0xfe),
+	INTEL_PSD_CONSTRAINT(0x2cd, 0x1),
+	INTEL_FLAGS_UEVENT_CONSTRAINT_DATALA_LD(0x1d0, 0xf),
+	INTEL_FLAGS_UEVENT_CONSTRAINT_DATALA_ST(0x2d0, 0xf),
+
+	INTEL_FLAGS_EVENT_CONSTRAINT_DATALA_LD_RANGE(0xd1, 0xd4, 0xf),
+
+	INTEL_FLAGS_EVENT_CONSTRAINT(0xd0, 0xf),
+
+	/*
+	 * Everything else is handled by PMU_FL_PEBS_ALL, because we
+	 * need the full constraints from the main table.
+	 */
+
+	EVENT_CONSTRAINT_END
+};
+
+struct event_constraint *intel_pebs_constraints(struct perf_event *event)
+{
+	struct event_constraint *pebs_constraints = hybrid(event->pmu, pebs_constraints);
+>>>>>>> upstream/android-13
 	struct event_constraint *c;
 
 	if (!event->attr.precise_ip)
 		return NULL;
 
+<<<<<<< HEAD
 	if (x86_pmu.pebs_constraints) {
 		for_each_event_constraint(c, x86_pmu.pebs_constraints) {
 			if ((event->hw.config & c->cmask) == c->code) {
+=======
+	if (pebs_constraints) {
+		for_each_event_constraint(c, pebs_constraints) {
+			if (constraint_match(c, event->hw.config)) {
+>>>>>>> upstream/android-13
 				event->hw.flags |= c->flags;
 				return c;
 			}
@@ -882,6 +1050,12 @@ struct event_constraint *intel_pebs_constraints(struct perf_event *event)
  */
 static inline bool pebs_needs_sched_cb(struct cpu_hw_events *cpuc)
 {
+<<<<<<< HEAD
+=======
+	if (cpuc->n_pebs == cpuc->n_pebs_via_pt)
+		return false;
+
+>>>>>>> upstream/android-13
 	return cpuc->n_pebs && (cpuc->n_pebs == cpuc->n_large_pebs);
 }
 
@@ -896,6 +1070,7 @@ void intel_pmu_pebs_sched_task(struct perf_event_context *ctx, bool sched_in)
 static inline void pebs_update_threshold(struct cpu_hw_events *cpuc)
 {
 	struct debug_store *ds = cpuc->ds;
+<<<<<<< HEAD
 	u64 threshold;
 	int reserved;
 
@@ -909,14 +1084,112 @@ static inline void pebs_update_threshold(struct cpu_hw_events *cpuc)
 			reserved * x86_pmu.pebs_record_size;
 	} else {
 		threshold = ds->pebs_buffer_base + x86_pmu.pebs_record_size;
+=======
+	int max_pebs_events = hybrid(cpuc->pmu, max_pebs_events);
+	int num_counters_fixed = hybrid(cpuc->pmu, num_counters_fixed);
+	u64 threshold;
+	int reserved;
+
+	if (cpuc->n_pebs_via_pt)
+		return;
+
+	if (x86_pmu.flags & PMU_FL_PEBS_ALL)
+		reserved = max_pebs_events + num_counters_fixed;
+	else
+		reserved = max_pebs_events;
+
+	if (cpuc->n_pebs == cpuc->n_large_pebs) {
+		threshold = ds->pebs_absolute_maximum -
+			reserved * cpuc->pebs_record_size;
+	} else {
+		threshold = ds->pebs_buffer_base + cpuc->pebs_record_size;
+>>>>>>> upstream/android-13
 	}
 
 	ds->pebs_interrupt_threshold = threshold;
 }
 
+<<<<<<< HEAD
 static void
 pebs_update_state(bool needed_cb, struct cpu_hw_events *cpuc, struct pmu *pmu)
 {
+=======
+static void adaptive_pebs_record_size_update(void)
+{
+	struct cpu_hw_events *cpuc = this_cpu_ptr(&cpu_hw_events);
+	u64 pebs_data_cfg = cpuc->pebs_data_cfg;
+	int sz = sizeof(struct pebs_basic);
+
+	if (pebs_data_cfg & PEBS_DATACFG_MEMINFO)
+		sz += sizeof(struct pebs_meminfo);
+	if (pebs_data_cfg & PEBS_DATACFG_GP)
+		sz += sizeof(struct pebs_gprs);
+	if (pebs_data_cfg & PEBS_DATACFG_XMMS)
+		sz += sizeof(struct pebs_xmm);
+	if (pebs_data_cfg & PEBS_DATACFG_LBRS)
+		sz += x86_pmu.lbr_nr * sizeof(struct lbr_entry);
+
+	cpuc->pebs_record_size = sz;
+}
+
+#define PERF_PEBS_MEMINFO_TYPE	(PERF_SAMPLE_ADDR | PERF_SAMPLE_DATA_SRC |   \
+				PERF_SAMPLE_PHYS_ADDR |			     \
+				PERF_SAMPLE_WEIGHT_TYPE |		     \
+				PERF_SAMPLE_TRANSACTION |		     \
+				PERF_SAMPLE_DATA_PAGE_SIZE)
+
+static u64 pebs_update_adaptive_cfg(struct perf_event *event)
+{
+	struct perf_event_attr *attr = &event->attr;
+	u64 sample_type = attr->sample_type;
+	u64 pebs_data_cfg = 0;
+	bool gprs, tsx_weight;
+
+	if (!(sample_type & ~(PERF_SAMPLE_IP|PERF_SAMPLE_TIME)) &&
+	    attr->precise_ip > 1)
+		return pebs_data_cfg;
+
+	if (sample_type & PERF_PEBS_MEMINFO_TYPE)
+		pebs_data_cfg |= PEBS_DATACFG_MEMINFO;
+
+	/*
+	 * We need GPRs when:
+	 * + user requested them
+	 * + precise_ip < 2 for the non event IP
+	 * + For RTM TSX weight we need GPRs for the abort code.
+	 */
+	gprs = (sample_type & PERF_SAMPLE_REGS_INTR) &&
+	       (attr->sample_regs_intr & PEBS_GP_REGS);
+
+	tsx_weight = (sample_type & PERF_SAMPLE_WEIGHT_TYPE) &&
+		     ((attr->config & INTEL_ARCH_EVENT_MASK) ==
+		      x86_pmu.rtm_abort_event);
+
+	if (gprs || (attr->precise_ip < 2) || tsx_weight)
+		pebs_data_cfg |= PEBS_DATACFG_GP;
+
+	if ((sample_type & PERF_SAMPLE_REGS_INTR) &&
+	    (attr->sample_regs_intr & PERF_REG_EXTENDED_MASK))
+		pebs_data_cfg |= PEBS_DATACFG_XMMS;
+
+	if (sample_type & PERF_SAMPLE_BRANCH_STACK) {
+		/*
+		 * For now always log all LBRs. Could configure this
+		 * later.
+		 */
+		pebs_data_cfg |= PEBS_DATACFG_LBRS |
+			((x86_pmu.lbr_nr-1) << PEBS_DATACFG_LBR_SHIFT);
+	}
+
+	return pebs_data_cfg;
+}
+
+static void
+pebs_update_state(bool needed_cb, struct cpu_hw_events *cpuc,
+		  struct perf_event *event, bool add)
+{
+	struct pmu *pmu = event->ctx->pmu;
+>>>>>>> upstream/android-13
 	/*
 	 * Make sure we get updated with the first PEBS
 	 * event. It will trigger also during removal, but
@@ -933,6 +1206,32 @@ pebs_update_state(bool needed_cb, struct cpu_hw_events *cpuc, struct pmu *pmu)
 		update = true;
 	}
 
+<<<<<<< HEAD
+=======
+	/*
+	 * The PEBS record doesn't shrink on pmu::del(). Doing so would require
+	 * iterating all remaining PEBS events to reconstruct the config.
+	 */
+	if (x86_pmu.intel_cap.pebs_baseline && add) {
+		u64 pebs_data_cfg;
+
+		/* Clear pebs_data_cfg and pebs_record_size for first PEBS. */
+		if (cpuc->n_pebs == 1) {
+			cpuc->pebs_data_cfg = 0;
+			cpuc->pebs_record_size = sizeof(struct pebs_basic);
+		}
+
+		pebs_data_cfg = pebs_update_adaptive_cfg(event);
+
+		/* Update pebs_record_size if new event requires more data. */
+		if (pebs_data_cfg & ~cpuc->pebs_data_cfg) {
+			cpuc->pebs_data_cfg |= pebs_data_cfg;
+			adaptive_pebs_record_size_update();
+			update = true;
+		}
+	}
+
+>>>>>>> upstream/android-13
 	if (update)
 		pebs_update_threshold(cpuc);
 }
@@ -946,8 +1245,51 @@ void intel_pmu_pebs_add(struct perf_event *event)
 	cpuc->n_pebs++;
 	if (hwc->flags & PERF_X86_EVENT_LARGE_PEBS)
 		cpuc->n_large_pebs++;
+<<<<<<< HEAD
 
 	pebs_update_state(needed_cb, cpuc, event->ctx->pmu);
+=======
+	if (hwc->flags & PERF_X86_EVENT_PEBS_VIA_PT)
+		cpuc->n_pebs_via_pt++;
+
+	pebs_update_state(needed_cb, cpuc, event, true);
+}
+
+static void intel_pmu_pebs_via_pt_disable(struct perf_event *event)
+{
+	struct cpu_hw_events *cpuc = this_cpu_ptr(&cpu_hw_events);
+
+	if (!is_pebs_pt(event))
+		return;
+
+	if (!(cpuc->pebs_enabled & ~PEBS_VIA_PT_MASK))
+		cpuc->pebs_enabled &= ~PEBS_VIA_PT_MASK;
+}
+
+static void intel_pmu_pebs_via_pt_enable(struct perf_event *event)
+{
+	struct cpu_hw_events *cpuc = this_cpu_ptr(&cpu_hw_events);
+	struct hw_perf_event *hwc = &event->hw;
+	struct debug_store *ds = cpuc->ds;
+	u64 value = ds->pebs_event_reset[hwc->idx];
+	u32 base = MSR_RELOAD_PMC0;
+	unsigned int idx = hwc->idx;
+
+	if (!is_pebs_pt(event))
+		return;
+
+	if (!(event->hw.flags & PERF_X86_EVENT_LARGE_PEBS))
+		cpuc->pebs_enabled |= PEBS_PMI_AFTER_EACH_RECORD;
+
+	cpuc->pebs_enabled |= PEBS_OUTPUT_PT;
+
+	if (hwc->idx >= INTEL_PMC_IDX_FIXED) {
+		base = MSR_RELOAD_FIXED_CTR0;
+		idx = hwc->idx - INTEL_PMC_IDX_FIXED;
+		value = ds->pebs_event_reset[MAX_PEBS_EVENTS + idx];
+	}
+	wrmsrl(base + idx, value);
+>>>>>>> upstream/android-13
 }
 
 void intel_pmu_pebs_enable(struct perf_event *event)
@@ -955,21 +1297,44 @@ void intel_pmu_pebs_enable(struct perf_event *event)
 	struct cpu_hw_events *cpuc = this_cpu_ptr(&cpu_hw_events);
 	struct hw_perf_event *hwc = &event->hw;
 	struct debug_store *ds = cpuc->ds;
+<<<<<<< HEAD
+=======
+	unsigned int idx = hwc->idx;
+>>>>>>> upstream/android-13
 
 	hwc->config &= ~ARCH_PERFMON_EVENTSEL_INT;
 
 	cpuc->pebs_enabled |= 1ULL << hwc->idx;
 
+<<<<<<< HEAD
 	if (event->hw.flags & PERF_X86_EVENT_PEBS_LDLAT)
+=======
+	if ((event->hw.flags & PERF_X86_EVENT_PEBS_LDLAT) && (x86_pmu.version < 5))
+>>>>>>> upstream/android-13
 		cpuc->pebs_enabled |= 1ULL << (hwc->idx + 32);
 	else if (event->hw.flags & PERF_X86_EVENT_PEBS_ST)
 		cpuc->pebs_enabled |= 1ULL << 63;
 
+<<<<<<< HEAD
+=======
+	if (x86_pmu.intel_cap.pebs_baseline) {
+		hwc->config |= ICL_EVENTSEL_ADAPTIVE;
+		if (cpuc->pebs_data_cfg != cpuc->active_pebs_data_cfg) {
+			wrmsrl(MSR_PEBS_DATA_CFG, cpuc->pebs_data_cfg);
+			cpuc->active_pebs_data_cfg = cpuc->pebs_data_cfg;
+		}
+	}
+
+	if (idx >= INTEL_PMC_IDX_FIXED)
+		idx = MAX_PEBS_EVENTS + (idx - INTEL_PMC_IDX_FIXED);
+
+>>>>>>> upstream/android-13
 	/*
 	 * Use auto-reload if possible to save a MSR write in the PMI.
 	 * This must be done in pmu::start(), because PERF_EVENT_IOC_PERIOD.
 	 */
 	if (hwc->flags & PERF_X86_EVENT_AUTO_RELOAD) {
+<<<<<<< HEAD
 		unsigned int idx = hwc->idx;
 
 		if (idx >= INTEL_PMC_IDX_FIXED)
@@ -979,6 +1344,15 @@ void intel_pmu_pebs_enable(struct perf_event *event)
 	} else {
 		ds->pebs_event_reset[hwc->idx] = 0;
 	}
+=======
+		ds->pebs_event_reset[idx] =
+			(u64)(-hwc->sample_period) & x86_pmu.cntval_mask;
+	} else {
+		ds->pebs_event_reset[idx] = 0;
+	}
+
+	intel_pmu_pebs_via_pt_enable(event);
+>>>>>>> upstream/android-13
 }
 
 void intel_pmu_pebs_del(struct perf_event *event)
@@ -990,8 +1364,15 @@ void intel_pmu_pebs_del(struct perf_event *event)
 	cpuc->n_pebs--;
 	if (hwc->flags & PERF_X86_EVENT_LARGE_PEBS)
 		cpuc->n_large_pebs--;
+<<<<<<< HEAD
 
 	pebs_update_state(needed_cb, cpuc, event->ctx->pmu);
+=======
+	if (hwc->flags & PERF_X86_EVENT_PEBS_VIA_PT)
+		cpuc->n_pebs_via_pt--;
+
+	pebs_update_state(needed_cb, cpuc, event, false);
+>>>>>>> upstream/android-13
 }
 
 void intel_pmu_pebs_disable(struct perf_event *event)
@@ -999,16 +1380,31 @@ void intel_pmu_pebs_disable(struct perf_event *event)
 	struct cpu_hw_events *cpuc = this_cpu_ptr(&cpu_hw_events);
 	struct hw_perf_event *hwc = &event->hw;
 
+<<<<<<< HEAD
 	if (cpuc->n_pebs == cpuc->n_large_pebs)
+=======
+	if (cpuc->n_pebs == cpuc->n_large_pebs &&
+	    cpuc->n_pebs != cpuc->n_pebs_via_pt)
+>>>>>>> upstream/android-13
 		intel_pmu_drain_pebs_buffer();
 
 	cpuc->pebs_enabled &= ~(1ULL << hwc->idx);
 
+<<<<<<< HEAD
 	if (event->hw.flags & PERF_X86_EVENT_PEBS_LDLAT)
+=======
+	if ((event->hw.flags & PERF_X86_EVENT_PEBS_LDLAT) &&
+	    (x86_pmu.version < 5))
+>>>>>>> upstream/android-13
 		cpuc->pebs_enabled &= ~(1ULL << (hwc->idx + 32));
 	else if (event->hw.flags & PERF_X86_EVENT_PEBS_ST)
 		cpuc->pebs_enabled &= ~(1ULL << 63);
 
+<<<<<<< HEAD
+=======
+	intel_pmu_pebs_via_pt_disable(event);
+
+>>>>>>> upstream/android-13
 	if (cpuc->enabled)
 		wrmsrl(MSR_IA32_PEBS_ENABLE, cpuc->pebs_enabled);
 
@@ -1095,6 +1491,7 @@ static int intel_pmu_pebs_fixup_ip(struct pt_regs *regs)
 		old_to = to;
 
 #ifdef CONFIG_X86_64
+<<<<<<< HEAD
 		is_64bit = kernel_ip(to) || !test_thread_flag(TIF_IA32);
 #endif
 		insn_init(&insn, kaddr, size, is_64bit);
@@ -1106,6 +1503,18 @@ static int intel_pmu_pebs_fixup_ip(struct pt_regs *regs)
 		 * loop if insn.length=0.
 		 */
 		if (!insn.length)
+=======
+		is_64bit = kernel_ip(to) || any_64bit_mode(regs);
+#endif
+		insn_init(&insn, kaddr, size, is_64bit);
+
+		/*
+		 * Make sure there was not a problem decoding the instruction.
+		 * This is doubly important because we have an infinite loop if
+		 * insn.length=0.
+		 */
+		if (insn_get_length(&insn))
+>>>>>>> upstream/android-13
 			break;
 
 		to += insn.length;
@@ -1125,15 +1534,23 @@ static int intel_pmu_pebs_fixup_ip(struct pt_regs *regs)
 	return 0;
 }
 
+<<<<<<< HEAD
 static inline u64 intel_hsw_weight(struct pebs_record_skl *pebs)
 {
 	if (pebs->tsx_tuning) {
 		union hsw_tsx_tuning tsx = { .value = pebs->tsx_tuning };
+=======
+static inline u64 intel_get_tsx_weight(u64 tsx_tuning)
+{
+	if (tsx_tuning) {
+		union hsw_tsx_tuning tsx = { .value = tsx_tuning };
+>>>>>>> upstream/android-13
 		return tsx.cycles_last_block;
 	}
 	return 0;
 }
 
+<<<<<<< HEAD
 static inline u64 intel_hsw_transaction(struct pebs_record_skl *pebs)
 {
 	u64 txn = (pebs->tsx_tuning & PEBS_HSW_TSX_FLAGS) >> 32;
@@ -1149,10 +1566,59 @@ static void setup_pebs_sample_data(struct perf_event *event,
 				   struct perf_sample_data *data,
 				   struct pt_regs *regs)
 {
+=======
+static inline u64 intel_get_tsx_transaction(u64 tsx_tuning, u64 ax)
+{
+	u64 txn = (tsx_tuning & PEBS_HSW_TSX_FLAGS) >> 32;
+
+	/* For RTM XABORTs also log the abort code from AX */
+	if ((txn & PERF_TXN_TRANSACTION) && (ax & 1))
+		txn |= ((ax >> 24) & 0xff) << PERF_TXN_ABORT_SHIFT;
+	return txn;
+}
+
+static inline u64 get_pebs_status(void *n)
+{
+	if (x86_pmu.intel_cap.pebs_format < 4)
+		return ((struct pebs_record_nhm *)n)->status;
+	return ((struct pebs_basic *)n)->applicable_counters;
+}
+
+>>>>>>> upstream/android-13
 #define PERF_X86_EVENT_PEBS_HSW_PREC \
 		(PERF_X86_EVENT_PEBS_ST_HSW | \
 		 PERF_X86_EVENT_PEBS_LD_HSW | \
 		 PERF_X86_EVENT_PEBS_NA_HSW)
+<<<<<<< HEAD
+=======
+
+static u64 get_data_src(struct perf_event *event, u64 aux)
+{
+	u64 val = PERF_MEM_NA;
+	int fl = event->hw.flags;
+	bool fst = fl & (PERF_X86_EVENT_PEBS_ST | PERF_X86_EVENT_PEBS_HSW_PREC);
+
+	if (fl & PERF_X86_EVENT_PEBS_LDLAT)
+		val = load_latency_data(aux);
+	else if (fl & PERF_X86_EVENT_PEBS_STLAT)
+		val = store_latency_data(aux);
+	else if (fst && (fl & PERF_X86_EVENT_PEBS_HSW_PREC))
+		val = precise_datala_hsw(event, aux);
+	else if (fst)
+		val = precise_store_data(aux);
+	return val;
+}
+
+#define PERF_SAMPLE_ADDR_TYPE	(PERF_SAMPLE_ADDR |		\
+				 PERF_SAMPLE_PHYS_ADDR |	\
+				 PERF_SAMPLE_DATA_PAGE_SIZE)
+
+static void setup_pebs_fixed_sample_data(struct perf_event *event,
+				   struct pt_regs *iregs, void *__pebs,
+				   struct perf_sample_data *data,
+				   struct pt_regs *regs)
+{
+>>>>>>> upstream/android-13
 	/*
 	 * We cast to the biggest pebs_record but are careful not to
 	 * unconditionally access the 'extra' entries.
@@ -1160,17 +1626,25 @@ static void setup_pebs_sample_data(struct perf_event *event,
 	struct cpu_hw_events *cpuc = this_cpu_ptr(&cpu_hw_events);
 	struct pebs_record_skl *pebs = __pebs;
 	u64 sample_type;
+<<<<<<< HEAD
 	int fll, fst, dsrc;
 	int fl = event->hw.flags;
+=======
+	int fll;
+>>>>>>> upstream/android-13
 
 	if (pebs == NULL)
 		return;
 
 	sample_type = event->attr.sample_type;
+<<<<<<< HEAD
 	dsrc = sample_type & PERF_SAMPLE_DATA_SRC;
 
 	fll = fl & PERF_X86_EVENT_PEBS_LDLAT;
 	fst = fl & (PERF_X86_EVENT_PEBS_ST | PERF_X86_EVENT_PEBS_HSW_PREC);
+=======
+	fll = event->hw.flags & PERF_X86_EVENT_PEBS_LDLAT;
+>>>>>>> upstream/android-13
 
 	perf_sample_data_init(data, 0, event->hw.last_period);
 
@@ -1179,12 +1653,18 @@ static void setup_pebs_sample_data(struct perf_event *event,
 	/*
 	 * Use latency for weight (only avail with PEBS-LL)
 	 */
+<<<<<<< HEAD
 	if (fll && (sample_type & PERF_SAMPLE_WEIGHT))
 		data->weight = pebs->lat;
+=======
+	if (fll && (sample_type & PERF_SAMPLE_WEIGHT_TYPE))
+		data->weight.full = pebs->lat;
+>>>>>>> upstream/android-13
 
 	/*
 	 * data.data_src encodes the data source
 	 */
+<<<<<<< HEAD
 	if (dsrc) {
 		u64 val = PERF_MEM_NA;
 		if (fll)
@@ -1195,11 +1675,19 @@ static void setup_pebs_sample_data(struct perf_event *event,
 			val = precise_store_data(pebs->dse);
 		data->data_src.val = val;
 	}
+=======
+	if (sample_type & PERF_SAMPLE_DATA_SRC)
+		data->data_src.val = get_data_src(event, pebs->dse);
+>>>>>>> upstream/android-13
 
 	/*
 	 * We must however always use iregs for the unwinder to stay sane; the
 	 * record BP,SP,IP can point into thin air when the record is from a
+<<<<<<< HEAD
 	 * previous PMI context or an (I)RET happend between the record and
+=======
+	 * previous PMI context or an (I)RET happened between the record and
+>>>>>>> upstream/android-13
 	 * PMI.
 	 */
 	if (sample_type & PERF_SAMPLE_CALLCHAIN)
@@ -1274,17 +1762,30 @@ static void setup_pebs_sample_data(struct perf_event *event,
 	}
 
 
+<<<<<<< HEAD
 	if ((sample_type & (PERF_SAMPLE_ADDR | PERF_SAMPLE_PHYS_ADDR)) &&
+=======
+	if ((sample_type & PERF_SAMPLE_ADDR_TYPE) &&
+>>>>>>> upstream/android-13
 	    x86_pmu.intel_cap.pebs_format >= 1)
 		data->addr = pebs->dla;
 
 	if (x86_pmu.intel_cap.pebs_format >= 2) {
 		/* Only set the TSX weight when no memory weight. */
+<<<<<<< HEAD
 		if ((sample_type & PERF_SAMPLE_WEIGHT) && !fll)
 			data->weight = intel_hsw_weight(pebs);
 
 		if (sample_type & PERF_SAMPLE_TRANSACTION)
 			data->txn = intel_hsw_transaction(pebs);
+=======
+		if ((sample_type & PERF_SAMPLE_WEIGHT_TYPE) && !fll)
+			data->weight.full = intel_get_tsx_weight(pebs->tsx_tuning);
+
+		if (sample_type & PERF_SAMPLE_TRANSACTION)
+			data->txn = intel_get_tsx_transaction(pebs->tsx_tuning,
+							      pebs->ax);
+>>>>>>> upstream/android-13
 	}
 
 	/*
@@ -1301,6 +1802,164 @@ static void setup_pebs_sample_data(struct perf_event *event,
 		data->br_stack = &cpuc->lbr_stack;
 }
 
+<<<<<<< HEAD
+=======
+static void adaptive_pebs_save_regs(struct pt_regs *regs,
+				    struct pebs_gprs *gprs)
+{
+	regs->ax = gprs->ax;
+	regs->bx = gprs->bx;
+	regs->cx = gprs->cx;
+	regs->dx = gprs->dx;
+	regs->si = gprs->si;
+	regs->di = gprs->di;
+	regs->bp = gprs->bp;
+	regs->sp = gprs->sp;
+#ifndef CONFIG_X86_32
+	regs->r8 = gprs->r8;
+	regs->r9 = gprs->r9;
+	regs->r10 = gprs->r10;
+	regs->r11 = gprs->r11;
+	regs->r12 = gprs->r12;
+	regs->r13 = gprs->r13;
+	regs->r14 = gprs->r14;
+	regs->r15 = gprs->r15;
+#endif
+}
+
+#define PEBS_LATENCY_MASK			0xffff
+#define PEBS_CACHE_LATENCY_OFFSET		32
+
+/*
+ * With adaptive PEBS the layout depends on what fields are configured.
+ */
+
+static void setup_pebs_adaptive_sample_data(struct perf_event *event,
+					    struct pt_regs *iregs, void *__pebs,
+					    struct perf_sample_data *data,
+					    struct pt_regs *regs)
+{
+	struct cpu_hw_events *cpuc = this_cpu_ptr(&cpu_hw_events);
+	struct pebs_basic *basic = __pebs;
+	void *next_record = basic + 1;
+	u64 sample_type;
+	u64 format_size;
+	struct pebs_meminfo *meminfo = NULL;
+	struct pebs_gprs *gprs = NULL;
+	struct x86_perf_regs *perf_regs;
+
+	if (basic == NULL)
+		return;
+
+	perf_regs = container_of(regs, struct x86_perf_regs, regs);
+	perf_regs->xmm_regs = NULL;
+
+	sample_type = event->attr.sample_type;
+	format_size = basic->format_size;
+	perf_sample_data_init(data, 0, event->hw.last_period);
+	data->period = event->hw.last_period;
+
+	if (event->attr.use_clockid == 0)
+		data->time = native_sched_clock_from_tsc(basic->tsc);
+
+	/*
+	 * We must however always use iregs for the unwinder to stay sane; the
+	 * record BP,SP,IP can point into thin air when the record is from a
+	 * previous PMI context or an (I)RET happened between the record and
+	 * PMI.
+	 */
+	if (sample_type & PERF_SAMPLE_CALLCHAIN)
+		data->callchain = perf_callchain(event, iregs);
+
+	*regs = *iregs;
+	/* The ip in basic is EventingIP */
+	set_linear_ip(regs, basic->ip);
+	regs->flags = PERF_EFLAGS_EXACT;
+
+	/*
+	 * The record for MEMINFO is in front of GP
+	 * But PERF_SAMPLE_TRANSACTION needs gprs->ax.
+	 * Save the pointer here but process later.
+	 */
+	if (format_size & PEBS_DATACFG_MEMINFO) {
+		meminfo = next_record;
+		next_record = meminfo + 1;
+	}
+
+	if (format_size & PEBS_DATACFG_GP) {
+		gprs = next_record;
+		next_record = gprs + 1;
+
+		if (event->attr.precise_ip < 2) {
+			set_linear_ip(regs, gprs->ip);
+			regs->flags &= ~PERF_EFLAGS_EXACT;
+		}
+
+		if (sample_type & PERF_SAMPLE_REGS_INTR)
+			adaptive_pebs_save_regs(regs, gprs);
+	}
+
+	if (format_size & PEBS_DATACFG_MEMINFO) {
+		if (sample_type & PERF_SAMPLE_WEIGHT_TYPE) {
+			u64 weight = meminfo->latency;
+
+			if (x86_pmu.flags & PMU_FL_INSTR_LATENCY) {
+				data->weight.var2_w = weight & PEBS_LATENCY_MASK;
+				weight >>= PEBS_CACHE_LATENCY_OFFSET;
+			}
+
+			/*
+			 * Although meminfo::latency is defined as a u64,
+			 * only the lower 32 bits include the valid data
+			 * in practice on Ice Lake and earlier platforms.
+			 */
+			if (sample_type & PERF_SAMPLE_WEIGHT) {
+				data->weight.full = weight ?:
+					intel_get_tsx_weight(meminfo->tsx_tuning);
+			} else {
+				data->weight.var1_dw = (u32)(weight & PEBS_LATENCY_MASK) ?:
+					intel_get_tsx_weight(meminfo->tsx_tuning);
+			}
+		}
+
+		if (sample_type & PERF_SAMPLE_DATA_SRC)
+			data->data_src.val = get_data_src(event, meminfo->aux);
+
+		if (sample_type & PERF_SAMPLE_ADDR_TYPE)
+			data->addr = meminfo->address;
+
+		if (sample_type & PERF_SAMPLE_TRANSACTION)
+			data->txn = intel_get_tsx_transaction(meminfo->tsx_tuning,
+							  gprs ? gprs->ax : 0);
+	}
+
+	if (format_size & PEBS_DATACFG_XMMS) {
+		struct pebs_xmm *xmm = next_record;
+
+		next_record = xmm + 1;
+		perf_regs->xmm_regs = xmm->xmm;
+	}
+
+	if (format_size & PEBS_DATACFG_LBRS) {
+		struct lbr_entry *lbr = next_record;
+		int num_lbr = ((format_size >> PEBS_DATACFG_LBR_SHIFT)
+					& 0xff) + 1;
+		next_record = next_record + num_lbr * sizeof(struct lbr_entry);
+
+		if (has_branch_stack(event)) {
+			intel_pmu_store_pebs_lbrs(lbr);
+			data->br_stack = &cpuc->lbr_stack;
+		}
+	}
+
+	WARN_ONCE(next_record != __pebs + (format_size >> 48),
+			"PEBS record size %llu, expected %llu, config %llx\n",
+			format_size >> 48,
+			(u64)(next_record - __pebs),
+			basic->format_size);
+}
+
+>>>>>>> upstream/android-13
 static inline void *
 get_next_pebs_record_by_bit(void *base, void *top, int bit)
 {
@@ -1318,19 +1977,34 @@ get_next_pebs_record_by_bit(void *base, void *top, int bit)
 	if (base == NULL)
 		return NULL;
 
+<<<<<<< HEAD
 	for (at = base; at < top; at += x86_pmu.pebs_record_size) {
 		struct pebs_record_nhm *p = at;
 
 		if (test_bit(bit, (unsigned long *)&p->status)) {
+=======
+	for (at = base; at < top; at += cpuc->pebs_record_size) {
+		unsigned long status = get_pebs_status(at);
+
+		if (test_bit(bit, (unsigned long *)&status)) {
+>>>>>>> upstream/android-13
 			/* PEBS v3 has accurate status bits */
 			if (x86_pmu.intel_cap.pebs_format >= 3)
 				return at;
 
+<<<<<<< HEAD
 			if (p->status == (1 << bit))
 				return at;
 
 			/* clear non-PEBS bit and re-check */
 			pebs_status = p->status & cpuc->pebs_enabled;
+=======
+			if (status == (1 << bit))
+				return at;
+
+			/* clear non-PEBS bit and re-check */
+			pebs_status = status & cpuc->pebs_enabled;
+>>>>>>> upstream/android-13
 			pebs_status &= PEBS_COUNTER_MASK;
 			if (pebs_status == (1 << bit))
 				return at;
@@ -1377,7 +2051,11 @@ intel_pmu_save_and_restart_reload(struct perf_event *event, int count)
 	 *
 	 *   [-period, 0]
 	 *
+<<<<<<< HEAD
 	 * the difference between two consequtive reads is:
+=======
+	 * the difference between two consecutive reads is:
+>>>>>>> upstream/android-13
 	 *
 	 *   A) value2 - value1;
 	 *      when no overflows have happened in between,
@@ -1409,6 +2087,7 @@ intel_pmu_save_and_restart_reload(struct perf_event *event, int count)
 	return 0;
 }
 
+<<<<<<< HEAD
 static void __intel_pmu_pebs_event(struct perf_event *event,
 				   struct pt_regs *iregs,
 				   void *base, void *top,
@@ -1418,6 +2097,26 @@ static void __intel_pmu_pebs_event(struct perf_event *event,
 	struct perf_sample_data data;
 	struct pt_regs regs;
 	void *at = get_next_pebs_record_by_bit(base, top, bit);
+=======
+static __always_inline void
+__intel_pmu_pebs_event(struct perf_event *event,
+		       struct pt_regs *iregs,
+		       struct perf_sample_data *data,
+		       void *base, void *top,
+		       int bit, int count,
+		       void (*setup_sample)(struct perf_event *,
+					    struct pt_regs *,
+					    void *,
+					    struct perf_sample_data *,
+					    struct pt_regs *))
+{
+	struct cpu_hw_events *cpuc = this_cpu_ptr(&cpu_hw_events);
+	struct hw_perf_event *hwc = &event->hw;
+	struct x86_perf_regs perf_regs;
+	struct pt_regs *regs = &perf_regs.regs;
+	void *at = get_next_pebs_record_by_bit(base, top, bit);
+	static struct pt_regs dummy_iregs;
+>>>>>>> upstream/android-13
 
 	if (hwc->flags & PERF_X86_EVENT_AUTO_RELOAD) {
 		/*
@@ -1430,14 +2129,25 @@ static void __intel_pmu_pebs_event(struct perf_event *event,
 	} else if (!intel_pmu_save_and_restart(event))
 		return;
 
+<<<<<<< HEAD
 	while (count > 1) {
 		setup_pebs_sample_data(event, iregs, at, &data, &regs);
 		perf_event_output(event, &data, &regs);
 		at += x86_pmu.pebs_record_size;
+=======
+	if (!iregs)
+		iregs = &dummy_iregs;
+
+	while (count > 1) {
+		setup_sample(event, iregs, at, data, regs);
+		perf_event_output(event, data, regs);
+		at += cpuc->pebs_record_size;
+>>>>>>> upstream/android-13
 		at = get_next_pebs_record_by_bit(at, top, bit);
 		count--;
 	}
 
+<<<<<<< HEAD
 	setup_pebs_sample_data(event, iregs, at, &data, &regs);
 
 	/*
@@ -1452,6 +2162,28 @@ static void __intel_pmu_pebs_event(struct perf_event *event,
 }
 
 static void intel_pmu_drain_pebs_core(struct pt_regs *iregs)
+=======
+	setup_sample(event, iregs, at, data, regs);
+	if (iregs == &dummy_iregs) {
+		/*
+		 * The PEBS records may be drained in the non-overflow context,
+		 * e.g., large PEBS + context switch. Perf should treat the
+		 * last record the same as other PEBS records, and doesn't
+		 * invoke the generic overflow handler.
+		 */
+		perf_event_output(event, data, regs);
+	} else {
+		/*
+		 * All but the last records are processed.
+		 * The last one is left to be able to call the overflow handler.
+		 */
+		if (perf_event_overflow(event, data, regs))
+			x86_pmu_stop(event, 0);
+	}
+}
+
+static void intel_pmu_drain_pebs_core(struct pt_regs *iregs, struct perf_sample_data *data)
+>>>>>>> upstream/android-13
 {
 	struct cpu_hw_events *cpuc = this_cpu_ptr(&cpu_hw_events);
 	struct debug_store *ds = cpuc->ds;
@@ -1485,10 +2217,37 @@ static void intel_pmu_drain_pebs_core(struct pt_regs *iregs)
 		return;
 	}
 
+<<<<<<< HEAD
 	__intel_pmu_pebs_event(event, iregs, at, top, 0, n);
 }
 
 static void intel_pmu_drain_pebs_nhm(struct pt_regs *iregs)
+=======
+	__intel_pmu_pebs_event(event, iregs, data, at, top, 0, n,
+			       setup_pebs_fixed_sample_data);
+}
+
+static void intel_pmu_pebs_event_update_no_drain(struct cpu_hw_events *cpuc, int size)
+{
+	struct perf_event *event;
+	int bit;
+
+	/*
+	 * The drain_pebs() could be called twice in a short period
+	 * for auto-reload event in pmu::read(). There are no
+	 * overflows have happened in between.
+	 * It needs to call intel_pmu_save_and_restart_reload() to
+	 * update the event->count for this case.
+	 */
+	for_each_set_bit(bit, (unsigned long *)&cpuc->pebs_enabled, size) {
+		event = cpuc->events[bit];
+		if (event->hw.flags & PERF_X86_EVENT_AUTO_RELOAD)
+			intel_pmu_save_and_restart_reload(event, 0);
+	}
+}
+
+static void intel_pmu_drain_pebs_nhm(struct pt_regs *iregs, struct perf_sample_data *data)
+>>>>>>> upstream/android-13
 {
 	struct cpu_hw_events *cpuc = this_cpu_ptr(&cpu_hw_events);
 	struct debug_store *ds = cpuc->ds;
@@ -1515,6 +2274,7 @@ static void intel_pmu_drain_pebs_nhm(struct pt_regs *iregs)
 	}
 
 	if (unlikely(base >= top)) {
+<<<<<<< HEAD
 		/*
 		 * The drain_pebs() could be called twice in a short period
 		 * for auto-reload event in pmu::read(). There are no
@@ -1528,6 +2288,9 @@ static void intel_pmu_drain_pebs_nhm(struct pt_regs *iregs)
 			if (event->hw.flags & PERF_X86_EVENT_AUTO_RELOAD)
 				intel_pmu_save_and_restart_reload(event, 0);
 		}
+=======
+		intel_pmu_pebs_event_update_no_drain(cpuc, size);
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -1540,8 +2303,12 @@ static void intel_pmu_drain_pebs_nhm(struct pt_regs *iregs)
 
 		/* PEBS v3 has more accurate status bits */
 		if (x86_pmu.intel_cap.pebs_format >= 3) {
+<<<<<<< HEAD
 			for_each_set_bit(bit, (unsigned long *)&pebs_status,
 					 size)
+=======
+			for_each_set_bit(bit, (unsigned long *)&pebs_status, size)
+>>>>>>> upstream/android-13
 				counts[bit]++;
 
 			continue;
@@ -1579,9 +2346,14 @@ static void intel_pmu_drain_pebs_nhm(struct pt_regs *iregs)
 		 * that caused the PEBS record. It's called collision.
 		 * If collision happened, the record will be dropped.
 		 */
+<<<<<<< HEAD
 		if (p->status != (1ULL << bit)) {
 			for_each_set_bit(i, (unsigned long *)&pebs_status,
 					 x86_pmu.max_pebs_events)
+=======
+		if (pebs_status != (1ULL << bit)) {
+			for_each_set_bit(i, (unsigned long *)&pebs_status, size)
+>>>>>>> upstream/android-13
 				error[i]++;
 			continue;
 		}
@@ -1589,7 +2361,11 @@ static void intel_pmu_drain_pebs_nhm(struct pt_regs *iregs)
 		counts[bit]++;
 	}
 
+<<<<<<< HEAD
 	for (bit = 0; bit < size; bit++) {
+=======
+	for_each_set_bit(bit, (unsigned long *)&mask, size) {
+>>>>>>> upstream/android-13
 		if ((counts[bit] == 0) && (error[bit] == 0))
 			continue;
 
@@ -1604,17 +2380,86 @@ static void intel_pmu_drain_pebs_nhm(struct pt_regs *iregs)
 		if (error[bit]) {
 			perf_log_lost_samples(event, error[bit]);
 
+<<<<<<< HEAD
 			if (perf_event_account_interrupt(event))
+=======
+			if (iregs && perf_event_account_interrupt(event))
+>>>>>>> upstream/android-13
 				x86_pmu_stop(event, 0);
 		}
 
 		if (counts[bit]) {
+<<<<<<< HEAD
 			__intel_pmu_pebs_event(event, iregs, base,
 					       top, bit, counts[bit]);
+=======
+			__intel_pmu_pebs_event(event, iregs, data, base,
+					       top, bit, counts[bit],
+					       setup_pebs_fixed_sample_data);
+>>>>>>> upstream/android-13
 		}
 	}
 }
 
+<<<<<<< HEAD
+=======
+static void intel_pmu_drain_pebs_icl(struct pt_regs *iregs, struct perf_sample_data *data)
+{
+	short counts[INTEL_PMC_IDX_FIXED + MAX_FIXED_PEBS_EVENTS] = {};
+	struct cpu_hw_events *cpuc = this_cpu_ptr(&cpu_hw_events);
+	int max_pebs_events = hybrid(cpuc->pmu, max_pebs_events);
+	int num_counters_fixed = hybrid(cpuc->pmu, num_counters_fixed);
+	struct debug_store *ds = cpuc->ds;
+	struct perf_event *event;
+	void *base, *at, *top;
+	int bit, size;
+	u64 mask;
+
+	if (!x86_pmu.pebs_active)
+		return;
+
+	base = (struct pebs_basic *)(unsigned long)ds->pebs_buffer_base;
+	top = (struct pebs_basic *)(unsigned long)ds->pebs_index;
+
+	ds->pebs_index = ds->pebs_buffer_base;
+
+	mask = ((1ULL << max_pebs_events) - 1) |
+	       (((1ULL << num_counters_fixed) - 1) << INTEL_PMC_IDX_FIXED);
+	size = INTEL_PMC_IDX_FIXED + num_counters_fixed;
+
+	if (unlikely(base >= top)) {
+		intel_pmu_pebs_event_update_no_drain(cpuc, size);
+		return;
+	}
+
+	for (at = base; at < top; at += cpuc->pebs_record_size) {
+		u64 pebs_status;
+
+		pebs_status = get_pebs_status(at) & cpuc->pebs_enabled;
+		pebs_status &= mask;
+
+		for_each_set_bit(bit, (unsigned long *)&pebs_status, size)
+			counts[bit]++;
+	}
+
+	for_each_set_bit(bit, (unsigned long *)&mask, size) {
+		if (counts[bit] == 0)
+			continue;
+
+		event = cpuc->events[bit];
+		if (WARN_ON_ONCE(!event))
+			continue;
+
+		if (WARN_ON_ONCE(!event->attr.precise_ip))
+			continue;
+
+		__intel_pmu_pebs_event(event, iregs, data, base,
+				       top, bit, counts[bit],
+				       setup_pebs_adaptive_sample_data);
+	}
+}
+
+>>>>>>> upstream/android-13
 /*
  * BTS, PEBS probe and setup
  */
@@ -1630,10 +2475,24 @@ void __init intel_ds_init(void)
 	x86_pmu.bts  = boot_cpu_has(X86_FEATURE_BTS);
 	x86_pmu.pebs = boot_cpu_has(X86_FEATURE_PEBS);
 	x86_pmu.pebs_buffer_size = PEBS_BUFFER_SIZE;
+<<<<<<< HEAD
 	if (x86_pmu.pebs) {
 		char pebs_type = x86_pmu.intel_cap.pebs_trap ?  '+' : '-';
 		int format = x86_pmu.intel_cap.pebs_format;
 
+=======
+	if (x86_pmu.version <= 4)
+		x86_pmu.pebs_no_isolation = 1;
+
+	if (x86_pmu.pebs) {
+		char pebs_type = x86_pmu.intel_cap.pebs_trap ?  '+' : '-';
+		char *pebs_qual = "";
+		int format = x86_pmu.intel_cap.pebs_format;
+
+		if (format < 4)
+			x86_pmu.intel_cap.pebs_baseline = 0;
+
+>>>>>>> upstream/android-13
 		switch (format) {
 		case 0:
 			pr_cont("PEBS fmt0%c, ", pebs_type);
@@ -1669,6 +2528,38 @@ void __init intel_ds_init(void)
 			x86_pmu.large_pebs_flags |= PERF_SAMPLE_TIME;
 			break;
 
+<<<<<<< HEAD
+=======
+		case 4:
+			x86_pmu.drain_pebs = intel_pmu_drain_pebs_icl;
+			x86_pmu.pebs_record_size = sizeof(struct pebs_basic);
+			if (x86_pmu.intel_cap.pebs_baseline) {
+				x86_pmu.large_pebs_flags |=
+					PERF_SAMPLE_BRANCH_STACK |
+					PERF_SAMPLE_TIME;
+				x86_pmu.flags |= PMU_FL_PEBS_ALL;
+				pebs_qual = "-baseline";
+				x86_get_pmu(smp_processor_id())->capabilities |= PERF_PMU_CAP_EXTENDED_REGS;
+			} else {
+				/* Only basic record supported */
+				x86_pmu.large_pebs_flags &=
+					~(PERF_SAMPLE_ADDR |
+					  PERF_SAMPLE_TIME |
+					  PERF_SAMPLE_DATA_SRC |
+					  PERF_SAMPLE_TRANSACTION |
+					  PERF_SAMPLE_REGS_USER |
+					  PERF_SAMPLE_REGS_INTR);
+			}
+			pr_cont("PEBS fmt4%c%s, ", pebs_type, pebs_qual);
+
+			if (!is_hybrid() && x86_pmu.intel_cap.pebs_output_pt_available) {
+				pr_cont("PEBS-via-PT, ");
+				x86_get_pmu(smp_processor_id())->capabilities |= PERF_PMU_CAP_AUX_OUTPUT;
+			}
+
+			break;
+
+>>>>>>> upstream/android-13
 		default:
 			pr_cont("no PEBS fmt%d%c, ", format, pebs_type);
 			x86_pmu.pebs = 0;

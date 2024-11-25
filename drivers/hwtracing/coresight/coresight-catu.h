@@ -61,7 +61,10 @@
 #define CATU_IRQEN_OFF		0x0
 
 struct catu_drvdata {
+<<<<<<< HEAD
 	struct device *dev;
+=======
+>>>>>>> upstream/android-13
 	void __iomem *base;
 	struct coresight_device *csdev;
 	int irq;
@@ -109,6 +112,9 @@ static inline bool coresight_is_catu_device(struct coresight_device *csdev)
 	return true;
 }
 
+<<<<<<< HEAD
 extern const struct etr_buf_operations etr_catu_buf_ops;
 
+=======
+>>>>>>> upstream/android-13
 #endif

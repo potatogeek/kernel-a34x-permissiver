@@ -381,7 +381,11 @@ static int load_all_firmwares(struct dvb_frontend *fe,
 			goto corrupt;
 		}
 
+<<<<<<< HEAD
 		priv->firm[n].ptr = kzalloc(size, GFP_KERNEL);
+=======
+		priv->firm[n].ptr = kmemdup(p, size, GFP_KERNEL);
+>>>>>>> upstream/android-13
 		if (priv->firm[n].ptr == NULL) {
 			tuner_err("Not enough memory to load firmware file.\n");
 			rc = -ENOMEM;
@@ -394,7 +398,10 @@ static int load_all_firmwares(struct dvb_frontend *fe,
 			       type, (unsigned long long)id, size);
 		}
 
+<<<<<<< HEAD
 		memcpy(priv->firm[n].ptr, p, size);
+=======
+>>>>>>> upstream/android-13
 		priv->firm[n].type = type;
 		priv->firm[n].id   = id;
 		priv->firm[n].size = size;

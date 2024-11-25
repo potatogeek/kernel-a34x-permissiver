@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Purna Chandra Mandal,<purna.mandal@microchip.com>
  * Copyright (C) 2015 Microchip Technology Inc.  All rights reserved.
@@ -10,11 +11,21 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Purna Chandra Mandal,<purna.mandal@microchip.com>
+ * Copyright (C) 2015 Microchip Technology Inc.  All rights reserved.
+>>>>>>> upstream/android-13
  */
 #include <dt-bindings/clock/microchip,pic32-clock.h>
 #include <linux/clk.h>
 #include <linux/clk-provider.h>
 #include <linux/clkdev.h>
+<<<<<<< HEAD
+=======
+#include <linux/io.h>
+>>>>>>> upstream/android-13
 #include <linux/module.h>
 #include <linux/of_address.h>
 #include <linux/of_platform.h>

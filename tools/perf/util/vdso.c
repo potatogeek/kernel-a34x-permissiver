@@ -10,11 +10,18 @@
 #include <linux/kernel.h>
 
 #include "vdso.h"
+<<<<<<< HEAD
 #include "util.h"
+=======
+#include "dso.h"
+#include <internal/lib.h>
+#include "map.h"
+>>>>>>> upstream/android-13
 #include "symbol.h"
 #include "machine.h"
 #include "thread.h"
 #include "linux/string.h"
+<<<<<<< HEAD
 #include "debug.h"
 
 /*
@@ -22,6 +29,16 @@
  * building perf-read-vdso32 and perf-read-vdsox32.
  */
 #include "find-vdso-map.c"
+=======
+#include <linux/zalloc.h>
+#include "debug.h"
+
+/*
+ * Include definition of find_map() also used in perf-read-vdso.c for
+ * building perf-read-vdso32 and perf-read-vdsox32.
+ */
+#include "find-map.c"
+>>>>>>> upstream/android-13
 
 #define VDSO__TEMP_FILE_NAME "/tmp/perf-vdso.so-XXXXXX"
 
@@ -76,7 +93,11 @@ static char *get_file(struct vdso_file *vdso_file)
 	if (vdso_file->found)
 		return vdso_file->temp_file_name;
 
+<<<<<<< HEAD
 	if (vdso_file->error || find_vdso_map(&start, &end))
+=======
+	if (vdso_file->error || find_map(&start, &end, VDSO__MAP_NAME))
+>>>>>>> upstream/android-13
 		return NULL;
 
 	size = end - start;
@@ -130,6 +151,11 @@ static struct dso *__machine__addnew_vdso(struct machine *machine, const char *s
 	if (dso != NULL) {
 		__dsos__add(&machine->dsos, dso);
 		dso__set_long_name(dso, long_name, false);
+<<<<<<< HEAD
+=======
+		/* Put dso here because __dsos_add already got it */
+		dso__put(dso);
+>>>>>>> upstream/android-13
 	}
 
 	return dso;
@@ -139,9 +165,15 @@ static enum dso_type machine__thread_dso_type(struct machine *machine,
 					      struct thread *thread)
 {
 	enum dso_type dso_type = DSO__TYPE_UNKNOWN;
+<<<<<<< HEAD
 	struct map *map = map_groups__first(thread->mg);
 
 	for (; map ; map = map_groups__next(map)) {
+=======
+	struct map *map;
+
+	maps__for_each_entry(thread->maps, map) {
+>>>>>>> upstream/android-13
 		struct dso *dso = map->dso;
 		if (!dso || dso->long_name[0] != '/')
 			continue;

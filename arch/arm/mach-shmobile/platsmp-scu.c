@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * SMP support for SoCs with SCU covered by mach-shmobile
  *
  * Copyright (C) 2013  Magnus Damm
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/cpu.h>
 #include <linux/delay.h>
@@ -67,7 +74,11 @@ static int shmobile_smp_scu_psr_core_disabled(int cpu)
 {
 	unsigned long mask = SCU_PM_POWEROFF << (cpu * 8);
 
+<<<<<<< HEAD
 	if ((__raw_readl(shmobile_scu_base + 8) & mask) == mask)
+=======
+	if ((readl(shmobile_scu_base + 8) & mask) == mask)
+>>>>>>> upstream/android-13
 		return 1;
 
 	return 0;

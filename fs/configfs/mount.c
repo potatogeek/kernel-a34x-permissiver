@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* -*- mode: c; c-basic-offset: 8; -*-
  * vim: noexpandtab sw=8 ts=8 sts=0:
  *
@@ -18,6 +19,12 @@
  * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 021110-1307, USA.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * mount.c - operations for initializing and mounting configfs.
+ *
+>>>>>>> upstream/android-13
  * Based on sysfs:
  * 	sysfs is Copyright (C) 2001, 2002, 2003 Patrick Mochel
  *
@@ -27,6 +34,10 @@
 #include <linux/fs.h>
 #include <linux/module.h>
 #include <linux/mount.h>
+<<<<<<< HEAD
+=======
+#include <linux/fs_context.h>
+>>>>>>> upstream/android-13
 #include <linux/pagemap.h>
 #include <linux/init.h>
 #include <linux/slab.h>
@@ -41,9 +52,24 @@ static struct vfsmount *configfs_mount = NULL;
 struct kmem_cache *configfs_dir_cachep;
 static int configfs_mnt_count = 0;
 
+<<<<<<< HEAD
 static const struct super_operations configfs_ops = {
 	.statfs		= simple_statfs,
 	.drop_inode	= generic_delete_inode,
+=======
+
+static void configfs_free_inode(struct inode *inode)
+{
+	if (S_ISLNK(inode->i_mode))
+		kfree(inode->i_link);
+	free_inode_nonrcu(inode);
+}
+
+static const struct super_operations configfs_ops = {
+	.statfs		= simple_statfs,
+	.drop_inode	= generic_delete_inode,
+	.free_inode	= configfs_free_inode,
+>>>>>>> upstream/android-13
 };
 
 static struct config_group configfs_root_group = {
@@ -66,7 +92,11 @@ static struct configfs_dirent configfs_root = {
 	.s_iattr	= NULL,
 };
 
+<<<<<<< HEAD
 static int configfs_fill_super(struct super_block *sb, void *data, int silent)
+=======
+static int configfs_fill_super(struct super_block *sb, struct fs_context *fc)
+>>>>>>> upstream/android-13
 {
 	struct inode *inode;
 	struct dentry *root;
@@ -102,16 +132,36 @@ static int configfs_fill_super(struct super_block *sb, void *data, int silent)
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct dentry *configfs_do_mount(struct file_system_type *fs_type,
 	int flags, const char *dev_name, void *data)
 {
 	return mount_single(fs_type, flags, data, configfs_fill_super);
+=======
+static int configfs_get_tree(struct fs_context *fc)
+{
+	return get_tree_single(fc, configfs_fill_super);
+}
+
+static const struct fs_context_operations configfs_context_ops = {
+	.get_tree	= configfs_get_tree,
+};
+
+static int configfs_init_fs_context(struct fs_context *fc)
+{
+	fc->ops = &configfs_context_ops;
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static struct file_system_type configfs_fs_type = {
 	.owner		= THIS_MODULE,
 	.name		= "configfs",
+<<<<<<< HEAD
 	.mount		= configfs_do_mount,
+=======
+	.init_fs_context = configfs_init_fs_context,
+>>>>>>> upstream/android-13
 	.kill_sb	= kill_litter_super,
 };
 MODULE_ALIAS_FS("configfs");
@@ -170,6 +220,10 @@ MODULE_AUTHOR("Oracle");
 MODULE_LICENSE("GPL");
 MODULE_VERSION("0.0.2");
 MODULE_DESCRIPTION("Simple RAM filesystem for user driven kernel subsystem configuration.");
+<<<<<<< HEAD
+=======
+MODULE_IMPORT_NS(VFS_internal_I_am_really_a_filesystem_and_am_NOT_a_driver);
+>>>>>>> upstream/android-13
 
 core_initcall(configfs_init);
 module_exit(configfs_exit);

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * BIOS Flash chip on Intel 440GX board.
  *
@@ -77,7 +81,11 @@ static int __init init_l440gx(void)
 		return -ENODEV;
 	}
 
+<<<<<<< HEAD
 	l440gx_map.virt = ioremap_nocache(WINDOW_ADDR, WINDOW_SIZE);
+=======
+	l440gx_map.virt = ioremap(WINDOW_ADDR, WINDOW_SIZE);
+>>>>>>> upstream/android-13
 
 	if (!l440gx_map.virt) {
 		printk(KERN_WARNING "Failed to ioremap L440GX flash region\n");
@@ -85,7 +93,11 @@ static int __init init_l440gx(void)
 		return -ENOMEM;
 	}
 	simple_map_init(&l440gx_map);
+<<<<<<< HEAD
 	printk(KERN_NOTICE "window_addr = 0x%08lx\n", (unsigned long)l440gx_map.virt);
+=======
+	pr_debug("window_addr = %p\n", l440gx_map.virt);
+>>>>>>> upstream/android-13
 
 	/* Setup the pm iobase resource
 	 * This code should move into some kind of generic bridge

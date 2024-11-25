@@ -3,13 +3,21 @@
  * Synopsys DesignWare PCIe host controller driver
  *
  * Copyright (C) 2013 Samsung Electronics Co., Ltd.
+<<<<<<< HEAD
  *		http://www.samsung.com
+=======
+ *		https://www.samsung.com
+>>>>>>> upstream/android-13
  *
  * Author: Jingoo Han <jg1.han@samsung.com>
  */
 
 #include <linux/irqchip/chained_irq.h>
 #include <linux/irqdomain.h>
+<<<<<<< HEAD
+=======
+#include <linux/msi.h>
+>>>>>>> upstream/android-13
 #include <linux/of_address.h>
 #include <linux/of_pci.h>
 #include <linux/pci_regs.h>
@@ -19,6 +27,7 @@
 #include "pcie-designware.h"
 
 static struct pci_ops dw_pcie_ops;
+<<<<<<< HEAD
 
 static int dw_pcie_rd_own_conf(struct pcie_port *pp, int where, int size,
 			       u32 *val)
@@ -43,6 +52,9 @@ static int dw_pcie_wr_own_conf(struct pcie_port *pp, int where, int size,
 	pci = to_dw_pcie_from_pp(pp);
 	return dw_pcie_write(pci->dbi_base + where, size, val);
 }
+=======
+static struct pci_ops dw_child_pcie_ops;
+>>>>>>> upstream/android-13
 
 static void dw_msi_ack_irq(struct irq_data *d)
 {
@@ -77,17 +89,30 @@ static struct msi_domain_info dw_pcie_msi_domain_info = {
 /* MSI int handler */
 irqreturn_t dw_handle_msi_irq(struct pcie_port *pp)
 {
+<<<<<<< HEAD
 	int i, pos, irq;
 	unsigned long val;
 	u32 status, num_ctrls;
 	irqreturn_t ret = IRQ_NONE;
+=======
+	int i, pos;
+	unsigned long val;
+	u32 status, num_ctrls;
+	irqreturn_t ret = IRQ_NONE;
+	struct dw_pcie *pci = to_dw_pcie_from_pp(pp);
+>>>>>>> upstream/android-13
 
 	num_ctrls = pp->num_vectors / MAX_MSI_IRQS_PER_CTRL;
 
 	for (i = 0; i < num_ctrls; i++) {
+<<<<<<< HEAD
 		dw_pcie_rd_own_conf(pp, PCIE_MSI_INTR0_STATUS +
 					(i * MSI_REG_CTRL_BLOCK_SIZE),
 				    4, &status);
+=======
+		status = dw_pcie_readl_dbi(pci, PCIE_MSI_INTR0_STATUS +
+					   (i * MSI_REG_CTRL_BLOCK_SIZE));
+>>>>>>> upstream/android-13
 		if (!status)
 			continue;
 
@@ -96,16 +121,26 @@ irqreturn_t dw_handle_msi_irq(struct pcie_port *pp)
 		pos = 0;
 		while ((pos = find_next_bit(&val, MAX_MSI_IRQS_PER_CTRL,
 					    pos)) != MAX_MSI_IRQS_PER_CTRL) {
+<<<<<<< HEAD
 			irq = irq_find_mapping(pp->irq_domain,
 					       (i * MAX_MSI_IRQS_PER_CTRL) +
 					       pos);
 			generic_handle_irq(irq);
+=======
+			generic_handle_domain_irq(pp->irq_domain,
+						  (i * MAX_MSI_IRQS_PER_CTRL) +
+						  pos);
+>>>>>>> upstream/android-13
 			pos++;
 		}
 	}
 
 	return ret;
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(dw_handle_msi_irq);
+>>>>>>> upstream/android-13
 
 /* Chained MSI interrupt service routine */
 static void dw_chained_msi_isr(struct irq_desc *desc)
@@ -121,6 +156,7 @@ static void dw_chained_msi_isr(struct irq_desc *desc)
 	chained_irq_exit(chip, desc);
 }
 
+<<<<<<< HEAD
 static void dw_pci_setup_msi_msg(struct irq_data *data, struct msi_msg *msg)
 {
 	struct pcie_port *pp = irq_data_get_irq_chip_data(data);
@@ -131,10 +167,20 @@ static void dw_pci_setup_msi_msg(struct irq_data *data, struct msi_msg *msg)
 		msi_target = pp->ops->get_msi_addr(pp);
 	else
 		msi_target = (u64)pp->msi_data;
+=======
+static void dw_pci_setup_msi_msg(struct irq_data *d, struct msi_msg *msg)
+{
+	struct pcie_port *pp = irq_data_get_irq_chip_data(d);
+	struct dw_pcie *pci = to_dw_pcie_from_pp(pp);
+	u64 msi_target;
+
+	msi_target = (u64)pp->msi_data;
+>>>>>>> upstream/android-13
 
 	msg->address_lo = lower_32_bits(msi_target);
 	msg->address_hi = upper_32_bits(msi_target);
 
+<<<<<<< HEAD
 	if (pp->ops->get_msi_data)
 		msg->data = pp->ops->get_msi_data(pp, data->hwirq);
 	else
@@ -145,19 +191,36 @@ static void dw_pci_setup_msi_msg(struct irq_data *data, struct msi_msg *msg)
 }
 
 static int dw_pci_msi_set_affinity(struct irq_data *irq_data,
+=======
+	msg->data = d->hwirq;
+
+	dev_dbg(pci->dev, "msi#%d address_hi %#x address_lo %#x\n",
+		(int)d->hwirq, msg->address_hi, msg->address_lo);
+}
+
+static int dw_pci_msi_set_affinity(struct irq_data *d,
+>>>>>>> upstream/android-13
 				   const struct cpumask *mask, bool force)
 {
 	return -EINVAL;
 }
 
+<<<<<<< HEAD
 static void dw_pci_bottom_mask(struct irq_data *data)
 {
 	struct pcie_port *pp = irq_data_get_irq_chip_data(data);
+=======
+static void dw_pci_bottom_mask(struct irq_data *d)
+{
+	struct pcie_port *pp = irq_data_get_irq_chip_data(d);
+	struct dw_pcie *pci = to_dw_pcie_from_pp(pp);
+>>>>>>> upstream/android-13
 	unsigned int res, bit, ctrl;
 	unsigned long flags;
 
 	raw_spin_lock_irqsave(&pp->lock, flags);
 
+<<<<<<< HEAD
 	if (pp->ops->msi_clear_irq) {
 		pp->ops->msi_clear_irq(pp, data->hwirq);
 	} else {
@@ -169,18 +232,34 @@ static void dw_pci_bottom_mask(struct irq_data *data)
 		dw_pcie_wr_own_conf(pp, PCIE_MSI_INTR0_MASK + res, 4,
 				    ~pp->irq_status[ctrl]);
 	}
+=======
+	ctrl = d->hwirq / MAX_MSI_IRQS_PER_CTRL;
+	res = ctrl * MSI_REG_CTRL_BLOCK_SIZE;
+	bit = d->hwirq % MAX_MSI_IRQS_PER_CTRL;
+
+	pp->irq_mask[ctrl] |= BIT(bit);
+	dw_pcie_writel_dbi(pci, PCIE_MSI_INTR0_MASK + res, pp->irq_mask[ctrl]);
+>>>>>>> upstream/android-13
 
 	raw_spin_unlock_irqrestore(&pp->lock, flags);
 }
 
+<<<<<<< HEAD
 static void dw_pci_bottom_unmask(struct irq_data *data)
 {
 	struct pcie_port *pp = irq_data_get_irq_chip_data(data);
+=======
+static void dw_pci_bottom_unmask(struct irq_data *d)
+{
+	struct pcie_port *pp = irq_data_get_irq_chip_data(d);
+	struct dw_pcie *pci = to_dw_pcie_from_pp(pp);
+>>>>>>> upstream/android-13
 	unsigned int res, bit, ctrl;
 	unsigned long flags;
 
 	raw_spin_lock_irqsave(&pp->lock, flags);
 
+<<<<<<< HEAD
 	if (pp->ops->msi_set_irq) {
 		pp->ops->msi_set_irq(pp, data->hwirq);
 	} else {
@@ -192,6 +271,14 @@ static void dw_pci_bottom_unmask(struct irq_data *data)
 		dw_pcie_wr_own_conf(pp, PCIE_MSI_INTR0_MASK + res, 4,
 				    ~pp->irq_status[ctrl]);
 	}
+=======
+	ctrl = d->hwirq / MAX_MSI_IRQS_PER_CTRL;
+	res = ctrl * MSI_REG_CTRL_BLOCK_SIZE;
+	bit = d->hwirq % MAX_MSI_IRQS_PER_CTRL;
+
+	pp->irq_mask[ctrl] &= ~BIT(bit);
+	dw_pcie_writel_dbi(pci, PCIE_MSI_INTR0_MASK + res, pp->irq_mask[ctrl]);
+>>>>>>> upstream/android-13
 
 	raw_spin_unlock_irqrestore(&pp->lock, flags);
 }
@@ -199,13 +286,19 @@ static void dw_pci_bottom_unmask(struct irq_data *data)
 static void dw_pci_bottom_ack(struct irq_data *d)
 {
 	struct pcie_port *pp  = irq_data_get_irq_chip_data(d);
+<<<<<<< HEAD
 	unsigned int res, bit, ctrl;
 	unsigned long flags;
+=======
+	struct dw_pcie *pci = to_dw_pcie_from_pp(pp);
+	unsigned int res, bit, ctrl;
+>>>>>>> upstream/android-13
 
 	ctrl = d->hwirq / MAX_MSI_IRQS_PER_CTRL;
 	res = ctrl * MSI_REG_CTRL_BLOCK_SIZE;
 	bit = d->hwirq % MAX_MSI_IRQS_PER_CTRL;
 
+<<<<<<< HEAD
 	raw_spin_lock_irqsave(&pp->lock, flags);
 
 	dw_pcie_wr_own_conf(pp, PCIE_MSI_INTR0_STATUS + res, 4, 1 << bit);
@@ -214,6 +307,9 @@ static void dw_pci_bottom_ack(struct irq_data *d)
 		pp->ops->msi_irq_ack(d->hwirq, pp);
 
 	raw_spin_unlock_irqrestore(&pp->lock, flags);
+=======
+	dw_pcie_writel_dbi(pci, PCIE_MSI_INTR0_STATUS + res, BIT(bit));
+>>>>>>> upstream/android-13
 }
 
 static struct irq_chip dw_pci_msi_bottom_irq_chip = {
@@ -246,7 +342,11 @@ static int dw_pcie_irq_domain_alloc(struct irq_domain *domain,
 
 	for (i = 0; i < nr_irqs; i++)
 		irq_domain_set_info(domain, virq + i, bit + i,
+<<<<<<< HEAD
 				    &dw_pci_msi_bottom_irq_chip,
+=======
+				    pp->msi_irq_chip,
+>>>>>>> upstream/android-13
 				    pp, handle_edge_irq,
 				    NULL, NULL);
 
@@ -256,13 +356,22 @@ static int dw_pcie_irq_domain_alloc(struct irq_domain *domain,
 static void dw_pcie_irq_domain_free(struct irq_domain *domain,
 				    unsigned int virq, unsigned int nr_irqs)
 {
+<<<<<<< HEAD
 	struct irq_data *data = irq_domain_get_irq_data(domain, virq);
 	struct pcie_port *pp = irq_data_get_irq_chip_data(data);
+=======
+	struct irq_data *d = irq_domain_get_irq_data(domain, virq);
+	struct pcie_port *pp = domain->host_data;
+>>>>>>> upstream/android-13
 	unsigned long flags;
 
 	raw_spin_lock_irqsave(&pp->lock, flags);
 
+<<<<<<< HEAD
 	bitmap_release_region(pp->msi_irq_in_use, data->hwirq,
+=======
+	bitmap_release_region(pp->msi_irq_in_use, d->hwirq,
+>>>>>>> upstream/android-13
 			      order_base_2(nr_irqs));
 
 	raw_spin_unlock_irqrestore(&pp->lock, flags);
@@ -299,6 +408,7 @@ int dw_pcie_allocate_domains(struct pcie_port *pp)
 	return 0;
 }
 
+<<<<<<< HEAD
 void dw_pcie_free_msi(struct pcie_port *pp)
 {
 	irq_set_chained_handler(pp->msi_irq, NULL);
@@ -333,6 +443,28 @@ void dw_pcie_msi_init(struct pcie_port *pp)
 			    lower_32_bits(msi_target));
 	dw_pcie_wr_own_conf(pp, PCIE_MSI_ADDR_HI, 4,
 			    upper_32_bits(msi_target));
+=======
+static void dw_pcie_free_msi(struct pcie_port *pp)
+{
+	if (pp->msi_irq)
+		irq_set_chained_handler_and_data(pp->msi_irq, NULL, NULL);
+
+	irq_domain_remove(pp->msi_domain);
+	irq_domain_remove(pp->irq_domain);
+}
+
+static void dw_pcie_msi_init(struct pcie_port *pp)
+{
+	struct dw_pcie *pci = to_dw_pcie_from_pp(pp);
+	u64 msi_target = (u64)pp->msi_data;
+
+	if (!pci_msi_enabled() || !pp->has_msi_ctrl)
+		return;
+
+	/* Program the msi_data */
+	dw_pcie_writel_dbi(pci, PCIE_MSI_ADDR_LO, lower_32_bits(msi_target));
+	dw_pcie_writel_dbi(pci, PCIE_MSI_ADDR_HI, upper_32_bits(msi_target));
+>>>>>>> upstream/android-13
 }
 
 int dw_pcie_host_init(struct pcie_port *pp)
@@ -341,28 +473,55 @@ int dw_pcie_host_init(struct pcie_port *pp)
 	struct device *dev = pci->dev;
 	struct device_node *np = dev->of_node;
 	struct platform_device *pdev = to_platform_device(dev);
+<<<<<<< HEAD
 	struct resource_entry *win, *tmp;
 	struct pci_bus *bus, *child;
 	struct pci_host_bridge *bridge;
 	struct resource *cfg_res;
+=======
+	struct resource_entry *win;
+	struct pci_host_bridge *bridge;
+	struct resource *cfg_res;
+	u64 *msi_vaddr;
+>>>>>>> upstream/android-13
 	int ret;
 
 	raw_spin_lock_init(&pci->pp.lock);
 
 	cfg_res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "config");
 	if (cfg_res) {
+<<<<<<< HEAD
 		pp->cfg0_size = resource_size(cfg_res) >> 1;
 		pp->cfg1_size = resource_size(cfg_res) >> 1;
 		pp->cfg0_base = cfg_res->start;
 		pp->cfg1_base = cfg_res->start + pp->cfg0_size;
 	} else if (!pp->va_cfg0_base) {
 		dev_err(dev, "Missing *config* reg space\n");
+=======
+		pp->cfg0_size = resource_size(cfg_res);
+		pp->cfg0_base = cfg_res->start;
+
+		pp->va_cfg0_base = devm_pci_remap_cfg_resource(dev, cfg_res);
+		if (IS_ERR(pp->va_cfg0_base))
+			return PTR_ERR(pp->va_cfg0_base);
+	} else {
+		dev_err(dev, "Missing *config* reg space\n");
+		return -ENODEV;
+	}
+
+	if (!pci->dbi_base) {
+		struct resource *dbi_res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "dbi");
+		pci->dbi_base = devm_pci_remap_cfg_resource(dev, dbi_res);
+		if (IS_ERR(pci->dbi_base))
+			return PTR_ERR(pci->dbi_base);
+>>>>>>> upstream/android-13
 	}
 
 	bridge = devm_pci_alloc_host_bridge(dev, 0);
 	if (!bridge)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	ret = devm_of_pci_get_host_bridge_resources(dev, 0, 0xff,
 					&bridge->windows, &pp->io_base);
 	if (ret)
@@ -463,10 +622,54 @@ int dw_pcie_host_init(struct pcie_port *pp)
 		}
 
 		if (!pp->ops->msi_host_init) {
+=======
+	pp->bridge = bridge;
+
+	/* Get the I/O range from DT */
+	win = resource_list_first_type(&bridge->windows, IORESOURCE_IO);
+	if (win) {
+		pp->io_size = resource_size(win->res);
+		pp->io_bus_addr = win->res->start - win->offset;
+		pp->io_base = pci_pio_to_address(win->res->start);
+	}
+
+	if (pci->link_gen < 1)
+		pci->link_gen = of_pci_get_max_link_speed(np);
+
+	if (pci_msi_enabled()) {
+		pp->has_msi_ctrl = !(pp->ops->msi_host_init ||
+				     of_property_read_bool(np, "msi-parent") ||
+				     of_property_read_bool(np, "msi-map"));
+
+		if (!pp->num_vectors) {
+			pp->num_vectors = MSI_DEF_NUM_VECTORS;
+		} else if (pp->num_vectors > MAX_MSI_IRQS) {
+			dev_err(dev, "Invalid number of vectors\n");
+			return -EINVAL;
+		}
+
+		if (pp->ops->msi_host_init) {
+			ret = pp->ops->msi_host_init(pp);
+			if (ret < 0)
+				return ret;
+		} else if (pp->has_msi_ctrl) {
+			if (!pp->msi_irq) {
+				pp->msi_irq = platform_get_irq_byname_optional(pdev, "msi");
+				if (pp->msi_irq < 0) {
+					pp->msi_irq = platform_get_irq(pdev, 0);
+					if (pp->msi_irq < 0)
+						return pp->msi_irq;
+				}
+			}
+
+			pp->msi_irq_chip = &dw_pci_msi_bottom_irq_chip;
+
+>>>>>>> upstream/android-13
 			ret = dw_pcie_allocate_domains(pp);
 			if (ret)
 				return ret;
 
+<<<<<<< HEAD
 			if (pp->msi_irq)
 				irq_set_chained_handler_and_data(pp->msi_irq,
 							    dw_chained_msi_isr,
@@ -478,11 +681,50 @@ int dw_pcie_host_init(struct pcie_port *pp)
 		}
 	}
 
+=======
+			if (pp->msi_irq > 0)
+				irq_set_chained_handler_and_data(pp->msi_irq,
+							    dw_chained_msi_isr,
+							    pp);
+
+			ret = dma_set_mask_and_coherent(dev, DMA_BIT_MASK(32));
+			if (ret)
+				dev_warn(pci->dev, "Failed to set DMA mask to 32-bit. Devices with only 32-bit MSI support may not work properly\n");
+
+			msi_vaddr = dmam_alloc_coherent(dev, sizeof(u64), &pp->msi_data,
+							GFP_KERNEL);
+			if (!msi_vaddr) {
+				u16 msi_capabilities;
+
+				/* Retry the allocation with a 64-bit mask if supported. */
+				msi_capabilities = dw_pcie_msi_capabilities(pci);
+				if ((msi_capabilities & PCI_MSI_FLAGS_ENABLE) &&
+				    (msi_capabilities & PCI_MSI_FLAGS_64BIT)) {
+					dma_set_mask_and_coherent(dev, DMA_BIT_MASK(64));
+					msi_vaddr = dmam_alloc_coherent(dev, sizeof(u64),
+									&pp->msi_data,
+									GFP_KERNEL);
+				}
+				if (!msi_vaddr) {
+					dev_err(dev, "Failed to alloc and map MSI data\n");
+					ret = -ENOMEM;
+					goto err_free_msi;
+				}
+			}
+		}
+	}
+
+	/* Set default bus ops */
+	bridge->ops = &dw_pcie_ops;
+	bridge->child_ops = &dw_child_pcie_ops;
+
+>>>>>>> upstream/android-13
 	if (pp->ops->host_init) {
 		ret = pp->ops->host_init(pp);
 		if (ret)
 			goto err_free_msi;
 	}
+<<<<<<< HEAD
 
 	pp->root_bus_nr = pp->busn->start;
 
@@ -528,10 +770,66 @@ static int dw_pcie_rd_other_conf(struct pcie_port *pp, struct pci_bus *bus,
 
 	if (pp->ops->rd_other_conf)
 		return pp->ops->rd_other_conf(pp, bus, devfn, where, size, val);
+=======
+	dw_pcie_iatu_detect(pci);
+
+	dw_pcie_setup_rc(pp);
+
+	if (!dw_pcie_link_up(pci) && pci->ops && pci->ops->start_link) {
+		ret = pci->ops->start_link(pci);
+		if (ret)
+			goto err_free_msi;
+	}
+
+	/* Ignore errors, the link may come up later */
+	dw_pcie_wait_for_link(pci);
+
+	bridge->sysdata = pp;
+
+	ret = pci_host_probe(bridge);
+	if (!ret)
+		return 0;
+
+err_free_msi:
+	if (pp->has_msi_ctrl)
+		dw_pcie_free_msi(pp);
+	return ret;
+}
+EXPORT_SYMBOL_GPL(dw_pcie_host_init);
+
+void dw_pcie_host_deinit(struct pcie_port *pp)
+{
+	pci_stop_root_bus(pp->bridge->bus);
+	pci_remove_root_bus(pp->bridge->bus);
+	if (pp->has_msi_ctrl)
+		dw_pcie_free_msi(pp);
+}
+EXPORT_SYMBOL_GPL(dw_pcie_host_deinit);
+
+static void __iomem *dw_pcie_other_conf_map_bus(struct pci_bus *bus,
+						unsigned int devfn, int where)
+{
+	int type;
+	u32 busdev;
+	struct pcie_port *pp = bus->sysdata;
+	struct dw_pcie *pci = to_dw_pcie_from_pp(pp);
+
+	/*
+	 * Checking whether the link is up here is a last line of defense
+	 * against platforms that forward errors on the system bus as
+	 * SError upon PCI configuration transactions issued when the link
+	 * is down. This check is racy by definition and does not stop
+	 * the system from triggering an SError if the link goes down
+	 * after this check is performed.
+	 */
+	if (!dw_pcie_link_up(pci))
+		return NULL;
+>>>>>>> upstream/android-13
 
 	busdev = PCIE_ATU_BUS(bus->number) | PCIE_ATU_DEV(PCI_SLOT(devfn)) |
 		 PCIE_ATU_FUNC(PCI_FUNC(devfn));
 
+<<<<<<< HEAD
 	if (bus->parent->number == pp->root_bus_nr) {
 		type = PCIE_ATU_TYPE_CFG0;
 		cpu_addr = pp->cfg0_base;
@@ -551,11 +849,36 @@ static int dw_pcie_rd_other_conf(struct pcie_port *pp, struct pci_bus *bus,
 	if (pci->num_viewport <= 2)
 		dw_pcie_prog_outbound_atu(pci, PCIE_ATU_REGION_INDEX1,
 					  PCIE_ATU_TYPE_IO, pp->io_base,
+=======
+	if (pci_is_root_bus(bus->parent))
+		type = PCIE_ATU_TYPE_CFG0;
+	else
+		type = PCIE_ATU_TYPE_CFG1;
+
+
+	dw_pcie_prog_outbound_atu(pci, 0, type, pp->cfg0_base, busdev, pp->cfg0_size);
+
+	return pp->va_cfg0_base + where;
+}
+
+static int dw_pcie_rd_other_conf(struct pci_bus *bus, unsigned int devfn,
+				 int where, int size, u32 *val)
+{
+	int ret;
+	struct pcie_port *pp = bus->sysdata;
+	struct dw_pcie *pci = to_dw_pcie_from_pp(pp);
+
+	ret = pci_generic_config_read(bus, devfn, where, size, val);
+
+	if (!ret && pci->io_cfg_atu_shared)
+		dw_pcie_prog_outbound_atu(pci, 0, PCIE_ATU_TYPE_IO, pp->io_base,
+>>>>>>> upstream/android-13
 					  pp->io_bus_addr, pp->io_size);
 
 	return ret;
 }
 
+<<<<<<< HEAD
 static int dw_pcie_wr_other_conf(struct pcie_port *pp, struct pci_bus *bus,
 				 u32 devfn, int where, int size, u32 val)
 {
@@ -590,11 +913,25 @@ static int dw_pcie_wr_other_conf(struct pcie_port *pp, struct pci_bus *bus,
 	if (pci->num_viewport <= 2)
 		dw_pcie_prog_outbound_atu(pci, PCIE_ATU_REGION_INDEX1,
 					  PCIE_ATU_TYPE_IO, pp->io_base,
+=======
+static int dw_pcie_wr_other_conf(struct pci_bus *bus, unsigned int devfn,
+				 int where, int size, u32 val)
+{
+	int ret;
+	struct pcie_port *pp = bus->sysdata;
+	struct dw_pcie *pci = to_dw_pcie_from_pp(pp);
+
+	ret = pci_generic_config_write(bus, devfn, where, size, val);
+
+	if (!ret && pci->io_cfg_atu_shared)
+		dw_pcie_prog_outbound_atu(pci, 0, PCIE_ATU_TYPE_IO, pp->io_base,
+>>>>>>> upstream/android-13
 					  pp->io_bus_addr, pp->io_size);
 
 	return ret;
 }
 
+<<<<<<< HEAD
 static int dw_pcie_valid_device(struct pcie_port *pp, struct pci_bus *bus,
 				int dev)
 {
@@ -679,17 +1016,80 @@ void dw_pcie_setup_rc(struct pcie_port *pp)
 		pp->irq_status[ctrl] = 0;
 	}
 
+=======
+static struct pci_ops dw_child_pcie_ops = {
+	.map_bus = dw_pcie_other_conf_map_bus,
+	.read = dw_pcie_rd_other_conf,
+	.write = dw_pcie_wr_other_conf,
+};
+
+void __iomem *dw_pcie_own_conf_map_bus(struct pci_bus *bus, unsigned int devfn, int where)
+{
+	struct pcie_port *pp = bus->sysdata;
+	struct dw_pcie *pci = to_dw_pcie_from_pp(pp);
+
+	if (PCI_SLOT(devfn) > 0)
+		return NULL;
+
+	return pci->dbi_base + where;
+}
+EXPORT_SYMBOL_GPL(dw_pcie_own_conf_map_bus);
+
+static struct pci_ops dw_pcie_ops = {
+	.map_bus = dw_pcie_own_conf_map_bus,
+	.read = pci_generic_config_read,
+	.write = pci_generic_config_write,
+};
+
+void dw_pcie_setup_rc(struct pcie_port *pp)
+{
+	int i;
+	u32 val, ctrl, num_ctrls;
+	struct dw_pcie *pci = to_dw_pcie_from_pp(pp);
+
+	/*
+	 * Enable DBI read-only registers for writing/updating configuration.
+	 * Write permission gets disabled towards the end of this function.
+	 */
+	dw_pcie_dbi_ro_wr_en(pci);
+
+	dw_pcie_setup(pci);
+
+	if (pp->has_msi_ctrl) {
+		num_ctrls = pp->num_vectors / MAX_MSI_IRQS_PER_CTRL;
+
+		/* Initialize IRQ Status array */
+		for (ctrl = 0; ctrl < num_ctrls; ctrl++) {
+			pp->irq_mask[ctrl] = ~0;
+			dw_pcie_writel_dbi(pci, PCIE_MSI_INTR0_MASK +
+					    (ctrl * MSI_REG_CTRL_BLOCK_SIZE),
+					    pp->irq_mask[ctrl]);
+			dw_pcie_writel_dbi(pci, PCIE_MSI_INTR0_ENABLE +
+					    (ctrl * MSI_REG_CTRL_BLOCK_SIZE),
+					    ~0);
+		}
+	}
+
+	dw_pcie_msi_init(pp);
+
+>>>>>>> upstream/android-13
 	/* Setup RC BARs */
 	dw_pcie_writel_dbi(pci, PCI_BASE_ADDRESS_0, 0x00000004);
 	dw_pcie_writel_dbi(pci, PCI_BASE_ADDRESS_1, 0x00000000);
 
 	/* Setup interrupt pins */
+<<<<<<< HEAD
 	dw_pcie_dbi_ro_wr_en(pci);
+=======
+>>>>>>> upstream/android-13
 	val = dw_pcie_readl_dbi(pci, PCI_INTERRUPT_LINE);
 	val &= 0xffff00ff;
 	val |= 0x00000100;
 	dw_pcie_writel_dbi(pci, PCI_INTERRUPT_LINE, val);
+<<<<<<< HEAD
 	dw_pcie_dbi_ro_wr_dis(pci);
+=======
+>>>>>>> upstream/android-13
 
 	/* Setup bus numbers */
 	val = dw_pcie_readl_dbi(pci, PCI_PRIMARY_BUS);
@@ -704,6 +1104,7 @@ void dw_pcie_setup_rc(struct pcie_port *pp)
 		PCI_COMMAND_MASTER | PCI_COMMAND_SERR;
 	dw_pcie_writel_dbi(pci, PCI_COMMAND, val);
 
+<<<<<<< HEAD
 	/*
 	 * If the platform provides ->rd_other_conf, it means the platform
 	 * uses its own address translation component rather than ATU, so
@@ -737,3 +1138,58 @@ void dw_pcie_setup_rc(struct pcie_port *pp)
 	val |= PORT_LOGIC_SPEED_CHANGE;
 	dw_pcie_wr_own_conf(pp, PCIE_LINK_WIDTH_SPEED_CONTROL, 4, val);
 }
+=======
+	/* Ensure all outbound windows are disabled so there are multiple matches */
+	for (i = 0; i < pci->num_ob_windows; i++)
+		dw_pcie_disable_atu(pci, i, DW_PCIE_REGION_OUTBOUND);
+
+	/*
+	 * If the platform provides its own child bus config accesses, it means
+	 * the platform uses its own address translation component rather than
+	 * ATU, so we should not program the ATU here.
+	 */
+	if (pp->bridge->child_ops == &dw_child_pcie_ops) {
+		int atu_idx = 0;
+		struct resource_entry *entry;
+
+		/* Get last memory resource entry */
+		resource_list_for_each_entry(entry, &pp->bridge->windows) {
+			if (resource_type(entry->res) != IORESOURCE_MEM)
+				continue;
+
+			if (pci->num_ob_windows <= ++atu_idx)
+				break;
+
+			dw_pcie_prog_outbound_atu(pci, atu_idx,
+						  PCIE_ATU_TYPE_MEM, entry->res->start,
+						  entry->res->start - entry->offset,
+						  resource_size(entry->res));
+		}
+
+		if (pp->io_size) {
+			if (pci->num_ob_windows > ++atu_idx)
+				dw_pcie_prog_outbound_atu(pci, atu_idx,
+							  PCIE_ATU_TYPE_IO, pp->io_base,
+							  pp->io_bus_addr, pp->io_size);
+			else
+				pci->io_cfg_atu_shared = true;
+		}
+
+		if (pci->num_ob_windows <= atu_idx)
+			dev_warn(pci->dev, "Resources exceed number of ATU entries (%d)",
+				 pci->num_ob_windows);
+	}
+
+	dw_pcie_writel_dbi(pci, PCI_BASE_ADDRESS_0, 0);
+
+	/* Program correct class for RC */
+	dw_pcie_writew_dbi(pci, PCI_CLASS_DEVICE, PCI_CLASS_BRIDGE_PCI);
+
+	val = dw_pcie_readl_dbi(pci, PCIE_LINK_WIDTH_SPEED_CONTROL);
+	val |= PORT_LOGIC_SPEED_CHANGE;
+	dw_pcie_writel_dbi(pci, PCIE_LINK_WIDTH_SPEED_CONTROL, val);
+
+	dw_pcie_dbi_ro_wr_dis(pci);
+}
+EXPORT_SYMBOL_GPL(dw_pcie_setup_rc);
+>>>>>>> upstream/android-13

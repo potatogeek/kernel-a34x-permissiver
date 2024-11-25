@@ -2,6 +2,10 @@
 /*
  * remote processor messaging bus internals
  *
+<<<<<<< HEAD
+=======
+ * Copyright (c) 2020 The Linux Foundation.
+>>>>>>> upstream/android-13
  * Copyright (C) 2011 Texas Instruments, Inc.
  * Copyright (C) 2011 Google, Inc.
  *
@@ -18,9 +22,19 @@
 #define to_rpmsg_device(d) container_of(d, struct rpmsg_device, dev)
 #define to_rpmsg_driver(d) container_of(d, struct rpmsg_driver, drv)
 
+<<<<<<< HEAD
 /**
  * struct rpmsg_device_ops - indirection table for the rpmsg_device operations
  * @create_ept:		create backend-specific endpoint, requried
+=======
+extern struct class *rpmsg_class;
+
+/**
+ * struct rpmsg_device_ops - indirection table for the rpmsg_device operations
+ * @create_channel:	create backend-specific channel, optional
+ * @release_channel:	release backend-specific channel, optional
+ * @create_ept:		create backend-specific endpoint, required
+>>>>>>> upstream/android-13
  * @announce_create:	announce presence of new channel, optional
  * @announce_destroy:	announce destruction of channel, optional
  *
@@ -29,6 +43,13 @@
  * advertise new channels implicitly by creating the endpoints.
  */
 struct rpmsg_device_ops {
+<<<<<<< HEAD
+=======
+	struct rpmsg_device *(*create_channel)(struct rpmsg_device *rpdev,
+					       struct rpmsg_channel_info *chinfo);
+	int (*release_channel)(struct rpmsg_device *rpdev,
+			       struct rpmsg_channel_info *chinfo);
+>>>>>>> upstream/android-13
 	struct rpmsg_endpoint *(*create_ept)(struct rpmsg_device *rpdev,
 					    rpmsg_rx_cb_t cb, void *priv,
 					    struct rpmsg_channel_info chinfo);
@@ -39,13 +60,23 @@ struct rpmsg_device_ops {
 
 /**
  * struct rpmsg_endpoint_ops - indirection table for rpmsg_endpoint operations
+<<<<<<< HEAD
  * @destroy_ept:	destroy the given endpoint, required
+=======
+ * @destroy_ept:	see @rpmsg_destroy_ept(), required
+>>>>>>> upstream/android-13
  * @send:		see @rpmsg_send(), required
  * @sendto:		see @rpmsg_sendto(), optional
  * @send_offchannel:	see @rpmsg_send_offchannel(), optional
  * @trysend:		see @rpmsg_trysend(), required
  * @trysendto:		see @rpmsg_trysendto(), optional
  * @trysend_offchannel:	see @rpmsg_trysend_offchannel(), optional
+<<<<<<< HEAD
+=======
+ * @poll:		see @rpmsg_poll(), optional
+ * @get_signals:	see @rpmsg_get_signals(), optional
+ * @set_signals:	see @rpmsg_set_signals(), optional
+>>>>>>> upstream/android-13
  *
  * Indirection table for the operations that a rpmsg backend should implement.
  * In addition to @destroy_ept, the backend must at least implement @send and
@@ -65,6 +96,7 @@ struct rpmsg_endpoint_ops {
 			     void *data, int len);
 	__poll_t (*poll)(struct rpmsg_endpoint *ept, struct file *filp,
 			     poll_table *wait);
+<<<<<<< HEAD
 };
 
 int rpmsg_register_device(struct rpmsg_device *rpdev);
@@ -76,15 +108,38 @@ struct device *rpmsg_find_device(struct device *parent,
 
 /**
  * rpmsg_chrdev_register_device() - register chrdev device based on rpdev
+=======
+	int (*rx_done)(struct rpmsg_endpoint *ept, void *data);
+	int (*get_signals)(struct rpmsg_endpoint *ept);
+	int (*set_signals)(struct rpmsg_endpoint *ept, u32 set, u32 clear);
+};
+
+struct device *rpmsg_find_device(struct device *parent,
+				 struct rpmsg_channel_info *chinfo);
+
+struct rpmsg_device *rpmsg_create_channel(struct rpmsg_device *rpdev,
+					  struct rpmsg_channel_info *chinfo);
+int rpmsg_release_channel(struct rpmsg_device *rpdev,
+			  struct rpmsg_channel_info *chinfo);
+/**
+ * rpmsg_ctrldev_register_device() - register a char device for control based on rpdev
+>>>>>>> upstream/android-13
  * @rpdev:	prepared rpdev to be used for creating endpoints
  *
  * This function wraps rpmsg_register_device() preparing the rpdev for use as
  * basis for the rpmsg chrdev.
  */
+<<<<<<< HEAD
 static inline int rpmsg_chrdev_register_device(struct rpmsg_device *rpdev)
 {
 	strcpy(rpdev->id.name, "rpmsg_chrdev");
 	rpdev->driver_override = "rpmsg_chrdev";
+=======
+static inline int rpmsg_ctrldev_register_device(struct rpmsg_device *rpdev)
+{
+	strcpy(rpdev->id.name, "rpmsg_ctrl");
+	rpdev->driver_override = "rpmsg_ctrl";
+>>>>>>> upstream/android-13
 
 	return rpmsg_register_device(rpdev);
 }

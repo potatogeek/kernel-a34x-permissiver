@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * include/net/9p/client.h
  *
@@ -5,6 +9,7 @@
  *
  *  Copyright (C) 2008 by Eric Van Hensbergen <ericvh@gmail.com>
  *  Copyright (C) 2007 by Latchesar Ionkov <lucho@ionkov.net>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2
@@ -21,6 +26,8 @@
  *  51 Franklin Street, Fifth Floor
  *  Boston, MA  02111-1301  USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef NET_9P_CLIENT_H
@@ -88,7 +95,10 @@ enum p9_req_status_t {
  * @wq: wait_queue for the client to block on for this request
  * @tc: the request fcall structure
  * @rc: the response fcall structure
+<<<<<<< HEAD
  * @aux: transport specific data (provided for trans_fd migration)
+=======
+>>>>>>> upstream/android-13
  * @req_list: link for higher level objects to chain requests
  */
 struct p9_req_t {
@@ -98,7 +108,10 @@ struct p9_req_t {
 	wait_queue_head_t wq;
 	struct p9_fcall tc;
 	struct p9_fcall rc;
+<<<<<<< HEAD
 	void *aux;
+=======
+>>>>>>> upstream/android-13
 	struct list_head req_list;
 };
 
@@ -157,10 +170,22 @@ struct p9_client {
  *
  * TODO: This needs lots of explanation.
  */
+<<<<<<< HEAD
+=======
+enum fid_source {
+	FID_FROM_OTHER,
+	FID_FROM_INODE,
+	FID_FROM_DENTRY,
+};
+>>>>>>> upstream/android-13
 
 struct p9_fid {
 	struct p9_client *clnt;
 	u32 fid;
+<<<<<<< HEAD
+=======
+	refcount_t count;
+>>>>>>> upstream/android-13
 	int mode;
 	struct p9_qid qid;
 	u32 iounit;
@@ -169,6 +194,10 @@ struct p9_fid {
 	void *rdir;
 
 	struct hlist_node dlist;	/* list of all fids attached to a dentry */
+<<<<<<< HEAD
+=======
+	struct hlist_node ilist;
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -215,6 +244,11 @@ int p9_client_fsync(struct p9_fid *fid, int datasync);
 int p9_client_remove(struct p9_fid *fid);
 int p9_client_unlinkat(struct p9_fid *dfid, const char *name, int flags);
 int p9_client_read(struct p9_fid *fid, u64 offset, struct iov_iter *to, int *err);
+<<<<<<< HEAD
+=======
+int p9_client_read_once(struct p9_fid *fid, u64 offset, struct iov_iter *to,
+		int *err);
+>>>>>>> upstream/android-13
 int p9_client_write(struct p9_fid *fid, u64 offset, struct iov_iter *from, int *err);
 int p9_client_readdir(struct p9_fid *fid, char *data, u32 count, u64 offset);
 int p9dirent_read(struct p9_client *clnt, char *buf, int len,

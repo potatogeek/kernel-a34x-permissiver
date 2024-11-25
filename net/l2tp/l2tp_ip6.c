@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * L2TPv3 IP encapsulation support for IPv6
  *
@@ -7,6 +8,12 @@
  *	modify it under the terms of the GNU General Public License
  *	as published by the Free Software Foundation; either version
  *	2 of the License, or (at your option) any later version.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/* L2TPv3 IP encapsulation support for IPv6
+ *
+ * Copyright (c) 2012 Katalix Systems Ltd
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -42,7 +49,12 @@ struct l2tp_ip6_sock {
 	u32			peer_conn_id;
 
 	/* ipv6_pinfo has to be the last member of l2tp_ip6_sock, see
+<<<<<<< HEAD
 	   inet6_sk_generic */
+=======
+	 * inet6_sk_generic
+	 */
+>>>>>>> upstream/android-13
 	struct ipv6_pinfo	inet6;
 };
 
@@ -135,14 +147,23 @@ static int l2tp_ip6_recv(struct sk_buff *skb)
 	struct l2tp_session *session;
 	struct l2tp_tunnel *tunnel = NULL;
 	struct ipv6hdr *iph;
+<<<<<<< HEAD
 	int length;
+=======
+>>>>>>> upstream/android-13
 
 	if (!pskb_may_pull(skb, 4))
 		goto discard;
 
 	/* Point to L2TP header */
+<<<<<<< HEAD
 	optr = ptr = skb->data;
 	session_id = ntohl(*((__be32 *) ptr));
+=======
+	optr = skb->data;
+	ptr = skb->data;
+	session_id = ntohl(*((__be32 *)ptr));
+>>>>>>> upstream/android-13
 	ptr += 4;
 
 	/* RFC3931: L2TP/IP packets have the first 4 bytes containing
@@ -163,6 +184,7 @@ static int l2tp_ip6_recv(struct sk_buff *skb)
 	if (!tunnel)
 		goto discard_sess;
 
+<<<<<<< HEAD
 	/* Trace packet contents, if enabled */
 	if (tunnel->debug & L2TP_MSG_DATA) {
 		length = min(32u, skb->len);
@@ -176,6 +198,8 @@ static int l2tp_ip6_recv(struct sk_buff *skb)
 		print_hex_dump_bytes("", DUMP_PREFIX_OFFSET, ptr, length);
 	}
 
+=======
+>>>>>>> upstream/android-13
 	if (l2tp_v3_ensure_opt_in_linear(session, skb, &ptr, &optr))
 		goto discard_sess;
 
@@ -192,7 +216,11 @@ pass_up:
 	if ((skb->data[0] & 0xc0) != 0xc0)
 		goto discard;
 
+<<<<<<< HEAD
 	tunnel_id = ntohl(*(__be32 *) &skb->data[4]);
+=======
+	tunnel_id = ntohl(*(__be32 *)&skb->data[4]);
+>>>>>>> upstream/android-13
 	iph = ipv6_hdr(skb);
 
 	read_lock_bh(&l2tp_ip6_lock);
@@ -208,7 +236,11 @@ pass_up:
 	if (!xfrm6_policy_check(sk, XFRM_POLICY_IN, skb))
 		goto discard_put;
 
+<<<<<<< HEAD
 	nf_reset(skb);
+=======
+	nf_reset_ct(skb);
+>>>>>>> upstream/android-13
 
 	return sk_receive_skb(sk, skb, 1);
 
@@ -264,7 +296,11 @@ static void l2tp_ip6_close(struct sock *sk, long timeout)
 
 static void l2tp_ip6_destroy_sock(struct sock *sk)
 {
+<<<<<<< HEAD
 	struct l2tp_tunnel *tunnel = sk->sk_user_data;
+=======
+	struct l2tp_tunnel *tunnel = l2tp_sk_to_tunnel(sk);
+>>>>>>> upstream/android-13
 
 	lock_sock(sk);
 	ip6_flush_pending_frames(sk);
@@ -280,7 +316,11 @@ static int l2tp_ip6_bind(struct sock *sk, struct sockaddr *uaddr, int addr_len)
 {
 	struct inet_sock *inet = inet_sk(sk);
 	struct ipv6_pinfo *np = inet6_sk(sk);
+<<<<<<< HEAD
 	struct sockaddr_l2tpip6 *addr = (struct sockaddr_l2tpip6 *) uaddr;
+=======
+	struct sockaddr_l2tpip6 *addr = (struct sockaddr_l2tpip6 *)uaddr;
+>>>>>>> upstream/android-13
 	struct net *net = sock_net(sk);
 	__be32 v4addr = 0;
 	int bound_dev_if;
@@ -379,8 +419,13 @@ out_unlock:
 static int l2tp_ip6_connect(struct sock *sk, struct sockaddr *uaddr,
 			    int addr_len)
 {
+<<<<<<< HEAD
 	struct sockaddr_l2tpip6 *lsa = (struct sockaddr_l2tpip6 *) uaddr;
 	struct sockaddr_in6	*usin = (struct sockaddr_in6 *) uaddr;
+=======
+	struct sockaddr_l2tpip6 *lsa = (struct sockaddr_l2tpip6 *)uaddr;
+	struct sockaddr_in6	*usin = (struct sockaddr_in6 *)uaddr;
+>>>>>>> upstream/android-13
 	struct in6_addr	*daddr;
 	int	addr_type;
 	int rc;
@@ -490,7 +535,11 @@ static int l2tp_ip6_push_pending_frames(struct sock *sk)
 	int err = 0;
 
 	skb = skb_peek(&sk->sk_write_queue);
+<<<<<<< HEAD
 	if (skb == NULL)
+=======
+	if (!skb)
+>>>>>>> upstream/android-13
 		goto out;
 
 	transhdr = (__be32 *)skb_transport_header(skb);
@@ -523,7 +572,11 @@ static int l2tp_ip6_sendmsg(struct sock *sk, struct msghdr *msg, size_t len)
 	int err;
 
 	/* Rough check on arithmetic overflow,
+<<<<<<< HEAD
 	   better check is made in ip6_append_data().
+=======
+	 * better check is made in ip6_append_data().
+>>>>>>> upstream/android-13
 	 */
 	if (len > INT_MAX)
 		return -EMSGSIZE;
@@ -532,9 +585,13 @@ static int l2tp_ip6_sendmsg(struct sock *sk, struct msghdr *msg, size_t len)
 	if (msg->msg_flags & MSG_OOB)
 		return -EOPNOTSUPP;
 
+<<<<<<< HEAD
 	/*
 	 *	Get and verify the address.
 	 */
+=======
+	/* Get and verify the address */
+>>>>>>> upstream/android-13
 	memset(&fl6, 0, sizeof(fl6));
 
 	fl6.flowi6_mark = sk->sk_mark;
@@ -552,15 +609,25 @@ static int l2tp_ip6_sendmsg(struct sock *sk, struct msghdr *msg, size_t len)
 		daddr = &lsa->l2tp_addr;
 		if (np->sndflow) {
 			fl6.flowlabel = lsa->l2tp_flowinfo & IPV6_FLOWINFO_MASK;
+<<<<<<< HEAD
 			if (fl6.flowlabel&IPV6_FLOWLABEL_MASK) {
 				flowlabel = fl6_sock_lookup(sk, fl6.flowlabel);
 				if (flowlabel == NULL)
+=======
+			if (fl6.flowlabel & IPV6_FLOWLABEL_MASK) {
+				flowlabel = fl6_sock_lookup(sk, fl6.flowlabel);
+				if (IS_ERR(flowlabel))
+>>>>>>> upstream/android-13
 					return -EINVAL;
 			}
 		}
 
+<<<<<<< HEAD
 		/*
 		 * Otherwise it will be difficult to maintain
+=======
+		/* Otherwise it will be difficult to maintain
+>>>>>>> upstream/android-13
 		 * sk->sk_dst_cache.
 		 */
 		if (sk->sk_state == TCP_ESTABLISHED &&
@@ -595,10 +662,17 @@ static int l2tp_ip6_sendmsg(struct sock *sk, struct msghdr *msg, size_t len)
 		}
 		if ((fl6.flowlabel & IPV6_FLOWLABEL_MASK) && !flowlabel) {
 			flowlabel = fl6_sock_lookup(sk, fl6.flowlabel);
+<<<<<<< HEAD
 			if (flowlabel == NULL)
 				return -EINVAL;
 		}
 		if (!(opt->opt_nflen|opt->opt_flen))
+=======
+			if (IS_ERR(flowlabel))
+				return -EINVAL;
+		}
+		if (!(opt->opt_nflen | opt->opt_flen))
+>>>>>>> upstream/android-13
 			opt = NULL;
 	}
 
@@ -626,7 +700,11 @@ static int l2tp_ip6_sendmsg(struct sock *sk, struct msghdr *msg, size_t len)
 	else if (!fl6.flowi6_oif)
 		fl6.flowi6_oif = np->ucast_oif;
 
+<<<<<<< HEAD
 	security_sk_classify_flow(sk, flowi6_to_flowi(&fl6));
+=======
+	security_sk_classify_flow(sk, flowi6_to_flowi_common(&fl6));
+>>>>>>> upstream/android-13
 
 	if (ipc6.tclass < 0)
 		ipc6.tclass = np->tclass;
@@ -749,10 +827,13 @@ static struct proto l2tp_ip6_prot = {
 	.hash		   = l2tp_ip6_hash,
 	.unhash		   = l2tp_ip6_unhash,
 	.obj_size	   = sizeof(struct l2tp_ip6_sock),
+<<<<<<< HEAD
 #ifdef CONFIG_COMPAT
 	.compat_setsockopt = compat_ipv6_setsockopt,
 	.compat_getsockopt = compat_ipv6_getsockopt,
 #endif
+=======
+>>>>>>> upstream/android-13
 };
 
 static const struct proto_ops l2tp_ip6_ops = {
@@ -766,6 +847,10 @@ static const struct proto_ops l2tp_ip6_ops = {
 	.getname	   = l2tp_ip6_getname,
 	.poll		   = datagram_poll,
 	.ioctl		   = inet6_ioctl,
+<<<<<<< HEAD
+=======
+	.gettstamp	   = sock_gettstamp,
+>>>>>>> upstream/android-13
 	.listen		   = sock_no_listen,
 	.shutdown	   = inet_shutdown,
 	.setsockopt	   = sock_common_setsockopt,
@@ -775,8 +860,12 @@ static const struct proto_ops l2tp_ip6_ops = {
 	.mmap		   = sock_no_mmap,
 	.sendpage	   = sock_no_sendpage,
 #ifdef CONFIG_COMPAT
+<<<<<<< HEAD
 	.compat_setsockopt = compat_sock_common_setsockopt,
 	.compat_getsockopt = compat_sock_common_getsockopt,
+=======
+	.compat_ioctl	   = inet6_compat_ioctl,
+>>>>>>> upstream/android-13
 #endif
 };
 

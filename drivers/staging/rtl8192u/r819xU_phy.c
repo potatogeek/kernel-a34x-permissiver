@@ -7,7 +7,11 @@
 #include "r8192U_dm.h"
 #include "r819xU_firmware_img.h"
 
+<<<<<<< HEAD
 #include "dot11d.h"
+=======
+#include "ieee80211/dot11d.h"
+>>>>>>> upstream/android-13
 #include <linux/bitops.h>
 
 static u32 RF_CHANNEL_TABLE_ZEBRA[] = {
@@ -67,7 +71,10 @@ u8 rtl8192_phy_CheckIsLegalRFPath(struct net_device *dev, u32 e_rfpath)
 void rtl8192_setBBreg(struct net_device *dev, u32 reg_addr, u32 bitmask,
 		      u32 data)
 {
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	u32 reg, bitshift;
 
 	if (bitmask != bMaskDWord) {
@@ -169,14 +176,20 @@ static u32 rtl8192_phy_RFSerialRead(struct net_device *dev,
 	rtl8192_setBBreg(dev, pPhyReg->rfHSSIPara2,  bLSSIReadEdge, 0x0);
 	rtl8192_setBBreg(dev, pPhyReg->rfHSSIPara2,  bLSSIReadEdge, 0x1);
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	/* TODO: we should not delay such a long time. Ask for help from SD3 */
 	usleep_range(1000, 1000);
 
 	ret = rtl8192_QueryBBReg(dev, pPhyReg->rfLSSIReadBack,
 				 bLSSIReadBackData);
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	/* Switch back to Reg_Mode0 */
 	if (priv->rf_chip == RF_8256) {
 		priv->RfReg0Value[e_rfpath] &= 0xebf;
@@ -219,7 +232,10 @@ static void rtl8192_phy_RFSerialWrite(struct net_device *dev,
 
 	offset &= 0x3f;
 	if (priv->rf_chip == RF_8256) {
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 		if (offset >= 31) {
 			priv->RfReg0Value[e_rfpath] |= 0x140;
 			rtl8192_setBBreg(dev, pPhyReg->rf3wireOffset,
@@ -248,7 +264,10 @@ static void rtl8192_phy_RFSerialWrite(struct net_device *dev,
 	/* Write operation */
 	rtl8192_setBBreg(dev, pPhyReg->rf3wireOffset, bMaskDWord, DataAndAddr);
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	if (offset == 0x0)
 		priv->RfReg0Value[e_rfpath] = data;
 
@@ -330,7 +349,10 @@ u32 rtl8192_phy_QueryRFReg(struct net_device *dev,
 	u32 reg, bitshift;
 	struct r8192_priv *priv = ieee80211_priv(dev);
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	if (!rtl8192_phy_CheckIsLegalRFPath(dev, e_rfpath))
 		return 0;
 	if (priv->Rf_Mode == RF_OP_By_FW) {
@@ -342,7 +364,10 @@ u32 rtl8192_phy_QueryRFReg(struct net_device *dev,
 	bitshift =  ffs(bitmask) - 1;
 	reg = (reg & bitmask) >> bitshift;
 	return reg;
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 }
 
 /******************************************************************************
@@ -511,6 +536,7 @@ void rtl8192_phy_configmac(struct net_device *dev)
  * notice:    BB parameters may change all the time, so please make
  *            sure it has been synced with the newest.
  *****************************************************************************/
+<<<<<<< HEAD
 void rtl8192_phyConfigBB(struct net_device *dev, u8 ConfigType)
 {
 	u32 i;
@@ -526,6 +552,14 @@ void rtl8192_phyConfigBB(struct net_device *dev, u8 ConfigType)
 	}
 #endif
 	if (ConfigType == BaseBand_Config_PHY_REG) {
+=======
+static void rtl8192_phyConfigBB(struct net_device *dev,
+				enum baseband_config_type ConfigType)
+{
+	u32 i;
+
+	if (ConfigType == BASEBAND_CONFIG_PHY_REG) {
+>>>>>>> upstream/android-13
 		for (i = 0; i < PHY_REG_1T2RArrayLength; i += 2) {
 			rtl8192_setBBreg(dev, Rtl8192UsbPHY_REG_1T2RArray[i],
 					 bMaskDWord,
@@ -535,7 +569,11 @@ void rtl8192_phyConfigBB(struct net_device *dev, u8 ConfigType)
 				 i, Rtl8192UsbPHY_REG_1T2RArray[i],
 				 Rtl8192UsbPHY_REG_1T2RArray[i+1]);
 		}
+<<<<<<< HEAD
 	} else if (ConfigType == BaseBand_Config_AGC_TAB) {
+=======
+	} else if (ConfigType == BASEBAND_CONFIG_AGC_TAB) {
+>>>>>>> upstream/android-13
 		for (i = 0; i < AGCTAB_ArrayLength; i += 2) {
 			rtl8192_setBBreg(dev, Rtl8192UsbAGCTAB_Array[i],
 					 bMaskDWord, Rtl8192UsbAGCTAB_Array[i+1]);
@@ -709,7 +747,10 @@ u8 rtl8192_phy_checkBBAndRF(struct net_device *dev, enum hw90_block_e CheckBlock
 	WriteAddr[HW90_BLOCK_RF] = 0x3;
 	RT_TRACE(COMP_PHY, "%s(), CheckBlock: %d\n", __func__, CheckBlock);
 	for (i = 0; i < CheckTimes; i++) {
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 		/* Write data to register and readback */
 		switch (CheckBlock) {
 		case HW90_BLOCK_MAC:
@@ -744,7 +785,10 @@ u8 rtl8192_phy_checkBBAndRF(struct net_device *dev, enum hw90_block_e CheckBlock
 			break;
 		}
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 		/* Check whether readback data is correct */
 		if (reg != WriteData[i]) {
 			RT_TRACE((COMP_PHY|COMP_ERR),
@@ -793,7 +837,11 @@ static void rtl8192_BB_Config_ParaFile(struct net_device *dev)
 						  (enum rf90_radio_path_e)0);
 		if (status != 0) {
 			RT_TRACE((COMP_ERR | COMP_PHY),
+<<<<<<< HEAD
 				 "PHY_RF8256_Config(): Check PHY%d Fail!!\n",
+=======
+				 "phy_rf8256_config(): Check PHY%d Fail!!\n",
+>>>>>>> upstream/android-13
 				 eCheckItem-1);
 			return;
 		}
@@ -802,7 +850,11 @@ static void rtl8192_BB_Config_ParaFile(struct net_device *dev)
 	rtl8192_setBBreg(dev, rFPGA0_RFMOD, bCCKEn|bOFDMEn, 0x0);
 	/* ----BB Register Initilazation---- */
 	/* ==m==>Set PHY REG From Header<==m== */
+<<<<<<< HEAD
 	rtl8192_phyConfigBB(dev, BaseBand_Config_PHY_REG);
+=======
+	rtl8192_phyConfigBB(dev, BASEBAND_CONFIG_PHY_REG);
+>>>>>>> upstream/android-13
 
 	/* ----Set BB reset de-Active---- */
 	read_nic_dword(dev, CPU_GEN, &reg_u32);
@@ -810,11 +862,19 @@ static void rtl8192_BB_Config_ParaFile(struct net_device *dev)
 
 	/* ----BB AGC table Initialization---- */
 	/* ==m==>Set PHY REG From Header<==m== */
+<<<<<<< HEAD
 	rtl8192_phyConfigBB(dev, BaseBand_Config_AGC_TAB);
 
 	/* ----Enable XSTAL ---- */
 	write_nic_byte_E(dev, 0x5e, 0x00);
 	if (priv->card_8192_version == (u8)VERSION_819xU_A) {
+=======
+	rtl8192_phyConfigBB(dev, BASEBAND_CONFIG_AGC_TAB);
+
+	/* ----Enable XSTAL ---- */
+	write_nic_byte_E(dev, 0x5e, 0x00);
+	if (priv->card_8192_version == VERSION_819XU_A) {
+>>>>>>> upstream/android-13
 		/* Antenna gain offset from B/C/D to A */
 		reg_u32 = priv->AntennaTxPwDiff[1]<<4 |
 			   priv->AntennaTxPwDiff[0];
@@ -853,7 +913,10 @@ void rtl8192_BBConfig(struct net_device *dev)
 	rtl8192_BB_Config_ParaFile(dev);
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 /******************************************************************************
  * function:  This function obtains the initialization value of Tx power Level
  *            offset
@@ -917,8 +980,13 @@ void rtl8192_phy_setTxPower(struct net_device *dev, u8 channel)
 	switch (priv->rf_chip) {
 	case RF_8256:
 		/* need further implement */
+<<<<<<< HEAD
 		PHY_SetRF8256CCKTxPower(dev, powerlevel);
 		PHY_SetRF8256OFDMTxPower(dev, powerlevelOFDM24G);
+=======
+		phy_set_rf8256_cck_tx_power(dev, powerlevel);
+		phy_set_rf8256_ofdm_tx_power(dev, powerlevelOFDM24G);
+>>>>>>> upstream/android-13
 		break;
 	default:
 		RT_TRACE((COMP_PHY|COMP_ERR),
@@ -940,7 +1008,11 @@ void rtl8192_phy_RFConfig(struct net_device *dev)
 
 	switch (priv->rf_chip) {
 	case RF_8256:
+<<<<<<< HEAD
 		PHY_RF8256_Config(dev);
+=======
+		phy_rf8256_config(dev);
+>>>>>>> upstream/android-13
 		break;
 	default:
 		RT_TRACE(COMP_ERR, "error chip id\n");
@@ -970,13 +1042,19 @@ void rtl8192_phy_updateInitGain(struct net_device *dev)
 u8 rtl8192_phy_ConfigRFWithHeaderFile(struct net_device *dev,
 				      enum rf90_radio_path_e	e_rfpath)
 {
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	int i;
 
 	switch (e_rfpath) {
 	case RF90_PATH_A:
 		for (i = 0; i < RadioA_ArrayLength; i = i+2) {
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 			if (Rtl8192UsbRadioA_Array[i] == 0xfe) {
 				mdelay(100);
 				continue;
@@ -986,12 +1064,18 @@ u8 rtl8192_phy_ConfigRFWithHeaderFile(struct net_device *dev,
 					     bMask12Bits,
 					     Rtl8192UsbRadioA_Array[i+1]);
 			mdelay(1);
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 		}
 		break;
 	case RF90_PATH_B:
 		for (i = 0; i < RadioB_ArrayLength; i = i+2) {
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 			if (Rtl8192UsbRadioB_Array[i] == 0xfe) {
 				mdelay(100);
 				continue;
@@ -1001,12 +1085,18 @@ u8 rtl8192_phy_ConfigRFWithHeaderFile(struct net_device *dev,
 					     bMask12Bits,
 					     Rtl8192UsbRadioB_Array[i+1]);
 			mdelay(1);
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 		}
 		break;
 	case RF90_PATH_C:
 		for (i = 0; i < RadioC_ArrayLength; i = i+2) {
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 			if (Rtl8192UsbRadioC_Array[i] == 0xfe) {
 				mdelay(100);
 				continue;
@@ -1016,12 +1106,18 @@ u8 rtl8192_phy_ConfigRFWithHeaderFile(struct net_device *dev,
 					     bMask12Bits,
 					     Rtl8192UsbRadioC_Array[i+1]);
 			mdelay(1);
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 		}
 		break;
 	case RF90_PATH_D:
 		for (i = 0; i < RadioD_ArrayLength; i = i+2) {
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 			if (Rtl8192UsbRadioD_Array[i] == 0xfe) {
 				mdelay(100);
 				continue;
@@ -1031,7 +1127,10 @@ u8 rtl8192_phy_ConfigRFWithHeaderFile(struct net_device *dev,
 					     bMask12Bits,
 					     Rtl8192UsbRadioD_Array[i+1]);
 			mdelay(1);
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 		}
 		break;
 	default:
@@ -1039,7 +1138,10 @@ u8 rtl8192_phy_ConfigRFWithHeaderFile(struct net_device *dev,
 	}
 
 	return 0;
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 }
 
 /******************************************************************************
@@ -1058,6 +1160,7 @@ static void rtl8192_SetTxPowerLevel(struct net_device *dev, u8 channel)
 
 	switch (priv->rf_chip) {
 	case RF_8225:
+<<<<<<< HEAD
 #ifdef TO_DO_LIST
 		PHY_SetRF8225CckTxPower(Adapter, powerlevel);
 		PHY_SetRF8225OfdmTxPower(Adapter, powerlevelOFDM24G);
@@ -1067,6 +1170,13 @@ static void rtl8192_SetTxPowerLevel(struct net_device *dev, u8 channel)
 	case RF_8256:
 		PHY_SetRF8256CCKTxPower(dev, powerlevel);
 		PHY_SetRF8256OFDMTxPower(dev, powerlevelOFDM24G);
+=======
+		break;
+
+	case RF_8256:
+		phy_set_rf8256_cck_tx_power(dev, powerlevel);
+		phy_set_rf8256_ofdm_tx_power(dev, powerlevelOFDM24G);
+>>>>>>> upstream/android-13
 		break;
 
 	case RF_8258:
@@ -1159,6 +1269,7 @@ bool rtl8192_SetRFPowerState(struct net_device *dev,
 		RT_TRACE(COMP_ERR, "Not support rf_chip(%x)\n", priv->rf_chip);
 		break;
 	}
+<<<<<<< HEAD
 #ifdef TO_DO_LIST
 	if (bResult) {
 		/* Update current RF state variable. */
@@ -1201,6 +1312,8 @@ bool rtl8192_SetRFPowerState(struct net_device *dev,
 
 	}
 #endif
+=======
+>>>>>>> upstream/android-13
 	priv->SetRFPowerStateInProgress = false;
 
 	return bResult;
@@ -1225,7 +1338,11 @@ static u8 rtl8192_phy_SetSwChnlCmdArray(struct sw_chnl_cmd *CmdTable, u32 CmdTab
 {
 	struct sw_chnl_cmd *pCmd;
 
+<<<<<<< HEAD
 	if (CmdTable == NULL) {
+=======
+	if (!CmdTable) {
+>>>>>>> upstream/android-13
 		RT_TRACE(COMP_ERR, "%s(): CmdTable cannot be NULL\n", __func__);
 		return false;
 	}
@@ -1260,6 +1377,7 @@ static u8 rtl8192_phy_SwChnlStepByStep(struct net_device *dev, u8 channel,
 				       u8 *stage, u8 *step, u32 *delay)
 {
 	struct r8192_priv *priv = ieee80211_priv(dev);
+<<<<<<< HEAD
 	struct sw_chnl_cmd   PreCommonCmd[MAX_PRECMD_CNT];
 	u32		   PreCommonCmdCnt;
 	struct sw_chnl_cmd   PostCommonCmd[MAX_POSTCMD_CNT];
@@ -1272,10 +1390,43 @@ static u8 rtl8192_phy_SwChnlStepByStep(struct net_device *dev, u8 channel,
 	RT_TRACE(COMP_CH, "%s() stage: %d, step: %d, channel: %d\n",
 		 __func__, *stage, *step, channel);
 	if (!IsLegalChannel(priv->ieee80211, channel)) {
+=======
+	struct sw_chnl_cmd *pre_cmd;
+	u32 pre_cmd_cnt = 0;
+	struct sw_chnl_cmd *post_cmd;
+	u32 post_cmd_cnt = 0;
+	struct sw_chnl_cmd *rf_cmd;
+	u32 rf_cmd_cnt = 0;
+	struct sw_chnl_cmd *current_cmd = NULL;
+	u8 e_rfpath;
+	bool ret;
+
+	pre_cmd = kcalloc(MAX_PRECMD_CNT, sizeof(*pre_cmd), GFP_KERNEL);
+	if (!pre_cmd)
+		return false;
+
+	post_cmd = kcalloc(MAX_POSTCMD_CNT, sizeof(*post_cmd), GFP_KERNEL);
+	if (!post_cmd) {
+		kfree(pre_cmd);
+		return false;
+	}
+
+	rf_cmd = kcalloc(MAX_RFDEPENDCMD_CNT, sizeof(*rf_cmd), GFP_KERNEL);
+	if (!rf_cmd) {
+		kfree(pre_cmd);
+		kfree(post_cmd);
+		return false;
+	}
+
+	RT_TRACE(COMP_CH, "%s() stage: %d, step: %d, channel: %d\n",
+		 __func__, *stage, *step, channel);
+	if (!is_legal_channel(priv->ieee80211, channel)) {
+>>>>>>> upstream/android-13
 		RT_TRACE(COMP_ERR, "set to illegal channel: %d\n", channel);
 		/* return true to tell upper caller function this channel
 		 * setting is finished! Or it will in while loop.
 		 */
+<<<<<<< HEAD
 		return true;
 	}
 	/* FIXME: need to check whether channel is legal or not here */
@@ -1297,21 +1448,51 @@ static u8 rtl8192_phy_SwChnlStepByStep(struct net_device *dev, u8 channel,
 
 	/* <3> Fill up RF dependent command. */
 	RfDependCmdCnt = 0;
+=======
+		ret = true;
+		goto out;
+	}
+	/* FIXME: need to check whether channel is legal or not here */
+
+	/* <1> Fill up pre common command. */
+	rtl8192_phy_SetSwChnlCmdArray(pre_cmd, pre_cmd_cnt++,
+				      MAX_PRECMD_CNT, CMD_ID_SET_TX_PWR_LEVEL,
+				      0, 0, 0);
+	rtl8192_phy_SetSwChnlCmdArray(pre_cmd, pre_cmd_cnt++,
+				      MAX_PRECMD_CNT, CMD_ID_END, 0, 0, 0);
+
+	/* <2> Fill up post common command. */
+	rtl8192_phy_SetSwChnlCmdArray(post_cmd, post_cmd_cnt++,
+				      MAX_POSTCMD_CNT, CMD_ID_END, 0, 0, 0);
+
+	/* <3> Fill up RF dependent command. */
+>>>>>>> upstream/android-13
 	switch (priv->rf_chip) {
 	case RF_8225:
 		if (!(channel >= 1 && channel <= 14)) {
 			RT_TRACE(COMP_ERR,
 				 "illegal channel for Zebra 8225: %d\n",
 				 channel);
+<<<<<<< HEAD
 			return true;
 		}
 		rtl8192_phy_SetSwChnlCmdArray(RfDependCmd, RfDependCmdCnt++,
+=======
+			ret = true;
+			goto out;
+		}
+		rtl8192_phy_SetSwChnlCmdArray(rf_cmd, rf_cmd_cnt++,
+>>>>>>> upstream/android-13
 					      MAX_RFDEPENDCMD_CNT,
 					      CMD_ID_RF_WRITE_REG,
 					      rZebra1_Channel,
 					      RF_CHANNEL_TABLE_ZEBRA[channel],
 					      10);
+<<<<<<< HEAD
 		rtl8192_phy_SetSwChnlCmdArray(RfDependCmd, RfDependCmdCnt++,
+=======
+		rtl8192_phy_SetSwChnlCmdArray(rf_cmd, rf_cmd_cnt++,
+>>>>>>> upstream/android-13
 					      MAX_RFDEPENDCMD_CNT,
 					      CMD_ID_END, 0, 0, 0);
 		break;
@@ -1322,6 +1503,7 @@ static u8 rtl8192_phy_SwChnlStepByStep(struct net_device *dev, u8 channel,
 			RT_TRACE(COMP_ERR,
 				 "illegal channel for Zebra 8256: %d\n",
 				 channel);
+<<<<<<< HEAD
 			return true;
 		}
 		rtl8192_phy_SetSwChnlCmdArray(RfDependCmd, RfDependCmdCnt++,
@@ -1329,6 +1511,16 @@ static u8 rtl8192_phy_SwChnlStepByStep(struct net_device *dev, u8 channel,
 					      CMD_ID_RF_WRITE_REG,
 					      rZebra1_Channel, channel, 10);
 		rtl8192_phy_SetSwChnlCmdArray(RfDependCmd, RfDependCmdCnt++,
+=======
+			ret = true;
+			goto out;
+		}
+		rtl8192_phy_SetSwChnlCmdArray(rf_cmd, rf_cmd_cnt++,
+					      MAX_RFDEPENDCMD_CNT,
+					      CMD_ID_RF_WRITE_REG,
+					      rZebra1_Channel, channel, 10);
+		rtl8192_phy_SetSwChnlCmdArray(rf_cmd, rf_cmd_cnt++,
+>>>>>>> upstream/android-13
 					      MAX_RFDEPENDCMD_CNT,
 					      CMD_ID_END, 0, 0, 0);
 		break;
@@ -1338,6 +1530,7 @@ static u8 rtl8192_phy_SwChnlStepByStep(struct net_device *dev, u8 channel,
 
 	default:
 		RT_TRACE(COMP_ERR, "Unknown RFChipID: %d\n", priv->rf_chip);
+<<<<<<< HEAD
 		return true;
 	}
 
@@ -1359,19 +1552,50 @@ static u8 rtl8192_phy_SwChnlStepByStep(struct net_device *dev, u8 channel,
 			if ((*stage) == 2) {
 				(*delay) = CurrentCmd->ms_delay;
 				return true;
+=======
+		ret = true;
+		goto out;
+	}
+
+	do {
+		switch (*stage) {
+		case 0:
+			current_cmd = &pre_cmd[*step];
+			break;
+		case 1:
+			current_cmd = &rf_cmd[*step];
+			break;
+		case 2:
+			current_cmd = &post_cmd[*step];
+			break;
+		}
+
+		if (current_cmd->cmd_id == CMD_ID_END) {
+			if ((*stage) == 2) {
+				*delay = current_cmd->ms_delay;
+				ret = true;
+				goto out;
+>>>>>>> upstream/android-13
 			}
 			(*stage)++;
 			(*step) = 0;
 			continue;
 		}
 
+<<<<<<< HEAD
 		switch (CurrentCmd->cmd_id) {
 		case CMD_ID_SET_TX_PWR_LEVEL:
 			if (priv->card_8192_version == (u8)VERSION_819xU_A)
+=======
+		switch (current_cmd->cmd_id) {
+		case CMD_ID_SET_TX_PWR_LEVEL:
+			if (priv->card_8192_version == VERSION_819XU_A)
+>>>>>>> upstream/android-13
 				/* consider it later! */
 				rtl8192_SetTxPowerLevel(dev, channel);
 			break;
 		case CMD_ID_WRITE_PORT_ULONG:
+<<<<<<< HEAD
 			write_nic_dword(dev, CurrentCmd->para_1,
 					CurrentCmd->para_2);
 			break;
@@ -1382,14 +1606,32 @@ static u8 rtl8192_phy_SwChnlStepByStep(struct net_device *dev, u8 channel,
 		case CMD_ID_WRITE_PORT_UCHAR:
 			write_nic_byte(dev, CurrentCmd->para_1,
 				       (u8)CurrentCmd->para_2);
+=======
+			write_nic_dword(dev, current_cmd->para_1,
+					current_cmd->para_2);
+			break;
+		case CMD_ID_WRITE_PORT_USHORT:
+			write_nic_word(dev, current_cmd->para_1,
+				       (u16)current_cmd->para_2);
+			break;
+		case CMD_ID_WRITE_PORT_UCHAR:
+			write_nic_byte(dev, current_cmd->para_1,
+				       (u8)current_cmd->para_2);
+>>>>>>> upstream/android-13
 			break;
 		case CMD_ID_RF_WRITE_REG:
 			for (e_rfpath = 0; e_rfpath < RF90_PATH_MAX; e_rfpath++) {
 				rtl8192_phy_SetRFReg(dev,
 						     (enum rf90_radio_path_e)e_rfpath,
+<<<<<<< HEAD
 						     CurrentCmd->para_1,
 						     bZebra1_ChannelNum,
 						     CurrentCmd->para_2);
+=======
+						     current_cmd->para_1,
+						     bZebra1_ChannelNum,
+						     current_cmd->para_2);
+>>>>>>> upstream/android-13
 			}
 			break;
 		default:
@@ -1399,9 +1641,22 @@ static u8 rtl8192_phy_SwChnlStepByStep(struct net_device *dev, u8 channel,
 		break;
 	} while (true);
 
+<<<<<<< HEAD
 	(*delay) = CurrentCmd->ms_delay;
 	(*step)++;
 	return false;
+=======
+	*delay = current_cmd->ms_delay;
+	(*step)++;
+	ret = false;
+
+out:
+	kfree(pre_cmd);
+	kfree(post_cmd);
+	kfree(rf_cmd);
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 /******************************************************************************
@@ -1433,13 +1688,19 @@ static void rtl8192_phy_FinishSwChnlNow(struct net_device *dev, u8 channel)
  *****************************************************************************/
 void rtl8192_SwChnl_WorkItem(struct net_device *dev)
 {
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	struct r8192_priv *priv = ieee80211_priv(dev);
 
 	RT_TRACE(COMP_CH, "==> SwChnlCallback819xUsbWorkItem(), chan:%d\n",
 		 priv->chan);
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	rtl8192_phy_FinishSwChnlNow(dev, priv->chan);
 
 	RT_TRACE(COMP_CH, "<== SwChnlCallback819xUsbWorkItem()\n");
@@ -1514,14 +1775,20 @@ u8 rtl8192_phy_SwChnl(struct net_device *dev, u8 channel)
  *****************************************************************************/
 void rtl8192_SetBWModeWorkItem(struct net_device *dev)
 {
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	struct r8192_priv *priv = ieee80211_priv(dev);
 	u8 regBwOpMode;
 
 	RT_TRACE(COMP_SWBW, "%s()  Switch to %s bandwidth\n", __func__,
 		 priv->CurrentChannelBW == HT_CHANNEL_WIDTH_20?"20MHz":"40MHz");
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	if (priv->rf_chip == RF_PSEUDO_11N) {
 		priv->SetBWModeInProgress = false;
 		return;
@@ -1586,7 +1853,11 @@ void rtl8192_SetBWModeWorkItem(struct net_device *dev)
 		rtl8192_setBBreg(dev, rFPGA0_RFMOD, bRFMOD, 0x1);
 		rtl8192_setBBreg(dev, rFPGA1_RFMOD, bRFMOD, 0x1);
 		rtl8192_setBBreg(dev, rCCK0_System, bCCKSideBand,
+<<<<<<< HEAD
 				 priv->nCur40MhzPrimeSC>>1);
+=======
+				 priv->nCur40MhzPrimeSC >> 1);
+>>>>>>> upstream/android-13
 		rtl8192_setBBreg(dev, rFPGA0_AnalogParameter1, 0x00100000, 0);
 		rtl8192_setBBreg(dev, rOFDM1_LSTF, 0xC00,
 				 priv->nCur40MhzPrimeSC);
@@ -1618,7 +1889,10 @@ void rtl8192_SetBWModeWorkItem(struct net_device *dev)
 			 "SetChannelBandwidth819xUsb(): unknown Bandwidth: %#X\n",
 			 priv->CurrentChannelBW);
 		break;
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	}
 	/* Skip over setting of J-mode in BB register here.
 	 * Default value is "None J mode".
@@ -1627,6 +1901,7 @@ void rtl8192_SetBWModeWorkItem(struct net_device *dev)
 	/* <3> Set RF related register */
 	switch (priv->rf_chip) {
 	case RF_8225:
+<<<<<<< HEAD
 #ifdef TO_DO_LIST
 		PHY_SetRF8225Bandwidth(Adapter, pHalData->CurrentChannelBW);
 #endif
@@ -1634,6 +1909,12 @@ void rtl8192_SetBWModeWorkItem(struct net_device *dev)
 
 	case RF_8256:
 		PHY_SetRF8256Bandwidth(dev, priv->CurrentChannelBW);
+=======
+		break;
+
+	case RF_8256:
+		phy_set_rf8256_bandwidth(dev, priv->CurrentChannelBW);
+>>>>>>> upstream/android-13
 		break;
 
 	case RF_8258:
@@ -1682,7 +1963,10 @@ void rtl8192_SetBWMode(struct net_device *dev,
 		priv->nCur40MhzPrimeSC = HAL_PRIME_CHNL_OFFSET_DONT_CARE;
 
 	rtl8192_SetBWModeWorkItem(dev);
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 }
 
 void InitialGain819xUsb(struct net_device *dev,	u8 Operation)

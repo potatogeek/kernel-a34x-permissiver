@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2016 Cavium, Inc.
  *
@@ -7,12 +8,26 @@
  */
 
 #include "cptvf.h"
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2016 Cavium, Inc.
+ */
+
+#include "cptvf.h"
+#include "cptvf_algs.h"
+>>>>>>> upstream/android-13
 #include "request_manager.h"
 
 /**
  * get_free_pending_entry - get free entry from pending queue
+<<<<<<< HEAD
  * @param pqinfo: pending_qinfo structure
  * @param qno: queue number
+=======
+ * @q: pending queue
+ * @qlen: queue length
+>>>>>>> upstream/android-13
  */
 static struct pending_entry *get_free_pending_entry(struct pending_queue *q,
 						    int qlen)
@@ -92,11 +107,19 @@ static int setup_sgio_components(struct cpt_vf *cptvf, struct buf_ptr *list,
 	case 3:
 		sg_ptr->u.s.len2 = cpu_to_be16(list[i * 4 + 2].size);
 		sg_ptr->ptr2 = cpu_to_be64(list[i * 4 + 2].dma_addr);
+<<<<<<< HEAD
 		/* Fall through */
 	case 2:
 		sg_ptr->u.s.len1 = cpu_to_be16(list[i * 4 + 1].size);
 		sg_ptr->ptr1 = cpu_to_be64(list[i * 4 + 1].dma_addr);
 		/* Fall through */
+=======
+		fallthrough;
+	case 2:
+		sg_ptr->u.s.len1 = cpu_to_be16(list[i * 4 + 1].size);
+		sg_ptr->ptr1 = cpu_to_be64(list[i * 4 + 1].dma_addr);
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 1:
 		sg_ptr->u.s.len0 = cpu_to_be16(list[i * 4 + 0].size);
 		sg_ptr->ptr0 = cpu_to_be64(list[i * 4 + 0].dma_addr);
@@ -176,11 +199,18 @@ static inline int setup_sgio_list(struct cpt_vf *cptvf,
 		goto  scatter_gather_clean;
 	}
 
+<<<<<<< HEAD
 	((u16 *)info->in_buffer)[0] = req->outcnt;
 	((u16 *)info->in_buffer)[1] = req->incnt;
 	((u16 *)info->in_buffer)[2] = 0;
 	((u16 *)info->in_buffer)[3] = 0;
 	*(u64 *)info->in_buffer = cpu_to_be64p((u64 *)info->in_buffer);
+=======
+	((__be16 *)info->in_buffer)[0] = cpu_to_be16(req->outcnt);
+	((__be16 *)info->in_buffer)[1] = cpu_to_be16(req->incnt);
+	((__be16 *)info->in_buffer)[2] = 0;
+	((__be16 *)info->in_buffer)[3] = 0;
+>>>>>>> upstream/android-13
 
 	memcpy(&info->in_buffer[8], info->gather_components,
 	       g_sz_bytes);
@@ -223,7 +253,11 @@ scatter_gather_clean:
 	return ret;
 }
 
+<<<<<<< HEAD
 int send_cpt_command(struct cpt_vf *cptvf, union cpt_inst_s *cmd,
+=======
+static int send_cpt_command(struct cpt_vf *cptvf, union cpt_inst_s *cmd,
+>>>>>>> upstream/android-13
 		     u32 qno)
 {
 	struct pci_dev *pdev = cptvf->pdev;
@@ -247,11 +281,15 @@ int send_cpt_command(struct cpt_vf *cptvf, union cpt_inst_s *cmd,
 	memcpy(ent, (void *)cmd, qinfo->cmd_size);
 
 	if (++queue->idx >= queue->qhead->size / 64) {
+<<<<<<< HEAD
 		struct hlist_node *node;
 
 		hlist_for_each(node, &queue->chead) {
 			chunk = hlist_entry(node, struct command_chunk,
 					    nextchunk);
+=======
+		hlist_for_each_entry(chunk, &queue->chead, nextchunk) {
+>>>>>>> upstream/android-13
 			if (chunk == queue->qhead) {
 				continue;
 			} else {
@@ -270,7 +308,11 @@ int send_cpt_command(struct cpt_vf *cptvf, union cpt_inst_s *cmd,
 	return ret;
 }
 
+<<<<<<< HEAD
 void do_request_cleanup(struct cpt_vf *cptvf,
+=======
+static void do_request_cleanup(struct cpt_vf *cptvf,
+>>>>>>> upstream/android-13
 			struct cpt_info_buffer *info)
 {
 	int i;
@@ -308,6 +350,7 @@ void do_request_cleanup(struct cpt_vf *cptvf,
 		}
 	}
 
+<<<<<<< HEAD
 	if (info->scatter_components)
 		kzfree(info->scatter_components);
 
@@ -327,6 +370,17 @@ void do_request_cleanup(struct cpt_vf *cptvf,
 }
 
 void do_post_process(struct cpt_vf *cptvf, struct cpt_info_buffer *info)
+=======
+	kfree_sensitive(info->scatter_components);
+	kfree_sensitive(info->gather_components);
+	kfree_sensitive(info->out_buffer);
+	kfree_sensitive(info->in_buffer);
+	kfree_sensitive((void *)info->completion_addr);
+	kfree_sensitive(info);
+}
+
+static void do_post_process(struct cpt_vf *cptvf, struct cpt_info_buffer *info)
+>>>>>>> upstream/android-13
 {
 	struct pci_dev *pdev = cptvf->pdev;
 
@@ -483,8 +537,11 @@ int process_request(struct cpt_vf *cptvf, struct cpt_request_info *req)
 	vq_cmd.cmd.s.param2 = cpu_to_be16(cpt_req->param2);
 	vq_cmd.cmd.s.dlen   = cpu_to_be16(cpt_req->dlen);
 
+<<<<<<< HEAD
 	/* 64-bit swap for microcode data reads, not needed for addresses*/
 	vq_cmd.cmd.u64 = cpu_to_be64(vq_cmd.cmd.u64);
+=======
+>>>>>>> upstream/android-13
 	vq_cmd.dptr = info->dptr_baddr;
 	vq_cmd.rptr = info->rptr_baddr;
 	vq_cmd.cptr.u64 = 0;

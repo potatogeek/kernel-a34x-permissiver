@@ -7,7 +7,13 @@
 #include <stdlib.h>
 #include <err.h>
 #include <jvmti.h>
+<<<<<<< HEAD
 #include <jvmticmlr.h>
+=======
+#ifdef HAVE_JVMTI_CMLR
+#include <jvmticmlr.h>
+#endif
+>>>>>>> upstream/android-13
 #include <limits.h>
 
 #include "jvmti_agent.h"
@@ -28,6 +34,7 @@ static void print_error(jvmtiEnv *jvmti, const char *msg, jvmtiError ret)
 	}
 }
 
+<<<<<<< HEAD
 static jvmtiError
 do_get_line_numbers(jvmtiEnv *jvmti, void *pc, jmethodID m, jint bci,
 		    jvmti_line_info_t *tab, jint *nr)
@@ -39,10 +46,28 @@ do_get_line_numbers(jvmtiEnv *jvmti, void *pc, jmethodID m, jint bci,
 
 	ret = (*jvmti)->GetLineNumberTable(jvmti, m, &nr_lines, &loc_tab);
 	if (ret != JVMTI_ERROR_NONE) {
+=======
+#ifdef HAVE_JVMTI_CMLR
+static jvmtiError
+do_get_line_number(jvmtiEnv *jvmti, void *pc, jmethodID m, jint bci,
+		   jvmti_line_info_t *tab)
+{
+	jint i, nr_lines = 0;
+	jvmtiLineNumberEntry *loc_tab = NULL;
+	jvmtiError ret;
+	jint src_line = -1;
+
+	ret = (*jvmti)->GetLineNumberTable(jvmti, m, &nr_lines, &loc_tab);
+	if (ret == JVMTI_ERROR_ABSENT_INFORMATION || ret == JVMTI_ERROR_NATIVE_METHOD) {
+		/* No debug information for this method */
+		return ret;
+	} else if (ret != JVMTI_ERROR_NONE) {
+>>>>>>> upstream/android-13
 		print_error(jvmti, "GetLineNumberTable", ret);
 		return ret;
 	}
 
+<<<<<<< HEAD
 	for (i = 0; i < nr_lines; i++) {
 		if (loc_tab[i].start_location < bci) {
 			tab[lines].pc = (unsigned long)pc;
@@ -57,6 +82,26 @@ do_get_line_numbers(jvmtiEnv *jvmti, void *pc, jmethodID m, jint bci,
 	(*jvmti)->Deallocate(jvmti, (unsigned char *)loc_tab);
 	*nr = lines;
 	return JVMTI_ERROR_NONE;
+=======
+	for (i = 0; i < nr_lines && loc_tab[i].start_location <= bci; i++) {
+		src_line = i;
+	}
+
+	if (src_line != -1) {
+		tab->pc = (unsigned long)pc;
+		tab->line_number = loc_tab[src_line].line_number;
+		tab->discrim = 0; /* not yet used */
+		tab->methodID = m;
+
+		ret = JVMTI_ERROR_NONE;
+	} else {
+		ret = JVMTI_ERROR_ABSENT_INFORMATION;
+	}
+
+	(*jvmti)->Deallocate(jvmti, (unsigned char *)loc_tab);
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static jvmtiError
@@ -64,9 +109,14 @@ get_line_numbers(jvmtiEnv *jvmti, const void *compile_info, jvmti_line_info_t **
 {
 	const jvmtiCompiledMethodLoadRecordHeader *hdr;
 	jvmtiCompiledMethodLoadInlineRecord *rec;
+<<<<<<< HEAD
 	jvmtiLineNumberEntry *lne = NULL;
 	PCStackInfo *c;
 	jint nr, ret;
+=======
+	PCStackInfo *c;
+	jint ret;
+>>>>>>> upstream/android-13
 	int nr_total = 0;
 	int i, lines_total = 0;
 
@@ -79,6 +129,7 @@ get_line_numbers(jvmtiEnv *jvmti, const void *compile_info, jvmti_line_info_t **
 	for (hdr = compile_info; hdr != NULL; hdr = hdr->next) {
 		if (hdr->kind == JVMTI_CMLR_INLINE_INFO) {
 			rec = (jvmtiCompiledMethodLoadInlineRecord *)hdr;
+<<<<<<< HEAD
 			for (i = 0; i < rec->numpcs; i++) {
 				c = rec->pcinfo + i;
 				nr = 0;
@@ -94,6 +145,9 @@ get_line_numbers(jvmtiEnv *jvmti, const void *compile_info, jvmti_line_info_t **
 					print_error(jvmti, "GetLineNumberTable", ret);
 				}
 			}
+=======
+			nr_total += rec->numpcs;
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -112,6 +166,7 @@ get_line_numbers(jvmtiEnv *jvmti, const void *compile_info, jvmti_line_info_t **
 			rec = (jvmtiCompiledMethodLoadInlineRecord *)hdr;
 			for (i = 0; i < rec->numpcs; i++) {
 				c = rec->pcinfo + i;
+<<<<<<< HEAD
 				nr = 0;
 				ret = do_get_line_numbers(jvmti, c->pc,
 							  c->methods[0],
@@ -120,12 +175,37 @@ get_line_numbers(jvmtiEnv *jvmti, const void *compile_info, jvmti_line_info_t **
 							  &nr);
 				if (ret == JVMTI_ERROR_NONE)
 					lines_total += nr;
+=======
+                                /*
+                                 * c->methods is the stack of inlined method calls
+                                 * at c->pc. [0] is the leaf method. Caller frames
+                                 * are ignored at the moment.
+                                 */
+				ret = do_get_line_number(jvmti, c->pc,
+							 c->methods[0],
+							 c->bcis[0],
+							 *tab + lines_total);
+				if (ret == JVMTI_ERROR_NONE)
+					lines_total++;
+>>>>>>> upstream/android-13
 			}
 		}
 	}
 	*nr_lines = lines_total;
 	return JVMTI_ERROR_NONE;
 }
+<<<<<<< HEAD
+=======
+#else /* HAVE_JVMTI_CMLR */
+
+static jvmtiError
+get_line_numbers(jvmtiEnv *jvmti __maybe_unused, const void *compile_info __maybe_unused,
+		 jvmti_line_info_t **tab __maybe_unused, int *nr_lines __maybe_unused)
+{
+	return JVMTI_ERROR_NONE;
+}
+#endif /* HAVE_JVMTI_CMLR */
+>>>>>>> upstream/android-13
 
 static void
 copy_class_filename(const char * class_sign, const char * file_name, char * result, size_t max_length)
@@ -234,8 +314,11 @@ compiled_method_load_cb(jvmtiEnv *jvmti,
 	char *class_sign = NULL;
 	char *func_name = NULL;
 	char *func_sign = NULL;
+<<<<<<< HEAD
 	char *file_name = NULL;
 	char fn[PATH_MAX];
+=======
+>>>>>>> upstream/android-13
 	uint64_t addr = (uint64_t)(uintptr_t)code_addr;
 	jvmtiError ret;
 	int nr_lines = 0; /* in line_tab[] */
@@ -252,7 +335,13 @@ compiled_method_load_cb(jvmtiEnv *jvmti,
 	if (has_line_numbers && map && map_length) {
 		ret = get_line_numbers(jvmti, compile_info, &line_tab, &nr_lines);
 		if (ret != JVMTI_ERROR_NONE) {
+<<<<<<< HEAD
 			warnx("jvmti: cannot get line table for method");
+=======
+			if (ret != JVMTI_ERROR_NOT_FOUND) {
+				warnx("jvmti: cannot get line table for method");
+			}
+>>>>>>> upstream/android-13
 			nr_lines = 0;
 		} else if (nr_lines > 0) {
 			line_file_names = malloc(sizeof(char*) * nr_lines);
@@ -270,12 +359,15 @@ compiled_method_load_cb(jvmtiEnv *jvmti,
 		}
 	}
 
+<<<<<<< HEAD
 	ret = (*jvmti)->GetSourceFileName(jvmti, decl_class, &file_name);
 	if (ret != JVMTI_ERROR_NONE) {
 		print_error(jvmti, "GetSourceFileName", ret);
 		goto error;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	ret = (*jvmti)->GetClassSignature(jvmti, decl_class,
 					  &class_sign, NULL);
 	if (ret != JVMTI_ERROR_NONE) {
@@ -290,8 +382,11 @@ compiled_method_load_cb(jvmtiEnv *jvmti,
 		goto error;
 	}
 
+<<<<<<< HEAD
 	copy_class_filename(class_sign, file_name, fn, PATH_MAX);
 
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * write source line info record if we have it
 	 */
@@ -311,7 +406,10 @@ error:
 	(*jvmti)->Deallocate(jvmti, (unsigned char *)func_name);
 	(*jvmti)->Deallocate(jvmti, (unsigned char *)func_sign);
 	(*jvmti)->Deallocate(jvmti, (unsigned char *)class_sign);
+<<<<<<< HEAD
 	(*jvmti)->Deallocate(jvmti, (unsigned char *)file_name);
+=======
+>>>>>>> upstream/android-13
 	free(line_tab);
 	while (line_file_names && (nr_lines > 0)) {
 	    if (line_file_names[nr_lines - 1]) {

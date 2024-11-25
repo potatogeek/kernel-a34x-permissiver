@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * Real Time Clock driver for Marvell 88PM80x PMIC
  *
  * Copyright (c) 2012 Marvell International Ltd.
  *  Wenzeng Chen<wzch@marvell.com>
  *  Qiao Zhou <zhouqiao@marvell.com>
+<<<<<<< HEAD
  *
  * This file is subject to the terms and conditions of the GNU General
  * Public License. See the file "COPYING" in the main directory of this
@@ -17,6 +22,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -276,7 +283,10 @@ static int pm80x_rtc_probe(struct platform_device *pdev)
 		return -ENOMEM;
 	info->irq = platform_get_irq(pdev, 0);
 	if (info->irq < 0) {
+<<<<<<< HEAD
 		dev_err(&pdev->dev, "No IRQ resource!\n");
+=======
+>>>>>>> upstream/android-13
 		ret = -EINVAL;
 		goto out;
 	}
@@ -307,11 +317,18 @@ static int pm80x_rtc_probe(struct platform_device *pdev)
 	info->rtc_dev->ops = &pm80x_rtc_ops;
 	info->rtc_dev->range_max = U32_MAX;
 
+<<<<<<< HEAD
 	ret = rtc_register_device(info->rtc_dev);
 	if (ret) {
 		dev_err(&pdev->dev, "Failed to register RTC device: %d\n", ret);
 		goto out_rtc;
 	}
+=======
+	ret = devm_rtc_register_device(info->rtc_dev);
+	if (ret)
+		goto out_rtc;
+
+>>>>>>> upstream/android-13
 	/*
 	 * enable internal XO instead of internal 3.25MHz clock since it can
 	 * free running in PMIC power-down state.

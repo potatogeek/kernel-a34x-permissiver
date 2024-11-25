@@ -41,4 +41,9 @@ void usnic_ib_sysfs_unregister_usdev(struct usnic_ib_dev *us_ibdev);
 void usnic_ib_sysfs_qpn_add(struct usnic_ib_qp_grp *qp_grp);
 void usnic_ib_sysfs_qpn_remove(struct usnic_ib_qp_grp *qp_grp);
 
+<<<<<<< HEAD
+=======
+extern const struct attribute_group usnic_attr_group;
+
+>>>>>>> upstream/android-13
 #endif /* !USNIC_IB_SYSFS_H_ */

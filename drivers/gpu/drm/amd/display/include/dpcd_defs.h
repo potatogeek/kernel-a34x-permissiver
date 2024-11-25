@@ -43,7 +43,11 @@ enum dpcd_revision {
 enum dpcd_downstream_port_type {
 	DOWNSTREAM_DP = 0,
 	DOWNSTREAM_VGA,
+<<<<<<< HEAD
 	DOWNSTREAM_DVI_HDMI,
+=======
+	DOWNSTREAM_DVI_HDMI_DP_PLUS_PLUS,/* DVI, HDMI, DP++ */
+>>>>>>> upstream/android-13
 	DOWNSTREAM_NONDDC /* has no EDID (TV,CV) */
 };
 
@@ -149,4 +153,16 @@ enum dpcd_psr_sink_states {
 	PSR_SINK_STATE_SINK_INTERNAL_ERROR = 7,
 };
 
+<<<<<<< HEAD
+=======
+#define DP_SOURCE_TABLE_REVISION	    0x310
+#define DP_SOURCE_PAYLOAD_SIZE		    0x311
+#define DP_SOURCE_SINK_CAP		    0x317
+#define DP_SOURCE_BACKLIGHT_LEVEL	    0x320
+#define DP_SOURCE_BACKLIGHT_CURRENT_PEAK    0x326
+#define DP_SOURCE_BACKLIGHT_CONTROL	    0x32E
+#define DP_SOURCE_BACKLIGHT_ENABLE	    0x32F
+#define DP_SOURCE_MINIMUM_HBLANK_SUPPORTED	0x340
+
+>>>>>>> upstream/android-13
 #endif /* __DAL_DPCD_DEFS_H__ */

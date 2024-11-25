@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Cache flush operations for the Hexagon architecture
  *
  * Copyright (c) 2010-2011, The Linux Foundation. All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -16,6 +21,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _ASM_CACHEFLUSH_H
@@ -38,6 +45,7 @@
 #define LINESIZE	32
 #define LINEBITS	5
 
+<<<<<<< HEAD
 #define flush_cache_all()			do { } while (0)
 #define flush_cache_mm(mm)			do { } while (0)
 #define flush_cache_dup_mm(mm)			do { } while (0)
@@ -52,15 +60,25 @@
 #define flush_cache_vmap(start, end)		do { } while (0)
 #define flush_cache_vunmap(start, end)		do { } while (0)
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Flush Dcache range through current map.
  */
 extern void flush_dcache_range(unsigned long start, unsigned long end);
+<<<<<<< HEAD
+=======
+#define flush_dcache_range flush_dcache_range
+>>>>>>> upstream/android-13
 
 /*
  * Flush Icache range through current map.
  */
 extern void flush_icache_range(unsigned long start, unsigned long end);
+<<<<<<< HEAD
+=======
+#define flush_icache_range flush_icache_range
+>>>>>>> upstream/android-13
 
 /*
  * Memory-management related flushes are there to ensure in non-physically
@@ -91,6 +109,10 @@ static inline void update_mmu_cache(struct vm_area_struct *vma,
 
 void copy_to_user_page(struct vm_area_struct *vma, struct page *page,
 		       unsigned long vaddr, void *dst, void *src, int len);
+<<<<<<< HEAD
+=======
+#define copy_to_user_page copy_to_user_page
+>>>>>>> upstream/android-13
 
 #define copy_from_user_page(vma, page, vaddr, dst, src, len) \
 	memcpy(dst, src, len)
@@ -98,4 +120,9 @@ void copy_to_user_page(struct vm_area_struct *vma, struct page *page,
 extern void hexagon_inv_dcache_range(unsigned long start, unsigned long end);
 extern void hexagon_clean_dcache_range(unsigned long start, unsigned long end);
 
+<<<<<<< HEAD
+=======
+#include <asm-generic/cacheflush.h>
+
+>>>>>>> upstream/android-13
 #endif

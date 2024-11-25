@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * twl6040-vibra.c - TWL6040 Vibrator driver
  *
@@ -9,6 +13,7 @@
  * Based on twl4030-vibra.c by Henrik Saari <henrik.saari@nokia.com>
  *				Felipe Balbi <felipe.balbi@nokia.com>
  *				Jari Vanhala <ext-javi.vanhala@nokia.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -24,6 +29,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/module.h>
 #include <linux/platform_device.h>
@@ -286,10 +293,15 @@ static int twl6040_vibra_probe(struct platform_device *pdev)
 	}
 
 	info->irq = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (info->irq < 0) {
 		dev_err(info->dev, "invalid irq\n");
 		return -EINVAL;
 	}
+=======
+	if (info->irq < 0)
+		return -EINVAL;
+>>>>>>> upstream/android-13
 
 	error = devm_request_threaded_irq(&pdev->dev, info->irq, NULL,
 					  twl6040_vib_irq_handler,

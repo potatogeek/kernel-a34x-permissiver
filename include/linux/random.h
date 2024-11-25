@@ -7,6 +7,11 @@
 #ifndef _LINUX_RANDOM_H
 #define _LINUX_RANDOM_H
 
+<<<<<<< HEAD
+=======
+#include <linux/bug.h>
+#include <linux/kernel.h>
+>>>>>>> upstream/android-13
 #include <linux/list.h>
 #include <linux/once.h>
 
@@ -21,7 +26,11 @@ struct random_ready_callback {
 extern void add_device_randomness(const void *, unsigned int);
 extern void add_bootloader_randomness(const void *, unsigned int);
 
+<<<<<<< HEAD
 #if defined(CONFIG_GCC_PLUGIN_LATENT_ENTROPY) && !defined(__CHECKER__)
+=======
+#if defined(LATENT_ENTROPY_PLUGIN) && !defined(__CHECKER__)
+>>>>>>> upstream/android-13
 static inline void add_latent_entropy(void)
 {
 	add_device_randomness((const void *)&latent_entropy,
@@ -136,4 +145,27 @@ static inline bool __must_check arch_get_random_seed_int(unsigned int *v)
 }
 #endif
 
+<<<<<<< HEAD
+=======
+/*
+ * Called from the boot CPU during startup; not valid to call once
+ * secondary CPUs are up and preemption is possible.
+ */
+#ifndef arch_get_random_seed_long_early
+static inline bool __init arch_get_random_seed_long_early(unsigned long *v)
+{
+	WARN_ON(system_state != SYSTEM_BOOTING);
+	return arch_get_random_seed_long(v);
+}
+#endif
+
+#ifndef arch_get_random_long_early
+static inline bool __init arch_get_random_long_early(unsigned long *v)
+{
+	WARN_ON(system_state != SYSTEM_BOOTING);
+	return arch_get_random_long(v);
+}
+#endif
+
+>>>>>>> upstream/android-13
 #endif /* _LINUX_RANDOM_H */

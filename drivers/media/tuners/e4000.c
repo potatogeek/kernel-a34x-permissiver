@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Elonics E4000 silicon tuner driver
  *
  * Copyright (C) 2012 Antti Palosaari <crope@iki.fi>
+<<<<<<< HEAD
  *
  *    This program is free software; you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
@@ -16,6 +21,8 @@
  *    You should have received a copy of the GNU General Public License along
  *    with this program; if not, write to the Free Software Foundation, Inc.,
  *    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "e4000_priv.h"
@@ -312,7 +319,11 @@ static int e4000_g_tuner(struct v4l2_subdev *sd, struct v4l2_tuner *v)
 
 	dev_dbg(&client->dev, "index=%d\n", v->index);
 
+<<<<<<< HEAD
 	strlcpy(v->name, "Elonics E4000", sizeof(v->name));
+=======
+	strscpy(v->name, "Elonics E4000", sizeof(v->name));
+>>>>>>> upstream/android-13
 	v->type = V4L2_TUNER_RF;
 	v->capability = V4L2_TUNER_CAP_1HZ | V4L2_TUNER_CAP_FREQ_BANDS;
 	v->rangelow  = bands[0].rangelow;

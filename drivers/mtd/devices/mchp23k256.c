@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * mchp23k256.c
  *
  * Driver for Microchip 23k256 SPI RAM chips
  *
  * Copyright © 2016 Andrew Lunn <andrew@lunn.ch>
+<<<<<<< HEAD
  *
  * This code is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/device.h>
 #include <linux/module.h>
@@ -233,6 +240,22 @@ static const struct of_device_id mchp23k256_of_table[] = {
 };
 MODULE_DEVICE_TABLE(of, mchp23k256_of_table);
 
+<<<<<<< HEAD
+=======
+static const struct spi_device_id mchp23k256_spi_ids[] = {
+	{
+		.name = "mchp23k256",
+		.driver_data = (kernel_ulong_t)&mchp23k256_caps,
+	},
+	{
+		.name = "mchp23lcv1024",
+		.driver_data = (kernel_ulong_t)&mchp23lcv1024_caps,
+	},
+	{}
+};
+MODULE_DEVICE_TABLE(spi, mchp23k256_spi_ids);
+
+>>>>>>> upstream/android-13
 static struct spi_driver mchp23k256_driver = {
 	.driver = {
 		.name	= "mchp23k256",
@@ -240,6 +263,10 @@ static struct spi_driver mchp23k256_driver = {
 	},
 	.probe		= mchp23k256_probe,
 	.remove		= mchp23k256_remove,
+<<<<<<< HEAD
+=======
+	.id_table	= mchp23k256_spi_ids,
+>>>>>>> upstream/android-13
 };
 
 module_spi_driver(mchp23k256_driver);

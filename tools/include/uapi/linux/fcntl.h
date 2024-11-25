@@ -3,6 +3,10 @@
 #define _UAPI_LINUX_FCNTL_H
 
 #include <asm/fcntl.h>
+<<<<<<< HEAD
+=======
+#include <linux/openat2.h>
+>>>>>>> upstream/android-13
 
 #define F_SETLEASE	(F_LINUX_SPECIFIC_BASE + 0)
 #define F_GETLEASE	(F_LINUX_SPECIFIC_BASE + 1)
@@ -41,6 +45,10 @@
 #define F_SEAL_SHRINK	0x0002	/* prevent file from shrinking */
 #define F_SEAL_GROW	0x0004	/* prevent file from growing */
 #define F_SEAL_WRITE	0x0008	/* prevent writes */
+<<<<<<< HEAD
+=======
+#define F_SEAL_FUTURE_WRITE	0x0010  /* prevent future writes while mapped */
+>>>>>>> upstream/android-13
 /* (1U << 31) is reserved for signed error codes */
 
 /*
@@ -57,7 +65,11 @@
  * Valid hint values for F_{GET,SET}_RW_HINT. 0 is "not set", or can be
  * used to clear any hints previously set.
  */
+<<<<<<< HEAD
 #define RWF_WRITE_LIFE_NOT_SET	0
+=======
+#define RWH_WRITE_LIFE_NOT_SET	0
+>>>>>>> upstream/android-13
 #define RWH_WRITE_LIFE_NONE	1
 #define RWH_WRITE_LIFE_SHORT	2
 #define RWH_WRITE_LIFE_MEDIUM	3
@@ -65,6 +77,16 @@
 #define RWH_WRITE_LIFE_EXTREME	5
 
 /*
+<<<<<<< HEAD
+=======
+ * The originally introduced spelling is remained from the first
+ * versions of the patch set that introduced the feature, see commit
+ * v4.13-rc1~212^2~51.
+ */
+#define RWF_WRITE_LIFE_NOT_SET	RWH_WRITE_LIFE_NOT_SET
+
+/*
+>>>>>>> upstream/android-13
  * Types of directory notifications that may be requested.
  */
 #define DN_ACCESS	0x00000001	/* File accessed */
@@ -75,10 +97,26 @@
 #define DN_ATTRIB	0x00000020	/* File changed attibutes */
 #define DN_MULTISHOT	0x80000000	/* Don't remove notifier */
 
+<<<<<<< HEAD
+=======
+/*
+ * The constants AT_REMOVEDIR and AT_EACCESS have the same value.  AT_EACCESS is
+ * meaningful only to faccessat, while AT_REMOVEDIR is meaningful only to
+ * unlinkat.  The two functions do completely different things and therefore,
+ * the flags can be allowed to overlap.  For example, passing AT_REMOVEDIR to
+ * faccessat would be undefined behavior and thus treating it equivalent to
+ * AT_EACCESS is valid undefined behavior.
+ */
+>>>>>>> upstream/android-13
 #define AT_FDCWD		-100    /* Special value used to indicate
                                            openat should use the current
                                            working directory. */
 #define AT_SYMLINK_NOFOLLOW	0x100   /* Do not follow symbolic links.  */
+<<<<<<< HEAD
+=======
+#define AT_EACCESS		0x200	/* Test access permitted for
+                                           effective IDs, not real IDs.  */
+>>>>>>> upstream/android-13
 #define AT_REMOVEDIR		0x200   /* Remove directory instead of
                                            unlinking file.  */
 #define AT_SYMLINK_FOLLOW	0x400   /* Follow symbolic links.  */
@@ -90,5 +128,9 @@
 #define AT_STATX_FORCE_SYNC	0x2000	/* - Force the attributes to be sync'd with the server */
 #define AT_STATX_DONT_SYNC	0x4000	/* - Don't sync attributes with the server */
 
+<<<<<<< HEAD
+=======
+#define AT_RECURSIVE		0x8000	/* Apply to the entire subtree */
+>>>>>>> upstream/android-13
 
 #endif /* _UAPI_LINUX_FCNTL_H */

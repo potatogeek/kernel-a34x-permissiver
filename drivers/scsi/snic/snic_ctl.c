@@ -114,10 +114,14 @@ snic_queue_exch_ver_req(struct snic *snic)
 
 	rqi = snic_req_init(snic, 0);
 	if (!rqi) {
+<<<<<<< HEAD
 		SNIC_HOST_ERR(snic->shost,
 			      "Queuing Exch Ver Req failed, err = %d\n",
 			      ret);
 
+=======
+		SNIC_HOST_ERR(snic->shost, "Init Exch Ver Req failed\n");
+>>>>>>> upstream/android-13
 		ret = -ENOMEM;
 		goto error;
 	}
@@ -151,7 +155,11 @@ error:
 /*
  * snic_io_exch_ver_cmpl_handler
  */
+<<<<<<< HEAD
 int
+=======
+void
+>>>>>>> upstream/android-13
 snic_io_exch_ver_cmpl_handler(struct snic *snic, struct snic_fw_req *fwreq)
 {
 	struct snic_req_info *rqi = NULL;
@@ -160,7 +168,10 @@ snic_io_exch_ver_cmpl_handler(struct snic *snic, struct snic_fw_req *fwreq)
 	u32 cmnd_id, hid, max_sgs;
 	ulong ctx = 0;
 	unsigned long flags;
+<<<<<<< HEAD
 	int ret = 0;
+=======
+>>>>>>> upstream/android-13
 
 	SNIC_HOST_INFO(snic->shost, "Exch Ver Compl Received.\n");
 	snic_io_hdr_dec(&fwreq->hdr, &typ, &hdr_stat, &cmnd_id, &hid, &ctx);
@@ -224,8 +235,11 @@ exch_cmpl_end:
 	snic_release_untagged_req(snic, rqi);
 
 	SNIC_HOST_INFO(snic->shost, "Exch_cmpl Done, hdr_stat %d.\n", hdr_stat);
+<<<<<<< HEAD
 
 	return ret;
+=======
+>>>>>>> upstream/android-13
 } /* end of snic_io_exch_ver_cmpl_handler */
 
 /*

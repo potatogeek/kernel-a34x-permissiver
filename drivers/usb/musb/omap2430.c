@@ -33,11 +33,18 @@ struct omap2430_glue {
 	enum musb_vbus_id_status status;
 	struct work_struct	omap_musb_mailbox_work;
 	struct device		*control_otghs;
+<<<<<<< HEAD
+=======
+	unsigned int		is_runtime_suspended:1;
+	unsigned int		needs_resume:1;
+	unsigned int		phy_suspended:1;
+>>>>>>> upstream/android-13
 };
 #define glue_to_musb(g)		platform_get_drvdata(g->musb)
 
 static struct omap2430_glue	*_glue;
 
+<<<<<<< HEAD
 static void omap2430_musb_set_vbus(struct musb *musb, int is_on)
 {
 	struct usb_otg	*otg = musb->xceiv->otg;
@@ -101,6 +108,8 @@ static void omap2430_musb_set_vbus(struct musb *musb, int is_on)
 		musb_readb(musb->mregs, MUSB_DEVCTL));
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline void omap2430_low_level_exit(struct musb *musb)
 {
 	u32 l;
@@ -140,6 +149,7 @@ static int omap2430_musb_mailbox(enum musb_vbus_id_status status)
 	return 0;
 }
 
+<<<<<<< HEAD
 static void omap_musb_set_mailbox(struct omap2430_glue *glue)
 {
 	struct musb *musb = glue_to_musb(glue);
@@ -158,6 +168,54 @@ static void omap_musb_set_mailbox(struct omap2430_glue *glue)
 			omap_control_usb_set_mode(glue->control_otghs,
 				USB_MODE_HOST);
 			omap2430_musb_set_vbus(musb, 1);
+=======
+/*
+ * HDRC controls CPEN, but beware current surges during device connect.
+ * They can trigger transient overcurrent conditions that must be ignored.
+ *
+ * Note that we're skipping A_WAIT_VFALL -> A_IDLE and jumping right to B_IDLE
+ * as set by musb_set_peripheral().
+ */
+static void omap_musb_set_mailbox(struct omap2430_glue *glue)
+{
+	struct musb *musb = glue_to_musb(glue);
+	int error;
+
+	pm_runtime_get_sync(musb->controller);
+
+	dev_dbg(musb->controller, "VBUS %s, devctl %02x\n",
+		usb_otg_state_string(musb->xceiv->otg->state),
+		musb_readb(musb->mregs, MUSB_DEVCTL));
+
+	switch (glue->status) {
+	case MUSB_ID_GROUND:
+		dev_dbg(musb->controller, "ID GND\n");
+		switch (musb->xceiv->otg->state) {
+		case OTG_STATE_A_IDLE:
+			error = musb_set_host(musb);
+			if (error)
+				break;
+			musb->xceiv->otg->state = OTG_STATE_A_WAIT_VRISE;
+			fallthrough;
+		case OTG_STATE_A_WAIT_VRISE:
+		case OTG_STATE_A_WAIT_BCON:
+		case OTG_STATE_A_HOST:
+			/*
+			 * On multiple ID ground interrupts just keep enabling
+			 * VBUS. At least cpcap VBUS shuts down otherwise.
+			 */
+			otg_set_vbus(musb->xceiv->otg, 1);
+			break;
+		default:
+			musb->xceiv->otg->state = OTG_STATE_A_IDLE;
+			musb->xceiv->last_event = USB_EVENT_ID;
+			if (musb->gadget_driver) {
+				omap_control_usb_set_mode(glue->control_otghs,
+							  USB_MODE_HOST);
+				otg_set_vbus(musb->xceiv->otg, 1);
+			}
+			break;
+>>>>>>> upstream/android-13
 		}
 		break;
 
@@ -174,12 +232,17 @@ static void omap_musb_set_mailbox(struct omap2430_glue *glue)
 		dev_dbg(musb->controller, "VBUS Disconnect\n");
 
 		musb->xceiv->last_event = USB_EVENT_NONE;
+<<<<<<< HEAD
 		if (musb->gadget_driver)
 			omap2430_musb_set_vbus(musb, 0);
 
 		if (data->interface_type == MUSB_INTERFACE_UTMI)
 			otg_set_vbus(musb->xceiv->otg, 0);
 
+=======
+		musb_set_peripheral(musb);
+		otg_set_vbus(musb->xceiv->otg, 0);
+>>>>>>> upstream/android-13
 		omap_control_usb_set_mode(glue->control_otghs,
 			USB_MODE_DISCONNECT);
 		break;
@@ -226,7 +289,10 @@ static int omap2430_musb_init(struct musb *musb)
 	u32 l;
 	int status = 0;
 	struct device *dev = musb->controller;
+<<<<<<< HEAD
 	struct omap2430_glue *glue = dev_get_drvdata(dev->parent);
+=======
+>>>>>>> upstream/android-13
 	struct musb_hdrc_platform_data *plat = dev_get_platdata(dev);
 	struct omap_musb_board_data *data = plat->board_data;
 
@@ -282,14 +348,18 @@ static int omap2430_musb_init(struct musb *musb)
 			musb_readl(musb->mregs, OTG_INTERFSEL),
 			musb_readl(musb->mregs, OTG_SIMENABLE));
 
+<<<<<<< HEAD
 	if (glue->status != MUSB_UNKNOWN)
 		omap_musb_set_mailbox(glue);
 
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 static void omap2430_musb_enable(struct musb *musb)
 {
+<<<<<<< HEAD
 	u8		devctl;
 	unsigned long timeout = jiffies + msecs_to_jiffies(1000);
 	struct device *dev = musb->controller;
@@ -326,6 +396,14 @@ static void omap2430_musb_enable(struct musb *musb)
 	default:
 		break;
 	}
+=======
+	struct device *dev = musb->controller;
+	struct omap2430_glue *glue = dev_get_drvdata(dev->parent);
+
+	if (glue->status == MUSB_UNKNOWN)
+		glue->status = MUSB_VBUS_OFF;
+	omap_musb_set_mailbox(glue);
+>>>>>>> upstream/android-13
 }
 
 static void omap2430_musb_disable(struct musb *musb)
@@ -529,6 +607,16 @@ static int omap2430_runtime_suspend(struct device *dev)
 
 	omap2430_low_level_exit(musb);
 
+<<<<<<< HEAD
+=======
+	if (!glue->phy_suspended) {
+		phy_power_off(musb->phy);
+		phy_exit(musb->phy);
+	}
+
+	glue->is_runtime_suspended = 1;
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -540,16 +628,89 @@ static int omap2430_runtime_resume(struct device *dev)
 	if (!musb)
 		return 0;
 
+<<<<<<< HEAD
+=======
+	if (!glue->phy_suspended) {
+		phy_init(musb->phy);
+		phy_power_on(musb->phy);
+	}
+
+>>>>>>> upstream/android-13
 	omap2430_low_level_init(musb);
 	musb_writel(musb->mregs, OTG_INTERFSEL,
 		    musb->context.otg_interfsel);
 
+<<<<<<< HEAD
+=======
+	/* Wait for musb to get oriented. Otherwise we can get babble */
+	usleep_range(200000, 250000);
+
+	glue->is_runtime_suspended = 0;
+
+	return 0;
+}
+
+/* I2C and SPI PHYs need to be suspended before the glue layer */
+static int omap2430_suspend(struct device *dev)
+{
+	struct omap2430_glue *glue = dev_get_drvdata(dev);
+	struct musb *musb = glue_to_musb(glue);
+
+	phy_power_off(musb->phy);
+	phy_exit(musb->phy);
+	glue->phy_suspended = 1;
+
+	return 0;
+}
+
+/* Glue layer needs to be suspended after musb_suspend() */
+static int omap2430_suspend_late(struct device *dev)
+{
+	struct omap2430_glue *glue = dev_get_drvdata(dev);
+
+	if (glue->is_runtime_suspended)
+		return 0;
+
+	glue->needs_resume = 1;
+
+	return omap2430_runtime_suspend(dev);
+}
+
+static int omap2430_resume_early(struct device *dev)
+{
+	struct omap2430_glue *glue = dev_get_drvdata(dev);
+
+	if (!glue->needs_resume)
+		return 0;
+
+	glue->needs_resume = 0;
+
+	return omap2430_runtime_resume(dev);
+}
+
+static int omap2430_resume(struct device *dev)
+{
+	struct omap2430_glue *glue = dev_get_drvdata(dev);
+	struct musb *musb = glue_to_musb(glue);
+
+	phy_init(musb->phy);
+	phy_power_on(musb->phy);
+	glue->phy_suspended = 0;
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 static const struct dev_pm_ops omap2430_pm_ops = {
 	.runtime_suspend = omap2430_runtime_suspend,
 	.runtime_resume = omap2430_runtime_resume,
+<<<<<<< HEAD
+=======
+	.suspend = omap2430_suspend,
+	.suspend_late = omap2430_suspend_late,
+	.resume_early = omap2430_resume_early,
+	.resume = omap2430_resume,
+>>>>>>> upstream/android-13
 };
 
 #define DEV_PM_OPS	(&omap2430_pm_ops)

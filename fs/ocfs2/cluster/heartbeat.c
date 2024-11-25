@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* -*- mode: c; c-basic-offset: 8; -*-
  * vim: noexpandtab sw=8 ts=8 sts=0:
  *
@@ -17,6 +18,11 @@
  * License along with this program; if not, write to the
  * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 021110-1307, USA.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (C) 2004, 2005 Oracle.  All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -106,10 +112,13 @@ static struct o2hb_debug_buf *o2hb_db_failedregions;
 #define O2HB_DEBUG_REGION_PINNED	"pinned"
 
 static struct dentry *o2hb_debug_dir;
+<<<<<<< HEAD
 static struct dentry *o2hb_debug_livenodes;
 static struct dentry *o2hb_debug_liveregions;
 static struct dentry *o2hb_debug_quorumregions;
 static struct dentry *o2hb_debug_failedregions;
+=======
+>>>>>>> upstream/android-13
 
 static LIST_HEAD(o2hb_all_regions);
 
@@ -119,8 +128,11 @@ static struct o2hb_callback {
 
 static struct o2hb_callback *hbcall_from_type(enum o2hb_callback_type type);
 
+<<<<<<< HEAD
 #define O2HB_DEFAULT_BLOCK_BITS       9
 
+=======
+>>>>>>> upstream/android-13
 enum o2hb_heartbeat_modes {
 	O2HB_HEARTBEAT_LOCAL		= 0,
 	O2HB_HEARTBEAT_GLOBAL,
@@ -243,10 +255,13 @@ struct o2hb_region {
 	unsigned int		hr_region_num;
 
 	struct dentry		*hr_debug_dir;
+<<<<<<< HEAD
 	struct dentry		*hr_debug_livenodes;
 	struct dentry		*hr_debug_regnum;
 	struct dentry		*hr_debug_elapsed_time;
 	struct dentry		*hr_debug_pinned;
+=======
+>>>>>>> upstream/android-13
 	struct o2hb_debug_buf	*hr_db_livenodes;
 	struct o2hb_debug_buf	*hr_db_regnum;
 	struct o2hb_debug_buf	*hr_db_elapsed_time;
@@ -582,9 +597,16 @@ bail:
 }
 
 static int o2hb_read_slots(struct o2hb_region *reg,
+<<<<<<< HEAD
 			   unsigned int max_slots)
 {
 	unsigned int current_slot=0;
+=======
+			   unsigned int begin_slot,
+			   unsigned int max_slots)
+{
+	unsigned int current_slot = begin_slot;
+>>>>>>> upstream/android-13
 	int status;
 	struct o2hb_bio_wait_ctxt wc;
 	struct bio *bio;
@@ -1093,9 +1115,20 @@ static int o2hb_highest_node(unsigned long *nodes, int numbits)
 	return find_last_bit(nodes, numbits);
 }
 
+<<<<<<< HEAD
 static int o2hb_do_disk_heartbeat(struct o2hb_region *reg)
 {
 	int i, ret, highest_node;
+=======
+static int o2hb_lowest_node(unsigned long *nodes, int numbits)
+{
+	return find_first_bit(nodes, numbits);
+}
+
+static int o2hb_do_disk_heartbeat(struct o2hb_region *reg)
+{
+	int i, ret, highest_node, lowest_node;
+>>>>>>> upstream/android-13
 	int membership_change = 0, own_slot_ok = 0;
 	unsigned long configured_nodes[BITS_TO_LONGS(O2NM_MAX_NODES)];
 	unsigned long live_node_bitmap[BITS_TO_LONGS(O2NM_MAX_NODES)];
@@ -1120,7 +1153,12 @@ static int o2hb_do_disk_heartbeat(struct o2hb_region *reg)
 	}
 
 	highest_node = o2hb_highest_node(configured_nodes, O2NM_MAX_NODES);
+<<<<<<< HEAD
 	if (highest_node >= O2NM_MAX_NODES) {
+=======
+	lowest_node = o2hb_lowest_node(configured_nodes, O2NM_MAX_NODES);
+	if (highest_node >= O2NM_MAX_NODES || lowest_node >= O2NM_MAX_NODES) {
+>>>>>>> upstream/android-13
 		mlog(ML_NOTICE, "o2hb: No configured nodes found!\n");
 		ret = -EINVAL;
 		goto bail;
@@ -1130,7 +1168,11 @@ static int o2hb_do_disk_heartbeat(struct o2hb_region *reg)
 	 * yet. Of course, if the node definitions have holes in them
 	 * then we're reading an empty slot anyway... Consider this
 	 * best-effort. */
+<<<<<<< HEAD
 	ret = o2hb_read_slots(reg, highest_node + 1);
+=======
+	ret = o2hb_read_slots(reg, lowest_node, highest_node + 1);
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		mlog_errno(ret);
 		goto bail;
@@ -1191,7 +1233,11 @@ bail:
 	if (atomic_read(&reg->hr_steady_iterations) != 0) {
 		if (atomic_dec_and_test(&reg->hr_unsteady_iterations)) {
 			printk(KERN_NOTICE "o2hb: Unable to stabilize "
+<<<<<<< HEAD
 			       "heartbeart on region %s (%s)\n",
+=======
+			       "heartbeat on region %s (%s)\n",
+>>>>>>> upstream/android-13
 			       config_item_name(&reg->hr_item),
 			       reg->hr_dev_name);
 			atomic_set(&reg->hr_steady_iterations, 0);
@@ -1324,7 +1370,11 @@ static int o2hb_debug_open(struct inode *inode, struct file *file)
 
 	case O2HB_DB_TYPE_REGION_NUMBER:
 		reg = (struct o2hb_region *)db->db_data;
+<<<<<<< HEAD
 		out += snprintf(buf + out, PAGE_SIZE - out, "%d\n",
+=======
+		out += scnprintf(buf + out, PAGE_SIZE - out, "%d\n",
+>>>>>>> upstream/android-13
 				reg->hr_region_num);
 		goto done;
 
@@ -1334,12 +1384,20 @@ static int o2hb_debug_open(struct inode *inode, struct file *file)
 		/* If 0, it has never been set before */
 		if (lts)
 			lts = jiffies_to_msecs(jiffies - lts);
+<<<<<<< HEAD
 		out += snprintf(buf + out, PAGE_SIZE - out, "%lu\n", lts);
+=======
+		out += scnprintf(buf + out, PAGE_SIZE - out, "%lu\n", lts);
+>>>>>>> upstream/android-13
 		goto done;
 
 	case O2HB_DB_TYPE_REGION_PINNED:
 		reg = (struct o2hb_region *)db->db_data;
+<<<<<<< HEAD
 		out += snprintf(buf + out, PAGE_SIZE - out, "%u\n",
+=======
+		out += scnprintf(buf + out, PAGE_SIZE - out, "%u\n",
+>>>>>>> upstream/android-13
 				!!reg->hr_item_pinned);
 		goto done;
 
@@ -1348,8 +1406,13 @@ static int o2hb_debug_open(struct inode *inode, struct file *file)
 	}
 
 	while ((i = find_next_bit(map, db->db_len, i + 1)) < db->db_len)
+<<<<<<< HEAD
 		out += snprintf(buf + out, PAGE_SIZE - out, "%d ", i);
 	out += snprintf(buf + out, PAGE_SIZE - out, "\n");
+=======
+		out += scnprintf(buf + out, PAGE_SIZE - out, "%d ", i);
+	out += scnprintf(buf + out, PAGE_SIZE - out, "\n");
+>>>>>>> upstream/android-13
 
 done:
 	i_size_write(inode, out);
@@ -1398,17 +1461,22 @@ static const struct file_operations o2hb_debug_fops = {
 
 void o2hb_exit(void)
 {
+<<<<<<< HEAD
 	debugfs_remove(o2hb_debug_failedregions);
 	debugfs_remove(o2hb_debug_quorumregions);
 	debugfs_remove(o2hb_debug_liveregions);
 	debugfs_remove(o2hb_debug_livenodes);
 	debugfs_remove(o2hb_debug_dir);
+=======
+	debugfs_remove_recursive(o2hb_debug_dir);
+>>>>>>> upstream/android-13
 	kfree(o2hb_db_livenodes);
 	kfree(o2hb_db_liveregions);
 	kfree(o2hb_db_quorumregions);
 	kfree(o2hb_db_failedregions);
 }
 
+<<<<<<< HEAD
 static struct dentry *o2hb_debug_create(const char *name, struct dentry *dir,
 					struct o2hb_debug_buf **db, int db_len,
 					int type, int size, int len, void *data)
@@ -1416,12 +1484,22 @@ static struct dentry *o2hb_debug_create(const char *name, struct dentry *dir,
 	*db = kmalloc(db_len, GFP_KERNEL);
 	if (!*db)
 		return NULL;
+=======
+static void o2hb_debug_create(const char *name, struct dentry *dir,
+			      struct o2hb_debug_buf **db, int db_len, int type,
+			      int size, int len, void *data)
+{
+	*db = kmalloc(db_len, GFP_KERNEL);
+	if (!*db)
+		return;
+>>>>>>> upstream/android-13
 
 	(*db)->db_type = type;
 	(*db)->db_size = size;
 	(*db)->db_len = len;
 	(*db)->db_data = data;
 
+<<<<<<< HEAD
 	return debugfs_create_file(name, S_IFREG|S_IRUSR, dir, *db,
 				   &o2hb_debug_fops);
 }
@@ -1499,6 +1577,42 @@ bail:
 }
 
 int o2hb_init(void)
+=======
+	debugfs_create_file(name, S_IFREG|S_IRUSR, dir, *db, &o2hb_debug_fops);
+}
+
+static void o2hb_debug_init(void)
+{
+	o2hb_debug_dir = debugfs_create_dir(O2HB_DEBUG_DIR, NULL);
+
+	o2hb_debug_create(O2HB_DEBUG_LIVENODES, o2hb_debug_dir,
+			  &o2hb_db_livenodes, sizeof(*o2hb_db_livenodes),
+			  O2HB_DB_TYPE_LIVENODES, sizeof(o2hb_live_node_bitmap),
+			  O2NM_MAX_NODES, o2hb_live_node_bitmap);
+
+	o2hb_debug_create(O2HB_DEBUG_LIVEREGIONS, o2hb_debug_dir,
+			  &o2hb_db_liveregions, sizeof(*o2hb_db_liveregions),
+			  O2HB_DB_TYPE_LIVEREGIONS,
+			  sizeof(o2hb_live_region_bitmap), O2NM_MAX_REGIONS,
+			  o2hb_live_region_bitmap);
+
+	o2hb_debug_create(O2HB_DEBUG_QUORUMREGIONS, o2hb_debug_dir,
+			  &o2hb_db_quorumregions,
+			  sizeof(*o2hb_db_quorumregions),
+			  O2HB_DB_TYPE_QUORUMREGIONS,
+			  sizeof(o2hb_quorum_region_bitmap), O2NM_MAX_REGIONS,
+			  o2hb_quorum_region_bitmap);
+
+	o2hb_debug_create(O2HB_DEBUG_FAILEDREGIONS, o2hb_debug_dir,
+			  &o2hb_db_failedregions,
+			  sizeof(*o2hb_db_failedregions),
+			  O2HB_DB_TYPE_FAILEDREGIONS,
+			  sizeof(o2hb_failed_region_bitmap), O2NM_MAX_REGIONS,
+			  o2hb_failed_region_bitmap);
+}
+
+void o2hb_init(void)
+>>>>>>> upstream/android-13
 {
 	int i;
 
@@ -1508,8 +1622,11 @@ int o2hb_init(void)
 	for (i = 0; i < ARRAY_SIZE(o2hb_live_slots); i++)
 		INIT_LIST_HEAD(&o2hb_live_slots[i]);
 
+<<<<<<< HEAD
 	INIT_LIST_HEAD(&o2hb_node_events);
 
+=======
+>>>>>>> upstream/android-13
 	memset(o2hb_live_node_bitmap, 0, sizeof(o2hb_live_node_bitmap));
 	memset(o2hb_region_bitmap, 0, sizeof(o2hb_region_bitmap));
 	memset(o2hb_live_region_bitmap, 0, sizeof(o2hb_live_region_bitmap));
@@ -1518,7 +1635,11 @@ int o2hb_init(void)
 
 	o2hb_dependent_users = 0;
 
+<<<<<<< HEAD
 	return o2hb_debug_init();
+=======
+	o2hb_debug_init();
+>>>>>>> upstream/android-13
 }
 
 /* if we're already in a callback then we're already serialized by the sem */
@@ -1582,11 +1703,15 @@ static void o2hb_region_release(struct config_item *item)
 
 	kfree(reg->hr_slots);
 
+<<<<<<< HEAD
 	debugfs_remove(reg->hr_debug_livenodes);
 	debugfs_remove(reg->hr_debug_regnum);
 	debugfs_remove(reg->hr_debug_elapsed_time);
 	debugfs_remove(reg->hr_debug_pinned);
 	debugfs_remove(reg->hr_debug_dir);
+=======
+	debugfs_remove_recursive(reg->hr_debug_dir);
+>>>>>>> upstream/android-13
 	kfree(reg->hr_db_livenodes);
 	kfree(reg->hr_db_regnum);
 	kfree(reg->hr_db_elapsed_time);
@@ -1668,12 +1793,21 @@ static ssize_t o2hb_region_start_block_store(struct config_item *item,
 	struct o2hb_region *reg = to_o2hb_region(item);
 	unsigned long long tmp;
 	char *p = (char *)page;
+<<<<<<< HEAD
+=======
+	ssize_t ret;
+>>>>>>> upstream/android-13
 
 	if (reg->hr_bdev)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	tmp = simple_strtoull(p, &p, 0);
 	if (!p || (*p && (*p != '\n')))
+=======
+	ret = kstrtoull(p, 0, &tmp);
+	if (ret)
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	reg->hr_start_block = tmp;
@@ -1801,7 +1935,11 @@ static int o2hb_populate_slot_data(struct o2hb_region *reg)
 	struct o2hb_disk_slot *slot;
 	struct o2hb_disk_heartbeat_block *hb_block;
 
+<<<<<<< HEAD
 	ret = o2hb_read_slots(reg, reg->hr_blocks);
+=======
+	ret = o2hb_read_slots(reg, 0, reg->hr_blocks);
+>>>>>>> upstream/android-13
 	if (ret)
 		goto out;
 
@@ -1834,7 +1972,10 @@ static ssize_t o2hb_region_dev_store(struct config_item *item,
 	int sectsize;
 	char *p = (char *)page;
 	struct fd f;
+<<<<<<< HEAD
 	struct inode *inode;
+=======
+>>>>>>> upstream/android-13
 	ssize_t ret = -EINVAL;
 	int live_threshold;
 
@@ -1861,6 +2002,7 @@ static ssize_t o2hb_region_dev_store(struct config_item *item,
 	    reg->hr_block_bytes == 0)
 		goto out2;
 
+<<<<<<< HEAD
 	inode = igrab(f.file->f_mapping->host);
 	if (inode == NULL)
 		goto out2;
@@ -1875,6 +2017,18 @@ static ssize_t o2hb_region_dev_store(struct config_item *item,
 		goto out3;
 	}
 	inode = NULL;
+=======
+	if (!S_ISBLK(f.file->f_mapping->host->i_mode))
+		goto out2;
+
+	reg->hr_bdev = blkdev_get_by_dev(f.file->f_mapping->host->i_rdev,
+					 FMODE_WRITE | FMODE_READ, NULL);
+	if (IS_ERR(reg->hr_bdev)) {
+		ret = PTR_ERR(reg->hr_bdev);
+		reg->hr_bdev = NULL;
+		goto out2;
+	}
+>>>>>>> upstream/android-13
 
 	bdevname(reg->hr_bdev, reg->hr_dev_name);
 
@@ -1977,6 +2131,7 @@ static ssize_t o2hb_region_dev_store(struct config_item *item,
 		       config_item_name(&reg->hr_item), reg->hr_dev_name);
 
 out3:
+<<<<<<< HEAD
 	iput(inode);
 out2:
 	fdput(f);
@@ -1987,6 +2142,15 @@ out:
 			reg->hr_bdev = NULL;
 		}
 	}
+=======
+	if (ret < 0) {
+		blkdev_put(reg->hr_bdev, FMODE_READ | FMODE_WRITE);
+		reg->hr_bdev = NULL;
+	}
+out2:
+	fdput(f);
+out:
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -2045,6 +2209,7 @@ static struct o2hb_heartbeat_group *to_o2hb_heartbeat_group(struct config_group 
 		: NULL;
 }
 
+<<<<<<< HEAD
 static int o2hb_debug_region_init(struct o2hb_region *reg, struct dentry *dir)
 {
 	int ret = -ENOMEM;
@@ -2108,6 +2273,35 @@ static int o2hb_debug_region_init(struct o2hb_region *reg, struct dentry *dir)
 	ret = 0;
 bail:
 	return ret;
+=======
+static void o2hb_debug_region_init(struct o2hb_region *reg,
+				   struct dentry *parent)
+{
+	struct dentry *dir;
+
+	dir = debugfs_create_dir(config_item_name(&reg->hr_item), parent);
+	reg->hr_debug_dir = dir;
+
+	o2hb_debug_create(O2HB_DEBUG_LIVENODES, dir, &(reg->hr_db_livenodes),
+			  sizeof(*(reg->hr_db_livenodes)),
+			  O2HB_DB_TYPE_REGION_LIVENODES,
+			  sizeof(reg->hr_live_node_bitmap), O2NM_MAX_NODES,
+			  reg);
+
+	o2hb_debug_create(O2HB_DEBUG_REGION_NUMBER, dir, &(reg->hr_db_regnum),
+			  sizeof(*(reg->hr_db_regnum)),
+			  O2HB_DB_TYPE_REGION_NUMBER, 0, O2NM_MAX_NODES, reg);
+
+	o2hb_debug_create(O2HB_DEBUG_REGION_ELAPSED_TIME, dir,
+			  &(reg->hr_db_elapsed_time),
+			  sizeof(*(reg->hr_db_elapsed_time)),
+			  O2HB_DB_TYPE_REGION_ELAPSED_TIME, 0, 0, reg);
+
+	o2hb_debug_create(O2HB_DEBUG_REGION_PINNED, dir, &(reg->hr_db_pinned),
+			  sizeof(*(reg->hr_db_pinned)),
+			  O2HB_DB_TYPE_REGION_PINNED, 0, 0, reg);
+
+>>>>>>> upstream/android-13
 }
 
 static struct config_item *o2hb_heartbeat_group_make_item(struct config_group *group,
@@ -2163,11 +2357,15 @@ static struct config_item *o2hb_heartbeat_group_make_item(struct config_group *g
 	if (ret)
 		goto unregister_handler;
 
+<<<<<<< HEAD
 	ret = o2hb_debug_region_init(reg, o2hb_debug_dir);
 	if (ret) {
 		config_item_put(&reg->hr_item);
 		goto unregister_handler;
 	}
+=======
+	o2hb_debug_region_init(reg, o2hb_debug_dir);
+>>>>>>> upstream/android-13
 
 	return &reg->hr_item;
 

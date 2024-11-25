@@ -4,6 +4,7 @@
 
 static inline const struct dma_map_ops *get_arch_dma_ops(struct bus_type *bus)
 {
+<<<<<<< HEAD
 	/*
 	 * Use the non-coherent ops if available.  If an architecture wants a
 	 * more fine-grained selection of operations it will have to implement
@@ -14,6 +15,9 @@ static inline const struct dma_map_ops *get_arch_dma_ops(struct bus_type *bus)
 #else
 	return &dma_direct_ops;
 #endif
+=======
+	return NULL;
+>>>>>>> upstream/android-13
 }
 
 #endif /* _ASM_GENERIC_DMA_MAPPING_H */

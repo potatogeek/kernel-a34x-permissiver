@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  *  FiberChannel transport specific attributes exported to sysfs.
  *
  *  Copyright (c) 2003 Silicon Graphics, Inc.  All rights reserved.
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -23,6 +28,11 @@
  *    Rewrite for host, target, device, and remote port attributes,
  *    statistics, and service functions...
  *
+=======
+ *  Copyright (C) 2004-2007   James Smart, Emulex Corporation
+ *    Rewrite for host, target, device, and remote port attributes,
+ *    statistics, and service functions...
+>>>>>>> upstream/android-13
  */
 #ifndef SCSI_TRANSPORT_FC_H
 #define SCSI_TRANSPORT_FC_H
@@ -84,6 +94,10 @@ enum fc_port_state {
 	FC_PORTSTATE_ERROR,
 	FC_PORTSTATE_LOOPBACK,
 	FC_PORTSTATE_DELETED,
+<<<<<<< HEAD
+=======
+	FC_PORTSTATE_MARGINAL,
+>>>>>>> upstream/android-13
 };
 
 
@@ -141,6 +155,10 @@ enum fc_vport_state {
 #define FC_PORTSPEED_25GBIT		0x800
 #define FC_PORTSPEED_64GBIT		0x1000
 #define FC_PORTSPEED_128GBIT		0x2000
+<<<<<<< HEAD
+=======
+#define FC_PORTSPEED_256GBIT		0x4000
+>>>>>>> upstream/android-13
 #define FC_PORTSPEED_NOT_NEGOTIATED	(1 << 15) /* Speed not established */
 
 /*
@@ -165,6 +183,12 @@ enum fc_tgtid_binding_type  {
 #define FC_PORT_ROLE_FCP_INITIATOR		0x02
 #define FC_PORT_ROLE_IP_PORT			0x04
 #define FC_PORT_ROLE_FCP_DUMMY_INITIATOR	0x08
+<<<<<<< HEAD
+=======
+#define FC_PORT_ROLE_NVME_INITIATOR		0x10
+#define FC_PORT_ROLE_NVME_TARGET		0x20
+#define FC_PORT_ROLE_NVME_DISCOVERY		0x40
+>>>>>>> upstream/android-13
 
 /* The following are for compatibility */
 #define FC_RPORT_ROLE_UNKNOWN			FC_PORT_ROLE_UNKNOWN
@@ -298,6 +322,39 @@ struct fc_rport_identifiers {
 	u32 roles;
 };
 
+<<<<<<< HEAD
+=======
+/*
+ * Fabric Performance Impact Notification Statistics
+ */
+struct fc_fpin_stats {
+	/* Delivery */
+	u64 dn;
+	u64 dn_unknown;
+	u64 dn_timeout;
+	u64 dn_unable_to_route;
+	u64 dn_device_specific;
+
+	/* Link Integrity */
+	u64 li;
+	u64 li_failure_unknown;
+	u64 li_link_failure_count;
+	u64 li_loss_of_sync_count;
+	u64 li_loss_of_signals_count;
+	u64 li_prim_seq_err_count;
+	u64 li_invalid_tx_word_count;
+	u64 li_invalid_crc_count;
+	u64 li_device_specific;
+
+	/* Congestion/Peer Congestion */
+	u64 cn;
+	u64 cn_clear;
+	u64 cn_lost_credit;
+	u64 cn_credit_stall;
+	u64 cn_oversubscription;
+	u64 cn_device_specific;
+};
+>>>>>>> upstream/android-13
 
 /* Macro for use in defining Remote Port attributes */
 #define FC_RPORT_ATTR(_name,_mode,_show,_store)				\
@@ -339,6 +396,10 @@ struct fc_rport {	/* aka fc_starget_attrs */
 
 	/* Dynamic Attributes */
 	u32 dev_loss_tmo;	/* Remote Port loss timeout in seconds. */
+<<<<<<< HEAD
+=======
+	struct fc_fpin_stats fpin_stats;
+>>>>>>> upstream/android-13
 
 	/* Private (Transport-managed) Attributes */
 	u64 node_name;
@@ -450,6 +511,12 @@ struct fc_host_statistics {
 	u64 fc_seq_not_found;		/* seq is not found for exchange */
 	u64 fc_non_bls_resp;		/* a non BLS response frame with
 					   a sequence responder in new exch */
+<<<<<<< HEAD
+=======
+	/* Host Congestion Signals */
+	u64 cn_sig_warn;
+	u64 cn_sig_alarm;
+>>>>>>> upstream/android-13
 };
 
 
@@ -473,6 +540,10 @@ enum fc_host_event_code  {
 	FCH_EVT_PORT_ONLINE		= 0x202,
 	FCH_EVT_PORT_FABRIC		= 0x204,
 	FCH_EVT_LINK_UNKNOWN		= 0x500,
+<<<<<<< HEAD
+=======
+	FCH_EVT_LINK_FPIN		= 0x501,
+>>>>>>> upstream/android-13
 	FCH_EVT_VENDOR_UNIQUE		= 0xffff,
 };
 
@@ -494,10 +565,18 @@ enum fc_host_event_code  {
  * managed by the transport w/o driver interaction.
  */
 
+<<<<<<< HEAD
 #define FC_FC4_LIST_SIZE		32
 #define FC_SYMBOLIC_NAME_SIZE		256
 #define FC_VERSION_STRING_SIZE		64
 #define FC_SERIAL_NUMBER_SIZE		80
+=======
+#define FC_VENDOR_IDENTIFIER		8
+#define FC_FC4_LIST_SIZE		32
+#define FC_SYMBOLIC_NAME_SIZE		256
+#define FC_VERSION_STRING_SIZE		64
+#define FC_SERIAL_NUMBER_SIZE		64
+>>>>>>> upstream/android-13
 
 struct fc_host_attrs {
 	/* Fixed Attributes */
@@ -509,6 +588,13 @@ struct fc_host_attrs {
 	u32 supported_speeds;
 	u32 maxframe_size;
 	u16 max_npiv_vports;
+<<<<<<< HEAD
+=======
+	u32 max_ct_payload;
+	u32 num_ports;
+	u32 num_discovered_ports;
+	u32 bootbios_state;
+>>>>>>> upstream/android-13
 	char serial_number[FC_SERIAL_NUMBER_SIZE];
 	char manufacturer[FC_SERIAL_NUMBER_SIZE];
 	char model[FC_SYMBOLIC_NAME_SIZE];
@@ -517,6 +603,12 @@ struct fc_host_attrs {
 	char driver_version[FC_VERSION_STRING_SIZE];
 	char firmware_version[FC_VERSION_STRING_SIZE];
 	char optionrom_version[FC_VERSION_STRING_SIZE];
+<<<<<<< HEAD
+=======
+	char vendor_identifier[FC_VENDOR_IDENTIFIER];
+	char bootbios_version[FC_SYMBOLIC_NAME_SIZE];
+
+>>>>>>> upstream/android-13
 
 	/* Dynamic Attributes */
 	u32 port_id;
@@ -528,6 +620,10 @@ struct fc_host_attrs {
 	char symbolic_name[FC_SYMBOLIC_NAME_SIZE];
 	char system_hostname[FC_SYMBOLIC_NAME_SIZE];
 	u32 dev_loss_tmo;
+<<<<<<< HEAD
+=======
+	struct fc_fpin_stats fpin_stats;
+>>>>>>> upstream/android-13
 
 	/* Private (Transport-managed) Attributes */
 	enum fc_tgtid_binding_type  tgtid_bind_type;
@@ -549,6 +645,12 @@ struct fc_host_attrs {
 
 	/* bsg support */
 	struct request_queue *rqst_q;
+<<<<<<< HEAD
+=======
+
+	/* FDMI support version*/
+	u8 fdmi_version;
+>>>>>>> upstream/android-13
 };
 
 #define shost_to_fc_host(x) \
@@ -628,6 +730,21 @@ struct fc_host_attrs {
 	(((struct fc_host_attrs *)(x)->shost_data)->devloss_work_q)
 #define fc_host_dev_loss_tmo(x) \
 	(((struct fc_host_attrs *)(x)->shost_data)->dev_loss_tmo)
+<<<<<<< HEAD
+=======
+#define fc_host_max_ct_payload(x)  \
+	(((struct fc_host_attrs *)(x)->shost_data)->max_ct_payload)
+#define fc_host_vendor_identifier(x)  \
+	(((struct fc_host_attrs *)(x)->shost_data)->vendor_identifier)
+#define fc_host_num_discovered_ports(x)  \
+	(((struct fc_host_attrs *)(x)->shost_data)->num_discovered_ports)
+#define fc_host_num_ports(x)  \
+	(((struct fc_host_attrs *)(x)->shost_data)->num_ports)
+#define fc_host_bootbios_version(x)  \
+	(((struct fc_host_attrs *)(x)->shost_data)->bootbios_version)
+#define fc_host_bootbios_state(x)  \
+	(((struct fc_host_attrs *)(x)->shost_data)->bootbios_state)
+>>>>>>> upstream/android-13
 
 /* The functions by which the transport class and the driver communicate */
 struct fc_function_template {
@@ -719,7 +836,10 @@ struct fc_function_template {
 	unsigned long	disable_target_scan:1;
 };
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 /**
  * fc_remote_port_chkready - called to validate the remote port state
  *   prior to initiating io to the port.
@@ -735,6 +855,10 @@ fc_remote_port_chkready(struct fc_rport *rport)
 
 	switch (rport->port_state) {
 	case FC_PORTSTATE_ONLINE:
+<<<<<<< HEAD
+=======
+	case FC_PORTSTATE_MARGINAL:
+>>>>>>> upstream/android-13
 		if (rport->roles & FC_PORT_ROLE_FCP_TARGET)
 			result = 0;
 		else if (rport->flags & FC_RPORT_DEVLOSS_PENDING)
@@ -755,7 +879,11 @@ fc_remote_port_chkready(struct fc_rport *rport)
 	return result;
 }
 
+<<<<<<< HEAD
 static inline u64 wwn_to_u64(u8 *wwn)
+=======
+static inline u64 wwn_to_u64(const u8 *wwn)
+>>>>>>> upstream/android-13
 {
 	return get_unaligned_be64(wwn);
 }
@@ -798,17 +926,36 @@ u32 fc_get_event_number(void);
 void fc_host_post_event(struct Scsi_Host *shost, u32 event_number,
 		enum fc_host_event_code event_code, u32 event_data);
 void fc_host_post_vendor_event(struct Scsi_Host *shost, u32 event_number,
+<<<<<<< HEAD
 		u32 data_len, char * data_buf, u64 vendor_id);
 	/* Note: when specifying vendor_id to fc_host_post_vendor_event()
 	 *   be sure to read the Vendor Type and ID formatting requirements
 	 *   specified in scsi_netlink.h
 	 */
+=======
+		u32 data_len, char *data_buf, u64 vendor_id);
+struct fc_rport *fc_find_rport_by_wwpn(struct Scsi_Host *shost, u64 wwpn);
+void fc_host_post_fc_event(struct Scsi_Host *shost, u32 event_number,
+		enum fc_host_event_code event_code,
+		u32 data_len, char *data_buf, u64 vendor_id);
+	/* Note: when specifying vendor_id to fc_host_post_vendor_event()
+	 *   or fc_host_post_fc_event(), be sure to read the Vendor Type
+	 *   and ID formatting requirements specified in scsi_netlink.h
+	 * Note: when calling fc_host_post_fc_event(), vendor_id may be
+	 *   specified as 0.
+	 */
+void fc_host_fpin_rcv(struct Scsi_Host *shost, u32 fpin_len, char *fpin_buf);
+>>>>>>> upstream/android-13
 struct fc_vport *fc_vport_create(struct Scsi_Host *shost, int channel,
 		struct fc_vport_identifiers *);
 int fc_vport_terminate(struct fc_vport *vport);
 int fc_block_rport(struct fc_rport *rport);
 int fc_block_scsi_eh(struct scsi_cmnd *cmnd);
 enum blk_eh_timer_return fc_eh_timed_out(struct scsi_cmnd *scmd);
+<<<<<<< HEAD
+=======
+bool fc_eh_should_retry_cmd(struct scsi_cmnd *scmd);
+>>>>>>> upstream/android-13
 
 static inline struct Scsi_Host *fc_bsg_to_shost(struct bsg_job *job)
 {

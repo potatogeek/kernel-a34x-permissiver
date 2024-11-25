@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * neo1973_wm8753.c  --  SoC audio for Openmoko Neo1973 and Freerunner devices
  *
@@ -24,15 +25,41 @@
 #include <asm/mach-types.h>
 #include "regs-iis.h"
 
+=======
+// SPDX-License-Identifier: GPL-2.0+
+//
+// neo1973_wm8753.c - SoC audio for Openmoko Neo1973 and Freerunner devices
+//
+// Copyright 2007 Openmoko Inc
+// Author: Graeme Gregory <graeme@openmoko.org>
+// Copyright 2007 Wolfson Microelectronics PLC.
+// Author: Graeme Gregory
+//         graeme.gregory@wolfsonmicro.com or linux@wolfsonmicro.com
+// Copyright 2009 Wolfson Microelectronics
+
+#include <linux/module.h>
+#include <linux/platform_device.h>
+#include <linux/gpio/consumer.h>
+
+#include <sound/soc.h>
+
+#include "regs-iis.h"
+>>>>>>> upstream/android-13
 #include "../codecs/wm8753.h"
 #include "s3c24xx-i2s.h"
 
 static int neo1973_hifi_hw_params(struct snd_pcm_substream *substream,
 	struct snd_pcm_hw_params *params)
 {
+<<<<<<< HEAD
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
 	struct snd_soc_dai *codec_dai = rtd->codec_dai;
 	struct snd_soc_dai *cpu_dai = rtd->cpu_dai;
+=======
+	struct snd_soc_pcm_runtime *rtd = asoc_substream_to_rtd(substream);
+	struct snd_soc_dai *codec_dai = asoc_rtd_to_codec(rtd, 0);
+	struct snd_soc_dai *cpu_dai = asoc_rtd_to_cpu(rtd, 0);
+>>>>>>> upstream/android-13
 	unsigned int pll_out = 0, bclk = 0;
 	int ret = 0;
 	unsigned long iis_clkrate;
@@ -104,8 +131,13 @@ static int neo1973_hifi_hw_params(struct snd_pcm_substream *substream,
 
 static int neo1973_hifi_hw_free(struct snd_pcm_substream *substream)
 {
+<<<<<<< HEAD
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
 	struct snd_soc_dai *codec_dai = rtd->codec_dai;
+=======
+	struct snd_soc_pcm_runtime *rtd = asoc_substream_to_rtd(substream);
+	struct snd_soc_dai *codec_dai = asoc_rtd_to_codec(rtd, 0);
+>>>>>>> upstream/android-13
 
 	/* disable the PLL */
 	return snd_soc_dai_set_pll(codec_dai, WM8753_PLL1, 0, 0, 0);
@@ -114,7 +146,11 @@ static int neo1973_hifi_hw_free(struct snd_pcm_substream *substream)
 /*
  * Neo1973 WM8753 HiFi DAI opserations.
  */
+<<<<<<< HEAD
 static struct snd_soc_ops neo1973_hifi_ops = {
+=======
+static const struct snd_soc_ops neo1973_hifi_ops = {
+>>>>>>> upstream/android-13
 	.hw_params = neo1973_hifi_hw_params,
 	.hw_free = neo1973_hifi_hw_free,
 };
@@ -122,8 +158,13 @@ static struct snd_soc_ops neo1973_hifi_ops = {
 static int neo1973_voice_hw_params(struct snd_pcm_substream *substream,
 	struct snd_pcm_hw_params *params)
 {
+<<<<<<< HEAD
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
 	struct snd_soc_dai *codec_dai = rtd->codec_dai;
+=======
+	struct snd_soc_pcm_runtime *rtd = asoc_substream_to_rtd(substream);
+	struct snd_soc_dai *codec_dai = asoc_rtd_to_codec(rtd, 0);
+>>>>>>> upstream/android-13
 	unsigned int pcmdiv = 0;
 	int ret = 0;
 	unsigned long iis_clkrate;
@@ -159,18 +200,31 @@ static int neo1973_voice_hw_params(struct snd_pcm_substream *substream,
 
 static int neo1973_voice_hw_free(struct snd_pcm_substream *substream)
 {
+<<<<<<< HEAD
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
 	struct snd_soc_dai *codec_dai = rtd->codec_dai;
+=======
+	struct snd_soc_pcm_runtime *rtd = asoc_substream_to_rtd(substream);
+	struct snd_soc_dai *codec_dai = asoc_rtd_to_codec(rtd, 0);
+>>>>>>> upstream/android-13
 
 	/* disable the PLL */
 	return snd_soc_dai_set_pll(codec_dai, WM8753_PLL2, 0, 0, 0);
 }
 
+<<<<<<< HEAD
 static struct snd_soc_ops neo1973_voice_ops = {
+=======
+static const struct snd_soc_ops neo1973_voice_ops = {
+>>>>>>> upstream/android-13
 	.hw_params = neo1973_voice_hw_params,
 	.hw_free = neo1973_voice_hw_free,
 };
 
+<<<<<<< HEAD
+=======
+static struct gpio_desc *gpiod_hp_in, *gpiod_amp_shut;
+>>>>>>> upstream/android-13
 static int gta02_speaker_enabled;
 
 static int lm4853_set_spk(struct snd_kcontrol *kcontrol,
@@ -178,7 +232,11 @@ static int lm4853_set_spk(struct snd_kcontrol *kcontrol,
 {
 	gta02_speaker_enabled = ucontrol->value.integer.value[0];
 
+<<<<<<< HEAD
 	gpio_set_value(S3C2410_GPJ(2), !gta02_speaker_enabled);
+=======
+	gpiod_set_value(gpiod_hp_in, !gta02_speaker_enabled);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -193,7 +251,11 @@ static int lm4853_get_spk(struct snd_kcontrol *kcontrol,
 static int lm4853_event(struct snd_soc_dapm_widget *w,
 			struct snd_kcontrol *k, int event)
 {
+<<<<<<< HEAD
 	gpio_set_value(S3C2410_GPJ(1), SND_SOC_DAPM_EVENT_OFF(event));
+=======
+	gpiod_set_value(gpiod_amp_shut, SND_SOC_DAPM_EVENT_OFF(event));
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -271,45 +333,80 @@ static int neo1973_wm8753_init(struct snd_soc_pcm_runtime *rtd)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+SND_SOC_DAILINK_DEFS(wm8753,
+	DAILINK_COMP_ARRAY(COMP_CPU("s3c24xx-iis")),
+	DAILINK_COMP_ARRAY(COMP_CODEC("wm8753.0-001a", "wm8753-hifi")),
+	DAILINK_COMP_ARRAY(COMP_PLATFORM("s3c24xx-iis")));
+
+SND_SOC_DAILINK_DEFS(bluetooth,
+	DAILINK_COMP_ARRAY(COMP_CPU("bt-sco-pcm")),
+	DAILINK_COMP_ARRAY(COMP_CODEC("wm8753.0-001a", "wm8753-voice")));
+
+>>>>>>> upstream/android-13
 static struct snd_soc_dai_link neo1973_dai[] = {
 { /* Hifi Playback - for similatious use with voice below */
 	.name = "WM8753",
 	.stream_name = "WM8753 HiFi",
+<<<<<<< HEAD
 	.platform_name = "s3c24xx-iis",
 	.cpu_dai_name = "s3c24xx-iis",
 	.codec_dai_name = "wm8753-hifi",
 	.codec_name = "wm8753.0-001a",
+=======
+>>>>>>> upstream/android-13
 	.dai_fmt = SND_SOC_DAIFMT_I2S | SND_SOC_DAIFMT_NB_NF |
 		   SND_SOC_DAIFMT_CBM_CFM,
 	.init = neo1973_wm8753_init,
 	.ops = &neo1973_hifi_ops,
+<<<<<<< HEAD
+=======
+	SND_SOC_DAILINK_REG(wm8753),
+>>>>>>> upstream/android-13
 },
 { /* Voice via BT */
 	.name = "Bluetooth",
 	.stream_name = "Voice",
+<<<<<<< HEAD
 	.cpu_dai_name = "bt-sco-pcm",
 	.codec_dai_name = "wm8753-voice",
 	.codec_name = "wm8753.0-001a",
 	.dai_fmt = SND_SOC_DAIFMT_DSP_B | SND_SOC_DAIFMT_NB_NF |
 		   SND_SOC_DAIFMT_CBS_CFS,
 	.ops = &neo1973_voice_ops,
+=======
+	.dai_fmt = SND_SOC_DAIFMT_DSP_B | SND_SOC_DAIFMT_NB_NF |
+		   SND_SOC_DAIFMT_CBS_CFS,
+	.ops = &neo1973_voice_ops,
+	SND_SOC_DAILINK_REG(bluetooth),
+>>>>>>> upstream/android-13
 },
 };
 
 static struct snd_soc_aux_dev neo1973_aux_devs[] = {
 	{
+<<<<<<< HEAD
 		.name = "dfbmcs320",
 		.codec_name = "dfbmcs320.0",
+=======
+		.dlc = COMP_AUX("dfbmcs320.0"),
+>>>>>>> upstream/android-13
 	},
 };
 
 static struct snd_soc_codec_conf neo1973_codec_conf[] = {
 	{
+<<<<<<< HEAD
 		.dev_name = "lm4857.0-007c",
+=======
+		.dlc = COMP_CODEC_CONF("lm4857.0-007c"),
+>>>>>>> upstream/android-13
 		.name_prefix = "Amp",
 	},
 };
 
+<<<<<<< HEAD
 static const struct gpio neo1973_gta02_gpios[] = {
 	{ S3C2410_GPJ(2), GPIOF_OUT_INIT_HIGH, "GTA02_HP_IN" },
 	{ S3C2410_GPJ(1), GPIOF_OUT_INIT_HIGH, "GTA02_AMP_SHUT" },
@@ -317,6 +414,10 @@ static const struct gpio neo1973_gta02_gpios[] = {
 
 static struct snd_soc_card neo1973 = {
 	.name = "neo1973",
+=======
+static struct snd_soc_card neo1973 = {
+	.name = "neo1973gta02",
+>>>>>>> upstream/android-13
 	.owner = THIS_MODULE,
 	.dai_link = neo1973_dai,
 	.num_links = ARRAY_SIZE(neo1973_dai),
@@ -334,6 +435,7 @@ static struct snd_soc_card neo1973 = {
 	.fully_routed = true,
 };
 
+<<<<<<< HEAD
 static struct platform_device *neo1973_snd_device;
 
 static int __init neo1973_init(void)
@@ -388,8 +490,41 @@ static void __exit neo1973_exit(void)
 	}
 }
 module_exit(neo1973_exit);
+=======
+static int neo1973_probe(struct platform_device *pdev)
+{
+	struct device *dev = &pdev->dev;
+
+	gpiod_hp_in = devm_gpiod_get(dev, "hp", GPIOD_OUT_HIGH);
+	if (IS_ERR(gpiod_hp_in)) {
+		dev_err(dev, "missing gpio %s\n", "hp");
+		return PTR_ERR(gpiod_hp_in);
+	}
+	gpiod_amp_shut = devm_gpiod_get(dev, "amp-shut", GPIOD_OUT_HIGH);
+	if (IS_ERR(gpiod_amp_shut)) {
+		dev_err(dev, "missing gpio %s\n", "amp-shut");
+		return PTR_ERR(gpiod_amp_shut);
+	}
+
+	neo1973.dev = dev;
+	return devm_snd_soc_register_card(dev, &neo1973);
+}
+
+struct platform_driver neo1973_audio = {
+	.driver = {
+		.name = "neo1973-audio",
+		.pm = &snd_soc_pm_ops,
+	},
+	.probe = neo1973_probe,
+};
+module_platform_driver(neo1973_audio);
+>>>>>>> upstream/android-13
 
 /* Module information */
 MODULE_AUTHOR("Graeme Gregory, graeme@openmoko.org, www.openmoko.org");
 MODULE_DESCRIPTION("ALSA SoC WM8753 Neo1973 and Frerunner");
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
+=======
+MODULE_ALIAS("platform:neo1973-audio");
+>>>>>>> upstream/android-13

@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Page management definitions for the Hexagon architecture
  *
  * Copyright (c) 2010-2013, The Linux Foundation. All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -16,6 +21,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _ASM_PAGE_H
@@ -106,8 +113,12 @@ struct page;
 #define virt_to_page(kaddr) pfn_to_page(PFN_DOWN(__pa(kaddr)))
 
 /* Default vm area behavior is non-executable.  */
+<<<<<<< HEAD
 #define VM_DATA_DEFAULT_FLAGS (VM_READ | VM_WRITE | \
 				VM_MAYREAD | VM_MAYWRITE | VM_MAYEXEC)
+=======
+#define VM_DATA_DEFAULT_FLAGS	VM_DATA_FLAGS_NON_EXEC
+>>>>>>> upstream/android-13
 
 #define pfn_valid(pfn) ((pfn) < max_mapnr)
 #define virt_addr_valid(kaddr) pfn_valid(__pa(kaddr) >> PAGE_SHIFT)

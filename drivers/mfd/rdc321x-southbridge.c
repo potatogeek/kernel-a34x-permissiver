@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * RDC321x MFD southbridge driver
  *
  * Copyright (C) 2007-2010 Florian Fainelli <florian@openwrt.org>
  * Copyright (C) 2010 Bernhard Loos <bernhardloos@googlemail.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +23,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/module.h>
 #include <linux/kernel.h>
@@ -28,7 +35,11 @@
 
 static struct rdc321x_wdt_pdata rdc321x_wdt_pdata;
 
+<<<<<<< HEAD
 static struct resource rdc321x_wdt_resource[] = {
+=======
+static const struct resource rdc321x_wdt_resource[] = {
+>>>>>>> upstream/android-13
 	{
 		.name	= "wdt-reg",
 		.start	= RDC321X_WDT_CTRL,
@@ -41,7 +52,11 @@ static struct rdc321x_gpio_pdata rdc321x_gpio_pdata = {
 	.max_gpios	= RDC321X_NUM_GPIO,
 };
 
+<<<<<<< HEAD
 static struct resource rdc321x_gpio_resources[] = {
+=======
+static const struct resource rdc321x_gpio_resources[] = {
+>>>>>>> upstream/android-13
 	{
 		.name	= "gpio-reg1",
 		.start	= RDC321X_GPIO_CTRL_REG1,

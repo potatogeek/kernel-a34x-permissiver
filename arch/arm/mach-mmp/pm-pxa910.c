@@ -1,9 +1,16 @@
+<<<<<<< HEAD
 /*
  * PXA910 Power Management Routines
  *
  * This software program is licensed subject to the GNU General Public License
  * (GPL).Version 2,June 1991, available at http://www.fsf.org/copyleft/gpl.html
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * PXA910 Power Management Routines
+ *
+>>>>>>> upstream/android-13
  * (C) Copyright 2009 Marvell International Ltd.
  * All Rights Reserved
  */
@@ -20,7 +27,11 @@
 #include <asm/mach-types.h>
 #include <asm/outercache.h>
 
+<<<<<<< HEAD
 #include "cputype.h"
+=======
+#include <linux/soc/mmp/cputype.h>
+>>>>>>> upstream/android-13
 #include "addr-map.h"
 #include "pm-pxa910.h"
 #include "regs-icu.h"
@@ -147,6 +158,7 @@ void pxa910_pm_enter_lowpower_mode(int state)
 	case POWER_MODE_UDR:
 		/* only shutdown APB in UDR */
 		apcr |= MPMU_APCR_STBYEN | MPMU_APCR_APBSD;
+<<<<<<< HEAD
 		/* fall through */
 	case POWER_MODE_SYS_SLEEP:
 		apcr |= MPMU_APCR_SLPEN;		/* set the SLPEN bit */
@@ -158,12 +170,29 @@ void pxa910_pm_enter_lowpower_mode(int state)
 	case POWER_MODE_APPS_IDLE:
 		apcr |= MPMU_APCR_AXISD;		/* set AXISDD bit */
 		/* fall through */
+=======
+		fallthrough;
+	case POWER_MODE_SYS_SLEEP:
+		apcr |= MPMU_APCR_SLPEN;		/* set the SLPEN bit */
+		apcr |= MPMU_APCR_VCTCXOSD;		/* set VCTCXOSD */
+		fallthrough;
+	case POWER_MODE_APPS_SLEEP:
+		apcr |= MPMU_APCR_DDRCORSD;		/* set DDRCORSD */
+		fallthrough;
+	case POWER_MODE_APPS_IDLE:
+		apcr |= MPMU_APCR_AXISD;		/* set AXISDD bit */
+		fallthrough;
+>>>>>>> upstream/android-13
 	case POWER_MODE_CORE_EXTIDLE:
 		idle_cfg |= APMU_MOH_IDLE_CFG_MOH_IDLE;
 		idle_cfg |= APMU_MOH_IDLE_CFG_MOH_PWRDWN;
 		idle_cfg |= APMU_MOH_IDLE_CFG_MOH_PWR_SW(3)
 			| APMU_MOH_IDLE_CFG_MOH_L2_PWR_SW(3);
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case POWER_MODE_CORE_INTIDLE:
 		break;
 	}

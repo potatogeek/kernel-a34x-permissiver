@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Support of MSI, HPET and DMAR interrupts.
  *
@@ -5,10 +9,13 @@
  *	Moved from arch/x86/kernel/apic/io_apic.c.
  * Jiang Liu <jiang.liu@linux.intel.com>
  *	Convert to hierarchical irqdomain
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/mm.h>
 #include <linux/interrupt.h>
@@ -18,12 +25,16 @@
 #include <linux/hpet.h>
 #include <linux/msi.h>
 #include <asm/irqdomain.h>
+<<<<<<< HEAD
 #include <asm/msidef.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/hpet.h>
 #include <asm/hw_irq.h>
 #include <asm/apic.h>
 #include <asm/irq_remapping.h>
 
+<<<<<<< HEAD
 static struct irq_domain *msi_default_domain;
 
 static void __irq_msi_compose_msg(struct irq_cfg *cfg, struct msi_msg *msg)
@@ -52,12 +63,19 @@ static void irq_msi_compose_msg(struct irq_data *data, struct msi_msg *msg)
 {
 	__irq_msi_compose_msg(irqd_cfg(data), msg);
 }
+=======
+struct irq_domain *x86_pci_msi_default_domain __ro_after_init;
+>>>>>>> upstream/android-13
 
 static void irq_msi_update_msg(struct irq_data *irqd, struct irq_cfg *cfg)
 {
 	struct msi_msg msg[2] = { [1] = { }, };
 
+<<<<<<< HEAD
 	__irq_msi_compose_msg(cfg, msg);
+=======
+	__irq_msi_compose_msg(cfg, msg, false);
+>>>>>>> upstream/android-13
 	irq_data_get_irq_chip(irqd)->irq_write_msi_msg(irqd, msg);
 }
 
@@ -89,11 +107,19 @@ msi_set_affinity(struct irq_data *irqd, const struct cpumask *mask, bool force)
 	 *   The quirk bit is not set in this case.
 	 * - The new vector is the same as the old vector
 	 * - The old vector is MANAGED_IRQ_SHUTDOWN_VECTOR (interrupt starts up)
+<<<<<<< HEAD
+=======
+	 * - The interrupt is not yet started up
+>>>>>>> upstream/android-13
 	 * - The new destination CPU is the same as the old destination CPU
 	 */
 	if (!irqd_msi_nomask_quirk(irqd) ||
 	    cfg->vector == old_cfg.vector ||
 	    old_cfg.vector == MANAGED_IRQ_SHUTDOWN_VECTOR ||
+<<<<<<< HEAD
+=======
+	    !irqd_is_started(irqd) ||
+>>>>>>> upstream/android-13
 	    cfg->dest_apicid == old_cfg.dest_apicid) {
 		irq_msi_update_msg(irqd, cfg);
 		return ret;
@@ -118,7 +144,12 @@ msi_set_affinity(struct irq_data *irqd, const struct cpumask *mask, bool force)
 	 * denote it as spurious which is no harm as this is a rare event
 	 * and interrupt handlers have to cope with spurious interrupts
 	 * anyway. If the vector is unused, then it is marked so it won't
+<<<<<<< HEAD
 	 * trigger the 'No irq handler for vector' warning in do_IRQ().
+=======
+	 * trigger the 'No irq handler for vector' warning in
+	 * common_interrupt().
+>>>>>>> upstream/android-13
 	 *
 	 * This requires to hold vector lock to prevent concurrent updates to
 	 * the affected vector.
@@ -179,6 +210,7 @@ static struct irq_chip pci_msi_controller = {
 	.irq_mask		= pci_msi_mask_irq,
 	.irq_ack		= irq_chip_ack_parent,
 	.irq_retrigger		= irq_chip_retrigger_hierarchy,
+<<<<<<< HEAD
 	.irq_compose_msi_msg	= irq_msi_compose_msg,
 	.irq_set_affinity	= msi_set_affinity,
 	.flags			= IRQCHIP_SKIP_SET_WAKE,
@@ -213,6 +245,13 @@ static irq_hw_number_t pci_msi_get_hwirq(struct msi_domain_info *info,
 	return arg->msi_hwirq;
 }
 
+=======
+	.irq_set_affinity	= msi_set_affinity,
+	.flags			= IRQCHIP_SKIP_SET_WAKE |
+				  IRQCHIP_AFFINITY_PRE_STARTUP,
+};
+
+>>>>>>> upstream/android-13
 int pci_msi_prepare(struct irq_domain *domain, struct device *dev, int nvec,
 		    msi_alloc_info_t *arg)
 {
@@ -220,11 +259,18 @@ int pci_msi_prepare(struct irq_domain *domain, struct device *dev, int nvec,
 	struct msi_desc *desc = first_pci_msi_entry(pdev);
 
 	init_irq_alloc_info(arg, NULL);
+<<<<<<< HEAD
 	arg->msi_dev = pdev;
 	if (desc->msi_attrib.is_msix) {
 		arg->type = X86_IRQ_ALLOC_TYPE_MSIX;
 	} else {
 		arg->type = X86_IRQ_ALLOC_TYPE_MSI;
+=======
+	if (desc->msi_attrib.is_msix) {
+		arg->type = X86_IRQ_ALLOC_TYPE_PCI_MSIX;
+	} else {
+		arg->type = X86_IRQ_ALLOC_TYPE_PCI_MSI;
+>>>>>>> upstream/android-13
 		arg->flags |= X86_IRQ_ALLOC_CONTIGUOUS_VECTORS;
 	}
 
@@ -232,6 +278,7 @@ int pci_msi_prepare(struct irq_domain *domain, struct device *dev, int nvec,
 }
 EXPORT_SYMBOL_GPL(pci_msi_prepare);
 
+<<<<<<< HEAD
 void pci_msi_set_desc(msi_alloc_info_t *arg, struct msi_desc *desc)
 {
 	arg->msi_hwirq = pci_msi_domain_calc_hwirq(arg->msi_dev, desc);
@@ -242,6 +289,10 @@ static struct msi_domain_ops pci_msi_domain_ops = {
 	.get_hwirq	= pci_msi_get_hwirq,
 	.msi_prepare	= pci_msi_prepare,
 	.set_desc	= pci_msi_set_desc,
+=======
+static struct msi_domain_ops pci_msi_domain_ops = {
+	.msi_prepare	= pci_msi_prepare,
+>>>>>>> upstream/android-13
 };
 
 static struct msi_domain_info pci_msi_domain_info = {
@@ -253,6 +304,7 @@ static struct msi_domain_info pci_msi_domain_info = {
 	.handler_name	= "edge",
 };
 
+<<<<<<< HEAD
 void __init arch_init_msi_domain(struct irq_domain *parent)
 {
 	struct fwnode_handle *fn;
@@ -272,6 +324,34 @@ void __init arch_init_msi_domain(struct irq_domain *parent)
 	} else {
 		msi_default_domain->flags |= IRQ_DOMAIN_MSI_NOMASK_QUIRK;
 	}
+=======
+struct irq_domain * __init native_create_pci_msi_domain(void)
+{
+	struct fwnode_handle *fn;
+	struct irq_domain *d;
+
+	if (disable_apic)
+		return NULL;
+
+	fn = irq_domain_alloc_named_fwnode("PCI-MSI");
+	if (!fn)
+		return NULL;
+
+	d = pci_msi_create_irq_domain(fn, &pci_msi_domain_info,
+				      x86_vector_domain);
+	if (!d) {
+		irq_domain_free_fwnode(fn);
+		pr_warn("Failed to initialize PCI-MSI irqdomain.\n");
+	} else {
+		d->flags |= IRQ_DOMAIN_MSI_NOMASK_QUIRK;
+	}
+	return d;
+}
+
+void __init x86_create_pci_msi_domain(void)
+{
+	x86_pci_msi_default_domain = x86_init.irqs.create_pci_msi_domain();
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_IRQ_REMAP
@@ -281,8 +361,13 @@ static struct irq_chip pci_msi_ir_controller = {
 	.irq_mask		= pci_msi_mask_irq,
 	.irq_ack		= irq_chip_ack_parent,
 	.irq_retrigger		= irq_chip_retrigger_hierarchy,
+<<<<<<< HEAD
 	.irq_set_vcpu_affinity	= irq_chip_set_vcpu_affinity_parent,
 	.flags			= IRQCHIP_SKIP_SET_WAKE,
+=======
+	.flags			= IRQCHIP_SKIP_SET_WAKE |
+				  IRQCHIP_AFFINITY_PRE_STARTUP,
+>>>>>>> upstream/android-13
 };
 
 static struct msi_domain_info pci_msi_ir_domain_info = {
@@ -311,6 +396,20 @@ struct irq_domain *arch_create_remap_msi_irq_domain(struct irq_domain *parent,
 #endif
 
 #ifdef CONFIG_DMAR_TABLE
+<<<<<<< HEAD
+=======
+/*
+ * The Intel IOMMU (ab)uses the high bits of the MSI address to contain the
+ * high bits of the destination APIC ID. This can't be done in the general
+ * case for MSIs as it would be targeting real memory above 4GiB not the
+ * APIC.
+ */
+static void dmar_msi_compose_msg(struct irq_data *data, struct msi_msg *msg)
+{
+	__irq_msi_compose_msg(irqd_cfg(data), msg, true);
+}
+
+>>>>>>> upstream/android-13
 static void dmar_msi_write_msg(struct irq_data *data, struct msi_msg *msg)
 {
 	dmar_msi_write(data->irq, msg);
@@ -323,6 +422,7 @@ static struct irq_chip dmar_msi_controller = {
 	.irq_ack		= irq_chip_ack_parent,
 	.irq_set_affinity	= msi_domain_set_affinity,
 	.irq_retrigger		= irq_chip_retrigger_hierarchy,
+<<<<<<< HEAD
 	.irq_compose_msi_msg	= irq_msi_compose_msg,
 	.irq_write_msi_msg	= dmar_msi_write_msg,
 	.flags			= IRQCHIP_SKIP_SET_WAKE,
@@ -334,24 +434,44 @@ static irq_hw_number_t dmar_msi_get_hwirq(struct msi_domain_info *info,
 	return arg->dmar_id;
 }
 
+=======
+	.irq_compose_msi_msg	= dmar_msi_compose_msg,
+	.irq_write_msi_msg	= dmar_msi_write_msg,
+	.flags			= IRQCHIP_SKIP_SET_WAKE |
+				  IRQCHIP_AFFINITY_PRE_STARTUP,
+};
+
+>>>>>>> upstream/android-13
 static int dmar_msi_init(struct irq_domain *domain,
 			 struct msi_domain_info *info, unsigned int virq,
 			 irq_hw_number_t hwirq, msi_alloc_info_t *arg)
 {
+<<<<<<< HEAD
 	irq_domain_set_info(domain, virq, arg->dmar_id, info->chip, NULL,
 			    handle_edge_irq, arg->dmar_data, "edge");
+=======
+	irq_domain_set_info(domain, virq, arg->devid, info->chip, NULL,
+			    handle_edge_irq, arg->data, "edge");
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
 static struct msi_domain_ops dmar_msi_domain_ops = {
+<<<<<<< HEAD
 	.get_hwirq	= dmar_msi_get_hwirq,
+=======
+>>>>>>> upstream/android-13
 	.msi_init	= dmar_msi_init,
 };
 
 static struct msi_domain_info dmar_msi_domain_info = {
 	.ops		= &dmar_msi_domain_ops,
 	.chip		= &dmar_msi_controller,
+<<<<<<< HEAD
+=======
+	.flags		= MSI_FLAG_USE_DEF_DOM_OPS,
+>>>>>>> upstream/android-13
 };
 
 static struct irq_domain *dmar_get_irq_domain(void)
@@ -386,8 +506,14 @@ int dmar_alloc_hwirq(int id, int node, void *arg)
 
 	init_irq_alloc_info(&info, NULL);
 	info.type = X86_IRQ_ALLOC_TYPE_DMAR;
+<<<<<<< HEAD
 	info.dmar_id = id;
 	info.dmar_data = arg;
+=======
+	info.devid = id;
+	info.hwirq = id;
+	info.data = arg;
+>>>>>>> upstream/android-13
 
 	return irq_domain_alloc_irqs(domain, 1, node, &info);
 }
@@ -397,6 +523,7 @@ void dmar_free_hwirq(int irq)
 	irq_domain_free_irqs(irq, 1);
 }
 #endif
+<<<<<<< HEAD
 
 /*
  * MSI message composition
@@ -515,3 +642,5 @@ int hpet_assign_irq(struct irq_domain *domain, struct hpet_dev *dev,
 	return irq_domain_alloc_irqs(domain, 1, NUMA_NO_NODE, &info);
 }
 #endif
+=======
+>>>>>>> upstream/android-13

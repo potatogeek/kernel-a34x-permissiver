@@ -1,30 +1,44 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Freescale UPM NAND driver.
  *
  * Copyright © 2007-2008  MontaVista Software, Inc.
  *
  * Author: Anton Vorontsov <avorontsov@ru.mvista.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/delay.h>
 #include <linux/mtd/rawnand.h>
+<<<<<<< HEAD
 #include <linux/mtd/nand_ecc.h>
 #include <linux/mtd/partitions.h>
 #include <linux/mtd/mtd.h>
 #include <linux/of_address.h>
 #include <linux/of_platform.h>
 #include <linux/of_gpio.h>
+=======
+#include <linux/mtd/partitions.h>
+#include <linux/mtd/mtd.h>
+#include <linux/of_platform.h>
+>>>>>>> upstream/android-13
 #include <linux/io.h>
 #include <linux/slab.h>
 #include <asm/fsl_lbc.h>
 
+<<<<<<< HEAD
 #define FSL_UPM_WAIT_RUN_PATTERN  0x1
 #define FSL_UPM_WAIT_WRITE_BYTE   0x2
 #define FSL_UPM_WAIT_WRITE_BUFFER 0x4
@@ -34,16 +48,29 @@ struct fsl_upm_nand {
 	struct nand_chip chip;
 	int last_ctrl;
 	struct mtd_partition *parts;
+=======
+struct fsl_upm_nand {
+	struct nand_controller base;
+	struct device *dev;
+	struct nand_chip chip;
+>>>>>>> upstream/android-13
 	struct fsl_upm upm;
 	uint8_t upm_addr_offset;
 	uint8_t upm_cmd_offset;
 	void __iomem *io_base;
+<<<<<<< HEAD
 	int rnb_gpio[NAND_MAX_CHIPS];
 	uint32_t mchip_offsets[NAND_MAX_CHIPS];
 	uint32_t mchip_count;
 	uint32_t mchip_number;
 	int chip_delay;
 	uint32_t wait_flags;
+=======
+	struct gpio_desc *rnb_gpio[NAND_MAX_CHIPS];
+	uint32_t mchip_offsets[NAND_MAX_CHIPS];
+	uint32_t mchip_count;
+	uint32_t mchip_number;
+>>>>>>> upstream/android-13
 };
 
 static inline struct fsl_upm_nand *to_fsl_upm_nand(struct mtd_info *mtdinfo)
@@ -52,6 +79,7 @@ static inline struct fsl_upm_nand *to_fsl_upm_nand(struct mtd_info *mtdinfo)
 			    chip);
 }
 
+<<<<<<< HEAD
 static int fun_chip_ready(struct mtd_info *mtd)
 {
 	struct fsl_upm_nand *fun = to_fsl_upm_nand(mtd);
@@ -154,6 +182,8 @@ static void fun_write_buf(struct mtd_info *mtd, const uint8_t *buf, int len)
 		fun_wait_rnb(fun);
 }
 
+=======
+>>>>>>> upstream/android-13
 static int fun_chip_init(struct fsl_upm_nand *fun,
 			 const struct device_node *upm_np,
 			 const struct resource *io_res)
@@ -162,6 +192,7 @@ static int fun_chip_init(struct fsl_upm_nand *fun,
 	int ret;
 	struct device_node *flash_np;
 
+<<<<<<< HEAD
 	fun->chip.IO_ADDR_R = fun->io_base;
 	fun->chip.IO_ADDR_W = fun->io_base;
 	fun->chip.cmd_ctrl = fun_cmd_ctrl;
@@ -177,6 +208,11 @@ static int fun_chip_init(struct fsl_upm_nand *fun,
 	if (fun->rnb_gpio[0] >= 0)
 		fun->chip.dev_ready = fun_chip_ready;
 
+=======
+	fun->chip.ecc.engine_type = NAND_ECC_ENGINE_TYPE_SOFT;
+	fun->chip.ecc.algo = NAND_ECC_ALGO_HAMMING;
+	fun->chip.controller = &fun->base;
+>>>>>>> upstream/android-13
 	mtd->dev.parent = fun->dev;
 
 	flash_np = of_get_next_child(upm_np, NULL);
@@ -184,8 +220,14 @@ static int fun_chip_init(struct fsl_upm_nand *fun,
 		return -ENODEV;
 
 	nand_set_flash_node(&fun->chip, flash_np);
+<<<<<<< HEAD
 	mtd->name = kasprintf(GFP_KERNEL, "0x%llx.%s", (u64)io_res->start,
 			      flash_np->name);
+=======
+	mtd->name = devm_kasprintf(fun->dev, GFP_KERNEL, "0x%llx.%pOFn",
+				   (u64)io_res->start,
+				   flash_np);
+>>>>>>> upstream/android-13
 	if (!mtd->name) {
 		ret = -ENOMEM;
 		goto err;
@@ -198,6 +240,7 @@ static int fun_chip_init(struct fsl_upm_nand *fun,
 	ret = mtd_device_register(mtd, NULL, 0);
 err:
 	of_node_put(flash_np);
+<<<<<<< HEAD
 	if (ret)
 		kfree(mtd->name);
 	return ret;
@@ -209,10 +252,106 @@ static int fun_probe(struct platform_device *ofdev)
 	struct resource io_res;
 	const __be32 *prop;
 	int rnb_gpio;
+=======
+	return ret;
+}
+
+static int func_exec_instr(struct nand_chip *chip,
+			   const struct nand_op_instr *instr)
+{
+	struct fsl_upm_nand *fun = to_fsl_upm_nand(nand_to_mtd(chip));
+	u32 mar, reg_offs = fun->mchip_offsets[fun->mchip_number];
+	unsigned int i;
+	const u8 *out;
+	u8 *in;
+
+	switch (instr->type) {
+	case NAND_OP_CMD_INSTR:
+		fsl_upm_start_pattern(&fun->upm, fun->upm_cmd_offset);
+		mar = (instr->ctx.cmd.opcode << (32 - fun->upm.width)) |
+		      reg_offs;
+		fsl_upm_run_pattern(&fun->upm, fun->io_base + reg_offs, mar);
+		fsl_upm_end_pattern(&fun->upm);
+		return 0;
+
+	case NAND_OP_ADDR_INSTR:
+		fsl_upm_start_pattern(&fun->upm, fun->upm_addr_offset);
+		for (i = 0; i < instr->ctx.addr.naddrs; i++) {
+			mar = (instr->ctx.addr.addrs[i] << (32 - fun->upm.width)) |
+			      reg_offs;
+			fsl_upm_run_pattern(&fun->upm, fun->io_base + reg_offs, mar);
+		}
+		fsl_upm_end_pattern(&fun->upm);
+		return 0;
+
+	case NAND_OP_DATA_IN_INSTR:
+		in = instr->ctx.data.buf.in;
+		for (i = 0; i < instr->ctx.data.len; i++)
+			in[i] = in_8(fun->io_base + reg_offs);
+		return 0;
+
+	case NAND_OP_DATA_OUT_INSTR:
+		out = instr->ctx.data.buf.out;
+		for (i = 0; i < instr->ctx.data.len; i++)
+			out_8(fun->io_base + reg_offs, out[i]);
+		return 0;
+
+	case NAND_OP_WAITRDY_INSTR:
+		if (!fun->rnb_gpio[fun->mchip_number])
+			return nand_soft_waitrdy(chip, instr->ctx.waitrdy.timeout_ms);
+
+		return nand_gpio_waitrdy(chip, fun->rnb_gpio[fun->mchip_number],
+					 instr->ctx.waitrdy.timeout_ms);
+
+	default:
+		return -EINVAL;
+	}
+
+	return 0;
+}
+
+static int fun_exec_op(struct nand_chip *chip, const struct nand_operation *op,
+		       bool check_only)
+{
+	struct fsl_upm_nand *fun = to_fsl_upm_nand(nand_to_mtd(chip));
+	unsigned int i;
+	int ret;
+
+	if (op->cs > NAND_MAX_CHIPS)
+		return -EINVAL;
+
+	if (check_only)
+		return 0;
+
+	fun->mchip_number = op->cs;
+
+	for (i = 0; i < op->ninstrs; i++) {
+		ret = func_exec_instr(chip, &op->instrs[i]);
+		if (ret)
+			return ret;
+
+		if (op->instrs[i].delay_ns)
+			ndelay(op->instrs[i].delay_ns);
+	}
+
+	return 0;
+}
+
+static const struct nand_controller_ops fun_ops = {
+	.exec_op = fun_exec_op,
+};
+
+static int fun_probe(struct platform_device *ofdev)
+{
+	struct fsl_upm_nand *fun;
+	struct resource *io_res;
+	const __be32 *prop;
+>>>>>>> upstream/android-13
 	int ret;
 	int size;
 	int i;
 
+<<<<<<< HEAD
 	fun = kzalloc(sizeof(*fun), GFP_KERNEL);
 	if (!fun)
 		return -ENOMEM;
@@ -227,22 +366,45 @@ static int fun_probe(struct platform_device *ofdev)
 	if (ret) {
 		dev_err(&ofdev->dev, "can't find UPM\n");
 		goto err1;
+=======
+	fun = devm_kzalloc(&ofdev->dev, sizeof(*fun), GFP_KERNEL);
+	if (!fun)
+		return -ENOMEM;
+
+	io_res = platform_get_resource(ofdev, IORESOURCE_MEM, 0);
+	fun->io_base = devm_ioremap_resource(&ofdev->dev, io_res);
+	if (IS_ERR(fun->io_base))
+		return PTR_ERR(fun->io_base);
+
+	ret = fsl_upm_find(io_res->start, &fun->upm);
+	if (ret) {
+		dev_err(&ofdev->dev, "can't find UPM\n");
+		return ret;
+>>>>>>> upstream/android-13
 	}
 
 	prop = of_get_property(ofdev->dev.of_node, "fsl,upm-addr-offset",
 			       &size);
 	if (!prop || size != sizeof(uint32_t)) {
 		dev_err(&ofdev->dev, "can't get UPM address offset\n");
+<<<<<<< HEAD
 		ret = -EINVAL;
 		goto err1;
+=======
+		return -EINVAL;
+>>>>>>> upstream/android-13
 	}
 	fun->upm_addr_offset = *prop;
 
 	prop = of_get_property(ofdev->dev.of_node, "fsl,upm-cmd-offset", &size);
 	if (!prop || size != sizeof(uint32_t)) {
 		dev_err(&ofdev->dev, "can't get UPM command offset\n");
+<<<<<<< HEAD
 		ret = -EINVAL;
 		goto err1;
+=======
+		return -EINVAL;
+>>>>>>> upstream/android-13
 	}
 	fun->upm_cmd_offset = *prop;
 
@@ -252,7 +414,11 @@ static int fun_probe(struct platform_device *ofdev)
 		fun->mchip_count = size / sizeof(uint32_t);
 		if (fun->mchip_count >= NAND_MAX_CHIPS) {
 			dev_err(&ofdev->dev, "too much multiple chips\n");
+<<<<<<< HEAD
 			goto err1;
+=======
+			return -EINVAL;
+>>>>>>> upstream/android-13
 		}
 		for (i = 0; i < fun->mchip_count; i++)
 			fun->mchip_offsets[i] = be32_to_cpu(prop[i]);
@@ -261,6 +427,7 @@ static int fun_probe(struct platform_device *ofdev)
 	}
 
 	for (i = 0; i < fun->mchip_count; i++) {
+<<<<<<< HEAD
 		fun->rnb_gpio[i] = -1;
 		rnb_gpio = of_get_gpio(ofdev->dev.of_node, i);
 		if (rnb_gpio >= 0) {
@@ -304,10 +471,29 @@ static int fun_probe(struct platform_device *ofdev)
 	ret = fun_chip_init(fun, ofdev->dev.of_node, &io_res);
 	if (ret)
 		goto err2;
+=======
+		fun->rnb_gpio[i] = devm_gpiod_get_index_optional(&ofdev->dev,
+								 NULL, i,
+								 GPIOD_IN);
+		if (IS_ERR(fun->rnb_gpio[i])) {
+			dev_err(&ofdev->dev, "RNB gpio #%d is invalid\n", i);
+			return PTR_ERR(fun->rnb_gpio[i]);
+		}
+	}
+
+	nand_controller_init(&fun->base);
+	fun->base.ops = &fun_ops;
+	fun->dev = &ofdev->dev;
+
+	ret = fun_chip_init(fun, ofdev->dev.of_node, io_res);
+	if (ret)
+		return ret;
+>>>>>>> upstream/android-13
 
 	dev_set_drvdata(&ofdev->dev, fun);
 
 	return 0;
+<<<<<<< HEAD
 err2:
 	for (i = 0; i < fun->mchip_count; i++) {
 		if (fun->rnb_gpio[i] < 0)
@@ -318,11 +504,14 @@ err1:
 	kfree(fun);
 
 	return ret;
+=======
+>>>>>>> upstream/android-13
 }
 
 static int fun_remove(struct platform_device *ofdev)
 {
 	struct fsl_upm_nand *fun = dev_get_drvdata(&ofdev->dev);
+<<<<<<< HEAD
 	struct mtd_info *mtd = nand_to_mtd(&fun->chip);
 	int i;
 
@@ -336,6 +525,15 @@ static int fun_remove(struct platform_device *ofdev)
 	}
 
 	kfree(fun);
+=======
+	struct nand_chip *chip = &fun->chip;
+	struct mtd_info *mtd = nand_to_mtd(chip);
+	int ret;
+
+	ret = mtd_device_unregister(mtd);
+	WARN_ON(ret);
+	nand_cleanup(chip);
+>>>>>>> upstream/android-13
 
 	return 0;
 }

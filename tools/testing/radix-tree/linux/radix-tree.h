@@ -2,7 +2,10 @@
 #ifndef _TEST_RADIX_TREE_H
 #define _TEST_RADIX_TREE_H
 
+<<<<<<< HEAD
 #include "generated/map-shift.h"
+=======
+>>>>>>> upstream/android-13
 #include "../../../../include/linux/radix-tree.h"
 
 extern int kmalloc_verbose;

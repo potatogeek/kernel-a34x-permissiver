@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2015, The Linux Foundation. All rights reserved.
  *
@@ -9,6 +10,11 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2015, The Linux Foundation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -224,6 +230,39 @@ static struct clk_alpha_pll_postdiv gpll0 = {
 	},
 };
 
+<<<<<<< HEAD
+=======
+static struct clk_branch gcc_mmss_gpll0_div_clk = {
+	.halt_check = BRANCH_HALT_DELAY,
+	.clkr = {
+		.enable_reg = 0x5200c,
+		.enable_mask = BIT(0),
+		.hw.init = &(struct clk_init_data){
+			.name = "gcc_mmss_gpll0_div_clk",
+			.parent_names = (const char *[]){ "gpll0" },
+			.num_parents = 1,
+			.flags = CLK_SET_RATE_PARENT,
+			.ops = &clk_branch2_ops,
+		},
+	},
+};
+
+static struct clk_branch gcc_mss_gpll0_div_clk = {
+	.halt_check = BRANCH_HALT_DELAY,
+	.clkr = {
+		.enable_reg = 0x5200c,
+		.enable_mask = BIT(2),
+		.hw.init = &(struct clk_init_data){
+			.name = "gcc_mss_gpll0_div_clk",
+			.parent_names = (const char *[]){ "gpll0" },
+			.num_parents = 1,
+			.flags = CLK_SET_RATE_PARENT,
+			.ops = &clk_branch2_ops
+		},
+	},
+};
+
+>>>>>>> upstream/android-13
 static struct clk_alpha_pll gpll4_early = {
 	.offset = 0x77000,
 	.regs = clk_alpha_pll_regs[CLK_ALPHA_PLL_TYPE_DEFAULT],
@@ -2945,6 +2984,37 @@ static struct clk_branch gcc_aggre2_usb3_axi_clk = {
 	},
 };
 
+<<<<<<< HEAD
+=======
+static struct clk_branch gcc_dcc_ahb_clk = {
+	.halt_reg = 0x84004,
+	.clkr = {
+		.enable_reg = 0x84004,
+		.enable_mask = BIT(0),
+		.hw.init = &(struct clk_init_data){
+			.name = "gcc_dcc_ahb_clk",
+			.parent_names = (const char *[]){ "config_noc_clk_src" },
+			.num_parents = 1,
+			.ops = &clk_branch2_ops,
+		},
+	},
+};
+
+static struct clk_branch gcc_aggre0_noc_mpu_cfg_ahb_clk = {
+	.halt_reg = 0x85000,
+	.clkr = {
+		.enable_reg = 0x85000,
+		.enable_mask = BIT(0),
+		.hw.init = &(struct clk_init_data){
+			.name = "gcc_aggre0_noc_mpu_cfg_ahb_clk",
+			.parent_names = (const char *[]){ "config_noc_clk_src" },
+			.num_parents = 1,
+			.ops = &clk_branch2_ops,
+		},
+	},
+};
+
+>>>>>>> upstream/android-13
 static struct clk_branch gcc_qspi_ahb_clk = {
 	.halt_reg = 0x8b004,
 	.clkr = {
@@ -2982,7 +3052,14 @@ static struct clk_branch gcc_usb3_clkref_clk = {
 		.enable_mask = BIT(0),
 		.hw.init = &(struct clk_init_data){
 			.name = "gcc_usb3_clkref_clk",
+<<<<<<< HEAD
 			.parent_names = (const char *[]){ "xo" },
+=======
+			.parent_data = &(const struct clk_parent_data){
+				.fw_name = "cxo2",
+				.name = "xo",
+			},
+>>>>>>> upstream/android-13
 			.num_parents = 1,
 			.ops = &clk_branch2_ops,
 		},
@@ -2996,7 +3073,31 @@ static struct clk_branch gcc_hdmi_clkref_clk = {
 		.enable_mask = BIT(0),
 		.hw.init = &(struct clk_init_data){
 			.name = "gcc_hdmi_clkref_clk",
+<<<<<<< HEAD
 			.parent_names = (const char *[]){ "xo" },
+=======
+			.parent_data = &(const struct clk_parent_data){
+				.fw_name = "cxo2",
+				.name = "xo",
+			},
+			.num_parents = 1,
+			.ops = &clk_branch2_ops,
+		},
+	},
+};
+
+static struct clk_branch gcc_edp_clkref_clk = {
+	.halt_reg = 0x88004,
+	.clkr = {
+		.enable_reg = 0x88004,
+		.enable_mask = BIT(0),
+		.hw.init = &(struct clk_init_data){
+			.name = "gcc_edp_clkref_clk",
+			.parent_data = &(const struct clk_parent_data){
+				.fw_name = "cxo2",
+				.name = "xo",
+			},
+>>>>>>> upstream/android-13
 			.num_parents = 1,
 			.ops = &clk_branch2_ops,
 		},
@@ -3010,7 +3111,14 @@ static struct clk_branch gcc_ufs_clkref_clk = {
 		.enable_mask = BIT(0),
 		.hw.init = &(struct clk_init_data){
 			.name = "gcc_ufs_clkref_clk",
+<<<<<<< HEAD
 			.parent_names = (const char *[]){ "xo" },
+=======
+			.parent_data = &(const struct clk_parent_data){
+				.fw_name = "cxo2",
+				.name = "xo",
+			},
+>>>>>>> upstream/android-13
 			.num_parents = 1,
 			.ops = &clk_branch2_ops,
 		},
@@ -3024,7 +3132,14 @@ static struct clk_branch gcc_pcie_clkref_clk = {
 		.enable_mask = BIT(0),
 		.hw.init = &(struct clk_init_data){
 			.name = "gcc_pcie_clkref_clk",
+<<<<<<< HEAD
 			.parent_names = (const char *[]){ "xo" },
+=======
+			.parent_data = &(const struct clk_parent_data){
+				.fw_name = "cxo2",
+				.name = "xo",
+			},
+>>>>>>> upstream/android-13
 			.num_parents = 1,
 			.ops = &clk_branch2_ops,
 		},
@@ -3038,7 +3153,14 @@ static struct clk_branch gcc_rx2_usb2_clkref_clk = {
 		.enable_mask = BIT(0),
 		.hw.init = &(struct clk_init_data){
 			.name = "gcc_rx2_usb2_clkref_clk",
+<<<<<<< HEAD
 			.parent_names = (const char *[]){ "xo" },
+=======
+			.parent_data = &(const struct clk_parent_data){
+				.fw_name = "cxo2",
+				.name = "xo",
+			},
+>>>>>>> upstream/android-13
 			.num_parents = 1,
 			.ops = &clk_branch2_ops,
 		},
@@ -3052,7 +3174,70 @@ static struct clk_branch gcc_rx1_usb2_clkref_clk = {
 		.enable_mask = BIT(0),
 		.hw.init = &(struct clk_init_data){
 			.name = "gcc_rx1_usb2_clkref_clk",
+<<<<<<< HEAD
 			.parent_names = (const char *[]){ "xo" },
+=======
+			.parent_data = &(const struct clk_parent_data){
+				.fw_name = "cxo2",
+				.name = "xo",
+			},
+			.num_parents = 1,
+			.ops = &clk_branch2_ops,
+		},
+	},
+};
+
+static struct clk_branch gcc_mss_cfg_ahb_clk = {
+	.halt_reg = 0x8a000,
+	.clkr = {
+		.enable_reg = 0x8a000,
+		.enable_mask = BIT(0),
+		.hw.init = &(struct clk_init_data){
+			.name = "gcc_mss_cfg_ahb_clk",
+			.parent_names = (const char *[]){ "config_noc_clk_src" },
+			.num_parents = 1,
+			.ops = &clk_branch2_ops,
+		},
+	},
+};
+
+static struct clk_branch gcc_mss_mnoc_bimc_axi_clk = {
+	.halt_reg = 0x8a004,
+	.clkr = {
+		.enable_reg = 0x8a004,
+		.enable_mask = BIT(0),
+		.hw.init = &(struct clk_init_data){
+			.name = "gcc_mss_mnoc_bimc_axi_clk",
+			.parent_names = (const char *[]){ "system_noc_clk_src" },
+			.num_parents = 1,
+			.ops = &clk_branch2_ops,
+		},
+	},
+};
+
+static struct clk_branch gcc_mss_snoc_axi_clk = {
+	.halt_reg = 0x8a024,
+	.clkr = {
+		.enable_reg = 0x8a024,
+		.enable_mask = BIT(0),
+		.hw.init = &(struct clk_init_data){
+			.name = "gcc_mss_snoc_axi_clk",
+			.parent_names = (const char *[]){ "system_noc_clk_src" },
+			.num_parents = 1,
+			.ops = &clk_branch2_ops,
+		},
+	},
+};
+
+static struct clk_branch gcc_mss_q6_bimc_axi_clk = {
+	.halt_reg = 0x8a028,
+	.clkr = {
+		.enable_reg = 0x8a028,
+		.enable_mask = BIT(0),
+		.hw.init = &(struct clk_init_data){
+			.name = "gcc_mss_q6_bimc_axi_clk",
+			.parent_names = (const char *[]){ "system_noc_clk_src" },
+>>>>>>> upstream/android-13
 			.num_parents = 1,
 			.ops = &clk_branch2_ops,
 		},
@@ -3329,6 +3514,18 @@ static struct clk_regmap *gcc_msm8996_clocks[] = {
 	[GCC_PCIE_CLKREF_CLK] = &gcc_pcie_clkref_clk.clkr,
 	[GCC_RX2_USB2_CLKREF_CLK] = &gcc_rx2_usb2_clkref_clk.clkr,
 	[GCC_RX1_USB2_CLKREF_CLK] = &gcc_rx1_usb2_clkref_clk.clkr,
+<<<<<<< HEAD
+=======
+	[GCC_EDP_CLKREF_CLK] = &gcc_edp_clkref_clk.clkr,
+	[GCC_MSS_CFG_AHB_CLK] = &gcc_mss_cfg_ahb_clk.clkr,
+	[GCC_MSS_Q6_BIMC_AXI_CLK] = &gcc_mss_q6_bimc_axi_clk.clkr,
+	[GCC_MSS_SNOC_AXI_CLK] = &gcc_mss_snoc_axi_clk.clkr,
+	[GCC_MSS_MNOC_BIMC_AXI_CLK] = &gcc_mss_mnoc_bimc_axi_clk.clkr,
+	[GCC_DCC_AHB_CLK] = &gcc_dcc_ahb_clk.clkr,
+	[GCC_AGGRE0_NOC_MPU_CFG_AHB_CLK] = &gcc_aggre0_noc_mpu_cfg_ahb_clk.clkr,
+	[GCC_MMSS_GPLL0_DIV_CLK] = &gcc_mmss_gpll0_div_clk.clkr,
+	[GCC_MSS_GPLL0_DIV_CLK] = &gcc_mss_gpll0_div_clk.clkr,
+>>>>>>> upstream/android-13
 };
 
 static struct gdsc *gcc_msm8996_gdscs[] = {
@@ -3468,6 +3665,11 @@ static const struct qcom_cc_desc gcc_msm8996_desc = {
 	.num_resets = ARRAY_SIZE(gcc_msm8996_resets),
 	.gdscs = gcc_msm8996_gdscs,
 	.num_gdscs = ARRAY_SIZE(gcc_msm8996_gdscs),
+<<<<<<< HEAD
+=======
+	.clk_hws = gcc_msm8996_hws,
+	.num_clk_hws = ARRAY_SIZE(gcc_msm8996_hws),
+>>>>>>> upstream/android-13
 };
 
 static const struct of_device_id gcc_msm8996_match_table[] = {
@@ -3478,8 +3680,11 @@ MODULE_DEVICE_TABLE(of, gcc_msm8996_match_table);
 
 static int gcc_msm8996_probe(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	struct device *dev = &pdev->dev;
 	int i, ret;
+=======
+>>>>>>> upstream/android-13
 	struct regmap *regmap;
 
 	regmap = qcom_cc_map(pdev, &gcc_msm8996_desc);
@@ -3492,12 +3697,15 @@ static int gcc_msm8996_probe(struct platform_device *pdev)
 	 */
 	regmap_update_bits(regmap, 0x52008, BIT(21), BIT(21));
 
+<<<<<<< HEAD
 	for (i = 0; i < ARRAY_SIZE(gcc_msm8996_hws); i++) {
 		ret = devm_clk_hw_register(dev, gcc_msm8996_hws[i]);
 		if (ret)
 			return ret;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	return qcom_cc_really_probe(pdev, &gcc_msm8996_desc, regmap);
 }
 

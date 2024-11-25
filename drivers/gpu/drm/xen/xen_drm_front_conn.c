@@ -9,7 +9,12 @@
  */
 
 #include <drm/drm_atomic_helper.h>
+<<<<<<< HEAD
 #include <drm/drm_crtc_helper.h>
+=======
+#include <drm/drm_drv.h>
+#include <drm/drm_probe_helper.h>
+>>>>>>> upstream/android-13
 
 #include <video/videomode.h>
 
@@ -32,6 +37,10 @@ static const u32 plane_formats[] = {
 	DRM_FORMAT_ARGB4444,
 	DRM_FORMAT_XRGB1555,
 	DRM_FORMAT_ARGB1555,
+<<<<<<< HEAD
+=======
+	DRM_FORMAT_YUYV,
+>>>>>>> upstream/android-13
 };
 
 const u32 *xen_drm_front_conn_get_formats(int *format_count)
@@ -89,7 +98,10 @@ static const struct drm_connector_helper_funcs connector_helper_funcs = {
 };
 
 static const struct drm_connector_funcs connector_funcs = {
+<<<<<<< HEAD
 	.dpms = drm_helper_connector_dpms,
+=======
+>>>>>>> upstream/android-13
 	.fill_modes = drm_helper_probe_single_connector_modes,
 	.destroy = drm_connector_cleanup,
 	.reset = drm_atomic_helper_connector_reset,

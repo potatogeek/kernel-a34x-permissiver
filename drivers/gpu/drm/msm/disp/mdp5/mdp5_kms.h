@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2013 Red Hat
  * Author: Rob Clark <robdclark@gmail.com>
@@ -13,6 +14,12 @@
  *
  * You should have received a copy of the GNU General Public License along with
  * this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) 2013 Red Hat
+ * Author: Rob Clark <robdclark@gmail.com>
+>>>>>>> upstream/android-13
  */
 
 #ifndef __MDP5_KMS_H__
@@ -64,6 +71,11 @@ struct mdp5_kms {
 	struct clk *ahb_clk;
 	struct clk *core_clk;
 	struct clk *lut_clk;
+<<<<<<< HEAD
+=======
+	struct clk *tbu_clk;
+	struct clk *tbu_rt_clk;
+>>>>>>> upstream/android-13
 	struct clk *vsync_clk;
 
 	/*
@@ -107,11 +119,14 @@ struct mdp5_plane_state {
 	struct mdp5_hw_pipe *hwpipe;
 	struct mdp5_hw_pipe *r_hwpipe;	/* right hwpipe */
 
+<<<<<<< HEAD
 	/* aligned with property */
 	uint8_t premultiplied;
 	uint8_t zpos;
 	uint8_t alpha;
 
+=======
+>>>>>>> upstream/android-13
 	/* assigned by crtc blender */
 	enum mdp_mixer_stage_id stage;
 };

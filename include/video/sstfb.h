@@ -23,7 +23,11 @@
 #  define SST_DEBUG_FUNC 1
 #  define SST_DEBUG_VAR  1
 #else
+<<<<<<< HEAD
 #  define dprintk(X...)
+=======
+#  define dprintk(X...)		no_printk(X)
+>>>>>>> upstream/android-13
 #  define SST_DEBUG_REG  0
 #  define SST_DEBUG_FUNC 0
 #  define SST_DEBUG_VAR  0
@@ -48,7 +52,11 @@
 #if (SST_DEBUG_FUNC > 1)
 #  define f_ddprintk(X...)	dprintk(" " X)
 #else
+<<<<<<< HEAD
 #  define f_ddprintk(X...)
+=======
+#  define f_ddprintk(X...)	no_printk(X)
+>>>>>>> upstream/android-13
 #endif
 #if (SST_DEBUG_FUNC > 2)
 #  define f_dddprintk(X...)	dprintk(" " X)

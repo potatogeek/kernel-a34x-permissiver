@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Pegasus Mobile Notetaker Pen input tablet driver
  *
@@ -145,7 +149,11 @@ static void pegasus_parse_packet(struct pegasus *pegasus)
 	/* xy data */
 	case BATTERY_LOW:
 		dev_warn_once(&dev->dev, "Pen battery low\n");
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 
 	case BATTERY_NO_REPORT:
 	case BATTERY_GOOD:

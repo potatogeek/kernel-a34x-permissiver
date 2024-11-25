@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * arch/arm/include/asm/arch_gicv3.h
  *
  * Copyright (C) 2015 ARM Ltd.
+<<<<<<< HEAD
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -14,6 +19,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef __ASM_ARCH_GICV3_H
 #define __ASM_ARCH_GICV3_H
@@ -21,6 +28,10 @@
 #ifndef __ASSEMBLY__
 
 #include <linux/io.h>
+<<<<<<< HEAD
+=======
+#include <linux/io-64-nonatomic-lo-hi.h>
+>>>>>>> upstream/android-13
 #include <asm/barrier.h>
 #include <asm/cacheflush.h>
 #include <asm/cp15.h>
@@ -34,6 +45,10 @@
 #define ICC_SRE				__ACCESS_CP15(c12, 0, c12, 5)
 #define ICC_IGRPEN1			__ACCESS_CP15(c12, 0, c12, 7)
 #define ICC_BPR1			__ACCESS_CP15(c12, 0, c12, 3)
+<<<<<<< HEAD
+=======
+#define ICC_RPR				__ACCESS_CP15(c12, 0, c11, 3)
+>>>>>>> upstream/android-13
 
 #define __ICC_AP0Rx(x)			__ACCESS_CP15(c12, 0, c8, 4 | x)
 #define ICC_AP0R0			__ICC_AP0Rx(0)
@@ -47,6 +62,7 @@
 #define ICC_AP1R2			__ICC_AP1Rx(2)
 #define ICC_AP1R3			__ICC_AP1Rx(3)
 
+<<<<<<< HEAD
 #define ICC_HSRE			__ACCESS_CP15(c12, 4, c9, 5)
 
 #define ICH_VSEIR			__ACCESS_CP15(c12, 4, c9, 4)
@@ -112,6 +128,8 @@
 
 /* A32-to-A64 mappings used by VGIC save/restore */
 
+=======
+>>>>>>> upstream/android-13
 #define CPUIF_MAP(a32, a64)			\
 static inline void write_ ## a64(u32 val)	\
 {						\
@@ -122,6 +140,7 @@ static inline u32 read_ ## a64(void)		\
 	return read_sysreg(a32); 		\
 }						\
 
+<<<<<<< HEAD
 #define CPUIF_MAP_LO_HI(a32lo, a32hi, a64)	\
 static inline void write_ ## a64(u64 val)	\
 {						\
@@ -137,6 +156,8 @@ static inline u64 read_ ## a64(void)		\
 	return val; 				\
 }
 
+=======
+>>>>>>> upstream/android-13
 CPUIF_MAP(ICC_PMR, ICC_PMR_EL1)
 CPUIF_MAP(ICC_AP0R0, ICC_AP0R0_EL1)
 CPUIF_MAP(ICC_AP0R1, ICC_AP0R1_EL1)
@@ -147,6 +168,7 @@ CPUIF_MAP(ICC_AP1R1, ICC_AP1R1_EL1)
 CPUIF_MAP(ICC_AP1R2, ICC_AP1R2_EL1)
 CPUIF_MAP(ICC_AP1R3, ICC_AP1R3_EL1)
 
+<<<<<<< HEAD
 CPUIF_MAP(ICH_HCR, ICH_HCR_EL2)
 CPUIF_MAP(ICH_VTR, ICH_VTR_EL2)
 CPUIF_MAP(ICH_MISR, ICH_MISR_EL2)
@@ -181,6 +203,8 @@ CPUIF_MAP_LO_HI(ICH_LR2, ICH_LRC2, ICH_LR2_EL2)
 CPUIF_MAP_LO_HI(ICH_LR1, ICH_LRC1, ICH_LR1_EL2)
 CPUIF_MAP_LO_HI(ICH_LR0, ICH_LRC0, ICH_LR0_EL2)
 
+=======
+>>>>>>> upstream/android-13
 #define read_gicreg(r)                 read_##r()
 #define write_gicreg(v, r)             write_##r(v)
 
@@ -245,6 +269,24 @@ static inline void gic_write_bpr1(u32 val)
 	write_sysreg(val, ICC_BPR1);
 }
 
+<<<<<<< HEAD
+=======
+static inline u32 gic_read_pmr(void)
+{
+	return read_sysreg(ICC_PMR);
+}
+
+static inline void gic_write_pmr(u32 val)
+{
+	write_sysreg(val, ICC_PMR);
+}
+
+static inline u32 gic_read_rpr(void)
+{
+	return read_sysreg(ICC_RPR);
+}
+
+>>>>>>> upstream/android-13
 /*
  * Even in 32bit systems that use LPAE, there is no guarantee that the I/O
  * interface provides true 64bit atomic accesses, so using strd/ldrd doesn't
@@ -320,6 +362,7 @@ static inline u64 __gic_readq_nonatomic(const volatile void __iomem *addr)
 #define gits_write_cwriter(v, c)	__gic_writeq_nonatomic(v, c)
 
 /*
+<<<<<<< HEAD
  * GITS_VPROPBASER - hi and lo bits may be accessed independently.
  */
 #define gits_write_vpropbaser(v, c)	__gic_writeq_nonatomic(v, c)
@@ -329,6 +372,18 @@ static inline u64 __gic_readq_nonatomic(const volatile void __iomem *addr)
  * anything else.
  */
 static inline void gits_write_vpendbaser(u64 val, void * __iomem addr)
+=======
+ * GICR_VPROPBASER - hi and lo bits may be accessed independently.
+ */
+#define gicr_read_vpropbaser(c)		__gic_readq_nonatomic(c)
+#define gicr_write_vpropbaser(v, c)	__gic_writeq_nonatomic(v, c)
+
+/*
+ * GICR_VPENDBASER - the Valid bit must be cleared before changing
+ * anything else.
+ */
+static inline void gicr_write_vpendbaser(u64 val, void __iomem *addr)
+>>>>>>> upstream/android-13
 {
 	u32 tmp;
 
@@ -345,7 +400,28 @@ static inline void gits_write_vpendbaser(u64 val, void * __iomem addr)
 	__gic_writeq_nonatomic(val, addr);
 }
 
+<<<<<<< HEAD
 #define gits_read_vpendbaser(c)		__gic_readq_nonatomic(c)
+=======
+#define gicr_read_vpendbaser(c)		__gic_readq_nonatomic(c)
+
+static inline bool gic_prio_masking_enabled(void)
+{
+	return false;
+}
+
+static inline void gic_pmr_mask_irqs(void)
+{
+	/* Should not get called. */
+	WARN_ON_ONCE(true);
+}
+
+static inline void gic_arch_enable_irqs(void)
+{
+	/* Should not get called. */
+	WARN_ON_ONCE(true);
+}
+>>>>>>> upstream/android-13
 
 #endif /* !__ASSEMBLY__ */
 #endif /* !__ASM_ARCH_GICV3_H */

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *   Copyright (C) International Business Machines Corp., 2000-2004
  *   Portions Copyright (C) Christoph Hellwig, 2001-2002
@@ -15,6 +16,12 @@
  *   You should have received a copy of the GNU General Public License
  *   along with this program;  if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ *   Copyright (C) International Business Machines Corp., 2000-2004
+ *   Portions Copyright (C) Christoph Hellwig, 2001-2002
+>>>>>>> upstream/android-13
  */
 
 #include <linux/fs.h>
@@ -50,6 +57,10 @@
 MODULE_DESCRIPTION("The Journaled Filesystem (JFS)");
 MODULE_AUTHOR("Steve Best/Dave Kleikamp/Barry Arndt, IBM");
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
+=======
+MODULE_IMPORT_NS(ANDROID_GKI_VFS_EXPORT_ONLY);
+>>>>>>> upstream/android-13
 
 static struct kmem_cache *jfs_inode_cachep;
 
@@ -124,6 +135,7 @@ static struct inode *jfs_alloc_inode(struct super_block *sb)
 	return &jfs_inode->vfs_inode;
 }
 
+<<<<<<< HEAD
 static void jfs_i_callback(struct rcu_head *head)
 {
 	struct inode *inode = container_of(head, struct inode, i_rcu);
@@ -145,6 +157,11 @@ static void jfs_destroy_inode(struct inode *inode)
 	}
 	spin_unlock_irq(&ji->ag_lock);
 	call_rcu(&inode->i_rcu, jfs_i_callback);
+=======
+static void jfs_free_inode(struct inode *inode)
+{
+	kmem_cache_free(jfs_inode_cachep, JFS_IP(inode));
+>>>>>>> upstream/android-13
 }
 
 static int jfs_statfs(struct dentry *dentry, struct kstatfs *buf)
@@ -174,9 +191,17 @@ static int jfs_statfs(struct dentry *dentry, struct kstatfs *buf)
 	buf->f_files = maxinodes;
 	buf->f_ffree = maxinodes - (atomic_read(&imap->im_numinos) -
 				    atomic_read(&imap->im_numfree));
+<<<<<<< HEAD
 	buf->f_fsid.val[0] = (u32)crc32_le(0, sbi->uuid, sizeof(sbi->uuid)/2);
 	buf->f_fsid.val[1] = (u32)crc32_le(0, sbi->uuid + sizeof(sbi->uuid)/2,
 					sizeof(sbi->uuid)/2);
+=======
+	buf->f_fsid.val[0] = crc32_le(0, (char *)&sbi->uuid,
+				      sizeof(sbi->uuid)/2);
+	buf->f_fsid.val[1] = crc32_le(0,
+				      (char *)&sbi->uuid + sizeof(sbi->uuid)/2,
+				      sizeof(sbi->uuid)/2);
+>>>>>>> upstream/android-13
 
 	buf->f_namelen = JFS_NAME_MAX;
 	return 0;
@@ -247,7 +272,11 @@ static const match_table_t tokens = {
 	{Opt_resize_nosize, "resize"},
 	{Opt_errors, "errors=%s"},
 	{Opt_ignore, "noquota"},
+<<<<<<< HEAD
 	{Opt_ignore, "quota"},
+=======
+	{Opt_quota, "quota"},
+>>>>>>> upstream/android-13
 	{Opt_usrquota, "usrquota"},
 	{Opt_grpquota, "grpquota"},
 	{Opt_uid, "uid=%u"},
@@ -532,6 +561,11 @@ static int jfs_fill_super(struct super_block *sb, void *data, int silent)
 
 	sb->s_fs_info = sbi;
 	sb->s_max_links = JFS_LINK_MAX;
+<<<<<<< HEAD
+=======
+	sb->s_time_min = 0;
+	sb->s_time_max = U32_MAX;
+>>>>>>> upstream/android-13
 	sbi->sb = sb;
 	sbi->uid = INVALID_UID;
 	sbi->gid = INVALID_GID;
@@ -578,7 +612,10 @@ static int jfs_fill_super(struct super_block *sb, void *data, int silent)
 		ret = -ENOMEM;
 		goto out_unload;
 	}
+<<<<<<< HEAD
 	inode->i_ino = 0;
+=======
+>>>>>>> upstream/android-13
 	inode->i_size = i_size_read(sb->s_bdev->bd_inode);
 	inode->i_mapping->a_ops = &jfs_metapage_aops;
 	inode_fake_hash(inode);
@@ -912,7 +949,11 @@ out:
 
 static const struct super_operations jfs_super_operations = {
 	.alloc_inode	= jfs_alloc_inode,
+<<<<<<< HEAD
 	.destroy_inode	= jfs_destroy_inode,
+=======
+	.free_inode	= jfs_free_inode,
+>>>>>>> upstream/android-13
 	.dirty_inode	= jfs_dirty_inode,
 	.write_inode	= jfs_write_inode,
 	.evict_inode	= jfs_evict_inode,
@@ -967,7 +1008,12 @@ static int __init init_jfs_fs(void)
 	jfs_inode_cachep =
 	    kmem_cache_create_usercopy("jfs_ip", sizeof(struct jfs_inode_info),
 			0, SLAB_RECLAIM_ACCOUNT|SLAB_MEM_SPREAD|SLAB_ACCOUNT,
+<<<<<<< HEAD
 			offsetof(struct jfs_inode_info, i_inline), IDATASIZE,
+=======
+			offsetof(struct jfs_inode_info, i_inline_all),
+			sizeof_field(struct jfs_inode_info, i_inline_all),
+>>>>>>> upstream/android-13
 			init_once);
 	if (jfs_inode_cachep == NULL)
 		return -ENOMEM;

@@ -4,6 +4,7 @@
 
 #include <uapi/asm/compiler.h>
 
+<<<<<<< HEAD
 /* Some idiots over in <linux/compiler.h> thought inline should imply
    always_inline.  This breaks stuff.  We'll include this file whenever
    we run into such problems.  */
@@ -15,4 +16,6 @@
 #undef __always_inline
 #define __always_inline		inline __attribute__((always_inline))
 
+=======
+>>>>>>> upstream/android-13
 #endif /* __ALPHA_COMPILER_H */

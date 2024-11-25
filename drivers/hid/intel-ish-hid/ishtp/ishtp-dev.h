@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Most ISHTP provider device and ISHTP logic declarations
  *
  * Copyright (c) 2003-2016, Intel Corporation.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -11,6 +16,8 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
  * more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _ISHTP_DEV_H_
@@ -18,6 +25,10 @@
 
 #include <linux/types.h>
 #include <linux/spinlock.h>
+<<<<<<< HEAD
+=======
+#include <linux/intel-ish-client-if.h>
+>>>>>>> upstream/android-13
 #include "bus.h"
 #include "hbm.h"
 
@@ -79,6 +90,7 @@ struct ishtp_fw_client {
 	uint8_t client_id;
 };
 
+<<<<<<< HEAD
 /**
  * struct ishtp_msg_data - ISHTP message data struct
  * @size:	Size of data in the *data
@@ -105,6 +117,8 @@ struct ishtp_cl_rb {
 	unsigned long read_time;
 };
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Control info for IPC messages ISHTP/IPC sending FIFO -
  * list with inline data buffer
@@ -152,6 +166,10 @@ struct ishtp_hw_ops {
 			unsigned long buffer_length);
 	uint32_t	(*get_fw_status)(struct ishtp_device *dev);
 	void	(*sync_fw_clock)(struct ishtp_device *dev);
+<<<<<<< HEAD
+=======
+	bool	(*dma_no_cache_snooping)(struct ishtp_device *dev);
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -207,12 +225,19 @@ struct ishtp_device {
 	struct work_struct bh_hbm_work;
 
 	/* IPC write queue */
+<<<<<<< HEAD
 	struct wr_msg_ctl_info wr_processing_list_head, wr_free_list_head;
 	/* For both processing list  and free list */
 	spinlock_t wr_processing_spinlock;
 
 	spinlock_t out_ipc_spinlock;
 
+=======
+	struct list_head wr_processing_list, wr_free_list;
+	/* For both processing list  and free list */
+	spinlock_t wr_processing_spinlock;
+
+>>>>>>> upstream/android-13
 	struct ishtp_fw_client *fw_clients; /*Note:memory has to be allocated*/
 	DECLARE_BITMAP(fw_clients_map, ISHTP_CLIENTS_MAX);
 	DECLARE_BITMAP(host_clients_map, ISHTP_CLIENTS_MAX);
@@ -238,8 +263,12 @@ struct ishtp_device {
 	uint64_t ishtp_host_dma_rx_buf_phys;
 
 	/* Dump to trace buffers if enabled*/
+<<<<<<< HEAD
 	__printf(2, 3) void (*print_log)(struct ishtp_device *dev,
 					 const char *format, ...);
+=======
+	ishtp_print_log print_log;
+>>>>>>> upstream/android-13
 
 	/* Debug stats */
 	unsigned int	ipc_rx_cnt;
@@ -250,7 +279,11 @@ struct ishtp_device {
 	const struct ishtp_hw_ops *ops;
 	size_t	mtu;
 	uint32_t	ishtp_msg_hdr;
+<<<<<<< HEAD
 	char hw[0] __aligned(sizeof(void *));
+=======
+	char hw[] __aligned(sizeof(void *));
+>>>>>>> upstream/android-13
 };
 
 static inline unsigned long ishtp_secs_to_jiffies(unsigned long sec)
@@ -266,11 +299,14 @@ static inline int ish_ipc_reset(struct ishtp_device *dev)
 	return dev->ops->ipc_reset(dev);
 }
 
+<<<<<<< HEAD
 static inline int ish_hw_reset(struct ishtp_device *dev)
 {
 	return dev->ops->hw_reset(dev);
 }
 
+=======
+>>>>>>> upstream/android-13
 /* Exported function */
 void	ishtp_device_init(struct ishtp_device *dev);
 int	ishtp_start(struct ishtp_device *dev);

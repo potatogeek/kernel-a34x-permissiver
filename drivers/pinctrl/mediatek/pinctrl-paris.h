@@ -63,4 +63,9 @@ int mtk_paris_pinctrl_probe(struct platform_device *pdev,
 ssize_t mtk_pctrl_show_one_pin(struct mtk_pinctrl *hw,
 	unsigned int gpio, char *buf, unsigned int bufLen);
 
+<<<<<<< HEAD
+=======
+extern const struct dev_pm_ops mtk_paris_pinctrl_pm_ops;
+
+>>>>>>> upstream/android-13
 #endif /* __PINCTRL_PARIS_H */

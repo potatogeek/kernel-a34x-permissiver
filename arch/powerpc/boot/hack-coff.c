@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * hack-coff.c - hack the header of an xcoff file to fill in
  * a few fields needed by the Open Firmware xcoff loader on
  * Power Macs but not initialized by objcopy.
  *
  * Copyright (C) Paul Mackerras 1997.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 #include <stdio.h>
 #include <stdlib.h>

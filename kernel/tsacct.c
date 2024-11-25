@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * tsacct.c - System accounting over taskstats interface
  *
  * Copyright (C) Jay Lan,	<jlan@sgi.com>
+<<<<<<< HEAD
  *
  *
  * This program is free software; you can redistribute it and/or modify
@@ -14,6 +19,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -35,6 +42,10 @@ void bacct_add_tsk(struct user_namespace *user_ns,
 	const struct cred *tcred;
 	u64 utime, stime, utimescaled, stimescaled;
 	u64 delta;
+<<<<<<< HEAD
+=======
+	time64_t btime;
+>>>>>>> upstream/android-13
 
 	BUILD_BUG_ON(TS_COMM_LEN < TASK_COMM_LEN);
 
@@ -43,6 +54,7 @@ void bacct_add_tsk(struct user_namespace *user_ns,
 	/* Convert to micro seconds */
 	do_div(delta, NSEC_PER_USEC);
 	stats->ac_etime = delta;
+<<<<<<< HEAD
 	/* Convert to seconds for btime */
 	do_div(delta, USEC_PER_SEC);
 	stats->ac_btime = get_seconds() - delta;
@@ -51,6 +63,17 @@ void bacct_add_tsk(struct user_namespace *user_ns,
 		if (tsk->flags & PF_FORKNOEXEC)
 			stats->ac_flag |= AFORK;
 	}
+=======
+	/* Convert to seconds for btime (note y2106 limit) */
+	btime = ktime_get_real_seconds() - div_u64(delta, USEC_PER_SEC);
+	stats->ac_btime = clamp_t(time64_t, btime, 0, U32_MAX);
+	stats->ac_btime64 = btime;
+
+	if (tsk->flags & PF_EXITING)
+		stats->ac_exitcode = tsk->exit_code;
+	if (thread_group_leader(tsk) && (tsk->flags & PF_FORKNOEXEC))
+		stats->ac_flag |= AFORK;
+>>>>>>> upstream/android-13
 	if (tsk->flags & PF_SUPERPRIV)
 		stats->ac_flag |= ASU;
 	if (tsk->flags & PF_DUMPCORE)

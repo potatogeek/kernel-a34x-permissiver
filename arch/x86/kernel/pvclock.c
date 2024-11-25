@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*  paravirtual clock -- common code used by kvm/xen
 
     This program is free software; you can redistribute it and/or modify
@@ -13,6 +14,11 @@
     You should have received a copy of the GNU General Public License
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*  paravirtual clock -- common code used by kvm/xen
+
+>>>>>>> upstream/android-13
 */
 
 #include <linux/clocksource.h>
@@ -21,7 +27,11 @@
 #include <linux/notifier.h>
 #include <linux/sched.h>
 #include <linux/gfp.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
+=======
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 #include <linux/nmi.h>
 
 #include <asm/fixmap.h>
@@ -101,7 +111,11 @@ u64 pvclock_clocksource_read(struct pvclock_vcpu_time_info *src)
 	/*
 	 * Assumption here is that last_value, a global accumulator, always goes
 	 * forward. If we are less than that, we should not be much smaller.
+<<<<<<< HEAD
 	 * We assume there is an error marging we're inside, and then the correction
+=======
+	 * We assume there is an error margin we're inside, and then the correction
+>>>>>>> upstream/android-13
 	 * does not sacrifice accuracy.
 	 *
 	 * For reads: global may have changed between test and return,
@@ -157,7 +171,11 @@ void pvclock_read_wallclock(struct pvclock_wall_clock *wall_clock,
 
 void pvclock_set_pvti_cpu0_va(struct pvclock_vsyscall_time_info *pvti)
 {
+<<<<<<< HEAD
 	WARN_ON(vclock_was_used(VCLOCK_PVCLOCK));
+=======
+	WARN_ON(vclock_was_used(VDSO_CLOCKMODE_PVCLOCK));
+>>>>>>> upstream/android-13
 	pvti_cpu0_va = pvti;
 }
 

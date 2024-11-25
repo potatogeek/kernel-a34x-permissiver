@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2006,2007 Felix Fietkau <nbd@openwrt.org>
  * Copyright (C) 2006,2007 Eugene Konev <ejka@openwrt.org>
@@ -15,6 +16,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (C) 2006,2007 Felix Fietkau <nbd@openwrt.org>
+ * Copyright (C) 2006,2007 Eugene Konev <ejka@openwrt.org>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/interrupt.h>
@@ -96,12 +103,15 @@ static struct irq_chip ar7_sec_irq_type = {
 	.irq_ack = ar7_ack_sec_irq,
 };
 
+<<<<<<< HEAD
 static struct irqaction ar7_cascade_action = {
 	.handler = no_action,
 	.name = "AR7 cascade interrupt",
 	.flags = IRQF_NO_THREAD,
 };
 
+=======
+>>>>>>> upstream/android-13
 static void __init ar7_irq_init(int base)
 {
 	int i;
@@ -129,8 +139,19 @@ static void __init ar7_irq_init(int base)
 						 handle_level_irq);
 	}
 
+<<<<<<< HEAD
 	setup_irq(2, &ar7_cascade_action);
 	setup_irq(ar7_irq_base, &ar7_cascade_action);
+=======
+	if (request_irq(2, no_action, IRQF_NO_THREAD, "AR7 cascade interrupt",
+			NULL))
+		pr_err("Failed to request irq 2 (AR7 cascade interrupt)\n");
+	if (request_irq(ar7_irq_base, no_action, IRQF_NO_THREAD,
+			"AR7 cascade interrupt", NULL)) {
+		pr_err("Failed to request irq %d (AR7 cascade interrupt)\n",
+		       ar7_irq_base);
+	}
+>>>>>>> upstream/android-13
 	set_c0_status(IE_IRQ0);
 }
 

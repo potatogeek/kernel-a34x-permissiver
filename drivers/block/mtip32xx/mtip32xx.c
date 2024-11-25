@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Driver for the Micron P320 SSD
  *   Copyright (C) 2011 Micron Technology, Inc.
@@ -5,6 +9,7 @@
  * Portions of this code were derived from works subjected to the
  * following copyright:
  *    Copyright (C) 2009 Integrated Device Technology, Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +21,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/pci.h>
@@ -40,6 +47,10 @@
 #include <linux/export.h>
 #include <linux/debugfs.h>
 #include <linux/prefetch.h>
+<<<<<<< HEAD
+=======
+#include <linux/numa.h>
+>>>>>>> upstream/android-13
 #include "mtip32xx.h"
 
 #define HW_CMD_SLOT_SZ		(MTIP_MAX_COMMAND_SLOTS * 32)
@@ -104,9 +115,15 @@
 /* Device instance number, incremented each time a device is probed. */
 static int instance;
 
+<<<<<<< HEAD
 static struct list_head online_list;
 static struct list_head removing_list;
 static spinlock_t dev_lock;
+=======
+static LIST_HEAD(online_list);
+static LIST_HEAD(removing_list);
+static DEFINE_SPINLOCK(dev_lock);
+>>>>>>> upstream/android-13
 
 /*
  * Global variable used to hold the major block device number
@@ -138,7 +155,11 @@ struct mtip_compat_ide_task_request_s {
 /*
  * This function check_for_surprise_removal is called
  * while card is removed from the system and it will
+<<<<<<< HEAD
  * read the vendor id from the configration space
+=======
+ * read the vendor id from the configuration space
+>>>>>>> upstream/android-13
  *
  * @pdev Pointer to the pci_dev structure.
  *
@@ -168,6 +189,7 @@ static bool mtip_check_surprise_removal(struct pci_dev *pdev)
 	return false; /* device present */
 }
 
+<<<<<<< HEAD
 /* we have to use runtime tag to setup command header */
 static void mtip_init_cmd_header(struct request *rq)
 {
@@ -203,6 +225,8 @@ static struct mtip_cmd *mtip_get_int_command(struct driver_data *dd)
 	return blk_mq_rq_to_pdu(rq);
 }
 
+=======
+>>>>>>> upstream/android-13
 static struct mtip_cmd *mtip_cmd_from_tag(struct driver_data *dd,
 					  unsigned int tag)
 {
@@ -536,7 +560,12 @@ static void mtip_complete_command(struct mtip_cmd *cmd, blk_status_t status)
 	struct request *req = blk_mq_rq_from_pdu(cmd);
 
 	cmd->status = status;
+<<<<<<< HEAD
 	blk_mq_complete_request(req);
+=======
+	if (likely(!blk_should_fake_timeout(req->q)))
+		blk_mq_complete_request(req);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1023,6 +1052,7 @@ static int mtip_exec_internal_command(struct mtip_port *port,
 		return -EFAULT;
 	}
 
+<<<<<<< HEAD
 	int_cmd = mtip_get_int_command(dd);
 	if (!int_cmd) {
 		dbg_printk(MTIP_DRV_NAME "Unable to allocate tag for PIO cmd\n");
@@ -1030,6 +1060,16 @@ static int mtip_exec_internal_command(struct mtip_port *port,
 	}
 	rq = blk_mq_rq_from_pdu(int_cmd);
 	rq->special = &icmd;
+=======
+	if (mtip_check_surprise_removal(dd->pdev))
+		return -EFAULT;
+
+	rq = blk_mq_alloc_request(dd->queue, REQ_OP_DRV_IN, BLK_MQ_REQ_RESERVED);
+	if (IS_ERR(rq)) {
+		dbg_printk(MTIP_DRV_NAME "Unable to allocate tag for PIO cmd\n");
+		return -EFAULT;
+	}
+>>>>>>> upstream/android-13
 
 	set_bit(MTIP_PF_IC_ACTIVE_BIT, &port->flags);
 
@@ -1050,12 +1090,21 @@ static int mtip_exec_internal_command(struct mtip_port *port,
 	}
 
 	/* Copy the command to the command table */
+<<<<<<< HEAD
+=======
+	int_cmd = blk_mq_rq_to_pdu(rq);
+	int_cmd->icmd = &icmd;
+>>>>>>> upstream/android-13
 	memcpy(int_cmd->command, fis, fis_len*4);
 
 	rq->timeout = timeout;
 
 	/* insert request and run queue */
+<<<<<<< HEAD
 	blk_execute_rq(rq->q, NULL, rq, true);
+=======
+	blk_execute_rq(NULL, rq, true);
+>>>>>>> upstream/android-13
 
 	if (int_cmd->status) {
 		dev_err(&dd->pdev->dev, "Internal command [%02X] failed %d\n",
@@ -1223,6 +1272,7 @@ static int mtip_get_identify(struct mtip_port *port, void __user *user_buffer)
 	else
 		clear_bit(MTIP_DDF_SEC_LOCK_BIT, &port->dd->dd_flag);
 
+<<<<<<< HEAD
 #ifdef MTIP_TRIM /* Disabling TRIM support temporarily */
 	/* Demux ID.DRAT & ID.RZAT to determine trim support */
 	if (port->identify[69] & (1 << 14) && port->identify[69] & (1 << 5))
@@ -1231,6 +1281,8 @@ static int mtip_get_identify(struct mtip_port *port, void __user *user_buffer)
 #endif
 		port->dd->trim_supp = false;
 
+=======
+>>>>>>> upstream/android-13
 	/* Set the identify buffer as valid. */
 	port->identify_valid = 1;
 
@@ -1261,7 +1313,11 @@ static int mtip_standby_immediate(struct mtip_port *port)
 {
 	int rv;
 	struct host_to_dev_fis	fis;
+<<<<<<< HEAD
 	unsigned long start;
+=======
+	unsigned long __maybe_unused start;
+>>>>>>> upstream/android-13
 	unsigned int timeout;
 
 	/* Build the FIS. */
@@ -1418,6 +1474,7 @@ static int mtip_get_smart_attr(struct mtip_port *port, unsigned int id,
 }
 
 /*
+<<<<<<< HEAD
  * Trim unused sectors
  *
  * @dd		pointer to driver_data structure
@@ -1493,6 +1550,8 @@ static int mtip_send_trim(struct driver_data *dd, unsigned int lba,
 }
 
 /*
+=======
+>>>>>>> upstream/android-13
  * Get the drive capacity.
  *
  * @dd      Pointer to the device data structure.
@@ -1585,15 +1644,24 @@ static inline void fill_command_sg(struct driver_data *dd,
 	int n;
 	unsigned int dma_len;
 	struct mtip_cmd_sg *command_sg;
+<<<<<<< HEAD
 	struct scatterlist *sg = command->sg;
 
 	command_sg = command->command + AHCI_CMD_TBL_HDR_SZ;
 
 	for (n = 0; n < nents; n++) {
+=======
+	struct scatterlist *sg;
+
+	command_sg = command->command + AHCI_CMD_TBL_HDR_SZ;
+
+	for_each_sg(command->sg, sg, nents, n) {
+>>>>>>> upstream/android-13
 		dma_len = sg_dma_len(sg);
 		if (dma_len > 0x400000)
 			dev_err(&dd->pdev->dev,
 				"DMA segment length truncated\n");
+<<<<<<< HEAD
 		command_sg->info = __force_bit2int
 			cpu_to_le32((dma_len-1) & 0x3FFFFF);
 		command_sg->dba	= __force_bit2int
@@ -1602,6 +1670,13 @@ static inline void fill_command_sg(struct driver_data *dd,
 			cpu_to_le32((sg_dma_address(sg) >> 16) >> 16);
 		command_sg++;
 		sg++;
+=======
+		command_sg->info = cpu_to_le32((dma_len-1) & 0x3FFFFF);
+		command_sg->dba	=  cpu_to_le32(sg_dma_address(sg));
+		command_sg->dba_upper =
+			cpu_to_le32((sg_dma_address(sg) >> 16) >> 16);
+		command_sg++;
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -1694,7 +1769,11 @@ static int exec_drive_command(struct mtip_port *port, u8 *command,
 		if (!user_buffer)
 			return -EFAULT;
 
+<<<<<<< HEAD
 		buf = dmam_alloc_coherent(&port->dd->pdev->dev,
+=======
+		buf = dma_alloc_coherent(&port->dd->pdev->dev,
+>>>>>>> upstream/android-13
 				ATA_SECT_SIZE * xfer_sz,
 				&dma_addr,
 				GFP_KERNEL);
@@ -1704,7 +1783,10 @@ static int exec_drive_command(struct mtip_port *port, u8 *command,
 				ATA_SECT_SIZE * xfer_sz);
 			return -ENOMEM;
 		}
+<<<<<<< HEAD
 		memset(buf, 0, ATA_SECT_SIZE * xfer_sz);
+=======
+>>>>>>> upstream/android-13
 	}
 
 	/* Build the FIS. */
@@ -1772,7 +1854,11 @@ static int exec_drive_command(struct mtip_port *port, u8 *command,
 	}
 exit_drive_command:
 	if (buf)
+<<<<<<< HEAD
 		dmam_free_coherent(&port->dd->pdev->dev,
+=======
+		dma_free_coherent(&port->dd->pdev->dev,
+>>>>>>> upstream/android-13
 				ATA_SECT_SIZE * xfer_sz, buf, dma_addr);
 	return rv;
 }
@@ -1862,11 +1948,17 @@ static int exec_drive_taskfile(struct driver_data *dd,
 		if (IS_ERR(outbuf))
 			return PTR_ERR(outbuf);
 
+<<<<<<< HEAD
 		outbuf_dma = pci_map_single(dd->pdev,
 					 outbuf,
 					 taskout,
 					 DMA_TO_DEVICE);
 		if (pci_dma_mapping_error(dd->pdev, outbuf_dma)) {
+=======
+		outbuf_dma = dma_map_single(&dd->pdev->dev, outbuf,
+					    taskout, DMA_TO_DEVICE);
+		if (dma_mapping_error(&dd->pdev->dev, outbuf_dma)) {
+>>>>>>> upstream/android-13
 			err = -ENOMEM;
 			goto abort;
 		}
@@ -1880,10 +1972,16 @@ static int exec_drive_taskfile(struct driver_data *dd,
 			inbuf = NULL;
 			goto abort;
 		}
+<<<<<<< HEAD
 		inbuf_dma = pci_map_single(dd->pdev,
 					 inbuf,
 					 taskin, DMA_FROM_DEVICE);
 		if (pci_dma_mapping_error(dd->pdev, inbuf_dma)) {
+=======
+		inbuf_dma = dma_map_single(&dd->pdev->dev, inbuf,
+					   taskin, DMA_FROM_DEVICE);
+		if (dma_mapping_error(&dd->pdev->dev, inbuf_dma)) {
+>>>>>>> upstream/android-13
 			err = -ENOMEM;
 			goto abort;
 		}
@@ -1945,8 +2043,13 @@ static int exec_drive_taskfile(struct driver_data *dd,
 				dev_warn(&dd->pdev->dev,
 					"data movement but "
 					"sect_count is 0\n");
+<<<<<<< HEAD
 					err = -EINVAL;
 					goto abort;
+=======
+				err = -EINVAL;
+				goto abort;
+>>>>>>> upstream/android-13
 			}
 		}
 	}
@@ -2002,11 +2105,19 @@ static int exec_drive_taskfile(struct driver_data *dd,
 
 	/* reclaim the DMA buffers.*/
 	if (inbuf_dma)
+<<<<<<< HEAD
 		pci_unmap_single(dd->pdev, inbuf_dma,
 			taskin, DMA_FROM_DEVICE);
 	if (outbuf_dma)
 		pci_unmap_single(dd->pdev, outbuf_dma,
 			taskout, DMA_TO_DEVICE);
+=======
+		dma_unmap_single(&dd->pdev->dev, inbuf_dma, taskin,
+				 DMA_FROM_DEVICE);
+	if (outbuf_dma)
+		dma_unmap_single(&dd->pdev->dev, outbuf_dma, taskout,
+				 DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 	inbuf_dma  = 0;
 	outbuf_dma = 0;
 
@@ -2053,11 +2164,19 @@ static int exec_drive_taskfile(struct driver_data *dd,
 	}
 abort:
 	if (inbuf_dma)
+<<<<<<< HEAD
 		pci_unmap_single(dd->pdev, inbuf_dma,
 					taskin, DMA_FROM_DEVICE);
 	if (outbuf_dma)
 		pci_unmap_single(dd->pdev, outbuf_dma,
 					taskout, DMA_TO_DEVICE);
+=======
+		dma_unmap_single(&dd->pdev->dev, inbuf_dma, taskin,
+				 DMA_FROM_DEVICE);
+	if (outbuf_dma)
+		dma_unmap_single(&dd->pdev->dev, outbuf_dma, taskout,
+				 DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 	kfree(outbuf);
 	kfree(inbuf);
 
@@ -2174,7 +2293,10 @@ static int mtip_hw_ioctl(struct driver_data *dd, unsigned int cmd,
  * @dd       Pointer to the driver data structure.
  * @start    First sector to read.
  * @nsect    Number of sectors to read.
+<<<<<<< HEAD
  * @nents    Number of entries in scatter list for the read command.
+=======
+>>>>>>> upstream/android-13
  * @tag      The tag of this read command.
  * @callback Pointer to the function that should be called
  *	     when the read completes.
@@ -2186,16 +2308,31 @@ static int mtip_hw_ioctl(struct driver_data *dd, unsigned int cmd,
  *	None
  */
 static void mtip_hw_submit_io(struct driver_data *dd, struct request *rq,
+<<<<<<< HEAD
 			      struct mtip_cmd *command, int nents,
 			      struct blk_mq_hw_ctx *hctx)
 {
+=======
+			      struct mtip_cmd *command,
+			      struct blk_mq_hw_ctx *hctx)
+{
+	struct mtip_cmd_hdr *hdr =
+		dd->port->command_list + sizeof(struct mtip_cmd_hdr) * rq->tag;
+>>>>>>> upstream/android-13
 	struct host_to_dev_fis	*fis;
 	struct mtip_port *port = dd->port;
 	int dma_dir = rq_data_dir(rq) == READ ? DMA_FROM_DEVICE : DMA_TO_DEVICE;
 	u64 start = blk_rq_pos(rq);
 	unsigned int nsect = blk_rq_sectors(rq);
+<<<<<<< HEAD
 
 	/* Map the scatter list for DMA access */
+=======
+	unsigned int nents;
+
+	/* Map the scatter list for DMA access */
+	nents = blk_rq_map_sg(hctx->queue, rq, command->sg);
+>>>>>>> upstream/android-13
 	nents = dma_map_sg(&dd->pdev->dev, command->sg, nents, dma_dir);
 
 	prefetch(&port->flags);
@@ -2236,10 +2373,18 @@ static void mtip_hw_submit_io(struct driver_data *dd, struct request *rq,
 		fis->device |= 1 << 7;
 
 	/* Populate the command header */
+<<<<<<< HEAD
 	command->command_header->opts =
 			__force_bit2int cpu_to_le32(
 				(nents << 16) | 5 | AHCI_CMD_PREFETCH);
 	command->command_header->byte_count = 0;
+=======
+	hdr->ctba = cpu_to_le32(command->command_dma & 0xFFFFFFFF);
+	if (test_bit(MTIP_PF_HOST_CAP_64, &dd->port->flags))
+		hdr->ctbau = cpu_to_le32((command->command_dma >> 16) >> 16);
+	hdr->opts = cpu_to_le32((nents << 16) | 5 | AHCI_CMD_PREFETCH);
+	hdr->byte_count = 0;
+>>>>>>> upstream/android-13
 
 	command->direction = dma_dir;
 
@@ -2286,6 +2431,23 @@ static ssize_t mtip_hw_show_status(struct device *dev,
 
 static DEVICE_ATTR(status, 0444, mtip_hw_show_status, NULL);
 
+<<<<<<< HEAD
+=======
+static struct attribute *mtip_disk_attrs[] = {
+	&dev_attr_status.attr,
+	NULL,
+};
+
+static const struct attribute_group mtip_disk_attr_group = {
+	.attrs = mtip_disk_attrs,
+};
+
+static const struct attribute_group *mtip_disk_attr_groups[] = {
+	&mtip_disk_attr_group,
+	NULL,
+};
+
+>>>>>>> upstream/android-13
 /* debugsfs entries */
 
 static ssize_t show_device_status(struct device_driver *drv, char *buf)
@@ -2364,7 +2526,10 @@ static ssize_t show_device_status(struct device_driver *drv, char *buf)
 static ssize_t mtip_hw_read_device_status(struct file *f, char __user *ubuf,
 						size_t len, loff_t *offset)
 {
+<<<<<<< HEAD
 	struct driver_data *dd =  (struct driver_data *)f->private_data;
+=======
+>>>>>>> upstream/android-13
 	int size = *offset;
 	char *buf;
 	int rv = 0;
@@ -2373,11 +2538,16 @@ static ssize_t mtip_hw_read_device_status(struct file *f, char __user *ubuf,
 		return 0;
 
 	buf = kzalloc(MTIP_DFS_MAX_BUF_SIZE, GFP_KERNEL);
+<<<<<<< HEAD
 	if (!buf) {
 		dev_err(&dd->pdev->dev,
 			"Memory allocation: status buffer\n");
 		return -ENOMEM;
 	}
+=======
+	if (!buf)
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 
 	size += show_device_status(NULL, buf);
 
@@ -2403,11 +2573,16 @@ static ssize_t mtip_hw_read_registers(struct file *f, char __user *ubuf,
 		return 0;
 
 	buf = kzalloc(MTIP_DFS_MAX_BUF_SIZE, GFP_KERNEL);
+<<<<<<< HEAD
 	if (!buf) {
 		dev_err(&dd->pdev->dev,
 			"Memory allocation: register buffer\n");
 		return -ENOMEM;
 	}
+=======
+	if (!buf)
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 
 	size += sprintf(&buf[size], "H/ S ACTive      : [ 0x");
 
@@ -2469,11 +2644,16 @@ static ssize_t mtip_hw_read_flags(struct file *f, char __user *ubuf,
 		return 0;
 
 	buf = kzalloc(MTIP_DFS_MAX_BUF_SIZE, GFP_KERNEL);
+<<<<<<< HEAD
 	if (!buf) {
 		dev_err(&dd->pdev->dev,
 			"Memory allocation: flag buffer\n");
 		return -ENOMEM;
 	}
+=======
+	if (!buf)
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 
 	size += sprintf(&buf[size], "Flag-port : [ %08lX ]\n",
 							dd->port->flags);
@@ -2510,6 +2690,7 @@ static const struct file_operations mtip_flags_fops = {
 	.llseek = no_llseek,
 };
 
+<<<<<<< HEAD
 /*
  * Create the sysfs related attributes.
  *
@@ -2551,6 +2732,8 @@ static int mtip_hw_sysfs_exit(struct driver_data *dd, struct kobject *kobj)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int mtip_hw_debugfs_init(struct driver_data *dd)
 {
 	if (!dfs_parent)
@@ -2718,12 +2901,20 @@ static void mtip_softirq_done_fn(struct request *rq)
 							cmd->direction);
 
 	if (unlikely(cmd->unaligned))
+<<<<<<< HEAD
 		up(&dd->port->cmd_slot_unal);
+=======
+		atomic_inc(&dd->port->cmd_slot_unal);
+>>>>>>> upstream/android-13
 
 	blk_mq_end_request(rq, cmd->status);
 }
 
+<<<<<<< HEAD
 static void mtip_abort_cmd(struct request *req, void *data, bool reserved)
+=======
+static bool mtip_abort_cmd(struct request *req, void *data, bool reserved)
+>>>>>>> upstream/android-13
 {
 	struct mtip_cmd *cmd = blk_mq_rq_to_pdu(req);
 	struct driver_data *dd = data;
@@ -2733,14 +2924,25 @@ static void mtip_abort_cmd(struct request *req, void *data, bool reserved)
 	clear_bit(req->tag, dd->port->cmds_to_issue);
 	cmd->status = BLK_STS_IOERR;
 	mtip_softirq_done_fn(req);
+<<<<<<< HEAD
 }
 
 static void mtip_queue_cmd(struct request *req, void *data, bool reserved)
+=======
+	return true;
+}
+
+static bool mtip_queue_cmd(struct request *req, void *data, bool reserved)
+>>>>>>> upstream/android-13
 {
 	struct driver_data *dd = data;
 
 	set_bit(req->tag, dd->port->cmds_to_issue);
 	blk_abort_request(req);
+<<<<<<< HEAD
+=======
+	return true;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -2806,10 +3008,14 @@ restart_eh:
 
 			blk_mq_quiesce_queue(dd->queue);
 
+<<<<<<< HEAD
 			spin_lock(dd->queue->queue_lock);
 			blk_mq_tagset_busy_iter(&dd->tags,
 							mtip_queue_cmd, dd);
 			spin_unlock(dd->queue->queue_lock);
+=======
+			blk_mq_tagset_busy_iter(&dd->tags, mtip_queue_cmd, dd);
+>>>>>>> upstream/android-13
 
 			set_bit(MTIP_PF_ISSUE_CMDS_BIT, &dd->port->flags);
 
@@ -2876,11 +3082,19 @@ static void mtip_dma_free(struct driver_data *dd)
 	struct mtip_port *port = dd->port;
 
 	if (port->block1)
+<<<<<<< HEAD
 		dmam_free_coherent(&dd->pdev->dev, BLOCK_DMA_ALLOC_SZ,
 					port->block1, port->block1_dma);
 
 	if (port->command_list) {
 		dmam_free_coherent(&dd->pdev->dev, AHCI_CMD_TBL_SZ,
+=======
+		dma_free_coherent(&dd->pdev->dev, BLOCK_DMA_ALLOC_SZ,
+					port->block1, port->block1_dma);
+
+	if (port->command_list) {
+		dma_free_coherent(&dd->pdev->dev, AHCI_CMD_TBL_SZ,
+>>>>>>> upstream/android-13
 				port->command_list, port->command_list_dma);
 	}
 }
@@ -2899,6 +3113,7 @@ static int mtip_dma_alloc(struct driver_data *dd)
 
 	/* Allocate dma memory for RX Fis, Identify, and Sector Bufffer */
 	port->block1 =
+<<<<<<< HEAD
 		dmam_alloc_coherent(&dd->pdev->dev, BLOCK_DMA_ALLOC_SZ,
 					&port->block1_dma, GFP_KERNEL);
 	if (!port->block1)
@@ -2911,12 +3126,28 @@ static int mtip_dma_alloc(struct driver_data *dd)
 					&port->command_list_dma, GFP_KERNEL);
 	if (!port->command_list) {
 		dmam_free_coherent(&dd->pdev->dev, BLOCK_DMA_ALLOC_SZ,
+=======
+		dma_alloc_coherent(&dd->pdev->dev, BLOCK_DMA_ALLOC_SZ,
+					&port->block1_dma, GFP_KERNEL);
+	if (!port->block1)
+		return -ENOMEM;
+
+	/* Allocate dma memory for command list */
+	port->command_list =
+		dma_alloc_coherent(&dd->pdev->dev, AHCI_CMD_TBL_SZ,
+					&port->command_list_dma, GFP_KERNEL);
+	if (!port->command_list) {
+		dma_free_coherent(&dd->pdev->dev, BLOCK_DMA_ALLOC_SZ,
+>>>>>>> upstream/android-13
 					port->block1, port->block1_dma);
 		port->block1 = NULL;
 		port->block1_dma = 0;
 		return -ENOMEM;
 	}
+<<<<<<< HEAD
 	memset(port->command_list, 0, AHCI_CMD_TBL_SZ);
+=======
+>>>>>>> upstream/android-13
 
 	/* Setup all pointers into first DMA region */
 	port->rxfis         = port->block1 + AHCI_RX_FIS_OFFSET;
@@ -3013,11 +3244,16 @@ static int mtip_hw_init(struct driver_data *dd)
 
 	dd->port = kzalloc_node(sizeof(struct mtip_port), GFP_KERNEL,
 				dd->numa_node);
+<<<<<<< HEAD
 	if (!dd->port) {
 		dev_err(&dd->pdev->dev,
 			"Memory allocation: port structure\n");
 		return -ENOMEM;
 	}
+=======
+	if (!dd->port)
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 
 	/* Continue workqueue setup */
 	for (i = 0; i < MTIP_MAX_SLOT_GROUPS; i++)
@@ -3029,7 +3265,11 @@ static int mtip_hw_init(struct driver_data *dd)
 	else
 		dd->unal_qdepth = 0;
 
+<<<<<<< HEAD
 	sema_init(&dd->port->cmd_slot_unal, dd->unal_qdepth);
+=======
+	atomic_set(&dd->port->cmd_slot_unal, dd->unal_qdepth);
+>>>>>>> upstream/android-13
 
 	/* Spinlock to prevent concurrent issue */
 	for (i = 0; i < MTIP_MAX_SLOT_GROUPS; i++)
@@ -3095,6 +3335,7 @@ static int mtip_hw_init(struct driver_data *dd)
 	mtip_start_port(dd->port);
 
 	/* Setup the ISR and enable interrupts. */
+<<<<<<< HEAD
 	rv = devm_request_irq(&dd->pdev->dev,
 				dd->pdev->irq,
 				mtip_irq_handler,
@@ -3102,6 +3343,10 @@ static int mtip_hw_init(struct driver_data *dd)
 				dev_driver_string(&dd->pdev->dev),
 				dd);
 
+=======
+	rv = request_irq(dd->pdev->irq, mtip_irq_handler, IRQF_SHARED,
+			 dev_driver_string(&dd->pdev->dev), dd);
+>>>>>>> upstream/android-13
 	if (rv) {
 		dev_err(&dd->pdev->dev,
 			"Unable to allocate IRQ %d\n", dd->pdev->irq);
@@ -3129,7 +3374,11 @@ out3:
 
 	/* Release the IRQ. */
 	irq_set_affinity_hint(dd->pdev->irq, NULL);
+<<<<<<< HEAD
 	devm_free_irq(&dd->pdev->dev, dd->pdev->irq, dd);
+=======
+	free_irq(dd->pdev->irq, dd);
+>>>>>>> upstream/android-13
 
 out2:
 	mtip_deinit_port(dd->port);
@@ -3184,7 +3433,11 @@ static int mtip_hw_exit(struct driver_data *dd)
 
 	/* Release the IRQ. */
 	irq_set_affinity_hint(dd->pdev->irq, NULL);
+<<<<<<< HEAD
 	devm_free_irq(&dd->pdev->dev, dd->pdev->irq, dd);
+=======
+	free_irq(dd->pdev->irq, dd);
+>>>>>>> upstream/android-13
 	msleep(1000);
 
 	/* Free dma regions */
@@ -3534,6 +3787,7 @@ static inline bool is_se_active(struct driver_data *dd)
 	return false;
 }
 
+<<<<<<< HEAD
 /*
  * Block layer make request function.
  *
@@ -3586,6 +3840,26 @@ static int mtip_submit_request(struct blk_mq_hw_ctx *hctx, struct request *rq)
 	/* Issue the read/write. */
 	mtip_hw_submit_io(dd, rq, cmd, nents, hctx);
 	return 0;
+=======
+static inline bool is_stopped(struct driver_data *dd, struct request *rq)
+{
+	if (likely(!(dd->dd_flag & MTIP_DDF_STOP_IO)))
+		return false;
+
+	if (test_bit(MTIP_DDF_REMOVE_PENDING_BIT, &dd->dd_flag))
+		return true;
+	if (test_bit(MTIP_DDF_OVER_TEMP_BIT, &dd->dd_flag))
+		return true;
+	if (test_bit(MTIP_DDF_WRITE_PROTECT_BIT, &dd->dd_flag) &&
+	    rq_data_dir(rq))
+		return true;
+	if (test_bit(MTIP_DDF_SEC_LOCK_BIT, &dd->dd_flag))
+		return true;
+	if (test_bit(MTIP_DDF_REBUILD_FAILED_BIT, &dd->dd_flag))
+		return true;
+
+	return false;
+>>>>>>> upstream/android-13
 }
 
 static bool mtip_check_unal_depth(struct blk_mq_hw_ctx *hctx,
@@ -3606,7 +3880,11 @@ static bool mtip_check_unal_depth(struct blk_mq_hw_ctx *hctx,
 			cmd->unaligned = 1;
 	}
 
+<<<<<<< HEAD
 	if (cmd->unaligned && down_trylock(&dd->port->cmd_slot_unal))
+=======
+	if (cmd->unaligned && atomic_dec_if_positive(&dd->port->cmd_slot_unal) >= 0)
+>>>>>>> upstream/android-13
 		return true;
 
 	return false;
@@ -3616,6 +3894,7 @@ static blk_status_t mtip_issue_reserved_cmd(struct blk_mq_hw_ctx *hctx,
 		struct request *rq)
 {
 	struct driver_data *dd = hctx->queue->queuedata;
+<<<<<<< HEAD
 	struct mtip_int_cmd *icmd = rq->special;
 	struct mtip_cmd *cmd = blk_mq_rq_to_pdu(rq);
 	struct mtip_cmd_sg *command_sg;
@@ -3642,6 +3921,35 @@ static blk_status_t mtip_issue_reserved_cmd(struct blk_mq_hw_ctx *hctx,
 
 	/* Populate the command header */
 	cmd->command_header->byte_count = 0;
+=======
+	struct mtip_cmd *cmd = blk_mq_rq_to_pdu(rq);
+	struct mtip_int_cmd *icmd = cmd->icmd;
+	struct mtip_cmd_hdr *hdr =
+		dd->port->command_list + sizeof(struct mtip_cmd_hdr) * rq->tag;
+	struct mtip_cmd_sg *command_sg;
+
+	if (mtip_commands_active(dd->port))
+		return BLK_STS_DEV_RESOURCE;
+
+	hdr->ctba = cpu_to_le32(cmd->command_dma & 0xFFFFFFFF);
+	if (test_bit(MTIP_PF_HOST_CAP_64, &dd->port->flags))
+		hdr->ctbau = cpu_to_le32((cmd->command_dma >> 16) >> 16);
+	/* Populate the SG list */
+	hdr->opts = cpu_to_le32(icmd->opts | icmd->fis_len);
+	if (icmd->buf_len) {
+		command_sg = cmd->command + AHCI_CMD_TBL_HDR_SZ;
+
+		command_sg->info = cpu_to_le32((icmd->buf_len-1) & 0x3FFFFF);
+		command_sg->dba	= cpu_to_le32(icmd->buffer & 0xFFFFFFFF);
+		command_sg->dba_upper =
+			cpu_to_le32((icmd->buffer >> 16) >> 16);
+
+		hdr->opts |= cpu_to_le32((1 << 16));
+	}
+
+	/* Populate the command header */
+	hdr->byte_count = 0;
+>>>>>>> upstream/android-13
 
 	blk_mq_start_request(rq);
 	mtip_issue_non_ncq_command(dd->port, rq->tag);
@@ -3651,15 +3959,22 @@ static blk_status_t mtip_issue_reserved_cmd(struct blk_mq_hw_ctx *hctx,
 static blk_status_t mtip_queue_rq(struct blk_mq_hw_ctx *hctx,
 			 const struct blk_mq_queue_data *bd)
 {
+<<<<<<< HEAD
 	struct request *rq = bd->rq;
 	int ret;
 
 	mtip_init_cmd_header(rq);
+=======
+	struct driver_data *dd = hctx->queue->queuedata;
+	struct request *rq = bd->rq;
+	struct mtip_cmd *cmd = blk_mq_rq_to_pdu(rq);
+>>>>>>> upstream/android-13
 
 	if (blk_rq_is_passthrough(rq))
 		return mtip_issue_reserved_cmd(hctx, rq);
 
 	if (unlikely(mtip_check_unal_depth(hctx, rq)))
+<<<<<<< HEAD
 		return BLK_STS_RESOURCE;
 
 	blk_mq_start_request(rq);
@@ -3668,6 +3983,17 @@ static blk_status_t mtip_queue_rq(struct blk_mq_hw_ctx *hctx,
 	if (likely(!ret))
 		return BLK_STS_OK;
 	return BLK_STS_IOERR;
+=======
+		return BLK_STS_DEV_RESOURCE;
+
+	if (is_se_active(dd) || is_stopped(dd, rq))
+		return BLK_STS_IOERR;
+
+	blk_mq_start_request(rq);
+
+	mtip_hw_submit_io(dd, rq, cmd, hctx);
+	return BLK_STS_OK;
+>>>>>>> upstream/android-13
 }
 
 static void mtip_free_cmd(struct blk_mq_tag_set *set, struct request *rq,
@@ -3679,8 +4005,13 @@ static void mtip_free_cmd(struct blk_mq_tag_set *set, struct request *rq,
 	if (!cmd->command)
 		return;
 
+<<<<<<< HEAD
 	dmam_free_coherent(&dd->pdev->dev, CMD_DMA_ALLOC_SZ,
 				cmd->command, cmd->command_dma);
+=======
+	dma_free_coherent(&dd->pdev->dev, CMD_DMA_ALLOC_SZ, cmd->command,
+			  cmd->command_dma);
+>>>>>>> upstream/android-13
 }
 
 static int mtip_init_cmd(struct blk_mq_tag_set *set, struct request *rq,
@@ -3689,13 +4020,20 @@ static int mtip_init_cmd(struct blk_mq_tag_set *set, struct request *rq,
 	struct driver_data *dd = set->driver_data;
 	struct mtip_cmd *cmd = blk_mq_rq_to_pdu(rq);
 
+<<<<<<< HEAD
 	cmd->command = dmam_alloc_coherent(&dd->pdev->dev, CMD_DMA_ALLOC_SZ,
+=======
+	cmd->command = dma_alloc_coherent(&dd->pdev->dev, CMD_DMA_ALLOC_SZ,
+>>>>>>> upstream/android-13
 			&cmd->command_dma, GFP_KERNEL);
 	if (!cmd->command)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	memset(cmd->command, 0, CMD_DMA_ALLOC_SZ);
 
+=======
+>>>>>>> upstream/android-13
 	sg_init_table(cmd->sg, MTIP_MAX_SG);
 	return 0;
 }
@@ -3748,7 +4086,10 @@ static int mtip_block_initialize(struct driver_data *dd)
 	int rv = 0, wait_for_rebuild = 0;
 	sector_t capacity;
 	unsigned int index = 0;
+<<<<<<< HEAD
 	struct kobject *kobj;
+=======
+>>>>>>> upstream/android-13
 
 	if (dd->disk)
 		goto skip_create_disk; /* hw init done, before rebuild */
@@ -3758,6 +4099,7 @@ static int mtip_block_initialize(struct driver_data *dd)
 		goto protocol_init_error;
 	}
 
+<<<<<<< HEAD
 	dd->disk = alloc_disk_node(MTIP_MAX_MINORS, dd->numa_node);
 	if (dd->disk  == NULL) {
 		dev_err(&dd->pdev->dev,
@@ -3766,6 +4108,35 @@ static int mtip_block_initialize(struct driver_data *dd)
 		goto alloc_disk_error;
 	}
 
+=======
+	memset(&dd->tags, 0, sizeof(dd->tags));
+	dd->tags.ops = &mtip_mq_ops;
+	dd->tags.nr_hw_queues = 1;
+	dd->tags.queue_depth = MTIP_MAX_COMMAND_SLOTS;
+	dd->tags.reserved_tags = 1;
+	dd->tags.cmd_size = sizeof(struct mtip_cmd);
+	dd->tags.numa_node = dd->numa_node;
+	dd->tags.flags = BLK_MQ_F_SHOULD_MERGE;
+	dd->tags.driver_data = dd;
+	dd->tags.timeout = MTIP_NCQ_CMD_TIMEOUT_MS;
+
+	rv = blk_mq_alloc_tag_set(&dd->tags);
+	if (rv) {
+		dev_err(&dd->pdev->dev,
+			"Unable to allocate request queue\n");
+		goto block_queue_alloc_tag_error;
+	}
+
+	dd->disk = blk_mq_alloc_disk(&dd->tags, dd);
+	if (IS_ERR(dd->disk)) {
+		dev_err(&dd->pdev->dev,
+			"Unable to allocate request queue\n");
+		rv = -ENOMEM;
+		goto block_queue_alloc_init_error;
+	}
+	dd->queue		= dd->disk->queue;
+
+>>>>>>> upstream/android-13
 	rv = ida_alloc(&rssd_index_ida, GFP_KERNEL);
 	if (rv < 0)
 		goto ida_get_error;
@@ -3787,6 +4158,7 @@ static int mtip_block_initialize(struct driver_data *dd)
 
 	mtip_hw_debugfs_init(dd);
 
+<<<<<<< HEAD
 	memset(&dd->tags, 0, sizeof(dd->tags));
 	dd->tags.ops = &mtip_mq_ops;
 	dd->tags.nr_hw_queues = 1;
@@ -3817,6 +4189,8 @@ static int mtip_block_initialize(struct driver_data *dd)
 	dd->disk->queue		= dd->queue;
 	dd->queue->queuedata	= dd;
 
+=======
+>>>>>>> upstream/android-13
 skip_create_disk:
 	/* Initialize the protocol layer. */
 	wait_for_rebuild = mtip_hw_get_identify(dd);
@@ -3841,6 +4215,7 @@ skip_create_disk:
 	blk_queue_physical_block_size(dd->queue, 4096);
 	blk_queue_max_hw_sectors(dd->queue, 0xffff);
 	blk_queue_max_segment_size(dd->queue, 0x400000);
+<<<<<<< HEAD
 	blk_queue_io_min(dd->queue, 4096);
 
 	/* Signal trim support */
@@ -3851,6 +4226,11 @@ skip_create_disk:
 			MTIP_MAX_TRIM_ENTRY_LEN * MTIP_MAX_TRIM_ENTRIES);
 	}
 
+=======
+	dma_set_max_seg_size(&dd->pdev->dev, 0x400000);
+	blk_queue_io_min(dd->queue, 4096);
+
+>>>>>>> upstream/android-13
 	/* Set the capacity of the device in 512 byte sectors. */
 	if (!(mtip_hw_get_capacity(dd, &capacity))) {
 		dev_warn(&dd->pdev->dev,
@@ -3861,6 +4241,7 @@ skip_create_disk:
 	set_capacity(dd->disk, capacity);
 
 	/* Enable the block device and add it to /dev */
+<<<<<<< HEAD
 	device_add_disk(&dd->pdev->dev, dd->disk);
 
 	dd->bdev = bdget_disk(dd->disk, 0);
@@ -3873,6 +4254,9 @@ skip_create_disk:
 		mtip_hw_sysfs_init(dd, kobj);
 		kobject_put(kobj);
 	}
+=======
+	device_add_disk(&dd->pdev->dev, dd->disk, mtip_disk_attr_groups);
+>>>>>>> upstream/android-13
 
 	if (dd->mtip_svc_handler) {
 		set_bit(MTIP_DDF_INIT_DONE_BIT, &dd->dd_flag);
@@ -3897,6 +4281,7 @@ start_service_thread:
 	return rv;
 
 kthread_run_error:
+<<<<<<< HEAD
 	bdput(dd->bdev);
 	dd->bdev = NULL;
 
@@ -3919,16 +4304,39 @@ ida_get_error:
 alloc_disk_error:
 	mtip_hw_exit(dd); /* De-initialize the protocol layer. */
 
+=======
+	/* Delete our gendisk. This also removes the device from /dev */
+	del_gendisk(dd->disk);
+read_capacity_error:
+init_hw_cmds_error:
+	mtip_hw_debugfs_exit(dd);
+disk_index_error:
+	ida_free(&rssd_index_ida, index);
+ida_get_error:
+	blk_cleanup_disk(dd->disk);
+block_queue_alloc_init_error:
+	blk_mq_free_tag_set(&dd->tags);
+block_queue_alloc_tag_error:
+	mtip_hw_exit(dd); /* De-initialize the protocol layer. */
+>>>>>>> upstream/android-13
 protocol_init_error:
 	return rv;
 }
 
+<<<<<<< HEAD
 static void mtip_no_dev_cleanup(struct request *rq, void *data, bool reserv)
+=======
+static bool mtip_no_dev_cleanup(struct request *rq, void *data, bool reserv)
+>>>>>>> upstream/android-13
 {
 	struct mtip_cmd *cmd = blk_mq_rq_to_pdu(rq);
 
 	cmd->status = BLK_STS_IOERR;
 	blk_mq_complete_request(rq);
+<<<<<<< HEAD
+=======
+	return true;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -3943,8 +4351,11 @@ static void mtip_no_dev_cleanup(struct request *rq, void *data, bool reserv)
  */
 static int mtip_block_remove(struct driver_data *dd)
 {
+<<<<<<< HEAD
 	struct kobject *kobj;
 
+=======
+>>>>>>> upstream/android-13
 	mtip_hw_debugfs_exit(dd);
 
 	if (dd->mtip_svc_handler) {
@@ -3953,6 +4364,7 @@ static int mtip_block_remove(struct driver_data *dd)
 		kthread_stop(dd->mtip_svc_handler);
 	}
 
+<<<<<<< HEAD
 	/* Clean up the sysfs attributes, if created */
 	if (test_bit(MTIP_DDF_INIT_DONE_BIT, &dd->dd_flag)) {
 		kobj = kobject_get(&disk_to_dev(dd->disk)->kobj);
@@ -3962,6 +4374,8 @@ static int mtip_block_remove(struct driver_data *dd)
 		}
 	}
 
+=======
+>>>>>>> upstream/android-13
 	if (!dd->sr) {
 		/*
 		 * Explicitly wait here for IOs to quiesce,
@@ -3979,6 +4393,7 @@ static int mtip_block_remove(struct driver_data *dd)
 	blk_mq_tagset_busy_iter(&dd->tags, mtip_no_dev_cleanup, dd);
 	blk_mq_unquiesce_queue(dd->queue);
 
+<<<<<<< HEAD
 	/*
 	 * Delete our gendisk structure. This also removes the device
 	 * from /dev
@@ -3987,6 +4402,8 @@ static int mtip_block_remove(struct driver_data *dd)
 		bdput(dd->bdev);
 		dd->bdev = NULL;
 	}
+=======
+>>>>>>> upstream/android-13
 	if (dd->disk) {
 		if (test_bit(MTIP_DDF_INIT_DONE_BIT, &dd->dd_flag))
 			del_gendisk(dd->disk);
@@ -4087,9 +4504,15 @@ static int get_least_used_cpu_on_node(int node)
 /* Helper for selecting a node in round robin mode */
 static inline int mtip_get_next_rr_node(void)
 {
+<<<<<<< HEAD
 	static int next_node = -1;
 
 	if (next_node == -1) {
+=======
+	static int next_node = NUMA_NO_NODE;
+
+	if (next_node == NUMA_NO_NODE) {
+>>>>>>> upstream/android-13
 		next_node = first_online_node;
 		return next_node;
 	}
@@ -4111,6 +4534,7 @@ static DEFINE_HANDLER(7);
 
 static void mtip_disable_link_opts(struct driver_data *dd, struct pci_dev *pdev)
 {
+<<<<<<< HEAD
 	int pos;
 	unsigned short pcie_dev_ctrl;
 
@@ -4121,13 +4545,25 @@ static void mtip_disable_link_opts(struct driver_data *dd, struct pci_dev *pdev)
 			&pcie_dev_ctrl);
 		if (pcie_dev_ctrl & (1 << 11) ||
 		    pcie_dev_ctrl & (1 << 4)) {
+=======
+	unsigned short pcie_dev_ctrl;
+
+	if (pci_is_pcie(pdev)) {
+		pcie_capability_read_word(pdev, PCI_EXP_DEVCTL, &pcie_dev_ctrl);
+		if (pcie_dev_ctrl & PCI_EXP_DEVCTL_NOSNOOP_EN ||
+		    pcie_dev_ctrl & PCI_EXP_DEVCTL_RELAX_EN) {
+>>>>>>> upstream/android-13
 			dev_info(&dd->pdev->dev,
 				"Disabling ERO/No-Snoop on bridge device %04x:%04x\n",
 					pdev->vendor, pdev->device);
 			pcie_dev_ctrl &= ~(PCI_EXP_DEVCTL_NOSNOOP_EN |
 						PCI_EXP_DEVCTL_RELAX_EN);
+<<<<<<< HEAD
 			pci_write_config_word(pdev,
 				pos + PCI_EXP_DEVCTL,
+=======
+			pcie_capability_write_word(pdev, PCI_EXP_DEVCTL,
+>>>>>>> upstream/android-13
 				pcie_dev_ctrl);
 		}
 	}
@@ -4194,11 +4630,16 @@ static int mtip_pci_probe(struct pci_dev *pdev,
 		cpu_to_node(raw_smp_processor_id()), raw_smp_processor_id());
 
 	dd = kzalloc_node(sizeof(struct driver_data), GFP_KERNEL, my_node);
+<<<<<<< HEAD
 	if (dd == NULL) {
 		dev_err(&pdev->dev,
 			"Unable to allocate memory for driver data\n");
 		return -ENOMEM;
 	}
+=======
+	if (!dd)
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 
 	/* Attach the private data to this PCI device.  */
 	pci_set_drvdata(pdev, dd);
@@ -4216,6 +4657,7 @@ static int mtip_pci_probe(struct pci_dev *pdev,
 		goto iomap_err;
 	}
 
+<<<<<<< HEAD
 	if (!pci_set_dma_mask(pdev, DMA_BIT_MASK(64))) {
 		rv = pci_set_consistent_dma_mask(pdev, DMA_BIT_MASK(64));
 
@@ -4228,6 +4670,12 @@ static int mtip_pci_probe(struct pci_dev *pdev,
 				goto setmask_err;
 			}
 		}
+=======
+	rv = dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(64));
+	if (rv) {
+		dev_warn(&pdev->dev, "64-bit DMA enable failed\n");
+		goto setmask_err;
+>>>>>>> upstream/android-13
 	}
 
 	/* Copy the info we may need later into the private data structure. */
@@ -4389,15 +4837,22 @@ static void mtip_pci_remove(struct pci_dev *pdev)
 	} while (atomic_read(&dd->irq_workers_active) != 0 &&
 		time_before(jiffies, to));
 
+<<<<<<< HEAD
 	if (!dd->sr)
 		fsync_bdev(dd->bdev);
 
+=======
+>>>>>>> upstream/android-13
 	if (atomic_read(&dd->irq_workers_active) != 0) {
 		dev_warn(&dd->pdev->dev,
 			"Completion workers still active!\n");
 	}
 
+<<<<<<< HEAD
 	blk_set_queue_dying(dd->queue);
+=======
+	blk_mark_disk_dead(dd->disk);
+>>>>>>> upstream/android-13
 	set_bit(MTIP_DDF_REMOVE_PENDING_BIT, &dd->dd_flag);
 
 	/* Clean up the block layer. */
@@ -4566,11 +5021,14 @@ static int __init mtip_init(void)
 
 	pr_info(MTIP_DRV_NAME " Version " MTIP_DRV_VERSION "\n");
 
+<<<<<<< HEAD
 	spin_lock_init(&dev_lock);
 
 	INIT_LIST_HEAD(&online_list);
 	INIT_LIST_HEAD(&removing_list);
 
+=======
+>>>>>>> upstream/android-13
 	/* Allocate a major block device number to use with this driver. */
 	error = register_blkdev(0, MTIP_DRV_NAME);
 	if (error <= 0) {

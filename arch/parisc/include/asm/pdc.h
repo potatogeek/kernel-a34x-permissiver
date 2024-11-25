@@ -11,6 +11,10 @@ extern int parisc_narrow_firmware;
 extern int pdc_type;
 extern unsigned long parisc_cell_num; /* cell number the CPU runs on (PAT) */
 extern unsigned long parisc_cell_loc; /* cell location of CPU (PAT)	   */
+<<<<<<< HEAD
+=======
+extern unsigned long parisc_pat_pdc_cap; /* PDC capabilities (PAT) */
+>>>>>>> upstream/android-13
 
 /* Values for pdc_type */
 #define PDC_TYPE_ILLEGAL	-1
@@ -43,6 +47,10 @@ int pdc_model_sysmodel(char *name);
 int pdc_model_cpuid(unsigned long *cpu_id);
 int pdc_model_versions(unsigned long *versions, int id);
 int pdc_model_capabilities(unsigned long *capabilities);
+<<<<<<< HEAD
+=======
+int pdc_model_platform_info(char *orig_prod_num, char *current_prod_num, char *serial_no);
+>>>>>>> upstream/android-13
 int pdc_cache_info(struct pdc_cache_info *cache);
 int pdc_spaceid_bits(unsigned long *space_bits);
 #ifndef CONFIG_PA20
@@ -89,6 +97,10 @@ int pdc_sti_call(unsigned long func, unsigned long flags,
                  unsigned long inptr, unsigned long outputr,
                  unsigned long glob_cfg);
 
+<<<<<<< HEAD
+=======
+int __pdc_cpu_rendezvous(void);
+>>>>>>> upstream/android-13
 static inline char * os_id_to_string(u16 os_id) {
 	switch(os_id) {
 	case OS_ID_NONE:	return "No OS";

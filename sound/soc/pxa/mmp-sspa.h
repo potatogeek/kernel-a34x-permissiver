@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * linux/sound/soc/pxa/mmp-sspa.h
  *
  * Copyright (C) 2011 Marvell International Ltd.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +22,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef _MMP_SSPA_H
 #define _MMP_SSPA_H
@@ -24,6 +31,7 @@
 /*
  * SSPA Registers
  */
+<<<<<<< HEAD
 #define SSPA_RXD		(0x00)
 #define SSPA_RXID		(0x04)
 #define SSPA_RXCTL		(0x08)
@@ -43,6 +51,17 @@
 #define SSPA_TXC		(0x98)
 #define SSPA_TXFIFO_NOFS	(0x9c)
 #define SSPA_TXFIFO_SIZE	(0xa0)
+=======
+#define SSPA_D			(0x00)
+#define SSPA_ID			(0x04)
+#define SSPA_CTL		(0x08)
+#define SSPA_SP			(0x0c)
+#define SSPA_FIFO_UL		(0x10)
+#define SSPA_INT_MASK		(0x14)
+#define SSPA_C			(0x18)
+#define SSPA_FIFO_NOFS		(0x1c)
+#define SSPA_FIFO_SIZE		(0x20)
+>>>>>>> upstream/android-13
 
 /* SSPA Control Register */
 #define	SSPA_CTL_XPH		(1 << 31)	/* Read Phase */
@@ -52,7 +71,11 @@
 #define	SSPA_CTL_XFRLEN2(x)	((x) << 24)	/* Transmit Frame Length in Phase 2 */
 #define	SSPA_CTL_XWDLEN2_MASK	(7 << 21)
 #define	SSPA_CTL_XWDLEN2(x)	((x) << 21)	/* Transmit Word Length in Phase 2 */
+<<<<<<< HEAD
 #define	SSPA_CTL_XDATDLY(x)	((x) << 19)	/* Tansmit Data Delay */
+=======
+#define	SSPA_CTL_XDATDLY(x)	((x) << 19)	/* Transmit Data Delay */
+>>>>>>> upstream/android-13
 #define	SSPA_CTL_XSSZ2_MASK	(7 << 16)
 #define	SSPA_CTL_XSSZ2(x)	((x) << 16)	/* Transmit Sample Audio Size */
 #define	SSPA_CTL_XFRLEN1_MASK	(7 << 8)
@@ -77,7 +100,13 @@
 #define	SSPA_SP_FFLUSH		(1 << 2)	/* FIFO Flush */
 #define	SSPA_SP_S_RST		(1 << 1)	/* Active High Reset Signal */
 #define	SSPA_SP_S_EN		(1 << 0)	/* Serial Clock Domain Enable */
+<<<<<<< HEAD
 #define	SSPA_SP_FWID(x)		((x) << 20)	/* Frame-Sync Width */
+=======
+#define	SSPA_SP_FWID_MASK	(0x3f << 20)
+#define	SSPA_SP_FWID(x)		((x) << 20)	/* Frame-Sync Width */
+#define	SSPA_TXSP_FPER_MASK	(0x3f << 4)
+>>>>>>> upstream/android-13
 #define	SSPA_TXSP_FPER(x)	((x) << 4)	/* Frame-Sync Active */
 
 /* sspa clock sources */

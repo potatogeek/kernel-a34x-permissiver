@@ -4,17 +4,27 @@
  *
  * Handling for IPMI devices on the PCI bus.
  */
+<<<<<<< HEAD
+=======
+
+#define pr_fmt(fmt) "ipmi_pci: " fmt
+
+>>>>>>> upstream/android-13
 #include <linux/module.h>
 #include <linux/pci.h>
 #include "ipmi_si.h"
 
+<<<<<<< HEAD
 #define PFX "ipmi_pci: "
 
+=======
+>>>>>>> upstream/android-13
 static bool pci_registered;
 
 static bool si_trypci = true;
 
 module_param_named(trypci, si_trypci, bool, 0);
+<<<<<<< HEAD
 MODULE_PARM_DESC(trypci, "Setting this to zero will disable the"
 		 " default scan of the interfaces identified via pci");
 
@@ -27,6 +37,13 @@ static void ipmi_pci_cleanup(struct si_sm_io *io)
 	pci_disable_device(pdev);
 }
 
+=======
+MODULE_PARM_DESC(trypci,
+		 "Setting this to zero will disable the default scan of the interfaces identified via pci");
+
+#define PCI_DEVICE_ID_HP_MMC 0x121A
+
+>>>>>>> upstream/android-13
 static int ipmi_pci_probe_regspacing(struct si_sm_io *io)
 {
 	if (io->si_type == SI_KCS) {
@@ -40,8 +57,12 @@ static int ipmi_pci_probe_regspacing(struct si_sm_io *io)
 		for (regspacing = DEFAULT_REGSPACING; regspacing <= 16;) {
 			io->regspacing = regspacing;
 			if (io->io_setup(io)) {
+<<<<<<< HEAD
 				dev_err(io->dev,
 					"Could not setup I/O space\n");
+=======
+				dev_err(io->dev, "Could not setup I/O space\n");
+>>>>>>> upstream/android-13
 				return DEFAULT_REGSPACING;
 			}
 			/* write invalid cmd */
@@ -97,12 +118,17 @@ static int ipmi_pci_probe(struct pci_dev *pdev,
 		return -ENOMEM;
 	}
 
+<<<<<<< HEAD
 	rv = pci_enable_device(pdev);
+=======
+	rv = pcim_enable_device(pdev);
+>>>>>>> upstream/android-13
 	if (rv) {
 		dev_err(&pdev->dev, "couldn't enable PCI device\n");
 		return rv;
 	}
 
+<<<<<<< HEAD
 	io.addr_source_cleanup = ipmi_pci_cleanup;
 	io.addr_source_data = pdev;
 
@@ -111,6 +137,13 @@ static int ipmi_pci_probe(struct pci_dev *pdev,
 		io.io_setup = ipmi_si_port_setup;
 	} else {
 		io.addr_type = IPMI_MEM_ADDR_SPACE;
+=======
+	if (pci_resource_flags(pdev, 0) & IORESOURCE_IO) {
+		io.addr_space = IPMI_IO_ADDR_SPACE;
+		io.io_setup = ipmi_si_port_setup;
+	} else {
+		io.addr_space = IPMI_MEM_ADDR_SPACE;
+>>>>>>> upstream/android-13
 		io.io_setup = ipmi_si_mem_setup;
 	}
 	io.addr_data = pci_resource_start(pdev, 0);
@@ -126,6 +159,7 @@ static int ipmi_pci_probe(struct pci_dev *pdev,
 		io.irq_setup = ipmi_std_irq_setup;
 
 	dev_info(&pdev->dev, "%pR regsize %d spacing %d irq %d\n",
+<<<<<<< HEAD
 		&pdev->resource[0], io.regsize, io.regspacing, io.irq);
 
 	rv = ipmi_si_add_smi(&io);
@@ -133,6 +167,11 @@ static int ipmi_pci_probe(struct pci_dev *pdev,
 		pci_disable_device(pdev);
 
 	return rv;
+=======
+		 &pdev->resource[0], io.regsize, io.regspacing, io.irq);
+
+	return ipmi_si_add_smi(&io);
+>>>>>>> upstream/android-13
 }
 
 static void ipmi_pci_remove(struct pci_dev *pdev)
@@ -150,7 +189,11 @@ static const struct pci_device_id ipmi_pci_devices[] = {
 MODULE_DEVICE_TABLE(pci, ipmi_pci_devices);
 
 static struct pci_driver ipmi_pci_driver = {
+<<<<<<< HEAD
 	.name =         DEVICE_NAME,
+=======
+	.name =         SI_DEVICE_NAME,
+>>>>>>> upstream/android-13
 	.id_table =     ipmi_pci_devices,
 	.probe =        ipmi_pci_probe,
 	.remove =       ipmi_pci_remove,
@@ -161,7 +204,11 @@ void ipmi_si_pci_init(void)
 	if (si_trypci) {
 		int rv = pci_register_driver(&ipmi_pci_driver);
 		if (rv)
+<<<<<<< HEAD
 			pr_err(PFX "Unable to register PCI driver: %d\n", rv);
+=======
+			pr_err("Unable to register PCI driver: %d\n", rv);
+>>>>>>> upstream/android-13
 		else
 			pci_registered = true;
 	}

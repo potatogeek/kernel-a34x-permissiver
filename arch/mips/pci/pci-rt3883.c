@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  Ralink RT3662/RT3883 SoC PCI support
  *
  *  Copyright (C) 2011-2013 Gabor Juhos <juhosg@openwrt.org>
  *
  *  Parts of this file are based on Ralink's 2.6.21 BSP
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify it
  *  under the terms of the GNU General Public License version 2 as published
  *  by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/types.h>
@@ -16,6 +23,10 @@
 #include <linux/init.h>
 #include <linux/delay.h>
 #include <linux/interrupt.h>
+<<<<<<< HEAD
+=======
+#include <linux/irqdomain.h>
+>>>>>>> upstream/android-13
 #include <linux/of.h>
 #include <linux/of_irq.h>
 #include <linux/of_pci.h>
@@ -103,7 +114,10 @@ static u32 rt3883_pci_read_cfg32(struct rt3883_pci_controller *rpc,
 			       unsigned bus, unsigned slot,
 			       unsigned func, unsigned reg)
 {
+<<<<<<< HEAD
 	unsigned long flags;
+=======
+>>>>>>> upstream/android-13
 	u32 address;
 	u32 ret;
 
@@ -119,7 +133,10 @@ static void rt3883_pci_write_cfg32(struct rt3883_pci_controller *rpc,
 				 unsigned bus, unsigned slot,
 				 unsigned func, unsigned reg, u32 val)
 {
+<<<<<<< HEAD
 	unsigned long flags;
+=======
+>>>>>>> upstream/android-13
 	u32 address;
 
 	address = rt3883_pci_get_cfgaddr(bus, slot, func, reg);
@@ -144,10 +161,16 @@ static void rt3883_pci_irq_handler(struct irq_desc *desc)
 	}
 
 	while (pending) {
+<<<<<<< HEAD
 		unsigned irq, bit = __ffs(pending);
 
 		irq = irq_find_mapping(rpc->irq_domain, bit);
 		generic_handle_irq(irq);
+=======
+		unsigned bit = __ffs(pending);
+
+		generic_handle_domain_irq(rpc->irq_domain, bit);
+>>>>>>> upstream/android-13
 
 		pending &= ~BIT(bit);
 	}
@@ -232,7 +255,10 @@ static int rt3883_pci_config_read(struct pci_bus *bus, unsigned int devfn,
 				  int where, int size, u32 *val)
 {
 	struct rt3883_pci_controller *rpc;
+<<<<<<< HEAD
 	unsigned long flags;
+=======
+>>>>>>> upstream/android-13
 	u32 address;
 	u32 data;
 
@@ -266,7 +292,10 @@ static int rt3883_pci_config_write(struct pci_bus *bus, unsigned int devfn,
 				   int where, int size, u32 val)
 {
 	struct rt3883_pci_controller *rpc;
+<<<<<<< HEAD
 	unsigned long flags;
+=======
+>>>>>>> upstream/android-13
 	u32 address;
 	u32 data;
 
@@ -438,15 +467,23 @@ static int rt3883_pci_probe(struct platform_device *pdev)
 
 	if (!rpc->intc_of_node) {
 		dev_err(dev, "%pOF has no %s child node",
+<<<<<<< HEAD
 			rpc->intc_of_node,
 			"interrupt controller");
+=======
+			np, "interrupt controller");
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
 	/* find the PCI host bridge child node */
 	for_each_child_of_node(np, child) {
+<<<<<<< HEAD
 		if (child->type &&
 		    of_node_cmp(child->type, "pci") == 0) {
+=======
+		if (of_node_is_type(child, "pci")) {
+>>>>>>> upstream/android-13
 			rpc->pci_controller.of_node = child;
 			break;
 		}
@@ -454,8 +491,12 @@ static int rt3883_pci_probe(struct platform_device *pdev)
 
 	if (!rpc->pci_controller.of_node) {
 		dev_err(dev, "%pOF has no %s child node",
+<<<<<<< HEAD
 			rpc->intc_of_node,
 			"PCI host bridge");
+=======
+			np, "PCI host bridge");
+>>>>>>> upstream/android-13
 		err = -EINVAL;
 		goto err_put_intc_node;
 	}
@@ -464,8 +505,12 @@ static int rt3883_pci_probe(struct platform_device *pdev)
 	for_each_available_child_of_node(rpc->pci_controller.of_node, child) {
 		int devfn;
 
+<<<<<<< HEAD
 		if (!child->type ||
 		    of_node_cmp(child->type, "pci") != 0)
+=======
+		if (!of_node_is_type(child, "pci"))
+>>>>>>> upstream/android-13
 			continue;
 
 		devfn = of_pci_get_devfn(child);

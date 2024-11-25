@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2014 Broadcom Corporation
  *
@@ -12,6 +13,11 @@
  * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION
  * OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+=======
+// SPDX-License-Identifier: ISC
+/*
+ * Copyright (c) 2014 Broadcom Corporation
+>>>>>>> upstream/android-13
  */
 
 #include <linux/netdevice.h>
@@ -49,7 +55,15 @@ static const struct brcmf_feat_fwcap brcmf_fwcap_map[] = {
 	{ BRCMF_FEAT_MCHAN, "mchan" },
 	{ BRCMF_FEAT_P2P, "p2p" },
 	{ BRCMF_FEAT_MONITOR, "monitor" },
+<<<<<<< HEAD
 	{ BRCMF_FEAT_MONITOR_FMT_RADIOTAP, "rtap" },
+=======
+	{ BRCMF_FEAT_MONITOR_FLAG, "rtap" },
+	{ BRCMF_FEAT_MONITOR_FMT_RADIOTAP, "rtap" },
+	{ BRCMF_FEAT_DOT11H, "802.11h" },
+	{ BRCMF_FEAT_SAE, "sae" },
+	{ BRCMF_FEAT_FWAUTH, "idauth" },
+>>>>>>> upstream/android-13
 };
 
 #ifdef DEBUG
@@ -103,6 +117,13 @@ static const struct brcmf_feat_fwfeat brcmf_feat_fwfeat_map[] = {
 	{ "01-6cb8e269", BIT(BRCMF_FEAT_MONITOR) },
 	/* brcmfmac4366b-pcie.bin from linux-firmware.git commit 52442afee990 */
 	{ "01-c47a91a4", BIT(BRCMF_FEAT_MONITOR) },
+<<<<<<< HEAD
+=======
+	/* brcmfmac4366b-pcie.bin from linux-firmware.git commit 211de1679a68 */
+	{ "01-801fb449", BIT(BRCMF_FEAT_MONITOR_FMT_HW_RX_HDR) },
+	/* brcmfmac4366c-pcie.bin from linux-firmware.git commit 211de1679a68 */
+	{ "01-d2cbb8fd", BIT(BRCMF_FEAT_MONITOR_FMT_HW_RX_HDR) },
+>>>>>>> upstream/android-13
 };
 
 static void brcmf_feat_firmware_overrides(struct brcmf_pub *drv)
@@ -181,13 +202,21 @@ static void brcmf_feat_iovar_data_set(struct brcmf_if *ifp,
 #define MAX_CAPS_BUFFER_SIZE	768
 static void brcmf_feat_firmware_capabilities(struct brcmf_if *ifp)
 {
+<<<<<<< HEAD
+=======
+	struct brcmf_pub *drvr = ifp->drvr;
+>>>>>>> upstream/android-13
 	char caps[MAX_CAPS_BUFFER_SIZE];
 	enum brcmf_feat_id id;
 	int i, err;
 
 	err = brcmf_fil_iovar_data_get(ifp, "cap", caps, sizeof(caps));
 	if (err) {
+<<<<<<< HEAD
 		brcmf_err("could not get firmware cap (%d)\n", err);
+=======
+		bphy_err(drvr, "could not get firmware cap (%d)\n", err);
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -212,14 +241,23 @@ static void brcmf_feat_firmware_capabilities(struct brcmf_if *ifp)
 static int brcmf_feat_fwcap_debugfs_read(struct seq_file *seq, void *data)
 {
 	struct brcmf_bus *bus_if = dev_get_drvdata(seq->private);
+<<<<<<< HEAD
 	struct brcmf_if *ifp = brcmf_get_ifp(bus_if->drvr, 0);
+=======
+	struct brcmf_pub *drvr = bus_if->drvr;
+	struct brcmf_if *ifp = brcmf_get_ifp(drvr, 0);
+>>>>>>> upstream/android-13
 	char caps[MAX_CAPS_BUFFER_SIZE + 1] = { };
 	char *tmp;
 	int err;
 
 	err = brcmf_fil_iovar_data_get(ifp, "cap", caps, sizeof(caps));
 	if (err) {
+<<<<<<< HEAD
 		brcmf_err("could not get firmware cap (%d)\n", err);
+=======
+		bphy_err(drvr, "could not get firmware cap (%d)\n", err);
+>>>>>>> upstream/android-13
 		return err;
 	}
 
@@ -268,9 +306,21 @@ void brcmf_feat_attach(struct brcmf_pub *drvr)
 					BIT(BRCMF_FEAT_WOWL_GTK);
 		}
 	}
+<<<<<<< HEAD
 	/* MBSS does not work for 43362 */
 	if (drvr->bus_if->chip == BRCM_CC_43362_CHIP_ID)
 		ifp->drvr->feat_flags &= ~BIT(BRCMF_FEAT_MBSS);
+=======
+	/* MBSS does not work for all chips */
+	switch (drvr->bus_if->chip) {
+	case BRCM_CC_4330_CHIP_ID:
+	case BRCM_CC_43362_CHIP_ID:
+		ifp->drvr->feat_flags &= ~BIT(BRCMF_FEAT_MBSS);
+		break;
+	default:
+		break;
+	}
+>>>>>>> upstream/android-13
 	brcmf_feat_iovar_int_get(ifp, BRCMF_FEAT_RSDB, "rsdb_mode");
 	brcmf_feat_iovar_int_get(ifp, BRCMF_FEAT_TDLS, "tdls_enable");
 	brcmf_feat_iovar_int_get(ifp, BRCMF_FEAT_MFP, "mfp");

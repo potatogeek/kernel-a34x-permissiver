@@ -1,7 +1,13 @@
+<<<<<<< HEAD
 /*
  *  (C) 2010,2011       Thomas Renninger <trenn@suse.de>, Novell Inc.
  *
  *  Licensed under the terms of the GNU GPL License version 2.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ *  (C) 2010,2011       Thomas Renninger <trenn@suse.de>, Novell Inc.
+>>>>>>> upstream/android-13
  */
 
 #if defined(__i386__) || defined(__x86_64__)
@@ -20,6 +26,13 @@
 #define MSR_APERF	0xE8
 #define MSR_MPERF	0xE7
 
+<<<<<<< HEAD
+=======
+#define RDPRU ".byte 0x0f, 0x01, 0xfd"
+#define RDPRU_ECX_MPERF	0
+#define RDPRU_ECX_APERF	1
+
+>>>>>>> upstream/android-13
 #define MSR_TSC	0x10
 
 #define MSR_AMD_HWCR 0xc0010015
@@ -87,6 +100,7 @@ static int mperf_get_tsc(unsigned long long *tsc)
 	return ret;
 }
 
+<<<<<<< HEAD
 static int mperf_init_stats(unsigned int cpu)
 {
 	unsigned long long val;
@@ -96,6 +110,53 @@ static int mperf_init_stats(unsigned int cpu)
 	aperf_previous_count[cpu] = val;
 	ret |= read_msr(cpu, MSR_MPERF, &val);
 	mperf_previous_count[cpu] = val;
+=======
+static int get_aperf_mperf(int cpu, unsigned long long *aval,
+				    unsigned long long *mval)
+{
+	unsigned long low_a, high_a;
+	unsigned long low_m, high_m;
+	int ret;
+
+	/*
+	 * Running on the cpu from which we read the registers will
+	 * prevent APERF/MPERF from going out of sync because of IPI
+	 * latency introduced by read_msr()s.
+	 */
+	if (mperf_monitor.flags.per_cpu_schedule) {
+		if (bind_cpu(cpu))
+			return 1;
+	}
+
+	if (cpupower_cpu_info.caps & CPUPOWER_CAP_AMD_RDPRU) {
+		asm volatile(RDPRU
+			     : "=a" (low_a), "=d" (high_a)
+			     : "c" (RDPRU_ECX_APERF));
+		asm volatile(RDPRU
+			     : "=a" (low_m), "=d" (high_m)
+			     : "c" (RDPRU_ECX_MPERF));
+
+		*aval = ((low_a) | (high_a) << 32);
+		*mval = ((low_m) | (high_m) << 32);
+
+		return 0;
+	}
+
+	ret  = read_msr(cpu, MSR_APERF, aval);
+	ret |= read_msr(cpu, MSR_MPERF, mval);
+
+	return ret;
+}
+
+static int mperf_init_stats(unsigned int cpu)
+{
+	unsigned long long aval, mval;
+	int ret;
+
+	ret = get_aperf_mperf(cpu, &aval, &mval);
+	aperf_previous_count[cpu] = aval;
+	mperf_previous_count[cpu] = mval;
+>>>>>>> upstream/android-13
 	is_valid[cpu] = !ret;
 
 	return 0;
@@ -103,6 +164,7 @@ static int mperf_init_stats(unsigned int cpu)
 
 static int mperf_measure_stats(unsigned int cpu)
 {
+<<<<<<< HEAD
 	unsigned long long val;
 	int ret;
 
@@ -110,6 +172,14 @@ static int mperf_measure_stats(unsigned int cpu)
 	aperf_current_count[cpu] = val;
 	ret |= read_msr(cpu, MSR_MPERF, &val);
 	mperf_current_count[cpu] = val;
+=======
+	unsigned long long aval, mval;
+	int ret;
+
+	ret = get_aperf_mperf(cpu, &aval, &mval);
+	aperf_current_count[cpu] = aval;
+	mperf_current_count[cpu] = mval;
+>>>>>>> upstream/android-13
 	is_valid[cpu] = !ret;
 
 	return 0;
@@ -241,7 +311,12 @@ static int init_maxfreq_mode(void)
 	if (!(cpupower_cpu_info.caps & CPUPOWER_CAP_INV_TSC))
 		goto use_sysfs;
 
+<<<<<<< HEAD
 	if (cpupower_cpu_info.vendor == X86_VENDOR_AMD) {
+=======
+	if (cpupower_cpu_info.vendor == X86_VENDOR_AMD ||
+	    cpupower_cpu_info.vendor == X86_VENDOR_HYGON) {
+>>>>>>> upstream/android-13
 		/* MSR_AMD_HWCR tells us whether TSC runs at P0/mperf
 		 * freq.
 		 * A test whether hwcr is accessable/available would be:
@@ -305,6 +380,12 @@ struct cpuidle_monitor *mperf_register(void)
 	if (init_maxfreq_mode())
 		return NULL;
 
+<<<<<<< HEAD
+=======
+	if (cpupower_cpu_info.vendor == X86_VENDOR_AMD)
+		mperf_monitor.flags.per_cpu_schedule = 1;
+
+>>>>>>> upstream/android-13
 	/* Free this at program termination */
 	is_valid = calloc(cpu_count, sizeof(int));
 	mperf_previous_count = calloc(cpu_count, sizeof(unsigned long long));
@@ -333,7 +414,11 @@ struct cpuidle_monitor mperf_monitor = {
 	.stop			= mperf_stop,
 	.do_register		= mperf_register,
 	.unregister		= mperf_unregister,
+<<<<<<< HEAD
 	.needs_root		= 1,
+=======
+	.flags.needs_root	= 1,
+>>>>>>> upstream/android-13
 	.overflow_s		= 922000000 /* 922337203 seconds TSC overflow
 					       at 20GHz */
 };

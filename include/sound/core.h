@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 #ifndef __SOUND_CORE_H
 #define __SOUND_CORE_H
 
 /*
  *  Main header file for the ALSA driver
  *  Copyright (c) 1994-2001 by Jaroslav Kysela <perex@perex.cz>
+<<<<<<< HEAD
  *
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -20,6 +25,8 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/device.h>
@@ -29,6 +36,11 @@
 #include <linux/pm.h>			/* pm_message_t */
 #include <linux/stringify.h>
 #include <linux/printk.h>
+<<<<<<< HEAD
+=======
+#include <linux/android_kabi.h>
+#include <linux/xarray.h>
+>>>>>>> upstream/android-13
 
 /* number of supported soundcards */
 #ifdef CONFIG_SND_DYNAMIC_MINORS
@@ -76,6 +88,11 @@ struct snd_device_ops {
 	int (*dev_free)(struct snd_device *dev);
 	int (*dev_register)(struct snd_device *dev);
 	int (*dev_disconnect)(struct snd_device *dev);
+<<<<<<< HEAD
+=======
+
+	ANDROID_KABI_RESERVE(1);
+>>>>>>> upstream/android-13
 };
 
 struct snd_device {
@@ -84,7 +101,13 @@ struct snd_device {
 	enum snd_device_state state;	/* state of the device */
 	enum snd_device_type type;	/* device type */
 	void *device_data;		/* device structure */
+<<<<<<< HEAD
 	struct snd_device_ops *ops;	/* operations */
+=======
+	const struct snd_device_ops *ops;	/* operations */
+
+	ANDROID_KABI_RESERVE(1);
+>>>>>>> upstream/android-13
 };
 
 #define snd_device(n) list_entry(n, struct snd_device, list)
@@ -115,12 +138,25 @@ struct snd_card {
 	struct rw_semaphore controls_rwsem;	/* controls list lock */
 	rwlock_t ctl_files_rwlock;	/* ctl_files list lock */
 	int controls_count;		/* count of all controls */
+<<<<<<< HEAD
 	int user_ctl_count;		/* count of all user controls */
 	struct list_head controls;	/* all controls for this card */
 	struct list_head ctl_files;	/* active control files */
 
 	struct snd_info_entry *proc_root;	/* root for soundcard specific files */
 	struct snd_info_entry *proc_id;	/* the card id */
+=======
+	size_t user_ctl_alloc_size;	// current memory allocation by user controls.
+	struct list_head controls;	/* all controls for this card */
+	struct list_head ctl_files;	/* active control files */
+#ifdef CONFIG_SND_CTL_FAST_LOOKUP
+	struct xarray ctl_numids;	/* hash table for numids */
+	struct xarray ctl_hash;		/* hash table for ctl id matching */
+	bool ctl_hash_collision;	/* ctl_hash collision seen? */
+#endif
+
+	struct snd_info_entry *proc_root;	/* root for soundcard specific files */
+>>>>>>> upstream/android-13
 	struct proc_dir_entry *proc_root_link;	/* number link to real id */
 
 	struct list_head files_list;	/* all files associated to this card */
@@ -133,6 +169,7 @@ struct snd_card {
 	struct device card_dev;		/* cardX object for sysfs */
 	const struct attribute_group *dev_groups[4]; /* assigned sysfs attr */
 	bool registered;		/* card_dev is registered? */
+<<<<<<< HEAD
 	wait_queue_head_t remove_sleep;
 	int offline;			/* if this sound card is offline */
 	unsigned long offline_change;
@@ -141,12 +178,36 @@ struct snd_card {
 #ifdef CONFIG_PM
 	unsigned int power_state;	/* power state */
 	wait_queue_head_t power_sleep;
+=======
+	bool managed;			/* managed via devres */
+	bool releasing;			/* during card free process */
+	int sync_irq;			/* assigned irq, used for PCM sync */
+	wait_queue_head_t remove_sleep;
+
+	size_t total_pcm_alloc_bytes;	/* total amount of allocated buffers */
+	struct mutex memory_mutex;	/* protection for the above */
+#ifdef CONFIG_SND_DEBUG
+	struct dentry *debugfs_root;    /* debugfs root for card */
+#endif
+
+#ifdef CONFIG_PM
+	unsigned int power_state;	/* power state */
+	atomic_t power_ref;
+	wait_queue_head_t power_sleep;
+	wait_queue_head_t power_ref_sleep;
+>>>>>>> upstream/android-13
 #endif
 
 #if IS_ENABLED(CONFIG_SND_MIXER_OSS)
 	struct snd_mixer_oss *mixer_oss;
 	int mixer_oss_change_count;
 #endif
+<<<<<<< HEAD
+=======
+
+	ANDROID_KABI_RESERVE(1);
+	ANDROID_KABI_RESERVE(2);
+>>>>>>> upstream/android-13
 };
 
 #define dev_to_snd_card(p)	container_of(p, struct snd_card, card_dev)
@@ -154,11 +215,16 @@ struct snd_card {
 #ifdef CONFIG_PM
 static inline unsigned int snd_power_get_state(struct snd_card *card)
 {
+<<<<<<< HEAD
 	return card->power_state;
+=======
+	return READ_ONCE(card->power_state);
+>>>>>>> upstream/android-13
 }
 
 static inline void snd_power_change_state(struct snd_card *card, unsigned int state)
 {
+<<<<<<< HEAD
 	card->power_state = state;
 	wake_up(&card->power_sleep);
 }
@@ -169,6 +235,58 @@ int snd_power_wait(struct snd_card *card, unsigned int power_state);
 #else /* ! CONFIG_PM */
 
 static inline int snd_power_wait(struct snd_card *card, unsigned int state) { return 0; }
+=======
+	WRITE_ONCE(card->power_state, state);
+	wake_up(&card->power_sleep);
+}
+
+/**
+ * snd_power_ref - Take the reference count for power control
+ * @card: sound card object
+ *
+ * The power_ref reference of the card is used for managing to block
+ * the snd_power_sync_ref() operation.  This function increments the reference.
+ * The counterpart snd_power_unref() has to be called appropriately later.
+ */
+static inline void snd_power_ref(struct snd_card *card)
+{
+	atomic_inc(&card->power_ref);
+}
+
+/**
+ * snd_power_unref - Release the reference count for power control
+ * @card: sound card object
+ */
+static inline void snd_power_unref(struct snd_card *card)
+{
+	if (atomic_dec_and_test(&card->power_ref))
+		wake_up(&card->power_ref_sleep);
+}
+
+/**
+ * snd_power_sync_ref - wait until the card power_ref is freed
+ * @card: sound card object
+ *
+ * This function is used to synchronize with the pending power_ref being
+ * released.
+ */
+static inline void snd_power_sync_ref(struct snd_card *card)
+{
+	wait_event(card->power_ref_sleep, !atomic_read(&card->power_ref));
+}
+
+/* init.c */
+int snd_power_wait(struct snd_card *card);
+int snd_power_ref_and_wait(struct snd_card *card);
+
+#else /* ! CONFIG_PM */
+
+static inline int snd_power_wait(struct snd_card *card) { return 0; }
+static inline void snd_power_ref(struct snd_card *card) {}
+static inline void snd_power_unref(struct snd_card *card) {}
+static inline int snd_power_ref_and_wait(struct snd_card *card) { return 0; }
+static inline void snd_power_sync_ref(struct snd_card *card) {}
+>>>>>>> upstream/android-13
 #define snd_power_get_state(card)	({ (void)(card); SNDRV_CTL_POWER_D0; })
 #define snd_power_change_state(card, state)	do { (void)(card); } while (0)
 
@@ -182,6 +300,11 @@ struct snd_minor {
 	void *private_data;		/* private data for f_ops->open */
 	struct device *dev;		/* device for sysfs */
 	struct snd_card *card_ptr;	/* assigned card instance */
+<<<<<<< HEAD
+=======
+
+	ANDROID_KABI_RESERVE(1);
+>>>>>>> upstream/android-13
 };
 
 /* return a device pointer linked to each sound device as a parent */
@@ -195,6 +318,12 @@ static inline struct device *snd_card_get_device_link(struct snd_card *card)
 extern int snd_major;
 extern int snd_ecards_limit;
 extern struct class *sound_class;
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_SND_DEBUG
+extern struct dentry *sound_debugfs_root;
+#endif
+>>>>>>> upstream/android-13
 
 void snd_request_card(int card);
 
@@ -230,7 +359,10 @@ int copy_from_user_toio(volatile void __iomem *dst, const void __user *src, size
 
 /* init.c */
 
+<<<<<<< HEAD
 extern struct snd_card *snd_cards[SNDRV_CARDS];
+=======
+>>>>>>> upstream/android-13
 int snd_card_locked(int card);
 #if IS_ENABLED(CONFIG_SND_MIXER_OSS)
 #define SND_MIXER_OSS_NOTIFY_REGISTER	0
@@ -242,11 +374,21 @@ extern int (*snd_mixer_oss_notify_callback)(struct snd_card *card, int cmd);
 int snd_card_new(struct device *parent, int idx, const char *xid,
 		 struct module *module, int extra_size,
 		 struct snd_card **card_ret);
+<<<<<<< HEAD
+=======
+int snd_devm_card_new(struct device *parent, int idx, const char *xid,
+		      struct module *module, size_t extra_size,
+		      struct snd_card **card_ret);
+>>>>>>> upstream/android-13
 
 int snd_card_disconnect(struct snd_card *card);
 void snd_card_disconnect_sync(struct snd_card *card);
 int snd_card_free(struct snd_card *card);
 int snd_card_free_when_closed(struct snd_card *card);
+<<<<<<< HEAD
+=======
+int snd_card_free_on_error(struct device *dev, int ret);
+>>>>>>> upstream/android-13
 void snd_card_set_id(struct snd_card *card, const char *id);
 int snd_card_register(struct snd_card *card);
 int snd_card_info_init(void);
@@ -255,21 +397,46 @@ int snd_card_add_dev_attr(struct snd_card *card,
 int snd_component_add(struct snd_card *card, const char *component);
 int snd_card_file_add(struct snd_card *card, struct file *file);
 int snd_card_file_remove(struct snd_card *card, struct file *file);
+<<<<<<< HEAD
 #define snd_card_unref(card)	put_device(&(card)->card_dev)
 void snd_card_change_online_state(struct snd_card *card, int online);
+=======
+
+struct snd_card *snd_card_ref(int card);
+
+/**
+ * snd_card_unref - Unreference the card object
+ * @card: the card object to unreference
+ *
+ * Call this function for the card object that was obtained via snd_card_ref()
+ * or snd_lookup_minor_data().
+ */
+static inline void snd_card_unref(struct snd_card *card)
+{
+	put_device(&card->card_dev);
+}
+>>>>>>> upstream/android-13
 
 #define snd_card_set_dev(card, devptr) ((card)->dev = (devptr))
 
 /* device.c */
 
 int snd_device_new(struct snd_card *card, enum snd_device_type type,
+<<<<<<< HEAD
 		   void *device_data, struct snd_device_ops *ops);
+=======
+		   void *device_data, const struct snd_device_ops *ops);
+>>>>>>> upstream/android-13
 int snd_device_register(struct snd_card *card, void *device_data);
 int snd_device_register_all(struct snd_card *card);
 void snd_device_disconnect(struct snd_card *card, void *device_data);
 void snd_device_disconnect_all(struct snd_card *card);
 void snd_device_free(struct snd_card *card, void *device_data);
 void snd_device_free_all(struct snd_card *card);
+<<<<<<< HEAD
+=======
+int snd_device_get_state(struct snd_card *card, void *device_data);
+>>>>>>> upstream/android-13
 
 /* isadma.c */
 
@@ -279,6 +446,10 @@ void snd_device_free_all(struct snd_card *card);
 void snd_dma_program(unsigned long dma, unsigned long addr, unsigned int size, unsigned short mode);
 void snd_dma_disable(unsigned long dma);
 unsigned int snd_dma_pointer(unsigned long dma, unsigned int size);
+<<<<<<< HEAD
+=======
+int snd_devm_request_dma(struct device *dev, int dma, const char *name);
+>>>>>>> upstream/android-13
 #endif
 
 /* misc.c */
@@ -335,7 +506,12 @@ void __snd_printk(unsigned int level, const char *file, int line,
 #define snd_BUG()		WARN(1, "BUG?\n")
 
 /**
+<<<<<<< HEAD
  * Suppress high rates of output when CONFIG_SND_DEBUG is enabled.
+=======
+ * snd_printd_ratelimit - Suppress high rates of output when
+ * 			  CONFIG_SND_DEBUG is enabled.
+>>>>>>> upstream/android-13
  */
 #define snd_printd_ratelimit() printk_ratelimit()
 

@@ -52,6 +52,7 @@ static struct fc_trace_flag_type *fc_trc_flag;
  */
 int fnic_debugfs_init(void)
 {
+<<<<<<< HEAD
 	int rc = -1;
 	fnic_trace_debugfs_root = debugfs_create_dir("fnic", NULL);
 	if (!fnic_trace_debugfs_root) {
@@ -75,6 +76,15 @@ int fnic_debugfs_init(void)
 	/* Allocate memory to structure */
 	fc_trc_flag = (struct fc_trace_flag_type *)
 		vmalloc(sizeof(struct fc_trace_flag_type));
+=======
+	fnic_trace_debugfs_root = debugfs_create_dir("fnic", NULL);
+
+	fnic_stats_debugfs_root = debugfs_create_dir("statistics",
+						fnic_trace_debugfs_root);
+
+	/* Allocate memory to structure */
+	fc_trc_flag = vmalloc(sizeof(struct fc_trace_flag_type));
+>>>>>>> upstream/android-13
 
 	if (fc_trc_flag) {
 		fc_trc_flag->fc_row_file = 0;
@@ -84,8 +94,12 @@ int fnic_debugfs_init(void)
 		fc_trc_flag->fc_clear = 4;
 	}
 
+<<<<<<< HEAD
 	rc = 0;
 	return rc;
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -136,11 +150,19 @@ static ssize_t fnic_trace_ctrl_read(struct file *filp,
 	len = 0;
 	trace_type = (u8 *)filp->private_data;
 	if (*trace_type == fc_trc_flag->fnic_trace)
+<<<<<<< HEAD
 		len = sprintf(buf, "%u\n", fnic_tracing_enabled);
 	else if (*trace_type == fc_trc_flag->fc_trace)
 		len = sprintf(buf, "%u\n", fnic_fc_tracing_enabled);
 	else if (*trace_type == fc_trc_flag->fc_clear)
 		len = sprintf(buf, "%u\n", fnic_fc_trace_cleared);
+=======
+		len = sprintf(buf, "%d\n", fnic_tracing_enabled);
+	else if (*trace_type == fc_trc_flag->fc_trace)
+		len = sprintf(buf, "%d\n", fnic_fc_tracing_enabled);
+	else if (*trace_type == fc_trc_flag->fc_clear)
+		len = sprintf(buf, "%d\n", fnic_fc_trace_cleared);
+>>>>>>> upstream/android-13
 	else
 		pr_err("fnic: Cannot read to any debugfs file\n");
 
@@ -356,6 +378,7 @@ static const struct file_operations fnic_trace_debugfs_fops = {
  * it will also create file trace_enable to control enable/disable of
  * trace logging into trace buffer.
  */
+<<<<<<< HEAD
 int fnic_trace_debugfs_init(void)
 {
 	int rc = -1;
@@ -364,23 +387,31 @@ int fnic_trace_debugfs_init(void)
 			"FNIC Debugfs root directory doesn't exist\n");
 		return rc;
 	}
+=======
+void fnic_trace_debugfs_init(void)
+{
+>>>>>>> upstream/android-13
 	fnic_trace_enable = debugfs_create_file("tracing_enable",
 					S_IFREG|S_IRUGO|S_IWUSR,
 					fnic_trace_debugfs_root,
 					&(fc_trc_flag->fnic_trace),
 					&fnic_trace_ctrl_fops);
 
+<<<<<<< HEAD
 	if (!fnic_trace_enable) {
 		printk(KERN_DEBUG
 			"Cannot create trace_enable file under debugfs\n");
 		return rc;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	fnic_trace_debugfs_file = debugfs_create_file("trace",
 					S_IFREG|S_IRUGO|S_IWUSR,
 					fnic_trace_debugfs_root,
 					&(fc_trc_flag->fnic_trace),
 					&fnic_trace_debugfs_fops);
+<<<<<<< HEAD
 
 	if (!fnic_trace_debugfs_file) {
 		printk(KERN_DEBUG
@@ -389,6 +420,8 @@ int fnic_trace_debugfs_init(void)
 	}
 	rc = 0;
 	return rc;
+=======
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -419,6 +452,7 @@ void fnic_trace_debugfs_terminate(void)
  * trace logging into trace buffer.
  */
 
+<<<<<<< HEAD
 int fnic_fc_trace_debugfs_init(void)
 {
 	int rc = -1;
@@ -428,28 +462,38 @@ int fnic_fc_trace_debugfs_init(void)
 		return rc;
 	}
 
+=======
+void fnic_fc_trace_debugfs_init(void)
+{
+>>>>>>> upstream/android-13
 	fnic_fc_trace_enable = debugfs_create_file("fc_trace_enable",
 					S_IFREG|S_IRUGO|S_IWUSR,
 					fnic_trace_debugfs_root,
 					&(fc_trc_flag->fc_trace),
 					&fnic_trace_ctrl_fops);
 
+<<<<<<< HEAD
 	if (!fnic_fc_trace_enable) {
 		pr_err("fnic: Failed create fc_trace_enable file\n");
 		return rc;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	fnic_fc_trace_clear = debugfs_create_file("fc_trace_clear",
 					S_IFREG|S_IRUGO|S_IWUSR,
 					fnic_trace_debugfs_root,
 					&(fc_trc_flag->fc_clear),
 					&fnic_trace_ctrl_fops);
 
+<<<<<<< HEAD
 	if (!fnic_fc_trace_clear) {
 		pr_err("fnic: Failed to create fc_trace_enable file\n");
 		return rc;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	fnic_fc_rdata_trace_debugfs_file =
 		debugfs_create_file("fc_trace_rdata",
 				    S_IFREG|S_IRUGO|S_IWUSR,
@@ -457,17 +501,21 @@ int fnic_fc_trace_debugfs_init(void)
 				    &(fc_trc_flag->fc_normal_file),
 				    &fnic_trace_debugfs_fops);
 
+<<<<<<< HEAD
 	if (!fnic_fc_rdata_trace_debugfs_file) {
 		pr_err("fnic: Failed create fc_rdata_trace file\n");
 		return rc;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	fnic_fc_trace_debugfs_file =
 		debugfs_create_file("fc_trace",
 				    S_IFREG|S_IRUGO|S_IWUSR,
 				    fnic_trace_debugfs_root,
 				    &(fc_trc_flag->fc_row_file),
 				    &fnic_trace_debugfs_fops);
+<<<<<<< HEAD
 
 	if (!fnic_fc_trace_debugfs_file) {
 		pr_err("fnic: Failed to create fc_trace file\n");
@@ -475,6 +523,8 @@ int fnic_fc_trace_debugfs_init(void)
 	}
 	rc = 0;
 	return rc;
+=======
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -757,13 +807,19 @@ static const struct file_operations fnic_reset_debugfs_fops = {
  * It will create file stats and reset_stats under statistics/host# directory
  * to log per fnic stats.
  */
+<<<<<<< HEAD
 int fnic_stats_debugfs_init(struct fnic *fnic)
 {
 	int rc = -1;
+=======
+void fnic_stats_debugfs_init(struct fnic *fnic)
+{
+>>>>>>> upstream/android-13
 	char name[16];
 
 	snprintf(name, sizeof(name), "host%d", fnic->lport->host->host_no);
 
+<<<<<<< HEAD
 	if (!fnic_stats_debugfs_root) {
 		printk(KERN_DEBUG "fnic_stats root doesn't exist\n");
 		return rc;
@@ -774,28 +830,38 @@ int fnic_stats_debugfs_init(struct fnic *fnic)
 		printk(KERN_DEBUG "Cannot create host directory\n");
 		return rc;
 	}
+=======
+	fnic->fnic_stats_debugfs_host = debugfs_create_dir(name,
+						fnic_stats_debugfs_root);
+>>>>>>> upstream/android-13
 
 	fnic->fnic_stats_debugfs_file = debugfs_create_file("stats",
 						S_IFREG|S_IRUGO|S_IWUSR,
 						fnic->fnic_stats_debugfs_host,
 						fnic,
 						&fnic_stats_debugfs_fops);
+<<<<<<< HEAD
 	if (!fnic->fnic_stats_debugfs_file) {
 		printk(KERN_DEBUG "Cannot create host stats file\n");
 		return rc;
 	}
+=======
+>>>>>>> upstream/android-13
 
 	fnic->fnic_reset_debugfs_file = debugfs_create_file("reset_stats",
 						S_IFREG|S_IRUGO|S_IWUSR,
 						fnic->fnic_stats_debugfs_host,
 						fnic,
 						&fnic_reset_debugfs_fops);
+<<<<<<< HEAD
 	if (!fnic->fnic_reset_debugfs_file) {
 		printk(KERN_DEBUG "Cannot create host stats file\n");
 		return rc;
 	}
 	rc = 0;
 	return rc;
+=======
+>>>>>>> upstream/android-13
 }
 
 /*

@@ -12,6 +12,7 @@
 #define		PathC		0x2
 #define		PathD		0x3
 
+<<<<<<< HEAD
 enum RATE_SECTION {
 	CCK = 0,
 	OFDM,
@@ -32,11 +33,21 @@ enum RF_TX_NUM {
 	RF_4TX,
 	RF_MAX_TX_NUM,
 	RF_TX_NUM_NONIMPLEMENT,
+=======
+enum rate_section {
+	CCK = 0,
+	OFDM,
+	HT_MCS0_MCS7,
+>>>>>>> upstream/android-13
 };
 
 #define MAX_POWER_INDEX			0x3F
 
+<<<<<<< HEAD
 enum _REGULATION_TXPWR_LMT {
+=======
+enum {
+>>>>>>> upstream/android-13
 	TXPWR_LMT_FCC = 0,
 	TXPWR_LMT_MKK,
 	TXPWR_LMT_ETSI,
@@ -70,6 +81,7 @@ struct bb_register_def {
 
 };
 
+<<<<<<< HEAD
 u8
 PHY_GetTxPowerByRateBase(
 struct adapter *	Adapter,
@@ -261,5 +273,57 @@ int PHY_ConfigRFWithTxPwrTrackParaFile(struct adapter *Adapter, char*pFileName);
 int PHY_ConfigRFWithPowerLimitTableParaFile(struct adapter *Adapter, char*pFileName);
 
 void phy_free_filebuf(struct adapter *padapter);
+=======
+u8 PHY_GetTxPowerByRateBase(struct adapter *Adapter, u8 RfPath,
+			    enum rate_section RateSection);
+
+u8 PHY_GetRateSectionIndexOfTxPowerByRate(struct adapter *padapter, u32	RegAddr,
+					  u32 BitMask);
+
+void PHY_GetRateValuesOfTxPowerByRate(struct adapter *padapter, u32 RegAddr,
+				      u32 BitMask, u32 Value, u8 *RateIndex,
+				      s8 *PwrByRateVal, u8 *RateNum);
+
+u8 PHY_GetRateIndexOfTxPowerByRate(u8 Rate);
+
+void PHY_SetTxPowerIndexByRateSection(struct adapter *padapter, u8 RFPath, u8 Channel,
+				      u8 RateSection);
+
+s8 PHY_GetTxPowerByRate(struct adapter *padapter, u8 RFPath, u8 RateIndex);
+
+void PHY_SetTxPowerByRate(struct adapter *padapter, u8 RFPath, u8 Rate,
+			  s8 Value);
+
+void PHY_SetTxPowerLevelByPath(struct adapter *Adapter, u8 channel, u8 path);
+
+void PHY_SetTxPowerIndexByRateArray(struct adapter *padapter, u8 RFPath,
+				    enum channel_width BandWidth, u8 Channel,
+				    u8 *Rates, u8 RateArraySize);
+
+void PHY_InitTxPowerByRate(struct adapter *padapter);
+
+void PHY_StoreTxPowerByRate(struct adapter *padapter, u32 RfPath,
+			    u32	RegAddr, u32 BitMask, u32 Data);
+
+void PHY_TxPowerByRateConfiguration(struct adapter *padapter);
+
+u8 PHY_GetTxPowerIndexBase(struct adapter *padapter, u8 RFPath, u8 Rate,
+			   enum channel_width BandWidth, u8 Channel);
+
+s8 phy_get_tx_pwr_lmt(struct adapter *adapter, u32 RegPwrTblSel,
+		      enum channel_width Bandwidth, u8 RfPath, u8 DataRate,
+		      u8 Channel);
+
+void PHY_SetTxPowerLimit(struct adapter *Adapter, u8 *Regulation, u8 *Bandwidth,
+			 u8 *RateSection, u8 *RfPath, u8 *Channel, u8 *PowerLimit);
+
+void PHY_ConvertTxPowerLimitToPowerIndex(struct adapter *Adapter);
+
+void PHY_InitTxPowerLimit(struct adapter *Adapter);
+
+s8 PHY_GetTxPowerTrackingOffset(struct adapter *padapter, u8 Rate, u8 RFPath);
+
+void Hal_ChannelPlanToRegulation(struct adapter *Adapter, u16 ChannelPlan);
+>>>>>>> upstream/android-13
 
 #endif /* __HAL_COMMON_H__ */

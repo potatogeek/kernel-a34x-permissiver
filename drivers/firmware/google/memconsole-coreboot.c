@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * memconsole-coreboot.c
  *
  * Memory based BIOS console accessed through coreboot table.
  *
  * Copyright 2017 Google Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License v2.0 as published by
@@ -16,6 +21,12 @@
  */
 
 #include <linux/device.h>
+=======
+ */
+
+#include <linux/device.h>
+#include <linux/io.h>
+>>>>>>> upstream/android-13
 #include <linux/kernel.h>
 #include <linux/module.h>
 
@@ -28,13 +39,21 @@
 struct cbmem_cons {
 	u32 size_dont_access_after_boot;
 	u32 cursor;
+<<<<<<< HEAD
 	u8  body[0];
+=======
+	u8  body[];
+>>>>>>> upstream/android-13
 } __packed;
 
 #define CURSOR_MASK ((1 << 28) - 1)
 #define OVERFLOW (1 << 31)
 
+<<<<<<< HEAD
 static struct cbmem_cons __iomem *cbmem_console;
+=======
+static struct cbmem_cons *cbmem_console;
+>>>>>>> upstream/android-13
 static u32 cbmem_console_size;
 
 /*
@@ -75,7 +94,11 @@ static ssize_t memconsole_coreboot_read(char *buf, loff_t pos, size_t count)
 
 static int memconsole_probe(struct coreboot_device *dev)
 {
+<<<<<<< HEAD
 	struct cbmem_cons __iomem *tmp_cbmc;
+=======
+	struct cbmem_cons *tmp_cbmc;
+>>>>>>> upstream/android-13
 
 	tmp_cbmc = memremap(dev->cbmem_ref.cbmem_addr,
 			    sizeof(*tmp_cbmc), MEMREMAP_WB);
@@ -85,19 +108,29 @@ static int memconsole_probe(struct coreboot_device *dev)
 
 	/* Read size only once to prevent overrun attack through /dev/mem. */
 	cbmem_console_size = tmp_cbmc->size_dont_access_after_boot;
+<<<<<<< HEAD
 	cbmem_console = memremap(dev->cbmem_ref.cbmem_addr,
+=======
+	cbmem_console = devm_memremap(&dev->dev, dev->cbmem_ref.cbmem_addr,
+>>>>>>> upstream/android-13
 				 cbmem_console_size + sizeof(*cbmem_console),
 				 MEMREMAP_WB);
 	memunmap(tmp_cbmc);
 
+<<<<<<< HEAD
 	if (!cbmem_console)
 		return -ENOMEM;
+=======
+	if (IS_ERR(cbmem_console))
+		return PTR_ERR(cbmem_console);
+>>>>>>> upstream/android-13
 
 	memconsole_setup(memconsole_coreboot_read);
 
 	return memconsole_sysfs_init();
 }
 
+<<<<<<< HEAD
 static int memconsole_remove(struct coreboot_device *dev)
 {
 	memconsole_exit();
@@ -106,6 +139,11 @@ static int memconsole_remove(struct coreboot_device *dev)
 		memunmap(cbmem_console);
 
 	return 0;
+=======
+static void memconsole_remove(struct coreboot_device *dev)
+{
+	memconsole_exit();
+>>>>>>> upstream/android-13
 }
 
 static struct coreboot_driver memconsole_driver = {
@@ -116,6 +154,7 @@ static struct coreboot_driver memconsole_driver = {
 	},
 	.tag = CB_TAG_CBMEM_CONSOLE,
 };
+<<<<<<< HEAD
 
 static void coreboot_memconsole_exit(void)
 {
@@ -129,6 +168,9 @@ static int __init coreboot_memconsole_init(void)
 
 module_exit(coreboot_memconsole_exit);
 module_init(coreboot_memconsole_init);
+=======
+module_coreboot_driver(memconsole_driver);
+>>>>>>> upstream/android-13
 
 MODULE_AUTHOR("Google, Inc.");
 MODULE_LICENSE("GPL");

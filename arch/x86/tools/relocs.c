@@ -11,7 +11,13 @@
 #define Elf_Shdr		ElfW(Shdr)
 #define Elf_Sym			ElfW(Sym)
 
+<<<<<<< HEAD
 static Elf_Ehdr ehdr;
+=======
+static Elf_Ehdr		ehdr;
+static unsigned long	shnum;
+static unsigned int	shstrndx;
+>>>>>>> upstream/android-13
 
 struct relocs {
 	uint32_t	*offset;
@@ -24,6 +30,12 @@ static struct relocs relocs32;
 #if ELF_BITS == 64
 static struct relocs relocs32neg;
 static struct relocs relocs64;
+<<<<<<< HEAD
+=======
+#define FMT PRIu64
+#else
+#define FMT PRIu32
+>>>>>>> upstream/android-13
 #endif
 
 struct section {
@@ -46,7 +58,10 @@ static const char * const sym_regex_kernel[S_NSYMTYPES] = {
 	"^(xen_irq_disable_direct_reloc$|"
 	"xen_save_fl_direct_reloc$|"
 	"VDSO|"
+<<<<<<< HEAD
 	"__typeid__|"
+=======
+>>>>>>> upstream/android-13
 	"__crc_)",
 
 /*
@@ -56,12 +71,21 @@ static const char * const sym_regex_kernel[S_NSYMTYPES] = {
 	[S_REL] =
 	"^(__init_(begin|end)|"
 	"__x86_cpu_dev_(start|end)|"
+<<<<<<< HEAD
 	"(__parainstructions|__alt_instructions)(|_end)|"
 	"(__iommu_table|__apicdrivers|__smp_locks)(|_end)|"
 	"__(start|end)_pci_.*|"
 	"__(start|end)_builtin_fw|"
 	"__(start|stop)___ksymtab(|_gpl|_unused|_unused_gpl|_gpl_future)|"
 	"__(start|stop)___kcrctab(|_gpl|_unused|_unused_gpl|_gpl_future)|"
+=======
+	"(__parainstructions|__alt_instructions)(_end)?|"
+	"(__iommu_table|__apicdrivers|__smp_locks)(_end)?|"
+	"__(start|end)_pci_.*|"
+	"__(start|end)_builtin_fw|"
+	"__(start|stop)___ksymtab(_gpl)?|"
+	"__(start|stop)___kcrctab(_gpl)?|"
+>>>>>>> upstream/android-13
 	"__(start|stop)___param|"
 	"__(start|stop)___modver|"
 	"__(start|stop)___bug_table|"
@@ -131,7 +155,11 @@ static void regex_init(int use_real_mode)
 			      REG_EXTENDED|REG_NOSUB);
 
 		if (err) {
+<<<<<<< HEAD
 			regerror(err, &sym_regex_c[i], errbuf, sizeof errbuf);
+=======
+			regerror(err, &sym_regex_c[i], errbuf, sizeof(errbuf));
+>>>>>>> upstream/android-13
 			die("%s", errbuf);
 		}
         }
@@ -197,6 +225,10 @@ static const char *rel_type(unsigned type)
 #if ELF_BITS == 64
 		REL_TYPE(R_X86_64_NONE),
 		REL_TYPE(R_X86_64_64),
+<<<<<<< HEAD
+=======
+		REL_TYPE(R_X86_64_PC64),
+>>>>>>> upstream/android-13
 		REL_TYPE(R_X86_64_PC32),
 		REL_TYPE(R_X86_64_GOT32),
 		REL_TYPE(R_X86_64_PLT32),
@@ -241,9 +273,15 @@ static const char *sec_name(unsigned shndx)
 {
 	const char *sec_strtab;
 	const char *name;
+<<<<<<< HEAD
 	sec_strtab = secs[ehdr.e_shstrndx].strtab;
 	name = "<noname>";
 	if (shndx < ehdr.e_shnum) {
+=======
+	sec_strtab = secs[shstrndx].strtab;
+	name = "<noname>";
+	if (shndx < shnum) {
+>>>>>>> upstream/android-13
 		name = sec_strtab + secs[shndx].shdr.sh_name;
 	}
 	else if (shndx == SHN_ABS) {
@@ -271,7 +309,11 @@ static const char *sym_name(const char *sym_strtab, Elf_Sym *sym)
 static Elf_Sym *sym_lookup(const char *symname)
 {
 	int i;
+<<<<<<< HEAD
 	for (i = 0; i < ehdr.e_shnum; i++) {
+=======
+	for (i = 0; i < shnum; i++) {
+>>>>>>> upstream/android-13
 		struct section *sec = &secs[i];
 		long nsyms;
 		char *strtab;
@@ -366,6 +408,7 @@ static void read_ehdr(FILE *fp)
 	ehdr.e_shnum     = elf_half_to_cpu(ehdr.e_shnum);
 	ehdr.e_shstrndx  = elf_half_to_cpu(ehdr.e_shstrndx);
 
+<<<<<<< HEAD
 	if ((ehdr.e_type != ET_EXEC) && (ehdr.e_type != ET_DYN)) {
 		die("Unsupported ELF header type\n");
 	}
@@ -387,6 +430,43 @@ static void read_ehdr(FILE *fp)
 	if (ehdr.e_shstrndx >= ehdr.e_shnum) {
 		die("String table index out of bounds\n");
 	}
+=======
+	shnum = ehdr.e_shnum;
+	shstrndx = ehdr.e_shstrndx;
+
+	if ((ehdr.e_type != ET_EXEC) && (ehdr.e_type != ET_DYN))
+		die("Unsupported ELF header type\n");
+	if (ehdr.e_machine != ELF_MACHINE)
+		die("Not for %s\n", ELF_MACHINE_NAME);
+	if (ehdr.e_version != EV_CURRENT)
+		die("Unknown ELF version\n");
+	if (ehdr.e_ehsize != sizeof(Elf_Ehdr))
+		die("Bad Elf header size\n");
+	if (ehdr.e_phentsize != sizeof(Elf_Phdr))
+		die("Bad program header entry\n");
+	if (ehdr.e_shentsize != sizeof(Elf_Shdr))
+		die("Bad section header entry\n");
+
+
+	if (shnum == SHN_UNDEF || shstrndx == SHN_XINDEX) {
+		Elf_Shdr shdr;
+
+		if (fseek(fp, ehdr.e_shoff, SEEK_SET) < 0)
+			die("Seek to %" FMT " failed: %s\n", ehdr.e_shoff, strerror(errno));
+
+		if (fread(&shdr, sizeof(shdr), 1, fp) != 1)
+			die("Cannot read initial ELF section header: %s\n", strerror(errno));
+
+		if (shnum == SHN_UNDEF)
+			shnum = elf_xword_to_cpu(shdr.sh_size);
+
+		if (shstrndx == SHN_XINDEX)
+			shstrndx = elf_word_to_cpu(shdr.sh_link);
+	}
+
+	if (shstrndx >= shnum)
+		die("String table index out of bounds\n");
+>>>>>>> upstream/android-13
 }
 
 static void read_shdrs(FILE *fp)
@@ -394,6 +474,7 @@ static void read_shdrs(FILE *fp)
 	int i;
 	Elf_Shdr shdr;
 
+<<<<<<< HEAD
 	secs = calloc(ehdr.e_shnum, sizeof(struct section));
 	if (!secs) {
 		die("Unable to allocate %d section headers\n",
@@ -408,6 +489,22 @@ static void read_shdrs(FILE *fp)
 		if (fread(&shdr, sizeof shdr, 1, fp) != 1)
 			die("Cannot read ELF section headers %d/%d: %s\n",
 			    i, ehdr.e_shnum, strerror(errno));
+=======
+	secs = calloc(shnum, sizeof(struct section));
+	if (!secs) {
+		die("Unable to allocate %ld section headers\n",
+		    shnum);
+	}
+	if (fseek(fp, ehdr.e_shoff, SEEK_SET) < 0) {
+		die("Seek to %" FMT " failed: %s\n",
+		    ehdr.e_shoff, strerror(errno));
+	}
+	for (i = 0; i < shnum; i++) {
+		struct section *sec = &secs[i];
+		if (fread(&shdr, sizeof(shdr), 1, fp) != 1)
+			die("Cannot read ELF section headers %d/%ld: %s\n",
+			    i, shnum, strerror(errno));
+>>>>>>> upstream/android-13
 		sec->shdr.sh_name      = elf_word_to_cpu(shdr.sh_name);
 		sec->shdr.sh_type      = elf_word_to_cpu(shdr.sh_type);
 		sec->shdr.sh_flags     = elf_xword_to_cpu(shdr.sh_flags);
@@ -418,7 +515,11 @@ static void read_shdrs(FILE *fp)
 		sec->shdr.sh_info      = elf_word_to_cpu(shdr.sh_info);
 		sec->shdr.sh_addralign = elf_xword_to_cpu(shdr.sh_addralign);
 		sec->shdr.sh_entsize   = elf_xword_to_cpu(shdr.sh_entsize);
+<<<<<<< HEAD
 		if (sec->shdr.sh_link < ehdr.e_shnum)
+=======
+		if (sec->shdr.sh_link < shnum)
+>>>>>>> upstream/android-13
 			sec->link = &secs[sec->shdr.sh_link];
 	}
 
@@ -427,19 +528,32 @@ static void read_shdrs(FILE *fp)
 static void read_strtabs(FILE *fp)
 {
 	int i;
+<<<<<<< HEAD
 	for (i = 0; i < ehdr.e_shnum; i++) {
+=======
+	for (i = 0; i < shnum; i++) {
+>>>>>>> upstream/android-13
 		struct section *sec = &secs[i];
 		if (sec->shdr.sh_type != SHT_STRTAB) {
 			continue;
 		}
 		sec->strtab = malloc(sec->shdr.sh_size);
 		if (!sec->strtab) {
+<<<<<<< HEAD
 			die("malloc of %d bytes for strtab failed\n",
 				sec->shdr.sh_size);
 		}
 		if (fseek(fp, sec->shdr.sh_offset, SEEK_SET) < 0) {
 			die("Seek to %d failed: %s\n",
 				sec->shdr.sh_offset, strerror(errno));
+=======
+			die("malloc of %" FMT " bytes for strtab failed\n",
+			    sec->shdr.sh_size);
+		}
+		if (fseek(fp, sec->shdr.sh_offset, SEEK_SET) < 0) {
+			die("Seek to %" FMT " failed: %s\n",
+			    sec->shdr.sh_offset, strerror(errno));
+>>>>>>> upstream/android-13
 		}
 		if (fread(sec->strtab, 1, sec->shdr.sh_size, fp)
 		    != sec->shdr.sh_size) {
@@ -452,19 +566,32 @@ static void read_strtabs(FILE *fp)
 static void read_symtabs(FILE *fp)
 {
 	int i,j;
+<<<<<<< HEAD
 	for (i = 0; i < ehdr.e_shnum; i++) {
+=======
+	for (i = 0; i < shnum; i++) {
+>>>>>>> upstream/android-13
 		struct section *sec = &secs[i];
 		if (sec->shdr.sh_type != SHT_SYMTAB) {
 			continue;
 		}
 		sec->symtab = malloc(sec->shdr.sh_size);
 		if (!sec->symtab) {
+<<<<<<< HEAD
 			die("malloc of %d bytes for symtab failed\n",
 				sec->shdr.sh_size);
 		}
 		if (fseek(fp, sec->shdr.sh_offset, SEEK_SET) < 0) {
 			die("Seek to %d failed: %s\n",
 				sec->shdr.sh_offset, strerror(errno));
+=======
+			die("malloc of %" FMT " bytes for symtab failed\n",
+			    sec->shdr.sh_size);
+		}
+		if (fseek(fp, sec->shdr.sh_offset, SEEK_SET) < 0) {
+			die("Seek to %" FMT " failed: %s\n",
+			    sec->shdr.sh_offset, strerror(errno));
+>>>>>>> upstream/android-13
 		}
 		if (fread(sec->symtab, 1, sec->shdr.sh_size, fp)
 		    != sec->shdr.sh_size) {
@@ -485,19 +612,32 @@ static void read_symtabs(FILE *fp)
 static void read_relocs(FILE *fp)
 {
 	int i,j;
+<<<<<<< HEAD
 	for (i = 0; i < ehdr.e_shnum; i++) {
+=======
+	for (i = 0; i < shnum; i++) {
+>>>>>>> upstream/android-13
 		struct section *sec = &secs[i];
 		if (sec->shdr.sh_type != SHT_REL_TYPE) {
 			continue;
 		}
 		sec->reltab = malloc(sec->shdr.sh_size);
 		if (!sec->reltab) {
+<<<<<<< HEAD
 			die("malloc of %d bytes for relocs failed\n",
 				sec->shdr.sh_size);
 		}
 		if (fseek(fp, sec->shdr.sh_offset, SEEK_SET) < 0) {
 			die("Seek to %d failed: %s\n",
 				sec->shdr.sh_offset, strerror(errno));
+=======
+			die("malloc of %" FMT " bytes for relocs failed\n",
+			    sec->shdr.sh_size);
+		}
+		if (fseek(fp, sec->shdr.sh_offset, SEEK_SET) < 0) {
+			die("Seek to %" FMT " failed: %s\n",
+			    sec->shdr.sh_offset, strerror(errno));
+>>>>>>> upstream/android-13
 		}
 		if (fread(sec->reltab, 1, sec->shdr.sh_size, fp)
 		    != sec->shdr.sh_size) {
@@ -528,7 +668,11 @@ static void print_absolute_symbols(void)
 
 	printf("Absolute symbols\n");
 	printf(" Num:    Value Size  Type       Bind        Visibility  Name\n");
+<<<<<<< HEAD
 	for (i = 0; i < ehdr.e_shnum; i++) {
+=======
+	for (i = 0; i < shnum; i++) {
+>>>>>>> upstream/android-13
 		struct section *sec = &secs[i];
 		char *sym_strtab;
 		int j;
@@ -566,7 +710,11 @@ static void print_absolute_relocs(void)
 	else
 		format = "%08"PRIx32" %08"PRIx32" %10s %08"PRIx32"  %s\n";
 
+<<<<<<< HEAD
 	for (i = 0; i < ehdr.e_shnum; i++) {
+=======
+	for (i = 0; i < shnum; i++) {
+>>>>>>> upstream/android-13
 		struct section *sec = &secs[i];
 		struct section *sec_applies, *sec_symtab;
 		char *sym_strtab;
@@ -650,7 +798,11 @@ static void walk_relocs(int (*process)(struct section *sec, Elf_Rel *rel,
 {
 	int i;
 	/* Walk through the relocations */
+<<<<<<< HEAD
 	for (i = 0; i < ehdr.e_shnum; i++) {
+=======
+	for (i = 0; i < shnum; i++) {
+>>>>>>> upstream/android-13
 		char *sym_strtab;
 		Elf_Sym *sh_symtab;
 		struct section *sec_applies, *sec_symtab;
@@ -706,7 +858,11 @@ static Elf_Addr per_cpu_load_addr;
 static void percpu_init(void)
 {
 	int i;
+<<<<<<< HEAD
 	for (i = 0; i < ehdr.e_shnum; i++) {
+=======
+	for (i = 0; i < shnum; i++) {
+>>>>>>> upstream/android-13
 		ElfW(Sym) *sym;
 		if (strcmp(sec_name(i), ".data..percpu"))
 			continue;
@@ -738,7 +894,11 @@ static void percpu_init(void)
  *	__per_cpu_load
  *
  * The "gold" linker incorrectly associates:
+<<<<<<< HEAD
  *	init_per_cpu__irq_stack_union
+=======
+ *	init_per_cpu__fixed_percpu_data
+>>>>>>> upstream/android-13
  *	init_per_cpu__gdt_page
  */
 static int is_percpu_sym(ElfW(Sym) *sym, const char *symname)
@@ -783,10 +943,20 @@ static int do_reloc64(struct section *sec, Elf_Rel *rel, ElfW(Sym) *sym,
 			add_reloc(&relocs32neg, offset);
 		break;
 
+<<<<<<< HEAD
 	case R_X86_64_8:
 		if (!shn_abs || !is_reloc(S_ABS, symname))
 			die("Non-whitelisted %s relocation: %s\n",
 				rel_type(r_type), symname);
+=======
+	case R_X86_64_PC64:
+		/*
+		 * Only used by jump labels
+		 */
+		if (is_percpu_sym(sym, symname))
+			die("Invalid R_X86_64_PC64 relocation against per-CPU symbol %s\n",
+			    symname);
+>>>>>>> upstream/android-13
 		break;
 
 	case R_X86_64_32:

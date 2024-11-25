@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
   This file is provided under a dual BSD/GPLv2 license.  When using or
   redistributing this file, you may do so under either license.
@@ -44,6 +45,10 @@
   (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+=======
+/* SPDX-License-Identifier: (BSD-3-Clause OR GPL-2.0-only) */
+/* Copyright(c) 2014 - 2020 Intel Corporation */
+>>>>>>> upstream/android-13
 #ifndef ADF_C62X_HW_DATA_H_
 #define ADF_C62X_HW_DATA_H_
 
@@ -63,6 +68,10 @@
 #define ADF_C62X_SMIAPF1_MASK_OFFSET (0x3A000 + 0x30)
 #define ADF_C62X_SMIA0_MASK 0xFFFF
 #define ADF_C62X_SMIA1_MASK 0x1
+<<<<<<< HEAD
+=======
+#define ADF_C62X_SOFTSTRAP_CSR_OFFSET 0x2EC
+>>>>>>> upstream/android-13
 /* Error detection and correction */
 #define ADF_C62X_AE_CTX_ENABLES(i) (i * 0x1000 + 0x20818)
 #define ADF_C62X_AE_MISC_CONTROL(i) (i * 0x1000 + 0x20960)
@@ -73,7 +82,14 @@
 #define ADF_C62X_ERRSSMSH_EN BIT(3)
 
 #define ADF_C62X_PF2VF_OFFSET(i)	(0x3A000 + 0x280 + ((i) * 0x04))
+<<<<<<< HEAD
 #define ADF_C62X_VINTMSK_OFFSET(i)	(0x3A000 + 0x200 + ((i) * 0x04))
+=======
+
+/* AE to function mapping */
+#define ADF_C62X_AE2FUNC_MAP_GRP_A_NUM_REGS 80
+#define ADF_C62X_AE2FUNC_MAP_GRP_B_NUM_REGS 10
+>>>>>>> upstream/android-13
 
 /* Firmware Binary */
 #define ADF_C62X_FW "qat_c62x.bin"

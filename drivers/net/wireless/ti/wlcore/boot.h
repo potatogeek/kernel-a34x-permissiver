@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * This file is part of wl1271
  *
  * Copyright (C) 2008-2009 Nokia Corporation
  *
  * Contact: Luciano Coelho <luciano.coelho@nokia.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -19,6 +24,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __BOOT_H__
@@ -40,7 +47,11 @@ struct wl1271_static_data {
 	u8 fw_version[WL1271_FW_VERSION_MAX_LEN];
 	u32 hw_version;
 	u8 tx_power_table[WL1271_NO_SUBBANDS][WL1271_NO_POWER_LEVELS];
+<<<<<<< HEAD
 	u8 priv[0];
+=======
+	u8 priv[];
+>>>>>>> upstream/android-13
 };
 
 /* number of times we try to read the INIT interrupt */

@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) Fuzhou Rockchip Electronics Co.Ltd
  * Author:
  *      Sandy Huang <hjc@rock-chips.com>
  *      Mark Yao <mark.yao@rock-chips.com>
+<<<<<<< HEAD
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -12,6 +17,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _ROCKCHIP_LVDS_
@@ -78,7 +85,14 @@
 #define RK3288_LVDS_CFG_REG21			0x84
 #define RK3288_LVDS_CFG_REG21_TX_ENABLE		0x92
 #define RK3288_LVDS_CFG_REG21_TX_DISABLE	0x00
+<<<<<<< HEAD
 #define RK3288_LVDS_CH1_OFFSET                 0x100
+=======
+#define RK3288_LVDS_CH1_OFFSET			0x100
+
+#define RK3288_LVDS_GRF_SOC_CON6		0x025C
+#define RK3288_LVDS_GRF_SOC_CON7		0x0260
+>>>>>>> upstream/android-13
 
 /* fbdiv value is split over 2 registers, with bit8 in reg2 */
 #define RK3288_LVDS_PLL_FBDIV_REG2(_fbd) \
@@ -111,4 +125,21 @@
 #define LVDS_VESA_18				2
 #define LVDS_JEIDA_18				3
 
+<<<<<<< HEAD
+=======
+#define HIWORD_UPDATE(v, h, l)  ((GENMASK(h, l) << 16) | ((v) << (l)))
+
+#define PX30_LVDS_GRF_PD_VO_CON0		0x434
+#define   PX30_LVDS_TIE_CLKS(val)		HIWORD_UPDATE(val,  8,  8)
+#define   PX30_LVDS_INVERT_CLKS(val)		HIWORD_UPDATE(val,  9,  9)
+#define   PX30_LVDS_INVERT_DCLK(val)		HIWORD_UPDATE(val,  5,  5)
+
+#define PX30_LVDS_GRF_PD_VO_CON1		0x438
+#define   PX30_LVDS_FORMAT(val)			HIWORD_UPDATE(val, 14, 13)
+#define   PX30_LVDS_MODE_EN(val)		HIWORD_UPDATE(val, 12, 12)
+#define   PX30_LVDS_MSBSEL(val)			HIWORD_UPDATE(val, 11, 11)
+#define   PX30_LVDS_P2S_EN(val)			HIWORD_UPDATE(val,  6,  6)
+#define   PX30_LVDS_VOP_SEL(val)		HIWORD_UPDATE(val,  1,  1)
+
+>>>>>>> upstream/android-13
 #endif /* _ROCKCHIP_LVDS_ */

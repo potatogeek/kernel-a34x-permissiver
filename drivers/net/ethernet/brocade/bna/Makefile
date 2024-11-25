@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #
 # Copyright (c) 2005-2014 Brocade Communications Systems, Inc.
 # Copyright (c) 2014-2015 QLogic Corporation.

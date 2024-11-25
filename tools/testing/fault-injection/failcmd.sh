@@ -42,7 +42,11 @@ OPTIONS
 	--interval=value, --space=value, --verbose=value, --task-filter=value,
 	--stacktrace-depth=value, --require-start=value, --require-end=value,
 	--reject-start=value, --reject-end=value, --ignore-gfp-wait=value
+<<<<<<< HEAD
 		See Documentation/fault-injection/fault-injection.txt for more
+=======
+		See Documentation/fault-injection/fault-injection.rst for more
+>>>>>>> upstream/android-13
 		information
 
 	failslab options:

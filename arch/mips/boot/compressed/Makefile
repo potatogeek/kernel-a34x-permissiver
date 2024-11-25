@@ -18,11 +18,24 @@ include $(srctree)/arch/mips/Kbuild.platforms
 BOOT_HEAP_SIZE := 0x400000
 
 # Disable Function Tracer
+<<<<<<< HEAD
 KBUILD_CFLAGS := $(filter-out -pg, $(KBUILD_CFLAGS))
 
 KBUILD_CFLAGS := $(filter-out -fstack-protector, $(KBUILD_CFLAGS))
 
 KBUILD_CFLAGS := $(KBUILD_CFLAGS) -D__KERNEL__ \
+=======
+KBUILD_CFLAGS := $(filter-out $(CC_FLAGS_FTRACE), $(KBUILD_CFLAGS))
+
+KBUILD_CFLAGS := $(filter-out -fstack-protector, $(KBUILD_CFLAGS))
+
+# Disable lq/sq in zboot
+ifdef CONFIG_CPU_LOONGSON64
+KBUILD_CFLAGS := $(filter-out -march=loongson3a, $(KBUILD_CFLAGS)) -march=mips64r2
+endif
+
+KBUILD_CFLAGS := $(KBUILD_CFLAGS) -D__KERNEL__ -D__DISABLE_EXPORTS \
+>>>>>>> upstream/android-13
 	-DBOOT_HEAP_SIZE=$(BOOT_HEAP_SIZE) -D"VMLINUX_LOAD_ADDRESS_ULL=$(VMLINUX_LOAD_ADDRESS)ull"
 
 KBUILD_AFLAGS := $(KBUILD_AFLAGS) -D__ASSEMBLY__ \
@@ -31,9 +44,17 @@ KBUILD_AFLAGS := $(KBUILD_AFLAGS) -D__ASSEMBLY__ \
 
 # Prevents link failures: __sanitizer_cov_trace_pc() is not linked in.
 KCOV_INSTRUMENT		:= n
+<<<<<<< HEAD
 
 # decompressor objects (linked with vmlinuz)
 vmlinuzobjs-y := $(obj)/head.o $(obj)/decompress.o $(obj)/string.o
+=======
+GCOV_PROFILE := n
+UBSAN_SANITIZE := n
+
+# decompressor objects (linked with vmlinuz)
+vmlinuzobjs-y := $(obj)/head.o $(obj)/decompress.o $(obj)/string.o $(obj)/bswapsi.o
+>>>>>>> upstream/android-13
 
 ifdef CONFIG_DEBUG_ZBOOT
 vmlinuzobjs-$(CONFIG_DEBUG_ZBOOT)		   += $(obj)/dbg.o
@@ -47,7 +68,13 @@ extra-y += uart-ath79.c
 $(obj)/uart-ath79.c: $(srctree)/arch/mips/ath79/early_printk.c
 	$(call cmd,shipped)
 
+<<<<<<< HEAD
 vmlinuzobjs-$(CONFIG_KERNEL_XZ) += $(obj)/ashldi3.o $(obj)/bswapsi.o
+=======
+vmlinuzobjs-$(CONFIG_KERNEL_XZ) += $(obj)/ashldi3.o
+
+vmlinuzobjs-$(CONFIG_KERNEL_ZSTD) += $(obj)/bswapdi.o $(obj)/ashldi3.o $(obj)/clz_ctz.o
+>>>>>>> upstream/android-13
 
 extra-y += ashldi3.c
 $(obj)/ashldi3.c: $(obj)/%.c: $(srctree)/lib/%.c FORCE
@@ -57,10 +84,23 @@ extra-y += bswapsi.c
 $(obj)/bswapsi.c: $(obj)/%.c: $(srctree)/arch/mips/lib/%.c FORCE
 	$(call if_changed,shipped)
 
+<<<<<<< HEAD
 targets := $(notdir $(vmlinuzobjs-y))
 
 targets += vmlinux.bin
 OBJCOPYFLAGS_vmlinux.bin := $(OBJCOPYFLAGS) -O binary -R .comment -S
+=======
+extra-y += bswapdi.c
+$(obj)/bswapdi.c: $(obj)/%.c: $(srctree)/arch/mips/lib/%.c FORCE
+	$(call if_changed,shipped)
+
+targets := $(notdir $(vmlinuzobjs-y))
+
+targets += vmlinux.bin
+
+OBJCOPYFLAGS_vmlinux.bin := $(OBJCOPYFLAGS) -O binary -R .comment -S
+
+>>>>>>> upstream/android-13
 $(obj)/vmlinux.bin: $(KBUILD_IMAGE) FORCE
 	$(call if_changed,objcopy)
 
@@ -70,21 +110,39 @@ tool_$(CONFIG_KERNEL_LZ4)     = lz4
 tool_$(CONFIG_KERNEL_LZMA)    = lzma
 tool_$(CONFIG_KERNEL_LZO)     = lzo
 tool_$(CONFIG_KERNEL_XZ)      = xzkern
+<<<<<<< HEAD
 
 targets += vmlinux.bin.z
+=======
+tool_$(CONFIG_KERNEL_ZSTD)    = zstd22
+
+targets += vmlinux.bin.z
+
+>>>>>>> upstream/android-13
 $(obj)/vmlinux.bin.z: $(obj)/vmlinux.bin FORCE
 	$(call if_changed,$(tool_y))
 
 targets += piggy.o dummy.o
+<<<<<<< HEAD
 OBJCOPYFLAGS_piggy.o := --add-section=.image=$(obj)/vmlinux.bin.z \
 			--set-section-flags=.image=contents,alloc,load,readonly,data
+=======
+
+OBJCOPYFLAGS_piggy.o := --add-section=.image=$(obj)/vmlinux.bin.z \
+			--set-section-flags=.image=contents,alloc,load,readonly,data
+
+>>>>>>> upstream/android-13
 $(obj)/piggy.o: $(obj)/dummy.o $(obj)/vmlinux.bin.z FORCE
 	$(call if_changed,objcopy)
 
 HOSTCFLAGS_calc_vmlinuz_load_addr.o += $(LINUXINCLUDE)
 
 # Calculate the load address of the compressed kernel image
+<<<<<<< HEAD
 hostprogs-y := calc_vmlinuz_load_addr
+=======
+hostprogs := calc_vmlinuz_load_addr
+>>>>>>> upstream/android-13
 
 ifneq ($(zload-y),)
 VMLINUZ_LOAD_ADDRESS := $(zload-y)
@@ -96,6 +154,7 @@ UIMAGE_LOADADDR = $(VMLINUZ_LOAD_ADDRESS)
 
 vmlinuzobjs-y += $(obj)/piggy.o
 
+<<<<<<< HEAD
 quiet_cmd_zld = LD      $@
       cmd_zld = $(LD) $(KBUILD_LDFLAGS) -Ttext $(VMLINUZ_LOAD_ADDRESS) -T $< $(vmlinuzobjs-y) -o $@
 quiet_cmd_strip = STRIP	  $@
@@ -104,6 +163,23 @@ vmlinuz: $(src)/ld.script $(vmlinuzobjs-y) $(obj)/calc_vmlinuz_load_addr
 	$(call cmd,zld)
 	$(call cmd,strip)
 
+=======
+targets += ../../../../vmlinuz
+
+quiet_cmd_zld = LD      $@
+      cmd_zld = $(LD) $(KBUILD_LDFLAGS) -Ttext $(VMLINUZ_LOAD_ADDRESS) -T $< $(vmlinuzobjs-y) -o $@
+quiet_cmd_strip = STRIP   $@
+      cmd_strip = $(STRIP) -s $@
+
+$(objtree)/vmlinuz: $(src)/ld.script $(vmlinuzobjs-y) $(obj)/calc_vmlinuz_load_addr
+	$(call cmd,zld)
+	$(call cmd,strip)
+
+objboot := $(objtree)/arch/mips/boot
+
+$(objboot)/vmlinuz: $(objtree)/vmlinuz FORCE
+
+>>>>>>> upstream/android-13
 #
 # Some DECstations need all possible sections of an ECOFF executable
 #
@@ -112,6 +188,7 @@ ifdef CONFIG_MACH_DECSTATION
 endif
 
 # elf2ecoff can only handle 32bit image
+<<<<<<< HEAD
 hostprogs-y += ../elf2ecoff
 
 ifdef CONFIG_32BIT
@@ -146,3 +223,95 @@ clean-files += $(objtree)/vmlinuz.32
 clean-files += $(objtree)/vmlinuz.ecoff
 clean-files += $(objtree)/vmlinuz.bin
 clean-files += $(objtree)/vmlinuz.srec
+=======
+hostprogs += ../elf2ecoff
+
+ifdef CONFIG_32BIT
+	VMLINUZ = $(objtree)/vmlinuz
+else
+	VMLINUZ = $(objboot)/vmlinuz.32
+endif
+
+targets += ../vmlinuz.32
+
+quiet_cmd_32 = OBJCOPY $@
+      cmd_32 = $(OBJCOPY) -O $(32bit-bfd) $(OBJCOPYFLAGS) $< $@
+
+$(objboot)/vmlinuz.32: $(objtree)/vmlinuz
+	$(call cmd,32)
+
+targets += ../vmlinuz.ecoff
+
+quiet_cmd_ecoff = ECOFF	  $@
+      cmd_ecoff = $< $(VMLINUZ) $@ $(e2eflag)
+
+$(objboot)/vmlinuz.ecoff: $(objboot)/elf2ecoff $(VMLINUZ)
+	$(call cmd,ecoff)
+
+targets += ../vmlinuz.bin
+
+OBJCOPYFLAGS_vmlinuz.bin := $(OBJCOPYFLAGS) -O binary
+
+$(objboot)/vmlinuz.bin: $(objtree)/vmlinuz
+	$(call cmd,objcopy)
+
+targets += ../vmlinuz.srec
+
+OBJCOPYFLAGS_vmlinuz.srec := $(OBJCOPYFLAGS) -S -O srec
+
+$(objboot)/vmlinuz.srec: $(objtree)/vmlinuz
+	$(call cmd,objcopy)
+
+targets += ../uzImage.bin
+
+$(objboot)/uzImage.bin: $(objboot)/vmlinuz.bin FORCE
+	$(call if_changed,uimage,none)
+
+#
+# Flattened Image Tree (.itb) image
+#
+
+ifeq ($(ADDR_BITS),32)
+itb_addr_cells = 1
+endif
+ifeq ($(ADDR_BITS),64)
+itb_addr_cells = 2
+endif
+
+targets += ../vmlinuz.its.S
+
+quiet_cmd_its_cat = CAT     $@
+      cmd_its_cat = cat $(real-prereqs) >$@
+
+$(objboot)/vmlinuz.its.S: $(addprefix $(srctree)/arch/mips/$(PLATFORM)/,$(ITS_INPUTS)) FORCE
+	$(call if_changed,its_cat)
+
+targets += ../vmlinuz.its
+
+quiet_cmd_cpp_its_S = ITS     $@
+      cmd_cpp_its_S = $(CPP) -P -C -o $@ $< \
+		        -DKERNEL_NAME="\"Linux $(KERNELRELEASE)\"" \
+			-DVMLINUX_BINARY="\"$(2)\"" \
+			-DVMLINUX_COMPRESSION="\"none\"" \
+			-DVMLINUX_LOAD_ADDRESS=$(VMLINUZ_LOAD_ADDRESS) \
+			-DVMLINUX_ENTRY_ADDRESS=$(VMLINUZ_LOAD_ADDRESS) \
+			-DADDR_BITS=$(ADDR_BITS) \
+			-DADDR_CELLS=$(itb_addr_cells)
+
+$(objboot)/vmlinuz.its: $(objboot)/vmlinuz.its.S FORCE
+	$(call if_changed,cpp_its_S,vmlinuz.bin)
+
+targets += ../vmlinuz.itb
+
+quiet_cmd_itb-image = ITB     $@
+      cmd_itb-image = \
+		env PATH="$(objtree)/scripts/dtc:$(PATH)" \
+		$(BASH) $(MKIMAGE) \
+		-D "-I dts -O dtb -p 500 \
+			--include $(objtree)/arch/mips \
+			--warning no-unit_address_vs_reg" \
+		-f $(2) $@
+
+$(objboot)/vmlinuz.itb: $(objboot)/vmlinuz.its $(objboot)/vmlinuz.bin FORCE
+	$(call if_changed,itb-image,$<)
+>>>>>>> upstream/android-13

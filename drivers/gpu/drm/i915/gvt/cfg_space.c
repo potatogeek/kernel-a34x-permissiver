@@ -56,6 +56,13 @@ static const u8 pci_cfg_space_rw_bmp[PCI_INTERRUPT_LINE + 4] = {
 
 /**
  * vgpu_pci_cfg_mem_write - write virtual cfg space memory
+<<<<<<< HEAD
+=======
+ * @vgpu: target vgpu
+ * @off: offset
+ * @src: src ptr to write
+ * @bytes: number of bytes
+>>>>>>> upstream/android-13
  *
  * Use this function to write virtual cfg space memory.
  * For standard cfg space, only RW bits can be changed,
@@ -66,6 +73,10 @@ static void vgpu_pci_cfg_mem_write(struct intel_vgpu *vgpu, unsigned int off,
 {
 	u8 *cfg_base = vgpu_cfg_space(vgpu);
 	u8 mask, new, old;
+<<<<<<< HEAD
+=======
+	pci_power_t pwr;
+>>>>>>> upstream/android-13
 	int i = 0;
 
 	for (; i < bytes && (off + i < sizeof(pci_cfg_space_rw_bmp)); i++) {
@@ -87,10 +98,29 @@ static void vgpu_pci_cfg_mem_write(struct intel_vgpu *vgpu, unsigned int off,
 	/* For other configuration space directly copy as it is. */
 	if (i < bytes)
 		memcpy(cfg_base + off + i, src + i, bytes - i);
+<<<<<<< HEAD
+=======
+
+	if (off == vgpu->cfg_space.pmcsr_off && vgpu->cfg_space.pmcsr_off) {
+		pwr = (pci_power_t __force)(*(u16*)(&vgpu_cfg_space(vgpu)[off])
+			& PCI_PM_CTRL_STATE_MASK);
+		if (pwr == PCI_D3hot)
+			vgpu->d3_entered = true;
+		gvt_dbg_core("vgpu-%d power status changed to %d\n",
+			     vgpu->id, pwr);
+	}
+>>>>>>> upstream/android-13
 }
 
 /**
  * intel_vgpu_emulate_cfg_read - emulate vGPU configuration space read
+<<<<<<< HEAD
+=======
+ * @vgpu: target vgpu
+ * @offset: offset
+ * @p_data: return data ptr
+ * @bytes: number of bytes to read
+>>>>>>> upstream/android-13
  *
  * Returns:
  * Zero on success, negative error code if failed.
@@ -98,10 +128,20 @@ static void vgpu_pci_cfg_mem_write(struct intel_vgpu *vgpu, unsigned int off,
 int intel_vgpu_emulate_cfg_read(struct intel_vgpu *vgpu, unsigned int offset,
 	void *p_data, unsigned int bytes)
 {
+<<<<<<< HEAD
 	if (WARN_ON(bytes > 4))
 		return -EINVAL;
 
 	if (WARN_ON(offset + bytes > vgpu->gvt->device_info.cfg_space_size))
+=======
+	struct drm_i915_private *i915 = vgpu->gvt->gt->i915;
+
+	if (drm_WARN_ON(&i915->drm, bytes > 4))
+		return -EINVAL;
+
+	if (drm_WARN_ON(&i915->drm,
+			offset + bytes > vgpu->gvt->device_info.cfg_space_size))
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	memcpy(p_data, vgpu_cfg_space(vgpu) + offset, bytes);
@@ -278,6 +318,13 @@ static int emulate_pci_bar_write(struct intel_vgpu *vgpu, unsigned int offset,
 
 /**
  * intel_vgpu_emulate_cfg_read - emulate vGPU configuration space write
+<<<<<<< HEAD
+=======
+ * @vgpu: target vgpu
+ * @offset: offset
+ * @p_data: write data ptr
+ * @bytes: number of bytes to write
+>>>>>>> upstream/android-13
  *
  * Returns:
  * Zero on success, negative error code if failed.
@@ -285,34 +332,61 @@ static int emulate_pci_bar_write(struct intel_vgpu *vgpu, unsigned int offset,
 int intel_vgpu_emulate_cfg_write(struct intel_vgpu *vgpu, unsigned int offset,
 	void *p_data, unsigned int bytes)
 {
+<<<<<<< HEAD
 	int ret;
 
 	if (WARN_ON(bytes > 4))
 		return -EINVAL;
 
 	if (WARN_ON(offset + bytes > vgpu->gvt->device_info.cfg_space_size))
+=======
+	struct drm_i915_private *i915 = vgpu->gvt->gt->i915;
+	int ret;
+
+	if (drm_WARN_ON(&i915->drm, bytes > 4))
+		return -EINVAL;
+
+	if (drm_WARN_ON(&i915->drm,
+			offset + bytes > vgpu->gvt->device_info.cfg_space_size))
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	/* First check if it's PCI_COMMAND */
 	if (IS_ALIGNED(offset, 2) && offset == PCI_COMMAND) {
+<<<<<<< HEAD
 		if (WARN_ON(bytes > 2))
+=======
+		if (drm_WARN_ON(&i915->drm, bytes > 2))
+>>>>>>> upstream/android-13
 			return -EINVAL;
 		return emulate_pci_command_write(vgpu, offset, p_data, bytes);
 	}
 
 	switch (rounddown(offset, 4)) {
 	case PCI_ROM_ADDRESS:
+<<<<<<< HEAD
 		if (WARN_ON(!IS_ALIGNED(offset, 4)))
+=======
+		if (drm_WARN_ON(&i915->drm, !IS_ALIGNED(offset, 4)))
+>>>>>>> upstream/android-13
 			return -EINVAL;
 		return emulate_pci_rom_bar_write(vgpu, offset, p_data, bytes);
 
 	case PCI_BASE_ADDRESS_0 ... PCI_BASE_ADDRESS_5:
+<<<<<<< HEAD
 		if (WARN_ON(!IS_ALIGNED(offset, 4)))
+=======
+		if (drm_WARN_ON(&i915->drm, !IS_ALIGNED(offset, 4)))
+>>>>>>> upstream/android-13
 			return -EINVAL;
 		return emulate_pci_bar_write(vgpu, offset, p_data, bytes);
 
 	case INTEL_GVT_PCI_SWSCI:
+<<<<<<< HEAD
 		if (WARN_ON(!IS_ALIGNED(offset, 4)))
+=======
+		if (drm_WARN_ON(&i915->drm, !IS_ALIGNED(offset, 4)))
+>>>>>>> upstream/android-13
 			return -EINVAL;
 		ret = intel_vgpu_emulate_opregion_request(vgpu, *(u32 *)p_data);
 		if (ret)
@@ -320,7 +394,11 @@ int intel_vgpu_emulate_cfg_write(struct intel_vgpu *vgpu, unsigned int offset,
 		break;
 
 	case INTEL_GVT_PCI_OPREGION:
+<<<<<<< HEAD
 		if (WARN_ON(!IS_ALIGNED(offset, 4)))
+=======
+		if (drm_WARN_ON(&i915->drm, !IS_ALIGNED(offset, 4)))
+>>>>>>> upstream/android-13
 			return -EINVAL;
 		ret = intel_vgpu_opregion_base_write_handler(vgpu,
 						   *(u32 *)p_data);
@@ -347,8 +425,15 @@ void intel_vgpu_init_cfg_space(struct intel_vgpu *vgpu,
 			       bool primary)
 {
 	struct intel_gvt *gvt = vgpu->gvt;
+<<<<<<< HEAD
 	const struct intel_gvt_device_info *info = &gvt->device_info;
 	u16 *gmch_ctl;
+=======
+	struct pci_dev *pdev = to_pci_dev(gvt->gt->i915->drm.dev);
+	const struct intel_gvt_device_info *info = &gvt->device_info;
+	u16 *gmch_ctl;
+	u8 next;
+>>>>>>> upstream/android-13
 
 	memcpy(vgpu_cfg_space(vgpu), gvt->firmware.cfg_space,
 	       info->cfg_space_size);
@@ -379,11 +464,32 @@ void intel_vgpu_init_cfg_space(struct intel_vgpu *vgpu,
 	memset(vgpu_cfg_space(vgpu) + INTEL_GVT_PCI_OPREGION, 0, 4);
 
 	vgpu->cfg_space.bar[INTEL_GVT_PCI_BAR_GTTMMIO].size =
+<<<<<<< HEAD
 				pci_resource_len(gvt->dev_priv->drm.pdev, 0);
 	vgpu->cfg_space.bar[INTEL_GVT_PCI_BAR_APERTURE].size =
 				pci_resource_len(gvt->dev_priv->drm.pdev, 2);
 
 	memset(vgpu_cfg_space(vgpu) + PCI_ROM_ADDRESS, 0, 4);
+=======
+		pci_resource_len(pdev, 0);
+	vgpu->cfg_space.bar[INTEL_GVT_PCI_BAR_APERTURE].size =
+		pci_resource_len(pdev, 2);
+
+	memset(vgpu_cfg_space(vgpu) + PCI_ROM_ADDRESS, 0, 4);
+
+	/* PM Support */
+	vgpu->cfg_space.pmcsr_off = 0;
+	if (vgpu_cfg_space(vgpu)[PCI_STATUS] & PCI_STATUS_CAP_LIST) {
+		next = vgpu_cfg_space(vgpu)[PCI_CAPABILITY_LIST];
+		do {
+			if (vgpu_cfg_space(vgpu)[next + PCI_CAP_LIST_ID] == PCI_CAP_ID_PM) {
+				vgpu->cfg_space.pmcsr_off = next + PCI_PM_CTRL;
+				break;
+			}
+			next = vgpu_cfg_space(vgpu)[next + PCI_CAP_LIST_NEXT];
+		} while (next);
+	}
+>>>>>>> upstream/android-13
 }
 
 /**

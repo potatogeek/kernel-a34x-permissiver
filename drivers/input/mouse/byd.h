@@ -2,6 +2,7 @@
 #ifndef _BYD_H
 #define _BYD_H
 
+<<<<<<< HEAD
 #ifdef CONFIG_MOUSE_PS2_BYD
 int byd_detect(struct psmouse *psmouse, bool set_properties);
 int byd_init(struct psmouse *psmouse);
@@ -15,5 +16,9 @@ static inline int byd_init(struct psmouse *psmouse)
 	return -ENOSYS;
 }
 #endif /* CONFIG_MOUSE_PS2_BYD */
+=======
+int byd_detect(struct psmouse *psmouse, bool set_properties);
+int byd_init(struct psmouse *psmouse);
+>>>>>>> upstream/android-13
 
 #endif /* _BYD_H */

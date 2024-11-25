@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *	IDE tuning and bus mastering support for the CS5510/CS5520
  *	chipsets
@@ -18,6 +22,7 @@
  *
  *	(c) Copyright Red Hat Inc 2002
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
@@ -28,6 +33,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  * Documentation:
  *	Not publicly available.
  */
@@ -61,6 +68,10 @@ static const struct pio_clocks cs5520_pio_clocks[]={
  *	cs5520_set_timings	-	program PIO timings
  *	@ap: ATA port
  *	@adev: ATA device
+<<<<<<< HEAD
+=======
+ *	@pio: PIO ID
+>>>>>>> upstream/android-13
  *
  *	Program the PIO mode timings for the controller according to the pio
  *	clocking table.
@@ -103,8 +114,14 @@ static void cs5520_set_piomode(struct ata_port *ap, struct ata_device *adev)
 }
 
 static struct scsi_host_template cs5520_sht = {
+<<<<<<< HEAD
 	ATA_BMDMA_SHT(DRV_NAME),
 	.sg_tablesize		= LIBATA_DUMB_MAX_PRD,
+=======
+	ATA_BASE_SHT(DRV_NAME),
+	.sg_tablesize		= LIBATA_DUMB_MAX_PRD,
+	.dma_boundary		= ATA_DMA_BOUNDARY,
+>>>>>>> upstream/android-13
 };
 
 static struct ata_port_operations cs5520_port_ops = {
@@ -164,6 +181,7 @@ static int cs5520_init_one(struct pci_dev *pdev, const struct pci_device_id *id)
 		return -ENODEV;
 	}
 
+<<<<<<< HEAD
 	if (dma_set_mask(&pdev->dev, DMA_BIT_MASK(32))) {
 		printk(KERN_ERR DRV_NAME ": unable to configure DMA mask.\n");
 		return -ENODEV;
@@ -172,6 +190,12 @@ static int cs5520_init_one(struct pci_dev *pdev, const struct pci_device_id *id)
 		printk(KERN_ERR DRV_NAME ": unable to configure consistent DMA mask.\n");
 		return -ENODEV;
 	}
+=======
+	if (dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(32))) {
+		printk(KERN_ERR DRV_NAME ": unable to configure DMA mask.\n");
+		return -ENODEV;
+	}
+>>>>>>> upstream/android-13
 
 	/* Map IO ports and initialize host accordingly */
 	iomap[0] = devm_ioport_map(&pdev->dev, cmd_port[0], 8);
@@ -259,6 +283,10 @@ static int cs5520_reinit_one(struct pci_dev *pdev)
 /**
  *	cs5520_pci_device_suspend	-	device suspend
  *	@pdev: PCI device
+<<<<<<< HEAD
+=======
+ *	@mesg: PM event message
+>>>>>>> upstream/android-13
  *
  *	We have to cut and waste bits from the standard method because
  *	the 5520 is a bit odd and not just a pure ATA device. As a result

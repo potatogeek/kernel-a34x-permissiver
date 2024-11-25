@@ -169,6 +169,7 @@ static void cmdpkt_beacontimerinterrupt_819xusb(struct net_device *dev)
 {
 	struct r8192_priv *priv = ieee80211_priv(dev);
 	u16 tx_rate;
+<<<<<<< HEAD
 		/* 87B have to S/W beacon for DTM encryption_cmn. */
 		if (priv->ieee80211->current_network.mode == IEEE_A ||
 		    priv->ieee80211->current_network.mode == IEEE_N_5G ||
@@ -182,6 +183,22 @@ static void cmdpkt_beacontimerinterrupt_819xusb(struct net_device *dev)
 		}
 
 		rtl819xusb_beacon_tx(dev, tx_rate); /* HW Beacon */
+=======
+
+	/* 87B have to S/W beacon for DTM encryption_cmn. */
+	if (priv->ieee80211->current_network.mode == IEEE_A ||
+	    priv->ieee80211->current_network.mode == IEEE_N_5G ||
+	    (priv->ieee80211->current_network.mode == IEEE_N_24G &&
+	     (!priv->ieee80211->pHTInfo->bCurSuppCCK))) {
+		tx_rate = 60;
+		DMESG("send beacon frame  tx rate is 6Mbpm\n");
+	} else {
+		tx_rate = 10;
+		DMESG("send beacon frame  tx rate is 1Mbpm\n");
+	}
+
+	rtl819xusb_beacon_tx(dev, tx_rate); /* HW Beacon */
+>>>>>>> upstream/android-13
 }
 
 /*-----------------------------------------------------------------------------
@@ -243,12 +260,17 @@ static void cmpk_handle_interrupt_status(struct net_device *dev, u8 *pmsg)
 			cmdpkt_beacontimerinterrupt_819xusb(dev);
 	}
 
+<<<<<<< HEAD
 	/* Other informations in interrupt status we need? */
+=======
+	/* Other information in interrupt status we need? */
+>>>>>>> upstream/android-13
 
 	DMESG("<---- cmpk_handle_interrupt_status()\n");
 }
 
 /*-----------------------------------------------------------------------------
+<<<<<<< HEAD
  * Function:    cmpk_handle_query_config_rx()
  *
  * Overview:    The function is responsible for extract the message from
@@ -289,6 +311,8 @@ static void cmpk_handle_query_config_rx(struct net_device *dev, u8 *pmsg)
 }
 
 /*-----------------------------------------------------------------------------
+=======
+>>>>>>> upstream/android-13
  * Function:	cmpk_count_tx_status()
  *
  * Overview:	Count aggregated tx status from firmwar of one type rx command
@@ -335,7 +359,10 @@ static void cmpk_count_tx_status(struct net_device *dev,
 	priv->stats.txretrycount	+= pstx_status->txretry;
 	priv->stats.txfeedbackretry	+= pstx_status->txretry;
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	priv->stats.txmulticast		+= pstx_status->txmcok;
 	priv->stats.txbroadcast		+= pstx_status->txbcok;
 	priv->stats.txunicast		+= pstx_status->txucok;
@@ -430,7 +457,11 @@ static void cmpk_handle_tx_rate_history(struct net_device *dev, u8 *pmsg)
 
 	ptxrate = (cmpk_tx_rahis_t *)pmsg;
 
+<<<<<<< HEAD
 	if (ptxrate == NULL)
+=======
+	if (!ptxrate)
+>>>>>>> upstream/android-13
 		return;
 
 	for (i = 0; i < 16; i++) {
@@ -479,7 +510,11 @@ u32 cmpk_message_handle_rx(struct net_device *dev,
 	/* 0. Check inpt arguments. It is a command queue message or
 	 * pointer is null.
 	 */
+<<<<<<< HEAD
 	if (pstats == NULL)
+=======
+	if (!pstats)
+>>>>>>> upstream/android-13
 		return 0;	/* This is not a command packet. */
 
 	/* 1. Read received command packet message length from RFD. */
@@ -514,7 +549,10 @@ u32 cmpk_message_handle_rx(struct net_device *dev,
 			break;
 
 		case BOTH_QUERY_CONFIG:
+<<<<<<< HEAD
 			cmpk_handle_query_config_rx(dev, pcmd_buff);
+=======
+>>>>>>> upstream/android-13
 			cmd_length = CMPK_BOTH_QUERY_CONFIG_SIZE;
 			break;
 

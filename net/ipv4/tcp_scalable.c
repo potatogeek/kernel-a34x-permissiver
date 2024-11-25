@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* Tom Kelly's Scalable TCP
  *
  * See http://www.deneholme.net/tom/scalable/
@@ -9,10 +13,16 @@
 #include <net/tcp.h>
 
 /* These factors derived from the recommended values in the aer:
+<<<<<<< HEAD
  * .01 and and 7/8. We use 50 instead of 100 to account for
  * delayed ack.
  */
 #define TCP_SCALABLE_AI_CNT	50U
+=======
+ * .01 and 7/8.
+ */
+#define TCP_SCALABLE_AI_CNT	100U
+>>>>>>> upstream/android-13
 #define TCP_SCALABLE_MD_SCALE	3
 
 static void tcp_scalable_cong_avoid(struct sock *sk, u32 ack, u32 acked)
@@ -22,11 +32,21 @@ static void tcp_scalable_cong_avoid(struct sock *sk, u32 ack, u32 acked)
 	if (!tcp_is_cwnd_limited(sk))
 		return;
 
+<<<<<<< HEAD
 	if (tcp_in_slow_start(tp))
 		tcp_slow_start(tp, acked);
 	else
 		tcp_cong_avoid_ai(tp, min(tp->snd_cwnd, TCP_SCALABLE_AI_CNT),
 				  1);
+=======
+	if (tcp_in_slow_start(tp)) {
+		acked = tcp_slow_start(tp, acked);
+		if (!acked)
+			return;
+	}
+	tcp_cong_avoid_ai(tp, min(tp->snd_cwnd, TCP_SCALABLE_AI_CNT),
+			  acked);
+>>>>>>> upstream/android-13
 }
 
 static u32 tcp_scalable_ssthresh(struct sock *sk)

@@ -62,6 +62,7 @@ typedef unsigned long old_sigset_t;		/* at least 32 bits */
 #define SIGRTMAX	_NSIG
 
 /*
+<<<<<<< HEAD
  * SA_FLAGS values:
  *
  * SA_ONSTACK indicates that a registered stack_t will be used.
@@ -74,6 +75,8 @@ typedef unsigned long old_sigset_t;		/* at least 32 bits */
  * SA_ONESHOT and SA_NOMASK are the historical Linux names for the Single
  * Unix names RESETHAND and NODEFER respectively.
  *
+=======
+>>>>>>> upstream/android-13
  * SA_RESTORER used to be defined as 0x04000000 but only the O32 ABI ever
  * supported its use and no libc was using it, so the entire sa-restorer
  * functionality was removed with lmo commit 39bffc12c3580ab for 2.5.48

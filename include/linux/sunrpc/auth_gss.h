@@ -13,7 +13,10 @@
 #ifndef _LINUX_SUNRPC_AUTH_GSS_H
 #define _LINUX_SUNRPC_AUTH_GSS_H
 
+<<<<<<< HEAD
 #ifdef __KERNEL__
+=======
+>>>>>>> upstream/android-13
 #include <linux/refcount.h>
 #include <linux/sunrpc/auth.h>
 #include <linux/sunrpc/svc.h>
@@ -70,6 +73,10 @@ struct gss_cl_ctx {
 	refcount_t		count;
 	enum rpc_gss_proc	gc_proc;
 	u32			gc_seq;
+<<<<<<< HEAD
+=======
+	u32			gc_seq_xmit;
+>>>>>>> upstream/android-13
 	spinlock_t		gc_seq_lock;
 	struct gss_ctx		*gc_gss_ctx;
 	struct xdr_netobj	gc_wire_ctx;
@@ -89,6 +96,9 @@ struct gss_cred {
 	unsigned long		gc_upcall_timestamp;
 };
 
+<<<<<<< HEAD
 #endif /* __KERNEL__ */
+=======
+>>>>>>> upstream/android-13
 #endif /* _LINUX_SUNRPC_AUTH_GSS_H */
 

@@ -621,6 +621,7 @@ static const u32 ar9340Modes_high_ob_db_tx_gain_table_1p0[][5] = {
 	{0x00016448, 0x8e481666, 0x8e481666, 0x8e481266, 0x8e481266},
 };
 
+<<<<<<< HEAD
 static const u32 ar9340Modes_ub124_tx_gain_table_1p0[][5] = {
 	/* Addr      5G_HT20     5G_HT40     2G_HT40     2G_HT20   */
 	{0x00009810, 0xd00a8005, 0xd00a8005, 0xd00a8005, 0xd00a8005},
@@ -722,6 +723,8 @@ static const u32 ar9340Modes_ub124_tx_gain_table_1p0[][5] = {
 	{0x0000b2e8, 0xfffe0000, 0xfffe0000, 0xfffc0000, 0xfffc0000},
 };
 
+=======
+>>>>>>> upstream/android-13
 static const u32 ar9340Modes_low_ob_db_tx_gain_table_1p0[][5] = {
 	/* Addr      5G_HT20     5G_HT40     2G_HT40     2G_HT20   */
 	{0x0000a2dc, 0x0380c7fc, 0x0380c7fc, 0x03aaa352, 0x03aaa352},

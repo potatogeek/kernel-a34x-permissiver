@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
 * Copyright(c) 2015 - 2018 Intel Corporation.
 *
@@ -44,6 +45,13 @@
 * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *
 */
+=======
+/* SPDX-License-Identifier: GPL-2.0 or BSD-3-Clause */
+/*
+* Copyright(c) 2015 - 2018 Intel Corporation.
+*/
+
+>>>>>>> upstream/android-13
 #if !defined(__HFI1_TRACE_EXTRA_H) || defined(TRACE_HEADER_MULTI_READ)
 #define __HFI1_TRACE_EXTRA_H
 
@@ -86,14 +94,22 @@ DECLARE_EVENT_CLASS(hfi1_trace_template,
  * actual function to work and can not be in a macro.
  */
 #define __hfi1_trace_def(lvl) \
+<<<<<<< HEAD
 void __hfi1_trace_##lvl(const char *funct, char *fmt, ...);		\
+=======
+void __printf(2, 3) __hfi1_trace_##lvl(const char *funct, char *fmt, ...); \
+>>>>>>> upstream/android-13
 									\
 DEFINE_EVENT(hfi1_trace_template, hfi1_ ##lvl,				\
 	TP_PROTO(const char *function, struct va_format *vaf),		\
 	TP_ARGS(function, vaf))
 
 #define __hfi1_trace_fn(lvl) \
+<<<<<<< HEAD
 void __hfi1_trace_##lvl(const char *func, char *fmt, ...)		\
+=======
+void __printf(2, 3) __hfi1_trace_##lvl(const char *func, char *fmt, ...)\
+>>>>>>> upstream/android-13
 {									\
 	struct va_format vaf = {					\
 		.fmt = fmt,						\

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * INET		An implementation of the TCP/IP protocol suite for the LINUX
  *		operating system.  INET is implemented using the  BSD Socket
@@ -30,11 +34,14 @@
  *		Alan Cox	:	Added IP_HDRINCL option.
  *		Alan Cox	:	Skip broadcast check if BSDism set.
  *		David S. Miller	:	New socket lookup architecture.
+<<<<<<< HEAD
  *
  *		This program is free software; you can redistribute it and/or
  *		modify it under the terms of the GNU General Public License
  *		as published by the Free Software Foundation; either version
  *		2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/types.h>
@@ -131,8 +138,12 @@ struct sock *__raw_v4_lookup(struct net *net, struct sock *sk,
 		if (net_eq(sock_net(sk), net) && inet->inet_num == num	&&
 		    !(inet->inet_daddr && inet->inet_daddr != raddr) 	&&
 		    !(inet->inet_rcv_saddr && inet->inet_rcv_saddr != laddr) &&
+<<<<<<< HEAD
 		    !(sk->sk_bound_dev_if && sk->sk_bound_dev_if != dif &&
 		      sk->sk_bound_dev_if != sdif))
+=======
+		    raw_sk_bound_dev_eq(net, sk->sk_bound_dev_if, dif, sdif))
+>>>>>>> upstream/android-13
 			goto found; /* gotcha */
 	}
 	sk = NULL;
@@ -265,11 +276,20 @@ static void raw_err(struct sock *sk, struct sk_buff *skb, u32 info)
 		err = EHOSTUNREACH;
 		if (code > NR_ICMP_UNREACH)
 			break;
+<<<<<<< HEAD
 		err = icmp_err_convert[code].errno;
 		harderr = icmp_err_convert[code].fatal;
 		if (code == ICMP_FRAG_NEEDED) {
 			harderr = inet->pmtudisc != IP_PMTUDISC_DONT;
 			err = EMSGSIZE;
+=======
+		if (code == ICMP_FRAG_NEEDED) {
+			harderr = inet->pmtudisc != IP_PMTUDISC_DONT;
+			err = EMSGSIZE;
+		} else {
+			err = icmp_err_convert[code].errno;
+			harderr = icmp_err_convert[code].fatal;
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -284,7 +304,11 @@ static void raw_err(struct sock *sk, struct sk_buff *skb, u32 info)
 
 	if (inet->recverr || harderr) {
 		sk->sk_err = err;
+<<<<<<< HEAD
 		sk->sk_error_report(sk);
+=======
+		sk_error_report(sk);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -337,7 +361,11 @@ int raw_rcv(struct sock *sk, struct sk_buff *skb)
 		kfree_skb(skb);
 		return NET_RX_DROP;
 	}
+<<<<<<< HEAD
 	nf_reset(skb);
+=======
+	nf_reset_ct(skb);
+>>>>>>> upstream/android-13
 
 	skb_push(skb, skb->data - skb_network_header(skb));
 
@@ -380,7 +408,11 @@ static int raw_send_hdrinc(struct sock *sk, struct flowi4 *fl4,
 	skb_reserve(skb, hlen);
 
 	skb->priority = sk->sk_priority;
+<<<<<<< HEAD
 	skb->mark = sk->sk_mark;
+=======
+	skb->mark = sockc->mark;
+>>>>>>> upstream/android-13
 	skb->tstamp = sockc->transmit_time;
 	skb_dst_set(skb, &rt->dst);
 	*rtp = NULL;
@@ -391,7 +423,11 @@ static int raw_send_hdrinc(struct sock *sk, struct flowi4 *fl4,
 
 	skb->ip_summed = CHECKSUM_NONE;
 
+<<<<<<< HEAD
 	sock_tx_timestamp(sk, sockc->tsflags, &skb_shinfo(skb)->tx_flags);
+=======
+	skb_setup_tx_timestamp(skb, sockc->tsflags);
+>>>>>>> upstream/android-13
 
 	if (flags & MSG_CONFIRM)
 		skb_set_dst_pending_confirm(skb, 1);
@@ -483,7 +519,11 @@ static int raw_getfrag(void *from, char *to, int offset, int len, int odd,
 			skb->csum = csum_block_add(
 				skb->csum,
 				csum_partial_copy_nocheck(rfv->hdr.c + offset,
+<<<<<<< HEAD
 							  to, copy, 0),
+=======
+							  to, copy),
+>>>>>>> upstream/android-13
 				odd);
 
 		odd = 0;
@@ -608,14 +648,22 @@ static int raw_sendmsg(struct sock *sk, struct msghdr *msg, size_t len)
 		tos |= RTO_ONLINK;
 
 	if (ipv4_is_multicast(daddr)) {
+<<<<<<< HEAD
 		if (!ipc.oif)
+=======
+		if (!ipc.oif || netif_index_is_l3_master(sock_net(sk), ipc.oif))
+>>>>>>> upstream/android-13
 			ipc.oif = inet->mc_index;
 		if (!saddr)
 			saddr = inet->mc_addr;
 	} else if (!ipc.oif) {
 		ipc.oif = inet->uc_index;
 	} else if (ipv4_is_lbcast(daddr) && inet->uc_index) {
+<<<<<<< HEAD
 		/* oif is set, packet is to local broadcast and
+=======
+		/* oif is set, packet is to local broadcast
+>>>>>>> upstream/android-13
 		 * and uc_index is set. oif is most likely set
 		 * by sk_bound_dev_if. If uc_index != oif check if the
 		 * oif is an L3 master and uc_index is an L3 slave.
@@ -628,7 +676,11 @@ static int raw_sendmsg(struct sock *sk, struct msghdr *msg, size_t len)
 		}
 	}
 
+<<<<<<< HEAD
 	flowi4_init_output(&fl4, ipc.oif, sk->sk_mark, tos,
+=======
+	flowi4_init_output(&fl4, ipc.oif, ipc.sockc.mark, tos,
+>>>>>>> upstream/android-13
 			   RT_SCOPE_UNIVERSE,
 			   hdrincl ? IPPROTO_RAW : sk->sk_protocol,
 			   inet_sk_flowi_flags(sk) |
@@ -644,7 +696,11 @@ static int raw_sendmsg(struct sock *sk, struct msghdr *msg, size_t len)
 			goto done;
 	}
 
+<<<<<<< HEAD
 	security_sk_classify_flow(sk, flowi4_to_flowi(&fl4));
+=======
+	security_sk_classify_flow(sk, flowi4_to_flowi_common(&fl4));
+>>>>>>> upstream/android-13
 	rt = ip_route_output_flow(net, &fl4, sk);
 	if (IS_ERR(rt)) {
 		err = PTR_ERR(rt);
@@ -725,6 +781,10 @@ static int raw_bind(struct sock *sk, struct sockaddr *uaddr, int addr_len)
 	int ret = -EINVAL;
 	int chk_addr_ret;
 
+<<<<<<< HEAD
+=======
+	lock_sock(sk);
+>>>>>>> upstream/android-13
 	if (sk->sk_state != TCP_CLOSE || addr_len < sizeof(struct sockaddr_in))
 		goto out;
 
@@ -744,7 +804,13 @@ static int raw_bind(struct sock *sk, struct sockaddr *uaddr, int addr_len)
 		inet->inet_saddr = 0;  /* Use device */
 	sk_dst_reset(sk);
 	ret = 0;
+<<<<<<< HEAD
 out:	return ret;
+=======
+out:
+	release_sock(sk);
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -805,7 +871,11 @@ out:
 	return copied;
 }
 
+<<<<<<< HEAD
 static int raw_init(struct sock *sk)
+=======
+static int raw_sk_init(struct sock *sk)
+>>>>>>> upstream/android-13
 {
 	struct raw_sock *rp = raw_sk(sk);
 
@@ -814,11 +884,19 @@ static int raw_init(struct sock *sk)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int raw_seticmpfilter(struct sock *sk, char __user *optval, int optlen)
 {
 	if (optlen > sizeof(struct icmp_filter))
 		optlen = sizeof(struct icmp_filter);
 	if (copy_from_user(&raw_sk(sk)->filter, optval, optlen))
+=======
+static int raw_seticmpfilter(struct sock *sk, sockptr_t optval, int optlen)
+{
+	if (optlen > sizeof(struct icmp_filter))
+		optlen = sizeof(struct icmp_filter);
+	if (copy_from_sockptr(&raw_sk(sk)->filter, optval, optlen))
+>>>>>>> upstream/android-13
 		return -EFAULT;
 	return 0;
 }
@@ -843,7 +921,11 @@ out:	return ret;
 }
 
 static int do_raw_setsockopt(struct sock *sk, int level, int optname,
+<<<<<<< HEAD
 			  char __user *optval, unsigned int optlen)
+=======
+			     sockptr_t optval, unsigned int optlen)
+>>>>>>> upstream/android-13
 {
 	if (optname == ICMP_FILTER) {
 		if (inet_sk(sk)->inet_num != IPPROTO_ICMP)
@@ -855,13 +937,18 @@ static int do_raw_setsockopt(struct sock *sk, int level, int optname,
 }
 
 static int raw_setsockopt(struct sock *sk, int level, int optname,
+<<<<<<< HEAD
 			  char __user *optval, unsigned int optlen)
+=======
+			  sockptr_t optval, unsigned int optlen)
+>>>>>>> upstream/android-13
 {
 	if (level != SOL_RAW)
 		return ip_setsockopt(sk, level, optname, optval, optlen);
 	return do_raw_setsockopt(sk, level, optname, optval, optlen);
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_COMPAT
 static int compat_raw_setsockopt(struct sock *sk, int level, int optname,
 				 char __user *optval, unsigned int optlen)
@@ -872,6 +959,8 @@ static int compat_raw_setsockopt(struct sock *sk, int level, int optname,
 }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 static int do_raw_getsockopt(struct sock *sk, int level, int optname,
 			  char __user *optval, int __user *optlen)
 {
@@ -892,6 +981,7 @@ static int raw_getsockopt(struct sock *sk, int level, int optname,
 	return do_raw_getsockopt(sk, level, optname, optval, optlen);
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_COMPAT
 static int compat_raw_getsockopt(struct sock *sk, int level, int optname,
 				 char __user *optval, int __user *optlen)
@@ -902,6 +992,8 @@ static int compat_raw_getsockopt(struct sock *sk, int level, int optname,
 }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 static int raw_ioctl(struct sock *sk, int cmd, unsigned long arg)
 {
 	switch (cmd) {
@@ -953,7 +1045,11 @@ int raw_abort(struct sock *sk, int err)
 	lock_sock(sk);
 
 	sk->sk_err = err;
+<<<<<<< HEAD
 	sk->sk_error_report(sk);
+=======
+	sk_error_report(sk);
+>>>>>>> upstream/android-13
 	__udp_disconnect(sk, 0);
 
 	release_sock(sk);
@@ -970,7 +1066,11 @@ struct proto raw_prot = {
 	.connect	   = ip4_datagram_connect,
 	.disconnect	   = __udp_disconnect,
 	.ioctl		   = raw_ioctl,
+<<<<<<< HEAD
 	.init		   = raw_init,
+=======
+	.init		   = raw_sk_init,
+>>>>>>> upstream/android-13
 	.setsockopt	   = raw_setsockopt,
 	.getsockopt	   = raw_getsockopt,
 	.sendmsg	   = raw_sendmsg,
@@ -985,8 +1085,11 @@ struct proto raw_prot = {
 	.usersize	   = sizeof_field(struct raw_sock, filter),
 	.h.raw_hash	   = &raw_v4_hashinfo,
 #ifdef CONFIG_COMPAT
+<<<<<<< HEAD
 	.compat_setsockopt = compat_raw_setsockopt,
 	.compat_getsockopt = compat_raw_getsockopt,
+=======
+>>>>>>> upstream/android-13
 	.compat_ioctl	   = compat_raw_ioctl,
 #endif
 	.diag_destroy	   = raw_abort,
@@ -1039,6 +1142,10 @@ static struct sock *raw_get_idx(struct seq_file *seq, loff_t pos)
 }
 
 void *raw_seq_start(struct seq_file *seq, loff_t *pos)
+<<<<<<< HEAD
+=======
+	__acquires(&h->lock)
+>>>>>>> upstream/android-13
 {
 	struct raw_hashinfo *h = PDE_DATA(file_inode(seq->file));
 
@@ -1061,6 +1168,10 @@ void *raw_seq_next(struct seq_file *seq, void *v, loff_t *pos)
 EXPORT_SYMBOL_GPL(raw_seq_next);
 
 void raw_seq_stop(struct seq_file *seq, void *v)
+<<<<<<< HEAD
+=======
+	__releases(&h->lock)
+>>>>>>> upstream/android-13
 {
 	struct raw_hashinfo *h = PDE_DATA(file_inode(seq->file));
 
@@ -1077,7 +1188,11 @@ static void raw_sock_seq_show(struct seq_file *seq, struct sock *sp, int i)
 	      srcp  = inet->inet_num;
 
 	seq_printf(seq, "%4d: %08X:%04X %08X:%04X"
+<<<<<<< HEAD
 		" %02X %08X:%08X %02X:%08lX %08X %5u %8d %lu %d %pK %d\n",
+=======
+		" %02X %08X:%08X %02X:%08lX %08X %5u %8d %lu %d %pK %u\n",
+>>>>>>> upstream/android-13
 		i, src, srcp, dest, destp, sp->sk_state,
 		sk_wmem_alloc_get(sp),
 		sk_rmem_alloc_get(sp),
@@ -1134,3 +1249,30 @@ void __init raw_proc_exit(void)
 	unregister_pernet_subsys(&raw_net_ops);
 }
 #endif /* CONFIG_PROC_FS */
+<<<<<<< HEAD
+=======
+
+static void raw_sysctl_init_net(struct net *net)
+{
+#ifdef CONFIG_NET_L3_MASTER_DEV
+	net->ipv4.sysctl_raw_l3mdev_accept = 1;
+#endif
+}
+
+static int __net_init raw_sysctl_init(struct net *net)
+{
+	raw_sysctl_init_net(net);
+	return 0;
+}
+
+static struct pernet_operations __net_initdata raw_sysctl_ops = {
+	.init	= raw_sysctl_init,
+};
+
+void __init raw_init(void)
+{
+	raw_sysctl_init_net(&init_net);
+	if (register_pernet_subsys(&raw_sysctl_ops))
+		panic("RAW: failed to init sysctl parameters.\n");
+}
+>>>>>>> upstream/android-13

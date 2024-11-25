@@ -1,7 +1,12 @@
+<<<<<<< HEAD
 /*
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published
  * by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+>>>>>>> upstream/android-13
  *
  * Copyright (C) 2015 Nikolay Martynov <mar.kolya@gmail.com>
  * Copyright (C) 2015 John Crispin <john@phrozen.org>
@@ -9,13 +14,22 @@
 
 #include <linux/kernel.h>
 #include <linux/init.h>
+<<<<<<< HEAD
 
+=======
+#include <linux/slab.h>
+#include <linux/sys_soc.h>
+#include <linux/memblock.h>
+
+#include <asm/bootinfo.h>
+>>>>>>> upstream/android-13
 #include <asm/mipsregs.h>
 #include <asm/smp-ops.h>
 #include <asm/mips-cps.h>
 #include <asm/mach-ralink/ralink_regs.h>
 #include <asm/mach-ralink/mt7621.h>
 
+<<<<<<< HEAD
 #include <pinmux.h>
 
 #include "common.h"
@@ -109,12 +123,20 @@ static struct rt2880_pmx_group mt7621_pinmux_data[] = {
 	GRP("rgmii1", rgmii1_grp, 1, MT7621_GPIO_MODE_RGMII1),
 	{ 0 }
 };
+=======
+#include "common.h"
+
+#define MT7621_MEM_TEST_PATTERN         0xaa5555aa
+
+static u32 detect_magic __initdata;
+>>>>>>> upstream/android-13
 
 phys_addr_t mips_cpc_default_phys_base(void)
 {
 	panic("Cannot detect cpc address");
 }
 
+<<<<<<< HEAD
 void __init ralink_clk_init(void)
 {
 	int cpu_fdiv = 0;
@@ -151,18 +173,82 @@ void __init ralink_clk_init(void)
 		}
 		break;
 	}
+=======
+static bool __init mt7621_addr_wraparound_test(phys_addr_t size)
+{
+	void *dm = (void *)KSEG1ADDR(&detect_magic);
+
+	if (CPHYSADDR(dm + size) >= MT7621_LOWMEM_MAX_SIZE)
+		return true;
+	__raw_writel(MT7621_MEM_TEST_PATTERN, dm);
+	if (__raw_readl(dm) != __raw_readl(dm + size))
+		return false;
+	__raw_writel(~MT7621_MEM_TEST_PATTERN, dm);
+	return __raw_readl(dm) == __raw_readl(dm + size);
+}
+
+static void __init mt7621_memory_detect(void)
+{
+	phys_addr_t size;
+
+	for (size = 32 * SZ_1M; size <= 256 * SZ_1M; size <<= 1) {
+		if (mt7621_addr_wraparound_test(size)) {
+			memblock_add(MT7621_LOWMEM_BASE, size);
+			return;
+		}
+	}
+
+	memblock_add(MT7621_LOWMEM_BASE, MT7621_LOWMEM_MAX_SIZE);
+	memblock_add(MT7621_HIGHMEM_BASE, MT7621_HIGHMEM_SIZE);
+>>>>>>> upstream/android-13
 }
 
 void __init ralink_of_remap(void)
 {
+<<<<<<< HEAD
 	rt_sysc_membase = plat_of_remap_node("mtk,mt7621-sysc");
 	rt_memc_membase = plat_of_remap_node("mtk,mt7621-memc");
+=======
+	rt_sysc_membase = plat_of_remap_node("mediatek,mt7621-sysc");
+	rt_memc_membase = plat_of_remap_node("mediatek,mt7621-memc");
+>>>>>>> upstream/android-13
 
 	if (!rt_sysc_membase || !rt_memc_membase)
 		panic("Failed to remap core resources");
 }
 
+<<<<<<< HEAD
 void prom_soc_init(struct ralink_soc_info *soc_info)
+=======
+static void soc_dev_init(struct ralink_soc_info *soc_info, u32 rev)
+{
+	struct soc_device *soc_dev;
+	struct soc_device_attribute *soc_dev_attr;
+
+	soc_dev_attr = kzalloc(sizeof(*soc_dev_attr), GFP_KERNEL);
+	if (!soc_dev_attr)
+		return;
+
+	soc_dev_attr->soc_id = "mt7621";
+	soc_dev_attr->family = "Ralink";
+
+	if (((rev >> CHIP_REV_VER_SHIFT) & CHIP_REV_VER_MASK) == 1 &&
+	    (rev & CHIP_REV_ECO_MASK) == 1)
+		soc_dev_attr->revision = "E2";
+	else
+		soc_dev_attr->revision = "E1";
+
+	soc_dev_attr->data = soc_info;
+
+	soc_dev = soc_device_register(soc_dev_attr);
+	if (IS_ERR(soc_dev)) {
+		kfree(soc_dev_attr);
+		return;
+	}
+}
+
+void __init prom_soc_init(struct ralink_soc_info *soc_info)
+>>>>>>> upstream/android-13
 {
 	void __iomem *sysc = (void __iomem *) KSEG1ADDR(MT7621_SYSC_BASE);
 	unsigned char *name = NULL;
@@ -197,7 +283,11 @@ void prom_soc_init(struct ralink_soc_info *soc_info)
 
 	if (n0 == MT7621_CHIP_NAME0 && n1 == MT7621_CHIP_NAME1) {
 		name = "MT7621";
+<<<<<<< HEAD
 		soc_info->compatible = "mtk,mt7621-soc";
+=======
+		soc_info->compatible = "mediatek,mt7621-soc";
+>>>>>>> upstream/android-13
 	} else {
 		panic("mt7621: unknown SoC, n0:%08x n1:%08x\n", n0, n1);
 	}
@@ -210,12 +300,18 @@ void prom_soc_init(struct ralink_soc_info *soc_info)
 		(rev >> CHIP_REV_VER_SHIFT) & CHIP_REV_VER_MASK,
 		(rev & CHIP_REV_ECO_MASK));
 
+<<<<<<< HEAD
 	soc_info->mem_size_min = MT7621_DDR2_SIZE_MIN;
 	soc_info->mem_size_max = MT7621_DDR2_SIZE_MAX;
 	soc_info->mem_base = MT7621_DRAM_BASE;
 
 	rt2880_pinmux_data = mt7621_pinmux_data;
 
+=======
+	soc_info->mem_detect = mt7621_memory_detect;
+
+	soc_dev_init(soc_info, rev);
+>>>>>>> upstream/android-13
 
 	if (!register_cps_smp_ops())
 		return;

@@ -4,7 +4,11 @@
 
 NetApp provides this source code under the GPL v2 License.
 The GPL v2 license is available at
+<<<<<<< HEAD
 http://opensource.org/licenses/gpl-license.php.
+=======
+https://opensource.org/licenses/gpl-license.php.
+>>>>>>> upstream/android-13
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -34,6 +38,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifdef CONFIG_SUNRPC_BACKCHANNEL
 struct rpc_rqst *xprt_lookup_bc_request(struct rpc_xprt *xprt, __be32 xid);
 void xprt_complete_bc_request(struct rpc_rqst *req, uint32_t copied);
+<<<<<<< HEAD
+=======
+void xprt_init_bc_request(struct rpc_rqst *req, struct rpc_task *task);
+>>>>>>> upstream/android-13
 void xprt_free_bc_request(struct rpc_rqst *req);
 int xprt_setup_backchannel(struct rpc_xprt *, unsigned int min_reqs);
 void xprt_destroy_backchannel(struct rpc_xprt *, unsigned int max_reqs);
@@ -42,15 +50,30 @@ void xprt_destroy_backchannel(struct rpc_xprt *, unsigned int max_reqs);
 int xprt_setup_bc(struct rpc_xprt *xprt, unsigned int min_reqs);
 void xprt_destroy_bc(struct rpc_xprt *xprt, unsigned int max_reqs);
 void xprt_free_bc_rqst(struct rpc_rqst *req);
+<<<<<<< HEAD
+=======
+unsigned int xprt_bc_max_slots(struct rpc_xprt *xprt);
+>>>>>>> upstream/android-13
 
 /*
  * Determine if a shared backchannel is in use
  */
+<<<<<<< HEAD
 static inline int svc_is_backchannel(const struct svc_rqst *rqstp)
 {
 	if (rqstp->rq_server->sv_bc_xprt)
 		return 1;
 	return 0;
+=======
+static inline bool svc_is_backchannel(const struct svc_rqst *rqstp)
+{
+	return rqstp->rq_server->sv_bc_enabled;
+}
+
+static inline void set_bc_enabled(struct svc_serv *serv)
+{
+	serv->sv_bc_enabled = true;
+>>>>>>> upstream/android-13
 }
 #else /* CONFIG_SUNRPC_BACKCHANNEL */
 static inline int xprt_setup_backchannel(struct rpc_xprt *xprt,
@@ -59,9 +82,24 @@ static inline int xprt_setup_backchannel(struct rpc_xprt *xprt,
 	return 0;
 }
 
+<<<<<<< HEAD
 static inline int svc_is_backchannel(const struct svc_rqst *rqstp)
 {
 	return 0;
+=======
+static inline void xprt_destroy_backchannel(struct rpc_xprt *xprt,
+					    unsigned int max_reqs)
+{
+}
+
+static inline bool svc_is_backchannel(const struct svc_rqst *rqstp)
+{
+	return false;
+}
+
+static inline void set_bc_enabled(struct svc_serv *serv)
+{
+>>>>>>> upstream/android-13
 }
 
 static inline void xprt_free_bc_request(struct rpc_rqst *req)

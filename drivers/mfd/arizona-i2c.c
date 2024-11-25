@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Arizona-i2c.c  --  Arizona I2C bus interface
  *
  * Copyright 2012 Wolfson Microelectronics plc
  *
  * Author: Mark Brown <broonie@opensource.wolfsonmicro.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/err.h>
@@ -26,6 +33,7 @@
 static int arizona_i2c_probe(struct i2c_client *i2c,
 			     const struct i2c_device_id *id)
 {
+<<<<<<< HEAD
 	struct arizona *arizona;
 	const struct regmap_config *regmap_config = NULL;
 	unsigned long type;
@@ -34,6 +42,18 @@ static int arizona_i2c_probe(struct i2c_client *i2c,
 	if (i2c->dev.of_node)
 		type = arizona_of_get_type(&i2c->dev);
 	else
+=======
+	const void *match_data;
+	struct arizona *arizona;
+	const struct regmap_config *regmap_config = NULL;
+	unsigned long type = 0;
+	int ret;
+
+	match_data = device_get_match_data(&i2c->dev);
+	if (match_data)
+		type = (unsigned long)match_data;
+	else if (id)
+>>>>>>> upstream/android-13
 		type = id->driver_data;
 
 	switch (type) {
@@ -118,6 +138,10 @@ static struct i2c_driver arizona_i2c_driver = {
 
 module_i2c_driver(arizona_i2c_driver);
 
+<<<<<<< HEAD
+=======
+MODULE_SOFTDEP("pre: arizona_ldo1");
+>>>>>>> upstream/android-13
 MODULE_DESCRIPTION("Arizona I2C bus interface");
 MODULE_AUTHOR("Mark Brown <broonie@opensource.wolfsonmicro.com>");
 MODULE_LICENSE("GPL");

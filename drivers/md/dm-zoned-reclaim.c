@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2017 Western Digital Corporation or its affiliates.
  *
@@ -12,7 +16,10 @@
 
 struct dmz_reclaim {
 	struct dmz_metadata     *metadata;
+<<<<<<< HEAD
 	struct dmz_dev		*dev;
+=======
+>>>>>>> upstream/android-13
 
 	struct delayed_work	work;
 	struct workqueue_struct *wq;
@@ -21,6 +28,11 @@ struct dmz_reclaim {
 	struct dm_kcopyd_throttle kc_throttle;
 	int			kc_err;
 
+<<<<<<< HEAD
+=======
+	int			dev_idx;
+
+>>>>>>> upstream/android-13
 	unsigned long		flags;
 
 	/* Last target access time */
@@ -43,13 +55,21 @@ enum {
  * Percentage of unmapped (free) random zones below which reclaim starts
  * even if the target is busy.
  */
+<<<<<<< HEAD
 #define DMZ_RECLAIM_LOW_UNMAP_RND	30
+=======
+#define DMZ_RECLAIM_LOW_UNMAP_ZONES	30
+>>>>>>> upstream/android-13
 
 /*
  * Percentage of unmapped (free) random zones above which reclaim will
  * stop if the target is busy.
  */
+<<<<<<< HEAD
 #define DMZ_RECLAIM_HIGH_UNMAP_RND	50
+=======
+#define DMZ_RECLAIM_HIGH_UNMAP_ZONES	50
+>>>>>>> upstream/android-13
 
 /*
  * Align a sequential zone write pointer to chunk_block.
@@ -58,6 +78,10 @@ static int dmz_reclaim_align_wp(struct dmz_reclaim *zrc, struct dm_zone *zone,
 				sector_t block)
 {
 	struct dmz_metadata *zmd = zrc->metadata;
+<<<<<<< HEAD
+=======
+	struct dmz_dev *dev = zone->dev;
+>>>>>>> upstream/android-13
 	sector_t wp_block = zone->wp_block;
 	unsigned int nr_blocks;
 	int ret;
@@ -73,6 +97,7 @@ static int dmz_reclaim_align_wp(struct dmz_reclaim *zrc, struct dm_zone *zone,
 	 * pointer and the requested position.
 	 */
 	nr_blocks = block - wp_block;
+<<<<<<< HEAD
 	ret = blkdev_issue_zeroout(zrc->dev->bdev,
 				   dmz_start_sect(zmd, zone) + dmz_blk2sect(wp_block),
 				   dmz_blk2sect(nr_blocks), GFP_NOIO, 0);
@@ -82,6 +107,17 @@ static int dmz_reclaim_align_wp(struct dmz_reclaim *zrc, struct dm_zone *zone,
 			    dmz_id(zmd, zone), (unsigned long long)wp_block,
 			    (unsigned long long)block, nr_blocks, ret);
 		dmz_check_bdev(zrc->dev);
+=======
+	ret = blkdev_issue_zeroout(dev->bdev,
+				   dmz_start_sect(zmd, zone) + dmz_blk2sect(wp_block),
+				   dmz_blk2sect(nr_blocks), GFP_NOIO, 0);
+	if (ret) {
+		dmz_dev_err(dev,
+			    "Align zone %u wp %llu to %llu (wp+%u) blocks failed %d",
+			    zone->id, (unsigned long long)wp_block,
+			    (unsigned long long)block, nr_blocks, ret);
+		dmz_check_bdev(dev);
+>>>>>>> upstream/android-13
 		return ret;
 	}
 
@@ -115,7 +151,10 @@ static int dmz_reclaim_copy(struct dmz_reclaim *zrc,
 			    struct dm_zone *src_zone, struct dm_zone *dst_zone)
 {
 	struct dmz_metadata *zmd = zrc->metadata;
+<<<<<<< HEAD
 	struct dmz_dev *dev = zrc->dev;
+=======
+>>>>>>> upstream/android-13
 	struct dm_io_region src, dst;
 	sector_t block = 0, end_block;
 	sector_t nr_blocks;
@@ -127,16 +166,33 @@ static int dmz_reclaim_copy(struct dmz_reclaim *zrc,
 	if (dmz_is_seq(src_zone))
 		end_block = src_zone->wp_block;
 	else
+<<<<<<< HEAD
 		end_block = dev->zone_nr_blocks;
+=======
+		end_block = dmz_zone_nr_blocks(zmd);
+>>>>>>> upstream/android-13
 	src_zone_block = dmz_start_block(zmd, src_zone);
 	dst_zone_block = dmz_start_block(zmd, dst_zone);
 
 	if (dmz_is_seq(dst_zone))
+<<<<<<< HEAD
 		set_bit(DM_KCOPYD_WRITE_SEQ, &flags);
 
 	while (block < end_block) {
 		if (dev->flags & DMZ_BDEV_DYING)
 			return -EIO;
+=======
+		flags |= BIT(DM_KCOPYD_WRITE_SEQ);
+
+	while (block < end_block) {
+		if (src_zone->dev->flags & DMZ_BDEV_DYING)
+			return -EIO;
+		if (dst_zone->dev->flags & DMZ_BDEV_DYING)
+			return -EIO;
+
+		if (dmz_reclaim_should_terminate(src_zone))
+			return -EINTR;
+>>>>>>> upstream/android-13
 
 		/* Get a valid region from the source zone */
 		ret = dmz_first_valid_block(zmd, src_zone, &block);
@@ -155,11 +211,19 @@ static int dmz_reclaim_copy(struct dmz_reclaim *zrc,
 				return ret;
 		}
 
+<<<<<<< HEAD
 		src.bdev = dev->bdev;
 		src.sector = dmz_blk2sect(src_zone_block + block);
 		src.count = dmz_blk2sect(nr_blocks);
 
 		dst.bdev = dev->bdev;
+=======
+		src.bdev = src_zone->dev->bdev;
+		src.sector = dmz_blk2sect(src_zone_block + block);
+		src.count = dmz_blk2sect(nr_blocks);
+
+		dst.bdev = dst_zone->dev->bdev;
+>>>>>>> upstream/android-13
 		dst.sector = dmz_blk2sect(dst_zone_block + block);
 		dst.count = src.count;
 
@@ -193,10 +257,17 @@ static int dmz_reclaim_buf(struct dmz_reclaim *zrc, struct dm_zone *dzone)
 	struct dmz_metadata *zmd = zrc->metadata;
 	int ret;
 
+<<<<<<< HEAD
 	dmz_dev_debug(zrc->dev,
 		      "Chunk %u, move buf zone %u (weight %u) to data zone %u (weight %u)",
 		      dzone->chunk, dmz_id(zmd, bzone), dmz_weight(bzone),
 		      dmz_id(zmd, dzone), dmz_weight(dzone));
+=======
+	DMDEBUG("(%s/%u): Chunk %u, move buf zone %u (weight %u) to data zone %u (weight %u)",
+		dmz_metadata_label(zmd), zrc->dev_idx,
+		dzone->chunk, bzone->id, dmz_weight(bzone),
+		dzone->id, dmz_weight(dzone));
+>>>>>>> upstream/android-13
 
 	/* Flush data zone into the buffer zone */
 	ret = dmz_reclaim_copy(zrc, bzone, dzone);
@@ -209,7 +280,11 @@ static int dmz_reclaim_buf(struct dmz_reclaim *zrc, struct dm_zone *dzone)
 	ret = dmz_merge_valid_blocks(zmd, bzone, dzone, chunk_block);
 	if (ret == 0) {
 		/* Free the buffer zone */
+<<<<<<< HEAD
 		dmz_invalidate_blocks(zmd, bzone, 0, zrc->dev->zone_nr_blocks);
+=======
+		dmz_invalidate_blocks(zmd, bzone, 0, dmz_zone_nr_blocks(zmd));
+>>>>>>> upstream/android-13
 		dmz_lock_map(zmd);
 		dmz_unmap_zone(zmd, bzone);
 		dmz_unlock_zone_reclaim(dzone);
@@ -232,10 +307,17 @@ static int dmz_reclaim_seq_data(struct dmz_reclaim *zrc, struct dm_zone *dzone)
 	struct dmz_metadata *zmd = zrc->metadata;
 	int ret = 0;
 
+<<<<<<< HEAD
 	dmz_dev_debug(zrc->dev,
 		      "Chunk %u, move data zone %u (weight %u) to buf zone %u (weight %u)",
 		      chunk, dmz_id(zmd, dzone), dmz_weight(dzone),
 		      dmz_id(zmd, bzone), dmz_weight(bzone));
+=======
+	DMDEBUG("(%s/%u): Chunk %u, move data zone %u (weight %u) to buf zone %u (weight %u)",
+		dmz_metadata_label(zmd), zrc->dev_idx,
+		chunk, dzone->id, dmz_weight(dzone),
+		bzone->id, dmz_weight(bzone));
+>>>>>>> upstream/android-13
 
 	/* Flush data zone into the buffer zone */
 	ret = dmz_reclaim_copy(zrc, dzone, bzone);
@@ -251,7 +333,11 @@ static int dmz_reclaim_seq_data(struct dmz_reclaim *zrc, struct dm_zone *dzone)
 		 * Free the data zone and remap the chunk to
 		 * the buffer zone.
 		 */
+<<<<<<< HEAD
 		dmz_invalidate_blocks(zmd, dzone, 0, zrc->dev->zone_nr_blocks);
+=======
+		dmz_invalidate_blocks(zmd, dzone, 0, dmz_zone_nr_blocks(zmd));
+>>>>>>> upstream/android-13
 		dmz_lock_map(zmd);
 		dmz_unmap_zone(zmd, bzone);
 		dmz_unmap_zone(zmd, dzone);
@@ -276,18 +362,40 @@ static int dmz_reclaim_rnd_data(struct dmz_reclaim *zrc, struct dm_zone *dzone)
 	struct dm_zone *szone = NULL;
 	struct dmz_metadata *zmd = zrc->metadata;
 	int ret;
+<<<<<<< HEAD
 
 	/* Get a free sequential zone */
 	dmz_lock_map(zmd);
 	szone = dmz_alloc_zone(zmd, DMZ_ALLOC_RECLAIM);
+=======
+	int alloc_flags = DMZ_ALLOC_SEQ;
+
+	/* Get a free random or sequential zone */
+	dmz_lock_map(zmd);
+again:
+	szone = dmz_alloc_zone(zmd, zrc->dev_idx,
+			       alloc_flags | DMZ_ALLOC_RECLAIM);
+	if (!szone && alloc_flags == DMZ_ALLOC_SEQ && dmz_nr_cache_zones(zmd)) {
+		alloc_flags = DMZ_ALLOC_RND;
+		goto again;
+	}
+>>>>>>> upstream/android-13
 	dmz_unlock_map(zmd);
 	if (!szone)
 		return -ENOSPC;
 
+<<<<<<< HEAD
 	dmz_dev_debug(zrc->dev,
 		      "Chunk %u, move rnd zone %u (weight %u) to seq zone %u",
 		      chunk, dmz_id(zmd, dzone), dmz_weight(dzone),
 		      dmz_id(zmd, szone));
+=======
+	DMDEBUG("(%s/%u): Chunk %u, move %s zone %u (weight %u) to %s zone %u",
+		dmz_metadata_label(zmd), zrc->dev_idx, chunk,
+		dmz_is_cache(dzone) ? "cache" : "rnd",
+		dzone->id, dmz_weight(dzone),
+		dmz_is_rnd(szone) ? "rnd" : "seq", szone->id);
+>>>>>>> upstream/android-13
 
 	/* Flush the random data zone into the sequential zone */
 	ret = dmz_reclaim_copy(zrc, dzone, szone);
@@ -305,7 +413,11 @@ static int dmz_reclaim_rnd_data(struct dmz_reclaim *zrc, struct dm_zone *dzone)
 		dmz_unlock_map(zmd);
 	} else {
 		/* Free the data zone and remap the chunk */
+<<<<<<< HEAD
 		dmz_invalidate_blocks(zmd, dzone, 0, zrc->dev->zone_nr_blocks);
+=======
+		dmz_invalidate_blocks(zmd, dzone, 0, dmz_zone_nr_blocks(zmd));
+>>>>>>> upstream/android-13
 		dmz_lock_map(zmd);
 		dmz_unmap_zone(zmd, dzone);
 		dmz_unlock_zone_reclaim(dzone);
@@ -336,6 +448,17 @@ static void dmz_reclaim_empty(struct dmz_reclaim *zrc, struct dm_zone *dzone)
 }
 
 /*
+<<<<<<< HEAD
+=======
+ * Test if the target device is idle.
+ */
+static inline int dmz_target_idle(struct dmz_reclaim *zrc)
+{
+	return time_is_before_jiffies(zrc->atime + DMZ_IDLE_PERIOD);
+}
+
+/*
+>>>>>>> upstream/android-13
  * Find a candidate zone for reclaim and process it.
  */
 static int dmz_do_reclaim(struct dmz_reclaim *zrc)
@@ -347,6 +470,7 @@ static int dmz_do_reclaim(struct dmz_reclaim *zrc)
 	int ret;
 
 	/* Get a data zone */
+<<<<<<< HEAD
 	dzone = dmz_get_zone_for_reclaim(zmd);
 	if (!dzone)
 		return -EBUSY;
@@ -354,6 +478,19 @@ static int dmz_do_reclaim(struct dmz_reclaim *zrc)
 	start = jiffies;
 
 	if (dmz_is_rnd(dzone)) {
+=======
+	dzone = dmz_get_zone_for_reclaim(zmd, zrc->dev_idx,
+					 dmz_target_idle(zrc));
+	if (!dzone) {
+		DMDEBUG("(%s/%u): No zone found to reclaim",
+			dmz_metadata_label(zmd), zrc->dev_idx);
+		return -EBUSY;
+	}
+	rzone = dzone;
+
+	start = jiffies;
+	if (dmz_is_cache(dzone) || dmz_is_rnd(dzone)) {
+>>>>>>> upstream/android-13
 		if (!dmz_weight(dzone)) {
 			/* Empty zone */
 			dmz_reclaim_empty(zrc, dzone);
@@ -365,8 +502,11 @@ static int dmz_do_reclaim(struct dmz_reclaim *zrc)
 			 */
 			ret = dmz_reclaim_rnd_data(zrc, dzone);
 		}
+<<<<<<< HEAD
 		rzone = dzone;
 
+=======
+>>>>>>> upstream/android-13
 	} else {
 		struct dm_zone *bzone = dzone->bzone;
 		sector_t chunk_block = 0;
@@ -389,17 +529,32 @@ static int dmz_do_reclaim(struct dmz_reclaim *zrc)
 			 * be later reclaimed.
 			 */
 			ret = dmz_reclaim_seq_data(zrc, dzone);
+<<<<<<< HEAD
 			rzone = dzone;
+=======
+>>>>>>> upstream/android-13
 		}
 	}
 out:
 	if (ret) {
+<<<<<<< HEAD
+=======
+		if (ret == -EINTR)
+			DMDEBUG("(%s/%u): reclaim zone %u interrupted",
+				dmz_metadata_label(zmd), zrc->dev_idx,
+				rzone->id);
+		else
+			DMDEBUG("(%s/%u): Failed to reclaim zone %u, err %d",
+				dmz_metadata_label(zmd), zrc->dev_idx,
+				rzone->id, ret);
+>>>>>>> upstream/android-13
 		dmz_unlock_zone_reclaim(dzone);
 		return ret;
 	}
 
 	ret = dmz_flush_metadata(zrc->metadata);
 	if (ret) {
+<<<<<<< HEAD
 		dmz_dev_debug(zrc->dev,
 			      "Metadata flush for zone %u failed, err %d\n",
 			      dmz_id(zmd, rzone), ret);
@@ -417,11 +572,41 @@ out:
 static inline int dmz_target_idle(struct dmz_reclaim *zrc)
 {
 	return time_is_before_jiffies(zrc->atime + DMZ_IDLE_PERIOD);
+=======
+		DMDEBUG("(%s/%u): Metadata flush for zone %u failed, err %d",
+			dmz_metadata_label(zmd), zrc->dev_idx, rzone->id, ret);
+		return ret;
+	}
+
+	DMDEBUG("(%s/%u): Reclaimed zone %u in %u ms",
+		dmz_metadata_label(zmd), zrc->dev_idx,
+		rzone->id, jiffies_to_msecs(jiffies - start));
+	return 0;
+}
+
+static unsigned int dmz_reclaim_percentage(struct dmz_reclaim *zrc)
+{
+	struct dmz_metadata *zmd = zrc->metadata;
+	unsigned int nr_cache = dmz_nr_cache_zones(zmd);
+	unsigned int nr_unmap, nr_zones;
+
+	if (nr_cache) {
+		nr_zones = nr_cache;
+		nr_unmap = dmz_nr_unmap_cache_zones(zmd);
+	} else {
+		nr_zones = dmz_nr_rnd_zones(zmd, zrc->dev_idx);
+		nr_unmap = dmz_nr_unmap_rnd_zones(zmd, zrc->dev_idx);
+	}
+	if (nr_unmap <= 1)
+		return 0;
+	return nr_unmap * 100 / nr_zones;
+>>>>>>> upstream/android-13
 }
 
 /*
  * Test if reclaim is necessary.
  */
+<<<<<<< HEAD
 static bool dmz_should_reclaim(struct dmz_reclaim *zrc)
 {
 	struct dmz_metadata *zmd = zrc->metadata;
@@ -442,6 +627,38 @@ static bool dmz_should_reclaim(struct dmz_reclaim *zrc)
 	 * reclaim even if the target is busy.
 	 */
 	return p_unmap_rnd <= DMZ_RECLAIM_LOW_UNMAP_RND;
+=======
+static bool dmz_should_reclaim(struct dmz_reclaim *zrc, unsigned int p_unmap)
+{
+	unsigned int nr_reclaim;
+
+	nr_reclaim = dmz_nr_rnd_zones(zrc->metadata, zrc->dev_idx);
+
+	if (dmz_nr_cache_zones(zrc->metadata)) {
+		/*
+		 * The first device in a multi-device
+		 * setup only contains cache zones, so
+		 * never start reclaim there.
+		 */
+		if (zrc->dev_idx == 0)
+			return false;
+		nr_reclaim += dmz_nr_cache_zones(zrc->metadata);
+	}
+
+	/* Reclaim when idle */
+	if (dmz_target_idle(zrc) && nr_reclaim)
+		return true;
+
+	/* If there are still plenty of cache zones, do not reclaim */
+	if (p_unmap >= DMZ_RECLAIM_HIGH_UNMAP_ZONES)
+		return false;
+
+	/*
+	 * If the percentage of unmapped cache zones is low,
+	 * reclaim even if the target is busy.
+	 */
+	return p_unmap <= DMZ_RECLAIM_LOW_UNMAP_ZONES;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -451,6 +668,7 @@ static void dmz_reclaim_work(struct work_struct *work)
 {
 	struct dmz_reclaim *zrc = container_of(work, struct dmz_reclaim, work.work);
 	struct dmz_metadata *zmd = zrc->metadata;
+<<<<<<< HEAD
 	unsigned int nr_rnd, nr_unmap_rnd;
 	unsigned int p_unmap_rnd;
 	int ret;
@@ -459,6 +677,16 @@ static void dmz_reclaim_work(struct work_struct *work)
 		return;
 
 	if (!dmz_should_reclaim(zrc)) {
+=======
+	unsigned int p_unmap;
+	int ret;
+
+	if (dmz_dev_is_dying(zmd))
+		return;
+
+	p_unmap = dmz_reclaim_percentage(zrc);
+	if (!dmz_should_reclaim(zrc, p_unmap)) {
+>>>>>>> upstream/android-13
 		mod_delayed_work(zrc->wq, &zrc->work, DMZ_IDLE_PERIOD);
 		return;
 	}
@@ -469,14 +697,19 @@ static void dmz_reclaim_work(struct work_struct *work)
 	 * and slower if there are still some free random zones to avoid
 	 * as much as possible to negatively impact the user workload.
 	 */
+<<<<<<< HEAD
 	nr_rnd = dmz_nr_rnd_zones(zmd);
 	nr_unmap_rnd = dmz_nr_unmap_rnd_zones(zmd);
 	p_unmap_rnd = nr_unmap_rnd * 100 / nr_rnd;
 	if (dmz_target_idle(zrc) || p_unmap_rnd < DMZ_RECLAIM_LOW_UNMAP_RND / 2) {
+=======
+	if (dmz_target_idle(zrc) || p_unmap < DMZ_RECLAIM_LOW_UNMAP_ZONES / 2) {
+>>>>>>> upstream/android-13
 		/* Idle or very low percentage: go fast */
 		zrc->kc_throttle.throttle = 100;
 	} else {
 		/* Busy but we still have some random zone: throttle */
+<<<<<<< HEAD
 		zrc->kc_throttle.throttle = min(75U, 100U - p_unmap_rnd / 2);
 	}
 
@@ -490,6 +723,23 @@ static void dmz_reclaim_work(struct work_struct *work)
 	if (ret) {
 		dmz_dev_debug(zrc->dev, "Reclaim error %d\n", ret);
 		if (!dmz_check_bdev(zrc->dev))
+=======
+		zrc->kc_throttle.throttle = min(75U, 100U - p_unmap / 2);
+	}
+
+	DMDEBUG("(%s/%u): Reclaim (%u): %s, %u%% free zones (%u/%u cache %u/%u random)",
+		dmz_metadata_label(zmd), zrc->dev_idx,
+		zrc->kc_throttle.throttle,
+		(dmz_target_idle(zrc) ? "Idle" : "Busy"),
+		p_unmap, dmz_nr_unmap_cache_zones(zmd),
+		dmz_nr_cache_zones(zmd),
+		dmz_nr_unmap_rnd_zones(zmd, zrc->dev_idx),
+		dmz_nr_rnd_zones(zmd, zrc->dev_idx));
+
+	ret = dmz_do_reclaim(zrc);
+	if (ret && ret != -EINTR) {
+		if (!dmz_check_dev(zmd))
+>>>>>>> upstream/android-13
 			return;
 	}
 
@@ -499,8 +749,13 @@ static void dmz_reclaim_work(struct work_struct *work)
 /*
  * Initialize reclaim.
  */
+<<<<<<< HEAD
 int dmz_ctr_reclaim(struct dmz_dev *dev, struct dmz_metadata *zmd,
 		    struct dmz_reclaim **reclaim)
+=======
+int dmz_ctr_reclaim(struct dmz_metadata *zmd,
+		    struct dmz_reclaim **reclaim, int idx)
+>>>>>>> upstream/android-13
 {
 	struct dmz_reclaim *zrc;
 	int ret;
@@ -509,9 +764,15 @@ int dmz_ctr_reclaim(struct dmz_dev *dev, struct dmz_metadata *zmd,
 	if (!zrc)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	zrc->dev = dev;
 	zrc->metadata = zmd;
 	zrc->atime = jiffies;
+=======
+	zrc->metadata = zmd;
+	zrc->atime = jiffies;
+	zrc->dev_idx = idx;
+>>>>>>> upstream/android-13
 
 	/* Reclaim kcopyd client */
 	zrc->kc = dm_kcopyd_client_create(&zrc->kc_throttle);
@@ -523,8 +784,13 @@ int dmz_ctr_reclaim(struct dmz_dev *dev, struct dmz_metadata *zmd,
 
 	/* Reclaim work */
 	INIT_DELAYED_WORK(&zrc->work, dmz_reclaim_work);
+<<<<<<< HEAD
 	zrc->wq = alloc_ordered_workqueue("dmz_rwq_%s", WQ_MEM_RECLAIM,
 					  dev->name);
+=======
+	zrc->wq = alloc_ordered_workqueue("dmz_rwq_%s_%d", WQ_MEM_RECLAIM,
+					  dmz_metadata_label(zmd), idx);
+>>>>>>> upstream/android-13
 	if (!zrc->wq) {
 		ret = -ENOMEM;
 		goto err;
@@ -582,7 +848,15 @@ void dmz_reclaim_bio_acc(struct dmz_reclaim *zrc)
  */
 void dmz_schedule_reclaim(struct dmz_reclaim *zrc)
 {
+<<<<<<< HEAD
 	if (dmz_should_reclaim(zrc))
 		mod_delayed_work(zrc->wq, &zrc->work, 0);
 }
 
+=======
+	unsigned int p_unmap = dmz_reclaim_percentage(zrc);
+
+	if (dmz_should_reclaim(zrc, p_unmap))
+		mod_delayed_work(zrc->wq, &zrc->work, 0);
+}
+>>>>>>> upstream/android-13

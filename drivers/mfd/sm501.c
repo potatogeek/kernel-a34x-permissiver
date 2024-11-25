@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* linux/drivers/mfd/sm501.c
  *
  * Copyright (C) 2006 Simtec Electronics
  *	Ben Dooks <ben@simtec.co.uk>
  *	Vincent Sanders <vince@simtec.co.uk>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * SM501 MFD driver
 */
 
@@ -20,6 +27,10 @@
 #include <linux/platform_device.h>
 #include <linux/pci.h>
 #include <linux/platform_data/i2c-gpio.h>
+<<<<<<< HEAD
+=======
+#include <linux/gpio/driver.h>
+>>>>>>> upstream/android-13
 #include <linux/gpio/machine.h>
 #include <linux/slab.h>
 
@@ -1088,8 +1099,12 @@ static int sm501_register_gpio(struct sm501_devdata *sm)
 	iounmap(gpio->regs);
 
  err_claimed:
+<<<<<<< HEAD
 	release_resource(gpio->regs_res);
 	kfree(gpio->regs_res);
+=======
+	release_mem_region(iobase, 0x20);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -1097,6 +1112,10 @@ static int sm501_register_gpio(struct sm501_devdata *sm)
 static void sm501_gpio_remove(struct sm501_devdata *sm)
 {
 	struct sm501_gpio *gpio = &sm->gpio;
+<<<<<<< HEAD
+=======
+	resource_size_t iobase = sm->io_res->start + SM501_GPIO;
+>>>>>>> upstream/android-13
 
 	if (!sm->gpio.registered)
 		return;
@@ -1105,8 +1124,12 @@ static void sm501_gpio_remove(struct sm501_devdata *sm)
 	gpiochip_remove(&gpio->high.gpio);
 
 	iounmap(gpio->regs);
+<<<<<<< HEAD
 	release_resource(gpio->regs_res);
 	kfree(gpio->regs_res);
+=======
+	release_mem_region(iobase, 0x20);
+>>>>>>> upstream/android-13
 }
 
 static inline int sm501_gpio_isregistered(struct sm501_devdata *sm)
@@ -1142,13 +1165,18 @@ static int sm501_register_gpio_i2c_instance(struct sm501_devdata *sm,
 		return -ENOMEM;
 
 	/* Create a gpiod lookup using gpiochip-local offsets */
+<<<<<<< HEAD
 	lookup = devm_kzalloc(&pdev->dev,
 			      sizeof(*lookup) + 3 * sizeof(struct gpiod_lookup),
+=======
+	lookup = devm_kzalloc(&pdev->dev, struct_size(lookup, table, 3),
+>>>>>>> upstream/android-13
 			      GFP_KERNEL);
 	if (!lookup)
 		return -ENOMEM;
 
 	lookup->dev_id = "i2c-gpio";
+<<<<<<< HEAD
 	if (iic->pin_sda < 32)
 		lookup->table[0].chip_label = "SM501-LOW";
 	else
@@ -1165,6 +1193,16 @@ static int sm501_register_gpio_i2c_instance(struct sm501_devdata *sm,
 	lookup->table[1].con_id = NULL;
 	lookup->table[1].idx = 1;
 	lookup->table[1].flags = GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN;
+=======
+	lookup->table[0] = (struct gpiod_lookup)
+		GPIO_LOOKUP_IDX(iic->pin_sda < 32 ? "SM501-LOW" : "SM501-HIGH",
+				iic->pin_sda % 32, NULL, 0,
+				GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN);
+	lookup->table[1] = (struct gpiod_lookup)
+		GPIO_LOOKUP_IDX(iic->pin_scl < 32 ? "SM501-LOW" : "SM501-HIGH",
+				iic->pin_scl % 32, NULL, 1,
+				GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN);
+>>>>>>> upstream/android-13
 	gpiod_add_lookup_table(lookup);
 
 	icd = dev_get_platdata(&pdev->dev);
@@ -1202,13 +1240,22 @@ static int sm501_register_gpio_i2c(struct sm501_devdata *sm,
 	return 0;
 }
 
+<<<<<<< HEAD
 /* sm501_dbg_regs
+=======
+/* dbg_regs_show
+>>>>>>> upstream/android-13
  *
  * Debug attribute to attach to parent device to show core registers
 */
 
+<<<<<<< HEAD
 static ssize_t sm501_dbg_regs(struct device *dev,
 			      struct device_attribute *attr, char *buff)
+=======
+static ssize_t dbg_regs_show(struct device *dev,
+			     struct device_attribute *attr, char *buff)
+>>>>>>> upstream/android-13
 {
 	struct sm501_devdata *sm = dev_get_drvdata(dev)	;
 	unsigned int reg;
@@ -1225,7 +1272,11 @@ static ssize_t sm501_dbg_regs(struct device *dev,
 }
 
 
+<<<<<<< HEAD
 static DEVICE_ATTR(dbg_regs, 0444, sm501_dbg_regs, NULL);
+=======
+static DEVICE_ATTR_RO(dbg_regs);
+>>>>>>> upstream/android-13
 
 /* sm501_init_reg
  *
@@ -1398,10 +1449,15 @@ static int sm501_plat_probe(struct platform_device *dev)
 	sm->platdata = dev_get_platdata(&dev->dev);
 
 	ret = platform_get_irq(dev, 0);
+<<<<<<< HEAD
 	if (ret < 0) {
 		dev_err(&dev->dev, "failed to get irq resource\n");
 		goto err_res;
 	}
+=======
+	if (ret < 0)
+		goto err_res;
+>>>>>>> upstream/android-13
 	sm->irq = ret;
 
 	sm->io_res = platform_get_resource(dev, IORESOURCE_MEM, 1);
@@ -1438,8 +1494,12 @@ static int sm501_plat_probe(struct platform_device *dev)
  err_unmap:
 	iounmap(sm->regs);
  err_claim:
+<<<<<<< HEAD
 	release_resource(sm->regs_claim);
 	kfree(sm->regs_claim);
+=======
+	release_mem_region(sm->io_res->start, 0x100);
+>>>>>>> upstream/android-13
  err_res:
 	kfree(sm);
  err1:
@@ -1648,8 +1708,12 @@ static int sm501_pci_probe(struct pci_dev *dev,
 	return 0;
 
  err4:
+<<<<<<< HEAD
 	release_resource(sm->regs_claim);
 	kfree(sm->regs_claim);
+=======
+	release_mem_region(sm->io_res->start, 0x100);
+>>>>>>> upstream/android-13
  err3:
 	pci_disable_device(dev);
  err2:
@@ -1684,8 +1748,12 @@ static void sm501_pci_remove(struct pci_dev *dev)
 	sm501_dev_remove(sm);
 	iounmap(sm->regs);
 
+<<<<<<< HEAD
 	release_resource(sm->regs_claim);
 	kfree(sm->regs_claim);
+=======
+	release_mem_region(sm->io_res->start, 0x100);
+>>>>>>> upstream/android-13
 
 	pci_disable_device(dev);
 }
@@ -1697,8 +1765,12 @@ static int sm501_plat_remove(struct platform_device *dev)
 	sm501_dev_remove(sm);
 	iounmap(sm->regs);
 
+<<<<<<< HEAD
 	release_resource(sm->regs_claim);
 	kfree(sm->regs_claim);
+=======
+	release_mem_region(sm->io_res->start, 0x100);
+>>>>>>> upstream/android-13
 
 	return 0;
 }

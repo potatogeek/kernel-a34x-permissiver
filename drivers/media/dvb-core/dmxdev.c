@@ -720,7 +720,11 @@ static int dvb_dmxdev_filter_start(struct dmxdev_filter *filter)
 			ret = dmxdev->demux->allocate_section_feed(dmxdev->demux,
 								   secfeed,
 								   dvb_dmxdev_section_callback);
+<<<<<<< HEAD
 			if (ret < 0) {
+=======
+			if (!*secfeed) {
+>>>>>>> upstream/android-13
 				pr_err("DVB (%s): could not alloc feed\n",
 				       __func__);
 				return ret;
@@ -1195,13 +1199,21 @@ static __poll_t dvb_demux_poll(struct file *file, poll_table *wait)
 	struct dmxdev_filter *dmxdevfilter = file->private_data;
 	__poll_t mask = 0;
 
+<<<<<<< HEAD
+=======
+	poll_wait(file, &dmxdevfilter->buffer.queue, wait);
+
+>>>>>>> upstream/android-13
 	if ((!dmxdevfilter) || dmxdevfilter->dev->exit)
 		return EPOLLERR;
 	if (dvb_vb2_is_streaming(&dmxdevfilter->vb2_ctx))
 		return dvb_vb2_poll(&dmxdevfilter->vb2_ctx, file, wait);
 
+<<<<<<< HEAD
 	poll_wait(file, &dmxdevfilter->buffer.queue, wait);
 
+=======
+>>>>>>> upstream/android-13
 	if (dmxdevfilter->state != DMXDEV_STATE_GO &&
 	    dmxdevfilter->state != DMXDEV_STATE_DONE &&
 	    dmxdevfilter->state != DMXDEV_STATE_TIMEDOUT)
@@ -1265,6 +1277,10 @@ static const struct file_operations dvb_demux_fops = {
 	.owner = THIS_MODULE,
 	.read = dvb_demux_read,
 	.unlocked_ioctl = dvb_demux_ioctl,
+<<<<<<< HEAD
+=======
+	.compat_ioctl = dvb_demux_ioctl,
+>>>>>>> upstream/android-13
 	.open = dvb_demux_open,
 	.release = dvb_demux_release,
 	.poll = dvb_demux_poll,
@@ -1345,13 +1361,21 @@ static __poll_t dvb_dvr_poll(struct file *file, poll_table *wait)
 
 	dprintk("%s\n", __func__);
 
+<<<<<<< HEAD
+=======
+	poll_wait(file, &dmxdev->dvr_buffer.queue, wait);
+
+>>>>>>> upstream/android-13
 	if (dmxdev->exit)
 		return EPOLLERR;
 	if (dvb_vb2_is_streaming(&dmxdev->dvr_vb2_ctx))
 		return dvb_vb2_poll(&dmxdev->dvr_vb2_ctx, file, wait);
 
+<<<<<<< HEAD
 	poll_wait(file, &dmxdev->dvr_buffer.queue, wait);
 
+=======
+>>>>>>> upstream/android-13
 	if (((file->f_flags & O_ACCMODE) == O_RDONLY) ||
 	    dmxdev->may_do_mmap) {
 		if (dmxdev->dvr_buffer.error)
@@ -1412,7 +1436,11 @@ static const struct dvb_device dvbdev_dvr = {
 };
 int dvb_dmxdev_init(struct dmxdev *dmxdev, struct dvb_adapter *dvb_adapter)
 {
+<<<<<<< HEAD
 	int i;
+=======
+	int i, ret;
+>>>>>>> upstream/android-13
 
 	if (dmxdev->demux->open(dmxdev->demux) < 0)
 		return -EUSERS;
@@ -1431,14 +1459,36 @@ int dvb_dmxdev_init(struct dmxdev *dmxdev, struct dvb_adapter *dvb_adapter)
 					    DMXDEV_STATE_FREE);
 	}
 
+<<<<<<< HEAD
 	dvb_register_device(dvb_adapter, &dmxdev->dvbdev, &dvbdev_demux, dmxdev,
 			    DVB_DEVICE_DEMUX, dmxdev->filternum);
 	dvb_register_device(dvb_adapter, &dmxdev->dvr_dvbdev, &dvbdev_dvr,
 			    dmxdev, DVB_DEVICE_DVR, dmxdev->filternum);
+=======
+	ret = dvb_register_device(dvb_adapter, &dmxdev->dvbdev, &dvbdev_demux, dmxdev,
+			    DVB_DEVICE_DEMUX, dmxdev->filternum);
+	if (ret < 0)
+		goto err_register_dvbdev;
+
+	ret = dvb_register_device(dvb_adapter, &dmxdev->dvr_dvbdev, &dvbdev_dvr,
+			    dmxdev, DVB_DEVICE_DVR, dmxdev->filternum);
+	if (ret < 0)
+		goto err_register_dvr_dvbdev;
+>>>>>>> upstream/android-13
 
 	dvb_ringbuffer_init(&dmxdev->dvr_buffer, NULL, 8192);
 
 	return 0;
+<<<<<<< HEAD
+=======
+
+err_register_dvr_dvbdev:
+	dvb_unregister_device(dmxdev->dvbdev);
+err_register_dvbdev:
+	vfree(dmxdev->filter);
+	dmxdev->filter = NULL;
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 EXPORT_SYMBOL(dvb_dmxdev_init);

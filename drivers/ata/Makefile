@@ -98,6 +98,10 @@ obj-$(CONFIG_PATA_WINBOND)	+= pata_sl82c105.o
 obj-$(CONFIG_PATA_CMD640_PCI)	+= pata_cmd640.o
 obj-$(CONFIG_PATA_FALCON)	+= pata_falcon.o
 obj-$(CONFIG_PATA_GAYLE)	+= pata_gayle.o
+<<<<<<< HEAD
+=======
+obj-$(CONFIG_PATA_BUDDHA)	+= pata_buddha.o
+>>>>>>> upstream/android-13
 obj-$(CONFIG_PATA_ISAPNP)	+= pata_isapnp.o
 obj-$(CONFIG_PATA_IXP4XX_CF)	+= pata_ixp4xx_cf.o
 obj-$(CONFIG_PATA_MPIIX)	+= pata_mpiix.o
@@ -122,7 +126,15 @@ obj-$(CONFIG_PATA_LEGACY)	+= pata_legacy.o
 
 libata-y	:= libata-core.o libata-scsi.o libata-eh.o \
 	libata-transport.o libata-trace.o
+<<<<<<< HEAD
+=======
+libata-$(CONFIG_SATA_HOST)	+= libata-sata.o
+>>>>>>> upstream/android-13
 libata-$(CONFIG_ATA_SFF)	+= libata-sff.o
 libata-$(CONFIG_SATA_PMP)	+= libata-pmp.o
 libata-$(CONFIG_ATA_ACPI)	+= libata-acpi.o
 libata-$(CONFIG_SATA_ZPODD)	+= libata-zpodd.o
+<<<<<<< HEAD
+=======
+libata-$(CONFIG_PATA_TIMINGS)	+= libata-pata-timings.o
+>>>>>>> upstream/android-13

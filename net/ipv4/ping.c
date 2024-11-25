@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * INET		An implementation of the TCP/IP protocol suite for the LINUX
  *		operating system.  INET is implemented using the  BSD Socket
@@ -5,11 +9,14 @@
  *
  *		"Ping" sockets
  *
+<<<<<<< HEAD
  *		This program is free software; you can redistribute it and/or
  *		modify it under the terms of the GNU General Public License
  *		as published by the Free Software Foundation; either version
  *		2 of the License, or (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  * Based on ipv4/udp.c code.
  *
  * Authors:	Vasiliy Kulikov / Openwall (for Linux 2.6),
@@ -17,7 +24,10 @@
  *
  * Pavel gave all rights to bugs to Vasiliy,
  * none of the bugs are Pavel's now.
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/uaccess.h>
@@ -177,16 +187,34 @@ static struct sock *ping_lookup(struct net *net, struct sk_buff *skb, u16 ident)
 	struct sock *sk = NULL;
 	struct inet_sock *isk;
 	struct hlist_nulls_node *hnode;
+<<<<<<< HEAD
 	int dif = skb->dev->ifindex;
 
 	if (skb->protocol == htons(ETH_P_IP)) {
+=======
+	int dif, sdif;
+
+	if (skb->protocol == htons(ETH_P_IP)) {
+		dif = inet_iif(skb);
+		sdif = inet_sdif(skb);
+>>>>>>> upstream/android-13
 		pr_debug("try to find: num = %d, daddr = %pI4, dif = %d\n",
 			 (int)ident, &ip_hdr(skb)->daddr, dif);
 #if IS_ENABLED(CONFIG_IPV6)
 	} else if (skb->protocol == htons(ETH_P_IPV6)) {
+<<<<<<< HEAD
 		pr_debug("try to find: num = %d, daddr = %pI6c, dif = %d\n",
 			 (int)ident, &ipv6_hdr(skb)->daddr, dif);
 #endif
+=======
+		dif = inet6_iif(skb);
+		sdif = inet6_sdif(skb);
+		pr_debug("try to find: num = %d, daddr = %pI6c, dif = %d\n",
+			 (int)ident, &ipv6_hdr(skb)->daddr, dif);
+#endif
+	} else {
+		return NULL;
+>>>>>>> upstream/android-13
 	}
 
 	read_lock_bh(&ping_table.lock);
@@ -225,7 +253,12 @@ static struct sock *ping_lookup(struct net *net, struct sk_buff *skb, u16 ident)
 			continue;
 		}
 
+<<<<<<< HEAD
 		if (sk->sk_bound_dev_if && sk->sk_bound_dev_if != dif)
+=======
+		if (sk->sk_bound_dev_if && sk->sk_bound_dev_if != dif &&
+		    sk->sk_bound_dev_if != sdif)
+>>>>>>> upstream/android-13
 			continue;
 
 		sock_hold(sk);
@@ -298,10 +331,19 @@ EXPORT_SYMBOL_GPL(ping_close);
 
 /* Checks the bind address and possibly modifies sk->sk_bound_dev_if. */
 static int ping_check_bind_addr(struct sock *sk, struct inet_sock *isk,
+<<<<<<< HEAD
 				struct sockaddr *uaddr, int addr_len) {
 	struct net *net = sock_net(sk);
 	if (sk->sk_family == AF_INET) {
 		struct sockaddr_in *addr = (struct sockaddr_in *) uaddr;
+=======
+				struct sockaddr *uaddr, int addr_len)
+{
+	struct net *net = sock_net(sk);
+	if (sk->sk_family == AF_INET) {
+		struct sockaddr_in *addr = (struct sockaddr_in *) uaddr;
+		u32 tb_id = RT_TABLE_LOCAL;
+>>>>>>> upstream/android-13
 		int chk_addr_ret;
 
 		if (addr_len < sizeof(*addr))
@@ -315,10 +357,19 @@ static int ping_check_bind_addr(struct sock *sk, struct inet_sock *isk,
 		pr_debug("ping_check_bind_addr(sk=%p,addr=%pI4,port=%d)\n",
 			 sk, &addr->sin_addr.s_addr, ntohs(addr->sin_port));
 
+<<<<<<< HEAD
 		chk_addr_ret = inet_addr_type(net, addr->sin_addr.s_addr);
 
 		if (addr->sin_addr.s_addr == htonl(INADDR_ANY))
 			chk_addr_ret = RTN_LOCAL;
+=======
+		if (addr->sin_addr.s_addr == htonl(INADDR_ANY))
+			chk_addr_ret = RTN_LOCAL;
+		else {
+			tb_id = l3mdev_fib_table_by_index(net, sk->sk_bound_dev_if) ? : tb_id;
+			chk_addr_ret = inet_addr_type_table(net, addr->sin_addr.s_addr, tb_id);
+		}
+>>>>>>> upstream/android-13
 
 		if ((!inet_can_nonlocal_bind(net, isk) &&
 		     chk_addr_ret != RTN_LOCAL) ||
@@ -356,6 +407,17 @@ static int ping_check_bind_addr(struct sock *sk, struct inet_sock *isk,
 				return -ENODEV;
 			}
 		}
+<<<<<<< HEAD
+=======
+
+		if (!dev && sk->sk_bound_dev_if) {
+			dev = dev_get_by_index_rcu(net, sk->sk_bound_dev_if);
+			if (!dev) {
+				rcu_read_unlock();
+				return -ENODEV;
+			}
+		}
+>>>>>>> upstream/android-13
 		has_addr = pingv6_ops.ipv6_chk_addr(net, &addr->sin6_addr, dev,
 						    scoped);
 		rcu_read_unlock();
@@ -388,6 +450,7 @@ static void ping_set_saddr(struct sock *sk, struct sockaddr *saddr)
 	}
 }
 
+<<<<<<< HEAD
 static void ping_clear_saddr(struct sock *sk, int dif)
 {
 	sk->sk_bound_dev_if = dif;
@@ -402,6 +465,8 @@ static void ping_clear_saddr(struct sock *sk, int dif)
 #endif
 	}
 }
+=======
+>>>>>>> upstream/android-13
 /*
  * We need our own bind because there are no privileged id's == local ports.
  * Moreover, we don't allow binding to multi- and broadcast addresses.
@@ -425,12 +490,22 @@ int ping_bind(struct sock *sk, struct sockaddr *uaddr, int addr_len)
 		goto out;
 
 	err = -EADDRINUSE;
+<<<<<<< HEAD
 	ping_set_saddr(sk, uaddr);
 	snum = ntohs(((struct sockaddr_in *)uaddr)->sin_port);
 	if (ping_get_port(sk, snum) != 0) {
 		ping_clear_saddr(sk, dif);
 		goto out;
 	}
+=======
+	snum = ntohs(((struct sockaddr_in *)uaddr)->sin_port);
+	if (ping_get_port(sk, snum) != 0) {
+		/* Restore possibly modified sk->sk_bound_dev_if by ping_check_bind_addr(). */
+		sk->sk_bound_dev_if = dif;
+		goto out;
+	}
+	ping_set_saddr(sk, uaddr);
+>>>>>>> upstream/android-13
 
 	pr_debug("after bind(): num = %hu, dif = %d\n",
 		 isk->inet_num,
@@ -470,7 +545,13 @@ EXPORT_SYMBOL_GPL(ping_bind);
 static inline int ping_supported(int family, int type, int code)
 {
 	return (family == AF_INET && type == ICMP_ECHO && code == 0) ||
+<<<<<<< HEAD
 	       (family == AF_INET6 && type == ICMPV6_ECHO_REQUEST && code == 0);
+=======
+	       (family == AF_INET && type == ICMP_EXT_ECHO && code == 0) ||
+	       (family == AF_INET6 && type == ICMPV6_ECHO_REQUEST && code == 0) ||
+	       (family == AF_INET6 && type == ICMPV6_EXT_ECHO_REQUEST && code == 0);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -588,7 +669,11 @@ void ping_err(struct sk_buff *skb, int offset, u32 info)
 		}
 	}
 	sk->sk_err = err;
+<<<<<<< HEAD
 	sk->sk_error_report(sk);
+=======
+	sk_error_report(sk);
+>>>>>>> upstream/android-13
 out:
 	sock_put(sk);
 }
@@ -652,7 +737,12 @@ static int ping_v4_push_pending_frames(struct sock *sk, struct pingfakehdr *pfh,
 }
 
 int ping_common_sendmsg(int family, struct msghdr *msg, size_t len,
+<<<<<<< HEAD
 			void *user_icmph, size_t icmph_len) {
+=======
+			void *user_icmph, size_t icmph_len)
+{
+>>>>>>> upstream/android-13
 	u8 type, code;
 
 	if (len > 0xFFFF)
@@ -779,14 +869,22 @@ static int ping_v4_sendmsg(struct sock *sk, struct msghdr *msg, size_t len)
 	}
 
 	if (ipv4_is_multicast(daddr)) {
+<<<<<<< HEAD
 		if (!ipc.oif)
+=======
+		if (!ipc.oif || netif_index_is_l3_master(sock_net(sk), ipc.oif))
+>>>>>>> upstream/android-13
 			ipc.oif = inet->mc_index;
 		if (!saddr)
 			saddr = inet->mc_addr;
 	} else if (!ipc.oif)
 		ipc.oif = inet->uc_index;
 
+<<<<<<< HEAD
 	flowi4_init_output(&fl4, ipc.oif, sk->sk_mark, tos,
+=======
+	flowi4_init_output(&fl4, ipc.oif, ipc.sockc.mark, tos,
+>>>>>>> upstream/android-13
 			   RT_SCOPE_UNIVERSE, sk->sk_protocol,
 			   inet_sk_flowi_flags(sk), faddr, saddr, 0, 0,
 			   sk->sk_uid);
@@ -794,7 +892,11 @@ static int ping_v4_sendmsg(struct sock *sk, struct msghdr *msg, size_t len)
 	fl4.fl4_icmp_type = user_icmph.type;
 	fl4.fl4_icmp_code = user_icmph.code;
 
+<<<<<<< HEAD
 	security_sk_classify_flow(sk, flowi4_to_flowi(&fl4));
+=======
+	security_sk_classify_flow(sk, flowi4_to_flowi_common(&fl4));
+>>>>>>> upstream/android-13
 	rt = ip_route_output_flow(net, &fl4, sk);
 	if (IS_ERR(rt)) {
 		err = PTR_ERR(rt);
@@ -968,6 +1070,10 @@ bool ping_rcv(struct sk_buff *skb)
 	struct sock *sk;
 	struct net *net = dev_net(skb->dev);
 	struct icmphdr *icmph = icmp_hdr(skb);
+<<<<<<< HEAD
+=======
+	bool rc = false;
+>>>>>>> upstream/android-13
 
 	/* We assume the packet has already been checked by icmp_rcv */
 
@@ -982,6 +1088,7 @@ bool ping_rcv(struct sk_buff *skb)
 		struct sk_buff *skb2 = skb_clone(skb, GFP_ATOMIC);
 
 		pr_debug("rcv on socket %p\n", sk);
+<<<<<<< HEAD
 		if (skb2)
 			ping_queue_rcv_skb(sk, skb2);
 		sock_put(sk);
@@ -990,6 +1097,17 @@ bool ping_rcv(struct sk_buff *skb)
 	pr_debug("no socket, dropping\n");
 
 	return false;
+=======
+		if (skb2 && !ping_queue_rcv_skb(sk, skb2))
+			rc = true;
+		sock_put(sk);
+	}
+
+	if (!rc)
+		pr_debug("no socket, dropping\n");
+
+	return rc;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(ping_rcv);
 
@@ -1116,7 +1234,11 @@ static void ping_v4_format_sock(struct sock *sp, struct seq_file *f,
 	__u16 srcp = ntohs(inet->inet_sport);
 
 	seq_printf(f, "%5d: %08X:%04X %08X:%04X"
+<<<<<<< HEAD
 		" %02X %08X:%08X %02X:%08lX %08X %5u %8d %lu %d %pK %d",
+=======
+		" %02X %08X:%08X %02X:%08lX %08X %5u %8d %lu %d %pK %u",
+>>>>>>> upstream/android-13
 		bucket, src, srcp, dest, destp, sp->sk_state,
 		sk_wmem_alloc_get(sp),
 		sk_rmem_alloc_get(sp),

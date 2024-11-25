@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * drivers/rtc/rtc-spear.c
  *
  * Copyright (C) 2010 ST Microelectronics
  * Rajeev Kumar<rajeev-dlh.kumar@st.com>
+<<<<<<< HEAD
  *
  * This file is licensed under the terms of the GNU General Public
  * License version 2. This program is licensed "as is" without any
  * warranty of any kind, whether express or implied.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/bcd.h>
@@ -153,12 +160,21 @@ static void rtc_wait_not_busy(struct spear_rtc_config *config)
 static irqreturn_t spear_rtc_irq(int irq, void *dev_id)
 {
 	struct spear_rtc_config *config = dev_id;
+<<<<<<< HEAD
 	unsigned long flags, events = 0;
 	unsigned int irq_data;
 
 	spin_lock_irqsave(&config->lock, flags);
 	irq_data = readl(config->ioaddr + STATUS_REG);
 	spin_unlock_irqrestore(&config->lock, flags);
+=======
+	unsigned long events = 0;
+	unsigned int irq_data;
+
+	spin_lock(&config->lock);
+	irq_data = readl(config->ioaddr + STATUS_REG);
+	spin_unlock(&config->lock);
+>>>>>>> upstream/android-13
 
 	if ((irq_data & RTC_INT_MASK)) {
 		spear_rtc_clear_interrupt(config);
@@ -347,7 +363,10 @@ static const struct rtc_class_ops spear_rtc_ops = {
 
 static int spear_rtc_probe(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	struct spear_rtc_config *config;
 	int status = 0;
 	int irq;
@@ -358,10 +377,15 @@ static int spear_rtc_probe(struct platform_device *pdev)
 
 	/* alarm irqs */
 	irq = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (irq < 0) {
 		dev_err(&pdev->dev, "no update irq?\n");
 		return irq;
 	}
+=======
+	if (irq < 0)
+		return irq;
+>>>>>>> upstream/android-13
 
 	status = devm_request_irq(&pdev->dev, irq, spear_rtc_irq, 0, pdev->name,
 			config);
@@ -371,8 +395,12 @@ static int spear_rtc_probe(struct platform_device *pdev)
 		return status;
 	}
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	config->ioaddr = devm_ioremap_resource(&pdev->dev, res);
+=======
+	config->ioaddr = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(config->ioaddr))
 		return PTR_ERR(config->ioaddr);
 

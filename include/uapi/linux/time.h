@@ -3,6 +3,7 @@
 #define _UAPI_LINUX_TIME_H
 
 #include <linux/types.h>
+<<<<<<< HEAD
 
 
 #ifndef _STRUCT_TIMESPEC
@@ -10,20 +11,51 @@
 struct timespec {
 	__kernel_time_t	tv_sec;			/* seconds */
 	long		tv_nsec;		/* nanoseconds */
+=======
+#include <linux/time_types.h>
+
+#ifndef __KERNEL__
+#ifndef _STRUCT_TIMESPEC
+#define _STRUCT_TIMESPEC
+struct timespec {
+	__kernel_old_time_t	tv_sec;		/* seconds */
+	long			tv_nsec;	/* nanoseconds */
+>>>>>>> upstream/android-13
 };
 #endif
 
 struct timeval {
+<<<<<<< HEAD
 	__kernel_time_t		tv_sec;		/* seconds */
 	__kernel_suseconds_t	tv_usec;	/* microseconds */
 };
 
+=======
+	__kernel_old_time_t	tv_sec;		/* seconds */
+	__kernel_suseconds_t	tv_usec;	/* microseconds */
+};
+
+struct itimerspec {
+	struct timespec it_interval;/* timer period */
+	struct timespec it_value;	/* timer expiration */
+};
+
+struct itimerval {
+	struct timeval it_interval;/* timer interval */
+	struct timeval it_value;	/* current value */
+};
+#endif
+
+>>>>>>> upstream/android-13
 struct timezone {
 	int	tz_minuteswest;	/* minutes west of Greenwich */
 	int	tz_dsttime;	/* type of dst correction */
 };
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Names of the interval timers, and structure
  * defining a timer setting:
@@ -32,6 +64,7 @@ struct timezone {
 #define	ITIMER_VIRTUAL		1
 #define	ITIMER_PROF		2
 
+<<<<<<< HEAD
 struct itimerspec {
 	struct timespec it_interval;	/* timer period */
 	struct timespec it_value;	/* timer expiration */
@@ -68,6 +101,8 @@ struct __kernel_old_timeval {
 	__kernel_long_t tv_usec;
 };
 
+=======
+>>>>>>> upstream/android-13
 /*
  * The IDs of the various system clocks (for POSIX.1b interval timers):
  */
@@ -87,7 +122,10 @@ struct __kernel_old_timeval {
  */
 #define CLOCK_SGI_CYCLE			10
 #define CLOCK_TAI			11
+<<<<<<< HEAD
 #define CLOCK_POWER_OFF_ALARM		12
+=======
+>>>>>>> upstream/android-13
 
 #define MAX_CLOCKS			16
 #define CLOCKS_MASK			(CLOCK_REALTIME | CLOCK_MONOTONIC)

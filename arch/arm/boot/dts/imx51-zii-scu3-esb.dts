@@ -351,6 +351,13 @@
 	vcc-supply = <&vusb2_reg>;
 };
 
+<<<<<<< HEAD
+=======
+&vpu {
+	status = "disabled";
+};
+
+>>>>>>> upstream/android-13
 &wdog1 {
 	status = "disabled";
 };

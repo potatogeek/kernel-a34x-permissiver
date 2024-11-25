@@ -12,8 +12,16 @@
 #include <linux/kernel.h>
 #include <linux/pci.h>
 #include <asm/pci_debug.h>
+<<<<<<< HEAD
 #include <asm/sclp.h>
 
+=======
+#include <asm/pci_dma.h>
+#include <asm/sclp.h>
+
+#include "pci_bus.h"
+
+>>>>>>> upstream/android-13
 /* Content Code Description for PCI Function Error */
 struct zpci_ccdf_err {
 	u32 reserved1;
@@ -53,7 +61,11 @@ static void __zpci_event_error(struct zpci_ccdf_err *ccdf)
 	zpci_err_hex(ccdf, sizeof(*ccdf));
 
 	if (zdev)
+<<<<<<< HEAD
 		pdev = pci_get_slot(zdev->bus, ZPCI_DEVFN);
+=======
+		pdev = pci_get_slot(zdev->zbus->bus, zdev->devfn);
+>>>>>>> upstream/android-13
 
 	pr_err("%s: Event 0x%x reports an error for PCI function 0x%x\n",
 	       pdev ? pci_name(pdev) : "n/a", ccdf->pec, ccdf->fid);
@@ -71,6 +83,7 @@ void zpci_event_error(void *data)
 		__zpci_event_error(data);
 }
 
+<<<<<<< HEAD
 static void __zpci_event_availability(struct zpci_ccdf_avail *ccdf)
 {
 	struct zpci_dev *zdev = get_zdev_by_fid(ccdf->fid);
@@ -83,12 +96,37 @@ static void __zpci_event_availability(struct zpci_ccdf_avail *ccdf)
 
 	pr_info("%s: Event 0x%x reconfigured PCI function 0x%x\n",
 		pdev ? pci_name(pdev) : "n/a", ccdf->pec, ccdf->fid);
+=======
+static void zpci_event_hard_deconfigured(struct zpci_dev *zdev, u32 fh)
+{
+	zdev->fh = fh;
+	/* Give the driver a hint that the function is
+	 * already unusable.
+	 */
+	zpci_bus_remove_device(zdev, true);
+	/* Even though the device is already gone we still
+	 * need to free zPCI resources as part of the disable.
+	 */
+	if (zdev->dma_table)
+		zpci_dma_exit_device(zdev);
+	if (zdev_enabled(zdev))
+		zpci_disable_device(zdev);
+	zdev->state = ZPCI_FN_STATE_STANDBY;
+}
+
+static void __zpci_event_availability(struct zpci_ccdf_avail *ccdf)
+{
+	struct zpci_dev *zdev = get_zdev_by_fid(ccdf->fid);
+	enum zpci_state state;
+
+>>>>>>> upstream/android-13
 	zpci_err("avail CCDF:\n");
 	zpci_err_hex(ccdf, sizeof(*ccdf));
 
 	switch (ccdf->pec) {
 	case 0x0301: /* Reserved|Standby -> Configured */
 		if (!zdev) {
+<<<<<<< HEAD
 			ret = clp_add_pci_device(ccdf->fid, ccdf->fh, 0);
 			if (ret)
 				break;
@@ -145,16 +183,70 @@ static void __zpci_event_availability(struct zpci_ccdf_avail *ccdf)
 		break;
 	case 0x0306: /* 0x308 or 0x302 for multiple devices */
 		clp_rescan_pci_devices();
+=======
+			zdev = zpci_create_device(ccdf->fid, ccdf->fh, ZPCI_FN_STATE_CONFIGURED);
+			if (IS_ERR(zdev))
+				break;
+		} else {
+			/* the configuration request may be stale */
+			if (zdev->state != ZPCI_FN_STATE_STANDBY)
+				break;
+			zdev->state = ZPCI_FN_STATE_CONFIGURED;
+		}
+		zpci_scan_configured_device(zdev, ccdf->fh);
+		break;
+	case 0x0302: /* Reserved -> Standby */
+		if (!zdev)
+			zpci_create_device(ccdf->fid, ccdf->fh, ZPCI_FN_STATE_STANDBY);
+		else
+			zdev->fh = ccdf->fh;
+		break;
+	case 0x0303: /* Deconfiguration requested */
+		if (zdev) {
+			/* The event may have been queued before we confirgured
+			 * the device.
+			 */
+			if (zdev->state != ZPCI_FN_STATE_CONFIGURED)
+				break;
+			zdev->fh = ccdf->fh;
+			zpci_deconfigure_device(zdev);
+		}
+		break;
+	case 0x0304: /* Configured -> Standby|Reserved */
+		if (zdev) {
+			/* The event may have been queued before we confirgured
+			 * the device.:
+			 */
+			if (zdev->state == ZPCI_FN_STATE_CONFIGURED)
+				zpci_event_hard_deconfigured(zdev, ccdf->fh);
+			/* The 0x0304 event may immediately reserve the device */
+			if (!clp_get_state(zdev->fid, &state) &&
+			    state == ZPCI_FN_STATE_RESERVED) {
+				zpci_device_reserved(zdev);
+			}
+		}
+		break;
+	case 0x0306: /* 0x308 or 0x302 for multiple devices */
+		zpci_remove_reserved_devices();
+		clp_scan_pci_devices();
+>>>>>>> upstream/android-13
 		break;
 	case 0x0308: /* Standby -> Reserved */
 		if (!zdev)
 			break;
+<<<<<<< HEAD
 		zpci_remove_device(zdev);
+=======
+		zpci_device_reserved(zdev);
+>>>>>>> upstream/android-13
 		break;
 	default:
 		break;
 	}
+<<<<<<< HEAD
 	pci_dev_put(pdev);
+=======
+>>>>>>> upstream/android-13
 }
 
 void zpci_event_availability(void *data)

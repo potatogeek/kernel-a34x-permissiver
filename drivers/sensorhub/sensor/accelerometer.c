@@ -32,7 +32,10 @@ get_init_chipset_funcs_ptr get_acc_funcs_ary[] = {
 	get_accelometer_lsm6dsl_function_pointer,
 	get_accelometer_lis2dlc12_function_pointer,
 	get_accelometer_lsm6dsotr_function_pointer,
+<<<<<<< HEAD
 	get_accelometer_lsm6dsvtr_function_pointer,
+=======
+>>>>>>> upstream/android-13
 	get_accelometer_icm42632m_function_pointer,
 };
 
@@ -42,6 +45,7 @@ static get_init_chipset_funcs_ptr *get_accel_init_chipset_funcs(int *len)
 	return get_acc_funcs_ary;
 }
 
+<<<<<<< HEAD
 static int init_accelerometer_variable(void)
 {
 	struct accelerometer_data *data = get_sensor(SENSOR_TYPE_ACCELEROMETER)->data;
@@ -54,6 +58,8 @@ static int init_accelerometer_variable(void)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 void parse_dt_accelerometer(struct device *dev)
 {
 	struct device_node *np = dev->of_node;
@@ -157,7 +163,11 @@ int sync_accelerometer_status(void)
 void print_accelerometer_debug(void)
 {
 	struct shub_sensor *sensor = get_sensor(SENSOR_TYPE_ACCELEROMETER);
+<<<<<<< HEAD
 	struct sensor_event *event = &(sensor->last_event_buffer);
+=======
+	struct sensor_event *event = &(sensor->event_buffer);
+>>>>>>> upstream/android-13
 	struct accel_event *sensor_value = (struct accel_event *)(event->value);
 
 	shub_info("%s(%u) : %d, %d, %d (%lld) (%ums, %dms)", sensor->name, SENSOR_TYPE_ACCELEROMETER, sensor_value->x,
@@ -165,6 +175,7 @@ void print_accelerometer_debug(void)
 		  sensor->max_report_latency);
 }
 
+<<<<<<< HEAD
 static struct sensor_funcs accelerometer_sensor_func = {
 	.sync_status = sync_accelerometer_status,
 	.print_debug = print_accelerometer_debug,
@@ -181,12 +192,17 @@ static struct accelerometer_data accelerometer_data;
 int init_accelerometer(bool en)
 {
 	int ret = 0;
+=======
+int init_accelerometer(bool en)
+{
+>>>>>>> upstream/android-13
 	struct shub_sensor *sensor = get_sensor(SENSOR_TYPE_ACCELEROMETER);
 
 	if (!sensor)
 		return 0;
 
 	if (en) {
+<<<<<<< HEAD
 		ret = init_default_func(sensor, "accelerometer_sensor", 6, 6, sizeof(struct accel_event));
 
 		sensor->report_mode_continuous = true;
@@ -197,12 +213,65 @@ int init_accelerometer(bool en)
 	}
 
 	return ret;
+=======
+		strcpy(sensor->name, "accelerometer_sensor");
+		sensor->report_mode_continuous = true;
+		sensor->receive_event_size = 6;
+		sensor->report_event_size = 6;
+		sensor->event_buffer.value = kzalloc(sizeof(struct accel_event), GFP_KERNEL);
+		if (!sensor->event_buffer.value)
+			goto err_no_mem;
+
+		sensor->data = kzalloc(sizeof(struct accelerometer_data), GFP_KERNEL);
+		if (!sensor->data)
+			goto err_no_mem;
+
+		sensor->funcs = kzalloc(sizeof(struct sensor_funcs), GFP_KERNEL);
+		if (!sensor->funcs)
+			goto err_no_mem;
+
+		sensor->funcs->sync_status = sync_accelerometer_status;
+		sensor->funcs->print_debug = print_accelerometer_debug;
+		sensor->funcs->set_position = set_accel_position;
+		sensor->funcs->get_position = get_accel_position;
+		sensor->funcs->open_calibration_file = open_accel_calibration_file;
+		sensor->funcs->parse_dt = parse_dt_accelerometer;
+		sensor->funcs->get_init_chipset_funcs = get_accel_init_chipset_funcs;
+	} else {
+		kfree(sensor->event_buffer.value);
+		sensor->event_buffer.value = NULL;
+
+		kfree(sensor->data);
+		sensor->data = NULL;
+
+		kfree(sensor->funcs);
+		sensor->funcs = NULL;
+	}
+	return 0;
+
+err_no_mem:
+	shub_errf("err no memory");
+	kfree(sensor->event_buffer.value);
+	sensor->event_buffer.value = NULL;
+
+	kfree(sensor->data);
+	sensor->data = NULL;
+
+	kfree(sensor->funcs);
+	sensor->funcs = NULL;
+
+	return -ENOMEM;
+>>>>>>> upstream/android-13
 }
 
 static void print_accelerometer_uncal_debug(void)
 {
 	struct shub_sensor *sensor = get_sensor(SENSOR_TYPE_ACCELEROMETER_UNCALIBRATED);
+<<<<<<< HEAD
 	struct sensor_event *event = &(sensor->last_event_buffer);
+=======
+	struct sensor_event *event = &(sensor->event_buffer);
+>>>>>>> upstream/android-13
 	struct uncal_accel_event *sensor_value = (struct uncal_accel_event *)(event->value);
 
 	shub_info("%s(%u) : %d, %d, %d, %d, %d, %d (%lld) (%ums, %dms)", sensor->name,
@@ -211,6 +280,7 @@ static void print_accelerometer_uncal_debug(void)
 		  event->timestamp, sensor->sampling_period, sensor->max_report_latency);
 }
 
+<<<<<<< HEAD
 static struct sensor_funcs accelerometer_uncal_sensor_func = {
 	.print_debug = print_accelerometer_uncal_debug,
 };
@@ -218,12 +288,17 @@ static struct sensor_funcs accelerometer_uncal_sensor_func = {
 int init_accelerometer_uncal(bool en)
 {
 	int ret = 0;
+=======
+int init_accelerometer_uncal(bool en)
+{
+>>>>>>> upstream/android-13
 	struct shub_sensor *sensor = get_sensor(SENSOR_TYPE_ACCELEROMETER_UNCALIBRATED);
 
 	if (!sensor)
 		return 0;
 
 	if (en) {
+<<<<<<< HEAD
 		ret = init_default_func(sensor, "uncal_accel_sensor", 12, 12, sizeof(struct uncal_accel_event));
 
 		sensor->report_mode_continuous = true;
@@ -233,4 +308,36 @@ int init_accelerometer_uncal(bool en)
 	}
 
 	return ret;
+=======
+		strcpy(sensor->name, "uncal_accel_sensor");
+		sensor->report_mode_continuous = true;
+		sensor->receive_event_size = 12;
+		sensor->report_event_size = 12;
+		sensor->event_buffer.value = kzalloc(sizeof(struct uncal_accel_event), GFP_KERNEL);
+		if (!sensor->event_buffer.value)
+			goto err_no_mem;
+
+		sensor->funcs = kzalloc(sizeof(struct sensor_funcs), GFP_KERNEL);
+		if (!sensor->funcs)
+			goto err_no_mem;
+
+		sensor->funcs->print_debug = print_accelerometer_uncal_debug;
+	} else {
+		kfree(sensor->event_buffer.value);
+		sensor->event_buffer.value = NULL;
+
+		kfree(sensor->funcs);
+		sensor->funcs = NULL;
+	}
+	return 0;
+
+err_no_mem:
+	kfree(sensor->event_buffer.value);
+	sensor->event_buffer.value = NULL;
+
+	kfree(sensor->funcs);
+	sensor->funcs = NULL;
+
+	return -ENOMEM;
+>>>>>>> upstream/android-13
 }

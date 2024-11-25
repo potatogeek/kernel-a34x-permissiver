@@ -2,6 +2,7 @@
 #ifndef __ASM_VDSOCLOCKSOURCE_H
 #define __ASM_VDSOCLOCKSOURCE_H
 
+<<<<<<< HEAD
 #include <linux/types.h>
 
 /* VDSO clocksources. */
@@ -16,5 +17,10 @@
 struct arch_clocksource_data {
 	u8 vdso_clock_mode;
 };
+=======
+#define VDSO_ARCH_CLOCKMODES	\
+	VDSO_CLOCKMODE_R4K,	\
+	VDSO_CLOCKMODE_GIC
+>>>>>>> upstream/android-13
 
 #endif /* __ASM_VDSOCLOCKSOURCE_H */

@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *
  * Author	Karsten Keil <kkeil@novell.com>
  *
  * Copyright 2008  by Karsten Keil <kkeil@novell.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -13,6 +18,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 #include "layer2.h"
 #include <linux/random.h>
@@ -1337,10 +1344,15 @@ mgr_bcast(struct mISDNchannel *ch, struct sk_buff *skb)
 	}
 out:
 	read_unlock_irqrestore(&mgr->lock, flags);
+<<<<<<< HEAD
 	if (cskb)
 		dev_kfree_skb(cskb);
 	if (skb)
 		dev_kfree_skb(skb);
+=======
+	dev_kfree_skb(cskb);
+	dev_kfree_skb(skb);
+>>>>>>> upstream/android-13
 	return 0;
 }
 

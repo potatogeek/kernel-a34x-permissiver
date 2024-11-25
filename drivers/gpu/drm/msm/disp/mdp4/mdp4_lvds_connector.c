@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2014 Red Hat
  * Author: Rob Clark <robdclark@gmail.com>
  * Author: Vinay Simha <vinaysimha@inforcecomputing.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
@@ -18,6 +23,10 @@
 
 #include <linux/gpio.h>
 
+=======
+ */
+
+>>>>>>> upstream/android-13
 #include "mdp4_kms.h"
 
 struct mdp4_lvds_connector {
@@ -63,6 +72,7 @@ static int mdp4_lvds_connector_get_modes(struct drm_connector *connector)
 	struct drm_panel *panel = mdp4_lvds_connector->panel;
 	int ret = 0;
 
+<<<<<<< HEAD
 	if (panel) {
 		drm_panel_attach(panel, connector);
 
@@ -70,6 +80,10 @@ static int mdp4_lvds_connector_get_modes(struct drm_connector *connector)
 
 		drm_panel_detach(panel);
 	}
+=======
+	if (panel)
+		ret = drm_panel_get_modes(panel, connector);
+>>>>>>> upstream/android-13
 
 	return ret;
 }

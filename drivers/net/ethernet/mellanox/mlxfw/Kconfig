@@ -1,13 +1,25 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #
 # Mellanox firmware flash library configuration
 #
 
 config MLXFW
 	tristate "Mellanox Technologies firmware flash module"
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  This driver supports Mellanox Technologies Firmware
 	  flashing common logic.
 
 	  To compile this driver as a module, choose M here: the
 	  module will be called mlxfw.
 	select XZ_DEC
+<<<<<<< HEAD
+=======
+	select NET_DEVLINK
+>>>>>>> upstream/android-13

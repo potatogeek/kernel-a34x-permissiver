@@ -33,15 +33,35 @@
 #ifndef _GVT_HYPERCALL_H_
 #define _GVT_HYPERCALL_H_
 
+<<<<<<< HEAD
+=======
+#include <linux/types.h>
+
+struct device;
+
+enum hypervisor_type {
+	INTEL_GVT_HYPERVISOR_XEN = 0,
+	INTEL_GVT_HYPERVISOR_KVM,
+};
+
+>>>>>>> upstream/android-13
 /*
  * Specific GVT-g MPT modules function collections. Currently GVT-g supports
  * both Xen and KVM by providing dedicated hypervisor-related MPT modules.
  */
 struct intel_gvt_mpt {
+<<<<<<< HEAD
 	int (*host_init)(struct device *dev, void *gvt, const void *ops);
 	void (*host_exit)(struct device *dev, void *gvt);
 	int (*attach_vgpu)(void *vgpu, unsigned long *handle);
 	void (*detach_vgpu)(unsigned long handle);
+=======
+	enum hypervisor_type type;
+	int (*host_init)(struct device *dev, void *gvt, const void *ops);
+	void (*host_exit)(struct device *dev, void *gvt);
+	int (*attach_vgpu)(void *vgpu, unsigned long *handle);
+	void (*detach_vgpu)(void *vgpu);
+>>>>>>> upstream/android-13
 	int (*inject_msi)(unsigned long handle, u32 addr, u16 data);
 	unsigned long (*from_virt_to_mfn)(void *p);
 	int (*enable_page_track)(unsigned long handle, u64 gfn);
@@ -56,17 +76,29 @@ struct intel_gvt_mpt {
 				  unsigned long size, dma_addr_t *dma_addr);
 	void (*dma_unmap_guest_page)(unsigned long handle, dma_addr_t dma_addr);
 
+<<<<<<< HEAD
+=======
+	int (*dma_pin_guest_page)(unsigned long handle, dma_addr_t dma_addr);
+
+>>>>>>> upstream/android-13
 	int (*map_gfn_to_mfn)(unsigned long handle, unsigned long gfn,
 			      unsigned long mfn, unsigned int nr, bool map);
 	int (*set_trap_area)(unsigned long handle, u64 start, u64 end,
 			     bool map);
 	int (*set_opregion)(void *vgpu);
+<<<<<<< HEAD
+=======
+	int (*set_edid)(void *vgpu, int port_num);
+>>>>>>> upstream/android-13
 	int (*get_vfio_device)(void *vgpu);
 	void (*put_vfio_device)(void *vgpu);
 	bool (*is_valid_gfn)(unsigned long handle, unsigned long gfn);
 };
 
+<<<<<<< HEAD
 extern struct intel_gvt_mpt xengt_mpt;
 extern struct intel_gvt_mpt kvmgt_mpt;
 
+=======
+>>>>>>> upstream/android-13
 #endif /* _GVT_HYPERCALL_H_ */

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * 1-Wire implementation for the ds2780 chip
  *
@@ -6,11 +10,14 @@
  * Author: Clifton Barnes <cabarnes@indesign-llc.com>
  *
  * Based on w1-ds2760 driver
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -94,7 +101,11 @@ static ssize_t w1_slave_read(struct file *filp, struct kobject *kobj,
 			     struct bin_attribute *bin_attr, char *buf,
 			     loff_t off, size_t count)
 {
+<<<<<<< HEAD
 	struct device *dev = container_of(kobj, struct device, kobj);
+=======
+	struct device *dev = kobj_to_dev(kobj);
+>>>>>>> upstream/android-13
 	return w1_ds2780_io(dev, buf, off, count, 0);
 }
 
@@ -145,7 +156,11 @@ static void w1_ds2780_remove_slave(struct w1_slave *sl)
 	platform_device_unregister(pdev);
 }
 
+<<<<<<< HEAD
 static struct w1_family_ops w1_ds2780_fops = {
+=======
+static const struct w1_family_ops w1_ds2780_fops = {
+>>>>>>> upstream/android-13
 	.add_slave    = w1_ds2780_add_slave,
 	.remove_slave = w1_ds2780_remove_slave,
 	.groups       = w1_ds2780_groups,

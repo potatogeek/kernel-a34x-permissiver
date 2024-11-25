@@ -8,13 +8,20 @@
  * Copyright (C) 2018 MIPS Tech, LLC
  */
 
+<<<<<<< HEAD
 #include <linux/unaligned/access_ok.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/cpufeature.h>
 #include <linux/init.h>
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/string.h>
 #include <asm/mipsregs.h>
+<<<<<<< HEAD
+=======
+#include <asm/unaligned.h>
+>>>>>>> upstream/android-13
 
 #include <crypto/internal/hash.h>
 
@@ -177,10 +184,15 @@ static int chksum_setkey(struct crypto_shash *tfm, const u8 *key,
 {
 	struct chksum_ctx *mctx = crypto_shash_ctx(tfm);
 
+<<<<<<< HEAD
 	if (keylen != sizeof(mctx->key)) {
 		crypto_shash_set_flags(tfm, CRYPTO_TFM_RES_BAD_KEY_LEN);
 		return -EINVAL;
 	}
+=======
+	if (keylen != sizeof(mctx->key))
+		return -EINVAL;
+>>>>>>> upstream/android-13
 	mctx->key = get_unaligned_le32(key);
 	return 0;
 }

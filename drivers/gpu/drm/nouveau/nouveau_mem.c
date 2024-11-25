@@ -41,8 +41,11 @@ nouveau_mem_map(struct nouveau_mem *mem,
 		struct gf100_vmm_map_v0 gf100;
 	} args;
 	u32 argc = 0;
+<<<<<<< HEAD
 	bool super;
 	int ret;
+=======
+>>>>>>> upstream/android-13
 
 	switch (vmm->object.oclass) {
 	case NVIF_CLASS_VMM_NV04:
@@ -73,12 +76,16 @@ nouveau_mem_map(struct nouveau_mem *mem,
 		return -ENOSYS;
 	}
 
+<<<<<<< HEAD
 	super = vmm->object.client->super;
 	vmm->object.client->super = true;
 	ret = nvif_vmm_map(vmm, vma->addr, mem->mem.size, &args, argc,
 			   &mem->mem, 0);
 	vmm->object.client->super = super;
 	return ret;
+=======
+	return nvif_vmm_map(vmm, vma->addr, mem->mem.size, &args, argc, &mem->mem, 0);
+>>>>>>> upstream/android-13
 }
 
 void
@@ -87,19 +94,30 @@ nouveau_mem_fini(struct nouveau_mem *mem)
 	nvif_vmm_put(&mem->cli->drm->client.vmm.vmm, &mem->vma[1]);
 	nvif_vmm_put(&mem->cli->drm->client.vmm.vmm, &mem->vma[0]);
 	mutex_lock(&mem->cli->drm->master.lock);
+<<<<<<< HEAD
 	nvif_mem_fini(&mem->mem);
+=======
+	nvif_mem_dtor(&mem->mem);
+>>>>>>> upstream/android-13
 	mutex_unlock(&mem->cli->drm->master.lock);
 }
 
 int
+<<<<<<< HEAD
 nouveau_mem_host(struct ttm_mem_reg *reg, struct ttm_dma_tt *tt)
+=======
+nouveau_mem_host(struct ttm_resource *reg, struct ttm_tt *tt)
+>>>>>>> upstream/android-13
 {
 	struct nouveau_mem *mem = nouveau_mem(reg);
 	struct nouveau_cli *cli = mem->cli;
 	struct nouveau_drm *drm = cli->drm;
 	struct nvif_mmu *mmu = &cli->mmu;
 	struct nvif_mem_ram_v0 args = {};
+<<<<<<< HEAD
 	bool super = cli->base.super;
+=======
+>>>>>>> upstream/android-13
 	u8 type;
 	int ret;
 
@@ -116,6 +134,7 @@ nouveau_mem_host(struct ttm_mem_reg *reg, struct ttm_dma_tt *tt)
 		mem->comp = 0;
 	}
 
+<<<<<<< HEAD
 	if (tt->ttm.sg) args.sgl = tt->ttm.sg->sgl;
 	else            args.dma = tt->dma_address;
 
@@ -125,26 +144,50 @@ nouveau_mem_host(struct ttm_mem_reg *reg, struct ttm_dma_tt *tt)
 				 reg->num_pages << PAGE_SHIFT,
 				 &args, sizeof(args), &mem->mem);
 	cli->base.super = super;
+=======
+	if (tt->sg)
+		args.sgl = tt->sg->sgl;
+	else
+		args.dma = tt->dma_address;
+
+	mutex_lock(&drm->master.lock);
+	ret = nvif_mem_ctor_type(mmu, "ttmHostMem", cli->mem->oclass, type, PAGE_SHIFT,
+				 reg->num_pages << PAGE_SHIFT,
+				 &args, sizeof(args), &mem->mem);
+>>>>>>> upstream/android-13
 	mutex_unlock(&drm->master.lock);
 	return ret;
 }
 
 int
+<<<<<<< HEAD
 nouveau_mem_vram(struct ttm_mem_reg *reg, bool contig, u8 page)
+=======
+nouveau_mem_vram(struct ttm_resource *reg, bool contig, u8 page)
+>>>>>>> upstream/android-13
 {
 	struct nouveau_mem *mem = nouveau_mem(reg);
 	struct nouveau_cli *cli = mem->cli;
 	struct nouveau_drm *drm = cli->drm;
 	struct nvif_mmu *mmu = &cli->mmu;
+<<<<<<< HEAD
 	bool super = cli->base.super;
+=======
+>>>>>>> upstream/android-13
 	u64 size = ALIGN(reg->num_pages << PAGE_SHIFT, 1 << page);
 	int ret;
 
 	mutex_lock(&drm->master.lock);
+<<<<<<< HEAD
 	cli->base.super = true;
 	switch (cli->mem->oclass) {
 	case NVIF_CLASS_MEM_GF100:
 		ret = nvif_mem_init_type(mmu, cli->mem->oclass,
+=======
+	switch (cli->mem->oclass) {
+	case NVIF_CLASS_MEM_GF100:
+		ret = nvif_mem_ctor_type(mmu, "ttmVram", cli->mem->oclass,
+>>>>>>> upstream/android-13
 					 drm->ttm.type_vram, page, size,
 					 &(struct gf100_mem_v0) {
 						.contig = contig,
@@ -152,7 +195,11 @@ nouveau_mem_vram(struct ttm_mem_reg *reg, bool contig, u8 page)
 					 &mem->mem);
 		break;
 	case NVIF_CLASS_MEM_NV50:
+<<<<<<< HEAD
 		ret = nvif_mem_init_type(mmu, cli->mem->oclass,
+=======
+		ret = nvif_mem_ctor_type(mmu, "ttmVram", cli->mem->oclass,
+>>>>>>> upstream/android-13
 					 drm->ttm.type_vram, page, size,
 					 &(struct nv50_mem_v0) {
 						.bankswz = mmu->kind[mem->kind] == 2,
@@ -165,7 +212,10 @@ nouveau_mem_vram(struct ttm_mem_reg *reg, bool contig, u8 page)
 		WARN_ON(1);
 		break;
 	}
+<<<<<<< HEAD
 	cli->base.super = super;
+=======
+>>>>>>> upstream/android-13
 	mutex_unlock(&drm->master.lock);
 
 	reg->start = mem->mem.addr >> PAGE_SHIFT;
@@ -173,6 +223,7 @@ nouveau_mem_vram(struct ttm_mem_reg *reg, bool contig, u8 page)
 }
 
 void
+<<<<<<< HEAD
 nouveau_mem_del(struct ttm_mem_reg *reg)
 {
 	struct nouveau_mem *mem = nouveau_mem(reg);
@@ -181,20 +232,40 @@ nouveau_mem_del(struct ttm_mem_reg *reg)
 	nouveau_mem_fini(mem);
 	kfree(reg->mm_node);
 	reg->mm_node = NULL;
+=======
+nouveau_mem_del(struct ttm_resource *reg)
+{
+	struct nouveau_mem *mem = nouveau_mem(reg);
+
+	nouveau_mem_fini(mem);
+	kfree(mem);
+>>>>>>> upstream/android-13
 }
 
 int
 nouveau_mem_new(struct nouveau_cli *cli, u8 kind, u8 comp,
+<<<<<<< HEAD
 		struct ttm_mem_reg *reg)
+=======
+		struct ttm_resource **res)
+>>>>>>> upstream/android-13
 {
 	struct nouveau_mem *mem;
 
 	if (!(mem = kzalloc(sizeof(*mem), GFP_KERNEL)))
 		return -ENOMEM;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	mem->cli = cli;
 	mem->kind = kind;
 	mem->comp = comp;
 
+<<<<<<< HEAD
 	reg->mm_node = mem;
+=======
+	*res = &mem->base;
+>>>>>>> upstream/android-13
 	return 0;
 }

@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * apds9300.c - IIO driver for Avago APDS9300 ambient light sensor
  *
  * Copyright 2013 Oleksandr Kravchenko <o.v.kravchenko@globallogic.com>
+<<<<<<< HEAD
  *
  * This file is subject to the terms and conditions of version 2 of
  * the GNU General Public License.  See the file COPYING in the main
  * directory of this archive for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -422,7 +429,10 @@ static int apds9300_probe(struct i2c_client *client,
 
 	mutex_init(&data->mutex);
 
+<<<<<<< HEAD
 	indio_dev->dev.parent = &client->dev;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->channels = apds9300_channels;
 	indio_dev->num_channels = ARRAY_SIZE(apds9300_channels);
 	indio_dev->name = APDS9300_DRV_NAME;

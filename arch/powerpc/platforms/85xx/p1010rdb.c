@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * P1010RDB Board Setup
  *
  * Copyright 2011 Freescale Semiconductor Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/stddef.h>
@@ -55,7 +62,10 @@ static void __init p1010_rdb_setup_arch(void)
 }
 
 machine_arch_initcall(p1010_rdb, mpc85xx_common_publish_devices);
+<<<<<<< HEAD
 machine_arch_initcall(p1010_rdb, swiotlb_setup_bus_notifier);
+=======
+>>>>>>> upstream/android-13
 
 /*
  * Called very early, device-tree isn't unflattened

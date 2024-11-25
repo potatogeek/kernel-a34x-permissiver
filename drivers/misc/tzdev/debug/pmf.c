@@ -1,5 +1,9 @@
 /*
+<<<<<<< HEAD
  * Copyright (C) 2012-2019, Samsung Electronics Co., Ltd.
+=======
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd All Rights Reserved
+>>>>>>> upstream/android-13
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -138,8 +142,15 @@ static int tzdev_pmf_init(struct file *filp, unsigned long arg)
 		return -EFAULT;
 
 	sd = tz_iwsock_socket(1, TZ_NON_INTERRUPTIBLE);
+<<<<<<< HEAD
 	if (IS_ERR(sd))
 		goto out;
+=======
+	if (IS_ERR(sd)) {
+		result = PTR_ERR(sd);
+		goto out;
+	}
+>>>>>>> upstream/android-13
 
 	ret = tzdev_teec_connect(sd, ROOT_TASK_SOCK, &result, &origin);
 	if (ret < 0) {
@@ -159,9 +170,16 @@ static int tzdev_pmf_init(struct file *filp, unsigned long arg)
 
 out_close_conn:
 	tzdev_teec_disconnect(sd);
+<<<<<<< HEAD
 	sd = NULL;
 
 out:
+=======
+
+out:
+	sd = NULL;
+
+>>>>>>> upstream/android-13
 	return result;
 }
 

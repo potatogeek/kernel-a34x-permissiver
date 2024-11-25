@@ -9,6 +9,10 @@
 
 #include <crypto/algapi.h>
 #include <crypto/internal/chacha.h>
+<<<<<<< HEAD
+=======
+#include <crypto/internal/simd.h>
+>>>>>>> upstream/android-13
 #include <crypto/internal/skcipher.h>
 #include <linux/jump_label.h>
 #include <linux/kernel.h>
@@ -22,7 +26,11 @@
 asmlinkage void chacha_block_xor_neon(const u32 *state, u8 *dst, const u8 *src,
 				      int nrounds);
 asmlinkage void chacha_4block_xor_neon(const u32 *state, u8 *dst, const u8 *src,
+<<<<<<< HEAD
 				       int nrounds);
+=======
+				       int nrounds, unsigned int nbytes);
+>>>>>>> upstream/android-13
 asmlinkage void hchacha_block_arm(const u32 *state, u32 *out, int nrounds);
 asmlinkage void hchacha_block_neon(const u32 *state, u32 *out, int nrounds);
 
@@ -33,7 +41,11 @@ static __ro_after_init DEFINE_STATIC_KEY_FALSE(use_neon);
 
 static inline bool neon_usable(void)
 {
+<<<<<<< HEAD
 	return static_branch_likely(&use_neon) && may_use_simd();
+=======
+	return static_branch_likely(&use_neon) && crypto_simd_usable();
+>>>>>>> upstream/android-13
 }
 
 static void chacha_doneon(u32 *state, u8 *dst, const u8 *src,
@@ -41,6 +53,7 @@ static void chacha_doneon(u32 *state, u8 *dst, const u8 *src,
 {
 	u8 buf[CHACHA_BLOCK_SIZE];
 
+<<<<<<< HEAD
 	while (bytes >= CHACHA_BLOCK_SIZE * 4) {
 		chacha_4block_xor_neon(state, dst, src, nrounds);
 		bytes -= CHACHA_BLOCK_SIZE * 4;
@@ -59,6 +72,27 @@ static void chacha_doneon(u32 *state, u8 *dst, const u8 *src,
 		memcpy(buf, src, bytes);
 		chacha_block_xor_neon(state, buf, buf, nrounds);
 		memcpy(dst, buf, bytes);
+=======
+	while (bytes > CHACHA_BLOCK_SIZE) {
+		unsigned int l = min(bytes, CHACHA_BLOCK_SIZE * 4U);
+
+		chacha_4block_xor_neon(state, dst, src, nrounds, l);
+		bytes -= l;
+		src += l;
+		dst += l;
+		state[12] += DIV_ROUND_UP(l, CHACHA_BLOCK_SIZE);
+	}
+	if (bytes) {
+		const u8 *s = src;
+		u8 *d = dst;
+
+		if (bytes != CHACHA_BLOCK_SIZE)
+			s = d = memcpy(buf, src, bytes);
+		chacha_block_xor_neon(state, d, s, nrounds);
+		if (d != dst)
+			memcpy(dst, buf, bytes);
+		state[12]++;
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -295,7 +329,11 @@ static int __init chacha_simd_mod_init(void)
 {
 	int err = 0;
 
+<<<<<<< HEAD
 	if (IS_REACHABLE(CONFIG_CRYPTO_BLKCIPHER)) {
+=======
+	if (IS_REACHABLE(CONFIG_CRYPTO_SKCIPHER)) {
+>>>>>>> upstream/android-13
 		err = crypto_register_skciphers(arm_algs, ARRAY_SIZE(arm_algs));
 		if (err)
 			return err;
@@ -319,7 +357,11 @@ static int __init chacha_simd_mod_init(void)
 			static_branch_enable(&use_neon);
 		}
 
+<<<<<<< HEAD
 		if (IS_REACHABLE(CONFIG_CRYPTO_BLKCIPHER)) {
+=======
+		if (IS_REACHABLE(CONFIG_CRYPTO_SKCIPHER)) {
+>>>>>>> upstream/android-13
 			err = crypto_register_skciphers(neon_algs, ARRAY_SIZE(neon_algs));
 			if (err)
 				crypto_unregister_skciphers(arm_algs, ARRAY_SIZE(arm_algs));
@@ -330,7 +372,11 @@ static int __init chacha_simd_mod_init(void)
 
 static void __exit chacha_simd_mod_fini(void)
 {
+<<<<<<< HEAD
 	if (IS_REACHABLE(CONFIG_CRYPTO_BLKCIPHER)) {
+=======
+	if (IS_REACHABLE(CONFIG_CRYPTO_SKCIPHER)) {
+>>>>>>> upstream/android-13
 		crypto_unregister_skciphers(arm_algs, ARRAY_SIZE(arm_algs));
 		if (IS_ENABLED(CONFIG_KERNEL_MODE_NEON) && (elf_hwcap & HWCAP_NEON))
 			crypto_unregister_skciphers(neon_algs, ARRAY_SIZE(neon_algs));

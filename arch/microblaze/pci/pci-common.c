@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Contains common pci routines for ALL ppc platform
  * (based on pci_32.c and pci_64.c)
@@ -9,18 +13,25 @@
  *   Rework, based on alpha PCI code.
  *
  * Common pmac/prep/chrp pci routines. -- Cort
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
 #include <linux/pci.h>
 #include <linux/string.h>
 #include <linux/init.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
+=======
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 #include <linux/mm.h>
 #include <linux/shmem_fs.h>
 #include <linux/list.h>
@@ -329,12 +340,18 @@ int pci_mmap_legacy_page_range(struct pci_bus *bus,
 		 * memory, effectively behaving just like /dev/zero
 		 */
 		if ((offset + size) > hose->isa_mem_size) {
+<<<<<<< HEAD
 #ifdef CONFIG_MMU
+=======
+>>>>>>> upstream/android-13
 			pr_debug("Process %s (pid:%d) mapped non-existing PCI",
 				current->comm, current->pid);
 			pr_debug("legacy memory for 0%04x:%02x\n",
 				pci_domain_nr(bus), bus->number);
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 			if (vma->vm_flags & VM_SHARED)
 				return shmem_zero_setup(vma);
 			return 0;
@@ -437,10 +454,13 @@ void pci_process_bridge_OF_ranges(struct pci_controller *hose,
 	pr_debug("Parsing ranges property...\n");
 	for_each_of_pci_range(&parser, &range) {
 		/* Read next ranges element */
+<<<<<<< HEAD
 		pr_debug("pci_space: 0x%08x pci_addr:0x%016llx ",
 				range.pci_space, range.pci_addr);
 		pr_debug("cpu_addr:0x%016llx size:0x%016llx\n",
 					range.cpu_addr, range.size);
+=======
+>>>>>>> upstream/android-13
 
 		/* If we failed translation or got a zero-sized region
 		 * (some FW try to feed us with non sensical zero sized regions
@@ -490,7 +510,11 @@ void pci_process_bridge_OF_ranges(struct pci_controller *hose,
 			pr_info(" MEM 0x%016llx..0x%016llx -> 0x%016llx %s\n",
 				range.cpu_addr, range.cpu_addr + range.size - 1,
 				range.pci_addr,
+<<<<<<< HEAD
 				(range.pci_space & 0x40000000) ?
+=======
+				(range.flags & IORESOURCE_PREFETCH) ?
+>>>>>>> upstream/android-13
 				"Prefetch" : "");
 
 			/* We support only 3 memory ranges */
@@ -1125,4 +1149,7 @@ int early_find_capability(struct pci_controller *hose, int bus, int devfn,
 {
 	return pci_bus_find_capability(fake_pci_bus(hose, bus), devfn, cap);
 }
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*******************************************************************************
  * Filename:  target_core_iblock.c
  *
@@ -8,6 +12,7 @@
  *
  * Nicholas A. Bellinger <nab@kernel.org>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -22,6 +27,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  *
+=======
+>>>>>>> upstream/android-13
  ******************************************************************************/
 
 #include <linux/string.h>
@@ -74,9 +81,24 @@ static struct se_device *iblock_alloc_device(struct se_hba *hba, const char *nam
 		return NULL;
 	}
 
+<<<<<<< HEAD
 	pr_debug( "IBLOCK: Allocated ib_dev for %s\n", name);
 
 	return &ib_dev->dev;
+=======
+	ib_dev->ibd_plug = kcalloc(nr_cpu_ids, sizeof(*ib_dev->ibd_plug),
+				   GFP_KERNEL);
+	if (!ib_dev->ibd_plug)
+		goto free_dev;
+
+	pr_debug( "IBLOCK: Allocated ib_dev for %s\n", name);
+
+	return &ib_dev->dev;
+
+free_dev:
+	kfree(ib_dev);
+	return NULL;
+>>>>>>> upstream/android-13
 }
 
 static int iblock_configure_device(struct se_device *dev)
@@ -87,7 +109,11 @@ static int iblock_configure_device(struct se_device *dev)
 	struct blk_integrity *bi;
 	fmode_t mode;
 	unsigned int max_write_zeroes_sectors;
+<<<<<<< HEAD
 	int ret = -ENOMEM;
+=======
+	int ret;
+>>>>>>> upstream/android-13
 
 	if (!(ib_dev->ibd_flags & IBDF_HAS_UDEV_PATH)) {
 		pr_err("Missing udev_path= parameters for IBLOCK\n");
@@ -184,6 +210,10 @@ static void iblock_dev_call_rcu(struct rcu_head *p)
 	struct se_device *dev = container_of(p, struct se_device, rcu_head);
 	struct iblock_dev *ib_dev = IBLOCK_DEV(dev);
 
+<<<<<<< HEAD
+=======
+	kfree(ib_dev->ibd_plug);
+>>>>>>> upstream/android-13
 	kfree(ib_dev);
 }
 
@@ -201,6 +231,36 @@ static void iblock_destroy_device(struct se_device *dev)
 	bioset_exit(&ib_dev->ibd_bio_set);
 }
 
+<<<<<<< HEAD
+=======
+static struct se_dev_plug *iblock_plug_device(struct se_device *se_dev)
+{
+	struct iblock_dev *ib_dev = IBLOCK_DEV(se_dev);
+	struct iblock_dev_plug *ib_dev_plug;
+
+	/*
+	 * Each se_device has a per cpu work this can be run from. We
+	 * shouldn't have multiple threads on the same cpu calling this
+	 * at the same time.
+	 */
+	ib_dev_plug = &ib_dev->ibd_plug[raw_smp_processor_id()];
+	if (test_and_set_bit(IBD_PLUGF_PLUGGED, &ib_dev_plug->flags))
+		return NULL;
+
+	blk_start_plug(&ib_dev_plug->blk_plug);
+	return &ib_dev_plug->se_plug;
+}
+
+static void iblock_unplug_device(struct se_dev_plug *se_plug)
+{
+	struct iblock_dev_plug *ib_dev_plug = container_of(se_plug,
+					struct iblock_dev_plug, se_plug);
+
+	blk_finish_plug(&ib_dev_plug->blk_plug);
+	clear_bit(IBD_PLUGF_PLUGGED, &ib_dev_plug->flags);
+}
+
+>>>>>>> upstream/android-13
 static unsigned long long iblock_emulate_read_cap_with_block_size(
 	struct se_device *dev,
 	struct block_device *bd,
@@ -224,6 +284,10 @@ static unsigned long long iblock_emulate_read_cap_with_block_size(
 			break;
 		case 512:
 			blocks_long <<= 3;
+<<<<<<< HEAD
+=======
+			break;
+>>>>>>> upstream/android-13
 		default:
 			break;
 		}
@@ -316,9 +380,14 @@ static void iblock_bio_done(struct bio *bio)
 	iblock_complete_cmd(cmd);
 }
 
+<<<<<<< HEAD
 static struct bio *
 iblock_get_bio(struct se_cmd *cmd, sector_t lba, u32 sg_num, int op,
 	       int op_flags)
+=======
+static struct bio *iblock_get_bio(struct se_cmd *cmd, sector_t lba, u32 sg_num,
+				  unsigned int opf)
+>>>>>>> upstream/android-13
 {
 	struct iblock_dev *ib_dev = IBLOCK_DEV(cmd->se_dev);
 	struct bio *bio;
@@ -327,10 +396,15 @@ iblock_get_bio(struct se_cmd *cmd, sector_t lba, u32 sg_num, int op,
 	 * Only allocate as many vector entries as the bio code allows us to,
 	 * we'll loop later on until we have handled the whole request.
 	 */
+<<<<<<< HEAD
 	if (sg_num > BIO_MAX_PAGES)
 		sg_num = BIO_MAX_PAGES;
 
 	bio = bio_alloc_bioset(GFP_NOIO, sg_num, &ib_dev->ibd_bio_set);
+=======
+	bio = bio_alloc_bioset(GFP_NOIO, bio_max_segs(sg_num),
+				&ib_dev->ibd_bio_set);
+>>>>>>> upstream/android-13
 	if (!bio) {
 		pr_err("Unable to allocate memory for bio\n");
 		return NULL;
@@ -340,7 +414,11 @@ iblock_get_bio(struct se_cmd *cmd, sector_t lba, u32 sg_num, int op,
 	bio->bi_private = cmd;
 	bio->bi_end_io = &iblock_bio_done;
 	bio->bi_iter.bi_sector = lba;
+<<<<<<< HEAD
 	bio_set_op_attrs(bio, op, op_flags);
+=======
+	bio->bi_opf = opf;
+>>>>>>> upstream/android-13
 
 	return bio;
 }
@@ -349,7 +427,14 @@ static void iblock_submit_bios(struct bio_list *list)
 {
 	struct blk_plug plug;
 	struct bio *bio;
+<<<<<<< HEAD
 
+=======
+	/*
+	 * The block layer handles nested plugs, so just plug/unplug to handle
+	 * fabric drivers that didn't support batching and multi bio cmds.
+	 */
+>>>>>>> upstream/android-13
 	blk_start_plug(&plug);
 	while ((bio = bio_list_pop(list)))
 		submit_bio(bio);
@@ -449,7 +534,11 @@ iblock_execute_zero_out(struct block_device *bdev, struct se_cmd *cmd)
 	if (ret)
 		return TCM_LOGICAL_UNIT_COMMUNICATION_FAILURE;
 
+<<<<<<< HEAD
 	target_complete_cmd(cmd, GOOD);
+=======
+	target_complete_cmd(cmd, SAM_STAT_GOOD);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -491,7 +580,11 @@ iblock_execute_write_same(struct se_cmd *cmd)
 		goto fail;
 	cmd->priv = ibr;
 
+<<<<<<< HEAD
 	bio = iblock_get_bio(cmd, block_lba, 1, REQ_OP_WRITE, 0);
+=======
+	bio = iblock_get_bio(cmd, block_lba, 1, REQ_OP_WRITE);
+>>>>>>> upstream/android-13
 	if (!bio)
 		goto fail_free_ibr;
 
@@ -504,8 +597,12 @@ iblock_execute_write_same(struct se_cmd *cmd)
 		while (bio_add_page(bio, sg_page(sg), sg->length, sg->offset)
 				!= sg->length) {
 
+<<<<<<< HEAD
 			bio = iblock_get_bio(cmd, block_lba, 1, REQ_OP_WRITE,
 					     0);
+=======
+			bio = iblock_get_bio(cmd, block_lba, 1, REQ_OP_WRITE);
+>>>>>>> upstream/android-13
 			if (!bio)
 				goto fail_put_bios;
 
@@ -624,9 +721,14 @@ static ssize_t iblock_show_configfs_dev_params(struct se_device *dev, char *b)
 	bl += sprintf(b + bl, "        ");
 	if (bd) {
 		bl += sprintf(b + bl, "Major: %d Minor: %d  %s\n",
+<<<<<<< HEAD
 			MAJOR(bd->bd_dev), MINOR(bd->bd_dev), (!bd->bd_contains) ?
 			"" : (bd->bd_holder == ib_dev) ?
 			"CLAIMED: IBLOCK" : "CLAIMED: OS");
+=======
+			MAJOR(bd->bd_dev), MINOR(bd->bd_dev),
+			"CLAIMED: IBLOCK");
+>>>>>>> upstream/android-13
 	} else {
 		bl += sprintf(b + bl, "Major: 0 Minor: 0\n");
 	}
@@ -635,14 +737,24 @@ static ssize_t iblock_show_configfs_dev_params(struct se_device *dev, char *b)
 }
 
 static int
+<<<<<<< HEAD
 iblock_alloc_bip(struct se_cmd *cmd, struct bio *bio)
+=======
+iblock_alloc_bip(struct se_cmd *cmd, struct bio *bio,
+		 struct sg_mapping_iter *miter)
+>>>>>>> upstream/android-13
 {
 	struct se_device *dev = cmd->se_dev;
 	struct blk_integrity *bi;
 	struct bio_integrity_payload *bip;
 	struct iblock_dev *ib_dev = IBLOCK_DEV(dev);
+<<<<<<< HEAD
 	struct scatterlist *sg;
 	int i, rc;
+=======
+	int rc;
+	size_t resid, len;
+>>>>>>> upstream/android-13
 
 	bi = bdev_get_integrity(ib_dev->ibd_bd);
 	if (!bi) {
@@ -650,19 +762,31 @@ iblock_alloc_bip(struct se_cmd *cmd, struct bio *bio)
 		return -ENODEV;
 	}
 
+<<<<<<< HEAD
 	bip = bio_integrity_alloc(bio, GFP_NOIO, cmd->t_prot_nents);
+=======
+	bip = bio_integrity_alloc(bio, GFP_NOIO, bio_max_segs(cmd->t_prot_nents));
+>>>>>>> upstream/android-13
 	if (IS_ERR(bip)) {
 		pr_err("Unable to allocate bio_integrity_payload\n");
 		return PTR_ERR(bip);
 	}
 
+<<<<<<< HEAD
 	bip->bip_iter.bi_size = (cmd->data_length / dev->dev_attrib.block_size) *
 			 dev->prot_length;
 	bip->bip_iter.bi_sector = bio->bi_iter.bi_sector;
+=======
+	bip->bip_iter.bi_size = bio_integrity_bytes(bi, bio_sectors(bio));
+	/* virtual start sector must be in integrity interval units */
+	bip_set_seed(bip, bio->bi_iter.bi_sector >>
+				  (bi->interval_exp - SECTOR_SHIFT));
+>>>>>>> upstream/android-13
 
 	pr_debug("IBLOCK BIP Size: %u Sector: %llu\n", bip->bip_iter.bi_size,
 		 (unsigned long long)bip->bip_iter.bi_sector);
 
+<<<<<<< HEAD
 	for_each_sg(cmd->t_prot_sg, sg, cmd->t_prot_nents, i) {
 
 		rc = bio_integrity_add_page(bio, sg_page(sg), sg->length,
@@ -675,6 +799,28 @@ iblock_alloc_bip(struct se_cmd *cmd, struct bio *bio)
 		pr_debug("Added bio integrity page: %p length: %d offset; %d\n",
 			 sg_page(sg), sg->length, sg->offset);
 	}
+=======
+	resid = bip->bip_iter.bi_size;
+	while (resid > 0 && sg_miter_next(miter)) {
+
+		len = min_t(size_t, miter->length, resid);
+		rc = bio_integrity_add_page(bio, miter->page, len,
+					    offset_in_page(miter->addr));
+		if (rc != len) {
+			pr_err("bio_integrity_add_page() failed; %d\n", rc);
+			sg_miter_stop(miter);
+			return -ENOMEM;
+		}
+
+		pr_debug("Added bio integrity page: %p length: %zu offset: %lu\n",
+			  miter->page, len, offset_in_page(miter->addr));
+
+		resid -= len;
+		if (len < miter->length)
+			miter->consumed -= miter->length - len;
+	}
+	sg_miter_stop(miter);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -686,12 +832,24 @@ iblock_execute_rw(struct se_cmd *cmd, struct scatterlist *sgl, u32 sgl_nents,
 	struct se_device *dev = cmd->se_dev;
 	sector_t block_lba = target_to_linux_sector(dev, cmd->t_task_lba);
 	struct iblock_req *ibr;
+<<<<<<< HEAD
 	struct bio *bio, *bio_start;
 	struct bio_list list;
 	struct scatterlist *sg;
 	u32 sg_num = sgl_nents;
 	unsigned bio_cnt;
 	int i, op, op_flags = 0;
+=======
+	struct bio *bio;
+	struct bio_list list;
+	struct scatterlist *sg;
+	u32 sg_num = sgl_nents;
+	unsigned int opf;
+	unsigned bio_cnt;
+	int i, rc;
+	struct sg_mapping_iter prot_miter;
+	unsigned int miter_dir;
+>>>>>>> upstream/android-13
 
 	if (data_direction == DMA_TO_DEVICE) {
 		struct iblock_dev *ib_dev = IBLOCK_DEV(dev);
@@ -700,6 +858,7 @@ iblock_execute_rw(struct se_cmd *cmd, struct scatterlist *sgl, u32 sgl_nents,
 		 * Force writethrough using REQ_FUA if a volatile write cache
 		 * is not enabled, or if initiator set the Force Unit Access bit.
 		 */
+<<<<<<< HEAD
 		op = REQ_OP_WRITE;
 		if (test_bit(QUEUE_FLAG_FUA, &q->queue_flags)) {
 			if (cmd->se_cmd_flags & SCF_FUA)
@@ -709,6 +868,19 @@ iblock_execute_rw(struct se_cmd *cmd, struct scatterlist *sgl, u32 sgl_nents,
 		}
 	} else {
 		op = REQ_OP_READ;
+=======
+		opf = REQ_OP_WRITE;
+		miter_dir = SG_MITER_TO_SG;
+		if (test_bit(QUEUE_FLAG_FUA, &q->queue_flags)) {
+			if (cmd->se_cmd_flags & SCF_FUA)
+				opf |= REQ_FUA;
+			else if (!test_bit(QUEUE_FLAG_WC, &q->queue_flags))
+				opf |= REQ_FUA;
+		}
+	} else {
+		opf = REQ_OP_READ;
+		miter_dir = SG_MITER_FROM_SG;
+>>>>>>> upstream/android-13
 	}
 
 	ibr = kzalloc(sizeof(struct iblock_req), GFP_KERNEL);
@@ -722,17 +894,31 @@ iblock_execute_rw(struct se_cmd *cmd, struct scatterlist *sgl, u32 sgl_nents,
 		return 0;
 	}
 
+<<<<<<< HEAD
 	bio = iblock_get_bio(cmd, block_lba, sgl_nents, op, op_flags);
 	if (!bio)
 		goto fail_free_ibr;
 
 	bio_start = bio;
+=======
+	bio = iblock_get_bio(cmd, block_lba, sgl_nents, opf);
+	if (!bio)
+		goto fail_free_ibr;
+
+>>>>>>> upstream/android-13
 	bio_list_init(&list);
 	bio_list_add(&list, bio);
 
 	refcount_set(&ibr->pending, 2);
 	bio_cnt = 1;
 
+<<<<<<< HEAD
+=======
+	if (cmd->prot_type && dev->dev_attrib.pi_prot_type)
+		sg_miter_start(&prot_miter, cmd->t_prot_sg, cmd->t_prot_nents,
+			       miter_dir);
+
+>>>>>>> upstream/android-13
 	for_each_sg(sgl, sg, sgl_nents, i) {
 		/*
 		 * XXX: if the length the device accepts is shorter than the
@@ -741,13 +927,26 @@ iblock_execute_rw(struct se_cmd *cmd, struct scatterlist *sgl, u32 sgl_nents,
 		 */
 		while (bio_add_page(bio, sg_page(sg), sg->length, sg->offset)
 				!= sg->length) {
+<<<<<<< HEAD
+=======
+			if (cmd->prot_type && dev->dev_attrib.pi_prot_type) {
+				rc = iblock_alloc_bip(cmd, bio, &prot_miter);
+				if (rc)
+					goto fail_put_bios;
+			}
+
+>>>>>>> upstream/android-13
 			if (bio_cnt >= IBLOCK_MAX_BIO_PER_TASK) {
 				iblock_submit_bios(&list);
 				bio_cnt = 0;
 			}
 
+<<<<<<< HEAD
 			bio = iblock_get_bio(cmd, block_lba, sg_num, op,
 					     op_flags);
+=======
+			bio = iblock_get_bio(cmd, block_lba, sg_num, opf);
+>>>>>>> upstream/android-13
 			if (!bio)
 				goto fail_put_bios;
 
@@ -762,7 +961,11 @@ iblock_execute_rw(struct se_cmd *cmd, struct scatterlist *sgl, u32 sgl_nents,
 	}
 
 	if (cmd->prot_type && dev->dev_attrib.pi_prot_type) {
+<<<<<<< HEAD
 		int rc = iblock_alloc_bip(cmd, bio_start);
+=======
+		rc = iblock_alloc_bip(cmd, bio, &prot_miter);
+>>>>>>> upstream/android-13
 		if (rc)
 			goto fail_put_bios;
 	}
@@ -807,7 +1010,12 @@ static unsigned int iblock_get_lbppbe(struct se_device *dev)
 {
 	struct iblock_dev *ib_dev = IBLOCK_DEV(dev);
 	struct block_device *bd = ib_dev->ibd_bd;
+<<<<<<< HEAD
 	int logs_per_phys = bdev_physical_block_size(bd) / bdev_logical_block_size(bd);
+=======
+	unsigned int logs_per_phys =
+		bdev_physical_block_size(bd) / bdev_logical_block_size(bd);
+>>>>>>> upstream/android-13
 
 	return ilog2(logs_per_phys);
 }
@@ -861,6 +1069,11 @@ static const struct target_backend_ops iblock_ops = {
 	.configure_device	= iblock_configure_device,
 	.destroy_device		= iblock_destroy_device,
 	.free_device		= iblock_free_device,
+<<<<<<< HEAD
+=======
+	.plug_device		= iblock_plug_device,
+	.unplug_device		= iblock_unplug_device,
+>>>>>>> upstream/android-13
 	.parse_cdb		= iblock_parse_cdb,
 	.set_configfs_dev_params = iblock_set_configfs_dev_params,
 	.show_configfs_dev_params = iblock_show_configfs_dev_params,

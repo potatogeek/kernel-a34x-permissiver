@@ -20,8 +20,11 @@
 #define UDF_FLAG_UNDELETE		6
 #define UDF_FLAG_UNHIDE			7
 #define UDF_FLAG_VARCONV		8
+<<<<<<< HEAD
 #define UDF_FLAG_NLS_MAP		9
 #define UDF_FLAG_UTF8			10
+=======
+>>>>>>> upstream/android-13
 #define UDF_FLAG_UID_FORGET     11    /* save -1 for uid to disk */
 #define UDF_FLAG_GID_FORGET     12
 #define UDF_FLAG_UID_SET	13
@@ -35,8 +38,11 @@
 
 #define UDF_PART_FLAG_UNALLOC_BITMAP	0x0001
 #define UDF_PART_FLAG_UNALLOC_TABLE	0x0002
+<<<<<<< HEAD
 #define UDF_PART_FLAG_FREED_BITMAP	0x0004
 #define UDF_PART_FLAG_FREED_TABLE	0x0008
+=======
+>>>>>>> upstream/android-13
 #define UDF_PART_FLAG_READ_ONLY		0x0010
 #define UDF_PART_FLAG_WRITE_ONCE	0x0020
 #define UDF_PART_FLAG_REWRITABLE	0x0040
@@ -52,8 +58,11 @@
 
 #define UDF_INVALID_MODE		((umode_t)-1)
 
+<<<<<<< HEAD
 #pragma pack(1) /* XXX(hch): Why?  This file just defines in-core structures */
 
+=======
+>>>>>>> upstream/android-13
 #define MF_DUPLICATE_MD		0x01
 #define MF_MIRROR_FE_LOADED	0x02
 
@@ -87,7 +96,11 @@ struct udf_virtual_data {
 struct udf_bitmap {
 	__u32			s_extPosition;
 	int			s_nr_groups;
+<<<<<<< HEAD
 	struct buffer_head 	*s_block_bitmap[0];
+=======
+	struct buffer_head	*s_block_bitmap[];
+>>>>>>> upstream/android-13
 };
 
 struct udf_part_map {
@@ -95,10 +108,13 @@ struct udf_part_map {
 		struct udf_bitmap	*s_bitmap;
 		struct inode		*s_table;
 	} s_uspace;
+<<<<<<< HEAD
 	union {
 		struct udf_bitmap	*s_bitmap;
 		struct inode		*s_table;
 	} s_fspace;
+=======
+>>>>>>> upstream/android-13
 	__u32	s_partition_root;
 	__u32	s_partition_len;
 	__u16	s_partition_type;

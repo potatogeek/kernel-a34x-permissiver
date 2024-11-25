@@ -547,7 +547,11 @@ static void frndint_(FPU_REG *st0_ptr, u_char st0_tag)
 		single_arg_error(st0_ptr, st0_tag);
 }
 
+<<<<<<< HEAD
 static int fsin(FPU_REG *st0_ptr, u_char tag)
+=======
+static int f_sin(FPU_REG *st0_ptr, u_char tag)
+>>>>>>> upstream/android-13
 {
 	u_char arg_sign = getsign(st0_ptr);
 
@@ -608,6 +612,14 @@ static int fsin(FPU_REG *st0_ptr, u_char tag)
 	}
 }
 
+<<<<<<< HEAD
+=======
+static void fsin(FPU_REG *st0_ptr, u_char tag)
+{
+	f_sin(st0_ptr, tag);
+}
+
+>>>>>>> upstream/android-13
 static int f_cos(FPU_REG *st0_ptr, u_char tag)
 {
 	u_char st0_sign;
@@ -724,7 +736,11 @@ static void fsincos(FPU_REG *st0_ptr, u_char st0_tag)
 	}
 
 	reg_copy(st0_ptr, &arg);
+<<<<<<< HEAD
 	if (!fsin(st0_ptr, st0_tag)) {
+=======
+	if (!f_sin(st0_ptr, st0_tag)) {
+>>>>>>> upstream/android-13
 		push();
 		FPU_copy_to_reg0(&arg, st0_tag);
 		f_cos(&st(0), st0_tag);
@@ -1352,7 +1368,11 @@ static void fyl2xp1(FPU_REG *st0_ptr, u_char st0_tag)
 		case TW_Denormal:
 			if (denormal_operand() < 0)
 				return;
+<<<<<<< HEAD
 
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case TAG_Zero:
 		case TAG_Valid:
 			setsign(st0_ptr, getsign(st0_ptr) ^ getsign(st1_ptr));
@@ -1635,7 +1655,11 @@ void FPU_triga(void)
 }
 
 static FUNC_ST0 const trig_table_b[] = {
+<<<<<<< HEAD
 	fprem, fyl2xp1, fsqrt_, fsincos, frndint_, fscale, (FUNC_ST0) fsin, fcos
+=======
+	fprem, fyl2xp1, fsqrt_, fsincos, frndint_, fscale, fsin, fcos
+>>>>>>> upstream/android-13
 };
 
 void FPU_trigb(void)

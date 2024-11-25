@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Cryptographic API for the NX-842 hardware compression.
  *
@@ -11,6 +12,12 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Cryptographic API for the NX-842 hardware compression.
+ *
+>>>>>>> upstream/android-13
  * Copyright (C) IBM Corporation, 2011-2015
  *
  * Designer of the Power data compression engine:
@@ -353,7 +360,11 @@ static int decompress(struct nx842_crypto_ctx *ctx,
 	unsigned int adj_slen = slen;
 	u8 *src = p->in, *dst = p->out;
 	u16 padding = be16_to_cpu(g->padding);
+<<<<<<< HEAD
 	int ret, spadding = 0, dpadding = 0;
+=======
+	int ret, spadding = 0;
+>>>>>>> upstream/android-13
 	ktime_t timeout;
 
 	if (!slen || !required_len)
@@ -413,7 +424,10 @@ usesw:
 		spadding = 0;
 		dst = p->out;
 		dlen = p->oremain;
+<<<<<<< HEAD
 		dpadding = 0;
+=======
+>>>>>>> upstream/android-13
 		if (dlen < required_len) { /* have ignore bytes */
 			dst = ctx->dbounce;
 			dlen = BOUNCE_BUFFER_SIZE;

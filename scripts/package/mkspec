@@ -12,6 +12,10 @@
 # how we were called determines which rpms we build and how we build them
 if [ "$1" = prebuilt ]; then
 	S=DEL
+<<<<<<< HEAD
+=======
+	MAKE="$MAKE -f $srctree/Makefile"
+>>>>>>> upstream/android-13
 else
 	S=
 fi
@@ -28,9 +32,15 @@ fi
 
 PROVIDES="$PROVIDES kernel-$KERNELRELEASE"
 __KERNELRELEASE=$(echo $KERNELRELEASE | sed -e "s/-/_/g")
+<<<<<<< HEAD
 EXCLUDES="$RCS_TAR_IGNORE --exclude=.tmp_versions --exclude=*vmlinux* \
 --exclude=*.o --exclude=*.ko --exclude=*.cmd --exclude=Documentation \
 --exclude=.config.old --exclude=.missing-syscalls.d"
+=======
+EXCLUDES="$RCS_TAR_IGNORE --exclude=*vmlinux* --exclude=*.mod \
+--exclude=*.o --exclude=*.ko --exclude=*.cmd --exclude=Documentation \
+--exclude=.config.old --exclude=.missing-syscalls.d --exclude=*.s"
+>>>>>>> upstream/android-13
 
 # We can label the here-doc lines for conditional output to the spec file
 #
@@ -45,7 +55,11 @@ sed -e '/^DEL/d' -e 's/^\t*//' <<EOF
 	License: GPL
 	Group: System Environment/Kernel
 	Vendor: The Linux Community
+<<<<<<< HEAD
 	URL: http://www.kernel.org
+=======
+	URL: https://www.kernel.org
+>>>>>>> upstream/android-13
 $S	Source: kernel-$__KERNELRELEASE.tar.gz
 	Provides: $PROVIDES
 	%define __spec_install_post /usr/lib/rpm/brp-compress || :
@@ -78,12 +92,17 @@ $S	%prep
 $S	%setup -q
 $S
 $S	%build
+<<<<<<< HEAD
 $S	make %{?_smp_mflags} KBUILD_BUILD_VERSION=%{release}
+=======
+$S	$MAKE %{?_smp_mflags} KBUILD_BUILD_VERSION=%{release}
+>>>>>>> upstream/android-13
 $S
 	%install
 	mkdir -p %{buildroot}/boot
 	%ifarch ia64
 	mkdir -p %{buildroot}/boot/efi
+<<<<<<< HEAD
 	cp \$(make image_name) %{buildroot}/boot/efi/vmlinuz-$KERNELRELEASE
 	ln -s efi/vmlinuz-$KERNELRELEASE %{buildroot}/boot/
 	%else
@@ -91,6 +110,15 @@ $S
 	%endif
 $M	make %{?_smp_mflags} INSTALL_MOD_PATH=%{buildroot} KBUILD_SRC= modules_install
 	make %{?_smp_mflags} INSTALL_HDR_PATH=%{buildroot}/usr KBUILD_SRC= headers_install
+=======
+	cp \$($MAKE image_name) %{buildroot}/boot/efi/vmlinuz-$KERNELRELEASE
+	ln -s efi/vmlinuz-$KERNELRELEASE %{buildroot}/boot/
+	%else
+	cp \$($MAKE image_name) %{buildroot}/boot/vmlinuz-$KERNELRELEASE
+	%endif
+$M	$MAKE %{?_smp_mflags} INSTALL_MOD_PATH=%{buildroot} modules_install
+	$MAKE %{?_smp_mflags} INSTALL_HDR_PATH=%{buildroot}/usr headers_install
+>>>>>>> upstream/android-13
 	cp System.map %{buildroot}/boot/System.map-$KERNELRELEASE
 	cp .config %{buildroot}/boot/config-$KERNELRELEASE
 	bzip2 -9 --keep vmlinux

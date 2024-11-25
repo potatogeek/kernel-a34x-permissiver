@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright Altera Corporation (C) 2013. All rights reserved
  *
@@ -13,6 +14,11 @@
  * You should have received a copy of the GNU General Public License along with
  * this program.  If not, see <http://www.gnu.org/licenses/>.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright Altera Corporation (C) 2013. All rights reserved
+>>>>>>> upstream/android-13
  */
 #ifndef __ASM_NIOS2_SYSCALLS_H
 #define __ASM_NIOS2_SYSCALLS_H

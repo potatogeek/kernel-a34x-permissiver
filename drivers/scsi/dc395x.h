@@ -156,6 +156,7 @@
 #define H_ABORT				0x0FF
 
 /* SCSI BUS Status byte codes */
+<<<<<<< HEAD
 #define SCSI_STAT_GOOD			0x0	/* Good status				*/
 #define SCSI_STAT_CHECKCOND		0x02	/* SCSI Check Condition			*/
 #define SCSI_STAT_CONDMET		0x04	/* Condition Met			*/
@@ -165,6 +166,8 @@
 #define SCSI_STAT_RESCONFLICT		0x18	/* Reservation conflict			*/
 #define SCSI_STAT_CMDTERM		0x22	/* Command Terminated			*/
 #define SCSI_STAT_QUEUEFULL		0x28	/* Queue Full				*/
+=======
+>>>>>>> upstream/android-13
 #define SCSI_STAT_UNEXP_BUS_F		0xFD	/* Unexpect Bus Free			*/
 #define SCSI_STAT_BUS_RST_DETECT	0xFE	/* Scsi Bus Reset detected		*/
 #define SCSI_STAT_SEL_TIMEOUT		0xFF	/* Selection Time out			*/
@@ -181,6 +184,7 @@
 
 #define SYNC_NEGO_OFFSET		15
 
+<<<<<<< HEAD
 /* SCSI MSG BYTE */
 #define MSG_COMPLETE			0x00
 #define MSG_EXTENDED			0x01
@@ -210,6 +214,8 @@
 #define STATUS_INTERMEDIATE		0x10
 #define RESERVE_CONFLICT		0x18
 
+=======
+>>>>>>> upstream/android-13
 /* cmd->result */
 #define STATUS_MASK_			0xFF
 #define MSG_MASK			0xFF00

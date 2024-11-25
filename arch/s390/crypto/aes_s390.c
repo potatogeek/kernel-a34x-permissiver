@@ -21,6 +21,10 @@
 #include <crypto/algapi.h>
 #include <crypto/ghash.h>
 #include <crypto/internal/aead.h>
+<<<<<<< HEAD
+=======
+#include <crypto/internal/cipher.h>
+>>>>>>> upstream/android-13
 #include <crypto/internal/skcipher.h>
 #include <crypto/scatterwalk.h>
 #include <linux/err.h>
@@ -44,7 +48,11 @@ struct s390_aes_ctx {
 	int key_len;
 	unsigned long fc;
 	union {
+<<<<<<< HEAD
 		struct crypto_skcipher *blk;
+=======
+		struct crypto_skcipher *skcipher;
+>>>>>>> upstream/android-13
 		struct crypto_cipher *cip;
 	} fallback;
 };
@@ -72,12 +80,16 @@ static int setkey_fallback_cip(struct crypto_tfm *tfm, const u8 *in_key,
 		unsigned int key_len)
 {
 	struct s390_aes_ctx *sctx = crypto_tfm_ctx(tfm);
+<<<<<<< HEAD
 	int ret;
+=======
+>>>>>>> upstream/android-13
 
 	sctx->fallback.cip->base.crt_flags &= ~CRYPTO_TFM_REQ_MASK;
 	sctx->fallback.cip->base.crt_flags |= (tfm->crt_flags &
 			CRYPTO_TFM_REQ_MASK);
 
+<<<<<<< HEAD
 	ret = crypto_cipher_setkey(sctx->fallback.cip, in_key, key_len);
 	if (ret) {
 		tfm->crt_flags &= ~CRYPTO_TFM_RES_MASK;
@@ -85,6 +97,9 @@ static int setkey_fallback_cip(struct crypto_tfm *tfm, const u8 *in_key,
 				CRYPTO_TFM_RES_MASK);
 	}
 	return ret;
+=======
+	return crypto_cipher_setkey(sctx->fallback.cip, in_key, key_len);
+>>>>>>> upstream/android-13
 }
 
 static int aes_set_key(struct crypto_tfm *tfm, const u8 *in_key,
@@ -108,7 +123,11 @@ static int aes_set_key(struct crypto_tfm *tfm, const u8 *in_key,
 	return 0;
 }
 
+<<<<<<< HEAD
 static void aes_encrypt(struct crypto_tfm *tfm, u8 *out, const u8 *in)
+=======
+static void crypto_aes_encrypt(struct crypto_tfm *tfm, u8 *out, const u8 *in)
+>>>>>>> upstream/android-13
 {
 	struct s390_aes_ctx *sctx = crypto_tfm_ctx(tfm);
 
@@ -119,7 +138,11 @@ static void aes_encrypt(struct crypto_tfm *tfm, u8 *out, const u8 *in)
 	cpacf_km(sctx->fc, &sctx->key, out, in, AES_BLOCK_SIZE);
 }
 
+<<<<<<< HEAD
 static void aes_decrypt(struct crypto_tfm *tfm, u8 *out, const u8 *in)
+=======
+static void crypto_aes_decrypt(struct crypto_tfm *tfm, u8 *out, const u8 *in)
+>>>>>>> upstream/android-13
 {
 	struct s390_aes_ctx *sctx = crypto_tfm_ctx(tfm);
 
@@ -137,7 +160,11 @@ static int fallback_init_cip(struct crypto_tfm *tfm)
 	struct s390_aes_ctx *sctx = crypto_tfm_ctx(tfm);
 
 	sctx->fallback.cip = crypto_alloc_cipher(name, 0,
+<<<<<<< HEAD
 			CRYPTO_ALG_ASYNC | CRYPTO_ALG_NEED_FALLBACK);
+=======
+						 CRYPTO_ALG_NEED_FALLBACK);
+>>>>>>> upstream/android-13
 
 	if (IS_ERR(sctx->fallback.cip)) {
 		pr_err("Allocating AES fallback algorithm %s failed\n",
@@ -172,12 +199,18 @@ static struct crypto_alg aes_alg = {
 			.cia_min_keysize	=	AES_MIN_KEY_SIZE,
 			.cia_max_keysize	=	AES_MAX_KEY_SIZE,
 			.cia_setkey		=	aes_set_key,
+<<<<<<< HEAD
 			.cia_encrypt		=	aes_encrypt,
 			.cia_decrypt		=	aes_decrypt,
+=======
+			.cia_encrypt		=	crypto_aes_encrypt,
+			.cia_decrypt		=	crypto_aes_decrypt,
+>>>>>>> upstream/android-13
 		}
 	}
 };
 
+<<<<<<< HEAD
 static int setkey_fallback_blk(struct crypto_tfm *tfm, const u8 *key,
 		unsigned int len)
 {
@@ -237,6 +270,38 @@ static int ecb_aes_set_key(struct crypto_tfm *tfm, const u8 *in_key,
 			   unsigned int key_len)
 {
 	struct s390_aes_ctx *sctx = crypto_tfm_ctx(tfm);
+=======
+static int setkey_fallback_skcipher(struct crypto_skcipher *tfm, const u8 *key,
+				    unsigned int len)
+{
+	struct s390_aes_ctx *sctx = crypto_skcipher_ctx(tfm);
+
+	crypto_skcipher_clear_flags(sctx->fallback.skcipher,
+				    CRYPTO_TFM_REQ_MASK);
+	crypto_skcipher_set_flags(sctx->fallback.skcipher,
+				  crypto_skcipher_get_flags(tfm) &
+				  CRYPTO_TFM_REQ_MASK);
+	return crypto_skcipher_setkey(sctx->fallback.skcipher, key, len);
+}
+
+static int fallback_skcipher_crypt(struct s390_aes_ctx *sctx,
+				   struct skcipher_request *req,
+				   unsigned long modifier)
+{
+	struct skcipher_request *subreq = skcipher_request_ctx(req);
+
+	*subreq = *req;
+	skcipher_request_set_tfm(subreq, sctx->fallback.skcipher);
+	return (modifier & CPACF_DECRYPT) ?
+		crypto_skcipher_decrypt(subreq) :
+		crypto_skcipher_encrypt(subreq);
+}
+
+static int ecb_aes_set_key(struct crypto_skcipher *tfm, const u8 *in_key,
+			   unsigned int key_len)
+{
+	struct s390_aes_ctx *sctx = crypto_skcipher_ctx(tfm);
+>>>>>>> upstream/android-13
 	unsigned long fc;
 
 	/* Pick the correct function code based on the key length */
@@ -247,13 +312,18 @@ static int ecb_aes_set_key(struct crypto_tfm *tfm, const u8 *in_key,
 	/* Check if the function code is available */
 	sctx->fc = (fc && cpacf_test_func(&km_functions, fc)) ? fc : 0;
 	if (!sctx->fc)
+<<<<<<< HEAD
 		return setkey_fallback_blk(tfm, in_key, key_len);
+=======
+		return setkey_fallback_skcipher(tfm, in_key, key_len);
+>>>>>>> upstream/android-13
 
 	sctx->key_len = key_len;
 	memcpy(sctx->key, in_key, key_len);
 	return 0;
 }
 
+<<<<<<< HEAD
 static int ecb_aes_crypt(struct blkcipher_desc *desc, unsigned long modifier,
 			 struct blkcipher_walk *walk)
 {
@@ -353,6 +423,87 @@ static int cbc_aes_set_key(struct crypto_tfm *tfm, const u8 *in_key,
 			   unsigned int key_len)
 {
 	struct s390_aes_ctx *sctx = crypto_tfm_ctx(tfm);
+=======
+static int ecb_aes_crypt(struct skcipher_request *req, unsigned long modifier)
+{
+	struct crypto_skcipher *tfm = crypto_skcipher_reqtfm(req);
+	struct s390_aes_ctx *sctx = crypto_skcipher_ctx(tfm);
+	struct skcipher_walk walk;
+	unsigned int nbytes, n;
+	int ret;
+
+	if (unlikely(!sctx->fc))
+		return fallback_skcipher_crypt(sctx, req, modifier);
+
+	ret = skcipher_walk_virt(&walk, req, false);
+	while ((nbytes = walk.nbytes) != 0) {
+		/* only use complete blocks */
+		n = nbytes & ~(AES_BLOCK_SIZE - 1);
+		cpacf_km(sctx->fc | modifier, sctx->key,
+			 walk.dst.virt.addr, walk.src.virt.addr, n);
+		ret = skcipher_walk_done(&walk, nbytes - n);
+	}
+	return ret;
+}
+
+static int ecb_aes_encrypt(struct skcipher_request *req)
+{
+	return ecb_aes_crypt(req, 0);
+}
+
+static int ecb_aes_decrypt(struct skcipher_request *req)
+{
+	return ecb_aes_crypt(req, CPACF_DECRYPT);
+}
+
+static int fallback_init_skcipher(struct crypto_skcipher *tfm)
+{
+	const char *name = crypto_tfm_alg_name(&tfm->base);
+	struct s390_aes_ctx *sctx = crypto_skcipher_ctx(tfm);
+
+	sctx->fallback.skcipher = crypto_alloc_skcipher(name, 0,
+				CRYPTO_ALG_NEED_FALLBACK | CRYPTO_ALG_ASYNC);
+
+	if (IS_ERR(sctx->fallback.skcipher)) {
+		pr_err("Allocating AES fallback algorithm %s failed\n",
+		       name);
+		return PTR_ERR(sctx->fallback.skcipher);
+	}
+
+	crypto_skcipher_set_reqsize(tfm, sizeof(struct skcipher_request) +
+				    crypto_skcipher_reqsize(sctx->fallback.skcipher));
+	return 0;
+}
+
+static void fallback_exit_skcipher(struct crypto_skcipher *tfm)
+{
+	struct s390_aes_ctx *sctx = crypto_skcipher_ctx(tfm);
+
+	crypto_free_skcipher(sctx->fallback.skcipher);
+}
+
+static struct skcipher_alg ecb_aes_alg = {
+	.base.cra_name		=	"ecb(aes)",
+	.base.cra_driver_name	=	"ecb-aes-s390",
+	.base.cra_priority	=	401,	/* combo: aes + ecb + 1 */
+	.base.cra_flags		=	CRYPTO_ALG_NEED_FALLBACK,
+	.base.cra_blocksize	=	AES_BLOCK_SIZE,
+	.base.cra_ctxsize	=	sizeof(struct s390_aes_ctx),
+	.base.cra_module	=	THIS_MODULE,
+	.init			=	fallback_init_skcipher,
+	.exit			=	fallback_exit_skcipher,
+	.min_keysize		=	AES_MIN_KEY_SIZE,
+	.max_keysize		=	AES_MAX_KEY_SIZE,
+	.setkey			=	ecb_aes_set_key,
+	.encrypt		=	ecb_aes_encrypt,
+	.decrypt		=	ecb_aes_decrypt,
+};
+
+static int cbc_aes_set_key(struct crypto_skcipher *tfm, const u8 *in_key,
+			   unsigned int key_len)
+{
+	struct s390_aes_ctx *sctx = crypto_skcipher_ctx(tfm);
+>>>>>>> upstream/android-13
 	unsigned long fc;
 
 	/* Pick the correct function code based on the key length */
@@ -363,17 +514,29 @@ static int cbc_aes_set_key(struct crypto_tfm *tfm, const u8 *in_key,
 	/* Check if the function code is available */
 	sctx->fc = (fc && cpacf_test_func(&kmc_functions, fc)) ? fc : 0;
 	if (!sctx->fc)
+<<<<<<< HEAD
 		return setkey_fallback_blk(tfm, in_key, key_len);
+=======
+		return setkey_fallback_skcipher(tfm, in_key, key_len);
+>>>>>>> upstream/android-13
 
 	sctx->key_len = key_len;
 	memcpy(sctx->key, in_key, key_len);
 	return 0;
 }
 
+<<<<<<< HEAD
 static int cbc_aes_crypt(struct blkcipher_desc *desc, unsigned long modifier,
 			 struct blkcipher_walk *walk)
 {
 	struct s390_aes_ctx *sctx = crypto_blkcipher_ctx(desc->tfm);
+=======
+static int cbc_aes_crypt(struct skcipher_request *req, unsigned long modifier)
+{
+	struct crypto_skcipher *tfm = crypto_skcipher_reqtfm(req);
+	struct s390_aes_ctx *sctx = crypto_skcipher_ctx(tfm);
+	struct skcipher_walk walk;
+>>>>>>> upstream/android-13
 	unsigned int nbytes, n;
 	int ret;
 	struct {
@@ -381,6 +544,7 @@ static int cbc_aes_crypt(struct blkcipher_desc *desc, unsigned long modifier,
 		u8 key[AES_MAX_KEY_SIZE];
 	} param;
 
+<<<<<<< HEAD
 	ret = blkcipher_walk_virt(desc, walk);
 	memcpy(param.iv, walk->iv, AES_BLOCK_SIZE);
 	memcpy(param.key, sctx->key, sctx->key_len);
@@ -512,14 +676,89 @@ static int xts_aes_set_key(struct crypto_tfm *tfm, const u8 *in_key,
 	int err;
 
 	err = xts_check_key(tfm, in_key, key_len);
+=======
+	if (unlikely(!sctx->fc))
+		return fallback_skcipher_crypt(sctx, req, modifier);
+
+	ret = skcipher_walk_virt(&walk, req, false);
+	if (ret)
+		return ret;
+	memcpy(param.iv, walk.iv, AES_BLOCK_SIZE);
+	memcpy(param.key, sctx->key, sctx->key_len);
+	while ((nbytes = walk.nbytes) != 0) {
+		/* only use complete blocks */
+		n = nbytes & ~(AES_BLOCK_SIZE - 1);
+		cpacf_kmc(sctx->fc | modifier, &param,
+			  walk.dst.virt.addr, walk.src.virt.addr, n);
+		memcpy(walk.iv, param.iv, AES_BLOCK_SIZE);
+		ret = skcipher_walk_done(&walk, nbytes - n);
+	}
+	memzero_explicit(&param, sizeof(param));
+	return ret;
+}
+
+static int cbc_aes_encrypt(struct skcipher_request *req)
+{
+	return cbc_aes_crypt(req, 0);
+}
+
+static int cbc_aes_decrypt(struct skcipher_request *req)
+{
+	return cbc_aes_crypt(req, CPACF_DECRYPT);
+}
+
+static struct skcipher_alg cbc_aes_alg = {
+	.base.cra_name		=	"cbc(aes)",
+	.base.cra_driver_name	=	"cbc-aes-s390",
+	.base.cra_priority	=	402,	/* ecb-aes-s390 + 1 */
+	.base.cra_flags		=	CRYPTO_ALG_NEED_FALLBACK,
+	.base.cra_blocksize	=	AES_BLOCK_SIZE,
+	.base.cra_ctxsize	=	sizeof(struct s390_aes_ctx),
+	.base.cra_module	=	THIS_MODULE,
+	.init			=	fallback_init_skcipher,
+	.exit			=	fallback_exit_skcipher,
+	.min_keysize		=	AES_MIN_KEY_SIZE,
+	.max_keysize		=	AES_MAX_KEY_SIZE,
+	.ivsize			=	AES_BLOCK_SIZE,
+	.setkey			=	cbc_aes_set_key,
+	.encrypt		=	cbc_aes_encrypt,
+	.decrypt		=	cbc_aes_decrypt,
+};
+
+static int xts_fallback_setkey(struct crypto_skcipher *tfm, const u8 *key,
+			       unsigned int len)
+{
+	struct s390_xts_ctx *xts_ctx = crypto_skcipher_ctx(tfm);
+
+	crypto_skcipher_clear_flags(xts_ctx->fallback, CRYPTO_TFM_REQ_MASK);
+	crypto_skcipher_set_flags(xts_ctx->fallback,
+				  crypto_skcipher_get_flags(tfm) &
+				  CRYPTO_TFM_REQ_MASK);
+	return crypto_skcipher_setkey(xts_ctx->fallback, key, len);
+}
+
+static int xts_aes_set_key(struct crypto_skcipher *tfm, const u8 *in_key,
+			   unsigned int key_len)
+{
+	struct s390_xts_ctx *xts_ctx = crypto_skcipher_ctx(tfm);
+	unsigned long fc;
+	int err;
+
+	err = xts_fallback_setkey(tfm, in_key, key_len);
+>>>>>>> upstream/android-13
 	if (err)
 		return err;
 
 	/* In fips mode only 128 bit or 256 bit keys are valid */
+<<<<<<< HEAD
 	if (fips_enabled && key_len != 32 && key_len != 64) {
 		tfm->crt_flags |= CRYPTO_TFM_RES_BAD_KEY_LEN;
 		return -EINVAL;
 	}
+=======
+	if (fips_enabled && key_len != 32 && key_len != 64)
+		return -EINVAL;
+>>>>>>> upstream/android-13
 
 	/* Pick the correct function code based on the key length */
 	fc = (key_len == 32) ? CPACF_KM_XTS_128 :
@@ -528,7 +767,11 @@ static int xts_aes_set_key(struct crypto_tfm *tfm, const u8 *in_key,
 	/* Check if the function code is available */
 	xts_ctx->fc = (fc && cpacf_test_func(&km_functions, fc)) ? fc : 0;
 	if (!xts_ctx->fc)
+<<<<<<< HEAD
 		return xts_fallback_setkey(tfm, in_key, key_len);
+=======
+		return 0;
+>>>>>>> upstream/android-13
 
 	/* Split the XTS key into the two subkeys */
 	key_len = key_len / 2;
@@ -538,10 +781,18 @@ static int xts_aes_set_key(struct crypto_tfm *tfm, const u8 *in_key,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int xts_aes_crypt(struct blkcipher_desc *desc, unsigned long modifier,
 			 struct blkcipher_walk *walk)
 {
 	struct s390_xts_ctx *xts_ctx = crypto_blkcipher_ctx(desc->tfm);
+=======
+static int xts_aes_crypt(struct skcipher_request *req, unsigned long modifier)
+{
+	struct crypto_skcipher *tfm = crypto_skcipher_reqtfm(req);
+	struct s390_xts_ctx *xts_ctx = crypto_skcipher_ctx(tfm);
+	struct skcipher_walk walk;
+>>>>>>> upstream/android-13
 	unsigned int offset, nbytes, n;
 	int ret;
 	struct {
@@ -556,18 +807,42 @@ static int xts_aes_crypt(struct blkcipher_desc *desc, unsigned long modifier,
 		u8 init[16];
 	} xts_param;
 
+<<<<<<< HEAD
 	ret = blkcipher_walk_virt(desc, walk);
+=======
+	if (req->cryptlen < AES_BLOCK_SIZE)
+		return -EINVAL;
+
+	if (unlikely(!xts_ctx->fc || (req->cryptlen % AES_BLOCK_SIZE) != 0)) {
+		struct skcipher_request *subreq = skcipher_request_ctx(req);
+
+		*subreq = *req;
+		skcipher_request_set_tfm(subreq, xts_ctx->fallback);
+		return (modifier & CPACF_DECRYPT) ?
+			crypto_skcipher_decrypt(subreq) :
+			crypto_skcipher_encrypt(subreq);
+	}
+
+	ret = skcipher_walk_virt(&walk, req, false);
+	if (ret)
+		return ret;
+>>>>>>> upstream/android-13
 	offset = xts_ctx->key_len & 0x10;
 	memset(pcc_param.block, 0, sizeof(pcc_param.block));
 	memset(pcc_param.bit, 0, sizeof(pcc_param.bit));
 	memset(pcc_param.xts, 0, sizeof(pcc_param.xts));
+<<<<<<< HEAD
 	memcpy(pcc_param.tweak, walk->iv, sizeof(pcc_param.tweak));
+=======
+	memcpy(pcc_param.tweak, walk.iv, sizeof(pcc_param.tweak));
+>>>>>>> upstream/android-13
 	memcpy(pcc_param.key + offset, xts_ctx->pcc_key, xts_ctx->key_len);
 	cpacf_pcc(xts_ctx->fc, pcc_param.key + offset);
 
 	memcpy(xts_param.key + offset, xts_ctx->key, xts_ctx->key_len);
 	memcpy(xts_param.init, pcc_param.xts, 16);
 
+<<<<<<< HEAD
 	while ((nbytes = walk->nbytes) >= AES_BLOCK_SIZE) {
 		/* only use complete blocks */
 		n = nbytes & ~(AES_BLOCK_SIZE - 1);
@@ -620,22 +895,65 @@ static int xts_fallback_init(struct crypto_tfm *tfm)
 	xts_ctx->fallback = crypto_alloc_skcipher(name, 0,
 						  CRYPTO_ALG_ASYNC |
 						  CRYPTO_ALG_NEED_FALLBACK);
+=======
+	while ((nbytes = walk.nbytes) != 0) {
+		/* only use complete blocks */
+		n = nbytes & ~(AES_BLOCK_SIZE - 1);
+		cpacf_km(xts_ctx->fc | modifier, xts_param.key + offset,
+			 walk.dst.virt.addr, walk.src.virt.addr, n);
+		ret = skcipher_walk_done(&walk, nbytes - n);
+	}
+	memzero_explicit(&pcc_param, sizeof(pcc_param));
+	memzero_explicit(&xts_param, sizeof(xts_param));
+	return ret;
+}
+
+static int xts_aes_encrypt(struct skcipher_request *req)
+{
+	return xts_aes_crypt(req, 0);
+}
+
+static int xts_aes_decrypt(struct skcipher_request *req)
+{
+	return xts_aes_crypt(req, CPACF_DECRYPT);
+}
+
+static int xts_fallback_init(struct crypto_skcipher *tfm)
+{
+	const char *name = crypto_tfm_alg_name(&tfm->base);
+	struct s390_xts_ctx *xts_ctx = crypto_skcipher_ctx(tfm);
+
+	xts_ctx->fallback = crypto_alloc_skcipher(name, 0,
+				CRYPTO_ALG_NEED_FALLBACK | CRYPTO_ALG_ASYNC);
+>>>>>>> upstream/android-13
 
 	if (IS_ERR(xts_ctx->fallback)) {
 		pr_err("Allocating XTS fallback algorithm %s failed\n",
 		       name);
 		return PTR_ERR(xts_ctx->fallback);
 	}
+<<<<<<< HEAD
 	return 0;
 }
 
 static void xts_fallback_exit(struct crypto_tfm *tfm)
 {
 	struct s390_xts_ctx *xts_ctx = crypto_tfm_ctx(tfm);
+=======
+	crypto_skcipher_set_reqsize(tfm, sizeof(struct skcipher_request) +
+				    crypto_skcipher_reqsize(xts_ctx->fallback));
+	return 0;
+}
+
+static void xts_fallback_exit(struct crypto_skcipher *tfm)
+{
+	struct s390_xts_ctx *xts_ctx = crypto_skcipher_ctx(tfm);
+>>>>>>> upstream/android-13
 
 	crypto_free_skcipher(xts_ctx->fallback);
 }
 
+<<<<<<< HEAD
 static struct crypto_alg xts_aes_alg = {
 	.cra_name		=	"xts(aes)",
 	.cra_driver_name	=	"xts-aes-s390",
@@ -664,6 +982,30 @@ static int ctr_aes_set_key(struct crypto_tfm *tfm, const u8 *in_key,
 			   unsigned int key_len)
 {
 	struct s390_aes_ctx *sctx = crypto_tfm_ctx(tfm);
+=======
+static struct skcipher_alg xts_aes_alg = {
+	.base.cra_name		=	"xts(aes)",
+	.base.cra_driver_name	=	"xts-aes-s390",
+	.base.cra_priority	=	402,	/* ecb-aes-s390 + 1 */
+	.base.cra_flags		=	CRYPTO_ALG_NEED_FALLBACK,
+	.base.cra_blocksize	=	AES_BLOCK_SIZE,
+	.base.cra_ctxsize	=	sizeof(struct s390_xts_ctx),
+	.base.cra_module	=	THIS_MODULE,
+	.init			=	xts_fallback_init,
+	.exit			=	xts_fallback_exit,
+	.min_keysize		=	2 * AES_MIN_KEY_SIZE,
+	.max_keysize		=	2 * AES_MAX_KEY_SIZE,
+	.ivsize			=	AES_BLOCK_SIZE,
+	.setkey			=	xts_aes_set_key,
+	.encrypt		=	xts_aes_encrypt,
+	.decrypt		=	xts_aes_decrypt,
+};
+
+static int ctr_aes_set_key(struct crypto_skcipher *tfm, const u8 *in_key,
+			   unsigned int key_len)
+{
+	struct s390_aes_ctx *sctx = crypto_skcipher_ctx(tfm);
+>>>>>>> upstream/android-13
 	unsigned long fc;
 
 	/* Pick the correct function code based on the key length */
@@ -674,7 +1016,11 @@ static int ctr_aes_set_key(struct crypto_tfm *tfm, const u8 *in_key,
 	/* Check if the function code is available */
 	sctx->fc = (fc && cpacf_test_func(&kmctr_functions, fc)) ? fc : 0;
 	if (!sctx->fc)
+<<<<<<< HEAD
 		return setkey_fallback_blk(tfm, in_key, key_len);
+=======
+		return setkey_fallback_skcipher(tfm, in_key, key_len);
+>>>>>>> upstream/android-13
 
 	sctx->key_len = key_len;
 	memcpy(sctx->key, in_key, key_len);
@@ -696,6 +1042,7 @@ static unsigned int __ctrblk_init(u8 *ctrptr, u8 *iv, unsigned int nbytes)
 	return n;
 }
 
+<<<<<<< HEAD
 static int ctr_aes_crypt(struct blkcipher_desc *desc, unsigned long modifier,
 			 struct blkcipher_walk *walk)
 {
@@ -720,6 +1067,36 @@ static int ctr_aes_crypt(struct blkcipher_desc *desc, unsigned long modifier,
 			       AES_BLOCK_SIZE);
 		crypto_inc(walk->iv, AES_BLOCK_SIZE);
 		ret = blkcipher_walk_done(desc, walk, nbytes - n);
+=======
+static int ctr_aes_crypt(struct skcipher_request *req)
+{
+	struct crypto_skcipher *tfm = crypto_skcipher_reqtfm(req);
+	struct s390_aes_ctx *sctx = crypto_skcipher_ctx(tfm);
+	u8 buf[AES_BLOCK_SIZE], *ctrptr;
+	struct skcipher_walk walk;
+	unsigned int n, nbytes;
+	int ret, locked;
+
+	if (unlikely(!sctx->fc))
+		return fallback_skcipher_crypt(sctx, req, 0);
+
+	locked = mutex_trylock(&ctrblk_lock);
+
+	ret = skcipher_walk_virt(&walk, req, false);
+	while ((nbytes = walk.nbytes) >= AES_BLOCK_SIZE) {
+		n = AES_BLOCK_SIZE;
+
+		if (nbytes >= 2*AES_BLOCK_SIZE && locked)
+			n = __ctrblk_init(ctrblk, walk.iv, nbytes);
+		ctrptr = (n > AES_BLOCK_SIZE) ? ctrblk : walk.iv;
+		cpacf_kmctr(sctx->fc, sctx->key, walk.dst.virt.addr,
+			    walk.src.virt.addr, n, ctrptr);
+		if (ctrptr == ctrblk)
+			memcpy(walk.iv, ctrptr + n - AES_BLOCK_SIZE,
+			       AES_BLOCK_SIZE);
+		crypto_inc(walk.iv, AES_BLOCK_SIZE);
+		ret = skcipher_walk_done(&walk, nbytes - n);
+>>>>>>> upstream/android-13
 	}
 	if (locked)
 		mutex_unlock(&ctrblk_lock);
@@ -727,17 +1104,26 @@ static int ctr_aes_crypt(struct blkcipher_desc *desc, unsigned long modifier,
 	 * final block may be < AES_BLOCK_SIZE, copy only nbytes
 	 */
 	if (nbytes) {
+<<<<<<< HEAD
 		cpacf_kmctr(sctx->fc | modifier, sctx->key,
 			    buf, walk->src.virt.addr,
 			    AES_BLOCK_SIZE, walk->iv);
 		memcpy(walk->dst.virt.addr, buf, nbytes);
 		crypto_inc(walk->iv, AES_BLOCK_SIZE);
 		ret = blkcipher_walk_done(desc, walk, 0);
+=======
+		cpacf_kmctr(sctx->fc, sctx->key, buf, walk.src.virt.addr,
+			    AES_BLOCK_SIZE, walk.iv);
+		memcpy(walk.dst.virt.addr, buf, nbytes);
+		crypto_inc(walk.iv, AES_BLOCK_SIZE);
+		ret = skcipher_walk_done(&walk, 0);
+>>>>>>> upstream/android-13
 	}
 
 	return ret;
 }
 
+<<<<<<< HEAD
 static int ctr_aes_encrypt(struct blkcipher_desc *desc,
 			   struct scatterlist *dst, struct scatterlist *src,
 			   unsigned int nbytes)
@@ -788,6 +1174,25 @@ static struct crypto_alg ctr_aes_alg = {
 			.decrypt		=	ctr_aes_decrypt,
 		}
 	}
+=======
+static struct skcipher_alg ctr_aes_alg = {
+	.base.cra_name		=	"ctr(aes)",
+	.base.cra_driver_name	=	"ctr-aes-s390",
+	.base.cra_priority	=	402,	/* ecb-aes-s390 + 1 */
+	.base.cra_flags		=	CRYPTO_ALG_NEED_FALLBACK,
+	.base.cra_blocksize	=	1,
+	.base.cra_ctxsize	=	sizeof(struct s390_aes_ctx),
+	.base.cra_module	=	THIS_MODULE,
+	.init			=	fallback_init_skcipher,
+	.exit			=	fallback_exit_skcipher,
+	.min_keysize		=	AES_MIN_KEY_SIZE,
+	.max_keysize		=	AES_MAX_KEY_SIZE,
+	.ivsize			=	AES_BLOCK_SIZE,
+	.setkey			=	ctr_aes_set_key,
+	.encrypt		=	ctr_aes_crypt,
+	.decrypt		=	ctr_aes_crypt,
+	.chunksize		=	AES_BLOCK_SIZE,
+>>>>>>> upstream/android-13
 };
 
 static int gcm_aes_setkey(struct crypto_aead *tfm, const u8 *key,
@@ -1116,6 +1521,7 @@ static struct aead_alg gcm_aes_aead = {
 	},
 };
 
+<<<<<<< HEAD
 static struct crypto_alg *aes_s390_algs_ptr[5];
 static int aes_s390_algs_num;
 static struct aead_alg *aes_s390_aead_alg;
@@ -1127,13 +1533,34 @@ static int aes_s390_register_alg(struct crypto_alg *alg)
 	ret = crypto_register_alg(alg);
 	if (!ret)
 		aes_s390_algs_ptr[aes_s390_algs_num++] = alg;
+=======
+static struct crypto_alg *aes_s390_alg;
+static struct skcipher_alg *aes_s390_skcipher_algs[4];
+static int aes_s390_skciphers_num;
+static struct aead_alg *aes_s390_aead_alg;
+
+static int aes_s390_register_skcipher(struct skcipher_alg *alg)
+{
+	int ret;
+
+	ret = crypto_register_skcipher(alg);
+	if (!ret)
+		aes_s390_skcipher_algs[aes_s390_skciphers_num++] = alg;
+>>>>>>> upstream/android-13
 	return ret;
 }
 
 static void aes_s390_fini(void)
 {
+<<<<<<< HEAD
 	while (aes_s390_algs_num--)
 		crypto_unregister_alg(aes_s390_algs_ptr[aes_s390_algs_num]);
+=======
+	if (aes_s390_alg)
+		crypto_unregister_alg(aes_s390_alg);
+	while (aes_s390_skciphers_num--)
+		crypto_unregister_skcipher(aes_s390_skcipher_algs[aes_s390_skciphers_num]);
+>>>>>>> upstream/android-13
 	if (ctrblk)
 		free_page((unsigned long) ctrblk);
 
@@ -1154,10 +1581,18 @@ static int __init aes_s390_init(void)
 	if (cpacf_test_func(&km_functions, CPACF_KM_AES_128) ||
 	    cpacf_test_func(&km_functions, CPACF_KM_AES_192) ||
 	    cpacf_test_func(&km_functions, CPACF_KM_AES_256)) {
+<<<<<<< HEAD
 		ret = aes_s390_register_alg(&aes_alg);
 		if (ret)
 			goto out_err;
 		ret = aes_s390_register_alg(&ecb_aes_alg);
+=======
+		ret = crypto_register_alg(&aes_alg);
+		if (ret)
+			goto out_err;
+		aes_s390_alg = &aes_alg;
+		ret = aes_s390_register_skcipher(&ecb_aes_alg);
+>>>>>>> upstream/android-13
 		if (ret)
 			goto out_err;
 	}
@@ -1165,14 +1600,22 @@ static int __init aes_s390_init(void)
 	if (cpacf_test_func(&kmc_functions, CPACF_KMC_AES_128) ||
 	    cpacf_test_func(&kmc_functions, CPACF_KMC_AES_192) ||
 	    cpacf_test_func(&kmc_functions, CPACF_KMC_AES_256)) {
+<<<<<<< HEAD
 		ret = aes_s390_register_alg(&cbc_aes_alg);
+=======
+		ret = aes_s390_register_skcipher(&cbc_aes_alg);
+>>>>>>> upstream/android-13
 		if (ret)
 			goto out_err;
 	}
 
 	if (cpacf_test_func(&km_functions, CPACF_KM_XTS_128) ||
 	    cpacf_test_func(&km_functions, CPACF_KM_XTS_256)) {
+<<<<<<< HEAD
 		ret = aes_s390_register_alg(&xts_aes_alg);
+=======
+		ret = aes_s390_register_skcipher(&xts_aes_alg);
+>>>>>>> upstream/android-13
 		if (ret)
 			goto out_err;
 	}
@@ -1185,7 +1628,11 @@ static int __init aes_s390_init(void)
 			ret = -ENOMEM;
 			goto out_err;
 		}
+<<<<<<< HEAD
 		ret = aes_s390_register_alg(&ctr_aes_alg);
+=======
+		ret = aes_s390_register_skcipher(&ctr_aes_alg);
+>>>>>>> upstream/android-13
 		if (ret)
 			goto out_err;
 	}
@@ -1212,3 +1659,7 @@ MODULE_ALIAS_CRYPTO("aes-all");
 
 MODULE_DESCRIPTION("Rijndael (AES) Cipher Algorithm");
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
+=======
+MODULE_IMPORT_NS(CRYPTO_INTERNAL);
+>>>>>>> upstream/android-13

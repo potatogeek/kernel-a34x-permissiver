@@ -46,12 +46,21 @@ gf117_volt = {
 };
 
 int
+<<<<<<< HEAD
 gf117_volt_new(struct nvkm_device *device, int index, struct nvkm_volt **pvolt)
+=======
+gf117_volt_new(struct nvkm_device *device, enum nvkm_subdev_type type, int inst,
+	       struct nvkm_volt **pvolt)
+>>>>>>> upstream/android-13
 {
 	struct nvkm_volt *volt;
 	int ret;
 
+<<<<<<< HEAD
 	ret = nvkm_volt_new_(&gf117_volt, device, index, &volt);
+=======
+	ret = nvkm_volt_new_(&gf117_volt, device, type, inst, &volt);
+>>>>>>> upstream/android-13
 	*pvolt = volt;
 	if (ret)
 		return ret;

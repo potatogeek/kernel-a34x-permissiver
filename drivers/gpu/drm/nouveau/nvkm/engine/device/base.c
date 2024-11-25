@@ -71,12 +71,17 @@ nvkm_device_list(u64 *name, int size)
 static const struct nvkm_device_chip
 null_chipset = {
 	.name = "NULL",
+<<<<<<< HEAD
 	.bios = nvkm_bios_new,
+=======
+	.bios     = { 0x00000001, nvkm_bios_new },
+>>>>>>> upstream/android-13
 };
 
 static const struct nvkm_device_chip
 nv4_chipset = {
 	.name = "NV04",
+<<<<<<< HEAD
 	.bios = nvkm_bios_new,
 	.bus = nv04_bus_new,
 	.clk = nv04_clk_new,
@@ -93,11 +98,30 @@ nv4_chipset = {
 	.fifo = nv04_fifo_new,
 	.gr = nv04_gr_new,
 	.sw = nv04_sw_new,
+=======
+	.bios     = { 0x00000001, nvkm_bios_new },
+	.bus      = { 0x00000001, nv04_bus_new },
+	.clk      = { 0x00000001, nv04_clk_new },
+	.devinit  = { 0x00000001, nv04_devinit_new },
+	.fb       = { 0x00000001, nv04_fb_new },
+	.i2c      = { 0x00000001, nv04_i2c_new },
+	.imem     = { 0x00000001, nv04_instmem_new },
+	.mc       = { 0x00000001, nv04_mc_new },
+	.mmu      = { 0x00000001, nv04_mmu_new },
+	.pci      = { 0x00000001, nv04_pci_new },
+	.timer    = { 0x00000001, nv04_timer_new },
+	.disp     = { 0x00000001, nv04_disp_new },
+	.dma      = { 0x00000001, nv04_dma_new },
+	.fifo     = { 0x00000001, nv04_fifo_new },
+	.gr       = { 0x00000001, nv04_gr_new },
+	.sw       = { 0x00000001, nv04_sw_new },
+>>>>>>> upstream/android-13
 };
 
 static const struct nvkm_device_chip
 nv5_chipset = {
 	.name = "NV05",
+<<<<<<< HEAD
 	.bios = nvkm_bios_new,
 	.bus = nv04_bus_new,
 	.clk = nv04_clk_new,
@@ -114,11 +138,30 @@ nv5_chipset = {
 	.fifo = nv04_fifo_new,
 	.gr = nv04_gr_new,
 	.sw = nv04_sw_new,
+=======
+	.bios     = { 0x00000001, nvkm_bios_new },
+	.bus      = { 0x00000001, nv04_bus_new },
+	.clk      = { 0x00000001, nv04_clk_new },
+	.devinit  = { 0x00000001, nv05_devinit_new },
+	.fb       = { 0x00000001, nv04_fb_new },
+	.i2c      = { 0x00000001, nv04_i2c_new },
+	.imem     = { 0x00000001, nv04_instmem_new },
+	.mc       = { 0x00000001, nv04_mc_new },
+	.mmu      = { 0x00000001, nv04_mmu_new },
+	.pci      = { 0x00000001, nv04_pci_new },
+	.timer    = { 0x00000001, nv04_timer_new },
+	.disp     = { 0x00000001, nv04_disp_new },
+	.dma      = { 0x00000001, nv04_dma_new },
+	.fifo     = { 0x00000001, nv04_fifo_new },
+	.gr       = { 0x00000001, nv04_gr_new },
+	.sw       = { 0x00000001, nv04_sw_new },
+>>>>>>> upstream/android-13
 };
 
 static const struct nvkm_device_chip
 nv10_chipset = {
 	.name = "NV10",
+<<<<<<< HEAD
 	.bios = nvkm_bios_new,
 	.bus = nv04_bus_new,
 	.clk = nv04_clk_new,
@@ -134,11 +177,29 @@ nv10_chipset = {
 	.disp = nv04_disp_new,
 	.dma = nv04_dma_new,
 	.gr = nv10_gr_new,
+=======
+	.bios     = { 0x00000001, nvkm_bios_new },
+	.bus      = { 0x00000001, nv04_bus_new },
+	.clk      = { 0x00000001, nv04_clk_new },
+	.devinit  = { 0x00000001, nv10_devinit_new },
+	.fb       = { 0x00000001, nv10_fb_new },
+	.gpio     = { 0x00000001, nv10_gpio_new },
+	.i2c      = { 0x00000001, nv04_i2c_new },
+	.imem     = { 0x00000001, nv04_instmem_new },
+	.mc       = { 0x00000001, nv04_mc_new },
+	.mmu      = { 0x00000001, nv04_mmu_new },
+	.pci      = { 0x00000001, nv04_pci_new },
+	.timer    = { 0x00000001, nv04_timer_new },
+	.disp     = { 0x00000001, nv04_disp_new },
+	.dma      = { 0x00000001, nv04_dma_new },
+	.gr       = { 0x00000001, nv10_gr_new },
+>>>>>>> upstream/android-13
 };
 
 static const struct nvkm_device_chip
 nv11_chipset = {
 	.name = "NV11",
+<<<<<<< HEAD
 	.bios = nvkm_bios_new,
 	.bus = nv04_bus_new,
 	.clk = nv04_clk_new,
@@ -156,11 +217,31 @@ nv11_chipset = {
 	.fifo = nv10_fifo_new,
 	.gr = nv15_gr_new,
 	.sw = nv10_sw_new,
+=======
+	.bios     = { 0x00000001, nvkm_bios_new },
+	.bus      = { 0x00000001, nv04_bus_new },
+	.clk      = { 0x00000001, nv04_clk_new },
+	.devinit  = { 0x00000001, nv10_devinit_new },
+	.fb       = { 0x00000001, nv10_fb_new },
+	.gpio     = { 0x00000001, nv10_gpio_new },
+	.i2c      = { 0x00000001, nv04_i2c_new },
+	.imem     = { 0x00000001, nv04_instmem_new },
+	.mc       = { 0x00000001, nv11_mc_new },
+	.mmu      = { 0x00000001, nv04_mmu_new },
+	.pci      = { 0x00000001, nv04_pci_new },
+	.timer    = { 0x00000001, nv04_timer_new },
+	.disp     = { 0x00000001, nv04_disp_new },
+	.dma      = { 0x00000001, nv04_dma_new },
+	.fifo     = { 0x00000001, nv10_fifo_new },
+	.gr       = { 0x00000001, nv15_gr_new },
+	.sw       = { 0x00000001, nv10_sw_new },
+>>>>>>> upstream/android-13
 };
 
 static const struct nvkm_device_chip
 nv15_chipset = {
 	.name = "NV15",
+<<<<<<< HEAD
 	.bios = nvkm_bios_new,
 	.bus = nv04_bus_new,
 	.clk = nv04_clk_new,
@@ -178,11 +259,31 @@ nv15_chipset = {
 	.fifo = nv10_fifo_new,
 	.gr = nv15_gr_new,
 	.sw = nv10_sw_new,
+=======
+	.bios     = { 0x00000001, nvkm_bios_new },
+	.bus      = { 0x00000001, nv04_bus_new },
+	.clk      = { 0x00000001, nv04_clk_new },
+	.devinit  = { 0x00000001, nv10_devinit_new },
+	.fb       = { 0x00000001, nv10_fb_new },
+	.gpio     = { 0x00000001, nv10_gpio_new },
+	.i2c      = { 0x00000001, nv04_i2c_new },
+	.imem     = { 0x00000001, nv04_instmem_new },
+	.mc       = { 0x00000001, nv04_mc_new },
+	.mmu      = { 0x00000001, nv04_mmu_new },
+	.pci      = { 0x00000001, nv04_pci_new },
+	.timer    = { 0x00000001, nv04_timer_new },
+	.disp     = { 0x00000001, nv04_disp_new },
+	.dma      = { 0x00000001, nv04_dma_new },
+	.fifo     = { 0x00000001, nv10_fifo_new },
+	.gr       = { 0x00000001, nv15_gr_new },
+	.sw       = { 0x00000001, nv10_sw_new },
+>>>>>>> upstream/android-13
 };
 
 static const struct nvkm_device_chip
 nv17_chipset = {
 	.name = "NV17",
+<<<<<<< HEAD
 	.bios = nvkm_bios_new,
 	.bus = nv04_bus_new,
 	.clk = nv04_clk_new,
@@ -200,11 +301,31 @@ nv17_chipset = {
 	.fifo = nv17_fifo_new,
 	.gr = nv17_gr_new,
 	.sw = nv10_sw_new,
+=======
+	.bios     = { 0x00000001, nvkm_bios_new },
+	.bus      = { 0x00000001, nv04_bus_new },
+	.clk      = { 0x00000001, nv04_clk_new },
+	.devinit  = { 0x00000001, nv10_devinit_new },
+	.fb       = { 0x00000001, nv10_fb_new },
+	.gpio     = { 0x00000001, nv10_gpio_new },
+	.i2c      = { 0x00000001, nv04_i2c_new },
+	.imem     = { 0x00000001, nv04_instmem_new },
+	.mc       = { 0x00000001, nv17_mc_new },
+	.mmu      = { 0x00000001, nv04_mmu_new },
+	.pci      = { 0x00000001, nv04_pci_new },
+	.timer    = { 0x00000001, nv04_timer_new },
+	.disp     = { 0x00000001, nv04_disp_new },
+	.dma      = { 0x00000001, nv04_dma_new },
+	.fifo     = { 0x00000001, nv17_fifo_new },
+	.gr       = { 0x00000001, nv17_gr_new },
+	.sw       = { 0x00000001, nv10_sw_new },
+>>>>>>> upstream/android-13
 };
 
 static const struct nvkm_device_chip
 nv18_chipset = {
 	.name = "NV18",
+<<<<<<< HEAD
 	.bios = nvkm_bios_new,
 	.bus = nv04_bus_new,
 	.clk = nv04_clk_new,
@@ -222,11 +343,31 @@ nv18_chipset = {
 	.fifo = nv17_fifo_new,
 	.gr = nv17_gr_new,
 	.sw = nv10_sw_new,
+=======
+	.bios     = { 0x00000001, nvkm_bios_new },
+	.bus      = { 0x00000001, nv04_bus_new },
+	.clk      = { 0x00000001, nv04_clk_new },
+	.devinit  = { 0x00000001, nv10_devinit_new },
+	.fb       = { 0x00000001, nv10_fb_new },
+	.gpio     = { 0x00000001, nv10_gpio_new },
+	.i2c      = { 0x00000001, nv04_i2c_new },
+	.imem     = { 0x00000001, nv04_instmem_new },
+	.mc       = { 0x00000001, nv17_mc_new },
+	.mmu      = { 0x00000001, nv04_mmu_new },
+	.pci      = { 0x00000001, nv04_pci_new },
+	.timer    = { 0x00000001, nv04_timer_new },
+	.disp     = { 0x00000001, nv04_disp_new },
+	.dma      = { 0x00000001, nv04_dma_new },
+	.fifo     = { 0x00000001, nv17_fifo_new },
+	.gr       = { 0x00000001, nv17_gr_new },
+	.sw       = { 0x00000001, nv10_sw_new },
+>>>>>>> upstream/android-13
 };
 
 static const struct nvkm_device_chip
 nv1a_chipset = {
 	.name = "nForce",
+<<<<<<< HEAD
 	.bios = nvkm_bios_new,
 	.bus = nv04_bus_new,
 	.clk = nv04_clk_new,
@@ -244,11 +385,31 @@ nv1a_chipset = {
 	.fifo = nv10_fifo_new,
 	.gr = nv15_gr_new,
 	.sw = nv10_sw_new,
+=======
+	.bios     = { 0x00000001, nvkm_bios_new },
+	.bus      = { 0x00000001, nv04_bus_new },
+	.clk      = { 0x00000001, nv04_clk_new },
+	.devinit  = { 0x00000001, nv1a_devinit_new },
+	.fb       = { 0x00000001, nv1a_fb_new },
+	.gpio     = { 0x00000001, nv10_gpio_new },
+	.i2c      = { 0x00000001, nv04_i2c_new },
+	.imem     = { 0x00000001, nv04_instmem_new },
+	.mc       = { 0x00000001, nv04_mc_new },
+	.mmu      = { 0x00000001, nv04_mmu_new },
+	.pci      = { 0x00000001, nv04_pci_new },
+	.timer    = { 0x00000001, nv04_timer_new },
+	.disp     = { 0x00000001, nv04_disp_new },
+	.dma      = { 0x00000001, nv04_dma_new },
+	.fifo     = { 0x00000001, nv10_fifo_new },
+	.gr       = { 0x00000001, nv15_gr_new },
+	.sw       = { 0x00000001, nv10_sw_new },
+>>>>>>> upstream/android-13
 };
 
 static const struct nvkm_device_chip
 nv1f_chipset = {
 	.name = "nForce2",
+<<<<<<< HEAD
 	.bios = nvkm_bios_new,
 	.bus = nv04_bus_new,
 	.clk = nv04_clk_new,
@@ -266,11 +427,31 @@ nv1f_chipset = {
 	.fifo = nv17_fifo_new,
 	.gr = nv17_gr_new,
 	.sw = nv10_sw_new,
+=======
+	.bios     = { 0x00000001, nvkm_bios_new },
+	.bus      = { 0x00000001, nv04_bus_new },
+	.clk      = { 0x00000001, nv04_clk_new },
+	.devinit  = { 0x00000001, nv1a_devinit_new },
+	.fb       = { 0x00000001, nv1a_fb_new },
+	.gpio     = { 0x00000001, nv10_gpio_new },
+	.i2c      = { 0x00000001, nv04_i2c_new },
+	.imem     = { 0x00000001, nv04_instmem_new },
+	.mc       = { 0x00000001, nv17_mc_new },
+	.mmu      = { 0x00000001, nv04_mmu_new },
+	.pci      = { 0x00000001, nv04_pci_new },
+	.timer    = { 0x00000001, nv04_timer_new },
+	.disp     = { 0x00000001, nv04_disp_new },
+	.dma      = { 0x00000001, nv04_dma_new },
+	.fifo     = { 0x00000001, nv17_fifo_new },
+	.gr       = { 0x00000001, nv17_gr_new },
+	.sw       = { 0x00000001, nv10_sw_new },
+>>>>>>> upstream/android-13
 };
 
 static const struct nvkm_device_chip
 nv20_chipset = {
 	.name = "NV20",
+<<<<<<< HEAD
 	.bios = nvkm_bios_new,
 	.bus = nv04_bus_new,
 	.clk = nv04_clk_new,
@@ -288,11 +469,31 @@ nv20_chipset = {
 	.fifo = nv17_fifo_new,
 	.gr = nv20_gr_new,
 	.sw = nv10_sw_new,
+=======
+	.bios     = { 0x00000001, nvkm_bios_new },
+	.bus      = { 0x00000001, nv04_bus_new },
+	.clk      = { 0x00000001, nv04_clk_new },
+	.devinit  = { 0x00000001, nv20_devinit_new },
+	.fb       = { 0x00000001, nv20_fb_new },
+	.gpio     = { 0x00000001, nv10_gpio_new },
+	.i2c      = { 0x00000001, nv04_i2c_new },
+	.imem     = { 0x00000001, nv04_instmem_new },
+	.mc       = { 0x00000001, nv17_mc_new },
+	.mmu      = { 0x00000001, nv04_mmu_new },
+	.pci      = { 0x00000001, nv04_pci_new },
+	.timer    = { 0x00000001, nv04_timer_new },
+	.disp     = { 0x00000001, nv04_disp_new },
+	.dma      = { 0x00000001, nv04_dma_new },
+	.fifo     = { 0x00000001, nv17_fifo_new },
+	.gr       = { 0x00000001, nv20_gr_new },
+	.sw       = { 0x00000001, nv10_sw_new },
+>>>>>>> upstream/android-13
 };
 
 static const struct nvkm_device_chip
 nv25_chipset = {
 	.name = "NV25",
+<<<<<<< HEAD
 	.bios = nvkm_bios_new,
 	.bus = nv04_bus_new,
 	.clk = nv04_clk_new,
@@ -310,11 +511,31 @@ nv25_chipset = {
 	.fifo = nv17_fifo_new,
 	.gr = nv25_gr_new,
 	.sw = nv10_sw_new,
+=======
+	.bios     = { 0x00000001, nvkm_bios_new },
+	.bus      = { 0x00000001, nv04_bus_new },
+	.clk      = { 0x00000001, nv04_clk_new },
+	.devinit  = { 0x00000001, nv20_devinit_new },
+	.fb       = { 0x00000001, nv25_fb_new },
+	.gpio     = { 0x00000001, nv10_gpio_new },
+	.i2c      = { 0x00000001, nv04_i2c_new },
+	.imem     = { 0x00000001, nv04_instmem_new },
+	.mc       = { 0x00000001, nv17_mc_new },
+	.mmu      = { 0x00000001, nv04_mmu_new },
+	.pci      = { 0x00000001, nv04_pci_new },
+	.timer    = { 0x00000001, nv04_timer_new },
+	.disp     = { 0x00000001, nv04_disp_new },
+	.dma      = { 0x00000001, nv04_dma_new },
+	.fifo     = { 0x00000001, nv17_fifo_new },
+	.gr       = { 0x00000001, nv25_gr_new },
+	.sw       = { 0x00000001, nv10_sw_new },
+>>>>>>> upstream/android-13
 };
 
 static const struct nvkm_device_chip
 nv28_chipset = {
 	.name = "NV28",
+<<<<<<< HEAD
 	.bios = nvkm_bios_new,
 	.bus = nv04_bus_new,
 	.clk = nv04_clk_new,
@@ -332,11 +553,31 @@ nv28_chipset = {
 	.fifo = nv17_fifo_new,
 	.gr = nv25_gr_new,
 	.sw = nv10_sw_new,
+=======
+	.bios     = { 0x00000001, nvkm_bios_new },
+	.bus      = { 0x00000001, nv04_bus_new },
+	.clk      = { 0x00000001, nv04_clk_new },
+	.devinit  = { 0x00000001, nv20_devinit_new },
+	.fb       = { 0x00000001, nv25_fb_new },
+	.gpio     = { 0x00000001, nv10_gpio_new },
+	.i2c      = { 0x00000001, nv04_i2c_new },
+	.imem     = { 0x00000001, nv04_instmem_new },
+	.mc       = { 0x00000001, nv17_mc_new },
+	.mmu      = { 0x00000001, nv04_mmu_new },
+	.pci      = { 0x00000001, nv04_pci_new },
+	.timer    = { 0x00000001, nv04_timer_new },
+	.disp     = { 0x00000001, nv04_disp_new },
+	.dma      = { 0x00000001, nv04_dma_new },
+	.fifo     = { 0x00000001, nv17_fifo_new },
+	.gr       = { 0x00000001, nv25_gr_new },
+	.sw       = { 0x00000001, nv10_sw_new },
+>>>>>>> upstream/android-13
 };
 
 static const struct nvkm_device_chip
 nv2a_chipset = {
 	.name = "NV2A",
+<<<<<<< HEAD
 	.bios = nvkm_bios_new,
 	.bus = nv04_bus_new,
 	.clk = nv04_clk_new,
@@ -354,11 +595,31 @@ nv2a_chipset = {
 	.fifo = nv17_fifo_new,
 	.gr = nv2a_gr_new,
 	.sw = nv10_sw_new,
+=======
+	.bios     = { 0x00000001, nvkm_bios_new },
+	.bus      = { 0x00000001, nv04_bus_new },
+	.clk      = { 0x00000001, nv04_clk_new },
+	.devinit  = { 0x00000001, nv20_devinit_new },
+	.fb       = { 0x00000001, nv25_fb_new },
+	.gpio     = { 0x00000001, nv10_gpio_new },
+	.i2c      = { 0x00000001, nv04_i2c_new },
+	.imem     = { 0x00000001, nv04_instmem_new },
+	.mc       = { 0x00000001, nv17_mc_new },
+	.mmu      = { 0x00000001, nv04_mmu_new },
+	.pci      = { 0x00000001, nv04_pci_new },
+	.timer    = { 0x00000001, nv04_timer_new },
+	.disp     = { 0x00000001, nv04_disp_new },
+	.dma      = { 0x00000001, nv04_dma_new },
+	.fifo     = { 0x00000001, nv17_fifo_new },
+	.gr       = { 0x00000001, nv2a_gr_new },
+	.sw       = { 0x00000001, nv10_sw_new },
+>>>>>>> upstream/android-13
 };
 
 static const struct nvkm_device_chip
 nv30_chipset = {
 	.name = "NV30",
+<<<<<<< HEAD
 	.bios = nvkm_bios_new,
 	.bus = nv04_bus_new,
 	.clk = nv04_clk_new,
@@ -376,11 +637,31 @@ nv30_chipset = {
 	.fifo = nv17_fifo_new,
 	.gr = nv30_gr_new,
 	.sw = nv10_sw_new,
+=======
+	.bios     = { 0x00000001, nvkm_bios_new },
+	.bus      = { 0x00000001, nv04_bus_new },
+	.clk      = { 0x00000001, nv04_clk_new },
+	.devinit  = { 0x00000001, nv20_devinit_new },
+	.fb       = { 0x00000001, nv30_fb_new },
+	.gpio     = { 0x00000001, nv10_gpio_new },
+	.i2c      = { 0x00000001, nv04_i2c_new },
+	.imem     = { 0x00000001, nv04_instmem_new },
+	.mc       = { 0x00000001, nv17_mc_new },
+	.mmu      = { 0x00000001, nv04_mmu_new },
+	.pci      = { 0x00000001, nv04_pci_new },
+	.timer    = { 0x00000001, nv04_timer_new },
+	.disp     = { 0x00000001, nv04_disp_new },
+	.dma      = { 0x00000001, nv04_dma_new },
+	.fifo     = { 0x00000001, nv17_fifo_new },
+	.gr       = { 0x00000001, nv30_gr_new },
+	.sw       = { 0x00000001, nv10_sw_new },
+>>>>>>> upstream/android-13
 };
 
 static const struct nvkm_device_chip
 nv31_chipset = {
 	.name = "NV31",
+<<<<<<< HEAD
 	.bios = nvkm_bios_new,
 	.bus = nv31_bus_new,
 	.clk = nv04_clk_new,
@@ -399,11 +680,32 @@ nv31_chipset = {
 	.gr = nv30_gr_new,
 	.mpeg = nv31_mpeg_new,
 	.sw = nv10_sw_new,
+=======
+	.bios     = { 0x00000001, nvkm_bios_new },
+	.bus      = { 0x00000001, nv31_bus_new },
+	.clk      = { 0x00000001, nv04_clk_new },
+	.devinit  = { 0x00000001, nv20_devinit_new },
+	.fb       = { 0x00000001, nv30_fb_new },
+	.gpio     = { 0x00000001, nv10_gpio_new },
+	.i2c      = { 0x00000001, nv04_i2c_new },
+	.imem     = { 0x00000001, nv04_instmem_new },
+	.mc       = { 0x00000001, nv17_mc_new },
+	.mmu      = { 0x00000001, nv04_mmu_new },
+	.pci      = { 0x00000001, nv04_pci_new },
+	.timer    = { 0x00000001, nv04_timer_new },
+	.disp     = { 0x00000001, nv04_disp_new },
+	.dma      = { 0x00000001, nv04_dma_new },
+	.fifo     = { 0x00000001, nv17_fifo_new },
+	.gr       = { 0x00000001, nv30_gr_new },
+	.mpeg     = { 0x00000001, nv31_mpeg_new },
+	.sw       = { 0x00000001, nv10_sw_new },
+>>>>>>> upstream/android-13
 };
 
 static const struct nvkm_device_chip
 nv34_chipset = {
 	.name = "NV34",
+<<<<<<< HEAD
 	.bios = nvkm_bios_new,
 	.bus = nv31_bus_new,
 	.clk = nv04_clk_new,
@@ -422,11 +724,32 @@ nv34_chipset = {
 	.gr = nv34_gr_new,
 	.mpeg = nv31_mpeg_new,
 	.sw = nv10_sw_new,
+=======
+	.bios     = { 0x00000001, nvkm_bios_new },
+	.bus      = { 0x00000001, nv31_bus_new },
+	.clk      = { 0x00000001, nv04_clk_new },
+	.devinit  = { 0x00000001, nv10_devinit_new },
+	.fb       = { 0x00000001, nv10_fb_new },
+	.gpio     = { 0x00000001, nv10_gpio_new },
+	.i2c      = { 0x00000001, nv04_i2c_new },
+	.imem     = { 0x00000001, nv04_instmem_new },
+	.mc       = { 0x00000001, nv17_mc_new },
+	.mmu      = { 0x00000001, nv04_mmu_new },
+	.pci      = { 0x00000001, nv04_pci_new },
+	.timer    = { 0x00000001, nv04_timer_new },
+	.disp     = { 0x00000001, nv04_disp_new },
+	.dma      = { 0x00000001, nv04_dma_new },
+	.fifo     = { 0x00000001, nv17_fifo_new },
+	.gr       = { 0x00000001, nv34_gr_new },
+	.mpeg     = { 0x00000001, nv31_mpeg_new },
+	.sw       = { 0x00000001, nv10_sw_new },
+>>>>>>> upstream/android-13
 };
 
 static const struct nvkm_device_chip
 nv35_chipset = {
 	.name = "NV35",
+<<<<<<< HEAD
 	.bios = nvkm_bios_new,
 	.bus = nv04_bus_new,
 	.clk = nv04_clk_new,
@@ -444,11 +767,31 @@ nv35_chipset = {
 	.fifo = nv17_fifo_new,
 	.gr = nv35_gr_new,
 	.sw = nv10_sw_new,
+=======
+	.bios     = { 0x00000001, nvkm_bios_new },
+	.bus      = { 0x00000001, nv04_bus_new },
+	.clk      = { 0x00000001, nv04_clk_new },
+	.devinit  = { 0x00000001, nv20_devinit_new },
+	.fb       = { 0x00000001, nv35_fb_new },
+	.gpio     = { 0x00000001, nv10_gpio_new },
+	.i2c      = { 0x00000001, nv04_i2c_new },
+	.imem     = { 0x00000001, nv04_instmem_new },
+	.mc       = { 0x00000001, nv17_mc_new },
+	.mmu      = { 0x00000001, nv04_mmu_new },
+	.pci      = { 0x00000001, nv04_pci_new },
+	.timer    = { 0x00000001, nv04_timer_new },
+	.disp     = { 0x00000001, nv04_disp_new },
+	.dma      = { 0x00000001, nv04_dma_new },
+	.fifo     = { 0x00000001, nv17_fifo_new },
+	.gr       = { 0x00000001, nv35_gr_new },
+	.sw       = { 0x00000001, nv10_sw_new },
+>>>>>>> upstream/android-13
 };
 
 static const struct nvkm_device_chip
 nv36_chipset = {
 	.name = "NV36",
+<<<<<<< HEAD
 	.bios = nvkm_bios_new,
 	.bus = nv31_bus_new,
 	.clk = nv04_clk_new,
@@ -467,11 +810,32 @@ nv36_chipset = {
 	.gr = nv35_gr_new,
 	.mpeg = nv31_mpeg_new,
 	.sw = nv10_sw_new,
+=======
+	.bios     = { 0x00000001, nvkm_bios_new },
+	.bus      = { 0x00000001, nv31_bus_new },
+	.clk      = { 0x00000001, nv04_clk_new },
+	.devinit  = { 0x00000001, nv20_devinit_new },
+	.fb       = { 0x00000001, nv36_fb_new },
+	.gpio     = { 0x00000001, nv10_gpio_new },
+	.i2c      = { 0x00000001, nv04_i2c_new },
+	.imem     = { 0x00000001, nv04_instmem_new },
+	.mc       = { 0x00000001, nv17_mc_new },
+	.mmu      = { 0x00000001, nv04_mmu_new },
+	.pci      = { 0x00000001, nv04_pci_new },
+	.timer    = { 0x00000001, nv04_timer_new },
+	.disp     = { 0x00000001, nv04_disp_new },
+	.dma      = { 0x00000001, nv04_dma_new },
+	.fifo     = { 0x00000001, nv17_fifo_new },
+	.gr       = { 0x00000001, nv35_gr_new },
+	.mpeg     = { 0x00000001, nv31_mpeg_new },
+	.sw       = { 0x00000001, nv10_sw_new },
+>>>>>>> upstream/android-13
 };
 
 static const struct nvkm_device_chip
 nv40_chipset = {
 	.name = "NV40",
+<<<<<<< HEAD
 	.bios = nvkm_bios_new,
 	.bus = nv31_bus_new,
 	.clk = nv40_clk_new,
@@ -493,11 +857,35 @@ nv40_chipset = {
 	.mpeg = nv40_mpeg_new,
 	.pm = nv40_pm_new,
 	.sw = nv10_sw_new,
+=======
+	.bios     = { 0x00000001, nvkm_bios_new },
+	.bus      = { 0x00000001, nv31_bus_new },
+	.clk      = { 0x00000001, nv40_clk_new },
+	.devinit  = { 0x00000001, nv1a_devinit_new },
+	.fb       = { 0x00000001, nv40_fb_new },
+	.gpio     = { 0x00000001, nv10_gpio_new },
+	.i2c      = { 0x00000001, nv04_i2c_new },
+	.imem     = { 0x00000001, nv40_instmem_new },
+	.mc       = { 0x00000001, nv17_mc_new },
+	.mmu      = { 0x00000001, nv04_mmu_new },
+	.pci      = { 0x00000001, nv40_pci_new },
+	.therm    = { 0x00000001, nv40_therm_new },
+	.timer    = { 0x00000001, nv40_timer_new },
+	.volt     = { 0x00000001, nv40_volt_new },
+	.disp     = { 0x00000001, nv04_disp_new },
+	.dma      = { 0x00000001, nv04_dma_new },
+	.fifo     = { 0x00000001, nv40_fifo_new },
+	.gr       = { 0x00000001, nv40_gr_new },
+	.mpeg     = { 0x00000001, nv40_mpeg_new },
+	.pm       = { 0x00000001, nv40_pm_new },
+	.sw       = { 0x00000001, nv10_sw_new },
+>>>>>>> upstream/android-13
 };
 
 static const struct nvkm_device_chip
 nv41_chipset = {
 	.name = "NV41",
+<<<<<<< HEAD
 	.bios = nvkm_bios_new,
 	.bus = nv31_bus_new,
 	.clk = nv40_clk_new,
@@ -519,11 +907,35 @@ nv41_chipset = {
 	.mpeg = nv40_mpeg_new,
 	.pm = nv40_pm_new,
 	.sw = nv10_sw_new,
+=======
+	.bios     = { 0x00000001, nvkm_bios_new },
+	.bus      = { 0x00000001, nv31_bus_new },
+	.clk      = { 0x00000001, nv40_clk_new },
+	.devinit  = { 0x00000001, nv1a_devinit_new },
+	.fb       = { 0x00000001, nv41_fb_new },
+	.gpio     = { 0x00000001, nv10_gpio_new },
+	.i2c      = { 0x00000001, nv04_i2c_new },
+	.imem     = { 0x00000001, nv40_instmem_new },
+	.mc       = { 0x00000001, nv17_mc_new },
+	.mmu      = { 0x00000001, nv41_mmu_new },
+	.pci      = { 0x00000001, nv40_pci_new },
+	.therm    = { 0x00000001, nv40_therm_new },
+	.timer    = { 0x00000001, nv41_timer_new },
+	.volt     = { 0x00000001, nv40_volt_new },
+	.disp     = { 0x00000001, nv04_disp_new },
+	.dma      = { 0x00000001, nv04_dma_new },
+	.fifo     = { 0x00000001, nv40_fifo_new },
+	.gr       = { 0x00000001, nv40_gr_new },
+	.mpeg     = { 0x00000001, nv40_mpeg_new },
+	.pm       = { 0x00000001, nv40_pm_new },
+	.sw       = { 0x00000001, nv10_sw_new },
+>>>>>>> upstream/android-13
 };
 
 static const struct nvkm_device_chip
 nv42_chipset = {
 	.name = "NV42",
+<<<<<<< HEAD
 	.bios = nvkm_bios_new,
 	.bus = nv31_bus_new,
 	.clk = nv40_clk_new,
@@ -545,11 +957,35 @@ nv42_chipset = {
 	.mpeg = nv40_mpeg_new,
 	.pm = nv40_pm_new,
 	.sw = nv10_sw_new,
+=======
+	.bios     = { 0x00000001, nvkm_bios_new },
+	.bus      = { 0x00000001, nv31_bus_new },
+	.clk      = { 0x00000001, nv40_clk_new },
+	.devinit  = { 0x00000001, nv1a_devinit_new },
+	.fb       = { 0x00000001, nv41_fb_new },
+	.gpio     = { 0x00000001, nv10_gpio_new },
+	.i2c      = { 0x00000001, nv04_i2c_new },
+	.imem     = { 0x00000001, nv40_instmem_new },
+	.mc       = { 0x00000001, nv17_mc_new },
+	.mmu      = { 0x00000001, nv41_mmu_new },
+	.pci      = { 0x00000001, nv40_pci_new },
+	.therm    = { 0x00000001, nv40_therm_new },
+	.timer    = { 0x00000001, nv41_timer_new },
+	.volt     = { 0x00000001, nv40_volt_new },
+	.disp     = { 0x00000001, nv04_disp_new },
+	.dma      = { 0x00000001, nv04_dma_new },
+	.fifo     = { 0x00000001, nv40_fifo_new },
+	.gr       = { 0x00000001, nv40_gr_new },
+	.mpeg     = { 0x00000001, nv40_mpeg_new },
+	.pm       = { 0x00000001, nv40_pm_new },
+	.sw       = { 0x00000001, nv10_sw_new },
+>>>>>>> upstream/android-13
 };
 
 static const struct nvkm_device_chip
 nv43_chipset = {
 	.name = "NV43",
+<<<<<<< HEAD
 	.bios = nvkm_bios_new,
 	.bus = nv31_bus_new,
 	.clk = nv40_clk_new,
@@ -571,11 +1007,35 @@ nv43_chipset = {
 	.mpeg = nv40_mpeg_new,
 	.pm = nv40_pm_new,
 	.sw = nv10_sw_new,
+=======
+	.bios     = { 0x00000001, nvkm_bios_new },
+	.bus      = { 0x00000001, nv31_bus_new },
+	.clk      = { 0x00000001, nv40_clk_new },
+	.devinit  = { 0x00000001, nv1a_devinit_new },
+	.fb       = { 0x00000001, nv41_fb_new },
+	.gpio     = { 0x00000001, nv10_gpio_new },
+	.i2c      = { 0x00000001, nv04_i2c_new },
+	.imem     = { 0x00000001, nv40_instmem_new },
+	.mc       = { 0x00000001, nv17_mc_new },
+	.mmu      = { 0x00000001, nv41_mmu_new },
+	.pci      = { 0x00000001, nv40_pci_new },
+	.therm    = { 0x00000001, nv40_therm_new },
+	.timer    = { 0x00000001, nv41_timer_new },
+	.volt     = { 0x00000001, nv40_volt_new },
+	.disp     = { 0x00000001, nv04_disp_new },
+	.dma      = { 0x00000001, nv04_dma_new },
+	.fifo     = { 0x00000001, nv40_fifo_new },
+	.gr       = { 0x00000001, nv40_gr_new },
+	.mpeg     = { 0x00000001, nv40_mpeg_new },
+	.pm       = { 0x00000001, nv40_pm_new },
+	.sw       = { 0x00000001, nv10_sw_new },
+>>>>>>> upstream/android-13
 };
 
 static const struct nvkm_device_chip
 nv44_chipset = {
 	.name = "NV44",
+<<<<<<< HEAD
 	.bios = nvkm_bios_new,
 	.bus = nv31_bus_new,
 	.clk = nv40_clk_new,
@@ -597,11 +1057,35 @@ nv44_chipset = {
 	.mpeg = nv44_mpeg_new,
 	.pm = nv40_pm_new,
 	.sw = nv10_sw_new,
+=======
+	.bios     = { 0x00000001, nvkm_bios_new },
+	.bus      = { 0x00000001, nv31_bus_new },
+	.clk      = { 0x00000001, nv40_clk_new },
+	.devinit  = { 0x00000001, nv1a_devinit_new },
+	.fb       = { 0x00000001, nv44_fb_new },
+	.gpio     = { 0x00000001, nv10_gpio_new },
+	.i2c      = { 0x00000001, nv04_i2c_new },
+	.imem     = { 0x00000001, nv40_instmem_new },
+	.mc       = { 0x00000001, nv44_mc_new },
+	.mmu      = { 0x00000001, nv44_mmu_new },
+	.pci      = { 0x00000001, nv40_pci_new },
+	.therm    = { 0x00000001, nv40_therm_new },
+	.timer    = { 0x00000001, nv41_timer_new },
+	.volt     = { 0x00000001, nv40_volt_new },
+	.disp     = { 0x00000001, nv04_disp_new },
+	.dma      = { 0x00000001, nv04_dma_new },
+	.fifo     = { 0x00000001, nv40_fifo_new },
+	.gr       = { 0x00000001, nv44_gr_new },
+	.mpeg     = { 0x00000001, nv44_mpeg_new },
+	.pm       = { 0x00000001, nv40_pm_new },
+	.sw       = { 0x00000001, nv10_sw_new },
+>>>>>>> upstream/android-13
 };
 
 static const struct nvkm_device_chip
 nv45_chipset = {
 	.name = "NV45",
+<<<<<<< HEAD
 	.bios = nvkm_bios_new,
 	.bus = nv31_bus_new,
 	.clk = nv40_clk_new,
@@ -623,11 +1107,35 @@ nv45_chipset = {
 	.mpeg = nv44_mpeg_new,
 	.pm = nv40_pm_new,
 	.sw = nv10_sw_new,
+=======
+	.bios     = { 0x00000001, nvkm_bios_new },
+	.bus      = { 0x00000001, nv31_bus_new },
+	.clk      = { 0x00000001, nv40_clk_new },
+	.devinit  = { 0x00000001, nv1a_devinit_new },
+	.fb       = { 0x00000001, nv40_fb_new },
+	.gpio     = { 0x00000001, nv10_gpio_new },
+	.i2c      = { 0x00000001, nv04_i2c_new },
+	.imem     = { 0x00000001, nv40_instmem_new },
+	.mc       = { 0x00000001, nv17_mc_new },
+	.mmu      = { 0x00000001, nv04_mmu_new },
+	.pci      = { 0x00000001, nv40_pci_new },
+	.therm    = { 0x00000001, nv40_therm_new },
+	.timer    = { 0x00000001, nv41_timer_new },
+	.volt     = { 0x00000001, nv40_volt_new },
+	.disp     = { 0x00000001, nv04_disp_new },
+	.dma      = { 0x00000001, nv04_dma_new },
+	.fifo     = { 0x00000001, nv40_fifo_new },
+	.gr       = { 0x00000001, nv40_gr_new },
+	.mpeg     = { 0x00000001, nv44_mpeg_new },
+	.pm       = { 0x00000001, nv40_pm_new },
+	.sw       = { 0x00000001, nv10_sw_new },
+>>>>>>> upstream/android-13
 };
 
 static const struct nvkm_device_chip
 nv46_chipset = {
 	.name = "G72",
+<<<<<<< HEAD
 	.bios = nvkm_bios_new,
 	.bus = nv31_bus_new,
 	.clk = nv40_clk_new,
@@ -649,11 +1157,35 @@ nv46_chipset = {
 	.mpeg = nv44_mpeg_new,
 	.pm = nv40_pm_new,
 	.sw = nv10_sw_new,
+=======
+	.bios     = { 0x00000001, nvkm_bios_new },
+	.bus      = { 0x00000001, nv31_bus_new },
+	.clk      = { 0x00000001, nv40_clk_new },
+	.devinit  = { 0x00000001, nv1a_devinit_new },
+	.fb       = { 0x00000001, nv46_fb_new },
+	.gpio     = { 0x00000001, nv10_gpio_new },
+	.i2c      = { 0x00000001, nv04_i2c_new },
+	.imem     = { 0x00000001, nv40_instmem_new },
+	.mc       = { 0x00000001, nv44_mc_new },
+	.mmu      = { 0x00000001, nv44_mmu_new },
+	.pci      = { 0x00000001, nv46_pci_new },
+	.therm    = { 0x00000001, nv40_therm_new },
+	.timer    = { 0x00000001, nv41_timer_new },
+	.volt     = { 0x00000001, nv40_volt_new },
+	.disp     = { 0x00000001, nv04_disp_new },
+	.dma      = { 0x00000001, nv04_dma_new },
+	.fifo     = { 0x00000001, nv40_fifo_new },
+	.gr       = { 0x00000001, nv44_gr_new },
+	.mpeg     = { 0x00000001, nv44_mpeg_new },
+	.pm       = { 0x00000001, nv40_pm_new },
+	.sw       = { 0x00000001, nv10_sw_new },
+>>>>>>> upstream/android-13
 };
 
 static const struct nvkm_device_chip
 nv47_chipset = {
 	.name = "G70",
+<<<<<<< HEAD
 	.bios = nvkm_bios_new,
 	.bus = nv31_bus_new,
 	.clk = nv40_clk_new,
@@ -675,11 +1207,35 @@ nv47_chipset = {
 	.mpeg = nv44_mpeg_new,
 	.pm = nv40_pm_new,
 	.sw = nv10_sw_new,
+=======
+	.bios     = { 0x00000001, nvkm_bios_new },
+	.bus      = { 0x00000001, nv31_bus_new },
+	.clk      = { 0x00000001, nv40_clk_new },
+	.devinit  = { 0x00000001, nv1a_devinit_new },
+	.fb       = { 0x00000001, nv47_fb_new },
+	.gpio     = { 0x00000001, nv10_gpio_new },
+	.i2c      = { 0x00000001, nv04_i2c_new },
+	.imem     = { 0x00000001, nv40_instmem_new },
+	.mc       = { 0x00000001, nv17_mc_new },
+	.mmu      = { 0x00000001, nv41_mmu_new },
+	.pci      = { 0x00000001, nv40_pci_new },
+	.therm    = { 0x00000001, nv40_therm_new },
+	.timer    = { 0x00000001, nv41_timer_new },
+	.volt     = { 0x00000001, nv40_volt_new },
+	.disp     = { 0x00000001, nv04_disp_new },
+	.dma      = { 0x00000001, nv04_dma_new },
+	.fifo     = { 0x00000001, nv40_fifo_new },
+	.gr       = { 0x00000001, nv40_gr_new },
+	.mpeg     = { 0x00000001, nv44_mpeg_new },
+	.pm       = { 0x00000001, nv40_pm_new },
+	.sw       = { 0x00000001, nv10_sw_new },
+>>>>>>> upstream/android-13
 };
 
 static const struct nvkm_device_chip
 nv49_chipset = {
 	.name = "G71",
+<<<<<<< HEAD
 	.bios = nvkm_bios_new,
 	.bus = nv31_bus_new,
 	.clk = nv40_clk_new,
@@ -701,11 +1257,35 @@ nv49_chipset = {
 	.mpeg = nv44_mpeg_new,
 	.pm = nv40_pm_new,
 	.sw = nv10_sw_new,
+=======
+	.bios     = { 0x00000001, nvkm_bios_new },
+	.bus      = { 0x00000001, nv31_bus_new },
+	.clk      = { 0x00000001, nv40_clk_new },
+	.devinit  = { 0x00000001, nv1a_devinit_new },
+	.fb       = { 0x00000001, nv49_fb_new },
+	.gpio     = { 0x00000001, nv10_gpio_new },
+	.i2c      = { 0x00000001, nv04_i2c_new },
+	.imem     = { 0x00000001, nv40_instmem_new },
+	.mc       = { 0x00000001, nv17_mc_new },
+	.mmu      = { 0x00000001, nv41_mmu_new },
+	.pci      = { 0x00000001, nv40_pci_new },
+	.therm    = { 0x00000001, nv40_therm_new },
+	.timer    = { 0x00000001, nv41_timer_new },
+	.volt     = { 0x00000001, nv40_volt_new },
+	.disp     = { 0x00000001, nv04_disp_new },
+	.dma      = { 0x00000001, nv04_dma_new },
+	.fifo     = { 0x00000001, nv40_fifo_new },
+	.gr       = { 0x00000001, nv40_gr_new },
+	.mpeg     = { 0x00000001, nv44_mpeg_new },
+	.pm       = { 0x00000001, nv40_pm_new },
+	.sw       = { 0x00000001, nv10_sw_new },
+>>>>>>> upstream/android-13
 };
 
 static const struct nvkm_device_chip
 nv4a_chipset = {
 	.name = "NV44A",
+<<<<<<< HEAD
 	.bios = nvkm_bios_new,
 	.bus = nv31_bus_new,
 	.clk = nv40_clk_new,
@@ -727,11 +1307,35 @@ nv4a_chipset = {
 	.mpeg = nv44_mpeg_new,
 	.pm = nv40_pm_new,
 	.sw = nv10_sw_new,
+=======
+	.bios     = { 0x00000001, nvkm_bios_new },
+	.bus      = { 0x00000001, nv31_bus_new },
+	.clk      = { 0x00000001, nv40_clk_new },
+	.devinit  = { 0x00000001, nv1a_devinit_new },
+	.fb       = { 0x00000001, nv44_fb_new },
+	.gpio     = { 0x00000001, nv10_gpio_new },
+	.i2c      = { 0x00000001, nv04_i2c_new },
+	.imem     = { 0x00000001, nv40_instmem_new },
+	.mc       = { 0x00000001, nv44_mc_new },
+	.mmu      = { 0x00000001, nv04_mmu_new },
+	.pci      = { 0x00000001, nv40_pci_new },
+	.therm    = { 0x00000001, nv40_therm_new },
+	.timer    = { 0x00000001, nv41_timer_new },
+	.volt     = { 0x00000001, nv40_volt_new },
+	.disp     = { 0x00000001, nv04_disp_new },
+	.dma      = { 0x00000001, nv04_dma_new },
+	.fifo     = { 0x00000001, nv40_fifo_new },
+	.gr       = { 0x00000001, nv44_gr_new },
+	.mpeg     = { 0x00000001, nv44_mpeg_new },
+	.pm       = { 0x00000001, nv40_pm_new },
+	.sw       = { 0x00000001, nv10_sw_new },
+>>>>>>> upstream/android-13
 };
 
 static const struct nvkm_device_chip
 nv4b_chipset = {
 	.name = "G73",
+<<<<<<< HEAD
 	.bios = nvkm_bios_new,
 	.bus = nv31_bus_new,
 	.clk = nv40_clk_new,
@@ -753,11 +1357,35 @@ nv4b_chipset = {
 	.mpeg = nv44_mpeg_new,
 	.pm = nv40_pm_new,
 	.sw = nv10_sw_new,
+=======
+	.bios     = { 0x00000001, nvkm_bios_new },
+	.bus      = { 0x00000001, nv31_bus_new },
+	.clk      = { 0x00000001, nv40_clk_new },
+	.devinit  = { 0x00000001, nv1a_devinit_new },
+	.fb       = { 0x00000001, nv49_fb_new },
+	.gpio     = { 0x00000001, nv10_gpio_new },
+	.i2c      = { 0x00000001, nv04_i2c_new },
+	.imem     = { 0x00000001, nv40_instmem_new },
+	.mc       = { 0x00000001, nv17_mc_new },
+	.mmu      = { 0x00000001, nv41_mmu_new },
+	.pci      = { 0x00000001, nv40_pci_new },
+	.therm    = { 0x00000001, nv40_therm_new },
+	.timer    = { 0x00000001, nv41_timer_new },
+	.volt     = { 0x00000001, nv40_volt_new },
+	.disp     = { 0x00000001, nv04_disp_new },
+	.dma      = { 0x00000001, nv04_dma_new },
+	.fifo     = { 0x00000001, nv40_fifo_new },
+	.gr       = { 0x00000001, nv40_gr_new },
+	.mpeg     = { 0x00000001, nv44_mpeg_new },
+	.pm       = { 0x00000001, nv40_pm_new },
+	.sw       = { 0x00000001, nv10_sw_new },
+>>>>>>> upstream/android-13
 };
 
 static const struct nvkm_device_chip
 nv4c_chipset = {
 	.name = "C61",
+<<<<<<< HEAD
 	.bios = nvkm_bios_new,
 	.bus = nv31_bus_new,
 	.clk = nv40_clk_new,
@@ -779,11 +1407,35 @@ nv4c_chipset = {
 	.mpeg = nv44_mpeg_new,
 	.pm = nv40_pm_new,
 	.sw = nv10_sw_new,
+=======
+	.bios     = { 0x00000001, nvkm_bios_new },
+	.bus      = { 0x00000001, nv31_bus_new },
+	.clk      = { 0x00000001, nv40_clk_new },
+	.devinit  = { 0x00000001, nv1a_devinit_new },
+	.fb       = { 0x00000001, nv46_fb_new },
+	.gpio     = { 0x00000001, nv10_gpio_new },
+	.i2c      = { 0x00000001, nv04_i2c_new },
+	.imem     = { 0x00000001, nv40_instmem_new },
+	.mc       = { 0x00000001, nv44_mc_new },
+	.mmu      = { 0x00000001, nv44_mmu_new },
+	.pci      = { 0x00000001, nv4c_pci_new },
+	.therm    = { 0x00000001, nv40_therm_new },
+	.timer    = { 0x00000001, nv41_timer_new },
+	.volt     = { 0x00000001, nv40_volt_new },
+	.disp     = { 0x00000001, nv04_disp_new },
+	.dma      = { 0x00000001, nv04_dma_new },
+	.fifo     = { 0x00000001, nv40_fifo_new },
+	.gr       = { 0x00000001, nv44_gr_new },
+	.mpeg     = { 0x00000001, nv44_mpeg_new },
+	.pm       = { 0x00000001, nv40_pm_new },
+	.sw       = { 0x00000001, nv10_sw_new },
+>>>>>>> upstream/android-13
 };
 
 static const struct nvkm_device_chip
 nv4e_chipset = {
 	.name = "C51",
+<<<<<<< HEAD
 	.bios = nvkm_bios_new,
 	.bus = nv31_bus_new,
 	.clk = nv40_clk_new,
@@ -805,11 +1457,35 @@ nv4e_chipset = {
 	.mpeg = nv44_mpeg_new,
 	.pm = nv40_pm_new,
 	.sw = nv10_sw_new,
+=======
+	.bios     = { 0x00000001, nvkm_bios_new },
+	.bus      = { 0x00000001, nv31_bus_new },
+	.clk      = { 0x00000001, nv40_clk_new },
+	.devinit  = { 0x00000001, nv1a_devinit_new },
+	.fb       = { 0x00000001, nv4e_fb_new },
+	.gpio     = { 0x00000001, nv10_gpio_new },
+	.i2c      = { 0x00000001, nv4e_i2c_new },
+	.imem     = { 0x00000001, nv40_instmem_new },
+	.mc       = { 0x00000001, nv44_mc_new },
+	.mmu      = { 0x00000001, nv44_mmu_new },
+	.pci      = { 0x00000001, nv4c_pci_new },
+	.therm    = { 0x00000001, nv40_therm_new },
+	.timer    = { 0x00000001, nv41_timer_new },
+	.volt     = { 0x00000001, nv40_volt_new },
+	.disp     = { 0x00000001, nv04_disp_new },
+	.dma      = { 0x00000001, nv04_dma_new },
+	.fifo     = { 0x00000001, nv40_fifo_new },
+	.gr       = { 0x00000001, nv44_gr_new },
+	.mpeg     = { 0x00000001, nv44_mpeg_new },
+	.pm       = { 0x00000001, nv40_pm_new },
+	.sw       = { 0x00000001, nv10_sw_new },
+>>>>>>> upstream/android-13
 };
 
 static const struct nvkm_device_chip
 nv50_chipset = {
 	.name = "G80",
+<<<<<<< HEAD
 	.bar = nv50_bar_new,
 	.bios = nvkm_bios_new,
 	.bus = nv50_bus_new,
@@ -834,11 +1510,38 @@ nv50_chipset = {
 	.mpeg = nv50_mpeg_new,
 	.pm = nv50_pm_new,
 	.sw = nv50_sw_new,
+=======
+	.bar      = { 0x00000001, nv50_bar_new },
+	.bios     = { 0x00000001, nvkm_bios_new },
+	.bus      = { 0x00000001, nv50_bus_new },
+	.clk      = { 0x00000001, nv50_clk_new },
+	.devinit  = { 0x00000001, nv50_devinit_new },
+	.fb       = { 0x00000001, nv50_fb_new },
+	.fuse     = { 0x00000001, nv50_fuse_new },
+	.gpio     = { 0x00000001, nv50_gpio_new },
+	.i2c      = { 0x00000001, nv50_i2c_new },
+	.imem     = { 0x00000001, nv50_instmem_new },
+	.mc       = { 0x00000001, nv50_mc_new },
+	.mmu      = { 0x00000001, nv50_mmu_new },
+	.mxm      = { 0x00000001, nv50_mxm_new },
+	.pci      = { 0x00000001, nv46_pci_new },
+	.therm    = { 0x00000001, nv50_therm_new },
+	.timer    = { 0x00000001, nv41_timer_new },
+	.volt     = { 0x00000001, nv40_volt_new },
+	.disp     = { 0x00000001, nv50_disp_new },
+	.dma      = { 0x00000001, nv50_dma_new },
+	.fifo     = { 0x00000001, nv50_fifo_new },
+	.gr       = { 0x00000001, nv50_gr_new },
+	.mpeg     = { 0x00000001, nv50_mpeg_new },
+	.pm       = { 0x00000001, nv50_pm_new },
+	.sw       = { 0x00000001, nv50_sw_new },
+>>>>>>> upstream/android-13
 };
 
 static const struct nvkm_device_chip
 nv63_chipset = {
 	.name = "C73",
+<<<<<<< HEAD
 	.bios = nvkm_bios_new,
 	.bus = nv31_bus_new,
 	.clk = nv40_clk_new,
@@ -860,11 +1563,35 @@ nv63_chipset = {
 	.mpeg = nv44_mpeg_new,
 	.pm = nv40_pm_new,
 	.sw = nv10_sw_new,
+=======
+	.bios     = { 0x00000001, nvkm_bios_new },
+	.bus      = { 0x00000001, nv31_bus_new },
+	.clk      = { 0x00000001, nv40_clk_new },
+	.devinit  = { 0x00000001, nv1a_devinit_new },
+	.fb       = { 0x00000001, nv46_fb_new },
+	.gpio     = { 0x00000001, nv10_gpio_new },
+	.i2c      = { 0x00000001, nv04_i2c_new },
+	.imem     = { 0x00000001, nv40_instmem_new },
+	.mc       = { 0x00000001, nv44_mc_new },
+	.mmu      = { 0x00000001, nv44_mmu_new },
+	.pci      = { 0x00000001, nv4c_pci_new },
+	.therm    = { 0x00000001, nv40_therm_new },
+	.timer    = { 0x00000001, nv41_timer_new },
+	.volt     = { 0x00000001, nv40_volt_new },
+	.disp     = { 0x00000001, nv04_disp_new },
+	.dma      = { 0x00000001, nv04_dma_new },
+	.fifo     = { 0x00000001, nv40_fifo_new },
+	.gr       = { 0x00000001, nv44_gr_new },
+	.mpeg     = { 0x00000001, nv44_mpeg_new },
+	.pm       = { 0x00000001, nv40_pm_new },
+	.sw       = { 0x00000001, nv10_sw_new },
+>>>>>>> upstream/android-13
 };
 
 static const struct nvkm_device_chip
 nv67_chipset = {
 	.name = "C67",
+<<<<<<< HEAD
 	.bios = nvkm_bios_new,
 	.bus = nv31_bus_new,
 	.clk = nv40_clk_new,
@@ -886,11 +1613,35 @@ nv67_chipset = {
 	.mpeg = nv44_mpeg_new,
 	.pm = nv40_pm_new,
 	.sw = nv10_sw_new,
+=======
+	.bios     = { 0x00000001, nvkm_bios_new },
+	.bus      = { 0x00000001, nv31_bus_new },
+	.clk      = { 0x00000001, nv40_clk_new },
+	.devinit  = { 0x00000001, nv1a_devinit_new },
+	.fb       = { 0x00000001, nv46_fb_new },
+	.gpio     = { 0x00000001, nv10_gpio_new },
+	.i2c      = { 0x00000001, nv04_i2c_new },
+	.imem     = { 0x00000001, nv40_instmem_new },
+	.mc       = { 0x00000001, nv44_mc_new },
+	.mmu      = { 0x00000001, nv44_mmu_new },
+	.pci      = { 0x00000001, nv4c_pci_new },
+	.therm    = { 0x00000001, nv40_therm_new },
+	.timer    = { 0x00000001, nv41_timer_new },
+	.volt     = { 0x00000001, nv40_volt_new },
+	.disp     = { 0x00000001, nv04_disp_new },
+	.dma      = { 0x00000001, nv04_dma_new },
+	.fifo     = { 0x00000001, nv40_fifo_new },
+	.gr       = { 0x00000001, nv44_gr_new },
+	.mpeg     = { 0x00000001, nv44_mpeg_new },
+	.pm       = { 0x00000001, nv40_pm_new },
+	.sw       = { 0x00000001, nv10_sw_new },
+>>>>>>> upstream/android-13
 };
 
 static const struct nvkm_device_chip
 nv68_chipset = {
 	.name = "C68",
+<<<<<<< HEAD
 	.bios = nvkm_bios_new,
 	.bus = nv31_bus_new,
 	.clk = nv40_clk_new,
@@ -912,11 +1663,35 @@ nv68_chipset = {
 	.mpeg = nv44_mpeg_new,
 	.pm = nv40_pm_new,
 	.sw = nv10_sw_new,
+=======
+	.bios     = { 0x00000001, nvkm_bios_new },
+	.bus      = { 0x00000001, nv31_bus_new },
+	.clk      = { 0x00000001, nv40_clk_new },
+	.devinit  = { 0x00000001, nv1a_devinit_new },
+	.fb       = { 0x00000001, nv46_fb_new },
+	.gpio     = { 0x00000001, nv10_gpio_new },
+	.i2c      = { 0x00000001, nv04_i2c_new },
+	.imem     = { 0x00000001, nv40_instmem_new },
+	.mc       = { 0x00000001, nv44_mc_new },
+	.mmu      = { 0x00000001, nv44_mmu_new },
+	.pci      = { 0x00000001, nv4c_pci_new },
+	.therm    = { 0x00000001, nv40_therm_new },
+	.timer    = { 0x00000001, nv41_timer_new },
+	.volt     = { 0x00000001, nv40_volt_new },
+	.disp     = { 0x00000001, nv04_disp_new },
+	.dma      = { 0x00000001, nv04_dma_new },
+	.fifo     = { 0x00000001, nv40_fifo_new },
+	.gr       = { 0x00000001, nv44_gr_new },
+	.mpeg     = { 0x00000001, nv44_mpeg_new },
+	.pm       = { 0x00000001, nv40_pm_new },
+	.sw       = { 0x00000001, nv10_sw_new },
+>>>>>>> upstream/android-13
 };
 
 static const struct nvkm_device_chip
 nv84_chipset = {
 	.name = "G84",
+<<<<<<< HEAD
 	.bar = g84_bar_new,
 	.bios = nvkm_bios_new,
 	.bus = nv50_bus_new,
@@ -944,11 +1719,41 @@ nv84_chipset = {
 	.pm = g84_pm_new,
 	.sw = nv50_sw_new,
 	.vp = g84_vp_new,
+=======
+	.bar      = { 0x00000001, g84_bar_new },
+	.bios     = { 0x00000001, nvkm_bios_new },
+	.bus      = { 0x00000001, nv50_bus_new },
+	.clk      = { 0x00000001, g84_clk_new },
+	.devinit  = { 0x00000001, g84_devinit_new },
+	.fb       = { 0x00000001, g84_fb_new },
+	.fuse     = { 0x00000001, nv50_fuse_new },
+	.gpio     = { 0x00000001, nv50_gpio_new },
+	.i2c      = { 0x00000001, nv50_i2c_new },
+	.imem     = { 0x00000001, nv50_instmem_new },
+	.mc       = { 0x00000001, g84_mc_new },
+	.mmu      = { 0x00000001, g84_mmu_new },
+	.mxm      = { 0x00000001, nv50_mxm_new },
+	.pci      = { 0x00000001, g84_pci_new },
+	.therm    = { 0x00000001, g84_therm_new },
+	.timer    = { 0x00000001, nv41_timer_new },
+	.volt     = { 0x00000001, nv40_volt_new },
+	.bsp      = { 0x00000001, g84_bsp_new },
+	.cipher   = { 0x00000001, g84_cipher_new },
+	.disp     = { 0x00000001, g84_disp_new },
+	.dma      = { 0x00000001, nv50_dma_new },
+	.fifo     = { 0x00000001, g84_fifo_new },
+	.gr       = { 0x00000001, g84_gr_new },
+	.mpeg     = { 0x00000001, g84_mpeg_new },
+	.pm       = { 0x00000001, g84_pm_new },
+	.sw       = { 0x00000001, nv50_sw_new },
+	.vp       = { 0x00000001, g84_vp_new },
+>>>>>>> upstream/android-13
 };
 
 static const struct nvkm_device_chip
 nv86_chipset = {
 	.name = "G86",
+<<<<<<< HEAD
 	.bar = g84_bar_new,
 	.bios = nvkm_bios_new,
 	.bus = nv50_bus_new,
@@ -976,11 +1781,41 @@ nv86_chipset = {
 	.pm = g84_pm_new,
 	.sw = nv50_sw_new,
 	.vp = g84_vp_new,
+=======
+	.bar      = { 0x00000001, g84_bar_new },
+	.bios     = { 0x00000001, nvkm_bios_new },
+	.bus      = { 0x00000001, nv50_bus_new },
+	.clk      = { 0x00000001, g84_clk_new },
+	.devinit  = { 0x00000001, g84_devinit_new },
+	.fb       = { 0x00000001, g84_fb_new },
+	.fuse     = { 0x00000001, nv50_fuse_new },
+	.gpio     = { 0x00000001, nv50_gpio_new },
+	.i2c      = { 0x00000001, nv50_i2c_new },
+	.imem     = { 0x00000001, nv50_instmem_new },
+	.mc       = { 0x00000001, g84_mc_new },
+	.mmu      = { 0x00000001, g84_mmu_new },
+	.mxm      = { 0x00000001, nv50_mxm_new },
+	.pci      = { 0x00000001, g84_pci_new },
+	.therm    = { 0x00000001, g84_therm_new },
+	.timer    = { 0x00000001, nv41_timer_new },
+	.volt     = { 0x00000001, nv40_volt_new },
+	.bsp      = { 0x00000001, g84_bsp_new },
+	.cipher   = { 0x00000001, g84_cipher_new },
+	.disp     = { 0x00000001, g84_disp_new },
+	.dma      = { 0x00000001, nv50_dma_new },
+	.fifo     = { 0x00000001, g84_fifo_new },
+	.gr       = { 0x00000001, g84_gr_new },
+	.mpeg     = { 0x00000001, g84_mpeg_new },
+	.pm       = { 0x00000001, g84_pm_new },
+	.sw       = { 0x00000001, nv50_sw_new },
+	.vp       = { 0x00000001, g84_vp_new },
+>>>>>>> upstream/android-13
 };
 
 static const struct nvkm_device_chip
 nv92_chipset = {
 	.name = "G92",
+<<<<<<< HEAD
 	.bar = g84_bar_new,
 	.bios = nvkm_bios_new,
 	.bus = nv50_bus_new,
@@ -1008,11 +1843,41 @@ nv92_chipset = {
 	.pm = g84_pm_new,
 	.sw = nv50_sw_new,
 	.vp = g84_vp_new,
+=======
+	.bar      = { 0x00000001, g84_bar_new },
+	.bios     = { 0x00000001, nvkm_bios_new },
+	.bus      = { 0x00000001, nv50_bus_new },
+	.clk      = { 0x00000001, g84_clk_new },
+	.devinit  = { 0x00000001, g84_devinit_new },
+	.fb       = { 0x00000001, g84_fb_new },
+	.fuse     = { 0x00000001, nv50_fuse_new },
+	.gpio     = { 0x00000001, nv50_gpio_new },
+	.i2c      = { 0x00000001, nv50_i2c_new },
+	.imem     = { 0x00000001, nv50_instmem_new },
+	.mc       = { 0x00000001, g84_mc_new },
+	.mmu      = { 0x00000001, g84_mmu_new },
+	.mxm      = { 0x00000001, nv50_mxm_new },
+	.pci      = { 0x00000001, g92_pci_new },
+	.therm    = { 0x00000001, g84_therm_new },
+	.timer    = { 0x00000001, nv41_timer_new },
+	.volt     = { 0x00000001, nv40_volt_new },
+	.bsp      = { 0x00000001, g84_bsp_new },
+	.cipher   = { 0x00000001, g84_cipher_new },
+	.disp     = { 0x00000001, g84_disp_new },
+	.dma      = { 0x00000001, nv50_dma_new },
+	.fifo     = { 0x00000001, g84_fifo_new },
+	.gr       = { 0x00000001, g84_gr_new },
+	.mpeg     = { 0x00000001, g84_mpeg_new },
+	.pm       = { 0x00000001, g84_pm_new },
+	.sw       = { 0x00000001, nv50_sw_new },
+	.vp       = { 0x00000001, g84_vp_new },
+>>>>>>> upstream/android-13
 };
 
 static const struct nvkm_device_chip
 nv94_chipset = {
 	.name = "G94",
+<<<<<<< HEAD
 	.bar = g84_bar_new,
 	.bios = nvkm_bios_new,
 	.bus = g94_bus_new,
@@ -1040,11 +1905,41 @@ nv94_chipset = {
 	.pm = g84_pm_new,
 	.sw = nv50_sw_new,
 	.vp = g84_vp_new,
+=======
+	.bar      = { 0x00000001, g84_bar_new },
+	.bios     = { 0x00000001, nvkm_bios_new },
+	.bus      = { 0x00000001, g94_bus_new },
+	.clk      = { 0x00000001, g84_clk_new },
+	.devinit  = { 0x00000001, g84_devinit_new },
+	.fb       = { 0x00000001, g84_fb_new },
+	.fuse     = { 0x00000001, nv50_fuse_new },
+	.gpio     = { 0x00000001, g94_gpio_new },
+	.i2c      = { 0x00000001, g94_i2c_new },
+	.imem     = { 0x00000001, nv50_instmem_new },
+	.mc       = { 0x00000001, g84_mc_new },
+	.mmu      = { 0x00000001, g84_mmu_new },
+	.mxm      = { 0x00000001, nv50_mxm_new },
+	.pci      = { 0x00000001, g94_pci_new },
+	.therm    = { 0x00000001, g84_therm_new },
+	.timer    = { 0x00000001, nv41_timer_new },
+	.volt     = { 0x00000001, nv40_volt_new },
+	.bsp      = { 0x00000001, g84_bsp_new },
+	.cipher   = { 0x00000001, g84_cipher_new },
+	.disp     = { 0x00000001, g94_disp_new },
+	.dma      = { 0x00000001, nv50_dma_new },
+	.fifo     = { 0x00000001, g84_fifo_new },
+	.gr       = { 0x00000001, g84_gr_new },
+	.mpeg     = { 0x00000001, g84_mpeg_new },
+	.pm       = { 0x00000001, g84_pm_new },
+	.sw       = { 0x00000001, nv50_sw_new },
+	.vp       = { 0x00000001, g84_vp_new },
+>>>>>>> upstream/android-13
 };
 
 static const struct nvkm_device_chip
 nv96_chipset = {
 	.name = "G96",
+<<<<<<< HEAD
 	.bar = g84_bar_new,
 	.bios = nvkm_bios_new,
 	.bus = g94_bus_new,
@@ -1072,11 +1967,41 @@ nv96_chipset = {
 	.pm = g84_pm_new,
 	.sw = nv50_sw_new,
 	.vp = g84_vp_new,
+=======
+	.bar      = { 0x00000001, g84_bar_new },
+	.bios     = { 0x00000001, nvkm_bios_new },
+	.bus      = { 0x00000001, g94_bus_new },
+	.clk      = { 0x00000001, g84_clk_new },
+	.devinit  = { 0x00000001, g84_devinit_new },
+	.fb       = { 0x00000001, g84_fb_new },
+	.fuse     = { 0x00000001, nv50_fuse_new },
+	.gpio     = { 0x00000001, g94_gpio_new },
+	.i2c      = { 0x00000001, g94_i2c_new },
+	.imem     = { 0x00000001, nv50_instmem_new },
+	.mc       = { 0x00000001, g84_mc_new },
+	.mmu      = { 0x00000001, g84_mmu_new },
+	.mxm      = { 0x00000001, nv50_mxm_new },
+	.pci      = { 0x00000001, g94_pci_new },
+	.therm    = { 0x00000001, g84_therm_new },
+	.timer    = { 0x00000001, nv41_timer_new },
+	.volt     = { 0x00000001, nv40_volt_new },
+	.bsp      = { 0x00000001, g84_bsp_new },
+	.cipher   = { 0x00000001, g84_cipher_new },
+	.disp     = { 0x00000001, g94_disp_new },
+	.dma      = { 0x00000001, nv50_dma_new },
+	.fifo     = { 0x00000001, g84_fifo_new },
+	.gr       = { 0x00000001, g84_gr_new },
+	.mpeg     = { 0x00000001, g84_mpeg_new },
+	.pm       = { 0x00000001, g84_pm_new },
+	.sw       = { 0x00000001, nv50_sw_new },
+	.vp       = { 0x00000001, g84_vp_new },
+>>>>>>> upstream/android-13
 };
 
 static const struct nvkm_device_chip
 nv98_chipset = {
 	.name = "G98",
+<<<<<<< HEAD
 	.bar = g84_bar_new,
 	.bios = nvkm_bios_new,
 	.bus = g94_bus_new,
@@ -1104,11 +2029,41 @@ nv98_chipset = {
 	.pm = g84_pm_new,
 	.sec = g98_sec_new,
 	.sw = nv50_sw_new,
+=======
+	.bar      = { 0x00000001, g84_bar_new },
+	.bios     = { 0x00000001, nvkm_bios_new },
+	.bus      = { 0x00000001, g94_bus_new },
+	.clk      = { 0x00000001, g84_clk_new },
+	.devinit  = { 0x00000001, g98_devinit_new },
+	.fb       = { 0x00000001, g84_fb_new },
+	.fuse     = { 0x00000001, nv50_fuse_new },
+	.gpio     = { 0x00000001, g94_gpio_new },
+	.i2c      = { 0x00000001, g94_i2c_new },
+	.imem     = { 0x00000001, nv50_instmem_new },
+	.mc       = { 0x00000001, g98_mc_new },
+	.mmu      = { 0x00000001, g84_mmu_new },
+	.mxm      = { 0x00000001, nv50_mxm_new },
+	.pci      = { 0x00000001, g94_pci_new },
+	.therm    = { 0x00000001, g84_therm_new },
+	.timer    = { 0x00000001, nv41_timer_new },
+	.volt     = { 0x00000001, nv40_volt_new },
+	.disp     = { 0x00000001, g94_disp_new },
+	.dma      = { 0x00000001, nv50_dma_new },
+	.fifo     = { 0x00000001, g84_fifo_new },
+	.gr       = { 0x00000001, g84_gr_new },
+	.mspdec   = { 0x00000001, g98_mspdec_new },
+	.msppp    = { 0x00000001, g98_msppp_new },
+	.msvld    = { 0x00000001, g98_msvld_new },
+	.pm       = { 0x00000001, g84_pm_new },
+	.sec      = { 0x00000001, g98_sec_new },
+	.sw       = { 0x00000001, nv50_sw_new },
+>>>>>>> upstream/android-13
 };
 
 static const struct nvkm_device_chip
 nva0_chipset = {
 	.name = "GT200",
+<<<<<<< HEAD
 	.bar = g84_bar_new,
 	.bios = nvkm_bios_new,
 	.bus = g94_bus_new,
@@ -1136,11 +2091,41 @@ nva0_chipset = {
 	.pm = gt200_pm_new,
 	.sw = nv50_sw_new,
 	.vp = g84_vp_new,
+=======
+	.bar      = { 0x00000001, g84_bar_new },
+	.bios     = { 0x00000001, nvkm_bios_new },
+	.bus      = { 0x00000001, g94_bus_new },
+	.clk      = { 0x00000001, g84_clk_new },
+	.devinit  = { 0x00000001, g84_devinit_new },
+	.fb       = { 0x00000001, g84_fb_new },
+	.fuse     = { 0x00000001, nv50_fuse_new },
+	.gpio     = { 0x00000001, g94_gpio_new },
+	.i2c      = { 0x00000001, nv50_i2c_new },
+	.imem     = { 0x00000001, nv50_instmem_new },
+	.mc       = { 0x00000001, g84_mc_new },
+	.mmu      = { 0x00000001, g84_mmu_new },
+	.mxm      = { 0x00000001, nv50_mxm_new },
+	.pci      = { 0x00000001, g94_pci_new },
+	.therm    = { 0x00000001, g84_therm_new },
+	.timer    = { 0x00000001, nv41_timer_new },
+	.volt     = { 0x00000001, nv40_volt_new },
+	.bsp      = { 0x00000001, g84_bsp_new },
+	.cipher   = { 0x00000001, g84_cipher_new },
+	.disp     = { 0x00000001, gt200_disp_new },
+	.dma      = { 0x00000001, nv50_dma_new },
+	.fifo     = { 0x00000001, g84_fifo_new },
+	.gr       = { 0x00000001, gt200_gr_new },
+	.mpeg     = { 0x00000001, g84_mpeg_new },
+	.pm       = { 0x00000001, gt200_pm_new },
+	.sw       = { 0x00000001, nv50_sw_new },
+	.vp       = { 0x00000001, g84_vp_new },
+>>>>>>> upstream/android-13
 };
 
 static const struct nvkm_device_chip
 nva3_chipset = {
 	.name = "GT215",
+<<<<<<< HEAD
 	.bar = g84_bar_new,
 	.bios = nvkm_bios_new,
 	.bus = g94_bus_new,
@@ -1170,11 +2155,43 @@ nva3_chipset = {
 	.msvld = gt215_msvld_new,
 	.pm = gt215_pm_new,
 	.sw = nv50_sw_new,
+=======
+	.bar      = { 0x00000001, g84_bar_new },
+	.bios     = { 0x00000001, nvkm_bios_new },
+	.bus      = { 0x00000001, g94_bus_new },
+	.clk      = { 0x00000001, gt215_clk_new },
+	.devinit  = { 0x00000001, gt215_devinit_new },
+	.fb       = { 0x00000001, gt215_fb_new },
+	.fuse     = { 0x00000001, nv50_fuse_new },
+	.gpio     = { 0x00000001, g94_gpio_new },
+	.i2c      = { 0x00000001, g94_i2c_new },
+	.imem     = { 0x00000001, nv50_instmem_new },
+	.mc       = { 0x00000001, gt215_mc_new },
+	.mmu      = { 0x00000001, g84_mmu_new },
+	.mxm      = { 0x00000001, nv50_mxm_new },
+	.pci      = { 0x00000001, g94_pci_new },
+	.pmu      = { 0x00000001, gt215_pmu_new },
+	.therm    = { 0x00000001, gt215_therm_new },
+	.timer    = { 0x00000001, nv41_timer_new },
+	.volt     = { 0x00000001, nv40_volt_new },
+	.ce       = { 0x00000001, gt215_ce_new },
+	.disp     = { 0x00000001, gt215_disp_new },
+	.dma      = { 0x00000001, nv50_dma_new },
+	.fifo     = { 0x00000001, g84_fifo_new },
+	.gr       = { 0x00000001, gt215_gr_new },
+	.mpeg     = { 0x00000001, g84_mpeg_new },
+	.mspdec   = { 0x00000001, gt215_mspdec_new },
+	.msppp    = { 0x00000001, gt215_msppp_new },
+	.msvld    = { 0x00000001, gt215_msvld_new },
+	.pm       = { 0x00000001, gt215_pm_new },
+	.sw       = { 0x00000001, nv50_sw_new },
+>>>>>>> upstream/android-13
 };
 
 static const struct nvkm_device_chip
 nva5_chipset = {
 	.name = "GT216",
+<<<<<<< HEAD
 	.bar = g84_bar_new,
 	.bios = nvkm_bios_new,
 	.bus = g94_bus_new,
@@ -1203,11 +2220,42 @@ nva5_chipset = {
 	.msvld = gt215_msvld_new,
 	.pm = gt215_pm_new,
 	.sw = nv50_sw_new,
+=======
+	.bar      = { 0x00000001, g84_bar_new },
+	.bios     = { 0x00000001, nvkm_bios_new },
+	.bus      = { 0x00000001, g94_bus_new },
+	.clk      = { 0x00000001, gt215_clk_new },
+	.devinit  = { 0x00000001, gt215_devinit_new },
+	.fb       = { 0x00000001, gt215_fb_new },
+	.fuse     = { 0x00000001, nv50_fuse_new },
+	.gpio     = { 0x00000001, g94_gpio_new },
+	.i2c      = { 0x00000001, g94_i2c_new },
+	.imem     = { 0x00000001, nv50_instmem_new },
+	.mc       = { 0x00000001, gt215_mc_new },
+	.mmu      = { 0x00000001, g84_mmu_new },
+	.mxm      = { 0x00000001, nv50_mxm_new },
+	.pci      = { 0x00000001, g94_pci_new },
+	.pmu      = { 0x00000001, gt215_pmu_new },
+	.therm    = { 0x00000001, gt215_therm_new },
+	.timer    = { 0x00000001, nv41_timer_new },
+	.volt     = { 0x00000001, nv40_volt_new },
+	.ce       = { 0x00000001, gt215_ce_new },
+	.disp     = { 0x00000001, gt215_disp_new },
+	.dma      = { 0x00000001, nv50_dma_new },
+	.fifo     = { 0x00000001, g84_fifo_new },
+	.gr       = { 0x00000001, gt215_gr_new },
+	.mspdec   = { 0x00000001, gt215_mspdec_new },
+	.msppp    = { 0x00000001, gt215_msppp_new },
+	.msvld    = { 0x00000001, gt215_msvld_new },
+	.pm       = { 0x00000001, gt215_pm_new },
+	.sw       = { 0x00000001, nv50_sw_new },
+>>>>>>> upstream/android-13
 };
 
 static const struct nvkm_device_chip
 nva8_chipset = {
 	.name = "GT218",
+<<<<<<< HEAD
 	.bar = g84_bar_new,
 	.bios = nvkm_bios_new,
 	.bus = g94_bus_new,
@@ -1236,11 +2284,42 @@ nva8_chipset = {
 	.msvld = gt215_msvld_new,
 	.pm = gt215_pm_new,
 	.sw = nv50_sw_new,
+=======
+	.bar      = { 0x00000001, g84_bar_new },
+	.bios     = { 0x00000001, nvkm_bios_new },
+	.bus      = { 0x00000001, g94_bus_new },
+	.clk      = { 0x00000001, gt215_clk_new },
+	.devinit  = { 0x00000001, gt215_devinit_new },
+	.fb       = { 0x00000001, gt215_fb_new },
+	.fuse     = { 0x00000001, nv50_fuse_new },
+	.gpio     = { 0x00000001, g94_gpio_new },
+	.i2c      = { 0x00000001, g94_i2c_new },
+	.imem     = { 0x00000001, nv50_instmem_new },
+	.mc       = { 0x00000001, gt215_mc_new },
+	.mmu      = { 0x00000001, g84_mmu_new },
+	.mxm      = { 0x00000001, nv50_mxm_new },
+	.pci      = { 0x00000001, g94_pci_new },
+	.pmu      = { 0x00000001, gt215_pmu_new },
+	.therm    = { 0x00000001, gt215_therm_new },
+	.timer    = { 0x00000001, nv41_timer_new },
+	.volt     = { 0x00000001, nv40_volt_new },
+	.ce       = { 0x00000001, gt215_ce_new },
+	.disp     = { 0x00000001, gt215_disp_new },
+	.dma      = { 0x00000001, nv50_dma_new },
+	.fifo     = { 0x00000001, g84_fifo_new },
+	.gr       = { 0x00000001, gt215_gr_new },
+	.mspdec   = { 0x00000001, gt215_mspdec_new },
+	.msppp    = { 0x00000001, gt215_msppp_new },
+	.msvld    = { 0x00000001, gt215_msvld_new },
+	.pm       = { 0x00000001, gt215_pm_new },
+	.sw       = { 0x00000001, nv50_sw_new },
+>>>>>>> upstream/android-13
 };
 
 static const struct nvkm_device_chip
 nvaa_chipset = {
 	.name = "MCP77/MCP78",
+<<<<<<< HEAD
 	.bar = g84_bar_new,
 	.bios = nvkm_bios_new,
 	.bus = g94_bus_new,
@@ -1268,11 +2347,41 @@ nvaa_chipset = {
 	.pm = g84_pm_new,
 	.sec = g98_sec_new,
 	.sw = nv50_sw_new,
+=======
+	.bar      = { 0x00000001, g84_bar_new },
+	.bios     = { 0x00000001, nvkm_bios_new },
+	.bus      = { 0x00000001, g94_bus_new },
+	.clk      = { 0x00000001, mcp77_clk_new },
+	.devinit  = { 0x00000001, g98_devinit_new },
+	.fb       = { 0x00000001, mcp77_fb_new },
+	.fuse     = { 0x00000001, nv50_fuse_new },
+	.gpio     = { 0x00000001, g94_gpio_new },
+	.i2c      = { 0x00000001, g94_i2c_new },
+	.imem     = { 0x00000001, nv50_instmem_new },
+	.mc       = { 0x00000001, g98_mc_new },
+	.mmu      = { 0x00000001, mcp77_mmu_new },
+	.mxm      = { 0x00000001, nv50_mxm_new },
+	.pci      = { 0x00000001, g94_pci_new },
+	.therm    = { 0x00000001, g84_therm_new },
+	.timer    = { 0x00000001, nv41_timer_new },
+	.volt     = { 0x00000001, nv40_volt_new },
+	.disp     = { 0x00000001, mcp77_disp_new },
+	.dma      = { 0x00000001, nv50_dma_new },
+	.fifo     = { 0x00000001, g84_fifo_new },
+	.gr       = { 0x00000001, gt200_gr_new },
+	.mspdec   = { 0x00000001, g98_mspdec_new },
+	.msppp    = { 0x00000001, g98_msppp_new },
+	.msvld    = { 0x00000001, g98_msvld_new },
+	.pm       = { 0x00000001, g84_pm_new },
+	.sec      = { 0x00000001, g98_sec_new },
+	.sw       = { 0x00000001, nv50_sw_new },
+>>>>>>> upstream/android-13
 };
 
 static const struct nvkm_device_chip
 nvac_chipset = {
 	.name = "MCP79/MCP7A",
+<<<<<<< HEAD
 	.bar = g84_bar_new,
 	.bios = nvkm_bios_new,
 	.bus = g94_bus_new,
@@ -1300,11 +2409,41 @@ nvac_chipset = {
 	.pm = g84_pm_new,
 	.sec = g98_sec_new,
 	.sw = nv50_sw_new,
+=======
+	.bar      = { 0x00000001, g84_bar_new },
+	.bios     = { 0x00000001, nvkm_bios_new },
+	.bus      = { 0x00000001, g94_bus_new },
+	.clk      = { 0x00000001, mcp77_clk_new },
+	.devinit  = { 0x00000001, g98_devinit_new },
+	.fb       = { 0x00000001, mcp77_fb_new },
+	.fuse     = { 0x00000001, nv50_fuse_new },
+	.gpio     = { 0x00000001, g94_gpio_new },
+	.i2c      = { 0x00000001, g94_i2c_new },
+	.imem     = { 0x00000001, nv50_instmem_new },
+	.mc       = { 0x00000001, g98_mc_new },
+	.mmu      = { 0x00000001, mcp77_mmu_new },
+	.mxm      = { 0x00000001, nv50_mxm_new },
+	.pci      = { 0x00000001, g94_pci_new },
+	.therm    = { 0x00000001, g84_therm_new },
+	.timer    = { 0x00000001, nv41_timer_new },
+	.volt     = { 0x00000001, nv40_volt_new },
+	.disp     = { 0x00000001, mcp77_disp_new },
+	.dma      = { 0x00000001, nv50_dma_new },
+	.fifo     = { 0x00000001, g84_fifo_new },
+	.gr       = { 0x00000001, mcp79_gr_new },
+	.mspdec   = { 0x00000001, g98_mspdec_new },
+	.msppp    = { 0x00000001, g98_msppp_new },
+	.msvld    = { 0x00000001, g98_msvld_new },
+	.pm       = { 0x00000001, g84_pm_new },
+	.sec      = { 0x00000001, g98_sec_new },
+	.sw       = { 0x00000001, nv50_sw_new },
+>>>>>>> upstream/android-13
 };
 
 static const struct nvkm_device_chip
 nvaf_chipset = {
 	.name = "MCP89",
+<<<<<<< HEAD
 	.bar = g84_bar_new,
 	.bios = nvkm_bios_new,
 	.bus = g94_bus_new,
@@ -1333,11 +2472,42 @@ nvaf_chipset = {
 	.msvld = mcp89_msvld_new,
 	.pm = gt215_pm_new,
 	.sw = nv50_sw_new,
+=======
+	.bar      = { 0x00000001, g84_bar_new },
+	.bios     = { 0x00000001, nvkm_bios_new },
+	.bus      = { 0x00000001, g94_bus_new },
+	.clk      = { 0x00000001, gt215_clk_new },
+	.devinit  = { 0x00000001, mcp89_devinit_new },
+	.fb       = { 0x00000001, mcp89_fb_new },
+	.fuse     = { 0x00000001, nv50_fuse_new },
+	.gpio     = { 0x00000001, g94_gpio_new },
+	.i2c      = { 0x00000001, g94_i2c_new },
+	.imem     = { 0x00000001, nv50_instmem_new },
+	.mc       = { 0x00000001, gt215_mc_new },
+	.mmu      = { 0x00000001, mcp77_mmu_new },
+	.mxm      = { 0x00000001, nv50_mxm_new },
+	.pci      = { 0x00000001, g94_pci_new },
+	.pmu      = { 0x00000001, gt215_pmu_new },
+	.therm    = { 0x00000001, gt215_therm_new },
+	.timer    = { 0x00000001, nv41_timer_new },
+	.volt     = { 0x00000001, nv40_volt_new },
+	.ce       = { 0x00000001, gt215_ce_new },
+	.disp     = { 0x00000001, mcp89_disp_new },
+	.dma      = { 0x00000001, nv50_dma_new },
+	.fifo     = { 0x00000001, g84_fifo_new },
+	.gr       = { 0x00000001, mcp89_gr_new },
+	.mspdec   = { 0x00000001, gt215_mspdec_new },
+	.msppp    = { 0x00000001, gt215_msppp_new },
+	.msvld    = { 0x00000001, mcp89_msvld_new },
+	.pm       = { 0x00000001, gt215_pm_new },
+	.sw       = { 0x00000001, nv50_sw_new },
+>>>>>>> upstream/android-13
 };
 
 static const struct nvkm_device_chip
 nvc0_chipset = {
 	.name = "GF100",
+<<<<<<< HEAD
 	.bar = gf100_bar_new,
 	.bios = nvkm_bios_new,
 	.bus = gf100_bus_new,
@@ -1370,11 +2540,45 @@ nvc0_chipset = {
 	.msvld = gf100_msvld_new,
 	.pm = gf100_pm_new,
 	.sw = gf100_sw_new,
+=======
+	.bar      = { 0x00000001, gf100_bar_new },
+	.bios     = { 0x00000001, nvkm_bios_new },
+	.bus      = { 0x00000001, gf100_bus_new },
+	.clk      = { 0x00000001, gf100_clk_new },
+	.devinit  = { 0x00000001, gf100_devinit_new },
+	.fb       = { 0x00000001, gf100_fb_new },
+	.fuse     = { 0x00000001, gf100_fuse_new },
+	.gpio     = { 0x00000001, g94_gpio_new },
+	.i2c      = { 0x00000001, g94_i2c_new },
+	.iccsense = { 0x00000001, gf100_iccsense_new },
+	.imem     = { 0x00000001, nv50_instmem_new },
+	.ltc      = { 0x00000001, gf100_ltc_new },
+	.mc       = { 0x00000001, gf100_mc_new },
+	.mmu      = { 0x00000001, gf100_mmu_new },
+	.mxm      = { 0x00000001, nv50_mxm_new },
+	.pci      = { 0x00000001, gf100_pci_new },
+	.pmu      = { 0x00000001, gf100_pmu_new },
+	.privring = { 0x00000001, gf100_privring_new },
+	.therm    = { 0x00000001, gt215_therm_new },
+	.timer    = { 0x00000001, nv41_timer_new },
+	.volt     = { 0x00000001, gf100_volt_new },
+	.ce       = { 0x00000003, gf100_ce_new },
+	.disp     = { 0x00000001, gt215_disp_new },
+	.dma      = { 0x00000001, gf100_dma_new },
+	.fifo     = { 0x00000001, gf100_fifo_new },
+	.gr       = { 0x00000001, gf100_gr_new },
+	.mspdec   = { 0x00000001, gf100_mspdec_new },
+	.msppp    = { 0x00000001, gf100_msppp_new },
+	.msvld    = { 0x00000001, gf100_msvld_new },
+	.pm       = { 0x00000001, gf100_pm_new },
+	.sw       = { 0x00000001, gf100_sw_new },
+>>>>>>> upstream/android-13
 };
 
 static const struct nvkm_device_chip
 nvc1_chipset = {
 	.name = "GF108",
+<<<<<<< HEAD
 	.bar = gf100_bar_new,
 	.bios = nvkm_bios_new,
 	.bus = gf100_bus_new,
@@ -1406,11 +2610,45 @@ nvc1_chipset = {
 	.msvld = gf100_msvld_new,
 	.pm = gf108_pm_new,
 	.sw = gf100_sw_new,
+=======
+	.bar      = { 0x00000001, gf100_bar_new },
+	.bios     = { 0x00000001, nvkm_bios_new },
+	.bus      = { 0x00000001, gf100_bus_new },
+	.clk      = { 0x00000001, gf100_clk_new },
+	.devinit  = { 0x00000001, gf100_devinit_new },
+	.fb       = { 0x00000001, gf108_fb_new },
+	.fuse     = { 0x00000001, gf100_fuse_new },
+	.gpio     = { 0x00000001, g94_gpio_new },
+	.i2c      = { 0x00000001, g94_i2c_new },
+	.iccsense = { 0x00000001, gf100_iccsense_new },
+	.imem     = { 0x00000001, nv50_instmem_new },
+	.ltc      = { 0x00000001, gf100_ltc_new },
+	.mc       = { 0x00000001, gf100_mc_new },
+	.mmu      = { 0x00000001, gf100_mmu_new },
+	.mxm      = { 0x00000001, nv50_mxm_new },
+	.pci      = { 0x00000001, gf106_pci_new },
+	.pmu      = { 0x00000001, gf100_pmu_new },
+	.privring = { 0x00000001, gf100_privring_new },
+	.therm    = { 0x00000001, gt215_therm_new },
+	.timer    = { 0x00000001, nv41_timer_new },
+	.volt     = { 0x00000001, gf100_volt_new },
+	.ce       = { 0x00000001, gf100_ce_new },
+	.disp     = { 0x00000001, gt215_disp_new },
+	.dma      = { 0x00000001, gf100_dma_new },
+	.fifo     = { 0x00000001, gf100_fifo_new },
+	.gr       = { 0x00000001, gf108_gr_new },
+	.mspdec   = { 0x00000001, gf100_mspdec_new },
+	.msppp    = { 0x00000001, gf100_msppp_new },
+	.msvld    = { 0x00000001, gf100_msvld_new },
+	.pm       = { 0x00000001, gf108_pm_new },
+	.sw       = { 0x00000001, gf100_sw_new },
+>>>>>>> upstream/android-13
 };
 
 static const struct nvkm_device_chip
 nvc3_chipset = {
 	.name = "GF106",
+<<<<<<< HEAD
 	.bar = gf100_bar_new,
 	.bios = nvkm_bios_new,
 	.bus = gf100_bus_new,
@@ -1442,11 +2680,45 @@ nvc3_chipset = {
 	.msvld = gf100_msvld_new,
 	.pm = gf100_pm_new,
 	.sw = gf100_sw_new,
+=======
+	.bar      = { 0x00000001, gf100_bar_new },
+	.bios     = { 0x00000001, nvkm_bios_new },
+	.bus      = { 0x00000001, gf100_bus_new },
+	.clk      = { 0x00000001, gf100_clk_new },
+	.devinit  = { 0x00000001, gf100_devinit_new },
+	.fb       = { 0x00000001, gf100_fb_new },
+	.fuse     = { 0x00000001, gf100_fuse_new },
+	.gpio     = { 0x00000001, g94_gpio_new },
+	.i2c      = { 0x00000001, g94_i2c_new },
+	.iccsense = { 0x00000001, gf100_iccsense_new },
+	.imem     = { 0x00000001, nv50_instmem_new },
+	.ltc      = { 0x00000001, gf100_ltc_new },
+	.mc       = { 0x00000001, gf100_mc_new },
+	.mmu      = { 0x00000001, gf100_mmu_new },
+	.mxm      = { 0x00000001, nv50_mxm_new },
+	.pci      = { 0x00000001, gf106_pci_new },
+	.pmu      = { 0x00000001, gf100_pmu_new },
+	.privring = { 0x00000001, gf100_privring_new },
+	.therm    = { 0x00000001, gt215_therm_new },
+	.timer    = { 0x00000001, nv41_timer_new },
+	.volt     = { 0x00000001, gf100_volt_new },
+	.ce       = { 0x00000001, gf100_ce_new },
+	.disp     = { 0x00000001, gt215_disp_new },
+	.dma      = { 0x00000001, gf100_dma_new },
+	.fifo     = { 0x00000001, gf100_fifo_new },
+	.gr       = { 0x00000001, gf104_gr_new },
+	.mspdec   = { 0x00000001, gf100_mspdec_new },
+	.msppp    = { 0x00000001, gf100_msppp_new },
+	.msvld    = { 0x00000001, gf100_msvld_new },
+	.pm       = { 0x00000001, gf100_pm_new },
+	.sw       = { 0x00000001, gf100_sw_new },
+>>>>>>> upstream/android-13
 };
 
 static const struct nvkm_device_chip
 nvc4_chipset = {
 	.name = "GF104",
+<<<<<<< HEAD
 	.bar = gf100_bar_new,
 	.bios = nvkm_bios_new,
 	.bus = gf100_bus_new,
@@ -1479,11 +2751,45 @@ nvc4_chipset = {
 	.msvld = gf100_msvld_new,
 	.pm = gf100_pm_new,
 	.sw = gf100_sw_new,
+=======
+	.bar      = { 0x00000001, gf100_bar_new },
+	.bios     = { 0x00000001, nvkm_bios_new },
+	.bus      = { 0x00000001, gf100_bus_new },
+	.clk      = { 0x00000001, gf100_clk_new },
+	.devinit  = { 0x00000001, gf100_devinit_new },
+	.fb       = { 0x00000001, gf100_fb_new },
+	.fuse     = { 0x00000001, gf100_fuse_new },
+	.gpio     = { 0x00000001, g94_gpio_new },
+	.i2c      = { 0x00000001, g94_i2c_new },
+	.iccsense = { 0x00000001, gf100_iccsense_new },
+	.imem     = { 0x00000001, nv50_instmem_new },
+	.ltc      = { 0x00000001, gf100_ltc_new },
+	.mc       = { 0x00000001, gf100_mc_new },
+	.mmu      = { 0x00000001, gf100_mmu_new },
+	.mxm      = { 0x00000001, nv50_mxm_new },
+	.pci      = { 0x00000001, gf100_pci_new },
+	.pmu      = { 0x00000001, gf100_pmu_new },
+	.privring = { 0x00000001, gf100_privring_new },
+	.therm    = { 0x00000001, gt215_therm_new },
+	.timer    = { 0x00000001, nv41_timer_new },
+	.volt     = { 0x00000001, gf100_volt_new },
+	.ce       = { 0x00000003, gf100_ce_new },
+	.disp     = { 0x00000001, gt215_disp_new },
+	.dma      = { 0x00000001, gf100_dma_new },
+	.fifo     = { 0x00000001, gf100_fifo_new },
+	.gr       = { 0x00000001, gf104_gr_new },
+	.mspdec   = { 0x00000001, gf100_mspdec_new },
+	.msppp    = { 0x00000001, gf100_msppp_new },
+	.msvld    = { 0x00000001, gf100_msvld_new },
+	.pm       = { 0x00000001, gf100_pm_new },
+	.sw       = { 0x00000001, gf100_sw_new },
+>>>>>>> upstream/android-13
 };
 
 static const struct nvkm_device_chip
 nvc8_chipset = {
 	.name = "GF110",
+<<<<<<< HEAD
 	.bar = gf100_bar_new,
 	.bios = nvkm_bios_new,
 	.bus = gf100_bus_new,
@@ -1516,11 +2822,45 @@ nvc8_chipset = {
 	.msvld = gf100_msvld_new,
 	.pm = gf100_pm_new,
 	.sw = gf100_sw_new,
+=======
+	.bar      = { 0x00000001, gf100_bar_new },
+	.bios     = { 0x00000001, nvkm_bios_new },
+	.bus      = { 0x00000001, gf100_bus_new },
+	.clk      = { 0x00000001, gf100_clk_new },
+	.devinit  = { 0x00000001, gf100_devinit_new },
+	.fb       = { 0x00000001, gf100_fb_new },
+	.fuse     = { 0x00000001, gf100_fuse_new },
+	.gpio     = { 0x00000001, g94_gpio_new },
+	.i2c      = { 0x00000001, g94_i2c_new },
+	.iccsense = { 0x00000001, gf100_iccsense_new },
+	.imem     = { 0x00000001, nv50_instmem_new },
+	.ltc      = { 0x00000001, gf100_ltc_new },
+	.mc       = { 0x00000001, gf100_mc_new },
+	.mmu      = { 0x00000001, gf100_mmu_new },
+	.mxm      = { 0x00000001, nv50_mxm_new },
+	.pci      = { 0x00000001, gf100_pci_new },
+	.pmu      = { 0x00000001, gf100_pmu_new },
+	.privring = { 0x00000001, gf100_privring_new },
+	.therm    = { 0x00000001, gt215_therm_new },
+	.timer    = { 0x00000001, nv41_timer_new },
+	.volt     = { 0x00000001, gf100_volt_new },
+	.ce       = { 0x00000003, gf100_ce_new },
+	.disp     = { 0x00000001, gt215_disp_new },
+	.dma      = { 0x00000001, gf100_dma_new },
+	.fifo     = { 0x00000001, gf100_fifo_new },
+	.gr       = { 0x00000001, gf110_gr_new },
+	.mspdec   = { 0x00000001, gf100_mspdec_new },
+	.msppp    = { 0x00000001, gf100_msppp_new },
+	.msvld    = { 0x00000001, gf100_msvld_new },
+	.pm       = { 0x00000001, gf100_pm_new },
+	.sw       = { 0x00000001, gf100_sw_new },
+>>>>>>> upstream/android-13
 };
 
 static const struct nvkm_device_chip
 nvce_chipset = {
 	.name = "GF114",
+<<<<<<< HEAD
 	.bar = gf100_bar_new,
 	.bios = nvkm_bios_new,
 	.bus = gf100_bus_new,
@@ -1553,11 +2893,45 @@ nvce_chipset = {
 	.msvld = gf100_msvld_new,
 	.pm = gf100_pm_new,
 	.sw = gf100_sw_new,
+=======
+	.bar      = { 0x00000001, gf100_bar_new },
+	.bios     = { 0x00000001, nvkm_bios_new },
+	.bus      = { 0x00000001, gf100_bus_new },
+	.clk      = { 0x00000001, gf100_clk_new },
+	.devinit  = { 0x00000001, gf100_devinit_new },
+	.fb       = { 0x00000001, gf100_fb_new },
+	.fuse     = { 0x00000001, gf100_fuse_new },
+	.gpio     = { 0x00000001, g94_gpio_new },
+	.i2c      = { 0x00000001, g94_i2c_new },
+	.iccsense = { 0x00000001, gf100_iccsense_new },
+	.imem     = { 0x00000001, nv50_instmem_new },
+	.ltc      = { 0x00000001, gf100_ltc_new },
+	.mc       = { 0x00000001, gf100_mc_new },
+	.mmu      = { 0x00000001, gf100_mmu_new },
+	.mxm      = { 0x00000001, nv50_mxm_new },
+	.pci      = { 0x00000001, gf100_pci_new },
+	.pmu      = { 0x00000001, gf100_pmu_new },
+	.privring = { 0x00000001, gf100_privring_new },
+	.therm    = { 0x00000001, gt215_therm_new },
+	.timer    = { 0x00000001, nv41_timer_new },
+	.volt     = { 0x00000001, gf100_volt_new },
+	.ce       = { 0x00000003, gf100_ce_new },
+	.disp     = { 0x00000001, gt215_disp_new },
+	.dma      = { 0x00000001, gf100_dma_new },
+	.fifo     = { 0x00000001, gf100_fifo_new },
+	.gr       = { 0x00000001, gf104_gr_new },
+	.mspdec   = { 0x00000001, gf100_mspdec_new },
+	.msppp    = { 0x00000001, gf100_msppp_new },
+	.msvld    = { 0x00000001, gf100_msvld_new },
+	.pm       = { 0x00000001, gf100_pm_new },
+	.sw       = { 0x00000001, gf100_sw_new },
+>>>>>>> upstream/android-13
 };
 
 static const struct nvkm_device_chip
 nvcf_chipset = {
 	.name = "GF116",
+<<<<<<< HEAD
 	.bar = gf100_bar_new,
 	.bios = nvkm_bios_new,
 	.bus = gf100_bus_new,
@@ -1589,11 +2963,45 @@ nvcf_chipset = {
 	.msvld = gf100_msvld_new,
 	.pm = gf100_pm_new,
 	.sw = gf100_sw_new,
+=======
+	.bar      = { 0x00000001, gf100_bar_new },
+	.bios     = { 0x00000001, nvkm_bios_new },
+	.bus      = { 0x00000001, gf100_bus_new },
+	.clk      = { 0x00000001, gf100_clk_new },
+	.devinit  = { 0x00000001, gf100_devinit_new },
+	.fb       = { 0x00000001, gf100_fb_new },
+	.fuse     = { 0x00000001, gf100_fuse_new },
+	.gpio     = { 0x00000001, g94_gpio_new },
+	.i2c      = { 0x00000001, g94_i2c_new },
+	.iccsense = { 0x00000001, gf100_iccsense_new },
+	.imem     = { 0x00000001, nv50_instmem_new },
+	.ltc      = { 0x00000001, gf100_ltc_new },
+	.mc       = { 0x00000001, gf100_mc_new },
+	.mmu      = { 0x00000001, gf100_mmu_new },
+	.mxm      = { 0x00000001, nv50_mxm_new },
+	.pci      = { 0x00000001, gf106_pci_new },
+	.pmu      = { 0x00000001, gf100_pmu_new },
+	.privring = { 0x00000001, gf100_privring_new },
+	.therm    = { 0x00000001, gt215_therm_new },
+	.timer    = { 0x00000001, nv41_timer_new },
+	.volt     = { 0x00000001, gf100_volt_new },
+	.ce       = { 0x00000001, gf100_ce_new },
+	.disp     = { 0x00000001, gt215_disp_new },
+	.dma      = { 0x00000001, gf100_dma_new },
+	.fifo     = { 0x00000001, gf100_fifo_new },
+	.gr       = { 0x00000001, gf104_gr_new },
+	.mspdec   = { 0x00000001, gf100_mspdec_new },
+	.msppp    = { 0x00000001, gf100_msppp_new },
+	.msvld    = { 0x00000001, gf100_msvld_new },
+	.pm       = { 0x00000001, gf100_pm_new },
+	.sw       = { 0x00000001, gf100_sw_new },
+>>>>>>> upstream/android-13
 };
 
 static const struct nvkm_device_chip
 nvd7_chipset = {
 	.name = "GF117",
+<<<<<<< HEAD
 	.bar = gf100_bar_new,
 	.bios = nvkm_bios_new,
 	.bus = gf100_bus_new,
@@ -1624,11 +3032,44 @@ nvd7_chipset = {
 	.msvld = gf100_msvld_new,
 	.pm = gf117_pm_new,
 	.sw = gf100_sw_new,
+=======
+	.bar      = { 0x00000001, gf100_bar_new },
+	.bios     = { 0x00000001, nvkm_bios_new },
+	.bus      = { 0x00000001, gf100_bus_new },
+	.clk      = { 0x00000001, gf100_clk_new },
+	.devinit  = { 0x00000001, gf100_devinit_new },
+	.fb       = { 0x00000001, gf100_fb_new },
+	.fuse     = { 0x00000001, gf100_fuse_new },
+	.gpio     = { 0x00000001, gf119_gpio_new },
+	.i2c      = { 0x00000001, gf117_i2c_new },
+	.iccsense = { 0x00000001, gf100_iccsense_new },
+	.imem     = { 0x00000001, nv50_instmem_new },
+	.ltc      = { 0x00000001, gf100_ltc_new },
+	.mc       = { 0x00000001, gf100_mc_new },
+	.mmu      = { 0x00000001, gf100_mmu_new },
+	.mxm      = { 0x00000001, nv50_mxm_new },
+	.pci      = { 0x00000001, gf106_pci_new },
+	.privring = { 0x00000001, gf117_privring_new },
+	.therm    = { 0x00000001, gf119_therm_new },
+	.timer    = { 0x00000001, nv41_timer_new },
+	.volt     = { 0x00000001, gf117_volt_new },
+	.ce       = { 0x00000001, gf100_ce_new },
+	.disp     = { 0x00000001, gf119_disp_new },
+	.dma      = { 0x00000001, gf119_dma_new },
+	.fifo     = { 0x00000001, gf100_fifo_new },
+	.gr       = { 0x00000001, gf117_gr_new },
+	.mspdec   = { 0x00000001, gf100_mspdec_new },
+	.msppp    = { 0x00000001, gf100_msppp_new },
+	.msvld    = { 0x00000001, gf100_msvld_new },
+	.pm       = { 0x00000001, gf117_pm_new },
+	.sw       = { 0x00000001, gf100_sw_new },
+>>>>>>> upstream/android-13
 };
 
 static const struct nvkm_device_chip
 nvd9_chipset = {
 	.name = "GF119",
+<<<<<<< HEAD
 	.bar = gf100_bar_new,
 	.bios = nvkm_bios_new,
 	.bus = gf100_bus_new,
@@ -1660,11 +3101,45 @@ nvd9_chipset = {
 	.msvld = gf100_msvld_new,
 	.pm = gf117_pm_new,
 	.sw = gf100_sw_new,
+=======
+	.bar      = { 0x00000001, gf100_bar_new },
+	.bios     = { 0x00000001, nvkm_bios_new },
+	.bus      = { 0x00000001, gf100_bus_new },
+	.clk      = { 0x00000001, gf100_clk_new },
+	.devinit  = { 0x00000001, gf100_devinit_new },
+	.fb       = { 0x00000001, gf100_fb_new },
+	.fuse     = { 0x00000001, gf100_fuse_new },
+	.gpio     = { 0x00000001, gf119_gpio_new },
+	.i2c      = { 0x00000001, gf119_i2c_new },
+	.iccsense = { 0x00000001, gf100_iccsense_new },
+	.imem     = { 0x00000001, nv50_instmem_new },
+	.ltc      = { 0x00000001, gf100_ltc_new },
+	.mc       = { 0x00000001, gf100_mc_new },
+	.mmu      = { 0x00000001, gf100_mmu_new },
+	.mxm      = { 0x00000001, nv50_mxm_new },
+	.pci      = { 0x00000001, gf106_pci_new },
+	.pmu      = { 0x00000001, gf119_pmu_new },
+	.privring = { 0x00000001, gf117_privring_new },
+	.therm    = { 0x00000001, gf119_therm_new },
+	.timer    = { 0x00000001, nv41_timer_new },
+	.volt     = { 0x00000001, gf100_volt_new },
+	.ce       = { 0x00000001, gf100_ce_new },
+	.disp     = { 0x00000001, gf119_disp_new },
+	.dma      = { 0x00000001, gf119_dma_new },
+	.fifo     = { 0x00000001, gf100_fifo_new },
+	.gr       = { 0x00000001, gf119_gr_new },
+	.mspdec   = { 0x00000001, gf100_mspdec_new },
+	.msppp    = { 0x00000001, gf100_msppp_new },
+	.msvld    = { 0x00000001, gf100_msvld_new },
+	.pm       = { 0x00000001, gf117_pm_new },
+	.sw       = { 0x00000001, gf100_sw_new },
+>>>>>>> upstream/android-13
 };
 
 static const struct nvkm_device_chip
 nve4_chipset = {
 	.name = "GK104",
+<<<<<<< HEAD
 	.bar = gf100_bar_new,
 	.bios = nvkm_bios_new,
 	.bus = gf100_bus_new,
@@ -1699,11 +3174,46 @@ nve4_chipset = {
 	.msvld = gk104_msvld_new,
 	.pm = gk104_pm_new,
 	.sw = gf100_sw_new,
+=======
+	.bar      = { 0x00000001, gf100_bar_new },
+	.bios     = { 0x00000001, nvkm_bios_new },
+	.bus      = { 0x00000001, gf100_bus_new },
+	.clk      = { 0x00000001, gk104_clk_new },
+	.devinit  = { 0x00000001, gf100_devinit_new },
+	.fb       = { 0x00000001, gk104_fb_new },
+	.fuse     = { 0x00000001, gf100_fuse_new },
+	.gpio     = { 0x00000001, gk104_gpio_new },
+	.i2c      = { 0x00000001, gk104_i2c_new },
+	.iccsense = { 0x00000001, gf100_iccsense_new },
+	.imem     = { 0x00000001, nv50_instmem_new },
+	.ltc      = { 0x00000001, gk104_ltc_new },
+	.mc       = { 0x00000001, gk104_mc_new },
+	.mmu      = { 0x00000001, gk104_mmu_new },
+	.mxm      = { 0x00000001, nv50_mxm_new },
+	.pci      = { 0x00000001, gk104_pci_new },
+	.pmu      = { 0x00000001, gk104_pmu_new },
+	.privring = { 0x00000001, gk104_privring_new },
+	.therm    = { 0x00000001, gk104_therm_new },
+	.timer    = { 0x00000001, nv41_timer_new },
+	.top      = { 0x00000001, gk104_top_new },
+	.volt     = { 0x00000001, gk104_volt_new },
+	.ce       = { 0x00000007, gk104_ce_new },
+	.disp     = { 0x00000001, gk104_disp_new },
+	.dma      = { 0x00000001, gf119_dma_new },
+	.fifo     = { 0x00000001, gk104_fifo_new },
+	.gr       = { 0x00000001, gk104_gr_new },
+	.mspdec   = { 0x00000001, gk104_mspdec_new },
+	.msppp    = { 0x00000001, gf100_msppp_new },
+	.msvld    = { 0x00000001, gk104_msvld_new },
+	.pm       = { 0x00000001, gk104_pm_new },
+	.sw       = { 0x00000001, gf100_sw_new },
+>>>>>>> upstream/android-13
 };
 
 static const struct nvkm_device_chip
 nve6_chipset = {
 	.name = "GK106",
+<<<<<<< HEAD
 	.bar = gf100_bar_new,
 	.bios = nvkm_bios_new,
 	.bus = gf100_bus_new,
@@ -1738,11 +3248,46 @@ nve6_chipset = {
 	.msvld = gk104_msvld_new,
 	.pm = gk104_pm_new,
 	.sw = gf100_sw_new,
+=======
+	.bar      = { 0x00000001, gf100_bar_new },
+	.bios     = { 0x00000001, nvkm_bios_new },
+	.bus      = { 0x00000001, gf100_bus_new },
+	.clk      = { 0x00000001, gk104_clk_new },
+	.devinit  = { 0x00000001, gf100_devinit_new },
+	.fb       = { 0x00000001, gk104_fb_new },
+	.fuse     = { 0x00000001, gf100_fuse_new },
+	.gpio     = { 0x00000001, gk104_gpio_new },
+	.i2c      = { 0x00000001, gk104_i2c_new },
+	.iccsense = { 0x00000001, gf100_iccsense_new },
+	.imem     = { 0x00000001, nv50_instmem_new },
+	.ltc      = { 0x00000001, gk104_ltc_new },
+	.mc       = { 0x00000001, gk104_mc_new },
+	.mmu      = { 0x00000001, gk104_mmu_new },
+	.mxm      = { 0x00000001, nv50_mxm_new },
+	.pci      = { 0x00000001, gk104_pci_new },
+	.pmu      = { 0x00000001, gk104_pmu_new },
+	.privring = { 0x00000001, gk104_privring_new },
+	.therm    = { 0x00000001, gk104_therm_new },
+	.timer    = { 0x00000001, nv41_timer_new },
+	.top      = { 0x00000001, gk104_top_new },
+	.volt     = { 0x00000001, gk104_volt_new },
+	.ce       = { 0x00000007, gk104_ce_new },
+	.disp     = { 0x00000001, gk104_disp_new },
+	.dma      = { 0x00000001, gf119_dma_new },
+	.fifo     = { 0x00000001, gk104_fifo_new },
+	.gr       = { 0x00000001, gk104_gr_new },
+	.mspdec   = { 0x00000001, gk104_mspdec_new },
+	.msppp    = { 0x00000001, gf100_msppp_new },
+	.msvld    = { 0x00000001, gk104_msvld_new },
+	.pm       = { 0x00000001, gk104_pm_new },
+	.sw       = { 0x00000001, gf100_sw_new },
+>>>>>>> upstream/android-13
 };
 
 static const struct nvkm_device_chip
 nve7_chipset = {
 	.name = "GK107",
+<<<<<<< HEAD
 	.bar = gf100_bar_new,
 	.bios = nvkm_bios_new,
 	.bus = gf100_bus_new,
@@ -1777,11 +3322,46 @@ nve7_chipset = {
 	.msvld = gk104_msvld_new,
 	.pm = gk104_pm_new,
 	.sw = gf100_sw_new,
+=======
+	.bar      = { 0x00000001, gf100_bar_new },
+	.bios     = { 0x00000001, nvkm_bios_new },
+	.bus      = { 0x00000001, gf100_bus_new },
+	.clk      = { 0x00000001, gk104_clk_new },
+	.devinit  = { 0x00000001, gf100_devinit_new },
+	.fb       = { 0x00000001, gk104_fb_new },
+	.fuse     = { 0x00000001, gf100_fuse_new },
+	.gpio     = { 0x00000001, gk104_gpio_new },
+	.i2c      = { 0x00000001, gk104_i2c_new },
+	.iccsense = { 0x00000001, gf100_iccsense_new },
+	.imem     = { 0x00000001, nv50_instmem_new },
+	.ltc      = { 0x00000001, gk104_ltc_new },
+	.mc       = { 0x00000001, gk104_mc_new },
+	.mmu      = { 0x00000001, gk104_mmu_new },
+	.mxm      = { 0x00000001, nv50_mxm_new },
+	.pci      = { 0x00000001, gk104_pci_new },
+	.pmu      = { 0x00000001, gk104_pmu_new },
+	.privring = { 0x00000001, gk104_privring_new },
+	.therm    = { 0x00000001, gk104_therm_new },
+	.timer    = { 0x00000001, nv41_timer_new },
+	.top      = { 0x00000001, gk104_top_new },
+	.volt     = { 0x00000001, gk104_volt_new },
+	.ce       = { 0x00000007, gk104_ce_new },
+	.disp     = { 0x00000001, gk104_disp_new },
+	.dma      = { 0x00000001, gf119_dma_new },
+	.fifo     = { 0x00000001, gk104_fifo_new },
+	.gr       = { 0x00000001, gk104_gr_new },
+	.mspdec   = { 0x00000001, gk104_mspdec_new },
+	.msppp    = { 0x00000001, gf100_msppp_new },
+	.msvld    = { 0x00000001, gk104_msvld_new },
+	.pm       = { 0x00000001, gk104_pm_new },
+	.sw       = { 0x00000001, gf100_sw_new },
+>>>>>>> upstream/android-13
 };
 
 static const struct nvkm_device_chip
 nvea_chipset = {
 	.name = "GK20A",
+<<<<<<< HEAD
 	.bar = gk20a_bar_new,
 	.bus = gf100_bus_new,
 	.clk = gk20a_clk_new,
@@ -1802,11 +3382,34 @@ nvea_chipset = {
 	.gr = gk20a_gr_new,
 	.pm = gk104_pm_new,
 	.sw = gf100_sw_new,
+=======
+	.bar      = { 0x00000001, gk20a_bar_new },
+	.bus      = { 0x00000001, gf100_bus_new },
+	.clk      = { 0x00000001, gk20a_clk_new },
+	.fb       = { 0x00000001, gk20a_fb_new },
+	.fuse     = { 0x00000001, gf100_fuse_new },
+	.imem     = { 0x00000001, gk20a_instmem_new },
+	.ltc      = { 0x00000001, gk104_ltc_new },
+	.mc       = { 0x00000001, gk20a_mc_new },
+	.mmu      = { 0x00000001, gk20a_mmu_new },
+	.pmu      = { 0x00000001, gk20a_pmu_new },
+	.privring = { 0x00000001, gk20a_privring_new },
+	.timer    = { 0x00000001, gk20a_timer_new },
+	.top      = { 0x00000001, gk104_top_new },
+	.volt     = { 0x00000001, gk20a_volt_new },
+	.ce       = { 0x00000004, gk104_ce_new },
+	.dma      = { 0x00000001, gf119_dma_new },
+	.fifo     = { 0x00000001, gk20a_fifo_new },
+	.gr       = { 0x00000001, gk20a_gr_new },
+	.pm       = { 0x00000001, gk104_pm_new },
+	.sw       = { 0x00000001, gf100_sw_new },
+>>>>>>> upstream/android-13
 };
 
 static const struct nvkm_device_chip
 nvf0_chipset = {
 	.name = "GK110",
+<<<<<<< HEAD
 	.bar = gf100_bar_new,
 	.bios = nvkm_bios_new,
 	.bus = gf100_bus_new,
@@ -1840,11 +3443,45 @@ nvf0_chipset = {
 	.msppp = gf100_msppp_new,
 	.msvld = gk104_msvld_new,
 	.sw = gf100_sw_new,
+=======
+	.bar      = { 0x00000001, gf100_bar_new },
+	.bios     = { 0x00000001, nvkm_bios_new },
+	.bus      = { 0x00000001, gf100_bus_new },
+	.clk      = { 0x00000001, gk104_clk_new },
+	.devinit  = { 0x00000001, gf100_devinit_new },
+	.fb       = { 0x00000001, gk110_fb_new },
+	.fuse     = { 0x00000001, gf100_fuse_new },
+	.gpio     = { 0x00000001, gk104_gpio_new },
+	.i2c      = { 0x00000001, gk110_i2c_new },
+	.iccsense = { 0x00000001, gf100_iccsense_new },
+	.imem     = { 0x00000001, nv50_instmem_new },
+	.ltc      = { 0x00000001, gk104_ltc_new },
+	.mc       = { 0x00000001, gk104_mc_new },
+	.mmu      = { 0x00000001, gk104_mmu_new },
+	.mxm      = { 0x00000001, nv50_mxm_new },
+	.pci      = { 0x00000001, gk104_pci_new },
+	.pmu      = { 0x00000001, gk110_pmu_new },
+	.privring = { 0x00000001, gk104_privring_new },
+	.therm    = { 0x00000001, gk104_therm_new },
+	.timer    = { 0x00000001, nv41_timer_new },
+	.top      = { 0x00000001, gk104_top_new },
+	.volt     = { 0x00000001, gk104_volt_new },
+	.ce       = { 0x00000007, gk104_ce_new },
+	.disp     = { 0x00000001, gk110_disp_new },
+	.dma      = { 0x00000001, gf119_dma_new },
+	.fifo     = { 0x00000001, gk110_fifo_new },
+	.gr       = { 0x00000001, gk110_gr_new },
+	.mspdec   = { 0x00000001, gk104_mspdec_new },
+	.msppp    = { 0x00000001, gf100_msppp_new },
+	.msvld    = { 0x00000001, gk104_msvld_new },
+	.sw       = { 0x00000001, gf100_sw_new },
+>>>>>>> upstream/android-13
 };
 
 static const struct nvkm_device_chip
 nvf1_chipset = {
 	.name = "GK110B",
+<<<<<<< HEAD
 	.bar = gf100_bar_new,
 	.bios = nvkm_bios_new,
 	.bus = gf100_bus_new,
@@ -1878,11 +3515,45 @@ nvf1_chipset = {
 	.msppp = gf100_msppp_new,
 	.msvld = gk104_msvld_new,
 	.sw = gf100_sw_new,
+=======
+	.bar      = { 0x00000001, gf100_bar_new },
+	.bios     = { 0x00000001, nvkm_bios_new },
+	.bus      = { 0x00000001, gf100_bus_new },
+	.clk      = { 0x00000001, gk104_clk_new },
+	.devinit  = { 0x00000001, gf100_devinit_new },
+	.fb       = { 0x00000001, gk110_fb_new },
+	.fuse     = { 0x00000001, gf100_fuse_new },
+	.gpio     = { 0x00000001, gk104_gpio_new },
+	.i2c      = { 0x00000001, gk110_i2c_new },
+	.iccsense = { 0x00000001, gf100_iccsense_new },
+	.imem     = { 0x00000001, nv50_instmem_new },
+	.ltc      = { 0x00000001, gk104_ltc_new },
+	.mc       = { 0x00000001, gk104_mc_new },
+	.mmu      = { 0x00000001, gk104_mmu_new },
+	.mxm      = { 0x00000001, nv50_mxm_new },
+	.pci      = { 0x00000001, gk104_pci_new },
+	.pmu      = { 0x00000001, gk110_pmu_new },
+	.privring = { 0x00000001, gk104_privring_new },
+	.therm    = { 0x00000001, gk104_therm_new },
+	.timer    = { 0x00000001, nv41_timer_new },
+	.top      = { 0x00000001, gk104_top_new },
+	.volt     = { 0x00000001, gk104_volt_new },
+	.ce       = { 0x00000007, gk104_ce_new },
+	.disp     = { 0x00000001, gk110_disp_new },
+	.dma      = { 0x00000001, gf119_dma_new },
+	.fifo     = { 0x00000001, gk110_fifo_new },
+	.gr       = { 0x00000001, gk110b_gr_new },
+	.mspdec   = { 0x00000001, gk104_mspdec_new },
+	.msppp    = { 0x00000001, gf100_msppp_new },
+	.msvld    = { 0x00000001, gk104_msvld_new },
+	.sw       = { 0x00000001, gf100_sw_new },
+>>>>>>> upstream/android-13
 };
 
 static const struct nvkm_device_chip
 nv106_chipset = {
 	.name = "GK208B",
+<<<<<<< HEAD
 	.bar = gf100_bar_new,
 	.bios = nvkm_bios_new,
 	.bus = gf100_bus_new,
@@ -1916,11 +3587,45 @@ nv106_chipset = {
 	.msppp = gf100_msppp_new,
 	.msvld = gk104_msvld_new,
 	.sw = gf100_sw_new,
+=======
+	.bar      = { 0x00000001, gf100_bar_new },
+	.bios     = { 0x00000001, nvkm_bios_new },
+	.bus      = { 0x00000001, gf100_bus_new },
+	.clk      = { 0x00000001, gk104_clk_new },
+	.devinit  = { 0x00000001, gf100_devinit_new },
+	.fb       = { 0x00000001, gk110_fb_new },
+	.fuse     = { 0x00000001, gf100_fuse_new },
+	.gpio     = { 0x00000001, gk104_gpio_new },
+	.i2c      = { 0x00000001, gk110_i2c_new },
+	.iccsense = { 0x00000001, gf100_iccsense_new },
+	.imem     = { 0x00000001, nv50_instmem_new },
+	.ltc      = { 0x00000001, gk104_ltc_new },
+	.mc       = { 0x00000001, gk20a_mc_new },
+	.mmu      = { 0x00000001, gk104_mmu_new },
+	.mxm      = { 0x00000001, nv50_mxm_new },
+	.pci      = { 0x00000001, gk104_pci_new },
+	.pmu      = { 0x00000001, gk208_pmu_new },
+	.privring = { 0x00000001, gk104_privring_new },
+	.therm    = { 0x00000001, gk104_therm_new },
+	.timer    = { 0x00000001, nv41_timer_new },
+	.top      = { 0x00000001, gk104_top_new },
+	.volt     = { 0x00000001, gk104_volt_new },
+	.ce       = { 0x00000007, gk104_ce_new },
+	.disp     = { 0x00000001, gk110_disp_new },
+	.dma      = { 0x00000001, gf119_dma_new },
+	.fifo     = { 0x00000001, gk208_fifo_new },
+	.gr       = { 0x00000001, gk208_gr_new },
+	.mspdec   = { 0x00000001, gk104_mspdec_new },
+	.msppp    = { 0x00000001, gf100_msppp_new },
+	.msvld    = { 0x00000001, gk104_msvld_new },
+	.sw       = { 0x00000001, gf100_sw_new },
+>>>>>>> upstream/android-13
 };
 
 static const struct nvkm_device_chip
 nv108_chipset = {
 	.name = "GK208",
+<<<<<<< HEAD
 	.bar = gf100_bar_new,
 	.bios = nvkm_bios_new,
 	.bus = gf100_bus_new,
@@ -1954,11 +3659,45 @@ nv108_chipset = {
 	.msppp = gf100_msppp_new,
 	.msvld = gk104_msvld_new,
 	.sw = gf100_sw_new,
+=======
+	.bar      = { 0x00000001, gf100_bar_new },
+	.bios     = { 0x00000001, nvkm_bios_new },
+	.bus      = { 0x00000001, gf100_bus_new },
+	.clk      = { 0x00000001, gk104_clk_new },
+	.devinit  = { 0x00000001, gf100_devinit_new },
+	.fb       = { 0x00000001, gk110_fb_new },
+	.fuse     = { 0x00000001, gf100_fuse_new },
+	.gpio     = { 0x00000001, gk104_gpio_new },
+	.i2c      = { 0x00000001, gk110_i2c_new },
+	.iccsense = { 0x00000001, gf100_iccsense_new },
+	.imem     = { 0x00000001, nv50_instmem_new },
+	.ltc      = { 0x00000001, gk104_ltc_new },
+	.mc       = { 0x00000001, gk20a_mc_new },
+	.mmu      = { 0x00000001, gk104_mmu_new },
+	.mxm      = { 0x00000001, nv50_mxm_new },
+	.pci      = { 0x00000001, gk104_pci_new },
+	.pmu      = { 0x00000001, gk208_pmu_new },
+	.privring = { 0x00000001, gk104_privring_new },
+	.therm    = { 0x00000001, gk104_therm_new },
+	.timer    = { 0x00000001, nv41_timer_new },
+	.top      = { 0x00000001, gk104_top_new },
+	.volt     = { 0x00000001, gk104_volt_new },
+	.ce       = { 0x00000007, gk104_ce_new },
+	.disp     = { 0x00000001, gk110_disp_new },
+	.dma      = { 0x00000001, gf119_dma_new },
+	.fifo     = { 0x00000001, gk208_fifo_new },
+	.gr       = { 0x00000001, gk208_gr_new },
+	.mspdec   = { 0x00000001, gk104_mspdec_new },
+	.msppp    = { 0x00000001, gf100_msppp_new },
+	.msvld    = { 0x00000001, gk104_msvld_new },
+	.sw       = { 0x00000001, gf100_sw_new },
+>>>>>>> upstream/android-13
 };
 
 static const struct nvkm_device_chip
 nv117_chipset = {
 	.name = "GM107",
+<<<<<<< HEAD
 	.bar = gm107_bar_new,
 	.bios = nvkm_bios_new,
 	.bus = gf100_bus_new,
@@ -1988,11 +3727,44 @@ nv117_chipset = {
 	.fifo = gm107_fifo_new,
 	.gr = gm107_gr_new,
 	.sw = gf100_sw_new,
+=======
+	.bar      = { 0x00000001, gm107_bar_new },
+	.bios     = { 0x00000001, nvkm_bios_new },
+	.bus      = { 0x00000001, gf100_bus_new },
+	.clk      = { 0x00000001, gk104_clk_new },
+	.devinit  = { 0x00000001, gm107_devinit_new },
+	.fb       = { 0x00000001, gm107_fb_new },
+	.fuse     = { 0x00000001, gm107_fuse_new },
+	.gpio     = { 0x00000001, gk104_gpio_new },
+	.i2c      = { 0x00000001, gk110_i2c_new },
+	.iccsense = { 0x00000001, gf100_iccsense_new },
+	.imem     = { 0x00000001, nv50_instmem_new },
+	.ltc      = { 0x00000001, gm107_ltc_new },
+	.mc       = { 0x00000001, gk20a_mc_new },
+	.mmu      = { 0x00000001, gk104_mmu_new },
+	.mxm      = { 0x00000001, nv50_mxm_new },
+	.pci      = { 0x00000001, gk104_pci_new },
+	.pmu      = { 0x00000001, gm107_pmu_new },
+	.privring = { 0x00000001, gk104_privring_new },
+	.therm    = { 0x00000001, gm107_therm_new },
+	.timer    = { 0x00000001, gk20a_timer_new },
+	.top      = { 0x00000001, gk104_top_new },
+	.volt     = { 0x00000001, gk104_volt_new },
+	.ce       = { 0x00000005, gm107_ce_new },
+	.disp     = { 0x00000001, gm107_disp_new },
+	.dma      = { 0x00000001, gf119_dma_new },
+	.fifo     = { 0x00000001, gm107_fifo_new },
+	.gr       = { 0x00000001, gm107_gr_new },
+	.nvdec    = { 0x00000001, gm107_nvdec_new },
+	.nvenc    = { 0x00000001, gm107_nvenc_new },
+	.sw       = { 0x00000001, gf100_sw_new },
+>>>>>>> upstream/android-13
 };
 
 static const struct nvkm_device_chip
 nv118_chipset = {
 	.name = "GM108",
+<<<<<<< HEAD
 	.bar = gm107_bar_new,
 	.bios = nvkm_bios_new,
 	.bus = gf100_bus_new,
@@ -2022,11 +3794,42 @@ nv118_chipset = {
 	.fifo = gm107_fifo_new,
 	.gr = gm107_gr_new,
 	.sw = gf100_sw_new,
+=======
+	.bar      = { 0x00000001, gm107_bar_new },
+	.bios     = { 0x00000001, nvkm_bios_new },
+	.bus      = { 0x00000001, gf100_bus_new },
+	.clk      = { 0x00000001, gk104_clk_new },
+	.devinit  = { 0x00000001, gm107_devinit_new },
+	.fb       = { 0x00000001, gm107_fb_new },
+	.fuse     = { 0x00000001, gm107_fuse_new },
+	.gpio     = { 0x00000001, gk104_gpio_new },
+	.i2c      = { 0x00000001, gk110_i2c_new },
+	.iccsense = { 0x00000001, gf100_iccsense_new },
+	.imem     = { 0x00000001, nv50_instmem_new },
+	.ltc      = { 0x00000001, gm107_ltc_new },
+	.mc       = { 0x00000001, gk20a_mc_new },
+	.mmu      = { 0x00000001, gk104_mmu_new },
+	.mxm      = { 0x00000001, nv50_mxm_new },
+	.pci      = { 0x00000001, gk104_pci_new },
+	.pmu      = { 0x00000001, gm107_pmu_new },
+	.privring = { 0x00000001, gk104_privring_new },
+	.therm    = { 0x00000001, gm107_therm_new },
+	.timer    = { 0x00000001, gk20a_timer_new },
+	.top      = { 0x00000001, gk104_top_new },
+	.volt     = { 0x00000001, gk104_volt_new },
+	.ce       = { 0x00000005, gm107_ce_new },
+	.disp     = { 0x00000001, gm107_disp_new },
+	.dma      = { 0x00000001, gf119_dma_new },
+	.fifo     = { 0x00000001, gm107_fifo_new },
+	.gr       = { 0x00000001, gm107_gr_new },
+	.sw       = { 0x00000001, gf100_sw_new },
+>>>>>>> upstream/android-13
 };
 
 static const struct nvkm_device_chip
 nv120_chipset = {
 	.name = "GM200",
+<<<<<<< HEAD
 	.bar = gm107_bar_new,
 	.bios = nvkm_bios_new,
 	.bus = gf100_bus_new,
@@ -2057,11 +3860,44 @@ nv120_chipset = {
 	.fifo = gm200_fifo_new,
 	.gr = gm200_gr_new,
 	.sw = gf100_sw_new,
+=======
+	.acr      = { 0x00000001, gm200_acr_new },
+	.bar      = { 0x00000001, gm107_bar_new },
+	.bios     = { 0x00000001, nvkm_bios_new },
+	.bus      = { 0x00000001, gf100_bus_new },
+	.devinit  = { 0x00000001, gm200_devinit_new },
+	.fb       = { 0x00000001, gm200_fb_new },
+	.fuse     = { 0x00000001, gm107_fuse_new },
+	.gpio     = { 0x00000001, gk104_gpio_new },
+	.i2c      = { 0x00000001, gm200_i2c_new },
+	.iccsense = { 0x00000001, gf100_iccsense_new },
+	.imem     = { 0x00000001, nv50_instmem_new },
+	.ltc      = { 0x00000001, gm200_ltc_new },
+	.mc       = { 0x00000001, gk20a_mc_new },
+	.mmu      = { 0x00000001, gm200_mmu_new },
+	.mxm      = { 0x00000001, nv50_mxm_new },
+	.pci      = { 0x00000001, gk104_pci_new },
+	.pmu      = { 0x00000001, gm200_pmu_new },
+	.privring = { 0x00000001, gm200_privring_new },
+	.therm    = { 0x00000001, gm200_therm_new },
+	.timer    = { 0x00000001, gk20a_timer_new },
+	.top      = { 0x00000001, gk104_top_new },
+	.volt     = { 0x00000001, gk104_volt_new },
+	.ce       = { 0x00000007, gm200_ce_new },
+	.disp     = { 0x00000001, gm200_disp_new },
+	.dma      = { 0x00000001, gf119_dma_new },
+	.fifo     = { 0x00000001, gm200_fifo_new },
+	.gr       = { 0x00000001, gm200_gr_new },
+	.nvdec    = { 0x00000001, gm107_nvdec_new },
+	.nvenc    = { 0x00000003, gm107_nvenc_new },
+	.sw       = { 0x00000001, gf100_sw_new },
+>>>>>>> upstream/android-13
 };
 
 static const struct nvkm_device_chip
 nv124_chipset = {
 	.name = "GM204",
+<<<<<<< HEAD
 	.bar = gm107_bar_new,
 	.bios = nvkm_bios_new,
 	.bus = gf100_bus_new,
@@ -2092,11 +3928,44 @@ nv124_chipset = {
 	.fifo = gm200_fifo_new,
 	.gr = gm200_gr_new,
 	.sw = gf100_sw_new,
+=======
+	.acr      = { 0x00000001, gm200_acr_new },
+	.bar      = { 0x00000001, gm107_bar_new },
+	.bios     = { 0x00000001, nvkm_bios_new },
+	.bus      = { 0x00000001, gf100_bus_new },
+	.devinit  = { 0x00000001, gm200_devinit_new },
+	.fb       = { 0x00000001, gm200_fb_new },
+	.fuse     = { 0x00000001, gm107_fuse_new },
+	.gpio     = { 0x00000001, gk104_gpio_new },
+	.i2c      = { 0x00000001, gm200_i2c_new },
+	.iccsense = { 0x00000001, gf100_iccsense_new },
+	.imem     = { 0x00000001, nv50_instmem_new },
+	.ltc      = { 0x00000001, gm200_ltc_new },
+	.mc       = { 0x00000001, gk20a_mc_new },
+	.mmu      = { 0x00000001, gm200_mmu_new },
+	.mxm      = { 0x00000001, nv50_mxm_new },
+	.pci      = { 0x00000001, gk104_pci_new },
+	.pmu      = { 0x00000001, gm200_pmu_new },
+	.privring = { 0x00000001, gm200_privring_new },
+	.therm    = { 0x00000001, gm200_therm_new },
+	.timer    = { 0x00000001, gk20a_timer_new },
+	.top      = { 0x00000001, gk104_top_new },
+	.volt     = { 0x00000001, gk104_volt_new },
+	.ce       = { 0x00000007, gm200_ce_new },
+	.disp     = { 0x00000001, gm200_disp_new },
+	.dma      = { 0x00000001, gf119_dma_new },
+	.fifo     = { 0x00000001, gm200_fifo_new },
+	.gr       = { 0x00000001, gm200_gr_new },
+	.nvdec    = { 0x00000001, gm107_nvdec_new },
+	.nvenc    = { 0x00000003, gm107_nvenc_new },
+	.sw       = { 0x00000001, gf100_sw_new },
+>>>>>>> upstream/android-13
 };
 
 static const struct nvkm_device_chip
 nv126_chipset = {
 	.name = "GM206",
+<<<<<<< HEAD
 	.bar = gm107_bar_new,
 	.bios = nvkm_bios_new,
 	.bus = gf100_bus_new,
@@ -2127,11 +3996,44 @@ nv126_chipset = {
 	.fifo = gm200_fifo_new,
 	.gr = gm200_gr_new,
 	.sw = gf100_sw_new,
+=======
+	.acr      = { 0x00000001, gm200_acr_new },
+	.bar      = { 0x00000001, gm107_bar_new },
+	.bios     = { 0x00000001, nvkm_bios_new },
+	.bus      = { 0x00000001, gf100_bus_new },
+	.devinit  = { 0x00000001, gm200_devinit_new },
+	.fb       = { 0x00000001, gm200_fb_new },
+	.fuse     = { 0x00000001, gm107_fuse_new },
+	.gpio     = { 0x00000001, gk104_gpio_new },
+	.i2c      = { 0x00000001, gm200_i2c_new },
+	.iccsense = { 0x00000001, gf100_iccsense_new },
+	.imem     = { 0x00000001, nv50_instmem_new },
+	.ltc      = { 0x00000001, gm200_ltc_new },
+	.mc       = { 0x00000001, gk20a_mc_new },
+	.mmu      = { 0x00000001, gm200_mmu_new },
+	.mxm      = { 0x00000001, nv50_mxm_new },
+	.pci      = { 0x00000001, gk104_pci_new },
+	.pmu      = { 0x00000001, gm200_pmu_new },
+	.privring = { 0x00000001, gm200_privring_new },
+	.therm    = { 0x00000001, gm200_therm_new },
+	.timer    = { 0x00000001, gk20a_timer_new },
+	.top      = { 0x00000001, gk104_top_new },
+	.volt     = { 0x00000001, gk104_volt_new },
+	.ce       = { 0x00000007, gm200_ce_new },
+	.disp     = { 0x00000001, gm200_disp_new },
+	.dma      = { 0x00000001, gf119_dma_new },
+	.fifo     = { 0x00000001, gm200_fifo_new },
+	.gr       = { 0x00000001, gm200_gr_new },
+	.nvdec    = { 0x00000001, gm107_nvdec_new },
+	.nvenc    = { 0x00000001, gm107_nvenc_new },
+	.sw       = { 0x00000001, gf100_sw_new },
+>>>>>>> upstream/android-13
 };
 
 static const struct nvkm_device_chip
 nv12b_chipset = {
 	.name = "GM20B",
+<<<<<<< HEAD
 	.bar = gm20b_bar_new,
 	.bus = gf100_bus_new,
 	.clk = gm20b_clk_new,
@@ -2152,11 +4054,34 @@ nv12b_chipset = {
 	.fifo = gm20b_fifo_new,
 	.gr = gm20b_gr_new,
 	.sw = gf100_sw_new,
+=======
+	.acr      = { 0x00000001, gm20b_acr_new },
+	.bar      = { 0x00000001, gm20b_bar_new },
+	.bus      = { 0x00000001, gf100_bus_new },
+	.clk      = { 0x00000001, gm20b_clk_new },
+	.fb       = { 0x00000001, gm20b_fb_new },
+	.fuse     = { 0x00000001, gm107_fuse_new },
+	.imem     = { 0x00000001, gk20a_instmem_new },
+	.ltc      = { 0x00000001, gm200_ltc_new },
+	.mc       = { 0x00000001, gk20a_mc_new },
+	.mmu      = { 0x00000001, gm20b_mmu_new },
+	.pmu      = { 0x00000001, gm20b_pmu_new },
+	.privring = { 0x00000001, gk20a_privring_new },
+	.timer    = { 0x00000001, gk20a_timer_new },
+	.top      = { 0x00000001, gk104_top_new },
+	.volt     = { 0x00000001, gm20b_volt_new },
+	.ce       = { 0x00000004, gm200_ce_new },
+	.dma      = { 0x00000001, gf119_dma_new },
+	.fifo     = { 0x00000001, gm20b_fifo_new },
+	.gr       = { 0x00000001, gm20b_gr_new },
+	.sw       = { 0x00000001, gf100_sw_new },
+>>>>>>> upstream/android-13
 };
 
 static const struct nvkm_device_chip
 nv130_chipset = {
 	.name = "GP100",
+<<<<<<< HEAD
 	.bar = gm107_bar_new,
 	.bios = nvkm_bios_new,
 	.bus = gf100_bus_new,
@@ -2188,11 +4113,42 @@ nv130_chipset = {
 	.fifo = gp100_fifo_new,
 	.gr = gp100_gr_new,
 	.sw = gf100_sw_new,
+=======
+	.acr      = { 0x00000001, gm200_acr_new },
+	.bar      = { 0x00000001, gm107_bar_new },
+	.bios     = { 0x00000001, nvkm_bios_new },
+	.bus      = { 0x00000001, gf100_bus_new },
+	.devinit  = { 0x00000001, gm200_devinit_new },
+	.fault    = { 0x00000001, gp100_fault_new },
+	.fb       = { 0x00000001, gp100_fb_new },
+	.fuse     = { 0x00000001, gm107_fuse_new },
+	.gpio     = { 0x00000001, gk104_gpio_new },
+	.i2c      = { 0x00000001, gm200_i2c_new },
+	.imem     = { 0x00000001, nv50_instmem_new },
+	.ltc      = { 0x00000001, gp100_ltc_new },
+	.mc       = { 0x00000001, gp100_mc_new },
+	.mmu      = { 0x00000001, gp100_mmu_new },
+	.therm    = { 0x00000001, gp100_therm_new },
+	.pci      = { 0x00000001, gp100_pci_new },
+	.pmu      = { 0x00000001, gm200_pmu_new },
+	.privring = { 0x00000001, gm200_privring_new },
+	.timer    = { 0x00000001, gk20a_timer_new },
+	.top      = { 0x00000001, gk104_top_new },
+	.ce       = { 0x0000003f, gp100_ce_new },
+	.dma      = { 0x00000001, gf119_dma_new },
+	.disp     = { 0x00000001, gp100_disp_new },
+	.fifo     = { 0x00000001, gp100_fifo_new },
+	.gr       = { 0x00000001, gp100_gr_new },
+	.nvdec    = { 0x00000001, gm107_nvdec_new },
+	.nvenc    = { 0x00000007, gm107_nvenc_new },
+	.sw       = { 0x00000001, gf100_sw_new },
+>>>>>>> upstream/android-13
 };
 
 static const struct nvkm_device_chip
 nv132_chipset = {
 	.name = "GP102",
+<<<<<<< HEAD
 	.bar = gm107_bar_new,
 	.bios = nvkm_bios_new,
 	.bus = gf100_bus_new,
@@ -2224,11 +4180,43 @@ nv132_chipset = {
 	.nvdec = gp102_nvdec_new,
 	.sec2 = gp102_sec2_new,
 	.sw = gf100_sw_new,
+=======
+	.acr      = { 0x00000001, gp102_acr_new },
+	.bar      = { 0x00000001, gm107_bar_new },
+	.bios     = { 0x00000001, nvkm_bios_new },
+	.bus      = { 0x00000001, gf100_bus_new },
+	.devinit  = { 0x00000001, gm200_devinit_new },
+	.fault    = { 0x00000001, gp100_fault_new },
+	.fb       = { 0x00000001, gp102_fb_new },
+	.fuse     = { 0x00000001, gm107_fuse_new },
+	.gpio     = { 0x00000001, gk104_gpio_new },
+	.i2c      = { 0x00000001, gm200_i2c_new },
+	.imem     = { 0x00000001, nv50_instmem_new },
+	.ltc      = { 0x00000001, gp102_ltc_new },
+	.mc       = { 0x00000001, gp100_mc_new },
+	.mmu      = { 0x00000001, gp100_mmu_new },
+	.therm    = { 0x00000001, gp100_therm_new },
+	.pci      = { 0x00000001, gp100_pci_new },
+	.pmu      = { 0x00000001, gp102_pmu_new },
+	.privring = { 0x00000001, gm200_privring_new },
+	.timer    = { 0x00000001, gk20a_timer_new },
+	.top      = { 0x00000001, gk104_top_new },
+	.ce       = { 0x0000000f, gp102_ce_new },
+	.disp     = { 0x00000001, gp102_disp_new },
+	.dma      = { 0x00000001, gf119_dma_new },
+	.fifo     = { 0x00000001, gp100_fifo_new },
+	.gr       = { 0x00000001, gp102_gr_new },
+	.nvdec    = { 0x00000001, gm107_nvdec_new },
+	.nvenc    = { 0x00000003, gm107_nvenc_new },
+	.sec2     = { 0x00000001, gp102_sec2_new },
+	.sw       = { 0x00000001, gf100_sw_new },
+>>>>>>> upstream/android-13
 };
 
 static const struct nvkm_device_chip
 nv134_chipset = {
 	.name = "GP104",
+<<<<<<< HEAD
 	.bar = gm107_bar_new,
 	.bios = nvkm_bios_new,
 	.bus = gf100_bus_new,
@@ -2260,11 +4248,43 @@ nv134_chipset = {
 	.nvdec = gp102_nvdec_new,
 	.sec2 = gp102_sec2_new,
 	.sw = gf100_sw_new,
+=======
+	.acr      = { 0x00000001, gp102_acr_new },
+	.bar      = { 0x00000001, gm107_bar_new },
+	.bios     = { 0x00000001, nvkm_bios_new },
+	.bus      = { 0x00000001, gf100_bus_new },
+	.devinit  = { 0x00000001, gm200_devinit_new },
+	.fault    = { 0x00000001, gp100_fault_new },
+	.fb       = { 0x00000001, gp102_fb_new },
+	.fuse     = { 0x00000001, gm107_fuse_new },
+	.gpio     = { 0x00000001, gk104_gpio_new },
+	.i2c      = { 0x00000001, gm200_i2c_new },
+	.imem     = { 0x00000001, nv50_instmem_new },
+	.ltc      = { 0x00000001, gp102_ltc_new },
+	.mc       = { 0x00000001, gp100_mc_new },
+	.mmu      = { 0x00000001, gp100_mmu_new },
+	.therm    = { 0x00000001, gp100_therm_new },
+	.pci      = { 0x00000001, gp100_pci_new },
+	.pmu      = { 0x00000001, gp102_pmu_new },
+	.privring = { 0x00000001, gm200_privring_new },
+	.timer    = { 0x00000001, gk20a_timer_new },
+	.top      = { 0x00000001, gk104_top_new },
+	.ce       = { 0x0000000f, gp102_ce_new },
+	.disp     = { 0x00000001, gp102_disp_new },
+	.dma      = { 0x00000001, gf119_dma_new },
+	.fifo     = { 0x00000001, gp100_fifo_new },
+	.gr       = { 0x00000001, gp104_gr_new },
+	.nvdec    = { 0x00000001, gm107_nvdec_new },
+	.nvenc    = { 0x00000003, gm107_nvenc_new },
+	.sec2     = { 0x00000001, gp102_sec2_new },
+	.sw       = { 0x00000001, gf100_sw_new },
+>>>>>>> upstream/android-13
 };
 
 static const struct nvkm_device_chip
 nv136_chipset = {
 	.name = "GP106",
+<<<<<<< HEAD
 	.bar = gm107_bar_new,
 	.bios = nvkm_bios_new,
 	.bus = gf100_bus_new,
@@ -2296,11 +4316,43 @@ nv136_chipset = {
 	.nvdec = gp102_nvdec_new,
 	.sec2 = gp102_sec2_new,
 	.sw = gf100_sw_new,
+=======
+	.acr      = { 0x00000001, gp102_acr_new },
+	.bar      = { 0x00000001, gm107_bar_new },
+	.bios     = { 0x00000001, nvkm_bios_new },
+	.bus      = { 0x00000001, gf100_bus_new },
+	.devinit  = { 0x00000001, gm200_devinit_new },
+	.fault    = { 0x00000001, gp100_fault_new },
+	.fb       = { 0x00000001, gp102_fb_new },
+	.fuse     = { 0x00000001, gm107_fuse_new },
+	.gpio     = { 0x00000001, gk104_gpio_new },
+	.i2c      = { 0x00000001, gm200_i2c_new },
+	.imem     = { 0x00000001, nv50_instmem_new },
+	.ltc      = { 0x00000001, gp102_ltc_new },
+	.mc       = { 0x00000001, gp100_mc_new },
+	.mmu      = { 0x00000001, gp100_mmu_new },
+	.therm    = { 0x00000001, gp100_therm_new },
+	.pci      = { 0x00000001, gp100_pci_new },
+	.pmu      = { 0x00000001, gp102_pmu_new },
+	.privring = { 0x00000001, gm200_privring_new },
+	.timer    = { 0x00000001, gk20a_timer_new },
+	.top      = { 0x00000001, gk104_top_new },
+	.ce       = { 0x0000000f, gp102_ce_new },
+	.disp     = { 0x00000001, gp102_disp_new },
+	.dma      = { 0x00000001, gf119_dma_new },
+	.fifo     = { 0x00000001, gp100_fifo_new },
+	.gr       = { 0x00000001, gp104_gr_new },
+	.nvdec    = { 0x00000001, gm107_nvdec_new },
+	.nvenc    = { 0x00000001, gm107_nvenc_new },
+	.sec2     = { 0x00000001, gp102_sec2_new },
+	.sw       = { 0x00000001, gf100_sw_new },
+>>>>>>> upstream/android-13
 };
 
 static const struct nvkm_device_chip
 nv137_chipset = {
 	.name = "GP107",
+<<<<<<< HEAD
 	.bar = gm107_bar_new,
 	.bios = nvkm_bios_new,
 	.bus = gf100_bus_new,
@@ -2332,11 +4384,43 @@ nv137_chipset = {
 	.nvdec = gp102_nvdec_new,
 	.sec2 = gp102_sec2_new,
 	.sw = gf100_sw_new,
+=======
+	.acr      = { 0x00000001, gp102_acr_new },
+	.bar      = { 0x00000001, gm107_bar_new },
+	.bios     = { 0x00000001, nvkm_bios_new },
+	.bus      = { 0x00000001, gf100_bus_new },
+	.devinit  = { 0x00000001, gm200_devinit_new },
+	.fault    = { 0x00000001, gp100_fault_new },
+	.fb       = { 0x00000001, gp102_fb_new },
+	.fuse     = { 0x00000001, gm107_fuse_new },
+	.gpio     = { 0x00000001, gk104_gpio_new },
+	.i2c      = { 0x00000001, gm200_i2c_new },
+	.imem     = { 0x00000001, nv50_instmem_new },
+	.ltc      = { 0x00000001, gp102_ltc_new },
+	.mc       = { 0x00000001, gp100_mc_new },
+	.mmu      = { 0x00000001, gp100_mmu_new },
+	.therm    = { 0x00000001, gp100_therm_new },
+	.pci      = { 0x00000001, gp100_pci_new },
+	.pmu      = { 0x00000001, gp102_pmu_new },
+	.privring = { 0x00000001, gm200_privring_new },
+	.timer    = { 0x00000001, gk20a_timer_new },
+	.top      = { 0x00000001, gk104_top_new },
+	.ce       = { 0x0000000f, gp102_ce_new },
+	.disp     = { 0x00000001, gp102_disp_new },
+	.dma      = { 0x00000001, gf119_dma_new },
+	.fifo     = { 0x00000001, gp100_fifo_new },
+	.gr       = { 0x00000001, gp107_gr_new },
+	.nvdec    = { 0x00000001, gm107_nvdec_new },
+	.nvenc    = { 0x00000003, gm107_nvenc_new },
+	.sec2     = { 0x00000001, gp102_sec2_new },
+	.sw       = { 0x00000001, gf100_sw_new },
+>>>>>>> upstream/android-13
 };
 
 static const struct nvkm_device_chip
 nv138_chipset = {
 	.name = "GP108",
+<<<<<<< HEAD
 	.bar = gm107_bar_new,
 	.bios = nvkm_bios_new,
 	.bus = gf100_bus_new,
@@ -2368,11 +4452,42 @@ nv138_chipset = {
 	.nvdec = gp102_nvdec_new,
 	.sec2 = gp102_sec2_new,
 	.sw = gf100_sw_new,
+=======
+	.acr      = { 0x00000001, gp108_acr_new },
+	.bar      = { 0x00000001, gm107_bar_new },
+	.bios     = { 0x00000001, nvkm_bios_new },
+	.bus      = { 0x00000001, gf100_bus_new },
+	.devinit  = { 0x00000001, gm200_devinit_new },
+	.fault    = { 0x00000001, gp100_fault_new },
+	.fb       = { 0x00000001, gp102_fb_new },
+	.fuse     = { 0x00000001, gm107_fuse_new },
+	.gpio     = { 0x00000001, gk104_gpio_new },
+	.i2c      = { 0x00000001, gm200_i2c_new },
+	.imem     = { 0x00000001, nv50_instmem_new },
+	.ltc      = { 0x00000001, gp102_ltc_new },
+	.mc       = { 0x00000001, gp100_mc_new },
+	.mmu      = { 0x00000001, gp100_mmu_new },
+	.therm    = { 0x00000001, gp100_therm_new },
+	.pci      = { 0x00000001, gp100_pci_new },
+	.pmu      = { 0x00000001, gp102_pmu_new },
+	.privring = { 0x00000001, gm200_privring_new },
+	.timer    = { 0x00000001, gk20a_timer_new },
+	.top      = { 0x00000001, gk104_top_new },
+	.ce       = { 0x0000000f, gp102_ce_new },
+	.disp     = { 0x00000001, gp102_disp_new },
+	.dma      = { 0x00000001, gf119_dma_new },
+	.fifo     = { 0x00000001, gp100_fifo_new },
+	.gr       = { 0x00000001, gp108_gr_new },
+	.nvdec    = { 0x00000001, gm107_nvdec_new },
+	.sec2     = { 0x00000001, gp108_sec2_new },
+	.sw       = { 0x00000001, gf100_sw_new },
+>>>>>>> upstream/android-13
 };
 
 static const struct nvkm_device_chip
 nv13b_chipset = {
 	.name = "GP10B",
+<<<<<<< HEAD
 	.bar = gm20b_bar_new,
 	.bus = gf100_bus_new,
 	.fault = gp100_fault_new,
@@ -2392,11 +4507,33 @@ nv13b_chipset = {
 	.fifo = gp10b_fifo_new,
 	.gr = gp10b_gr_new,
 	.sw = gf100_sw_new,
+=======
+	.acr      = { 0x00000001, gp10b_acr_new },
+	.bar      = { 0x00000001, gm20b_bar_new },
+	.bus      = { 0x00000001, gf100_bus_new },
+	.fault    = { 0x00000001, gp10b_fault_new },
+	.fb       = { 0x00000001, gp10b_fb_new },
+	.fuse     = { 0x00000001, gm107_fuse_new },
+	.imem     = { 0x00000001, gk20a_instmem_new },
+	.ltc      = { 0x00000001, gp10b_ltc_new },
+	.mc       = { 0x00000001, gp10b_mc_new },
+	.mmu      = { 0x00000001, gp10b_mmu_new },
+	.pmu      = { 0x00000001, gp10b_pmu_new },
+	.privring = { 0x00000001, gp10b_privring_new },
+	.timer    = { 0x00000001, gk20a_timer_new },
+	.top      = { 0x00000001, gk104_top_new },
+	.ce       = { 0x00000001, gp100_ce_new },
+	.dma      = { 0x00000001, gf119_dma_new },
+	.fifo     = { 0x00000001, gp10b_fifo_new },
+	.gr       = { 0x00000001, gp10b_gr_new },
+	.sw       = { 0x00000001, gf100_sw_new },
+>>>>>>> upstream/android-13
 };
 
 static const struct nvkm_device_chip
 nv140_chipset = {
 	.name = "GV100",
+<<<<<<< HEAD
 	.bar = gm107_bar_new,
 	.bios = nvkm_bios_new,
 	.bus = gf100_bus_new,
@@ -2432,6 +4569,309 @@ nv140_chipset = {
 	.gr = gv100_gr_new,
 	.nvdec = gp102_nvdec_new,
 	.sec2 = gp102_sec2_new,
+=======
+	.acr      = { 0x00000001, gp108_acr_new },
+	.bar      = { 0x00000001, gm107_bar_new },
+	.bios     = { 0x00000001, nvkm_bios_new },
+	.bus      = { 0x00000001, gf100_bus_new },
+	.devinit  = { 0x00000001, gv100_devinit_new },
+	.fault    = { 0x00000001, gv100_fault_new },
+	.fb       = { 0x00000001, gv100_fb_new },
+	.fuse     = { 0x00000001, gm107_fuse_new },
+	.gpio     = { 0x00000001, gk104_gpio_new },
+	.gsp      = { 0x00000001, gv100_gsp_new },
+	.i2c      = { 0x00000001, gm200_i2c_new },
+	.imem     = { 0x00000001, nv50_instmem_new },
+	.ltc      = { 0x00000001, gp102_ltc_new },
+	.mc       = { 0x00000001, gp100_mc_new },
+	.mmu      = { 0x00000001, gv100_mmu_new },
+	.pci      = { 0x00000001, gp100_pci_new },
+	.pmu      = { 0x00000001, gp102_pmu_new },
+	.privring = { 0x00000001, gm200_privring_new },
+	.therm    = { 0x00000001, gp100_therm_new },
+	.timer    = { 0x00000001, gk20a_timer_new },
+	.top      = { 0x00000001, gk104_top_new },
+	.ce       = { 0x000001ff, gv100_ce_new },
+	.disp     = { 0x00000001, gv100_disp_new },
+	.dma      = { 0x00000001, gv100_dma_new },
+	.fifo     = { 0x00000001, gv100_fifo_new },
+	.gr       = { 0x00000001, gv100_gr_new },
+	.nvdec    = { 0x00000001, gm107_nvdec_new },
+	.nvenc    = { 0x00000007, gm107_nvenc_new },
+	.sec2     = { 0x00000001, gp108_sec2_new },
+};
+
+static const struct nvkm_device_chip
+nv162_chipset = {
+	.name = "TU102",
+	.acr      = { 0x00000001, tu102_acr_new },
+	.bar      = { 0x00000001, tu102_bar_new },
+	.bios     = { 0x00000001, nvkm_bios_new },
+	.bus      = { 0x00000001, gf100_bus_new },
+	.devinit  = { 0x00000001, tu102_devinit_new },
+	.fault    = { 0x00000001, tu102_fault_new },
+	.fb       = { 0x00000001, gv100_fb_new },
+	.fuse     = { 0x00000001, gm107_fuse_new },
+	.gpio     = { 0x00000001, gk104_gpio_new },
+	.gsp      = { 0x00000001, gv100_gsp_new },
+	.i2c      = { 0x00000001, gm200_i2c_new },
+	.imem     = { 0x00000001, nv50_instmem_new },
+	.ltc      = { 0x00000001, gp102_ltc_new },
+	.mc       = { 0x00000001, tu102_mc_new },
+	.mmu      = { 0x00000001, tu102_mmu_new },
+	.pci      = { 0x00000001, gp100_pci_new },
+	.pmu      = { 0x00000001, gp102_pmu_new },
+	.privring = { 0x00000001, gm200_privring_new },
+	.therm    = { 0x00000001, gp100_therm_new },
+	.timer    = { 0x00000001, gk20a_timer_new },
+	.top      = { 0x00000001, gk104_top_new },
+	.ce       = { 0x0000001f, tu102_ce_new },
+	.disp     = { 0x00000001, tu102_disp_new },
+	.dma      = { 0x00000001, gv100_dma_new },
+	.fifo     = { 0x00000001, tu102_fifo_new },
+	.gr       = { 0x00000001, tu102_gr_new },
+	.nvdec    = { 0x00000001, gm107_nvdec_new },
+	.nvenc    = { 0x00000001, gm107_nvenc_new },
+	.sec2     = { 0x00000001, tu102_sec2_new },
+};
+
+static const struct nvkm_device_chip
+nv164_chipset = {
+	.name = "TU104",
+	.acr      = { 0x00000001, tu102_acr_new },
+	.bar      = { 0x00000001, tu102_bar_new },
+	.bios     = { 0x00000001, nvkm_bios_new },
+	.bus      = { 0x00000001, gf100_bus_new },
+	.devinit  = { 0x00000001, tu102_devinit_new },
+	.fault    = { 0x00000001, tu102_fault_new },
+	.fb       = { 0x00000001, gv100_fb_new },
+	.fuse     = { 0x00000001, gm107_fuse_new },
+	.gpio     = { 0x00000001, gk104_gpio_new },
+	.gsp      = { 0x00000001, gv100_gsp_new },
+	.i2c      = { 0x00000001, gm200_i2c_new },
+	.imem     = { 0x00000001, nv50_instmem_new },
+	.ltc      = { 0x00000001, gp102_ltc_new },
+	.mc       = { 0x00000001, tu102_mc_new },
+	.mmu      = { 0x00000001, tu102_mmu_new },
+	.pci      = { 0x00000001, gp100_pci_new },
+	.pmu      = { 0x00000001, gp102_pmu_new },
+	.privring = { 0x00000001, gm200_privring_new },
+	.therm    = { 0x00000001, gp100_therm_new },
+	.timer    = { 0x00000001, gk20a_timer_new },
+	.top      = { 0x00000001, gk104_top_new },
+	.ce       = { 0x0000001f, tu102_ce_new },
+	.disp     = { 0x00000001, tu102_disp_new },
+	.dma      = { 0x00000001, gv100_dma_new },
+	.fifo     = { 0x00000001, tu102_fifo_new },
+	.gr       = { 0x00000001, tu102_gr_new },
+	.nvdec    = { 0x00000003, gm107_nvdec_new },
+	.nvenc    = { 0x00000001, gm107_nvenc_new },
+	.sec2     = { 0x00000001, tu102_sec2_new },
+};
+
+static const struct nvkm_device_chip
+nv166_chipset = {
+	.name = "TU106",
+	.acr      = { 0x00000001, tu102_acr_new },
+	.bar      = { 0x00000001, tu102_bar_new },
+	.bios     = { 0x00000001, nvkm_bios_new },
+	.bus      = { 0x00000001, gf100_bus_new },
+	.devinit  = { 0x00000001, tu102_devinit_new },
+	.fault    = { 0x00000001, tu102_fault_new },
+	.fb       = { 0x00000001, gv100_fb_new },
+	.fuse     = { 0x00000001, gm107_fuse_new },
+	.gpio     = { 0x00000001, gk104_gpio_new },
+	.gsp      = { 0x00000001, gv100_gsp_new },
+	.i2c      = { 0x00000001, gm200_i2c_new },
+	.imem     = { 0x00000001, nv50_instmem_new },
+	.ltc      = { 0x00000001, gp102_ltc_new },
+	.mc       = { 0x00000001, tu102_mc_new },
+	.mmu      = { 0x00000001, tu102_mmu_new },
+	.pci      = { 0x00000001, gp100_pci_new },
+	.pmu      = { 0x00000001, gp102_pmu_new },
+	.privring = { 0x00000001, gm200_privring_new },
+	.therm    = { 0x00000001, gp100_therm_new },
+	.timer    = { 0x00000001, gk20a_timer_new },
+	.top      = { 0x00000001, gk104_top_new },
+	.ce       = { 0x0000001f, tu102_ce_new },
+	.disp     = { 0x00000001, tu102_disp_new },
+	.dma      = { 0x00000001, gv100_dma_new },
+	.fifo     = { 0x00000001, tu102_fifo_new },
+	.gr       = { 0x00000001, tu102_gr_new },
+	.nvdec    = { 0x00000007, gm107_nvdec_new },
+	.nvenc    = { 0x00000001, gm107_nvenc_new },
+	.sec2     = { 0x00000001, tu102_sec2_new },
+};
+
+static const struct nvkm_device_chip
+nv167_chipset = {
+	.name = "TU117",
+	.acr      = { 0x00000001, tu102_acr_new },
+	.bar      = { 0x00000001, tu102_bar_new },
+	.bios     = { 0x00000001, nvkm_bios_new },
+	.bus      = { 0x00000001, gf100_bus_new },
+	.devinit  = { 0x00000001, tu102_devinit_new },
+	.fault    = { 0x00000001, tu102_fault_new },
+	.fb       = { 0x00000001, gv100_fb_new },
+	.fuse     = { 0x00000001, gm107_fuse_new },
+	.gpio     = { 0x00000001, gk104_gpio_new },
+	.gsp      = { 0x00000001, gv100_gsp_new },
+	.i2c      = { 0x00000001, gm200_i2c_new },
+	.imem     = { 0x00000001, nv50_instmem_new },
+	.ltc      = { 0x00000001, gp102_ltc_new },
+	.mc       = { 0x00000001, tu102_mc_new },
+	.mmu      = { 0x00000001, tu102_mmu_new },
+	.pci      = { 0x00000001, gp100_pci_new },
+	.pmu      = { 0x00000001, gp102_pmu_new },
+	.privring = { 0x00000001, gm200_privring_new },
+	.therm    = { 0x00000001, gp100_therm_new },
+	.timer    = { 0x00000001, gk20a_timer_new },
+	.top      = { 0x00000001, gk104_top_new },
+	.ce       = { 0x0000001f, tu102_ce_new },
+	.disp     = { 0x00000001, tu102_disp_new },
+	.dma      = { 0x00000001, gv100_dma_new },
+	.fifo     = { 0x00000001, tu102_fifo_new },
+	.gr       = { 0x00000001, tu102_gr_new },
+	.nvdec    = { 0x00000001, gm107_nvdec_new },
+	.nvenc    = { 0x00000001, gm107_nvenc_new },
+	.sec2     = { 0x00000001, tu102_sec2_new },
+};
+
+static const struct nvkm_device_chip
+nv168_chipset = {
+	.name = "TU116",
+	.acr      = { 0x00000001, tu102_acr_new },
+	.bar      = { 0x00000001, tu102_bar_new },
+	.bios     = { 0x00000001, nvkm_bios_new },
+	.bus      = { 0x00000001, gf100_bus_new },
+	.devinit  = { 0x00000001, tu102_devinit_new },
+	.fault    = { 0x00000001, tu102_fault_new },
+	.fb       = { 0x00000001, gv100_fb_new },
+	.fuse     = { 0x00000001, gm107_fuse_new },
+	.gpio     = { 0x00000001, gk104_gpio_new },
+	.gsp      = { 0x00000001, gv100_gsp_new },
+	.i2c      = { 0x00000001, gm200_i2c_new },
+	.imem     = { 0x00000001, nv50_instmem_new },
+	.ltc      = { 0x00000001, gp102_ltc_new },
+	.mc       = { 0x00000001, tu102_mc_new },
+	.mmu      = { 0x00000001, tu102_mmu_new },
+	.pci      = { 0x00000001, gp100_pci_new },
+	.pmu      = { 0x00000001, gp102_pmu_new },
+	.privring = { 0x00000001, gm200_privring_new },
+	.therm    = { 0x00000001, gp100_therm_new },
+	.timer    = { 0x00000001, gk20a_timer_new },
+	.top      = { 0x00000001, gk104_top_new },
+	.ce       = { 0x0000001f, tu102_ce_new },
+	.disp     = { 0x00000001, tu102_disp_new },
+	.dma      = { 0x00000001, gv100_dma_new },
+	.fifo     = { 0x00000001, tu102_fifo_new },
+	.gr       = { 0x00000001, tu102_gr_new },
+	.nvdec    = { 0x00000001, gm107_nvdec_new },
+	.nvenc    = { 0x00000001, gm107_nvenc_new },
+	.sec2     = { 0x00000001, tu102_sec2_new },
+};
+
+static const struct nvkm_device_chip
+nv170_chipset = {
+	.name = "GA100",
+	.bar      = { 0x00000001, tu102_bar_new },
+	.bios     = { 0x00000001, nvkm_bios_new },
+	.devinit  = { 0x00000001, ga100_devinit_new },
+	.fb       = { 0x00000001, ga100_fb_new },
+	.gpio     = { 0x00000001, gk104_gpio_new },
+	.i2c      = { 0x00000001, gm200_i2c_new },
+	.imem     = { 0x00000001, nv50_instmem_new },
+	.mc       = { 0x00000001, ga100_mc_new },
+	.mmu      = { 0x00000001, tu102_mmu_new },
+	.pci      = { 0x00000001, gp100_pci_new },
+	.privring = { 0x00000001, gm200_privring_new },
+	.timer    = { 0x00000001, gk20a_timer_new },
+	.top      = { 0x00000001, ga100_top_new },
+};
+
+static const struct nvkm_device_chip
+nv172_chipset = {
+	.name = "GA102",
+	.bar      = { 0x00000001, tu102_bar_new },
+	.bios     = { 0x00000001, nvkm_bios_new },
+	.devinit  = { 0x00000001, ga100_devinit_new },
+	.fb       = { 0x00000001, ga102_fb_new },
+	.gpio     = { 0x00000001, ga102_gpio_new },
+	.i2c      = { 0x00000001, gm200_i2c_new },
+	.imem     = { 0x00000001, nv50_instmem_new },
+	.mc       = { 0x00000001, ga100_mc_new },
+	.mmu      = { 0x00000001, tu102_mmu_new },
+	.pci      = { 0x00000001, gp100_pci_new },
+	.privring = { 0x00000001, gm200_privring_new },
+	.timer    = { 0x00000001, gk20a_timer_new },
+	.top      = { 0x00000001, ga100_top_new },
+	.disp     = { 0x00000001, ga102_disp_new },
+	.dma      = { 0x00000001, gv100_dma_new },
+	.fifo     = { 0x00000001, ga102_fifo_new },
+};
+
+static const struct nvkm_device_chip
+nv174_chipset = {
+	.name = "GA104",
+	.bar      = { 0x00000001, tu102_bar_new },
+	.bios     = { 0x00000001, nvkm_bios_new },
+	.devinit  = { 0x00000001, ga100_devinit_new },
+	.fb       = { 0x00000001, ga102_fb_new },
+	.gpio     = { 0x00000001, ga102_gpio_new },
+	.i2c      = { 0x00000001, gm200_i2c_new },
+	.imem     = { 0x00000001, nv50_instmem_new },
+	.mc       = { 0x00000001, ga100_mc_new },
+	.mmu      = { 0x00000001, tu102_mmu_new },
+	.pci      = { 0x00000001, gp100_pci_new },
+	.privring = { 0x00000001, gm200_privring_new },
+	.timer    = { 0x00000001, gk20a_timer_new },
+	.top      = { 0x00000001, ga100_top_new },
+	.disp     = { 0x00000001, ga102_disp_new },
+	.dma      = { 0x00000001, gv100_dma_new },
+	.fifo     = { 0x00000001, ga102_fifo_new },
+};
+
+static const struct nvkm_device_chip
+nv176_chipset = {
+	.name = "GA106",
+	.bar      = { 0x00000001, tu102_bar_new },
+	.bios     = { 0x00000001, nvkm_bios_new },
+	.devinit  = { 0x00000001, ga100_devinit_new },
+	.fb       = { 0x00000001, ga102_fb_new },
+	.gpio     = { 0x00000001, ga102_gpio_new },
+	.i2c      = { 0x00000001, gm200_i2c_new },
+	.imem     = { 0x00000001, nv50_instmem_new },
+	.mc       = { 0x00000001, ga100_mc_new },
+	.mmu      = { 0x00000001, tu102_mmu_new },
+	.pci      = { 0x00000001, gp100_pci_new },
+	.privring = { 0x00000001, gm200_privring_new },
+	.timer    = { 0x00000001, gk20a_timer_new },
+	.top      = { 0x00000001, ga100_top_new },
+	.disp     = { 0x00000001, ga102_disp_new },
+	.dma      = { 0x00000001, gv100_dma_new },
+	.fifo     = { 0x00000001, ga102_fifo_new },
+};
+
+static const struct nvkm_device_chip
+nv177_chipset = {
+	.name = "GA107",
+	.bar      = { 0x00000001, tu102_bar_new },
+	.bios     = { 0x00000001, nvkm_bios_new },
+	.devinit  = { 0x00000001, ga100_devinit_new },
+	.fb       = { 0x00000001, ga102_fb_new },
+	.gpio     = { 0x00000001, ga102_gpio_new },
+	.i2c      = { 0x00000001, gm200_i2c_new },
+	.imem     = { 0x00000001, nv50_instmem_new },
+	.mc       = { 0x00000001, ga100_mc_new },
+	.mmu      = { 0x00000001, tu102_mmu_new },
+	.pci      = { 0x00000001, gp100_pci_new },
+	.privring = { 0x00000001, gm200_privring_new },
+	.timer    = { 0x00000001, gk20a_timer_new },
+	.top      = { 0x00000001, ga100_top_new },
+	.disp     = { 0x00000001, ga102_disp_new },
+	.dma      = { 0x00000001, gv100_dma_new },
+	.fifo     = { 0x00000001, ga102_fifo_new },
+>>>>>>> upstream/android-13
 };
 
 static int
@@ -2453,6 +4893,7 @@ nvkm_device_event_func = {
 };
 
 struct nvkm_subdev *
+<<<<<<< HEAD
 nvkm_device_subdev(struct nvkm_device *device, int index)
 {
 	struct nvkm_engine *engine;
@@ -2493,10 +4934,22 @@ nvkm_device_subdev(struct nvkm_device *device, int index)
 			return &engine->subdev;
 		break;
 	}
+=======
+nvkm_device_subdev(struct nvkm_device *device, int type, int inst)
+{
+	struct nvkm_subdev *subdev;
+
+	list_for_each_entry(subdev, &device->subdev, head) {
+		if (subdev->type == type && subdev->inst == inst)
+			return subdev;
+	}
+
+>>>>>>> upstream/android-13
 	return NULL;
 }
 
 struct nvkm_engine *
+<<<<<<< HEAD
 nvkm_device_engine(struct nvkm_device *device, int index)
 {
 	if (device->disable_mask & (1ULL << index))
@@ -2541,6 +4994,13 @@ nvkm_device_engine(struct nvkm_device *device, int index)
 		WARN_ON(1);
 		break;
 	}
+=======
+nvkm_device_engine(struct nvkm_device *device, int type, int inst)
+{
+	struct nvkm_subdev *subdev = nvkm_device_subdev(device, type, inst);
+	if (subdev && subdev->func == &nvkm_engine)
+		return container_of(subdev, struct nvkm_engine, subdev);
+>>>>>>> upstream/android-13
 	return NULL;
 }
 
@@ -2549,7 +5009,11 @@ nvkm_device_fini(struct nvkm_device *device, bool suspend)
 {
 	const char *action = suspend ? "suspend" : "fini";
 	struct nvkm_subdev *subdev;
+<<<<<<< HEAD
 	int ret, i;
+=======
+	int ret;
+>>>>>>> upstream/android-13
 	s64 time;
 
 	nvdev_trace(device, "%s running...\n", action);
@@ -2557,12 +5021,19 @@ nvkm_device_fini(struct nvkm_device *device, bool suspend)
 
 	nvkm_acpi_fini(device);
 
+<<<<<<< HEAD
 	for (i = NVKM_SUBDEV_NR - 1; i >= 0; i--) {
 		if ((subdev = nvkm_device_subdev(device, i))) {
 			ret = nvkm_subdev_fini(subdev, suspend);
 			if (ret && suspend)
 				goto fail;
 		}
+=======
+	list_for_each_entry_reverse(subdev, &device->subdev, head) {
+		ret = nvkm_subdev_fini(subdev, suspend);
+		if (ret && suspend)
+			goto fail;
+>>>>>>> upstream/android-13
 	}
 
 	nvkm_therm_clkgate_fini(device->therm, suspend);
@@ -2575,6 +5046,7 @@ nvkm_device_fini(struct nvkm_device *device, bool suspend)
 	return 0;
 
 fail:
+<<<<<<< HEAD
 	do {
 		if ((subdev = nvkm_device_subdev(device, i))) {
 			int rret = nvkm_subdev_init(subdev);
@@ -2582,6 +5054,13 @@ fail:
 				nvkm_fatal(subdev, "failed restart, %d\n", ret);
 		}
 	} while (++i < NVKM_SUBDEV_NR);
+=======
+	list_for_each_entry_from(subdev, &device->subdev, head) {
+		int rret = nvkm_subdev_init(subdev);
+		if (rret)
+			nvkm_fatal(subdev, "failed restart, %d\n", ret);
+	}
+>>>>>>> upstream/android-13
 
 	nvdev_trace(device, "%s failed with %d\n", action, ret);
 	return ret;
@@ -2591,7 +5070,11 @@ static int
 nvkm_device_preinit(struct nvkm_device *device)
 {
 	struct nvkm_subdev *subdev;
+<<<<<<< HEAD
 	int ret, i;
+=======
+	int ret;
+>>>>>>> upstream/android-13
 	s64 time;
 
 	nvdev_trace(device, "preinit running...\n");
@@ -2603,6 +5086,7 @@ nvkm_device_preinit(struct nvkm_device *device)
 			goto fail;
 	}
 
+<<<<<<< HEAD
 	for (i = 0; i < NVKM_SUBDEV_NR; i++) {
 		if ((subdev = nvkm_device_subdev(device, i))) {
 			ret = nvkm_subdev_preinit(subdev);
@@ -2612,6 +5096,15 @@ nvkm_device_preinit(struct nvkm_device *device)
 	}
 
 	ret = nvkm_devinit_post(device->devinit, &device->disable_mask);
+=======
+	list_for_each_entry(subdev, &device->subdev, head) {
+		ret = nvkm_subdev_preinit(subdev);
+		if (ret)
+			goto fail;
+	}
+
+	ret = nvkm_devinit_post(device->devinit);
+>>>>>>> upstream/android-13
 	if (ret)
 		goto fail;
 
@@ -2628,7 +5121,11 @@ int
 nvkm_device_init(struct nvkm_device *device)
 {
 	struct nvkm_subdev *subdev;
+<<<<<<< HEAD
 	int ret, i;
+=======
+	int ret;
+>>>>>>> upstream/android-13
 	s64 time;
 
 	ret = nvkm_device_preinit(device);
@@ -2646,12 +5143,19 @@ nvkm_device_init(struct nvkm_device *device)
 			goto fail;
 	}
 
+<<<<<<< HEAD
 	for (i = 0; i < NVKM_SUBDEV_NR; i++) {
 		if ((subdev = nvkm_device_subdev(device, i))) {
 			ret = nvkm_subdev_init(subdev);
 			if (ret)
 				goto fail_subdev;
 		}
+=======
+	list_for_each_entry(subdev, &device->subdev, head) {
+		ret = nvkm_subdev_init(subdev);
+		if (ret)
+			goto fail_subdev;
+>>>>>>> upstream/android-13
 	}
 
 	nvkm_acpi_init(device);
@@ -2662,11 +5166,16 @@ nvkm_device_init(struct nvkm_device *device)
 	return 0;
 
 fail_subdev:
+<<<<<<< HEAD
 	do {
 		if ((subdev = nvkm_device_subdev(device, i)))
 			nvkm_subdev_fini(subdev, false);
 	} while (--i >= 0);
 
+=======
+	list_for_each_entry_from(subdev, &device->subdev, head)
+		nvkm_subdev_fini(subdev, false);
+>>>>>>> upstream/android-13
 fail:
 	nvkm_device_fini(device, false);
 
@@ -2678,6 +5187,7 @@ void
 nvkm_device_del(struct nvkm_device **pdevice)
 {
 	struct nvkm_device *device = *pdevice;
+<<<<<<< HEAD
 	int i;
 	if (device) {
 		mutex_lock(&nv_devices_mutex);
@@ -2687,6 +5197,14 @@ nvkm_device_del(struct nvkm_device **pdevice)
 				nvkm_device_subdev(device, i);
 			nvkm_subdev_del(&subdev);
 		}
+=======
+	struct nvkm_subdev *subdev, *subtmp;
+	if (device) {
+		mutex_lock(&nv_devices_mutex);
+
+		list_for_each_entry_safe_reverse(subdev, subtmp, &device->subdev, head)
+			nvkm_subdev_del(&subdev);
+>>>>>>> upstream/android-13
 
 		nvkm_event_fini(&device->event);
 
@@ -2703,6 +5221,40 @@ nvkm_device_del(struct nvkm_device **pdevice)
 	}
 }
 
+<<<<<<< HEAD
+=======
+/* returns true if the GPU is in the CPU native byte order */
+static inline bool
+nvkm_device_endianness(struct nvkm_device *device)
+{
+#ifdef __BIG_ENDIAN
+	const bool big_endian = true;
+#else
+	const bool big_endian = false;
+#endif
+
+	/* Read NV_PMC_BOOT_1, and assume non-functional endian switch if it
+	 * doesn't contain the expected values.
+	 */
+	u32 pmc_boot_1 = nvkm_rd32(device, 0x000004);
+	if (pmc_boot_1 && pmc_boot_1 != 0x01000001)
+		return !big_endian; /* Assume GPU is LE in this case. */
+
+	/* 0 means LE and 0x01000001 means BE GPU. Condition is true when
+	 * GPU/CPU endianness don't match.
+	 */
+	if (big_endian == !pmc_boot_1) {
+		nvkm_wr32(device, 0x000004, 0x01000001);
+		nvkm_rd32(device, 0x000000);
+		if (nvkm_rd32(device, 0x000004) != (big_endian ? 0x01000001 : 0x00000000))
+			return !big_endian; /* Assume GPU is LE on any unexpected read-back. */
+	}
+
+	/* CPU/GPU endianness should (hopefully) match. */
+	return true;
+}
+
+>>>>>>> upstream/android-13
 int
 nvkm_device_ctor(const struct nvkm_device_func *func,
 		 const struct nvkm_device_quirk *quirk,
@@ -2713,10 +5265,16 @@ nvkm_device_ctor(const struct nvkm_device_func *func,
 {
 	struct nvkm_subdev *subdev;
 	u64 mmio_base, mmio_size;
+<<<<<<< HEAD
 	u32 boot0, strap;
 	void __iomem *map;
 	int ret = -EEXIST;
 	int i;
+=======
+	u32 boot0, boot1, strap;
+	int ret = -EEXIST, j;
+	unsigned chipset;
+>>>>>>> upstream/android-13
 
 	mutex_lock(&nv_devices_mutex);
 	if (nvkm_device_find_locked(handle))
@@ -2732,6 +5290,10 @@ nvkm_device_ctor(const struct nvkm_device_func *func,
 	device->name = name;
 	list_add_tail(&device->head, &nv_devices);
 	device->debug = nvkm_dbgopt(device->dbgopt, "device");
+<<<<<<< HEAD
+=======
+	INIT_LIST_HEAD(&device->subdev);
+>>>>>>> upstream/android-13
 
 	ret = nvkm_event_init(&nvkm_device_event_func, 1, 1, &device->event);
 	if (ret)
@@ -2740,6 +5302,7 @@ nvkm_device_ctor(const struct nvkm_device_func *func,
 	mmio_base = device->func->resource_addr(device, 0);
 	mmio_size = device->func->resource_size(device, 0);
 
+<<<<<<< HEAD
 	/* identify the chipset, and determine classes of subdev/engines */
 	if (detect) {
 		map = ioremap(mmio_base, 0x102000);
@@ -2760,6 +5323,48 @@ nvkm_device_ctor(const struct nvkm_device_func *func,
 		boot0 = ioread32_native(map + 0x000000);
 		strap = ioread32_native(map + 0x101000);
 		iounmap(map);
+=======
+	if (detect || mmio) {
+		device->pri = ioremap(mmio_base, mmio_size);
+		if (device->pri == NULL) {
+			nvdev_error(device, "unable to map PRI\n");
+			ret = -ENOMEM;
+			goto done;
+		}
+	}
+
+	/* identify the chipset, and determine classes of subdev/engines */
+	if (detect) {
+		/* switch mmio to cpu's native endianness */
+		if (!nvkm_device_endianness(device)) {
+			nvdev_error(device,
+				    "Couldn't switch GPU to CPUs endianess\n");
+			ret = -ENOSYS;
+			goto done;
+		}
+
+		boot0 = nvkm_rd32(device, 0x000000);
+
+		/* chipset can be overridden for devel/testing purposes */
+		chipset = nvkm_longopt(device->cfgopt, "NvChipset", 0);
+		if (chipset) {
+			u32 override_boot0;
+
+			if (chipset >= 0x10) {
+				override_boot0  = ((chipset & 0x1ff) << 20);
+				override_boot0 |= 0x000000a1;
+			} else {
+				if (chipset != 0x04)
+					override_boot0 = 0x20104000;
+				else
+					override_boot0 = 0x20004000;
+			}
+
+			nvdev_warn(device, "CHIPSET OVERRIDE: %08x -> %08x\n",
+				   boot0, override_boot0);
+			boot0 = override_boot0;
+		}
+>>>>>>> upstream/android-13
 
 		/* determine chipset and derive architecture from it */
 		if ((boot0 & 0x1f000000) > 0) {
@@ -2791,6 +5396,11 @@ nvkm_device_ctor(const struct nvkm_device_func *func,
 			case 0x120: device->card_type = GM100; break;
 			case 0x130: device->card_type = GP100; break;
 			case 0x140: device->card_type = GV100; break;
+<<<<<<< HEAD
+=======
+			case 0x160: device->card_type = TU100; break;
+			case 0x170: device->card_type = GA100; break;
+>>>>>>> upstream/android-13
 			default:
 				break;
 			}
@@ -2883,14 +5493,55 @@ nvkm_device_ctor(const struct nvkm_device_func *func,
 		case 0x138: device->chip = &nv138_chipset; break;
 		case 0x13b: device->chip = &nv13b_chipset; break;
 		case 0x140: device->chip = &nv140_chipset; break;
+<<<<<<< HEAD
 		default:
 			nvdev_error(device, "unknown chipset (%08x)\n", boot0);
 			goto done;
+=======
+		case 0x162: device->chip = &nv162_chipset; break;
+		case 0x164: device->chip = &nv164_chipset; break;
+		case 0x166: device->chip = &nv166_chipset; break;
+		case 0x167: device->chip = &nv167_chipset; break;
+		case 0x168: device->chip = &nv168_chipset; break;
+		case 0x172: device->chip = &nv172_chipset; break;
+		case 0x174: device->chip = &nv174_chipset; break;
+		case 0x176: device->chip = &nv176_chipset; break;
+		case 0x177: device->chip = &nv177_chipset; break;
+		default:
+			if (nvkm_boolopt(device->cfgopt, "NvEnableUnsupportedChipsets", false)) {
+				switch (device->chipset) {
+				case 0x170: device->chip = &nv170_chipset; break;
+				default:
+					break;
+				}
+			}
+
+			if (!device->chip) {
+				nvdev_error(device, "unknown chipset (%08x)\n", boot0);
+				ret = -ENODEV;
+				goto done;
+			}
+			break;
+>>>>>>> upstream/android-13
 		}
 
 		nvdev_info(device, "NVIDIA %s (%08x)\n",
 			   device->chip->name, boot0);
 
+<<<<<<< HEAD
+=======
+		/* vGPU detection */
+		boot1 = nvkm_rd32(device, 0x0000004);
+		if (device->card_type >= TU100 && (boot1 & 0x00030000)) {
+			nvdev_info(device, "vGPUs are not supported\n");
+			ret = -ENODEV;
+			goto done;
+		}
+
+		/* read strapping information */
+		strap = nvkm_rd32(device, 0x101000);
+
+>>>>>>> upstream/android-13
 		/* determine frequency of timing crystal */
 		if ( device->card_type <= NV_10 || device->chipset < 0x17 ||
 		    (device->chipset >= 0x20 && device->chipset < 0x25))
@@ -2911,6 +5562,7 @@ nvkm_device_ctor(const struct nvkm_device_func *func,
 	if (!device->name)
 		device->name = device->chip->name;
 
+<<<<<<< HEAD
 	if (mmio) {
 		device->pri = ioremap(mmio_base, mmio_size);
 		if (!device->pri) {
@@ -3004,6 +5656,56 @@ nvkm_device_ctor(const struct nvkm_device_func *func,
 
 	ret = 0;
 done:
+=======
+	mutex_init(&device->mutex);
+
+#define NVKM_LAYOUT_ONCE(type,data,ptr)                                                      \
+	if (device->chip->ptr.inst && (subdev_mask & (BIT_ULL(type)))) {                     \
+		WARN_ON(device->chip->ptr.inst != 0x00000001);                               \
+		ret = device->chip->ptr.ctor(device, (type), -1, &device->ptr);              \
+		subdev = nvkm_device_subdev(device, (type), 0);                              \
+		if (ret) {                                                                   \
+			nvkm_subdev_del(&subdev);                                            \
+			device->ptr = NULL;                                                  \
+			if (ret != -ENODEV) {                                                \
+				nvdev_error(device, "%s ctor failed: %d\n",                  \
+					    nvkm_subdev_type[(type)], ret);                  \
+				goto done;                                                   \
+			}                                                                    \
+		} else {                                                                     \
+			subdev->pself = (void **)&device->ptr;                               \
+		}                                                                            \
+	}
+#define NVKM_LAYOUT_INST(type,data,ptr,cnt)                                                  \
+	WARN_ON(device->chip->ptr.inst & ~((1 << ARRAY_SIZE(device->ptr)) - 1));             \
+	for (j = 0; device->chip->ptr.inst && j < ARRAY_SIZE(device->ptr); j++) {            \
+		if ((device->chip->ptr.inst & BIT(j)) && (subdev_mask & BIT_ULL(type))) {    \
+			ret = device->chip->ptr.ctor(device, (type), (j), &device->ptr[j]);  \
+			subdev = nvkm_device_subdev(device, (type), (j));                    \
+			if (ret) {                                                           \
+				nvkm_subdev_del(&subdev);                                    \
+				device->ptr[j] = NULL;                                       \
+				if (ret != -ENODEV) {                                        \
+					nvdev_error(device, "%s%d ctor failed: %d\n",        \
+						    nvkm_subdev_type[(type)], (j), ret);     \
+					goto done;                                           \
+				}                                                            \
+			} else {                                                             \
+				subdev->pself = (void **)&device->ptr[j];                    \
+			}                                                                    \
+		}                                                                            \
+	}
+#include <core/layout.h>
+#undef NVKM_LAYOUT_INST
+#undef NVKM_LAYOUT_ONCE
+
+	ret = 0;
+done:
+	if (device->pri && (!mmio || ret)) {
+		iounmap(device->pri);
+		device->pri = NULL;
+	}
+>>>>>>> upstream/android-13
 	mutex_unlock(&nv_devices_mutex);
 	return ret;
 }

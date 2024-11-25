@@ -23,6 +23,11 @@
  *
  */
 
+<<<<<<< HEAD
+=======
+#include <linux/slab.h>
+
+>>>>>>> upstream/android-13
 #include "dm_services.h"
 #include "dm_helpers.h"
 #include "core_types.h"
@@ -31,7 +36,11 @@
  * Private functions
  ******************************************************************************/
 
+<<<<<<< HEAD
 static void destruct(struct dc_sink *sink)
+=======
+static void dc_sink_destruct(struct dc_sink *sink)
+>>>>>>> upstream/android-13
 {
 	if (sink->dc_container_id) {
 		kfree(sink->dc_container_id);
@@ -39,7 +48,11 @@ static void destruct(struct dc_sink *sink)
 	}
 }
 
+<<<<<<< HEAD
 static bool construct(struct dc_sink *sink, const struct dc_sink_init_data *init_params)
+=======
+static bool dc_sink_construct(struct dc_sink *sink, const struct dc_sink_init_data *init_params)
+>>>>>>> upstream/android-13
 {
 
 	struct dc_link *link = init_params->link;
@@ -73,7 +86,11 @@ void dc_sink_retain(struct dc_sink *sink)
 static void dc_sink_free(struct kref *kref)
 {
 	struct dc_sink *sink = container_of(kref, struct dc_sink, refcount);
+<<<<<<< HEAD
 	destruct(sink);
+=======
+	dc_sink_destruct(sink);
+>>>>>>> upstream/android-13
 	kfree(sink);
 }
 
@@ -89,7 +106,11 @@ struct dc_sink *dc_sink_create(const struct dc_sink_init_data *init_params)
 	if (NULL == sink)
 		goto alloc_fail;
 
+<<<<<<< HEAD
 	if (false == construct(sink, init_params))
+=======
+	if (false == dc_sink_construct(sink, init_params))
+>>>>>>> upstream/android-13
 		goto construct_fail;
 
 	kref_init(&sink->refcount);

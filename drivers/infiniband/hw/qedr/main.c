@@ -39,7 +39,10 @@
 #include <linux/iommu.h>
 #include <linux/pci.h>
 #include <net/addrconf.h>
+<<<<<<< HEAD
 #include <linux/idr.h>
+=======
+>>>>>>> upstream/android-13
 
 #include <linux/qed/qed_chain.h>
 #include <linux/qed/qed_if.h>
@@ -54,7 +57,11 @@ MODULE_LICENSE("Dual BSD/GPL");
 
 #define QEDR_WQ_MULTIPLIER_DFT	(3)
 
+<<<<<<< HEAD
 static void qedr_ib_dispatch_event(struct qedr_dev *dev, u8 port_num,
+=======
+static void qedr_ib_dispatch_event(struct qedr_dev *dev, u32 port_num,
+>>>>>>> upstream/android-13
 				   enum ib_event_type type)
 {
 	struct ib_event ibev;
@@ -67,7 +74,11 @@ static void qedr_ib_dispatch_event(struct qedr_dev *dev, u8 port_num,
 }
 
 static enum rdma_link_layer qedr_link_layer(struct ib_device *device,
+<<<<<<< HEAD
 					    u8 port_num)
+=======
+					    u32 port_num)
+>>>>>>> upstream/android-13
 {
 	return IB_LINK_LAYER_ETHERNET;
 }
@@ -82,6 +93,7 @@ static void qedr_get_dev_fw_str(struct ib_device *ibdev, char *str)
 		 (fw_ver >> 8) & 0xFF, fw_ver & 0xFF);
 }
 
+<<<<<<< HEAD
 static struct net_device *qedr_get_netdev(struct ib_device *dev, u8 port_num)
 {
 	struct qedr_dev *qdev;
@@ -97,6 +109,9 @@ static struct net_device *qedr_get_netdev(struct ib_device *dev, u8 port_num)
 }
 
 static int qedr_roce_port_immutable(struct ib_device *ibdev, u8 port_num,
+=======
+static int qedr_roce_port_immutable(struct ib_device *ibdev, u32 port_num,
+>>>>>>> upstream/android-13
 				    struct ib_port_immutable *immutable)
 {
 	struct ib_port_attr attr;
@@ -115,7 +130,11 @@ static int qedr_roce_port_immutable(struct ib_device *ibdev, u8 port_num,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int qedr_iw_port_immutable(struct ib_device *ibdev, u8 port_num,
+=======
+static int qedr_iw_port_immutable(struct ib_device *ibdev, u32 port_num,
+>>>>>>> upstream/android-13
 				  struct ib_port_immutable *immutable)
 {
 	struct ib_port_attr attr;
@@ -125,7 +144,10 @@ static int qedr_iw_port_immutable(struct ib_device *ibdev, u8 port_num,
 	if (err)
 		return err;
 
+<<<<<<< HEAD
 	immutable->pkey_tbl_len = 1;
+=======
+>>>>>>> upstream/android-13
 	immutable->gid_tbl_len = 1;
 	immutable->core_cap_flags = RDMA_CORE_PORT_IWARP;
 	immutable->max_mad_size = 0;
@@ -133,6 +155,7 @@ static int qedr_iw_port_immutable(struct ib_device *ibdev, u8 port_num,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int qedr_iw_register_device(struct qedr_dev *dev)
 {
 	dev->ibdev.node_type = RDMA_NODE_RNIC;
@@ -155,21 +178,144 @@ static int qedr_iw_register_device(struct qedr_dev *dev)
 
 	memcpy(dev->ibdev.iwcm->ifname,
 	       dev->ndev->name, sizeof(dev->ibdev.iwcm->ifname));
+=======
+/* QEDR sysfs interface */
+static ssize_t hw_rev_show(struct device *device, struct device_attribute *attr,
+			   char *buf)
+{
+	struct qedr_dev *dev =
+		rdma_device_to_drv_device(device, struct qedr_dev, ibdev);
+
+	return sysfs_emit(buf, "0x%x\n", dev->attr.hw_ver);
+}
+static DEVICE_ATTR_RO(hw_rev);
+
+static ssize_t hca_type_show(struct device *device,
+			     struct device_attribute *attr, char *buf)
+{
+	struct qedr_dev *dev =
+		rdma_device_to_drv_device(device, struct qedr_dev, ibdev);
+
+	return sysfs_emit(buf, "FastLinQ QL%x %s\n", dev->pdev->device,
+			  rdma_protocol_iwarp(&dev->ibdev, 1) ? "iWARP" :
+								"RoCE");
+}
+static DEVICE_ATTR_RO(hca_type);
+
+static struct attribute *qedr_attributes[] = {
+	&dev_attr_hw_rev.attr,
+	&dev_attr_hca_type.attr,
+	NULL
+};
+
+static const struct attribute_group qedr_attr_group = {
+	.attrs = qedr_attributes,
+};
+
+static const struct ib_device_ops qedr_iw_dev_ops = {
+	.get_port_immutable = qedr_iw_port_immutable,
+	.iw_accept = qedr_iw_accept,
+	.iw_add_ref = qedr_iw_qp_add_ref,
+	.iw_connect = qedr_iw_connect,
+	.iw_create_listen = qedr_iw_create_listen,
+	.iw_destroy_listen = qedr_iw_destroy_listen,
+	.iw_get_qp = qedr_iw_get_qp,
+	.iw_reject = qedr_iw_reject,
+	.iw_rem_ref = qedr_iw_qp_rem_ref,
+	.query_gid = qedr_iw_query_gid,
+};
+
+static int qedr_iw_register_device(struct qedr_dev *dev)
+{
+	dev->ibdev.node_type = RDMA_NODE_RNIC;
+
+	ib_set_device_ops(&dev->ibdev, &qedr_iw_dev_ops);
+
+	memcpy(dev->ibdev.iw_ifname,
+	       dev->ndev->name, sizeof(dev->ibdev.iw_ifname));
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static const struct ib_device_ops qedr_roce_dev_ops = {
+	.alloc_xrcd = qedr_alloc_xrcd,
+	.dealloc_xrcd = qedr_dealloc_xrcd,
+	.get_port_immutable = qedr_roce_port_immutable,
+	.query_pkey = qedr_query_pkey,
+};
+
+>>>>>>> upstream/android-13
 static void qedr_roce_register_device(struct qedr_dev *dev)
 {
 	dev->ibdev.node_type = RDMA_NODE_IB_CA;
 
+<<<<<<< HEAD
 	dev->ibdev.get_port_immutable = qedr_roce_port_immutable;
 }
 
+=======
+	ib_set_device_ops(&dev->ibdev, &qedr_roce_dev_ops);
+}
+
+static const struct ib_device_ops qedr_dev_ops = {
+	.owner = THIS_MODULE,
+	.driver_id = RDMA_DRIVER_QEDR,
+	.uverbs_abi_ver = QEDR_ABI_VERSION,
+
+	.alloc_mr = qedr_alloc_mr,
+	.alloc_pd = qedr_alloc_pd,
+	.alloc_ucontext = qedr_alloc_ucontext,
+	.create_ah = qedr_create_ah,
+	.create_cq = qedr_create_cq,
+	.create_qp = qedr_create_qp,
+	.create_srq = qedr_create_srq,
+	.dealloc_pd = qedr_dealloc_pd,
+	.dealloc_ucontext = qedr_dealloc_ucontext,
+	.dereg_mr = qedr_dereg_mr,
+	.destroy_ah = qedr_destroy_ah,
+	.destroy_cq = qedr_destroy_cq,
+	.destroy_qp = qedr_destroy_qp,
+	.destroy_srq = qedr_destroy_srq,
+	.device_group = &qedr_attr_group,
+	.get_dev_fw_str = qedr_get_dev_fw_str,
+	.get_dma_mr = qedr_get_dma_mr,
+	.get_link_layer = qedr_link_layer,
+	.map_mr_sg = qedr_map_mr_sg,
+	.mmap = qedr_mmap,
+	.mmap_free = qedr_mmap_free,
+	.modify_qp = qedr_modify_qp,
+	.modify_srq = qedr_modify_srq,
+	.poll_cq = qedr_poll_cq,
+	.post_recv = qedr_post_recv,
+	.post_send = qedr_post_send,
+	.post_srq_recv = qedr_post_srq_recv,
+	.process_mad = qedr_process_mad,
+	.query_device = qedr_query_device,
+	.query_port = qedr_query_port,
+	.query_qp = qedr_query_qp,
+	.query_srq = qedr_query_srq,
+	.reg_user_mr = qedr_reg_user_mr,
+	.req_notify_cq = qedr_arm_cq,
+	.resize_cq = qedr_resize_cq,
+
+	INIT_RDMA_OBJ_SIZE(ib_ah, qedr_ah, ibah),
+	INIT_RDMA_OBJ_SIZE(ib_cq, qedr_cq, ibcq),
+	INIT_RDMA_OBJ_SIZE(ib_pd, qedr_pd, ibpd),
+	INIT_RDMA_OBJ_SIZE(ib_qp, qedr_qp, ibqp),
+	INIT_RDMA_OBJ_SIZE(ib_srq, qedr_srq, ibsrq),
+	INIT_RDMA_OBJ_SIZE(ib_xrcd, qedr_xrcd, ibxrcd),
+	INIT_RDMA_OBJ_SIZE(ib_ucontext, qedr_ucontext, ibucontext),
+};
+
+>>>>>>> upstream/android-13
 static int qedr_register_device(struct qedr_dev *dev)
 {
 	int rc;
 
+<<<<<<< HEAD
 	strlcpy(dev->ibdev.name, "qedr%d", IB_DEVICE_NAME_MAX);
 
 	dev->ibdev.node_guid = dev->attr.node_guid;
@@ -201,6 +347,10 @@ static int qedr_register_device(struct qedr_dev *dev)
 				     QEDR_UVERBS(POLL_CQ) |
 				     QEDR_UVERBS(POST_SEND) |
 				     QEDR_UVERBS(POST_RECV);
+=======
+	dev->ibdev.node_guid = dev->attr.node_guid;
+	memcpy(dev->ibdev.node_desc, QEDR_NODE_DESC, sizeof(QEDR_NODE_DESC));
+>>>>>>> upstream/android-13
 
 	if (IS_IWARP(dev)) {
 		rc = qedr_iw_register_device(dev);
@@ -212,6 +362,7 @@ static int qedr_register_device(struct qedr_dev *dev)
 
 	dev->ibdev.phys_port_cnt = 1;
 	dev->ibdev.num_comp_vectors = dev->num_cnq;
+<<<<<<< HEAD
 
 	dev->ibdev.query_device = qedr_query_device;
 	dev->ibdev.query_port = qedr_query_port;
@@ -265,6 +416,18 @@ static int qedr_register_device(struct qedr_dev *dev)
 
 	dev->ibdev.driver_id = RDMA_DRIVER_QEDR;
 	return ib_register_device(&dev->ibdev, NULL);
+=======
+	dev->ibdev.dev.parent = &dev->pdev->dev;
+
+	ib_set_device_ops(&dev->ibdev, &qedr_dev_ops);
+
+	rc = ib_device_set_netdev(&dev->ibdev, dev->ndev, 1);
+	if (rc)
+		return rc;
+
+	dma_set_max_seg_size(&dev->pdev->dev, UINT_MAX);
+	return ib_register_device(&dev->ibdev, "qedr%d", &dev->pdev->dev);
+>>>>>>> upstream/android-13
 }
 
 /* This function allocates fast-path status block memory */
@@ -297,7 +460,12 @@ static void qedr_free_mem_sb(struct qedr_dev *dev,
 			     struct qed_sb_info *sb_info, int sb_id)
 {
 	if (sb_info->sb_virt) {
+<<<<<<< HEAD
 		dev->ops->common->sb_release(dev->cdev, sb_info, sb_id);
+=======
+		dev->ops->common->sb_release(dev->cdev, sb_info, sb_id,
+					     QED_SB_TYPE_CNQ);
+>>>>>>> upstream/android-13
 		dma_free_coherent(&dev->pdev->dev, sizeof(*sb_info->sb_virt),
 				  (void *)sb_info->sb_virt, sb_info->sb_phys);
 	}
@@ -322,9 +490,20 @@ static void qedr_free_resources(struct qedr_dev *dev)
 
 static int qedr_alloc_resources(struct qedr_dev *dev)
 {
+<<<<<<< HEAD
 	struct qedr_cnq *cnq;
 	__le16 *cons_pi;
 	u16 n_entries;
+=======
+	struct qed_chain_init_params params = {
+		.mode		= QED_CHAIN_MODE_PBL,
+		.intended_use	= QED_CHAIN_USE_TO_CONSUME,
+		.cnt_type	= QED_CHAIN_CNT_TYPE_U16,
+		.elem_size	= sizeof(struct regpair *),
+	};
+	struct qedr_cnq *cnq;
+	__le16 *cons_pi;
+>>>>>>> upstream/android-13
 	int i, rc;
 
 	dev->sgid_tbl = kcalloc(QEDR_MAX_SGID, sizeof(union ib_gid),
@@ -333,10 +512,17 @@ static int qedr_alloc_resources(struct qedr_dev *dev)
 		return -ENOMEM;
 
 	spin_lock_init(&dev->sgid_lock);
+<<<<<<< HEAD
 
 	if (IS_IWARP(dev)) {
 		spin_lock_init(&dev->qpidr.idr_lock);
 		idr_init(&dev->qpidr.idr);
+=======
+	xa_init_flags(&dev->srqs, XA_FLAGS_LOCK_IRQ);
+
+	if (IS_IWARP(dev)) {
+		xa_init(&dev->qps);
+>>>>>>> upstream/android-13
 		dev->iwarp_wq = create_singlethread_workqueue("qedr_iwarpq");
 	}
 
@@ -358,7 +544,13 @@ static int qedr_alloc_resources(struct qedr_dev *dev)
 	dev->sb_start = dev->ops->rdma_get_start_sb(dev->cdev);
 
 	/* Allocate CNQ PBLs */
+<<<<<<< HEAD
 	n_entries = min_t(u32, QED_RDMA_MAX_CNQ_SIZE, QEDR_ROCE_MAX_CNQ_SIZE);
+=======
+	params.num_elems = min_t(u32, QED_RDMA_MAX_CNQ_SIZE,
+				 QEDR_ROCE_MAX_CNQ_SIZE);
+
+>>>>>>> upstream/android-13
 	for (i = 0; i < dev->num_cnq; i++) {
 		cnq = &dev->cnq_array[i];
 
@@ -367,6 +559,7 @@ static int qedr_alloc_resources(struct qedr_dev *dev)
 		if (rc)
 			goto err3;
 
+<<<<<<< HEAD
 		rc = dev->ops->common->chain_alloc(dev->cdev,
 						   QED_CHAIN_USE_TO_CONSUME,
 						   QED_CHAIN_MODE_PBL,
@@ -374,6 +567,10 @@ static int qedr_alloc_resources(struct qedr_dev *dev)
 						   n_entries,
 						   sizeof(struct regpair *),
 						   &cnq->pbl, NULL);
+=======
+		rc = dev->ops->common->chain_alloc(dev->cdev, &cnq->pbl,
+						   &params);
+>>>>>>> upstream/android-13
 		if (rc)
 			goto err4;
 
@@ -404,6 +601,7 @@ err1:
 	return rc;
 }
 
+<<<<<<< HEAD
 /* QEDR sysfs interface */
 static ssize_t show_rev(struct device *device, struct device_attribute *attr,
 			char *buf)
@@ -435,6 +633,8 @@ static void qedr_remove_sysfiles(struct qedr_dev *dev)
 		device_remove_file(&dev->ibdev.dev, qedr_attributes[i]);
 }
 
+=======
+>>>>>>> upstream/android-13
 static void qedr_pci_set_atomic(struct qedr_dev *dev, struct pci_dev *pdev)
 {
 	int rc = pci_enable_atomic_ops_to_root(pdev,
@@ -521,11 +721,20 @@ static irqreturn_t qedr_irq_handler(int irq, void *handle)
 static void qedr_sync_free_irqs(struct qedr_dev *dev)
 {
 	u32 vector;
+<<<<<<< HEAD
+=======
+	u16 idx;
+>>>>>>> upstream/android-13
 	int i;
 
 	for (i = 0; i < dev->int_info.used_cnt; i++) {
 		if (dev->int_info.msix_cnt) {
+<<<<<<< HEAD
 			vector = dev->int_info.msix[i * dev->num_hwfns].vector;
+=======
+			idx = i * dev->num_hwfns + dev->affin_hwfn_idx;
+			vector = dev->int_info.msix[idx].vector;
+>>>>>>> upstream/android-13
 			synchronize_irq(vector);
 			free_irq(vector, &dev->cnq_array[i]);
 		}
@@ -537,6 +746,10 @@ static void qedr_sync_free_irqs(struct qedr_dev *dev)
 static int qedr_req_msix_irqs(struct qedr_dev *dev)
 {
 	int i, rc = 0;
+<<<<<<< HEAD
+=======
+	u16 idx;
+>>>>>>> upstream/android-13
 
 	if (dev->num_cnq > dev->int_info.msix_cnt) {
 		DP_ERR(dev,
@@ -546,7 +759,12 @@ static int qedr_req_msix_irqs(struct qedr_dev *dev)
 	}
 
 	for (i = 0; i < dev->num_cnq; i++) {
+<<<<<<< HEAD
 		rc = request_irq(dev->int_info.msix[i * dev->num_hwfns].vector,
+=======
+		idx = i * dev->num_hwfns + dev->affin_hwfn_idx;
+		rc = request_irq(dev->int_info.msix[idx].vector,
+>>>>>>> upstream/android-13
 				 qedr_irq_handler, 0, dev->cnq_array[i].name,
 				 &dev->cnq_array[i]);
 		if (rc) {
@@ -635,7 +853,10 @@ static int qedr_set_device_attr(struct qedr_dev *dev)
 	attr->max_mr_size = qed_attr->max_mr_size;
 	attr->max_cqe = min_t(u64, qed_attr->max_cqe, QEDR_MAX_CQES);
 	attr->max_mw = qed_attr->max_mw;
+<<<<<<< HEAD
 	attr->max_fmr = qed_attr->max_fmr;
+=======
+>>>>>>> upstream/android-13
 	attr->max_mr_mw_fmr_pbl = qed_attr->max_mr_mw_fmr_pbl;
 	attr->max_mr_mw_fmr_size = qed_attr->max_mr_mw_fmr_size;
 	attr->max_pd = qed_attr->max_pd;
@@ -708,6 +929,21 @@ static void qedr_affiliated_event(void *context, u8 e_code, void *fw_handle)
 			event.event = IB_EVENT_SRQ_ERR;
 			event_type = EVENT_TYPE_SRQ;
 			break;
+<<<<<<< HEAD
+=======
+		case ROCE_ASYNC_EVENT_XRC_DOMAIN_ERR:
+			event.event = IB_EVENT_QP_ACCESS_ERR;
+			event_type = EVENT_TYPE_QP;
+			break;
+		case ROCE_ASYNC_EVENT_INVALID_XRCETH_ERR:
+			event.event = IB_EVENT_QP_ACCESS_ERR;
+			event_type = EVENT_TYPE_QP;
+			break;
+		case ROCE_ASYNC_EVENT_XRC_SRQ_CATASTROPHIC_ERR:
+			event.event = IB_EVENT_CQ_ERR;
+			event_type = EVENT_TYPE_CQ;
+			break;
+>>>>>>> upstream/android-13
 		default:
 			DP_ERR(dev, "unsupported event %d on handle=%llx\n",
 			       e_code, roce_handle64);
@@ -762,8 +998,13 @@ static void qedr_affiliated_event(void *context, u8 e_code, void *fw_handle)
 		break;
 	case EVENT_TYPE_SRQ:
 		srq_id = (u16)roce_handle64;
+<<<<<<< HEAD
 		spin_lock_irqsave(&dev->srqidr.idr_lock, flags);
 		srq = idr_find(&dev->srqidr.idr, srq_id);
+=======
+		xa_lock_irqsave(&dev->srqs, flags);
+		srq = xa_load(&dev->srqs, srq_id);
+>>>>>>> upstream/android-13
 		if (srq) {
 			ibsrq = &srq->ibsrq;
 			if (ibsrq->event_handler) {
@@ -777,8 +1018,14 @@ static void qedr_affiliated_event(void *context, u8 e_code, void *fw_handle)
 				  "SRQ event with NULL pointer ibsrq. Handle=%llx\n",
 				  roce_handle64);
 		}
+<<<<<<< HEAD
 		spin_unlock_irqrestore(&dev->srqidr.idr_lock, flags);
 		DP_NOTICE(dev, "SRQ event %d on handle %p\n", e_code, srq);
+=======
+		xa_unlock_irqrestore(&dev->srqs, flags);
+		DP_NOTICE(dev, "SRQ event %d on handle %p\n", e_code, srq);
+		break;
+>>>>>>> upstream/android-13
 	default:
 		break;
 	}
@@ -830,7 +1077,11 @@ static int qedr_init_hw(struct qedr_dev *dev)
 	if (rc)
 		goto out;
 
+<<<<<<< HEAD
 	dev->db_addr = (void __iomem *)(uintptr_t)out_params.dpi_addr;
+=======
+	dev->db_addr = out_params.dpi_addr;
+>>>>>>> upstream/android-13
 	dev->db_phys_addr = out_params.dpi_phys_addr;
 	dev->db_size = out_params.dpi_size;
 	dev->dpi = out_params.dpi;
@@ -855,9 +1106,15 @@ static struct qedr_dev *qedr_add(struct qed_dev *cdev, struct pci_dev *pdev,
 {
 	struct qed_dev_rdma_info dev_info;
 	struct qedr_dev *dev;
+<<<<<<< HEAD
 	int rc = 0, i;
 
 	dev = (struct qedr_dev *)ib_alloc_device(sizeof(*dev));
+=======
+	int rc = 0;
+
+	dev = ib_alloc_device(qedr_dev, ibdev);
+>>>>>>> upstream/android-13
 	if (!dev) {
 		pr_err("Unable to allocate ib device\n");
 		return NULL;
@@ -883,6 +1140,19 @@ static struct qedr_dev *qedr_add(struct qed_dev *cdev, struct pci_dev *pdev,
 	dev->user_dpm_enabled = dev_info.user_dpm_enabled;
 	dev->rdma_type = dev_info.rdma_type;
 	dev->num_hwfns = dev_info.common.num_hwfns;
+<<<<<<< HEAD
+=======
+
+	if (IS_IWARP(dev) && QEDR_IS_CMT(dev)) {
+		rc = dev->ops->iwarp_set_engine_affin(cdev, false);
+		if (rc) {
+			DP_ERR(dev, "iWARP is disabled over a 100g device Enabling it may impact L2 performance. To enable it run devlink dev param set <dev> name iwarp_cmt value true cmode runtime\n");
+			goto init_err;
+		}
+	}
+	dev->affin_hwfn_idx = dev->ops->common->get_affin_hwfn_idx(cdev);
+
+>>>>>>> upstream/android-13
 	dev->rdma_ctx = dev->ops->rdma_get_rdma_ctx(cdev);
 
 	dev->num_cnq = dev->ops->rdma_get_min_cnq_msix(cdev);
@@ -914,18 +1184,24 @@ static struct qedr_dev *qedr_add(struct qed_dev *cdev, struct pci_dev *pdev,
 		goto reg_err;
 	}
 
+<<<<<<< HEAD
 	for (i = 0; i < ARRAY_SIZE(qedr_attributes); i++)
 		if (device_create_file(&dev->ibdev.dev, qedr_attributes[i]))
 			goto sysfs_err;
 
+=======
+>>>>>>> upstream/android-13
 	if (!test_and_set_bit(QEDR_ENET_STATE_BIT, &dev->enet_state))
 		qedr_ib_dispatch_event(dev, QEDR_PORT, IB_EVENT_PORT_ACTIVE);
 
 	DP_DEBUG(dev, QEDR_MSG_INIT, "qedr driver loaded successfully\n");
 	return dev;
 
+<<<<<<< HEAD
 sysfs_err:
 	ib_unregister_device(&dev->ibdev);
+=======
+>>>>>>> upstream/android-13
 reg_err:
 	qedr_sync_free_irqs(dev);
 irq_err:
@@ -944,12 +1220,22 @@ static void qedr_remove(struct qedr_dev *dev)
 	/* First unregister with stack to stop all the active traffic
 	 * of the registered clients.
 	 */
+<<<<<<< HEAD
 	qedr_remove_sysfiles(dev);
+=======
+>>>>>>> upstream/android-13
 	ib_unregister_device(&dev->ibdev);
 
 	qedr_stop_hw(dev);
 	qedr_sync_free_irqs(dev);
 	qedr_free_resources(dev);
+<<<<<<< HEAD
+=======
+
+	if (IS_IWARP(dev) && QEDR_IS_CMT(dev))
+		dev->ops->iwarp_set_engine_affin(dev->cdev, true);
+
+>>>>>>> upstream/android-13
 	ib_dealloc_device(&dev->ibdev);
 }
 
@@ -1022,6 +1308,16 @@ static void qedr_notify(struct qedr_dev *dev, enum qede_rdma_event event)
 	case QEDE_CHANGE_ADDR:
 		qedr_mac_address_change(dev);
 		break;
+<<<<<<< HEAD
+=======
+	case QEDE_CHANGE_MTU:
+		if (rdma_protocol_iwarp(&dev->ibdev, 1))
+			if (dev->ndev->mtu != dev->iwarp_max_mtu)
+				DP_NOTICE(dev,
+					  "Mtu was changed from %d to %d. This will not take affect for iWARP until qedr is reloaded\n",
+					  dev->iwarp_max_mtu, dev->ndev->mtu);
+		break;
+>>>>>>> upstream/android-13
 	default:
 		pr_err("Event not supported\n");
 	}

@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  Copyright 2010
  *  by Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
  *
  * This code provides a IOMMU for Xen PV guests with PCI passthrough.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License v2.0 as published by
  * the Free Software Foundation
@@ -13,6 +18,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  * PV guests under Xen are running in an non-contiguous memory architecture.
  *
  * When PCI pass-through is utilized, this necessitates an IOMMU for
@@ -30,13 +37,22 @@
  * and PFN+1==MFN+1. Lastly with Xen 4.0, pages (in debug mode) are
  * allocated in descending order (high to low), meaning the guest might
  * never get any MFN's under the 4GB mark.
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) "xen:" KBUILD_MODNAME ": " fmt
 
+<<<<<<< HEAD
 #include <linux/bootmem.h>
 #include <linux/dma-direct.h>
+=======
+#include <linux/memblock.h>
+#include <linux/dma-direct.h>
+#include <linux/dma-map-ops.h>
+>>>>>>> upstream/android-13
 #include <linux/export.h>
 #include <xen/swiotlb-xen.h>
 #include <xen/page.h>
@@ -47,6 +63,7 @@
 #include <asm/xen/page-coherent.h>
 
 #include <trace/events/swiotlb.h>
+<<<<<<< HEAD
 /*
  * Used to do a quick range check in swiotlb_tbl_unmap_single and
  * swiotlb_tbl_sync_single_*, to see if the memory was in fact allocated by this
@@ -57,10 +74,15 @@
 
 static char *xen_io_tlb_start, *xen_io_tlb_end;
 static unsigned long xen_io_tlb_nslabs;
+=======
+#define MAX_DMA_BITS 32
+
+>>>>>>> upstream/android-13
 /*
  * Quick lookup value of the bus address of the IOTLB.
  */
 
+<<<<<<< HEAD
 static u64 start_dma_addr;
 
 /*
@@ -85,10 +107,33 @@ static inline phys_addr_t xen_bus_to_phys(dma_addr_t baddr)
 	phys_addr_t paddr = dma;
 
 	paddr |= baddr & ~XEN_PAGE_MASK;
+=======
+static inline phys_addr_t xen_phys_to_bus(struct device *dev, phys_addr_t paddr)
+{
+	unsigned long bfn = pfn_to_bfn(XEN_PFN_DOWN(paddr));
+	phys_addr_t baddr = (phys_addr_t)bfn << XEN_PAGE_SHIFT;
+
+	baddr |= paddr & ~XEN_PAGE_MASK;
+	return baddr;
+}
+
+static inline dma_addr_t xen_phys_to_dma(struct device *dev, phys_addr_t paddr)
+{
+	return phys_to_dma(dev, xen_phys_to_bus(dev, paddr));
+}
+
+static inline phys_addr_t xen_bus_to_phys(struct device *dev,
+					  phys_addr_t baddr)
+{
+	unsigned long xen_pfn = bfn_to_pfn(XEN_PFN_DOWN(baddr));
+	phys_addr_t paddr = (xen_pfn << XEN_PAGE_SHIFT) |
+			    (baddr & ~XEN_PAGE_MASK);
+>>>>>>> upstream/android-13
 
 	return paddr;
 }
 
+<<<<<<< HEAD
 static inline dma_addr_t xen_virt_to_bus(void *address)
 {
 	return xen_phys_to_bus(virt_to_phys(address));
@@ -110,10 +155,17 @@ static int check_pages_physically_contiguous(unsigned long xen_pfn,
 			return 0;
 	}
 	return 1;
+=======
+static inline phys_addr_t xen_dma_to_phys(struct device *dev,
+					  dma_addr_t dma_addr)
+{
+	return xen_bus_to_phys(dev, dma_to_phys(dev, dma_addr));
+>>>>>>> upstream/android-13
 }
 
 static inline int range_straddles_page_boundary(phys_addr_t p, size_t size)
 {
+<<<<<<< HEAD
 	unsigned long xen_pfn = XEN_PFN_DOWN(p);
 	unsigned int offset = p & ~XEN_PAGE_MASK;
 
@@ -129,11 +181,31 @@ static int is_xen_swiotlb_buffer(dma_addr_t dma_addr)
 	unsigned long bfn = XEN_PFN_DOWN(dma_addr);
 	unsigned long xen_pfn = bfn_to_local_pfn(bfn);
 	phys_addr_t paddr = XEN_PFN_PHYS(xen_pfn);
+=======
+	unsigned long next_bfn, xen_pfn = XEN_PFN_DOWN(p);
+	unsigned int i, nr_pages = XEN_PFN_UP(xen_offset_in_page(p) + size);
+
+	next_bfn = pfn_to_bfn(xen_pfn);
+
+	for (i = 1; i < nr_pages; i++)
+		if (pfn_to_bfn(++xen_pfn) != ++next_bfn)
+			return 1;
+
+	return 0;
+}
+
+static int is_xen_swiotlb_buffer(struct device *dev, dma_addr_t dma_addr)
+{
+	unsigned long bfn = XEN_PFN_DOWN(dma_to_phys(dev, dma_addr));
+	unsigned long xen_pfn = bfn_to_local_pfn(bfn);
+	phys_addr_t paddr = (phys_addr_t)xen_pfn << XEN_PAGE_SHIFT;
+>>>>>>> upstream/android-13
 
 	/* If the address is outside our domain, it CAN
 	 * have the same virtual address as another address
 	 * in our domain. Therefore _only_ check address within our domain.
 	 */
+<<<<<<< HEAD
 	if (pfn_valid(PFN_DOWN(paddr))) {
 		return paddr >= virt_to_phys(xen_io_tlb_start) &&
 		       paddr < virt_to_phys(xen_io_tlb_end);
@@ -180,6 +252,38 @@ static unsigned long xen_set_nslabs(unsigned long nr_tbl)
 
 	return xen_io_tlb_nslabs << IO_TLB_SHIFT;
 }
+=======
+	if (pfn_valid(PFN_DOWN(paddr)))
+		return is_swiotlb_buffer(dev, paddr);
+	return 0;
+}
+
+static int xen_swiotlb_fixup(void *buf, unsigned long nslabs)
+{
+	int rc;
+	unsigned int order = get_order(IO_TLB_SEGSIZE << IO_TLB_SHIFT);
+	unsigned int i, dma_bits = order + PAGE_SHIFT;
+	dma_addr_t dma_handle;
+	phys_addr_t p = virt_to_phys(buf);
+
+	BUILD_BUG_ON(IO_TLB_SEGSIZE & (IO_TLB_SEGSIZE - 1));
+	BUG_ON(nslabs % IO_TLB_SEGSIZE);
+
+	i = 0;
+	do {
+		do {
+			rc = xen_create_contiguous_region(
+				p + (i << IO_TLB_SHIFT), order,
+				dma_bits, &dma_handle);
+		} while (rc && dma_bits++ < MAX_DMA_BITS);
+		if (rc)
+			return rc;
+
+		i += IO_TLB_SEGSIZE;
+	} while (i < nslabs);
+	return 0;
+}
+>>>>>>> upstream/android-13
 
 enum xen_swiotlb_err {
 	XEN_SWIOTLB_UNKNOWN = 0,
@@ -202,6 +306,7 @@ static const char *xen_swiotlb_error(enum xen_swiotlb_err err)
 	}
 	return "";
 }
+<<<<<<< HEAD
 int __ref xen_swiotlb_init(int verbose, bool early)
 {
 	unsigned long bytes, order;
@@ -284,6 +389,115 @@ error:
 	return rc;
 }
 
+=======
+
+int xen_swiotlb_init(void)
+{
+	enum xen_swiotlb_err m_ret = XEN_SWIOTLB_UNKNOWN;
+	unsigned long bytes = swiotlb_size_or_default();
+	unsigned long nslabs = bytes >> IO_TLB_SHIFT;
+	unsigned int order, repeat = 3;
+	int rc = -ENOMEM;
+	char *start;
+
+	if (io_tlb_default_mem.nslabs) {
+		pr_warn("swiotlb buffer already initialized\n");
+		return -EEXIST;
+	}
+
+retry:
+	m_ret = XEN_SWIOTLB_ENOMEM;
+	order = get_order(bytes);
+
+	/*
+	 * Get IO TLB memory from any location.
+	 */
+#define SLABS_PER_PAGE (1 << (PAGE_SHIFT - IO_TLB_SHIFT))
+#define IO_TLB_MIN_SLABS ((1<<20) >> IO_TLB_SHIFT)
+	while ((SLABS_PER_PAGE << order) > IO_TLB_MIN_SLABS) {
+		start = (void *)xen_get_swiotlb_free_pages(order);
+		if (start)
+			break;
+		order--;
+	}
+	if (!start)
+		goto exit;
+	if (order != get_order(bytes)) {
+		pr_warn("Warning: only able to allocate %ld MB for software IO TLB\n",
+			(PAGE_SIZE << order) >> 20);
+		nslabs = SLABS_PER_PAGE << order;
+		bytes = nslabs << IO_TLB_SHIFT;
+	}
+
+	/*
+	 * And replace that memory with pages under 4GB.
+	 */
+	rc = xen_swiotlb_fixup(start, nslabs);
+	if (rc) {
+		free_pages((unsigned long)start, order);
+		m_ret = XEN_SWIOTLB_EFIXUP;
+		goto error;
+	}
+	rc = swiotlb_late_init_with_tbl(start, nslabs);
+	if (rc)
+		return rc;
+	swiotlb_set_max_segment(PAGE_SIZE);
+	return 0;
+error:
+	if (nslabs > 1024 && repeat--) {
+		/* Min is 2MB */
+		nslabs = max(1024UL, ALIGN(nslabs >> 1, IO_TLB_SEGSIZE));
+		bytes = nslabs << IO_TLB_SHIFT;
+		pr_info("Lowering to %luMB\n", bytes >> 20);
+		goto retry;
+	}
+exit:
+	pr_err("%s (rc:%d)\n", xen_swiotlb_error(m_ret), rc);
+	return rc;
+}
+
+#ifdef CONFIG_X86
+void __init xen_swiotlb_init_early(void)
+{
+	unsigned long bytes = swiotlb_size_or_default();
+	unsigned long nslabs = bytes >> IO_TLB_SHIFT;
+	unsigned int repeat = 3;
+	char *start;
+	int rc;
+
+retry:
+	/*
+	 * Get IO TLB memory from any location.
+	 */
+	start = memblock_alloc(PAGE_ALIGN(bytes),
+			       IO_TLB_SEGSIZE << IO_TLB_SHIFT);
+	if (!start)
+		panic("%s: Failed to allocate %lu bytes\n",
+		      __func__, PAGE_ALIGN(bytes));
+
+	/*
+	 * And replace that memory with pages under 4GB.
+	 */
+	rc = xen_swiotlb_fixup(start, nslabs);
+	if (rc) {
+		memblock_free(__pa(start), PAGE_ALIGN(bytes));
+		if (nslabs > 1024 && repeat--) {
+			/* Min is 2MB */
+			nslabs = max(1024UL, ALIGN(nslabs >> 1, IO_TLB_SEGSIZE));
+			bytes = nslabs << IO_TLB_SHIFT;
+			pr_info("Lowering to %luMB\n", bytes >> 20);
+			goto retry;
+		}
+		panic("%s (rc:%d)", xen_swiotlb_error(XEN_SWIOTLB_EFIXUP), rc);
+	}
+
+	if (swiotlb_init_with_tbl(start, nslabs, true))
+		panic("Cannot allocate SWIOTLB buffer");
+	swiotlb_set_max_segment(PAGE_SIZE);
+}
+#endif /* CONFIG_X86 */
+
+>>>>>>> upstream/android-13
 static void *
 xen_swiotlb_alloc_coherent(struct device *hwdev, size_t size,
 			   dma_addr_t *dma_handle, gfp_t flags,
@@ -319,12 +533,21 @@ xen_swiotlb_alloc_coherent(struct device *hwdev, size_t size,
 	if (hwdev && hwdev->coherent_dma_mask)
 		dma_mask = hwdev->coherent_dma_mask;
 
+<<<<<<< HEAD
 	/* At this point dma_handle is the physical address, next we are
 	 * going to set it to the machine address.
 	 * Do not use virt_to_phys(ret) because on ARM it doesn't correspond
 	 * to *dma_handle. */
 	phys = *dma_handle;
 	dev_addr = xen_phys_to_bus(phys);
+=======
+	/* At this point dma_handle is the dma address, next we are
+	 * going to set it to the machine address.
+	 * Do not use virt_to_phys(ret) because on ARM it doesn't correspond
+	 * to *dma_handle. */
+	phys = dma_to_phys(hwdev, *dma_handle);
+	dev_addr = xen_phys_to_dma(hwdev, phys);
+>>>>>>> upstream/android-13
 	if (((dev_addr + size - 1 <= dma_mask)) &&
 	    !range_straddles_page_boundary(phys, size))
 		*dma_handle = dev_addr;
@@ -334,6 +557,11 @@ xen_swiotlb_alloc_coherent(struct device *hwdev, size_t size,
 			xen_free_coherent_pages(hwdev, size, ret, (dma_addr_t)phys, attrs);
 			return NULL;
 		}
+<<<<<<< HEAD
+=======
+		*dma_handle = phys_to_dma(hwdev, *dma_handle);
+		SetPageXenRemapped(virt_to_page(ret));
+>>>>>>> upstream/android-13
 	}
 	memset(ret, 0, size);
 	return ret;
@@ -346,22 +574,45 @@ xen_swiotlb_free_coherent(struct device *hwdev, size_t size, void *vaddr,
 	int order = get_order(size);
 	phys_addr_t phys;
 	u64 dma_mask = DMA_BIT_MASK(32);
+<<<<<<< HEAD
+=======
+	struct page *page;
+>>>>>>> upstream/android-13
 
 	if (hwdev && hwdev->coherent_dma_mask)
 		dma_mask = hwdev->coherent_dma_mask;
 
 	/* do not use virt_to_phys because on ARM it doesn't return you the
 	 * physical address */
+<<<<<<< HEAD
 	phys = xen_bus_to_phys(dev_addr);
+=======
+	phys = xen_dma_to_phys(hwdev, dev_addr);
+>>>>>>> upstream/android-13
 
 	/* Convert the size to actually allocated. */
 	size = 1UL << (order + XEN_PAGE_SHIFT);
 
+<<<<<<< HEAD
 	if (!WARN_ON((dev_addr + size - 1 > dma_mask) ||
 		     range_straddles_page_boundary(phys, size)))
 		xen_destroy_contiguous_region(phys, order);
 
 	xen_free_coherent_pages(hwdev, size, vaddr, (dma_addr_t)phys, attrs);
+=======
+	if (is_vmalloc_addr(vaddr))
+		page = vmalloc_to_page(vaddr);
+	else
+		page = virt_to_page(vaddr);
+
+	if (!WARN_ON((dev_addr + size - 1 > dma_mask) ||
+		     range_straddles_page_boundary(phys, size)) &&
+	    TestClearPageXenRemapped(page))
+		xen_destroy_contiguous_region(phys, order);
+
+	xen_free_coherent_pages(hwdev, size, vaddr, phys_to_dma(hwdev, phys),
+				attrs);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -377,7 +628,11 @@ static dma_addr_t xen_swiotlb_map_page(struct device *dev, struct page *page,
 				unsigned long attrs)
 {
 	phys_addr_t map, phys = page_to_phys(page) + offset;
+<<<<<<< HEAD
 	dma_addr_t dev_addr = xen_phys_to_bus(phys);
+=======
+	dma_addr_t dev_addr = xen_phys_to_dma(dev, phys);
+>>>>>>> upstream/android-13
 
 	BUG_ON(dir == DMA_NONE);
 	/*
@@ -385,6 +640,7 @@ static dma_addr_t xen_swiotlb_map_page(struct device *dev, struct page *page,
 	 * we can safely return the device addr and not worry about bounce
 	 * buffering it.
 	 */
+<<<<<<< HEAD
 	if (dma_capable(dev, dev_addr, size) &&
 	    !range_straddles_page_boundary(phys, size) &&
 		!xen_arch_need_swiotlb(dev, phys, dev_addr) &&
@@ -395,12 +651,20 @@ static dma_addr_t xen_swiotlb_map_page(struct device *dev, struct page *page,
 		xen_dma_map_page(dev, page, dev_addr, offset, size, dir, attrs);
 		return dev_addr;
 	}
+=======
+	if (dma_capable(dev, dev_addr, size, true) &&
+	    !range_straddles_page_boundary(phys, size) &&
+		!xen_arch_need_swiotlb(dev, phys, dev_addr) &&
+		!is_swiotlb_force_bounce(dev))
+		goto done;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Oh well, have to allocate and map a bounce buffer.
 	 */
 	trace_swiotlb_bounced(dev, dev_addr, size, swiotlb_force);
 
+<<<<<<< HEAD
 	map = swiotlb_tbl_map_single(dev, start_dma_addr, phys, size, dir,
 				     attrs);
 	if (map == SWIOTLB_MAP_ERROR)
@@ -409,10 +673,19 @@ static dma_addr_t xen_swiotlb_map_page(struct device *dev, struct page *page,
 	dev_addr = xen_phys_to_bus(map);
 	xen_dma_map_page(dev, pfn_to_page(map >> PAGE_SHIFT),
 					dev_addr, map & ~PAGE_MASK, size, dir, attrs);
+=======
+	map = swiotlb_tbl_map_single(dev, phys, size, size, 0, dir, attrs);
+	if (map == (phys_addr_t)DMA_MAPPING_ERROR)
+		return DMA_MAPPING_ERROR;
+
+	phys = map;
+	dev_addr = xen_phys_to_dma(dev, map);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Ensure that the address returned is DMA'ble
 	 */
+<<<<<<< HEAD
 	if (dma_capable(dev, dev_addr, size))
 		return dev_addr;
 
@@ -420,6 +693,22 @@ static dma_addr_t xen_swiotlb_map_page(struct device *dev, struct page *page,
 	swiotlb_tbl_unmap_single(dev, map, size, dir, attrs);
 
 	return XEN_SWIOTLB_ERROR_CODE;
+=======
+	if (unlikely(!dma_capable(dev, dev_addr, size, true))) {
+		swiotlb_tbl_unmap_single(dev, map, size, dir,
+				attrs | DMA_ATTR_SKIP_CPU_SYNC);
+		return DMA_MAPPING_ERROR;
+	}
+
+done:
+	if (!dev_is_dma_coherent(dev) && !(attrs & DMA_ATTR_SKIP_CPU_SYNC)) {
+		if (pfn_valid(PFN_DOWN(dma_to_phys(dev, dev_addr))))
+			arch_sync_dma_for_device(phys, size, dir);
+		else
+			xen_dma_sync_for_device(dev, dev_addr, size, dir);
+	}
+	return dev_addr;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -430,6 +719,7 @@ static dma_addr_t xen_swiotlb_map_page(struct device *dev, struct page *page,
  * After this call, reads by the cpu to the buffer are guaranteed to see
  * whatever the device wrote there.
  */
+<<<<<<< HEAD
 static void xen_unmap_single(struct device *hwdev, dma_addr_t dev_addr,
 			     size_t size, enum dma_data_direction dir,
 			     unsigned long attrs)
@@ -512,6 +802,59 @@ xen_swiotlb_sync_single_for_device(struct device *hwdev, dma_addr_t dev_addr,
 				   size_t size, enum dma_data_direction dir)
 {
 	xen_swiotlb_sync_single(hwdev, dev_addr, size, dir, SYNC_FOR_DEVICE);
+=======
+static void xen_swiotlb_unmap_page(struct device *hwdev, dma_addr_t dev_addr,
+		size_t size, enum dma_data_direction dir, unsigned long attrs)
+{
+	phys_addr_t paddr = xen_dma_to_phys(hwdev, dev_addr);
+
+	BUG_ON(dir == DMA_NONE);
+
+	if (!dev_is_dma_coherent(hwdev) && !(attrs & DMA_ATTR_SKIP_CPU_SYNC)) {
+		if (pfn_valid(PFN_DOWN(dma_to_phys(hwdev, dev_addr))))
+			arch_sync_dma_for_cpu(paddr, size, dir);
+		else
+			xen_dma_sync_for_cpu(hwdev, dev_addr, size, dir);
+	}
+
+	/* NOTE: We use dev_addr here, not paddr! */
+	if (is_xen_swiotlb_buffer(hwdev, dev_addr))
+		swiotlb_tbl_unmap_single(hwdev, paddr, size, dir, attrs);
+}
+
+static void
+xen_swiotlb_sync_single_for_cpu(struct device *dev, dma_addr_t dma_addr,
+		size_t size, enum dma_data_direction dir)
+{
+	phys_addr_t paddr = xen_dma_to_phys(dev, dma_addr);
+
+	if (!dev_is_dma_coherent(dev)) {
+		if (pfn_valid(PFN_DOWN(dma_to_phys(dev, dma_addr))))
+			arch_sync_dma_for_cpu(paddr, size, dir);
+		else
+			xen_dma_sync_for_cpu(dev, dma_addr, size, dir);
+	}
+
+	if (is_xen_swiotlb_buffer(dev, dma_addr))
+		swiotlb_sync_single_for_cpu(dev, paddr, size, dir);
+}
+
+static void
+xen_swiotlb_sync_single_for_device(struct device *dev, dma_addr_t dma_addr,
+		size_t size, enum dma_data_direction dir)
+{
+	phys_addr_t paddr = xen_dma_to_phys(dev, dma_addr);
+
+	if (is_xen_swiotlb_buffer(dev, dma_addr))
+		swiotlb_sync_single_for_device(dev, paddr, size, dir);
+
+	if (!dev_is_dma_coherent(dev)) {
+		if (pfn_valid(PFN_DOWN(dma_to_phys(dev, dma_addr))))
+			arch_sync_dma_for_device(paddr, size, dir);
+		else
+			xen_dma_sync_for_device(dev, dma_addr, size, dir);
+	}
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -519,9 +862,14 @@ xen_swiotlb_sync_single_for_device(struct device *hwdev, dma_addr_t dev_addr,
  * concerning calls here are the same as for swiotlb_unmap_page() above.
  */
 static void
+<<<<<<< HEAD
 xen_swiotlb_unmap_sg_attrs(struct device *hwdev, struct scatterlist *sgl,
 			   int nelems, enum dma_data_direction dir,
 			   unsigned long attrs)
+=======
+xen_swiotlb_unmap_sg(struct device *hwdev, struct scatterlist *sgl, int nelems,
+		enum dma_data_direction dir, unsigned long attrs)
+>>>>>>> upstream/android-13
 {
 	struct scatterlist *sg;
 	int i;
@@ -529,6 +877,7 @@ xen_swiotlb_unmap_sg_attrs(struct device *hwdev, struct scatterlist *sgl,
 	BUG_ON(dir == DMA_NONE);
 
 	for_each_sg(sgl, sg, nelems, i)
+<<<<<<< HEAD
 		xen_unmap_single(hwdev, sg->dma_address, sg_dma_len(sg), dir, attrs);
 
 }
@@ -553,6 +902,16 @@ static int
 xen_swiotlb_map_sg_attrs(struct device *hwdev, struct scatterlist *sgl,
 			 int nelems, enum dma_data_direction dir,
 			 unsigned long attrs)
+=======
+		xen_swiotlb_unmap_page(hwdev, sg->dma_address, sg_dma_len(sg),
+				dir, attrs);
+
+}
+
+static int
+xen_swiotlb_map_sg(struct device *dev, struct scatterlist *sgl, int nelems,
+		enum dma_data_direction dir, unsigned long attrs)
+>>>>>>> upstream/android-13
 {
 	struct scatterlist *sg;
 	int i;
@@ -560,6 +919,7 @@ xen_swiotlb_map_sg_attrs(struct device *hwdev, struct scatterlist *sgl,
 	BUG_ON(dir == DMA_NONE);
 
 	for_each_sg(sgl, sg, nelems, i) {
+<<<<<<< HEAD
 		phys_addr_t paddr = sg_phys(sg);
 		dma_addr_t dev_addr = xen_phys_to_bus(paddr);
 
@@ -618,10 +978,30 @@ static void
 xen_swiotlb_sync_sg(struct device *hwdev, struct scatterlist *sgl,
 		    int nelems, enum dma_data_direction dir,
 		    enum dma_sync_target target)
+=======
+		sg->dma_address = xen_swiotlb_map_page(dev, sg_page(sg),
+				sg->offset, sg->length, dir, attrs);
+		if (sg->dma_address == DMA_MAPPING_ERROR)
+			goto out_unmap;
+		sg_dma_len(sg) = sg->length;
+	}
+
+	return nelems;
+out_unmap:
+	xen_swiotlb_unmap_sg(dev, sgl, i, dir, attrs | DMA_ATTR_SKIP_CPU_SYNC);
+	sg_dma_len(sgl) = 0;
+	return -EIO;
+}
+
+static void
+xen_swiotlb_sync_sg_for_cpu(struct device *dev, struct scatterlist *sgl,
+			    int nelems, enum dma_data_direction dir)
+>>>>>>> upstream/android-13
 {
 	struct scatterlist *sg;
 	int i;
 
+<<<<<<< HEAD
 	for_each_sg(sgl, sg, nelems, i)
 		xen_swiotlb_sync_single(hwdev, sg->dma_address,
 					sg_dma_len(sg), dir, target);
@@ -639,6 +1019,25 @@ xen_swiotlb_sync_sg_for_device(struct device *hwdev, struct scatterlist *sg,
 			       int nelems, enum dma_data_direction dir)
 {
 	xen_swiotlb_sync_sg(hwdev, sg, nelems, dir, SYNC_FOR_DEVICE);
+=======
+	for_each_sg(sgl, sg, nelems, i) {
+		xen_swiotlb_sync_single_for_cpu(dev, sg->dma_address,
+				sg->length, dir);
+	}
+}
+
+static void
+xen_swiotlb_sync_sg_for_device(struct device *dev, struct scatterlist *sgl,
+			       int nelems, enum dma_data_direction dir)
+{
+	struct scatterlist *sg;
+	int i;
+
+	for_each_sg(sgl, sg, nelems, i) {
+		xen_swiotlb_sync_single_for_device(dev, sg->dma_address,
+				sg->length, dir);
+	}
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -650,6 +1049,7 @@ xen_swiotlb_sync_sg_for_device(struct device *hwdev, struct scatterlist *sg,
 static int
 xen_swiotlb_dma_supported(struct device *hwdev, u64 mask)
 {
+<<<<<<< HEAD
 	return xen_virt_to_bus(xen_io_tlb_end - 1) <= mask;
 }
 
@@ -701,6 +1101,9 @@ xen_swiotlb_get_sgtable(struct device *dev, struct sg_table *sgt,
 static int xen_swiotlb_mapping_error(struct device *dev, dma_addr_t dma_addr)
 {
 	return dma_addr == XEN_SWIOTLB_ERROR_CODE;
+=======
+	return xen_phys_to_dma(hwdev, io_tlb_default_mem.end - 1) <= mask;
+>>>>>>> upstream/android-13
 }
 
 const struct dma_map_ops xen_swiotlb_dma_ops = {
@@ -710,6 +1113,7 @@ const struct dma_map_ops xen_swiotlb_dma_ops = {
 	.sync_single_for_device = xen_swiotlb_sync_single_for_device,
 	.sync_sg_for_cpu = xen_swiotlb_sync_sg_for_cpu,
 	.sync_sg_for_device = xen_swiotlb_sync_sg_for_device,
+<<<<<<< HEAD
 	.map_sg = xen_swiotlb_map_sg_attrs,
 	.unmap_sg = xen_swiotlb_unmap_sg_attrs,
 	.map_page = xen_swiotlb_map_page,
@@ -718,4 +1122,15 @@ const struct dma_map_ops xen_swiotlb_dma_ops = {
 	.mmap = xen_swiotlb_dma_mmap,
 	.get_sgtable = xen_swiotlb_get_sgtable,
 	.mapping_error	= xen_swiotlb_mapping_error,
+=======
+	.map_sg = xen_swiotlb_map_sg,
+	.unmap_sg = xen_swiotlb_unmap_sg,
+	.map_page = xen_swiotlb_map_page,
+	.unmap_page = xen_swiotlb_unmap_page,
+	.dma_supported = xen_swiotlb_dma_supported,
+	.mmap = dma_common_mmap,
+	.get_sgtable = dma_common_get_sgtable,
+	.alloc_pages = dma_common_alloc_pages,
+	.free_pages = dma_common_free_pages,
+>>>>>>> upstream/android-13
 };

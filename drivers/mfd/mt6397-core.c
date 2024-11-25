@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2014 MediaTek Inc.
  * Author: Flora Fu, MediaTek
@@ -12,22 +13,39 @@
  * GNU General Public License for more details.
  */
 
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2014 MediaTek Inc.
+ * Author: Flora Fu, MediaTek
+ */
+
+#include <linux/interrupt.h>
+#include <linux/ioport.h>
+>>>>>>> upstream/android-13
 #include <linux/module.h>
 #include <linux/of_device.h>
 #include <linux/of_irq.h>
 #include <linux/regmap.h>
 #include <linux/mfd/core.h>
 #include <linux/mfd/mt6323/core.h>
+<<<<<<< HEAD
 #include <linux/mfd/mt6357/core.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/mfd/mt6358/core.h>
 #include <linux/mfd/mt6359/core.h>
 #include <linux/mfd/mt6397/core.h>
 #include <linux/mfd/mt6323/registers.h>
+<<<<<<< HEAD
 #include <linux/mfd/mt6357/registers.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/mfd/mt6358/registers.h>
 #include <linux/mfd/mt6359/registers.h>
 #include <linux/mfd/mt6397/registers.h>
 
+<<<<<<< HEAD
 #define MT6358_RTC_BASE		0x0588
 #define MT6358_RTC_SIZE		0x3c
 #define MT6358_RTC_WRTGR_OFFSET	0x3a
@@ -280,10 +298,66 @@ static const struct resource mt6359_battery_oc_resources[] = {
 
 static const struct resource mt6357_chrdet_resources[] = {
 	DEFINE_RES_IRQ_NAMED(MT6357_IRQ_CHRDET_EDGE, "chrdet"),
+=======
+#define MT6323_RTC_BASE		0x8000
+#define MT6323_RTC_SIZE		0x40
+
+#define MT6358_RTC_BASE		0x0588
+#define MT6358_RTC_SIZE		0x3c
+
+#define MT6397_RTC_BASE		0xe000
+#define MT6397_RTC_SIZE		0x3e
+
+#define MT6323_PWRC_BASE	0x8000
+#define MT6323_PWRC_SIZE	0x40
+
+static const struct resource mt6323_rtc_resources[] = {
+	DEFINE_RES_MEM(MT6323_RTC_BASE, MT6323_RTC_SIZE),
+	DEFINE_RES_IRQ(MT6323_IRQ_STATUS_RTC),
+};
+
+static const struct resource mt6358_rtc_resources[] = {
+	DEFINE_RES_MEM(MT6358_RTC_BASE, MT6358_RTC_SIZE),
+	DEFINE_RES_IRQ(MT6358_IRQ_RTC),
+};
+
+static const struct resource mt6397_rtc_resources[] = {
+	DEFINE_RES_MEM(MT6397_RTC_BASE, MT6397_RTC_SIZE),
+	DEFINE_RES_IRQ(MT6397_IRQ_RTC),
+};
+
+static const struct resource mt6358_keys_resources[] = {
+	DEFINE_RES_IRQ_NAMED(MT6358_IRQ_PWRKEY, "powerkey"),
+	DEFINE_RES_IRQ_NAMED(MT6358_IRQ_HOMEKEY, "homekey"),
+	DEFINE_RES_IRQ_NAMED(MT6358_IRQ_PWRKEY_R, "powerkey_r"),
+	DEFINE_RES_IRQ_NAMED(MT6358_IRQ_HOMEKEY_R, "homekey_r"),
+};
+
+static const struct resource mt6323_keys_resources[] = {
+	DEFINE_RES_IRQ_NAMED(MT6323_IRQ_STATUS_PWRKEY, "powerkey"),
+	DEFINE_RES_IRQ_NAMED(MT6323_IRQ_STATUS_FCHRKEY, "homekey"),
+};
+
+static const struct resource mt6397_keys_resources[] = {
+	DEFINE_RES_IRQ_NAMED(MT6397_IRQ_PWRKEY, "powerkey"),
+	DEFINE_RES_IRQ_NAMED(MT6397_IRQ_HOMEKEY, "homekey"),
+};
+
+static const struct resource mt6323_pwrc_resources[] = {
+	DEFINE_RES_MEM(MT6323_PWRC_BASE, MT6323_PWRC_SIZE),
+>>>>>>> upstream/android-13
 };
 
 static const struct mfd_cell mt6323_devs[] = {
 	{
+<<<<<<< HEAD
+=======
+		.name = "mt6323-rtc",
+		.num_resources = ARRAY_SIZE(mt6323_rtc_resources),
+		.resources = mt6323_rtc_resources,
+		.of_compatible = "mediatek,mt6323-rtc",
+	}, {
+>>>>>>> upstream/android-13
 		.name = "mt6323-regulator",
 		.of_compatible = "mediatek,mt6323-regulator"
 	}, {
@@ -294,6 +368,7 @@ static const struct mfd_cell mt6323_devs[] = {
 		.num_resources = ARRAY_SIZE(mt6323_keys_resources),
 		.resources = mt6323_keys_resources,
 		.of_compatible = "mediatek,mt6323-keys"
+<<<<<<< HEAD
 	},
 };
 
@@ -381,22 +456,45 @@ static const struct mfd_cell mt6357_devs[] = {
 	}
 };
 
+=======
+	}, {
+		.name = "mt6323-pwrc",
+		.num_resources = ARRAY_SIZE(mt6323_pwrc_resources),
+		.resources = mt6323_pwrc_resources,
+		.of_compatible = "mediatek,mt6323-pwrc"
+	},
+};
+
+>>>>>>> upstream/android-13
 static const struct mfd_cell mt6358_devs[] = {
 	{
 		.name = "mt6358-regulator",
 		.of_compatible = "mediatek,mt6358-regulator"
 	}, {
+<<<<<<< HEAD
 		.name = "mt6397-rtc",
+=======
+		.name = "mt6358-rtc",
+>>>>>>> upstream/android-13
 		.num_resources = ARRAY_SIZE(mt6358_rtc_resources),
 		.resources = mt6358_rtc_resources,
 		.of_compatible = "mediatek,mt6358-rtc",
 	}, {
 		.name = "mt6358-sound",
 		.of_compatible = "mediatek,mt6358-sound"
+<<<<<<< HEAD
+=======
+	}, {
+		.name = "mt6358-keys",
+		.num_resources = ARRAY_SIZE(mt6358_keys_resources),
+		.resources = mt6358_keys_resources,
+		.of_compatible = "mediatek,mt6358-keys"
+>>>>>>> upstream/android-13
 	},
 };
 
 static const struct mfd_cell mt6359_devs[] = {
+<<<<<<< HEAD
 	{
 		.name = "mt635x-accdet",
 		.of_compatible = "mediatek,mt6359-accdet",
@@ -459,15 +557,28 @@ static const struct mfd_cell mt6359_devs[] = {
 		.name = "mtk_ts_pmic",
 		.of_compatible = "mediatek,mtk_ts_pmic"
 	}
+=======
+	{ .name = "mt6359-regulator", },
+	{
+		.name = "mt6359-rtc",
+		.num_resources = ARRAY_SIZE(mt6358_rtc_resources),
+		.resources = mt6358_rtc_resources,
+		.of_compatible = "mediatek,mt6358-rtc",
+	},
+	{ .name = "mt6359-sound", },
+>>>>>>> upstream/android-13
 };
 
 static const struct mfd_cell mt6397_devs[] = {
 	{
+<<<<<<< HEAD
 		.name = "mt6397-pmic",
 		.num_resources = ARRAY_SIZE(mt6397_pmic_resources),
 		.resources = mt6397_pmic_resources,
 		.of_compatible = "mediatek,mt6397-pmic",
 	}, {
+=======
+>>>>>>> upstream/android-13
 		.name = "mt6397-rtc",
 		.num_resources = ARRAY_SIZE(mt6397_rtc_resources),
 		.resources = mt6397_rtc_resources,
@@ -489,45 +600,83 @@ static const struct mfd_cell mt6397_devs[] = {
 		.num_resources = ARRAY_SIZE(mt6397_keys_resources),
 		.resources = mt6397_keys_resources,
 		.of_compatible = "mediatek,mt6397-keys"
+<<<<<<< HEAD
 	}, {
 		.name = "mt6397-thermal",
 		.of_compatible = "mediatek,mt6397-thermal"
 	},
+=======
+	}
+>>>>>>> upstream/android-13
 };
 
 struct chip_data {
 	u32 cid_addr;
 	u32 cid_shift;
+<<<<<<< HEAD
+=======
+	const struct mfd_cell *cells;
+	int cell_size;
+	int (*irq_init)(struct mt6397_chip *chip);
+>>>>>>> upstream/android-13
 };
 
 static const struct chip_data mt6323_core = {
 	.cid_addr = MT6323_CID,
 	.cid_shift = 0,
+<<<<<<< HEAD
 };
 
 static const struct chip_data mt6357_core = {
 	.cid_addr = MT6357_SWCID,
 	.cid_shift = 8,
+=======
+	.cells = mt6323_devs,
+	.cell_size = ARRAY_SIZE(mt6323_devs),
+	.irq_init = mt6397_irq_init,
+>>>>>>> upstream/android-13
 };
 
 static const struct chip_data mt6358_core = {
 	.cid_addr = MT6358_SWCID,
 	.cid_shift = 8,
+<<<<<<< HEAD
+=======
+	.cells = mt6358_devs,
+	.cell_size = ARRAY_SIZE(mt6358_devs),
+	.irq_init = mt6358_irq_init,
+>>>>>>> upstream/android-13
 };
 
 static const struct chip_data mt6359_core = {
 	.cid_addr = MT6359_SWCID,
 	.cid_shift = 8,
+<<<<<<< HEAD
+=======
+	.cells = mt6359_devs,
+	.cell_size = ARRAY_SIZE(mt6359_devs),
+	.irq_init = mt6358_irq_init,
+>>>>>>> upstream/android-13
 };
 
 static const struct chip_data mt6397_core = {
 	.cid_addr = MT6397_CID,
 	.cid_shift = 0,
+<<<<<<< HEAD
+=======
+	.cells = mt6397_devs,
+	.cell_size = ARRAY_SIZE(mt6397_devs),
+	.irq_init = mt6397_irq_init,
+>>>>>>> upstream/android-13
 };
 
 static int mt6397_probe(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	int ret = 0;
+=======
+	int ret;
+>>>>>>> upstream/android-13
 	unsigned int id = 0;
 	struct mt6397_chip *pmic;
 	const struct chip_data *pmic_core;
@@ -561,6 +710,7 @@ static int mt6397_probe(struct platform_device *pdev)
 	platform_set_drvdata(pdev, pmic);
 
 	pmic->irq = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (pmic->irq <= 0) {
 		dev_err(&pdev->dev,
 			"failed to get platform irq, ret=%d", pmic->irq);
@@ -626,6 +776,18 @@ static int mt6397_probe(struct platform_device *pdev)
 		return -ENODEV;
 	}
 
+=======
+	if (pmic->irq <= 0)
+		return pmic->irq;
+
+	ret = pmic_core->irq_init(pmic);
+	if (ret)
+		return ret;
+
+	ret = devm_mfd_add_devices(&pdev->dev, PLATFORM_DEVID_NONE,
+				   pmic_core->cells, pmic_core->cell_size,
+				   NULL, 0, pmic->irq_domain);
+>>>>>>> upstream/android-13
 	if (ret) {
 		irq_domain_remove(pmic->irq_domain);
 		dev_err(&pdev->dev, "failed to add child devices: %d\n", ret);
@@ -639,9 +801,12 @@ static const struct of_device_id mt6397_of_match[] = {
 		.compatible = "mediatek,mt6323",
 		.data = &mt6323_core,
 	}, {
+<<<<<<< HEAD
 		.compatible = "mediatek,mt6357",
 		.data = &mt6357_core,
 	}, {
+=======
+>>>>>>> upstream/android-13
 		.compatible = "mediatek,mt6358",
 		.data = &mt6358_core,
 	}, {
@@ -666,7 +831,11 @@ static struct platform_driver mt6397_driver = {
 	.probe = mt6397_probe,
 	.driver = {
 		.name = "mt6397",
+<<<<<<< HEAD
 		.of_match_table = of_match_ptr(mt6397_of_match),
+=======
+		.of_match_table = mt6397_of_match,
+>>>>>>> upstream/android-13
 	},
 	.id_table = mt6397_id,
 };

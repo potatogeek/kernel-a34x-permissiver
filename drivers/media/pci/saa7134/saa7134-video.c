@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *
  * device driver for philips saa7134 based TV cards
  * video4linux video interface
  *
  * (c) 2001-03 Gerd Knorr <kraxel@bytesex.org> [SuSE Labs]
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -14,6 +19,8 @@
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "saa7134.h"
@@ -99,70 +106,106 @@ static int video_out[][9] = {
 
 static struct saa7134_format formats[] = {
 	{
+<<<<<<< HEAD
 		.name     = "8 bpp gray",
+=======
+>>>>>>> upstream/android-13
 		.fourcc   = V4L2_PIX_FMT_GREY,
 		.depth    = 8,
 		.pm       = 0x06,
 	},{
+<<<<<<< HEAD
 		.name     = "15 bpp RGB, le",
+=======
+>>>>>>> upstream/android-13
 		.fourcc   = V4L2_PIX_FMT_RGB555,
 		.depth    = 16,
 		.pm       = 0x13 | 0x80,
 	},{
+<<<<<<< HEAD
 		.name     = "15 bpp RGB, be",
+=======
+>>>>>>> upstream/android-13
 		.fourcc   = V4L2_PIX_FMT_RGB555X,
 		.depth    = 16,
 		.pm       = 0x13 | 0x80,
 		.bswap    = 1,
 	},{
+<<<<<<< HEAD
 		.name     = "16 bpp RGB, le",
+=======
+>>>>>>> upstream/android-13
 		.fourcc   = V4L2_PIX_FMT_RGB565,
 		.depth    = 16,
 		.pm       = 0x10 | 0x80,
 	},{
+<<<<<<< HEAD
 		.name     = "16 bpp RGB, be",
+=======
+>>>>>>> upstream/android-13
 		.fourcc   = V4L2_PIX_FMT_RGB565X,
 		.depth    = 16,
 		.pm       = 0x10 | 0x80,
 		.bswap    = 1,
 	},{
+<<<<<<< HEAD
 		.name     = "24 bpp RGB, le",
+=======
+>>>>>>> upstream/android-13
 		.fourcc   = V4L2_PIX_FMT_BGR24,
 		.depth    = 24,
 		.pm       = 0x11,
 	},{
+<<<<<<< HEAD
 		.name     = "24 bpp RGB, be",
+=======
+>>>>>>> upstream/android-13
 		.fourcc   = V4L2_PIX_FMT_RGB24,
 		.depth    = 24,
 		.pm       = 0x11,
 		.bswap    = 1,
 	},{
+<<<<<<< HEAD
 		.name     = "32 bpp RGB, le",
+=======
+>>>>>>> upstream/android-13
 		.fourcc   = V4L2_PIX_FMT_BGR32,
 		.depth    = 32,
 		.pm       = 0x12,
 	},{
+<<<<<<< HEAD
 		.name     = "32 bpp RGB, be",
+=======
+>>>>>>> upstream/android-13
 		.fourcc   = V4L2_PIX_FMT_RGB32,
 		.depth    = 32,
 		.pm       = 0x12,
 		.bswap    = 1,
 		.wswap    = 1,
 	},{
+<<<<<<< HEAD
 		.name     = "4:2:2 packed, YUYV",
+=======
+>>>>>>> upstream/android-13
 		.fourcc   = V4L2_PIX_FMT_YUYV,
 		.depth    = 16,
 		.pm       = 0x00,
 		.bswap    = 1,
 		.yuv      = 1,
 	},{
+<<<<<<< HEAD
 		.name     = "4:2:2 packed, UYVY",
+=======
+>>>>>>> upstream/android-13
 		.fourcc   = V4L2_PIX_FMT_UYVY,
 		.depth    = 16,
 		.pm       = 0x00,
 		.yuv      = 1,
 	},{
+<<<<<<< HEAD
 		.name     = "4:2:2 planar, Y-Cb-Cr",
+=======
+>>>>>>> upstream/android-13
 		.fourcc   = V4L2_PIX_FMT_YUV422P,
 		.depth    = 16,
 		.pm       = 0x09,
@@ -171,7 +214,10 @@ static struct saa7134_format formats[] = {
 		.hshift   = 1,
 		.vshift   = 0,
 	},{
+<<<<<<< HEAD
 		.name     = "4:2:0 planar, Y-Cb-Cr",
+=======
+>>>>>>> upstream/android-13
 		.fourcc   = V4L2_PIX_FMT_YUV420,
 		.depth    = 12,
 		.pm       = 0x0a,
@@ -180,7 +226,10 @@ static struct saa7134_format formats[] = {
 		.hshift   = 1,
 		.vshift   = 1,
 	},{
+<<<<<<< HEAD
 		.name     = "4:2:0 planar, Y-Cb-Cr",
+=======
+>>>>>>> upstream/android-13
 		.fourcc   = V4L2_PIX_FMT_YVU420,
 		.depth    = 12,
 		.pm       = 0x0a,
@@ -729,10 +778,17 @@ static int start_preview(struct saa7134_dev *dev)
 		return err;
 
 	dev->ovfield = dev->win.field;
+<<<<<<< HEAD
 	video_dbg("start_preview %dx%d+%d+%d %s field=%s\n",
 		dev->win.w.width, dev->win.w.height,
 		dev->win.w.left, dev->win.w.top,
 		dev->ovfmt->name, v4l2_field_names[dev->ovfield]);
+=======
+	video_dbg("%s %dx%d+%d+%d 0x%08x field=%s\n", __func__,
+		  dev->win.w.width, dev->win.w.height,
+		  dev->win.w.left, dev->win.w.top,
+		  dev->ovfmt->fourcc, v4l2_field_names[dev->ovfield]);
+>>>>>>> upstream/android-13
 
 	/* setup window + clipping */
 	set_size(dev, TASK_B, dev->win.w.width, dev->win.w.height,
@@ -891,8 +947,16 @@ static int buffer_activate(struct saa7134_dev *dev,
 		lines_uv = dev->height >> dev->fmt->vshift;
 		base2    = base + bpl * dev->height;
 		base3    = base2 + bpl_uv * lines_uv;
+<<<<<<< HEAD
 		if (dev->fmt->uvswap)
 			tmp = base2, base2 = base3, base3 = tmp;
+=======
+		if (dev->fmt->uvswap) {
+			tmp = base2;
+			base2 = base3;
+			base3 = tmp;
+		}
+>>>>>>> upstream/android-13
 		video_dbg("uv: bpl=%ld lines=%ld base2/3=%ld/%ld\n",
 			bpl_uv,lines_uv,base2,base3);
 		if (V4L2_FIELD_HAS_BOTH(dev->field)) {
@@ -1031,8 +1095,12 @@ int saa7134_vb2_start_streaming(struct vb2_queue *vq, unsigned int count)
 	 */
 	if ((dmaq == &dev->video_q && !vb2_is_streaming(&dev->vbi_vbq)) ||
 	    (dmaq == &dev->vbi_q && !vb2_is_streaming(&dev->video_vbq)))
+<<<<<<< HEAD
 		pm_qos_add_request(&dev->qos_request,
 			PM_QOS_CPU_DMA_LATENCY, 20);
+=======
+		cpu_latency_qos_add_request(&dev->qos_request, 20);
+>>>>>>> upstream/android-13
 	dmaq->seq_nr = 0;
 
 	return 0;
@@ -1047,7 +1115,11 @@ void saa7134_vb2_stop_streaming(struct vb2_queue *vq)
 
 	if ((dmaq == &dev->video_q && !vb2_is_streaming(&dev->vbi_vbq)) ||
 	    (dmaq == &dev->vbi_q && !vb2_is_streaming(&dev->video_vbq)))
+<<<<<<< HEAD
 		pm_qos_remove_request(&dev->qos_request);
+=======
+		cpu_latency_qos_remove_request(&dev->qos_request);
+>>>>>>> upstream/android-13
 }
 
 static const struct vb2_ops vb2_qops = {
@@ -1202,7 +1274,11 @@ static int video_release(struct file *file)
 
 	saa_call_all(dev, tuner, standby);
 	if (vdev->vfl_type == VFL_TYPE_RADIO)
+<<<<<<< HEAD
 		saa_call_all(dev, core, ioctl, SAA6588_CMD_CLOSE, &cmd);
+=======
+		saa_call_all(dev, core, command, SAA6588_CMD_CLOSE, &cmd);
+>>>>>>> upstream/android-13
 	mutex_unlock(&dev->lock);
 
 	return 0;
@@ -1221,7 +1297,11 @@ static ssize_t radio_read(struct file *file, char __user *data,
 	cmd.result = -ENODEV;
 
 	mutex_lock(&dev->lock);
+<<<<<<< HEAD
 	saa_call_all(dev, core, ioctl, SAA6588_CMD_READ, &cmd);
+=======
+	saa_call_all(dev, core, command, SAA6588_CMD_READ, &cmd);
+>>>>>>> upstream/android-13
 	mutex_unlock(&dev->lock);
 
 	return cmd.result;
@@ -1237,7 +1317,11 @@ static __poll_t radio_poll(struct file *file, poll_table *wait)
 	cmd.event_list = wait;
 	cmd.poll_mask = 0;
 	mutex_lock(&dev->lock);
+<<<<<<< HEAD
 	saa_call_all(dev, core, ioctl, SAA6588_CMD_POLL, &cmd);
+=======
+	saa_call_all(dev, core, command, SAA6588_CMD_POLL, &cmd);
+>>>>>>> upstream/android-13
 	mutex_unlock(&dev->lock);
 
 	return rc | cmd.poll_mask;
@@ -1289,9 +1373,13 @@ static int saa7134_g_fmt_vid_overlay(struct file *file, void *priv,
 				struct v4l2_format *f)
 {
 	struct saa7134_dev *dev = video_drvdata(file);
+<<<<<<< HEAD
 	struct v4l2_clip __user *clips = f->fmt.win.clips;
 	u32 clipcount = f->fmt.win.clipcount;
 	int err = 0;
+=======
+	u32 clipcount = f->fmt.win.clipcount;
+>>>>>>> upstream/android-13
 	int i;
 
 	if (saa7134_no_overlay > 0) {
@@ -1299,13 +1387,21 @@ static int saa7134_g_fmt_vid_overlay(struct file *file, void *priv,
 		return -EINVAL;
 	}
 	f->fmt.win = dev->win;
+<<<<<<< HEAD
 	f->fmt.win.clips = clips;
 	if (clips == NULL)
 		clipcount = 0;
+=======
+	if (!f->fmt.win.clips) {
+		f->fmt.win.clipcount = 0;
+		return 0;
+	}
+>>>>>>> upstream/android-13
 	if (dev->nclips < clipcount)
 		clipcount = dev->nclips;
 	f->fmt.win.clipcount = clipcount;
 
+<<<<<<< HEAD
 	for (i = 0; !err && i < clipcount; i++) {
 		if (copy_to_user(&f->fmt.win.clips[i].c, &dev->clips[i].c,
 					sizeof(struct v4l2_rect)))
@@ -1313,6 +1409,14 @@ static int saa7134_g_fmt_vid_overlay(struct file *file, void *priv,
 	}
 
 	return err;
+=======
+	for (i = 0; i < clipcount; i++) {
+		memcpy(&f->fmt.win.clips[i].c, &dev->clips[i].c,
+		       sizeof(struct v4l2_rect));
+	}
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int saa7134_try_fmt_vid_cap(struct file *file, void *priv,
@@ -1420,9 +1524,14 @@ static int saa7134_s_fmt_vid_overlay(struct file *file, void *priv,
 	dev->win    = f->fmt.win;
 	dev->nclips = f->fmt.win.clipcount;
 
+<<<<<<< HEAD
 	if (copy_from_user(dev->clips, f->fmt.win.clips,
 			   sizeof(struct v4l2_clip) * dev->nclips))
 		return -EFAULT;
+=======
+	memcpy(dev->clips, f->fmt.win.clips,
+	       sizeof(struct v4l2_clip) * dev->nclips);
+>>>>>>> upstream/android-13
 
 	if (priv == dev->overlay_owner) {
 		spin_lock_irqsave(&dev->slock, flags);
@@ -1445,7 +1554,12 @@ int saa7134_enum_input(struct file *file, void *priv, struct v4l2_input *i)
 	if (card_in(dev, i->index).type == SAA7134_NO_INPUT)
 		return -EINVAL;
 	i->index = n;
+<<<<<<< HEAD
 	strcpy(i->name, saa7134_input_name[card_in(dev, n).type]);
+=======
+	strscpy(i->name, saa7134_input_name[card_in(dev, n).type],
+		sizeof(i->name));
+>>>>>>> upstream/android-13
 	switch (card_in(dev, n).type) {
 	case SAA7134_INPUT_TV:
 	case SAA7134_INPUT_TV_MONO:
@@ -1497,6 +1611,7 @@ int saa7134_querycap(struct file *file, void *priv,
 					struct v4l2_capability *cap)
 {
 	struct saa7134_dev *dev = video_drvdata(file);
+<<<<<<< HEAD
 	struct video_device *vdev = video_devdata(file);
 	u32 radio_caps, video_caps, vbi_caps;
 
@@ -1541,6 +1656,22 @@ int saa7134_querycap(struct file *file, void *priv,
 		if (!dev->has_rds)
 			cap->device_caps &= ~V4L2_CAP_READWRITE;
 	}
+=======
+
+	strscpy(cap->driver, "saa7134", sizeof(cap->driver));
+	strscpy(cap->card, saa7134_boards[dev->board].name,
+		sizeof(cap->card));
+	sprintf(cap->bus_info, "PCI:%s", pci_name(dev->pci));
+	cap->capabilities = V4L2_CAP_READWRITE | V4L2_CAP_STREAMING |
+			    V4L2_CAP_RADIO | V4L2_CAP_VIDEO_CAPTURE |
+			    V4L2_CAP_VBI_CAPTURE | V4L2_CAP_DEVICE_CAPS;
+	if (dev->tuner_type != TUNER_ABSENT && dev->tuner_type != UNSET)
+		cap->capabilities |= V4L2_CAP_TUNER;
+	if (dev->has_rds)
+		cap->capabilities |= V4L2_CAP_RDS_CAPTURE;
+	if (saa7134_no_overlay <= 0)
+		cap->capabilities |= V4L2_CAP_VIDEO_OVERLAY;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -1649,6 +1780,7 @@ int saa7134_querystd(struct file *file, void *priv, v4l2_std_id *std)
 }
 EXPORT_SYMBOL_GPL(saa7134_querystd);
 
+<<<<<<< HEAD
 static int saa7134_cropcap(struct file *file, void *priv,
 					struct v4l2_cropcap *cap)
 {
@@ -1666,6 +1798,24 @@ static int saa7134_cropcap(struct file *file, void *priv,
 	if (dev->tvnorm->id & V4L2_STD_625_50) {
 		cap->pixelaspect.numerator   = 54;
 		cap->pixelaspect.denominator = 59;
+=======
+static int saa7134_g_pixelaspect(struct file *file, void *priv,
+				 int type, struct v4l2_fract *f)
+{
+	struct saa7134_dev *dev = video_drvdata(file);
+
+	if (type != V4L2_BUF_TYPE_VIDEO_CAPTURE &&
+	    type != V4L2_BUF_TYPE_VIDEO_OVERLAY)
+		return -EINVAL;
+
+	if (dev->tvnorm->id & V4L2_STD_525_60) {
+		f->numerator   = 11;
+		f->denominator = 10;
+	}
+	if (dev->tvnorm->id & V4L2_STD_625_50) {
+		f->numerator   = 54;
+		f->denominator = 59;
+>>>>>>> upstream/android-13
 	}
 	return 0;
 }
@@ -1747,7 +1897,11 @@ int saa7134_g_tuner(struct file *file, void *priv,
 	if (n == SAA7134_INPUT_MAX)
 		return -EINVAL;
 	if (card_in(dev, n).type != SAA7134_NO_INPUT) {
+<<<<<<< HEAD
 		strcpy(t->name, "Television");
+=======
+		strscpy(t->name, "Television", sizeof(t->name));
+>>>>>>> upstream/android-13
 		t->type = V4L2_TUNER_ANALOG_TV;
 		saa_call_all(dev, tuner, g_tuner, t);
 		t->capability = V4L2_TUNER_CAP_NORM |
@@ -1819,9 +1973,12 @@ static int saa7134_enum_fmt_vid_cap(struct file *file, void  *priv,
 	if (f->index >= FORMATS)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	strlcpy(f->description, formats[f->index].name,
 		sizeof(f->description));
 
+=======
+>>>>>>> upstream/android-13
 	f->pixelformat = formats[f->index].fourcc;
 
 	return 0;
@@ -1838,9 +1995,12 @@ static int saa7134_enum_fmt_vid_overlay(struct file *file, void  *priv,
 	if ((f->index >= FORMATS) || formats[f->index].planar)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	strlcpy(f->description, formats[f->index].name,
 		sizeof(f->description));
 
+=======
+>>>>>>> upstream/android-13
 	f->pixelformat = formats[f->index].fourcc;
 
 	return 0;
@@ -1939,7 +2099,11 @@ static int radio_g_tuner(struct file *file, void *priv,
 	if (0 != t->index)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	strcpy(t->name, "Radio");
+=======
+	strscpy(t->name, "Radio", sizeof(t->name));
+>>>>>>> upstream/android-13
 
 	saa_call_all(dev, tuner, g_tuner, t);
 	t->audmode &= V4L2_TUNER_MODE_MONO | V4L2_TUNER_MODE_STEREO;
@@ -1986,7 +2150,11 @@ static const struct v4l2_ioctl_ops video_ioctl_ops = {
 	.vidioc_g_fmt_vbi_cap		= saa7134_try_get_set_fmt_vbi_cap,
 	.vidioc_try_fmt_vbi_cap		= saa7134_try_get_set_fmt_vbi_cap,
 	.vidioc_s_fmt_vbi_cap		= saa7134_try_get_set_fmt_vbi_cap,
+<<<<<<< HEAD
 	.vidioc_cropcap			= saa7134_cropcap,
+=======
+	.vidioc_g_pixelaspect		= saa7134_g_pixelaspect,
+>>>>>>> upstream/android-13
 	.vidioc_reqbufs			= vb2_ioctl_reqbufs,
 	.vidioc_querybuf		= vb2_ioctl_querybuf,
 	.vidioc_qbuf			= vb2_ioctl_qbuf,
@@ -2214,9 +2382,13 @@ int saa7134_video_init1(struct saa7134_dev *dev)
 void saa7134_video_fini(struct saa7134_dev *dev)
 {
 	/* free stuff */
+<<<<<<< HEAD
 	vb2_queue_release(&dev->video_vbq);
 	saa7134_pgtable_free(dev->pci, &dev->video_q.pt);
 	vb2_queue_release(&dev->vbi_vbq);
+=======
+	saa7134_pgtable_free(dev->pci, &dev->video_q.pt);
+>>>>>>> upstream/android-13
 	saa7134_pgtable_free(dev->pci, &dev->vbi_q.pt);
 	v4l2_ctrl_handler_free(&dev->ctrl_handler);
 	if (card_has_radio(dev))

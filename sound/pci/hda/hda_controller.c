@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *
  *  Implementation of primary alsa driver code base for Intel HD Audio.
@@ -6,6 +10,7 @@
  *
  *  Copyright (c) 2004 Takashi Iwai <tiwai@suse.de>
  *                     PeiSen Hou <pshou@realtek.com.tw>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify it
  *  under the terms of the GNU General Public License as published by the Free
@@ -18,6 +23,8 @@
  *  more details.
  *
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clocksource.h>
@@ -36,6 +43,10 @@
 #include <sound/core.h>
 #include <sound/initval.h>
 #include "hda_controller.h"
+<<<<<<< HEAD
+=======
+#include "hda_local.h"
+>>>>>>> upstream/android-13
 
 #define CREATE_TRACE_POINTS
 #include "hda_controller_trace.h"
@@ -118,7 +129,11 @@ static int azx_pcm_hw_params(struct snd_pcm_substream *substream,
 	struct azx_pcm *apcm = snd_pcm_substream_chip(substream);
 	struct azx *chip = apcm->chip;
 	struct azx_dev *azx_dev = get_azx_dev(substream);
+<<<<<<< HEAD
 	int ret;
+=======
+	int ret = 0;
+>>>>>>> upstream/android-13
 
 	trace_azx_pcm_hw_params(chip, azx_dev);
 	dsp_lock(azx_dev);
@@ -130,8 +145,12 @@ static int azx_pcm_hw_params(struct snd_pcm_substream *substream,
 	azx_dev->core.bufsize = 0;
 	azx_dev->core.period_bytes = 0;
 	azx_dev->core.format_val = 0;
+<<<<<<< HEAD
 	ret = chip->ops->substream_alloc_pages(chip, substream,
 					  params_buffer_bytes(hw_params));
+=======
+
+>>>>>>> upstream/android-13
 unlock:
 	dsp_unlock(azx_dev);
 	return ret;
@@ -141,9 +160,13 @@ static int azx_pcm_hw_free(struct snd_pcm_substream *substream)
 {
 	struct azx_pcm *apcm = snd_pcm_substream_chip(substream);
 	struct azx_dev *azx_dev = get_azx_dev(substream);
+<<<<<<< HEAD
 	struct azx *chip = apcm->chip;
 	struct hda_pcm_stream *hinfo = to_hda_pcm_stream(substream);
 	int err;
+=======
+	struct hda_pcm_stream *hinfo = to_hda_pcm_stream(substream);
+>>>>>>> upstream/android-13
 
 	/* reset BDL address */
 	dsp_lock(azx_dev);
@@ -152,10 +175,16 @@ static int azx_pcm_hw_free(struct snd_pcm_substream *substream)
 
 	snd_hda_codec_cleanup(apcm->codec, hinfo, substream);
 
+<<<<<<< HEAD
 	err = chip->ops->substream_free_pages(chip, substream);
 	azx_stream(azx_dev)->prepared = 0;
 	dsp_unlock(azx_dev);
 	return err;
+=======
+	azx_stream(azx_dev)->prepared = 0;
+	dsp_unlock(azx_dev);
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int azx_pcm_prepare(struct snd_pcm_substream *substream)
@@ -388,7 +417,11 @@ static int azx_get_sync_time(ktime_t *device,
 	u32 wallclk_ctr, wallclk_cycles;
 	bool direction;
 	u32 dma_select;
+<<<<<<< HEAD
 	u32 timeout = 200;
+=======
+	u32 timeout;
+>>>>>>> upstream/android-13
 	u32 retry_count = 0;
 
 	runtime = substream->runtime;
@@ -502,7 +535,11 @@ static inline bool is_link_time_supported(struct snd_pcm_runtime *runtime,
 }
 
 static int azx_get_time_info(struct snd_pcm_substream *substream,
+<<<<<<< HEAD
 			struct timespec *system_ts, struct timespec *audio_ts,
+=======
+			struct timespec64 *system_ts, struct timespec64 *audio_ts,
+>>>>>>> upstream/android-13
 			struct snd_pcm_audio_tstamp_config *audio_tstamp_config,
 			struct snd_pcm_audio_tstamp_report *audio_tstamp_report)
 {
@@ -518,11 +555,18 @@ static int azx_get_time_info(struct snd_pcm_substream *substream,
 		snd_pcm_gettime(substream->runtime, system_ts);
 
 		nsec = timecounter_read(&azx_dev->core.tc);
+<<<<<<< HEAD
 		nsec = div_u64(nsec, 3); /* can be optimized */
 		if (audio_tstamp_config->report_delay)
 			nsec = azx_adjust_codec_delay(substream, nsec);
 
 		*audio_ts = ns_to_timespec(nsec);
+=======
+		if (audio_tstamp_config->report_delay)
+			nsec = azx_adjust_codec_delay(substream, nsec);
+
+		*audio_ts = ns_to_timespec64(nsec);
+>>>>>>> upstream/android-13
 
 		audio_tstamp_report->actual_type = SNDRV_PCM_AUDIO_TSTAMP_TYPE_LINK;
 		audio_tstamp_report->accuracy_report = 1; /* rest of structure is valid */
@@ -539,16 +583,28 @@ static int azx_get_time_info(struct snd_pcm_substream *substream,
 			return -EINVAL;
 
 		case SNDRV_PCM_TSTAMP_TYPE_MONOTONIC_RAW:
+<<<<<<< HEAD
 			*system_ts = ktime_to_timespec(xtstamp.sys_monoraw);
 			break;
 
 		default:
 			*system_ts = ktime_to_timespec(xtstamp.sys_realtime);
+=======
+			*system_ts = ktime_to_timespec64(xtstamp.sys_monoraw);
+			break;
+
+		default:
+			*system_ts = ktime_to_timespec64(xtstamp.sys_realtime);
+>>>>>>> upstream/android-13
 			break;
 
 		}
 
+<<<<<<< HEAD
 		*audio_ts = ktime_to_timespec(xtstamp.device);
+=======
+		*audio_ts = ktime_to_timespec64(xtstamp.device);
+>>>>>>> upstream/android-13
 
 		audio_tstamp_report->actual_type =
 			SNDRV_PCM_AUDIO_TSTAMP_TYPE_LINK_SYNCHRONIZED;
@@ -563,7 +619,11 @@ static int azx_get_time_info(struct snd_pcm_substream *substream,
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct snd_pcm_hardware azx_pcm_hw = {
+=======
+static const struct snd_pcm_hardware azx_pcm_hw = {
+>>>>>>> upstream/android-13
 	.info =			(SNDRV_PCM_INFO_MMAP |
 				 SNDRV_PCM_INFO_INTERLEAVED |
 				 SNDRV_PCM_INFO_BLOCK_TRANSFER |
@@ -684,6 +744,7 @@ static int azx_pcm_open(struct snd_pcm_substream *substream)
 	return err;
 }
 
+<<<<<<< HEAD
 static int azx_pcm_mmap(struct snd_pcm_substream *substream,
 			struct vm_area_struct *area)
 {
@@ -698,14 +759,22 @@ static const struct snd_pcm_ops azx_pcm_ops = {
 	.open = azx_pcm_open,
 	.close = azx_pcm_close,
 	.ioctl = snd_pcm_lib_ioctl,
+=======
+static const struct snd_pcm_ops azx_pcm_ops = {
+	.open = azx_pcm_open,
+	.close = azx_pcm_close,
+>>>>>>> upstream/android-13
 	.hw_params = azx_pcm_hw_params,
 	.hw_free = azx_pcm_hw_free,
 	.prepare = azx_pcm_prepare,
 	.trigger = azx_pcm_trigger,
 	.pointer = azx_pcm_pointer,
 	.get_time_info =  azx_get_time_info,
+<<<<<<< HEAD
 	.mmap = azx_pcm_mmap,
 	.page = snd_pcm_sgbuf_ops_page,
+=======
+>>>>>>> upstream/android-13
 };
 
 static void azx_pcm_free(struct snd_pcm *pcm)
@@ -730,6 +799,10 @@ int snd_hda_attach_pcm_stream(struct hda_bus *_bus, struct hda_codec *codec,
 	int pcm_dev = cpcm->device;
 	unsigned int size;
 	int s, err;
+<<<<<<< HEAD
+=======
+	int type = SNDRV_DMA_TYPE_DEV_SG;
+>>>>>>> upstream/android-13
 
 	list_for_each_entry(apcm, &chip->pcm_list, list) {
 		if (apcm->pcm->device == pcm_dev) {
@@ -744,7 +817,11 @@ int snd_hda_attach_pcm_stream(struct hda_bus *_bus, struct hda_codec *codec,
 			  &pcm);
 	if (err < 0)
 		return err;
+<<<<<<< HEAD
 	strlcpy(pcm->name, cpcm->name, sizeof(pcm->name));
+=======
+	strscpy(pcm->name, cpcm->name, sizeof(pcm->name));
+>>>>>>> upstream/android-13
 	apcm = kzalloc(sizeof(*apcm), GFP_KERNEL);
 	if (apcm == NULL) {
 		snd_device_free(chip->card, pcm);
@@ -768,9 +845,16 @@ int snd_hda_attach_pcm_stream(struct hda_bus *_bus, struct hda_codec *codec,
 	size = CONFIG_SND_HDA_PREALLOC_SIZE * 1024;
 	if (size > MAX_PREALLOC_SIZE)
 		size = MAX_PREALLOC_SIZE;
+<<<<<<< HEAD
 	snd_pcm_lib_preallocate_pages_for_all(pcm, SNDRV_DMA_TYPE_DEV_SG,
 					      chip->card->dev,
 					      size, MAX_PREALLOC_SIZE);
+=======
+	if (chip->uc_buffer)
+		type = SNDRV_DMA_TYPE_DEV_WC_SG;
+	snd_pcm_set_managed_buffer_all(pcm, type, chip->card->dev,
+				       size, MAX_PREALLOC_SIZE);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -792,6 +876,7 @@ static int azx_rirb_get_response(struct hdac_bus *bus, unsigned int addr,
 {
 	struct azx *chip = bus_to_azx(bus);
 	struct hda_bus *hbus = &chip->bus;
+<<<<<<< HEAD
 	unsigned long timeout;
 	unsigned long loopcounter;
 	int do_poll = 0;
@@ -821,10 +906,19 @@ static int azx_rirb_get_response(struct hdac_bus *bus, unsigned int addr,
 			cond_resched();
 		}
 	}
+=======
+	int err;
+
+ again:
+	err = snd_hdac_bus_get_response(bus, addr, res);
+	if (!err)
+		return 0;
+>>>>>>> upstream/android-13
 
 	if (hbus->no_response_fallback)
 		return -EIO;
 
+<<<<<<< HEAD
 	if (!chip->polling_mode && chip->poll_count < 2) {
 		dev_dbg(chip->card->dev,
 			"azx_get_response timeout, polling the codec once: last cmd=0x%08x\n",
@@ -840,6 +934,13 @@ static int azx_rirb_get_response(struct hdac_bus *bus, unsigned int addr,
 			 "azx_get_response timeout, switching to polling mode: last cmd=0x%08x\n",
 			 bus->last_cmd[addr]);
 		chip->polling_mode = 1;
+=======
+	if (!bus->polling_mode) {
+		dev_warn(chip->card->dev,
+			 "azx_get_response timeout, switching to polling mode: last cmd=0x%08x\n",
+			 bus->last_cmd[addr]);
+		bus->polling_mode = 1;
+>>>>>>> upstream/android-13
 		goto again;
 	}
 
@@ -987,6 +1088,7 @@ static int azx_get_response(struct hdac_bus *bus, unsigned int addr,
 		return azx_rirb_get_response(bus, addr, res);
 }
 
+<<<<<<< HEAD
 static int azx_link_power(struct hdac_bus *bus, bool enable)
 {
 	struct azx *chip = bus_to_azx(bus);
@@ -1001,6 +1103,11 @@ static const struct hdac_bus_ops bus_core_ops = {
 	.command = azx_send_cmd,
 	.get_response = azx_get_response,
 	.link_power = azx_link_power,
+=======
+static const struct hdac_bus_ops bus_core_ops = {
+	.command = azx_send_cmd,
+	.get_response = azx_get_response,
+>>>>>>> upstream/android-13
 };
 
 #ifdef CONFIG_SND_HDA_DSP_LOADER
@@ -1228,6 +1335,7 @@ void snd_hda_bus_reset(struct hda_bus *bus)
 	bus->in_reset = 0;
 }
 
+<<<<<<< HEAD
 static int get_jackpoll_interval(struct azx *chip)
 {
 	int i;
@@ -1252,12 +1360,20 @@ static int get_jackpoll_interval(struct azx *chip)
 /* HD-audio bus initialization */
 int azx_bus_init(struct azx *chip, const char *model,
 		 const struct hdac_io_ops *io_ops)
+=======
+/* HD-audio bus initialization */
+int azx_bus_init(struct azx *chip, const char *model)
+>>>>>>> upstream/android-13
 {
 	struct hda_bus *bus = &chip->bus;
 	int err;
 
+<<<<<<< HEAD
 	err = snd_hdac_bus_init(&bus->core, chip->card->dev, &bus_core_ops,
 				io_ops);
+=======
+	err = snd_hdac_bus_init(&bus->core, chip->card->dev, &bus_core_ops);
+>>>>>>> upstream/android-13
 	if (err < 0)
 		return err;
 
@@ -1277,6 +1393,7 @@ int azx_bus_init(struct azx *chip, const char *model,
 	if (chip->driver_caps & AZX_DCAPS_4K_BDLE_BOUNDARY)
 		bus->core.align_bdle_4k = true;
 
+<<<<<<< HEAD
 	/* AMD chipsets often cause the communication stalls upon certain
 	 * sequence like the pin-detection.  It seems that forcing the synced
 	 * access works around the stall.  Grrr...
@@ -1286,6 +1403,10 @@ int azx_bus_init(struct azx *chip, const char *model,
 		bus->core.sync_write = 1;
 		bus->allow_bus_reset = 1;
 	}
+=======
+	/* enable sync_write flag for stable communication as default */
+	bus->core.sync_write = 1;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -1331,7 +1452,11 @@ int azx_probe_codecs(struct azx *chip, unsigned int max_slots)
 			err = snd_hda_codec_new(&chip->bus, chip->card, c, &codec);
 			if (err < 0)
 				continue;
+<<<<<<< HEAD
 			codec->jackpoll_interval = get_jackpoll_interval(chip);
+=======
+			codec->jackpoll_interval = chip->jackpoll_interval;
+>>>>>>> upstream/android-13
 			codec->beep_mode = chip->beep_mode;
 			codecs++;
 		}
@@ -1348,6 +1473,7 @@ EXPORT_SYMBOL_GPL(azx_probe_codecs);
 int azx_codec_configure(struct azx *chip)
 {
 	struct hda_codec *codec, *next;
+<<<<<<< HEAD
 
 	/* use _safe version here since snd_hda_codec_configure() deregisters
 	 * the device upon error and deletes itself from the bus list.
@@ -1359,6 +1485,26 @@ int azx_codec_configure(struct azx *chip)
 	if (!azx_bus(chip)->num_codecs)
 		return -ENODEV;
 	return 0;
+=======
+	int success = 0;
+
+	list_for_each_codec(codec, &chip->bus) {
+		if (!snd_hda_codec_configure(codec))
+			success++;
+	}
+
+	if (success) {
+		/* unregister failed codecs if any codec has been probed */
+		list_for_each_codec_safe(codec, next, &chip->bus) {
+			if (!codec->configured) {
+				codec_err(codec, "Unable to configure, disabling\n");
+				snd_hdac_device_unregister(&codec->core);
+			}
+		}
+	}
+
+	return success ? 0 : -ENODEV;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(azx_codec_configure);
 

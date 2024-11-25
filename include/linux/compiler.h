@@ -23,8 +23,13 @@ void ftrace_likely_update(struct ftrace_likely_data *f, int val,
 #define __branch_check__(x, expect, is_constant) ({			\
 			long ______r;					\
 			static struct ftrace_likely_data		\
+<<<<<<< HEAD
 				__attribute__((__aligned__(4)))		\
 				__attribute__((section("_ftrace_annotated_branch"))) \
+=======
+				__aligned(4)				\
+				__section("_ftrace_annotated_branch")	\
+>>>>>>> upstream/android-13
 				______f = {				\
 				.data.func = __func__,			\
 				.data.file = __FILE__,			\
@@ -53,6 +58,7 @@ void ftrace_likely_update(struct ftrace_likely_data *f, int val,
  * "Define 'is'", Bill Clinton
  * "Define 'if'", Steven Rostedt
  */
+<<<<<<< HEAD
 #define if(cond, ...) __trace_if( (cond , ## __VA_ARGS__) )
 #define __trace_if(cond) \
 	if (__builtin_constant_p(!!(cond)) ? !!(cond) :			\
@@ -70,11 +76,36 @@ void ftrace_likely_update(struct ftrace_likely_data *f, int val,
 		______f.miss_hit[______r]++;					\
 		______r;						\
 	}))
+=======
+#define if(cond, ...) if ( __trace_if_var( !!(cond , ## __VA_ARGS__) ) )
+
+#define __trace_if_var(cond) (__builtin_constant_p(cond) ? (cond) : __trace_if_value(cond))
+
+#define __trace_if_value(cond) ({			\
+	static struct ftrace_branch_data		\
+		__aligned(4)				\
+		__section("_ftrace_branch")		\
+		__if_trace = {				\
+			.func = __func__,		\
+			.file = __FILE__,		\
+			.line = __LINE__,		\
+		};					\
+	(cond) ?					\
+		(__if_trace.miss_hit[1]++,1) :		\
+		(__if_trace.miss_hit[0]++,0);		\
+})
+
+>>>>>>> upstream/android-13
 #endif /* CONFIG_PROFILE_ALL_BRANCHES */
 
 #else
 # define likely(x)	__builtin_expect(!!(x), 1)
 # define unlikely(x)	__builtin_expect(!!(x), 0)
+<<<<<<< HEAD
+=======
+# define likely_notrace(x)	likely(x)
+# define unlikely_notrace(x)	unlikely(x)
+>>>>>>> upstream/android-13
 #endif
 
 /* Optimization barrier */
@@ -112,6 +143,7 @@ void ftrace_likely_update(struct ftrace_likely_data *f, int val,
  * The __COUNTER__ based labels are a hack to make each instance of the macros
  * unique, to convince GCC not to merge duplicate inline asm statements.
  */
+<<<<<<< HEAD
 #define annotate_reachable() ({						\
 	asm volatile("%c0:\n\t"						\
 		     ".pushsection .discard.reachable\n\t"		\
@@ -191,6 +223,33 @@ void ftrace_likely_update(struct ftrace_likely_data *f, int val,
 #ifndef ASM_UNREACHABLE
 # define ASM_UNREACHABLE
 #endif
+=======
+#define __stringify_label(n) #n
+
+#define __annotate_unreachable(c) ({					\
+	asm volatile(__stringify_label(c) ":\n\t"			\
+		     ".pushsection .discard.unreachable\n\t"		\
+		     ".long " __stringify_label(c) "b - .\n\t"		\
+		     ".popsection\n\t" : : "i" (c));			\
+})
+#define annotate_unreachable() __annotate_unreachable(__COUNTER__)
+
+#define ASM_REACHABLE							\
+	"998:\n\t"							\
+	".pushsection .discard.reachable\n\t"				\
+	".long 998b - .\n\t"						\
+	".popsection\n\t"
+
+/* Annotate a C jump table to allow objtool to follow the code flow */
+#define __annotate_jump_table __section(".rodata..c_jump_table")
+
+#else
+#define annotate_unreachable()
+# define ASM_REACHABLE
+#define __annotate_jump_table
+#endif
+
+>>>>>>> upstream/android-13
 #ifndef unreachable
 # define unreachable() do {		\
 	annotate_unreachable();		\
@@ -217,7 +276,11 @@ void ftrace_likely_update(struct ftrace_likely_data *f, int val,
 	extern typeof(sym) sym;					\
 	static const unsigned long __kentry_##sym		\
 	__used							\
+<<<<<<< HEAD
 	__attribute__((section("___kentry" "+" #sym ), used))	\
+=======
+	__attribute__((__section__("___kentry+" #sym)))		\
+>>>>>>> upstream/android-13
 	= (unsigned long)&sym;
 #endif
 
@@ -228,6 +291,11 @@ void ftrace_likely_update(struct ftrace_likely_data *f, int val,
     (typeof(ptr)) (__ptr + (off)); })
 #endif
 
+<<<<<<< HEAD
+=======
+#define absolute_pointer(val)	RELOC_HIDE((void *)(val), 0)
+
+>>>>>>> upstream/android-13
 #ifndef OPTIMIZER_HIDE_VAR
 /* Make the optimizer believe the variable can be manipulated arbitrarily. */
 #define OPTIMIZER_HIDE_VAR(var)						\
@@ -239,6 +307,7 @@ void ftrace_likely_update(struct ftrace_likely_data *f, int val,
 # define __UNIQUE_ID(prefix) __PASTE(__PASTE(__UNIQUE_ID_, prefix), __LINE__)
 #endif
 
+<<<<<<< HEAD
 #include <uapi/linux/types.h>
 
 #define __READ_ONCE_SIZE						\
@@ -351,6 +420,38 @@ unsigned long read_word_at_a_time(const void *addr)
 	__u.__val;					\
 })
 
+=======
+/**
+ * data_race - mark an expression as containing intentional data races
+ *
+ * This data_race() macro is useful for situations in which data races
+ * should be forgiven.  One example is diagnostic code that accesses
+ * shared variables but is not a part of the core synchronization design.
+ *
+ * This macro *does not* affect normal code generation, but is a hint
+ * to tooling that data races here are to be ignored.
+ */
+#define data_race(expr)							\
+({									\
+	__unqual_scalar_typeof(({ expr; })) __v = ({			\
+		__kcsan_disable_current();				\
+		expr;							\
+	});								\
+	__kcsan_enable_current();					\
+	__v;								\
+})
+
+/*
+ * With CONFIG_CFI_CLANG, the compiler replaces function addresses in
+ * instrumented C code with jump table addresses. Architectures that
+ * support CFI can define this macro to return the actual function address
+ * when needed.
+ */
+#ifndef function_nocfi
+#define function_nocfi(x) (x)
+#endif
+
+>>>>>>> upstream/android-13
 #endif /* __KERNEL__ */
 
 /*
@@ -360,8 +461,13 @@ unsigned long read_word_at_a_time(const void *addr)
  * visible to the compiler.
  */
 #define __ADDRESSABLE(sym) \
+<<<<<<< HEAD
 	static void * __attribute__((section(".discard.addressable"), used)) \
 		__PASTE(__addressable_##sym, __LINE__) = (void *)&sym;
+=======
+	static void * __section(".discard.addressable") __used \
+		__UNIQUE_ID(__PASTE(__addressable_,sym)) = (void *)&sym;
+>>>>>>> upstream/android-13
 
 /**
  * offset_to_ptr - convert a relative memory offset to an absolute pointer
@@ -374,6 +480,7 @@ static inline void *offset_to_ptr(const int *off)
 
 #endif /* __ASSEMBLY__ */
 
+<<<<<<< HEAD
 #ifndef __optimize
 # define __optimize(level)
 #endif
@@ -418,6 +525,10 @@ static inline void *offset_to_ptr(const int *off)
 #define compiletime_assert_atomic_type(t)				\
 	compiletime_assert(__native_word(t),				\
 		"Need native word sized stores/loads for atomicity.")
+=======
+/* &a[0] degrades to a pointer: a different type from an array */
+#define __must_be_array(a)	BUILD_BUG_ON_ZERO(__same_type((a), &(a)[0]))
+>>>>>>> upstream/android-13
 
 /*
  * This is needed in functions which generate the stack canary, see
@@ -425,4 +536,9 @@ static inline void *offset_to_ptr(const int *off)
  */
 #define prevent_tail_call_optimization()	mb()
 
+<<<<<<< HEAD
+=======
+#include <asm/rwonce.h>
+
+>>>>>>> upstream/android-13
 #endif /* __LINUX_COMPILER_H */

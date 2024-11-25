@@ -32,7 +32,10 @@ struct cgs_device;
  * enum cgs_ind_reg - Indirect register spaces
  */
 enum cgs_ind_reg {
+<<<<<<< HEAD
 	CGS_IND_REG__MMIO,
+=======
+>>>>>>> upstream/android-13
 	CGS_IND_REG__PCIE,
 	CGS_IND_REG__SMC,
 	CGS_IND_REG__UVD_CTX,

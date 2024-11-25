@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * AppArmor security module
  *
@@ -5,11 +9,14 @@
  *
  * Copyright 2013 Canonical Ltd.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, version 2 of the
  * License.
  *
+=======
+>>>>>>> upstream/android-13
  * Fns to provide a checksum of policy that has been loaded this can be
  * compared to userspace policy compiles to check loaded policy is what
  * it should be.
@@ -43,7 +50,10 @@ char *aa_calc_hash(void *data, size_t len)
 		goto fail;
 
 	desc->tfm = apparmor_tfm;
+<<<<<<< HEAD
 	desc->flags = 0;
+=======
+>>>>>>> upstream/android-13
 
 	error = crypto_shash_init(desc);
 	if (error)
@@ -81,7 +91,10 @@ int aa_calc_profile_hash(struct aa_profile *profile, u32 version, void *start,
 		goto fail;
 
 	desc->tfm = apparmor_tfm;
+<<<<<<< HEAD
 	desc->flags = 0;
+=======
+>>>>>>> upstream/android-13
 
 	error = crypto_shash_init(desc);
 	if (error)
@@ -112,7 +125,11 @@ static int __init init_profile_hash(void)
 	if (!apparmor_initialized)
 		return 0;
 
+<<<<<<< HEAD
 	tfm = crypto_alloc_shash("sha1", 0, CRYPTO_ALG_ASYNC);
+=======
+	tfm = crypto_alloc_shash("sha1", 0, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(tfm)) {
 		int error = PTR_ERR(tfm);
 		AA_ERROR("failed to setup profile sha1 hashing: %d\n", error);

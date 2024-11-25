@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* SCTP kernel implementation
  * (C) Copyright IBM Corp. 2001, 2004
  * Copyright (c) 1999-2000 Cisco, Inc.
@@ -8,6 +12,7 @@
  *
  * This file contains sctp stream maniuplation primitives and helpers.
  *
+<<<<<<< HEAD
  * This SCTP implementation is free software;
  * you can redistribute it and/or modify it under the terms of
  * the GNU General Public License as published by
@@ -24,6 +29,8 @@
  * along with GNU CC; see the file COPYING.  If not, see
  * <http://www.gnu.org/licenses/>.
  *
+=======
+>>>>>>> upstream/android-13
  * Please send any bug reports or fixes you make to the
  * email address(es):
  *    lksctp developers <linux-sctp@vger.kernel.org>
@@ -37,6 +44,7 @@
 #include <net/sctp/sm.h>
 #include <net/sctp/stream_sched.h>
 
+<<<<<<< HEAD
 static struct flex_array *fa_alloc(size_t elem_size, size_t elem_count,
 				   gfp_t gfp)
 {
@@ -97,6 +105,8 @@ static size_t fa_index(struct flex_array *fa, void *elem, size_t count)
 	return index;
 }
 
+=======
+>>>>>>> upstream/android-13
 static void sctp_stream_shrink_out(struct sctp_stream *stream, __u16 outcnt)
 {
 	struct sctp_association *asoc;
@@ -160,6 +170,7 @@ static void sctp_stream_outq_migrate(struct sctp_stream *stream,
 static int sctp_stream_alloc_out(struct sctp_stream *stream, __u16 outcnt,
 				 gfp_t gfp)
 {
+<<<<<<< HEAD
 	struct flex_array *out;
 	size_t elem_size = sizeof(struct sctp_stream_out);
 
@@ -184,12 +195,26 @@ static int sctp_stream_alloc_out(struct sctp_stream *stream, __u16 outcnt,
 
 	stream->out = out;
 
+=======
+	int ret;
+
+	if (outcnt <= stream->outcnt)
+		goto out;
+
+	ret = genradix_prealloc(&stream->out, outcnt, gfp);
+	if (ret)
+		return ret;
+
+out:
+	stream->outcnt = outcnt;
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 static int sctp_stream_alloc_in(struct sctp_stream *stream, __u16 incnt,
 				gfp_t gfp)
 {
+<<<<<<< HEAD
 	struct flex_array *in;
 	size_t elem_size = sizeof(struct sctp_stream_in);
 
@@ -207,6 +232,19 @@ static int sctp_stream_alloc_in(struct sctp_stream *stream, __u16 incnt,
 
 	stream->in = in;
 
+=======
+	int ret;
+
+	if (incnt <= stream->incnt)
+		goto out;
+
+	ret = genradix_prealloc(&stream->in, incnt, gfp);
+	if (ret)
+		return ret;
+
+out:
+	stream->incnt = incnt;
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -222,7 +260,11 @@ int sctp_stream_init(struct sctp_stream *stream, __u16 outcnt, __u16 incnt,
 	 * a new one with new outcnt to save memory if needed.
 	 */
 	if (outcnt == stream->outcnt)
+<<<<<<< HEAD
 		goto in;
+=======
+		goto handle_in;
+>>>>>>> upstream/android-13
 
 	/* Filter out chunks queued on streams that won't exist anymore */
 	sched->unsched_all(stream);
@@ -231,6 +273,7 @@ int sctp_stream_init(struct sctp_stream *stream, __u16 outcnt, __u16 incnt,
 
 	ret = sctp_stream_alloc_out(stream, outcnt, gfp);
 	if (ret)
+<<<<<<< HEAD
 		goto out;
 
 	stream->outcnt = outcnt;
@@ -238,11 +281,20 @@ int sctp_stream_init(struct sctp_stream *stream, __u16 outcnt, __u16 incnt,
 		SCTP_SO(stream, i)->state = SCTP_STREAM_OPEN;
 
 in:
+=======
+		goto out_err;
+
+	for (i = 0; i < stream->outcnt; i++)
+		SCTP_SO(stream, i)->state = SCTP_STREAM_OPEN;
+
+handle_in:
+>>>>>>> upstream/android-13
 	sctp_stream_interleave_init(stream);
 	if (!incnt)
 		goto out;
 
 	ret = sctp_stream_alloc_in(stream, incnt, gfp);
+<<<<<<< HEAD
 	if (ret) {
 		sched->free(stream);
 		fa_free(stream->out);
@@ -253,6 +305,19 @@ in:
 
 	stream->incnt = incnt;
 
+=======
+	if (ret)
+		goto in_err;
+
+	goto out;
+
+in_err:
+	sched->free(stream);
+	genradix_free(&stream->in);
+out_err:
+	genradix_free(&stream->out);
+	stream->outcnt = 0;
+>>>>>>> upstream/android-13
 out:
 	return ret;
 }
@@ -284,8 +349,13 @@ void sctp_stream_free(struct sctp_stream *stream)
 	sched->free(stream);
 	for (i = 0; i < stream->outcnt; i++)
 		kfree(SCTP_SO(stream, i)->ext);
+<<<<<<< HEAD
 	fa_free(stream->out);
 	fa_free(stream->in);
+=======
+	genradix_free(&stream->out);
+	genradix_free(&stream->in);
+>>>>>>> upstream/android-13
 }
 
 void sctp_stream_clear(struct sctp_stream *stream)
@@ -316,8 +386,13 @@ void sctp_stream_update(struct sctp_stream *stream, struct sctp_stream *new)
 
 	sched->sched_all(stream);
 
+<<<<<<< HEAD
 	new->out = NULL;
 	new->in  = NULL;
+=======
+	new->out.tree.root = NULL;
+	new->in.tree.root  = NULL;
+>>>>>>> upstream/android-13
 	new->outcnt = 0;
 	new->incnt  = 0;
 }
@@ -325,10 +400,16 @@ void sctp_stream_update(struct sctp_stream *stream, struct sctp_stream *new)
 static int sctp_send_reconf(struct sctp_association *asoc,
 			    struct sctp_chunk *chunk)
 {
+<<<<<<< HEAD
 	struct net *net = sock_net(asoc->base.sk);
 	int retval = 0;
 
 	retval = sctp_primitive_RECONF(net, asoc, chunk);
+=======
+	int retval = 0;
+
+	retval = sctp_primitive_RECONF(asoc->base.net, asoc, chunk);
+>>>>>>> upstream/android-13
 	if (retval)
 		sctp_chunk_free(chunk);
 
@@ -570,8 +651,11 @@ int sctp_send_add_streams(struct sctp_association *asoc,
 		goto out;
 	}
 
+<<<<<<< HEAD
 	stream->outcnt = outcnt;
 
+=======
+>>>>>>> upstream/android-13
 	asoc->strreset_outstanding = !!out + !!in;
 
 out:

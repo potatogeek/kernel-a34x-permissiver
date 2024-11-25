@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  Driver for the NXP SAA7164 PCIe bridge
  *
  *  Copyright (c) 2010-2015 Steven Toth <stoth@kernellabs.com>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -13,6 +18,8 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *
  *  GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/slab.h>
@@ -113,6 +120,7 @@ struct saa7164_buffer *saa7164_buffer_alloc(struct saa7164_port *port,
 	buf->pt_size = (SAA7164_PT_ENTRIES * sizeof(u64)) + 0x1000;
 
 	/* Allocate contiguous memory */
+<<<<<<< HEAD
 	buf->cpu = pci_alloc_consistent(port->dev->pci, buf->pci_size,
 		&buf->dma);
 	if (!buf->cpu)
@@ -120,6 +128,15 @@ struct saa7164_buffer *saa7164_buffer_alloc(struct saa7164_port *port,
 
 	buf->pt_cpu = pci_alloc_consistent(port->dev->pci, buf->pt_size,
 		&buf->pt_dma);
+=======
+	buf->cpu = dma_alloc_coherent(&port->dev->pci->dev, buf->pci_size,
+				      &buf->dma, GFP_KERNEL);
+	if (!buf->cpu)
+		goto fail1;
+
+	buf->pt_cpu = dma_alloc_coherent(&port->dev->pci->dev, buf->pt_size,
+					 &buf->pt_dma, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!buf->pt_cpu)
 		goto fail2;
 
@@ -147,7 +164,12 @@ struct saa7164_buffer *saa7164_buffer_alloc(struct saa7164_port *port,
 	goto ret;
 
 fail2:
+<<<<<<< HEAD
 	pci_free_consistent(port->dev->pci, buf->pci_size, buf->cpu, buf->dma);
+=======
+	dma_free_coherent(&port->dev->pci->dev, buf->pci_size, buf->cpu,
+			  buf->dma);
+>>>>>>> upstream/android-13
 fail1:
 	kfree(buf);
 
@@ -170,8 +192,14 @@ int saa7164_buffer_dealloc(struct saa7164_buffer *buf)
 	if (buf->flags != SAA7164_BUFFER_FREE)
 		log_warn(" freeing a non-free buffer\n");
 
+<<<<<<< HEAD
 	pci_free_consistent(dev->pci, buf->pci_size, buf->cpu, buf->dma);
 	pci_free_consistent(dev->pci, buf->pt_size, buf->pt_cpu, buf->pt_dma);
+=======
+	dma_free_coherent(&dev->pci->dev, buf->pci_size, buf->cpu, buf->dma);
+	dma_free_coherent(&dev->pci->dev, buf->pt_size, buf->pt_cpu,
+			  buf->pt_dma);
+>>>>>>> upstream/android-13
 
 	kfree(buf);
 
@@ -260,15 +288,24 @@ int saa7164_buffer_cfg_port(struct saa7164_port *port)
 	list_for_each_safe(c, n, &port->dmaqueue.list) {
 		buf = list_entry(c, struct saa7164_buffer, list);
 
+<<<<<<< HEAD
 		if (buf->flags != SAA7164_BUFFER_FREE)
 			BUG();
+=======
+		BUG_ON(buf->flags != SAA7164_BUFFER_FREE);
+>>>>>>> upstream/android-13
 
 		/* Place the buffer in the h/w queue */
 		saa7164_buffer_activate(buf, i);
 
 		/* Don't exceed the device maximum # bufs */
+<<<<<<< HEAD
 		if (i++ > port->hwcfg.buffercount)
 			BUG();
+=======
+		BUG_ON(i > port->hwcfg.buffercount);
+		i++;
+>>>>>>> upstream/android-13
 
 	}
 	mutex_unlock(&port->dmaqueue_lock);
@@ -312,4 +349,7 @@ void saa7164_buffer_dealloc_user(struct saa7164_user_buffer *buf)
 
 	kfree(buf);
 }
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13

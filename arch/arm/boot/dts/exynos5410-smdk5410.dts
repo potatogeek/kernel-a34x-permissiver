@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
+<<<<<<< HEAD
  * SAMSUNG SMDK5410 board device tree source
+=======
+ * Samsung SMDK5410 board device tree source
+>>>>>>> upstream/android-13
  *
  * Copyright (c) 2013 Samsung Electronics Co., Ltd.
  *		http://www.samsung.com
@@ -10,7 +14,11 @@
 #include "exynos5410.dtsi"
 #include <dt-bindings/interrupt-controller/irq.h>
 / {
+<<<<<<< HEAD
 	model = "Samsung SMDK5410 board based on EXYNOS5410";
+=======
+	model = "Samsung SMDK5410 board based on Exynos5410";
+>>>>>>> upstream/android-13
 	compatible = "samsung,smdk5410", "samsung,exynos5410", "samsung,exynos5";
 
 	memory@40000000 {
@@ -19,7 +27,11 @@
 	};
 
 	chosen {
+<<<<<<< HEAD
 		bootargs = "console=ttySAC2,115200";
+=======
+		stdout-path = "serial2:115200n8";
+>>>>>>> upstream/android-13
 	};
 
 	fin_pll: xxti {
@@ -29,6 +41,16 @@
 		#clock-cells = <0>;
 	};
 
+<<<<<<< HEAD
+=======
+	pmic_ap_clk: pmic-ap-clk {
+		/* Workaround for missing PMIC and its clock */
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <32768>;
+	};
+
+>>>>>>> upstream/android-13
 	firmware@2037000 {
 		compatible = "samsung,secure-firmware";
 		reg = <0x02037000 0x1000>;
@@ -79,6 +101,14 @@
 	};
 };
 
+<<<<<<< HEAD
+=======
+&rtc {
+	clocks = <&clock CLK_RTC>, <&pmic_ap_clk>;
+	clock-names = "rtc", "rtc_src";
+};
+
+>>>>>>> upstream/android-13
 &sromc {
 	pinctrl-names = "default";
 	pinctrl-0 = <&srom_ctl>, <&srom_ebi>;

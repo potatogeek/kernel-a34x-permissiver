@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  *  arch/arm/include/asm/domain.h
  *
  *  Copyright (C) 1999 Russell King.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef __ASM_PROC_DOMAIN_H
 #define __ASM_PROC_DOMAIN_H
@@ -85,7 +92,11 @@
 #ifndef __ASSEMBLY__
 
 #ifdef CONFIG_CPU_CP15_MMU
+<<<<<<< HEAD
 static inline unsigned int get_domain(void)
+=======
+static __always_inline unsigned int get_domain(void)
+>>>>>>> upstream/android-13
 {
 	unsigned int domain;
 
@@ -97,7 +108,11 @@ static inline unsigned int get_domain(void)
 	return domain;
 }
 
+<<<<<<< HEAD
 static inline void set_domain(unsigned val)
+=======
+static __always_inline void set_domain(unsigned int val)
+>>>>>>> upstream/android-13
 {
 	asm volatile(
 	"mcr	p15, 0, %0, c3, c0	@ set domain"
@@ -105,12 +120,20 @@ static inline void set_domain(unsigned val)
 	isb();
 }
 #else
+<<<<<<< HEAD
 static inline unsigned int get_domain(void)
+=======
+static __always_inline unsigned int get_domain(void)
+>>>>>>> upstream/android-13
 {
 	return 0;
 }
 
+<<<<<<< HEAD
 static inline void set_domain(unsigned val)
+=======
+static __always_inline void set_domain(unsigned int val)
+>>>>>>> upstream/android-13
 {
 }
 #endif
@@ -133,9 +156,17 @@ static inline void modify_domain(unsigned dom, unsigned type)	{ }
  * instructions (inline assembly)
  */
 #ifdef CONFIG_CPU_USE_DOMAINS
+<<<<<<< HEAD
 #define TUSER(instr)	#instr "t"
 #else
 #define TUSER(instr)	#instr
+=======
+#define TUSER(instr)		TUSERCOND(instr, )
+#define TUSERCOND(instr, cond)	#instr "t" #cond
+#else
+#define TUSER(instr)		TUSERCOND(instr, )
+#define TUSERCOND(instr, cond)	#instr #cond
+>>>>>>> upstream/android-13
 #endif
 
 #else /* __ASSEMBLY__ */

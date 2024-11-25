@@ -19,9 +19,15 @@ struct msqid_ds {
 	struct ipc_perm msg_perm;
 	struct msg *msg_first;		/* first message on queue,unused  */
 	struct msg *msg_last;		/* last message in queue,unused */
+<<<<<<< HEAD
 	__kernel_time_t msg_stime;	/* last msgsnd time */
 	__kernel_time_t msg_rtime;	/* last msgrcv time */
 	__kernel_time_t msg_ctime;	/* last change time */
+=======
+	__kernel_old_time_t msg_stime;	/* last msgsnd time */
+	__kernel_old_time_t msg_rtime;	/* last msgrcv time */
+	__kernel_old_time_t msg_ctime;	/* last change time */
+>>>>>>> upstream/android-13
 	unsigned long  msg_lcbytes;	/* Reuse junk fields for 32 bit */
 	unsigned long  msg_lqbytes;	/* ditto */
 	unsigned short msg_cbytes;	/* current number of bytes on queue */

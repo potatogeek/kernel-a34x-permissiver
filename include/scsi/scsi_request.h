@@ -28,6 +28,9 @@ static inline void scsi_req_free_cmd(struct scsi_request *req)
 		kfree(req->cmd);
 }
 
+<<<<<<< HEAD
 void scsi_req_init(struct scsi_request *req);
 
+=======
+>>>>>>> upstream/android-13
 #endif /* _SCSI_SCSI_REQUEST_H */

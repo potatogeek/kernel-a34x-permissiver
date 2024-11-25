@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *    Support for Legend Silicon GB20600 (a.k.a DMB-TH) demodulator
  *    LGS8913, LGS8GL5, LGS8G75
@@ -6,6 +10,7 @@
  *    Copyright (C) 2007-2009 David T.L. Wong <davidtlwong@gmail.com>
  *    Copyright (C) 2008 Sirius International (Hong Kong) Limited
  *    Timothy Lee <timothy.lee@siriushk.com> (for initial work on LGS8GL5)
+<<<<<<< HEAD
  *
  *    This program is free software; you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
@@ -17,6 +22,8 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *    GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <asm/div64.h>

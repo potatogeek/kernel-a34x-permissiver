@@ -1,7 +1,10 @@
 /* SPDX-License-Identifier: GPL-2.0 OR Apache-2.0 */
 /*
+<<<<<<< HEAD
  * drivers/staging/android/uapi/ashmem.h
  *
+=======
+>>>>>>> upstream/android-13
  * Copyright 2008 Google Inc.
  * Author: Robert Love
  */

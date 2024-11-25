@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* Copyright (c) 2009-2013, The Linux Foundation. All rights reserved.
  * Copyright (c) 2010, Google Inc.
  *
@@ -5,6 +9,7 @@
  *
  * Author: Dima Zavin <dima@android.com>
  *  - Largely rewritten from original to not be an i2c driver.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -14,6 +19,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) "%s: " fmt, __func__
@@ -80,8 +87,11 @@ struct ssbi {
 	int (*write)(struct ssbi *, u16 addr, const u8 *buf, int len);
 };
 
+<<<<<<< HEAD
 #define to_ssbi(dev)	platform_get_drvdata(to_platform_device(dev))
 
+=======
+>>>>>>> upstream/android-13
 static inline u32 ssbi_readl(struct ssbi *ssbi, u32 reg)
 {
 	return readl(ssbi->base + reg);
@@ -243,7 +253,11 @@ err:
 
 int ssbi_read(struct device *dev, u16 addr, u8 *buf, int len)
 {
+<<<<<<< HEAD
 	struct ssbi *ssbi = to_ssbi(dev);
+=======
+	struct ssbi *ssbi = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 	unsigned long flags;
 	int ret;
 
@@ -257,7 +271,11 @@ EXPORT_SYMBOL_GPL(ssbi_read);
 
 int ssbi_write(struct device *dev, u16 addr, const u8 *buf, int len)
 {
+<<<<<<< HEAD
 	struct ssbi *ssbi = to_ssbi(dev);
+=======
+	struct ssbi *ssbi = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 	unsigned long flags;
 	int ret;
 

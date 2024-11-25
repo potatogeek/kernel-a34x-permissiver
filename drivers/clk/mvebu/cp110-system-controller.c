@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * Marvell Armada CP110 System Controller
  *
@@ -5,9 +9,12 @@
  *
  * Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
  *
+<<<<<<< HEAD
  * This file is licensed under the terms of the GNU General Public
  * License version 2.  This program is licensed "as is" without any
  * warranty of any kind, whether express or implied.
+=======
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -23,16 +30,27 @@
  *    - Equal to SDIO clock
  *    - 2/5 PLL0
  *
+<<<<<<< HEAD
  * CP110 has 32 gatable clocks, for the various peripherals in the IP.
+=======
+ * CP110 has 32 gateable clocks, for the various peripherals in the IP.
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) "cp110-system-controller: " fmt
 
+<<<<<<< HEAD
+=======
+#include "armada_ap_cp_helper.h"
+>>>>>>> upstream/android-13
 #include <linux/clk-provider.h>
 #include <linux/mfd/syscon.h>
 #include <linux/init.h>
 #include <linux/of.h>
+<<<<<<< HEAD
 #include <linux/of_address.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/platform_device.h>
 #include <linux/regmap.h>
 #include <linux/slab.h>
@@ -59,7 +77,11 @@ enum {
 #define CP110_CORE_NAND			4
 #define CP110_CORE_SDIO			5
 
+<<<<<<< HEAD
 /* A number of gatable clocks need special handling */
+=======
+/* A number of gateable clocks need special handling */
+>>>>>>> upstream/android-13
 #define CP110_GATE_AUDIO		0
 #define CP110_GATE_COMM_UNIT		1
 #define CP110_GATE_NAND			2
@@ -160,7 +182,11 @@ static struct clk_hw *cp110_register_gate(const char *name,
 {
 	struct cp110_gate_clk *gate;
 	struct clk_hw *hw;
+<<<<<<< HEAD
 	struct clk_init_data init = {};
+=======
+	struct clk_init_data init;
+>>>>>>> upstream/android-13
 	int ret;
 
 	gate = kzalloc(sizeof(*gate), GFP_KERNEL);
@@ -214,6 +240,7 @@ static struct clk_hw *cp110_of_clk_get(struct of_phandle_args *clkspec,
 	return ERR_PTR(-EINVAL);
 }
 
+<<<<<<< HEAD
 static char *cp110_unique_name(struct device *dev, struct device_node *np,
 			       const char *name)
 {
@@ -230,6 +257,8 @@ static char *cp110_unique_name(struct device *dev, struct device_node *np,
 			      (unsigned long long)addr, name);
 }
 
+=======
+>>>>>>> upstream/android-13
 static int cp110_syscon_common_probe(struct platform_device *pdev,
 				     struct device_node *syscon_node)
 {
@@ -253,8 +282,13 @@ static int cp110_syscon_common_probe(struct platform_device *pdev,
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	cp110_clk_data = devm_kzalloc(dev, sizeof(*cp110_clk_data) +
 				      sizeof(struct clk_hw *) * CP110_CLK_NUM,
+=======
+	cp110_clk_data = devm_kzalloc(dev, struct_size(cp110_clk_data, hws,
+						       CP110_CLK_NUM),
+>>>>>>> upstream/android-13
 				      GFP_KERNEL);
 	if (!cp110_clk_data)
 		return -ENOMEM;
@@ -263,7 +297,11 @@ static int cp110_syscon_common_probe(struct platform_device *pdev,
 	cp110_clk_data->num = CP110_CLK_NUM;
 
 	/* Register the PLL0 which is the root of the hw tree */
+<<<<<<< HEAD
 	pll0_name = cp110_unique_name(dev, syscon_node, "pll0");
+=======
+	pll0_name = ap_cp_unique_name(dev, syscon_node, "pll0");
+>>>>>>> upstream/android-13
 	hw = clk_hw_register_fixed_rate(NULL, pll0_name, NULL, 0,
 					1000 * 1000 * 1000);
 	if (IS_ERR(hw)) {
@@ -274,7 +312,11 @@ static int cp110_syscon_common_probe(struct platform_device *pdev,
 	cp110_clks[CP110_CORE_PLL0] = hw;
 
 	/* PPv2 is PLL0/3 */
+<<<<<<< HEAD
 	ppv2_name = cp110_unique_name(dev, syscon_node, "ppv2-core");
+=======
+	ppv2_name = ap_cp_unique_name(dev, syscon_node, "ppv2-core");
+>>>>>>> upstream/android-13
 	hw = clk_hw_register_fixed_factor(NULL, ppv2_name, pll0_name, 0, 1, 3);
 	if (IS_ERR(hw)) {
 		ret = PTR_ERR(hw);
@@ -284,7 +326,11 @@ static int cp110_syscon_common_probe(struct platform_device *pdev,
 	cp110_clks[CP110_CORE_PPV2] = hw;
 
 	/* X2CORE clock is PLL0/2 */
+<<<<<<< HEAD
 	x2core_name = cp110_unique_name(dev, syscon_node, "x2core");
+=======
+	x2core_name = ap_cp_unique_name(dev, syscon_node, "x2core");
+>>>>>>> upstream/android-13
 	hw = clk_hw_register_fixed_factor(NULL, x2core_name, pll0_name,
 					  0, 1, 2);
 	if (IS_ERR(hw)) {
@@ -295,7 +341,11 @@ static int cp110_syscon_common_probe(struct platform_device *pdev,
 	cp110_clks[CP110_CORE_X2CORE] = hw;
 
 	/* Core clock is X2CORE/2 */
+<<<<<<< HEAD
 	core_name = cp110_unique_name(dev, syscon_node, "core");
+=======
+	core_name = ap_cp_unique_name(dev, syscon_node, "core");
+>>>>>>> upstream/android-13
 	hw = clk_hw_register_fixed_factor(NULL, core_name, x2core_name,
 					  0, 1, 2);
 	if (IS_ERR(hw)) {
@@ -305,7 +355,11 @@ static int cp110_syscon_common_probe(struct platform_device *pdev,
 
 	cp110_clks[CP110_CORE_CORE] = hw;
 	/* NAND can be either PLL0/2.5 or core clock */
+<<<<<<< HEAD
 	nand_name = cp110_unique_name(dev, syscon_node, "nand-core");
+=======
+	nand_name = ap_cp_unique_name(dev, syscon_node, "nand-core");
+>>>>>>> upstream/android-13
 	if (nand_clk_ctrl & NF_CLOCK_SEL_400_MASK)
 		hw = clk_hw_register_fixed_factor(NULL, nand_name,
 						   pll0_name, 0, 2, 5);
@@ -320,7 +374,11 @@ static int cp110_syscon_common_probe(struct platform_device *pdev,
 	cp110_clks[CP110_CORE_NAND] = hw;
 
 	/* SDIO clock is PLL0/2.5 */
+<<<<<<< HEAD
 	sdio_name = cp110_unique_name(dev, syscon_node, "sdio-core");
+=======
+	sdio_name = ap_cp_unique_name(dev, syscon_node, "sdio-core");
+>>>>>>> upstream/android-13
 	hw = clk_hw_register_fixed_factor(NULL, sdio_name,
 					  pll0_name, 0, 2, 5);
 	if (IS_ERR(hw)) {
@@ -332,7 +390,11 @@ static int cp110_syscon_common_probe(struct platform_device *pdev,
 
 	/* create the unique name for all the gate clocks */
 	for (i = 0; i < ARRAY_SIZE(gate_base_names); i++)
+<<<<<<< HEAD
 		gate_name[i] =	cp110_unique_name(dev, syscon_node,
+=======
+		gate_name[i] =	ap_cp_unique_name(dev, syscon_node,
+>>>>>>> upstream/android-13
 						  gate_base_names[i]);
 
 	for (i = 0; i < ARRAY_SIZE(gate_base_names); i++) {

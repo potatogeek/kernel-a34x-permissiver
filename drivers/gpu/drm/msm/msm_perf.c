@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2013 Red Hat
  * Author: Rob Clark <robdclark@gmail.com>
@@ -13,6 +14,12 @@
  *
  * You should have received a copy of the GNU General Public License along with
  * this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2013 Red Hat
+ * Author: Rob Clark <robdclark@gmail.com>
+>>>>>>> upstream/android-13
  */
 
 /* For profiling, userspace can:
@@ -26,6 +33,12 @@
 #ifdef CONFIG_DEBUG_FS
 
 #include <linux/debugfs.h>
+<<<<<<< HEAD
+=======
+#include <linux/uaccess.h>
+
+#include <drm/drm_file.h>
+>>>>>>> upstream/android-13
 
 #include "msm_drv.h"
 #include "msm_gpu.h"
@@ -205,7 +218,10 @@ int msm_perf_debugfs_init(struct drm_minor *minor)
 {
 	struct msm_drm_private *priv = minor->dev->dev_private;
 	struct msm_perf_state *perf;
+<<<<<<< HEAD
 	struct dentry *ent;
+=======
+>>>>>>> upstream/android-13
 
 	/* only create on first minor: */
 	if (priv->perf)
@@ -220,6 +236,7 @@ int msm_perf_debugfs_init(struct drm_minor *minor)
 	mutex_init(&perf->read_lock);
 	priv->perf = perf;
 
+<<<<<<< HEAD
 	ent = debugfs_create_file("perf", S_IFREG | S_IRUGO,
 			minor->debugfs_root, perf, &perf_debugfs_fops);
 	if (!ent) {
@@ -233,6 +250,11 @@ int msm_perf_debugfs_init(struct drm_minor *minor)
 fail:
 	msm_perf_debugfs_cleanup(priv);
 	return -1;
+=======
+	debugfs_create_file("perf", S_IFREG | S_IRUGO, minor->debugfs_root,
+			    perf, &perf_debugfs_fops);
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 void msm_perf_debugfs_cleanup(struct msm_drm_private *priv)

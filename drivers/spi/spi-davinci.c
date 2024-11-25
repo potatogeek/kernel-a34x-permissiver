@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2009 Texas Instruments.
  * Copyright (C) 2010 EF Johnson Technologies
@@ -11,11 +12,21 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (C) 2009 Texas Instruments.
+ * Copyright (C) 2010 EF Johnson Technologies
+>>>>>>> upstream/android-13
  */
 
 #include <linux/interrupt.h>
 #include <linux/io.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
+=======
+#include <linux/gpio/consumer.h>
+>>>>>>> upstream/android-13
 #include <linux/module.h>
 #include <linux/delay.h>
 #include <linux/platform_device.h>
@@ -25,7 +36,10 @@
 #include <linux/dma-mapping.h>
 #include <linux/of.h>
 #include <linux/of_device.h>
+<<<<<<< HEAD
 #include <linux/of_gpio.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/spi/spi.h>
 #include <linux/spi/spi_bitbang.h>
 #include <linux/slab.h>
@@ -208,13 +222,19 @@ static inline void clear_io_bits(void __iomem *addr, u32 bits)
 static void davinci_spi_chipselect(struct spi_device *spi, int value)
 {
 	struct davinci_spi *dspi;
+<<<<<<< HEAD
 	struct davinci_spi_platform_data *pdata;
+=======
+>>>>>>> upstream/android-13
 	struct davinci_spi_config *spicfg = spi->controller_data;
 	u8 chip_sel = spi->chip_select;
 	u16 spidat1 = CS_DEFAULT;
 
 	dspi = spi_master_get_devdata(spi->master);
+<<<<<<< HEAD
 	pdata = &dspi->pdata;
+=======
+>>>>>>> upstream/android-13
 
 	/* program delay transfers if tx_delay is non zero */
 	if (spicfg && spicfg->wdelay)
@@ -224,6 +244,7 @@ static void davinci_spi_chipselect(struct spi_device *spi, int value)
 	 * Board specific chip select logic decides the polarity and cs
 	 * line for the controller
 	 */
+<<<<<<< HEAD
 	if (spi->cs_gpio >= 0) {
 		if (value == BITBANG_CS_ACTIVE)
 			gpio_set_value(spi->cs_gpio, spi->mode & SPI_CS_HIGH);
@@ -233,6 +254,17 @@ static void davinci_spi_chipselect(struct spi_device *spi, int value)
 	} else {
 		if (value == BITBANG_CS_ACTIVE) {
 			spidat1 |= SPIDAT1_CSHOLD_MASK;
+=======
+	if (spi->cs_gpiod) {
+		if (value == BITBANG_CS_ACTIVE)
+			gpiod_set_value(spi->cs_gpiod, 1);
+		else
+			gpiod_set_value(spi->cs_gpiod, 0);
+	} else {
+		if (value == BITBANG_CS_ACTIVE) {
+			if (!(spi->mode & SPI_CS_WORD))
+				spidat1 |= SPIDAT1_CSHOLD_MASK;
+>>>>>>> upstream/android-13
 			spidat1 &= ~(0x1 << chip_sel);
 		}
 	}
@@ -242,7 +274,12 @@ static void davinci_spi_chipselect(struct spi_device *spi, int value)
 
 /**
  * davinci_spi_get_prescale - Calculates the correct prescale value
+<<<<<<< HEAD
  * @maxspeed_hz: the maximum rate the SPI clock can run at
+=======
+ * @dspi: the controller data
+ * @max_speed_hz: the maximum rate the SPI clock can run at
+>>>>>>> upstream/android-13
  *
  * This function calculates the prescale value that generates a clock rate
  * less than or equal to the specified maximum.
@@ -419,14 +456,19 @@ static int davinci_spi_of_setup(struct spi_device *spi)
  */
 static int davinci_spi_setup(struct spi_device *spi)
 {
+<<<<<<< HEAD
 	int retval = 0;
 	struct davinci_spi *dspi;
 	struct davinci_spi_platform_data *pdata;
 	struct spi_master *master = spi->master;
+=======
+	struct davinci_spi *dspi;
+>>>>>>> upstream/android-13
 	struct device_node *np = spi->dev.of_node;
 	bool internal_cs = true;
 
 	dspi = spi_master_get_devdata(spi->master);
+<<<<<<< HEAD
 	pdata = &dspi->pdata;
 
 	if (!(spi->mode & SPI_NO_CS)) {
@@ -448,6 +490,12 @@ static int davinci_spi_setup(struct spi_device *spi)
 				spi->cs_gpio, retval);
 			return retval;
 		}
+=======
+
+	if (!(spi->mode & SPI_NO_CS)) {
+		if (np && spi->cs_gpiod)
+			internal_cs = false;
+>>>>>>> upstream/android-13
 
 		if (internal_cs)
 			set_io_bits(dspi->base + SPIPC0, 1 << spi->chip_select);
@@ -602,7 +650,10 @@ static int davinci_spi_bufs(struct spi_device *spi, struct spi_transfer *t)
 	u32 errors = 0;
 	struct davinci_spi_config *spicfg;
 	struct davinci_spi_platform_data *pdata;
+<<<<<<< HEAD
 	unsigned uninitialized_var(rx_buf_count);
+=======
+>>>>>>> upstream/android-13
 
 	dspi = spi_master_get_devdata(spi->master);
 	pdata = &dspi->pdata;
@@ -737,7 +788,11 @@ err_desc:
 /**
  * dummy_thread_fn - dummy thread function
  * @irq: IRQ number for this SPI Master
+<<<<<<< HEAD
  * @context_data: structure for SPI Master controller davinci_spi
+=======
+ * @data: structure for SPI Master controller davinci_spi
+>>>>>>> upstream/android-13
  *
  * This is to satisfy the request_threaded_irq() API so that the irq
  * handler is called in interrupt context.
@@ -750,7 +805,11 @@ static irqreturn_t dummy_thread_fn(s32 irq, void *data)
 /**
  * davinci_spi_irq - Interrupt handler for SPI Master Controller
  * @irq: IRQ number for this SPI Master
+<<<<<<< HEAD
  * @context_data: structure for SPI Master controller davinci_spi
+=======
+ * @data: structure for SPI Master controller davinci_spi
+>>>>>>> upstream/android-13
  *
  * ISR will determine that interrupt arrives either for READ or WRITE command.
  * According to command it will do the appropriate action. It will check
@@ -843,6 +902,7 @@ static int spi_davinci_get_pdata(struct platform_device *pdev,
 			struct davinci_spi *dspi)
 {
 	struct device_node *node = pdev->dev.of_node;
+<<<<<<< HEAD
 	struct davinci_spi_of_data *spi_data;
 	struct davinci_spi_platform_data *pdata;
 	unsigned int num_cs, intr_line = 0;
@@ -855,6 +915,15 @@ static int spi_davinci_get_pdata(struct platform_device *pdev,
 		return -ENODEV;
 
 	spi_data = (struct davinci_spi_of_data *)match->data;
+=======
+	const struct davinci_spi_of_data *spi_data;
+	struct davinci_spi_platform_data *pdata;
+	unsigned int num_cs, intr_line = 0;
+
+	pdata = &dspi->pdata;
+
+	spi_data = device_get_match_data(&pdev->dev);
+>>>>>>> upstream/android-13
 
 	pdata->version = spi_data->version;
 	pdata->prescaler_limit = spi_data->prescaler_limit;
@@ -971,11 +1040,19 @@ static int davinci_spi_probe(struct platform_device *pdev)
 	if (ret)
 		goto free_master;
 
+<<<<<<< HEAD
+=======
+	master->use_gpio_descriptors = true;
+>>>>>>> upstream/android-13
 	master->dev.of_node = pdev->dev.of_node;
 	master->bus_num = pdev->id;
 	master->num_chipselect = pdata->num_chipselect;
 	master->bits_per_word_mask = SPI_BPW_RANGE_MASK(2, 16);
+<<<<<<< HEAD
 	master->flags = SPI_MASTER_MUST_RX;
+=======
+	master->flags = SPI_MASTER_MUST_RX | SPI_MASTER_GPIO_SS;
+>>>>>>> upstream/android-13
 	master->setup = davinci_spi_setup;
 	master->cleanup = davinci_spi_cleanup;
 	master->can_dma = davinci_spi_can_dma;
@@ -985,6 +1062,7 @@ static int davinci_spi_probe(struct platform_device *pdev)
 	dspi->prescaler_limit = pdata->prescaler_limit;
 	dspi->version = pdata->version;
 
+<<<<<<< HEAD
 	dspi->bitbang.flags = SPI_NO_CS | SPI_LSB_FIRST | SPI_LOOP;
 	if (dspi->version == SPI_VERSION_2)
 		dspi->bitbang.flags |= SPI_READY;
@@ -1010,6 +1088,12 @@ static int davinci_spi_probe(struct platform_device *pdev)
 		}
 	}
 
+=======
+	dspi->bitbang.flags = SPI_NO_CS | SPI_LSB_FIRST | SPI_LOOP | SPI_CS_WORD;
+	if (dspi->version == SPI_VERSION_2)
+		dspi->bitbang.flags |= SPI_READY;
+
+>>>>>>> upstream/android-13
 	dspi->bitbang.txrx_bufs = davinci_spi_bufs;
 
 	ret = davinci_spi_request_dma(dspi);

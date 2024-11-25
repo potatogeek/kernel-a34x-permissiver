@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * GCM: Galois/Counter Mode.
  *
  * Copyright (c) 2007 Nokia Siemens Networks - Mikko Herranen <mh1@iki.fi>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published
  * by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <crypto/gf128mul.h>
@@ -16,7 +23,10 @@
 #include <crypto/scatterwalk.h>
 #include <crypto/gcm.h>
 #include <crypto/hash.h>
+<<<<<<< HEAD
 #include "internal.h"
+=======
+>>>>>>> upstream/android-13
 #include <linux/err.h>
 #include <linux/init.h>
 #include <linux/kernel.h>
@@ -50,7 +60,11 @@ struct crypto_rfc4543_instance_ctx {
 
 struct crypto_rfc4543_ctx {
 	struct crypto_aead *child;
+<<<<<<< HEAD
 	struct crypto_skcipher *null;
+=======
+	struct crypto_sync_skcipher *null;
+>>>>>>> upstream/android-13
 	u8 nonce[4];
 };
 
@@ -114,8 +128,11 @@ static int crypto_gcm_setkey(struct crypto_aead *aead, const u8 *key,
 	crypto_skcipher_set_flags(ctr, crypto_aead_get_flags(aead) &
 				       CRYPTO_TFM_REQ_MASK);
 	err = crypto_skcipher_setkey(ctr, key, keylen);
+<<<<<<< HEAD
 	crypto_aead_set_flags(aead, crypto_skcipher_get_flags(ctr) &
 				    CRYPTO_TFM_RES_MASK);
+=======
+>>>>>>> upstream/android-13
 	if (err)
 		return err;
 
@@ -144,17 +161,23 @@ static int crypto_gcm_setkey(struct crypto_aead *aead, const u8 *key,
 	crypto_ahash_set_flags(ghash, crypto_aead_get_flags(aead) &
 			       CRYPTO_TFM_REQ_MASK);
 	err = crypto_ahash_setkey(ghash, (u8 *)&data->hash, sizeof(be128));
+<<<<<<< HEAD
 	crypto_aead_set_flags(aead, crypto_ahash_get_flags(ghash) &
 			      CRYPTO_TFM_RES_MASK);
 
 out:
 	kzfree(data);
+=======
+out:
+	kfree_sensitive(data);
+>>>>>>> upstream/android-13
 	return err;
 }
 
 static int crypto_gcm_setauthsize(struct crypto_aead *tfm,
 				  unsigned int authsize)
 {
+<<<<<<< HEAD
 	switch (authsize) {
 	case 4:
 	case 8:
@@ -169,6 +192,9 @@ static int crypto_gcm_setauthsize(struct crypto_aead *tfm,
 	}
 
 	return 0;
+=======
+	return crypto_gcm_check_authsize(authsize);
+>>>>>>> upstream/android-13
 }
 
 static void crypto_gcm_init_common(struct aead_request *req)
@@ -247,7 +273,11 @@ static int gcm_hash_len(struct aead_request *req, u32 flags)
 	struct crypto_gcm_req_priv_ctx *pctx = crypto_gcm_reqctx(req);
 	struct ahash_request *ahreq = &pctx->u.ahreq;
 	struct crypto_gcm_ghash_ctx *gctx = &pctx->ghash_ctx;
+<<<<<<< HEAD
 	u128 lengths;
+=======
+	be128 lengths;
+>>>>>>> upstream/android-13
 
 	lengths.a = cpu_to_be64(req->assoclen * 8);
 	lengths.b = cpu_to_be64(gctx->cryptlen * 8);
@@ -600,6 +630,7 @@ static int crypto_gcm_create_common(struct crypto_template *tmpl,
 				    const char *ctr_name,
 				    const char *ghash_name)
 {
+<<<<<<< HEAD
 	struct crypto_attr_type *algt;
 	struct aead_instance *inst;
 	struct skcipher_alg *ctr;
@@ -635,10 +666,34 @@ static int crypto_gcm_create_common(struct crypto_template *tmpl,
 				      aead_crypto_instance(inst));
 	if (err)
 		goto err_free_inst;
+=======
+	u32 mask;
+	struct aead_instance *inst;
+	struct gcm_instance_ctx *ctx;
+	struct skcipher_alg *ctr;
+	struct hash_alg_common *ghash;
+	int err;
+
+	err = crypto_check_attr_type(tb, CRYPTO_ALG_TYPE_AEAD, &mask);
+	if (err)
+		return err;
+
+	inst = kzalloc(sizeof(*inst) + sizeof(*ctx), GFP_KERNEL);
+	if (!inst)
+		return -ENOMEM;
+	ctx = aead_instance_ctx(inst);
+
+	err = crypto_grab_ahash(&ctx->ghash, aead_crypto_instance(inst),
+				ghash_name, 0, mask);
+	if (err)
+		goto err_free_inst;
+	ghash = crypto_spawn_ahash_alg(&ctx->ghash);
+>>>>>>> upstream/android-13
 
 	err = -EINVAL;
 	if (strcmp(ghash->base.cra_name, "ghash") != 0 ||
 	    ghash->digestsize != 16)
+<<<<<<< HEAD
 		goto err_drop_ghash;
 
 	crypto_set_skcipher_spawn(&ctx->ctr, aead_crypto_instance(inst));
@@ -648,6 +703,14 @@ static int crypto_gcm_create_common(struct crypto_template *tmpl,
 	if (err)
 		goto err_drop_ghash;
 
+=======
+		goto err_free_inst;
+
+	err = crypto_grab_skcipher(&ctx->ctr, aead_crypto_instance(inst),
+				   ctr_name, 0, mask);
+	if (err)
+		goto err_free_inst;
+>>>>>>> upstream/android-13
 	ctr = crypto_spawn_skcipher_alg(&ctx->ctr);
 
 	/* The skcipher algorithm must be CTR mode, using 16-byte blocks. */
@@ -655,11 +718,16 @@ static int crypto_gcm_create_common(struct crypto_template *tmpl,
 	if (strncmp(ctr->base.cra_name, "ctr(", 4) != 0 ||
 	    crypto_skcipher_alg_ivsize(ctr) != 16 ||
 	    ctr->base.cra_blocksize != 1)
+<<<<<<< HEAD
 		goto out_put_ctr;
+=======
+		goto err_free_inst;
+>>>>>>> upstream/android-13
 
 	err = -ENAMETOOLONG;
 	if (snprintf(inst->alg.base.cra_name, CRYPTO_MAX_ALG_NAME,
 		     "gcm(%s", ctr->base.cra_name + 4) >= CRYPTO_MAX_ALG_NAME)
+<<<<<<< HEAD
 		goto out_put_ctr;
 
 	if (snprintf(inst->alg.base.cra_driver_name, CRYPTO_MAX_ALG_NAME,
@@ -670,6 +738,16 @@ static int crypto_gcm_create_common(struct crypto_template *tmpl,
 
 	inst->alg.base.cra_flags = (ghash->base.cra_flags |
 				    ctr->base.cra_flags) & CRYPTO_ALG_ASYNC;
+=======
+		goto err_free_inst;
+
+	if (snprintf(inst->alg.base.cra_driver_name, CRYPTO_MAX_ALG_NAME,
+		     "gcm_base(%s,%s)", ctr->base.cra_driver_name,
+		     ghash->base.cra_driver_name) >=
+	    CRYPTO_MAX_ALG_NAME)
+		goto err_free_inst;
+
+>>>>>>> upstream/android-13
 	inst->alg.base.cra_priority = (ghash->base.cra_priority +
 				       ctr->base.cra_priority) / 2;
 	inst->alg.base.cra_blocksize = 1;
@@ -689,6 +767,7 @@ static int crypto_gcm_create_common(struct crypto_template *tmpl,
 	inst->free = crypto_gcm_free;
 
 	err = aead_register_instance(tmpl, inst);
+<<<<<<< HEAD
 	if (err)
 		goto out_put_ctr;
 
@@ -703,6 +782,13 @@ err_drop_ghash:
 err_free_inst:
 	kfree(inst);
 	goto out_put_ghash;
+=======
+	if (err) {
+err_free_inst:
+		crypto_gcm_free(inst);
+	}
+	return err;
+>>>>>>> upstream/android-13
 }
 
 static int crypto_gcm_create(struct crypto_template *tmpl, struct rtattr **tb)
@@ -721,12 +807,15 @@ static int crypto_gcm_create(struct crypto_template *tmpl, struct rtattr **tb)
 	return crypto_gcm_create_common(tmpl, tb, ctr_name, "ghash");
 }
 
+<<<<<<< HEAD
 static struct crypto_template crypto_gcm_tmpl = {
 	.name = "gcm",
 	.create = crypto_gcm_create,
 	.module = THIS_MODULE,
 };
 
+=======
+>>>>>>> upstream/android-13
 static int crypto_gcm_base_create(struct crypto_template *tmpl,
 				  struct rtattr **tb)
 {
@@ -744,18 +833,24 @@ static int crypto_gcm_base_create(struct crypto_template *tmpl,
 	return crypto_gcm_create_common(tmpl, tb, ctr_name, ghash_name);
 }
 
+<<<<<<< HEAD
 static struct crypto_template crypto_gcm_base_tmpl = {
 	.name = "gcm_base",
 	.create = crypto_gcm_base_create,
 	.module = THIS_MODULE,
 };
 
+=======
+>>>>>>> upstream/android-13
 static int crypto_rfc4106_setkey(struct crypto_aead *parent, const u8 *key,
 				 unsigned int keylen)
 {
 	struct crypto_rfc4106_ctx *ctx = crypto_aead_ctx(parent);
 	struct crypto_aead *child = ctx->child;
+<<<<<<< HEAD
 	int err;
+=======
+>>>>>>> upstream/android-13
 
 	if (keylen < 4)
 		return -EINVAL;
@@ -766,17 +861,22 @@ static int crypto_rfc4106_setkey(struct crypto_aead *parent, const u8 *key,
 	crypto_aead_clear_flags(child, CRYPTO_TFM_REQ_MASK);
 	crypto_aead_set_flags(child, crypto_aead_get_flags(parent) &
 				     CRYPTO_TFM_REQ_MASK);
+<<<<<<< HEAD
 	err = crypto_aead_setkey(child, key, keylen);
 	crypto_aead_set_flags(parent, crypto_aead_get_flags(child) &
 				      CRYPTO_TFM_RES_MASK);
 
 	return err;
+=======
+	return crypto_aead_setkey(child, key, keylen);
+>>>>>>> upstream/android-13
 }
 
 static int crypto_rfc4106_setauthsize(struct crypto_aead *parent,
 				      unsigned int authsize)
 {
 	struct crypto_rfc4106_ctx *ctx = crypto_aead_ctx(parent);
+<<<<<<< HEAD
 
 	switch (authsize) {
 	case 8:
@@ -786,6 +886,13 @@ static int crypto_rfc4106_setauthsize(struct crypto_aead *parent,
 	default:
 		return -EINVAL;
 	}
+=======
+	int err;
+
+	err = crypto_rfc4106_check_authsize(authsize);
+	if (err)
+		return err;
+>>>>>>> upstream/android-13
 
 	return crypto_aead_setauthsize(ctx->child, authsize);
 }
@@ -833,8 +940,16 @@ static struct aead_request *crypto_rfc4106_crypt(struct aead_request *req)
 
 static int crypto_rfc4106_encrypt(struct aead_request *req)
 {
+<<<<<<< HEAD
 	if (req->assoclen != 16 && req->assoclen != 20)
 		return -EINVAL;
+=======
+	int err;
+
+	err = crypto_ipsec_check_assoclen(req->assoclen);
+	if (err)
+		return err;
+>>>>>>> upstream/android-13
 
 	req = crypto_rfc4106_crypt(req);
 
@@ -843,8 +958,16 @@ static int crypto_rfc4106_encrypt(struct aead_request *req)
 
 static int crypto_rfc4106_decrypt(struct aead_request *req)
 {
+<<<<<<< HEAD
 	if (req->assoclen != 16 && req->assoclen != 20)
 		return -EINVAL;
+=======
+	int err;
+
+	err = crypto_ipsec_check_assoclen(req->assoclen);
+	if (err)
+		return err;
+>>>>>>> upstream/android-13
 
 	req = crypto_rfc4106_crypt(req);
 
@@ -892,6 +1015,7 @@ static void crypto_rfc4106_free(struct aead_instance *inst)
 static int crypto_rfc4106_create(struct crypto_template *tmpl,
 				 struct rtattr **tb)
 {
+<<<<<<< HEAD
 	struct crypto_attr_type *algt;
 	struct aead_instance *inst;
 	struct crypto_aead_spawn *spawn;
@@ -909,17 +1033,35 @@ static int crypto_rfc4106_create(struct crypto_template *tmpl,
 	ccm_name = crypto_attr_alg_name(tb[1]);
 	if (IS_ERR(ccm_name))
 		return PTR_ERR(ccm_name);
+=======
+	u32 mask;
+	struct aead_instance *inst;
+	struct crypto_aead_spawn *spawn;
+	struct aead_alg *alg;
+	int err;
+
+	err = crypto_check_attr_type(tb, CRYPTO_ALG_TYPE_AEAD, &mask);
+	if (err)
+		return err;
+>>>>>>> upstream/android-13
 
 	inst = kzalloc(sizeof(*inst) + sizeof(*spawn), GFP_KERNEL);
 	if (!inst)
 		return -ENOMEM;
 
 	spawn = aead_instance_ctx(inst);
+<<<<<<< HEAD
 	crypto_set_aead_spawn(spawn, aead_crypto_instance(inst));
 	err = crypto_grab_aead(spawn, ccm_name, 0,
 			       crypto_requires_sync(algt->type, algt->mask));
 	if (err)
 		goto out_free_inst;
+=======
+	err = crypto_grab_aead(spawn, aead_crypto_instance(inst),
+			       crypto_attr_alg_name(tb[1]), 0, mask);
+	if (err)
+		goto err_free_inst;
+>>>>>>> upstream/android-13
 
 	alg = crypto_spawn_aead_alg(spawn);
 
@@ -927,11 +1069,19 @@ static int crypto_rfc4106_create(struct crypto_template *tmpl,
 
 	/* Underlying IV size must be 12. */
 	if (crypto_aead_alg_ivsize(alg) != GCM_AES_IV_SIZE)
+<<<<<<< HEAD
 		goto out_drop_alg;
 
 	/* Not a stream cipher? */
 	if (alg->base.cra_blocksize != 1)
 		goto out_drop_alg;
+=======
+		goto err_free_inst;
+
+	/* Not a stream cipher? */
+	if (alg->base.cra_blocksize != 1)
+		goto err_free_inst;
+>>>>>>> upstream/android-13
 
 	err = -ENAMETOOLONG;
 	if (snprintf(inst->alg.base.cra_name, CRYPTO_MAX_ALG_NAME,
@@ -940,9 +1090,14 @@ static int crypto_rfc4106_create(struct crypto_template *tmpl,
 	    snprintf(inst->alg.base.cra_driver_name, CRYPTO_MAX_ALG_NAME,
 		     "rfc4106(%s)", alg->base.cra_driver_name) >=
 	    CRYPTO_MAX_ALG_NAME)
+<<<<<<< HEAD
 		goto out_drop_alg;
 
 	inst->alg.base.cra_flags = alg->base.cra_flags & CRYPTO_ALG_ASYNC;
+=======
+		goto err_free_inst;
+
+>>>>>>> upstream/android-13
 	inst->alg.base.cra_priority = alg->base.cra_priority;
 	inst->alg.base.cra_blocksize = 1;
 	inst->alg.base.cra_alignmask = alg->base.cra_alignmask;
@@ -964,6 +1119,7 @@ static int crypto_rfc4106_create(struct crypto_template *tmpl,
 	inst->free = crypto_rfc4106_free;
 
 	err = aead_register_instance(tmpl, inst);
+<<<<<<< HEAD
 	if (err)
 		goto out_drop_alg;
 
@@ -983,12 +1139,24 @@ static struct crypto_template crypto_rfc4106_tmpl = {
 	.module = THIS_MODULE,
 };
 
+=======
+	if (err) {
+err_free_inst:
+		crypto_rfc4106_free(inst);
+	}
+	return err;
+}
+
+>>>>>>> upstream/android-13
 static int crypto_rfc4543_setkey(struct crypto_aead *parent, const u8 *key,
 				 unsigned int keylen)
 {
 	struct crypto_rfc4543_ctx *ctx = crypto_aead_ctx(parent);
 	struct crypto_aead *child = ctx->child;
+<<<<<<< HEAD
 	int err;
+=======
+>>>>>>> upstream/android-13
 
 	if (keylen < 4)
 		return -EINVAL;
@@ -999,11 +1167,15 @@ static int crypto_rfc4543_setkey(struct crypto_aead *parent, const u8 *key,
 	crypto_aead_clear_flags(child, CRYPTO_TFM_REQ_MASK);
 	crypto_aead_set_flags(child, crypto_aead_get_flags(parent) &
 				     CRYPTO_TFM_REQ_MASK);
+<<<<<<< HEAD
 	err = crypto_aead_setkey(child, key, keylen);
 	crypto_aead_set_flags(parent, crypto_aead_get_flags(child) &
 				      CRYPTO_TFM_RES_MASK);
 
 	return err;
+=======
+	return crypto_aead_setkey(child, key, keylen);
+>>>>>>> upstream/android-13
 }
 
 static int crypto_rfc4543_setauthsize(struct crypto_aead *parent,
@@ -1055,9 +1227,15 @@ static int crypto_rfc4543_copy_src_to_dst(struct aead_request *req, bool enc)
 	unsigned int authsize = crypto_aead_authsize(aead);
 	unsigned int nbytes = req->assoclen + req->cryptlen -
 			      (enc ? 0 : authsize);
+<<<<<<< HEAD
 	SKCIPHER_REQUEST_ON_STACK(nreq, ctx->null);
 
 	skcipher_request_set_tfm(nreq, ctx->null);
+=======
+	SYNC_SKCIPHER_REQUEST_ON_STACK(nreq, ctx->null);
+
+	skcipher_request_set_sync_tfm(nreq, ctx->null);
+>>>>>>> upstream/android-13
 	skcipher_request_set_callback(nreq, req->base.flags, NULL, NULL);
 	skcipher_request_set_crypt(nreq, req->src, req->dst, nbytes, NULL);
 
@@ -1066,12 +1244,22 @@ static int crypto_rfc4543_copy_src_to_dst(struct aead_request *req, bool enc)
 
 static int crypto_rfc4543_encrypt(struct aead_request *req)
 {
+<<<<<<< HEAD
 	return crypto_rfc4543_crypt(req, true);
+=======
+	return crypto_ipsec_check_assoclen(req->assoclen) ?:
+	       crypto_rfc4543_crypt(req, true);
+>>>>>>> upstream/android-13
 }
 
 static int crypto_rfc4543_decrypt(struct aead_request *req)
 {
+<<<<<<< HEAD
 	return crypto_rfc4543_crypt(req, false);
+=======
+	return crypto_ipsec_check_assoclen(req->assoclen) ?:
+	       crypto_rfc4543_crypt(req, false);
+>>>>>>> upstream/android-13
 }
 
 static int crypto_rfc4543_init_tfm(struct crypto_aead *tfm)
@@ -1081,7 +1269,11 @@ static int crypto_rfc4543_init_tfm(struct crypto_aead *tfm)
 	struct crypto_aead_spawn *spawn = &ictx->aead;
 	struct crypto_rfc4543_ctx *ctx = crypto_aead_ctx(tfm);
 	struct crypto_aead *aead;
+<<<<<<< HEAD
 	struct crypto_skcipher *null;
+=======
+	struct crypto_sync_skcipher *null;
+>>>>>>> upstream/android-13
 	unsigned long align;
 	int err = 0;
 
@@ -1132,6 +1324,7 @@ static void crypto_rfc4543_free(struct aead_instance *inst)
 static int crypto_rfc4543_create(struct crypto_template *tmpl,
 				struct rtattr **tb)
 {
+<<<<<<< HEAD
 	struct crypto_attr_type *algt;
 	struct aead_instance *inst;
 	struct crypto_aead_spawn *spawn;
@@ -1150,12 +1343,24 @@ static int crypto_rfc4543_create(struct crypto_template *tmpl,
 	ccm_name = crypto_attr_alg_name(tb[1]);
 	if (IS_ERR(ccm_name))
 		return PTR_ERR(ccm_name);
+=======
+	u32 mask;
+	struct aead_instance *inst;
+	struct aead_alg *alg;
+	struct crypto_rfc4543_instance_ctx *ctx;
+	int err;
+
+	err = crypto_check_attr_type(tb, CRYPTO_ALG_TYPE_AEAD, &mask);
+	if (err)
+		return err;
+>>>>>>> upstream/android-13
 
 	inst = kzalloc(sizeof(*inst) + sizeof(*ctx), GFP_KERNEL);
 	if (!inst)
 		return -ENOMEM;
 
 	ctx = aead_instance_ctx(inst);
+<<<<<<< HEAD
 	spawn = &ctx->aead;
 	crypto_set_aead_spawn(spawn, aead_crypto_instance(inst));
 	err = crypto_grab_aead(spawn, ccm_name, 0,
@@ -1164,16 +1369,32 @@ static int crypto_rfc4543_create(struct crypto_template *tmpl,
 		goto out_free_inst;
 
 	alg = crypto_spawn_aead_alg(spawn);
+=======
+	err = crypto_grab_aead(&ctx->aead, aead_crypto_instance(inst),
+			       crypto_attr_alg_name(tb[1]), 0, mask);
+	if (err)
+		goto err_free_inst;
+
+	alg = crypto_spawn_aead_alg(&ctx->aead);
+>>>>>>> upstream/android-13
 
 	err = -EINVAL;
 
 	/* Underlying IV size must be 12. */
 	if (crypto_aead_alg_ivsize(alg) != GCM_AES_IV_SIZE)
+<<<<<<< HEAD
 		goto out_drop_alg;
 
 	/* Not a stream cipher? */
 	if (alg->base.cra_blocksize != 1)
 		goto out_drop_alg;
+=======
+		goto err_free_inst;
+
+	/* Not a stream cipher? */
+	if (alg->base.cra_blocksize != 1)
+		goto err_free_inst;
+>>>>>>> upstream/android-13
 
 	err = -ENAMETOOLONG;
 	if (snprintf(inst->alg.base.cra_name, CRYPTO_MAX_ALG_NAME,
@@ -1182,9 +1403,14 @@ static int crypto_rfc4543_create(struct crypto_template *tmpl,
 	    snprintf(inst->alg.base.cra_driver_name, CRYPTO_MAX_ALG_NAME,
 		     "rfc4543(%s)", alg->base.cra_driver_name) >=
 	    CRYPTO_MAX_ALG_NAME)
+<<<<<<< HEAD
 		goto out_drop_alg;
 
 	inst->alg.base.cra_flags = alg->base.cra_flags & CRYPTO_ALG_ASYNC;
+=======
+		goto err_free_inst;
+
+>>>>>>> upstream/android-13
 	inst->alg.base.cra_priority = alg->base.cra_priority;
 	inst->alg.base.cra_blocksize = 1;
 	inst->alg.base.cra_alignmask = alg->base.cra_alignmask;
@@ -1203,6 +1429,7 @@ static int crypto_rfc4543_create(struct crypto_template *tmpl,
 	inst->alg.encrypt = crypto_rfc4543_encrypt;
 	inst->alg.decrypt = crypto_rfc4543_decrypt;
 
+<<<<<<< HEAD
 	inst->free = crypto_rfc4543_free,
 
 	err = aead_register_instance(tmpl, inst);
@@ -1223,6 +1450,36 @@ static struct crypto_template crypto_rfc4543_tmpl = {
 	.name = "rfc4543",
 	.create = crypto_rfc4543_create,
 	.module = THIS_MODULE,
+=======
+	inst->free = crypto_rfc4543_free;
+
+	err = aead_register_instance(tmpl, inst);
+	if (err) {
+err_free_inst:
+		crypto_rfc4543_free(inst);
+	}
+	return err;
+}
+
+static struct crypto_template crypto_gcm_tmpls[] = {
+	{
+		.name = "gcm_base",
+		.create = crypto_gcm_base_create,
+		.module = THIS_MODULE,
+	}, {
+		.name = "gcm",
+		.create = crypto_gcm_create,
+		.module = THIS_MODULE,
+	}, {
+		.name = "rfc4106",
+		.create = crypto_rfc4106_create,
+		.module = THIS_MODULE,
+	}, {
+		.name = "rfc4543",
+		.create = crypto_rfc4543_create,
+		.module = THIS_MODULE,
+	},
+>>>>>>> upstream/android-13
 };
 
 static int __init crypto_gcm_module_init(void)
@@ -1235,6 +1492,7 @@ static int __init crypto_gcm_module_init(void)
 
 	sg_init_one(&gcm_zeroes->sg, gcm_zeroes->buf, sizeof(gcm_zeroes->buf));
 
+<<<<<<< HEAD
 	err = crypto_register_template(&crypto_gcm_base_tmpl);
 	if (err)
 		goto out;
@@ -1261,12 +1519,20 @@ out_undo_base:
 	crypto_unregister_template(&crypto_gcm_base_tmpl);
 out:
 	kfree(gcm_zeroes);
+=======
+	err = crypto_register_templates(crypto_gcm_tmpls,
+					ARRAY_SIZE(crypto_gcm_tmpls));
+	if (err)
+		kfree(gcm_zeroes);
+
+>>>>>>> upstream/android-13
 	return err;
 }
 
 static void __exit crypto_gcm_module_exit(void)
 {
 	kfree(gcm_zeroes);
+<<<<<<< HEAD
 	crypto_unregister_template(&crypto_rfc4543_tmpl);
 	crypto_unregister_template(&crypto_rfc4106_tmpl);
 	crypto_unregister_template(&crypto_gcm_tmpl);
@@ -1274,6 +1540,13 @@ static void __exit crypto_gcm_module_exit(void)
 }
 
 module_init(crypto_gcm_module_init);
+=======
+	crypto_unregister_templates(crypto_gcm_tmpls,
+				    ARRAY_SIZE(crypto_gcm_tmpls));
+}
+
+subsys_initcall(crypto_gcm_module_init);
+>>>>>>> upstream/android-13
 module_exit(crypto_gcm_module_exit);
 
 MODULE_LICENSE("GPL");

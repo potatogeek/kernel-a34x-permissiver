@@ -2,7 +2,11 @@
 /*
  * Watchdog driver for IMX2 and later processors
  *
+<<<<<<< HEAD
  *  Copyright (C) 2010 Wolfram Sang, Pengutronix e.K. <w.sang@pengutronix.de>
+=======
+ *  Copyright (C) 2010 Wolfram Sang, Pengutronix e.K. <kernel@pengutronix.de>
+>>>>>>> upstream/android-13
  *  Copyright (C) 2014 Freescale Semiconductor, Inc.
  *
  * some parts adapted by similar drivers from Darius Augulis and Vladimir
@@ -65,6 +69,10 @@ struct imx2_wdt_device {
 	struct regmap *regmap;
 	struct watchdog_device wdog;
 	bool ext_reset;
+<<<<<<< HEAD
+=======
+	bool clk_is_on;
+>>>>>>> upstream/android-13
 };
 
 static bool nowayout = WATCHDOG_NOWAYOUT;
@@ -72,7 +80,10 @@ module_param(nowayout, bool, 0);
 MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
 				__MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 static unsigned timeout;
 module_param(timeout, uint, 0);
 MODULE_PARM_DESC(timeout, "Watchdog timeout in seconds (default="
@@ -161,6 +172,12 @@ static int imx2_wdt_ping(struct watchdog_device *wdog)
 {
 	struct imx2_wdt_device *wdev = watchdog_get_drvdata(wdog);
 
+<<<<<<< HEAD
+=======
+	if (!wdev->clk_is_on)
+		return 0;
+
+>>>>>>> upstream/android-13
 	regmap_write(wdev->regmap, IMX2_WDT_WSR, IMX2_WDT_SEQ1);
 	regmap_write(wdev->regmap, IMX2_WDT_WSR, IMX2_WDT_SEQ2);
 	return 0;
@@ -245,15 +262,29 @@ static const struct regmap_config imx2_wdt_regmap_config = {
 	.max_register = 0x8,
 };
 
+<<<<<<< HEAD
 static int __init imx2_wdt_probe(struct platform_device *pdev)
 {
 	struct imx2_wdt_device *wdev;
 	struct watchdog_device *wdog;
 	struct resource *res;
+=======
+static void imx2_wdt_action(void *data)
+{
+	clk_disable_unprepare(data);
+}
+
+static int __init imx2_wdt_probe(struct platform_device *pdev)
+{
+	struct device *dev = &pdev->dev;
+	struct imx2_wdt_device *wdev;
+	struct watchdog_device *wdog;
+>>>>>>> upstream/android-13
 	void __iomem *base;
 	int ret;
 	u32 val;
 
+<<<<<<< HEAD
 	wdev = devm_kzalloc(&pdev->dev, sizeof(*wdev), GFP_KERNEL);
 	if (!wdev)
 		return -ENOMEM;
@@ -273,6 +304,26 @@ static int __init imx2_wdt_probe(struct platform_device *pdev)
 	wdev->clk = devm_clk_get(&pdev->dev, NULL);
 	if (IS_ERR(wdev->clk)) {
 		dev_err(&pdev->dev, "can't get Watchdog clock\n");
+=======
+	wdev = devm_kzalloc(dev, sizeof(*wdev), GFP_KERNEL);
+	if (!wdev)
+		return -ENOMEM;
+
+	base = devm_platform_ioremap_resource(pdev, 0);
+	if (IS_ERR(base))
+		return PTR_ERR(base);
+
+	wdev->regmap = devm_regmap_init_mmio_clk(dev, NULL, base,
+						 &imx2_wdt_regmap_config);
+	if (IS_ERR(wdev->regmap)) {
+		dev_err(dev, "regmap init failed\n");
+		return PTR_ERR(wdev->regmap);
+	}
+
+	wdev->clk = devm_clk_get(dev, NULL);
+	if (IS_ERR(wdev->clk)) {
+		dev_err(dev, "can't get Watchdog clock\n");
+>>>>>>> upstream/android-13
 		return PTR_ERR(wdev->clk);
 	}
 
@@ -282,28 +333,55 @@ static int __init imx2_wdt_probe(struct platform_device *pdev)
 	wdog->min_timeout	= 1;
 	wdog->timeout		= IMX2_WDT_DEFAULT_TIME;
 	wdog->max_hw_heartbeat_ms = IMX2_WDT_MAX_TIME * 1000;
+<<<<<<< HEAD
 	wdog->parent		= &pdev->dev;
 
 	ret = platform_get_irq(pdev, 0);
 	if (ret > 0)
 		if (!devm_request_irq(&pdev->dev, ret, imx2_wdt_isr, 0,
 				      dev_name(&pdev->dev), wdog))
+=======
+	wdog->parent		= dev;
+
+	ret = platform_get_irq(pdev, 0);
+	if (ret > 0)
+		if (!devm_request_irq(dev, ret, imx2_wdt_isr, 0,
+				      dev_name(dev), wdog))
+>>>>>>> upstream/android-13
 			wdog->info = &imx2_wdt_pretimeout_info;
 
 	ret = clk_prepare_enable(wdev->clk);
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	regmap_read(wdev->regmap, IMX2_WDT_WRSR, &val);
 	wdog->bootstatus = val & IMX2_WDT_WRSR_TOUT ? WDIOF_CARDRESET : 0;
 
 	wdev->ext_reset = of_property_read_bool(pdev->dev.of_node,
+=======
+	ret = devm_add_action_or_reset(dev, imx2_wdt_action, wdev->clk);
+	if (ret)
+		return ret;
+
+	wdev->clk_is_on = true;
+
+	regmap_read(wdev->regmap, IMX2_WDT_WRSR, &val);
+	wdog->bootstatus = val & IMX2_WDT_WRSR_TOUT ? WDIOF_CARDRESET : 0;
+
+	wdev->ext_reset = of_property_read_bool(dev->of_node,
+>>>>>>> upstream/android-13
 						"fsl,ext-reset-output");
 	platform_set_drvdata(pdev, wdog);
 	watchdog_set_drvdata(wdog, wdev);
 	watchdog_set_nowayout(wdog, nowayout);
 	watchdog_set_restart_priority(wdog, 128);
+<<<<<<< HEAD
 	watchdog_init_timeout(wdog, timeout, &pdev->dev);
+=======
+	watchdog_init_timeout(wdog, timeout, dev);
+	watchdog_stop_ping_on_suspend(wdog);
+>>>>>>> upstream/android-13
 
 	if (imx2_wdt_is_running(wdev)) {
 		imx2_wdt_set_timeout(wdog, wdog->timeout);
@@ -317,6 +395,7 @@ static int __init imx2_wdt_probe(struct platform_device *pdev)
 	 */
 	regmap_write(wdev->regmap, IMX2_WDT_WMCR, 0);
 
+<<<<<<< HEAD
 	ret = watchdog_register_device(wdog);
 	if (ret) {
 		dev_err(&pdev->dev, "cannot register watchdog device\n");
@@ -345,6 +424,9 @@ static int __exit imx2_wdt_remove(struct platform_device *pdev)
 		dev_crit(&pdev->dev, "Device removed: Expect reboot!\n");
 	}
 	return 0;
+=======
+	return devm_watchdog_register_device(dev, wdog);
+>>>>>>> upstream/android-13
 }
 
 static void imx2_wdt_shutdown(struct platform_device *pdev)
@@ -363,9 +445,14 @@ static void imx2_wdt_shutdown(struct platform_device *pdev)
 	}
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_PM_SLEEP
 /* Disable watchdog if it is active or non-active but still running */
 static int imx2_wdt_suspend(struct device *dev)
+=======
+/* Disable watchdog if it is active or non-active but still running */
+static int __maybe_unused imx2_wdt_suspend(struct device *dev)
+>>>>>>> upstream/android-13
 {
 	struct watchdog_device *wdog = dev_get_drvdata(dev);
 	struct imx2_wdt_device *wdev = watchdog_get_drvdata(wdog);
@@ -382,11 +469,20 @@ static int imx2_wdt_suspend(struct device *dev)
 
 	clk_disable_unprepare(wdev->clk);
 
+<<<<<<< HEAD
+=======
+	wdev->clk_is_on = false;
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 /* Enable watchdog and configure it if necessary */
+<<<<<<< HEAD
 static int imx2_wdt_resume(struct device *dev)
+=======
+static int __maybe_unused imx2_wdt_resume(struct device *dev)
+>>>>>>> upstream/android-13
 {
 	struct watchdog_device *wdog = dev_get_drvdata(dev);
 	struct imx2_wdt_device *wdev = watchdog_get_drvdata(wdog);
@@ -396,6 +492,11 @@ static int imx2_wdt_resume(struct device *dev)
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
+=======
+	wdev->clk_is_on = true;
+
+>>>>>>> upstream/android-13
 	if (watchdog_active(wdog) && !imx2_wdt_is_running(wdev)) {
 		/*
 		 * If the watchdog is still active and resumes
@@ -411,7 +512,10 @@ static int imx2_wdt_resume(struct device *dev)
 
 	return 0;
 }
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 
 static SIMPLE_DEV_PM_OPS(imx2_wdt_pm_ops, imx2_wdt_suspend,
 			 imx2_wdt_resume);
@@ -423,7 +527,10 @@ static const struct of_device_id imx2_wdt_dt_ids[] = {
 MODULE_DEVICE_TABLE(of, imx2_wdt_dt_ids);
 
 static struct platform_driver imx2_wdt_driver = {
+<<<<<<< HEAD
 	.remove		= __exit_p(imx2_wdt_remove),
+=======
+>>>>>>> upstream/android-13
 	.shutdown	= imx2_wdt_shutdown,
 	.driver		= {
 		.name	= DRIVER_NAME,

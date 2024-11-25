@@ -199,7 +199,11 @@ static void udf_update_alloc_ext_desc(struct inode *inode,
  * for making file shorter. For making file longer, udf_extend_file() has to
  * be used.
  */
+<<<<<<< HEAD
 void udf_truncate_extents(struct inode *inode)
+=======
+int udf_truncate_extents(struct inode *inode)
+>>>>>>> upstream/android-13
 {
 	struct extent_position epos;
 	struct kernel_lb_addr eloc, neloc = {};
@@ -224,7 +228,11 @@ void udf_truncate_extents(struct inode *inode)
 	if (etype == -1) {
 		/* We should extend the file? */
 		WARN_ON(byte_offset);
+<<<<<<< HEAD
 		return;
+=======
+		return 0;
+>>>>>>> upstream/android-13
 	}
 	epos.offset -= adsize;
 	extent_trunc(inode, &epos, &eloc, etype, elen, byte_offset);
@@ -241,7 +249,11 @@ void udf_truncate_extents(struct inode *inode)
 
 	while ((etype = udf_current_aext(inode, &epos, &eloc,
 					 &elen, 0)) != -1) {
+<<<<<<< HEAD
 		if (etype == (EXT_NEXT_EXTENT_ALLOCDECS >> 30)) {
+=======
+		if (etype == (EXT_NEXT_EXTENT_ALLOCDESCS >> 30)) {
+>>>>>>> upstream/android-13
 			udf_write_aext(inode, &epos, &neloc, nelen, 0);
 			if (indirect_ext_len) {
 				/* We managed to free all extents in the
@@ -262,7 +274,11 @@ void udf_truncate_extents(struct inode *inode)
 					udf_get_lb_pblock(sb, &eloc, 0));
 			/* Error reading indirect block? */
 			if (!epos.bh)
+<<<<<<< HEAD
 				return;
+=======
+				return -EIO;
+>>>>>>> upstream/android-13
 			if (elen)
 				indirect_ext_len =
 					(elen + sb->s_blocksize - 1) >>
@@ -286,4 +302,8 @@ void udf_truncate_extents(struct inode *inode)
 	iinfo->i_lenExtents = inode->i_size;
 
 	brelse(epos.bh);
+<<<<<<< HEAD
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }

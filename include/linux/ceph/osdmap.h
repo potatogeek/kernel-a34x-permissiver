@@ -113,6 +113,7 @@ struct ceph_object_id {
 	int name_len;
 };
 
+<<<<<<< HEAD
 static inline void ceph_oid_init(struct ceph_object_id *oid)
 {
 	oid->name = oid->inline_name;
@@ -124,6 +125,18 @@ static inline void ceph_oid_init(struct ceph_object_id *oid)
 #define CEPH_DEFINE_OID_ONSTACK(oid)					\
 	struct ceph_object_id oid = CEPH_OID_INIT_ONSTACK(oid)
 
+=======
+#define __CEPH_OID_INITIALIZER(oid) { .name = (oid).inline_name }
+
+#define CEPH_DEFINE_OID_ONSTACK(oid)				\
+	struct ceph_object_id oid = __CEPH_OID_INITIALIZER(oid)
+
+static inline void ceph_oid_init(struct ceph_object_id *oid)
+{
+	*oid = (struct ceph_object_id) __CEPH_OID_INITIALIZER(*oid);
+}
+
+>>>>>>> upstream/android-13
 static inline bool ceph_oid_empty(const struct ceph_object_id *oid)
 {
 	return oid->name == oid->inline_name && !oid->name_len;
@@ -138,6 +151,20 @@ int ceph_oid_aprintf(struct ceph_object_id *oid, gfp_t gfp,
 		     const char *fmt, ...);
 void ceph_oid_destroy(struct ceph_object_id *oid);
 
+<<<<<<< HEAD
+=======
+struct workspace_manager {
+	struct list_head idle_ws;
+	spinlock_t ws_lock;
+	/* Number of free workspaces */
+	int free_ws;
+	/* Total number of allocated workspaces */
+	atomic_t total_ws;
+	/* Waiters for a free workspace */
+	wait_queue_head_t ws_wait;
+};
+
+>>>>>>> upstream/android-13
 struct ceph_pg_mapping {
 	struct rb_node node;
 	struct ceph_pg pgid;
@@ -185,8 +212,12 @@ struct ceph_osdmap {
 	 * the list of osds that store+replicate them. */
 	struct crush_map *crush;
 
+<<<<<<< HEAD
 	struct mutex crush_workspace_mutex;
 	void *crush_workspace;
+=======
+	struct workspace_manager crush_wsm;
+>>>>>>> upstream/android-13
 };
 
 static inline bool ceph_osd_exists(struct ceph_osdmap *map, int osd)
@@ -242,8 +273,13 @@ static inline int ceph_decode_pgid(void **p, void *end, struct ceph_pg *pgid)
 }
 
 struct ceph_osdmap *ceph_osdmap_alloc(void);
+<<<<<<< HEAD
 extern struct ceph_osdmap *ceph_osdmap_decode(void **p, void *end);
 struct ceph_osdmap *osdmap_apply_incremental(void **p, void *end,
+=======
+struct ceph_osdmap *ceph_osdmap_decode(void **p, void *end, bool msgr2);
+struct ceph_osdmap *osdmap_apply_incremental(void **p, void *end, bool msgr2,
+>>>>>>> upstream/android-13
 					     struct ceph_osdmap *map);
 extern void ceph_osdmap_destroy(struct ceph_osdmap *map);
 
@@ -303,9 +339,32 @@ bool ceph_pg_to_primary_shard(struct ceph_osdmap *osdmap,
 int ceph_pg_to_acting_primary(struct ceph_osdmap *osdmap,
 			      const struct ceph_pg *raw_pgid);
 
+<<<<<<< HEAD
 extern struct ceph_pg_pool_info *ceph_pg_pool_by_id(struct ceph_osdmap *map,
 						    u64 id);
 
+=======
+struct crush_loc {
+	char *cl_type_name;
+	char *cl_name;
+};
+
+struct crush_loc_node {
+	struct rb_node cl_node;
+	struct crush_loc cl_loc;  /* pointers into cl_data */
+	char cl_data[];
+};
+
+int ceph_parse_crush_location(char *crush_location, struct rb_root *locs);
+int ceph_compare_crush_locs(struct rb_root *locs1, struct rb_root *locs2);
+void ceph_clear_crush_locs(struct rb_root *locs);
+
+int ceph_get_crush_locality(struct ceph_osdmap *osdmap, int id,
+			    struct rb_root *locs);
+
+extern struct ceph_pg_pool_info *ceph_pg_pool_by_id(struct ceph_osdmap *map,
+						    u64 id);
+>>>>>>> upstream/android-13
 extern const char *ceph_pg_pool_name_by_id(struct ceph_osdmap *map, u64 id);
 extern int ceph_pg_poolid_by_name(struct ceph_osdmap *map, const char *name);
 u64 ceph_pg_pool_flags(struct ceph_osdmap *map, u64 id);

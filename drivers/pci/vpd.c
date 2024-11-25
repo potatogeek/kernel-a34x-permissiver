@@ -9,6 +9,7 @@
 #include <linux/delay.h>
 #include <linux/export.h>
 #include <linux/sched/signal.h>
+<<<<<<< HEAD
 #include "pci.h"
 
 /* VPD access through PCI 2.2+ VPD capability */
@@ -74,10 +75,51 @@ int pci_set_vpd_size(struct pci_dev *dev, size_t len)
 EXPORT_SYMBOL(pci_set_vpd_size);
 
 #define PCI_VPD_MAX_SIZE (PCI_VPD_ADDR_MASK + 1)
+=======
+#include <asm/unaligned.h>
+#include "pci.h"
+
+#define PCI_VPD_LRDT_TAG_SIZE		3
+#define PCI_VPD_SRDT_LEN_MASK		0x07
+#define PCI_VPD_SRDT_TAG_SIZE		1
+#define PCI_VPD_STIN_END		0x0f
+#define PCI_VPD_INFO_FLD_HDR_SIZE	3
+
+static u16 pci_vpd_lrdt_size(const u8 *lrdt)
+{
+	return get_unaligned_le16(lrdt + 1);
+}
+
+static u8 pci_vpd_srdt_tag(const u8 *srdt)
+{
+	return *srdt >> 3;
+}
+
+static u8 pci_vpd_srdt_size(const u8 *srdt)
+{
+	return *srdt & PCI_VPD_SRDT_LEN_MASK;
+}
+
+static u8 pci_vpd_info_field_size(const u8 *info_field)
+{
+	return info_field[2];
+}
+
+/* VPD access through PCI 2.2+ VPD capability */
+
+static struct pci_dev *pci_get_func0_dev(struct pci_dev *dev)
+{
+	return pci_get_slot(dev->bus, PCI_DEVFN(PCI_SLOT(dev->devfn), 0));
+}
+
+#define PCI_VPD_MAX_SIZE	(PCI_VPD_ADDR_MASK + 1)
+#define PCI_VPD_SZ_INVALID	UINT_MAX
+>>>>>>> upstream/android-13
 
 /**
  * pci_vpd_size - determine actual size of Vital Product Data
  * @dev:	pci device struct
+<<<<<<< HEAD
  * @old_size:	current assumed size, also maximum allowed size
  */
 static size_t pci_vpd_size(struct pci_dev *dev, size_t old_size)
@@ -125,6 +167,72 @@ static size_t pci_vpd_size(struct pci_dev *dev, size_t old_size)
 		}
 	}
 	return 0;
+=======
+ */
+static size_t pci_vpd_size(struct pci_dev *dev)
+{
+	size_t off = 0, size;
+	unsigned char tag, header[1+2];	/* 1 byte tag, 2 bytes length */
+
+	/* Otherwise the following reads would fail. */
+	dev->vpd.len = PCI_VPD_MAX_SIZE;
+
+	while (pci_read_vpd(dev, off, 1, header) == 1) {
+		size = 0;
+
+		if (off == 0 && (header[0] == 0x00 || header[0] == 0xff))
+			goto error;
+
+		if (header[0] & PCI_VPD_LRDT) {
+			/* Large Resource Data Type Tag */
+			if (pci_read_vpd(dev, off + 1, 2, &header[1]) != 2) {
+				pci_warn(dev, "failed VPD read at offset %zu\n",
+					 off + 1);
+				return off ?: PCI_VPD_SZ_INVALID;
+			}
+			size = pci_vpd_lrdt_size(header);
+			if (off + size > PCI_VPD_MAX_SIZE)
+				goto error;
+
+			off += PCI_VPD_LRDT_TAG_SIZE + size;
+		} else {
+			/* Short Resource Data Type Tag */
+			tag = pci_vpd_srdt_tag(header);
+			size = pci_vpd_srdt_size(header);
+			if (off + size > PCI_VPD_MAX_SIZE)
+				goto error;
+
+			off += PCI_VPD_SRDT_TAG_SIZE + size;
+			if (tag == PCI_VPD_STIN_END)	/* End tag descriptor */
+				return off;
+		}
+	}
+	return off;
+
+error:
+	pci_info(dev, "invalid VPD tag %#04x (size %zu) at offset %zu%s\n",
+		 header[0], size, off, off == 0 ?
+		 "; assume missing optional EEPROM" : "");
+	return off ?: PCI_VPD_SZ_INVALID;
+}
+
+static bool pci_vpd_available(struct pci_dev *dev)
+{
+	struct pci_vpd *vpd = &dev->vpd;
+
+	if (!vpd->cap)
+		return false;
+
+	if (vpd->len == 0) {
+		vpd->len = pci_vpd_size(dev);
+		if (vpd->len == PCI_VPD_SZ_INVALID) {
+			vpd->cap = 0;
+			return false;
+		}
+	}
+
+	return true;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -132,26 +240,40 @@ static size_t pci_vpd_size(struct pci_dev *dev, size_t old_size)
  * This code has to spin since there is no other notification from the PCI
  * hardware. Since the VPD is often implemented by serial attachment to an
  * EEPROM, it may take many milliseconds to complete.
+<<<<<<< HEAD
  *
  * Returns 0 on success, negative values indicate error.
  */
 static int pci_vpd_wait(struct pci_dev *dev)
 {
 	struct pci_vpd *vpd = dev->vpd;
+=======
+ * @set: if true wait for flag to be set, else wait for it to be cleared
+ *
+ * Returns 0 on success, negative values indicate error.
+ */
+static int pci_vpd_wait(struct pci_dev *dev, bool set)
+{
+	struct pci_vpd *vpd = &dev->vpd;
+>>>>>>> upstream/android-13
 	unsigned long timeout = jiffies + msecs_to_jiffies(125);
 	unsigned long max_sleep = 16;
 	u16 status;
 	int ret;
 
+<<<<<<< HEAD
 	if (!vpd->busy)
 		return 0;
 
+=======
+>>>>>>> upstream/android-13
 	do {
 		ret = pci_user_read_config_word(dev, vpd->cap + PCI_VPD_ADDR,
 						&status);
 		if (ret < 0)
 			return ret;
 
+<<<<<<< HEAD
 		if ((status & PCI_VPD_ADDR_F) == vpd->flag) {
 			vpd->busy = 0;
 			return 0;
@@ -159,6 +281,10 @@ static int pci_vpd_wait(struct pci_dev *dev)
 
 		if (fatal_signal_pending(current))
 			return -EINTR;
+=======
+		if (!!(status & PCI_VPD_ADDR_F) == set)
+			return 0;
+>>>>>>> upstream/android-13
 
 		if (time_after(jiffies, timeout))
 			break;
@@ -175,6 +301,7 @@ static int pci_vpd_wait(struct pci_dev *dev)
 static ssize_t pci_vpd_read(struct pci_dev *dev, loff_t pos, size_t count,
 			    void *arg)
 {
+<<<<<<< HEAD
 	struct pci_vpd *vpd = dev->vpd;
 	int ret;
 	loff_t end = pos + count;
@@ -191,6 +318,19 @@ static ssize_t pci_vpd_read(struct pci_dev *dev, loff_t pos, size_t count,
 	if (vpd->len == 0)
 		return -EIO;
 
+=======
+	struct pci_vpd *vpd = &dev->vpd;
+	int ret = 0;
+	loff_t end = pos + count;
+	u8 *buf = arg;
+
+	if (!pci_vpd_available(dev))
+		return -ENODEV;
+
+	if (pos < 0)
+		return -EINVAL;
+
+>>>>>>> upstream/android-13
 	if (pos > vpd->len)
 		return 0;
 
@@ -202,21 +342,36 @@ static ssize_t pci_vpd_read(struct pci_dev *dev, loff_t pos, size_t count,
 	if (mutex_lock_killable(&vpd->lock))
 		return -EINTR;
 
+<<<<<<< HEAD
 	ret = pci_vpd_wait(dev);
 	if (ret < 0)
 		goto out;
 
+=======
+>>>>>>> upstream/android-13
 	while (pos < end) {
 		u32 val;
 		unsigned int i, skip;
 
+<<<<<<< HEAD
+=======
+		if (fatal_signal_pending(current)) {
+			ret = -EINTR;
+			break;
+		}
+
+>>>>>>> upstream/android-13
 		ret = pci_user_write_config_word(dev, vpd->cap + PCI_VPD_ADDR,
 						 pos & ~3);
 		if (ret < 0)
 			break;
+<<<<<<< HEAD
 		vpd->busy = 1;
 		vpd->flag = PCI_VPD_ADDR_F;
 		ret = pci_vpd_wait(dev);
+=======
+		ret = pci_vpd_wait(dev, true);
+>>>>>>> upstream/android-13
 		if (ret < 0)
 			break;
 
@@ -234,7 +389,11 @@ static ssize_t pci_vpd_read(struct pci_dev *dev, loff_t pos, size_t count,
 			val >>= 8;
 		}
 	}
+<<<<<<< HEAD
 out:
+=======
+
+>>>>>>> upstream/android-13
 	mutex_unlock(&vpd->lock);
 	return ret ? ret : count;
 }
@@ -242,11 +401,16 @@ out:
 static ssize_t pci_vpd_write(struct pci_dev *dev, loff_t pos, size_t count,
 			     const void *arg)
 {
+<<<<<<< HEAD
 	struct pci_vpd *vpd = dev->vpd;
+=======
+	struct pci_vpd *vpd = &dev->vpd;
+>>>>>>> upstream/android-13
 	const u8 *buf = arg;
 	loff_t end = pos + count;
 	int ret = 0;
 
+<<<<<<< HEAD
 	if (pos < 0 || (pos & 3) || (count & 3))
 		return -EINVAL;
 
@@ -258,12 +422,21 @@ static ssize_t pci_vpd_write(struct pci_dev *dev, loff_t pos, size_t count,
 	if (vpd->len == 0)
 		return -EIO;
 
+=======
+	if (!pci_vpd_available(dev))
+		return -ENODEV;
+
+	if (pos < 0 || (pos & 3) || (count & 3))
+		return -EINVAL;
+
+>>>>>>> upstream/android-13
 	if (end > vpd->len)
 		return -EINVAL;
 
 	if (mutex_lock_killable(&vpd->lock))
 		return -EINTR;
 
+<<<<<<< HEAD
 	ret = pci_vpd_wait(dev);
 	if (ret < 0)
 		goto out;
@@ -277,6 +450,11 @@ static ssize_t pci_vpd_write(struct pci_dev *dev, loff_t pos, size_t count,
 		val |= *buf++ << 24;
 
 		ret = pci_user_write_config_dword(dev, vpd->cap + PCI_VPD_DATA, val);
+=======
+	while (pos < end) {
+		ret = pci_user_write_config_dword(dev, vpd->cap + PCI_VPD_DATA,
+						  get_unaligned_le32(buf));
+>>>>>>> upstream/android-13
 		if (ret < 0)
 			break;
 		ret = pci_user_write_config_word(dev, vpd->cap + PCI_VPD_ADDR,
@@ -284,6 +462,7 @@ static ssize_t pci_vpd_write(struct pci_dev *dev, loff_t pos, size_t count,
 		if (ret < 0)
 			break;
 
+<<<<<<< HEAD
 		vpd->busy = 1;
 		vpd->flag = 0;
 		ret = pci_vpd_wait(dev);
@@ -293,10 +472,21 @@ static ssize_t pci_vpd_write(struct pci_dev *dev, loff_t pos, size_t count,
 		pos += sizeof(u32);
 	}
 out:
+=======
+		ret = pci_vpd_wait(dev, false);
+		if (ret < 0)
+			break;
+
+		buf += sizeof(u32);
+		pos += sizeof(u32);
+	}
+
+>>>>>>> upstream/android-13
 	mutex_unlock(&vpd->lock);
 	return ret ? ret : count;
 }
 
+<<<<<<< HEAD
 static int pci_vpd_set_size(struct pci_dev *dev, size_t len)
 {
 	struct pci_vpd *vpd = dev->vpd;
@@ -493,13 +683,121 @@ int pci_vpd_find_tag(const u8 *buf, unsigned int off, unsigned int len, u8 rdt)
 			i += PCI_VPD_SRDT_TAG_SIZE +
 			     pci_vpd_srdt_size(&buf[i]);
 		}
+=======
+void pci_vpd_init(struct pci_dev *dev)
+{
+	if (dev->vpd.len == PCI_VPD_SZ_INVALID)
+		return;
+
+	dev->vpd.cap = pci_find_capability(dev, PCI_CAP_ID_VPD);
+	mutex_init(&dev->vpd.lock);
+}
+
+static ssize_t vpd_read(struct file *filp, struct kobject *kobj,
+			struct bin_attribute *bin_attr, char *buf, loff_t off,
+			size_t count)
+{
+	struct pci_dev *dev = to_pci_dev(kobj_to_dev(kobj));
+
+	return pci_read_vpd(dev, off, count, buf);
+}
+
+static ssize_t vpd_write(struct file *filp, struct kobject *kobj,
+			 struct bin_attribute *bin_attr, char *buf, loff_t off,
+			 size_t count)
+{
+	struct pci_dev *dev = to_pci_dev(kobj_to_dev(kobj));
+
+	return pci_write_vpd(dev, off, count, buf);
+}
+static BIN_ATTR(vpd, 0600, vpd_read, vpd_write, 0);
+
+static struct bin_attribute *vpd_attrs[] = {
+	&bin_attr_vpd,
+	NULL,
+};
+
+static umode_t vpd_attr_is_visible(struct kobject *kobj,
+				   struct bin_attribute *a, int n)
+{
+	struct pci_dev *pdev = to_pci_dev(kobj_to_dev(kobj));
+
+	if (!pdev->vpd.cap)
+		return 0;
+
+	return a->attr.mode;
+}
+
+const struct attribute_group pci_dev_vpd_attr_group = {
+	.bin_attrs = vpd_attrs,
+	.is_bin_visible = vpd_attr_is_visible,
+};
+
+void *pci_vpd_alloc(struct pci_dev *dev, unsigned int *size)
+{
+	unsigned int len;
+	void *buf;
+	int cnt;
+
+	if (!pci_vpd_available(dev))
+		return ERR_PTR(-ENODEV);
+
+	len = dev->vpd.len;
+	buf = kmalloc(len, GFP_KERNEL);
+	if (!buf)
+		return ERR_PTR(-ENOMEM);
+
+	cnt = pci_read_vpd(dev, 0, len, buf);
+	if (cnt != len) {
+		kfree(buf);
+		return ERR_PTR(-EIO);
+	}
+
+	if (size)
+		*size = len;
+
+	return buf;
+}
+EXPORT_SYMBOL_GPL(pci_vpd_alloc);
+
+static int pci_vpd_find_tag(const u8 *buf, unsigned int len, u8 rdt, unsigned int *size)
+{
+	int i = 0;
+
+	/* look for LRDT tags only, end tag is the only SRDT tag */
+	while (i + PCI_VPD_LRDT_TAG_SIZE <= len && buf[i] & PCI_VPD_LRDT) {
+		unsigned int lrdt_len = pci_vpd_lrdt_size(buf + i);
+		u8 tag = buf[i];
+
+		i += PCI_VPD_LRDT_TAG_SIZE;
+		if (tag == rdt) {
+			if (i + lrdt_len > len)
+				lrdt_len = len - i;
+			if (size)
+				*size = lrdt_len;
+			return i;
+		}
+
+		i += lrdt_len;
+>>>>>>> upstream/android-13
 	}
 
 	return -ENOENT;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(pci_vpd_find_tag);
 
 int pci_vpd_find_info_keyword(const u8 *buf, unsigned int off,
+=======
+
+int pci_vpd_find_id_string(const u8 *buf, unsigned int len, unsigned int *size)
+{
+	return pci_vpd_find_tag(buf, len, PCI_VPD_LRDT_ID_STRING, size);
+}
+EXPORT_SYMBOL_GPL(pci_vpd_find_id_string);
+
+static int pci_vpd_find_info_keyword(const u8 *buf, unsigned int off,
+>>>>>>> upstream/android-13
 			      unsigned int len, const char *kw)
 {
 	int i;
@@ -515,7 +813,110 @@ int pci_vpd_find_info_keyword(const u8 *buf, unsigned int off,
 
 	return -ENOENT;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(pci_vpd_find_info_keyword);
+=======
+
+/**
+ * pci_read_vpd - Read one entry from Vital Product Data
+ * @dev:	PCI device struct
+ * @pos:	offset in VPD space
+ * @count:	number of bytes to read
+ * @buf:	pointer to where to store result
+ */
+ssize_t pci_read_vpd(struct pci_dev *dev, loff_t pos, size_t count, void *buf)
+{
+	ssize_t ret;
+
+	if (dev->dev_flags & PCI_DEV_FLAGS_VPD_REF_F0) {
+		dev = pci_get_func0_dev(dev);
+		if (!dev)
+			return -ENODEV;
+
+		ret = pci_vpd_read(dev, pos, count, buf);
+		pci_dev_put(dev);
+		return ret;
+	}
+
+	return pci_vpd_read(dev, pos, count, buf);
+}
+EXPORT_SYMBOL(pci_read_vpd);
+
+/**
+ * pci_write_vpd - Write entry to Vital Product Data
+ * @dev:	PCI device struct
+ * @pos:	offset in VPD space
+ * @count:	number of bytes to write
+ * @buf:	buffer containing write data
+ */
+ssize_t pci_write_vpd(struct pci_dev *dev, loff_t pos, size_t count, const void *buf)
+{
+	ssize_t ret;
+
+	if (dev->dev_flags & PCI_DEV_FLAGS_VPD_REF_F0) {
+		dev = pci_get_func0_dev(dev);
+		if (!dev)
+			return -ENODEV;
+
+		ret = pci_vpd_write(dev, pos, count, buf);
+		pci_dev_put(dev);
+		return ret;
+	}
+
+	return pci_vpd_write(dev, pos, count, buf);
+}
+EXPORT_SYMBOL(pci_write_vpd);
+
+int pci_vpd_find_ro_info_keyword(const void *buf, unsigned int len,
+				 const char *kw, unsigned int *size)
+{
+	int ro_start, infokw_start;
+	unsigned int ro_len, infokw_size;
+
+	ro_start = pci_vpd_find_tag(buf, len, PCI_VPD_LRDT_RO_DATA, &ro_len);
+	if (ro_start < 0)
+		return ro_start;
+
+	infokw_start = pci_vpd_find_info_keyword(buf, ro_start, ro_len, kw);
+	if (infokw_start < 0)
+		return infokw_start;
+
+	infokw_size = pci_vpd_info_field_size(buf + infokw_start);
+	infokw_start += PCI_VPD_INFO_FLD_HDR_SIZE;
+
+	if (infokw_start + infokw_size > len)
+		return -EINVAL;
+
+	if (size)
+		*size = infokw_size;
+
+	return infokw_start;
+}
+EXPORT_SYMBOL_GPL(pci_vpd_find_ro_info_keyword);
+
+int pci_vpd_check_csum(const void *buf, unsigned int len)
+{
+	const u8 *vpd = buf;
+	unsigned int size;
+	u8 csum = 0;
+	int rv_start;
+
+	rv_start = pci_vpd_find_ro_info_keyword(buf, len, PCI_VPD_RO_KEYWORD_CHKSUM, &size);
+	if (rv_start == -ENOENT) /* no checksum in VPD */
+		return 1;
+	else if (rv_start < 0)
+		return rv_start;
+
+	if (!size)
+		return -EINVAL;
+
+	while (rv_start >= 0)
+		csum += vpd[rv_start--];
+
+	return csum ? -EILSEQ : 0;
+}
+EXPORT_SYMBOL_GPL(pci_vpd_check_csum);
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_PCI_QUIRKS
 /*
@@ -530,11 +931,19 @@ static void quirk_f0_vpd_link(struct pci_dev *dev)
 	if (!PCI_FUNC(dev->devfn))
 		return;
 
+<<<<<<< HEAD
 	f0 = pci_get_slot(dev->bus, PCI_DEVFN(PCI_SLOT(dev->devfn), 0));
 	if (!f0)
 		return;
 
 	if (f0->vpd && dev->class == f0->class &&
+=======
+	f0 = pci_get_func0_dev(dev);
+	if (!f0)
+		return;
+
+	if (f0->vpd.cap && dev->class == f0->class &&
+>>>>>>> upstream/android-13
 	    dev->vendor == f0->vendor && dev->device == f0->device)
 		dev->dev_flags |= PCI_DEV_FLAGS_VPD_REF_F0;
 
@@ -552,6 +961,7 @@ DECLARE_PCI_FIXUP_CLASS_EARLY(PCI_VENDOR_ID_INTEL, PCI_ANY_ID,
  */
 static void quirk_blacklist_vpd(struct pci_dev *dev)
 {
+<<<<<<< HEAD
 	if (dev->vpd) {
 		dev->vpd->len = 0;
 		pci_warn(dev, FW_BUG "disabling VPD access (can't determine size of non-standard VPD format)\n");
@@ -617,6 +1027,29 @@ DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_BROADCOM,
 DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_BROADCOM,
 			PCI_DEVICE_ID_NX2_5709S,
 			quirk_brcm_570x_limit_vpd);
+=======
+	dev->vpd.len = PCI_VPD_SZ_INVALID;
+	pci_warn(dev, FW_BUG "disabling VPD access (can't determine size of non-standard VPD format)\n");
+}
+DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_LSI_LOGIC, 0x0060, quirk_blacklist_vpd);
+DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_LSI_LOGIC, 0x007c, quirk_blacklist_vpd);
+DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_LSI_LOGIC, 0x0413, quirk_blacklist_vpd);
+DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_LSI_LOGIC, 0x0078, quirk_blacklist_vpd);
+DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_LSI_LOGIC, 0x0079, quirk_blacklist_vpd);
+DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_LSI_LOGIC, 0x0073, quirk_blacklist_vpd);
+DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_LSI_LOGIC, 0x0071, quirk_blacklist_vpd);
+DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_LSI_LOGIC, 0x005b, quirk_blacklist_vpd);
+DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_LSI_LOGIC, 0x002f, quirk_blacklist_vpd);
+DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_LSI_LOGIC, 0x005d, quirk_blacklist_vpd);
+DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_LSI_LOGIC, 0x005f, quirk_blacklist_vpd);
+DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_ATTANSIC, PCI_ANY_ID, quirk_blacklist_vpd);
+/*
+ * The Amazon Annapurna Labs 0x0031 device id is reused for other non Root Port
+ * device types, so the quirk is registered for the PCI_CLASS_BRIDGE_PCI class.
+ */
+DECLARE_PCI_FIXUP_CLASS_HEADER(PCI_VENDOR_ID_AMAZON_ANNAPURNA_LABS, 0x0031,
+			       PCI_CLASS_BRIDGE_PCI, 8, quirk_blacklist_vpd);
+>>>>>>> upstream/android-13
 
 static void quirk_chelsio_extend_vpd(struct pci_dev *dev)
 {
@@ -636,6 +1069,7 @@ static void quirk_chelsio_extend_vpd(struct pci_dev *dev)
 	 * limits.
 	 */
 	if (chip == 0x0 && prod >= 0x20)
+<<<<<<< HEAD
 		pci_set_vpd_size(dev, 8192);
 	else if (chip >= 0x4 && func < 0x8)
 		pci_set_vpd_size(dev, 2048);
@@ -643,5 +1077,14 @@ static void quirk_chelsio_extend_vpd(struct pci_dev *dev)
 
 DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_CHELSIO, PCI_ANY_ID,
 			quirk_chelsio_extend_vpd);
+=======
+		dev->vpd.len = 8192;
+	else if (chip >= 0x4 && func < 0x8)
+		dev->vpd.len = 2048;
+}
+
+DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_CHELSIO, PCI_ANY_ID,
+			 quirk_chelsio_extend_vpd);
+>>>>>>> upstream/android-13
 
 #endif

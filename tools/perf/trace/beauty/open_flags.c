@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0
+=======
+// SPDX-License-Identifier: LGPL-2.1
+>>>>>>> upstream/android-13
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -22,6 +26,7 @@
 #undef O_LARGEFILE
 #define O_LARGEFILE	00100000
 
+<<<<<<< HEAD
 size_t open__scnprintf_flags(unsigned long flags, char *bf, size_t size)
 {
 	int printed = 0;
@@ -31,6 +36,20 @@ size_t open__scnprintf_flags(unsigned long flags, char *bf, size_t size)
 #define	P_FLAG(n) \
 	if (flags & O_##n) { \
 		printed += scnprintf(bf + printed, size - printed, "%s%s", printed ? "|" : "", #n); \
+=======
+size_t open__scnprintf_flags(unsigned long flags, char *bf, size_t size, bool show_prefix)
+{
+	const char *prefix = "O_";
+	int printed = 0;
+
+	if ((flags & O_ACCMODE) == O_RDONLY)
+		printed = scnprintf(bf, size, "%s%s", show_prefix ? prefix : "", "RDONLY");
+	if (flags == 0)
+		return printed;
+#define	P_FLAG(n) \
+	if (flags & O_##n) { \
+		printed += scnprintf(bf + printed, size - printed, "%s%s%s", printed ? "|" : "", show_prefix ? prefix : "", #n); \
+>>>>>>> upstream/android-13
 		flags &= ~O_##n; \
 	}
 
@@ -57,7 +76,11 @@ size_t open__scnprintf_flags(unsigned long flags, char *bf, size_t size)
 #endif
 #ifdef O_DSYNC
 	if ((flags & O_SYNC) == O_SYNC)
+<<<<<<< HEAD
 		printed += scnprintf(bf + printed, size - printed, "%s%s", printed ? "|" : "", "SYNC");
+=======
+		printed += scnprintf(bf + printed, size - printed, "%s%s%s", printed ? "|" : "", show_prefix ? prefix : "", "SYNC");
+>>>>>>> upstream/android-13
 	else {
 		P_FLAG(DSYNC);
 	}
@@ -81,5 +104,9 @@ size_t syscall_arg__scnprintf_open_flags(char *bf, size_t size, struct syscall_a
 	if (!(flags & O_CREAT))
 		arg->mask |= 1 << (arg->idx + 1); /* Mask the mode parm */
 
+<<<<<<< HEAD
 	return open__scnprintf_flags(flags, bf, size);
+=======
+	return open__scnprintf_flags(flags, bf, size, arg->show_string_prefix);
+>>>>>>> upstream/android-13
 }

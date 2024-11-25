@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0+
+=======
+/* SPDX-License-Identifier: GPL-2.0+ */
+>>>>>>> upstream/android-13
 /*
  * Driver for USB Mass Storage compliant devices
  * Debugging Functions Header File
@@ -29,8 +33,11 @@
 
 #include <linux/kernel.h>
 
+<<<<<<< HEAD
 #define USB_STORAGE "usb-storage: "
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_USB_STORAGE_DEBUG
 void usb_stor_show_command(const struct us_data *us, struct scsi_cmnd *srb);
 void usb_stor_show_sense(const struct us_data *us, unsigned char key,

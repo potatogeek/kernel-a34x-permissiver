@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* Copyright (C) 2010 Google, Inc.
  * Copyright (c) 2011, Code Aurora Forum. All rights reserved.
  * Author: Dima Zavin <dima@android.com>
@@ -10,6 +11,12 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/* Copyright (C) 2010 Google, Inc.
+ * Copyright (c) 2011, Code Aurora Forum. All rights reserved.
+ * Author: Dima Zavin <dima@android.com>
+>>>>>>> upstream/android-13
  */
 
 #ifndef _LINUX_SSBI_H

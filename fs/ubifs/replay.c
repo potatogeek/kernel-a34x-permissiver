@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * This file is part of UBIFS.
  *
  * Copyright (C) 2006-2008 Nokia Corporation.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
  * the Free Software Foundation.
@@ -16,6 +21,8 @@
  * this program; if not, write to the Free Software Foundation, Inc., 51
  * Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  *
+=======
+>>>>>>> upstream/android-13
  * Authors: Adrian Hunter
  *          Artem Bityutskiy (Битюцкий Артём)
  */
@@ -34,6 +41,11 @@
 
 #include "ubifs.h"
 #include <linux/list_sort.h>
+<<<<<<< HEAD
+=======
+#include <crypto/hash.h>
+#include <crypto/algapi.h>
+>>>>>>> upstream/android-13
 
 /**
  * struct replay_entry - replay list entry.
@@ -56,6 +68,10 @@ struct replay_entry {
 	int lnum;
 	int offs;
 	int len;
+<<<<<<< HEAD
+=======
+	u8 hash[UBIFS_HASH_ARR_SZ];
+>>>>>>> upstream/android-13
 	unsigned int deletion:1;
 	unsigned long long sqnum;
 	struct list_head list;
@@ -261,7 +277,11 @@ static int apply_replay_entry(struct ubifs_info *c, struct replay_entry *r)
 			err = ubifs_tnc_remove_nm(c, &r->key, &r->nm);
 		else
 			err = ubifs_tnc_add_nm(c, &r->key, r->lnum, r->offs,
+<<<<<<< HEAD
 					       r->len, &r->nm);
+=======
+					       r->len, r->hash, &r->nm);
+>>>>>>> upstream/android-13
 	} else {
 		if (r->deletion)
 			switch (key_type(c, &r->key)) {
@@ -286,7 +306,11 @@ static int apply_replay_entry(struct ubifs_info *c, struct replay_entry *r)
 			}
 		else
 			err = ubifs_tnc_add(c, &r->key, r->lnum, r->offs,
+<<<<<<< HEAD
 					    r->len);
+=======
+					    r->len, r->hash);
+>>>>>>> upstream/android-13
 		if (err)
 			return err;
 
@@ -305,11 +329,19 @@ static int apply_replay_entry(struct ubifs_info *c, struct replay_entry *r)
  * @b: second replay entry
  *
  * This is a comparios function for 'list_sort()' which compares 2 replay
+<<<<<<< HEAD
  * entries @a and @b by comparing their sequence numer.  Returns %1 if @a has
  * greater sequence number and %-1 otherwise.
  */
 static int replay_entries_cmp(void *priv, struct list_head *a,
 			      struct list_head *b)
+=======
+ * entries @a and @b by comparing their sequence number.  Returns %1 if @a has
+ * greater sequence number and %-1 otherwise.
+ */
+static int replay_entries_cmp(void *priv, const struct list_head *a,
+			      const struct list_head *b)
+>>>>>>> upstream/android-13
 {
 	struct ubifs_info *c = priv;
 	struct replay_entry *ra, *rb;
@@ -390,9 +422,15 @@ static void destroy_replay_list(struct ubifs_info *c)
  * in case of success and a negative error code in case of failure.
  */
 static int insert_node(struct ubifs_info *c, int lnum, int offs, int len,
+<<<<<<< HEAD
 		       union ubifs_key *key, unsigned long long sqnum,
 		       int deletion, int *used, loff_t old_size,
 		       loff_t new_size)
+=======
+		       const u8 *hash, union ubifs_key *key,
+		       unsigned long long sqnum, int deletion, int *used,
+		       loff_t old_size, loff_t new_size)
+>>>>>>> upstream/android-13
 {
 	struct replay_entry *r;
 
@@ -410,6 +448,10 @@ static int insert_node(struct ubifs_info *c, int lnum, int offs, int len,
 	r->lnum = lnum;
 	r->offs = offs;
 	r->len = len;
+<<<<<<< HEAD
+=======
+	ubifs_copy_hash(c, hash, r->hash);
+>>>>>>> upstream/android-13
 	r->deletion = !!deletion;
 	r->sqnum = sqnum;
 	key_copy(c, key, &r->key);
@@ -438,8 +480,14 @@ static int insert_node(struct ubifs_info *c, int lnum, int offs, int len,
  * negative error code in case of failure.
  */
 static int insert_dent(struct ubifs_info *c, int lnum, int offs, int len,
+<<<<<<< HEAD
 		       union ubifs_key *key, const char *name, int nlen,
 		       unsigned long long sqnum, int deletion, int *used)
+=======
+		       const u8 *hash, union ubifs_key *key,
+		       const char *name, int nlen, unsigned long long sqnum,
+		       int deletion, int *used)
+>>>>>>> upstream/android-13
 {
 	struct replay_entry *r;
 	char *nbuf;
@@ -463,6 +511,10 @@ static int insert_dent(struct ubifs_info *c, int lnum, int offs, int len,
 	r->lnum = lnum;
 	r->offs = offs;
 	r->len = len;
+<<<<<<< HEAD
+=======
+	ubifs_copy_hash(c, hash, r->hash);
+>>>>>>> upstream/android-13
 	r->deletion = !!deletion;
 	r->sqnum = sqnum;
 	key_copy(c, key, &r->key);
@@ -565,6 +617,104 @@ static int is_last_bud(struct ubifs_info *c, struct ubifs_bud *bud)
 	return data == 0xFFFFFFFF;
 }
 
+<<<<<<< HEAD
+=======
+/* authenticate_sleb_hash is split out for stack usage */
+static int noinline_for_stack
+authenticate_sleb_hash(struct ubifs_info *c,
+		       struct shash_desc *log_hash, u8 *hash)
+{
+	SHASH_DESC_ON_STACK(hash_desc, c->hash_tfm);
+
+	hash_desc->tfm = c->hash_tfm;
+
+	ubifs_shash_copy_state(c, log_hash, hash_desc);
+	return crypto_shash_final(hash_desc, hash);
+}
+
+/**
+ * authenticate_sleb - authenticate one scan LEB
+ * @c: UBIFS file-system description object
+ * @sleb: the scan LEB to authenticate
+ * @log_hash:
+ * @is_last: if true, this is the last LEB
+ *
+ * This function iterates over the buds of a single LEB authenticating all buds
+ * with the authentication nodes on this LEB. Authentication nodes are written
+ * after some buds and contain a HMAC covering the authentication node itself
+ * and the buds between the last authentication node and the current
+ * authentication node. It can happen that the last buds cannot be authenticated
+ * because a powercut happened when some nodes were written but not the
+ * corresponding authentication node. This function returns the number of nodes
+ * that could be authenticated or a negative error code.
+ */
+static int authenticate_sleb(struct ubifs_info *c, struct ubifs_scan_leb *sleb,
+			     struct shash_desc *log_hash, int is_last)
+{
+	int n_not_auth = 0;
+	struct ubifs_scan_node *snod;
+	int n_nodes = 0;
+	int err;
+	u8 hash[UBIFS_HASH_ARR_SZ];
+	u8 hmac[UBIFS_HMAC_ARR_SZ];
+
+	if (!ubifs_authenticated(c))
+		return sleb->nodes_cnt;
+
+	list_for_each_entry(snod, &sleb->nodes, list) {
+
+		n_nodes++;
+
+		if (snod->type == UBIFS_AUTH_NODE) {
+			struct ubifs_auth_node *auth = snod->node;
+
+			err = authenticate_sleb_hash(c, log_hash, hash);
+			if (err)
+				goto out;
+
+			err = crypto_shash_tfm_digest(c->hmac_tfm, hash,
+						      c->hash_len, hmac);
+			if (err)
+				goto out;
+
+			err = ubifs_check_hmac(c, auth->hmac, hmac);
+			if (err) {
+				err = -EPERM;
+				goto out;
+			}
+			n_not_auth = 0;
+		} else {
+			err = crypto_shash_update(log_hash, snod->node,
+						  snod->len);
+			if (err)
+				goto out;
+			n_not_auth++;
+		}
+	}
+
+	/*
+	 * A powercut can happen when some nodes were written, but not yet
+	 * the corresponding authentication node. This may only happen on
+	 * the last bud though.
+	 */
+	if (n_not_auth) {
+		if (is_last) {
+			dbg_mnt("%d unauthenticated nodes found on LEB %d, Ignoring them",
+				n_not_auth, sleb->lnum);
+			err = 0;
+		} else {
+			dbg_mnt("%d unauthenticated nodes found on non-last LEB %d",
+				n_not_auth, sleb->lnum);
+			err = -EPERM;
+		}
+	} else {
+		err = 0;
+	}
+out:
+	return err ? err : n_nodes - n_not_auth;
+}
+
+>>>>>>> upstream/android-13
 /**
  * replay_bud - replay a bud logical eraseblock.
  * @c: UBIFS file-system description object
@@ -578,6 +728,10 @@ static int replay_bud(struct ubifs_info *c, struct bud_entry *b)
 {
 	int is_last = is_last_bud(c, b->bud);
 	int err = 0, used = 0, lnum = b->bud->lnum, offs = b->bud->start;
+<<<<<<< HEAD
+=======
+	int n_nodes, n = 0;
+>>>>>>> upstream/android-13
 	struct ubifs_scan_leb *sleb;
 	struct ubifs_scan_node *snod;
 
@@ -597,6 +751,18 @@ static int replay_bud(struct ubifs_info *c, struct bud_entry *b)
 	if (IS_ERR(sleb))
 		return PTR_ERR(sleb);
 
+<<<<<<< HEAD
+=======
+	n_nodes = authenticate_sleb(c, sleb, b->bud->log_hash, is_last);
+	if (n_nodes < 0) {
+		err = n_nodes;
+		goto out;
+	}
+
+	ubifs_shash_copy_state(c, b->bud->log_hash,
+			       c->jheads[b->bud->jhead].log_hash);
+
+>>>>>>> upstream/android-13
 	/*
 	 * The bud does not have to start from offset zero - the beginning of
 	 * the 'lnum' LEB may contain previously committed data. One of the
@@ -620,6 +786,10 @@ static int replay_bud(struct ubifs_info *c, struct bud_entry *b)
 	 */
 
 	list_for_each_entry(snod, &sleb->nodes, list) {
+<<<<<<< HEAD
+=======
+		u8 hash[UBIFS_HASH_ARR_SZ];
+>>>>>>> upstream/android-13
 		int deletion = 0;
 
 		cond_resched();
@@ -629,6 +799,11 @@ static int replay_bud(struct ubifs_info *c, struct bud_entry *b)
 			goto out_dump;
 		}
 
+<<<<<<< HEAD
+=======
+		ubifs_node_calc_hash(c, snod->node, hash);
+
+>>>>>>> upstream/android-13
 		if (snod->sqnum > c->max_sqnum)
 			c->max_sqnum = snod->sqnum;
 
@@ -640,7 +815,11 @@ static int replay_bud(struct ubifs_info *c, struct bud_entry *b)
 
 			if (le32_to_cpu(ino->nlink) == 0)
 				deletion = 1;
+<<<<<<< HEAD
 			err = insert_node(c, lnum, snod->offs, snod->len,
+=======
+			err = insert_node(c, lnum, snod->offs, snod->len, hash,
+>>>>>>> upstream/android-13
 					  &snod->key, snod->sqnum, deletion,
 					  &used, 0, new_size);
 			break;
@@ -652,7 +831,11 @@ static int replay_bud(struct ubifs_info *c, struct bud_entry *b)
 					  key_block(c, &snod->key) *
 					  UBIFS_BLOCK_SIZE;
 
+<<<<<<< HEAD
 			err = insert_node(c, lnum, snod->offs, snod->len,
+=======
+			err = insert_node(c, lnum, snod->offs, snod->len, hash,
+>>>>>>> upstream/android-13
 					  &snod->key, snod->sqnum, deletion,
 					  &used, 0, new_size);
 			break;
@@ -666,7 +849,11 @@ static int replay_bud(struct ubifs_info *c, struct bud_entry *b)
 			if (err)
 				goto out_dump;
 
+<<<<<<< HEAD
 			err = insert_dent(c, lnum, snod->offs, snod->len,
+=======
+			err = insert_dent(c, lnum, snod->offs, snod->len, hash,
+>>>>>>> upstream/android-13
 					  &snod->key, dent->name,
 					  le16_to_cpu(dent->nlen), snod->sqnum,
 					  !le64_to_cpu(dent->inum), &used);
@@ -692,11 +879,20 @@ static int replay_bud(struct ubifs_info *c, struct bud_entry *b)
 			 * functions which expect nodes to have keys.
 			 */
 			trun_key_init(c, &key, le32_to_cpu(trun->inum));
+<<<<<<< HEAD
 			err = insert_node(c, lnum, snod->offs, snod->len,
+=======
+			err = insert_node(c, lnum, snod->offs, snod->len, hash,
+>>>>>>> upstream/android-13
 					  &key, snod->sqnum, 1, &used,
 					  old_size, new_size);
 			break;
 		}
+<<<<<<< HEAD
+=======
+		case UBIFS_AUTH_NODE:
+			break;
+>>>>>>> upstream/android-13
 		default:
 			ubifs_err(c, "unexpected node type %d in bud LEB %d:%d",
 				  snod->type, lnum, snod->offs);
@@ -705,6 +901,13 @@ static int replay_bud(struct ubifs_info *c, struct bud_entry *b)
 		}
 		if (err)
 			goto out;
+<<<<<<< HEAD
+=======
+
+		n++;
+		if (n == n_nodes)
+			break;
+>>>>>>> upstream/android-13
 	}
 
 	ubifs_assert(c, ubifs_search_bud(c, lnum));
@@ -722,7 +925,11 @@ out:
 
 out_dump:
 	ubifs_err(c, "bad node is at LEB %d:%d", lnum, snod->offs);
+<<<<<<< HEAD
 	ubifs_dump_node(c, snod->node);
+=======
+	ubifs_dump_node(c, snod->node, c->leb_size - snod->offs);
+>>>>>>> upstream/android-13
 	ubifs_scan_destroy(sleb);
 	return -EINVAL;
 }
@@ -783,6 +990,10 @@ static int add_replay_bud(struct ubifs_info *c, int lnum, int offs, int jhead,
 {
 	struct ubifs_bud *bud;
 	struct bud_entry *b;
+<<<<<<< HEAD
+=======
+	int err;
+>>>>>>> upstream/android-13
 
 	dbg_mnt("add replay bud LEB %d:%d, head %d", lnum, offs, jhead);
 
@@ -792,13 +1003,29 @@ static int add_replay_bud(struct ubifs_info *c, int lnum, int offs, int jhead,
 
 	b = kmalloc(sizeof(struct bud_entry), GFP_KERNEL);
 	if (!b) {
+<<<<<<< HEAD
 		kfree(bud);
 		return -ENOMEM;
+=======
+		err = -ENOMEM;
+		goto out;
+>>>>>>> upstream/android-13
 	}
 
 	bud->lnum = lnum;
 	bud->start = offs;
 	bud->jhead = jhead;
+<<<<<<< HEAD
+=======
+	bud->log_hash = ubifs_hash_get_desc(c);
+	if (IS_ERR(bud->log_hash)) {
+		err = PTR_ERR(bud->log_hash);
+		goto out;
+	}
+
+	ubifs_shash_copy_state(c, c->log_hash, bud->log_hash);
+
+>>>>>>> upstream/android-13
 	ubifs_add_bud(c, bud);
 
 	b->bud = bud;
@@ -806,14 +1033,25 @@ static int add_replay_bud(struct ubifs_info *c, int lnum, int offs, int jhead,
 	list_add_tail(&b->list, &c->replay_buds);
 
 	return 0;
+<<<<<<< HEAD
+=======
+out:
+	kfree(bud);
+	kfree(b);
+
+	return err;
+>>>>>>> upstream/android-13
 }
 
 /**
  * validate_ref - validate a reference node.
  * @c: UBIFS file-system description object
  * @ref: the reference node to validate
+<<<<<<< HEAD
  * @ref_lnum: LEB number of the reference node
  * @ref_offs: reference node offset
+=======
+>>>>>>> upstream/android-13
  *
  * This function returns %1 if a bud reference already exists for the LEB. %0 is
  * returned if the reference node is new, otherwise %-EINVAL is returned if
@@ -911,6 +1149,17 @@ static int replay_log_leb(struct ubifs_info *c, int lnum, int offs, void *sbuf)
 
 		c->cs_sqnum = le64_to_cpu(node->ch.sqnum);
 		dbg_mnt("commit start sqnum %llu", c->cs_sqnum);
+<<<<<<< HEAD
+=======
+
+		err = ubifs_shash_init(c, c->log_hash);
+		if (err)
+			goto out;
+
+		err = ubifs_shash_update(c, c->log_hash, node, UBIFS_CS_NODE_SZ);
+		if (err < 0)
+			goto out;
+>>>>>>> upstream/android-13
 	}
 
 	if (snod->sqnum < c->cs_sqnum) {
@@ -958,6 +1207,14 @@ static int replay_log_leb(struct ubifs_info *c, int lnum, int offs, void *sbuf)
 			if (err)
 				goto out_dump;
 
+<<<<<<< HEAD
+=======
+			err = ubifs_shash_update(c, c->log_hash, ref,
+						 UBIFS_REF_NODE_SZ);
+			if (err)
+				goto out;
+
+>>>>>>> upstream/android-13
 			err = add_replay_bud(c, le32_to_cpu(ref->lnum),
 					     le32_to_cpu(ref->offs),
 					     le32_to_cpu(ref->jhead),
@@ -993,7 +1250,11 @@ out:
 out_dump:
 	ubifs_err(c, "log error detected while replaying the log at LEB %d:%d",
 		  lnum, offs + snod->offs);
+<<<<<<< HEAD
 	ubifs_dump_node(c, snod->node);
+=======
+	ubifs_dump_node(c, snod->node, c->leb_size - snod->offs);
+>>>>>>> upstream/android-13
 	ubifs_scan_destroy(sleb);
 	return -EINVAL;
 }

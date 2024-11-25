@@ -31,18 +31,28 @@
 #include <linux/of.h>
 #include <linux/of_graph.h>
 #include <linux/dmi.h>
+<<<<<<< HEAD
 #include <sound/core.h>
 #include <sound/jack.h>
+=======
+#include <linux/acpi.h>
+#include <sound/core.h>
+>>>>>>> upstream/android-13
 #include <sound/pcm.h>
 #include <sound/pcm_params.h>
 #include <sound/soc.h>
 #include <sound/soc-dpcm.h>
 #include <sound/soc-topology.h>
+<<<<<<< HEAD
+=======
+#include <sound/soc-link.h>
+>>>>>>> upstream/android-13
 #include <sound/initval.h>
 
 #define CREATE_TRACE_POINTS
 #include <trace/events/asoc.h>
 
+<<<<<<< HEAD
 #define NAME_SIZE	32
 
 #ifdef CONFIG_DEBUG_FS
@@ -52,6 +62,21 @@ EXPORT_SYMBOL_GPL(snd_soc_debugfs_root);
 
 static DEFINE_MUTEX(client_mutex);
 static LIST_HEAD(component_list);
+=======
+static DEFINE_MUTEX(client_mutex);
+static LIST_HEAD(component_list);
+static LIST_HEAD(unbind_card_list);
+
+#define for_each_component(component)			\
+	list_for_each_entry(component, &component_list, list)
+
+/*
+ * This is used if driver don't need to have CPU/Codec/Platform
+ * dai_link. see soc.h
+ */
+struct snd_soc_dai_link_component null_dailink_component[0];
+EXPORT_SYMBOL_GPL(null_dailink_component);
+>>>>>>> upstream/android-13
 
 /*
  * This is a timeout to do a DAPM powerdown after a stream is closed().
@@ -62,6 +87,7 @@ static int pmdown_time = 5000;
 module_param(pmdown_time, int, 0);
 MODULE_PARM_DESC(pmdown_time, "DAPM stream powerdown time (msecs)");
 
+<<<<<<< HEAD
 /* If a DMI filed contain strings in this blacklist (e.g.
  * "Type2 - Board Manufacturer" or  "Type1 - TBD by OEM"), it will be taken
  * as invalid and dropped when setting the card long name from DMI info.
@@ -76,6 +102,8 @@ static const char * const dmi_blacklist[] = {
 	NULL,	/* terminator */
 };
 
+=======
+>>>>>>> upstream/android-13
 static ssize_t pmdown_time_show(struct device *dev,
 				struct device_attribute *attr, char *buf)
 {
@@ -84,9 +112,15 @@ static ssize_t pmdown_time_show(struct device *dev,
 	return sprintf(buf, "%ld\n", rtd->pmdown_time);
 }
 
+<<<<<<< HEAD
 static ssize_t pmdown_time_set(struct device *dev,
 			       struct device_attribute *attr,
 			       const char *buf, size_t count)
+=======
+static ssize_t pmdown_time_store(struct device *dev,
+				 struct device_attribute *attr,
+				 const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	struct snd_soc_pcm_runtime *rtd = dev_get_drvdata(dev);
 	int ret;
@@ -98,7 +132,11 @@ static ssize_t pmdown_time_set(struct device *dev,
 	return count;
 }
 
+<<<<<<< HEAD
 static DEVICE_ATTR(pmdown_time, 0644, pmdown_time_show, pmdown_time_set);
+=======
+static DEVICE_ATTR_RW(pmdown_time);
+>>>>>>> upstream/android-13
 
 static struct attribute *soc_dev_attrs[] = {
 	&dev_attr_pmdown_time.attr,
@@ -111,6 +149,12 @@ static umode_t soc_dev_attr_is_visible(struct kobject *kobj,
 	struct device *dev = kobj_to_dev(kobj);
 	struct snd_soc_pcm_runtime *rtd = dev_get_drvdata(dev);
 
+<<<<<<< HEAD
+=======
+	if (!rtd)
+		return 0;
+
+>>>>>>> upstream/android-13
 	if (attr == &dev_attr_pmdown_time.attr)
 		return attr->mode; /* always visible */
 	return rtd->num_codecs ? attr->mode : 0; /* enabled only with codec */
@@ -133,6 +177,12 @@ static const struct attribute_group *soc_dev_attr_groups[] = {
 };
 
 #ifdef CONFIG_DEBUG_FS
+<<<<<<< HEAD
+=======
+struct dentry *snd_soc_debugfs_root;
+EXPORT_SYMBOL_GPL(snd_soc_debugfs_root);
+
+>>>>>>> upstream/android-13
 static void soc_init_component_debugfs(struct snd_soc_component *component)
 {
 	if (!component->card->debugfs_card_root)
@@ -153,19 +203,29 @@ static void soc_init_component_debugfs(struct snd_soc_component *component)
 				component->card->debugfs_card_root);
 	}
 
+<<<<<<< HEAD
 	if (!component->debugfs_root) {
 		dev_warn(component->dev,
 			"ASoC: Failed to create component debugfs directory\n");
 		return;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	snd_soc_dapm_debugfs_init(snd_soc_component_get_dapm(component),
 		component->debugfs_root);
 }
 
 static void soc_cleanup_component_debugfs(struct snd_soc_component *component)
 {
+<<<<<<< HEAD
 	debugfs_remove_recursive(component->debugfs_root);
+=======
+	if (!component->debugfs_root)
+		return;
+	debugfs_remove_recursive(component->debugfs_root);
+	component->debugfs_root = NULL;
+>>>>>>> upstream/android-13
 }
 
 static int dai_list_show(struct seq_file *m, void *v)
@@ -175,8 +235,13 @@ static int dai_list_show(struct seq_file *m, void *v)
 
 	mutex_lock(&client_mutex);
 
+<<<<<<< HEAD
 	list_for_each_entry(component, &component_list, list)
 		list_for_each_entry(dai, &component->dai_list, list)
+=======
+	for_each_component(component)
+		for_each_component_dais(component, dai)
+>>>>>>> upstream/android-13
 			seq_printf(m, "%s\n", dai->name);
 
 	mutex_unlock(&client_mutex);
@@ -191,7 +256,11 @@ static int component_list_show(struct seq_file *m, void *v)
 
 	mutex_lock(&client_mutex);
 
+<<<<<<< HEAD
 	list_for_each_entry(component, &component_list, list)
+=======
+	for_each_component(component)
+>>>>>>> upstream/android-13
 		seq_printf(m, "%s\n", component->name);
 
 	mutex_unlock(&client_mutex);
@@ -202,6 +271,7 @@ DEFINE_SHOW_ATTRIBUTE(component_list);
 
 static void soc_init_card_debugfs(struct snd_soc_card *card)
 {
+<<<<<<< HEAD
 	if (!snd_soc_debugfs_root)
 		return;
 
@@ -219,16 +289,30 @@ static void soc_init_card_debugfs(struct snd_soc_card *card)
 	if (!card->debugfs_pop_time)
 		dev_warn(card->dev,
 		       "ASoC: Failed to create pop time debugfs file\n");
+=======
+	card->debugfs_card_root = debugfs_create_dir(card->name,
+						     snd_soc_debugfs_root);
+
+	debugfs_create_u32("dapm_pop_time", 0644, card->debugfs_card_root,
+			   &card->pop_time);
+
+	snd_soc_dapm_debugfs_init(&card->dapm, card->debugfs_card_root);
+>>>>>>> upstream/android-13
 }
 
 static void soc_cleanup_card_debugfs(struct snd_soc_card *card)
 {
 	debugfs_remove_recursive(card->debugfs_card_root);
+<<<<<<< HEAD
+=======
+	card->debugfs_card_root = NULL;
+>>>>>>> upstream/android-13
 }
 
 static void snd_soc_debugfs_init(void)
 {
 	snd_soc_debugfs_root = debugfs_create_dir("asoc", NULL);
+<<<<<<< HEAD
 	if (IS_ERR_OR_NULL(snd_soc_debugfs_root)) {
 		pr_warn("ASoC: Failed to create debugfs directory\n");
 		snd_soc_debugfs_root = NULL;
@@ -242,6 +326,14 @@ static void snd_soc_debugfs_init(void)
 	if (!debugfs_create_file("components", 0444, snd_soc_debugfs_root, NULL,
 				 &component_list_fops))
 		pr_warn("ASoC: Failed to create component list debugfs file\n");
+=======
+
+	debugfs_create_file("dais", 0444, snd_soc_debugfs_root, NULL,
+			    &dai_list_fops);
+
+	debugfs_create_file("components", 0444, snd_soc_debugfs_root, NULL,
+			    &component_list_fops);
+>>>>>>> upstream/android-13
 }
 
 static void snd_soc_debugfs_exit(void)
@@ -279,6 +371,7 @@ static inline void snd_soc_debugfs_exit(void)
 
 #endif
 
+<<<<<<< HEAD
 static int snd_soc_rtdcom_add(struct snd_soc_pcm_runtime *rtd,
 			      struct snd_soc_component *component)
 {
@@ -299,10 +392,28 @@ static int snd_soc_rtdcom_add(struct snd_soc_pcm_runtime *rtd,
 	INIT_LIST_HEAD(&new_rtdcom->list);
 
 	list_add_tail(&new_rtdcom->list, &rtd->component_list);
+=======
+static int snd_soc_rtd_add_component(struct snd_soc_pcm_runtime *rtd,
+				     struct snd_soc_component *component)
+{
+	struct snd_soc_component *comp;
+	int i;
+
+	for_each_rtd_components(rtd, i, comp) {
+		/* already connected */
+		if (comp == component)
+			return 0;
+	}
+
+	/* see for_each_rtd_components */
+	rtd->components[rtd->num_components] = component;
+	rtd->num_components++;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static void snd_soc_rtdcom_del_all(struct snd_soc_pcm_runtime *rtd)
 {
 	struct snd_soc_rtdcom_list *rtdcom1, *rtdcom2;
@@ -317,25 +428,50 @@ struct snd_soc_component *snd_soc_rtdcom_lookup(struct snd_soc_pcm_runtime *rtd,
 						const char *driver_name)
 {
 	struct snd_soc_rtdcom_list *rtdcom;
+=======
+struct snd_soc_component *snd_soc_rtdcom_lookup(struct snd_soc_pcm_runtime *rtd,
+						const char *driver_name)
+{
+	struct snd_soc_component *component;
+	int i;
+>>>>>>> upstream/android-13
 
 	if (!driver_name)
 		return NULL;
 
+<<<<<<< HEAD
 	for_each_rtdcom(rtd, rtdcom) {
 		const char *component_name = rtdcom->component->driver->name;
+=======
+	/*
+	 * NOTE
+	 *
+	 * snd_soc_rtdcom_lookup() will find component from rtd by using
+	 * specified driver name.
+	 * But, if many components which have same driver name are connected
+	 * to 1 rtd, this function will return 1st found component.
+	 */
+	for_each_rtd_components(rtd, i, component) {
+		const char *component_name = component->driver->name;
+>>>>>>> upstream/android-13
 
 		if (!component_name)
 			continue;
 
 		if ((component_name == driver_name) ||
 		    strcmp(component_name, driver_name) == 0)
+<<<<<<< HEAD
 			return rtdcom->component;
+=======
+			return component;
+>>>>>>> upstream/android-13
 	}
 
 	return NULL;
 }
 EXPORT_SYMBOL_GPL(snd_soc_rtdcom_lookup);
 
+<<<<<<< HEAD
 struct snd_pcm_substream *snd_soc_get_dai_substream(struct snd_soc_card *card,
 		const char *dai_link, int stream)
 {
@@ -352,11 +488,139 @@ struct snd_pcm_substream *snd_soc_get_dai_substream(struct snd_soc_card *card,
 EXPORT_SYMBOL_GPL(snd_soc_get_dai_substream);
 
 static const struct snd_soc_ops null_snd_soc_ops;
+=======
+struct snd_soc_component
+*snd_soc_lookup_component_nolocked(struct device *dev, const char *driver_name)
+{
+	struct snd_soc_component *component;
+	struct snd_soc_component *found_component;
+
+	found_component = NULL;
+	for_each_component(component) {
+		if ((dev == component->dev) &&
+		    (!driver_name ||
+		     (driver_name == component->driver->name) ||
+		     (strcmp(component->driver->name, driver_name) == 0))) {
+			found_component = component;
+			break;
+		}
+	}
+
+	return found_component;
+}
+EXPORT_SYMBOL_GPL(snd_soc_lookup_component_nolocked);
+
+struct snd_soc_component *snd_soc_lookup_component(struct device *dev,
+						   const char *driver_name)
+{
+	struct snd_soc_component *component;
+
+	mutex_lock(&client_mutex);
+	component = snd_soc_lookup_component_nolocked(dev, driver_name);
+	mutex_unlock(&client_mutex);
+
+	return component;
+}
+EXPORT_SYMBOL_GPL(snd_soc_lookup_component);
+
+struct snd_soc_pcm_runtime
+*snd_soc_get_pcm_runtime(struct snd_soc_card *card,
+			 struct snd_soc_dai_link *dai_link)
+{
+	struct snd_soc_pcm_runtime *rtd;
+
+	for_each_card_rtds(card, rtd) {
+		if (rtd->dai_link == dai_link)
+			return rtd;
+	}
+	dev_dbg(card->dev, "ASoC: failed to find rtd %s\n", dai_link->name);
+	return NULL;
+}
+EXPORT_SYMBOL_GPL(snd_soc_get_pcm_runtime);
+
+/*
+ * Power down the audio subsystem pmdown_time msecs after close is called.
+ * This is to ensure there are no pops or clicks in between any music tracks
+ * due to DAPM power cycling.
+ */
+void snd_soc_close_delayed_work(struct snd_soc_pcm_runtime *rtd)
+{
+	struct snd_soc_dai *codec_dai = asoc_rtd_to_codec(rtd, 0);
+	int playback = SNDRV_PCM_STREAM_PLAYBACK;
+
+	mutex_lock_nested(&rtd->card->pcm_mutex, rtd->card->pcm_subclass);
+
+	dev_dbg(rtd->dev,
+		"ASoC: pop wq checking: %s status: %s waiting: %s\n",
+		codec_dai->driver->playback.stream_name,
+		snd_soc_dai_stream_active(codec_dai, playback) ?
+		"active" : "inactive",
+		rtd->pop_wait ? "yes" : "no");
+
+	/* are we waiting on this codec DAI stream */
+	if (rtd->pop_wait == 1) {
+		rtd->pop_wait = 0;
+		snd_soc_dapm_stream_event(rtd, playback,
+					  SND_SOC_DAPM_STREAM_STOP);
+	}
+
+	mutex_unlock(&rtd->card->pcm_mutex);
+}
+EXPORT_SYMBOL_GPL(snd_soc_close_delayed_work);
+
+static void soc_release_rtd_dev(struct device *dev)
+{
+	/* "dev" means "rtd->dev" */
+	kfree(dev);
+}
+
+static void soc_free_pcm_runtime(struct snd_soc_pcm_runtime *rtd)
+{
+	if (!rtd)
+		return;
+
+	list_del(&rtd->list);
+
+	if (delayed_work_pending(&rtd->delayed_work))
+		flush_delayed_work(&rtd->delayed_work);
+	snd_soc_pcm_component_free(rtd);
+
+	/*
+	 * we don't need to call kfree() for rtd->dev
+	 * see
+	 *	soc_release_rtd_dev()
+	 *
+	 * We don't need rtd->dev NULL check, because
+	 * it is alloced *before* rtd.
+	 * see
+	 *	soc_new_pcm_runtime()
+	 *
+	 * We don't need to mind freeing for rtd,
+	 * because it was created from dev (= rtd->dev)
+	 * see
+	 *	soc_new_pcm_runtime()
+	 *
+	 *		rtd = devm_kzalloc(dev, ...);
+	 *		rtd->dev = dev
+	 */
+	device_unregister(rtd->dev);
+}
+
+static void close_delayed_work(struct work_struct *work) {
+	struct snd_soc_pcm_runtime *rtd =
+			container_of(work, struct snd_soc_pcm_runtime,
+				     delayed_work.work);
+
+	if (rtd->close_delayed_work_func)
+		rtd->close_delayed_work_func(rtd);
+}
+>>>>>>> upstream/android-13
 
 static struct snd_soc_pcm_runtime *soc_new_pcm_runtime(
 	struct snd_soc_card *card, struct snd_soc_dai_link *dai_link)
 {
 	struct snd_soc_pcm_runtime *rtd;
+<<<<<<< HEAD
 
 	rtd = kzalloc(sizeof(struct snd_soc_pcm_runtime), GFP_KERNEL);
 	if (!rtd)
@@ -430,6 +694,134 @@ static void codec2codec_close_delayed_work(struct work_struct *work)
 }
 
 #ifdef CONFIG_PM_SLEEP
+=======
+	struct snd_soc_component *component;
+	struct device *dev;
+	int ret;
+	int stream;
+
+	/*
+	 * for rtd->dev
+	 */
+	dev = kzalloc(sizeof(struct device), GFP_KERNEL);
+	if (!dev)
+		return NULL;
+
+	dev->parent	= card->dev;
+	dev->release	= soc_release_rtd_dev;
+
+	dev_set_name(dev, "%s", dai_link->name);
+
+	ret = device_register(dev);
+	if (ret < 0) {
+		put_device(dev); /* soc_release_rtd_dev */
+		return NULL;
+	}
+
+	/*
+	 * for rtd
+	 */
+	rtd = devm_kzalloc(dev,
+			   sizeof(*rtd) +
+			   sizeof(*component) * (dai_link->num_cpus +
+						 dai_link->num_codecs +
+						 dai_link->num_platforms),
+			   GFP_KERNEL);
+	if (!rtd) {
+		device_unregister(dev);
+		return NULL;
+	}
+
+	rtd->dev = dev;
+	INIT_LIST_HEAD(&rtd->list);
+	for_each_pcm_streams(stream) {
+		INIT_LIST_HEAD(&rtd->dpcm[stream].be_clients);
+		INIT_LIST_HEAD(&rtd->dpcm[stream].fe_clients);
+	}
+	dev_set_drvdata(dev, rtd);
+	INIT_DELAYED_WORK(&rtd->delayed_work, close_delayed_work);
+
+	/*
+	 * for rtd->dais
+	 */
+	rtd->dais = devm_kcalloc(dev, dai_link->num_cpus + dai_link->num_codecs,
+					sizeof(struct snd_soc_dai *),
+					GFP_KERNEL);
+	if (!rtd->dais)
+		goto free_rtd;
+
+	/*
+	 * dais = [][][][][][][][][][][][][][][][][][]
+	 *	  ^cpu_dais         ^codec_dais
+	 *	  |--- num_cpus ---|--- num_codecs --|
+	 * see
+	 *	asoc_rtd_to_cpu()
+	 *	asoc_rtd_to_codec()
+	 */
+	rtd->num_cpus	= dai_link->num_cpus;
+	rtd->num_codecs	= dai_link->num_codecs;
+	rtd->card	= card;
+	rtd->dai_link	= dai_link;
+	rtd->num	= card->num_rtd++;
+
+	/* see for_each_card_rtds */
+	list_add_tail(&rtd->list, &card->rtd_list);
+
+	ret = device_add_groups(dev, soc_dev_attr_groups);
+	if (ret < 0)
+		goto free_rtd;
+
+	return rtd;
+
+free_rtd:
+	soc_free_pcm_runtime(rtd);
+	return NULL;
+}
+
+static void snd_soc_flush_all_delayed_work(struct snd_soc_card *card)
+{
+	struct snd_soc_pcm_runtime *rtd;
+
+	for_each_card_rtds(card, rtd)
+		flush_delayed_work(&rtd->delayed_work);
+}
+
+#ifdef CONFIG_PM_SLEEP
+static void soc_playback_digital_mute(struct snd_soc_card *card, int mute)
+{
+	struct snd_soc_pcm_runtime *rtd;
+	struct snd_soc_dai *dai;
+	int playback = SNDRV_PCM_STREAM_PLAYBACK;
+	int i;
+
+	for_each_card_rtds(card, rtd) {
+
+		if (rtd->dai_link->ignore_suspend)
+			continue;
+
+		for_each_rtd_dais(rtd, i, dai) {
+			if (snd_soc_dai_stream_active(dai, playback))
+				snd_soc_dai_digital_mute(dai, mute, playback);
+		}
+	}
+}
+
+static void soc_dapm_suspend_resume(struct snd_soc_card *card, int event)
+{
+	struct snd_soc_pcm_runtime *rtd;
+	int stream;
+
+	for_each_card_rtds(card, rtd) {
+
+		if (rtd->dai_link->ignore_suspend)
+			continue;
+
+		for_each_pcm_streams(stream)
+			snd_soc_dapm_stream_event(rtd, stream, event);
+	}
+}
+
+>>>>>>> upstream/android-13
 /* powers down audio subsystem for suspend */
 int snd_soc_suspend(struct device *dev)
 {
@@ -442,15 +834,24 @@ int snd_soc_suspend(struct device *dev)
 	if (!card->instantiated)
 		return 0;
 
+<<<<<<< HEAD
 	/* Due to the resume being scheduled into a workqueue we could
 	* suspend before that's finished - wait for it to complete.
 	 */
 	snd_power_wait(card->snd_card, SNDRV_CTL_POWER_D0);
+=======
+	/*
+	 * Due to the resume being scheduled into a workqueue we could
+	 * suspend before that's finished - wait for it to complete.
+	 */
+	snd_power_wait(card->snd_card);
+>>>>>>> upstream/android-13
 
 	/* we're going to block userspace touching us until resume completes */
 	snd_power_change_state(card->snd_card, SNDRV_CTL_POWER_D3hot);
 
 	/* mute any active DACs */
+<<<<<<< HEAD
 	list_for_each_entry(rtd, &card->rtd_list, list) {
 
 		if (rtd->dai_link->ignore_suspend)
@@ -467,12 +868,19 @@ int snd_soc_suspend(struct device *dev)
 
 	/* suspend all pcms */
 	list_for_each_entry(rtd, &card->rtd_list, list) {
+=======
+	soc_playback_digital_mute(card, 1);
+
+	/* suspend all pcms */
+	for_each_card_rtds(card, rtd) {
+>>>>>>> upstream/android-13
 		if (rtd->dai_link->ignore_suspend)
 			continue;
 
 		snd_pcm_suspend_all(rtd->pcm);
 	}
 
+<<<<<<< HEAD
 	if (card->suspend_pre)
 		card->suspend_pre(card);
 
@@ -503,18 +911,48 @@ int snd_soc_suspend(struct device *dev)
 					  SNDRV_PCM_STREAM_CAPTURE,
 					  SND_SOC_DAPM_STREAM_SUSPEND);
 	}
+=======
+	snd_soc_card_suspend_pre(card);
+
+	/* close any waiting streams */
+	snd_soc_flush_all_delayed_work(card);
+
+	soc_dapm_suspend_resume(card, SND_SOC_DAPM_STREAM_SUSPEND);
+>>>>>>> upstream/android-13
 
 	/* Recheck all endpoints too, their state is affected by suspend */
 	dapm_mark_endpoints_dirty(card);
 	snd_soc_dapm_sync(&card->dapm);
 
 	/* suspend all COMPONENTs */
+<<<<<<< HEAD
 	list_for_each_entry(component, &card->component_dev_list, card_list) {
 		struct snd_soc_dapm_context *dapm = snd_soc_component_get_dapm(component);
 
 		/* If there are paths active then the COMPONENT will be held with
 		 * bias _ON and should not be suspended. */
 		if (!component->suspended) {
+=======
+	for_each_card_rtds(card, rtd) {
+
+		if (rtd->dai_link->ignore_suspend)
+			continue;
+
+		for_each_rtd_components(rtd, i, component) {
+			struct snd_soc_dapm_context *dapm =
+				snd_soc_component_get_dapm(component);
+
+			/*
+			 * ignore if component was already suspended
+			 */
+			if (snd_soc_component_is_suspended(component))
+				continue;
+
+			/*
+			 * If there are paths active then the COMPONENT will be
+			 * held with bias _ON and should not be suspended.
+			 */
+>>>>>>> upstream/android-13
 			switch (snd_soc_dapm_get_bias_level(dapm)) {
 			case SND_SOC_BIAS_STANDBY:
 				/*
@@ -528,12 +966,19 @@ int snd_soc_suspend(struct device *dev)
 						"ASoC: idle_bias_off CODEC on over suspend\n");
 					break;
 				}
+<<<<<<< HEAD
 				/* fall through */
 
 			case SND_SOC_BIAS_OFF:
 				if (component->driver->suspend)
 					component->driver->suspend(component);
 				component->suspended = 1;
+=======
+				fallthrough;
+
+			case SND_SOC_BIAS_OFF:
+				snd_soc_component_suspend(component);
+>>>>>>> upstream/android-13
 				if (component->regmap)
 					regcache_mark_dirty(component->regmap);
 				/* deactivate pins to sleep state */
@@ -547,6 +992,7 @@ int snd_soc_suspend(struct device *dev)
 		}
 	}
 
+<<<<<<< HEAD
 	list_for_each_entry(rtd, &card->rtd_list, list) {
 		struct snd_soc_dai *cpu_dai = rtd->cpu_dai;
 
@@ -562,23 +1008,40 @@ int snd_soc_suspend(struct device *dev)
 
 	if (card->suspend_post)
 		card->suspend_post(card);
+=======
+	snd_soc_card_suspend_post(card);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 EXPORT_SYMBOL_GPL(snd_soc_suspend);
 
+<<<<<<< HEAD
 /* deferred resume work, so resume can complete before we finished
+=======
+/*
+ * deferred resume work, so resume can complete before we finished
+>>>>>>> upstream/android-13
  * setting our codec back up, which can be very slow on I2C
  */
 static void soc_resume_deferred(struct work_struct *work)
 {
 	struct snd_soc_card *card =
+<<<<<<< HEAD
 			container_of(work, struct snd_soc_card, deferred_resume_work);
 	struct snd_soc_pcm_runtime *rtd;
 	struct snd_soc_component *component;
 	int i;
 
 	/* our power state is still SNDRV_CTL_POWER_D3hot from suspend time,
+=======
+			container_of(work, struct snd_soc_card,
+				     deferred_resume_work);
+	struct snd_soc_component *component;
+
+	/*
+	 * our power state is still SNDRV_CTL_POWER_D3hot from suspend time,
+>>>>>>> upstream/android-13
 	 * so userspace apps are blocked from touching us
 	 */
 
@@ -587,6 +1050,7 @@ static void soc_resume_deferred(struct work_struct *work)
 	/* Bring us up into D2 so that DAPM starts enabling things */
 	snd_power_change_state(card->snd_card, SNDRV_CTL_POWER_D2);
 
+<<<<<<< HEAD
 	if (card->resume_pre)
 		card->resume_pre(card);
 
@@ -650,6 +1114,21 @@ static void soc_resume_deferred(struct work_struct *work)
 
 	if (card->resume_post)
 		card->resume_post(card);
+=======
+	snd_soc_card_resume_pre(card);
+
+	for_each_card_components(card, component) {
+		if (snd_soc_component_is_suspended(component))
+			snd_soc_component_resume(component);
+	}
+
+	soc_dapm_suspend_resume(card, SND_SOC_DAPM_STREAM_RESUME);
+
+	/* unmute any active DACs */
+	soc_playback_digital_mute(card, 0);
+
+	snd_soc_card_resume_post(card);
+>>>>>>> upstream/android-13
 
 	dev_dbg(card->dev, "ASoC: resume work completed\n");
 
@@ -665,14 +1144,19 @@ static void soc_resume_deferred(struct work_struct *work)
 int snd_soc_resume(struct device *dev)
 {
 	struct snd_soc_card *card = dev_get_drvdata(dev);
+<<<<<<< HEAD
 	bool bus_control = false;
 	struct snd_soc_pcm_runtime *rtd;
+=======
+	struct snd_soc_component *component;
+>>>>>>> upstream/android-13
 
 	/* If the card is not initialized yet there is nothing to do */
 	if (!card->instantiated)
 		return 0;
 
 	/* activate pins from sleep state */
+<<<<<<< HEAD
 	list_for_each_entry(rtd, &card->rtd_list, list) {
 		struct snd_soc_dai **codec_dais = rtd->codec_dais;
 		struct snd_soc_dai *cpu_dai = rtd->cpu_dai;
@@ -706,10 +1190,20 @@ int snd_soc_resume(struct device *dev)
 		if (!schedule_work(&card->deferred_resume_work))
 			dev_err(dev, "ASoC: resume work item may be lost\n");
 	}
+=======
+	for_each_card_components(card, component)
+		if (snd_soc_component_active(component))
+			pinctrl_pm_select_default_state(component->dev);
+
+	dev_dbg(dev, "ASoC: Scheduling resume work\n");
+	if (!schedule_work(&card->deferred_resume_work))
+		dev_err(dev, "ASoC: resume work item may be lost\n");
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 EXPORT_SYMBOL_GPL(snd_soc_resume);
+<<<<<<< HEAD
 #else
 #define snd_soc_suspend NULL
 #define snd_soc_resume NULL
@@ -730,11 +1224,61 @@ static const struct snd_soc_dai_ops null_dai_ops = {
  */
 struct snd_soc_component *soc_find_component(
 	const struct device_node *of_node, const char *name)
+=======
+
+static void soc_resume_init(struct snd_soc_card *card)
+{
+	/* deferred resume work */
+	INIT_WORK(&card->deferred_resume_work, soc_resume_deferred);
+}
+#else
+#define snd_soc_suspend NULL
+#define snd_soc_resume NULL
+static inline void soc_resume_init(struct snd_soc_card *card)
+{
+}
+#endif
+
+static struct device_node
+*soc_component_to_node(struct snd_soc_component *component)
+{
+	struct device_node *of_node;
+
+	of_node = component->dev->of_node;
+	if (!of_node && component->dev->parent)
+		of_node = component->dev->parent->of_node;
+
+	return of_node;
+}
+
+static int snd_soc_is_matching_component(
+	const struct snd_soc_dai_link_component *dlc,
+	struct snd_soc_component *component)
+{
+	struct device_node *component_of_node;
+
+	if (!dlc)
+		return 0;
+
+	component_of_node = soc_component_to_node(component);
+
+	if (dlc->of_node && component_of_node != dlc->of_node)
+		return 0;
+	if (dlc->name && strcmp(component->name, dlc->name))
+		return 0;
+
+	return 1;
+}
+
+static struct snd_soc_component *soc_find_component(
+	const struct snd_soc_dai_link_component *dlc)
+>>>>>>> upstream/android-13
 {
 	struct snd_soc_component *component;
 
 	lockdep_assert_held(&client_mutex);
 
+<<<<<<< HEAD
 	list_for_each_entry(component, &component_list, list) {
 		if (of_node) {
 			if (component->dev->of_node == of_node)
@@ -769,6 +1313,22 @@ struct snd_soc_component *soc_find_component_locked(
 	return component;
 }
 EXPORT_SYMBOL(soc_find_component_locked);
+=======
+	/*
+	 * NOTE
+	 *
+	 * It returns *1st* found component, but some driver
+	 * has few components by same of_node/name
+	 * ex)
+	 *	CPU component and generic DMAEngine component
+	 */
+	for_each_component(component)
+		if (snd_soc_is_matching_component(dlc, component))
+			return component;
+
+	return NULL;
+}
+>>>>>>> upstream/android-13
 
 /**
  * snd_soc_find_dai - Find a registered DAI
@@ -786,6 +1346,7 @@ struct snd_soc_dai *snd_soc_find_dai(
 {
 	struct snd_soc_component *component;
 	struct snd_soc_dai *dai;
+<<<<<<< HEAD
 	struct device_node *component_of_node;
 
 	lockdep_assert_held(&client_mutex);
@@ -801,6 +1362,16 @@ struct snd_soc_dai *snd_soc_find_dai(
 		if (dlc->name && strcmp(component->name, dlc->name))
 			continue;
 		list_for_each_entry(dai, &component->dai_list, list) {
+=======
+
+	lockdep_assert_held(&client_mutex);
+
+	/* Find CPU DAI from registered DAIs */
+	for_each_component(component) {
+		if (!snd_soc_is_matching_component(dlc, component))
+			continue;
+		for_each_component_dais(component, dai) {
+>>>>>>> upstream/android-13
 			if (dlc->dai_name && strcmp(dai->name, dlc->dai_name)
 			    && (!dai->driver->name
 				|| strcmp(dai->driver->name, dlc->dai_name)))
@@ -814,6 +1385,7 @@ struct snd_soc_dai *snd_soc_find_dai(
 }
 EXPORT_SYMBOL_GPL(snd_soc_find_dai);
 
+<<<<<<< HEAD
 
 /**
  * snd_soc_find_dai_link - Find a DAI link
@@ -880,22 +1452,197 @@ static int soc_bind_dai_link(struct snd_soc_card *card,
 	struct device_node *platform_of_node;
 	const char *platform_name;
 	int i;
+=======
+struct snd_soc_dai *snd_soc_find_dai_with_mutex(
+	const struct snd_soc_dai_link_component *dlc)
+{
+	struct snd_soc_dai *dai;
+
+	mutex_lock(&client_mutex);
+	dai = snd_soc_find_dai(dlc);
+	mutex_unlock(&client_mutex);
+
+	return dai;
+}
+EXPORT_SYMBOL_GPL(snd_soc_find_dai_with_mutex);
+
+static int soc_dai_link_sanity_check(struct snd_soc_card *card,
+				     struct snd_soc_dai_link *link)
+{
+	int i;
+	struct snd_soc_dai_link_component *cpu, *codec, *platform;
+
+	for_each_link_codecs(link, i, codec) {
+		/*
+		 * Codec must be specified by 1 of name or OF node,
+		 * not both or neither.
+		 */
+		if (!!codec->name == !!codec->of_node) {
+			dev_err(card->dev, "ASoC: Neither/both codec name/of_node are set for %s\n",
+				link->name);
+			return -EINVAL;
+		}
+
+		/* Codec DAI name must be specified */
+		if (!codec->dai_name) {
+			dev_err(card->dev, "ASoC: codec_dai_name not set for %s\n",
+				link->name);
+			return -EINVAL;
+		}
+
+		/*
+		 * Defer card registration if codec component is not added to
+		 * component list.
+		 */
+		if (!soc_find_component(codec)) {
+			dev_dbg(card->dev,
+				"ASoC: codec component %s not found for link %s\n",
+				codec->name, link->name);
+			return -EPROBE_DEFER;
+		}
+	}
+
+	for_each_link_platforms(link, i, platform) {
+		/*
+		 * Platform may be specified by either name or OF node, but it
+		 * can be left unspecified, then no components will be inserted
+		 * in the rtdcom list
+		 */
+		if (!!platform->name == !!platform->of_node) {
+			dev_err(card->dev,
+				"ASoC: Neither/both platform name/of_node are set for %s\n",
+				link->name);
+			return -EINVAL;
+		}
+
+		/*
+		 * Defer card registration if platform component is not added to
+		 * component list.
+		 */
+		if (!soc_find_component(platform)) {
+			dev_dbg(card->dev,
+				"ASoC: platform component %s not found for link %s\n",
+				platform->name, link->name);
+			return -EPROBE_DEFER;
+		}
+	}
+
+	for_each_link_cpus(link, i, cpu) {
+		/*
+		 * CPU device may be specified by either name or OF node, but
+		 * can be left unspecified, and will be matched based on DAI
+		 * name alone..
+		 */
+		if (cpu->name && cpu->of_node) {
+			dev_err(card->dev,
+				"ASoC: Neither/both cpu name/of_node are set for %s\n",
+				link->name);
+			return -EINVAL;
+		}
+
+		/*
+		 * Defer card registration if cpu dai component is not added to
+		 * component list.
+		 */
+		if ((cpu->of_node || cpu->name) &&
+		    !soc_find_component(cpu)) {
+			dev_dbg(card->dev,
+				"ASoC: cpu component %s not found for link %s\n",
+				cpu->name, link->name);
+			return -EPROBE_DEFER;
+		}
+
+		/*
+		 * At least one of CPU DAI name or CPU device name/node must be
+		 * specified
+		 */
+		if (!cpu->dai_name &&
+		    !(cpu->name || cpu->of_node)) {
+			dev_err(card->dev,
+				"ASoC: Neither cpu_dai_name nor cpu_name/of_node are set for %s\n",
+				link->name);
+			return -EINVAL;
+		}
+	}
+
+	return 0;
+}
+
+/**
+ * snd_soc_remove_pcm_runtime - Remove a pcm_runtime from card
+ * @card: The ASoC card to which the pcm_runtime has
+ * @rtd: The pcm_runtime to remove
+ *
+ * This function removes a pcm_runtime from the ASoC card.
+ */
+void snd_soc_remove_pcm_runtime(struct snd_soc_card *card,
+				struct snd_soc_pcm_runtime *rtd)
+{
+	lockdep_assert_held(&client_mutex);
+
+	/* release machine specific resources */
+	snd_soc_link_exit(rtd);
+
+	/*
+	 * Notify the machine driver for extra destruction
+	 */
+	snd_soc_card_remove_dai_link(card, rtd->dai_link);
+
+	soc_free_pcm_runtime(rtd);
+}
+EXPORT_SYMBOL_GPL(snd_soc_remove_pcm_runtime);
+
+/**
+ * snd_soc_add_pcm_runtime - Add a pcm_runtime dynamically via dai_link
+ * @card: The ASoC card to which the pcm_runtime is added
+ * @dai_link: The DAI link to find pcm_runtime
+ *
+ * This function adds a pcm_runtime ASoC card by using dai_link.
+ *
+ * Note: Topology can use this API to add pcm_runtime when probing the
+ * topology component. And machine drivers can still define static
+ * DAI links in dai_link array.
+ */
+int snd_soc_add_pcm_runtime(struct snd_soc_card *card,
+			    struct snd_soc_dai_link *dai_link)
+{
+	struct snd_soc_pcm_runtime *rtd;
+	struct snd_soc_dai_link_component *codec, *platform, *cpu;
+	struct snd_soc_component *component;
+	int i, ret;
+
+	lockdep_assert_held(&client_mutex);
+
+	/*
+	 * Notify the machine driver for extra initialization
+	 */
+	ret = snd_soc_card_add_dai_link(card, dai_link);
+	if (ret < 0)
+		return ret;
+>>>>>>> upstream/android-13
 
 	if (dai_link->ignore)
 		return 0;
 
 	dev_dbg(card->dev, "ASoC: binding %s\n", dai_link->name);
 
+<<<<<<< HEAD
 	if (soc_is_dai_link_bound(card, dai_link)) {
 		dev_dbg(card->dev, "ASoC: dai link %s already bound\n",
 			dai_link->name);
 		return 0;
 	}
+=======
+	ret = soc_dai_link_sanity_check(card, dai_link);
+	if (ret < 0)
+		return ret;
+>>>>>>> upstream/android-13
 
 	rtd = soc_new_pcm_runtime(card, dai_link);
 	if (!rtd)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	cpu_dai_component.name = dai_link->cpu_name;
 	cpu_dai_component.of_node = dai_link->cpu_of_node;
 	cpu_dai_component.dai_name = dai_link->cpu_dai_name;
@@ -1696,6 +2443,209 @@ static void soc_remove_aux_devices(struct snd_soc_card *card)
 			}
 		}
 	}
+=======
+	for_each_link_cpus(dai_link, i, cpu) {
+		asoc_rtd_to_cpu(rtd, i) = snd_soc_find_dai(cpu);
+		if (!asoc_rtd_to_cpu(rtd, i)) {
+			dev_info(card->dev, "ASoC: CPU DAI %s not registered\n",
+				 cpu->dai_name);
+			goto _err_defer;
+		}
+		snd_soc_rtd_add_component(rtd, asoc_rtd_to_cpu(rtd, i)->component);
+	}
+
+	/* Find CODEC from registered CODECs */
+	for_each_link_codecs(dai_link, i, codec) {
+		asoc_rtd_to_codec(rtd, i) = snd_soc_find_dai(codec);
+		if (!asoc_rtd_to_codec(rtd, i)) {
+			dev_info(card->dev, "ASoC: CODEC DAI %s not registered\n",
+				 codec->dai_name);
+			goto _err_defer;
+		}
+
+		snd_soc_rtd_add_component(rtd, asoc_rtd_to_codec(rtd, i)->component);
+	}
+
+	/* Find PLATFORM from registered PLATFORMs */
+	for_each_link_platforms(dai_link, i, platform) {
+		for_each_component(component) {
+			if (!snd_soc_is_matching_component(platform, component))
+				continue;
+
+			snd_soc_rtd_add_component(rtd, component);
+		}
+	}
+
+	return 0;
+
+_err_defer:
+	snd_soc_remove_pcm_runtime(card, rtd);
+	return -EPROBE_DEFER;
+}
+EXPORT_SYMBOL_GPL(snd_soc_add_pcm_runtime);
+
+static void snd_soc_runtime_get_dai_fmt(struct snd_soc_pcm_runtime *rtd)
+{
+	struct snd_soc_dai_link *dai_link = rtd->dai_link;
+	struct snd_soc_dai *dai, *not_used;
+	struct device *dev = rtd->dev;
+	u64 pos, possible_fmt;
+	unsigned int mask = 0, dai_fmt = 0;
+	int i, j, priority, pri, until;
+
+	/*
+	 * Get selectable format from each DAIs.
+	 *
+	 ****************************
+	 *            NOTE
+	 * Using .auto_selectable_formats is not mandatory,
+	 * we can select format manually from Sound Card.
+	 * When use it, driver should list well tested format only.
+	 ****************************
+	 *
+	 * ex)
+	 *	auto_selectable_formats (= SND_SOC_POSSIBLE_xxx)
+	 *		 (A)	 (B)	 (C)
+	 *	DAI0_: { 0x000F, 0x00F0, 0x0F00 };
+	 *	DAI1 : { 0xF000, 0x0F00 };
+	 *		 (X)	 (Y)
+	 *
+	 * "until" will be 3 in this case (MAX array size from DAI0 and DAI1)
+	 * Here is dev_dbg() message and comments
+	 *
+	 * priority = 1
+	 * DAI0: (pri, fmt) = (1, 000000000000000F) // 1st check (A) DAI1 is not selected
+	 * DAI1: (pri, fmt) = (0, 0000000000000000) //               Necessary Waste
+	 * DAI0: (pri, fmt) = (1, 000000000000000F) // 2nd check (A)
+	 * DAI1: (pri, fmt) = (1, 000000000000F000) //           (X)
+	 * priority = 2
+	 * DAI0: (pri, fmt) = (2, 00000000000000FF) // 3rd check (A) + (B)
+	 * DAI1: (pri, fmt) = (1, 000000000000F000) //           (X)
+	 * DAI0: (pri, fmt) = (2, 00000000000000FF) // 4th check (A) + (B)
+	 * DAI1: (pri, fmt) = (2, 000000000000FF00) //           (X) + (Y)
+	 * priority = 3
+	 * DAI0: (pri, fmt) = (3, 0000000000000FFF) // 5th check (A) + (B) + (C)
+	 * DAI1: (pri, fmt) = (2, 000000000000FF00) //           (X) + (Y)
+	 * found auto selected format: 0000000000000F00
+	 */
+	until = snd_soc_dai_get_fmt_max_priority(rtd);
+	for (priority = 1; priority <= until; priority++) {
+
+		dev_dbg(dev, "priority = %d\n", priority);
+		for_each_rtd_dais(rtd, j, not_used) {
+
+			possible_fmt = ULLONG_MAX;
+			for_each_rtd_dais(rtd, i, dai) {
+				u64 fmt = 0;
+
+				pri = (j >= i) ? priority : priority - 1;
+				fmt = snd_soc_dai_get_fmt(dai, pri);
+				dev_dbg(dev, "%s: (pri, fmt) = (%d, %016llX)\n", dai->name, pri, fmt);
+				possible_fmt &= fmt;
+			}
+			if (possible_fmt)
+				goto found;
+		}
+	}
+	/* Not Found */
+	return;
+found:
+	dev_dbg(dev, "found auto selected format: %016llX\n", possible_fmt);
+
+	/*
+	 * convert POSSIBLE_DAIFMT to DAIFMT
+	 *
+	 * Some basic/default settings on each is defined as 0.
+	 * see
+	 *	SND_SOC_DAIFMT_NB_NF
+	 *	SND_SOC_DAIFMT_GATED
+	 *
+	 * SND_SOC_DAIFMT_xxx_MASK can't notice it if Sound Card specify
+	 * these value, and will be overwrite to auto selected value.
+	 *
+	 * To avoid such issue, loop from 63 to 0 here.
+	 * Small number of SND_SOC_POSSIBLE_xxx will be Hi priority.
+	 * Basic/Default settings of each part and aboves are defined
+	 * as Hi priority (= small number) of SND_SOC_POSSIBLE_xxx.
+	 */
+	for (i = 63; i >= 0; i--) {
+		pos = 1ULL << i;
+		switch (possible_fmt & pos) {
+		/*
+		 * for format
+		 */
+		case SND_SOC_POSSIBLE_DAIFMT_I2S:
+		case SND_SOC_POSSIBLE_DAIFMT_RIGHT_J:
+		case SND_SOC_POSSIBLE_DAIFMT_LEFT_J:
+		case SND_SOC_POSSIBLE_DAIFMT_DSP_A:
+		case SND_SOC_POSSIBLE_DAIFMT_DSP_B:
+		case SND_SOC_POSSIBLE_DAIFMT_AC97:
+		case SND_SOC_POSSIBLE_DAIFMT_PDM:
+			dai_fmt = (dai_fmt & ~SND_SOC_DAIFMT_FORMAT_MASK) | i;
+			break;
+		/*
+		 * for clock
+		 */
+		case SND_SOC_POSSIBLE_DAIFMT_CONT:
+			dai_fmt = (dai_fmt & ~SND_SOC_DAIFMT_CLOCK_MASK) | SND_SOC_DAIFMT_CONT;
+			break;
+		case SND_SOC_POSSIBLE_DAIFMT_GATED:
+			dai_fmt = (dai_fmt & ~SND_SOC_DAIFMT_CLOCK_MASK) | SND_SOC_DAIFMT_GATED;
+			break;
+		/*
+		 * for clock invert
+		 */
+		case SND_SOC_POSSIBLE_DAIFMT_NB_NF:
+			dai_fmt = (dai_fmt & ~SND_SOC_DAIFMT_INV_MASK) | SND_SOC_DAIFMT_NB_NF;
+			break;
+		case SND_SOC_POSSIBLE_DAIFMT_NB_IF:
+			dai_fmt = (dai_fmt & ~SND_SOC_DAIFMT_INV_MASK) | SND_SOC_DAIFMT_NB_IF;
+			break;
+		case SND_SOC_POSSIBLE_DAIFMT_IB_NF:
+			dai_fmt = (dai_fmt & ~SND_SOC_DAIFMT_INV_MASK) | SND_SOC_DAIFMT_IB_NF;
+			break;
+		case SND_SOC_POSSIBLE_DAIFMT_IB_IF:
+			dai_fmt = (dai_fmt & ~SND_SOC_DAIFMT_INV_MASK) | SND_SOC_DAIFMT_IB_IF;
+			break;
+		/*
+		 * for clock provider / consumer
+		 */
+		case SND_SOC_POSSIBLE_DAIFMT_CBP_CFP:
+			dai_fmt = (dai_fmt & ~SND_SOC_DAIFMT_CLOCK_PROVIDER_MASK) | SND_SOC_DAIFMT_CBP_CFP;
+			break;
+		case SND_SOC_POSSIBLE_DAIFMT_CBC_CFP:
+			dai_fmt = (dai_fmt & ~SND_SOC_DAIFMT_CLOCK_PROVIDER_MASK) | SND_SOC_DAIFMT_CBC_CFP;
+			break;
+		case SND_SOC_POSSIBLE_DAIFMT_CBP_CFC:
+			dai_fmt = (dai_fmt & ~SND_SOC_DAIFMT_CLOCK_PROVIDER_MASK) | SND_SOC_DAIFMT_CBP_CFC;
+			break;
+		case SND_SOC_POSSIBLE_DAIFMT_CBC_CFC:
+			dai_fmt = (dai_fmt & ~SND_SOC_DAIFMT_CLOCK_PROVIDER_MASK) | SND_SOC_DAIFMT_CBC_CFC;
+			break;
+		}
+	}
+
+	/*
+	 * Some driver might have very complex limitation.
+	 * In such case, user want to auto-select non-limitation part,
+	 * and want to manually specify complex part.
+	 *
+	 * Or for example, if both CPU and Codec can be clock provider,
+	 * but because of its quality, user want to specify it manually.
+	 *
+	 * Use manually specified settings if sound card did.
+	 */
+	if (!(dai_link->dai_fmt & SND_SOC_DAIFMT_FORMAT_MASK))
+		mask |= SND_SOC_DAIFMT_FORMAT_MASK;
+	if (!(dai_link->dai_fmt & SND_SOC_DAIFMT_CLOCK_MASK))
+		mask |= SND_SOC_DAIFMT_CLOCK_MASK;
+	if (!(dai_link->dai_fmt & SND_SOC_DAIFMT_INV_MASK))
+		mask |= SND_SOC_DAIFMT_INV_MASK;
+	if (!(dai_link->dai_fmt & SND_SOC_DAIFMT_CLOCK_PROVIDER_MASK))
+		mask |= SND_SOC_DAIFMT_CLOCK_PROVIDER_MASK;
+
+	dai_link->dai_fmt |= (dai_fmt & mask);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -1712,6 +2662,7 @@ static void soc_remove_aux_devices(struct snd_soc_card *card)
  * Returns 0 on success, otherwise a negative error code.
  */
 int snd_soc_runtime_set_dai_fmt(struct snd_soc_pcm_runtime *rtd,
+<<<<<<< HEAD
 	unsigned int dai_fmt)
 {
 	struct snd_soc_dai **codec_dais = rtd->codec_dais;
@@ -1759,15 +2710,416 @@ int snd_soc_runtime_set_dai_fmt(struct snd_soc_pcm_runtime *rtd,
 		dev_warn(cpu_dai->dev,
 			 "ASoC: Failed to set DAI format: %d\n", ret);
 		return ret;
+=======
+				unsigned int dai_fmt)
+{
+	struct snd_soc_dai *cpu_dai;
+	struct snd_soc_dai *codec_dai;
+	unsigned int inv_dai_fmt;
+	unsigned int i;
+	int ret;
+
+	for_each_rtd_codec_dais(rtd, i, codec_dai) {
+		ret = snd_soc_dai_set_fmt(codec_dai, dai_fmt);
+		if (ret != 0 && ret != -ENOTSUPP)
+			return ret;
+	}
+
+	/*
+	 * Flip the polarity for the "CPU" end of a CODEC<->CODEC link
+	 * the component which has non_legacy_dai_naming is Codec
+	 */
+	inv_dai_fmt = snd_soc_daifmt_clock_provider_fliped(dai_fmt);
+
+	for_each_rtd_cpu_dais(rtd, i, cpu_dai) {
+		unsigned int fmt = dai_fmt;
+
+		if (cpu_dai->component->driver->non_legacy_dai_naming)
+			fmt = inv_dai_fmt;
+
+		ret = snd_soc_dai_set_fmt(cpu_dai, fmt);
+		if (ret != 0 && ret != -ENOTSUPP)
+			return ret;
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
 }
 EXPORT_SYMBOL_GPL(snd_soc_runtime_set_dai_fmt);
 
+<<<<<<< HEAD
 
 #ifdef CONFIG_DMI
 /* Trim special characters, and replace '-' with '_' since '-' is used to
+=======
+static int soc_init_pcm_runtime(struct snd_soc_card *card,
+				struct snd_soc_pcm_runtime *rtd)
+{
+	struct snd_soc_dai_link *dai_link = rtd->dai_link;
+	struct snd_soc_dai *cpu_dai = asoc_rtd_to_cpu(rtd, 0);
+	struct snd_soc_component *component;
+	int ret, num, i;
+
+	/* set default power off timeout */
+	rtd->pmdown_time = pmdown_time;
+
+	/* do machine specific initialization */
+	ret = snd_soc_link_init(rtd);
+	if (ret < 0)
+		return ret;
+
+	snd_soc_runtime_get_dai_fmt(rtd);
+	if (dai_link->dai_fmt) {
+		ret = snd_soc_runtime_set_dai_fmt(rtd, dai_link->dai_fmt);
+		if (ret)
+			return ret;
+	}
+
+	/* add DPCM sysfs entries */
+	soc_dpcm_debugfs_add(rtd);
+
+	num = rtd->num;
+
+	/*
+	 * most drivers will register their PCMs using DAI link ordering but
+	 * topology based drivers can use the DAI link id field to set PCM
+	 * device number and then use rtd + a base offset of the BEs.
+	 */
+	for_each_rtd_components(rtd, i, component) {
+		if (!component->driver->use_dai_pcm_id)
+			continue;
+
+		if (rtd->dai_link->no_pcm)
+			num += component->driver->be_pcm_base;
+		else
+			num = rtd->dai_link->id;
+	}
+
+	/* create compress_device if possible */
+	ret = snd_soc_dai_compress_new(cpu_dai, rtd, num);
+	if (ret != -ENOTSUPP)
+		return ret;
+
+	/* create the pcm */
+	ret = soc_new_pcm(rtd, num);
+	if (ret < 0) {
+		dev_err(card->dev, "ASoC: can't create pcm %s :%d\n",
+			dai_link->stream_name, ret);
+		return ret;
+	}
+
+	return snd_soc_pcm_dai_new(rtd);
+}
+
+static void soc_set_name_prefix(struct snd_soc_card *card,
+				struct snd_soc_component *component)
+{
+	struct device_node *of_node = soc_component_to_node(component);
+	const char *str;
+	int ret, i;
+
+	for (i = 0; i < card->num_configs; i++) {
+		struct snd_soc_codec_conf *map = &card->codec_conf[i];
+
+		if (snd_soc_is_matching_component(&map->dlc, component) &&
+		    map->name_prefix) {
+			component->name_prefix = map->name_prefix;
+			return;
+		}
+	}
+
+	/*
+	 * If there is no configuration table or no match in the table,
+	 * check if a prefix is provided in the node
+	 */
+	ret = of_property_read_string(of_node, "sound-name-prefix", &str);
+	if (ret < 0)
+		return;
+
+	component->name_prefix = str;
+}
+
+static void soc_remove_component(struct snd_soc_component *component,
+				 int probed)
+{
+
+	if (!component->card)
+		return;
+
+	if (probed)
+		snd_soc_component_remove(component);
+
+	/* For framework level robustness */
+	snd_soc_component_set_jack(component, NULL, NULL);
+
+	list_del_init(&component->card_list);
+	snd_soc_dapm_free(snd_soc_component_get_dapm(component));
+	soc_cleanup_component_debugfs(component);
+	component->card = NULL;
+	snd_soc_component_module_put_when_remove(component);
+}
+
+static int soc_probe_component(struct snd_soc_card *card,
+			       struct snd_soc_component *component)
+{
+	struct snd_soc_dapm_context *dapm =
+		snd_soc_component_get_dapm(component);
+	struct snd_soc_dai *dai;
+	int probed = 0;
+	int ret;
+
+	if (snd_soc_component_is_dummy(component))
+		return 0;
+
+	if (component->card) {
+		if (component->card != card) {
+			dev_err(component->dev,
+				"Trying to bind component to card \"%s\" but is already bound to card \"%s\"\n",
+				card->name, component->card->name);
+			return -ENODEV;
+		}
+		return 0;
+	}
+
+	ret = snd_soc_component_module_get_when_probe(component);
+	if (ret < 0)
+		return ret;
+
+	component->card = card;
+	soc_set_name_prefix(card, component);
+
+	soc_init_component_debugfs(component);
+
+	snd_soc_dapm_init(dapm, card, component);
+
+	ret = snd_soc_dapm_new_controls(dapm,
+					component->driver->dapm_widgets,
+					component->driver->num_dapm_widgets);
+
+	if (ret != 0) {
+		dev_err(component->dev,
+			"Failed to create new controls %d\n", ret);
+		goto err_probe;
+	}
+
+	for_each_component_dais(component, dai) {
+		ret = snd_soc_dapm_new_dai_widgets(dapm, dai);
+		if (ret != 0) {
+			dev_err(component->dev,
+				"Failed to create DAI widgets %d\n", ret);
+			goto err_probe;
+		}
+	}
+
+	ret = snd_soc_component_probe(component);
+	if (ret < 0)
+		goto err_probe;
+
+	WARN(dapm->idle_bias_off &&
+	     dapm->bias_level != SND_SOC_BIAS_OFF,
+	     "codec %s can not start from non-off bias with idle_bias_off==1\n",
+	     component->name);
+	probed = 1;
+
+	/*
+	 * machine specific init
+	 * see
+	 *	snd_soc_component_set_aux()
+	 */
+	ret = snd_soc_component_init(component);
+	if (ret < 0)
+		goto err_probe;
+
+	ret = snd_soc_add_component_controls(component,
+					     component->driver->controls,
+					     component->driver->num_controls);
+	if (ret < 0)
+		goto err_probe;
+
+	ret = snd_soc_dapm_add_routes(dapm,
+				      component->driver->dapm_routes,
+				      component->driver->num_dapm_routes);
+	if (ret < 0) {
+		if (card->disable_route_checks) {
+			dev_info(card->dev,
+				 "%s: disable_route_checks set, ignoring errors on add_routes\n",
+				 __func__);
+		} else {
+			dev_err(card->dev,
+				"%s: snd_soc_dapm_add_routes failed: %d\n",
+				__func__, ret);
+			goto err_probe;
+		}
+	}
+
+	/* see for_each_card_components */
+	list_add(&component->card_list, &card->component_dev_list);
+
+err_probe:
+	if (ret < 0)
+		soc_remove_component(component, probed);
+
+	return ret;
+}
+
+static void soc_remove_link_dais(struct snd_soc_card *card)
+{
+	struct snd_soc_pcm_runtime *rtd;
+	int order;
+
+	for_each_comp_order(order) {
+		for_each_card_rtds(card, rtd) {
+			/* remove all rtd connected DAIs in good order */
+			snd_soc_pcm_dai_remove(rtd, order);
+		}
+	}
+}
+
+static int soc_probe_link_dais(struct snd_soc_card *card)
+{
+	struct snd_soc_pcm_runtime *rtd;
+	int order, ret;
+
+	for_each_comp_order(order) {
+		for_each_card_rtds(card, rtd) {
+
+			dev_dbg(card->dev,
+				"ASoC: probe %s dai link %d late %d\n",
+				card->name, rtd->num, order);
+
+			/* probe all rtd connected DAIs in good order */
+			ret = snd_soc_pcm_dai_probe(rtd, order);
+			if (ret)
+				return ret;
+		}
+	}
+
+	return 0;
+}
+
+static void soc_remove_link_components(struct snd_soc_card *card)
+{
+	struct snd_soc_component *component;
+	struct snd_soc_pcm_runtime *rtd;
+	int i, order;
+
+	for_each_comp_order(order) {
+		for_each_card_rtds(card, rtd) {
+			for_each_rtd_components(rtd, i, component) {
+				if (component->driver->remove_order != order)
+					continue;
+
+				soc_remove_component(component, 1);
+			}
+		}
+	}
+}
+
+static int soc_probe_link_components(struct snd_soc_card *card)
+{
+	struct snd_soc_component *component;
+	struct snd_soc_pcm_runtime *rtd;
+	int i, ret, order;
+
+	for_each_comp_order(order) {
+		for_each_card_rtds(card, rtd) {
+			for_each_rtd_components(rtd, i, component) {
+				if (component->driver->probe_order != order)
+					continue;
+
+				ret = soc_probe_component(card, component);
+				if (ret < 0)
+					return ret;
+			}
+		}
+	}
+
+	return 0;
+}
+
+static void soc_unbind_aux_dev(struct snd_soc_card *card)
+{
+	struct snd_soc_component *component, *_component;
+
+	for_each_card_auxs_safe(card, component, _component) {
+		/* for snd_soc_component_init() */
+		snd_soc_component_set_aux(component, NULL);
+		list_del(&component->card_aux_list);
+	}
+}
+
+static int soc_bind_aux_dev(struct snd_soc_card *card)
+{
+	struct snd_soc_component *component;
+	struct snd_soc_aux_dev *aux;
+	int i;
+
+	for_each_card_pre_auxs(card, i, aux) {
+		/* codecs, usually analog devices */
+		component = soc_find_component(&aux->dlc);
+		if (!component)
+			return -EPROBE_DEFER;
+
+		/* for snd_soc_component_init() */
+		snd_soc_component_set_aux(component, aux);
+		/* see for_each_card_auxs */
+		list_add(&component->card_aux_list, &card->aux_comp_list);
+	}
+	return 0;
+}
+
+static int soc_probe_aux_devices(struct snd_soc_card *card)
+{
+	struct snd_soc_component *component;
+	int order;
+	int ret;
+
+	for_each_comp_order(order) {
+		for_each_card_auxs(card, component) {
+			if (component->driver->probe_order != order)
+				continue;
+
+			ret = soc_probe_component(card,	component);
+			if (ret < 0)
+				return ret;
+		}
+	}
+
+	return 0;
+}
+
+static void soc_remove_aux_devices(struct snd_soc_card *card)
+{
+	struct snd_soc_component *comp, *_comp;
+	int order;
+
+	for_each_comp_order(order) {
+		for_each_card_auxs_safe(card, comp, _comp) {
+			if (comp->driver->remove_order == order)
+				soc_remove_component(comp, 1);
+		}
+	}
+}
+
+#ifdef CONFIG_DMI
+/*
+ * If a DMI filed contain strings in this blacklist (e.g.
+ * "Type2 - Board Manufacturer" or "Type1 - TBD by OEM"), it will be taken
+ * as invalid and dropped when setting the card long name from DMI info.
+ */
+static const char * const dmi_blacklist[] = {
+	"To be filled by OEM",
+	"TBD by OEM",
+	"Default String",
+	"Board Manufacturer",
+	"Board Vendor Name",
+	"Board Product Name",
+	NULL,	/* terminator */
+};
+
+/*
+ * Trim special characters, and replace '-' with '_' since '-' is used to
+>>>>>>> upstream/android-13
  * separate different DMI fields in the card long name. Only number and
  * alphabet characters and a few separator characters are kept.
  */
@@ -1786,7 +3138,12 @@ static void cleanup_dmi_name(char *name)
 	name[j] = '\0';
 }
 
+<<<<<<< HEAD
 /* Check if a DMI field is valid, i.e. not containing any string
+=======
+/*
+ * Check if a DMI field is valid, i.e. not containing any string
+>>>>>>> upstream/android-13
  * in the black list.
  */
 static int is_dmi_valid(const char *field)
@@ -1802,6 +3159,26 @@ static int is_dmi_valid(const char *field)
 	return 1;
 }
 
+<<<<<<< HEAD
+=======
+/*
+ * Append a string to card->dmi_longname with character cleanups.
+ */
+static void append_dmi_string(struct snd_soc_card *card, const char *str)
+{
+	char *dst = card->dmi_longname;
+	size_t dst_len = sizeof(card->dmi_longname);
+	size_t len;
+
+	len = strlen(dst);
+	snprintf(dst + len, dst_len - len, "-%s", str);
+
+	len++;	/* skip the separator "-" */
+	if (len < dst_len)
+		cleanup_dmi_name(dst + len);
+}
+
+>>>>>>> upstream/android-13
 /**
  * snd_soc_set_dmi_name() - Register DMI names to card
  * @card: The card to register DMI names
@@ -1835,27 +3212,43 @@ static int is_dmi_valid(const char *field)
  */
 int snd_soc_set_dmi_name(struct snd_soc_card *card, const char *flavour)
 {
+<<<<<<< HEAD
 	const char *vendor, *product, *product_version, *board;
 	size_t longname_buf_size = sizeof(card->snd_card->longname);
 	size_t len;
+=======
+	const char *vendor, *product, *board;
+>>>>>>> upstream/android-13
 
 	if (card->long_name)
 		return 0; /* long name already set by driver or from DMI */
 
+<<<<<<< HEAD
 	/* make up dmi long name as: vendor.product.version.board */
+=======
+	if (!dmi_available)
+		return 0;
+
+	/* make up dmi long name as: vendor-product-version-board */
+>>>>>>> upstream/android-13
 	vendor = dmi_get_system_info(DMI_BOARD_VENDOR);
 	if (!vendor || !is_dmi_valid(vendor)) {
 		dev_warn(card->dev, "ASoC: no DMI vendor name!\n");
 		return 0;
 	}
 
+<<<<<<< HEAD
 
 	snprintf(card->dmi_longname, sizeof(card->snd_card->longname),
 			 "%s", vendor);
+=======
+	snprintf(card->dmi_longname, sizeof(card->dmi_longname), "%s", vendor);
+>>>>>>> upstream/android-13
 	cleanup_dmi_name(card->dmi_longname);
 
 	product = dmi_get_system_info(DMI_PRODUCT_NAME);
 	if (product && is_dmi_valid(product)) {
+<<<<<<< HEAD
 		len = strlen(card->dmi_longname);
 		snprintf(card->dmi_longname + len,
 			 longname_buf_size - len,
@@ -1879,10 +3272,23 @@ int snd_soc_set_dmi_name(struct snd_soc_card *card, const char *flavour)
 			if (len < longname_buf_size)
 				cleanup_dmi_name(card->dmi_longname + len);
 		}
+=======
+		const char *product_version = dmi_get_system_info(DMI_PRODUCT_VERSION);
+
+		append_dmi_string(card, product);
+
+		/*
+		 * some vendors like Lenovo may only put a self-explanatory
+		 * name in the product version field
+		 */
+		if (product_version && is_dmi_valid(product_version))
+			append_dmi_string(card, product_version);
+>>>>>>> upstream/android-13
 	}
 
 	board = dmi_get_system_info(DMI_BOARD_NAME);
 	if (board && is_dmi_valid(board)) {
+<<<<<<< HEAD
 		len = strlen(card->dmi_longname);
 		snprintf(card->dmi_longname + len,
 			 longname_buf_size - len,
@@ -1891,6 +3297,10 @@ int snd_soc_set_dmi_name(struct snd_soc_card *card, const char *flavour)
 		len++;
 		if (len < longname_buf_size)
 			cleanup_dmi_name(card->dmi_longname + len);
+=======
+		if (!product || strcasecmp(board, product))
+			append_dmi_string(card, board);
+>>>>>>> upstream/android-13
 	} else if (!product) {
 		/* fall back to using legacy name */
 		dev_warn(card->dev, "ASoC: no DMI board/product name!\n");
@@ -1898,6 +3308,7 @@ int snd_soc_set_dmi_name(struct snd_soc_card *card, const char *flavour)
 	}
 
 	/* Add flavour to dmi long name */
+<<<<<<< HEAD
 	if (flavour) {
 		len = strlen(card->dmi_longname);
 		snprintf(card->dmi_longname + len,
@@ -1908,6 +3319,10 @@ int snd_soc_set_dmi_name(struct snd_soc_card *card, const char *flavour)
 		if (len < longname_buf_size)
 			cleanup_dmi_name(card->dmi_longname + len);
 	}
+=======
+	if (flavour)
+		append_dmi_string(card, flavour);
+>>>>>>> upstream/android-13
 
 	/* set the card long name */
 	card->long_name = card->dmi_longname;
@@ -1924,13 +3339,20 @@ static void soc_check_tplg_fes(struct snd_soc_card *card)
 	struct snd_soc_dai_link *dai_link;
 	int i;
 
+<<<<<<< HEAD
 	list_for_each_entry(component, &component_list, list) {
 
 		/* does this component override FEs ? */
+=======
+	for_each_component(component) {
+
+		/* does this component override BEs ? */
+>>>>>>> upstream/android-13
 		if (!component->driver->ignore_machine)
 			continue;
 
 		/* for this machine ? */
+<<<<<<< HEAD
 		if (strcmp(component->driver->ignore_machine,
 			   card->dev->driver->name))
 			continue;
@@ -1939,6 +3361,17 @@ static void soc_check_tplg_fes(struct snd_soc_card *card)
 		for (i = 0; i < card->num_links; i++) {
 
 			dai_link = &card->dai_link[i];
+=======
+		if (!strcmp(component->driver->ignore_machine,
+			    card->dev->driver->name))
+			goto match;
+		if (strcmp(component->driver->ignore_machine,
+			   dev_name(card->dev)))
+			continue;
+match:
+		/* machine matches, so override the rtd data */
+		for_each_card_prelinks(card, i, dai_link) {
+>>>>>>> upstream/android-13
 
 			/* ignore this FE */
 			if (dai_link->dynamic) {
@@ -1946,11 +3379,27 @@ static void soc_check_tplg_fes(struct snd_soc_card *card)
 				continue;
 			}
 
+<<<<<<< HEAD
 			dev_info(card->dev, "info: override FE DAI link %s\n",
 				 card->dai_link[i].name);
 
 			/* override platform component */
 			dai_link->platform_name = component->name;
+=======
+			dev_dbg(card->dev, "info: override BE DAI link %s\n",
+				card->dai_link[i].name);
+
+			/* override platform component */
+			if (!dai_link->platforms) {
+				dev_err(card->dev, "init platform error");
+				continue;
+			}
+
+			if (component->dev->of_node)
+				dai_link->platforms->of_node = component->dev->of_node;
+			else
+				dai_link->platforms->name = component->name;
+>>>>>>> upstream/android-13
 
 			/* convert non BE into BE */
 			if (!dai_link->no_pcm) {
@@ -1973,11 +3422,24 @@ static void soc_check_tplg_fes(struct snd_soc_card *card)
 				}
 			}
 
+<<<<<<< HEAD
 			/* override any BE fixups */
 			dai_link->be_hw_params_fixup =
 				component->driver->be_hw_params_fixup;
 
 			/* most BE links don't set stream name, so set it to
+=======
+			/*
+			 * override any BE fixups
+			 * see
+			 *	snd_soc_link_be_hw_params_fixup()
+			 */
+			dai_link->be_hw_params_fixup =
+				component->driver->be_hw_params_fixup;
+
+			/*
+			 * most BE links don't set stream name, so set it to
+>>>>>>> upstream/android-13
 			 * dai link name if it's NULL to help bind widgets.
 			 */
 			if (!dai_link->stream_name)
@@ -1987,7 +3449,11 @@ static void soc_check_tplg_fes(struct snd_soc_card *card)
 		/* Inform userspace we are using alternate topology */
 		if (component->driver->topology_name_prefix) {
 
+<<<<<<< HEAD
 			/* topology shortname created ? */
+=======
+			/* topology shortname created? */
+>>>>>>> upstream/android-13
 			if (!card->topology_shortname_created) {
 				comp_drv = component->driver;
 
@@ -2003,15 +3469,108 @@ static void soc_check_tplg_fes(struct snd_soc_card *card)
 	}
 }
 
+<<<<<<< HEAD
 static int snd_soc_instantiate_card(struct snd_soc_card *card)
 {
 	struct snd_soc_pcm_runtime *rtd;
 	struct snd_soc_dai_link *dai_link;
 	int ret, i, order;
+=======
+#define soc_setup_card_name(name, name1, name2, norm)		\
+	__soc_setup_card_name(name, sizeof(name), name1, name2, norm)
+static void __soc_setup_card_name(char *name, int len,
+				  const char *name1, const char *name2,
+				  int normalization)
+{
+	int i;
+
+	snprintf(name, len, "%s", name1 ? name1 : name2);
+
+	if (!normalization)
+		return;
+
+	/*
+	 * Name normalization
+	 *
+	 * The driver name is somewhat special, as it's used as a key for
+	 * searches in the user-space.
+	 *
+	 * ex)
+	 *	"abcd??efg" -> "abcd__efg"
+	 */
+	for (i = 0; i < len; i++) {
+		switch (name[i]) {
+		case '_':
+		case '-':
+		case '\0':
+			break;
+		default:
+			if (!isalnum(name[i]))
+				name[i] = '_';
+			break;
+		}
+	}
+}
+
+static void soc_cleanup_card_resources(struct snd_soc_card *card)
+{
+	struct snd_soc_pcm_runtime *rtd, *n;
+
+	if (card->snd_card)
+		snd_card_disconnect_sync(card->snd_card);
+
+	snd_soc_dapm_shutdown(card);
+
+	/* remove and free each DAI */
+	soc_remove_link_dais(card);
+	soc_remove_link_components(card);
+
+	for_each_card_rtds_safe(card, rtd, n)
+		snd_soc_remove_pcm_runtime(card, rtd);
+
+	/* remove auxiliary devices */
+	soc_remove_aux_devices(card);
+	soc_unbind_aux_dev(card);
+
+	snd_soc_dapm_free(&card->dapm);
+	soc_cleanup_card_debugfs(card);
+
+	/* remove the card */
+	snd_soc_card_remove(card);
+
+	if (card->snd_card) {
+		snd_card_free(card->snd_card);
+		card->snd_card = NULL;
+	}
+}
+
+static void snd_soc_unbind_card(struct snd_soc_card *card, bool unregister)
+{
+	if (card->instantiated) {
+		card->instantiated = false;
+		snd_soc_flush_all_delayed_work(card);
+
+		soc_cleanup_card_resources(card);
+		if (!unregister)
+			list_add(&card->list, &unbind_card_list);
+	} else {
+		if (unregister)
+			list_del(&card->list);
+	}
+}
+
+static int snd_soc_bind_card(struct snd_soc_card *card)
+{
+	struct snd_soc_pcm_runtime *rtd;
+	struct snd_soc_component *component;
+	struct snd_soc_dai_link *dai_link;
+	int ret, i;
+>>>>>>> upstream/android-13
 
 	mutex_lock(&client_mutex);
 	mutex_lock_nested(&card->mutex, SND_SOC_CARD_CLASS_INIT);
 
+<<<<<<< HEAD
 	/* check whether any platform is ignore machine FE and using topology */
 	soc_check_tplg_fes(card);
 
@@ -2032,6 +3591,25 @@ static int snd_soc_instantiate_card(struct snd_soc_card *card)
 	/* add predefined DAI links to the list */
 	for (i = 0; i < card->num_links; i++)
 		snd_soc_add_dai_link(card, card->dai_link+i);
+=======
+	snd_soc_dapm_init(&card->dapm, card, NULL);
+
+	/* check whether any platform is ignore machine FE and using topology */
+	soc_check_tplg_fes(card);
+
+	/* bind aux_devs too */
+	ret = soc_bind_aux_dev(card);
+	if (ret < 0)
+		goto probe_end;
+
+	/* add predefined DAI links to the list */
+	card->num_rtd = 0;
+	for_each_card_prelinks(card, i, dai_link) {
+		ret = snd_soc_add_pcm_runtime(card, dai_link);
+		if (ret < 0)
+			goto probe_end;
+	}
+>>>>>>> upstream/android-13
 
 	/* card bind complete so register a sound card */
 	ret = snd_card_new(card->dev, SNDRV_DEFAULT_IDX1, SNDRV_DEFAULT_STR1,
@@ -2040,11 +3618,16 @@ static int snd_soc_instantiate_card(struct snd_soc_card *card)
 		dev_err(card->dev,
 			"ASoC: can't create sound card for card %s: %d\n",
 			card->name, ret);
+<<<<<<< HEAD
 		goto base_error;
+=======
+		goto probe_end;
+>>>>>>> upstream/android-13
 	}
 
 	soc_init_card_debugfs(card);
 
+<<<<<<< HEAD
 	card->dapm.bias_level = SND_SOC_BIAS_OFF;
 	card->dapm.dev = card->dev;
 	card->dapm.card = card;
@@ -2086,10 +3669,36 @@ static int snd_soc_instantiate_card(struct snd_soc_card *card)
 				goto probe_dai_err;
 			}
 		}
+=======
+	soc_resume_init(card);
+
+	ret = snd_soc_dapm_new_controls(&card->dapm, card->dapm_widgets,
+					card->num_dapm_widgets);
+	if (ret < 0)
+		goto probe_end;
+
+	ret = snd_soc_dapm_new_controls(&card->dapm, card->of_dapm_widgets,
+					card->num_of_dapm_widgets);
+	if (ret < 0)
+		goto probe_end;
+
+	/* initialise the sound card only once */
+	ret = snd_soc_card_probe(card);
+	if (ret < 0)
+		goto probe_end;
+
+	/* probe all components used by DAI links on this card */
+	ret = soc_probe_link_components(card);
+	if (ret < 0) {
+		dev_err(card->dev,
+			"ASoC: failed to instantiate card %d\n", ret);
+		goto probe_end;
+>>>>>>> upstream/android-13
 	}
 
 	/* probe auxiliary components */
 	ret = soc_probe_aux_devices(card);
+<<<<<<< HEAD
 	if (ret < 0)
 		goto probe_dai_err;
 
@@ -2120,11 +3729,32 @@ static int snd_soc_instantiate_card(struct snd_soc_card *card)
 				goto probe_dai_err;
 			}
 		}
+=======
+	if (ret < 0) {
+		dev_err(card->dev,
+			"ASoC: failed to probe aux component %d\n", ret);
+		goto probe_end;
+	}
+
+	/* probe all DAI links on this card */
+	ret = soc_probe_link_dais(card);
+	if (ret < 0) {
+		dev_err(card->dev,
+			"ASoC: failed to instantiate card %d\n", ret);
+		goto probe_end;
+	}
+
+	for_each_card_rtds(card, rtd) {
+		ret = soc_init_pcm_runtime(card, rtd);
+		if (ret < 0)
+			goto probe_end;
+>>>>>>> upstream/android-13
 	}
 
 	snd_soc_dapm_link_dai_widgets(card);
 	snd_soc_dapm_connect_dai_link_widgets(card);
 
+<<<<<<< HEAD
 	if (card->controls)
 		snd_soc_add_card_controls(card, card->controls, card->num_controls);
 
@@ -2135,10 +3765,37 @@ static int snd_soc_instantiate_card(struct snd_soc_card *card)
 	if (card->of_dapm_routes)
 		snd_soc_dapm_add_routes(&card->dapm, card->of_dapm_routes,
 					card->num_of_dapm_routes);
+=======
+	ret = snd_soc_add_card_controls(card, card->controls,
+					card->num_controls);
+	if (ret < 0)
+		goto probe_end;
+
+	ret = snd_soc_dapm_add_routes(&card->dapm, card->dapm_routes,
+				      card->num_dapm_routes);
+	if (ret < 0) {
+		if (card->disable_route_checks) {
+			dev_info(card->dev,
+				 "%s: disable_route_checks set, ignoring errors on add_routes\n",
+				 __func__);
+		} else {
+			dev_err(card->dev,
+				 "%s: snd_soc_dapm_add_routes failed: %d\n",
+				 __func__, ret);
+			goto probe_end;
+		}
+	}
+
+	ret = snd_soc_dapm_add_routes(&card->dapm, card->of_dapm_routes,
+				      card->num_of_dapm_routes);
+	if (ret < 0)
+		goto probe_end;
+>>>>>>> upstream/android-13
 
 	/* try to set some sane longname if DMI is available */
 	snd_soc_set_dmi_name(card, NULL);
 
+<<<<<<< HEAD
 	snprintf(card->snd_card->shortname, sizeof(card->snd_card->shortname),
 		 "%s", card->name);
 	snprintf(card->snd_card->longname, sizeof(card->snd_card->longname),
@@ -2166,6 +3823,31 @@ static int snd_soc_instantiate_card(struct snd_soc_card *card)
 			goto probe_aux_dev_err;
 		}
 	}
+=======
+	soc_setup_card_name(card->snd_card->shortname,
+			    card->name, NULL, 0);
+	soc_setup_card_name(card->snd_card->longname,
+			    card->long_name, card->name, 0);
+	soc_setup_card_name(card->snd_card->driver,
+			    card->driver_name, card->name, 1);
+
+	if (card->components) {
+		/* the current implementation of snd_component_add() accepts */
+		/* multiple components in the string separated by space, */
+		/* but the string collision (identical string) check might */
+		/* not work correctly */
+		ret = snd_component_add(card->snd_card, card->components);
+		if (ret < 0) {
+			dev_err(card->dev, "ASoC: %s snd_component_add() failed: %d\n",
+				card->name, ret);
+			goto probe_end;
+		}
+	}
+
+	ret = snd_soc_card_late_probe(card);
+	if (ret < 0)
+		goto probe_end;
+>>>>>>> upstream/android-13
 
 	snd_soc_dapm_new_widgets(card);
 
@@ -2173,12 +3855,17 @@ static int snd_soc_instantiate_card(struct snd_soc_card *card)
 	if (ret < 0) {
 		dev_err(card->dev, "ASoC: failed to register soundcard %d\n",
 				ret);
+<<<<<<< HEAD
 		goto probe_aux_dev_err;
+=======
+		goto probe_end;
+>>>>>>> upstream/android-13
 	}
 
 	card->instantiated = 1;
 	dapm_mark_endpoints_dirty(card);
 	snd_soc_dapm_sync(&card->dapm);
+<<<<<<< HEAD
 	mutex_unlock(&card->mutex);
 	mutex_unlock(&client_mutex);
 
@@ -2200,6 +3887,18 @@ card_probe_error:
 
 base_error:
 	soc_remove_pcm_runtimes(card);
+=======
+
+	/* deactivate pins to sleep state */
+	for_each_card_components(card, component)
+		if (!snd_soc_component_active(component))
+			pinctrl_pm_select_sleep_state(component->dev);
+
+probe_end:
+	if (ret < 0)
+		soc_cleanup_card_resources(card);
+
+>>>>>>> upstream/android-13
 	mutex_unlock(&card->mutex);
 	mutex_unlock(&client_mutex);
 
@@ -2225,6 +3924,7 @@ static int soc_probe(struct platform_device *pdev)
 	/* Bodge while we unpick instantiation */
 	card->dev = &pdev->dev;
 
+<<<<<<< HEAD
 	return snd_soc_register_card(card);
 }
 
@@ -2263,24 +3963,40 @@ static int soc_remove(struct platform_device *pdev)
 
 	snd_soc_unregister_card(card);
 	return 0;
+=======
+	return devm_snd_soc_register_card(&pdev->dev, card);
+>>>>>>> upstream/android-13
 }
 
 int snd_soc_poweroff(struct device *dev)
 {
 	struct snd_soc_card *card = dev_get_drvdata(dev);
+<<<<<<< HEAD
 	struct snd_soc_pcm_runtime *rtd;
+=======
+	struct snd_soc_component *component;
+>>>>>>> upstream/android-13
 
 	if (!card->instantiated)
 		return 0;
 
+<<<<<<< HEAD
 	/* Flush out pmdown_time work - we actually do want to run it
 	 * now, we're shutting down so no imminent restart. */
 	list_for_each_entry(rtd, &card->rtd_list, list)
 		flush_delayed_work(&rtd->delayed_work);
+=======
+	/*
+	 * Flush out pmdown_time work - we actually do want to run it
+	 * now, we're shutting down so no imminent restart.
+	 */
+	snd_soc_flush_all_delayed_work(card);
+>>>>>>> upstream/android-13
 
 	snd_soc_dapm_shutdown(card);
 
 	/* deactivate pins to sleep state */
+<<<<<<< HEAD
 	list_for_each_entry(rtd, &card->rtd_list, list) {
 		struct snd_soc_dai *cpu_dai = rtd->cpu_dai;
 		int i;
@@ -2291,6 +4007,10 @@ int snd_soc_poweroff(struct device *dev)
 			pinctrl_pm_select_sleep_state(codec_dai->dev);
 		}
 	}
+=======
+	for_each_card_components(card, component)
+		pinctrl_pm_select_sleep_state(component->dev);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -2313,7 +4033,10 @@ static struct platform_driver soc_driver = {
 		.pm		= &snd_soc_pm_ops,
 	},
 	.probe		= soc_probe,
+<<<<<<< HEAD
 	.remove		= soc_remove,
+=======
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -2363,12 +4086,21 @@ static int snd_soc_add_controls(struct snd_card *card, struct device *dev,
 	const struct snd_kcontrol_new *controls, int num_controls,
 	const char *prefix, void *data)
 {
+<<<<<<< HEAD
 	int err, i;
 
 	for (i = 0; i < num_controls; i++) {
 		const struct snd_kcontrol_new *control = &controls[i];
 		err = snd_ctl_add(card, snd_soc_cnew(control, data,
 						     control->name, prefix));
+=======
+	int i;
+
+	for (i = 0; i < num_controls; i++) {
+		const struct snd_kcontrol_new *control = &controls[i];
+		int err = snd_ctl_add(card, snd_soc_cnew(control, data,
+							 control->name, prefix));
+>>>>>>> upstream/android-13
 		if (err < 0) {
 			dev_err(dev, "ASoC: Failed to add %s: %d\n",
 				control->name, err);
@@ -2379,6 +4111,7 @@ static int snd_soc_add_controls(struct snd_card *card, struct device *dev,
 	return 0;
 }
 
+<<<<<<< HEAD
 struct snd_kcontrol *snd_soc_card_get_kcontrol(struct snd_soc_card *soc_card,
 					       const char *name)
 {
@@ -2395,6 +4128,8 @@ struct snd_kcontrol *snd_soc_card_get_kcontrol(struct snd_soc_card *soc_card,
 }
 EXPORT_SYMBOL_GPL(snd_soc_card_get_kcontrol);
 
+=======
+>>>>>>> upstream/android-13
 /**
  * snd_soc_add_component_controls - Add an array of controls to a component.
  *
@@ -2455,6 +4190,7 @@ int snd_soc_add_dai_controls(struct snd_soc_dai *dai,
 EXPORT_SYMBOL_GPL(snd_soc_add_dai_controls);
 
 /**
+<<<<<<< HEAD
  * snd_soc_dai_set_sysclk - configure DAI system or master clock.
  * @dai: DAI
  * @clk_id: DAI specific clock ID
@@ -2746,6 +4482,8 @@ int snd_soc_dai_digital_mute(struct snd_soc_dai *dai, int mute,
 EXPORT_SYMBOL_GPL(snd_soc_dai_digital_mute);
 
 /**
+=======
+>>>>>>> upstream/android-13
  * snd_soc_register_card - Register a card with the ASoC core
  *
  * @card: Card to register
@@ -2753,6 +4491,7 @@ EXPORT_SYMBOL_GPL(snd_soc_dai_digital_mute);
  */
 int snd_soc_register_card(struct snd_soc_card *card)
 {
+<<<<<<< HEAD
 	int i, ret;
 	struct snd_soc_pcm_runtime *rtd;
 
@@ -2807,6 +4546,30 @@ int snd_soc_register_card(struct snd_soc_card *card)
 	}
 
 	return ret;
+=======
+	if (!card->name || !card->dev)
+		return -EINVAL;
+
+	dev_set_drvdata(card->dev, card);
+
+	INIT_LIST_HEAD(&card->widgets);
+	INIT_LIST_HEAD(&card->paths);
+	INIT_LIST_HEAD(&card->dapm_list);
+	INIT_LIST_HEAD(&card->aux_comp_list);
+	INIT_LIST_HEAD(&card->component_dev_list);
+	INIT_LIST_HEAD(&card->list);
+	INIT_LIST_HEAD(&card->rtd_list);
+	INIT_LIST_HEAD(&card->dapm_dirty);
+	INIT_LIST_HEAD(&card->dobj_list);
+
+	card->instantiated = 0;
+	mutex_init(&card->mutex);
+	mutex_init(&card->dapm_mutex);
+	mutex_init(&card->pcm_mutex);
+	spin_lock_init(&card->dpcm_lock);
+
+	return snd_soc_bind_card(card);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(snd_soc_register_card);
 
@@ -2818,12 +4581,19 @@ EXPORT_SYMBOL_GPL(snd_soc_register_card);
  */
 int snd_soc_unregister_card(struct snd_soc_card *card)
 {
+<<<<<<< HEAD
 	if (card->instantiated) {
 		card->instantiated = false;
 		snd_soc_dapm_shutdown(card);
 		soc_cleanup_card_resources(card);
 		dev_dbg(card->dev, "ASoC: Unregistered card '%s'\n", card->name);
 	}
+=======
+	mutex_lock(&client_mutex);
+	snd_soc_unbind_card(card, true);
+	mutex_unlock(&client_mutex);
+	dev_dbg(card->dev, "ASoC: Unregistered card '%s'\n", card->name);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -2835,6 +4605,7 @@ EXPORT_SYMBOL_GPL(snd_soc_unregister_card);
  */
 static char *fmt_single_name(struct device *dev, int *id)
 {
+<<<<<<< HEAD
 	char *found, name[NAME_SIZE];
 	int id1, id2;
 
@@ -2842,6 +4613,18 @@ static char *fmt_single_name(struct device *dev, int *id)
 		return NULL;
 
 	strlcpy(name, dev_name(dev), NAME_SIZE);
+=======
+	const char *devname = dev_name(dev);
+	char *found, *name;
+	unsigned int id1, id2;
+
+	if (devname == NULL)
+		return NULL;
+
+	name = devm_kstrdup(dev, devname, GFP_KERNEL);
+	if (!name)
+		return NULL;
+>>>>>>> upstream/android-13
 
 	/* are we a "%s.%d" name (platform and SPI components) */
 	found = strstr(name, dev->driver->name);
@@ -2854,6 +4637,7 @@ static char *fmt_single_name(struct device *dev, int *id)
 				found[strlen(dev->driver->name)] = '\0';
 		}
 
+<<<<<<< HEAD
 	} else {
 		/* I2C component devices are named "bus-addr"  */
 		if (sscanf(name, "%x-%x", &id1, &id2) == 2) {
@@ -2870,6 +4654,23 @@ static char *fmt_single_name(struct device *dev, int *id)
 	}
 
 	return kstrdup(name, GFP_KERNEL);
+=======
+	/* I2C component devices are named "bus-addr" */
+	} else if (sscanf(name, "%x-%x", &id1, &id2) == 2) {
+
+		/* create unique ID number from I2C addr and bus */
+		*id = ((id1 & 0xffff) << 16) + id2;
+
+		devm_kfree(dev, name);
+
+		/* sanitize component name for DAI link creation */
+		name = devm_kasprintf(dev, GFP_KERNEL, "%s.%s", dev->driver->name, devname);
+	} else {
+		*id = 0;
+	}
+
+	return name;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -2886,6 +4687,7 @@ static inline char *fmt_multiple_name(struct device *dev,
 		return NULL;
 	}
 
+<<<<<<< HEAD
 	return kstrdup(dai_drv->name, GFP_KERNEL);
 }
 
@@ -2911,13 +4713,46 @@ static void snd_soc_unregister_dais(struct snd_soc_component *component)
 static struct snd_soc_dai *soc_add_dai(struct snd_soc_component *component,
 	struct snd_soc_dai_driver *dai_drv,
 	bool legacy_dai_naming)
+=======
+	return devm_kstrdup(dev, dai_drv->name, GFP_KERNEL);
+}
+
+void snd_soc_unregister_dai(struct snd_soc_dai *dai)
+{
+	dev_dbg(dai->dev, "ASoC: Unregistered DAI '%s'\n", dai->name);
+	list_del(&dai->list);
+}
+EXPORT_SYMBOL_GPL(snd_soc_unregister_dai);
+
+/**
+ * snd_soc_register_dai - Register a DAI dynamically & create its widgets
+ *
+ * @component: The component the DAIs are registered for
+ * @dai_drv: DAI driver to use for the DAI
+ * @legacy_dai_naming: if %true, use legacy single-name format;
+ * 	if %false, use multiple-name format;
+ *
+ * Topology can use this API to register DAIs when probing a component.
+ * These DAIs's widgets will be freed in the card cleanup and the DAIs
+ * will be freed in the component cleanup.
+ */
+struct snd_soc_dai *snd_soc_register_dai(struct snd_soc_component *component,
+					 struct snd_soc_dai_driver *dai_drv,
+					 bool legacy_dai_naming)
+>>>>>>> upstream/android-13
 {
 	struct device *dev = component->dev;
 	struct snd_soc_dai *dai;
 
 	dev_dbg(dev, "ASoC: dynamically register DAI %s\n", dev_name(dev));
 
+<<<<<<< HEAD
 	dai = kzalloc(sizeof(struct snd_soc_dai), GFP_KERNEL);
+=======
+	lockdep_assert_held(&client_mutex);
+
+	dai = devm_kzalloc(dev, sizeof(*dai), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (dai == NULL)
 		return NULL;
 
@@ -2930,7 +4765,11 @@ static struct snd_soc_dai *soc_add_dai(struct snd_soc_component *component,
 	 * component-less anymore.
 	 */
 	if (legacy_dai_naming &&
+<<<<<<< HEAD
 	   (dai_drv->id == 0 || dai_drv->name == NULL)) {
+=======
+	    (dai_drv->id == 0 || dai_drv->name == NULL)) {
+>>>>>>> upstream/android-13
 		dai->name = fmt_single_name(dev, &dai->id);
 	} else {
 		dai->name = fmt_multiple_name(dev, dai_drv);
@@ -2939,17 +4778,27 @@ static struct snd_soc_dai *soc_add_dai(struct snd_soc_component *component,
 		else
 			dai->id = component->num_dai;
 	}
+<<<<<<< HEAD
 	if (dai->name == NULL) {
 		kfree(dai);
 		return NULL;
 	}
+=======
+	if (!dai->name)
+		return NULL;
+>>>>>>> upstream/android-13
 
 	dai->component = component;
 	dai->dev = dev;
 	dai->driver = dai_drv;
+<<<<<<< HEAD
 	if (!dai->driver->ops)
 		dai->driver->ops = &null_dai_ops;
 
+=======
+
+	/* see for_each_component_dais */
+>>>>>>> upstream/android-13
 	list_add_tail(&dai->list, &component->dai_list);
 	component->num_dai++;
 
@@ -2958,11 +4807,28 @@ static struct snd_soc_dai *soc_add_dai(struct snd_soc_component *component,
 }
 
 /**
+<<<<<<< HEAD
+=======
+ * snd_soc_unregister_dais - Unregister DAIs from the ASoC core
+ *
+ * @component: The component for which the DAIs should be unregistered
+ */
+static void snd_soc_unregister_dais(struct snd_soc_component *component)
+{
+	struct snd_soc_dai *dai, *_dai;
+
+	for_each_component_dais_safe(component, dai, _dai)
+		snd_soc_unregister_dai(dai);
+}
+
+/**
+>>>>>>> upstream/android-13
  * snd_soc_register_dais - Register a DAI with the ASoC core
  *
  * @component: The component the DAIs are registered for
  * @dai_drv: DAI driver to use for the DAIs
  * @count: Number of DAIs
+<<<<<<< HEAD
  * @legacy_dai_naming: Use the legacy naming scheme and let the DAI inherit the
  *                     parent's name.
  */
@@ -2970,16 +4836,29 @@ static int snd_soc_register_dais(struct snd_soc_component *component,
 				 struct snd_soc_dai_driver *dai_drv, size_t count)
 {
 	struct device *dev = component->dev;
+=======
+ */
+static int snd_soc_register_dais(struct snd_soc_component *component,
+				 struct snd_soc_dai_driver *dai_drv,
+				 size_t count)
+{
+>>>>>>> upstream/android-13
 	struct snd_soc_dai *dai;
 	unsigned int i;
 	int ret;
 
+<<<<<<< HEAD
 	dev_dbg(dev, "ASoC: dai register %s #%zu\n", dev_name(dev), count);
 
 	for (i = 0; i < count; i++) {
 
 		dai = soc_add_dai(component, dai_drv + i,
 				  count == 1 && !component->driver->non_legacy_dai_naming);
+=======
+	for (i = 0; i < count; i++) {
+		dai = snd_soc_register_dai(component, dai_drv + i, count == 1 &&
+				  !component->driver->non_legacy_dai_naming);
+>>>>>>> upstream/android-13
 		if (dai == NULL) {
 			ret = -ENOMEM;
 			goto err;
@@ -2994,6 +4873,7 @@ err:
 	return ret;
 }
 
+<<<<<<< HEAD
 /**
  * snd_soc_register_dai - Register a DAI dynamically & create its widgets
  *
@@ -3174,6 +5054,8 @@ static void snd_soc_component_del_unlocked(struct snd_soc_component *component)
 	list_del(&component->list);
 }
 
+=======
+>>>>>>> upstream/android-13
 #define ENDIANNESS_MAP(name) \
 	(SNDRV_PCM_FMTBIT_##name##LE | SNDRV_PCM_FMTBIT_##name##BE)
 static u64 endianness_format_map[] = {
@@ -3209,20 +5091,76 @@ static void convert_endianness_formats(struct snd_soc_pcm_stream *stream)
 			stream->formats |= endianness_format_map[i];
 }
 
+<<<<<<< HEAD
 int snd_soc_add_component(struct device *dev,
 			struct snd_soc_component *component,
 			const struct snd_soc_component_driver *component_driver,
 			struct snd_soc_dai_driver *dai_drv,
 			int num_dai)
+=======
+static void snd_soc_try_rebind_card(void)
+{
+	struct snd_soc_card *card, *c;
+
+	list_for_each_entry_safe(card, c, &unbind_card_list, list)
+		if (!snd_soc_bind_card(card))
+			list_del(&card->list);
+}
+
+static void snd_soc_del_component_unlocked(struct snd_soc_component *component)
+{
+	struct snd_soc_card *card = component->card;
+
+	snd_soc_unregister_dais(component);
+
+	if (card)
+		snd_soc_unbind_card(card, false);
+
+	list_del(&component->list);
+}
+
+int snd_soc_component_initialize(struct snd_soc_component *component,
+				 const struct snd_soc_component_driver *driver,
+				 struct device *dev)
+{
+	INIT_LIST_HEAD(&component->dai_list);
+	INIT_LIST_HEAD(&component->dobj_list);
+	INIT_LIST_HEAD(&component->card_list);
+	INIT_LIST_HEAD(&component->list);
+	mutex_init(&component->io_mutex);
+
+	component->name = fmt_single_name(dev, &component->id);
+	if (!component->name) {
+		dev_err(dev, "ASoC: Failed to allocate name\n");
+		return -ENOMEM;
+	}
+
+	component->dev		= dev;
+	component->driver	= driver;
+
+	return 0;
+}
+EXPORT_SYMBOL_GPL(snd_soc_component_initialize);
+
+int snd_soc_add_component(struct snd_soc_component *component,
+			  struct snd_soc_dai_driver *dai_drv,
+			  int num_dai)
+>>>>>>> upstream/android-13
 {
 	int ret;
 	int i;
 
+<<<<<<< HEAD
 	ret = snd_soc_component_initialize(component, component_driver, dev);
 	if (ret)
 		goto err_free;
 
 	if (component_driver->endianness) {
+=======
+	mutex_lock(&client_mutex);
+
+	if (component->driver->endianness) {
+>>>>>>> upstream/android-13
 		for (i = 0; i < num_dai; i++) {
 			convert_endianness_formats(&dai_drv[i].playback);
 			convert_endianness_formats(&dai_drv[i].capture);
@@ -3231,6 +5169,7 @@ int snd_soc_add_component(struct device *dev,
 
 	ret = snd_soc_register_dais(component, dai_drv, num_dai);
 	if (ret < 0) {
+<<<<<<< HEAD
 		dev_err(dev, "ASoC: Failed to register DAIs: %d\n", ret);
 		goto err_cleanup;
 	}
@@ -3242,6 +5181,33 @@ int snd_soc_add_component(struct device *dev,
 err_cleanup:
 	snd_soc_component_cleanup(component);
 err_free:
+=======
+		dev_err(component->dev, "ASoC: Failed to register DAIs: %d\n",
+			ret);
+		goto err_cleanup;
+	}
+
+	if (!component->driver->write && !component->driver->read) {
+		if (!component->regmap)
+			component->regmap = dev_get_regmap(component->dev,
+							   NULL);
+		if (component->regmap)
+			snd_soc_component_setup_regmap(component);
+	}
+
+	/* see for_each_component */
+	list_add(&component->list, &component_list);
+
+err_cleanup:
+	if (ret < 0)
+		snd_soc_del_component_unlocked(component);
+
+	mutex_unlock(&client_mutex);
+
+	if (ret == 0)
+		snd_soc_try_rebind_card();
+
+>>>>>>> upstream/android-13
 	return ret;
 }
 EXPORT_SYMBOL_GPL(snd_soc_add_component);
@@ -3252,22 +5218,65 @@ int snd_soc_register_component(struct device *dev,
 			int num_dai)
 {
 	struct snd_soc_component *component;
+<<<<<<< HEAD
+=======
+	int ret;
+>>>>>>> upstream/android-13
 
 	component = devm_kzalloc(dev, sizeof(*component), GFP_KERNEL);
 	if (!component)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	return snd_soc_add_component(dev, component, component_driver,
 				     dai_drv, num_dai);
+=======
+	ret = snd_soc_component_initialize(component, component_driver, dev);
+	if (ret < 0)
+		return ret;
+
+	return snd_soc_add_component(component, dai_drv, num_dai);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(snd_soc_register_component);
 
 /**
+<<<<<<< HEAD
+=======
+ * snd_soc_unregister_component_by_driver - Unregister component using a given driver
+ * from the ASoC core
+ *
+ * @dev: The device to unregister
+ * @component_driver: The component driver to unregister
+ */
+void snd_soc_unregister_component_by_driver(struct device *dev,
+					    const struct snd_soc_component_driver *component_driver)
+{
+	struct snd_soc_component *component;
+
+	if (!component_driver)
+		return;
+
+	mutex_lock(&client_mutex);
+	component = snd_soc_lookup_component_nolocked(dev, component_driver->name);
+	if (!component)
+		goto out;
+
+	snd_soc_del_component_unlocked(component);
+
+out:
+	mutex_unlock(&client_mutex);
+}
+EXPORT_SYMBOL_GPL(snd_soc_unregister_component_by_driver);
+
+/**
+>>>>>>> upstream/android-13
  * snd_soc_unregister_component - Unregister all related component
  * from the ASoC core
  *
  * @dev: The device to unregister
  */
+<<<<<<< HEAD
 static int __snd_soc_unregister_component(struct device *dev)
 {
 	struct snd_soc_component *component;
@@ -3334,6 +5343,22 @@ void snd_soc_card_change_online_state(struct snd_soc_card *soc_card, int online)
 	snd_card_change_online_state(soc_card->snd_card, online);
 }
 EXPORT_SYMBOL_GPL(snd_soc_card_change_online_state);
+=======
+void snd_soc_unregister_component(struct device *dev)
+{
+	mutex_lock(&client_mutex);
+	while (1) {
+		struct snd_soc_component *component = snd_soc_lookup_component_nolocked(dev, NULL);
+
+		if (!component)
+			break;
+
+		snd_soc_del_component_unlocked(component);
+	}
+	mutex_unlock(&client_mutex);
+}
+EXPORT_SYMBOL_GPL(snd_soc_unregister_component);
+>>>>>>> upstream/android-13
 
 /* Retrieve a card's name from device tree */
 int snd_soc_of_parse_card_name(struct snd_soc_card *card,
@@ -3379,7 +5404,11 @@ int snd_soc_of_parse_audio_simple_widgets(struct snd_soc_card *card,
 	struct device_node *np = card->dev->of_node;
 	struct snd_soc_dapm_widget *widgets;
 	const char *template, *wname;
+<<<<<<< HEAD
 	int i, j, num_widgets, ret;
+=======
+	int i, j, num_widgets;
+>>>>>>> upstream/android-13
 
 	num_widgets = of_property_count_strings(np, propname);
 	if (num_widgets < 0) {
@@ -3409,8 +5438,13 @@ int snd_soc_of_parse_audio_simple_widgets(struct snd_soc_card *card,
 	}
 
 	for (i = 0; i < num_widgets; i++) {
+<<<<<<< HEAD
 		ret = of_property_read_string_index(np, propname,
 			2 * i, &template);
+=======
+		int ret = of_property_read_string_index(np, propname,
+							2 * i, &template);
+>>>>>>> upstream/android-13
 		if (ret) {
 			dev_err(card->dev,
 				"ASoC: Property '%s' index %d read error:%d\n",
@@ -3508,12 +5542,20 @@ int snd_soc_of_parse_tdm_slot(struct device_node *np,
 }
 EXPORT_SYMBOL_GPL(snd_soc_of_parse_tdm_slot);
 
+<<<<<<< HEAD
 void snd_soc_of_parse_audio_prefix(struct snd_soc_card *card,
 				   struct snd_soc_codec_conf *codec_conf,
 				   struct device_node *of_node,
 				   const char *propname)
 {
 	struct device_node *np = card->dev->of_node;
+=======
+void snd_soc_of_parse_node_prefix(struct device_node *np,
+				  struct snd_soc_codec_conf *codec_conf,
+				  struct device_node *of_node,
+				  const char *propname)
+{
+>>>>>>> upstream/android-13
 	const char *str;
 	int ret;
 
@@ -3523,10 +5565,17 @@ void snd_soc_of_parse_audio_prefix(struct snd_soc_card *card,
 		return;
 	}
 
+<<<<<<< HEAD
 	codec_conf->of_node	= of_node;
 	codec_conf->name_prefix	= str;
 }
 EXPORT_SYMBOL_GPL(snd_soc_of_parse_audio_prefix);
+=======
+	codec_conf->dlc.of_node	= of_node;
+	codec_conf->name_prefix	= str;
+}
+EXPORT_SYMBOL_GPL(snd_soc_of_parse_node_prefix);
+>>>>>>> upstream/android-13
 
 int snd_soc_of_parse_audio_routing(struct snd_soc_card *card,
 				   const char *propname)
@@ -3534,7 +5583,11 @@ int snd_soc_of_parse_audio_routing(struct snd_soc_card *card,
 	struct device_node *np = card->dev->of_node;
 	int num_routes;
 	struct snd_soc_dapm_route *routes;
+<<<<<<< HEAD
 	int i, ret;
+=======
+	int i;
+>>>>>>> upstream/android-13
 
 	num_routes = of_property_count_strings(np, propname);
 	if (num_routes < 0 || num_routes & 1) {
@@ -3544,23 +5597,35 @@ int snd_soc_of_parse_audio_routing(struct snd_soc_card *card,
 		return -EINVAL;
 	}
 	num_routes /= 2;
+<<<<<<< HEAD
 	if (!num_routes) {
 		dev_err(card->dev, "ASoC: Property '%s's length is zero\n",
 			propname);
 		return -EINVAL;
 	}
+=======
+>>>>>>> upstream/android-13
 
 	routes = devm_kcalloc(card->dev, num_routes, sizeof(*routes),
 			      GFP_KERNEL);
 	if (!routes) {
 		dev_err(card->dev,
 			"ASoC: Could not allocate DAPM route table\n");
+<<<<<<< HEAD
 		return -EINVAL;
 	}
 
 	for (i = 0; i < num_routes; i++) {
 		ret = of_property_read_string_index(np, propname,
 			2 * i, &routes[i].sink);
+=======
+		return -ENOMEM;
+	}
+
+	for (i = 0; i < num_routes; i++) {
+		int ret = of_property_read_string_index(np, propname,
+							2 * i, &routes[i].sink);
+>>>>>>> upstream/android-13
 		if (ret) {
 			dev_err(card->dev,
 				"ASoC: Property '%s' index %d could not be read: %d\n",
@@ -3584,12 +5649,96 @@ int snd_soc_of_parse_audio_routing(struct snd_soc_card *card,
 }
 EXPORT_SYMBOL_GPL(snd_soc_of_parse_audio_routing);
 
+<<<<<<< HEAD
 unsigned int snd_soc_of_parse_daifmt(struct device_node *np,
 				     const char *prefix,
 				     struct device_node **bitclkmaster,
 				     struct device_node **framemaster)
 {
 	int ret, i;
+=======
+int snd_soc_of_parse_aux_devs(struct snd_soc_card *card, const char *propname)
+{
+	struct device_node *node = card->dev->of_node;
+	struct snd_soc_aux_dev *aux;
+	int num, i;
+
+	num = of_count_phandle_with_args(node, propname, NULL);
+	if (num == -ENOENT) {
+		return 0;
+	} else if (num < 0) {
+		dev_err(card->dev, "ASOC: Property '%s' could not be read: %d\n",
+			propname, num);
+		return num;
+	}
+
+	aux = devm_kcalloc(card->dev, num, sizeof(*aux), GFP_KERNEL);
+	if (!aux)
+		return -ENOMEM;
+	card->aux_dev = aux;
+	card->num_aux_devs = num;
+
+	for_each_card_pre_auxs(card, i, aux) {
+		aux->dlc.of_node = of_parse_phandle(node, propname, i);
+		if (!aux->dlc.of_node)
+			return -EINVAL;
+	}
+
+	return 0;
+}
+EXPORT_SYMBOL_GPL(snd_soc_of_parse_aux_devs);
+
+unsigned int snd_soc_daifmt_clock_provider_fliped(unsigned int dai_fmt)
+{
+	unsigned int inv_dai_fmt = dai_fmt & ~SND_SOC_DAIFMT_CLOCK_PROVIDER_MASK;
+
+	switch (dai_fmt & SND_SOC_DAIFMT_CLOCK_PROVIDER_MASK) {
+	case SND_SOC_DAIFMT_CBP_CFP:
+		inv_dai_fmt |= SND_SOC_DAIFMT_CBC_CFC;
+		break;
+	case SND_SOC_DAIFMT_CBP_CFC:
+		inv_dai_fmt |= SND_SOC_DAIFMT_CBC_CFP;
+		break;
+	case SND_SOC_DAIFMT_CBC_CFP:
+		inv_dai_fmt |= SND_SOC_DAIFMT_CBP_CFC;
+		break;
+	case SND_SOC_DAIFMT_CBC_CFC:
+		inv_dai_fmt |= SND_SOC_DAIFMT_CBP_CFP;
+		break;
+	}
+
+	return inv_dai_fmt;
+}
+EXPORT_SYMBOL_GPL(snd_soc_daifmt_clock_provider_fliped);
+
+unsigned int snd_soc_daifmt_clock_provider_from_bitmap(unsigned int bit_frame)
+{
+	/*
+	 * bit_frame is return value from
+	 *	snd_soc_daifmt_parse_clock_provider_raw()
+	 */
+
+	/* Codec base */
+	switch (bit_frame) {
+	case 0x11:
+		return SND_SOC_DAIFMT_CBP_CFP;
+	case 0x10:
+		return SND_SOC_DAIFMT_CBP_CFC;
+	case 0x01:
+		return SND_SOC_DAIFMT_CBC_CFP;
+	default:
+		return SND_SOC_DAIFMT_CBC_CFC;
+	}
+
+	return 0;
+}
+EXPORT_SYMBOL_GPL(snd_soc_daifmt_clock_provider_from_bitmap);
+
+unsigned int snd_soc_daifmt_parse_format(struct device_node *np,
+					 const char *prefix)
+{
+	int ret;
+>>>>>>> upstream/android-13
 	char prop[128];
 	unsigned int format = 0;
 	int bit, frame;
@@ -3623,6 +5772,11 @@ unsigned int snd_soc_of_parse_daifmt(struct device_node *np,
 		ret = of_property_read_string(np, prop, &str);
 	}
 	if (ret == 0) {
+<<<<<<< HEAD
+=======
+		int i;
+
+>>>>>>> upstream/android-13
 		for (i = 0; i < ARRAY_SIZE(of_fmt_table); i++) {
 			if (strcmp(str, of_fmt_table[i].name) == 0) {
 				format |= of_fmt_table[i].val;
@@ -3667,10 +5821,31 @@ unsigned int snd_soc_of_parse_daifmt(struct device_node *np,
 		break;
 	}
 
+<<<<<<< HEAD
 	/*
 	 * check "[prefix]bitclock-master"
 	 * check "[prefix]frame-master"
 	 * SND_SOC_DAIFMT_MASTER_MASK area
+=======
+	return format;
+}
+EXPORT_SYMBOL_GPL(snd_soc_daifmt_parse_format);
+
+unsigned int snd_soc_daifmt_parse_clock_provider_raw(struct device_node *np,
+						     const char *prefix,
+						     struct device_node **bitclkmaster,
+						     struct device_node **framemaster)
+{
+	char prop[128];
+	unsigned int bit, frame;
+
+	if (!prefix)
+		prefix = "";
+
+	/*
+	 * check "[prefix]bitclock-master"
+	 * check "[prefix]frame-master"
+>>>>>>> upstream/android-13
 	 */
 	snprintf(prop, sizeof(prop), "%sbitclock-master", prefix);
 	bit = !!of_get_property(np, prop, NULL);
@@ -3682,6 +5857,7 @@ unsigned int snd_soc_of_parse_daifmt(struct device_node *np,
 	if (frame && framemaster)
 		*framemaster = of_parse_phandle(np, prop, 0);
 
+<<<<<<< HEAD
 	switch ((bit << 4) + frame) {
 	case 0x11:
 		format |= SND_SOC_DAIFMT_CBM_CFM;
@@ -3709,6 +5885,25 @@ int snd_soc_get_dai_id(struct device_node *ep)
 
 	node = of_graph_get_port_parent(ep);
 
+=======
+	/*
+	 * return bitmap.
+	 * It will be parameter of
+	 *	snd_soc_daifmt_clock_provider_from_bitmap()
+	 */
+	return (bit << 4) + frame;
+}
+EXPORT_SYMBOL_GPL(snd_soc_daifmt_parse_clock_provider_raw);
+
+int snd_soc_get_dai_id(struct device_node *ep)
+{
+	struct snd_soc_component *component;
+	struct snd_soc_dai_link_component dlc;
+	int ret;
+
+	dlc.of_node	= of_graph_get_port_parent(ep);
+	dlc.name	= NULL;
+>>>>>>> upstream/android-13
 	/*
 	 * For example HDMI case, HDMI has video/sound port,
 	 * but ALSA SoC needs sound port number only.
@@ -3717,6 +5912,7 @@ int snd_soc_get_dai_id(struct device_node *ep)
 	 */
 	ret = -ENOTSUPP;
 	mutex_lock(&client_mutex);
+<<<<<<< HEAD
 	list_for_each_entry(pos, &component_list, list) {
 		struct device_node *component_of_node = pos->dev->of_node;
 
@@ -3734,6 +5930,14 @@ int snd_soc_get_dai_id(struct device_node *ep)
 	mutex_unlock(&client_mutex);
 
 	of_node_put(node);
+=======
+	component = soc_find_component(&dlc);
+	if (component)
+		ret = snd_soc_component_of_xlate_dai_id(component, ep);
+	mutex_unlock(&client_mutex);
+
+	of_node_put(dlc.of_node);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -3772,6 +5976,7 @@ int snd_soc_info_multi_ext(struct snd_kcontrol *kcontrol,
 }
 EXPORT_SYMBOL_GPL(snd_soc_info_multi_ext);
 
+<<<<<<< HEAD
 int snd_soc_get_dai_name(struct of_phandle_args *args,
 				const char **dai_name)
 {
@@ -3793,6 +5998,23 @@ int snd_soc_get_dai_name(struct of_phandle_args *args,
 							     args,
 							     dai_name);
 		} else {
+=======
+int snd_soc_get_dai_name(const struct of_phandle_args *args,
+				const char **dai_name)
+{
+	struct snd_soc_component *pos;
+	int ret = -EPROBE_DEFER;
+
+	mutex_lock(&client_mutex);
+	for_each_component(pos) {
+		struct device_node *component_of_node = soc_component_to_node(pos);
+
+		if (component_of_node != args->np || !pos->num_dai)
+			continue;
+
+		ret = snd_soc_component_of_xlate_dai_name(pos, args, dai_name);
+		if (ret == -ENOTSUPP) {
+>>>>>>> upstream/android-13
 			struct snd_soc_dai *dai;
 			int id = -1;
 
@@ -3816,7 +6038,11 @@ int snd_soc_get_dai_name(struct of_phandle_args *args,
 			ret = 0;
 
 			/* find target DAI */
+<<<<<<< HEAD
 			list_for_each_entry(dai, &pos->dai_list, list) {
+=======
+			for_each_component_dais(pos, dai) {
+>>>>>>> upstream/android-13
 				if (id == 0)
 					break;
 				id--;
@@ -3825,6 +6051,17 @@ int snd_soc_get_dai_name(struct of_phandle_args *args,
 			*dai_name = dai->driver->name;
 			if (!*dai_name)
 				*dai_name = pos->name;
+<<<<<<< HEAD
+=======
+		} else if (ret) {
+			/*
+			 * if another error than ENOTSUPP is returned go on and
+			 * check if another component is provided with the same
+			 * node. This may happen if a device provides several
+			 * components
+			 */
+			continue;
+>>>>>>> upstream/android-13
 		}
 
 		break;
@@ -3861,10 +6098,17 @@ EXPORT_SYMBOL_GPL(snd_soc_of_get_dai_name);
  */
 void snd_soc_of_put_dai_link_codecs(struct snd_soc_dai_link *dai_link)
 {
+<<<<<<< HEAD
 	struct snd_soc_dai_link_component *component = dai_link->codecs;
 	int index;
 
 	for (index = 0; index < dai_link->num_codecs; index++, component++) {
+=======
+	struct snd_soc_dai_link_component *component;
+	int index;
+
+	for_each_link_codecs(dai_link, index, component) {
+>>>>>>> upstream/android-13
 		if (!component->of_node)
 			break;
 		of_node_put(component->of_node);
@@ -3916,12 +6160,19 @@ int snd_soc_of_get_dai_link_codecs(struct device *dev,
 	dai_link->num_codecs = num_codecs;
 
 	/* Parse the list */
+<<<<<<< HEAD
 	for (index = 0, component = dai_link->codecs;
 	     index < dai_link->num_codecs;
 	     index++, component++) {
 		ret = of_parse_phandle_with_args(of_node, name,
 						 "#sound-dai-cells",
 						  index, &args);
+=======
+	for_each_link_codecs(dai_link, index, component) {
+		ret = of_parse_phandle_with_args(of_node, name,
+						 "#sound-dai-cells",
+						 index, &args);
+>>>>>>> upstream/android-13
 		if (ret)
 			goto err;
 		component->of_node = args.np;

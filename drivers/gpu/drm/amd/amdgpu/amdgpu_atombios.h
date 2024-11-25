@@ -168,6 +168,7 @@ int amdgpu_atombios_get_memory_pll_dividers(struct amdgpu_device *adev,
 void amdgpu_atombios_set_engine_dram_timings(struct amdgpu_device *adev,
 					     u32 eng_clock, u32 mem_clock);
 
+<<<<<<< HEAD
 int amdgpu_atombios_get_leakage_id_from_vbios(struct amdgpu_device *adev,
 					      u16 *leakage_id);
 
@@ -180,6 +181,8 @@ int amdgpu_atombios_get_voltage_evv(struct amdgpu_device *adev,
 				    u16 virtual_voltage_id,
 				    u16 *voltage);
 
+=======
+>>>>>>> upstream/android-13
 bool
 amdgpu_atombios_is_voltage_gpio(struct amdgpu_device *adev,
 				u8 voltage_type, u8 voltage_mode);
@@ -216,6 +219,16 @@ int amdgpu_atombios_get_svi2_info(struct amdgpu_device *adev,
 			      u8 voltage_type,
 			      u8 *svd_gpio_id, u8 *svc_gpio_id);
 
+<<<<<<< HEAD
+=======
+int amdgpu_atombios_get_data_table(struct amdgpu_device *adev,
+				   uint32_t table,
+				   uint16_t *size,
+				   uint8_t *frev,
+				   uint8_t *crev,
+				   uint8_t **addr);
+
+>>>>>>> upstream/android-13
 void amdgpu_atombios_fini(struct amdgpu_device *adev);
 int amdgpu_atombios_init(struct amdgpu_device *adev);
 

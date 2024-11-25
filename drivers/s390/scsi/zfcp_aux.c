@@ -4,7 +4,11 @@
  *
  * Module interface and handling of zfcp data structures.
  *
+<<<<<<< HEAD
  * Copyright IBM Corp. 2002, 2013
+=======
+ * Copyright IBM Corp. 2002, 2020
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -25,6 +29,10 @@
  *            Martin Petermann
  *            Sven Schuetz
  *            Steffen Maier
+<<<<<<< HEAD
+=======
+ *	      Benjamin Block
+>>>>>>> upstream/android-13
  */
 
 #define KMSG_COMPONENT "zfcp"
@@ -36,6 +44,10 @@
 #include "zfcp_ext.h"
 #include "zfcp_fc.h"
 #include "zfcp_reqlist.h"
+<<<<<<< HEAD
+=======
+#include "zfcp_diag.h"
+>>>>>>> upstream/android-13
 
 #define ZFCP_BUS_ID_SIZE	20
 
@@ -124,6 +136,12 @@ static int __init zfcp_module_init(void)
 {
 	int retval = -ENOMEM;
 
+<<<<<<< HEAD
+=======
+	if (zfcp_experimental_dix)
+		pr_warn("DIX is enabled. It is experimental and might cause problems\n");
+
+>>>>>>> upstream/android-13
 	zfcp_fsf_qtcb_cache = zfcp_cache_hw_align("zfcp_fsf_qtcb",
 						  sizeof(struct fsf_qtcb));
 	if (!zfcp_fsf_qtcb_cache)
@@ -248,6 +266,7 @@ static int zfcp_allocate_low_mem_buffers(struct zfcp_adapter *adapter)
 
 static void zfcp_free_low_mem_buffers(struct zfcp_adapter *adapter)
 {
+<<<<<<< HEAD
 	if (adapter->pool.erp_req)
 		mempool_destroy(adapter->pool.erp_req);
 	if (adapter->pool.scsi_req)
@@ -262,16 +281,32 @@ static void zfcp_free_low_mem_buffers(struct zfcp_adapter *adapter)
 		mempool_destroy(adapter->pool.sr_data);
 	if (adapter->pool.gid_pn)
 		mempool_destroy(adapter->pool.gid_pn);
+=======
+	mempool_destroy(adapter->pool.erp_req);
+	mempool_destroy(adapter->pool.scsi_req);
+	mempool_destroy(adapter->pool.scsi_abort);
+	mempool_destroy(adapter->pool.qtcb_pool);
+	mempool_destroy(adapter->pool.status_read_req);
+	mempool_destroy(adapter->pool.sr_data);
+	mempool_destroy(adapter->pool.gid_pn);
+>>>>>>> upstream/android-13
 }
 
 /**
  * zfcp_status_read_refill - refill the long running status_read_requests
  * @adapter: ptr to struct zfcp_adapter for which the buffers should be refilled
  *
+<<<<<<< HEAD
  * Returns: 0 on success, 1 otherwise
  *
  * if there are 16 or more status_read requests missing an adapter_reopen
  * is triggered
+=======
+ * Return:
+ * * 0 on success meaning at least one status read is pending
+ * * 1 if posting failed and not a single status read buffer is pending,
+ *     also triggers adapter reopen recovery
+>>>>>>> upstream/android-13
  */
 int zfcp_status_read_refill(struct zfcp_adapter *adapter)
 {
@@ -294,6 +329,17 @@ static void _zfcp_status_read_scheduler(struct work_struct *work)
 					     stat_work));
 }
 
+<<<<<<< HEAD
+=======
+static void zfcp_version_change_lost_work(struct work_struct *work)
+{
+	struct zfcp_adapter *adapter = container_of(work, struct zfcp_adapter,
+						    version_change_lost_work);
+
+	zfcp_fsf_exchange_config_data_sync(adapter->qdio, NULL);
+}
+
+>>>>>>> upstream/android-13
 static void zfcp_print_sl(struct seq_file *m, struct service_level *sl)
 {
 	struct zfcp_adapter *adapter =
@@ -355,11 +401,22 @@ struct zfcp_adapter *zfcp_adapter_enqueue(struct ccw_device *ccw_device)
 	INIT_WORK(&adapter->stat_work, _zfcp_status_read_scheduler);
 	INIT_DELAYED_WORK(&adapter->scan_work, zfcp_fc_scan_ports);
 	INIT_WORK(&adapter->ns_up_work, zfcp_fc_sym_name_update);
+<<<<<<< HEAD
+=======
+	INIT_WORK(&adapter->version_change_lost_work,
+		  zfcp_version_change_lost_work);
+>>>>>>> upstream/android-13
 
 	adapter->next_port_scan = jiffies;
 
 	adapter->erp_action.adapter = adapter;
 
+<<<<<<< HEAD
+=======
+	if (zfcp_diag_adapter_setup(adapter))
+		goto failed;
+
+>>>>>>> upstream/android-13
 	if (zfcp_qdio_setup(adapter))
 		goto failed;
 
@@ -402,21 +459,50 @@ struct zfcp_adapter *zfcp_adapter_enqueue(struct ccw_device *ccw_device)
 
 	dev_set_drvdata(&ccw_device->dev, adapter);
 
+<<<<<<< HEAD
 	if (sysfs_create_group(&ccw_device->dev.kobj,
 			       &zfcp_sysfs_adapter_attrs))
 		goto failed;
 
 	/* report size limit per scatter-gather segment */
 	adapter->dma_parms.max_segment_size = ZFCP_QDIO_SBALE_LEN;
+=======
+	if (device_add_groups(&ccw_device->dev, zfcp_sysfs_adapter_attr_groups))
+		goto err_sysfs;
+
+	/* report size limit per scatter-gather segment */
+>>>>>>> upstream/android-13
 	adapter->ccw_device->dev.dma_parms = &adapter->dma_parms;
 
 	adapter->stat_read_buf_num = FSF_STATUS_READS_RECOM;
 
+<<<<<<< HEAD
 	if (!zfcp_scsi_adapter_register(adapter))
 		return adapter;
 
 failed:
 	zfcp_adapter_unregister(adapter);
+=======
+	return adapter;
+
+err_sysfs:
+failed:
+	/* TODO: make this more fine-granular */
+	cancel_delayed_work_sync(&adapter->scan_work);
+	cancel_work_sync(&adapter->stat_work);
+	cancel_work_sync(&adapter->ns_up_work);
+	cancel_work_sync(&adapter->version_change_lost_work);
+	zfcp_destroy_adapter_work_queue(adapter);
+
+	zfcp_fc_wka_ports_force_offline(adapter->gs);
+	zfcp_scsi_adapter_unregister(adapter);
+
+	zfcp_erp_thread_kill(adapter);
+	zfcp_dbf_adapter_unregister(adapter);
+	zfcp_qdio_destroy(adapter->qdio);
+
+	zfcp_ccw_adapter_put(adapter); /* final put to release */
+>>>>>>> upstream/android-13
 	return ERR_PTR(-ENOMEM);
 }
 
@@ -427,11 +513,19 @@ void zfcp_adapter_unregister(struct zfcp_adapter *adapter)
 	cancel_delayed_work_sync(&adapter->scan_work);
 	cancel_work_sync(&adapter->stat_work);
 	cancel_work_sync(&adapter->ns_up_work);
+<<<<<<< HEAD
+=======
+	cancel_work_sync(&adapter->version_change_lost_work);
+>>>>>>> upstream/android-13
 	zfcp_destroy_adapter_work_queue(adapter);
 
 	zfcp_fc_wka_ports_force_offline(adapter->gs);
 	zfcp_scsi_adapter_unregister(adapter);
+<<<<<<< HEAD
 	sysfs_remove_group(&cdev->dev.kobj, &zfcp_sysfs_adapter_attrs);
+=======
+	device_remove_groups(&cdev->dev, zfcp_sysfs_adapter_attr_groups);
+>>>>>>> upstream/android-13
 
 	zfcp_erp_thread_kill(adapter);
 	zfcp_dbf_adapter_unregister(adapter);
@@ -454,6 +548,10 @@ void zfcp_adapter_release(struct kref *ref)
 	dev_set_drvdata(&adapter->ccw_device->dev, NULL);
 	zfcp_fc_gs_destroy(adapter);
 	zfcp_free_low_mem_buffers(adapter);
+<<<<<<< HEAD
+=======
+	zfcp_diag_adapter_free(adapter);
+>>>>>>> upstream/android-13
 	kfree(adapter->req_list);
 	kfree(adapter->fc_stats);
 	kfree(adapter->stats_reset_data);
@@ -542,6 +640,7 @@ err_out:
 	zfcp_ccw_adapter_put(adapter);
 	return ERR_PTR(retval);
 }
+<<<<<<< HEAD
 
 /**
  * zfcp_sg_free_table - free memory used by scatterlists
@@ -584,3 +683,5 @@ int zfcp_sg_setup_table(struct scatterlist *sg, int count)
 	}
 	return 0;
 }
+=======
+>>>>>>> upstream/android-13

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * linux/arch/arm/mach-pxa/poodle.c
  *
@@ -6,10 +10,13 @@
  * Based on:
  *  linux/arch/arm/mach-pxa/lubbock.c Author:	Nicolas Pitre
  *
+<<<<<<< HEAD
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2 as
  *  published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * Change Log
  *  12-Dec-2002 Sharp Corporation for Poodle
  *  John Lenz <lenz@cs.wisc.edu> updates to 2.6
@@ -23,6 +30,10 @@
 #include <linux/delay.h>
 #include <linux/mtd/physmap.h>
 #include <linux/gpio.h>
+<<<<<<< HEAD
+=======
+#include <linux/gpio/machine.h>
+>>>>>>> upstream/android-13
 #include <linux/i2c.h>
 #include <linux/platform_data/i2c-pxa.h>
 #include <linux/regulator/machine.h>
@@ -195,7 +206,11 @@ struct platform_device poodle_locomo_device = {
 EXPORT_SYMBOL(poodle_locomo_device);
 
 #if defined(CONFIG_SPI_PXA2XX) || defined(CONFIG_SPI_PXA2XX_MODULE)
+<<<<<<< HEAD
 static struct pxa2xx_spi_master poodle_spi_info = {
+=======
+static struct pxa2xx_spi_controller poodle_spi_info = {
+>>>>>>> upstream/android-13
 	.num_chipselect	= 1,
 };
 
@@ -288,11 +303,26 @@ static struct pxamci_platform_data poodle_mci_platform_data = {
 	.init 			= poodle_mci_init,
 	.setpower 		= poodle_mci_setpower,
 	.exit			= poodle_mci_exit,
+<<<<<<< HEAD
 	.gpio_card_detect	= POODLE_GPIO_nSD_DETECT,
 	.gpio_card_ro		= POODLE_GPIO_nSD_WP,
 	.gpio_power		= -1,
 };
 
+=======
+};
+
+static struct gpiod_lookup_table poodle_mci_gpio_table = {
+	.dev_id = "pxa2xx-mci.0",
+	.table = {
+		GPIO_LOOKUP("gpio-pxa", POODLE_GPIO_nSD_DETECT,
+			    "cd", GPIO_ACTIVE_LOW),
+		GPIO_LOOKUP("gpio-pxa", POODLE_GPIO_nSD_WP,
+			    "wp", GPIO_ACTIVE_LOW),
+		{ },
+	},
+};
+>>>>>>> upstream/android-13
 
 /*
  * Irda
@@ -439,6 +469,10 @@ static void __init poodle_init(void)
 
 	pxa_set_fb_info(&poodle_locomo_device.dev, &poodle_fb_info);
 	pxa_set_udc_info(&udc_info);
+<<<<<<< HEAD
+=======
+	gpiod_add_lookup_table(&poodle_mci_gpio_table);
+>>>>>>> upstream/android-13
 	pxa_set_mci_info(&poodle_mci_platform_data);
 	pxa_set_ficp_info(&poodle_ficp_platform_data);
 	pxa_set_i2c_info(NULL);

@@ -9,9 +9,15 @@ device driver to overload a bulk endpoint so that multiple transfers can be
 queued at once.
 
 Streams are defined in sections 4.4.6.4 and 8.12.1.4 of the Universal Serial Bus
+<<<<<<< HEAD
 3.0 specification at http://www.usb.org/developers/docs/  The USB Attached SCSI
 Protocol, which uses streams to queue multiple SCSI commands, can be found on
 the T10 website (http://t10.org/).
+=======
+3.0 specification at https://www.usb.org/developers/docs/  The USB Attached SCSI
+Protocol, which uses streams to queue multiple SCSI commands, can be found on
+the T10 website (https://t10.org/).
+>>>>>>> upstream/android-13
 
 
 Device-side implications

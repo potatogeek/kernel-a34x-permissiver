@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * linux/drivers/video/omap2/dss/dpi.c
  *
@@ -6,6 +10,7 @@
  *
  * Some code and ideas taken from drivers/video/omap/ driver
  * by Imre Deak.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
@@ -18,6 +23,8 @@
  *
  * You should have received a copy of the GNU General Public License along with
  * this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define DSS_SUBSYS_NAME "DPI"
@@ -66,7 +73,11 @@ static struct dpi_data *dpi_get_data_from_dssdev(struct omap_dss_device *dssdev)
 /* only used in non-DT mode */
 static struct dpi_data *dpi_get_data_from_pdev(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	return dev_get_drvdata(&pdev->dev);
+=======
+	return platform_get_drvdata(pdev);
+>>>>>>> upstream/android-13
 }
 
 static struct dss_pll *dpi_get_pll(enum omap_channel channel)
@@ -795,7 +806,11 @@ static int dpi_bind(struct device *dev, struct device *master, void *data)
 
 	dpi->pdev = pdev;
 
+<<<<<<< HEAD
 	dev_set_drvdata(&pdev->dev, dpi);
+=======
+	platform_set_drvdata(pdev, dpi);
+>>>>>>> upstream/android-13
 
 	mutex_init(&dpi->lock);
 

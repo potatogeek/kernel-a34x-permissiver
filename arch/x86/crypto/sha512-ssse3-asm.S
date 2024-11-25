@@ -74,6 +74,7 @@ tmp0 =		%rax
 
 W_SIZE = 80*8
 WK_SIZE = 2*8
+<<<<<<< HEAD
 RSPSAVE_SIZE = 1*8
 GPRSAVE_SIZE = 5*8
 
@@ -82,6 +83,12 @@ frame_WK = frame_W + W_SIZE
 frame_RSPSAVE = frame_WK + WK_SIZE
 frame_GPRSAVE = frame_RSPSAVE + RSPSAVE_SIZE
 frame_size = frame_GPRSAVE + GPRSAVE_SIZE
+=======
+
+frame_W = 0
+frame_WK = frame_W + W_SIZE
+frame_size = frame_WK + WK_SIZE
+>>>>>>> upstream/android-13
 
 # Useful QWORD "arrays" for simpler memory references
 # MSG, DIGEST, K_t, W_t are arrays
@@ -278,6 +285,7 @@ frame_size = frame_GPRSAVE + GPRSAVE_SIZE
 # of SHA512 message blocks.
 # "blocks" is the message length in SHA512 blocks.
 ########################################################################
+<<<<<<< HEAD
 ENTRY(sha512_transform_ssse3)
 
 	cmp $0, msglen
@@ -295,6 +303,25 @@ ENTRY(sha512_transform_ssse3)
 	mov	%r13, frame_GPRSAVE +8*2(%rsp)
 	mov	%r14, frame_GPRSAVE +8*3(%rsp)
 	mov	%r15, frame_GPRSAVE +8*4(%rsp)
+=======
+SYM_FUNC_START(sha512_transform_ssse3)
+
+	test msglen, msglen
+	je nowork
+
+	# Save GPRs
+	push	%rbx
+	push	%r12
+	push	%r13
+	push	%r14
+	push	%r15
+
+	# Allocate Stack Space
+	push	%rbp
+	mov	%rsp, %rbp
+	sub	$frame_size, %rsp
+	and	$~(0x20 - 1), %rsp
+>>>>>>> upstream/android-13
 
 updateblock:
 
@@ -355,6 +382,7 @@ updateblock:
 	dec	msglen
 	jnz	updateblock
 
+<<<<<<< HEAD
 	# Restore GPRs
 	mov	frame_GPRSAVE(%rsp),      %rbx
 	mov	frame_GPRSAVE +8*1(%rsp), %r12
@@ -368,6 +396,22 @@ updateblock:
 nowork:
 	ret
 ENDPROC(sha512_transform_ssse3)
+=======
+	# Restore Stack Pointer
+	mov	%rbp, %rsp
+	pop	%rbp
+
+	# Restore GPRs
+	pop	%r15
+	pop	%r14
+	pop	%r13
+	pop	%r12
+	pop	%rbx
+
+nowork:
+	RET
+SYM_FUNC_END(sha512_transform_ssse3)
+>>>>>>> upstream/android-13
 
 ########################################################################
 ### Binary Data

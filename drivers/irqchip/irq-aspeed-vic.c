@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  Copyright (C) 2015 - Ben Herrenschmidt, IBM Corp.
  *
@@ -7,6 +11,7 @@
  *
  *  Copyright (C) 1999 - 2003 ARM Limited
  *  Copyright (C) 2000 Deep Blue Solutions Ltd
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +23,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/export.h>
@@ -81,7 +88,11 @@ static void vic_init_hw(struct aspeed_vic *vic)
 	writel(0, vic->base + AVIC_INT_SELECT);
 	writel(0, vic->base + AVIC_INT_SELECT + 4);
 
+<<<<<<< HEAD
 	/* Some interrupts have a programable high/low level trigger
+=======
+	/* Some interrupts have a programmable high/low level trigger
+>>>>>>> upstream/android-13
 	 * (4 GPIO direct inputs), for now we assume this was configured
 	 * by firmware. We read which ones are edge now.
 	 */
@@ -213,7 +224,11 @@ static int __init avic_of_init(struct device_node *node,
 	}
 	vic->base = regs;
 
+<<<<<<< HEAD
 	/* Initialize soures, all masked */
+=======
+	/* Initialize sources, all masked */
+>>>>>>> upstream/android-13
 	vic_init_hw(vic);
 
 	/* Ready to receive interrupts */

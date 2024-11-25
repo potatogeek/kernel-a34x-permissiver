@@ -1,16 +1,27 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * STMicroelectronics uvis25 i2c driver
  *
  * Copyright 2017 STMicroelectronics Inc.
  *
  * Lorenzo Bianconi <lorenzo.bianconi83@gmail.com>
+<<<<<<< HEAD
  *
  * Licensed under the GPL-2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
 #include <linux/module.h>
+<<<<<<< HEAD
 #include <linux/acpi.h>
+=======
+#include <linux/mod_devicetable.h>
+>>>>>>> upstream/android-13
 #include <linux/i2c.h>
 #include <linux/slab.h>
 #include <linux/regmap.h>
@@ -33,8 +44,13 @@ static int st_uvis25_i2c_probe(struct i2c_client *client,
 
 	regmap = devm_regmap_init_i2c(client, &st_uvis25_i2c_regmap_config);
 	if (IS_ERR(regmap)) {
+<<<<<<< HEAD
 		dev_err(&client->dev, "Failed to register i2c regmap %d\n",
 			(int)PTR_ERR(regmap));
+=======
+		dev_err(&client->dev, "Failed to register i2c regmap %ld\n",
+			PTR_ERR(regmap));
+>>>>>>> upstream/android-13
 		return PTR_ERR(regmap);
 	}
 
@@ -57,7 +73,11 @@ static struct i2c_driver st_uvis25_driver = {
 	.driver = {
 		.name = "st_uvis25_i2c",
 		.pm = &st_uvis25_pm_ops,
+<<<<<<< HEAD
 		.of_match_table = of_match_ptr(st_uvis25_i2c_of_match),
+=======
+		.of_match_table = st_uvis25_i2c_of_match,
+>>>>>>> upstream/android-13
 	},
 	.probe = st_uvis25_i2c_probe,
 	.id_table = st_uvis25_i2c_id_table,

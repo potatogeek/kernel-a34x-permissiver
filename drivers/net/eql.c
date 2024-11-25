@@ -113,6 +113,10 @@
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 
+<<<<<<< HEAD
+=======
+#include <linux/compat.h>
+>>>>>>> upstream/android-13
 #include <linux/capability.h>
 #include <linux/module.h>
 #include <linux/kernel.h>
@@ -131,7 +135,12 @@
 
 static int eql_open(struct net_device *dev);
 static int eql_close(struct net_device *dev);
+<<<<<<< HEAD
 static int eql_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd);
+=======
+static int eql_siocdevprivate(struct net_device *dev, struct ifreq *ifr,
+			      void __user *data, int cmd);
+>>>>>>> upstream/android-13
 static netdev_tx_t eql_slave_xmit(struct sk_buff *skb, struct net_device *dev);
 
 #define eql_is_slave(dev)	((dev->flags & IFF_SLAVE) == IFF_SLAVE)
@@ -170,7 +179,11 @@ static const char version[] __initconst =
 static const struct net_device_ops eql_netdev_ops = {
 	.ndo_open	= eql_open,
 	.ndo_stop	= eql_close,
+<<<<<<< HEAD
 	.ndo_do_ioctl	= eql_ioctl,
+=======
+	.ndo_siocdevprivate = eql_siocdevprivate,
+>>>>>>> upstream/android-13
 	.ndo_start_xmit	= eql_slave_xmit,
 };
 
@@ -268,12 +281,18 @@ static int eql_s_slave_cfg(struct net_device *dev, slave_config_t __user *sc);
 static int eql_g_master_cfg(struct net_device *dev, master_config_t __user *mc);
 static int eql_s_master_cfg(struct net_device *dev, master_config_t __user *mc);
 
+<<<<<<< HEAD
 static int eql_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
+=======
+static int eql_siocdevprivate(struct net_device *dev, struct ifreq *ifr,
+			      void __user *data, int cmd)
+>>>>>>> upstream/android-13
 {
 	if (cmd != EQL_GETMASTRCFG && cmd != EQL_GETSLAVECFG &&
 	    !capable(CAP_NET_ADMIN))
 	  	return -EPERM;
 
+<<<<<<< HEAD
 	switch (cmd) {
 		case EQL_ENSLAVE:
 			return eql_enslave(dev, ifr->ifr_data);
@@ -287,6 +306,24 @@ static int eql_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
 			return eql_g_master_cfg(dev, ifr->ifr_data);
 		case EQL_SETMASTRCFG:
 			return eql_s_master_cfg(dev, ifr->ifr_data);
+=======
+	if (in_compat_syscall()) /* to be implemented */
+		return -EOPNOTSUPP;
+
+	switch (cmd) {
+		case EQL_ENSLAVE:
+			return eql_enslave(dev, data);
+		case EQL_EMANCIPATE:
+			return eql_emancipate(dev, data);
+		case EQL_GETSLAVECFG:
+			return eql_g_slave_cfg(dev, data);
+		case EQL_SETSLAVECFG:
+			return eql_s_slave_cfg(dev, data);
+		case EQL_GETMASTRCFG:
+			return eql_g_master_cfg(dev, data);
+		case EQL_SETMASTRCFG:
+			return eql_s_master_cfg(dev, data);
+>>>>>>> upstream/android-13
 		default:
 			return -EOPNOTSUPP;
 	}

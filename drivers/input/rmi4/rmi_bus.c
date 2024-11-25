@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2011-2016 Synaptics Incorporated
  * Copyright (c) 2011 Unixphere
@@ -5,6 +6,12 @@
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
  * the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2011-2016 Synaptics Incorporated
+ * Copyright (c) 2011 Unixphere
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -289,7 +296,11 @@ void rmi_unregister_function(struct rmi_function *fn)
 /**
  * rmi_register_function_handler - register a handler for an RMI function
  * @handler: RMI handler that should be registered.
+<<<<<<< HEAD
  * @module: pointer to module that implements the handler
+=======
+ * @owner: pointer to module that implements the handler
+>>>>>>> upstream/android-13
  * @mod_name: name of the module implementing the handler
  *
  * This function performs additional setup of RMI function handler and
@@ -368,6 +379,12 @@ static struct rmi_function_handler *fn_handlers[] = {
 #ifdef CONFIG_RMI4_F34
 	&rmi_f34_handler,
 #endif
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_RMI4_F3A
+	&rmi_f3a_handler,
+#endif
+>>>>>>> upstream/android-13
 #ifdef CONFIG_RMI4_F54
 	&rmi_f54_handler,
 #endif

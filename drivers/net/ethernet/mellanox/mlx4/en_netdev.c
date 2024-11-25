@@ -39,7 +39,10 @@
 #include <linux/slab.h>
 #include <linux/hash.h>
 #include <net/ip.h>
+<<<<<<< HEAD
 #include <net/busy_poll.h>
+=======
+>>>>>>> upstream/android-13
 #include <net/vxlan.h>
 #include <net/devlink.h>
 
@@ -52,7 +55,12 @@
 #include "en_port.h"
 
 #define MLX4_EN_MAX_XDP_MTU ((int)(PAGE_SIZE - ETH_HLEN - (2 * VLAN_HLEN) - \
+<<<<<<< HEAD
 				   XDP_PACKET_HEADROOM))
+=======
+				XDP_PACKET_HEADROOM -			    \
+				SKB_DATA_ALIGN(sizeof(struct skb_shared_info))))
+>>>>>>> upstream/android-13
 
 int mlx4_en_setup_tc(struct net_device *dev, u8 up)
 {
@@ -372,6 +380,12 @@ mlx4_en_filter_rfs(struct net_device *net_dev, const struct sk_buff *skb,
 	int nhoff = skb_network_offset(skb);
 	int ret = 0;
 
+<<<<<<< HEAD
+=======
+	if (skb->encapsulation)
+		return -EPROTONOSUPPORT;
+
+>>>>>>> upstream/android-13
 	if (skb->protocol != htons(ETH_P_IP))
 		return -EPROTONOSUPPORT;
 
@@ -1269,7 +1283,10 @@ static void mlx4_en_do_set_rx_mode(struct work_struct *work)
 	if (!netif_carrier_ok(dev)) {
 		if (!mlx4_en_QUERY_PORT(mdev, priv->port)) {
 			if (priv->port_state.link_state) {
+<<<<<<< HEAD
 				priv->last_link_state = MLX4_DEV_EVENT_PORT_UP;
+=======
+>>>>>>> upstream/android-13
 				netif_carrier_on(dev);
 				en_dbg(LINK, priv, "Link Up\n");
 			}
@@ -1364,15 +1381,24 @@ static void mlx4_en_delete_rss_steer_rules(struct mlx4_en_priv *priv)
 	}
 }
 
+<<<<<<< HEAD
 static void mlx4_en_tx_timeout(struct net_device *dev)
 {
 	struct mlx4_en_priv *priv = netdev_priv(dev);
 	struct mlx4_en_dev *mdev = priv->mdev;
 	int i;
+=======
+static void mlx4_en_tx_timeout(struct net_device *dev, unsigned int txqueue)
+{
+	struct mlx4_en_priv *priv = netdev_priv(dev);
+	struct mlx4_en_dev *mdev = priv->mdev;
+	struct mlx4_en_tx_ring *tx_ring = priv->tx_ring[TX][txqueue];
+>>>>>>> upstream/android-13
 
 	if (netif_msg_timer(priv))
 		en_warn(priv, "Tx timeout called on port:%d\n", priv->port);
 
+<<<<<<< HEAD
 	for (i = 0; i < priv->tx_ring_num[TX]; i++) {
 		struct mlx4_en_tx_ring *tx_ring = priv->tx_ring[TX][i];
 
@@ -1382,6 +1408,11 @@ static void mlx4_en_tx_timeout(struct net_device *dev)
 			i, tx_ring->qpn, tx_ring->sp_cqn,
 			tx_ring->cons, tx_ring->prod);
 	}
+=======
+	en_warn(priv, "TX timeout on queue: %d, QP: 0x%x, CQ: 0x%x, Cons: 0x%x, Prod: 0x%x\n",
+		txqueue, tx_ring->qpn, tx_ring->sp_cqn,
+		tx_ring->cons, tx_ring->prod);
+>>>>>>> upstream/android-13
 
 	priv->port_stats.tx_timeout++;
 	if (!test_and_set_bit(MLX4_EN_STATE_FLAG_RESTARTING, &priv->state)) {
@@ -1563,11 +1594,38 @@ static void mlx4_en_service_task(struct work_struct *work)
 	mutex_unlock(&mdev->state_lock);
 }
 
+<<<<<<< HEAD
 static void mlx4_en_linkstate(struct work_struct *work)
+=======
+static void mlx4_en_linkstate(struct mlx4_en_priv *priv)
+{
+	struct mlx4_en_port_state *port_state = &priv->port_state;
+	struct mlx4_en_dev *mdev = priv->mdev;
+	struct net_device *dev = priv->dev;
+	bool up;
+
+	if (mlx4_en_QUERY_PORT(mdev, priv->port))
+		port_state->link_state = MLX4_PORT_STATE_DEV_EVENT_PORT_DOWN;
+
+	up = port_state->link_state == MLX4_PORT_STATE_DEV_EVENT_PORT_UP;
+	if (up == netif_carrier_ok(dev))
+		netif_carrier_event(dev);
+	if (!up) {
+		en_info(priv, "Link Down\n");
+		netif_carrier_off(dev);
+	} else {
+		en_info(priv, "Link Up\n");
+		netif_carrier_on(dev);
+	}
+}
+
+static void mlx4_en_linkstate_work(struct work_struct *work)
+>>>>>>> upstream/android-13
 {
 	struct mlx4_en_priv *priv = container_of(work, struct mlx4_en_priv,
 						 linkstate_task);
 	struct mlx4_en_dev *mdev = priv->mdev;
+<<<<<<< HEAD
 	int linkstate = priv->link_state;
 
 	mutex_lock(&mdev->state_lock);
@@ -1583,6 +1641,11 @@ static void mlx4_en_linkstate(struct work_struct *work)
 		}
 	}
 	priv->last_link_state = linkstate;
+=======
+
+	mutex_lock(&mdev->state_lock);
+	mlx4_en_linkstate(priv);
+>>>>>>> upstream/android-13
 	mutex_unlock(&mdev->state_lock);
 }
 
@@ -1825,7 +1888,11 @@ int mlx4_en_start_port(struct net_device *dev)
 	queue_work(mdev->workqueue, &priv->rx_mode_task);
 
 	if (priv->mdev->dev->caps.tunnel_offload_mode == MLX4_TUNNEL_OFFLOAD_MODE_VXLAN)
+<<<<<<< HEAD
 		udp_tunnel_get_rx_info(dev);
+=======
+		udp_tunnel_nic_reset_ntf(dev);
+>>>>>>> upstream/android-13
 
 	priv->port_up = true;
 
@@ -2037,7 +2104,10 @@ static void mlx4_en_clear_stats(struct net_device *dev)
 		if (mlx4_en_DUMP_ETH_STATS(mdev, priv->port, 1))
 			en_dbg(HW, priv, "Failed dumping statistics\n");
 
+<<<<<<< HEAD
 	memset(&priv->pstats, 0, sizeof(priv->pstats));
+=======
+>>>>>>> upstream/android-13
 	memset(&priv->pkstats, 0, sizeof(priv->pkstats));
 	memset(&priv->port_stats, 0, sizeof(priv->port_stats));
 	memset(&priv->rx_flowstats, 0, sizeof(priv->rx_flowstats));
@@ -2086,9 +2156,17 @@ static int mlx4_en_open(struct net_device *dev)
 	mlx4_en_clear_stats(dev);
 
 	err = mlx4_en_start_port(dev);
+<<<<<<< HEAD
 	if (err)
 		en_err(priv, "Failed starting port:%d\n", priv->port);
 
+=======
+	if (err) {
+		en_err(priv, "Failed starting port:%d\n", priv->port);
+		goto out;
+	}
+	mlx4_en_linkstate(priv);
+>>>>>>> upstream/android-13
 out:
 	mutex_unlock(&mdev->state_lock);
 	return err;
@@ -2279,9 +2357,20 @@ int mlx4_en_try_alloc_resources(struct mlx4_en_priv *priv,
 				bool carry_xdp_prog)
 {
 	struct bpf_prog *xdp_prog;
+<<<<<<< HEAD
 	int i, t;
 
 	mlx4_en_copy_priv(tmp, priv, prof);
+=======
+	int i, t, ret;
+
+	ret = mlx4_en_copy_priv(tmp, priv, prof);
+	if (ret) {
+		en_warn(priv, "%s: mlx4_en_copy_priv() failed, return\n",
+			__func__);
+		return ret;
+	}
+>>>>>>> upstream/android-13
 
 	if (mlx4_en_alloc_resources(tmp)) {
 		en_warn(priv,
@@ -2300,11 +2389,15 @@ int mlx4_en_try_alloc_resources(struct mlx4_en_priv *priv,
 		lockdep_is_held(&priv->mdev->state_lock));
 
 	if (xdp_prog && carry_xdp_prog) {
+<<<<<<< HEAD
 		xdp_prog = bpf_prog_add(xdp_prog, tmp->rx_ring_num);
 		if (IS_ERR(xdp_prog)) {
 			mlx4_en_free_resources(tmp);
 			return PTR_ERR(xdp_prog);
 		}
+=======
+		bpf_prog_add(xdp_prog, tmp->rx_ring_num);
+>>>>>>> upstream/android-13
 		for (i = 0; i < tmp->rx_ring_num; i++)
 			rcu_assign_pointer(tmp->rx_ring[i]->xdp_prog,
 					   xdp_prog);
@@ -2644,6 +2737,7 @@ static int mlx4_en_get_phys_port_id(struct net_device *dev,
 	return 0;
 }
 
+<<<<<<< HEAD
 static void mlx4_en_add_vxlan_offloads(struct work_struct *work)
 {
 	int ret;
@@ -2743,6 +2837,34 @@ static void mlx4_en_del_vxlan_port(struct  net_device *dev,
 
 	queue_work(priv->mdev->workqueue, &priv->vxlan_del_task);
 }
+=======
+static int mlx4_udp_tunnel_sync(struct net_device *dev, unsigned int table)
+{
+	struct mlx4_en_priv *priv = netdev_priv(dev);
+	struct udp_tunnel_info ti;
+	int ret;
+
+	udp_tunnel_nic_get_port(dev, table, 0, &ti);
+	priv->vxlan_port = ti.port;
+
+	ret = mlx4_config_vxlan_port(priv->mdev->dev, priv->vxlan_port);
+	if (ret)
+		return ret;
+
+	return mlx4_SET_PORT_VXLAN(priv->mdev->dev, priv->port,
+				   VXLAN_STEER_BY_OUTER_MAC,
+				   !!priv->vxlan_port);
+}
+
+static const struct udp_tunnel_nic_info mlx4_udp_tunnels = {
+	.sync_table	= mlx4_udp_tunnel_sync,
+	.flags		= UDP_TUNNEL_NIC_INFO_MAY_SLEEP |
+			  UDP_TUNNEL_NIC_INFO_IPV4_ONLY,
+	.tables		= {
+		{ .n_entries = 1, .tunnel_types = UDP_TUNNEL_TYPE_VXLAN, },
+	},
+};
+>>>>>>> upstream/android-13
 
 static netdev_features_t mlx4_en_features_check(struct sk_buff *skb,
 						struct net_device *dev,
@@ -2814,11 +2936,17 @@ static int mlx4_xdp_set(struct net_device *dev, struct bpf_prog *prog)
 	 * program for a new one.
 	 */
 	if (priv->tx_ring_num[TX_XDP] == xdp_ring_num) {
+<<<<<<< HEAD
 		if (prog) {
 			prog = bpf_prog_add(prog, priv->rx_ring_num - 1);
 			if (IS_ERR(prog))
 				return PTR_ERR(prog);
 		}
+=======
+		if (prog)
+			bpf_prog_add(prog, priv->rx_ring_num - 1);
+
+>>>>>>> upstream/android-13
 		mutex_lock(&mdev->state_lock);
 		for (i = 0; i < priv->rx_ring_num; i++) {
 			old_prog = rcu_dereference_protected(
@@ -2839,6 +2967,7 @@ static int mlx4_xdp_set(struct net_device *dev, struct bpf_prog *prog)
 	if (!tmp)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	if (prog) {
 		prog = bpf_prog_add(prog, priv->rx_ring_num - 1);
 		if (IS_ERR(prog)) {
@@ -2846,6 +2975,10 @@ static int mlx4_xdp_set(struct net_device *dev, struct bpf_prog *prog)
 			goto out;
 		}
 	}
+=======
+	if (prog)
+		bpf_prog_add(prog, priv->rx_ring_num - 1);
+>>>>>>> upstream/android-13
 
 	mutex_lock(&mdev->state_lock);
 	memcpy(&new_prof, priv->prof, sizeof(struct mlx4_en_port_profile));
@@ -2895,11 +3028,15 @@ static int mlx4_xdp_set(struct net_device *dev, struct bpf_prog *prog)
 
 unlock_out:
 	mutex_unlock(&mdev->state_lock);
+<<<<<<< HEAD
 out:
+=======
+>>>>>>> upstream/android-13
 	kfree(tmp);
 	return err;
 }
 
+<<<<<<< HEAD
 static u32 mlx4_xdp_query(struct net_device *dev)
 {
 	struct mlx4_en_priv *priv = netdev_priv(dev);
@@ -2921,14 +3058,19 @@ static u32 mlx4_xdp_query(struct net_device *dev)
 	return prog_id;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int mlx4_xdp(struct net_device *dev, struct netdev_bpf *xdp)
 {
 	switch (xdp->command) {
 	case XDP_SETUP_PROG:
 		return mlx4_xdp_set(dev, xdp->prog);
+<<<<<<< HEAD
 	case XDP_QUERY_PROG:
 		xdp->prog_id = mlx4_xdp_query(dev);
 		return 0;
+=======
+>>>>>>> upstream/android-13
 	default:
 		return -EINVAL;
 	}
@@ -2944,7 +3086,11 @@ static const struct net_device_ops mlx4_netdev_ops = {
 	.ndo_set_mac_address	= mlx4_en_set_mac,
 	.ndo_validate_addr	= eth_validate_addr,
 	.ndo_change_mtu		= mlx4_en_change_mtu,
+<<<<<<< HEAD
 	.ndo_do_ioctl		= mlx4_en_ioctl,
+=======
+	.ndo_eth_ioctl		= mlx4_en_ioctl,
+>>>>>>> upstream/android-13
 	.ndo_tx_timeout		= mlx4_en_tx_timeout,
 	.ndo_vlan_rx_add_vid	= mlx4_en_vlan_rx_add_vid,
 	.ndo_vlan_rx_kill_vid	= mlx4_en_vlan_rx_kill_vid,
@@ -2955,8 +3101,11 @@ static const struct net_device_ops mlx4_netdev_ops = {
 	.ndo_rx_flow_steer	= mlx4_en_filter_rfs,
 #endif
 	.ndo_get_phys_port_id	= mlx4_en_get_phys_port_id,
+<<<<<<< HEAD
 	.ndo_udp_tunnel_add	= mlx4_en_add_vxlan_port,
 	.ndo_udp_tunnel_del	= mlx4_en_del_vxlan_port,
+=======
+>>>>>>> upstream/android-13
 	.ndo_features_check	= mlx4_en_features_check,
 	.ndo_set_tx_maxrate	= mlx4_en_set_tx_maxrate,
 	.ndo_bpf		= mlx4_xdp,
@@ -2989,8 +3138,11 @@ static const struct net_device_ops mlx4_netdev_ops_master = {
 	.ndo_rx_flow_steer	= mlx4_en_filter_rfs,
 #endif
 	.ndo_get_phys_port_id	= mlx4_en_get_phys_port_id,
+<<<<<<< HEAD
 	.ndo_udp_tunnel_add	= mlx4_en_add_vxlan_port,
 	.ndo_udp_tunnel_del	= mlx4_en_del_vxlan_port,
+=======
+>>>>>>> upstream/android-13
 	.ndo_features_check	= mlx4_en_features_check,
 	.ndo_set_tx_maxrate	= mlx4_en_set_tx_maxrate,
 	.ndo_bpf		= mlx4_xdp,
@@ -3288,11 +3440,17 @@ int mlx4_en_init_netdev(struct mlx4_en_dev *mdev, int port,
 	spin_lock_init(&priv->stats_lock);
 	INIT_WORK(&priv->rx_mode_task, mlx4_en_do_set_rx_mode);
 	INIT_WORK(&priv->restart_task, mlx4_en_restart);
+<<<<<<< HEAD
 	INIT_WORK(&priv->linkstate_task, mlx4_en_linkstate);
 	INIT_DELAYED_WORK(&priv->stats_task, mlx4_en_do_get_stats);
 	INIT_DELAYED_WORK(&priv->service_task, mlx4_en_service_task);
 	INIT_WORK(&priv->vxlan_add_task, mlx4_en_add_vxlan_offloads);
 	INIT_WORK(&priv->vxlan_del_task, mlx4_en_del_vxlan_offloads);
+=======
+	INIT_WORK(&priv->linkstate_task, mlx4_en_linkstate_work);
+	INIT_DELAYED_WORK(&priv->stats_task, mlx4_en_do_get_stats);
+	INIT_DELAYED_WORK(&priv->service_task, mlx4_en_service_task);
+>>>>>>> upstream/android-13
 #ifdef CONFIG_RFS_ACCEL
 	INIT_LIST_HEAD(&priv->filters);
 	spin_lock_init(&priv->filters_lock);
@@ -3377,7 +3535,11 @@ int mlx4_en_init_netdev(struct mlx4_en_dev *mdev, int port,
 	dev->addr_len = ETH_ALEN;
 	mlx4_en_u64_to_mac(dev->dev_addr, mdev->dev->caps.def_mac[priv->port]);
 	if (!is_valid_ether_addr(dev->dev_addr)) {
+<<<<<<< HEAD
 		en_err(priv, "Port: %d, invalid mac burned: %pM, quiting\n",
+=======
+		en_err(priv, "Port: %d, invalid mac burned: %pM, quitting\n",
+>>>>>>> upstream/android-13
 		       priv->port, dev->dev_addr);
 		err = -EINVAL;
 		goto out;
@@ -3432,6 +3594,28 @@ int mlx4_en_init_netdev(struct mlx4_en_dev *mdev, int port,
 	if (mdev->LSO_support)
 		dev->hw_features |= NETIF_F_TSO | NETIF_F_TSO6;
 
+<<<<<<< HEAD
+=======
+	if (mdev->dev->caps.tunnel_offload_mode ==
+	    MLX4_TUNNEL_OFFLOAD_MODE_VXLAN) {
+		dev->hw_features |= NETIF_F_GSO_UDP_TUNNEL |
+				    NETIF_F_GSO_UDP_TUNNEL_CSUM |
+				    NETIF_F_GSO_PARTIAL;
+		dev->features    |= NETIF_F_GSO_UDP_TUNNEL |
+				    NETIF_F_GSO_UDP_TUNNEL_CSUM |
+				    NETIF_F_GSO_PARTIAL;
+		dev->gso_partial_features = NETIF_F_GSO_UDP_TUNNEL_CSUM;
+		dev->hw_enc_features = NETIF_F_IP_CSUM | NETIF_F_IPV6_CSUM |
+				       NETIF_F_RXCSUM |
+				       NETIF_F_TSO | NETIF_F_TSO6 |
+				       NETIF_F_GSO_UDP_TUNNEL |
+				       NETIF_F_GSO_UDP_TUNNEL_CSUM |
+				       NETIF_F_GSO_PARTIAL;
+
+		dev->udp_tunnel_nic_info = &mlx4_udp_tunnels;
+	}
+
+>>>>>>> upstream/android-13
 	dev->vlan_features = dev->hw_features;
 
 	dev->hw_features |= NETIF_F_RXCSUM | NETIF_F_RXHASH;
@@ -3500,6 +3684,7 @@ int mlx4_en_init_netdev(struct mlx4_en_dev *mdev, int port,
 		priv->rss_hash_fn = ETH_RSS_HASH_TOP;
 	}
 
+<<<<<<< HEAD
 	if (mdev->dev->caps.tunnel_offload_mode == MLX4_TUNNEL_OFFLOAD_MODE_VXLAN) {
 		dev->hw_features |= NETIF_F_GSO_UDP_TUNNEL |
 				    NETIF_F_GSO_UDP_TUNNEL_CSUM |
@@ -3510,6 +3695,8 @@ int mlx4_en_init_netdev(struct mlx4_en_dev *mdev, int port,
 		dev->gso_partial_features = NETIF_F_GSO_UDP_TUNNEL_CSUM;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	/* MTU range: 68 - hw-specific max */
 	dev->min_mtu = ETH_MIN_MTU;
 	dev->max_mtu = priv->max_mtu;

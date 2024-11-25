@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * SN Platform GRU Driver
  *
  *              KERNEL SERVICES THAT USE THE GRU
  *
  *  Copyright (c) 2008 Silicon Graphics, Inc.  All Rights Reserved.
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -18,6 +23,8 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -29,6 +36,10 @@
 #include <linux/miscdevice.h>
 #include <linux/proc_fs.h>
 #include <linux/interrupt.h>
+<<<<<<< HEAD
+=======
+#include <linux/sync_core.h>
+>>>>>>> upstream/android-13
 #include <linux/uaccess.h>
 #include <linux/delay.h>
 #include <linux/export.h>
@@ -634,7 +645,11 @@ static int send_noop_message(void *cb, struct gru_message_queue_desc *mqd,
 			break;
 		case CBSS_PAGE_OVERFLOW:
 			STAT(mesq_noop_page_overflow);
+<<<<<<< HEAD
 			/* fallthru */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		default:
 			BUG();
 		}
@@ -792,7 +807,11 @@ static int send_message_failure(void *cb, struct gru_message_queue_desc *mqd,
 		break;
 	case CBSS_PAGE_OVERFLOW:
 		STAT(mesq_page_overflow);
+<<<<<<< HEAD
 		/* fallthru */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		BUG();
 	}

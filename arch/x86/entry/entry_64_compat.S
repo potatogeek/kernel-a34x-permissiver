@@ -46,6 +46,7 @@
  * ebp  user stack
  * 0(%ebp) arg6
  */
+<<<<<<< HEAD
 ENTRY(entry_SYSENTER_compat)
 	/* Interrupts are off on entry. */
 	SWAPGS
@@ -55,6 +56,34 @@ ENTRY(entry_SYSENTER_compat)
 
 	movq	PER_CPU_VAR(cpu_current_top_of_stack), %rsp
 
+=======
+SYM_CODE_START(entry_SYSENTER_compat)
+	UNWIND_HINT_EMPTY
+	/* Interrupts are off on entry. */
+	SWAPGS
+
+	pushq	%rax
+	SWITCH_TO_KERNEL_CR3 scratch_reg=%rax
+	popq	%rax
+
+	movq	PER_CPU_VAR(cpu_current_top_of_stack), %rsp
+
+	/* Construct struct pt_regs on stack */
+	pushq	$__USER32_DS		/* pt_regs->ss */
+	pushq	$0			/* pt_regs->sp = 0 (placeholder) */
+
+	/*
+	 * Push flags.  This is nasty.  First, interrupts are currently
+	 * off, but we need pt_regs->flags to have IF set.  Second, if TS
+	 * was set in usermode, it's still set, and we're singlestepping
+	 * through this code.  do_SYSENTER_32() will fix up IF.
+	 */
+	pushfq				/* pt_regs->flags (except IF = 0) */
+	pushq	$__USER32_CS		/* pt_regs->cs */
+	pushq	$0			/* pt_regs->ip = 0 (placeholder) */
+SYM_INNER_LABEL(entry_SYSENTER_compat_after_hwframe, SYM_L_GLOBAL)
+
+>>>>>>> upstream/android-13
 	/*
 	 * User tracing code (ptrace or signal handlers) might assume that
 	 * the saved RAX contains a 32-bit number when we're invoking a 32-bit
@@ -64,6 +93,7 @@ ENTRY(entry_SYSENTER_compat)
 	 */
 	movl	%eax, %eax
 
+<<<<<<< HEAD
 	/* Construct struct pt_regs on stack */
 	pushq	$__USER32_DS		/* pt_regs->ss */
 	pushq	%rbp			/* pt_regs->sp (stashed in bp) */
@@ -78,6 +108,8 @@ ENTRY(entry_SYSENTER_compat)
 	orl	$X86_EFLAGS_IF, (%rsp)	/* Fix saved flags */
 	pushq	$__USER32_CS		/* pt_regs->cs */
 	pushq	$0			/* pt_regs->ip = 0 (placeholder) */
+=======
+>>>>>>> upstream/android-13
 	pushq	%rax			/* pt_regs->orig_ax */
 	pushq	%rdi			/* pt_regs->di */
 	pushq	%rsi			/* pt_regs->si */
@@ -104,6 +136,12 @@ ENTRY(entry_SYSENTER_compat)
 	xorl	%r14d, %r14d		/* nospec   r14 */
 	pushq   $0			/* pt_regs->r15 = 0 */
 	xorl	%r15d, %r15d		/* nospec   r15 */
+<<<<<<< HEAD
+=======
+
+	UNWIND_HINT_REGS
+
+>>>>>>> upstream/android-13
 	cld
 
 	/*
@@ -129,6 +167,7 @@ ENTRY(entry_SYSENTER_compat)
 	jnz	.Lsysenter_fix_flags
 .Lsysenter_flags_fixed:
 
+<<<<<<< HEAD
 	/*
 	 * User mode is traced as though IRQs are on, and SYSENTER
 	 * turned them off.
@@ -140,14 +179,26 @@ ENTRY(entry_SYSENTER_compat)
 	/* XEN PV guests always use IRET path */
 	ALTERNATIVE "testl %eax, %eax; jz .Lsyscall_32_done", \
 		    "jmp .Lsyscall_32_done", X86_FEATURE_XENPV
+=======
+	movq	%rsp, %rdi
+	call	do_SYSENTER_32
+	/* XEN PV guests always use IRET path */
+	ALTERNATIVE "testl %eax, %eax; jz swapgs_restore_regs_and_return_to_usermode", \
+		    "jmp swapgs_restore_regs_and_return_to_usermode", X86_FEATURE_XENPV
+>>>>>>> upstream/android-13
 	jmp	sysret32_from_system_call
 
 .Lsysenter_fix_flags:
 	pushq	$X86_EFLAGS_FIXED
 	popfq
 	jmp	.Lsysenter_flags_fixed
+<<<<<<< HEAD
 GLOBAL(__end_entry_SYSENTER_compat)
 ENDPROC(entry_SYSENTER_compat)
+=======
+SYM_INNER_LABEL(__end_entry_SYSENTER_compat, SYM_L_GLOBAL)
+SYM_CODE_END(entry_SYSENTER_compat)
+>>>>>>> upstream/android-13
 
 /*
  * 32-bit SYSCALL entry.
@@ -196,7 +247,12 @@ ENDPROC(entry_SYSENTER_compat)
  * esp  user stack
  * 0(%esp) arg6
  */
+<<<<<<< HEAD
 ENTRY(entry_SYSCALL_compat)
+=======
+SYM_CODE_START(entry_SYSCALL_compat)
+	UNWIND_HINT_EMPTY
+>>>>>>> upstream/android-13
 	/* Interrupts are off on entry. */
 	swapgs
 
@@ -209,13 +265,22 @@ ENTRY(entry_SYSCALL_compat)
 	/* Switch to the kernel stack */
 	movq	PER_CPU_VAR(cpu_current_top_of_stack), %rsp
 
+<<<<<<< HEAD
+=======
+SYM_INNER_LABEL(entry_SYSCALL_compat_safe_stack, SYM_L_GLOBAL)
+
+>>>>>>> upstream/android-13
 	/* Construct struct pt_regs on stack */
 	pushq	$__USER32_DS		/* pt_regs->ss */
 	pushq	%r8			/* pt_regs->sp */
 	pushq	%r11			/* pt_regs->flags */
 	pushq	$__USER32_CS		/* pt_regs->cs */
 	pushq	%rcx			/* pt_regs->ip */
+<<<<<<< HEAD
 GLOBAL(entry_SYSCALL_compat_after_hwframe)
+=======
+SYM_INNER_LABEL(entry_SYSCALL_compat_after_hwframe, SYM_L_GLOBAL)
+>>>>>>> upstream/android-13
 	movl	%eax, %eax		/* discard orig_ax high bits */
 	pushq	%rax			/* pt_regs->orig_ax */
 	pushq	%rdi			/* pt_regs->di */
@@ -247,21 +312,39 @@ GLOBAL(entry_SYSCALL_compat_after_hwframe)
 	pushq   $0			/* pt_regs->r15 = 0 */
 	xorl	%r15d, %r15d		/* nospec   r15 */
 
+<<<<<<< HEAD
 	/*
 	 * User mode is traced as though IRQs are on, and SYSENTER
 	 * turned them off.
 	 */
 	TRACE_IRQS_OFF
+=======
+	UNWIND_HINT_REGS
+>>>>>>> upstream/android-13
 
 	movq	%rsp, %rdi
 	call	do_fast_syscall_32
 	/* XEN PV guests always use IRET path */
+<<<<<<< HEAD
 	ALTERNATIVE "testl %eax, %eax; jz .Lsyscall_32_done", \
 		    "jmp .Lsyscall_32_done", X86_FEATURE_XENPV
 
 	/* Opportunistic SYSRET */
 sysret32_from_system_call:
 	TRACE_IRQS_ON			/* User mode traces as IRQs on. */
+=======
+	ALTERNATIVE "testl %eax, %eax; jz swapgs_restore_regs_and_return_to_usermode", \
+		    "jmp swapgs_restore_regs_and_return_to_usermode", X86_FEATURE_XENPV
+
+	/* Opportunistic SYSRET */
+sysret32_from_system_call:
+	/*
+	 * We are not going to return to userspace from the trampoline
+	 * stack. So let's erase the thread stack right now.
+	 */
+	STACKLEAK_ERASE
+
+>>>>>>> upstream/android-13
 	movq	RBX(%rsp), %rbx		/* pt_regs->rbx */
 	movq	RBP(%rsp), %rbp		/* pt_regs->rbp */
 	movq	EFLAGS(%rsp), %r11	/* pt_regs->flags (in r11) */
@@ -306,7 +389,11 @@ sysret32_from_system_call:
 	xorl	%r10d, %r10d
 	swapgs
 	sysretl
+<<<<<<< HEAD
 END(entry_SYSCALL_compat)
+=======
+SYM_CODE_END(entry_SYSCALL_compat)
+>>>>>>> upstream/android-13
 
 /*
  * 32-bit legacy system call entry.
@@ -334,7 +421,12 @@ END(entry_SYSCALL_compat)
  * edi  arg5
  * ebp  arg6
  */
+<<<<<<< HEAD
 ENTRY(entry_INT80_compat)
+=======
+SYM_CODE_START(entry_INT80_compat)
+	UNWIND_HINT_EMPTY
+>>>>>>> upstream/android-13
 	/*
 	 * Interrupts are off on entry.
 	 */
@@ -356,8 +448,16 @@ ENTRY(entry_INT80_compat)
 
 	/* Need to switch before accessing the thread stack. */
 	SWITCH_TO_KERNEL_CR3 scratch_reg=%rdi
+<<<<<<< HEAD
 	/* In the Xen PV case we already run on the thread stack. */
 	ALTERNATIVE "movq %rsp, %rdi", "jmp .Lint80_keep_stack", X86_FEATURE_XENPV
+=======
+
+	/* In the Xen PV case we already run on the thread stack. */
+	ALTERNATIVE "", "jmp .Lint80_keep_stack", X86_FEATURE_XENPV
+
+	movq	%rsp, %rdi
+>>>>>>> upstream/android-13
 	movq	PER_CPU_VAR(cpu_current_top_of_stack), %rsp
 
 	pushq	6*8(%rdi)		/* regs->ss */
@@ -396,6 +496,7 @@ ENTRY(entry_INT80_compat)
 	xorl	%r14d, %r14d		/* nospec   r14 */
 	pushq   %r15                    /* pt_regs->r15 */
 	xorl	%r15d, %r15d		/* nospec   r15 */
+<<<<<<< HEAD
 	cld
 
 	/*
@@ -412,3 +513,14 @@ ENTRY(entry_INT80_compat)
 	TRACE_IRQS_ON
 	jmp	swapgs_restore_regs_and_return_to_usermode
 END(entry_INT80_compat)
+=======
+
+	UNWIND_HINT_REGS
+
+	cld
+
+	movq	%rsp, %rdi
+	call	do_int80_syscall_32
+	jmp	swapgs_restore_regs_and_return_to_usermode
+SYM_CODE_END(entry_INT80_compat)
+>>>>>>> upstream/android-13

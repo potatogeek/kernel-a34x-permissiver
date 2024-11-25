@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * logfile.c - NTFS kernel journal handling. Part of the Linux-NTFS project.
  *
  * Copyright (c) 2002-2007 Anton Altaparmakov
+<<<<<<< HEAD
  *
  * This program/include file is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
@@ -17,6 +22,8 @@
  * along with this program (in the main directory of the Linux-NTFS
  * distribution in the file COPYING); if not, write to the Free Software
  * Foundation,Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifdef NTFS_RW
@@ -492,7 +499,11 @@ bool ntfs_check_logfile(struct inode *log_vi, RESTART_PAGE_HEADER **rp)
 	u8 *kaddr = NULL;
 	RESTART_PAGE_HEADER *rstr1_ph = NULL;
 	RESTART_PAGE_HEADER *rstr2_ph = NULL;
+<<<<<<< HEAD
 	int log_page_size, log_page_mask, err;
+=======
+	int log_page_size, err;
+>>>>>>> upstream/android-13
 	bool logfile_is_empty = true;
 	u8 log_page_bits;
 
@@ -515,7 +526,10 @@ bool ntfs_check_logfile(struct inode *log_vi, RESTART_PAGE_HEADER **rp)
 		log_page_size = DefaultLogPageSize;
 	else
 		log_page_size = PAGE_SIZE;
+<<<<<<< HEAD
 	log_page_mask = log_page_size - 1;
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * Use ntfs_ffs() instead of ffs() to enable the compiler to
 	 * optimize log_page_size and log_page_bits into constants.

@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Samsung S5P/EXYNOS4 SoC Camera Subsystem driver
  *
  * Copyright (C) 2013 Samsung Electronics Co., Ltd.
  * Author: Sylwester Nawrocki <s.nawrocki@samsung.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -37,6 +44,7 @@ struct v4l2_subdev *fimc_find_remote_sensor(struct media_entity *entity)
 }
 EXPORT_SYMBOL(fimc_find_remote_sensor);
 
+<<<<<<< HEAD
 void __fimc_vidioc_querycap(struct device *dev, struct v4l2_capability *cap,
 						unsigned int caps)
 {
@@ -46,6 +54,14 @@ void __fimc_vidioc_querycap(struct device *dev, struct v4l2_capability *cap,
 				"platform:%s", dev_name(dev));
 	cap->device_caps = caps;
 	cap->capabilities = cap->device_caps | V4L2_CAP_DEVICE_CAPS;
+=======
+void __fimc_vidioc_querycap(struct device *dev, struct v4l2_capability *cap)
+{
+	strscpy(cap->driver, dev->driver->name, sizeof(cap->driver));
+	strscpy(cap->card, dev->driver->name, sizeof(cap->card));
+	snprintf(cap->bus_info, sizeof(cap->bus_info),
+				"platform:%s", dev_name(dev));
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(__fimc_vidioc_querycap);
 

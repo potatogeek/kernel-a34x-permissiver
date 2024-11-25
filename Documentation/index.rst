@@ -1,3 +1,9 @@
+<<<<<<< HEAD
+=======
+.. SPDX-License-Identifier: GPL-2.0
+
+
+>>>>>>> upstream/android-13
 .. The Linux Kernel documentation master file, created by
    sphinx-quickstart on Fri Feb 12 13:51:46 2016.
    You can adapt this file completely to your liking, but it should at least
@@ -22,10 +28,14 @@ The following describes the license of the Linux kernel source code
 (GPLv2), how to properly mark the license of individual files in the source
 tree, as well as links to the full license text.
 
+<<<<<<< HEAD
 .. toctree::
    :maxdepth: 2
 
    process/license-rules.rst
+=======
+* :ref:`kernel_licensing`
+>>>>>>> upstream/android-13
 
 User-oriented documentation
 ---------------------------
@@ -37,6 +47,21 @@ trying to get it to work optimally on a given system.
    :maxdepth: 2
 
    admin-guide/index
+<<<<<<< HEAD
+=======
+   kbuild/index
+
+Firmware-related documentation
+------------------------------
+The following holds information on the kernel's expectations regarding the
+platform firmwares.
+
+.. toctree::
+   :maxdepth: 2
+
+   firmware-guide/index
+   devicetree/index
+>>>>>>> upstream/android-13
 
 Application-developer documentation
 -----------------------------------
@@ -68,6 +93,12 @@ merged much easier.
    kernel-hacking/index
    trace/index
    maintainer/index
+<<<<<<< HEAD
+=======
+   fault-injection/index
+   livepatch/index
+
+>>>>>>> upstream/android-13
 
 Kernel API documentation
 ------------------------
@@ -83,9 +114,38 @@ needed).
 
    driver-api/index
    core-api/index
+<<<<<<< HEAD
    media/index
    networking/index
    input/index
+=======
+   locking/index
+   accounting/index
+   block/index
+   cdrom/index
+   cpu-freq/index
+   ide/index
+   fb/index
+   fpga/index
+   hid/index
+   i2c/index
+   iio/index
+   isdn/index
+   infiniband/index
+   leds/index
+   netlabel/index
+   networking/index
+   pcmcia/index
+   power/index
+   target/index
+   timers/index
+   spi/index
+   w1/index
+   watchdog/index
+   virt/index
+   input/index
+   hwmon/index
+>>>>>>> upstream/android-13
    gpu/index
    security/index
    sound/index
@@ -93,16 +153,49 @@ needed).
    filesystems/index
    vm/index
    bpf/index
+<<<<<<< HEAD
+=======
+   usb/index
+   PCI/index
+   scsi/index
+   misc-devices/index
+   scheduler/index
+   mhi/index
 
-Architecture-specific documentation
+Architecture-agnostic documentation
 -----------------------------------
-
-These books provide programming details about architecture-specific
-implementation.
 
 .. toctree::
    :maxdepth: 2
 
+   asm-annotations
+>>>>>>> upstream/android-13
+
+Architecture-specific documentation
+-----------------------------------
+
+<<<<<<< HEAD
+These books provide programming details about architecture-specific
+implementation.
+=======
+.. toctree::
+   :maxdepth: 2
+
+   arch
+
+
+Other documentation
+-------------------
+
+There are several unsorted documents that don't seem to fit on other parts
+of the documentation body, or may require some adjustments and/or conversion
+to ReStructured Text format, or are simply too old.
+>>>>>>> upstream/android-13
+
+.. toctree::
+   :maxdepth: 2
+
+<<<<<<< HEAD
    sh/index
    x86/index
 
@@ -116,6 +209,11 @@ subprojects.
    :maxdepth: 2
 
    filesystems/ext4/index
+=======
+   staging/index
+   watch_queue
+
+>>>>>>> upstream/android-13
 
 Translations
 ------------

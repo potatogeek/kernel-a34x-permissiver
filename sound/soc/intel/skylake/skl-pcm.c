@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  skl-pcm.c -ASoC HDA Platform driver file implementing PCM functionality
  *
@@ -6,6 +10,7 @@
  *
  *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  *
+<<<<<<< HEAD
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; version 2 of the License.
@@ -17,6 +22,9 @@
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  *
+=======
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+>>>>>>> upstream/android-13
  */
 
 #include <linux/pci.h>
@@ -32,6 +40,10 @@
 #define HDA_MONO 1
 #define HDA_STEREO 2
 #define HDA_QUAD 4
+<<<<<<< HEAD
+=======
+#define HDA_MAX 8
+>>>>>>> upstream/android-13
 
 static const struct snd_pcm_hardware azx_pcm_hw = {
 	.info =			(SNDRV_PCM_INFO_MMAP |
@@ -85,6 +97,7 @@ static int skl_substream_alloc_pages(struct hdac_bus *bus,
 	hdac_stream(stream)->period_bytes = 0;
 	hdac_stream(stream)->format_val = 0;
 
+<<<<<<< HEAD
 	return snd_pcm_lib_malloc_pages(substream, size);
 }
 
@@ -92,6 +105,9 @@ static int skl_substream_free_pages(struct hdac_bus *bus,
 				struct snd_pcm_substream *substream)
 {
 	return snd_pcm_lib_free_pages(substream);
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static void skl_set_pcm_constrains(struct hdac_bus *bus,
@@ -124,12 +140,18 @@ static void skl_set_suspend_active(struct snd_pcm_substream *substream,
 {
 	struct hdac_bus *bus = dev_get_drvdata(dai->dev);
 	struct snd_soc_dapm_widget *w;
+<<<<<<< HEAD
 	struct skl *skl = bus_to_skl(bus);
 
 	if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK)
 		w = dai->playback_widget;
 	else
 		w = dai->capture_widget;
+=======
+	struct skl_dev *skl = bus_to_skl(bus);
+
+	w = snd_soc_dai_get_widget(dai, substream->stream);
+>>>>>>> upstream/android-13
 
 	if (w->ignore_suspend && enable)
 		skl->supend_active++;
@@ -140,6 +162,10 @@ static void skl_set_suspend_active(struct snd_pcm_substream *substream,
 int skl_pcm_host_dma_prepare(struct device *dev, struct skl_pipe_params *params)
 {
 	struct hdac_bus *bus = dev_get_drvdata(dev);
+<<<<<<< HEAD
+=======
+	struct skl_dev *skl = bus_to_skl(bus);
+>>>>>>> upstream/android-13
 	unsigned int format_val;
 	struct hdac_stream *hstream;
 	struct hdac_ext_stream *stream;
@@ -164,7 +190,22 @@ int skl_pcm_host_dma_prepare(struct device *dev, struct skl_pipe_params *params)
 	if (err < 0)
 		return err;
 
+<<<<<<< HEAD
 	err = snd_hdac_stream_setup(hdac_stream(stream));
+=======
+	/*
+	 * The recommended SDxFMT programming sequence for BXT
+	 * platforms is to couple the stream before writing the format
+	 */
+	if (IS_BXT(skl->pci)) {
+		snd_hdac_ext_stream_decouple(bus, stream, false);
+		err = snd_hdac_stream_setup(hdac_stream(stream));
+		snd_hdac_ext_stream_decouple(bus, stream, true);
+	} else {
+		err = snd_hdac_stream_setup(hdac_stream(stream));
+	}
+
+>>>>>>> upstream/android-13
 	if (err < 0)
 		return err;
 
@@ -220,7 +261,11 @@ static int skl_pcm_open(struct snd_pcm_substream *substream,
 	struct hdac_ext_stream *stream;
 	struct snd_pcm_runtime *runtime = substream->runtime;
 	struct skl_dma_params *dma_params;
+<<<<<<< HEAD
 	struct skl *skl = get_skl_ctx(dai->dev);
+=======
+	struct skl_dev *skl = get_skl_ctx(dai->dev);
+>>>>>>> upstream/android-13
 	struct skl_module_cfg *mconfig;
 
 	dev_dbg(dai->dev, "%s: %s\n", __func__, dai->name);
@@ -267,7 +312,11 @@ static int skl_pcm_open(struct snd_pcm_substream *substream,
 static int skl_pcm_prepare(struct snd_pcm_substream *substream,
 		struct snd_soc_dai *dai)
 {
+<<<<<<< HEAD
 	struct skl *skl = get_skl_ctx(dai->dev);
+=======
+	struct skl_dev *skl = get_skl_ctx(dai->dev);
+>>>>>>> upstream/android-13
 	struct skl_module_cfg *mconfig;
 	int ret;
 
@@ -284,7 +333,11 @@ static int skl_pcm_prepare(struct snd_pcm_substream *substream,
 		 mconfig->pipe->state == SKL_PIPE_CREATED ||
 		 mconfig->pipe->state == SKL_PIPE_PAUSED)) {
 
+<<<<<<< HEAD
 		ret = skl_reset_pipe(skl->skl_sst, mconfig->pipe);
+=======
+		ret = skl_reset_pipe(skl, mconfig->pipe);
+>>>>>>> upstream/android-13
 
 		if (ret < 0)
 			return ret;
@@ -346,7 +399,11 @@ static void skl_pcm_close(struct snd_pcm_substream *substream,
 	struct hdac_ext_stream *stream = get_hdac_ext_stream(substream);
 	struct hdac_bus *bus = dev_get_drvdata(dai->dev);
 	struct skl_dma_params *dma_params = NULL;
+<<<<<<< HEAD
 	struct skl *skl = bus_to_skl(bus);
+=======
+	struct skl_dev *skl = bus_to_skl(bus);
+>>>>>>> upstream/android-13
 	struct skl_module_cfg *mconfig;
 
 	dev_dbg(dai->dev, "%s: %s\n", __func__, dai->name);
@@ -366,9 +423,15 @@ static void skl_pcm_close(struct snd_pcm_substream *substream,
 	 * CGCTL.MISCBDCGE if disabled by driver
 	 */
 	if (!strncmp(dai->name, "Reference Pin", 13) &&
+<<<<<<< HEAD
 			skl->skl_sst->miscbdcg_disabled) {
 		skl->skl_sst->enable_miscbdcge(dai->dev, true);
 		skl->skl_sst->miscbdcg_disabled = false;
+=======
+			skl->miscbdcg_disabled) {
+		skl->enable_miscbdcge(dai->dev, true);
+		skl->miscbdcg_disabled = false;
+>>>>>>> upstream/android-13
 	}
 
 	mconfig = skl_tplg_fe_get_cpr_module(dai, substream->stream);
@@ -381,9 +444,14 @@ static void skl_pcm_close(struct snd_pcm_substream *substream,
 static int skl_pcm_hw_free(struct snd_pcm_substream *substream,
 		struct snd_soc_dai *dai)
 {
+<<<<<<< HEAD
 	struct hdac_bus *bus = dev_get_drvdata(dai->dev);
 	struct hdac_ext_stream *stream = get_hdac_ext_stream(substream);
 	struct skl *skl = get_skl_ctx(dai->dev);
+=======
+	struct hdac_ext_stream *stream = get_hdac_ext_stream(substream);
+	struct skl_dev *skl = get_skl_ctx(dai->dev);
+>>>>>>> upstream/android-13
 	struct skl_module_cfg *mconfig;
 	int ret;
 
@@ -392,7 +460,11 @@ static int skl_pcm_hw_free(struct snd_pcm_substream *substream,
 	mconfig = skl_tplg_fe_get_cpr_module(dai, substream->stream);
 
 	if (mconfig) {
+<<<<<<< HEAD
 		ret = skl_reset_pipe(skl->skl_sst, mconfig->pipe);
+=======
+		ret = skl_reset_pipe(skl, mconfig->pipe);
+>>>>>>> upstream/android-13
 		if (ret < 0)
 			dev_err(dai->dev, "%s:Reset failed ret =%d",
 						__func__, ret);
@@ -401,7 +473,11 @@ static int skl_pcm_hw_free(struct snd_pcm_substream *substream,
 	snd_hdac_stream_cleanup(hdac_stream(stream));
 	hdac_stream(stream)->prepared = 0;
 
+<<<<<<< HEAD
 	return skl_substream_free_pages(bus, substream);
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int skl_be_hw_params(struct snd_pcm_substream *substream,
@@ -467,8 +543,12 @@ static int skl_decoupled_trigger(struct snd_pcm_substream *substream,
 static int skl_pcm_trigger(struct snd_pcm_substream *substream, int cmd,
 		struct snd_soc_dai *dai)
 {
+<<<<<<< HEAD
 	struct skl *skl = get_skl_ctx(dai->dev);
 	struct skl_sst *ctx = skl->skl_sst;
+=======
+	struct skl_dev *skl = get_skl_ctx(dai->dev);
+>>>>>>> upstream/android-13
 	struct skl_module_cfg *mconfig;
 	struct hdac_bus *bus = get_bus_ctx(substream);
 	struct hdac_ext_stream *stream = get_hdac_ext_stream(substream);
@@ -479,10 +559,14 @@ static int skl_pcm_trigger(struct snd_pcm_substream *substream, int cmd,
 	if (!mconfig)
 		return -EIO;
 
+<<<<<<< HEAD
 	if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK)
 		w = dai->playback_widget;
 	else
 		w = dai->capture_widget;
+=======
+	w = snd_soc_dai_get_widget(dai, substream->stream);
+>>>>>>> upstream/android-13
 
 	switch (cmd) {
 	case SNDRV_PCM_TRIGGER_RESUME:
@@ -498,6 +582,10 @@ static int skl_pcm_trigger(struct snd_pcm_substream *substream, int cmd,
 							stream->lpib);
 			snd_hdac_ext_stream_set_lpib(stream, stream->lpib);
 		}
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 
 	case SNDRV_PCM_TRIGGER_START:
 	case SNDRV_PCM_TRIGGER_PAUSE_RELEASE:
@@ -510,8 +598,12 @@ static int skl_pcm_trigger(struct snd_pcm_substream *substream, int cmd,
 		ret = skl_decoupled_trigger(substream, cmd);
 		if (ret < 0)
 			return ret;
+<<<<<<< HEAD
 		return skl_run_pipe(ctx, mconfig->pipe);
 		break;
+=======
+		return skl_run_pipe(skl, mconfig->pipe);
+>>>>>>> upstream/android-13
 
 	case SNDRV_PCM_TRIGGER_PAUSE_PUSH:
 	case SNDRV_PCM_TRIGGER_SUSPEND:
@@ -521,7 +613,11 @@ static int skl_pcm_trigger(struct snd_pcm_substream *substream, int cmd,
 		 * there are no underrun/overrun in the case if there is a delay
 		 * between the two operations.
 		 */
+<<<<<<< HEAD
 		ret = skl_stop_pipe(ctx, mconfig->pipe);
+=======
+		ret = skl_stop_pipe(skl, mconfig->pipe);
+>>>>>>> upstream/android-13
 		if (ret < 0)
 			return ret;
 
@@ -553,8 +649,13 @@ static int skl_link_hw_params(struct snd_pcm_substream *substream,
 {
 	struct hdac_bus *bus = dev_get_drvdata(dai->dev);
 	struct hdac_ext_stream *link_dev;
+<<<<<<< HEAD
 	struct snd_soc_pcm_runtime *rtd = snd_pcm_substream_chip(substream);
 	struct snd_soc_dai *codec_dai = rtd->codec_dai;
+=======
+	struct snd_soc_pcm_runtime *rtd = asoc_substream_to_rtd(substream);
+	struct snd_soc_dai *codec_dai = asoc_rtd_to_codec(rtd, 0);
+>>>>>>> upstream/android-13
 	struct skl_pipe_params p_params = {0};
 	struct hdac_ext_link *link;
 	int stream_tag;
@@ -573,7 +674,14 @@ static int skl_link_hw_params(struct snd_pcm_substream *substream,
 	stream_tag = hdac_stream(link_dev)->stream_tag;
 
 	/* set the stream tag in the codec dai dma params  */
+<<<<<<< HEAD
 	snd_soc_dai_set_tdm_slot(codec_dai, stream_tag, 0, 0, 0);
+=======
+	if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK)
+		snd_soc_dai_set_tdm_slot(codec_dai, stream_tag, 0, 0, 0);
+	else
+		snd_soc_dai_set_tdm_slot(codec_dai, 0, stream_tag, 0, 0);
+>>>>>>> upstream/android-13
 
 	p_params.s_fmt = snd_pcm_format_width(params_format(params));
 	p_params.ch = params_channels(params);
@@ -594,14 +702,22 @@ static int skl_link_hw_params(struct snd_pcm_substream *substream,
 static int skl_link_pcm_prepare(struct snd_pcm_substream *substream,
 		struct snd_soc_dai *dai)
 {
+<<<<<<< HEAD
 	struct skl *skl = get_skl_ctx(dai->dev);
+=======
+	struct skl_dev *skl = get_skl_ctx(dai->dev);
+>>>>>>> upstream/android-13
 	struct skl_module_cfg *mconfig = NULL;
 
 	/* In case of XRUN recovery, reset the FW pipe to clean state */
 	mconfig = skl_tplg_be_get_cpr_module(dai, substream->stream);
 	if (mconfig && !mconfig->pipe->passthru &&
 		(substream->runtime->status->state == SNDRV_PCM_STATE_XRUN))
+<<<<<<< HEAD
 		skl_reset_pipe(skl->skl_sst, mconfig->pipe);
+=======
+		skl_reset_pipe(skl, mconfig->pipe);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -640,7 +756,11 @@ static int skl_link_hw_free(struct snd_pcm_substream *substream,
 		struct snd_soc_dai *dai)
 {
 	struct hdac_bus *bus = dev_get_drvdata(dai->dev);
+<<<<<<< HEAD
 	struct snd_soc_pcm_runtime *rtd = snd_pcm_substream_chip(substream);
+=======
+	struct snd_soc_pcm_runtime *rtd = asoc_substream_to_rtd(substream);
+>>>>>>> upstream/android-13
 	struct hdac_ext_stream *link_dev =
 				snd_soc_dai_get_dma_data(dai, substream);
 	struct hdac_ext_link *link;
@@ -650,7 +770,11 @@ static int skl_link_hw_free(struct snd_pcm_substream *substream,
 
 	link_dev->link_prepared = 0;
 
+<<<<<<< HEAD
 	link = snd_hdac_ext_bus_get_link(bus, rtd->codec_dai->component->name);
+=======
+	link = snd_hdac_ext_bus_get_link(bus, asoc_rtd_to_codec(rtd, 0)->component->name);
+>>>>>>> upstream/android-13
 	if (!link)
 		return -EINVAL;
 
@@ -1004,6 +1128,7 @@ static struct snd_soc_dai_driver skl_platform_dai[] = {
 	},
 },
 {
+<<<<<<< HEAD
 	.name = "HD-Codec Pin",
 	.ops = &skl_link_dai_ops,
 	.playback = {
@@ -1019,6 +1144,65 @@ static struct snd_soc_dai_driver skl_platform_dai[] = {
 		.channels_max = HDA_STEREO,
 		.rates = SNDRV_PCM_RATE_48000,
 		.formats = SNDRV_PCM_FMTBIT_S16_LE,
+=======
+	.name = "Analog CPU DAI",
+	.ops = &skl_link_dai_ops,
+	.playback = {
+		.stream_name = "Analog CPU Playback",
+		.channels_min = HDA_MONO,
+		.channels_max = HDA_MAX,
+		.rates = SNDRV_PCM_RATE_8000_192000,
+		.formats = SNDRV_PCM_FMTBIT_S16_LE | SNDRV_PCM_FMTBIT_S24_LE |
+			SNDRV_PCM_FMTBIT_S32_LE,
+	},
+	.capture = {
+		.stream_name = "Analog CPU Capture",
+		.channels_min = HDA_MONO,
+		.channels_max = HDA_MAX,
+		.rates = SNDRV_PCM_RATE_8000_192000,
+		.formats = SNDRV_PCM_FMTBIT_S16_LE | SNDRV_PCM_FMTBIT_S24_LE |
+			SNDRV_PCM_FMTBIT_S32_LE,
+	},
+},
+{
+	.name = "Alt Analog CPU DAI",
+	.ops = &skl_link_dai_ops,
+	.playback = {
+		.stream_name = "Alt Analog CPU Playback",
+		.channels_min = HDA_MONO,
+		.channels_max = HDA_MAX,
+		.rates = SNDRV_PCM_RATE_8000_192000,
+		.formats = SNDRV_PCM_FMTBIT_S16_LE | SNDRV_PCM_FMTBIT_S24_LE |
+			SNDRV_PCM_FMTBIT_S32_LE,
+	},
+	.capture = {
+		.stream_name = "Alt Analog CPU Capture",
+		.channels_min = HDA_MONO,
+		.channels_max = HDA_MAX,
+		.rates = SNDRV_PCM_RATE_8000_192000,
+		.formats = SNDRV_PCM_FMTBIT_S16_LE | SNDRV_PCM_FMTBIT_S24_LE |
+			SNDRV_PCM_FMTBIT_S32_LE,
+	},
+},
+{
+	.name = "Digital CPU DAI",
+	.ops = &skl_link_dai_ops,
+	.playback = {
+		.stream_name = "Digital CPU Playback",
+		.channels_min = HDA_MONO,
+		.channels_max = HDA_MAX,
+		.rates = SNDRV_PCM_RATE_8000_192000,
+		.formats = SNDRV_PCM_FMTBIT_S16_LE | SNDRV_PCM_FMTBIT_S24_LE |
+			SNDRV_PCM_FMTBIT_S32_LE,
+	},
+	.capture = {
+		.stream_name = "Digital CPU Capture",
+		.channels_min = HDA_MONO,
+		.channels_max = HDA_MAX,
+		.rates = SNDRV_PCM_RATE_8000_192000,
+		.formats = SNDRV_PCM_FMTBIT_S16_LE | SNDRV_PCM_FMTBIT_S24_LE |
+			SNDRV_PCM_FMTBIT_S32_LE,
+>>>>>>> upstream/android-13
 	},
 },
 };
@@ -1032,6 +1216,7 @@ int skl_dai_load(struct snd_soc_component *cmp, int index,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int skl_platform_open(struct snd_pcm_substream *substream)
 {
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
@@ -1039,6 +1224,16 @@ static int skl_platform_open(struct snd_pcm_substream *substream)
 
 	dev_dbg(rtd->cpu_dai->dev, "In %s:%s\n", __func__,
 					dai_link->cpu_dai_name);
+=======
+static int skl_platform_soc_open(struct snd_soc_component *component,
+				 struct snd_pcm_substream *substream)
+{
+	struct snd_soc_pcm_runtime *rtd = asoc_substream_to_rtd(substream);
+	struct snd_soc_dai_link *dai_link = rtd->dai_link;
+
+	dev_dbg(asoc_rtd_to_cpu(rtd, 0)->dev, "In %s:%s\n", __func__,
+					dai_link->cpus->dai_name);
+>>>>>>> upstream/android-13
 
 	snd_soc_set_runtime_hwparams(substream, &azx_pcm_hw);
 
@@ -1118,8 +1313,14 @@ static int skl_coupled_trigger(struct snd_pcm_substream *substream,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int skl_platform_pcm_trigger(struct snd_pcm_substream *substream,
 					int cmd)
+=======
+static int skl_platform_soc_trigger(struct snd_soc_component *component,
+				    struct snd_pcm_substream *substream,
+				    int cmd)
+>>>>>>> upstream/android-13
 {
 	struct hdac_bus *bus = get_bus_ctx(substream);
 
@@ -1129,8 +1330,14 @@ static int skl_platform_pcm_trigger(struct snd_pcm_substream *substream,
 	return 0;
 }
 
+<<<<<<< HEAD
 static snd_pcm_uframes_t skl_platform_pcm_pointer
 			(struct snd_pcm_substream *substream)
+=======
+static snd_pcm_uframes_t skl_platform_soc_pointer(
+	struct snd_soc_component *component,
+	struct snd_pcm_substream *substream)
+>>>>>>> upstream/android-13
 {
 	struct hdac_ext_stream *hstream = get_hdac_ext_stream(substream);
 	struct hdac_bus *bus = get_bus_ctx(substream);
@@ -1179,8 +1386,13 @@ static snd_pcm_uframes_t skl_platform_pcm_pointer
 static u64 skl_adjust_codec_delay(struct snd_pcm_substream *substream,
 				u64 nsec)
 {
+<<<<<<< HEAD
 	struct snd_soc_pcm_runtime *rtd = snd_pcm_substream_chip(substream);
 	struct snd_soc_dai *codec_dai = rtd->codec_dai;
+=======
+	struct snd_soc_pcm_runtime *rtd = asoc_substream_to_rtd(substream);
+	struct snd_soc_dai *codec_dai = asoc_rtd_to_codec(rtd, 0);
+>>>>>>> upstream/android-13
 	u64 codec_frames, codec_nsecs;
 
 	if (!codec_dai->driver->ops->delay)
@@ -1196,8 +1408,15 @@ static u64 skl_adjust_codec_delay(struct snd_pcm_substream *substream,
 	return (nsec > codec_nsecs) ? nsec - codec_nsecs : 0;
 }
 
+<<<<<<< HEAD
 static int skl_get_time_info(struct snd_pcm_substream *substream,
 			struct timespec *system_ts, struct timespec *audio_ts,
+=======
+static int skl_platform_soc_get_time_info(
+			struct snd_soc_component *component,
+			struct snd_pcm_substream *substream,
+			struct timespec64 *system_ts, struct timespec64 *audio_ts,
+>>>>>>> upstream/android-13
 			struct snd_pcm_audio_tstamp_config *audio_tstamp_config,
 			struct snd_pcm_audio_tstamp_report *audio_tstamp_report)
 {
@@ -1211,11 +1430,18 @@ static int skl_get_time_info(struct snd_pcm_substream *substream,
 		snd_pcm_gettime(substream->runtime, system_ts);
 
 		nsec = timecounter_read(&hstr->tc);
+<<<<<<< HEAD
 		nsec = div_u64(nsec, 3); /* can be optimized */
 		if (audio_tstamp_config->report_delay)
 			nsec = skl_adjust_codec_delay(substream, nsec);
 
 		*audio_ts = ns_to_timespec(nsec);
+=======
+		if (audio_tstamp_config->report_delay)
+			nsec = skl_adjust_codec_delay(substream, nsec);
+
+		*audio_ts = ns_to_timespec64(nsec);
+>>>>>>> upstream/android-13
 
 		audio_tstamp_report->actual_type = SNDRV_PCM_AUDIO_TSTAMP_TYPE_LINK;
 		audio_tstamp_report->accuracy_report = 1; /* rest of struct is valid */
@@ -1228,6 +1454,7 @@ static int skl_get_time_info(struct snd_pcm_substream *substream,
 	return 0;
 }
 
+<<<<<<< HEAD
 static const struct snd_pcm_ops skl_platform_ops = {
 	.open = skl_platform_open,
 	.ioctl = snd_pcm_lib_ioctl,
@@ -1253,6 +1480,18 @@ static int skl_pcm_new(struct snd_soc_pcm_runtime *rtd)
 	unsigned int size;
 	int retval = 0;
 	struct skl *skl = bus_to_skl(bus);
+=======
+#define MAX_PREALLOC_SIZE	(32 * 1024 * 1024)
+
+static int skl_platform_soc_new(struct snd_soc_component *component,
+				struct snd_soc_pcm_runtime *rtd)
+{
+	struct snd_soc_dai *dai = asoc_rtd_to_cpu(rtd, 0);
+	struct hdac_bus *bus = dev_get_drvdata(dai->dev);
+	struct snd_pcm *pcm = rtd->pcm;
+	unsigned int size;
+	struct skl_dev *skl = bus_to_skl(bus);
+>>>>>>> upstream/android-13
 
 	if (dai->driver->playback.channels_min ||
 		dai->driver->capture.channels_min) {
@@ -1260,6 +1499,7 @@ static int skl_pcm_new(struct snd_soc_pcm_runtime *rtd)
 		size = CONFIG_SND_HDA_PREALLOC_SIZE * 1024;
 		if (size > MAX_PREALLOC_SIZE)
 			size = MAX_PREALLOC_SIZE;
+<<<<<<< HEAD
 		retval = snd_pcm_lib_preallocate_pages_for_all(pcm,
 						SNDRV_DMA_TYPE_DEV_SG,
 						snd_dma_pci_data(skl->pci),
@@ -1328,12 +1568,75 @@ static int skl_get_module_info(struct skl *skl, struct skl_module_cfg *mconfig)
 			if (!uuid_le_cmp(pin_id->mod_uuid, module->uuid))
 				pin_id->module_id = module->id;
 		}
+=======
+		snd_pcm_set_managed_buffer_all(pcm,
+					       SNDRV_DMA_TYPE_DEV_SG,
+					       &skl->pci->dev,
+					       size, MAX_PREALLOC_SIZE);
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static int skl_populate_modules(struct skl *skl)
+=======
+static int skl_get_module_info(struct skl_dev *skl,
+		struct skl_module_cfg *mconfig)
+{
+	struct skl_module_inst_id *pin_id;
+	guid_t *uuid_mod, *uuid_tplg;
+	struct skl_module *skl_module;
+	struct uuid_module *module;
+	int i, ret = -EIO;
+
+	uuid_mod = (guid_t *)mconfig->guid;
+
+	if (list_empty(&skl->uuid_list)) {
+		dev_err(skl->dev, "Module list is empty\n");
+		return -EIO;
+	}
+
+	for (i = 0; i < skl->nr_modules; i++) {
+		skl_module = skl->modules[i];
+		uuid_tplg = &skl_module->uuid;
+		if (guid_equal(uuid_mod, uuid_tplg)) {
+			mconfig->module = skl_module;
+			ret = 0;
+			break;
+		}
+	}
+
+	if (skl->nr_modules && ret)
+		return ret;
+
+	ret = -EIO;
+	list_for_each_entry(module, &skl->uuid_list, list) {
+		if (guid_equal(uuid_mod, &module->uuid)) {
+			mconfig->id.module_id = module->id;
+			mconfig->module->loadable = module->is_loadable;
+			ret = 0;
+		}
+
+		for (i = 0; i < MAX_IN_QUEUE; i++) {
+			pin_id = &mconfig->m_in_pin[i].id;
+			if (guid_equal(&pin_id->mod_uuid, &module->uuid))
+				pin_id->module_id = module->id;
+		}
+
+		for (i = 0; i < MAX_OUT_QUEUE; i++) {
+			pin_id = &mconfig->m_out_pin[i].id;
+			if (guid_equal(&pin_id->mod_uuid, &module->uuid))
+				pin_id->module_id = module->id;
+		}
+	}
+
+	return ret;
+}
+
+static int skl_populate_modules(struct skl_dev *skl)
+>>>>>>> upstream/android-13
 {
 	struct skl_pipeline *p;
 	struct skl_pipe_module *m;
@@ -1348,7 +1651,11 @@ static int skl_populate_modules(struct skl *skl)
 
 			ret = skl_get_module_info(skl, mconfig);
 			if (ret < 0) {
+<<<<<<< HEAD
 				dev_err(skl->skl_sst->dev,
+=======
+				dev_err(skl->dev,
+>>>>>>> upstream/android-13
 					"query module info failed\n");
 				return ret;
 			}
@@ -1363,7 +1670,11 @@ static int skl_populate_modules(struct skl *skl)
 static int skl_platform_soc_probe(struct snd_soc_component *component)
 {
 	struct hdac_bus *bus = dev_get_drvdata(component->dev);
+<<<<<<< HEAD
 	struct skl *skl = bus_to_skl(bus);
+=======
+	struct skl_dev *skl = bus_to_skl(bus);
+>>>>>>> upstream/android-13
 	const struct skl_dsp_ops *ops;
 	int ret;
 
@@ -1385,31 +1696,50 @@ static int skl_platform_soc_probe(struct snd_soc_component *component)
 		if (!ops)
 			return -EIO;
 
+<<<<<<< HEAD
 		if (skl->skl_sst->is_first_boot == false) {
 			dev_err(component->dev, "DSP reports first boot done!!!\n");
 			return -EIO;
 		}
 
+=======
+>>>>>>> upstream/android-13
 		/*
 		 * Disable dynamic clock and power gating during firmware
 		 * and library download
 		 */
+<<<<<<< HEAD
 		skl->skl_sst->enable_miscbdcge(component->dev, false);
 		skl->skl_sst->clock_power_gating(component->dev, false);
 
 		ret = ops->init_fw(component->dev, skl->skl_sst);
 		skl->skl_sst->enable_miscbdcge(component->dev, true);
 		skl->skl_sst->clock_power_gating(component->dev, true);
+=======
+		skl->enable_miscbdcge(component->dev, false);
+		skl->clock_power_gating(component->dev, false);
+
+		ret = ops->init_fw(component->dev, skl);
+		skl->enable_miscbdcge(component->dev, true);
+		skl->clock_power_gating(component->dev, true);
+>>>>>>> upstream/android-13
 		if (ret < 0) {
 			dev_err(component->dev, "Failed to boot first fw: %d\n", ret);
 			return ret;
 		}
 		skl_populate_modules(skl);
+<<<<<<< HEAD
 		skl->skl_sst->update_d0i3c = skl_update_d0i3c;
 		skl_dsp_enable_notification(skl->skl_sst, false);
 
 		if (skl->cfg.astate_cfg != NULL) {
 			skl_dsp_set_astate_cfg(skl->skl_sst,
+=======
+		skl->update_d0i3c = skl_update_d0i3c;
+
+		if (skl->cfg.astate_cfg != NULL) {
+			skl_dsp_set_astate_cfg(skl,
+>>>>>>> upstream/android-13
 					skl->cfg.astate_cfg->count,
 					skl->cfg.astate_cfg);
 		}
@@ -1420,12 +1750,35 @@ static int skl_platform_soc_probe(struct snd_soc_component *component)
 	return 0;
 }
 
+<<<<<<< HEAD
 static const struct snd_soc_component_driver skl_component  = {
 	.name		= "pcm",
 	.probe		= skl_platform_soc_probe,
 	.ops		= &skl_platform_ops,
 	.pcm_new	= skl_pcm_new,
 	.pcm_free	= skl_pcm_free,
+=======
+static void skl_platform_soc_remove(struct snd_soc_component *component)
+{
+	struct hdac_bus *bus = dev_get_drvdata(component->dev);
+	struct skl_dev *skl = bus_to_skl(bus);
+
+	skl_tplg_exit(component, bus);
+
+	skl_debugfs_exit(skl);
+}
+
+static const struct snd_soc_component_driver skl_component  = {
+	.name		= "pcm",
+	.probe		= skl_platform_soc_probe,
+	.remove		= skl_platform_soc_remove,
+	.open		= skl_platform_soc_open,
+	.trigger	= skl_platform_soc_trigger,
+	.pointer	= skl_platform_soc_pointer,
+	.get_time_info	= skl_platform_soc_get_time_info,
+	.pcm_construct	= skl_platform_soc_new,
+	.module_get_upon_open = 1, /* increment refcount when a pcm is opened */
+>>>>>>> upstream/android-13
 };
 
 int skl_platform_register(struct device *dev)
@@ -1434,10 +1787,14 @@ int skl_platform_register(struct device *dev)
 	struct snd_soc_dai_driver *dais;
 	int num_dais = ARRAY_SIZE(skl_platform_dai);
 	struct hdac_bus *bus = dev_get_drvdata(dev);
+<<<<<<< HEAD
 	struct skl *skl = bus_to_skl(bus);
 
 	INIT_LIST_HEAD(&skl->ppl_list);
 	INIT_LIST_HEAD(&skl->bind_list);
+=======
+	struct skl_dev *skl = bus_to_skl(bus);
+>>>>>>> upstream/android-13
 
 	skl->dais = kmemdup(skl_platform_dai, sizeof(skl_platform_dai),
 			    GFP_KERNEL);
@@ -1471,6 +1828,7 @@ err:
 int skl_platform_unregister(struct device *dev)
 {
 	struct hdac_bus *bus = dev_get_drvdata(dev);
+<<<<<<< HEAD
 	struct skl *skl = bus_to_skl(bus);
 	struct skl_module_deferred_bind *modules, *tmp;
 
@@ -1479,6 +1837,14 @@ int skl_platform_unregister(struct device *dev)
 			list_del(&modules->node);
 			kfree(modules);
 		}
+=======
+	struct skl_dev *skl = bus_to_skl(bus);
+	struct skl_module_deferred_bind *modules, *tmp;
+
+	list_for_each_entry_safe(modules, tmp, &skl->bind_list, node) {
+		list_del(&modules->node);
+		kfree(modules);
+>>>>>>> upstream/android-13
 	}
 
 	kfree(skl->dais);

@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Scalar AES core transform
  *
  * Copyright (C) 2017 Linaro Ltd.
  * Author: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/linkage.h>
@@ -102,6 +109,7 @@
 	__hround	\out2, \out3, \in2, \in1, \in0, \in3, \in1, \in0, 0, \sz, \op, \oldcpsr
 	.endm
 
+<<<<<<< HEAD
 	.macro		__rev, out, in
 	.if		__LINUX_ARM_ARCH__ < 6
 	lsl		t0, \in, #24
@@ -124,6 +132,8 @@
 	.endif
 	.endm
 
+=======
+>>>>>>> upstream/android-13
 	.macro		do_crypt, round, ttab, ltab, bsz
 	push		{r3-r11, lr}
 
@@ -136,10 +146,17 @@
 	ldr		r7, [in, #12]
 
 #ifdef CONFIG_CPU_BIG_ENDIAN
+<<<<<<< HEAD
 	__rev		r4, r4
 	__rev		r5, r5
 	__rev		r6, r6
 	__rev		r7, r7
+=======
+	rev_l		r4, t0
+	rev_l		r5, t0
+	rev_l		r6, t0
+	rev_l		r7, t0
+>>>>>>> upstream/android-13
 #endif
 
 	eor		r4, r4, r8
@@ -147,7 +164,11 @@
 	eor		r6, r6, r10
 	eor		r7, r7, r11
 
+<<<<<<< HEAD
 	__adrl		ttab, \ttab
+=======
+	mov_l		ttab, \ttab
+>>>>>>> upstream/android-13
 	/*
 	 * Disable interrupts and prefetch the 1024-byte 'ft' or 'it' table into
 	 * L1 cache, assuming cacheline size >= 32.  This is a hardening measure
@@ -183,7 +204,11 @@
 2:	.ifb		\ltab
 	add		ttab, ttab, #1
 	.else
+<<<<<<< HEAD
 	__adrl		ttab, \ltab
+=======
+	mov_l		ttab, \ltab
+>>>>>>> upstream/android-13
 	// Prefetch inverse S-box for final round; see explanation above
 	.set		i, 0
 	.rept		256 / 64
@@ -197,10 +222,17 @@
 	\round		r4, r5, r6, r7, r8, r9, r10, r11, \bsz, b, rounds
 
 #ifdef CONFIG_CPU_BIG_ENDIAN
+<<<<<<< HEAD
 	__rev		r4, r4
 	__rev		r5, r5
 	__rev		r6, r6
 	__rev		r7, r7
+=======
+	rev_l		r4, t0
+	rev_l		r5, t0
+	rev_l		r6, t0
+	rev_l		r7, t0
+>>>>>>> upstream/android-13
 #endif
 
 	ldr		out, [sp]
@@ -222,6 +254,7 @@ ENDPROC(__aes_arm_encrypt)
 
 	.align		5
 ENTRY(__aes_arm_decrypt)
+<<<<<<< HEAD
 	do_crypt	iround, crypto_it_tab, __aes_arm_inverse_sbox, 0
 ENDPROC(__aes_arm_decrypt)
 
@@ -262,3 +295,7 @@ __aes_arm_inverse_sbox:
 	.byte		0x17, 0x2b, 0x04, 0x7e, 0xba, 0x77, 0xd6, 0x26
 	.byte		0xe1, 0x69, 0x14, 0x63, 0x55, 0x21, 0x0c, 0x7d
 	.size		__aes_arm_inverse_sbox, . - __aes_arm_inverse_sbox
+=======
+	do_crypt	iround, crypto_it_tab, crypto_aes_inv_sbox, 0
+ENDPROC(__aes_arm_decrypt)
+>>>>>>> upstream/android-13

@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * driver for ENE KB3926 B/C/D/E/F CIR (also known as ENE0XXX)
  *
  * Copyright (C) 2010 Maxim Levitsky <maximlevitsky@gmail.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -12,6 +17,8 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/spinlock.h>
 
@@ -118,7 +125,11 @@
 #define ENE_CIRDAT_IN		0xFEC7
 
 
+<<<<<<< HEAD
 /* RLC configuration - sample period (1us resulution) + idle mode */
+=======
+/* RLC configuration - sample period (1us resolution) + idle mode */
+>>>>>>> upstream/android-13
 #define ENE_CIRRLC_CFG		0xFEC8
 #define ENE_CIRRLC_CFG_OVERFLOW	0x80	/* interrupt on overflows if set */
 #define ENE_DEFAULT_SAMPLE_PERIOD 50

@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Watchdog driver for Ricoh RN5T618 PMIC
  *
  * Copyright (C) 2014 Beniamino Galvani <b.galvani@gmail.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -9,6 +14,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/device.h>
@@ -146,11 +153,20 @@ static const struct watchdog_ops rn5t618_wdt_ops = {
 
 static int rn5t618_wdt_probe(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	struct rn5t618 *rn5t618 = dev_get_drvdata(pdev->dev.parent);
 	struct rn5t618_wdt *wdt;
 	int min_timeout, max_timeout;
 
 	wdt = devm_kzalloc(&pdev->dev, sizeof(struct rn5t618_wdt), GFP_KERNEL);
+=======
+	struct device *dev = &pdev->dev;
+	struct rn5t618 *rn5t618 = dev_get_drvdata(dev->parent);
+	struct rn5t618_wdt *wdt;
+	int min_timeout, max_timeout;
+
+	wdt = devm_kzalloc(dev, sizeof(struct rn5t618_wdt), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!wdt)
 		return -ENOMEM;
 
@@ -163,10 +179,17 @@ static int rn5t618_wdt_probe(struct platform_device *pdev)
 	wdt->wdt_dev.min_timeout = min_timeout;
 	wdt->wdt_dev.max_timeout = max_timeout;
 	wdt->wdt_dev.timeout = max_timeout;
+<<<<<<< HEAD
 	wdt->wdt_dev.parent = &pdev->dev;
 
 	watchdog_set_drvdata(&wdt->wdt_dev, wdt);
 	watchdog_init_timeout(&wdt->wdt_dev, timeout, &pdev->dev);
+=======
+	wdt->wdt_dev.parent = dev;
+
+	watchdog_set_drvdata(&wdt->wdt_dev, wdt);
+	watchdog_init_timeout(&wdt->wdt_dev, timeout, dev);
+>>>>>>> upstream/android-13
 	watchdog_set_nowayout(&wdt->wdt_dev, nowayout);
 
 	platform_set_drvdata(pdev, wdt);

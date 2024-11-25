@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2017 Netronome Systems, Inc.
  *
@@ -30,6 +31,10 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+=======
+/* SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause) */
+/* Copyright (C) 2017-2018 Netronome Systems, Inc. */
+>>>>>>> upstream/android-13
 
 #ifndef _NFP_PORT_H_
 #define _NFP_PORT_H_
@@ -37,6 +42,10 @@
 #include <net/devlink.h>
 
 struct net_device;
+<<<<<<< HEAD
+=======
+struct netdev_phys_item_id;
+>>>>>>> upstream/android-13
 struct nfp_app;
 struct nfp_pf;
 struct nfp_port;
@@ -120,9 +129,12 @@ struct nfp_port {
 };
 
 extern const struct ethtool_ops nfp_port_ethtool_ops;
+<<<<<<< HEAD
 extern const struct switchdev_ops nfp_port_switchdev_ops;
 
 __printf(2, 3) u8 *nfp_pr_et(u8 *data, const char *fmt, ...);
+=======
+>>>>>>> upstream/android-13
 
 int nfp_port_setup_tc(struct net_device *netdev, enum tc_setup_type type,
 		      void *type_data);
@@ -136,6 +148,11 @@ int
 nfp_port_set_features(struct net_device *netdev, netdev_features_t features);
 
 struct nfp_port *nfp_port_from_netdev(struct net_device *netdev);
+<<<<<<< HEAD
+=======
+int nfp_port_get_port_parent_id(struct net_device *netdev,
+				struct netdev_phys_item_id *ppid);
+>>>>>>> upstream/android-13
 struct nfp_port *
 nfp_port_from_id(struct nfp_pf *pf, enum nfp_port_type type, unsigned int id);
 struct nfp_eth_table_port *__nfp_port_get_eth_port(struct nfp_port *port);
@@ -159,6 +176,11 @@ int nfp_net_refresh_port_table_sync(struct nfp_pf *pf);
 
 int nfp_devlink_port_register(struct nfp_app *app, struct nfp_port *port);
 void nfp_devlink_port_unregister(struct nfp_port *port);
+<<<<<<< HEAD
+=======
+void nfp_devlink_port_type_eth_set(struct nfp_port *port);
+void nfp_devlink_port_type_clear(struct nfp_port *port);
+>>>>>>> upstream/android-13
 
 /**
  * Mac stats (0x0000 - 0x0200)

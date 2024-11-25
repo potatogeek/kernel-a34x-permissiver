@@ -262,7 +262,16 @@ static int blacklist_parse_proc_parameters(char *buf)
 
 	if (strcmp("free", parm) == 0) {
 		rc = blacklist_parse_parameters(buf, free, 0);
+<<<<<<< HEAD
 		css_schedule_eval_all_unreg(0);
+=======
+		/*
+		 * Evaluate the subchannels without an online device. This way,
+		 * no path-verification will be triggered on those subchannels
+		 * and it avoids unnecessary delays.
+		 */
+		css_schedule_eval_cond(CSS_EVAL_NOT_ONLINE, 0);
+>>>>>>> upstream/android-13
 	} else if (strcmp("add", parm) == 0)
 		rc = blacklist_parse_parameters(buf, add, 0);
 	else if (strcmp("purge", parm) == 0)
@@ -399,12 +408,21 @@ cio_ignore_proc_open(struct inode *inode, struct file *file)
 				sizeof(struct ccwdev_iter));
 }
 
+<<<<<<< HEAD
 static const struct file_operations cio_ignore_proc_fops = {
 	.open    = cio_ignore_proc_open,
 	.read    = seq_read,
 	.llseek  = seq_lseek,
 	.release = seq_release_private,
 	.write   = cio_ignore_write,
+=======
+static const struct proc_ops cio_ignore_proc_ops = {
+	.proc_open	= cio_ignore_proc_open,
+	.proc_read	= seq_read,
+	.proc_lseek	= seq_lseek,
+	.proc_release	= seq_release_private,
+	.proc_write	= cio_ignore_write,
+>>>>>>> upstream/android-13
 };
 
 static int
@@ -413,7 +431,11 @@ cio_ignore_proc_init (void)
 	struct proc_dir_entry *entry;
 
 	entry = proc_create("cio_ignore", S_IFREG | S_IRUGO | S_IWUSR, NULL,
+<<<<<<< HEAD
 			    &cio_ignore_proc_fops);
+=======
+			    &cio_ignore_proc_ops);
+>>>>>>> upstream/android-13
 	if (!entry)
 		return -ENOENT;
 	return 0;

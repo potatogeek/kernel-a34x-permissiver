@@ -22,13 +22,22 @@
 
 #include <asm/unistd.h>
 
+<<<<<<< HEAD
+=======
+#include "internal.h"
+
+>>>>>>> upstream/android-13
 /*
  * POSIX_FADV_WILLNEED could set PG_Referenced, and POSIX_FADV_NOREUSE could
  * deactivate the pages and clear PG_Referenced.
  */
 
+<<<<<<< HEAD
 static int generic_fadvise(struct file *file, loff_t offset, loff_t len,
 			   int advice)
+=======
+int generic_fadvise(struct file *file, loff_t offset, loff_t len, int advice)
+>>>>>>> upstream/android-13
 {
 	struct inode *inode;
 	struct address_space *mapping;
@@ -103,10 +112,13 @@ static int generic_fadvise(struct file *file, loff_t offset, loff_t len,
 		if (!nrpages)
 			nrpages = ~0UL;
 
+<<<<<<< HEAD
 		/*
 		 * Ignore return value because fadvise() shall return
 		 * success even if filesystem can't retrieve a hint,
 		 */
+=======
+>>>>>>> upstream/android-13
 		force_page_cache_readahead(mapping, file, start_index, nrpages);
 		break;
 	case POSIX_FADV_NOREUSE:
@@ -144,7 +156,11 @@ static int generic_fadvise(struct file *file, loff_t offset, loff_t len,
 		}
 
 		if (end_index >= start_index) {
+<<<<<<< HEAD
 			unsigned long count;
+=======
+			unsigned long nr_pagevec = 0;
+>>>>>>> upstream/android-13
 
 			/*
 			 * It's common to FADV_DONTNEED right after
@@ -157,8 +173,14 @@ static int generic_fadvise(struct file *file, loff_t offset, loff_t len,
 			 */
 			lru_add_drain();
 
+<<<<<<< HEAD
 			count = invalidate_mapping_pages(mapping,
 						start_index, end_index);
+=======
+			invalidate_mapping_pagevec(mapping,
+						start_index, end_index,
+						&nr_pagevec);
+>>>>>>> upstream/android-13
 
 			/*
 			 * If fewer pages were invalidated than expected then
@@ -166,7 +188,11 @@ static int generic_fadvise(struct file *file, loff_t offset, loff_t len,
 			 * a per-cpu pagevec for a remote CPU. Drain all
 			 * pagevecs and try again.
 			 */
+<<<<<<< HEAD
 			if (count < (end_index - start_index + 1)) {
+=======
+			if (nr_pagevec) {
+>>>>>>> upstream/android-13
 				lru_add_drain_all();
 				invalidate_mapping_pages(mapping, start_index,
 						end_index);
@@ -178,6 +204,10 @@ static int generic_fadvise(struct file *file, loff_t offset, loff_t len,
 	}
 	return 0;
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL(generic_fadvise);
+>>>>>>> upstream/android-13
 
 int vfs_fadvise(struct file *file, loff_t offset, loff_t len, int advice)
 {

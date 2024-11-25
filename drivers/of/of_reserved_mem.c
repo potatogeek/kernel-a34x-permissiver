@@ -20,6 +20,7 @@
 #include <linux/of_reserved_mem.h>
 #include <linux/sort.h>
 #include <linux/slab.h>
+<<<<<<< HEAD
 #include <linux/kmemleak.h>
 
 #define MAX_RESERVED_REGIONS	64
@@ -29,21 +30,42 @@ static int reserved_mem_count;
 #if defined(CONFIG_HAVE_MEMBLOCK)
 #include <linux/memblock.h>
 int __init __weak early_init_dt_alloc_reserved_memory_arch(phys_addr_t size,
+=======
+#include <linux/memblock.h>
+#include <linux/kmemleak.h>
+
+#include "of_private.h"
+
+#define MAX_RESERVED_REGIONS	128
+static struct reserved_mem reserved_mem[MAX_RESERVED_REGIONS];
+static int reserved_mem_count;
+
+static int __init early_init_dt_alloc_reserved_memory_arch(phys_addr_t size,
+>>>>>>> upstream/android-13
 	phys_addr_t align, phys_addr_t start, phys_addr_t end, bool nomap,
 	phys_addr_t *res_base)
 {
 	phys_addr_t base;
+<<<<<<< HEAD
 	/*
 	 * We use __memblock_alloc_base() because memblock_alloc_base()
 	 * panic()s on allocation failure.
 	 */
 	end = !end ? MEMBLOCK_ALLOC_ANYWHERE : end;
 	base = memblock_find_in_range(start, end, size, align);
+=======
+	int err = 0;
+
+	end = !end ? MEMBLOCK_ALLOC_ANYWHERE : end;
+	align = !align ? SMP_CACHE_BYTES : align;
+	base = memblock_phys_alloc_range(size, align, start, end);
+>>>>>>> upstream/android-13
 	if (!base)
 		return -ENOMEM;
 
 	*res_base = base;
 	if (nomap) {
+<<<<<<< HEAD
 		kmemleak_ignore_phys(base);
 		return memblock_remove(base, size);
 	}
@@ -63,6 +85,19 @@ int __init __weak early_init_dt_alloc_reserved_memory_arch(phys_addr_t size,
 
 /**
  * res_mem_save_node() - save fdt node for second pass initialization
+=======
+		err = memblock_mark_nomap(base, size);
+		if (err)
+			memblock_free(base, size);
+		kmemleak_ignore_phys(base);
+	}
+
+	return err;
+}
+
+/*
+ * fdt_reserved_mem_save_node() - save fdt node for second pass initialization
+>>>>>>> upstream/android-13
  */
 void __init fdt_reserved_mem_save_node(unsigned long node, const char *uname,
 				      phys_addr_t base, phys_addr_t size)
@@ -70,7 +105,11 @@ void __init fdt_reserved_mem_save_node(unsigned long node, const char *uname,
 	struct reserved_mem *rmem = &reserved_mem[reserved_mem_count];
 
 	if (reserved_mem_count == ARRAY_SIZE(reserved_mem)) {
+<<<<<<< HEAD
 		pr_err("not enough space all defined regions.\n");
+=======
+		pr_err("not enough space for all defined regions.\n");
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -83,9 +122,22 @@ void __init fdt_reserved_mem_save_node(unsigned long node, const char *uname,
 	return;
 }
 
+<<<<<<< HEAD
 /**
  * res_mem_alloc_size() - allocate reserved memory described by 'size', 'align'
  *			  and 'alloc-ranges' properties
+=======
+#ifdef CONFIG_RBIN
+static bool __init under_6GB_device(void)
+{
+	return memblock_end_of_DRAM() <= 0x900000000 ? true : false;
+}
+#endif
+
+/*
+ * __reserved_mem_alloc_size() - allocate reserved memory described by
+ *	'size', 'alignment'  and 'alloc-ranges' properties.
+>>>>>>> upstream/android-13
  */
 static int __init __reserved_mem_alloc_size(unsigned long node,
 	const char *uname, phys_addr_t *res_base, phys_addr_t *res_size)
@@ -95,7 +147,11 @@ static int __init __reserved_mem_alloc_size(unsigned long node,
 	phys_addr_t base = 0, align = 0, size;
 	int len;
 	const __be32 *prop;
+<<<<<<< HEAD
 	int nomap;
+=======
+	bool nomap;
+>>>>>>> upstream/android-13
 	int ret;
 
 	prop = of_get_flat_dt_prop(node, "size", &len);
@@ -107,9 +163,16 @@ static int __init __reserved_mem_alloc_size(unsigned long node,
 		return -EINVAL;
 	}
 	size = dt_mem_next_cell(dt_root_size_cells, &prop);
+<<<<<<< HEAD
 
 	nomap = of_get_flat_dt_prop(node, "no-map", NULL) != NULL;
 
+=======
+#ifdef CONFIG_RBIN
+	if (!strncmp(uname, "rbin", 4) && under_6GB_device())
+		return -EINVAL;
+#endif
+>>>>>>> upstream/android-13
 	prop = of_get_flat_dt_prop(node, "alignment", &len);
 	if (prop) {
 		if (len != dt_root_addr_cells * sizeof(__be32)) {
@@ -120,11 +183,20 @@ static int __init __reserved_mem_alloc_size(unsigned long node,
 		align = dt_mem_next_cell(dt_root_addr_cells, &prop);
 	}
 
+<<<<<<< HEAD
+=======
+	nomap = of_get_flat_dt_prop(node, "no-map", NULL) != NULL;
+
+>>>>>>> upstream/android-13
 	/* Need adjust the alignment to satisfy the CMA requirement */
 	if (IS_ENABLED(CONFIG_CMA)
 	    && of_flat_dt_is_compatible(node, "shared-dma-pool")
 	    && of_get_flat_dt_prop(node, "reusable", NULL)
+<<<<<<< HEAD
 	    && !of_get_flat_dt_prop(node, "no-map", NULL)) {
+=======
+	    && !nomap) {
+>>>>>>> upstream/android-13
 		unsigned long order =
 			max_t(unsigned long, MAX_ORDER - 1, pageblock_order);
 
@@ -150,9 +222,15 @@ static int __init __reserved_mem_alloc_size(unsigned long node,
 			ret = early_init_dt_alloc_reserved_memory_arch(size,
 					align, start, end, nomap, &base);
 			if (ret == 0) {
+<<<<<<< HEAD
 				pr_debug("allocated memory for '%s' node: base %pa, size %ld MiB\n",
 					uname, &base,
 					(unsigned long)size / SZ_1M);
+=======
+				pr_debug("allocated memory for '%s' node: base %pa, size %lu MiB\n",
+					uname, &base,
+					(unsigned long)(size / SZ_1M));
+>>>>>>> upstream/android-13
 				break;
 			}
 			len -= t_len;
@@ -162,8 +240,13 @@ static int __init __reserved_mem_alloc_size(unsigned long node,
 		ret = early_init_dt_alloc_reserved_memory_arch(size, align,
 							0, 0, nomap, &base);
 		if (ret == 0)
+<<<<<<< HEAD
 			pr_debug("allocated memory for '%s' node: base %pa, size %ld MiB\n",
 				uname, &base, (unsigned long)size / SZ_1M);
+=======
+			pr_debug("allocated memory for '%s' node: base %pa, size %lu MiB\n",
+				uname, &base, (unsigned long)(size / SZ_1M));
+>>>>>>> upstream/android-13
 	}
 
 	if (base == 0) {
@@ -178,15 +261,26 @@ static int __init __reserved_mem_alloc_size(unsigned long node,
 }
 
 static const struct of_device_id __rmem_of_table_sentinel
+<<<<<<< HEAD
 	__used __section(__reservedmem_of_table_end);
 
 /**
  * res_mem_init_node() - call region specific reserved memory init code
+=======
+	__used __section("__reservedmem_of_table_end");
+
+/*
+ * __reserved_mem_init_node() - call region specific reserved memory init code
+>>>>>>> upstream/android-13
  */
 static int __init __reserved_mem_init_node(struct reserved_mem *rmem)
 {
 	extern const struct of_device_id __reservedmem_of_table[];
 	const struct of_device_id *i;
+<<<<<<< HEAD
+=======
+	int ret = -ENOENT;
+>>>>>>> upstream/android-13
 
 	for (i = __reservedmem_of_table; i < &__rmem_of_table_sentinel; i++) {
 		reservedmem_of_init_fn initfn = i->data;
@@ -195,6 +289,7 @@ static int __init __reserved_mem_init_node(struct reserved_mem *rmem)
 		if (!of_flat_dt_is_compatible(rmem->fdt_node, compat))
 			continue;
 
+<<<<<<< HEAD
 		if (initfn(rmem) == 0) {
 			pr_info("initialized node %s, compatible id %s\n",
 				rmem->name, compat);
@@ -202,6 +297,16 @@ static int __init __reserved_mem_init_node(struct reserved_mem *rmem)
 		}
 	}
 	return -ENOENT;
+=======
+		ret = initfn(rmem);
+		if (ret == 0) {
+			pr_info("initialized node %s, compatible id %s\n",
+				rmem->name, compat);
+			break;
+		}
+	}
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static int __init __rmem_cmp(const void *a, const void *b)
@@ -255,7 +360,11 @@ static void __init __rmem_check_for_overlap(void)
 }
 
 /**
+<<<<<<< HEAD
  * fdt_init_reserved_mem - allocate and init all saved reserved memory regions
+=======
+ * fdt_init_reserved_mem() - allocate and init all saved reserved memory regions
+>>>>>>> upstream/android-13
  */
 void __init fdt_init_reserved_mem(void)
 {
@@ -270,8 +379,15 @@ void __init fdt_init_reserved_mem(void)
 		int len;
 		const __be32 *prop;
 		int err = 0;
+<<<<<<< HEAD
 		bool nomap;
 
+=======
+		bool nomap, reusable;
+
+		nomap = of_get_flat_dt_prop(node, "no-map", NULL) != NULL;
+		reusable = of_get_flat_dt_prop(node, "reusable", NULL) != NULL;
+>>>>>>> upstream/android-13
 		prop = of_get_flat_dt_prop(node, "phandle", &len);
 		if (!prop)
 			prop = of_get_flat_dt_prop(node, "linux,phandle", &len);
@@ -282,6 +398,7 @@ void __init fdt_init_reserved_mem(void)
 			err = __reserved_mem_alloc_size(node, rmem->name,
 						 &rmem->base, &rmem->size);
 		if (err == 0) {
+<<<<<<< HEAD
 			__reserved_mem_init_node(rmem);
 			nomap = of_get_flat_dt_prop(node, "no-map", NULL) != NULL;
 #ifdef CONFIG_ION_RBIN_HEAP
@@ -291,6 +408,27 @@ void __init fdt_init_reserved_mem(void)
 			record_memsize_reserved(rmem->name, rmem->base,
 						rmem->size, nomap,
 						rmem->reusable);
+=======
+			err = __reserved_mem_init_node(rmem);
+			if (err != 0 && err != -ENOENT) {
+				pr_info("node %s compatible matching fail\n",
+					rmem->name);
+				if (nomap)
+					memblock_clear_nomap(rmem->base, rmem->size);
+				else
+					memblock_free(rmem->base, rmem->size);
+			} else {
+#ifdef CONFIG_RBIN
+				if (!strcmp(rmem->name, "rbin")) {
+					rbin_total = rmem->size >> PAGE_SHIFT;
+					reusable = true;
+				}
+#endif
+				memblock_memsize_record(rmem->name, rmem->base,
+							rmem->size, nomap,
+							reusable);
+			}
+>>>>>>> upstream/android-13
 		}
 	}
 }
@@ -347,6 +485,14 @@ int of_reserved_mem_device_init_by_idx(struct device *dev,
 	if (!target)
 		return -ENODEV;
 
+<<<<<<< HEAD
+=======
+	if (!of_device_is_available(target)) {
+		of_node_put(target);
+		return 0;
+	}
+
+>>>>>>> upstream/android-13
 	rmem = __find_rmem(target);
 	of_node_put(target);
 
@@ -365,10 +511,13 @@ int of_reserved_mem_device_init_by_idx(struct device *dev,
 		mutex_lock(&of_rmem_assigned_device_mutex);
 		list_add(&rd->list, &of_rmem_assigned_device_list);
 		mutex_unlock(&of_rmem_assigned_device_mutex);
+<<<<<<< HEAD
 		/* ensure that dma_ops is set for virtual devices
 		 * using reserved memory
 		 */
 		of_dma_configure(dev, np, true);
+=======
+>>>>>>> upstream/android-13
 
 		dev_info(dev, "assigned reserved memory node %s\n", rmem->name);
 	} else {
@@ -380,6 +529,28 @@ int of_reserved_mem_device_init_by_idx(struct device *dev,
 EXPORT_SYMBOL_GPL(of_reserved_mem_device_init_by_idx);
 
 /**
+<<<<<<< HEAD
+=======
+ * of_reserved_mem_device_init_by_name() - assign named reserved memory region
+ *					   to given device
+ * @dev: pointer to the device to configure
+ * @np: pointer to the device node with 'memory-region' property
+ * @name: name of the selected memory region
+ *
+ * Returns: 0 on success or a negative error-code on failure.
+ */
+int of_reserved_mem_device_init_by_name(struct device *dev,
+					struct device_node *np,
+					const char *name)
+{
+	int idx = of_property_match_string(np, "memory-region-names", name);
+
+	return of_reserved_mem_device_init_by_idx(dev, np, idx);
+}
+EXPORT_SYMBOL_GPL(of_reserved_mem_device_init_by_name);
+
+/**
+>>>>>>> upstream/android-13
  * of_reserved_mem_device_release() - release reserved memory device structures
  * @dev:	Pointer to the device to deconfigure
  *
@@ -388,6 +559,7 @@ EXPORT_SYMBOL_GPL(of_reserved_mem_device_init_by_idx);
  */
 void of_reserved_mem_device_release(struct device *dev)
 {
+<<<<<<< HEAD
 	struct rmem_assigned_device *rd;
 	struct reserved_mem *rmem = NULL;
 
@@ -406,6 +578,24 @@ void of_reserved_mem_device_release(struct device *dev)
 		return;
 
 	rmem->ops->device_release(rmem, dev);
+=======
+	struct rmem_assigned_device *rd, *tmp;
+	LIST_HEAD(release_list);
+
+	mutex_lock(&of_rmem_assigned_device_mutex);
+	list_for_each_entry_safe(rd, tmp, &of_rmem_assigned_device_list, list) {
+		if (rd->dev == dev)
+			list_move_tail(&rd->list, &release_list);
+	}
+	mutex_unlock(&of_rmem_assigned_device_mutex);
+
+	list_for_each_entry_safe(rd, tmp, &release_list, list) {
+		if (rd->rmem && rd->rmem->ops && rd->rmem->ops->device_release)
+			rd->rmem->ops->device_release(rd->rmem, dev);
+
+		kfree(rd);
+	}
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(of_reserved_mem_device_release);
 

@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Record and handle CPU attributes.
  *
  * Copyright (C) 2014 ARM Ltd.
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
@@ -13,6 +18,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 #include <asm/arch_timer.h>
 #include <asm/cache.h>
@@ -34,12 +41,15 @@
 #include <linux/sched.h>
 #include <linux/smp.h>
 #include <linux/delay.h>
+<<<<<<< HEAD
 #include <linux/of_fdt.h>
 
 char* (*arch_read_hardware_id)(void);
 EXPORT_SYMBOL(arch_read_hardware_id);
 
 static const char *machine_name;
+=======
+>>>>>>> upstream/android-13
 
 /*
  * In case the boot CPU is hotpluggable, we record its initial state and
@@ -49,15 +59,24 @@ static const char *machine_name;
 DEFINE_PER_CPU(struct cpuinfo_arm64, cpu_data);
 static struct cpuinfo_arm64 boot_cpu_data;
 
+<<<<<<< HEAD
 static char *icache_policy_str[] = {
 	[0 ... ICACHE_POLICY_PIPT]	= "RESERVED/UNKNOWN",
 	[ICACHE_POLICY_VIPT]		= "VIPT",
 	[ICACHE_POLICY_PIPT]		= "PIPT",
 	[ICACHE_POLICY_VPIPT]		= "VPIPT",
+=======
+static const char *icache_policy_str[] = {
+	[ICACHE_POLICY_VPIPT]		= "VPIPT",
+	[ICACHE_POLICY_RESERVED]	= "RESERVED/UNKNOWN",
+	[ICACHE_POLICY_VIPT]		= "VIPT",
+	[ICACHE_POLICY_PIPT]		= "PIPT",
+>>>>>>> upstream/android-13
 };
 
 unsigned long __icache_flags;
 
+<<<<<<< HEAD
 /* machine descriptor for arm64 device */
 static const char *machine_desc_str;
 
@@ -138,6 +157,103 @@ void machine_desc_set(const char *str)
 	machine_desc_str = str;
 }
 
+=======
+static const char *const hwcap_str[] = {
+	[KERNEL_HWCAP_FP]		= "fp",
+	[KERNEL_HWCAP_ASIMD]		= "asimd",
+	[KERNEL_HWCAP_EVTSTRM]		= "evtstrm",
+	[KERNEL_HWCAP_AES]		= "aes",
+	[KERNEL_HWCAP_PMULL]		= "pmull",
+	[KERNEL_HWCAP_SHA1]		= "sha1",
+	[KERNEL_HWCAP_SHA2]		= "sha2",
+	[KERNEL_HWCAP_CRC32]		= "crc32",
+	[KERNEL_HWCAP_ATOMICS]		= "atomics",
+	[KERNEL_HWCAP_FPHP]		= "fphp",
+	[KERNEL_HWCAP_ASIMDHP]		= "asimdhp",
+	[KERNEL_HWCAP_CPUID]		= "cpuid",
+	[KERNEL_HWCAP_ASIMDRDM]		= "asimdrdm",
+	[KERNEL_HWCAP_JSCVT]		= "jscvt",
+	[KERNEL_HWCAP_FCMA]		= "fcma",
+	[KERNEL_HWCAP_LRCPC]		= "lrcpc",
+	[KERNEL_HWCAP_DCPOP]		= "dcpop",
+	[KERNEL_HWCAP_SHA3]		= "sha3",
+	[KERNEL_HWCAP_SM3]		= "sm3",
+	[KERNEL_HWCAP_SM4]		= "sm4",
+	[KERNEL_HWCAP_ASIMDDP]		= "asimddp",
+	[KERNEL_HWCAP_SHA512]		= "sha512",
+	[KERNEL_HWCAP_SVE]		= "sve",
+	[KERNEL_HWCAP_ASIMDFHM]		= "asimdfhm",
+	[KERNEL_HWCAP_DIT]		= "dit",
+	[KERNEL_HWCAP_USCAT]		= "uscat",
+	[KERNEL_HWCAP_ILRCPC]		= "ilrcpc",
+	[KERNEL_HWCAP_FLAGM]		= "flagm",
+	[KERNEL_HWCAP_SSBS]		= "ssbs",
+	[KERNEL_HWCAP_SB]		= "sb",
+	[KERNEL_HWCAP_PACA]		= "paca",
+	[KERNEL_HWCAP_PACG]		= "pacg",
+	[KERNEL_HWCAP_DCPODP]		= "dcpodp",
+	[KERNEL_HWCAP_SVE2]		= "sve2",
+	[KERNEL_HWCAP_SVEAES]		= "sveaes",
+	[KERNEL_HWCAP_SVEPMULL]		= "svepmull",
+	[KERNEL_HWCAP_SVEBITPERM]	= "svebitperm",
+	[KERNEL_HWCAP_SVESHA3]		= "svesha3",
+	[KERNEL_HWCAP_SVESM4]		= "svesm4",
+	[KERNEL_HWCAP_FLAGM2]		= "flagm2",
+	[KERNEL_HWCAP_FRINT]		= "frint",
+	[KERNEL_HWCAP_SVEI8MM]		= "svei8mm",
+	[KERNEL_HWCAP_SVEF32MM]		= "svef32mm",
+	[KERNEL_HWCAP_SVEF64MM]		= "svef64mm",
+	[KERNEL_HWCAP_SVEBF16]		= "svebf16",
+	[KERNEL_HWCAP_I8MM]		= "i8mm",
+	[KERNEL_HWCAP_BF16]		= "bf16",
+	[KERNEL_HWCAP_DGH]		= "dgh",
+	[KERNEL_HWCAP_RNG]		= "rng",
+	[KERNEL_HWCAP_BTI]		= "bti",
+	[KERNEL_HWCAP_MTE]		= "mte",
+	[KERNEL_HWCAP_ECV]		= "ecv",
+	[KERNEL_HWCAP_AFP]		= "afp",
+	[KERNEL_HWCAP_RPRES]		= "rpres",
+	[KERNEL_HWCAP_MTE3]		= "mte3",
+};
+
+#ifdef CONFIG_COMPAT
+#define COMPAT_KERNEL_HWCAP(x)	const_ilog2(COMPAT_HWCAP_ ## x)
+static const char *const compat_hwcap_str[] = {
+	[COMPAT_KERNEL_HWCAP(SWP)]	= "swp",
+	[COMPAT_KERNEL_HWCAP(HALF)]	= "half",
+	[COMPAT_KERNEL_HWCAP(THUMB)]	= "thumb",
+	[COMPAT_KERNEL_HWCAP(26BIT)]	= NULL,	/* Not possible on arm64 */
+	[COMPAT_KERNEL_HWCAP(FAST_MULT)] = "fastmult",
+	[COMPAT_KERNEL_HWCAP(FPA)]	= NULL,	/* Not possible on arm64 */
+	[COMPAT_KERNEL_HWCAP(VFP)]	= "vfp",
+	[COMPAT_KERNEL_HWCAP(EDSP)]	= "edsp",
+	[COMPAT_KERNEL_HWCAP(JAVA)]	= NULL,	/* Not possible on arm64 */
+	[COMPAT_KERNEL_HWCAP(IWMMXT)]	= NULL,	/* Not possible on arm64 */
+	[COMPAT_KERNEL_HWCAP(CRUNCH)]	= NULL,	/* Not possible on arm64 */
+	[COMPAT_KERNEL_HWCAP(THUMBEE)]	= NULL,	/* Not possible on arm64 */
+	[COMPAT_KERNEL_HWCAP(NEON)]	= "neon",
+	[COMPAT_KERNEL_HWCAP(VFPv3)]	= "vfpv3",
+	[COMPAT_KERNEL_HWCAP(VFPV3D16)]	= NULL,	/* Not possible on arm64 */
+	[COMPAT_KERNEL_HWCAP(TLS)]	= "tls",
+	[COMPAT_KERNEL_HWCAP(VFPv4)]	= "vfpv4",
+	[COMPAT_KERNEL_HWCAP(IDIVA)]	= "idiva",
+	[COMPAT_KERNEL_HWCAP(IDIVT)]	= "idivt",
+	[COMPAT_KERNEL_HWCAP(VFPD32)]	= NULL,	/* Not possible on arm64 */
+	[COMPAT_KERNEL_HWCAP(LPAE)]	= "lpae",
+	[COMPAT_KERNEL_HWCAP(EVTSTRM)]	= "evtstrm",
+};
+
+#define COMPAT_KERNEL_HWCAP2(x)	const_ilog2(COMPAT_HWCAP2_ ## x)
+static const char *const compat_hwcap2_str[] = {
+	[COMPAT_KERNEL_HWCAP2(AES)]	= "aes",
+	[COMPAT_KERNEL_HWCAP2(PMULL)]	= "pmull",
+	[COMPAT_KERNEL_HWCAP2(SHA1)]	= "sha1",
+	[COMPAT_KERNEL_HWCAP2(SHA2)]	= "sha2",
+	[COMPAT_KERNEL_HWCAP2(CRC32)]	= "crc32",
+};
+#endif /* CONFIG_COMPAT */
+
+>>>>>>> upstream/android-13
 static int c_show(struct seq_file *m, void *v)
 {
 	int i, j;
@@ -170,17 +286,39 @@ static int c_show(struct seq_file *m, void *v)
 		seq_puts(m, "Features\t:");
 		if (compat) {
 #ifdef CONFIG_COMPAT
+<<<<<<< HEAD
 			for (j = 0; compat_hwcap_str[j]; j++)
 				if (compat_elf_hwcap & (1 << j))
 					seq_printf(m, " %s", compat_hwcap_str[j]);
 
 			for (j = 0; compat_hwcap2_str[j]; j++)
+=======
+			for (j = 0; j < ARRAY_SIZE(compat_hwcap_str); j++) {
+				if (compat_elf_hwcap & (1 << j)) {
+					/*
+					 * Warn once if any feature should not
+					 * have been present on arm64 platform.
+					 */
+					if (WARN_ON_ONCE(!compat_hwcap_str[j]))
+						continue;
+
+					seq_printf(m, " %s", compat_hwcap_str[j]);
+				}
+			}
+
+			for (j = 0; j < ARRAY_SIZE(compat_hwcap2_str); j++)
+>>>>>>> upstream/android-13
 				if (compat_elf_hwcap2 & (1 << j))
 					seq_printf(m, " %s", compat_hwcap2_str[j]);
 #endif /* CONFIG_COMPAT */
 		} else {
+<<<<<<< HEAD
 			for (j = 0; hwcap_str[j]; j++)
 				if (elf_hwcap & (1 << j))
+=======
+			for (j = 0; j < ARRAY_SIZE(hwcap_str); j++)
+				if (cpu_have_feature(j))
+>>>>>>> upstream/android-13
 					seq_printf(m, " %s", hwcap_str[j]);
 		}
 		seq_puts(m, "\n");
@@ -193,6 +331,7 @@ static int c_show(struct seq_file *m, void *v)
 		seq_printf(m, "CPU revision\t: %d\n\n", MIDR_REVISION(midr));
 	}
 
+<<<<<<< HEAD
 	if (!arch_read_hardware_id)
 		seq_printf(m, "Hardware\t: %s\n", machine_name);
 	else
@@ -201,6 +340,8 @@ static int c_show(struct seq_file *m, void *v)
 	/* backward-compatibility for third-party applications */
 	seq_printf(m, "Hardware\t: %s\n", machine_desc_str);
 
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -250,7 +391,11 @@ static struct kobj_type cpuregs_kobj_type = {
 		struct cpuinfo_arm64 *info = kobj_to_cpuinfo(kobj);		\
 										\
 		if (info->reg_midr)						\
+<<<<<<< HEAD
 			return sprintf(buf, "0x%016x\n", info->reg_##_field);	\
+=======
+			return sprintf(buf, "0x%016llx\n", info->reg_##_field);	\
+>>>>>>> upstream/android-13
 		else								\
 			return 0;						\
 	}									\
@@ -325,6 +470,11 @@ static int __init cpuinfo_regs_init(void)
 	}
 	return 0;
 }
+<<<<<<< HEAD
+=======
+device_initcall(cpuinfo_regs_init);
+
+>>>>>>> upstream/android-13
 static void cpuinfo_detect_icache_policy(struct cpuinfo_arm64 *info)
 {
 	unsigned int cpu = smp_processor_id();
@@ -336,20 +486,69 @@ static void cpuinfo_detect_icache_policy(struct cpuinfo_arm64 *info)
 	case ICACHE_POLICY_VPIPT:
 		set_bit(ICACHEF_VPIPT, &__icache_flags);
 		break;
+<<<<<<< HEAD
 	default:
 		/* Fallthrough */
 	case ICACHE_POLICY_VIPT:
 		/* Assume aliasing */
 		set_bit(ICACHEF_ALIASING, &__icache_flags);
+=======
+	case ICACHE_POLICY_RESERVED:
+	case ICACHE_POLICY_VIPT:
+		/* Assume aliasing */
+		set_bit(ICACHEF_ALIASING, &__icache_flags);
+		break;
+>>>>>>> upstream/android-13
 	}
 
 	pr_info("Detected %s I-cache on CPU%d\n", icache_policy_str[l1ip], cpu);
 }
 
+<<<<<<< HEAD
 static void __cpuinfo_store_cpu(struct cpuinfo_arm64 *info)
 {
 	info->reg_cntfrq = arch_timer_get_cntfrq();
 	info->reg_ctr = read_cpuid_cachetype();
+=======
+static void __cpuinfo_store_cpu_32bit(struct cpuinfo_32bit *info)
+{
+	info->reg_id_dfr0 = read_cpuid(ID_DFR0_EL1);
+	info->reg_id_dfr1 = read_cpuid(ID_DFR1_EL1);
+	info->reg_id_isar0 = read_cpuid(ID_ISAR0_EL1);
+	info->reg_id_isar1 = read_cpuid(ID_ISAR1_EL1);
+	info->reg_id_isar2 = read_cpuid(ID_ISAR2_EL1);
+	info->reg_id_isar3 = read_cpuid(ID_ISAR3_EL1);
+	info->reg_id_isar4 = read_cpuid(ID_ISAR4_EL1);
+	info->reg_id_isar5 = read_cpuid(ID_ISAR5_EL1);
+	info->reg_id_isar6 = read_cpuid(ID_ISAR6_EL1);
+	info->reg_id_mmfr0 = read_cpuid(ID_MMFR0_EL1);
+	info->reg_id_mmfr1 = read_cpuid(ID_MMFR1_EL1);
+	info->reg_id_mmfr2 = read_cpuid(ID_MMFR2_EL1);
+	info->reg_id_mmfr3 = read_cpuid(ID_MMFR3_EL1);
+	info->reg_id_mmfr4 = read_cpuid(ID_MMFR4_EL1);
+	info->reg_id_mmfr5 = read_cpuid(ID_MMFR5_EL1);
+	info->reg_id_pfr0 = read_cpuid(ID_PFR0_EL1);
+	info->reg_id_pfr1 = read_cpuid(ID_PFR1_EL1);
+	info->reg_id_pfr2 = read_cpuid(ID_PFR2_EL1);
+
+	info->reg_mvfr0 = read_cpuid(MVFR0_EL1);
+	info->reg_mvfr1 = read_cpuid(MVFR1_EL1);
+	info->reg_mvfr2 = read_cpuid(MVFR2_EL1);
+}
+
+static void __cpuinfo_store_cpu(struct cpuinfo_arm64 *info)
+{
+	info->reg_cntfrq = arch_timer_get_cntfrq();
+	/*
+	 * Use the effective value of the CTR_EL0 than the raw value
+	 * exposed by the CPU. CTR_EL0.IDC field value must be interpreted
+	 * with the CLIDR_EL1 fields to avoid triggering false warnings
+	 * when there is a mismatch across the CPUs. Keep track of the
+	 * effective value of the CTR_EL0 in our internal records for
+	 * accurate sanity check and feature enablement.
+	 */
+	info->reg_ctr = read_cpuid_effective_cachetype();
+>>>>>>> upstream/android-13
 	info->reg_dczid = read_cpuid(DCZID_EL0);
 	info->reg_midr = read_cpuid_id();
 	info->reg_revidr = read_cpuid(REVIDR_EL1);
@@ -366,6 +565,7 @@ static void __cpuinfo_store_cpu(struct cpuinfo_arm64 *info)
 	info->reg_id_aa64pfr1 = read_cpuid(ID_AA64PFR1_EL1);
 	info->reg_id_aa64zfr0 = read_cpuid(ID_AA64ZFR0_EL1);
 
+<<<<<<< HEAD
 	/* Update the 32bit ID registers only if AArch32 is implemented */
 	if (id_aa64pfr0_32bit_el0(info->reg_id_aa64pfr0)) {
 		info->reg_id_dfr0 = read_cpuid(ID_DFR0_EL1);
@@ -386,6 +586,13 @@ static void __cpuinfo_store_cpu(struct cpuinfo_arm64 *info)
 		info->reg_mvfr1 = read_cpuid(MVFR1_EL1);
 		info->reg_mvfr2 = read_cpuid(MVFR2_EL1);
 	}
+=======
+	if (id_aa64pfr1_mte(info->reg_id_aa64pfr1))
+		info->reg_gmid = read_cpuid(GMID_EL1);
+
+	if (id_aa64pfr0_32bit_el0(info->reg_id_aa64pfr0))
+		__cpuinfo_store_cpu_32bit(&info->aarch32);
+>>>>>>> upstream/android-13
 
 	if (IS_ENABLED(CONFIG_ARM64_SVE) &&
 	    id_aa64pfr0_sve(info->reg_id_aa64pfr0))
@@ -408,7 +615,11 @@ void __init cpuinfo_store_boot_cpu(void)
 
 	boot_cpu_data = *info;
 	init_cpu_features(&boot_cpu_data);
+<<<<<<< HEAD
 	machine_name = of_flat_dt_get_machine_name();
 }
 
 device_initcall(cpuinfo_regs_init);
+=======
+}
+>>>>>>> upstream/android-13

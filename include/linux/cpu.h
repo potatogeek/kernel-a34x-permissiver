@@ -64,6 +64,10 @@ extern ssize_t cpu_show_tsx_async_abort(struct device *dev,
 					char *buf);
 extern ssize_t cpu_show_itlb_multihit(struct device *dev,
 				      struct device_attribute *attr, char *buf);
+<<<<<<< HEAD
+=======
+extern ssize_t cpu_show_srbds(struct device *dev, struct device_attribute *attr, char *buf);
+>>>>>>> upstream/android-13
 
 extern __printf(4, 5)
 struct device *cpu_device_create(struct device *parent, void *drvdata,
@@ -88,10 +92,20 @@ extern ssize_t arch_cpu_release(const char *, size_t);
 
 #ifdef CONFIG_SMP
 extern bool cpuhp_tasks_frozen;
+<<<<<<< HEAD
 int cpu_up(unsigned int cpu);
 void notify_cpu_starting(unsigned int cpu);
 extern void cpu_maps_update_begin(void);
 extern void cpu_maps_update_done(void);
+=======
+int add_cpu(unsigned int cpu);
+int cpu_device_up(struct device *dev);
+void notify_cpu_starting(unsigned int cpu);
+extern void cpu_maps_update_begin(void);
+extern void cpu_maps_update_done(void);
+int bringup_hibernate_cpu(unsigned int sleep_cpu);
+void bringup_nonboot_cpus(unsigned int setup_max_cpus);
+>>>>>>> upstream/android-13
 
 #else	/* CONFIG_SMP */
 #define cpuhp_tasks_frozen	0
@@ -104,9 +118,19 @@ static inline void cpu_maps_update_done(void)
 {
 }
 
+<<<<<<< HEAD
 #endif /* CONFIG_SMP */
 extern struct bus_type cpu_subsys;
 
+=======
+static inline int add_cpu(unsigned int cpu) { return 0;}
+
+#endif /* CONFIG_SMP */
+extern struct bus_type cpu_subsys;
+
+extern int lockdep_is_cpus_held(void);
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_HOTPLUG_CPU
 extern void cpus_write_lock(void);
 extern void cpus_write_unlock(void);
@@ -117,7 +141,13 @@ extern void lockdep_assert_cpus_held(void);
 extern void cpu_hotplug_disable(void);
 extern void cpu_hotplug_enable(void);
 void clear_tasks_mm_cpumask(int cpu);
+<<<<<<< HEAD
 int cpu_down(unsigned int cpu);
+=======
+int remove_cpu(unsigned int cpu);
+int cpu_device_down(struct device *dev);
+extern void smp_shutdown_nonboot_cpus(unsigned int primary_cpu);
+>>>>>>> upstream/android-13
 
 #else /* CONFIG_HOTPLUG_CPU */
 
@@ -129,6 +159,11 @@ static inline int  cpus_read_trylock(void) { return true; }
 static inline void lockdep_assert_cpus_held(void) { }
 static inline void cpu_hotplug_disable(void) { }
 static inline void cpu_hotplug_enable(void) { }
+<<<<<<< HEAD
+=======
+static inline int remove_cpu(unsigned int cpu) { return -EPERM; }
+static inline void smp_shutdown_nonboot_cpus(unsigned int primary_cpu) { }
+>>>>>>> upstream/android-13
 #endif	/* !CONFIG_HOTPLUG_CPU */
 
 /* Wrappers which go away once all code is converted */
@@ -139,6 +174,7 @@ static inline void put_online_cpus(void) { cpus_read_unlock(); }
 
 #ifdef CONFIG_PM_SLEEP_SMP
 extern int freeze_secondary_cpus(int primary);
+<<<<<<< HEAD
 static inline int disable_nonboot_cpus(void)
 {
 	return freeze_secondary_cpus(0);
@@ -147,6 +183,28 @@ extern void enable_nonboot_cpus(void);
 #else /* !CONFIG_PM_SLEEP_SMP */
 static inline int disable_nonboot_cpus(void) { return 0; }
 static inline void enable_nonboot_cpus(void) {}
+=======
+extern void thaw_secondary_cpus(void);
+
+static inline int suspend_disable_secondary_cpus(void)
+{
+	int cpu = 0;
+
+	if (IS_ENABLED(CONFIG_PM_SLEEP_SMP_NONZERO_CPU))
+		cpu = -1;
+
+	return freeze_secondary_cpus(cpu);
+}
+static inline void suspend_enable_secondary_cpus(void)
+{
+	return thaw_secondary_cpus();
+}
+
+#else /* !CONFIG_PM_SLEEP_SMP */
+static inline void thaw_secondary_cpus(void) {}
+static inline int suspend_disable_secondary_cpus(void) { return 0; }
+static inline void suspend_enable_secondary_cpus(void) { }
+>>>>>>> upstream/android-13
 #endif /* !CONFIG_PM_SLEEP_SMP */
 
 void cpu_startup_entry(enum cpuhp_state state);
@@ -154,7 +212,11 @@ void cpu_startup_entry(enum cpuhp_state state);
 void cpu_idle_poll_ctrl(bool enable);
 
 /* Attach to any functions which should be considered cpuidle. */
+<<<<<<< HEAD
 #define __cpuidle	__attribute__((__section__(".cpuidle.text")))
+=======
+#define __cpuidle	__section(".cpuidle.text")
+>>>>>>> upstream/android-13
 
 bool cpu_in_idle(unsigned long pc);
 
@@ -167,7 +229,16 @@ void arch_cpu_idle_dead(void);
 int cpu_report_state(int cpu);
 int cpu_check_up_prepare(int cpu);
 void cpu_set_state_online(int cpu);
+<<<<<<< HEAD
 void play_idle(unsigned long duration_ms);
+=======
+void play_idle_precise(u64 duration_ns, u64 latency_ns);
+
+static inline void play_idle(unsigned long duration_us)
+{
+	play_idle_precise(duration_us * NSEC_PER_USEC, U64_MAX);
+}
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_HOTPLUG_CPU
 bool cpu_wait_death(unsigned int cpu, int seconds);
@@ -182,18 +253,33 @@ enum cpuhp_smt_control {
 	CPU_SMT_DISABLED,
 	CPU_SMT_FORCE_DISABLED,
 	CPU_SMT_NOT_SUPPORTED,
+<<<<<<< HEAD
+=======
+	CPU_SMT_NOT_IMPLEMENTED,
+>>>>>>> upstream/android-13
 };
 
 #if defined(CONFIG_SMP) && defined(CONFIG_HOTPLUG_SMT)
 extern enum cpuhp_smt_control cpu_smt_control;
 extern void cpu_smt_disable(bool force);
 extern void cpu_smt_check_topology(void);
+<<<<<<< HEAD
 extern int cpuhp_smt_enable(void);
 extern int cpuhp_smt_disable(enum cpuhp_smt_control ctrlval);
 #else
 # define cpu_smt_control		(CPU_SMT_ENABLED)
 static inline void cpu_smt_disable(bool force) { }
 static inline void cpu_smt_check_topology(void) { }
+=======
+extern bool cpu_smt_possible(void);
+extern int cpuhp_smt_enable(void);
+extern int cpuhp_smt_disable(enum cpuhp_smt_control ctrlval);
+#else
+# define cpu_smt_control		(CPU_SMT_NOT_IMPLEMENTED)
+static inline void cpu_smt_disable(bool force) { }
+static inline void cpu_smt_check_topology(void) { }
+static inline bool cpu_smt_possible(void) { return false; }
+>>>>>>> upstream/android-13
 static inline int cpuhp_smt_enable(void) { return 0; }
 static inline int cpuhp_smt_disable(enum cpuhp_smt_control ctrlval) { return 0; }
 #endif

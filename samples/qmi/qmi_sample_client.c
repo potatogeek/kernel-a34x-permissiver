@@ -429,7 +429,11 @@ static const struct file_operations data_fops = {
 	.write = data_write,
 };
 
+<<<<<<< HEAD
 static struct qmi_msg_handler qmi_sample_handlers[] = {
+=======
+static const struct qmi_msg_handler qmi_sample_handlers[] = {
+>>>>>>> upstream/android-13
 	{
 		.type = QMI_RESPONSE,
 		.msg_id = TEST_PING_REQ_MSG_ID_V01,
@@ -571,7 +575,11 @@ static void qmi_sample_del_server(struct qmi_handle *qmi,
 
 static struct qmi_handle lookup_client;
 
+<<<<<<< HEAD
 static struct qmi_ops lookup_ops = {
+=======
+static const struct qmi_ops lookup_ops = {
+>>>>>>> upstream/android-13
 	.new_server = qmi_sample_new_server,
 	.del_server = qmi_sample_del_server,
 };

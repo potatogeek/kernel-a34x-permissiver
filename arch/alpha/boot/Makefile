@@ -8,7 +8,11 @@
 # Copyright (C) 1994 by Linus Torvalds
 #
 
+<<<<<<< HEAD
 hostprogs-y	:= tools/mkbb tools/objstrip
+=======
+hostprogs	:= tools/mkbb tools/objstrip
+>>>>>>> upstream/android-13
 targets		:= vmlinux.gz vmlinux \
 		   vmlinux.nh tools/lxboot tools/bootlx tools/bootph \
 		   tools/bootpzh bootloader bootpheader bootpzheader 

@@ -20,12 +20,24 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  *
  */
+<<<<<<< HEAD
 #include <linux/firmware.h>
 #include <drm/drmP.h>
+=======
+
+#include <linux/firmware.h>
+#include <linux/module.h>
+#include <linux/pci.h>
+
+>>>>>>> upstream/android-13
 #include <drm/drm_cache.h>
 #include "amdgpu.h"
 #include "gmc_v6_0.h"
 #include "amdgpu_ucode.h"
+<<<<<<< HEAD
+=======
+#include "amdgpu_gem.h"
+>>>>>>> upstream/android-13
 
 #include "bif/bif_3_0_d.h"
 #include "bif/bif_3_0_sh_mask.h"
@@ -57,6 +69,7 @@ MODULE_FIRMWARE("amdgpu/si58_mc.bin");
 #define MC_SEQ_MISC0__MT__HBM    0x60000000
 #define MC_SEQ_MISC0__MT__DDR3   0xB0000000
 
+<<<<<<< HEAD
 
 static const u32 crtc_offsets[6] =
 {
@@ -68,6 +81,8 @@ static const u32 crtc_offsets[6] =
 	SI_CRTC5_REGISTER_OFFSET
 };
 
+=======
+>>>>>>> upstream/android-13
 static void gmc_v6_0_mc_stop(struct amdgpu_device *adev)
 {
 	u32 blackout;
@@ -224,8 +239,13 @@ static void gmc_v6_0_vram_gtt_location(struct amdgpu_device *adev,
 	u64 base = RREG32(mmMC_VM_FB_LOCATION) & 0xFFFF;
 	base <<= 24;
 
+<<<<<<< HEAD
 	amdgpu_device_vram_location(adev, &adev->gmc, base);
 	amdgpu_device_gart_location(adev, mc);
+=======
+	amdgpu_gmc_vram_location(adev, mc, base);
+	amdgpu_gmc_gart_location(adev, mc);
+>>>>>>> upstream/android-13
 }
 
 static void gmc_v6_0_mc_program(struct amdgpu_device *adev)
@@ -353,12 +373,21 @@ static int gmc_v6_0_mc_init(struct amdgpu_device *adev)
 		adev->gmc.gart_size = (u64)amdgpu_gart_size << 20;
 	}
 
+<<<<<<< HEAD
+=======
+	adev->gmc.gart_size += adev->pm.smu_prv_buffer_size;
+>>>>>>> upstream/android-13
 	gmc_v6_0_vram_gtt_location(adev, &adev->gmc);
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static void gmc_v6_0_flush_gpu_tlb(struct amdgpu_device *adev, uint32_t vmid)
+=======
+static void gmc_v6_0_flush_gpu_tlb(struct amdgpu_device *adev, uint32_t vmid,
+					uint32_t vmhub, uint32_t flush_type)
+>>>>>>> upstream/android-13
 {
 	WREG32(mmVM_INVALIDATE_REQUEST, 1 << vmid);
 }
@@ -381,6 +410,7 @@ static uint64_t gmc_v6_0_emit_flush_gpu_tlb(struct amdgpu_ring *ring,
 	return pd_addr;
 }
 
+<<<<<<< HEAD
 static int gmc_v6_0_set_pte_pde(struct amdgpu_device *adev, void *cpu_pt_addr,
 				uint32_t gpu_page_idx, uint64_t addr,
 				uint64_t flags)
@@ -410,12 +440,25 @@ static uint64_t gmc_v6_0_get_vm_pte_flags(struct amdgpu_device *adev,
 	return pte_flag;
 }
 
+=======
+>>>>>>> upstream/android-13
 static void gmc_v6_0_get_vm_pde(struct amdgpu_device *adev, int level,
 				uint64_t *addr, uint64_t *flags)
 {
 	BUG_ON(*addr & 0xFFFFFF0000000FFFULL);
 }
 
+<<<<<<< HEAD
+=======
+static void gmc_v6_0_get_vm_pte(struct amdgpu_device *adev,
+				struct amdgpu_bo_va_mapping *mapping,
+				uint64_t *flags)
+{
+	*flags &= ~AMDGPU_PTE_EXECUTABLE;
+	*flags &= ~AMDGPU_PTE_PRT;
+}
+
+>>>>>>> upstream/android-13
 static void gmc_v6_0_set_fault_enable_default(struct amdgpu_device *adev,
 					      bool value)
 {
@@ -494,16 +537,30 @@ static void gmc_v6_0_set_prt(struct amdgpu_device *adev, bool enable)
 
 static int gmc_v6_0_gart_enable(struct amdgpu_device *adev)
 {
+<<<<<<< HEAD
 	int r, i;
 	u32 field;
 
 	if (adev->gart.robj == NULL) {
+=======
+	uint64_t table_addr;
+	int r, i;
+	u32 field;
+
+	if (adev->gart.bo == NULL) {
+>>>>>>> upstream/android-13
 		dev_err(adev->dev, "No VRAM object for PCIE GART.\n");
 		return -EINVAL;
 	}
 	r = amdgpu_gart_table_vram_pin(adev);
 	if (r)
 		return r;
+<<<<<<< HEAD
+=======
+
+	table_addr = amdgpu_bo_gpu_offset(adev->gart.bo);
+
+>>>>>>> upstream/android-13
 	/* Setup TLB control */
 	WREG32(mmMC_VM_MX_L1_TLB_CNTL,
 	       (0xA << 7) |
@@ -532,7 +589,11 @@ static int gmc_v6_0_gart_enable(struct amdgpu_device *adev)
 	/* setup context0 */
 	WREG32(mmVM_CONTEXT0_PAGE_TABLE_START_ADDR, adev->gmc.gart_start >> 12);
 	WREG32(mmVM_CONTEXT0_PAGE_TABLE_END_ADDR, adev->gmc.gart_end >> 12);
+<<<<<<< HEAD
 	WREG32(mmVM_CONTEXT0_PAGE_TABLE_BASE_ADDR, adev->gart.table_addr >> 12);
+=======
+	WREG32(mmVM_CONTEXT0_PAGE_TABLE_BASE_ADDR, table_addr >> 12);
+>>>>>>> upstream/android-13
 	WREG32(mmVM_CONTEXT0_PROTECTION_FAULT_DEFAULT_ADDR,
 			(u32)(adev->dummy_page_addr >> 12));
 	WREG32(mmVM_CONTEXT0_CNTL2, 0);
@@ -553,6 +614,7 @@ static int gmc_v6_0_gart_enable(struct amdgpu_device *adev)
 	 * the VMs are determined by the application and setup and assigned
 	 * on the fly in the vm part of radeon_gart.c
 	 */
+<<<<<<< HEAD
 	for (i = 1; i < 16; i++) {
 		if (i < 8)
 			WREG32(mmVM_CONTEXT0_PAGE_TABLE_BASE_ADDR + i,
@@ -560,6 +622,15 @@ static int gmc_v6_0_gart_enable(struct amdgpu_device *adev)
 		else
 			WREG32(mmVM_CONTEXT8_PAGE_TABLE_BASE_ADDR + i - 8,
 			       adev->gart.table_addr >> 12);
+=======
+	for (i = 1; i < AMDGPU_NUM_VMID; i++) {
+		if (i < 8)
+			WREG32(mmVM_CONTEXT0_PAGE_TABLE_BASE_ADDR + i,
+			       table_addr >> 12);
+		else
+			WREG32(mmVM_CONTEXT8_PAGE_TABLE_BASE_ADDR + i - 8,
+			       table_addr >> 12);
+>>>>>>> upstream/android-13
 	}
 
 	/* enable context1-15 */
@@ -576,10 +647,17 @@ static int gmc_v6_0_gart_enable(struct amdgpu_device *adev)
 	else
 		gmc_v6_0_set_fault_enable_default(adev, true);
 
+<<<<<<< HEAD
 	gmc_v6_0_flush_gpu_tlb(adev, 0);
 	dev_info(adev->dev, "PCIE GART of %uM enabled (table at 0x%016llX).\n",
 		 (unsigned)(adev->gmc.gart_size >> 20),
 		 (unsigned long long)adev->gart.table_addr);
+=======
+	gmc_v6_0_flush_gpu_tlb(adev, 0, 0, 0);
+	dev_info(adev->dev, "PCIE GART of %uM enabled (table at 0x%016llX).\n",
+		 (unsigned)(adev->gmc.gart_size >> 20),
+		 (unsigned long long)table_addr);
+>>>>>>> upstream/android-13
 	adev->gart.ready = true;
 	return 0;
 }
@@ -588,7 +666,11 @@ static int gmc_v6_0_gart_init(struct amdgpu_device *adev)
 {
 	int r;
 
+<<<<<<< HEAD
 	if (adev->gart.robj) {
+=======
+	if (adev->gart.bo) {
+>>>>>>> upstream/android-13
 		dev_warn(adev->dev, "gmc_v6_0 PCIE GART already initialized\n");
 		return 0;
 	}
@@ -814,8 +896,11 @@ static int gmc_v6_0_late_init(void *handle)
 {
 	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
 
+<<<<<<< HEAD
 	amdgpu_bo_late_init(adev);
 
+=======
+>>>>>>> upstream/android-13
 	if (amdgpu_vm_fault_stop != AMDGPU_VM_FAULT_STOP_ALWAYS)
 		return amdgpu_irq_get(adev, &adev->gmc.vm_fault, 0);
 	else
@@ -828,25 +913,39 @@ static unsigned gmc_v6_0_get_vbios_fb_size(struct amdgpu_device *adev)
 	unsigned size;
 
 	if (REG_GET_FIELD(d1vga_control, D1VGA_CONTROL, D1VGA_MODE_ENABLE)) {
+<<<<<<< HEAD
 		size = 9 * 1024 * 1024; /* reserve 8MB for vga emulator and 1 MB for FB */
+=======
+		size = AMDGPU_VBIOS_VGA_ALLOCATION;
+>>>>>>> upstream/android-13
 	} else {
 		u32 viewport = RREG32(mmVIEWPORT_SIZE);
 		size = (REG_GET_FIELD(viewport, VIEWPORT_SIZE, VIEWPORT_HEIGHT) *
 			REG_GET_FIELD(viewport, VIEWPORT_SIZE, VIEWPORT_WIDTH) *
 			4);
 	}
+<<<<<<< HEAD
 	/* return 0 if the pre-OS buffer uses up most of vram */
 	if ((adev->gmc.real_vram_size - size) < (8 * 1024 * 1024))
 		return 0;
+=======
+>>>>>>> upstream/android-13
 	return size;
 }
 
 static int gmc_v6_0_sw_init(void *handle)
 {
 	int r;
+<<<<<<< HEAD
 	int dma_bits;
 	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
 
+=======
+	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
+
+	adev->num_vmhubs = 1;
+
+>>>>>>> upstream/android-13
 	if (adev->flags & AMD_IS_APU) {
 		adev->gmc.vram_type = AMDGPU_VRAM_TYPE_UNKNOWN;
 	} else {
@@ -855,11 +954,19 @@ static int gmc_v6_0_sw_init(void *handle)
 		adev->gmc.vram_type = gmc_v6_0_convert_vram_type(tmp);
 	}
 
+<<<<<<< HEAD
 	r = amdgpu_irq_add_id(adev, AMDGPU_IH_CLIENTID_LEGACY, 146, &adev->gmc.vm_fault);
 	if (r)
 		return r;
 
 	r = amdgpu_irq_add_id(adev, AMDGPU_IH_CLIENTID_LEGACY, 147, &adev->gmc.vm_fault);
+=======
+	r = amdgpu_irq_add_id(adev, AMDGPU_IRQ_CLIENTID_LEGACY, 146, &adev->gmc.vm_fault);
+	if (r)
+		return r;
+
+	r = amdgpu_irq_add_id(adev, AMDGPU_IRQ_CLIENTID_LEGACY, 147, &adev->gmc.vm_fault);
+>>>>>>> upstream/android-13
 	if (r)
 		return r;
 
@@ -867,6 +974,7 @@ static int gmc_v6_0_sw_init(void *handle)
 
 	adev->gmc.mc_mask = 0xffffffffffULL;
 
+<<<<<<< HEAD
 	adev->need_dma32 = false;
 	dma_bits = adev->need_dma32 ? 32 : 40;
 	r = pci_set_dma_mask(adev->pdev, DMA_BIT_MASK(dma_bits));
@@ -881,6 +989,14 @@ static int gmc_v6_0_sw_init(void *handle)
 		dev_warn(adev->dev, "amdgpu: No coherent DMA available.\n");
 	}
 	adev->need_swiotlb = drm_get_max_iomem() > ((u64)1 << dma_bits);
+=======
+	r = dma_set_mask_and_coherent(adev->dev, DMA_BIT_MASK(40));
+	if (r) {
+		dev_warn(adev->dev, "No suitable DMA available.\n");
+		return r;
+	}
+	adev->need_swiotlb = drm_need_swiotlb(40);
+>>>>>>> upstream/android-13
 
 	r = gmc_v6_0_init_microcode(adev);
 	if (r) {
@@ -892,7 +1008,11 @@ static int gmc_v6_0_sw_init(void *handle)
 	if (r)
 		return r;
 
+<<<<<<< HEAD
 	adev->gmc.stolen_size = gmc_v6_0_get_vbios_fb_size(adev);
+=======
+	amdgpu_gmc_get_vbios_allocations(adev);
+>>>>>>> upstream/android-13
 
 	r = amdgpu_bo_init(adev);
 	if (r)
@@ -908,7 +1028,11 @@ static int gmc_v6_0_sw_init(void *handle)
 	 * amdgpu graphics/compute will use VMIDs 1-7
 	 * amdkfd will use VMIDs 8-15
 	 */
+<<<<<<< HEAD
 	adev->vm_manager.id_mgr[0].num_ids = AMDGPU_NUM_OF_VMIDS;
+=======
+	adev->vm_manager.first_kfd_vmid = 8;
+>>>>>>> upstream/android-13
 	amdgpu_vm_manager_init(adev);
 
 	/* base offset of vram pages */
@@ -932,7 +1056,10 @@ static int gmc_v6_0_sw_fini(void *handle)
 	amdgpu_vm_manager_fini(adev);
 	amdgpu_gart_table_vram_free(adev);
 	amdgpu_bo_fini(adev);
+<<<<<<< HEAD
 	amdgpu_gart_fini(adev);
+=======
+>>>>>>> upstream/android-13
 	release_firmware(adev->gmc.fw);
 	adev->gmc.fw = NULL;
 
@@ -1163,10 +1290,17 @@ static const struct amd_ip_funcs gmc_v6_0_ip_funcs = {
 static const struct amdgpu_gmc_funcs gmc_v6_0_gmc_funcs = {
 	.flush_gpu_tlb = gmc_v6_0_flush_gpu_tlb,
 	.emit_flush_gpu_tlb = gmc_v6_0_emit_flush_gpu_tlb,
+<<<<<<< HEAD
 	.set_pte_pde = gmc_v6_0_set_pte_pde,
 	.set_prt = gmc_v6_0_set_prt,
 	.get_vm_pde = gmc_v6_0_get_vm_pde,
 	.get_vm_pte_flags = gmc_v6_0_get_vm_pte_flags
+=======
+	.set_prt = gmc_v6_0_set_prt,
+	.get_vm_pde = gmc_v6_0_get_vm_pde,
+	.get_vm_pte = gmc_v6_0_get_vm_pte,
+	.get_vbios_fb_size = gmc_v6_0_get_vbios_fb_size,
+>>>>>>> upstream/android-13
 };
 
 static const struct amdgpu_irq_src_funcs gmc_v6_0_irq_funcs = {
@@ -1176,8 +1310,12 @@ static const struct amdgpu_irq_src_funcs gmc_v6_0_irq_funcs = {
 
 static void gmc_v6_0_set_gmc_funcs(struct amdgpu_device *adev)
 {
+<<<<<<< HEAD
 	if (adev->gmc.gmc_funcs == NULL)
 		adev->gmc.gmc_funcs = &gmc_v6_0_gmc_funcs;
+=======
+	adev->gmc.gmc_funcs = &gmc_v6_0_gmc_funcs;
+>>>>>>> upstream/android-13
 }
 
 static void gmc_v6_0_set_irq_funcs(struct amdgpu_device *adev)

@@ -1,7 +1,11 @@
 /*
  * TI ADC MFD driver
  *
+<<<<<<< HEAD
  * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
+=======
+ * Copyright (C) 2012 Texas Instruments Incorporated - https://www.ti.com/
+>>>>>>> upstream/android-13
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -142,7 +146,14 @@ static void tiadc_step_config(struct iio_dev *indio_dev)
 			stepconfig |= STEPCONFIG_MODE_SWCNT;
 
 		tiadc_writel(adc_dev, REG_STEPCONFIG(steps),
+<<<<<<< HEAD
 				stepconfig | STEPCONFIG_INP(chan));
+=======
+				stepconfig | STEPCONFIG_INP(chan) |
+				STEPCONFIG_INM_ADCREFM |
+				STEPCONFIG_RFP_VREFP |
+				STEPCONFIG_RFM_VREFN);
+>>>>>>> upstream/android-13
 
 		if (adc_dev->open_delay[i] > STEPDELAY_OPEN_MASK) {
 			dev_warn(dev, "chan %d open delay truncating to 0x3FFFF\n",
@@ -291,7 +302,11 @@ static int tiadc_start_dma(struct iio_dev *indio_dev)
 static int tiadc_buffer_preenable(struct iio_dev *indio_dev)
 {
 	struct tiadc_device *adc_dev = iio_priv(indio_dev);
+<<<<<<< HEAD
 	int i, fifo1count, read;
+=======
+	int i, fifo1count;
+>>>>>>> upstream/android-13
 
 	tiadc_writel(adc_dev, REG_IRQCLR, (IRQENB_FIFO1THRES |
 				IRQENB_FIFO1OVRRUN |
@@ -300,7 +315,11 @@ static int tiadc_buffer_preenable(struct iio_dev *indio_dev)
 	/* Flush FIFO. Needed in corner cases in simultaneous tsc/adc use */
 	fifo1count = tiadc_readl(adc_dev, REG_FIFO1CNT);
 	for (i = 0; i < fifo1count; i++)
+<<<<<<< HEAD
 		read = tiadc_readl(adc_dev, REG_FIFO1);
+=======
+		tiadc_readl(adc_dev, REG_FIFO1);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -340,7 +359,11 @@ static int tiadc_buffer_predisable(struct iio_dev *indio_dev)
 {
 	struct tiadc_device *adc_dev = iio_priv(indio_dev);
 	struct tiadc_dma *dma = &adc_dev->dma;
+<<<<<<< HEAD
 	int fifo1count, i, read;
+=======
+	int fifo1count, i;
+>>>>>>> upstream/android-13
 
 	tiadc_writel(adc_dev, REG_IRQCLR, (IRQENB_FIFO1THRES |
 				IRQENB_FIFO1OVRRUN | IRQENB_FIFO1UNDRFLW));
@@ -355,7 +378,11 @@ static int tiadc_buffer_predisable(struct iio_dev *indio_dev)
 	/* Flush FIFO of leftover data in the time it takes to disable adc */
 	fifo1count = tiadc_readl(adc_dev, REG_FIFO1CNT);
 	for (i = 0; i < fifo1count; i++)
+<<<<<<< HEAD
 		read = tiadc_readl(adc_dev, REG_FIFO1);
+=======
+		tiadc_readl(adc_dev, REG_FIFO1);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -374,13 +401,19 @@ static const struct iio_buffer_setup_ops tiadc_buffer_setup_ops = {
 	.postdisable = &tiadc_buffer_postdisable,
 };
 
+<<<<<<< HEAD
 static int tiadc_iio_buffered_hardware_setup(struct iio_dev *indio_dev,
+=======
+static int tiadc_iio_buffered_hardware_setup(struct device *dev,
+	struct iio_dev *indio_dev,
+>>>>>>> upstream/android-13
 	irqreturn_t (*pollfunc_bh)(int irq, void *p),
 	irqreturn_t (*pollfunc_th)(int irq, void *p),
 	int irq,
 	unsigned long flags,
 	const struct iio_buffer_setup_ops *setup_ops)
 {
+<<<<<<< HEAD
 	struct iio_buffer *buffer;
 	int ret;
 
@@ -414,6 +447,20 @@ static void tiadc_iio_buffered_hardware_remove(struct iio_dev *indio_dev)
 }
 
 
+=======
+	int ret;
+
+	ret = devm_iio_kfifo_buffer_setup(dev, indio_dev,
+					  INDIO_BUFFER_SOFTWARE,
+					  setup_ops);
+	if (ret)
+		return ret;
+
+	return devm_request_threaded_irq(dev, irq, pollfunc_th, pollfunc_bh,
+				flags, indio_dev->name, indio_dev);
+}
+
+>>>>>>> upstream/android-13
 static const char * const chan_name_ain[] = {
 	"AIN0",
 	"AIN1",
@@ -425,7 +472,12 @@ static const char * const chan_name_ain[] = {
 	"AIN7",
 };
 
+<<<<<<< HEAD
 static int tiadc_channel_init(struct iio_dev *indio_dev, int channels)
+=======
+static int tiadc_channel_init(struct device *dev, struct iio_dev *indio_dev,
+			      int channels)
+>>>>>>> upstream/android-13
 {
 	struct tiadc_device *adc_dev = iio_priv(indio_dev);
 	struct iio_chan_spec *chan_array;
@@ -433,7 +485,12 @@ static int tiadc_channel_init(struct iio_dev *indio_dev, int channels)
 	int i;
 
 	indio_dev->num_channels = channels;
+<<<<<<< HEAD
 	chan_array = kcalloc(channels, sizeof(*chan_array), GFP_KERNEL);
+=======
+	chan_array = devm_kcalloc(dev, channels, sizeof(*chan_array),
+				  GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (chan_array == NULL)
 		return -ENOMEM;
 
@@ -456,11 +513,14 @@ static int tiadc_channel_init(struct iio_dev *indio_dev, int channels)
 	return 0;
 }
 
+<<<<<<< HEAD
 static void tiadc_channels_remove(struct iio_dev *indio_dev)
 {
 	kfree(indio_dev->channels);
 }
 
+=======
+>>>>>>> upstream/android-13
 static int tiadc_read_raw(struct iio_dev *indio_dev,
 		struct iio_chan_spec const *chan,
 		int *val, int *val2, long mask)
@@ -623,7 +683,10 @@ static int tiadc_probe(struct platform_device *pdev)
 	adc_dev->mfd_tscadc = ti_tscadc_dev_get(pdev);
 	tiadc_parse_dt(pdev, adc_dev);
 
+<<<<<<< HEAD
 	indio_dev->dev.parent = &pdev->dev;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->name = dev_name(&pdev->dev);
 	indio_dev->modes = INDIO_DIRECT_MODE;
 	indio_dev->info = &tiadc_info;
@@ -632,11 +695,19 @@ static int tiadc_probe(struct platform_device *pdev)
 	tiadc_writel(adc_dev, REG_FIFO1THR, FIFO1_THRESHOLD);
 	mutex_init(&adc_dev->fifo1_lock);
 
+<<<<<<< HEAD
 	err = tiadc_channel_init(indio_dev, adc_dev->channels);
 	if (err < 0)
 		return err;
 
 	err = tiadc_iio_buffered_hardware_setup(indio_dev,
+=======
+	err = tiadc_channel_init(&pdev->dev, indio_dev, adc_dev->channels);
+	if (err < 0)
+		return err;
+
+	err = tiadc_iio_buffered_hardware_setup(&pdev->dev, indio_dev,
+>>>>>>> upstream/android-13
 		&tiadc_worker_h,
 		&tiadc_irq_h,
 		adc_dev->mfd_tscadc->irq,
@@ -661,9 +732,13 @@ static int tiadc_probe(struct platform_device *pdev)
 err_dma:
 	iio_device_unregister(indio_dev);
 err_buffer_unregister:
+<<<<<<< HEAD
 	tiadc_iio_buffered_hardware_remove(indio_dev);
 err_free_channels:
 	tiadc_channels_remove(indio_dev);
+=======
+err_free_channels:
+>>>>>>> upstream/android-13
 	return err;
 }
 
@@ -680,8 +755,11 @@ static int tiadc_remove(struct platform_device *pdev)
 		dma_release_channel(dma->chan);
 	}
 	iio_device_unregister(indio_dev);
+<<<<<<< HEAD
 	tiadc_iio_buffered_hardware_remove(indio_dev);
 	tiadc_channels_remove(indio_dev);
+=======
+>>>>>>> upstream/android-13
 
 	step_en = get_adc_step_mask(adc_dev);
 	am335x_tsc_se_clr(adc_dev->mfd_tscadc, step_en);
@@ -693,6 +771,7 @@ static int __maybe_unused tiadc_suspend(struct device *dev)
 {
 	struct iio_dev *indio_dev = dev_get_drvdata(dev);
 	struct tiadc_device *adc_dev = iio_priv(indio_dev);
+<<<<<<< HEAD
 	struct ti_tscadc_dev *tscadc_dev;
 	unsigned int idle;
 
@@ -703,6 +782,14 @@ static int __maybe_unused tiadc_suspend(struct device *dev)
 		tiadc_writel(adc_dev, REG_CTRL, (idle |
 				CNTRLREG_POWERDOWN));
 	}
+=======
+	unsigned int idle;
+
+	idle = tiadc_readl(adc_dev, REG_CTRL);
+	idle &= ~(CNTRLREG_TSCSSENB);
+	tiadc_writel(adc_dev, REG_CTRL, (idle |
+			CNTRLREG_POWERDOWN));
+>>>>>>> upstream/android-13
 
 	return 0;
 }

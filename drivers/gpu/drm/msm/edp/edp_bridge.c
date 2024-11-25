@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2014-2015, The Linux Foundation. All rights reserved.
  *
@@ -9,6 +10,11 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2014-2015, The Linux Foundation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #include "edp.h"
@@ -52,14 +58,20 @@ static void edp_bridge_post_disable(struct drm_bridge *bridge)
 }
 
 static void edp_bridge_mode_set(struct drm_bridge *bridge,
+<<<<<<< HEAD
 		struct drm_display_mode *mode,
 		struct drm_display_mode *adjusted_mode)
+=======
+		const struct drm_display_mode *mode,
+		const struct drm_display_mode *adjusted_mode)
+>>>>>>> upstream/android-13
 {
 	struct drm_device *dev = bridge->dev;
 	struct drm_connector *connector;
 	struct edp_bridge *edp_bridge = to_edp_bridge(bridge);
 	struct msm_edp *edp = edp_bridge->edp;
 
+<<<<<<< HEAD
 	DBG("set mode: %d:\"%s\" %d %d %d %d %d %d %d %d %d %d 0x%x 0x%x",
 			mode->base.id, mode->name,
 			mode->vrefresh, mode->clock,
@@ -72,6 +84,19 @@ static void edp_bridge_mode_set(struct drm_bridge *bridge,
 	list_for_each_entry(connector, &dev->mode_config.connector_list, head) {
 		if ((connector->encoder != NULL) &&
 			(connector->encoder->bridge == bridge)) {
+=======
+	DBG("set mode: " DRM_MODE_FMT, DRM_MODE_ARG(mode));
+
+	list_for_each_entry(connector, &dev->mode_config.connector_list, head) {
+		struct drm_encoder *encoder = connector->encoder;
+		struct drm_bridge *first_bridge;
+
+		if (!connector->encoder)
+			continue;
+
+		first_bridge = drm_bridge_chain_get_first_bridge(encoder);
+		if (bridge == first_bridge) {
+>>>>>>> upstream/android-13
 			msm_edp_ctrl_timing_cfg(edp->ctrl,
 				adjusted_mode, &connector->display_info);
 			break;
@@ -106,7 +131,11 @@ struct drm_bridge *msm_edp_bridge_init(struct msm_edp *edp)
 	bridge = &edp_bridge->base;
 	bridge->funcs = &edp_bridge_funcs;
 
+<<<<<<< HEAD
 	ret = drm_bridge_attach(edp->encoder, bridge, NULL);
+=======
+	ret = drm_bridge_attach(edp->encoder, bridge, NULL, 0);
+>>>>>>> upstream/android-13
 	if (ret)
 		goto fail;
 

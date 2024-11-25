@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 2014 MundoReader S.L.
  * Author: Heiko Stuebner <heiko@sntech.de>
@@ -6,10 +10,13 @@
  * Copyright (c) 2014 Samsung Electronics Co., Ltd.
  * Author: Thomas Abraham <thomas.ab@samsung.com>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * A CPU clock is defined as a clock supplied to a CPU or a group of CPUs.
  * The CPU clock is typically derived from a hierarchy of clock
  * blocks which includes mux and divider blocks. There are a number of other
@@ -54,10 +61,13 @@
  */
 struct rockchip_cpuclk {
 	struct clk_hw				hw;
+<<<<<<< HEAD
 
 	struct clk_mux				cpu_mux;
 	const struct clk_ops			*cpu_mux_ops;
 
+=======
+>>>>>>> upstream/android-13
 	struct clk				*alt_parent;
 	void __iomem				*reg_base;
 	struct notifier_block			clk_nb;
@@ -91,10 +101,17 @@ static unsigned long rockchip_cpuclk_recalc_rate(struct clk_hw *hw,
 {
 	struct rockchip_cpuclk *cpuclk = to_rockchip_cpuclk_hw(hw);
 	const struct rockchip_cpuclk_reg_data *reg_data = cpuclk->reg_data;
+<<<<<<< HEAD
 	u32 clksel0 = readl_relaxed(cpuclk->reg_base + reg_data->core_reg);
 
 	clksel0 >>= reg_data->div_core_shift;
 	clksel0 &= reg_data->div_core_mask;
+=======
+	u32 clksel0 = readl_relaxed(cpuclk->reg_base + reg_data->core_reg[0]);
+
+	clksel0 >>= reg_data->div_core_shift[0];
+	clksel0 &= reg_data->div_core_mask[0];
+>>>>>>> upstream/android-13
 	return parent_rate / (clksel0 + 1);
 }
 
@@ -127,6 +144,10 @@ static int rockchip_cpuclk_pre_rate_change(struct rockchip_cpuclk *cpuclk,
 	const struct rockchip_cpuclk_rate_table *rate;
 	unsigned long alt_prate, alt_div;
 	unsigned long flags;
+<<<<<<< HEAD
+=======
+	int i = 0;
+>>>>>>> upstream/android-13
 
 	/* check validity of the new rate */
 	rate = rockchip_get_cpuclk_settings(cpuclk, ndata->new_rate);
@@ -149,10 +170,17 @@ static int rockchip_cpuclk_pre_rate_change(struct rockchip_cpuclk *cpuclk,
 	if (alt_prate > ndata->old_rate) {
 		/* calculate dividers */
 		alt_div =  DIV_ROUND_UP(alt_prate, ndata->old_rate) - 1;
+<<<<<<< HEAD
 		if (alt_div > reg_data->div_core_mask) {
 			pr_warn("%s: limiting alt-divider %lu to %d\n",
 				__func__, alt_div, reg_data->div_core_mask);
 			alt_div = reg_data->div_core_mask;
+=======
+		if (alt_div > reg_data->div_core_mask[0]) {
+			pr_warn("%s: limiting alt-divider %lu to %d\n",
+				__func__, alt_div, reg_data->div_core_mask[0]);
+			alt_div = reg_data->div_core_mask[0];
+>>>>>>> upstream/android-13
 		}
 
 		/*
@@ -165,6 +193,7 @@ static int rockchip_cpuclk_pre_rate_change(struct rockchip_cpuclk *cpuclk,
 		pr_debug("%s: setting div %lu as alt-rate %lu > old-rate %lu\n",
 			 __func__, alt_div, alt_prate, ndata->old_rate);
 
+<<<<<<< HEAD
 		writel(HIWORD_UPDATE(alt_div, reg_data->div_core_mask,
 					      reg_data->div_core_shift) |
 		       HIWORD_UPDATE(reg_data->mux_core_alt,
@@ -178,6 +207,19 @@ static int rockchip_cpuclk_pre_rate_change(struct rockchip_cpuclk *cpuclk,
 				     reg_data->mux_core_shift),
 		       cpuclk->reg_base + reg_data->core_reg);
 	}
+=======
+		for (i = 0; i < reg_data->num_cores; i++) {
+			writel(HIWORD_UPDATE(alt_div, reg_data->div_core_mask[i],
+					     reg_data->div_core_shift[i]),
+			       cpuclk->reg_base + reg_data->core_reg[i]);
+		}
+	}
+	/* select alternate parent */
+	writel(HIWORD_UPDATE(reg_data->mux_core_alt,
+			     reg_data->mux_core_mask,
+			     reg_data->mux_core_shift),
+	       cpuclk->reg_base + reg_data->core_reg[0]);
+>>>>>>> upstream/android-13
 
 	spin_unlock_irqrestore(cpuclk->lock, flags);
 	return 0;
@@ -189,6 +231,10 @@ static int rockchip_cpuclk_post_rate_change(struct rockchip_cpuclk *cpuclk,
 	const struct rockchip_cpuclk_reg_data *reg_data = cpuclk->reg_data;
 	const struct rockchip_cpuclk_rate_table *rate;
 	unsigned long flags;
+<<<<<<< HEAD
+=======
+	int i = 0;
+>>>>>>> upstream/android-13
 
 	rate = rockchip_get_cpuclk_settings(cpuclk, ndata->new_rate);
 	if (!rate) {
@@ -209,12 +255,26 @@ static int rockchip_cpuclk_post_rate_change(struct rockchip_cpuclk *cpuclk,
 	 * primary parent by the extra dividers that were needed for the alt.
 	 */
 
+<<<<<<< HEAD
 	writel(HIWORD_UPDATE(0, reg_data->div_core_mask,
 				reg_data->div_core_shift) |
 	       HIWORD_UPDATE(reg_data->mux_core_main,
 				reg_data->mux_core_mask,
 				reg_data->mux_core_shift),
 	       cpuclk->reg_base + reg_data->core_reg);
+=======
+	writel(HIWORD_UPDATE(reg_data->mux_core_main,
+			     reg_data->mux_core_mask,
+			     reg_data->mux_core_shift),
+	       cpuclk->reg_base + reg_data->core_reg[0]);
+
+	/* remove dividers */
+	for (i = 0; i < reg_data->num_cores; i++) {
+		writel(HIWORD_UPDATE(0, reg_data->div_core_mask[i],
+				     reg_data->div_core_shift[i]),
+		       cpuclk->reg_base + reg_data->core_reg[i]);
+	}
+>>>>>>> upstream/android-13
 
 	if (ndata->old_rate > ndata->new_rate)
 		rockchip_cpuclk_set_dividers(cpuclk, rate);
@@ -253,7 +313,11 @@ struct clk *rockchip_clk_register_cpuclk(const char *name,
 			int nrates, void __iomem *reg_base, spinlock_t *lock)
 {
 	struct rockchip_cpuclk *cpuclk;
+<<<<<<< HEAD
 	struct clk_init_data init = {};
+=======
+	struct clk_init_data init;
+>>>>>>> upstream/android-13
 	struct clk *clk, *cclk;
 	int ret;
 

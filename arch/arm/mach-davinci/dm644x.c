@@ -14,6 +14,11 @@
 #include <linux/clkdev.h>
 #include <linux/dmaengine.h>
 #include <linux/init.h>
+<<<<<<< HEAD
+=======
+#include <linux/io.h>
+#include <linux/irqchip/irq-davinci-aintc.h>
+>>>>>>> upstream/android-13
 #include <linux/platform_data/edma.h>
 #include <linux/platform_data/gpio-davinci.h>
 #include <linux/platform_device.h>
@@ -23,6 +28,7 @@
 
 #include <mach/common.h>
 #include <mach/cputype.h>
+<<<<<<< HEAD
 #include <mach/irqs.h>
 #include <mach/mux.h>
 #include <mach/serial.h>
@@ -30,6 +36,16 @@
 
 #include "asp.h"
 #include "davinci.h"
+=======
+#include <mach/mux.h>
+#include <mach/serial.h>
+
+#include <clocksource/timer-davinci.h>
+
+#include "asp.h"
+#include "davinci.h"
+#include "irqs.h"
+>>>>>>> upstream/android-13
 #include "mux.h"
 
 /*
@@ -59,8 +75,13 @@ static struct resource dm644x_emac_resources[] = {
 		.flags	= IORESOURCE_MEM,
 	},
 	{
+<<<<<<< HEAD
 		.start = IRQ_EMACINT,
 		.end   = IRQ_EMACINT,
+=======
+		.start = DAVINCI_INTC_IRQ(IRQ_EMACINT),
+		.end   = DAVINCI_INTC_IRQ(IRQ_EMACINT),
+>>>>>>> upstream/android-13
 		.flags = IORESOURCE_IRQ,
 	},
 };
@@ -260,12 +281,20 @@ static struct resource edma_resources[] = {
 	},
 	{
 		.name	= "edma3_ccint",
+<<<<<<< HEAD
 		.start	= IRQ_CCINT0,
+=======
+		.start	= DAVINCI_INTC_IRQ(IRQ_CCINT0),
+>>>>>>> upstream/android-13
 		.flags	= IORESOURCE_IRQ,
 	},
 	{
 		.name	= "edma3_ccerrint",
+<<<<<<< HEAD
 		.start	= IRQ_CCERRINT,
+=======
+		.start	= DAVINCI_INTC_IRQ(IRQ_CCERRINT),
+>>>>>>> upstream/android-13
 		.flags	= IORESOURCE_IRQ,
 	},
 	/* not using TC*_ERR */
@@ -330,6 +359,7 @@ static struct platform_device dm644x_vpss_device = {
 
 static struct resource dm644x_vpfe_resources[] = {
 	{
+<<<<<<< HEAD
 		.start          = IRQ_VDINT0,
 		.end            = IRQ_VDINT0,
 		.flags          = IORESOURCE_IRQ,
@@ -337,6 +367,15 @@ static struct resource dm644x_vpfe_resources[] = {
 	{
 		.start          = IRQ_VDINT1,
 		.end            = IRQ_VDINT1,
+=======
+		.start          = DAVINCI_INTC_IRQ(IRQ_VDINT0),
+		.end            = DAVINCI_INTC_IRQ(IRQ_VDINT0),
+		.flags          = IORESOURCE_IRQ,
+	},
+	{
+		.start          = DAVINCI_INTC_IRQ(IRQ_VDINT1),
+		.end            = DAVINCI_INTC_IRQ(IRQ_VDINT1),
+>>>>>>> upstream/android-13
 		.flags          = IORESOURCE_IRQ,
 	},
 };
@@ -442,8 +481,13 @@ static int dm644x_venc_setup_clock(enum vpbe_enc_timings_type type,
 
 static struct resource dm644x_v4l2_disp_resources[] = {
 	{
+<<<<<<< HEAD
 		.start	= IRQ_VENCINT,
 		.end	= IRQ_VENCINT,
+=======
+		.start	= DAVINCI_INTC_IRQ(IRQ_VENCINT),
+		.end	= DAVINCI_INTC_IRQ(IRQ_VENCINT),
+>>>>>>> upstream/android-13
 		.flags	= IORESOURCE_IRQ,
 	},
 };
@@ -491,6 +535,7 @@ static struct resource dm644_gpio_resources[] = {
 		.flags	= IORESOURCE_MEM,
 	},
 	{	/* interrupt */
+<<<<<<< HEAD
 		.start	= IRQ_GPIOBNK0,
 		.end	= IRQ_GPIOBNK0,
 		.flags	= IORESOURCE_IRQ,
@@ -513,11 +558,40 @@ static struct resource dm644_gpio_resources[] = {
 	{
 		.start	= IRQ_GPIOBNK4,
 		.end	= IRQ_GPIOBNK4,
+=======
+		.start	= DAVINCI_INTC_IRQ(IRQ_GPIOBNK0),
+		.end	= DAVINCI_INTC_IRQ(IRQ_GPIOBNK0),
+		.flags	= IORESOURCE_IRQ,
+	},
+	{
+		.start	= DAVINCI_INTC_IRQ(IRQ_GPIOBNK1),
+		.end	= DAVINCI_INTC_IRQ(IRQ_GPIOBNK1),
+		.flags	= IORESOURCE_IRQ,
+	},
+	{
+		.start	= DAVINCI_INTC_IRQ(IRQ_GPIOBNK2),
+		.end	= DAVINCI_INTC_IRQ(IRQ_GPIOBNK2),
+		.flags	= IORESOURCE_IRQ,
+	},
+	{
+		.start	= DAVINCI_INTC_IRQ(IRQ_GPIOBNK3),
+		.end	= DAVINCI_INTC_IRQ(IRQ_GPIOBNK3),
+		.flags	= IORESOURCE_IRQ,
+	},
+	{
+		.start	= DAVINCI_INTC_IRQ(IRQ_GPIOBNK4),
+		.end	= DAVINCI_INTC_IRQ(IRQ_GPIOBNK4),
+>>>>>>> upstream/android-13
 		.flags	= IORESOURCE_IRQ,
 	},
 };
 
 static struct davinci_gpio_platform_data dm644_gpio_platform_data = {
+<<<<<<< HEAD
+=======
+	.no_auto_base	= true,
+	.base		= 0,
+>>>>>>> upstream/android-13
 	.ngpio		= 71,
 };
 
@@ -557,6 +631,7 @@ static struct davinci_id dm644x_ids[] = {
 };
 
 /*
+<<<<<<< HEAD
  * T0_BOT: Timer 0, bottom:  clockevent source for hrtimers
  * T0_TOP: Timer 0, top   :  clocksource for generic timekeeping
  * T1_BOT: Timer 1, bottom:  (used by DSP in TI DSPLink code)
@@ -566,12 +641,27 @@ static struct davinci_timer_info dm644x_timer_info = {
 	.timers		= davinci_timer_instance,
 	.clockevent_id	= T0_BOT,
 	.clocksource_id	= T0_TOP,
+=======
+ * Bottom half of timer0 is used for clockevent, top half is used for
+ * clocksource.
+ */
+static const struct davinci_timer_cfg dm644x_timer_cfg = {
+	.reg = DEFINE_RES_IO(DAVINCI_TIMER0_BASE, SZ_4K),
+	.irq = {
+		DEFINE_RES_IRQ(DAVINCI_INTC_IRQ(IRQ_TINT0_TINT12)),
+		DEFINE_RES_IRQ(DAVINCI_INTC_IRQ(IRQ_TINT0_TINT34)),
+	},
+>>>>>>> upstream/android-13
 };
 
 static struct plat_serial8250_port dm644x_serial0_platform_data[] = {
 	{
 		.mapbase	= DAVINCI_UART0_BASE,
+<<<<<<< HEAD
 		.irq		= IRQ_UARTINT0,
+=======
+		.irq		= DAVINCI_INTC_IRQ(IRQ_UARTINT0),
+>>>>>>> upstream/android-13
 		.flags		= UPF_BOOT_AUTOCONF | UPF_SKIP_TEST |
 				  UPF_IOREMAP,
 		.iotype		= UPIO_MEM,
@@ -584,7 +674,11 @@ static struct plat_serial8250_port dm644x_serial0_platform_data[] = {
 static struct plat_serial8250_port dm644x_serial1_platform_data[] = {
 	{
 		.mapbase	= DAVINCI_UART1_BASE,
+<<<<<<< HEAD
 		.irq		= IRQ_UARTINT1,
+=======
+		.irq		= DAVINCI_INTC_IRQ(IRQ_UARTINT1),
+>>>>>>> upstream/android-13
 		.flags		= UPF_BOOT_AUTOCONF | UPF_SKIP_TEST |
 				  UPF_IOREMAP,
 		.iotype		= UPIO_MEM,
@@ -597,7 +691,11 @@ static struct plat_serial8250_port dm644x_serial1_platform_data[] = {
 static struct plat_serial8250_port dm644x_serial2_platform_data[] = {
 	{
 		.mapbase	= DAVINCI_UART2_BASE,
+<<<<<<< HEAD
 		.irq		= IRQ_UARTINT2,
+=======
+		.irq		= DAVINCI_INTC_IRQ(IRQ_UARTINT2),
+>>>>>>> upstream/android-13
 		.flags		= UPF_BOOT_AUTOCONF | UPF_SKIP_TEST |
 				  UPF_IOREMAP,
 		.iotype		= UPIO_MEM,
@@ -643,11 +741,14 @@ static const struct davinci_soc_info davinci_soc_info_dm644x = {
 	.pinmux_base		= DAVINCI_SYSTEM_MODULE_BASE,
 	.pinmux_pins		= dm644x_pins,
 	.pinmux_pins_num	= ARRAY_SIZE(dm644x_pins),
+<<<<<<< HEAD
 	.intc_base		= DAVINCI_ARM_INTC_BASE,
 	.intc_type		= DAVINCI_INTC_TYPE_AINTC,
 	.intc_irq_prios 	= dm644x_default_priorities,
 	.intc_irq_num		= DAVINCI_N_AINTC_IRQ,
 	.timer_info		= &dm644x_timer_info,
+=======
+>>>>>>> upstream/android-13
 	.emac_pdata		= &dm644x_emac_pdata,
 	.sram_dma		= 0x00008000,
 	.sram_len		= SZ_16K,
@@ -669,6 +770,10 @@ void __init dm644x_init_time(void)
 {
 	void __iomem *pll1, *psc;
 	struct clk *clk;
+<<<<<<< HEAD
+=======
+	int rv;
+>>>>>>> upstream/android-13
 
 	clk_register_fixed_rate(NULL, "ref_clk", NULL, 0, DM644X_REF_FREQ);
 
@@ -679,8 +784,18 @@ void __init dm644x_init_time(void)
 	dm644x_psc_init(NULL, psc);
 
 	clk = clk_get(NULL, "timer0");
+<<<<<<< HEAD
 
 	davinci_timer_init(clk);
+=======
+	if (WARN_ON(IS_ERR(clk))) {
+		pr_err("Unable to get the timer clock\n");
+		return;
+	}
+
+	rv = davinci_timer_register(clk, &dm644x_timer_cfg);
+	WARN(rv, "Unable to register the timer: %d\n", rv);
+>>>>>>> upstream/android-13
 }
 
 static struct resource dm644x_pll2_resources[] = {
@@ -727,6 +842,24 @@ int __init dm644x_init_video(struct vpfe_config *vpfe_cfg,
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static const struct davinci_aintc_config dm644x_aintc_config = {
+	.reg = {
+		.start		= DAVINCI_ARM_INTC_BASE,
+		.end		= DAVINCI_ARM_INTC_BASE + SZ_4K - 1,
+		.flags		= IORESOURCE_MEM,
+	},
+	.num_irqs		= 64,
+	.prios			= dm644x_default_priorities,
+};
+
+void __init dm644x_init_irq(void)
+{
+	davinci_aintc_init(&dm644x_aintc_config);
+}
+
+>>>>>>> upstream/android-13
 void __init dm644x_init_devices(void)
 {
 	struct platform_device *edma_pdev;

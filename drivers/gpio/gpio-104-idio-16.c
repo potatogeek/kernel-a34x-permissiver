@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * GPIO driver for the ACCES 104-IDIO-16 family
  * Copyright (C) 2015 William Breathitt Gray
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
  * published by the Free Software Foundation.
@@ -11,6 +16,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  * This driver supports the following ACCES devices: 104-IDIO-16,
  * 104-IDIO-16E, 104-IDO-16, 104-IDIO-8, 104-IDIO-8E, and 104-IDO-8.
  */
@@ -52,6 +59,7 @@ struct idio_16_gpio {
 	struct gpio_chip chip;
 	raw_spinlock_t lock;
 	unsigned long irq_mask;
+<<<<<<< HEAD
 	unsigned base;
 	unsigned out_state;
 };
@@ -65,21 +73,49 @@ static int idio_16_gpio_get_direction(struct gpio_chip *chip, unsigned offset)
 }
 
 static int idio_16_gpio_direction_input(struct gpio_chip *chip, unsigned offset)
+=======
+	unsigned int base;
+	unsigned int out_state;
+};
+
+static int idio_16_gpio_get_direction(struct gpio_chip *chip,
+				      unsigned int offset)
+{
+	if (offset > 15)
+		return GPIO_LINE_DIRECTION_IN;
+
+	return GPIO_LINE_DIRECTION_OUT;
+}
+
+static int idio_16_gpio_direction_input(struct gpio_chip *chip,
+					unsigned int offset)
+>>>>>>> upstream/android-13
 {
 	return 0;
 }
 
 static int idio_16_gpio_direction_output(struct gpio_chip *chip,
+<<<<<<< HEAD
 	unsigned offset, int value)
+=======
+	unsigned int offset, int value)
+>>>>>>> upstream/android-13
 {
 	chip->set(chip, offset, value);
 	return 0;
 }
 
+<<<<<<< HEAD
 static int idio_16_gpio_get(struct gpio_chip *chip, unsigned offset)
 {
 	struct idio_16_gpio *const idio16gpio = gpiochip_get_data(chip);
 	const unsigned mask = BIT(offset-16);
+=======
+static int idio_16_gpio_get(struct gpio_chip *chip, unsigned int offset)
+{
+	struct idio_16_gpio *const idio16gpio = gpiochip_get_data(chip);
+	const unsigned int mask = BIT(offset-16);
+>>>>>>> upstream/android-13
 
 	if (offset < 16)
 		return -EINVAL;
@@ -104,10 +140,18 @@ static int idio_16_gpio_get_multiple(struct gpio_chip *chip,
 	return 0;
 }
 
+<<<<<<< HEAD
 static void idio_16_gpio_set(struct gpio_chip *chip, unsigned offset, int value)
 {
 	struct idio_16_gpio *const idio16gpio = gpiochip_get_data(chip);
 	const unsigned mask = BIT(offset);
+=======
+static void idio_16_gpio_set(struct gpio_chip *chip, unsigned int offset,
+			     int value)
+{
+	struct idio_16_gpio *const idio16gpio = gpiochip_get_data(chip);
+	const unsigned int mask = BIT(offset);
+>>>>>>> upstream/android-13
 	unsigned long flags;
 
 	if (offset > 15)
@@ -188,7 +232,11 @@ static void idio_16_irq_unmask(struct irq_data *data)
 	}
 }
 
+<<<<<<< HEAD
 static int idio_16_irq_set_type(struct irq_data *data, unsigned flow_type)
+=======
+static int idio_16_irq_set_type(struct irq_data *data, unsigned int flow_type)
+>>>>>>> upstream/android-13
 {
 	/* The only valid irq types are none and both-edges */
 	if (flow_type != IRQ_TYPE_NONE &&
@@ -213,7 +261,11 @@ static irqreturn_t idio_16_irq_handler(int irq, void *dev_id)
 	int gpio;
 
 	for_each_set_bit(gpio, &idio16gpio->irq_mask, chip->ngpio)
+<<<<<<< HEAD
 		generic_handle_irq(irq_find_mapping(chip->irq.domain, gpio));
+=======
+		generic_handle_domain_irq(chip->irq.domain, gpio);
+>>>>>>> upstream/android-13
 
 	raw_spin_lock(&idio16gpio->lock);
 
@@ -232,10 +284,28 @@ static const char *idio_16_names[IDIO_16_NGPIO] = {
 	"IIN8", "IIN9", "IIN10", "IIN11", "IIN12", "IIN13", "IIN14", "IIN15"
 };
 
+<<<<<<< HEAD
+=======
+static int idio_16_irq_init_hw(struct gpio_chip *gc)
+{
+	struct idio_16_gpio *const idio16gpio = gpiochip_get_data(gc);
+
+	/* Disable IRQ by default */
+	outb(0, idio16gpio->base + 2);
+	outb(0, idio16gpio->base + 1);
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static int idio_16_probe(struct device *dev, unsigned int id)
 {
 	struct idio_16_gpio *idio16gpio;
 	const char *const name = dev_name(dev);
+<<<<<<< HEAD
+=======
+	struct gpio_irq_chip *girq;
+>>>>>>> upstream/android-13
 	int err;
 
 	idio16gpio = devm_kzalloc(dev, sizeof(*idio16gpio), GFP_KERNEL);
@@ -264,6 +334,19 @@ static int idio_16_probe(struct device *dev, unsigned int id)
 	idio16gpio->base = base[id];
 	idio16gpio->out_state = 0xFFFF;
 
+<<<<<<< HEAD
+=======
+	girq = &idio16gpio->chip.irq;
+	girq->chip = &idio_16_irqchip;
+	/* This will let us handle the parent IRQ in the driver */
+	girq->parent_handler = NULL;
+	girq->num_parents = 0;
+	girq->parents = NULL;
+	girq->default_type = IRQ_TYPE_NONE;
+	girq->handler = handle_edge_irq;
+	girq->init_hw = idio_16_irq_init_hw;
+
+>>>>>>> upstream/android-13
 	raw_spin_lock_init(&idio16gpio->lock);
 
 	err = devm_gpiochip_add_data(dev, &idio16gpio->chip, idio16gpio);
@@ -272,6 +355,7 @@ static int idio_16_probe(struct device *dev, unsigned int id)
 		return err;
 	}
 
+<<<<<<< HEAD
 	/* Disable IRQ by default */
 	outb(0, base[id] + 2);
 	outb(0, base[id] + 1);
@@ -283,6 +367,8 @@ static int idio_16_probe(struct device *dev, unsigned int id)
 		return err;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	err = devm_request_irq(dev, irq[id], idio_16_irq_handler, 0, name,
 		idio16gpio);
 	if (err) {

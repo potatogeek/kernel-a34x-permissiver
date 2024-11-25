@@ -12,6 +12,10 @@ struct parse_tag {
 
 unsigned long parse_tag_value(const char *str, struct parse_tag *tags);
 
+<<<<<<< HEAD
+=======
+double convert_unit_double(double value, char *unit);
+>>>>>>> upstream/android-13
 unsigned long convert_unit(unsigned long value, char *unit);
 int unit_number__scnprintf(char *buf, size_t size, u64 n);
 

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2016, Fuzhou Rockchip Electronics Co., Ltd
  * Author: Lin Huang <hl@rock-chips.com>
@@ -10,6 +11,12 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2016, Fuzhou Rockchip Electronics Co., Ltd
+ * Author: Lin Huang <hl@rock-chips.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
@@ -26,6 +33,11 @@
 #include <linux/list.h>
 #include <linux/of.h>
 
+<<<<<<< HEAD
+=======
+#include <soc/rockchip/rk3399_grf.h>
+
+>>>>>>> upstream/android-13
 #define RK3399_DMC_NUM_CH	2
 
 /* DDRMON_CTRL */
@@ -43,6 +55,7 @@
 #define DDRMON_CH1_COUNT_NUM		0x3c
 #define DDRMON_CH1_DFI_ACCESS_NUM	0x40
 
+<<<<<<< HEAD
 /* pmu grf */
 #define PMUGRF_OS_REG2	0x308
 #define DDRTYPE_SHIFT	13
@@ -55,6 +68,8 @@ enum {
 	UNUSED = 0xFF
 };
 
+=======
+>>>>>>> upstream/android-13
 struct dmc_usage {
 	u32 access;
 	u32 total;
@@ -83,16 +98,28 @@ static void rockchip_dfi_start_hardware_counter(struct devfreq_event_dev *edev)
 	u32 ddr_type;
 
 	/* get ddr type */
+<<<<<<< HEAD
 	regmap_read(info->regmap_pmu, PMUGRF_OS_REG2, &val);
 	ddr_type = (val >> DDRTYPE_SHIFT) & DDRTYPE_MASK;
+=======
+	regmap_read(info->regmap_pmu, RK3399_PMUGRF_OS_REG2, &val);
+	ddr_type = (val >> RK3399_PMUGRF_DDRTYPE_SHIFT) &
+		    RK3399_PMUGRF_DDRTYPE_MASK;
+>>>>>>> upstream/android-13
 
 	/* clear DDRMON_CTRL setting */
 	writel_relaxed(CLR_DDRMON_CTRL, dfi_regs + DDRMON_CTRL);
 
 	/* set ddr type to dfi */
+<<<<<<< HEAD
 	if (ddr_type == LPDDR3)
 		writel_relaxed(LPDDR3_EN, dfi_regs + DDRMON_CTRL);
 	else if (ddr_type == LPDDR4)
+=======
+	if (ddr_type == RK3399_PMUGRF_DDRTYPE_LPDDR3)
+		writel_relaxed(LPDDR3_EN, dfi_regs + DDRMON_CTRL);
+	else if (ddr_type == RK3399_PMUGRF_DDRTYPE_LPDDR4)
+>>>>>>> upstream/android-13
 		writel_relaxed(LPDDR4_EN, dfi_regs + DDRMON_CTRL);
 
 	/* enable count, use software mode */
@@ -194,7 +221,10 @@ static int rockchip_dfi_probe(struct platform_device *pdev)
 {
 	struct device *dev = &pdev->dev;
 	struct rockchip_dfi *data;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	struct devfreq_event_desc *desc;
 	struct device_node *np = pdev->dev.of_node, *node;
 
@@ -202,8 +232,12 @@ static int rockchip_dfi_probe(struct platform_device *pdev)
 	if (!data)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	data->regs = devm_ioremap_resource(&pdev->dev, res);
+=======
+	data->regs = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(data->regs))
 		return PTR_ERR(data->regs);
 
@@ -211,12 +245,20 @@ static int rockchip_dfi_probe(struct platform_device *pdev)
 	if (IS_ERR(data->clk)) {
 		dev_err(dev, "Cannot get the clk dmc_clk\n");
 		return PTR_ERR(data->clk);
+<<<<<<< HEAD
 	};
+=======
+	}
+>>>>>>> upstream/android-13
 
 	/* try to find the optional reference to the pmu syscon */
 	node = of_parse_phandle(np, "rockchip,pmu", 0);
 	if (node) {
 		data->regmap_pmu = syscon_node_to_regmap(node);
+<<<<<<< HEAD
+=======
+		of_node_put(node);
+>>>>>>> upstream/android-13
 		if (IS_ERR(data->regmap_pmu))
 			return PTR_ERR(data->regmap_pmu);
 	}

@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /******************************************************************************
  * rtl871x_xmit.c
  *
  * Copyright(c) 2007 - 2010 Realtek Corporation. All rights reserved.
  * Linux device driver for RTL8192SU
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
  * published by the Free Software Foundation.
@@ -17,6 +22,8 @@
  * this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA
  *
+=======
+>>>>>>> upstream/android-13
  * Modifications for inclusion into the Linux staging tree are
  * Copyright(c) 2010 Larry Finger. All rights reserved.
  *
@@ -30,10 +37,17 @@
 
 #include "osdep_service.h"
 #include "drv_types.h"
+<<<<<<< HEAD
 #include "wifi.h"
 #include "osdep_intf.h"
 #include "usb_ops.h"
 
+=======
+#include "osdep_intf.h"
+#include "usb_ops.h"
+
+#include <linux/ieee80211.h>
+>>>>>>> upstream/android-13
 
 static const u8 P802_1H_OUI[P80211_OUI_LEN] = {0x00, 0x00, 0xf8};
 static const u8 RFC1042_OUI[P80211_OUI_LEN] = {0x00, 0x00, 0x00};
@@ -61,8 +75,13 @@ void _r8712_init_sta_xmit_priv(struct sta_xmit_priv *psta_xmitpriv)
 	INIT_LIST_HEAD(&psta_xmitpriv->apsd);
 }
 
+<<<<<<< HEAD
 sint _r8712_init_xmit_priv(struct xmit_priv *pxmitpriv,
 			   struct _adapter *padapter)
+=======
+int _r8712_init_xmit_priv(struct xmit_priv *pxmitpriv,
+			  struct _adapter *padapter)
+>>>>>>> upstream/android-13
 {
 	sint i;
 	struct xmit_buf *pxmitbuf;
@@ -83,6 +102,7 @@ sint _r8712_init_xmit_priv(struct xmit_priv *pxmitpriv,
 	_init_queue(&pxmitpriv->apsd_queue);
 	_init_queue(&pxmitpriv->free_xmit_queue);
 	/*
+<<<<<<< HEAD
 	 * Please allocate memory with the sz = (struct xmit_frame) * NR_XMITFRAME,
 	 * and initialize free_xmit_frame below.
 	 * Please also apply  free_txobj to link_up all the xmit_frames...
@@ -92,6 +112,18 @@ sint _r8712_init_xmit_priv(struct xmit_priv *pxmitpriv,
 	if (!pxmitpriv->pallocated_frame_buf) {
 		pxmitpriv->pxmit_frame_buf = NULL;
 		return _FAIL;
+=======
+	 * Please allocate memory with sz = (struct xmit_frame) * NR_XMITFRAME,
+	 * and initialize free_xmit_frame below.
+	 * Please also apply  free_txobj to link_up all the xmit_frames...
+	 */
+	pxmitpriv->pallocated_frame_buf =
+		kmalloc(NR_XMITFRAME * sizeof(struct xmit_frame) + 4,
+			GFP_ATOMIC);
+	if (!pxmitpriv->pallocated_frame_buf) {
+		pxmitpriv->pxmit_frame_buf = NULL;
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 	}
 	pxmitpriv->pxmit_frame_buf = pxmitpriv->pallocated_frame_buf + 4 -
 			((addr_t) (pxmitpriv->pallocated_frame_buf) & 3);
@@ -126,18 +158,28 @@ sint _r8712_init_xmit_priv(struct xmit_priv *pxmitpriv,
 	/*init xmit_buf*/
 	_init_queue(&pxmitpriv->free_xmitbuf_queue);
 	_init_queue(&pxmitpriv->pending_xmitbuf_queue);
+<<<<<<< HEAD
 	pxmitpriv->pallocated_xmitbuf = kmalloc(NR_XMITBUFF * sizeof(struct xmit_buf) + 4,
 						GFP_ATOMIC);
 	if (!pxmitpriv->pallocated_xmitbuf) {
 		kfree(pxmitpriv->pallocated_frame_buf);
 		pxmitpriv->pallocated_frame_buf = NULL;
 		return _FAIL;
+=======
+	pxmitpriv->pallocated_xmitbuf =
+		kmalloc(NR_XMITBUFF * sizeof(struct xmit_buf) + 4, GFP_ATOMIC);
+	if (!pxmitpriv->pallocated_xmitbuf) {
+		kfree(pxmitpriv->pallocated_frame_buf);
+		pxmitpriv->pallocated_frame_buf = NULL;
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 	}
 	pxmitpriv->pxmitbuf = pxmitpriv->pallocated_xmitbuf + 4 -
 			      ((addr_t)(pxmitpriv->pallocated_xmitbuf) & 3);
 	pxmitbuf = (struct xmit_buf *)pxmitpriv->pxmitbuf;
 	for (i = 0; i < NR_XMITBUFF; i++) {
 		INIT_LIST_HEAD(&pxmitbuf->list);
+<<<<<<< HEAD
 		pxmitbuf->pallocated_buf = kmalloc(MAX_XMITBUF_SZ + XMITBUF_ALIGN_SZ,
 						   GFP_ATOMIC);
 		if (!pxmitbuf->pallocated_buf)
@@ -146,11 +188,23 @@ sint _r8712_init_xmit_priv(struct xmit_priv *pxmitpriv,
 				 ((addr_t) (pxmitbuf->pallocated_buf) &
 				 (XMITBUF_ALIGN_SZ - 1));
 		r8712_xmit_resource_alloc(padapter, pxmitbuf);
+=======
+		pxmitbuf->pallocated_buf =
+			kmalloc(MAX_XMITBUF_SZ + XMITBUF_ALIGN_SZ, GFP_ATOMIC);
+		if (!pxmitbuf->pallocated_buf)
+			return -ENOMEM;
+		pxmitbuf->pbuf = pxmitbuf->pallocated_buf + XMITBUF_ALIGN_SZ -
+				 ((addr_t) (pxmitbuf->pallocated_buf) &
+				 (XMITBUF_ALIGN_SZ - 1));
+		if (r8712_xmit_resource_alloc(padapter, pxmitbuf))
+			return -ENOMEM;
+>>>>>>> upstream/android-13
 		list_add_tail(&pxmitbuf->list,
 				 &(pxmitpriv->free_xmitbuf_queue.queue));
 		pxmitbuf++;
 	}
 	pxmitpriv->free_xmitbuf_cnt = NR_XMITBUFF;
+<<<<<<< HEAD
 	INIT_WORK(&padapter->wkFilterRxFF0, r8712_SetFilter);
 	alloc_hwxmits(padapter);
 	init_hwxmits(pxmitpriv->hwxmits, pxmitpriv->hwxmit_entry);
@@ -158,6 +212,13 @@ sint _r8712_init_xmit_priv(struct xmit_priv *pxmitpriv,
 		(void(*)(unsigned long))r8712_xmit_bh,
 		(unsigned long)padapter);
 	return _SUCCESS;
+=======
+	INIT_WORK(&padapter->wk_filter_rx_ff0, r8712_SetFilter);
+	alloc_hwxmits(padapter);
+	init_hwxmits(pxmitpriv->hwxmits, pxmitpriv->hwxmit_entry);
+	tasklet_setup(&pxmitpriv->xmit_tasklet, r8712_xmit_bh);
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 void _free_xmit_priv(struct xmit_priv *pxmitpriv)
@@ -168,7 +229,11 @@ void _free_xmit_priv(struct xmit_priv *pxmitpriv)
 					pxmitpriv->pxmit_frame_buf;
 	struct xmit_buf *pxmitbuf = (struct xmit_buf *)pxmitpriv->pxmitbuf;
 
+<<<<<<< HEAD
 	if (pxmitpriv->pxmit_frame_buf == NULL)
+=======
+	if (!pxmitpriv->pxmit_frame_buf)
+>>>>>>> upstream/android-13
 		return;
 	for (i = 0; i < NR_XMITFRAME; i++) {
 		r8712_xmit_complete(padapter, pxmitframe);
@@ -184,8 +249,13 @@ void _free_xmit_priv(struct xmit_priv *pxmitpriv)
 	free_hwxmits(padapter);
 }
 
+<<<<<<< HEAD
 sint r8712_update_attrib(struct _adapter *padapter, _pkt *pkt,
 		   struct pkt_attrib *pattrib)
+=======
+int r8712_update_attrib(struct _adapter *padapter, _pkt *pkt,
+			struct pkt_attrib *pattrib)
+>>>>>>> upstream/android-13
 {
 	struct pkt_file pktfile;
 	struct sta_info *psta = NULL;
@@ -193,7 +263,11 @@ sint r8712_update_attrib(struct _adapter *padapter, _pkt *pkt,
 
 	struct tx_cmd txdesc;
 
+<<<<<<< HEAD
 	sint bmcast;
+=======
+	bool bmcast;
+>>>>>>> upstream/android-13
 	struct sta_priv		*pstapriv = &padapter->stapriv;
 	struct security_priv	*psecuritypriv = &padapter->securitypriv;
 	struct mlme_priv	*pmlmepriv = &padapter->mlmepriv;
@@ -205,8 +279,13 @@ sint r8712_update_attrib(struct _adapter *padapter, _pkt *pkt,
 
 	pattrib->ether_type = ntohs(etherhdr.h_proto);
 
+<<<<<<< HEAD
 {
 	/*If driver xmit ARP packet, driver can set ps mode to initial
+=======
+	/*
+	 * If driver xmit ARP packet, driver can set ps mode to initial
+>>>>>>> upstream/android-13
 	 * setting. It stands for getting DHCP or fix IP.
 	 */
 	if (pattrib->ether_type == 0x0806) {
@@ -218,7 +297,11 @@ sint r8712_update_attrib(struct _adapter *padapter, _pkt *pkt,
 					  padapter->registrypriv.smart_ps);
 		}
 	}
+<<<<<<< HEAD
 }
+=======
+
+>>>>>>> upstream/android-13
 	memcpy(pattrib->dst, &etherhdr.h_dest, ETH_ALEN);
 	memcpy(pattrib->src, &etherhdr.h_source, ETH_ALEN);
 	pattrib->pctrl = 0;
@@ -235,7 +318,11 @@ sint r8712_update_attrib(struct _adapter *padapter, _pkt *pkt,
 	} else if (check_fwstate(pmlmepriv, WIFI_MP_STATE)) {
 		/*firstly, filter packet not belongs to mp*/
 		if (pattrib->ether_type != 0x8712)
+<<<<<<< HEAD
 			return _FAIL;
+=======
+			return -EINVAL;
+>>>>>>> upstream/android-13
 		/* for mp storing the txcmd per packet,
 		 * according to the info of txcmd to update pattrib
 		 */
@@ -269,7 +356,11 @@ sint r8712_update_attrib(struct _adapter *padapter, _pkt *pkt,
 			}
 		}
 	}
+<<<<<<< HEAD
 	bmcast = IS_MCAST(pattrib->ra);
+=======
+	bmcast = is_multicast_ether_addr(pattrib->ra);
+>>>>>>> upstream/android-13
 	/* get sta_info*/
 	if (bmcast) {
 		psta = r8712_get_bcmc_stainfo(padapter);
@@ -281,8 +372,13 @@ sint r8712_update_attrib(struct _adapter *padapter, _pkt *pkt,
 			pattrib->mac_id = 5;
 		} else {
 			psta = r8712_get_stainfo(pstapriv, pattrib->ra);
+<<<<<<< HEAD
 			if (psta == NULL)  /* drop the pkt */
 				return _FAIL;
+=======
+			if (!psta)  /* drop the pkt */
+				return -ENOMEM;
+>>>>>>> upstream/android-13
 			if (check_fwstate(pmlmepriv, WIFI_STATION_STATE))
 				pattrib->mac_id = 5;
 			else
@@ -294,7 +390,11 @@ sint r8712_update_attrib(struct _adapter *padapter, _pkt *pkt,
 		pattrib->psta = psta;
 	} else {
 		/* if we cannot get psta => drrp the pkt */
+<<<<<<< HEAD
 		return _FAIL;
+=======
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 	}
 
 	pattrib->ack_policy = 0;
@@ -305,14 +405,22 @@ sint r8712_update_attrib(struct _adapter *padapter, _pkt *pkt,
 		r8712_set_qos(&pktfile, pattrib);
 	} else {
 		pattrib->hdrlen = WLAN_HDR_A3_LEN;
+<<<<<<< HEAD
 		pattrib->subtype = WIFI_DATA_TYPE;
+=======
+		pattrib->subtype = IEEE80211_FTYPE_DATA;
+>>>>>>> upstream/android-13
 		pattrib->priority = 0;
 	}
 	if (psta->ieee8021x_blocked) {
 		pattrib->encrypt = 0;
 		if ((pattrib->ether_type != 0x888e) &&
 		    !check_fwstate(pmlmepriv, WIFI_MP_STATE))
+<<<<<<< HEAD
 			return _FAIL;
+=======
+			return -EINVAL;
+>>>>>>> upstream/android-13
 	} else {
 		GET_ENCRY_ALGO(psecuritypriv, psta, pattrib->encrypt, bmcast);
 	}
@@ -326,7 +434,11 @@ sint r8712_update_attrib(struct _adapter *padapter, _pkt *pkt,
 		pattrib->iv_len = 8;
 		pattrib->icv_len = 4;
 		if (padapter->securitypriv.busetkipkey == _FAIL)
+<<<<<<< HEAD
 			return _FAIL;
+=======
+			return -EINVAL;
+>>>>>>> upstream/android-13
 		break;
 	case _AES_:
 		pattrib->iv_len = 8;
@@ -350,11 +462,19 @@ sint r8712_update_attrib(struct _adapter *padapter, _pkt *pkt,
 	if (check_fwstate(pmlmepriv, WIFI_MP_STATE))
 		pattrib->priority =
 		    (le32_to_cpu(txdesc.txdw1) >> QSEL_SHT) & 0x1f;
+<<<<<<< HEAD
 	return _SUCCESS;
 }
 
 static sint xmitframe_addmic(struct _adapter *padapter,
 			     struct xmit_frame *pxmitframe)
+=======
+	return 0;
+}
+
+static int xmitframe_addmic(struct _adapter *padapter,
+			    struct xmit_frame *pxmitframe)
+>>>>>>> upstream/android-13
 {
 	u32	curfragnum, length;
 	u8	*pframe, *payload, mic[8];
@@ -362,10 +482,17 @@ static sint xmitframe_addmic(struct _adapter *padapter,
 	struct	sta_info *stainfo;
 	struct	qos_priv *pqospriv = &(padapter->mlmepriv.qospriv);
 	struct	pkt_attrib  *pattrib = &pxmitframe->attrib;
+<<<<<<< HEAD
 	struct	security_priv *psecuritypriv = &padapter->securitypriv;
 	struct	xmit_priv *pxmitpriv = &padapter->xmitpriv;
 	u8 priority[4] = {0x0, 0x0, 0x0, 0x0};
 	sint bmcst = IS_MCAST(pattrib->ra);
+=======
+	struct	security_priv *psecpriv = &padapter->securitypriv;
+	struct	xmit_priv *pxmitpriv = &padapter->xmitpriv;
+	u8 priority[4] = {};
+	bool bmcst = is_multicast_ether_addr(pattrib->ra);
+>>>>>>> upstream/android-13
 
 	if (pattrib->psta)
 		stainfo = pattrib->psta;
@@ -374,6 +501,7 @@ static sint xmitframe_addmic(struct _adapter *padapter,
 					    &pattrib->ra[0]);
 	if (pattrib->encrypt == _TKIP_) {
 		/*encode mic code*/
+<<<<<<< HEAD
 		if (stainfo != NULL) {
 			u8 null_key[16] = {0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
 					   0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
@@ -393,6 +521,25 @@ static sint xmitframe_addmic(struct _adapter *padapter,
 				if (!memcmp(&stainfo->tkiptxmickey.skey[0],
 					    null_key, 16))
 					return _FAIL;
+=======
+		if (stainfo) {
+			u8 null_key[16] = {};
+
+			pframe = pxmitframe->buf_addr + TXDESC_OFFSET;
+			if (bmcst) {
+				if (!memcmp(psecpriv->XGrptxmickey
+				   [psecpriv->XGrpKeyid].skey,
+				   null_key, 16))
+					return -ENOMEM;
+				/*start to calculate the mic code*/
+				r8712_secmicsetkey(&micdata,
+					psecpriv->XGrptxmickey
+					[psecpriv->XGrpKeyid].skey);
+			} else {
+				if (!memcmp(&stainfo->tkiptxmickey.skey[0],
+					    null_key, 16))
+					return -ENOMEM;
+>>>>>>> upstream/android-13
 				/* start to calculate the mic code */
 				r8712_secmicsetkey(&micdata,
 					     &stainfo->tkiptxmickey.skey[0]);
@@ -428,15 +575,26 @@ static sint xmitframe_addmic(struct _adapter *padapter,
 					length = pattrib->last_txcmdsz -
 						  pattrib->hdrlen -
 						  pattrib->iv_len -
+<<<<<<< HEAD
 						  ((psecuritypriv->sw_encrypt)
+=======
+						  ((psecpriv->sw_encrypt)
+>>>>>>> upstream/android-13
 						  ? pattrib->icv_len : 0);
 					r8712_secmicappend(&micdata, payload,
 							   length);
 					payload = payload + length;
+<<<<<<< HEAD
 				} else{
 					length = pxmitpriv->frag_len -
 					    pattrib->hdrlen - pattrib->iv_len -
 					    ((psecuritypriv->sw_encrypt) ?
+=======
+				} else {
+					length = pxmitpriv->frag_len -
+					    pattrib->hdrlen - pattrib->iv_len -
+					    ((psecpriv->sw_encrypt) ?
+>>>>>>> upstream/android-13
 					    pattrib->icv_len : 0);
 					r8712_secmicappend(&micdata, payload,
 							   length);
@@ -453,7 +611,11 @@ static sint xmitframe_addmic(struct _adapter *padapter,
 			payload = payload - pattrib->last_txcmdsz + 8;
 		}
 	}
+<<<<<<< HEAD
 	return _SUCCESS;
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static sint xmitframe_swencrypt(struct _adapter *padapter,
@@ -480,14 +642,20 @@ static sint xmitframe_swencrypt(struct _adapter *padapter,
 	return _SUCCESS;
 }
 
+<<<<<<< HEAD
 static sint make_wlanhdr(struct _adapter *padapter, u8 *hdr,
 			 struct pkt_attrib *pattrib)
+=======
+static int make_wlanhdr(struct _adapter *padapter, u8 *hdr,
+			struct pkt_attrib *pattrib)
+>>>>>>> upstream/android-13
 {
 	u16 *qc;
 
 	struct ieee80211_hdr *pwlanhdr = (struct ieee80211_hdr *)hdr;
 	struct mlme_priv *pmlmepriv = &padapter->mlmepriv;
 	struct qos_priv *pqospriv = &pmlmepriv->qospriv;
+<<<<<<< HEAD
 	__le16 *fctrl = &pwlanhdr->frame_ctl;
 
 	memset(hdr, 0, WLANHDR_OFFSET);
@@ -559,6 +727,76 @@ static sint make_wlanhdr(struct _adapter *padapter, u8 *hdr,
 		}
 	}
 	return _SUCCESS;
+=======
+	__le16 *fctrl = &pwlanhdr->frame_control;
+	u8 *bssid;
+
+	memset(hdr, 0, WLANHDR_OFFSET);
+	SetFrameSubType(fctrl, pattrib->subtype);
+	if (!(pattrib->subtype & IEEE80211_FTYPE_DATA))
+		return 0;
+
+	bssid = get_bssid(pmlmepriv);
+
+	if (check_fwstate(pmlmepriv,  WIFI_STATION_STATE)) {
+		/* to_ds = 1, fr_ds = 0; */
+		SetToDs(fctrl);
+		ether_addr_copy(pwlanhdr->addr1, bssid);
+		ether_addr_copy(pwlanhdr->addr2, pattrib->src);
+		ether_addr_copy(pwlanhdr->addr3, pattrib->dst);
+	} else if (check_fwstate(pmlmepriv, WIFI_AP_STATE)) {
+		/* to_ds = 0, fr_ds = 1; */
+		SetFrDs(fctrl);
+		ether_addr_copy(pwlanhdr->addr1, pattrib->dst);
+		ether_addr_copy(pwlanhdr->addr2, bssid);
+		ether_addr_copy(pwlanhdr->addr3, pattrib->src);
+	} else if (check_fwstate(pmlmepriv, WIFI_ADHOC_STATE) ||
+		   check_fwstate(pmlmepriv, WIFI_ADHOC_MASTER_STATE)) {
+		ether_addr_copy(pwlanhdr->addr1, pattrib->dst);
+		ether_addr_copy(pwlanhdr->addr2, pattrib->src);
+		ether_addr_copy(pwlanhdr->addr3, bssid);
+	} else if (check_fwstate(pmlmepriv, WIFI_MP_STATE)) {
+		ether_addr_copy(pwlanhdr->addr1, pattrib->dst);
+		ether_addr_copy(pwlanhdr->addr2, pattrib->src);
+		ether_addr_copy(pwlanhdr->addr3, bssid);
+	} else {
+		return -EINVAL;
+	}
+
+	if (pattrib->encrypt)
+		SetPrivacy(fctrl);
+	if (pqospriv->qos_option) {
+		qc = (unsigned short *)(hdr + pattrib->hdrlen - 2);
+		if (pattrib->priority)
+			SetPriority(qc, pattrib->priority);
+		SetAckpolicy(qc, pattrib->ack_policy);
+	}
+	/* TODO: fill HT Control Field */
+	/* Update Seq Num will be handled by f/w */
+	{
+		struct sta_info *psta;
+		bool bmcst = is_multicast_ether_addr(pattrib->ra);
+
+		if (pattrib->psta)
+			psta = pattrib->psta;
+		else if (bmcst)
+			psta = r8712_get_bcmc_stainfo(padapter);
+		else
+			psta = r8712_get_stainfo(&padapter->stapriv,
+						 pattrib->ra);
+
+		if (psta) {
+			u16 *txtid = psta->sta_xmitpriv.txseq_tid;
+
+			txtid[pattrib->priority]++;
+			txtid[pattrib->priority] &= 0xFFF;
+			pattrib->seqnum = txtid[pattrib->priority];
+			SetSeqNum(hdr, pattrib->seqnum);
+		}
+	}
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static sint r8712_put_snap(u8 *data, u16 h_proto)
@@ -601,22 +839,39 @@ sint r8712_xmitframe_coalesce(struct _adapter *padapter, _pkt *pkt,
 	addr_t addr;
 	u8 *pframe, *mem_start, *ptxdesc;
 	struct sta_info		*psta;
+<<<<<<< HEAD
 	struct security_priv	*psecuritypriv = &padapter->securitypriv;
+=======
+	struct security_priv	*psecpriv = &padapter->securitypriv;
+>>>>>>> upstream/android-13
 	struct mlme_priv	*pmlmepriv = &padapter->mlmepriv;
 	struct xmit_priv	*pxmitpriv = &padapter->xmitpriv;
 	struct pkt_attrib	*pattrib = &pxmitframe->attrib;
 	u8 *pbuf_start;
+<<<<<<< HEAD
 	sint bmcst = IS_MCAST(pattrib->ra);
 
 	if (pattrib->psta == NULL)
 		return _FAIL;
 	psta = pattrib->psta;
 	if (pxmitframe->buf_addr == NULL)
+=======
+	bool bmcst = is_multicast_ether_addr(pattrib->ra);
+
+	if (!pattrib->psta)
+		return _FAIL;
+	psta = pattrib->psta;
+	if (!pxmitframe->buf_addr)
+>>>>>>> upstream/android-13
 		return _FAIL;
 	pbuf_start = pxmitframe->buf_addr;
 	ptxdesc = pbuf_start;
 	mem_start = pbuf_start + TXDESC_OFFSET;
+<<<<<<< HEAD
 	if (make_wlanhdr(padapter, mem_start, pattrib) == _FAIL)
+=======
+	if (make_wlanhdr(padapter, mem_start, pattrib))
+>>>>>>> upstream/android-13
 		return _FAIL;
 	_r8712_open_pktfile(pkt, &pktfile);
 	_r8712_pktfile_read(&pktfile, NULL, (uint) pattrib->pkt_hdrlen);
@@ -639,20 +894,32 @@ sint r8712_xmitframe_coalesce(struct _adapter *padapter, _pkt *pkt,
 		mpdu_len -= pattrib->hdrlen;
 		/* adding icv, if necessary...*/
 		if (pattrib->iv_len) {
+<<<<<<< HEAD
 			if (psta != NULL) {
+=======
+			if (psta) {
+>>>>>>> upstream/android-13
 				switch (pattrib->encrypt) {
 				case _WEP40_:
 				case _WEP104_:
 					WEP_IV(pattrib->iv, psta->txpn,
+<<<<<<< HEAD
 					       (u8)psecuritypriv->
 					       PrivacyKeyIndex);
+=======
+					       (u8)psecpriv->PrivacyKeyIndex);
+>>>>>>> upstream/android-13
 					break;
 				case _TKIP_:
 					if (bmcst)
 						TKIP_IV(pattrib->iv,
 						    psta->txpn,
+<<<<<<< HEAD
 						    (u8)psecuritypriv->
 						    XGrpKeyid);
+=======
+						    (u8)psecpriv->XGrpKeyid);
+>>>>>>> upstream/android-13
 					else
 						TKIP_IV(pattrib->iv, psta->txpn,
 							0);
@@ -660,8 +927,12 @@ sint r8712_xmitframe_coalesce(struct _adapter *padapter, _pkt *pkt,
 				case _AES_:
 					if (bmcst)
 						AES_IV(pattrib->iv, psta->txpn,
+<<<<<<< HEAD
 						    (u8)psecuritypriv->
 						    XGrpKeyid);
+=======
+						    (u8)psecpriv->XGrpKeyid);
+>>>>>>> upstream/android-13
 					else
 						AES_IV(pattrib->iv, psta->txpn,
 						       0);
@@ -707,7 +978,11 @@ sint r8712_xmitframe_coalesce(struct _adapter *padapter, _pkt *pkt,
 		memcpy(mem_start, pbuf_start + TXDESC_OFFSET, pattrib->hdrlen);
 	}
 
+<<<<<<< HEAD
 	if (xmitframe_addmic(padapter, pxmitframe) == _FAIL)
+=======
+	if (xmitframe_addmic(padapter, pxmitframe))
+>>>>>>> upstream/android-13
 		return _FAIL;
 	xmitframe_swencrypt(padapter, pxmitframe);
 	return _SUCCESS;
@@ -729,8 +1004,13 @@ void r8712_update_protection(struct _adapter *padapter, u8 *ie, uint ie_len)
 		break;
 	case AUTO_VCS:
 	default:
+<<<<<<< HEAD
 		perp = r8712_get_ie(ie, _ERPINFO_IE_, &erp_len, ie_len);
 		if (perp == NULL) {
+=======
+		perp = r8712_get_ie(ie, WLAN_EID_ERP_INFO, &erp_len, ie_len);
+		if (!perp) {
+>>>>>>> upstream/android-13
 			pxmitpriv->vcs = NONE_VCS;
 		} else {
 			protection = (*(perp + 2)) & BIT(1);
@@ -764,19 +1044,31 @@ struct xmit_buf *r8712_alloc_xmitbuf(struct xmit_priv *pxmitpriv)
 	return pxmitbuf;
 }
 
+<<<<<<< HEAD
 int r8712_free_xmitbuf(struct xmit_priv *pxmitpriv, struct xmit_buf *pxmitbuf)
+=======
+void r8712_free_xmitbuf(struct xmit_priv *pxmitpriv, struct xmit_buf *pxmitbuf)
+>>>>>>> upstream/android-13
 {
 	unsigned long irqL;
 	struct  __queue *pfree_xmitbuf_queue = &pxmitpriv->free_xmitbuf_queue;
 
+<<<<<<< HEAD
 	if (pxmitbuf == NULL)
 		return _FAIL;
+=======
+	if (!pxmitbuf)
+		return;
+>>>>>>> upstream/android-13
 	spin_lock_irqsave(&pfree_xmitbuf_queue->lock, irqL);
 	list_del_init(&pxmitbuf->list);
 	list_add_tail(&(pxmitbuf->list), &pfree_xmitbuf_queue->queue);
 	pxmitpriv->free_xmitbuf_cnt++;
 	spin_unlock_irqrestore(&pfree_xmitbuf_queue->lock, irqL);
+<<<<<<< HEAD
 	return _SUCCESS;
+=======
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -823,7 +1115,11 @@ void r8712_free_xmitframe(struct xmit_priv *pxmitpriv,
 	struct  __queue *pfree_xmit_queue = &pxmitpriv->free_xmit_queue;
 	struct _adapter *padapter = pxmitpriv->adapter;
 
+<<<<<<< HEAD
 	if (pxmitframe == NULL)
+=======
+	if (!pxmitframe)
+>>>>>>> upstream/android-13
 		return;
 	spin_lock_irqsave(&pfree_xmit_queue->lock, irqL);
 	list_del_init(&pxmitframe->list);
@@ -839,7 +1135,11 @@ void r8712_free_xmitframe(struct xmit_priv *pxmitpriv,
 void r8712_free_xmitframe_ex(struct xmit_priv *pxmitpriv,
 		      struct xmit_frame *pxmitframe)
 {
+<<<<<<< HEAD
 	if (pxmitframe == NULL)
+=======
+	if (!pxmitframe)
+>>>>>>> upstream/android-13
 		return;
 	if (pxmitframe->frame_tag == DATA_FRAMETAG)
 		r8712_free_xmitframe(pxmitpriv, pxmitframe);
@@ -867,7 +1167,10 @@ static inline struct tx_servq *get_sta_pending(struct _adapter *padapter,
 					       struct  __queue **ppstapending,
 					       struct sta_info *psta, sint up)
 {
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	struct tx_servq *ptxservq;
 	struct hw_xmit *phwxmits =  padapter->xmitpriv.hwxmits;
 
@@ -905,8 +1208,13 @@ static inline struct tx_servq *get_sta_pending(struct _adapter *padapter,
  * Will enqueue pxmitframe to the proper queue, and indicate it
  * to xx_pending list.....
  */
+<<<<<<< HEAD
 sint r8712_xmit_classifier(struct _adapter *padapter,
 			   struct xmit_frame *pxmitframe)
+=======
+int r8712_xmit_classifier(struct _adapter *padapter,
+			  struct xmit_frame *pxmitframe)
+>>>>>>> upstream/android-13
 {
 	unsigned long irqL0;
 	struct  __queue *pstapending;
@@ -915,7 +1223,11 @@ sint r8712_xmit_classifier(struct _adapter *padapter,
 	struct pkt_attrib *pattrib = &pxmitframe->attrib;
 	struct sta_priv *pstapriv = &padapter->stapriv;
 	struct mlme_priv *pmlmepriv = &padapter->mlmepriv;
+<<<<<<< HEAD
 	sint bmcst = IS_MCAST(pattrib->ra);
+=======
+	bool bmcst = is_multicast_ether_addr(pattrib->ra);
+>>>>>>> upstream/android-13
 
 	if (pattrib->psta) {
 		psta = pattrib->psta;
@@ -930,8 +1242,13 @@ sint r8712_xmit_classifier(struct _adapter *padapter,
 				psta = r8712_get_stainfo(pstapriv, pattrib->ra);
 		}
 	}
+<<<<<<< HEAD
 	if (psta == NULL)
 		return _FAIL;
+=======
+	if (!psta)
+		return -EINVAL;
+>>>>>>> upstream/android-13
 	ptxservq = get_sta_pending(padapter, &pstapending,
 		   psta, pattrib->priority);
 	spin_lock_irqsave(&pstapending->lock, irqL0);
@@ -940,7 +1257,11 @@ sint r8712_xmit_classifier(struct _adapter *padapter,
 	list_add_tail(&pxmitframe->list, &ptxservq->sta_pending.queue);
 	ptxservq->qcnt++;
 	spin_unlock_irqrestore(&pstapending->lock, irqL0);
+<<<<<<< HEAD
 	return _SUCCESS;
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static void alloc_hwxmits(struct _adapter *padapter)
@@ -961,7 +1282,11 @@ static void alloc_hwxmits(struct _adapter *padapter)
 		pxmitpriv->vo_txqueue.head = 0;
 		hwxmits[1] .phwtxqueue = &pxmitpriv->vo_txqueue;
 		hwxmits[1] .sta_queue = &pxmitpriv->vo_pending;
+<<<<<<< HEAD
 	pxmitpriv->vi_txqueue.head = 0;
+=======
+		pxmitpriv->vi_txqueue.head = 0;
+>>>>>>> upstream/android-13
 		hwxmits[2] .phwtxqueue = &pxmitpriv->vi_txqueue;
 		hwxmits[2] .sta_queue = &pxmitpriv->vi_pending;
 		pxmitpriv->bk_txqueue.head = 0;
@@ -1042,7 +1367,11 @@ int r8712_pre_xmit(struct _adapter *padapter, struct xmit_frame *pxmitframe)
 		return ret;
 	}
 	pxmitbuf = r8712_alloc_xmitbuf(pxmitpriv);
+<<<<<<< HEAD
 	if (pxmitbuf == NULL) { /*enqueue packet*/
+=======
+	if (!pxmitbuf) { /*enqueue packet*/
+>>>>>>> upstream/android-13
 		ret = false;
 		r8712_xmit_enqueue(padapter, pxmitframe);
 		spin_unlock_irqrestore(&pxmitpriv->lock, irqL);

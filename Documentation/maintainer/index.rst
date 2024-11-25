@@ -10,5 +10,12 @@ additions to this manual.
    :maxdepth: 2
 
    configure-git
+<<<<<<< HEAD
    pull-requests
+=======
+   rebasing-and-merging
+   pull-requests
+   maintainer-entry-profile
+   modifying-patches
+>>>>>>> upstream/android-13
 

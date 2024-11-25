@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * PTP 1588 clock support - private declarations for the core module.
  *
  * Copyright (C) 2010 OMICRON electronics GmbH
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -16,6 +21,8 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef _PTP_PRIVATE_H_
 #define _PTP_PRIVATE_H_
@@ -31,6 +38,10 @@
 
 #define PTP_MAX_TIMESTAMPS 128
 #define PTP_BUF_TIMESTAMPS 30
+<<<<<<< HEAD
+=======
+#define PTP_DEFAULT_MAX_VCLOCKS 20
+>>>>>>> upstream/android-13
 
 struct timestamp_event_queue {
 	struct ptp_extts_event buf[PTP_MAX_TIMESTAMPS];
@@ -59,6 +70,27 @@ struct ptp_clock {
 	const struct attribute_group *pin_attr_groups[2];
 	struct kthread_worker *kworker;
 	struct kthread_delayed_work aux_work;
+<<<<<<< HEAD
+=======
+	unsigned int max_vclocks;
+	unsigned int n_vclocks;
+	int *vclock_index;
+	struct mutex n_vclocks_mux; /* protect concurrent n_vclocks access */
+	bool is_virtual_clock;
+};
+
+#define info_to_vclock(d) container_of((d), struct ptp_vclock, info)
+#define cc_to_vclock(d) container_of((d), struct ptp_vclock, cc)
+#define dw_to_vclock(d) container_of((d), struct ptp_vclock, refresh_work)
+
+struct ptp_vclock {
+	struct ptp_clock *pclock;
+	struct ptp_clock_info info;
+	struct ptp_clock *clock;
+	struct cyclecounter cc;
+	struct timecounter tc;
+	spinlock_t lock;	/* protects tc/cc */
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -74,6 +106,27 @@ static inline int queue_cnt(struct timestamp_event_queue *q)
 	return cnt < 0 ? PTP_MAX_TIMESTAMPS + cnt : cnt;
 }
 
+<<<<<<< HEAD
+=======
+/* Check if ptp virtual clock is in use */
+static inline bool ptp_vclock_in_use(struct ptp_clock *ptp)
+{
+	bool in_use = false;
+
+	if (mutex_lock_interruptible(&ptp->n_vclocks_mux))
+		return true;
+
+	if (!ptp->is_virtual_clock && ptp->n_vclocks)
+		in_use = true;
+
+	mutex_unlock(&ptp->n_vclocks_mux);
+
+	return in_use;
+}
+
+extern struct class *ptp_class;
+
+>>>>>>> upstream/android-13
 /*
  * see ptp_chardev.c
  */
@@ -102,4 +155,9 @@ extern const struct attribute_group *ptp_groups[];
 int ptp_populate_pin_groups(struct ptp_clock *ptp);
 void ptp_cleanup_pin_groups(struct ptp_clock *ptp);
 
+<<<<<<< HEAD
+=======
+struct ptp_vclock *ptp_vclock_register(struct ptp_clock *pclock);
+void ptp_vclock_unregister(struct ptp_vclock *vclock);
+>>>>>>> upstream/android-13
 #endif

@@ -1,12 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 static struct resword {
 	const char *name;
 	int token;
 } keywords[] = {
+<<<<<<< HEAD
 	{ "EXPORT_SYMBOL", EXPORT_SYMBOL_KEYW },
 	{ "EXPORT_SYMBOL_GPL", EXPORT_SYMBOL_KEYW },
 	{ "EXPORT_SYMBOL_GPL_FUTURE", EXPORT_SYMBOL_KEYW },
 	{ "EXPORT_UNUSED_SYMBOL", EXPORT_SYMBOL_KEYW },
 	{ "EXPORT_UNUSED_SYMBOL_GPL", EXPORT_SYMBOL_KEYW },
+=======
+	{ "__GENKSYMS_EXPORT_SYMBOL", EXPORT_SYMBOL_KEYW },
+>>>>>>> upstream/android-13
 	{ "__asm", ASM_KEYW },
 	{ "__asm__", ASM_KEYW },
 	{ "__attribute", ATTRIBUTE_KEYW },
@@ -28,13 +36,25 @@ static struct resword {
 	{ "__int128_t", BUILTIN_INT_KEYW },
 	{ "__uint128_t", BUILTIN_INT_KEYW },
 
+<<<<<<< HEAD
 	// According to rth, c99 defines "_Bool", __restrict", __restrict__", "restrict".  KAO
 	{ "_Bool", BOOL_KEYW },
 	{ "_restrict", RESTRICT_KEYW },
+=======
+	// According to rth, c99 defines "_Bool", "__restrict", "__restrict__", "restrict".  KAO
+	{ "_Bool", BOOL_KEYW },
+	{ "__restrict", RESTRICT_KEYW },
+>>>>>>> upstream/android-13
 	{ "__restrict__", RESTRICT_KEYW },
 	{ "restrict", RESTRICT_KEYW },
 	{ "asm", ASM_KEYW },
 
+<<<<<<< HEAD
+=======
+	// c11 keywords that can be used at module scope
+	{ "_Static_assert", STATIC_ASSERT_KEYW },
+
+>>>>>>> upstream/android-13
 	// attribute commented out in modutils 2.4.2.  People are using 'attribute' as a
 	// field name which breaks the genksyms parser.  It is not a gcc keyword anyway.
 	// KAO. },

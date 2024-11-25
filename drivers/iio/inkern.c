@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* The industrial I/O core in kernel channel mapping
  *
  * Copyright (c) 2011 Jonathan Cameron
@@ -5,6 +6,12 @@
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
  * the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/* The industrial I/O core in kernel channel mapping
+ *
+ * Copyright (c) 2011 Jonathan Cameron
+>>>>>>> upstream/android-13
  */
 #include <linux/err.h>
 #include <linux/export.h>
@@ -13,6 +20,10 @@
 #include <linux/of.h>
 
 #include <linux/iio/iio.h>
+<<<<<<< HEAD
+=======
+#include <linux/iio/iio-opaque.h>
+>>>>>>> upstream/android-13
 #include "iio_core.h"
 #include <linux/iio/machine.h>
 #include <linux/iio/driver.h>
@@ -27,6 +38,24 @@ struct iio_map_internal {
 static LIST_HEAD(iio_map_list);
 static DEFINE_MUTEX(iio_map_list_lock);
 
+<<<<<<< HEAD
+=======
+static int iio_map_array_unregister_locked(struct iio_dev *indio_dev)
+{
+	int ret = -ENODEV;
+	struct iio_map_internal *mapi, *next;
+
+	list_for_each_entry_safe(mapi, next, &iio_map_list, l) {
+		if (indio_dev == mapi->indio_dev) {
+			list_del(&mapi->l);
+			kfree(mapi);
+			ret = 0;
+		}
+	}
+	return ret;
+}
+
+>>>>>>> upstream/android-13
 int iio_map_array_register(struct iio_dev *indio_dev, struct iio_map *maps)
 {
 	int i = 0, ret = 0;
@@ -48,6 +77,11 @@ int iio_map_array_register(struct iio_dev *indio_dev, struct iio_map *maps)
 		i++;
 	}
 error_ret:
+<<<<<<< HEAD
+=======
+	if (ret)
+		iio_map_array_unregister_locked(indio_dev);
+>>>>>>> upstream/android-13
 	mutex_unlock(&iio_map_list_lock);
 
 	return ret;
@@ -60,6 +94,7 @@ EXPORT_SYMBOL_GPL(iio_map_array_register);
  */
 int iio_map_array_unregister(struct iio_dev *indio_dev)
 {
+<<<<<<< HEAD
 	int ret = -ENODEV;
 	struct iio_map_internal *mapi, *next;
 
@@ -72,6 +107,14 @@ int iio_map_array_unregister(struct iio_dev *indio_dev)
 		}
 	}
 	mutex_unlock(&iio_map_list_lock);
+=======
+	int ret;
+
+	mutex_lock(&iio_map_list_lock);
+	ret = iio_map_array_unregister_locked(indio_dev);
+	mutex_unlock(&iio_map_list_lock);
+
+>>>>>>> upstream/android-13
 	return ret;
 }
 EXPORT_SYMBOL_GPL(iio_map_array_unregister);
@@ -93,7 +136,11 @@ static const struct iio_chan_spec
 
 #ifdef CONFIG_OF
 
+<<<<<<< HEAD
 static int iio_dev_node_match(struct device *dev, void *data)
+=======
+static int iio_dev_node_match(struct device *dev, const void *data)
+>>>>>>> upstream/android-13
 {
 	return dev->of_node == data && dev->type == &iio_device_type;
 }
@@ -183,8 +230,13 @@ err_free_channel:
 	return ERR_PTR(err);
 }
 
+<<<<<<< HEAD
 static struct iio_channel *of_iio_channel_get_by_name(struct device_node *np,
 						      const char *name)
+=======
+struct iio_channel *of_iio_channel_get_by_name(struct device_node *np,
+					       const char *name)
+>>>>>>> upstream/android-13
 {
 	struct iio_channel *chan = NULL;
 
@@ -222,6 +274,10 @@ static struct iio_channel *of_iio_channel_get_by_name(struct device_node *np,
 
 	return chan;
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(of_iio_channel_get_by_name);
+>>>>>>> upstream/android-13
 
 static struct iio_channel *of_iio_channel_get_all(struct device *dev)
 {
@@ -264,12 +320,15 @@ error_free_chans:
 
 #else /* CONFIG_OF */
 
+<<<<<<< HEAD
 static inline struct iio_channel *
 of_iio_channel_get_by_name(struct device_node *np, const char *name)
 {
 	return NULL;
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline struct iio_channel *of_iio_channel_get_all(struct device *dev)
 {
 	return NULL;
@@ -356,6 +415,7 @@ void iio_channel_release(struct iio_channel *channel)
 }
 EXPORT_SYMBOL_GPL(iio_channel_release);
 
+<<<<<<< HEAD
 static void devm_iio_channel_free(struct device *dev, void *res)
 {
 	struct iio_channel *channel = *(struct iio_channel **)res;
@@ -373,11 +433,17 @@ static int devm_iio_channel_match(struct device *dev, void *res, void *data)
 	}
 
 	return *r == data;
+=======
+static void devm_iio_channel_free(void *iio_channel)
+{
+	iio_channel_release(iio_channel);
+>>>>>>> upstream/android-13
 }
 
 struct iio_channel *devm_iio_channel_get(struct device *dev,
 					 const char *channel_name)
 {
+<<<<<<< HEAD
 	struct iio_channel **ptr, *channel;
 
 	ptr = devres_alloc(devm_iio_channel_free, sizeof(*ptr), GFP_KERNEL);
@@ -392,17 +458,50 @@ struct iio_channel *devm_iio_channel_get(struct device *dev,
 
 	*ptr = channel;
 	devres_add(dev, ptr);
+=======
+	struct iio_channel *channel;
+	int ret;
+
+	channel = iio_channel_get(dev, channel_name);
+	if (IS_ERR(channel))
+		return channel;
+
+	ret = devm_add_action_or_reset(dev, devm_iio_channel_free, channel);
+	if (ret)
+		return ERR_PTR(ret);
+>>>>>>> upstream/android-13
 
 	return channel;
 }
 EXPORT_SYMBOL_GPL(devm_iio_channel_get);
 
+<<<<<<< HEAD
 void devm_iio_channel_release(struct device *dev, struct iio_channel *channel)
 {
 	WARN_ON(devres_release(dev, devm_iio_channel_free,
 			       devm_iio_channel_match, channel));
 }
 EXPORT_SYMBOL_GPL(devm_iio_channel_release);
+=======
+struct iio_channel *devm_of_iio_channel_get_by_name(struct device *dev,
+						    struct device_node *np,
+						    const char *channel_name)
+{
+	struct iio_channel *channel;
+	int ret;
+
+	channel = of_iio_channel_get_by_name(np, channel_name);
+	if (IS_ERR(channel))
+		return channel;
+
+	ret = devm_add_action_or_reset(dev, devm_iio_channel_free, channel);
+	if (ret)
+		return ERR_PTR(ret);
+
+	return channel;
+}
+EXPORT_SYMBOL_GPL(devm_of_iio_channel_get_by_name);
+>>>>>>> upstream/android-13
 
 struct iio_channel *iio_channel_get_all(struct device *dev)
 {
@@ -489,15 +588,22 @@ void iio_channel_release_all(struct iio_channel *channels)
 }
 EXPORT_SYMBOL_GPL(iio_channel_release_all);
 
+<<<<<<< HEAD
 static void devm_iio_channel_free_all(struct device *dev, void *res)
 {
 	struct iio_channel *channels = *(struct iio_channel **)res;
 
 	iio_channel_release_all(channels);
+=======
+static void devm_iio_channel_free_all(void *iio_channels)
+{
+	iio_channel_release_all(iio_channels);
+>>>>>>> upstream/android-13
 }
 
 struct iio_channel *devm_iio_channel_get_all(struct device *dev)
 {
+<<<<<<< HEAD
 	struct iio_channel **ptr, *channels;
 
 	ptr = devres_alloc(devm_iio_channel_free_all, sizeof(*ptr), GFP_KERNEL);
@@ -512,11 +618,25 @@ struct iio_channel *devm_iio_channel_get_all(struct device *dev)
 
 	*ptr = channels;
 	devres_add(dev, ptr);
+=======
+	struct iio_channel *channels;
+	int ret;
+
+	channels = iio_channel_get_all(dev);
+	if (IS_ERR(channels))
+		return channels;
+
+	ret = devm_add_action_or_reset(dev, devm_iio_channel_free_all,
+				       channels);
+	if (ret)
+		return ERR_PTR(ret);
+>>>>>>> upstream/android-13
 
 	return channels;
 }
 EXPORT_SYMBOL_GPL(devm_iio_channel_get_all);
 
+<<<<<<< HEAD
 void devm_iio_channel_release_all(struct device *dev,
 				  struct iio_channel *channels)
 {
@@ -525,6 +645,8 @@ void devm_iio_channel_release_all(struct device *dev,
 }
 EXPORT_SYMBOL_GPL(devm_iio_channel_release_all);
 
+=======
+>>>>>>> upstream/android-13
 static int iio_channel_read(struct iio_channel *chan, int *val, int *val2,
 	enum iio_chan_info_enum info)
 {
@@ -554,9 +676,16 @@ static int iio_channel_read(struct iio_channel *chan, int *val, int *val2,
 
 int iio_read_channel_raw(struct iio_channel *chan, int *val)
 {
+<<<<<<< HEAD
 	int ret;
 
 	mutex_lock(&chan->indio_dev->info_exist_lock);
+=======
+	struct iio_dev_opaque *iio_dev_opaque = to_iio_dev_opaque(chan->indio_dev);
+	int ret;
+
+	mutex_lock(&iio_dev_opaque->info_exist_lock);
+>>>>>>> upstream/android-13
 	if (chan->indio_dev->info == NULL) {
 		ret = -ENODEV;
 		goto err_unlock;
@@ -564,7 +693,11 @@ int iio_read_channel_raw(struct iio_channel *chan, int *val)
 
 	ret = iio_channel_read(chan, val, NULL, IIO_CHAN_INFO_RAW);
 err_unlock:
+<<<<<<< HEAD
 	mutex_unlock(&chan->indio_dev->info_exist_lock);
+=======
+	mutex_unlock(&iio_dev_opaque->info_exist_lock);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -572,9 +705,16 @@ EXPORT_SYMBOL_GPL(iio_read_channel_raw);
 
 int iio_read_channel_average_raw(struct iio_channel *chan, int *val)
 {
+<<<<<<< HEAD
 	int ret;
 
 	mutex_lock(&chan->indio_dev->info_exist_lock);
+=======
+	struct iio_dev_opaque *iio_dev_opaque = to_iio_dev_opaque(chan->indio_dev);
+	int ret;
+
+	mutex_lock(&iio_dev_opaque->info_exist_lock);
+>>>>>>> upstream/android-13
 	if (chan->indio_dev->info == NULL) {
 		ret = -ENODEV;
 		goto err_unlock;
@@ -582,7 +722,11 @@ int iio_read_channel_average_raw(struct iio_channel *chan, int *val)
 
 	ret = iio_channel_read(chan, val, NULL, IIO_CHAN_INFO_AVERAGE_RAW);
 err_unlock:
+<<<<<<< HEAD
 	mutex_unlock(&chan->indio_dev->info_exist_lock);
+=======
+	mutex_unlock(&iio_dev_opaque->info_exist_lock);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -591,6 +735,7 @@ EXPORT_SYMBOL_GPL(iio_read_channel_average_raw);
 static int iio_convert_raw_to_processed_unlocked(struct iio_channel *chan,
 	int raw, int *processed, unsigned int scale)
 {
+<<<<<<< HEAD
 	int scale_type, scale_val, scale_val2, offset;
 	s64 raw64 = raw;
 	int ret;
@@ -598,21 +743,63 @@ static int iio_convert_raw_to_processed_unlocked(struct iio_channel *chan,
 	ret = iio_channel_read(chan, &offset, NULL, IIO_CHAN_INFO_OFFSET);
 	if (ret >= 0)
 		raw64 += offset;
+=======
+	int scale_type, scale_val, scale_val2;
+	int offset_type, offset_val, offset_val2;
+	s64 raw64 = raw;
+
+	offset_type = iio_channel_read(chan, &offset_val, &offset_val2,
+				       IIO_CHAN_INFO_OFFSET);
+	if (offset_type >= 0) {
+		switch (offset_type) {
+		case IIO_VAL_INT:
+			break;
+		case IIO_VAL_INT_PLUS_MICRO:
+		case IIO_VAL_INT_PLUS_NANO:
+			/*
+			 * Both IIO_VAL_INT_PLUS_MICRO and IIO_VAL_INT_PLUS_NANO
+			 * implicitely truncate the offset to it's integer form.
+			 */
+			break;
+		case IIO_VAL_FRACTIONAL:
+			offset_val /= offset_val2;
+			break;
+		case IIO_VAL_FRACTIONAL_LOG2:
+			offset_val >>= offset_val2;
+			break;
+		default:
+			return -EINVAL;
+		}
+
+		raw64 += offset_val;
+	}
+>>>>>>> upstream/android-13
 
 	scale_type = iio_channel_read(chan, &scale_val, &scale_val2,
 					IIO_CHAN_INFO_SCALE);
 	if (scale_type < 0) {
 		/*
+<<<<<<< HEAD
 		 * Just pass raw values as processed if no scaling is
 		 * available.
 		 */
 		*processed = raw;
+=======
+		 * If no channel scaling is available apply consumer scale to
+		 * raw value and return.
+		 */
+		*processed = raw * scale;
+>>>>>>> upstream/android-13
 		return 0;
 	}
 
 	switch (scale_type) {
 	case IIO_VAL_INT:
+<<<<<<< HEAD
 		*processed = raw64 * scale_val;
+=======
+		*processed = raw64 * scale_val * scale;
+>>>>>>> upstream/android-13
 		break;
 	case IIO_VAL_INT_PLUS_MICRO:
 		if (scale_val2 < 0)
@@ -647,9 +834,16 @@ static int iio_convert_raw_to_processed_unlocked(struct iio_channel *chan,
 int iio_convert_raw_to_processed(struct iio_channel *chan, int raw,
 	int *processed, unsigned int scale)
 {
+<<<<<<< HEAD
 	int ret;
 
 	mutex_lock(&chan->indio_dev->info_exist_lock);
+=======
+	struct iio_dev_opaque *iio_dev_opaque = to_iio_dev_opaque(chan->indio_dev);
+	int ret;
+
+	mutex_lock(&iio_dev_opaque->info_exist_lock);
+>>>>>>> upstream/android-13
 	if (chan->indio_dev->info == NULL) {
 		ret = -ENODEV;
 		goto err_unlock;
@@ -658,7 +852,11 @@ int iio_convert_raw_to_processed(struct iio_channel *chan, int raw,
 	ret = iio_convert_raw_to_processed_unlocked(chan, raw, processed,
 							scale);
 err_unlock:
+<<<<<<< HEAD
 	mutex_unlock(&chan->indio_dev->info_exist_lock);
+=======
+	mutex_unlock(&iio_dev_opaque->info_exist_lock);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -667,9 +865,16 @@ EXPORT_SYMBOL_GPL(iio_convert_raw_to_processed);
 int iio_read_channel_attribute(struct iio_channel *chan, int *val, int *val2,
 			       enum iio_chan_info_enum attribute)
 {
+<<<<<<< HEAD
 	int ret;
 
 	mutex_lock(&chan->indio_dev->info_exist_lock);
+=======
+	struct iio_dev_opaque *iio_dev_opaque = to_iio_dev_opaque(chan->indio_dev);
+	int ret;
+
+	mutex_lock(&iio_dev_opaque->info_exist_lock);
+>>>>>>> upstream/android-13
 	if (chan->indio_dev->info == NULL) {
 		ret = -ENODEV;
 		goto err_unlock;
@@ -677,7 +882,11 @@ int iio_read_channel_attribute(struct iio_channel *chan, int *val, int *val2,
 
 	ret = iio_channel_read(chan, val, val2, attribute);
 err_unlock:
+<<<<<<< HEAD
 	mutex_unlock(&chan->indio_dev->info_exist_lock);
+=======
+	mutex_unlock(&iio_dev_opaque->info_exist_lock);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -689,11 +898,21 @@ int iio_read_channel_offset(struct iio_channel *chan, int *val, int *val2)
 }
 EXPORT_SYMBOL_GPL(iio_read_channel_offset);
 
+<<<<<<< HEAD
 int iio_read_channel_processed(struct iio_channel *chan, int *val)
 {
 	int ret;
 
 	mutex_lock(&chan->indio_dev->info_exist_lock);
+=======
+int iio_read_channel_processed_scale(struct iio_channel *chan, int *val,
+				     unsigned int scale)
+{
+	struct iio_dev_opaque *iio_dev_opaque = to_iio_dev_opaque(chan->indio_dev);
+	int ret;
+
+	mutex_lock(&iio_dev_opaque->info_exist_lock);
+>>>>>>> upstream/android-13
 	if (chan->indio_dev->info == NULL) {
 		ret = -ENODEV;
 		goto err_unlock;
@@ -702,10 +921,17 @@ int iio_read_channel_processed(struct iio_channel *chan, int *val)
 	if (iio_channel_has_info(chan->channel, IIO_CHAN_INFO_PROCESSED)) {
 		ret = iio_channel_read(chan, val, NULL,
 				       IIO_CHAN_INFO_PROCESSED);
+<<<<<<< HEAD
+=======
+		if (ret < 0)
+			goto err_unlock;
+		*val *= scale;
+>>>>>>> upstream/android-13
 	} else {
 		ret = iio_channel_read(chan, val, NULL, IIO_CHAN_INFO_RAW);
 		if (ret < 0)
 			goto err_unlock;
+<<<<<<< HEAD
 		ret = iio_convert_raw_to_processed_unlocked(chan, *val, val, 1);
 	}
 
@@ -714,6 +940,24 @@ err_unlock:
 
 	return ret;
 }
+=======
+		ret = iio_convert_raw_to_processed_unlocked(chan, *val, val,
+							    scale);
+	}
+
+err_unlock:
+	mutex_unlock(&iio_dev_opaque->info_exist_lock);
+
+	return ret;
+}
+EXPORT_SYMBOL_GPL(iio_read_channel_processed_scale);
+
+int iio_read_channel_processed(struct iio_channel *chan, int *val)
+{
+	/* This is just a special case with scale factor 1 */
+	return iio_read_channel_processed_scale(chan, val, 1);
+}
+>>>>>>> upstream/android-13
 EXPORT_SYMBOL_GPL(iio_read_channel_processed);
 
 int iio_read_channel_scale(struct iio_channel *chan, int *val, int *val2)
@@ -733,12 +977,37 @@ static int iio_channel_read_avail(struct iio_channel *chan,
 						 vals, type, length, info);
 }
 
+<<<<<<< HEAD
+=======
+int iio_read_avail_channel_attribute(struct iio_channel *chan,
+				     const int **vals, int *type, int *length,
+				     enum iio_chan_info_enum attribute)
+{
+	struct iio_dev_opaque *iio_dev_opaque = to_iio_dev_opaque(chan->indio_dev);
+	int ret;
+
+	mutex_lock(&iio_dev_opaque->info_exist_lock);
+	if (!chan->indio_dev->info) {
+		ret = -ENODEV;
+		goto err_unlock;
+	}
+
+	ret = iio_channel_read_avail(chan, vals, type, length, attribute);
+err_unlock:
+	mutex_unlock(&iio_dev_opaque->info_exist_lock);
+
+	return ret;
+}
+EXPORT_SYMBOL_GPL(iio_read_avail_channel_attribute);
+
+>>>>>>> upstream/android-13
 int iio_read_avail_channel_raw(struct iio_channel *chan,
 			       const int **vals, int *length)
 {
 	int ret;
 	int type;
 
+<<<<<<< HEAD
 	mutex_lock(&chan->indio_dev->info_exist_lock);
 	if (!chan->indio_dev->info) {
 		ret = -ENODEV;
@@ -749,6 +1018,10 @@ int iio_read_avail_channel_raw(struct iio_channel *chan,
 				     vals, &type, length, IIO_CHAN_INFO_RAW);
 err_unlock:
 	mutex_unlock(&chan->indio_dev->info_exist_lock);
+=======
+	ret = iio_read_avail_channel_attribute(chan, vals, &type, length,
+					 IIO_CHAN_INFO_RAW);
+>>>>>>> upstream/android-13
 
 	if (ret >= 0 && type != IIO_VAL_INT)
 		/* raw values are assumed to be IIO_VAL_INT */
@@ -807,10 +1080,18 @@ static int iio_channel_read_max(struct iio_channel *chan,
 
 int iio_read_max_channel_raw(struct iio_channel *chan, int *val)
 {
+<<<<<<< HEAD
 	int ret;
 	int type;
 
 	mutex_lock(&chan->indio_dev->info_exist_lock);
+=======
+	struct iio_dev_opaque *iio_dev_opaque = to_iio_dev_opaque(chan->indio_dev);
+	int ret;
+	int type;
+
+	mutex_lock(&iio_dev_opaque->info_exist_lock);
+>>>>>>> upstream/android-13
 	if (!chan->indio_dev->info) {
 		ret = -ENODEV;
 		goto err_unlock;
@@ -818,7 +1099,11 @@ int iio_read_max_channel_raw(struct iio_channel *chan, int *val)
 
 	ret = iio_channel_read_max(chan, val, NULL, &type, IIO_CHAN_INFO_RAW);
 err_unlock:
+<<<<<<< HEAD
 	mutex_unlock(&chan->indio_dev->info_exist_lock);
+=======
+	mutex_unlock(&iio_dev_opaque->info_exist_lock);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -826,10 +1111,18 @@ EXPORT_SYMBOL_GPL(iio_read_max_channel_raw);
 
 int iio_get_channel_type(struct iio_channel *chan, enum iio_chan_type *type)
 {
+<<<<<<< HEAD
 	int ret = 0;
 	/* Need to verify underlying driver has not gone away */
 
 	mutex_lock(&chan->indio_dev->info_exist_lock);
+=======
+	struct iio_dev_opaque *iio_dev_opaque = to_iio_dev_opaque(chan->indio_dev);
+	int ret = 0;
+	/* Need to verify underlying driver has not gone away */
+
+	mutex_lock(&iio_dev_opaque->info_exist_lock);
+>>>>>>> upstream/android-13
 	if (chan->indio_dev->info == NULL) {
 		ret = -ENODEV;
 		goto err_unlock;
@@ -837,7 +1130,11 @@ int iio_get_channel_type(struct iio_channel *chan, enum iio_chan_type *type)
 
 	*type = chan->channel->type;
 err_unlock:
+<<<<<<< HEAD
 	mutex_unlock(&chan->indio_dev->info_exist_lock);
+=======
+	mutex_unlock(&iio_dev_opaque->info_exist_lock);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -853,9 +1150,16 @@ static int iio_channel_write(struct iio_channel *chan, int val, int val2,
 int iio_write_channel_attribute(struct iio_channel *chan, int val, int val2,
 				enum iio_chan_info_enum attribute)
 {
+<<<<<<< HEAD
 	int ret;
 
 	mutex_lock(&chan->indio_dev->info_exist_lock);
+=======
+	struct iio_dev_opaque *iio_dev_opaque = to_iio_dev_opaque(chan->indio_dev);
+	int ret;
+
+	mutex_lock(&iio_dev_opaque->info_exist_lock);
+>>>>>>> upstream/android-13
 	if (chan->indio_dev->info == NULL) {
 		ret = -ENODEV;
 		goto err_unlock;
@@ -863,7 +1167,11 @@ int iio_write_channel_attribute(struct iio_channel *chan, int val, int val2,
 
 	ret = iio_channel_write(chan, val, val2, attribute);
 err_unlock:
+<<<<<<< HEAD
 	mutex_unlock(&chan->indio_dev->info_exist_lock);
+=======
+	mutex_unlock(&iio_dev_opaque->info_exist_lock);
+>>>>>>> upstream/android-13
 
 	return ret;
 }

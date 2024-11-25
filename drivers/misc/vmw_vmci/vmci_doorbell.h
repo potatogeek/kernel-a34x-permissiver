@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * VMware VMCI Driver
  *
  * Copyright (C) 2012 VMware, Inc. All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -11,6 +16,8 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef VMCI_DOORBELL_H
@@ -45,7 +52,11 @@ struct dbell_cpt_state {
 int vmci_dbell_host_context_notify(u32 src_cid, struct vmci_handle handle);
 int vmci_dbell_get_priv_flags(struct vmci_handle handle, u32 *priv_flags);
 
+<<<<<<< HEAD
 bool vmci_dbell_register_notification_bitmap(u32 bitmap_ppn);
+=======
+bool vmci_dbell_register_notification_bitmap(u64 bitmap_ppn);
+>>>>>>> upstream/android-13
 void vmci_dbell_scan_notification_entries(u8 *bitmap);
 
 #endif /* VMCI_DOORBELL_H */

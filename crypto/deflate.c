@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Cryptographic API.
  *
@@ -6,11 +10,14 @@
  *
  * Copyright (c) 2003 James Morris <jmorris@intercode.com.au>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; either version 2 of the License, or (at your option)
  * any later version.
  *
+=======
+>>>>>>> upstream/android-13
  * FIXME: deflate transforms will require up to a total of about 436k of kernel
  * memory on i386 (390k for compression, the rest for decompression), as the
  * current zlib kernel code uses a worst case pre-allocation system by default.
@@ -167,7 +174,11 @@ static void __deflate_exit(void *ctx)
 static void deflate_free_ctx(struct crypto_scomp *tfm, void *ctx)
 {
 	__deflate_exit(ctx);
+<<<<<<< HEAD
 	kzfree(ctx);
+=======
+	kfree_sensitive(ctx);
+>>>>>>> upstream/android-13
 }
 
 static void deflate_exit(struct crypto_tfm *tfm)
@@ -279,6 +290,10 @@ static int deflate_sdecompress(struct crypto_scomp *tfm, const u8 *src,
 
 static struct crypto_alg alg = {
 	.cra_name		= "deflate",
+<<<<<<< HEAD
+=======
+	.cra_driver_name	= "deflate-generic",
+>>>>>>> upstream/android-13
 	.cra_flags		= CRYPTO_ALG_TYPE_COMPRESS,
 	.cra_ctxsize		= sizeof(struct deflate_ctx),
 	.cra_module		= THIS_MODULE,
@@ -334,7 +349,11 @@ static void __exit deflate_mod_fini(void)
 	crypto_unregister_scomps(scomp, ARRAY_SIZE(scomp));
 }
 
+<<<<<<< HEAD
 module_init(deflate_mod_init);
+=======
+subsys_initcall(deflate_mod_init);
+>>>>>>> upstream/android-13
 module_exit(deflate_mod_fini);
 
 MODULE_LICENSE("GPL");

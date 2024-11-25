@@ -116,6 +116,11 @@
 	type FMT_RAND_G_SEED; \
 	type FMT_RAND_B_SEED; \
 	type FMT_PIXEL_ENCODING; \
+<<<<<<< HEAD
+=======
+	type FMT_SUBSAMPLING_MODE; \
+	type FMT_CBCR_BIT_REDUCTION_BYPASS; \
+>>>>>>> upstream/android-13
 	type FMT_CLAMP_DATA_EN; \
 	type FMT_CLAMP_COLOR_FORMAT; \
 	type FMT_DYNAMIC_EXP_EN; \

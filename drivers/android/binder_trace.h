@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2012 Google, Inc.
  *
@@ -10,6 +11,11 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) 2012 Google, Inc.
+>>>>>>> upstream/android-13
  */
 
 #undef TRACE_SYSTEM
@@ -128,6 +134,38 @@ TRACE_EVENT(binder_wait_for_work,
 		  __entry->thread_todo)
 );
 
+<<<<<<< HEAD
+=======
+TRACE_EVENT(binder_txn_latency_free,
+	TP_PROTO(struct binder_transaction *t,
+		 int from_proc, int from_thread,
+		 int to_proc, int to_thread),
+	TP_ARGS(t, from_proc, from_thread, to_proc, to_thread),
+	TP_STRUCT__entry(
+		__field(int, debug_id)
+		__field(int, from_proc)
+		__field(int, from_thread)
+		__field(int, to_proc)
+		__field(int, to_thread)
+		__field(unsigned int, code)
+		__field(unsigned int, flags)
+	),
+	TP_fast_assign(
+		__entry->debug_id = t->debug_id;
+		__entry->from_proc = from_proc;
+		__entry->from_thread = from_thread;
+		__entry->to_proc = to_proc;
+		__entry->to_thread = to_thread;
+		__entry->code = t->code;
+		__entry->flags = t->flags;
+	),
+	TP_printk("transaction=%d from %d:%d to %d:%d flags=0x%x code=0x%x",
+		  __entry->debug_id, __entry->from_proc, __entry->from_thread,
+		  __entry->to_proc, __entry->to_thread, __entry->code,
+		  __entry->flags)
+);
+
+>>>>>>> upstream/android-13
 TRACE_EVENT(binder_transaction,
 	TP_PROTO(bool reply, struct binder_transaction *t,
 		 struct binder_node *target_node),
@@ -247,6 +285,7 @@ TRACE_EVENT(binder_transaction_ref_to_ref,
 		  __entry->dest_ref_debug_id, __entry->dest_ref_desc)
 );
 
+<<<<<<< HEAD
 TRACE_EVENT(binder_transaction_fd,
 	TP_PROTO(struct binder_transaction *t, int src_fd, int dest_fd),
 	TP_ARGS(t, src_fd, dest_fd),
@@ -263,6 +302,42 @@ TRACE_EVENT(binder_transaction_fd,
 	),
 	TP_printk("transaction=%d src_fd=%d ==> dest_fd=%d",
 		  __entry->debug_id, __entry->src_fd, __entry->dest_fd)
+=======
+TRACE_EVENT(binder_transaction_fd_send,
+	TP_PROTO(struct binder_transaction *t, int fd, size_t offset),
+	TP_ARGS(t, fd, offset),
+
+	TP_STRUCT__entry(
+		__field(int, debug_id)
+		__field(int, fd)
+		__field(size_t, offset)
+	),
+	TP_fast_assign(
+		__entry->debug_id = t->debug_id;
+		__entry->fd = fd;
+		__entry->offset = offset;
+	),
+	TP_printk("transaction=%d src_fd=%d offset=%zu",
+		  __entry->debug_id, __entry->fd, __entry->offset)
+);
+
+TRACE_EVENT(binder_transaction_fd_recv,
+	TP_PROTO(struct binder_transaction *t, int fd, size_t offset),
+	TP_ARGS(t, fd, offset),
+
+	TP_STRUCT__entry(
+		__field(int, debug_id)
+		__field(int, fd)
+		__field(size_t, offset)
+	),
+	TP_fast_assign(
+		__entry->debug_id = t->debug_id;
+		__entry->fd = fd;
+		__entry->offset = offset;
+	),
+	TP_printk("transaction=%d dest_fd=%d offset=%zu",
+		  __entry->debug_id, __entry->fd, __entry->offset)
+>>>>>>> upstream/android-13
 );
 
 DECLARE_EVENT_CLASS(binder_buffer_class,
@@ -297,6 +372,13 @@ DEFINE_EVENT(binder_buffer_class, binder_transaction_failed_buffer_release,
 	TP_PROTO(struct binder_buffer *buffer),
 	TP_ARGS(buffer));
 
+<<<<<<< HEAD
+=======
+DEFINE_EVENT(binder_buffer_class, binder_transaction_update_buffer_release,
+	     TP_PROTO(struct binder_buffer *buffer),
+	     TP_ARGS(buffer));
+
+>>>>>>> upstream/android-13
 TRACE_EVENT(binder_update_page_range,
 	TP_PROTO(struct binder_alloc *alloc, bool allocate,
 		 void __user *start, void __user *end),

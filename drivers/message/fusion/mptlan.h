@@ -64,6 +64,10 @@
 #include <linux/if_arp.h>
 #include <linux/init.h>
 #include <linux/kernel.h>
+<<<<<<< HEAD
+=======
+#include <linux/printk.h>
+>>>>>>> upstream/android-13
 #include <linux/slab.h>
 #include <linux/spinlock.h>
 #include <linux/workqueue.h>
@@ -111,13 +115,21 @@ MODULE_DESCRIPTION(LANAME);
 #ifdef MPT_LAN_IO_DEBUG
 #define dioprintk(x)  printk x
 #else
+<<<<<<< HEAD
 #define dioprintk(x)
+=======
+#define dioprintk(x)  no_printk x
+>>>>>>> upstream/android-13
 #endif
 
 #ifdef MPT_LAN_DEBUG
 #define dlprintk(x)  printk x
 #else
+<<<<<<< HEAD
 #define dlprintk(x)
+=======
+#define dlprintk(x)  no_printk x
+>>>>>>> upstream/android-13
 #endif
 
 #define NETDEV_TO_LANPRIV_PTR(d)	((struct mpt_lan_priv *)netdev_priv(d))

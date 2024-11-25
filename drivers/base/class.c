@@ -8,6 +8,10 @@
  * Copyright (c) 2003-2004 IBM Corp.
  */
 
+<<<<<<< HEAD
+=======
+#include <linux/device/class.h>
+>>>>>>> upstream/android-13
 #include <linux/device.h>
 #include <linux/module.h>
 #include <linux/init.h>
@@ -117,16 +121,32 @@ static void class_put(struct class *cls)
 		kset_put(&cls->p->subsys);
 }
 
+<<<<<<< HEAD
 static void klist_class_dev_get(struct klist_node *n)
 {
 	struct device *dev = container_of(n, struct device, knode_class);
+=======
+static struct device *klist_class_to_dev(struct klist_node *n)
+{
+	struct device_private *p = to_device_private_class(n);
+	return p->device;
+}
+
+static void klist_class_dev_get(struct klist_node *n)
+{
+	struct device *dev = klist_class_to_dev(n);
+>>>>>>> upstream/android-13
 
 	get_device(dev);
 }
 
 static void klist_class_dev_put(struct klist_node *n)
 {
+<<<<<<< HEAD
 	struct device *dev = container_of(n, struct device, knode_class);
+=======
+	struct device *dev = klist_class_to_dev(n);
+>>>>>>> upstream/android-13
 
 	put_device(dev);
 }
@@ -203,7 +223,11 @@ static void class_create_release(struct class *cls)
 }
 
 /**
+<<<<<<< HEAD
  * class_create - create a struct class structure
+=======
+ * __class_create - create a struct class structure
+>>>>>>> upstream/android-13
  * @owner: pointer to the module that is to "own" this struct class
  * @name: pointer to a string for the name of this class.
  * @key: the lock_class_key for this class; used by mutex lock debugging
@@ -277,7 +301,11 @@ void class_dev_iter_init(struct class_dev_iter *iter, struct class *class,
 	struct klist_node *start_knode = NULL;
 
 	if (start)
+<<<<<<< HEAD
 		start_knode = &start->knode_class;
+=======
+		start_knode = &start->p->knode_class;
+>>>>>>> upstream/android-13
 	klist_iter_init_node(&class->p->klist_devices, &iter->ki, start_knode);
 	iter->type = type;
 }
@@ -304,7 +332,11 @@ struct device *class_dev_iter_next(struct class_dev_iter *iter)
 		knode = klist_next(&iter->ki);
 		if (!knode)
 			return NULL;
+<<<<<<< HEAD
 		dev = container_of(knode, struct device, knode_class);
+=======
+		dev = klist_class_to_dev(knode);
+>>>>>>> upstream/android-13
 		if (!iter->type || iter->type == dev->type)
 			return dev;
 	}
@@ -471,7 +503,11 @@ ssize_t show_class_attr_string(struct class *class,
 	struct class_attribute_string *cs;
 
 	cs = container_of(attr, struct class_attribute_string, attr);
+<<<<<<< HEAD
 	return snprintf(buf, PAGE_SIZE, "%s\n", cs->str);
+=======
+	return sysfs_emit(buf, "%s\n", cs->str);
+>>>>>>> upstream/android-13
 }
 
 EXPORT_SYMBOL_GPL(show_class_attr_string);

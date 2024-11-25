@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * sam9g20_wm8731  --  SoC audio for AT91SAM9G20-based
  * 			ATMEL AT91SAM9G20ek board.
@@ -13,6 +17,7 @@
  * Based on corgi.c by:
  * Copyright 2005 Wolfson Microelectronics PLC.
  * Copyright 2005 Openedhand Ltd.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,6 +32,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -59,6 +66,7 @@
  */
 #undef ENABLE_MIC_INPUT
 
+<<<<<<< HEAD
 static struct clk *mclk;
 
 static int at91sam9g20ek_set_bias_level(struct snd_soc_card *card,
@@ -88,6 +96,8 @@ static int at91sam9g20ek_set_bias_level(struct snd_soc_card *card,
 	return ret;
 }
 
+=======
+>>>>>>> upstream/android-13
 static const struct snd_soc_dapm_widget at91sam9g20ek_dapm_widgets[] = {
 	SND_SOC_DAPM_MIC("Int Mic", NULL),
 	SND_SOC_DAPM_SPK("Ext Spk", NULL),
@@ -109,7 +119,11 @@ static const struct snd_soc_dapm_route intercon[] = {
  */
 static int at91sam9g20ek_wm8731_init(struct snd_soc_pcm_runtime *rtd)
 {
+<<<<<<< HEAD
 	struct snd_soc_dai *codec_dai = rtd->codec_dai;
+=======
+	struct snd_soc_dai *codec_dai = asoc_rtd_to_codec(rtd, 0);
+>>>>>>> upstream/android-13
 	struct device *dev = rtd->dev;
 	int ret;
 
@@ -129,6 +143,7 @@ static int at91sam9g20ek_wm8731_init(struct snd_soc_pcm_runtime *rtd)
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct snd_soc_dai_link at91sam9g20ek_dai = {
 	.name = "WM8731",
 	.stream_name = "WM8731 PCM",
@@ -139,6 +154,20 @@ static struct snd_soc_dai_link at91sam9g20ek_dai = {
 	.codec_name = "wm8731.0-001b",
 	.dai_fmt = SND_SOC_DAIFMT_I2S | SND_SOC_DAIFMT_NB_NF |
 		   SND_SOC_DAIFMT_CBM_CFM,
+=======
+SND_SOC_DAILINK_DEFS(pcm,
+	DAILINK_COMP_ARRAY(COMP_CPU("at91rm9200_ssc.0")),
+	DAILINK_COMP_ARRAY(COMP_CODEC("wm8731.0-001b", "wm8731-hifi")),
+	DAILINK_COMP_ARRAY(COMP_PLATFORM("at91rm9200_ssc.0")));
+
+static struct snd_soc_dai_link at91sam9g20ek_dai = {
+	.name = "WM8731",
+	.stream_name = "WM8731 PCM",
+	.init = at91sam9g20ek_wm8731_init,
+	.dai_fmt = SND_SOC_DAIFMT_I2S | SND_SOC_DAIFMT_NB_NF |
+		   SND_SOC_DAIFMT_CBM_CFM,
+	SND_SOC_DAILINK_REG(pcm),
+>>>>>>> upstream/android-13
 };
 
 static struct snd_soc_card snd_soc_at91sam9g20ek = {
@@ -146,7 +175,10 @@ static struct snd_soc_card snd_soc_at91sam9g20ek = {
 	.owner = THIS_MODULE,
 	.dai_link = &at91sam9g20ek_dai,
 	.num_links = 1,
+<<<<<<< HEAD
 	.set_bias_level = at91sam9g20ek_set_bias_level,
+=======
+>>>>>>> upstream/android-13
 
 	.dapm_widgets = at91sam9g20ek_dapm_widgets,
 	.num_dapm_widgets = ARRAY_SIZE(at91sam9g20ek_dapm_widgets),
@@ -159,7 +191,10 @@ static int at91sam9g20ek_audio_probe(struct platform_device *pdev)
 {
 	struct device_node *np = pdev->dev.of_node;
 	struct device_node *codec_np, *cpu_np;
+<<<<<<< HEAD
 	struct clk *pllb;
+=======
+>>>>>>> upstream/android-13
 	struct snd_soc_card *card = &snd_soc_at91sam9g20ek;
 	int ret;
 
@@ -173,6 +208,7 @@ static int at91sam9g20ek_audio_probe(struct platform_device *pdev)
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	/*
 	 * Codec MCLK is supplied by PCK0 - set it up.
 	 */
@@ -198,6 +234,8 @@ static int at91sam9g20ek_audio_probe(struct platform_device *pdev)
 
 	clk_set_rate(mclk, MCLK_RATE);
 
+=======
+>>>>>>> upstream/android-13
 	card->dev = &pdev->dev;
 
 	/* Parse device node info */
@@ -211,12 +249,17 @@ static int at91sam9g20ek_audio_probe(struct platform_device *pdev)
 		goto err;
 
 	/* Parse codec info */
+<<<<<<< HEAD
 	at91sam9g20ek_dai.codec_name = NULL;
+=======
+	at91sam9g20ek_dai.codecs->name = NULL;
+>>>>>>> upstream/android-13
 	codec_np = of_parse_phandle(np, "atmel,audio-codec", 0);
 	if (!codec_np) {
 		dev_err(&pdev->dev, "codec info missing\n");
 		return -EINVAL;
 	}
+<<<<<<< HEAD
 	at91sam9g20ek_dai.codec_of_node = codec_np;
 
 	/* Parse dai and platform info */
@@ -229,6 +272,21 @@ static int at91sam9g20ek_audio_probe(struct platform_device *pdev)
 	}
 	at91sam9g20ek_dai.cpu_of_node = cpu_np;
 	at91sam9g20ek_dai.platform_of_node = cpu_np;
+=======
+	at91sam9g20ek_dai.codecs->of_node = codec_np;
+
+	/* Parse dai and platform info */
+	at91sam9g20ek_dai.cpus->dai_name = NULL;
+	at91sam9g20ek_dai.platforms->name = NULL;
+	cpu_np = of_parse_phandle(np, "atmel,ssc-controller", 0);
+	if (!cpu_np) {
+		dev_err(&pdev->dev, "dai and pcm info missing\n");
+		of_node_put(codec_np);
+		return -EINVAL;
+	}
+	at91sam9g20ek_dai.cpus->of_node = cpu_np;
+	at91sam9g20ek_dai.platforms->of_node = cpu_np;
+>>>>>>> upstream/android-13
 
 	of_node_put(codec_np);
 	of_node_put(cpu_np);
@@ -240,9 +298,12 @@ static int at91sam9g20ek_audio_probe(struct platform_device *pdev)
 
 	return ret;
 
+<<<<<<< HEAD
 err_mclk:
 	clk_put(mclk);
 	mclk = NULL;
+=======
+>>>>>>> upstream/android-13
 err:
 	atmel_ssc_put_audio(0);
 	return ret;
@@ -252,8 +313,11 @@ static int at91sam9g20ek_audio_remove(struct platform_device *pdev)
 {
 	struct snd_soc_card *card = platform_get_drvdata(pdev);
 
+<<<<<<< HEAD
 	clk_disable(mclk);
 	mclk = NULL;
+=======
+>>>>>>> upstream/android-13
 	snd_soc_unregister_card(card);
 	atmel_ssc_put_audio(0);
 

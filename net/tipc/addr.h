@@ -3,6 +3,10 @@
  *
  * Copyright (c) 2000-2006, 2018, Ericsson AB
  * Copyright (c) 2004-2005, Wind River Systems
+<<<<<<< HEAD
+=======
+ * Copyright (c) 2020-2021, Red Hat Inc
+>>>>>>> upstream/android-13
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,6 +47,53 @@
 #include <net/netns/generic.h>
 #include "core.h"
 
+<<<<<<< HEAD
+=======
+/* Struct tipc_uaddr: internal version of struct sockaddr_tipc.
+ * Must be kept aligned both regarding field positions and size.
+ */
+struct tipc_uaddr {
+	unsigned short family;
+	unsigned char addrtype;
+	signed char scope;
+	union {
+		struct {
+			struct tipc_service_addr sa;
+			u32 lookup_node;
+		};
+		struct tipc_service_range sr;
+		struct tipc_socket_addr sk;
+	};
+};
+
+static inline void tipc_uaddr(struct tipc_uaddr *ua, u32 atype, u32 scope,
+			      u32 type, u32 lower, u32 upper)
+{
+	ua->family = AF_TIPC;
+	ua->addrtype = atype;
+	ua->scope = scope;
+	ua->sr.type = type;
+	ua->sr.lower = lower;
+	ua->sr.upper = upper;
+}
+
+static inline bool tipc_uaddr_valid(struct tipc_uaddr *ua, int len)
+{
+	u32 atype;
+
+	if (len < sizeof(struct sockaddr_tipc))
+		return false;
+	atype = ua->addrtype;
+	if (ua->family != AF_TIPC)
+		return false;
+	if (atype == TIPC_SERVICE_ADDR || atype == TIPC_SOCKET_ADDR)
+		return true;
+	if (atype == TIPC_SERVICE_RANGE)
+		return ua->sr.upper >= ua->sr.lower;
+	return false;
+}
+
+>>>>>>> upstream/android-13
 static inline u32 tipc_own_addr(struct net *net)
 {
 	return tipc_net(net)->node_addr;

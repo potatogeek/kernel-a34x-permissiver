@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * VFIO PCI I/O Port & MMIO access
  *
  * Copyright (C) 2012 Red Hat, Inc.  All rights reserved.
  *     Author: Alex Williamson <alex.williamson@redhat.com>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * Derived from original vfio:
  * Copyright 2010 Cisco Systems, Inc.  All rights reserved.
  * Author: Tom Lyon, pugs@cisco.com
@@ -20,7 +27,11 @@
 #include <linux/vfio.h>
 #include <linux/vgaarb.h>
 
+<<<<<<< HEAD
 #include "vfio_pci_private.h"
+=======
+#include <linux/vfio_pci_core.h>
+>>>>>>> upstream/android-13
 
 #ifdef __LITTLE_ENDIAN
 #define vfio_ioread64	ioread64
@@ -40,17 +51,80 @@
 #define vfio_ioread8	ioread8
 #define vfio_iowrite8	iowrite8
 
+<<<<<<< HEAD
+=======
+#define VFIO_IOWRITE(size) \
+static int vfio_pci_iowrite##size(struct vfio_pci_core_device *vdev,		\
+			bool test_mem, u##size val, void __iomem *io)	\
+{									\
+	if (test_mem) {							\
+		down_read(&vdev->memory_lock);				\
+		if (!__vfio_pci_memory_enabled(vdev)) {			\
+			up_read(&vdev->memory_lock);			\
+			return -EIO;					\
+		}							\
+	}								\
+									\
+	vfio_iowrite##size(val, io);					\
+									\
+	if (test_mem)							\
+		up_read(&vdev->memory_lock);				\
+									\
+	return 0;							\
+}
+
+VFIO_IOWRITE(8)
+VFIO_IOWRITE(16)
+VFIO_IOWRITE(32)
+#ifdef iowrite64
+VFIO_IOWRITE(64)
+#endif
+
+#define VFIO_IOREAD(size) \
+static int vfio_pci_ioread##size(struct vfio_pci_core_device *vdev,		\
+			bool test_mem, u##size *val, void __iomem *io)	\
+{									\
+	if (test_mem) {							\
+		down_read(&vdev->memory_lock);				\
+		if (!__vfio_pci_memory_enabled(vdev)) {			\
+			up_read(&vdev->memory_lock);			\
+			return -EIO;					\
+		}							\
+	}								\
+									\
+	*val = vfio_ioread##size(io);					\
+									\
+	if (test_mem)							\
+		up_read(&vdev->memory_lock);				\
+									\
+	return 0;							\
+}
+
+VFIO_IOREAD(8)
+VFIO_IOREAD(16)
+VFIO_IOREAD(32)
+
+>>>>>>> upstream/android-13
 /*
  * Read or write from an __iomem region (MMIO or I/O port) with an excluded
  * range which is inaccessible.  The excluded range drops writes and fills
  * reads with -1.  This is intended for handling MSI-X vector tables and
  * leftover space for ROM BARs.
  */
+<<<<<<< HEAD
 static ssize_t do_io_rw(void __iomem *io, char __user *buf,
+=======
+static ssize_t do_io_rw(struct vfio_pci_core_device *vdev, bool test_mem,
+			void __iomem *io, char __user *buf,
+>>>>>>> upstream/android-13
 			loff_t off, size_t count, size_t x_start,
 			size_t x_end, bool iswrite)
 {
 	ssize_t done = 0;
+<<<<<<< HEAD
+=======
+	int ret;
+>>>>>>> upstream/android-13
 
 	while (count) {
 		size_t fillable, filled;
@@ -69,9 +143,21 @@ static ssize_t do_io_rw(void __iomem *io, char __user *buf,
 				if (copy_from_user(&val, buf, 4))
 					return -EFAULT;
 
+<<<<<<< HEAD
 				vfio_iowrite32(val, io + off);
 			} else {
 				val = vfio_ioread32(io + off);
+=======
+				ret = vfio_pci_iowrite32(vdev, test_mem,
+							 val, io + off);
+				if (ret)
+					return ret;
+			} else {
+				ret = vfio_pci_ioread32(vdev, test_mem,
+							&val, io + off);
+				if (ret)
+					return ret;
+>>>>>>> upstream/android-13
 
 				if (copy_to_user(buf, &val, 4))
 					return -EFAULT;
@@ -85,9 +171,21 @@ static ssize_t do_io_rw(void __iomem *io, char __user *buf,
 				if (copy_from_user(&val, buf, 2))
 					return -EFAULT;
 
+<<<<<<< HEAD
 				vfio_iowrite16(val, io + off);
 			} else {
 				val = vfio_ioread16(io + off);
+=======
+				ret = vfio_pci_iowrite16(vdev, test_mem,
+							 val, io + off);
+				if (ret)
+					return ret;
+			} else {
+				ret = vfio_pci_ioread16(vdev, test_mem,
+							&val, io + off);
+				if (ret)
+					return ret;
+>>>>>>> upstream/android-13
 
 				if (copy_to_user(buf, &val, 2))
 					return -EFAULT;
@@ -101,9 +199,21 @@ static ssize_t do_io_rw(void __iomem *io, char __user *buf,
 				if (copy_from_user(&val, buf, 1))
 					return -EFAULT;
 
+<<<<<<< HEAD
 				vfio_iowrite8(val, io + off);
 			} else {
 				val = vfio_ioread8(io + off);
+=======
+				ret = vfio_pci_iowrite8(vdev, test_mem,
+							val, io + off);
+				if (ret)
+					return ret;
+			} else {
+				ret = vfio_pci_ioread8(vdev, test_mem,
+						       &val, io + off);
+				if (ret)
+					return ret;
+>>>>>>> upstream/android-13
 
 				if (copy_to_user(buf, &val, 1))
 					return -EFAULT;
@@ -132,7 +242,11 @@ static ssize_t do_io_rw(void __iomem *io, char __user *buf,
 	return done;
 }
 
+<<<<<<< HEAD
 static int vfio_pci_setup_barmap(struct vfio_pci_device *vdev, int bar)
+=======
+static int vfio_pci_setup_barmap(struct vfio_pci_core_device *vdev, int bar)
+>>>>>>> upstream/android-13
 {
 	struct pci_dev *pdev = vdev->pdev;
 	int ret;
@@ -156,7 +270,11 @@ static int vfio_pci_setup_barmap(struct vfio_pci_device *vdev, int bar)
 	return 0;
 }
 
+<<<<<<< HEAD
 ssize_t vfio_pci_bar_rw(struct vfio_pci_device *vdev, char __user *buf,
+=======
+ssize_t vfio_pci_bar_rw(struct vfio_pci_core_device *vdev, char __user *buf,
+>>>>>>> upstream/android-13
 			size_t count, loff_t *ppos, bool iswrite)
 {
 	struct pci_dev *pdev = vdev->pdev;
@@ -181,6 +299,7 @@ ssize_t vfio_pci_bar_rw(struct vfio_pci_device *vdev, char __user *buf,
 
 	count = min(count, (size_t)(end - pos));
 
+<<<<<<< HEAD
 	if (res->flags & IORESOURCE_MEM) {
 		down_read(&vdev->memory_lock);
 		if (!__vfio_pci_memory_enabled(vdev)) {
@@ -189,6 +308,8 @@ ssize_t vfio_pci_bar_rw(struct vfio_pci_device *vdev, char __user *buf,
 		}
 	}
 
+=======
+>>>>>>> upstream/android-13
 	if (bar == PCI_ROM_RESOURCE) {
 		/*
 		 * The ROM can fill less space than the BAR, so we start the
@@ -216,7 +337,12 @@ ssize_t vfio_pci_bar_rw(struct vfio_pci_device *vdev, char __user *buf,
 		x_end = vdev->msix_offset + vdev->msix_size;
 	}
 
+<<<<<<< HEAD
 	done = do_io_rw(io, buf, pos, count, x_start, x_end, iswrite);
+=======
+	done = do_io_rw(vdev, res->flags & IORESOURCE_MEM, io, buf, pos,
+			count, x_start, x_end, iswrite);
+>>>>>>> upstream/android-13
 
 	if (done >= 0)
 		*ppos += done;
@@ -224,6 +350,7 @@ ssize_t vfio_pci_bar_rw(struct vfio_pci_device *vdev, char __user *buf,
 	if (bar == PCI_ROM_RESOURCE)
 		pci_unmap_rom(pdev, io);
 out:
+<<<<<<< HEAD
 	if (res->flags & IORESOURCE_MEM)
 		up_read(&vdev->memory_lock);
 
@@ -231,6 +358,13 @@ out:
 }
 
 ssize_t vfio_pci_vga_rw(struct vfio_pci_device *vdev, char __user *buf,
+=======
+	return done;
+}
+
+#ifdef CONFIG_VFIO_PCI_VGA
+ssize_t vfio_pci_vga_rw(struct vfio_pci_core_device *vdev, char __user *buf,
+>>>>>>> upstream/android-13
 			       size_t count, loff_t *ppos, bool iswrite)
 {
 	int ret;
@@ -249,7 +383,11 @@ ssize_t vfio_pci_vga_rw(struct vfio_pci_device *vdev, char __user *buf,
 	switch ((u32)pos) {
 	case 0xa0000 ... 0xbffff:
 		count = min(count, (size_t)(0xc0000 - pos));
+<<<<<<< HEAD
 		iomem = ioremap_nocache(0xa0000, 0xbffff - 0xa0000 + 1);
+=======
+		iomem = ioremap(0xa0000, 0xbffff - 0xa0000 + 1);
+>>>>>>> upstream/android-13
 		off = pos - 0xa0000;
 		rsrc = VGA_RSRC_LEGACY_MEM;
 		is_ioport = false;
@@ -281,7 +419,16 @@ ssize_t vfio_pci_vga_rw(struct vfio_pci_device *vdev, char __user *buf,
 		return ret;
 	}
 
+<<<<<<< HEAD
 	done = do_io_rw(iomem, buf, off, count, 0, 0, iswrite);
+=======
+	/*
+	 * VGA MMIO is a legacy, non-BAR resource that hopefully allows
+	 * probing, so we don't currently worry about access in relation
+	 * to the memory enable bit in the command register.
+	 */
+	done = do_io_rw(vdev, false, iomem, buf, off, count, 0, 0, iswrite);
+>>>>>>> upstream/android-13
 
 	vga_put(vdev->pdev, rsrc);
 
@@ -292,10 +439,40 @@ ssize_t vfio_pci_vga_rw(struct vfio_pci_device *vdev, char __user *buf,
 
 	return done;
 }
+<<<<<<< HEAD
+=======
+#endif
+
+static void vfio_pci_ioeventfd_do_write(struct vfio_pci_ioeventfd *ioeventfd,
+					bool test_mem)
+{
+	switch (ioeventfd->count) {
+	case 1:
+		vfio_pci_iowrite8(ioeventfd->vdev, test_mem,
+				  ioeventfd->data, ioeventfd->addr);
+		break;
+	case 2:
+		vfio_pci_iowrite16(ioeventfd->vdev, test_mem,
+				   ioeventfd->data, ioeventfd->addr);
+		break;
+	case 4:
+		vfio_pci_iowrite32(ioeventfd->vdev, test_mem,
+				   ioeventfd->data, ioeventfd->addr);
+		break;
+#ifdef iowrite64
+	case 8:
+		vfio_pci_iowrite64(ioeventfd->vdev, test_mem,
+				   ioeventfd->data, ioeventfd->addr);
+		break;
+#endif
+	}
+}
+>>>>>>> upstream/android-13
 
 static int vfio_pci_ioeventfd_handler(void *opaque, void *unused)
 {
 	struct vfio_pci_ioeventfd *ioeventfd = opaque;
+<<<<<<< HEAD
 
 	switch (ioeventfd->count) {
 	case 1:
@@ -318,6 +495,35 @@ static int vfio_pci_ioeventfd_handler(void *opaque, void *unused)
 }
 
 long vfio_pci_ioeventfd(struct vfio_pci_device *vdev, loff_t offset,
+=======
+	struct vfio_pci_core_device *vdev = ioeventfd->vdev;
+
+	if (ioeventfd->test_mem) {
+		if (!down_read_trylock(&vdev->memory_lock))
+			return 1; /* Lock contended, use thread */
+		if (!__vfio_pci_memory_enabled(vdev)) {
+			up_read(&vdev->memory_lock);
+			return 0;
+		}
+	}
+
+	vfio_pci_ioeventfd_do_write(ioeventfd, false);
+
+	if (ioeventfd->test_mem)
+		up_read(&vdev->memory_lock);
+
+	return 0;
+}
+
+static void vfio_pci_ioeventfd_thread(void *opaque, void *unused)
+{
+	struct vfio_pci_ioeventfd *ioeventfd = opaque;
+
+	vfio_pci_ioeventfd_do_write(ioeventfd, ioeventfd->test_mem);
+}
+
+long vfio_pci_ioeventfd(struct vfio_pci_core_device *vdev, loff_t offset,
+>>>>>>> upstream/android-13
 			uint64_t data, int count, int fd)
 {
 	struct pci_dev *pdev = vdev->pdev;
@@ -381,14 +587,26 @@ long vfio_pci_ioeventfd(struct vfio_pci_device *vdev, loff_t offset,
 		goto out_unlock;
 	}
 
+<<<<<<< HEAD
+=======
+	ioeventfd->vdev = vdev;
+>>>>>>> upstream/android-13
 	ioeventfd->addr = vdev->barmap[bar] + pos;
 	ioeventfd->data = data;
 	ioeventfd->pos = pos;
 	ioeventfd->bar = bar;
 	ioeventfd->count = count;
+<<<<<<< HEAD
 
 	ret = vfio_virqfd_enable(ioeventfd, vfio_pci_ioeventfd_handler,
 				 NULL, NULL, &ioeventfd->virqfd, fd);
+=======
+	ioeventfd->test_mem = vdev->pdev->resource[bar].flags & IORESOURCE_MEM;
+
+	ret = vfio_virqfd_enable(ioeventfd, vfio_pci_ioeventfd_handler,
+				 vfio_pci_ioeventfd_thread, NULL,
+				 &ioeventfd->virqfd, fd);
+>>>>>>> upstream/android-13
 	if (ret) {
 		kfree(ioeventfd);
 		goto out_unlock;

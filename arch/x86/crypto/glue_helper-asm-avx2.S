@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * Shared glue code for 128bit block ciphers, AVX2 assembler macros
  *
  * Copyright © 2012-2013 Jussi Kivilinna <jussi.kivilinna@mbnet.fi>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #define load_16way(src, x0, x1, x2, x3, x4, x5, x6, x7) \
@@ -42,6 +49,7 @@
 	vpxor (5*32+16)(src), x6, x6; \
 	vpxor (6*32+16)(src), x7, x7; \
 	store_16way(dst, x0, x1, x2, x3, x4, x5, x6, x7);
+<<<<<<< HEAD
 
 #define inc_le128(x, minus_one, tmp) \
 	vpcmpeqq minus_one, x, tmp; \
@@ -178,3 +186,5 @@
 	vpxor (6*32)(dst), x6, x6; \
 	vpxor (7*32)(dst), x7, x7; \
 	store_16way(dst, x0, x1, x2, x3, x4, x5, x6, x7);
+=======
+>>>>>>> upstream/android-13

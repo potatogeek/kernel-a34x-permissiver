@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * adcxx.c
  *
@@ -18,6 +22,7 @@
  *
  * Handling of 8, 10 and 12 bits converters are the same, the
  * unavailable bits are 0 :)
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,6 +37,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -57,8 +64,13 @@ struct adcxx {
 };
 
 /* sysfs hook function */
+<<<<<<< HEAD
 static ssize_t adcxx_read(struct device *dev,
 		struct device_attribute *devattr, char *buf)
+=======
+static ssize_t adcxx_show(struct device *dev,
+			  struct device_attribute *devattr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct spi_device *spi = to_spi_device(dev);
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
@@ -94,15 +106,25 @@ out:
 	return status;
 }
 
+<<<<<<< HEAD
 static ssize_t adcxx_show_min(struct device *dev,
 		struct device_attribute *devattr, char *buf)
+=======
+static ssize_t adcxx_min_show(struct device *dev,
+			      struct device_attribute *devattr, char *buf)
+>>>>>>> upstream/android-13
 {
 	/* The minimum reference is 0 for this chip family */
 	return sprintf(buf, "0\n");
 }
 
+<<<<<<< HEAD
 static ssize_t adcxx_show_max(struct device *dev,
 		struct device_attribute *devattr, char *buf)
+=======
+static ssize_t adcxx_max_show(struct device *dev,
+			      struct device_attribute *devattr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct spi_device *spi = to_spi_device(dev);
 	struct adcxx *adc = spi_get_drvdata(spi);
@@ -118,8 +140,14 @@ static ssize_t adcxx_show_max(struct device *dev,
 	return sprintf(buf, "%d\n", reference);
 }
 
+<<<<<<< HEAD
 static ssize_t adcxx_set_max(struct device *dev,
 	struct device_attribute *devattr, const char *buf, size_t count)
+=======
+static ssize_t adcxx_max_store(struct device *dev,
+			       struct device_attribute *devattr,
+			       const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	struct spi_device *spi = to_spi_device(dev);
 	struct adcxx *adc = spi_get_drvdata(spi);
@@ -138,13 +166,19 @@ static ssize_t adcxx_set_max(struct device *dev,
 	return count;
 }
 
+<<<<<<< HEAD
 static ssize_t adcxx_show_name(struct device *dev, struct device_attribute
 			      *devattr, char *buf)
+=======
+static ssize_t adcxx_name_show(struct device *dev,
+			       struct device_attribute *devattr, char *buf)
+>>>>>>> upstream/android-13
 {
 	return sprintf(buf, "%s\n", to_spi_device(dev)->modalias);
 }
 
 static struct sensor_device_attribute ad_input[] = {
+<<<<<<< HEAD
 	SENSOR_ATTR(name, S_IRUGO, adcxx_show_name, NULL, 0),
 	SENSOR_ATTR(in_min, S_IRUGO, adcxx_show_min, NULL, 0),
 	SENSOR_ATTR(in_max, S_IWUSR | S_IRUGO, adcxx_show_max,
@@ -157,6 +191,19 @@ static struct sensor_device_attribute ad_input[] = {
 	SENSOR_ATTR(in5_input, S_IRUGO, adcxx_read, NULL, 5),
 	SENSOR_ATTR(in6_input, S_IRUGO, adcxx_read, NULL, 6),
 	SENSOR_ATTR(in7_input, S_IRUGO, adcxx_read, NULL, 7),
+=======
+	SENSOR_ATTR_RO(name, adcxx_name, 0),
+	SENSOR_ATTR_RO(in_min, adcxx_min, 0),
+	SENSOR_ATTR_RW(in_max, adcxx_max, 0),
+	SENSOR_ATTR_RO(in0_input, adcxx, 0),
+	SENSOR_ATTR_RO(in1_input, adcxx, 1),
+	SENSOR_ATTR_RO(in2_input, adcxx, 2),
+	SENSOR_ATTR_RO(in3_input, adcxx, 3),
+	SENSOR_ATTR_RO(in4_input, adcxx, 4),
+	SENSOR_ATTR_RO(in5_input, adcxx, 5),
+	SENSOR_ATTR_RO(in6_input, adcxx, 6),
+	SENSOR_ATTR_RO(in7_input, adcxx, 7),
+>>>>>>> upstream/android-13
 };
 
 /*----------------------------------------------------------------------*/

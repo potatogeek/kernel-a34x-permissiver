@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 2008-2009 Patrick McHardy <kaber@trash.net>
  * Copyright (c) 2013 Eric Leblond <eric@regit.org>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * Development of this code funded by Astaro AG (http://www.astaro.com/)
  */
 
@@ -30,7 +37,12 @@ static void nft_reject_ipv4_eval(const struct nft_expr *expr,
 		nf_send_unreach(pkt->skb, priv->icmp_code, nft_hook(pkt));
 		break;
 	case NFT_REJECT_TCP_RST:
+<<<<<<< HEAD
 		nf_send_reset(nft_net(pkt), pkt->skb, nft_hook(pkt));
+=======
+		nf_send_reset(nft_net(pkt), nft_sk(pkt), pkt->skb,
+			      nft_hook(pkt));
+>>>>>>> upstream/android-13
 		break;
 	default:
 		break;
@@ -74,3 +86,7 @@ module_exit(nft_reject_ipv4_module_exit);
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Patrick McHardy <kaber@trash.net>");
 MODULE_ALIAS_NFT_AF_EXPR(AF_INET, "reject");
+<<<<<<< HEAD
+=======
+MODULE_DESCRIPTION("IPv4 packet rejection for nftables");
+>>>>>>> upstream/android-13

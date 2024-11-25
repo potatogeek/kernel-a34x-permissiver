@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* rc-tivo.c - Keytable for TiVo remotes
  *
  * Copyright (c) 2011 by Jarod Wilson <jarod@redhat.com>
@@ -6,6 +7,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/* rc-tivo.c - Keytable for TiVo remotes
+ *
+ * Copyright (c) 2011 by Jarod Wilson <jarod@redhat.com>
+>>>>>>> upstream/android-13
  */
 
 #include <media/rc-map.h>
@@ -77,7 +84,11 @@ static struct rc_map_list tivo_map = {
 	.map = {
 		.scan     = tivo,
 		.size     = ARRAY_SIZE(tivo),
+<<<<<<< HEAD
 		.rc_proto = RC_PROTO_NEC,
+=======
+		.rc_proto = RC_PROTO_NEC32,
+>>>>>>> upstream/android-13
 		.name     = RC_MAP_TIVO,
 	}
 };

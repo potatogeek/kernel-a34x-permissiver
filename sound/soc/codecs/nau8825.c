@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Nuvoton NAU8825 audio codec driver
  *
@@ -5,8 +9,11 @@
  *  Author: Anatol Pomozov <anatol@chromium.org>
  * Copyright 2015 Nuvoton Technology Corp.
  *  Co-author: Meng-Huang Kuo <mhkuo@nuvoton.com>
+<<<<<<< HEAD
  *
  * Licensed under the GPL-2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -252,7 +259,11 @@ static const unsigned short logtable[256] = {
  *
  * Acquires the semaphore without jiffies. Try to acquire the semaphore
  * atomically. Returns 0 if the semaphore has been acquired successfully
+<<<<<<< HEAD
  * or 1 if it it cannot be acquired.
+=======
+ * or 1 if it cannot be acquired.
+>>>>>>> upstream/android-13
  */
 static int nau8825_sema_acquire(struct nau8825 *nau8825, long timeout)
 {
@@ -296,7 +307,11 @@ static inline void nau8825_sema_reset(struct nau8825 *nau8825)
 }
 
 /**
+<<<<<<< HEAD
  * Ramp up the headphone volume change gradually to target level.
+=======
+ * nau8825_hpvol_ramp - Ramp up the headphone volume change gradually to target level.
+>>>>>>> upstream/android-13
  *
  * @nau8825:  component to register the codec private data with
  * @vol_from: the volume to start up
@@ -348,9 +363,17 @@ static void nau8825_hpvol_ramp(struct nau8825 *nau8825,
 }
 
 /**
+<<<<<<< HEAD
  * Computes log10 of a value; the result is round off to 3 decimal. This func-
  * tion takes reference to dvb-math. The source code locates as the following.
  * Linux/drivers/media/dvb-core/dvb_math.c
+=======
+ * nau8825_intlog10_dec3 - Computes log10 of a value
+ * the result is round off to 3 decimal. This function takes reference to
+ * dvb-math. The source code locates as the following.
+ * Linux/drivers/media/dvb-core/dvb_math.c
+ * @value:  input for log10
+>>>>>>> upstream/android-13
  *
  * return log10(value) * 1000
  */
@@ -408,7 +431,11 @@ static u32 nau8825_intlog10_dec3(u32 value)
 }
 
 /**
+<<<<<<< HEAD
  * computes cross talk suppression sidetone gain.
+=======
+ * nau8825_xtalk_sidetone - computes cross talk suppression sidetone gain.
+>>>>>>> upstream/android-13
  *
  * @sig_org: orignal signal level
  * @sig_cros: cross talk signal level
@@ -424,10 +451,15 @@ static u32 nau8825_xtalk_sidetone(u32 sig_org, u32 sig_cros)
 {
 	u32 gain, sidetone;
 
+<<<<<<< HEAD
 	if (unlikely(sig_org == 0) || unlikely(sig_cros == 0)) {
 		WARN_ON(1);
 		return 0;
 	}
+=======
+	if (WARN_ON(sig_org == 0 || sig_cros == 0))
+		return 0;
+>>>>>>> upstream/android-13
 
 	sig_org = nau8825_intlog10_dec3(sig_org);
 	sig_cros = nau8825_intlog10_dec3(sig_cros);
@@ -1882,6 +1914,13 @@ static void nau8825_init_regs(struct nau8825 *nau8825)
 		NAU8825_JACK_EJECT_DEBOUNCE_MASK,
 		nau8825->jack_eject_debounce << NAU8825_JACK_EJECT_DEBOUNCE_SFT);
 
+<<<<<<< HEAD
+=======
+	/* Pull up IRQ pin */
+	regmap_update_bits(regmap, NAU8825_REG_INTERRUPT_MASK,
+		NAU8825_IRQ_PIN_PULLUP | NAU8825_IRQ_PIN_PULL_EN,
+		NAU8825_IRQ_PIN_PULLUP | NAU8825_IRQ_PIN_PULL_EN);
+>>>>>>> upstream/android-13
 	/* Mask unneeded IRQs: 1 - disable, 0 - enable */
 	regmap_update_bits(regmap, NAU8825_REG_INTERRUPT_MASK, 0x7ff, 0x7ff);
 
@@ -2108,7 +2147,11 @@ static int nau8825_set_pll(struct snd_soc_component *component, int pll_id, int 
 
 static int nau8825_mclk_prepare(struct nau8825 *nau8825, unsigned int freq)
 {
+<<<<<<< HEAD
 	int ret = 0;
+=======
+	int ret;
+>>>>>>> upstream/android-13
 
 	nau8825->mclk = devm_clk_get(nau8825->dev, "mclk");
 	if (IS_ERR(nau8825->mclk)) {

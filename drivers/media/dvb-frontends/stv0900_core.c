@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * stv0900_core.c
  *
@@ -6,6 +10,7 @@
  * Copyright (C) ST Microelectronics.
  * Copyright (C) 2009 NetUP Inc.
  * Copyright (C) 2009 Igor M. Liplianin <liplianin@netup.ru>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +22,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -203,7 +210,11 @@ void stv0900_write_bits(struct stv0900_internal *intp, u32 label, u8 val)
 
 u8 stv0900_get_bits(struct stv0900_internal *intp, u32 label)
 {
+<<<<<<< HEAD
 	u8 val = 0xff;
+=======
+	u8 val;
+>>>>>>> upstream/android-13
 	u8 mask, pos;
 
 	extract_mask_pos(label, &mask, &pos);
@@ -280,7 +291,11 @@ static enum fe_stv0900_error stv0900_initialize(struct stv0900_internal *intp)
 
 static u32 stv0900_get_mclk_freq(struct stv0900_internal *intp, u32 ext_clk)
 {
+<<<<<<< HEAD
 	u32 mclk = 90000000, div = 0, ad_div = 0;
+=======
+	u32 mclk, div, ad_div;
+>>>>>>> upstream/android-13
 
 	div = stv0900_get_bits(intp, F0900_M_DIV);
 	ad_div = ((stv0900_get_bits(intp, F0900_SELX1RATIO) == 1) ? 4 : 6);
@@ -744,12 +759,20 @@ static int stv0900_read_ucblocks(struct dvb_frontend *fe, u32 * ucblocks)
 	if (stv0900_get_standard(fe, demod) == STV0900_DVBS2_STANDARD) {
 		/* DVB-S2 delineator errors count */
 
+<<<<<<< HEAD
 		/* retreiving number for errnous headers */
+=======
+		/* retrieving number for errnous headers */
+>>>>>>> upstream/android-13
 		err_val1 = stv0900_read_reg(intp, BBFCRCKO1);
 		err_val0 = stv0900_read_reg(intp, BBFCRCKO0);
 		header_err_val = (err_val1 << 8) | err_val0;
 
+<<<<<<< HEAD
 		/* retreiving number for errnous packets */
+=======
+		/* retrieving number for errnous packets */
+>>>>>>> upstream/android-13
 		err_val1 = stv0900_read_reg(intp, UPCRCKO1);
 		err_val0 = stv0900_read_reg(intp, UPCRCKO0);
 		*ucblocks = (err_val1 << 8) | err_val0;

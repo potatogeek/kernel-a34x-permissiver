@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /**************************************************************************
  * Copyright (c) 2009-2011, Intel Corporation.
  * All Rights Reserved.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
  * version 2, as published by the Free Software Foundation.
@@ -15,6 +20,8 @@
  * this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
  *
+=======
+>>>>>>> upstream/android-13
  * Authors:
  *    Benjamin Defnet <benjamin.r.defnet@intel.com>
  *    Rajesh Poornachandran <rajesh.poornachandran@intel.com>
@@ -24,12 +31,18 @@
 #ifndef _PSB_IRQ_H_
 #define _PSB_IRQ_H_
 
+<<<<<<< HEAD
 #include <drm/drmP.h>
+=======
+struct drm_crtc;
+struct drm_device;
+>>>>>>> upstream/android-13
 
 bool sysirq_init(struct drm_device *dev);
 void sysirq_uninit(struct drm_device *dev);
 
 void psb_irq_preinstall(struct drm_device *dev);
+<<<<<<< HEAD
 int  psb_irq_postinstall(struct drm_device *dev);
 void psb_irq_uninstall(struct drm_device *dev);
 irqreturn_t psb_irq_handler(int irq, void *arg);
@@ -44,4 +57,14 @@ u32  psb_get_vblank_counter(struct drm_device *dev, unsigned int pipe);
 
 int mdfld_enable_te(struct drm_device *dev, int pipe);
 void mdfld_disable_te(struct drm_device *dev, int pipe);
+=======
+void psb_irq_postinstall(struct drm_device *dev);
+int  psb_irq_install(struct drm_device *dev, unsigned int irq);
+void psb_irq_uninstall(struct drm_device *dev);
+
+int  psb_enable_vblank(struct drm_crtc *crtc);
+void psb_disable_vblank(struct drm_crtc *crtc);
+u32  psb_get_vblank_counter(struct drm_crtc *crtc);
+
+>>>>>>> upstream/android-13
 #endif /* _PSB_IRQ_H_ */

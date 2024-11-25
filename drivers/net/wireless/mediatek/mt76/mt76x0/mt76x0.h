@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2014 Felix Fietkau <nbd@openwrt.org>
  * Copyright (C) 2015 Jakub Kicinski <kubakici@wp.pl>
  * Copyright (C) 2018 Stanislaw Gruszka <stf_xl@wp.pl>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2
@@ -11,6 +16,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef MT76X0U_H
@@ -25,6 +32,7 @@
 #include <net/mac80211.h>
 #include <linux/debugfs.h>
 
+<<<<<<< HEAD
 #include "../mt76.h"
 #include "regs.h"
 
@@ -327,4 +335,46 @@ void mt76x0_dma_cleanup(struct mt76x0_dev *dev);
 int mt76x0_dma_enqueue_tx(struct mt76x0_dev *dev, struct sk_buff *skb,
 			   struct mt76_wcid *wcid, int hw_q);
 
+=======
+#include "../mt76x02.h"
+#include "eeprom.h"
+
+#define MT7610E_FIRMWARE		"mediatek/mt7610e.bin"
+#define MT7650E_FIRMWARE		"mediatek/mt7650e.bin"
+
+#define MT7610U_FIRMWARE		"mediatek/mt7610u.bin"
+
+#define MT_USB_AGGR_SIZE_LIMIT		21 /* * 1024B */
+#define MT_USB_AGGR_TIMEOUT		0x80 /* * 33ns */
+
+static inline bool is_mt7610e(struct mt76x02_dev *dev)
+{
+	if (!mt76_is_mmio(&dev->mt76))
+		return false;
+
+	return mt76_chip(&dev->mt76) == 0x7610;
+}
+
+static inline bool is_mt7630(struct mt76x02_dev *dev)
+{
+	return mt76_chip(&dev->mt76) == 0x7630;
+}
+
+/* Init */
+int mt76x0_init_hardware(struct mt76x02_dev *dev);
+int mt76x0_register_device(struct mt76x02_dev *dev);
+void mt76x0_chip_onoff(struct mt76x02_dev *dev, bool enable, bool reset);
+
+void mt76x0_mac_stop(struct mt76x02_dev *dev);
+
+int mt76x0_config(struct ieee80211_hw *hw, u32 changed);
+
+/* PHY */
+void mt76x0_phy_init(struct mt76x02_dev *dev);
+int mt76x0_phy_wait_bbp_ready(struct mt76x02_dev *dev);
+void mt76x0_phy_set_channel(struct mt76x02_dev *dev,
+			    struct cfg80211_chan_def *chandef);
+void mt76x0_phy_set_txpower(struct mt76x02_dev *dev);
+void mt76x0_phy_calibrate(struct mt76x02_dev *dev, bool power_on);
+>>>>>>> upstream/android-13
 #endif

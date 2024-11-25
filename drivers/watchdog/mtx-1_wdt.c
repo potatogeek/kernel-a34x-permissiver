@@ -39,9 +39,13 @@
 #include <linux/platform_device.h>
 #include <linux/io.h>
 #include <linux/uaccess.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
 
 #include <asm/mach-au1x00/au1000.h>
+=======
+#include <linux/gpio/consumer.h>
+>>>>>>> upstream/android-13
 
 #define MTX1_WDT_INTERVAL	(5 * HZ)
 
@@ -55,7 +59,11 @@ static struct {
 	int queue;
 	int default_ticks;
 	unsigned long inuse;
+<<<<<<< HEAD
 	unsigned gpio;
+=======
+	struct gpio_desc *gpiod;
+>>>>>>> upstream/android-13
 	unsigned int gstate;
 } mtx1_wdt_device;
 
@@ -67,7 +75,11 @@ static void mtx1_wdt_trigger(struct timer_list *unused)
 
 	/* toggle wdt gpio */
 	mtx1_wdt_device.gstate = !mtx1_wdt_device.gstate;
+<<<<<<< HEAD
 	gpio_set_value(mtx1_wdt_device.gpio, mtx1_wdt_device.gstate);
+=======
+	gpiod_set_value(mtx1_wdt_device.gpiod, mtx1_wdt_device.gstate);
+>>>>>>> upstream/android-13
 
 	if (mtx1_wdt_device.queue && ticks)
 		mod_timer(&mtx1_wdt_device.timer, jiffies + MTX1_WDT_INTERVAL);
@@ -90,7 +102,11 @@ static void mtx1_wdt_start(void)
 	if (!mtx1_wdt_device.queue) {
 		mtx1_wdt_device.queue = 1;
 		mtx1_wdt_device.gstate = 1;
+<<<<<<< HEAD
 		gpio_set_value(mtx1_wdt_device.gpio, 1);
+=======
+		gpiod_set_value(mtx1_wdt_device.gpiod, 1);
+>>>>>>> upstream/android-13
 		mod_timer(&mtx1_wdt_device.timer, jiffies + MTX1_WDT_INTERVAL);
 	}
 	mtx1_wdt_device.running++;
@@ -105,7 +121,11 @@ static int mtx1_wdt_stop(void)
 	if (mtx1_wdt_device.queue) {
 		mtx1_wdt_device.queue = 0;
 		mtx1_wdt_device.gstate = 0;
+<<<<<<< HEAD
 		gpio_set_value(mtx1_wdt_device.gpio, 0);
+=======
+		gpiod_set_value(mtx1_wdt_device.gpiod, 0);
+>>>>>>> upstream/android-13
 	}
 	ticks = mtx1_wdt_device.default_ticks;
 	spin_unlock_irqrestore(&mtx1_wdt_device.lock, flags);
@@ -118,7 +138,11 @@ static int mtx1_wdt_open(struct inode *inode, struct file *file)
 {
 	if (test_and_set_bit(0, &mtx1_wdt_device.inuse))
 		return -EBUSY;
+<<<<<<< HEAD
 	return nonseekable_open(inode, file);
+=======
+	return stream_open(inode, file);
+>>>>>>> upstream/android-13
 }
 
 
@@ -181,6 +205,10 @@ static const struct file_operations mtx1_wdt_fops = {
 	.owner		= THIS_MODULE,
 	.llseek		= no_llseek,
 	.unlocked_ioctl	= mtx1_wdt_ioctl,
+<<<<<<< HEAD
+=======
+	.compat_ioctl	= compat_ptr_ioctl,
+>>>>>>> upstream/android-13
 	.open		= mtx1_wdt_open,
 	.write		= mtx1_wdt_write,
 	.release	= mtx1_wdt_release,
@@ -198,12 +226,20 @@ static int mtx1_wdt_probe(struct platform_device *pdev)
 {
 	int ret;
 
+<<<<<<< HEAD
 	mtx1_wdt_device.gpio = pdev->resource[0].start;
 	ret = devm_gpio_request_one(&pdev->dev, mtx1_wdt_device.gpio,
 				GPIOF_OUT_INIT_HIGH, "mtx1-wdt");
 	if (ret < 0) {
 		dev_err(&pdev->dev, "failed to request gpio");
 		return ret;
+=======
+	mtx1_wdt_device.gpiod = devm_gpiod_get(&pdev->dev,
+					       NULL, GPIOD_OUT_HIGH);
+	if (IS_ERR(mtx1_wdt_device.gpiod)) {
+		dev_err(&pdev->dev, "failed to request gpio");
+		return PTR_ERR(mtx1_wdt_device.gpiod);
+>>>>>>> upstream/android-13
 	}
 
 	spin_lock_init(&mtx1_wdt_device.lock);

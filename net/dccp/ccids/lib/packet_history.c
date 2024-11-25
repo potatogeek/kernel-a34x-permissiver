@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  Copyright (c) 2007   The University of Aberdeen, Scotland, UK
  *  Copyright (c) 2005-7 The University of Waikato, Hamilton, New Zealand.
@@ -5,7 +9,11 @@
  *  An implementation of the DCCP protocol
  *
  *  This code has been developed by the University of Waikato WAND
+<<<<<<< HEAD
  *  research group. For further information please see http://www.wand.net.nz/
+=======
+ *  research group. For further information please see https://www.wand.net.nz/
+>>>>>>> upstream/android-13
  *  or e-mail Ian McDonald - ian.mcdonald@jandi.co.nz
  *
  *  This code also uses code from Lulea University, rereleased as GPL by its
@@ -17,6 +25,7 @@
  *  Arnaldo Carvalho de Melo <acme@conectiva.com.br>.
  *
  *  Copyright (c) 2005 Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -31,6 +40,8 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/string.h>
@@ -378,6 +389,10 @@ void tfrc_rx_hist_purge(struct tfrc_rx_hist *h)
 
 /**
  * tfrc_rx_hist_rtt_last_s - reference entry to compute RTT samples against
+<<<<<<< HEAD
+=======
+ * @h:	The non-empty RX history object
+>>>>>>> upstream/android-13
  */
 static inline struct tfrc_rx_hist_entry *
 			tfrc_rx_hist_rtt_last_s(const struct tfrc_rx_hist *h)
@@ -387,6 +402,10 @@ static inline struct tfrc_rx_hist_entry *
 
 /**
  * tfrc_rx_hist_rtt_prev_s - previously suitable (wrt rtt_last_s) RTT-sampling entry
+<<<<<<< HEAD
+=======
+ * @h:	The non-empty RX history object
+>>>>>>> upstream/android-13
  */
 static inline struct tfrc_rx_hist_entry *
 			tfrc_rx_hist_rtt_prev_s(const struct tfrc_rx_hist *h)
@@ -396,6 +415,12 @@ static inline struct tfrc_rx_hist_entry *
 
 /**
  * tfrc_rx_hist_sample_rtt  -  Sample RTT from timestamp / CCVal
+<<<<<<< HEAD
+=======
+ * @h: receive histogram
+ * @skb: packet containing timestamp.
+ *
+>>>>>>> upstream/android-13
  * Based on ideas presented in RFC 4342, 8.1. Returns 0 if it was not able
  * to compute a sample with given data - calling function should check this.
  */

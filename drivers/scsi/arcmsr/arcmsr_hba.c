@@ -41,7 +41,11 @@
 ** THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *******************************************************************************
 ** For history of changes, see Documentation/scsi/ChangeLog.arcmsr
+<<<<<<< HEAD
 **     Firmware Specification, see Documentation/scsi/arcmsr_spec.txt
+=======
+**     Firmware Specification, see Documentation/scsi/arcmsr_spec.rst
+>>>>>>> upstream/android-13
 *******************************************************************************
 */
 #include <linux/module.h>
@@ -91,10 +95,24 @@ static int cmd_per_lun = ARCMSR_DEFAULT_CMD_PERLUN;
 module_param(cmd_per_lun, int, S_IRUGO);
 MODULE_PARM_DESC(cmd_per_lun, " device queue depth(1 ~ 128), default is 32");
 
+<<<<<<< HEAD
+=======
+static int dma_mask_64 = 0;
+module_param(dma_mask_64, int, S_IRUGO);
+MODULE_PARM_DESC(dma_mask_64, " set DMA mask to 64 bits(0 ~ 1), dma_mask_64=1(64 bits), =0(32 bits)");
+
+>>>>>>> upstream/android-13
 static int set_date_time = 0;
 module_param(set_date_time, int, S_IRUGO);
 MODULE_PARM_DESC(set_date_time, " send date, time to iop(0 ~ 1), set_date_time=1(enable), default(=0) is disable");
 
+<<<<<<< HEAD
+=======
+static int cmd_timeout = ARCMSR_DEFAULT_TIMEOUT;
+module_param(cmd_timeout, int, S_IRUGO);
+MODULE_PARM_DESC(cmd_timeout, " scsi cmd timeout(0 ~ 120 sec.), default is 90");
+
+>>>>>>> upstream/android-13
 #define	ARCMSR_SLEEPTIME	10
 #define	ARCMSR_RETRYCOUNT	12
 
@@ -109,8 +127,13 @@ static int arcmsr_bios_param(struct scsi_device *sdev,
 static int arcmsr_queue_command(struct Scsi_Host *h, struct scsi_cmnd *cmd);
 static int arcmsr_probe(struct pci_dev *pdev,
 				const struct pci_device_id *id);
+<<<<<<< HEAD
 static int arcmsr_suspend(struct pci_dev *pdev, pm_message_t state);
 static int arcmsr_resume(struct pci_dev *pdev);
+=======
+static int __maybe_unused arcmsr_suspend(struct device *dev);
+static int __maybe_unused arcmsr_resume(struct device *dev);
+>>>>>>> upstream/android-13
 static void arcmsr_remove(struct pci_dev *pdev);
 static void arcmsr_shutdown(struct pci_dev *pdev);
 static void arcmsr_iop_init(struct AdapterControlBlock *acb);
@@ -129,12 +152,20 @@ static void arcmsr_hbaC_message_isr(struct AdapterControlBlock *pACB);
 static void arcmsr_hbaD_message_isr(struct AdapterControlBlock *acb);
 static void arcmsr_hbaE_message_isr(struct AdapterControlBlock *acb);
 static void arcmsr_hbaE_postqueue_isr(struct AdapterControlBlock *acb);
+<<<<<<< HEAD
+=======
+static void arcmsr_hbaF_postqueue_isr(struct AdapterControlBlock *acb);
+>>>>>>> upstream/android-13
 static void arcmsr_hardware_reset(struct AdapterControlBlock *acb);
 static const char *arcmsr_info(struct Scsi_Host *);
 static irqreturn_t arcmsr_interrupt(struct AdapterControlBlock *acb);
 static void arcmsr_free_irq(struct pci_dev *, struct AdapterControlBlock *);
 static void arcmsr_wait_firmware_ready(struct AdapterControlBlock *acb);
 static void arcmsr_set_iop_datetime(struct timer_list *);
+<<<<<<< HEAD
+=======
+static int arcmsr_slave_config(struct scsi_device *sdev);
+>>>>>>> upstream/android-13
 static int arcmsr_adjust_disk_queue_depth(struct scsi_device *sdev, int queue_depth)
 {
 	if (queue_depth > ARCMSR_MAX_CMD_PERLUN)
@@ -150,13 +181,20 @@ static struct scsi_host_template arcmsr_scsi_host_template = {
 	.eh_abort_handler	= arcmsr_abort,
 	.eh_bus_reset_handler	= arcmsr_bus_reset,
 	.bios_param		= arcmsr_bios_param,
+<<<<<<< HEAD
+=======
+	.slave_configure	= arcmsr_slave_config,
+>>>>>>> upstream/android-13
 	.change_queue_depth	= arcmsr_adjust_disk_queue_depth,
 	.can_queue		= ARCMSR_DEFAULT_OUTSTANDING_CMD,
 	.this_id		= ARCMSR_SCSI_INITIATOR_ID,
 	.sg_tablesize	        = ARCMSR_DEFAULT_SG_ENTRIES,
 	.max_sectors		= ARCMSR_MAX_XFER_SECTORS_C,
 	.cmd_per_lun		= ARCMSR_DEFAULT_CMD_PERLUN,
+<<<<<<< HEAD
 	.use_clustering		= ENABLE_CLUSTERING,
+=======
+>>>>>>> upstream/android-13
 	.shost_attrs		= arcmsr_host_attrs,
 	.no_write_same		= 1,
 };
@@ -206,17 +244,31 @@ static struct pci_device_id arcmsr_device_id_table[] = {
 		.driver_data = ACB_ADAPTER_TYPE_C},
 	{PCI_DEVICE(PCI_VENDOR_ID_ARECA, PCI_DEVICE_ID_ARECA_1884),
 		.driver_data = ACB_ADAPTER_TYPE_E},
+<<<<<<< HEAD
+=======
+	{PCI_DEVICE(PCI_VENDOR_ID_ARECA, PCI_DEVICE_ID_ARECA_1886),
+		.driver_data = ACB_ADAPTER_TYPE_F},
+>>>>>>> upstream/android-13
 	{0, 0}, /* Terminating entry */
 };
 MODULE_DEVICE_TABLE(pci, arcmsr_device_id_table);
 
+<<<<<<< HEAD
+=======
+static SIMPLE_DEV_PM_OPS(arcmsr_pm_ops, arcmsr_suspend, arcmsr_resume);
+
+>>>>>>> upstream/android-13
 static struct pci_driver arcmsr_pci_driver = {
 	.name			= "arcmsr",
 	.id_table		= arcmsr_device_id_table,
 	.probe			= arcmsr_probe,
 	.remove			= arcmsr_remove,
+<<<<<<< HEAD
 	.suspend		= arcmsr_suspend,
 	.resume			= arcmsr_resume,
+=======
+	.driver.pm		= &arcmsr_pm_ops,
+>>>>>>> upstream/android-13
 	.shutdown		= arcmsr_shutdown,
 };
 /*
@@ -224,17 +276,30 @@ static struct pci_driver arcmsr_pci_driver = {
 ****************************************************************************
 */
 
+<<<<<<< HEAD
 static void arcmsr_free_mu(struct AdapterControlBlock *acb)
+=======
+static void arcmsr_free_io_queue(struct AdapterControlBlock *acb)
+>>>>>>> upstream/android-13
 {
 	switch (acb->adapter_type) {
 	case ACB_ADAPTER_TYPE_B:
 	case ACB_ADAPTER_TYPE_D:
+<<<<<<< HEAD
 	case ACB_ADAPTER_TYPE_E: {
 		dma_free_coherent(&acb->pdev->dev, acb->roundup_ccbsize,
 			acb->dma_coherent2, acb->dma_coherent_handle2);
 		break;
 	}
 	}
+=======
+	case ACB_ADAPTER_TYPE_E:
+	case ACB_ADAPTER_TYPE_F:
+		dma_free_coherent(&acb->pdev->dev, acb->ioqueue_size,
+			acb->dma_coherent2, acb->dma_coherent_handle2);
+		break;
+	}
+>>>>>>> upstream/android-13
 }
 
 static bool arcmsr_remap_pciregion(struct AdapterControlBlock *acb)
@@ -267,7 +332,11 @@ static bool arcmsr_remap_pciregion(struct AdapterControlBlock *acb)
 		break;
 	}
 	case ACB_ADAPTER_TYPE_C:{
+<<<<<<< HEAD
 		acb->pmuC = ioremap_nocache(pci_resource_start(pdev, 1), pci_resource_len(pdev, 1));
+=======
+		acb->pmuC = ioremap(pci_resource_start(pdev, 1), pci_resource_len(pdev, 1));
+>>>>>>> upstream/android-13
 		if (!acb->pmuC) {
 			printk(KERN_NOTICE "arcmsr%d: memory mapping region fail \n", acb->host->host_no);
 			return false;
@@ -280,11 +349,18 @@ static bool arcmsr_remap_pciregion(struct AdapterControlBlock *acb)
 	}
 	case ACB_ADAPTER_TYPE_D: {
 		void __iomem *mem_base0;
+<<<<<<< HEAD
 		unsigned long addr, range, flags;
 
 		addr = (unsigned long)pci_resource_start(pdev, 0);
 		range = pci_resource_len(pdev, 0);
 		flags = pci_resource_flags(pdev, 0);
+=======
+		unsigned long addr, range;
+
+		addr = (unsigned long)pci_resource_start(pdev, 0);
+		range = pci_resource_len(pdev, 0);
+>>>>>>> upstream/android-13
 		mem_base0 = ioremap(addr, range);
 		if (!mem_base0) {
 			pr_notice("arcmsr%d: memory mapping region fail\n",
@@ -308,6 +384,22 @@ static bool arcmsr_remap_pciregion(struct AdapterControlBlock *acb)
 		acb->out_doorbell = 0;
 		break;
 		}
+<<<<<<< HEAD
+=======
+	case ACB_ADAPTER_TYPE_F: {
+		acb->pmuF = ioremap(pci_resource_start(pdev, 0), pci_resource_len(pdev, 0));
+		if (!acb->pmuF) {
+			pr_notice("arcmsr%d: memory mapping region fail\n",
+				acb->host->host_no);
+			return false;
+		}
+		writel(0, &acb->pmuF->host_int_status); /* clear interrupt */
+		writel(ARCMSR_HBFMU_DOORBELL_SYNC, &acb->pmuF->iobound_doorbell);
+		acb->in_doorbell = 0;
+		acb->out_doorbell = 0;
+		break;
+		}
+>>>>>>> upstream/android-13
 	}
 	return true;
 }
@@ -315,6 +407,7 @@ static bool arcmsr_remap_pciregion(struct AdapterControlBlock *acb)
 static void arcmsr_unmap_pciregion(struct AdapterControlBlock *acb)
 {
 	switch (acb->adapter_type) {
+<<<<<<< HEAD
 	case ACB_ADAPTER_TYPE_A:{
 		iounmap(acb->pmuA);
 	}
@@ -329,12 +422,30 @@ static void arcmsr_unmap_pciregion(struct AdapterControlBlock *acb)
 		iounmap(acb->pmuC);
 	}
 	break;
+=======
+	case ACB_ADAPTER_TYPE_A:
+		iounmap(acb->pmuA);
+		break;
+	case ACB_ADAPTER_TYPE_B:
+		iounmap(acb->mem_base0);
+		iounmap(acb->mem_base1);
+		break;
+	case ACB_ADAPTER_TYPE_C:
+		iounmap(acb->pmuC);
+		break;
+>>>>>>> upstream/android-13
 	case ACB_ADAPTER_TYPE_D:
 		iounmap(acb->mem_base0);
 		break;
 	case ACB_ADAPTER_TYPE_E:
 		iounmap(acb->pmuE);
 		break;
+<<<<<<< HEAD
+=======
+	case ACB_ADAPTER_TYPE_F:
+		iounmap(acb->pmuF);
+		break;
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -350,6 +461,7 @@ static irqreturn_t arcmsr_do_interrupt(int irq, void *dev_id)
 static int arcmsr_bios_param(struct scsi_device *sdev,
 		struct block_device *bdev, sector_t capacity, int *geom)
 {
+<<<<<<< HEAD
 	int ret, heads, sectors, cylinders, total_capacity;
 	unsigned char *buffer;/* return copy of block device's partition table */
 
@@ -360,6 +472,13 @@ static int arcmsr_bios_param(struct scsi_device *sdev,
 		if (ret != -1)
 			return ret;
 	}
+=======
+	int heads, sectors, cylinders, total_capacity;
+
+	if (scsi_partsize(bdev, capacity, geom))
+		return 0;
+
+>>>>>>> upstream/android-13
 	total_capacity = capacity;
 	heads = 64;
 	sectors = 32;
@@ -555,6 +674,7 @@ static void arcmsr_flush_adapter_cache(struct AdapterControlBlock *acb)
 {
 	switch (acb->adapter_type) {
 
+<<<<<<< HEAD
 	case ACB_ADAPTER_TYPE_A: {
 		arcmsr_hbaA_flush_cache(acb);
 		}
@@ -567,16 +687,106 @@ static void arcmsr_flush_adapter_cache(struct AdapterControlBlock *acb)
 	case ACB_ADAPTER_TYPE_C: {
 		arcmsr_hbaC_flush_cache(acb);
 		}
+=======
+	case ACB_ADAPTER_TYPE_A:
+		arcmsr_hbaA_flush_cache(acb);
+		break;
+	case ACB_ADAPTER_TYPE_B:
+		arcmsr_hbaB_flush_cache(acb);
+		break;
+	case ACB_ADAPTER_TYPE_C:
+		arcmsr_hbaC_flush_cache(acb);
+>>>>>>> upstream/android-13
 		break;
 	case ACB_ADAPTER_TYPE_D:
 		arcmsr_hbaD_flush_cache(acb);
 		break;
 	case ACB_ADAPTER_TYPE_E:
+<<<<<<< HEAD
+=======
+	case ACB_ADAPTER_TYPE_F:
+>>>>>>> upstream/android-13
 		arcmsr_hbaE_flush_cache(acb);
 		break;
 	}
 }
 
+<<<<<<< HEAD
+=======
+static void arcmsr_hbaB_assign_regAddr(struct AdapterControlBlock *acb)
+{
+	struct MessageUnit_B *reg = acb->pmuB;
+
+	if (acb->pdev->device == PCI_DEVICE_ID_ARECA_1203) {
+		reg->drv2iop_doorbell = MEM_BASE0(ARCMSR_DRV2IOP_DOORBELL_1203);
+		reg->drv2iop_doorbell_mask = MEM_BASE0(ARCMSR_DRV2IOP_DOORBELL_MASK_1203);
+		reg->iop2drv_doorbell = MEM_BASE0(ARCMSR_IOP2DRV_DOORBELL_1203);
+		reg->iop2drv_doorbell_mask = MEM_BASE0(ARCMSR_IOP2DRV_DOORBELL_MASK_1203);
+	} else {
+		reg->drv2iop_doorbell= MEM_BASE0(ARCMSR_DRV2IOP_DOORBELL);
+		reg->drv2iop_doorbell_mask = MEM_BASE0(ARCMSR_DRV2IOP_DOORBELL_MASK);
+		reg->iop2drv_doorbell = MEM_BASE0(ARCMSR_IOP2DRV_DOORBELL);
+		reg->iop2drv_doorbell_mask = MEM_BASE0(ARCMSR_IOP2DRV_DOORBELL_MASK);
+	}
+	reg->message_wbuffer = MEM_BASE1(ARCMSR_MESSAGE_WBUFFER);
+	reg->message_rbuffer =  MEM_BASE1(ARCMSR_MESSAGE_RBUFFER);
+	reg->message_rwbuffer = MEM_BASE1(ARCMSR_MESSAGE_RWBUFFER);
+}
+
+static void arcmsr_hbaD_assign_regAddr(struct AdapterControlBlock *acb)
+{
+	struct MessageUnit_D *reg = acb->pmuD;
+
+	reg->chip_id = MEM_BASE0(ARCMSR_ARC1214_CHIP_ID);
+	reg->cpu_mem_config = MEM_BASE0(ARCMSR_ARC1214_CPU_MEMORY_CONFIGURATION);
+	reg->i2o_host_interrupt_mask = MEM_BASE0(ARCMSR_ARC1214_I2_HOST_INTERRUPT_MASK);
+	reg->sample_at_reset = MEM_BASE0(ARCMSR_ARC1214_SAMPLE_RESET);
+	reg->reset_request = MEM_BASE0(ARCMSR_ARC1214_RESET_REQUEST);
+	reg->host_int_status = MEM_BASE0(ARCMSR_ARC1214_MAIN_INTERRUPT_STATUS);
+	reg->pcief0_int_enable = MEM_BASE0(ARCMSR_ARC1214_PCIE_F0_INTERRUPT_ENABLE);
+	reg->inbound_msgaddr0 = MEM_BASE0(ARCMSR_ARC1214_INBOUND_MESSAGE0);
+	reg->inbound_msgaddr1 = MEM_BASE0(ARCMSR_ARC1214_INBOUND_MESSAGE1);
+	reg->outbound_msgaddr0 = MEM_BASE0(ARCMSR_ARC1214_OUTBOUND_MESSAGE0);
+	reg->outbound_msgaddr1 = MEM_BASE0(ARCMSR_ARC1214_OUTBOUND_MESSAGE1);
+	reg->inbound_doorbell = MEM_BASE0(ARCMSR_ARC1214_INBOUND_DOORBELL);
+	reg->outbound_doorbell = MEM_BASE0(ARCMSR_ARC1214_OUTBOUND_DOORBELL);
+	reg->outbound_doorbell_enable = MEM_BASE0(ARCMSR_ARC1214_OUTBOUND_DOORBELL_ENABLE);
+	reg->inboundlist_base_low = MEM_BASE0(ARCMSR_ARC1214_INBOUND_LIST_BASE_LOW);
+	reg->inboundlist_base_high = MEM_BASE0(ARCMSR_ARC1214_INBOUND_LIST_BASE_HIGH);
+	reg->inboundlist_write_pointer = MEM_BASE0(ARCMSR_ARC1214_INBOUND_LIST_WRITE_POINTER);
+	reg->outboundlist_base_low = MEM_BASE0(ARCMSR_ARC1214_OUTBOUND_LIST_BASE_LOW);
+	reg->outboundlist_base_high = MEM_BASE0(ARCMSR_ARC1214_OUTBOUND_LIST_BASE_HIGH);
+	reg->outboundlist_copy_pointer = MEM_BASE0(ARCMSR_ARC1214_OUTBOUND_LIST_COPY_POINTER);
+	reg->outboundlist_read_pointer = MEM_BASE0(ARCMSR_ARC1214_OUTBOUND_LIST_READ_POINTER);
+	reg->outboundlist_interrupt_cause = MEM_BASE0(ARCMSR_ARC1214_OUTBOUND_INTERRUPT_CAUSE);
+	reg->outboundlist_interrupt_enable = MEM_BASE0(ARCMSR_ARC1214_OUTBOUND_INTERRUPT_ENABLE);
+	reg->message_wbuffer = MEM_BASE0(ARCMSR_ARC1214_MESSAGE_WBUFFER);
+	reg->message_rbuffer = MEM_BASE0(ARCMSR_ARC1214_MESSAGE_RBUFFER);
+	reg->msgcode_rwbuffer = MEM_BASE0(ARCMSR_ARC1214_MESSAGE_RWBUFFER);
+}
+
+static void arcmsr_hbaF_assign_regAddr(struct AdapterControlBlock *acb)
+{
+	dma_addr_t host_buffer_dma;
+	struct MessageUnit_F __iomem *pmuF;
+
+	memset(acb->dma_coherent2, 0xff, acb->completeQ_size);
+	acb->message_wbuffer = (uint32_t *)round_up((unsigned long)acb->dma_coherent2 +
+		acb->completeQ_size, 4);
+	acb->message_rbuffer = ((void *)acb->message_wbuffer) + 0x100;
+	acb->msgcode_rwbuffer = ((void *)acb->message_wbuffer) + 0x200;
+	memset((void *)acb->message_wbuffer, 0, MESG_RW_BUFFER_SIZE);
+	host_buffer_dma = round_up(acb->dma_coherent_handle2 + acb->completeQ_size, 4);
+	pmuF = acb->pmuF;
+	/* host buffer low address, bit0:1 all buffer active */
+	writel(lower_32_bits(host_buffer_dma | 1), &pmuF->inbound_msgaddr0);
+	/* host buffer high address */
+	writel(upper_32_bits(host_buffer_dma), &pmuF->inbound_msgaddr1);
+	/* set host buffer physical address */
+	writel(ARCMSR_HBFMU_DOORBELL_SYNC1, &pmuF->iobound_doorbell);
+}
+
+>>>>>>> upstream/android-13
 static bool arcmsr_alloc_io_queue(struct AdapterControlBlock *acb)
 {
 	bool rtn = true;
@@ -586,9 +796,14 @@ static bool arcmsr_alloc_io_queue(struct AdapterControlBlock *acb)
 
 	switch (acb->adapter_type) {
 	case ACB_ADAPTER_TYPE_B: {
+<<<<<<< HEAD
 		struct MessageUnit_B *reg;
 		acb->roundup_ccbsize = roundup(sizeof(struct MessageUnit_B), 32);
 		dma_coherent = dma_zalloc_coherent(&pdev->dev, acb->roundup_ccbsize,
+=======
+		acb->ioqueue_size = roundup(sizeof(struct MessageUnit_B), 32);
+		dma_coherent = dma_alloc_coherent(&pdev->dev, acb->ioqueue_size,
+>>>>>>> upstream/android-13
 			&dma_coherent_handle, GFP_KERNEL);
 		if (!dma_coherent) {
 			pr_notice("arcmsr%d: DMA allocation failed\n", acb->host->host_no);
@@ -596,6 +811,7 @@ static bool arcmsr_alloc_io_queue(struct AdapterControlBlock *acb)
 		}
 		acb->dma_coherent_handle2 = dma_coherent_handle;
 		acb->dma_coherent2 = dma_coherent;
+<<<<<<< HEAD
 		reg = (struct MessageUnit_B *)dma_coherent;
 		acb->pmuB = reg;
 		if (acb->pdev->device == PCI_DEVICE_ID_ARECA_1203) {
@@ -619,6 +835,15 @@ static bool arcmsr_alloc_io_queue(struct AdapterControlBlock *acb)
 
 		acb->roundup_ccbsize = roundup(sizeof(struct MessageUnit_D), 32);
 		dma_coherent = dma_zalloc_coherent(&pdev->dev, acb->roundup_ccbsize,
+=======
+		acb->pmuB = (struct MessageUnit_B *)dma_coherent;
+		arcmsr_hbaB_assign_regAddr(acb);
+		}
+		break;
+	case ACB_ADAPTER_TYPE_D: {
+		acb->ioqueue_size = roundup(sizeof(struct MessageUnit_D), 32);
+		dma_coherent = dma_alloc_coherent(&pdev->dev, acb->ioqueue_size,
+>>>>>>> upstream/android-13
 			&dma_coherent_handle, GFP_KERNEL);
 		if (!dma_coherent) {
 			pr_notice("arcmsr%d: DMA allocation failed\n", acb->host->host_no);
@@ -626,6 +851,7 @@ static bool arcmsr_alloc_io_queue(struct AdapterControlBlock *acb)
 		}
 		acb->dma_coherent_handle2 = dma_coherent_handle;
 		acb->dma_coherent2 = dma_coherent;
+<<<<<<< HEAD
 		reg = (struct MessageUnit_D *)dma_coherent;
 		acb->pmuD = reg;
 		reg->chip_id = MEM_BASE0(ARCMSR_ARC1214_CHIP_ID);
@@ -654,13 +880,22 @@ static bool arcmsr_alloc_io_queue(struct AdapterControlBlock *acb)
 		reg->message_wbuffer = MEM_BASE0(ARCMSR_ARC1214_MESSAGE_WBUFFER);
 		reg->message_rbuffer = MEM_BASE0(ARCMSR_ARC1214_MESSAGE_RBUFFER);
 		reg->msgcode_rwbuffer = MEM_BASE0(ARCMSR_ARC1214_MESSAGE_RWBUFFER);
+=======
+		acb->pmuD = (struct MessageUnit_D *)dma_coherent;
+		arcmsr_hbaD_assign_regAddr(acb);
+>>>>>>> upstream/android-13
 		}
 		break;
 	case ACB_ADAPTER_TYPE_E: {
 		uint32_t completeQ_size;
 		completeQ_size = sizeof(struct deliver_completeQ) * ARCMSR_MAX_HBE_DONEQUEUE + 128;
+<<<<<<< HEAD
 		acb->roundup_ccbsize = roundup(completeQ_size, 32);
 		dma_coherent = dma_zalloc_coherent(&pdev->dev, acb->roundup_ccbsize,
+=======
+		acb->ioqueue_size = roundup(completeQ_size, 32);
+		dma_coherent = dma_alloc_coherent(&pdev->dev, acb->ioqueue_size,
+>>>>>>> upstream/android-13
 			&dma_coherent_handle, GFP_KERNEL);
 		if (!dma_coherent){
 			pr_notice("arcmsr%d: DMA allocation failed\n", acb->host->host_no);
@@ -669,10 +904,39 @@ static bool arcmsr_alloc_io_queue(struct AdapterControlBlock *acb)
 		acb->dma_coherent_handle2 = dma_coherent_handle;
 		acb->dma_coherent2 = dma_coherent;
 		acb->pCompletionQ = dma_coherent;
+<<<<<<< HEAD
 		acb->completionQ_entry = acb->roundup_ccbsize / sizeof(struct deliver_completeQ);
 		acb->doneq_index = 0;
 		}
 		break;
+=======
+		acb->completionQ_entry = acb->ioqueue_size / sizeof(struct deliver_completeQ);
+		acb->doneq_index = 0;
+		}
+		break;
+	case ACB_ADAPTER_TYPE_F: {
+		uint32_t QueueDepth;
+		uint32_t depthTbl[] = {256, 512, 1024, 128, 64, 32};
+
+		arcmsr_wait_firmware_ready(acb);
+		QueueDepth = depthTbl[readl(&acb->pmuF->outbound_msgaddr1) & 7];
+		acb->completeQ_size = sizeof(struct deliver_completeQ) * QueueDepth + 128;
+		acb->ioqueue_size = roundup(acb->completeQ_size + MESG_RW_BUFFER_SIZE, 32);
+		dma_coherent = dma_alloc_coherent(&pdev->dev, acb->ioqueue_size,
+			&dma_coherent_handle, GFP_KERNEL);
+		if (!dma_coherent) {
+			pr_notice("arcmsr%d: DMA allocation failed\n", acb->host->host_no);
+			return false;
+		}
+		acb->dma_coherent_handle2 = dma_coherent_handle;
+		acb->dma_coherent2 = dma_coherent;
+		acb->pCompletionQ = dma_coherent;
+		acb->completionQ_entry = acb->completeQ_size / sizeof(struct deliver_completeQ);
+		acb->doneq_index = 0;
+		arcmsr_hbaF_assign_regAddr(acb);
+		}
+		break;
+>>>>>>> upstream/android-13
 	default:
 		break;
 	}
@@ -686,11 +950,19 @@ static int arcmsr_alloc_ccb_pool(struct AdapterControlBlock *acb)
 	dma_addr_t dma_coherent_handle;
 	struct CommandControlBlock *ccb_tmp;
 	int i = 0, j = 0;
+<<<<<<< HEAD
 	dma_addr_t cdb_phyaddr;
 	unsigned long roundup_ccbsize;
 	unsigned long max_xfer_len;
 	unsigned long max_sg_entrys;
 	uint32_t  firm_config_version;
+=======
+	unsigned long cdb_phyaddr, next_ccb_phy;
+	unsigned long roundup_ccbsize;
+	unsigned long max_xfer_len;
+	unsigned long max_sg_entrys;
+	uint32_t  firm_config_version, curr_phy_upper32;
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < ARCMSR_MAX_TARGETID; i++)
 		for (j = 0; j < ARCMSR_MAX_TARGETLUN; j++)
@@ -707,6 +979,11 @@ static int arcmsr_alloc_ccb_pool(struct AdapterControlBlock *acb)
 	acb->host->sg_tablesize = max_sg_entrys;
 	roundup_ccbsize = roundup(sizeof(struct CommandControlBlock) + (max_sg_entrys - 1) * sizeof(struct SG64ENTRY), 32);
 	acb->uncache_size = roundup_ccbsize * acb->maxFreeCCB;
+<<<<<<< HEAD
+=======
+	if (acb->adapter_type != ACB_ADAPTER_TYPE_F)
+		acb->uncache_size += acb->ioqueue_size;
+>>>>>>> upstream/android-13
 	dma_coherent = dma_alloc_coherent(&pdev->dev, acb->uncache_size, &dma_coherent_handle, GFP_KERNEL);
 	if(!dma_coherent){
 		printk(KERN_NOTICE "arcmsr%d: dma_alloc_coherent got error\n", acb->host->host_no);
@@ -717,9 +994,16 @@ static int arcmsr_alloc_ccb_pool(struct AdapterControlBlock *acb)
 	memset(dma_coherent, 0, acb->uncache_size);
 	acb->ccbsize = roundup_ccbsize;
 	ccb_tmp = dma_coherent;
+<<<<<<< HEAD
 	acb->vir2phy_offset = (unsigned long)dma_coherent - (unsigned long)dma_coherent_handle;
 	for(i = 0; i < acb->maxFreeCCB; i++){
 		cdb_phyaddr = dma_coherent_handle + offsetof(struct CommandControlBlock, arcmsr_cdb);
+=======
+	curr_phy_upper32 = upper_32_bits(dma_coherent_handle);
+	acb->vir2phy_offset = (unsigned long)dma_coherent - (unsigned long)dma_coherent_handle;
+	for(i = 0; i < acb->maxFreeCCB; i++){
+		cdb_phyaddr = (unsigned long)dma_coherent_handle + offsetof(struct CommandControlBlock, arcmsr_cdb);
+>>>>>>> upstream/android-13
 		switch (acb->adapter_type) {
 		case ACB_ADAPTER_TYPE_A:
 		case ACB_ADAPTER_TYPE_B:
@@ -728,6 +1012,10 @@ static int arcmsr_alloc_ccb_pool(struct AdapterControlBlock *acb)
 		case ACB_ADAPTER_TYPE_C:
 		case ACB_ADAPTER_TYPE_D:
 		case ACB_ADAPTER_TYPE_E:
+<<<<<<< HEAD
+=======
+		case ACB_ADAPTER_TYPE_F:
+>>>>>>> upstream/android-13
 			ccb_tmp->cdb_phyaddr = cdb_phyaddr;
 			break;
 		}
@@ -735,10 +1023,43 @@ static int arcmsr_alloc_ccb_pool(struct AdapterControlBlock *acb)
 		ccb_tmp->acb = acb;
 		ccb_tmp->smid = (u32)i << 16;
 		INIT_LIST_HEAD(&ccb_tmp->list);
+<<<<<<< HEAD
 		list_add_tail(&ccb_tmp->list, &acb->ccb_free_list);
 		ccb_tmp = (struct CommandControlBlock *)((unsigned long)ccb_tmp + roundup_ccbsize);
 		dma_coherent_handle = dma_coherent_handle + roundup_ccbsize;
 	}
+=======
+		next_ccb_phy = dma_coherent_handle + roundup_ccbsize;
+		if (upper_32_bits(next_ccb_phy) != curr_phy_upper32) {
+			acb->maxFreeCCB = i;
+			acb->host->can_queue = i;
+			break;
+		}
+		else
+			list_add_tail(&ccb_tmp->list, &acb->ccb_free_list);
+		ccb_tmp = (struct CommandControlBlock *)((unsigned long)ccb_tmp + roundup_ccbsize);
+		dma_coherent_handle = next_ccb_phy;
+	}
+	if (acb->adapter_type != ACB_ADAPTER_TYPE_F) {
+		acb->dma_coherent_handle2 = dma_coherent_handle;
+		acb->dma_coherent2 = ccb_tmp;
+	}
+	switch (acb->adapter_type) {
+	case ACB_ADAPTER_TYPE_B:
+		acb->pmuB = (struct MessageUnit_B *)acb->dma_coherent2;
+		arcmsr_hbaB_assign_regAddr(acb);
+		break;
+	case ACB_ADAPTER_TYPE_D:
+		acb->pmuD = (struct MessageUnit_D *)acb->dma_coherent2;
+		arcmsr_hbaD_assign_regAddr(acb);
+		break;
+	case ACB_ADAPTER_TYPE_E:
+		acb->pCompletionQ = acb->dma_coherent2;
+		acb->completionQ_entry = acb->ioqueue_size / sizeof(struct deliver_completeQ);
+		acb->doneq_index = 0;
+		break;
+	}	
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -753,7 +1074,10 @@ static void arcmsr_message_isr_bh_fn(struct work_struct *work)
 	struct scsi_device *psdev;
 	char diff, temp;
 
+<<<<<<< HEAD
 	acb->acb_flags &= ~ACB_F_MSG_GET_CONFIG;
+=======
+>>>>>>> upstream/android-13
 	switch (acb->adapter_type) {
 	case ACB_ADAPTER_TYPE_A: {
 		struct MessageUnit_A __iomem *reg  = acb->pmuA;
@@ -790,8 +1114,17 @@ static void arcmsr_message_isr_bh_fn(struct work_struct *work)
 		devicemap = (char __iomem *)(&reg->msgcode_rwbuffer[21]);
 		break;
 		}
+<<<<<<< HEAD
 	}
 	atomic_inc(&acb->rq_map_token);
+=======
+	case ACB_ADAPTER_TYPE_F: {
+		signature = (uint32_t __iomem *)(&acb->msgcode_rwbuffer[0]);
+		devicemap = (char __iomem *)(&acb->msgcode_rwbuffer[21]);
+		break;
+		}
+	}
+>>>>>>> upstream/android-13
 	if (readl(signature) != ARCMSR_SIGNATURE_GET_CONFIG)
 		return;
 	for (target = 0; target < ARCMSR_MAX_TARGETID - 1;
@@ -822,6 +1155,10 @@ static void arcmsr_message_isr_bh_fn(struct work_struct *work)
 		devicemap++;
 		acb_dev_map++;
 	}
+<<<<<<< HEAD
+=======
+	acb->acb_flags &= ~ACB_F_MSG_GET_CONFIG;
+>>>>>>> upstream/android-13
 }
 
 static int
@@ -874,8 +1211,11 @@ out_free_irq:
 static void arcmsr_init_get_devmap_timer(struct AdapterControlBlock *pacb)
 {
 	INIT_WORK(&pacb->arcmsr_do_message_isr_bh, arcmsr_message_isr_bh_fn);
+<<<<<<< HEAD
 	atomic_set(&pacb->rq_map_token, 16);
 	atomic_set(&pacb->ante_token_value, 16);
+=======
+>>>>>>> upstream/android-13
 	pacb->fw_flag = FW_NORMAL;
 	timer_setup(&pacb->eternal_timer, arcmsr_request_device_map, 0);
 	pacb->eternal_timer.expires = jiffies + msecs_to_jiffies(6 * HZ);
@@ -889,6 +1229,34 @@ static void arcmsr_init_set_datetime_timer(struct AdapterControlBlock *pacb)
 	add_timer(&pacb->refresh_timer);
 }
 
+<<<<<<< HEAD
+=======
+static int arcmsr_set_dma_mask(struct AdapterControlBlock *acb)
+{
+	struct pci_dev *pcidev = acb->pdev;
+
+	if (IS_DMA64) {
+		if (((acb->adapter_type == ACB_ADAPTER_TYPE_A) && !dma_mask_64) ||
+		    dma_set_mask(&pcidev->dev, DMA_BIT_MASK(64)))
+			goto	dma32;
+		if (dma_set_coherent_mask(&pcidev->dev, DMA_BIT_MASK(64)) ||
+		    dma_set_mask_and_coherent(&pcidev->dev, DMA_BIT_MASK(64))) {
+			printk("arcmsr: set DMA 64 mask failed\n");
+			return -ENXIO;
+		}
+	} else {
+dma32:
+		if (dma_set_mask(&pcidev->dev, DMA_BIT_MASK(32)) ||
+		    dma_set_coherent_mask(&pcidev->dev, DMA_BIT_MASK(32)) ||
+		    dma_set_mask_and_coherent(&pcidev->dev, DMA_BIT_MASK(32))) {
+			printk("arcmsr: set DMA 32-bit mask failed\n");
+			return -ENXIO;
+		}
+	}
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static int arcmsr_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 {
 	struct Scsi_Host *host;
@@ -903,6 +1271,7 @@ static int arcmsr_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 	if(!host){
     		goto pci_disable_dev;
 	}
+<<<<<<< HEAD
 	error = pci_set_dma_mask(pdev, DMA_BIT_MASK(64));
 	if(error){
 		error = pci_set_dma_mask(pdev, DMA_BIT_MASK(32));
@@ -913,12 +1282,20 @@ static int arcmsr_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 			goto scsi_host_release;
 		}
 	}
+=======
+>>>>>>> upstream/android-13
 	init_waitqueue_head(&wait_q);
 	bus = pdev->bus->number;
 	dev_fun = pdev->devfn;
 	acb = (struct AdapterControlBlock *) host->hostdata;
 	memset(acb,0,sizeof(struct AdapterControlBlock));
 	acb->pdev = pdev;
+<<<<<<< HEAD
+=======
+	acb->adapter_type = id->driver_data;
+	if (arcmsr_set_dma_mask(acb))
+		goto scsi_host_release;
+>>>>>>> upstream/android-13
 	acb->host = host;
 	host->max_lun = ARCMSR_MAX_TARGETLUN;
 	host->max_id = ARCMSR_MAX_TARGETID;		/*16:8*/
@@ -948,7 +1325,10 @@ static int arcmsr_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 			ACB_F_MESSAGE_WQBUFFER_READED);
 	acb->acb_flags &= ~ACB_F_SCSISTOPADAPTER;
 	INIT_LIST_HEAD(&acb->ccb_free_list);
+<<<<<<< HEAD
 	acb->adapter_type = id->driver_data;
+=======
+>>>>>>> upstream/android-13
 	error = arcmsr_remap_pciregion(acb);
 	if(!error){
 		goto pci_release_regs;
@@ -960,9 +1340,17 @@ static int arcmsr_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 	if(!error){
 		goto free_hbb_mu;
 	}
+<<<<<<< HEAD
 	error = arcmsr_alloc_ccb_pool(acb);
 	if(error){
 		goto free_hbb_mu;
+=======
+	if (acb->adapter_type != ACB_ADAPTER_TYPE_F)
+		arcmsr_free_io_queue(acb);
+	error = arcmsr_alloc_ccb_pool(acb);
+	if(error){
+		goto unmap_pci_region;
+>>>>>>> upstream/android-13
 	}
 	error = scsi_add_host(host, &pdev->dev);
 	if(error){
@@ -990,8 +1378,14 @@ scsi_host_remove:
 	scsi_remove_host(host);
 free_ccb_pool:
 	arcmsr_free_ccb_pool(acb);
+<<<<<<< HEAD
 free_hbb_mu:
 	arcmsr_free_mu(acb);
+=======
+	goto unmap_pci_region;
+free_hbb_mu:
+	arcmsr_free_io_queue(acb);
+>>>>>>> upstream/android-13
 unmap_pci_region:
 	arcmsr_unmap_pciregion(acb);
 pci_release_regs:
@@ -1013,14 +1407,24 @@ static void arcmsr_free_irq(struct pci_dev *pdev,
 	pci_free_irq_vectors(pdev);
 }
 
+<<<<<<< HEAD
 static int arcmsr_suspend(struct pci_dev *pdev, pm_message_t state)
 {
 	uint32_t intmask_org;
+=======
+static int __maybe_unused arcmsr_suspend(struct device *dev)
+{
+	struct pci_dev *pdev = to_pci_dev(dev);
+>>>>>>> upstream/android-13
 	struct Scsi_Host *host = pci_get_drvdata(pdev);
 	struct AdapterControlBlock *acb =
 		(struct AdapterControlBlock *)host->hostdata;
 
+<<<<<<< HEAD
 	intmask_org = arcmsr_disable_outbound_ints(acb);
+=======
+	arcmsr_disable_outbound_ints(acb);
+>>>>>>> upstream/android-13
 	arcmsr_free_irq(pdev, acb);
 	del_timer_sync(&acb->eternal_timer);
 	if (set_date_time)
@@ -1028,6 +1432,7 @@ static int arcmsr_suspend(struct pci_dev *pdev, pm_message_t state)
 	flush_work(&acb->arcmsr_do_message_isr_bh);
 	arcmsr_stop_adapter_bgrb(acb);
 	arcmsr_flush_adapter_cache(acb);
+<<<<<<< HEAD
 	pci_set_drvdata(pdev, host);
 	pci_save_state(pdev);
 	pci_disable_device(pdev);
@@ -1038,10 +1443,19 @@ static int arcmsr_suspend(struct pci_dev *pdev, pm_message_t state)
 static int arcmsr_resume(struct pci_dev *pdev)
 {
 	int error;
+=======
+	return 0;
+}
+
+static int __maybe_unused arcmsr_resume(struct device *dev)
+{
+	struct pci_dev *pdev = to_pci_dev(dev);
+>>>>>>> upstream/android-13
 	struct Scsi_Host *host = pci_get_drvdata(pdev);
 	struct AdapterControlBlock *acb =
 		(struct AdapterControlBlock *)host->hostdata;
 
+<<<<<<< HEAD
 	pci_set_power_state(pdev, PCI_D0);
 	pci_enable_wake(pdev, PCI_D0, 0);
 	pci_restore_state(pdev);
@@ -1062,11 +1476,42 @@ static int arcmsr_resume(struct pci_dev *pdev)
 	if (arcmsr_request_irq(pdev, acb) == FAILED)
 		goto controller_stop;
 	if (acb->adapter_type == ACB_ADAPTER_TYPE_E) {
+=======
+	if (arcmsr_set_dma_mask(acb))
+		goto controller_unregister;
+	if (arcmsr_request_irq(pdev, acb) == FAILED)
+		goto controller_stop;
+	switch (acb->adapter_type) {
+	case ACB_ADAPTER_TYPE_B: {
+		struct MessageUnit_B *reg = acb->pmuB;
+		uint32_t i;
+		for (i = 0; i < ARCMSR_MAX_HBB_POSTQUEUE; i++) {
+			reg->post_qbuffer[i] = 0;
+			reg->done_qbuffer[i] = 0;
+		}
+		reg->postq_index = 0;
+		reg->doneq_index = 0;
+		break;
+		}
+	case ACB_ADAPTER_TYPE_E:
+>>>>>>> upstream/android-13
 		writel(0, &acb->pmuE->host_int_status);
 		writel(ARCMSR_HBEMU_DOORBELL_SYNC, &acb->pmuE->iobound_doorbell);
 		acb->in_doorbell = 0;
 		acb->out_doorbell = 0;
 		acb->doneq_index = 0;
+<<<<<<< HEAD
+=======
+		break;
+	case ACB_ADAPTER_TYPE_F:
+		writel(0, &acb->pmuF->host_int_status);
+		writel(ARCMSR_HBFMU_DOORBELL_SYNC, &acb->pmuF->iobound_doorbell);
+		acb->in_doorbell = 0;
+		acb->out_doorbell = 0;
+		acb->doneq_index = 0;
+		arcmsr_hbaF_assign_regAddr(acb);
+		break;
+>>>>>>> upstream/android-13
 	}
 	arcmsr_iop_init(acb);
 	arcmsr_init_get_devmap_timer(acb);
@@ -1079,10 +1524,17 @@ controller_stop:
 controller_unregister:
 	scsi_remove_host(host);
 	arcmsr_free_ccb_pool(acb);
+<<<<<<< HEAD
 	arcmsr_unmap_pciregion(acb);
 	pci_release_regions(pdev);
 	scsi_host_put(host);
 	pci_disable_device(pdev);
+=======
+	if (acb->adapter_type == ACB_ADAPTER_TYPE_F)
+		arcmsr_free_io_queue(acb);
+	arcmsr_unmap_pciregion(acb);
+	scsi_host_put(host);
+>>>>>>> upstream/android-13
 	return -ENODEV;
 }
 
@@ -1158,6 +1610,7 @@ static uint8_t arcmsr_abort_allcmd(struct AdapterControlBlock *acb)
 {
 	uint8_t rtnval = 0;
 	switch (acb->adapter_type) {
+<<<<<<< HEAD
 	case ACB_ADAPTER_TYPE_A: {
 		rtnval = arcmsr_hbaA_abort_allcmd(acb);
 		}
@@ -1173,10 +1626,25 @@ static uint8_t arcmsr_abort_allcmd(struct AdapterControlBlock *acb)
 		}
 		break;
 
+=======
+	case ACB_ADAPTER_TYPE_A:
+		rtnval = arcmsr_hbaA_abort_allcmd(acb);
+		break;
+	case ACB_ADAPTER_TYPE_B:
+		rtnval = arcmsr_hbaB_abort_allcmd(acb);
+		break;
+	case ACB_ADAPTER_TYPE_C:
+		rtnval = arcmsr_hbaC_abort_allcmd(acb);
+		break;
+>>>>>>> upstream/android-13
 	case ACB_ADAPTER_TYPE_D:
 		rtnval = arcmsr_hbaD_abort_allcmd(acb);
 		break;
 	case ACB_ADAPTER_TYPE_E:
+<<<<<<< HEAD
+=======
+	case ACB_ADAPTER_TYPE_F:
+>>>>>>> upstream/android-13
 		rtnval = arcmsr_hbaE_abort_allcmd(acb);
 		break;
 	}
@@ -1206,6 +1674,7 @@ static void arcmsr_ccb_complete(struct CommandControlBlock *ccb)
 
 static void arcmsr_report_sense_info(struct CommandControlBlock *ccb)
 {
+<<<<<<< HEAD
 
 	struct scsi_cmnd *pcmd = ccb->pcmd;
 	struct SENSE_DATA *sensebuffer = (struct SENSE_DATA *)pcmd->sense_buffer;
@@ -1219,6 +1688,23 @@ static void arcmsr_report_sense_info(struct CommandControlBlock *ccb)
 		sensebuffer->ErrorCode = SCSI_SENSE_CURRENT_ERRORS;
 		sensebuffer->Valid = 1;
 		pcmd->result |= (DRIVER_SENSE << 24);
+=======
+	struct scsi_cmnd *pcmd = ccb->pcmd;
+
+	pcmd->result = (DID_OK << 16) | SAM_STAT_CHECK_CONDITION;
+	if (pcmd->sense_buffer) {
+		struct SENSE_DATA *sensebuffer;
+
+		memcpy_and_pad(pcmd->sense_buffer,
+			       SCSI_SENSE_BUFFERSIZE,
+			       ccb->arcmsr_cdb.SenseData,
+			       sizeof(ccb->arcmsr_cdb.SenseData),
+			       0);
+
+		sensebuffer = (struct SENSE_DATA *)pcmd->sense_buffer;
+		sensebuffer->ErrorCode = SCSI_SENSE_CURRENT_ERRORS;
+		sensebuffer->Valid = 1;
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -1252,7 +1738,12 @@ static u32 arcmsr_disable_outbound_ints(struct AdapterControlBlock *acb)
 		writel(ARCMSR_ARC1214_ALL_INT_DISABLE, reg->pcief0_int_enable);
 		}
 		break;
+<<<<<<< HEAD
 	case ACB_ADAPTER_TYPE_E: {
+=======
+	case ACB_ADAPTER_TYPE_E:
+	case ACB_ADAPTER_TYPE_F: {
+>>>>>>> upstream/android-13
 		struct MessageUnit_E __iomem *reg = acb->pmuE;
 		orig_mask = readl(&reg->host_int_mask);
 		writel(orig_mask | ARCMSR_HBEMU_OUTBOUND_DOORBELL_ISR | ARCMSR_HBEMU_OUTBOUND_POSTQUEUE_ISR, &reg->host_int_mask);
@@ -1317,13 +1808,19 @@ static void arcmsr_report_ccb_state(struct AdapterControlBlock *acb,
 
 static void arcmsr_drain_donequeue(struct AdapterControlBlock *acb, struct CommandControlBlock *pCCB, bool error)
 {
+<<<<<<< HEAD
 	int id, lun;
+=======
+>>>>>>> upstream/android-13
 	if ((pCCB->acb != acb) || (pCCB->startdone != ARCMSR_CCB_START)) {
 		if (pCCB->startdone == ARCMSR_CCB_ABORTED) {
 			struct scsi_cmnd *abortcmd = pCCB->pcmd;
 			if (abortcmd) {
+<<<<<<< HEAD
 				id = abortcmd->device->id;
 				lun = abortcmd->device->lun;				
+=======
+>>>>>>> upstream/android-13
 				abortcmd->result |= DID_ABORT << 16;
 				arcmsr_ccb_complete(pCCB);
 				printk(KERN_NOTICE "arcmsr%d: pCCB ='0x%p' isr got aborted command \n",
@@ -1341,7 +1838,11 @@ static void arcmsr_drain_donequeue(struct AdapterControlBlock *acb, struct Comma
 				, pCCB->acb
 				, pCCB->startdone
 				, atomic_read(&acb->ccboutstandingcount));
+<<<<<<< HEAD
 		  return;
+=======
+		return;
+>>>>>>> upstream/android-13
 	}
 	arcmsr_report_ccb_state(acb, pCCB, error);
 }
@@ -1349,10 +1850,19 @@ static void arcmsr_drain_donequeue(struct AdapterControlBlock *acb, struct Comma
 static void arcmsr_done4abort_postqueue(struct AdapterControlBlock *acb)
 {
 	int i = 0;
+<<<<<<< HEAD
 	uint32_t flag_ccb, ccb_cdb_phy;
 	struct ARCMSR_CDB *pARCMSR_CDB;
 	bool error;
 	struct CommandControlBlock *pCCB;
+=======
+	uint32_t flag_ccb;
+	struct ARCMSR_CDB *pARCMSR_CDB;
+	bool error;
+	struct CommandControlBlock *pCCB;
+	unsigned long ccb_cdb_phy;
+
+>>>>>>> upstream/android-13
 	switch (acb->adapter_type) {
 
 	case ACB_ADAPTER_TYPE_A: {
@@ -1364,7 +1874,14 @@ static void arcmsr_done4abort_postqueue(struct AdapterControlBlock *acb)
 		writel(outbound_intstatus, &reg->outbound_intstatus);/*clear interrupt*/
 		while(((flag_ccb = readl(&reg->outbound_queueport)) != 0xFFFFFFFF)
 				&& (i++ < acb->maxOutstanding)) {
+<<<<<<< HEAD
 			pARCMSR_CDB = (struct ARCMSR_CDB *)(acb->vir2phy_offset + (flag_ccb << 5));/*frame must be 32 bytes aligned*/
+=======
+			ccb_cdb_phy = (flag_ccb << 5) & 0xffffffff;
+			if (acb->cdb_phyadd_hipart)
+				ccb_cdb_phy = ccb_cdb_phy | acb->cdb_phyadd_hipart;
+			pARCMSR_CDB = (struct ARCMSR_CDB *)(acb->vir2phy_offset + ccb_cdb_phy);
+>>>>>>> upstream/android-13
 			pCCB = container_of(pARCMSR_CDB, struct CommandControlBlock, arcmsr_cdb);
 			error = (flag_ccb & ARCMSR_CCBREPLY_FLAG_ERROR_MODE0) ? true : false;
 			arcmsr_drain_donequeue(acb, pCCB, error);
@@ -1380,7 +1897,14 @@ static void arcmsr_done4abort_postqueue(struct AdapterControlBlock *acb)
 			flag_ccb = reg->done_qbuffer[i];
 			if (flag_ccb != 0) {
 				reg->done_qbuffer[i] = 0;
+<<<<<<< HEAD
 				pARCMSR_CDB = (struct ARCMSR_CDB *)(acb->vir2phy_offset+(flag_ccb << 5));/*frame must be 32 bytes aligned*/
+=======
+				ccb_cdb_phy = (flag_ccb << 5) & 0xffffffff;
+				if (acb->cdb_phyadd_hipart)
+					ccb_cdb_phy = ccb_cdb_phy | acb->cdb_phyadd_hipart;
+				pARCMSR_CDB = (struct ARCMSR_CDB *)(acb->vir2phy_offset + ccb_cdb_phy);
+>>>>>>> upstream/android-13
 				pCCB = container_of(pARCMSR_CDB, struct CommandControlBlock, arcmsr_cdb);
 				error = (flag_ccb & ARCMSR_CCBREPLY_FLAG_ERROR_MODE0) ? true : false;
 				arcmsr_drain_donequeue(acb, pCCB, error);
@@ -1397,7 +1921,13 @@ static void arcmsr_done4abort_postqueue(struct AdapterControlBlock *acb)
 			/*need to do*/
 			flag_ccb = readl(&reg->outbound_queueport_low);
 			ccb_cdb_phy = (flag_ccb & 0xFFFFFFF0);
+<<<<<<< HEAD
 			pARCMSR_CDB = (struct  ARCMSR_CDB *)(acb->vir2phy_offset+ccb_cdb_phy);/*frame must be 32 bytes aligned*/
+=======
+			if (acb->cdb_phyadd_hipart)
+				ccb_cdb_phy = ccb_cdb_phy | acb->cdb_phyadd_hipart;
+			pARCMSR_CDB = (struct  ARCMSR_CDB *)(acb->vir2phy_offset + ccb_cdb_phy);
+>>>>>>> upstream/android-13
 			pCCB = container_of(pARCMSR_CDB, struct CommandControlBlock, arcmsr_cdb);
 			error = (flag_ccb & ARCMSR_CCBREPLY_FLAG_ERROR_MODE1) ? true : false;
 			arcmsr_drain_donequeue(acb, pCCB, error);
@@ -1428,6 +1958,11 @@ static void arcmsr_done4abort_postqueue(struct AdapterControlBlock *acb)
 				addressLow = pmu->done_qbuffer[doneq_index &
 					0xFFF].addressLow;
 				ccb_cdb_phy = (addressLow & 0xFFFFFFF0);
+<<<<<<< HEAD
+=======
+				if (acb->cdb_phyadd_hipart)
+					ccb_cdb_phy = ccb_cdb_phy | acb->cdb_phyadd_hipart;
+>>>>>>> upstream/android-13
 				pARCMSR_CDB = (struct  ARCMSR_CDB *)
 					(acb->vir2phy_offset + ccb_cdb_phy);
 				pCCB = container_of(pARCMSR_CDB,
@@ -1450,6 +1985,12 @@ static void arcmsr_done4abort_postqueue(struct AdapterControlBlock *acb)
 	case ACB_ADAPTER_TYPE_E:
 		arcmsr_hbaE_postqueue_isr(acb);
 		break;
+<<<<<<< HEAD
+=======
+	case ACB_ADAPTER_TYPE_F:
+		arcmsr_hbaF_postqueue_isr(acb);
+		break;
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -1504,7 +2045,12 @@ static void arcmsr_free_pcidev(struct AdapterControlBlock *acb)
 	pdev = acb->pdev;
 	arcmsr_free_irq(pdev, acb);
 	arcmsr_free_ccb_pool(acb);
+<<<<<<< HEAD
 	arcmsr_free_mu(acb);
+=======
+	if (acb->adapter_type == ACB_ADAPTER_TYPE_F)
+		arcmsr_free_io_queue(acb);
+>>>>>>> upstream/android-13
 	arcmsr_unmap_pciregion(acb);
 	pci_release_regions(pdev);
 	scsi_host_put(host);
@@ -1562,7 +2108,12 @@ static void arcmsr_remove(struct pci_dev *pdev)
 	}
 	arcmsr_free_irq(pdev, acb);
 	arcmsr_free_ccb_pool(acb);
+<<<<<<< HEAD
 	arcmsr_free_mu(acb);
+=======
+	if (acb->adapter_type == ACB_ADAPTER_TYPE_F)
+		arcmsr_free_io_queue(acb);
+>>>>>>> upstream/android-13
 	arcmsr_unmap_pciregion(acb);
 	pci_release_regions(pdev);
 	scsi_host_put(host);
@@ -1640,7 +2191,12 @@ static void arcmsr_enable_outbound_ints(struct AdapterControlBlock *acb,
 		writel(intmask_org | mask, reg->pcief0_int_enable);
 		break;
 		}
+<<<<<<< HEAD
 	case ACB_ADAPTER_TYPE_E: {
+=======
+	case ACB_ADAPTER_TYPE_E:
+	case ACB_ADAPTER_TYPE_F: {
+>>>>>>> upstream/android-13
 		struct MessageUnit_E __iomem *reg = acb->pmuE;
 
 		mask = ~(ARCMSR_HBEMU_OUTBOUND_DOORBELL_ISR | ARCMSR_HBEMU_OUTBOUND_POSTQUEUE_ISR);
@@ -1747,12 +2303,17 @@ static void arcmsr_post_ccb(struct AdapterControlBlock *acb, struct CommandContr
 
 		arc_cdb_size = (ccb->arc_cdb_size > 0x300) ? 0x300 : ccb->arc_cdb_size;
 		ccb_post_stamp = (cdb_phyaddr | ((arc_cdb_size - 1) >> 6) | 1);
+<<<<<<< HEAD
 		if (acb->cdb_phyaddr_hi32) {
 			writel(acb->cdb_phyaddr_hi32, &phbcmu->inbound_queueport_high);
 			writel(ccb_post_stamp, &phbcmu->inbound_queueport_low);
 		} else {
 			writel(ccb_post_stamp, &phbcmu->inbound_queueport_low);
 		}
+=======
+		writel(upper_32_bits(ccb->cdb_phyaddr), &phbcmu->inbound_queueport_high);
+		writel(ccb_post_stamp, &phbcmu->inbound_queueport_low);
+>>>>>>> upstream/android-13
 		}
 		break;
 	case ACB_ADAPTER_TYPE_D: {
@@ -1765,8 +2326,13 @@ static void arcmsr_post_ccb(struct AdapterControlBlock *acb, struct CommandContr
 		spin_lock_irqsave(&acb->postq_lock, flags);
 		postq_index = pmu->postq_index;
 		pinbound_srb = (struct InBound_SRB *)&(pmu->post_qbuffer[postq_index & 0xFF]);
+<<<<<<< HEAD
 		pinbound_srb->addressHigh = dma_addr_hi32(cdb_phyaddr);
 		pinbound_srb->addressLow = dma_addr_lo32(cdb_phyaddr);
+=======
+		pinbound_srb->addressHigh = upper_32_bits(ccb->cdb_phyaddr);
+		pinbound_srb->addressLow = cdb_phyaddr;
+>>>>>>> upstream/android-13
 		pinbound_srb->length = ccb->arc_cdb_size >> 2;
 		arcmsr_cdb->msgContext = dma_addr_lo32(cdb_phyaddr);
 		toggle = postq_index & 0x4000;
@@ -1788,6 +2354,26 @@ static void arcmsr_post_ccb(struct AdapterControlBlock *acb, struct CommandContr
 		writel(ccb_post_stamp, &pmu->inbound_queueport_low);
 		break;
 		}
+<<<<<<< HEAD
+=======
+	case ACB_ADAPTER_TYPE_F: {
+		struct MessageUnit_F __iomem *pmu = acb->pmuF;
+		u32 ccb_post_stamp, arc_cdb_size;
+
+		if (ccb->arc_cdb_size <= 0x300)
+			arc_cdb_size = (ccb->arc_cdb_size - 1) >> 6 | 1;
+		else {
+			arc_cdb_size = ((ccb->arc_cdb_size + 0xff) >> 8) + 2;
+			if (arc_cdb_size > 0xF)
+				arc_cdb_size = 0xF;
+			arc_cdb_size = (arc_cdb_size << 1) | 1;
+		}
+		ccb_post_stamp = (ccb->smid | arc_cdb_size);
+		writel(0, &pmu->inbound_queueport_high);
+		writel(ccb_post_stamp, &pmu->inbound_queueport_low);
+		break;
+		}
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -1798,7 +2384,11 @@ static void arcmsr_hbaA_stop_bgrb(struct AdapterControlBlock *acb)
 	writel(ARCMSR_INBOUND_MESG0_STOP_BGRB, &reg->inbound_msgaddr0);
 	if (!arcmsr_hbaA_wait_msgint_ready(acb)) {
 		printk(KERN_NOTICE
+<<<<<<< HEAD
 			"arcmsr%d: wait 'stop adapter background rebulid' timeout\n"
+=======
+			"arcmsr%d: wait 'stop adapter background rebuild' timeout\n"
+>>>>>>> upstream/android-13
 			, acb->host->host_no);
 	}
 }
@@ -1811,7 +2401,11 @@ static void arcmsr_hbaB_stop_bgrb(struct AdapterControlBlock *acb)
 
 	if (!arcmsr_hbaB_wait_msgint_ready(acb)) {
 		printk(KERN_NOTICE
+<<<<<<< HEAD
 			"arcmsr%d: wait 'stop adapter background rebulid' timeout\n"
+=======
+			"arcmsr%d: wait 'stop adapter background rebuild' timeout\n"
+>>>>>>> upstream/android-13
 			, acb->host->host_no);
 	}
 }
@@ -1824,7 +2418,11 @@ static void arcmsr_hbaC_stop_bgrb(struct AdapterControlBlock *pACB)
 	writel(ARCMSR_HBCMU_DRV2IOP_MESSAGE_CMD_DONE, &reg->inbound_doorbell);
 	if (!arcmsr_hbaC_wait_msgint_ready(pACB)) {
 		printk(KERN_NOTICE
+<<<<<<< HEAD
 			"arcmsr%d: wait 'stop adapter background rebulid' timeout\n"
+=======
+			"arcmsr%d: wait 'stop adapter background rebuild' timeout\n"
+>>>>>>> upstream/android-13
 			, pACB->host->host_no);
 	}
 	return;
@@ -1837,7 +2435,11 @@ static void arcmsr_hbaD_stop_bgrb(struct AdapterControlBlock *pACB)
 	pACB->acb_flags &= ~ACB_F_MSG_START_BGRB;
 	writel(ARCMSR_INBOUND_MESG0_STOP_BGRB, reg->inbound_msgaddr0);
 	if (!arcmsr_hbaD_wait_msgint_ready(pACB))
+<<<<<<< HEAD
 		pr_notice("arcmsr%d: wait 'stop adapter background rebulid' "
+=======
+		pr_notice("arcmsr%d: wait 'stop adapter background rebuild' "
+>>>>>>> upstream/android-13
 			"timeout\n", pACB->host->host_no);
 }
 
@@ -1850,7 +2452,11 @@ static void arcmsr_hbaE_stop_bgrb(struct AdapterControlBlock *pACB)
 	pACB->out_doorbell ^= ARCMSR_HBEMU_DRV2IOP_MESSAGE_CMD_DONE;
 	writel(pACB->out_doorbell, &reg->iobound_doorbell);
 	if (!arcmsr_hbaE_wait_msgint_ready(pACB)) {
+<<<<<<< HEAD
 		pr_notice("arcmsr%d: wait 'stop adapter background rebulid' "
+=======
+		pr_notice("arcmsr%d: wait 'stop adapter background rebuild' "
+>>>>>>> upstream/android-13
 			"timeout\n", pACB->host->host_no);
 	}
 }
@@ -1858,6 +2464,7 @@ static void arcmsr_hbaE_stop_bgrb(struct AdapterControlBlock *pACB)
 static void arcmsr_stop_adapter_bgrb(struct AdapterControlBlock *acb)
 {
 	switch (acb->adapter_type) {
+<<<<<<< HEAD
 	case ACB_ADAPTER_TYPE_A: {
 		arcmsr_hbaA_stop_bgrb(acb);
 		}
@@ -1870,11 +2477,25 @@ static void arcmsr_stop_adapter_bgrb(struct AdapterControlBlock *acb)
 	case ACB_ADAPTER_TYPE_C: {
 		arcmsr_hbaC_stop_bgrb(acb);
 		}
+=======
+	case ACB_ADAPTER_TYPE_A:
+		arcmsr_hbaA_stop_bgrb(acb);
+		break;
+	case ACB_ADAPTER_TYPE_B:
+		arcmsr_hbaB_stop_bgrb(acb);
+		break;
+	case ACB_ADAPTER_TYPE_C:
+		arcmsr_hbaC_stop_bgrb(acb);
+>>>>>>> upstream/android-13
 		break;
 	case ACB_ADAPTER_TYPE_D:
 		arcmsr_hbaD_stop_bgrb(acb);
 		break;
 	case ACB_ADAPTER_TYPE_E:
+<<<<<<< HEAD
+=======
+	case ACB_ADAPTER_TYPE_F:
+>>>>>>> upstream/android-13
 		arcmsr_hbaE_stop_bgrb(acb);
 		break;
 	}
@@ -1893,7 +2514,10 @@ static void arcmsr_iop_message_read(struct AdapterControlBlock *acb)
 		writel(ARCMSR_INBOUND_DRIVER_DATA_READ_OK, &reg->inbound_doorbell);
 		}
 		break;
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	case ACB_ADAPTER_TYPE_B: {
 		struct MessageUnit_B *reg = acb->pmuB;
 		writel(ARCMSR_DRV2IOP_DATA_READ_OK, reg->drv2iop_doorbell);
@@ -1911,7 +2535,12 @@ static void arcmsr_iop_message_read(struct AdapterControlBlock *acb)
 			reg->inbound_doorbell);
 		}
 		break;
+<<<<<<< HEAD
 	case ACB_ADAPTER_TYPE_E: {
+=======
+	case ACB_ADAPTER_TYPE_E:
+	case ACB_ADAPTER_TYPE_F: {
+>>>>>>> upstream/android-13
 		struct MessageUnit_E __iomem *reg = acb->pmuE;
 		acb->out_doorbell ^= ARCMSR_HBEMU_DRV2IOP_DATA_READ_OK;
 		writel(acb->out_doorbell, &reg->iobound_doorbell);
@@ -1957,7 +2586,12 @@ static void arcmsr_iop_message_wrote(struct AdapterControlBlock *acb)
 			reg->inbound_doorbell);
 		}
 		break;
+<<<<<<< HEAD
 	case ACB_ADAPTER_TYPE_E: {
+=======
+	case ACB_ADAPTER_TYPE_E:
+	case ACB_ADAPTER_TYPE_F: {
+>>>>>>> upstream/android-13
 		struct MessageUnit_E __iomem *reg = acb->pmuE;
 		acb->out_doorbell ^= ARCMSR_HBEMU_DRV2IOP_DATA_WRITE_OK;
 		writel(acb->out_doorbell, &reg->iobound_doorbell);
@@ -1976,7 +2610,10 @@ struct QBUFFER __iomem *arcmsr_get_iop_rqbuffer(struct AdapterControlBlock *acb)
 		qbuffer = (struct QBUFFER __iomem *)&reg->message_rbuffer;
 		}
 		break;
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	case ACB_ADAPTER_TYPE_B: {
 		struct MessageUnit_B *reg = acb->pmuB;
 		qbuffer = (struct QBUFFER __iomem *)reg->message_rbuffer;
@@ -1997,6 +2634,13 @@ struct QBUFFER __iomem *arcmsr_get_iop_rqbuffer(struct AdapterControlBlock *acb)
 		qbuffer = (struct QBUFFER __iomem *)&reg->message_rbuffer;
 		}
 		break;
+<<<<<<< HEAD
+=======
+	case ACB_ADAPTER_TYPE_F: {
+		qbuffer = (struct QBUFFER __iomem *)acb->message_rbuffer;
+		}
+		break;
+>>>>>>> upstream/android-13
 	}
 	return qbuffer;
 }
@@ -2011,7 +2655,10 @@ static struct QBUFFER __iomem *arcmsr_get_iop_wqbuffer(struct AdapterControlBloc
 		pqbuffer = (struct QBUFFER __iomem *) &reg->message_wbuffer;
 		}
 		break;
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	case ACB_ADAPTER_TYPE_B: {
 		struct MessageUnit_B  *reg = acb->pmuB;
 		pqbuffer = (struct QBUFFER __iomem *)reg->message_wbuffer;
@@ -2032,6 +2679,12 @@ static struct QBUFFER __iomem *arcmsr_get_iop_wqbuffer(struct AdapterControlBloc
 		pqbuffer = (struct QBUFFER __iomem *)&reg->message_wbuffer;
 		}
 		break;
+<<<<<<< HEAD
+=======
+	case ACB_ADAPTER_TYPE_F:
+		pqbuffer = (struct QBUFFER __iomem *)acb->message_wbuffer;
+		break;
+>>>>>>> upstream/android-13
 	}
 	return pqbuffer;
 }
@@ -2270,10 +2923,24 @@ static void arcmsr_hbaD_doorbell_isr(struct AdapterControlBlock *pACB)
 
 static void arcmsr_hbaE_doorbell_isr(struct AdapterControlBlock *pACB)
 {
+<<<<<<< HEAD
 	uint32_t outbound_doorbell, in_doorbell, tmp;
 	struct MessageUnit_E __iomem *reg = pACB->pmuE;
 
 	in_doorbell = readl(&reg->iobound_doorbell);
+=======
+	uint32_t outbound_doorbell, in_doorbell, tmp, i;
+	struct MessageUnit_E __iomem *reg = pACB->pmuE;
+
+	if (pACB->adapter_type == ACB_ADAPTER_TYPE_F) {
+		for (i = 0; i < 5; i++) {
+			in_doorbell = readl(&reg->iobound_doorbell);
+			if (in_doorbell != 0)
+				break;
+		}
+	} else
+		in_doorbell = readl(&reg->iobound_doorbell);
+>>>>>>> upstream/android-13
 	outbound_doorbell = in_doorbell ^ pACB->in_doorbell;
 	do {
 		writel(0, &reg->host_int_status); /* clear interrupt */
@@ -2302,8 +2969,18 @@ static void arcmsr_hbaA_postqueue_isr(struct AdapterControlBlock *acb)
 	struct ARCMSR_CDB *pARCMSR_CDB;
 	struct CommandControlBlock *pCCB;
 	bool error;
+<<<<<<< HEAD
 	while ((flag_ccb = readl(&reg->outbound_queueport)) != 0xFFFFFFFF) {
 		pARCMSR_CDB = (struct ARCMSR_CDB *)(acb->vir2phy_offset + (flag_ccb << 5));/*frame must be 32 bytes aligned*/
+=======
+	unsigned long cdb_phy_addr;
+
+	while ((flag_ccb = readl(&reg->outbound_queueport)) != 0xFFFFFFFF) {
+		cdb_phy_addr = (flag_ccb << 5) & 0xffffffff;
+		if (acb->cdb_phyadd_hipart)
+			cdb_phy_addr = cdb_phy_addr | acb->cdb_phyadd_hipart;
+		pARCMSR_CDB = (struct ARCMSR_CDB *)(acb->vir2phy_offset + cdb_phy_addr);
+>>>>>>> upstream/android-13
 		pCCB = container_of(pARCMSR_CDB, struct CommandControlBlock, arcmsr_cdb);
 		error = (flag_ccb & ARCMSR_CCBREPLY_FLAG_ERROR_MODE0) ? true : false;
 		arcmsr_drain_donequeue(acb, pCCB, error);
@@ -2317,6 +2994,7 @@ static void arcmsr_hbaB_postqueue_isr(struct AdapterControlBlock *acb)
 	struct ARCMSR_CDB *pARCMSR_CDB;
 	struct CommandControlBlock *pCCB;
 	bool error;
+<<<<<<< HEAD
 	index = reg->doneq_index;
 	while ((flag_ccb = reg->done_qbuffer[index]) != 0) {
 		reg->done_qbuffer[index] = 0;
@@ -2324,6 +3002,20 @@ static void arcmsr_hbaB_postqueue_isr(struct AdapterControlBlock *acb)
 		pCCB = container_of(pARCMSR_CDB, struct CommandControlBlock, arcmsr_cdb);
 		error = (flag_ccb & ARCMSR_CCBREPLY_FLAG_ERROR_MODE0) ? true : false;
 		arcmsr_drain_donequeue(acb, pCCB, error);
+=======
+	unsigned long cdb_phy_addr;
+
+	index = reg->doneq_index;
+	while ((flag_ccb = reg->done_qbuffer[index]) != 0) {
+		cdb_phy_addr = (flag_ccb << 5) & 0xffffffff;
+		if (acb->cdb_phyadd_hipart)
+			cdb_phy_addr = cdb_phy_addr | acb->cdb_phyadd_hipart;
+		pARCMSR_CDB = (struct ARCMSR_CDB *)(acb->vir2phy_offset + cdb_phy_addr);
+		pCCB = container_of(pARCMSR_CDB, struct CommandControlBlock, arcmsr_cdb);
+		error = (flag_ccb & ARCMSR_CCBREPLY_FLAG_ERROR_MODE0) ? true : false;
+		arcmsr_drain_donequeue(acb, pCCB, error);
+		reg->done_qbuffer[index] = 0;
+>>>>>>> upstream/android-13
 		index++;
 		index %= ARCMSR_MAX_HBB_POSTQUEUE;
 		reg->doneq_index = index;
@@ -2335,7 +3027,12 @@ static void arcmsr_hbaC_postqueue_isr(struct AdapterControlBlock *acb)
 	struct MessageUnit_C __iomem *phbcmu;
 	struct ARCMSR_CDB *arcmsr_cdb;
 	struct CommandControlBlock *ccb;
+<<<<<<< HEAD
 	uint32_t flag_ccb, ccb_cdb_phy, throttling = 0;
+=======
+	uint32_t flag_ccb, throttling = 0;
+	unsigned long ccb_cdb_phy;
+>>>>>>> upstream/android-13
 	int error;
 
 	phbcmu = acb->pmuC;
@@ -2345,6 +3042,11 @@ static void arcmsr_hbaC_postqueue_isr(struct AdapterControlBlock *acb)
 	while ((flag_ccb = readl(&phbcmu->outbound_queueport_low)) !=
 			0xFFFFFFFF) {
 		ccb_cdb_phy = (flag_ccb & 0xFFFFFFF0);
+<<<<<<< HEAD
+=======
+		if (acb->cdb_phyadd_hipart)
+			ccb_cdb_phy = ccb_cdb_phy | acb->cdb_phyadd_hipart;
+>>>>>>> upstream/android-13
 		arcmsr_cdb = (struct ARCMSR_CDB *)(acb->vir2phy_offset
 			+ ccb_cdb_phy);
 		ccb = container_of(arcmsr_cdb, struct CommandControlBlock,
@@ -2365,12 +3067,20 @@ static void arcmsr_hbaC_postqueue_isr(struct AdapterControlBlock *acb)
 static void arcmsr_hbaD_postqueue_isr(struct AdapterControlBlock *acb)
 {
 	u32 outbound_write_pointer, doneq_index, index_stripped, toggle;
+<<<<<<< HEAD
 	uint32_t addressLow, ccb_cdb_phy;
+=======
+	uint32_t addressLow;
+>>>>>>> upstream/android-13
 	int error;
 	struct MessageUnit_D  *pmu;
 	struct ARCMSR_CDB *arcmsr_cdb;
 	struct CommandControlBlock *ccb;
+<<<<<<< HEAD
 	unsigned long flags;
+=======
+	unsigned long flags, ccb_cdb_phy;
+>>>>>>> upstream/android-13
 
 	spin_lock_irqsave(&acb->doneq_lock, flags);
 	pmu = acb->pmuD;
@@ -2387,6 +3097,11 @@ static void arcmsr_hbaD_postqueue_isr(struct AdapterControlBlock *acb)
 			addressLow = pmu->done_qbuffer[doneq_index &
 				0xFFF].addressLow;
 			ccb_cdb_phy = (addressLow & 0xFFFFFFF0);
+<<<<<<< HEAD
+=======
+			if (acb->cdb_phyadd_hipart)
+				ccb_cdb_phy = ccb_cdb_phy | acb->cdb_phyadd_hipart;
+>>>>>>> upstream/android-13
 			arcmsr_cdb = (struct ARCMSR_CDB *)(acb->vir2phy_offset
 				+ ccb_cdb_phy);
 			ccb = container_of(arcmsr_cdb,
@@ -2431,6 +3146,39 @@ static void arcmsr_hbaE_postqueue_isr(struct AdapterControlBlock *acb)
 	spin_unlock_irqrestore(&acb->doneq_lock, flags);
 }
 
+<<<<<<< HEAD
+=======
+static void arcmsr_hbaF_postqueue_isr(struct AdapterControlBlock *acb)
+{
+	uint32_t doneq_index;
+	uint16_t cmdSMID;
+	int error;
+	struct MessageUnit_F __iomem *phbcmu;
+	struct CommandControlBlock *ccb;
+	unsigned long flags;
+
+	spin_lock_irqsave(&acb->doneq_lock, flags);
+	doneq_index = acb->doneq_index;
+	phbcmu = acb->pmuF;
+	while (1) {
+		cmdSMID = acb->pCompletionQ[doneq_index].cmdSMID;
+		if (cmdSMID == 0xffff)
+			break;
+		ccb = acb->pccb_pool[cmdSMID];
+		error = (acb->pCompletionQ[doneq_index].cmdFlag &
+			ARCMSR_CCBREPLY_FLAG_ERROR_MODE1) ? true : false;
+		arcmsr_drain_donequeue(acb, ccb, error);
+		acb->pCompletionQ[doneq_index].cmdSMID = 0xffff;
+		doneq_index++;
+		if (doneq_index >= acb->completionQ_entry)
+			doneq_index = 0;
+	}
+	acb->doneq_index = doneq_index;
+	writel(doneq_index, &phbcmu->reply_post_consumer_index);
+	spin_unlock_irqrestore(&acb->doneq_lock, flags);
+}
+
+>>>>>>> upstream/android-13
 /*
 **********************************************************************************
 ** Handle a message interrupt
@@ -2621,21 +3369,59 @@ static irqreturn_t arcmsr_hbaE_handle_isr(struct AdapterControlBlock *pACB)
 	return IRQ_HANDLED;
 }
 
+<<<<<<< HEAD
+=======
+static irqreturn_t arcmsr_hbaF_handle_isr(struct AdapterControlBlock *pACB)
+{
+	uint32_t host_interrupt_status;
+	struct MessageUnit_F __iomem *phbcmu = pACB->pmuF;
+
+	host_interrupt_status = readl(&phbcmu->host_int_status) &
+		(ARCMSR_HBEMU_OUTBOUND_POSTQUEUE_ISR |
+		ARCMSR_HBEMU_OUTBOUND_DOORBELL_ISR);
+	if (!host_interrupt_status)
+		return IRQ_NONE;
+	do {
+		/* MU post queue interrupts*/
+		if (host_interrupt_status & ARCMSR_HBEMU_OUTBOUND_POSTQUEUE_ISR)
+			arcmsr_hbaF_postqueue_isr(pACB);
+
+		/* MU ioctl transfer doorbell interrupts*/
+		if (host_interrupt_status & ARCMSR_HBEMU_OUTBOUND_DOORBELL_ISR)
+			arcmsr_hbaE_doorbell_isr(pACB);
+
+		host_interrupt_status = readl(&phbcmu->host_int_status);
+	} while (host_interrupt_status & (ARCMSR_HBEMU_OUTBOUND_POSTQUEUE_ISR |
+		ARCMSR_HBEMU_OUTBOUND_DOORBELL_ISR));
+	return IRQ_HANDLED;
+}
+
+>>>>>>> upstream/android-13
 static irqreturn_t arcmsr_interrupt(struct AdapterControlBlock *acb)
 {
 	switch (acb->adapter_type) {
 	case ACB_ADAPTER_TYPE_A:
 		return arcmsr_hbaA_handle_isr(acb);
+<<<<<<< HEAD
 		break;
 	case ACB_ADAPTER_TYPE_B:
 		return arcmsr_hbaB_handle_isr(acb);
 		break;
+=======
+	case ACB_ADAPTER_TYPE_B:
+		return arcmsr_hbaB_handle_isr(acb);
+>>>>>>> upstream/android-13
 	case ACB_ADAPTER_TYPE_C:
 		return arcmsr_hbaC_handle_isr(acb);
 	case ACB_ADAPTER_TYPE_D:
 		return arcmsr_hbaD_handle_isr(acb);
 	case ACB_ADAPTER_TYPE_E:
 		return arcmsr_hbaE_handle_isr(acb);
+<<<<<<< HEAD
+=======
+	case ACB_ADAPTER_TYPE_F:
+		return arcmsr_hbaF_handle_isr(acb);
+>>>>>>> upstream/android-13
 	default:
 		return IRQ_NONE;
 	}
@@ -2936,10 +3722,19 @@ message_out:
 
 static struct CommandControlBlock *arcmsr_get_freeccb(struct AdapterControlBlock *acb)
 {
+<<<<<<< HEAD
 	struct list_head *head = &acb->ccb_free_list;
 	struct CommandControlBlock *ccb = NULL;
 	unsigned long flags;
 	spin_lock_irqsave(&acb->ccblist_lock, flags);
+=======
+	struct list_head *head;
+	struct CommandControlBlock *ccb = NULL;
+	unsigned long flags;
+
+	spin_lock_irqsave(&acb->ccblist_lock, flags);
+	head = &acb->ccb_free_list;
+>>>>>>> upstream/android-13
 	if (!list_empty(head)) {
 		ccb = list_entry(head->next, struct CommandControlBlock, list);
 		list_del_init(&ccb->list);
@@ -2973,11 +3768,19 @@ static void arcmsr_handle_virtual_command(struct AdapterControlBlock *acb,
 		/* ISO, ECMA, & ANSI versions */
 		inqdata[4] = 31;
 		/* length of additional data */
+<<<<<<< HEAD
 		strncpy(&inqdata[8], "Areca   ", 8);
 		/* Vendor Identification */
 		strncpy(&inqdata[16], "RAID controller ", 16);
 		/* Product Identification */
 		strncpy(&inqdata[32], "R001", 4); /* Product Revision */
+=======
+		memcpy(&inqdata[8], "Areca   ", 8);
+		/* Vendor Identification */
+		memcpy(&inqdata[16], "RAID controller ", 16);
+		/* Product Identification */
+		memcpy(&inqdata[32], "R001", 4); /* Product Revision */
+>>>>>>> upstream/android-13
 
 		sg = scsi_sglist(cmd);
 		buffer = kmap_atomic(sg_page(sg)) + sg->offset;
@@ -3026,7 +3829,11 @@ static int arcmsr_queue_command_lck(struct scsi_cmnd *cmd,
 	if (!ccb)
 		return SCSI_MLQUEUE_HOST_BUSY;
 	if (arcmsr_build_ccb( acb, ccb, cmd ) == FAILED) {
+<<<<<<< HEAD
 		cmd->result = (DID_ERROR << 16) | (RESERVATION_CONFLICT << 1);
+=======
+		cmd->result = (DID_ERROR << 16) | SAM_STAT_RESERVATION_CONFLICT;
+>>>>>>> upstream/android-13
 		cmd->scsi_done(cmd);
 		return 0;
 	}
@@ -3036,6 +3843,19 @@ static int arcmsr_queue_command_lck(struct scsi_cmnd *cmd,
 
 static DEF_SCSI_QCMD(arcmsr_queue_command)
 
+<<<<<<< HEAD
+=======
+static int arcmsr_slave_config(struct scsi_device *sdev)
+{
+	unsigned int	dev_timeout;
+
+	dev_timeout = sdev->request_queue->rq_timeout;
+	if ((cmd_timeout > 0) && ((cmd_timeout * HZ) > dev_timeout))
+		blk_queue_rq_timeout(sdev->request_queue, cmd_timeout * HZ);
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static void arcmsr_get_adapter_config(struct AdapterControlBlock *pACB, uint32_t *rwbuffer)
 {
 	int count;
@@ -3184,6 +4004,34 @@ static bool arcmsr_hbaE_get_config(struct AdapterControlBlock *pACB)
 	return true;
 }
 
+<<<<<<< HEAD
+=======
+static bool arcmsr_hbaF_get_config(struct AdapterControlBlock *pACB)
+{
+	struct MessageUnit_F __iomem *reg = pACB->pmuF;
+	uint32_t intmask_org;
+
+	/* disable all outbound interrupt */
+	intmask_org = readl(&reg->host_int_mask); /* disable outbound message0 int */
+	writel(intmask_org | ARCMSR_HBEMU_ALL_INTMASKENABLE, &reg->host_int_mask);
+	/* wait firmware ready */
+	arcmsr_wait_firmware_ready(pACB);
+	/* post "get config" instruction */
+	writel(ARCMSR_INBOUND_MESG0_GET_CONFIG, &reg->inbound_msgaddr0);
+
+	pACB->out_doorbell ^= ARCMSR_HBEMU_DRV2IOP_MESSAGE_CMD_DONE;
+	writel(pACB->out_doorbell, &reg->iobound_doorbell);
+	/* wait message ready */
+	if (!arcmsr_hbaE_wait_msgint_ready(pACB)) {
+		pr_notice("arcmsr%d: wait get adapter firmware miscellaneous data timeout\n",
+			  pACB->host->host_no);
+		return false;
+	}
+	arcmsr_get_adapter_config(pACB, pACB->msgcode_rwbuffer);
+	return true;
+}
+
+>>>>>>> upstream/android-13
 static bool arcmsr_get_firmware_spec(struct AdapterControlBlock *acb)
 {
 	bool rtn = false;
@@ -3204,6 +4052,12 @@ static bool arcmsr_get_firmware_spec(struct AdapterControlBlock *acb)
 	case ACB_ADAPTER_TYPE_E:
 		rtn = arcmsr_hbaE_get_config(acb);
 		break;
+<<<<<<< HEAD
+=======
+	case ACB_ADAPTER_TYPE_F:
+		rtn = arcmsr_hbaF_get_config(acb);
+		break;
+>>>>>>> upstream/android-13
 	default:
 		break;
 	}
@@ -3227,7 +4081,13 @@ static int arcmsr_hbaA_polling_ccbdone(struct AdapterControlBlock *acb,
 	uint32_t flag_ccb, outbound_intstatus, poll_ccb_done = 0, poll_count = 0;
 	int rtn;
 	bool error;
+<<<<<<< HEAD
 	polling_hba_ccb_retry:
+=======
+	unsigned long ccb_cdb_phy;
+
+polling_hba_ccb_retry:
+>>>>>>> upstream/android-13
 	poll_count++;
 	outbound_intstatus = readl(&reg->outbound_intstatus) & acb->outbound_int_enable;
 	writel(outbound_intstatus, &reg->outbound_intstatus);/*clear interrupt*/
@@ -3245,7 +4105,14 @@ static int arcmsr_hbaA_polling_ccbdone(struct AdapterControlBlock *acb,
 				goto polling_hba_ccb_retry;
 			}
 		}
+<<<<<<< HEAD
 		arcmsr_cdb = (struct ARCMSR_CDB *)(acb->vir2phy_offset + (flag_ccb << 5));
+=======
+		ccb_cdb_phy = (flag_ccb << 5) & 0xffffffff;
+		if (acb->cdb_phyadd_hipart)
+			ccb_cdb_phy = ccb_cdb_phy | acb->cdb_phyadd_hipart;
+		arcmsr_cdb = (struct ARCMSR_CDB *)(acb->vir2phy_offset + ccb_cdb_phy);
+>>>>>>> upstream/android-13
 		ccb = container_of(arcmsr_cdb, struct CommandControlBlock, arcmsr_cdb);
 		poll_ccb_done |= (ccb == poll_ccb) ? 1 : 0;
 		if ((ccb->acb != acb) || (ccb->startdone != ARCMSR_CCB_START)) {
@@ -3283,8 +4150,14 @@ static int arcmsr_hbaB_polling_ccbdone(struct AdapterControlBlock *acb,
 	uint32_t flag_ccb, poll_ccb_done = 0, poll_count = 0;
 	int index, rtn;
 	bool error;
+<<<<<<< HEAD
 	polling_hbb_ccb_retry:
 
+=======
+	unsigned long ccb_cdb_phy;
+
+polling_hbb_ccb_retry:
+>>>>>>> upstream/android-13
 	poll_count++;
 	/* clear doorbell interrupt */
 	writel(ARCMSR_DOORBELL_INT_CLEAR_PATTERN, reg->iop2drv_doorbell);
@@ -3310,7 +4183,14 @@ static int arcmsr_hbaB_polling_ccbdone(struct AdapterControlBlock *acb,
 		index %= ARCMSR_MAX_HBB_POSTQUEUE;
 		reg->doneq_index = index;
 		/* check if command done with no error*/
+<<<<<<< HEAD
 		arcmsr_cdb = (struct ARCMSR_CDB *)(acb->vir2phy_offset + (flag_ccb << 5));
+=======
+		ccb_cdb_phy = (flag_ccb << 5) & 0xffffffff;
+		if (acb->cdb_phyadd_hipart)
+			ccb_cdb_phy = ccb_cdb_phy | acb->cdb_phyadd_hipart;
+		arcmsr_cdb = (struct ARCMSR_CDB *)(acb->vir2phy_offset + ccb_cdb_phy);
+>>>>>>> upstream/android-13
 		ccb = container_of(arcmsr_cdb, struct CommandControlBlock, arcmsr_cdb);
 		poll_ccb_done |= (ccb == poll_ccb) ? 1 : 0;
 		if ((ccb->acb != acb) || (ccb->startdone != ARCMSR_CCB_START)) {
@@ -3343,12 +4223,21 @@ static int arcmsr_hbaC_polling_ccbdone(struct AdapterControlBlock *acb,
 		struct CommandControlBlock *poll_ccb)
 {
 	struct MessageUnit_C __iomem *reg = acb->pmuC;
+<<<<<<< HEAD
 	uint32_t flag_ccb, ccb_cdb_phy;
+=======
+	uint32_t flag_ccb;
+>>>>>>> upstream/android-13
 	struct ARCMSR_CDB *arcmsr_cdb;
 	bool error;
 	struct CommandControlBlock *pCCB;
 	uint32_t poll_ccb_done = 0, poll_count = 0;
 	int rtn;
+<<<<<<< HEAD
+=======
+	unsigned long ccb_cdb_phy;
+
+>>>>>>> upstream/android-13
 polling_hbc_ccb_retry:
 	poll_count++;
 	while (1) {
@@ -3367,7 +4256,13 @@ polling_hbc_ccb_retry:
 		}
 		flag_ccb = readl(&reg->outbound_queueport_low);
 		ccb_cdb_phy = (flag_ccb & 0xFFFFFFF0);
+<<<<<<< HEAD
 		arcmsr_cdb = (struct ARCMSR_CDB *)(acb->vir2phy_offset + ccb_cdb_phy);/*frame must be 32 bytes aligned*/
+=======
+		if (acb->cdb_phyadd_hipart)
+			ccb_cdb_phy = ccb_cdb_phy | acb->cdb_phyadd_hipart;
+		arcmsr_cdb = (struct ARCMSR_CDB *)(acb->vir2phy_offset + ccb_cdb_phy);
+>>>>>>> upstream/android-13
 		pCCB = container_of(arcmsr_cdb, struct CommandControlBlock, arcmsr_cdb);
 		poll_ccb_done |= (pCCB == poll_ccb) ? 1 : 0;
 		/* check ifcommand done with no error*/
@@ -3379,8 +4274,13 @@ polling_hbc_ccb_retry:
 					, pCCB->pcmd->device->id
 					, (u32)pCCB->pcmd->device->lun
 					, pCCB);
+<<<<<<< HEAD
 					pCCB->pcmd->result = DID_ABORT << 16;
 					arcmsr_ccb_complete(pCCB);
+=======
+				pCCB->pcmd->result = DID_ABORT << 16;
+				arcmsr_ccb_complete(pCCB);
+>>>>>>> upstream/android-13
 				continue;
 			}
 			printk(KERN_NOTICE "arcmsr%d: polling get an illegal ccb"
@@ -3401,9 +4301,15 @@ static int arcmsr_hbaD_polling_ccbdone(struct AdapterControlBlock *acb,
 				struct CommandControlBlock *poll_ccb)
 {
 	bool error;
+<<<<<<< HEAD
 	uint32_t poll_ccb_done = 0, poll_count = 0, flag_ccb, ccb_cdb_phy;
 	int rtn, doneq_index, index_stripped, outbound_write_pointer, toggle;
 	unsigned long flags;
+=======
+	uint32_t poll_ccb_done = 0, poll_count = 0, flag_ccb;
+	int rtn, doneq_index, index_stripped, outbound_write_pointer, toggle;
+	unsigned long flags, ccb_cdb_phy;
+>>>>>>> upstream/android-13
 	struct ARCMSR_CDB *arcmsr_cdb;
 	struct CommandControlBlock *pCCB;
 	struct MessageUnit_D *pmu = acb->pmuD;
@@ -3437,6 +4343,11 @@ polling_hbaD_ccb_retry:
 		spin_unlock_irqrestore(&acb->doneq_lock, flags);
 		flag_ccb = pmu->done_qbuffer[doneq_index & 0xFFF].addressLow;
 		ccb_cdb_phy = (flag_ccb & 0xFFFFFFF0);
+<<<<<<< HEAD
+=======
+		if (acb->cdb_phyadd_hipart)
+			ccb_cdb_phy = ccb_cdb_phy | acb->cdb_phyadd_hipart;
+>>>>>>> upstream/android-13
 		arcmsr_cdb = (struct ARCMSR_CDB *)(acb->vir2phy_offset +
 			ccb_cdb_phy);
 		pCCB = container_of(arcmsr_cdb, struct CommandControlBlock,
@@ -3546,6 +4457,7 @@ static int arcmsr_polling_ccbdone(struct AdapterControlBlock *acb,
 	int rtn = 0;
 	switch (acb->adapter_type) {
 
+<<<<<<< HEAD
 	case ACB_ADAPTER_TYPE_A: {
 		rtn = arcmsr_hbaA_polling_ccbdone(acb, poll_ccb);
 		}
@@ -3558,11 +4470,25 @@ static int arcmsr_polling_ccbdone(struct AdapterControlBlock *acb,
 	case ACB_ADAPTER_TYPE_C: {
 		rtn = arcmsr_hbaC_polling_ccbdone(acb, poll_ccb);
 		}
+=======
+	case ACB_ADAPTER_TYPE_A:
+		rtn = arcmsr_hbaA_polling_ccbdone(acb, poll_ccb);
+		break;
+	case ACB_ADAPTER_TYPE_B:
+		rtn = arcmsr_hbaB_polling_ccbdone(acb, poll_ccb);
+		break;
+	case ACB_ADAPTER_TYPE_C:
+		rtn = arcmsr_hbaC_polling_ccbdone(acb, poll_ccb);
+>>>>>>> upstream/android-13
 		break;
 	case ACB_ADAPTER_TYPE_D:
 		rtn = arcmsr_hbaD_polling_ccbdone(acb, poll_ccb);
 		break;
 	case ACB_ADAPTER_TYPE_E:
+<<<<<<< HEAD
+=======
+	case ACB_ADAPTER_TYPE_F:
+>>>>>>> upstream/android-13
 		rtn = arcmsr_hbaE_polling_ccbdone(acb, poll_ccb);
 		break;
 	}
@@ -3643,6 +4569,19 @@ static void arcmsr_set_iop_datetime(struct timer_list *t)
 			writel(pacb->out_doorbell, &reg->iobound_doorbell);
 			break;
 		}
+<<<<<<< HEAD
+=======
+		case ACB_ADAPTER_TYPE_F: {
+			struct MessageUnit_F __iomem *reg = pacb->pmuF;
+
+			pacb->msgcode_rwbuffer[0] = datetime.b.msg_time[0];
+			pacb->msgcode_rwbuffer[1] = datetime.b.msg_time[1];
+			writel(ARCMSR_INBOUND_MESG0_SYNC_TIMER, &reg->inbound_msgaddr0);
+			pacb->out_doorbell ^= ARCMSR_HBEMU_DRV2IOP_MESSAGE_CMD_DONE;
+			writel(pacb->out_doorbell, &reg->iobound_doorbell);
+			break;
+		}
+>>>>>>> upstream/android-13
 	}
 	if (sys_tz.tz_minuteswest)
 		next_time = ARCMSR_HOURS;
@@ -3668,6 +4607,10 @@ static int arcmsr_iop_confirm(struct AdapterControlBlock *acb)
 		dma_coherent_handle = acb->dma_coherent_handle2;
 		break;
 	case ACB_ADAPTER_TYPE_E:
+<<<<<<< HEAD
+=======
+	case ACB_ADAPTER_TYPE_F:
+>>>>>>> upstream/android-13
 		dma_coherent_handle = acb->dma_coherent_handle +
 			offsetof(struct CommandControlBlock, arcmsr_cdb);
 		break;
@@ -3678,6 +4621,10 @@ static int arcmsr_iop_confirm(struct AdapterControlBlock *acb)
 	cdb_phyaddr = lower_32_bits(dma_coherent_handle);
 	cdb_phyaddr_hi32 = upper_32_bits(dma_coherent_handle);
 	acb->cdb_phyaddr_hi32 = cdb_phyaddr_hi32;
+<<<<<<< HEAD
+=======
+	acb->cdb_phyadd_hipart = ((uint64_t)cdb_phyaddr_hi32) << 32;
+>>>>>>> upstream/android-13
 	/*
 	***********************************************************************
 	**    if adapter type B, set window of "post command Q"
@@ -3742,7 +4689,10 @@ static int arcmsr_iop_confirm(struct AdapterControlBlock *acb)
 		}
 		break;
 	case ACB_ADAPTER_TYPE_C: {
+<<<<<<< HEAD
 		if (cdb_phyaddr_hi32 != 0) {
+=======
+>>>>>>> upstream/android-13
 			struct MessageUnit_C __iomem *reg = acb->pmuC;
 
 			printk(KERN_NOTICE "arcmsr%d: cdb_phyaddr_hi32=0x%x\n",
@@ -3757,7 +4707,10 @@ static int arcmsr_iop_confirm(struct AdapterControlBlock *acb)
 				return 1;
 			}
 		}
+<<<<<<< HEAD
 		}
+=======
+>>>>>>> upstream/android-13
 		break;
 	case ACB_ADAPTER_TYPE_D: {
 		uint32_t __iomem *rwbuffer;
@@ -3786,12 +4739,18 @@ static int arcmsr_iop_confirm(struct AdapterControlBlock *acb)
 		writel(cdb_phyaddr, &reg->msgcode_rwbuffer[2]);
 		writel(cdb_phyaddr_hi32, &reg->msgcode_rwbuffer[3]);
 		writel(acb->ccbsize, &reg->msgcode_rwbuffer[4]);
+<<<<<<< HEAD
 		dma_coherent_handle = acb->dma_coherent_handle2;
 		cdb_phyaddr = (uint32_t)(dma_coherent_handle & 0xffffffff);
 		cdb_phyaddr_hi32 = (uint32_t)((dma_coherent_handle >> 16) >> 16);
 		writel(cdb_phyaddr, &reg->msgcode_rwbuffer[5]);
 		writel(cdb_phyaddr_hi32, &reg->msgcode_rwbuffer[6]);
 		writel(acb->roundup_ccbsize, &reg->msgcode_rwbuffer[7]);
+=======
+		writel(lower_32_bits(acb->dma_coherent_handle2), &reg->msgcode_rwbuffer[5]);
+		writel(upper_32_bits(acb->dma_coherent_handle2), &reg->msgcode_rwbuffer[6]);
+		writel(acb->ioqueue_size, &reg->msgcode_rwbuffer[7]);
+>>>>>>> upstream/android-13
 		writel(ARCMSR_INBOUND_MESG0_SET_CONFIG, &reg->inbound_msgaddr0);
 		acb->out_doorbell ^= ARCMSR_HBEMU_DRV2IOP_MESSAGE_CMD_DONE;
 		writel(acb->out_doorbell, &reg->iobound_doorbell);
@@ -3802,6 +4761,30 @@ static int arcmsr_iop_confirm(struct AdapterControlBlock *acb)
 		}
 		}
 		break;
+<<<<<<< HEAD
+=======
+	case ACB_ADAPTER_TYPE_F: {
+		struct MessageUnit_F __iomem *reg = acb->pmuF;
+
+		acb->msgcode_rwbuffer[0] = ARCMSR_SIGNATURE_SET_CONFIG;
+		acb->msgcode_rwbuffer[1] = ARCMSR_SIGNATURE_1886;
+		acb->msgcode_rwbuffer[2] = cdb_phyaddr;
+		acb->msgcode_rwbuffer[3] = cdb_phyaddr_hi32;
+		acb->msgcode_rwbuffer[4] = acb->ccbsize;
+		acb->msgcode_rwbuffer[5] = lower_32_bits(acb->dma_coherent_handle2);
+		acb->msgcode_rwbuffer[6] = upper_32_bits(acb->dma_coherent_handle2);
+		acb->msgcode_rwbuffer[7] = acb->completeQ_size;
+		writel(ARCMSR_INBOUND_MESG0_SET_CONFIG, &reg->inbound_msgaddr0);
+		acb->out_doorbell ^= ARCMSR_HBEMU_DRV2IOP_MESSAGE_CMD_DONE;
+		writel(acb->out_doorbell, &reg->iobound_doorbell);
+		if (!arcmsr_hbaE_wait_msgint_ready(acb)) {
+			pr_notice("arcmsr%d: 'set command Q window' timeout\n",
+				acb->host->host_no);
+			return 1;
+		}
+		}
+		break;
+>>>>>>> upstream/android-13
 	}
 	return 0;
 }
@@ -3850,7 +4833,12 @@ static void arcmsr_wait_firmware_ready(struct AdapterControlBlock *acb)
 			ARCMSR_ARC1214_MESSAGE_FIRMWARE_OK) == 0);
 		}
 		break;
+<<<<<<< HEAD
 	case ACB_ADAPTER_TYPE_E: {
+=======
+	case ACB_ADAPTER_TYPE_E:
+	case ACB_ADAPTER_TYPE_F: {
+>>>>>>> upstream/android-13
 		struct MessageUnit_E __iomem *reg = acb->pmuE;
 		do {
 			if (!(acb->acb_flags & ACB_F_IOP_INITED))
@@ -3865,6 +4853,7 @@ static void arcmsr_wait_firmware_ready(struct AdapterControlBlock *acb)
 static void arcmsr_request_device_map(struct timer_list *t)
 {
 	struct AdapterControlBlock *acb = from_timer(acb, t, eternal_timer);
+<<<<<<< HEAD
 	if (unlikely(atomic_read(&acb->rq_map_token) == 0) ||
 		(acb->acb_flags & ACB_F_BUS_RESET) ||
 		(acb->acb_flags & ACB_F_ABORT)) {
@@ -3883,6 +4872,12 @@ static void arcmsr_request_device_map(struct timer_list *t)
 				msecs_to_jiffies(6 * HZ));
 			return;
 		}
+=======
+	if (acb->acb_flags & (ACB_F_MSG_GET_CONFIG | ACB_F_BUS_RESET | ACB_F_ABORT)) {
+		mod_timer(&acb->eternal_timer, jiffies + msecs_to_jiffies(6 * HZ));
+	} else {
+		acb->fw_flag = FW_NORMAL;
+>>>>>>> upstream/android-13
 		switch (acb->adapter_type) {
 		case ACB_ADAPTER_TYPE_A: {
 			struct MessageUnit_A __iomem *reg = acb->pmuA;
@@ -3912,10 +4907,29 @@ static void arcmsr_request_device_map(struct timer_list *t)
 			writel(acb->out_doorbell, &reg->iobound_doorbell);
 			break;
 			}
+<<<<<<< HEAD
+=======
+		case ACB_ADAPTER_TYPE_F: {
+			struct MessageUnit_F __iomem *reg = acb->pmuF;
+			uint32_t outMsg1 = readl(&reg->outbound_msgaddr1);
+
+			if (!(outMsg1 & ARCMSR_HBFMU_MESSAGE_FIRMWARE_OK) ||
+				(outMsg1 & ARCMSR_HBFMU_MESSAGE_NO_VOLUME_CHANGE))
+				goto nxt6s;
+			writel(ARCMSR_INBOUND_MESG0_GET_CONFIG, &reg->inbound_msgaddr0);
+			acb->out_doorbell ^= ARCMSR_HBEMU_DRV2IOP_MESSAGE_CMD_DONE;
+			writel(acb->out_doorbell, &reg->iobound_doorbell);
+			break;
+			}
+>>>>>>> upstream/android-13
 		default:
 			return;
 		}
 		acb->acb_flags |= ACB_F_MSG_GET_CONFIG;
+<<<<<<< HEAD
+=======
+nxt6s:
+>>>>>>> upstream/android-13
 		mod_timer(&acb->eternal_timer, jiffies + msecs_to_jiffies(6 * HZ));
 	}
 }
@@ -3927,7 +4941,11 @@ static void arcmsr_hbaA_start_bgrb(struct AdapterControlBlock *acb)
 	writel(ARCMSR_INBOUND_MESG0_START_BGRB, &reg->inbound_msgaddr0);
 	if (!arcmsr_hbaA_wait_msgint_ready(acb)) {
 		printk(KERN_NOTICE "arcmsr%d: wait 'start adapter background \
+<<<<<<< HEAD
 				rebulid' timeout \n", acb->host->host_no);
+=======
+				rebuild' timeout \n", acb->host->host_no);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -3938,7 +4956,11 @@ static void arcmsr_hbaB_start_bgrb(struct AdapterControlBlock *acb)
 	writel(ARCMSR_MESSAGE_START_BGRB, reg->drv2iop_doorbell);
 	if (!arcmsr_hbaB_wait_msgint_ready(acb)) {
 		printk(KERN_NOTICE "arcmsr%d: wait 'start adapter background \
+<<<<<<< HEAD
 				rebulid' timeout \n",acb->host->host_no);
+=======
+				rebuild' timeout \n",acb->host->host_no);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -3950,7 +4972,11 @@ static void arcmsr_hbaC_start_bgrb(struct AdapterControlBlock *pACB)
 	writel(ARCMSR_HBCMU_DRV2IOP_MESSAGE_CMD_DONE, &phbcmu->inbound_doorbell);
 	if (!arcmsr_hbaC_wait_msgint_ready(pACB)) {
 		printk(KERN_NOTICE "arcmsr%d: wait 'start adapter background \
+<<<<<<< HEAD
 				rebulid' timeout \n", pACB->host->host_no);
+=======
+				rebuild' timeout \n", pACB->host->host_no);
+>>>>>>> upstream/android-13
 	}
 	return;
 }
@@ -3963,7 +4989,11 @@ static void arcmsr_hbaD_start_bgrb(struct AdapterControlBlock *pACB)
 	writel(ARCMSR_INBOUND_MESG0_START_BGRB, pmu->inbound_msgaddr0);
 	if (!arcmsr_hbaD_wait_msgint_ready(pACB)) {
 		pr_notice("arcmsr%d: wait 'start adapter "
+<<<<<<< HEAD
 			"background rebulid' timeout\n", pACB->host->host_no);
+=======
+			"background rebuild' timeout\n", pACB->host->host_no);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -3977,7 +5007,11 @@ static void arcmsr_hbaE_start_bgrb(struct AdapterControlBlock *pACB)
 	writel(pACB->out_doorbell, &pmu->iobound_doorbell);
 	if (!arcmsr_hbaE_wait_msgint_ready(pACB)) {
 		pr_notice("arcmsr%d: wait 'start adapter "
+<<<<<<< HEAD
 			"background rebulid' timeout \n", pACB->host->host_no);
+=======
+			"background rebuild' timeout \n", pACB->host->host_no);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -3997,6 +5031,10 @@ static void arcmsr_start_adapter_bgrb(struct AdapterControlBlock *acb)
 		arcmsr_hbaD_start_bgrb(acb);
 		break;
 	case ACB_ADAPTER_TYPE_E:
+<<<<<<< HEAD
+=======
+	case ACB_ADAPTER_TYPE_F:
+>>>>>>> upstream/android-13
 		arcmsr_hbaE_start_bgrb(acb);
 		break;
 	}
@@ -4076,7 +5114,12 @@ static void arcmsr_clear_doorbell_queue_buffer(struct AdapterControlBlock *acb)
 		}
 		}
 		break;
+<<<<<<< HEAD
 	case ACB_ADAPTER_TYPE_E: {
+=======
+	case ACB_ADAPTER_TYPE_E:
+	case ACB_ADAPTER_TYPE_F: {
+>>>>>>> upstream/android-13
 		struct MessageUnit_E __iomem *reg = acb->pmuE;
 		uint32_t i, tmp;
 
@@ -4203,7 +5246,12 @@ static bool arcmsr_reset_in_progress(struct AdapterControlBlock *acb)
 			true : false;
 		}
 		break;
+<<<<<<< HEAD
 	case ACB_ADAPTER_TYPE_E:{
+=======
+	case ACB_ADAPTER_TYPE_E:
+	case ACB_ADAPTER_TYPE_F:{
+>>>>>>> upstream/android-13
 		struct MessageUnit_E __iomem *reg = acb->pmuE;
 		rtn = (readl(&reg->host_diagnostic_3xxx) &
 			ARCMSR_ARC188X_RESET_ADAPTER) ? true : false;
@@ -4302,8 +5350,11 @@ wait_reset_done:
 			goto wait_reset_done;
 		}
 		arcmsr_iop_init(acb);
+<<<<<<< HEAD
 		atomic_set(&acb->rq_map_token, 16);
 		atomic_set(&acb->ante_token_value, 16);
+=======
+>>>>>>> upstream/android-13
 		acb->fw_flag = FW_NORMAL;
 		mod_timer(&acb->eternal_timer, jiffies +
 			msecs_to_jiffies(6 * HZ));
@@ -4312,8 +5363,11 @@ wait_reset_done:
 		pr_notice("arcmsr: scsi bus reset eh returns with success\n");
 	} else {
 		acb->acb_flags &= ~ACB_F_BUS_RESET;
+<<<<<<< HEAD
 		atomic_set(&acb->rq_map_token, 16);
 		atomic_set(&acb->ante_token_value, 16);
+=======
+>>>>>>> upstream/android-13
 		acb->fw_flag = FW_NORMAL;
 		mod_timer(&acb->eternal_timer, jiffies +
 			msecs_to_jiffies(6 * HZ));
@@ -4383,7 +5437,11 @@ static const char *arcmsr_info(struct Scsi_Host *host)
 	case PCI_DEVICE_ID_ARECA_1202:
 	case PCI_DEVICE_ID_ARECA_1210:
 		raid6 = 0;
+<<<<<<< HEAD
 		/*FALLTHRU*/
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case PCI_DEVICE_ID_ARECA_1120:
 	case PCI_DEVICE_ID_ARECA_1130:
 	case PCI_DEVICE_ID_ARECA_1160:
@@ -4406,6 +5464,12 @@ static const char *arcmsr_info(struct Scsi_Host *host)
 	case PCI_DEVICE_ID_ARECA_1884:
 		type = "SAS/SATA";
 		break;
+<<<<<<< HEAD
+=======
+	case PCI_DEVICE_ID_ARECA_1886:
+		type = "NVMe/SAS/SATA";
+		break;
+>>>>>>> upstream/android-13
 	default:
 		type = "unknown";
 		raid6 =	0;

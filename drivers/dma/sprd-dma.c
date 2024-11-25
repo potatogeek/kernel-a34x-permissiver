@@ -36,6 +36,11 @@
 #define SPRD_DMA_GLB_CHN_EN_STS		0x1c
 #define SPRD_DMA_GLB_DEBUG_STS		0x20
 #define SPRD_DMA_GLB_ARB_SEL_STS	0x24
+<<<<<<< HEAD
+=======
+#define SPRD_DMA_GLB_2STAGE_GRP1	0x28
+#define SPRD_DMA_GLB_2STAGE_GRP2	0x2c
+>>>>>>> upstream/android-13
 #define SPRD_DMA_GLB_REQ_UID(uid)	(0x4 * ((uid) - 1))
 #define SPRD_DMA_GLB_REQ_UID_OFFSET	0x2000
 
@@ -57,6 +62,23 @@
 #define SPRD_DMA_CHN_SRC_BLK_STEP	0x38
 #define SPRD_DMA_CHN_DES_BLK_STEP	0x3c
 
+<<<<<<< HEAD
+=======
+/* SPRD_DMA_GLB_2STAGE_GRP register definition */
+#define SPRD_DMA_GLB_2STAGE_EN		BIT(24)
+#define SPRD_DMA_GLB_CHN_INT_MASK	GENMASK(23, 20)
+#define SPRD_DMA_GLB_DEST_INT		BIT(22)
+#define SPRD_DMA_GLB_SRC_INT		BIT(20)
+#define SPRD_DMA_GLB_LIST_DONE_TRG	BIT(19)
+#define SPRD_DMA_GLB_TRANS_DONE_TRG	BIT(18)
+#define SPRD_DMA_GLB_BLOCK_DONE_TRG	BIT(17)
+#define SPRD_DMA_GLB_FRAG_DONE_TRG	BIT(16)
+#define SPRD_DMA_GLB_TRG_OFFSET		16
+#define SPRD_DMA_GLB_DEST_CHN_MASK	GENMASK(13, 8)
+#define SPRD_DMA_GLB_DEST_CHN_OFFSET	8
+#define SPRD_DMA_GLB_SRC_CHN_MASK	GENMASK(5, 0)
+
+>>>>>>> upstream/android-13
 /* SPRD_DMA_CHN_INTC register definition */
 #define SPRD_DMA_INT_MASK		GENMASK(4, 0)
 #define SPRD_DMA_INT_CLR_OFFSET		24
@@ -68,6 +90,10 @@
 
 /* SPRD_DMA_CHN_CFG register definition */
 #define SPRD_DMA_CHN_EN			BIT(0)
+<<<<<<< HEAD
+=======
+#define SPRD_DMA_LINKLIST_EN		BIT(4)
+>>>>>>> upstream/android-13
 #define SPRD_DMA_WAIT_BDONE_OFFSET	24
 #define SPRD_DMA_DONOT_WAIT_BDONE	1
 
@@ -82,6 +108,10 @@
 /* DMA_CHN_WARP_* register definition */
 #define SPRD_DMA_HIGH_ADDR_MASK		GENMASK(31, 28)
 #define SPRD_DMA_LOW_ADDR_MASK		GENMASK(31, 0)
+<<<<<<< HEAD
+=======
+#define SPRD_DMA_WRAP_ADDR_MASK		GENMASK(27, 0)
+>>>>>>> upstream/android-13
 #define SPRD_DMA_HIGH_ADDR_OFFSET	4
 
 /* SPRD_DMA_CHN_INTC register definition */
@@ -101,9 +131,17 @@
 #define SPRD_DMA_SWT_MODE_OFFSET	26
 #define SPRD_DMA_REQ_MODE_OFFSET	24
 #define SPRD_DMA_REQ_MODE_MASK		GENMASK(1, 0)
+<<<<<<< HEAD
 #define SPRD_DMA_FIX_SEL_OFFSET		21
 #define SPRD_DMA_FIX_EN_OFFSET		20
 #define SPRD_DMA_LLIST_END_OFFSET	19
+=======
+#define SPRD_DMA_WRAP_SEL_DEST		BIT(23)
+#define SPRD_DMA_WRAP_EN		BIT(22)
+#define SPRD_DMA_FIX_SEL_OFFSET		21
+#define SPRD_DMA_FIX_EN_OFFSET		20
+#define SPRD_DMA_LLIST_END		BIT(19)
+>>>>>>> upstream/android-13
 #define SPRD_DMA_FRG_LEN_MASK		GENMASK(16, 0)
 
 /* SPRD_DMA_CHN_BLK_LEN register definition */
@@ -117,6 +155,18 @@
 #define SPRD_DMA_SRC_TRSF_STEP_OFFSET	0
 #define SPRD_DMA_TRSF_STEP_MASK		GENMASK(15, 0)
 
+<<<<<<< HEAD
+=======
+/* SPRD DMA_SRC_BLK_STEP register definition */
+#define SPRD_DMA_LLIST_HIGH_MASK	GENMASK(31, 28)
+#define SPRD_DMA_LLIST_HIGH_SHIFT	28
+
+/* define DMA channel mode & trigger mode mask */
+#define SPRD_DMA_CHN_MODE_MASK		GENMASK(7, 0)
+#define SPRD_DMA_TRG_MODE_MASK		GENMASK(7, 0)
+#define SPRD_DMA_INT_TYPE_MASK		GENMASK(7, 0)
+
+>>>>>>> upstream/android-13
 /* define the DMA transfer step type */
 #define SPRD_DMA_NONE_STEP		0
 #define SPRD_DMA_BYTE_STEP		1
@@ -158,15 +208,29 @@ struct sprd_dma_chn_hw {
 struct sprd_dma_desc {
 	struct virt_dma_desc	vd;
 	struct sprd_dma_chn_hw	chn_hw;
+<<<<<<< HEAD
+=======
+	enum dma_transfer_direction dir;
+>>>>>>> upstream/android-13
 };
 
 /* dma channel description */
 struct sprd_dma_chn {
 	struct virt_dma_chan	vc;
 	void __iomem		*chn_base;
+<<<<<<< HEAD
 	struct dma_slave_config	slave_cfg;
 	u32			chn_num;
 	u32			dev_id;
+=======
+	struct sprd_dma_linklist	linklist;
+	struct dma_slave_config	slave_cfg;
+	u32			chn_num;
+	u32			dev_id;
+	enum sprd_dma_chn_mode	chn_mode;
+	enum sprd_dma_trg_mode	trg_mode;
+	enum sprd_dma_int_type	int_type;
+>>>>>>> upstream/android-13
 	struct sprd_dma_desc	*cur_desc;
 };
 
@@ -178,7 +242,11 @@ struct sprd_dma_dev {
 	struct clk		*ashb_clk;
 	int			irq;
 	u32			total_chns;
+<<<<<<< HEAD
 	struct sprd_dma_chn	channels[0];
+=======
+	struct sprd_dma_chn	channels[];
+>>>>>>> upstream/android-13
 };
 
 static void sprd_dma_free_desc(struct virt_dma_desc *vd);
@@ -204,6 +272,19 @@ static inline struct sprd_dma_desc *to_sprd_dma_desc(struct virt_dma_desc *vd)
 	return container_of(vd, struct sprd_dma_desc, vd);
 }
 
+<<<<<<< HEAD
+=======
+static void sprd_dma_glb_update(struct sprd_dma_dev *sdev, u32 reg,
+				u32 mask, u32 val)
+{
+	u32 orig = readl(sdev->glb_base + reg);
+	u32 tmp;
+
+	tmp = (orig & ~mask) | val;
+	writel(tmp, sdev->glb_base + reg);
+}
+
+>>>>>>> upstream/android-13
 static void sprd_dma_chn_update(struct sprd_dma_chn *schan, u32 reg,
 				u32 mask, u32 val)
 {
@@ -330,6 +411,20 @@ static void sprd_dma_stop_and_disable(struct sprd_dma_chn *schan)
 	sprd_dma_disable_chn(schan);
 }
 
+<<<<<<< HEAD
+=======
+static unsigned long sprd_dma_get_src_addr(struct sprd_dma_chn *schan)
+{
+	unsigned long addr, addr_high;
+
+	addr = readl(schan->chn_base + SPRD_DMA_CHN_SRC_ADDR);
+	addr_high = readl(schan->chn_base + SPRD_DMA_CHN_WARP_PTR) &
+		    SPRD_DMA_HIGH_ADDR_MASK;
+
+	return addr | (addr_high << SPRD_DMA_HIGH_ADDR_OFFSET);
+}
+
+>>>>>>> upstream/android-13
 static unsigned long sprd_dma_get_dst_addr(struct sprd_dma_chn *schan)
 {
 	unsigned long addr, addr_high;
@@ -376,6 +471,86 @@ static enum sprd_dma_req_mode sprd_dma_get_req_type(struct sprd_dma_chn *schan)
 	return (frag_reg >> SPRD_DMA_REQ_MODE_OFFSET) & SPRD_DMA_REQ_MODE_MASK;
 }
 
+<<<<<<< HEAD
+=======
+static int sprd_dma_set_2stage_config(struct sprd_dma_chn *schan)
+{
+	struct sprd_dma_dev *sdev = to_sprd_dma_dev(&schan->vc.chan);
+	u32 val, chn = schan->chn_num + 1;
+
+	switch (schan->chn_mode) {
+	case SPRD_DMA_SRC_CHN0:
+		val = chn & SPRD_DMA_GLB_SRC_CHN_MASK;
+		val |= BIT(schan->trg_mode - 1) << SPRD_DMA_GLB_TRG_OFFSET;
+		val |= SPRD_DMA_GLB_2STAGE_EN;
+		if (schan->int_type != SPRD_DMA_NO_INT)
+			val |= SPRD_DMA_GLB_SRC_INT;
+
+		sprd_dma_glb_update(sdev, SPRD_DMA_GLB_2STAGE_GRP1, val, val);
+		break;
+
+	case SPRD_DMA_SRC_CHN1:
+		val = chn & SPRD_DMA_GLB_SRC_CHN_MASK;
+		val |= BIT(schan->trg_mode - 1) << SPRD_DMA_GLB_TRG_OFFSET;
+		val |= SPRD_DMA_GLB_2STAGE_EN;
+		if (schan->int_type != SPRD_DMA_NO_INT)
+			val |= SPRD_DMA_GLB_SRC_INT;
+
+		sprd_dma_glb_update(sdev, SPRD_DMA_GLB_2STAGE_GRP2, val, val);
+		break;
+
+	case SPRD_DMA_DST_CHN0:
+		val = (chn << SPRD_DMA_GLB_DEST_CHN_OFFSET) &
+			SPRD_DMA_GLB_DEST_CHN_MASK;
+		val |= SPRD_DMA_GLB_2STAGE_EN;
+		if (schan->int_type != SPRD_DMA_NO_INT)
+			val |= SPRD_DMA_GLB_DEST_INT;
+
+		sprd_dma_glb_update(sdev, SPRD_DMA_GLB_2STAGE_GRP1, val, val);
+		break;
+
+	case SPRD_DMA_DST_CHN1:
+		val = (chn << SPRD_DMA_GLB_DEST_CHN_OFFSET) &
+			SPRD_DMA_GLB_DEST_CHN_MASK;
+		val |= SPRD_DMA_GLB_2STAGE_EN;
+		if (schan->int_type != SPRD_DMA_NO_INT)
+			val |= SPRD_DMA_GLB_DEST_INT;
+
+		sprd_dma_glb_update(sdev, SPRD_DMA_GLB_2STAGE_GRP2, val, val);
+		break;
+
+	default:
+		dev_err(sdev->dma_dev.dev, "invalid channel mode setting %d\n",
+			schan->chn_mode);
+		return -EINVAL;
+	}
+
+	return 0;
+}
+
+static void sprd_dma_set_pending(struct sprd_dma_chn *schan, bool enable)
+{
+	struct sprd_dma_dev *sdev = to_sprd_dma_dev(&schan->vc.chan);
+	u32 reg, val, req_id;
+
+	if (schan->dev_id == SPRD_DMA_SOFTWARE_UID)
+		return;
+
+	/* The DMA request id always starts from 0. */
+	req_id = schan->dev_id - 1;
+
+	if (req_id < 32) {
+		reg = SPRD_DMA_GLB_REQ_PEND0_EN;
+		val = BIT(req_id);
+	} else {
+		reg = SPRD_DMA_GLB_REQ_PEND1_EN;
+		val = BIT(req_id - 32);
+	}
+
+	sprd_dma_glb_update(sdev, reg, val, enable ? val : 0);
+}
+
+>>>>>>> upstream/android-13
 static void sprd_dma_set_chn_config(struct sprd_dma_chn *schan,
 				    struct sprd_dma_desc *sdesc)
 {
@@ -410,22 +585,48 @@ static void sprd_dma_start(struct sprd_dma_chn *schan)
 	schan->cur_desc = to_sprd_dma_desc(vd);
 
 	/*
+<<<<<<< HEAD
+=======
+	 * Set 2-stage configuration if the channel starts one 2-stage
+	 * transfer.
+	 */
+	if (schan->chn_mode && sprd_dma_set_2stage_config(schan))
+		return;
+
+	/*
+>>>>>>> upstream/android-13
 	 * Copy the DMA configuration from DMA descriptor to this hardware
 	 * channel.
 	 */
 	sprd_dma_set_chn_config(schan, schan->cur_desc);
 	sprd_dma_set_uid(schan);
+<<<<<<< HEAD
 	sprd_dma_enable_chn(schan);
 
 	if (schan->dev_id == SPRD_DMA_SOFTWARE_UID)
+=======
+	sprd_dma_set_pending(schan, true);
+	sprd_dma_enable_chn(schan);
+
+	if (schan->dev_id == SPRD_DMA_SOFTWARE_UID &&
+	    schan->chn_mode != SPRD_DMA_DST_CHN0 &&
+	    schan->chn_mode != SPRD_DMA_DST_CHN1)
+>>>>>>> upstream/android-13
 		sprd_dma_soft_request(schan);
 }
 
 static void sprd_dma_stop(struct sprd_dma_chn *schan)
 {
 	sprd_dma_stop_and_disable(schan);
+<<<<<<< HEAD
 	sprd_dma_unset_uid(schan);
 	sprd_dma_clear_int(schan);
+=======
+	sprd_dma_set_pending(schan, false);
+	sprd_dma_unset_uid(schan);
+	sprd_dma_clear_int(schan);
+	schan->cur_desc = NULL;
+>>>>>>> upstream/android-13
 }
 
 static bool sprd_dma_check_trans_done(struct sprd_dma_desc *sdesc,
@@ -449,7 +650,11 @@ static irqreturn_t dma_irq_handle(int irq, void *dev_id)
 	struct sprd_dma_desc *sdesc;
 	enum sprd_dma_req_mode req_type;
 	enum sprd_dma_int_type int_type;
+<<<<<<< HEAD
 	bool trans_done = false;
+=======
+	bool trans_done = false, cyclic = false;
+>>>>>>> upstream/android-13
 	u32 i;
 
 	while (irq_status) {
@@ -458,10 +663,21 @@ static irqreturn_t dma_irq_handle(int irq, void *dev_id)
 		schan = &sdev->channels[i];
 
 		spin_lock(&schan->vc.lock);
+<<<<<<< HEAD
+=======
+
+		sdesc = schan->cur_desc;
+		if (!sdesc) {
+			spin_unlock(&schan->vc.lock);
+			return IRQ_HANDLED;
+		}
+
+>>>>>>> upstream/android-13
 		int_type = sprd_dma_get_int_type(schan);
 		req_type = sprd_dma_get_req_type(schan);
 		sprd_dma_clear_int(schan);
 
+<<<<<<< HEAD
 		sdesc = schan->cur_desc;
 
 		/* Check if the dma request descriptor is done. */
@@ -471,6 +687,21 @@ static irqreturn_t dma_irq_handle(int irq, void *dev_id)
 			vchan_cookie_complete(&sdesc->vd);
 			schan->cur_desc = NULL;
 			sprd_dma_start(schan);
+=======
+		/* cyclic mode schedule callback */
+		cyclic = schan->linklist.phy_addr ? true : false;
+		if (cyclic == true) {
+			vchan_cyclic_callback(&sdesc->vd);
+		} else {
+			/* Check if the dma request descriptor is done. */
+			trans_done = sprd_dma_check_trans_done(sdesc, int_type,
+							       req_type);
+			if (trans_done == true) {
+				vchan_cookie_complete(&sdesc->vd);
+				schan->cur_desc = NULL;
+				sprd_dma_start(schan);
+			}
+>>>>>>> upstream/android-13
 		}
 		spin_unlock(&schan->vc.lock);
 	}
@@ -480,6 +711,7 @@ static irqreturn_t dma_irq_handle(int irq, void *dev_id)
 
 static int sprd_dma_alloc_chan_resources(struct dma_chan *chan)
 {
+<<<<<<< HEAD
 	struct sprd_dma_chn *schan = to_sprd_dma_chan(chan);
 	int ret;
 
@@ -489,6 +721,9 @@ static int sprd_dma_alloc_chan_resources(struct dma_chan *chan)
 
 	schan->dev_id = SPRD_DMA_SOFTWARE_UID;
 	return 0;
+=======
+	return pm_runtime_get_sync(chan->device->dev);
+>>>>>>> upstream/android-13
 }
 
 static void sprd_dma_free_chan_resources(struct dma_chan *chan)
@@ -540,7 +775,16 @@ static enum dma_status sprd_dma_tx_status(struct dma_chan *chan,
 		else
 			pos = 0;
 	} else if (schan->cur_desc && schan->cur_desc->vd.tx.cookie == cookie) {
+<<<<<<< HEAD
 		pos = sprd_dma_get_dst_addr(schan);
+=======
+		struct sprd_dma_desc *sdesc = schan->cur_desc;
+
+		if (sdesc->dir == DMA_DEV_TO_MEM)
+			pos = sprd_dma_get_dst_addr(schan);
+		else
+			pos = sprd_dma_get_src_addr(schan);
+>>>>>>> upstream/android-13
 	} else {
 		pos = 0;
 	}
@@ -590,7 +834,12 @@ static int sprd_dma_get_step(enum dma_slave_buswidth buswidth)
 }
 
 static int sprd_dma_fill_desc(struct dma_chan *chan,
+<<<<<<< HEAD
 			      struct sprd_dma_desc *sdesc,
+=======
+			      struct sprd_dma_chn_hw *hw,
+			      unsigned int sglen, int sg_index,
+>>>>>>> upstream/android-13
 			      dma_addr_t src, dma_addr_t dst, u32 len,
 			      enum dma_transfer_direction dir,
 			      unsigned long flags,
@@ -598,11 +847,19 @@ static int sprd_dma_fill_desc(struct dma_chan *chan,
 {
 	struct sprd_dma_dev *sdev = to_sprd_dma_dev(chan);
 	struct sprd_dma_chn *schan = to_sprd_dma_chan(chan);
+<<<<<<< HEAD
 	struct sprd_dma_chn_hw *hw = &sdesc->chn_hw;
+=======
+	enum sprd_dma_chn_mode chn_mode = schan->chn_mode;
+>>>>>>> upstream/android-13
 	u32 req_mode = (flags >> SPRD_DMA_REQ_SHIFT) & SPRD_DMA_REQ_MODE_MASK;
 	u32 int_mode = flags & SPRD_DMA_INT_MASK;
 	int src_datawidth, dst_datawidth, src_step, dst_step;
 	u32 temp, fix_mode = 0, fix_en = 0;
+<<<<<<< HEAD
+=======
+	phys_addr_t llist_ptr;
+>>>>>>> upstream/android-13
 
 	if (dir == DMA_MEM_TO_DEV) {
 		src_step = sprd_dma_get_step(slave_cfg->src_addr_width);
@@ -610,7 +867,20 @@ static int sprd_dma_fill_desc(struct dma_chan *chan,
 			dev_err(sdev->dma_dev.dev, "invalid source step\n");
 			return src_step;
 		}
+<<<<<<< HEAD
 		dst_step = SPRD_DMA_NONE_STEP;
+=======
+
+		/*
+		 * For 2-stage transfer, destination channel step can not be 0,
+		 * since destination device is AON IRAM.
+		 */
+		if (chn_mode == SPRD_DMA_DST_CHN0 ||
+		    chn_mode == SPRD_DMA_DST_CHN1)
+			dst_step = src_step;
+		else
+			dst_step = SPRD_DMA_NONE_STEP;
+>>>>>>> upstream/android-13
 	} else {
 		dst_step = sprd_dma_get_step(slave_cfg->dst_addr_width);
 		if (dst_step < 0) {
@@ -668,6 +938,11 @@ static int sprd_dma_fill_desc(struct dma_chan *chan,
 	temp |= req_mode << SPRD_DMA_REQ_MODE_OFFSET;
 	temp |= fix_mode << SPRD_DMA_FIX_SEL_OFFSET;
 	temp |= fix_en << SPRD_DMA_FIX_EN_OFFSET;
+<<<<<<< HEAD
+=======
+	temp |= schan->linklist.wrap_addr ?
+		SPRD_DMA_WRAP_EN | SPRD_DMA_WRAP_SEL_DEST : 0;
+>>>>>>> upstream/android-13
 	temp |= slave_cfg->src_maxburst & SPRD_DMA_FRG_LEN_MASK;
 	hw->frg_len = temp;
 
@@ -678,12 +953,67 @@ static int sprd_dma_fill_desc(struct dma_chan *chan,
 	temp |= (src_step & SPRD_DMA_TRSF_STEP_MASK) << SPRD_DMA_SRC_TRSF_STEP_OFFSET;
 	hw->trsf_step = temp;
 
+<<<<<<< HEAD
 	hw->frg_step = 0;
 	hw->src_blk_step = 0;
+=======
+	/* link-list configuration */
+	if (schan->linklist.phy_addr) {
+		hw->cfg |= SPRD_DMA_LINKLIST_EN;
+
+		/* link-list index */
+		temp = sglen ? (sg_index + 1) % sglen : 0;
+
+		/* Next link-list configuration's physical address offset */
+		temp = temp * sizeof(*hw) + SPRD_DMA_CHN_SRC_ADDR;
+		/*
+		 * Set the link-list pointer point to next link-list
+		 * configuration's physical address.
+		 */
+		llist_ptr = schan->linklist.phy_addr + temp;
+		hw->llist_ptr = lower_32_bits(llist_ptr);
+		hw->src_blk_step = (upper_32_bits(llist_ptr) << SPRD_DMA_LLIST_HIGH_SHIFT) &
+			SPRD_DMA_LLIST_HIGH_MASK;
+
+		if (schan->linklist.wrap_addr) {
+			hw->wrap_ptr |= schan->linklist.wrap_addr &
+				SPRD_DMA_WRAP_ADDR_MASK;
+			hw->wrap_to |= dst & SPRD_DMA_WRAP_ADDR_MASK;
+		}
+	} else {
+		hw->llist_ptr = 0;
+		hw->src_blk_step = 0;
+	}
+
+	hw->frg_step = 0;
+>>>>>>> upstream/android-13
 	hw->des_blk_step = 0;
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static int sprd_dma_fill_linklist_desc(struct dma_chan *chan,
+				       unsigned int sglen, int sg_index,
+				       dma_addr_t src, dma_addr_t dst, u32 len,
+				       enum dma_transfer_direction dir,
+				       unsigned long flags,
+				       struct dma_slave_config *slave_cfg)
+{
+	struct sprd_dma_chn *schan = to_sprd_dma_chan(chan);
+	struct sprd_dma_chn_hw *hw;
+
+	if (!schan->linklist.virt_addr)
+		return -EINVAL;
+
+	hw = (struct sprd_dma_chn_hw *)(schan->linklist.virt_addr +
+					sg_index * sizeof(*hw));
+
+	return sprd_dma_fill_desc(chan, hw, sglen, sg_index, src, dst, len,
+				  dir, flags, slave_cfg);
+}
+
+>>>>>>> upstream/android-13
 static struct dma_async_tx_descriptor *
 sprd_dma_prep_dma_memcpy(struct dma_chan *chan, dma_addr_t dest, dma_addr_t src,
 			 size_t len, unsigned long flags)
@@ -747,19 +1077,57 @@ sprd_dma_prep_slave_sg(struct dma_chan *chan, struct scatterlist *sgl,
 	struct sprd_dma_chn *schan = to_sprd_dma_chan(chan);
 	struct dma_slave_config *slave_cfg = &schan->slave_cfg;
 	dma_addr_t src = 0, dst = 0;
+<<<<<<< HEAD
+=======
+	dma_addr_t start_src = 0, start_dst = 0;
+>>>>>>> upstream/android-13
 	struct sprd_dma_desc *sdesc;
 	struct scatterlist *sg;
 	u32 len = 0;
 	int ret, i;
 
+<<<<<<< HEAD
 	/* TODO: now we only support one sg for each DMA configuration. */
 	if (!is_slave_direction(dir) || sglen > 1)
 		return NULL;
 
+=======
+	if (!is_slave_direction(dir))
+		return NULL;
+
+	if (context) {
+		struct sprd_dma_linklist *ll_cfg =
+			(struct sprd_dma_linklist *)context;
+
+		schan->linklist.phy_addr = ll_cfg->phy_addr;
+		schan->linklist.virt_addr = ll_cfg->virt_addr;
+		schan->linklist.wrap_addr = ll_cfg->wrap_addr;
+	} else {
+		schan->linklist.phy_addr = 0;
+		schan->linklist.virt_addr = 0;
+		schan->linklist.wrap_addr = 0;
+	}
+
+	/*
+	 * Set channel mode, interrupt mode and trigger mode for 2-stage
+	 * transfer.
+	 */
+	schan->chn_mode =
+		(flags >> SPRD_DMA_CHN_MODE_SHIFT) & SPRD_DMA_CHN_MODE_MASK;
+	schan->trg_mode =
+		(flags >> SPRD_DMA_TRG_MODE_SHIFT) & SPRD_DMA_TRG_MODE_MASK;
+	schan->int_type = flags & SPRD_DMA_INT_TYPE_MASK;
+
+>>>>>>> upstream/android-13
 	sdesc = kzalloc(sizeof(*sdesc), GFP_NOWAIT);
 	if (!sdesc)
 		return NULL;
 
+<<<<<<< HEAD
+=======
+	sdesc->dir = dir;
+
+>>>>>>> upstream/android-13
 	for_each_sg(sgl, sg, sglen, i) {
 		len = sg_dma_len(sg);
 
@@ -770,10 +1138,37 @@ sprd_dma_prep_slave_sg(struct dma_chan *chan, struct scatterlist *sgl,
 			src = slave_cfg->src_addr;
 			dst = sg_dma_address(sg);
 		}
+<<<<<<< HEAD
 	}
 
 	ret = sprd_dma_fill_desc(chan, sdesc, src, dst, len, dir, flags,
 				 slave_cfg);
+=======
+
+		if (!i) {
+			start_src = src;
+			start_dst = dst;
+		}
+
+		/*
+		 * The link-list mode needs at least 2 link-list
+		 * configurations. If there is only one sg, it doesn't
+		 * need to fill the link-list configuration.
+		 */
+		if (sglen < 2)
+			break;
+
+		ret = sprd_dma_fill_linklist_desc(chan, sglen, i, src, dst, len,
+						  dir, flags, slave_cfg);
+		if (ret) {
+			kfree(sdesc);
+			return NULL;
+		}
+	}
+
+	ret = sprd_dma_fill_desc(chan, &sdesc->chn_hw, 0, 0, start_src,
+				 start_dst, len, dir, flags, slave_cfg);
+>>>>>>> upstream/android-13
 	if (ret) {
 		kfree(sdesc);
 		return NULL;
@@ -788,9 +1183,12 @@ static int sprd_dma_slave_config(struct dma_chan *chan,
 	struct sprd_dma_chn *schan = to_sprd_dma_chan(chan);
 	struct dma_slave_config *slave_cfg = &schan->slave_cfg;
 
+<<<<<<< HEAD
 	if (!is_slave_direction(config->direction))
 		return -EINVAL;
 
+=======
+>>>>>>> upstream/android-13
 	memcpy(slave_cfg, config, sizeof(*config));
 	return 0;
 }
@@ -852,6 +1250,7 @@ static void sprd_dma_free_desc(struct virt_dma_desc *vd)
 static bool sprd_dma_filter_fn(struct dma_chan *chan, void *param)
 {
 	struct sprd_dma_chn *schan = to_sprd_dma_chan(chan);
+<<<<<<< HEAD
 	struct sprd_dma_dev *sdev = to_sprd_dma_dev(&schan->vc.chan);
 	u32 req = *(u32 *)param;
 
@@ -859,6 +1258,12 @@ static bool sprd_dma_filter_fn(struct dma_chan *chan, void *param)
 		return req == schan->chn_num + 1;
 	else
 		return false;
+=======
+	u32 slave_id = *(u32 *)param;
+
+	schan->dev_id = slave_id;
+	return true;
+>>>>>>> upstream/android-13
 }
 
 static int sprd_dma_probe(struct platform_device *pdev)
@@ -866,7 +1271,10 @@ static int sprd_dma_probe(struct platform_device *pdev)
 	struct device_node *np = pdev->dev.of_node;
 	struct sprd_dma_dev *sdev;
 	struct sprd_dma_chn *dma_chn;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	u32 chn_count;
 	int ret, i;
 
@@ -912,8 +1320,12 @@ static int sprd_dma_probe(struct platform_device *pdev)
 		dev_warn(&pdev->dev, "no interrupts for the dma controller\n");
 	}
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	sdev->glb_base = devm_ioremap_resource(&pdev->dev, res);
+=======
+	sdev->glb_base = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(sdev->glb_base))
 		return PTR_ERR(sdev->glb_base);
 
@@ -1016,6 +1428,10 @@ static const struct of_device_id sprd_dma_match[] = {
 	{ .compatible = "sprd,sc9860-dma", },
 	{},
 };
+<<<<<<< HEAD
+=======
+MODULE_DEVICE_TABLE(of, sprd_dma_match);
+>>>>>>> upstream/android-13
 
 static int __maybe_unused sprd_dma_runtime_suspend(struct device *dev)
 {
@@ -1057,4 +1473,8 @@ module_platform_driver(sprd_dma_driver);
 MODULE_LICENSE("GPL v2");
 MODULE_DESCRIPTION("DMA driver for Spreadtrum");
 MODULE_AUTHOR("Baolin Wang <baolin.wang@spreadtrum.com>");
+<<<<<<< HEAD
+=======
+MODULE_AUTHOR("Eric Long <eric.long@spreadtrum.com>");
+>>>>>>> upstream/android-13
 MODULE_ALIAS("platform:sprd-dma");

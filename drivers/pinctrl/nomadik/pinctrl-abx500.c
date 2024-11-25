@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) ST-Ericsson SA 2013
  *
  * Author: Patrice Chotard <patrice.chotard@st.com>
+<<<<<<< HEAD
  * License terms: GNU General Public License (GPL) version 2
  *
  * Driver allows to use AxB5xx unused pins to be used as GPIO
@@ -9,6 +14,10 @@
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+ *
+ * Driver allows to use AxB5xx unused pins to be used as GPIO
+>>>>>>> upstream/android-13
  */
 #include <linux/kernel.h>
 #include <linux/types.h>
@@ -18,7 +27,11 @@
 #include <linux/of.h>
 #include <linux/of_device.h>
 #include <linux/platform_device.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
+=======
+#include <linux/gpio/driver.h>
+>>>>>>> upstream/android-13
 #include <linux/irq.h>
 #include <linux/irqdomain.h>
 #include <linux/interrupt.h>
@@ -819,6 +832,10 @@ static int abx500_dt_node_to_map(struct pinctrl_dev *pctldev,
 				&reserved_maps, num_maps);
 		if (ret < 0) {
 			pinctrl_utils_free_map(pctldev, *map, *num_maps);
+<<<<<<< HEAD
+=======
+			of_node_put(np);
+>>>>>>> upstream/android-13
 			return ret;
 		}
 	}

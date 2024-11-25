@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * kernel/ksysfs.c - sysfs attributes in /sys/kernel, which
  * 		     are not related to any other subsystem
  *
  * Copyright (C) 2004 Kay Sievers <kay.sievers@vrfy.org>
+<<<<<<< HEAD
  * 
  * This file is release under the GPLv2
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kobject.h>

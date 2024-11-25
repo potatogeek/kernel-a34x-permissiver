@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * aQuantia Corporation Network Driver
  * Copyright (C) 2014-2017 aQuantia Corporation. All rights reserved
@@ -5,6 +6,13 @@
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
  * version 2, as published by the Free Software Foundation.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/* Atlantic Network Driver
+ *
+ * Copyright (C) 2014-2019 aQuantia Corporation
+ * Copyright (C) 2019-2020 Marvell International Ltd.
+>>>>>>> upstream/android-13
  */
 
 /* File hw_atl_llh.h: Declarations of bitfield and register access functions for
@@ -18,6 +26,27 @@
 
 struct aq_hw_s;
 
+<<<<<<< HEAD
+=======
+/* set temperature sense reset */
+void hw_atl_ts_reset_set(struct aq_hw_s *aq_hw, u32 val);
+
+/* set temperature sense power down */
+void hw_atl_ts_power_down_set(struct aq_hw_s *aq_hw, u32 val);
+
+/* get temperature sense power down */
+u32 hw_atl_ts_power_down_get(struct aq_hw_s *aq_hw);
+
+/* get temperature sense ready */
+u32 hw_atl_ts_ready_get(struct aq_hw_s *aq_hw);
+
+/* get temperature sense ready latch high */
+u32 hw_atl_ts_ready_latch_high_get(struct aq_hw_s *aq_hw);
+
+/* get temperature sense data */
+u32 hw_atl_ts_data_get(struct aq_hw_s *aq_hw);
+
+>>>>>>> upstream/android-13
 /* global */
 
 /* set global microprocessor semaphore */
@@ -40,6 +69,7 @@ u32 hw_atl_glb_soft_res_get(struct aq_hw_s *aq_hw);
 
 u32 hw_atl_rpb_rx_dma_drop_pkt_cnt_get(struct aq_hw_s *aq_hw);
 
+<<<<<<< HEAD
 /* get rx dma good octet counter lsw */
 u32 hw_atl_stats_rx_dma_good_octet_counterlsw_get(struct aq_hw_s *aq_hw);
 
@@ -63,6 +93,19 @@ u32 hw_atl_stats_tx_dma_good_octet_countermsw_get(struct aq_hw_s *aq_hw);
 
 /* get tx dma good packet counter msw */
 u32 hw_atl_stats_tx_dma_good_pkt_countermsw_get(struct aq_hw_s *aq_hw);
+=======
+/* get rx dma good octet counter */
+u64 hw_atl_stats_rx_dma_good_octet_counter_get(struct aq_hw_s *aq_hw);
+
+/* get rx dma good packet counter */
+u64 hw_atl_stats_rx_dma_good_pkt_counter_get(struct aq_hw_s *aq_hw);
+
+/* get tx dma good octet counter */
+u64 hw_atl_stats_tx_dma_good_octet_counter_get(struct aq_hw_s *aq_hw);
+
+/* get tx dma good packet counter */
+u64 hw_atl_stats_tx_dma_good_pkt_counter_get(struct aq_hw_s *aq_hw);
+>>>>>>> upstream/android-13
 
 /* get msm rx errors counter register */
 u32 hw_atl_reg_mac_msm_rx_errs_cnt_get(struct aq_hw_s *aq_hw);
@@ -82,9 +125,12 @@ u32 hw_atl_reg_mac_msm_rx_bcst_octets_counter1get(struct aq_hw_s *aq_hw);
 /* get msm rx unicast octets counter register 0 */
 u32 hw_atl_reg_mac_msm_rx_ucst_octets_counter0get(struct aq_hw_s *aq_hw);
 
+<<<<<<< HEAD
 /* get rx dma statistics counter 7 */
 u32 hw_atl_reg_rx_dma_stat_counter7get(struct aq_hw_s *aq_hw);
 
+=======
+>>>>>>> upstream/android-13
 /* get msm tx errors counter register */
 u32 hw_atl_reg_mac_msm_tx_errs_cnt_get(struct aq_hw_s *aq_hw);
 
@@ -152,6 +198,15 @@ u32 hw_atl_itr_res_irq_get(struct aq_hw_s *aq_hw);
 /* set reset interrupt */
 void hw_atl_itr_res_irq_set(struct aq_hw_s *aq_hw, u32 res_irq);
 
+<<<<<<< HEAD
+=======
+/* set RSC interrupt */
+void hw_atl_itr_rsc_en_set(struct aq_hw_s *aq_hw, u32 enable);
+
+/* set RSC delay */
+void hw_atl_itr_rsc_delay_set(struct aq_hw_s *aq_hw, u32 delay);
+
+>>>>>>> upstream/android-13
 /* rdm */
 
 /* set cpu id */
@@ -300,10 +355,22 @@ void hw_atl_reg_glb_cpu_scratch_scp_set(struct aq_hw_s *aq_hw,
 /* set dma system loopback */
 void hw_atl_rpb_dma_sys_lbk_set(struct aq_hw_s *aq_hw, u32 dma_sys_lbk);
 
+<<<<<<< HEAD
+=======
+/* set dma network loopback */
+void hw_atl_rpb_dma_net_lbk_set(struct aq_hw_s *aq_hw, u32 dma_net_lbk);
+
+>>>>>>> upstream/android-13
 /* set rx traffic class mode */
 void hw_atl_rpb_rpf_rx_traf_class_mode_set(struct aq_hw_s *aq_hw,
 					   u32 rx_traf_class_mode);
 
+<<<<<<< HEAD
+=======
+/* get rx traffic class mode */
+u32 hw_atl_rpb_rpf_rx_traf_class_mode_get(struct aq_hw_s *aq_hw);
+
+>>>>>>> upstream/android-13
 /* set rx buffer enable */
 void hw_atl_rpb_rx_buff_en_set(struct aq_hw_s *aq_hw, u32 rx_buff_en);
 
@@ -318,18 +385,35 @@ void hw_atl_rpb_rx_buff_lo_threshold_per_tc_set(struct aq_hw_s *aq_hw,
 					 u32 buffer);
 
 /* set rx flow control mode */
+<<<<<<< HEAD
 void hw_atl_rpb_rx_flow_ctl_mode_set(struct aq_hw_s *aq_hw, u32 rx_flow_ctl_mode);
+=======
+void hw_atl_rpb_rx_flow_ctl_mode_set(struct aq_hw_s *aq_hw,
+				     u32 rx_flow_ctl_mode);
+>>>>>>> upstream/android-13
 
 /* set rx packet buffer size (per tc) */
 void hw_atl_rpb_rx_pkt_buff_size_per_tc_set(struct aq_hw_s *aq_hw,
 					    u32 rx_pkt_buff_size_per_tc,
 					    u32 buffer);
 
+<<<<<<< HEAD
 /* set rdm rx dma descriptor cache init */
 void hw_atl_rdm_rx_dma_desc_cache_init_set(struct aq_hw_s *aq_hw, u32 init);
 
 /* set rx xoff enable (per tc) */
 void hw_atl_rpb_rx_xoff_en_per_tc_set(struct aq_hw_s *aq_hw, u32 rx_xoff_en_per_tc,
+=======
+/* toggle rdm rx dma descriptor cache init */
+void hw_atl_rdm_rx_dma_desc_cache_init_tgl(struct aq_hw_s *aq_hw);
+
+/* get rdm rx dma descriptor cache init done */
+u32 hw_atl_rdm_rx_dma_desc_cache_init_done_get(struct aq_hw_s *aq_hw);
+
+/* set rx xoff enable (per tc) */
+void hw_atl_rpb_rx_xoff_en_per_tc_set(struct aq_hw_s *aq_hw,
+				      u32 rx_xoff_en_per_tc,
+>>>>>>> upstream/android-13
 				      u32 buffer);
 
 /* rpf */
@@ -350,6 +434,12 @@ void hw_atl_rpfl2multicast_flr_en_set(struct aq_hw_s *aq_hw,
 				      u32 l2multicast_flr_en,
 				      u32 filter);
 
+<<<<<<< HEAD
+=======
+/* get l2 promiscuous mode enable */
+u32 hw_atl_rpfl2promiscuous_mode_en_get(struct aq_hw_s *aq_hw);
+
+>>>>>>> upstream/android-13
 /* set l2 promiscuous mode enable */
 void hw_atl_rpfl2promiscuous_mode_en_set(struct aq_hw_s *aq_hw,
 					 u32 l2promiscuous_mode_en);
@@ -421,6 +511,12 @@ void hw_atl_rpf_vlan_outer_etht_set(struct aq_hw_s *aq_hw, u32 vlan_outer_etht);
 void hw_atl_rpf_vlan_prom_mode_en_set(struct aq_hw_s *aq_hw,
 				      u32 vlan_prom_mode_en);
 
+<<<<<<< HEAD
+=======
+/* Get VLAN promiscuous mode enable */
+u32 hw_atl_rpf_vlan_prom_mode_en_get(struct aq_hw_s *aq_hw);
+
+>>>>>>> upstream/android-13
 /* Set VLAN untagged action */
 void hw_atl_rpf_vlan_untagged_act_set(struct aq_hw_s *aq_hw,
 				      u32 vlan_untagged_act);
@@ -441,6 +537,17 @@ void hw_atl_rpf_vlan_flr_act_set(struct aq_hw_s *aq_hw, u32 vlan_filter_act,
 void hw_atl_rpf_vlan_id_flr_set(struct aq_hw_s *aq_hw, u32 vlan_id_flr,
 				u32 filter);
 
+<<<<<<< HEAD
+=======
+/* Set VLAN RX queue assignment enable */
+void hw_atl_rpf_vlan_rxq_en_flr_set(struct aq_hw_s *aq_hw, u32 vlan_rxq_en,
+				    u32 filter);
+
+/* Set VLAN RX queue */
+void hw_atl_rpf_vlan_rxq_flr_set(struct aq_hw_s *aq_hw, u32 vlan_rxq,
+				 u32 filter);
+
+>>>>>>> upstream/android-13
 /* set ethertype filter enable */
 void hw_atl_rpf_etht_flr_en_set(struct aq_hw_s *aq_hw, u32 etht_flr_en,
 				u32 filter);
@@ -475,6 +582,15 @@ void hw_atl_rpf_etht_flr_act_set(struct aq_hw_s *aq_hw, u32 etht_flr_act,
 /* set ethertype filter */
 void hw_atl_rpf_etht_flr_set(struct aq_hw_s *aq_hw, u32 etht_flr, u32 filter);
 
+<<<<<<< HEAD
+=======
+/* set L4 source port */
+void hw_atl_rpf_l4_spd_set(struct aq_hw_s *aq_hw, u32 val, u32 filter);
+
+/* set L4 destination port */
+void hw_atl_rpf_l4_dpd_set(struct aq_hw_s *aq_hw, u32 val, u32 filter);
+
+>>>>>>> upstream/android-13
 /* rpo */
 
 /* set ipv4 header checksum offload enable */
@@ -486,6 +602,14 @@ void hw_atl_rpo_rx_desc_vlan_stripping_set(struct aq_hw_s *aq_hw,
 					   u32 rx_desc_vlan_stripping,
 					   u32 descriptor);
 
+<<<<<<< HEAD
+=======
+void hw_atl_rpo_outer_vlan_tag_mode_set(void *context,
+					u32 outervlantagmode);
+
+u32 hw_atl_rpo_outer_vlan_tag_mode_get(void *context);
+
+>>>>>>> upstream/android-13
 /* set tcp/udp checksum offload enable */
 void hw_atl_rpo_tcp_udp_crc_offload_en_set(struct aq_hw_s *aq_hw,
 					   u32 tcp_udp_crc_offload_en);
@@ -591,6 +715,16 @@ void hw_atl_thm_lso_tcp_flag_of_middle_pkt_set(struct aq_hw_s *aq_hw,
 
 /* tpb */
 
+<<<<<<< HEAD
+=======
+/* set TX Traffic Class Mode */
+void hw_atl_tpb_tps_tx_tc_mode_set(struct aq_hw_s *aq_hw,
+				   u32 tx_traf_class_mode);
+
+/* get TX Traffic Class Mode */
+u32 hw_atl_tpb_tps_tx_tc_mode_get(struct aq_hw_s *aq_hw);
+
+>>>>>>> upstream/android-13
 /* set tx buffer enable */
 void hw_atl_tpb_tx_buff_en_set(struct aq_hw_s *aq_hw, u32 tx_buff_en);
 
@@ -607,9 +741,24 @@ void hw_atl_tpb_tx_buff_lo_threshold_per_tc_set(struct aq_hw_s *aq_hw,
 /* set tx dma system loopback enable */
 void hw_atl_tpb_tx_dma_sys_lbk_en_set(struct aq_hw_s *aq_hw, u32 tx_dma_sys_lbk_en);
 
+<<<<<<< HEAD
 /* set tx packet buffer size (per tc) */
 void hw_atl_tpb_tx_pkt_buff_size_per_tc_set(struct aq_hw_s *aq_hw,
 					    u32 tx_pkt_buff_size_per_tc, u32 buffer);
+=======
+/* set tx dma network loopback enable */
+void hw_atl_tpb_tx_dma_net_lbk_en_set(struct aq_hw_s *aq_hw,
+				      u32 tx_dma_net_lbk_en);
+
+/* set tx clock gating enable */
+void hw_atl_tpb_tx_tx_clk_gate_en_set(struct aq_hw_s *aq_hw,
+				      u32 tx_clk_gate_en);
+
+/* set tx packet buffer size (per tc) */
+void hw_atl_tpb_tx_pkt_buff_size_per_tc_set(struct aq_hw_s *aq_hw,
+					    u32 tx_pkt_buff_size_per_tc,
+					    u32 buffer);
+>>>>>>> upstream/android-13
 
 /* set tx path pad insert enable */
 void hw_atl_tpb_tx_path_scp_ins_en_set(struct aq_hw_s *aq_hw, u32 tx_path_scp_ins_en);
@@ -648,6 +797,7 @@ void hw_atl_tps_tx_pkt_shed_desc_tc_arb_mode_set(struct aq_hw_s *aq_hw,
 
 /* set tx packet scheduler descriptor tc max credit */
 void hw_atl_tps_tx_pkt_shed_desc_tc_max_credit_set(struct aq_hw_s *aq_hw,
+<<<<<<< HEAD
 						   u32 max_credit,
 					    u32 tc);
 
@@ -655,6 +805,15 @@ void hw_atl_tps_tx_pkt_shed_desc_tc_max_credit_set(struct aq_hw_s *aq_hw,
 void hw_atl_tps_tx_pkt_shed_desc_tc_weight_set(struct aq_hw_s *aq_hw,
 					       u32 tx_pkt_shed_desc_tc_weight,
 					u32 tc);
+=======
+						   const u32 tc,
+						   const u32 max_credit);
+
+/* set tx packet scheduler descriptor tc weight */
+void hw_atl_tps_tx_pkt_shed_desc_tc_weight_set(struct aq_hw_s *aq_hw,
+					       const u32 tc,
+					       const u32 weight);
+>>>>>>> upstream/android-13
 
 /* set tx packet scheduler descriptor vm arbitration mode */
 void hw_atl_tps_tx_pkt_shed_desc_vm_arb_mode_set(struct aq_hw_s *aq_hw,
@@ -662,6 +821,7 @@ void hw_atl_tps_tx_pkt_shed_desc_vm_arb_mode_set(struct aq_hw_s *aq_hw,
 
 /* set tx packet scheduler tc data max credit */
 void hw_atl_tps_tx_pkt_shed_tc_data_max_credit_set(struct aq_hw_s *aq_hw,
+<<<<<<< HEAD
 						   u32 max_credit,
 					    u32 tc);
 
@@ -669,6 +829,31 @@ void hw_atl_tps_tx_pkt_shed_tc_data_max_credit_set(struct aq_hw_s *aq_hw,
 void hw_atl_tps_tx_pkt_shed_tc_data_weight_set(struct aq_hw_s *aq_hw,
 					       u32 tx_pkt_shed_tc_data_weight,
 					u32 tc);
+=======
+						   const u32 tc,
+						   const u32 max_credit);
+
+/* set tx packet scheduler tc data weight */
+void hw_atl_tps_tx_pkt_shed_tc_data_weight_set(struct aq_hw_s *aq_hw,
+					       const u32 tc,
+					       const u32 weight);
+
+/* set tx descriptor rate mode */
+void hw_atl_tps_tx_desc_rate_mode_set(struct aq_hw_s *aq_hw,
+				      const u32 rate_mode);
+
+/* set tx packet scheduler descriptor rate enable */
+void hw_atl_tps_tx_desc_rate_en_set(struct aq_hw_s *aq_hw, const u32 desc,
+				    const u32 enable);
+
+/* set tx packet scheduler descriptor rate integral value */
+void hw_atl_tps_tx_desc_rate_x_set(struct aq_hw_s *aq_hw, const u32 desc,
+				   const u32 rate_int);
+
+/* set tx packet scheduler descriptor rate fractional value */
+void hw_atl_tps_tx_desc_rate_y_set(struct aq_hw_s *aq_hw, const u32 desc,
+				   const u32 rate_frac);
+>>>>>>> upstream/android-13
 
 /* tx */
 
@@ -701,7 +886,103 @@ void hw_atl_msm_reg_wr_strobe_set(struct aq_hw_s *aq_hw, u32 reg_wr_strobe);
 /* set pci register reset disable */
 void hw_atl_pci_pci_reg_res_dis_set(struct aq_hw_s *aq_hw, u32 pci_reg_res_dis);
 
+<<<<<<< HEAD
 /* set uP Force Interrupt */
 void hw_atl_mcp_up_force_intr_set(struct aq_hw_s *aq_hw, u32 up_force_intr);
 
+=======
+/* pcs */
+void hw_atl_pcs_ptp_clock_read_enable(struct aq_hw_s *aq_hw,
+				      u32 ptp_clock_read_enable);
+
+u32 hw_atl_pcs_ptp_clock_get(struct aq_hw_s *aq_hw, u32 index);
+
+/* set uP Force Interrupt */
+void hw_atl_mcp_up_force_intr_set(struct aq_hw_s *aq_hw, u32 up_force_intr);
+
+/* clear ipv4 filter destination address */
+void hw_atl_rpfl3l4_ipv4_dest_addr_clear(struct aq_hw_s *aq_hw, u8 location);
+
+/* clear ipv4 filter source address */
+void hw_atl_rpfl3l4_ipv4_src_addr_clear(struct aq_hw_s *aq_hw, u8 location);
+
+/* clear command for filter l3-l4 */
+void hw_atl_rpfl3l4_cmd_clear(struct aq_hw_s *aq_hw, u8 location);
+
+/* clear ipv6 filter destination address */
+void hw_atl_rpfl3l4_ipv6_dest_addr_clear(struct aq_hw_s *aq_hw, u8 location);
+
+/* clear ipv6 filter source address */
+void hw_atl_rpfl3l4_ipv6_src_addr_clear(struct aq_hw_s *aq_hw, u8 location);
+
+/* set ipv4 filter destination address */
+void hw_atl_rpfl3l4_ipv4_dest_addr_set(struct aq_hw_s *aq_hw, u8 location,
+				       u32 ipv4_dest);
+
+/* set ipv4 filter source address */
+void hw_atl_rpfl3l4_ipv4_src_addr_set(struct aq_hw_s *aq_hw, u8 location,
+				      u32 ipv4_src);
+
+/* set command for filter l3-l4 */
+void hw_atl_rpfl3l4_cmd_set(struct aq_hw_s *aq_hw, u8 location, u32 cmd);
+
+/* set ipv6 filter source address */
+void hw_atl_rpfl3l4_ipv6_src_addr_set(struct aq_hw_s *aq_hw, u8 location,
+				      u32 *ipv6_src);
+
+/* set ipv6 filter destination address */
+void hw_atl_rpfl3l4_ipv6_dest_addr_set(struct aq_hw_s *aq_hw, u8 location,
+				       u32 *ipv6_dest);
+
+/* set Global MDIO Interface 1 */
+void hw_atl_glb_mdio_iface1_set(struct aq_hw_s *hw, u32 value);
+
+/* get Global MDIO Interface 1 */
+u32 hw_atl_glb_mdio_iface1_get(struct aq_hw_s *hw);
+
+/* set Global MDIO Interface 2 */
+void hw_atl_glb_mdio_iface2_set(struct aq_hw_s *hw, u32 value);
+
+/* get Global MDIO Interface 2 */
+u32 hw_atl_glb_mdio_iface2_get(struct aq_hw_s *hw);
+
+/* set Global MDIO Interface 3 */
+void hw_atl_glb_mdio_iface3_set(struct aq_hw_s *hw, u32 value);
+
+/* get Global MDIO Interface 3 */
+u32 hw_atl_glb_mdio_iface3_get(struct aq_hw_s *hw);
+
+/* set Global MDIO Interface 4 */
+void hw_atl_glb_mdio_iface4_set(struct aq_hw_s *hw, u32 value);
+
+/* get Global MDIO Interface 4 */
+u32 hw_atl_glb_mdio_iface4_get(struct aq_hw_s *hw);
+
+/* set Global MDIO Interface 5 */
+void hw_atl_glb_mdio_iface5_set(struct aq_hw_s *hw, u32 value);
+
+/* get Global MDIO Interface 5 */
+u32 hw_atl_glb_mdio_iface5_get(struct aq_hw_s *hw);
+
+u32 hw_atl_mdio_busy_get(struct aq_hw_s *aq_hw);
+
+/* get global microprocessor ram semaphore */
+u32 hw_atl_sem_ram_get(struct aq_hw_s *self);
+
+/* get global microprocessor mdio semaphore */
+u32 hw_atl_sem_mdio_get(struct aq_hw_s *self);
+
+u32 hw_atl_sem_reset1_get(struct aq_hw_s *self);
+u32 hw_atl_sem_reset2_get(struct aq_hw_s *self);
+
+/* get global microprocessor scratch pad register */
+u32 hw_atl_scrpad_get(struct aq_hw_s *aq_hw, u32 scratch_scp);
+
+/* get global microprocessor scratch pad 12 register */
+u32 hw_atl_scrpad12_get(struct aq_hw_s *self);
+
+/* get global microprocessor scratch pad 25 register */
+u32 hw_atl_scrpad25_get(struct aq_hw_s *self);
+
+>>>>>>> upstream/android-13
 #endif /* HW_ATL_LLH_H */

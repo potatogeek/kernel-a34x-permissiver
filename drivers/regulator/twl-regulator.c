@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * twl-regulator.c -- support regulators in twl4030/twl6030 family chips
  *
  * Copyright (C) 2008 David Brownell
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -363,6 +370,20 @@ static const u16 VINTANA2_VSEL_table[] = {
 	2500, 2750,
 };
 
+<<<<<<< HEAD
+=======
+/* 600mV to 1450mV in 12.5 mV steps */
+static const struct linear_range VDD1_ranges[] = {
+	REGULATOR_LINEAR_RANGE(600000, 0, 68, 12500)
+};
+
+/* 600mV to 1450mV in 12.5 mV steps, everything above = 1500mV */
+static const struct linear_range VDD2_ranges[] = {
+	REGULATOR_LINEAR_RANGE(600000, 0, 68, 12500),
+	REGULATOR_LINEAR_RANGE(1500000, 69, 69, 12500)
+};
+
+>>>>>>> upstream/android-13
 static int twl4030ldo_list_voltage(struct regulator_dev *rdev, unsigned index)
 {
 	struct twlreg_info	*info = rdev_get_drvdata(rdev);
@@ -392,7 +413,11 @@ static int twl4030ldo_get_voltage_sel(struct regulator_dev *rdev)
 	return vsel;
 }
 
+<<<<<<< HEAD
 static struct regulator_ops twl4030ldo_ops = {
+=======
+static const struct regulator_ops twl4030ldo_ops = {
+>>>>>>> upstream/android-13
 	.list_voltage	= twl4030ldo_list_voltage,
 
 	.set_voltage_sel = twl4030ldo_set_voltage_sel,
@@ -430,14 +455,24 @@ static int twl4030smps_get_voltage(struct regulator_dev *rdev)
 	return vsel * 12500 + 600000;
 }
 
+<<<<<<< HEAD
 static struct regulator_ops twl4030smps_ops = {
+=======
+static const struct regulator_ops twl4030smps_ops = {
+	.list_voltage   = regulator_list_voltage_linear_range,
+
+>>>>>>> upstream/android-13
 	.set_voltage	= twl4030smps_set_voltage,
 	.get_voltage	= twl4030smps_get_voltage,
 };
 
 /*----------------------------------------------------------------------*/
 
+<<<<<<< HEAD
 static struct regulator_ops twl4030fixed_ops = {
+=======
+static const struct regulator_ops twl4030fixed_ops = {
+>>>>>>> upstream/android-13
 	.list_voltage	= regulator_list_voltage_linear,
 
 	.enable		= twl4030reg_enable,
@@ -470,7 +505,12 @@ static const struct twlreg_info TWL4030_INFO_##label = { \
 		}, \
 	}
 
+<<<<<<< HEAD
 #define TWL4030_ADJUSTABLE_SMPS(label, offset, num, turnon_delay, remap_conf) \
+=======
+#define TWL4030_ADJUSTABLE_SMPS(label, offset, num, turnon_delay, remap_conf, \
+		n_volt) \
+>>>>>>> upstream/android-13
 static const struct twlreg_info TWL4030_INFO_##label = { \
 	.base = offset, \
 	.id = num, \
@@ -483,6 +523,12 @@ static const struct twlreg_info TWL4030_INFO_##label = { \
 		.owner = THIS_MODULE, \
 		.enable_time = turnon_delay, \
 		.of_map_mode = twl4030reg_map_mode, \
+<<<<<<< HEAD
+=======
+		.n_voltages = n_volt, \
+		.n_linear_ranges = ARRAY_SIZE(label ## _ranges), \
+		.linear_ranges = label ## _ranges, \
+>>>>>>> upstream/android-13
 		}, \
 	}
 
@@ -522,8 +568,13 @@ TWL4030_ADJUSTABLE_LDO(VSIM, 0x37, 9, 100, 0x00);
 TWL4030_ADJUSTABLE_LDO(VDAC, 0x3b, 10, 100, 0x08);
 TWL4030_ADJUSTABLE_LDO(VINTANA2, 0x43, 12, 100, 0x08);
 TWL4030_ADJUSTABLE_LDO(VIO, 0x4b, 14, 1000, 0x08);
+<<<<<<< HEAD
 TWL4030_ADJUSTABLE_SMPS(VDD1, 0x55, 15, 1000, 0x08);
 TWL4030_ADJUSTABLE_SMPS(VDD2, 0x63, 16, 1000, 0x08);
+=======
+TWL4030_ADJUSTABLE_SMPS(VDD1, 0x55, 15, 1000, 0x08, 68);
+TWL4030_ADJUSTABLE_SMPS(VDD2, 0x63, 16, 1000, 0x08, 69);
+>>>>>>> upstream/android-13
 /* VUSBCP is managed *only* by the USB subchip */
 TWL4030_FIXED_LDO(VINTANA1, 0x3f, 1500, 11, 100, 0x08);
 TWL4030_FIXED_LDO(VINTDIG, 0x47, 1500, 13, 100, 0x08);
@@ -576,6 +627,7 @@ static int twlreg_probe(struct platform_device *pdev)
 	struct regulator_init_data	*initdata;
 	struct regulation_constraints	*c;
 	struct regulator_dev		*rdev;
+<<<<<<< HEAD
 	const struct of_device_id	*match;
 	struct regulator_config		config = { };
 
@@ -584,6 +636,11 @@ static int twlreg_probe(struct platform_device *pdev)
 		return -ENODEV;
 
 	template = match->data;
+=======
+	struct regulator_config		config = { };
+
+	template = of_device_get_match_data(&pdev->dev);
+>>>>>>> upstream/android-13
 	if (!template)
 		return -ENODEV;
 

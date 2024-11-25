@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2008 Zhang Le <r0bertz@gentoo.org>
  * Copyright (c) 2009 Wu Zhangjin <wuzhangjin@gmail.com>
@@ -7,6 +8,12 @@
  * Public License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your
  * option) any later version.
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright (c) 2008 Zhang Le <r0bertz@gentoo.org>
+ * Copyright (c) 2009 Wu Zhangjin <wuzhangjin@gmail.com>
+>>>>>>> upstream/android-13
  */
 
 #ifndef __ASM_MACH_LOONGSON64_PCI_H_
@@ -17,6 +24,7 @@ extern struct pci_ops loongson_pci_ops;
 /* this is an offset from mips_io_port_base */
 #define LOONGSON_PCI_IO_START	0x00004000UL
 
+<<<<<<< HEAD
 #ifdef CONFIG_CPU_SUPPORTS_ADDRWINCFG
 
 /*
@@ -51,5 +59,10 @@ extern struct pci_ops loongson_pci_ops;
 #define LOONGSON_PCI_IO_START	0x00004000UL
 
 #endif	/* !CONFIG_CPU_SUPPORTS_ADDRWINCFG */
+=======
+#define LOONGSON_PCI_MEM_START	0x40000000UL
+#define LOONGSON_PCI_MEM_END	0x7effffffUL
+
+>>>>>>> upstream/android-13
 
 #endif /* !__ASM_MACH_LOONGSON64_PCI_H_ */

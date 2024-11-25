@@ -1,6 +1,11 @@
 /* SPDX-License-Identifier: GPL-2.0 */
 /*
+<<<<<<< HEAD
  * Copyright (c) 2015 MediaTek Inc.
+=======
+ * Copyright (c) 2018 MediaTek Inc.
+ *
+>>>>>>> upstream/android-13
  */
 
 #ifndef __MTK_CMDQ_MAILBOX_H__
@@ -9,6 +14,7 @@
 #include <linux/platform_device.h>
 #include <linux/slab.h>
 #include <linux/types.h>
+<<<<<<< HEAD
 #include <linux/trace_events.h>
 
 #if !IS_ENABLED(CONFIG_MTK_CMDQ_MBOX_EXT)
@@ -37,12 +43,34 @@
 #define CMDQ_CMD_BUFFER_SIZE		(PAGE_SIZE - 32 * CMDQ_INST_SIZE)
 #define CMDQ_BUF_ALLOC_SIZE		(PAGE_SIZE)
 #define CMDQ_NUM_CMD(cmd_size)		((cmd_size) / CMDQ_INST_SIZE)
+=======
+
+#define CMDQ_INST_SIZE			8 /* instruction is 64-bit */
+#define CMDQ_SUBSYS_SHIFT		16
+#define CMDQ_OP_CODE_SHIFT		24
+#define CMDQ_JUMP_PASS			CMDQ_INST_SIZE
+>>>>>>> upstream/android-13
 
 #define CMDQ_WFE_UPDATE			BIT(31)
 #define CMDQ_WFE_UPDATE_VALUE		BIT(16)
 #define CMDQ_WFE_WAIT			BIT(15)
 #define CMDQ_WFE_WAIT_VALUE		0x1
+<<<<<<< HEAD
 #define CMDQ_EVENT_MAX			0x3FF
+=======
+
+/*
+ * WFE arg_b
+ * bit 0-11: wait value
+ * bit 15: 1 - wait, 0 - no wait
+ * bit 16-27: update value
+ * bit 31: 1 - update, 0 - no update
+ */
+#define CMDQ_WFE_OPTION			(CMDQ_WFE_WAIT | CMDQ_WFE_WAIT_VALUE)
+
+/** cmdq event maximum */
+#define CMDQ_MAX_EVENT			0x3ff
+>>>>>>> upstream/android-13
 
 /*
  * CMDQ_CODE_MASK:
@@ -64,6 +92,7 @@
  *   format: op irq_flag
  */
 enum cmdq_code {
+<<<<<<< HEAD
 	CMDQ_CODE_READ  = 0x01,
 	CMDQ_CODE_MASK = 0x02,
 	CMDQ_CODE_MOVE = 0x02,
@@ -96,6 +125,24 @@ enum cmdq_code {
 struct cmdq_cb_data {
 	s32		err;
 	void		*data;
+=======
+	CMDQ_CODE_MASK = 0x02,
+	CMDQ_CODE_WRITE = 0x04,
+	CMDQ_CODE_POLL = 0x08,
+	CMDQ_CODE_JUMP = 0x10,
+	CMDQ_CODE_WFE = 0x20,
+	CMDQ_CODE_EOC = 0x40,
+	CMDQ_CODE_READ_S = 0x80,
+	CMDQ_CODE_WRITE_S = 0x90,
+	CMDQ_CODE_WRITE_S_MASK = 0x91,
+	CMDQ_CODE_LOGIC = 0xa0,
+};
+
+struct cmdq_cb_data {
+	int			sta;
+	void			*data;
+	struct cmdq_pkt		*pkt;
+>>>>>>> upstream/android-13
 };
 
 typedef void (*cmdq_async_flush_cb)(struct cmdq_cb_data data);
@@ -105,6 +152,7 @@ struct cmdq_task_cb {
 	void			*data;
 };
 
+<<<<<<< HEAD
 struct cmdq_pkt_buffer {
 	struct list_head	list_entry;
 	void			*va_base;
@@ -275,5 +323,18 @@ void cmdq_mmp_wait(struct mbox_chan *chan, void *pkt);
 	defined(CONFIG_MTK_CAM_SECURITY_SUPPORT)
 s32 cmdq_sec_insert_backup_cookie(struct cmdq_pkt *pkt);
 #endif
+=======
+struct cmdq_pkt {
+	void			*va_base;
+	dma_addr_t		pa_base;
+	size_t			cmd_buf_size; /* command occupied size */
+	size_t			buf_size; /* real buffer size */
+	struct cmdq_task_cb	cb;
+	struct cmdq_task_cb	async_cb;
+	void			*cl;
+};
+
+u8 cmdq_get_shift_pa(struct mbox_chan *chan);
+>>>>>>> upstream/android-13
 
 #endif /* __MTK_CMDQ_MAILBOX_H__ */

@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Maxim Integrated
  * 7-bit, Multi-Channel Sink/Source Current DAC Driver
  * Copyright (C) 2017 Maxim Integrated
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -233,6 +240,7 @@ static int ds4424_probe(struct i2c_client *client,
 	i2c_set_clientdata(client, indio_dev);
 	data->client = client;
 	indio_dev->name = id->name;
+<<<<<<< HEAD
 	indio_dev->dev.of_node = client->dev.of_node;
 	indio_dev->dev.parent = &client->dev;
 
@@ -241,6 +249,8 @@ static int ds4424_probe(struct i2c_client *client,
 				"Not found DT.\n");
 		return -ENODEV;
 	}
+=======
+>>>>>>> upstream/android-13
 
 	data->vcc_reg = devm_regulator_get(&client->dev, "vcc");
 	if (IS_ERR(data->vcc_reg)) {

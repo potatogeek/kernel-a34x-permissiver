@@ -3,6 +3,7 @@
 #define _ASM_X86_DMA_MAPPING_H
 
 /*
+<<<<<<< HEAD
  * IOMMU interface. See Documentation/DMA-API-HOWTO.txt and
  * Documentation/DMA-API.txt for documentation.
  */
@@ -21,6 +22,17 @@
 
 extern int iommu_merge;
 extern struct device x86_dma_fallback_dev;
+=======
+ * IOMMU interface. See Documentation/core-api/dma-api-howto.rst and
+ * Documentation/core-api/dma-api.rst for documentation.
+ */
+
+#include <linux/scatterlist.h>
+#include <asm/io.h>
+#include <asm/swiotlb.h>
+
+extern int iommu_merge;
+>>>>>>> upstream/android-13
 extern int panic_on_overflow;
 
 extern const struct dma_map_ops *dma_ops;
@@ -30,7 +42,10 @@ static inline const struct dma_map_ops *get_arch_dma_ops(struct bus_type *bus)
 	return dma_ops;
 }
 
+<<<<<<< HEAD
 bool arch_dma_alloc_attrs(struct device **dev);
 #define arch_dma_alloc_attrs arch_dma_alloc_attrs
 
+=======
+>>>>>>> upstream/android-13
 #endif

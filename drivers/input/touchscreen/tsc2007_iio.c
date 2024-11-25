@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2016 Golden Delicious Comp. GmbH&Co. KG
  *	Nikolaus Schaller <hns@goldelico.com>
@@ -5,6 +6,12 @@
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2 as
  *  published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2016 Golden Delicious Comp. GmbH&Co. KG
+ *	Nikolaus Schaller <hns@goldelico.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/i2c.h>
@@ -122,7 +129,10 @@ int tsc2007_iio_configure(struct tsc2007 *ts)
 	iio->ts = ts;
 
 	indio_dev->name = "tsc2007";
+<<<<<<< HEAD
 	indio_dev->dev.parent = &ts->client->dev;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->info = &tsc2007_iio_info;
 	indio_dev->modes = INDIO_DIRECT_MODE;
 	indio_dev->channels = tsc2007_iio_channel;

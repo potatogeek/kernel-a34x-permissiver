@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  Copyright (c) by Uros Bizjak <uros@kss-loka.si>
  *
  *  Midi synth routines for OPL2/OPL3/OPL4 FM
+<<<<<<< HEAD
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -17,6 +22,8 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #undef DEBUG_ALLOC
@@ -37,7 +44,11 @@ static void snd_opl3_note_off_unsafe(void *p, int note, int vel,
  * it saves a lot of log() calculations. (Rob Hooft <hooft@chem.ruu.nl>)
  */
 
+<<<<<<< HEAD
 static char opl3_volume_table[128] =
+=======
+static const char opl3_volume_table[128] =
+>>>>>>> upstream/android-13
 {
 	-63, -48, -40, -35, -32, -29, -27, -26,
 	-24, -23, -21, -20, -19, -18, -18, -17,
@@ -83,7 +94,11 @@ void snd_opl3_calc_volume(unsigned char *volbyte, int vel,
 /*
  * Converts the note frequency to block and fnum values for the FM chip
  */
+<<<<<<< HEAD
 static short opl3_note_table[16] =
+=======
+static const short opl3_note_table[16] =
+>>>>>>> upstream/android-13
 {
 	305, 323,	/* for pitch bending, -2 semitones */
 	343, 363, 385, 408, 432, 458, 485, 514, 544, 577, 611, 647,
@@ -194,8 +209,12 @@ static int opl3_get_voice(struct snd_opl3 *opl3, int instr_4op,
 			if (vp2->state == SNDRV_OPL3_ST_ON_2OP) {
 				/* kill two voices, EXPENSIVE */
 				bp++;
+<<<<<<< HEAD
 				voice_time = (voice_time > vp->time) ?
 					voice_time : vp->time;
+=======
+				voice_time = max(voice_time, vp2->time);
+>>>>>>> upstream/android-13
 			}
 		} else {
 			/* allocate 2op voice */
@@ -280,7 +299,11 @@ static void snd_opl3_start_timer(struct snd_opl3 *opl3)
 /* ------------------------------ */
 
 
+<<<<<<< HEAD
 static int snd_opl3_oss_map[MAX_OPL3_VOICES] = {
+=======
+static const int snd_opl3_oss_map[MAX_OPL3_VOICES] = {
+>>>>>>> upstream/android-13
 	0, 1, 2, 9, 10, 11, 6, 7, 8, 15, 16, 17, 3, 4 ,5, 12, 13, 14
 };
 
@@ -368,7 +391,11 @@ void snd_opl3_note_on(void *p, int note, int vel, struct snd_midi_channel *chan)
 			instr_4op = 1;
 			break;
 		}
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		spin_unlock_irqrestore(&opl3->voice_lock, flags);
 		return;
@@ -412,7 +439,11 @@ void snd_opl3_note_on(void *p, int note, int vel, struct snd_midi_channel *chan)
 	}
 	if (instr_4op) {
 		vp2 = &opl3->voices[voice + 3];
+<<<<<<< HEAD
 		if (vp->state > 0) {
+=======
+		if (vp2->state > 0) {
+>>>>>>> upstream/android-13
 			opl3_reg = reg_side | (OPL3_REG_KEYON_BLOCK +
 					       voice_offset + 3);
 			reg_val = vp->keyon_reg & ~OPL3_KEYON_BIT;
@@ -457,7 +488,11 @@ void snd_opl3_note_on(void *p, int note, int vel, struct snd_midi_channel *chan)
 		switch (connection) {
 		case 0x03:
 			snd_opl3_calc_volume(&vol_op[2], vel, chan);
+<<<<<<< HEAD
 			/* fallthru */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case 0x02:
 			snd_opl3_calc_volume(&vol_op[0], vel, chan);
 			break;

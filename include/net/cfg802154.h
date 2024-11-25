@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2007, 2008, 2009 Siemens AG
  *
@@ -10,6 +11,12 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) 2007, 2008, 2009 Siemens AG
+ *
+>>>>>>> upstream/android-13
  * Written by:
  * Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
  */
@@ -222,7 +229,11 @@ struct wpan_phy {
 	/* the network namespace this phy lives in currently */
 	possible_net_t _net;
 
+<<<<<<< HEAD
 	char priv[0] __aligned(NETDEV_ALIGN);
+=======
+	char priv[] __aligned(NETDEV_ALIGN);
+>>>>>>> upstream/android-13
 };
 
 static inline struct net *wpan_phy_net(struct wpan_phy *wpan_phy)

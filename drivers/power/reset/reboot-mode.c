@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2016, Fuzhou Rockchip Electronics Co., Ltd
  *
@@ -5,6 +6,11 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (c) 2016, Fuzhou Rockchip Electronics Co., Ltd
+>>>>>>> upstream/android-13
  */
 
 #include <linux/device.h>
@@ -194,6 +200,10 @@ void devm_reboot_mode_unregister(struct device *dev,
 }
 EXPORT_SYMBOL_GPL(devm_reboot_mode_unregister);
 
+<<<<<<< HEAD
 MODULE_AUTHOR("Andy Yan <andy.yan@rock-chips.com");
+=======
+MODULE_AUTHOR("Andy Yan <andy.yan@rock-chips.com>");
+>>>>>>> upstream/android-13
 MODULE_DESCRIPTION("System reboot mode core library");
 MODULE_LICENSE("GPL v2");

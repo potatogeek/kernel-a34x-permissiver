@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  sata_promise.c - Promise SATA
  *
@@ -8,6 +12,7 @@
  *
  *  Copyright 2003-2004 Red Hat, Inc.
  *
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -24,11 +29,16 @@
  *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  *
+=======
+>>>>>>> upstream/android-13
  *  libata documentation is available via 'make {ps|pdf}docs',
  *  as Documentation/driver-api/libata.rst
  *
  *  Hardware information only available under NDA.
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -173,7 +183,10 @@ static int pdc_sata_hardreset(struct ata_link *link, unsigned int *class,
 static void pdc_error_handler(struct ata_port *ap);
 static void pdc_post_internal_cmd(struct ata_queued_cmd *qc);
 static int pdc_pata_cable_detect(struct ata_port *ap);
+<<<<<<< HEAD
 static int pdc_sata_cable_detect(struct ata_port *ap);
+=======
+>>>>>>> upstream/android-13
 
 static struct scsi_host_template pdc_ata_sht = {
 	ATA_BASE_SHT(DRV_NAME),
@@ -199,7 +212,11 @@ static const struct ata_port_operations pdc_common_ops = {
 
 static struct ata_port_operations pdc_sata_ops = {
 	.inherits		= &pdc_common_ops,
+<<<<<<< HEAD
 	.cable_detect		= pdc_sata_cable_detect,
+=======
+	.cable_detect		= ata_cable_sata,
+>>>>>>> upstream/android-13
 	.freeze			= pdc_sata_freeze,
 	.thaw			= pdc_sata_thaw,
 	.scr_read		= pdc_sata_scr_read,
@@ -475,11 +492,14 @@ static int pdc_pata_cable_detect(struct ata_port *ap)
 	return ATA_CBL_PATA80;
 }
 
+<<<<<<< HEAD
 static int pdc_sata_cable_detect(struct ata_port *ap)
 {
 	return ATA_CBL_SATA;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int pdc_sata_scr_read(struct ata_link *link,
 			     unsigned int sc_reg, u32 *val)
 {
@@ -659,7 +679,11 @@ static enum ata_completion_errors pdc_qc_prep(struct ata_queued_cmd *qc)
 	switch (qc->tf.protocol) {
 	case ATA_PROT_DMA:
 		pdc_fill_sg(qc);
+<<<<<<< HEAD
 		/*FALLTHROUGH*/
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case ATA_PROT_NODATA:
 		i = pdc_pkt_header(&qc->tf, qc->ap->bmdma_prd_dma,
 				   qc->dev->devno, pp->pkt);
@@ -674,7 +698,11 @@ static enum ata_completion_errors pdc_qc_prep(struct ata_queued_cmd *qc)
 		break;
 	case ATAPI_PROT_DMA:
 		pdc_fill_sg(qc);
+<<<<<<< HEAD
 		/*FALLTHROUGH*/
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case ATAPI_PROT_NODATA:
 		pdc_atapi_pkt(qc);
 		break;
@@ -1044,11 +1072,19 @@ static unsigned int pdc_qc_issue(struct ata_queued_cmd *qc)
 	case ATAPI_PROT_NODATA:
 		if (qc->dev->flags & ATA_DFLAG_CDB_INTR)
 			break;
+<<<<<<< HEAD
 		/*FALLTHROUGH*/
 	case ATA_PROT_NODATA:
 		if (qc->tf.flags & ATA_TFLAG_POLLING)
 			break;
 		/*FALLTHROUGH*/
+=======
+		fallthrough;
+	case ATA_PROT_NODATA:
+		if (qc->tf.flags & ATA_TFLAG_POLLING)
+			break;
+		fallthrough;
+>>>>>>> upstream/android-13
 	case ATAPI_PROT_DMA:
 	case ATA_PROT_DMA:
 		pdc_packet_start(qc);
@@ -1248,10 +1284,14 @@ static int pdc_ata_init_one(struct pci_dev *pdev,
 	/* initialize adapter */
 	pdc_host_init(host);
 
+<<<<<<< HEAD
 	rc = dma_set_mask(&pdev->dev, ATA_DMA_MASK);
 	if (rc)
 		return rc;
 	rc = dma_set_coherent_mask(&pdev->dev, ATA_DMA_MASK);
+=======
+	rc = dma_set_mask_and_coherent(&pdev->dev, ATA_DMA_MASK);
+>>>>>>> upstream/android-13
 	if (rc)
 		return rc;
 

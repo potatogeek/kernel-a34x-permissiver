@@ -136,6 +136,7 @@
  */
 #define TOUT_MIN			2
 
+<<<<<<< HEAD
 /* I2C Frequency Modes */
 #define I2C_STANDARD_FREQ		100000
 #define I2C_FAST_MODE_FREQ		400000
@@ -143,6 +144,10 @@
 
 /* Default values. Use these if FW query fails */
 #define DEFAULT_CLK_FREQ I2C_STANDARD_FREQ
+=======
+/* Default values. Use these if FW query fails */
+#define DEFAULT_CLK_FREQ I2C_MAX_STANDARD_MODE_FREQ
+>>>>>>> upstream/android-13
 #define DEFAULT_SRC_CLK 20000000
 
 /*
@@ -628,7 +633,11 @@ static int qup_i2c_req_dma(struct qup_i2c_dev *qup)
 	int err;
 
 	if (!qup->btx.dma) {
+<<<<<<< HEAD
 		qup->btx.dma = dma_request_slave_channel_reason(qup->dev, "tx");
+=======
+		qup->btx.dma = dma_request_chan(qup->dev, "tx");
+>>>>>>> upstream/android-13
 		if (IS_ERR(qup->btx.dma)) {
 			err = PTR_ERR(qup->btx.dma);
 			qup->btx.dma = NULL;
@@ -638,7 +647,11 @@ static int qup_i2c_req_dma(struct qup_i2c_dev *qup)
 	}
 
 	if (!qup->brx.dma) {
+<<<<<<< HEAD
 		qup->brx.dma = dma_request_slave_channel_reason(qup->dev, "rx");
+=======
+		qup->brx.dma = dma_request_chan(qup->dev, "rx");
+>>>>>>> upstream/android-13
 		if (IS_ERR(qup->brx.dma)) {
 			dev_err(qup->dev, "\n rx channel not available");
 			err = PTR_ERR(qup->brx.dma);
@@ -783,7 +796,11 @@ static int qup_i2c_bam_schedule_desc(struct qup_i2c_dev *qup)
 			ret = -EINVAL;
 
 			/* abort TX descriptors */
+<<<<<<< HEAD
 			dmaengine_terminate_all(qup->btx.dma);
+=======
+			dmaengine_terminate_sync(qup->btx.dma);
+>>>>>>> upstream/android-13
 			goto desc_err;
 		}
 
@@ -962,10 +979,15 @@ static void qup_i2c_conf_v1(struct qup_i2c_dev *qup)
 	u32 qup_config = I2C_MINI_CORE | I2C_N_VAL;
 	u32 io_mode = QUP_REPACK_EN;
 
+<<<<<<< HEAD
 	blk->is_tx_blk_mode =
 		blk->total_tx_len > qup->out_fifo_sz ? true : false;
 	blk->is_rx_blk_mode =
 		blk->total_rx_len > qup->in_fifo_sz ? true : false;
+=======
+	blk->is_tx_blk_mode = blk->total_tx_len > qup->out_fifo_sz;
+	blk->is_rx_blk_mode = blk->total_rx_len > qup->in_fifo_sz;
+>>>>>>> upstream/android-13
 
 	if (blk->is_tx_blk_mode) {
 		io_mode |= QUP_OUTPUT_BLK_MODE;
@@ -1534,9 +1556,15 @@ qup_i2c_determine_mode_v2(struct qup_i2c_dev *qup,
 		qup->use_dma = true;
 	} else {
 		qup->blk.is_tx_blk_mode = max_tx_len > qup->out_fifo_sz -
+<<<<<<< HEAD
 			QUP_MAX_TAGS_LEN ? true : false;
 		qup->blk.is_rx_blk_mode = max_rx_len > qup->in_fifo_sz -
 			READ_RX_TAGS_LEN ? true : false;
+=======
+			QUP_MAX_TAGS_LEN;
+		qup->blk.is_rx_blk_mode = max_rx_len > qup->in_fifo_sz -
+			READ_RX_TAGS_LEN;
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
@@ -1610,7 +1638,11 @@ out:
 
 static u32 qup_i2c_func(struct i2c_adapter *adap)
 {
+<<<<<<< HEAD
 	return I2C_FUNC_I2C | (I2C_FUNC_SMBUS_EMUL & ~I2C_FUNC_SMBUS_QUICK);
+=======
+	return I2C_FUNC_I2C | (I2C_FUNC_SMBUS_EMUL_ALL & ~I2C_FUNC_SMBUS_QUICK);
+>>>>>>> upstream/android-13
 }
 
 static const struct i2c_algorithm qup_i2c_algo = {
@@ -1666,7 +1698,10 @@ static int qup_i2c_probe(struct platform_device *pdev)
 	static const int blk_sizes[] = {4, 16, 32};
 	struct qup_i2c_dev *qup;
 	unsigned long one_bit_t;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	u32 io_mode, hw_ver, size;
 	int ret, fs_div, hs_div;
 	u32 src_clk_freq = DEFAULT_SRC_CLK;
@@ -1757,22 +1792,35 @@ static int qup_i2c_probe(struct platform_device *pdev)
 
 nodma:
 	/* We support frequencies up to FAST Mode Plus (1MHz) */
+<<<<<<< HEAD
 	if (!clk_freq || clk_freq > I2C_FAST_MODE_PLUS_FREQ) {
+=======
+	if (!clk_freq || clk_freq > I2C_MAX_FAST_MODE_PLUS_FREQ) {
+>>>>>>> upstream/android-13
 		dev_err(qup->dev, "clock frequency not supported %d\n",
 			clk_freq);
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	qup->base = devm_ioremap_resource(qup->dev, res);
+=======
+	qup->base = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(qup->base))
 		return PTR_ERR(qup->base);
 
 	qup->irq = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (qup->irq < 0) {
 		dev_err(qup->dev, "No IRQ defined\n");
 		return qup->irq;
 	}
+=======
+	if (qup->irq < 0)
+		return qup->irq;
+>>>>>>> upstream/android-13
 
 	if (has_acpi_companion(qup->dev)) {
 		ret = device_property_read_u32(qup->dev,
@@ -1862,7 +1910,11 @@ nodma:
 	qup->in_fifo_sz = qup->in_blk_sz * (2 << size);
 
 	hs_div = 3;
+<<<<<<< HEAD
 	if (clk_freq <= I2C_STANDARD_FREQ) {
+=======
+	if (clk_freq <= I2C_MAX_STANDARD_MODE_FREQ) {
+>>>>>>> upstream/android-13
 		fs_div = ((src_clk_freq / clk_freq) / 2) - 3;
 		qup->clk_ctl = (hs_div << 8) | (fs_div & 0xff);
 	} else {

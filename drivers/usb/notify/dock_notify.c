@@ -214,6 +214,7 @@ done:
 	return;
 }
 
+<<<<<<< HEAD
 static void disconnect_usb_driver(struct usb_device *dev)
 {
 	struct usb_interface *intf = NULL;
@@ -241,6 +242,8 @@ done:
 	return;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int call_device_notify(struct usb_device *dev, int connect)
 {
 	struct otg_notify *o_notify = get_otg_notify();
@@ -266,8 +269,12 @@ static int call_device_notify(struct usb_device *dev, int connect)
 			seek_usb_interface(dev);
 
 			if (!usb_check_whitelist_for_mdm(dev)) {
+<<<<<<< HEAD
 				pr_info("This device will be noattached state.\n");
 				disconnect_usb_driver(dev);
+=======
+				pr_info("This deice will be noattached state.\n");
+>>>>>>> upstream/android-13
 				usb_set_device_state(dev, USB_STATE_NOTATTACHED);
 			}
 		} else

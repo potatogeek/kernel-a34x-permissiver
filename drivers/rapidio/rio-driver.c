@@ -1,19 +1,30 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * RapidIO driver support
  *
  * Copyright 2005 MontaVista Software, Inc.
  * Matt Porter <mporter@kernel.crashing.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
 #include <linux/module.h>
 #include <linux/rio.h>
 #include <linux/rio_ids.h>
+<<<<<<< HEAD
+=======
+#include <linux/rio_drv.h>
+>>>>>>> upstream/android-13
 
 #include "rio.h"
 
@@ -115,7 +126,11 @@ static int rio_device_probe(struct device *dev)
  * driver, then run the driver remove() method.  Then update
  * the reference count.
  */
+<<<<<<< HEAD
 static int rio_device_remove(struct device *dev)
+=======
+static void rio_device_remove(struct device *dev)
+>>>>>>> upstream/android-13
 {
 	struct rio_dev *rdev = to_rio_dev(dev);
 	struct rio_driver *rdrv = rdev->driver;
@@ -127,8 +142,11 @@ static int rio_device_remove(struct device *dev)
 	}
 
 	rio_dev_put(rdev);
+<<<<<<< HEAD
 
 	return 0;
+=======
+>>>>>>> upstream/android-13
 }
 
 static void rio_device_shutdown(struct device *dev)

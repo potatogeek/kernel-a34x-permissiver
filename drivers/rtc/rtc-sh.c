@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * SuperH On-Chip RTC Support
  *
@@ -9,10 +13,13 @@
  *
  *  Copyright (C) 2000  Philipp Rumpf <prumpf@tux.org>
  *  Copyright (C) 1999  Tetsuya Okada & Niibe Yutaka
+<<<<<<< HEAD
  *
  * This file is subject to the terms and conditions of the GNU General Public
  * License.  See the file "COPYING" in the main directory of this archive
  * for more details.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/module.h>
 #include <linux/mod_devicetable.h>
@@ -279,6 +286,12 @@ static int sh_rtc_read_time(struct device *dev, struct rtc_time *tm)
 	struct sh_rtc *rtc = dev_get_drvdata(dev);
 	unsigned int sec128, sec2, yr, yr100, cf_bit;
 
+<<<<<<< HEAD
+=======
+	if (!(readb(rtc->regbase + RCR2) & RCR2_RTCEN))
+		return -EINVAL;
+
+>>>>>>> upstream/android-13
 	do {
 		unsigned int tmp;
 
@@ -469,7 +482,10 @@ static int __init sh_rtc_probe(struct platform_device *pdev)
 {
 	struct sh_rtc *rtc;
 	struct resource *res;
+<<<<<<< HEAD
 	struct rtc_time r;
+=======
+>>>>>>> upstream/android-13
 	char clk_name[6];
 	int clk_id, ret;
 
@@ -505,8 +521,12 @@ static int __init sh_rtc_probe(struct platform_device *pdev)
 	if (unlikely(!rtc->res))
 		return -EBUSY;
 
+<<<<<<< HEAD
 	rtc->regbase = devm_ioremap_nocache(&pdev->dev, rtc->res->start,
 					rtc->regsize);
+=======
+	rtc->regbase = devm_ioremap(&pdev->dev, rtc->res->start, rtc->regsize);
+>>>>>>> upstream/android-13
 	if (unlikely(!rtc->regbase))
 		return -EINVAL;
 
@@ -531,6 +551,13 @@ static int __init sh_rtc_probe(struct platform_device *pdev)
 		rtc->clk = NULL;
 	}
 
+<<<<<<< HEAD
+=======
+	rtc->rtc_dev = devm_rtc_allocate_device(&pdev->dev);
+	if (IS_ERR(rtc->rtc_dev))
+		return PTR_ERR(rtc->rtc_dev);
+
+>>>>>>> upstream/android-13
 	clk_enable(rtc->clk);
 
 	rtc->capabilities = RTC_DEF_CAPABILITIES;
@@ -594,6 +621,7 @@ static int __init sh_rtc_probe(struct platform_device *pdev)
 	sh_rtc_setaie(&pdev->dev, 0);
 	sh_rtc_setcie(&pdev->dev, 0);
 
+<<<<<<< HEAD
 	rtc->rtc_dev = devm_rtc_device_register(&pdev->dev, "sh",
 					   &sh_rtc_ops, THIS_MODULE);
 	if (IS_ERR(rtc->rtc_dev)) {
@@ -609,6 +637,23 @@ static int __init sh_rtc_probe(struct platform_device *pdev)
 		rtc_set_time(rtc->rtc_dev, &r);
 	}
 
+=======
+	rtc->rtc_dev->ops = &sh_rtc_ops;
+	rtc->rtc_dev->max_user_freq = 256;
+
+	if (rtc->capabilities & RTC_CAP_4_DIGIT_YEAR) {
+		rtc->rtc_dev->range_min = RTC_TIMESTAMP_BEGIN_1900;
+		rtc->rtc_dev->range_max = RTC_TIMESTAMP_END_9999;
+	} else {
+		rtc->rtc_dev->range_min = mktime64(1999, 1, 1, 0, 0, 0);
+		rtc->rtc_dev->range_max = mktime64(2098, 12, 31, 23, 59, 59);
+	}
+
+	ret = devm_rtc_register_device(rtc->rtc_dev);
+	if (ret)
+		goto err_unmap;
+
+>>>>>>> upstream/android-13
 	device_init_wakeup(&pdev->dev, 1);
 	return 0;
 
@@ -681,5 +726,9 @@ MODULE_DESCRIPTION("SuperH on-chip RTC driver");
 MODULE_AUTHOR("Paul Mundt <lethal@linux-sh.org>, "
 	      "Jamie Lenehan <lenehan@twibble.org>, "
 	      "Angelo Castello <angelo.castello@st.com>");
+<<<<<<< HEAD
 MODULE_LICENSE("GPL");
+=======
+MODULE_LICENSE("GPL v2");
+>>>>>>> upstream/android-13
 MODULE_ALIAS("platform:" DRV_NAME);

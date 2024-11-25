@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* RxRPC individual remote procedure call handling
  *
  * Copyright (C) 2007 Red Hat, Inc. All Rights Reserved.
  * Written by David Howells (dhowells@redhat.com)
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -27,7 +34,10 @@ const char *const rxrpc_call_states[NR__RXRPC_CALL_STATES] = {
 	[RXRPC_CALL_CLIENT_RECV_REPLY]		= "ClRcvRpl",
 	[RXRPC_CALL_SERVER_PREALLOC]		= "SvPrealc",
 	[RXRPC_CALL_SERVER_SECURING]		= "SvSecure",
+<<<<<<< HEAD
 	[RXRPC_CALL_SERVER_ACCEPTING]		= "SvAccept",
+=======
+>>>>>>> upstream/android-13
 	[RXRPC_CALL_SERVER_RECV_REQUEST]	= "SvRcvReq",
 	[RXRPC_CALL_SERVER_ACK_REQUEST]		= "SvAckReq",
 	[RXRPC_CALL_SERVER_SEND_REPLY]		= "SvSndRpl",
@@ -45,6 +55,14 @@ const char *const rxrpc_call_completions[NR__RXRPC_CALL_COMPLETIONS] = {
 
 struct kmem_cache *rxrpc_call_jar;
 
+<<<<<<< HEAD
+=======
+static struct semaphore rxrpc_call_limiter =
+	__SEMAPHORE_INITIALIZER(rxrpc_call_limiter, 1000);
+static struct semaphore rxrpc_kernel_call_limiter =
+	__SEMAPHORE_INITIALIZER(rxrpc_kernel_call_limiter, 1000);
+
+>>>>>>> upstream/android-13
 static void rxrpc_call_timer_expired(struct timer_list *t)
 {
 	struct rxrpc_call *call = from_timer(call, t, timer);
@@ -53,10 +71,37 @@ static void rxrpc_call_timer_expired(struct timer_list *t)
 
 	if (call->state < RXRPC_CALL_COMPLETE) {
 		trace_rxrpc_timer(call, rxrpc_timer_expired, jiffies);
+<<<<<<< HEAD
 		rxrpc_queue_call(call);
 	}
 }
 
+=======
+		__rxrpc_queue_call(call);
+	} else {
+		rxrpc_put_call(call, rxrpc_call_put);
+	}
+}
+
+void rxrpc_reduce_call_timer(struct rxrpc_call *call,
+			     unsigned long expire_at,
+			     unsigned long now,
+			     enum rxrpc_timer_trace why)
+{
+	if (rxrpc_try_get_call(call, rxrpc_call_got_timer)) {
+		trace_rxrpc_timer(call, why, now);
+		if (timer_reduce(&call->timer, expire_at))
+			rxrpc_put_call(call, rxrpc_call_put_notimer);
+	}
+}
+
+void rxrpc_delete_call_timer(struct rxrpc_call *call)
+{
+	if (del_timer_sync(&call->timer))
+		rxrpc_put_call(call, rxrpc_call_put_timer);
+}
+
+>>>>>>> upstream/android-13
 static struct lock_class_key rxrpc_call_user_mutex_lock_class_key;
 
 /*
@@ -157,6 +202,10 @@ struct rxrpc_call *rxrpc_alloc_call(struct rxrpc_sock *rx, gfp_t gfp,
 	call->cong_ssthresh = RXRPC_RXTX_BUFF_SIZE - 1;
 
 	call->rxnet = rxnet;
+<<<<<<< HEAD
+=======
+	call->rtt_avail = RXRPC_CALL_RTT_AVAIL_MASK;
+>>>>>>> upstream/android-13
 	atomic_inc(&rxnet->nr_calls);
 	return call;
 
@@ -213,6 +262,37 @@ static void rxrpc_start_call_timer(struct rxrpc_call *call)
 }
 
 /*
+<<<<<<< HEAD
+=======
+ * Wait for a call slot to become available.
+ */
+static struct semaphore *rxrpc_get_call_slot(struct rxrpc_call_params *p, gfp_t gfp)
+{
+	struct semaphore *limiter = &rxrpc_call_limiter;
+
+	if (p->kernel)
+		limiter = &rxrpc_kernel_call_limiter;
+	if (p->interruptibility == RXRPC_UNINTERRUPTIBLE) {
+		down(limiter);
+		return limiter;
+	}
+	return down_interruptible(limiter) < 0 ? NULL : limiter;
+}
+
+/*
+ * Release a call slot.
+ */
+static void rxrpc_put_call_slot(struct rxrpc_call *call)
+{
+	struct semaphore *limiter = &rxrpc_call_limiter;
+
+	if (test_bit(RXRPC_CALL_KERNEL, &call->flags))
+		limiter = &rxrpc_kernel_call_limiter;
+	up(limiter);
+}
+
+/*
+>>>>>>> upstream/android-13
  * Set up a call for the given parameters.
  * - Called with the socket lock held, which it must release.
  * - If it returns a call, the call's lock will need releasing by the caller.
@@ -228,22 +308,47 @@ struct rxrpc_call *rxrpc_new_client_call(struct rxrpc_sock *rx,
 {
 	struct rxrpc_call *call, *xcall;
 	struct rxrpc_net *rxnet;
+<<<<<<< HEAD
+=======
+	struct semaphore *limiter;
+>>>>>>> upstream/android-13
 	struct rb_node *parent, **pp;
 	const void *here = __builtin_return_address(0);
 	int ret;
 
 	_enter("%p,%lx", rx, p->user_call_ID);
 
+<<<<<<< HEAD
 	call = rxrpc_alloc_client_call(rx, srx, gfp, debug_id);
 	if (IS_ERR(call)) {
 		release_sock(&rx->sk);
+=======
+	limiter = rxrpc_get_call_slot(p, gfp);
+	if (!limiter)
+		return ERR_PTR(-ERESTARTSYS);
+
+	call = rxrpc_alloc_client_call(rx, srx, gfp, debug_id);
+	if (IS_ERR(call)) {
+		release_sock(&rx->sk);
+		up(limiter);
+>>>>>>> upstream/android-13
 		_leave(" = %ld", PTR_ERR(call));
 		return call;
 	}
 
+<<<<<<< HEAD
 	call->tx_total_len = p->tx_total_len;
 	trace_rxrpc_call(call, rxrpc_call_new_client, atomic_read(&call->usage),
 			 here, (const void *)p->user_call_ID);
+=======
+	call->interruptibility = p->interruptibility;
+	call->tx_total_len = p->tx_total_len;
+	trace_rxrpc_call(call->debug_id, rxrpc_call_new_client,
+			 atomic_read(&call->usage),
+			 here, (const void *)p->user_call_ID);
+	if (p->kernel)
+		__set_bit(RXRPC_CALL_KERNEL, &call->flags);
+>>>>>>> upstream/android-13
 
 	/* We need to protect a partially set up call against the user as we
 	 * will be acting outside the socket lock.
@@ -292,8 +397,13 @@ struct rxrpc_call *rxrpc_new_client_call(struct rxrpc_sock *rx,
 	if (ret < 0)
 		goto error_attached_to_socket;
 
+<<<<<<< HEAD
 	trace_rxrpc_call(call, rxrpc_call_connected, atomic_read(&call->usage),
 			 here, NULL);
+=======
+	trace_rxrpc_call(call->debug_id, rxrpc_call_connected,
+			 atomic_read(&call->usage), here, NULL);
+>>>>>>> upstream/android-13
 
 	rxrpc_start_call_timer(call);
 
@@ -312,8 +422,13 @@ error_dup_user_ID:
 	release_sock(&rx->sk);
 	__rxrpc_set_call_completion(call, RXRPC_CALL_LOCAL_ERROR,
 				    RX_CALL_DEAD, -EEXIST);
+<<<<<<< HEAD
 	trace_rxrpc_call(call, rxrpc_call_error, atomic_read(&call->usage),
 			 here, ERR_PTR(-EEXIST));
+=======
+	trace_rxrpc_call(call->debug_id, rxrpc_call_error,
+			 atomic_read(&call->usage), here, ERR_PTR(-EEXIST));
+>>>>>>> upstream/android-13
 	rxrpc_release_call(rx, call);
 	mutex_unlock(&call->user_mutex);
 	rxrpc_put_call(call, rxrpc_call_put);
@@ -326,8 +441,13 @@ error_dup_user_ID:
 	 * leave the error to recvmsg() to deal with.
 	 */
 error_attached_to_socket:
+<<<<<<< HEAD
 	trace_rxrpc_call(call, rxrpc_call_error, atomic_read(&call->usage),
 			 here, ERR_PTR(ret));
+=======
+	trace_rxrpc_call(call->debug_id, rxrpc_call_error,
+			 atomic_read(&call->usage), here, ERR_PTR(ret));
+>>>>>>> upstream/android-13
 	set_bit(RXRPC_CALL_DISCONNECTED, &call->flags);
 	__rxrpc_set_call_completion(call, RXRPC_CALL_LOCAL_ERROR,
 				    RX_CALL_DEAD, ret);
@@ -336,6 +456,7 @@ error_attached_to_socket:
 }
 
 /*
+<<<<<<< HEAD
  * Retry a call to a new address.  It is expected that the Tx queue of the call
  * will contain data previously packaged for an old call.
  */
@@ -378,6 +499,8 @@ error:
 }
 
 /*
+=======
+>>>>>>> upstream/android-13
  * Set up an incoming call.  call->conn points to the connection.
  * This is called in BH context and isn't allowed to fail.
  */
@@ -395,9 +518,13 @@ void rxrpc_incoming_call(struct rxrpc_sock *rx,
 	call->call_id		= sp->hdr.callNumber;
 	call->service_id	= sp->hdr.serviceId;
 	call->cid		= sp->hdr.cid;
+<<<<<<< HEAD
 	call->state		= RXRPC_CALL_SERVER_ACCEPTING;
 	if (sp->hdr.securityIndex > 0)
 		call->state	= RXRPC_CALL_SERVER_SECURING;
+=======
+	call->state		= RXRPC_CALL_SERVER_SECURING;
+>>>>>>> upstream/android-13
 	call->cong_tstamp	= skb->tstamp;
 
 	/* Set the channel for this call.  We don't get channel_lock as we're
@@ -431,7 +558,12 @@ bool rxrpc_queue_call(struct rxrpc_call *call)
 	if (n == 0)
 		return false;
 	if (rxrpc_queue_work(&call->processor))
+<<<<<<< HEAD
 		trace_rxrpc_call(call, rxrpc_call_queued, n + 1, here, NULL);
+=======
+		trace_rxrpc_call(call->debug_id, rxrpc_call_queued, n + 1,
+				 here, NULL);
+>>>>>>> upstream/android-13
 	else
 		rxrpc_put_call(call, rxrpc_call_put_noqueue);
 	return true;
@@ -446,7 +578,12 @@ bool __rxrpc_queue_call(struct rxrpc_call *call)
 	int n = atomic_read(&call->usage);
 	ASSERTCMP(n, >=, 1);
 	if (rxrpc_queue_work(&call->processor))
+<<<<<<< HEAD
 		trace_rxrpc_call(call, rxrpc_call_queued_ref, n, here, NULL);
+=======
+		trace_rxrpc_call(call->debug_id, rxrpc_call_queued_ref, n,
+				 here, NULL);
+>>>>>>> upstream/android-13
 	else
 		rxrpc_put_call(call, rxrpc_call_put_noqueue);
 	return true;
@@ -461,10 +598,29 @@ void rxrpc_see_call(struct rxrpc_call *call)
 	if (call) {
 		int n = atomic_read(&call->usage);
 
+<<<<<<< HEAD
 		trace_rxrpc_call(call, rxrpc_call_seen, n, here, NULL);
 	}
 }
 
+=======
+		trace_rxrpc_call(call->debug_id, rxrpc_call_seen, n,
+				 here, NULL);
+	}
+}
+
+bool rxrpc_try_get_call(struct rxrpc_call *call, enum rxrpc_call_trace op)
+{
+	const void *here = __builtin_return_address(0);
+	int n = atomic_fetch_add_unless(&call->usage, 1, 0);
+
+	if (n == 0)
+		return false;
+	trace_rxrpc_call(call->debug_id, op, n, here, NULL);
+	return true;
+}
+
+>>>>>>> upstream/android-13
 /*
  * Note the addition of a ref on a call.
  */
@@ -473,7 +629,24 @@ void rxrpc_get_call(struct rxrpc_call *call, enum rxrpc_call_trace op)
 	const void *here = __builtin_return_address(0);
 	int n = atomic_inc_return(&call->usage);
 
+<<<<<<< HEAD
 	trace_rxrpc_call(call, op, n, here, NULL);
+=======
+	trace_rxrpc_call(call->debug_id, op, n, here, NULL);
+}
+
+/*
+ * Clean up the RxTx skb ring.
+ */
+static void rxrpc_cleanup_ring(struct rxrpc_call *call)
+{
+	int i;
+
+	for (i = 0; i < RXRPC_RXTX_BUFF_SIZE; i++) {
+		rxrpc_free_skb(call->rxtx_buffer[i], rxrpc_skb_cleaned);
+		call->rxtx_buffer[i] = NULL;
+	}
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -484,11 +657,19 @@ void rxrpc_release_call(struct rxrpc_sock *rx, struct rxrpc_call *call)
 	const void *here = __builtin_return_address(0);
 	struct rxrpc_connection *conn = call->conn;
 	bool put = false;
+<<<<<<< HEAD
 	int i;
 
 	_enter("{%d,%d}", call->debug_id, atomic_read(&call->usage));
 
 	trace_rxrpc_call(call, rxrpc_call_release, atomic_read(&call->usage),
+=======
+
+	_enter("{%d,%d}", call->debug_id, atomic_read(&call->usage));
+
+	trace_rxrpc_call(call->debug_id, rxrpc_call_release,
+			 atomic_read(&call->usage),
+>>>>>>> upstream/android-13
 			 here, (const void *)call->flags);
 
 	ASSERTCMP(call->state, ==, RXRPC_CALL_COMPLETE);
@@ -498,7 +679,12 @@ void rxrpc_release_call(struct rxrpc_sock *rx, struct rxrpc_call *call)
 		BUG();
 	spin_unlock_bh(&call->lock);
 
+<<<<<<< HEAD
 	del_timer_sync(&call->timer);
+=======
+	rxrpc_put_call_slot(call);
+	rxrpc_delete_call_timer(call);
+>>>>>>> upstream/android-13
 
 	/* Make sure we don't get any more notifications */
 	write_lock_bh(&rx->recvmsg_lock);
@@ -533,6 +719,7 @@ void rxrpc_release_call(struct rxrpc_sock *rx, struct rxrpc_call *call)
 
 	if (conn && !test_bit(RXRPC_CALL_DISCONNECTED, &call->flags))
 		rxrpc_disconnect_call(call);
+<<<<<<< HEAD
 
 	for (i = 0; i < RXRPC_RXTX_BUFF_SIZE; i++) {
 		rxrpc_free_skb(call->rxtx_buffer[i],
@@ -541,10 +728,15 @@ void rxrpc_release_call(struct rxrpc_sock *rx, struct rxrpc_call *call)
 		call->rxtx_buffer[i] = NULL;
 	}
 
+=======
+	if (call->security)
+		call->security->free_call_crypto(call);
+>>>>>>> upstream/android-13
 	_leave("");
 }
 
 /*
+<<<<<<< HEAD
  * Prepare a kernel service call for retry.
  */
 int rxrpc_prepare_call_for_retry(struct rxrpc_sock *rx, struct rxrpc_call *call)
@@ -600,6 +792,8 @@ int rxrpc_prepare_call_for_retry(struct rxrpc_sock *rx, struct rxrpc_call *call)
 }
 
 /*
+=======
+>>>>>>> upstream/android-13
  * release all the calls associated with a socket
  */
 void rxrpc_release_calls_on_socket(struct rxrpc_sock *rx)
@@ -636,12 +830,20 @@ void rxrpc_put_call(struct rxrpc_call *call, enum rxrpc_call_trace op)
 {
 	struct rxrpc_net *rxnet = call->rxnet;
 	const void *here = __builtin_return_address(0);
+<<<<<<< HEAD
+=======
+	unsigned int debug_id = call->debug_id;
+>>>>>>> upstream/android-13
 	int n;
 
 	ASSERT(call != NULL);
 
 	n = atomic_dec_return(&call->usage);
+<<<<<<< HEAD
 	trace_rxrpc_call(call, op, n, here, NULL);
+=======
+	trace_rxrpc_call(debug_id, op, n, here, NULL);
+>>>>>>> upstream/android-13
 	ASSERTCMP(n, >=, 0);
 	if (n == 0) {
 		_debug("call %d dead", call->debug_id);
@@ -665,6 +867,11 @@ static void rxrpc_destroy_call(struct work_struct *work)
 	struct rxrpc_call *call = container_of(work, struct rxrpc_call, processor);
 	struct rxrpc_net *rxnet = call->rxnet;
 
+<<<<<<< HEAD
+=======
+	rxrpc_delete_call_timer(call);
+
+>>>>>>> upstream/android-13
 	rxrpc_put_connection(call->conn);
 	rxrpc_put_peer(call->peer);
 	kfree(call->rxtx_buffer);
@@ -695,12 +902,16 @@ static void rxrpc_rcu_destroy_call(struct rcu_head *rcu)
  */
 void rxrpc_cleanup_call(struct rxrpc_call *call)
 {
+<<<<<<< HEAD
 	int i;
 
+=======
+>>>>>>> upstream/android-13
 	_net("DESTROY CALL %d", call->debug_id);
 
 	memset(&call->sock_node, 0xcd, sizeof(call->sock_node));
 
+<<<<<<< HEAD
 	del_timer_sync(&call->timer);
 
 	ASSERTCMP(call->state, ==, RXRPC_CALL_COMPLETE);
@@ -713,6 +924,13 @@ void rxrpc_cleanup_call(struct rxrpc_call *call)
 				rxrpc_skb_rx_cleaned));
 
 	rxrpc_free_skb(call->tx_pending, rxrpc_skb_tx_cleaned);
+=======
+	ASSERTCMP(call->state, ==, RXRPC_CALL_COMPLETE);
+	ASSERT(test_bit(RXRPC_CALL_RELEASED, &call->flags));
+
+	rxrpc_cleanup_ring(call);
+	rxrpc_free_skb(call->tx_pending, rxrpc_skb_cleaned);
+>>>>>>> upstream/android-13
 
 	call_rcu(&call->rcu, rxrpc_rcu_destroy_call);
 }

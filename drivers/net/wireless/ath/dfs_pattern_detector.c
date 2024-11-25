@@ -23,7 +23,11 @@
 
 /**
  * struct radar_types - contains array of patterns defined for one DFS domain
+<<<<<<< HEAD
  * @domain: DFS regulatory domain
+=======
+ * @region: regulatory DFS region
+>>>>>>> upstream/android-13
  * @num_radar_types: number of radar types to follow
  * @radar_types: radar types array
  */
@@ -133,8 +137,14 @@ static const struct radar_types *dfs_domains[] = {
 
 /**
  * get_dfs_domain_radar_types() - get radar types for a given DFS domain
+<<<<<<< HEAD
  * @param domain DFS domain
  * @return radar_types ptr on success, NULL if DFS domain is not supported
+=======
+ * @region: regulatory DFS region
+ *
+ * Return value: radar_types ptr on success, NULL if DFS domain is not supported
+>>>>>>> upstream/android-13
  */
 static const struct radar_types *
 get_dfs_domain_radar_types(enum nl80211_dfs_regions region)
@@ -182,10 +192,19 @@ static void channel_detector_exit(struct dfs_pattern_detector *dpd,
 	if (cd == NULL)
 		return;
 	list_del(&cd->head);
+<<<<<<< HEAD
 	for (i = 0; i < dpd->num_radar_types; i++) {
 		struct pri_detector *de = cd->detectors[i];
 		if (de != NULL)
 			de->exit(de);
+=======
+	if (cd->detectors) {
+		for (i = 0; i < dpd->num_radar_types; i++) {
+			struct pri_detector *de = cd->detectors[i];
+			if (de != NULL)
+				de->exit(de);
+		}
+>>>>>>> upstream/android-13
 	}
 	kfree(cd->detectors);
 	kfree(cd);
@@ -227,9 +246,16 @@ fail:
 
 /**
  * channel_detector_get() - get channel detector for given frequency
+<<<<<<< HEAD
  * @param dpd instance pointer
  * @param freq frequency in MHz
  * @return pointer to channel detector on success, NULL otherwise
+=======
+ * @dpd: DPD instance pointer
+ * @freq: freq frequency in MHz
+ *
+ * Return value: pointer to channel detector on success, NULL otherwise
+>>>>>>> upstream/android-13
  *
  * Return existing channel detector for the given frequency or return a
  * newly create one.
@@ -253,17 +279,27 @@ channel_detector_get(struct dfs_pattern_detector *dpd, u16 freq)
 static void dpd_reset(struct dfs_pattern_detector *dpd)
 {
 	struct channel_detector *cd;
+<<<<<<< HEAD
 	if (!list_empty(&dpd->channel_detectors))
 		list_for_each_entry(cd, &dpd->channel_detectors, head)
 			channel_detector_reset(dpd, cd);
+=======
+	list_for_each_entry(cd, &dpd->channel_detectors, head)
+		channel_detector_reset(dpd, cd);
+>>>>>>> upstream/android-13
 
 }
 static void dpd_exit(struct dfs_pattern_detector *dpd)
 {
 	struct channel_detector *cd, *cd0;
+<<<<<<< HEAD
 	if (!list_empty(&dpd->channel_detectors))
 		list_for_each_entry_safe(cd, cd0, &dpd->channel_detectors, head)
 			channel_detector_exit(dpd, cd);
+=======
+	list_for_each_entry_safe(cd, cd0, &dpd->channel_detectors, head)
+		channel_detector_exit(dpd, cd);
+>>>>>>> upstream/android-13
 	kfree(dpd);
 }
 
@@ -331,9 +367,14 @@ static bool dpd_set_domain(struct dfs_pattern_detector *dpd,
 		return false;
 
 	/* delete all channel detectors for previous DFS domain */
+<<<<<<< HEAD
 	if (!list_empty(&dpd->channel_detectors))
 		list_for_each_entry_safe(cd, cd0, &dpd->channel_detectors, head)
 			channel_detector_exit(dpd, cd);
+=======
+	list_for_each_entry_safe(cd, cd0, &dpd->channel_detectors, head)
+		channel_detector_exit(dpd, cd);
+>>>>>>> upstream/android-13
 	dpd->radar_spec = rt->radar_types;
 	dpd->num_radar_types = rt->num_radar_types;
 

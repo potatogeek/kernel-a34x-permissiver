@@ -26,7 +26,12 @@
 #define ATOM_H
 
 #include <linux/types.h>
+<<<<<<< HEAD
 #include <drm/drmP.h>
+=======
+
+struct drm_device;
+>>>>>>> upstream/android-13
 
 #define ATOM_BIOS_MAGIC		0xAA55
 #define ATOM_ATI_MAGIC_PTR	0x30
@@ -111,12 +116,22 @@
 #define ATOM_IO_SYSIO		2
 #define ATOM_IO_IIO		0x80
 
+<<<<<<< HEAD
+=======
+#define STRLEN_NORMAL		32
+#define STRLEN_LONG		64
+#define STRLEN_VERYLONG		254
+
+>>>>>>> upstream/android-13
 struct card_info {
 	struct drm_device *dev;
 	void (* reg_write)(struct card_info *, uint32_t, uint32_t);   /*  filled by driver */
 	uint32_t (* reg_read)(struct card_info *, uint32_t);          /*  filled by driver */
+<<<<<<< HEAD
 	void (* ioreg_write)(struct card_info *, uint32_t, uint32_t);   /*  filled by driver */
 	uint32_t (* ioreg_read)(struct card_info *, uint32_t);          /*  filled by driver */
+=======
+>>>>>>> upstream/android-13
 	void (* mc_write)(struct card_info *, uint32_t, uint32_t);   /*  filled by driver */
 	uint32_t (* mc_read)(struct card_info *, uint32_t);          /*  filled by driver */
 	void (* pll_write)(struct card_info *, uint32_t, uint32_t);   /*  filled by driver */
@@ -141,6 +156,15 @@ struct atom_context {
 	uint32_t *scratch;
 	int scratch_size_bytes;
 	char vbios_version[20];
+<<<<<<< HEAD
+=======
+
+	uint8_t name[STRLEN_LONG];
+	uint8_t vbios_pn[STRLEN_LONG];
+	uint32_t version;
+	uint8_t vbios_ver_str[STRLEN_NORMAL];
+	uint8_t date[STRLEN_NORMAL];
+>>>>>>> upstream/android-13
 };
 
 extern int amdgpu_atom_debug;

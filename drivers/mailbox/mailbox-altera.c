@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright Altera Corporation (C) 2013-2014. All rights reserved
  *
@@ -12,6 +13,11 @@
  *
  * You should have received a copy of the GNU General Public License along with
  * this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright Altera Corporation (C) 2013-2014. All rights reserved
+>>>>>>> upstream/android-13
  */
 
 #include <linux/device.h>
@@ -341,7 +347,11 @@ static int altera_mbox_probe(struct platform_device *pdev)
 		}
 	}
 
+<<<<<<< HEAD
 	ret = mbox_controller_register(&mbox->controller);
+=======
+	ret = devm_mbox_controller_register(&pdev->dev, &mbox->controller);
+>>>>>>> upstream/android-13
 	if (ret) {
 		dev_err(&pdev->dev, "Register mailbox failed\n");
 		goto err;
@@ -352,6 +362,7 @@ err:
 	return ret;
 }
 
+<<<<<<< HEAD
 static int altera_mbox_remove(struct platform_device *pdev)
 {
 	struct altera_mbox *mbox = platform_get_drvdata(pdev);
@@ -364,6 +375,8 @@ static int altera_mbox_remove(struct platform_device *pdev)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static const struct of_device_id altera_mbox_match[] = {
 	{ .compatible = "altr,mailbox-1.0" },
 	{ /* Sentinel */ }
@@ -373,7 +386,10 @@ MODULE_DEVICE_TABLE(of, altera_mbox_match);
 
 static struct platform_driver altera_mbox_driver = {
 	.probe	= altera_mbox_probe,
+<<<<<<< HEAD
 	.remove	= altera_mbox_remove,
+=======
+>>>>>>> upstream/android-13
 	.driver	= {
 		.name	= DRIVER_NAME,
 		.of_match_table	= altera_mbox_match,

@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  *  TW5864 driver - registers description
  *
  *  Copyright (C) 2016 Bluecherry, LLC <maintainers@bluecherrydvr.com>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -12,6 +17,8 @@
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 /* According to TW5864_datasheet_0.6d.pdf, tw5864b1-ds.pdf */
@@ -298,6 +305,7 @@
 /* OSD enable bit for each channel */
 #define TW5864_DSP_OSD_ENABLE 0x0228
 
+<<<<<<< HEAD
 /* 0x0280 ~ 0x029c – Motion Vector for 1st 4x4 Block, e.g., 80 (X), 84 (Y) */
 #define TW5864_ME_MV_VEC1 0x0280
 /* 0x02a0 ~ 0x02bc – Motion Vector for 2nd 4x4 Block, e.g., A0 (X), A4 (Y) */
@@ -305,6 +313,15 @@
 /* 0x02c0 ~ 0x02dc – Motion Vector for 3rd 4x4 Block, e.g., C0 (X), C4 (Y) */
 #define TW5864_ME_MV_VEC3 0x02c0
 /* 0x02e0 ~ 0x02fc – Motion Vector for 4th 4x4 Block, e.g., E0 (X), E4 (Y) */
+=======
+/* 0x0280 ~ 0x029c - Motion Vector for 1st 4x4 Block, e.g., 80 (X), 84 (Y) */
+#define TW5864_ME_MV_VEC1 0x0280
+/* 0x02a0 ~ 0x02bc - Motion Vector for 2nd 4x4 Block, e.g., A0 (X), A4 (Y) */
+#define TW5864_ME_MV_VEC2 0x02a0
+/* 0x02c0 ~ 0x02dc - Motion Vector for 3rd 4x4 Block, e.g., C0 (X), C4 (Y) */
+#define TW5864_ME_MV_VEC3 0x02c0
+/* 0x02e0 ~ 0x02fc - Motion Vector for 4th 4x4 Block, e.g., E0 (X), E4 (Y) */
+>>>>>>> upstream/android-13
 #define TW5864_ME_MV_VEC4 0x02e0
 
 /*
@@ -471,6 +488,7 @@
 
 #define TW5864_VLC_BUF 0x100c
 /* Define controls in register TW5864_VLC_BUF */
+<<<<<<< HEAD
 /* VLC BK0 full status, write ‘1’ to clear */
 #define TW5864_VLC_BK0_FULL BIT(0)
 /* VLC BK1 full status, write ‘1’ to clear */
@@ -478,6 +496,15 @@
 /* VLC end slice status, write ‘1’ to clear */
 #define TW5864_VLC_END_SLICE BIT(2)
 /* VLC Buffer overflow status, write ‘1’ to clear */
+=======
+/* VLC BK0 full status, write '1' to clear */
+#define TW5864_VLC_BK0_FULL BIT(0)
+/* VLC BK1 full status, write '1' to clear */
+#define TW5864_VLC_BK1_FULL BIT(1)
+/* VLC end slice status, write '1' to clear */
+#define TW5864_VLC_END_SLICE BIT(2)
+/* VLC Buffer overflow status, write '1' to clear */
+>>>>>>> upstream/android-13
 #define TW5864_DSP_RD_OF BIT(3)
 /* VLC string length in either buffer 0 or 1 at end of frame */
 #define TW5864_VLC_STREAM_LEN_SHIFT 4
@@ -485,7 +512,11 @@
 
 /* [15:0] Total coefficient number in a frame */
 #define TW5864_TOTAL_COEF_NO 0x1010
+<<<<<<< HEAD
 /* [0] VLC Encoder Interrupt. Write ‘1’ to clear */
+=======
+/* [0] VLC Encoder Interrupt. Write '1' to clear */
+>>>>>>> upstream/android-13
 #define TW5864_VLC_DSP_INTR 0x1014
 /* [31:0] VLC stream CRC checksum */
 #define TW5864_VLC_STREAM_CRC 0x1018
@@ -503,7 +534,11 @@
  */
 #define TW5864_VLC_RD_BRST BIT(1)
 
+<<<<<<< HEAD
 /* 0x2000 ~ 0x2ffc -- H264 Stream Memory Map */
+=======
+/* 0x2000 ~ 0x2ffc - H264 Stream Memory Map */
+>>>>>>> upstream/android-13
 /*
  * A word is 4 bytes. I.e.,
  * VLC_STREAM_MEM[0] address: 0x2000
@@ -515,7 +550,11 @@
 #define TW5864_VLC_STREAM_MEM_MAX_OFFSET 0x3ff
 #define TW5864_VLC_STREAM_MEM(offset) (TW5864_VLC_STREAM_MEM_START + 4 * offset)
 
+<<<<<<< HEAD
 /* 0x4000 ~ 0x4ffc -- Audio Register Map */
+=======
+/* 0x4000 ~ 0x4ffc - Audio Register Map */
+>>>>>>> upstream/android-13
 /* [31:0] config 1ms cnt = Realtime clk/1000 */
 #define TW5864_CFG_1MS_CNT 0x4000
 
@@ -672,7 +711,11 @@
 #define TW5864_SYNC 0x8008
 /* Define controls in register TW5864_SYNC */
 /*
+<<<<<<< HEAD
  * 0 vlc stream to syncrous port
+=======
+ * 0 vlc stream to synchronous port
+>>>>>>> upstream/android-13
  * 1 vlc stream to ddr buffers
  */
 #define TW5864_SYNC_CFG BIT(7)
@@ -697,10 +740,17 @@
 
 /*
  * [1:0]
+<<<<<<< HEAD
  * 2’b00 phase set to 180 degree
  * 2’b01 phase set to 270 degree
  * 2’b10 phase set to 0 degree
  * 2’b11 phase set to 90 degree
+=======
+ * 2'b00 phase set to 180 degree
+ * 2'b01 phase set to 270 degree
+ * 2'b10 phase set to 0 degree
+ * 2'b11 phase set to 90 degree
+>>>>>>> upstream/android-13
  */
 #define TW5864_I2C_PHASE_CFG 0x800c
 
@@ -835,7 +885,11 @@
 /* SPLL_IREF, SPLL_LPX4, SPLL_CPX4, SPLL_PD, SPLL_DBG */
 #define TW5864_SPLL 0x8028
 
+<<<<<<< HEAD
 /* 0x8800 ~ 0x88fc -- Interrupt Register Map */
+=======
+/* 0x8800 ~ 0x88fc - Interrupt Register Map */
+>>>>>>> upstream/android-13
 /*
  * Trigger mode of interrupt source 0 ~ 15
  * 1 Edge trigger mode
@@ -918,7 +972,11 @@
 #define TW5864_INTR_I2C_DONE BIT(25)
 #define TW5864_INTR_AD BIT(26)
 
+<<<<<<< HEAD
 /* 0x9000 ~ 0x920c -- Video Capture (VIF) Register Map */
+=======
+/* 0x9000 ~ 0x920c - Video Capture (VIF) Register Map */
+>>>>>>> upstream/android-13
 /*
  * H264EN_CH_STATUS[n] Status of Vsync synchronized H264EN_CH_EN (Read Only)
  * 1 Channel Enabled
@@ -1018,7 +1076,11 @@
 /* GPIO Output Enable of Group n */
 #define TW5864_GPIO_OEN (0xff << 8)
 
+<<<<<<< HEAD
 /* 0xa000 ~ 0xa8ff – DDR Controller Register Map */
+=======
+/* 0xa000 ~ 0xa8ff - DDR Controller Register Map */
+>>>>>>> upstream/android-13
 /* DDR Controller A */
 /*
  * [2:0] Data valid counter after read command to DDR. This is the delay value
@@ -1120,7 +1182,11 @@
  */
 #define TW5864_DDR_B_OFFSET 0x0800
 
+<<<<<<< HEAD
 /* 0xb004 ~ 0xb018 – HW version/ARB12 Register Map */
+=======
+/* 0xb004 ~ 0xb018 - HW version/ARB12 Register Map */
+>>>>>>> upstream/android-13
 /* [15:0] Default is C013 */
 #define TW5864_HW_VERSION 0xb004
 
@@ -1154,7 +1220,11 @@
 /* ARB12 maximum value of time out counter (default 15"h1FF) */
 #define TW5864_ARB12_TIME_OUT_CNT 0x7fff
 
+<<<<<<< HEAD
 /* 0xb800 ~ 0xb80c -- Indirect Access Register Map */
+=======
+/* 0xb800 ~ 0xb80c - Indirect Access Register Map */
+>>>>>>> upstream/android-13
 /*
  * Spec says:
  * In order to access the indirect register space, the following procedure is
@@ -1186,7 +1256,11 @@
 /* [31:0] Data used to read/write indirect register space */
 #define TW5864_IND_DATA 0xb804
 
+<<<<<<< HEAD
 /* 0xc000 ~ 0xc7fc -- Preview Register Map */
+=======
+/* 0xc000 ~ 0xc7fc - Preview Register Map */
+>>>>>>> upstream/android-13
 /* Mostly skipped this section. */
 /*
  * [15:0] Status of Vsync Synchronized PCI_PV_CH_EN (Read Only)
@@ -1201,12 +1275,21 @@
  */
 #define TW5864_PCI_PV_CH_EN 0xc004
 
+<<<<<<< HEAD
 /* 0xc800 ~ 0xc804 -- JPEG Capture Register Map */
 /* Skipped. */
 /* 0xd000 ~ 0xd0fc -- JPEG Control Register Map */
 /* Skipped. */
 
 /* 0xe000 ~ 0xfc04 – Motion Vector Register Map */
+=======
+/* 0xc800 ~ 0xc804 - JPEG Capture Register Map */
+/* Skipped. */
+/* 0xd000 ~ 0xd0fc - JPEG Control Register Map */
+/* Skipped. */
+
+/* 0xe000 ~ 0xfc04 - Motion Vector Register Map */
+>>>>>>> upstream/android-13
 
 /* ME Motion Vector data (Four Byte Each) 0xe000 ~ 0xe7fc */
 #define TW5864_ME_MV_VEC_START 0xe000
@@ -1240,7 +1323,11 @@
  */
 #define TW5864_MPI_DDR_SEL2 BIT(15)
 
+<<<<<<< HEAD
 /* 0x18000 ~ 0x181fc – PCI Master/Slave Control Map */
+=======
+/* 0x18000 ~ 0x181fc - PCI Master/Slave Control Map */
+>>>>>>> upstream/android-13
 #define TW5864_PCI_INTR_STATUS 0x18000
 /* Define controls in register TW5864_PCI_INTR_STATUS */
 /* vlc done */
@@ -1409,11 +1496,19 @@
 #define TW5864_VLC_STREAM_BASE_ADDR 0x18080
 /* MV stream base address */
 #define TW5864_MV_STREAM_BASE_ADDR 0x18084
+<<<<<<< HEAD
 /* 0x180a0 – 0x180bc: audio burst base address. Skipped. */
 /* 0x180c0 ~ 0x180dc – JPEG Push Mode Buffer Base Address. Skipped. */
 /* 0x18100 – 0x1817c: preview burst base address. Skipped. */
 
 /* 0x80000 ~ 0x87fff -- DDR Burst RW Register Map */
+=======
+/* 0x180a0 ~ 0x180bc: audio burst base address. Skipped. */
+/* 0x180c0 ~ 0x180dc: JPEG Push Mode Buffer Base Address. Skipped. */
+/* 0x18100 ~ 0x1817c: preview burst base address. Skipped. */
+
+/* 0x80000 ~ 0x87fff - DDR Burst RW Register Map */
+>>>>>>> upstream/android-13
 #define TW5864_DDR_CTL 0x80000
 /* Define controls in register TW5864_DDR_CTL */
 #define TW5864_BRST_LENGTH_SHIFT 2
@@ -1525,7 +1620,11 @@
  * Vertical Sharpness Control. Writable.
  * 0 = None (default)
  * 7 = Highest
+<<<<<<< HEAD
  * **Note: VSHP must be set to ‘0’ if COMB = 0
+=======
+ * **Note: VSHP must be set to '0' if COMB = 0
+>>>>>>> upstream/android-13
  */
 #define TW5864_INDIR_VIN_1_VSHP 0x07
 
@@ -1604,7 +1703,11 @@
 #define TW5864_INDIR_VIN_9_CNTRST(channel) (0x009 + channel * 0x010)
 
 /*
+<<<<<<< HEAD
  * These bits control the brightness. They have value of –128 to 127 in 2's
+=======
+ * These bits control the brightness. They have value of -128 to 127 in 2's
+>>>>>>> upstream/android-13
  * complement form. Positive value increases brightness. A value 0 has no
  * effect on the data. The default is 00h.
  */

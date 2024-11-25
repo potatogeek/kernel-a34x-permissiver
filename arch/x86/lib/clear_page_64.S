@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 #include <linux/linkage.h>
 #include <asm/export.h>
 
@@ -12,6 +16,7 @@
  * Zero a page.
  * %rdi	- page
  */
+<<<<<<< HEAD
 ENTRY(clear_page_rep)
 	movl $4096/8,%ecx
 	xorl %eax,%eax
@@ -21,6 +26,17 @@ ENDPROC(clear_page_rep)
 EXPORT_SYMBOL_GPL(clear_page_rep)
 
 ENTRY(clear_page_orig)
+=======
+SYM_FUNC_START(clear_page_rep)
+	movl $4096/8,%ecx
+	xorl %eax,%eax
+	rep stosq
+	RET
+SYM_FUNC_END(clear_page_rep)
+EXPORT_SYMBOL_GPL(clear_page_rep)
+
+SYM_FUNC_START(clear_page_orig)
+>>>>>>> upstream/android-13
 	xorl   %eax,%eax
 	movl   $4096/64,%ecx
 	.p2align 4
@@ -38,6 +54,7 @@ ENTRY(clear_page_orig)
 	leaq	64(%rdi),%rdi
 	jnz	.Lloop
 	nop
+<<<<<<< HEAD
 	ret
 ENDPROC(clear_page_orig)
 EXPORT_SYMBOL_GPL(clear_page_orig)
@@ -48,4 +65,16 @@ ENTRY(clear_page_erms)
 	rep stosb
 	ret
 ENDPROC(clear_page_erms)
+=======
+	RET
+SYM_FUNC_END(clear_page_orig)
+EXPORT_SYMBOL_GPL(clear_page_orig)
+
+SYM_FUNC_START(clear_page_erms)
+	movl $4096,%ecx
+	xorl %eax,%eax
+	rep stosb
+	RET
+SYM_FUNC_END(clear_page_erms)
+>>>>>>> upstream/android-13
 EXPORT_SYMBOL_GPL(clear_page_erms)

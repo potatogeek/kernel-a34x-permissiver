@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * INET		An implementation of the TCP/IP protocol suite for the LINUX
  *		operating system.  INET is implemented using the  BSD Socket
@@ -33,7 +37,11 @@
  *		Andi Kleen	: 	Replace ip_reply with ip_send_reply.
  *		Andi Kleen	:	Split fast and slow ip_build_xmit path
  *					for decreased register pressure on x86
+<<<<<<< HEAD
  *					and more readibility.
+=======
+ *					and more readability.
+>>>>>>> upstream/android-13
  *		Marc Boucher	:	When call_out_firewall returns FW_QUEUE,
  *					silently drop skb instead of failing with -EPERM.
  *		Detlev Wengorz	:	Copy protocol for fragments.
@@ -82,6 +90,13 @@
 #include <linux/netlink.h>
 #include <linux/tcp.h>
 
+<<<<<<< HEAD
+=======
+static int
+ip_fragment(struct net *net, struct sock *sk, struct sk_buff *skb,
+	    unsigned int mtu,
+	    int (*output)(struct net *, struct sock *, struct sk_buff *));
+>>>>>>> upstream/android-13
 
 /* Generate a checksum for an outgoing IP datagram. */
 void ip_send_check(struct iphdr *iph)
@@ -138,7 +153,12 @@ static inline int ip_select_ttl(struct inet_sock *inet, struct dst_entry *dst)
  *
  */
 int ip_build_and_send_pkt(struct sk_buff *skb, const struct sock *sk,
+<<<<<<< HEAD
 			  __be32 saddr, __be32 daddr, struct ip_options_rcu *opt)
+=======
+			  __be32 saddr, __be32 daddr, struct ip_options_rcu *opt,
+			  u8 tos)
+>>>>>>> upstream/android-13
 {
 	struct inet_sock *inet = inet_sk(sk);
 	struct rtable *rt = skb_rtable(skb);
@@ -151,17 +171,36 @@ int ip_build_and_send_pkt(struct sk_buff *skb, const struct sock *sk,
 	iph = ip_hdr(skb);
 	iph->version  = 4;
 	iph->ihl      = 5;
+<<<<<<< HEAD
 	iph->tos      = inet->tos;
+=======
+	iph->tos      = tos;
+>>>>>>> upstream/android-13
 	iph->ttl      = ip_select_ttl(inet, &rt->dst);
 	iph->daddr    = (opt && opt->opt.srr ? opt->opt.faddr : daddr);
 	iph->saddr    = saddr;
 	iph->protocol = sk->sk_protocol;
+<<<<<<< HEAD
 	if (ip_dont_fragment(sk, &rt->dst)) {
+=======
+	/* Do not bother generating IPID for small packets (eg SYNACK) */
+	if (skb->len <= IPV4_MIN_MTU || ip_dont_fragment(sk, &rt->dst)) {
+>>>>>>> upstream/android-13
 		iph->frag_off = htons(IP_DF);
 		iph->id = 0;
 	} else {
 		iph->frag_off = 0;
+<<<<<<< HEAD
 		__ip_select_ident(net, iph, 1);
+=======
+		/* TCP packets here are SYNACK with fat IPv4/TCP options.
+		 * Avoid using the hashed IP ident generator.
+		 */
+		if (sk->sk_protocol == IPPROTO_TCP)
+			iph->id = (__force __be16)prandom_u32();
+		else
+			__ip_select_ident(net, iph, 1);
+>>>>>>> upstream/android-13
 	}
 
 	if (opt && opt->opt.optlen) {
@@ -185,13 +224,18 @@ static int ip_finish_output2(struct net *net, struct sock *sk, struct sk_buff *s
 	struct net_device *dev = dst->dev;
 	unsigned int hh_len = LL_RESERVED_SPACE(dev);
 	struct neighbour *neigh;
+<<<<<<< HEAD
 	u32 nexthop;
+=======
+	bool is_v6gw = false;
+>>>>>>> upstream/android-13
 
 	if (rt->rt_type == RTN_MULTICAST) {
 		IP_UPD_PO_STATS(net, IPSTATS_MIB_OUTMCAST, skb->len);
 	} else if (rt->rt_type == RTN_BROADCAST)
 		IP_UPD_PO_STATS(net, IPSTATS_MIB_OUTBCAST, skb->len);
 
+<<<<<<< HEAD
 	/* Be paranoid, rather than too clever. */
 	if (unlikely(skb_headroom(skb) < hh_len && dev->header_ops)) {
 		struct sk_buff *skb2;
@@ -205,6 +249,12 @@ static int ip_finish_output2(struct net *net, struct sock *sk, struct sk_buff *s
 			skb_set_owner_w(skb2, skb->sk);
 		consume_skb(skb);
 		skb = skb2;
+=======
+	if (unlikely(skb_headroom(skb) < hh_len && dev->header_ops)) {
+		skb = skb_expand_head(skb, hh_len);
+		if (!skb)
+			return -ENOMEM;
+>>>>>>> upstream/android-13
 	}
 
 	if (lwtunnel_xmit_redirect(dst->lwtstate)) {
@@ -215,16 +265,25 @@ static int ip_finish_output2(struct net *net, struct sock *sk, struct sk_buff *s
 	}
 
 	rcu_read_lock_bh();
+<<<<<<< HEAD
 	nexthop = (__force u32) rt_nexthop(rt, ip_hdr(skb)->daddr);
 	neigh = __ipv4_neigh_lookup_noref(dev, nexthop);
 	if (unlikely(!neigh))
 		neigh = __neigh_create(&arp_tbl, &nexthop, dev, false);
+=======
+	neigh = ip_neigh_for_gw(rt, skb, &is_v6gw);
+>>>>>>> upstream/android-13
 	if (!IS_ERR(neigh)) {
 		int res;
 
 		sock_confirm_neigh(skb, neigh);
+<<<<<<< HEAD
 		res = neigh_output(neigh, skb);
 
+=======
+		/* if crossing protocols, can not use the cached header */
+		res = neigh_output(neigh, skb, is_v6gw);
+>>>>>>> upstream/android-13
 		rcu_read_unlock_bh();
 		return res;
 	}
@@ -239,8 +298,13 @@ static int ip_finish_output2(struct net *net, struct sock *sk, struct sk_buff *s
 static int ip_finish_output_gso(struct net *net, struct sock *sk,
 				struct sk_buff *skb, unsigned int mtu)
 {
+<<<<<<< HEAD
 	netdev_features_t features;
 	struct sk_buff *segs;
+=======
+	struct sk_buff *segs, *nskb;
+	netdev_features_t features;
+>>>>>>> upstream/android-13
 	int ret = 0;
 
 	/* common case: seglen is <= mtu
@@ -259,10 +323,17 @@ static int ip_finish_output_gso(struct net *net, struct sock *sk,
 	 *    interface with a smaller MTU.
 	 *  - Arriving GRO skb (or GSO skb in a virtualized environment) that is
 	 *    bridged to a NETIF_F_TSO tunnel stacked over an interface with an
+<<<<<<< HEAD
 	 *    insufficent MTU.
 	 */
 	features = netif_skb_features(skb);
 	BUILD_BUG_ON(sizeof(*IPCB(skb)) > SKB_SGO_CB_OFFSET);
+=======
+	 *    insufficient MTU.
+	 */
+	features = netif_skb_features(skb);
+	BUILD_BUG_ON(sizeof(*IPCB(skb)) > SKB_GSO_CB_OFFSET);
+>>>>>>> upstream/android-13
 	segs = skb_gso_segment(skb, features & ~NETIF_F_GSO_MASK);
 	if (IS_ERR_OR_NULL(segs)) {
 		kfree_skb(skb);
@@ -271,21 +342,33 @@ static int ip_finish_output_gso(struct net *net, struct sock *sk,
 
 	consume_skb(skb);
 
+<<<<<<< HEAD
 	do {
 		struct sk_buff *nskb = segs->next;
 		int err;
 
 		segs->next = NULL;
+=======
+	skb_list_walk_safe(segs, segs, nskb) {
+		int err;
+
+		skb_mark_not_on_list(segs);
+>>>>>>> upstream/android-13
 		err = ip_fragment(net, sk, segs, mtu, ip_finish_output2);
 
 		if (err && ret == 0)
 			ret = err;
+<<<<<<< HEAD
 		segs = nskb;
 	} while (segs);
+=======
+	}
+>>>>>>> upstream/android-13
 
 	return ret;
 }
 
+<<<<<<< HEAD
 static int ip_finish_output(struct net *net, struct sock *sk, struct sk_buff *skb)
 {
 	unsigned int mtu;
@@ -296,6 +379,11 @@ static int ip_finish_output(struct net *net, struct sock *sk, struct sk_buff *sk
 		kfree_skb(skb);
 		return ret;
 	}
+=======
+static int __ip_finish_output(struct net *net, struct sock *sk, struct sk_buff *skb)
+{
+	unsigned int mtu;
+>>>>>>> upstream/android-13
 
 #if defined(CONFIG_NETFILTER) && defined(CONFIG_XFRM)
 	/* Policy lookup after SNAT yielded a new policy */
@@ -314,18 +402,67 @@ static int ip_finish_output(struct net *net, struct sock *sk, struct sk_buff *sk
 	return ip_finish_output2(net, sk, skb);
 }
 
+<<<<<<< HEAD
 static int ip_mc_finish_output(struct net *net, struct sock *sk,
 			       struct sk_buff *skb)
+=======
+static int ip_finish_output(struct net *net, struct sock *sk, struct sk_buff *skb)
+>>>>>>> upstream/android-13
 {
 	int ret;
 
 	ret = BPF_CGROUP_RUN_PROG_INET_EGRESS(sk, skb);
+<<<<<<< HEAD
 	if (ret) {
+=======
+	switch (ret) {
+	case NET_XMIT_SUCCESS:
+		return __ip_finish_output(net, sk, skb);
+	case NET_XMIT_CN:
+		return __ip_finish_output(net, sk, skb) ? : ret;
+	default:
+		kfree_skb(skb);
+		return ret;
+	}
+}
+
+static int ip_mc_finish_output(struct net *net, struct sock *sk,
+			       struct sk_buff *skb)
+{
+	struct rtable *new_rt;
+	bool do_cn = false;
+	int ret, err;
+
+	ret = BPF_CGROUP_RUN_PROG_INET_EGRESS(sk, skb);
+	switch (ret) {
+	case NET_XMIT_CN:
+		do_cn = true;
+		fallthrough;
+	case NET_XMIT_SUCCESS:
+		break;
+	default:
+>>>>>>> upstream/android-13
 		kfree_skb(skb);
 		return ret;
 	}
 
+<<<<<<< HEAD
 	return dev_loopback_xmit(net, sk, skb);
+=======
+	/* Reset rt_iif so that inet_iif() will return skb->skb_iif. Setting
+	 * this to non-zero causes ipi_ifindex in in_pktinfo to be overwritten,
+	 * see ipv4_pktinfo_prepare().
+	 */
+	new_rt = rt_dst_clone(net->loopback_dev, skb_rtable(skb));
+	if (new_rt) {
+		new_rt->rt_iif = 0;
+		skb_dst_drop(skb);
+		skb_dst_set(skb, &new_rt->dst);
+	}
+
+	err = dev_loopback_xmit(net, sk, skb);
+	return (do_cn && err) ? ret : err;
+>>>>>>> upstream/android-13
 }
 
 int ip_mc_output(struct net *net, struct sock *sk, struct sk_buff *skb)
@@ -392,7 +529,11 @@ int ip_mc_output(struct net *net, struct sock *sk, struct sk_buff *skb)
 
 int ip_output(struct net *net, struct sock *sk, struct sk_buff *skb)
 {
+<<<<<<< HEAD
 	struct net_device *dev = skb_dst(skb)->dev;
+=======
+	struct net_device *dev = skb_dst(skb)->dev, *indev = skb->dev;
+>>>>>>> upstream/android-13
 
 	IP_UPD_PO_STATS(net, IPSTATS_MIB_OUT, skb->len);
 
@@ -400,10 +541,18 @@ int ip_output(struct net *net, struct sock *sk, struct sk_buff *skb)
 	skb->protocol = htons(ETH_P_IP);
 
 	return NF_HOOK_COND(NFPROTO_IPV4, NF_INET_POST_ROUTING,
+<<<<<<< HEAD
 			    net, sk, skb, NULL, dev,
 			    ip_finish_output,
 			    !(IPCB(skb)->flags & IPSKB_REROUTED));
 }
+=======
+			    net, sk, skb, indev, dev,
+			    ip_finish_output,
+			    !(IPCB(skb)->flags & IPSKB_REROUTED));
+}
+EXPORT_SYMBOL(ip_output);
+>>>>>>> upstream/android-13
 
 /*
  * copy saddr and daddr, possibly using 64bit load/stores
@@ -415,8 +564,14 @@ static void ip_copy_addrs(struct iphdr *iph, const struct flowi4 *fl4)
 {
 	BUILD_BUG_ON(offsetof(typeof(*fl4), daddr) !=
 		     offsetof(typeof(*fl4), saddr) + sizeof(fl4->saddr));
+<<<<<<< HEAD
 	memcpy(&iph->saddr, &fl4->saddr,
 	       sizeof(fl4->saddr) + sizeof(fl4->daddr));
+=======
+
+	iph->saddr = fl4->saddr;
+	iph->daddr = fl4->daddr;
+>>>>>>> upstream/android-13
 }
 
 /* Note: skb->sk can be different from sk, in case of tunnels */
@@ -511,6 +666,15 @@ no_route:
 }
 EXPORT_SYMBOL(__ip_queue_xmit);
 
+<<<<<<< HEAD
+=======
+int ip_queue_xmit(struct sock *sk, struct sk_buff *skb, struct flowi *fl)
+{
+	return __ip_queue_xmit(sk, skb, fl, inet_sk(sk)->tos);
+}
+EXPORT_SYMBOL(ip_queue_xmit);
+
+>>>>>>> upstream/android-13
 static void ip_copy_metadata(struct sk_buff *to, struct sk_buff *from)
 {
 	to->pkt_type = from->pkt_type;
@@ -524,22 +688,35 @@ static void ip_copy_metadata(struct sk_buff *to, struct sk_buff *from)
 
 	skb_copy_hash(to, from);
 
+<<<<<<< HEAD
 	/* Copy the flags to each fragment. */
 	IPCB(to)->flags = IPCB(from)->flags;
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_NET_SCHED
 	to->tc_index = from->tc_index;
 #endif
 	nf_copy(to, from);
+<<<<<<< HEAD
+=======
+	skb_ext_copy(to, from);
+>>>>>>> upstream/android-13
 #if IS_ENABLED(CONFIG_IP_VS)
 	to->ipvs_property = from->ipvs_property;
 #endif
 	skb_copy_secmark(to, from);
 }
 
+<<<<<<< HEAD
 int ip_fragment(struct net *net, struct sock *sk, struct sk_buff *skb,
 		unsigned int mtu,
 		int (*output)(struct net *, struct sock *, struct sk_buff *))
+=======
+static int ip_fragment(struct net *net, struct sock *sk, struct sk_buff *skb,
+		       unsigned int mtu,
+		       int (*output)(struct net *, struct sock *, struct sk_buff *))
+>>>>>>> upstream/android-13
 {
 	struct iphdr *iph = ip_hdr(skb);
 
@@ -559,6 +736,166 @@ int ip_fragment(struct net *net, struct sock *sk, struct sk_buff *skb,
 	return ip_do_fragment(net, sk, skb, output);
 }
 
+<<<<<<< HEAD
+=======
+void ip_fraglist_init(struct sk_buff *skb, struct iphdr *iph,
+		      unsigned int hlen, struct ip_fraglist_iter *iter)
+{
+	unsigned int first_len = skb_pagelen(skb);
+
+	iter->frag = skb_shinfo(skb)->frag_list;
+	skb_frag_list_init(skb);
+
+	iter->offset = 0;
+	iter->iph = iph;
+	iter->hlen = hlen;
+
+	skb->data_len = first_len - skb_headlen(skb);
+	skb->len = first_len;
+	iph->tot_len = htons(first_len);
+	iph->frag_off = htons(IP_MF);
+	ip_send_check(iph);
+}
+EXPORT_SYMBOL(ip_fraglist_init);
+
+void ip_fraglist_prepare(struct sk_buff *skb, struct ip_fraglist_iter *iter)
+{
+	unsigned int hlen = iter->hlen;
+	struct iphdr *iph = iter->iph;
+	struct sk_buff *frag;
+
+	frag = iter->frag;
+	frag->ip_summed = CHECKSUM_NONE;
+	skb_reset_transport_header(frag);
+	__skb_push(frag, hlen);
+	skb_reset_network_header(frag);
+	memcpy(skb_network_header(frag), iph, hlen);
+	iter->iph = ip_hdr(frag);
+	iph = iter->iph;
+	iph->tot_len = htons(frag->len);
+	ip_copy_metadata(frag, skb);
+	iter->offset += skb->len - hlen;
+	iph->frag_off = htons(iter->offset >> 3);
+	if (frag->next)
+		iph->frag_off |= htons(IP_MF);
+	/* Ready, complete checksum */
+	ip_send_check(iph);
+}
+EXPORT_SYMBOL(ip_fraglist_prepare);
+
+void ip_frag_init(struct sk_buff *skb, unsigned int hlen,
+		  unsigned int ll_rs, unsigned int mtu, bool DF,
+		  struct ip_frag_state *state)
+{
+	struct iphdr *iph = ip_hdr(skb);
+
+	state->DF = DF;
+	state->hlen = hlen;
+	state->ll_rs = ll_rs;
+	state->mtu = mtu;
+
+	state->left = skb->len - hlen;	/* Space per frame */
+	state->ptr = hlen;		/* Where to start from */
+
+	state->offset = (ntohs(iph->frag_off) & IP_OFFSET) << 3;
+	state->not_last_frag = iph->frag_off & htons(IP_MF);
+}
+EXPORT_SYMBOL(ip_frag_init);
+
+static void ip_frag_ipcb(struct sk_buff *from, struct sk_buff *to,
+			 bool first_frag)
+{
+	/* Copy the flags to each fragment. */
+	IPCB(to)->flags = IPCB(from)->flags;
+
+	/* ANK: dirty, but effective trick. Upgrade options only if
+	 * the segment to be fragmented was THE FIRST (otherwise,
+	 * options are already fixed) and make it ONCE
+	 * on the initial skb, so that all the following fragments
+	 * will inherit fixed options.
+	 */
+	if (first_frag)
+		ip_options_fragment(from);
+}
+
+struct sk_buff *ip_frag_next(struct sk_buff *skb, struct ip_frag_state *state)
+{
+	unsigned int len = state->left;
+	struct sk_buff *skb2;
+	struct iphdr *iph;
+
+	len = state->left;
+	/* IF: it doesn't fit, use 'mtu' - the data space left */
+	if (len > state->mtu)
+		len = state->mtu;
+	/* IF: we are not sending up to and including the packet end
+	   then align the next start on an eight byte boundary */
+	if (len < state->left)	{
+		len &= ~7;
+	}
+
+	/* Allocate buffer */
+	skb2 = alloc_skb(len + state->hlen + state->ll_rs, GFP_ATOMIC);
+	if (!skb2)
+		return ERR_PTR(-ENOMEM);
+
+	/*
+	 *	Set up data on packet
+	 */
+
+	ip_copy_metadata(skb2, skb);
+	skb_reserve(skb2, state->ll_rs);
+	skb_put(skb2, len + state->hlen);
+	skb_reset_network_header(skb2);
+	skb2->transport_header = skb2->network_header + state->hlen;
+
+	/*
+	 *	Charge the memory for the fragment to any owner
+	 *	it might possess
+	 */
+
+	if (skb->sk)
+		skb_set_owner_w(skb2, skb->sk);
+
+	/*
+	 *	Copy the packet header into the new buffer.
+	 */
+
+	skb_copy_from_linear_data(skb, skb_network_header(skb2), state->hlen);
+
+	/*
+	 *	Copy a block of the IP datagram.
+	 */
+	if (skb_copy_bits(skb, state->ptr, skb_transport_header(skb2), len))
+		BUG();
+	state->left -= len;
+
+	/*
+	 *	Fill in the new header fields.
+	 */
+	iph = ip_hdr(skb2);
+	iph->frag_off = htons((state->offset >> 3));
+	if (state->DF)
+		iph->frag_off |= htons(IP_DF);
+
+	/*
+	 *	Added AC : If we are fragmenting a fragment that's not the
+	 *		   last fragment then keep MF on each bit
+	 */
+	if (state->left > 0 || state->not_last_frag)
+		iph->frag_off |= htons(IP_MF);
+	state->ptr += len;
+	state->offset += len;
+
+	iph->tot_len = htons(len + state->hlen);
+
+	ip_send_check(iph);
+
+	return skb2;
+}
+EXPORT_SYMBOL(ip_frag_next);
+
+>>>>>>> upstream/android-13
 /*
  *	This IP datagram is too large to be sent in one piece.  Break it up into
  *	smaller pieces (each of size equal to IP header plus
@@ -570,12 +907,21 @@ int ip_do_fragment(struct net *net, struct sock *sk, struct sk_buff *skb,
 		   int (*output)(struct net *, struct sock *, struct sk_buff *))
 {
 	struct iphdr *iph;
+<<<<<<< HEAD
 	int ptr;
 	struct sk_buff *skb2;
 	unsigned int mtu, hlen, left, len, ll_rs;
 	int offset;
 	__be16 not_last_frag;
 	struct rtable *rt = skb_rtable(skb);
+=======
+	struct sk_buff *skb2;
+	struct rtable *rt = skb_rtable(skb);
+	unsigned int mtu, hlen, ll_rs;
+	struct ip_fraglist_iter iter;
+	ktime_t tstamp = skb->tstamp;
+	struct ip_frag_state state;
+>>>>>>> upstream/android-13
 	int err = 0;
 
 	/* for offloaded checksums cleanup checksum before fragmentation */
@@ -640,6 +986,7 @@ int ip_do_fragment(struct net *net, struct sock *sk, struct sk_buff *skb,
 		}
 
 		/* Everything is OK. Generate! */
+<<<<<<< HEAD
 
 		err = 0;
 		offset = 0;
@@ -650,10 +997,14 @@ int ip_do_fragment(struct net *net, struct sock *sk, struct sk_buff *skb,
 		iph->tot_len = htons(first_len);
 		iph->frag_off = htons(IP_MF);
 		ip_send_check(iph);
+=======
+		ip_fraglist_init(skb, iph, hlen, &iter);
+>>>>>>> upstream/android-13
 
 		for (;;) {
 			/* Prepare header of the next frame,
 			 * before previous one went down. */
+<<<<<<< HEAD
 			if (frag) {
 				frag->ip_summed = CHECKSUM_NONE;
 				skb_reset_transport_header(frag);
@@ -673,16 +1024,43 @@ int ip_do_fragment(struct net *net, struct sock *sk, struct sk_buff *skb,
 				ip_send_check(iph);
 			}
 
+=======
+			if (iter.frag) {
+				bool first_frag = (iter.offset == 0);
+
+				IPCB(iter.frag)->flags = IPCB(skb)->flags;
+				ip_fraglist_prepare(skb, &iter);
+				if (first_frag && IPCB(skb)->opt.optlen) {
+					/* ipcb->opt is not populated for frags
+					 * coming from __ip_make_skb(),
+					 * ip_options_fragment() needs optlen
+					 */
+					IPCB(iter.frag)->opt.optlen =
+						IPCB(skb)->opt.optlen;
+					ip_options_fragment(iter.frag);
+					ip_send_check(iter.iph);
+				}
+			}
+
+			skb->tstamp = tstamp;
+>>>>>>> upstream/android-13
 			err = output(net, sk, skb);
 
 			if (!err)
 				IP_INC_STATS(net, IPSTATS_MIB_FRAGCREATES);
+<<<<<<< HEAD
 			if (err || !frag)
 				break;
 
 			skb = frag;
 			frag = skb->next;
 			skb->next = NULL;
+=======
+			if (err || !iter.frag)
+				break;
+
+			skb = ip_fraglist_next(&iter);
+>>>>>>> upstream/android-13
 		}
 
 		if (err == 0) {
@@ -690,11 +1068,16 @@ int ip_do_fragment(struct net *net, struct sock *sk, struct sk_buff *skb,
 			return 0;
 		}
 
+<<<<<<< HEAD
 		while (frag) {
 			skb = frag->next;
 			kfree_skb(frag);
 			frag = skb;
 		}
+=======
+		kfree_skb_list(iter.frag);
+
+>>>>>>> upstream/android-13
 		IP_INC_STATS(net, IPSTATS_MIB_FRAGFAILS);
 		return err;
 
@@ -709,22 +1092,31 @@ slow_path_clean:
 	}
 
 slow_path:
+<<<<<<< HEAD
 	iph = ip_hdr(skb);
 
 	left = skb->len - hlen;		/* Space per frame */
 	ptr = hlen;		/* Where to start from */
 
+=======
+>>>>>>> upstream/android-13
 	/*
 	 *	Fragment the datagram.
 	 */
 
+<<<<<<< HEAD
 	offset = (ntohs(iph->frag_off) & IP_OFFSET) << 3;
 	not_last_frag = iph->frag_off & htons(IP_MF);
+=======
+	ip_frag_init(skb, hlen, ll_rs, mtu, IPCB(skb)->flags & IPSKB_FRAG_PMTU,
+		     &state);
+>>>>>>> upstream/android-13
 
 	/*
 	 *	Keep copying data until we run out.
 	 */
 
+<<<<<<< HEAD
 	while (left > 0) {
 		len = left;
 		/* IF: it doesn't fit, use 'mtu' - the data space left */
@@ -800,14 +1192,29 @@ slow_path:
 			iph->frag_off |= htons(IP_MF);
 		ptr += len;
 		offset += len;
+=======
+	while (state.left > 0) {
+		bool first_frag = (state.offset == 0);
+
+		skb2 = ip_frag_next(skb, &state);
+		if (IS_ERR(skb2)) {
+			err = PTR_ERR(skb2);
+			goto fail;
+		}
+		ip_frag_ipcb(skb, skb2, first_frag);
+>>>>>>> upstream/android-13
 
 		/*
 		 *	Put this fragment into the sending queue.
 		 */
+<<<<<<< HEAD
 		iph->tot_len = htons(len + hlen);
 
 		ip_send_check(iph);
 
+=======
+		skb2->tstamp = tstamp;
+>>>>>>> upstream/android-13
 		err = output(net, sk, skb2);
 		if (err)
 			goto fail;
@@ -865,6 +1272,10 @@ static int __ip_append_data(struct sock *sk,
 			    unsigned int flags)
 {
 	struct inet_sock *inet = inet_sk(sk);
+<<<<<<< HEAD
+=======
+	struct ubuf_info *uarg = NULL;
+>>>>>>> upstream/android-13
 	struct sk_buff *skb;
 
 	struct ip_options *opt = cork->opt;
@@ -878,8 +1289,13 @@ static int __ip_append_data(struct sock *sk,
 	int csummode = CHECKSUM_NONE;
 	struct rtable *rt = (struct rtable *)cork->dst;
 	unsigned int wmem_alloc_delta = 0;
+<<<<<<< HEAD
 	u32 tskey = 0;
 	bool paged;
+=======
+	bool paged, extra_uref = false;
+	u32 tskey = 0;
+>>>>>>> upstream/android-13
 
 	skb = skb_peek_tail(queue);
 
@@ -889,13 +1305,21 @@ static int __ip_append_data(struct sock *sk,
 
 	if (cork->tx_flags & SKBTX_ANY_SW_TSTAMP &&
 	    sk->sk_tsflags & SOF_TIMESTAMPING_OPT_ID)
+<<<<<<< HEAD
 		tskey = sk->sk_tskey++;
+=======
+		tskey = atomic_inc_return(&sk->sk_tskey) - 1;
+>>>>>>> upstream/android-13
 
 	hh_len = LL_RESERVED_SPACE(rt->dst.dev);
 
 	fragheaderlen = sizeof(struct iphdr) + (opt ? opt->optlen : 0);
 	maxfraglen = ((mtu - fragheaderlen) & ~7) + fragheaderlen;
+<<<<<<< HEAD
 	maxnonfragsize = ip_sk_ignore_df(sk) ? 0xFFFF : mtu;
+=======
+	maxnonfragsize = ip_sk_ignore_df(sk) ? IP_MAX_MTU : mtu;
+>>>>>>> upstream/android-13
 
 	if (cork->length + length > maxnonfragsize - fragheaderlen) {
 		ip_local_error(sk, EMSGSIZE, fl4->daddr, inet->inet_dport,
@@ -914,6 +1338,23 @@ static int __ip_append_data(struct sock *sk,
 	    (!exthdrlen || (rt->dst.dev->features & NETIF_F_HW_ESP_TX_CSUM)))
 		csummode = CHECKSUM_PARTIAL;
 
+<<<<<<< HEAD
+=======
+	if (flags & MSG_ZEROCOPY && length && sock_flag(sk, SOCK_ZEROCOPY)) {
+		uarg = msg_zerocopy_realloc(sk, length, skb_zcopy(skb));
+		if (!uarg)
+			return -ENOBUFS;
+		extra_uref = !skb_zcopy(skb);	/* only ref on new uarg */
+		if (rt->dst.dev->features & NETIF_F_SG &&
+		    csummode == CHECKSUM_PARTIAL) {
+			paged = true;
+		} else {
+			uarg->zerocopy = 0;
+			skb_zcopy_set(skb, uarg, &extra_uref);
+		}
+	}
+
+>>>>>>> upstream/android-13
 	cork->length += length;
 
 	/* So, what's going on in the loop below?
@@ -936,7 +1377,11 @@ static int __ip_append_data(struct sock *sk,
 			unsigned int datalen;
 			unsigned int fraglen;
 			unsigned int fraggap;
+<<<<<<< HEAD
 			unsigned int alloclen;
+=======
+			unsigned int alloclen, alloc_extra;
+>>>>>>> upstream/android-13
 			unsigned int pagedlen;
 			struct sk_buff *skb_prev;
 alloc_new_skb:
@@ -956,6 +1401,7 @@ alloc_new_skb:
 			fraglen = datalen + fragheaderlen;
 			pagedlen = 0;
 
+<<<<<<< HEAD
 			if ((flags & MSG_MORE) &&
 			    !(rt->dst.dev->features&NETIF_F_SG))
 				alloclen = mtu;
@@ -967,6 +1413,10 @@ alloc_new_skb:
 			}
 
 			alloclen += exthdrlen;
+=======
+			alloc_extra = hh_len + 15;
+			alloc_extra += exthdrlen;
+>>>>>>> upstream/android-13
 
 			/* The last fragment gets additional space at tail.
 			 * Note, with MSG_MORE we overallocate on fragments,
@@ -974,17 +1424,42 @@ alloc_new_skb:
 			 * the last.
 			 */
 			if (datalen == length + fraggap)
+<<<<<<< HEAD
 				alloclen += rt->dst.trailer_len;
 
 			if (transhdrlen) {
 				skb = sock_alloc_send_skb(sk,
 						alloclen + hh_len + 15,
+=======
+				alloc_extra += rt->dst.trailer_len;
+
+			if ((flags & MSG_MORE) &&
+			    !(rt->dst.dev->features&NETIF_F_SG))
+				alloclen = mtu;
+			else if (!paged &&
+				 (fraglen + alloc_extra < SKB_MAX_ALLOC ||
+				  !(rt->dst.dev->features & NETIF_F_SG)))
+				alloclen = fraglen;
+			else {
+				alloclen = min_t(int, fraglen, MAX_HEADER);
+				pagedlen = fraglen - alloclen;
+			}
+
+			alloclen += alloc_extra;
+
+			if (transhdrlen) {
+				skb = sock_alloc_send_skb(sk, alloclen,
+>>>>>>> upstream/android-13
 						(flags & MSG_DONTWAIT), &err);
 			} else {
 				skb = NULL;
 				if (refcount_read(&sk->sk_wmem_alloc) + wmem_alloc_delta <=
 				    2 * sk->sk_sndbuf)
+<<<<<<< HEAD
 					skb = alloc_skb(alloclen + hh_len + 15,
+=======
+					skb = alloc_skb(alloclen,
+>>>>>>> upstream/android-13
 							sk->sk_allocation);
 				if (unlikely(!skb))
 					err = -ENOBUFS;
@@ -999,12 +1474,15 @@ alloc_new_skb:
 			skb->csum = 0;
 			skb_reserve(skb, hh_len);
 
+<<<<<<< HEAD
 			/* only the initial fragment is time stamped */
 			skb_shinfo(skb)->tx_flags = cork->tx_flags;
 			cork->tx_flags = 0;
 			skb_shinfo(skb)->tskey = tskey;
 			tskey = 0;
 
+=======
+>>>>>>> upstream/android-13
 			/*
 			 *	Find where to start putting bytes.
 			 */
@@ -1017,7 +1495,11 @@ alloc_new_skb:
 			if (fraggap) {
 				skb->csum = skb_copy_and_csum_bits(
 					skb_prev, maxfraglen,
+<<<<<<< HEAD
 					data + transhdrlen, fraggap, 0);
+=======
+					data + transhdrlen, fraggap);
+>>>>>>> upstream/android-13
 				skb_prev->csum = csum_sub(skb_prev->csum,
 							  skb->csum);
 				data += fraggap;
@@ -1037,6 +1519,16 @@ alloc_new_skb:
 			exthdrlen = 0;
 			csummode = CHECKSUM_NONE;
 
+<<<<<<< HEAD
+=======
+			/* only the initial fragment is time stamped */
+			skb_shinfo(skb)->tx_flags = cork->tx_flags;
+			cork->tx_flags = 0;
+			skb_shinfo(skb)->tskey = tskey;
+			tskey = 0;
+			skb_zcopy_set(skb, uarg, &extra_uref);
+
+>>>>>>> upstream/android-13
 			if ((flags & MSG_CONFIRM) && !skb_prev)
 				skb_set_dst_pending_confirm(skb, 1);
 
@@ -1066,7 +1558,11 @@ alloc_new_skb:
 				err = -EFAULT;
 				goto error;
 			}
+<<<<<<< HEAD
 		} else {
+=======
+		} else if (!uarg || !uarg->zerocopy) {
+>>>>>>> upstream/android-13
 			int i = skb_shinfo(skb)->nr_frags;
 
 			err = -ENOMEM;
@@ -1096,6 +1592,13 @@ alloc_new_skb:
 			skb->data_len += copy;
 			skb->truesize += copy;
 			wmem_alloc_delta += copy;
+<<<<<<< HEAD
+=======
+		} else {
+			err = skb_zerocopy_iter_dgram(skb, from, copy);
+			if (err < 0)
+				goto error;
+>>>>>>> upstream/android-13
 		}
 		offset += copy;
 		length -= copy;
@@ -1108,6 +1611,10 @@ alloc_new_skb:
 error_efault:
 	err = -EFAULT;
 error:
+<<<<<<< HEAD
+=======
+	net_zcopy_put_abort(uarg, extra_uref);
+>>>>>>> upstream/android-13
 	cork->length -= length;
 	IP_INC_STATS(sock_net(sk), IPSTATS_MIB_OUTDISCARDS);
 	refcount_add(wmem_alloc_delta, &sk->sk_wmem_alloc);
@@ -1155,6 +1662,10 @@ static int ip_setup_cork(struct sock *sk, struct inet_cork *cork,
 	cork->length = 0;
 	cork->ttl = ipc->ttl;
 	cork->tos = ipc->tos;
+<<<<<<< HEAD
+=======
+	cork->mark = ipc->sockc.mark;
+>>>>>>> upstream/android-13
 	cork->priority = ipc->priority;
 	cork->transmit_time = ipc->sockc.transmit_time;
 	cork->tx_flags = 0;
@@ -1228,7 +1739,11 @@ ssize_t	ip_append_page(struct sock *sk, struct flowi4 *fl4, struct page *page,
 	if (cork->flags & IPCORK_OPT)
 		opt = cork->opt;
 
+<<<<<<< HEAD
 	if (!(rt->dst.dev->features&NETIF_F_SG))
+=======
+	if (!(rt->dst.dev->features & NETIF_F_SG))
+>>>>>>> upstream/android-13
 		return -EOPNOTSUPP;
 
 	hh_len = LL_RESERVED_SPACE(rt->dst.dev);
@@ -1288,7 +1803,11 @@ ssize_t	ip_append_page(struct sock *sk, struct flowi4 *fl4, struct page *page,
 				skb->csum = skb_copy_and_csum_bits(skb_prev,
 								   maxfraglen,
 						    skb_transport_header(skb),
+<<<<<<< HEAD
 								   fraggap, 0);
+=======
+								   fraggap);
+>>>>>>> upstream/android-13
 				skb_prev->csum = csum_sub(skb_prev->csum,
 							  skb->csum);
 				pskb_trim_unique(skb_prev, maxfraglen);
@@ -1413,12 +1932,20 @@ struct sk_buff *__ip_make_skb(struct sock *sk,
 	ip_select_ident(net, skb, sk);
 
 	if (opt) {
+<<<<<<< HEAD
 		iph->ihl += opt->optlen>>2;
+=======
+		iph->ihl += opt->optlen >> 2;
+>>>>>>> upstream/android-13
 		ip_options_build(skb, opt, cork->addr, rt, 0);
 	}
 
 	skb->priority = (cork->tos != -1) ? cork->priority: sk->sk_priority;
+<<<<<<< HEAD
 	skb->mark = sk->sk_mark;
+=======
+	skb->mark = cork->mark;
+>>>>>>> upstream/android-13
 	skb->tstamp = cork->transmit_time;
 	/*
 	 * Steal rt from cork.dst to avoid a pair of atomic_inc/atomic_dec
@@ -1525,7 +2052,11 @@ static int ip_reply_glue_bits(void *dptr, char *to, int offset,
 {
 	__wsum csum;
 
+<<<<<<< HEAD
 	csum = csum_partial_copy_nocheck(dptr+offset, to, len, 0);
+=======
+	csum = csum_partial_copy_nocheck(dptr+offset, to, len);
+>>>>>>> upstream/android-13
 	skb->csum = csum_block_add(skb->csum, csum, odd);
 	return 0;
 }
@@ -1538,7 +2069,11 @@ void ip_send_unicast_reply(struct sock *sk, struct sk_buff *skb,
 			   const struct ip_options *sopt,
 			   __be32 daddr, __be32 saddr,
 			   const struct ip_reply_arg *arg,
+<<<<<<< HEAD
 			   unsigned int len)
+=======
+			   unsigned int len, u64 transmit_time)
+>>>>>>> upstream/android-13
 {
 	struct ip_options_data replyopts;
 	struct ipcm_cookie ipc;
@@ -1554,6 +2089,10 @@ void ip_send_unicast_reply(struct sock *sk, struct sk_buff *skb,
 
 	ipcm_init(&ipc);
 	ipc.addr = daddr;
+<<<<<<< HEAD
+=======
+	ipc.sockc.transmit_time = transmit_time;
+>>>>>>> upstream/android-13
 
 	if (replyopts.opt.opt.optlen) {
 		ipc.opt = &replyopts.opt;
@@ -1574,18 +2113,29 @@ void ip_send_unicast_reply(struct sock *sk, struct sk_buff *skb,
 			   daddr, saddr,
 			   tcp_hdr(skb)->source, tcp_hdr(skb)->dest,
 			   arg->uid);
+<<<<<<< HEAD
 	security_skb_classify_flow(skb, flowi4_to_flowi(&fl4));
+=======
+	security_skb_classify_flow(skb, flowi4_to_flowi_common(&fl4));
+>>>>>>> upstream/android-13
 	rt = ip_route_output_key(net, &fl4);
 	if (IS_ERR(rt))
 		return;
 
 	inet_sk(sk)->tos = arg->tos & ~INET_ECN_MASK;
 
+<<<<<<< HEAD
 	sk->sk_priority = skb->priority;
 	sk->sk_protocol = ip_hdr(skb)->protocol;
 	sk->sk_bound_dev_if = arg->bound_dev_if;
 	sk->sk_sndbuf = sysctl_wmem_default;
 	sk->sk_mark = fl4.flowi4_mark;
+=======
+	sk->sk_protocol = ip_hdr(skb)->protocol;
+	sk->sk_bound_dev_if = arg->bound_dev_if;
+	sk->sk_sndbuf = sysctl_wmem_default;
+	ipc.sockc.mark = fl4.flowi4_mark;
+>>>>>>> upstream/android-13
 	err = ip_append_data(sk, &fl4, ip_reply_glue_bits, arg->iov->iov_base,
 			     len, 0, &ipc, &rt, MSG_DONTWAIT);
 	if (unlikely(err)) {

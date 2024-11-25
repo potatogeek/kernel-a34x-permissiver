@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * (c) Copyright 2002-2010, Ralink Technology, Inc.
  * Copyright (C) 2014 Felix Fietkau <nbd@openwrt.org>
  * Copyright (C) 2015 Jakub Kicinski <kubakici@wp.pl>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2
@@ -11,6 +16,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -124,8 +131,15 @@ mt7601u_mcu_msg_send(struct mt7601u_dev *dev, struct sk_buff *skb,
 	int sent, ret;
 	u8 seq = 0;
 
+<<<<<<< HEAD
 	if (test_bit(MT7601U_STATE_REMOVED, &dev->state))
 		return 0;
+=======
+	if (test_bit(MT7601U_STATE_REMOVED, &dev->state)) {
+		consume_skb(skb);
+		return 0;
+	}
+>>>>>>> upstream/android-13
 
 	mutex_lock(&dev->mcu.mutex);
 

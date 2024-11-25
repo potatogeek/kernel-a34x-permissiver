@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 config MVEBU_CLK_COMMON
 	bool
 
@@ -7,6 +11,12 @@ config MVEBU_CLK_CPU
 config MVEBU_CLK_COREDIV
 	bool
 
+<<<<<<< HEAD
+=======
+config ARMADA_AP_CP_HELPER
+	bool
+
+>>>>>>> upstream/android-13
 config ARMADA_370_CLK
 	bool
 	select MVEBU_CLK_COMMON
@@ -25,7 +35,11 @@ config ARMADA_39X_CLK
 	select MVEBU_CLK_COMMON
 
 config ARMADA_37XX_CLK
+<<<<<<< HEAD
        bool
+=======
+	bool
+>>>>>>> upstream/android-13
 
 config ARMADA_XP_CLK
 	bool
@@ -34,9 +48,21 @@ config ARMADA_XP_CLK
 
 config ARMADA_AP806_SYSCON
 	bool
+<<<<<<< HEAD
 
 config ARMADA_CP110_SYSCON
 	bool
+=======
+	select ARMADA_AP_CP_HELPER
+
+config ARMADA_AP_CPU_CLK
+	bool
+	select ARMADA_AP_CP_HELPER
+
+config ARMADA_CP110_SYSCON
+	bool
+	select ARMADA_AP_CP_HELPER
+>>>>>>> upstream/android-13
 
 config DOVE_CLK
 	bool

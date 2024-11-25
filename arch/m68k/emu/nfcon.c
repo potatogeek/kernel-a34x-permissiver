@@ -85,7 +85,11 @@ static int nfcon_tty_put_char(struct tty_struct *tty, unsigned char ch)
 	return 1;
 }
 
+<<<<<<< HEAD
 static int nfcon_tty_write_room(struct tty_struct *tty)
+=======
+static unsigned int nfcon_tty_write_room(struct tty_struct *tty)
+>>>>>>> upstream/android-13
 {
 	return 64;
 }
@@ -120,12 +124,17 @@ early_param("debug", nf_debug_setup);
 
 static int __init nfcon_init(void)
 {
+<<<<<<< HEAD
+=======
+	struct tty_driver *driver;
+>>>>>>> upstream/android-13
 	int res;
 
 	stderr_id = nf_get_id("NF_STDERR");
 	if (!stderr_id)
 		return -ENODEV;
 
+<<<<<<< HEAD
 	nfcon_tty_driver = alloc_tty_driver(1);
 	if (!nfcon_tty_driver)
 		return -ENOMEM;
@@ -145,10 +154,35 @@ static int __init nfcon_init(void)
 	if (res) {
 		pr_err("failed to register nfcon tty driver\n");
 		put_tty_driver(nfcon_tty_driver);
+=======
+	driver = tty_alloc_driver(1, TTY_DRIVER_REAL_RAW);
+	if (IS_ERR(driver))
+		return PTR_ERR(driver);
+
+	tty_port_init(&nfcon_tty_port);
+
+	driver->driver_name = "nfcon";
+	driver->name = "nfcon";
+	driver->type = TTY_DRIVER_TYPE_SYSTEM;
+	driver->subtype = SYSTEM_TYPE_TTY;
+	driver->init_termios = tty_std_termios;
+
+	tty_set_operations(driver, &nfcon_tty_ops);
+	tty_port_link_device(&nfcon_tty_port, driver, 0);
+	res = tty_register_driver(driver);
+	if (res) {
+		pr_err("failed to register nfcon tty driver\n");
+		tty_driver_kref_put(driver);
+>>>>>>> upstream/android-13
 		tty_port_destroy(&nfcon_tty_port);
 		return res;
 	}
 
+<<<<<<< HEAD
+=======
+	nfcon_tty_driver = driver;
+
+>>>>>>> upstream/android-13
 	if (!(nf_console.flags & CON_ENABLED))
 		register_console(&nf_console);
 
@@ -159,7 +193,11 @@ static void __exit nfcon_exit(void)
 {
 	unregister_console(&nf_console);
 	tty_unregister_driver(nfcon_tty_driver);
+<<<<<<< HEAD
 	put_tty_driver(nfcon_tty_driver);
+=======
+	tty_driver_kref_put(nfcon_tty_driver);
+>>>>>>> upstream/android-13
 	tty_port_destroy(&nfcon_tty_port);
 }
 

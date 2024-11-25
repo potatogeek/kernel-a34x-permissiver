@@ -1,6 +1,12 @@
 // SPDX-License-Identifier: GPL-2.0
+<<<<<<< HEAD
 #include <linux/mm.h>
 #include <linux/vmacache.h>
+=======
+#include <linux/pagewalk.h>
+#include <linux/vmacache.h>
+#include <linux/mm_inline.h>
+>>>>>>> upstream/android-13
 #include <linux/hugetlb.h>
 #include <linux/huge_mm.h>
 #include <linux/mount.h>
@@ -18,20 +24,27 @@
 #include <linux/page_idle.h>
 #include <linux/shmem_fs.h>
 #include <linux/uaccess.h>
+<<<<<<< HEAD
 #include <linux/mm_inline.h>
 #include <linux/pkeys.h>
 #include <linux/freezer.h>
+=======
+#include <linux/pkeys.h>
+>>>>>>> upstream/android-13
 
 #include <asm/elf.h>
 #include <asm/tlb.h>
 #include <asm/tlbflush.h>
 #include "internal.h"
 
+<<<<<<< HEAD
 #ifdef CONFIG_ZRAM_LRU_WRITEBACK
 #include <linux/delay.h>
 #include "../../drivers/block/zram/zram_drv.h"
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #define SEQ_PUT_DEC(str, val) \
 		seq_put_decimal_ull_width(m, str, (val) << (PAGE_SHIFT-10), 8)
 void task_mem(struct seq_file *m, struct mm_struct *mm)
@@ -66,7 +79,11 @@ void task_mem(struct seq_file *m, struct mm_struct *mm)
 	SEQ_PUT_DEC("VmPeak:\t", hiwater_vm);
 	SEQ_PUT_DEC(" kB\nVmSize:\t", total_vm);
 	SEQ_PUT_DEC(" kB\nVmLck:\t", mm->locked_vm);
+<<<<<<< HEAD
 	SEQ_PUT_DEC(" kB\nVmPin:\t", mm->pinned_vm);
+=======
+	SEQ_PUT_DEC(" kB\nVmPin:\t", atomic64_read(&mm->pinned_vm));
+>>>>>>> upstream/android-13
 	SEQ_PUT_DEC(" kB\nVmHWM:\t", hiwater_rss);
 	SEQ_PUT_DEC(" kB\nVmRSS:\t", total_rss);
 	SEQ_PUT_DEC(" kB\nRssAnon:\t", anon);
@@ -130,6 +147,7 @@ static void release_task_mempolicy(struct proc_maps_private *priv)
 }
 #endif
 
+<<<<<<< HEAD
 static void seq_print_vma_name(struct seq_file *m, struct vm_area_struct *vma)
 {
 	const char __user *name = vma_get_anon_name(vma);
@@ -212,6 +230,16 @@ static void *m_start(struct seq_file *m, loff_t *ppos)
 	unsigned int pos = *ppos;
 
 	/* See m_cache_vma(). Zero at the start or after lseek. */
+=======
+static void *m_start(struct seq_file *m, loff_t *ppos)
+{
+	struct proc_maps_private *priv = m->private;
+	unsigned long last_addr = *ppos;
+	struct mm_struct *mm;
+	struct vm_area_struct *vma;
+
+	/* See m_next(). Zero at the start or after lseek. */
+>>>>>>> upstream/android-13
 	if (last_addr == -1UL)
 		return NULL;
 
@@ -220,17 +248,31 @@ static void *m_start(struct seq_file *m, loff_t *ppos)
 		return ERR_PTR(-ESRCH);
 
 	mm = priv->mm;
+<<<<<<< HEAD
 	if (!mm || !mmget_not_zero(mm))
 		return NULL;
 
 	if (down_read_killable(&mm->mmap_sem)) {
 		mmput(mm);
+=======
+	if (!mm || !mmget_not_zero(mm)) {
+		put_task_struct(priv->task);
+		priv->task = NULL;
+		return NULL;
+	}
+
+	if (mmap_read_lock_killable(mm)) {
+		mmput(mm);
+		put_task_struct(priv->task);
+		priv->task = NULL;
+>>>>>>> upstream/android-13
 		return ERR_PTR(-EINTR);
 	}
 
 	hold_task_mempolicy(priv);
 	priv->tail_vma = get_gate_vma(mm);
 
+<<<<<<< HEAD
 	if (last_addr) {
 		vma = find_vma(mm, last_addr - 1);
 		if (vma && vma->vm_start <= last_addr)
@@ -265,12 +307,36 @@ static void *m_next(struct seq_file *m, void *v, loff_t *pos)
 	next = m_next_vma(priv, v);
 	if (!next)
 		vma_stop(priv);
+=======
+	vma = find_vma(mm, last_addr);
+	if (vma)
+		return vma;
+
+	return priv->tail_vma;
+}
+
+static void *m_next(struct seq_file *m, void *v, loff_t *ppos)
+{
+	struct proc_maps_private *priv = m->private;
+	struct vm_area_struct *next, *vma = v;
+
+	if (vma == priv->tail_vma)
+		next = NULL;
+	else if (vma->vm_next)
+		next = vma->vm_next;
+	else
+		next = priv->tail_vma;
+
+	*ppos = next ? next->vm_start : -1UL;
+
+>>>>>>> upstream/android-13
 	return next;
 }
 
 static void m_stop(struct seq_file *m, void *v)
 {
 	struct proc_maps_private *priv = m->private;
+<<<<<<< HEAD
 
 	if (!IS_ERR_OR_NULL(v))
 		vma_stop(priv);
@@ -278,6 +344,18 @@ static void m_stop(struct seq_file *m, void *v)
 		put_task_struct(priv->task);
 		priv->task = NULL;
 	}
+=======
+	struct mm_struct *mm = priv->mm;
+
+	if (!priv->task)
+		return;
+
+	release_task_mempolicy(priv);
+	mmap_read_unlock(mm);
+	mmput(mm);
+	put_task_struct(priv->task);
+	priv->task = NULL;
+>>>>>>> upstream/android-13
 }
 
 static int proc_maps_open(struct inode *inode, struct file *file,
@@ -394,6 +472,11 @@ show_map_vma(struct seq_file *m, struct vm_area_struct *vma)
 
 	name = arch_vma_name(vma);
 	if (!name) {
+<<<<<<< HEAD
+=======
+		struct anon_vma_name *anon_name;
+
+>>>>>>> upstream/android-13
 		if (!mm) {
 			name = "[vdso]";
 			goto done;
@@ -410,9 +493,16 @@ show_map_vma(struct seq_file *m, struct vm_area_struct *vma)
 			goto done;
 		}
 
+<<<<<<< HEAD
 		if (vma_get_anon_name(vma)) {
 			seq_pad(m, ' ');
 			seq_print_vma_name(m, vma);
+=======
+		anon_name = anon_vma_name(vma);
+		if (anon_name) {
+			seq_pad(m, ' ');
+			seq_printf(m, "[anon:%s]", anon_name->name);
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -427,7 +517,10 @@ done:
 static int show_map(struct seq_file *m, void *v)
 {
 	show_map_vma(m, v);
+<<<<<<< HEAD
 	m_cache_vma(m, v);
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -481,6 +574,7 @@ struct mem_size_stats {
 	unsigned long lazyfree;
 	unsigned long anonymous_thp;
 	unsigned long shmem_thp;
+<<<<<<< HEAD
 	unsigned long swap;
 #ifdef CONFIG_ZRAM_LRU_WRITEBACK
 	unsigned long writeback;
@@ -488,21 +582,76 @@ struct mem_size_stats {
 	unsigned long same;
 	unsigned long huge;
 	unsigned long swap_shared;
+=======
+	unsigned long file_thp;
+	unsigned long swap;
+#if IS_ENABLED(CONFIG_ZRAM)
+	unsigned long writeback;
+>>>>>>> upstream/android-13
 #endif
 	unsigned long shared_hugetlb;
 	unsigned long private_hugetlb;
 	u64 pss;
+<<<<<<< HEAD
+=======
+	u64 pss_anon;
+	u64 pss_file;
+	u64 pss_shmem;
+>>>>>>> upstream/android-13
 	u64 pss_locked;
 	u64 swap_pss;
 	bool check_shmem_swap;
 };
 
+<<<<<<< HEAD
 static void smaps_account(struct mem_size_stats *mss, struct page *page,
 		bool compound, bool young, bool dirty, bool locked)
 {
 	int i, nr = compound ? 1 << compound_order(page) : 1;
 	unsigned long size = nr * PAGE_SIZE;
 
+=======
+static void smaps_page_accumulate(struct mem_size_stats *mss,
+		struct page *page, unsigned long size, unsigned long pss,
+		bool dirty, bool locked, bool private)
+{
+	mss->pss += pss;
+
+	if (PageAnon(page))
+		mss->pss_anon += pss;
+	else if (PageSwapBacked(page))
+		mss->pss_shmem += pss;
+	else
+		mss->pss_file += pss;
+
+	if (locked)
+		mss->pss_locked += pss;
+
+	if (dirty || PageDirty(page)) {
+		if (private)
+			mss->private_dirty += size;
+		else
+			mss->shared_dirty += size;
+	} else {
+		if (private)
+			mss->private_clean += size;
+		else
+			mss->shared_clean += size;
+	}
+}
+
+static void smaps_account(struct mem_size_stats *mss, struct page *page,
+		bool compound, bool young, bool dirty, bool locked,
+		bool migration)
+{
+	int i, nr = compound ? compound_nr(page) : 1;
+	unsigned long size = nr * PAGE_SIZE;
+
+	/*
+	 * First accumulate quantities that depend only on |size| and the type
+	 * of the compound page.
+	 */
+>>>>>>> upstream/android-13
 	if (PageAnon(page)) {
 		mss->anonymous += size;
 		if (!PageSwapBacked(page) && !dirty && !PageDirty(page))
@@ -515,6 +664,7 @@ static void smaps_account(struct mem_size_stats *mss, struct page *page,
 		mss->referenced += size;
 
 	/*
+<<<<<<< HEAD
 	 * page_count(page) == 1 guarantees the page is mapped exactly once.
 	 * If any subpage of the compound page mapped with PTE it would elevate
 	 * page_count().
@@ -551,12 +701,44 @@ static void smaps_account(struct mem_size_stats *mss, struct page *page,
 			if (locked)
 				mss->pss_locked += pss;
 		}
+=======
+	 * Then accumulate quantities that may depend on sharing, or that may
+	 * differ page-by-page.
+	 *
+	 * page_count(page) == 1 guarantees the page is mapped exactly once.
+	 * If any subpage of the compound page mapped with PTE it would elevate
+	 * page_count().
+	 *
+	 * The page_mapcount() is called to get a snapshot of the mapcount.
+	 * Without holding the page lock this snapshot can be slightly wrong as
+	 * we cannot always read the mapcount atomically.  It is not safe to
+	 * call page_mapcount() even with PTL held if the page is not mapped,
+	 * especially for migration entries.  Treat regular migration entries
+	 * as mapcount == 1.
+	 */
+	if ((page_count(page) == 1) || migration) {
+		smaps_page_accumulate(mss, page, size, size << PSS_SHIFT, dirty,
+			locked, true);
+		return;
+	}
+	for (i = 0; i < nr; i++, page++) {
+		int mapcount = page_mapcount(page);
+		unsigned long pss = PAGE_SIZE << PSS_SHIFT;
+		if (mapcount >= 2)
+			pss /= mapcount;
+		smaps_page_accumulate(mss, page, PAGE_SIZE, pss, dirty, locked,
+				      mapcount < 2);
+>>>>>>> upstream/android-13
 	}
 }
 
 #ifdef CONFIG_SHMEM
 static int smaps_pte_hole(unsigned long addr, unsigned long end,
+<<<<<<< HEAD
 		struct mm_walk *walk)
+=======
+			  __always_unused int depth, struct mm_walk *walk)
+>>>>>>> upstream/android-13
 {
 	struct mem_size_stats *mss = walk->private;
 
@@ -565,7 +747,13 @@ static int smaps_pte_hole(unsigned long addr, unsigned long end,
 
 	return 0;
 }
+<<<<<<< HEAD
 #endif
+=======
+#else
+#define smaps_pte_hole		NULL
+#endif /* CONFIG_SHMEM */
+>>>>>>> upstream/android-13
 
 static void smaps_pte_entry(pte_t *pte, unsigned long addr,
 		struct mm_walk *walk)
@@ -574,6 +762,10 @@ static void smaps_pte_entry(pte_t *pte, unsigned long addr,
 	struct vm_area_struct *vma = walk->vma;
 	bool locked = !!(vma->vm_flags & VM_LOCKED);
 	struct page *page = NULL;
+<<<<<<< HEAD
+=======
+	bool migration = false;
+>>>>>>> upstream/android-13
 
 	if (pte_present(*pte)) {
 		page = vm_normal_page(vma, addr, *pte);
@@ -582,11 +774,20 @@ static void smaps_pte_entry(pte_t *pte, unsigned long addr,
 
 		if (!non_swap_entry(swpent)) {
 			int mapcount;
+<<<<<<< HEAD
 #ifdef CONFIG_ZRAM_LRU_WRITEBACK
 			int type;
 #endif
 
 			mss->swap += PAGE_SIZE;
+=======
+
+			mss->swap += PAGE_SIZE;
+#if IS_ENABLED(CONFIG_ZRAM)
+			if (zram_oem_fn && zram_oem_fn_nocfi(ZRAM_IS_WRITEBACK_ENTRY, NULL, swp_offset(swpent)))
+				mss->writeback += PAGE_SIZE;
+#endif
+>>>>>>> upstream/android-13
 			mapcount = swp_swapcount(swpent);
 			if (mapcount >= 2) {
 				u64 pss_delta = (u64)PAGE_SIZE << PSS_SHIFT;
@@ -596,6 +797,7 @@ static void smaps_pte_entry(pte_t *pte, unsigned long addr,
 			} else {
 				mss->swap_pss += (u64)PAGE_SIZE << PSS_SHIFT;
 			}
+<<<<<<< HEAD
 #ifdef CONFIG_ZRAM_LRU_WRITEBACK
 			type = zram_get_entry_type(swp_offset(swpent));
 			if (type == ZRAM_WB_TYPE || type == ZRAM_WB_HUGE_TYPE)
@@ -627,13 +829,31 @@ static void smaps_pte_entry(pte_t *pte, unsigned long addr,
 		else
 			put_page(page);
 
+=======
+		} else if (is_pfn_swap_entry(swpent)) {
+			if (is_migration_entry(swpent))
+				migration = true;
+			page = pfn_swap_entry_to_page(swpent);
+		}
+	} else if (unlikely(IS_ENABLED(CONFIG_SHMEM) && mss->check_shmem_swap
+							&& pte_none(*pte))) {
+		page = xa_load(&vma->vm_file->f_mapping->i_pages,
+						linear_page_index(vma, addr));
+		if (xa_is_value(page))
+			mss->swap += PAGE_SIZE;
+>>>>>>> upstream/android-13
 		return;
 	}
 
 	if (!page)
 		return;
 
+<<<<<<< HEAD
 	smaps_account(mss, page, false, pte_young(*pte), pte_dirty(*pte), locked);
+=======
+	smaps_account(mss, page, false, pte_young(*pte), pte_dirty(*pte),
+		      locked, migration);
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_TRANSPARENT_HUGEPAGE
@@ -643,10 +863,27 @@ static void smaps_pmd_entry(pmd_t *pmd, unsigned long addr,
 	struct mem_size_stats *mss = walk->private;
 	struct vm_area_struct *vma = walk->vma;
 	bool locked = !!(vma->vm_flags & VM_LOCKED);
+<<<<<<< HEAD
 	struct page *page;
 
 	/* FOLL_DUMP will return -EFAULT on huge zero page */
 	page = follow_trans_huge_pmd(vma, addr, pmd, FOLL_DUMP);
+=======
+	struct page *page = NULL;
+	bool migration = false;
+
+	if (pmd_present(*pmd)) {
+		/* FOLL_DUMP will return -EFAULT on huge zero page */
+		page = follow_trans_huge_pmd(vma, addr, pmd, FOLL_DUMP);
+	} else if (unlikely(thp_migration_supported() && is_swap_pmd(*pmd))) {
+		swp_entry_t entry = pmd_to_swp_entry(*pmd);
+
+		if (is_migration_entry(entry)) {
+			migration = true;
+			page = pfn_swap_entry_to_page(entry);
+		}
+	}
+>>>>>>> upstream/android-13
 	if (IS_ERR_OR_NULL(page))
 		return;
 	if (PageAnon(page))
@@ -656,8 +893,15 @@ static void smaps_pmd_entry(pmd_t *pmd, unsigned long addr,
 	else if (is_zone_device_page(page))
 		/* pass */;
 	else
+<<<<<<< HEAD
 		VM_BUG_ON_PAGE(1, page);
 	smaps_account(mss, page, true, pmd_young(*pmd), pmd_dirty(*pmd), locked);
+=======
+		mss->file_thp += HPAGE_PMD_SIZE;
+
+	smaps_account(mss, page, true, pmd_young(*pmd), pmd_dirty(*pmd),
+		      locked, migration);
+>>>>>>> upstream/android-13
 }
 #else
 static void smaps_pmd_entry(pmd_t *pmd, unsigned long addr,
@@ -675,8 +919,12 @@ static int smaps_pte_range(pmd_t *pmd, unsigned long addr, unsigned long end,
 
 	ptl = pmd_trans_huge_lock(pmd, vma);
 	if (ptl) {
+<<<<<<< HEAD
 		if (pmd_present(*pmd))
 			smaps_pmd_entry(pmd, addr, walk);
+=======
+		smaps_pmd_entry(pmd, addr, walk);
+>>>>>>> upstream/android-13
 		spin_unlock(ptl);
 		goto out;
 	}
@@ -684,7 +932,11 @@ static int smaps_pte_range(pmd_t *pmd, unsigned long addr, unsigned long end,
 	if (pmd_trans_unstable(pmd))
 		goto out;
 	/*
+<<<<<<< HEAD
 	 * The mmap_sem held all the way back in m_start() is what
+=======
+	 * The mmap_lock held all the way back in m_start() is what
+>>>>>>> upstream/android-13
 	 * keeps khugepaged out of here and from collapsing things
 	 * in here.
 	 */
@@ -718,10 +970,13 @@ static void show_smap_vma_flags(struct seq_file *m, struct vm_area_struct *vma)
 		[ilog2(VM_MAYSHARE)]	= "ms",
 		[ilog2(VM_GROWSDOWN)]	= "gd",
 		[ilog2(VM_PFNMAP)]	= "pf",
+<<<<<<< HEAD
 		[ilog2(VM_DENYWRITE)]	= "dw",
 #ifdef CONFIG_X86_INTEL_MPX
 		[ilog2(VM_MPX)]		= "mp",
 #endif
+=======
+>>>>>>> upstream/android-13
 		[ilog2(VM_LOCKED)]	= "lo",
 		[ilog2(VM_IO)]		= "io",
 		[ilog2(VM_SEQ_READ)]	= "sr",
@@ -735,6 +990,12 @@ static void show_smap_vma_flags(struct seq_file *m, struct vm_area_struct *vma)
 		[ilog2(VM_ARCH_1)]	= "ar",
 		[ilog2(VM_WIPEONFORK)]	= "wf",
 		[ilog2(VM_DONTDUMP)]	= "dd",
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_ARM64_BTI
+		[ilog2(VM_ARM64_BTI)]	= "bt",
+#endif
+>>>>>>> upstream/android-13
 #ifdef CONFIG_MEM_SOFT_DIRTY
 		[ilog2(VM_SOFTDIRTY)]	= "sd",
 #endif
@@ -744,6 +1005,13 @@ static void show_smap_vma_flags(struct seq_file *m, struct vm_area_struct *vma)
 		[ilog2(VM_MERGEABLE)]	= "mg",
 		[ilog2(VM_UFFD_MISSING)]= "um",
 		[ilog2(VM_UFFD_WP)]	= "uw",
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_ARM64_MTE
+		[ilog2(VM_MTE)]		= "mt",
+		[ilog2(VM_MTE_ALLOWED)]	= "",
+#endif
+>>>>>>> upstream/android-13
 #ifdef CONFIG_ARCH_HAS_PKEYS
 		/* These come out via ProtectionKey: */
 		[ilog2(VM_PKEY_BIT0)]	= "",
@@ -754,6 +1022,12 @@ static void show_smap_vma_flags(struct seq_file *m, struct vm_area_struct *vma)
 		[ilog2(VM_PKEY_BIT4)]	= "",
 #endif
 #endif /* CONFIG_ARCH_HAS_PKEYS */
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_HAVE_ARCH_USERFAULTFD_MINOR
+		[ilog2(VM_UFFD_MINOR)]	= "ui",
+#endif /* CONFIG_HAVE_ARCH_USERFAULTFD_MINOR */
+>>>>>>> upstream/android-13
 	};
 	size_t i;
 
@@ -784,10 +1058,15 @@ static int smaps_hugetlb_range(pte_t *pte, unsigned long hmask,
 	} else if (is_swap_pte(*pte)) {
 		swp_entry_t swpent = pte_to_swp_entry(*pte);
 
+<<<<<<< HEAD
 		if (is_migration_entry(swpent))
 			page = migration_entry_to_page(swpent);
 		else if (is_device_private_entry(swpent))
 			page = device_private_entry_to_page(swpent);
+=======
+		if (is_pfn_swap_entry(swpent))
+			page = pfn_swap_entry_to_page(swpent);
+>>>>>>> upstream/android-13
 	}
 	if (page) {
 		int mapcount = page_mapcount(page);
@@ -799,6 +1078,7 @@ static int smaps_hugetlb_range(pte_t *pte, unsigned long hmask,
 	}
 	return 0;
 }
+<<<<<<< HEAD
 #endif /* HUGETLB_PAGE */
 
 static void smap_gather_stats(struct vm_area_struct *vma,
@@ -813,6 +1093,37 @@ static void smap_gather_stats(struct vm_area_struct *vma,
 	};
 
 	smaps_walk.private = mss;
+=======
+#else
+#define smaps_hugetlb_range	NULL
+#endif /* HUGETLB_PAGE */
+
+static const struct mm_walk_ops smaps_walk_ops = {
+	.pmd_entry		= smaps_pte_range,
+	.hugetlb_entry		= smaps_hugetlb_range,
+};
+
+static const struct mm_walk_ops smaps_shmem_walk_ops = {
+	.pmd_entry		= smaps_pte_range,
+	.hugetlb_entry		= smaps_hugetlb_range,
+	.pte_hole		= smaps_pte_hole,
+};
+
+/*
+ * Gather mem stats from @vma with the indicated beginning
+ * address @start, and keep them in @mss.
+ *
+ * Use vm_start of @vma as the beginning address if @start is 0.
+ */
+static void smap_gather_stats(struct vm_area_struct *vma,
+		struct mem_size_stats *mss, unsigned long start)
+{
+	const struct mm_walk_ops *ops = &smaps_walk_ops;
+
+	/* Invalid start */
+	if (start >= vma->vm_end)
+		return;
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_SHMEM
 	/* In case of smaps_rollup, reset the value from previous vma */
@@ -830,6 +1141,7 @@ static void smap_gather_stats(struct vm_area_struct *vma,
 		 */
 		unsigned long shmem_swapped = shmem_swap_usage(vma);
 
+<<<<<<< HEAD
 		if (!shmem_swapped || (vma->vm_flags & VM_SHARED) ||
 					!(vma->vm_flags & VM_WRITE)) {
 			mss->swap += shmem_swapped;
@@ -841,16 +1153,52 @@ static void smap_gather_stats(struct vm_area_struct *vma,
 #endif
 	/* mmap_sem is held in m_start */
 	walk_page_vma(vma, &smaps_walk);
+=======
+		if (!start && (!shmem_swapped || (vma->vm_flags & VM_SHARED) ||
+					!(vma->vm_flags & VM_WRITE))) {
+			mss->swap += shmem_swapped;
+		} else {
+			mss->check_shmem_swap = true;
+			ops = &smaps_shmem_walk_ops;
+		}
+	}
+#endif
+	/* mmap_lock is held in m_start */
+	if (!start)
+		walk_page_vma(vma, ops, mss);
+	else
+		walk_page_range(vma->vm_mm, start, vma->vm_end, ops, mss);
+>>>>>>> upstream/android-13
 }
 
 #define SEQ_PUT_DEC(str, val) \
 		seq_put_decimal_ull_width(m, str, (val) >> 10, 8)
 
 /* Show the contents common for smaps and smaps_rollup */
+<<<<<<< HEAD
 static void __show_smap(struct seq_file *m, const struct mem_size_stats *mss)
 {
 	SEQ_PUT_DEC("Rss:            ", mss->resident);
 	SEQ_PUT_DEC(" kB\nPss:            ", mss->pss >> PSS_SHIFT);
+=======
+static void __show_smap(struct seq_file *m, const struct mem_size_stats *mss,
+	bool rollup_mode)
+{
+	SEQ_PUT_DEC("Rss:            ", mss->resident);
+	SEQ_PUT_DEC(" kB\nPss:            ", mss->pss >> PSS_SHIFT);
+	if (rollup_mode) {
+		/*
+		 * These are meaningful only for smaps_rollup, otherwise two of
+		 * them are zero, and the other one is the same as Pss.
+		 */
+		SEQ_PUT_DEC(" kB\nPss_Anon:       ",
+			mss->pss_anon >> PSS_SHIFT);
+		SEQ_PUT_DEC(" kB\nPss_File:       ",
+			mss->pss_file >> PSS_SHIFT);
+		SEQ_PUT_DEC(" kB\nPss_Shmem:      ",
+			mss->pss_shmem >> PSS_SHIFT);
+	}
+>>>>>>> upstream/android-13
 	SEQ_PUT_DEC(" kB\nShared_Clean:   ", mss->shared_clean);
 	SEQ_PUT_DEC(" kB\nShared_Dirty:   ", mss->shared_dirty);
 	SEQ_PUT_DEC(" kB\nPrivate_Clean:  ", mss->private_clean);
@@ -860,18 +1208,27 @@ static void __show_smap(struct seq_file *m, const struct mem_size_stats *mss)
 	SEQ_PUT_DEC(" kB\nLazyFree:       ", mss->lazyfree);
 	SEQ_PUT_DEC(" kB\nAnonHugePages:  ", mss->anonymous_thp);
 	SEQ_PUT_DEC(" kB\nShmemPmdMapped: ", mss->shmem_thp);
+<<<<<<< HEAD
+=======
+	SEQ_PUT_DEC(" kB\nFilePmdMapped:  ", mss->file_thp);
+>>>>>>> upstream/android-13
 	SEQ_PUT_DEC(" kB\nShared_Hugetlb: ", mss->shared_hugetlb);
 	seq_put_decimal_ull_width(m, " kB\nPrivate_Hugetlb: ",
 				  mss->private_hugetlb >> 10, 7);
 	SEQ_PUT_DEC(" kB\nSwap:           ", mss->swap);
 	SEQ_PUT_DEC(" kB\nSwapPss:        ",
 					mss->swap_pss >> PSS_SHIFT);
+<<<<<<< HEAD
 #ifdef CONFIG_ZRAM_LRU_WRITEBACK
 	SEQ_PUT_DEC(" kB\nWriteback:      ", mss->writeback);
 	SEQ_PUT_DEC(" kB\nWritebackHuge:  ", mss->writeback_huge);
 	SEQ_PUT_DEC(" kB\nSame:           ", mss->same);
 	SEQ_PUT_DEC(" kB\nHuge:           ", mss->huge);
 	SEQ_PUT_DEC(" kB\nSwapShared:     ", mss->swap_shared);
+=======
+#if IS_ENABLED(CONFIG_ZRAM)
+	SEQ_PUT_DEC(" kB\nWriteback:      ", mss->writeback);
+>>>>>>> upstream/android-13
 #endif
 	SEQ_PUT_DEC(" kB\nLocked:         ",
 					mss->pss_locked >> PSS_SHIFT);
@@ -885,6 +1242,7 @@ static int show_smap(struct seq_file *m, void *v)
 
 	memset(&mss, 0, sizeof(mss));
 
+<<<<<<< HEAD
 	smap_gather_stats(vma, &mss);
 
 	show_map_vma(m, vma);
@@ -893,22 +1251,37 @@ static int show_smap(struct seq_file *m, void *v)
 		seq_print_vma_name(m, vma);
 		seq_putc(m, '\n');
 	}
+=======
+	smap_gather_stats(vma, &mss, 0);
+
+	show_map_vma(m, vma);
+>>>>>>> upstream/android-13
 
 	SEQ_PUT_DEC("Size:           ", vma->vm_end - vma->vm_start);
 	SEQ_PUT_DEC(" kB\nKernelPageSize: ", vma_kernel_pagesize(vma));
 	SEQ_PUT_DEC(" kB\nMMUPageSize:    ", vma_mmu_pagesize(vma));
 	seq_puts(m, " kB\n");
 
+<<<<<<< HEAD
 	__show_smap(m, &mss);
 
 	seq_printf(m, "THPeligible:    %d\n", transparent_hugepage_enabled(vma));
+=======
+	__show_smap(m, &mss, false);
+
+	seq_printf(m, "THPeligible:    %d\n",
+		   transparent_hugepage_active(vma));
+>>>>>>> upstream/android-13
 
 	if (arch_pkeys_enabled())
 		seq_printf(m, "ProtectionKey:  %8u\n", vma_pkey(vma));
 	show_smap_vma_flags(m, vma);
 
+<<<<<<< HEAD
 	m_cache_vma(m, vma);
 
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -933,13 +1306,18 @@ static int show_smaps_rollup(struct seq_file *m, void *v)
 
 	memset(&mss, 0, sizeof(mss));
 
+<<<<<<< HEAD
 	ret = down_read_killable(&mm->mmap_sem);
+=======
+	ret = mmap_read_lock_killable(mm);
+>>>>>>> upstream/android-13
 	if (ret)
 		goto out_put_mm;
 
 	hold_task_mempolicy(priv);
 
 	for (vma = priv->mm->mmap; vma;) {
+<<<<<<< HEAD
 		smap_gather_stats(vma, &mss);
 		last_vma_end = vma->vm_end;
 
@@ -950,13 +1328,29 @@ static int show_smaps_rollup(struct seq_file *m, void *v)
 		if (rwsem_is_contended(&mm->mmap_sem)) {
 			up_read(&mm->mmap_sem);
 			ret = down_read_killable(&mm->mmap_sem);
+=======
+		smap_gather_stats(vma, &mss, 0);
+		last_vma_end = vma->vm_end;
+
+		/*
+		 * Release mmap_lock temporarily if someone wants to
+		 * access it for write request.
+		 */
+		if (mmap_lock_is_contended(mm)) {
+			mmap_read_unlock(mm);
+			ret = mmap_read_lock_killable(mm);
+>>>>>>> upstream/android-13
 			if (ret) {
 				release_task_mempolicy(priv);
 				goto out_put_mm;
 			}
 
 			/*
+<<<<<<< HEAD
 			 * After dropping the lock, there are three cases to
+=======
+			 * After dropping the lock, there are four cases to
+>>>>>>> upstream/android-13
 			 * consider. See the following example for explanation.
 			 *
 			 *   +------+------+-----------+
@@ -984,6 +1378,15 @@ static int show_smaps_rollup(struct seq_file *m, void *v)
 			 *
 			 *    find_vma(mm, 16k - 1) will return NULL.
 			 *    No more things to do, just break.
+<<<<<<< HEAD
+=======
+			 *
+			 * 4) (last_vma_end - 1) is the middle of a vma (VMA'):
+			 *
+			 *    find_vma(mm, 16k - 1) will return VMA' whose range
+			 *    contains last_vma_end.
+			 *    Iterate VMA' from last_vma_end.
+>>>>>>> upstream/android-13
 			 */
 			vma = find_vma(mm, last_vma_end - 1);
 			/* Case 3 above */
@@ -993,6 +1396,13 @@ static int show_smaps_rollup(struct seq_file *m, void *v)
 			/* Case 1 above */
 			if (vma->vm_start >= last_vma_end)
 				continue;
+<<<<<<< HEAD
+=======
+
+			/* Case 4 above */
+			if (vma->vm_end > last_vma_end)
+				smap_gather_stats(vma, &mss, last_vma_end);
+>>>>>>> upstream/android-13
 		}
 		/* Case 2 above */
 		vma = vma->vm_next;
@@ -1003,10 +1413,17 @@ static int show_smaps_rollup(struct seq_file *m, void *v)
 	seq_pad(m, ' ');
 	seq_puts(m, "[rollup]\n");
 
+<<<<<<< HEAD
 	__show_smap(m, &mss);
 
 	release_task_mempolicy(priv);
 	up_read(&mm->mmap_sem);
+=======
+	__show_smap(m, &mss, true);
+
+	release_task_mempolicy(priv);
+	mmap_read_unlock(mm);
+>>>>>>> upstream/android-13
 
 out_put_mm:
 	mmput(mm);
@@ -1099,6 +1516,26 @@ struct clear_refs_private {
 };
 
 #ifdef CONFIG_MEM_SOFT_DIRTY
+<<<<<<< HEAD
+=======
+
+static inline bool pte_is_pinned(struct vm_area_struct *vma, unsigned long addr, pte_t pte)
+{
+	struct page *page;
+
+	if (!pte_write(pte))
+		return false;
+	if (!is_cow_mapping(vma->vm_flags))
+		return false;
+	if (likely(!test_bit(MMF_HAS_PINNED, &vma->vm_mm->flags)))
+		return false;
+	page = vm_normal_page(vma, addr, pte);
+	if (!page)
+		return false;
+	return page_maybe_dma_pinned(page);
+}
+
+>>>>>>> upstream/android-13
 static inline void clear_soft_dirty(struct vm_area_struct *vma,
 		unsigned long addr, pte_t *pte)
 {
@@ -1111,10 +1548,21 @@ static inline void clear_soft_dirty(struct vm_area_struct *vma,
 	pte_t ptent = *pte;
 
 	if (pte_present(ptent)) {
+<<<<<<< HEAD
 		ptent = ptep_modify_prot_start(vma->vm_mm, addr, pte);
 		ptent = pte_wrprotect(ptent);
 		ptent = pte_clear_soft_dirty(ptent);
 		ptep_modify_prot_commit(vma->vm_mm, addr, pte, ptent);
+=======
+		pte_t old_pte;
+
+		if (pte_is_pinned(vma, addr, ptent))
+			return;
+		old_pte = ptep_modify_prot_start(vma, addr, pte);
+		ptent = pte_wrprotect(old_pte);
+		ptent = pte_clear_soft_dirty(ptent);
+		ptep_modify_prot_commit(vma, addr, pte, old_pte, ptent);
+>>>>>>> upstream/android-13
 	} else if (is_swap_pte(ptent)) {
 		ptent = pte_swp_clear_soft_dirty(ptent);
 		set_pte_at(vma->vm_mm, addr, pte, ptent);
@@ -1238,6 +1686,14 @@ static int clear_refs_test_walk(unsigned long start, unsigned long end,
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static const struct mm_walk_ops clear_refs_walk_ops = {
+	.pmd_entry		= clear_refs_pte_range,
+	.test_walk		= clear_refs_test_walk,
+};
+
+>>>>>>> upstream/android-13
 static ssize_t clear_refs_write(struct file *file, const char __user *buf,
 				size_t count, loff_t *ppos)
 {
@@ -1246,7 +1702,10 @@ static ssize_t clear_refs_write(struct file *file, const char __user *buf,
 	struct mm_struct *mm;
 	struct vm_area_struct *vma;
 	enum clear_refs_types type;
+<<<<<<< HEAD
 	struct mmu_gather tlb;
+=======
+>>>>>>> upstream/android-13
 	int itype;
 	int rv;
 
@@ -1267,6 +1726,7 @@ static ssize_t clear_refs_write(struct file *file, const char __user *buf,
 		return -ESRCH;
 	mm = get_task_mm(task);
 	if (mm) {
+<<<<<<< HEAD
 		struct clear_refs_private cp = {
 			.type = type,
 		};
@@ -1283,11 +1743,24 @@ static ssize_t clear_refs_write(struct file *file, const char __user *buf,
 				goto out_mm;
 			}
 
+=======
+		struct mmu_notifier_range range;
+		struct clear_refs_private cp = {
+			.type = type,
+		};
+
+		if (mmap_write_lock_killable(mm)) {
+			count = -EINTR;
+			goto out_mm;
+		}
+		if (type == CLEAR_REFS_MM_HIWATER_RSS) {
+>>>>>>> upstream/android-13
 			/*
 			 * Writing 5 to /proc/pid/clear_refs resets the peak
 			 * resident set size to this mm's current rss value.
 			 */
 			reset_mm_hiwater_rss(mm);
+<<<<<<< HEAD
 			up_write(&mm->mmap_sem);
 			goto out_mm;
 		}
@@ -1297,10 +1770,16 @@ static ssize_t clear_refs_write(struct file *file, const char __user *buf,
 			goto out_mm;
 		}
 		tlb_gather_mmu(&tlb, mm, 0, -1);
+=======
+			goto out_unlock;
+		}
+
+>>>>>>> upstream/android-13
 		if (type == CLEAR_REFS_SOFT_DIRTY) {
 			for (vma = mm->mmap; vma; vma = vma->vm_next) {
 				if (!(vma->vm_flags & VM_SOFTDIRTY))
 					continue;
+<<<<<<< HEAD
 				up_read(&mm->mmap_sem);
 				if (down_write_killable(&mm->mmap_sem)) {
 					count = -EINTR;
@@ -1342,6 +1821,26 @@ static ssize_t clear_refs_write(struct file *file, const char __user *buf,
 			mmu_notifier_invalidate_range_end(mm, 0, -1);
 		tlb_finish_mmu(&tlb, 0, -1);
 		up_read(&mm->mmap_sem);
+=======
+				vma->vm_flags &= ~VM_SOFTDIRTY;
+				vma_set_page_prot(vma);
+			}
+
+			inc_tlb_flush_pending(mm);
+			mmu_notifier_range_init(&range, MMU_NOTIFY_SOFT_DIRTY,
+						0, NULL, mm, 0, -1UL);
+			mmu_notifier_invalidate_range_start(&range);
+		}
+		walk_page_range(mm, 0, mm->highest_vm_end, &clear_refs_walk_ops,
+				&cp);
+		if (type == CLEAR_REFS_SOFT_DIRTY) {
+			mmu_notifier_invalidate_range_end(&range);
+			flush_tlb_mm(mm);
+			dec_tlb_flush_pending(mm);
+		}
+out_unlock:
+		mmap_write_unlock(mm);
+>>>>>>> upstream/android-13
 out_mm:
 		mmput(mm);
 	}
@@ -1373,6 +1872,10 @@ struct pagemapread {
 #define PM_PFRAME_MASK		GENMASK_ULL(PM_PFRAME_BITS - 1, 0)
 #define PM_SOFT_DIRTY		BIT_ULL(55)
 #define PM_MMAP_EXCLUSIVE	BIT_ULL(56)
+<<<<<<< HEAD
+=======
+#define PM_UFFD_WP		BIT_ULL(57)
+>>>>>>> upstream/android-13
 #define PM_FILE			BIT_ULL(61)
 #define PM_SWAP			BIT_ULL(62)
 #define PM_PRESENT		BIT_ULL(63)
@@ -1394,7 +1897,11 @@ static int add_to_pagemap(unsigned long addr, pagemap_entry_t *pme,
 }
 
 static int pagemap_pte_hole(unsigned long start, unsigned long end,
+<<<<<<< HEAD
 				struct mm_walk *walk)
+=======
+			    __always_unused int depth, struct mm_walk *walk)
+>>>>>>> upstream/android-13
 {
 	struct pagemapread *pm = walk->private;
 	unsigned long addr = start;
@@ -1438,33 +1945,60 @@ static pagemap_entry_t pte_to_pagemap_entry(struct pagemapread *pm,
 {
 	u64 frame = 0, flags = 0;
 	struct page *page = NULL;
+<<<<<<< HEAD
+=======
+	bool migration = false;
+>>>>>>> upstream/android-13
 
 	if (pte_present(pte)) {
 		if (pm->show_pfn)
 			frame = pte_pfn(pte);
 		flags |= PM_PRESENT;
+<<<<<<< HEAD
 		page = _vm_normal_page(vma, addr, pte, true);
 		if (pte_soft_dirty(pte))
 			flags |= PM_SOFT_DIRTY;
+=======
+		page = vm_normal_page(vma, addr, pte);
+		if (pte_soft_dirty(pte))
+			flags |= PM_SOFT_DIRTY;
+		if (pte_uffd_wp(pte))
+			flags |= PM_UFFD_WP;
+>>>>>>> upstream/android-13
 	} else if (is_swap_pte(pte)) {
 		swp_entry_t entry;
 		if (pte_swp_soft_dirty(pte))
 			flags |= PM_SOFT_DIRTY;
+<<<<<<< HEAD
+=======
+		if (pte_swp_uffd_wp(pte))
+			flags |= PM_UFFD_WP;
+>>>>>>> upstream/android-13
 		entry = pte_to_swp_entry(pte);
 		if (pm->show_pfn)
 			frame = swp_type(entry) |
 				(swp_offset(entry) << MAX_SWAPFILES_SHIFT);
 		flags |= PM_SWAP;
+<<<<<<< HEAD
 		if (is_migration_entry(entry))
 			page = migration_entry_to_page(entry);
 
 		if (is_device_private_entry(entry))
 			page = device_private_entry_to_page(entry);
+=======
+		migration = is_migration_entry(entry);
+		if (is_pfn_swap_entry(entry))
+			page = pfn_swap_entry_to_page(entry);
+>>>>>>> upstream/android-13
 	}
 
 	if (page && !PageAnon(page))
 		flags |= PM_FILE;
+<<<<<<< HEAD
 	if (page && page_mapcount(page) == 1)
+=======
+	if (page && !migration && page_mapcount(page) == 1)
+>>>>>>> upstream/android-13
 		flags |= PM_MMAP_EXCLUSIVE;
 	if (vma->vm_flags & VM_SOFTDIRTY)
 		flags |= PM_SOFT_DIRTY;
@@ -1480,8 +2014,14 @@ static int pagemap_pmd_range(pmd_t *pmdp, unsigned long addr, unsigned long end,
 	spinlock_t *ptl;
 	pte_t *pte, *orig_pte;
 	int err = 0;
+<<<<<<< HEAD
 
 #ifdef CONFIG_TRANSPARENT_HUGEPAGE
+=======
+#ifdef CONFIG_TRANSPARENT_HUGEPAGE
+	bool migration = false;
+
+>>>>>>> upstream/android-13
 	ptl = pmd_trans_huge_lock(pmdp, vma);
 	if (ptl) {
 		u64 flags = 0, frame = 0;
@@ -1497,6 +2037,11 @@ static int pagemap_pmd_range(pmd_t *pmdp, unsigned long addr, unsigned long end,
 			flags |= PM_PRESENT;
 			if (pmd_soft_dirty(pmd))
 				flags |= PM_SOFT_DIRTY;
+<<<<<<< HEAD
+=======
+			if (pmd_uffd_wp(pmd))
+				flags |= PM_UFFD_WP;
+>>>>>>> upstream/android-13
 			if (pm->show_pfn)
 				frame = pmd_pfn(pmd) +
 					((addr & ~PMD_MASK) >> PAGE_SHIFT);
@@ -1515,12 +2060,24 @@ static int pagemap_pmd_range(pmd_t *pmdp, unsigned long addr, unsigned long end,
 			flags |= PM_SWAP;
 			if (pmd_swp_soft_dirty(pmd))
 				flags |= PM_SOFT_DIRTY;
+<<<<<<< HEAD
 			VM_BUG_ON(!is_pmd_migration_entry(pmd));
 			page = migration_entry_to_page(entry);
 		}
 #endif
 
 		if (page && page_mapcount(page) == 1)
+=======
+			if (pmd_swp_uffd_wp(pmd))
+				flags |= PM_UFFD_WP;
+			VM_BUG_ON(!is_pmd_migration_entry(pmd));
+			migration = is_migration_entry(entry);
+			page = pfn_swap_entry_to_page(entry);
+		}
+#endif
+
+		if (page && !migration && page_mapcount(page) == 1)
+>>>>>>> upstream/android-13
 			flags |= PM_MMAP_EXCLUSIVE;
 
 		for (; addr != end; addr += PAGE_SIZE) {
@@ -1609,8 +2166,21 @@ static int pagemap_hugetlb_range(pte_t *ptep, unsigned long hmask,
 
 	return err;
 }
+<<<<<<< HEAD
 #endif /* HUGETLB_PAGE */
 
+=======
+#else
+#define pagemap_hugetlb_range	NULL
+#endif /* HUGETLB_PAGE */
+
+static const struct mm_walk_ops pagemap_ops = {
+	.pmd_entry	= pagemap_pmd_range,
+	.pte_hole	= pagemap_pte_hole,
+	.hugetlb_entry	= pagemap_hugetlb_range,
+};
+
+>>>>>>> upstream/android-13
 /*
  * /proc/pid/pagemap - an array mapping virtual pages to pfns
  *
@@ -1622,7 +2192,12 @@ static int pagemap_hugetlb_range(pte_t *ptep, unsigned long hmask,
  * Bits 5-54  swap offset if swapped
  * Bit  55    pte is soft-dirty (see Documentation/admin-guide/mm/soft-dirty.rst)
  * Bit  56    page exclusively mapped
+<<<<<<< HEAD
  * Bits 57-60 zero
+=======
+ * Bit  57    pte is uffd-wp write-protected
+ * Bits 58-60 zero
+>>>>>>> upstream/android-13
  * Bit  61    page is file-page or shared-anon
  * Bit  62    page swapped
  * Bit  63    page present
@@ -1642,7 +2217,10 @@ static ssize_t pagemap_read(struct file *file, char __user *buf,
 {
 	struct mm_struct *mm = file->private_data;
 	struct pagemapread pm;
+<<<<<<< HEAD
 	struct mm_walk pagemap_walk = {};
+=======
+>>>>>>> upstream/android-13
 	unsigned long src;
 	unsigned long svpfn;
 	unsigned long start_vaddr;
@@ -1670,6 +2248,7 @@ static ssize_t pagemap_read(struct file *file, char __user *buf,
 	if (!pm.buffer)
 		goto out_mm;
 
+<<<<<<< HEAD
 	pagemap_walk.pmd_entry = pagemap_pmd_range;
 	pagemap_walk.pte_hole = pagemap_pte_hole;
 #ifdef CONFIG_HUGETLB_PAGE
@@ -1684,6 +2263,18 @@ static ssize_t pagemap_read(struct file *file, char __user *buf,
 	end_vaddr = mm->task_size;
 
 	/* watch out for wraparound */
+=======
+	src = *ppos;
+	svpfn = src / PM_ENTRY_BYTES;
+	end_vaddr = mm->task_size;
+
+	/* watch out for wraparound */
+	start_vaddr = end_vaddr;
+	if (svpfn <= (ULONG_MAX >> PAGE_SHIFT))
+		start_vaddr = untagged_addr(svpfn << PAGE_SHIFT);
+
+	/* Ensure the address is inside the task */
+>>>>>>> upstream/android-13
 	if (start_vaddr > mm->task_size)
 		start_vaddr = end_vaddr;
 
@@ -1703,11 +2294,19 @@ static ssize_t pagemap_read(struct file *file, char __user *buf,
 		/* overflow ? */
 		if (end < start_vaddr || end > end_vaddr)
 			end = end_vaddr;
+<<<<<<< HEAD
 		ret = down_read_killable(&mm->mmap_sem);
 		if (ret)
 			goto out_free;
 		ret = walk_page_range(start_vaddr, end, &pagemap_walk);
 		up_read(&mm->mmap_sem);
+=======
+		ret = mmap_read_lock_killable(mm);
+		if (ret)
+			goto out_free;
+		ret = walk_page_range(mm, start_vaddr, end, &pagemap_ops, &pm);
+		mmap_read_unlock(mm);
+>>>>>>> upstream/android-13
 		start_vaddr = end;
 
 		len = min(count, PM_ENTRY_BYTES * pm.pos);
@@ -1759,6 +2358,7 @@ const struct file_operations proc_pagemap_operations = {
 };
 #endif /* CONFIG_PROC_PAGE_MONITOR */
 
+<<<<<<< HEAD
 #ifdef CONFIG_PROCESS_RECLAIM
 static int deactivate_pte_range(pmd_t *pmd, unsigned long addr,
 				unsigned long end, struct mm_walk *walk)
@@ -2091,6 +2691,8 @@ const struct file_operations proc_reclaim_operations = {
 };
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_NUMA
 
 struct numa_maps {
@@ -2250,6 +2852,14 @@ static int gather_hugetlb_stats(pte_t *pte, unsigned long hmask,
 }
 #endif
 
+<<<<<<< HEAD
+=======
+static const struct mm_walk_ops show_numa_ops = {
+	.hugetlb_entry = gather_hugetlb_stats,
+	.pmd_entry = gather_pte_stats,
+};
+
+>>>>>>> upstream/android-13
 /*
  * Display pages allocated per node and memory policy via /proc.
  */
@@ -2261,12 +2871,15 @@ static int show_numa_map(struct seq_file *m, void *v)
 	struct numa_maps *md = &numa_priv->md;
 	struct file *file = vma->vm_file;
 	struct mm_struct *mm = vma->vm_mm;
+<<<<<<< HEAD
 	struct mm_walk walk = {
 		.hugetlb_entry = gather_hugetlb_stats,
 		.pmd_entry = gather_pte_stats,
 		.private = md,
 		.mm = mm,
 	};
+=======
+>>>>>>> upstream/android-13
 	struct mempolicy *pol;
 	char buffer[64];
 	int nid;
@@ -2299,8 +2912,13 @@ static int show_numa_map(struct seq_file *m, void *v)
 	if (is_vm_hugetlb_page(vma))
 		seq_puts(m, " huge");
 
+<<<<<<< HEAD
 	/* mmap_sem is held by m_start */
 	walk_page_vma(vma, &walk);
+=======
+	/* mmap_lock is held by m_start */
+	walk_page_vma(vma, &show_numa_ops, md);
+>>>>>>> upstream/android-13
 
 	if (!md->pages)
 		goto out;
@@ -2333,7 +2951,10 @@ static int show_numa_map(struct seq_file *m, void *v)
 	seq_printf(m, " kernelpagesize_kB=%lu", vma_kernel_pagesize(vma) >> 10);
 out:
 	seq_putc(m, '\n');
+<<<<<<< HEAD
 	m_cache_vma(m, vma);
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -2385,6 +3006,7 @@ static inline void put_filemap_fd(void)
 	atomic_dec(&filemap_fd_opened);
 }
 
+<<<<<<< HEAD
 static ssize_t pid_filemap_info_write(struct file *file,
 					       const char __user *buf,
 					       size_t count, loff_t *ppos)
@@ -2566,6 +3188,8 @@ static void file_check(struct seq_file *m, struct vm_area_struct *vma)
 	seq_printf(m, "\nmapped %d", mapped_pages);
 }
 
+=======
+>>>>>>> upstream/android-13
 static void
 show_filemap_vma(struct seq_file *m, struct vm_area_struct *vma)
 {
@@ -2587,6 +3211,7 @@ show_filemap_vma(struct seq_file *m, struct vm_area_struct *vma)
 			seq_puts(m, pathname);
 			seq_putc(m, '\n');
 		}
+<<<<<<< HEAD
 	} else {
 		if (priv->target_file && priv->target_file == file) {
 			file_check(m, vma);
@@ -2597,13 +3222,18 @@ show_filemap_vma(struct seq_file *m, struct vm_area_struct *vma)
 			seq_putc(m, '\n');
 			priv->target_file = file;
 		}
+=======
+>>>>>>> upstream/android-13
 	}
 }
 
 static int show_filemap(struct seq_file *m, void *v)
 {
 	show_filemap_vma(m, v);
+<<<<<<< HEAD
 	m_cache_vma(m, v);
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -2614,6 +3244,7 @@ static const struct seq_operations proc_pid_filemap_op = {
 	.show	= show_filemap,
 };
 
+<<<<<<< HEAD
 static int pid_filemap_info_open(struct inode *inode, struct file *file)
 {
 	int psize = sizeof(struct proc_filemap_private);
@@ -2644,6 +3275,8 @@ static int pid_filemap_info_open(struct inode *inode, struct file *file)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int pid_filemap_list_open(struct inode *inode, struct file *file)
 {
 	int psize = sizeof(struct proc_filemap_private);
@@ -2691,6 +3324,7 @@ const struct file_operations proc_pid_filemap_list_operations = {
 	.release	= proc_filemap_release,
 };
 
+<<<<<<< HEAD
 /*
  * Return info for a specific file if the file is mapped in this process.
  * To specify the file, a user writes the file path to the node before read.
@@ -2711,6 +3345,8 @@ const struct file_operations proc_pid_filemap_info_operations = {
 	.release	= proc_filemap_release,
 };
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PAGE_BOOST_RECORDING
 static ssize_t pid_io_record_read(struct file *file, char __user *buf,
 			size_t count, loff_t *ppos)

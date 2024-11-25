@@ -2,6 +2,7 @@
 #ifndef _UAPI_ASM_PARISC_UNISTD_H_
 #define _UAPI_ASM_PARISC_UNISTD_H_
 
+<<<<<<< HEAD
 /*
  * Linux system call numbers.
  *
@@ -376,5 +377,14 @@
 #define __IGNORE_pkey_free
 
 #define LINUX_GATEWAY_ADDR      0x100
+=======
+#ifdef __LP64__
+#include <asm/unistd_64.h>
+#else
+#include <asm/unistd_32.h>
+#endif
+
+#define LINUX_GATEWAY_ADDR	0x100
+>>>>>>> upstream/android-13
 
 #endif /* _UAPI_ASM_PARISC_UNISTD_H_ */

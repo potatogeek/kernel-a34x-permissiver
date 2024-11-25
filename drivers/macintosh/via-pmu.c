@@ -18,7 +18,11 @@
  *    a sleep or a freq. switch
  *
  */
+<<<<<<< HEAD
 #include <stdarg.h>
+=======
+#include <linux/stdarg.h>
+>>>>>>> upstream/android-13
 #include <linux/mutex.h>
 #include <linux/types.h>
 #include <linux/errno.h>
@@ -50,9 +54,15 @@
 #include <linux/of_address.h>
 #include <linux/of_irq.h>
 #include <linux/uaccess.h>
+<<<<<<< HEAD
 #include <asm/machdep.h>
 #include <asm/io.h>
 #include <asm/pgtable.h>
+=======
+#include <linux/pgtable.h>
+#include <asm/machdep.h>
+#include <asm/io.h>
+>>>>>>> upstream/android-13
 #include <asm/sections.h>
 #include <asm/irq.h>
 #ifdef CONFIG_PPC_PMAC
@@ -75,9 +85,12 @@
 /* Some compile options */
 #undef DEBUG_SLEEP
 
+<<<<<<< HEAD
 /* Misc minor number allocated for /dev/pmu */
 #define PMU_MINOR		154
 
+=======
+>>>>>>> upstream/android-13
 /* How many iterations between battery polls */
 #define BATTERY_POLLING_COUNT	2
 
@@ -183,14 +196,21 @@ static struct proc_dir_entry *proc_pmu_options;
 static int option_server_mode;
 
 int pmu_battery_count;
+<<<<<<< HEAD
 int pmu_cur_battery;
+=======
+static int pmu_cur_battery;
+>>>>>>> upstream/android-13
 unsigned int pmu_power_flags = PMU_PWR_AC_PRESENT;
 struct pmu_battery_info pmu_batteries[PMU_MAX_BATTERIES];
 static int query_batt_timer = BATTERY_POLLING_COUNT;
 static struct adb_request batt_req;
 static struct proc_dir_entry *proc_pmu_batt[PMU_MAX_BATTERIES];
 
+<<<<<<< HEAD
 int __fake_sleep;
+=======
+>>>>>>> upstream/android-13
 int asleep;
 
 #ifdef CONFIG_ADB
@@ -212,7 +232,11 @@ static int pmu_info_proc_show(struct seq_file *m, void *v);
 static int pmu_irqstats_proc_show(struct seq_file *m, void *v);
 static int pmu_battery_proc_show(struct seq_file *m, void *v);
 static void pmu_pass_intr(unsigned char *data, int len);
+<<<<<<< HEAD
 static const struct file_operations pmu_options_proc_fops;
+=======
+static const struct proc_ops pmu_options_proc_ops;
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_ADB
 const struct adb_driver via_pmu_driver = {
@@ -318,8 +342,13 @@ int __init find_via_pmu(void)
 			PMU_INT_ADB |
 			PMU_INT_TICK;
 	
+<<<<<<< HEAD
 	if (vias->parent->name && ((strcmp(vias->parent->name, "ohare") == 0)
 	    || of_device_is_compatible(vias->parent, "ohare")))
+=======
+	if (of_node_name_eq(vias->parent, "ohare") ||
+	    of_device_is_compatible(vias->parent, "ohare"))
+>>>>>>> upstream/android-13
 		pmu_kind = PMU_OHARE_BASED;
 	else if (of_device_is_compatible(vias->parent, "paddington"))
 		pmu_kind = PMU_PADDINGTON_BASED;
@@ -573,7 +602,11 @@ static int __init via_pmu_dev_init(void)
 		proc_pmu_irqstats = proc_create_single("interrupts", 0,
 				proc_pmu_root, pmu_irqstats_proc_show);
 		proc_pmu_options = proc_create("options", 0600, proc_pmu_root,
+<<<<<<< HEAD
 						&pmu_options_proc_fops);
+=======
+						&pmu_options_proc_ops);
+>>>>>>> upstream/android-13
 	}
 	return 0;
 }
@@ -974,6 +1007,7 @@ static ssize_t pmu_options_proc_write(struct file *file,
 	return fcount;
 }
 
+<<<<<<< HEAD
 static const struct file_operations pmu_options_proc_fops = {
 	.owner		= THIS_MODULE,
 	.open		= pmu_options_proc_open,
@@ -981,6 +1015,14 @@ static const struct file_operations pmu_options_proc_fops = {
 	.llseek		= seq_lseek,
 	.release	= single_release,
 	.write		= pmu_options_proc_write,
+=======
+static const struct proc_ops pmu_options_proc_ops = {
+	.proc_open	= pmu_options_proc_open,
+	.proc_read	= seq_read,
+	.proc_lseek	= seq_lseek,
+	.proc_release	= single_release,
+	.proc_write	= pmu_options_proc_write,
+>>>>>>> upstream/android-13
 };
 
 #ifdef CONFIG_ADB
@@ -1737,6 +1779,42 @@ pmu_enable_irled(int on)
 	pmu_wait_complete(&req);
 }
 
+<<<<<<< HEAD
+=======
+/* Offset between Unix time (1970-based) and Mac time (1904-based) */
+#define RTC_OFFSET	2082844800
+
+time64_t pmu_get_time(void)
+{
+	struct adb_request req;
+	u32 now;
+
+	if (pmu_request(&req, NULL, 1, PMU_READ_RTC) < 0)
+		return 0;
+	pmu_wait_complete(&req);
+	if (req.reply_len != 4)
+		pr_err("%s: got %d byte reply\n", __func__, req.reply_len);
+	now = (req.reply[0] << 24) + (req.reply[1] << 16) +
+	      (req.reply[2] << 8) + req.reply[3];
+	return (time64_t)now - RTC_OFFSET;
+}
+
+int pmu_set_rtc_time(struct rtc_time *tm)
+{
+	u32 now;
+	struct adb_request req;
+
+	now = lower_32_bits(rtc_tm_to_time64(tm) + RTC_OFFSET);
+	if (pmu_request(&req, NULL, 5, PMU_SET_RTC,
+	                now >> 24, now >> 16, now >> 8, now) < 0)
+		return -ENXIO;
+	pmu_wait_complete(&req);
+	if (req.reply_len != 0)
+		pr_err("%s: got %d byte reply\n", __func__, req.reply_len);
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 void
 pmu_restart(void)
 {
@@ -1804,6 +1882,10 @@ pmu_present(void)
  */
  
 static u32 save_via[8];
+<<<<<<< HEAD
+=======
+static int __fake_sleep;
+>>>>>>> upstream/android-13
 
 static void
 save_via_state(void)
@@ -2155,8 +2237,11 @@ pmu_read(struct file *file, char __user *buf,
 
 	if (count < 1 || !pp)
 		return -EINVAL;
+<<<<<<< HEAD
 	if (!access_ok(VERIFY_WRITE, buf, count))
 		return -EFAULT;
+=======
+>>>>>>> upstream/android-13
 
 	spin_lock_irqsave(&pp->lock, flags);
 	add_wait_queue(&pp->wait, &wait);

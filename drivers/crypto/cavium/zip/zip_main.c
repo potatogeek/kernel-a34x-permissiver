@@ -263,6 +263,7 @@ static int zip_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 		goto err_disable_device;
 	}
 
+<<<<<<< HEAD
 	err = pci_set_dma_mask(pdev, DMA_BIT_MASK(48));
 	if (err) {
 		dev_err(dev, "Unable to get usable DMA configuration\n");
@@ -272,6 +273,11 @@ static int zip_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 	err = pci_set_consistent_dma_mask(pdev, DMA_BIT_MASK(48));
 	if (err) {
 		dev_err(dev, "Unable to get 48-bit DMA for allocations\n");
+=======
+	err = dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(48));
+	if (err) {
+		dev_err(dev, "Unable to get usable 48-bit DMA configuration\n");
+>>>>>>> upstream/android-13
 		goto err_release_regions;
 	}
 
@@ -460,7 +466,11 @@ static void zip_unregister_compression_device(void)
 #include <linux/debugfs.h>
 
 /* Displays ZIP device statistics */
+<<<<<<< HEAD
 static int zip_show_stats(struct seq_file *s, void *unused)
+=======
+static int zip_stats_show(struct seq_file *s, void *unused)
+>>>>>>> upstream/android-13
 {
 	u64 val = 0ull;
 	u64 avg_chunk = 0ull, avg_cr = 0ull;
@@ -523,7 +533,11 @@ static int zip_show_stats(struct seq_file *s, void *unused)
 }
 
 /* Clears stats data */
+<<<<<<< HEAD
 static int zip_clear_stats(struct seq_file *s, void *unused)
+=======
+static int zip_clear_show(struct seq_file *s, void *unused)
+>>>>>>> upstream/android-13
 {
 	int index = 0;
 
@@ -558,7 +572,11 @@ static struct zip_registers zipregs[64] = {
 };
 
 /* Prints registers' contents */
+<<<<<<< HEAD
 static int zip_print_regs(struct seq_file *s, void *unused)
+=======
+static int zip_regs_show(struct seq_file *s, void *unused)
+>>>>>>> upstream/android-13
 {
 	u64 val = 0;
 	int i = 0, index = 0;
@@ -584,6 +602,7 @@ static int zip_print_regs(struct seq_file *s, void *unused)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int zip_stats_open(struct inode *inode, struct file *file)
 {
 	return single_open(file, zip_show_stats, NULL);
@@ -619,10 +638,16 @@ static const struct file_operations zip_regs_fops = {
 	.read  = seq_read,
 	.release = single_release,
 };
+=======
+DEFINE_SHOW_ATTRIBUTE(zip_stats);
+DEFINE_SHOW_ATTRIBUTE(zip_clear);
+DEFINE_SHOW_ATTRIBUTE(zip_regs);
+>>>>>>> upstream/android-13
 
 /* Root directory for thunderx_zip debugfs entry */
 static struct dentry *zip_debugfs_root;
 
+<<<<<<< HEAD
 static int __init zip_debugfs_init(void)
 {
 	struct dentry *zip_stats, *zip_clear, *zip_regs;
@@ -658,6 +683,25 @@ static int __init zip_debugfs_init(void)
 failed_to_create:
 	debugfs_remove_recursive(zip_debugfs_root);
 	return -ENOENT;
+=======
+static void __init zip_debugfs_init(void)
+{
+	if (!debugfs_initialized())
+		return;
+
+	zip_debugfs_root = debugfs_create_dir("thunderx_zip", NULL);
+
+	/* Creating files for entries inside thunderx_zip directory */
+	debugfs_create_file("zip_stats", 0444, zip_debugfs_root, NULL,
+			    &zip_stats_fops);
+
+	debugfs_create_file("zip_clear", 0444, zip_debugfs_root, NULL,
+			    &zip_clear_fops);
+
+	debugfs_create_file("zip_regs", 0444, zip_debugfs_root, NULL,
+			    &zip_regs_fops);
+
+>>>>>>> upstream/android-13
 }
 
 static void __exit zip_debugfs_exit(void)
@@ -666,6 +710,7 @@ static void __exit zip_debugfs_exit(void)
 }
 
 #else
+<<<<<<< HEAD
 static int __init zip_debugfs_init(void)
 {
 	return 0;
@@ -673,6 +718,10 @@ static int __init zip_debugfs_init(void)
 
 static void __exit zip_debugfs_exit(void) { }
 
+=======
+static void __init zip_debugfs_init(void) { }
+static void __exit zip_debugfs_exit(void) { }
+>>>>>>> upstream/android-13
 #endif
 /* debugfs - end */
 
@@ -696,6 +745,7 @@ static int __init zip_init_module(void)
 	}
 
 	/* comp-decomp statistics are handled with debugfs interface */
+<<<<<<< HEAD
 	ret = zip_debugfs_init();
 	if (ret < 0) {
 		zip_err("ZIP: debugfs initialization failed\n");
@@ -707,6 +757,12 @@ static int __init zip_init_module(void)
 err_crypto_unregister:
 	zip_unregister_compression_device();
 
+=======
+	zip_debugfs_init();
+
+	return ret;
+
+>>>>>>> upstream/android-13
 err_pci_unregister:
 	pci_unregister_driver(&zip_driver);
 	return ret;

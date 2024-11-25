@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * INET		An implementation of the TCP/IP protocol suite for the LINUX
  *		operating system.  INET is implemented using the  BSD Socket
@@ -16,11 +20,14 @@
  *		Richard Colella	: Hang on hash collision
  *		Vince Laviano	: Modified inet_del_protocol() to correctly
  *				  maintain copy bit.
+<<<<<<< HEAD
  *
  *		This program is free software; you can redistribute it and/or
  *		modify it under the terms of the GNU General Public License
  *		as published by the Free Software Foundation; either version
  *		2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/cache.h>
 #include <linux/module.h>
@@ -29,17 +36,24 @@
 #include <net/protocol.h>
 
 struct net_protocol __rcu *inet_protos[MAX_INET_PROTOS] __read_mostly;
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL(inet_protos);
+>>>>>>> upstream/android-13
 const struct net_offload __rcu *inet_offloads[MAX_INET_PROTOS] __read_mostly;
 EXPORT_SYMBOL(inet_offloads);
 
 int inet_add_protocol(const struct net_protocol *prot, unsigned char protocol)
 {
+<<<<<<< HEAD
 	if (!prot->netns_ok) {
 		pr_err("Protocol %u is not namespace aware, cannot register.\n",
 			protocol);
 		return -EINVAL;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	return !cmpxchg((const struct net_protocol **)&inet_protos[protocol],
 			NULL, prot) ? 0 : -1;
 }

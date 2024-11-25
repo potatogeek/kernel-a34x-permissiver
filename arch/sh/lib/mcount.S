@@ -1,12 +1,20 @@
+<<<<<<< HEAD
 /*
+=======
+/* SPDX-License-Identifier: GPL-2.0
+ *
+>>>>>>> upstream/android-13
  * arch/sh/lib/mcount.S
  *
  *  Copyright (C) 2008, 2009  Paul Mundt
  *  Copyright (C) 2008, 2009  Matt Fleming
+<<<<<<< HEAD
  *
  * This file is subject to the terms and conditions of the GNU General Public
  * License.  See the file "COPYING" in the main directory of this archive
  * for more details.
+=======
+>>>>>>> upstream/android-13
  */
 #include <asm/ftrace.h>
 #include <asm/thread_info.h>

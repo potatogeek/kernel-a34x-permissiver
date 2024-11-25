@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0+
+>>>>>>> upstream/android-13
 /*
  *  Driver for NEC VR4100 series General-purpose I/O Unit.
  *
  *  Copyright (C) 2002 MontaVista Software Inc.
  *	Author: Yoichi Yuasa <source@mvista.com>
  *  Copyright (C) 2003-2009  Yoichi Yuasa <yuasa@linux-mips.org>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -22,6 +27,12 @@
 #include <linux/errno.h>
 #include <linux/fs.h>
 #include <linux/gpio.h>
+=======
+ */
+#include <linux/errno.h>
+#include <linux/fs.h>
+#include <linux/gpio/driver.h>
+>>>>>>> upstream/android-13
 #include <linux/init.h>
 #include <linux/interrupt.h>
 #include <linux/io.h>
@@ -384,6 +395,7 @@ static int giu_set_direction(struct gpio_chip *chip, unsigned pin, int dir)
 	return 0;
 }
 
+<<<<<<< HEAD
 int vr41xx_gpio_pullupdown(unsigned int pin, gpio_pull_t pull)
 {
 	u16 reg, mask;
@@ -422,6 +434,8 @@ int vr41xx_gpio_pullupdown(unsigned int pin, gpio_pull_t pull)
 }
 EXPORT_SYMBOL_GPL(vr41xx_gpio_pullupdown);
 
+=======
+>>>>>>> upstream/android-13
 static int vr41xx_gpio_get(struct gpio_chip *chip, unsigned pin)
 {
 	u16 reg, mask;
@@ -518,10 +532,16 @@ static struct gpio_chip vr41xx_gpio_chip = {
 
 static int giu_probe(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	struct resource *res;
 	unsigned int trigger, i, pin;
 	struct irq_chip *chip;
 	int irq, ret;
+=======
+	unsigned int trigger, i, pin;
+	struct irq_chip *chip;
+	int irq;
+>>>>>>> upstream/android-13
 
 	switch (pdev->id) {
 	case GPIO_50PINS_PULLUPDOWN:
@@ -540,6 +560,7 @@ static int giu_probe(struct platform_device *pdev)
 		return -ENODEV;
 	}
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	if (!res)
 		return -EBUSY;
@@ -555,6 +576,16 @@ static int giu_probe(struct platform_device *pdev)
 		iounmap(giu_base);
 		return -ENODEV;
 	}
+=======
+	giu_base = devm_platform_ioremap_resource(pdev, 0);
+	if (IS_ERR(giu_base))
+		return PTR_ERR(giu_base);
+
+	vr41xx_gpio_chip.parent = &pdev->dev;
+
+	if (gpiochip_add_data(&vr41xx_gpio_chip, NULL))
+		return -ENODEV;
+>>>>>>> upstream/android-13
 
 	giu_write(GIUINTENL, 0);
 	giu_write(GIUINTENH, 0);
@@ -585,7 +616,10 @@ static int giu_probe(struct platform_device *pdev)
 static int giu_remove(struct platform_device *pdev)
 {
 	if (giu_base) {
+<<<<<<< HEAD
 		iounmap(giu_base);
+=======
+>>>>>>> upstream/android-13
 		giu_base = NULL;
 	}
 

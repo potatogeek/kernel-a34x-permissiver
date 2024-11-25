@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  CLPS711X CPU idle driver
  *
  *  Copyright (C) 2014 Alexander Shiyan <shc_work@mail.ru>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/cpuidle.h>
@@ -41,10 +48,14 @@ static struct cpuidle_driver clps711x_idle_driver = {
 
 static int __init clps711x_cpuidle_probe(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	struct resource *res;
 
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	clps711x_halt = devm_ioremap_resource(&pdev->dev, res);
+=======
+	clps711x_halt = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(clps711x_halt))
 		return PTR_ERR(clps711x_halt);
 

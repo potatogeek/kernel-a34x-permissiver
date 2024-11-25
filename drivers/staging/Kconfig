@@ -1,7 +1,14 @@
+<<<<<<< HEAD
 menuconfig STAGING
 	bool "Staging drivers"
 	default n
 	---help---
+=======
+# SPDX-License-Identifier: GPL-2.0
+menuconfig STAGING
+	bool "Staging drivers"
+	help
+>>>>>>> upstream/android-13
 	  This option allows you to select a number of drivers that are
 	  not of the "normal" Linux kernel quality level.  These drivers
 	  are placed here in order to get a wider audience to make use of
@@ -16,8 +23,13 @@ menuconfig STAGING
 
 	  If you wish to work on these drivers, to help improve them, or
 	  to report problems you have with them, please see the
+<<<<<<< HEAD
 	  driver_name.README file in the drivers/staging/ directory to
 	  see what needs to be worked on, and who to contact.
+=======
+	  drivers/staging/<driver_name>/TODO file to see what needs to be
+	  worked on, and who to contact.
+>>>>>>> upstream/android-13
 
 	  If in doubt, say N here.
 
@@ -26,8 +38,11 @@ if STAGING
 
 source "drivers/staging/wlan-ng/Kconfig"
 
+<<<<<<< HEAD
 source "drivers/staging/comedi/Kconfig"
 
+=======
+>>>>>>> upstream/android-13
 source "drivers/staging/olpc_dcon/Kconfig"
 
 source "drivers/staging/rtl8192u/Kconfig"
@@ -38,9 +53,13 @@ source "drivers/staging/rtl8723bs/Kconfig"
 
 source "drivers/staging/rtl8712/Kconfig"
 
+<<<<<<< HEAD
 source "drivers/staging/rtl8188eu/Kconfig"
 
 source "drivers/staging/rtlwifi/Kconfig"
+=======
+source "drivers/staging/r8188eu/Kconfig"
+>>>>>>> upstream/android-13
 
 source "drivers/staging/rts5208/Kconfig"
 
@@ -56,12 +75,17 @@ source "drivers/staging/iio/Kconfig"
 
 source "drivers/staging/sm750fb/Kconfig"
 
+<<<<<<< HEAD
 source "drivers/staging/xgifb/Kconfig"
 
 source "drivers/staging/emxx_udc/Kconfig"
 
 source "drivers/staging/speakup/Kconfig"
 
+=======
+source "drivers/staging/emxx_udc/Kconfig"
+
+>>>>>>> upstream/android-13
 source "drivers/staging/nvec/Kconfig"
 
 source "drivers/staging/media/Kconfig"
@@ -74,6 +98,7 @@ source "drivers/staging/gdm724x/Kconfig"
 
 source "drivers/staging/fwserial/Kconfig"
 
+<<<<<<< HEAD
 source "drivers/staging/goldfish/Kconfig"
 
 source "drivers/staging/netlogic/Kconfig"
@@ -82,6 +107,10 @@ source "drivers/staging/mt29f_spinand/Kconfig"
 
 source "drivers/staging/dgnc/Kconfig"
 
+=======
+source "drivers/staging/netlogic/Kconfig"
+
+>>>>>>> upstream/android-13
 source "drivers/staging/gs_fpgaboot/Kconfig"
 
 source "drivers/staging/unisys/Kconfig"
@@ -90,10 +119,13 @@ source "drivers/staging/clocking-wizard/Kconfig"
 
 source "drivers/staging/fbtft/Kconfig"
 
+<<<<<<< HEAD
 source "drivers/staging/fsl-dpaa2/Kconfig"
 
 source "drivers/staging/wilc1000/Kconfig"
 
+=======
+>>>>>>> upstream/android-13
 source "drivers/staging/most/Kconfig"
 
 source "drivers/staging/ks7010/Kconfig"
@@ -102,12 +134,16 @@ source "drivers/staging/greybus/Kconfig"
 
 source "drivers/staging/vc04_services/Kconfig"
 
+<<<<<<< HEAD
 source "drivers/staging/vboxvideo/Kconfig"
 
+=======
+>>>>>>> upstream/android-13
 source "drivers/staging/pi433/Kconfig"
 
 source "drivers/staging/mt7621-pci/Kconfig"
 
+<<<<<<< HEAD
 source "drivers/staging/mt7621-pinctrl/Kconfig"
 
 source "drivers/staging/mt7621-spi/Kconfig"
@@ -122,4 +158,22 @@ source "drivers/staging/gasket/Kconfig"
 
 source "drivers/staging/axis-fifo/Kconfig"
 
+=======
+source "drivers/staging/mt7621-dma/Kconfig"
+
+source "drivers/staging/ralink-gdma/Kconfig"
+
+source "drivers/staging/mt7621-dts/Kconfig"
+
+source "drivers/staging/axis-fifo/Kconfig"
+
+source "drivers/staging/fieldbus/Kconfig"
+
+source "drivers/staging/qlge/Kconfig"
+
+source "drivers/staging/wfx/Kconfig"
+
+source "drivers/staging/nanohub/Kconfig"
+
+>>>>>>> upstream/android-13
 endif # STAGING

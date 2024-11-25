@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * SH7206 Setup
  *
  *  Copyright (C) 2006  Yoshinori Sato
  *  Copyright (C) 2009  Paul Mundt
+<<<<<<< HEAD
  *
  * This file is subject to the terms and conditions of the GNU General Public
  * License.  See the file "COPYING" in the main directory of this archive
  * for more details.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/platform_device.h>
 #include <linux/init.h>
@@ -14,6 +21,10 @@
 #include <linux/serial_sci.h>
 #include <linux/sh_timer.h>
 #include <linux/io.h>
+<<<<<<< HEAD
+=======
+#include <asm/platform_early.h>
+>>>>>>> upstream/android-13
 
 enum {
 	UNUSED = 0,
@@ -288,6 +299,10 @@ void __init plat_early_device_setup(void)
 	/* enable MTU2 clock */
 	__raw_writeb(__raw_readb(STBCR3) & ~0x20, STBCR3);
 
+<<<<<<< HEAD
 	early_platform_add_devices(sh7206_early_devices,
+=======
+	sh_early_platform_add_devices(sh7206_early_devices,
+>>>>>>> upstream/android-13
 				   ARRAY_SIZE(sh7206_early_devices));
 }

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #include <linux/kernel.h>
 #include <linux/init.h>
 #include <linux/module.h>
@@ -150,6 +154,7 @@ void nf_log_unbind_pf(struct net *net, u_int8_t pf)
 }
 EXPORT_SYMBOL(nf_log_unbind_pf);
 
+<<<<<<< HEAD
 void nf_logger_request_module(int pf, enum nf_log_type type)
 {
 	if (loggers[pf][type] == NULL)
@@ -157,6 +162,8 @@ void nf_logger_request_module(int pf, enum nf_log_type type)
 }
 EXPORT_SYMBOL_GPL(nf_logger_request_module);
 
+=======
+>>>>>>> upstream/android-13
 int nf_logger_find_get(int pf, enum nf_log_type type)
 {
 	struct nf_logger *logger;
@@ -176,9 +183,12 @@ int nf_logger_find_get(int pf, enum nf_log_type type)
 		return 0;
 	}
 
+<<<<<<< HEAD
 	if (rcu_access_pointer(loggers[pf][type]) == NULL)
 		request_module("nf-logger-%u-%u", pf, type);
 
+=======
+>>>>>>> upstream/android-13
 	rcu_read_lock();
 	logger = rcu_dereference(loggers[pf][type]);
 	if (logger == NULL)
@@ -373,7 +383,11 @@ static int seq_show(struct seq_file *s, void *v)
 			continue;
 
 		logger = nft_log_dereference(loggers[*pos][i]);
+<<<<<<< HEAD
 		seq_printf(s, "%s", logger->name);
+=======
+		seq_puts(s, logger->name);
+>>>>>>> upstream/android-13
 		if (i == 0 && loggers[*pos][i + 1] != NULL)
 			seq_puts(s, ",");
 
@@ -413,7 +427,11 @@ static struct ctl_table nf_log_sysctl_ftable[] = {
 };
 
 static int nf_log_proc_dostring(struct ctl_table *table, int write,
+<<<<<<< HEAD
 			 void __user *buffer, size_t *lenp, loff_t *ppos)
+=======
+			 void *buffer, size_t *lenp, loff_t *ppos)
+>>>>>>> upstream/android-13
 {
 	const struct nf_logger *logger;
 	char buf[NFLOGGER_NAME_LEN];

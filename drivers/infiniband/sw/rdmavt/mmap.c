@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright(c) 2016 Intel Corporation.
  *
@@ -43,12 +44,21 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0 or BSD-3-Clause
+/*
+ * Copyright(c) 2016 Intel Corporation.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/slab.h>
 #include <linux/vmalloc.h>
 #include <linux/mm.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+#include <rdma/uverbs_ioctl.h>
+>>>>>>> upstream/android-13
 #include "mmap.h"
 
 /**
@@ -150,6 +160,7 @@ done:
  * rvt_create_mmap_info - allocate information for hfi1_mmap
  * @rdi: rvt dev struct
  * @size: size in bytes to map
+<<<<<<< HEAD
  * @context: user context
  * @obj: opaque pointer to a cq, wq etc
  *
@@ -165,6 +176,24 @@ struct rvt_mmap_info *rvt_create_mmap_info(struct rvt_dev_info *rdi,
 	ip = kmalloc_node(sizeof(*ip), GFP_KERNEL, rdi->dparms.node);
 	if (!ip)
 		return ip;
+=======
+ * @udata: user data (must be valid!)
+ * @obj: opaque pointer to a cq, wq etc
+ *
+ * Return: rvt_mmap struct on success, ERR_PTR on failure
+ */
+struct rvt_mmap_info *rvt_create_mmap_info(struct rvt_dev_info *rdi, u32 size,
+					   struct ib_udata *udata, void *obj)
+{
+	struct rvt_mmap_info *ip;
+
+	if (!udata)
+		return ERR_PTR(-EINVAL);
+
+	ip = kmalloc_node(sizeof(*ip), GFP_KERNEL, rdi->dparms.node);
+	if (!ip)
+		return ERR_PTR(-ENOMEM);
+>>>>>>> upstream/android-13
 
 	size = PAGE_ALIGN(size);
 
@@ -177,7 +206,13 @@ struct rvt_mmap_info *rvt_create_mmap_info(struct rvt_dev_info *rdi,
 
 	INIT_LIST_HEAD(&ip->pending_mmaps);
 	ip->size = size;
+<<<<<<< HEAD
 	ip->context = context;
+=======
+	ip->context =
+		container_of(udata, struct uverbs_attr_bundle, driver_udata)
+			->context;
+>>>>>>> upstream/android-13
 	ip->obj = obj;
 	kref_init(&ip->ref);
 

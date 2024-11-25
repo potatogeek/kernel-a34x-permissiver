@@ -29,7 +29,11 @@ struct clip_tbl {
 	atomic_t nfree;
 	struct list_head ce_free_head;
 	void *cl_list;
+<<<<<<< HEAD
 	struct list_head hash_list[0];
+=======
+	struct list_head hash_list[];
+>>>>>>> upstream/android-13
 };
 
 enum {

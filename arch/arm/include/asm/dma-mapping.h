@@ -6,9 +6,12 @@
 
 #include <linux/mm_types.h>
 #include <linux/scatterlist.h>
+<<<<<<< HEAD
 #include <linux/dma-debug.h>
 
 #include <asm/memory.h>
+=======
+>>>>>>> upstream/android-13
 
 #include <xen/xen.h>
 #include <asm/xen/hypervisor.h>
@@ -18,6 +21,7 @@ extern const struct dma_map_ops arm_coherent_dma_ops;
 
 static inline const struct dma_map_ops *get_arch_dma_ops(struct bus_type *bus)
 {
+<<<<<<< HEAD
 	return IS_ENABLED(CONFIG_MMU) ? &arm_dma_ops : &dma_direct_ops;
 }
 
@@ -107,6 +111,11 @@ extern void arch_teardown_dma_ops(struct device *dev);
 static inline bool is_device_dma_coherent(struct device *dev)
 {
 	return dev->archdata.dma_coherent;
+=======
+	if (IS_ENABLED(CONFIG_MMU) && !IS_ENABLED(CONFIG_ARM_LPAE))
+		return &arm_dma_ops;
+	return NULL;
+>>>>>>> upstream/android-13
 }
 
 /**

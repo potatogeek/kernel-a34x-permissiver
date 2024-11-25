@@ -38,7 +38,11 @@ struct pt_regs;
 	asmlinkage long __arm64_compat_sys_##sname(const struct pt_regs *__unused)
 
 #define COND_SYSCALL_COMPAT(name) 							\
+<<<<<<< HEAD
 	asmlinkage __weak long __arm64_compat_sys_##name(const struct pt_regs *__unused)\
+=======
+	asmlinkage long __weak __arm64_compat_sys_##name(const struct pt_regs *regs)	\
+>>>>>>> upstream/android-13
 	{										\
 		return sys_ni_syscall();						\
 	}
@@ -66,12 +70,16 @@ struct pt_regs;
 	}									\
 	static inline long __do_sys##name(__MAP(x,__SC_DECL,__VA_ARGS__))
 
+<<<<<<< HEAD
 #ifndef SYSCALL_DEFINE0
+=======
+>>>>>>> upstream/android-13
 #define SYSCALL_DEFINE0(sname)							\
 	SYSCALL_METADATA(_##sname, 0);						\
 	asmlinkage long __arm64_sys_##sname(const struct pt_regs *__unused);	\
 	ALLOW_ERROR_INJECTION(__arm64_sys_##sname, ERRNO);			\
 	asmlinkage long __arm64_sys_##sname(const struct pt_regs *__unused)
+<<<<<<< HEAD
 #endif
 
 #ifndef COND_SYSCALL
@@ -85,5 +93,15 @@ struct pt_regs;
 #ifndef SYS_NI
 #define SYS_NI(name) SYSCALL_ALIAS(__arm64_sys_##name, sys_ni_posix_timers);
 #endif
+=======
+
+#define COND_SYSCALL(name)							\
+	asmlinkage long __weak __arm64_sys_##name(const struct pt_regs *regs)	\
+	{									\
+		return sys_ni_syscall();					\
+	}
+
+#define SYS_NI(name) SYSCALL_ALIAS(__arm64_sys_##name, sys_ni_posix_timers);
+>>>>>>> upstream/android-13
 
 #endif /* __ASM_SYSCALL_WRAPPER_H */

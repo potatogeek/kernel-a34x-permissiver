@@ -3,6 +3,10 @@
 #define _LINUX_TIMEKEEPING_H
 
 #include <linux/errno.h>
+<<<<<<< HEAD
+=======
+#include <linux/clocksource_ids.h>
+>>>>>>> upstream/android-13
 
 /* Included from linux/ktime.h */
 
@@ -10,8 +14,12 @@ void timekeeping_init(void);
 extern int timekeeping_suspended;
 
 /* Architecture timer tick functions: */
+<<<<<<< HEAD
 extern void update_process_times(int user);
 extern void xtime_update(unsigned long ticks);
+=======
+extern void legacy_timer_tick(unsigned long ticks);
+>>>>>>> upstream/android-13
 
 /*
  * Get and set timeofday
@@ -159,12 +167,20 @@ static inline u64 ktime_get_real_ns(void)
 	return ktime_to_ns(ktime_get_real());
 }
 
+<<<<<<< HEAD
 static inline u64 ktime_get_boot_ns(void)
+=======
+static inline u64 ktime_get_boottime_ns(void)
+>>>>>>> upstream/android-13
 {
 	return ktime_to_ns(ktime_get_boottime());
 }
 
+<<<<<<< HEAD
 static inline u64 ktime_get_tai_ns(void)
+=======
+static inline u64 ktime_get_clocktai_ns(void)
+>>>>>>> upstream/android-13
 {
 	return ktime_to_ns(ktime_get_clocktai());
 }
@@ -223,8 +239,25 @@ extern bool timekeeping_rtc_skipresume(void);
 extern void timekeeping_inject_sleeptime64(const struct timespec64 *delta);
 
 /*
+<<<<<<< HEAD
  * struct system_time_snapshot - simultaneous raw/real time capture with
  *	counter value
+=======
+ * struct ktime_timestanps - Simultaneous mono/boot/real timestamps
+ * @mono:	Monotonic timestamp
+ * @boot:	Boottime timestamp
+ * @real:	Realtime timestamp
+ */
+struct ktime_timestamps {
+	u64		mono;
+	u64		boot;
+	u64		real;
+};
+
+/**
+ * struct system_time_snapshot - simultaneous raw/real time capture with
+ *				 counter value
+>>>>>>> upstream/android-13
  * @cycles:	Clocksource counter value to produce the system times
  * @real:	Realtime system time
  * @raw:	Monotonic raw system time
@@ -232,6 +265,7 @@ extern void timekeeping_inject_sleeptime64(const struct timespec64 *delta);
  * @cs_was_changed_seq:	The sequence number of clocksource change events
  */
 struct system_time_snapshot {
+<<<<<<< HEAD
 	u64		cycles;
 	ktime_t		real;
 	ktime_t		raw;
@@ -242,6 +276,19 @@ struct system_time_snapshot {
 /*
  * struct system_device_crosststamp - system/device cross-timestamp
  *	(syncronized capture)
+=======
+	u64			cycles;
+	ktime_t			real;
+	ktime_t			raw;
+	enum clocksource_ids	cs_id;
+	unsigned int		clock_was_set_seq;
+	u8			cs_was_changed_seq;
+};
+
+/**
+ * struct system_device_crosststamp - system/device cross-timestamp
+ *				      (synchronized capture)
+>>>>>>> upstream/android-13
  * @device:		Device time
  * @sys_realtime:	Realtime simultaneous with device time
  * @sys_monoraw:	Monotonic raw simultaneous with device time
@@ -252,12 +299,21 @@ struct system_device_crosststamp {
 	ktime_t sys_monoraw;
 };
 
+<<<<<<< HEAD
 /*
  * struct system_counterval_t - system counter value with the pointer to the
  *	corresponding clocksource
  * @cycles:	System counter value
  * @cs:		Clocksource corresponding to system counter value. Used by
  *	timekeeping code to verify comparibility of two cycle values
+=======
+/**
+ * struct system_counterval_t - system counter value with the pointer to the
+ *				corresponding clocksource
+ * @cycles:	System counter value
+ * @cs:		Clocksource corresponding to system counter value. Used by
+ *		timekeeping code to verify comparibility of two cycle values
+>>>>>>> upstream/android-13
  */
 struct system_counterval_t {
 	u64			cycles;
@@ -280,6 +336,12 @@ extern int get_device_system_crosststamp(
  */
 extern void ktime_get_snapshot(struct system_time_snapshot *systime_snapshot);
 
+<<<<<<< HEAD
+=======
+/* NMI safe mono/boot/realtime timestamps */
+extern void ktime_get_fast_timestamps(struct ktime_timestamps *snap);
+
+>>>>>>> upstream/android-13
 /*
  * Persistent clock related interfaces
  */
@@ -288,6 +350,7 @@ extern int persistent_clock_is_local;
 extern void read_persistent_clock64(struct timespec64 *ts);
 void read_persistent_wall_and_boot_offset(struct timespec64 *wall_clock,
 					  struct timespec64 *boot_offset);
+<<<<<<< HEAD
 extern int update_persistent_clock64(struct timespec64 now);
 
 /*
@@ -315,5 +378,10 @@ static inline struct timespec64 get_monotonic_coarse64(void)
 
 	return ts;
 }
+=======
+#ifdef CONFIG_GENERIC_CMOS_UPDATE
+extern int update_persistent_clock64(struct timespec64 now);
+#endif
+>>>>>>> upstream/android-13
 
 #endif

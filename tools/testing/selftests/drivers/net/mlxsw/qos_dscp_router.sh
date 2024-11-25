@@ -31,6 +31,11 @@ ALL_TESTS="
 	ping_ipv4
 	test_update
 	test_no_update
+<<<<<<< HEAD
+=======
+	test_pedit_norewrite
+	test_dscp_leftover
+>>>>>>> upstream/android-13
 "
 
 lib_dir=$(dirname $0)/../../../net/forwarding
@@ -50,10 +55,25 @@ reprioritize()
 	echo ${reprio[$in]}
 }
 
+<<<<<<< HEAD
 h1_create()
 {
 	local dscp;
 
+=======
+zero()
+{
+    echo 0
+}
+
+three()
+{
+    echo 3
+}
+
+h1_create()
+{
+>>>>>>> upstream/android-13
 	simple_if_init $h1 192.0.2.1/28
 	tc qdisc add dev $h1 clsact
 	dscp_capture_install $h1 0
@@ -87,6 +107,10 @@ h2_destroy()
 dscp_map()
 {
 	local base=$1; shift
+<<<<<<< HEAD
+=======
+	local prio
+>>>>>>> upstream/android-13
 
 	for prio in {0..7}; do
 		echo app=$prio,5,$((base + prio))
@@ -98,6 +122,12 @@ switch_create()
 	simple_if_init $swp1 192.0.2.2/28
 	__simple_if_init $swp2 v$swp1 192.0.2.17/28
 
+<<<<<<< HEAD
+=======
+	tc qdisc add dev $swp1 clsact
+	tc qdisc add dev $swp2 clsact
+
+>>>>>>> upstream/android-13
 	lldptool -T -i $swp1 -V APP $(dscp_map 0) >/dev/null
 	lldptool -T -i $swp2 -V APP $(dscp_map 0) >/dev/null
 	lldpad_app_wait_set $swp1
@@ -110,6 +140,12 @@ switch_destroy()
 	lldptool -T -i $swp1 -V APP -d $(dscp_map 0) >/dev/null
 	lldpad_app_wait_del
 
+<<<<<<< HEAD
+=======
+	tc qdisc del dev $swp2 clsact
+	tc qdisc del dev $swp1 clsact
+
+>>>>>>> upstream/android-13
 	__simple_if_fini $swp2 192.0.2.17/28
 	simple_if_fini $swp1 192.0.2.2/28
 }
@@ -156,6 +192,10 @@ dscp_ping_test()
 	local reprio=$1; shift
 	local dev1=$1; shift
 	local dev2=$1; shift
+<<<<<<< HEAD
+=======
+	local i
+>>>>>>> upstream/android-13
 
 	local prio2=$($reprio $prio)   # ICMP Request egress prio
 	local prio3=$($reprio $prio2)  # ICMP Response egress prio
@@ -169,9 +209,16 @@ dscp_ping_test()
 	eval "local -A dev1_t0s=($(dscp_fetch_stats $dev1 0))"
 	eval "local -A dev2_t0s=($(dscp_fetch_stats $dev2 0))"
 
+<<<<<<< HEAD
 	ip vrf exec $vrf_name \
 	   ${PING} -Q $dscp ${sip:+-I $sip} $dip \
 		   -c 10 -i 0.1 -w 2 &> /dev/null
+=======
+	local ping_timeout=$((PING_TIMEOUT * 5))
+	ip vrf exec $vrf_name \
+	   ${PING} -Q $dscp ${sip:+-I $sip} $dip \
+		   -c 10 -i 0.5 -w $ping_timeout &> /dev/null
+>>>>>>> upstream/android-13
 
 	eval "local -A dev1_t1s=($(dscp_fetch_stats $dev1 0))"
 	eval "local -A dev2_t1s=($(dscp_fetch_stats $dev2 0))"
@@ -204,6 +251,10 @@ __test_update()
 {
 	local update=$1; shift
 	local reprio=$1; shift
+<<<<<<< HEAD
+=======
+	local prio
+>>>>>>> upstream/android-13
 
 	sysctl_restore net.ipv4.ip_forward_update_priority
 	sysctl_set net.ipv4.ip_forward_update_priority $update
@@ -215,14 +266,54 @@ __test_update()
 
 test_update()
 {
+<<<<<<< HEAD
+=======
+	echo "Test net.ipv4.ip_forward_update_priority=1"
+>>>>>>> upstream/android-13
 	__test_update 1 reprioritize
 }
 
 test_no_update()
 {
+<<<<<<< HEAD
 	__test_update 0 echo
 }
 
+=======
+	echo "Test net.ipv4.ip_forward_update_priority=0"
+	__test_update 0 echo
+}
+
+# Test that when DSCP is updated in pedit, the DSCP rewrite is turned off.
+test_pedit_norewrite()
+{
+	echo "Test no DSCP rewrite after DSCP is updated by pedit"
+
+	tc filter add dev $swp1 ingress handle 101 pref 1 prot ip flower \
+	    action pedit ex munge ip dsfield set $((3 << 2)) retain 0xfc \
+	    action skbedit priority 3
+
+	__test_update 0 three
+
+	tc filter del dev $swp1 ingress pref 1
+}
+
+# Test that when the last APP rule is removed, the prio->DSCP map is properly
+# set to zeroes, and that the last APP rule does not stay active in the ASIC.
+test_dscp_leftover()
+{
+	echo "Test that last removed DSCP rule is deconfigured correctly"
+
+	lldptool -T -i $swp2 -V APP -d $(dscp_map 0) >/dev/null
+	lldpad_app_wait_del
+
+	__test_update 0 zero
+
+	lldptool -T -i $swp2 -V APP $(dscp_map 0) >/dev/null
+	lldpad_app_wait_set $swp2
+}
+
+>>>>>>> upstream/android-13
 trap cleanup EXIT
 
 setup_prepare

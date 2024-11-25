@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2015-2017 Netronome Systems, Inc.
  *
@@ -30,6 +31,10 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+=======
+/* SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause) */
+/* Copyright (C) 2015-2018 Netronome Systems, Inc. */
+>>>>>>> upstream/android-13
 
 /*
  * nfp_net.h
@@ -42,11 +47,22 @@
 #ifndef _NFP_NET_H_
 #define _NFP_NET_H_
 
+<<<<<<< HEAD
+=======
+#include <linux/atomic.h>
+>>>>>>> upstream/android-13
 #include <linux/interrupt.h>
 #include <linux/list.h>
 #include <linux/netdevice.h>
 #include <linux/pci.h>
+<<<<<<< HEAD
 #include <linux/io-64-nonatomic-hi-lo.h>
+=======
+#include <linux/dim.h>
+#include <linux/io-64-nonatomic-hi-lo.h>
+#include <linux/semaphore.h>
+#include <linux/workqueue.h>
+>>>>>>> upstream/android-13
 #include <net/xdp.h>
 
 #include "nfp_net_ctrl.h"
@@ -93,7 +109,11 @@
 #define NFP_NET_MAX_DMA_BITS	40
 
 /* Default size for MTU and freelist buffer sizes */
+<<<<<<< HEAD
 #define NFP_NET_DEFAULT_MTU		1500
+=======
+#define NFP_NET_DEFAULT_MTU		1500U
+>>>>>>> upstream/android-13
 
 /* Maximum number of bytes prepended to a packet */
 #define NFP_NET_MAX_PREPEND		64
@@ -188,6 +208,10 @@ struct nfp_net_tx_desc {
 			__le16 data_len; /* Length of frame + meta data */
 		} __packed;
 		__le32 vals[4];
+<<<<<<< HEAD
+=======
+		__le64 vals8[2];
+>>>>>>> upstream/android-13
 	};
 };
 
@@ -267,7 +291,11 @@ struct nfp_net_tx_ring {
 #define PCIE_DESC_RX_I_TCP_CSUM_OK	cpu_to_le16(BIT(11))
 #define PCIE_DESC_RX_I_UDP_CSUM		cpu_to_le16(BIT(10))
 #define PCIE_DESC_RX_I_UDP_CSUM_OK	cpu_to_le16(BIT(9))
+<<<<<<< HEAD
 #define PCIE_DESC_RX_BPF		cpu_to_le16(BIT(8))
+=======
+#define PCIE_DESC_RX_DECRYPTED		cpu_to_le16(BIT(8))
+>>>>>>> upstream/android-13
 #define PCIE_DESC_RX_EOP		cpu_to_le16(BIT(7))
 #define PCIE_DESC_RX_IP4_CSUM		cpu_to_le16(BIT(6))
 #define PCIE_DESC_RX_IP4_CSUM_OK	cpu_to_le16(BIT(5))
@@ -386,6 +414,12 @@ struct nfp_net_rx_ring {
  * @rx_ring:        Pointer to RX ring
  * @xdp_ring:	    Pointer to an extra TX ring for XDP
  * @irq_entry:      MSI-X table entry (use for talking to the device)
+<<<<<<< HEAD
+=======
+ * @event_ctr:	    Number of interrupt
+ * @rx_dim:	    Dynamic interrupt moderation structure for RX
+ * @tx_dim:	    Dynamic interrupt moderation structure for TX
+>>>>>>> upstream/android-13
  * @rx_sync:	    Seqlock for atomic updates of RX stats
  * @rx_pkts:        Number of received packets
  * @rx_bytes:	    Number of received bytes
@@ -394,6 +428,10 @@ struct nfp_net_rx_ring {
  * @hw_csum_rx_inner_ok: Counter of packets where the inner HW checksum was OK
  * @hw_csum_rx_complete: Counter of packets with CHECKSUM_COMPLETE reported
  * @hw_csum_rx_error:	 Counter of packets with bad checksums
+<<<<<<< HEAD
+=======
+ * @hw_tls_rx:	    Number of packets with TLS decrypted by hardware
+>>>>>>> upstream/android-13
  * @tx_sync:	    Seqlock for atomic updates of TX stats
  * @tx_pkts:	    Number of Transmitted packets
  * @tx_bytes:	    Number of Transmitted bytes
@@ -401,6 +439,14 @@ struct nfp_net_rx_ring {
  * @hw_csum_tx_inner:	 Counter of inner TX checksum offload requests
  * @tx_gather:	    Counter of packets with Gather DMA
  * @tx_lso:	    Counter of LSO packets sent
+<<<<<<< HEAD
+=======
+ * @hw_tls_tx:	    Counter of TLS packets sent with crypto offloaded to HW
+ * @tls_tx_fallback:	Counter of TLS packets sent which had to be encrypted
+ *			by the fallback path because packets came out of order
+ * @tls_tx_no_fallback:	Counter of TLS packets not sent because the fallback
+ *			path could not encrypt them
+>>>>>>> upstream/android-13
  * @tx_errors:	    How many TX errors were encountered
  * @tx_busy:        How often was TX busy (no space)?
  * @rx_replace_buf_alloc_fail:	Counter of RX buffer allocation failures
@@ -421,7 +467,11 @@ struct nfp_net_r_vector {
 		struct {
 			struct tasklet_struct tasklet;
 			struct sk_buff_head queue;
+<<<<<<< HEAD
 			struct spinlock lock;
+=======
+			spinlock_t lock;
+>>>>>>> upstream/android-13
 		};
 	};
 
@@ -430,6 +480,13 @@ struct nfp_net_r_vector {
 
 	u16 irq_entry;
 
+<<<<<<< HEAD
+=======
+	u16 event_ctr;
+	struct dim rx_dim;
+	struct dim tx_dim;
+
+>>>>>>> upstream/android-13
 	struct u64_stats_sync rx_sync;
 	u64 rx_pkts;
 	u64 rx_bytes;
@@ -437,12 +494,20 @@ struct nfp_net_r_vector {
 	u64 hw_csum_rx_ok;
 	u64 hw_csum_rx_inner_ok;
 	u64 hw_csum_rx_complete;
+<<<<<<< HEAD
+=======
+	u64 hw_tls_rx;
+
+	u64 hw_csum_rx_error;
+	u64 rx_replace_buf_alloc_fail;
+>>>>>>> upstream/android-13
 
 	struct nfp_net_tx_ring *xdp_ring;
 
 	struct u64_stats_sync tx_sync;
 	u64 tx_pkts;
 	u64 tx_bytes;
+<<<<<<< HEAD
 	u64 hw_csum_tx;
 	u64 hw_csum_tx_inner;
 	u64 tx_gather;
@@ -453,6 +518,22 @@ struct nfp_net_r_vector {
 	u64 tx_errors;
 	u64 tx_busy;
 
+=======
+
+	u64 ____cacheline_aligned_in_smp hw_csum_tx;
+	u64 hw_csum_tx_inner;
+	u64 tx_gather;
+	u64 tx_lso;
+	u64 hw_tls_tx;
+
+	u64 tls_tx_fallback;
+	u64 tls_tx_no_fallback;
+	u64 tx_errors;
+	u64 tx_busy;
+
+	/* Cold data follows */
+
+>>>>>>> upstream/android-13
 	u32 irq_vector;
 	irq_handler_t handler;
 	char name[IFNAMSIZ + 8];
@@ -487,6 +568,10 @@ struct nfp_stat_pair {
  * @netdev:		Backpointer to net_device structure
  * @is_vf:		Is the driver attached to a VF?
  * @chained_metadata_format:  Firemware will use new metadata format
+<<<<<<< HEAD
+=======
+ * @ktls_tx:		Is kTLS TX enabled?
+>>>>>>> upstream/android-13
  * @rx_dma_dir:		Mapping direction for RX buffers
  * @rx_dma_off:		Offset at which DMA packets (for XDP headroom)
  * @rx_offset:		Offset in the RX buffers where packet data starts
@@ -511,6 +596,10 @@ struct nfp_net_dp {
 
 	u8 is_vf:1;
 	u8 chained_metadata_format:1;
+<<<<<<< HEAD
+=======
+	u8 ktls_tx:1;
+>>>>>>> upstream/android-13
 
 	u8 rx_dma_dir;
 	u8 rx_offset;
@@ -567,24 +656,62 @@ struct nfp_net_dp {
  * @exn_name:           Name for Exception interrupt
  * @shared_handler:     Handler for shared interrupts
  * @shared_name:        Name for shared interrupt
+<<<<<<< HEAD
  * @me_freq_mhz:        ME clock_freq (MHz)
  * @reconfig_lock:	Protects HW reconfiguration request regs/machinery
+=======
+ * @reconfig_lock:	Protects @reconfig_posted, @reconfig_timer_active,
+ *			@reconfig_sync_present and HW reconfiguration request
+ *			regs/machinery from async requests (sync must take
+ *			@bar_lock)
+>>>>>>> upstream/android-13
  * @reconfig_posted:	Pending reconfig bits coming from async sources
  * @reconfig_timer_active:  Timer for reading reconfiguration results is pending
  * @reconfig_sync_present:  Some thread is performing synchronous reconfig
  * @reconfig_timer:	Timer for async reading of reconfig results
+<<<<<<< HEAD
  * @link_up:            Is the link up?
  * @link_status_lock:	Protects @link_* and ensures atomicity with BAR reading
+=======
+ * @reconfig_in_progress_update:	Update FW is processing now (debug only)
+ * @bar_lock:		vNIC config BAR access lock, protects: update,
+ *			mailbox area, crypto TLV
+ * @link_up:            Is the link up?
+ * @link_status_lock:	Protects @link_* and ensures atomicity with BAR reading
+ * @rx_coalesce_adapt_on:   Is RX interrupt moderation adaptive?
+ * @tx_coalesce_adapt_on:   Is TX interrupt moderation adaptive?
+>>>>>>> upstream/android-13
  * @rx_coalesce_usecs:      RX interrupt moderation usecs delay parameter
  * @rx_coalesce_max_frames: RX interrupt moderation frame count parameter
  * @tx_coalesce_usecs:      TX interrupt moderation usecs delay parameter
  * @tx_coalesce_max_frames: TX interrupt moderation frame count parameter
+<<<<<<< HEAD
  * @vxlan_ports:	VXLAN ports for RX inner csum offload communicated to HW
  * @vxlan_usecnt:	IPv4/IPv6 VXLAN port use counts
+=======
+>>>>>>> upstream/android-13
  * @qcp_cfg:            Pointer to QCP queue used for configuration notification
  * @tx_bar:             Pointer to mapped TX queues
  * @rx_bar:             Pointer to mapped FL/RX queues
  * @tlv_caps:		Parsed TLV capabilities
+<<<<<<< HEAD
+=======
+ * @ktls_tx_conn_cnt:	Number of offloaded kTLS TX connections
+ * @ktls_rx_conn_cnt:	Number of offloaded kTLS RX connections
+ * @ktls_conn_id_gen:	Trivial generator for kTLS connection ids (for TX)
+ * @ktls_no_space:	Counter of firmware rejecting kTLS connection due to
+ *			lack of space
+ * @ktls_rx_resync_req:	Counter of TLS RX resync requested
+ * @ktls_rx_resync_ign:	Counter of TLS RX resync requests ignored
+ * @ktls_rx_resync_sent:    Counter of TLS RX resync completed
+ * @mbox_cmsg:		Common Control Message via vNIC mailbox state
+ * @mbox_cmsg.queue:	CCM mbox queue of pending messages
+ * @mbox_cmsg.wq:	CCM mbox wait queue of waiting processes
+ * @mbox_cmsg.workq:	CCM mbox work queue for @wait_work and @runq_work
+ * @mbox_cmsg.wait_work:    CCM mbox posted msg reconfig wait work
+ * @mbox_cmsg.runq_work:    CCM mbox posted msg queue runner work
+ * @mbox_cmsg.tag:	CCM mbox message tag allocator
+>>>>>>> upstream/android-13
  * @debugfs_dir:	Device directory in debugfs
  * @vnic_list:		Entry on device vNIC list
  * @pdev:		Backpointer to PCI device
@@ -631,8 +758,11 @@ struct nfp_net {
 	irq_handler_t shared_handler;
 	char shared_name[IFNAMSIZ + 8];
 
+<<<<<<< HEAD
 	u32 me_freq_mhz;
 
+=======
+>>>>>>> upstream/android-13
 	bool link_up;
 	spinlock_t link_status_lock;
 
@@ -641,15 +771,27 @@ struct nfp_net {
 	bool reconfig_timer_active;
 	bool reconfig_sync_present;
 	struct timer_list reconfig_timer;
+<<<<<<< HEAD
 
+=======
+	u32 reconfig_in_progress_update;
+
+	struct semaphore bar_lock;
+
+	bool rx_coalesce_adapt_on;
+	bool tx_coalesce_adapt_on;
+>>>>>>> upstream/android-13
 	u32 rx_coalesce_usecs;
 	u32 rx_coalesce_max_frames;
 	u32 tx_coalesce_usecs;
 	u32 tx_coalesce_max_frames;
 
+<<<<<<< HEAD
 	__be16 vxlan_ports[NFP_NET_N_VXLAN_PORTS];
 	u8 vxlan_usecnt[NFP_NET_N_VXLAN_PORTS];
 
+=======
+>>>>>>> upstream/android-13
 	u8 __iomem *qcp_cfg;
 
 	u8 __iomem *tx_bar;
@@ -657,6 +799,28 @@ struct nfp_net {
 
 	struct nfp_net_tlv_caps tlv_caps;
 
+<<<<<<< HEAD
+=======
+	unsigned int ktls_tx_conn_cnt;
+	unsigned int ktls_rx_conn_cnt;
+
+	atomic64_t ktls_conn_id_gen;
+
+	atomic_t ktls_no_space;
+	atomic_t ktls_rx_resync_req;
+	atomic_t ktls_rx_resync_ign;
+	atomic_t ktls_rx_resync_sent;
+
+	struct {
+		struct sk_buff_head queue;
+		wait_queue_head_t wq;
+		struct workqueue_struct *workq;
+		struct work_struct wait_work;
+		struct work_struct runq_work;
+		u16 tag;
+	} mbox_cmsg;
+
+>>>>>>> upstream/android-13
 	struct dentry *debugfs_dir;
 
 	struct list_head vnic_list;
@@ -866,6 +1030,24 @@ static inline void nfp_ctrl_unlock(struct nfp_net *nn)
 	spin_unlock_bh(&nn->r_vecs[0].lock);
 }
 
+<<<<<<< HEAD
+=======
+static inline void nn_ctrl_bar_lock(struct nfp_net *nn)
+{
+	down(&nn->bar_lock);
+}
+
+static inline bool nn_ctrl_bar_trylock(struct nfp_net *nn)
+{
+	return !down_trylock(&nn->bar_lock);
+}
+
+static inline void nn_ctrl_bar_unlock(struct nfp_net *nn)
+{
+	up(&nn->bar_lock);
+}
+
+>>>>>>> upstream/android-13
 /* Globals */
 extern const char nfp_driver_version[];
 
@@ -876,12 +1058,27 @@ static inline bool nfp_netdev_is_nfp_net(struct net_device *netdev)
 	return netdev->netdev_ops == &nfp_net_netdev_ops;
 }
 
+<<<<<<< HEAD
+=======
+static inline int nfp_net_coalesce_para_check(u32 usecs, u32 pkts)
+{
+	if ((usecs >= ((1 << 16) - 1)) || (pkts >= ((1 << 16) - 1)))
+		return -EINVAL;
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 /* Prototypes */
 void nfp_net_get_fw_version(struct nfp_net_fw_version *fw_ver,
 			    void __iomem *ctrl_bar);
 
 struct nfp_net *
+<<<<<<< HEAD
 nfp_net_alloc(struct pci_dev *pdev, bool needs_netdev,
+=======
+nfp_net_alloc(struct pci_dev *pdev, void __iomem *ctrl_bar, bool needs_netdev,
+>>>>>>> upstream/android-13
 	      unsigned int max_tx_rings, unsigned int max_rx_rings);
 void nfp_net_free(struct nfp_net *nn);
 
@@ -893,11 +1090,23 @@ void nfp_ctrl_close(struct nfp_net *nn);
 
 void nfp_net_set_ethtool_ops(struct net_device *netdev);
 void nfp_net_info(struct nfp_net *nn);
+<<<<<<< HEAD
+=======
+int __nfp_net_reconfig(struct nfp_net *nn, u32 update);
+>>>>>>> upstream/android-13
 int nfp_net_reconfig(struct nfp_net *nn, u32 update);
 unsigned int nfp_net_rss_key_sz(struct nfp_net *nn);
 void nfp_net_rss_write_itbl(struct nfp_net *nn);
 void nfp_net_rss_write_key(struct nfp_net *nn);
 void nfp_net_coalesce_write_cfg(struct nfp_net *nn);
+<<<<<<< HEAD
+=======
+int nfp_net_mbox_lock(struct nfp_net *nn, unsigned int data_size);
+int nfp_net_mbox_reconfig(struct nfp_net *nn, u32 mbox_cmd);
+int nfp_net_mbox_reconfig_and_unlock(struct nfp_net *nn, u32 mbox_cmd);
+void nfp_net_mbox_reconfig_post(struct nfp_net *nn, u32 update);
+int nfp_net_mbox_reconfig_wait_posted(struct nfp_net *nn);
+>>>>>>> upstream/android-13
 
 unsigned int
 nfp_net_irqs_alloc(struct pci_dev *pdev, struct msix_entry *irq_entries,

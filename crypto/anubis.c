@@ -464,7 +464,10 @@ static int anubis_setkey(struct crypto_tfm *tfm, const u8 *in_key,
 {
 	struct anubis_ctx *ctx = crypto_tfm_ctx(tfm);
 	const __be32 *key = (const __be32 *)in_key;
+<<<<<<< HEAD
 	u32 *flags = &tfm->crt_flags;
+=======
+>>>>>>> upstream/android-13
 	int N, R, i, r;
 	u32 kappa[ANUBIS_MAX_N];
 	u32 inter[ANUBIS_MAX_N];
@@ -474,7 +477,10 @@ static int anubis_setkey(struct crypto_tfm *tfm, const u8 *in_key,
 		case 32: case 36: case 40:
 			break;
 		default:
+<<<<<<< HEAD
 			*flags |= CRYPTO_TFM_RES_BAD_KEY_LEN;
+=======
+>>>>>>> upstream/android-13
 			return -EINVAL;
 	}
 
@@ -673,6 +679,10 @@ static void anubis_decrypt(struct crypto_tfm *tfm, u8 *dst, const u8 *src)
 
 static struct crypto_alg anubis_alg = {
 	.cra_name		=	"anubis",
+<<<<<<< HEAD
+=======
+	.cra_driver_name	=	"anubis-generic",
+>>>>>>> upstream/android-13
 	.cra_flags		=	CRYPTO_ALG_TYPE_CIPHER,
 	.cra_blocksize		=	ANUBIS_BLOCK_SIZE,
 	.cra_ctxsize		=	sizeof (struct anubis_ctx),
@@ -699,7 +709,11 @@ static void __exit anubis_mod_fini(void)
 	crypto_unregister_alg(&anubis_alg);
 }
 
+<<<<<<< HEAD
 module_init(anubis_mod_init);
+=======
+subsys_initcall(anubis_mod_init);
+>>>>>>> upstream/android-13
 module_exit(anubis_mod_fini);
 
 MODULE_LICENSE("GPL");

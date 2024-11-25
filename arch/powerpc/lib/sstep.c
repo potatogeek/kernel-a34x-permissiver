@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Single-step support.
  *
  * Copyright (C) 2004 Paul Mackerras <paulus@au.ibm.com>, IBM
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/kernel.h>
 #include <linux/kprobes.h>
@@ -17,8 +24,15 @@
 #include <linux/uaccess.h>
 #include <asm/cpu_has_feature.h>
 #include <asm/cputable.h>
+<<<<<<< HEAD
 
 extern char system_call_common[];
+=======
+#include <asm/disassemble.h>
+
+extern char system_call_common[];
+extern char system_call_vectored_emulate[];
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_PPC64
 /* Bits in SRR1 that are copied from MSR */
@@ -34,6 +48,13 @@ extern char system_call_common[];
 #define XER_OV32	0x00080000U
 #define XER_CA32	0x00040000U
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_VSX
+#define VSX_REGISTER_XTP(rd)   ((((rd) & 1) << 5) | ((rd) & 0xfe))
+#endif
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PPC_FPU
 /*
  * Functions in ldstfp.S
@@ -110,11 +131,19 @@ static nokprobe_inline long address_ok(struct pt_regs *regs,
 {
 	if (!user_mode(regs))
 		return 1;
+<<<<<<< HEAD
 	if (__access_ok(ea, nb, USER_DS))
 		return 1;
 	if (__access_ok(ea, 1, USER_DS))
 		/* Access overlaps the end of the user region */
 		regs->dar = USER_DS.seg;
+=======
+	if (access_ok((void __user *)ea, nb))
+		return 1;
+	if (access_ok((void __user *)ea, 1))
+		/* Access overlaps the end of the user region */
+		regs->dar = TASK_SIZE_MAX - 1;
+>>>>>>> upstream/android-13
 	else
 		regs->dar = ea;
 	return 0;
@@ -192,6 +221,50 @@ static nokprobe_inline unsigned long xform_ea(unsigned int instr,
 }
 
 /*
+<<<<<<< HEAD
+=======
+ * Calculate effective address for a MLS:D-form / 8LS:D-form
+ * prefixed instruction
+ */
+static nokprobe_inline unsigned long mlsd_8lsd_ea(unsigned int instr,
+						  unsigned int suffix,
+						  const struct pt_regs *regs)
+{
+	int ra, prefix_r;
+	unsigned int  dd;
+	unsigned long ea, d0, d1, d;
+
+	prefix_r = GET_PREFIX_R(instr);
+	ra = GET_PREFIX_RA(suffix);
+
+	d0 = instr & 0x3ffff;
+	d1 = suffix & 0xffff;
+	d = (d0 << 16) | d1;
+
+	/*
+	 * sign extend a 34 bit number
+	 */
+	dd = (unsigned int)(d >> 2);
+	ea = (signed int)dd;
+	ea = (ea << 2) | (d & 0x3);
+
+	if (!prefix_r && ra)
+		ea += regs->gpr[ra];
+	else if (!prefix_r && !ra)
+		; /* Leave ea as is */
+	else if (prefix_r)
+		ea += regs->nip;
+
+	/*
+	 * (prefix_r && ra) is an invalid form. Should already be
+	 * checked for by caller!
+	 */
+
+	return ea;
+}
+
+/*
+>>>>>>> upstream/android-13
  * Return the largest power of 2, not greater than sizeof(unsigned long),
  * such that x is a multiple of it.
  */
@@ -240,6 +313,22 @@ static nokprobe_inline void do_byte_reverse(void *ptr, int nb)
 		up[1] = tmp;
 		break;
 	}
+<<<<<<< HEAD
+=======
+	case 32: {
+		unsigned long *up = (unsigned long *)ptr;
+		unsigned long tmp;
+
+		tmp = byterev_8(up[0]);
+		up[0] = byterev_8(up[3]);
+		up[3] = tmp;
+		tmp = byterev_8(up[2]);
+		up[2] = byterev_8(up[1]);
+		up[1] = tmp;
+		break;
+	}
+
+>>>>>>> upstream/android-13
 #endif
 	default:
 		WARN_ON_ONCE(1);
@@ -670,6 +759,11 @@ void emulate_vsx_load(struct instruction_op *op, union vsx_reg *reg,
 	reg->d[0] = reg->d[1] = 0;
 
 	switch (op->element_size) {
+<<<<<<< HEAD
+=======
+	case 32:
+		/* [p]lxvp[x] */
+>>>>>>> upstream/android-13
 	case 16:
 		/* whole vector; lxv[x] or lxvl[l] */
 		if (size == 0)
@@ -678,7 +772,11 @@ void emulate_vsx_load(struct instruction_op *op, union vsx_reg *reg,
 		if (IS_LE && (op->vsx_flags & VSX_LDLEFT))
 			rev = !rev;
 		if (rev)
+<<<<<<< HEAD
 			do_byte_reverse(reg, 16);
+=======
+			do_byte_reverse(reg, size);
+>>>>>>> upstream/android-13
 		break;
 	case 8:
 		/* scalar loads, lxvd2x, lxvdsx */
@@ -754,6 +852,25 @@ void emulate_vsx_store(struct instruction_op *op, const union vsx_reg *reg,
 	size = GETSIZE(op->type);
 
 	switch (op->element_size) {
+<<<<<<< HEAD
+=======
+	case 32:
+		/* [p]stxvp[x] */
+		if (size == 0)
+			break;
+		if (rev) {
+			/* reverse 32 bytes */
+			union vsx_reg buf32[2];
+			buf32[0].d[0] = byterev_8(reg[1].d[1]);
+			buf32[0].d[1] = byterev_8(reg[1].d[0]);
+			buf32[1].d[0] = byterev_8(reg[0].d[1]);
+			buf32[1].d[1] = byterev_8(reg[0].d[0]);
+			memcpy(mem, buf32, size);
+		} else {
+			memcpy(mem, reg, size);
+		}
+		break;
+>>>>>>> upstream/android-13
 	case 16:
 		/* stxv, stxvx, stxvl, stxvll */
 		if (size == 0)
@@ -822,18 +939,30 @@ static nokprobe_inline int do_vsx_load(struct instruction_op *op,
 				       bool cross_endian)
 {
 	int reg = op->reg;
+<<<<<<< HEAD
 	u8 mem[16];
 	union vsx_reg buf;
+=======
+	int i, j, nr_vsx_regs;
+	u8 mem[32];
+	union vsx_reg buf[2];
+>>>>>>> upstream/android-13
 	int size = GETSIZE(op->type);
 
 	if (!address_ok(regs, ea, size) || copy_mem_in(mem, ea, size, regs))
 		return -EFAULT;
 
+<<<<<<< HEAD
 	emulate_vsx_load(op, &buf, mem, cross_endian);
+=======
+	nr_vsx_regs = max(1ul, size / sizeof(__vector128));
+	emulate_vsx_load(op, buf, mem, cross_endian);
+>>>>>>> upstream/android-13
 	preempt_disable();
 	if (reg < 32) {
 		/* FP regs + extensions */
 		if (regs->msr & MSR_FP) {
+<<<<<<< HEAD
 			load_vsrn(reg, &buf);
 		} else {
 			current->thread.fp_state.fpr[reg][0] = buf.d[0];
@@ -844,6 +973,31 @@ static nokprobe_inline int do_vsx_load(struct instruction_op *op,
 			load_vsrn(reg, &buf);
 		else
 			current->thread.vr_state.vr[reg - 32] = buf.v;
+=======
+			for (i = 0; i < nr_vsx_regs; i++) {
+				j = IS_LE ? nr_vsx_regs - i - 1 : i;
+				load_vsrn(reg + i, &buf[j].v);
+			}
+		} else {
+			for (i = 0; i < nr_vsx_regs; i++) {
+				j = IS_LE ? nr_vsx_regs - i - 1 : i;
+				current->thread.fp_state.fpr[reg + i][0] = buf[j].d[0];
+				current->thread.fp_state.fpr[reg + i][1] = buf[j].d[1];
+			}
+		}
+	} else {
+		if (regs->msr & MSR_VEC) {
+			for (i = 0; i < nr_vsx_regs; i++) {
+				j = IS_LE ? nr_vsx_regs - i - 1 : i;
+				load_vsrn(reg + i, &buf[j].v);
+			}
+		} else {
+			for (i = 0; i < nr_vsx_regs; i++) {
+				j = IS_LE ? nr_vsx_regs - i - 1 : i;
+				current->thread.vr_state.vr[reg - 32 + i] = buf[j].v;
+			}
+		}
+>>>>>>> upstream/android-13
 	}
 	preempt_enable();
 	return 0;
@@ -854,17 +1008,28 @@ static nokprobe_inline int do_vsx_store(struct instruction_op *op,
 					bool cross_endian)
 {
 	int reg = op->reg;
+<<<<<<< HEAD
 	u8 mem[16];
 	union vsx_reg buf;
+=======
+	int i, j, nr_vsx_regs;
+	u8 mem[32];
+	union vsx_reg buf[2];
+>>>>>>> upstream/android-13
 	int size = GETSIZE(op->type);
 
 	if (!address_ok(regs, ea, size))
 		return -EFAULT;
 
+<<<<<<< HEAD
+=======
+	nr_vsx_regs = max(1ul, size / sizeof(__vector128));
+>>>>>>> upstream/android-13
 	preempt_disable();
 	if (reg < 32) {
 		/* FP regs + extensions */
 		if (regs->msr & MSR_FP) {
+<<<<<<< HEAD
 			store_vsrn(reg, &buf);
 		} else {
 			buf.d[0] = current->thread.fp_state.fpr[reg][0];
@@ -878,6 +1043,34 @@ static nokprobe_inline int do_vsx_store(struct instruction_op *op,
 	}
 	preempt_enable();
 	emulate_vsx_store(op, &buf, mem, cross_endian);
+=======
+			for (i = 0; i < nr_vsx_regs; i++) {
+				j = IS_LE ? nr_vsx_regs - i - 1 : i;
+				store_vsrn(reg + i, &buf[j].v);
+			}
+		} else {
+			for (i = 0; i < nr_vsx_regs; i++) {
+				j = IS_LE ? nr_vsx_regs - i - 1 : i;
+				buf[j].d[0] = current->thread.fp_state.fpr[reg + i][0];
+				buf[j].d[1] = current->thread.fp_state.fpr[reg + i][1];
+			}
+		}
+	} else {
+		if (regs->msr & MSR_VEC) {
+			for (i = 0; i < nr_vsx_regs; i++) {
+				j = IS_LE ? nr_vsx_regs - i - 1 : i;
+				store_vsrn(reg + i, &buf[j].v);
+			}
+		} else {
+			for (i = 0; i < nr_vsx_regs; i++) {
+				j = IS_LE ? nr_vsx_regs - i - 1 : i;
+				buf[j].v = current->thread.vr_state.vr[reg - 32 + i];
+			}
+		}
+	}
+	preempt_enable();
+	emulate_vsx_store(op, buf, mem, cross_endian);
+>>>>>>> upstream/android-13
 	return  copy_mem_out(mem, ea, size, regs);
 }
 #endif /* CONFIG_VSX */
@@ -910,7 +1103,14 @@ NOKPROBE_SYMBOL(emulate_dcbz);
 
 #define __put_user_asmx(x, addr, err, op, cr)		\
 	__asm__ __volatile__(				\
+<<<<<<< HEAD
 		"1:	" op " %2,0,%3\n"		\
+=======
+		".machine push\n"			\
+		".machine power8\n"			\
+		"1:	" op " %2,0,%3\n"		\
+		".machine pop\n"			\
+>>>>>>> upstream/android-13
 		"	mfcr	%1\n"			\
 		"2:\n"					\
 		".section .fixup,\"ax\"\n"		\
@@ -923,7 +1123,14 @@ NOKPROBE_SYMBOL(emulate_dcbz);
 
 #define __get_user_asmx(x, addr, err, op)		\
 	__asm__ __volatile__(				\
+<<<<<<< HEAD
 		"1:	"op" %1,0,%2\n"			\
+=======
+		".machine push\n"			\
+		".machine power8\n"			\
+		"1:	"op" %1,0,%2\n"			\
+		".machine pop\n"			\
+>>>>>>> upstream/android-13
 		"2:\n"					\
 		".section .fixup,\"ax\"\n"		\
 		"3:	li	%0,%3\n"		\
@@ -1167,6 +1374,7 @@ static nokprobe_inline int trap_compare(long v1, long v2)
  * otherwise.
  */
 int analyse_instr(struct instruction_op *op, const struct pt_regs *regs,
+<<<<<<< HEAD
 		  unsigned int instr)
 {
 	unsigned int opcode, ra, rb, rd, spr, u;
@@ -1188,18 +1396,60 @@ int analyse_instr(struct instruction_op *op, const struct pt_regs *regs,
 		if (instr & 1)
 			op->type |= SETLK;
 		if (branch_taken(instr, regs, op))
+=======
+		  struct ppc_inst instr)
+{
+#ifdef CONFIG_PPC64
+	unsigned int suffixopcode, prefixtype, prefix_r;
+#endif
+	unsigned int opcode, ra, rb, rc, rd, spr, u;
+	unsigned long int imm;
+	unsigned long int val, val2;
+	unsigned int mb, me, sh;
+	unsigned int word, suffix;
+	long ival;
+
+	word = ppc_inst_val(instr);
+	suffix = ppc_inst_suffix(instr);
+
+	op->type = COMPUTE;
+
+	opcode = ppc_inst_primary_opcode(instr);
+	switch (opcode) {
+	case 16:	/* bc */
+		op->type = BRANCH;
+		imm = (signed short)(word & 0xfffc);
+		if ((word & 2) == 0)
+			imm += regs->nip;
+		op->val = truncate_if_32bit(regs->msr, imm);
+		if (word & 1)
+			op->type |= SETLK;
+		if (branch_taken(word, regs, op))
+>>>>>>> upstream/android-13
 			op->type |= BRTAKEN;
 		return 1;
 #ifdef CONFIG_PPC64
 	case 17:	/* sc */
+<<<<<<< HEAD
 		if ((instr & 0xfe2) == 2)
 			op->type = SYSCALL;
 		else
+=======
+		if ((word & 0xfe2) == 2)
+			op->type = SYSCALL;
+		else if (IS_ENABLED(CONFIG_PPC_BOOK3S_64) &&
+				(word & 0xfe3) == 1) {	/* scv */
+			op->type = SYSCALL_VECTORED_0;
+			if (!cpu_has_feature(CPU_FTR_ARCH_300))
+				goto unknown_opcode;
+		} else
+>>>>>>> upstream/android-13
 			op->type = UNKNOWN;
 		return 0;
 #endif
 	case 18:	/* b */
 		op->type = BRANCH | BRTAKEN;
+<<<<<<< HEAD
 		imm = instr & 0x03fffffc;
 		if (imm & 0x02000000)
 			imm -= 0x04000000;
@@ -1215,6 +1465,23 @@ int analyse_instr(struct instruction_op *op, const struct pt_regs *regs,
 			op->type = COMPUTE + SETCC;
 			rd = 7 - ((instr >> 23) & 0x7);
 			ra = 7 - ((instr >> 18) & 0x7);
+=======
+		imm = word & 0x03fffffc;
+		if (imm & 0x02000000)
+			imm -= 0x04000000;
+		if ((word & 2) == 0)
+			imm += regs->nip;
+		op->val = truncate_if_32bit(regs->msr, imm);
+		if (word & 1)
+			op->type |= SETLK;
+		return 1;
+	case 19:
+		switch ((word >> 1) & 0x3ff) {
+		case 0:		/* mcrf */
+			op->type = COMPUTE + SETCC;
+			rd = 7 - ((word >> 23) & 0x7);
+			ra = 7 - ((word >> 18) & 0x7);
+>>>>>>> upstream/android-13
 			rd *= 4;
 			ra *= 4;
 			val = (regs->ccr >> ra) & 0xf;
@@ -1224,11 +1491,19 @@ int analyse_instr(struct instruction_op *op, const struct pt_regs *regs,
 		case 16:	/* bclr */
 		case 528:	/* bcctr */
 			op->type = BRANCH;
+<<<<<<< HEAD
 			imm = (instr & 0x400)? regs->ctr: regs->link;
 			op->val = truncate_if_32bit(regs->msr, imm);
 			if (instr & 1)
 				op->type |= SETLK;
 			if (branch_taken(instr, regs, op))
+=======
+			imm = (word & 0x400)? regs->ctr: regs->link;
+			op->val = truncate_if_32bit(regs->msr, imm);
+			if (word & 1)
+				op->type |= SETLK;
+			if (branch_taken(word, regs, op))
+>>>>>>> upstream/android-13
 				op->type |= BRTAKEN;
 			return 1;
 
@@ -1251,23 +1526,40 @@ int analyse_instr(struct instruction_op *op, const struct pt_regs *regs,
 		case 417:	/* crorc */
 		case 449:	/* cror */
 			op->type = COMPUTE + SETCC;
+<<<<<<< HEAD
 			ra = (instr >> 16) & 0x1f;
 			rb = (instr >> 11) & 0x1f;
 			rd = (instr >> 21) & 0x1f;
 			ra = (regs->ccr >> (31 - ra)) & 1;
 			rb = (regs->ccr >> (31 - rb)) & 1;
 			val = (instr >> (6 + ra * 2 + rb)) & 1;
+=======
+			ra = (word >> 16) & 0x1f;
+			rb = (word >> 11) & 0x1f;
+			rd = (word >> 21) & 0x1f;
+			ra = (regs->ccr >> (31 - ra)) & 1;
+			rb = (regs->ccr >> (31 - rb)) & 1;
+			val = (word >> (6 + ra * 2 + rb)) & 1;
+>>>>>>> upstream/android-13
 			op->ccval = (regs->ccr & ~(1UL << (31 - rd))) |
 				(val << (31 - rd));
 			return 1;
 		}
 		break;
 	case 31:
+<<<<<<< HEAD
 		switch ((instr >> 1) & 0x3ff) {
 		case 598:	/* sync */
 			op->type = BARRIER + BARRIER_SYNC;
 #ifdef __powerpc64__
 			switch ((instr >> 21) & 3) {
+=======
+		switch ((word >> 1) & 0x3ff) {
+		case 598:	/* sync */
+			op->type = BARRIER + BARRIER_SYNC;
+#ifdef __powerpc64__
+			switch ((word >> 21) & 3) {
+>>>>>>> upstream/android-13
 			case 1:		/* lwsync */
 				op->type = BARRIER + BARRIER_LWSYNC;
 				break;
@@ -1285,6 +1577,7 @@ int analyse_instr(struct instruction_op *op, const struct pt_regs *regs,
 		break;
 	}
 
+<<<<<<< HEAD
 	/* Following cases refer to regs->gpr[], so we need all regs */
 	if (!FULL_REGS(regs))
 		return -1;
@@ -1297,10 +1590,45 @@ int analyse_instr(struct instruction_op *op, const struct pt_regs *regs,
 #ifdef __powerpc64__
 	case 2:		/* tdi */
 		if (rd & trap_compare(regs->gpr[ra], (short) instr))
+=======
+	rd = (word >> 21) & 0x1f;
+	ra = (word >> 16) & 0x1f;
+	rb = (word >> 11) & 0x1f;
+	rc = (word >> 6) & 0x1f;
+
+	switch (opcode) {
+#ifdef __powerpc64__
+	case 1:
+		if (!cpu_has_feature(CPU_FTR_ARCH_31))
+			goto unknown_opcode;
+
+		prefix_r = GET_PREFIX_R(word);
+		ra = GET_PREFIX_RA(suffix);
+		rd = (suffix >> 21) & 0x1f;
+		op->reg = rd;
+		op->val = regs->gpr[rd];
+		suffixopcode = get_op(suffix);
+		prefixtype = (word >> 24) & 0x3;
+		switch (prefixtype) {
+		case 2:
+			if (prefix_r && ra)
+				return 0;
+			switch (suffixopcode) {
+			case 14:	/* paddi */
+				op->type = COMPUTE | PREFIXED;
+				op->val = mlsd_8lsd_ea(word, suffix, regs);
+				goto compute_done;
+			}
+		}
+		break;
+	case 2:		/* tdi */
+		if (rd & trap_compare(regs->gpr[ra], (short) word))
+>>>>>>> upstream/android-13
 			goto trap;
 		return 1;
 #endif
 	case 3:		/* twi */
+<<<<<<< HEAD
 		if (rd & trap_compare((int)regs->gpr[ra], (short) instr))
 			goto trap;
 		return 1;
@@ -1311,11 +1639,64 @@ int analyse_instr(struct instruction_op *op, const struct pt_regs *regs,
 
 	case 8:		/* subfic */
 		imm = (short) instr;
+=======
+		if (rd & trap_compare((int)regs->gpr[ra], (short) word))
+			goto trap;
+		return 1;
+
+#ifdef __powerpc64__
+	case 4:
+		/*
+		 * There are very many instructions with this primary opcode
+		 * introduced in the ISA as early as v2.03. However, the ones
+		 * we currently emulate were all introduced with ISA 3.0
+		 */
+		if (!cpu_has_feature(CPU_FTR_ARCH_300))
+			goto unknown_opcode;
+
+		switch (word & 0x3f) {
+		case 48:	/* maddhd */
+			asm volatile(PPC_MADDHD(%0, %1, %2, %3) :
+				     "=r" (op->val) : "r" (regs->gpr[ra]),
+				     "r" (regs->gpr[rb]), "r" (regs->gpr[rc]));
+			goto compute_done;
+
+		case 49:	/* maddhdu */
+			asm volatile(PPC_MADDHDU(%0, %1, %2, %3) :
+				     "=r" (op->val) : "r" (regs->gpr[ra]),
+				     "r" (regs->gpr[rb]), "r" (regs->gpr[rc]));
+			goto compute_done;
+
+		case 51:	/* maddld */
+			asm volatile(PPC_MADDLD(%0, %1, %2, %3) :
+				     "=r" (op->val) : "r" (regs->gpr[ra]),
+				     "r" (regs->gpr[rb]), "r" (regs->gpr[rc]));
+			goto compute_done;
+		}
+
+		/*
+		 * There are other instructions from ISA 3.0 with the same
+		 * primary opcode which do not have emulation support yet.
+		 */
+		goto unknown_opcode;
+#endif
+
+	case 7:		/* mulli */
+		op->val = regs->gpr[ra] * (short) word;
+		goto compute_done;
+
+	case 8:		/* subfic */
+		imm = (short) word;
+>>>>>>> upstream/android-13
 		add_with_carry(regs, op, rd, ~regs->gpr[ra], imm, 1);
 		return 1;
 
 	case 10:	/* cmpli */
+<<<<<<< HEAD
 		imm = (unsigned short) instr;
+=======
+		imm = (unsigned short) word;
+>>>>>>> upstream/android-13
 		val = regs->gpr[ra];
 #ifdef __powerpc64__
 		if ((rd & 1) == 0)
@@ -1325,7 +1706,11 @@ int analyse_instr(struct instruction_op *op, const struct pt_regs *regs,
 		return 1;
 
 	case 11:	/* cmpi */
+<<<<<<< HEAD
 		imm = (short) instr;
+=======
+		imm = (short) word;
+>>>>>>> upstream/android-13
 		val = regs->gpr[ra];
 #ifdef __powerpc64__
 		if ((rd & 1) == 0)
@@ -1335,35 +1720,60 @@ int analyse_instr(struct instruction_op *op, const struct pt_regs *regs,
 		return 1;
 
 	case 12:	/* addic */
+<<<<<<< HEAD
 		imm = (short) instr;
+=======
+		imm = (short) word;
+>>>>>>> upstream/android-13
 		add_with_carry(regs, op, rd, regs->gpr[ra], imm, 0);
 		return 1;
 
 	case 13:	/* addic. */
+<<<<<<< HEAD
 		imm = (short) instr;
+=======
+		imm = (short) word;
+>>>>>>> upstream/android-13
 		add_with_carry(regs, op, rd, regs->gpr[ra], imm, 0);
 		set_cr0(regs, op);
 		return 1;
 
 	case 14:	/* addi */
+<<<<<<< HEAD
 		imm = (short) instr;
+=======
+		imm = (short) word;
+>>>>>>> upstream/android-13
 		if (ra)
 			imm += regs->gpr[ra];
 		op->val = imm;
 		goto compute_done;
 
 	case 15:	/* addis */
+<<<<<<< HEAD
 		imm = ((short) instr) << 16;
+=======
+		imm = ((short) word) << 16;
+>>>>>>> upstream/android-13
 		if (ra)
 			imm += regs->gpr[ra];
 		op->val = imm;
 		goto compute_done;
 
 	case 19:
+<<<<<<< HEAD
 		if (((instr >> 1) & 0x1f) == 2) {
 			/* addpcis */
 			imm = (short) (instr & 0xffc1);	/* d0 + d2 fields */
 			imm |= (instr >> 15) & 0x3e;	/* d1 field */
+=======
+		if (((word >> 1) & 0x1f) == 2) {
+			/* addpcis */
+			if (!cpu_has_feature(CPU_FTR_ARCH_300))
+				goto unknown_opcode;
+			imm = (short) (word & 0xffc1);	/* d0 + d2 fields */
+			imm |= (word >> 15) & 0x3e;	/* d1 field */
+>>>>>>> upstream/android-13
 			op->val = regs->nip + (imm << 16) + 4;
 			goto compute_done;
 		}
@@ -1371,65 +1781,113 @@ int analyse_instr(struct instruction_op *op, const struct pt_regs *regs,
 		return 0;
 
 	case 20:	/* rlwimi */
+<<<<<<< HEAD
 		mb = (instr >> 6) & 0x1f;
 		me = (instr >> 1) & 0x1f;
+=======
+		mb = (word >> 6) & 0x1f;
+		me = (word >> 1) & 0x1f;
+>>>>>>> upstream/android-13
 		val = DATA32(regs->gpr[rd]);
 		imm = MASK32(mb, me);
 		op->val = (regs->gpr[ra] & ~imm) | (ROTATE(val, rb) & imm);
 		goto logical_done;
 
 	case 21:	/* rlwinm */
+<<<<<<< HEAD
 		mb = (instr >> 6) & 0x1f;
 		me = (instr >> 1) & 0x1f;
+=======
+		mb = (word >> 6) & 0x1f;
+		me = (word >> 1) & 0x1f;
+>>>>>>> upstream/android-13
 		val = DATA32(regs->gpr[rd]);
 		op->val = ROTATE(val, rb) & MASK32(mb, me);
 		goto logical_done;
 
 	case 23:	/* rlwnm */
+<<<<<<< HEAD
 		mb = (instr >> 6) & 0x1f;
 		me = (instr >> 1) & 0x1f;
+=======
+		mb = (word >> 6) & 0x1f;
+		me = (word >> 1) & 0x1f;
+>>>>>>> upstream/android-13
 		rb = regs->gpr[rb] & 0x1f;
 		val = DATA32(regs->gpr[rd]);
 		op->val = ROTATE(val, rb) & MASK32(mb, me);
 		goto logical_done;
 
 	case 24:	/* ori */
+<<<<<<< HEAD
 		op->val = regs->gpr[rd] | (unsigned short) instr;
 		goto logical_done_nocc;
 
 	case 25:	/* oris */
 		imm = (unsigned short) instr;
+=======
+		op->val = regs->gpr[rd] | (unsigned short) word;
+		goto logical_done_nocc;
+
+	case 25:	/* oris */
+		imm = (unsigned short) word;
+>>>>>>> upstream/android-13
 		op->val = regs->gpr[rd] | (imm << 16);
 		goto logical_done_nocc;
 
 	case 26:	/* xori */
+<<<<<<< HEAD
 		op->val = regs->gpr[rd] ^ (unsigned short) instr;
 		goto logical_done_nocc;
 
 	case 27:	/* xoris */
 		imm = (unsigned short) instr;
+=======
+		op->val = regs->gpr[rd] ^ (unsigned short) word;
+		goto logical_done_nocc;
+
+	case 27:	/* xoris */
+		imm = (unsigned short) word;
+>>>>>>> upstream/android-13
 		op->val = regs->gpr[rd] ^ (imm << 16);
 		goto logical_done_nocc;
 
 	case 28:	/* andi. */
+<<<<<<< HEAD
 		op->val = regs->gpr[rd] & (unsigned short) instr;
+=======
+		op->val = regs->gpr[rd] & (unsigned short) word;
+>>>>>>> upstream/android-13
 		set_cr0(regs, op);
 		goto logical_done_nocc;
 
 	case 29:	/* andis. */
+<<<<<<< HEAD
 		imm = (unsigned short) instr;
+=======
+		imm = (unsigned short) word;
+>>>>>>> upstream/android-13
 		op->val = regs->gpr[rd] & (imm << 16);
 		set_cr0(regs, op);
 		goto logical_done_nocc;
 
 #ifdef __powerpc64__
 	case 30:	/* rld* */
+<<<<<<< HEAD
 		mb = ((instr >> 6) & 0x1f) | (instr & 0x20);
 		val = regs->gpr[rd];
 		if ((instr & 0x10) == 0) {
 			sh = rb | ((instr & 2) << 4);
 			val = ROTATE(val, sh);
 			switch ((instr >> 2) & 3) {
+=======
+		mb = ((word >> 6) & 0x1f) | (word & 0x20);
+		val = regs->gpr[rd];
+		if ((word & 0x10) == 0) {
+			sh = rb | ((word & 2) << 4);
+			val = ROTATE(val, sh);
+			switch ((word >> 2) & 3) {
+>>>>>>> upstream/android-13
 			case 0:		/* rldicl */
 				val &= MASK64_L(mb);
 				break;
@@ -1449,7 +1907,11 @@ int analyse_instr(struct instruction_op *op, const struct pt_regs *regs,
 		} else {
 			sh = regs->gpr[rb] & 0x3f;
 			val = ROTATE(val, sh);
+<<<<<<< HEAD
 			switch ((instr >> 1) & 7) {
+=======
+			switch ((word >> 1) & 7) {
+>>>>>>> upstream/android-13
 			case 0:		/* rldcl */
 				op->val = val & MASK64_L(mb);
 				goto logical_done;
@@ -1464,8 +1926,13 @@ int analyse_instr(struct instruction_op *op, const struct pt_regs *regs,
 
 	case 31:
 		/* isel occupies 32 minor opcodes */
+<<<<<<< HEAD
 		if (((instr >> 1) & 0x1f) == 15) {
 			mb = (instr >> 6) & 0x1f; /* bc field */
+=======
+		if (((word >> 1) & 0x1f) == 15) {
+			mb = (word >> 6) & 0x1f; /* bc field */
+>>>>>>> upstream/android-13
 			val = (regs->ccr >> (31 - mb)) & 1;
 			val2 = (ra) ? regs->gpr[ra] : 0;
 
@@ -1473,7 +1940,11 @@ int analyse_instr(struct instruction_op *op, const struct pt_regs *regs,
 			goto compute_done;
 		}
 
+<<<<<<< HEAD
 		switch ((instr >> 1) & 0x3ff) {
+=======
+		switch ((word >> 1) & 0x3ff) {
+>>>>>>> upstream/android-13
 		case 4:		/* tw */
 			if (rd == 0x1f ||
 			    (rd & trap_compare((int)regs->gpr[ra],
@@ -1507,17 +1978,28 @@ int analyse_instr(struct instruction_op *op, const struct pt_regs *regs,
 			op->reg = rd;
 			/* only MSR_EE and MSR_RI get changed if bit 15 set */
 			/* mtmsrd doesn't change MSR_HV, MSR_ME or MSR_LE */
+<<<<<<< HEAD
 			imm = (instr & 0x10000)? 0x8002: 0xefffffffffffeffeUL;
+=======
+			imm = (word & 0x10000)? 0x8002: 0xefffffffffffeffeUL;
+>>>>>>> upstream/android-13
 			op->val = imm;
 			return 0;
 #endif
 
 		case 19:	/* mfcr */
 			imm = 0xffffffffUL;
+<<<<<<< HEAD
 			if ((instr >> 20) & 1) {
 				imm = 0xf0000000UL;
 				for (sh = 0; sh < 8; ++sh) {
 					if (instr & (0x80000 >> sh))
+=======
+			if ((word >> 20) & 1) {
+				imm = 0xf0000000UL;
+				for (sh = 0; sh < 8; ++sh) {
+					if (word & (0x80000 >> sh))
+>>>>>>> upstream/android-13
 						break;
 					imm >>= 4;
 				}
@@ -1525,13 +2007,42 @@ int analyse_instr(struct instruction_op *op, const struct pt_regs *regs,
 			op->val = regs->ccr & imm;
 			goto compute_done;
 
+<<<<<<< HEAD
+=======
+		case 128:	/* setb */
+			if (!cpu_has_feature(CPU_FTR_ARCH_300))
+				goto unknown_opcode;
+			/*
+			 * 'ra' encodes the CR field number (bfa) in the top 3 bits.
+			 * Since each CR field is 4 bits,
+			 * we can simply mask off the bottom two bits (bfa * 4)
+			 * to yield the first bit in the CR field.
+			 */
+			ra = ra & ~0x3;
+			/* 'val' stores bits of the CR field (bfa) */
+			val = regs->ccr >> (CR0_SHIFT - ra);
+			/* checks if the LT bit of CR field (bfa) is set */
+			if (val & 8)
+				op->val = -1;
+			/* checks if the GT bit of CR field (bfa) is set */
+			else if (val & 4)
+				op->val = 1;
+			else
+				op->val = 0;
+			goto compute_done;
+
+>>>>>>> upstream/android-13
 		case 144:	/* mtcrf */
 			op->type = COMPUTE + SETCC;
 			imm = 0xf0000000UL;
 			val = regs->gpr[rd];
 			op->ccval = regs->ccr;
 			for (sh = 0; sh < 8; ++sh) {
+<<<<<<< HEAD
 				if (instr & (0x80000 >> sh))
+=======
+				if (word & (0x80000 >> sh))
+>>>>>>> upstream/android-13
 					op->ccval = (op->ccval & ~imm) |
 						(val & imm);
 				imm >>= 4;
@@ -1539,7 +2050,11 @@ int analyse_instr(struct instruction_op *op, const struct pt_regs *regs,
 			return 1;
 
 		case 339:	/* mfspr */
+<<<<<<< HEAD
 			spr = ((instr >> 16) & 0x1f) | ((instr >> 6) & 0x3e0);
+=======
+			spr = ((word >> 16) & 0x1f) | ((word >> 6) & 0x3e0);
+>>>>>>> upstream/android-13
 			op->type = MFSPR;
 			op->reg = rd;
 			op->spr = spr;
@@ -1549,7 +2064,11 @@ int analyse_instr(struct instruction_op *op, const struct pt_regs *regs,
 			return 0;
 
 		case 467:	/* mtspr */
+<<<<<<< HEAD
 			spr = ((instr >> 16) & 0x1f) | ((instr >> 6) & 0x3e0);
+=======
+			spr = ((word >> 16) & 0x1f) | ((word >> 6) & 0x3e0);
+>>>>>>> upstream/android-13
 			op->type = MTSPR;
 			op->val = regs->gpr[rd];
 			op->spr = spr;
@@ -1671,10 +2190,30 @@ int analyse_instr(struct instruction_op *op, const struct pt_regs *regs,
 				(int) regs->gpr[rb];
 
 			goto arith_done;
+<<<<<<< HEAD
 
 		case 266:	/* add */
 			op->val = regs->gpr[ra] + regs->gpr[rb];
 			goto arith_done;
+=======
+#ifdef __powerpc64__
+		case 265:	/* modud */
+			if (!cpu_has_feature(CPU_FTR_ARCH_300))
+				goto unknown_opcode;
+			op->val = regs->gpr[ra] % regs->gpr[rb];
+			goto compute_done;
+#endif
+		case 266:	/* add */
+			op->val = regs->gpr[ra] + regs->gpr[rb];
+			goto arith_done;
+
+		case 267:	/* moduw */
+			if (!cpu_has_feature(CPU_FTR_ARCH_300))
+				goto unknown_opcode;
+			op->val = (unsigned int) regs->gpr[ra] %
+				(unsigned int) regs->gpr[rb];
+			goto compute_done;
+>>>>>>> upstream/android-13
 #ifdef __powerpc64__
 		case 457:	/* divdu */
 			op->val = regs->gpr[ra] / regs->gpr[rb];
@@ -1694,6 +2233,56 @@ int analyse_instr(struct instruction_op *op, const struct pt_regs *regs,
 			op->val = (int) regs->gpr[ra] /
 				(int) regs->gpr[rb];
 			goto arith_done;
+<<<<<<< HEAD
+=======
+#ifdef __powerpc64__
+		case 425:	/* divde[.] */
+			asm volatile(PPC_DIVDE(%0, %1, %2) :
+				"=r" (op->val) : "r" (regs->gpr[ra]),
+				"r" (regs->gpr[rb]));
+			goto arith_done;
+		case 393:	/* divdeu[.] */
+			asm volatile(PPC_DIVDEU(%0, %1, %2) :
+				"=r" (op->val) : "r" (regs->gpr[ra]),
+				"r" (regs->gpr[rb]));
+			goto arith_done;
+#endif
+		case 755:	/* darn */
+			if (!cpu_has_feature(CPU_FTR_ARCH_300))
+				goto unknown_opcode;
+			switch (ra & 0x3) {
+			case 0:
+				/* 32-bit conditioned */
+				asm volatile(PPC_DARN(%0, 0) : "=r" (op->val));
+				goto compute_done;
+
+			case 1:
+				/* 64-bit conditioned */
+				asm volatile(PPC_DARN(%0, 1) : "=r" (op->val));
+				goto compute_done;
+
+			case 2:
+				/* 64-bit raw */
+				asm volatile(PPC_DARN(%0, 2) : "=r" (op->val));
+				goto compute_done;
+			}
+
+			goto unknown_opcode;
+#ifdef __powerpc64__
+		case 777:	/* modsd */
+			if (!cpu_has_feature(CPU_FTR_ARCH_300))
+				goto unknown_opcode;
+			op->val = (long int) regs->gpr[ra] %
+				(long int) regs->gpr[rb];
+			goto compute_done;
+#endif
+		case 779:	/* modsw */
+			if (!cpu_has_feature(CPU_FTR_ARCH_300))
+				goto unknown_opcode;
+			op->val = (int) regs->gpr[ra] %
+				(int) regs->gpr[rb];
+			goto compute_done;
+>>>>>>> upstream/android-13
 
 
 /*
@@ -1765,6 +2354,23 @@ int analyse_instr(struct instruction_op *op, const struct pt_regs *regs,
 			do_popcnt(regs, op, regs->gpr[rd], 64);
 			goto logical_done_nocc;
 #endif
+<<<<<<< HEAD
+=======
+		case 538:	/* cnttzw */
+			if (!cpu_has_feature(CPU_FTR_ARCH_300))
+				goto unknown_opcode;
+			val = (unsigned int) regs->gpr[rd];
+			op->val = (val ? __builtin_ctz(val) : 32);
+			goto logical_done;
+#ifdef __powerpc64__
+		case 570:	/* cnttzd */
+			if (!cpu_has_feature(CPU_FTR_ARCH_300))
+				goto unknown_opcode;
+			val = regs->gpr[rd];
+			op->val = (val ? __builtin_ctzl(val) : 64);
+			goto logical_done;
+#endif
+>>>>>>> upstream/android-13
 		case 922:	/* extsh */
 			op->val = (signed short) regs->gpr[rd];
 			goto logical_done;
@@ -1856,7 +2462,11 @@ int analyse_instr(struct instruction_op *op, const struct pt_regs *regs,
 		case 826:	/* sradi with sh_5 = 0 */
 		case 827:	/* sradi with sh_5 = 1 */
 			op->type = COMPUTE + SETREG + SETXER;
+<<<<<<< HEAD
 			sh = rb | ((instr & 2) << 4);
+=======
+			sh = rb | ((word & 2) << 4);
+>>>>>>> upstream/android-13
 			ival = (signed long int) regs->gpr[rd];
 			op->val = ival >> sh;
 			op->xerval = regs->xer;
@@ -1866,6 +2476,23 @@ int analyse_instr(struct instruction_op *op, const struct pt_regs *regs,
 				op->xerval &= ~XER_CA;
 			set_ca32(op, op->xerval & XER_CA);
 			goto logical_done;
+<<<<<<< HEAD
+=======
+
+		case 890:	/* extswsli with sh_5 = 0 */
+		case 891:	/* extswsli with sh_5 = 1 */
+			if (!cpu_has_feature(CPU_FTR_ARCH_300))
+				goto unknown_opcode;
+			op->type = COMPUTE + SETREG;
+			sh = rb | ((word & 2) << 4);
+			val = (signed int) regs->gpr[rd];
+			if (sh)
+				op->val = ROTATE(val, sh) & MASK64(0, 63 - sh);
+			else
+				op->val = val;
+			goto logical_done;
+
+>>>>>>> upstream/android-13
 #endif /* __powerpc64__ */
 
 /*
@@ -1873,34 +2500,58 @@ int analyse_instr(struct instruction_op *op, const struct pt_regs *regs,
  */
 		case 54:	/* dcbst */
 			op->type = MKOP(CACHEOP, DCBST, 0);
+<<<<<<< HEAD
 			op->ea = xform_ea(instr, regs);
+=======
+			op->ea = xform_ea(word, regs);
+>>>>>>> upstream/android-13
 			return 0;
 
 		case 86:	/* dcbf */
 			op->type = MKOP(CACHEOP, DCBF, 0);
+<<<<<<< HEAD
 			op->ea = xform_ea(instr, regs);
+=======
+			op->ea = xform_ea(word, regs);
+>>>>>>> upstream/android-13
 			return 0;
 
 		case 246:	/* dcbtst */
 			op->type = MKOP(CACHEOP, DCBTST, 0);
+<<<<<<< HEAD
 			op->ea = xform_ea(instr, regs);
+=======
+			op->ea = xform_ea(word, regs);
+>>>>>>> upstream/android-13
 			op->reg = rd;
 			return 0;
 
 		case 278:	/* dcbt */
 			op->type = MKOP(CACHEOP, DCBTST, 0);
+<<<<<<< HEAD
 			op->ea = xform_ea(instr, regs);
+=======
+			op->ea = xform_ea(word, regs);
+>>>>>>> upstream/android-13
 			op->reg = rd;
 			return 0;
 
 		case 982:	/* icbi */
 			op->type = MKOP(CACHEOP, ICBI, 0);
+<<<<<<< HEAD
 			op->ea = xform_ea(instr, regs);
+=======
+			op->ea = xform_ea(word, regs);
+>>>>>>> upstream/android-13
 			return 0;
 
 		case 1014:	/* dcbz */
 			op->type = MKOP(CACHEOP, DCBZ, 0);
+<<<<<<< HEAD
 			op->ea = xform_ea(instr, regs);
+=======
+			op->ea = xform_ea(word, regs);
+>>>>>>> upstream/android-13
 			return 0;
 		}
 		break;
@@ -1913,14 +2564,24 @@ int analyse_instr(struct instruction_op *op, const struct pt_regs *regs,
 	op->update_reg = ra;
 	op->reg = rd;
 	op->val = regs->gpr[rd];
+<<<<<<< HEAD
 	u = (instr >> 20) & UPDATE;
+=======
+	u = (word >> 20) & UPDATE;
+>>>>>>> upstream/android-13
 	op->vsx_flags = 0;
 
 	switch (opcode) {
 	case 31:
+<<<<<<< HEAD
 		u = instr & UPDATE;
 		op->ea = xform_ea(instr, regs);
 		switch ((instr >> 1) & 0x3ff) {
+=======
+		u = word & UPDATE;
+		op->ea = xform_ea(word, regs);
+		switch ((word >> 1) & 0x3ff) {
+>>>>>>> upstream/android-13
 		case 20:	/* lwarx */
 			op->type = MKOP(LARX, 0, 4);
 			break;
@@ -2165,25 +2826,43 @@ int analyse_instr(struct instruction_op *op, const struct pt_regs *regs,
 
 #ifdef CONFIG_VSX
 		case 12:	/* lxsiwzx */
+<<<<<<< HEAD
 			op->reg = rd | ((instr & 1) << 5);
+=======
+			op->reg = rd | ((word & 1) << 5);
+>>>>>>> upstream/android-13
 			op->type = MKOP(LOAD_VSX, 0, 4);
 			op->element_size = 8;
 			break;
 
 		case 76:	/* lxsiwax */
+<<<<<<< HEAD
 			op->reg = rd | ((instr & 1) << 5);
+=======
+			op->reg = rd | ((word & 1) << 5);
+>>>>>>> upstream/android-13
 			op->type = MKOP(LOAD_VSX, SIGNEXT, 4);
 			op->element_size = 8;
 			break;
 
 		case 140:	/* stxsiwx */
+<<<<<<< HEAD
 			op->reg = rd | ((instr & 1) << 5);
+=======
+			op->reg = rd | ((word & 1) << 5);
+>>>>>>> upstream/android-13
 			op->type = MKOP(STORE_VSX, 0, 4);
 			op->element_size = 8;
 			break;
 
 		case 268:	/* lxvx */
+<<<<<<< HEAD
 			op->reg = rd | ((instr & 1) << 5);
+=======
+			if (!cpu_has_feature(CPU_FTR_ARCH_300))
+				goto unknown_opcode;
+			op->reg = rd | ((word & 1) << 5);
+>>>>>>> upstream/android-13
 			op->type = MKOP(LOAD_VSX, 0, 16);
 			op->element_size = 16;
 			op->vsx_flags = VSX_CHECK_VEC;
@@ -2192,33 +2871,68 @@ int analyse_instr(struct instruction_op *op, const struct pt_regs *regs,
 		case 269:	/* lxvl */
 		case 301: {	/* lxvll */
 			int nb;
+<<<<<<< HEAD
 			op->reg = rd | ((instr & 1) << 5);
+=======
+			if (!cpu_has_feature(CPU_FTR_ARCH_300))
+				goto unknown_opcode;
+			op->reg = rd | ((word & 1) << 5);
+>>>>>>> upstream/android-13
 			op->ea = ra ? regs->gpr[ra] : 0;
 			nb = regs->gpr[rb] & 0xff;
 			if (nb > 16)
 				nb = 16;
 			op->type = MKOP(LOAD_VSX, 0, nb);
 			op->element_size = 16;
+<<<<<<< HEAD
 			op->vsx_flags = ((instr & 0x20) ? VSX_LDLEFT : 0) |
+=======
+			op->vsx_flags = ((word & 0x20) ? VSX_LDLEFT : 0) |
+>>>>>>> upstream/android-13
 				VSX_CHECK_VEC;
 			break;
 		}
 		case 332:	/* lxvdsx */
+<<<<<<< HEAD
 			op->reg = rd | ((instr & 1) << 5);
+=======
+			op->reg = rd | ((word & 1) << 5);
+>>>>>>> upstream/android-13
 			op->type = MKOP(LOAD_VSX, 0, 8);
 			op->element_size = 8;
 			op->vsx_flags = VSX_SPLAT;
 			break;
 
+<<<<<<< HEAD
 		case 364:	/* lxvwsx */
 			op->reg = rd | ((instr & 1) << 5);
+=======
+		case 333:       /* lxvpx */
+			if (!cpu_has_feature(CPU_FTR_ARCH_31))
+				goto unknown_opcode;
+			op->reg = VSX_REGISTER_XTP(rd);
+			op->type = MKOP(LOAD_VSX, 0, 32);
+			op->element_size = 32;
+			break;
+
+		case 364:	/* lxvwsx */
+			if (!cpu_has_feature(CPU_FTR_ARCH_300))
+				goto unknown_opcode;
+			op->reg = rd | ((word & 1) << 5);
+>>>>>>> upstream/android-13
 			op->type = MKOP(LOAD_VSX, 0, 4);
 			op->element_size = 4;
 			op->vsx_flags = VSX_SPLAT | VSX_CHECK_VEC;
 			break;
 
 		case 396:	/* stxvx */
+<<<<<<< HEAD
 			op->reg = rd | ((instr & 1) << 5);
+=======
+			if (!cpu_has_feature(CPU_FTR_ARCH_300))
+				goto unknown_opcode;
+			op->reg = rd | ((word & 1) << 5);
+>>>>>>> upstream/android-13
 			op->type = MKOP(STORE_VSX, 0, 16);
 			op->element_size = 16;
 			op->vsx_flags = VSX_CHECK_VEC;
@@ -2227,118 +2941,216 @@ int analyse_instr(struct instruction_op *op, const struct pt_regs *regs,
 		case 397:	/* stxvl */
 		case 429: {	/* stxvll */
 			int nb;
+<<<<<<< HEAD
 			op->reg = rd | ((instr & 1) << 5);
+=======
+			if (!cpu_has_feature(CPU_FTR_ARCH_300))
+				goto unknown_opcode;
+			op->reg = rd | ((word & 1) << 5);
+>>>>>>> upstream/android-13
 			op->ea = ra ? regs->gpr[ra] : 0;
 			nb = regs->gpr[rb] & 0xff;
 			if (nb > 16)
 				nb = 16;
 			op->type = MKOP(STORE_VSX, 0, nb);
 			op->element_size = 16;
+<<<<<<< HEAD
 			op->vsx_flags = ((instr & 0x20) ? VSX_LDLEFT : 0) |
 				VSX_CHECK_VEC;
 			break;
 		}
 		case 524:	/* lxsspx */
 			op->reg = rd | ((instr & 1) << 5);
+=======
+			op->vsx_flags = ((word & 0x20) ? VSX_LDLEFT : 0) |
+				VSX_CHECK_VEC;
+			break;
+		}
+		case 461:       /* stxvpx */
+			if (!cpu_has_feature(CPU_FTR_ARCH_31))
+				goto unknown_opcode;
+			op->reg = VSX_REGISTER_XTP(rd);
+			op->type = MKOP(STORE_VSX, 0, 32);
+			op->element_size = 32;
+			break;
+		case 524:	/* lxsspx */
+			op->reg = rd | ((word & 1) << 5);
+>>>>>>> upstream/android-13
 			op->type = MKOP(LOAD_VSX, 0, 4);
 			op->element_size = 8;
 			op->vsx_flags = VSX_FPCONV;
 			break;
 
 		case 588:	/* lxsdx */
+<<<<<<< HEAD
 			op->reg = rd | ((instr & 1) << 5);
+=======
+			op->reg = rd | ((word & 1) << 5);
+>>>>>>> upstream/android-13
 			op->type = MKOP(LOAD_VSX, 0, 8);
 			op->element_size = 8;
 			break;
 
 		case 652:	/* stxsspx */
+<<<<<<< HEAD
 			op->reg = rd | ((instr & 1) << 5);
+=======
+			op->reg = rd | ((word & 1) << 5);
+>>>>>>> upstream/android-13
 			op->type = MKOP(STORE_VSX, 0, 4);
 			op->element_size = 8;
 			op->vsx_flags = VSX_FPCONV;
 			break;
 
 		case 716:	/* stxsdx */
+<<<<<<< HEAD
 			op->reg = rd | ((instr & 1) << 5);
+=======
+			op->reg = rd | ((word & 1) << 5);
+>>>>>>> upstream/android-13
 			op->type = MKOP(STORE_VSX, 0, 8);
 			op->element_size = 8;
 			break;
 
 		case 780:	/* lxvw4x */
+<<<<<<< HEAD
 			op->reg = rd | ((instr & 1) << 5);
+=======
+			op->reg = rd | ((word & 1) << 5);
+>>>>>>> upstream/android-13
 			op->type = MKOP(LOAD_VSX, 0, 16);
 			op->element_size = 4;
 			break;
 
 		case 781:	/* lxsibzx */
+<<<<<<< HEAD
 			op->reg = rd | ((instr & 1) << 5);
+=======
+			if (!cpu_has_feature(CPU_FTR_ARCH_300))
+				goto unknown_opcode;
+			op->reg = rd | ((word & 1) << 5);
+>>>>>>> upstream/android-13
 			op->type = MKOP(LOAD_VSX, 0, 1);
 			op->element_size = 8;
 			op->vsx_flags = VSX_CHECK_VEC;
 			break;
 
 		case 812:	/* lxvh8x */
+<<<<<<< HEAD
 			op->reg = rd | ((instr & 1) << 5);
+=======
+			if (!cpu_has_feature(CPU_FTR_ARCH_300))
+				goto unknown_opcode;
+			op->reg = rd | ((word & 1) << 5);
+>>>>>>> upstream/android-13
 			op->type = MKOP(LOAD_VSX, 0, 16);
 			op->element_size = 2;
 			op->vsx_flags = VSX_CHECK_VEC;
 			break;
 
 		case 813:	/* lxsihzx */
+<<<<<<< HEAD
 			op->reg = rd | ((instr & 1) << 5);
+=======
+			if (!cpu_has_feature(CPU_FTR_ARCH_300))
+				goto unknown_opcode;
+			op->reg = rd | ((word & 1) << 5);
+>>>>>>> upstream/android-13
 			op->type = MKOP(LOAD_VSX, 0, 2);
 			op->element_size = 8;
 			op->vsx_flags = VSX_CHECK_VEC;
 			break;
 
 		case 844:	/* lxvd2x */
+<<<<<<< HEAD
 			op->reg = rd | ((instr & 1) << 5);
+=======
+			op->reg = rd | ((word & 1) << 5);
+>>>>>>> upstream/android-13
 			op->type = MKOP(LOAD_VSX, 0, 16);
 			op->element_size = 8;
 			break;
 
 		case 876:	/* lxvb16x */
+<<<<<<< HEAD
 			op->reg = rd | ((instr & 1) << 5);
+=======
+			if (!cpu_has_feature(CPU_FTR_ARCH_300))
+				goto unknown_opcode;
+			op->reg = rd | ((word & 1) << 5);
+>>>>>>> upstream/android-13
 			op->type = MKOP(LOAD_VSX, 0, 16);
 			op->element_size = 1;
 			op->vsx_flags = VSX_CHECK_VEC;
 			break;
 
 		case 908:	/* stxvw4x */
+<<<<<<< HEAD
 			op->reg = rd | ((instr & 1) << 5);
+=======
+			op->reg = rd | ((word & 1) << 5);
+>>>>>>> upstream/android-13
 			op->type = MKOP(STORE_VSX, 0, 16);
 			op->element_size = 4;
 			break;
 
 		case 909:	/* stxsibx */
+<<<<<<< HEAD
 			op->reg = rd | ((instr & 1) << 5);
+=======
+			if (!cpu_has_feature(CPU_FTR_ARCH_300))
+				goto unknown_opcode;
+			op->reg = rd | ((word & 1) << 5);
+>>>>>>> upstream/android-13
 			op->type = MKOP(STORE_VSX, 0, 1);
 			op->element_size = 8;
 			op->vsx_flags = VSX_CHECK_VEC;
 			break;
 
 		case 940:	/* stxvh8x */
+<<<<<<< HEAD
 			op->reg = rd | ((instr & 1) << 5);
+=======
+			if (!cpu_has_feature(CPU_FTR_ARCH_300))
+				goto unknown_opcode;
+			op->reg = rd | ((word & 1) << 5);
+>>>>>>> upstream/android-13
 			op->type = MKOP(STORE_VSX, 0, 16);
 			op->element_size = 2;
 			op->vsx_flags = VSX_CHECK_VEC;
 			break;
 
 		case 941:	/* stxsihx */
+<<<<<<< HEAD
 			op->reg = rd | ((instr & 1) << 5);
+=======
+			if (!cpu_has_feature(CPU_FTR_ARCH_300))
+				goto unknown_opcode;
+			op->reg = rd | ((word & 1) << 5);
+>>>>>>> upstream/android-13
 			op->type = MKOP(STORE_VSX, 0, 2);
 			op->element_size = 8;
 			op->vsx_flags = VSX_CHECK_VEC;
 			break;
 
 		case 972:	/* stxvd2x */
+<<<<<<< HEAD
 			op->reg = rd | ((instr & 1) << 5);
+=======
+			op->reg = rd | ((word & 1) << 5);
+>>>>>>> upstream/android-13
 			op->type = MKOP(STORE_VSX, 0, 16);
 			op->element_size = 8;
 			break;
 
 		case 1004:	/* stxvb16x */
+<<<<<<< HEAD
 			op->reg = rd | ((instr & 1) << 5);
+=======
+			if (!cpu_has_feature(CPU_FTR_ARCH_300))
+				goto unknown_opcode;
+			op->reg = rd | ((word & 1) << 5);
+>>>>>>> upstream/android-13
 			op->type = MKOP(STORE_VSX, 0, 16);
 			op->element_size = 1;
 			op->vsx_flags = VSX_CHECK_VEC;
@@ -2351,80 +3163,132 @@ int analyse_instr(struct instruction_op *op, const struct pt_regs *regs,
 	case 32:	/* lwz */
 	case 33:	/* lwzu */
 		op->type = MKOP(LOAD, u, 4);
+<<<<<<< HEAD
 		op->ea = dform_ea(instr, regs);
+=======
+		op->ea = dform_ea(word, regs);
+>>>>>>> upstream/android-13
 		break;
 
 	case 34:	/* lbz */
 	case 35:	/* lbzu */
 		op->type = MKOP(LOAD, u, 1);
+<<<<<<< HEAD
 		op->ea = dform_ea(instr, regs);
+=======
+		op->ea = dform_ea(word, regs);
+>>>>>>> upstream/android-13
 		break;
 
 	case 36:	/* stw */
 	case 37:	/* stwu */
 		op->type = MKOP(STORE, u, 4);
+<<<<<<< HEAD
 		op->ea = dform_ea(instr, regs);
+=======
+		op->ea = dform_ea(word, regs);
+>>>>>>> upstream/android-13
 		break;
 
 	case 38:	/* stb */
 	case 39:	/* stbu */
 		op->type = MKOP(STORE, u, 1);
+<<<<<<< HEAD
 		op->ea = dform_ea(instr, regs);
+=======
+		op->ea = dform_ea(word, regs);
+>>>>>>> upstream/android-13
 		break;
 
 	case 40:	/* lhz */
 	case 41:	/* lhzu */
 		op->type = MKOP(LOAD, u, 2);
+<<<<<<< HEAD
 		op->ea = dform_ea(instr, regs);
+=======
+		op->ea = dform_ea(word, regs);
+>>>>>>> upstream/android-13
 		break;
 
 	case 42:	/* lha */
 	case 43:	/* lhau */
 		op->type = MKOP(LOAD, SIGNEXT | u, 2);
+<<<<<<< HEAD
 		op->ea = dform_ea(instr, regs);
+=======
+		op->ea = dform_ea(word, regs);
+>>>>>>> upstream/android-13
 		break;
 
 	case 44:	/* sth */
 	case 45:	/* sthu */
 		op->type = MKOP(STORE, u, 2);
+<<<<<<< HEAD
 		op->ea = dform_ea(instr, regs);
+=======
+		op->ea = dform_ea(word, regs);
+>>>>>>> upstream/android-13
 		break;
 
 	case 46:	/* lmw */
 		if (ra >= rd)
 			break;		/* invalid form, ra in range to load */
 		op->type = MKOP(LOAD_MULTI, 0, 4 * (32 - rd));
+<<<<<<< HEAD
 		op->ea = dform_ea(instr, regs);
+=======
+		op->ea = dform_ea(word, regs);
+>>>>>>> upstream/android-13
 		break;
 
 	case 47:	/* stmw */
 		op->type = MKOP(STORE_MULTI, 0, 4 * (32 - rd));
+<<<<<<< HEAD
 		op->ea = dform_ea(instr, regs);
+=======
+		op->ea = dform_ea(word, regs);
+>>>>>>> upstream/android-13
 		break;
 
 #ifdef CONFIG_PPC_FPU
 	case 48:	/* lfs */
 	case 49:	/* lfsu */
 		op->type = MKOP(LOAD_FP, u | FPCONV, 4);
+<<<<<<< HEAD
 		op->ea = dform_ea(instr, regs);
+=======
+		op->ea = dform_ea(word, regs);
+>>>>>>> upstream/android-13
 		break;
 
 	case 50:	/* lfd */
 	case 51:	/* lfdu */
 		op->type = MKOP(LOAD_FP, u, 8);
+<<<<<<< HEAD
 		op->ea = dform_ea(instr, regs);
+=======
+		op->ea = dform_ea(word, regs);
+>>>>>>> upstream/android-13
 		break;
 
 	case 52:	/* stfs */
 	case 53:	/* stfsu */
 		op->type = MKOP(STORE_FP, u | FPCONV, 4);
+<<<<<<< HEAD
 		op->ea = dform_ea(instr, regs);
+=======
+		op->ea = dform_ea(word, regs);
+>>>>>>> upstream/android-13
 		break;
 
 	case 54:	/* stfd */
 	case 55:	/* stfdu */
 		op->type = MKOP(STORE_FP, u, 8);
+<<<<<<< HEAD
 		op->ea = dform_ea(instr, regs);
+=======
+		op->ea = dform_ea(word, regs);
+>>>>>>> upstream/android-13
 		break;
 #endif
 
@@ -2432,26 +3296,45 @@ int analyse_instr(struct instruction_op *op, const struct pt_regs *regs,
 	case 56:	/* lq */
 		if (!((rd & 1) || (rd == ra)))
 			op->type = MKOP(LOAD, 0, 16);
+<<<<<<< HEAD
 		op->ea = dqform_ea(instr, regs);
+=======
+		op->ea = dqform_ea(word, regs);
+>>>>>>> upstream/android-13
 		break;
 #endif
 
 #ifdef CONFIG_VSX
 	case 57:	/* lfdp, lxsd, lxssp */
+<<<<<<< HEAD
 		op->ea = dsform_ea(instr, regs);
 		switch (instr & 3) {
+=======
+		op->ea = dsform_ea(word, regs);
+		switch (word & 3) {
+>>>>>>> upstream/android-13
 		case 0:		/* lfdp */
 			if (rd & 1)
 				break;		/* reg must be even */
 			op->type = MKOP(LOAD_FP, 0, 16);
 			break;
 		case 2:		/* lxsd */
+<<<<<<< HEAD
+=======
+			if (!cpu_has_feature(CPU_FTR_ARCH_300))
+				goto unknown_opcode;
+>>>>>>> upstream/android-13
 			op->reg = rd + 32;
 			op->type = MKOP(LOAD_VSX, 0, 8);
 			op->element_size = 8;
 			op->vsx_flags = VSX_CHECK_VEC;
 			break;
 		case 3:		/* lxssp */
+<<<<<<< HEAD
+=======
+			if (!cpu_has_feature(CPU_FTR_ARCH_300))
+				goto unknown_opcode;
+>>>>>>> upstream/android-13
 			op->reg = rd + 32;
 			op->type = MKOP(LOAD_VSX, 0, 4);
 			op->element_size = 8;
@@ -2463,8 +3346,13 @@ int analyse_instr(struct instruction_op *op, const struct pt_regs *regs,
 
 #ifdef __powerpc64__
 	case 58:	/* ld[u], lwa */
+<<<<<<< HEAD
 		op->ea = dsform_ea(instr, regs);
 		switch (instr & 3) {
+=======
+		op->ea = dsform_ea(word, regs);
+		switch (word & 3) {
+>>>>>>> upstream/android-13
 		case 0:		/* ld */
 			op->type = MKOP(LOAD, 0, 8);
 			break;
@@ -2479,17 +3367,48 @@ int analyse_instr(struct instruction_op *op, const struct pt_regs *regs,
 #endif
 
 #ifdef CONFIG_VSX
+<<<<<<< HEAD
 	case 61:	/* stfdp, lxv, stxsd, stxssp, stxv */
 		switch (instr & 7) {
 		case 0:		/* stfdp with LSB of DS field = 0 */
 		case 4:		/* stfdp with LSB of DS field = 1 */
 			op->ea = dsform_ea(instr, regs);
+=======
+	case 6:
+		if (!cpu_has_feature(CPU_FTR_ARCH_31))
+			goto unknown_opcode;
+		op->ea = dqform_ea(word, regs);
+		op->reg = VSX_REGISTER_XTP(rd);
+		op->element_size = 32;
+		switch (word & 0xf) {
+		case 0:         /* lxvp */
+			op->type = MKOP(LOAD_VSX, 0, 32);
+			break;
+		case 1:         /* stxvp */
+			op->type = MKOP(STORE_VSX, 0, 32);
+			break;
+		}
+		break;
+
+	case 61:	/* stfdp, lxv, stxsd, stxssp, stxv */
+		switch (word & 7) {
+		case 0:		/* stfdp with LSB of DS field = 0 */
+		case 4:		/* stfdp with LSB of DS field = 1 */
+			op->ea = dsform_ea(word, regs);
+>>>>>>> upstream/android-13
 			op->type = MKOP(STORE_FP, 0, 16);
 			break;
 
 		case 1:		/* lxv */
+<<<<<<< HEAD
 			op->ea = dqform_ea(instr, regs);
 			if (instr & 8)
+=======
+			if (!cpu_has_feature(CPU_FTR_ARCH_300))
+				goto unknown_opcode;
+			op->ea = dqform_ea(word, regs);
+			if (word & 8)
+>>>>>>> upstream/android-13
 				op->reg = rd + 32;
 			op->type = MKOP(LOAD_VSX, 0, 16);
 			op->element_size = 16;
@@ -2498,7 +3417,13 @@ int analyse_instr(struct instruction_op *op, const struct pt_regs *regs,
 
 		case 2:		/* stxsd with LSB of DS field = 0 */
 		case 6:		/* stxsd with LSB of DS field = 1 */
+<<<<<<< HEAD
 			op->ea = dsform_ea(instr, regs);
+=======
+			if (!cpu_has_feature(CPU_FTR_ARCH_300))
+				goto unknown_opcode;
+			op->ea = dsform_ea(word, regs);
+>>>>>>> upstream/android-13
 			op->reg = rd + 32;
 			op->type = MKOP(STORE_VSX, 0, 8);
 			op->element_size = 8;
@@ -2507,7 +3432,13 @@ int analyse_instr(struct instruction_op *op, const struct pt_regs *regs,
 
 		case 3:		/* stxssp with LSB of DS field = 0 */
 		case 7:		/* stxssp with LSB of DS field = 1 */
+<<<<<<< HEAD
 			op->ea = dsform_ea(instr, regs);
+=======
+			if (!cpu_has_feature(CPU_FTR_ARCH_300))
+				goto unknown_opcode;
+			op->ea = dsform_ea(word, regs);
+>>>>>>> upstream/android-13
 			op->reg = rd + 32;
 			op->type = MKOP(STORE_VSX, 0, 4);
 			op->element_size = 8;
@@ -2515,8 +3446,15 @@ int analyse_instr(struct instruction_op *op, const struct pt_regs *regs,
 			break;
 
 		case 5:		/* stxv */
+<<<<<<< HEAD
 			op->ea = dqform_ea(instr, regs);
 			if (instr & 8)
+=======
+			if (!cpu_has_feature(CPU_FTR_ARCH_300))
+				goto unknown_opcode;
+			op->ea = dqform_ea(word, regs);
+			if (word & 8)
+>>>>>>> upstream/android-13
 				op->reg = rd + 32;
 			op->type = MKOP(STORE_VSX, 0, 16);
 			op->element_size = 16;
@@ -2528,8 +3466,13 @@ int analyse_instr(struct instruction_op *op, const struct pt_regs *regs,
 
 #ifdef __powerpc64__
 	case 62:	/* std[u] */
+<<<<<<< HEAD
 		op->ea = dsform_ea(instr, regs);
 		switch (instr & 3) {
+=======
+		op->ea = dsform_ea(word, regs);
+		switch (word & 3) {
+>>>>>>> upstream/android-13
 		case 0:		/* std */
 			op->type = MKOP(STORE, 0, 8);
 			break;
@@ -2542,10 +3485,167 @@ int analyse_instr(struct instruction_op *op, const struct pt_regs *regs,
 			break;
 		}
 		break;
+<<<<<<< HEAD
+=======
+	case 1: /* Prefixed instructions */
+		if (!cpu_has_feature(CPU_FTR_ARCH_31))
+			goto unknown_opcode;
+
+		prefix_r = GET_PREFIX_R(word);
+		ra = GET_PREFIX_RA(suffix);
+		op->update_reg = ra;
+		rd = (suffix >> 21) & 0x1f;
+		op->reg = rd;
+		op->val = regs->gpr[rd];
+
+		suffixopcode = get_op(suffix);
+		prefixtype = (word >> 24) & 0x3;
+		switch (prefixtype) {
+		case 0: /* Type 00  Eight-Byte Load/Store */
+			if (prefix_r && ra)
+				break;
+			op->ea = mlsd_8lsd_ea(word, suffix, regs);
+			switch (suffixopcode) {
+			case 41:	/* plwa */
+				op->type = MKOP(LOAD, PREFIXED | SIGNEXT, 4);
+				break;
+#ifdef CONFIG_VSX
+			case 42:        /* plxsd */
+				op->reg = rd + 32;
+				op->type = MKOP(LOAD_VSX, PREFIXED, 8);
+				op->element_size = 8;
+				op->vsx_flags = VSX_CHECK_VEC;
+				break;
+			case 43:	/* plxssp */
+				op->reg = rd + 32;
+				op->type = MKOP(LOAD_VSX, PREFIXED, 4);
+				op->element_size = 8;
+				op->vsx_flags = VSX_FPCONV | VSX_CHECK_VEC;
+				break;
+			case 46:	/* pstxsd */
+				op->reg = rd + 32;
+				op->type = MKOP(STORE_VSX, PREFIXED, 8);
+				op->element_size = 8;
+				op->vsx_flags = VSX_CHECK_VEC;
+				break;
+			case 47:	/* pstxssp */
+				op->reg = rd + 32;
+				op->type = MKOP(STORE_VSX, PREFIXED, 4);
+				op->element_size = 8;
+				op->vsx_flags = VSX_FPCONV | VSX_CHECK_VEC;
+				break;
+			case 51:	/* plxv1 */
+				op->reg += 32;
+				fallthrough;
+			case 50:	/* plxv0 */
+				op->type = MKOP(LOAD_VSX, PREFIXED, 16);
+				op->element_size = 16;
+				op->vsx_flags = VSX_CHECK_VEC;
+				break;
+			case 55:	/* pstxv1 */
+				op->reg = rd + 32;
+				fallthrough;
+			case 54:	/* pstxv0 */
+				op->type = MKOP(STORE_VSX, PREFIXED, 16);
+				op->element_size = 16;
+				op->vsx_flags = VSX_CHECK_VEC;
+				break;
+#endif /* CONFIG_VSX */
+			case 56:        /* plq */
+				op->type = MKOP(LOAD, PREFIXED, 16);
+				break;
+			case 57:	/* pld */
+				op->type = MKOP(LOAD, PREFIXED, 8);
+				break;
+#ifdef CONFIG_VSX
+			case 58:        /* plxvp */
+				op->reg = VSX_REGISTER_XTP(rd);
+				op->type = MKOP(LOAD_VSX, PREFIXED, 32);
+				op->element_size = 32;
+				break;
+#endif /* CONFIG_VSX */
+			case 60:        /* pstq */
+				op->type = MKOP(STORE, PREFIXED, 16);
+				break;
+			case 61:	/* pstd */
+				op->type = MKOP(STORE, PREFIXED, 8);
+				break;
+#ifdef CONFIG_VSX
+			case 62:        /* pstxvp */
+				op->reg = VSX_REGISTER_XTP(rd);
+				op->type = MKOP(STORE_VSX, PREFIXED, 32);
+				op->element_size = 32;
+				break;
+#endif /* CONFIG_VSX */
+			}
+			break;
+		case 1: /* Type 01 Eight-Byte Register-to-Register */
+			break;
+		case 2: /* Type 10 Modified Load/Store */
+			if (prefix_r && ra)
+				break;
+			op->ea = mlsd_8lsd_ea(word, suffix, regs);
+			switch (suffixopcode) {
+			case 32:	/* plwz */
+				op->type = MKOP(LOAD, PREFIXED, 4);
+				break;
+			case 34:	/* plbz */
+				op->type = MKOP(LOAD, PREFIXED, 1);
+				break;
+			case 36:	/* pstw */
+				op->type = MKOP(STORE, PREFIXED, 4);
+				break;
+			case 38:	/* pstb */
+				op->type = MKOP(STORE, PREFIXED, 1);
+				break;
+			case 40:	/* plhz */
+				op->type = MKOP(LOAD, PREFIXED, 2);
+				break;
+			case 42:	/* plha */
+				op->type = MKOP(LOAD, PREFIXED | SIGNEXT, 2);
+				break;
+			case 44:	/* psth */
+				op->type = MKOP(STORE, PREFIXED, 2);
+				break;
+			case 48:        /* plfs */
+				op->type = MKOP(LOAD_FP, PREFIXED | FPCONV, 4);
+				break;
+			case 50:        /* plfd */
+				op->type = MKOP(LOAD_FP, PREFIXED, 8);
+				break;
+			case 52:        /* pstfs */
+				op->type = MKOP(STORE_FP, PREFIXED | FPCONV, 4);
+				break;
+			case 54:        /* pstfd */
+				op->type = MKOP(STORE_FP, PREFIXED, 8);
+				break;
+			}
+			break;
+		case 3: /* Type 11 Modified Register-to-Register */
+			break;
+		}
+>>>>>>> upstream/android-13
 #endif /* __powerpc64__ */
 
 	}
 
+<<<<<<< HEAD
+=======
+	if (OP_IS_LOAD_STORE(op->type) && (op->type & UPDATE)) {
+		switch (GETTYPE(op->type)) {
+		case LOAD:
+			if (ra == rd)
+				goto unknown_opcode;
+			fallthrough;
+		case STORE:
+		case LOAD_FP:
+		case STORE_FP:
+			if (ra == 0)
+				goto unknown_opcode;
+		}
+	}
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_VSX
 	if ((GETTYPE(op->type) == LOAD_VSX ||
 	     GETTYPE(op->type) == STORE_VSX) &&
@@ -2556,8 +3656,17 @@ int analyse_instr(struct instruction_op *op, const struct pt_regs *regs,
 
 	return 0;
 
+<<<<<<< HEAD
  logical_done:
 	if (instr & 1)
+=======
+ unknown_opcode:
+	op->type = UNKNOWN;
+	return 0;
+
+ logical_done:
+	if (word & 1)
+>>>>>>> upstream/android-13
 		set_cr0(regs, op);
  logical_done_nocc:
 	op->reg = ra;
@@ -2565,7 +3674,11 @@ int analyse_instr(struct instruction_op *op, const struct pt_regs *regs,
 	return 1;
 
  arith_done:
+<<<<<<< HEAD
 	if (instr & 1)
+=======
+	if (word & 1)
+>>>>>>> upstream/android-13
 		set_cr0(regs, op);
  compute_done:
 	op->reg = rd;
@@ -2595,6 +3708,7 @@ NOKPROBE_SYMBOL(analyse_instr);
  */
 static nokprobe_inline int handle_stack_update(unsigned long ea, struct pt_regs *regs)
 {
+<<<<<<< HEAD
 #ifdef CONFIG_PPC32
 	/*
 	 * Check if we will touch kernel stack overflow
@@ -2604,6 +3718,8 @@ static nokprobe_inline int handle_stack_update(unsigned long ea, struct pt_regs 
 		return -EINVAL;
 	}
 #endif /* CONFIG_PPC32 */
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * Check if we already set since that means we'll
 	 * lose the previous value.
@@ -2650,7 +3766,11 @@ void emulate_update_regs(struct pt_regs *regs, struct instruction_op *op)
 {
 	unsigned long next_pc;
 
+<<<<<<< HEAD
 	next_pc = truncate_if_32bit(regs->msr, regs->nip + 4);
+=======
+	next_pc = truncate_if_32bit(regs->msr, regs->nip + GETLENGTH(op->type));
+>>>>>>> upstream/android-13
 	switch (GETTYPE(op->type)) {
 	case COMPUTE:
 		if (op->type & SETREG)
@@ -2681,12 +3801,20 @@ void emulate_update_regs(struct pt_regs *regs, struct instruction_op *op)
 		case BARRIER_EIEIO:
 			eieio();
 			break;
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_PPC64
+>>>>>>> upstream/android-13
 		case BARRIER_LWSYNC:
 			asm volatile("lwsync" : : : "memory");
 			break;
 		case BARRIER_PTESYNC:
 			asm volatile("ptesync" : : : "memory");
 			break;
+<<<<<<< HEAD
+=======
+#endif
+>>>>>>> upstream/android-13
 		}
 		break;
 
@@ -2725,7 +3853,11 @@ void emulate_update_regs(struct pt_regs *regs, struct instruction_op *op)
 	default:
 		WARN_ON_ONCE(1);
 	}
+<<<<<<< HEAD
 	regs->nip = next_pc;
+=======
+	regs_set_return_ip(regs, next_pc);
+>>>>>>> upstream/android-13
 }
 NOKPROBE_SYMBOL(emulate_update_regs);
 
@@ -2804,7 +3936,11 @@ int emulate_loadstore(struct pt_regs *regs, struct instruction_op *op)
 			__put_user_asmx(op->val, ea, err, "stbcx.", cr);
 			break;
 		case 2:
+<<<<<<< HEAD
 			__put_user_asmx(op->val, ea, err, "stbcx.", cr);
+=======
+			__put_user_asmx(op->val, ea, err, "sthcx.", cr);
+>>>>>>> upstream/android-13
 			break;
 #endif
 		case 4:
@@ -2995,7 +4131,11 @@ NOKPROBE_SYMBOL(emulate_loadstore);
  * or -1 if the instruction is one that should not be stepped,
  * such as an rfid, or a mtmsrd that would clear MSR_RI.
  */
+<<<<<<< HEAD
 int emulate_step(struct pt_regs *regs, unsigned int instr)
+=======
+int emulate_step(struct pt_regs *regs, struct ppc_inst instr)
+>>>>>>> upstream/android-13
 {
 	struct instruction_op op;
 	int r, err, type;
@@ -3063,7 +4203,11 @@ int emulate_step(struct pt_regs *regs, unsigned int instr)
 			/* can't step mtmsr[d] that would clear MSR_RI */
 			return -1;
 		/* here op.val is the mask of bits to change */
+<<<<<<< HEAD
 		regs->msr = (regs->msr & ~op.val) | (val & op.val);
+=======
+		regs_set_return_msr(regs, (regs->msr & ~op.val) | (val & op.val));
+>>>>>>> upstream/android-13
 		goto instr_done;
 
 #ifdef CONFIG_PPC64
@@ -3073,9 +4217,16 @@ int emulate_step(struct pt_regs *regs, unsigned int instr)
 		 * entry code works.  If that is changed, this will
 		 * need to be changed also.
 		 */
+<<<<<<< HEAD
 		if (regs->gpr[0] == 0x1ebe &&
 		    cpu_has_feature(CPU_FTR_REAL_LE)) {
 			regs->msr ^= MSR_LE;
+=======
+		if (IS_ENABLED(CONFIG_PPC_FAST_ENDIAN_SWITCH) &&
+				cpu_has_feature(CPU_FTR_REAL_LE) &&
+				regs->gpr[0] == 0x1ebe) {
+			regs_set_return_msr(regs, regs->msr ^ MSR_LE);
+>>>>>>> upstream/android-13
 			goto instr_done;
 		}
 		regs->gpr[9] = regs->gpr[13];
@@ -3083,10 +4234,29 @@ int emulate_step(struct pt_regs *regs, unsigned int instr)
 		regs->gpr[11] = regs->nip + 4;
 		regs->gpr[12] = regs->msr & MSR_MASK;
 		regs->gpr[13] = (unsigned long) get_paca();
+<<<<<<< HEAD
 		regs->nip = (unsigned long) &system_call_common;
 		regs->msr = MSR_KERNEL;
 		return 1;
 
+=======
+		regs_set_return_ip(regs, (unsigned long) &system_call_common);
+		regs_set_return_msr(regs, MSR_KERNEL);
+		return 1;
+
+#ifdef CONFIG_PPC_BOOK3S_64
+	case SYSCALL_VECTORED_0:	/* scv 0 */
+		regs->gpr[9] = regs->gpr[13];
+		regs->gpr[10] = MSR_KERNEL;
+		regs->gpr[11] = regs->nip + 4;
+		regs->gpr[12] = regs->msr & MSR_MASK;
+		regs->gpr[13] = (unsigned long) get_paca();
+		regs_set_return_ip(regs, (unsigned long) &system_call_vectored_emulate);
+		regs_set_return_msr(regs, MSR_KERNEL);
+		return 1;
+#endif
+
+>>>>>>> upstream/android-13
 	case RFI:
 		return -1;
 #endif
@@ -3094,7 +4264,12 @@ int emulate_step(struct pt_regs *regs, unsigned int instr)
 	return 0;
 
  instr_done:
+<<<<<<< HEAD
 	regs->nip = truncate_if_32bit(regs->msr, regs->nip + 4);
+=======
+	regs_set_return_ip(regs,
+		truncate_if_32bit(regs->msr, regs->nip + GETLENGTH(op.type)));
+>>>>>>> upstream/android-13
 	return 1;
 }
 NOKPROBE_SYMBOL(emulate_step);

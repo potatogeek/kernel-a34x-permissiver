@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * Generic heartbeat driver for regular LED banks
  *
@@ -13,10 +17,13 @@
  * traditionally used for strobing the load average. This use case is
  * handled by this driver, rather than giving each LED bit position its
  * own struct device.
+<<<<<<< HEAD
  *
  * This file is subject to the terms and conditions of the GNU General Public
  * License.  See the file "COPYING" in the main directory of this archive
  * for more details.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/init.h>
 #include <linux/platform_device.h>
@@ -99,7 +106,11 @@ static int heartbeat_drv_probe(struct platform_device *pdev)
 			return -ENOMEM;
 	}
 
+<<<<<<< HEAD
 	hd->base = ioremap_nocache(res->start, resource_size(res));
+=======
+	hd->base = ioremap(res->start, resource_size(res));
+>>>>>>> upstream/android-13
 	if (unlikely(!hd->base)) {
 		dev_err(&pdev->dev, "ioremap failed\n");
 

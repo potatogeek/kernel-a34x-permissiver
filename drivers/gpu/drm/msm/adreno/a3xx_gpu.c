@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2013 Red Hat
  * Author: Rob Clark <robdclark@gmail.com>
  *
  * Copyright (c) 2014 The Linux Foundation. All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
@@ -21,6 +26,10 @@
 #  include <mach/ocmem.h>
 #endif
 
+=======
+ */
+
+>>>>>>> upstream/android-13
 #include "a3xx_gpu.h"
 
 #define A3XX_INT0_MASK \
@@ -43,6 +52,64 @@ extern bool hang_debug;
 static void a3xx_dump(struct msm_gpu *gpu);
 static bool a3xx_idle(struct msm_gpu *gpu);
 
+<<<<<<< HEAD
+=======
+static void a3xx_submit(struct msm_gpu *gpu, struct msm_gem_submit *submit)
+{
+	struct msm_drm_private *priv = gpu->dev->dev_private;
+	struct msm_ringbuffer *ring = submit->ring;
+	unsigned int i;
+
+	for (i = 0; i < submit->nr_cmds; i++) {
+		switch (submit->cmd[i].type) {
+		case MSM_SUBMIT_CMD_IB_TARGET_BUF:
+			/* ignore IB-targets */
+			break;
+		case MSM_SUBMIT_CMD_CTX_RESTORE_BUF:
+			/* ignore if there has not been a ctx switch: */
+			if (priv->lastctx == submit->queue->ctx)
+				break;
+			fallthrough;
+		case MSM_SUBMIT_CMD_BUF:
+			OUT_PKT3(ring, CP_INDIRECT_BUFFER_PFD, 2);
+			OUT_RING(ring, lower_32_bits(submit->cmd[i].iova));
+			OUT_RING(ring, submit->cmd[i].size);
+			OUT_PKT2(ring);
+			break;
+		}
+	}
+
+	OUT_PKT0(ring, REG_AXXX_CP_SCRATCH_REG2, 1);
+	OUT_RING(ring, submit->seqno);
+
+	/* Flush HLSQ lazy updates to make sure there is nothing
+	 * pending for indirect loads after the timestamp has
+	 * passed:
+	 */
+	OUT_PKT3(ring, CP_EVENT_WRITE, 1);
+	OUT_RING(ring, HLSQ_FLUSH);
+
+	/* wait for idle before cache flush/interrupt */
+	OUT_PKT3(ring, CP_WAIT_FOR_IDLE, 1);
+	OUT_RING(ring, 0x00000000);
+
+	/* BIT(31) of CACHE_FLUSH_TS triggers CACHE_FLUSH_TS IRQ from GPU */
+	OUT_PKT3(ring, CP_EVENT_WRITE, 3);
+	OUT_RING(ring, CACHE_FLUSH_TS | BIT(31));
+	OUT_RING(ring, rbmemptr(ring, fence));
+	OUT_RING(ring, submit->seqno);
+
+#if 0
+	/* Dummy set-constant to trigger context rollover */
+	OUT_PKT3(ring, CP_SET_CONSTANT, 2);
+	OUT_RING(ring, CP_REG(REG_A3XX_HLSQ_CL_KERNEL_GROUP_X_REG));
+	OUT_RING(ring, 0x00000000);
+#endif
+
+	adreno_flush(gpu, ring, REG_AXXX_CP_RB_WPTR);
+}
+
+>>>>>>> upstream/android-13
 static bool a3xx_me_init(struct msm_gpu *gpu)
 {
 	struct msm_ringbuffer *ring = gpu->rb[0];
@@ -66,7 +133,11 @@ static bool a3xx_me_init(struct msm_gpu *gpu)
 	OUT_RING(ring, 0x00000000);
 	OUT_RING(ring, 0x00000000);
 
+<<<<<<< HEAD
 	gpu->funcs->flush(gpu, ring);
+=======
+	adreno_flush(gpu, ring, REG_AXXX_CP_RB_WPTR);
+>>>>>>> upstream/android-13
 	return a3xx_idle(gpu);
 }
 
@@ -206,9 +277,15 @@ static int a3xx_hw_init(struct msm_gpu *gpu)
 		gpu_write(gpu, REG_A3XX_RBBM_GPR0_CTL, 0x00000000);
 
 	/* Set the OCMEM base address for A330, etc */
+<<<<<<< HEAD
 	if (a3xx_gpu->ocmem_hdl) {
 		gpu_write(gpu, REG_A3XX_RB_GMEM_BASE_ADDR,
 			(unsigned int)(a3xx_gpu->ocmem_base >> 14));
+=======
+	if (a3xx_gpu->ocmem.hdl) {
+		gpu_write(gpu, REG_A3XX_RB_GMEM_BASE_ADDR,
+			(unsigned int)(a3xx_gpu->ocmem.base >> 14));
+>>>>>>> upstream/android-13
 	}
 
 	/* Turn on performance counters: */
@@ -226,6 +303,19 @@ static int a3xx_hw_init(struct msm_gpu *gpu)
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
+=======
+	/*
+	 * Use the default ringbuffer size and block size but disable the RPTR
+	 * shadow
+	 */
+	gpu_write(gpu, REG_AXXX_CP_RB_CNTL,
+		MSM_GPU_RB_CNTL_DEFAULT | AXXX_CP_RB_CNTL_NO_UPDATE);
+
+	/* Set the ringbuffer address */
+	gpu_write(gpu, REG_AXXX_CP_RB_BASE, lower_32_bits(gpu->rb[0]->iova));
+
+>>>>>>> upstream/android-13
 	/* setup access protection: */
 	gpu_write(gpu, REG_A3XX_CP_PROTECT_CTRL, 0x00000007);
 
@@ -329,10 +419,14 @@ static void a3xx_destroy(struct msm_gpu *gpu)
 
 	adreno_gpu_cleanup(adreno_gpu);
 
+<<<<<<< HEAD
 #ifdef CONFIG_MSM_OCMEM
 	if (a3xx_gpu->ocmem_base)
 		ocmem_free(OCMEM_GRAPHICS, a3xx_gpu->ocmem_hdl);
 #endif
+=======
+	adreno_gpu_ocmem_cleanup(&a3xx_gpu->ocmem);
+>>>>>>> upstream/android-13
 
 	kfree(a3xx_gpu);
 }
@@ -431,6 +525,7 @@ static struct msm_gpu_state *a3xx_gpu_state_get(struct msm_gpu *gpu)
 	return state;
 }
 
+<<<<<<< HEAD
 /* Register offset defines for A3XX */
 static const unsigned int a3xx_register_offsets[REG_ADRENO_REGISTER_MAX] = {
 	REG_ADRENO_DEFINE(REG_ADRENO_CP_RB_BASE, REG_AXXX_CP_RB_BASE),
@@ -441,6 +536,13 @@ static const unsigned int a3xx_register_offsets[REG_ADRENO_REGISTER_MAX] = {
 	REG_ADRENO_DEFINE(REG_ADRENO_CP_RB_WPTR, REG_AXXX_CP_RB_WPTR),
 	REG_ADRENO_DEFINE(REG_ADRENO_CP_RB_CNTL, REG_AXXX_CP_RB_CNTL),
 };
+=======
+static u32 a3xx_get_rptr(struct msm_gpu *gpu, struct msm_ringbuffer *ring)
+{
+	ring->memptrs->rptr = gpu_read(gpu, REG_AXXX_CP_RB_RPTR);
+	return ring->memptrs->rptr;
+}
+>>>>>>> upstream/android-13
 
 static const struct adreno_gpu_funcs funcs = {
 	.base = {
@@ -449,8 +551,12 @@ static const struct adreno_gpu_funcs funcs = {
 		.pm_suspend = msm_gpu_pm_suspend,
 		.pm_resume = msm_gpu_pm_resume,
 		.recover = a3xx_recover,
+<<<<<<< HEAD
 		.submit = adreno_submit,
 		.flush = adreno_flush,
+=======
+		.submit = a3xx_submit,
+>>>>>>> upstream/android-13
 		.active_ring = adreno_active_ring,
 		.irq = a3xx_irq,
 		.destroy = a3xx_destroy,
@@ -459,6 +565,11 @@ static const struct adreno_gpu_funcs funcs = {
 #endif
 		.gpu_state_get = a3xx_gpu_state_get,
 		.gpu_state_put = adreno_gpu_state_put,
+<<<<<<< HEAD
+=======
+		.create_address_space = adreno_iommu_create_address_space,
+		.get_rptr = a3xx_get_rptr,
+>>>>>>> upstream/android-13
 	},
 };
 
@@ -476,10 +587,19 @@ struct msm_gpu *a3xx_gpu_init(struct drm_device *dev)
 	struct msm_gpu *gpu;
 	struct msm_drm_private *priv = dev->dev_private;
 	struct platform_device *pdev = priv->gpu_pdev;
+<<<<<<< HEAD
 	int ret;
 
 	if (!pdev) {
 		dev_err(dev->dev, "no a3xx device\n");
+=======
+	struct icc_path *ocmem_icc_path;
+	struct icc_path *icc_path;
+	int ret;
+
+	if (!pdev) {
+		DRM_DEV_ERROR(dev->dev, "no a3xx device\n");
+>>>>>>> upstream/android-13
 		ret = -ENXIO;
 		goto fail;
 	}
@@ -497,7 +617,10 @@ struct msm_gpu *a3xx_gpu_init(struct drm_device *dev)
 	gpu->num_perfcntrs = ARRAY_SIZE(perfcntrs);
 
 	adreno_gpu->registers = a3xx_registers;
+<<<<<<< HEAD
 	adreno_gpu->reg_offsets = a3xx_register_offsets;
+=======
+>>>>>>> upstream/android-13
 
 	ret = adreno_gpu_init(dev, pdev, adreno_gpu, &funcs, 1);
 	if (ret)
@@ -505,6 +628,7 @@ struct msm_gpu *a3xx_gpu_init(struct drm_device *dev)
 
 	/* if needed, allocate gmem: */
 	if (adreno_is_a330(adreno_gpu)) {
+<<<<<<< HEAD
 #ifdef CONFIG_MSM_OCMEM
 		/* TODO this is different/missing upstream: */
 		struct ocmem_buf *ocmem_hdl =
@@ -516,6 +640,12 @@ struct msm_gpu *a3xx_gpu_init(struct drm_device *dev)
 		DBG("using %dK of OCMEM at 0x%08x", adreno_gpu->gmem / 1024,
 				a3xx_gpu->ocmem_base);
 #endif
+=======
+		ret = adreno_gpu_ocmem_init(&adreno_gpu->base.pdev->dev,
+					    adreno_gpu, &a3xx_gpu->ocmem);
+		if (ret)
+			goto fail;
+>>>>>>> upstream/android-13
 	}
 
 	if (!gpu->aspace) {
@@ -526,11 +656,45 @@ struct msm_gpu *a3xx_gpu_init(struct drm_device *dev)
 		 * to not be possible to restrict access, then we must
 		 * implement a cmdstream validator.
 		 */
+<<<<<<< HEAD
 		dev_err(dev->dev, "No memory protection without IOMMU\n");
 		ret = -ENXIO;
 		goto fail;
 	}
 
+=======
+		DRM_DEV_ERROR(dev->dev, "No memory protection without IOMMU\n");
+		if (!allow_vram_carveout) {
+			ret = -ENXIO;
+			goto fail;
+		}
+	}
+
+	icc_path = devm_of_icc_get(&pdev->dev, "gfx-mem");
+	if (IS_ERR(icc_path)) {
+		ret = PTR_ERR(icc_path);
+		goto fail;
+	}
+
+	ocmem_icc_path = devm_of_icc_get(&pdev->dev, "ocmem");
+	if (IS_ERR(ocmem_icc_path)) {
+		ret = PTR_ERR(ocmem_icc_path);
+		/* allow -ENODATA, ocmem icc is optional */
+		if (ret != -ENODATA)
+			goto fail;
+		ocmem_icc_path = NULL;
+	}
+
+
+	/*
+	 * Set the ICC path to maximum speed for now by multiplying the fastest
+	 * frequency by the bus width (8). We'll want to scale this later on to
+	 * improve battery life.
+	 */
+	icc_set_bw(icc_path, 0, Bps_to_icc(gpu->fast_rate) * 8);
+	icc_set_bw(ocmem_icc_path, 0, Bps_to_icc(gpu->fast_rate) * 8);
+
+>>>>>>> upstream/android-13
 	return gpu;
 
 fail:

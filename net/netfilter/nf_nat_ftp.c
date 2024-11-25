@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* FTP extension for TCP NAT alteration. */
 
 /* (C) 1999-2001 Paul `Rusty' Russell
  * (C) 2002-2006 Netfilter Core Team <coreteam@netfilter.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -21,6 +28,7 @@
 #include <net/netfilter/nf_conntrack_expect.h>
 #include <linux/netfilter/nf_conntrack_ftp.h>
 
+<<<<<<< HEAD
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Rusty Russell <rusty@rustcorp.com.au>");
 MODULE_DESCRIPTION("ftp NAT helper");
@@ -28,6 +36,20 @@ MODULE_ALIAS("ip_nat_ftp");
 
 /* FIXME: Time out? --RR */
 
+=======
+#define NAT_HELPER_NAME "ftp"
+
+MODULE_LICENSE("GPL");
+MODULE_AUTHOR("Rusty Russell <rusty@rustcorp.com.au>");
+MODULE_DESCRIPTION("ftp NAT helper");
+MODULE_ALIAS_NF_NAT_HELPER(NAT_HELPER_NAME);
+
+/* FIXME: Time out? --RR */
+
+static struct nf_conntrack_nat_helper nat_helper_ftp =
+	NF_CT_NAT_HELPER_INIT(NAT_HELPER_NAME);
+
+>>>>>>> upstream/android-13
 static int nf_nat_ftp_fmt_cmd(struct nf_conn *ct, enum nf_ct_ftp_type type,
 			      char *buffer, size_t buflen,
 			      union nf_inet_addr *addr, u16 port)
@@ -89,7 +111,11 @@ static unsigned int nf_nat_ftp(struct sk_buff *skb,
 		int ret;
 
 		exp->tuple.dst.u.tcp.port = htons(port);
+<<<<<<< HEAD
 		ret = nf_ct_expect_related(exp);
+=======
+		ret = nf_ct_expect_related(exp, 0);
+>>>>>>> upstream/android-13
 		if (ret == 0)
 			break;
 		else if (ret != -EBUSY) {
@@ -124,6 +150,10 @@ out:
 
 static void __exit nf_nat_ftp_fini(void)
 {
+<<<<<<< HEAD
+=======
+	nf_nat_helper_unregister(&nat_helper_ftp);
+>>>>>>> upstream/android-13
 	RCU_INIT_POINTER(nf_nat_ftp_hook, NULL);
 	synchronize_rcu();
 }
@@ -131,6 +161,10 @@ static void __exit nf_nat_ftp_fini(void)
 static int __init nf_nat_ftp_init(void)
 {
 	BUG_ON(nf_nat_ftp_hook != NULL);
+<<<<<<< HEAD
+=======
+	nf_nat_helper_register(&nat_helper_ftp);
+>>>>>>> upstream/android-13
 	RCU_INIT_POINTER(nf_nat_ftp_hook, nf_nat_ftp);
 	return 0;
 }

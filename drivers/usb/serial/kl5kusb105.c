@@ -52,7 +52,11 @@
  * Function prototypes
  */
 static int klsi_105_port_probe(struct usb_serial_port *port);
+<<<<<<< HEAD
 static int klsi_105_port_remove(struct usb_serial_port *port);
+=======
+static void klsi_105_port_remove(struct usb_serial_port *port);
+>>>>>>> upstream/android-13
 static int  klsi_105_open(struct tty_struct *tty, struct usb_serial_port *port);
 static void klsi_105_close(struct usb_serial_port *port);
 static void klsi_105_set_termios(struct tty_struct *tty,
@@ -231,14 +235,21 @@ static int klsi_105_port_probe(struct usb_serial_port *port)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int klsi_105_port_remove(struct usb_serial_port *port)
+=======
+static void klsi_105_port_remove(struct usb_serial_port *port)
+>>>>>>> upstream/android-13
 {
 	struct klsi_105_private *priv;
 
 	priv = usb_get_serial_port_data(port);
 	kfree(priv);
+<<<<<<< HEAD
 
 	return 0;
+=======
+>>>>>>> upstream/android-13
 }
 
 static int  klsi_105_open(struct tty_struct *tty, struct usb_serial_port *port)

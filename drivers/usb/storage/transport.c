@@ -47,7 +47,10 @@
 
 #include <linux/blkdev.h>
 #include "../../scsi/sd.h"
+<<<<<<< HEAD
 #include "usb_boost.h"
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_USB_DEBUG_DETAILED_LOG
 #include "../core/usb.h"
 #endif
@@ -438,7 +441,11 @@ static int usb_stor_bulk_transfer_sglist(struct us_data *us, unsigned int pipe,
 
 	/* don't submit s-g requests during abort processing */
 	if (test_bit(US_FLIDX_ABORTING, &us->dflags))
+<<<<<<< HEAD
 		return USB_STOR_XFER_ERROR;
+=======
+		goto usb_stor_xfer_error;
+>>>>>>> upstream/android-13
 
 	/* initialize the scatter-gather request block */
 	usb_stor_dbg(us, "xfer %u bytes, %d entries\n", length, num_sg);
@@ -446,7 +453,11 @@ static int usb_stor_bulk_transfer_sglist(struct us_data *us, unsigned int pipe,
 			sg, num_sg, length, GFP_NOIO);
 	if (result) {
 		usb_stor_dbg(us, "usb_sg_init returned %d\n", result);
+<<<<<<< HEAD
 		return USB_STOR_XFER_ERROR;
+=======
+		goto usb_stor_xfer_error;
+>>>>>>> upstream/android-13
 	}
 
 	/*
@@ -474,6 +485,14 @@ static int usb_stor_bulk_transfer_sglist(struct us_data *us, unsigned int pipe,
 		*act_len = us->current_sg.bytes;
 	return interpret_urb_result(us, pipe, length, result,
 			us->current_sg.bytes);
+<<<<<<< HEAD
+=======
+
+usb_stor_xfer_error:
+	if (act_len)
+		*act_len = 0;
+	return USB_STOR_XFER_ERROR;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -484,10 +503,14 @@ int usb_stor_bulk_srb(struct us_data* us, unsigned int pipe,
 		      struct scsi_cmnd* srb)
 {
 	unsigned int partial;
+<<<<<<< HEAD
 	int result;
 
 	usb_boost();
 	result = usb_stor_bulk_transfer_sglist(us, pipe, scsi_sglist(srb),
+=======
+	int result = usb_stor_bulk_transfer_sglist(us, pipe, scsi_sglist(srb),
+>>>>>>> upstream/android-13
 				      scsi_sg_count(srb), scsi_bufflen(srb),
 				      &partial);
 
@@ -571,7 +594,11 @@ static void last_sector_hacks(struct us_data *us, struct scsi_cmnd *srb)
 	/* Did this command access the last sector? */
 	sector = (srb->cmnd[2] << 24) | (srb->cmnd[3] << 16) |
 			(srb->cmnd[4] << 8) | (srb->cmnd[5]);
+<<<<<<< HEAD
 	disk = srb->request->rq_disk;
+=======
+	disk = scsi_cmd_to_rq(srb)->rq_disk;
+>>>>>>> upstream/android-13
 	if (!disk)
 		goto done;
 	sdkp = scsi_disk(disk);
@@ -679,9 +706,12 @@ void usb_stor_invoke_transport(struct scsi_cmnd *srb, struct us_data *us)
 	if ((us->protocol == USB_PR_CB || us->protocol == USB_PR_DPCM_USB) &&
 			srb->sc_data_direction != DMA_FROM_DEVICE) {
 		usb_stor_dbg(us, "-- CB transport device requiring auto-sense\n");
+<<<<<<< HEAD
 #ifdef CONFIG_USB_DEBUG_DETAILED_LOG
 		pr_err("usb storage -- sense after SYNC CACHE\n");
 #endif
+=======
+>>>>>>> upstream/android-13
 		need_auto_sense = 1;
 	}
 
@@ -689,6 +719,12 @@ void usb_stor_invoke_transport(struct scsi_cmnd *srb, struct us_data *us)
 	if ((us->fflags & US_FL_SENSE_AFTER_SYNC) &&
 			srb->cmnd[0] == SYNCHRONIZE_CACHE) {
 		usb_stor_dbg(us, "-- sense after SYNC CACHE\n");
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_USB_DEBUG_DETAILED_LOG
+		pr_err("usb storage -- sense after SYNC CACHE\n");
+#endif
+>>>>>>> upstream/android-13
 		need_auto_sense = 1;
 	}
 
@@ -1341,8 +1377,12 @@ int usb_stor_Bulk_transport(struct scsi_cmnd *srb, struct us_data *us)
 
 		} else {
 			residue = min(residue, transfer_length);
+<<<<<<< HEAD
 			scsi_set_resid(srb, max(scsi_get_resid(srb),
 			                                       (int) residue));
+=======
+			scsi_set_resid(srb, max(scsi_get_resid(srb), residue));
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -1503,7 +1543,11 @@ int usb_stor_port_reset(struct us_data *us)
 			result = usb_reset_device(us->pusb_dev);
 			usb_stor_dbg(us, "usb_reset_device returns %d\n",
 				     result);
+<<<<<<< HEAD
 #endif /* CONFIG_USB_STORAGE_DETECT */
+=======
+#endif /* CONFIG_USB_HOST_SAMSUNG_FEATURE */
+>>>>>>> upstream/android-13
 		}
 		usb_unlock_device(us->pusb_dev);
 	}

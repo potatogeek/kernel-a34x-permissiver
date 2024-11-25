@@ -1,6 +1,10 @@
 * Oxford Semiconductor OXNAS NAND Controller
 
+<<<<<<< HEAD
 Please refer to nand.txt for generic information regarding MTD NAND bindings.
+=======
+Please refer to nand-controller.yaml for generic information regarding MTD NAND bindings.
+>>>>>>> upstream/android-13
 
 Required properties:
  - compatible: "oxsemi,ox820-nand"

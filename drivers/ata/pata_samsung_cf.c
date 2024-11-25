@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 2010 Samsung Electronics Co., Ltd.
  *		http://www.samsung.com
@@ -9,10 +13,13 @@
  * Based on:
  *	PATA driver for AT91SAM9260 Static Memory Controller
  *	PATA driver for Toshiba SCC controller
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2
  * as published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
 */
 
 #include <linux/kernel.h>
@@ -609,17 +616,26 @@ static int __exit pata_s3c_remove(struct platform_device *pdev)
 #ifdef CONFIG_PM_SLEEP
 static int pata_s3c_suspend(struct device *dev)
 {
+<<<<<<< HEAD
 	struct platform_device *pdev = to_platform_device(dev);
 	struct ata_host *host = platform_get_drvdata(pdev);
+=======
+	struct ata_host *host = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 
 	return ata_host_suspend(host, PMSG_SUSPEND);
 }
 
 static int pata_s3c_resume(struct device *dev)
 {
+<<<<<<< HEAD
 	struct platform_device *pdev = to_platform_device(dev);
 	struct ata_host *host = platform_get_drvdata(pdev);
 	struct s3c_ide_platdata *pdata = dev_get_platdata(&pdev->dev);
+=======
+	struct ata_host *host = dev_get_drvdata(dev);
+	struct s3c_ide_platdata *pdata = dev_get_platdata(dev);
+>>>>>>> upstream/android-13
 	struct s3c_ide_info *info = host->private_data;
 
 	pata_s3c_hwinit(info, pdata);

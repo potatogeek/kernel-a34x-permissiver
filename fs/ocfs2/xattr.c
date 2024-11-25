@@ -1,6 +1,11 @@
+<<<<<<< HEAD
 /* -*- mode: c; c-basic-offset: 8; -*-
  * vim: noexpandtab sw=8 ts=8 sts=0:
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+>>>>>>> upstream/android-13
  * xattr.c
  *
  * Copyright (C) 2004, 2008 Oracle.  All rights reserved.
@@ -8,6 +13,7 @@
  * CREDITS:
  * Lots of code in this file is copy from linux/fs/ext3/xattr.c.
  * Copyright (C) 2001-2003 Andreas Gruenbacher, <agruen@suse.de>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -17,6 +23,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/capability.h>
@@ -1219,7 +1227,11 @@ static int ocfs2_xattr_block_get(struct inode *inode,
 	struct ocfs2_xattr_value_root *xv;
 	size_t size;
 	int ret = -ENODATA, name_offset, name_len, i;
+<<<<<<< HEAD
 	int uninitialized_var(block_off);
+=======
+	int block_off;
+>>>>>>> upstream/android-13
 
 	xs->bucket = ocfs2_xattr_bucket_new(inode);
 	if (!xs->bucket) {
@@ -7257,6 +7269,10 @@ static int ocfs2_xattr_security_get(const struct xattr_handler *handler,
 }
 
 static int ocfs2_xattr_security_set(const struct xattr_handler *handler,
+<<<<<<< HEAD
+=======
+				    struct user_namespace *mnt_userns,
+>>>>>>> upstream/android-13
 				    struct dentry *unused, struct inode *inode,
 				    const char *name, const void *value,
 				    size_t size, int flags)
@@ -7329,6 +7345,10 @@ static int ocfs2_xattr_trusted_get(const struct xattr_handler *handler,
 }
 
 static int ocfs2_xattr_trusted_set(const struct xattr_handler *handler,
+<<<<<<< HEAD
+=======
+				   struct user_namespace *mnt_userns,
+>>>>>>> upstream/android-13
 				   struct dentry *unused, struct inode *inode,
 				   const char *name, const void *value,
 				   size_t size, int flags)
@@ -7359,6 +7379,10 @@ static int ocfs2_xattr_user_get(const struct xattr_handler *handler,
 }
 
 static int ocfs2_xattr_user_set(const struct xattr_handler *handler,
+<<<<<<< HEAD
+=======
+				struct user_namespace *mnt_userns,
+>>>>>>> upstream/android-13
 				struct dentry *unused, struct inode *inode,
 				const char *name, const void *value,
 				size_t size, int flags)

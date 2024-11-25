@@ -30,12 +30,21 @@
 #include <linux/init_task.h>
 #include <linux/mqueue.h>
 #include <linux/rcupdate.h>
+<<<<<<< HEAD
 
 #include <linux/uaccess.h>
 #include <asm/traps.h>
 #include <asm/machdep.h>
 #include <asm/setup.h>
 #include <asm/pgtable.h>
+=======
+#include <linux/syscalls.h>
+#include <linux/uaccess.h>
+
+#include <asm/traps.h>
+#include <asm/machdep.h>
+#include <asm/setup.h>
+>>>>>>> upstream/android-13
 
 
 asmlinkage void ret_from_fork(void);
@@ -92,7 +101,11 @@ void show_regs(struct pt_regs * regs)
 
 void flush_thread(void)
 {
+<<<<<<< HEAD
 	current->thread.fs = __USER_DS;
+=======
+	current->thread.fc = USER_DATA;
+>>>>>>> upstream/android-13
 #ifdef CONFIG_FPU
 	if (!FPU_IS_EMU) {
 		unsigned long zero = 0;
@@ -107,20 +120,55 @@ void flush_thread(void)
  * on top of pt_regs, which means that sys_clone() arguments would be
  * buried.  We could, of course, copy them, but it's too costly for no
  * good reason - generic clone() would have to copy them *again* for
+<<<<<<< HEAD
  * do_fork() anyway.  So in this case it's actually better to pass pt_regs *
  * and extract arguments for do_fork() from there.  Eventually we might
  * go for calling do_fork() directly from the wrapper, but only after we
  * are finished with do_fork() prototype conversion.
+=======
+ * kernel_clone() anyway.  So in this case it's actually better to pass pt_regs *
+ * and extract arguments for kernel_clone() from there.  Eventually we might
+ * go for calling kernel_clone() directly from the wrapper, but only after we
+ * are finished with kernel_clone() prototype conversion.
+>>>>>>> upstream/android-13
  */
 asmlinkage int m68k_clone(struct pt_regs *regs)
 {
 	/* regs will be equal to current_pt_regs() */
+<<<<<<< HEAD
 	return do_fork(regs->d1, regs->d2, 0,
 		       (int __user *)regs->d3, (int __user *)regs->d4);
 }
 
 int copy_thread(unsigned long clone_flags, unsigned long usp,
 		 unsigned long arg, struct task_struct *p)
+=======
+	struct kernel_clone_args args = {
+		.flags		= regs->d1 & ~CSIGNAL,
+		.pidfd		= (int __user *)regs->d3,
+		.child_tid	= (int __user *)regs->d4,
+		.parent_tid	= (int __user *)regs->d3,
+		.exit_signal	= regs->d1 & CSIGNAL,
+		.stack		= regs->d2,
+		.tls		= regs->d5,
+	};
+
+	return kernel_clone(&args);
+}
+
+/*
+ * Because extra registers are saved on the stack after the sys_clone3()
+ * arguments, this C wrapper extracts them from pt_regs * and then calls the
+ * generic sys_clone3() implementation.
+ */
+asmlinkage int m68k_clone3(struct pt_regs *regs)
+{
+	return sys_clone3((struct clone_args __user *)regs->d1, regs->d2);
+}
+
+int copy_thread(unsigned long clone_flags, unsigned long usp, unsigned long arg,
+		struct task_struct *p, unsigned long tls)
+>>>>>>> upstream/android-13
 {
 	struct fork_frame {
 		struct switch_stack sw;
@@ -136,9 +184,15 @@ int copy_thread(unsigned long clone_flags, unsigned long usp,
 	 * Must save the current SFC/DFC value, NOT the value when
 	 * the parent was last descheduled - RGH  10-08-96
 	 */
+<<<<<<< HEAD
 	p->thread.fs = get_fs().seg;
 
 	if (unlikely(p->flags & PF_KTHREAD)) {
+=======
+	p->thread.fc = USER_DATA;
+
+	if (unlikely(p->flags & (PF_KTHREAD | PF_IO_WORKER))) {
+>>>>>>> upstream/android-13
 		/* kernel thread */
 		memset(frame, 0, sizeof(struct fork_frame));
 		frame->regs.sr = PS_S;
@@ -155,7 +209,11 @@ int copy_thread(unsigned long clone_flags, unsigned long usp,
 	p->thread.usp = usp ?: rdusp();
 
 	if (clone_flags & CLONE_SETTLS)
+<<<<<<< HEAD
 		task_thread_info(p)->tp_value = frame->regs.d5;
+=======
+		task_thread_info(p)->tp_value = tls;
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_FPU
 	if (!FPU_IS_EMU) {
@@ -249,7 +307,11 @@ unsigned long get_wchan(struct task_struct *p)
 	unsigned long fp, pc;
 	unsigned long stack_page;
 	int count = 0;
+<<<<<<< HEAD
 	if (!p || p == current || p->state == TASK_RUNNING)
+=======
+	if (!p || p == current || task_is_running(p))
+>>>>>>> upstream/android-13
 		return 0;
 
 	stack_page = (unsigned long)task_stack_page(p);

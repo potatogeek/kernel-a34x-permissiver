@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*******************************************************************************
  * Filename:  target_core_file.c
  *
@@ -7,6 +11,7 @@
  *
  * Nicholas A. Bellinger <nab@kernel.org>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -21,6 +26,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  *
+=======
+>>>>>>> upstream/android-13
  ******************************************************************************/
 
 #include <linux/string.h>
@@ -146,10 +153,17 @@ static int fd_configure_device(struct se_device *dev)
 	 */
 	inode = file->f_mapping->host;
 	if (S_ISBLK(inode->i_mode)) {
+<<<<<<< HEAD
 		struct request_queue *q = bdev_get_queue(inode->i_bdev);
 		unsigned long long dev_size;
 
 		fd_dev->fd_block_size = bdev_logical_block_size(inode->i_bdev);
+=======
+		struct request_queue *q = bdev_get_queue(I_BDEV(inode));
+		unsigned long long dev_size;
+
+		fd_dev->fd_block_size = bdev_logical_block_size(I_BDEV(inode));
+>>>>>>> upstream/android-13
 		/*
 		 * Determine the number of bytes from i_size_read() minus
 		 * one (1) logical sector from underlying struct block_device
@@ -254,6 +268,10 @@ struct target_core_file_cmd {
 	unsigned long	len;
 	struct se_cmd	*cmd;
 	struct kiocb	iocb;
+<<<<<<< HEAD
+=======
+	struct bio_vec	bvecs[];
+>>>>>>> upstream/android-13
 };
 
 static void cmd_rw_aio_complete(struct kiocb *iocb, long ret, long ret2)
@@ -279,6 +297,7 @@ fd_execute_rw_aio(struct se_cmd *cmd, struct scatterlist *sgl, u32 sgl_nents,
 	struct fd_dev *fd_dev = FD_DEV(dev);
 	struct file *file = fd_dev->fd_file;
 	struct target_core_file_cmd *aio_cmd;
+<<<<<<< HEAD
 	struct iov_iter iter = {};
 	struct scatterlist *sg;
 	struct bio_vec *bvec;
@@ -299,11 +318,30 @@ fd_execute_rw_aio(struct se_cmd *cmd, struct scatterlist *sgl, u32 sgl_nents,
 		bvec[i].bv_page = sg_page(sg);
 		bvec[i].bv_len = sg->length;
 		bvec[i].bv_offset = sg->offset;
+=======
+	struct iov_iter iter;
+	struct scatterlist *sg;
+	ssize_t len = 0;
+	int ret = 0, i;
+
+	aio_cmd = kmalloc(struct_size(aio_cmd, bvecs, sgl_nents), GFP_KERNEL);
+	if (!aio_cmd)
+		return TCM_LOGICAL_UNIT_COMMUNICATION_FAILURE;
+
+	for_each_sg(sgl, sg, sgl_nents, i) {
+		aio_cmd->bvecs[i].bv_page = sg_page(sg);
+		aio_cmd->bvecs[i].bv_len = sg->length;
+		aio_cmd->bvecs[i].bv_offset = sg->offset;
+>>>>>>> upstream/android-13
 
 		len += sg->length;
 	}
 
+<<<<<<< HEAD
 	iov_iter_bvec(&iter, ITER_BVEC | is_write, bvec, sgl_nents, len);
+=======
+	iov_iter_bvec(&iter, is_write, aio_cmd->bvecs, sgl_nents, len);
+>>>>>>> upstream/android-13
 
 	aio_cmd->cmd = cmd;
 	aio_cmd->len = len;
@@ -320,8 +358,11 @@ fd_execute_rw_aio(struct se_cmd *cmd, struct scatterlist *sgl, u32 sgl_nents,
 	else
 		ret = call_read_iter(file, &aio_cmd->iocb, &iter);
 
+<<<<<<< HEAD
 	kfree(bvec);
 
+=======
+>>>>>>> upstream/android-13
 	if (ret != -EIOCBQUEUED)
 		cmd_rw_aio_complete(&aio_cmd->iocb, ret, 0);
 
@@ -353,7 +394,11 @@ static int fd_do_rw(struct se_cmd *cmd, struct file *fd,
 		len += sg->length;
 	}
 
+<<<<<<< HEAD
 	iov_iter_bvec(&iter, ITER_BVEC, bvec, sgl_nents, len);
+=======
+	iov_iter_bvec(&iter, READ, bvec, sgl_nents, len);
+>>>>>>> upstream/android-13
 	if (is_write)
 		ret = vfs_iter_write(fd, &iter, &pos, 0);
 	else
@@ -490,7 +535,11 @@ fd_execute_write_same(struct se_cmd *cmd)
 		len += se_dev->dev_attrib.block_size;
 	}
 
+<<<<<<< HEAD
 	iov_iter_bvec(&iter, ITER_BVEC, bvec, nolb, len);
+=======
+	iov_iter_bvec(&iter, READ, bvec, nolb, len);
+>>>>>>> upstream/android-13
 	ret = vfs_iter_write(fd_dev->fd_file, &iter, &pos, 0);
 
 	kfree(bvec);
@@ -519,6 +568,10 @@ fd_do_prot_fill(struct se_device *se_dev, sector_t lba, sector_t nolb,
 
 	prot_length = nolb * se_dev->prot_length;
 
+<<<<<<< HEAD
+=======
+	memset(buf, 0xff, bufsize);
+>>>>>>> upstream/android-13
 	for (prot = 0; prot < prot_length;) {
 		sector_t len = min_t(sector_t, bufsize, prot_length - prot);
 		ssize_t ret = kernel_write(prot_fd, buf, len, &pos);
@@ -544,7 +597,10 @@ fd_do_prot_unmap(struct se_cmd *cmd, sector_t lba, sector_t nolb)
 		pr_err("Unable to allocate FILEIO prot buf\n");
 		return -ENOMEM;
 	}
+<<<<<<< HEAD
 	memset(buf, 0xff, PAGE_SIZE);
+=======
+>>>>>>> upstream/android-13
 
 	rc = fd_do_prot_fill(cmd->se_dev, lba, nolb, buf, PAGE_SIZE);
 
@@ -572,7 +628,11 @@ fd_execute_unmap(struct se_cmd *cmd, sector_t lba, sector_t nolb)
 
 	if (S_ISBLK(inode->i_mode)) {
 		/* The backend is block device, use discard */
+<<<<<<< HEAD
 		struct block_device *bdev = inode->i_bdev;
+=======
+		struct block_device *bdev = I_BDEV(inode);
+>>>>>>> upstream/android-13
 		struct se_device *dev = cmd->se_dev;
 
 		ret = blkdev_issue_discard(bdev,
@@ -903,7 +963,10 @@ static int fd_format_prot(struct se_device *dev)
 		 (unsigned long long)(dev->transport->get_blocks(dev) + 1) *
 					dev->prot_length);
 
+<<<<<<< HEAD
 	memset(buf, 0xff, unit_size);
+=======
+>>>>>>> upstream/android-13
 	ret = fd_do_prot_fill(dev, 0, dev->transport->get_blocks(dev) + 1,
 			      buf, unit_size);
 	vfree(buf);
@@ -969,6 +1032,10 @@ static void __exit fileio_module_exit(void)
 MODULE_DESCRIPTION("TCM FILEIO subsystem plugin");
 MODULE_AUTHOR("nab@Linux-iSCSI.org");
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
+=======
+MODULE_IMPORT_NS(VFS_internal_I_am_really_a_filesystem_and_am_NOT_a_driver);
+>>>>>>> upstream/android-13
 
 module_init(fileio_module_init);
 module_exit(fileio_module_exit);

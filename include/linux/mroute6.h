@@ -8,6 +8,10 @@
 #include <net/net_namespace.h>
 #include <uapi/linux/mroute6.h>
 #include <linux/mroute_base.h>
+<<<<<<< HEAD
+=======
+#include <linux/sockptr.h>
+>>>>>>> upstream/android-13
 #include <net/fib_rules.h>
 
 #ifdef CONFIG_IPV6_MROUTE
@@ -25,7 +29,11 @@ static inline int ip6_mroute_opt(int opt)
 struct sock;
 
 #ifdef CONFIG_IPV6_MROUTE
+<<<<<<< HEAD
 extern int ip6_mroute_setsockopt(struct sock *, int, char __user *, unsigned int);
+=======
+extern int ip6_mroute_setsockopt(struct sock *, int, sockptr_t, unsigned int);
+>>>>>>> upstream/android-13
 extern int ip6_mroute_getsockopt(struct sock *, int, char __user *, int __user *);
 extern int ip6_mr_input(struct sk_buff *skb);
 extern int ip6mr_ioctl(struct sock *sk, int cmd, void __user *arg);
@@ -33,9 +41,14 @@ extern int ip6mr_compat_ioctl(struct sock *sk, unsigned int cmd, void __user *ar
 extern int ip6_mr_init(void);
 extern void ip6_mr_cleanup(void);
 #else
+<<<<<<< HEAD
 static inline
 int ip6_mroute_setsockopt(struct sock *sock,
 			  int optname, char __user *optval, unsigned int optlen)
+=======
+static inline int ip6_mroute_setsockopt(struct sock *sock, int optname,
+		sockptr_t optval, unsigned int optlen)
+>>>>>>> upstream/android-13
 {
 	return -ENOPROTOOPT;
 }

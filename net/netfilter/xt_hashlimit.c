@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *	xt_hashlimit - Netfilter module to limit the number of packets per time
  *	separately for each hashbucket (sourceip/sourceport/dstip/dstport)
@@ -33,9 +37,21 @@
 #include <linux/netfilter/x_tables.h>
 #include <linux/netfilter_ipv4/ip_tables.h>
 #include <linux/netfilter_ipv6/ip6_tables.h>
+<<<<<<< HEAD
 #include <linux/netfilter/xt_hashlimit.h>
 #include <linux/mutex.h>
 #include <linux/kernel.h>
+=======
+#include <linux/mutex.h>
+#include <linux/kernel.h>
+#include <linux/refcount.h>
+#include <uapi/linux/netfilter/xt_hashlimit.h>
+
+#define XT_HASHLIMIT_ALL (XT_HASHLIMIT_HASH_DIP | XT_HASHLIMIT_HASH_DPT | \
+			  XT_HASHLIMIT_HASH_SIP | XT_HASHLIMIT_HASH_SPT | \
+			  XT_HASHLIMIT_INVERT | XT_HASHLIMIT_BYTES |\
+			  XT_HASHLIMIT_RATE_MATCH)
+>>>>>>> upstream/android-13
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Harald Welte <laforge@netfilter.org>");
@@ -108,7 +124,11 @@ struct dsthash_ent {
 
 struct xt_hashlimit_htable {
 	struct hlist_node node;		/* global list of all htables */
+<<<<<<< HEAD
 	int use;
+=======
+	refcount_t use;
+>>>>>>> upstream/android-13
 	u_int8_t family;
 	bool rnd_initialized;
 
@@ -125,7 +145,11 @@ struct xt_hashlimit_htable {
 	const char *name;
 	struct net *net;
 
+<<<<<<< HEAD
 	struct hlist_head hash[0];	/* hashtable itself */
+=======
+	struct hlist_head hash[];	/* hashtable itself */
+>>>>>>> upstream/android-13
 };
 
 static int
@@ -260,7 +284,11 @@ static inline void
 dsthash_free(struct xt_hashlimit_htable *ht, struct dsthash_ent *ent)
 {
 	hlist_del_rcu(&ent->node);
+<<<<<<< HEAD
 	call_rcu_bh(&ent->rcu, dsthash_free_rcu);
+=======
+	call_rcu(&ent->rcu, dsthash_free_rcu);
+>>>>>>> upstream/android-13
 	ht->count--;
 }
 static void htable_gc(struct work_struct *work);
@@ -274,21 +302,35 @@ static int htable_create(struct net *net, struct hashlimit_cfg3 *cfg,
 	struct xt_hashlimit_htable *hinfo;
 	const struct seq_operations *ops;
 	unsigned int size, i;
+<<<<<<< HEAD
+=======
+	unsigned long nr_pages = totalram_pages();
+>>>>>>> upstream/android-13
 	int ret;
 
 	if (cfg->size) {
 		size = cfg->size;
 	} else {
+<<<<<<< HEAD
 		size = (totalram_pages << PAGE_SHIFT) / 16384 /
 		       sizeof(struct hlist_head);
 		if (totalram_pages > 1024 * 1024 * 1024 / PAGE_SIZE)
+=======
+		size = (nr_pages << PAGE_SHIFT) / 16384 /
+		       sizeof(struct hlist_head);
+		if (nr_pages > 1024 * 1024 * 1024 / PAGE_SIZE)
+>>>>>>> upstream/android-13
 			size = 8192;
 		if (size < 16)
 			size = 16;
 	}
 	/* FIXME: don't use vmalloc() here or anywhere else -HW */
+<<<<<<< HEAD
 	hinfo = vmalloc(sizeof(struct xt_hashlimit_htable) +
 	                sizeof(struct hlist_head) * size);
+=======
+	hinfo = vmalloc(struct_size(hinfo, hash, size));
+>>>>>>> upstream/android-13
 	if (hinfo == NULL)
 		return -ENOMEM;
 	*out_hinfo = hinfo;
@@ -309,7 +351,11 @@ static int htable_create(struct net *net, struct hashlimit_cfg3 *cfg,
 	for (i = 0; i < hinfo->cfg.size; i++)
 		INIT_HLIST_HEAD(&hinfo->hash[i]);
 
+<<<<<<< HEAD
 	hinfo->use = 1;
+=======
+	refcount_set(&hinfo->use, 1);
+>>>>>>> upstream/android-13
 	hinfo->count = 0;
 	hinfo->family = family;
 	hinfo->rnd_initialized = false;
@@ -351,6 +397,7 @@ static int htable_create(struct net *net, struct hashlimit_cfg3 *cfg,
 	return 0;
 }
 
+<<<<<<< HEAD
 static bool select_all(const struct xt_hashlimit_htable *ht,
 		       const struct dsthash_ent *he)
 {
@@ -366,6 +413,9 @@ static bool select_gc(const struct xt_hashlimit_htable *ht,
 static void htable_selective_cleanup(struct xt_hashlimit_htable *ht,
 			bool (*select)(const struct xt_hashlimit_htable *ht,
 				      const struct dsthash_ent *he))
+=======
+static void htable_selective_cleanup(struct xt_hashlimit_htable *ht, bool select_all)
+>>>>>>> upstream/android-13
 {
 	unsigned int i;
 
@@ -375,7 +425,11 @@ static void htable_selective_cleanup(struct xt_hashlimit_htable *ht,
 
 		spin_lock_bh(&ht->lock);
 		hlist_for_each_entry_safe(dh, n, &ht->hash[i], node) {
+<<<<<<< HEAD
 			if ((*select)(ht, dh))
+=======
+			if (time_after_eq(jiffies, dh->expires) || select_all)
+>>>>>>> upstream/android-13
 				dsthash_free(ht, dh);
 		}
 		spin_unlock_bh(&ht->lock);
@@ -389,7 +443,11 @@ static void htable_gc(struct work_struct *work)
 
 	ht = container_of(work, struct xt_hashlimit_htable, gc_work.work);
 
+<<<<<<< HEAD
 	htable_selective_cleanup(ht, select_gc);
+=======
+	htable_selective_cleanup(ht, false);
+>>>>>>> upstream/android-13
 
 	queue_delayed_work(system_power_efficient_wq,
 			   &ht->gc_work, msecs_to_jiffies(ht->cfg.gc_interval));
@@ -409,6 +467,7 @@ static void htable_remove_proc_entry(struct xt_hashlimit_htable *hinfo)
 		remove_proc_entry(hinfo->name, parent);
 }
 
+<<<<<<< HEAD
 static void htable_destroy(struct xt_hashlimit_htable *hinfo)
 {
 	cancel_delayed_work_sync(&hinfo->gc_work);
@@ -418,6 +477,8 @@ static void htable_destroy(struct xt_hashlimit_htable *hinfo)
 	vfree(hinfo);
 }
 
+=======
+>>>>>>> upstream/android-13
 static struct xt_hashlimit_htable *htable_find_get(struct net *net,
 						   const char *name,
 						   u_int8_t family)
@@ -428,7 +489,11 @@ static struct xt_hashlimit_htable *htable_find_get(struct net *net,
 	hlist_for_each_entry(hinfo, &hashlimit_net->htables, node) {
 		if (!strcmp(name, hinfo->name) &&
 		    hinfo->family == family) {
+<<<<<<< HEAD
 			hinfo->use++;
+=======
+			refcount_inc(&hinfo->use);
+>>>>>>> upstream/android-13
 			return hinfo;
 		}
 	}
@@ -437,12 +502,25 @@ static struct xt_hashlimit_htable *htable_find_get(struct net *net,
 
 static void htable_put(struct xt_hashlimit_htable *hinfo)
 {
+<<<<<<< HEAD
 	mutex_lock(&hashlimit_mutex);
 	if (--hinfo->use == 0) {
 		hlist_del(&hinfo->node);
 		htable_destroy(hinfo);
 	}
 	mutex_unlock(&hashlimit_mutex);
+=======
+	if (refcount_dec_and_mutex_lock(&hinfo->use, &hashlimit_mutex)) {
+		hlist_del(&hinfo->node);
+		htable_remove_proc_entry(hinfo);
+		mutex_unlock(&hashlimit_mutex);
+
+		cancel_delayed_work_sync(&hinfo->gc_work);
+		htable_selective_cleanup(hinfo, true);
+		kfree(hinfo->name);
+		vfree(hinfo);
+	}
+>>>>>>> upstream/android-13
 }
 
 /* The algorithm used is the Simple Token Bucket Filter (TBF)
@@ -1336,7 +1414,11 @@ static void __exit hashlimit_mt_exit(void)
 	xt_unregister_matches(hashlimit_mt_reg, ARRAY_SIZE(hashlimit_mt_reg));
 	unregister_pernet_subsys(&hashlimit_net_ops);
 
+<<<<<<< HEAD
 	rcu_barrier_bh();
+=======
+	rcu_barrier();
+>>>>>>> upstream/android-13
 	kmem_cache_destroy(hashlimit_cachep);
 }
 

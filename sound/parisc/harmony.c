@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* Hewlett-Packard Harmony audio driver
  *
  *   This is a driver for the Harmony audio chipset found
@@ -13,6 +17,7 @@
  *       Copyright 2003 (c) Laurent Canet
  *       Copyright 2004 (c) Stuart Brady
  *
+<<<<<<< HEAD
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License, version 2, as
  *   published by the Free Software Foundation.
@@ -26,13 +31,18 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
+=======
+>>>>>>> upstream/android-13
  * Notes:
  *   - graveyard and silence buffers last for lifetime of
  *     the driver. playback and capture buffers are allocated
  *     per _open()/_close().
  * 
  * TODO:
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -576,6 +586,7 @@ snd_harmony_capture_close(struct snd_pcm_substream *ss)
         return 0;
 }
 
+<<<<<<< HEAD
 static int 
 snd_harmony_hw_params(struct snd_pcm_substream *ss,
 		      struct snd_pcm_hw_params *hw)
@@ -602,6 +613,11 @@ static const struct snd_pcm_ops snd_harmony_playback_ops = {
 	.ioctl = snd_pcm_lib_ioctl,
 	.hw_params = snd_harmony_hw_params,
 	.hw_free = snd_harmony_hw_free,
+=======
+static const struct snd_pcm_ops snd_harmony_playback_ops = {
+	.open =	snd_harmony_playback_open,
+	.close = snd_harmony_playback_close,
+>>>>>>> upstream/android-13
 	.prepare = snd_harmony_playback_prepare,
 	.trigger = snd_harmony_playback_trigger,
  	.pointer = snd_harmony_playback_pointer,
@@ -610,9 +626,12 @@ static const struct snd_pcm_ops snd_harmony_playback_ops = {
 static const struct snd_pcm_ops snd_harmony_capture_ops = {
         .open = snd_harmony_capture_open,
         .close = snd_harmony_capture_close,
+<<<<<<< HEAD
         .ioctl = snd_pcm_lib_ioctl,
         .hw_params = snd_harmony_hw_params,
         .hw_free = snd_harmony_hw_free,
+=======
+>>>>>>> upstream/android-13
         .prepare = snd_harmony_capture_prepare,
         .trigger = snd_harmony_capture_trigger,
         .pointer = snd_harmony_capture_pointer,
@@ -669,6 +688,7 @@ snd_harmony_pcm_init(struct snd_harmony *h)
 	}
 
 	/* pre-allocate space for DMA */
+<<<<<<< HEAD
 	err = snd_pcm_lib_preallocate_pages_for_all(pcm, h->dma.type,
 						    h->dma.dev,
 						    MAX_BUF_SIZE, 
@@ -677,6 +697,10 @@ snd_harmony_pcm_init(struct snd_harmony *h)
 		printk(KERN_ERR PFX "buffer allocation error: %d\n", err);
 		return err;
 	}
+=======
+	snd_pcm_set_managed_buffer_all(pcm, h->dma.type, h->dma.dev,
+				       MAX_BUF_SIZE, MAX_BUF_SIZE);
+>>>>>>> upstream/android-13
 
 	h->st.format = snd_harmony_set_data_format(h,
 		SNDRV_PCM_FORMAT_S16_BE, 1);
@@ -828,7 +852,11 @@ snd_harmony_captureroute_put(struct snd_kcontrol *kc,
   .private_value = ((left_shift) | ((right_shift) << 8) |            \
                    ((mask) << 16) | ((invert) << 24)) }
 
+<<<<<<< HEAD
 static struct snd_kcontrol_new snd_harmony_controls[] = {
+=======
+static const struct snd_kcontrol_new snd_harmony_controls[] = {
+>>>>>>> upstream/android-13
 	HARMONY_VOLUME("Master Playback Volume", HARMONY_GAIN_LO_SHIFT, 
 		       HARMONY_GAIN_RO_SHIFT, HARMONY_GAIN_OUT, 1),
 	HARMONY_VOLUME("Capture Volume", HARMONY_GAIN_LI_SHIFT,
@@ -912,7 +940,11 @@ snd_harmony_create(struct snd_card *card,
 {
 	int err;
 	struct snd_harmony *h;
+<<<<<<< HEAD
 	static struct snd_device_ops ops = {
+=======
+	static const struct snd_device_ops ops = {
+>>>>>>> upstream/android-13
 		.dev_free = snd_harmony_dev_free,
 	};
 
@@ -926,7 +958,11 @@ snd_harmony_create(struct snd_card *card,
 	h->card = card;
 	h->dev = padev;
 	h->irq = -1;
+<<<<<<< HEAD
 	h->iobase = ioremap_nocache(padev->hpa.start, HARMONY_SIZE);
+=======
+	h->iobase = ioremap(padev->hpa.start, HARMONY_SIZE);
+>>>>>>> upstream/android-13
 	if (h->iobase == NULL) {
 		printk(KERN_ERR PFX "unable to remap hpa 0x%lx\n",
 		       (unsigned long)padev->hpa.start);
@@ -946,10 +982,16 @@ snd_harmony_create(struct snd_card *card,
 	spin_lock_init(&h->mixer_lock);
 	spin_lock_init(&h->lock);
 
+<<<<<<< HEAD
         if ((err = snd_device_new(card, SNDRV_DEV_LOWLEVEL,
                                   h, &ops)) < 0) {
                 goto free_and_ret;
         }
+=======
+	err = snd_device_new(card, SNDRV_DEV_LOWLEVEL, h, &ops);
+	if (err < 0)
+		goto free_and_ret;
+>>>>>>> upstream/android-13
 
 	*rchip = h;
 
@@ -1000,11 +1042,18 @@ free_and_ret:
 	return err;
 }
 
+<<<<<<< HEAD
 static int __exit
 snd_harmony_remove(struct parisc_device *padev)
 {
 	snd_card_free(parisc_get_drvdata(padev));
 	return 0;
+=======
+static void __exit
+snd_harmony_remove(struct parisc_device *padev)
+{
+	snd_card_free(parisc_get_drvdata(padev));
+>>>>>>> upstream/android-13
 }
 
 static struct parisc_driver snd_harmony_driver __refdata = {

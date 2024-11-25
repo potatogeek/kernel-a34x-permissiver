@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * WL3501 Wireless LAN PCMCIA Card Driver for Linux
  * Written originally for Linux 2.0.30 by Fox Chen, mhchen@golf.ccl.itri.org.tw
@@ -133,8 +137,13 @@ static const struct {
 
 /**
  * iw_valid_channel - validate channel in regulatory domain
+<<<<<<< HEAD
  * @reg_comain - regulatory domain
  * @channel - channel to validate
+=======
+ * @reg_domain: regulatory domain
+ * @channel: channel to validate
+>>>>>>> upstream/android-13
  *
  * Returns 0 if invalid in the specified regulatory domain, non-zero if valid.
  */
@@ -153,7 +162,11 @@ static int iw_valid_channel(int reg_domain, int channel)
 
 /**
  * iw_default_channel - get default channel for a regulatory domain
+<<<<<<< HEAD
  * @reg_comain - regulatory domain
+=======
+ * @reg_domain: regulatory domain
+>>>>>>> upstream/android-13
  *
  * Returns the default channel for a regulatory domain
  */
@@ -236,6 +249,10 @@ static int wl3501_get_flash_mac_addr(struct wl3501_card *this)
 
 /**
  * wl3501_set_to_wla - Move 'size' bytes from PC to card
+<<<<<<< HEAD
+=======
+ * @this: Card
+>>>>>>> upstream/android-13
  * @dest: Card addressing space
  * @src: PC addressing space
  * @size: Bytes to move
@@ -258,6 +275,10 @@ static void wl3501_set_to_wla(struct wl3501_card *this, u16 dest, void *src,
 
 /**
  * wl3501_get_from_wla - Move 'size' bytes from card to PC
+<<<<<<< HEAD
+=======
+ * @this: Card
+>>>>>>> upstream/android-13
  * @src: Card addressing space
  * @dest: PC addressing space
  * @size: Bytes to move
@@ -454,12 +475,19 @@ out:
 
 /**
  * wl3501_send_pkt - Send a packet.
+<<<<<<< HEAD
  * @this - card
  *
  * Send a packet.
  *
  * data = Ethernet raw frame.  (e.g. data[0] - data[5] is Dest MAC Addr,
  *                                   data[6] - data[11] is Src MAC Addr)
+=======
+ * @this: Card
+ * @data: Ethernet raw frame.  (e.g. data[0] - data[5] is Dest MAC Addr,
+ *                                   data[6] - data[11] is Src MAC Addr)
+ * @len: Packet length
+>>>>>>> upstream/android-13
  * Ref: IEEE 802.11
  */
 static int wl3501_send_pkt(struct wl3501_card *this, u8 *data, u16 len)
@@ -722,7 +750,11 @@ static void wl3501_mgmt_scan_confirm(struct wl3501_card *this, u16 addr)
 
 /**
  * wl3501_block_interrupt - Mask interrupt from SUTRO
+<<<<<<< HEAD
  * @this - card
+=======
+ * @this: Card
+>>>>>>> upstream/android-13
  *
  * Mask interrupt from SUTRO. (i.e. SUTRO cannot interrupt the HOST)
  * Return: 1 if interrupt is originally enabled
@@ -739,7 +771,11 @@ static int wl3501_block_interrupt(struct wl3501_card *this)
 
 /**
  * wl3501_unblock_interrupt - Enable interrupt from SUTRO
+<<<<<<< HEAD
  * @this - card
+=======
+ * @this: Card
+>>>>>>> upstream/android-13
  *
  * Enable interrupt from SUTRO. (i.e. SUTRO can interrupt the HOST)
  * Return: 1 if interrupt is originally enabled
@@ -1113,8 +1149,13 @@ static inline void wl3501_ack_interrupt(struct wl3501_card *this)
 
 /**
  * wl3501_interrupt - Hardware interrupt from card.
+<<<<<<< HEAD
  * @irq - Interrupt number
  * @dev_id - net_device
+=======
+ * @irq: Interrupt number
+ * @dev_id: net_device
+>>>>>>> upstream/android-13
  *
  * We must acknowledge the interrupt as soon as possible, and block the
  * interrupt from the same card immediately to prevent re-entry.
@@ -1229,7 +1270,10 @@ fail:
 static int wl3501_close(struct net_device *dev)
 {
 	struct wl3501_card *this = netdev_priv(dev);
+<<<<<<< HEAD
 	int rc = -ENODEV;
+=======
+>>>>>>> upstream/android-13
 	unsigned long flags;
 	struct pcmcia_device *link;
 	link = this->p_dev;
@@ -1244,15 +1288,25 @@ static int wl3501_close(struct net_device *dev)
 	/* Mask interrupts from the SUTRO */
 	wl3501_block_interrupt(this);
 
+<<<<<<< HEAD
 	rc = 0;
 	printk(KERN_INFO "%s: WL3501 closed\n", dev->name);
 	spin_unlock_irqrestore(&this->lock, flags);
 	return rc;
+=======
+	printk(KERN_INFO "%s: WL3501 closed\n", dev->name);
+	spin_unlock_irqrestore(&this->lock, flags);
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /**
  * wl3501_reset - Reset the SUTRO.
+<<<<<<< HEAD
  * @dev - network device
+=======
+ * @dev: network device
+>>>>>>> upstream/android-13
  *
  * It is almost the same as wl3501_open(). In fact, we may just wl3501_close()
  * and wl3501_open() again, but I wouldn't like to free_irq() when the driver
@@ -1290,7 +1344,11 @@ out:
 	return rc;
 }
 
+<<<<<<< HEAD
 static void wl3501_tx_timeout(struct net_device *dev)
+=======
+static void wl3501_tx_timeout(struct net_device *dev, unsigned int txqueue)
+>>>>>>> upstream/android-13
 {
 	struct net_device_stats *stats = &dev->stats;
 	int rc;
@@ -1415,7 +1473,11 @@ static struct iw_statistics *wl3501_get_wireless_stats(struct net_device *dev)
 
 /**
  * wl3501_detach - deletes a driver "instance"
+<<<<<<< HEAD
  * @link - FILL_IN
+=======
+ * @link: FILL_IN
+>>>>>>> upstream/android-13
  *
  * This deletes a driver "instance". The device is de-registered with Card
  * Services. If it has been released, all local data structures are freed.
@@ -1436,9 +1498,13 @@ static void wl3501_detach(struct pcmcia_device *link)
 	wl3501_release(link);
 
 	unregister_netdev(dev);
+<<<<<<< HEAD
 
 	if (link->priv)
 		free_netdev(link->priv);
+=======
+	free_netdev(dev);
+>>>>>>> upstream/android-13
 }
 
 static int wl3501_get_name(struct net_device *dev, struct iw_request_info *info,

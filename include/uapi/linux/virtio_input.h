@@ -40,6 +40,7 @@ enum virtio_input_config_select {
 };
 
 struct virtio_input_absinfo {
+<<<<<<< HEAD
 	__u32 min;
 	__u32 max;
 	__u32 fuzz;
@@ -52,6 +53,20 @@ struct virtio_input_devids {
 	__u16 vendor;
 	__u16 product;
 	__u16 version;
+=======
+	__le32 min;
+	__le32 max;
+	__le32 fuzz;
+	__le32 flat;
+	__le32 res;
+};
+
+struct virtio_input_devids {
+	__le16 bustype;
+	__le16 vendor;
+	__le16 product;
+	__le16 version;
+>>>>>>> upstream/android-13
 };
 
 struct virtio_input_config {

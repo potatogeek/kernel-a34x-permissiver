@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Linux-DVB Driver for DiBcom's DiB0070 base-band RF Tuner.
  *
  * Copyright (C) 2005-9 DiBcom (http://www.dibcom.fr/)
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of the
@@ -18,6 +23,10 @@
  * This code is more or less generated from another driver, please
  * excuse some codingstyle oddities.
  *
+=======
+ * This code is more or less generated from another driver, please
+ * excuse some codingstyle oddities.
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -201,7 +210,12 @@ static int dib0070_captrim(struct dib0070_state *state, enum frontend_tune_state
 
 		adc = dib0070_read_reg(state, 0x19);
 
+<<<<<<< HEAD
 		dprintk("CAPTRIM=%hd; ADC = %hd (ADC) & %dmV\n", state->captrim, adc, (u32) adc*(u32)1800/(u32)1024);
+=======
+		dprintk("CAPTRIM=%d; ADC = %hd (ADC) & %dmV\n", state->captrim,
+			adc, (u32)adc * (u32)1800 / (u32)1024);
+>>>>>>> upstream/android-13
 
 		if (adc >= 400) {
 			adc -= 400;
@@ -212,7 +226,12 @@ static int dib0070_captrim(struct dib0070_state *state, enum frontend_tune_state
 		}
 
 		if (adc < state->adc_diff) {
+<<<<<<< HEAD
 			dprintk("CAPTRIM=%hd is closer to target (%hd/%hd)\n", state->captrim, adc, state->adc_diff);
+=======
+			dprintk("CAPTRIM=%d is closer to target (%hd/%hd)\n",
+				state->captrim, adc, state->adc_diff);
+>>>>>>> upstream/android-13
 			state->adc_diff = adc;
 			state->fcaptrim = state->captrim;
 		}
@@ -376,7 +395,11 @@ static int dib0070_tune_digital(struct dvb_frontend *fe)
 	}
 
 	if (*tune_state == CT_TUNER_START) {
+<<<<<<< HEAD
 		dprintk("Tuning for Band: %hd (%d kHz)\n", band, freq);
+=======
+		dprintk("Tuning for Band: %d (%d kHz)\n", band, freq);
+>>>>>>> upstream/android-13
 		if (state->current_rf != freq) {
 			u8 REFDIV;
 			u32 FBDiv, Rest, FREF, VCOF_kHz;
@@ -454,12 +477,26 @@ static int dib0070_tune_digital(struct dvb_frontend *fe)
 			dib0070_write_reg(state, 0x20,
 				0x0040 | 0x0020 | 0x0010 | 0x0008 | 0x0002 | 0x0001 | state->current_tune_table_index->tuner_enable);
 
+<<<<<<< HEAD
 			dprintk("REFDIV: %hd, FREF: %d\n", REFDIV, FREF);
 			dprintk("FBDIV: %d, Rest: %d\n", FBDiv, Rest);
 			dprintk("Num: %hd, Den: %hd, SD: %hd\n", (u16) Rest, Den, (state->lo4 >> 12) & 0x1);
 			dprintk("HFDIV code: %hd\n", state->current_tune_table_index->hfdiv);
 			dprintk("VCO = %hd\n", state->current_tune_table_index->vco_band);
 			dprintk("VCOF: ((%hd*%d) << 1))\n", state->current_tune_table_index->vco_multi, freq);
+=======
+			dprintk("REFDIV: %u, FREF: %d\n", REFDIV, FREF);
+			dprintk("FBDIV: %d, Rest: %d\n", FBDiv, Rest);
+			dprintk("Num: %u, Den: %u, SD: %d\n", (u16)Rest, Den,
+				(state->lo4 >> 12) & 0x1);
+			dprintk("HFDIV code: %u\n",
+				state->current_tune_table_index->hfdiv);
+			dprintk("VCO = %u\n",
+				state->current_tune_table_index->vco_band);
+			dprintk("VCOF: ((%u*%d) << 1))\n",
+				state->current_tune_table_index->vco_multi,
+				freq);
+>>>>>>> upstream/android-13
 
 			*tune_state = CT_TUNER_STEP_0;
 		} else { /* we are already tuned to this frequency - the configuration is correct  */

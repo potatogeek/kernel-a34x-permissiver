@@ -1,17 +1,28 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * IOMMU sysfs class support
  *
  * Copyright (C) 2014 Red Hat, Inc.  All rights reserved.
  *     Author: Alex Williamson <alex.williamson@redhat.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/device.h>
 #include <linux/iommu.h>
+<<<<<<< HEAD
 #include <linux/module.h>
+=======
+#include <linux/init.h>
+>>>>>>> upstream/android-13
 #include <linux/slab.h>
 
 /*
@@ -22,25 +33,43 @@ static struct attribute *devices_attr[] = {
 	NULL,
 };
 
+<<<<<<< HEAD
 static const struct attribute_group iommu_devices_attr_group = {
+=======
+static const struct attribute_group devices_attr_group = {
+>>>>>>> upstream/android-13
 	.name = "devices",
 	.attrs = devices_attr,
 };
 
+<<<<<<< HEAD
 static const struct attribute_group *iommu_dev_groups[] = {
 	&iommu_devices_attr_group,
 	NULL,
 };
 
 static void iommu_release_device(struct device *dev)
+=======
+static const struct attribute_group *dev_groups[] = {
+	&devices_attr_group,
+	NULL,
+};
+
+static void release_device(struct device *dev)
+>>>>>>> upstream/android-13
 {
 	kfree(dev);
 }
 
 static struct class iommu_class = {
 	.name = "iommu",
+<<<<<<< HEAD
 	.dev_release = iommu_release_device,
 	.dev_groups = iommu_dev_groups,
+=======
+	.dev_release = release_device,
+	.dev_groups = dev_groups,
+>>>>>>> upstream/android-13
 };
 
 static int __init iommu_dev_init(void)
@@ -98,6 +127,11 @@ void iommu_device_sysfs_remove(struct iommu_device *iommu)
 	device_unregister(iommu->dev);
 	iommu->dev = NULL;
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(iommu_device_sysfs_remove);
+
+>>>>>>> upstream/android-13
 /*
  * IOMMU drivers can indicate a device is managed by a given IOMMU using
  * this interface.  A link to the device will be created in the "devices"

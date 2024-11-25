@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  *  linux/arch/arm/lib/div64.S
  *
@@ -6,10 +10,13 @@
  *  Author:	Nicolas Pitre
  *  Created:	Oct 5, 2003
  *  Copyright:	Monta Vista Software, Inc.
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2 as
  *  published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/linkage.h>
@@ -88,8 +95,13 @@ UNWIND(.fnstart)
  	@ Break out early if dividend reaches 0.
 2:	cmp	xh, yl
 	orrcs	yh, yh, ip
+<<<<<<< HEAD
 	subcss	xh, xh, yl
 	movnes	ip, ip, lsr #1
+=======
+	subscs	xh, xh, yl
+	movsne	ip, ip, lsr #1
+>>>>>>> upstream/android-13
 	mov	yl, yl, lsr #1
 	bne	2b
 

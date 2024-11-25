@@ -14,6 +14,10 @@
 #include <linux/kernel.h>
 #include <linux/init.h>
 #include <linux/clk-provider.h>
+<<<<<<< HEAD
+=======
+#include <linux/gpio/machine.h>
+>>>>>>> upstream/android-13
 #include <linux/gpio.h>
 #include <linux/delay.h>
 #include <linux/platform_device.h>
@@ -22,7 +26,10 @@
 #include <linux/mfd/t7l66xb.h>
 #include <linux/mtd/rawnand.h>
 #include <linux/mtd/partitions.h>
+<<<<<<< HEAD
 #include <linux/usb/gpio_vbus.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/memblock.h>
 
 #include <video/w100fb.h>
@@ -51,18 +58,33 @@ void __init eseries_fixup(struct tag *tags, char **cmdline)
 		memblock_add(0xa0000000, SZ_64M);
 }
 
+<<<<<<< HEAD
 struct gpio_vbus_mach_info e7xx_udc_info = {
 	.gpio_vbus   = GPIO_E7XX_USB_DISC,
 	.gpio_pullup = GPIO_E7XX_USB_PULLUP,
 	.gpio_pullup_inverted = 1
+=======
+static struct gpiod_lookup_table e7xx_gpio_vbus_gpiod_table __maybe_unused = {
+	.dev_id = "gpio-vbus",
+	.table = {
+		GPIO_LOOKUP("gpio-pxa", GPIO_E7XX_USB_DISC,
+			    "vbus", GPIO_ACTIVE_HIGH),
+		GPIO_LOOKUP("gpio-pxa", GPIO_E7XX_USB_PULLUP,
+			    "pullup", GPIO_ACTIVE_LOW),
+		{ },
+	},
+>>>>>>> upstream/android-13
 };
 
 static struct platform_device e7xx_gpio_vbus __maybe_unused = {
 	.name	= "gpio-vbus",
 	.id	= -1,
+<<<<<<< HEAD
 	.dev	= {
 		.platform_data	= &e7xx_udc_info,
 	},
+=======
+>>>>>>> upstream/android-13
 };
 
 struct pxaficp_platform_data e7xx_ficp_platform_data = {
@@ -165,6 +187,10 @@ static void __init e330_init(void)
 	pxa_set_stuart_info(NULL);
 	eseries_register_clks();
 	eseries_get_tmio_gpios();
+<<<<<<< HEAD
+=======
+	gpiod_add_lookup_table(&e7xx_gpio_vbus_gpiod_table);
+>>>>>>> upstream/android-13
 	platform_add_devices(ARRAY_AND_SIZE(e330_devices));
 }
 
@@ -216,6 +242,10 @@ static void __init e350_init(void)
 	pxa_set_stuart_info(NULL);
 	eseries_register_clks();
 	eseries_get_tmio_gpios();
+<<<<<<< HEAD
+=======
+	gpiod_add_lookup_table(&e7xx_gpio_vbus_gpiod_table);
+>>>>>>> upstream/android-13
 	platform_add_devices(ARRAY_AND_SIZE(e350_devices));
 }
 
@@ -340,6 +370,10 @@ static void __init e400_init(void)
 	eseries_register_clks();
 	eseries_get_tmio_gpios();
 	pxa_set_fb_info(NULL, &e400_pxafb_mach_info);
+<<<<<<< HEAD
+=======
+	gpiod_add_lookup_table(&e7xx_gpio_vbus_gpiod_table);
+>>>>>>> upstream/android-13
 	platform_add_devices(ARRAY_AND_SIZE(e400_devices));
 }
 
@@ -534,6 +568,10 @@ static void __init e740_init(void)
 	clk_add_alias("CLK_CK48M", e740_t7l66xb_device.name,
 			"UDCCLK", &pxa25x_device_udc.dev),
 	eseries_get_tmio_gpios();
+<<<<<<< HEAD
+=======
+	gpiod_add_lookup_table(&e7xx_gpio_vbus_gpiod_table);
+>>>>>>> upstream/android-13
 	platform_add_devices(ARRAY_AND_SIZE(e740_devices));
 	pxa_set_ac97_info(NULL);
 	pxa_set_ficp_info(&e7xx_ficp_platform_data);
@@ -733,6 +771,10 @@ static void __init e750_init(void)
 	clk_add_alias("CLK_CK3P6MI", e750_tc6393xb_device.name,
 			"GPIO11_CLK", NULL),
 	eseries_get_tmio_gpios();
+<<<<<<< HEAD
+=======
+	gpiod_add_lookup_table(&e7xx_gpio_vbus_gpiod_table);
+>>>>>>> upstream/android-13
 	platform_add_devices(ARRAY_AND_SIZE(e750_devices));
 	pxa_set_ac97_info(NULL);
 	pxa_set_ficp_info(&e7xx_ficp_platform_data);
@@ -888,18 +930,33 @@ static struct platform_device e800_fb_device = {
 
 /* --------------------------- UDC definitions --------------------------- */
 
+<<<<<<< HEAD
 static struct gpio_vbus_mach_info e800_udc_info = {
 	.gpio_vbus   = GPIO_E800_USB_DISC,
 	.gpio_pullup = GPIO_E800_USB_PULLUP,
 	.gpio_pullup_inverted = 1
+=======
+static struct gpiod_lookup_table e800_gpio_vbus_gpiod_table = {
+	.dev_id = "gpio-vbus",
+	.table = {
+		GPIO_LOOKUP("gpio-pxa", GPIO_E800_USB_DISC,
+			    "vbus", GPIO_ACTIVE_HIGH),
+		GPIO_LOOKUP("gpio-pxa", GPIO_E800_USB_PULLUP,
+			    "pullup", GPIO_ACTIVE_LOW),
+		{ },
+	},
+>>>>>>> upstream/android-13
 };
 
 static struct platform_device e800_gpio_vbus = {
 	.name	= "gpio-vbus",
 	.id	= -1,
+<<<<<<< HEAD
 	.dev	= {
 		.platform_data	= &e800_udc_info,
 	},
+=======
+>>>>>>> upstream/android-13
 };
 
 
@@ -949,6 +1006,10 @@ static void __init e800_init(void)
 	clk_add_alias("CLK_CK3P6MI", e800_tc6393xb_device.name,
 			"GPIO11_CLK", NULL),
 	eseries_get_tmio_gpios();
+<<<<<<< HEAD
+=======
+	gpiod_add_lookup_table(&e800_gpio_vbus_gpiod_table);
+>>>>>>> upstream/android-13
 	platform_add_devices(ARRAY_AND_SIZE(e800_devices));
 	pxa_set_ac97_info(NULL);
 }

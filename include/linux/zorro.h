@@ -29,7 +29,10 @@
 struct zorro_dev {
     struct ExpansionRom rom;
     zorro_id id;
+<<<<<<< HEAD
     struct zorro_driver *driver;	/* which driver has allocated this device */
+=======
+>>>>>>> upstream/android-13
     struct device dev;			/* Generic device interface */
     u16 slotaddr;
     u16 slotsize;
@@ -41,6 +44,7 @@ struct zorro_dev {
 
 
     /*
+<<<<<<< HEAD
      *  Zorro bus
      */
 
@@ -48,6 +52,8 @@ extern struct bus_type zorro_bus_type;
 
 
     /*
+=======
+>>>>>>> upstream/android-13
      *  Zorro device drivers
      */
 
@@ -70,11 +76,14 @@ struct zorro_driver {
 /* New-style probing */
 extern int zorro_register_driver(struct zorro_driver *);
 extern void zorro_unregister_driver(struct zorro_driver *);
+<<<<<<< HEAD
 extern const struct zorro_device_id *zorro_match_device(const struct zorro_device_id *ids, const struct zorro_dev *z);
 static inline struct zorro_driver *zorro_dev_driver(const struct zorro_dev *z)
 {
     return z->driver;
 }
+=======
+>>>>>>> upstream/android-13
 
 
 extern unsigned int zorro_num_autocon;	/* # of autoconfig devices found */

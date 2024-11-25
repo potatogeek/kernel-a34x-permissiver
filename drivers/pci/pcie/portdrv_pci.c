@@ -29,12 +29,26 @@ bool pcie_ports_disabled;
  */
 bool pcie_ports_native;
 
+<<<<<<< HEAD
+=======
+/*
+ * If the user specified "pcie_ports=dpc-native", use the Linux DPC PCIe
+ * service even if the platform hasn't given us permission.
+ */
+bool pcie_ports_dpc_native;
+
+>>>>>>> upstream/android-13
 static int __init pcie_port_setup(char *str)
 {
 	if (!strncmp(str, "compat", 6))
 		pcie_ports_disabled = true;
 	else if (!strncmp(str, "native", 6))
 		pcie_ports_native = true;
+<<<<<<< HEAD
+=======
+	else if (!strncmp(str, "dpc-native", 10))
+		pcie_ports_dpc_native = true;
+>>>>>>> upstream/android-13
 
 	return 1;
 }
@@ -45,12 +59,19 @@ __setup("pcie_ports=", pcie_port_setup);
 #ifdef CONFIG_PM
 static int pcie_port_runtime_suspend(struct device *dev)
 {
+<<<<<<< HEAD
 	return to_pci_dev(dev)->bridge_d3 ? 0 : -EBUSY;
 }
 
 static int pcie_port_runtime_resume(struct device *dev)
 {
 	return 0;
+=======
+	if (!to_pci_dev(dev)->bridge_d3)
+		return -EBUSY;
+
+	return pcie_port_device_runtime_suspend(dev);
+>>>>>>> upstream/android-13
 }
 
 static int pcie_port_runtime_idle(struct device *dev)
@@ -73,7 +94,11 @@ static const struct dev_pm_ops pcie_portdrv_pm_ops = {
 	.restore_noirq	= pcie_port_device_resume_noirq,
 	.restore	= pcie_port_device_resume,
 	.runtime_suspend = pcie_port_runtime_suspend,
+<<<<<<< HEAD
 	.runtime_resume	= pcie_port_runtime_resume,
+=======
+	.runtime_resume	= pcie_port_device_runtime_resume,
+>>>>>>> upstream/android-13
 	.runtime_idle	= pcie_port_runtime_idle,
 };
 
@@ -95,6 +120,7 @@ static const struct dev_pm_ops pcie_portdrv_pm_ops = {
 static int pcie_portdrv_probe(struct pci_dev *dev,
 					const struct pci_device_id *id)
 {
+<<<<<<< HEAD
 	int status;
 
 	if (!pci_is_pcie(dev) ||
@@ -103,14 +129,34 @@ static int pcie_portdrv_probe(struct pci_dev *dev,
 	     (pci_pcie_type(dev) != PCI_EXP_TYPE_DOWNSTREAM)))
 		return -ENODEV;
 
+=======
+	int type = pci_pcie_type(dev);
+	int status;
+
+	if (!pci_is_pcie(dev) ||
+	    ((type != PCI_EXP_TYPE_ROOT_PORT) &&
+	     (type != PCI_EXP_TYPE_UPSTREAM) &&
+	     (type != PCI_EXP_TYPE_DOWNSTREAM) &&
+	     (type != PCI_EXP_TYPE_RC_EC)))
+		return -ENODEV;
+
+	if (type == PCI_EXP_TYPE_RC_EC)
+		pcie_link_rcec(dev);
+
+>>>>>>> upstream/android-13
 	status = pcie_port_device_register(dev);
 	if (status)
 		return status;
 
 	pci_save_state(dev);
 
+<<<<<<< HEAD
 	dev_pm_set_driver_flags(&dev->dev, DPM_FLAG_SMART_SUSPEND |
 					   DPM_FLAG_LEAVE_SUSPENDED);
+=======
+	dev_pm_set_driver_flags(&dev->dev, DPM_FLAG_NO_DIRECT_COMPLETE |
+					   DPM_FLAG_SMART_SUSPEND);
+>>>>>>> upstream/android-13
 
 	if (pci_bridge_d3_possible(dev)) {
 		/*
@@ -140,12 +186,29 @@ static void pcie_portdrv_remove(struct pci_dev *dev)
 }
 
 static pci_ers_result_t pcie_portdrv_error_detected(struct pci_dev *dev,
+<<<<<<< HEAD
 					enum pci_channel_state error)
 {
 	/* Root Port has no impact. Always recovers. */
 	return PCI_ERS_RESULT_CAN_RECOVER;
 }
 
+=======
+					pci_channel_state_t error)
+{
+	if (error == pci_channel_io_frozen)
+		return PCI_ERS_RESULT_NEED_RESET;
+	return PCI_ERS_RESULT_CAN_RECOVER;
+}
+
+static pci_ers_result_t pcie_portdrv_slot_reset(struct pci_dev *dev)
+{
+	pci_restore_state(dev);
+	pci_save_state(dev);
+	return PCI_ERS_RESULT_RECOVERED;
+}
+
+>>>>>>> upstream/android-13
 static pci_ers_result_t pcie_portdrv_mmio_enabled(struct pci_dev *dev)
 {
 	return PCI_ERS_RESULT_RECOVERED;
@@ -177,14 +240,29 @@ static void pcie_portdrv_err_resume(struct pci_dev *dev)
 /*
  * LINUX Device Driver Model
  */
+<<<<<<< HEAD
 static const struct pci_device_id port_pci_ids[] = { {
 	/* handle any PCI-Express port */
 	PCI_DEVICE_CLASS(((PCI_CLASS_BRIDGE_PCI << 8) | 0x00), ~0),
 	}, { /* end: all zeroes */ }
+=======
+static const struct pci_device_id port_pci_ids[] = {
+	/* handle any PCI-Express port */
+	{ PCI_DEVICE_CLASS(((PCI_CLASS_BRIDGE_PCI << 8) | 0x00), ~0) },
+	/* subtractive decode PCI-to-PCI bridge, class type is 060401h */
+	{ PCI_DEVICE_CLASS(((PCI_CLASS_BRIDGE_PCI << 8) | 0x01), ~0) },
+	/* handle any Root Complex Event Collector */
+	{ PCI_DEVICE_CLASS(((PCI_CLASS_SYSTEM_RCEC << 8) | 0x00), ~0) },
+	{ },
+>>>>>>> upstream/android-13
 };
 
 static const struct pci_error_handlers pcie_portdrv_err_handler = {
 	.error_detected = pcie_portdrv_error_detected,
+<<<<<<< HEAD
+=======
+	.slot_reset = pcie_portdrv_slot_reset,
+>>>>>>> upstream/android-13
 	.mmio_enabled = pcie_portdrv_mmio_enabled,
 	.resume = pcie_portdrv_err_resume,
 };

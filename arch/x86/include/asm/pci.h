@@ -7,12 +7,20 @@
 #include <linux/slab.h>
 #include <linux/string.h>
 #include <linux/scatterlist.h>
+<<<<<<< HEAD
 #include <asm/io.h>
 #include <asm/pat.h>
 #include <asm/x86_init.h>
 
 #ifdef __KERNEL__
 
+=======
+#include <linux/numa.h>
+#include <asm/io.h>
+#include <asm/memtype.h>
+#include <asm/x86_init.h>
+
+>>>>>>> upstream/android-13
 struct pci_sysdata {
 	int		domain;		/* PCI domain */
 	int		node;		/* NUMA node */
@@ -26,7 +34,11 @@ struct pci_sysdata {
 	void		*fwnode;	/* IRQ domain for MSI assignment */
 #endif
 #if IS_ENABLED(CONFIG_VMD)
+<<<<<<< HEAD
 	bool vmd_domain;		/* True if in Intel VMD domain */
+=======
+	struct pci_dev	*vmd_dev;	/* VMD Device if in Intel VMD domain */
+>>>>>>> upstream/android-13
 #endif
 };
 
@@ -34,14 +46,26 @@ extern int pci_routeirq;
 extern int noioapicquirk;
 extern int noioapicreroute;
 
+<<<<<<< HEAD
+=======
+static inline struct pci_sysdata *to_pci_sysdata(const struct pci_bus *bus)
+{
+	return bus->sysdata;
+}
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PCI
 
 #ifdef CONFIG_PCI_DOMAINS
 static inline int pci_domain_nr(struct pci_bus *bus)
 {
+<<<<<<< HEAD
 	struct pci_sysdata *sd = bus->sysdata;
 
 	return sd->domain;
+=======
+	return to_pci_sysdata(bus)->domain;
+>>>>>>> upstream/android-13
 }
 
 static inline int pci_proc_domain(struct pci_bus *bus)
@@ -53,14 +77,19 @@ static inline int pci_proc_domain(struct pci_bus *bus)
 #ifdef CONFIG_PCI_MSI_IRQ_DOMAIN
 static inline void *_pci_root_bus_fwnode(struct pci_bus *bus)
 {
+<<<<<<< HEAD
 	struct pci_sysdata *sd = bus->sysdata;
 
 	return sd->fwnode;
+=======
+	return to_pci_sysdata(bus)->fwnode;
+>>>>>>> upstream/android-13
 }
 
 #define pci_root_bus_fwnode	_pci_root_bus_fwnode
 #endif
 
+<<<<<<< HEAD
 static inline bool is_vmd(struct pci_bus *bus)
 {
 #if IS_ENABLED(CONFIG_VMD)
@@ -71,6 +100,16 @@ static inline bool is_vmd(struct pci_bus *bus)
 	return false;
 #endif
 }
+=======
+#if IS_ENABLED(CONFIG_VMD)
+static inline bool is_vmd(struct pci_bus *bus)
+{
+	return to_pci_sysdata(bus)->vmd_dev != NULL;
+}
+#else
+#define is_vmd(bus)		false
+#endif /* CONFIG_VMD */
+>>>>>>> upstream/android-13
 
 /* Can be used to override the logic in pci_scan_bus for skipping
    already-configured bus numbers - to be used for buggy BIOSes
@@ -107,6 +146,7 @@ static inline void early_quirks(void) { }
 
 extern void pci_iommu_alloc(void);
 
+<<<<<<< HEAD
 #ifdef CONFIG_PCI_MSI
 /* implemented in arch/x86/kernel/apic/io_apic. */
 struct msi_desc;
@@ -123,6 +163,8 @@ void native_restore_msi_irqs(struct pci_dev *dev);
 #include <asm/pci_64.h>
 #endif
 
+=======
+>>>>>>> upstream/android-13
 /* generic pci stuff */
 #include <asm-generic/pci.h>
 
@@ -130,9 +172,13 @@ void native_restore_msi_irqs(struct pci_dev *dev);
 /* Returns the node based on pci bus */
 static inline int __pcibus_to_node(const struct pci_bus *bus)
 {
+<<<<<<< HEAD
 	const struct pci_sysdata *sd = bus->sysdata;
 
 	return sd->node;
+=======
+	return to_pci_sysdata(bus)->node;
+>>>>>>> upstream/android-13
 }
 
 static inline const struct cpumask *
@@ -141,7 +187,11 @@ cpumask_of_pcibus(const struct pci_bus *bus)
 	int node;
 
 	node = __pcibus_to_node(bus);
+<<<<<<< HEAD
 	return (node == -1) ? cpu_online_mask :
+=======
+	return (node == NUMA_NO_NODE) ? cpu_online_mask :
+>>>>>>> upstream/android-13
 			      cpumask_of_node(node);
 }
 #endif

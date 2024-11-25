@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright(c) 2013-2015 Intel Corporation. All rights reserved.
  *
@@ -9,6 +10,11 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright(c) 2013-2015 Intel Corporation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 #include <linux/vmalloc.h>
 #include <linux/module.h>
@@ -26,6 +32,15 @@ static int nvdimm_probe(struct device *dev)
 	struct nvdimm_drvdata *ndd;
 	int rc;
 
+<<<<<<< HEAD
+=======
+	rc = nvdimm_security_setup_events(dev);
+	if (rc < 0) {
+		dev_err(dev, "security event setup failed: %d\n", rc);
+		return rc;
+	}
+
+>>>>>>> upstream/android-13
 	rc = nvdimm_check_config_data(dev);
 	if (rc) {
 		/* not required for non-aliased nvdimm, ex. NVDIMM-N */
@@ -34,7 +49,15 @@ static int nvdimm_probe(struct device *dev)
 		return rc;
 	}
 
+<<<<<<< HEAD
 	/* reset locked, to be validated below... */
+=======
+	/*
+	 * The locked status bit reflects explicit status codes from the
+	 * label reading commands, revalidate it each time the driver is
+	 * activated and re-reads the label area.
+	 */
+>>>>>>> upstream/android-13
 	nvdimm_clear_locked(dev);
 
 	ndd = kzalloc(sizeof(*ndd), GFP_KERNEL);
@@ -52,6 +75,19 @@ static int nvdimm_probe(struct device *dev)
 	kref_init(&ndd->kref);
 
 	/*
+<<<<<<< HEAD
+=======
+	 * Attempt to unlock, if the DIMM supports security commands,
+	 * otherwise the locked indication is determined by explicit
+	 * status codes from the label reading commands.
+	 */
+	rc = nvdimm_security_unlock(dev);
+	if (rc < 0)
+		dev_dbg(dev, "failed to unlock dimm: %d\n", rc);
+
+
+	/*
+>>>>>>> upstream/android-13
 	 * EACCES failures reading the namespace label-area-properties
 	 * are interpreted as the DIMM capacity being locked but the
 	 * namespace labels themselves being accessible.
@@ -75,7 +111,11 @@ static int nvdimm_probe(struct device *dev)
 	 * DIMM capacity. We fail the dimm probe to prevent regions from
 	 * attempting to parse the label area.
 	 */
+<<<<<<< HEAD
 	rc = nvdimm_init_config_data(ndd);
+=======
+	rc = nd_label_data_init(ndd);
+>>>>>>> upstream/android-13
 	if (rc == -EACCES)
 		nvdimm_set_locked(dev);
 	if (rc)
@@ -84,6 +124,7 @@ static int nvdimm_probe(struct device *dev)
 	dev_dbg(dev, "config data size: %d\n", ndd->nsarea.config_size);
 
 	nvdimm_bus_lock(dev);
+<<<<<<< HEAD
 	ndd->ns_current = nd_label_validate(ndd);
 	ndd->ns_next = nd_label_next_nsindex(ndd->ns_current);
 	nd_label_copy(ndd, to_next_namespace_index(ndd),
@@ -92,6 +133,12 @@ static int nvdimm_probe(struct device *dev)
 		rc = nd_label_reserve_dpa(ndd);
 		if (rc == 0)
 			nvdimm_set_aliasing(dev);
+=======
+	if (ndd->ns_current >= 0) {
+		rc = nd_label_reserve_dpa(ndd);
+		if (rc == 0)
+			nvdimm_set_labeling(dev);
+>>>>>>> upstream/android-13
 	}
 	nvdimm_bus_unlock(dev);
 
@@ -105,6 +152,7 @@ static int nvdimm_probe(struct device *dev)
 	return rc;
 }
 
+<<<<<<< HEAD
 static int nvdimm_remove(struct device *dev)
 {
 	struct nvdimm_drvdata *ndd = dev_get_drvdata(dev);
@@ -112,12 +160,21 @@ static int nvdimm_remove(struct device *dev)
 	if (!ndd)
 		return 0;
 
+=======
+static void nvdimm_remove(struct device *dev)
+{
+	struct nvdimm_drvdata *ndd = dev_get_drvdata(dev);
+
+>>>>>>> upstream/android-13
 	nvdimm_bus_lock(dev);
 	dev_set_drvdata(dev, NULL);
 	nvdimm_bus_unlock(dev);
 	put_ndd(ndd);
+<<<<<<< HEAD
 
 	return 0;
+=======
+>>>>>>> upstream/android-13
 }
 
 static struct nd_device_driver nvdimm_driver = {

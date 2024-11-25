@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  pdc_adma.c - Pacific Digital Corporation ADMA
  *
@@ -5,6 +9,7 @@
  *
  *  Copyright 2005 Mark Lord
  *
+<<<<<<< HEAD
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2, or (at your option)
@@ -24,12 +29,20 @@
  *  as Documentation/driver-api/libata.rst
  *
  *
+=======
+ *  libata documentation is available via 'make {ps|pdf}docs',
+ *  as Documentation/driver-api/libata.rst
+ *
+>>>>>>> upstream/android-13
  *  Supports ATA disks in single-packet ADMA mode.
  *  Uses PIO for everything else.
  *
  *  TODO:  Use ADMA transfers for ATAPI devices, when possible.
  *  This requires careful attention to a number of quirks of the chip.
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -567,7 +580,10 @@ static int adma_port_start(struct ata_port *ap)
 						(u32)pp->pkt_dma);
 		return -ENOMEM;
 	}
+<<<<<<< HEAD
 	memset(pp->pkt, 0, ADMA_PKT_BYTES);
+=======
+>>>>>>> upstream/android-13
 	ap->private_data = pp;
 	adma_reinit_engine(ap);
 	return 0;
@@ -590,6 +606,7 @@ static void adma_host_init(struct ata_host *host, unsigned int chip_id)
 		adma_reset_engine(host->ports[port_no]);
 }
 
+<<<<<<< HEAD
 static int adma_set_dma_masks(struct pci_dev *pdev, void __iomem *mmio_base)
 {
 	int rc;
@@ -607,6 +624,8 @@ static int adma_set_dma_masks(struct pci_dev *pdev, void __iomem *mmio_base)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int adma_ata_init_one(struct pci_dev *pdev,
 			     const struct pci_device_id *ent)
 {
@@ -637,9 +656,17 @@ static int adma_ata_init_one(struct pci_dev *pdev,
 	host->iomap = pcim_iomap_table(pdev);
 	mmio_base = host->iomap[ADMA_MMIO_BAR];
 
+<<<<<<< HEAD
 	rc = adma_set_dma_masks(pdev, mmio_base);
 	if (rc)
 		return rc;
+=======
+	rc = dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(32));
+	if (rc) {
+		dev_err(&pdev->dev, "32-bit DMA enable failed\n");
+		return rc;
+	}
+>>>>>>> upstream/android-13
 
 	for (port_no = 0; port_no < ADMA_PORTS; ++port_no) {
 		struct ata_port *ap = host->ports[port_no];

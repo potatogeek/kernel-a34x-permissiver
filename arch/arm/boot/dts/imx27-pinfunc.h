@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2013 Markus Pargmann <mpa@pengutronix.de>, Pengutronix
  *
@@ -7,6 +8,11 @@
  *
  * http://www.opensource.org/licenses/gpl-license.html
  * http://www.gnu.org/copyleft/gpl.html
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright 2013 Markus Pargmann <mpa@pengutronix.de>, Pengutronix
+>>>>>>> upstream/android-13
  */
 
 #ifndef __DTS_IMX27_PINFUNC_H

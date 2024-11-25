@@ -10,6 +10,7 @@ C MP+onceassign+derefonce
  *)
 
 {
+<<<<<<< HEAD
 y=z;
 z=0;
 }
@@ -21,14 +22,34 @@ P0(int *x, int **y)
 }
 
 P1(int *x, int **y)
+=======
+p=y;
+}
+
+P0(int *x, int **p) // Producer
+{
+	WRITE_ONCE(*x, 1);
+	rcu_assign_pointer(*p, x);
+}
+
+P1(int *x, int **p) // Consumer
+>>>>>>> upstream/android-13
 {
 	int *r0;
 	int r1;
 
 	rcu_read_lock();
+<<<<<<< HEAD
 	r0 = rcu_dereference(*y);
+=======
+	r0 = rcu_dereference(*p);
+>>>>>>> upstream/android-13
 	r1 = READ_ONCE(*r0);
 	rcu_read_unlock();
 }
 
+<<<<<<< HEAD
 exists (1:r0=x /\ 1:r1=0)
+=======
+exists (1:r0=x /\ 1:r1=0) (* Bad outcome. *)
+>>>>>>> upstream/android-13

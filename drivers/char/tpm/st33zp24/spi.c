@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * STMicroelectronics TPM SPI Linux driver for TPM ST33ZP24
  * Copyright (C) 2009 - 2016 STMicroelectronics
@@ -14,6 +15,12 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * STMicroelectronics TPM SPI Linux driver for TPM ST33ZP24
+ * Copyright (C) 2009 - 2016 STMicroelectronics
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -341,7 +348,11 @@ static int st33zp24_spi_request_resources(struct spi_device *dev)
 
 /*
  * st33zp24_spi_probe initialize the TPM device
+<<<<<<< HEAD
  * @param: dev, the spi_device drescription (TPM SPI description).
+=======
+ * @param: dev, the spi_device description (TPM SPI description).
+>>>>>>> upstream/android-13
  * @return: 0 in case of success.
  *	 or a negative value describing the error.
  */
@@ -390,7 +401,11 @@ static int st33zp24_spi_probe(struct spi_device *dev)
 
 /*
  * st33zp24_spi_remove remove the TPM device
+<<<<<<< HEAD
  * @param: client, the spi_device drescription (TPM SPI description).
+=======
+ * @param: client, the spi_device description (TPM SPI description).
+>>>>>>> upstream/android-13
  * @return: 0 in case of success.
  */
 static int st33zp24_spi_remove(struct spi_device *dev)

@@ -1,7 +1,13 @@
+<<<<<<< HEAD
 /*
  * EISA specific code
  *
  * This file is licensed under the GPL V2
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * EISA specific code
+>>>>>>> upstream/android-13
  */
 #include <linux/ioport.h>
 #include <linux/eisa.h>

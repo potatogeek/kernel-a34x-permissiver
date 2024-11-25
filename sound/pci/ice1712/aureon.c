@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *   ALSA driver for ICEnsemble VT1724 (Envy24HT)
  *
@@ -5,6 +9,7 @@
  *
  *	Copyright (c) 2003 Takashi Iwai <tiwai@suse.de>
  *
+<<<<<<< HEAD
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
  *   the Free Software Foundation; either version 2 of the License, or
@@ -20,6 +25,8 @@
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
  *
+=======
+>>>>>>> upstream/android-13
  * NOTES:
  *
  * - we reuse the struct snd_akm4xxx record for storing the wm8770 codec data.
@@ -1403,7 +1410,11 @@ static int aureon_oversampling_put(struct snd_kcontrol *kcontrol, struct snd_ctl
  * mixers
  */
 
+<<<<<<< HEAD
 static struct snd_kcontrol_new aureon_dac_controls[] = {
+=======
+static const struct snd_kcontrol_new aureon_dac_controls[] = {
+>>>>>>> upstream/android-13
 	{
 		.iface = SNDRV_CTL_ELEM_IFACE_MIXER,
 		.name = "Master Playback Switch",
@@ -1518,7 +1529,11 @@ static struct snd_kcontrol_new aureon_dac_controls[] = {
 	}
 };
 
+<<<<<<< HEAD
 static struct snd_kcontrol_new wm_controls[] = {
+=======
+static const struct snd_kcontrol_new wm_controls[] = {
+>>>>>>> upstream/android-13
 	{
 		.iface = SNDRV_CTL_ELEM_IFACE_MIXER,
 		.name = "PCM Playback Switch",
@@ -1584,7 +1599,11 @@ static struct snd_kcontrol_new wm_controls[] = {
 	}
 };
 
+<<<<<<< HEAD
 static struct snd_kcontrol_new ac97_controls[] = {
+=======
+static const struct snd_kcontrol_new ac97_controls[] = {
+>>>>>>> upstream/android-13
 	{
 		.iface = SNDRV_CTL_ELEM_IFACE_MIXER,
 		.name = "AC97 Playback Switch",
@@ -1689,7 +1708,11 @@ static struct snd_kcontrol_new ac97_controls[] = {
 	}
 };
 
+<<<<<<< HEAD
 static struct snd_kcontrol_new universe_ac97_controls[] = {
+=======
+static const struct snd_kcontrol_new universe_ac97_controls[] = {
+>>>>>>> upstream/android-13
 	{
 		.iface = SNDRV_CTL_ELEM_IFACE_MIXER,
 		.name = "AC97 Playback Switch",
@@ -1821,7 +1844,11 @@ static struct snd_kcontrol_new universe_ac97_controls[] = {
 
 };
 
+<<<<<<< HEAD
 static struct snd_kcontrol_new cs8415_controls[] = {
+=======
+static const struct snd_kcontrol_new cs8415_controls[] = {
+>>>>>>> upstream/android-13
 	{
 		.iface = SNDRV_CTL_ELEM_IFACE_MIXER,
 		.name = SNDRV_CTL_NAME_IEC958("", CAPTURE, SWITCH),
@@ -2147,7 +2174,11 @@ static int aureon_init(struct snd_ice1712 *ice)
  * hence the driver needs to sets up it properly.
  */
 
+<<<<<<< HEAD
 static unsigned char aureon51_eeprom[] = {
+=======
+static const unsigned char aureon51_eeprom[] = {
+>>>>>>> upstream/android-13
 	[ICE_EEP2_SYSCONF]     = 0x0a,	/* clock 512, spdif-in/ADC, 3DACs */
 	[ICE_EEP2_ACLINK]      = 0x80,	/* I2S */
 	[ICE_EEP2_I2S]         = 0xfc,	/* vol, 96k, 24bit, 192k */
@@ -2163,7 +2194,11 @@ static unsigned char aureon51_eeprom[] = {
 	[ICE_EEP2_GPIO_STATE2] = 0x00,
 };
 
+<<<<<<< HEAD
 static unsigned char aureon71_eeprom[] = {
+=======
+static const unsigned char aureon71_eeprom[] = {
+>>>>>>> upstream/android-13
 	[ICE_EEP2_SYSCONF]     = 0x0b,	/* clock 512, spdif-in/ADC, 4DACs */
 	[ICE_EEP2_ACLINK]      = 0x80,	/* I2S */
 	[ICE_EEP2_I2S]         = 0xfc,	/* vol, 96k, 24bit, 192k */
@@ -2180,7 +2215,11 @@ static unsigned char aureon71_eeprom[] = {
 };
 #define prodigy71_eeprom aureon71_eeprom
 
+<<<<<<< HEAD
 static unsigned char aureon71_universe_eeprom[] = {
+=======
+static const unsigned char aureon71_universe_eeprom[] = {
+>>>>>>> upstream/android-13
 	[ICE_EEP2_SYSCONF]     = 0x2b,	/* clock 512, mpu401, spdif-in/ADC,
 					 * 4DACs
 					 */
@@ -2198,7 +2237,11 @@ static unsigned char aureon71_universe_eeprom[] = {
 	[ICE_EEP2_GPIO_STATE2] = 0x00,
 };
 
+<<<<<<< HEAD
 static unsigned char prodigy71lt_eeprom[] = {
+=======
+static const unsigned char prodigy71lt_eeprom[] = {
+>>>>>>> upstream/android-13
 	[ICE_EEP2_SYSCONF]     = 0x4b,	/* clock 384, spdif-in/ADC, 4DACs */
 	[ICE_EEP2_ACLINK]      = 0x80,	/* I2S */
 	[ICE_EEP2_I2S]         = 0xfc,	/* vol, 96k, 24bit, 192k */

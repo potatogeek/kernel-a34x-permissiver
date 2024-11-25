@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * Texas Instruments CPDMA Driver
  *
  * Copyright (C) 2010 Texas Instruments
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation version 2.
@@ -11,6 +16,8 @@
  * kind, whether express or implied; without even the implied warranty
  * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/kernel.h>
 #include <linux/spinlock.h>
@@ -141,6 +148,18 @@ struct cpdma_control_info {
 #define ACCESS_RW	(ACCESS_RO | ACCESS_WO)
 };
 
+<<<<<<< HEAD
+=======
+struct submit_info {
+	struct cpdma_chan *chan;
+	int directed;
+	void *token;
+	void *data_virt;
+	dma_addr_t data_dma;
+	int len;
+};
+
+>>>>>>> upstream/android-13
 static struct cpdma_control_info controls[] = {
 	[CPDMA_TX_RLIM]		  = {CPDMA_DMACONTROL,	8,  0xffff, ACCESS_RW},
 	[CPDMA_CMD_IDLE]	  = {CPDMA_DMACONTROL,	3,  1,      ACCESS_WO},
@@ -183,6 +202,11 @@ static struct cpdma_control_info controls[] = {
 				 (directed << CPDMA_TO_PORT_SHIFT));	\
 	} while (0)
 
+<<<<<<< HEAD
+=======
+#define CPDMA_DMA_EXT_MAP		BIT(16)
+
+>>>>>>> upstream/android-13
 static void cpdma_desc_pool_destroy(struct cpdma_ctlr *ctlr)
 {
 	struct cpdma_desc_pool *pool = ctlr->pool;
@@ -527,7 +551,10 @@ struct cpdma_ctlr *cpdma_ctlr_create(struct cpdma_params *params)
 		ctlr->num_chan = CPDMA_MAX_CHANNELS;
 	return ctlr;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(cpdma_ctlr_create);
+=======
+>>>>>>> upstream/android-13
 
 int cpdma_ctlr_start(struct cpdma_ctlr *ctlr)
 {
@@ -588,7 +615,10 @@ int cpdma_ctlr_start(struct cpdma_ctlr *ctlr)
 	spin_unlock_irqrestore(&ctlr->lock, flags);
 	return 0;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(cpdma_ctlr_start);
+=======
+>>>>>>> upstream/android-13
 
 int cpdma_ctlr_stop(struct cpdma_ctlr *ctlr)
 {
@@ -621,7 +651,10 @@ int cpdma_ctlr_stop(struct cpdma_ctlr *ctlr)
 	spin_unlock_irqrestore(&ctlr->lock, flags);
 	return 0;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(cpdma_ctlr_stop);
+=======
+>>>>>>> upstream/android-13
 
 int cpdma_ctlr_destroy(struct cpdma_ctlr *ctlr)
 {
@@ -639,7 +672,10 @@ int cpdma_ctlr_destroy(struct cpdma_ctlr *ctlr)
 	cpdma_desc_pool_destroy(ctlr);
 	return ret;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(cpdma_ctlr_destroy);
+=======
+>>>>>>> upstream/android-13
 
 int cpdma_ctlr_int_ctrl(struct cpdma_ctlr *ctlr, bool enable)
 {
@@ -660,25 +696,37 @@ int cpdma_ctlr_int_ctrl(struct cpdma_ctlr *ctlr, bool enable)
 	spin_unlock_irqrestore(&ctlr->lock, flags);
 	return 0;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(cpdma_ctlr_int_ctrl);
+=======
+>>>>>>> upstream/android-13
 
 void cpdma_ctlr_eoi(struct cpdma_ctlr *ctlr, u32 value)
 {
 	dma_reg_write(ctlr, CPDMA_MACEOIVECTOR, value);
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(cpdma_ctlr_eoi);
+=======
+>>>>>>> upstream/android-13
 
 u32 cpdma_ctrl_rxchs_state(struct cpdma_ctlr *ctlr)
 {
 	return dma_reg_read(ctlr, CPDMA_RXINTSTATMASKED);
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(cpdma_ctrl_rxchs_state);
+=======
+>>>>>>> upstream/android-13
 
 u32 cpdma_ctrl_txchs_state(struct cpdma_ctlr *ctlr)
 {
 	return dma_reg_read(ctlr, CPDMA_TXINTSTATMASKED);
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(cpdma_ctrl_txchs_state);
+=======
+>>>>>>> upstream/android-13
 
 static void cpdma_chan_set_descs(struct cpdma_ctlr *ctlr,
 				 int rx, int desc_num,
@@ -722,11 +770,19 @@ static void cpdma_chan_set_descs(struct cpdma_ctlr *ctlr,
 		most_chan->desc_num += desc_cnt;
 }
 
+<<<<<<< HEAD
 /**
  * cpdma_chan_split_pool - Splits ctrl pool between all channels.
  * Has to be called under ctlr lock
  */
 int cpdma_chan_split_pool(struct cpdma_ctlr *ctlr)
+=======
+/*
+ * cpdma_chan_split_pool - Splits ctrl pool between all channels.
+ * Has to be called under ctlr lock
+ */
+static int cpdma_chan_split_pool(struct cpdma_ctlr *ctlr)
+>>>>>>> upstream/android-13
 {
 	int tx_per_ch_desc = 0, rx_per_ch_desc = 0;
 	int free_rx_num = 0, free_tx_num = 0;
@@ -774,7 +830,10 @@ int cpdma_chan_split_pool(struct cpdma_ctlr *ctlr)
 
 	return 0;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(cpdma_chan_split_pool);
+=======
+>>>>>>> upstream/android-13
 
 
 /* cpdma_chan_set_weight - set weight of a channel in percentage.
@@ -807,7 +866,10 @@ int cpdma_chan_set_weight(struct cpdma_chan *ch, int weight)
 	spin_unlock_irqrestore(&ctlr->lock, flags);
 	return ret;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(cpdma_chan_set_weight);
+=======
+>>>>>>> upstream/android-13
 
 /* cpdma_chan_get_min_rate - get minimum allowed rate for channel
  * Should be called before cpdma_chan_set_rate.
@@ -822,7 +884,10 @@ u32 cpdma_chan_get_min_rate(struct cpdma_ctlr *ctlr)
 
 	return DIV_ROUND_UP(divident, divisor);
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(cpdma_chan_get_min_rate);
+=======
+>>>>>>> upstream/android-13
 
 /* cpdma_chan_set_rate - limits bandwidth for transmit channel.
  * The bandwidth * limited channels have to be in order beginning from lowest.
@@ -867,7 +932,10 @@ err:
 	spin_unlock_irqrestore(&ctlr->lock, flags);
 	return ret;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(cpdma_chan_set_rate);
+=======
+>>>>>>> upstream/android-13
 
 u32 cpdma_chan_get_rate(struct cpdma_chan *ch)
 {
@@ -880,7 +948,10 @@ u32 cpdma_chan_get_rate(struct cpdma_chan *ch)
 
 	return rate;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(cpdma_chan_get_rate);
+=======
+>>>>>>> upstream/android-13
 
 struct cpdma_chan *cpdma_chan_create(struct cpdma_ctlr *ctlr, int chan_num,
 				     cpdma_handler_fn handler, int rx_type)
@@ -940,7 +1011,10 @@ struct cpdma_chan *cpdma_chan_create(struct cpdma_ctlr *ctlr, int chan_num,
 	spin_unlock_irqrestore(&ctlr->lock, flags);
 	return chan;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(cpdma_chan_create);
+=======
+>>>>>>> upstream/android-13
 
 int cpdma_chan_get_rx_buf_num(struct cpdma_chan *chan)
 {
@@ -953,7 +1027,10 @@ int cpdma_chan_get_rx_buf_num(struct cpdma_chan *chan)
 
 	return desc_num;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(cpdma_chan_get_rx_buf_num);
+=======
+>>>>>>> upstream/android-13
 
 int cpdma_chan_destroy(struct cpdma_chan *chan)
 {
@@ -975,7 +1052,10 @@ int cpdma_chan_destroy(struct cpdma_chan *chan)
 	spin_unlock_irqrestore(&ctlr->lock, flags);
 	return 0;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(cpdma_chan_destroy);
+=======
+>>>>>>> upstream/android-13
 
 int cpdma_chan_get_stats(struct cpdma_chan *chan,
 			 struct cpdma_chan_stats *stats)
@@ -988,7 +1068,10 @@ int cpdma_chan_get_stats(struct cpdma_chan *chan,
 	spin_unlock_irqrestore(&chan->lock, flags);
 	return 0;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(cpdma_chan_get_stats);
+=======
+>>>>>>> upstream/android-13
 
 static void __cpdma_chan_submit(struct cpdma_chan *chan,
 				struct cpdma_desc __iomem *desc)
@@ -1026,6 +1109,7 @@ static void __cpdma_chan_submit(struct cpdma_chan *chan,
 	}
 }
 
+<<<<<<< HEAD
 int cpdma_chan_submit(struct cpdma_chan *chan, void *token, void *data,
 		      int len, int directed)
 {
@@ -1047,13 +1131,32 @@ int cpdma_chan_submit(struct cpdma_chan *chan, void *token, void *data,
 		chan->stats.desc_alloc_fail++;
 		ret = -ENOMEM;
 		goto unlock_ret;
+=======
+static int cpdma_chan_submit_si(struct submit_info *si)
+{
+	struct cpdma_chan		*chan = si->chan;
+	struct cpdma_ctlr		*ctlr = chan->ctlr;
+	int				len = si->len;
+	struct cpdma_desc __iomem	*desc;
+	dma_addr_t			buffer;
+	u32				mode;
+	int				ret;
+
+	if (chan->count >= chan->desc_num)	{
+		chan->stats.desc_alloc_fail++;
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 	}
 
 	desc = cpdma_desc_alloc(ctlr->pool);
 	if (!desc) {
 		chan->stats.desc_alloc_fail++;
+<<<<<<< HEAD
 		ret = -ENOMEM;
 		goto unlock_ret;
+=======
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 	}
 
 	if (len < ctlr->params.min_packet_size) {
@@ -1061,6 +1164,7 @@ int cpdma_chan_submit(struct cpdma_chan *chan, void *token, void *data,
 		chan->stats.runt_transmit_buff++;
 	}
 
+<<<<<<< HEAD
 	buffer = dma_map_single(ctlr->dev, data, len, chan->dir);
 	ret = dma_mapping_error(ctlr->dev, buffer);
 	if (ret) {
@@ -1071,6 +1175,22 @@ int cpdma_chan_submit(struct cpdma_chan *chan, void *token, void *data,
 
 	mode = CPDMA_DESC_OWNER | CPDMA_DESC_SOP | CPDMA_DESC_EOP;
 	cpdma_desc_to_port(chan, mode, directed);
+=======
+	mode = CPDMA_DESC_OWNER | CPDMA_DESC_SOP | CPDMA_DESC_EOP;
+	cpdma_desc_to_port(chan, mode, si->directed);
+
+	if (si->data_dma) {
+		buffer = si->data_dma;
+		dma_sync_single_for_device(ctlr->dev, buffer, len, chan->dir);
+	} else {
+		buffer = dma_map_single(ctlr->dev, si->data_virt, len, chan->dir);
+		ret = dma_mapping_error(ctlr->dev, buffer);
+		if (ret) {
+			cpdma_desc_free(ctlr->pool, desc, 1);
+			return -EINVAL;
+		}
+	}
+>>>>>>> upstream/android-13
 
 	/* Relaxed IO accessors can be used here as there is read barrier
 	 * at the end of write sequence.
@@ -1079,9 +1199,16 @@ int cpdma_chan_submit(struct cpdma_chan *chan, void *token, void *data,
 	writel_relaxed(buffer, &desc->hw_buffer);
 	writel_relaxed(len, &desc->hw_len);
 	writel_relaxed(mode | len, &desc->hw_mode);
+<<<<<<< HEAD
 	writel_relaxed((uintptr_t)token, &desc->sw_token);
 	writel_relaxed(buffer, &desc->sw_buffer);
 	writel_relaxed(len, &desc->sw_len);
+=======
+	writel_relaxed((uintptr_t)si->token, &desc->sw_token);
+	writel_relaxed(buffer, &desc->sw_buffer);
+	writel_relaxed(si->data_dma ? len | CPDMA_DMA_EXT_MAP : len,
+		       &desc->sw_len);
+>>>>>>> upstream/android-13
 	desc_read(desc, sw_len);
 
 	__cpdma_chan_submit(chan, desc);
@@ -1090,12 +1217,117 @@ int cpdma_chan_submit(struct cpdma_chan *chan, void *token, void *data,
 		chan_write(chan, rxfree, 1);
 
 	chan->count++;
+<<<<<<< HEAD
 
 unlock_ret:
 	spin_unlock_irqrestore(&chan->lock, flags);
 	return ret;
 }
 EXPORT_SYMBOL_GPL(cpdma_chan_submit);
+=======
+	return 0;
+}
+
+int cpdma_chan_idle_submit(struct cpdma_chan *chan, void *token, void *data,
+			   int len, int directed)
+{
+	struct submit_info si;
+	unsigned long flags;
+	int ret;
+
+	si.chan = chan;
+	si.token = token;
+	si.data_virt = data;
+	si.data_dma = 0;
+	si.len = len;
+	si.directed = directed;
+
+	spin_lock_irqsave(&chan->lock, flags);
+	if (chan->state == CPDMA_STATE_TEARDOWN) {
+		spin_unlock_irqrestore(&chan->lock, flags);
+		return -EINVAL;
+	}
+
+	ret = cpdma_chan_submit_si(&si);
+	spin_unlock_irqrestore(&chan->lock, flags);
+	return ret;
+}
+
+int cpdma_chan_idle_submit_mapped(struct cpdma_chan *chan, void *token,
+				  dma_addr_t data, int len, int directed)
+{
+	struct submit_info si;
+	unsigned long flags;
+	int ret;
+
+	si.chan = chan;
+	si.token = token;
+	si.data_virt = NULL;
+	si.data_dma = data;
+	si.len = len;
+	si.directed = directed;
+
+	spin_lock_irqsave(&chan->lock, flags);
+	if (chan->state == CPDMA_STATE_TEARDOWN) {
+		spin_unlock_irqrestore(&chan->lock, flags);
+		return -EINVAL;
+	}
+
+	ret = cpdma_chan_submit_si(&si);
+	spin_unlock_irqrestore(&chan->lock, flags);
+	return ret;
+}
+
+int cpdma_chan_submit(struct cpdma_chan *chan, void *token, void *data,
+		      int len, int directed)
+{
+	struct submit_info si;
+	unsigned long flags;
+	int ret;
+
+	si.chan = chan;
+	si.token = token;
+	si.data_virt = data;
+	si.data_dma = 0;
+	si.len = len;
+	si.directed = directed;
+
+	spin_lock_irqsave(&chan->lock, flags);
+	if (chan->state != CPDMA_STATE_ACTIVE) {
+		spin_unlock_irqrestore(&chan->lock, flags);
+		return -EINVAL;
+	}
+
+	ret = cpdma_chan_submit_si(&si);
+	spin_unlock_irqrestore(&chan->lock, flags);
+	return ret;
+}
+
+int cpdma_chan_submit_mapped(struct cpdma_chan *chan, void *token,
+			     dma_addr_t data, int len, int directed)
+{
+	struct submit_info si;
+	unsigned long flags;
+	int ret;
+
+	si.chan = chan;
+	si.token = token;
+	si.data_virt = NULL;
+	si.data_dma = data;
+	si.len = len;
+	si.directed = directed;
+
+	spin_lock_irqsave(&chan->lock, flags);
+	if (chan->state != CPDMA_STATE_ACTIVE) {
+		spin_unlock_irqrestore(&chan->lock, flags);
+		return -EINVAL;
+	}
+
+	ret = cpdma_chan_submit_si(&si);
+	spin_unlock_irqrestore(&chan->lock, flags);
+	return ret;
+}
+>>>>>>> upstream/android-13
 
 bool cpdma_check_free_tx_desc(struct cpdma_chan *chan)
 {
@@ -1110,7 +1342,10 @@ bool cpdma_check_free_tx_desc(struct cpdma_chan *chan)
 	spin_unlock_irqrestore(&chan->lock, flags);
 	return free_tx_desc;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(cpdma_check_free_tx_desc);
+=======
+>>>>>>> upstream/android-13
 
 static void __cpdma_chan_free(struct cpdma_chan *chan,
 			      struct cpdma_desc __iomem *desc,
@@ -1123,10 +1358,24 @@ static void __cpdma_chan_free(struct cpdma_chan *chan,
 	uintptr_t			token;
 
 	token      = desc_read(desc, sw_token);
+<<<<<<< HEAD
 	buff_dma   = desc_read(desc, sw_buffer);
 	origlen    = desc_read(desc, sw_len);
 
 	dma_unmap_single(ctlr->dev, buff_dma, origlen, chan->dir);
+=======
+	origlen    = desc_read(desc, sw_len);
+
+	buff_dma   = desc_read(desc, sw_buffer);
+	if (origlen & CPDMA_DMA_EXT_MAP) {
+		origlen &= ~CPDMA_DMA_EXT_MAP;
+		dma_sync_single_for_cpu(ctlr->dev, buff_dma, origlen,
+					chan->dir);
+	} else {
+		dma_unmap_single(ctlr->dev, buff_dma, origlen, chan->dir);
+	}
+
+>>>>>>> upstream/android-13
 	cpdma_desc_free(pool, desc, 1);
 	(*chan->handler)((void *)token, outlen, status);
 }
@@ -1204,7 +1453,10 @@ int cpdma_chan_process(struct cpdma_chan *chan, int quota)
 	}
 	return used;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(cpdma_chan_process);
+=======
+>>>>>>> upstream/android-13
 
 int cpdma_chan_start(struct cpdma_chan *chan)
 {
@@ -1224,7 +1476,10 @@ int cpdma_chan_start(struct cpdma_chan *chan)
 
 	return 0;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(cpdma_chan_start);
+=======
+>>>>>>> upstream/android-13
 
 int cpdma_chan_stop(struct cpdma_chan *chan)
 {
@@ -1287,7 +1542,10 @@ int cpdma_chan_stop(struct cpdma_chan *chan)
 	spin_unlock_irqrestore(&chan->lock, flags);
 	return 0;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(cpdma_chan_stop);
+=======
+>>>>>>> upstream/android-13
 
 int cpdma_chan_int_ctrl(struct cpdma_chan *chan, bool enable)
 {
@@ -1329,18 +1587,25 @@ int cpdma_control_set(struct cpdma_ctlr *ctlr, int control, int value)
 
 	return ret;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(cpdma_control_set);
+=======
+>>>>>>> upstream/android-13
 
 int cpdma_get_num_rx_descs(struct cpdma_ctlr *ctlr)
 {
 	return ctlr->num_rx_desc;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(cpdma_get_num_rx_descs);
+=======
+>>>>>>> upstream/android-13
 
 int cpdma_get_num_tx_descs(struct cpdma_ctlr *ctlr)
 {
 	return ctlr->num_tx_desc;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(cpdma_get_num_tx_descs);
 
 void cpdma_set_num_rx_descs(struct cpdma_ctlr *ctlr, int num_rx_desc)
@@ -1351,3 +1616,26 @@ void cpdma_set_num_rx_descs(struct cpdma_ctlr *ctlr, int num_rx_desc)
 EXPORT_SYMBOL_GPL(cpdma_set_num_rx_descs);
 
 MODULE_LICENSE("GPL");
+=======
+
+int cpdma_set_num_rx_descs(struct cpdma_ctlr *ctlr, int num_rx_desc)
+{
+	unsigned long flags;
+	int temp, ret;
+
+	spin_lock_irqsave(&ctlr->lock, flags);
+
+	temp = ctlr->num_rx_desc;
+	ctlr->num_rx_desc = num_rx_desc;
+	ctlr->num_tx_desc = ctlr->pool->num_desc - ctlr->num_rx_desc;
+	ret = cpdma_chan_split_pool(ctlr);
+	if (ret) {
+		ctlr->num_rx_desc = temp;
+		ctlr->num_tx_desc = ctlr->pool->num_desc - ctlr->num_rx_desc;
+	}
+
+	spin_unlock_irqrestore(&ctlr->lock, flags);
+
+	return ret;
+}
+>>>>>>> upstream/android-13

@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  Amstrad E3 (Delta) keyboard port driver
  *
  *  Copyright (c) 2006 Matt Callow
  *  Copyright (c) 2010 Janusz Krzysztofik
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
  * the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * Thanks to Cliff Lawson for his help
  *
  * The Amstrad Delta keyboard (aka mailboard) uses normal PC-AT style serial

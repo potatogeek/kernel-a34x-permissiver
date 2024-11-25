@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 2011-2017, The Linux Foundation
  */
@@ -61,12 +65,15 @@
 #define SLIM_MSG_MC_NEXT_REMOVE_CHANNEL          0x58
 #define SLIM_MSG_MC_RECONFIGURE_NOW              0x5F
 
+<<<<<<< HEAD
 /*
  * Clock pause flag to indicate that the reconfig message
  * corresponds to clock pause sequence
  */
 #define SLIM_MSG_CLK_PAUSE_SEQ_FLG		(1U << 8)
 
+=======
+>>>>>>> upstream/android-13
 /* Clock pause values per SLIMbus spec */
 #define SLIM_CLK_FAST				0
 #define SLIM_CLK_CONST_PHASE			1
@@ -250,7 +257,11 @@ enum slim_ch_data_fmt {
 };
 
 /**
+<<<<<<< HEAD
  * enum slim_ch_aux_fmt: SLIMbus channel Aux Field format IDs according to
+=======
+ * enum slim_ch_aux_bit_fmt: SLIMbus channel Aux Field format IDs according to
+>>>>>>> upstream/android-13
  *	Table 63 of SLIMbus Spec 2.0
  * @SLIM_CH_AUX_FMT_NOT_APPLICABLE: Undefined
  * @SLIM_CH_AUX_FMT_ZCUV_TUNNEL_IEC60958: ZCUV for tunneling IEC60958
@@ -445,7 +456,11 @@ static inline bool slim_tid_txn(u8 mt, u8 mc)
 		(mc == SLIM_MSG_MC_REQUEST_INFORMATION ||
 		 mc == SLIM_MSG_MC_REQUEST_CLEAR_INFORMATION ||
 		 mc == SLIM_MSG_MC_REQUEST_VALUE ||
+<<<<<<< HEAD
 		 mc == SLIM_MSG_MC_REQUEST_CLEAR_INFORMATION));
+=======
+		 mc == SLIM_MSG_MC_REQUEST_CHANGE_VALUE));
+>>>>>>> upstream/android-13
 }
 
 static inline bool slim_ec_txn(u8 mt, u8 mc)

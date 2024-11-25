@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * CAN driver for PEAK System micro-CAN based adapters
  *
@@ -12,6 +13,13 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/* CAN driver for PEAK System micro-CAN based adapters
+ *
+ * Copyright (C) 2003-2011 PEAK System-Technik GmbH
+ * Copyright (C) 2011-2013 Stephane Grosjean <s.grosjean@peak-system.com>
+>>>>>>> upstream/android-13
  */
 #ifndef PEAK_CANFD_USER_H
 #define PEAK_CANFD_USER_H

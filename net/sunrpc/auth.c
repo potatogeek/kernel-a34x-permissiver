@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * linux/net/sunrpc/auth.c
  *
@@ -17,9 +21,13 @@
 #include <linux/sunrpc/gss_api.h>
 #include <linux/spinlock.h>
 
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_SUNRPC_DEBUG)
 # define RPCDBG_FACILITY	RPCDBG_AUTH
 #endif
+=======
+#include <trace/events/sunrpc.h>
+>>>>>>> upstream/android-13
 
 #define RPC_CREDCACHE_DEFAULT_HASHBITS	(4)
 struct rpc_cred_cache {
@@ -30,16 +38,42 @@ struct rpc_cred_cache {
 
 static unsigned int auth_hashbits = RPC_CREDCACHE_DEFAULT_HASHBITS;
 
+<<<<<<< HEAD
 static DEFINE_SPINLOCK(rpc_authflavor_lock);
 static const struct rpc_authops *auth_flavors[RPC_AUTH_MAXFLAVOR] = {
 	&authnull_ops,		/* AUTH_NULL */
 	&authunix_ops,		/* AUTH_UNIX */
+=======
+static const struct rpc_authops __rcu *auth_flavors[RPC_AUTH_MAXFLAVOR] = {
+	[RPC_AUTH_NULL] = (const struct rpc_authops __force __rcu *)&authnull_ops,
+	[RPC_AUTH_UNIX] = (const struct rpc_authops __force __rcu *)&authunix_ops,
+>>>>>>> upstream/android-13
 	NULL,			/* others can be loadable modules */
 };
 
 static LIST_HEAD(cred_unused);
 static unsigned long number_cred_unused;
 
+<<<<<<< HEAD
+=======
+static struct cred machine_cred = {
+	.usage = ATOMIC_INIT(1),
+#ifdef CONFIG_DEBUG_CREDENTIALS
+	.magic = CRED_MAGIC,
+#endif
+};
+
+/*
+ * Return the machine_cred pointer to be used whenever
+ * the a generic machine credential is needed.
+ */
+const struct cred *rpc_machine_cred(void)
+{
+	return &machine_cred;
+}
+EXPORT_SYMBOL_GPL(rpc_machine_cred);
+
+>>>>>>> upstream/android-13
 #define MAX_HASHTABLE_BITS (14)
 static int param_set_hashtbl_sz(const char *val, const struct kernel_param *kp)
 {
@@ -66,7 +100,11 @@ static int param_get_hashtbl_sz(char *buffer, const struct kernel_param *kp)
 	unsigned int nbits;
 
 	nbits = *(unsigned int *)kp->arg;
+<<<<<<< HEAD
 	return sprintf(buffer, "%u", 1U << nbits);
+=======
+	return sprintf(buffer, "%u\n", 1U << nbits);
+>>>>>>> upstream/android-13
 }
 
 #define param_check_hashtbl_sz(name, p) __param_check(name, p, unsigned int);
@@ -93,6 +131,7 @@ pseudoflavor_to_flavor(u32 flavor) {
 int
 rpcauth_register(const struct rpc_authops *ops)
 {
+<<<<<<< HEAD
 	rpc_authflavor_t flavor;
 	int ret = -EPERM;
 
@@ -105,12 +144,24 @@ rpcauth_register(const struct rpc_authops *ops)
 	}
 	spin_unlock(&rpc_authflavor_lock);
 	return ret;
+=======
+	const struct rpc_authops *old;
+	rpc_authflavor_t flavor;
+
+	if ((flavor = ops->au_flavor) >= RPC_AUTH_MAXFLAVOR)
+		return -EINVAL;
+	old = cmpxchg((const struct rpc_authops ** __force)&auth_flavors[flavor], NULL, ops);
+	if (old == NULL || old == ops)
+		return 0;
+	return -EPERM;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(rpcauth_register);
 
 int
 rpcauth_unregister(const struct rpc_authops *ops)
 {
+<<<<<<< HEAD
 	rpc_authflavor_t flavor;
 	int ret = -EPERM;
 
@@ -126,6 +177,52 @@ rpcauth_unregister(const struct rpc_authops *ops)
 }
 EXPORT_SYMBOL_GPL(rpcauth_unregister);
 
+=======
+	const struct rpc_authops *old;
+	rpc_authflavor_t flavor;
+
+	if ((flavor = ops->au_flavor) >= RPC_AUTH_MAXFLAVOR)
+		return -EINVAL;
+
+	old = cmpxchg((const struct rpc_authops ** __force)&auth_flavors[flavor], ops, NULL);
+	if (old == ops || old == NULL)
+		return 0;
+	return -EPERM;
+}
+EXPORT_SYMBOL_GPL(rpcauth_unregister);
+
+static const struct rpc_authops *
+rpcauth_get_authops(rpc_authflavor_t flavor)
+{
+	const struct rpc_authops *ops;
+
+	if (flavor >= RPC_AUTH_MAXFLAVOR)
+		return NULL;
+
+	rcu_read_lock();
+	ops = rcu_dereference(auth_flavors[flavor]);
+	if (ops == NULL) {
+		rcu_read_unlock();
+		request_module("rpc-auth-%u", flavor);
+		rcu_read_lock();
+		ops = rcu_dereference(auth_flavors[flavor]);
+		if (ops == NULL)
+			goto out;
+	}
+	if (!try_module_get(ops->owner))
+		ops = NULL;
+out:
+	rcu_read_unlock();
+	return ops;
+}
+
+static void
+rpcauth_put_authops(const struct rpc_authops *ops)
+{
+	module_put(ops->owner);
+}
+
+>>>>>>> upstream/android-13
 /**
  * rpcauth_get_pseudoflavor - check if security flavor is supported
  * @flavor: a security flavor
@@ -138,6 +235,7 @@ EXPORT_SYMBOL_GPL(rpcauth_unregister);
 rpc_authflavor_t
 rpcauth_get_pseudoflavor(rpc_authflavor_t flavor, struct rpcsec_gss_info *info)
 {
+<<<<<<< HEAD
 	const struct rpc_authops *ops;
 	rpc_authflavor_t pseudoflavor;
 
@@ -152,11 +250,22 @@ rpcauth_get_pseudoflavor(rpc_authflavor_t flavor, struct rpcsec_gss_info *info)
 	}
 	spin_unlock(&rpc_authflavor_lock);
 
+=======
+	const struct rpc_authops *ops = rpcauth_get_authops(flavor);
+	rpc_authflavor_t pseudoflavor;
+
+	if (!ops)
+		return RPC_AUTH_MAXFLAVOR;
+>>>>>>> upstream/android-13
 	pseudoflavor = flavor;
 	if (ops->info2flavor != NULL)
 		pseudoflavor = ops->info2flavor(info);
 
+<<<<<<< HEAD
 	module_put(ops->owner);
+=======
+	rpcauth_put_authops(ops);
+>>>>>>> upstream/android-13
 	return pseudoflavor;
 }
 EXPORT_SYMBOL_GPL(rpcauth_get_pseudoflavor);
@@ -176,6 +285,7 @@ rpcauth_get_gssinfo(rpc_authflavor_t pseudoflavor, struct rpcsec_gss_info *info)
 	const struct rpc_authops *ops;
 	int result;
 
+<<<<<<< HEAD
 	if (flavor >= RPC_AUTH_MAXFLAVOR)
 		return -EINVAL;
 
@@ -189,16 +299,26 @@ rpcauth_get_gssinfo(rpc_authflavor_t pseudoflavor, struct rpcsec_gss_info *info)
 		return -ENOENT;
 	}
 	spin_unlock(&rpc_authflavor_lock);
+=======
+	ops = rpcauth_get_authops(flavor);
+	if (ops == NULL)
+		return -ENOENT;
+>>>>>>> upstream/android-13
 
 	result = -ENOENT;
 	if (ops->flavor2info != NULL)
 		result = ops->flavor2info(pseudoflavor, info);
 
+<<<<<<< HEAD
 	module_put(ops->owner);
+=======
+	rpcauth_put_authops(ops);
+>>>>>>> upstream/android-13
 	return result;
 }
 EXPORT_SYMBOL_GPL(rpcauth_get_gssinfo);
 
+<<<<<<< HEAD
 /**
  * rpcauth_list_flavors - discover registered flavors and pseudoflavors
  * @array: array to fill in
@@ -274,6 +394,22 @@ rpcauth_create(const struct rpc_auth_create_args *args, struct rpc_clnt *clnt)
 	spin_unlock(&rpc_authflavor_lock);
 	auth = ops->create(args, clnt);
 	module_put(ops->owner);
+=======
+struct rpc_auth *
+rpcauth_create(const struct rpc_auth_create_args *args, struct rpc_clnt *clnt)
+{
+	struct rpc_auth	*auth = ERR_PTR(-EINVAL);
+	const struct rpc_authops *ops;
+	u32 flavor = pseudoflavor_to_flavor(args->pseudoflavor);
+
+	ops = rpcauth_get_authops(flavor);
+	if (ops == NULL)
+		goto out;
+
+	auth = ops->create(args, clnt);
+
+	rpcauth_put_authops(ops);
+>>>>>>> upstream/android-13
 	if (IS_ERR(auth))
 		return auth;
 	if (clnt->cl_auth)
@@ -288,13 +424,18 @@ EXPORT_SYMBOL_GPL(rpcauth_create);
 void
 rpcauth_release(struct rpc_auth *auth)
 {
+<<<<<<< HEAD
 	if (!atomic_dec_and_test(&auth->au_count))
+=======
+	if (!refcount_dec_and_test(&auth->au_count))
+>>>>>>> upstream/android-13
 		return;
 	auth->au_ops->destroy(auth);
 }
 
 static DEFINE_SPINLOCK(rpc_credcache_lock);
 
+<<<<<<< HEAD
 static void
 rpcauth_unhash_cred_locked(struct rpc_cred *cred)
 {
@@ -314,6 +455,32 @@ rpcauth_unhash_cred(struct rpc_cred *cred)
 	ret = atomic_read(&cred->cr_count) == 0;
 	if (ret)
 		rpcauth_unhash_cred_locked(cred);
+=======
+/*
+ * On success, the caller is responsible for freeing the reference
+ * held by the hashtable
+ */
+static bool
+rpcauth_unhash_cred_locked(struct rpc_cred *cred)
+{
+	if (!test_and_clear_bit(RPCAUTH_CRED_HASHED, &cred->cr_flags))
+		return false;
+	hlist_del_rcu(&cred->cr_hash);
+	return true;
+}
+
+static bool
+rpcauth_unhash_cred(struct rpc_cred *cred)
+{
+	spinlock_t *cache_lock;
+	bool ret;
+
+	if (!test_bit(RPCAUTH_CRED_HASHED, &cred->cr_flags))
+		return false;
+	cache_lock = &cred->cr_auth->au_credcache->lock;
+	spin_lock(cache_lock);
+	ret = rpcauth_unhash_cred_locked(cred);
+>>>>>>> upstream/android-13
 	spin_unlock(cache_lock);
 	return ret;
 }
@@ -345,6 +512,7 @@ out_nocache:
 }
 EXPORT_SYMBOL_GPL(rpcauth_init_credcache);
 
+<<<<<<< HEAD
 /*
  * Setup a credential key lifetime timeout notification
  */
@@ -368,6 +536,8 @@ rpcauth_cred_key_to_expire(struct rpc_auth *auth, struct rpc_cred *cred)
 }
 EXPORT_SYMBOL_GPL(rpcauth_cred_key_to_expire);
 
+=======
+>>>>>>> upstream/android-13
 char *
 rpcauth_stringify_acceptor(struct rpc_cred *cred)
 {
@@ -392,6 +562,47 @@ void rpcauth_destroy_credlist(struct list_head *head)
 	}
 }
 
+<<<<<<< HEAD
+=======
+static void
+rpcauth_lru_add_locked(struct rpc_cred *cred)
+{
+	if (!list_empty(&cred->cr_lru))
+		return;
+	number_cred_unused++;
+	list_add_tail(&cred->cr_lru, &cred_unused);
+}
+
+static void
+rpcauth_lru_add(struct rpc_cred *cred)
+{
+	if (!list_empty(&cred->cr_lru))
+		return;
+	spin_lock(&rpc_credcache_lock);
+	rpcauth_lru_add_locked(cred);
+	spin_unlock(&rpc_credcache_lock);
+}
+
+static void
+rpcauth_lru_remove_locked(struct rpc_cred *cred)
+{
+	if (list_empty(&cred->cr_lru))
+		return;
+	number_cred_unused--;
+	list_del_init(&cred->cr_lru);
+}
+
+static void
+rpcauth_lru_remove(struct rpc_cred *cred)
+{
+	if (list_empty(&cred->cr_lru))
+		return;
+	spin_lock(&rpc_credcache_lock);
+	rpcauth_lru_remove_locked(cred);
+	spin_unlock(&rpc_credcache_lock);
+}
+
+>>>>>>> upstream/android-13
 /*
  * Clear the RPC credential cache, and delete those credentials
  * that are not referenced.
@@ -411,6 +622,7 @@ rpcauth_clear_credcache(struct rpc_cred_cache *cache)
 		head = &cache->hashtable[i];
 		while (!hlist_empty(head)) {
 			cred = hlist_entry(head->first, struct rpc_cred, cr_hash);
+<<<<<<< HEAD
 			get_rpccred(cred);
 			if (!list_empty(&cred->cr_lru)) {
 				list_del(&cred->cr_lru);
@@ -418,6 +630,12 @@ rpcauth_clear_credcache(struct rpc_cred_cache *cache)
 			}
 			list_add_tail(&cred->cr_lru, &free);
 			rpcauth_unhash_cred_locked(cred);
+=======
+			rpcauth_unhash_cred_locked(cred);
+			/* Note: We now hold a reference to cred */
+			rpcauth_lru_remove_locked(cred);
+			list_add_tail(&cred->cr_lru, &free);
+>>>>>>> upstream/android-13
 		}
 	}
 	spin_unlock(&cache->lock);
@@ -451,7 +669,10 @@ EXPORT_SYMBOL_GPL(rpcauth_destroy_credcache);
 static long
 rpcauth_prune_expired(struct list_head *free, int nr_to_scan)
 {
+<<<<<<< HEAD
 	spinlock_t *cache_lock;
+=======
+>>>>>>> upstream/android-13
 	struct rpc_cred *cred, *next;
 	unsigned long expired = jiffies - RPC_AUTH_EXPIRY_MORATORIUM;
 	long freed = 0;
@@ -460,10 +681,18 @@ rpcauth_prune_expired(struct list_head *free, int nr_to_scan)
 
 		if (nr_to_scan-- == 0)
 			break;
+<<<<<<< HEAD
+=======
+		if (refcount_read(&cred->cr_count) > 1) {
+			rpcauth_lru_remove_locked(cred);
+			continue;
+		}
+>>>>>>> upstream/android-13
 		/*
 		 * Enforce a 60 second garbage collection moratorium
 		 * Note that the cred_unused list must be time-ordered.
 		 */
+<<<<<<< HEAD
 		if (time_in_range(cred->cr_expire, expired, jiffies) &&
 		    test_bit(RPCAUTH_CRED_HASHED, &cred->cr_flags) != 0) {
 			freed = SHRINK_STOP;
@@ -486,6 +715,18 @@ rpcauth_prune_expired(struct list_head *free, int nr_to_scan)
 		spin_unlock(cache_lock);
 	}
 	return freed;
+=======
+		if (!time_in_range(cred->cr_expire, expired, jiffies))
+			continue;
+		if (!rpcauth_unhash_cred(cred))
+			continue;
+
+		rpcauth_lru_remove_locked(cred);
+		freed++;
+		list_add_tail(&cred->cr_lru, free);
+	}
+	return freed ? freed : SHRINK_STOP;
+>>>>>>> upstream/android-13
 }
 
 static unsigned long
@@ -560,6 +801,7 @@ rpcauth_lookup_credcache(struct rpc_auth *auth, struct auth_cred * acred,
 	hlist_for_each_entry_rcu(entry, &cache->hashtable[nr], cr_hash) {
 		if (!entry->cr_ops->crmatch(acred, entry, flags))
 			continue;
+<<<<<<< HEAD
 		if (flags & RPCAUTH_LOOKUP_RCU) {
 			if (test_bit(RPCAUTH_CRED_HASHED, &entry->cr_flags) &&
 			    !test_bit(RPCAUTH_CRED_NEW, &entry->cr_flags))
@@ -574,15 +816,23 @@ rpcauth_lookup_credcache(struct rpc_auth *auth, struct auth_cred * acred,
 		cred = get_rpccred(entry);
 		spin_unlock(&cache->lock);
 		break;
+=======
+		cred = get_rpccred(entry);
+		if (cred)
+			break;
+>>>>>>> upstream/android-13
 	}
 	rcu_read_unlock();
 
 	if (cred != NULL)
 		goto found;
 
+<<<<<<< HEAD
 	if (flags & RPCAUTH_LOOKUP_RCU)
 		return ERR_PTR(-ECHILD);
 
+=======
+>>>>>>> upstream/android-13
 	new = auth->au_ops->crcreate(auth, acred, flags, gfp);
 	if (IS_ERR(new)) {
 		cred = new;
@@ -594,11 +844,20 @@ rpcauth_lookup_credcache(struct rpc_auth *auth, struct auth_cred * acred,
 		if (!entry->cr_ops->crmatch(acred, entry, flags))
 			continue;
 		cred = get_rpccred(entry);
+<<<<<<< HEAD
 		break;
+=======
+		if (cred)
+			break;
+>>>>>>> upstream/android-13
 	}
 	if (cred == NULL) {
 		cred = new;
 		set_bit(RPCAUTH_CRED_HASHED, &cred->cr_flags);
+<<<<<<< HEAD
+=======
+		refcount_inc(&cred->cr_count);
+>>>>>>> upstream/android-13
 		hlist_add_head_rcu(&cred->cr_hash, &cache->hashtable[nr]);
 	} else
 		list_add_tail(&new->cr_lru, &free);
@@ -627,6 +886,7 @@ rpcauth_lookupcred(struct rpc_auth *auth, int flags)
 	struct rpc_cred *ret;
 	const struct cred *cred = current_cred();
 
+<<<<<<< HEAD
 	dprintk("RPC:       looking up %s cred\n",
 		auth->au_ops->au_name);
 
@@ -634,6 +894,10 @@ rpcauth_lookupcred(struct rpc_auth *auth, int flags)
 	acred.uid = cred->fsuid;
 	acred.gid = cred->fsgid;
 	acred.group_info = cred->group_info;
+=======
+	memset(&acred, 0, sizeof(acred));
+	acred.cred = cred;
+>>>>>>> upstream/android-13
 	ret = auth->au_ops->lookup_cred(auth, &acred, flags);
 	return ret;
 }
@@ -645,6 +909,7 @@ rpcauth_init_cred(struct rpc_cred *cred, const struct auth_cred *acred,
 {
 	INIT_HLIST_NODE(&cred->cr_hash);
 	INIT_LIST_HEAD(&cred->cr_lru);
+<<<<<<< HEAD
 	atomic_set(&cred->cr_count, 1);
 	cred->cr_auth = auth;
 	cred->cr_ops = ops;
@@ -662,17 +927,51 @@ rpcauth_generic_bind_cred(struct rpc_task *task, struct rpc_cred *cred, int look
 }
 EXPORT_SYMBOL_GPL(rpcauth_generic_bind_cred);
 
+=======
+	refcount_set(&cred->cr_count, 1);
+	cred->cr_auth = auth;
+	cred->cr_flags = 0;
+	cred->cr_ops = ops;
+	cred->cr_expire = jiffies;
+	cred->cr_cred = get_cred(acred->cred);
+}
+EXPORT_SYMBOL_GPL(rpcauth_init_cred);
+
+>>>>>>> upstream/android-13
 static struct rpc_cred *
 rpcauth_bind_root_cred(struct rpc_task *task, int lookupflags)
 {
 	struct rpc_auth *auth = task->tk_client->cl_auth;
 	struct auth_cred acred = {
+<<<<<<< HEAD
 		.uid = GLOBAL_ROOT_UID,
 		.gid = GLOBAL_ROOT_GID,
 	};
 
 	dprintk("RPC: %5u looking up %s cred\n",
 		task->tk_pid, task->tk_client->cl_auth->au_ops->au_name);
+=======
+		.cred = get_task_cred(&init_task),
+	};
+	struct rpc_cred *ret;
+
+	ret = auth->au_ops->lookup_cred(auth, &acred, lookupflags);
+	put_cred(acred.cred);
+	return ret;
+}
+
+static struct rpc_cred *
+rpcauth_bind_machine_cred(struct rpc_task *task, int lookupflags)
+{
+	struct rpc_auth *auth = task->tk_client->cl_auth;
+	struct auth_cred acred = {
+		.principal = task->tk_client->cl_principal,
+		.cred = init_task.cred,
+	};
+
+	if (!acred.principal)
+		return NULL;
+>>>>>>> upstream/android-13
 	return auth->au_ops->lookup_cred(auth, &acred, lookupflags);
 }
 
@@ -681,12 +980,16 @@ rpcauth_bind_new_cred(struct rpc_task *task, int lookupflags)
 {
 	struct rpc_auth *auth = task->tk_client->cl_auth;
 
+<<<<<<< HEAD
 	dprintk("RPC: %5u looking up %s cred\n",
 		task->tk_pid, auth->au_ops->au_name);
+=======
+>>>>>>> upstream/android-13
 	return rpcauth_lookupcred(auth, lookupflags);
 }
 
 static int
+<<<<<<< HEAD
 rpcauth_bindcred(struct rpc_task *task, struct rpc_cred *cred, int flags)
 {
 	struct rpc_rqst *req = task->tk_rqstp;
@@ -699,6 +1002,35 @@ rpcauth_bindcred(struct rpc_task *task, struct rpc_cred *cred, int flags)
 		new = cred->cr_ops->crbind(task, cred, lookupflags);
 	else if (flags & RPC_TASK_ROOTCREDS)
 		new = rpcauth_bind_root_cred(task, lookupflags);
+=======
+rpcauth_bindcred(struct rpc_task *task, const struct cred *cred, int flags)
+{
+	struct rpc_rqst *req = task->tk_rqstp;
+	struct rpc_cred *new = NULL;
+	int lookupflags = 0;
+	struct rpc_auth *auth = task->tk_client->cl_auth;
+	struct auth_cred acred = {
+		.cred = cred,
+	};
+
+	if (flags & RPC_TASK_ASYNC)
+		lookupflags |= RPCAUTH_LOOKUP_NEW;
+	if (task->tk_op_cred)
+		/* Task must use exactly this rpc_cred */
+		new = get_rpccred(task->tk_op_cred);
+	else if (cred != NULL && cred != &machine_cred)
+		new = auth->au_ops->lookup_cred(auth, &acred, lookupflags);
+	else if (cred == &machine_cred)
+		new = rpcauth_bind_machine_cred(task, lookupflags);
+
+	/* If machine cred couldn't be bound, try a root cred */
+	if (new)
+		;
+	else if (cred == &machine_cred || (flags & RPC_TASK_ROOTCREDS))
+		new = rpcauth_bind_root_cred(task, lookupflags);
+	else if (flags & RPC_TASK_NULLCREDS)
+		new = authnull_ops.lookup_cred(NULL, NULL, 0);
+>>>>>>> upstream/android-13
 	else
 		new = rpcauth_bind_new_cred(task, lookupflags);
 	if (IS_ERR(new))
@@ -713,6 +1045,7 @@ put_rpccred(struct rpc_cred *cred)
 {
 	if (cred == NULL)
 		return;
+<<<<<<< HEAD
 	/* Fast path for unhashed credentials */
 	if (test_bit(RPCAUTH_CRED_HASHED, &cred->cr_flags) == 0) {
 		if (atomic_dec_and_test(&cred->cr_count))
@@ -815,6 +1148,140 @@ rpcauth_unwrap_resp(struct rpc_task *task, kxdrdproc_t decode, void *rqstp,
 						   data, obj);
 	/* By default, we decode the arguments normally. */
 	return rpcauth_unwrap_req_decode(decode, rqstp, data, obj);
+=======
+	rcu_read_lock();
+	if (refcount_dec_and_test(&cred->cr_count))
+		goto destroy;
+	if (refcount_read(&cred->cr_count) != 1 ||
+	    !test_bit(RPCAUTH_CRED_HASHED, &cred->cr_flags))
+		goto out;
+	if (test_bit(RPCAUTH_CRED_UPTODATE, &cred->cr_flags) != 0) {
+		cred->cr_expire = jiffies;
+		rpcauth_lru_add(cred);
+		/* Race breaker */
+		if (unlikely(!test_bit(RPCAUTH_CRED_HASHED, &cred->cr_flags)))
+			rpcauth_lru_remove(cred);
+	} else if (rpcauth_unhash_cred(cred)) {
+		rpcauth_lru_remove(cred);
+		if (refcount_dec_and_test(&cred->cr_count))
+			goto destroy;
+	}
+out:
+	rcu_read_unlock();
+	return;
+destroy:
+	rcu_read_unlock();
+	cred->cr_ops->crdestroy(cred);
+}
+EXPORT_SYMBOL_GPL(put_rpccred);
+
+/**
+ * rpcauth_marshcred - Append RPC credential to end of @xdr
+ * @task: controlling RPC task
+ * @xdr: xdr_stream containing initial portion of RPC Call header
+ *
+ * On success, an appropriate verifier is added to @xdr, @xdr is
+ * updated to point past the verifier, and zero is returned.
+ * Otherwise, @xdr is in an undefined state and a negative errno
+ * is returned.
+ */
+int rpcauth_marshcred(struct rpc_task *task, struct xdr_stream *xdr)
+{
+	const struct rpc_credops *ops = task->tk_rqstp->rq_cred->cr_ops;
+
+	return ops->crmarshal(task, xdr);
+}
+
+/**
+ * rpcauth_wrap_req_encode - XDR encode the RPC procedure
+ * @task: controlling RPC task
+ * @xdr: stream where on-the-wire bytes are to be marshalled
+ *
+ * On success, @xdr contains the encoded and wrapped message.
+ * Otherwise, @xdr is in an undefined state.
+ */
+int rpcauth_wrap_req_encode(struct rpc_task *task, struct xdr_stream *xdr)
+{
+	kxdreproc_t encode = task->tk_msg.rpc_proc->p_encode;
+
+	encode(task->tk_rqstp, xdr, task->tk_msg.rpc_argp);
+	return 0;
+}
+EXPORT_SYMBOL_GPL(rpcauth_wrap_req_encode);
+
+/**
+ * rpcauth_wrap_req - XDR encode and wrap the RPC procedure
+ * @task: controlling RPC task
+ * @xdr: stream where on-the-wire bytes are to be marshalled
+ *
+ * On success, @xdr contains the encoded and wrapped message,
+ * and zero is returned. Otherwise, @xdr is in an undefined
+ * state and a negative errno is returned.
+ */
+int rpcauth_wrap_req(struct rpc_task *task, struct xdr_stream *xdr)
+{
+	const struct rpc_credops *ops = task->tk_rqstp->rq_cred->cr_ops;
+
+	return ops->crwrap_req(task, xdr);
+}
+
+/**
+ * rpcauth_checkverf - Validate verifier in RPC Reply header
+ * @task: controlling RPC task
+ * @xdr: xdr_stream containing RPC Reply header
+ *
+ * On success, @xdr is updated to point past the verifier and
+ * zero is returned. Otherwise, @xdr is in an undefined state
+ * and a negative errno is returned.
+ */
+int
+rpcauth_checkverf(struct rpc_task *task, struct xdr_stream *xdr)
+{
+	const struct rpc_credops *ops = task->tk_rqstp->rq_cred->cr_ops;
+
+	return ops->crvalidate(task, xdr);
+}
+
+/**
+ * rpcauth_unwrap_resp_decode - Invoke XDR decode function
+ * @task: controlling RPC task
+ * @xdr: stream where the Reply message resides
+ *
+ * Returns zero on success; otherwise a negative errno is returned.
+ */
+int
+rpcauth_unwrap_resp_decode(struct rpc_task *task, struct xdr_stream *xdr)
+{
+	kxdrdproc_t decode = task->tk_msg.rpc_proc->p_decode;
+
+	return decode(task->tk_rqstp, xdr, task->tk_msg.rpc_resp);
+}
+EXPORT_SYMBOL_GPL(rpcauth_unwrap_resp_decode);
+
+/**
+ * rpcauth_unwrap_resp - Invoke unwrap and decode function for the cred
+ * @task: controlling RPC task
+ * @xdr: stream where the Reply message resides
+ *
+ * Returns zero on success; otherwise a negative errno is returned.
+ */
+int
+rpcauth_unwrap_resp(struct rpc_task *task, struct xdr_stream *xdr)
+{
+	const struct rpc_credops *ops = task->tk_rqstp->rq_cred->cr_ops;
+
+	return ops->crunwrap_resp(task, xdr);
+}
+
+bool
+rpcauth_xmit_need_reencode(struct rpc_task *task)
+{
+	struct rpc_cred *cred = task->tk_rqstp->rq_cred;
+
+	if (!cred || !cred->cr_ops->crneed_reencode)
+		return false;
+	return cred->cr_ops->crneed_reencode(task);
+>>>>>>> upstream/android-13
 }
 
 int
@@ -830,8 +1297,11 @@ rpcauth_refreshcred(struct rpc_task *task)
 			goto out;
 		cred = task->tk_rqstp->rq_cred;
 	}
+<<<<<<< HEAD
 	dprintk("RPC: %5u refreshing %s cred %p\n",
 		task->tk_pid, cred->cr_auth->au_ops->au_name, cred);
+=======
+>>>>>>> upstream/android-13
 
 	err = cred->cr_ops->crrefresh(task);
 out:
@@ -845,8 +1315,11 @@ rpcauth_invalcred(struct rpc_task *task)
 {
 	struct rpc_cred *cred = task->tk_rqstp->rq_cred;
 
+<<<<<<< HEAD
 	dprintk("RPC: %5u invalidating %s cred %p\n",
 		task->tk_pid, cred->cr_auth->au_ops->au_name, cred);
+=======
+>>>>>>> upstream/android-13
 	if (cred)
 		clear_bit(RPCAUTH_CRED_UPTODATE, &cred->cr_flags);
 }
@@ -873,6 +1346,7 @@ int __init rpcauth_init_module(void)
 	err = rpc_init_authunix();
 	if (err < 0)
 		goto out1;
+<<<<<<< HEAD
 	err = rpc_init_generic_auth();
 	if (err < 0)
 		goto out2;
@@ -882,6 +1356,12 @@ int __init rpcauth_init_module(void)
 	return 0;
 out3:
 	rpc_destroy_generic_auth();
+=======
+	err = register_shrinker(&rpc_cred_shrinker);
+	if (err < 0)
+		goto out2;
+	return 0;
+>>>>>>> upstream/android-13
 out2:
 	rpc_destroy_authunix();
 out1:
@@ -891,6 +1371,9 @@ out1:
 void rpcauth_remove_module(void)
 {
 	rpc_destroy_authunix();
+<<<<<<< HEAD
 	rpc_destroy_generic_auth();
+=======
+>>>>>>> upstream/android-13
 	unregister_shrinker(&rpc_cred_shrinker);
 }

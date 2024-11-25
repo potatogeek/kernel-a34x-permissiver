@@ -21,7 +21,11 @@
 	unsigned long __ao_end = __ao_a + __ao_b - !!__ao_b;	\
 	__ao_end >= __ao_a && __addr_ok(__ao_end); })
 
+<<<<<<< HEAD
 #define access_ok(type, addr, size)	\
+=======
+#define access_ok(addr, size)	\
+>>>>>>> upstream/android-13
 	(__chk_user_ptr(addr),		\
 	 __access_ok((unsigned long __force)(addr), (size)))
 
@@ -69,7 +73,11 @@ struct __large_struct { unsigned long buf[100]; };
 	long __gu_err = -EFAULT;					\
 	unsigned long __gu_val = 0;					\
 	const __typeof__(*(ptr)) *__gu_addr = (ptr);			\
+<<<<<<< HEAD
 	if (likely(access_ok(VERIFY_READ, __gu_addr, (size))))		\
+=======
+	if (likely(access_ok(__gu_addr, (size))))		\
+>>>>>>> upstream/android-13
 		__get_user_size(__gu_val, __gu_addr, (size), __gu_err);	\
 	(x) = (__force __typeof__(*(ptr)))__gu_val;			\
 	__gu_err;							\
@@ -90,17 +98,25 @@ struct __large_struct { unsigned long buf[100]; };
 	long __pu_err = -EFAULT;				\
 	__typeof__(*(ptr)) __user *__pu_addr = (ptr);		\
 	__typeof__(*(ptr)) __pu_val = x;			\
+<<<<<<< HEAD
 	if (likely(access_ok(VERIFY_WRITE, __pu_addr, size)))	\
+=======
+	if (likely(access_ok(__pu_addr, size)))	\
+>>>>>>> upstream/android-13
 		__put_user_size(__pu_val, __pu_addr, (size),	\
 				__pu_err);			\
 	__pu_err;						\
 })
 
+<<<<<<< HEAD
 #ifdef CONFIG_SUPERH32
 # include <asm/uaccess_32.h>
 #else
 # include <asm/uaccess_64.h>
 #endif
+=======
+# include <asm/uaccess_32.h>
+>>>>>>> upstream/android-13
 
 extern long strncpy_from_user(char *dest, const char __user *src, long count);
 
@@ -135,8 +151,12 @@ __kernel_size_t __clear_user(void *addr, __kernel_size_t size);
 	void __user * __cl_addr = (addr);				\
 	unsigned long __cl_size = (n);					\
 									\
+<<<<<<< HEAD
 	if (__cl_size && access_ok(VERIFY_WRITE,			\
 		((unsigned long)(__cl_addr)), __cl_size))		\
+=======
+	if (__cl_size && access_ok(__cl_addr, __cl_size))		\
+>>>>>>> upstream/android-13
 		__cl_size = __clear_user(__cl_addr, __cl_size);		\
 									\
 	__cl_size;							\

@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 /*
  *   fs/cifs/cifsencrypt.c
+=======
+// SPDX-License-Identifier: LGPL-2.1
+/*
+>>>>>>> upstream/android-13
  *
  *   Encryption and hashing operations relating to NTLM, NTLMv2.  See MS-NLMP
  *   for more detailed information
@@ -7,6 +12,7 @@
  *   Copyright (C) International Business Machines  Corp., 2005,2013
  *   Author(s): Steve French (sfrench@us.ibm.com)
  *
+<<<<<<< HEAD
  *   This library is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU Lesser General Public License as published
  *   by the Free Software Foundation; either version 2.1 of the License, or
@@ -20,6 +26,8 @@
  *   You should have received a copy of the GNU Lesser General Public License
  *   along with this library; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/fs.h>
@@ -33,7 +41,12 @@
 #include <linux/ctype.h>
 #include <linux/random.h>
 #include <linux/highmem.h>
+<<<<<<< HEAD
 #include <crypto/skcipher.h>
+=======
+#include <linux/fips.h>
+#include "../smbfs_common/arc4.h"
+>>>>>>> upstream/android-13
 #include <crypto/aead.h>
 
 int __cifs_calc_signature(struct smb_rqst *rqst,
@@ -224,7 +237,11 @@ int cifs_verify_signature(struct smb_rqst *rqst,
 	if (cifs_pdu->Command == SMB_COM_LOCKING_ANDX) {
 		struct smb_com_lock_req *pSMB =
 			(struct smb_com_lock_req *)cifs_pdu;
+<<<<<<< HEAD
 	    if (pSMB->LockType & LOCKING_ANDX_OPLOCK_RELEASE)
+=======
+		if (pSMB->LockType & LOCKING_ANDX_OPLOCK_RELEASE)
+>>>>>>> upstream/android-13
 			return 0;
 	}
 
@@ -261,6 +278,7 @@ int cifs_verify_signature(struct smb_rqst *rqst,
 
 }
 
+<<<<<<< HEAD
 /* first calculate 24 bytes ntlm response and then 16 byte session key */
 int setup_ntlm_response(struct cifs_ses *ses, const struct nls_table *nls_cp)
 {
@@ -337,6 +355,8 @@ int calc_lanman_hash(const char *password, const char *cryptkey, bool encrypt,
 }
 #endif /* CIFS_WEAK_PW_HASH */
 
+=======
+>>>>>>> upstream/android-13
 /* Build a proper attribute value/target info pairs blob.
  * Fill in netbios and dns domain name and workstation name
  * and client time (total five av pairs and + one end of fields indicator.
@@ -514,7 +534,11 @@ static int calc_ntlmv2_hash(struct cifs_ses *ses, char *ntlmv2_hash,
 
 	rc = crypto_shash_init(&ses->server->secmech.sdeschmacmd5->shash);
 	if (rc) {
+<<<<<<< HEAD
 		cifs_dbg(VFS, "%s: could not init hmacmd5\n", __func__);
+=======
+		cifs_dbg(VFS, "%s: Could not init hmacmd5\n", __func__);
+>>>>>>> upstream/android-13
 		return rc;
 	}
 
@@ -562,15 +586,24 @@ static int calc_ntlmv2_hash(struct cifs_ses *ses, char *ntlmv2_hash,
 			return rc;
 		}
 	} else {
+<<<<<<< HEAD
 		/* We use ses->serverName if no domain name available */
 		len = strlen(ses->serverName);
+=======
+		/* We use ses->ip_addr if no domain name available */
+		len = strlen(ses->ip_addr);
+>>>>>>> upstream/android-13
 
 		server = kmalloc(2 + (len * 2), GFP_KERNEL);
 		if (server == NULL) {
 			rc = -ENOMEM;
 			return rc;
 		}
+<<<<<<< HEAD
 		len = cifs_strtoUTF16((__le16 *)server, ses->serverName, len,
+=======
+		len = cifs_strtoUTF16((__le16 *)server, ses->ip_addr, len,
+>>>>>>> upstream/android-13
 					nls_cp);
 		rc =
 		crypto_shash_update(&ses->server->secmech.sdeschmacmd5->shash,
@@ -618,7 +651,11 @@ CalcNTLMv2_response(const struct cifs_ses *ses, char *ntlmv2_hash)
 
 	rc = crypto_shash_init(&ses->server->secmech.sdeschmacmd5->shash);
 	if (rc) {
+<<<<<<< HEAD
 		cifs_dbg(VFS, "%s: could not init hmacmd5\n", __func__);
+=======
+		cifs_dbg(VFS, "%s: Could not init hmacmd5\n", __func__);
+>>>>>>> upstream/android-13
 		return rc;
 	}
 
@@ -655,6 +692,14 @@ setup_ntlmv2_rsp(struct cifs_ses *ses, const struct nls_table *nls_cp)
 	unsigned char *tiblob = NULL; /* target info blob */
 	__le64 rsp_timestamp;
 
+<<<<<<< HEAD
+=======
+	if (nls_cp == NULL) {
+		cifs_dbg(VFS, "%s called with nls_cp==NULL\n", __func__);
+		return -EINVAL;
+	}
+
+>>>>>>> upstream/android-13
 	if (ses->server->negflavor == CIFS_NEGFLAVOR_EXTENDED) {
 		if (!ses->domainName) {
 			if (ses->domainAuto) {
@@ -717,7 +762,11 @@ setup_ntlmv2_rsp(struct cifs_ses *ses, const struct nls_table *nls_cp)
 	/* calculate ntlmv2_hash */
 	rc = calc_ntlmv2_hash(ses, ntlmv2_hash, nls_cp);
 	if (rc) {
+<<<<<<< HEAD
 		cifs_dbg(VFS, "could not get v2 hash rc %d\n", rc);
+=======
+		cifs_dbg(VFS, "Could not get v2 hash rc %d\n", rc);
+>>>>>>> upstream/android-13
 		goto unlock;
 	}
 
@@ -767,6 +816,7 @@ setup_ntlmv2_rsp_ret:
 int
 calc_seckey(struct cifs_ses *ses)
 {
+<<<<<<< HEAD
 	int rc;
 	struct crypto_skcipher *tfm_arc4;
 	struct scatterlist sgin, sgout;
@@ -813,17 +863,42 @@ calc_seckey(struct cifs_ses *ses)
 		cifs_dbg(VFS, "could not encrypt session key rc: %d\n", rc);
 		goto out_free_cipher;
 	}
+=======
+	unsigned char sec_key[CIFS_SESS_KEY_SIZE]; /* a nonce */
+	struct arc4_ctx *ctx_arc4;
+
+	if (fips_enabled)
+		return -ENODEV;
+
+	get_random_bytes(sec_key, CIFS_SESS_KEY_SIZE);
+
+	ctx_arc4 = kmalloc(sizeof(*ctx_arc4), GFP_KERNEL);
+	if (!ctx_arc4) {
+		cifs_dbg(VFS, "Could not allocate arc4 context\n");
+		return -ENOMEM;
+	}
+
+	cifs_arc4_setkey(ctx_arc4, ses->auth_key.response, CIFS_SESS_KEY_SIZE);
+	cifs_arc4_crypt(ctx_arc4, ses->ntlmssp->ciphertext, sec_key,
+			CIFS_CPHTXT_SIZE);
+>>>>>>> upstream/android-13
 
 	/* make secondary_key/nonce as session key */
 	memcpy(ses->auth_key.response, sec_key, CIFS_SESS_KEY_SIZE);
 	/* and make len as that of session key only */
 	ses->auth_key.len = CIFS_SESS_KEY_SIZE;
 
+<<<<<<< HEAD
 out_free_cipher:
 	crypto_free_skcipher(tfm_arc4);
 out:
 	kfree(sec_key);
 	return rc;
+=======
+	memzero_explicit(sec_key, CIFS_SESS_KEY_SIZE);
+	kfree_sensitive(ctx_arc4);
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 void

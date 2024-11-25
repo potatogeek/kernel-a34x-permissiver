@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*******************************************************************************
  * This file contains the iSCSI Target specific utility functions.
  *
@@ -5,6 +9,7 @@
  *
  * Author: Nicholas A. Bellinger <nab@linux-iscsi.org>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -14,6 +19,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  ******************************************************************************/
 
 #include <linux/list.h>
@@ -36,6 +43,7 @@
 #include "iscsi_target_util.h"
 #include "iscsi_target.h"
 
+<<<<<<< HEAD
 #define PRINT_BUFF(buff, len)					\
 {								\
 	int zzz;						\
@@ -59,6 +67,11 @@ extern spinlock_t tiqn_lock;
 /*
  *	Called with cmd->r2t_lock held.
  */
+=======
+extern struct list_head g_tiqn_list;
+extern spinlock_t tiqn_lock;
+
+>>>>>>> upstream/android-13
 int iscsit_add_r2t_to_list(
 	struct iscsi_cmd *cmd,
 	u32 offset,
@@ -68,6 +81,13 @@ int iscsit_add_r2t_to_list(
 {
 	struct iscsi_r2t *r2t;
 
+<<<<<<< HEAD
+=======
+	lockdep_assert_held(&cmd->r2t_lock);
+
+	WARN_ON_ONCE((s32)xfer_len < 0);
+
+>>>>>>> upstream/android-13
 	r2t = kmem_cache_zalloc(lio_r2t_cache, GFP_ATOMIC);
 	if (!r2t) {
 		pr_err("Unable to allocate memory for struct iscsi_r2t.\n");
@@ -128,11 +148,18 @@ struct iscsi_r2t *iscsit_get_r2t_from_list(struct iscsi_cmd *cmd)
 	return NULL;
 }
 
+<<<<<<< HEAD
 /*
  *	Called with cmd->r2t_lock held.
  */
 void iscsit_free_r2t(struct iscsi_r2t *r2t, struct iscsi_cmd *cmd)
 {
+=======
+void iscsit_free_r2t(struct iscsi_r2t *r2t, struct iscsi_cmd *cmd)
+{
+	lockdep_assert_held(&cmd->r2t_lock);
+
+>>>>>>> upstream/android-13
 	list_del(&r2t->r2t_list);
 	kmem_cache_free(lio_r2t_cache, r2t);
 }
@@ -150,24 +177,44 @@ void iscsit_free_r2ts_from_list(struct iscsi_cmd *cmd)
 static int iscsit_wait_for_tag(struct se_session *se_sess, int state, int *cpup)
 {
 	int tag = -1;
+<<<<<<< HEAD
 	DEFINE_WAIT(wait);
 	struct sbq_wait_state *ws;
+=======
+	DEFINE_SBQ_WAIT(wait);
+	struct sbq_wait_state *ws;
+	struct sbitmap_queue *sbq;
+>>>>>>> upstream/android-13
 
 	if (state == TASK_RUNNING)
 		return tag;
 
+<<<<<<< HEAD
 	ws = &se_sess->sess_tag_pool.ws[0];
 	for (;;) {
 		prepare_to_wait_exclusive(&ws->wait, &wait, state);
 		if (signal_pending_state(state, current))
 			break;
 		tag = sbitmap_queue_get(&se_sess->sess_tag_pool, cpup);
+=======
+	sbq = &se_sess->sess_tag_pool;
+	ws = &sbq->ws[0];
+	for (;;) {
+		sbitmap_prepare_to_wait(sbq, ws, &wait, state);
+		if (signal_pending_state(state, current))
+			break;
+		tag = sbitmap_queue_get(sbq, cpup);
+>>>>>>> upstream/android-13
 		if (tag >= 0)
 			break;
 		schedule();
 	}
 
+<<<<<<< HEAD
 	finish_wait(&ws->wait, &wait);
+=======
+	sbitmap_finish_wait(sbq, ws, &wait);
+>>>>>>> upstream/android-13
 	return tag;
 }
 
@@ -735,6 +782,10 @@ void iscsit_release_cmd(struct iscsi_cmd *cmd)
 	kfree(cmd->pdu_list);
 	kfree(cmd->seq_list);
 	kfree(cmd->tmr_req);
+<<<<<<< HEAD
+=======
+	kfree(cmd->overflow_buf);
+>>>>>>> upstream/android-13
 	kfree(cmd->iov_data);
 	kfree(cmd->text_in_ptr);
 
@@ -760,8 +811,13 @@ void __iscsit_free_cmd(struct iscsi_cmd *cmd, bool check_queues)
 		iscsit_remove_cmd_from_response_queue(cmd, conn);
 	}
 
+<<<<<<< HEAD
 	if (conn && conn->conn_transport->iscsit_release_cmd)
 		conn->conn_transport->iscsit_release_cmd(conn, cmd);
+=======
+	if (conn && conn->conn_transport->iscsit_unmap_cmd)
+		conn->conn_transport->iscsit_unmap_cmd(conn, cmd);
+>>>>>>> upstream/android-13
 }
 
 void iscsit_free_cmd(struct iscsi_cmd *cmd, bool shutdown)
@@ -769,6 +825,11 @@ void iscsit_free_cmd(struct iscsi_cmd *cmd, bool shutdown)
 	struct se_cmd *se_cmd = cmd->se_cmd.se_tfo ? &cmd->se_cmd : NULL;
 	int rc;
 
+<<<<<<< HEAD
+=======
+	WARN_ON(!list_empty(&cmd->i_conn_node));
+
+>>>>>>> upstream/android-13
 	__iscsit_free_cmd(cmd, shutdown);
 	if (se_cmd) {
 		rc = transport_generic_free_cmd(se_cmd, shutdown);
@@ -782,12 +843,18 @@ void iscsit_free_cmd(struct iscsi_cmd *cmd, bool shutdown)
 }
 EXPORT_SYMBOL(iscsit_free_cmd);
 
+<<<<<<< HEAD
 int iscsit_check_session_usage_count(struct iscsi_session *sess)
+=======
+bool iscsit_check_session_usage_count(struct iscsi_session *sess,
+				      bool can_sleep)
+>>>>>>> upstream/android-13
 {
 	spin_lock_bh(&sess->session_usage_lock);
 	if (sess->session_usage_count != 0) {
 		sess->session_waiting_on_uc = 1;
 		spin_unlock_bh(&sess->session_usage_lock);
+<<<<<<< HEAD
 		if (in_interrupt())
 			return 2;
 
@@ -797,6 +864,17 @@ int iscsit_check_session_usage_count(struct iscsi_session *sess)
 	spin_unlock_bh(&sess->session_usage_lock);
 
 	return 0;
+=======
+		if (!can_sleep)
+			return true;
+
+		wait_for_completion(&sess->session_waiting_on_uc_comp);
+		return false;
+	}
+	spin_unlock_bh(&sess->session_usage_lock);
+
+	return false;
+>>>>>>> upstream/android-13
 }
 
 void iscsit_dec_session_usage_count(struct iscsi_session *sess)
@@ -915,6 +993,10 @@ static int iscsit_add_nopin(struct iscsi_conn *conn, int want_response)
 void iscsit_handle_nopin_response_timeout(struct timer_list *t)
 {
 	struct iscsi_conn *conn = from_timer(conn, t, nopin_response_timer);
+<<<<<<< HEAD
+=======
+	struct iscsi_session *sess = conn->sess;
+>>>>>>> upstream/android-13
 
 	iscsit_inc_conn_usage_count(conn);
 
@@ -925,6 +1007,7 @@ void iscsit_handle_nopin_response_timeout(struct timer_list *t)
 		return;
 	}
 
+<<<<<<< HEAD
 	pr_debug("Did not receive response to NOPIN on CID: %hu on"
 		" SID: %u, failing connection.\n", conn->cid,
 			conn->sess->sid);
@@ -947,6 +1030,16 @@ void iscsit_handle_nopin_response_timeout(struct timer_list *t)
 	}
 	}
 
+=======
+	pr_err("Did not receive response to NOPIN on CID: %hu, failing"
+		" connection for I_T Nexus %s,i,0x%6phN,%s,t,0x%02x\n",
+		conn->cid, sess->sess_ops->InitiatorName, sess->isid,
+		sess->tpg->tpg_tiqn->tiqn, (u32)sess->tpg->tpgt);
+	conn->nopin_response_timer_flags &= ~ISCSI_TF_RUNNING;
+	spin_unlock_bh(&conn->nopin_timer_lock);
+
+	iscsit_fill_cxn_timeout_err_stats(sess);
+>>>>>>> upstream/android-13
 	iscsit_cause_connection_reinstatement(conn, 0);
 	iscsit_dec_conn_usage_count(conn);
 }
@@ -967,9 +1060,12 @@ void iscsit_mod_nopin_response_timer(struct iscsi_conn *conn)
 	spin_unlock_bh(&conn->nopin_timer_lock);
 }
 
+<<<<<<< HEAD
 /*
  *	Called with conn->nopin_timer_lock held.
  */
+=======
+>>>>>>> upstream/android-13
 void iscsit_start_nopin_response_timer(struct iscsi_conn *conn)
 {
 	struct iscsi_session *sess = conn->sess;
@@ -1027,13 +1123,22 @@ void iscsit_handle_nopin_timeout(struct timer_list *t)
 	iscsit_dec_conn_usage_count(conn);
 }
 
+<<<<<<< HEAD
 /*
  * Called with conn->nopin_timer_lock held.
  */
+=======
+>>>>>>> upstream/android-13
 void __iscsit_start_nopin_timer(struct iscsi_conn *conn)
 {
 	struct iscsi_session *sess = conn->sess;
 	struct iscsi_node_attrib *na = iscsit_tpg_get_node_attrib(sess);
+<<<<<<< HEAD
+=======
+
+	lockdep_assert_held(&conn->nopin_timer_lock);
+
+>>>>>>> upstream/android-13
 	/*
 	* NOPIN timeout is disabled.
 	 */
@@ -1247,19 +1352,33 @@ void iscsit_print_session_params(struct iscsi_session *sess)
 	iscsi_dump_sess_ops(sess->sess_ops);
 }
 
+<<<<<<< HEAD
 static int iscsit_do_rx_data(
 	struct iscsi_conn *conn,
 	struct iscsi_data_count *count)
 {
 	int data = count->data_length, rx_loop = 0, total_rx = 0;
+=======
+int rx_data(
+	struct iscsi_conn *conn,
+	struct kvec *iov,
+	int iov_count,
+	int data)
+{
+	int rx_loop = 0, total_rx = 0;
+>>>>>>> upstream/android-13
 	struct msghdr msg;
 
 	if (!conn || !conn->sock || !conn->conn_ops)
 		return -1;
 
 	memset(&msg, 0, sizeof(struct msghdr));
+<<<<<<< HEAD
 	iov_iter_kvec(&msg.msg_iter, READ | ITER_KVEC,
 		      count->iov, count->iov_count, data);
+=======
+	iov_iter_kvec(&msg.msg_iter, READ, iov, iov_count, data);
+>>>>>>> upstream/android-13
 
 	while (msg_data_left(&msg)) {
 		rx_loop = sock_recvmsg(conn->sock, &msg, MSG_WAITALL);
@@ -1276,6 +1395,7 @@ static int iscsit_do_rx_data(
 	return total_rx;
 }
 
+<<<<<<< HEAD
 int rx_data(
 	struct iscsi_conn *conn,
 	struct kvec *iov,
@@ -1296,6 +1416,8 @@ int rx_data(
 	return iscsit_do_rx_data(conn, &c);
 }
 
+=======
+>>>>>>> upstream/android-13
 int tx_data(
 	struct iscsi_conn *conn,
 	struct kvec *iov,
@@ -1315,8 +1437,12 @@ int tx_data(
 
 	memset(&msg, 0, sizeof(struct msghdr));
 
+<<<<<<< HEAD
 	iov_iter_kvec(&msg.msg_iter, WRITE | ITER_KVEC,
 		      iov, iov_count, data);
+=======
+	iov_iter_kvec(&msg.msg_iter, WRITE, iov, iov_count, data);
+>>>>>>> upstream/android-13
 
 	while (msg_data_left(&msg)) {
 		int tx_loop = sock_sendmsg(conn->sock, &msg);
@@ -1405,3 +1531,25 @@ struct iscsi_tiqn *iscsit_snmp_get_tiqn(struct iscsi_conn *conn)
 
 	return tpg->tpg_tiqn;
 }
+<<<<<<< HEAD
+=======
+
+void iscsit_fill_cxn_timeout_err_stats(struct iscsi_session *sess)
+{
+	struct iscsi_portal_group *tpg = sess->tpg;
+	struct iscsi_tiqn *tiqn = tpg->tpg_tiqn;
+
+	if (!tiqn)
+		return;
+
+	spin_lock_bh(&tiqn->sess_err_stats.lock);
+	strlcpy(tiqn->sess_err_stats.last_sess_fail_rem_name,
+			sess->sess_ops->InitiatorName,
+			sizeof(tiqn->sess_err_stats.last_sess_fail_rem_name));
+	tiqn->sess_err_stats.last_sess_failure_type =
+			ISCSI_SESS_ERR_CXN_TIMEOUT;
+	tiqn->sess_err_stats.cxn_timeout_errors++;
+	atomic_long_inc(&sess->conn_timeout_errors);
+	spin_unlock_bh(&tiqn->sess_err_stats.lock);
+}
+>>>>>>> upstream/android-13

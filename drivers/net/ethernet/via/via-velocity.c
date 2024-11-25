@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * This code is derived from the VIA reference driver (copyright message
  * below) provided to Red Hat by VIA Networking Technologies, Inc. for
@@ -24,6 +28,7 @@
  * Copyright (c) 1996, 2003 VIA Networking Technologies, Inc.
  * All rights reserved.
  *
+<<<<<<< HEAD
  * This software may be redistributed and/or modified under
  * the terms of the GNU General Public License as published by the Free
  * Software Foundation; either version 2 of the License, or
@@ -34,14 +39,23 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  *
+=======
+>>>>>>> upstream/android-13
  * Author: Chuang Liang-Shing, AJ Jiang
  *
  * Date: Jan 24, 2003
  *
  * MODULE_LICENSE("GPL");
+<<<<<<< HEAD
  *
  */
 
+=======
+ */
+
+#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
+
+>>>>>>> upstream/android-13
 #include <linux/module.h>
 #include <linux/types.h>
 #include <linux/bitops.h>
@@ -90,7 +104,10 @@ enum velocity_bus_type {
 };
 
 static int velocity_nics;
+<<<<<<< HEAD
 static int msglevel = MSG_LEVEL_INFO;
+=======
+>>>>>>> upstream/android-13
 
 static void velocity_set_power_state(struct velocity_info *vptr, char state)
 {
@@ -381,7 +398,11 @@ static const struct pci_device_id velocity_pci_id_table[] = {
 
 MODULE_DEVICE_TABLE(pci, velocity_pci_id_table);
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  *	Describe the OF device identifiers that we support in this
  *	device driver. Used for devicetree nodes.
  */
@@ -393,7 +414,11 @@ MODULE_DEVICE_TABLE(of, velocity_of_ids);
 
 /**
  *	get_chip_name	- 	identifier to name
+<<<<<<< HEAD
  *	@id: chip identifier
+=======
+ *	@chip_id: chip identifier
+>>>>>>> upstream/android-13
  *
  *	Given a chip identifier return a suitable description. Returns
  *	a pointer a static string valid while the driver is loaded.
@@ -415,24 +440,39 @@ static const char *get_chip_name(enum chip_type chip_id)
  *	@max: highest value allowed
  *	@def: default value
  *	@name: property name
+<<<<<<< HEAD
  *	@dev: device name
+=======
+>>>>>>> upstream/android-13
  *
  *	Set an integer property in the module options. This function does
  *	all the verification and checking as well as reporting so that
  *	we don't duplicate code for each option.
  */
 static void velocity_set_int_opt(int *opt, int val, int min, int max, int def,
+<<<<<<< HEAD
 				 char *name, const char *devname)
+=======
+				 char *name)
+>>>>>>> upstream/android-13
 {
 	if (val == -1)
 		*opt = def;
 	else if (val < min || val > max) {
+<<<<<<< HEAD
 		VELOCITY_PRT(MSG_LEVEL_INFO, KERN_NOTICE "%s: the value of parameter %s is invalid, the valid range is (%d-%d)\n",
 					devname, name, min, max);
 		*opt = def;
 	} else {
 		VELOCITY_PRT(MSG_LEVEL_INFO, KERN_INFO "%s: set value of parameter %s to %d\n",
 					devname, name, val);
+=======
+		pr_notice("the value of parameter %s is invalid, the valid range is (%d-%d)\n",
+			  name, min, max);
+		*opt = def;
+	} else {
+		pr_info("set value of parameter %s to %d\n", name, val);
+>>>>>>> upstream/android-13
 		*opt = val;
 	}
 }
@@ -444,25 +484,41 @@ static void velocity_set_int_opt(int *opt, int val, int min, int max, int def,
  *	@def: default value (yes/no)
  *	@flag: numeric value to set for true.
  *	@name: property name
+<<<<<<< HEAD
  *	@dev: device name
+=======
+>>>>>>> upstream/android-13
  *
  *	Set a boolean property in the module options. This function does
  *	all the verification and checking as well as reporting so that
  *	we don't duplicate code for each option.
  */
 static void velocity_set_bool_opt(u32 *opt, int val, int def, u32 flag,
+<<<<<<< HEAD
 				  char *name, const char *devname)
+=======
+				  char *name)
+>>>>>>> upstream/android-13
 {
 	(*opt) &= (~flag);
 	if (val == -1)
 		*opt |= (def ? flag : 0);
 	else if (val < 0 || val > 1) {
+<<<<<<< HEAD
 		printk(KERN_NOTICE "%s: the value of parameter %s is invalid, the valid range is (0-1)\n",
 			devname, name);
 		*opt |= (def ? flag : 0);
 	} else {
 		printk(KERN_INFO "%s: set parameter %s to %s\n",
 			devname, name, val ? "TRUE" : "FALSE");
+=======
+		pr_notice("the value of parameter %s is invalid, the valid range is (%d-%d)\n",
+			  name, 0, 1);
+		*opt |= (def ? flag : 0);
+	} else {
+		pr_info("set parameter %s to %s\n",
+			name, val ? "TRUE" : "FALSE");
+>>>>>>> upstream/android-13
 		*opt |= (val ? flag : 0);
 	}
 }
@@ -471,11 +527,15 @@ static void velocity_set_bool_opt(u32 *opt, int val, int def, u32 flag,
  *	velocity_get_options	-	set options on device
  *	@opts: option structure for the device
  *	@index: index of option to use in module options array
+<<<<<<< HEAD
  *	@devname: device name
+=======
+>>>>>>> upstream/android-13
  *
  *	Turn the module and command options into a single structure
  *	for the current device
  */
+<<<<<<< HEAD
 static void velocity_get_options(struct velocity_opt *opts, int index,
 				 const char *devname)
 {
@@ -489,6 +549,36 @@ static void velocity_get_options(struct velocity_opt *opts, int index,
 	velocity_set_bool_opt(&opts->flags, IP_byte_align[index], IP_ALIG_DEF, VELOCITY_FLAGS_IP_ALIGN, "IP_byte_align", devname);
 	velocity_set_int_opt((int *) &opts->spd_dpx, speed_duplex[index], MED_LNK_MIN, MED_LNK_MAX, MED_LNK_DEF, "Media link mode", devname);
 	velocity_set_int_opt(&opts->wol_opts, wol_opts[index], WOL_OPT_MIN, WOL_OPT_MAX, WOL_OPT_DEF, "Wake On Lan options", devname);
+=======
+static void velocity_get_options(struct velocity_opt *opts, int index)
+{
+
+	velocity_set_int_opt(&opts->rx_thresh, rx_thresh[index],
+			     RX_THRESH_MIN, RX_THRESH_MAX, RX_THRESH_DEF,
+			     "rx_thresh");
+	velocity_set_int_opt(&opts->DMA_length, DMA_length[index],
+			     DMA_LENGTH_MIN, DMA_LENGTH_MAX, DMA_LENGTH_DEF,
+			     "DMA_length");
+	velocity_set_int_opt(&opts->numrx, RxDescriptors[index],
+			     RX_DESC_MIN, RX_DESC_MAX, RX_DESC_DEF,
+			     "RxDescriptors");
+	velocity_set_int_opt(&opts->numtx, TxDescriptors[index],
+			     TX_DESC_MIN, TX_DESC_MAX, TX_DESC_DEF,
+			     "TxDescriptors");
+
+	velocity_set_int_opt(&opts->flow_cntl, flow_control[index],
+			     FLOW_CNTL_MIN, FLOW_CNTL_MAX, FLOW_CNTL_DEF,
+			     "flow_control");
+	velocity_set_bool_opt(&opts->flags, IP_byte_align[index],
+			      IP_ALIG_DEF, VELOCITY_FLAGS_IP_ALIGN,
+			      "IP_byte_align");
+	velocity_set_int_opt((int *) &opts->spd_dpx, speed_duplex[index],
+			     MED_LNK_MIN, MED_LNK_MAX, MED_LNK_DEF,
+			     "Media link mode");
+	velocity_set_int_opt(&opts->wol_opts, wol_opts[index],
+			     WOL_OPT_MIN, WOL_OPT_MAX, WOL_OPT_DEF,
+			     "Wake On Lan options");
+>>>>>>> upstream/android-13
 	opts->numrx = (opts->numrx & ~3);
 }
 
@@ -746,7 +836,11 @@ static u32 mii_check_media_mode(struct mac_regs __iomem *regs)
 /**
  *	velocity_mii_write	-	write MII data
  *	@regs: velocity registers
+<<<<<<< HEAD
  *	@index: MII register index
+=======
+ *	@mii_addr: MII register index
+>>>>>>> upstream/android-13
  *	@data: 16bit data for the MII register
  *
  *	Perform a single write to an MII 16bit register. Returns zero
@@ -867,6 +961,10 @@ static u32 check_connection_type(struct mac_regs __iomem *regs)
 
 /**
  *	velocity_set_media_mode		-	set media mode
+<<<<<<< HEAD
+=======
+ *	@vptr: velocity adapter
+>>>>>>> upstream/android-13
  *	@mii_status: old MII link state
  *
  *	Check the media link state and configure the flow control
@@ -875,15 +973,22 @@ static u32 check_connection_type(struct mac_regs __iomem *regs)
  */
 static int velocity_set_media_mode(struct velocity_info *vptr, u32 mii_status)
 {
+<<<<<<< HEAD
 	u32 curr_status;
 	struct mac_regs __iomem *regs = vptr->mac_regs;
 
 	vptr->mii_status = mii_check_media_mode(vptr->mac_regs);
 	curr_status = vptr->mii_status & (~VELOCITY_LINK_FAIL);
+=======
+	struct mac_regs __iomem *regs = vptr->mac_regs;
+
+	vptr->mii_status = mii_check_media_mode(vptr->mac_regs);
+>>>>>>> upstream/android-13
 
 	/* Set mii link status */
 	set_mii_flow_control(vptr);
 
+<<<<<<< HEAD
 	/*
 	   Check if new status is consistent with current status
 	   if (((mii_status & curr_status) & VELOCITY_AUTONEG_ENABLE) ||
@@ -895,6 +1000,8 @@ static int velocity_set_media_mode(struct velocity_info *vptr, u32 mii_status)
 	   }
 	 */
 
+=======
+>>>>>>> upstream/android-13
 	if (PHYID_GET_PHY_ID(vptr->phy_id) == PHYID_CICADA_CS8201)
 		MII_REG_BITS_ON(AUXCR_MDPPS, MII_NCONFIG, vptr->mac_regs);
 
@@ -902,7 +1009,11 @@ static int velocity_set_media_mode(struct velocity_info *vptr, u32 mii_status)
 	 *	If connection type is AUTO
 	 */
 	if (mii_status & VELOCITY_AUTONEG_ENABLE) {
+<<<<<<< HEAD
 		VELOCITY_PRT(MSG_LEVEL_INFO, "Velocity is AUTO mode\n");
+=======
+		netdev_info(vptr->netdev, "Velocity is in AUTO mode\n");
+>>>>>>> upstream/android-13
 		/* clear force MAC mode bit */
 		BYTE_REG_BITS_OFF(CHIPGCR_FCMODE, &regs->CHIPGCR);
 		/* set duplex mode of MAC according to duplex mode of MII */
@@ -937,12 +1048,22 @@ static int velocity_set_media_mode(struct velocity_info *vptr, u32 mii_status)
 		if (mii_status & VELOCITY_DUPLEX_FULL) {
 			CHIPGCR |= CHIPGCR_FCFDX;
 			writeb(CHIPGCR, &regs->CHIPGCR);
+<<<<<<< HEAD
 			VELOCITY_PRT(MSG_LEVEL_INFO, "set Velocity to forced full mode\n");
+=======
+			netdev_info(vptr->netdev,
+				    "set Velocity to forced full mode\n");
+>>>>>>> upstream/android-13
 			if (vptr->rev_id < REV_ID_VT3216_A0)
 				BYTE_REG_BITS_OFF(TCR_TB2BDIS, &regs->TCR);
 		} else {
 			CHIPGCR &= ~CHIPGCR_FCFDX;
+<<<<<<< HEAD
 			VELOCITY_PRT(MSG_LEVEL_INFO, "set Velocity to forced half mode\n");
+=======
+			netdev_info(vptr->netdev,
+				    "set Velocity to forced half mode\n");
+>>>>>>> upstream/android-13
 			writeb(CHIPGCR, &regs->CHIPGCR);
 			if (vptr->rev_id < REV_ID_VT3216_A0)
 				BYTE_REG_BITS_ON(TCR_TB2BDIS, &regs->TCR);
@@ -995,6 +1116,7 @@ static int velocity_set_media_mode(struct velocity_info *vptr, u32 mii_status)
  */
 static void velocity_print_link_status(struct velocity_info *vptr)
 {
+<<<<<<< HEAD
 
 	if (vptr->mii_status & VELOCITY_LINK_FAIL) {
 		VELOCITY_PRT(MSG_LEVEL_INFO, KERN_NOTICE "%s: failed to detect cable link\n", vptr->netdev->name);
@@ -1034,6 +1156,63 @@ static void velocity_print_link_status(struct velocity_info *vptr)
 			break;
 		}
 	}
+=======
+	const char *link;
+	const char *speed;
+	const char *duplex;
+
+	if (vptr->mii_status & VELOCITY_LINK_FAIL) {
+		netdev_notice(vptr->netdev, "failed to detect cable link\n");
+		return;
+	}
+
+	if (vptr->options.spd_dpx == SPD_DPX_AUTO) {
+		link = "auto-negotiation";
+
+		if (vptr->mii_status & VELOCITY_SPEED_1000)
+			speed = "1000";
+		else if (vptr->mii_status & VELOCITY_SPEED_100)
+			speed = "100";
+		else
+			speed = "10";
+
+		if (vptr->mii_status & VELOCITY_DUPLEX_FULL)
+			duplex = "full";
+		else
+			duplex = "half";
+	} else {
+		link = "forced";
+
+		switch (vptr->options.spd_dpx) {
+		case SPD_DPX_1000_FULL:
+			speed = "1000";
+			duplex = "full";
+			break;
+		case SPD_DPX_100_HALF:
+			speed = "100";
+			duplex = "half";
+			break;
+		case SPD_DPX_100_FULL:
+			speed = "100";
+			duplex = "full";
+			break;
+		case SPD_DPX_10_HALF:
+			speed = "10";
+			duplex = "half";
+			break;
+		case SPD_DPX_10_FULL:
+			speed = "10";
+			duplex = "full";
+			break;
+		default:
+			speed = "unknown";
+			duplex = "unknown";
+			break;
+		}
+	}
+	netdev_notice(vptr->netdev, "Link %s speed %sM bps %s duplex\n",
+		      link, speed, duplex);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -1249,6 +1428,10 @@ static void mii_init(struct velocity_info *vptr, u32 mii_status)
 
 /**
  * setup_queue_timers	-	Setup interrupt timers
+<<<<<<< HEAD
+=======
+ * @vptr: velocity adapter
+>>>>>>> upstream/android-13
  *
  * Setup interrupt frequency during suppression (timeout if the frame
  * count isn't filled).
@@ -1273,8 +1456,12 @@ static void setup_queue_timers(struct velocity_info *vptr)
 
 /**
  * setup_adaptive_interrupts  -  Setup interrupt suppression
+<<<<<<< HEAD
  *
  * @vptr velocity adapter
+=======
+ * @vptr: velocity adapter
+>>>>>>> upstream/android-13
  *
  * The velocity is able to suppress interrupt during high interrupt load.
  * This function turns on that feature.
@@ -1631,8 +1818,12 @@ static int velocity_init_rd_ring(struct velocity_info *vptr)
 	velocity_init_rx_ring_indexes(vptr);
 
 	if (velocity_rx_refill(vptr) != vptr->options.numrx) {
+<<<<<<< HEAD
 		VELOCITY_PRT(MSG_LEVEL_ERR, KERN_ERR
 			"%s: failed to allocate RX buffer.\n", vptr->netdev->name);
+=======
+		netdev_err(vptr->netdev, "failed to allocate RX buffer\n");
+>>>>>>> upstream/android-13
 		velocity_free_rd_ring(vptr);
 		goto out;
 	}
@@ -1716,6 +1907,10 @@ err_free_dma_rings_0:
  *	velocity_free_tx_buf	-	free transmit buffer
  *	@vptr: velocity
  *	@tdinfo: buffer
+<<<<<<< HEAD
+=======
+ *	@td: transmit descriptor to free
+>>>>>>> upstream/android-13
  *
  *	Release an transmit buffer. If the buffer was preallocated then
  *	recycle it, if not then unmap the buffer.
@@ -1740,7 +1935,11 @@ static void velocity_free_tx_buf(struct velocity_info *vptr,
 		dma_unmap_single(vptr->dev, tdinfo->skb_dma[i],
 				 le16_to_cpu(pktlen), DMA_TO_DEVICE);
 	}
+<<<<<<< HEAD
 	dev_kfree_skb_irq(skb);
+=======
+	dev_consume_skb_irq(skb);
+>>>>>>> upstream/android-13
 	tdinfo->skb = NULL;
 }
 
@@ -1815,7 +2014,12 @@ static void velocity_error(struct velocity_info *vptr, int status)
 	if (status & ISR_TXSTLI) {
 		struct mac_regs __iomem *regs = vptr->mac_regs;
 
+<<<<<<< HEAD
 		printk(KERN_ERR "TD structure error TDindex=%hx\n", readw(&regs->TDIdx[0]));
+=======
+		netdev_err(vptr->netdev, "TD structure error TDindex=%hx\n",
+			   readw(&regs->TDIdx[0]));
+>>>>>>> upstream/android-13
 		BYTE_REG_BITS_ON(TXESR_TDSTR, &regs->TXESR);
 		writew(TRDCSR_RUN, &regs->TDCSRClr);
 		netif_stop_queue(vptr->netdev);
@@ -1888,8 +2092,13 @@ static void velocity_error(struct velocity_info *vptr, int status)
 }
 
 /**
+<<<<<<< HEAD
  *	tx_srv		-	transmit interrupt service
  *	@vptr; Velocity
+=======
+ *	velocity_tx_srv		-	transmit interrupt service
+ *	@vptr: Velocity
+>>>>>>> upstream/android-13
  *
  *	Scan the queues looking for transmitted packets that
  *	we can complete and clean up. Update any statistics as
@@ -1983,8 +2192,12 @@ static inline void velocity_rx_csum(struct rx_desc *rd, struct sk_buff *skb)
  *	velocity_rx_copy	-	in place Rx copy for small packets
  *	@rx_skb: network layer packet buffer candidate
  *	@pkt_size: received data size
+<<<<<<< HEAD
  *	@rd: receive packet descriptor
  *	@dev: network device
+=======
+ *	@vptr: velocity adapter
+>>>>>>> upstream/android-13
  *
  *	Replace the current skb that is scheduled for Rx processing by a
  *	shorter, immediately allocated skb, if the received packet is small
@@ -2046,7 +2259,11 @@ static int velocity_receive_frame(struct velocity_info *vptr, int idx)
 
 	if (unlikely(rd->rdesc0.RSR & (RSR_STP | RSR_EDP | RSR_RL))) {
 		if (rd->rdesc0.RSR & (RSR_STP | RSR_EDP))
+<<<<<<< HEAD
 			VELOCITY_PRT(MSG_LEVEL_VERBOSE, KERN_ERR " %s : the received frame spans multiple RDs.\n", vptr->netdev->name);
+=======
+			netdev_err(vptr->netdev, "received frame spans multiple RDs\n");
+>>>>>>> upstream/android-13
 		stats->rx_length_errors++;
 		return -EINVAL;
 	}
@@ -2090,6 +2307,10 @@ static int velocity_receive_frame(struct velocity_info *vptr, int idx)
 /**
  *	velocity_rx_srv		-	service RX interrupt
  *	@vptr: velocity
+<<<<<<< HEAD
+=======
+ *	@budget_left: remaining budget
+>>>>>>> upstream/android-13
  *
  *	Walk the receive ring of the velocity adapter and remove
  *	any received packets from the receive queue. Hand the ring
@@ -2444,7 +2665,11 @@ static int velocity_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
 }
 
 /**
+<<<<<<< HEAD
  *	velocity_get_status	-	statistics callback
+=======
+ *	velocity_get_stats	-	statistics callback
+>>>>>>> upstream/android-13
  *	@dev: network device
  *
  *	Callback from the network layer to allow driver statistics
@@ -2516,7 +2741,11 @@ static int velocity_close(struct net_device *dev)
  *	@skb: buffer to transmit
  *	@dev: network device
  *
+<<<<<<< HEAD
  *	Called by the networ layer to request a packet is queued to
+=======
+ *	Called by the network layer to request a packet is queued to
+>>>>>>> upstream/android-13
  *	the velocity. Returns zero on success.
  */
 static netdev_tx_t velocity_xmit(struct sk_buff *skb,
@@ -2628,7 +2857,11 @@ static const struct net_device_ops velocity_netdev_ops = {
 	.ndo_set_mac_address	= eth_mac_addr,
 	.ndo_set_rx_mode	= velocity_set_multi,
 	.ndo_change_mtu		= velocity_change_mtu,
+<<<<<<< HEAD
 	.ndo_do_ioctl		= velocity_ioctl,
+=======
+	.ndo_eth_ioctl		= velocity_ioctl,
+>>>>>>> upstream/android-13
 	.ndo_vlan_rx_add_vid	= velocity_vlan_rx_add_vid,
 	.ndo_vlan_rx_kill_vid	= velocity_vlan_rx_kill_vid,
 #ifdef CONFIG_NET_POLL_CONTROLLER
@@ -2638,7 +2871,10 @@ static const struct net_device_ops velocity_netdev_ops = {
 
 /**
  *	velocity_init_info	-	init private data
+<<<<<<< HEAD
  *	@pdev: PCI device
+=======
+>>>>>>> upstream/android-13
  *	@vptr: Velocity info
  *	@info: Board type
  *
@@ -2657,7 +2893,10 @@ static void velocity_init_info(struct velocity_info *vptr,
 /**
  *	velocity_get_pci_info	-	retrieve PCI info for device
  *	@vptr: velocity device
+<<<<<<< HEAD
  *	@pdev: PCI device it matches
+=======
+>>>>>>> upstream/android-13
  *
  *	Retrieve the PCI configuration space data that interests us from
  *	the kernel PCI layer
@@ -2694,7 +2933,10 @@ static int velocity_get_pci_info(struct velocity_info *vptr)
 /**
  *	velocity_get_platform_info - retrieve platform info for device
  *	@vptr: velocity device
+<<<<<<< HEAD
  *	@pdev: platform device it matches
+=======
+>>>>>>> upstream/android-13
  *
  *	Retrieve the Platform configuration data that interests us
  */
@@ -2731,11 +2973,16 @@ static int velocity_get_platform_info(struct velocity_info *vptr)
  */
 static void velocity_print_info(struct velocity_info *vptr)
 {
+<<<<<<< HEAD
 	struct net_device *dev = vptr->netdev;
 
 	printk(KERN_INFO "%s: %s\n", dev->name, get_chip_name(vptr->chip_id));
 	printk(KERN_INFO "%s: Ethernet Address: %pM\n",
 		dev->name, dev->dev_addr);
+=======
+	netdev_info(vptr->netdev, "%s - Ethernet Address: %pM\n",
+		    get_chip_name(vptr->chip_id), vptr->netdev->dev_addr);
+>>>>>>> upstream/android-13
 }
 
 static u32 velocity_get_link(struct net_device *dev)
@@ -2747,8 +2994,14 @@ static u32 velocity_get_link(struct net_device *dev)
 
 /**
  *	velocity_probe - set up discovered velocity device
+<<<<<<< HEAD
  *	@pdev: PCI device
  *	@ent: PCI device table entry that matched
+=======
+ *	@dev: PCI device
+ *	@info: table of match
+ *	@irq: interrupt info
+>>>>>>> upstream/android-13
  *	@bustype: bus that device is connected to
  *
  *	Configure a discovered adapter from scratch. Return a negative
@@ -2758,10 +3011,15 @@ static int velocity_probe(struct device *dev, int irq,
 			   const struct velocity_info_tbl *info,
 			   enum velocity_bus_type bustype)
 {
+<<<<<<< HEAD
 	static int first = 1;
 	struct net_device *netdev;
 	int i;
 	const char *drv_string;
+=======
+	struct net_device *netdev;
+	int i;
+>>>>>>> upstream/android-13
 	struct velocity_info *vptr;
 	struct mac_regs __iomem *regs;
 	int ret = -ENOMEM;
@@ -2783,6 +3041,7 @@ static int velocity_probe(struct device *dev, int irq,
 	SET_NETDEV_DEV(netdev, dev);
 	vptr = netdev_priv(netdev);
 
+<<<<<<< HEAD
 	if (first) {
 		printk(KERN_INFO "%s Ver. %s\n",
 			VELOCITY_FULL_DRV_NAM, VELOCITY_VERSION);
@@ -2790,6 +3049,11 @@ static int velocity_probe(struct device *dev, int irq,
 		printk(KERN_INFO "Copyright (c) 2004 Red Hat Inc.\n");
 		first = 0;
 	}
+=======
+	pr_info_once("%s Ver. %s\n", VELOCITY_FULL_DRV_NAM, VELOCITY_VERSION);
+	pr_info_once("Copyright (c) 2002, 2003 VIA Networking Technologies, Inc.\n");
+	pr_info_once("Copyright (c) 2004 Red Hat Inc.\n");
+>>>>>>> upstream/android-13
 
 	netdev->irq = irq;
 	vptr->netdev = netdev;
@@ -2825,9 +3089,13 @@ static int velocity_probe(struct device *dev, int irq,
 		netdev->dev_addr[i] = readb(&regs->PAR[i]);
 
 
+<<<<<<< HEAD
 	drv_string = dev_driver_string(dev);
 
 	velocity_get_options(&vptr->options, velocity_nics, drv_string);
+=======
+	velocity_get_options(&vptr->options, velocity_nics);
+>>>>>>> upstream/android-13
 
 	/*
 	 *	Mask out the options cannot be set to the chip
@@ -2947,6 +3215,7 @@ static void velocity_pci_remove(struct pci_dev *pdev)
 
 static int velocity_platform_probe(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	const struct of_device_id *of_id;
 	const struct velocity_info_tbl *info;
 	int irq;
@@ -2955,6 +3224,14 @@ static int velocity_platform_probe(struct platform_device *pdev)
 	if (!of_id)
 		return -EINVAL;
 	info = of_id->data;
+=======
+	const struct velocity_info_tbl *info;
+	int irq;
+
+	info = of_device_get_match_data(&pdev->dev);
+	if (!info)
+		return -EINVAL;
+>>>>>>> upstream/android-13
 
 	irq = irq_of_parse_and_map(pdev->dev.of_node, 0);
 	if (!irq)
@@ -2973,6 +3250,10 @@ static int velocity_platform_remove(struct platform_device *pdev)
 #ifdef CONFIG_PM_SLEEP
 /**
  *	wol_calc_crc		-	WOL CRC
+<<<<<<< HEAD
+=======
+ *	@size: size of the wake mask
+>>>>>>> upstream/android-13
  *	@pattern: data pattern
  *	@mask_pattern: mask
  *
@@ -3267,12 +3548,24 @@ static struct platform_driver velocity_platform_driver = {
  *	@dev: network device
  *
  *	Called before an ethtool operation. We need to make sure the
+<<<<<<< HEAD
  *	chip is out of D3 state before we poke at it.
+=======
+ *	chip is out of D3 state before we poke at it. In case of ethtool
+ *	ops nesting, only wake the device up in the outermost block.
+>>>>>>> upstream/android-13
  */
 static int velocity_ethtool_up(struct net_device *dev)
 {
 	struct velocity_info *vptr = netdev_priv(dev);
+<<<<<<< HEAD
 	if (!netif_running(dev))
+=======
+
+	if (vptr->ethtool_ops_nesting == U32_MAX)
+		return -EBUSY;
+	if (!vptr->ethtool_ops_nesting++ && !netif_running(dev))
+>>>>>>> upstream/android-13
 		velocity_set_power_state(vptr, PCI_D0);
 	return 0;
 }
@@ -3282,12 +3575,22 @@ static int velocity_ethtool_up(struct net_device *dev)
  *	@dev: network device
  *
  *	Called after an ethtool operation. Restore the chip back to D3
+<<<<<<< HEAD
  *	state if it isn't running.
+=======
+ *	state if it isn't running. In case of ethtool ops nesting, only
+ *	put the device to sleep in the outermost block.
+>>>>>>> upstream/android-13
  */
 static void velocity_ethtool_down(struct net_device *dev)
 {
 	struct velocity_info *vptr = netdev_priv(dev);
+<<<<<<< HEAD
 	if (!netif_running(dev))
+=======
+
+	if (!--vptr->ethtool_ops_nesting && !netif_running(dev))
+>>>>>>> upstream/android-13
 		velocity_set_power_state(vptr, PCI_D3hot);
 }
 
@@ -3473,6 +3776,7 @@ static int velocity_ethtool_set_wol(struct net_device *dev, struct ethtool_wolin
 	return 0;
 }
 
+<<<<<<< HEAD
 static u32 velocity_get_msglevel(struct net_device *dev)
 {
 	return msglevel;
@@ -3483,6 +3787,8 @@ static void velocity_set_msglevel(struct net_device *dev, u32 value)
 	 msglevel = value;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int get_pending_timer_val(int val)
 {
 	int mult_bits = val >> 6;
@@ -3527,7 +3833,13 @@ static void set_pending_timer_val(int *val, u32 us)
 
 
 static int velocity_get_coalesce(struct net_device *dev,
+<<<<<<< HEAD
 		struct ethtool_coalesce *ecmd)
+=======
+				 struct ethtool_coalesce *ecmd,
+				 struct kernel_ethtool_coalesce *kernel_coal,
+				 struct netlink_ext_ack *extack)
+>>>>>>> upstream/android-13
 {
 	struct velocity_info *vptr = netdev_priv(dev);
 
@@ -3541,7 +3853,13 @@ static int velocity_get_coalesce(struct net_device *dev,
 }
 
 static int velocity_set_coalesce(struct net_device *dev,
+<<<<<<< HEAD
 		struct ethtool_coalesce *ecmd)
+=======
+				 struct ethtool_coalesce *ecmd,
+				 struct kernel_ethtool_coalesce *kernel_coal,
+				 struct netlink_ext_ack *extack)
+>>>>>>> upstream/android-13
 {
 	struct velocity_info *vptr = netdev_priv(dev);
 	int max_us = 0x3f * 64;
@@ -3605,7 +3923,11 @@ static const char velocity_gstrings[][ETH_GSTRING_LEN] = {
 	"tx_jumbo",
 	"rx_mac_control_frames",
 	"tx_mac_control_frames",
+<<<<<<< HEAD
 	"rx_frame_alignement_errors",
+=======
+	"rx_frame_alignment_errors",
+>>>>>>> upstream/android-13
 	"rx_long_ok",
 	"rx_long_err",
 	"tx_sqe_errors",
@@ -3652,11 +3974,19 @@ static void velocity_get_ethtool_stats(struct net_device *dev,
 }
 
 static const struct ethtool_ops velocity_ethtool_ops = {
+<<<<<<< HEAD
 	.get_drvinfo		= velocity_get_drvinfo,
 	.get_wol		= velocity_ethtool_get_wol,
 	.set_wol		= velocity_ethtool_set_wol,
 	.get_msglevel		= velocity_get_msglevel,
 	.set_msglevel		= velocity_set_msglevel,
+=======
+	.supported_coalesce_params = ETHTOOL_COALESCE_USECS |
+				     ETHTOOL_COALESCE_MAX_FRAMES,
+	.get_drvinfo		= velocity_get_drvinfo,
+	.get_wol		= velocity_ethtool_get_wol,
+	.set_wol		= velocity_ethtool_set_wol,
+>>>>>>> upstream/android-13
 	.get_link		= velocity_get_link,
 	.get_strings		= velocity_get_strings,
 	.get_sset_count		= velocity_get_sset_count,
@@ -3730,7 +4060,11 @@ static int __init velocity_init_module(void)
 }
 
 /**
+<<<<<<< HEAD
  *	velocity_cleanup	-	module unload
+=======
+ *	velocity_cleanup_module		-	module unload
+>>>>>>> upstream/android-13
  *
  *	When the velocity hardware is unloaded this function is called.
  *	It will clean up the notifiers and the unregister the PCI

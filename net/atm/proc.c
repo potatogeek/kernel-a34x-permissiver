@@ -36,9 +36,15 @@
 static ssize_t proc_dev_atm_read(struct file *file, char __user *buf,
 				 size_t count, loff_t *pos);
 
+<<<<<<< HEAD
 static const struct file_operations proc_atm_dev_ops = {
 	.read =		proc_dev_atm_read,
 	.llseek =	noop_llseek,
+=======
+static const struct proc_ops atm_dev_proc_ops = {
+	.proc_read	= proc_dev_atm_read,
+	.proc_lseek	= noop_llseek,
+>>>>>>> upstream/android-13
 };
 
 static void add_stats(struct seq_file *seq, const char *aal,
@@ -134,7 +140,11 @@ static void vcc_seq_stop(struct seq_file *seq, void *v)
 static void *vcc_seq_next(struct seq_file *seq, void *v, loff_t *pos)
 {
 	v = vcc_walk(seq, 1);
+<<<<<<< HEAD
 	*pos += !!PTR_ERR(v);
+=======
+	(*pos)++;
+>>>>>>> upstream/android-13
 	return v;
 }
 
@@ -359,7 +369,11 @@ int atm_proc_dev_register(struct atm_dev *dev)
 		goto err_out;
 
 	dev->proc_entry = proc_create_data(dev->proc_name, 0, atm_proc_root,
+<<<<<<< HEAD
 					   &proc_atm_dev_ops, dev);
+=======
+					   &atm_dev_proc_ops, dev);
+>>>>>>> upstream/android-13
 	if (!dev->proc_entry)
 		goto err_free_name;
 	return 0;

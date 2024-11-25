@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0+ */
+>>>>>>> upstream/android-13
 /*
  * TI OMAP4 ISS V4L2 Driver
  *
  * Copyright (C) 2012 Texas Instruments.
  *
  * Author: Sergio Aguirre <sergio.a.aguirre@gmail.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _OMAP4_ISS_H_
@@ -123,9 +130,12 @@ struct iss_device {
 	unsigned int isp_subclk_resources;
 };
 
+<<<<<<< HEAD
 #define v4l2_dev_to_iss_device(dev) \
 	container_of(dev, struct iss_device, v4l2_dev)
 
+=======
+>>>>>>> upstream/android-13
 int omap4iss_get_external_info(struct iss_pipeline *pipe,
 			       struct media_link *link);
 

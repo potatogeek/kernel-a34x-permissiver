@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  *  linux/arch/arm/lib/copy_from_user.S
  *
  *  Author:	Nicolas Pitre
  *  Created:	Sep 29, 2005
  *  Copyright:	MontaVista Software, Inc.
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2 as
  *  published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/linkage.h>
@@ -34,12 +41,20 @@
  *	Number of bytes NOT copied.
  */
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_CPU_USE_DOMAINS
+
+>>>>>>> upstream/android-13
 #ifndef CONFIG_THUMB2_KERNEL
 #define LDR1W_SHIFT	0
 #else
 #define LDR1W_SHIFT	1
 #endif
+<<<<<<< HEAD
 #define STR1W_SHIFT	0
+=======
+>>>>>>> upstream/android-13
 
 	.macro ldr1w ptr reg abort
 	ldrusr	\reg, \ptr, 4, abort=\abort
@@ -57,10 +72,36 @@
 	ldr4w \ptr, \reg5, \reg6, \reg7, \reg8, \abort
 	.endm
 
+<<<<<<< HEAD
+=======
+#else
+
+#define LDR1W_SHIFT	0
+
+	.macro ldr1w ptr reg abort
+	USERL(\abort, W(ldr) \reg, [\ptr], #4)
+	.endm
+
+	.macro ldr4w ptr reg1 reg2 reg3 reg4 abort
+	USERL(\abort, ldmia \ptr!, {\reg1, \reg2, \reg3, \reg4})
+	.endm
+
+	.macro ldr8w ptr reg1 reg2 reg3 reg4 reg5 reg6 reg7 reg8 abort
+	USERL(\abort, ldmia \ptr!, {\reg1, \reg2, \reg3, \reg4, \reg5, \reg6, \reg7, \reg8})
+	.endm
+
+#endif /* CONFIG_CPU_USE_DOMAINS */
+
+>>>>>>> upstream/android-13
 	.macro ldr1b ptr reg cond=al abort
 	ldrusr	\reg, \ptr, 1, \cond, abort=\abort
 	.endm
 
+<<<<<<< HEAD
+=======
+#define STR1W_SHIFT	0
+
+>>>>>>> upstream/android-13
 	.macro str1w ptr reg abort
 	W(str) \reg, [\ptr], #4
 	.endm
@@ -70,7 +111,11 @@
 	.endm
 
 	.macro str1b ptr reg cond=al abort
+<<<<<<< HEAD
 	str\cond\()b \reg, [\ptr], #1
+=======
+	strb\cond \reg, [\ptr], #1
+>>>>>>> upstream/android-13
 	.endm
 
 	.macro enter reg1 reg2
@@ -91,8 +136,12 @@
 
 ENTRY(arm_copy_from_user)
 #ifdef CONFIG_CPU_SPECTRE
+<<<<<<< HEAD
 	get_thread_info r3
 	ldr	r3, [r3, #TI_ADDR_LIMIT]
+=======
+	ldr	r3, =TASK_SIZE
+>>>>>>> upstream/android-13
 	uaccess_mask_range_ptr r1, r2, r3, ip
 #endif
 

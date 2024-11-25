@@ -21,6 +21,7 @@
  *
  * Authors: Alex Deucher
  */
+<<<<<<< HEAD
 #include <linux/firmware.h>
 #include <linux/slab.h>
 #include <linux/module.h>
@@ -34,6 +35,28 @@
 #include "si_blit_shaders.h"
 #include "clearstate_si.h"
 #include "radeon_ucode.h"
+=======
+
+#include <linux/firmware.h>
+#include <linux/module.h>
+#include <linux/pci.h>
+#include <linux/slab.h>
+
+#include <drm/drm_vblank.h>
+#include <drm/radeon_drm.h>
+
+#include "atom.h"
+#include "clearstate_si.h"
+#include "evergreen.h"
+#include "r600.h"
+#include "radeon.h"
+#include "radeon_asic.h"
+#include "radeon_audio.h"
+#include "radeon_ucode.h"
+#include "si_blit_shaders.h"
+#include "si.h"
+#include "sid.h"
+>>>>>>> upstream/android-13
 
 
 MODULE_FIRMWARE("radeon/TAHITI_pfp.bin");
@@ -123,6 +146,7 @@ static void si_pcie_gen3_enable(struct radeon_device *rdev);
 static void si_program_aspm(struct radeon_device *rdev);
 extern void sumo_rlc_fini(struct radeon_device *rdev);
 extern int sumo_rlc_init(struct radeon_device *rdev);
+<<<<<<< HEAD
 extern int r600_ih_ring_alloc(struct radeon_device *rdev);
 extern void r600_ih_ring_fini(struct radeon_device *rdev);
 extern void evergreen_fix_pci_max_read_req_size(struct radeon_device *rdev);
@@ -131,6 +155,8 @@ extern void evergreen_mc_resume(struct radeon_device *rdev, struct evergreen_mc_
 extern u32 evergreen_get_number_of_dram_channels(struct radeon_device *rdev);
 extern void evergreen_print_gpu_status_regs(struct radeon_device *rdev);
 extern bool evergreen_is_display_hung(struct radeon_device *rdev);
+=======
+>>>>>>> upstream/android-13
 static void si_enable_gui_idle_interrupt(struct radeon_device *rdev,
 					 bool enable);
 static void si_init_pg(struct radeon_device *rdev);
@@ -3089,7 +3115,11 @@ static void si_setup_rb(struct radeon_device *rdev,
 static void si_gpu_init(struct radeon_device *rdev)
 {
 	u32 gb_addr_config = 0;
+<<<<<<< HEAD
 	u32 mc_shared_chmap, mc_arb_ramcfg;
+=======
+	u32 mc_arb_ramcfg;
+>>>>>>> upstream/android-13
 	u32 sx_debug_1;
 	u32 hdp_host_path_cntl;
 	u32 tmp;
@@ -3201,7 +3231,11 @@ static void si_gpu_init(struct radeon_device *rdev)
 
 	WREG32(BIF_FB_EN, FB_READ_EN | FB_WRITE_EN);
 
+<<<<<<< HEAD
 	mc_shared_chmap = RREG32(MC_SHARED_CHMAP);
+=======
+	RREG32(MC_SHARED_CHMAP);
+>>>>>>> upstream/android-13
 	mc_arb_ramcfg = RREG32(MC_ARB_RAMCFG);
 
 	rdev->config.si.num_tile_pipes = rdev->config.si.max_tile_pipes;
@@ -3253,7 +3287,11 @@ static void si_gpu_init(struct radeon_device *rdev)
 		/* XXX what about 12? */
 		rdev->config.si.tile_config |= (3 << 0);
 		break;
+<<<<<<< HEAD
 	}	
+=======
+	}
+>>>>>>> upstream/android-13
 	switch ((mc_arb_ramcfg & NOOFBANK_MASK) >> NOOFBANK_SHIFT) {
 	case 0: /* four banks */
 		rdev->config.si.tile_config |= 0 << 4;
@@ -4512,7 +4550,11 @@ static int si_vm_packet3_cp_dma_check(u32 *ib, u32 idx)
 			} else {
 				for (i = 0; i < (command & 0x1fffff); i++) {
 					reg = start_reg + (4 * i);
+<<<<<<< HEAD
 				if (!si_vm_reg_valid(reg)) {
+=======
+					if (!si_vm_reg_valid(reg)) {
+>>>>>>> upstream/android-13
 						DRM_ERROR("CP DMA Bad DST register\n");
 						return -EINVAL;
 					}
@@ -6468,7 +6510,11 @@ static void si_uvd_init(struct radeon_device *rdev)
 		 * there. So it is pointless to try to go through that code
 		 * hence why we disable uvd here.
 		 */
+<<<<<<< HEAD
 		rdev->has_uvd = 0;
+=======
+		rdev->has_uvd = false;
+>>>>>>> upstream/android-13
 		return;
 	}
 	rdev->ring[R600_RING_TYPE_UVD_INDEX].ring_obj = NULL;
@@ -6535,7 +6581,11 @@ static void si_vce_init(struct radeon_device *rdev)
 		 * there. So it is pointless to try to go through that code
 		 * hence why we disable vce here.
 		 */
+<<<<<<< HEAD
 		rdev->has_vce = 0;
+=======
+		rdev->has_vce = false;
+>>>>>>> upstream/android-13
 		return;
 	}
 	rdev->ring[TN_RING_TYPE_VCE1_INDEX].ring_obj = NULL;
@@ -6858,9 +6908,13 @@ int si_init(struct radeon_device *rdev)
 	radeon_get_clock_info(rdev->ddev);
 
 	/* Fence driver */
+<<<<<<< HEAD
 	r = radeon_fence_driver_init(rdev);
 	if (r)
 		return r;
+=======
+	radeon_fence_driver_init(rdev);
+>>>>>>> upstream/android-13
 
 	/* initialize memory controller */
 	r = si_mc_init(rdev);
@@ -7083,7 +7137,10 @@ static void si_pcie_gen3_enable(struct radeon_device *rdev)
 {
 	struct pci_dev *root = rdev->pdev->bus->self;
 	enum pci_bus_speed speed_cap;
+<<<<<<< HEAD
 	int bridge_pos, gpu_pos;
+=======
+>>>>>>> upstream/android-13
 	u32 speed_cntl, current_data_rate;
 	int i;
 	u16 tmp16;
@@ -7125,12 +7182,16 @@ static void si_pcie_gen3_enable(struct radeon_device *rdev)
 		DRM_INFO("enabling PCIE gen 2 link speeds, disable with radeon.pcie_gen2=0\n");
 	}
 
+<<<<<<< HEAD
 	bridge_pos = pci_pcie_cap(root);
 	if (!bridge_pos)
 		return;
 
 	gpu_pos = pci_pcie_cap(rdev->pdev);
 	if (!gpu_pos)
+=======
+	if (!pci_is_pcie(root) || !pci_is_pcie(rdev->pdev))
+>>>>>>> upstream/android-13
 		return;
 
 	if (speed_cap == PCIE_SPEED_8_0GT) {
@@ -7140,6 +7201,7 @@ static void si_pcie_gen3_enable(struct radeon_device *rdev)
 			u16 bridge_cfg2, gpu_cfg2;
 			u32 max_lw, current_lw, tmp;
 
+<<<<<<< HEAD
 			pci_read_config_word(root, bridge_pos + PCI_EXP_LNKCTL, &bridge_cfg);
 			pci_read_config_word(rdev->pdev, gpu_pos + PCI_EXP_LNKCTL, &gpu_cfg);
 
@@ -7148,6 +7210,19 @@ static void si_pcie_gen3_enable(struct radeon_device *rdev)
 
 			tmp16 = gpu_cfg | PCI_EXP_LNKCTL_HAWD;
 			pci_write_config_word(rdev->pdev, gpu_pos + PCI_EXP_LNKCTL, tmp16);
+=======
+			pcie_capability_read_word(root, PCI_EXP_LNKCTL,
+						  &bridge_cfg);
+			pcie_capability_read_word(rdev->pdev, PCI_EXP_LNKCTL,
+						  &gpu_cfg);
+
+			tmp16 = bridge_cfg | PCI_EXP_LNKCTL_HAWD;
+			pcie_capability_write_word(root, PCI_EXP_LNKCTL, tmp16);
+
+			tmp16 = gpu_cfg | PCI_EXP_LNKCTL_HAWD;
+			pcie_capability_write_word(rdev->pdev, PCI_EXP_LNKCTL,
+						   tmp16);
+>>>>>>> upstream/android-13
 
 			tmp = RREG32_PCIE(PCIE_LC_STATUS1);
 			max_lw = (tmp & LC_DETECTED_LINK_WIDTH_MASK) >> LC_DETECTED_LINK_WIDTH_SHIFT;
@@ -7165,6 +7240,7 @@ static void si_pcie_gen3_enable(struct radeon_device *rdev)
 
 			for (i = 0; i < 10; i++) {
 				/* check status */
+<<<<<<< HEAD
 				pci_read_config_word(rdev->pdev, gpu_pos + PCI_EXP_DEVSTA, &tmp16);
 				if (tmp16 & PCI_EXP_DEVSTA_TRPND)
 					break;
@@ -7174,6 +7250,25 @@ static void si_pcie_gen3_enable(struct radeon_device *rdev)
 
 				pci_read_config_word(root, bridge_pos + PCI_EXP_LNKCTL2, &bridge_cfg2);
 				pci_read_config_word(rdev->pdev, gpu_pos + PCI_EXP_LNKCTL2, &gpu_cfg2);
+=======
+				pcie_capability_read_word(rdev->pdev,
+							  PCI_EXP_DEVSTA,
+							  &tmp16);
+				if (tmp16 & PCI_EXP_DEVSTA_TRPND)
+					break;
+
+				pcie_capability_read_word(root, PCI_EXP_LNKCTL,
+							  &bridge_cfg);
+				pcie_capability_read_word(rdev->pdev,
+							  PCI_EXP_LNKCTL,
+							  &gpu_cfg);
+
+				pcie_capability_read_word(root, PCI_EXP_LNKCTL2,
+							  &bridge_cfg2);
+				pcie_capability_read_word(rdev->pdev,
+							  PCI_EXP_LNKCTL2,
+							  &gpu_cfg2);
+>>>>>>> upstream/android-13
 
 				tmp = RREG32_PCIE_PORT(PCIE_LC_CNTL4);
 				tmp |= LC_SET_QUIESCE;
@@ -7183,6 +7278,7 @@ static void si_pcie_gen3_enable(struct radeon_device *rdev)
 				tmp |= LC_REDO_EQ;
 				WREG32_PCIE_PORT(PCIE_LC_CNTL4, tmp);
 
+<<<<<<< HEAD
 				mdelay(100);
 
 				/* linkctl */
@@ -7206,6 +7302,51 @@ static void si_pcie_gen3_enable(struct radeon_device *rdev)
 				tmp16 &= ~((1 << 4) | (7 << 9));
 				tmp16 |= (gpu_cfg2 & ((1 << 4) | (7 << 9)));
 				pci_write_config_word(rdev->pdev, gpu_pos + PCI_EXP_LNKCTL2, tmp16);
+=======
+				msleep(100);
+
+				/* linkctl */
+				pcie_capability_read_word(root, PCI_EXP_LNKCTL,
+							  &tmp16);
+				tmp16 &= ~PCI_EXP_LNKCTL_HAWD;
+				tmp16 |= (bridge_cfg & PCI_EXP_LNKCTL_HAWD);
+				pcie_capability_write_word(root,
+							   PCI_EXP_LNKCTL,
+							   tmp16);
+
+				pcie_capability_read_word(rdev->pdev,
+							  PCI_EXP_LNKCTL,
+							  &tmp16);
+				tmp16 &= ~PCI_EXP_LNKCTL_HAWD;
+				tmp16 |= (gpu_cfg & PCI_EXP_LNKCTL_HAWD);
+				pcie_capability_write_word(rdev->pdev,
+							   PCI_EXP_LNKCTL,
+							   tmp16);
+
+				/* linkctl2 */
+				pcie_capability_read_word(root, PCI_EXP_LNKCTL2,
+							  &tmp16);
+				tmp16 &= ~(PCI_EXP_LNKCTL2_ENTER_COMP |
+					   PCI_EXP_LNKCTL2_TX_MARGIN);
+				tmp16 |= (bridge_cfg2 &
+					  (PCI_EXP_LNKCTL2_ENTER_COMP |
+					   PCI_EXP_LNKCTL2_TX_MARGIN));
+				pcie_capability_write_word(root,
+							   PCI_EXP_LNKCTL2,
+							   tmp16);
+
+				pcie_capability_read_word(rdev->pdev,
+							  PCI_EXP_LNKCTL2,
+							  &tmp16);
+				tmp16 &= ~(PCI_EXP_LNKCTL2_ENTER_COMP |
+					   PCI_EXP_LNKCTL2_TX_MARGIN);
+				tmp16 |= (gpu_cfg2 &
+					  (PCI_EXP_LNKCTL2_ENTER_COMP |
+					   PCI_EXP_LNKCTL2_TX_MARGIN));
+				pcie_capability_write_word(rdev->pdev,
+							   PCI_EXP_LNKCTL2,
+							   tmp16);
+>>>>>>> upstream/android-13
 
 				tmp = RREG32_PCIE_PORT(PCIE_LC_CNTL4);
 				tmp &= ~LC_SET_QUIESCE;
@@ -7219,6 +7360,7 @@ static void si_pcie_gen3_enable(struct radeon_device *rdev)
 	speed_cntl &= ~LC_FORCE_DIS_SW_SPEED_CHANGE;
 	WREG32_PCIE_PORT(PCIE_LC_SPEED_CNTL, speed_cntl);
 
+<<<<<<< HEAD
 	pci_read_config_word(rdev->pdev, gpu_pos + PCI_EXP_LNKCTL2, &tmp16);
 	tmp16 &= ~0xf;
 	if (speed_cap == PCIE_SPEED_8_0GT)
@@ -7228,6 +7370,17 @@ static void si_pcie_gen3_enable(struct radeon_device *rdev)
 	else
 		tmp16 |= 1; /* gen1 */
 	pci_write_config_word(rdev->pdev, gpu_pos + PCI_EXP_LNKCTL2, tmp16);
+=======
+	pcie_capability_read_word(rdev->pdev, PCI_EXP_LNKCTL2, &tmp16);
+	tmp16 &= ~PCI_EXP_LNKCTL2_TLS;
+	if (speed_cap == PCIE_SPEED_8_0GT)
+		tmp16 |= PCI_EXP_LNKCTL2_TLS_8_0GT; /* gen3 */
+	else if (speed_cap == PCIE_SPEED_5_0GT)
+		tmp16 |= PCI_EXP_LNKCTL2_TLS_5_0GT; /* gen2 */
+	else
+		tmp16 |= PCI_EXP_LNKCTL2_TLS_2_5GT; /* gen1 */
+	pcie_capability_write_word(rdev->pdev, PCI_EXP_LNKCTL2, tmp16);
+>>>>>>> upstream/android-13
 
 	speed_cntl = RREG32_PCIE_PORT(PCIE_LC_SPEED_CNTL);
 	speed_cntl |= LC_INITIATE_LINK_SPEED_CHANGE;

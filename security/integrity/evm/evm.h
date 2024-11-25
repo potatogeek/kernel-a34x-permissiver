@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2005-2010 IBM Corporation
  *
@@ -5,12 +9,16 @@
  * Mimi Zohar <zohar@us.ibm.com>
  * Kylene Hall <kjhall@us.ibm.com>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, version 2 of the License.
  *
  * File: evm.h
  *
+=======
+ * File: evm.h
+>>>>>>> upstream/android-13
  */
 
 #ifndef __INTEGRITY_EVM_H
@@ -33,6 +41,10 @@
 struct xattr_list {
 	struct list_head list;
 	char *name;
+<<<<<<< HEAD
+=======
+	bool enabled;
+>>>>>>> upstream/android-13
 };
 
 extern int evm_initialized;

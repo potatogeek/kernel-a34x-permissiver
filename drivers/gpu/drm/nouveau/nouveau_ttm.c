@@ -22,11 +22,21 @@
  * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
  * USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+<<<<<<< HEAD
+=======
+
+#include <linux/limits.h>
+#include <linux/swiotlb.h>
+
+#include <drm/ttm/ttm_range_manager.h>
+
+>>>>>>> upstream/android-13
 #include "nouveau_drv.h"
 #include "nouveau_gem.h"
 #include "nouveau_mem.h"
 #include "nouveau_ttm.h"
 
+<<<<<<< HEAD
 #include <drm/drm_legacy.h>
 
 #include <core/tegra.h>
@@ -45,10 +55,17 @@ nouveau_manager_fini(struct ttm_mem_type_manager *man)
 
 static void
 nouveau_manager_del(struct ttm_mem_type_manager *man, struct ttm_mem_reg *reg)
+=======
+#include <core/tegra.h>
+
+static void
+nouveau_manager_del(struct ttm_resource_manager *man, struct ttm_resource *reg)
+>>>>>>> upstream/android-13
 {
 	nouveau_mem_del(reg);
 }
 
+<<<<<<< HEAD
 static void
 nouveau_manager_debug(struct ttm_mem_type_manager *man,
 		      struct drm_printer *printer)
@@ -60,6 +77,13 @@ nouveau_vram_manager_new(struct ttm_mem_type_manager *man,
 			 struct ttm_buffer_object *bo,
 			 const struct ttm_place *place,
 			 struct ttm_mem_reg *reg)
+=======
+static int
+nouveau_vram_manager_new(struct ttm_resource_manager *man,
+			 struct ttm_buffer_object *bo,
+			 const struct ttm_place *place,
+			 struct ttm_resource **res)
+>>>>>>> upstream/android-13
 {
 	struct nouveau_bo *nvbo = nouveau_bo(bo);
 	struct nouveau_drm *drm = nouveau_bdev(bo->bdev);
@@ -68,6 +92,7 @@ nouveau_vram_manager_new(struct ttm_mem_type_manager *man,
 	if (drm->client.device.info.ram_size == 0)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	ret = nouveau_mem_new(&drm->master, nvbo->kind, nvbo->comp, reg);
 	if (ret)
 		return ret;
@@ -79,12 +104,24 @@ nouveau_vram_manager_new(struct ttm_mem_type_manager *man,
 			reg->mm_node = NULL;
 			return 0;
 		}
+=======
+	ret = nouveau_mem_new(&drm->master, nvbo->kind, nvbo->comp, res);
+	if (ret)
+		return ret;
+
+	ttm_resource_init(bo, place, *res);
+
+	ret = nouveau_mem_vram(*res, nvbo->contig, nvbo->page);
+	if (ret) {
+		nouveau_mem_del(*res);
+>>>>>>> upstream/android-13
 		return ret;
 	}
 
 	return 0;
 }
 
+<<<<<<< HEAD
 const struct ttm_mem_type_manager_func nouveau_vram_manager = {
 	.init = nouveau_manager_init,
 	.takedown = nouveau_manager_fini,
@@ -98,11 +135,24 @@ nouveau_gart_manager_new(struct ttm_mem_type_manager *man,
 			 struct ttm_buffer_object *bo,
 			 const struct ttm_place *place,
 			 struct ttm_mem_reg *reg)
+=======
+const struct ttm_resource_manager_func nouveau_vram_manager = {
+	.alloc = nouveau_vram_manager_new,
+	.free = nouveau_manager_del,
+};
+
+static int
+nouveau_gart_manager_new(struct ttm_resource_manager *man,
+			 struct ttm_buffer_object *bo,
+			 const struct ttm_place *place,
+			 struct ttm_resource **res)
+>>>>>>> upstream/android-13
 {
 	struct nouveau_bo *nvbo = nouveau_bo(bo);
 	struct nouveau_drm *drm = nouveau_bdev(bo->bdev);
 	int ret;
 
+<<<<<<< HEAD
 	ret = nouveau_mem_new(&drm->master, nvbo->kind, nvbo->comp, reg);
 	if (ret)
 		return ret;
@@ -124,12 +174,34 @@ nv04_gart_manager_new(struct ttm_mem_type_manager *man,
 		      struct ttm_buffer_object *bo,
 		      const struct ttm_place *place,
 		      struct ttm_mem_reg *reg)
+=======
+	ret = nouveau_mem_new(&drm->master, nvbo->kind, nvbo->comp, res);
+	if (ret)
+		return ret;
+
+	ttm_resource_init(bo, place, *res);
+	(*res)->start = 0;
+	return 0;
+}
+
+const struct ttm_resource_manager_func nouveau_gart_manager = {
+	.alloc = nouveau_gart_manager_new,
+	.free = nouveau_manager_del,
+};
+
+static int
+nv04_gart_manager_new(struct ttm_resource_manager *man,
+		      struct ttm_buffer_object *bo,
+		      const struct ttm_place *place,
+		      struct ttm_resource **res)
+>>>>>>> upstream/android-13
 {
 	struct nouveau_bo *nvbo = nouveau_bo(bo);
 	struct nouveau_drm *drm = nouveau_bdev(bo->bdev);
 	struct nouveau_mem *mem;
 	int ret;
 
+<<<<<<< HEAD
 	ret = nouveau_mem_new(&drm->master, nvbo->kind, nvbo->comp, reg);
 	mem = nouveau_mem(reg);
 	if (ret)
@@ -234,6 +306,30 @@ nouveau_ttm_global_release(struct nouveau_drm *drm)
 	drm->ttm.mem_global_ref.release = NULL;
 }
 
+=======
+	ret = nouveau_mem_new(&drm->master, nvbo->kind, nvbo->comp, res);
+	if (ret)
+		return ret;
+
+	mem = nouveau_mem(*res);
+	ttm_resource_init(bo, place, *res);
+	ret = nvif_vmm_get(&mem->cli->vmm.vmm, PTES, false, 12, 0,
+			   (long)(*res)->num_pages << PAGE_SHIFT, &mem->vma[0]);
+	if (ret) {
+		nouveau_mem_del(*res);
+		return ret;
+	}
+
+	(*res)->start = mem->vma[0].addr >> PAGE_SHIFT;
+	return 0;
+}
+
+const struct ttm_resource_manager_func nv04_gart_manager = {
+	.alloc = nv04_gart_manager_new,
+	.free = nouveau_manager_del,
+};
+
+>>>>>>> upstream/android-13
 static int
 nouveau_ttm_init_host(struct nouveau_drm *drm, u8 kind)
 {
@@ -255,6 +351,90 @@ nouveau_ttm_init_host(struct nouveau_drm *drm, u8 kind)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static int
+nouveau_ttm_init_vram(struct nouveau_drm *drm)
+{
+	if (drm->client.device.info.family >= NV_DEVICE_INFO_V0_TESLA) {
+		struct ttm_resource_manager *man = kzalloc(sizeof(*man), GFP_KERNEL);
+
+		if (!man)
+			return -ENOMEM;
+
+		man->func = &nouveau_vram_manager;
+
+		ttm_resource_manager_init(man,
+					  drm->gem.vram_available >> PAGE_SHIFT);
+		ttm_set_driver_manager(&drm->ttm.bdev, TTM_PL_VRAM, man);
+		ttm_resource_manager_set_used(man, true);
+		return 0;
+	} else {
+		return ttm_range_man_init(&drm->ttm.bdev, TTM_PL_VRAM, false,
+					  drm->gem.vram_available >> PAGE_SHIFT);
+	}
+}
+
+static void
+nouveau_ttm_fini_vram(struct nouveau_drm *drm)
+{
+	struct ttm_resource_manager *man = ttm_manager_type(&drm->ttm.bdev, TTM_PL_VRAM);
+
+	if (drm->client.device.info.family >= NV_DEVICE_INFO_V0_TESLA) {
+		ttm_resource_manager_set_used(man, false);
+		ttm_resource_manager_evict_all(&drm->ttm.bdev, man);
+		ttm_resource_manager_cleanup(man);
+		ttm_set_driver_manager(&drm->ttm.bdev, TTM_PL_VRAM, NULL);
+		kfree(man);
+	} else
+		ttm_range_man_fini(&drm->ttm.bdev, TTM_PL_VRAM);
+}
+
+static int
+nouveau_ttm_init_gtt(struct nouveau_drm *drm)
+{
+	struct ttm_resource_manager *man;
+	unsigned long size_pages = drm->gem.gart_available >> PAGE_SHIFT;
+	const struct ttm_resource_manager_func *func = NULL;
+
+	if (drm->client.device.info.family >= NV_DEVICE_INFO_V0_TESLA)
+		func = &nouveau_gart_manager;
+	else if (!drm->agp.bridge)
+		func = &nv04_gart_manager;
+	else
+		return ttm_range_man_init(&drm->ttm.bdev, TTM_PL_TT, true,
+					  size_pages);
+
+	man = kzalloc(sizeof(*man), GFP_KERNEL);
+	if (!man)
+		return -ENOMEM;
+
+	man->func = func;
+	man->use_tt = true;
+	ttm_resource_manager_init(man, size_pages);
+	ttm_set_driver_manager(&drm->ttm.bdev, TTM_PL_TT, man);
+	ttm_resource_manager_set_used(man, true);
+	return 0;
+}
+
+static void
+nouveau_ttm_fini_gtt(struct nouveau_drm *drm)
+{
+	struct ttm_resource_manager *man = ttm_manager_type(&drm->ttm.bdev, TTM_PL_TT);
+
+	if (drm->client.device.info.family < NV_DEVICE_INFO_V0_TESLA &&
+	    drm->agp.bridge)
+		ttm_range_man_fini(&drm->ttm.bdev, TTM_PL_TT);
+	else {
+		ttm_resource_manager_set_used(man, false);
+		ttm_resource_manager_evict_all(&drm->ttm.bdev, man);
+		ttm_resource_manager_cleanup(man);
+		ttm_set_driver_manager(&drm->ttm.bdev, TTM_PL_TT, NULL);
+		kfree(man);
+	}
+}
+
+>>>>>>> upstream/android-13
 int
 nouveau_ttm_init(struct nouveau_drm *drm)
 {
@@ -262,6 +442,10 @@ nouveau_ttm_init(struct nouveau_drm *drm)
 	struct nvkm_pci *pci = device->pci;
 	struct nvif_mmu *mmu = &drm->client.mmu;
 	struct drm_device *dev = drm->dev;
+<<<<<<< HEAD
+=======
+	bool need_swiotlb = false;
+>>>>>>> upstream/android-13
 	int typei, ret;
 
 	ret = nouveau_ttm_init_host(drm, 0);
@@ -296,6 +480,7 @@ nouveau_ttm_init(struct nouveau_drm *drm)
 		drm->agp.cma = pci->agp.cma;
 	}
 
+<<<<<<< HEAD
 	ret = nouveau_ttm_global_init(drm);
 	if (ret)
 		return ret;
@@ -306,6 +491,16 @@ nouveau_ttm_init(struct nouveau_drm *drm)
 				  dev->anon_inode->i_mapping,
 				  DRM_FILE_PAGE_OFFSET,
 				  drm->client.mmu.dmabits <= 32 ? true : false);
+=======
+#if IS_ENABLED(CONFIG_SWIOTLB) && IS_ENABLED(CONFIG_X86)
+	need_swiotlb = is_swiotlb_active(dev->dev);
+#endif
+
+	ret = ttm_device_init(&drm->ttm.bdev, &nouveau_bo_driver, drm->dev->dev,
+				  dev->anon_inode->i_mapping,
+				  dev->vma_offset_manager, need_swiotlb,
+				  drm->client.mmu.dmabits <= 32);
+>>>>>>> upstream/android-13
 	if (ret) {
 		NV_ERROR(drm, "error initialising bo driver, %d\n", ret);
 		return ret;
@@ -317,8 +512,12 @@ nouveau_ttm_init(struct nouveau_drm *drm)
 	arch_io_reserve_memtype_wc(device->func->resource_addr(device, 1),
 				   device->func->resource_size(device, 1));
 
+<<<<<<< HEAD
 	ret = ttm_bo_init_mm(&drm->ttm.bdev, TTM_PL_VRAM,
 			      drm->gem.vram_available >> PAGE_SHIFT);
+=======
+	ret = nouveau_ttm_init_vram(drm);
+>>>>>>> upstream/android-13
 	if (ret) {
 		NV_ERROR(drm, "VRAM mm init failed, %d\n", ret);
 		return ret;
@@ -334,13 +533,23 @@ nouveau_ttm_init(struct nouveau_drm *drm)
 		drm->gem.gart_available = drm->agp.size;
 	}
 
+<<<<<<< HEAD
 	ret = ttm_bo_init_mm(&drm->ttm.bdev, TTM_PL_TT,
 			      drm->gem.gart_available >> PAGE_SHIFT);
+=======
+	ret = nouveau_ttm_init_gtt(drm);
+>>>>>>> upstream/android-13
 	if (ret) {
 		NV_ERROR(drm, "GART mm init failed, %d\n", ret);
 		return ret;
 	}
 
+<<<<<<< HEAD
+=======
+	mutex_init(&drm->ttm.io_reserve_mutex);
+	INIT_LIST_HEAD(&drm->ttm.io_reserve_lru);
+
+>>>>>>> upstream/android-13
 	NV_INFO(drm, "VRAM: %d MiB\n", (u32)(drm->gem.vram_available >> 20));
 	NV_INFO(drm, "GART: %d MiB\n", (u32)(drm->gem.gart_available >> 20));
 	return 0;
@@ -351,12 +560,19 @@ nouveau_ttm_fini(struct nouveau_drm *drm)
 {
 	struct nvkm_device *device = nvxx_device(&drm->client.device);
 
+<<<<<<< HEAD
 	ttm_bo_clean_mm(&drm->ttm.bdev, TTM_PL_VRAM);
 	ttm_bo_clean_mm(&drm->ttm.bdev, TTM_PL_TT);
 
 	ttm_bo_device_release(&drm->ttm.bdev);
 
 	nouveau_ttm_global_release(drm);
+=======
+	nouveau_ttm_fini_vram(drm);
+	nouveau_ttm_fini_gtt(drm);
+
+	ttm_device_fini(&drm->ttm.bdev);
+>>>>>>> upstream/android-13
 
 	arch_phys_wc_del(drm->ttm.mtrr);
 	drm->ttm.mtrr = 0;

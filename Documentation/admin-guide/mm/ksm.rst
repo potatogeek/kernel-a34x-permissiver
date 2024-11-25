@@ -9,7 +9,11 @@ Overview
 
 KSM is a memory-saving de-duplication feature, enabled by CONFIG_KSM=y,
 added to the Linux kernel in 2.6.32.  See ``mm/ksm.c`` for its implementation,
+<<<<<<< HEAD
 and http://lwn.net/Articles/306704/ and http://lwn.net/Articles/330589/
+=======
+and http://lwn.net/Articles/306704/ and https://lwn.net/Articles/330589/
+>>>>>>> upstream/android-13
 
 KSM was originally developed for use with KVM (where it was known as
 Kernel Shared Memory), to fit more virtual machines into physical memory,
@@ -52,14 +56,22 @@ with EAGAIN, but more probably arousing the Out-Of-Memory killer.
 If KSM is not configured into the running kernel, madvise MADV_MERGEABLE
 and MADV_UNMERGEABLE simply fail with EINVAL.  If the running kernel was
 built with CONFIG_KSM=y, those calls will normally succeed: even if the
+<<<<<<< HEAD
 the KSM daemon is not currently running, MADV_MERGEABLE still registers
+=======
+KSM daemon is not currently running, MADV_MERGEABLE still registers
+>>>>>>> upstream/android-13
 the range for whenever the KSM daemon is started; even if the range
 cannot contain any pages which KSM could actually merge; even if
 MADV_UNMERGEABLE is applied to a range which was never MADV_MERGEABLE.
 
 If a region of memory must be split into at least one new MADV_MERGEABLE
 or MADV_UNMERGEABLE region, the madvise may return ENOMEM if the process
+<<<<<<< HEAD
 will exceed ``vm.max_map_count`` (see Documentation/sysctl/vm.txt).
+=======
+will exceed ``vm.max_map_count`` (see Documentation/admin-guide/sysctl/vm.rst).
+>>>>>>> upstream/android-13
 
 Like other madvise calls, they are intended for use on mapped areas of
 the user address space: they will report ENOMEM if the specified range

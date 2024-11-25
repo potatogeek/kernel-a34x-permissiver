@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * tc654.c - Linux kernel modules for fan speed controller
  *
  * Copyright (C) 2016 Allied Telesis Labs NZ
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,6 +17,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/bitops.h>
@@ -200,7 +207,11 @@ out:
  * sysfs attributes
  */
 
+<<<<<<< HEAD
 static ssize_t show_fan(struct device *dev, struct device_attribute *da,
+=======
+static ssize_t fan_show(struct device *dev, struct device_attribute *da,
+>>>>>>> upstream/android-13
 			char *buf)
 {
 	int nr = to_sensor_dev_attr(da)->index;
@@ -218,7 +229,11 @@ static ssize_t show_fan(struct device *dev, struct device_attribute *da,
 	return sprintf(buf, "%d\n", val);
 }
 
+<<<<<<< HEAD
 static ssize_t show_fan_min(struct device *dev, struct device_attribute *da,
+=======
+static ssize_t fan_min_show(struct device *dev, struct device_attribute *da,
+>>>>>>> upstream/android-13
 			    char *buf)
 {
 	int nr = to_sensor_dev_attr(da)->index;
@@ -231,8 +246,13 @@ static ssize_t show_fan_min(struct device *dev, struct device_attribute *da,
 		       TC654_FAN_FAULT_FROM_REG(data->fan_fault[nr]));
 }
 
+<<<<<<< HEAD
 static ssize_t set_fan_min(struct device *dev, struct device_attribute *da,
 			   const char *buf, size_t count)
+=======
+static ssize_t fan_min_store(struct device *dev, struct device_attribute *da,
+			     const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	int nr = to_sensor_dev_attr(da)->index;
 	struct tc654_data *data = dev_get_drvdata(dev);
@@ -255,7 +275,11 @@ static ssize_t set_fan_min(struct device *dev, struct device_attribute *da,
 	return ret < 0 ? ret : count;
 }
 
+<<<<<<< HEAD
 static ssize_t show_fan_alarm(struct device *dev, struct device_attribute *da,
+=======
+static ssize_t fan_alarm_show(struct device *dev, struct device_attribute *da,
+>>>>>>> upstream/android-13
 			      char *buf)
 {
 	int nr = to_sensor_dev_attr(da)->index;
@@ -275,8 +299,13 @@ static ssize_t show_fan_alarm(struct device *dev, struct device_attribute *da,
 
 static const u8 TC654_FAN_PULSE_SHIFT[] = { 1, 3 };
 
+<<<<<<< HEAD
 static ssize_t show_fan_pulses(struct device *dev, struct device_attribute *da,
 			       char *buf)
+=======
+static ssize_t fan_pulses_show(struct device *dev,
+			       struct device_attribute *da, char *buf)
+>>>>>>> upstream/android-13
 {
 	int nr = to_sensor_dev_attr(da)->index;
 	struct tc654_data *data = tc654_update_client(dev);
@@ -289,8 +318,14 @@ static ssize_t show_fan_pulses(struct device *dev, struct device_attribute *da,
 	return sprintf(buf, "%d\n", val);
 }
 
+<<<<<<< HEAD
 static ssize_t set_fan_pulses(struct device *dev, struct device_attribute *da,
 			      const char *buf, size_t count)
+=======
+static ssize_t fan_pulses_store(struct device *dev,
+				struct device_attribute *da, const char *buf,
+				size_t count)
+>>>>>>> upstream/android-13
 {
 	int nr = to_sensor_dev_attr(da)->index;
 	struct tc654_data *data = dev_get_drvdata(dev);
@@ -329,8 +364,13 @@ static ssize_t set_fan_pulses(struct device *dev, struct device_attribute *da,
 	return ret < 0 ? ret : count;
 }
 
+<<<<<<< HEAD
 static ssize_t show_pwm_mode(struct device *dev,
 			     struct device_attribute *da, char *buf)
+=======
+static ssize_t pwm_mode_show(struct device *dev, struct device_attribute *da,
+			     char *buf)
+>>>>>>> upstream/android-13
 {
 	struct tc654_data *data = tc654_update_client(dev);
 
@@ -340,9 +380,14 @@ static ssize_t show_pwm_mode(struct device *dev,
 	return sprintf(buf, "%d\n", !!(data->config & TC654_REG_CONFIG_DUTYC));
 }
 
+<<<<<<< HEAD
 static ssize_t set_pwm_mode(struct device *dev,
 			    struct device_attribute *da,
 			    const char *buf, size_t count)
+=======
+static ssize_t pwm_mode_store(struct device *dev, struct device_attribute *da,
+			      const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	struct tc654_data *data = dev_get_drvdata(dev);
 	struct i2c_client *client = data->client;
@@ -371,7 +416,11 @@ static ssize_t set_pwm_mode(struct device *dev,
 static const int tc654_pwm_map[16] = { 77,  88, 102, 112, 124, 136, 148, 160,
 				      172, 184, 196, 207, 219, 231, 243, 255};
 
+<<<<<<< HEAD
 static ssize_t show_pwm(struct device *dev, struct device_attribute *da,
+=======
+static ssize_t pwm_show(struct device *dev, struct device_attribute *da,
+>>>>>>> upstream/android-13
 			char *buf)
 {
 	struct tc654_data *data = tc654_update_client(dev);
@@ -388,8 +437,13 @@ static ssize_t show_pwm(struct device *dev, struct device_attribute *da,
 	return sprintf(buf, "%d\n", pwm);
 }
 
+<<<<<<< HEAD
 static ssize_t set_pwm(struct device *dev, struct device_attribute *da,
 		       const char *buf, size_t count)
+=======
+static ssize_t pwm_store(struct device *dev, struct device_attribute *da,
+			 const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	struct tc654_data *data = dev_get_drvdata(dev);
 	struct i2c_client *client = data->client;
@@ -423,6 +477,7 @@ out:
 	return ret < 0 ? ret : count;
 }
 
+<<<<<<< HEAD
 static SENSOR_DEVICE_ATTR(fan1_input, S_IRUGO, show_fan, NULL, 0);
 static SENSOR_DEVICE_ATTR(fan2_input, S_IRUGO, show_fan, NULL, 1);
 static SENSOR_DEVICE_ATTR(fan1_min, S_IWUSR | S_IRUGO, show_fan_min,
@@ -439,6 +494,18 @@ static SENSOR_DEVICE_ATTR(pwm1_mode, S_IWUSR | S_IRUGO,
 			  show_pwm_mode, set_pwm_mode, 0);
 static SENSOR_DEVICE_ATTR(pwm1, S_IWUSR | S_IRUGO, show_pwm,
 			  set_pwm, 0);
+=======
+static SENSOR_DEVICE_ATTR_RO(fan1_input, fan, 0);
+static SENSOR_DEVICE_ATTR_RO(fan2_input, fan, 1);
+static SENSOR_DEVICE_ATTR_RW(fan1_min, fan_min, 0);
+static SENSOR_DEVICE_ATTR_RW(fan2_min, fan_min, 1);
+static SENSOR_DEVICE_ATTR_RO(fan1_alarm, fan_alarm, 0);
+static SENSOR_DEVICE_ATTR_RO(fan2_alarm, fan_alarm, 1);
+static SENSOR_DEVICE_ATTR_RW(fan1_pulses, fan_pulses, 0);
+static SENSOR_DEVICE_ATTR_RW(fan2_pulses, fan_pulses, 1);
+static SENSOR_DEVICE_ATTR_RW(pwm1_mode, pwm_mode, 0);
+static SENSOR_DEVICE_ATTR_RW(pwm1, pwm, 0);
+>>>>>>> upstream/android-13
 
 /* Driver data */
 static struct attribute *tc654_attrs[] = {
@@ -461,8 +528,12 @@ ATTRIBUTE_GROUPS(tc654);
  * device probe and removal
  */
 
+<<<<<<< HEAD
 static int tc654_probe(struct i2c_client *client,
 		       const struct i2c_device_id *id)
+=======
+static int tc654_probe(struct i2c_client *client)
+>>>>>>> upstream/android-13
 {
 	struct device *dev = &client->dev;
 	struct tc654_data *data;
@@ -503,7 +574,11 @@ static struct i2c_driver tc654_driver = {
 	.driver = {
 		   .name = "tc654",
 		   },
+<<<<<<< HEAD
 	.probe = tc654_probe,
+=======
+	.probe_new = tc654_probe,
+>>>>>>> upstream/android-13
 	.id_table = tc654_id,
 };
 

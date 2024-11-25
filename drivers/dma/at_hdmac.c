@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Driver for the Atmel AHB DMA Controller (aka HDMA or DMAC on AT91 systems)
  *
  * Copyright (C) 2008 Atmel Corporation
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
  *
+=======
+>>>>>>> upstream/android-13
  * This supports the Atmel AHB DMA Controller found in several Atmel SoCs.
  * The only Atmel DMA Controller that is not covered by this driver is the one
  * found on AT91SAM9263.
@@ -59,6 +66,28 @@ module_param(init_nr_desc_per_channel, uint, 0644);
 MODULE_PARM_DESC(init_nr_desc_per_channel,
 		 "initial descriptors per channel (default: 64)");
 
+<<<<<<< HEAD
+=======
+/**
+ * struct at_dma_platform_data - Controller configuration parameters
+ * @nr_channels: Number of channels supported by hardware (max 8)
+ * @cap_mask: dma_capability flags supported by the platform
+ */
+struct at_dma_platform_data {
+	unsigned int	nr_channels;
+	dma_cap_mask_t  cap_mask;
+};
+
+/**
+ * struct at_dma_slave - Controller-specific information about a slave
+ * @dma_dev: required DMA master device
+ * @cfg: Platform-specific initializer for the CFG register
+ */
+struct at_dma_slave {
+	struct device		*dma_dev;
+	u32			cfg;
+};
+>>>>>>> upstream/android-13
 
 /* prototypes */
 static dma_cookie_t atc_tx_submit(struct dma_async_tx_descriptor *tx);
@@ -134,7 +163,10 @@ static struct at_desc *atc_desc_get(struct at_dma_chan *atchan)
 	struct at_desc *ret = NULL;
 	unsigned long flags;
 	unsigned int i = 0;
+<<<<<<< HEAD
 	LIST_HEAD(tmp_list);
+=======
+>>>>>>> upstream/android-13
 
 	spin_lock_irqsave(&atchan->lock, flags);
 	list_for_each_entry_safe(desc, _desc, &atchan->free_list, desc_node) {
@@ -152,6 +184,7 @@ static struct at_desc *atc_desc_get(struct at_dma_chan *atchan)
 		"scanned %u descriptors on freelist\n", i);
 
 	/* no more descriptor available in initial pool: create one more */
+<<<<<<< HEAD
 	if (!ret) {
 		ret = atc_alloc_descriptor(&atchan->chan_common, GFP_ATOMIC);
 		if (ret) {
@@ -163,6 +196,10 @@ static struct at_desc *atc_desc_get(struct at_dma_chan *atchan)
 					"not enough descriptors available\n");
 		}
 	}
+=======
+	if (!ret)
+		ret = atc_alloc_descriptor(&atchan->chan_common, GFP_NOWAIT);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -441,17 +478,30 @@ static int atc_get_bytes_left(struct dma_chan *chan, dma_cookie_t cookie)
  * atc_chain_complete - finish work for one transaction chain
  * @atchan: channel we work on
  * @desc: descriptor at the head of the chain we want do complete
+<<<<<<< HEAD
  *
  * Called with atchan->lock held and bh disabled */
+=======
+ */
+>>>>>>> upstream/android-13
 static void
 atc_chain_complete(struct at_dma_chan *atchan, struct at_desc *desc)
 {
 	struct dma_async_tx_descriptor	*txd = &desc->txd;
 	struct at_dma			*atdma = to_at_dma(atchan->chan_common.device);
+<<<<<<< HEAD
+=======
+	unsigned long flags;
+>>>>>>> upstream/android-13
 
 	dev_vdbg(chan2dev(&atchan->chan_common),
 		"descriptor %u complete\n", txd->cookie);
 
+<<<<<<< HEAD
+=======
+	spin_lock_irqsave(&atchan->lock, flags);
+
+>>>>>>> upstream/android-13
 	/* mark the descriptor as complete for non cyclic cases only */
 	if (!atc_chan_is_cyclic(atchan))
 		dma_cookie_complete(txd);
@@ -468,6 +518,7 @@ atc_chain_complete(struct at_dma_chan *atchan, struct at_desc *desc)
 	/* move myself to free_list */
 	list_move(&desc->desc_node, &atchan->free_list);
 
+<<<<<<< HEAD
 	dma_descriptor_unmap(txd);
 	/* for cyclic transfers,
 	 * no need to replay callback function while stopping */
@@ -478,6 +529,15 @@ atc_chain_complete(struct at_dma_chan *atchan, struct at_desc *desc)
 		 */
 		dmaengine_desc_get_callback_invoke(txd, NULL);
 	}
+=======
+	spin_unlock_irqrestore(&atchan->lock, flags);
+
+	dma_descriptor_unmap(txd);
+	/* for cyclic transfers,
+	 * no need to replay callback function while stopping */
+	if (!atc_chan_is_cyclic(atchan))
+		dmaengine_desc_get_callback_invoke(txd, NULL);
+>>>>>>> upstream/android-13
 
 	dma_run_dependencies(txd);
 }
@@ -495,9 +555,18 @@ static void atc_complete_all(struct at_dma_chan *atchan)
 {
 	struct at_desc *desc, *_desc;
 	LIST_HEAD(list);
+<<<<<<< HEAD
 
 	dev_vdbg(chan2dev(&atchan->chan_common), "complete all\n");
 
+=======
+	unsigned long flags;
+
+	dev_vdbg(chan2dev(&atchan->chan_common), "complete all\n");
+
+	spin_lock_irqsave(&atchan->lock, flags);
+
+>>>>>>> upstream/android-13
 	/*
 	 * Submit queued descriptors ASAP, i.e. before we go through
 	 * the completed ones.
@@ -509,6 +578,11 @@ static void atc_complete_all(struct at_dma_chan *atchan)
 	/* empty queue list by moving descriptors (if any) to active_list */
 	list_splice_init(&atchan->queue, &atchan->active_list);
 
+<<<<<<< HEAD
+=======
+	spin_unlock_irqrestore(&atchan->lock, flags);
+
+>>>>>>> upstream/android-13
 	list_for_each_entry_safe(desc, _desc, &list, desc_node)
 		atc_chain_complete(atchan, desc);
 }
@@ -516,6 +590,7 @@ static void atc_complete_all(struct at_dma_chan *atchan)
 /**
  * atc_advance_work - at the end of a transaction, move forward
  * @atchan: channel where the transaction ended
+<<<<<<< HEAD
  *
  * Called with atchan->lock held and bh disabled
  */
@@ -534,20 +609,55 @@ static void atc_advance_work(struct at_dma_chan *atchan)
 		/* advance work */
 		atc_dostart(atchan, atc_first_active(atchan));
 	}
+=======
+ */
+static void atc_advance_work(struct at_dma_chan *atchan)
+{
+	unsigned long flags;
+	int ret;
+
+	dev_vdbg(chan2dev(&atchan->chan_common), "advance_work\n");
+
+	spin_lock_irqsave(&atchan->lock, flags);
+	ret = atc_chan_is_enabled(atchan);
+	spin_unlock_irqrestore(&atchan->lock, flags);
+	if (ret)
+		return;
+
+	if (list_empty(&atchan->active_list) ||
+	    list_is_singular(&atchan->active_list))
+		return atc_complete_all(atchan);
+
+	atc_chain_complete(atchan, atc_first_active(atchan));
+
+	/* advance work */
+	spin_lock_irqsave(&atchan->lock, flags);
+	atc_dostart(atchan, atc_first_active(atchan));
+	spin_unlock_irqrestore(&atchan->lock, flags);
+>>>>>>> upstream/android-13
 }
 
 
 /**
  * atc_handle_error - handle errors reported by DMA controller
  * @atchan: channel where error occurs
+<<<<<<< HEAD
  *
  * Called with atchan->lock held and bh disabled
+=======
+>>>>>>> upstream/android-13
  */
 static void atc_handle_error(struct at_dma_chan *atchan)
 {
 	struct at_desc *bad_desc;
 	struct at_desc *child;
+<<<<<<< HEAD
 
+=======
+	unsigned long flags;
+
+	spin_lock_irqsave(&atchan->lock, flags);
+>>>>>>> upstream/android-13
 	/*
 	 * The descriptor currently at the head of the active list is
 	 * broked. Since we don't have any way to report errors, we'll
@@ -579,6 +689,11 @@ static void atc_handle_error(struct at_dma_chan *atchan)
 	list_for_each_entry(child, &bad_desc->tx_list, desc_node)
 		atc_dump_lli(atchan, &child->lli);
 
+<<<<<<< HEAD
+=======
+	spin_unlock_irqrestore(&atchan->lock, flags);
+
+>>>>>>> upstream/android-13
 	/* Pretend the descriptor completed successfully */
 	atc_chain_complete(atchan, bad_desc);
 }
@@ -586,8 +701,11 @@ static void atc_handle_error(struct at_dma_chan *atchan)
 /**
  * atc_handle_cyclic - at the end of a period, run callback function
  * @atchan: channel used for cyclic operations
+<<<<<<< HEAD
  *
  * Called with atchan->lock held and bh disabled
+=======
+>>>>>>> upstream/android-13
  */
 static void atc_handle_cyclic(struct at_dma_chan *atchan)
 {
@@ -603,6 +721,7 @@ static void atc_handle_cyclic(struct at_dma_chan *atchan)
 
 /*--  IRQ & Tasklet  ---------------------------------------------------*/
 
+<<<<<<< HEAD
 static void atc_tasklet(unsigned long data)
 {
 	struct at_dma_chan *atchan = (struct at_dma_chan *)data;
@@ -617,6 +736,19 @@ static void atc_tasklet(unsigned long data)
 		atc_advance_work(atchan);
 
 	spin_unlock_irqrestore(&atchan->lock, flags);
+=======
+static void atc_tasklet(struct tasklet_struct *t)
+{
+	struct at_dma_chan *atchan = from_tasklet(atchan, t, tasklet);
+
+	if (test_and_clear_bit(ATC_IS_ERROR, &atchan->status))
+		return atc_handle_error(atchan);
+
+	if (atc_chan_is_cyclic(atchan))
+		return atc_handle_cyclic(atchan);
+
+	atc_advance_work(atchan);
+>>>>>>> upstream/android-13
 }
 
 static irqreturn_t at_dma_interrupt(int irq, void *dev_id)
@@ -664,7 +796,11 @@ static irqreturn_t at_dma_interrupt(int irq, void *dev_id)
 
 /**
  * atc_tx_submit - set the prepared descriptor(s) to be executed by the engine
+<<<<<<< HEAD
  * @desc: descriptor at the head of the transaction chain
+=======
+ * @tx: descriptor at the head of the transaction chain
+>>>>>>> upstream/android-13
  *
  * Queue chain if DMA engine is working already
  *
@@ -946,7 +1082,11 @@ atc_prep_dma_memset(struct dma_chan *chan, dma_addr_t dest, int value,
 		return NULL;
 	}
 
+<<<<<<< HEAD
 	vaddr = dma_pool_alloc(atdma->memset_pool, GFP_ATOMIC, &paddr);
+=======
+	vaddr = dma_pool_alloc(atdma->memset_pool, GFP_NOWAIT, &paddr);
+>>>>>>> upstream/android-13
 	if (!vaddr) {
 		dev_err(chan2dev(chan), "%s: couldn't allocate buffer\n",
 			__func__);
@@ -1004,7 +1144,11 @@ atc_prep_dma_memset_sg(struct dma_chan *chan,
 		return NULL;
 	}
 
+<<<<<<< HEAD
 	vaddr = dma_pool_alloc(atdma->memset_pool, GFP_ATOMIC, &paddr);
+=======
+	vaddr = dma_pool_alloc(atdma->memset_pool, GFP_NOWAIT, &paddr);
+>>>>>>> upstream/android-13
 	if (!vaddr) {
 		dev_err(chan2dev(chan), "%s: couldn't allocate buffer\n",
 			__func__);
@@ -1204,7 +1348,11 @@ err:
 	return NULL;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * atc_dma_cyclic_check_values
  * Check for too big/unaligned periods and unaligned DMA buffer
  */
@@ -1225,7 +1373,11 @@ err_out:
 	return -EINVAL;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * atc_dma_cyclic_fill_desc - Fill one period descriptor
  */
 static int
@@ -1320,7 +1472,11 @@ atc_prep_dma_cyclic(struct dma_chan *chan, dma_addr_t buf_addr, size_t buf_len,
 	if (unlikely(!is_slave_direction(direction)))
 		goto err_out;
 
+<<<<<<< HEAD
 	if (sconfig->direction == DMA_MEM_TO_DEV)
+=======
+	if (direction == DMA_MEM_TO_DEV)
+>>>>>>> upstream/android-13
 		reg_width = convert_buswidth(sconfig->dst_addr_width);
 	else
 		reg_width = convert_buswidth(sconfig->src_addr_width);
@@ -1387,8 +1543,11 @@ static int atc_pause(struct dma_chan *chan)
 	int			chan_id = atchan->chan_common.chan_id;
 	unsigned long		flags;
 
+<<<<<<< HEAD
 	LIST_HEAD(list);
 
+=======
+>>>>>>> upstream/android-13
 	dev_vdbg(chan2dev(chan), "%s\n", __func__);
 
 	spin_lock_irqsave(&atchan->lock, flags);
@@ -1408,8 +1567,11 @@ static int atc_resume(struct dma_chan *chan)
 	int			chan_id = atchan->chan_common.chan_id;
 	unsigned long		flags;
 
+<<<<<<< HEAD
 	LIST_HEAD(list);
 
+=======
+>>>>>>> upstream/android-13
 	dev_vdbg(chan2dev(chan), "%s\n", __func__);
 
 	if (!atc_chan_is_paused(atchan))
@@ -1456,6 +1618,11 @@ static int atc_terminate_all(struct dma_chan *chan)
 	list_splice_init(&atchan->queue, &list);
 	list_splice_init(&atchan->active_list, &list);
 
+<<<<<<< HEAD
+=======
+	spin_unlock_irqrestore(&atchan->lock, flags);
+
+>>>>>>> upstream/android-13
 	/* Flush all pending and queued descriptors */
 	list_for_each_entry_safe(desc, _desc, &list, desc_node)
 		atc_chain_complete(atchan, desc);
@@ -1464,8 +1631,11 @@ static int atc_terminate_all(struct dma_chan *chan)
 	/* if channel dedicated to cyclic operations, free it */
 	clear_bit(ATC_IS_CYCLIC, &atchan->status);
 
+<<<<<<< HEAD
 	spin_unlock_irqrestore(&atchan->lock, flags);
 
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1526,7 +1696,10 @@ atc_tx_status(struct dma_chan *chan,
 static void atc_issue_pending(struct dma_chan *chan)
 {
 	struct at_dma_chan	*atchan = to_at_dma_chan(chan);
+<<<<<<< HEAD
 	unsigned long		flags;
+=======
+>>>>>>> upstream/android-13
 
 	dev_vdbg(chan2dev(chan), "issue_pending\n");
 
@@ -1534,15 +1707,22 @@ static void atc_issue_pending(struct dma_chan *chan)
 	if (atc_chan_is_cyclic(atchan))
 		return;
 
+<<<<<<< HEAD
 	spin_lock_irqsave(&atchan->lock, flags);
 	atc_advance_work(atchan);
 	spin_unlock_irqrestore(&atchan->lock, flags);
+=======
+	atc_advance_work(atchan);
+>>>>>>> upstream/android-13
 }
 
 /**
  * atc_alloc_chan_resources - allocate resources for DMA channel
  * @chan: allocate descriptor resources for this channel
+<<<<<<< HEAD
  * @client: current client requesting the channel be ready for requests
+=======
+>>>>>>> upstream/android-13
  *
  * return - the number of allocated descriptors
  */
@@ -1552,10 +1732,15 @@ static int atc_alloc_chan_resources(struct dma_chan *chan)
 	struct at_dma		*atdma = to_at_dma(chan->device);
 	struct at_desc		*desc;
 	struct at_dma_slave	*atslave;
+<<<<<<< HEAD
 	unsigned long		flags;
 	int			i;
 	u32			cfg;
 	LIST_HEAD(tmp_list);
+=======
+	int			i;
+	u32			cfg;
+>>>>>>> upstream/android-13
 
 	dev_vdbg(chan2dev(chan), "alloc_chan_resources\n");
 
@@ -1565,6 +1750,14 @@ static int atc_alloc_chan_resources(struct dma_chan *chan)
 		return -EIO;
 	}
 
+<<<<<<< HEAD
+=======
+	if (!list_empty(&atchan->free_list)) {
+		dev_dbg(chan2dev(chan), "can't allocate channel resources (channel not freed from a previous use)\n");
+		return -EIO;
+	}
+
+>>>>>>> upstream/android-13
 	cfg = ATC_DEFAULT_CFG;
 
 	atslave = chan->private;
@@ -1580,11 +1773,14 @@ static int atc_alloc_chan_resources(struct dma_chan *chan)
 			cfg = atslave->cfg;
 	}
 
+<<<<<<< HEAD
 	/* have we already been set up?
 	 * reconfigure channel but no need to reallocate descriptors */
 	if (!list_empty(&atchan->free_list))
 		return atchan->descs_allocated;
 
+=======
+>>>>>>> upstream/android-13
 	/* Allocate initial pool of descriptors */
 	for (i = 0; i < init_nr_desc_per_channel; i++) {
 		desc = atc_alloc_descriptor(chan, GFP_KERNEL);
@@ -1593,6 +1789,7 @@ static int atc_alloc_chan_resources(struct dma_chan *chan)
 				"Only %d initial descriptors\n", i);
 			break;
 		}
+<<<<<<< HEAD
 		list_add_tail(&desc->desc_node, &tmp_list);
 	}
 
@@ -1601,15 +1798,27 @@ static int atc_alloc_chan_resources(struct dma_chan *chan)
 	list_splice(&tmp_list, &atchan->free_list);
 	dma_cookie_init(chan);
 	spin_unlock_irqrestore(&atchan->lock, flags);
+=======
+		list_add_tail(&desc->desc_node, &atchan->free_list);
+	}
+
+	dma_cookie_init(chan);
+>>>>>>> upstream/android-13
 
 	/* channel parameters */
 	channel_writel(atchan, CFG, cfg);
 
 	dev_dbg(chan2dev(chan),
+<<<<<<< HEAD
 		"alloc_chan_resources: allocated %d descriptors\n",
 		atchan->descs_allocated);
 
 	return atchan->descs_allocated;
+=======
+		"alloc_chan_resources: allocated %d descriptors\n", i);
+
+	return i;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -1623,9 +1832,12 @@ static void atc_free_chan_resources(struct dma_chan *chan)
 	struct at_desc		*desc, *_desc;
 	LIST_HEAD(list);
 
+<<<<<<< HEAD
 	dev_dbg(chan2dev(chan), "free_chan_resources: (descs allocated=%u)\n",
 		atchan->descs_allocated);
 
+=======
+>>>>>>> upstream/android-13
 	/* ASSERT:  channel is idle */
 	BUG_ON(!list_empty(&atchan->active_list));
 	BUG_ON(!list_empty(&atchan->queue));
@@ -1638,7 +1850,10 @@ static void atc_free_chan_resources(struct dma_chan *chan)
 		dma_pool_free(atdma->dma_desc_pool, desc, desc->txd.phys);
 	}
 	list_splice_init(&atchan->free_list, &list);
+<<<<<<< HEAD
 	atchan->descs_allocated = 0;
+=======
+>>>>>>> upstream/android-13
 	atchan->status = 0;
 
 	/*
@@ -1919,8 +2134,12 @@ static int __init at_dma_probe(struct platform_device *pdev)
 		INIT_LIST_HEAD(&atchan->queue);
 		INIT_LIST_HEAD(&atchan->free_list);
 
+<<<<<<< HEAD
 		tasklet_init(&atchan->tasklet, atc_tasklet,
 				(unsigned long)atchan);
+=======
+		tasklet_setup(&atchan->tasklet, atc_tasklet);
+>>>>>>> upstream/android-13
 		atc_enable_chan_irq(atdma, i);
 	}
 

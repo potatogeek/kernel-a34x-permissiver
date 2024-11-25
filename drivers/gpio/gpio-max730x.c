@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /**
  * Copyright (C) 2006 Juergen Beisert, Pengutronix
  * Copyright (C) 2008 Guennadi Liakhovetski, Pengutronix
  * Copyright (C) 2009 Wolfram Sang, Pengutronix
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * The Maxim MAX7300/1 device is an I2C/SPI driven GPIO expander. There are
  * 28 GPIOs. 8 of them can trigger an interrupt. See datasheet for more
  * details
@@ -50,7 +57,11 @@
 
 static int max7301_direction_input(struct gpio_chip *chip, unsigned offset)
 {
+<<<<<<< HEAD
 	struct max7301 *ts = gpiochip_get_data(chip);
+=======
+	struct max7301 *ts = container_of(chip, struct max7301, chip);
+>>>>>>> upstream/android-13
 	u8 *config;
 	u8 offset_bits, pin_config;
 	int ret;
@@ -92,7 +103,11 @@ static int __max7301_set(struct max7301 *ts, unsigned offset, int value)
 static int max7301_direction_output(struct gpio_chip *chip, unsigned offset,
 				    int value)
 {
+<<<<<<< HEAD
 	struct max7301 *ts = gpiochip_get_data(chip);
+=======
+	struct max7301 *ts = container_of(chip, struct max7301, chip);
+>>>>>>> upstream/android-13
 	u8 *config;
 	u8 offset_bits;
 	int ret;
@@ -192,10 +207,13 @@ int __max730x_probe(struct max7301 *ts)
 	ts->chip.parent = dev;
 	ts->chip.owner = THIS_MODULE;
 
+<<<<<<< HEAD
 	ret = gpiochip_add_data(&ts->chip, ts);
 	if (ret)
 		goto exit_destroy;
 
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * initialize pullups according to platform data and cache the
 	 * register values for later use.
@@ -217,7 +235,13 @@ int __max730x_probe(struct max7301 *ts)
 		}
 	}
 
+<<<<<<< HEAD
 	return ret;
+=======
+	ret = gpiochip_add_data(&ts->chip, ts);
+	if (!ret)
+		return ret;
+>>>>>>> upstream/android-13
 
 exit_destroy:
 	mutex_destroy(&ts->lock);

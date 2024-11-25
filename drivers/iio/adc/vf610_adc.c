@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Freescale Vybrid vf610 ADC driver
  *
  * Copyright 2013 Freescale Semiconductor, Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +21,8 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -180,7 +187,15 @@ struct vf610_adc {
 	u32 sample_freq_avail[5];
 
 	struct completion completion;
+<<<<<<< HEAD
 	u16 buffer[8];
+=======
+	/* Ensure the timestamp is naturally aligned */
+	struct {
+		u16 chan;
+		s64 timestamp __aligned(8);
+	} scan;
+>>>>>>> upstream/android-13
 };
 
 static const u32 vf610_hw_avgs[] = { 1, 4, 8, 16, 32 };
@@ -592,9 +607,15 @@ static irqreturn_t vf610_adc_isr(int irq, void *dev_id)
 	if (coco & VF610_ADC_HS_COCO0) {
 		info->value = vf610_adc_read_data(info);
 		if (iio_buffer_enabled(indio_dev)) {
+<<<<<<< HEAD
 			info->buffer[0] = info->value;
 			iio_push_to_buffers_with_timestamp(indio_dev,
 					info->buffer,
+=======
+			info->scan.chan = info->value;
+			iio_push_to_buffers_with_timestamp(indio_dev,
+					&info->scan,
+>>>>>>> upstream/android-13
 					iio_get_time_ns(indio_dev));
 			iio_trigger_notify_done(indio_dev->trig);
 		} else
@@ -737,6 +758,7 @@ static int vf610_adc_buffer_postenable(struct iio_dev *indio_dev)
 {
 	struct vf610_adc *info = iio_priv(indio_dev);
 	unsigned int channel;
+<<<<<<< HEAD
 	int ret;
 	int val;
 
@@ -744,6 +766,10 @@ static int vf610_adc_buffer_postenable(struct iio_dev *indio_dev)
 	if (ret)
 		return ret;
 
+=======
+	int val;
+
+>>>>>>> upstream/android-13
 	val = readl(info->regs + VF610_REG_ADC_GC);
 	val |= VF610_ADC_ADCON;
 	writel(val, info->regs + VF610_REG_ADC_GC);
@@ -774,7 +800,11 @@ static int vf610_adc_buffer_predisable(struct iio_dev *indio_dev)
 
 	writel(hc_cfg, info->regs + VF610_REG_ADC_HC0);
 
+<<<<<<< HEAD
 	return iio_triggered_buffer_predisable(indio_dev);
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static const struct iio_buffer_setup_ops iio_triggered_buffer_setup_ops = {
@@ -815,7 +845,10 @@ static int vf610_adc_probe(struct platform_device *pdev)
 {
 	struct vf610_adc *info;
 	struct iio_dev *indio_dev;
+<<<<<<< HEAD
 	struct resource *mem;
+=======
+>>>>>>> upstream/android-13
 	int irq;
 	int ret;
 
@@ -828,16 +861,25 @@ static int vf610_adc_probe(struct platform_device *pdev)
 	info = iio_priv(indio_dev);
 	info->dev = &pdev->dev;
 
+<<<<<<< HEAD
 	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	info->regs = devm_ioremap_resource(&pdev->dev, mem);
+=======
+	info->regs = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(info->regs))
 		return PTR_ERR(info->regs);
 
 	irq = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (irq < 0) {
 		dev_err(&pdev->dev, "no irq resource?\n");
 		return irq;
 	}
+=======
+	if (irq < 0)
+		return irq;
+>>>>>>> upstream/android-13
 
 	ret = devm_request_irq(info->dev, irq,
 				vf610_adc_isr, 0,
@@ -877,8 +919,11 @@ static int vf610_adc_probe(struct platform_device *pdev)
 	init_completion(&info->completion);
 
 	indio_dev->name = dev_name(&pdev->dev);
+<<<<<<< HEAD
 	indio_dev->dev.parent = &pdev->dev;
 	indio_dev->dev.of_node = pdev->dev.of_node;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->info = &vf610_adc_iio_info;
 	indio_dev->modes = INDIO_DIRECT_MODE;
 	indio_dev->channels = vf610_adc_iio_channels;

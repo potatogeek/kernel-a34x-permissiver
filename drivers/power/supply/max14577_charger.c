@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * max14577_charger.c - Battery charger driver for the Maxim 14577/77836
  *
@@ -14,6 +15,14 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
+=======
+// SPDX-License-Identifier: GPL-2.0+
+//
+// max14577_charger.c - Battery charger driver for the Maxim 14577/77836
+//
+// Copyright (C) 2013,2014 Samsung Electronics
+// Krzysztof Kozlowski <krzk@kernel.org>
+>>>>>>> upstream/android-13
 
 #include <linux/module.h>
 #include <linux/platform_device.h>
@@ -271,7 +280,11 @@ static int max14577_init_constant_voltage(struct max14577_charger *chg,
 static int max14577_init_eoc(struct max14577_charger *chg,
 		unsigned int uamp)
 {
+<<<<<<< HEAD
 	unsigned int current_bits = 0xf;
+=======
+	unsigned int current_bits;
+>>>>>>> upstream/android-13
 	u8 reg_data;
 
 	switch (chg->max14577->dev_type) {
@@ -633,9 +646,25 @@ static const struct platform_device_id max14577_charger_id[] = {
 };
 MODULE_DEVICE_TABLE(platform, max14577_charger_id);
 
+<<<<<<< HEAD
 static struct platform_driver max14577_charger_driver = {
 	.driver = {
 		.name	= "max14577-charger",
+=======
+static const struct of_device_id of_max14577_charger_dt_match[] = {
+	{ .compatible = "maxim,max14577-charger",
+	  .data = (void *)MAXIM_DEVICE_TYPE_MAX14577, },
+	{ .compatible = "maxim,max77836-charger",
+	  .data = (void *)MAXIM_DEVICE_TYPE_MAX77836, },
+	{ },
+};
+MODULE_DEVICE_TABLE(of, of_max14577_charger_dt_match);
+
+static struct platform_driver max14577_charger_driver = {
+	.driver = {
+		.name	= "max14577-charger",
+		.of_match_table = of_max14577_charger_dt_match,
+>>>>>>> upstream/android-13
 	},
 	.probe		= max14577_charger_probe,
 	.remove		= max14577_charger_remove,

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2014 Fraunhofer ITWM
  *
@@ -10,6 +11,12 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2014 Fraunhofer ITWM
+ *
+>>>>>>> upstream/android-13
  * Written by:
  * Phoebe Buckheister <phoebe.buckheister@itwm.fraunhofer.de>
  */
@@ -57,7 +64,11 @@ void mac802154_llsec_destroy(struct mac802154_llsec *sec)
 
 		msl = container_of(sl, struct mac802154_llsec_seclevel, level);
 		list_del(&sl->list);
+<<<<<<< HEAD
 		kzfree(msl);
+=======
+		kfree_sensitive(msl);
+>>>>>>> upstream/android-13
 	}
 
 	list_for_each_entry_safe(dev, dn, &sec->table.devices, list) {
@@ -74,7 +85,11 @@ void mac802154_llsec_destroy(struct mac802154_llsec *sec)
 		mkey = container_of(key->key, struct mac802154_llsec_key, key);
 		list_del(&key->list);
 		llsec_key_put(mkey);
+<<<<<<< HEAD
 		kzfree(key);
+=======
+		kfree_sensitive(key);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -146,24 +161,40 @@ llsec_key_alloc(const struct ieee802154_llsec_key *template)
 			goto err_tfm;
 	}
 
+<<<<<<< HEAD
 	key->tfm0 = crypto_alloc_skcipher("ctr(aes)", 0, CRYPTO_ALG_ASYNC);
 	if (IS_ERR(key->tfm0))
 		goto err_tfm;
 
 	if (crypto_skcipher_setkey(key->tfm0, template->key,
+=======
+	key->tfm0 = crypto_alloc_sync_skcipher("ctr(aes)", 0, 0);
+	if (IS_ERR(key->tfm0))
+		goto err_tfm;
+
+	if (crypto_sync_skcipher_setkey(key->tfm0, template->key,
+>>>>>>> upstream/android-13
 				   IEEE802154_LLSEC_KEY_SIZE))
 		goto err_tfm0;
 
 	return key;
 
 err_tfm0:
+<<<<<<< HEAD
 	crypto_free_skcipher(key->tfm0);
+=======
+	crypto_free_sync_skcipher(key->tfm0);
+>>>>>>> upstream/android-13
 err_tfm:
 	for (i = 0; i < ARRAY_SIZE(key->tfm); i++)
 		if (!IS_ERR_OR_NULL(key->tfm[i]))
 			crypto_free_aead(key->tfm[i]);
 
+<<<<<<< HEAD
 	kzfree(key);
+=======
+	kfree_sensitive(key);
+>>>>>>> upstream/android-13
 	return NULL;
 }
 
@@ -177,8 +208,13 @@ static void llsec_key_release(struct kref *ref)
 	for (i = 0; i < ARRAY_SIZE(key->tfm); i++)
 		crypto_free_aead(key->tfm[i]);
 
+<<<<<<< HEAD
 	crypto_free_skcipher(key->tfm0);
 	kzfree(key);
+=======
+	crypto_free_sync_skcipher(key->tfm0);
+	kfree_sensitive(key);
+>>>>>>> upstream/android-13
 }
 
 static struct mac802154_llsec_key*
@@ -269,7 +305,11 @@ int mac802154_llsec_key_add(struct mac802154_llsec *sec,
 	return 0;
 
 fail:
+<<<<<<< HEAD
 	kzfree(new);
+=======
+	kfree_sensitive(new);
+>>>>>>> upstream/android-13
 	return -ENOMEM;
 }
 
@@ -349,10 +389,17 @@ static void llsec_dev_free(struct mac802154_llsec_device *dev)
 				      devkey);
 
 		list_del(&pos->list);
+<<<<<<< HEAD
 		kzfree(devkey);
 	}
 
 	kzfree(dev);
+=======
+		kfree_sensitive(devkey);
+	}
+
+	kfree_sensitive(dev);
+>>>>>>> upstream/android-13
 }
 
 int mac802154_llsec_dev_add(struct mac802154_llsec *sec,
@@ -622,7 +669,11 @@ llsec_do_encrypt_unauth(struct sk_buff *skb, const struct mac802154_llsec *sec,
 {
 	u8 iv[16];
 	struct scatterlist src;
+<<<<<<< HEAD
 	SKCIPHER_REQUEST_ON_STACK(req, key->tfm0);
+=======
+	SYNC_SKCIPHER_REQUEST_ON_STACK(req, key->tfm0);
+>>>>>>> upstream/android-13
 	int err, datalen;
 	unsigned char *data;
 
@@ -632,7 +683,11 @@ llsec_do_encrypt_unauth(struct sk_buff *skb, const struct mac802154_llsec *sec,
 	datalen = skb_tail_pointer(skb) - data;
 	sg_init_one(&src, data, datalen);
 
+<<<<<<< HEAD
 	skcipher_request_set_tfm(req, key->tfm0);
+=======
+	skcipher_request_set_sync_tfm(req, key->tfm0);
+>>>>>>> upstream/android-13
 	skcipher_request_set_callback(req, 0, NULL, NULL);
 	skcipher_request_set_crypt(req, &src, &src, datalen, iv);
 	err = crypto_skcipher_encrypt(req);
@@ -690,7 +745,11 @@ llsec_do_encrypt_auth(struct sk_buff *skb, const struct mac802154_llsec *sec,
 
 	rc = crypto_aead_encrypt(req);
 
+<<<<<<< HEAD
 	kzfree(req);
+=======
+	kfree_sensitive(req);
+>>>>>>> upstream/android-13
 
 	return rc;
 }
@@ -840,7 +899,11 @@ llsec_do_decrypt_unauth(struct sk_buff *skb, const struct mac802154_llsec *sec,
 	unsigned char *data;
 	int datalen;
 	struct scatterlist src;
+<<<<<<< HEAD
 	SKCIPHER_REQUEST_ON_STACK(req, key->tfm0);
+=======
+	SYNC_SKCIPHER_REQUEST_ON_STACK(req, key->tfm0);
+>>>>>>> upstream/android-13
 	int err;
 
 	llsec_geniv(iv, dev_addr, &hdr->sec);
@@ -849,7 +912,11 @@ llsec_do_decrypt_unauth(struct sk_buff *skb, const struct mac802154_llsec *sec,
 
 	sg_init_one(&src, data, datalen);
 
+<<<<<<< HEAD
 	skcipher_request_set_tfm(req, key->tfm0);
+=======
+	skcipher_request_set_sync_tfm(req, key->tfm0);
+>>>>>>> upstream/android-13
 	skcipher_request_set_callback(req, 0, NULL, NULL);
 	skcipher_request_set_crypt(req, &src, &src, datalen, iv);
 
@@ -894,7 +961,11 @@ llsec_do_decrypt_auth(struct sk_buff *skb, const struct mac802154_llsec *sec,
 
 	rc = crypto_aead_decrypt(req);
 
+<<<<<<< HEAD
 	kzfree(req);
+=======
+	kfree_sensitive(req);
+>>>>>>> upstream/android-13
 	skb_trim(skb, skb->len - authlen);
 
 	return rc;
@@ -934,7 +1005,11 @@ llsec_update_devkey_record(struct mac802154_llsec_device *dev,
 		if (!devkey)
 			list_add_rcu(&next->devkey.list, &dev->dev.keys);
 		else
+<<<<<<< HEAD
 			kzfree(next);
+=======
+			kfree_sensitive(next);
+>>>>>>> upstream/android-13
 
 		spin_unlock_bh(&dev->lock);
 	}

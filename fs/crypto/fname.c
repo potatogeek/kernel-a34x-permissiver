@@ -14,7 +14,11 @@
 #include <linux/namei.h>
 #include <linux/scatterlist.h>
 #include <crypto/hash.h>
+<<<<<<< HEAD
 #include <crypto/sha.h>
+=======
+#include <crypto/sha2.h>
+>>>>>>> upstream/android-13
 #include <crypto/skcipher.h>
 #include "fscrypt_private.h"
 
@@ -26,7 +30,11 @@
  * it to find the directory entry again if requested.  Naively, that would just
  * mean using the ciphertext filenames.  However, since the ciphertext filenames
  * can contain illegal characters ('\0' and '/'), they must be encoded in some
+<<<<<<< HEAD
  * way.  We use base64.  But that can cause names to exceed NAME_MAX (255
+=======
+ * way.  We use base64url.  But that can cause names to exceed NAME_MAX (255
+>>>>>>> upstream/android-13
  * bytes), so we also need to use a strong hash to abbreviate long names.
  *
  * The filesystem may also need another kind of hash, the "dirhash", to quickly
@@ -38,7 +46,11 @@
  * casefolded directories use this type of dirhash.  At least in these cases,
  * each no-key name must include the name's dirhash too.
  *
+<<<<<<< HEAD
  * To meet all these requirements, we base64-encode the following
+=======
+ * To meet all these requirements, we base64url-encode the following
+>>>>>>> upstream/android-13
  * variable-length structure.  It contains the dirhash, or 0's if the filesystem
  * didn't provide one; up to 149 bytes of the ciphertext name; and for
  * ciphertexts longer than 149 bytes, also the SHA-256 of the remaining bytes.
@@ -52,15 +64,23 @@ struct fscrypt_nokey_name {
 	u32 dirhash[2];
 	u8 bytes[149];
 	u8 sha256[SHA256_DIGEST_SIZE];
+<<<<<<< HEAD
 }; /* 189 bytes => 252 bytes base64-encoded, which is <= NAME_MAX (255) */
 
 /*
  * Decoded size of max-size nokey name, i.e. a name that was abbreviated using
+=======
+}; /* 189 bytes => 252 bytes base64url-encoded, which is <= NAME_MAX (255) */
+
+/*
+ * Decoded size of max-size no-key name, i.e. a name that was abbreviated using
+>>>>>>> upstream/android-13
  * the strong hash and thus includes the 'sha256' field.  This isn't simply
  * sizeof(struct fscrypt_nokey_name), as the padding at the end isn't included.
  */
 #define FSCRYPT_NOKEY_NAME_MAX	offsetofend(struct fscrypt_nokey_name, sha256)
 
+<<<<<<< HEAD
 static struct crypto_shash *sha256_hash_tfm;
 
 static int fscrypt_do_sha256(const u8 *data, unsigned int data_len, u8 *result)
@@ -92,6 +112,11 @@ static int fscrypt_do_sha256(const u8 *data, unsigned int data_len, u8 *result)
 		return crypto_shash_digest(desc, data, data_len, result);
 	}
 }
+=======
+/* Encoded size of max-size no-key name */
+#define FSCRYPT_NOKEY_NAME_MAX_ENCODED \
+		FSCRYPT_BASE64URL_CHARS(FSCRYPT_NOKEY_NAME_MAX)
+>>>>>>> upstream/android-13
 
 static inline bool fscrypt_is_dot_dotdot(const struct qstr *str)
 {
@@ -121,7 +146,11 @@ int fscrypt_fname_encrypt(const struct inode *inode, const struct qstr *iname,
 	struct skcipher_request *req = NULL;
 	DECLARE_CRYPTO_WAIT(wait);
 	const struct fscrypt_info *ci = inode->i_crypt_info;
+<<<<<<< HEAD
 	struct crypto_skcipher *tfm = ci->ci_key.tfm;
+=======
+	struct crypto_skcipher *tfm = ci->ci_enc_key.tfm;
+>>>>>>> upstream/android-13
 	union fscrypt_iv iv;
 	struct scatterlist sg;
 	int res;
@@ -177,7 +206,11 @@ static int fname_decrypt(const struct inode *inode,
 	DECLARE_CRYPTO_WAIT(wait);
 	struct scatterlist src_sg, dst_sg;
 	const struct fscrypt_info *ci = inode->i_crypt_info;
+<<<<<<< HEAD
 	struct crypto_skcipher *tfm = ci->ci_key.tfm;
+=======
+	struct crypto_skcipher *tfm = ci->ci_enc_key.tfm;
+>>>>>>> upstream/android-13
 	union fscrypt_iv iv;
 	int res;
 
@@ -207,6 +240,7 @@ static int fname_decrypt(const struct inode *inode,
 	return 0;
 }
 
+<<<<<<< HEAD
 static const char lookup_table[65] =
 	"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+,";
 
@@ -270,6 +304,91 @@ bool fscrypt_fname_encrypted_size(const struct inode *inode, u32 orig_len,
 {
 	const struct fscrypt_info *ci = inode->i_crypt_info;
 	int padding = 4 << (fscrypt_policy_flags(&ci->ci_policy) &
+=======
+static const char base64url_table[65] =
+	"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
+
+#define FSCRYPT_BASE64URL_CHARS(nbytes)	DIV_ROUND_UP((nbytes) * 4, 3)
+
+/**
+ * fscrypt_base64url_encode() - base64url-encode some binary data
+ * @src: the binary data to encode
+ * @srclen: the length of @src in bytes
+ * @dst: (output) the base64url-encoded string.  Not NUL-terminated.
+ *
+ * Encodes data using base64url encoding, i.e. the "Base 64 Encoding with URL
+ * and Filename Safe Alphabet" specified by RFC 4648.  '='-padding isn't used,
+ * as it's unneeded and not required by the RFC.  base64url is used instead of
+ * base64 to avoid the '/' character, which isn't allowed in filenames.
+ *
+ * Return: the length of the resulting base64url-encoded string in bytes.
+ *	   This will be equal to FSCRYPT_BASE64URL_CHARS(srclen).
+ */
+static int fscrypt_base64url_encode(const u8 *src, int srclen, char *dst)
+{
+	u32 ac = 0;
+	int bits = 0;
+	int i;
+	char *cp = dst;
+
+	for (i = 0; i < srclen; i++) {
+		ac = (ac << 8) | src[i];
+		bits += 8;
+		do {
+			bits -= 6;
+			*cp++ = base64url_table[(ac >> bits) & 0x3f];
+		} while (bits >= 6);
+	}
+	if (bits)
+		*cp++ = base64url_table[(ac << (6 - bits)) & 0x3f];
+	return cp - dst;
+}
+
+/**
+ * fscrypt_base64url_decode() - base64url-decode a string
+ * @src: the string to decode.  Doesn't need to be NUL-terminated.
+ * @srclen: the length of @src in bytes
+ * @dst: (output) the decoded binary data
+ *
+ * Decodes a string using base64url encoding, i.e. the "Base 64 Encoding with
+ * URL and Filename Safe Alphabet" specified by RFC 4648.  '='-padding isn't
+ * accepted, nor are non-encoding characters such as whitespace.
+ *
+ * This implementation hasn't been optimized for performance.
+ *
+ * Return: the length of the resulting decoded binary data in bytes,
+ *	   or -1 if the string isn't a valid base64url string.
+ */
+static int fscrypt_base64url_decode(const char *src, int srclen, u8 *dst)
+{
+	u32 ac = 0;
+	int bits = 0;
+	int i;
+	u8 *bp = dst;
+
+	for (i = 0; i < srclen; i++) {
+		const char *p = strchr(base64url_table, src[i]);
+
+		if (p == NULL || src[i] == 0)
+			return -1;
+		ac = (ac << 6) | (p - base64url_table);
+		bits += 6;
+		if (bits >= 8) {
+			bits -= 8;
+			*bp++ = (u8)(ac >> bits);
+		}
+	}
+	if (ac & ((1 << bits) - 1))
+		return -1;
+	return bp - dst;
+}
+
+bool fscrypt_fname_encrypted_size(const union fscrypt_policy *policy,
+				  u32 orig_len, u32 max_len,
+				  u32 *encrypted_len_ret)
+{
+	int padding = 4 << (fscrypt_policy_flags(policy) &
+>>>>>>> upstream/android-13
 			    FSCRYPT_POLICY_FLAGS_PAD_MASK);
 	u32 encrypted_len;
 
@@ -283,8 +402,11 @@ bool fscrypt_fname_encrypted_size(const struct inode *inode, u32 orig_len,
 
 /**
  * fscrypt_fname_alloc_buffer() - allocate a buffer for presented filenames
+<<<<<<< HEAD
  * @inode: inode of the parent directory (for regular filenames)
  *	   or of the symlink (for symlink targets)
+=======
+>>>>>>> upstream/android-13
  * @max_encrypted_len: maximum length of encrypted filenames the buffer will be
  *		       used to present
  * @crypto_str: (output) buffer to allocate
@@ -294,6 +416,7 @@ bool fscrypt_fname_encrypted_size(const struct inode *inode, u32 orig_len,
  *
  * Return: 0 on success, -errno on failure
  */
+<<<<<<< HEAD
 int fscrypt_fname_alloc_buffer(const struct inode *inode,
 			       u32 max_encrypted_len,
 			       struct fscrypt_str *crypto_str)
@@ -302,6 +425,13 @@ int fscrypt_fname_alloc_buffer(const struct inode *inode,
 	u32 max_presented_len;
 
 	max_presented_len = max(max_encoded_len, max_encrypted_len);
+=======
+int fscrypt_fname_alloc_buffer(u32 max_encrypted_len,
+			       struct fscrypt_str *crypto_str)
+{
+	u32 max_presented_len = max_t(u32, FSCRYPT_NOKEY_NAME_MAX_ENCODED,
+				      max_encrypted_len);
+>>>>>>> upstream/android-13
 
 	crypto_str->name = kmalloc(max_presented_len + 1, GFP_NOFS);
 	if (!crypto_str->name)
@@ -355,7 +485,10 @@ int fscrypt_fname_disk_to_usr(const struct inode *inode,
 	const struct qstr qname = FSTR_TO_QSTR(iname);
 	struct fscrypt_nokey_name nokey_name;
 	u32 size; /* size of the unencoded no-key name */
+<<<<<<< HEAD
 	int err;
+=======
+>>>>>>> upstream/android-13
 
 	if (fscrypt_is_dot_dotdot(&qname)) {
 		oname->name[0] = '.';
@@ -378,6 +511,7 @@ int fscrypt_fname_disk_to_usr(const struct inode *inode,
 		     offsetof(struct fscrypt_nokey_name, bytes));
 	BUILD_BUG_ON(offsetofend(struct fscrypt_nokey_name, bytes) !=
 		     offsetof(struct fscrypt_nokey_name, sha256));
+<<<<<<< HEAD
 	BUILD_BUG_ON(BASE64_CHARS(FSCRYPT_NOKEY_NAME_MAX) > NAME_MAX);
 
 	if (hash) {
@@ -387,12 +521,20 @@ int fscrypt_fname_disk_to_usr(const struct inode *inode,
 		nokey_name.dirhash[0] = 0;
 		nokey_name.dirhash[1] = 0;
 	}
+=======
+	BUILD_BUG_ON(FSCRYPT_NOKEY_NAME_MAX_ENCODED > NAME_MAX);
+
+	nokey_name.dirhash[0] = hash;
+	nokey_name.dirhash[1] = minor_hash;
+
+>>>>>>> upstream/android-13
 	if (iname->len <= sizeof(nokey_name.bytes)) {
 		memcpy(nokey_name.bytes, iname->name, iname->len);
 		size = offsetof(struct fscrypt_nokey_name, bytes[iname->len]);
 	} else {
 		memcpy(nokey_name.bytes, iname->name, sizeof(nokey_name.bytes));
 		/* Compute strong hash of remaining part of name. */
+<<<<<<< HEAD
 		err = fscrypt_do_sha256(&iname->name[sizeof(nokey_name.bytes)],
 					iname->len - sizeof(nokey_name.bytes),
 					nokey_name.sha256);
@@ -401,6 +543,15 @@ int fscrypt_fname_disk_to_usr(const struct inode *inode,
 		size = FSCRYPT_NOKEY_NAME_MAX;
 	}
 	oname->len = base64_encode((const u8 *)&nokey_name, size, oname->name);
+=======
+		sha256(&iname->name[sizeof(nokey_name.bytes)],
+		       iname->len - sizeof(nokey_name.bytes),
+		       nokey_name.sha256);
+		size = FSCRYPT_NOKEY_NAME_MAX;
+	}
+	oname->len = fscrypt_base64url_encode((const u8 *)&nokey_name, size,
+					      oname->name);
+>>>>>>> upstream/android-13
 	return 0;
 }
 EXPORT_SYMBOL(fscrypt_fname_disk_to_usr);
@@ -420,9 +571,15 @@ EXPORT_SYMBOL(fscrypt_fname_disk_to_usr);
  * directory's encryption key, then @iname is the plaintext, so we encrypt it to
  * get the disk_name.
  *
+<<<<<<< HEAD
  * Else, for keyless @lookup operations, @iname is the presented ciphertext, so
  * we decode it to get the fscrypt_nokey_name.  Non-@lookup operations will be
  * impossible in this case, so we fail them with ENOKEY.
+=======
+ * Else, for keyless @lookup operations, @iname should be a no-key name, so we
+ * decode it to get the struct fscrypt_nokey_name.  Non-@lookup operations will
+ * be impossible in this case, so we fail them with ENOKEY.
+>>>>>>> upstream/android-13
  *
  * If successful, fscrypt_free_filename() must be called later to clean up.
  *
@@ -442,13 +599,22 @@ int fscrypt_setup_filename(struct inode *dir, const struct qstr *iname,
 		fname->disk_name.len = iname->len;
 		return 0;
 	}
+<<<<<<< HEAD
 	ret = fscrypt_get_encryption_info(dir);
+=======
+	ret = fscrypt_get_encryption_info(dir, lookup);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 
 	if (fscrypt_has_encryption_key(dir)) {
+<<<<<<< HEAD
 		if (!fscrypt_fname_encrypted_size(dir, iname->len,
 						  dir->i_sb->s_cop->max_namelen,
+=======
+		if (!fscrypt_fname_encrypted_size(&dir->i_crypt_info->ci_policy,
+						  iname->len, NAME_MAX,
+>>>>>>> upstream/android-13
 						  &fname->crypto_buf.len))
 			return -ENAMETOOLONG;
 		fname->crypto_buf.name = kmalloc(fname->crypto_buf.len,
@@ -466,21 +632,34 @@ int fscrypt_setup_filename(struct inode *dir, const struct qstr *iname,
 	}
 	if (!lookup)
 		return -ENOKEY;
+<<<<<<< HEAD
 	fname->is_ciphertext_name = true;
+=======
+	fname->is_nokey_name = true;
+>>>>>>> upstream/android-13
 
 	/*
 	 * We don't have the key and we are doing a lookup; decode the
 	 * user-supplied name
 	 */
 
+<<<<<<< HEAD
 	if (iname->len > BASE64_CHARS(FSCRYPT_NOKEY_NAME_MAX))
+=======
+	if (iname->len > FSCRYPT_NOKEY_NAME_MAX_ENCODED)
+>>>>>>> upstream/android-13
 		return -ENOENT;
 
 	fname->crypto_buf.name = kmalloc(FSCRYPT_NOKEY_NAME_MAX, GFP_KERNEL);
 	if (fname->crypto_buf.name == NULL)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	ret = base64_decode(iname->name, iname->len, fname->crypto_buf.name);
+=======
+	ret = fscrypt_base64url_decode(iname->name, iname->len,
+				       fname->crypto_buf.name);
+>>>>>>> upstream/android-13
 	if (ret < (int)offsetof(struct fscrypt_nokey_name, bytes[1]) ||
 	    (ret > offsetof(struct fscrypt_nokey_name, sha256) &&
 	     ret != FSCRYPT_NOKEY_NAME_MAX)) {
@@ -525,7 +704,11 @@ bool fscrypt_match_name(const struct fscrypt_name *fname,
 {
 	const struct fscrypt_nokey_name *nokey_name =
 		(const void *)fname->crypto_buf.name;
+<<<<<<< HEAD
 	u8 sha256[SHA256_DIGEST_SIZE];
+=======
+	u8 digest[SHA256_DIGEST_SIZE];
+>>>>>>> upstream/android-13
 
 	if (likely(fname->disk_name.name)) {
 		if (de_name_len != fname->disk_name.len)
@@ -536,10 +719,16 @@ bool fscrypt_match_name(const struct fscrypt_name *fname,
 		return false;
 	if (memcmp(de_name, nokey_name->bytes, sizeof(nokey_name->bytes)))
 		return false;
+<<<<<<< HEAD
 	if (fscrypt_do_sha256(&de_name[sizeof(nokey_name->bytes)],
 			      de_name_len - sizeof(nokey_name->bytes), sha256))
 		return false;
 	return !memcmp(sha256, nokey_name->sha256, sizeof(sha256));
+=======
+	sha256(&de_name[sizeof(nokey_name->bytes)],
+	       de_name_len - sizeof(nokey_name->bytes), digest);
+	return !memcmp(digest, nokey_name->sha256, sizeof(digest));
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(fscrypt_match_name);
 
@@ -576,6 +765,7 @@ int fscrypt_d_revalidate(struct dentry *dentry, unsigned int flags)
 
 	/*
 	 * Plaintext names are always valid, since fscrypt doesn't support
+<<<<<<< HEAD
 	 * reverting to ciphertext names without evicting the directory's inode
 	 * -- which implies eviction of the dentries in the directory.
 	 */
@@ -587,6 +777,19 @@ int fscrypt_d_revalidate(struct dentry *dentry, unsigned int flags)
 	 *
 	 * Although fscrypt forbids rename() on ciphertext names, we still must
 	 * use dget_parent() here rather than use ->d_parent directly.  That's
+=======
+	 * reverting to no-key names without evicting the directory's inode
+	 * -- which implies eviction of the dentries in the directory.
+	 */
+	if (!(dentry->d_flags & DCACHE_NOKEY_NAME))
+		return 1;
+
+	/*
+	 * No-key name; valid if the directory's key is still unavailable.
+	 *
+	 * Although fscrypt forbids rename() on no-key names, we still must use
+	 * dget_parent() here rather than use ->d_parent directly.  That's
+>>>>>>> upstream/android-13
 	 * because a corrupted fs image may contain directory hard links, which
 	 * the VFS handles by moving the directory's dentry tree in the dcache
 	 * each time ->lookup() finds the directory and it already has a dentry
@@ -598,7 +801,15 @@ int fscrypt_d_revalidate(struct dentry *dentry, unsigned int flags)
 		return -ECHILD;
 
 	dir = dget_parent(dentry);
+<<<<<<< HEAD
 	err = fscrypt_get_encryption_info(d_inode(dir));
+=======
+	/*
+	 * Pass allow_unsupported=true, so that files with an unsupported
+	 * encryption policy can be deleted.
+	 */
+	err = fscrypt_get_encryption_info(d_inode(dir), true);
+>>>>>>> upstream/android-13
 	valid = !fscrypt_has_encryption_key(d_inode(dir));
 	dput(dir);
 

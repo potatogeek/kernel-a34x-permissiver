@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2014-2016 Texas Instruments Incorporated - http://www.ti.com/
  *
@@ -10,6 +11,18 @@
 #include "dra74x.dtsi"
 #include "am57xx-commercial-grade.dtsi"
 #include "dra74x-mmc-iodelay.dtsi"
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2014-2016 Texas Instruments Incorporated - https://www.ti.com/
+ */
+/dts-v1/;
+
+#include "am5728.dtsi"
+#include "am57xx-commercial-grade.dtsi"
+#include "dra74x-mmc-iodelay.dtsi"
+#include "dra74-ipu-dsp-common.dtsi"
+>>>>>>> upstream/android-13
 #include <dt-bindings/gpio/gpio.h>
 #include <dt-bindings/interrupt-controller/irq.h>
 
@@ -53,6 +66,43 @@
 		regulator-boot-on;
 	};
 
+<<<<<<< HEAD
+=======
+	reserved-memory {
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+
+		ipu2_memory_region: ipu2-memory@95800000 {
+			compatible = "shared-dma-pool";
+			reg = <0x0 0x95800000 0x0 0x3800000>;
+			reusable;
+			status = "okay";
+		};
+
+		dsp1_memory_region: dsp1-memory@99000000 {
+			compatible = "shared-dma-pool";
+			reg = <0x0 0x99000000 0x0 0x4000000>;
+			reusable;
+			status = "okay";
+		};
+
+		ipu1_memory_region: ipu1-memory@9d000000 {
+			compatible = "shared-dma-pool";
+			reg = <0x0 0x9d000000 0x0 0x2000000>;
+			reusable;
+			status = "okay";
+		};
+
+		dsp2_memory_region: dsp2-memory@9f000000 {
+			compatible = "shared-dma-pool";
+			reg = <0x0 0x9f000000 0x0 0x800000>;
+			reusable;
+			status = "okay";
+		};
+	};
+
+>>>>>>> upstream/android-13
 	vdd_3v3: fixedregulator-vdd_3v3 {
 		compatible = "regulator-fixed";
 		regulator-name = "vdd_3v3";
@@ -403,7 +453,11 @@
 	};
 };
 
+<<<<<<< HEAD
 &gpio7 {
+=======
+&gpio7_target {
+>>>>>>> upstream/android-13
 	ti,no-reset-on-init;
 	ti,no-idle-on-init;
 };
@@ -419,7 +473,11 @@
 			      <&dra7_pmx_core 0x3f8>;
 };
 
+<<<<<<< HEAD
 &davinci_mdio {
+=======
+&davinci_mdio_sw {
+>>>>>>> upstream/android-13
 	phy0: ethernet-phy@1 {
 		reg = <1>;
 	};
@@ -429,6 +487,7 @@
 	};
 };
 
+<<<<<<< HEAD
 &mac {
 	status = "okay";
 	dual_emac;
@@ -444,6 +503,22 @@
 	phy-handle = <&phy1>;
 	phy-mode = "rgmii";
 	dual_emac_res_vlan = <2>;
+=======
+&mac_sw {
+	status = "okay";
+};
+
+&cpsw_port1 {
+	phy-handle = <&phy0>;
+	phy-mode = "rgmii-rxid";
+	ti,dual-emac-pvid = <1>;
+};
+
+&cpsw_port2 {
+	phy-handle = <&phy1>;
+	phy-mode = "rgmii-rxid";
+	ti,dual-emac-pvid = <2>;
+>>>>>>> upstream/android-13
 };
 
 &mmc1 {
@@ -550,13 +625,21 @@
 };
 
 &dss {
+<<<<<<< HEAD
 	status = "ok";
+=======
+	status = "okay";
+>>>>>>> upstream/android-13
 
 	vdda_video-supply = <&ldoln_reg>;
 };
 
 &hdmi {
+<<<<<<< HEAD
 	status = "ok";
+=======
+	status = "okay";
+>>>>>>> upstream/android-13
 	vdda-supply = <&ldo4_reg>;
 
 	port {
@@ -567,13 +650,21 @@
 };
 
 &pcie1_rc {
+<<<<<<< HEAD
 	status = "ok";
+=======
+	status = "okay";
+>>>>>>> upstream/android-13
 	gpios = <&gpio2 8 GPIO_ACTIVE_LOW>;
 };
 
 &mcasp3 {
 	#sound-dai-cells = <0>;
+<<<<<<< HEAD
 	assigned-clocks = <&l4per_clkctrl DRA7_MCASP3_CLKCTRL 24>;
+=======
+	assigned-clocks = <&l4per2_clkctrl DRA7_L4PER2_MCASP3_CLKCTRL 24>;
+>>>>>>> upstream/android-13
 	assigned-clock-parents = <&sys_clkin2>;
 	status = "okay";
 
@@ -587,6 +678,7 @@
 	rx-num-evt = <32>;
 };
 
+<<<<<<< HEAD
 &mailbox5 {
 	status = "okay";
 	mbox_ipu1_ipc3x: mbox_ipu1_ipc3x {
@@ -605,4 +697,32 @@
 	mbox_dsp2_ipc3x: mbox_dsp2_ipc3x {
 		status = "okay";
 	};
+=======
+&ipu2 {
+	status = "okay";
+	memory-region = <&ipu2_memory_region>;
+};
+
+&ipu1 {
+	status = "okay";
+	memory-region = <&ipu1_memory_region>;
+};
+
+&dsp1 {
+	status = "okay";
+	memory-region = <&dsp1_memory_region>;
+};
+
+&dsp2 {
+	status = "okay";
+	memory-region = <&dsp2_memory_region>;
+};
+
+&pruss1_mdio {
+	status = "disabled";
+};
+
+&pruss2_mdio {
+	status = "disabled";
+>>>>>>> upstream/android-13
 };

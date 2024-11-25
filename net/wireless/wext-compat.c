@@ -7,6 +7,10 @@
  * we directly assign the wireless handlers of wireless interfaces.
  *
  * Copyright 2008-2009	Johannes Berg <johannes@sipsolutions.net>
+<<<<<<< HEAD
+=======
+ * Copyright (C) 2019-2022 Intel Corporation
+>>>>>>> upstream/android-13
  */
 
 #include <linux/export.h>
@@ -38,6 +42,10 @@ int cfg80211_wext_siwmode(struct net_device *dev, struct iw_request_info *info,
 	struct cfg80211_registered_device *rdev;
 	struct vif_params vifparams;
 	enum nl80211_iftype type;
+<<<<<<< HEAD
+=======
+	int ret;
+>>>>>>> upstream/android-13
 
 	rdev = wiphy_to_rdev(wdev->wiphy);
 
@@ -48,9 +56,12 @@ int cfg80211_wext_siwmode(struct net_device *dev, struct iw_request_info *info,
 	case IW_MODE_ADHOC:
 		type = NL80211_IFTYPE_ADHOC;
 		break;
+<<<<<<< HEAD
 	case IW_MODE_REPEAT:
 		type = NL80211_IFTYPE_WDS;
 		break;
+=======
+>>>>>>> upstream/android-13
 	case IW_MODE_MONITOR:
 		type = NL80211_IFTYPE_MONITOR;
 		break;
@@ -63,7 +74,15 @@ int cfg80211_wext_siwmode(struct net_device *dev, struct iw_request_info *info,
 
 	memset(&vifparams, 0, sizeof(vifparams));
 
+<<<<<<< HEAD
 	return cfg80211_change_iface(rdev, dev, type, &vifparams);
+=======
+	wiphy_lock(wdev->wiphy);
+	ret = cfg80211_change_iface(rdev, dev, type, &vifparams);
+	wiphy_unlock(wdev->wiphy);
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 EXPORT_WEXT_HANDLER(cfg80211_wext_siwmode);
 
@@ -219,7 +238,10 @@ EXPORT_WEXT_HANDLER(cfg80211_wext_giwrange);
 
 /**
  * cfg80211_wext_freq - get wext frequency for non-"auto"
+<<<<<<< HEAD
  * @dev: the net device
+=======
+>>>>>>> upstream/android-13
  * @freq: the wext freq encoding
  *
  * Returns a frequency, or a negative error code, or 0 for auto.
@@ -256,6 +278,7 @@ int cfg80211_wext_siwrts(struct net_device *dev,
 	u32 orts = wdev->wiphy->rts_threshold;
 	int err;
 
+<<<<<<< HEAD
 	if (rts->disabled || !rts->fixed)
 		wdev->wiphy->rts_threshold = (u32) -1;
 	else if (rts->value < 0)
@@ -267,6 +290,25 @@ int cfg80211_wext_siwrts(struct net_device *dev,
 	if (err)
 		wdev->wiphy->rts_threshold = orts;
 
+=======
+	wiphy_lock(&rdev->wiphy);
+	if (rts->disabled || !rts->fixed) {
+		wdev->wiphy->rts_threshold = (u32) -1;
+	} else if (rts->value < 0) {
+		err = -EINVAL;
+		goto out;
+	} else {
+		wdev->wiphy->rts_threshold = rts->value;
+	}
+
+	err = rdev_set_wiphy_params(rdev, WIPHY_PARAM_RTS_THRESHOLD);
+
+	if (err)
+		wdev->wiphy->rts_threshold = orts;
+
+out:
+	wiphy_unlock(&rdev->wiphy);
+>>>>>>> upstream/android-13
 	return err;
 }
 EXPORT_WEXT_HANDLER(cfg80211_wext_siwrts);
@@ -294,11 +336,21 @@ int cfg80211_wext_siwfrag(struct net_device *dev,
 	u32 ofrag = wdev->wiphy->frag_threshold;
 	int err;
 
+<<<<<<< HEAD
 	if (frag->disabled || !frag->fixed)
 		wdev->wiphy->frag_threshold = (u32) -1;
 	else if (frag->value < 256)
 		return -EINVAL;
 	else {
+=======
+	wiphy_lock(&rdev->wiphy);
+	if (frag->disabled || !frag->fixed) {
+		wdev->wiphy->frag_threshold = (u32) -1;
+	} else if (frag->value < 256) {
+		err = -EINVAL;
+		goto out;
+	} else {
+>>>>>>> upstream/android-13
 		/* Fragment length must be even, so strip LSB. */
 		wdev->wiphy->frag_threshold = frag->value & ~0x1;
 	}
@@ -306,6 +358,11 @@ int cfg80211_wext_siwfrag(struct net_device *dev,
 	err = rdev_set_wiphy_params(rdev, WIPHY_PARAM_FRAG_THRESHOLD);
 	if (err)
 		wdev->wiphy->frag_threshold = ofrag;
+<<<<<<< HEAD
+=======
+out:
+	wiphy_unlock(&rdev->wiphy);
+>>>>>>> upstream/android-13
 
 	return err;
 }
@@ -340,6 +397,10 @@ static int cfg80211_wext_siwretry(struct net_device *dev,
 	    (retry->flags & IW_RETRY_TYPE) != IW_RETRY_LIMIT)
 		return -EINVAL;
 
+<<<<<<< HEAD
+=======
+	wiphy_lock(&rdev->wiphy);
+>>>>>>> upstream/android-13
 	if (retry->flags & IW_RETRY_LONG) {
 		wdev->wiphy->retry_long = retry->value;
 		changed |= WIPHY_PARAM_RETRY_LONG;
@@ -353,14 +414,21 @@ static int cfg80211_wext_siwretry(struct net_device *dev,
 		changed |= WIPHY_PARAM_RETRY_SHORT;
 	}
 
+<<<<<<< HEAD
 	if (!changed)
 		return 0;
 
+=======
+>>>>>>> upstream/android-13
 	err = rdev_set_wiphy_params(rdev, changed);
 	if (err) {
 		wdev->wiphy->retry_short = oshort;
 		wdev->wiphy->retry_long = olong;
 	}
+<<<<<<< HEAD
+=======
+	wiphy_unlock(&rdev->wiphy);
+>>>>>>> upstream/android-13
 
 	return err;
 }
@@ -404,6 +472,12 @@ static int __cfg80211_set_encryption(struct cfg80211_registered_device *rdev,
 	int err, i;
 	bool rejoin = false;
 
+<<<<<<< HEAD
+=======
+	if (wdev->valid_links)
+		return -EINVAL;
+
+>>>>>>> upstream/android-13
 	if (pairwise && !addr)
 		return -EINVAL;
 
@@ -426,7 +500,11 @@ static int __cfg80211_set_encryption(struct cfg80211_registered_device *rdev,
 		return -EOPNOTSUPP;
 
 	if (params->cipher == WLAN_CIPHER_SUITE_AES_CMAC) {
+<<<<<<< HEAD
 		if (!wdev->current_bss)
+=======
+		if (!wdev->connected)
+>>>>>>> upstream/android-13
 			return -ENOLINK;
 
 		if (!rdev->ops->set_default_mgmt_key)
@@ -439,7 +517,13 @@ static int __cfg80211_set_encryption(struct cfg80211_registered_device *rdev,
 
 	if (remove) {
 		err = 0;
+<<<<<<< HEAD
 		if (wdev->current_bss) {
+=======
+		if (wdev->connected ||
+		    (wdev->iftype == NL80211_IFTYPE_ADHOC &&
+		     wdev->u.ibss.current_bss)) {
+>>>>>>> upstream/android-13
 			/*
 			 * If removing the current TX key, we will need to
 			 * join a new IBSS without the privacy bit clear.
@@ -454,7 +538,11 @@ static int __cfg80211_set_encryption(struct cfg80211_registered_device *rdev,
 			    !(rdev->wiphy.flags & WIPHY_FLAG_IBSS_RSN))
 				err = -ENOENT;
 			else
+<<<<<<< HEAD
 				err = rdev_del_key(rdev, dev, idx, pairwise,
+=======
+				err = rdev_del_key(rdev, dev, -1, idx, pairwise,
+>>>>>>> upstream/android-13
 						   addr);
 		}
 		wdev->wext.connect.privacy = false;
@@ -490,8 +578,15 @@ static int __cfg80211_set_encryption(struct cfg80211_registered_device *rdev,
 		return -EINVAL;
 
 	err = 0;
+<<<<<<< HEAD
 	if (wdev->current_bss)
 		err = rdev_add_key(rdev, dev, idx, pairwise, addr, params);
+=======
+	if (wdev->connected ||
+	    (wdev->iftype == NL80211_IFTYPE_ADHOC &&
+	     wdev->u.ibss.current_bss))
+		err = rdev_add_key(rdev, dev, -1, idx, pairwise, addr, params);
+>>>>>>> upstream/android-13
 	else if (params->cipher != WLAN_CIPHER_SUITE_WEP40 &&
 		 params->cipher != WLAN_CIPHER_SUITE_WEP104)
 		return -EINVAL;
@@ -500,7 +595,11 @@ static int __cfg80211_set_encryption(struct cfg80211_registered_device *rdev,
 
 	/*
 	 * We only need to store WEP keys, since they're the only keys that
+<<<<<<< HEAD
 	 * can be be set before a connection is established and persist after
+=======
+	 * can be set before a connection is established and persist after
+>>>>>>> upstream/android-13
 	 * disconnecting.
 	 */
 	if (!addr && (params->cipher == WLAN_CIPHER_SUITE_WEP40 ||
@@ -515,7 +614,13 @@ static int __cfg80211_set_encryption(struct cfg80211_registered_device *rdev,
 	if ((params->cipher == WLAN_CIPHER_SUITE_WEP40 ||
 	     params->cipher == WLAN_CIPHER_SUITE_WEP104) &&
 	    (tx_key || (!addr && wdev->wext.default_key == -1))) {
+<<<<<<< HEAD
 		if (wdev->current_bss) {
+=======
+		if (wdev->connected ||
+		    (wdev->iftype == NL80211_IFTYPE_ADHOC &&
+		     wdev->u.ibss.current_bss)) {
+>>>>>>> upstream/android-13
 			/*
 			 * If we are getting a new TX key from not having
 			 * had one before we need to join a new IBSS with
@@ -526,7 +631,12 @@ static int __cfg80211_set_encryption(struct cfg80211_registered_device *rdev,
 				__cfg80211_leave_ibss(rdev, wdev->netdev, true);
 				rejoin = true;
 			}
+<<<<<<< HEAD
 			err = rdev_set_default_key(rdev, dev, idx, true, true);
+=======
+			err = rdev_set_default_key(rdev, dev, -1, idx, true,
+						   true);
+>>>>>>> upstream/android-13
 		}
 		if (!err) {
 			wdev->wext.default_key = idx;
@@ -538,8 +648,15 @@ static int __cfg80211_set_encryption(struct cfg80211_registered_device *rdev,
 
 	if (params->cipher == WLAN_CIPHER_SUITE_AES_CMAC &&
 	    (tx_key || (!addr && wdev->wext.default_mgmt_key == -1))) {
+<<<<<<< HEAD
 		if (wdev->current_bss)
 			err = rdev_set_default_mgmt_key(rdev, dev, idx);
+=======
+		if (wdev->connected ||
+		    (wdev->iftype == NL80211_IFTYPE_ADHOC &&
+		     wdev->u.ibss.current_bss))
+			err = rdev_set_default_mgmt_key(rdev, dev, -1, idx);
+>>>>>>> upstream/android-13
 		if (!err)
 			wdev->wext.default_mgmt_key = idx;
 		return err;
@@ -583,15 +700,33 @@ static int cfg80211_wext_siwencode(struct net_device *dev,
 	    !rdev->ops->set_default_key)
 		return -EOPNOTSUPP;
 
+<<<<<<< HEAD
+=======
+	wiphy_lock(&rdev->wiphy);
+	if (wdev->valid_links) {
+		err = -EOPNOTSUPP;
+		goto out;
+	}
+
+>>>>>>> upstream/android-13
 	idx = erq->flags & IW_ENCODE_INDEX;
 	if (idx == 0) {
 		idx = wdev->wext.default_key;
 		if (idx < 0)
 			idx = 0;
+<<<<<<< HEAD
 	} else if (idx < 1 || idx > 4)
 		return -EINVAL;
 	else
 		idx--;
+=======
+	} else if (idx < 1 || idx > 4) {
+		err = -EINVAL;
+		goto out;
+	} else {
+		idx--;
+	}
+>>>>>>> upstream/android-13
 
 	if (erq->flags & IW_ENCODE_DISABLED)
 		remove = true;
@@ -599,18 +734,30 @@ static int cfg80211_wext_siwencode(struct net_device *dev,
 		/* No key data - just set the default TX key index */
 		err = 0;
 		wdev_lock(wdev);
+<<<<<<< HEAD
 		if (wdev->current_bss)
 			err = rdev_set_default_key(rdev, dev, idx, true,
+=======
+		if (wdev->connected ||
+		    (wdev->iftype == NL80211_IFTYPE_ADHOC &&
+		     wdev->u.ibss.current_bss))
+			err = rdev_set_default_key(rdev, dev, -1, idx, true,
+>>>>>>> upstream/android-13
 						   true);
 		if (!err)
 			wdev->wext.default_key = idx;
 		wdev_unlock(wdev);
+<<<<<<< HEAD
 		return err;
+=======
+		goto out;
+>>>>>>> upstream/android-13
 	}
 
 	memset(&params, 0, sizeof(params));
 	params.key = keybuf;
 	params.key_len = erq->length;
+<<<<<<< HEAD
 	if (erq->length == 5)
 		params.cipher = WLAN_CIPHER_SUITE_WEP40;
 	else if (erq->length == 13)
@@ -621,6 +768,24 @@ static int cfg80211_wext_siwencode(struct net_device *dev,
 	return cfg80211_set_encryption(rdev, dev, false, NULL, remove,
 				       wdev->wext.default_key == -1,
 				       idx, &params);
+=======
+	if (erq->length == 5) {
+		params.cipher = WLAN_CIPHER_SUITE_WEP40;
+	} else if (erq->length == 13) {
+		params.cipher = WLAN_CIPHER_SUITE_WEP104;
+	} else if (!remove) {
+		err = -EINVAL;
+		goto out;
+	}
+
+	err = cfg80211_set_encryption(rdev, dev, false, NULL, remove,
+				      wdev->wext.default_key == -1,
+				      idx, &params);
+out:
+	wiphy_unlock(&rdev->wiphy);
+
+	return err;
+>>>>>>> upstream/android-13
 }
 
 static int cfg80211_wext_siwencodeext(struct net_device *dev,
@@ -635,6 +800,10 @@ static int cfg80211_wext_siwencodeext(struct net_device *dev,
 	bool remove = false;
 	struct key_params params;
 	u32 cipher;
+<<<<<<< HEAD
+=======
+	int ret;
+>>>>>>> upstream/android-13
 
 	if (wdev->iftype != NL80211_IFTYPE_STATION &&
 	    wdev->iftype != NL80211_IFTYPE_ADHOC)
@@ -646,6 +815,16 @@ static int cfg80211_wext_siwencodeext(struct net_device *dev,
 	    !rdev->ops->set_default_key)
 		return -EOPNOTSUPP;
 
+<<<<<<< HEAD
+=======
+	wdev_lock(wdev);
+	if (wdev->valid_links) {
+		wdev_unlock(wdev);
+		return -EOPNOTSUPP;
+	}
+	wdev_unlock(wdev);
+
+>>>>>>> upstream/android-13
 	switch (ext->alg) {
 	case IW_ENCODE_ALG_NONE:
 		remove = true;
@@ -706,12 +885,23 @@ static int cfg80211_wext_siwencodeext(struct net_device *dev,
 		params.seq_len = 6;
 	}
 
+<<<<<<< HEAD
 	return cfg80211_set_encryption(
+=======
+	wiphy_lock(wdev->wiphy);
+	ret = cfg80211_set_encryption(
+>>>>>>> upstream/android-13
 			rdev, dev,
 			!(ext->ext_flags & IW_ENCODE_EXT_GROUP_KEY),
 			addr, remove,
 			ext->ext_flags & IW_ENCODE_EXT_SET_TX_KEY,
 			idx, &params);
+<<<<<<< HEAD
+=======
+	wiphy_unlock(wdev->wiphy);
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static int cfg80211_wext_giwencode(struct net_device *dev,
@@ -760,6 +950,7 @@ static int cfg80211_wext_siwfreq(struct net_device *dev,
 	struct cfg80211_chan_def chandef = {
 		.width = NL80211_CHAN_WIDTH_20_NOHT,
 	};
+<<<<<<< HEAD
 	int freq;
 
 	switch (wdev->iftype) {
@@ -792,6 +983,63 @@ static int cfg80211_wext_siwfreq(struct net_device *dev,
 	default:
 		return -EOPNOTSUPP;
 	}
+=======
+	int freq, ret;
+
+	wiphy_lock(&rdev->wiphy);
+
+	switch (wdev->iftype) {
+	case NL80211_IFTYPE_STATION:
+		ret = cfg80211_mgd_wext_siwfreq(dev, info, wextfreq, extra);
+		break;
+	case NL80211_IFTYPE_ADHOC:
+		ret = cfg80211_ibss_wext_siwfreq(dev, info, wextfreq, extra);
+		break;
+	case NL80211_IFTYPE_MONITOR:
+		freq = cfg80211_wext_freq(wextfreq);
+		if (freq < 0) {
+			ret = freq;
+			break;
+		}
+		if (freq == 0) {
+			ret = -EINVAL;
+			break;
+		}
+		chandef.center_freq1 = freq;
+		chandef.chan = ieee80211_get_channel(&rdev->wiphy, freq);
+		if (!chandef.chan) {
+			ret = -EINVAL;
+			break;
+		}
+		ret = cfg80211_set_monitor_channel(rdev, &chandef);
+		break;
+	case NL80211_IFTYPE_MESH_POINT:
+		freq = cfg80211_wext_freq(wextfreq);
+		if (freq < 0) {
+			ret = freq;
+			break;
+		}
+		if (freq == 0) {
+			ret = -EINVAL;
+			break;
+		}
+		chandef.center_freq1 = freq;
+		chandef.chan = ieee80211_get_channel(&rdev->wiphy, freq);
+		if (!chandef.chan) {
+			ret = -EINVAL;
+			break;
+		}
+		ret = cfg80211_set_mesh_channel(rdev, wdev, &chandef);
+		break;
+	default:
+		ret = -EOPNOTSUPP;
+		break;
+	}
+
+	wiphy_unlock(&rdev->wiphy);
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static int cfg80211_wext_giwfreq(struct net_device *dev,
@@ -803,6 +1051,7 @@ static int cfg80211_wext_giwfreq(struct net_device *dev,
 	struct cfg80211_chan_def chandef = {};
 	int ret;
 
+<<<<<<< HEAD
 	switch (wdev->iftype) {
 	case NL80211_IFTYPE_STATION:
 		return cfg80211_mgd_wext_giwfreq(dev, info, freq, extra);
@@ -821,6 +1070,37 @@ static int cfg80211_wext_giwfreq(struct net_device *dev,
 	default:
 		return -EINVAL;
 	}
+=======
+	wiphy_lock(&rdev->wiphy);
+	switch (wdev->iftype) {
+	case NL80211_IFTYPE_STATION:
+		ret = cfg80211_mgd_wext_giwfreq(dev, info, freq, extra);
+		break;
+	case NL80211_IFTYPE_ADHOC:
+		ret = cfg80211_ibss_wext_giwfreq(dev, info, freq, extra);
+		break;
+	case NL80211_IFTYPE_MONITOR:
+		if (!rdev->ops->get_channel) {
+			ret = -EINVAL;
+			break;
+		}
+
+		ret = rdev_get_channel(rdev, wdev, 0, &chandef);
+		if (ret)
+			break;
+		freq->m = chandef.chan->center_freq;
+		freq->e = 6;
+		ret = 0;
+		break;
+	default:
+		ret = -EINVAL;
+		break;
+	}
+
+	wiphy_unlock(&rdev->wiphy);
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static int cfg80211_wext_siwtxpower(struct net_device *dev,
@@ -831,6 +1111,10 @@ static int cfg80211_wext_siwtxpower(struct net_device *dev,
 	struct cfg80211_registered_device *rdev = wiphy_to_rdev(wdev->wiphy);
 	enum nl80211_tx_power_setting type;
 	int dbm = 0;
+<<<<<<< HEAD
+=======
+	int ret;
+>>>>>>> upstream/android-13
 
 	if ((data->txpower.flags & IW_TXPOW_TYPE) != IW_TXPOW_DBM)
 		return -EINVAL;
@@ -842,7 +1126,11 @@ static int cfg80211_wext_siwtxpower(struct net_device *dev,
 
 	/* only change when not disabling */
 	if (!data->txpower.disabled) {
+<<<<<<< HEAD
 		rfkill_set_sw_state(rdev->rfkill, false);
+=======
+		rfkill_set_sw_state(rdev->wiphy.rfkill, false);
+>>>>>>> upstream/android-13
 
 		if (data->txpower.fixed) {
 			/*
@@ -867,12 +1155,25 @@ static int cfg80211_wext_siwtxpower(struct net_device *dev,
 			}
 		}
 	} else {
+<<<<<<< HEAD
 		rfkill_set_sw_state(rdev->rfkill, true);
 		schedule_work(&rdev->rfkill_sync);
 		return 0;
 	}
 
 	return rdev_set_tx_power(rdev, wdev, type, DBM_TO_MBM(dbm));
+=======
+		if (rfkill_set_sw_state(rdev->wiphy.rfkill, true))
+			schedule_work(&rdev->rfkill_block);
+		return 0;
+	}
+
+	wiphy_lock(&rdev->wiphy);
+	ret = rdev_set_tx_power(rdev, wdev, type, DBM_TO_MBM(dbm));
+	wiphy_unlock(&rdev->wiphy);
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static int cfg80211_wext_giwtxpower(struct net_device *dev,
@@ -891,13 +1192,23 @@ static int cfg80211_wext_giwtxpower(struct net_device *dev,
 	if (!rdev->ops->get_tx_power)
 		return -EOPNOTSUPP;
 
+<<<<<<< HEAD
 	err = rdev_get_tx_power(rdev, wdev, &val);
+=======
+	wiphy_lock(&rdev->wiphy);
+	err = rdev_get_tx_power(rdev, wdev, &val);
+	wiphy_unlock(&rdev->wiphy);
+>>>>>>> upstream/android-13
 	if (err)
 		return err;
 
 	/* well... oh well */
 	data->txpower.fixed = 1;
+<<<<<<< HEAD
 	data->txpower.disabled = rfkill_blocked(rdev->rfkill);
+=======
+	data->txpower.disabled = rfkill_blocked(rdev->wiphy.rfkill);
+>>>>>>> upstream/android-13
 	data->txpower.value = val;
 	data->txpower.flags = IW_TXPOW_DBM;
 
@@ -1101,7 +1412,11 @@ static int cfg80211_wext_siwpower(struct net_device *dev,
 {
 	struct wireless_dev *wdev = dev->ieee80211_ptr;
 	struct cfg80211_registered_device *rdev = wiphy_to_rdev(wdev->wiphy);
+<<<<<<< HEAD
 	bool ps = wdev->ps;
+=======
+	bool ps;
+>>>>>>> upstream/android-13
 	int timeout = wdev->ps_timeout;
 	int err;
 
@@ -1131,7 +1446,13 @@ static int cfg80211_wext_siwpower(struct net_device *dev,
 			timeout = wrq->value / 1000;
 	}
 
+<<<<<<< HEAD
 	err = rdev_set_power_mgmt(rdev, dev, ps, timeout);
+=======
+	wiphy_lock(&rdev->wiphy);
+	err = rdev_set_power_mgmt(rdev, dev, ps, timeout);
+	wiphy_unlock(&rdev->wiphy);
+>>>>>>> upstream/android-13
 	if (err)
 		return err;
 
@@ -1153,6 +1474,7 @@ static int cfg80211_wext_giwpower(struct net_device *dev,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int cfg80211_wds_wext_siwap(struct net_device *dev,
 				   struct iw_request_info *info,
 				   struct sockaddr *addr, char *extra)
@@ -1197,6 +1519,8 @@ static int cfg80211_wds_wext_giwap(struct net_device *dev,
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int cfg80211_wext_siwrate(struct net_device *dev,
 				 struct iw_request_info *info,
 				 struct iw_param *rate, char *extra)
@@ -1206,7 +1530,11 @@ static int cfg80211_wext_siwrate(struct net_device *dev,
 	struct cfg80211_bitrate_mask mask;
 	u32 fixed, maxrate;
 	struct ieee80211_supported_band *sband;
+<<<<<<< HEAD
 	int band, ridx;
+=======
+	int band, ridx, ret;
+>>>>>>> upstream/android-13
 	bool match = false;
 
 	if (!rdev->ops->set_bitrate_mask)
@@ -1245,7 +1573,18 @@ static int cfg80211_wext_siwrate(struct net_device *dev,
 	if (!match)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	return rdev_set_bitrate_mask(rdev, dev, NULL, &mask);
+=======
+	wiphy_lock(&rdev->wiphy);
+	if (dev->ieee80211_ptr->valid_links)
+		ret = -EOPNOTSUPP;
+	else
+		ret = rdev_set_bitrate_mask(rdev, dev, 0, NULL, &mask);
+	wiphy_unlock(&rdev->wiphy);
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static int cfg80211_wext_giwrate(struct net_device *dev,
@@ -1266,15 +1605,27 @@ static int cfg80211_wext_giwrate(struct net_device *dev,
 
 	err = 0;
 	wdev_lock(wdev);
+<<<<<<< HEAD
 	if (wdev->current_bss)
 		memcpy(addr, wdev->current_bss->pub.bssid, ETH_ALEN);
+=======
+	if (!wdev->valid_links && wdev->links[0].client.current_bss)
+		memcpy(addr, wdev->links[0].client.current_bss->pub.bssid,
+		       ETH_ALEN);
+>>>>>>> upstream/android-13
 	else
 		err = -EOPNOTSUPP;
 	wdev_unlock(wdev);
 	if (err)
 		return err;
 
+<<<<<<< HEAD
 	err = rdev_get_station(rdev, dev, addr, &sinfo);
+=======
+	wiphy_lock(&rdev->wiphy);
+	err = rdev_get_station(rdev, dev, addr, &sinfo);
+	wiphy_unlock(&rdev->wiphy);
+>>>>>>> upstream/android-13
 	if (err)
 		return err;
 
@@ -1299,6 +1650,10 @@ static struct iw_statistics *cfg80211_wireless_stats(struct net_device *dev)
 	static struct iw_statistics wstats;
 	static struct station_info sinfo = {};
 	u8 bssid[ETH_ALEN];
+<<<<<<< HEAD
+=======
+	int ret;
+>>>>>>> upstream/android-13
 
 	if (dev->ieee80211_ptr->iftype != NL80211_IFTYPE_STATION)
 		return NULL;
@@ -1308,16 +1663,32 @@ static struct iw_statistics *cfg80211_wireless_stats(struct net_device *dev)
 
 	/* Grab BSSID of current BSS, if any */
 	wdev_lock(wdev);
+<<<<<<< HEAD
 	if (!wdev->current_bss) {
 		wdev_unlock(wdev);
 		return NULL;
 	}
 	memcpy(bssid, wdev->current_bss->pub.bssid, ETH_ALEN);
+=======
+	if (wdev->valid_links || !wdev->links[0].client.current_bss) {
+		wdev_unlock(wdev);
+		return NULL;
+	}
+	memcpy(bssid, wdev->links[0].client.current_bss->pub.bssid, ETH_ALEN);
+>>>>>>> upstream/android-13
 	wdev_unlock(wdev);
 
 	memset(&sinfo, 0, sizeof(sinfo));
 
+<<<<<<< HEAD
 	if (rdev_get_station(rdev, dev, bssid, &sinfo))
+=======
+	wiphy_lock(&rdev->wiphy);
+	ret = rdev_get_station(rdev, dev, bssid, &sinfo);
+	wiphy_unlock(&rdev->wiphy);
+
+	if (ret)
+>>>>>>> upstream/android-13
 		return NULL;
 
 	memset(&wstats, 0, sizeof(wstats));
@@ -1337,6 +1708,10 @@ static struct iw_statistics *cfg80211_wireless_stats(struct net_device *dev)
 			wstats.qual.qual = sig + 110;
 			break;
 		}
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case CFG80211_SIGNAL_TYPE_UNSPEC:
 		if (sinfo.filled & BIT_ULL(NL80211_STA_INFO_SIGNAL)) {
 			wstats.qual.updated |= IW_QUAL_LEVEL_UPDATED;
@@ -1345,6 +1720,10 @@ static struct iw_statistics *cfg80211_wireless_stats(struct net_device *dev)
 			wstats.qual.qual = sinfo.signal;
 			break;
 		}
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		wstats.qual.updated |= IW_QUAL_LEVEL_INVALID;
 		wstats.qual.updated |= IW_QUAL_QUAL_INVALID;
@@ -1366,6 +1745,7 @@ static int cfg80211_wext_siwap(struct net_device *dev,
 			       struct sockaddr *ap_addr, char *extra)
 {
 	struct wireless_dev *wdev = dev->ieee80211_ptr;
+<<<<<<< HEAD
 
 	switch (wdev->iftype) {
 	case NL80211_IFTYPE_ADHOC:
@@ -1377,6 +1757,26 @@ static int cfg80211_wext_siwap(struct net_device *dev,
 	default:
 		return -EOPNOTSUPP;
 	}
+=======
+	struct cfg80211_registered_device *rdev = wiphy_to_rdev(wdev->wiphy);
+	int ret;
+
+	wiphy_lock(&rdev->wiphy);
+	switch (wdev->iftype) {
+	case NL80211_IFTYPE_ADHOC:
+		ret = cfg80211_ibss_wext_siwap(dev, info, ap_addr, extra);
+		break;
+	case NL80211_IFTYPE_STATION:
+		ret = cfg80211_mgd_wext_siwap(dev, info, ap_addr, extra);
+		break;
+	default:
+		ret = -EOPNOTSUPP;
+		break;
+	}
+	wiphy_unlock(&rdev->wiphy);
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static int cfg80211_wext_giwap(struct net_device *dev,
@@ -1384,6 +1784,7 @@ static int cfg80211_wext_giwap(struct net_device *dev,
 			       struct sockaddr *ap_addr, char *extra)
 {
 	struct wireless_dev *wdev = dev->ieee80211_ptr;
+<<<<<<< HEAD
 
 	switch (wdev->iftype) {
 	case NL80211_IFTYPE_ADHOC:
@@ -1395,6 +1796,26 @@ static int cfg80211_wext_giwap(struct net_device *dev,
 	default:
 		return -EOPNOTSUPP;
 	}
+=======
+	struct cfg80211_registered_device *rdev = wiphy_to_rdev(wdev->wiphy);
+	int ret;
+
+	wiphy_lock(&rdev->wiphy);
+	switch (wdev->iftype) {
+	case NL80211_IFTYPE_ADHOC:
+		ret = cfg80211_ibss_wext_giwap(dev, info, ap_addr, extra);
+		break;
+	case NL80211_IFTYPE_STATION:
+		ret = cfg80211_mgd_wext_giwap(dev, info, ap_addr, extra);
+		break;
+	default:
+		ret = -EOPNOTSUPP;
+		break;
+	}
+	wiphy_unlock(&rdev->wiphy);
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static int cfg80211_wext_siwessid(struct net_device *dev,
@@ -1402,6 +1823,7 @@ static int cfg80211_wext_siwessid(struct net_device *dev,
 				  struct iw_point *data, char *ssid)
 {
 	struct wireless_dev *wdev = dev->ieee80211_ptr;
+<<<<<<< HEAD
 
 	switch (wdev->iftype) {
 	case NL80211_IFTYPE_ADHOC:
@@ -1411,6 +1833,26 @@ static int cfg80211_wext_siwessid(struct net_device *dev,
 	default:
 		return -EOPNOTSUPP;
 	}
+=======
+	struct cfg80211_registered_device *rdev = wiphy_to_rdev(wdev->wiphy);
+	int ret;
+
+	wiphy_lock(&rdev->wiphy);
+	switch (wdev->iftype) {
+	case NL80211_IFTYPE_ADHOC:
+		ret = cfg80211_ibss_wext_siwessid(dev, info, data, ssid);
+		break;
+	case NL80211_IFTYPE_STATION:
+		ret = cfg80211_mgd_wext_siwessid(dev, info, data, ssid);
+		break;
+	default:
+		ret = -EOPNOTSUPP;
+		break;
+	}
+	wiphy_unlock(&rdev->wiphy);
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static int cfg80211_wext_giwessid(struct net_device *dev,
@@ -1418,10 +1860,16 @@ static int cfg80211_wext_giwessid(struct net_device *dev,
 				  struct iw_point *data, char *ssid)
 {
 	struct wireless_dev *wdev = dev->ieee80211_ptr;
+<<<<<<< HEAD
+=======
+	struct cfg80211_registered_device *rdev = wiphy_to_rdev(wdev->wiphy);
+	int ret;
+>>>>>>> upstream/android-13
 
 	data->flags = 0;
 	data->length = 0;
 
+<<<<<<< HEAD
 	switch (wdev->iftype) {
 	case NL80211_IFTYPE_ADHOC:
 		return cfg80211_ibss_wext_giwessid(dev, info, data, ssid);
@@ -1430,6 +1878,23 @@ static int cfg80211_wext_giwessid(struct net_device *dev,
 	default:
 		return -EOPNOTSUPP;
 	}
+=======
+	wiphy_lock(&rdev->wiphy);
+	switch (wdev->iftype) {
+	case NL80211_IFTYPE_ADHOC:
+		ret = cfg80211_ibss_wext_giwessid(dev, info, data, ssid);
+		break;
+	case NL80211_IFTYPE_STATION:
+		ret = cfg80211_mgd_wext_giwessid(dev, info, data, ssid);
+		break;
+	default:
+		ret = -EOPNOTSUPP;
+		break;
+	}
+	wiphy_unlock(&rdev->wiphy);
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static int cfg80211_wext_siwpmksa(struct net_device *dev,
@@ -1440,6 +1905,10 @@ static int cfg80211_wext_siwpmksa(struct net_device *dev,
 	struct cfg80211_registered_device *rdev = wiphy_to_rdev(wdev->wiphy);
 	struct cfg80211_pmksa cfg_pmksa;
 	struct iw_pmksa *pmksa = (struct iw_pmksa *)extra;
+<<<<<<< HEAD
+=======
+	int ret;
+>>>>>>> upstream/android-13
 
 	memset(&cfg_pmksa, 0, sizeof(struct cfg80211_pmksa));
 
@@ -1449,6 +1918,7 @@ static int cfg80211_wext_siwpmksa(struct net_device *dev,
 	cfg_pmksa.bssid = pmksa->bssid.sa_data;
 	cfg_pmksa.pmkid = pmksa->pmkid;
 
+<<<<<<< HEAD
 	switch (pmksa->cmd) {
 	case IW_PMKSA_ADD:
 		if (!rdev->ops->set_pmksa)
@@ -1506,6 +1976,115 @@ static const iw_handler cfg80211_handlers[] = {
 	[IW_IOCTL_IDX(SIOCGIWAUTH)]	= (iw_handler) cfg80211_wext_giwauth,
 	[IW_IOCTL_IDX(SIOCSIWENCODEEXT)]= (iw_handler) cfg80211_wext_siwencodeext,
 	[IW_IOCTL_IDX(SIOCSIWPMKSA)]	= (iw_handler) cfg80211_wext_siwpmksa,
+=======
+	wiphy_lock(&rdev->wiphy);
+	switch (pmksa->cmd) {
+	case IW_PMKSA_ADD:
+		if (!rdev->ops->set_pmksa) {
+			ret = -EOPNOTSUPP;
+			break;
+		}
+
+		ret = rdev_set_pmksa(rdev, dev, &cfg_pmksa);
+		break;
+	case IW_PMKSA_REMOVE:
+		if (!rdev->ops->del_pmksa) {
+			ret = -EOPNOTSUPP;
+			break;
+		}
+
+		ret = rdev_del_pmksa(rdev, dev, &cfg_pmksa);
+		break;
+	case IW_PMKSA_FLUSH:
+		if (!rdev->ops->flush_pmksa) {
+			ret = -EOPNOTSUPP;
+			break;
+		}
+
+		ret = rdev_flush_pmksa(rdev, dev);
+		break;
+	default:
+		ret = -EOPNOTSUPP;
+		break;
+	}
+	wiphy_unlock(&rdev->wiphy);
+
+	return ret;
+}
+
+#define DEFINE_WEXT_COMPAT_STUB(func, type)			\
+	static int __ ## func(struct net_device *dev,		\
+			      struct iw_request_info *info,	\
+			      union iwreq_data *wrqu,		\
+			      char *extra)			\
+	{							\
+		return func(dev, info, (type *)wrqu, extra);	\
+	}
+
+DEFINE_WEXT_COMPAT_STUB(cfg80211_wext_giwname, char)
+DEFINE_WEXT_COMPAT_STUB(cfg80211_wext_siwfreq, struct iw_freq)
+DEFINE_WEXT_COMPAT_STUB(cfg80211_wext_giwfreq, struct iw_freq)
+DEFINE_WEXT_COMPAT_STUB(cfg80211_wext_siwmode, u32)
+DEFINE_WEXT_COMPAT_STUB(cfg80211_wext_giwmode, u32)
+DEFINE_WEXT_COMPAT_STUB(cfg80211_wext_giwrange, struct iw_point)
+DEFINE_WEXT_COMPAT_STUB(cfg80211_wext_siwap, struct sockaddr)
+DEFINE_WEXT_COMPAT_STUB(cfg80211_wext_giwap, struct sockaddr)
+DEFINE_WEXT_COMPAT_STUB(cfg80211_wext_siwmlme, struct iw_point)
+DEFINE_WEXT_COMPAT_STUB(cfg80211_wext_giwscan, struct iw_point)
+DEFINE_WEXT_COMPAT_STUB(cfg80211_wext_siwessid, struct iw_point)
+DEFINE_WEXT_COMPAT_STUB(cfg80211_wext_giwessid, struct iw_point)
+DEFINE_WEXT_COMPAT_STUB(cfg80211_wext_siwrate, struct iw_param)
+DEFINE_WEXT_COMPAT_STUB(cfg80211_wext_giwrate, struct iw_param)
+DEFINE_WEXT_COMPAT_STUB(cfg80211_wext_siwrts, struct iw_param)
+DEFINE_WEXT_COMPAT_STUB(cfg80211_wext_giwrts, struct iw_param)
+DEFINE_WEXT_COMPAT_STUB(cfg80211_wext_siwfrag, struct iw_param)
+DEFINE_WEXT_COMPAT_STUB(cfg80211_wext_giwfrag, struct iw_param)
+DEFINE_WEXT_COMPAT_STUB(cfg80211_wext_siwretry, struct iw_param)
+DEFINE_WEXT_COMPAT_STUB(cfg80211_wext_giwretry, struct iw_param)
+DEFINE_WEXT_COMPAT_STUB(cfg80211_wext_siwencode, struct iw_point)
+DEFINE_WEXT_COMPAT_STUB(cfg80211_wext_giwencode, struct iw_point)
+DEFINE_WEXT_COMPAT_STUB(cfg80211_wext_giwpower, struct iw_param)
+DEFINE_WEXT_COMPAT_STUB(cfg80211_wext_siwpower, struct iw_param)
+DEFINE_WEXT_COMPAT_STUB(cfg80211_wext_siwgenie, struct iw_point)
+DEFINE_WEXT_COMPAT_STUB(cfg80211_wext_giwauth, struct iw_param)
+DEFINE_WEXT_COMPAT_STUB(cfg80211_wext_siwauth, struct iw_param)
+DEFINE_WEXT_COMPAT_STUB(cfg80211_wext_siwencodeext, struct iw_point)
+DEFINE_WEXT_COMPAT_STUB(cfg80211_wext_siwpmksa, struct iw_point)
+
+static const iw_handler cfg80211_handlers[] = {
+	[IW_IOCTL_IDX(SIOCGIWNAME)]	= __cfg80211_wext_giwname,
+	[IW_IOCTL_IDX(SIOCSIWFREQ)]	= __cfg80211_wext_siwfreq,
+	[IW_IOCTL_IDX(SIOCGIWFREQ)]	= __cfg80211_wext_giwfreq,
+	[IW_IOCTL_IDX(SIOCSIWMODE)]	= __cfg80211_wext_siwmode,
+	[IW_IOCTL_IDX(SIOCGIWMODE)]	= __cfg80211_wext_giwmode,
+	[IW_IOCTL_IDX(SIOCGIWRANGE)]	= __cfg80211_wext_giwrange,
+	[IW_IOCTL_IDX(SIOCSIWAP)]	= __cfg80211_wext_siwap,
+	[IW_IOCTL_IDX(SIOCGIWAP)]	= __cfg80211_wext_giwap,
+	[IW_IOCTL_IDX(SIOCSIWMLME)]	= __cfg80211_wext_siwmlme,
+	[IW_IOCTL_IDX(SIOCSIWSCAN)]	= cfg80211_wext_siwscan,
+	[IW_IOCTL_IDX(SIOCGIWSCAN)]	= __cfg80211_wext_giwscan,
+	[IW_IOCTL_IDX(SIOCSIWESSID)]	= __cfg80211_wext_siwessid,
+	[IW_IOCTL_IDX(SIOCGIWESSID)]	= __cfg80211_wext_giwessid,
+	[IW_IOCTL_IDX(SIOCSIWRATE)]	= __cfg80211_wext_siwrate,
+	[IW_IOCTL_IDX(SIOCGIWRATE)]	= __cfg80211_wext_giwrate,
+	[IW_IOCTL_IDX(SIOCSIWRTS)]	= __cfg80211_wext_siwrts,
+	[IW_IOCTL_IDX(SIOCGIWRTS)]	= __cfg80211_wext_giwrts,
+	[IW_IOCTL_IDX(SIOCSIWFRAG)]	= __cfg80211_wext_siwfrag,
+	[IW_IOCTL_IDX(SIOCGIWFRAG)]	= __cfg80211_wext_giwfrag,
+	[IW_IOCTL_IDX(SIOCSIWTXPOW)]	= cfg80211_wext_siwtxpower,
+	[IW_IOCTL_IDX(SIOCGIWTXPOW)]	= cfg80211_wext_giwtxpower,
+	[IW_IOCTL_IDX(SIOCSIWRETRY)]	= __cfg80211_wext_siwretry,
+	[IW_IOCTL_IDX(SIOCGIWRETRY)]	= __cfg80211_wext_giwretry,
+	[IW_IOCTL_IDX(SIOCSIWENCODE)]	= __cfg80211_wext_siwencode,
+	[IW_IOCTL_IDX(SIOCGIWENCODE)]	= __cfg80211_wext_giwencode,
+	[IW_IOCTL_IDX(SIOCSIWPOWER)]	= __cfg80211_wext_siwpower,
+	[IW_IOCTL_IDX(SIOCGIWPOWER)]	= __cfg80211_wext_giwpower,
+	[IW_IOCTL_IDX(SIOCSIWGENIE)]	= __cfg80211_wext_siwgenie,
+	[IW_IOCTL_IDX(SIOCSIWAUTH)]	= __cfg80211_wext_siwauth,
+	[IW_IOCTL_IDX(SIOCGIWAUTH)]	= __cfg80211_wext_giwauth,
+	[IW_IOCTL_IDX(SIOCSIWENCODEEXT)]= __cfg80211_wext_siwencodeext,
+	[IW_IOCTL_IDX(SIOCSIWPMKSA)]	= __cfg80211_wext_siwpmksa,
+>>>>>>> upstream/android-13
 };
 
 const struct iw_handler_def cfg80211_wext_handler = {

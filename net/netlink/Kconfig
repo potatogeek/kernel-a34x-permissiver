@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #
 # Netlink Sockets
 #
@@ -5,6 +9,10 @@
 config NETLINK_DIAG
 	tristate "NETLINK: socket monitoring interface"
 	default n
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  Support for NETLINK socket monitoring interface used by the ss tool.
 	  If unsure, say Y.

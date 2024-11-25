@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /******************************************************************************
  * rtl871x_ioctl_rtl.c
  *
  * Copyright(c) 2007 - 2010 Realtek Corporation. All rights reserved.
  * Linux device driver for RTL8192SU
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
  * published by the Free Software Foundation.
@@ -17,6 +22,8 @@
  * this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA
  *
+=======
+>>>>>>> upstream/android-13
  * Modifications for inclusion into the Linux staging tree are
  * Copyright(c) 2010 Larry Finger. All rights reserved.
  *
@@ -441,7 +448,11 @@ uint oid_rt_pro_rf_write_registry_hdl(struct oid_par_priv*
 		return RNDIS_STATUS_NOT_ACCEPTED;
 	if (poid_par_priv->information_buf_len ==
 	   (sizeof(unsigned long) * 3)) {
+<<<<<<< HEAD
 		if (!r8712_setrfreg_cmd(Adapter,
+=======
+		if (r8712_setrfreg_cmd(Adapter,
+>>>>>>> upstream/android-13
 			*(unsigned char *)poid_par_priv->information_buf,
 			(unsigned long)(*((unsigned long *)
 					poid_par_priv->information_buf + 2))))
@@ -479,7 +490,11 @@ uint oid_rt_pro_rf_read_registry_hdl(struct oid_par_priv *poid_par_priv)
 		 * RegDataWidth = *((unsigned long *)InformationBuffer+1);
 		 * RegDataValue =  *((unsigned long *)InformationBuffer+2);
 		 */
+<<<<<<< HEAD
 			if (!r8712_getrfreg_cmd(Adapter,
+=======
+			if (r8712_getrfreg_cmd(Adapter,
+>>>>>>> upstream/android-13
 			    *(unsigned char *)poid_par_priv->information_buf,
 			    (unsigned char *)&Adapter->mppriv.workparam.io_value
 			    ))

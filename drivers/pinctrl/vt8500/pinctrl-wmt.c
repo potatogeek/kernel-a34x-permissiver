@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Pinctrl driver for the Wondermedia SoC's
  *
  * Copyright (c) 2013 Tony Prisk <linux@prisktech.co.nz>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -11,6 +16,8 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/err.h>
@@ -495,9 +502,15 @@ static int wmt_gpio_get_direction(struct gpio_chip *chip, unsigned offset)
 
 	val = readl_relaxed(data->base + reg_dir);
 	if (val & BIT(bit))
+<<<<<<< HEAD
 		return GPIOF_DIR_OUT;
 	else
 		return GPIOF_DIR_IN;
+=======
+		return GPIO_LINE_DIRECTION_OUT;
+
+	return GPIO_LINE_DIRECTION_IN;
+>>>>>>> upstream/android-13
 }
 
 static int wmt_gpio_get_value(struct gpio_chip *chip, unsigned offset)
@@ -563,10 +576,15 @@ int wmt_pinctrl_probe(struct platform_device *pdev,
 		      struct wmt_pinctrl_data *data)
 {
 	int err;
+<<<<<<< HEAD
 	struct resource *res;
 
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	data->base = devm_ioremap_resource(&pdev->dev, res);
+=======
+
+	data->base = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(data->base))
 		return PTR_ERR(data->base);
 

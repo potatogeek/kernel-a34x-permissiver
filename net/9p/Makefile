@@ -8,7 +8,10 @@ obj-$(CONFIG_NET_9P_RDMA) += 9pnet_rdma.o
 	mod.o \
 	client.o \
 	error.o \
+<<<<<<< HEAD
 	util.o \
+=======
+>>>>>>> upstream/android-13
 	protocol.o \
 	trans_fd.o \
 	trans_common.o \

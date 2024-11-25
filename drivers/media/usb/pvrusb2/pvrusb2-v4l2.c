@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *
  *
@@ -13,6 +14,13 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ *
+ *  Copyright (C) 2005 Mike Isely <isely@pobox.com>
+ *  Copyright (C) 2004 Aurelien Alleaume <slts@free.fr>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -121,6 +129,7 @@ static int pvr2_querycap(struct file *file, void *priv, struct v4l2_capability *
 	struct pvr2_v4l2_fh *fh = file->private_data;
 	struct pvr2_hdw *hdw = fh->channel.mc_head->hdw;
 
+<<<<<<< HEAD
 	strlcpy(cap->driver, "pvrusb2", sizeof(cap->driver));
 	strlcpy(cap->bus_info, pvr2_hdw_get_bus_info(hdw),
 			sizeof(cap->bus_info));
@@ -139,6 +148,15 @@ static int pvr2_querycap(struct file *file, void *priv, struct v4l2_capability *
 		return -EINVAL;
 	}
 	cap->device_caps |= V4L2_CAP_TUNER | V4L2_CAP_READWRITE;
+=======
+	strscpy(cap->driver, "pvrusb2", sizeof(cap->driver));
+	strscpy(cap->bus_info, pvr2_hdw_get_bus_info(hdw),
+		sizeof(cap->bus_info));
+	strscpy(cap->card, pvr2_hdw_get_desc(hdw), sizeof(cap->card));
+	cap->capabilities = V4L2_CAP_VIDEO_CAPTURE | V4L2_CAP_TUNER |
+			    V4L2_CAP_AUDIO | V4L2_CAP_RADIO |
+			    V4L2_CAP_READWRITE | V4L2_CAP_DEVICE_CAPS;
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -284,7 +302,11 @@ static int pvr2_enumaudio(struct file *file, void *priv, struct v4l2_audio *vin)
 
 	if (vin->index > 0)
 		return -EINVAL;
+<<<<<<< HEAD
 	strncpy(vin->name, "PVRUSB2 Audio", 14);
+=======
+	strscpy(vin->name, "PVRUSB2 Audio", sizeof(vin->name));
+>>>>>>> upstream/android-13
 	vin->capability = V4L2_AUDCAP_STEREO;
 	return 0;
 }
@@ -293,7 +315,11 @@ static int pvr2_g_audio(struct file *file, void *priv, struct v4l2_audio *vin)
 {
 	/* pkt: FIXME: see above comment (VIDIOC_ENUMAUDIO) */
 	vin->index = 0;
+<<<<<<< HEAD
 	strncpy(vin->name, "PVRUSB2 Audio", 14);
+=======
+	strscpy(vin->name, "PVRUSB2 Audio", sizeof(vin->name));
+>>>>>>> upstream/android-13
 	vin->capability = V4L2_AUDCAP_STEREO;
 	return 0;
 }
@@ -545,7 +571,11 @@ static int pvr2_queryctrl(struct file *file, void *priv,
 			"QUERYCTRL id=0x%x mapping name=%s (%s)",
 			vc->id, pvr2_ctrl_get_name(cptr),
 			pvr2_ctrl_get_desc(cptr));
+<<<<<<< HEAD
 	strlcpy(vc->name, pvr2_ctrl_get_desc(cptr), sizeof(vc->name));
+=======
+	strscpy(vc->name, pvr2_ctrl_get_desc(cptr), sizeof(vc->name));
+>>>>>>> upstream/android-13
 	vc->flags = pvr2_ctrl_get_v4lflags(cptr);
 	pvr2_ctrl_get_def(cptr, &val);
 	vc->default_value = val;
@@ -703,6 +733,7 @@ static int pvr2_try_ext_ctrls(struct file *file, void *priv,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int pvr2_cropcap(struct file *file, void *priv, struct v4l2_cropcap *cap)
 {
 	struct pvr2_v4l2_fh *fh = file->private_data;
@@ -713,6 +744,21 @@ static int pvr2_cropcap(struct file *file, void *priv, struct v4l2_cropcap *cap)
 		return -EINVAL;
 	ret = pvr2_hdw_get_cropcap(hdw, cap);
 	cap->type = V4L2_BUF_TYPE_VIDEO_CAPTURE; /* paranoia */
+=======
+static int pvr2_g_pixelaspect(struct file *file, void *priv,
+			      int type, struct v4l2_fract *f)
+{
+	struct pvr2_v4l2_fh *fh = file->private_data;
+	struct pvr2_hdw *hdw = fh->channel.mc_head->hdw;
+	struct v4l2_cropcap cap = { .type = type };
+	int ret;
+
+	if (type != V4L2_BUF_TYPE_VIDEO_CAPTURE)
+		return -EINVAL;
+	ret = pvr2_hdw_get_cropcap(hdw, &cap);
+	if (!ret)
+		*f = cap.pixelaspect;
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -815,7 +861,11 @@ static const struct v4l2_ioctl_ops pvr2_ioctl_ops = {
 	.vidioc_g_audio			    = pvr2_g_audio,
 	.vidioc_enumaudio		    = pvr2_enumaudio,
 	.vidioc_enum_input		    = pvr2_enum_input,
+<<<<<<< HEAD
 	.vidioc_cropcap			    = pvr2_cropcap,
+=======
+	.vidioc_g_pixelaspect		    = pvr2_g_pixelaspect,
+>>>>>>> upstream/android-13
 	.vidioc_s_selection		    = pvr2_s_selection,
 	.vidioc_g_selection		    = pvr2_g_selection,
 	.vidioc_g_input			    = pvr2_g_input,
@@ -869,7 +919,11 @@ static void pvr2_v4l2_dev_destroy(struct pvr2_v4l2_dev *dip)
 	   are gone. */
 	video_unregister_device(&dip->devbase);
 
+<<<<<<< HEAD
 	printk(KERN_INFO "%s\n", msg);
+=======
+	pr_info("%s\n", msg);
+>>>>>>> upstream/android-13
 
 }
 
@@ -1026,7 +1080,11 @@ static int pvr2_v4l2_open(struct file *file)
 	input_mask &= pvr2_hdw_get_input_available(hdw);
 	input_cnt = 0;
 	for (idx = 0; idx < (sizeof(input_mask) << 3); idx++) {
+<<<<<<< HEAD
 		if (input_mask & (1 << idx)) input_cnt++;
+=======
+		if (input_mask & (1UL << idx)) input_cnt++;
+>>>>>>> upstream/android-13
 	}
 	fhp->input_cnt = input_cnt;
 	fhp->input_map = kzalloc(input_cnt,GFP_KERNEL);
@@ -1041,7 +1099,11 @@ static int pvr2_v4l2_open(struct file *file)
 	}
 	input_cnt = 0;
 	for (idx = 0; idx < (sizeof(input_mask) << 3); idx++) {
+<<<<<<< HEAD
 		if (!(input_mask & (1 << idx))) continue;
+=======
+		if (!(input_mask & (1UL << idx))) continue;
+>>>>>>> upstream/android-13
 		fhp->input_map[input_cnt++] = idx;
 	}
 
@@ -1207,16 +1269,29 @@ static void pvr2_v4l2_dev_init(struct pvr2_v4l2_dev *dip,
 	int unit_number;
 	struct pvr2_hdw *hdw;
 	int *nr_ptr = NULL;
+<<<<<<< HEAD
+=======
+	u32 caps = V4L2_CAP_TUNER | V4L2_CAP_READWRITE;
+
+>>>>>>> upstream/android-13
 	dip->v4lp = vp;
 
 	hdw = vp->channel.mc_head->hdw;
 	dip->v4l_type = v4l_type;
 	switch (v4l_type) {
+<<<<<<< HEAD
 	case VFL_TYPE_GRABBER:
+=======
+	case VFL_TYPE_VIDEO:
+>>>>>>> upstream/android-13
 		dip->stream = &vp->channel.mc_head->video_stream;
 		dip->config = pvr2_config_mpeg;
 		dip->minor_type = pvr2_v4l_type_video;
 		nr_ptr = video_nr;
+<<<<<<< HEAD
+=======
+		caps |= V4L2_CAP_VIDEO_CAPTURE | V4L2_CAP_AUDIO;
+>>>>>>> upstream/android-13
 		if (!dip->stream) {
 			pr_err(KBUILD_MODNAME
 				": Failed to set up pvrusb2 v4l video dev due to missing stream instance\n");
@@ -1227,12 +1302,20 @@ static void pvr2_v4l2_dev_init(struct pvr2_v4l2_dev *dip,
 		dip->config = pvr2_config_vbi;
 		dip->minor_type = pvr2_v4l_type_vbi;
 		nr_ptr = vbi_nr;
+<<<<<<< HEAD
+=======
+		caps |= V4L2_CAP_VBI_CAPTURE;
+>>>>>>> upstream/android-13
 		break;
 	case VFL_TYPE_RADIO:
 		dip->stream = &vp->channel.mc_head->video_stream;
 		dip->config = pvr2_config_mpeg;
 		dip->minor_type = pvr2_v4l_type_radio;
 		nr_ptr = radio_nr;
+<<<<<<< HEAD
+=======
+		caps |= V4L2_CAP_RADIO;
+>>>>>>> upstream/android-13
 		break;
 	default:
 		/* Bail out (this should be impossible) */
@@ -1243,6 +1326,10 @@ static void pvr2_v4l2_dev_init(struct pvr2_v4l2_dev *dip,
 	dip->devbase = vdev_template;
 	dip->devbase.release = pvr2_video_device_release;
 	dip->devbase.ioctl_ops = &pvr2_ioctl_ops;
+<<<<<<< HEAD
+=======
+	dip->devbase.device_caps = caps;
+>>>>>>> upstream/android-13
 	{
 		int val;
 		pvr2_ctrl_get_value(
@@ -1265,7 +1352,11 @@ static void pvr2_v4l2_dev_init(struct pvr2_v4l2_dev *dip,
 			": Failed to register pvrusb2 v4l device\n");
 	}
 
+<<<<<<< HEAD
 	printk(KERN_INFO "pvrusb2: registered device %s [%s]\n",
+=======
+	pr_info("pvrusb2: registered device %s [%s]\n",
+>>>>>>> upstream/android-13
 	       video_device_node_name(&dip->devbase),
 	       pvr2_config_get_name(dip->config));
 
@@ -1288,7 +1379,11 @@ struct pvr2_v4l2 *pvr2_v4l2_create(struct pvr2_context *mnp)
 	/* register streams */
 	vp->dev_video = kzalloc(sizeof(*vp->dev_video),GFP_KERNEL);
 	if (!vp->dev_video) goto fail;
+<<<<<<< HEAD
 	pvr2_v4l2_dev_init(vp->dev_video,vp,VFL_TYPE_GRABBER);
+=======
+	pvr2_v4l2_dev_init(vp->dev_video,vp,VFL_TYPE_VIDEO);
+>>>>>>> upstream/android-13
 	if (pvr2_hdw_get_input_available(vp->channel.mc_head->hdw) &
 	    (1 << PVR2_CVAL_INPUT_RADIO)) {
 		vp->dev_radio = kzalloc(sizeof(*vp->dev_radio),GFP_KERNEL);

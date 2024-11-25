@@ -324,7 +324,11 @@ static inline int do_read_onechip(struct map_info *map, struct flchip *chip, lof
 	case FL_JEDEC_QUERY:
 		map_write(map, CMD(0x70), cmd_addr);
 		chip->state = FL_STATUS;
+<<<<<<< HEAD
 
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case FL_STATUS:
 		status = map_read(map, cmd_addr);
 		if (map_word_andequal(map, status, status_OK, status_OK)) {
@@ -461,7 +465,11 @@ static int do_write_buffer(struct map_info *map, struct flchip *chip,
 #ifdef DEBUG_CFI_FEATURES
 	printk("%s: 1 status[%x]\n", __func__, map_read(map, cmd_adr));
 #endif
+<<<<<<< HEAD
 
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case FL_STATUS:
 		status = map_read(map, cmd_adr);
 		if (map_word_andequal(map, status, status_OK, status_OK))
@@ -609,7 +617,11 @@ static int cfi_staa_write_buffers (struct mtd_info *mtd, loff_t to,
 	struct map_info *map = mtd->priv;
 	struct cfi_private *cfi = map->fldrv_priv;
 	int wbufsize = cfi_interleave(cfi) << cfi->cfiq->MaxBufWriteSize;
+<<<<<<< HEAD
 	int ret = 0;
+=======
+	int ret;
+>>>>>>> upstream/android-13
 	int chipnum;
 	unsigned long ofs;
 
@@ -754,7 +766,11 @@ retry:
 	case FL_READY:
 		map_write(map, CMD(0x70), adr);
 		chip->state = FL_STATUS;
+<<<<<<< HEAD
 
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case FL_STATUS:
 		status = map_read(map, adr);
 		if (map_word_andequal(map, status, status_OK, status_OK))
@@ -892,7 +908,11 @@ static int cfi_staa_erase_varsize(struct mtd_info *mtd,
 {	struct map_info *map = mtd->priv;
 	struct cfi_private *cfi = map->fldrv_priv;
 	unsigned long adr, len;
+<<<<<<< HEAD
 	int chipnum, ret = 0;
+=======
+	int chipnum, ret;
+>>>>>>> upstream/android-13
 	int i, first;
 	struct mtd_erase_region_info *regions = mtd->eraseregions;
 
@@ -995,6 +1015,10 @@ static void cfi_staa_sync (struct mtd_info *mtd)
 			 * as the whole point is that nobody can do anything
 			 * with the chip now anyway.
 			 */
+<<<<<<< HEAD
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case FL_SYNCING:
 			mutex_unlock(&chip->mutex);
 			break;
@@ -1050,7 +1074,11 @@ retry:
 	case FL_READY:
 		map_write(map, CMD(0x70), adr);
 		chip->state = FL_STATUS;
+<<<<<<< HEAD
 
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case FL_STATUS:
 		status = map_read(map, adr);
 		if (map_word_andequal(map, status, status_OK, status_OK))
@@ -1127,7 +1155,11 @@ static int cfi_staa_lock(struct mtd_info *mtd, loff_t ofs, uint64_t len)
 	struct map_info *map = mtd->priv;
 	struct cfi_private *cfi = map->fldrv_priv;
 	unsigned long adr;
+<<<<<<< HEAD
 	int chipnum, ret = 0;
+=======
+	int chipnum, ret;
+>>>>>>> upstream/android-13
 #ifdef DEBUG_LOCK_BITS
 	int ofs_factor = cfi->interleave * cfi->device_type;
 #endif
@@ -1196,7 +1228,11 @@ retry:
 	case FL_READY:
 		map_write(map, CMD(0x70), adr);
 		chip->state = FL_STATUS;
+<<<<<<< HEAD
 
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case FL_STATUS:
 		status = map_read(map, adr);
 		if (map_word_andequal(map, status, status_OK, status_OK))
@@ -1273,7 +1309,11 @@ static int cfi_staa_unlock(struct mtd_info *mtd, loff_t ofs, uint64_t len)
 	struct map_info *map = mtd->priv;
 	struct cfi_private *cfi = map->fldrv_priv;
 	unsigned long adr;
+<<<<<<< HEAD
 	int chipnum, ret = 0;
+=======
+	int chipnum, ret;
+>>>>>>> upstream/android-13
 #ifdef DEBUG_LOCK_BITS
 	int ofs_factor = cfi->interleave * cfi->device_type;
 #endif
@@ -1331,6 +1371,11 @@ static int cfi_staa_suspend(struct mtd_info *mtd)
 			 * as the whole point is that nobody can do anything
 			 * with the chip now anyway.
 			 */
+<<<<<<< HEAD
+=======
+			break;
+
+>>>>>>> upstream/android-13
 		case FL_PM_SUSPENDED:
 			break;
 

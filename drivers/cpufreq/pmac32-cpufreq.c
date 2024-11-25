@@ -1,16 +1,26 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  Copyright (C) 2002 - 2005 Benjamin Herrenschmidt <benh@kernel.crashing.org>
  *  Copyright (C) 2004        John Steele Scott <toojays@toojays.net>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * TODO: Need a big cleanup here. Basically, we need to have different
  * cpufreq_driver structures for the different type of HW instead of the
  * current mess. We also need to better deal with the detection of the
  * type of machine.
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -128,7 +138,11 @@ static int cpu_750fx_cpu_speed(int low_speed)
 			mtspr(SPRN_HID2, hid2);
 		}
 	}
+<<<<<<< HEAD
 #ifdef CONFIG_6xx
+=======
+#ifdef CONFIG_PPC_BOOK3S_32
+>>>>>>> upstream/android-13
 	low_choose_750fx_pll(low_speed);
 #endif
 	if (low_speed == 1) {
@@ -166,7 +180,11 @@ static int dfs_set_cpu_speed(int low_speed)
 	}
 
 	/* set frequency */
+<<<<<<< HEAD
 #ifdef CONFIG_6xx
+=======
+#ifdef CONFIG_PPC_BOOK3S_32
+>>>>>>> upstream/android-13
 	low_choose_7447a_dfs(low_speed);
 #endif
 	udelay(100);
@@ -376,7 +394,12 @@ static int pmac_cpufreq_target(	struct cpufreq_policy *policy,
 
 static int pmac_cpufreq_cpu_init(struct cpufreq_policy *policy)
 {
+<<<<<<< HEAD
 	return cpufreq_generic_init(policy, pmac_cpu_freqs, transition_latency);
+=======
+	cpufreq_generic_init(policy, pmac_cpu_freqs, transition_latency);
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static u32 read_gpio(struct device_node *np)
@@ -442,8 +465,12 @@ static struct cpufreq_driver pmac_cpufreq_driver = {
 	.init		= pmac_cpufreq_cpu_init,
 	.suspend	= pmac_cpufreq_suspend,
 	.resume		= pmac_cpufreq_resume,
+<<<<<<< HEAD
 	.flags		= CPUFREQ_PM_NO_WARN |
 			  CPUFREQ_NO_AUTO_DYNAMIC_SWITCHING,
+=======
+	.flags		= CPUFREQ_NO_AUTO_DYNAMIC_SWITCHING,
+>>>>>>> upstream/android-13
 	.attr		= cpufreq_generic_attr,
 	.name		= "powermac",
 };

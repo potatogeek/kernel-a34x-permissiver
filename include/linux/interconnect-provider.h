@@ -15,6 +15,20 @@ struct icc_node;
 struct of_phandle_args;
 
 /**
+<<<<<<< HEAD
+=======
+ * struct icc_node_data - icc node data
+ *
+ * @node: icc node
+ * @tag: tag
+ */
+struct icc_node_data {
+	struct icc_node *node;
+	u32 tag;
+};
+
+/**
+>>>>>>> upstream/android-13
  * struct icc_onecell_data - driver data for onecell interconnect providers
  *
  * @num_nodes: number of nodes in this device
@@ -36,20 +50,43 @@ struct icc_node *of_icc_xlate_onecell(struct of_phandle_args *spec,
  * @nodes: internal list of the interconnect provider nodes
  * @set: pointer to device specific set operation function
  * @aggregate: pointer to device specific aggregate operation function
+<<<<<<< HEAD
  * @xlate: provider-specific callback for mapping nodes from phandle arguments
  * @dev: the device this interconnect provider belongs to
  * @users: count of active users
+=======
+ * @pre_aggregate: pointer to device specific function that is called
+ *		   before the aggregation begins (optional)
+ * @get_bw: pointer to device specific function to get current bandwidth
+ * @xlate: provider-specific callback for mapping nodes from phandle arguments
+ * @xlate_extended: vendor-specific callback for mapping node data from phandle arguments
+ * @dev: the device this interconnect provider belongs to
+ * @users: count of active users
+ * @inter_set: whether inter-provider pairs will be configured with @set
+>>>>>>> upstream/android-13
  * @data: pointer to private data
  */
 struct icc_provider {
 	struct list_head	provider_list;
 	struct list_head	nodes;
 	int (*set)(struct icc_node *src, struct icc_node *dst);
+<<<<<<< HEAD
 	int (*aggregate)(struct icc_node *node, u32 avg_bw, u32 peak_bw,
 			 u32 *agg_avg, u32 *agg_peak);
 	struct icc_node* (*xlate)(struct of_phandle_args *spec, void *data);
 	struct device		*dev;
 	int			users;
+=======
+	int (*aggregate)(struct icc_node *node, u32 tag, u32 avg_bw,
+			 u32 peak_bw, u32 *agg_avg, u32 *agg_peak);
+	void (*pre_aggregate)(struct icc_node *node);
+	int (*get_bw)(struct icc_node *node, u32 *avg, u32 *peak);
+	struct icc_node* (*xlate)(struct of_phandle_args *spec, void *data);
+	struct icc_node_data* (*xlate_extended)(struct of_phandle_args *spec, void *data);
+	struct device		*dev;
+	int			users;
+	bool			inter_set;
+>>>>>>> upstream/android-13
 	void			*data;
 };
 
@@ -68,6 +105,11 @@ struct icc_provider {
  * @req_list: a list of QoS constraint requests associated with this node
  * @avg_bw: aggregated value of average bandwidth requests from all consumers
  * @peak_bw: aggregated value of peak bandwidth requests from all consumers
+<<<<<<< HEAD
+=======
+ * @init_avg: average bandwidth value that is read from the hardware during init
+ * @init_peak: peak bandwidth value that is read from the hardware during init
+>>>>>>> upstream/android-13
  * @data: pointer to private data
  */
 struct icc_node {
@@ -84,28 +126,59 @@ struct icc_node {
 	struct hlist_head	req_list;
 	u32			avg_bw;
 	u32			peak_bw;
+<<<<<<< HEAD
+=======
+	u32			init_avg;
+	u32			init_peak;
+>>>>>>> upstream/android-13
 	void			*data;
 };
 
 #if IS_ENABLED(CONFIG_INTERCONNECT)
 
+<<<<<<< HEAD
+=======
+int icc_std_aggregate(struct icc_node *node, u32 tag, u32 avg_bw,
+		      u32 peak_bw, u32 *agg_avg, u32 *agg_peak);
+>>>>>>> upstream/android-13
 struct icc_node *icc_node_create(int id);
 void icc_node_destroy(int id);
 int icc_link_create(struct icc_node *node, const int dst_id);
 int icc_link_destroy(struct icc_node *src, struct icc_node *dst);
 void icc_node_add(struct icc_node *node, struct icc_provider *provider);
 void icc_node_del(struct icc_node *node);
+<<<<<<< HEAD
 int icc_provider_add(struct icc_provider *provider);
 int icc_provider_del(struct icc_provider *provider);
 
 #else
 
+=======
+int icc_nodes_remove(struct icc_provider *provider);
+int icc_provider_add(struct icc_provider *provider);
+int icc_provider_del(struct icc_provider *provider);
+struct icc_node_data *of_icc_get_from_provider(struct of_phandle_args *spec);
+void icc_sync_state(struct device *dev);
+
+#else
+
+static inline int icc_std_aggregate(struct icc_node *node, u32 tag, u32 avg_bw,
+				    u32 peak_bw, u32 *agg_avg, u32 *agg_peak)
+{
+	return -ENOTSUPP;
+}
+
+>>>>>>> upstream/android-13
 static inline struct icc_node *icc_node_create(int id)
 {
 	return ERR_PTR(-ENOTSUPP);
 }
 
+<<<<<<< HEAD
 void icc_node_destroy(int id)
+=======
+static inline void icc_node_destroy(int id)
+>>>>>>> upstream/android-13
 {
 }
 
@@ -114,11 +187,16 @@ static inline int icc_link_create(struct icc_node *node, const int dst_id)
 	return -ENOTSUPP;
 }
 
+<<<<<<< HEAD
 int icc_link_destroy(struct icc_node *src, struct icc_node *dst)
+=======
+static inline int icc_link_destroy(struct icc_node *src, struct icc_node *dst)
+>>>>>>> upstream/android-13
 {
 	return -ENOTSUPP;
 }
 
+<<<<<<< HEAD
 void icc_node_add(struct icc_node *node, struct icc_provider *provider)
 {
 }
@@ -127,6 +205,21 @@ void icc_node_del(struct icc_node *node)
 {
 }
 
+=======
+static inline void icc_node_add(struct icc_node *node, struct icc_provider *provider)
+{
+}
+
+static inline void icc_node_del(struct icc_node *node)
+{
+}
+
+static inline int icc_nodes_remove(struct icc_provider *provider)
+{
+	return -ENOTSUPP;
+}
+
+>>>>>>> upstream/android-13
 static inline int icc_provider_add(struct icc_provider *provider)
 {
 	return -ENOTSUPP;
@@ -137,6 +230,14 @@ static inline int icc_provider_del(struct icc_provider *provider)
 	return -ENOTSUPP;
 }
 
+<<<<<<< HEAD
+=======
+static inline struct icc_node_data *of_icc_get_from_provider(struct of_phandle_args *spec)
+{
+	return ERR_PTR(-ENOTSUPP);
+}
+
+>>>>>>> upstream/android-13
 #endif /* CONFIG_INTERCONNECT */
 
 #endif /* __LINUX_INTERCONNECT_PROVIDER_H */

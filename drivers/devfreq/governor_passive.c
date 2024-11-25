@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * linux/drivers/devfreq/governor_passive.c
  *
  * Copyright (C) 2016 Samsung Electronics
  * Author: Chanwoo Choi <cw00.choi@samsung.com>
  * Author: MyungJoo Ham <myungjoo.ham@samsung.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -22,18 +29,28 @@ static int devfreq_passive_get_target_freq(struct devfreq *devfreq,
 			= (struct devfreq_passive_data *)devfreq->data;
 	struct devfreq *parent_devfreq = (struct devfreq *)p_data->parent;
 	unsigned long child_freq = ULONG_MAX;
+<<<<<<< HEAD
 	struct dev_pm_opp *opp;
 	int i, count, ret = 0;
+=======
+	struct dev_pm_opp *opp, *p_opp;
+	int i, count;
+>>>>>>> upstream/android-13
 
 	/*
 	 * If the devfreq device with passive governor has the specific method
 	 * to determine the next frequency, should use the get_target_freq()
 	 * of struct devfreq_passive_data.
 	 */
+<<<<<<< HEAD
 	if (p_data->get_target_freq) {
 		ret = p_data->get_target_freq(devfreq, freq);
 		goto out;
 	}
+=======
+	if (p_data->get_target_freq)
+		return p_data->get_target_freq(devfreq, freq);
+>>>>>>> upstream/android-13
 
 	/*
 	 * If the parent and passive devfreq device uses the OPP table,
@@ -59,6 +76,7 @@ static int devfreq_passive_get_target_freq(struct devfreq *devfreq,
 	 * list of parent device. Because in this case, *freq is temporary
 	 * value which is decided by ondemand governor.
 	 */
+<<<<<<< HEAD
 	opp = devfreq_recommended_opp(parent_devfreq->dev.parent, freq, 0);
 	if (IS_ERR(opp)) {
 		ret = PTR_ERR(opp);
@@ -69,16 +87,45 @@ static int devfreq_passive_get_target_freq(struct devfreq *devfreq,
 
 	/*
 	 * Get the OPP table's index of decided freqeuncy by governor
+=======
+	if (devfreq->opp_table && parent_devfreq->opp_table) {
+		p_opp = devfreq_recommended_opp(parent_devfreq->dev.parent,
+						freq, 0);
+		if (IS_ERR(p_opp))
+			return PTR_ERR(p_opp);
+
+		opp = dev_pm_opp_xlate_required_opp(parent_devfreq->opp_table,
+						    devfreq->opp_table, p_opp);
+		dev_pm_opp_put(p_opp);
+
+		if (IS_ERR(opp))
+			goto no_required_opp;
+
+		*freq = dev_pm_opp_get_freq(opp);
+		dev_pm_opp_put(opp);
+
+		return 0;
+	}
+
+no_required_opp:
+	/*
+	 * Get the OPP table's index of decided frequency by governor
+>>>>>>> upstream/android-13
 	 * of parent device.
 	 */
 	for (i = 0; i < parent_devfreq->profile->max_state; i++)
 		if (parent_devfreq->profile->freq_table[i] == *freq)
 			break;
 
+<<<<<<< HEAD
 	if (i == parent_devfreq->profile->max_state) {
 		ret = -EINVAL;
 		goto out;
 	}
+=======
+	if (i == parent_devfreq->profile->max_state)
+		return -EINVAL;
+>>>>>>> upstream/android-13
 
 	/* Get the suitable frequency by using index of parent device. */
 	if (i < devfreq->profile->max_state) {
@@ -91,6 +138,7 @@ static int devfreq_passive_get_target_freq(struct devfreq *devfreq,
 	/* Return the suitable frequency for passive device. */
 	*freq = child_freq;
 
+<<<<<<< HEAD
 out:
 	return ret;
 }
@@ -122,6 +170,8 @@ static int update_devfreq_passive(struct devfreq *devfreq, unsigned long freq)
 out:
 	mutex_unlock(&devfreq->lock);
 
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -134,6 +184,7 @@ static int devfreq_passive_notifier_call(struct notifier_block *nb,
 	struct devfreq *parent = (struct devfreq *)data->parent;
 	struct devfreq_freqs *freqs = (struct devfreq_freqs *)ptr;
 	unsigned long freq = freqs->new;
+<<<<<<< HEAD
 
 	switch (event) {
 	case DEVFREQ_PRECHANGE:
@@ -145,6 +196,27 @@ static int devfreq_passive_notifier_call(struct notifier_block *nb,
 			update_devfreq_passive(devfreq, freq);
 		break;
 	}
+=======
+	int ret = 0;
+
+	mutex_lock_nested(&devfreq->lock, SINGLE_DEPTH_NESTING);
+	switch (event) {
+	case DEVFREQ_PRECHANGE:
+		if (parent->previous_freq > freq)
+			ret = devfreq_update_target(devfreq, freq);
+
+		break;
+	case DEVFREQ_POSTCHANGE:
+		if (parent->previous_freq < freq)
+			ret = devfreq_update_target(devfreq, freq);
+		break;
+	}
+	mutex_unlock(&devfreq->lock);
+
+	if (ret < 0)
+		dev_warn(&devfreq->dev,
+			"failed to update devfreq using passive governor\n");
+>>>>>>> upstream/android-13
 
 	return NOTIFY_DONE;
 }
@@ -183,7 +255,11 @@ static int devfreq_passive_event_handler(struct devfreq *devfreq,
 
 static struct devfreq_governor devfreq_passive = {
 	.name = DEVFREQ_GOV_PASSIVE,
+<<<<<<< HEAD
 	.immutable = 1,
+=======
+	.flags = DEVFREQ_GOV_FLAG_IMMUTABLE,
+>>>>>>> upstream/android-13
 	.get_target_freq = devfreq_passive_get_target_freq,
 	.event_handler = devfreq_passive_event_handler,
 };

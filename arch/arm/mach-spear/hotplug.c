@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * linux/arch/arm/mach-spear13xx/hotplug.c
  *
@@ -5,10 +9,13 @@
  * Deepak Sikri <deepak.sikri@st.com>
  *
  * based upon linux/arch/arm/mach-realview/hotplug.c
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/kernel.h>
 #include <linux/errno.h>
@@ -16,6 +23,11 @@
 #include <asm/cp15.h>
 #include <asm/smp_plat.h>
 
+<<<<<<< HEAD
+=======
+#include "generic.h"
+
+>>>>>>> upstream/android-13
 static inline void cpu_enter_lowpower(void)
 {
 	unsigned int v;
@@ -57,7 +69,11 @@ static inline void spear13xx_do_lowpower(unsigned int cpu, int *spurious)
 	for (;;) {
 		wfi();
 
+<<<<<<< HEAD
 		if (pen_release == cpu) {
+=======
+		if (spear_pen_release == cpu) {
+>>>>>>> upstream/android-13
 			/*
 			 * OK, proper wakeup, we're done
 			 */

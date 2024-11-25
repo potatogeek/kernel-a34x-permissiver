@@ -9,6 +9,10 @@ Required properties:
 
 - compatible	: Must be one of
 
+<<<<<<< HEAD
+=======
+			"u-blox,neo-6m"
+>>>>>>> upstream/android-13
 			"u-blox,neo-8"
 			"u-blox,neo-m8"
 

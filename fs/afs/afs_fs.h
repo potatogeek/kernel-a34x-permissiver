@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /* AFS File Service definitions
  *
  * Copyright (C) 2007 Red Hat, Inc. All Rights Reserved.
  * Written by David Howells (dhowells@redhat.com)
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef AFS_FS_H
@@ -17,8 +24,15 @@
 
 enum AFS_FS_Operations {
 	FSFETCHDATA		= 130,	/* AFS Fetch file data */
+<<<<<<< HEAD
 	FSFETCHSTATUS		= 132,	/* AFS Fetch file status */
 	FSSTOREDATA		= 133,	/* AFS Store file data */
+=======
+	FSFETCHACL		= 131,	/* AFS Fetch file ACL */
+	FSFETCHSTATUS		= 132,	/* AFS Fetch file status */
+	FSSTOREDATA		= 133,	/* AFS Store file data */
+	FSSTOREACL		= 134,	/* AFS Store file ACL */
+>>>>>>> upstream/android-13
 	FSSTORESTATUS		= 135,	/* AFS Store file status */
 	FSREMOVEFILE		= 136,	/* AFS Remove a file */
 	FSCREATEFILE		= 137,	/* AFS Create a file */

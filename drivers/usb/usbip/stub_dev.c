@@ -140,6 +140,7 @@ unlock_mutex:
 }
 static DEVICE_ATTR_WO(usbip_sockfd);
 
+<<<<<<< HEAD
 static int stub_add_files(struct device *dev)
 {
 	int err = 0;
@@ -172,6 +173,15 @@ static void stub_remove_files(struct device *dev)
 	device_remove_file(dev, &dev_attr_usbip_sockfd);
 	device_remove_file(dev, &dev_attr_usbip_debug);
 }
+=======
+static struct attribute *usbip_attrs[] = {
+	&dev_attr_usbip_status.attr,
+	&dev_attr_usbip_sockfd.attr,
+	&dev_attr_usbip_debug.attr,
+	NULL,
+};
+ATTRIBUTE_GROUPS(usbip);
+>>>>>>> upstream/android-13
 
 static void stub_shutdown_connection(struct usbip_device *ud)
 {
@@ -414,6 +424,7 @@ static int stub_probe(struct usb_device *udev)
 		goto err_port;
 	}
 
+<<<<<<< HEAD
 	rc = stub_add_files(&udev->dev);
 	if (rc) {
 		dev_err(&udev->dev, "stub_add_files for %s\n", udev_busid);
@@ -425,6 +436,10 @@ static int stub_probe(struct usb_device *udev)
 err_files:
 	usb_hub_release_port(udev->parent, udev->portnum,
 			     (struct usb_dev_state *) udev);
+=======
+	return 0;
+
+>>>>>>> upstream/android-13
 err_port:
 	dev_set_drvdata(&udev->dev, NULL);
 	usb_put_dev(udev);
@@ -492,7 +507,10 @@ static void stub_disconnect(struct usb_device *udev)
 	/*
 	 * NOTE: rx/tx threads are invoked for each usb_device.
 	 */
+<<<<<<< HEAD
 	stub_remove_files(&udev->dev);
+=======
+>>>>>>> upstream/android-13
 
 	/* release port */
 	rc = usb_hub_release_port(udev->parent, udev->portnum,
@@ -561,4 +579,8 @@ struct usb_device_driver stub_driver = {
 	.resume		= stub_resume,
 #endif
 	.supports_autosuspend	=	0,
+<<<<<<< HEAD
+=======
+	.dev_groups	= usbip_groups,
+>>>>>>> upstream/android-13
 };

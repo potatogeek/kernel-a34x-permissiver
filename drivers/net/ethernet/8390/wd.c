@@ -519,7 +519,11 @@ MODULE_LICENSE("GPL");
 /* This is set up so that only a single autoprobe takes place per call.
 ISA device autoprobes on a running machine are not recommended. */
 
+<<<<<<< HEAD
 int __init init_module(void)
+=======
+static int __init wd_init_module(void)
+>>>>>>> upstream/android-13
 {
 	struct net_device *dev;
 	int this_dev, found = 0;
@@ -548,6 +552,10 @@ int __init init_module(void)
 		return 0;
 	return -ENXIO;
 }
+<<<<<<< HEAD
+=======
+module_init(wd_init_module);
+>>>>>>> upstream/android-13
 
 static void cleanup_card(struct net_device *dev)
 {
@@ -556,8 +564,12 @@ static void cleanup_card(struct net_device *dev)
 	iounmap(ei_status.mem);
 }
 
+<<<<<<< HEAD
 void __exit
 cleanup_module(void)
+=======
+static void __exit wd_cleanup_module(void)
+>>>>>>> upstream/android-13
 {
 	int this_dev;
 
@@ -570,4 +582,8 @@ cleanup_module(void)
 		}
 	}
 }
+<<<<<<< HEAD
+=======
+module_exit(wd_cleanup_module);
+>>>>>>> upstream/android-13
 #endif /* MODULE */

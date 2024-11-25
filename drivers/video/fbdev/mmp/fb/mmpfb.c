@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * linux/drivers/video/mmp/fb/mmpfb.c
  * Framebuffer driver for Marvell Display controller.
  *
  * Copyright (C) 2012 Marvell Technology Group Ltd.
  * Authors: Zhou Zhu <zzhu3@marvell.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,6 +23,8 @@
  * You should have received a copy of the GNU General Public License along with
  * this program.  If not, see <http://www.gnu.org/licenses/>.
  *
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/module.h>
 #include <linux/dma-mapping.h>
@@ -103,8 +110,11 @@ static int var_to_pixfmt(struct fb_var_screeninfo *var)
 			else
 				return PIXFMT_BGR888UNPACK;
 		}
+<<<<<<< HEAD
 
 		/* fall through */
+=======
+>>>>>>> upstream/android-13
 	}
 
 	return -EINVAL;
@@ -467,7 +477,11 @@ static int mmpfb_blank(int blank, struct fb_info *info)
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct fb_ops mmpfb_ops = {
+=======
+static const struct fb_ops mmpfb_ops = {
+>>>>>>> upstream/android-13
 	.owner		= THIS_MODULE,
 	.fb_blank	= mmpfb_blank,
 	.fb_check_var	= mmpfb_check_var,
@@ -535,7 +549,11 @@ static int fb_info_setup(struct fb_info *info,
 		info->var.bits_per_pixel / 8;
 	info->fbops = &mmpfb_ops;
 	info->pseudo_palette = fbi->pseudo_palette;
+<<<<<<< HEAD
 	info->screen_base = fbi->fb_start;
+=======
+	info->screen_buffer = fbi->fb_start;
+>>>>>>> upstream/android-13
 	info->screen_size = fbi->fb_size;
 
 	/* For FB framework: Allocate color map and Register framebuffer*/
@@ -625,7 +643,10 @@ static int mmpfb_probe(struct platform_device *pdev)
 		ret = -ENOMEM;
 		goto failed_destroy_mutex;
 	}
+<<<<<<< HEAD
 	memset(fbi->fb_start, 0, fbi->fb_size);
+=======
+>>>>>>> upstream/android-13
 	dev_info(fbi->dev, "fb %dk allocated\n", fbi->fb_size/1024);
 
 	/* fb power on */

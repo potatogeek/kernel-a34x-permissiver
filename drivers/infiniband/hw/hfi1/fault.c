@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright(c) 2018 Intel Corporation.
  *
@@ -44,6 +45,13 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
+=======
+// SPDX-License-Identifier: GPL-2.0 or BSD-3-Clause
+/*
+ * Copyright(c) 2018 Intel Corporation.
+ */
+
+>>>>>>> upstream/android-13
 #include <linux/debugfs.h>
 #include <linux/seq_file.h>
 #include <linux/kernel.h>
@@ -222,11 +230,19 @@ static ssize_t fault_opcodes_read(struct file *file, char __user *buf,
 	while (bit < bitsize) {
 		zero = find_next_zero_bit(fault->opcodes, bitsize, bit);
 		if (zero - 1 != bit)
+<<<<<<< HEAD
 			size += snprintf(data + size,
 					 datalen - size - 1,
 					 "0x%lx-0x%lx,", bit, zero - 1);
 		else
 			size += snprintf(data + size,
+=======
+			size += scnprintf(data + size,
+					 datalen - size - 1,
+					 "0x%lx-0x%lx,", bit, zero - 1);
+		else
+			size += scnprintf(data + size,
+>>>>>>> upstream/android-13
 					 datalen - size - 1, "0x%lx,",
 					 bit);
 		bit = find_next_bit(fault->opcodes, bitsize, zero);
@@ -259,6 +275,10 @@ void hfi1_fault_exit_debugfs(struct hfi1_ibdev *ibd)
 int hfi1_fault_init_debugfs(struct hfi1_ibdev *ibd)
 {
 	struct dentry *parent = ibd->hfi1_ibdev_dbg;
+<<<<<<< HEAD
+=======
+	struct dentry *fault_dir;
+>>>>>>> upstream/android-13
 
 	ibd->fault = kzalloc(sizeof(*ibd->fault), GFP_KERNEL);
 	if (!ibd->fault)
@@ -278,14 +298,21 @@ int hfi1_fault_init_debugfs(struct hfi1_ibdev *ibd)
 	bitmap_zero(ibd->fault->opcodes,
 		    sizeof(ibd->fault->opcodes) * BITS_PER_BYTE);
 
+<<<<<<< HEAD
 	ibd->fault->dir =
 		fault_create_debugfs_attr("fault", parent,
 					  &ibd->fault->attr);
 	if (IS_ERR(ibd->fault->dir)) {
+=======
+	fault_dir =
+		fault_create_debugfs_attr("fault", parent, &ibd->fault->attr);
+	if (IS_ERR(fault_dir)) {
+>>>>>>> upstream/android-13
 		kfree(ibd->fault);
 		ibd->fault = NULL;
 		return -ENOENT;
 	}
+<<<<<<< HEAD
 
 	DEBUGFS_SEQ_FILE_CREATE(fault_stats, ibd->fault->dir, ibd);
 	if (!debugfs_create_bool("enable", 0600, ibd->fault->dir,
@@ -317,6 +344,26 @@ int hfi1_fault_init_debugfs(struct hfi1_ibdev *ibd)
 fail:
 	hfi1_fault_exit_debugfs(ibd);
 	return -ENOMEM;
+=======
+	ibd->fault->dir = fault_dir;
+
+	debugfs_create_file("fault_stats", 0444, fault_dir, ibd,
+			    &_fault_stats_file_ops);
+	debugfs_create_bool("enable", 0600, fault_dir, &ibd->fault->enable);
+	debugfs_create_bool("suppress_err", 0600, fault_dir,
+			    &ibd->fault->suppress_err);
+	debugfs_create_bool("opcode_mode", 0600, fault_dir,
+			    &ibd->fault->opcode);
+	debugfs_create_file("opcodes", 0600, fault_dir, ibd->fault,
+			    &__fault_opcodes_fops);
+	debugfs_create_u64("skip_pkts", 0600, fault_dir,
+			   &ibd->fault->fault_skip);
+	debugfs_create_u64("skip_usec", 0600, fault_dir,
+			   &ibd->fault->fault_skip_usec);
+	debugfs_create_u8("direction", 0600, fault_dir, &ibd->fault->direction);
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 bool hfi1_dbg_fault_suppress_err(struct hfi1_ibdev *ibd)

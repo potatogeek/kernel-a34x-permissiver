@@ -37,7 +37,11 @@ user_backtrace(struct frame_tail __user *tail,
 	struct frame_tail buftail;
 	unsigned long err;
 
+<<<<<<< HEAD
 	if (!access_ok(VERIFY_READ, tail, sizeof(buftail)))
+=======
+	if (!access_ok(tail, sizeof(buftail)))
+>>>>>>> upstream/android-13
 		return NULL;
 
 	pagefault_disable();
@@ -62,9 +66,16 @@ user_backtrace(struct frame_tail __user *tail,
 void
 perf_callchain_user(struct perf_callchain_entry_ctx *entry, struct pt_regs *regs)
 {
+<<<<<<< HEAD
 	struct frame_tail __user *tail;
 
 	if (perf_guest_cbs && perf_guest_cbs->is_in_guest()) {
+=======
+	struct perf_guest_info_callbacks *guest_cbs = perf_get_guest_cbs();
+	struct frame_tail __user *tail;
+
+	if (guest_cbs && guest_cbs->is_in_guest()) {
+>>>>>>> upstream/android-13
 		/* We don't support guest os callchain now */
 		return;
 	}
@@ -98,9 +109,16 @@ callchain_trace(struct stackframe *fr,
 void
 perf_callchain_kernel(struct perf_callchain_entry_ctx *entry, struct pt_regs *regs)
 {
+<<<<<<< HEAD
 	struct stackframe fr;
 
 	if (perf_guest_cbs && perf_guest_cbs->is_in_guest()) {
+=======
+	struct perf_guest_info_callbacks *guest_cbs = perf_get_guest_cbs();
+	struct stackframe fr;
+
+	if (guest_cbs && guest_cbs->is_in_guest()) {
+>>>>>>> upstream/android-13
 		/* We don't support guest os callchain now */
 		return;
 	}
@@ -111,18 +129,33 @@ perf_callchain_kernel(struct perf_callchain_entry_ctx *entry, struct pt_regs *re
 
 unsigned long perf_instruction_pointer(struct pt_regs *regs)
 {
+<<<<<<< HEAD
 	if (perf_guest_cbs && perf_guest_cbs->is_in_guest())
 		return perf_guest_cbs->get_guest_ip();
+=======
+	struct perf_guest_info_callbacks *guest_cbs = perf_get_guest_cbs();
+
+	if (guest_cbs && guest_cbs->is_in_guest())
+		return guest_cbs->get_guest_ip();
+>>>>>>> upstream/android-13
 
 	return instruction_pointer(regs);
 }
 
 unsigned long perf_misc_flags(struct pt_regs *regs)
 {
+<<<<<<< HEAD
 	int misc = 0;
 
 	if (perf_guest_cbs && perf_guest_cbs->is_in_guest()) {
 		if (perf_guest_cbs->is_user_mode())
+=======
+	struct perf_guest_info_callbacks *guest_cbs = perf_get_guest_cbs();
+	int misc = 0;
+
+	if (guest_cbs && guest_cbs->is_in_guest()) {
+		if (guest_cbs->is_user_mode())
+>>>>>>> upstream/android-13
 			misc |= PERF_RECORD_MISC_GUEST_USER;
 		else
 			misc |= PERF_RECORD_MISC_GUEST_KERNEL;

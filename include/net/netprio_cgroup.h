@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * netprio_cgroup.h			Control Group Priority set
  *
@@ -9,6 +10,13 @@
  * Software Foundation; either version 2 of the License, or (at your option)
  * any later version.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * netprio_cgroup.h			Control Group Priority set
+ *
+ * Authors:	Neil Horman <nhorman@tuxdriver.com>
+>>>>>>> upstream/android-13
  */
 
 #ifndef _NETPRIO_CGROUP_H
@@ -32,7 +40,11 @@ static inline u32 task_netprioidx(struct task_struct *p)
 
 	rcu_read_lock();
 	css = task_css(p, net_prio_cgrp_id);
+<<<<<<< HEAD
 	idx = css->cgroup->id;
+=======
+	idx = css->id;
+>>>>>>> upstream/android-13
 	rcu_read_unlock();
 	return idx;
 }

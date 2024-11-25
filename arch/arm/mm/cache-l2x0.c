@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * arch/arm/mm/cache-l2x0.c - L210/L220/L310 cache controller support
  *
  * Copyright (C) 2007 ARM Limited
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -15,6 +20,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/cpu.h>
 #include <linux/err.h>
@@ -30,8 +37,13 @@
 #include <asm/cp15.h>
 #include <asm/cputype.h>
 #include <asm/hardware/cache-l2x0.h>
+<<<<<<< HEAD
 #include "cache-tauros3.h"
 #include "cache-aurora-l2.h"
+=======
+#include <asm/hardware/cache-aurora-l2.h>
+#include "cache-tauros3.h"
+>>>>>>> upstream/android-13
 
 struct l2c_init_data {
 	const char *type;
@@ -1372,8 +1384,13 @@ static unsigned long aurora_range_end(unsigned long start, unsigned long end)
 	 * since cache range operations stall the CPU pipeline
 	 * until completion.
 	 */
+<<<<<<< HEAD
 	if (end > start + MAX_RANGE_SIZE)
 		end = start + MAX_RANGE_SIZE;
+=======
+	if (end > start + AURORA_MAX_RANGE_SIZE)
+		end = start + AURORA_MAX_RANGE_SIZE;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Cache range operations can't straddle a page boundary.
@@ -1513,6 +1530,21 @@ static void __init aurora_of_parse(const struct device_node *np,
 		mask |= AURORA_ACR_FORCE_WRITE_POLICY_MASK;
 	}
 
+<<<<<<< HEAD
+=======
+	if (of_property_read_bool(np, "marvell,ecc-enable")) {
+		mask |= AURORA_ACR_ECC_EN;
+		val |= AURORA_ACR_ECC_EN;
+	}
+
+	if (of_property_read_bool(np, "arm,parity-enable")) {
+		mask |= AURORA_ACR_PARITY_EN;
+		val |= AURORA_ACR_PARITY_EN;
+	} else if (of_property_read_bool(np, "arm,parity-disable")) {
+		mask |= AURORA_ACR_PARITY_EN;
+	}
+
+>>>>>>> upstream/android-13
 	*aux_val &= ~mask;
 	*aux_val |= val;
 	*aux_mask &= ~mask;

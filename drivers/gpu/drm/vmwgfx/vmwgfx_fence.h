@@ -32,8 +32,16 @@
 
 #define VMW_FENCE_WAIT_TIMEOUT (5*HZ)
 
+<<<<<<< HEAD
 struct vmw_private;
 
+=======
+struct drm_device;
+struct drm_file;
+struct drm_pending_event;
+
+struct vmw_private;
+>>>>>>> upstream/android-13
 struct vmw_fence_manager;
 
 /**
@@ -91,8 +99,11 @@ extern int vmw_fence_obj_wait(struct vmw_fence_obj *fence,
 			      bool lazy,
 			      bool interruptible, unsigned long timeout);
 
+<<<<<<< HEAD
 extern void vmw_fence_obj_flush(struct vmw_fence_obj *fence);
 
+=======
+>>>>>>> upstream/android-13
 extern int vmw_fence_create(struct vmw_fence_manager *fman,
 			    uint32_t seqno,
 			    struct vmw_fence_obj **p_fence);

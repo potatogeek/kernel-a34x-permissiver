@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  PC Speaker beeper driver for Linux
  *
  *  Copyright (c) 2002 Vojtech Pavlik
  *  Copyright (c) 1992 Orest Zborowski
+<<<<<<< HEAD
  *
  */
 
@@ -11,6 +16,10 @@
  * under the terms of the GNU General Public License version 2 as published by
  * the Free Software Foundation
  */
+=======
+ */
+
+>>>>>>> upstream/android-13
 
 #include <linux/kernel.h>
 #include <linux/module.h>
@@ -38,6 +47,10 @@ static int pcspkr_event(struct input_dev *dev, unsigned int type,
 	case SND_BELL:
 		if (value)
 			value = 1000;
+<<<<<<< HEAD
+=======
+		break;
+>>>>>>> upstream/android-13
 	case SND_TONE:
 		break;
 	default:

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * DaVinci DA850 AHCI SATA platform driver
  *
@@ -5,6 +6,11 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2, or (at your option)
  * any later version.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * DaVinci DA850 AHCI SATA platform driver
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>

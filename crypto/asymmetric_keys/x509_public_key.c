@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* Instantiate a public key crypto key from an X.509 Certificate
  *
  * Copyright (C) 2012 Red Hat, Inc. All Rights Reserved.
  * Written by David Howells (dhowells@redhat.com)
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public Licence
  * as published by the Free Software Foundation; either version
  * 2 of the Licence, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) "X.509: "fmt
@@ -34,6 +41,12 @@ int x509_get_sig_params(struct x509_certificate *cert)
 
 	pr_devel("==>%s()\n", __func__);
 
+<<<<<<< HEAD
+=======
+	sig->data = cert->tbs;
+	sig->data_size = cert->tbs_size;
+
+>>>>>>> upstream/android-13
 	if (!cert->pub->pkey_algo)
 		cert->unsupported_key = true;
 
@@ -77,7 +90,10 @@ int x509_get_sig_params(struct x509_certificate *cert)
 		goto error;
 
 	desc->tfm = tfm;
+<<<<<<< HEAD
 	desc->flags = CRYPTO_TFM_REQ_MAY_SLEEP;
+=======
+>>>>>>> upstream/android-13
 
 	ret = crypto_shash_digest(desc, cert->tbs, cert->tbs_size, sig->digest);
 	if (ret < 0)
@@ -130,10 +146,13 @@ int x509_check_for_self_signed(struct x509_certificate *cert)
 			goto out;
 	}
 
+<<<<<<< HEAD
 	ret = -EKEYREJECTED;
 	if (strcmp(cert->pub->pkey_algo, cert->sig->pkey_algo) != 0)
 		goto out;
 
+=======
+>>>>>>> upstream/android-13
 	ret = public_key_verify_signature(cert->pub, cert->sig);
 	if (ret < 0) {
 		if (ret == -ENOPKG) {

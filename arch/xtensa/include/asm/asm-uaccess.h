@@ -32,8 +32,11 @@
 #define KERNEL_DS	0
 #define USER_DS		1
 
+<<<<<<< HEAD
 #define get_ds		(KERNEL_DS)
 
+=======
+>>>>>>> upstream/android-13
 /*
  * get_fs reads current->thread.current_ds into a register.
  * On Entry:

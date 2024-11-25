@@ -126,7 +126,10 @@ TRACE_EVENT(regcache_sync,
 		__string(       name,           regmap_name(map)	)
 		__string(	status,		status			)
 		__string(	type,		type			)
+<<<<<<< HEAD
 		__field(	int,		type			)
+=======
+>>>>>>> upstream/android-13
 	),
 
 	TP_fast_assign(

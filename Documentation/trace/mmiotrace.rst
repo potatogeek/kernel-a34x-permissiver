@@ -5,7 +5,11 @@ In-kernel memory-mapped I/O tracing
 
 Home page and links to optional user space tools:
 
+<<<<<<< HEAD
 	http://nouveau.freedesktop.org/wiki/MmioTrace
+=======
+	https://nouveau.freedesktop.org/wiki/MmioTrace
+>>>>>>> upstream/android-13
 
 MMIO tracing was originally developed by Intel around 2003 for their Fault
 Injection Test Harness. In Dec 2006 - Jan 2007, using the code from Intel,

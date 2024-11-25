@@ -132,7 +132,11 @@ static inline unsigned long __cmpxchg(volatile void *ptr, unsigned long old,
 	}
 }
 
+<<<<<<< HEAD
 #define cmpxchg(ptr, o, n)						\
+=======
+#define arch_cmpxchg(ptr, o, n)						\
+>>>>>>> upstream/android-13
 	({								\
 		(__typeof__(*(ptr))) __cmpxchg((ptr),			\
 					       (unsigned long)(o),	\
@@ -161,7 +165,11 @@ static inline unsigned long __xchg(volatile void *ptr, unsigned long with,
 	}
 }
 
+<<<<<<< HEAD
 #define xchg(ptr, with) 						\
+=======
+#define arch_xchg(ptr, with) 						\
+>>>>>>> upstream/android-13
 	({								\
 		(__typeof__(*(ptr))) __xchg((ptr),			\
 					    (unsigned long)(with),	\

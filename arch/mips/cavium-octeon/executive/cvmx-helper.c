@@ -30,6 +30,10 @@
  * Helper functions for common, but complicated tasks.
  *
  */
+<<<<<<< HEAD
+=======
+#include <linux/bug.h>
+>>>>>>> upstream/android-13
 #include <asm/octeon/octeon.h>
 
 #include <asm/octeon/cvmx-config.h>
@@ -43,6 +47,7 @@
 #include <asm/octeon/cvmx-helper-board.h>
 
 #include <asm/octeon/cvmx-pip-defs.h>
+<<<<<<< HEAD
 #include <asm/octeon/cvmx-smix-defs.h>
 #include <asm/octeon/cvmx-asxx-defs.h>
 
@@ -66,6 +71,10 @@ void (*cvmx_override_pko_queue_priority) (int pko_port,
  */
 void (*cvmx_override_ipd_port_setup) (int ipd_port);
 
+=======
+#include <asm/octeon/cvmx-asxx-defs.h>
+
+>>>>>>> upstream/android-13
 /* Port count per interface */
 static int interface_port_count[9];
 
@@ -238,7 +247,11 @@ static cvmx_helper_interface_mode_t __cvmx_get_mode_octeon2(int interface)
 	mode.u64 = cvmx_read_csr(CVMX_GMXX_INF_MODE(interface));
 
 	if (OCTEON_IS_MODEL(OCTEON_CN63XX)) {
+<<<<<<< HEAD
 		switch (mode.cn63xx.mode) {
+=======
+		switch (mode.cn61xx.mode) {
+>>>>>>> upstream/android-13
 		case 0:
 			return CVMX_HELPER_INTERFACE_MODE_SGMII;
 		case 1:
@@ -337,6 +350,7 @@ cvmx_helper_interface_mode_t cvmx_helper_interface_get_mode(int interface)
 			return CVMX_HELPER_INTERFACE_MODE_DISABLED;
 	}
 
+<<<<<<< HEAD
 	if (interface == 0
 	    && cvmx_sysinfo_get()->board_type == CVMX_BOARD_TYPE_CN3005_EVB_HS5
 	    && cvmx_sysinfo_get()->board_rev_major == 1) {
@@ -353,6 +367,8 @@ cvmx_helper_interface_mode_t cvmx_helper_interface_get_mode(int interface)
 		return CVMX_HELPER_INTERFACE_MODE_GMII;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	/* Interface 1 is always disabled on CN31XX and CN30XX */
 	if ((interface == 1)
 	    && (OCTEON_IS_MODEL(OCTEON_CN31XX) || OCTEON_IS_MODEL(OCTEON_CN30XX)
@@ -363,7 +379,11 @@ cvmx_helper_interface_mode_t cvmx_helper_interface_get_mode(int interface)
 	mode.u64 = cvmx_read_csr(CVMX_GMXX_INF_MODE(interface));
 
 	if (OCTEON_IS_MODEL(OCTEON_CN56XX) || OCTEON_IS_MODEL(OCTEON_CN52XX)) {
+<<<<<<< HEAD
 		switch (mode.cn56xx.mode) {
+=======
+		switch (mode.cn52xx.mode) {
+>>>>>>> upstream/android-13
 		case 0:
 			return CVMX_HELPER_INTERFACE_MODE_DISABLED;
 		case 1:
@@ -437,10 +457,13 @@ static int __cvmx_helper_port_setup_ipd(int ipd_port)
 
 	cvmx_pip_config_port(ipd_port, port_config, tag_config);
 
+<<<<<<< HEAD
 	/* Give the user a chance to override our setting for each port */
 	if (cvmx_override_ipd_port_setup)
 		cvmx_override_ipd_port_setup(ipd_port);
 
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -664,6 +687,7 @@ static int __cvmx_helper_interface_setup_pko(int interface)
 	int ipd_port = cvmx_helper_get_ipd_port(interface, 0);
 	int num_ports = interface_port_count[interface];
 	while (num_ports--) {
+<<<<<<< HEAD
 		/*
 		 * Give the user a chance to override the per queue
 		 * priorities.
@@ -671,6 +695,8 @@ static int __cvmx_helper_interface_setup_pko(int interface)
 		if (cvmx_override_pko_queue_priority)
 			cvmx_override_pko_queue_priority(ipd_port, priorities);
 
+=======
+>>>>>>> upstream/android-13
 		cvmx_pko_config_port(ipd_port,
 				     cvmx_pko_get_base_queue_per_core(ipd_port,
 								      0),
@@ -809,7 +835,10 @@ static int __cvmx_helper_packet_hardware_enable(int interface)
 		result = __cvmx_helper_loop_enable(interface);
 		break;
 	}
+<<<<<<< HEAD
 	result |= __cvmx_helper_board_hardware_enable(interface);
+=======
+>>>>>>> upstream/android-13
 	return result;
 }
 
@@ -819,7 +848,11 @@ static int __cvmx_helper_packet_hardware_enable(int interface)
  * Returns 0 on success
  *	   !0 on failure
  */
+<<<<<<< HEAD
 int __cvmx_helper_errata_fix_ipd_ptr_alignment(void)
+=======
+static int __cvmx_helper_errata_fix_ipd_ptr_alignment(void)
+>>>>>>> upstream/android-13
 {
 #define FIX_IPD_FIRST_BUFF_PAYLOAD_BYTES \
      (CVMX_FPA_PACKET_POOL_SIZE-8-CVMX_HELPER_FIRST_MBUFF_SKIP)
@@ -830,9 +863,15 @@ int __cvmx_helper_errata_fix_ipd_ptr_alignment(void)
 #define INTERFACE(port) (port >> 4)
 #define INDEX(port) (port & 0xf)
 	uint64_t *p64;
+<<<<<<< HEAD
 	cvmx_pko_command_word0_t pko_command;
 	union cvmx_buf_ptr g_buffer, pkt_buffer;
 	cvmx_wqe_t *work;
+=======
+	union cvmx_pko_command_word0 pko_command;
+	union cvmx_buf_ptr g_buffer, pkt_buffer;
+	struct cvmx_wqe *work;
+>>>>>>> upstream/android-13
 	int size, num_segs = 0, wqe_pcnt, pkt_pcnt;
 	union cvmx_gmxx_prtx_cfg gmx_cfg;
 	int retry_cnt;
@@ -1057,7 +1096,10 @@ int cvmx_helper_initialize_packet_io_global(void)
 	int result = 0;
 	int interface;
 	union cvmx_l2c_cfg l2c_cfg;
+<<<<<<< HEAD
 	union cvmx_smix_en smix_en;
+=======
+>>>>>>> upstream/android-13
 	const int num_interfaces = cvmx_helper_get_number_of_interfaces();
 
 	/*
@@ -1077,6 +1119,7 @@ int cvmx_helper_initialize_packet_io_global(void)
 	l2c_cfg.s.rfb_arb_mode = 0;
 	cvmx_write_csr(CVMX_L2C_CFG, l2c_cfg.u64);
 
+<<<<<<< HEAD
 	/* Make sure SMI/MDIO is enabled so we can query PHYs */
 	smix_en.u64 = cvmx_read_csr(CVMX_SMIX_EN(0));
 	if (!smix_en.s.en) {
@@ -1095,6 +1138,8 @@ int cvmx_helper_initialize_packet_io_global(void)
 		}
 	}
 
+=======
+>>>>>>> upstream/android-13
 	cvmx_pko_initialize_global();
 	for (interface = 0; interface < num_interfaces; interface++) {
 		result |= cvmx_helper_interface_probe(interface);
@@ -1142,9 +1187,15 @@ int cvmx_helper_initialize_packet_io_local(void)
  *
  * Returns Link state
  */
+<<<<<<< HEAD
 cvmx_helper_link_info_t cvmx_helper_link_get(int ipd_port)
 {
 	cvmx_helper_link_info_t result;
+=======
+union cvmx_helper_link_info cvmx_helper_link_get(int ipd_port)
+{
+	union cvmx_helper_link_info result;
+>>>>>>> upstream/android-13
 	int interface = cvmx_helper_get_interface_num(ipd_port);
 	int index = cvmx_helper_get_interface_index_num(ipd_port);
 
@@ -1167,6 +1218,10 @@ cvmx_helper_link_info_t cvmx_helper_link_get(int ipd_port)
 		if (index == 0)
 			result = __cvmx_helper_rgmii_link_get(ipd_port);
 		else {
+<<<<<<< HEAD
+=======
+			WARN(1, "Using deprecated link status - please update your DT");
+>>>>>>> upstream/android-13
 			result.s.full_duplex = 1;
 			result.s.link_up = 1;
 			result.s.speed = 1000;
@@ -1202,7 +1257,11 @@ EXPORT_SYMBOL_GPL(cvmx_helper_link_get);
  *
  * Returns Zero on success, negative on failure
  */
+<<<<<<< HEAD
 int cvmx_helper_link_set(int ipd_port, cvmx_helper_link_info_t link_info)
+=======
+int cvmx_helper_link_set(int ipd_port, union cvmx_helper_link_info link_info)
+>>>>>>> upstream/android-13
 {
 	int result = -1;
 	int interface = cvmx_helper_get_interface_num(ipd_port);
@@ -1240,6 +1299,7 @@ int cvmx_helper_link_set(int ipd_port, cvmx_helper_link_info_t link_info)
 	return result;
 }
 EXPORT_SYMBOL_GPL(cvmx_helper_link_set);
+<<<<<<< HEAD
 
 /**
  * Configure a port for internal and/or external loopback. Internal loopback
@@ -1294,3 +1354,5 @@ int cvmx_helper_configure_loopback(int ipd_port, int enable_internal,
 	}
 	return result;
 }
+=======
+>>>>>>> upstream/android-13

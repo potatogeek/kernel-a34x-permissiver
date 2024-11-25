@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * AmigaOne platform setup
  *
@@ -5,11 +9,14 @@
  *
  *   Based on original amigaone_setup.c source code
  * Copyright 2003 by Hans-Joerg Frieden and Thomas Frieden
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -70,6 +77,15 @@ static int __init amigaone_add_bridge(struct device_node *dev)
 
 void __init amigaone_setup_arch(void)
 {
+<<<<<<< HEAD
+=======
+	if (ppc_md.progress)
+		ppc_md.progress("Linux/PPC "UTS_RELEASE"\n", 0);
+}
+
+static void __init amigaone_discover_phbs(void)
+{
+>>>>>>> upstream/android-13
 	struct device_node *np;
 	int phb = -ENODEV;
 
@@ -78,9 +94,12 @@ void __init amigaone_setup_arch(void)
 		phb = amigaone_add_bridge(np);
 
 	BUG_ON(phb != 0);
+<<<<<<< HEAD
 
 	if (ppc_md.progress)
 		ppc_md.progress("Linux/PPC "UTS_RELEASE"\n", 0);
+=======
+>>>>>>> upstream/android-13
 }
 
 void __init amigaone_init_IRQ(void)
@@ -150,7 +169,10 @@ static int __init amigaone_probe(void)
 		 */
 		cur_cpu_spec->cpu_features &= ~CPU_FTR_NEED_COHERENT;
 
+<<<<<<< HEAD
 		ISA_DMA_THRESHOLD = 0x00ffffff;
+=======
+>>>>>>> upstream/android-13
 		DMA_MODE_READ = 0x44;
 		DMA_MODE_WRITE = 0x48;
 
@@ -164,6 +186,10 @@ define_machine(amigaone) {
 	.name			= "AmigaOne",
 	.probe			= amigaone_probe,
 	.setup_arch		= amigaone_setup_arch,
+<<<<<<< HEAD
+=======
+	.discover_phbs		= amigaone_discover_phbs,
+>>>>>>> upstream/android-13
 	.show_cpuinfo		= amigaone_show_cpuinfo,
 	.init_IRQ		= amigaone_init_IRQ,
 	.restart		= amigaone_restart,

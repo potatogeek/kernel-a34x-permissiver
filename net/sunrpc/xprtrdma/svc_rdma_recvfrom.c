@@ -89,10 +89,17 @@
  * svc_rdma_recvfrom call returns.
  *
  * During the second svc_rdma_recvfrom call, RDMA Read sink pages
+<<<<<<< HEAD
  * are transferred from the svc_rdma_recv_ctxt to the second svc_rqst
  * (see rdma_read_complete() below).
  */
 
+=======
+ * are transferred from the svc_rdma_recv_ctxt to the second svc_rqst.
+ */
+
+#include <linux/slab.h>
+>>>>>>> upstream/android-13
 #include <linux/spinlock.h>
 #include <asm/unaligned.h>
 #include <rdma/ib_verbs.h>
@@ -106,8 +113,11 @@
 #include "xprt_rdma.h"
 #include <trace/events/rpcrdma.h>
 
+<<<<<<< HEAD
 #define RPCDBG_FACILITY	RPCDBG_SVCXPRT
 
+=======
+>>>>>>> upstream/android-13
 static void svc_rdma_wc_receive(struct ib_cq *cq, struct ib_wc *wc);
 
 static inline struct svc_rdma_recv_ctxt *
@@ -117,6 +127,16 @@ svc_rdma_next_recv_ctxt(struct list_head *list)
 					rc_list);
 }
 
+<<<<<<< HEAD
+=======
+static void svc_rdma_recv_cid_init(struct svcxprt_rdma *rdma,
+				   struct rpc_rdma_cid *cid)
+{
+	cid->ci_queue_id = rdma->sc_rq_cq->res.id;
+	cid->ci_completion_id = atomic_inc_return(&rdma->sc_completion_ids);
+}
+
+>>>>>>> upstream/android-13
 static struct svc_rdma_recv_ctxt *
 svc_rdma_recv_ctxt_alloc(struct svcxprt_rdma *rdma)
 {
@@ -135,6 +155,15 @@ svc_rdma_recv_ctxt_alloc(struct svcxprt_rdma *rdma)
 	if (ib_dma_mapping_error(rdma->sc_pd->device, addr))
 		goto fail2;
 
+<<<<<<< HEAD
+=======
+	svc_rdma_recv_cid_init(rdma, &ctxt->rc_cid);
+	pcl_init(&ctxt->rc_call_pcl);
+	pcl_init(&ctxt->rc_read_pcl);
+	pcl_init(&ctxt->rc_write_pcl);
+	pcl_init(&ctxt->rc_reply_pcl);
+
+>>>>>>> upstream/android-13
 	ctxt->rc_recv_wr.next = NULL;
 	ctxt->rc_recv_wr.wr_cqe = &ctxt->rc_cqe;
 	ctxt->rc_recv_wr.sg_list = &ctxt->rc_recv_sge;
@@ -172,13 +201,21 @@ static void svc_rdma_recv_ctxt_destroy(struct svcxprt_rdma *rdma,
 void svc_rdma_recv_ctxts_destroy(struct svcxprt_rdma *rdma)
 {
 	struct svc_rdma_recv_ctxt *ctxt;
+<<<<<<< HEAD
 
 	while ((ctxt = svc_rdma_next_recv_ctxt(&rdma->sc_recv_ctxts))) {
 		list_del(&ctxt->rc_list);
+=======
+	struct llist_node *node;
+
+	while ((node = llist_del_first(&rdma->sc_recv_ctxts))) {
+		ctxt = llist_entry(node, struct svc_rdma_recv_ctxt, rc_node);
+>>>>>>> upstream/android-13
 		svc_rdma_recv_ctxt_destroy(rdma, ctxt);
 	}
 }
 
+<<<<<<< HEAD
 static struct svc_rdma_recv_ctxt *
 svc_rdma_recv_ctxt_get(struct svcxprt_rdma *rdma)
 {
@@ -190,14 +227,34 @@ svc_rdma_recv_ctxt_get(struct svcxprt_rdma *rdma)
 		goto out_empty;
 	list_del(&ctxt->rc_list);
 	spin_unlock(&rdma->sc_recv_lock);
+=======
+/**
+ * svc_rdma_recv_ctxt_get - Allocate a recv_ctxt
+ * @rdma: controlling svcxprt_rdma
+ *
+ * Returns a recv_ctxt or (rarely) NULL if none are available.
+ */
+struct svc_rdma_recv_ctxt *svc_rdma_recv_ctxt_get(struct svcxprt_rdma *rdma)
+{
+	struct svc_rdma_recv_ctxt *ctxt;
+	struct llist_node *node;
+
+	node = llist_del_first(&rdma->sc_recv_ctxts);
+	if (!node)
+		goto out_empty;
+	ctxt = llist_entry(node, struct svc_rdma_recv_ctxt, rc_node);
+>>>>>>> upstream/android-13
 
 out:
 	ctxt->rc_page_count = 0;
 	return ctxt;
 
 out_empty:
+<<<<<<< HEAD
 	spin_unlock(&rdma->sc_recv_lock);
 
+=======
+>>>>>>> upstream/android-13
 	ctxt = svc_rdma_recv_ctxt_alloc(rdma);
 	if (!ctxt)
 		return NULL;
@@ -213,6 +270,7 @@ out_empty:
 void svc_rdma_recv_ctxt_put(struct svcxprt_rdma *rdma,
 			    struct svc_rdma_recv_ctxt *ctxt)
 {
+<<<<<<< HEAD
 	unsigned int i;
 
 	for (i = 0; i < ctxt->rc_page_count; i++)
@@ -223,6 +281,16 @@ void svc_rdma_recv_ctxt_put(struct svcxprt_rdma *rdma,
 		list_add(&ctxt->rc_list, &rdma->sc_recv_ctxts);
 		spin_unlock(&rdma->sc_recv_lock);
 	} else
+=======
+	pcl_free(&ctxt->rc_call_pcl);
+	pcl_free(&ctxt->rc_read_pcl);
+	pcl_free(&ctxt->rc_write_pcl);
+	pcl_free(&ctxt->rc_reply_pcl);
+
+	if (!ctxt->rc_temp)
+		llist_add(&ctxt->rc_node, &rdma->sc_recv_ctxts);
+	else
+>>>>>>> upstream/android-13
 		svc_rdma_recv_ctxt_destroy(rdma, ctxt);
 }
 
@@ -246,6 +314,7 @@ void svc_rdma_release_rqst(struct svc_rqst *rqstp)
 		svc_rdma_recv_ctxt_put(rdma, ctxt);
 }
 
+<<<<<<< HEAD
 static int __svc_rdma_post_recv(struct svcxprt_rdma *rdma,
 				struct svc_rdma_recv_ctxt *ctxt)
 {
@@ -274,6 +343,50 @@ static int svc_rdma_post_recv(struct svcxprt_rdma *rdma)
 	if (!ctxt)
 		return -ENOMEM;
 	return __svc_rdma_post_recv(rdma, ctxt);
+=======
+static bool svc_rdma_refresh_recvs(struct svcxprt_rdma *rdma,
+				   unsigned int wanted, bool temp)
+{
+	const struct ib_recv_wr *bad_wr = NULL;
+	struct svc_rdma_recv_ctxt *ctxt;
+	struct ib_recv_wr *recv_chain;
+	int ret;
+
+	if (test_bit(XPT_CLOSE, &rdma->sc_xprt.xpt_flags))
+		return false;
+
+	recv_chain = NULL;
+	while (wanted--) {
+		ctxt = svc_rdma_recv_ctxt_get(rdma);
+		if (!ctxt)
+			break;
+
+		trace_svcrdma_post_recv(ctxt);
+		ctxt->rc_temp = temp;
+		ctxt->rc_recv_wr.next = recv_chain;
+		recv_chain = &ctxt->rc_recv_wr;
+		rdma->sc_pending_recvs++;
+	}
+	if (!recv_chain)
+		return false;
+
+	ret = ib_post_recv(rdma->sc_qp, recv_chain, &bad_wr);
+	if (ret)
+		goto err_free;
+	return true;
+
+err_free:
+	trace_svcrdma_rq_post_err(rdma, ret);
+	while (bad_wr) {
+		ctxt = container_of(bad_wr, struct svc_rdma_recv_ctxt,
+				    rc_recv_wr);
+		bad_wr = bad_wr->next;
+		svc_rdma_recv_ctxt_put(rdma, ctxt);
+	}
+	/* Since we're destroying the xprt, no need to reset
+	 * sc_pending_recvs. */
+	return false;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -284,6 +397,7 @@ static int svc_rdma_post_recv(struct svcxprt_rdma *rdma)
  */
 bool svc_rdma_post_recvs(struct svcxprt_rdma *rdma)
 {
+<<<<<<< HEAD
 	struct svc_rdma_recv_ctxt *ctxt;
 	unsigned int i;
 	int ret;
@@ -301,6 +415,9 @@ bool svc_rdma_post_recvs(struct svcxprt_rdma *rdma)
 		}
 	}
 	return true;
+=======
+	return svc_rdma_refresh_recvs(rdma, rdma->sc_max_requests, true);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -308,8 +425,11 @@ bool svc_rdma_post_recvs(struct svcxprt_rdma *rdma)
  * @cq: Completion Queue context
  * @wc: Work Completion object
  *
+<<<<<<< HEAD
  * NB: The svc_xprt/svcxprt_rdma is pinned whenever it's possible that
  * the Receive completion handler could be running.
+=======
+>>>>>>> upstream/android-13
  */
 static void svc_rdma_wc_receive(struct ib_cq *cq, struct ib_wc *wc)
 {
@@ -317,11 +437,16 @@ static void svc_rdma_wc_receive(struct ib_cq *cq, struct ib_wc *wc)
 	struct ib_cqe *cqe = wc->wr_cqe;
 	struct svc_rdma_recv_ctxt *ctxt;
 
+<<<<<<< HEAD
 	trace_svcrdma_wc_receive(wc);
+=======
+	rdma->sc_pending_recvs--;
+>>>>>>> upstream/android-13
 
 	/* WARNING: Only wc->wr_cqe and wc->status are reliable */
 	ctxt = container_of(cqe, struct svc_rdma_recv_ctxt, rc_cqe);
 
+<<<<<<< HEAD
 	if (wc->status != IB_WC_SUCCESS)
 		goto flushed;
 
@@ -353,6 +478,40 @@ post_err:
 	svc_xprt_enqueue(&rdma->sc_xprt);
 out:
 	svc_xprt_put(&rdma->sc_xprt);
+=======
+	trace_svcrdma_wc_receive(wc, &ctxt->rc_cid);
+	if (wc->status != IB_WC_SUCCESS)
+		goto flushed;
+
+	/* If receive posting fails, the connection is about to be
+	 * lost anyway. The server will not be able to send a reply
+	 * for this RPC, and the client will retransmit this RPC
+	 * anyway when it reconnects.
+	 *
+	 * Therefore we drop the Receive, even if status was SUCCESS
+	 * to reduce the likelihood of replayed requests once the
+	 * client reconnects.
+	 */
+	if (rdma->sc_pending_recvs < rdma->sc_max_requests)
+		if (!svc_rdma_refresh_recvs(rdma, rdma->sc_recv_batch, false))
+			goto flushed;
+
+	/* All wc fields are now known to be valid */
+	ctxt->rc_byte_len = wc->byte_len;
+
+	spin_lock(&rdma->sc_rq_dto_lock);
+	list_add_tail(&ctxt->rc_list, &rdma->sc_rq_dto_q);
+	/* Note the unlock pairs with the smp_rmb in svc_xprt_ready: */
+	set_bit(XPT_DATA, &rdma->sc_xprt.xpt_flags);
+	spin_unlock(&rdma->sc_rq_dto_lock);
+	if (!test_bit(RDMAXPRT_CONN_PENDING, &rdma->sc_flags))
+		svc_xprt_enqueue(&rdma->sc_xprt);
+	return;
+
+flushed:
+	svc_rdma_recv_ctxt_put(rdma, ctxt);
+	svc_xprt_deferred_close(&rdma->sc_xprt);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -364,10 +523,13 @@ void svc_rdma_flush_recv_queues(struct svcxprt_rdma *rdma)
 {
 	struct svc_rdma_recv_ctxt *ctxt;
 
+<<<<<<< HEAD
 	while ((ctxt = svc_rdma_next_recv_ctxt(&rdma->sc_read_complete_q))) {
 		list_del(&ctxt->rc_list);
 		svc_rdma_recv_ctxt_put(rdma, ctxt);
 	}
+=======
+>>>>>>> upstream/android-13
 	while ((ctxt = svc_rdma_next_recv_ctxt(&rdma->sc_rq_dto_q))) {
 		list_del(&ctxt->rc_list);
 		svc_rdma_recv_ctxt_put(rdma, ctxt);
@@ -389,6 +551,7 @@ static void svc_rdma_build_arg_xdr(struct svc_rqst *rqstp,
 	arg->len = ctxt->rc_byte_len;
 }
 
+<<<<<<< HEAD
 /* This accommodates the largest possible Write chunk,
  * in one segment.
  */
@@ -461,11 +624,131 @@ static __be32 *xdr_check_write_chunk(__be32 *p, const __be32 *end,
 	}
 
 	return p;
+=======
+/**
+ * xdr_count_read_segments - Count number of Read segments in Read list
+ * @rctxt: Ingress receive context
+ * @p: Start of an un-decoded Read list
+ *
+ * Before allocating anything, ensure the ingress Read list is safe
+ * to use.
+ *
+ * The segment count is limited to how many segments can fit in the
+ * transport header without overflowing the buffer. That's about 40
+ * Read segments for a 1KB inline threshold.
+ *
+ * Return values:
+ *   %true: Read list is valid. @rctxt's xdr_stream is updated to point
+ *	    to the first byte past the Read list. rc_read_pcl and
+ *	    rc_call_pcl cl_count fields are set to the number of
+ *	    Read segments in the list.
+ *  %false: Read list is corrupt. @rctxt's xdr_stream is left in an
+ *	    unknown state.
+ */
+static bool xdr_count_read_segments(struct svc_rdma_recv_ctxt *rctxt, __be32 *p)
+{
+	rctxt->rc_call_pcl.cl_count = 0;
+	rctxt->rc_read_pcl.cl_count = 0;
+	while (xdr_item_is_present(p)) {
+		u32 position, handle, length;
+		u64 offset;
+
+		p = xdr_inline_decode(&rctxt->rc_stream,
+				      rpcrdma_readseg_maxsz * sizeof(*p));
+		if (!p)
+			return false;
+
+		xdr_decode_read_segment(p, &position, &handle,
+					    &length, &offset);
+		if (position) {
+			if (position & 3)
+				return false;
+			++rctxt->rc_read_pcl.cl_count;
+		} else {
+			++rctxt->rc_call_pcl.cl_count;
+		}
+
+		p = xdr_inline_decode(&rctxt->rc_stream, sizeof(*p));
+		if (!p)
+			return false;
+	}
+	return true;
+}
+
+/* Sanity check the Read list.
+ *
+ * Sanity checks:
+ * - Read list does not overflow Receive buffer.
+ * - Chunk size limited by largest NFS data payload.
+ *
+ * Return values:
+ *   %true: Read list is valid. @rctxt's xdr_stream is updated
+ *	    to point to the first byte past the Read list.
+ *  %false: Read list is corrupt. @rctxt's xdr_stream is left
+ *	    in an unknown state.
+ */
+static bool xdr_check_read_list(struct svc_rdma_recv_ctxt *rctxt)
+{
+	__be32 *p;
+
+	p = xdr_inline_decode(&rctxt->rc_stream, sizeof(*p));
+	if (!p)
+		return false;
+	if (!xdr_count_read_segments(rctxt, p))
+		return false;
+	if (!pcl_alloc_call(rctxt, p))
+		return false;
+	return pcl_alloc_read(rctxt, p);
+}
+
+static bool xdr_check_write_chunk(struct svc_rdma_recv_ctxt *rctxt)
+{
+	u32 segcount;
+	__be32 *p;
+
+	if (xdr_stream_decode_u32(&rctxt->rc_stream, &segcount))
+		return false;
+
+	/* A bogus segcount causes this buffer overflow check to fail. */
+	p = xdr_inline_decode(&rctxt->rc_stream,
+			      segcount * rpcrdma_segment_maxsz * sizeof(*p));
+	return p != NULL;
+}
+
+/**
+ * xdr_count_write_chunks - Count number of Write chunks in Write list
+ * @rctxt: Received header and decoding state
+ * @p: start of an un-decoded Write list
+ *
+ * Before allocating anything, ensure the ingress Write list is
+ * safe to use.
+ *
+ * Return values:
+ *       %true: Write list is valid. @rctxt's xdr_stream is updated
+ *		to point to the first byte past the Write list, and
+ *		the number of Write chunks is in rc_write_pcl.cl_count.
+ *      %false: Write list is corrupt. @rctxt's xdr_stream is left
+ *		in an indeterminate state.
+ */
+static bool xdr_count_write_chunks(struct svc_rdma_recv_ctxt *rctxt, __be32 *p)
+{
+	rctxt->rc_write_pcl.cl_count = 0;
+	while (xdr_item_is_present(p)) {
+		if (!xdr_check_write_chunk(rctxt))
+			return false;
+		++rctxt->rc_write_pcl.cl_count;
+		p = xdr_inline_decode(&rctxt->rc_stream, sizeof(*p));
+		if (!p)
+			return false;
+	}
+	return true;
+>>>>>>> upstream/android-13
 }
 
 /* Sanity check the Write list.
  *
  * Implementation limits:
+<<<<<<< HEAD
  * - This implementation supports only one Write chunk.
  *
  * Sanity checks:
@@ -487,11 +770,40 @@ static __be32 *xdr_check_write_list(__be32 *p, const __be32 *end)
 			return NULL;
 	}
 	return p;
+=======
+ * - This implementation currently supports only one Write chunk.
+ *
+ * Sanity checks:
+ * - Write list does not overflow Receive buffer.
+ * - Chunk size limited by largest NFS data payload.
+ *
+ * Return values:
+ *       %true: Write list is valid. @rctxt's xdr_stream is updated
+ *		to point to the first byte past the Write list.
+ *      %false: Write list is corrupt. @rctxt's xdr_stream is left
+ *		in an unknown state.
+ */
+static bool xdr_check_write_list(struct svc_rdma_recv_ctxt *rctxt)
+{
+	__be32 *p;
+
+	p = xdr_inline_decode(&rctxt->rc_stream, sizeof(*p));
+	if (!p)
+		return false;
+	if (!xdr_count_write_chunks(rctxt, p))
+		return false;
+	if (!pcl_alloc_write(rctxt, &rctxt->rc_write_pcl, p))
+		return false;
+
+	rctxt->rc_cur_result_payload = pcl_first_chunk(&rctxt->rc_write_pcl);
+	return true;
+>>>>>>> upstream/android-13
 }
 
 /* Sanity check the Reply chunk.
  *
  * Sanity checks:
+<<<<<<< HEAD
  * - Reply chunk does not overflow buffer.
  * - Segment size limited by largest NFS data payload.
  *
@@ -512,11 +824,106 @@ static __be32 *xdr_check_reply_chunk(__be32 *p, const __be32 *end)
  *
  * On successful exit, head[0] points to first byte past the
  * RPC-over-RDMA header. For RDMA_MSG, this is the RPC message.
+=======
+ * - Reply chunk does not overflow Receive buffer.
+ * - Chunk size limited by largest NFS data payload.
+ *
+ * Return values:
+ *       %true: Reply chunk is valid. @rctxt's xdr_stream is updated
+ *		to point to the first byte past the Reply chunk.
+ *      %false: Reply chunk is corrupt. @rctxt's xdr_stream is left
+ *		in an unknown state.
+ */
+static bool xdr_check_reply_chunk(struct svc_rdma_recv_ctxt *rctxt)
+{
+	__be32 *p;
+
+	p = xdr_inline_decode(&rctxt->rc_stream, sizeof(*p));
+	if (!p)
+		return false;
+
+	if (!xdr_item_is_present(p))
+		return true;
+	if (!xdr_check_write_chunk(rctxt))
+		return false;
+
+	rctxt->rc_reply_pcl.cl_count = 1;
+	return pcl_alloc_write(rctxt, &rctxt->rc_reply_pcl, p);
+}
+
+/* RPC-over-RDMA Version One private extension: Remote Invalidation.
+ * Responder's choice: requester signals it can handle Send With
+ * Invalidate, and responder chooses one R_key to invalidate.
+ *
+ * If there is exactly one distinct R_key in the received transport
+ * header, set rc_inv_rkey to that R_key. Otherwise, set it to zero.
+ */
+static void svc_rdma_get_inv_rkey(struct svcxprt_rdma *rdma,
+				  struct svc_rdma_recv_ctxt *ctxt)
+{
+	struct svc_rdma_segment *segment;
+	struct svc_rdma_chunk *chunk;
+	u32 inv_rkey;
+
+	ctxt->rc_inv_rkey = 0;
+
+	if (!rdma->sc_snd_w_inv)
+		return;
+
+	inv_rkey = 0;
+	pcl_for_each_chunk(chunk, &ctxt->rc_call_pcl) {
+		pcl_for_each_segment(segment, chunk) {
+			if (inv_rkey == 0)
+				inv_rkey = segment->rs_handle;
+			else if (inv_rkey != segment->rs_handle)
+				return;
+		}
+	}
+	pcl_for_each_chunk(chunk, &ctxt->rc_read_pcl) {
+		pcl_for_each_segment(segment, chunk) {
+			if (inv_rkey == 0)
+				inv_rkey = segment->rs_handle;
+			else if (inv_rkey != segment->rs_handle)
+				return;
+		}
+	}
+	pcl_for_each_chunk(chunk, &ctxt->rc_write_pcl) {
+		pcl_for_each_segment(segment, chunk) {
+			if (inv_rkey == 0)
+				inv_rkey = segment->rs_handle;
+			else if (inv_rkey != segment->rs_handle)
+				return;
+		}
+	}
+	pcl_for_each_chunk(chunk, &ctxt->rc_reply_pcl) {
+		pcl_for_each_segment(segment, chunk) {
+			if (inv_rkey == 0)
+				inv_rkey = segment->rs_handle;
+			else if (inv_rkey != segment->rs_handle)
+				return;
+		}
+	}
+	ctxt->rc_inv_rkey = inv_rkey;
+}
+
+/**
+ * svc_rdma_xdr_decode_req - Decode the transport header
+ * @rq_arg: xdr_buf containing ingress RPC/RDMA message
+ * @rctxt: state of decoding
+ *
+ * On entry, xdr->head[0].iov_base points to first byte of the
+ * RPC-over-RDMA transport header.
+ *
+ * On successful exit, head[0] points to first byte past the
+ * RPC-over-RDMA header. For RDMA_MSG, this is the RPC message.
+ *
+>>>>>>> upstream/android-13
  * The length of the RPC-over-RDMA header is returned.
  *
  * Assumptions:
  * - The transport header is entirely contained in the head iovec.
  */
+<<<<<<< HEAD
 static int svc_rdma_xdr_decode_req(struct xdr_buf *rq_arg)
 {
 	__be32 *p, *end, *rdma_argp;
@@ -531,10 +938,32 @@ static int svc_rdma_xdr_decode_req(struct xdr_buf *rq_arg)
 		goto out_version;
 
 	switch (*(rdma_argp + 3)) {
+=======
+static int svc_rdma_xdr_decode_req(struct xdr_buf *rq_arg,
+				   struct svc_rdma_recv_ctxt *rctxt)
+{
+	__be32 *p, *rdma_argp;
+	unsigned int hdr_len;
+
+	rdma_argp = rq_arg->head[0].iov_base;
+	xdr_init_decode(&rctxt->rc_stream, rq_arg, rdma_argp, NULL);
+
+	p = xdr_inline_decode(&rctxt->rc_stream,
+			      rpcrdma_fixed_maxsz * sizeof(*p));
+	if (unlikely(!p))
+		goto out_short;
+	p++;
+	if (*p != rpcrdma_version)
+		goto out_version;
+	p += 2;
+	rctxt->rc_msgtype = *p;
+	switch (rctxt->rc_msgtype) {
+>>>>>>> upstream/android-13
 	case rdma_msg:
 		break;
 	case rdma_nomsg:
 		break;
+<<<<<<< HEAD
 
 	case rdma_done:
 		goto out_drop;
@@ -542,10 +971,17 @@ static int svc_rdma_xdr_decode_req(struct xdr_buf *rq_arg)
 	case rdma_error:
 		goto out_drop;
 
+=======
+	case rdma_done:
+		goto out_drop;
+	case rdma_error:
+		goto out_drop;
+>>>>>>> upstream/android-13
 	default:
 		goto out_proc;
 	}
 
+<<<<<<< HEAD
 	end = (__be32 *)((unsigned long)rdma_argp + rq_arg->len);
 	p = xdr_check_read_list(rdma_argp + 4, end);
 	if (!p)
@@ -651,6 +1087,53 @@ static void svc_rdma_send_error(struct svcxprt_rdma *xprt,
 	ret = svc_rdma_send(xprt, &ctxt->sc_send_wr);
 	if (ret)
 		svc_rdma_send_ctxt_put(xprt, ctxt);
+=======
+	if (!xdr_check_read_list(rctxt))
+		goto out_inval;
+	if (!xdr_check_write_list(rctxt))
+		goto out_inval;
+	if (!xdr_check_reply_chunk(rctxt))
+		goto out_inval;
+
+	rq_arg->head[0].iov_base = rctxt->rc_stream.p;
+	hdr_len = xdr_stream_pos(&rctxt->rc_stream);
+	rq_arg->head[0].iov_len -= hdr_len;
+	rq_arg->len -= hdr_len;
+	trace_svcrdma_decode_rqst(rctxt, rdma_argp, hdr_len);
+	return hdr_len;
+
+out_short:
+	trace_svcrdma_decode_short_err(rctxt, rq_arg->len);
+	return -EINVAL;
+
+out_version:
+	trace_svcrdma_decode_badvers_err(rctxt, rdma_argp);
+	return -EPROTONOSUPPORT;
+
+out_drop:
+	trace_svcrdma_decode_drop_err(rctxt, rdma_argp);
+	return 0;
+
+out_proc:
+	trace_svcrdma_decode_badproc_err(rctxt, rdma_argp);
+	return -EINVAL;
+
+out_inval:
+	trace_svcrdma_decode_parse_err(rctxt, rdma_argp);
+	return -EINVAL;
+}
+
+static void svc_rdma_send_error(struct svcxprt_rdma *rdma,
+				struct svc_rdma_recv_ctxt *rctxt,
+				int status)
+{
+	struct svc_rdma_send_ctxt *sctxt;
+
+	sctxt = svc_rdma_send_ctxt_get(rdma);
+	if (!sctxt)
+		return;
+	svc_rdma_send_error_msg(rdma, sctxt, rctxt, status);
+>>>>>>> upstream/android-13
 }
 
 /* By convention, backchannel calls arrive via rdma_msg type
@@ -658,14 +1141,22 @@ static void svc_rdma_send_error(struct svcxprt_rdma *xprt,
  * the RPC/RDMA header small and fixed in size, so it is
  * straightforward to check the RPC header's direction field.
  */
+<<<<<<< HEAD
 static bool svc_rdma_is_backchannel_reply(struct svc_xprt *xprt,
 					  __be32 *rdma_resp)
 {
 	__be32 *p;
+=======
+static bool svc_rdma_is_reverse_direction_reply(struct svc_xprt *xprt,
+						struct svc_rdma_recv_ctxt *rctxt)
+{
+	__be32 *p = rctxt->rc_recv_buf;
+>>>>>>> upstream/android-13
 
 	if (!xprt->xpt_bc_xprt)
 		return false;
 
+<<<<<<< HEAD
 	p = rdma_resp + 3;
 	if (*p++ != rdma_msg)
 		return false;
@@ -682,6 +1173,22 @@ static bool svc_rdma_is_backchannel_reply(struct svc_xprt *xprt,
 		return false;
 	/* call direction */
 	if (*p == cpu_to_be32(RPC_CALL))
+=======
+	if (rctxt->rc_msgtype != rdma_msg)
+		return false;
+
+	if (!pcl_is_empty(&rctxt->rc_call_pcl))
+		return false;
+	if (!pcl_is_empty(&rctxt->rc_read_pcl))
+		return false;
+	if (!pcl_is_empty(&rctxt->rc_write_pcl))
+		return false;
+	if (!pcl_is_empty(&rctxt->rc_reply_pcl))
+		return false;
+
+	/* RPC call direction */
+	if (*(p + 8) == cpu_to_be32(RPC_CALL))
+>>>>>>> upstream/android-13
 		return false;
 
 	return true;
@@ -723,11 +1230,15 @@ int svc_rdma_recvfrom(struct svc_rqst *rqstp)
 	struct svcxprt_rdma *rdma_xprt =
 		container_of(xprt, struct svcxprt_rdma, sc_xprt);
 	struct svc_rdma_recv_ctxt *ctxt;
+<<<<<<< HEAD
 	__be32 *p;
+=======
+>>>>>>> upstream/android-13
 	int ret;
 
 	rqstp->rq_xprt_ctxt = NULL;
 
+<<<<<<< HEAD
 	spin_lock(&rdma_xprt->sc_rq_dto_lock);
 	ctxt = svc_rdma_next_recv_ctxt(&rdma_xprt->sc_read_complete_q);
 	if (ctxt) {
@@ -748,6 +1259,27 @@ int svc_rdma_recvfrom(struct svc_rqst *rqstp)
 
 	atomic_inc(&rdma_stat_recv);
 
+=======
+	ctxt = NULL;
+	spin_lock(&rdma_xprt->sc_rq_dto_lock);
+	ctxt = svc_rdma_next_recv_ctxt(&rdma_xprt->sc_rq_dto_q);
+	if (ctxt)
+		list_del(&ctxt->rc_list);
+	else
+		/* No new incoming requests, terminate the loop */
+		clear_bit(XPT_DATA, &xprt->xpt_flags);
+	spin_unlock(&rdma_xprt->sc_rq_dto_lock);
+
+	/* Unblock the transport for the next receive */
+	svc_xprt_received(xprt);
+	if (!ctxt)
+		return 0;
+
+	percpu_counter_inc(&svcrdma_stat_recv);
+	ib_dma_sync_single_for_cpu(rdma_xprt->sc_pd->device,
+				   ctxt->rc_recv_sge.addr, ctxt->rc_byte_len,
+				   DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 	svc_rdma_build_arg_xdr(rqstp, ctxt);
 
 	/* Prevent svc_xprt_release from releasing pages in rq_pages
@@ -756,12 +1288,17 @@ int svc_rdma_recvfrom(struct svc_rqst *rqstp)
 	rqstp->rq_respages = rqstp->rq_pages;
 	rqstp->rq_next_page = rqstp->rq_respages;
 
+<<<<<<< HEAD
 	p = (__be32 *)rqstp->rq_arg.head[0].iov_base;
 	ret = svc_rdma_xdr_decode_req(&rqstp->rq_arg);
+=======
+	ret = svc_rdma_xdr_decode_req(&rqstp->rq_arg, ctxt);
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		goto out_err;
 	if (ret == 0)
 		goto out_drop;
+<<<<<<< HEAD
 	rqstp->rq_xprt_hlen = ret;
 
 	if (svc_rdma_is_backchannel_reply(xprt, p)) {
@@ -776,11 +1313,28 @@ int svc_rdma_recvfrom(struct svc_rqst *rqstp)
 		goto out_readchunk;
 
 complete:
+=======
+	rqstp->rq_xprt_hlen = 0;
+
+	if (svc_rdma_is_reverse_direction_reply(xprt, ctxt))
+		goto out_backchannel;
+
+	svc_rdma_get_inv_rkey(rdma_xprt, ctxt);
+
+	if (!pcl_is_empty(&ctxt->rc_read_pcl) ||
+	    !pcl_is_empty(&ctxt->rc_call_pcl)) {
+		ret = svc_rdma_process_read_list(rdma_xprt, rqstp, ctxt);
+		if (ret < 0)
+			goto out_readfail;
+	}
+
+>>>>>>> upstream/android-13
 	rqstp->rq_xprt_ctxt = ctxt;
 	rqstp->rq_prot = IPPROTO_MAX;
 	svc_xprt_copy_addrs(rqstp, xprt);
 	return rqstp->rq_arg.len;
 
+<<<<<<< HEAD
 out_readchunk:
 	ret = svc_rdma_recv_read_chunk(rdma_xprt, rqstp, ctxt, p);
 	if (ret < 0)
@@ -798,6 +1352,21 @@ out_postfail:
 	svc_rdma_recv_ctxt_put(rdma_xprt, ctxt);
 	return ret;
 
+=======
+out_err:
+	svc_rdma_send_error(rdma_xprt, ctxt, ret);
+	svc_rdma_recv_ctxt_put(rdma_xprt, ctxt);
+	return 0;
+
+out_readfail:
+	if (ret == -EINVAL)
+		svc_rdma_send_error(rdma_xprt, ctxt, ret);
+	svc_rdma_recv_ctxt_put(rdma_xprt, ctxt);
+	return ret;
+
+out_backchannel:
+	svc_rdma_handle_bc_reply(rqstp, ctxt);
+>>>>>>> upstream/android-13
 out_drop:
 	svc_rdma_recv_ctxt_put(rdma_xprt, ctxt);
 	return 0;

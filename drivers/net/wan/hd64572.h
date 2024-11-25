@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * hd64572.h	Description of the Hitachi HD64572 (SCA-II), valid for 
  * 		CPU modes 0 & 2.
@@ -6,11 +10,14 @@
  *
  * Copyright:   (c) 2000-2001 Cyclades Corp.
  *
+<<<<<<< HEAD
  *	This program is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU General Public License
  *	as published by the Free Software Foundation; either version
  *	2 of the License, or (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  * $Log: hd64572.h,v $
  * Revision 3.1  2001/06/15 12:41:10  regina
  * upping major version number
@@ -20,7 +27,10 @@
  *
  * Revision 1.0 2000/01/25 ivan
  * Initial version.
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __HD64572_H

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2012 Texas Instruments
  * Author: Rob Clark <robdclark@gmail.com>
@@ -13,11 +14,18 @@
  *
  * You should have received a copy of the GNU General Public License along with
  * this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) 2012 Texas Instruments
+ * Author: Rob Clark <robdclark@gmail.com>
+>>>>>>> upstream/android-13
  */
 
 #ifndef __TILCDC_DRV_H__
 #define __TILCDC_DRV_H__
 
+<<<<<<< HEAD
 #include <linux/clk.h>
 #include <linux/cpufreq.h>
 #include <linux/module.h>
@@ -39,6 +47,33 @@
 #define TILCDC_DEFAULT_MAX_PIXELCLOCK  126000
 /* Defaulting to max width as defined on AM335x */
 #define TILCDC_DEFAULT_MAX_WIDTH  2048
+=======
+#include <linux/cpufreq.h>
+#include <linux/irqreturn.h>
+
+#include <drm/drm_print.h>
+
+struct clk;
+struct workqueue_struct;
+
+struct drm_connector;
+struct drm_connector_helper_funcs;
+struct drm_crtc;
+struct drm_device;
+struct drm_display_mode;
+struct drm_encoder;
+struct drm_framebuffer;
+struct drm_minor;
+struct drm_pending_vblank_event;
+struct drm_plane;
+
+/* Defaulting to pixel clock defined on AM335x */
+#define TILCDC_DEFAULT_MAX_PIXELCLOCK  126000
+/* Maximum display width for LCDC V1 */
+#define TILCDC_DEFAULT_MAX_WIDTH_V1  1024
+/* ... and for LCDC V2 found on AM335x: */
+#define TILCDC_DEFAULT_MAX_WIDTH_V2  2048
+>>>>>>> upstream/android-13
 /*
  * This may need some tweaking, but want to allow at least 1280x1024@60
  * with optimized DDR & EMIF settings tweaked 1920x1080@24 appears to
@@ -53,6 +88,11 @@ struct tilcdc_drm_private {
 	struct clk *clk;         /* functional clock */
 	int rev;                 /* IP revision */
 
+<<<<<<< HEAD
+=======
+	unsigned int irq;
+
+>>>>>>> upstream/android-13
 	/* don't attempt resolutions w/ higher W * H * Hz: */
 	uint32_t max_bandwidth;
 	/*
@@ -70,9 +110,12 @@ struct tilcdc_drm_private {
 	const uint32_t *pixelformats;
 	uint32_t num_pixelformats;
 
+<<<<<<< HEAD
 	/* The context for pm susped/resume cycle is stored here */
 	struct drm_atomic_state *saved_state;
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_CPU_FREQ
 	struct notifier_block freq_transition;
 #endif
@@ -89,10 +132,17 @@ struct tilcdc_drm_private {
 
 	struct drm_encoder *external_encoder;
 	struct drm_connector *external_connector;
+<<<<<<< HEAD
 	const struct drm_connector_helper_funcs *connector_funcs;
 
 	bool is_registered;
 	bool is_componentized;
+=======
+
+	bool is_registered;
+	bool is_componentized;
+	bool irq_enabled;
+>>>>>>> upstream/android-13
 };
 
 /* Sub-module for display.  Since we don't know at compile time what panels
@@ -171,8 +221,11 @@ void tilcdc_crtc_set_panel_info(struct drm_crtc *crtc,
 		const struct tilcdc_panel_info *info);
 void tilcdc_crtc_set_simulate_vesa_sync(struct drm_crtc *crtc,
 					bool simulate_vesa_sync);
+<<<<<<< HEAD
 int tilcdc_crtc_mode_valid(struct drm_crtc *crtc, struct drm_display_mode *mode);
 int tilcdc_crtc_max_width(struct drm_crtc *crtc);
+=======
+>>>>>>> upstream/android-13
 void tilcdc_crtc_shutdown(struct drm_crtc *crtc);
 int tilcdc_crtc_update_fb(struct drm_crtc *crtc,
 		struct drm_framebuffer *fb,

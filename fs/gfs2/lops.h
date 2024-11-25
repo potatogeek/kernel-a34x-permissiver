@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) Sistina Software, Inc.  1997-2003 All rights reserved.
  * Copyright (C) 2004-2008 Red Hat, Inc.  All rights reserved.
@@ -5,6 +6,12 @@
  * This copyrighted material is made available to anyone wishing to use,
  * modify, copy, or redistribute it subject to the terms and conditions
  * of the GNU General Public License version 2.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) Sistina Software, Inc.  1997-2003 All rights reserved.
+ * Copyright (C) 2004-2008 Red Hat, Inc.  All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #ifndef __LOPS_DOT_H__
@@ -13,6 +20,7 @@
 #include <linux/list.h>
 #include "incore.h"
 
+<<<<<<< HEAD
 #define BUF_OFFSET \
 	((sizeof(struct gfs2_log_descriptor) + sizeof(__be64) - 1) & \
 	 ~(sizeof(__be64) - 1))
@@ -39,14 +47,34 @@ static inline unsigned int buf_limit(struct gfs2_sbd *sdp)
 
 	limit = (sdp->sd_sb.sb_bsize - BUF_OFFSET) / sizeof(__be64);
 	return limit;
+=======
+extern const struct gfs2_log_operations *gfs2_log_ops[];
+extern void gfs2_log_incr_head(struct gfs2_sbd *sdp);
+extern u64 gfs2_log_bmap(struct gfs2_jdesc *jd, unsigned int lbn);
+extern void gfs2_log_write(struct gfs2_sbd *sdp, struct gfs2_jdesc *jd,
+			   struct page *page, unsigned size, unsigned offset,
+			   u64 blkno);
+extern void gfs2_log_submit_bio(struct bio **biop, int opf);
+extern void gfs2_pin(struct gfs2_sbd *sdp, struct buffer_head *bh);
+extern int gfs2_find_jhead(struct gfs2_jdesc *jd,
+			   struct gfs2_log_header_host *head, bool keep_cache);
+extern void gfs2_drain_revokes(struct gfs2_sbd *sdp);
+static inline unsigned int buf_limit(struct gfs2_sbd *sdp)
+{
+	return sdp->sd_ldptrs;
+>>>>>>> upstream/android-13
 }
 
 static inline unsigned int databuf_limit(struct gfs2_sbd *sdp)
 {
+<<<<<<< HEAD
 	unsigned int limit;
 
 	limit = (sdp->sd_sb.sb_bsize - DATABUF_OFFSET) / (2 * sizeof(__be64));
 	return limit;
+=======
+	return sdp->sd_ldptrs / 2;
+>>>>>>> upstream/android-13
 }
 
 static inline void lops_before_commit(struct gfs2_sbd *sdp,
@@ -77,7 +105,11 @@ static inline void lops_before_scan(struct gfs2_jdesc *jd,
 			gfs2_log_ops[x]->lo_before_scan(jd, head, pass);
 }
 
+<<<<<<< HEAD
 static inline int lops_scan_elements(struct gfs2_jdesc *jd, unsigned int start,
+=======
+static inline int lops_scan_elements(struct gfs2_jdesc *jd, u32 start,
+>>>>>>> upstream/android-13
 				     struct gfs2_log_descriptor *ld,
 				     __be64 *ptr,
 				     unsigned int pass)

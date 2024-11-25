@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* Userspace key control operations
  *
  * Copyright (C) 2004-5 Red Hat, Inc. All Rights Reserved.
  * Written by David Howells (dhowells@redhat.com)
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -10,6 +15,10 @@
  */
 
 #include <linux/module.h>
+=======
+ */
+
+>>>>>>> upstream/android-13
 #include <linux/init.h>
 #include <linux/sched.h>
 #include <linux/sched/task.h>
@@ -31,6 +40,25 @@
 
 #define KEY_MAX_DESC_SIZE 4096
 
+<<<<<<< HEAD
+=======
+static const unsigned char keyrings_capabilities[2] = {
+	[0] = (KEYCTL_CAPS0_CAPABILITIES |
+	       (IS_ENABLED(CONFIG_PERSISTENT_KEYRINGS)	? KEYCTL_CAPS0_PERSISTENT_KEYRINGS : 0) |
+	       (IS_ENABLED(CONFIG_KEY_DH_OPERATIONS)	? KEYCTL_CAPS0_DIFFIE_HELLMAN : 0) |
+	       (IS_ENABLED(CONFIG_ASYMMETRIC_KEY_TYPE)	? KEYCTL_CAPS0_PUBLIC_KEY : 0) |
+	       (IS_ENABLED(CONFIG_BIG_KEYS)		? KEYCTL_CAPS0_BIG_KEY : 0) |
+	       KEYCTL_CAPS0_INVALIDATE |
+	       KEYCTL_CAPS0_RESTRICT_KEYRING |
+	       KEYCTL_CAPS0_MOVE
+	       ),
+	[1] = (KEYCTL_CAPS1_NS_KEYRING_NAME |
+	       KEYCTL_CAPS1_NS_KEY_TAG |
+	       (IS_ENABLED(CONFIG_KEY_NOTIFICATIONS)	? KEYCTL_CAPS1_NOTIFICATIONS : 0)
+	       ),
+};
+
+>>>>>>> upstream/android-13
 static int key_get_type_from_user(char *type,
 				  const char __user *_type,
 				  unsigned len)
@@ -208,7 +236,11 @@ SYSCALL_DEFINE4(request_key, const char __user *, _type,
 	}
 
 	/* do the search */
+<<<<<<< HEAD
 	key = request_key_and_link(ktype, description, callout_info,
+=======
+	key = request_key_and_link(ktype, description, NULL, callout_info,
+>>>>>>> upstream/android-13
 				   callout_len, NULL, key_ref_to_ptr(dest_ref),
 				   KEY_ALLOC_IN_QUOTA);
 	if (IS_ERR(key)) {
@@ -420,7 +452,11 @@ long keyctl_invalidate_key(key_serial_t id)
 
 		/* Root is permitted to invalidate certain special keys */
 		if (capable(CAP_SYS_ADMIN)) {
+<<<<<<< HEAD
 			key_ref = lookup_user_key(id, 0, 0);
+=======
+			key_ref = lookup_user_key(id, 0, KEY_SYSADMIN_OVERRIDE);
+>>>>>>> upstream/android-13
 			if (IS_ERR(key_ref))
 				goto error;
 			if (test_bit(KEY_FLAG_ROOT_CAN_INVAL,
@@ -465,7 +501,12 @@ long keyctl_keyring_clear(key_serial_t ringid)
 
 		/* Root is permitted to invalidate certain special keyrings */
 		if (capable(CAP_SYS_ADMIN)) {
+<<<<<<< HEAD
 			keyring_ref = lookup_user_key(ringid, 0, 0);
+=======
+			keyring_ref = lookup_user_key(ringid, 0,
+						      KEY_SYSADMIN_OVERRIDE);
+>>>>>>> upstream/android-13
 			if (IS_ERR(keyring_ref))
 				goto error;
 			if (test_bit(KEY_FLAG_ROOT_CAN_CLEAR,
@@ -494,7 +535,11 @@ error:
  * keyring, otherwise replace the link to the matching key with a link to the
  * new key.
  *
+<<<<<<< HEAD
  * The key must grant the caller Link permission and the the keyring must grant
+=======
+ * The key must grant the caller Link permission and the keyring must grant
+>>>>>>> upstream/android-13
  * the caller Write permission.  Furthermore, if an additional link is created,
  * the keyring's quota will be extended.
  *
@@ -549,7 +594,11 @@ long keyctl_keyring_unlink(key_serial_t id, key_serial_t ringid)
 		goto error;
 	}
 
+<<<<<<< HEAD
 	key_ref = lookup_user_key(id, KEY_LOOKUP_FOR_UNLINK, 0);
+=======
+	key_ref = lookup_user_key(id, KEY_LOOKUP_PARTIAL, KEY_NEED_UNLINK);
+>>>>>>> upstream/android-13
 	if (IS_ERR(key_ref)) {
 		ret = PTR_ERR(key_ref);
 		goto error2;
@@ -571,6 +620,55 @@ error:
 }
 
 /*
+<<<<<<< HEAD
+=======
+ * Move a link to a key from one keyring to another, displacing any matching
+ * key from the destination keyring.
+ *
+ * The key must grant the caller Link permission and both keyrings must grant
+ * the caller Write permission.  There must also be a link in the from keyring
+ * to the key.  If both keyrings are the same, nothing is done.
+ *
+ * If successful, 0 will be returned.
+ */
+long keyctl_keyring_move(key_serial_t id, key_serial_t from_ringid,
+			 key_serial_t to_ringid, unsigned int flags)
+{
+	key_ref_t key_ref, from_ref, to_ref;
+	long ret;
+
+	if (flags & ~KEYCTL_MOVE_EXCL)
+		return -EINVAL;
+
+	key_ref = lookup_user_key(id, KEY_LOOKUP_CREATE, KEY_NEED_LINK);
+	if (IS_ERR(key_ref))
+		return PTR_ERR(key_ref);
+
+	from_ref = lookup_user_key(from_ringid, 0, KEY_NEED_WRITE);
+	if (IS_ERR(from_ref)) {
+		ret = PTR_ERR(from_ref);
+		goto error2;
+	}
+
+	to_ref = lookup_user_key(to_ringid, KEY_LOOKUP_CREATE, KEY_NEED_WRITE);
+	if (IS_ERR(to_ref)) {
+		ret = PTR_ERR(to_ref);
+		goto error3;
+	}
+
+	ret = key_move(key_ref_to_ptr(key_ref), key_ref_to_ptr(from_ref),
+		       key_ref_to_ptr(to_ref), flags);
+
+	key_ref_put(to_ref);
+error3:
+	key_ref_put(from_ref);
+error2:
+	key_ref_put(key_ref);
+	return ret;
+}
+
+/*
+>>>>>>> upstream/android-13
  * Return a description of a key to userspace.
  *
  * The key must grant the caller View permission for this to work.
@@ -603,7 +701,11 @@ long keyctl_describe_key(key_serial_t keyid,
 				key_put(instkey);
 				key_ref = lookup_user_key(keyid,
 							  KEY_LOOKUP_PARTIAL,
+<<<<<<< HEAD
 							  0);
+=======
+							  KEY_AUTHTOKEN_OVERRIDE);
+>>>>>>> upstream/android-13
 				if (!IS_ERR(key_ref))
 					goto okay;
 			}
@@ -702,7 +804,11 @@ long keyctl_keyring_search(key_serial_t ringid,
 	}
 
 	/* do the search */
+<<<<<<< HEAD
 	key_ref = keyring_search(keyring_ref, ktype, description);
+=======
+	key_ref = keyring_search(keyring_ref, ktype, description, true);
+>>>>>>> upstream/android-13
 	if (IS_ERR(key_ref)) {
 		ret = PTR_ERR(key_ref);
 
@@ -773,7 +879,11 @@ long keyctl_read_key(key_serial_t keyid, char __user *buffer, size_t buflen)
 	size_t key_data_len;
 
 	/* find the key first */
+<<<<<<< HEAD
 	key_ref = lookup_user_key(keyid, 0, 0);
+=======
+	key_ref = lookup_user_key(keyid, 0, KEY_DEFER_PERM_CHECK);
+>>>>>>> upstream/android-13
 	if (IS_ERR(key_ref)) {
 		ret = -ENOKEY;
 		goto out;
@@ -820,7 +930,11 @@ can_read_key:
 	 *
 	 * Allocating a temporary buffer to hold the keys before
 	 * transferring them to user buffer to avoid potential
+<<<<<<< HEAD
 	 * deadlock involving page fault and mmap_sem.
+=======
+	 * deadlock involving page fault and mmap_lock.
+>>>>>>> upstream/android-13
 	 *
 	 * key_data_len = (buflen <= PAGE_SIZE)
 	 *		? buflen : actual length of key data
@@ -981,6 +1095,10 @@ long keyctl_chown_key(key_serial_t id, uid_t user, gid_t group)
 	if (group != (gid_t) -1)
 		key->gid = gid;
 
+<<<<<<< HEAD
+=======
+	notify_key(key, NOTIFY_KEY_SETATTR, 0);
+>>>>>>> upstream/android-13
 	ret = 0;
 
 error_put:
@@ -1031,6 +1149,10 @@ long keyctl_setperm_key(key_serial_t id, key_perm_t perm)
 	/* if we're not the sysadmin, we can only change a key that we own */
 	if (capable(CAP_SYS_ADMIN) || uid_eq(key->uid, current_fsuid())) {
 		key->perm = perm;
+<<<<<<< HEAD
+=======
+		notify_key(key, NOTIFY_KEY_SETATTR, 0);
+>>>>>>> upstream/android-13
 		ret = 0;
 	}
 
@@ -1104,7 +1226,11 @@ static int keyctl_change_reqkey_auth(struct key *key)
  *
  * If successful, 0 will be returned.
  */
+<<<<<<< HEAD
 long keyctl_instantiate_key_common(key_serial_t id,
+=======
+static long keyctl_instantiate_key_common(key_serial_t id,
+>>>>>>> upstream/android-13
 				   struct iov_iter *from,
 				   key_serial_t ringid)
 {
@@ -1406,7 +1532,11 @@ long keyctl_set_timeout(key_serial_t id, unsigned timeout)
 				key_put(instkey);
 				key_ref = lookup_user_key(id,
 							  KEY_LOOKUP_PARTIAL,
+<<<<<<< HEAD
 							  0);
+=======
+							  KEY_AUTHTOKEN_OVERRIDE);
+>>>>>>> upstream/android-13
 				if (!IS_ERR(key_ref))
 					goto okay;
 			}
@@ -1419,10 +1549,19 @@ long keyctl_set_timeout(key_serial_t id, unsigned timeout)
 okay:
 	key = key_ref_to_ptr(key_ref);
 	ret = 0;
+<<<<<<< HEAD
 	if (test_bit(KEY_FLAG_KEEP, &key->flags))
 		ret = -EPERM;
 	else
 		key_set_timeout(key, timeout);
+=======
+	if (test_bit(KEY_FLAG_KEEP, &key->flags)) {
+		ret = -EPERM;
+	} else {
+		key_set_timeout(key, timeout);
+		notify_key(key, NOTIFY_KEY_SETATTR, 0);
+	}
+>>>>>>> upstream/android-13
 	key_put(key);
 
 error:
@@ -1512,7 +1651,12 @@ long keyctl_get_security(key_serial_t keyid,
 			return PTR_ERR(instkey);
 		key_put(instkey);
 
+<<<<<<< HEAD
 		key_ref = lookup_user_key(keyid, KEY_LOOKUP_PARTIAL, 0);
+=======
+		key_ref = lookup_user_key(keyid, KEY_LOOKUP_PARTIAL,
+					  KEY_AUTHTOKEN_OVERRIDE);
+>>>>>>> upstream/android-13
 		if (IS_ERR(key_ref))
 			return PTR_ERR(key_ref);
 	}
@@ -1588,7 +1732,12 @@ long keyctl_session_to_parent(void)
 
 	ret = -EPERM;
 	oldwork = NULL;
+<<<<<<< HEAD
 	parent = me->real_parent;
+=======
+	parent = rcu_dereference_protected(me->real_parent,
+					   lockdep_is_held(&tasklist_lock));
+>>>>>>> upstream/android-13
 
 	/* the parent mustn't be init and mustn't be a kernel thread */
 	if (parent->pid <= 1 || !parent->mm)
@@ -1629,7 +1778,11 @@ long keyctl_session_to_parent(void)
 
 	/* the replacement session keyring is applied just prior to userspace
 	 * restarting */
+<<<<<<< HEAD
 	ret = task_work_add(parent, newwork, true);
+=======
+	ret = task_work_add(parent, newwork, TWA_RESUME);
+>>>>>>> upstream/android-13
 	if (!ret)
 		newwork = NULL;
 unlock:
@@ -1695,6 +1848,113 @@ error:
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_KEY_NOTIFICATIONS
+/*
+ * Watch for changes to a key.
+ *
+ * The caller must have View permission to watch a key or keyring.
+ */
+long keyctl_watch_key(key_serial_t id, int watch_queue_fd, int watch_id)
+{
+	struct watch_queue *wqueue;
+	struct watch_list *wlist = NULL;
+	struct watch *watch = NULL;
+	struct key *key;
+	key_ref_t key_ref;
+	long ret;
+
+	if (watch_id < -1 || watch_id > 0xff)
+		return -EINVAL;
+
+	key_ref = lookup_user_key(id, KEY_LOOKUP_CREATE, KEY_NEED_VIEW);
+	if (IS_ERR(key_ref))
+		return PTR_ERR(key_ref);
+	key = key_ref_to_ptr(key_ref);
+
+	wqueue = get_watch_queue(watch_queue_fd);
+	if (IS_ERR(wqueue)) {
+		ret = PTR_ERR(wqueue);
+		goto err_key;
+	}
+
+	if (watch_id >= 0) {
+		ret = -ENOMEM;
+		if (!key->watchers) {
+			wlist = kzalloc(sizeof(*wlist), GFP_KERNEL);
+			if (!wlist)
+				goto err_wqueue;
+			init_watch_list(wlist, NULL);
+		}
+
+		watch = kzalloc(sizeof(*watch), GFP_KERNEL);
+		if (!watch)
+			goto err_wlist;
+
+		init_watch(watch, wqueue);
+		watch->id	= key->serial;
+		watch->info_id	= (u32)watch_id << WATCH_INFO_ID__SHIFT;
+
+		ret = security_watch_key(key);
+		if (ret < 0)
+			goto err_watch;
+
+		down_write(&key->sem);
+		if (!key->watchers) {
+			key->watchers = wlist;
+			wlist = NULL;
+		}
+
+		ret = add_watch_to_object(watch, key->watchers);
+		up_write(&key->sem);
+
+		if (ret == 0)
+			watch = NULL;
+	} else {
+		ret = -EBADSLT;
+		if (key->watchers) {
+			down_write(&key->sem);
+			ret = remove_watch_from_object(key->watchers,
+						       wqueue, key_serial(key),
+						       false);
+			up_write(&key->sem);
+		}
+	}
+
+err_watch:
+	kfree(watch);
+err_wlist:
+	kfree(wlist);
+err_wqueue:
+	put_watch_queue(wqueue);
+err_key:
+	key_put(key);
+	return ret;
+}
+#endif /* CONFIG_KEY_NOTIFICATIONS */
+
+/*
+ * Get keyrings subsystem capabilities.
+ */
+long keyctl_capabilities(unsigned char __user *_buffer, size_t buflen)
+{
+	size_t size = buflen;
+
+	if (size > 0) {
+		if (size > sizeof(keyrings_capabilities))
+			size = sizeof(keyrings_capabilities);
+		if (copy_to_user(_buffer, keyrings_capabilities, size) != 0)
+			return -EFAULT;
+		if (size < buflen &&
+		    clear_user(_buffer + size, buflen - size) != 0)
+			return -EFAULT;
+	}
+
+	return sizeof(keyrings_capabilities);
+}
+
+>>>>>>> upstream/android-13
 /*
  * The key control system call
  */
@@ -1811,6 +2071,45 @@ SYSCALL_DEFINE5(keyctl, int, option, unsigned long, arg2, unsigned long, arg3,
 					       (const char __user *) arg3,
 					       (const char __user *) arg4);
 
+<<<<<<< HEAD
+=======
+	case KEYCTL_PKEY_QUERY:
+		if (arg3 != 0)
+			return -EINVAL;
+		return keyctl_pkey_query((key_serial_t)arg2,
+					 (const char __user *)arg4,
+					 (struct keyctl_pkey_query __user *)arg5);
+
+	case KEYCTL_PKEY_ENCRYPT:
+	case KEYCTL_PKEY_DECRYPT:
+	case KEYCTL_PKEY_SIGN:
+		return keyctl_pkey_e_d_s(
+			option,
+			(const struct keyctl_pkey_params __user *)arg2,
+			(const char __user *)arg3,
+			(const void __user *)arg4,
+			(void __user *)arg5);
+
+	case KEYCTL_PKEY_VERIFY:
+		return keyctl_pkey_verify(
+			(const struct keyctl_pkey_params __user *)arg2,
+			(const char __user *)arg3,
+			(const void __user *)arg4,
+			(const void __user *)arg5);
+
+	case KEYCTL_MOVE:
+		return keyctl_keyring_move((key_serial_t)arg2,
+					   (key_serial_t)arg3,
+					   (key_serial_t)arg4,
+					   (unsigned int)arg5);
+
+	case KEYCTL_CAPABILITIES:
+		return keyctl_capabilities((unsigned char __user *)arg2, (size_t)arg3);
+
+	case KEYCTL_WATCH_KEY:
+		return keyctl_watch_key((key_serial_t)arg2, (int)arg3, (int)arg4);
+
+>>>>>>> upstream/android-13
 	default:
 		return -EOPNOTSUPP;
 	}

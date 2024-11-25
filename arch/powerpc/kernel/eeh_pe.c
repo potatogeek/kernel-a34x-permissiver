@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * The file intends to implement PE based on the information from
  * platforms. Basically, there have 3 types of PEs: PHB/Bus/Device.
@@ -6,6 +10,7 @@
  * PE is only meaningful in one PHB domain.
  *
  * Copyright Benjamin Herrenschmidt & Gavin Shan, IBM Corporation 2012.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +25,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/delay.h>
@@ -75,7 +82,10 @@ static struct eeh_pe *eeh_pe_alloc(struct pci_controller *phb, int type)
 	pe->type = type;
 	pe->phb = phb;
 	INIT_LIST_HEAD(&pe->child_list);
+<<<<<<< HEAD
 	INIT_LIST_HEAD(&pe->child);
+=======
+>>>>>>> upstream/android-13
 	INIT_LIST_HEAD(&pe->edevs);
 
 	pe->data = (void *)pe + ALIGN(sizeof(struct eeh_pe),
@@ -110,6 +120,60 @@ int eeh_phb_pe_create(struct pci_controller *phb)
 }
 
 /**
+<<<<<<< HEAD
+=======
+ * eeh_wait_state - Wait for PE state
+ * @pe: EEH PE
+ * @max_wait: maximal period in millisecond
+ *
+ * Wait for the state of associated PE. It might take some time
+ * to retrieve the PE's state.
+ */
+int eeh_wait_state(struct eeh_pe *pe, int max_wait)
+{
+	int ret;
+	int mwait;
+
+	/*
+	 * According to PAPR, the state of PE might be temporarily
+	 * unavailable. Under the circumstance, we have to wait
+	 * for indicated time determined by firmware. The maximal
+	 * wait time is 5 minutes, which is acquired from the original
+	 * EEH implementation. Also, the original implementation
+	 * also defined the minimal wait time as 1 second.
+	 */
+#define EEH_STATE_MIN_WAIT_TIME	(1000)
+#define EEH_STATE_MAX_WAIT_TIME	(300 * 1000)
+
+	while (1) {
+		ret = eeh_ops->get_state(pe, &mwait);
+
+		if (ret != EEH_STATE_UNAVAILABLE)
+			return ret;
+
+		if (max_wait <= 0) {
+			pr_warn("%s: Timeout when getting PE's state (%d)\n",
+				__func__, max_wait);
+			return EEH_STATE_NOT_SUPPORT;
+		}
+
+		if (mwait < EEH_STATE_MIN_WAIT_TIME) {
+			pr_warn("%s: Firmware returned bad wait value %d\n",
+				__func__, mwait);
+			mwait = EEH_STATE_MIN_WAIT_TIME;
+		} else if (mwait > EEH_STATE_MAX_WAIT_TIME) {
+			pr_warn("%s: Firmware returned too long wait value %d\n",
+				__func__, mwait);
+			mwait = EEH_STATE_MAX_WAIT_TIME;
+		}
+
+		msleep(min(mwait, max_wait));
+		max_wait -= mwait;
+	}
+}
+
+/**
+>>>>>>> upstream/android-13
  * eeh_phb_pe_get - Retrieve PHB PE based on the given PHB
  * @phb: PCI controller
  *
@@ -194,16 +258,24 @@ void *eeh_pe_traverse(struct eeh_pe *root,
  * The function is used to traverse the devices of the specified
  * PE and its child PEs.
  */
+<<<<<<< HEAD
 void *eeh_pe_dev_traverse(struct eeh_pe *root,
+=======
+void eeh_pe_dev_traverse(struct eeh_pe *root,
+>>>>>>> upstream/android-13
 			  eeh_edev_traverse_func fn, void *flag)
 {
 	struct eeh_pe *pe;
 	struct eeh_dev *edev, *tmp;
+<<<<<<< HEAD
 	void *ret;
+=======
+>>>>>>> upstream/android-13
 
 	if (!root) {
 		pr_warn("%s: Invalid PE %p\n",
 			__func__, root);
+<<<<<<< HEAD
 		return NULL;
 	}
 
@@ -217,18 +289,31 @@ void *eeh_pe_dev_traverse(struct eeh_pe *root,
 	}
 
 	return NULL;
+=======
+		return;
+	}
+
+	/* Traverse root PE */
+	eeh_for_each_pe(root, pe)
+		eeh_pe_for_each_dev(pe, edev, tmp)
+			fn(edev, flag);
+>>>>>>> upstream/android-13
 }
 
 /**
  * __eeh_pe_get - Check the PE address
+<<<<<<< HEAD
  * @data: EEH PE
  * @flag: EEH device
+=======
+>>>>>>> upstream/android-13
  *
  * For one particular PE, it can be identified by PE address
  * or tranditional BDF address. BDF address is composed of
  * Bus/Device/Function number. The extra data referred by flag
  * indicates which type of address should be used.
  */
+<<<<<<< HEAD
 struct eeh_pe_get_flag {
 	int pe_no;
 	int config_addr;
@@ -258,6 +343,17 @@ static void *__eeh_pe_get(struct eeh_pe *pe, void *flag)
 	/* Try BDF address */
 	if (tmp->config_addr &&
 	   (tmp->config_addr == pe->config_addr))
+=======
+static void *__eeh_pe_get(struct eeh_pe *pe, void *flag)
+{
+	int *target_pe = flag;
+
+	/* PHB PEs are special and should be ignored */
+	if (pe->type & EEH_PE_PHB)
+		return NULL;
+
+	if (*target_pe == pe->addr)
+>>>>>>> upstream/android-13
 		return pe;
 
 	return NULL;
@@ -267,7 +363,10 @@ static void *__eeh_pe_get(struct eeh_pe *pe, void *flag)
  * eeh_pe_get - Search PE based on the given address
  * @phb: PCI controller
  * @pe_no: PE number
+<<<<<<< HEAD
  * @config_addr: Config address
+=======
+>>>>>>> upstream/android-13
  *
  * Search the corresponding PE based on the specified address which
  * is included in the eeh device. The function is used to check if
@@ -276,6 +375,7 @@ static void *__eeh_pe_get(struct eeh_pe *pe, void *flag)
  * which is composed of PCI bus/device/function number, or unified
  * PE address.
  */
+<<<<<<< HEAD
 struct eeh_pe *eeh_pe_get(struct pci_controller *phb,
 		int pe_no, int config_addr)
 {
@@ -346,6 +446,32 @@ int eeh_add_to_parent_pe(struct eeh_dev *edev)
 		       __func__, config_addr, pdn->phb->global_number);
 		return -EINVAL;
 	}
+=======
+struct eeh_pe *eeh_pe_get(struct pci_controller *phb, int pe_no)
+{
+	struct eeh_pe *root = eeh_phb_pe_get(phb);
+
+	return eeh_pe_traverse(root, __eeh_pe_get, &pe_no);
+}
+
+/**
+ * eeh_pe_tree_insert - Add EEH device to parent PE
+ * @edev: EEH device
+ * @new_pe_parent: PE to create additional PEs under
+ *
+ * Add EEH device to the PE in edev->pe_config_addr. If a PE already
+ * exists with that address then @edev is added to that PE. Otherwise
+ * a new PE is created and inserted into the PE tree as a child of
+ * @new_pe_parent.
+ *
+ * If @new_pe_parent is NULL then the new PE will be inserted under
+ * directly under the the PHB.
+ */
+int eeh_pe_tree_insert(struct eeh_dev *edev, struct eeh_pe *new_pe_parent)
+{
+	struct pci_controller *hose = edev->controller;
+	struct eeh_pe *pe, *parent;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Search the PE has been existing or not according
@@ -353,6 +479,7 @@ int eeh_add_to_parent_pe(struct eeh_dev *edev)
 	 * PE should be composed of PCI bus and its subordinate
 	 * components.
 	 */
+<<<<<<< HEAD
 	pe = eeh_pe_get(pdn->phb, edev->pe_config_addr, config_addr);
 	if (pe && !(pe->type & EEH_PE_INVALID)) {
 		/* Mark the PE as type of PCI bus */
@@ -390,20 +517,61 @@ int eeh_add_to_parent_pe(struct eeh_dev *edev)
 			 PCI_SLOT(pdn->devfn),
 			 PCI_FUNC(pdn->devfn),
 			 pe->addr, pe->parent->addr);
+=======
+	pe = eeh_pe_get(hose, edev->pe_config_addr);
+	if (pe) {
+		if (pe->type & EEH_PE_INVALID) {
+			list_add_tail(&edev->entry, &pe->edevs);
+			edev->pe = pe;
+			/*
+			 * We're running to here because of PCI hotplug caused by
+			 * EEH recovery. We need clear EEH_PE_INVALID until the top.
+			 */
+			parent = pe;
+			while (parent) {
+				if (!(parent->type & EEH_PE_INVALID))
+					break;
+				parent->type &= ~EEH_PE_INVALID;
+				parent = parent->parent;
+			}
+
+			eeh_edev_dbg(edev, "Added to existing PE (parent: PE#%x)\n",
+				     pe->parent->addr);
+		} else {
+			/* Mark the PE as type of PCI bus */
+			pe->type = EEH_PE_BUS;
+			edev->pe = pe;
+
+			/* Put the edev to PE */
+			list_add_tail(&edev->entry, &pe->edevs);
+			eeh_edev_dbg(edev, "Added to bus PE\n");
+		}
+>>>>>>> upstream/android-13
 		return 0;
 	}
 
 	/* Create a new EEH PE */
 	if (edev->physfn)
+<<<<<<< HEAD
 		pe = eeh_pe_alloc(pdn->phb, EEH_PE_VF);
 	else
 		pe = eeh_pe_alloc(pdn->phb, EEH_PE_DEVICE);
+=======
+		pe = eeh_pe_alloc(hose, EEH_PE_VF);
+	else
+		pe = eeh_pe_alloc(hose, EEH_PE_DEVICE);
+>>>>>>> upstream/android-13
 	if (!pe) {
 		pr_err("%s: out of memory!\n", __func__);
 		return -ENOMEM;
 	}
+<<<<<<< HEAD
 	pe->addr	= edev->pe_config_addr;
 	pe->config_addr	= config_addr;
+=======
+
+	pe->addr = edev->pe_config_addr;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Put the new EEH PE into hierarchy tree. If the parent
@@ -411,23 +579,39 @@ int eeh_add_to_parent_pe(struct eeh_dev *edev)
 	 * to PHB directly. Otherwise, we have to associate the
 	 * PE with its parent.
 	 */
+<<<<<<< HEAD
 	parent = eeh_pe_get_parent(edev);
 	if (!parent) {
 		parent = eeh_phb_pe_get(pdn->phb);
 		if (!parent) {
 			pr_err("%s: No PHB PE is found (PHB Domain=%d)\n",
 				__func__, pdn->phb->global_number);
+=======
+	if (!new_pe_parent) {
+		new_pe_parent = eeh_phb_pe_get(hose);
+		if (!new_pe_parent) {
+			pr_err("%s: No PHB PE is found (PHB Domain=%d)\n",
+				__func__, hose->global_number);
+>>>>>>> upstream/android-13
 			edev->pe = NULL;
 			kfree(pe);
 			return -EEXIST;
 		}
 	}
+<<<<<<< HEAD
 	pe->parent = parent;
+=======
+
+	/* link new PE into the tree */
+	pe->parent = new_pe_parent;
+	list_add_tail(&pe->child, &new_pe_parent->child_list);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Put the newly created PE into the child list and
 	 * link the EEH device accordingly.
 	 */
+<<<<<<< HEAD
 	list_add_tail(&pe->child, &parent->child_list);
 	list_add_tail(&edev->list, &pe->edevs);
 	edev->pe = pe;
@@ -438,12 +622,22 @@ int eeh_add_to_parent_pe(struct eeh_dev *edev)
 		 PCI_SLOT(pdn->devfn),
 		 PCI_FUNC(pdn->devfn),
 		 pe->addr, pe->parent->addr);
+=======
+	list_add_tail(&edev->entry, &pe->edevs);
+	edev->pe = pe;
+	eeh_edev_dbg(edev, "Added to new (parent: PE#%x)\n",
+		     new_pe_parent->addr);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
 /**
+<<<<<<< HEAD
  * eeh_rmv_from_parent_pe - Remove one EEH device from the associated PE
+=======
+ * eeh_pe_tree_remove - Remove one EEH device from the associated PE
+>>>>>>> upstream/android-13
  * @edev: EEH device
  *
  * The PE hierarchy tree might be changed when doing PCI hotplug.
@@ -451,6 +645,7 @@ int eeh_add_to_parent_pe(struct eeh_dev *edev)
  * during EEH recovery. So we have to call the function remove the
  * corresponding PE accordingly if necessary.
  */
+<<<<<<< HEAD
 int eeh_rmv_from_parent_pe(struct eeh_dev *edev)
 {
 	struct eeh_pe *pe, *parent, *child;
@@ -463,13 +658,29 @@ int eeh_rmv_from_parent_pe(struct eeh_dev *edev)
 			 pdn->busno,
 			 PCI_SLOT(pdn->devfn),
 			 PCI_FUNC(pdn->devfn));
+=======
+int eeh_pe_tree_remove(struct eeh_dev *edev)
+{
+	struct eeh_pe *pe, *parent, *child;
+	bool keep, recover;
+	int cnt;
+
+	pe = eeh_dev_to_pe(edev);
+	if (!pe) {
+		eeh_edev_dbg(edev, "No PE found for device.\n");
+>>>>>>> upstream/android-13
 		return -EEXIST;
 	}
 
 	/* Remove the EEH device */
+<<<<<<< HEAD
 	pe = eeh_dev_to_pe(edev);
 	edev->pe = NULL;
 	list_del(&edev->list);
+=======
+	edev->pe = NULL;
+	list_del(&edev->entry);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Check if the parent PE includes any EEH devices.
@@ -479,10 +690,28 @@ int eeh_rmv_from_parent_pe(struct eeh_dev *edev)
 	 */
 	while (1) {
 		parent = pe->parent;
+<<<<<<< HEAD
 		if (pe->type & EEH_PE_PHB)
 			break;
 
 		if (!(pe->state & EEH_PE_KEEP)) {
+=======
+
+		/* PHB PEs should never be removed */
+		if (pe->type & EEH_PE_PHB)
+			break;
+
+		/*
+		 * XXX: KEEP is set while resetting a PE. I don't think it's
+		 * ever set without RECOVERING also being set. I could
+		 * be wrong though so catch that with a WARN.
+		 */
+		keep = !!(pe->state & EEH_PE_KEEP);
+		recover = !!(pe->state & EEH_PE_RECOVERING);
+		WARN_ON(keep && !recover);
+
+		if (!keep && !recover) {
+>>>>>>> upstream/android-13
 			if (list_empty(&pe->edevs) &&
 			    list_empty(&pe->child_list)) {
 				list_del(&pe->child);
@@ -491,6 +720,18 @@ int eeh_rmv_from_parent_pe(struct eeh_dev *edev)
 				break;
 			}
 		} else {
+<<<<<<< HEAD
+=======
+			/*
+			 * Mark the PE as invalid. At the end of the recovery
+			 * process any invalid PEs will be garbage collected.
+			 *
+			 * We need to delay the free()ing of them since we can
+			 * remove edev's while traversing the PE tree which
+			 * might trigger the removal of a PE and we can't
+			 * deal with that (yet).
+			 */
+>>>>>>> upstream/android-13
 			if (list_empty(&pe->edevs)) {
 				cnt = 0;
 				list_for_each_entry(child, &pe->child_list, child) {
@@ -541,6 +782,7 @@ void eeh_pe_update_time_stamp(struct eeh_pe *pe)
 }
 
 /**
+<<<<<<< HEAD
  * __eeh_pe_state_mark - Mark the state for the PE
  * @data: EEH PE
  * @flag: state
@@ -579,6 +821,8 @@ static void *__eeh_pe_state_mark(struct eeh_pe *pe, void *flag)
 }
 
 /**
+=======
+>>>>>>> upstream/android-13
  * eeh_pe_state_mark - Mark specified state for PE and its associated device
  * @pe: EEH PE
  *
@@ -586,6 +830,7 @@ static void *__eeh_pe_state_mark(struct eeh_pe *pe, void *flag)
  * is used to mark appropriate state for the affected PEs and the
  * associated devices.
  */
+<<<<<<< HEAD
 void eeh_pe_state_mark(struct eeh_pe *pe, int state)
 {
 	eeh_pe_traverse(pe, __eeh_pe_state_mark, &state);
@@ -593,12 +838,56 @@ void eeh_pe_state_mark(struct eeh_pe *pe, int state)
 EXPORT_SYMBOL_GPL(eeh_pe_state_mark);
 
 static void *__eeh_pe_dev_mode_mark(struct eeh_dev *edev, void *flag)
+=======
+void eeh_pe_state_mark(struct eeh_pe *root, int state)
+{
+	struct eeh_pe *pe;
+
+	eeh_for_each_pe(root, pe)
+		if (!(pe->state & EEH_PE_REMOVED))
+			pe->state |= state;
+}
+EXPORT_SYMBOL_GPL(eeh_pe_state_mark);
+
+/**
+ * eeh_pe_mark_isolated
+ * @pe: EEH PE
+ *
+ * Record that a PE has been isolated by marking the PE and it's children as
+ * EEH_PE_ISOLATED (and EEH_PE_CFG_BLOCKED, if required) and their PCI devices
+ * as pci_channel_io_frozen.
+ */
+void eeh_pe_mark_isolated(struct eeh_pe *root)
+{
+	struct eeh_pe *pe;
+	struct eeh_dev *edev;
+	struct pci_dev *pdev;
+
+	eeh_pe_state_mark(root, EEH_PE_ISOLATED);
+	eeh_for_each_pe(root, pe) {
+		list_for_each_entry(edev, &pe->edevs, entry) {
+			pdev = eeh_dev_to_pci_dev(edev);
+			if (pdev)
+				pdev->error_state = pci_channel_io_frozen;
+		}
+		/* Block PCI config access if required */
+		if (pe->state & EEH_PE_CFG_RESTRICTED)
+			pe->state |= EEH_PE_CFG_BLOCKED;
+	}
+}
+EXPORT_SYMBOL_GPL(eeh_pe_mark_isolated);
+
+static void __eeh_pe_dev_mode_mark(struct eeh_dev *edev, void *flag)
+>>>>>>> upstream/android-13
 {
 	int mode = *((int *)flag);
 
 	edev->mode |= mode;
+<<<<<<< HEAD
 
 	return NULL;
+=======
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -613,14 +902,22 @@ void eeh_pe_dev_mode_mark(struct eeh_pe *pe, int mode)
 }
 
 /**
+<<<<<<< HEAD
  * __eeh_pe_state_clear - Clear state for the PE
  * @data: EEH PE
  * @flag: state
+=======
+ * eeh_pe_state_clear - Clear state for the PE
+ * @data: EEH PE
+ * @state: state
+ * @include_passed: include passed-through devices?
+>>>>>>> upstream/android-13
  *
  * The function is used to clear the indicated state from the
  * given PE. Besides, we also clear the check count of the PE
  * as well.
  */
+<<<<<<< HEAD
 static void *__eeh_pe_state_clear(struct eeh_pe *pe, void *flag)
 {
 	int state = *((int *)flag);
@@ -691,6 +988,45 @@ void eeh_pe_state_mark_with_cfg(struct eeh_pe *pe, int state)
 	/* Clear EEH_PE_CFG_BLOCKED, which might be set just now */
 	state = EEH_PE_CFG_BLOCKED;
 	eeh_pe_traverse(pe, __eeh_pe_state_clear, &state);
+=======
+void eeh_pe_state_clear(struct eeh_pe *root, int state, bool include_passed)
+{
+	struct eeh_pe *pe;
+	struct eeh_dev *edev, *tmp;
+	struct pci_dev *pdev;
+
+	eeh_for_each_pe(root, pe) {
+		/* Keep the state of permanently removed PE intact */
+		if (pe->state & EEH_PE_REMOVED)
+			continue;
+
+		if (!include_passed && eeh_pe_passed(pe))
+			continue;
+
+		pe->state &= ~state;
+
+		/*
+		 * Special treatment on clearing isolated state. Clear
+		 * check count since last isolation and put all affected
+		 * devices to normal state.
+		 */
+		if (!(state & EEH_PE_ISOLATED))
+			continue;
+
+		pe->check_count = 0;
+		eeh_pe_for_each_dev(pe, edev, tmp) {
+			pdev = eeh_dev_to_pci_dev(edev);
+			if (!pdev)
+				continue;
+
+			pdev->error_state = pci_channel_io_normal;
+		}
+
+		/* Unblock PCI config access if required */
+		if (pe->state & EEH_PE_CFG_RESTRICTED)
+			pe->state &= ~EEH_PE_CFG_BLOCKED;
+	}
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -706,7 +1042,10 @@ void eeh_pe_state_mark_with_cfg(struct eeh_pe *pe, int state)
  */
 static void eeh_bridge_check_link(struct eeh_dev *edev)
 {
+<<<<<<< HEAD
 	struct pci_dn *pdn = eeh_dev_to_pdn(edev);
+=======
+>>>>>>> upstream/android-13
 	int cap;
 	uint32_t val;
 	int timeout = 0;
@@ -718,6 +1057,7 @@ static void eeh_bridge_check_link(struct eeh_dev *edev)
 	if (!(edev->mode & (EEH_DEV_ROOT_PORT | EEH_DEV_DS_PORT)))
 		return;
 
+<<<<<<< HEAD
 	pr_debug("%s: Check PCIe link for %04x:%02x:%02x.%01x ...\n",
 		 __func__, pdn->phb->global_number,
 		 pdn->busno,
@@ -729,10 +1069,20 @@ static void eeh_bridge_check_link(struct eeh_dev *edev)
 	eeh_ops->read_config(pdn, cap + PCI_EXP_SLTSTA, 2, &val);
 	if (!(val & PCI_EXP_SLTSTA_PDS)) {
 		pr_debug("  No card in the slot (0x%04x) !\n", val);
+=======
+	eeh_edev_dbg(edev, "Checking PCIe link...\n");
+
+	/* Check slot status */
+	cap = edev->pcie_cap;
+	eeh_ops->read_config(edev, cap + PCI_EXP_SLTSTA, 2, &val);
+	if (!(val & PCI_EXP_SLTSTA_PDS)) {
+		eeh_edev_dbg(edev, "No card in the slot (0x%04x) !\n", val);
+>>>>>>> upstream/android-13
 		return;
 	}
 
 	/* Check power status if we have the capability */
+<<<<<<< HEAD
 	eeh_ops->read_config(pdn, cap + PCI_EXP_SLTCAP, 2, &val);
 	if (val & PCI_EXP_SLTCAP_PCP) {
 		eeh_ops->read_config(pdn, cap + PCI_EXP_SLTCTL, 2, &val);
@@ -741,11 +1091,22 @@ static void eeh_bridge_check_link(struct eeh_dev *edev)
 			val &= ~(PCI_EXP_SLTCTL_PCC | PCI_EXP_SLTCTL_PIC);
 			val |= (0x0100 & PCI_EXP_SLTCTL_PIC);
 			eeh_ops->write_config(pdn, cap + PCI_EXP_SLTCTL, 2, val);
+=======
+	eeh_ops->read_config(edev, cap + PCI_EXP_SLTCAP, 2, &val);
+	if (val & PCI_EXP_SLTCAP_PCP) {
+		eeh_ops->read_config(edev, cap + PCI_EXP_SLTCTL, 2, &val);
+		if (val & PCI_EXP_SLTCTL_PCC) {
+			eeh_edev_dbg(edev, "In power-off state, power it on ...\n");
+			val &= ~(PCI_EXP_SLTCTL_PCC | PCI_EXP_SLTCTL_PIC);
+			val |= (0x0100 & PCI_EXP_SLTCTL_PIC);
+			eeh_ops->write_config(edev, cap + PCI_EXP_SLTCTL, 2, val);
+>>>>>>> upstream/android-13
 			msleep(2 * 1000);
 		}
 	}
 
 	/* Enable link */
+<<<<<<< HEAD
 	eeh_ops->read_config(pdn, cap + PCI_EXP_LNKCTL, 2, &val);
 	val &= ~PCI_EXP_LNKCTL_LD;
 	eeh_ops->write_config(pdn, cap + PCI_EXP_LNKCTL, 2, val);
@@ -754,6 +1115,16 @@ static void eeh_bridge_check_link(struct eeh_dev *edev)
 	eeh_ops->read_config(pdn, cap + PCI_EXP_LNKCAP, 4, &val);
 	if (!(val & PCI_EXP_LNKCAP_DLLLARC)) {
 		pr_debug("  No link reporting capability (0x%08x) \n", val);
+=======
+	eeh_ops->read_config(edev, cap + PCI_EXP_LNKCTL, 2, &val);
+	val &= ~PCI_EXP_LNKCTL_LD;
+	eeh_ops->write_config(edev, cap + PCI_EXP_LNKCTL, 2, val);
+
+	/* Check link */
+	eeh_ops->read_config(edev, cap + PCI_EXP_LNKCAP, 4, &val);
+	if (!(val & PCI_EXP_LNKCAP_DLLLARC)) {
+		eeh_edev_dbg(edev, "No link reporting capability (0x%08x) \n", val);
+>>>>>>> upstream/android-13
 		msleep(1000);
 		return;
 	}
@@ -764,16 +1135,27 @@ static void eeh_bridge_check_link(struct eeh_dev *edev)
 		msleep(20);
 		timeout += 20;
 
+<<<<<<< HEAD
 		eeh_ops->read_config(pdn, cap + PCI_EXP_LNKSTA, 2, &val);
+=======
+		eeh_ops->read_config(edev, cap + PCI_EXP_LNKSTA, 2, &val);
+>>>>>>> upstream/android-13
 		if (val & PCI_EXP_LNKSTA_DLLLA)
 			break;
 	}
 
 	if (val & PCI_EXP_LNKSTA_DLLLA)
+<<<<<<< HEAD
 		pr_debug("  Link up (%s)\n",
 			 (val & PCI_EXP_LNKSTA_CLS_2_5GB) ? "2.5GB" : "5GB");
 	else
 		pr_debug("  Link not ready (0x%04x)\n", val);
+=======
+		eeh_edev_dbg(edev, "Link up (%s)\n",
+			 (val & PCI_EXP_LNKSTA_CLS_2_5GB) ? "2.5GB" : "5GB");
+	else
+		eeh_edev_dbg(edev, "Link not ready (0x%04x)\n", val);
+>>>>>>> upstream/android-13
 }
 
 #define BYTE_SWAP(OFF)	(8*((OFF)/4)+3-(OFF))
@@ -781,7 +1163,10 @@ static void eeh_bridge_check_link(struct eeh_dev *edev)
 
 static void eeh_restore_bridge_bars(struct eeh_dev *edev)
 {
+<<<<<<< HEAD
 	struct pci_dn *pdn = eeh_dev_to_pdn(edev);
+=======
+>>>>>>> upstream/android-13
 	int i;
 
 	/*
@@ -789,6 +1174,7 @@ static void eeh_restore_bridge_bars(struct eeh_dev *edev)
 	 * Bus numbers and windows: 0x18 - 0x30
 	 */
 	for (i = 4; i < 13; i++)
+<<<<<<< HEAD
 		eeh_ops->write_config(pdn, i*4, 4, edev->config_space[i]);
 	/* Rom: 0x38 */
 	eeh_ops->write_config(pdn, 14*4, 4, edev->config_space[14]);
@@ -803,6 +1189,22 @@ static void eeh_restore_bridge_bars(struct eeh_dev *edev)
 
 	/* PCI Command: 0x4 */
 	eeh_ops->write_config(pdn, PCI_COMMAND, 4, edev->config_space[1] |
+=======
+		eeh_ops->write_config(edev, i*4, 4, edev->config_space[i]);
+	/* Rom: 0x38 */
+	eeh_ops->write_config(edev, 14*4, 4, edev->config_space[14]);
+
+	/* Cache line & Latency timer: 0xC 0xD */
+	eeh_ops->write_config(edev, PCI_CACHE_LINE_SIZE, 1,
+                SAVED_BYTE(PCI_CACHE_LINE_SIZE));
+	eeh_ops->write_config(edev, PCI_LATENCY_TIMER, 1,
+		SAVED_BYTE(PCI_LATENCY_TIMER));
+	/* Max latency, min grant, interrupt ping and line: 0x3C */
+	eeh_ops->write_config(edev, 15*4, 4, edev->config_space[15]);
+
+	/* PCI Command: 0x4 */
+	eeh_ops->write_config(edev, PCI_COMMAND, 4, edev->config_space[1] |
+>>>>>>> upstream/android-13
 			      PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER);
 
 	/* Check the PCIe link is ready */
@@ -811,11 +1213,15 @@ static void eeh_restore_bridge_bars(struct eeh_dev *edev)
 
 static void eeh_restore_device_bars(struct eeh_dev *edev)
 {
+<<<<<<< HEAD
 	struct pci_dn *pdn = eeh_dev_to_pdn(edev);
+=======
+>>>>>>> upstream/android-13
 	int i;
 	u32 cmd;
 
 	for (i = 4; i < 10; i++)
+<<<<<<< HEAD
 		eeh_ops->write_config(pdn, i*4, 4, edev->config_space[i]);
 	/* 12 == Expansion ROM Address */
 	eeh_ops->write_config(pdn, 12*4, 4, edev->config_space[12]);
@@ -827,12 +1233,29 @@ static void eeh_restore_device_bars(struct eeh_dev *edev)
 
 	/* max latency, min grant, interrupt pin and line */
 	eeh_ops->write_config(pdn, 15*4, 4, edev->config_space[15]);
+=======
+		eeh_ops->write_config(edev, i*4, 4, edev->config_space[i]);
+	/* 12 == Expansion ROM Address */
+	eeh_ops->write_config(edev, 12*4, 4, edev->config_space[12]);
+
+	eeh_ops->write_config(edev, PCI_CACHE_LINE_SIZE, 1,
+		SAVED_BYTE(PCI_CACHE_LINE_SIZE));
+	eeh_ops->write_config(edev, PCI_LATENCY_TIMER, 1,
+		SAVED_BYTE(PCI_LATENCY_TIMER));
+
+	/* max latency, min grant, interrupt pin and line */
+	eeh_ops->write_config(edev, 15*4, 4, edev->config_space[15]);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Restore PERR & SERR bits, some devices require it,
 	 * don't touch the other command bits
 	 */
+<<<<<<< HEAD
 	eeh_ops->read_config(pdn, PCI_COMMAND, 4, &cmd);
+=======
+	eeh_ops->read_config(edev, PCI_COMMAND, 4, &cmd);
+>>>>>>> upstream/android-13
 	if (edev->config_space[1] & PCI_COMMAND_PARITY)
 		cmd |= PCI_COMMAND_PARITY;
 	else
@@ -841,7 +1264,11 @@ static void eeh_restore_device_bars(struct eeh_dev *edev)
 		cmd |= PCI_COMMAND_SERR;
 	else
 		cmd &= ~PCI_COMMAND_SERR;
+<<<<<<< HEAD
 	eeh_ops->write_config(pdn, PCI_COMMAND, 4, cmd);
+=======
+	eeh_ops->write_config(edev, PCI_COMMAND, 4, cmd);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -853,20 +1280,30 @@ static void eeh_restore_device_bars(struct eeh_dev *edev)
  * the expansion ROM base address, the latency timer, and etc.
  * from the saved values in the device node.
  */
+<<<<<<< HEAD
 static void *eeh_restore_one_device_bars(struct eeh_dev *edev, void *flag)
 {
 	struct pci_dn *pdn = eeh_dev_to_pdn(edev);
 
+=======
+static void eeh_restore_one_device_bars(struct eeh_dev *edev, void *flag)
+{
+>>>>>>> upstream/android-13
 	/* Do special restore for bridges */
 	if (edev->mode & EEH_DEV_BRIDGE)
 		eeh_restore_bridge_bars(edev);
 	else
 		eeh_restore_device_bars(edev);
 
+<<<<<<< HEAD
 	if (eeh_ops->restore_config && pdn)
 		eeh_ops->restore_config(pdn);
 
 	return NULL;
+=======
+	if (eeh_ops->restore_config)
+		eeh_ops->restore_config(edev);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -945,7 +1382,11 @@ struct pci_bus *eeh_pe_bus_get(struct eeh_pe *pe)
 		return pe->bus;
 
 	/* Retrieve the parent PCI bus of first (top) PCI device */
+<<<<<<< HEAD
 	edev = list_first_entry_or_null(&pe->edevs, struct eeh_dev, list);
+=======
+	edev = list_first_entry_or_null(&pe->edevs, struct eeh_dev, entry);
+>>>>>>> upstream/android-13
 	pdev = eeh_dev_to_pci_dev(edev);
 	if (pdev)
 		return pdev->bus;

@@ -1,13 +1,21 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+>>>>>>> upstream/android-13
 /*
  * AD9833/AD9834/AD9837/AD9838 SPI DDS driver
  *
  * Copyright 2010-2011 Analog Devices Inc.
+<<<<<<< HEAD
  *
  * Licensed under the GPL-2.
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef IIO_DDS_AD9834_H_
 #define IIO_DDS_AD9834_H_
 
+<<<<<<< HEAD
 /*
  * TODO: struct ad7887_platform_data needs to go into include/linux/iio
  */
@@ -36,4 +44,6 @@ struct ad9834_platform_data {
 	bool			en_signbit_msb_out;
 };
 
+=======
+>>>>>>> upstream/android-13
 #endif /* IIO_DDS_AD9834_H_ */

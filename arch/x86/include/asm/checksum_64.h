@@ -129,6 +129,7 @@ static inline __sum16 csum_tcpudp_magic(__be32 saddr, __be32 daddr,
  */
 extern __wsum csum_partial(const void *buff, int len, __wsum sum);
 
+<<<<<<< HEAD
 #define  _HAVE_ARCH_COPY_AND_CSUM_FROM_USER 1
 #define HAVE_CSUM_COPY_USER 1
 
@@ -149,6 +150,14 @@ extern __wsum csum_partial_copy_nocheck(const void *src, void *dst,
 /* Old names. To be removed. */
 #define csum_and_copy_to_user csum_partial_copy_to_user
 #define csum_and_copy_from_user csum_partial_copy_from_user
+=======
+/* Do not call this directly. Use the wrappers below */
+extern __visible __wsum csum_partial_copy_generic(const void *src, void *dst, int len);
+
+extern __wsum csum_and_copy_from_user(const void __user *src, void *dst, int len);
+extern __wsum csum_and_copy_to_user(const void *src, void __user *dst, int len);
+extern __wsum csum_partial_copy_nocheck(const void *src, void *dst, int len);
+>>>>>>> upstream/android-13
 
 /**
  * ip_compute_csum - Compute an 16bit IP checksum.

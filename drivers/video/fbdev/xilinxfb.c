@@ -241,13 +241,22 @@ xilinx_fb_blank(int blank_mode, struct fb_info *fbi)
 	case FB_BLANK_POWERDOWN:
 		/* turn off panel */
 		xilinx_fb_out32(drvdata, REG_CTRL, 0);
+<<<<<<< HEAD
+=======
+		break;
+
+>>>>>>> upstream/android-13
 	default:
 		break;
 	}
 	return 0; /* success */
 }
 
+<<<<<<< HEAD
 static struct fb_ops xilinxfb_ops = {
+=======
+static const struct fb_ops xilinxfb_ops = {
+>>>>>>> upstream/android-13
 	.owner			= THIS_MODULE,
 	.fb_setcolreg		= xilinx_fb_setcolreg,
 	.fb_blank		= xilinx_fb_blank,
@@ -472,7 +481,11 @@ static int xilinxfb_of_probe(struct platform_device *pdev)
 	if (of_find_property(pdev->dev.of_node, "rotate-display", NULL))
 		pdata.rotate_screen = 1;
 
+<<<<<<< HEAD
 	dev_set_drvdata(&pdev->dev, drvdata);
+=======
+	platform_set_drvdata(pdev, drvdata);
+>>>>>>> upstream/android-13
 	return xilinxfb_assign(pdev, drvdata, &pdata);
 }
 

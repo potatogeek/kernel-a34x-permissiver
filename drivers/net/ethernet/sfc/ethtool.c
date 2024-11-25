@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /****************************************************************************
  * Driver for Solarflare network controllers and boards
  * Copyright 2005-2006 Fen Systems Ltd.
  * Copyright 2006-2013 Solarflare Communications Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published
  * by the Free Software Foundation, incorporated herein by reference.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/netdevice.h>
@@ -16,6 +23,7 @@
 #include "workarounds.h"
 #include "selftest.h"
 #include "efx.h"
+<<<<<<< HEAD
 #include "filter.h"
 #include "nic.h"
 
@@ -90,6 +98,15 @@ static const struct efx_sw_stat_desc efx_sw_stat_desc[] = {
 
 #define EFX_ETHTOOL_SW_STAT_COUNT ARRAY_SIZE(efx_sw_stat_desc)
 
+=======
+#include "efx_channels.h"
+#include "rx_common.h"
+#include "tx_common.h"
+#include "ethtool_common.h"
+#include "filter.h"
+#include "nic.h"
+
+>>>>>>> upstream/android-13
 #define EFX_ETHTOOL_EEPROM_MAGIC 0xEFAB
 
 /**************************************************************************
@@ -120,6 +137,7 @@ static int efx_ethtool_phys_id(struct net_device *net_dev,
 		return 1;	/* cycle on/off once per second */
 	}
 
+<<<<<<< HEAD
 	efx->type->set_id_led(efx, mode);
 	return 0;
 }
@@ -186,6 +204,9 @@ static void efx_ethtool_get_drvinfo(struct net_device *net_dev,
 	efx_mcdi_print_fwver(efx, info->fw_version,
 			     sizeof(info->fw_version));
 	strlcpy(info->bus_info, pci_name(efx->pci_dev), sizeof(info->bus_info));
+=======
+	return efx_mcdi_set_id_led(efx, mode);
+>>>>>>> upstream/android-13
 }
 
 static int efx_ethtool_get_regs_len(struct net_device *net_dev)
@@ -202,6 +223,7 @@ static void efx_ethtool_get_regs(struct net_device *net_dev,
 	efx_nic_get_regs(efx, buf);
 }
 
+<<<<<<< HEAD
 static u32 efx_ethtool_get_msglevel(struct net_device *net_dev)
 {
 	struct efx_nic *efx = netdev_priv(net_dev);
@@ -572,6 +594,8 @@ static int efx_ethtool_nway_reset(struct net_device *net_dev)
 	return mdio45_nway_restart(&efx->mdio);
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Each channel has a single IRQ and moderation timer, started by any
  * completion (or other event).  Unless the module parameter
@@ -602,7 +626,13 @@ static int efx_ethtool_nway_reset(struct net_device *net_dev)
  */
 
 static int efx_ethtool_get_coalesce(struct net_device *net_dev,
+<<<<<<< HEAD
 				    struct ethtool_coalesce *coalesce)
+=======
+				    struct ethtool_coalesce *coalesce,
+				    struct kernel_ethtool_coalesce *kernel_coal,
+				    struct netlink_ext_ack *extack)
+>>>>>>> upstream/android-13
 {
 	struct efx_nic *efx = netdev_priv(net_dev);
 	unsigned int tx_usecs, rx_usecs;
@@ -620,7 +650,13 @@ static int efx_ethtool_get_coalesce(struct net_device *net_dev,
 }
 
 static int efx_ethtool_set_coalesce(struct net_device *net_dev,
+<<<<<<< HEAD
 				    struct ethtool_coalesce *coalesce)
+=======
+				    struct ethtool_coalesce *coalesce,
+				    struct kernel_ethtool_coalesce *kernel_coal,
+				    struct netlink_ext_ack *extack)
+>>>>>>> upstream/android-13
 {
 	struct efx_nic *efx = netdev_priv(net_dev);
 	struct efx_channel *channel;
@@ -628,9 +664,12 @@ static int efx_ethtool_set_coalesce(struct net_device *net_dev,
 	bool adaptive, rx_may_override_tx;
 	int rc;
 
+<<<<<<< HEAD
 	if (coalesce->use_adaptive_tx_coalesce)
 		return -EINVAL;
 
+=======
+>>>>>>> upstream/android-13
 	efx_get_irq_moderation(efx, &tx_usecs, &rx_usecs, &adaptive);
 
 	if (coalesce->rx_coalesce_usecs != rx_usecs)
@@ -699,6 +738,7 @@ static int efx_ethtool_set_ringparam(struct net_device *net_dev,
 	return efx_realloc_channels(efx, ring->rx_pending, txq_entries);
 }
 
+<<<<<<< HEAD
 static int efx_ethtool_set_pauseparam(struct net_device *net_dev,
 				      struct ethtool_pauseparam *pause)
 {
@@ -767,6 +807,8 @@ static void efx_ethtool_get_pauseparam(struct net_device *net_dev,
 	pause->autoneg = !!(efx->wanted_fc & EFX_FC_AUTO);
 }
 
+=======
+>>>>>>> upstream/android-13
 static void efx_ethtool_get_wol(struct net_device *net_dev,
 				struct ethtool_wolinfo *wol)
 {
@@ -782,6 +824,7 @@ static int efx_ethtool_set_wol(struct net_device *net_dev,
 	return efx->type->set_wol(efx, wol->wolopts);
 }
 
+<<<<<<< HEAD
 static int efx_ethtool_reset(struct net_device *net_dev, u32 *flags)
 {
 	struct efx_nic *efx = netdev_priv(net_dev);
@@ -1460,6 +1503,15 @@ static int efx_ethtool_set_rxfh_context(struct net_device *net_dev,
 out_unlock:
 	mutex_unlock(&efx->rss_lock);
 	return rc;
+=======
+static void efx_ethtool_get_fec_stats(struct net_device *net_dev,
+				      struct ethtool_fec_stats *fec_stats)
+{
+	struct efx_nic *efx = netdev_priv(net_dev);
+
+	if (efx->type->get_fec_stats)
+		efx->type->get_fec_stats(efx, fec_stats);
+>>>>>>> upstream/android-13
 }
 
 static int efx_ethtool_get_ts_info(struct net_device *net_dev,
@@ -1476,6 +1528,7 @@ static int efx_ethtool_get_ts_info(struct net_device *net_dev,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int efx_ethtool_get_module_eeprom(struct net_device *net_dev,
 					 struct ethtool_eeprom *ee,
 					 u8 *data)
@@ -1540,12 +1593,21 @@ static int efx_ethtool_set_fecparam(struct net_device *net_dev,
 }
 
 const struct ethtool_ops efx_ethtool_ops = {
+=======
+const struct ethtool_ops efx_ethtool_ops = {
+	.supported_coalesce_params = ETHTOOL_COALESCE_USECS |
+				     ETHTOOL_COALESCE_USECS_IRQ |
+				     ETHTOOL_COALESCE_USE_ADAPTIVE_RX,
+>>>>>>> upstream/android-13
 	.get_drvinfo		= efx_ethtool_get_drvinfo,
 	.get_regs_len		= efx_ethtool_get_regs_len,
 	.get_regs		= efx_ethtool_get_regs,
 	.get_msglevel		= efx_ethtool_get_msglevel,
 	.set_msglevel		= efx_ethtool_set_msglevel,
+<<<<<<< HEAD
 	.nway_reset		= efx_ethtool_nway_reset,
+=======
+>>>>>>> upstream/android-13
 	.get_link		= ethtool_op_get_link,
 	.get_coalesce		= efx_ethtool_get_coalesce,
 	.set_coalesce		= efx_ethtool_set_coalesce,
@@ -1574,6 +1636,10 @@ const struct ethtool_ops efx_ethtool_ops = {
 	.get_module_eeprom	= efx_ethtool_get_module_eeprom,
 	.get_link_ksettings	= efx_ethtool_get_link_ksettings,
 	.set_link_ksettings	= efx_ethtool_set_link_ksettings,
+<<<<<<< HEAD
+=======
+	.get_fec_stats		= efx_ethtool_get_fec_stats,
+>>>>>>> upstream/android-13
 	.get_fecparam		= efx_ethtool_get_fecparam,
 	.set_fecparam		= efx_ethtool_set_fecparam,
 };

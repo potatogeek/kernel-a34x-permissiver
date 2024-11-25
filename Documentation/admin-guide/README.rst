@@ -1,9 +1,16 @@
 .. _readme:
 
+<<<<<<< HEAD
 Linux kernel release 4.x <http://kernel.org/>
 =============================================
 
 These are the release notes for Linux version 4.  Read them carefully,
+=======
+Linux kernel release 5.x <http://kernel.org/>
+=============================================
+
+These are the release notes for Linux version 5.  Read them carefully,
+>>>>>>> upstream/android-13
 as they tell you what this is all about, explain how to install the
 kernel, and what to do if something goes wrong.
 
@@ -51,8 +58,12 @@ Documentation
 
  - There are various README files in the Documentation/ subdirectory:
    these typically contain kernel-specific installation notes for some
+<<<<<<< HEAD
    drivers for example. See Documentation/00-INDEX for a list of what
    is contained in each file.  Please read the
+=======
+   drivers for example. Please read the
+>>>>>>> upstream/android-13
    :ref:`Documentation/process/changes.rst <changes>` file, as it
    contains information about the problems, which may result by upgrading
    your kernel.
@@ -64,7 +75,11 @@ Installing the kernel source
    directory where you have permissions (e.g. your home directory) and
    unpack it::
 
+<<<<<<< HEAD
      xz -cd linux-4.X.tar.xz | tar xvf -
+=======
+     xz -cd linux-5.x.tar.xz | tar xvf -
+>>>>>>> upstream/android-13
 
    Replace "X" with the version number of the latest kernel.
 
@@ -73,6 +88,7 @@ Installing the kernel source
    files.  They should match the library, and not get messed up by
    whatever the kernel-du-jour happens to be.
 
+<<<<<<< HEAD
  - You can also upgrade between 4.x releases by patching.  Patches are
    distributed in the xz format.  To install by patching, get all the
    newer patch files, enter the top level directory of the kernel source
@@ -81,11 +97,22 @@ Installing the kernel source
      xz -cd ../patch-4.x.xz | patch -p1
 
    Replace "x" for all versions bigger than the version "X" of your current
+=======
+ - You can also upgrade between 5.x releases by patching.  Patches are
+   distributed in the xz format.  To install by patching, get all the
+   newer patch files, enter the top level directory of the kernel source
+   (linux-5.x) and execute::
+
+     xz -cd ../patch-5.x.xz | patch -p1
+
+   Replace "x" for all versions bigger than the version "x" of your current
+>>>>>>> upstream/android-13
    source tree, **in_order**, and you should be ok.  You may want to remove
    the backup files (some-file-name~ or some-file-name.orig), and make sure
    that there are no failed patches (some-file-name# or some-file-name.rej).
    If there are, either you or I have made a mistake.
 
+<<<<<<< HEAD
    Unlike patches for the 4.x kernels, patches for the 4.x.y kernels
    (also known as the -stable kernels) are not incremental but instead apply
    directly to the base 4.x kernel.  For example, if your base kernel is 4.0
@@ -93,6 +120,15 @@ Installing the kernel source
    and 4.0.2 patches. Similarly, if you are running kernel version 4.0.2 and
    want to jump to 4.0.3, you must first reverse the 4.0.2 patch (that is,
    patch -R) **before** applying the 4.0.3 patch. You can read more on this in
+=======
+   Unlike patches for the 5.x kernels, patches for the 5.x.y kernels
+   (also known as the -stable kernels) are not incremental but instead apply
+   directly to the base 5.x kernel.  For example, if your base kernel is 5.0
+   and you want to apply the 5.0.3 patch, you must not first apply the 5.0.1
+   and 5.0.2 patches. Similarly, if you are running kernel version 5.0.2 and
+   want to jump to 5.0.3, you must first reverse the 5.0.2 patch (that is,
+   patch -R) **before** applying the 5.0.3 patch. You can read more on this in
+>>>>>>> upstream/android-13
    :ref:`Documentation/process/applying-patches.rst <applying_patches>`.
 
    Alternatively, the script patch-kernel can be used to automate this
@@ -115,7 +151,11 @@ Installing the kernel source
 Software requirements
 ---------------------
 
+<<<<<<< HEAD
    Compiling and running the 4.x kernels requires up-to-date
+=======
+   Compiling and running the 5.x kernels requires up-to-date
+>>>>>>> upstream/android-13
    versions of various software packages.  Consult
    :ref:`Documentation/process/changes.rst <changes>` for the minimum version numbers
    required and how to get updates for these packages.  Beware that using
@@ -133,12 +173,20 @@ Build directory for the kernel
    place for the output files (including .config).
    Example::
 
+<<<<<<< HEAD
      kernel source code: /usr/src/linux-4.X
+=======
+     kernel source code: /usr/src/linux-5.x
+>>>>>>> upstream/android-13
      build directory:    /home/name/build/kernel
 
    To configure and build the kernel, use::
 
+<<<<<<< HEAD
      cd /usr/src/linux-4.X
+=======
+     cd /usr/src/linux-5.x
+>>>>>>> upstream/android-13
      make O=/home/name/build/kernel menuconfig
      make O=/home/name/build/kernel
      sudo make O=/home/name/build/kernel modules_install install
@@ -210,25 +258,53 @@ Configuring the kernel
                            store the lsmod of that machine into a file
                            and pass it in as a LSMOD parameter.
 
+<<<<<<< HEAD
                    target$ lsmod > /tmp/mylsmod
                    target$ scp /tmp/mylsmod host:/tmp
 
                    host$ make LSMOD=/tmp/mylsmod localmodconfig
+=======
+                           Also, you can preserve modules in certain folders
+                           or kconfig files by specifying their paths in
+                           parameter LMC_KEEP.
+
+                   target$ lsmod > /tmp/mylsmod
+                   target$ scp /tmp/mylsmod host:/tmp
+
+                   host$ make LSMOD=/tmp/mylsmod \
+                           LMC_KEEP="drivers/usb:drivers/gpu:fs" \
+                           localmodconfig
+>>>>>>> upstream/android-13
 
                            The above also works when cross compiling.
 
      "make localyesconfig" Similar to localmodconfig, except it will convert
+<<<<<<< HEAD
                            all module options to built in (=y) options.
 
      "make kvmconfig"   Enable additional options for kvm guest kernel support.
 
      "make xenconfig"   Enable additional options for xen dom0 guest kernel
                         support.
+=======
+                           all module options to built in (=y) options. You can
+                           also preserve modules by LMC_KEEP.
+
+     "make kvm_guest.config"   Enable additional options for kvm guest kernel
+                               support.
+
+     "make xen.config"   Enable additional options for xen dom0 guest kernel
+                         support.
+>>>>>>> upstream/android-13
 
      "make tinyconfig"  Configure the tiniest possible kernel.
 
    You can find more information on using the Linux kernel config tools
+<<<<<<< HEAD
    in Documentation/kbuild/kconfig.txt.
+=======
+   in Documentation/kbuild/kconfig.rst.
+>>>>>>> upstream/android-13
 
  - NOTES on ``make config``:
 
@@ -252,7 +328,11 @@ Configuring the kernel
 Compiling the kernel
 --------------------
 
+<<<<<<< HEAD
  - Make sure you have at least gcc 3.2 available.
+=======
+ - Make sure you have at least gcc 5.1 available.
+>>>>>>> upstream/android-13
    For more information, refer to :ref:`Documentation/process/changes.rst <changes>`.
 
    Please note that you can still run a.out user programs with this kernel.
@@ -316,9 +396,15 @@ Compiling the kernel
    reboot, and enjoy!
 
    If you ever need to change the default root device, video mode,
+<<<<<<< HEAD
    ramdisk size, etc.  in the kernel image, use the ``rdev`` program (or
    alternatively the LILO boot options when appropriate).  No need to
    recompile the kernel to change these parameters.
+=======
+   etc. in the kernel image, use your bootloader's boot options
+   where appropriate.  No need to recompile the kernel to change
+   these parameters.
+>>>>>>> upstream/android-13
 
  - Reboot with the new kernel and enjoy.
 
@@ -392,8 +478,13 @@ If something goes wrong
 
    If you for some reason cannot do the above (you have a pre-compiled
    kernel image or similar), telling me as much about your setup as
+<<<<<<< HEAD
    possible will help.  Please read the :ref:`admin-guide/reporting-bugs.rst <reportingbugs>`
    document for details.
+=======
+   possible will help.  Please read
+   'Documentation/admin-guide/reporting-issues.rst' for details.
+>>>>>>> upstream/android-13
 
  - Alternatively, you can use gdb on a running kernel. (read-only; i.e. you
    cannot change values or set break points.) To do this, first compile the

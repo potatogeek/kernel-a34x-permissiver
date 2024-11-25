@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2014 Christoph Fritz <chf.fritzc@googlemail.com>
  *
@@ -5,6 +6,11 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (C) 2014 Christoph Fritz <chf.fritzc@googlemail.com>
+>>>>>>> upstream/android-13
  */
 /dts-v1/;
 
@@ -12,7 +18,11 @@
 
 / {
 	model = "INCOstartec LILLY-DBB056 (DM3730)";
+<<<<<<< HEAD
 	compatible = "incostartec,omap3-lilly-dbb056", "incostartec,omap3-lilly-a83x", "ti,omap36xx", "ti,omap3";
+=======
+	compatible = "incostartec,omap3-lilly-dbb056", "incostartec,omap3-lilly-a83x", "ti,omap3630", "ti,omap36xx", "ti,omap3";
+>>>>>>> upstream/android-13
 };
 
 &twl {

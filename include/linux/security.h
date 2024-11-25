@@ -23,6 +23,10 @@
 #ifndef __LINUX_SECURITY_H
 #define __LINUX_SECURITY_H
 
+<<<<<<< HEAD
+=======
+#include <linux/kernel_read_file.h>
+>>>>>>> upstream/android-13
 #include <linux/key.h>
 #include <linux/capability.h>
 #include <linux/fs.h>
@@ -30,12 +34,19 @@
 #include <linux/err.h>
 #include <linux/string.h>
 #include <linux/mm.h>
+<<<<<<< HEAD
 #include <linux/fs.h>
+=======
+>>>>>>> upstream/android-13
 
 struct linux_binprm;
 struct cred;
 struct rlimit;
+<<<<<<< HEAD
 struct siginfo;
+=======
+struct kernel_siginfo;
+>>>>>>> upstream/android-13
 struct sembuf;
 struct kern_ipc_perm;
 struct audit_context;
@@ -51,6 +62,7 @@ struct fown_struct;
 struct file_operations;
 struct msg_msg;
 struct xattr;
+<<<<<<< HEAD
 struct xfrm_sec_ctx;
 struct mm_struct;
 
@@ -59,6 +71,16 @@ struct mm_struct;
 #else
 #define security_integrity_current()  0
 #endif
+=======
+struct kernfs_node;
+struct xfrm_sec_ctx;
+struct mm_struct;
+struct fs_context;
+struct fs_parameter;
+enum fs_value_type;
+struct watch;
+struct watch_notification;
+>>>>>>> upstream/android-13
 
 /* Default (no) options for the capable function */
 #define CAP_OPT_NONE 0x0
@@ -67,7 +89,11 @@ struct mm_struct;
 /* If capable is being called by a setid function */
 #define CAP_OPT_INSETID BIT(2)
 
+<<<<<<< HEAD
 /* LSM Agnostic defines for sb_set_mnt_opts */
+=======
+/* LSM Agnostic defines for fs_context::lsm_flags */
+>>>>>>> upstream/android-13
 #define SECURITY_LSM_NATIVE_LABELS	1
 
 struct ctl_table;
@@ -79,6 +105,64 @@ enum lsm_event {
 	LSM_POLICY_CHANGE,
 };
 
+<<<<<<< HEAD
+=======
+/*
+ * These are reasons that can be passed to the security_locked_down()
+ * LSM hook. Lockdown reasons that protect kernel integrity (ie, the
+ * ability for userland to modify kernel code) are placed before
+ * LOCKDOWN_INTEGRITY_MAX.  Lockdown reasons that protect kernel
+ * confidentiality (ie, the ability for userland to extract
+ * information from the running kernel that would otherwise be
+ * restricted) are placed before LOCKDOWN_CONFIDENTIALITY_MAX.
+ *
+ * LSM authors should note that the semantics of any given lockdown
+ * reason are not guaranteed to be stable - the same reason may block
+ * one set of features in one kernel release, and a slightly different
+ * set of features in a later kernel release. LSMs that seek to expose
+ * lockdown policy at any level of granularity other than "none",
+ * "integrity" or "confidentiality" are responsible for either
+ * ensuring that they expose a consistent level of functionality to
+ * userland, or ensuring that userland is aware that this is
+ * potentially a moving target. It is easy to misuse this information
+ * in a way that could break userspace. Please be careful not to do
+ * so.
+ *
+ * If you add to this, remember to extend lockdown_reasons in
+ * security/lockdown/lockdown.c.
+ */
+enum lockdown_reason {
+	LOCKDOWN_NONE,
+	LOCKDOWN_MODULE_SIGNATURE,
+	LOCKDOWN_DEV_MEM,
+	LOCKDOWN_EFI_TEST,
+	LOCKDOWN_KEXEC,
+	LOCKDOWN_HIBERNATION,
+	LOCKDOWN_PCI_ACCESS,
+	LOCKDOWN_IOPORT,
+	LOCKDOWN_MSR,
+	LOCKDOWN_ACPI_TABLES,
+	LOCKDOWN_PCMCIA_CIS,
+	LOCKDOWN_TIOCSSERIAL,
+	LOCKDOWN_MODULE_PARAMETERS,
+	LOCKDOWN_MMIOTRACE,
+	LOCKDOWN_DEBUGFS,
+	LOCKDOWN_XMON_WR,
+	LOCKDOWN_BPF_WRITE_USER,
+	LOCKDOWN_INTEGRITY_MAX,
+	LOCKDOWN_KCORE,
+	LOCKDOWN_KPROBES,
+	LOCKDOWN_BPF_READ_KERNEL,
+	LOCKDOWN_PERF,
+	LOCKDOWN_TRACEFS,
+	LOCKDOWN_XMON_RW,
+	LOCKDOWN_XFRM_SECRET,
+	LOCKDOWN_CONFIDENTIALITY_MAX,
+};
+
+extern const char *const lockdown_reasons[LOCKDOWN_CONFIDENTIALITY_MAX+1];
+
+>>>>>>> upstream/android-13
 /* These functions are in security/commoncap.c */
 extern int cap_capable(const struct cred *cred, struct user_namespace *ns,
 		       int cap, unsigned int opts);
@@ -90,6 +174,7 @@ extern int cap_capset(struct cred *new, const struct cred *old,
 		      const kernel_cap_t *effective,
 		      const kernel_cap_t *inheritable,
 		      const kernel_cap_t *permitted);
+<<<<<<< HEAD
 extern int cap_bprm_set_creds(struct linux_binprm *bprm);
 extern int cap_inode_setxattr(struct dentry *dentry, const char *name,
 			      const void *value, size_t size, int flags);
@@ -98,6 +183,19 @@ extern int cap_inode_need_killpriv(struct dentry *dentry);
 extern int cap_inode_killpriv(struct dentry *dentry);
 extern int cap_inode_getsecurity(struct inode *inode, const char *name,
 				 void **buffer, bool alloc);
+=======
+extern int cap_bprm_creds_from_file(struct linux_binprm *bprm, struct file *file);
+int cap_inode_setxattr(struct dentry *dentry, const char *name,
+		       const void *value, size_t size, int flags);
+int cap_inode_removexattr(struct user_namespace *mnt_userns,
+			  struct dentry *dentry, const char *name);
+int cap_inode_need_killpriv(struct dentry *dentry);
+int cap_inode_killpriv(struct user_namespace *mnt_userns,
+		       struct dentry *dentry);
+int cap_inode_getsecurity(struct user_namespace *mnt_userns,
+			  struct inode *inode, const char *name, void **buffer,
+			  bool alloc);
+>>>>>>> upstream/android-13
 extern int cap_mmap_addr(unsigned long addr);
 extern int cap_mmap_file(struct file *file, unsigned long reqprot,
 			 unsigned long prot, unsigned long flags);
@@ -114,7 +212,11 @@ struct sk_buff;
 struct sock;
 struct sockaddr;
 struct socket;
+<<<<<<< HEAD
 struct flowi;
+=======
+struct flowi_common;
+>>>>>>> upstream/android-13
 struct dst_entry;
 struct xfrm_selector;
 struct xfrm_policy;
@@ -161,7 +263,11 @@ struct request_sock;
 
 #ifdef CONFIG_MMU
 extern int mmap_min_addr_handler(struct ctl_table *table, int write,
+<<<<<<< HEAD
 				 void __user *buffer, size_t *lenp, loff_t *ppos);
+=======
+				 void *buffer, size_t *lenp, loff_t *ppos);
+>>>>>>> upstream/android-13
 #endif
 
 /* security_inode_init_security callback function to write xattrs */
@@ -191,6 +297,7 @@ static inline const char *kernel_load_data_id_str(enum kernel_load_data_id id)
 
 #ifdef CONFIG_SECURITY
 
+<<<<<<< HEAD
 struct security_mnt_opts {
 	char **mnt_opts;
 	int *mnt_opts_flags;
@@ -223,6 +330,15 @@ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
 
 /* prototypes */
 extern int security_init(void);
+=======
+int call_blocking_lsm_notifier(enum lsm_event event, void *data);
+int register_blocking_lsm_notifier(struct notifier_block *nb);
+int unregister_blocking_lsm_notifier(struct notifier_block *nb);
+
+/* prototypes */
+extern int security_init(void);
+extern int early_security_init(void);
+>>>>>>> upstream/android-13
 
 /* Security operations */
 int security_binder_set_context_mgr(const struct cred *mgr);
@@ -251,6 +367,7 @@ int security_quota_on(struct dentry *dentry);
 int security_syslog(int type);
 int security_settime64(const struct timespec64 *ts, const struct timezone *tz);
 int security_vm_enough_memory_mm(struct mm_struct *mm, long pages);
+<<<<<<< HEAD
 int security_bprm_set_creds(struct linux_binprm *bprm);
 int security_bprm_check(struct linux_binprm *bprm);
 void security_bprm_committing_creds(struct linux_binprm *bprm);
@@ -260,6 +377,23 @@ void security_sb_free(struct super_block *sb);
 int security_sb_copy_data(char *orig, char *copy);
 int security_sb_remount(struct super_block *sb, void *data);
 int security_sb_kern_mount(struct super_block *sb, int flags, void *data);
+=======
+int security_bprm_creds_for_exec(struct linux_binprm *bprm);
+int security_bprm_creds_from_file(struct linux_binprm *bprm, struct file *file);
+int security_bprm_check(struct linux_binprm *bprm);
+void security_bprm_committing_creds(struct linux_binprm *bprm);
+void security_bprm_committed_creds(struct linux_binprm *bprm);
+int security_fs_context_dup(struct fs_context *fc, struct fs_context *src_fc);
+int security_fs_context_parse_param(struct fs_context *fc, struct fs_parameter *param);
+int security_sb_alloc(struct super_block *sb);
+void security_sb_delete(struct super_block *sb);
+void security_sb_free(struct super_block *sb);
+void security_free_mnt_opts(void **mnt_opts);
+int security_sb_eat_lsm_opts(char *options, void **mnt_opts);
+int security_sb_mnt_opts_compat(struct super_block *sb, void *mnt_opts);
+int security_sb_remount(struct super_block *sb, void *mnt_opts);
+int security_sb_kern_mount(struct super_block *sb);
+>>>>>>> upstream/android-13
 int security_sb_show_options(struct seq_file *m, struct super_block *sb);
 int security_sb_statfs(struct dentry *dentry);
 int security_sb_mount(const char *dev_name, const struct path *path,
@@ -267,27 +401,52 @@ int security_sb_mount(const char *dev_name, const struct path *path,
 int security_sb_umount(struct vfsmount *mnt, int flags);
 int security_sb_pivotroot(const struct path *old_path, const struct path *new_path);
 int security_sb_set_mnt_opts(struct super_block *sb,
+<<<<<<< HEAD
 				struct security_mnt_opts *opts,
+=======
+				void *mnt_opts,
+>>>>>>> upstream/android-13
 				unsigned long kern_flags,
 				unsigned long *set_kern_flags);
 int security_sb_clone_mnt_opts(const struct super_block *oldsb,
 				struct super_block *newsb,
 				unsigned long kern_flags,
 				unsigned long *set_kern_flags);
+<<<<<<< HEAD
 int security_sb_parse_opts_str(char *options, struct security_mnt_opts *opts);
 int security_dentry_init_security(struct dentry *dentry, int mode,
 					const struct qstr *name, void **ctx,
 					u32 *ctxlen);
+=======
+int security_add_mnt_opt(const char *option, const char *val,
+				int len, void **mnt_opts);
+int security_move_mount(const struct path *from_path, const struct path *to_path);
+int security_dentry_init_security(struct dentry *dentry, int mode,
+				  const struct qstr *name,
+				  const char **xattr_name, void **ctx,
+				  u32 *ctxlen);
+>>>>>>> upstream/android-13
 int security_dentry_create_files_as(struct dentry *dentry, int mode,
 					struct qstr *name,
 					const struct cred *old,
 					struct cred *new);
+<<<<<<< HEAD
 
+=======
+int security_path_notify(const struct path *path, u64 mask,
+					unsigned int obj_type);
+>>>>>>> upstream/android-13
 int security_inode_alloc(struct inode *inode);
 void security_inode_free(struct inode *inode);
 int security_inode_init_security(struct inode *inode, struct inode *dir,
 				 const struct qstr *qstr,
 				 initxattrs initxattrs, void *fs_data);
+<<<<<<< HEAD
+=======
+int security_inode_init_security_anon(struct inode *inode,
+				      const struct qstr *name,
+				      const struct inode *context_inode);
+>>>>>>> upstream/android-13
 int security_old_inode_init_security(struct inode *inode, struct inode *dir,
 				     const struct qstr *qstr, const char **name,
 				     void **value, size_t *len);
@@ -309,21 +468,42 @@ int security_inode_follow_link(struct dentry *dentry, struct inode *inode,
 int security_inode_permission(struct inode *inode, int mask);
 int security_inode_setattr(struct dentry *dentry, struct iattr *attr);
 int security_inode_getattr(const struct path *path);
+<<<<<<< HEAD
 int security_inode_setxattr(struct dentry *dentry, const char *name,
+=======
+int security_inode_setxattr(struct user_namespace *mnt_userns,
+			    struct dentry *dentry, const char *name,
+>>>>>>> upstream/android-13
 			    const void *value, size_t size, int flags);
 void security_inode_post_setxattr(struct dentry *dentry, const char *name,
 				  const void *value, size_t size, int flags);
 int security_inode_getxattr(struct dentry *dentry, const char *name);
 int security_inode_listxattr(struct dentry *dentry);
+<<<<<<< HEAD
 int security_inode_removexattr(struct dentry *dentry, const char *name);
 int security_inode_need_killpriv(struct dentry *dentry);
 int security_inode_killpriv(struct dentry *dentry);
 int security_inode_getsecurity(struct inode *inode, const char *name, void **buffer, bool alloc);
+=======
+int security_inode_removexattr(struct user_namespace *mnt_userns,
+			       struct dentry *dentry, const char *name);
+int security_inode_need_killpriv(struct dentry *dentry);
+int security_inode_killpriv(struct user_namespace *mnt_userns,
+			    struct dentry *dentry);
+int security_inode_getsecurity(struct user_namespace *mnt_userns,
+			       struct inode *inode, const char *name,
+			       void **buffer, bool alloc);
+>>>>>>> upstream/android-13
 int security_inode_setsecurity(struct inode *inode, const char *name, const void *value, size_t size, int flags);
 int security_inode_listsecurity(struct inode *inode, char *buffer, size_t buffer_size);
 void security_inode_getsecid(struct inode *inode, u32 *secid);
 int security_inode_copy_up(struct dentry *src, struct cred **new);
 int security_inode_copy_up_xattr(const char *name);
+<<<<<<< HEAD
+=======
+int security_kernfs_init_security(struct kernfs_node *kn_dir,
+				  struct kernfs_node *kn);
+>>>>>>> upstream/android-13
 int security_file_permission(struct file *file, int mask);
 int security_file_alloc(struct file *file);
 void security_file_free(struct file *file);
@@ -350,16 +530,35 @@ void security_cred_getsecid(const struct cred *c, u32 *secid);
 int security_kernel_act_as(struct cred *new, u32 secid);
 int security_kernel_create_files_as(struct cred *new, struct inode *inode);
 int security_kernel_module_request(char *kmod_name);
+<<<<<<< HEAD
 int security_kernel_load_data(enum kernel_load_data_id id);
 int security_kernel_read_file(struct file *file, enum kernel_read_file_id id);
+=======
+int security_kernel_load_data(enum kernel_load_data_id id, bool contents);
+int security_kernel_post_load_data(char *buf, loff_t size,
+				   enum kernel_load_data_id id,
+				   char *description);
+int security_kernel_read_file(struct file *file, enum kernel_read_file_id id,
+			      bool contents);
+>>>>>>> upstream/android-13
 int security_kernel_post_read_file(struct file *file, char *buf, loff_t size,
 				   enum kernel_read_file_id id);
 int security_task_fix_setuid(struct cred *new, const struct cred *old,
 			     int flags);
+<<<<<<< HEAD
 int security_task_setpgid(struct task_struct *p, pid_t pgid);
 int security_task_getpgid(struct task_struct *p);
 int security_task_getsid(struct task_struct *p);
 void security_task_getsecid(struct task_struct *p, u32 *secid);
+=======
+int security_task_fix_setgid(struct cred *new, const struct cred *old,
+			     int flags);
+int security_task_setpgid(struct task_struct *p, pid_t pgid);
+int security_task_getpgid(struct task_struct *p);
+int security_task_getsid(struct task_struct *p);
+void security_task_getsecid_subj(struct task_struct *p, u32 *secid);
+void security_task_getsecid_obj(struct task_struct *p, u32 *secid);
+>>>>>>> upstream/android-13
 int security_task_setnice(struct task_struct *p, int nice);
 int security_task_setioprio(struct task_struct *p, int ioprio);
 int security_task_getioprio(struct task_struct *p);
@@ -370,7 +569,11 @@ int security_task_setrlimit(struct task_struct *p, unsigned int resource,
 int security_task_setscheduler(struct task_struct *p);
 int security_task_getscheduler(struct task_struct *p);
 int security_task_movememory(struct task_struct *p);
+<<<<<<< HEAD
 int security_task_kill(struct task_struct *p, struct siginfo *info,
+=======
+int security_task_kill(struct task_struct *p, struct kernel_siginfo *info,
+>>>>>>> upstream/android-13
 			int sig, const struct cred *cred);
 int security_task_prctl(int option, unsigned long arg2, unsigned long arg3,
 			unsigned long arg4, unsigned long arg5);
@@ -399,42 +602,71 @@ int security_sem_semctl(struct kern_ipc_perm *sma, int cmd);
 int security_sem_semop(struct kern_ipc_perm *sma, struct sembuf *sops,
 			unsigned nsops, int alter);
 void security_d_instantiate(struct dentry *dentry, struct inode *inode);
+<<<<<<< HEAD
 int security_getprocattr(struct task_struct *p, char *name, char **value);
 int security_setprocattr(const char *name, void *value, size_t size);
+=======
+int security_getprocattr(struct task_struct *p, const char *lsm, char *name,
+			 char **value);
+int security_setprocattr(const char *lsm, const char *name, void *value,
+			 size_t size);
+>>>>>>> upstream/android-13
 int security_netlink_send(struct sock *sk, struct sk_buff *skb);
 int security_ismaclabel(const char *name);
 int security_secid_to_secctx(u32 secid, char **secdata, u32 *seclen);
 int security_secctx_to_secid(const char *secdata, u32 seclen, u32 *secid);
 void security_release_secctx(char *secdata, u32 seclen);
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 void security_inode_invalidate_secctx(struct inode *inode);
 int security_inode_notifysecctx(struct inode *inode, void *ctx, u32 ctxlen);
 int security_inode_setsecctx(struct dentry *dentry, void *ctx, u32 ctxlen);
 int security_inode_getsecctx(struct inode *inode, void **ctx, u32 *ctxlen);
+<<<<<<< HEAD
 #else /* CONFIG_SECURITY */
 struct security_mnt_opts {
 };
 
 static inline int call_lsm_notifier(enum lsm_event event, void *data)
+=======
+int security_locked_down(enum lockdown_reason what);
+#else /* CONFIG_SECURITY */
+
+static inline int call_blocking_lsm_notifier(enum lsm_event event, void *data)
+>>>>>>> upstream/android-13
 {
 	return 0;
 }
 
+<<<<<<< HEAD
 static inline int register_lsm_notifier(struct notifier_block *nb)
+=======
+static inline int register_blocking_lsm_notifier(struct notifier_block *nb)
+>>>>>>> upstream/android-13
 {
 	return 0;
 }
 
+<<<<<<< HEAD
 static inline  int unregister_lsm_notifier(struct notifier_block *nb)
+=======
+static inline  int unregister_blocking_lsm_notifier(struct notifier_block *nb)
+>>>>>>> upstream/android-13
 {
 	return 0;
 }
 
+<<<<<<< HEAD
 static inline void security_init_mnt_opts(struct security_mnt_opts *opts)
 {
 }
 
 static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
+=======
+static inline void security_free_mnt_opts(void **mnt_opts)
+>>>>>>> upstream/android-13
 {
 }
 
@@ -448,6 +680,14 @@ static inline int security_init(void)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static inline int early_security_init(void)
+{
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static inline int security_binder_set_context_mgr(const struct cred *mgr)
 {
 	return 0;
@@ -535,9 +775,21 @@ static inline int security_vm_enough_memory_mm(struct mm_struct *mm, long pages)
 	return __vm_enough_memory(mm, pages, cap_vm_enough_memory(mm, pages));
 }
 
+<<<<<<< HEAD
 static inline int security_bprm_set_creds(struct linux_binprm *bprm)
 {
 	return cap_bprm_set_creds(bprm);
+=======
+static inline int security_bprm_creds_for_exec(struct linux_binprm *bprm)
+{
+	return 0;
+}
+
+static inline int security_bprm_creds_from_file(struct linux_binprm *bprm,
+						struct file *file)
+{
+	return cap_bprm_creds_from_file(bprm, file);
+>>>>>>> upstream/android-13
 }
 
 static inline int security_bprm_check(struct linux_binprm *bprm)
@@ -553,25 +805,66 @@ static inline void security_bprm_committed_creds(struct linux_binprm *bprm)
 {
 }
 
+<<<<<<< HEAD
+=======
+static inline int security_fs_context_dup(struct fs_context *fc,
+					  struct fs_context *src_fc)
+{
+	return 0;
+}
+static inline int security_fs_context_parse_param(struct fs_context *fc,
+						  struct fs_parameter *param)
+{
+	return -ENOPARAM;
+}
+
+>>>>>>> upstream/android-13
 static inline int security_sb_alloc(struct super_block *sb)
 {
 	return 0;
 }
 
+<<<<<<< HEAD
 static inline void security_sb_free(struct super_block *sb)
 { }
 
 static inline int security_sb_copy_data(char *orig, char *copy)
+=======
+static inline void security_sb_delete(struct super_block *sb)
+{ }
+
+static inline void security_sb_free(struct super_block *sb)
+{ }
+
+static inline int security_sb_eat_lsm_opts(char *options,
+					   void **mnt_opts)
+>>>>>>> upstream/android-13
 {
 	return 0;
 }
 
+<<<<<<< HEAD
 static inline int security_sb_remount(struct super_block *sb, void *data)
+=======
+static inline int security_sb_remount(struct super_block *sb,
+				      void *mnt_opts)
+>>>>>>> upstream/android-13
 {
 	return 0;
 }
 
+<<<<<<< HEAD
 static inline int security_sb_kern_mount(struct super_block *sb, int flags, void *data)
+=======
+static inline int security_sb_mnt_opts_compat(struct super_block *sb,
+					      void *mnt_opts)
+{
+	return 0;
+}
+
+
+static inline int security_sb_kern_mount(struct super_block *sb)
+>>>>>>> upstream/android-13
 {
 	return 0;
 }
@@ -606,7 +899,11 @@ static inline int security_sb_pivotroot(const struct path *old_path,
 }
 
 static inline int security_sb_set_mnt_opts(struct super_block *sb,
+<<<<<<< HEAD
 					   struct security_mnt_opts *opts,
+=======
+					   void *mnt_opts,
+>>>>>>> upstream/android-13
 					   unsigned long kern_flags,
 					   unsigned long *set_kern_flags)
 {
@@ -621,7 +918,24 @@ static inline int security_sb_clone_mnt_opts(const struct super_block *oldsb,
 	return 0;
 }
 
+<<<<<<< HEAD
 static inline int security_sb_parse_opts_str(char *options, struct security_mnt_opts *opts)
+=======
+static inline int security_add_mnt_opt(const char *option, const char *val,
+					int len, void **mnt_opts)
+{
+	return 0;
+}
+
+static inline int security_move_mount(const struct path *from_path,
+				      const struct path *to_path)
+{
+	return 0;
+}
+
+static inline int security_path_notify(const struct path *path, u64 mask,
+				unsigned int obj_type)
+>>>>>>> upstream/android-13
 {
 	return 0;
 }
@@ -637,6 +951,10 @@ static inline void security_inode_free(struct inode *inode)
 static inline int security_dentry_init_security(struct dentry *dentry,
 						 int mode,
 						 const struct qstr *name,
+<<<<<<< HEAD
+=======
+						 const char **xattr_name,
+>>>>>>> upstream/android-13
 						 void **ctx,
 						 u32 *ctxlen)
 {
@@ -661,6 +979,16 @@ static inline int security_inode_init_security(struct inode *inode,
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static inline int security_inode_init_security_anon(struct inode *inode,
+						    const struct qstr *name,
+						    const struct inode *context_inode)
+{
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static inline int security_old_inode_init_security(struct inode *inode,
 						   struct inode *dir,
 						   const struct qstr *qstr,
@@ -754,8 +1082,14 @@ static inline int security_inode_getattr(const struct path *path)
 	return 0;
 }
 
+<<<<<<< HEAD
 static inline int security_inode_setxattr(struct dentry *dentry,
 		const char *name, const void *value, size_t size, int flags)
+=======
+static inline int security_inode_setxattr(struct user_namespace *mnt_userns,
+		struct dentry *dentry, const char *name, const void *value,
+		size_t size, int flags)
+>>>>>>> upstream/android-13
 {
 	return cap_inode_setxattr(dentry, name, value, size, flags);
 }
@@ -775,10 +1109,18 @@ static inline int security_inode_listxattr(struct dentry *dentry)
 	return 0;
 }
 
+<<<<<<< HEAD
 static inline int security_inode_removexattr(struct dentry *dentry,
 			const char *name)
 {
 	return cap_inode_removexattr(dentry, name);
+=======
+static inline int security_inode_removexattr(struct user_namespace *mnt_userns,
+					     struct dentry *dentry,
+					     const char *name)
+{
+	return cap_inode_removexattr(mnt_userns, dentry, name);
+>>>>>>> upstream/android-13
 }
 
 static inline int security_inode_need_killpriv(struct dentry *dentry)
@@ -786,6 +1128,7 @@ static inline int security_inode_need_killpriv(struct dentry *dentry)
 	return cap_inode_need_killpriv(dentry);
 }
 
+<<<<<<< HEAD
 static inline int security_inode_killpriv(struct dentry *dentry)
 {
 	return cap_inode_killpriv(dentry);
@@ -794,6 +1137,20 @@ static inline int security_inode_killpriv(struct dentry *dentry)
 static inline int security_inode_getsecurity(struct inode *inode, const char *name, void **buffer, bool alloc)
 {
 	return cap_inode_getsecurity(inode, name, buffer, alloc);
+=======
+static inline int security_inode_killpriv(struct user_namespace *mnt_userns,
+					  struct dentry *dentry)
+{
+	return cap_inode_killpriv(mnt_userns, dentry);
+}
+
+static inline int security_inode_getsecurity(struct user_namespace *mnt_userns,
+					     struct inode *inode,
+					     const char *name, void **buffer,
+					     bool alloc)
+{
+	return cap_inode_getsecurity(mnt_userns, inode, name, buffer, alloc);
+>>>>>>> upstream/android-13
 }
 
 static inline int security_inode_setsecurity(struct inode *inode, const char *name, const void *value, size_t size, int flags)
@@ -816,6 +1173,15 @@ static inline int security_inode_copy_up(struct dentry *src, struct cred **new)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static inline int security_kernfs_init_security(struct kernfs_node *kn_dir,
+						struct kernfs_node *kn)
+{
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static inline int security_inode_copy_up_xattr(const char *name)
 {
 	return -EOPNOTSUPP;
@@ -941,13 +1307,29 @@ static inline int security_kernel_module_request(char *kmod_name)
 	return 0;
 }
 
+<<<<<<< HEAD
 static inline int security_kernel_load_data(enum kernel_load_data_id id)
+=======
+static inline int security_kernel_load_data(enum kernel_load_data_id id, bool contents)
+{
+	return 0;
+}
+
+static inline int security_kernel_post_load_data(char *buf, loff_t size,
+						 enum kernel_load_data_id id,
+						 char *description)
+>>>>>>> upstream/android-13
 {
 	return 0;
 }
 
 static inline int security_kernel_read_file(struct file *file,
+<<<<<<< HEAD
 					    enum kernel_read_file_id id)
+=======
+					    enum kernel_read_file_id id,
+					    bool contents)
+>>>>>>> upstream/android-13
 {
 	return 0;
 }
@@ -966,6 +1348,16 @@ static inline int security_task_fix_setuid(struct cred *new,
 	return cap_task_fix_setuid(new, old, flags);
 }
 
+<<<<<<< HEAD
+=======
+static inline int security_task_fix_setgid(struct cred *new,
+					   const struct cred *old,
+					   int flags)
+{
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static inline int security_task_setpgid(struct task_struct *p, pid_t pgid)
 {
 	return 0;
@@ -981,7 +1373,16 @@ static inline int security_task_getsid(struct task_struct *p)
 	return 0;
 }
 
+<<<<<<< HEAD
 static inline void security_task_getsecid(struct task_struct *p, u32 *secid)
+=======
+static inline void security_task_getsecid_subj(struct task_struct *p, u32 *secid)
+{
+	*secid = 0;
+}
+
+static inline void security_task_getsecid_obj(struct task_struct *p, u32 *secid)
+>>>>>>> upstream/android-13
 {
 	*secid = 0;
 }
@@ -1031,7 +1432,11 @@ static inline int security_task_movememory(struct task_struct *p)
 }
 
 static inline int security_task_kill(struct task_struct *p,
+<<<<<<< HEAD
 				     struct siginfo *info, int sig,
+=======
+				     struct kernel_siginfo *info, int sig,
+>>>>>>> upstream/android-13
 				     const struct cred *cred)
 {
 	return 0;
@@ -1150,15 +1555,29 @@ static inline int security_sem_semop(struct kern_ipc_perm *sma,
 	return 0;
 }
 
+<<<<<<< HEAD
 static inline void security_d_instantiate(struct dentry *dentry, struct inode *inode)
 { }
 
 static inline int security_getprocattr(struct task_struct *p, char *name, char **value)
+=======
+static inline void security_d_instantiate(struct dentry *dentry,
+					  struct inode *inode)
+{ }
+
+static inline int security_getprocattr(struct task_struct *p, const char *lsm,
+				       char *name, char **value)
+>>>>>>> upstream/android-13
 {
 	return -EINVAL;
 }
 
+<<<<<<< HEAD
 static inline int security_setprocattr(char *name, void *value, size_t size)
+=======
+static inline int security_setprocattr(const char *lsm, char *name,
+				       void *value, size_t size)
+>>>>>>> upstream/android-13
 {
 	return -EINVAL;
 }
@@ -1205,8 +1624,39 @@ static inline int security_inode_getsecctx(struct inode *inode, void **ctx, u32 
 {
 	return -EOPNOTSUPP;
 }
+<<<<<<< HEAD
 #endif	/* CONFIG_SECURITY */
 
+=======
+static inline int security_locked_down(enum lockdown_reason what)
+{
+	return 0;
+}
+#endif	/* CONFIG_SECURITY */
+
+#if defined(CONFIG_SECURITY) && defined(CONFIG_WATCH_QUEUE)
+int security_post_notification(const struct cred *w_cred,
+			       const struct cred *cred,
+			       struct watch_notification *n);
+#else
+static inline int security_post_notification(const struct cred *w_cred,
+					     const struct cred *cred,
+					     struct watch_notification *n)
+{
+	return 0;
+}
+#endif
+
+#if defined(CONFIG_SECURITY) && defined(CONFIG_KEY_NOTIFICATIONS)
+int security_watch_key(struct key *key);
+#else
+static inline int security_watch_key(struct key *key)
+{
+	return 0;
+}
+#endif
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_SECURITY_NETWORK
 
 int security_unix_stream_connect(struct sock *sock, struct sock *other, struct sock *newsk);
@@ -1234,10 +1684,18 @@ int security_socket_getpeersec_dgram(struct socket *sock, struct sk_buff *skb, u
 int security_sk_alloc(struct sock *sk, int family, gfp_t priority);
 void security_sk_free(struct sock *sk);
 void security_sk_clone(const struct sock *sk, struct sock *newsk);
+<<<<<<< HEAD
 void security_sk_classify_flow(struct sock *sk, struct flowi *fl);
 void security_req_classify_flow(const struct request_sock *req, struct flowi *fl);
 void security_sock_graft(struct sock*sk, struct socket *parent);
 int security_inet_conn_request(struct sock *sk,
+=======
+void security_sk_classify_flow(struct sock *sk, struct flowi_common *flic);
+void security_req_classify_flow(const struct request_sock *req,
+				struct flowi_common *flic);
+void security_sock_graft(struct sock*sk, struct socket *parent);
+int security_inet_conn_request(const struct sock *sk,
+>>>>>>> upstream/android-13
 			struct sk_buff *skb, struct request_sock *req);
 void security_inet_csk_clone(struct sock *newsk,
 			const struct request_sock *req);
@@ -1386,11 +1844,21 @@ static inline void security_sk_clone(const struct sock *sk, struct sock *newsk)
 {
 }
 
+<<<<<<< HEAD
 static inline void security_sk_classify_flow(struct sock *sk, struct flowi *fl)
 {
 }
 
 static inline void security_req_classify_flow(const struct request_sock *req, struct flowi *fl)
+=======
+static inline void security_sk_classify_flow(struct sock *sk,
+					     struct flowi_common *flic)
+{
+}
+
+static inline void security_req_classify_flow(const struct request_sock *req,
+					      struct flowi_common *flic)
+>>>>>>> upstream/android-13
 {
 }
 
@@ -1398,7 +1866,11 @@ static inline void security_sock_graft(struct sock *sk, struct socket *parent)
 {
 }
 
+<<<<<<< HEAD
 static inline int security_inet_conn_request(struct sock *sk,
+=======
+static inline int security_inet_conn_request(const struct sock *sk,
+>>>>>>> upstream/android-13
 			struct sk_buff *skb, struct request_sock *req)
 {
 	return 0;
@@ -1514,12 +1986,21 @@ int security_xfrm_state_alloc_acquire(struct xfrm_state *x,
 				      struct xfrm_sec_ctx *polsec, u32 secid);
 int security_xfrm_state_delete(struct xfrm_state *x);
 void security_xfrm_state_free(struct xfrm_state *x);
+<<<<<<< HEAD
 int security_xfrm_policy_lookup(struct xfrm_sec_ctx *ctx, u32 fl_secid, u8 dir);
 int security_xfrm_state_pol_flow_match(struct xfrm_state *x,
 				       struct xfrm_policy *xp,
 				       const struct flowi *fl);
 int security_xfrm_decode_session(struct sk_buff *skb, u32 *secid);
 void security_skb_classify_flow(struct sk_buff *skb, struct flowi *fl);
+=======
+int security_xfrm_policy_lookup(struct xfrm_sec_ctx *ctx, u32 fl_secid);
+int security_xfrm_state_pol_flow_match(struct xfrm_state *x,
+				       struct xfrm_policy *xp,
+				       const struct flowi_common *flic);
+int security_xfrm_decode_session(struct sk_buff *skb, u32 *secid);
+void security_skb_classify_flow(struct sk_buff *skb, struct flowi_common *flic);
+>>>>>>> upstream/android-13
 
 #else	/* CONFIG_SECURITY_NETWORK_XFRM */
 
@@ -1565,13 +2046,22 @@ static inline int security_xfrm_state_delete(struct xfrm_state *x)
 	return 0;
 }
 
+<<<<<<< HEAD
 static inline int security_xfrm_policy_lookup(struct xfrm_sec_ctx *ctx, u32 fl_secid, u8 dir)
+=======
+static inline int security_xfrm_policy_lookup(struct xfrm_sec_ctx *ctx, u32 fl_secid)
+>>>>>>> upstream/android-13
 {
 	return 0;
 }
 
 static inline int security_xfrm_state_pol_flow_match(struct xfrm_state *x,
+<<<<<<< HEAD
 			struct xfrm_policy *xp, const struct flowi *fl)
+=======
+						     struct xfrm_policy *xp,
+						     const struct flowi_common *flic)
+>>>>>>> upstream/android-13
 {
 	return 1;
 }
@@ -1581,7 +2071,12 @@ static inline int security_xfrm_decode_session(struct sk_buff *skb, u32 *secid)
 	return 0;
 }
 
+<<<<<<< HEAD
 static inline void security_skb_classify_flow(struct sk_buff *skb, struct flowi *fl)
+=======
+static inline void security_skb_classify_flow(struct sk_buff *skb,
+					      struct flowi_common *flic)
+>>>>>>> upstream/android-13
 {
 }
 
@@ -1675,8 +2170,13 @@ static inline int security_path_chroot(const struct path *path)
 
 int security_key_alloc(struct key *key, const struct cred *cred, unsigned long flags);
 void security_key_free(struct key *key);
+<<<<<<< HEAD
 int security_key_permission(key_ref_t key_ref,
 			    const struct cred *cred, unsigned perm);
+=======
+int security_key_permission(key_ref_t key_ref, const struct cred *cred,
+			    enum key_need_perm need_perm);
+>>>>>>> upstream/android-13
 int security_key_getsecurity(struct key *key, char **_buffer);
 
 #else
@@ -1694,7 +2194,11 @@ static inline void security_key_free(struct key *key)
 
 static inline int security_key_permission(key_ref_t key_ref,
 					  const struct cred *cred,
+<<<<<<< HEAD
 					  unsigned perm)
+=======
+					  enum key_need_perm need_perm)
+>>>>>>> upstream/android-13
 {
 	return 0;
 }
@@ -1712,8 +2216,12 @@ static inline int security_key_getsecurity(struct key *key, char **_buffer)
 #ifdef CONFIG_SECURITY
 int security_audit_rule_init(u32 field, u32 op, char *rulestr, void **lsmrule);
 int security_audit_rule_known(struct audit_krule *krule);
+<<<<<<< HEAD
 int security_audit_rule_match(u32 secid, u32 field, u32 op, void *lsmrule,
 			      struct audit_context *actx);
+=======
+int security_audit_rule_match(u32 secid, u32 field, u32 op, void *lsmrule);
+>>>>>>> upstream/android-13
 void security_audit_rule_free(void *lsmrule);
 
 #else
@@ -1730,7 +2238,11 @@ static inline int security_audit_rule_known(struct audit_krule *krule)
 }
 
 static inline int security_audit_rule_match(u32 secid, u32 field, u32 op,
+<<<<<<< HEAD
 				   void *lsmrule, struct audit_context *actx)
+=======
+					    void *lsmrule)
+>>>>>>> upstream/android-13
 {
 	return 0;
 }
@@ -1831,6 +2343,7 @@ static inline void security_bpf_prog_free(struct bpf_prog_aux *aux)
 #endif /* CONFIG_SECURITY */
 #endif /* CONFIG_BPF_SYSCALL */
 
+<<<<<<< HEAD
 #ifdef CONFIG_SECURITY
 
 static inline char *alloc_secdata(void)
@@ -1854,6 +2367,8 @@ static inline void free_secdata(void *secdata)
 { }
 #endif /* CONFIG_SECURITY */
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PERF_EVENTS
 struct perf_event_attr;
 struct perf_event;

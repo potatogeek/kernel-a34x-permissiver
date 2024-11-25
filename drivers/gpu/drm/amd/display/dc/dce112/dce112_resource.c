@@ -23,6 +23,11 @@
  *
  */
 
+<<<<<<< HEAD
+=======
+#include <linux/slab.h>
+
+>>>>>>> upstream/android-13
 #include "dm_services.h"
 
 #include "link_encoder.h"
@@ -34,7 +39,10 @@
 #include "dce110/dce110_timing_generator.h"
 
 #include "irq/dce110/irq_service_dce110.h"
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 #include "dce/dce_mem_input.h"
 #include "dce/dce_transform.h"
 #include "dce/dce_link_encoder.h"
@@ -42,7 +50,10 @@
 #include "dce/dce_audio.h"
 #include "dce/dce_opp.h"
 #include "dce/dce_ipp.h"
+<<<<<<< HEAD
 #include "dce/dce_clocks.h"
+=======
+>>>>>>> upstream/android-13
 #include "dce/dce_clock_source.h"
 
 #include "dce/dce_hwseq.h"
@@ -50,6 +61,11 @@
 #include "dce/dce_abm.h"
 #include "dce/dce_dmcu.h"
 #include "dce/dce_aux.h"
+<<<<<<< HEAD
+=======
+#include "dce/dce_i2c.h"
+#include "dce/dce_panel_cntl.h"
+>>>>>>> upstream/android-13
 
 #include "reg_helper.h"
 
@@ -57,7 +73,13 @@
 #include "dce/dce_11_2_sh_mask.h"
 
 #include "dce100/dce100_resource.h"
+<<<<<<< HEAD
 #define DC_LOGGER \
+=======
+#include "dce112_resource.h"
+
+#define DC_LOGGER				\
+>>>>>>> upstream/android-13
 		dc->ctx->logger
 
 #ifndef mmDP_DPHY_INTERNAL_CTRL
@@ -75,6 +97,10 @@
 
 #ifndef mmBIOS_SCRATCH_2
 	#define mmBIOS_SCRATCH_2 0x05CB
+<<<<<<< HEAD
+=======
+	#define mmBIOS_SCRATCH_3 0x05CC
+>>>>>>> upstream/android-13
 	#define mmBIOS_SCRATCH_6 0x05CF
 #endif
 
@@ -146,6 +172,7 @@ static const struct dce110_timing_generator_offsets dce112_tg_offsets[] = {
 #define SRI(reg_name, block, id)\
 	.reg_name = mm ## block ## id ## _ ## reg_name
 
+<<<<<<< HEAD
 
 static const struct dccg_registers disp_clk_regs = {
 		CLK_COMMON_REG_LIST_DCE_BASE()
@@ -159,6 +186,8 @@ static const struct dccg_mask disp_clk_mask = {
 		CLK_COMMON_MASK_SH_LIST_DCE_COMMON_BASE(_MASK)
 };
 
+=======
+>>>>>>> upstream/android-13
 static const struct dce_dmcu_registers dmcu_regs = {
 		DMCU_DCE110_COMMON_REG_LIST()
 };
@@ -183,6 +212,17 @@ static const struct dce_abm_mask abm_mask = {
 		ABM_MASK_SH_LIST_DCE110(_MASK)
 };
 
+<<<<<<< HEAD
+=======
+static const struct dce110_aux_registers_shift aux_shift = {
+	DCE_AUX_MASK_SH_LIST(__SHIFT)
+};
+
+static const struct dce110_aux_registers_mask aux_mask = {
+	DCE_AUX_MASK_SH_LIST(_MASK)
+};
+
+>>>>>>> upstream/android-13
 #define ipp_regs(id)\
 [id] = {\
 		IPP_DCE110_REG_LIST_DCE_BASE(id)\
@@ -241,6 +281,21 @@ static const struct dce110_link_enc_aux_registers link_enc_aux_regs[] = {
 		aux_regs(5)
 };
 
+<<<<<<< HEAD
+=======
+static const struct dce_panel_cntl_registers panel_cntl_regs[] = {
+	{ DCE_PANEL_CNTL_REG_LIST() }
+};
+
+static const struct dce_panel_cntl_shift panel_cntl_shift = {
+	DCE_PANEL_CNTL_MASK_SH_LIST(__SHIFT)
+};
+
+static const struct dce_panel_cntl_mask panel_cntl_mask = {
+	DCE_PANEL_CNTL_MASK_SH_LIST(_MASK)
+};
+
+>>>>>>> upstream/android-13
 #define hpd_regs(id)\
 [id] = {\
 	HPD_REG_LIST(id)\
@@ -348,7 +403,11 @@ static const struct dce_audio_shift audio_shift = {
 		AUD_COMMON_MASK_SH_LIST(__SHIFT)
 };
 
+<<<<<<< HEAD
 static const struct dce_aduio_mask audio_mask = {
+=======
+static const struct dce_audio_mask audio_mask = {
+>>>>>>> upstream/android-13
 		AUD_COMMON_MASK_SH_LIST(_MASK)
 };
 
@@ -375,6 +434,10 @@ static const struct dce110_clk_src_mask cs_mask = {
 };
 
 static const struct bios_registers bios_regs = {
+<<<<<<< HEAD
+=======
+	.BIOS_SCRATCH_3 = mmBIOS_SCRATCH_3,
+>>>>>>> upstream/android-13
 	.BIOS_SCRATCH_6 = mmBIOS_SCRATCH_6
 };
 
@@ -383,6 +446,10 @@ static const struct resource_caps polaris_10_resource_cap = {
 		.num_audio = 6,
 		.num_stream_encoder = 6,
 		.num_pll = 8, /* why 8? 6 combo PHY PLL + 2 regular PLLs? */
+<<<<<<< HEAD
+=======
+		.num_ddc = 6,
+>>>>>>> upstream/android-13
 };
 
 static const struct resource_caps polaris_11_resource_cap = {
@@ -390,6 +457,34 @@ static const struct resource_caps polaris_11_resource_cap = {
 		.num_audio = 5,
 		.num_stream_encoder = 5,
 		.num_pll = 8, /* why 8? 6 combo PHY PLL + 2 regular PLLs? */
+<<<<<<< HEAD
+=======
+		.num_ddc = 5,
+};
+
+static const struct dc_plane_cap plane_cap = {
+	.type = DC_PLANE_TYPE_DCE_RGB,
+
+	.pixel_format_support = {
+			.argb8888 = true,
+			.nv12 = false,
+			.fp16 = true
+	},
+
+	.max_upscale_factor = {
+			.argb8888 = 16000,
+			.nv12 = 1,
+			.fp16 = 1
+	},
+
+	.max_downscale_factor = {
+			.argb8888 = 250,
+			.nv12 = 1,
+			.fp16 = 1
+	},
+	64,
+	64
+>>>>>>> upstream/android-13
 };
 
 #define CTX  ctx
@@ -403,6 +498,33 @@ static const struct resource_caps polaris_11_resource_cap = {
 #define CC_DC_HDMI_STRAPS__AUDIO_STREAM_NUMBER__SHIFT 0x8
 #endif
 
+<<<<<<< HEAD
+=======
+static int map_transmitter_id_to_phy_instance(
+	enum transmitter transmitter)
+{
+	switch (transmitter) {
+	case TRANSMITTER_UNIPHY_A:
+		return 0;
+	case TRANSMITTER_UNIPHY_B:
+		return 1;
+	case TRANSMITTER_UNIPHY_C:
+		return 2;
+	case TRANSMITTER_UNIPHY_D:
+		return 3;
+	case TRANSMITTER_UNIPHY_E:
+		return 4;
+	case TRANSMITTER_UNIPHY_F:
+		return 5;
+	case TRANSMITTER_UNIPHY_G:
+		return 6;
+	default:
+		ASSERT(0);
+		return 0;
+	}
+}
+
+>>>>>>> upstream/android-13
 static void read_dce_straps(
 	struct dc_context *ctx,
 	struct resource_straps *straps)
@@ -548,6 +670,7 @@ static struct transform *dce112_transform_create(
 static const struct encoder_feature_support link_enc_feature = {
 		.max_hdmi_deep_color = COLOR_DEPTH_121212,
 		.max_hdmi_pixel_clock = 600000,
+<<<<<<< HEAD
 		.ycbcr420_supported = true,
 		.flags.bits.IS_HBR2_CAPABLE = true,
 		.flags.bits.IS_HBR3_CAPABLE = true,
@@ -557,23 +680,68 @@ static const struct encoder_feature_support link_enc_feature = {
 };
 
 struct link_encoder *dce112_link_encoder_create(
+=======
+		.hdmi_ycbcr420_supported = true,
+		.dp_ycbcr420_supported = false,
+		.flags.bits.IS_HBR2_CAPABLE = true,
+		.flags.bits.IS_HBR3_CAPABLE = true,
+		.flags.bits.IS_TPS3_CAPABLE = true,
+		.flags.bits.IS_TPS4_CAPABLE = true
+};
+
+static struct link_encoder *dce112_link_encoder_create(
+>>>>>>> upstream/android-13
 	const struct encoder_init_data *enc_init_data)
 {
 	struct dce110_link_encoder *enc110 =
 		kzalloc(sizeof(struct dce110_link_encoder), GFP_KERNEL);
+<<<<<<< HEAD
+=======
+	int link_regs_id;
+>>>>>>> upstream/android-13
 
 	if (!enc110)
 		return NULL;
 
+<<<<<<< HEAD
 	dce110_link_encoder_construct(enc110,
 				      enc_init_data,
 				      &link_enc_feature,
 				      &link_enc_regs[enc_init_data->transmitter],
+=======
+	link_regs_id =
+		map_transmitter_id_to_phy_instance(enc_init_data->transmitter);
+
+	dce110_link_encoder_construct(enc110,
+				      enc_init_data,
+				      &link_enc_feature,
+				      &link_enc_regs[link_regs_id],
+>>>>>>> upstream/android-13
 				      &link_enc_aux_regs[enc_init_data->channel - 1],
 				      &link_enc_hpd_regs[enc_init_data->hpd_source]);
 	return &enc110->base;
 }
 
+<<<<<<< HEAD
+=======
+static struct panel_cntl *dce112_panel_cntl_create(const struct panel_cntl_init_data *init_data)
+{
+	struct dce_panel_cntl *panel_cntl =
+		kzalloc(sizeof(struct dce_panel_cntl), GFP_KERNEL);
+
+	if (!panel_cntl)
+		return NULL;
+
+	dce_panel_cntl_construct(panel_cntl,
+			init_data,
+			&panel_cntl_regs[init_data->inst],
+			&panel_cntl_shift,
+			&panel_cntl_mask);
+
+	return &panel_cntl->base;
+}
+
+>>>>>>> upstream/android-13
 static struct input_pixel_processor *dce112_ipp_create(
 	struct dc_context *ctx, uint32_t inst)
 {
@@ -589,7 +757,11 @@ static struct input_pixel_processor *dce112_ipp_create(
 	return &ipp->base;
 }
 
+<<<<<<< HEAD
 struct output_pixel_processor *dce112_opp_create(
+=======
+static struct output_pixel_processor *dce112_opp_create(
+>>>>>>> upstream/android-13
 	struct dc_context *ctx,
 	uint32_t inst)
 {
@@ -604,7 +776,11 @@ struct output_pixel_processor *dce112_opp_create(
 	return &opp->base;
 }
 
+<<<<<<< HEAD
 struct aux_engine *dce112_aux_engine_create(
+=======
+static struct dce_aux *dce112_aux_engine_create(
+>>>>>>> upstream/android-13
 	struct dc_context *ctx,
 	uint32_t inst)
 {
@@ -616,12 +792,57 @@ struct aux_engine *dce112_aux_engine_create(
 
 	dce110_aux_engine_construct(aux_engine, ctx, inst,
 				    SW_AUX_TIMEOUT_PERIOD_MULTIPLIER * AUX_TIMEOUT_PERIOD,
+<<<<<<< HEAD
 				    &aux_engine_regs[inst]);
 
 	return &aux_engine->base;
 }
 
 struct clock_source *dce112_clock_source_create(
+=======
+				    &aux_engine_regs[inst],
+					&aux_mask,
+					&aux_shift,
+					ctx->dc->caps.extended_aux_timeout_support);
+
+	return &aux_engine->base;
+}
+#define i2c_inst_regs(id) { I2C_HW_ENGINE_COMMON_REG_LIST(id) }
+
+static const struct dce_i2c_registers i2c_hw_regs[] = {
+		i2c_inst_regs(1),
+		i2c_inst_regs(2),
+		i2c_inst_regs(3),
+		i2c_inst_regs(4),
+		i2c_inst_regs(5),
+		i2c_inst_regs(6),
+};
+
+static const struct dce_i2c_shift i2c_shifts = {
+		I2C_COMMON_MASK_SH_LIST_DCE110(__SHIFT)
+};
+
+static const struct dce_i2c_mask i2c_masks = {
+		I2C_COMMON_MASK_SH_LIST_DCE110(_MASK)
+};
+
+static struct dce_i2c_hw *dce112_i2c_hw_create(
+	struct dc_context *ctx,
+	uint32_t inst)
+{
+	struct dce_i2c_hw *dce_i2c_hw =
+		kzalloc(sizeof(struct dce_i2c_hw), GFP_KERNEL);
+
+	if (!dce_i2c_hw)
+		return NULL;
+
+	dce112_i2c_hw_construct(dce_i2c_hw, ctx, inst,
+				    &i2c_hw_regs[inst], &i2c_shifts, &i2c_masks);
+
+	return dce_i2c_hw;
+}
+static struct clock_source *dce112_clock_source_create(
+>>>>>>> upstream/android-13
 	struct dc_context *ctx,
 	struct dc_bios *bios,
 	enum clock_source_id id,
@@ -634,23 +855,39 @@ struct clock_source *dce112_clock_source_create(
 	if (!clk_src)
 		return NULL;
 
+<<<<<<< HEAD
 	if (dce110_clk_src_construct(clk_src, ctx, bios, id,
+=======
+	if (dce112_clk_src_construct(clk_src, ctx, bios, id,
+>>>>>>> upstream/android-13
 			regs, &cs_shift, &cs_mask)) {
 		clk_src->base.dp_clk_src = dp_clk_src;
 		return &clk_src->base;
 	}
 
+<<<<<<< HEAD
+=======
+	kfree(clk_src);
+>>>>>>> upstream/android-13
 	BREAK_TO_DEBUGGER();
 	return NULL;
 }
 
+<<<<<<< HEAD
 void dce112_clock_source_destroy(struct clock_source **clk_src)
+=======
+static void dce112_clock_source_destroy(struct clock_source **clk_src)
+>>>>>>> upstream/android-13
 {
 	kfree(TO_DCE110_CLK_SRC(*clk_src));
 	*clk_src = NULL;
 }
 
+<<<<<<< HEAD
 static void destruct(struct dce110_resource_pool *pool)
+=======
+static void dce112_resource_destruct(struct dce110_resource_pool *pool)
+>>>>>>> upstream/android-13
 {
 	unsigned int i;
 
@@ -658,9 +895,12 @@ static void destruct(struct dce110_resource_pool *pool)
 		if (pool->base.opps[i] != NULL)
 			dce110_opp_destroy(&pool->base.opps[i]);
 
+<<<<<<< HEAD
 		if (pool->base.engines[i] != NULL)
 			dce110_engine_destroy(&pool->base.engines[i]);
 
+=======
+>>>>>>> upstream/android-13
 		if (pool->base.transforms[i] != NULL)
 			dce112_transform_destroy(&pool->base.transforms[i]);
 
@@ -676,7 +916,23 @@ static void destruct(struct dce110_resource_pool *pool)
 			kfree(DCE110TG_FROM_TG(pool->base.timing_generators[i]));
 			pool->base.timing_generators[i] = NULL;
 		}
+<<<<<<< HEAD
 
+=======
+	}
+
+	for (i = 0; i < pool->base.res_cap->num_ddc; i++) {
+		if (pool->base.engines[i] != NULL)
+			dce110_engine_destroy(&pool->base.engines[i]);
+		if (pool->base.hw_i2cs[i] != NULL) {
+			kfree(pool->base.hw_i2cs[i]);
+			pool->base.hw_i2cs[i] = NULL;
+		}
+		if (pool->base.sw_i2cs[i] != NULL) {
+			kfree(pool->base.sw_i2cs[i]);
+			pool->base.sw_i2cs[i] = NULL;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	for (i = 0; i < pool->base.stream_enc_count; i++) {
@@ -705,9 +961,12 @@ static void destruct(struct dce110_resource_pool *pool)
 	if (pool->base.dmcu != NULL)
 		dce_dmcu_destroy(&pool->base.dmcu);
 
+<<<<<<< HEAD
 	if (pool->base.dccg != NULL)
 		dce_dccg_destroy(&pool->base.dccg);
 
+=======
+>>>>>>> upstream/android-13
 	if (pool->base.irqs != NULL) {
 		dal_irq_service_destroy(&pool->base.irqs);
 	}
@@ -718,7 +977,11 @@ static struct clock_source *find_matching_pll(
 		const struct resource_pool *pool,
 		const struct dc_stream_state *const stream)
 {
+<<<<<<< HEAD
 	switch (stream->sink->link->link_enc->transmitter) {
+=======
+	switch (stream->link->link_enc->transmitter) {
+>>>>>>> upstream/android-13
 	case TRANSMITTER_UNIPHY_A:
 		return pool->clock_sources[DCE112_CLK_SRC_PLL0];
 	case TRANSMITTER_UNIPHY_B:
@@ -733,7 +996,11 @@ static struct clock_source *find_matching_pll(
 		return pool->clock_sources[DCE112_CLK_SRC_PLL5];
 	default:
 		return NULL;
+<<<<<<< HEAD
 	};
+=======
+	}
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -757,7 +1024,12 @@ static enum dc_status build_mapped_resource(
 
 bool dce112_validate_bandwidth(
 	struct dc *dc,
+<<<<<<< HEAD
 	struct dc_state *context)
+=======
+	struct dc_state *context,
+	bool fast_validate)
+>>>>>>> upstream/android-13
 {
 	bool result = false;
 
@@ -771,7 +1043,11 @@ bool dce112_validate_bandwidth(
 			dc->bw_vbios,
 			context->res_ctx.pipe_ctx,
 			dc->res_pool->pipe_count,
+<<<<<<< HEAD
 			&context->bw.dce))
+=======
+			&context->bw_ctx.bw.dce))
+>>>>>>> upstream/android-13
 		result = true;
 
 	if (!result)
@@ -779,8 +1055,13 @@ bool dce112_validate_bandwidth(
 			"%s: Bandwidth validation failed!",
 			__func__);
 
+<<<<<<< HEAD
 	if (memcmp(&dc->current_state->bw.dce,
 			&context->bw.dce, sizeof(context->bw.dce))) {
+=======
+	if (memcmp(&dc->current_state->bw_ctx.bw.dce,
+			&context->bw_ctx.bw.dce, sizeof(context->bw_ctx.bw.dce))) {
+>>>>>>> upstream/android-13
 
 		DC_LOG_BANDWIDTH_CALCS(
 			"%s: finish,\n"
@@ -794,6 +1075,7 @@ bool dce112_validate_bandwidth(
 			"sclk: %d sclk_sleep: %d yclk: %d blackout_recovery_time_us: %d\n"
 			,
 			__func__,
+<<<<<<< HEAD
 			context->bw.dce.nbp_state_change_wm_ns[0].b_mark,
 			context->bw.dce.nbp_state_change_wm_ns[0].a_mark,
 			context->bw.dce.urgent_wm_ns[0].b_mark,
@@ -822,6 +1104,36 @@ bool dce112_validate_bandwidth(
 			context->bw.dce.sclk_deep_sleep_khz,
 			context->bw.dce.yclk_khz,
 			context->bw.dce.blackout_recovery_time_us);
+=======
+			context->bw_ctx.bw.dce.nbp_state_change_wm_ns[0].b_mark,
+			context->bw_ctx.bw.dce.nbp_state_change_wm_ns[0].a_mark,
+			context->bw_ctx.bw.dce.urgent_wm_ns[0].b_mark,
+			context->bw_ctx.bw.dce.urgent_wm_ns[0].a_mark,
+			context->bw_ctx.bw.dce.stutter_exit_wm_ns[0].b_mark,
+			context->bw_ctx.bw.dce.stutter_exit_wm_ns[0].a_mark,
+			context->bw_ctx.bw.dce.nbp_state_change_wm_ns[1].b_mark,
+			context->bw_ctx.bw.dce.nbp_state_change_wm_ns[1].a_mark,
+			context->bw_ctx.bw.dce.urgent_wm_ns[1].b_mark,
+			context->bw_ctx.bw.dce.urgent_wm_ns[1].a_mark,
+			context->bw_ctx.bw.dce.stutter_exit_wm_ns[1].b_mark,
+			context->bw_ctx.bw.dce.stutter_exit_wm_ns[1].a_mark,
+			context->bw_ctx.bw.dce.nbp_state_change_wm_ns[2].b_mark,
+			context->bw_ctx.bw.dce.nbp_state_change_wm_ns[2].a_mark,
+			context->bw_ctx.bw.dce.urgent_wm_ns[2].b_mark,
+			context->bw_ctx.bw.dce.urgent_wm_ns[2].a_mark,
+			context->bw_ctx.bw.dce.stutter_exit_wm_ns[2].b_mark,
+			context->bw_ctx.bw.dce.stutter_exit_wm_ns[2].a_mark,
+			context->bw_ctx.bw.dce.stutter_mode_enable,
+			context->bw_ctx.bw.dce.cpuc_state_change_enable,
+			context->bw_ctx.bw.dce.cpup_state_change_enable,
+			context->bw_ctx.bw.dce.nbp_state_change_enable,
+			context->bw_ctx.bw.dce.all_displays_in_sync,
+			context->bw_ctx.bw.dce.dispclk_khz,
+			context->bw_ctx.bw.dce.sclk_khz,
+			context->bw_ctx.bw.dce.sclk_deep_sleep_khz,
+			context->bw_ctx.bw.dce.yclk_khz,
+			context->bw_ctx.bw.dce.blackout_recovery_time_us);
+>>>>>>> upstream/android-13
 	}
 	return result;
 }
@@ -840,7 +1152,11 @@ enum dc_status resource_map_phy_clock_resources(
 		return DC_ERROR_UNEXPECTED;
 
 	if (dc_is_dp_signal(pipe_ctx->stream->signal)
+<<<<<<< HEAD
 		|| pipe_ctx->stream->signal == SIGNAL_TYPE_VIRTUAL)
+=======
+		|| dc_is_virtual_signal(pipe_ctx->stream->signal))
+>>>>>>> upstream/android-13
 		pipe_ctx->clock_source =
 				dc->res_pool->dp_clock_source;
 	else
@@ -884,7 +1200,11 @@ enum dc_status dce112_add_stream_to_ctx(
 		struct dc_state *new_ctx,
 		struct dc_stream_state *dc_stream)
 {
+<<<<<<< HEAD
 	enum dc_status result = DC_ERROR_UNEXPECTED;
+=======
+	enum dc_status result;
+>>>>>>> upstream/android-13
 
 	result = resource_map_pool_resources(dc, new_ctx, dc_stream);
 
@@ -898,7 +1218,11 @@ enum dc_status dce112_add_stream_to_ctx(
 	return result;
 }
 
+<<<<<<< HEAD
 enum dc_status dce112_validate_global(
+=======
+static enum dc_status dce112_validate_global(
+>>>>>>> upstream/android-13
 		struct dc *dc,
 		struct dc_state *context)
 {
@@ -912,7 +1236,11 @@ static void dce112_destroy_resource_pool(struct resource_pool **pool)
 {
 	struct dce110_resource_pool *dce110_pool = TO_DCE110_RES_POOL(*pool);
 
+<<<<<<< HEAD
 	destruct(dce110_pool);
+=======
+	dce112_resource_destruct(dce110_pool);
+>>>>>>> upstream/android-13
 	kfree(dce110_pool);
 	*pool = NULL;
 }
@@ -920,10 +1248,19 @@ static void dce112_destroy_resource_pool(struct resource_pool **pool)
 static const struct resource_funcs dce112_res_pool_funcs = {
 	.destroy = dce112_destroy_resource_pool,
 	.link_enc_create = dce112_link_encoder_create,
+<<<<<<< HEAD
 	.validate_bandwidth = dce112_validate_bandwidth,
 	.validate_plane = dce100_validate_plane,
 	.add_stream_to_ctx = dce112_add_stream_to_ctx,
 	.validate_global = dce112_validate_global
+=======
+	.panel_cntl_create = dce112_panel_cntl_create,
+	.validate_bandwidth = dce112_validate_bandwidth,
+	.validate_plane = dce100_validate_plane,
+	.add_stream_to_ctx = dce112_add_stream_to_ctx,
+	.validate_global = dce112_validate_global,
+	.find_first_free_match_stream_enc_for_link = dce110_find_first_free_match_stream_enc_for_link
+>>>>>>> upstream/android-13
 };
 
 static void bw_calcs_data_update_from_pplib(struct dc *dc)
@@ -932,6 +1269,13 @@ static void bw_calcs_data_update_from_pplib(struct dc *dc)
 	struct dm_pp_clock_levels_with_latency mem_clks = {0};
 	struct dm_pp_wm_sets_with_clock_ranges clk_ranges = {0};
 	struct dm_pp_clock_levels clks = {0};
+<<<<<<< HEAD
+=======
+	int memory_type_multiplier = MEMORY_TYPE_MULTIPLIER_CZ;
+
+	if (dc->bw_vbios && dc->bw_vbios->memory_type == bw_def_hbm)
+		memory_type_multiplier = MEMORY_TYPE_HBM;
+>>>>>>> upstream/android-13
 
 	/*do system clock  TODO PPLIB: after PPLIB implement,
 	 * then remove old way
@@ -971,12 +1315,21 @@ static void bw_calcs_data_update_from_pplib(struct dc *dc)
 				&clks);
 
 		dc->bw_vbios->low_yclk = bw_frc_to_fixed(
+<<<<<<< HEAD
 			clks.clocks_in_khz[0] * MEMORY_TYPE_MULTIPLIER, 1000);
 		dc->bw_vbios->mid_yclk = bw_frc_to_fixed(
 			clks.clocks_in_khz[clks.num_levels>>1] * MEMORY_TYPE_MULTIPLIER,
 			1000);
 		dc->bw_vbios->high_yclk = bw_frc_to_fixed(
 			clks.clocks_in_khz[clks.num_levels-1] * MEMORY_TYPE_MULTIPLIER,
+=======
+			clks.clocks_in_khz[0] * memory_type_multiplier, 1000);
+		dc->bw_vbios->mid_yclk = bw_frc_to_fixed(
+			clks.clocks_in_khz[clks.num_levels>>1] * memory_type_multiplier,
+			1000);
+		dc->bw_vbios->high_yclk = bw_frc_to_fixed(
+			clks.clocks_in_khz[clks.num_levels-1] * memory_type_multiplier,
+>>>>>>> upstream/android-13
 			1000);
 
 		return;
@@ -1012,12 +1365,21 @@ static void bw_calcs_data_update_from_pplib(struct dc *dc)
 	 * YCLK = UMACLK*m_memoryTypeMultiplier
 	 */
 	dc->bw_vbios->low_yclk = bw_frc_to_fixed(
+<<<<<<< HEAD
 		mem_clks.data[0].clocks_in_khz * MEMORY_TYPE_MULTIPLIER, 1000);
 	dc->bw_vbios->mid_yclk = bw_frc_to_fixed(
 		mem_clks.data[mem_clks.num_levels>>1].clocks_in_khz * MEMORY_TYPE_MULTIPLIER,
 		1000);
 	dc->bw_vbios->high_yclk = bw_frc_to_fixed(
 		mem_clks.data[mem_clks.num_levels-1].clocks_in_khz * MEMORY_TYPE_MULTIPLIER,
+=======
+		mem_clks.data[0].clocks_in_khz * memory_type_multiplier, 1000);
+	dc->bw_vbios->mid_yclk = bw_frc_to_fixed(
+		mem_clks.data[mem_clks.num_levels>>1].clocks_in_khz * memory_type_multiplier,
+		1000);
+	dc->bw_vbios->high_yclk = bw_frc_to_fixed(
+		mem_clks.data[mem_clks.num_levels-1].clocks_in_khz * memory_type_multiplier,
+>>>>>>> upstream/android-13
 		1000);
 
 	/* Now notify PPLib/SMU about which Watermarks sets they should select
@@ -1070,7 +1432,11 @@ static void bw_calcs_data_update_from_pplib(struct dc *dc)
 	dm_pp_notify_wm_clock_changes(dc->ctx, &clk_ranges);
 }
 
+<<<<<<< HEAD
 const struct resource_caps *dce112_resource_cap(
+=======
+static const struct resource_caps *dce112_resource_cap(
+>>>>>>> upstream/android-13
 	struct hw_asic_id *asic_id)
 {
 	if (ASIC_REV_IS_POLARIS11_M(asic_id->hw_internal_rev) ||
@@ -1080,14 +1446,21 @@ const struct resource_caps *dce112_resource_cap(
 		return &polaris_10_resource_cap;
 }
 
+<<<<<<< HEAD
 static bool construct(
+=======
+static bool dce112_resource_construct(
+>>>>>>> upstream/android-13
 	uint8_t num_virtual_links,
 	struct dc *dc,
 	struct dce110_resource_pool *pool)
 {
 	unsigned int i;
 	struct dc_context *ctx = dc->ctx;
+<<<<<<< HEAD
 	struct dm_pp_static_clock_info static_clk_info = {0};
+=======
+>>>>>>> upstream/android-13
 
 	ctx->dc_bios->regs = &bios_regs;
 
@@ -1102,9 +1475,17 @@ static bool construct(
 	pool->base.timing_generator_count = pool->base.res_cap->num_timing_generator;
 	dc->caps.max_downscale_ratio = 200;
 	dc->caps.i2c_speed_in_khz = 100;
+<<<<<<< HEAD
 	dc->caps.max_cursor_size = 128;
 	dc->caps.dual_link_dvi = true;
 
+=======
+	dc->caps.i2c_speed_in_khz_hdcp = 100; /*1.4 w/a not applied by default*/
+	dc->caps.max_cursor_size = 128;
+	dc->caps.min_horizontal_blanking_period = 80;
+	dc->caps.dual_link_dvi = true;
+	dc->caps.extended_aux_timeout_support = false;
+>>>>>>> upstream/android-13
 
 	/*************************************************
 	 *  Create resources                             *
@@ -1155,6 +1536,7 @@ static bool construct(
 		}
 	}
 
+<<<<<<< HEAD
 	pool->base.dccg = dce112_dccg_create(ctx,
 			&disp_clk_regs,
 			&disp_clk_shift,
@@ -1165,6 +1547,8 @@ static bool construct(
 		goto res_create_fail;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	pool->base.dmcu = dce_dmcu_create(ctx,
 			&dmcu_regs,
 			&dmcu_shift,
@@ -1185,6 +1569,7 @@ static bool construct(
 		goto res_create_fail;
 	}
 
+<<<<<<< HEAD
 	/* get static clock information for PPLIB or firmware, save
 	 * max_clock_state
 	 */
@@ -1192,6 +1577,8 @@ static bool construct(
 		pool->base.dccg->max_clks_state =
 				static_clk_info.max_clocks_state;
 
+=======
+>>>>>>> upstream/android-13
 	{
 		struct irq_service_init_data init_data;
 		init_data.ctx = dc->ctx;
@@ -1245,6 +1632,12 @@ static bool construct(
 				"DC:failed to create output pixel processor!\n");
 			goto res_create_fail;
 		}
+<<<<<<< HEAD
+=======
+	}
+
+	for (i = 0; i < pool->base.res_cap->num_ddc; i++) {
+>>>>>>> upstream/android-13
 		pool->base.engines[i] = dce112_aux_engine_create(ctx, i);
 		if (pool->base.engines[i] == NULL) {
 			BREAK_TO_DEBUGGER();
@@ -1252,6 +1645,17 @@ static bool construct(
 				"DC:failed to create aux engine!!\n");
 			goto res_create_fail;
 		}
+<<<<<<< HEAD
+=======
+		pool->base.hw_i2cs[i] = dce112_i2c_hw_create(ctx, i);
+		if (pool->base.hw_i2cs[i] == NULL) {
+			BREAK_TO_DEBUGGER();
+			dm_error(
+				"DC:failed to create i2c engine!!\n");
+			goto res_create_fail;
+		}
+		pool->base.sw_i2cs[i] = NULL;
+>>>>>>> upstream/android-13
 	}
 
 	if (!resource_construct(num_virtual_links, dc, &pool->base,
@@ -1260,6 +1664,12 @@ static bool construct(
 
 	dc->caps.max_planes =  pool->base.pipe_count;
 
+<<<<<<< HEAD
+=======
+	for (i = 0; i < dc->caps.max_planes; ++i)
+		dc->caps.planes[i] = plane_cap;
+
+>>>>>>> upstream/android-13
 	/* Create hardware sequencer */
 	dce112_hw_sequencer_construct(dc);
 
@@ -1270,7 +1680,11 @@ static bool construct(
 	return true;
 
 res_create_fail:
+<<<<<<< HEAD
 	destruct(pool);
+=======
+	dce112_resource_destruct(pool);
+>>>>>>> upstream/android-13
 	return false;
 }
 
@@ -1284,7 +1698,11 @@ struct resource_pool *dce112_create_resource_pool(
 	if (!pool)
 		return NULL;
 
+<<<<<<< HEAD
 	if (construct(num_virtual_links, dc, pool))
+=======
+	if (dce112_resource_construct(num_virtual_links, dc, pool))
+>>>>>>> upstream/android-13
 		return &pool->base;
 
 	kfree(pool);

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Memory merging support.
  *
@@ -10,8 +14,11 @@
  *	Andrea Arcangeli
  *	Chris Wright
  *	Hugh Dickins
+<<<<<<< HEAD
  *
  * This work is licensed under the terms of the GNU GPL, version 2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/errno.h>
@@ -25,7 +32,11 @@
 #include <linux/pagemap.h>
 #include <linux/rmap.h>
 #include <linux/spinlock.h>
+<<<<<<< HEAD
 #include <linux/jhash.h>
+=======
+#include <linux/xxhash.h>
+>>>>>>> upstream/android-13
 #include <linux/delay.h>
 #include <linux/kthread.h>
 #include <linux/wait.h>
@@ -82,7 +93,11 @@
  *   different KSM page copy of that content
  *
  * Internally, the regular nodes, "dups" and "chains" are represented
+<<<<<<< HEAD
  * using the same :c:type:`struct stable_node` structure.
+=======
+ * using the same struct stable_node structure.
+>>>>>>> upstream/android-13
  *
  * In addition to the stable tree, KSM uses a second data structure called the
  * unstable tree: this tree holds pointers to pages which have been found to
@@ -216,8 +231,11 @@ struct rmap_item {
 #define SEQNR_MASK	0x0ff	/* low bits of unstable tree seqnr */
 #define UNSTABLE_FLAG	0x100	/* is a node of the unstable tree */
 #define STABLE_FLAG	0x200	/* is listed from the stable tree */
+<<<<<<< HEAD
 #define KSM_FLAG_MASK	(SEQNR_MASK|UNSTABLE_FLAG|STABLE_FLAG)
 				/* to mask all the flags */
+=======
+>>>>>>> upstream/android-13
 
 /* The stable and unstable tree heads */
 static struct rb_root one_stable_tree[1] = { RB_ROOT };
@@ -262,7 +280,11 @@ static unsigned long ksm_stable_node_chains;
 static unsigned long ksm_stable_node_dups;
 
 /* Delay in pruning stale stable_node_dups in the stable_node_chains */
+<<<<<<< HEAD
 static int ksm_stable_node_chains_prune_millisecs = 2000;
+=======
+static unsigned int ksm_stable_node_chains_prune_millisecs = 2000;
+>>>>>>> upstream/android-13
 
 /* Maximum number of page slots sharing a stable node */
 static int ksm_max_page_sharing = 256;
@@ -296,6 +318,10 @@ static unsigned long ksm_run = KSM_RUN_STOP;
 static void wait_while_offlining(void);
 
 static DECLARE_WAIT_QUEUE_HEAD(ksm_thread_wait);
+<<<<<<< HEAD
+=======
+static DECLARE_WAIT_QUEUE_HEAD(ksm_iter_wait);
+>>>>>>> upstream/android-13
 static DEFINE_MUTEX(ksm_thread_mutex);
 static DEFINE_SPINLOCK(ksm_mmlist_lock);
 
@@ -442,7 +468,11 @@ static void insert_to_mm_slots_hash(struct mm_struct *mm,
 /*
  * ksmd, and unmerge_and_remove_all_rmap_items(), must not touch an mm's
  * page tables after it has passed through ksm_exit() - which, if necessary,
+<<<<<<< HEAD
  * takes mmap_sem briefly to serialize against them.  ksm_exit() does not set
+=======
+ * takes mmap_lock briefly to serialize against them.  ksm_exit() does not set
+>>>>>>> upstream/android-13
  * a special flag: they can just back out as soon as mm_users goes to zero.
  * ksm_test_exit() is used throughout to make this test for exit: in some
  * places for correctness, in some places just to avoid unnecessary work.
@@ -455,13 +485,21 @@ static inline bool ksm_test_exit(struct mm_struct *mm)
 /*
  * We use break_ksm to break COW on a ksm page: it's a stripped down
  *
+<<<<<<< HEAD
  *	if (get_user_pages(addr, 1, 1, 1, &page, NULL) == 1)
+=======
+ *	if (get_user_pages(addr, 1, FOLL_WRITE, &page, NULL) == 1)
+>>>>>>> upstream/android-13
  *		put_page(page);
  *
  * but taking great care only to touch a ksm page, in a VM_MERGEABLE vma,
  * in case the application has unmapped and remapped mm,addr meanwhile.
  * Could a ksm page appear anywhere else?  Actually yes, in a VM_PFNMAP
+<<<<<<< HEAD
  * mmap of /dev/mem or /dev/kmem, where we would not want to touch it.
+=======
+ * mmap of /dev/mem, where we would not want to touch it.
+>>>>>>> upstream/android-13
  *
  * FAULT_FLAG/FOLL_REMOTE are because we do this outside the context
  * of the process that owns 'vma'.  We also do not want to enforce
@@ -480,7 +518,12 @@ static int break_ksm(struct vm_area_struct *vma, unsigned long addr)
 			break;
 		if (PageKsm(page))
 			ret = handle_mm_fault(vma, addr,
+<<<<<<< HEAD
 					FAULT_FLAG_WRITE | FAULT_FLAG_REMOTE);
+=======
+					      FAULT_FLAG_WRITE | FAULT_FLAG_REMOTE,
+					      NULL);
+>>>>>>> upstream/android-13
 		else
 			ret = VM_FAULT_WRITE;
 		put_page(page);
@@ -522,10 +565,15 @@ static struct vm_area_struct *find_mergeable_vma(struct mm_struct *mm,
 	struct vm_area_struct *vma;
 	if (ksm_test_exit(mm))
 		return NULL;
+<<<<<<< HEAD
 	vma = find_vma(mm, addr);
 	if (!vma || vma->vm_start > addr)
 		return NULL;
 	if (!(vma->vm_flags & VM_MERGEABLE) || !vma->anon_vma)
+=======
+	vma = vma_lookup(mm, addr);
+	if (!vma || !(vma->vm_flags & VM_MERGEABLE) || !vma->anon_vma)
+>>>>>>> upstream/android-13
 		return NULL;
 	return vma;
 }
@@ -542,11 +590,19 @@ static void break_cow(struct rmap_item *rmap_item)
 	 */
 	put_anon_vma(rmap_item->anon_vma);
 
+<<<<<<< HEAD
 	down_read(&mm->mmap_sem);
 	vma = find_mergeable_vma(mm, addr);
 	if (vma)
 		break_ksm(vma, addr);
 	up_read(&mm->mmap_sem);
+=======
+	mmap_read_lock(mm);
+	vma = find_mergeable_vma(mm, addr);
+	if (vma)
+		break_ksm(vma, addr);
+	mmap_read_unlock(mm);
+>>>>>>> upstream/android-13
 }
 
 static struct page *get_mergeable_page(struct rmap_item *rmap_item)
@@ -556,7 +612,11 @@ static struct page *get_mergeable_page(struct rmap_item *rmap_item)
 	struct vm_area_struct *vma;
 	struct page *page;
 
+<<<<<<< HEAD
 	down_read(&mm->mmap_sem);
+=======
+	mmap_read_lock(mm);
+>>>>>>> upstream/android-13
 	vma = find_mergeable_vma(mm, addr);
 	if (!vma)
 		goto out;
@@ -572,7 +632,11 @@ static struct page *get_mergeable_page(struct rmap_item *rmap_item)
 out:
 		page = NULL;
 	}
+<<<<<<< HEAD
 	up_read(&mm->mmap_sem);
+=======
+	mmap_read_unlock(mm);
+>>>>>>> upstream/android-13
 	return page;
 }
 
@@ -597,7 +661,11 @@ static struct stable_node *alloc_stable_node_chain(struct stable_node *dup,
 		chain->chain_prune_time = jiffies;
 		chain->rmap_hlist_len = STABLE_NODE_CHAIN;
 #if defined (CONFIG_DEBUG_VM) && defined(CONFIG_NUMA)
+<<<<<<< HEAD
 		chain->nid = -1; /* debug */
+=======
+		chain->nid = NUMA_NO_NODE; /* debug */
+>>>>>>> upstream/android-13
 #endif
 		ksm_stable_node_chains++;
 
@@ -612,7 +680,11 @@ static struct stable_node *alloc_stable_node_chain(struct stable_node *dup,
 		 * Move the old stable node to the second dimension
 		 * queued in the hlist_dup. The invariant is that all
 		 * dup stable_nodes in the chain->hlist point to pages
+<<<<<<< HEAD
 		 * that are wrprotected and have the exact same
+=======
+		 * that are write protected and have the exact same
+>>>>>>> upstream/android-13
 		 * content.
 		 */
 		stable_node_chain_add_dup(dup, chain);
@@ -654,10 +726,15 @@ static void remove_node_from_stable_tree(struct stable_node *stable_node)
 	 * from &migrate_nodes. This will verify that future list.h changes
 	 * don't break STABLE_NODE_DUP_HEAD. Only recent gcc can handle it.
 	 */
+<<<<<<< HEAD
 #if defined(GCC_VERSION) && GCC_VERSION >= 40903
 	BUILD_BUG_ON(STABLE_NODE_DUP_HEAD <= &migrate_nodes);
 	BUILD_BUG_ON(STABLE_NODE_DUP_HEAD >= &migrate_nodes + 1);
 #endif
+=======
+	BUILD_BUG_ON(STABLE_NODE_DUP_HEAD <= &migrate_nodes);
+	BUILD_BUG_ON(STABLE_NODE_DUP_HEAD >= &migrate_nodes + 1);
+>>>>>>> upstream/android-13
 
 	if (stable_node->head == &migrate_nodes)
 		list_del(&stable_node->list);
@@ -666,6 +743,15 @@ static void remove_node_from_stable_tree(struct stable_node *stable_node)
 	free_stable_node(stable_node);
 }
 
+<<<<<<< HEAD
+=======
+enum get_ksm_page_flags {
+	GET_KSM_PAGE_NOLOCK,
+	GET_KSM_PAGE_LOCK,
+	GET_KSM_PAGE_TRYLOCK
+};
+
+>>>>>>> upstream/android-13
 /*
  * get_ksm_page: checks if the page indicated by the stable node
  * is still its ksm page, despite having held no reference to it.
@@ -685,7 +771,12 @@ static void remove_node_from_stable_tree(struct stable_node *stable_node)
  * a page to put something that might look like our key in page->mapping.
  * is on its way to being freed; but it is an anomaly to bear in mind.
  */
+<<<<<<< HEAD
 static struct page *get_ksm_page(struct stable_node *stable_node, bool lock_it)
+=======
+static struct page *get_ksm_page(struct stable_node *stable_node,
+				 enum get_ksm_page_flags flags)
+>>>>>>> upstream/android-13
 {
 	struct page *page;
 	void *expected_mapping;
@@ -705,8 +796,14 @@ again:
 	 * case this node is no longer referenced, and should be freed;
 	 * however, it might mean that the page is under page_ref_freeze().
 	 * The __remove_mapping() case is easy, again the node is now stale;
+<<<<<<< HEAD
 	 * but if page is swapcache in migrate_page_move_mapping(), it might
 	 * still be our page, in which case it's essential to keep the node.
+=======
+	 * the same is in reuse_ksm_page() case; but if page is swapcache
+	 * in migrate_page_move_mapping(), it might still be our page,
+	 * in which case it's essential to keep the node.
+>>>>>>> upstream/android-13
 	 */
 	while (!get_page_unless_zero(page)) {
 		/*
@@ -727,8 +824,20 @@ again:
 		goto stale;
 	}
 
+<<<<<<< HEAD
 	if (lock_it) {
 		lock_page(page);
+=======
+	if (flags == GET_KSM_PAGE_TRYLOCK) {
+		if (!trylock_page(page)) {
+			put_page(page);
+			return ERR_PTR(-EBUSY);
+		}
+	} else if (flags == GET_KSM_PAGE_LOCK)
+		lock_page(page);
+
+	if (flags != GET_KSM_PAGE_NOLOCK) {
+>>>>>>> upstream/android-13
 		if (READ_ONCE(page->mapping) != expected_mapping) {
 			unlock_page(page);
 			put_page(page);
@@ -762,7 +871,11 @@ static void remove_rmap_item_from_tree(struct rmap_item *rmap_item)
 		struct page *page;
 
 		stable_node = rmap_item->head;
+<<<<<<< HEAD
 		page = get_ksm_page(stable_node, true);
+=======
+		page = get_ksm_page(stable_node, GET_KSM_PAGE_LOCK);
+>>>>>>> upstream/android-13
 		if (!page)
 			goto out;
 
@@ -802,8 +915,12 @@ out:
 	cond_resched();		/* we're called from many long loops */
 }
 
+<<<<<<< HEAD
 static void remove_trailing_rmap_items(struct mm_slot *mm_slot,
 				       struct rmap_item **rmap_list)
+=======
+static void remove_trailing_rmap_items(struct rmap_item **rmap_list)
+>>>>>>> upstream/android-13
 {
 	while (*rmap_list) {
 		struct rmap_item *rmap_item = *rmap_list;
@@ -817,7 +934,11 @@ static void remove_trailing_rmap_items(struct mm_slot *mm_slot,
  * Though it's very tempting to unmerge rmap_items from stable tree rather
  * than check every pte of a given vma, the locking doesn't quite work for
  * that - an rmap_item is assigned to the stable tree after inserting ksm
+<<<<<<< HEAD
  * page and upping mmap_sem.  Nor does it fit with the way we skip dup'ing
+=======
+ * page and upping mmap_lock.  Nor does it fit with the way we skip dup'ing
+>>>>>>> upstream/android-13
  * rmap_items from parent to child at fork time (so as not to waste time
  * if exit comes before the next scan reaches it).
  *
@@ -863,7 +984,11 @@ static int remove_stable_node(struct stable_node *stable_node)
 	struct page *page;
 	int err;
 
+<<<<<<< HEAD
 	page = get_ksm_page(stable_node, true);
+=======
+	page = get_ksm_page(stable_node, GET_KSM_PAGE_LOCK);
+>>>>>>> upstream/android-13
 	if (!page) {
 		/*
 		 * get_ksm_page did remove_node_from_stable_tree itself.
@@ -962,7 +1087,11 @@ static int unmerge_and_remove_all_rmap_items(void)
 	for (mm_slot = ksm_scan.mm_slot;
 			mm_slot != &ksm_mm_head; mm_slot = ksm_scan.mm_slot) {
 		mm = mm_slot->mm;
+<<<<<<< HEAD
 		down_read(&mm->mmap_sem);
+=======
+		mmap_read_lock(mm);
+>>>>>>> upstream/android-13
 		for (vma = mm->mmap; vma; vma = vma->vm_next) {
 			if (ksm_test_exit(mm))
 				break;
@@ -974,8 +1103,13 @@ static int unmerge_and_remove_all_rmap_items(void)
 				goto error;
 		}
 
+<<<<<<< HEAD
 		remove_trailing_rmap_items(mm_slot, &mm_slot->rmap_list);
 		up_read(&mm->mmap_sem);
+=======
+		remove_trailing_rmap_items(&mm_slot->rmap_list);
+		mmap_read_unlock(mm);
+>>>>>>> upstream/android-13
 
 		spin_lock(&ksm_mmlist_lock);
 		ksm_scan.mm_slot = list_entry(mm_slot->mm_list.next,
@@ -998,7 +1132,11 @@ static int unmerge_and_remove_all_rmap_items(void)
 	return 0;
 
 error:
+<<<<<<< HEAD
 	up_read(&mm->mmap_sem);
+=======
+	mmap_read_unlock(mm);
+>>>>>>> upstream/android-13
 	spin_lock(&ksm_mmlist_lock);
 	ksm_scan.mm_slot = &ksm_mm_head;
 	spin_unlock(&ksm_mmlist_lock);
@@ -1010,11 +1148,16 @@ static u32 calc_checksum(struct page *page)
 {
 	u32 checksum;
 	void *addr = kmap_atomic(page);
+<<<<<<< HEAD
 	checksum = jhash2(addr, PAGE_SIZE / 4, 17);
+=======
+	checksum = xxhash(addr, PAGE_SIZE, 0);
+>>>>>>> upstream/android-13
 	kunmap_atomic(addr);
 	return checksum;
 }
 
+<<<<<<< HEAD
 static int memcmp_pages(struct page *page1, struct page *page2)
 {
 	char *addr1, *addr2;
@@ -1033,6 +1176,8 @@ static inline int pages_identical(struct page *page1, struct page *page2)
 	return !memcmp_pages(page1, page2);
 }
 
+=======
+>>>>>>> upstream/android-13
 static int write_protect_page(struct vm_area_struct *vma, struct page *page,
 			      pte_t *orig_pte)
 {
@@ -1043,8 +1188,12 @@ static int write_protect_page(struct vm_area_struct *vma, struct page *page,
 	};
 	int swapped;
 	int err = -EFAULT;
+<<<<<<< HEAD
 	unsigned long mmun_start;	/* For mmu_notifiers */
 	unsigned long mmun_end;		/* For mmu_notifiers */
+=======
+	struct mmu_notifier_range range;
+>>>>>>> upstream/android-13
 
 	pvmw.address = page_address_in_vma(page, vma);
 	if (pvmw.address == -EFAULT)
@@ -1052,9 +1201,16 @@ static int write_protect_page(struct vm_area_struct *vma, struct page *page,
 
 	BUG_ON(PageTransCompound(page));
 
+<<<<<<< HEAD
 	mmun_start = pvmw.address;
 	mmun_end   = pvmw.address + PAGE_SIZE;
 	mmu_notifier_invalidate_range_start(mm, mmun_start, mmun_end);
+=======
+	mmu_notifier_range_init(&range, MMU_NOTIFY_CLEAR, 0, vma, mm,
+				pvmw.address,
+				pvmw.address + PAGE_SIZE);
+	mmu_notifier_invalidate_range_start(&range);
+>>>>>>> upstream/android-13
 
 	if (!page_vma_mapped_walk(&pvmw))
 		goto out_mn;
@@ -1071,7 +1227,11 @@ static int write_protect_page(struct vm_area_struct *vma, struct page *page,
 		/*
 		 * Ok this is tricky, when get_user_pages_fast() run it doesn't
 		 * take any lock, therefore the check that we are going to make
+<<<<<<< HEAD
 		 * with the pagecount against the mapcount is racey and
+=======
+		 * with the pagecount against the mapcount is racy and
+>>>>>>> upstream/android-13
 		 * O_DIRECT can happen right after the check.
 		 * So we clear the pte and flush the tlb before the check
 		 * this assure us that no O_DIRECT can happen after the check
@@ -1106,7 +1266,11 @@ static int write_protect_page(struct vm_area_struct *vma, struct page *page,
 out_unlock:
 	page_vma_mapped_walk_done(&pvmw);
 out_mn:
+<<<<<<< HEAD
 	mmu_notifier_invalidate_range_end(mm, mmun_start, mmun_end);
+=======
+	mmu_notifier_invalidate_range_end(&range);
+>>>>>>> upstream/android-13
 out:
 	return err;
 }
@@ -1130,8 +1294,12 @@ static int replace_page(struct vm_area_struct *vma, struct page *page,
 	spinlock_t *ptl;
 	unsigned long addr;
 	int err = -EFAULT;
+<<<<<<< HEAD
 	unsigned long mmun_start;	/* For mmu_notifiers */
 	unsigned long mmun_end;		/* For mmu_notifiers */
+=======
+	struct mmu_notifier_range range;
+>>>>>>> upstream/android-13
 
 	addr = page_address_in_vma(page, vma);
 	if (addr == -EFAULT)
@@ -1141,9 +1309,15 @@ static int replace_page(struct vm_area_struct *vma, struct page *page,
 	if (!pmd)
 		goto out;
 
+<<<<<<< HEAD
 	mmun_start = addr;
 	mmun_end   = addr + PAGE_SIZE;
 	mmu_notifier_invalidate_range_start(mm, mmun_start, mmun_end);
+=======
+	mmu_notifier_range_init(&range, MMU_NOTIFY_CLEAR, 0, vma, mm, addr,
+				addr + PAGE_SIZE);
+	mmu_notifier_invalidate_range_start(&range);
+>>>>>>> upstream/android-13
 
 	ptep = pte_offset_map_lock(mm, pmd, addr, &ptl);
 	if (!pte_same(*ptep, orig_pte)) {
@@ -1153,7 +1327,11 @@ static int replace_page(struct vm_area_struct *vma, struct page *page,
 
 	/*
 	 * No need to check ksm_use_zero_pages here: we can only have a
+<<<<<<< HEAD
 	 * zero_page here if ksm_use_zero_pages was enabled alreaady.
+=======
+	 * zero_page here if ksm_use_zero_pages was enabled already.
+>>>>>>> upstream/android-13
 	 */
 	if (!is_zero_pfn(page_to_pfn(kpage))) {
 		get_page(kpage);
@@ -1189,7 +1367,11 @@ static int replace_page(struct vm_area_struct *vma, struct page *page,
 	pte_unmap_unlock(ptep, ptl);
 	err = 0;
 out_mn:
+<<<<<<< HEAD
 	mmu_notifier_invalidate_range_end(mm, mmun_start, mmun_end);
+=======
+	mmu_notifier_invalidate_range_end(&range);
+>>>>>>> upstream/android-13
 out:
 	return err;
 }
@@ -1285,7 +1467,11 @@ static int try_to_merge_with_ksm_page(struct rmap_item *rmap_item,
 	struct vm_area_struct *vma;
 	int err = -EFAULT;
 
+<<<<<<< HEAD
 	down_read(&mm->mmap_sem);
+=======
+	mmap_read_lock(mm);
+>>>>>>> upstream/android-13
 	vma = find_mergeable_vma(mm, rmap_item->address);
 	if (!vma)
 		goto out;
@@ -1297,11 +1483,19 @@ static int try_to_merge_with_ksm_page(struct rmap_item *rmap_item,
 	/* Unstable nid is in union with stable anon_vma: remove first */
 	remove_rmap_item_from_tree(rmap_item);
 
+<<<<<<< HEAD
 	/* Must get reference to anon_vma while still holding mmap_sem */
 	rmap_item->anon_vma = vma->anon_vma;
 	get_anon_vma(vma->anon_vma);
 out:
 	up_read(&mm->mmap_sem);
+=======
+	/* Must get reference to anon_vma while still holding mmap_lock */
+	rmap_item->anon_vma = vma->anon_vma;
+	get_anon_vma(vma->anon_vma);
+out:
+	mmap_read_unlock(mm);
+>>>>>>> upstream/android-13
 	return err;
 }
 
@@ -1388,7 +1582,11 @@ static struct page *stable_node_dup(struct stable_node **_stable_node_dup,
 		 * stable_node parameter itself will be freed from
 		 * under us if it returns NULL.
 		 */
+<<<<<<< HEAD
 		_tree_page = get_ksm_page(dup, false);
+=======
+		_tree_page = get_ksm_page(dup, GET_KSM_PAGE_NOLOCK);
+>>>>>>> upstream/android-13
 		if (!_tree_page)
 			continue;
 		nr += 1;
@@ -1442,7 +1640,11 @@ static struct page *stable_node_dup(struct stable_node **_stable_node_dup,
 			 */
 			*_stable_node = found;
 			/*
+<<<<<<< HEAD
 			 * Just for robustneess as stable_node is
+=======
+			 * Just for robustness, as stable_node is
+>>>>>>> upstream/android-13
 			 * otherwise left as a stable pointer, the
 			 * compiler shall optimize it away at build
 			 * time.
@@ -1511,7 +1713,11 @@ static struct page *__stable_node_chain(struct stable_node **_stable_node_dup,
 	if (!is_stable_node_chain(stable_node)) {
 		if (is_page_sharing_candidate(stable_node)) {
 			*_stable_node_dup = stable_node;
+<<<<<<< HEAD
 			return get_ksm_page(stable_node, false);
+=======
+			return get_ksm_page(stable_node, GET_KSM_PAGE_NOLOCK);
+>>>>>>> upstream/android-13
 		}
 		/*
 		 * _stable_node_dup set to NULL means the stable_node
@@ -1613,10 +1819,18 @@ again:
 			 * continue. All KSM pages belonging to the
 			 * stable_node dups in a stable_node chain
 			 * have the same content and they're
+<<<<<<< HEAD
 			 * wrprotected at all times. Any will work
 			 * fine to continue the walk.
 			 */
 			tree_page = get_ksm_page(stable_node_any, false);
+=======
+			 * write protected at all times. Any will work
+			 * fine to continue the walk.
+			 */
+			tree_page = get_ksm_page(stable_node_any,
+						 GET_KSM_PAGE_NOLOCK);
+>>>>>>> upstream/android-13
 		}
 		VM_BUG_ON(!stable_node_dup ^ !!stable_node_any);
 		if (!tree_page) {
@@ -1676,7 +1890,16 @@ again:
 			 * It would be more elegant to return stable_node
 			 * than kpage, but that involves more changes.
 			 */
+<<<<<<< HEAD
 			tree_page = get_ksm_page(stable_node_dup, true);
+=======
+			tree_page = get_ksm_page(stable_node_dup,
+						 GET_KSM_PAGE_TRYLOCK);
+
+			if (PTR_ERR(tree_page) == -EBUSY)
+				return ERR_PTR(-EBUSY);
+
+>>>>>>> upstream/android-13
 			if (unlikely(!tree_page))
 				/*
 				 * The tree may have been rebalanced,
@@ -1769,7 +1992,10 @@ chain_append:
 	 * stable_node_dup is the dup to replace.
 	 */
 	if (stable_node_dup == stable_node) {
+<<<<<<< HEAD
 		VM_BUG_ON(is_stable_node_chain(stable_node_dup));
+=======
+>>>>>>> upstream/android-13
 		VM_BUG_ON(is_stable_node_dup(stable_node_dup));
 		/* chain is missing so create it */
 		stable_node = alloc_stable_node_chain(stable_node_dup,
@@ -1783,7 +2009,10 @@ chain_append:
 	 * of the current nid for this page
 	 * content.
 	 */
+<<<<<<< HEAD
 	VM_BUG_ON(!is_stable_node_chain(stable_node));
+=======
+>>>>>>> upstream/android-13
 	VM_BUG_ON(!is_stable_node_dup(stable_node_dup));
 	VM_BUG_ON(page_node->head != &migrate_nodes);
 	list_del(&page_node->list);
@@ -1842,10 +2071,18 @@ again:
 			 * continue. All KSM pages belonging to the
 			 * stable_node dups in a stable_node chain
 			 * have the same content and they're
+<<<<<<< HEAD
 			 * wrprotected at all times. Any will work
 			 * fine to continue the walk.
 			 */
 			tree_page = get_ksm_page(stable_node_any, false);
+=======
+			 * write protected at all times. Any will work
+			 * fine to continue the walk.
+			 */
+			tree_page = get_ksm_page(stable_node_any,
+						 GET_KSM_PAGE_NOLOCK);
+>>>>>>> upstream/android-13
 		}
 		VM_BUG_ON(!stable_node_dup ^ !!stable_node_any);
 		if (!tree_page) {
@@ -1999,7 +2236,11 @@ static void stable_tree_append(struct rmap_item *rmap_item,
 	 * duplicate. page_migration could break later if rmap breaks,
 	 * so we can as well crash here. We really need to check for
 	 * rmap_hlist_len == STABLE_NODE_CHAIN, but we can as well check
+<<<<<<< HEAD
 	 * for other negative values as an undeflow if detected here
+=======
+	 * for other negative values as an underflow if detected here
+>>>>>>> upstream/android-13
 	 * for the first time (and not when decreasing rmap_hlist_len)
 	 * would be sign of memory corruption in the stable_node.
 	 */
@@ -2071,6 +2312,12 @@ static void cmp_and_merge_page(struct page *page, struct rmap_item *rmap_item)
 	remove_rmap_item_from_tree(rmap_item);
 
 	if (kpage) {
+<<<<<<< HEAD
+=======
+		if (PTR_ERR(kpage) == -EBUSY)
+			return;
+
+>>>>>>> upstream/android-13
 		err = try_to_merge_with_ksm_page(rmap_item, page, kpage);
 		if (!err) {
 			/*
@@ -2105,7 +2352,11 @@ static void cmp_and_merge_page(struct page *page, struct rmap_item *rmap_item)
 	if (ksm_use_zero_pages && (checksum == zero_checksum)) {
 		struct vm_area_struct *vma;
 
+<<<<<<< HEAD
 		down_read(&mm->mmap_sem);
+=======
+		mmap_read_lock(mm);
+>>>>>>> upstream/android-13
 		vma = find_mergeable_vma(mm, rmap_item->address);
 		if (vma) {
 			err = try_to_merge_one_page(vma, page,
@@ -2117,7 +2368,11 @@ static void cmp_and_merge_page(struct page *page, struct rmap_item *rmap_item)
 			 */
 			err = 0;
 		}
+<<<<<<< HEAD
 		up_read(&mm->mmap_sem);
+=======
+		mmap_read_unlock(mm);
+>>>>>>> upstream/android-13
 		/*
 		 * In case of failure, the page was not really empty, so we
 		 * need to continue. Otherwise we're done.
@@ -2253,7 +2508,12 @@ static struct rmap_item *scan_get_next_rmap_item(struct page **page)
 
 			list_for_each_entry_safe(stable_node, next,
 						 &migrate_nodes, list) {
+<<<<<<< HEAD
 				page = get_ksm_page(stable_node, false);
+=======
+				page = get_ksm_page(stable_node,
+						    GET_KSM_PAGE_NOLOCK);
+>>>>>>> upstream/android-13
 				if (page)
 					put_page(page);
 				cond_resched();
@@ -2279,7 +2539,11 @@ next_mm:
 	}
 
 	mm = slot->mm;
+<<<<<<< HEAD
 	down_read(&mm->mmap_sem);
+=======
+	mmap_read_lock(mm);
+>>>>>>> upstream/android-13
 	if (ksm_test_exit(mm))
 		vma = NULL;
 	else
@@ -2313,7 +2577,11 @@ next_mm:
 					ksm_scan.address += PAGE_SIZE;
 				} else
 					put_page(*page);
+<<<<<<< HEAD
 				up_read(&mm->mmap_sem);
+=======
+				mmap_read_unlock(mm);
+>>>>>>> upstream/android-13
 				return rmap_item;
 			}
 			put_page(*page);
@@ -2330,20 +2598,32 @@ next_mm:
 	 * Nuke all the rmap_items that are above this current rmap:
 	 * because there were no VM_MERGEABLE vmas with such addresses.
 	 */
+<<<<<<< HEAD
 	remove_trailing_rmap_items(slot, ksm_scan.rmap_list);
+=======
+	remove_trailing_rmap_items(ksm_scan.rmap_list);
+>>>>>>> upstream/android-13
 
 	spin_lock(&ksm_mmlist_lock);
 	ksm_scan.mm_slot = list_entry(slot->mm_list.next,
 						struct mm_slot, mm_list);
 	if (ksm_scan.address == 0) {
 		/*
+<<<<<<< HEAD
 		 * We've completed a full scan of all vmas, holding mmap_sem
+=======
+		 * We've completed a full scan of all vmas, holding mmap_lock
+>>>>>>> upstream/android-13
 		 * throughout, and found no VM_MERGEABLE: so do the same as
 		 * __ksm_exit does to remove this mm from all our lists now.
 		 * This applies either when cleaning up after __ksm_exit
 		 * (but beware: we can reach here even before __ksm_exit),
 		 * or when all VM_MERGEABLE areas have been unmapped (and
+<<<<<<< HEAD
 		 * mmap_sem then protects against race with MADV_MERGEABLE).
+=======
+		 * mmap_lock then protects against race with MADV_MERGEABLE).
+>>>>>>> upstream/android-13
 		 */
 		hash_del(&slot->link);
 		list_del(&slot->mm_list);
@@ -2351,12 +2631,21 @@ next_mm:
 
 		free_mm_slot(slot);
 		clear_bit(MMF_VM_MERGEABLE, &mm->flags);
+<<<<<<< HEAD
 		up_read(&mm->mmap_sem);
 		mmdrop(mm);
 	} else {
 		up_read(&mm->mmap_sem);
 		/*
 		 * up_read(&mm->mmap_sem) first because after
+=======
+		mmap_read_unlock(mm);
+		mmdrop(mm);
+	} else {
+		mmap_read_unlock(mm);
+		/*
+		 * mmap_read_unlock(mm) first because after
+>>>>>>> upstream/android-13
 		 * spin_unlock(&ksm_mmlist_lock) run, the "mm" may
 		 * already have been freed under us by __ksm_exit()
 		 * because the "mm_slot" is still hashed and
@@ -2381,7 +2670,11 @@ next_mm:
 static void ksm_do_scan(unsigned int scan_npages)
 {
 	struct rmap_item *rmap_item;
+<<<<<<< HEAD
 	struct page *uninitialized_var(page);
+=======
+	struct page *page;
+>>>>>>> upstream/android-13
 
 	while (scan_npages-- && likely(!freezing(current))) {
 		cond_resched();
@@ -2400,6 +2693,11 @@ static int ksmd_should_run(void)
 
 static int ksm_scan_thread(void *nothing)
 {
+<<<<<<< HEAD
+=======
+	unsigned int sleep_ms;
+
+>>>>>>> upstream/android-13
 	set_freezable();
 	set_user_nice(current, 5);
 
@@ -2413,8 +2711,15 @@ static int ksm_scan_thread(void *nothing)
 		try_to_freeze();
 
 		if (ksmd_should_run()) {
+<<<<<<< HEAD
 			schedule_timeout_interruptible(
 				msecs_to_jiffies(ksm_thread_sleep_millisecs));
+=======
+			sleep_ms = READ_ONCE(ksm_thread_sleep_millisecs);
+			wait_event_interruptible_timeout(ksm_iter_wait,
+				sleep_ms != READ_ONCE(ksm_thread_sleep_millisecs),
+				msecs_to_jiffies(sleep_ms));
+>>>>>>> upstream/android-13
 		} else {
 			wait_event_freezable(ksm_thread_wait,
 				ksmd_should_run() || kthread_should_stop());
@@ -2476,6 +2781,10 @@ int ksm_madvise(struct vm_area_struct *vma, unsigned long start,
 
 	return 0;
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(ksm_madvise);
+>>>>>>> upstream/android-13
 
 int __ksm_enter(struct mm_struct *mm)
 {
@@ -2525,7 +2834,11 @@ void __ksm_exit(struct mm_struct *mm)
 	 * This process is exiting: if it's straightforward (as is the
 	 * case when ksmd was never running), free mm_slot immediately.
 	 * But if it's at the cursor or has rmap_items linked to it, use
+<<<<<<< HEAD
 	 * mmap_sem to synchronize with any break_cows before pagetables
+=======
+	 * mmap_lock to synchronize with any break_cows before pagetables
+>>>>>>> upstream/android-13
 	 * are freed, and leave the mm_slot on the list for ksmd to free.
 	 * Beware: ksm may already have noticed it exiting and freed the slot.
 	 */
@@ -2549,8 +2862,13 @@ void __ksm_exit(struct mm_struct *mm)
 		clear_bit(MMF_VM_MERGEABLE, &mm->flags);
 		mmdrop(mm);
 	} else if (mm_slot) {
+<<<<<<< HEAD
 		down_write(&mm->mmap_sem);
 		up_write(&mm->mmap_sem);
+=======
+		mmap_write_lock(mm);
+		mmap_write_unlock(mm);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -2574,6 +2892,13 @@ struct page *ksm_might_need_to_copy(struct page *page,
 		return page;		/* let do_swap_page report the error */
 
 	new_page = alloc_page_vma(GFP_HIGHUSER_MOVABLE, vma, address);
+<<<<<<< HEAD
+=======
+	if (new_page && mem_cgroup_charge(new_page, vma->vm_mm, GFP_KERNEL)) {
+		put_page(new_page);
+		new_page = NULL;
+	}
+>>>>>>> upstream/android-13
 	if (new_page) {
 		copy_user_highpage(new_page, page, address, vma);
 
@@ -2609,6 +2934,7 @@ again:
 		struct vm_area_struct *vma;
 
 		cond_resched();
+<<<<<<< HEAD
 		if (!anon_vma_trylock_read(anon_vma)) {
 			if (rwc->try_lock) {
 				rwc->contended = true;
@@ -2616,6 +2942,9 @@ again:
 			}
 			anon_vma_lock_read(anon_vma);
 		}
+=======
+		anon_vma_lock_read(anon_vma);
+>>>>>>> upstream/android-13
 		anon_vma_interval_tree_foreach(vmac, &anon_vma->rb_root,
 					       0, ULONG_MAX) {
 			unsigned long addr;
@@ -2624,7 +2953,11 @@ again:
 			vma = vmac->vma;
 
 			/* Ignore the stable/unstable/sqnr flags */
+<<<<<<< HEAD
 			addr = rmap_item->address & ~KSM_FLAG_MASK;
+=======
+			addr = rmap_item->address & PAGE_MASK;
+>>>>>>> upstream/android-13
 
 			if (addr < vma->vm_start || addr >= vma->vm_end)
 				continue;
@@ -2791,8 +3124,12 @@ static int ksm_memory_callback(struct notifier_block *self,
 		 */
 		ksm_check_stable_tree(mn->start_pfn,
 				      mn->start_pfn + mn->nr_pages);
+<<<<<<< HEAD
 		/* fallthrough */
 
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case MEM_CANCEL_OFFLINE:
 		mutex_lock(&ksm_thread_mutex);
 		ksm_run &= ~KSM_RUN_OFFLINE;
@@ -2824,13 +3161,18 @@ static void wait_while_offlining(void)
 static ssize_t sleep_millisecs_show(struct kobject *kobj,
 				    struct kobj_attribute *attr, char *buf)
 {
+<<<<<<< HEAD
 	return sprintf(buf, "%u\n", ksm_thread_sleep_millisecs);
+=======
+	return sysfs_emit(buf, "%u\n", ksm_thread_sleep_millisecs);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t sleep_millisecs_store(struct kobject *kobj,
 				     struct kobj_attribute *attr,
 				     const char *buf, size_t count)
 {
+<<<<<<< HEAD
 	unsigned long msecs;
 	int err;
 
@@ -2839,6 +3181,17 @@ static ssize_t sleep_millisecs_store(struct kobject *kobj,
 		return -EINVAL;
 
 	ksm_thread_sleep_millisecs = msecs;
+=======
+	unsigned int msecs;
+	int err;
+
+	err = kstrtouint(buf, 10, &msecs);
+	if (err)
+		return -EINVAL;
+
+	ksm_thread_sleep_millisecs = msecs;
+	wake_up_interruptible(&ksm_iter_wait);
+>>>>>>> upstream/android-13
 
 	return count;
 }
@@ -2847,18 +3200,30 @@ KSM_ATTR(sleep_millisecs);
 static ssize_t pages_to_scan_show(struct kobject *kobj,
 				  struct kobj_attribute *attr, char *buf)
 {
+<<<<<<< HEAD
 	return sprintf(buf, "%u\n", ksm_thread_pages_to_scan);
+=======
+	return sysfs_emit(buf, "%u\n", ksm_thread_pages_to_scan);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t pages_to_scan_store(struct kobject *kobj,
 				   struct kobj_attribute *attr,
 				   const char *buf, size_t count)
 {
+<<<<<<< HEAD
 	int err;
 	unsigned long nr_pages;
 
 	err = kstrtoul(buf, 10, &nr_pages);
 	if (err || nr_pages > UINT_MAX)
+=======
+	unsigned int nr_pages;
+	int err;
+
+	err = kstrtouint(buf, 10, &nr_pages);
+	if (err)
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	ksm_thread_pages_to_scan = nr_pages;
@@ -2870,17 +3235,29 @@ KSM_ATTR(pages_to_scan);
 static ssize_t run_show(struct kobject *kobj, struct kobj_attribute *attr,
 			char *buf)
 {
+<<<<<<< HEAD
 	return sprintf(buf, "%lu\n", ksm_run);
+=======
+	return sysfs_emit(buf, "%lu\n", ksm_run);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t run_store(struct kobject *kobj, struct kobj_attribute *attr,
 			 const char *buf, size_t count)
 {
+<<<<<<< HEAD
 	int err;
 	unsigned long flags;
 
 	err = kstrtoul(buf, 10, &flags);
 	if (err || flags > UINT_MAX)
+=======
+	unsigned int flags;
+	int err;
+
+	err = kstrtouint(buf, 10, &flags);
+	if (err)
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	if (flags > KSM_RUN_UNMERGE)
 		return -EINVAL;
@@ -2917,9 +3294,15 @@ KSM_ATTR(run);
 
 #ifdef CONFIG_NUMA
 static ssize_t merge_across_nodes_show(struct kobject *kobj,
+<<<<<<< HEAD
 				struct kobj_attribute *attr, char *buf)
 {
 	return sprintf(buf, "%u\n", ksm_merge_across_nodes);
+=======
+				       struct kobj_attribute *attr, char *buf)
+{
+	return sysfs_emit(buf, "%u\n", ksm_merge_across_nodes);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t merge_across_nodes_store(struct kobject *kobj,
@@ -2974,9 +3357,15 @@ KSM_ATTR(merge_across_nodes);
 #endif
 
 static ssize_t use_zero_pages_show(struct kobject *kobj,
+<<<<<<< HEAD
 				struct kobj_attribute *attr, char *buf)
 {
 	return sprintf(buf, "%u\n", ksm_use_zero_pages);
+=======
+				   struct kobj_attribute *attr, char *buf)
+{
+	return sysfs_emit(buf, "%u\n", ksm_use_zero_pages);
+>>>>>>> upstream/android-13
 }
 static ssize_t use_zero_pages_store(struct kobject *kobj,
 				   struct kobj_attribute *attr,
@@ -2998,7 +3387,11 @@ KSM_ATTR(use_zero_pages);
 static ssize_t max_page_sharing_show(struct kobject *kobj,
 				     struct kobj_attribute *attr, char *buf)
 {
+<<<<<<< HEAD
 	return sprintf(buf, "%u\n", ksm_max_page_sharing);
+=======
+	return sysfs_emit(buf, "%u\n", ksm_max_page_sharing);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t max_page_sharing_store(struct kobject *kobj,
@@ -3039,21 +3432,33 @@ KSM_ATTR(max_page_sharing);
 static ssize_t pages_shared_show(struct kobject *kobj,
 				 struct kobj_attribute *attr, char *buf)
 {
+<<<<<<< HEAD
 	return sprintf(buf, "%lu\n", ksm_pages_shared);
+=======
+	return sysfs_emit(buf, "%lu\n", ksm_pages_shared);
+>>>>>>> upstream/android-13
 }
 KSM_ATTR_RO(pages_shared);
 
 static ssize_t pages_sharing_show(struct kobject *kobj,
 				  struct kobj_attribute *attr, char *buf)
 {
+<<<<<<< HEAD
 	return sprintf(buf, "%lu\n", ksm_pages_sharing);
+=======
+	return sysfs_emit(buf, "%lu\n", ksm_pages_sharing);
+>>>>>>> upstream/android-13
 }
 KSM_ATTR_RO(pages_sharing);
 
 static ssize_t pages_unshared_show(struct kobject *kobj,
 				   struct kobj_attribute *attr, char *buf)
 {
+<<<<<<< HEAD
 	return sprintf(buf, "%lu\n", ksm_pages_unshared);
+=======
+	return sysfs_emit(buf, "%lu\n", ksm_pages_unshared);
+>>>>>>> upstream/android-13
 }
 KSM_ATTR_RO(pages_unshared);
 
@@ -3070,21 +3475,33 @@ static ssize_t pages_volatile_show(struct kobject *kobj,
 	 */
 	if (ksm_pages_volatile < 0)
 		ksm_pages_volatile = 0;
+<<<<<<< HEAD
 	return sprintf(buf, "%ld\n", ksm_pages_volatile);
+=======
+	return sysfs_emit(buf, "%ld\n", ksm_pages_volatile);
+>>>>>>> upstream/android-13
 }
 KSM_ATTR_RO(pages_volatile);
 
 static ssize_t stable_node_dups_show(struct kobject *kobj,
 				     struct kobj_attribute *attr, char *buf)
 {
+<<<<<<< HEAD
 	return sprintf(buf, "%lu\n", ksm_stable_node_dups);
+=======
+	return sysfs_emit(buf, "%lu\n", ksm_stable_node_dups);
+>>>>>>> upstream/android-13
 }
 KSM_ATTR_RO(stable_node_dups);
 
 static ssize_t stable_node_chains_show(struct kobject *kobj,
 				       struct kobj_attribute *attr, char *buf)
 {
+<<<<<<< HEAD
 	return sprintf(buf, "%lu\n", ksm_stable_node_chains);
+=======
+	return sysfs_emit(buf, "%lu\n", ksm_stable_node_chains);
+>>>>>>> upstream/android-13
 }
 KSM_ATTR_RO(stable_node_chains);
 
@@ -3093,7 +3510,11 @@ stable_node_chains_prune_millisecs_show(struct kobject *kobj,
 					struct kobj_attribute *attr,
 					char *buf)
 {
+<<<<<<< HEAD
 	return sprintf(buf, "%u\n", ksm_stable_node_chains_prune_millisecs);
+=======
+	return sysfs_emit(buf, "%u\n", ksm_stable_node_chains_prune_millisecs);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t
@@ -3101,11 +3522,19 @@ stable_node_chains_prune_millisecs_store(struct kobject *kobj,
 					 struct kobj_attribute *attr,
 					 const char *buf, size_t count)
 {
+<<<<<<< HEAD
 	unsigned long msecs;
 	int err;
 
 	err = kstrtoul(buf, 10, &msecs);
 	if (err || msecs > UINT_MAX)
+=======
+	unsigned int msecs;
+	int err;
+
+	err = kstrtouint(buf, 10, &msecs);
+	if (err)
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	ksm_stable_node_chains_prune_millisecs = msecs;
@@ -3117,7 +3546,11 @@ KSM_ATTR(stable_node_chains_prune_millisecs);
 static ssize_t full_scans_show(struct kobject *kobj,
 			       struct kobj_attribute *attr, char *buf)
 {
+<<<<<<< HEAD
 	return sprintf(buf, "%lu\n", ksm_scan.seqnr);
+=======
+	return sysfs_emit(buf, "%lu\n", ksm_scan.seqnr);
+>>>>>>> upstream/android-13
 }
 KSM_ATTR_RO(full_scans);
 

@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  *  pm_wakeup.h - Power management wakeup interface
  *
  *  Copyright (C) 2008 Alan Stern
  *  Copyright (C) 2010 Rafael J. Wysocki, Novell Inc.
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -17,6 +22,8 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _LINUX_PM_WAKEUP_H
@@ -51,7 +58,11 @@ struct wake_irq;
  * @wakeup_count: Number of times the wakeup source might abort suspend.
  * @dev: Struct device for sysfs statistics about the wakeup source.
  * @active: Status of the wakeup source.
+<<<<<<< HEAD
  * @has_timeout: The wakeup source has been activated with a timeout.
+=======
+ * @autosleep_enabled: Autosleep is active, so update @prevent_sleep_time.
+>>>>>>> upstream/android-13
  */
 struct wakeup_source {
 	const char 		*name;
@@ -76,6 +87,14 @@ struct wakeup_source {
 	bool			autosleep_enabled:1;
 };
 
+<<<<<<< HEAD
+=======
+#define for_each_wakeup_source(ws) \
+	for ((ws) = wakeup_sources_walk_start();	\
+	     (ws);					\
+	     (ws) = wakeup_sources_walk_next((ws)))
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PM_SLEEP
 
 /*
@@ -92,6 +111,14 @@ static inline bool device_may_wakeup(struct device *dev)
 	return dev->power.can_wakeup && !!dev->power.wakeup;
 }
 
+<<<<<<< HEAD
+=======
+static inline bool device_wakeup_path(struct device *dev)
+{
+	return dev->power.wakeup_path;
+}
+
+>>>>>>> upstream/android-13
 static inline void device_set_wakeup_path(struct device *dev)
 {
 	dev->power.wakeup_path = true;
@@ -105,6 +132,13 @@ extern void wakeup_source_remove(struct wakeup_source *ws);
 extern struct wakeup_source *wakeup_source_register(struct device *dev,
 						    const char *name);
 extern void wakeup_source_unregister(struct wakeup_source *ws);
+<<<<<<< HEAD
+=======
+extern int wakeup_sources_read_lock(void);
+extern void wakeup_sources_read_unlock(int idx);
+extern struct wakeup_source *wakeup_sources_walk_start(void);
+extern struct wakeup_source *wakeup_sources_walk_next(struct wakeup_source *ws);
+>>>>>>> upstream/android-13
 extern int device_wakeup_enable(struct device *dev);
 extern int device_wakeup_disable(struct device *dev);
 extern void device_set_wakeup_capable(struct device *dev, bool capable);
@@ -178,6 +212,14 @@ static inline bool device_may_wakeup(struct device *dev)
 	return dev->power.can_wakeup && dev->power.should_wakeup;
 }
 
+<<<<<<< HEAD
+=======
+static inline bool device_wakeup_path(struct device *dev)
+{
+	return false;
+}
+
+>>>>>>> upstream/android-13
 static inline void device_set_wakeup_path(struct device *dev) {}
 
 static inline void __pm_stay_awake(struct wakeup_source *ws) {}

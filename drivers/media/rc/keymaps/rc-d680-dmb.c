@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * keymap imported from cxusb.c
  *
  * Copyright (C) 2016 Sean Young
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; version 2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <media/rc-map.h>
@@ -14,6 +21,7 @@
 static struct rc_map_table rc_map_d680_dmb_table[] = {
 	{ 0x0038, KEY_SWITCHVIDEOMODE },	/* TV/AV */
 	{ 0x080c, KEY_ZOOM },
+<<<<<<< HEAD
 	{ 0x0800, KEY_0 },
 	{ 0x0001, KEY_1 },
 	{ 0x0802, KEY_2 },
@@ -24,6 +32,18 @@ static struct rc_map_table rc_map_d680_dmb_table[] = {
 	{ 0x0007, KEY_7 },
 	{ 0x0808, KEY_8 },
 	{ 0x0009, KEY_9 },
+=======
+	{ 0x0800, KEY_NUMERIC_0 },
+	{ 0x0001, KEY_NUMERIC_1 },
+	{ 0x0802, KEY_NUMERIC_2 },
+	{ 0x0003, KEY_NUMERIC_3 },
+	{ 0x0804, KEY_NUMERIC_4 },
+	{ 0x0005, KEY_NUMERIC_5 },
+	{ 0x0806, KEY_NUMERIC_6 },
+	{ 0x0007, KEY_NUMERIC_7 },
+	{ 0x0808, KEY_NUMERIC_8 },
+	{ 0x0009, KEY_NUMERIC_9 },
+>>>>>>> upstream/android-13
 	{ 0x000a, KEY_MUTE },
 	{ 0x0829, KEY_BACK },
 	{ 0x0012, KEY_CHANNELUP },

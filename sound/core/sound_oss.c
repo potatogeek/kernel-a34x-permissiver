@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  Advanced Linux Sound Architecture
  *  Copyright (c) by Jaroslav Kysela <perex@perex.cz>
@@ -17,6 +18,12 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ *  Advanced Linux Sound Architecture
+ *  Copyright (c) by Jaroslav Kysela <perex@perex.cz>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -232,7 +239,12 @@ static void snd_minor_info_oss_read(struct snd_info_entry *entry,
 
 	mutex_lock(&sound_oss_mutex);
 	for (minor = 0; minor < SNDRV_OSS_MINORS; ++minor) {
+<<<<<<< HEAD
 		if (!(mptr = snd_oss_minors[minor]))
+=======
+		mptr = snd_oss_minors[minor];
+		if (!mptr)
+>>>>>>> upstream/android-13
 			continue;
 		if (mptr->card >= 0)
 			snd_iprintf(buffer, "%3i: [%i-%2i]: %s\n", minor,

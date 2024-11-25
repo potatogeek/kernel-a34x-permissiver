@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * sca3000_core.c -- support VTI sca3000 series accelerometers via SPI
  *
@@ -5,6 +6,12 @@
  * under the terms of the GNU General Public License version 2 as published by
  * the Free Software Foundation.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * sca3000_core.c -- support VTI sca3000 series accelerometers via SPI
+ *
+>>>>>>> upstream/android-13
  * Copyright (c) 2009 Jonathan Cameron <jic23@kernel.org>
  *
  * See industrialio/accels/sca3000.h for comments.
@@ -114,7 +121,11 @@
 /* Currently unsupported */
 #define SCA3000_MD_CTRL_AND_Y				BIT(3)
 #define SCA3000_MD_CTRL_AND_X				BIT(4)
+<<<<<<< HEAD
 #define SAC3000_MD_CTRL_AND_Z				BIT(5)
+=======
+#define SCA3000_MD_CTRL_AND_Z				BIT(5)
+>>>>>>> upstream/android-13
 
 /*
  * Some control registers of complex access methods requiring this register to
@@ -189,9 +200,15 @@ struct sca3000_state {
  * @option_mode_2_freq:		option mode 2 sampling frequency
  * @option_mode_2_3db_freq:	3db cutoff frequency of the low pass filter for
  * the second option mode.
+<<<<<<< HEAD
  * @mod_det_mult_xz:		Bit wise multipliers to calculate the threshold
  * for motion detection in the x and z axis.
  * @mod_det_mult_y:		Bit wise multipliers to calculate the threshold
+=======
+ * @mot_det_mult_xz:		Bit wise multipliers to calculate the threshold
+ * for motion detection in the x and z axis.
+ * @mot_det_mult_y:		Bit wise multipliers to calculate the threshold
+>>>>>>> upstream/android-13
  * for motion detection in the y axis.
  *
  * This structure is used to hold information about the functionality of a given
@@ -354,7 +371,11 @@ static int __sca3000_unlock_reg_lock(struct sca3000_state *st)
 }
 
 /**
+<<<<<<< HEAD
  * sca3000_write_ctrl_reg() write to a lock protect ctrl register
+=======
+ * sca3000_write_ctrl_reg() - write to a lock protect ctrl register
+>>>>>>> upstream/android-13
  * @st: Driver specific device instance data.
  * @sel: selects which registers we wish to write to
  * @val: the value to be written
@@ -392,7 +413,11 @@ error_ret:
 }
 
 /**
+<<<<<<< HEAD
  * sca3000_read_ctrl_reg() read from lock protected control register.
+=======
+ * sca3000_read_ctrl_reg() - read from lock protected control register.
+>>>>>>> upstream/android-13
  * @st: Driver specific device instance data.
  * @ctrl_reg: Which ctrl register do we want to read.
  *
@@ -424,7 +449,11 @@ error_ret:
 }
 
 /**
+<<<<<<< HEAD
  * sca3000_show_rev() - sysfs interface to read the chip revision number
+=======
+ * sca3000_print_rev() - sysfs interface to read the chip revision number
+>>>>>>> upstream/android-13
  * @indio_dev: Device instance specific generic IIO data.
  * Driver specific device instance data can be obtained via
  * via iio_priv(indio_dev)
@@ -862,9 +891,15 @@ error_ret:
  */
 static IIO_DEV_ATTR_SAMP_FREQ_AVAIL(sca3000_read_av_freq);
 
+<<<<<<< HEAD
 /**
  * sca3000_read_event_value() - query of a threshold or period
  **/
+=======
+/*
+ * sca3000_read_event_value() - query of a threshold or period
+ */
+>>>>>>> upstream/android-13
 static int sca3000_read_event_value(struct iio_dev *indio_dev,
 				    const struct iio_chan_spec *chan,
 				    enum iio_event_type type,
@@ -872,8 +907,14 @@ static int sca3000_read_event_value(struct iio_dev *indio_dev,
 				    enum iio_event_info info,
 				    int *val, int *val2)
 {
+<<<<<<< HEAD
 	int ret, i;
 	struct sca3000_state *st = iio_priv(indio_dev);
+=======
+	struct sca3000_state *st = iio_priv(indio_dev);
+	long ret;
+	int i;
+>>>>>>> upstream/android-13
 
 	switch (info) {
 	case IIO_EV_INFO_VALUE:
@@ -885,11 +926,19 @@ static int sca3000_read_event_value(struct iio_dev *indio_dev,
 			return ret;
 		*val = 0;
 		if (chan->channel2 == IIO_MOD_Y)
+<<<<<<< HEAD
 			for_each_set_bit(i, (unsigned long *)&ret,
 					 ARRAY_SIZE(st->info->mot_det_mult_y))
 				*val += st->info->mot_det_mult_y[i];
 		else
 			for_each_set_bit(i, (unsigned long *)&ret,
+=======
+			for_each_set_bit(i, &ret,
+					 ARRAY_SIZE(st->info->mot_det_mult_y))
+				*val += st->info->mot_det_mult_y[i];
+		else
+			for_each_set_bit(i, &ret,
+>>>>>>> upstream/android-13
 					 ARRAY_SIZE(st->info->mot_det_mult_xz))
 				*val += st->info->mot_det_mult_xz[i];
 
@@ -904,7 +953,11 @@ static int sca3000_read_event_value(struct iio_dev *indio_dev,
 }
 
 /**
+<<<<<<< HEAD
  * sca3000_write_value() - control of threshold and period
+=======
+ * sca3000_write_event_value() - control of threshold and period
+>>>>>>> upstream/android-13
  * @indio_dev: Device instance specific IIO information.
  * @chan: Description of the channel for which the event is being
  * configured.
@@ -1102,9 +1155,15 @@ done:
 	return IRQ_HANDLED;
 }
 
+<<<<<<< HEAD
 /**
  * sca3000_read_event_config() what events are enabled
  **/
+=======
+/*
+ * sca3000_read_event_config() what events are enabled
+ */
+>>>>>>> upstream/android-13
 static int sca3000_read_event_config(struct iio_dev *indio_dev,
 				     const struct iio_chan_spec *chan,
 				     enum iio_event_type type,
@@ -1274,6 +1333,7 @@ static int sca3000_write_event_config(struct iio_dev *indio_dev,
 	return ret;
 }
 
+<<<<<<< HEAD
 static int sca3000_configure_ring(struct iio_dev *indio_dev)
 {
 	struct iio_buffer *buffer;
@@ -1288,6 +1348,8 @@ static int sca3000_configure_ring(struct iio_dev *indio_dev)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline
 int __sca3000_hw_ring_state_set(struct iio_dev *indio_dev, bool state)
 {
@@ -1469,7 +1531,10 @@ static int sca3000_probe(struct spi_device *spi)
 	st->info = &sca3000_spi_chip_info_tbl[spi_get_device_id(spi)
 					      ->driver_data];
 
+<<<<<<< HEAD
 	indio_dev->dev.parent = &spi->dev;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->name = spi_get_device_id(spi)->name;
 	indio_dev->info = &sca3000_info;
 	if (st->info->temp_output) {
@@ -1482,7 +1547,13 @@ static int sca3000_probe(struct spi_device *spi)
 	}
 	indio_dev->modes = INDIO_DIRECT_MODE;
 
+<<<<<<< HEAD
 	ret = sca3000_configure_ring(indio_dev);
+=======
+	ret = devm_iio_kfifo_buffer_setup(&spi->dev, indio_dev,
+					  INDIO_BUFFER_SOFTWARE,
+					  &sca3000_ring_setup_ops);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 
@@ -1496,7 +1567,10 @@ static int sca3000_probe(struct spi_device *spi)
 		if (ret)
 			return ret;
 	}
+<<<<<<< HEAD
 	indio_dev->setup_ops = &sca3000_ring_setup_ops;
+=======
+>>>>>>> upstream/android-13
 	ret = sca3000_clean_setup(st);
 	if (ret)
 		goto error_free_irq;

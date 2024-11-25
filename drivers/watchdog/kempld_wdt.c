@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Kontron PLD watchdog driver
  *
  * Copyright (c) 2010-2013 Kontron Europe GmbH
  * Author: Michael Brunner <michael.brunner@kontron.com>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License 2 as published
  * by the Free Software Foundation.
@@ -13,6 +18,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  * Note: From the PLD watchdog point of view timeout and pretimeout are
  *       defined differently than in the kernel.
  *       First the pretimeout stage runs out before the timeout stage gets
@@ -467,7 +474,11 @@ static int kempld_wdt_probe(struct platform_device *pdev)
 			KEMPLD_WDT_CFG_GLOBAL_LOCK)) {
 		if (!nowayout)
 			dev_warn(dev,
+<<<<<<< HEAD
 				"Forcing nowayout - watchdog lock enabled!\n");
+=======
+				 "Forcing nowayout - watchdog lock enabled!\n");
+>>>>>>> upstream/android-13
 		nowayout = true;
 	}
 
@@ -492,7 +503,13 @@ static int kempld_wdt_probe(struct platform_device *pdev)
 	}
 
 	platform_set_drvdata(pdev, wdt_data);
+<<<<<<< HEAD
 	ret = watchdog_register_device(wdd);
+=======
+	watchdog_stop_on_reboot(wdd);
+	watchdog_stop_on_unregister(wdd);
+	ret = devm_watchdog_register_device(dev, wdd);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 
@@ -501,6 +518,7 @@ static int kempld_wdt_probe(struct platform_device *pdev)
 	return 0;
 }
 
+<<<<<<< HEAD
 static void kempld_wdt_shutdown(struct platform_device *pdev)
 {
 	struct kempld_wdt_data *wdt_data = platform_get_drvdata(pdev);
@@ -521,6 +539,8 @@ static int kempld_wdt_remove(struct platform_device *pdev)
 	return ret;
 }
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PM
 /* Disable watchdog if it is active during suspend */
 static int kempld_wdt_suspend(struct platform_device *pdev,
@@ -567,8 +587,11 @@ static struct platform_driver kempld_wdt_driver = {
 		.name	= "kempld-wdt",
 	},
 	.probe		= kempld_wdt_probe,
+<<<<<<< HEAD
 	.remove		= kempld_wdt_remove,
 	.shutdown	= kempld_wdt_shutdown,
+=======
+>>>>>>> upstream/android-13
 	.suspend	= kempld_wdt_suspend,
 	.resume		= kempld_wdt_resume,
 };

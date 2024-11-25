@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * A hwmon driver for ACPI 4.0 power meters
  * Copyright (C) 2009 IBM
  *
  * Author: Darrick J. Wong <darrick.wong@oracle.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +22,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -33,7 +40,10 @@
 #include <linux/acpi.h>
 
 #define ACPI_POWER_METER_NAME		"power_meter"
+<<<<<<< HEAD
 ACPI_MODULE_NAME(ACPI_POWER_METER_NAME);
+=======
+>>>>>>> upstream/android-13
 #define ACPI_POWER_METER_DEVICE_NAME	"Power Meter"
 #define ACPI_POWER_METER_CLASS		"pwr_meter_resource"
 
@@ -127,7 +137,12 @@ static int update_avg_interval(struct acpi_power_meter_resource *resource)
 	status = acpi_evaluate_integer(resource->acpi_dev->handle, "_GAI",
 				       NULL, &data);
 	if (ACPI_FAILURE(status)) {
+<<<<<<< HEAD
 		ACPI_EXCEPTION((AE_INFO, status, "Evaluating _GAI"));
+=======
+		acpi_evaluation_failure_warn(resource->acpi_dev->handle, "_GAI",
+					     status);
+>>>>>>> upstream/android-13
 		return -ENODEV;
 	}
 
@@ -174,12 +189,21 @@ static ssize_t set_avg_interval(struct device *dev,
 	mutex_lock(&resource->lock);
 	status = acpi_evaluate_integer(resource->acpi_dev->handle, "_PAI",
 				       &args, &data);
+<<<<<<< HEAD
 	if (!ACPI_FAILURE(status))
+=======
+	if (ACPI_SUCCESS(status))
+>>>>>>> upstream/android-13
 		resource->avg_interval = temp;
 	mutex_unlock(&resource->lock);
 
 	if (ACPI_FAILURE(status)) {
+<<<<<<< HEAD
 		ACPI_EXCEPTION((AE_INFO, status, "Evaluating _PAI"));
+=======
+		acpi_evaluation_failure_warn(resource->acpi_dev->handle, "_PAI",
+					     status);
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -199,7 +223,12 @@ static int update_cap(struct acpi_power_meter_resource *resource)
 	status = acpi_evaluate_integer(resource->acpi_dev->handle, "_GHL",
 				       NULL, &data);
 	if (ACPI_FAILURE(status)) {
+<<<<<<< HEAD
 		ACPI_EXCEPTION((AE_INFO, status, "Evaluating _GHL"));
+=======
+		acpi_evaluation_failure_warn(resource->acpi_dev->handle, "_GHL",
+					     status);
+>>>>>>> upstream/android-13
 		return -ENODEV;
 	}
 
@@ -245,12 +274,21 @@ static ssize_t set_cap(struct device *dev, struct device_attribute *devattr,
 	mutex_lock(&resource->lock);
 	status = acpi_evaluate_integer(resource->acpi_dev->handle, "_SHL",
 				       &args, &data);
+<<<<<<< HEAD
 	if (!ACPI_FAILURE(status))
+=======
+	if (ACPI_SUCCESS(status))
+>>>>>>> upstream/android-13
 		resource->cap = temp;
 	mutex_unlock(&resource->lock);
 
 	if (ACPI_FAILURE(status)) {
+<<<<<<< HEAD
 		ACPI_EXCEPTION((AE_INFO, status, "Evaluating _SHL"));
+=======
+		acpi_evaluation_failure_warn(resource->acpi_dev->handle, "_SHL",
+					     status);
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -283,7 +321,12 @@ static int set_acpi_trip(struct acpi_power_meter_resource *resource)
 	status = acpi_evaluate_integer(resource->acpi_dev->handle, "_PTP",
 				       &args, &data);
 	if (ACPI_FAILURE(status)) {
+<<<<<<< HEAD
 		ACPI_EXCEPTION((AE_INFO, status, "Evaluating _PTP"));
+=======
+		acpi_evaluation_failure_warn(resource->acpi_dev->handle, "_PTP",
+					     status);
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -335,7 +378,12 @@ static int update_meter(struct acpi_power_meter_resource *resource)
 	status = acpi_evaluate_integer(resource->acpi_dev->handle, "_PMM",
 				       NULL, &data);
 	if (ACPI_FAILURE(status)) {
+<<<<<<< HEAD
 		ACPI_EXCEPTION((AE_INFO, status, "Evaluating _PMM"));
+=======
+		acpi_evaluation_failure_warn(resource->acpi_dev->handle, "_PMM",
+					     status);
+>>>>>>> upstream/android-13
 		return -ENODEV;
 	}
 
@@ -368,7 +416,13 @@ static ssize_t show_str(struct device *dev,
 	struct acpi_device *acpi_dev = to_acpi_device(dev);
 	struct acpi_power_meter_resource *resource = acpi_dev->driver_data;
 	acpi_string val;
+<<<<<<< HEAD
 
+=======
+	int ret;
+
+	mutex_lock(&resource->lock);
+>>>>>>> upstream/android-13
 	switch (attr->index) {
 	case 0:
 		val = resource->model_number;
@@ -385,8 +439,14 @@ static ssize_t show_str(struct device *dev,
 		val = "";
 		break;
 	}
+<<<<<<< HEAD
 
 	return sprintf(buf, "%s\n", val);
+=======
+	ret = sprintf(buf, "%s\n", val);
+	mutex_unlock(&resource->lock);
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static ssize_t show_val(struct device *dev,
@@ -559,7 +619,12 @@ static int read_domain_devices(struct acpi_power_meter_resource *resource)
 	status = acpi_evaluate_object(resource->acpi_dev->handle, "_PMD", NULL,
 				      &buffer);
 	if (ACPI_FAILURE(status)) {
+<<<<<<< HEAD
 		ACPI_EXCEPTION((AE_INFO, status, "Evaluating _PMD"));
+=======
+		acpi_evaluation_failure_warn(resource->acpi_dev->handle, "_PMD",
+					     status);
+>>>>>>> upstream/android-13
 		return -ENODEV;
 	}
 
@@ -638,12 +703,20 @@ static int register_attrs(struct acpi_power_meter_resource *resource,
 
 	while (attrs->label) {
 		sensors->dev_attr.attr.name = attrs->label;
+<<<<<<< HEAD
 		sensors->dev_attr.attr.mode = S_IRUGO;
+=======
+		sensors->dev_attr.attr.mode = 0444;
+>>>>>>> upstream/android-13
 		sensors->dev_attr.show = attrs->show;
 		sensors->index = attrs->index;
 
 		if (attrs->set) {
+<<<<<<< HEAD
 			sensors->dev_attr.attr.mode |= S_IWUSR;
+=======
+			sensors->dev_attr.attr.mode |= 0200;
+>>>>>>> upstream/android-13
 			sensors->dev_attr.store = attrs->set;
 		}
 
@@ -735,8 +808,15 @@ static void free_capabilities(struct acpi_power_meter_resource *resource)
 	int i;
 
 	str = &resource->model_number;
+<<<<<<< HEAD
 	for (i = 0; i < 3; i++, str++)
 		kfree(*str);
+=======
+	for (i = 0; i < 3; i++, str++) {
+		kfree(*str);
+		*str = NULL;
+	}
+>>>>>>> upstream/android-13
 }
 
 static int read_capabilities(struct acpi_power_meter_resource *resource)
@@ -753,7 +833,12 @@ static int read_capabilities(struct acpi_power_meter_resource *resource)
 	status = acpi_evaluate_object(resource->acpi_dev->handle, "_PMC", NULL,
 				      &buffer);
 	if (ACPI_FAILURE(status)) {
+<<<<<<< HEAD
 		ACPI_EXCEPTION((AE_INFO, status, "Evaluating _PMC"));
+=======
+		acpi_evaluation_failure_warn(resource->acpi_dev->handle, "_PMC",
+					     status);
+>>>>>>> upstream/android-13
 		return -ENODEV;
 	}
 
@@ -773,7 +858,13 @@ static int read_capabilities(struct acpi_power_meter_resource *resource)
 
 	status = acpi_extract_package(pss, &format, &state);
 	if (ACPI_FAILURE(status)) {
+<<<<<<< HEAD
 		ACPI_EXCEPTION((AE_INFO, status, "Invalid data"));
+=======
+		dev_err(&resource->acpi_dev->dev, ACPI_POWER_METER_NAME
+			"_PMC package parsing failed: %s\n",
+			acpi_format_exception(status));
+>>>>>>> upstream/android-13
 		res = -EFAULT;
 		goto end;
 	}
@@ -811,9 +902,13 @@ static int read_capabilities(struct acpi_power_meter_resource *resource)
 	dev_info(&resource->acpi_dev->dev, "Found ACPI power meter.\n");
 	goto end;
 error:
+<<<<<<< HEAD
 	str = &resource->model_number;
 	for (i = 0; i < 3; i++, str++)
 		kfree(*str);
+=======
+	free_capabilities(resource);
+>>>>>>> upstream/android-13
 end:
 	kfree(buffer.pointer);
 	return res;
@@ -830,11 +925,20 @@ static void acpi_power_meter_notify(struct acpi_device *device, u32 event)
 
 	resource = acpi_driver_data(device);
 
+<<<<<<< HEAD
 	mutex_lock(&resource->lock);
 	switch (event) {
 	case METER_NOTIFY_CONFIG:
 		free_capabilities(resource);
 		res = read_capabilities(resource);
+=======
+	switch (event) {
+	case METER_NOTIFY_CONFIG:
+		mutex_lock(&resource->lock);
+		free_capabilities(resource);
+		res = read_capabilities(resource);
+		mutex_unlock(&resource->lock);
+>>>>>>> upstream/android-13
 		if (res)
 			break;
 
@@ -843,6 +947,7 @@ static void acpi_power_meter_notify(struct acpi_device *device, u32 event)
 		break;
 	case METER_NOTIFY_TRIP:
 		sysfs_notify(&device->dev.kobj, NULL, POWER_AVERAGE_NAME);
+<<<<<<< HEAD
 		update_meter(resource);
 		break;
 	case METER_NOTIFY_CAP:
@@ -852,6 +957,14 @@ static void acpi_power_meter_notify(struct acpi_device *device, u32 event)
 	case METER_NOTIFY_INTERVAL:
 		sysfs_notify(&device->dev.kobj, NULL, POWER_AVG_INTERVAL_NAME);
 		update_avg_interval(resource);
+=======
+		break;
+	case METER_NOTIFY_CAP:
+		sysfs_notify(&device->dev.kobj, NULL, POWER_CAP_NAME);
+		break;
+	case METER_NOTIFY_INTERVAL:
+		sysfs_notify(&device->dev.kobj, NULL, POWER_AVG_INTERVAL_NAME);
+>>>>>>> upstream/android-13
 		break;
 	case METER_NOTIFY_CAPPING:
 		sysfs_notify(&device->dev.kobj, NULL, POWER_ALARM_NAME);
@@ -861,7 +974,10 @@ static void acpi_power_meter_notify(struct acpi_device *device, u32 event)
 		WARN(1, "Unexpected event %d\n", event);
 		break;
 	}
+<<<<<<< HEAD
 	mutex_unlock(&resource->lock);
+=======
+>>>>>>> upstream/android-13
 
 	acpi_bus_generate_netlink_event(ACPI_POWER_METER_CLASS,
 					dev_name(&device->dev), event, 0);
@@ -887,7 +1003,10 @@ static int acpi_power_meter_add(struct acpi_device *device)
 	strcpy(acpi_device_class(device), ACPI_POWER_METER_CLASS);
 	device->driver_data = resource;
 
+<<<<<<< HEAD
 	free_capabilities(resource);
+=======
+>>>>>>> upstream/android-13
 	res = read_capabilities(resource);
 	if (res)
 		goto exit_free;
@@ -927,8 +1046,13 @@ static int acpi_power_meter_remove(struct acpi_device *device)
 	resource = acpi_driver_data(device);
 	hwmon_device_unregister(resource->hwmon_dev);
 
+<<<<<<< HEAD
 	free_capabilities(resource);
 	remove_attrs(resource);
+=======
+	remove_attrs(resource);
+	free_capabilities(resource);
+>>>>>>> upstream/android-13
 
 	kfree(resource);
 	return 0;

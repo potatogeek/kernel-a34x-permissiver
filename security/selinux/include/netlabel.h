@@ -1,12 +1,20 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * SELinux interface to the NetLabel subsystem
  *
  * Author: Paul Moore <paul@paul-moore.com>
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 /*
  * (c) Copyright Hewlett-Packard Development Company, L.P., 2006
+<<<<<<< HEAD
  *
  * This program is free software;  you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +29,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _SELINUX_NETLABEL_H_
@@ -112,12 +122,15 @@ static inline int selinux_netlbl_skbuff_setsid(struct sk_buff *skb,
 	return 0;
 }
 
+<<<<<<< HEAD
 static inline int selinux_netlbl_conn_setsid(struct sock *sk,
 					     struct sockaddr *addr)
 {
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline int selinux_netlbl_sctp_assoc_request(struct sctp_endpoint *ep,
 						    struct sk_buff *skb)
 {

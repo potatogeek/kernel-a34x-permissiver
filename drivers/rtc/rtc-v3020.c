@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* drivers/rtc/rtc-v3020.c
  *
  * Copyright (C) 2006 8D Technologies inc.
  * Copyright (C) 2004 Compulab Ltd.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * Driver for the V3020 RTC
  *
  * Changelog:
@@ -17,7 +24,10 @@
  *
  *  ??-???-2004: Someone at Compulab
  *			- Initial driver creation.
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/platform_device.h>
 #include <linux/module.h>
@@ -286,9 +296,14 @@ static int rtc_probe(struct platform_device *pdev)
 {
 	struct v3020_platform_data *pdata = dev_get_platdata(&pdev->dev);
 	struct v3020 *chip;
+<<<<<<< HEAD
 	int retval = -EBUSY;
 	int i;
 	int temp;
+=======
+	int retval;
+	int i;
+>>>>>>> upstream/android-13
 
 	chip = devm_kzalloc(&pdev->dev, sizeof(*chip), GFP_KERNEL);
 	if (!chip)
@@ -306,7 +321,11 @@ static int rtc_probe(struct platform_device *pdev)
 	/* Make sure the v3020 expects a communication cycle
 	 * by reading 8 times */
 	for (i = 0; i < 8; i++)
+<<<<<<< HEAD
 		temp = chip->ops->read_bit(chip);
+=======
+		chip->ops->read_bit(chip);
+>>>>>>> upstream/android-13
 
 	/* Test chip by doing a write/read sequence
 	 * to the chip ram */

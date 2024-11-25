@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * This file is provided under a dual BSD/GPLv2 license.  When using or
@@ -63,6 +64,13 @@
  *
  *****************************************************************************/
 
+=======
+/* SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause */
+/*
+ * Copyright (C) 2012-2014, 2019-2020 Intel Corporation
+ * Copyright (C) 2013-2014 Intel Mobile Communications GmbH
+ */
+>>>>>>> upstream/android-13
 #ifndef __time_event_h__
 #define __time_event_h__
 
@@ -183,12 +191,20 @@ int iwl_mvm_start_p2p_roc(struct iwl_mvm *mvm, struct ieee80211_vif *vif,
 /**
  * iwl_mvm_stop_roc - stop remain on channel functionality
  * @mvm: the mvm component
+<<<<<<< HEAD
+=======
+ * @vif: the virtual interface for which the roc is stopped
+>>>>>>> upstream/android-13
  *
  * This function can be used to cancel an ongoing ROC session.
  * The function is async, it will instruct the FW to stop serving the ROC
  * session, but will not wait for the actual stopping of the session.
  */
+<<<<<<< HEAD
 void iwl_mvm_stop_roc(struct iwl_mvm *mvm);
+=======
+void iwl_mvm_stop_roc(struct iwl_mvm *mvm, struct ieee80211_vif *vif);
+>>>>>>> upstream/android-13
 
 /**
  * iwl_mvm_remove_time_event - general function to clean up of time event
@@ -218,6 +234,12 @@ void iwl_mvm_te_clear_data(struct iwl_mvm *mvm,
 void iwl_mvm_cleanup_roc_te(struct iwl_mvm *mvm);
 void iwl_mvm_roc_done_wk(struct work_struct *wk);
 
+<<<<<<< HEAD
+=======
+void iwl_mvm_remove_csa_period(struct iwl_mvm *mvm,
+			       struct ieee80211_vif *vif);
+
+>>>>>>> upstream/android-13
 /**
  * iwl_mvm_schedule_csa_period - request channel switch absence period
  * @mvm: the mvm component
@@ -247,4 +269,25 @@ iwl_mvm_te_scheduled(struct iwl_mvm_time_event_data *te_data)
 	return !!te_data->uid;
 }
 
+<<<<<<< HEAD
+=======
+/**
+ * iwl_mvm_schedule_session_protection - schedule a session protection
+ * @mvm: the mvm component
+ * @vif: the virtual interface for which the protection issued
+ * @duration: the duration of the protection
+ * @wait_for_notif: if true, will block until the start of the protection
+ */
+void iwl_mvm_schedule_session_protection(struct iwl_mvm *mvm,
+					 struct ieee80211_vif *vif,
+					 u32 duration, u32 min_duration,
+					 bool wait_for_notif);
+
+/**
+ * iwl_mvm_rx_session_protect_notif - handles %SESSION_PROTECTION_NOTIF
+ */
+void iwl_mvm_rx_session_protect_notif(struct iwl_mvm *mvm,
+				      struct iwl_rx_cmd_buffer *rxb);
+
+>>>>>>> upstream/android-13
 #endif /* __time_event_h__ */

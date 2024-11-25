@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* Amanda extension for TCP NAT alteration.
  * (C) 2002 by Brian J. Murrell <netfilter@interlinx.bc.ca>
  * based on a copy of HW's ip_nat_irc.c as well as other modules
  * (C) 2006-2012 Patrick McHardy <kaber@trash.net>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -19,10 +26,22 @@
 #include <net/netfilter/nf_nat_helper.h>
 #include <linux/netfilter/nf_conntrack_amanda.h>
 
+<<<<<<< HEAD
 MODULE_AUTHOR("Brian J. Murrell <netfilter@interlinx.bc.ca>");
 MODULE_DESCRIPTION("Amanda NAT helper");
 MODULE_LICENSE("GPL");
 MODULE_ALIAS("ip_nat_amanda");
+=======
+#define NAT_HELPER_NAME "amanda"
+
+MODULE_AUTHOR("Brian J. Murrell <netfilter@interlinx.bc.ca>");
+MODULE_DESCRIPTION("Amanda NAT helper");
+MODULE_LICENSE("GPL");
+MODULE_ALIAS_NF_NAT_HELPER(NAT_HELPER_NAME);
+
+static struct nf_conntrack_nat_helper nat_helper_amanda =
+	NF_CT_NAT_HELPER_INIT(NAT_HELPER_NAME);
+>>>>>>> upstream/android-13
 
 static unsigned int help(struct sk_buff *skb,
 			 enum ip_conntrack_info ctinfo,
@@ -47,7 +66,11 @@ static unsigned int help(struct sk_buff *skb,
 		int res;
 
 		exp->tuple.dst.u.tcp.port = htons(port);
+<<<<<<< HEAD
 		res = nf_ct_expect_related(exp);
+=======
+		res = nf_ct_expect_related(exp, 0);
+>>>>>>> upstream/android-13
 		if (res == 0)
 			break;
 		else if (res != -EBUSY) {
@@ -74,6 +97,10 @@ static unsigned int help(struct sk_buff *skb,
 
 static void __exit nf_nat_amanda_fini(void)
 {
+<<<<<<< HEAD
+=======
+	nf_nat_helper_unregister(&nat_helper_amanda);
+>>>>>>> upstream/android-13
 	RCU_INIT_POINTER(nf_nat_amanda_hook, NULL);
 	synchronize_rcu();
 }
@@ -81,6 +108,10 @@ static void __exit nf_nat_amanda_fini(void)
 static int __init nf_nat_amanda_init(void)
 {
 	BUG_ON(nf_nat_amanda_hook != NULL);
+<<<<<<< HEAD
+=======
+	nf_nat_helper_register(&nat_helper_amanda);
+>>>>>>> upstream/android-13
 	RCU_INIT_POINTER(nf_nat_amanda_hook, help);
 	return 0;
 }

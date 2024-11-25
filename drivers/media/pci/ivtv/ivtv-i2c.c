@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
     I2C functions
     Copyright (C) 2003-2004  Kevin Thayer <nufan_wfk at yahoo.com>
     Copyright (C) 2005-2007  Hans Verkuil <hverkuil@xs4all.nl>
 
+<<<<<<< HEAD
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or
@@ -16,6 +21,8 @@
     You should have received a copy of the GNU General Public License
     along with this program; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -97,7 +104,11 @@
 #define IVTV_ADAPTEC_IR_ADDR		0x6b
 
 /* This array should match the IVTV_HW_ defines */
+<<<<<<< HEAD
 static const u8 hw_addrs[] = {
+=======
+static const u8 hw_addrs[IVTV_HW_MAX_BITS] = {
+>>>>>>> upstream/android-13
 	IVTV_CX25840_I2C_ADDR,
 	IVTV_SAA7115_I2C_ADDR,
 	IVTV_SAA7127_I2C_ADDR,
@@ -122,7 +133,11 @@ static const u8 hw_addrs[] = {
 };
 
 /* This array should match the IVTV_HW_ defines */
+<<<<<<< HEAD
 static const char * const hw_devicenames[] = {
+=======
+static const char * const hw_devicenames[IVTV_HW_MAX_BITS] = {
+>>>>>>> upstream/android-13
 	"cx25840",
 	"saa7115",
 	"saa7127_auto",	/* saa7127 or saa7129 */
@@ -218,14 +233,24 @@ static int ivtv_i2c_new_ir(struct ivtv *itv, u32 hw, const char *type, u8 addr)
 
 	memset(&info, 0, sizeof(struct i2c_board_info));
 	info.platform_data = init_data;
+<<<<<<< HEAD
 	strlcpy(info.type, type, I2C_NAME_SIZE);
 
 	return i2c_new_probed_device(adap, &info, addr_list, NULL) == NULL ?
+=======
+	strscpy(info.type, type, I2C_NAME_SIZE);
+
+	return IS_ERR(i2c_new_scanned_device(adap, &info, addr_list, NULL)) ?
+>>>>>>> upstream/android-13
 	       -1 : 0;
 }
 
 /* Instantiate the IR receiver device using probing -- undesirable */
+<<<<<<< HEAD
 struct i2c_client *ivtv_i2c_new_ir_legacy(struct ivtv *itv)
+=======
+void ivtv_i2c_new_ir_legacy(struct ivtv *itv)
+>>>>>>> upstream/android-13
 {
 	struct i2c_board_info info;
 	/*
@@ -239,23 +264,45 @@ struct i2c_client *ivtv_i2c_new_ir_legacy(struct ivtv *itv)
 	 * allocations, so this function must be called after all other i2c
 	 * devices we care about are registered.
 	 */
+<<<<<<< HEAD
 	const unsigned short addr_list[] = {
+=======
+	static const unsigned short addr_list[] = {
+>>>>>>> upstream/android-13
 		0x1a,	/* Hauppauge IR external - collides with WM8739 */
 		0x18,	/* Hauppauge IR internal */
 		I2C_CLIENT_END
 	};
 
 	memset(&info, 0, sizeof(struct i2c_board_info));
+<<<<<<< HEAD
 	strlcpy(info.type, "ir_video", I2C_NAME_SIZE);
 	return i2c_new_probed_device(&itv->i2c_adap, &info, addr_list, NULL);
+=======
+	strscpy(info.type, "ir_video", I2C_NAME_SIZE);
+	i2c_new_scanned_device(&itv->i2c_adap, &info, addr_list, NULL);
+>>>>>>> upstream/android-13
 }
 
 int ivtv_i2c_register(struct ivtv *itv, unsigned idx)
 {
+<<<<<<< HEAD
 	struct v4l2_subdev *sd;
 	struct i2c_adapter *adap = &itv->i2c_adap;
 	const char *type = hw_devicenames[idx];
 	u32 hw = 1 << idx;
+=======
+	struct i2c_adapter *adap = &itv->i2c_adap;
+	struct v4l2_subdev *sd;
+	const char *type;
+	u32 hw;
+
+	if (idx >= IVTV_HW_MAX_BITS)
+		return -ENODEV;
+
+	type = hw_devicenames[idx];
+	hw = 1 << idx;
+>>>>>>> upstream/android-13
 
 	if (hw == IVTV_HW_TUNER) {
 		/* special tuner handling */

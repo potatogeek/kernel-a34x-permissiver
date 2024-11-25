@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Flash memory access on SA11x0 based devices
  *
@@ -20,7 +24,11 @@
 #include <linux/mtd/concat.h>
 
 #include <mach/hardware.h>
+<<<<<<< HEAD
 #include <asm/sizes.h>
+=======
+#include <linux/sizes.h>
+>>>>>>> upstream/android-13
 #include <asm/mach/flash.h>
 
 struct sa_subdev_info {
@@ -33,7 +41,11 @@ struct sa_subdev_info {
 struct sa_info {
 	struct mtd_info		*mtd;
 	int			num_subdev;
+<<<<<<< HEAD
 	struct sa_subdev_info	subdev[0];
+=======
+	struct sa_subdev_info	subdev[];
+>>>>>>> upstream/android-13
 };
 
 static DEFINE_SPINLOCK(sa1100_vpp_lock);
@@ -80,7 +92,11 @@ static int sa1100_probe_subdev(struct sa_subdev_info *subdev, struct resource *r
 	default:
 		printk(KERN_WARNING "SA1100 flash: unknown base address "
 		       "0x%08lx, assuming CS0\n", phys);
+<<<<<<< HEAD
 
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case SA1100_CS0_PHYS:
 		subdev->map.bankwidth = (MSC0 & MSC_RBW) ? 2 : 4;
 		break;
@@ -221,7 +237,18 @@ static struct sa_info *sa1100_setup_mtd(struct platform_device *pdev,
 		info->mtd = info->subdev[0].mtd;
 		ret = 0;
 	} else if (info->num_subdev > 1) {
+<<<<<<< HEAD
 		struct mtd_info *cdev[nr];
+=======
+		struct mtd_info **cdev;
+
+		cdev = kmalloc_array(nr, sizeof(*cdev), GFP_KERNEL);
+		if (!cdev) {
+			ret = -ENOMEM;
+			goto err;
+		}
+
+>>>>>>> upstream/android-13
 		/*
 		 * We detected multiple devices.  Concatenate them together.
 		 */
@@ -230,6 +257,10 @@ static struct sa_info *sa1100_setup_mtd(struct platform_device *pdev,
 
 		info->mtd = mtd_concat_create(cdev, info->num_subdev,
 					      plat->name);
+<<<<<<< HEAD
+=======
+		kfree(cdev);
+>>>>>>> upstream/android-13
 		if (info->mtd == NULL) {
 			ret = -ENXIO;
 			goto err;

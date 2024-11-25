@@ -61,7 +61,11 @@ nvkm_mmu_ptp_put(struct nvkm_mmu *mmu, bool force, struct nvkm_mmu_pt *pt)
 	kfree(pt);
 }
 
+<<<<<<< HEAD
 struct nvkm_mmu_pt *
+=======
+static struct nvkm_mmu_pt *
+>>>>>>> upstream/android-13
 nvkm_mmu_ptp_get(struct nvkm_mmu *mmu, u32 size, bool zero)
 {
 	struct nvkm_mmu_pt *pt;
@@ -402,6 +406,10 @@ nvkm_mmu_dtor(struct nvkm_subdev *subdev)
 	nvkm_vmm_unref(&mmu->vmm);
 
 	nvkm_mmu_ptc_fini(mmu);
+<<<<<<< HEAD
+=======
+	mutex_destroy(&mmu->mutex);
+>>>>>>> upstream/android-13
 	return mmu;
 }
 
@@ -414,22 +422,40 @@ nvkm_mmu = {
 
 void
 nvkm_mmu_ctor(const struct nvkm_mmu_func *func, struct nvkm_device *device,
+<<<<<<< HEAD
 	      int index, struct nvkm_mmu *mmu)
 {
 	nvkm_subdev_ctor(&nvkm_mmu, device, index, &mmu->subdev);
 	mmu->func = func;
 	mmu->dma_bits = func->dma_bits;
 	nvkm_mmu_ptc_init(mmu);
+=======
+	      enum nvkm_subdev_type type, int inst, struct nvkm_mmu *mmu)
+{
+	nvkm_subdev_ctor(&nvkm_mmu, device, type, inst, &mmu->subdev);
+	mmu->func = func;
+	mmu->dma_bits = func->dma_bits;
+	nvkm_mmu_ptc_init(mmu);
+	mutex_init(&mmu->mutex);
+>>>>>>> upstream/android-13
 	mmu->user.ctor = nvkm_ummu_new;
 	mmu->user.base = func->mmu.user;
 }
 
 int
 nvkm_mmu_new_(const struct nvkm_mmu_func *func, struct nvkm_device *device,
+<<<<<<< HEAD
 	      int index, struct nvkm_mmu **pmmu)
 {
 	if (!(*pmmu = kzalloc(sizeof(**pmmu), GFP_KERNEL)))
 		return -ENOMEM;
 	nvkm_mmu_ctor(func, device, index, *pmmu);
+=======
+	      enum nvkm_subdev_type type, int inst, struct nvkm_mmu **pmmu)
+{
+	if (!(*pmmu = kzalloc(sizeof(**pmmu), GFP_KERNEL)))
+		return -ENOMEM;
+	nvkm_mmu_ctor(func, device, type, inst, *pmmu);
+>>>>>>> upstream/android-13
 	return 0;
 }

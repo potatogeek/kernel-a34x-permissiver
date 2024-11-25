@@ -7,6 +7,10 @@
 
 #include "common.h"
 #include <linux/magic.h>
+<<<<<<< HEAD
+=======
+#include <linux/proc_fs.h>
+>>>>>>> upstream/android-13
 
 /**
  * tomoyo_encode2 - Encode binary string to ascii string.
@@ -94,11 +98,19 @@ static char *tomoyo_get_absolute_path(const struct path *path, char * const buff
 				      const int buflen)
 {
 	char *pos = ERR_PTR(-ENOMEM);
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	if (buflen >= 256) {
 		/* go to whatever namespace root we are under */
 		pos = d_absolute_path(path, buffer, buflen - 1);
 		if (!IS_ERR(pos) && *pos == '/' && pos[1]) {
 			struct inode *inode = d_backing_inode(path->dentry);
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 			if (inode && S_ISDIR(inode->i_mode)) {
 				buffer[buflen - 2] = '/';
 				buffer[buflen - 1] = '\0';
@@ -123,10 +135,18 @@ static char *tomoyo_get_dentry_path(struct dentry *dentry, char * const buffer,
 				    const int buflen)
 {
 	char *pos = ERR_PTR(-ENOMEM);
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	if (buflen >= 256) {
 		pos = dentry_path_raw(dentry, buffer, buflen - 1);
 		if (!IS_ERR(pos) && *pos == '/' && pos[1]) {
 			struct inode *inode = d_backing_inode(dentry);
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 			if (inode && S_ISDIR(inode->i_mode)) {
 				buffer[buflen - 2] = '/';
 				buffer[buflen - 1] = '\0';
@@ -150,14 +170,25 @@ static char *tomoyo_get_local_path(struct dentry *dentry, char * const buffer,
 {
 	struct super_block *sb = dentry->d_sb;
 	char *pos = tomoyo_get_dentry_path(dentry, buffer, buflen);
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	if (IS_ERR(pos))
 		return pos;
 	/* Convert from $PID to self if $PID is current thread. */
 	if (sb->s_magic == PROC_SUPER_MAGIC && *pos == '/') {
 		char *ep;
 		const pid_t pid = (pid_t) simple_strtoul(pos + 1, &ep, 10);
+<<<<<<< HEAD
 		if (*ep == '/' && pid && pid ==
 		    task_tgid_nr_ns(current, sb->s_fs_info)) {
+=======
+		struct pid_namespace *proc_pidns = proc_pid_ns(sb);
+
+		if (*ep == '/' && pid && pid ==
+		    task_tgid_nr_ns(current, proc_pidns)) {
+>>>>>>> upstream/android-13
 			pos = ep - 5;
 			if (pos < buffer)
 				goto out;
@@ -170,6 +201,10 @@ static char *tomoyo_get_local_path(struct dentry *dentry, char * const buffer,
 		goto prepend_filesystem_name;
 	{
 		struct inode *inode = d_backing_inode(sb->s_root);
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 		/*
 		 * Use filesystem name if filesystem does not support rename()
 		 * operation.
@@ -182,6 +217,10 @@ static char *tomoyo_get_local_path(struct dentry *dentry, char * const buffer,
 		char name[64];
 		int name_len;
 		const dev_t dev = sb->s_dev;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 		name[sizeof(name) - 1] = '\0';
 		snprintf(name, sizeof(name) - 1, "dev(%u,%u):", MAJOR(dev),
 			 MINOR(dev));
@@ -197,6 +236,10 @@ prepend_filesystem_name:
 	{
 		const char *name = sb->s_type->name;
 		const int name_len = strlen(name);
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 		pos -= name_len + 1;
 		if (pos < buffer)
 			goto out;
@@ -209,6 +252,7 @@ out:
 }
 
 /**
+<<<<<<< HEAD
  * tomoyo_get_socket_name - Get the name of a socket.
  *
  * @path:   Pointer to "struct path".
@@ -234,6 +278,8 @@ static char *tomoyo_get_socket_name(const struct path *path, char * const buffer
 }
 
 /**
+=======
+>>>>>>> upstream/android-13
  * tomoyo_realpath_from_path - Returns realpath(3) of the given pathname but ignores chroot'ed root.
  *
  * @path: Pointer to "struct path".
@@ -255,12 +301,20 @@ char *tomoyo_realpath_from_path(const struct path *path)
 	unsigned int buf_len = PAGE_SIZE / 2;
 	struct dentry *dentry = path->dentry;
 	struct super_block *sb;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	if (!dentry)
 		return NULL;
 	sb = dentry->d_sb;
 	while (1) {
 		char *pos;
 		struct inode *inode;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 		buf_len <<= 1;
 		kfree(buf);
 		buf = kmalloc(buf_len, GFP_NOFS);
@@ -268,12 +322,16 @@ char *tomoyo_realpath_from_path(const struct path *path)
 			break;
 		/* To make sure that pos is '\0' terminated. */
 		buf[buf_len - 1] = '\0';
+<<<<<<< HEAD
 		/* Get better name for socket. */
 		if (sb->s_magic == SOCKFS_MAGIC) {
 			pos = tomoyo_get_socket_name(path, buf, buf_len - 1);
 			goto encode;
 		}
 		/* For "pipe:[\$]". */
+=======
+		/* For "pipe:[\$]" and "socket:[\$]". */
+>>>>>>> upstream/android-13
 		if (dentry->d_op && dentry->d_op->d_dname) {
 			pos = dentry->d_op->d_dname(dentry, buf, buf_len - 1);
 			goto encode;
@@ -284,7 +342,12 @@ char *tomoyo_realpath_from_path(const struct path *path)
 		 * or dentry without vfsmount.
 		 */
 		if (!path->mnt ||
+<<<<<<< HEAD
 		    (!inode->i_op->rename))
+=======
+		    (!inode->i_op->rename &&
+		     !(sb->s_type->fs_flags & FS_REQUIRES_DEV)))
+>>>>>>> upstream/android-13
 			pos = tomoyo_get_local_path(path->dentry, buf,
 						    buf_len - 1);
 		/* Get absolute name for the rest. */
@@ -323,6 +386,10 @@ char *tomoyo_realpath_nofollow(const char *pathname)
 
 	if (pathname && kern_path(pathname, 0, &path) == 0) {
 		char *buf = tomoyo_realpath_from_path(&path);
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 		path_put(&path);
 		return buf;
 	}

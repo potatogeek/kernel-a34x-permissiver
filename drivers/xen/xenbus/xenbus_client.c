@@ -69,11 +69,31 @@ struct xenbus_map_node {
 	unsigned int   nr_handles;
 };
 
+<<<<<<< HEAD
+=======
+struct map_ring_valloc {
+	struct xenbus_map_node *node;
+
+	/* Why do we need two arrays? See comment of __xenbus_map_ring */
+	unsigned long addrs[XENBUS_MAX_RING_GRANTS];
+	phys_addr_t phys_addrs[XENBUS_MAX_RING_GRANTS];
+
+	struct gnttab_map_grant_ref map[XENBUS_MAX_RING_GRANTS];
+	struct gnttab_unmap_grant_ref unmap[XENBUS_MAX_RING_GRANTS];
+
+	unsigned int idx;
+};
+
+>>>>>>> upstream/android-13
 static DEFINE_SPINLOCK(xenbus_valloc_lock);
 static LIST_HEAD(xenbus_valloc_pages);
 
 struct xenbus_ring_ops {
+<<<<<<< HEAD
 	int (*map)(struct xenbus_device *dev,
+=======
+	int (*map)(struct xenbus_device *dev, struct map_ring_valloc *info,
+>>>>>>> upstream/android-13
 		   grant_ref_t *gnt_refs, unsigned int nr_grefs,
 		   void **vaddr);
 	int (*unmap)(struct xenbus_device *dev, void *vaddr);
@@ -284,10 +304,15 @@ static void xenbus_va_dev_error(struct xenbus_device *dev, int err,
 	dev_err(&dev->dev, "%s\n", printf_buffer);
 
 	path_buffer = kasprintf(GFP_KERNEL, "error/%s", dev->nodename);
+<<<<<<< HEAD
 	if (!path_buffer ||
 	    xenbus_write(XBT_NIL, path_buffer, "error", printf_buffer))
 		dev_err(&dev->dev, "failed to write error node for %s (%s)\n",
 			dev->nodename, printf_buffer);
+=======
+	if (path_buffer)
+		xenbus_write(XBT_NIL, path_buffer, "error", printf_buffer);
+>>>>>>> upstream/android-13
 
 	kfree(printf_buffer);
 	kfree(path_buffer);
@@ -368,7 +393,18 @@ int xenbus_grant_ring(struct xenbus_device *dev, void *vaddr,
 		      unsigned int nr_pages, grant_ref_t *grefs)
 {
 	int err;
+<<<<<<< HEAD
 	int i, j;
+=======
+	unsigned int i;
+	grant_ref_t gref_head;
+
+	err = gnttab_alloc_grant_references(nr_pages, &gref_head);
+	if (err) {
+		xenbus_dev_fatal(dev, err, "granting access to ring page");
+		return err;
+	}
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < nr_pages; i++) {
 		unsigned long gfn;
@@ -378,6 +414,7 @@ int xenbus_grant_ring(struct xenbus_device *dev, void *vaddr,
 		else
 			gfn = virt_to_gfn(vaddr);
 
+<<<<<<< HEAD
 		err = gnttab_grant_foreign_access(dev->otherend_id, gfn, 0);
 		if (err < 0) {
 			xenbus_dev_fatal(dev, err,
@@ -385,16 +422,24 @@ int xenbus_grant_ring(struct xenbus_device *dev, void *vaddr,
 			goto fail;
 		}
 		grefs[i] = err;
+=======
+		grefs[i] = gnttab_claim_grant_reference(&gref_head);
+		gnttab_grant_foreign_access_ref(grefs[i], dev->otherend_id,
+						gfn, 0);
+>>>>>>> upstream/android-13
 
 		vaddr = vaddr + XEN_PAGE_SIZE;
 	}
 
 	return 0;
+<<<<<<< HEAD
 
 fail:
 	for (j = 0; j < i; j++)
 		gnttab_end_foreign_access_ref(grefs[j], 0);
 	return err;
+=======
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(xenbus_grant_ring);
 
@@ -405,7 +450,11 @@ EXPORT_SYMBOL_GPL(xenbus_grant_ring);
  * error, the device will switch to XenbusStateClosing, and the error will be
  * saved in the store.
  */
+<<<<<<< HEAD
 int xenbus_alloc_evtchn(struct xenbus_device *dev, int *port)
+=======
+int xenbus_alloc_evtchn(struct xenbus_device *dev, evtchn_port_t *port)
+>>>>>>> upstream/android-13
 {
 	struct evtchn_alloc_unbound alloc_unbound;
 	int err;
@@ -428,7 +477,11 @@ EXPORT_SYMBOL_GPL(xenbus_alloc_evtchn);
 /**
  * Free an existing event channel. Returns 0 on success or -errno on error.
  */
+<<<<<<< HEAD
 int xenbus_free_evtchn(struct xenbus_device *dev, int port)
+=======
+int xenbus_free_evtchn(struct xenbus_device *dev, evtchn_port_t port)
+>>>>>>> upstream/android-13
 {
 	struct evtchn_close close;
 	int err;
@@ -437,7 +490,11 @@ int xenbus_free_evtchn(struct xenbus_device *dev, int port)
 
 	err = HYPERVISOR_event_channel_op(EVTCHNOP_close, &close);
 	if (err)
+<<<<<<< HEAD
 		xenbus_dev_error(dev, err, "freeing event channel %d", port);
+=======
+		xenbus_dev_error(dev, err, "freeing event channel %u", port);
+>>>>>>> upstream/android-13
 
 	return err;
 }
@@ -454,8 +511,12 @@ EXPORT_SYMBOL_GPL(xenbus_free_evtchn);
  * Map @nr_grefs pages of memory into this domain from another
  * domain's grant table.  xenbus_map_ring_valloc allocates @nr_grefs
  * pages of virtual address space, maps the pages to that address, and
+<<<<<<< HEAD
  * sets *vaddr to that address.  Returns 0 on success, and GNTST_*
  * (see xen/include/interface/grant_table.h) or -ENOMEM / -EINVAL on
+=======
+ * sets *vaddr to that address.  Returns 0 on success, and -errno on
+>>>>>>> upstream/android-13
  * error. If an error is returned, device will switch to
  * XenbusStateClosing and the error message will be saved in XenStore.
  */
@@ -463,12 +524,34 @@ int xenbus_map_ring_valloc(struct xenbus_device *dev, grant_ref_t *gnt_refs,
 			   unsigned int nr_grefs, void **vaddr)
 {
 	int err;
+<<<<<<< HEAD
 
 	err = ring_ops->map(dev, gnt_refs, nr_grefs, vaddr);
 	/* Some hypervisors are buggy and can return 1. */
 	if (err > 0)
 		err = GNTST_general_error;
 
+=======
+	struct map_ring_valloc *info;
+
+	*vaddr = NULL;
+
+	if (nr_grefs > XENBUS_MAX_RING_GRANTS)
+		return -EINVAL;
+
+	info = kzalloc(sizeof(*info), GFP_KERNEL);
+	if (!info)
+		return -ENOMEM;
+
+	info->node = kzalloc(sizeof(*info->node), GFP_KERNEL);
+	if (!info->node)
+		err = -ENOMEM;
+	else
+		err = ring_ops->map(dev, info, gnt_refs, nr_grefs, vaddr);
+
+	kfree(info->node);
+	kfree(info);
+>>>>>>> upstream/android-13
 	return err;
 }
 EXPORT_SYMBOL_GPL(xenbus_map_ring_valloc);
@@ -480,6 +563,7 @@ static int __xenbus_map_ring(struct xenbus_device *dev,
 			     grant_ref_t *gnt_refs,
 			     unsigned int nr_grefs,
 			     grant_handle_t *handles,
+<<<<<<< HEAD
 			     phys_addr_t *addrs,
 			     unsigned int flags,
 			     bool *leaked)
@@ -488,11 +572,19 @@ static int __xenbus_map_ring(struct xenbus_device *dev,
 	struct gnttab_unmap_grant_ref unmap[XENBUS_MAX_RING_GRANTS];
 	int i, j;
 	int err = GNTST_okay;
+=======
+			     struct map_ring_valloc *info,
+			     unsigned int flags,
+			     bool *leaked)
+{
+	int i, j;
+>>>>>>> upstream/android-13
 
 	if (nr_grefs > XENBUS_MAX_RING_GRANTS)
 		return -EINVAL;
 
 	for (i = 0; i < nr_grefs; i++) {
+<<<<<<< HEAD
 		memset(&map[i], 0, sizeof(map[i]));
 		gnttab_set_map_op(&map[i], addrs[i], flags, gnt_refs[i],
 				  dev->otherend_id);
@@ -505,36 +597,69 @@ static int __xenbus_map_ring(struct xenbus_device *dev,
 		if (map[i].status != GNTST_okay) {
 			err = map[i].status;
 			xenbus_dev_fatal(dev, map[i].status,
+=======
+		gnttab_set_map_op(&info->map[i], info->phys_addrs[i], flags,
+				  gnt_refs[i], dev->otherend_id);
+		handles[i] = INVALID_GRANT_HANDLE;
+	}
+
+	gnttab_batch_map(info->map, i);
+
+	for (i = 0; i < nr_grefs; i++) {
+		if (info->map[i].status != GNTST_okay) {
+			xenbus_dev_fatal(dev, info->map[i].status,
+>>>>>>> upstream/android-13
 					 "mapping in shared page %d from domain %d",
 					 gnt_refs[i], dev->otherend_id);
 			goto fail;
 		} else
+<<<<<<< HEAD
 			handles[i] = map[i].handle;
 	}
 
 	return GNTST_okay;
+=======
+			handles[i] = info->map[i].handle;
+	}
+
+	return 0;
+>>>>>>> upstream/android-13
 
  fail:
 	for (i = j = 0; i < nr_grefs; i++) {
 		if (handles[i] != INVALID_GRANT_HANDLE) {
+<<<<<<< HEAD
 			memset(&unmap[j], 0, sizeof(unmap[j]));
 			gnttab_set_unmap_op(&unmap[j], (phys_addr_t)addrs[i],
+=======
+			gnttab_set_unmap_op(&info->unmap[j],
+					    info->phys_addrs[i],
+>>>>>>> upstream/android-13
 					    GNTMAP_host_map, handles[i]);
 			j++;
 		}
 	}
 
+<<<<<<< HEAD
 	if (HYPERVISOR_grant_table_op(GNTTABOP_unmap_grant_ref, unmap, j))
 		BUG();
 
 	*leaked = false;
 	for (i = 0; i < j; i++) {
 		if (unmap[i].status != GNTST_okay) {
+=======
+	BUG_ON(HYPERVISOR_grant_table_op(GNTTABOP_unmap_grant_ref, info->unmap, j));
+
+	*leaked = false;
+	for (i = 0; i < j; i++) {
+		if (info->unmap[i].status != GNTST_okay) {
+>>>>>>> upstream/android-13
 			*leaked = true;
 			break;
 		}
 	}
 
+<<<<<<< HEAD
 	return err;
 }
 
@@ -547,12 +672,62 @@ struct map_ring_valloc_hvm
 	unsigned long addrs[XENBUS_MAX_RING_GRANTS];
 };
 
+=======
+	return -ENOENT;
+}
+
+/**
+ * xenbus_unmap_ring
+ * @dev: xenbus device
+ * @handles: grant handle array
+ * @nr_handles: number of handles in the array
+ * @vaddrs: addresses to unmap
+ *
+ * Unmap memory in this domain that was imported from another domain.
+ * Returns 0 on success and returns GNTST_* on error
+ * (see xen/include/interface/grant_table.h).
+ */
+static int xenbus_unmap_ring(struct xenbus_device *dev, grant_handle_t *handles,
+			     unsigned int nr_handles, unsigned long *vaddrs)
+{
+	struct gnttab_unmap_grant_ref unmap[XENBUS_MAX_RING_GRANTS];
+	int i;
+	int err;
+
+	if (nr_handles > XENBUS_MAX_RING_GRANTS)
+		return -EINVAL;
+
+	for (i = 0; i < nr_handles; i++)
+		gnttab_set_unmap_op(&unmap[i], vaddrs[i],
+				    GNTMAP_host_map, handles[i]);
+
+	BUG_ON(HYPERVISOR_grant_table_op(GNTTABOP_unmap_grant_ref, unmap, i));
+
+	err = GNTST_okay;
+	for (i = 0; i < nr_handles; i++) {
+		if (unmap[i].status != GNTST_okay) {
+			xenbus_dev_error(dev, unmap[i].status,
+					 "unmapping page at handle %d error %d",
+					 handles[i], unmap[i].status);
+			err = unmap[i].status;
+			break;
+		}
+	}
+
+	return err;
+}
+
+>>>>>>> upstream/android-13
 static void xenbus_map_ring_setup_grant_hvm(unsigned long gfn,
 					    unsigned int goffset,
 					    unsigned int len,
 					    void *data)
 {
+<<<<<<< HEAD
 	struct map_ring_valloc_hvm *info = data;
+=======
+	struct map_ring_valloc *info = data;
+>>>>>>> upstream/android-13
 	unsigned long vaddr = (unsigned long)gfn_to_virt(gfn);
 
 	info->phys_addrs[info->idx] = vaddr;
@@ -561,6 +736,7 @@ static void xenbus_map_ring_setup_grant_hvm(unsigned long gfn,
 	info->idx++;
 }
 
+<<<<<<< HEAD
 static int xenbus_map_ring_valloc_hvm(struct xenbus_device *dev,
 				      grant_ref_t *gnt_ref,
 				      unsigned int nr_grefs,
@@ -585,15 +761,37 @@ static int xenbus_map_ring_valloc_hvm(struct xenbus_device *dev,
 		return -ENOMEM;
 
 	err = alloc_xenballooned_pages(nr_pages, node->hvm.pages);
+=======
+static int xenbus_map_ring_hvm(struct xenbus_device *dev,
+			       struct map_ring_valloc *info,
+			       grant_ref_t *gnt_ref,
+			       unsigned int nr_grefs,
+			       void **vaddr)
+{
+	struct xenbus_map_node *node = info->node;
+	int err;
+	void *addr;
+	bool leaked = false;
+	unsigned int nr_pages = XENBUS_PAGES(nr_grefs);
+
+	err = xen_alloc_unpopulated_pages(nr_pages, node->hvm.pages);
+>>>>>>> upstream/android-13
 	if (err)
 		goto out_err;
 
 	gnttab_foreach_grant(node->hvm.pages, nr_grefs,
 			     xenbus_map_ring_setup_grant_hvm,
+<<<<<<< HEAD
 			     &info);
 
 	err = __xenbus_map_ring(dev, gnt_ref, nr_grefs, node->handles,
 				info.phys_addrs, GNTMAP_host_map, &leaked);
+=======
+			     info);
+
+	err = __xenbus_map_ring(dev, gnt_ref, nr_grefs, node->handles,
+				info, GNTMAP_host_map, &leaked);
+>>>>>>> upstream/android-13
 	node->nr_handles = nr_grefs;
 
 	if (err)
@@ -613,16 +811,26 @@ static int xenbus_map_ring_valloc_hvm(struct xenbus_device *dev,
 	spin_unlock(&xenbus_valloc_lock);
 
 	*vaddr = addr;
+<<<<<<< HEAD
+=======
+	info->node = NULL;
+
+>>>>>>> upstream/android-13
 	return 0;
 
  out_xenbus_unmap_ring:
 	if (!leaked)
+<<<<<<< HEAD
 		xenbus_unmap_ring(dev, node->handles, nr_grefs, info.addrs);
+=======
+		xenbus_unmap_ring(dev, node->handles, nr_grefs, info->addrs);
+>>>>>>> upstream/android-13
 	else
 		pr_alert("leaking %p size %u page(s)",
 			 addr, nr_pages);
  out_free_ballooned_pages:
 	if (!leaked)
+<<<<<<< HEAD
 		free_xenballooned_pages(nr_pages, node->hvm.pages);
  out_err:
 	kfree(node);
@@ -668,6 +876,13 @@ int xenbus_map_ring(struct xenbus_device *dev, grant_ref_t *gnt_refs,
 EXPORT_SYMBOL_GPL(xenbus_map_ring);
 
 
+=======
+		xen_free_unpopulated_pages(nr_pages, node->hvm.pages);
+ out_err:
+	return err;
+}
+
+>>>>>>> upstream/android-13
 /**
  * xenbus_unmap_ring_vfree
  * @dev: xenbus device
@@ -687,6 +902,7 @@ int xenbus_unmap_ring_vfree(struct xenbus_device *dev, void *vaddr)
 EXPORT_SYMBOL_GPL(xenbus_unmap_ring_vfree);
 
 #ifdef CONFIG_XEN_PV
+<<<<<<< HEAD
 static int xenbus_map_ring_valloc_pv(struct xenbus_device *dev,
 				     grant_ref_t *gnt_refs,
 				     unsigned int nr_grefs,
@@ -721,6 +937,35 @@ static int xenbus_map_ring_valloc_pv(struct xenbus_device *dev,
 	err = __xenbus_map_ring(dev, gnt_refs, nr_grefs, node->handles,
 				phys_addrs,
 				GNTMAP_host_map | GNTMAP_contains_pte,
+=======
+static int map_ring_apply(pte_t *pte, unsigned long addr, void *data)
+{
+	struct map_ring_valloc *info = data;
+
+	info->phys_addrs[info->idx++] = arbitrary_virt_to_machine(pte).maddr;
+	return 0;
+}
+
+static int xenbus_map_ring_pv(struct xenbus_device *dev,
+			      struct map_ring_valloc *info,
+			      grant_ref_t *gnt_refs,
+			      unsigned int nr_grefs,
+			      void **vaddr)
+{
+	struct xenbus_map_node *node = info->node;
+	struct vm_struct *area;
+	bool leaked = false;
+	int err = -ENOMEM;
+
+	area = get_vm_area(XEN_PAGE_SIZE * nr_grefs, VM_IOREMAP);
+	if (!area)
+		return -ENOMEM;
+	if (apply_to_page_range(&init_mm, (unsigned long)area->addr,
+				XEN_PAGE_SIZE * nr_grefs, map_ring_apply, info))
+		goto failed;
+	err = __xenbus_map_ring(dev, gnt_refs, nr_grefs, node->handles,
+				info, GNTMAP_host_map | GNTMAP_contains_pte,
+>>>>>>> upstream/android-13
 				&leaked);
 	if (err)
 		goto failed;
@@ -733,6 +978,11 @@ static int xenbus_map_ring_valloc_pv(struct xenbus_device *dev,
 	spin_unlock(&xenbus_valloc_lock);
 
 	*vaddr = area->addr;
+<<<<<<< HEAD
+=======
+	info->node = NULL;
+
+>>>>>>> upstream/android-13
 	return 0;
 
 failed:
@@ -741,11 +991,18 @@ failed:
 	else
 		pr_alert("leaking VM area %p size %u page(s)", area, nr_grefs);
 
+<<<<<<< HEAD
 	kfree(node);
 	return err;
 }
 
 static int xenbus_unmap_ring_vfree_pv(struct xenbus_device *dev, void *vaddr)
+=======
+	return err;
+}
+
+static int xenbus_unmap_ring_pv(struct xenbus_device *dev, void *vaddr)
+>>>>>>> upstream/android-13
 {
 	struct xenbus_map_node *node;
 	struct gnttab_unmap_grant_ref unmap[XENBUS_MAX_RING_GRANTS];
@@ -782,8 +1039,12 @@ static int xenbus_unmap_ring_vfree_pv(struct xenbus_device *dev, void *vaddr)
 		unmap[i].handle = node->handles[i];
 	}
 
+<<<<<<< HEAD
 	if (HYPERVISOR_grant_table_op(GNTTABOP_unmap_grant_ref, unmap, i))
 		BUG();
+=======
+	BUG_ON(HYPERVISOR_grant_table_op(GNTTABOP_unmap_grant_ref, unmap, i));
+>>>>>>> upstream/android-13
 
 	err = GNTST_okay;
 	leaked = false;
@@ -809,12 +1070,21 @@ static int xenbus_unmap_ring_vfree_pv(struct xenbus_device *dev, void *vaddr)
 }
 
 static const struct xenbus_ring_ops ring_ops_pv = {
+<<<<<<< HEAD
 	.map = xenbus_map_ring_valloc_pv,
 	.unmap = xenbus_unmap_ring_vfree_pv,
 };
 #endif
 
 struct unmap_ring_vfree_hvm
+=======
+	.map = xenbus_map_ring_pv,
+	.unmap = xenbus_unmap_ring_pv,
+};
+#endif
+
+struct unmap_ring_hvm
+>>>>>>> upstream/android-13
 {
 	unsigned int idx;
 	unsigned long addrs[XENBUS_MAX_RING_GRANTS];
@@ -825,19 +1095,31 @@ static void xenbus_unmap_ring_setup_grant_hvm(unsigned long gfn,
 					      unsigned int len,
 					      void *data)
 {
+<<<<<<< HEAD
 	struct unmap_ring_vfree_hvm *info = data;
+=======
+	struct unmap_ring_hvm *info = data;
+>>>>>>> upstream/android-13
 
 	info->addrs[info->idx] = (unsigned long)gfn_to_virt(gfn);
 
 	info->idx++;
 }
 
+<<<<<<< HEAD
 static int xenbus_unmap_ring_vfree_hvm(struct xenbus_device *dev, void *vaddr)
+=======
+static int xenbus_unmap_ring_hvm(struct xenbus_device *dev, void *vaddr)
+>>>>>>> upstream/android-13
 {
 	int rv;
 	struct xenbus_map_node *node;
 	void *addr;
+<<<<<<< HEAD
 	struct unmap_ring_vfree_hvm info = {
+=======
+	struct unmap_ring_hvm info = {
+>>>>>>> upstream/android-13
 		.idx = 0,
 	};
 	unsigned int nr_pages;
@@ -870,7 +1152,11 @@ static int xenbus_unmap_ring_vfree_hvm(struct xenbus_device *dev, void *vaddr)
 			       info.addrs);
 	if (!rv) {
 		vunmap(vaddr);
+<<<<<<< HEAD
 		free_xenballooned_pages(nr_pages, node->hvm.pages);
+=======
+		xen_free_unpopulated_pages(nr_pages, node->hvm.pages);
+>>>>>>> upstream/android-13
 	}
 	else
 		WARN(1, "Leaking %p, size %u page(s)\n", vaddr, nr_pages);
@@ -880,6 +1166,7 @@ static int xenbus_unmap_ring_vfree_hvm(struct xenbus_device *dev, void *vaddr)
 }
 
 /**
+<<<<<<< HEAD
  * xenbus_unmap_ring
  * @dev: xenbus device
  * @handles: grant handle array
@@ -925,6 +1212,8 @@ EXPORT_SYMBOL_GPL(xenbus_unmap_ring);
 
 
 /**
+=======
+>>>>>>> upstream/android-13
  * xenbus_read_driver_state
  * @path: path for driver
  *
@@ -943,8 +1232,13 @@ enum xenbus_state xenbus_read_driver_state(const char *path)
 EXPORT_SYMBOL_GPL(xenbus_read_driver_state);
 
 static const struct xenbus_ring_ops ring_ops_hvm = {
+<<<<<<< HEAD
 	.map = xenbus_map_ring_valloc_hvm,
 	.unmap = xenbus_unmap_ring_vfree_hvm,
+=======
+	.map = xenbus_map_ring_hvm,
+	.unmap = xenbus_unmap_ring_hvm,
+>>>>>>> upstream/android-13
 };
 
 void __init xenbus_ring_ops_init(void)

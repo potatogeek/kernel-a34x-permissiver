@@ -16,7 +16,10 @@
 #include <linux/mm.h>
 
 #include <asm/page.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/mmu_context.h>
 #include <asm/isadep.h>
 #include <asm/io.h>
@@ -240,8 +243,11 @@ static void r3k_flush_cache_page(struct vm_area_struct *vma,
 	unsigned long kaddr = KSEG0ADDR(pfn << PAGE_SHIFT);
 	int exec = vma->vm_flags & VM_EXEC;
 	struct mm_struct *mm = vma->vm_mm;
+<<<<<<< HEAD
 	pgd_t *pgdp;
 	pud_t *pudp;
+=======
+>>>>>>> upstream/android-13
 	pmd_t *pmdp;
 	pte_t *ptep;
 
@@ -252,10 +258,15 @@ static void r3k_flush_cache_page(struct vm_area_struct *vma,
 	if (cpu_context(smp_processor_id(), mm) == 0)
 		return;
 
+<<<<<<< HEAD
 	pgdp = pgd_offset(mm, addr);
 	pudp = pud_offset(pgdp, addr);
 	pmdp = pmd_offset(pudp, addr);
 	ptep = pte_offset(pmdp, addr);
+=======
+	pmdp = pmd_off(mm, addr);
+	ptep = pte_offset_kernel(pmdp, addr);
+>>>>>>> upstream/android-13
 
 	/* Invalid => no such page in the cache.  */
 	if (!(pte_val(*ptep) & _PAGE_PRESENT))
@@ -274,6 +285,7 @@ static void r3k_flush_data_cache_page(unsigned long addr)
 {
 }
 
+<<<<<<< HEAD
 static void r3k_flush_cache_sigtramp(unsigned long addr)
 {
 	unsigned long flags;
@@ -298,6 +310,8 @@ static void r3k_flush_cache_sigtramp(unsigned long addr)
 	write_c0_status(flags);
 }
 
+=======
+>>>>>>> upstream/android-13
 static void r3k_flush_kernel_vmap_range(unsigned long vaddr, int size)
 {
 	BUG();
@@ -331,7 +345,10 @@ void r3k_cache_init(void)
 
 	__flush_kernel_vmap_range = r3k_flush_kernel_vmap_range;
 
+<<<<<<< HEAD
 	flush_cache_sigtramp = r3k_flush_cache_sigtramp;
+=======
+>>>>>>> upstream/android-13
 	local_flush_data_cache_page = local_r3k_flush_data_cache_page;
 	flush_data_cache_page = r3k_flush_data_cache_page;
 
@@ -339,9 +356,15 @@ void r3k_cache_init(void)
 	_dma_cache_wback = r3k_dma_cache_wback_inv;
 	_dma_cache_inv = r3k_dma_cache_wback_inv;
 
+<<<<<<< HEAD
 	printk("Primary instruction cache %ldkB, linesize %ld bytes.\n",
 		icache_size >> 10, icache_lsize);
 	printk("Primary data cache %ldkB, linesize %ld bytes.\n",
+=======
+	pr_info("Primary instruction cache %ldkB, linesize %ld bytes.\n",
+		icache_size >> 10, icache_lsize);
+	pr_info("Primary data cache %ldkB, linesize %ld bytes.\n",
+>>>>>>> upstream/android-13
 		dcache_size >> 10, dcache_lsize);
 
 	build_clear_page();

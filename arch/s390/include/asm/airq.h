@@ -11,10 +11,18 @@
 #define _ASM_S390_AIRQ_H
 
 #include <linux/bit_spinlock.h>
+<<<<<<< HEAD
 
 struct airq_struct {
 	struct hlist_node list;		/* Handler queueing. */
 	void (*handler)(struct airq_struct *);	/* Thin-interrupt handler */
+=======
+#include <linux/dma-mapping.h>
+
+struct airq_struct {
+	struct hlist_node list;		/* Handler queueing. */
+	void (*handler)(struct airq_struct *airq, bool floating);
+>>>>>>> upstream/android-13
 	u8 *lsi_ptr;			/* Local-Summary-Indicator pointer */
 	u8 lsi_mask;			/* Local-Summary-Indicator mask */
 	u8 isc;				/* Interrupt-subclass */
@@ -29,12 +37,17 @@ void unregister_adapter_interrupt(struct airq_struct *airq);
 /* Adapter interrupt bit vector */
 struct airq_iv {
 	unsigned long *vector;	/* Adapter interrupt bit vector */
+<<<<<<< HEAD
+=======
+	dma_addr_t vector_dma; /* Adapter interrupt bit vector dma */
+>>>>>>> upstream/android-13
 	unsigned long *avail;	/* Allocation bit mask for the bit vector */
 	unsigned long *bitlock;	/* Lock bit mask for the bit vector */
 	unsigned long *ptr;	/* Pointer associated with each bit */
 	unsigned int *data;	/* 32 bit value associated with each bit */
 	unsigned long bits;	/* Number of bits in the vector */
 	unsigned long end;	/* Number of highest allocated bit + 1 */
+<<<<<<< HEAD
 	spinlock_t lock;	/* Lock to protect alloc & free */
 };
 
@@ -42,6 +55,17 @@ struct airq_iv {
 #define AIRQ_IV_BITLOCK	2	/* Allocate the lock bit mask */
 #define AIRQ_IV_PTR	4	/* Allocate the ptr array */
 #define AIRQ_IV_DATA	8	/* Allocate the data array */
+=======
+	unsigned long flags;	/* Allocation flags */
+	spinlock_t lock;	/* Lock to protect alloc & free */
+};
+
+#define AIRQ_IV_ALLOC		1	/* Use an allocation bit mask */
+#define AIRQ_IV_BITLOCK		2	/* Allocate the lock bit mask */
+#define AIRQ_IV_PTR		4	/* Allocate the ptr array */
+#define AIRQ_IV_DATA		8	/* Allocate the data array */
+#define AIRQ_IV_CACHELINE	16	/* Cacheline alignment for the vector */
+>>>>>>> upstream/android-13
 
 struct airq_iv *airq_iv_create(unsigned long bits, unsigned long flags);
 void airq_iv_release(struct airq_iv *iv);

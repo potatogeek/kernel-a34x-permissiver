@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * cyttsp_i2c_common.c
  * Cypress TrueTouch(TM) Standard Product (TTSP) I2C touchscreen driver.
@@ -11,6 +15,7 @@
  * Copyright (C) 2009, 2010, 2011 Cypress Semiconductor, Inc.
  * Copyright (C) 2012 Javier Martinez Canillas <javier@dowhile0.org>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * version 2, and only version 2, as published by the
@@ -23,6 +28,9 @@
  *
  * Contact Cypress Semiconductor at www.cypress.com <ttdrivers@cypress.com>
  *
+=======
+ * Contact Cypress Semiconductor at www.cypress.com <ttdrivers@cypress.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/device.h>

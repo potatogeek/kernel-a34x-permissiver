@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * intel_pt_log.h: Intel Processor Trace support
  * Copyright (c) 2013-2014, Intel Corporation.
@@ -11,6 +12,12 @@
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * intel_pt_log.h: Intel Processor Trace support
+ * Copyright (c) 2013-2014, Intel Corporation.
+>>>>>>> upstream/android-13
  */
 
 #ifndef INCLUDE__INTEL_PT_LOG_H__
@@ -22,6 +29,10 @@
 
 struct intel_pt_pkt;
 
+<<<<<<< HEAD
+=======
+void *intel_pt_log_fp(void);
+>>>>>>> upstream/android-13
 void intel_pt_log_enable(void);
 void intel_pt_log_disable(void);
 void intel_pt_log_set_name(const char *name);
@@ -75,4 +86,12 @@ static inline void intel_pt_log_to(const char *msg, uint64_t u)
 	intel_pt_log("%s to " x64_fmt "\n", msg, u);
 }
 
+<<<<<<< HEAD
+=======
+#define intel_pt_log_var(var, fmt) intel_pt_log("%s: " #var " " fmt "\n", __func__, var)
+
+#define intel_pt_log_x32(var) intel_pt_log_var(var, "%#x")
+#define intel_pt_log_x64(var) intel_pt_log_var(var, "%#" PRIx64)
+
+>>>>>>> upstream/android-13
 #endif

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* Copyright (c) 2016-2018, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -8,6 +9,10 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/* Copyright (c) 2016-2018, The Linux Foundation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/bitops.h>
@@ -33,6 +38,7 @@
 #define MDP_AD4_INTR_EN_OFF		0x41c
 #define MDP_AD4_INTR_CLEAR_OFF		0x424
 #define MDP_AD4_INTR_STATUS_OFF		0x420
+<<<<<<< HEAD
 
 /**
  * WB interrupt status bit definitions
@@ -176,6 +182,13 @@
 #define DPU_INTR_STREN_INROI_UPDATED BIT(1)
 #define DPU_INTR_BACKLIGHT_UPDATED BIT(0)
 /**
+=======
+#define MDP_INTF_0_OFF_REV_7xxx             0x34000
+#define MDP_INTF_1_OFF_REV_7xxx             0x35000
+#define MDP_INTF_5_OFF_REV_7xxx             0x39000
+
+/**
+>>>>>>> upstream/android-13
  * struct dpu_intr_reg - array of DPU register sets
  * @clr_off:	offset to CLEAR reg
  * @en_off:	offset to ENABLE reg
@@ -187,6 +200,7 @@ struct dpu_intr_reg {
 	u32 status_off;
 };
 
+<<<<<<< HEAD
 /**
  * struct dpu_irq_type - maps each irq with i/f
  * @intr_type:		type of interrupt listed in dpu_intr_type
@@ -203,6 +217,12 @@ struct dpu_irq_type {
 
 /**
  * List of DPU interrupt registers
+=======
+/*
+ * struct dpu_intr_reg -  List of DPU interrupt registers
+ *
+ * When making changes be sure to sync with dpu_hw_intr_reg
+>>>>>>> upstream/android-13
  */
 static const struct dpu_intr_reg dpu_intr_set[] = {
 	{
@@ -254,6 +274,7 @@ static const struct dpu_intr_reg dpu_intr_set[] = {
 		MDP_AD4_1_OFF + MDP_AD4_INTR_CLEAR_OFF,
 		MDP_AD4_1_OFF + MDP_AD4_INTR_EN_OFF,
 		MDP_AD4_1_OFF + MDP_AD4_INTR_STATUS_OFF,
+<<<<<<< HEAD
 	}
 };
 
@@ -789,6 +810,39 @@ static void dpu_hw_intr_set_mask(struct dpu_hw_intr *intr, uint32_t reg_off,
 		return;
 
 	DPU_REG_WRITE(&intr->hw, reg_off, mask);
+=======
+	},
+	{
+		MDP_INTF_0_OFF_REV_7xxx+INTF_INTR_CLEAR,
+		MDP_INTF_0_OFF_REV_7xxx+INTF_INTR_EN,
+		MDP_INTF_0_OFF_REV_7xxx+INTF_INTR_STATUS
+	},
+	{
+		MDP_INTF_1_OFF_REV_7xxx+INTF_INTR_CLEAR,
+		MDP_INTF_1_OFF_REV_7xxx+INTF_INTR_EN,
+		MDP_INTF_1_OFF_REV_7xxx+INTF_INTR_STATUS
+	},
+	{
+		MDP_INTF_5_OFF_REV_7xxx+INTF_INTR_CLEAR,
+		MDP_INTF_5_OFF_REV_7xxx+INTF_INTR_EN,
+		MDP_INTF_5_OFF_REV_7xxx+INTF_INTR_STATUS
+	},
+};
+
+#define DPU_IRQ_REG(irq_idx)	(irq_idx / 32)
+#define DPU_IRQ_MASK(irq_idx)	(BIT(irq_idx % 32))
+
+static void dpu_hw_intr_clear_intr_status_nolock(struct dpu_hw_intr *intr,
+		int irq_idx)
+{
+	int reg_idx;
+
+	if (!intr)
+		return;
+
+	reg_idx = DPU_IRQ_REG(irq_idx);
+	DPU_REG_WRITE(&intr->hw, dpu_intr_set[reg_idx].clr_off, DPU_IRQ_MASK(irq_idx));
+>>>>>>> upstream/android-13
 
 	/* ensure register writes go through */
 	wmb();
@@ -800,9 +854,15 @@ static void dpu_hw_intr_dispatch_irq(struct dpu_hw_intr *intr,
 {
 	int reg_idx;
 	int irq_idx;
+<<<<<<< HEAD
 	int start_idx;
 	int end_idx;
 	u32 irq_status;
+=======
+	u32 irq_status;
+	u32 enable_mask;
+	int bit;
+>>>>>>> upstream/android-13
 	unsigned long irq_flags;
 
 	if (!intr)
@@ -815,6 +875,7 @@ static void dpu_hw_intr_dispatch_irq(struct dpu_hw_intr *intr,
 	 */
 	spin_lock_irqsave(&intr->irq_lock, irq_flags);
 	for (reg_idx = 0; reg_idx < ARRAY_SIZE(dpu_intr_set); reg_idx++) {
+<<<<<<< HEAD
 		irq_status = intr->save_irq_status[reg_idx];
 
 		/*
@@ -868,17 +929,80 @@ static int dpu_hw_intr_enable_irq(struct dpu_hw_intr *intr, int irq_idx)
 	unsigned long irq_flags;
 	const struct dpu_intr_reg *reg;
 	const struct dpu_irq_type *irq;
+=======
+		if (!test_bit(reg_idx, &intr->irq_mask))
+			continue;
+
+		/* Read interrupt status */
+		irq_status = DPU_REG_READ(&intr->hw, dpu_intr_set[reg_idx].status_off);
+
+		/* Read enable mask */
+		enable_mask = DPU_REG_READ(&intr->hw, dpu_intr_set[reg_idx].en_off);
+
+		/* and clear the interrupt */
+		if (irq_status)
+			DPU_REG_WRITE(&intr->hw, dpu_intr_set[reg_idx].clr_off,
+				     irq_status);
+
+		/* Finally update IRQ status based on enable mask */
+		irq_status &= enable_mask;
+
+		if (!irq_status)
+			continue;
+
+		/*
+		 * Search through matching intr status.
+		 */
+		while ((bit = ffs(irq_status)) != 0) {
+			irq_idx = DPU_IRQ_IDX(reg_idx, bit - 1);
+			/*
+			 * Once a match on irq mask, perform a callback
+			 * to the given cbfunc. cbfunc will take care
+			 * the interrupt status clearing. If cbfunc is
+			 * not provided, then the interrupt clearing
+			 * is here.
+			 */
+			if (cbfunc)
+				cbfunc(arg, irq_idx);
+
+			dpu_hw_intr_clear_intr_status_nolock(intr, irq_idx);
+
+			/*
+			 * When callback finish, clear the irq_status
+			 * with the matching mask. Once irq_status
+			 * is all cleared, the search can be stopped.
+			 */
+			irq_status &= ~BIT(bit - 1);
+		}
+	}
+
+	/* ensure register writes go through */
+	wmb();
+
+	spin_unlock_irqrestore(&intr->irq_lock, irq_flags);
+}
+
+static int dpu_hw_intr_enable_irq_locked(struct dpu_hw_intr *intr, int irq_idx)
+{
+	int reg_idx;
+	const struct dpu_intr_reg *reg;
+>>>>>>> upstream/android-13
 	const char *dbgstr = NULL;
 	uint32_t cache_irq_mask;
 
 	if (!intr)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	if (irq_idx < 0 || irq_idx >= ARRAY_SIZE(dpu_irq_map)) {
+=======
+	if (irq_idx < 0 || irq_idx >= intr->total_irqs) {
+>>>>>>> upstream/android-13
 		pr_err("invalid IRQ index: [%d]\n", irq_idx);
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	irq = &dpu_irq_map[irq_idx];
 	reg_idx = irq->reg_idx;
 	reg = &dpu_intr_set[reg_idx];
@@ -886,13 +1010,33 @@ static int dpu_hw_intr_enable_irq(struct dpu_hw_intr *intr, int irq_idx)
 	spin_lock_irqsave(&intr->irq_lock, irq_flags);
 	cache_irq_mask = intr->cache_irq_mask[reg_idx];
 	if (cache_irq_mask & irq->irq_mask) {
+=======
+	/*
+	 * The cache_irq_mask and hardware RMW operations needs to be done
+	 * under irq_lock and it's the caller's responsibility to ensure that's
+	 * held.
+	 */
+	assert_spin_locked(&intr->irq_lock);
+
+	reg_idx = DPU_IRQ_REG(irq_idx);
+	reg = &dpu_intr_set[reg_idx];
+
+	cache_irq_mask = intr->cache_irq_mask[reg_idx];
+	if (cache_irq_mask & DPU_IRQ_MASK(irq_idx)) {
+>>>>>>> upstream/android-13
 		dbgstr = "DPU IRQ already set:";
 	} else {
 		dbgstr = "DPU IRQ enabled:";
 
+<<<<<<< HEAD
 		cache_irq_mask |= irq->irq_mask;
 		/* Cleaning any pending interrupt */
 		DPU_REG_WRITE(&intr->hw, reg->clr_off, irq->irq_mask);
+=======
+		cache_irq_mask |= DPU_IRQ_MASK(irq_idx);
+		/* Cleaning any pending interrupt */
+		DPU_REG_WRITE(&intr->hw, reg->clr_off, DPU_IRQ_MASK(irq_idx));
+>>>>>>> upstream/android-13
 		/* Enabling interrupts with the new mask */
 		DPU_REG_WRITE(&intr->hw, reg->en_off, cache_irq_mask);
 
@@ -901,45 +1045,85 @@ static int dpu_hw_intr_enable_irq(struct dpu_hw_intr *intr, int irq_idx)
 
 		intr->cache_irq_mask[reg_idx] = cache_irq_mask;
 	}
+<<<<<<< HEAD
 	spin_unlock_irqrestore(&intr->irq_lock, irq_flags);
 
 	pr_debug("%s MASK:0x%.8x, CACHE-MASK:0x%.8x\n", dbgstr,
 			irq->irq_mask, cache_irq_mask);
+=======
+
+	pr_debug("%s MASK:0x%.8lx, CACHE-MASK:0x%.8x\n", dbgstr,
+			DPU_IRQ_MASK(irq_idx), cache_irq_mask);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static int dpu_hw_intr_disable_irq_nolock(struct dpu_hw_intr *intr, int irq_idx)
 {
 	int reg_idx;
 	const struct dpu_intr_reg *reg;
 	const struct dpu_irq_type *irq;
+=======
+static int dpu_hw_intr_disable_irq_locked(struct dpu_hw_intr *intr, int irq_idx)
+{
+	int reg_idx;
+	const struct dpu_intr_reg *reg;
+>>>>>>> upstream/android-13
 	const char *dbgstr = NULL;
 	uint32_t cache_irq_mask;
 
 	if (!intr)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	if (irq_idx < 0 || irq_idx >= ARRAY_SIZE(dpu_irq_map)) {
+=======
+	if (irq_idx < 0 || irq_idx >= intr->total_irqs) {
+>>>>>>> upstream/android-13
 		pr_err("invalid IRQ index: [%d]\n", irq_idx);
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	irq = &dpu_irq_map[irq_idx];
 	reg_idx = irq->reg_idx;
 	reg = &dpu_intr_set[reg_idx];
 
 	cache_irq_mask = intr->cache_irq_mask[reg_idx];
 	if ((cache_irq_mask & irq->irq_mask) == 0) {
+=======
+	/*
+	 * The cache_irq_mask and hardware RMW operations needs to be done
+	 * under irq_lock and it's the caller's responsibility to ensure that's
+	 * held.
+	 */
+	assert_spin_locked(&intr->irq_lock);
+
+	reg_idx = DPU_IRQ_REG(irq_idx);
+	reg = &dpu_intr_set[reg_idx];
+
+	cache_irq_mask = intr->cache_irq_mask[reg_idx];
+	if ((cache_irq_mask & DPU_IRQ_MASK(irq_idx)) == 0) {
+>>>>>>> upstream/android-13
 		dbgstr = "DPU IRQ is already cleared:";
 	} else {
 		dbgstr = "DPU IRQ mask disable:";
 
+<<<<<<< HEAD
 		cache_irq_mask &= ~irq->irq_mask;
 		/* Disable interrupts based on the new mask */
 		DPU_REG_WRITE(&intr->hw, reg->en_off, cache_irq_mask);
 		/* Cleaning any pending interrupt */
 		DPU_REG_WRITE(&intr->hw, reg->clr_off, irq->irq_mask);
+=======
+		cache_irq_mask &= ~DPU_IRQ_MASK(irq_idx);
+		/* Disable interrupts based on the new mask */
+		DPU_REG_WRITE(&intr->hw, reg->en_off, cache_irq_mask);
+		/* Cleaning any pending interrupt */
+		DPU_REG_WRITE(&intr->hw, reg->clr_off, DPU_IRQ_MASK(irq_idx));
+>>>>>>> upstream/android-13
 
 		/* ensure register write goes through */
 		wmb();
@@ -947,6 +1131,7 @@ static int dpu_hw_intr_disable_irq_nolock(struct dpu_hw_intr *intr, int irq_idx)
 		intr->cache_irq_mask[reg_idx] = cache_irq_mask;
 	}
 
+<<<<<<< HEAD
 	pr_debug("%s MASK:0x%.8x, CACHE-MASK:0x%.8x\n", dbgstr,
 			irq->irq_mask, cache_irq_mask);
 
@@ -968,6 +1153,10 @@ static int dpu_hw_intr_disable_irq(struct dpu_hw_intr *intr, int irq_idx)
 	spin_lock_irqsave(&intr->irq_lock, irq_flags);
 	dpu_hw_intr_disable_irq_nolock(intr, irq_idx);
 	spin_unlock_irqrestore(&intr->irq_lock, irq_flags);
+=======
+	pr_debug("%s MASK:0x%.8lx, CACHE-MASK:0x%.8x\n", dbgstr,
+			DPU_IRQ_MASK(irq_idx), cache_irq_mask);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -979,8 +1168,16 @@ static int dpu_hw_intr_clear_irqs(struct dpu_hw_intr *intr)
 	if (!intr)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	for (i = 0; i < ARRAY_SIZE(dpu_intr_set); i++)
 		DPU_REG_WRITE(&intr->hw, dpu_intr_set[i].clr_off, 0xffffffff);
+=======
+	for (i = 0; i < ARRAY_SIZE(dpu_intr_set); i++) {
+		if (test_bit(i, &intr->irq_mask))
+			DPU_REG_WRITE(&intr->hw,
+					dpu_intr_set[i].clr_off, 0xffffffff);
+	}
+>>>>>>> upstream/android-13
 
 	/* ensure register writes go through */
 	wmb();
@@ -995,6 +1192,7 @@ static int dpu_hw_intr_disable_irqs(struct dpu_hw_intr *intr)
 	if (!intr)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	for (i = 0; i < ARRAY_SIZE(dpu_intr_set); i++)
 		DPU_REG_WRITE(&intr->hw, dpu_intr_set[i].en_off, 0x00000000);
 
@@ -1041,11 +1239,18 @@ static void dpu_hw_intr_get_interrupt_statuses(struct dpu_hw_intr *intr)
 
 		/* Finally update IRQ status based on enable mask */
 		intr->save_irq_status[i] &= enable_mask;
+=======
+	for (i = 0; i < ARRAY_SIZE(dpu_intr_set); i++) {
+		if (test_bit(i, &intr->irq_mask))
+			DPU_REG_WRITE(&intr->hw,
+					dpu_intr_set[i].en_off, 0x00000000);
+>>>>>>> upstream/android-13
 	}
 
 	/* ensure register writes go through */
 	wmb();
 
+<<<<<<< HEAD
 	spin_unlock_irqrestore(&intr->irq_lock, irq_flags);
 }
 
@@ -1076,6 +1281,9 @@ static void dpu_hw_intr_clear_interrupt_status(struct dpu_hw_intr *intr,
 	spin_lock_irqsave(&intr->irq_lock, irq_flags);
 	dpu_hw_intr_clear_intr_status_nolock(intr, irq_idx);
 	spin_unlock_irqrestore(&intr->irq_lock, irq_flags);
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static u32 dpu_hw_intr_get_interrupt_status(struct dpu_hw_intr *intr,
@@ -1088,17 +1296,28 @@ static u32 dpu_hw_intr_get_interrupt_status(struct dpu_hw_intr *intr,
 	if (!intr)
 		return 0;
 
+<<<<<<< HEAD
 	if (irq_idx >= ARRAY_SIZE(dpu_irq_map) || irq_idx < 0) {
+=======
+	if (irq_idx < 0 || irq_idx >= intr->total_irqs) {
+>>>>>>> upstream/android-13
 		pr_err("invalid IRQ index: [%d]\n", irq_idx);
 		return 0;
 	}
 
 	spin_lock_irqsave(&intr->irq_lock, irq_flags);
 
+<<<<<<< HEAD
 	reg_idx = dpu_irq_map[irq_idx].reg_idx;
 	intr_status = DPU_REG_READ(&intr->hw,
 			dpu_intr_set[reg_idx].status_off) &
 					dpu_irq_map[irq_idx].irq_mask;
+=======
+	reg_idx = DPU_IRQ_REG(irq_idx);
+	intr_status = DPU_REG_READ(&intr->hw,
+			dpu_intr_set[reg_idx].status_off) &
+		DPU_IRQ_MASK(irq_idx);
+>>>>>>> upstream/android-13
 	if (intr_status && clear)
 		DPU_REG_WRITE(&intr->hw, dpu_intr_set[reg_idx].clr_off,
 				intr_status);
@@ -1111,6 +1330,7 @@ static u32 dpu_hw_intr_get_interrupt_status(struct dpu_hw_intr *intr,
 	return intr_status;
 }
 
+<<<<<<< HEAD
 static void __setup_intr_ops(struct dpu_hw_intr_ops *ops)
 {
 	ops->set_mask = dpu_hw_intr_set_mask;
@@ -1125,6 +1345,32 @@ static void __setup_intr_ops(struct dpu_hw_intr_ops *ops)
 	ops->clear_interrupt_status = dpu_hw_intr_clear_interrupt_status;
 	ops->clear_intr_status_nolock = dpu_hw_intr_clear_intr_status_nolock;
 	ops->get_interrupt_status = dpu_hw_intr_get_interrupt_status;
+=======
+static unsigned long dpu_hw_intr_lock(struct dpu_hw_intr *intr)
+{
+	unsigned long irq_flags;
+
+	spin_lock_irqsave(&intr->irq_lock, irq_flags);
+
+	return irq_flags;
+}
+
+static void dpu_hw_intr_unlock(struct dpu_hw_intr *intr, unsigned long irq_flags)
+{
+	spin_unlock_irqrestore(&intr->irq_lock, irq_flags);
+}
+
+static void __setup_intr_ops(struct dpu_hw_intr_ops *ops)
+{
+	ops->enable_irq_locked = dpu_hw_intr_enable_irq_locked;
+	ops->disable_irq_locked = dpu_hw_intr_disable_irq_locked;
+	ops->dispatch_irqs = dpu_hw_intr_dispatch_irq;
+	ops->clear_all_irqs = dpu_hw_intr_clear_irqs;
+	ops->disable_all_irqs = dpu_hw_intr_disable_irqs;
+	ops->get_interrupt_status = dpu_hw_intr_get_interrupt_status;
+	ops->lock = dpu_hw_intr_lock;
+	ops->unlock = dpu_hw_intr_unlock;
+>>>>>>> upstream/android-13
 }
 
 static void __intr_offset(struct dpu_mdss_cfg *m,
@@ -1150,7 +1396,11 @@ struct dpu_hw_intr *dpu_hw_intr_init(void __iomem *addr,
 	__intr_offset(m, addr, &intr->hw);
 	__setup_intr_ops(&intr->ops);
 
+<<<<<<< HEAD
 	intr->irq_idx_tbl_size = ARRAY_SIZE(dpu_irq_map);
+=======
+	intr->total_irqs = ARRAY_SIZE(dpu_intr_set) * 32;
+>>>>>>> upstream/android-13
 
 	intr->cache_irq_mask = kcalloc(ARRAY_SIZE(dpu_intr_set), sizeof(u32),
 			GFP_KERNEL);
@@ -1159,6 +1409,7 @@ struct dpu_hw_intr *dpu_hw_intr_init(void __iomem *addr,
 		return ERR_PTR(-ENOMEM);
 	}
 
+<<<<<<< HEAD
 	intr->save_irq_status = kcalloc(ARRAY_SIZE(dpu_intr_set), sizeof(u32),
 			GFP_KERNEL);
 	if (intr->save_irq_status == NULL) {
@@ -1166,6 +1417,9 @@ struct dpu_hw_intr *dpu_hw_intr_init(void __iomem *addr,
 		kfree(intr);
 		return ERR_PTR(-ENOMEM);
 	}
+=======
+	intr->irq_mask = m->mdss_irqs;
+>>>>>>> upstream/android-13
 
 	spin_lock_init(&intr->irq_lock);
 
@@ -1176,7 +1430,10 @@ void dpu_hw_intr_destroy(struct dpu_hw_intr *intr)
 {
 	if (intr) {
 		kfree(intr->cache_irq_mask);
+<<<<<<< HEAD
 		kfree(intr->save_irq_status);
+=======
+>>>>>>> upstream/android-13
 		kfree(intr);
 	}
 }

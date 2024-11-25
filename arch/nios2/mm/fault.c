@@ -24,7 +24,11 @@
 #include <linux/mm.h>
 #include <linux/extable.h>
 #include <linux/uaccess.h>
+<<<<<<< HEAD
 #include <linux/ptrace.h>
+=======
+#include <linux/perf_event.h>
+>>>>>>> upstream/android-13
 
 #include <asm/mmu_context.h>
 #include <asm/traps.h>
@@ -48,7 +52,11 @@ asmlinkage void do_page_fault(struct pt_regs *regs, unsigned long cause,
 	struct mm_struct *mm = tsk->mm;
 	int code = SEGV_MAPERR;
 	vm_fault_t fault;
+<<<<<<< HEAD
 	unsigned int flags = FAULT_FLAG_ALLOW_RETRY | FAULT_FLAG_KILLABLE;
+=======
+	unsigned int flags = FAULT_FLAG_DEFAULT;
+>>>>>>> upstream/android-13
 
 	cause >>= 2;
 
@@ -84,11 +92,21 @@ asmlinkage void do_page_fault(struct pt_regs *regs, unsigned long cause,
 	if (user_mode(regs))
 		flags |= FAULT_FLAG_USER;
 
+<<<<<<< HEAD
 	if (!down_read_trylock(&mm->mmap_sem)) {
 		if (!user_mode(regs) && !search_exception_tables(regs->ea))
 			goto bad_area_nosemaphore;
 retry:
 		down_read(&mm->mmap_sem);
+=======
+	perf_sw_event(PERF_COUNT_SW_PAGE_FAULTS, 1, regs, address);
+
+	if (!mmap_read_trylock(mm)) {
+		if (!user_mode(regs) && !search_exception_tables(regs->ea))
+			goto bad_area_nosemaphore;
+retry:
+		mmap_read_lock(mm);
+>>>>>>> upstream/android-13
 	}
 
 	vma = find_vma(mm, address);
@@ -132,9 +150,15 @@ good_area:
 	 * make sure we exit gracefully rather than endlessly redo
 	 * the fault.
 	 */
+<<<<<<< HEAD
 	fault = handle_mm_fault(vma, address, flags);
 
 	if ((fault & VM_FAULT_RETRY) && fatal_signal_pending(current))
+=======
+	fault = handle_mm_fault(vma, address, flags, regs);
+
+	if (fault_signal_pending(fault, regs))
+>>>>>>> upstream/android-13
 		return;
 
 	if (unlikely(fault & VM_FAULT_ERROR)) {
@@ -147,6 +171,7 @@ good_area:
 		BUG();
 	}
 
+<<<<<<< HEAD
 	/*
 	 * Major/minor page fault accounting is only done on the
 	 * initial attempt. If we go through a retry, it is extremely
@@ -165,6 +190,14 @@ good_area:
 
 			/*
 			 * No need to up_read(&mm->mmap_sem) as we would
+=======
+	if (flags & FAULT_FLAG_ALLOW_RETRY) {
+		if (fault & VM_FAULT_RETRY) {
+			flags |= FAULT_FLAG_TRIED;
+
+			/*
+			 * No need to mmap_read_unlock(mm) as we would
+>>>>>>> upstream/android-13
 			 * have already released it in __lock_page_or_retry
 			 * in mm/filemap.c.
 			 */
@@ -173,7 +206,11 @@ good_area:
 		}
 	}
 
+<<<<<<< HEAD
 	up_read(&mm->mmap_sem);
+=======
+	mmap_read_unlock(mm);
+>>>>>>> upstream/android-13
 	return;
 
 /*
@@ -181,7 +218,11 @@ good_area:
  * Fix it, but check if it's kernel or user first..
  */
 bad_area:
+<<<<<<< HEAD
 	up_read(&mm->mmap_sem);
+=======
+	mmap_read_unlock(mm);
+>>>>>>> upstream/android-13
 
 bad_area_nosemaphore:
 	/* User mode accesses just cause a SIGSEGV */
@@ -219,14 +260,22 @@ no_context:
  * us unable to handle the page fault gracefully.
  */
 out_of_memory:
+<<<<<<< HEAD
 	up_read(&mm->mmap_sem);
+=======
+	mmap_read_unlock(mm);
+>>>>>>> upstream/android-13
 	if (!user_mode(regs))
 		goto no_context;
 	pagefault_out_of_memory();
 	return;
 
 do_sigbus:
+<<<<<<< HEAD
 	up_read(&mm->mmap_sem);
+=======
+	mmap_read_unlock(mm);
+>>>>>>> upstream/android-13
 
 	/* Kernel mode? Handle exceptions or die */
 	if (!user_mode(regs))
@@ -246,6 +295,10 @@ vmalloc_fault:
 		 */
 		int offset = pgd_index(address);
 		pgd_t *pgd, *pgd_k;
+<<<<<<< HEAD
+=======
+		p4d_t *p4d, *p4d_k;
+>>>>>>> upstream/android-13
 		pud_t *pud, *pud_k;
 		pmd_t *pmd, *pmd_k;
 		pte_t *pte_k;
@@ -257,8 +310,17 @@ vmalloc_fault:
 			goto no_context;
 		set_pgd(pgd, *pgd_k);
 
+<<<<<<< HEAD
 		pud = pud_offset(pgd, address);
 		pud_k = pud_offset(pgd_k, address);
+=======
+		p4d = p4d_offset(pgd, address);
+		p4d_k = p4d_offset(pgd_k, address);
+		if (!p4d_present(*p4d_k))
+			goto no_context;
+		pud = pud_offset(p4d, address);
+		pud_k = pud_offset(p4d_k, address);
+>>>>>>> upstream/android-13
 		if (!pud_present(*pud_k))
 			goto no_context;
 		pmd = pmd_offset(pud, address);
@@ -271,7 +333,11 @@ vmalloc_fault:
 		if (!pte_present(*pte_k))
 			goto no_context;
 
+<<<<<<< HEAD
 		flush_tlb_one(address);
+=======
+		flush_tlb_kernel_page(address);
+>>>>>>> upstream/android-13
 		return;
 	}
 }

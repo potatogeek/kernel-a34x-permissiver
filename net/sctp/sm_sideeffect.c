@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* SCTP kernel implementation
  * (C) Copyright IBM Corp. 2001, 2004
  * Copyright (c) 1999 Cisco, Inc.
@@ -9,6 +13,7 @@
  * to implement that state operations.  These functions implement the
  * steps which require modifying existing data structures.
  *
+<<<<<<< HEAD
  * This SCTP implementation is free software;
  * you can redistribute it and/or modify it under the terms of
  * the GNU General Public License as published by
@@ -25,6 +30,8 @@
  * along with GNU CC; see the file COPYING.  If not, see
  * <http://www.gnu.org/licenses/>.
  *
+=======
+>>>>>>> upstream/android-13
  * Please send any bug reports or fixes you make to the
  * email address(es):
  *    lksctp developers <linux-sctp@vger.kernel.org>
@@ -52,7 +59,11 @@
 #include <net/sctp/sm.h>
 #include <net/sctp/stream_sched.h>
 
+<<<<<<< HEAD
 static int sctp_cmd_interpreter(enum sctp_event event_type,
+=======
+static int sctp_cmd_interpreter(enum sctp_event_type event_type,
+>>>>>>> upstream/android-13
 				union sctp_subtype subtype,
 				enum sctp_state state,
 				struct sctp_endpoint *ep,
@@ -61,7 +72,11 @@ static int sctp_cmd_interpreter(enum sctp_event event_type,
 				enum sctp_disposition status,
 				struct sctp_cmd_seq *commands,
 				gfp_t gfp);
+<<<<<<< HEAD
 static int sctp_side_effects(enum sctp_event event_type,
+=======
+static int sctp_side_effects(enum sctp_event_type event_type,
+>>>>>>> upstream/android-13
 			     union sctp_subtype subtype,
 			     enum sctp_state state,
 			     struct sctp_endpoint *ep,
@@ -473,6 +488,13 @@ void sctp_generate_reconf_event(struct timer_list *t)
 		goto out_unlock;
 	}
 
+<<<<<<< HEAD
+=======
+	/* This happens when the response arrives after the timer is triggered. */
+	if (!asoc->strreset_chunk)
+		goto out_unlock;
+
+>>>>>>> upstream/android-13
 	error = sctp_do_sm(net, SCTP_EVENT_T_TIMEOUT,
 			   SCTP_ST_TIMEOUT(SCTP_EVENT_TIMEOUT_RECONF),
 			   asoc->state, asoc->ep, asoc,
@@ -486,6 +508,41 @@ out_unlock:
 	sctp_transport_put(transport);
 }
 
+<<<<<<< HEAD
+=======
+/* Handle the timeout of the probe timer. */
+void sctp_generate_probe_event(struct timer_list *t)
+{
+	struct sctp_transport *transport = from_timer(transport, t, probe_timer);
+	struct sctp_association *asoc = transport->asoc;
+	struct sock *sk = asoc->base.sk;
+	struct net *net = sock_net(sk);
+	int error = 0;
+
+	bh_lock_sock(sk);
+	if (sock_owned_by_user(sk)) {
+		pr_debug("%s: sock is busy\n", __func__);
+
+		/* Try again later.  */
+		if (!mod_timer(&transport->probe_timer, jiffies + (HZ / 20)))
+			sctp_transport_hold(transport);
+		goto out_unlock;
+	}
+
+	error = sctp_do_sm(net, SCTP_EVENT_T_TIMEOUT,
+			   SCTP_ST_TIMEOUT(SCTP_EVENT_TIMEOUT_PROBE),
+			   asoc->state, asoc->ep, asoc,
+			   transport, GFP_ATOMIC);
+
+	if (error)
+		sk->sk_err = -error;
+
+out_unlock:
+	bh_unlock_sock(sk);
+	sctp_transport_put(transport);
+}
+
+>>>>>>> upstream/android-13
 /* Inject a SACK Timeout event into the state machine.  */
 static void sctp_generate_sack_event(struct timer_list *t)
 {
@@ -531,8 +588,11 @@ static void sctp_do_8_2_transport_strike(struct sctp_cmd_seq *commands,
 					 struct sctp_transport *transport,
 					 int is_hb)
 {
+<<<<<<< HEAD
 	struct net *net = sock_net(asoc->base.sk);
 
+=======
+>>>>>>> upstream/android-13
 	/* The check for association's overall error counter exceeding the
 	 * threshold is done in the state function.
 	 */
@@ -559,10 +619,17 @@ static void sctp_do_8_2_transport_strike(struct sctp_cmd_seq *commands,
 	 * is SCTP_ACTIVE, then mark this transport as Partially Failed,
 	 * see SCTP Quick Failover Draft, section 5.1
 	 */
+<<<<<<< HEAD
 	if (net->sctp.pf_enable &&
 	   (transport->state == SCTP_ACTIVE) &&
 	   (transport->error_count < transport->pathmaxrxt) &&
 	   (transport->error_count > transport->pf_retrans)) {
+=======
+	if (asoc->base.net->sctp.pf_enable &&
+	    transport->state == SCTP_ACTIVE &&
+	    transport->error_count < transport->pathmaxrxt &&
+	    transport->error_count > transport->pf_retrans) {
+>>>>>>> upstream/android-13
 
 		sctp_assoc_control_transport(asoc, transport,
 					     SCTP_TRANSPORT_PF,
@@ -582,6 +649,14 @@ static void sctp_do_8_2_transport_strike(struct sctp_cmd_seq *commands,
 					     SCTP_FAILED_THRESHOLD);
 	}
 
+<<<<<<< HEAD
+=======
+	if (transport->error_count > transport->ps_retrans &&
+	    asoc->peer.primary_path == transport &&
+	    asoc->peer.active_path != transport)
+		sctp_assoc_set_primary(asoc, asoc->peer.active_path);
+
+>>>>>>> upstream/android-13
 	/* E2) For the destination address for which the timer
 	 * expires, set RTO <- RTO * 2 ("back off the timer").  The
 	 * maximum value discussed in rule C7 above (RTO.max) may be
@@ -623,7 +698,11 @@ static void sctp_cmd_init_failed(struct sctp_cmd_seq *commands,
 /* Worker routine to handle SCTP_CMD_ASSOC_FAILED.  */
 static void sctp_cmd_assoc_failed(struct sctp_cmd_seq *commands,
 				  struct sctp_association *asoc,
+<<<<<<< HEAD
 				  enum sctp_event event_type,
+=======
+				  enum sctp_event_type event_type,
+>>>>>>> upstream/android-13
 				  union sctp_subtype subtype,
 				  struct sctp_chunk *chunk,
 				  unsigned int error)
@@ -808,10 +887,15 @@ static int sctp_cmd_process_sack(struct sctp_cmd_seq *cmds,
 	int err = 0;
 
 	if (sctp_outq_sack(&asoc->outqueue, chunk)) {
+<<<<<<< HEAD
 		struct net *net = sock_net(asoc->base.sk);
 
 		/* There are no more TSNs awaiting SACK.  */
 		err = sctp_do_sm(net, SCTP_EVENT_T_OTHER,
+=======
+		/* There are no more TSNs awaiting SACK.  */
+		err = sctp_do_sm(asoc->base.net, SCTP_EVENT_T_OTHER,
+>>>>>>> upstream/android-13
 				 SCTP_ST_OTHER(SCTP_EVENT_NO_PENDING_TSN),
 				 asoc->state, asoc->ep, asoc, NULL,
 				 GFP_ATOMIC);
@@ -840,6 +924,7 @@ static void sctp_cmd_setup_t2(struct sctp_cmd_seq *cmds,
 	asoc->timeouts[SCTP_EVENT_TIMEOUT_T2_SHUTDOWN] = t->rto;
 }
 
+<<<<<<< HEAD
 static void sctp_cmd_assoc_update(struct sctp_cmd_seq *cmds,
 				  struct sctp_association *asoc,
 				  struct sctp_association *new)
@@ -862,6 +947,8 @@ static void sctp_cmd_assoc_update(struct sctp_cmd_seq *cmds,
 	SCTP_DEC_STATS(net, SCTP_MIB_CURRESTAB);
 }
 
+=======
+>>>>>>> upstream/android-13
 /* Helper function to change the state of an association. */
 static void sctp_cmd_new_state(struct sctp_cmd_seq *cmds,
 			       struct sctp_association *asoc,
@@ -1141,7 +1228,11 @@ static void sctp_cmd_send_msg(struct sctp_association *asoc,
  * If you want to understand all of lksctp, this is a
  * good place to start.
  */
+<<<<<<< HEAD
 int sctp_do_sm(struct net *net, enum sctp_event event_type,
+=======
+int sctp_do_sm(struct net *net, enum sctp_event_type event_type,
+>>>>>>> upstream/android-13
 	       union sctp_subtype subtype, enum sctp_state state,
 	       struct sctp_endpoint *ep, struct sctp_association *asoc,
 	       void *event_arg, gfp_t gfp)
@@ -1178,7 +1269,11 @@ int sctp_do_sm(struct net *net, enum sctp_event event_type,
 /*****************************************************************
  * This the master state function side effect processing function.
  *****************************************************************/
+<<<<<<< HEAD
 static int sctp_side_effects(enum sctp_event event_type,
+=======
+static int sctp_side_effects(enum sctp_event_type event_type,
+>>>>>>> upstream/android-13
 			     union sctp_subtype subtype,
 			     enum sctp_state state,
 			     struct sctp_endpoint *ep,
@@ -1264,7 +1359,11 @@ bail:
  ********************************************************************/
 
 /* This is the side-effect interpreter.  */
+<<<<<<< HEAD
 static int sctp_cmd_interpreter(enum sctp_event event_type,
+=======
+static int sctp_cmd_interpreter(enum sctp_event_type event_type,
+>>>>>>> upstream/android-13
 				union sctp_subtype subtype,
 				enum sctp_state state,
 				struct sctp_endpoint *ep,
@@ -1315,10 +1414,13 @@ static int sctp_cmd_interpreter(enum sctp_event event_type,
 			sctp_endpoint_add_asoc(ep, asoc);
 			break;
 
+<<<<<<< HEAD
 		case SCTP_CMD_UPDATE_ASSOC:
 		       sctp_cmd_assoc_update(commands, asoc, cmd->obj.asoc);
 		       break;
 
+=======
+>>>>>>> upstream/android-13
 		case SCTP_CMD_PURGE_OUTQUEUE:
 		       sctp_outq_teardown(&asoc->outqueue);
 		       break;
@@ -1530,7 +1632,11 @@ static int sctp_cmd_interpreter(enum sctp_event event_type,
 
 			if (timer_pending(timer))
 				break;
+<<<<<<< HEAD
 			/* fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 
 		case SCTP_CMD_TIMER_START:
 			timer = &asoc->timers[cmd->obj.to];
@@ -1681,6 +1787,14 @@ static int sctp_cmd_interpreter(enum sctp_event event_type,
 			sctp_cmd_hb_timers_stop(commands, asoc);
 			break;
 
+<<<<<<< HEAD
+=======
+		case SCTP_CMD_PROBE_TIMER_UPDATE:
+			t = cmd->obj.transport;
+			sctp_transport_reset_probe_timer(t);
+			break;
+
+>>>>>>> upstream/android-13
 		case SCTP_CMD_REPORT_ERROR:
 			error = cmd->obj.error;
 			break;

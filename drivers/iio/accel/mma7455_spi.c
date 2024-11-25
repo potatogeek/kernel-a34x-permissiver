@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * IIO accel SPI driver for Freescale MMA7455L 3-axis 10-bit accelerometer
  * Copyright 2015 Joachim Eastwood <manabian@gmail.com>
@@ -5,6 +6,12 @@
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * IIO accel SPI driver for Freescale MMA7455L 3-axis 10-bit accelerometer
+ * Copyright 2015 Joachim Eastwood <manabian@gmail.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>

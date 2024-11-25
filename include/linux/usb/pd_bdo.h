@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2015-2017 Google, Inc
  *
@@ -10,6 +11,11 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright 2015-2017 Google, Inc
+>>>>>>> upstream/android-13
  */
 
 #ifndef __LINUX_USB_PD_BDO_H

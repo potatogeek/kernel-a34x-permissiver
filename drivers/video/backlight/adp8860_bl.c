@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Backlight driver for Analog Devices ADP8860 Backlight Devices
  *
  * Copyright 2009-2010 Analog Devices Inc.
+<<<<<<< HEAD
  *
  * Licensed under the GPL-2 or later.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -362,6 +369,7 @@ static int adp8860_bl_set(struct backlight_device *bl, int brightness)
 
 static int adp8860_bl_update_status(struct backlight_device *bl)
 {
+<<<<<<< HEAD
 	int brightness = bl->props.brightness;
 
 	if (bl->props.power != FB_BLANK_UNBLANK)
@@ -371,6 +379,9 @@ static int adp8860_bl_update_status(struct backlight_device *bl)
 		brightness = 0;
 
 	return adp8860_bl_set(bl, brightness);
+=======
+	return adp8860_bl_set(bl, backlight_get_brightness(bl));
+>>>>>>> upstream/android-13
 }
 
 static int adp8860_bl_get_brightness(struct backlight_device *bl)
@@ -690,7 +701,11 @@ static int adp8860_probe(struct i2c_client *client,
 	switch (ADP8860_MANID(reg_val)) {
 	case ADP8863_MANUFID:
 		data->gdwn_dis = !!pdata->gdwn_dis;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case ADP8860_MANUFID:
 		data->en_ambl_sens = !!pdata->en_ambl_sens;
 		break;
@@ -822,5 +837,9 @@ static struct i2c_driver adp8860_driver = {
 module_i2c_driver(adp8860_driver);
 
 MODULE_LICENSE("GPL v2");
+<<<<<<< HEAD
 MODULE_AUTHOR("Michael Hennerich <hennerich@blackfin.uclinux.org>");
+=======
+MODULE_AUTHOR("Michael Hennerich <michael.hennerich@analog.com>");
+>>>>>>> upstream/android-13
 MODULE_DESCRIPTION("ADP8860 Backlight driver");

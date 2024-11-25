@@ -9,6 +9,7 @@ obj-$(CONFIG_DEVFREQ_GOV_PASSIVE)	+= governor_passive.o
 
 # DEVFREQ Drivers
 obj-$(CONFIG_ARM_EXYNOS_BUS_DEVFREQ)	+= exynos-bus.o
+<<<<<<< HEAD
 obj-$(CONFIG_ARM_RK3399_DMC_DEVFREQ)	+= rk3399_dmc.o
 obj-$(CONFIG_ARM_TEGRA_DEVFREQ)		+= tegra-devfreq.o
 
@@ -51,3 +52,15 @@ obj-$(CONFIG_MACH_MT6877)		+= helio-dvfsrc-v3/
 obj-$(CONFIG_MACH_MT6781)		+= helio-dvfsrc-v3/
 # DEVFREQ Event Drivers
 obj-$(CONFIG_PM_DEVFREQ_EVENT)		+= event/
+=======
+obj-$(CONFIG_ARM_IMX_BUS_DEVFREQ)	+= imx-bus.o
+obj-$(CONFIG_ARM_IMX8M_DDRC_DEVFREQ)	+= imx8m-ddrc.o
+obj-$(CONFIG_ARM_RK3399_DMC_DEVFREQ)	+= rk3399_dmc.o
+obj-$(CONFIG_ARM_TEGRA_DEVFREQ)		+= tegra30-devfreq.o
+
+# DEVFREQ Event Drivers
+obj-$(CONFIG_PM_DEVFREQ_EVENT)		+= event/
+
+# Exynos DEVFREQ Driver
+obj-$(CONFIG_ARM_EXYNOS_DEVFREQ)        += exynos/
+>>>>>>> upstream/android-13

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2016 Maxime Ripard. All rights reserved.
  *
@@ -9,6 +10,11 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (c) 2016 Maxime Ripard. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #ifndef _COMMON_H_
@@ -71,7 +77,14 @@ struct ccu_pll_nb {
 
 int ccu_pll_notifier_register(struct ccu_pll_nb *pll_nb);
 
+<<<<<<< HEAD
 int sunxi_ccu_probe(struct device_node *node, void __iomem *reg,
 		    const struct sunxi_ccu_desc *desc);
+=======
+int devm_sunxi_ccu_probe(struct device *dev, void __iomem *reg,
+			 const struct sunxi_ccu_desc *desc);
+void of_sunxi_ccu_probe(struct device_node *node, void __iomem *reg,
+			const struct sunxi_ccu_desc *desc);
+>>>>>>> upstream/android-13
 
 #endif /* _COMMON_H_ */

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright © 2006-2011 Intel Corporation
  *
@@ -14,6 +15,12 @@
  * this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright © 2006-2011 Intel Corporation
+ *
+>>>>>>> upstream/android-13
  * Authors:
  *	Eric Anholt <eric@anholt.net>
  *	Patrik Jakobsson <patrik.r.jakobsson@gmail.com>
@@ -23,6 +30,13 @@
 #define _GMA_DISPLAY_H_
 
 #include <linux/pm_runtime.h>
+<<<<<<< HEAD
+=======
+#include <drm/drm_vblank.h>
+
+struct drm_encoder;
+struct drm_mode_set;
+>>>>>>> upstream/android-13
 
 struct gma_clock_t {
 	/* given values */
@@ -80,6 +94,14 @@ extern void gma_crtc_prepare(struct drm_crtc *crtc);
 extern void gma_crtc_commit(struct drm_crtc *crtc);
 extern void gma_crtc_disable(struct drm_crtc *crtc);
 extern void gma_crtc_destroy(struct drm_crtc *crtc);
+<<<<<<< HEAD
+=======
+extern int gma_crtc_page_flip(struct drm_crtc *crtc,
+			      struct drm_framebuffer *fb,
+			      struct drm_pending_vblank_event *event,
+			      uint32_t page_flip_flags,
+			      struct drm_modeset_acquire_ctx *ctx);
+>>>>>>> upstream/android-13
 extern int gma_crtc_set_config(struct drm_mode_set *set,
 			       struct drm_modeset_acquire_ctx *ctx);
 

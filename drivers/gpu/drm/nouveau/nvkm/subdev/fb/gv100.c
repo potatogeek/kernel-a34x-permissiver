@@ -22,7 +22,11 @@
 #include "gf100.h"
 #include "ram.h"
 
+<<<<<<< HEAD
 static int
+=======
+int
+>>>>>>> upstream/android-13
 gv100_fb_init_page(struct nvkm_fb *fb)
 {
 	return (fb->page == 16) ? 0 : -EINVAL;
@@ -35,12 +39,31 @@ gv100_fb = {
 	.init = gp100_fb_init,
 	.init_page = gv100_fb_init_page,
 	.init_unkn = gp100_fb_init_unkn,
+<<<<<<< HEAD
+=======
+	.vpr.scrub_required = gp102_fb_vpr_scrub_required,
+	.vpr.scrub = gp102_fb_vpr_scrub,
+>>>>>>> upstream/android-13
 	.ram_new = gp100_ram_new,
 	.default_bigpage = 16,
 };
 
 int
+<<<<<<< HEAD
 gv100_fb_new(struct nvkm_device *device, int index, struct nvkm_fb **pfb)
 {
 	return gf100_fb_new_(&gv100_fb, device, index, pfb);
 }
+=======
+gv100_fb_new(struct nvkm_device *device, enum nvkm_subdev_type type, int inst, struct nvkm_fb **pfb)
+{
+	return gp102_fb_new_(&gv100_fb, device, type, inst, pfb);
+}
+
+MODULE_FIRMWARE("nvidia/gv100/nvdec/scrubber.bin");
+MODULE_FIRMWARE("nvidia/tu102/nvdec/scrubber.bin");
+MODULE_FIRMWARE("nvidia/tu104/nvdec/scrubber.bin");
+MODULE_FIRMWARE("nvidia/tu106/nvdec/scrubber.bin");
+MODULE_FIRMWARE("nvidia/tu116/nvdec/scrubber.bin");
+MODULE_FIRMWARE("nvidia/tu117/nvdec/scrubber.bin");
+>>>>>>> upstream/android-13

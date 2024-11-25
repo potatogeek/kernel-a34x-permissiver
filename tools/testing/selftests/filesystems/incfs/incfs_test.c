@@ -26,6 +26,10 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <sys/xattr.h>
+<<<<<<< HEAD
+=======
+#include <sys/statvfs.h>
+>>>>>>> upstream/android-13
 
 #include <linux/random.h>
 #include <linux/stat.h>
@@ -43,6 +47,10 @@
 #define	FS_IOC_GETFLAGS			_IOR('f', 1, long)
 #define FS_VERITY_FL			0x00100000 /* Verity protected inode */
 
+<<<<<<< HEAD
+=======
+#define TEST_SKIP 2
+>>>>>>> upstream/android-13
 #define TEST_FAILURE 1
 #define TEST_SUCCESS 0
 
@@ -133,6 +141,11 @@ struct test_file {
 	struct hash_block *mtree;
 	int mtree_block_count;
 	struct test_signature sig;
+<<<<<<< HEAD
+=======
+	unsigned char *verity_sig;
+	size_t verity_sig_size;
+>>>>>>> upstream/android-13
 };
 
 struct test_files_set {
@@ -225,6 +238,20 @@ static loff_t min(loff_t a, loff_t b)
 	return a < b ? a : b;
 }
 
+<<<<<<< HEAD
+=======
+static int ilog2(size_t n)
+{
+	int l = 0;
+
+	while (n > 1) {
+		++l;
+		n >>= 1;
+	}
+	return l;
+}
+
+>>>>>>> upstream/android-13
 static pid_t flush_and_fork(void)
 {
 	fflush(stdout);
@@ -962,10 +989,15 @@ static int load_hash_tree(const char *mount_dir, struct test_file *file)
 	close(fd);
 	if (err < fill_blocks.count)
 		err = errno;
+<<<<<<< HEAD
 	else {
 		err = 0;
 		free(file->mtree);
 	}
+=======
+	else
+		err = 0;
+>>>>>>> upstream/android-13
 
 failure:
 	free(fill_block_array);
@@ -1389,7 +1421,10 @@ static int dynamic_files_and_data_test(const char *mount_dir)
 		struct test_file *file = &test.files[i];
 		int res;
 
+<<<<<<< HEAD
 		build_mtree(file);
+=======
+>>>>>>> upstream/android-13
 		res = emit_file(cmd_fd, NULL, file->name, &file->id,
 				     file->size, NULL);
 		if (res < 0) {
@@ -1602,7 +1637,10 @@ static int work_after_remount_test(const char *mount_dir)
 	for (i = 0; i < file_num_stage1; i++) {
 		struct test_file *file = &test.files[i];
 
+<<<<<<< HEAD
 		build_mtree(file);
+=======
+>>>>>>> upstream/android-13
 		if (emit_file(cmd_fd, NULL, file->name, &file->id,
 				     file->size, NULL))
 			goto failure;
@@ -1997,8 +2035,52 @@ failure:
 	return TEST_FAILURE;
 }
 
+<<<<<<< HEAD
 static int hash_tree_test(const char *mount_dir)
 {
+=======
+static int validate_hash_tree(const char *mount_dir, struct test_file *file)
+{
+	int result = TEST_FAILURE;
+	char *filename = NULL;
+	int fd = -1;
+	unsigned char *buf;
+	int i, err;
+
+	TEST(filename = concat_file_name(mount_dir, file->name), filename);
+	TEST(fd = open(filename, O_RDONLY | O_CLOEXEC), fd != -1);
+	TEST(buf = malloc(INCFS_DATA_FILE_BLOCK_SIZE * 8), buf);
+
+	for (i = 0; i < file->mtree_block_count; ) {
+		int blocks_to_read = i % 7 + 1;
+		struct fsverity_read_metadata_arg args = {
+			.metadata_type = FS_VERITY_METADATA_TYPE_MERKLE_TREE,
+			.offset = i * INCFS_DATA_FILE_BLOCK_SIZE,
+			.length = blocks_to_read * INCFS_DATA_FILE_BLOCK_SIZE,
+			.buf_ptr = ptr_to_u64(buf),
+		};
+
+		TEST(err = ioctl(fd, FS_IOC_READ_VERITY_METADATA, &args),
+		     err == min(args.length, (file->mtree_block_count - i) *
+					     INCFS_DATA_FILE_BLOCK_SIZE));
+		TESTEQUAL(memcmp(buf, file->mtree[i].data, err), 0);
+
+		i += blocks_to_read;
+	}
+
+	result = TEST_SUCCESS;
+
+out:
+	free(buf);
+	close(fd);
+	free(filename);
+	return result;
+}
+
+static int hash_tree_test(const char *mount_dir)
+{
+	int result = TEST_FAILURE;
+>>>>>>> upstream/android-13
 	char *backing_dir;
 	struct test_files_set test = get_test_files_set();
 	const int file_num = test.files_count;
@@ -2063,6 +2145,11 @@ static int hash_tree_test(const char *mount_dir)
 			}
 		} else if (validate_test_file_content(mount_dir, file) < 0)
 			goto failure;
+<<<<<<< HEAD
+=======
+		else if (validate_hash_tree(mount_dir, file) < 0)
+			goto failure;
+>>>>>>> upstream/android-13
 	}
 
 	/* Unmount and mount again, to that hashes are persistent. */
@@ -2100,6 +2187,7 @@ static int hash_tree_test(const char *mount_dir)
 		} else if (validate_test_file_content(mount_dir, file) < 0)
 			goto failure;
 	}
+<<<<<<< HEAD
 
 	/* Final unmount */
 	close(cmd_fd);
@@ -2115,6 +2203,21 @@ failure:
 	free(backing_dir);
 	umount(mount_dir);
 	return TEST_FAILURE;
+=======
+	result = TEST_SUCCESS;
+
+failure:
+	for (i = 0; i < file_num; i++) {
+		struct test_file *file = &test.files[i];
+
+		free(file->mtree);
+	}
+
+	close(cmd_fd);
+	free(backing_dir);
+	umount(mount_dir);
+	return result;
+>>>>>>> upstream/android-13
 }
 
 enum expected_log { FULL_LOG, NO_LOG, PARTIAL_LOG };
@@ -2333,7 +2436,11 @@ static int emit_partial_test_file_data(const char *mount_dir,
 	}
 
 	buffer[result] = 0;
+<<<<<<< HEAD
 	blocks_written_total = atol(buffer);
+=======
+	blocks_written_total = strtol(buffer, NULL, 10);
+>>>>>>> upstream/android-13
 	result = 0;
 
 	pollfd = (struct pollfd) {
@@ -2375,7 +2482,11 @@ static int emit_partial_test_file_data(const char *mount_dir,
 
 		result = read(bw_fd, buffer, sizeof(buffer));
 		buffer[result] = 0;
+<<<<<<< HEAD
 		blocks_written_new_total = atol(buffer);
+=======
+		blocks_written_new_total = strtol(buffer, NULL, 10);
+>>>>>>> upstream/android-13
 
 		if (blocks_written_new_total - blocks_written_total
 		    != blocks_written) {
@@ -2745,14 +2856,25 @@ failure:
 	return TEST_FAILURE;
 }
 
+<<<<<<< HEAD
+=======
+#define THREE_GB (3LL * 1024 * 1024 * 1024)
+#define FOUR_GB (4LL * 1024 * 1024 * 1024) /* Have 1GB of margin */
+>>>>>>> upstream/android-13
 static int large_file_test(const char *mount_dir)
 {
 	char *backing_dir;
 	int cmd_fd = -1;
 	int i;
+<<<<<<< HEAD
 	int result = TEST_FAILURE;
 	uint8_t data[INCFS_DATA_FILE_BLOCK_SIZE] = {};
 	int block_count = 3LL * 1024 * 1024 * 1024 / INCFS_DATA_FILE_BLOCK_SIZE;
+=======
+	int result = TEST_FAILURE, ret;
+	uint8_t data[INCFS_DATA_FILE_BLOCK_SIZE] = {};
+	int block_count = THREE_GB / INCFS_DATA_FILE_BLOCK_SIZE;
+>>>>>>> upstream/android-13
 	struct incfs_fill_block *block_buf =
 		calloc(block_count, sizeof(struct incfs_fill_block));
 	struct incfs_fill_blocks fill_blocks = {
@@ -2761,6 +2883,25 @@ static int large_file_test(const char *mount_dir)
 	};
 	incfs_uuid_t id;
 	int fd = -1;
+<<<<<<< HEAD
+=======
+	struct statvfs svfs;
+	unsigned long long free_disksz;
+
+	ret = statvfs(mount_dir, &svfs);
+	if (ret) {
+		ksft_print_msg("Can't get disk size. Skipping %s...\n", __func__);
+		return TEST_SKIP;
+	}
+
+	free_disksz = (unsigned long long)svfs.f_bavail * svfs.f_bsize;
+
+	if (FOUR_GB > free_disksz) {
+		ksft_print_msg("Not enough free disk space (%lldMB). Skipping %s...\n",
+				free_disksz >> 20, __func__);
+		return TEST_SKIP;
+	}
+>>>>>>> upstream/android-13
 
 	backing_dir = create_backing_dir(mount_dir);
 	if (!backing_dir)
@@ -2801,6 +2942,10 @@ static int large_file_test(const char *mount_dir)
 failure:
 	close(fd);
 	close(cmd_fd);
+<<<<<<< HEAD
+=======
+	unlink("very_large_file");
+>>>>>>> upstream/android-13
 	umount(mount_dir);
 	free(backing_dir);
 	return result;
@@ -3038,7 +3183,12 @@ static int compatibility_test(const char *mount_dir)
 
 	TEST(backing_dir = create_backing_dir(mount_dir), backing_dir);
 	TEST(filename = concat_file_name(backing_dir, name), filename);
+<<<<<<< HEAD
 	TEST(fd = open(filename, O_CREAT | O_WRONLY | O_CLOEXEC), fd != -1);
+=======
+	TEST(fd = open(filename, O_CREAT | O_WRONLY | O_CLOEXEC, 0777),
+	     fd != -1);
+>>>>>>> upstream/android-13
 	TESTEQUAL(write(fd, v1_file, sizeof(v1_file)), sizeof(v1_file));
 	TESTEQUAL(fsetxattr(fd, INCFS_XATTR_SIZE_NAME, &size, sizeof(size), 0),
 		  0);
@@ -3046,7 +3196,11 @@ static int compatibility_test(const char *mount_dir)
 	free(filename);
 	TEST(filename = concat_file_name(mount_dir, name), filename);
 	close(fd);
+<<<<<<< HEAD
 	TEST(fd = open(filename, O_RDONLY), fd != -1);
+=======
+	TEST(fd = open(filename, O_RDONLY | O_CLOEXEC), fd != -1);
+>>>>>>> upstream/android-13
 
 	result = TEST_SUCCESS;
 out:
@@ -3384,7 +3538,11 @@ static int per_uid_read_timeouts_test(const char *mount_dir)
 
 	int result = TEST_FAILURE;
 	char *backing_dir = NULL;
+<<<<<<< HEAD
 	int pid;
+=======
+	int pid = -1;
+>>>>>>> upstream/android-13
 	int cmd_fd = -1;
 	char *filename = NULL;
 	int fd = -1;
@@ -3789,8 +3947,11 @@ static int enable_verity(const char *mount_dir, struct test_file *file,
 		.sig_size = 0,
 		.sig_ptr = 0,
 	};
+<<<<<<< HEAD
 	unsigned char *sig = NULL;
 	size_t sig_len = 0;
+=======
+>>>>>>> upstream/android-13
 	struct {
 		__u8 version;           /* must be 1 */
 		__u8 hash_algorithm;    /* Merkle tree hash algorithm */
@@ -3816,6 +3977,11 @@ static int enable_verity(const char *mount_dir, struct test_file *file,
 		.digest_algorithm = 1,
 		.digest_size = 32
 	};
+<<<<<<< HEAD
+=======
+	unsigned char *sig = NULL;
+	size_t sig_size = 0;
+>>>>>>> upstream/android-13
 	uint64_t flags;
 	struct statx statxbuf = {};
 
@@ -3834,10 +4000,17 @@ static int enable_verity(const char *mount_dir, struct test_file *file,
 	/* First try to enable verity with random digest */
 	if (key) {
 		TESTEQUAL(sign(key, cert, (void *)&fsverity_signed_digest,
+<<<<<<< HEAD
 			    sizeof(fsverity_signed_digest), &sig, &sig_len),
 			  0);
 
 		fear.sig_size = sig_len;
+=======
+			    sizeof(fsverity_signed_digest), &sig, &sig_size),
+			  0);
+
+		fear.sig_size = sig_size;
+>>>>>>> upstream/android-13
 		fear.sig_ptr = ptr_to_u64(sig);
 		TESTEQUAL(ioctl(fd, FS_IOC_ENABLE_VERITY, &fear), -1);
 	}
@@ -3853,6 +4026,7 @@ static int enable_verity(const char *mount_dir, struct test_file *file,
 		goto out;
 	}
 
+<<<<<<< HEAD
 	if (key)
 		TESTEQUAL(sign(key, cert, (void *)&fsverity_signed_digest,
 		       sizeof(fsverity_signed_digest), &sig, &sig_len),
@@ -3861,6 +4035,23 @@ static int enable_verity(const char *mount_dir, struct test_file *file,
 	if (use_signatures) {
 		fear.sig_size = sig_len;
 		fear.sig_ptr = ptr_to_u64(sig);
+=======
+	free(sig);
+	sig = NULL;
+
+	if (key)
+		TESTEQUAL(sign(key, cert, (void *)&fsverity_signed_digest,
+			       sizeof(fsverity_signed_digest),
+			       &sig, &sig_size),
+		  0);
+
+	if (use_signatures) {
+		fear.sig_size = sig_size;
+		file->verity_sig_size = sig_size;
+		fear.sig_ptr = ptr_to_u64(sig);
+		file->verity_sig = sig;
+		sig = NULL;
+>>>>>>> upstream/android-13
 	} else {
 		fear.sig_size = 0;
 		fear.sig_ptr = 0;
@@ -3875,6 +4066,19 @@ out:
 	return result;
 }
 
+<<<<<<< HEAD
+=======
+static int memzero(const unsigned char *buf, size_t size)
+{
+	size_t i;
+
+	for (i = 0; i < size; ++i)
+		if (buf[i])
+			return -1;
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static int validate_verity(const char *mount_dir, struct test_file *file)
 {
 	int result = TEST_FAILURE;
@@ -3883,6 +4087,12 @@ static int validate_verity(const char *mount_dir, struct test_file *file)
 	uint64_t flags;
 	struct fsverity_digest *digest;
 	struct statx statxbuf = {};
+<<<<<<< HEAD
+=======
+	struct fsverity_read_metadata_arg frma = {};
+	uint8_t *buf = NULL;
+	struct fsverity_descriptor desc;
+>>>>>>> upstream/android-13
 
 	TEST(digest = malloc(sizeof(struct fsverity_digest) +
 			     INCFS_MAX_HASH_SIZE), digest != NULL);
@@ -3899,8 +4109,53 @@ static int validate_verity(const char *mount_dir, struct test_file *file)
 	TESTEQUAL(digest->digest_algorithm, FS_VERITY_HASH_ALG_SHA256);
 	TESTEQUAL(digest->digest_size, 32);
 
+<<<<<<< HEAD
 	result = TEST_SUCCESS;
 out:
+=======
+	if (file->verity_sig) {
+		TEST(buf = malloc(file->verity_sig_size), buf);
+		frma = (struct fsverity_read_metadata_arg) {
+			.metadata_type = FS_VERITY_METADATA_TYPE_SIGNATURE,
+			.length = file->verity_sig_size,
+			.buf_ptr = ptr_to_u64(buf),
+		};
+		TESTEQUAL(ioctl(fd, FS_IOC_READ_VERITY_METADATA, &frma),
+			  file->verity_sig_size);
+		TESTEQUAL(memcmp(buf, file->verity_sig, file->verity_sig_size),
+			  0);
+	} else {
+		frma = (struct fsverity_read_metadata_arg) {
+			.metadata_type = FS_VERITY_METADATA_TYPE_SIGNATURE,
+		};
+		TESTEQUAL(ioctl(fd, FS_IOC_READ_VERITY_METADATA, &frma), -1);
+		TESTEQUAL(errno, ENODATA);
+	}
+
+	frma = (struct fsverity_read_metadata_arg) {
+		.metadata_type = FS_VERITY_METADATA_TYPE_DESCRIPTOR,
+		.length = sizeof(desc),
+		.buf_ptr = ptr_to_u64(&desc),
+	};
+	TESTEQUAL(ioctl(fd, FS_IOC_READ_VERITY_METADATA, &frma),
+		  sizeof(desc));
+	TESTEQUAL(desc.version, 1);
+	TESTEQUAL(desc.hash_algorithm, FS_VERITY_HASH_ALG_SHA256);
+	TESTEQUAL(desc.log_blocksize, ilog2(INCFS_DATA_FILE_BLOCK_SIZE));
+	TESTEQUAL(desc.salt_size, 0);
+	TESTEQUAL(desc.__reserved_0x04, 0);
+	TESTEQUAL(desc.data_size, file->size);
+	TESTEQUAL(memcmp(desc.root_hash, file->root_hash, SHA256_DIGEST_SIZE),
+		  0);
+	TESTEQUAL(memzero(desc.root_hash + SHA256_DIGEST_SIZE,
+			  sizeof(desc.root_hash) - SHA256_DIGEST_SIZE), 0);
+	TESTEQUAL(memzero(desc.salt, sizeof(desc.salt)), 0);
+	TESTEQUAL(memzero(desc.__reserved, sizeof(desc.__reserved)), 0);
+
+	result = TEST_SUCCESS;
+out:
+	free(buf);
+>>>>>>> upstream/android-13
 	close(fd);
 	free(filename);
 	free(digest);
@@ -3958,7 +4213,11 @@ static int verity_test_optional_sigs(const char *mount_dir, bool use_signatures)
 				     file->size, file->root_hash,
 				     file->sig.add_data), 0);
 
+<<<<<<< HEAD
 		TESTEQUAL(emit_partial_test_file_hash(mount_dir, file), 0);
+=======
+		TESTEQUAL(load_hash_tree(mount_dir, file), 0);
+>>>>>>> upstream/android-13
 		TESTEQUAL(enable_verity(mount_dir, file, key, cert,
 					use_signatures),
 			  0);
@@ -3978,6 +4237,19 @@ static int verity_test_optional_sigs(const char *mount_dir, bool use_signatures)
 
 	result = TEST_SUCCESS;
 out:
+<<<<<<< HEAD
+=======
+	for (i = 0; i < file_num; i++) {
+		struct test_file *file = &test.files[i];
+
+		free(file->mtree);
+		free(file->verity_sig);
+
+		file->mtree = NULL;
+		file->verity_sig = NULL;
+	}
+
+>>>>>>> upstream/android-13
 	free(line);
 	BIO_free(mem);
 	X509_free(cert);
@@ -4050,7 +4322,11 @@ static int enable_verity_test(const char *mount_dir)
 		TESTEQUAL(emit_file(cmd_fd, NULL, file->name, &file->id,
 				     file->size, NULL), 0);
 		TESTEQUAL(emit_test_file_data(mount_dir, file), 0);
+<<<<<<< HEAD
 		TESTEQUAL(enable_verity(mount_dir, file, NULL, NULL, true), 0);
+=======
+		TESTEQUAL(enable_verity(mount_dir, file, NULL, NULL, false), 0);
+>>>>>>> upstream/android-13
 	}
 
 	/* Check files are valid on disk */
@@ -4119,6 +4395,10 @@ static int mmap_test(const char *mount_dir)
 
 	result = TEST_SUCCESS;
 out:
+<<<<<<< HEAD
+=======
+	free(file.mtree);
+>>>>>>> upstream/android-13
 	close(fd);
 	free(filename);
 	close(cmd_fd);
@@ -4289,6 +4569,10 @@ static int sysfs_test(const char *mount_dir)
 	int fd = -1;
 	int pid = -1;
 	char buffer[32];
+<<<<<<< HEAD
+=======
+	char *null_buf = NULL;
+>>>>>>> upstream/android-13
 	int status;
 	struct incfs_per_uid_read_timeouts purt_set[] = {
 		{
@@ -4317,13 +4601,21 @@ static int sysfs_test(const char *mount_dir)
 	TEST(fd = open(filename, O_RDONLY | O_CLOEXEC), fd != -1);
 	TESTEQUAL(ioctl_test_last_error(cmd_fd, NULL, 0, 0), 0);
 	TESTEQUAL(sysfs_test_value("reads_failed_timed_out", 0), 0);
+<<<<<<< HEAD
 	TEST(read(fd, NULL, 1), -1);
+=======
+	TESTEQUAL(read(fd, null_buf, 1), -1);
+>>>>>>> upstream/android-13
 	TESTEQUAL(ioctl_test_last_error(cmd_fd, &file.id, 0, -ETIME), 0);
 	TESTEQUAL(sysfs_test_value("reads_failed_timed_out", 2), 0);
 
 	TESTEQUAL(emit_test_file_data(mount_dir, &file), 0);
 	TESTEQUAL(sysfs_test_value("reads_failed_hash_verification", 0), 0);
+<<<<<<< HEAD
 	TESTEQUAL(read(fd, NULL, 1), -1);
+=======
+	TESTEQUAL(read(fd, null_buf, 1), -1);
+>>>>>>> upstream/android-13
 	TESTEQUAL(sysfs_test_value("reads_failed_hash_verification", 1), 0);
 	TESTSYSCALL(close(fd));
 	fd = -1;
@@ -4489,6 +4781,32 @@ out:
 	return result;
 }
 
+<<<<<<< HEAD
+=======
+static int stacked_mount_test(const char *mount_dir)
+{
+	int result = TEST_FAILURE;
+	char *backing_dir = NULL;
+
+	/* Mount with no node */
+	TEST(backing_dir = create_backing_dir(mount_dir), backing_dir);
+	TESTEQUAL(mount_fs(mount_dir, backing_dir, 0), 0);
+	/* Try mounting another instance with same name */
+	TESTEQUAL(mount_fs(mount_dir, backing_dir, 0), 0);
+	/* Try unmounting the first instance */
+	TESTEQUAL(umount_fs(mount_dir), 0);
+	/* Try unmounting the second instance */
+	TESTEQUAL(umount_fs(mount_dir), 0);
+	result = TEST_SUCCESS;
+out:
+	/* Cleanup */
+	rmdir(mount_dir);
+	rmdir(backing_dir);
+	free(backing_dir);
+	return result;
+}
+
+>>>>>>> upstream/android-13
 static char *setup_mount_dir()
 {
 	struct stat st;
@@ -4544,9 +4862,21 @@ struct test_case {
 
 void run_one_test(const char *mount_dir, struct test_case *test_case)
 {
+<<<<<<< HEAD
 	ksft_print_msg("Running %s\n", test_case->name);
 	if (test_case->pfunc(mount_dir) == TEST_SUCCESS)
 		ksft_test_result_pass("%s\n", test_case->name);
+=======
+	int ret;
+
+	ksft_print_msg("Running %s\n", test_case->name);
+	ret = test_case->pfunc(mount_dir);
+
+	if (ret == TEST_SUCCESS)
+		ksft_test_result_pass("%s\n", test_case->name);
+	else if (ret == TEST_SKIP)
+		ksft_test_result_skip("%s\n", test_case->name);
+>>>>>>> upstream/android-13
 	else
 		ksft_test_result_fail("%s\n", test_case->name);
 }
@@ -4610,6 +4940,10 @@ int main(int argc, char *argv[])
 		MAKE_TEST(stat_test),
 		MAKE_TEST(sysfs_test),
 		MAKE_TEST(sysfs_rename_test),
+<<<<<<< HEAD
+=======
+		MAKE_TEST(stacked_mount_test),
+>>>>>>> upstream/android-13
 	};
 #undef MAKE_TEST
 
@@ -4617,10 +4951,20 @@ int main(int argc, char *argv[])
 		if (options.test <= 0 || options.test > ARRAY_SIZE(cases))
 			ksft_exit_fail_msg("Invalid test\n");
 
+<<<<<<< HEAD
 		run_one_test(mount_dir, &cases[options.test - 1]);
 	} else
 		for (i = 0; i < ARRAY_SIZE(cases); ++i)
 			run_one_test(mount_dir, &cases[i]);
+=======
+		ksft_set_plan(1);
+		run_one_test(mount_dir, &cases[options.test - 1]);
+	} else {
+		ksft_set_plan(ARRAY_SIZE(cases));
+		for (i = 0; i < ARRAY_SIZE(cases); ++i)
+			run_one_test(mount_dir, &cases[i]);
+	}
+>>>>>>> upstream/android-13
 
 	umount2(mount_dir, MNT_FORCE);
 	rmdir(mount_dir);

@@ -103,7 +103,11 @@
 #define MT9V111_MAX_CLKIN				27000000
 
 /* The default sensor configuration at startup time. */
+<<<<<<< HEAD
 static struct v4l2_mbus_framefmt mt9v111_def_fmt = {
+=======
+static const struct v4l2_mbus_framefmt mt9v111_def_fmt = {
+>>>>>>> upstream/android-13
 	.width		= 640,
 	.height		= 480,
 	.code		= MEDIA_BUS_FMT_UYVY8_2X8,
@@ -791,16 +795,26 @@ static int mt9v111_g_frame_interval(struct v4l2_subdev *sd,
 
 static struct v4l2_mbus_framefmt *__mt9v111_get_pad_format(
 					struct mt9v111_dev *mt9v111,
+<<<<<<< HEAD
 					struct v4l2_subdev_pad_config *cfg,
+=======
+					struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 					unsigned int pad,
 					enum v4l2_subdev_format_whence which)
 {
 	switch (which) {
 	case V4L2_SUBDEV_FORMAT_TRY:
 #if IS_ENABLED(CONFIG_VIDEO_V4L2_SUBDEV_API)
+<<<<<<< HEAD
 		return v4l2_subdev_get_try_format(&mt9v111->sd, cfg, pad);
 #else
 		return &cfg->try_fmt;
+=======
+		return v4l2_subdev_get_try_format(&mt9v111->sd, sd_state, pad);
+#else
+		return &sd_state->pads->try_fmt;
+>>>>>>> upstream/android-13
 #endif
 	case V4L2_SUBDEV_FORMAT_ACTIVE:
 		return &mt9v111->fmt;
@@ -810,7 +824,11 @@ static struct v4l2_mbus_framefmt *__mt9v111_get_pad_format(
 }
 
 static int mt9v111_enum_mbus_code(struct v4l2_subdev *subdev,
+<<<<<<< HEAD
 				  struct v4l2_subdev_pad_config *cfg,
+=======
+				  struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 				  struct v4l2_subdev_mbus_code_enum *code)
 {
 	if (code->pad || code->index > ARRAY_SIZE(mt9v111_formats) - 1)
@@ -822,7 +840,11 @@ static int mt9v111_enum_mbus_code(struct v4l2_subdev *subdev,
 }
 
 static int mt9v111_enum_frame_interval(struct v4l2_subdev *sd,
+<<<<<<< HEAD
 				struct v4l2_subdev_pad_config *cfg,
+=======
+				struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 				struct v4l2_subdev_frame_interval_enum *fie)
 {
 	unsigned int i;
@@ -845,7 +867,11 @@ static int mt9v111_enum_frame_interval(struct v4l2_subdev *sd,
 }
 
 static int mt9v111_enum_frame_size(struct v4l2_subdev *subdev,
+<<<<<<< HEAD
 				   struct v4l2_subdev_pad_config *cfg,
+=======
+				   struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 				   struct v4l2_subdev_frame_size_enum *fse)
 {
 	if (fse->pad || fse->index >= ARRAY_SIZE(mt9v111_frame_sizes))
@@ -860,7 +886,11 @@ static int mt9v111_enum_frame_size(struct v4l2_subdev *subdev,
 }
 
 static int mt9v111_get_format(struct v4l2_subdev *subdev,
+<<<<<<< HEAD
 			      struct v4l2_subdev_pad_config *cfg,
+=======
+			      struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 			      struct v4l2_subdev_format *format)
 {
 	struct mt9v111_dev *mt9v111 = sd_to_mt9v111(subdev);
@@ -869,7 +899,12 @@ static int mt9v111_get_format(struct v4l2_subdev *subdev,
 		return -EINVAL;
 
 	mutex_lock(&mt9v111->stream_mutex);
+<<<<<<< HEAD
 	format->format = *__mt9v111_get_pad_format(mt9v111, cfg, format->pad,
+=======
+	format->format = *__mt9v111_get_pad_format(mt9v111, sd_state,
+						   format->pad,
+>>>>>>> upstream/android-13
 						   format->which);
 	mutex_unlock(&mt9v111->stream_mutex);
 
@@ -877,7 +912,11 @@ static int mt9v111_get_format(struct v4l2_subdev *subdev,
 }
 
 static int mt9v111_set_format(struct v4l2_subdev *subdev,
+<<<<<<< HEAD
 			      struct v4l2_subdev_pad_config *cfg,
+=======
+			      struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 			      struct v4l2_subdev_format *format)
 {
 	struct mt9v111_dev *mt9v111 = sd_to_mt9v111(subdev);
@@ -925,7 +964,11 @@ static int mt9v111_set_format(struct v4l2_subdev *subdev,
 	new_fmt.height = mt9v111_frame_sizes[idx].height;
 
 	/* Update the device (or pad) format if it has changed. */
+<<<<<<< HEAD
 	__fmt = __mt9v111_get_pad_format(mt9v111, cfg, format->pad,
+=======
+	__fmt = __mt9v111_get_pad_format(mt9v111, sd_state, format->pad,
+>>>>>>> upstream/android-13
 					 format->which);
 
 	/* Format hasn't changed, stop here. */
@@ -954,9 +997,15 @@ done:
 }
 
 static int mt9v111_init_cfg(struct v4l2_subdev *subdev,
+<<<<<<< HEAD
 			    struct v4l2_subdev_pad_config *cfg)
 {
 	cfg->try_fmt = mt9v111_def_fmt;
+=======
+			    struct v4l2_subdev_state *sd_state)
+{
+	sd_state->pads->try_fmt = mt9v111_def_fmt;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -1253,12 +1302,15 @@ static int mt9v111_remove(struct i2c_client *client)
 	mutex_destroy(&mt9v111->pwr_mutex);
 	mutex_destroy(&mt9v111->stream_mutex);
 
+<<<<<<< HEAD
 	devm_gpiod_put(mt9v111->dev, mt9v111->oe);
 	devm_gpiod_put(mt9v111->dev, mt9v111->standby);
 	devm_gpiod_put(mt9v111->dev, mt9v111->reset);
 
 	devm_clk_put(mt9v111->dev, mt9v111->clk);
 
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 

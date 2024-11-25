@@ -1,4 +1,5 @@
 # SPDX-License-Identifier: GPL-2.0
+<<<<<<< HEAD
 obj-$(CONFIG_COMMON_CLK_MEDIATEK) += clk-fixup-div.o clk-mtk.o clk-pll.o clk-gate.o clk-apmixed.o clk-cpumux.o reset.o clk-mux.o clkchk.o
 obj-$(CONFIG_COMMON_CLK_MT6761) += clk-mt6761.o clk-mt6761-pg.o
 obj-$(CONFIG_COMMON_CLK_MT6761_AUDIOSYS) += clk-mt6761-audio.o
@@ -13,6 +14,18 @@ obj-$(CONFIG_COMMON_CLK_MT6765_CAMSYS) += clk-mt6765-cam.o
 obj-$(CONFIG_COMMON_CLK_MT6765_MIPI0ASYS) += clk-mt6765-mipi0a.o
 obj-$(CONFIG_COMMON_CLK_MT6765_MMSYS) += clk-mt6765-mm.o
 obj-$(CONFIG_COMMON_CLK_MT6765_VCODECSYS) += clk-mt6765-vcodec.o
+=======
+obj-$(CONFIG_COMMON_CLK_MEDIATEK) += clk-mtk.o clk-pll.o clk-gate.o clk-apmixed.o clk-cpumux.o reset.o clk-mux.o
+
+obj-$(CONFIG_COMMON_CLK_MT6765) += clk-mt6765.o
+obj-$(CONFIG_COMMON_CLK_MT6765_AUDIOSYS) += clk-mt6765-audio.o
+obj-$(CONFIG_COMMON_CLK_MT6765_CAMSYS) += clk-mt6765-cam.o
+obj-$(CONFIG_COMMON_CLK_MT6765_IMGSYS) += clk-mt6765-img.o
+obj-$(CONFIG_COMMON_CLK_MT6765_MIPI0ASYS) += clk-mt6765-mipi0a.o
+obj-$(CONFIG_COMMON_CLK_MT6765_MMSYS) += clk-mt6765-mm.o
+obj-$(CONFIG_COMMON_CLK_MT6765_VCODECSYS) += clk-mt6765-vcodec.o
+obj-$(CONFIG_COMMON_CLK_MT6779) += clk-mt6779.o
+>>>>>>> upstream/android-13
 obj-$(CONFIG_COMMON_CLK_MT6779_MMSYS) += clk-mt6779-mm.o
 obj-$(CONFIG_COMMON_CLK_MT6779_IMGSYS) += clk-mt6779-img.o
 obj-$(CONFIG_COMMON_CLK_MT6779_IPESYS) += clk-mt6779-ipe.o
@@ -21,6 +34,7 @@ obj-$(CONFIG_COMMON_CLK_MT6779_VDECSYS) += clk-mt6779-vdec.o
 obj-$(CONFIG_COMMON_CLK_MT6779_VENCSYS) += clk-mt6779-venc.o
 obj-$(CONFIG_COMMON_CLK_MT6779_MFGCFG) += clk-mt6779-mfg.o
 obj-$(CONFIG_COMMON_CLK_MT6779_AUDSYS) += clk-mt6779-aud.o
+<<<<<<< HEAD
 obj-$(CONFIG_COMMON_CLK_MT6779_APUVCORESYS) += clk-mt6779-apuvcore.o
 obj-$(CONFIG_COMMON_CLK_MT6779_APUCONNSYS) += clk-mt6779-apuconn.o
 obj-$(CONFIG_COMMON_CLK_MT6779_APU0SYS) += clk-mt6779-apu0.o
@@ -70,6 +84,8 @@ obj-$(CONFIG_COMMON_CLK_MT6833_MMSYS_CONFIG) += clk-mt6833-mm.o
 obj-$(CONFIG_COMMON_CLK_MT6833_VDEC_GCON) += clk-mt6833-vdec.o
 obj-$(CONFIG_COMMON_CLK_MT6833_VENC_GCON) += clk-mt6833-venc.o
 
+=======
+>>>>>>> upstream/android-13
 obj-$(CONFIG_COMMON_CLK_MT6797) += clk-mt6797.o
 obj-$(CONFIG_COMMON_CLK_MT6797_IMGSYS) += clk-mt6797-img.o
 obj-$(CONFIG_COMMON_CLK_MT6797_MMSYS) += clk-mt6797-mm.o
@@ -84,6 +100,7 @@ obj-$(CONFIG_COMMON_CLK_MT2701_HIFSYS) += clk-mt2701-hif.o
 obj-$(CONFIG_COMMON_CLK_MT2701_IMGSYS) += clk-mt2701-img.o
 obj-$(CONFIG_COMMON_CLK_MT2701_MMSYS) += clk-mt2701-mm.o
 obj-$(CONFIG_COMMON_CLK_MT2701_VDECSYS) += clk-mt2701-vdec.o
+<<<<<<< HEAD
 obj-$(CONFIG_COMMON_CLK_MT6768) += clk-mt6768.o clk-mtk-v1.o clk-mt6768-pg.o clkdbg.o
 obj-$(CONFIG_COMMON_CLK_MT6739) += clk-mt6739.o clk-mt6739-pg.o mt6739_clkmgr.o clk-mtk-v1.o clk-fixed-factor.o
 obj-$(CONFIG_COMMON_CLK_MT6781) += clk-mt6781.o clk-mt6781-pg.o clk-mtk-v1.o clkdbg.o clkchk.o clkdbg-mt6781.o clkchk-mt6781.o
@@ -113,6 +130,9 @@ obj-$(CONFIG_COMMON_CLK_MT6853_VDEC_GCON) += clk-mt6853-vdec.o
 obj-$(CONFIG_COMMON_CLK_MT6853_VENC_GCON) += clk-mt6853-venc.o
 
 obj-$(CONFIG_COMMON_CLK_MT2712) += clk-mt2712.o clkchk-mt2712.o
+=======
+obj-$(CONFIG_COMMON_CLK_MT2712) += clk-mt2712.o
+>>>>>>> upstream/android-13
 obj-$(CONFIG_COMMON_CLK_MT2712_BDPSYS) += clk-mt2712-bdp.o
 obj-$(CONFIG_COMMON_CLK_MT2712_IMGSYS) += clk-mt2712-img.o
 obj-$(CONFIG_COMMON_CLK_MT2712_JPGDECSYS) += clk-mt2712-jpgdec.o
@@ -123,6 +143,7 @@ obj-$(CONFIG_COMMON_CLK_MT2712_VENCSYS) += clk-mt2712-venc.o
 obj-$(CONFIG_COMMON_CLK_MT7622) += clk-mt7622.o
 obj-$(CONFIG_COMMON_CLK_MT7622_ETHSYS) += clk-mt7622-eth.o
 obj-$(CONFIG_COMMON_CLK_MT7622_HIFSYS) += clk-mt7622-hif.o
+<<<<<<< HEAD
 obj-$(CONFIG_COMMON_CLK_MT6877) += clk-mt6877.o clk-mt6877-pg.o clk-mtk-v1.o clk-bringup.o clkchk.o clkchk-mt6877.o clk-fmeter-mt6877.o
 obj-$(CONFIG_COMMON_CLK_MT6877_APU) += clk-mt6877-apu.o
 obj-$(CONFIG_COMMON_CLK_MT6877_AUDIOSYS) += clk-mt6877-audsys.o
@@ -165,11 +186,14 @@ obj-$(CONFIG_COMMON_CLK_MT6893_MMSYS) += clk-mt6893-mm.o
 obj-$(CONFIG_COMMON_CLK_MT6893_SCP_ADSP) += clk-mt6893-scp_adsp.o
 obj-$(CONFIG_COMMON_CLK_MT6893_VDE) += clk-mt6893-vde.o
 obj-$(CONFIG_COMMON_CLK_MT6893_VEN) += clk-mt6893-ven.o
+=======
+>>>>>>> upstream/android-13
 obj-$(CONFIG_COMMON_CLK_MT7622_AUDSYS) += clk-mt7622-aud.o
 obj-$(CONFIG_COMMON_CLK_MT7629) += clk-mt7629.o
 obj-$(CONFIG_COMMON_CLK_MT7629_ETHSYS) += clk-mt7629-eth.o
 obj-$(CONFIG_COMMON_CLK_MT7629_HIFSYS) += clk-mt7629-hif.o
 obj-$(CONFIG_COMMON_CLK_MT8135) += clk-mt8135.o
+<<<<<<< HEAD
 obj-$(CONFIG_COMMON_CLK_MT8173) += clk-mt8173.o
 ifeq ($(CONFIG_DEBUG_FS), y)
 obj-$(CONFIG_COMMON_CLK_MEDIATEK) += clkdbg.o
@@ -194,3 +218,40 @@ fhctl-$(CONFIG_COMMON_CLK_MTK_FREQ_HOPPING_SSPM) += clk-fhctl-sspm.o
 endif
 ccflags-y += -I$(srctree)/drivers/misc/mediatek/sspm/
 ccflags-y += -I$(srctree)/drivers/clk/mediatek/
+=======
+obj-$(CONFIG_COMMON_CLK_MT8167) += clk-mt8167.o
+obj-$(CONFIG_COMMON_CLK_MT8167_AUDSYS) += clk-mt8167-aud.o
+obj-$(CONFIG_COMMON_CLK_MT8167_IMGSYS) += clk-mt8167-img.o
+obj-$(CONFIG_COMMON_CLK_MT8167_MFGCFG) += clk-mt8167-mfgcfg.o
+obj-$(CONFIG_COMMON_CLK_MT8167_MMSYS) += clk-mt8167-mm.o
+obj-$(CONFIG_COMMON_CLK_MT8167_VDECSYS) += clk-mt8167-vdec.o
+obj-$(CONFIG_COMMON_CLK_MT8173) += clk-mt8173.o
+obj-$(CONFIG_COMMON_CLK_MT8173_MMSYS) += clk-mt8173-mm.o
+obj-$(CONFIG_COMMON_CLK_MT8183) += clk-mt8183.o
+obj-$(CONFIG_COMMON_CLK_MT8183_AUDIOSYS) += clk-mt8183-audio.o
+obj-$(CONFIG_COMMON_CLK_MT8183_CAMSYS) += clk-mt8183-cam.o
+obj-$(CONFIG_COMMON_CLK_MT8183_IMGSYS) += clk-mt8183-img.o
+obj-$(CONFIG_COMMON_CLK_MT8183_IPU_CORE0) += clk-mt8183-ipu0.o
+obj-$(CONFIG_COMMON_CLK_MT8183_IPU_CORE1) += clk-mt8183-ipu1.o
+obj-$(CONFIG_COMMON_CLK_MT8183_IPU_ADL) += clk-mt8183-ipu_adl.o
+obj-$(CONFIG_COMMON_CLK_MT8183_IPU_CONN) += clk-mt8183-ipu_conn.o
+obj-$(CONFIG_COMMON_CLK_MT8183_MFGCFG) += clk-mt8183-mfgcfg.o
+obj-$(CONFIG_COMMON_CLK_MT8183_MMSYS) += clk-mt8183-mm.o
+obj-$(CONFIG_COMMON_CLK_MT8183_VDECSYS) += clk-mt8183-vdec.o
+obj-$(CONFIG_COMMON_CLK_MT8183_VENCSYS) += clk-mt8183-venc.o
+obj-$(CONFIG_COMMON_CLK_MT8192) += clk-mt8192.o
+obj-$(CONFIG_COMMON_CLK_MT8192_AUDSYS) += clk-mt8192-aud.o
+obj-$(CONFIG_COMMON_CLK_MT8192_CAMSYS) += clk-mt8192-cam.o
+obj-$(CONFIG_COMMON_CLK_MT8192_IMGSYS) += clk-mt8192-img.o
+obj-$(CONFIG_COMMON_CLK_MT8192_IMP_IIC_WRAP) += clk-mt8192-imp_iic_wrap.o
+obj-$(CONFIG_COMMON_CLK_MT8192_IPESYS) += clk-mt8192-ipe.o
+obj-$(CONFIG_COMMON_CLK_MT8192_MDPSYS) += clk-mt8192-mdp.o
+obj-$(CONFIG_COMMON_CLK_MT8192_MFGCFG) += clk-mt8192-mfg.o
+obj-$(CONFIG_COMMON_CLK_MT8192_MMSYS) += clk-mt8192-mm.o
+obj-$(CONFIG_COMMON_CLK_MT8192_MSDC) += clk-mt8192-msdc.o
+obj-$(CONFIG_COMMON_CLK_MT8192_SCP_ADSP) += clk-mt8192-scp_adsp.o
+obj-$(CONFIG_COMMON_CLK_MT8192_VDECSYS) += clk-mt8192-vdec.o
+obj-$(CONFIG_COMMON_CLK_MT8192_VENCSYS) += clk-mt8192-venc.o
+obj-$(CONFIG_COMMON_CLK_MT8516) += clk-mt8516.o
+obj-$(CONFIG_COMMON_CLK_MT8516_AUDSYS) += clk-mt8516-aud.o
+>>>>>>> upstream/android-13

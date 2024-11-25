@@ -1,9 +1,16 @@
+<<<<<<< HEAD
 /*
  * relocate_kernel.S - put the kernel image in place to boot
  * Copyright (C) 2002-2005 Eric Biederman  <ebiederm@xmission.com>
  *
  * This source code is licensed under the GNU General Public License,
  * Version 2.  See the file COPYING for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * relocate_kernel.S - put the kernel image in place to boot
+ * Copyright (C) 2002-2005 Eric Biederman  <ebiederm@xmission.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/linkage.h>
@@ -11,6 +18,11 @@
 #include <asm/kexec.h>
 #include <asm/processor-flags.h>
 #include <asm/pgtable_types.h>
+<<<<<<< HEAD
+=======
+#include <asm/nospec-branch.h>
+#include <asm/unwind_hints.h>
+>>>>>>> upstream/android-13
 
 /*
  * Must be relocatable PIC code callable as a C function
@@ -40,8 +52,13 @@
 	.text
 	.align PAGE_SIZE
 	.code64
+<<<<<<< HEAD
 	.globl relocate_kernel
 relocate_kernel:
+=======
+SYM_CODE_START_NOALIGN(relocate_kernel)
+	UNWIND_HINT_EMPTY
+>>>>>>> upstream/android-13
 	/*
 	 * %rdi indirection_page
 	 * %rsi page_list
@@ -104,9 +121,17 @@ relocate_kernel:
 	/* jump to identity mapped page */
 	addq	$(identity_mapped - relocate_kernel), %r8
 	pushq	%r8
+<<<<<<< HEAD
 	ret
 
 identity_mapped:
+=======
+	RET
+SYM_CODE_END(relocate_kernel)
+
+SYM_CODE_START_LOCAL_NOALIGN(identity_mapped)
+	UNWIND_HINT_EMPTY
+>>>>>>> upstream/android-13
 	/* set return address to 0 if not preserving context */
 	pushq	$0
 	/* store the start address on the stack */
@@ -119,7 +144,11 @@ identity_mapped:
 	 *  - Write protect disabled
 	 *  - No task switch
 	 *  - Don't do FP software emulation.
+<<<<<<< HEAD
 	 *  - Proctected mode enabled
+=======
+	 *  - Protected mode enabled
+>>>>>>> upstream/android-13
 	 */
 	movq	%cr0, %rax
 	andq	$~(X86_CR0_AM | X86_CR0_WP | X86_CR0_TS | X86_CR0_EM), %rax
@@ -189,19 +218,31 @@ identity_mapped:
 	xorl	%r14d, %r14d
 	xorl	%r15d, %r15d
 
+<<<<<<< HEAD
 	ret
+=======
+	RET
+>>>>>>> upstream/android-13
 
 1:
 	popq	%rdx
 	leaq	PAGE_SIZE(%r10), %rsp
+<<<<<<< HEAD
+=======
+	ANNOTATE_RETPOLINE_SAFE
+>>>>>>> upstream/android-13
 	call	*%rdx
 
 	/* get the re-entry point of the peer system */
 	movq	0(%rsp), %rbp
+<<<<<<< HEAD
 	call	1f
 1:
 	popq	%r8
 	subq	$(1b - relocate_kernel), %r8
+=======
+	leaq	relocate_kernel(%rip), %r8
+>>>>>>> upstream/android-13
 	movq	CP_PA_SWAP_PAGE(%r8), %r10
 	movq	CP_PA_BACKUP_PAGES_MAP(%r8), %rdi
 	movq	CP_PA_TABLE_PAGE(%r8), %rax
@@ -210,9 +251,17 @@ identity_mapped:
 	call	swap_pages
 	movq	$virtual_mapped, %rax
 	pushq	%rax
+<<<<<<< HEAD
 	ret
 
 virtual_mapped:
+=======
+	RET
+SYM_CODE_END(identity_mapped)
+
+SYM_CODE_START_LOCAL_NOALIGN(virtual_mapped)
+	UNWIND_HINT_EMPTY
+>>>>>>> upstream/android-13
 	movq	RSP(%r8), %rsp
 	movq	CR4(%r8), %rax
 	movq	%rax, %cr4
@@ -229,10 +278,19 @@ virtual_mapped:
 	popq	%r12
 	popq	%rbp
 	popq	%rbx
+<<<<<<< HEAD
 	ret
 
 	/* Do the copies */
 swap_pages:
+=======
+	RET
+SYM_CODE_END(virtual_mapped)
+
+	/* Do the copies */
+SYM_CODE_START_LOCAL_NOALIGN(swap_pages)
+	UNWIND_HINT_EMPTY
+>>>>>>> upstream/android-13
 	movq	%rdi, %rcx 	/* Put the page_list in %rcx */
 	xorl	%edi, %edi
 	xorl	%esi, %esi
@@ -284,7 +342,12 @@ swap_pages:
 	lea	PAGE_SIZE(%rax), %rsi
 	jmp	0b
 3:
+<<<<<<< HEAD
 	ret
+=======
+	RET
+SYM_CODE_END(swap_pages)
+>>>>>>> upstream/android-13
 
 	.globl kexec_control_code_size
 .set kexec_control_code_size, . - relocate_kernel

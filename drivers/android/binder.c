@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* binder.c
  *
  * Android IPC Subsystem
  *
  * Copyright (C) 2007-2008 Google, Inc.
+<<<<<<< HEAD
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -13,6 +18,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -62,16 +69,24 @@
 #include <linux/nsproxy.h>
 #include <linux/poll.h>
 #include <linux/debugfs.h>
+<<<<<<< HEAD
 #include <linux/delay.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/rbtree.h>
 #include <linux/sched/signal.h>
 #include <linux/sched/mm.h>
 #include <linux/seq_file.h>
+<<<<<<< HEAD
+=======
+#include <linux/string.h>
+>>>>>>> upstream/android-13
 #include <linux/uaccess.h>
 #include <linux/pid_namespace.h>
 #include <linux/security.h>
 #include <linux/spinlock.h>
 #include <linux/ratelimit.h>
+<<<<<<< HEAD
 
 #include <uapi/linux/android/binder.h>
 #include <uapi/linux/sched/types.h>
@@ -89,6 +104,21 @@
 #include "binder_alloc.h"
 #include "binder_internal.h"
 #include "binder_trace.h"
+=======
+#include <linux/syscalls.h>
+#include <linux/task_work.h>
+#include <linux/sizes.h>
+#include <linux/android_vendor.h>
+
+#include <uapi/linux/sched/types.h>
+#include <uapi/linux/android/binder.h>
+
+#include <asm/cacheflush.h>
+
+#include "binder_internal.h"
+#include "binder_trace.h"
+#include <trace/hooks/binder.h>
+>>>>>>> upstream/android-13
 
 static HLIST_HEAD(binder_deferred_list);
 static DEFINE_MUTEX(binder_deferred_lock);
@@ -107,6 +137,7 @@ static atomic_t binder_last_id;
 static int proc_show(struct seq_file *m, void *unused);
 DEFINE_SHOW_ATTRIBUTE(proc);
 
+<<<<<<< HEAD
 /* This is only defined in include/asm-arm/sizes.h */
 #ifndef SZ_1K
 #define SZ_1K                               0x400
@@ -116,6 +147,8 @@ DEFINE_SHOW_ATTRIBUTE(proc);
 #define SZ_4M                               0x400000
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #define FORBIDDEN_MMAP_FLAGS                (VM_WRITE)
 
 enum {
@@ -183,6 +216,7 @@ module_param_call(stop_on_user_error, binder_set_stop_on_user_error,
 #define to_binder_fd_array_object(hdr) \
 	container_of(hdr, struct binder_fd_array_object, hdr)
 
+<<<<<<< HEAD
 enum binder_stat_types {
 	BINDER_STAT_PROC,
 	BINDER_STAT_THREAD,
@@ -201,6 +235,8 @@ struct binder_stats {
 	atomic_t obj_deleted[BINDER_STAT_COUNT];
 };
 
+=======
+>>>>>>> upstream/android-13
 static struct binder_stats binder_stats;
 
 static inline void binder_stats_deleted(enum binder_stat_types type)
@@ -213,8 +249,37 @@ static inline void binder_stats_created(enum binder_stat_types type)
 	atomic_inc(&binder_stats.obj_created[type]);
 }
 
+<<<<<<< HEAD
 struct binder_transaction_log binder_transaction_log;
 struct binder_transaction_log binder_transaction_log_failed;
+=======
+struct binder_transaction_log_entry {
+	int debug_id;
+	int debug_id_done;
+	int call_type;
+	int from_proc;
+	int from_thread;
+	int target_handle;
+	int to_proc;
+	int to_thread;
+	int to_node;
+	int data_size;
+	int offsets_size;
+	int return_error_line;
+	uint32_t return_error;
+	uint32_t return_error_param;
+	char context_name[BINDERFS_MAX_NAME + 1];
+};
+
+struct binder_transaction_log {
+	atomic_t cur;
+	bool full;
+	struct binder_transaction_log_entry entry[32];
+};
+
+static struct binder_transaction_log binder_transaction_log;
+static struct binder_transaction_log binder_transaction_log_failed;
+>>>>>>> upstream/android-13
 
 static struct binder_transaction_log_entry *binder_transaction_log_add(
 	struct binder_transaction_log *log)
@@ -236,6 +301,7 @@ static struct binder_transaction_log_entry *binder_transaction_log_add(
 	return e;
 }
 
+<<<<<<< HEAD
 /**
  * struct binder_work - work enqueued on a worklist
  * @entry:             node enqueued on list
@@ -537,6 +603,11 @@ struct binder_proc {
 	spinlock_t inner_lock;
 	spinlock_t outer_lock;
 	struct dentry *binderfs_entry;
+=======
+enum binder_deferred_state {
+	BINDER_DEFERRED_FLUSH        = 0x01,
+	BINDER_DEFERRED_RELEASE      = 0x02,
+>>>>>>> upstream/android-13
 };
 
 enum {
@@ -549,6 +620,7 @@ enum {
 };
 
 /**
+<<<<<<< HEAD
  * struct binder_thread - binder thread bookkeeping
  * @proc:                 binder process for this thread
  *                        (invariant after initialization)
@@ -704,6 +776,8 @@ struct binder_object {
 };
 
 /**
+=======
+>>>>>>> upstream/android-13
  * binder_proc_lock() - Acquire outer lock for given binder_proc
  * @proc:         struct binder_proc to acquire
  *
@@ -713,6 +787,10 @@ struct binder_object {
 #define binder_proc_lock(proc) _binder_proc_lock(proc, __LINE__)
 static void
 _binder_proc_lock(struct binder_proc *proc, int line)
+<<<<<<< HEAD
+=======
+	__acquires(&proc->outer_lock)
+>>>>>>> upstream/android-13
 {
 	binder_debug(BINDER_DEBUG_SPINLOCKS,
 		     "%s: line=%d\n", __func__, line);
@@ -728,6 +806,10 @@ _binder_proc_lock(struct binder_proc *proc, int line)
 #define binder_proc_unlock(_proc) _binder_proc_unlock(_proc, __LINE__)
 static void
 _binder_proc_unlock(struct binder_proc *proc, int line)
+<<<<<<< HEAD
+=======
+	__releases(&proc->outer_lock)
+>>>>>>> upstream/android-13
 {
 	binder_debug(BINDER_DEBUG_SPINLOCKS,
 		     "%s: line=%d\n", __func__, line);
@@ -743,6 +825,10 @@ _binder_proc_unlock(struct binder_proc *proc, int line)
 #define binder_inner_proc_lock(proc) _binder_inner_proc_lock(proc, __LINE__)
 static void
 _binder_inner_proc_lock(struct binder_proc *proc, int line)
+<<<<<<< HEAD
+=======
+	__acquires(&proc->inner_lock)
+>>>>>>> upstream/android-13
 {
 	binder_debug(BINDER_DEBUG_SPINLOCKS,
 		     "%s: line=%d\n", __func__, line);
@@ -758,6 +844,10 @@ _binder_inner_proc_lock(struct binder_proc *proc, int line)
 #define binder_inner_proc_unlock(proc) _binder_inner_proc_unlock(proc, __LINE__)
 static void
 _binder_inner_proc_unlock(struct binder_proc *proc, int line)
+<<<<<<< HEAD
+=======
+	__releases(&proc->inner_lock)
+>>>>>>> upstream/android-13
 {
 	binder_debug(BINDER_DEBUG_SPINLOCKS,
 		     "%s: line=%d\n", __func__, line);
@@ -773,6 +863,10 @@ _binder_inner_proc_unlock(struct binder_proc *proc, int line)
 #define binder_node_lock(node) _binder_node_lock(node, __LINE__)
 static void
 _binder_node_lock(struct binder_node *node, int line)
+<<<<<<< HEAD
+=======
+	__acquires(&node->lock)
+>>>>>>> upstream/android-13
 {
 	binder_debug(BINDER_DEBUG_SPINLOCKS,
 		     "%s: line=%d\n", __func__, line);
@@ -788,6 +882,10 @@ _binder_node_lock(struct binder_node *node, int line)
 #define binder_node_unlock(node) _binder_node_unlock(node, __LINE__)
 static void
 _binder_node_unlock(struct binder_node *node, int line)
+<<<<<<< HEAD
+=======
+	__releases(&node->lock)
+>>>>>>> upstream/android-13
 {
 	binder_debug(BINDER_DEBUG_SPINLOCKS,
 		     "%s: line=%d\n", __func__, line);
@@ -804,12 +902,22 @@ _binder_node_unlock(struct binder_node *node, int line)
 #define binder_node_inner_lock(node) _binder_node_inner_lock(node, __LINE__)
 static void
 _binder_node_inner_lock(struct binder_node *node, int line)
+<<<<<<< HEAD
+=======
+	__acquires(&node->lock) __acquires(&node->proc->inner_lock)
+>>>>>>> upstream/android-13
 {
 	binder_debug(BINDER_DEBUG_SPINLOCKS,
 		     "%s: line=%d\n", __func__, line);
 	spin_lock(&node->lock);
 	if (node->proc)
 		binder_inner_proc_lock(node->proc);
+<<<<<<< HEAD
+=======
+	else
+		/* annotation for sparse */
+		__acquire(&node->proc->inner_lock);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -821,6 +929,10 @@ _binder_node_inner_lock(struct binder_node *node, int line)
 #define binder_node_inner_unlock(node) _binder_node_inner_unlock(node, __LINE__)
 static void
 _binder_node_inner_unlock(struct binder_node *node, int line)
+<<<<<<< HEAD
+=======
+	__releases(&node->lock) __releases(&node->proc->inner_lock)
+>>>>>>> upstream/android-13
 {
 	struct binder_proc *proc = node->proc;
 
@@ -828,6 +940,12 @@ _binder_node_inner_unlock(struct binder_node *node, int line)
 		     "%s: line=%d\n", __func__, line);
 	if (proc)
 		binder_inner_proc_unlock(proc);
+<<<<<<< HEAD
+=======
+	else
+		/* annotation for sparse */
+		__release(&node->proc->inner_lock);
+>>>>>>> upstream/android-13
 	spin_unlock(&node->lock);
 }
 
@@ -967,6 +1085,7 @@ static void binder_free_thread(struct binder_thread *thread);
 static void binder_free_proc(struct binder_proc *proc);
 static void binder_inc_node_tmpref_ilocked(struct binder_node *node);
 
+<<<<<<< HEAD
 static int task_get_unused_fd_flags(struct binder_proc *proc, int flags)
 {
 	unsigned long rlim_cur;
@@ -1030,6 +1149,16 @@ err:
 static bool binder_has_work_ilocked(struct binder_thread *thread,
 				    bool do_proc_work)
 {
+=======
+static bool binder_has_work_ilocked(struct binder_thread *thread,
+				    bool do_proc_work)
+{
+	int ret = 0;
+
+	trace_android_vh_binder_has_work_ilocked(thread, do_proc_work, &ret);
+	if (ret)
+		return true;
+>>>>>>> upstream/android-13
 	return thread->process_todo ||
 		thread->looper_need_return ||
 		(do_proc_work &&
@@ -1065,6 +1194,10 @@ static void binder_wakeup_poll_threads_ilocked(struct binder_proc *proc,
 		thread = rb_entry(n, struct binder_thread, rb_node);
 		if (thread->looper & BINDER_LOOPER_STATE_POLL &&
 		    binder_available_for_proc_work_ilocked(thread)) {
+<<<<<<< HEAD
+=======
+			trace_android_vh_binder_wakeup_ilocked(thread->task, sync, proc);
+>>>>>>> upstream/android-13
 			if (sync)
 				wake_up_interruptible_sync(&thread->wait);
 			else
@@ -1124,6 +1257,10 @@ static void binder_wakeup_thread_ilocked(struct binder_proc *proc,
 	assert_spin_locked(&proc->inner_lock);
 
 	if (thread) {
+<<<<<<< HEAD
+=======
+		trace_android_vh_binder_wakeup_ilocked(thread->task, sync, proc);
+>>>>>>> upstream/android-13
 		if (sync)
 			wake_up_interruptible_sync(&thread->wait);
 		else
@@ -1174,7 +1311,11 @@ static int to_userspace_prio(int policy, int kernel_priority)
 	if (is_fair_policy(policy))
 		return PRIO_TO_NICE(kernel_priority);
 	else
+<<<<<<< HEAD
 		return MAX_USER_RT_PRIO - 1 - kernel_priority;
+=======
+		return MAX_RT_PRIO - 1 - kernel_priority;
+>>>>>>> upstream/android-13
 }
 
 static int to_kernel_prio(int policy, int user_priority)
@@ -1182,6 +1323,7 @@ static int to_kernel_prio(int policy, int user_priority)
 	if (is_fair_policy(policy))
 		return NICE_TO_PRIO(user_priority);
 	else
+<<<<<<< HEAD
 		return MAX_USER_RT_PRIO - 1 - user_priority;
 }
 
@@ -1199,6 +1341,31 @@ static void binder_do_set_priority(struct task_struct *task,
 	has_cap_nice = has_capability_noaudit(task, CAP_SYS_NICE);
 
 	priority = to_userspace_prio(policy, desired.prio);
+=======
+		return MAX_RT_PRIO - 1 - user_priority;
+}
+
+static void binder_do_set_priority(struct binder_thread *thread,
+				   const struct binder_priority *desired,
+				   bool verify)
+{
+	struct task_struct *task = thread->task;
+	int priority; /* user-space prio value */
+	bool has_cap_nice;
+	unsigned int policy = desired->sched_policy;
+
+	if (task->policy == policy && task->normal_prio == desired->prio) {
+		spin_lock(&thread->prio_lock);
+		if (thread->prio_state == BINDER_PRIO_PENDING)
+			thread->prio_state = BINDER_PRIO_SET;
+		spin_unlock(&thread->prio_lock);
+		return;
+	}
+
+	has_cap_nice = has_capability_noaudit(task, CAP_SYS_NICE);
+
+	priority = to_userspace_prio(policy, desired->prio);
+>>>>>>> upstream/android-13
 
 	if (verify && is_rt_policy(policy) && !has_cap_nice) {
 		long max_rtprio = task_rlimit(task, RLIMIT_RTPRIO);
@@ -1223,16 +1390,42 @@ static void binder_do_set_priority(struct task_struct *task,
 		}
 	}
 
+<<<<<<< HEAD
 	if (policy != desired.sched_policy ||
 	    to_kernel_prio(policy, priority) != desired.prio)
 		binder_debug(BINDER_DEBUG_PRIORITY_CAP,
 			     "%d: priority %d not allowed, using %d instead\n",
 			      task->pid, desired.prio,
+=======
+	if (policy != desired->sched_policy ||
+	    to_kernel_prio(policy, priority) != desired->prio)
+		binder_debug(BINDER_DEBUG_PRIORITY_CAP,
+			     "%d: priority %d not allowed, using %d instead\n",
+			      task->pid, desired->prio,
+>>>>>>> upstream/android-13
 			      to_kernel_prio(policy, priority));
 
 	trace_binder_set_priority(task->tgid, task->pid, task->normal_prio,
 				  to_kernel_prio(policy, priority),
+<<<<<<< HEAD
 				  desired.prio);
+=======
+				  desired->prio);
+
+	spin_lock(&thread->prio_lock);
+	if (!verify && thread->prio_state == BINDER_PRIO_ABORT) {
+		/*
+		 * A new priority has been set by an incoming nested
+		 * transaction. Abort this priority restore and allow
+		 * the transaction to run at the new desired priority.
+		 */
+		spin_unlock(&thread->prio_lock);
+		binder_debug(BINDER_DEBUG_PRIORITY_CAP,
+			"%d: %s: aborting priority restore\n",
+			thread->pid, __func__);
+		return;
+	}
+>>>>>>> upstream/android-13
 
 	/* Set the actual priority */
 	if (task->policy != policy || is_rt_policy(policy)) {
@@ -1246,6 +1439,7 @@ static void binder_do_set_priority(struct task_struct *task,
 	}
 	if (is_fair_policy(policy))
 		set_user_nice(task, priority);
+<<<<<<< HEAD
 }
 
 static void binder_set_priority(struct task_struct *task,
@@ -1266,17 +1460,58 @@ static void binder_transaction_priority(struct task_struct *task,
 					bool inherit_rt)
 {
 	struct binder_priority desired_prio = t->priority;
+=======
+
+	thread->prio_state = BINDER_PRIO_SET;
+	spin_unlock(&thread->prio_lock);
+}
+
+static void binder_set_priority(struct binder_thread *thread,
+				const struct binder_priority *desired)
+{
+	binder_do_set_priority(thread, desired, /* verify = */ true);
+}
+
+static void binder_restore_priority(struct binder_thread *thread,
+				    const struct binder_priority *desired)
+{
+	binder_do_set_priority(thread, desired, /* verify = */ false);
+}
+
+static void binder_transaction_priority(struct binder_thread *thread,
+					struct binder_transaction *t,
+					struct binder_node *node)
+{
+	struct task_struct *task = thread->task;
+	struct binder_priority desired = t->priority;
+	const struct binder_priority node_prio = {
+		.sched_policy = node->sched_policy,
+		.prio = node->min_priority,
+	};
+	bool skip = false;
+>>>>>>> upstream/android-13
 
 	if (t->set_priority_called)
 		return;
 
 	t->set_priority_called = true;
+<<<<<<< HEAD
 	t->saved_priority.sched_policy = task->policy;
 	t->saved_priority.prio = task->normal_prio;
 
 	if (!inherit_rt && is_rt_policy(desired_prio.sched_policy)) {
 		desired_prio.prio = NICE_TO_PRIO(0);
 		desired_prio.sched_policy = SCHED_NORMAL;
+=======
+
+	trace_android_vh_binder_priority_skip(task, &skip);
+	if (skip)
+		return;
+
+	if (!node->inherit_rt && is_rt_policy(desired.sched_policy)) {
+		desired.prio = NICE_TO_PRIO(0);
+		desired.sched_policy = SCHED_NORMAL;
+>>>>>>> upstream/android-13
 	}
 
 	if (node_prio.prio < t->priority.prio ||
@@ -1289,10 +1524,37 @@ static void binder_transaction_priority(struct task_struct *task,
 		 * SCHED_FIFO, prefer SCHED_FIFO, since it can
 		 * run unbounded, unlike SCHED_RR.
 		 */
+<<<<<<< HEAD
 		desired_prio = node_prio;
 	}
 
 	binder_set_priority(task, desired_prio);
+=======
+		desired = node_prio;
+	}
+
+	spin_lock(&thread->prio_lock);
+	if (thread->prio_state == BINDER_PRIO_PENDING) {
+		/*
+		 * Task is in the process of changing priorities
+		 * saving its current values would be incorrect.
+		 * Instead, save the pending priority and signal
+		 * the task to abort the priority restore.
+		 */
+		t->saved_priority = thread->prio_next;
+		thread->prio_state = BINDER_PRIO_ABORT;
+		binder_debug(BINDER_DEBUG_PRIORITY_CAP,
+			"%d: saved pending priority %d\n",
+			current->pid, thread->prio_next.prio);
+	} else {
+		t->saved_priority.sched_policy = task->policy;
+		t->saved_priority.prio = task->normal_prio;
+	}
+	spin_unlock(&thread->prio_lock);
+
+	binder_set_priority(thread, &desired);
+	trace_android_vh_binder_set_priority(t, task);
+>>>>>>> upstream/android-13
 }
 
 static struct binder_node *binder_get_node_ilocked(struct binder_proc *proc,
@@ -1605,10 +1867,20 @@ static void binder_dec_node_tmpref(struct binder_node *node)
 	binder_node_inner_lock(node);
 	if (!node->proc)
 		spin_lock(&binder_dead_nodes_lock);
+<<<<<<< HEAD
+=======
+	else
+		__acquire(&binder_dead_nodes_lock);
+>>>>>>> upstream/android-13
 	node->tmp_refs--;
 	BUG_ON(node->tmp_refs < 0);
 	if (!node->proc)
 		spin_unlock(&binder_dead_nodes_lock);
+<<<<<<< HEAD
+=======
+	else
+		__release(&binder_dead_nodes_lock);
+>>>>>>> upstream/android-13
 	/*
 	 * Call binder_dec_node() to check if all refcounts are 0
 	 * and cleanup is needed. Calling with strong=0 and internal=1
@@ -1729,6 +2001,10 @@ static struct binder_ref *binder_get_ref_for_node_olocked(
 		     "%d new ref %d desc %d for node %d\n",
 		      proc->pid, new_ref->data.debug_id, new_ref->data.desc,
 		      node->debug_id);
+<<<<<<< HEAD
+=======
+	trace_android_vh_binder_new_ref(proc->tsk, new_ref->data.desc, new_ref->node->debug_id);
+>>>>>>> upstream/android-13
 	binder_node_unlock(node);
 	return new_ref;
 }
@@ -1896,6 +2172,10 @@ err_no_ref:
  */
 static void binder_free_ref(struct binder_ref *ref)
 {
+<<<<<<< HEAD
+=======
+	trace_android_vh_binder_del_ref(ref->proc ? ref->proc->tsk : 0, ref->data.desc);
+>>>>>>> upstream/android-13
 	if (ref->node)
 		binder_free_node(ref->node);
 	kfree(ref->death);
@@ -2123,37 +2403,108 @@ static struct binder_thread *binder_get_txn_from(
  */
 static struct binder_thread *binder_get_txn_from_and_acq_inner(
 		struct binder_transaction *t)
+<<<<<<< HEAD
+=======
+	__acquires(&t->from->proc->inner_lock)
+>>>>>>> upstream/android-13
 {
 	struct binder_thread *from;
 
 	from = binder_get_txn_from(t);
+<<<<<<< HEAD
 	if (!from)
 		return NULL;
+=======
+	if (!from) {
+		__acquire(&from->proc->inner_lock);
+		return NULL;
+	}
+>>>>>>> upstream/android-13
 	binder_inner_proc_lock(from->proc);
 	if (t->from) {
 		BUG_ON(from != t->from);
 		return from;
 	}
 	binder_inner_proc_unlock(from->proc);
+<<<<<<< HEAD
+=======
+	__acquire(&from->proc->inner_lock);
+>>>>>>> upstream/android-13
 	binder_thread_dec_tmpref(from);
 	return NULL;
 }
 
+<<<<<<< HEAD
+=======
+/**
+ * binder_free_txn_fixups() - free unprocessed fd fixups
+ * @t:	binder transaction for t->from
+ *
+ * If the transaction is being torn down prior to being
+ * processed by the target process, free all of the
+ * fd fixups and fput the file structs. It is safe to
+ * call this function after the fixups have been
+ * processed -- in that case, the list will be empty.
+ */
+static void binder_free_txn_fixups(struct binder_transaction *t)
+{
+	struct binder_txn_fd_fixup *fixup, *tmp;
+
+	list_for_each_entry_safe(fixup, tmp, &t->fd_fixups, fixup_entry) {
+		fput(fixup->file);
+		list_del(&fixup->fixup_entry);
+		kfree(fixup);
+	}
+}
+
+static void binder_txn_latency_free(struct binder_transaction *t)
+{
+	int from_proc, from_thread, to_proc, to_thread;
+
+	spin_lock(&t->lock);
+	from_proc = t->from ? t->from->proc->pid : 0;
+	from_thread = t->from ? t->from->pid : 0;
+	to_proc = t->to_proc ? t->to_proc->pid : 0;
+	to_thread = t->to_thread ? t->to_thread->pid : 0;
+	spin_unlock(&t->lock);
+
+	trace_binder_txn_latency_free(t, from_proc, from_thread, to_proc, to_thread);
+}
+
+>>>>>>> upstream/android-13
 static void binder_free_transaction(struct binder_transaction *t)
 {
 	struct binder_proc *target_proc = t->to_proc;
 
 	if (target_proc) {
 		binder_inner_proc_lock(target_proc);
+<<<<<<< HEAD
+=======
+		target_proc->outstanding_txns--;
+		if (target_proc->outstanding_txns < 0)
+			pr_warn("%s: Unexpected outstanding_txns %d\n",
+				__func__, target_proc->outstanding_txns);
+		if (!target_proc->outstanding_txns && target_proc->is_frozen)
+			wake_up_interruptible_all(&target_proc->freeze_wait);
+>>>>>>> upstream/android-13
 		if (t->buffer)
 			t->buffer->transaction = NULL;
 		binder_inner_proc_unlock(target_proc);
 	}
+<<<<<<< HEAD
 	binder_print_delay(t);
+=======
+	if (trace_binder_txn_latency_free_enabled())
+		binder_txn_latency_free(t);
+>>>>>>> upstream/android-13
 	/*
 	 * If the transaction has no target_proc, then
 	 * t->buffer->transaction has already been cleared.
 	 */
+<<<<<<< HEAD
+=======
+	binder_free_txn_fixups(t);
+>>>>>>> upstream/android-13
 	kfree(t);
 	binder_stats_deleted(BINDER_STAT_TRANSACTION);
 }
@@ -2196,6 +2547,10 @@ static void binder_send_failed_reply(struct binder_transaction *t,
 			binder_free_transaction(t);
 			return;
 		}
+<<<<<<< HEAD
+=======
+		__release(&target_thread->proc->inner_lock);
+>>>>>>> upstream/android-13
 		next = t->from_parent;
 
 		binder_debug(BINDER_DEBUG_FAILED_TRANSACTION,
@@ -2238,15 +2593,31 @@ static void binder_cleanup_transaction(struct binder_transaction *t,
 /**
  * binder_get_object() - gets object and checks for valid metadata
  * @proc:	binder_proc owning the buffer
+<<<<<<< HEAD
+=======
+ * @u:		sender's user pointer to base of buffer
+>>>>>>> upstream/android-13
  * @buffer:	binder_buffer that we're parsing.
  * @offset:	offset in the @buffer at which to validate an object.
  * @object:	struct binder_object to read into
  *
+<<<<<<< HEAD
  * Return:	If there's a valid metadata object at @offset in @buffer, the
+=======
+ * Copy the binder object at the given offset into @object. If @u is
+ * provided then the copy is from the sender's buffer. If not, then
+ * it is copied from the target's @buffer.
+ *
+ * Return:	If there's a valid metadata object at @offset, the
+>>>>>>> upstream/android-13
  *		size of that object. Otherwise, it returns zero. The object
  *		is read into the struct binder_object pointed to by @object.
  */
 static size_t binder_get_object(struct binder_proc *proc,
+<<<<<<< HEAD
+=======
+				const void __user *u,
+>>>>>>> upstream/android-13
 				struct binder_buffer *buffer,
 				unsigned long offset,
 				struct binder_object *object)
@@ -2256,11 +2627,24 @@ static size_t binder_get_object(struct binder_proc *proc,
 	size_t object_size = 0;
 
 	read_size = min_t(size_t, sizeof(*object), buffer->data_size - offset);
+<<<<<<< HEAD
 	if (offset > buffer->data_size || read_size < sizeof(*hdr) ||
 	    !IS_ALIGNED(offset, sizeof(u32)))
 		return 0;
 	binder_alloc_copy_from_buffer(&proc->alloc, object, buffer,
 				      offset, read_size);
+=======
+	if (offset > buffer->data_size || read_size < sizeof(*hdr))
+		return 0;
+	if (u) {
+		if (copy_from_user(object, u + offset, read_size))
+			return 0;
+	} else {
+		if (binder_alloc_copy_from_buffer(&proc->alloc, object, buffer,
+						  offset, read_size))
+			return 0;
+	}
+>>>>>>> upstream/android-13
 
 	/* Ok, now see if we read a complete object. */
 	hdr = &object->hdr;
@@ -2329,9 +2713,17 @@ static struct binder_buffer_object *binder_validate_ptr(
 		return NULL;
 
 	buffer_offset = start_offset + sizeof(binder_size_t) * index;
+<<<<<<< HEAD
 	binder_alloc_copy_from_buffer(&proc->alloc, &object_offset,
 				      b, buffer_offset, sizeof(object_offset));
 	object_size = binder_get_object(proc, b, object_offset, object);
+=======
+	if (binder_alloc_copy_from_buffer(&proc->alloc, &object_offset,
+					  b, buffer_offset,
+					  sizeof(object_offset)))
+		return NULL;
+	object_size = binder_get_object(proc, NULL, b, object_offset, object);
+>>>>>>> upstream/android-13
 	if (!object_size || object->hdr.type != BINDER_TYPE_PTR)
 		return NULL;
 	if (object_offsetp)
@@ -2396,7 +2788,12 @@ static bool binder_validate_fixup(struct binder_proc *proc,
 		unsigned long buffer_offset;
 		struct binder_object last_object;
 		struct binder_buffer_object *last_bbo;
+<<<<<<< HEAD
 		size_t object_size = binder_get_object(proc, b, last_obj_offset,
+=======
+		size_t object_size = binder_get_object(proc, NULL, b,
+						       last_obj_offset,
+>>>>>>> upstream/android-13
 						       &last_object);
 		if (object_size != sizeof(*last_bbo))
 			return false;
@@ -2410,15 +2807,89 @@ static bool binder_validate_fixup(struct binder_proc *proc,
 			return false;
 		last_min_offset = last_bbo->parent_offset + sizeof(uintptr_t);
 		buffer_offset = objects_start_offset +
+<<<<<<< HEAD
 			sizeof(binder_size_t) * last_bbo->parent,
 		binder_alloc_copy_from_buffer(&proc->alloc, &last_obj_offset,
 					      b, buffer_offset,
 					      sizeof(last_obj_offset));
+=======
+			sizeof(binder_size_t) * last_bbo->parent;
+		if (binder_alloc_copy_from_buffer(&proc->alloc,
+						  &last_obj_offset,
+						  b, buffer_offset,
+						  sizeof(last_obj_offset)))
+			return false;
+>>>>>>> upstream/android-13
 	}
 	return (fixup_offset >= last_min_offset);
 }
 
+<<<<<<< HEAD
 static void binder_transaction_buffer_release(struct binder_proc *proc,
+=======
+/**
+ * struct binder_task_work_cb - for deferred close
+ *
+ * @twork:                callback_head for task work
+ * @fd:                   fd to close
+ *
+ * Structure to pass task work to be handled after
+ * returning from binder_ioctl() via task_work_add().
+ */
+struct binder_task_work_cb {
+	struct callback_head twork;
+	struct file *file;
+};
+
+/**
+ * binder_do_fd_close() - close list of file descriptors
+ * @twork:	callback head for task work
+ *
+ * It is not safe to call ksys_close() during the binder_ioctl()
+ * function if there is a chance that binder's own file descriptor
+ * might be closed. This is to meet the requirements for using
+ * fdget() (see comments for __fget_light()). Therefore use
+ * task_work_add() to schedule the close operation once we have
+ * returned from binder_ioctl(). This function is a callback
+ * for that mechanism and does the actual ksys_close() on the
+ * given file descriptor.
+ */
+static void binder_do_fd_close(struct callback_head *twork)
+{
+	struct binder_task_work_cb *twcb = container_of(twork,
+			struct binder_task_work_cb, twork);
+
+	fput(twcb->file);
+	kfree(twcb);
+}
+
+/**
+ * binder_deferred_fd_close() - schedule a close for the given file-descriptor
+ * @fd:		file-descriptor to close
+ *
+ * See comments in binder_do_fd_close(). This function is used to schedule
+ * a file-descriptor to be closed after returning from binder_ioctl().
+ */
+static void binder_deferred_fd_close(int fd)
+{
+	struct binder_task_work_cb *twcb;
+
+	twcb = kzalloc(sizeof(*twcb), GFP_KERNEL);
+	if (!twcb)
+		return;
+	init_task_work(&twcb->twork, binder_do_fd_close);
+	close_fd_get_file(fd, &twcb->file);
+	if (twcb->file) {
+		filp_close(twcb->file, current->files);
+		task_work_add(current, &twcb->twork, TWA_RESUME);
+	} else {
+		kfree(twcb);
+	}
+}
+
+static void binder_transaction_buffer_release(struct binder_proc *proc,
+					      struct binder_thread *thread,
+>>>>>>> upstream/android-13
 					      struct binder_buffer *buffer,
 					      binder_size_t failed_at,
 					      bool is_failure)
@@ -2436,11 +2907,16 @@ static void binder_transaction_buffer_release(struct binder_proc *proc,
 		binder_dec_node(buffer->target_node, 1, 0);
 
 	off_start_offset = ALIGN(buffer->data_size, sizeof(void *));
+<<<<<<< HEAD
 	off_end_offset = is_failure ? failed_at :
+=======
+	off_end_offset = is_failure && failed_at ? failed_at :
+>>>>>>> upstream/android-13
 				off_start_offset + buffer->offsets_size;
 	for (buffer_offset = off_start_offset; buffer_offset < off_end_offset;
 	     buffer_offset += sizeof(binder_size_t)) {
 		struct binder_object_header *hdr;
+<<<<<<< HEAD
 		size_t object_size;
 		struct binder_object object;
 		binder_size_t object_offset;
@@ -2450,6 +2926,17 @@ static void binder_transaction_buffer_release(struct binder_proc *proc,
 					      sizeof(object_offset));
 		object_size = binder_get_object(proc, buffer,
 						object_offset, &object);
+=======
+		size_t object_size = 0;
+		struct binder_object object;
+		binder_size_t object_offset;
+
+		if (!binder_alloc_copy_from_buffer(&proc->alloc, &object_offset,
+						   buffer, buffer_offset,
+						   sizeof(object_offset)))
+			object_size = binder_get_object(proc, NULL, buffer,
+							object_offset, &object);
+>>>>>>> upstream/android-13
 		if (object_size == 0) {
 			pr_err("transaction release %d bad object at offset %lld, size %zd\n",
 			       debug_id, (u64)object_offset, buffer->data_size);
@@ -2497,12 +2984,24 @@ static void binder_transaction_buffer_release(struct binder_proc *proc,
 		} break;
 
 		case BINDER_TYPE_FD: {
+<<<<<<< HEAD
 			struct binder_fd_object *fp = to_binder_fd_object(hdr);
 
 			binder_debug(BINDER_DEBUG_TRANSACTION,
 				     "        fd %d\n", fp->fd);
 			if (failed_at)
 				task_close_fd(proc, fp->fd);
+=======
+			/*
+			 * No need to close the file here since user-space
+			 * closes it for for successfully delivered
+			 * transactions. For transactions that weren't
+			 * delivered, the new fd was never allocated so
+			 * there is no need to close and the fput on the
+			 * file is done when the transaction is torn
+			 * down.
+			 */
+>>>>>>> upstream/android-13
 		} break;
 		case BINDER_TYPE_PTR:
 			/*
@@ -2519,6 +3018,17 @@ static void binder_transaction_buffer_release(struct binder_proc *proc,
 			binder_size_t fd_buf_size;
 			binder_size_t num_valid;
 
+<<<<<<< HEAD
+=======
+			if (is_failure) {
+				/*
+				 * The fd fixups have not been applied so no
+				 * fds need to be closed.
+				 */
+				continue;
+			}
+
+>>>>>>> upstream/android-13
 			num_valid = (buffer_offset - off_start_offset) /
 						sizeof(binder_size_t);
 			fda = to_binder_fd_array_object(hdr);
@@ -2558,6 +3068,7 @@ static void binder_transaction_buffer_release(struct binder_proc *proc,
 			for (fd_index = 0; fd_index < fda->num_fds;
 			     fd_index++) {
 				u32 fd;
+<<<<<<< HEAD
 				binder_size_t offset = fda_offset +
 					fd_index * sizeof(fd);
 
@@ -2567,6 +3078,26 @@ static void binder_transaction_buffer_release(struct binder_proc *proc,
 							      offset,
 							      sizeof(fd));
 				task_close_fd(proc, fd);
+=======
+				int err;
+				binder_size_t offset = fda_offset +
+					fd_index * sizeof(fd);
+
+				err = binder_alloc_copy_from_buffer(
+						&proc->alloc, &fd, buffer,
+						offset, sizeof(fd));
+				WARN_ON(err);
+				if (!err) {
+					binder_deferred_fd_close(fd);
+					/*
+					 * Need to make sure the thread goes
+					 * back to userspace to complete the
+					 * deferred close
+					 */
+					if (thread)
+						thread->looper_need_return = true;
+				}
+>>>>>>> upstream/android-13
 			}
 		} break;
 		default:
@@ -2662,11 +3193,21 @@ static int binder_translate_handle(struct flat_binder_object *fp,
 		fp->cookie = node->cookie;
 		if (node->proc)
 			binder_inner_proc_lock(node->proc);
+<<<<<<< HEAD
+=======
+		else
+			__acquire(&node->proc->inner_lock);
+>>>>>>> upstream/android-13
 		binder_inc_node_nilocked(node,
 					 fp->hdr.type == BINDER_TYPE_BINDER,
 					 0, NULL);
 		if (node->proc)
 			binder_inner_proc_unlock(node->proc);
+<<<<<<< HEAD
+=======
+		else
+			__release(&node->proc->inner_lock);
+>>>>>>> upstream/android-13
 		trace_binder_transaction_ref_to_node(t, node, &src_rdata);
 		binder_debug(BINDER_DEBUG_TRANSACTION,
 			     "        ref %d desc %d -> node %d u%016llx\n",
@@ -2699,16 +3240,26 @@ done:
 	return ret;
 }
 
+<<<<<<< HEAD
 static int binder_translate_fd(int fd,
+=======
+static int binder_translate_fd(u32 fd, binder_size_t fd_offset,
+>>>>>>> upstream/android-13
 			       struct binder_transaction *t,
 			       struct binder_thread *thread,
 			       struct binder_transaction *in_reply_to)
 {
 	struct binder_proc *proc = thread->proc;
 	struct binder_proc *target_proc = t->to_proc;
+<<<<<<< HEAD
 	int target_fd;
 	struct file *file;
 	int ret;
+=======
+	struct binder_txn_fd_fixup *fixup;
+	struct file *file;
+	int ret = 0;
+>>>>>>> upstream/android-13
 	bool target_allows_fd;
 
 	if (in_reply_to)
@@ -2737,6 +3288,7 @@ static int binder_translate_fd(int fd,
 		goto err_security;
 	}
 
+<<<<<<< HEAD
 	target_fd = task_get_unused_fd_flags(target_proc, O_CLOEXEC);
 	if (target_fd < 0) {
 		ret = -ENOMEM;
@@ -2750,6 +3302,26 @@ static int binder_translate_fd(int fd,
 	return target_fd;
 
 err_get_unused_fd:
+=======
+	/*
+	 * Add fixup record for this transaction. The allocation
+	 * of the fd in the target needs to be done from a
+	 * target thread.
+	 */
+	fixup = kzalloc(sizeof(*fixup), GFP_KERNEL);
+	if (!fixup) {
+		ret = -ENOMEM;
+		goto err_alloc;
+	}
+	fixup->file = file;
+	fixup->offset = fd_offset;
+	trace_binder_transaction_fd_send(t, fd, fixup->offset);
+	list_add_tail(&fixup->fixup_entry, &t->fd_fixups);
+
+	return ret;
+
+err_alloc:
+>>>>>>> upstream/android-13
 err_security:
 	fput(file);
 err_fget:
@@ -2763,9 +3335,14 @@ static int binder_translate_fd_array(struct binder_fd_array_object *fda,
 				     struct binder_thread *thread,
 				     struct binder_transaction *in_reply_to)
 {
+<<<<<<< HEAD
 	binder_size_t fdi, fd_buf_size, num_installed_fds;
 	binder_size_t fda_offset;
 	int target_fd;
+=======
+	binder_size_t fdi, fd_buf_size;
+	binder_size_t fda_offset;
+>>>>>>> upstream/android-13
 	struct binder_proc *proc = thread->proc;
 	struct binder_proc *target_proc = t->to_proc;
 
@@ -2798,6 +3375,7 @@ static int binder_translate_fd_array(struct binder_fd_array_object *fda,
 	}
 	for (fdi = 0; fdi < fda->num_fds; fdi++) {
 		u32 fd;
+<<<<<<< HEAD
 
 		binder_size_t offset = fda_offset + fdi * sizeof(fd);
 
@@ -2828,6 +3406,21 @@ err_translate_fd_failed:
 		task_close_fd(target_proc, fd);
 	}
 	return target_fd;
+=======
+		int ret;
+		binder_size_t offset = fda_offset + fdi * sizeof(fd);
+
+		ret = binder_alloc_copy_from_buffer(&target_proc->alloc,
+						    &fd, t->buffer,
+						    offset, sizeof(fd));
+		if (!ret)
+			ret = binder_translate_fd(fd, offset, t, thread,
+						  in_reply_to);
+		if (ret)
+			return ret > 0 ? -EINVAL : ret;
+	}
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int binder_fixup_parent(struct binder_transaction *t,
@@ -2876,13 +3469,75 @@ static int binder_fixup_parent(struct binder_transaction *t,
 	}
 	buffer_offset = bp->parent_offset +
 			(uintptr_t)parent->buffer - (uintptr_t)b->user_data;
+<<<<<<< HEAD
 	binder_alloc_copy_to_buffer(&target_proc->alloc, b, buffer_offset,
 				    &bp->buffer, sizeof(bp->buffer));
+=======
+	if (binder_alloc_copy_to_buffer(&target_proc->alloc, b, buffer_offset,
+					&bp->buffer, sizeof(bp->buffer))) {
+		binder_user_error("%d:%d got transaction with invalid parent offset\n",
+				  proc->pid, thread->pid);
+		return -EINVAL;
+	}
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
 /**
+<<<<<<< HEAD
+=======
+ * binder_can_update_transaction() - Can a txn be superseded by an updated one?
+ * @t1: the pending async txn in the frozen process
+ * @t2: the new async txn to supersede the outdated pending one
+ *
+ * Return:  true if t2 can supersede t1
+ *          false if t2 can not supersede t1
+ */
+static bool binder_can_update_transaction(struct binder_transaction *t1,
+					  struct binder_transaction *t2)
+{
+	if ((t1->flags & t2->flags & (TF_ONE_WAY | TF_UPDATE_TXN)) !=
+	    (TF_ONE_WAY | TF_UPDATE_TXN) || !t1->to_proc || !t2->to_proc)
+		return false;
+	if (t1->to_proc->tsk == t2->to_proc->tsk && t1->code == t2->code &&
+	    t1->flags == t2->flags && t1->buffer->pid == t2->buffer->pid &&
+	    t1->buffer->target_node->ptr == t2->buffer->target_node->ptr &&
+	    t1->buffer->target_node->cookie == t2->buffer->target_node->cookie)
+		return true;
+	return false;
+}
+
+/**
+ * binder_find_outdated_transaction_ilocked() - Find the outdated transaction
+ * @t:		 new async transaction
+ * @target_list: list to find outdated transaction
+ *
+ * Return: the outdated transaction if found
+ *         NULL if no outdated transacton can be found
+ *
+ * Requires the proc->inner_lock to be held.
+ */
+static struct binder_transaction *
+binder_find_outdated_transaction_ilocked(struct binder_transaction *t,
+					 struct list_head *target_list)
+{
+	struct binder_work *w;
+
+	list_for_each_entry(w, target_list, entry) {
+		struct binder_transaction *t_queued;
+
+		if (w->type != BINDER_WORK_TRANSACTION)
+			continue;
+		t_queued = container_of(w, struct binder_transaction, work);
+		if (binder_can_update_transaction(t_queued, t))
+			return t_queued;
+	}
+	return NULL;
+}
+
+/**
+>>>>>>> upstream/android-13
  * binder_proc_transaction() - sends a transaction to a process and wakes it up
  * @t:		transaction to send
  * @proc:	process to send the transaction to
@@ -2896,14 +3551,23 @@ static int binder_fixup_parent(struct binder_transaction *t,
  * If the @thread parameter is not NULL, the transaction is always queued
  * to the waitlist of that specific thread.
  *
+<<<<<<< HEAD
  * Return:	true if the transactions was successfully queued
  *		false if the target process or thread is dead
  */
 static bool binder_proc_transaction(struct binder_transaction *t,
+=======
+ * Return:	0 if the transaction was successfully queued
+ *		BR_DEAD_REPLY if the target process or thread is dead
+ *		BR_FROZEN_REPLY if the target process or thread is frozen
+ */
+static int binder_proc_transaction(struct binder_transaction *t,
+>>>>>>> upstream/android-13
 				    struct binder_proc *proc,
 				    struct binder_thread *thread)
 {
 	struct binder_node *node = t->buffer->target_node;
+<<<<<<< HEAD
 	struct binder_priority node_prio;
 	bool oneway = !!(t->flags & TF_ONE_WAY);
 	bool pending_async = false;
@@ -2955,6 +3619,92 @@ static bool binder_proc_transaction(struct binder_transaction *t,
 	binder_node_unlock(node);
 
 	return true;
+=======
+	bool oneway = !!(t->flags & TF_ONE_WAY);
+	bool pending_async = false;
+	bool skip = false;
+	struct binder_transaction *t_outdated = NULL;
+
+	BUG_ON(!node);
+	binder_node_lock(node);
+
+	if (oneway) {
+		BUG_ON(thread);
+		if (node->has_async_transaction)
+			pending_async = true;
+		else
+			node->has_async_transaction = true;
+	}
+
+	binder_inner_proc_lock(proc);
+	if (proc->is_frozen) {
+		proc->sync_recv |= !oneway;
+		proc->async_recv |= oneway;
+	}
+
+	if ((proc->is_frozen && !oneway) || proc->is_dead ||
+			(thread && thread->is_dead)) {
+		binder_inner_proc_unlock(proc);
+		binder_node_unlock(node);
+		return proc->is_frozen ? BR_FROZEN_REPLY : BR_DEAD_REPLY;
+	}
+
+	trace_android_vh_binder_proc_transaction_entry(proc, t,
+		&thread, node->debug_id, pending_async, !oneway, &skip);
+
+	if (!thread && !pending_async && !skip)
+		thread = binder_select_thread_ilocked(proc);
+
+	trace_android_vh_binder_proc_transaction(current, proc->tsk,
+		thread ? thread->task : 0, node->debug_id, t->code, pending_async);
+
+	if (thread) {
+		binder_transaction_priority(thread, t, node);
+		binder_enqueue_thread_work_ilocked(thread, &t->work);
+	} else if (!pending_async) {
+		binder_enqueue_work_ilocked(&t->work, &proc->todo);
+	} else {
+		if ((t->flags & TF_UPDATE_TXN) && proc->is_frozen) {
+			t_outdated = binder_find_outdated_transaction_ilocked(t,
+									      &node->async_todo);
+			if (t_outdated) {
+				binder_debug(BINDER_DEBUG_TRANSACTION,
+					     "txn %d supersedes %d\n",
+					     t->debug_id, t_outdated->debug_id);
+				list_del_init(&t_outdated->work.entry);
+				proc->outstanding_txns--;
+			}
+		}
+		binder_enqueue_work_ilocked(&t->work, &node->async_todo);
+	}
+
+	trace_android_vh_binder_proc_transaction_finish(proc, t,
+		thread ? thread->task : NULL, pending_async, !oneway);
+	if (!pending_async)
+		binder_wakeup_thread_ilocked(proc, thread, !oneway /* sync */);
+
+	proc->outstanding_txns++;
+	binder_inner_proc_unlock(proc);
+	binder_node_unlock(node);
+
+	/*
+	 * To reduce potential contention, free the outdated transaction and
+	 * buffer after releasing the locks.
+	 */
+	if (t_outdated) {
+		struct binder_buffer *buffer = t_outdated->buffer;
+
+		t_outdated->buffer = NULL;
+		buffer->transaction = NULL;
+		trace_binder_transaction_update_buffer_release(buffer);
+		binder_transaction_buffer_release(proc, NULL, buffer, 0, 0);
+		binder_alloc_free_buf(&proc->alloc, buffer);
+		kfree(t_outdated);
+		binder_stats_deleted(BINDER_STAT_TRANSACTION);
+	}
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -2999,6 +3749,7 @@ static struct binder_node *binder_get_node_refs_for_txn(
 	return target_node;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_SAMSUNG_FREECESS
 // 1) Skip first 8(P)/12(Q) bytes (useless data)
 // 2) Make sure that the invalid address issue is not occuring (j=9, j+=2)
@@ -3067,6 +3818,8 @@ static void freecess_sync_binder_report(struct binder_proc *proc,
 }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 static void binder_transaction(struct binder_proc *proc,
 			       struct binder_thread *thread,
 			       struct binder_transaction_data *tr, int reply,
@@ -3080,6 +3833,10 @@ static void binder_transaction(struct binder_proc *proc,
 	binder_size_t off_start_offset, off_end_offset;
 	binder_size_t off_min;
 	binder_size_t sg_buf_offset, sg_buf_end_offset;
+<<<<<<< HEAD
+=======
+	binder_size_t user_offset = 0;
+>>>>>>> upstream/android-13
 	struct binder_proc *target_proc = NULL;
 	struct binder_thread *target_thread = NULL;
 	struct binder_node *target_node = NULL;
@@ -3094,6 +3851,12 @@ static void binder_transaction(struct binder_proc *proc,
 	int t_debug_id = atomic_inc_return(&binder_last_id);
 	char *secctx = NULL;
 	u32 secctx_sz = 0;
+<<<<<<< HEAD
+=======
+	const void __user *user_buffer = (const void __user *)
+				(uintptr_t)tr->data.ptr.buffer;
+	bool is_nested = false;
+>>>>>>> upstream/android-13
 
 	e = binder_transaction_log_add(&binder_transaction_log);
 	e->debug_id = t_debug_id;
@@ -3103,6 +3866,7 @@ static void binder_transaction(struct binder_proc *proc,
 	e->target_handle = tr->target.handle;
 	e->data_size = tr->data_size;
 	e->offsets_size = tr->offsets_size;
+<<<<<<< HEAD
 	e->context_name = proc->context->name;
 #ifdef CONFIG_ANDROID_BINDER_USER_TRACKING
 	ktime_get_ts(&e->timestamp);
@@ -3111,6 +3875,10 @@ static void binder_transaction(struct binder_proc *proc,
 	/* consider time zone. translate to android time */
 	e->tv.tv_sec -= (sys_tz.tz_minuteswest * 60);
 #endif
+=======
+	strscpy(e->context_name, proc->context->name, BINDERFS_MAX_NAME);
+
+>>>>>>> upstream/android-13
 	if (reply) {
 		binder_inner_proc_lock(proc);
 		in_reply_to = thread->transaction_stack;
@@ -3143,6 +3911,11 @@ static void binder_transaction(struct binder_proc *proc,
 		binder_inner_proc_unlock(proc);
 		target_thread = binder_get_txn_from_and_acq_inner(in_reply_to);
 		if (target_thread == NULL) {
+<<<<<<< HEAD
+=======
+			/* annotation for sparse */
+			__release(&target_thread->proc->inner_lock);
+>>>>>>> upstream/android-13
 			return_error = BR_DEAD_REPLY;
 			return_error_line = __LINE__;
 			goto err_dead_binder;
@@ -3164,6 +3937,10 @@ static void binder_transaction(struct binder_proc *proc,
 		target_proc = target_thread->proc;
 		target_proc->tmp_ref++;
 		binder_inner_proc_unlock(target_thread->proc);
+<<<<<<< HEAD
+=======
+		trace_android_vh_binder_reply(target_proc, proc, thread, tr);
+>>>>>>> upstream/android-13
 	} else {
 		if (tr->target.handle) {
 			struct binder_ref *ref;
@@ -3183,8 +3960,13 @@ static void binder_transaction(struct binder_proc *proc,
 						ref->node, &target_proc,
 						&return_error);
 			} else {
+<<<<<<< HEAD
 				binder_user_error("%d:%d got transaction to invalid handle\n",
 						  proc->pid, thread->pid);
+=======
+				binder_user_error("%d:%d got transaction to invalid handle, %u\n",
+						  proc->pid, thread->pid, tr->target.handle);
+>>>>>>> upstream/android-13
 				return_error = BR_FAILED_REPLY;
 			}
 			binder_proc_unlock(proc);
@@ -3216,11 +3998,21 @@ static void binder_transaction(struct binder_proc *proc,
 			goto err_dead_binder;
 		}
 		e->to_node = target_node->debug_id;
+<<<<<<< HEAD
 
 #ifdef CONFIG_SAMSUNG_FREECESS
 		freecess_sync_binder_report(proc, target_proc, tr);
 #endif
 
+=======
+		if (WARN_ON(proc == target_proc)) {
+			return_error = BR_FAILED_REPLY;
+			return_error_param = -EINVAL;
+			return_error_line = __LINE__;
+			goto err_invalid_target_handle;
+		}
+		trace_android_vh_binder_trans(target_proc, proc, thread, tr);
+>>>>>>> upstream/android-13
 		if (security_binder_transaction(proc->cred,
 						target_proc->cred) < 0) {
 			return_error = BR_FAILED_REPLY;
@@ -3279,6 +4071,10 @@ static void binder_transaction(struct binder_proc *proc,
 					atomic_inc(&from->tmp_ref);
 					target_thread = from;
 					spin_unlock(&tmp->lock);
+<<<<<<< HEAD
+=======
+					is_nested = true;
+>>>>>>> upstream/android-13
 					break;
 				}
 				spin_unlock(&tmp->lock);
@@ -3290,6 +4086,10 @@ static void binder_transaction(struct binder_proc *proc,
 	if (target_thread)
 		e->to_thread = target_thread->pid;
 	e->to_proc = target_proc->pid;
+<<<<<<< HEAD
+=======
+	trace_android_rvh_binder_transaction(target_proc, proc, thread, tr);
+>>>>>>> upstream/android-13
 
 	/* TODO: reuse incoming transaction for reply */
 	t = kzalloc(sizeof(*t), GFP_KERNEL);
@@ -3299,6 +4099,7 @@ static void binder_transaction(struct binder_proc *proc,
 		return_error_line = __LINE__;
 		goto err_alloc_t_failed;
 	}
+<<<<<<< HEAD
 #ifdef CONFIG_MTK_TASK_TURBO
 	t->inherit_task = NULL;
 #endif
@@ -3311,6 +4112,12 @@ static void binder_transaction(struct binder_proc *proc,
 #endif
 	binder_stats_created(BINDER_STAT_TRANSACTION);
 	spin_lock_init(&t->lock);
+=======
+	INIT_LIST_HEAD(&t->fd_fixups);
+	binder_stats_created(BINDER_STAT_TRANSACTION);
+	spin_lock_init(&t->lock);
+	trace_android_vh_binder_transaction_init(t);
+>>>>>>> upstream/android-13
 
 	tcomplete = kzalloc(sizeof(*tcomplete), GFP_KERNEL);
 	if (tcomplete == NULL) {
@@ -3351,6 +4158,10 @@ static void binder_transaction(struct binder_proc *proc,
 	t->to_thread = target_thread;
 	t->code = tr->code;
 	t->flags = tr->flags;
+<<<<<<< HEAD
+=======
+	t->is_nested = is_nested;
+>>>>>>> upstream/android-13
 	if (!(t->flags & TF_ONE_WAY) &&
 	    binder_supported_policy(current->policy)) {
 		/* Inherit supported policies for synchronous transactions */
@@ -3364,6 +4175,7 @@ static void binder_transaction(struct binder_proc *proc,
 	if (target_node && target_node->txn_security_ctx) {
 		u32 secid;
 		size_t added_size;
+<<<<<<< HEAD
 		int retries = 0;
 		int max_retries = 100;
 
@@ -3384,6 +4196,11 @@ retry_lowmem:
 			goto retry_lowmem;
 		}
 
+=======
+
+		security_cred_getsecid(proc->cred, &secid);
+		ret = security_secid_to_secctx(secid, &secctx, &secctx_sz);
+>>>>>>> upstream/android-13
 		if (ret) {
 			return_error = BR_FAILED_REPLY;
 			return_error_param = ret;
@@ -3395,7 +4212,11 @@ retry_lowmem:
 		if (extra_buffers_size < added_size) {
 			/* integer overflow of extra_buffers_size */
 			return_error = BR_FAILED_REPLY;
+<<<<<<< HEAD
 			return_error_param = EINVAL;
+=======
+			return_error_param = -EINVAL;
+>>>>>>> upstream/android-13
 			return_error_line = __LINE__;
 			goto err_bad_extra_size;
 		}
@@ -3418,25 +4239,44 @@ retry_lowmem:
 		goto err_binder_alloc_buf_failed;
 	}
 	if (secctx) {
+<<<<<<< HEAD
+=======
+		int err;
+>>>>>>> upstream/android-13
 		size_t buf_offset = ALIGN(tr->data_size, sizeof(void *)) +
 				    ALIGN(tr->offsets_size, sizeof(void *)) +
 				    ALIGN(extra_buffers_size, sizeof(void *)) -
 				    ALIGN(secctx_sz, sizeof(u64));
 
 		t->security_ctx = (uintptr_t)t->buffer->user_data + buf_offset;
+<<<<<<< HEAD
 		binder_alloc_copy_to_buffer(&target_proc->alloc,
 					    t->buffer, buf_offset,
 					    secctx, secctx_sz);
+=======
+		err = binder_alloc_copy_to_buffer(&target_proc->alloc,
+						  t->buffer, buf_offset,
+						  secctx, secctx_sz);
+		if (err) {
+			t->security_ctx = 0;
+			WARN_ON(1);
+		}
+>>>>>>> upstream/android-13
 		security_release_secctx(secctx, secctx_sz);
 		secctx = NULL;
 	}
 	t->buffer->debug_id = t->debug_id;
 	t->buffer->transaction = t;
 	t->buffer->target_node = target_node;
+<<<<<<< HEAD
+=======
+	t->buffer->clear_on_free = !!(t->flags & TF_CLEAR_BUF);
+>>>>>>> upstream/android-13
 	trace_binder_transaction_alloc_buf(t->buffer);
 
 	if (binder_alloc_copy_user_to_buffer(
 				&target_proc->alloc,
+<<<<<<< HEAD
 				t->buffer, 0,
 				(const void __user *)
 					(uintptr_t)tr->data.ptr.buffer,
@@ -3450,6 +4290,8 @@ retry_lowmem:
 	}
 	if (binder_alloc_copy_user_to_buffer(
 				&target_proc->alloc,
+=======
+>>>>>>> upstream/android-13
 				t->buffer,
 				ALIGN(tr->data_size, sizeof(void *)),
 				(const void __user *)
@@ -3479,11 +4321,14 @@ retry_lowmem:
 		return_error_line = __LINE__;
 		goto err_bad_offset;
 	}
+<<<<<<< HEAD
 
 #ifdef CONFIG_SAMSUNG_FREECESS
 	freecess_async_binder_report(proc, target_proc, tr, t); 
 #endif
 
+=======
+>>>>>>> upstream/android-13
 	off_start_offset = ALIGN(tr->data_size, sizeof(void *));
 	buffer_offset = off_start_offset;
 	off_end_offset = off_start_offset + tr->offsets_size;
@@ -3497,6 +4342,7 @@ retry_lowmem:
 		size_t object_size;
 		struct binder_object object;
 		binder_size_t object_offset;
+<<<<<<< HEAD
 
 		binder_alloc_copy_from_buffer(&target_proc->alloc,
 					      &object_offset,
@@ -3505,6 +4351,41 @@ retry_lowmem:
 					      sizeof(object_offset));
 		object_size = binder_get_object(target_proc, t->buffer,
 						object_offset, &object);
+=======
+		binder_size_t copy_size;
+
+		if (binder_alloc_copy_from_buffer(&target_proc->alloc,
+						  &object_offset,
+						  t->buffer,
+						  buffer_offset,
+						  sizeof(object_offset))) {
+			return_error = BR_FAILED_REPLY;
+			return_error_param = -EINVAL;
+			return_error_line = __LINE__;
+			goto err_bad_offset;
+		}
+
+		/*
+		 * Copy the source user buffer up to the next object
+		 * that will be processed.
+		 */
+		copy_size = object_offset - user_offset;
+		if (copy_size && (user_offset > object_offset ||
+				binder_alloc_copy_user_to_buffer(
+					&target_proc->alloc,
+					t->buffer, user_offset,
+					user_buffer + user_offset,
+					copy_size))) {
+			binder_user_error("%d:%d got transaction with invalid data ptr\n",
+					proc->pid, thread->pid);
+			return_error = BR_FAILED_REPLY;
+			return_error_param = -EFAULT;
+			return_error_line = __LINE__;
+			goto err_copy_data_failed;
+		}
+		object_size = binder_get_object(target_proc, user_buffer,
+				t->buffer, object_offset, &object);
+>>>>>>> upstream/android-13
 		if (object_size == 0 || object_offset < off_min) {
 			binder_user_error("%d:%d got transaction with invalid offset (%lld, min %lld max %lld) or object.\n",
 					  proc->pid, thread->pid,
@@ -3516,6 +4397,14 @@ retry_lowmem:
 			return_error_line = __LINE__;
 			goto err_bad_offset;
 		}
+<<<<<<< HEAD
+=======
+		/*
+		 * Set offset to the next buffer fragment to be
+		 * copied
+		 */
+		user_offset = object_offset + object_size;
+>>>>>>> upstream/android-13
 
 		hdr = &object.hdr;
 		off_min = object_offset + object_size;
@@ -3526,15 +4415,27 @@ retry_lowmem:
 
 			fp = to_flat_binder_object(hdr);
 			ret = binder_translate_binder(fp, t, thread);
+<<<<<<< HEAD
 			if (ret < 0) {
+=======
+
+			if (ret < 0 ||
+			    binder_alloc_copy_to_buffer(&target_proc->alloc,
+							t->buffer,
+							object_offset,
+							fp, sizeof(*fp))) {
+>>>>>>> upstream/android-13
 				return_error = BR_FAILED_REPLY;
 				return_error_param = ret;
 				return_error_line = __LINE__;
 				goto err_translate_failed;
 			}
+<<<<<<< HEAD
 			binder_alloc_copy_to_buffer(&target_proc->alloc,
 						    t->buffer, object_offset,
 						    fp, sizeof(*fp));
+=======
+>>>>>>> upstream/android-13
 		} break;
 		case BINDER_TYPE_HANDLE:
 		case BINDER_TYPE_WEAK_HANDLE: {
@@ -3542,19 +4443,31 @@ retry_lowmem:
 
 			fp = to_flat_binder_object(hdr);
 			ret = binder_translate_handle(fp, t, thread);
+<<<<<<< HEAD
 			if (ret < 0) {
+=======
+			if (ret < 0 ||
+			    binder_alloc_copy_to_buffer(&target_proc->alloc,
+							t->buffer,
+							object_offset,
+							fp, sizeof(*fp))) {
+>>>>>>> upstream/android-13
 				return_error = BR_FAILED_REPLY;
 				return_error_param = ret;
 				return_error_line = __LINE__;
 				goto err_translate_failed;
 			}
+<<<<<<< HEAD
 			binder_alloc_copy_to_buffer(&target_proc->alloc,
 						    t->buffer, object_offset,
 						    fp, sizeof(*fp));
+=======
+>>>>>>> upstream/android-13
 		} break;
 
 		case BINDER_TYPE_FD: {
 			struct binder_fd_object *fp = to_binder_fd_object(hdr);
+<<<<<<< HEAD
 			int target_fd = binder_translate_fd(fp->fd, t, thread,
 							    in_reply_to);
 
@@ -3569,6 +4482,24 @@ retry_lowmem:
 			binder_alloc_copy_to_buffer(&target_proc->alloc,
 						    t->buffer, object_offset,
 						    fp, sizeof(*fp));
+=======
+			binder_size_t fd_offset = object_offset +
+				(uintptr_t)&fp->fd - (uintptr_t)fp;
+			int ret = binder_translate_fd(fp->fd, fd_offset, t,
+						      thread, in_reply_to);
+
+			fp->pad_binder = 0;
+			if (ret < 0 ||
+			    binder_alloc_copy_to_buffer(&target_proc->alloc,
+							t->buffer,
+							object_offset,
+							fp, sizeof(*fp))) {
+				return_error = BR_FAILED_REPLY;
+				return_error_param = ret;
+				return_error_line = __LINE__;
+				goto err_translate_failed;
+			}
+>>>>>>> upstream/android-13
 		} break;
 		case BINDER_TYPE_FDA: {
 			struct binder_object ptr_object;
@@ -3606,9 +4537,20 @@ retry_lowmem:
 			}
 			ret = binder_translate_fd_array(fda, parent, t, thread,
 							in_reply_to);
+<<<<<<< HEAD
 			if (ret < 0) {
 				return_error = BR_FAILED_REPLY;
 				return_error_param = ret;
+=======
+			if (!ret)
+				ret = binder_alloc_copy_to_buffer(&target_proc->alloc,
+								  t->buffer,
+								  object_offset,
+								  fda, sizeof(*fda));
+			if (ret) {
+				return_error = BR_FAILED_REPLY;
+				return_error_param = ret > 0 ? -EINVAL : ret;
+>>>>>>> upstream/android-13
 				return_error_line = __LINE__;
 				goto err_translate_failed;
 			}
@@ -3656,15 +4598,26 @@ retry_lowmem:
 						  num_valid,
 						  last_fixup_obj_off,
 						  last_fixup_min_off);
+<<<<<<< HEAD
 			if (ret < 0) {
+=======
+			if (ret < 0 ||
+			    binder_alloc_copy_to_buffer(&target_proc->alloc,
+							t->buffer,
+							object_offset,
+							bp, sizeof(*bp))) {
+>>>>>>> upstream/android-13
 				return_error = BR_FAILED_REPLY;
 				return_error_param = ret;
 				return_error_line = __LINE__;
 				goto err_translate_failed;
 			}
+<<<<<<< HEAD
 			binder_alloc_copy_to_buffer(&target_proc->alloc,
 						    t->buffer, object_offset,
 						    bp, sizeof(*bp));
+=======
+>>>>>>> upstream/android-13
 			last_fixup_obj_off = object_offset;
 			last_fixup_min_off = 0;
 		} break;
@@ -3677,19 +4630,44 @@ retry_lowmem:
 			goto err_bad_object_type;
 		}
 	}
+<<<<<<< HEAD
 	tcomplete->type = BINDER_WORK_TRANSACTION_COMPLETE;
+=======
+	/* Done processing objects, copy the rest of the buffer */
+	if (binder_alloc_copy_user_to_buffer(
+				&target_proc->alloc,
+				t->buffer, user_offset,
+				user_buffer + user_offset,
+				tr->data_size - user_offset)) {
+		binder_user_error("%d:%d got transaction with invalid data ptr\n",
+				proc->pid, thread->pid);
+		return_error = BR_FAILED_REPLY;
+		return_error_param = -EFAULT;
+		return_error_line = __LINE__;
+		goto err_copy_data_failed;
+	}
+	if (t->buffer->oneway_spam_suspect)
+		tcomplete->type = BINDER_WORK_TRANSACTION_ONEWAY_SPAM_SUSPECT;
+	else
+		tcomplete->type = BINDER_WORK_TRANSACTION_COMPLETE;
+>>>>>>> upstream/android-13
 	t->work.type = BINDER_WORK_TRANSACTION;
 
 	if (reply) {
 		binder_enqueue_thread_work(thread, tcomplete);
 		binder_inner_proc_lock(target_proc);
 		if (target_thread->is_dead) {
+<<<<<<< HEAD
+=======
+			return_error = BR_DEAD_REPLY;
+>>>>>>> upstream/android-13
 			binder_inner_proc_unlock(target_proc);
 			goto err_dead_proc_or_thread;
 		}
 		BUG_ON(t->buffer->async_transaction != 0);
 		binder_pop_transaction_ilocked(target_thread, in_reply_to);
 		binder_enqueue_thread_work_ilocked(target_thread, &t->work);
+<<<<<<< HEAD
 		binder_inner_proc_unlock(target_proc);
 		wake_up_interruptible_sync(&target_thread->wait);
 
@@ -3700,6 +4678,19 @@ retry_lowmem:
 		}
 #endif
 		binder_restore_priority(current, in_reply_to->saved_priority);
+=======
+		target_proc->outstanding_txns++;
+		binder_inner_proc_unlock(target_proc);
+		if (in_reply_to->is_nested) {
+			spin_lock(&thread->prio_lock);
+			thread->prio_state = BINDER_PRIO_PENDING;
+			thread->prio_next = in_reply_to->saved_priority;
+			spin_unlock(&thread->prio_lock);
+		}
+		wake_up_interruptible_sync(&target_thread->wait);
+		trace_android_vh_binder_restore_priority(in_reply_to, current);
+		binder_restore_priority(thread, &in_reply_to->saved_priority);
+>>>>>>> upstream/android-13
 		binder_free_transaction(in_reply_to);
 	} else if (!(t->flags & TF_ONE_WAY)) {
 		BUG_ON(t->buffer->async_transaction != 0);
@@ -3716,7 +4707,13 @@ retry_lowmem:
 		t->from_parent = thread->transaction_stack;
 		thread->transaction_stack = t;
 		binder_inner_proc_unlock(proc);
+<<<<<<< HEAD
 		if (!binder_proc_transaction(t, target_proc, target_thread)) {
+=======
+		return_error = binder_proc_transaction(t,
+				target_proc, target_thread);
+		if (return_error) {
+>>>>>>> upstream/android-13
 			binder_inner_proc_lock(proc);
 			binder_pop_transaction_ilocked(thread, t);
 			binder_inner_proc_unlock(proc);
@@ -3726,7 +4723,12 @@ retry_lowmem:
 		BUG_ON(target_node == NULL);
 		BUG_ON(t->buffer->async_transaction != 1);
 		binder_enqueue_thread_work(thread, tcomplete);
+<<<<<<< HEAD
 		if (!binder_proc_transaction(t, target_proc, NULL))
+=======
+		return_error = binder_proc_transaction(t, target_proc, NULL);
+		if (return_error)
+>>>>>>> upstream/android-13
 			goto err_dead_proc_or_thread;
 	}
 	if (target_thread)
@@ -3743,7 +4745,10 @@ retry_lowmem:
 	return;
 
 err_dead_proc_or_thread:
+<<<<<<< HEAD
 	return_error = BR_DEAD_REPLY;
+=======
+>>>>>>> upstream/android-13
 	return_error_line = __LINE__;
 	binder_dequeue_work(proc, tcomplete);
 err_translate_failed:
@@ -3751,8 +4756,14 @@ err_bad_object_type:
 err_bad_offset:
 err_bad_parent:
 err_copy_data_failed:
+<<<<<<< HEAD
 	trace_binder_transaction_failed_buffer_release(t->buffer);
 	binder_transaction_buffer_release(target_proc, t->buffer,
+=======
+	binder_free_txn_fixups(t);
+	trace_binder_transaction_failed_buffer_release(t->buffer);
+	binder_transaction_buffer_release(target_proc, NULL, t->buffer,
+>>>>>>> upstream/android-13
 					  buffer_offset, true);
 	if (target_node)
 		binder_dec_node_tmpref(target_node);
@@ -3767,7 +4778,12 @@ err_get_secctx_failed:
 	kfree(tcomplete);
 	binder_stats_deleted(BINDER_STAT_TRANSACTION_COMPLETE);
 err_alloc_tcomplete_failed:
+<<<<<<< HEAD
 	binder_print_delay(t);
+=======
+	if (trace_binder_txn_latency_free_enabled())
+		binder_txn_latency_free(t);
+>>>>>>> upstream/android-13
 	kfree(t);
 	binder_stats_deleted(BINDER_STAT_TRANSACTION);
 err_alloc_t_failed:
@@ -3810,6 +4826,7 @@ err_invalid_target_handle:
 
 	BUG_ON(thread->return_error.cmd != BR_OK);
 	if (in_reply_to) {
+<<<<<<< HEAD
 #ifdef CONFIG_MTK_TASK_TURBO
 		if (thread->task && in_reply_to->inherit_task == thread->task) {
 			binder_stop_turbo_inherit(thread->task);
@@ -3817,6 +4834,10 @@ err_invalid_target_handle:
 		}
 #endif
 		binder_restore_priority(current, in_reply_to->saved_priority);
+=======
+		trace_android_vh_binder_restore_priority(in_reply_to, current);
+		binder_restore_priority(thread, &in_reply_to->saved_priority);
+>>>>>>> upstream/android-13
 		thread->return_error.cmd = BR_TRANSACTION_COMPLETE;
 		binder_enqueue_thread_work(thread, &thread->return_error.work);
 		binder_send_failed_reply(in_reply_to, return_error);
@@ -3826,6 +4847,55 @@ err_invalid_target_handle:
 	}
 }
 
+<<<<<<< HEAD
+=======
+/**
+ * binder_free_buf() - free the specified buffer
+ * @proc:	binder proc that owns buffer
+ * @buffer:	buffer to be freed
+ * @is_failure:	failed to send transaction
+ *
+ * If buffer for an async transaction, enqueue the next async
+ * transaction from the node.
+ *
+ * Cleanup buffer and free it.
+ */
+static void
+binder_free_buf(struct binder_proc *proc,
+		struct binder_thread *thread,
+		struct binder_buffer *buffer, bool is_failure)
+{
+	binder_inner_proc_lock(proc);
+	if (buffer->transaction) {
+		buffer->transaction->buffer = NULL;
+		buffer->transaction = NULL;
+	}
+	binder_inner_proc_unlock(proc);
+	if (buffer->async_transaction && buffer->target_node) {
+		struct binder_node *buf_node;
+		struct binder_work *w;
+
+		buf_node = buffer->target_node;
+		binder_node_inner_lock(buf_node);
+		BUG_ON(!buf_node->has_async_transaction);
+		BUG_ON(buf_node->proc != proc);
+		w = binder_dequeue_work_head_ilocked(
+				&buf_node->async_todo);
+		if (!w) {
+			buf_node->has_async_transaction = false;
+		} else {
+			binder_enqueue_work_ilocked(
+					w, &proc->todo);
+			binder_wakeup_proc_ilocked(proc);
+		}
+		binder_node_inner_unlock(buf_node);
+	}
+	trace_binder_transaction_buffer_release(buffer);
+	binder_transaction_buffer_release(proc, thread, buffer, 0, is_failure);
+	binder_alloc_free_buf(&proc->alloc, buffer);
+}
+
+>>>>>>> upstream/android-13
 static int binder_thread_write(struct binder_proc *proc,
 			struct binder_thread *thread,
 			binder_uintptr_t binder_buffer, size_t size,
@@ -3867,12 +4937,29 @@ static int binder_thread_write(struct binder_proc *proc,
 			ret = -1;
 			if (increment && !target) {
 				struct binder_node *ctx_mgr_node;
+<<<<<<< HEAD
 				mutex_lock(&context->context_mgr_node_lock);
 				ctx_mgr_node = context->binder_context_mgr_node;
 				if (ctx_mgr_node)
 					ret = binder_inc_ref_for_node(
 							proc, ctx_mgr_node,
 							strong, NULL, &rdata);
+=======
+
+				mutex_lock(&context->context_mgr_node_lock);
+				ctx_mgr_node = context->binder_context_mgr_node;
+				if (ctx_mgr_node) {
+					if (ctx_mgr_node->proc == proc) {
+						binder_user_error("%d:%d context manager tried to acquire desc 0\n",
+								  proc->pid, thread->pid);
+						mutex_unlock(&context->context_mgr_node_lock);
+						return -EINVAL;
+					}
+					ret = binder_inc_ref_for_node(
+							proc, ctx_mgr_node,
+							strong, NULL, &rdata);
+				}
+>>>>>>> upstream/android-13
 				mutex_unlock(&context->context_mgr_node_lock);
 			}
 			if (ret)
@@ -4016,6 +5103,7 @@ static int binder_thread_write(struct binder_proc *proc,
 				     proc->pid, thread->pid, (u64)data_ptr,
 				     buffer->debug_id,
 				     buffer->transaction ? "active" : "finished");
+<<<<<<< HEAD
 
 			binder_inner_proc_lock(proc);
 			if (buffer->transaction) {
@@ -4045,6 +5133,9 @@ static int binder_thread_write(struct binder_proc *proc,
 			trace_binder_transaction_buffer_release(buffer);
 			binder_transaction_buffer_release(proc, buffer, 0, false);
 			binder_alloc_free_buf(&proc->alloc, buffer);
+=======
+			binder_free_buf(proc, thread, buffer, false);
+>>>>>>> upstream/android-13
 			break;
 		}
 
@@ -4090,6 +5181,10 @@ static int binder_thread_write(struct binder_proc *proc,
 			}
 			thread->looper |= BINDER_LOOPER_STATE_REGISTERED;
 			binder_inner_proc_unlock(proc);
+<<<<<<< HEAD
+=======
+			trace_android_vh_binder_looper_state_registered(thread, proc);
+>>>>>>> upstream/android-13
 			break;
 		case BC_ENTER_LOOPER:
 			binder_debug(BINDER_DEBUG_THREADS,
@@ -4351,12 +5446,20 @@ static int binder_wait_for_work(struct binder_thread *thread,
 		if (do_proc_work)
 			list_add(&thread->waiting_thread_node,
 				 &proc->waiting_threads);
+<<<<<<< HEAD
+=======
+		trace_android_vh_binder_wait_for_work(do_proc_work, thread, proc);
+>>>>>>> upstream/android-13
 		binder_inner_proc_unlock(proc);
 		schedule();
 		binder_inner_proc_lock(proc);
 		list_del_init(&thread->waiting_thread_node);
 		if (signal_pending(current)) {
+<<<<<<< HEAD
 			ret = -ERESTARTSYS;
+=======
+			ret = -EINTR;
+>>>>>>> upstream/android-13
 			break;
 		}
 	}
@@ -4367,6 +5470,74 @@ static int binder_wait_for_work(struct binder_thread *thread,
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+/**
+ * binder_apply_fd_fixups() - finish fd translation
+ * @proc:         binder_proc associated @t->buffer
+ * @t:	binder transaction with list of fd fixups
+ *
+ * Now that we are in the context of the transaction target
+ * process, we can allocate and install fds. Process the
+ * list of fds to translate and fixup the buffer with the
+ * new fds.
+ *
+ * If we fail to allocate an fd, then free the resources by
+ * fput'ing files that have not been processed and ksys_close'ing
+ * any fds that have already been allocated.
+ */
+static int binder_apply_fd_fixups(struct binder_proc *proc,
+				  struct binder_transaction *t)
+{
+	struct binder_txn_fd_fixup *fixup, *tmp;
+	int ret = 0;
+
+	list_for_each_entry(fixup, &t->fd_fixups, fixup_entry) {
+		int fd = get_unused_fd_flags(O_CLOEXEC);
+
+		if (fd < 0) {
+			binder_debug(BINDER_DEBUG_TRANSACTION,
+				     "failed fd fixup txn %d fd %d\n",
+				     t->debug_id, fd);
+			ret = -ENOMEM;
+			break;
+		}
+		binder_debug(BINDER_DEBUG_TRANSACTION,
+			     "fd fixup txn %d fd %d\n",
+			     t->debug_id, fd);
+		trace_binder_transaction_fd_recv(t, fd, fixup->offset);
+		fd_install(fd, fixup->file);
+		fixup->file = NULL;
+		if (binder_alloc_copy_to_buffer(&proc->alloc, t->buffer,
+						fixup->offset, &fd,
+						sizeof(u32))) {
+			ret = -EINVAL;
+			break;
+		}
+	}
+	list_for_each_entry_safe(fixup, tmp, &t->fd_fixups, fixup_entry) {
+		if (fixup->file) {
+			fput(fixup->file);
+		} else if (ret) {
+			u32 fd;
+			int err;
+
+			err = binder_alloc_copy_from_buffer(&proc->alloc, &fd,
+							    t->buffer,
+							    fixup->offset,
+							    sizeof(fd));
+			WARN_ON(err);
+			if (!err)
+				binder_deferred_fd_close(fd);
+		}
+		list_del(&fixup->fixup_entry);
+		kfree(fixup);
+	}
+
+	return ret;
+}
+
+>>>>>>> upstream/android-13
 static int binder_thread_read(struct binder_proc *proc,
 			      struct binder_thread *thread,
 			      binder_uintptr_t binder_buffer, size_t size,
@@ -4403,10 +5574,15 @@ retry:
 			wait_event_interruptible(binder_user_error_wait,
 						 binder_stop_on_user_error < 2);
 		}
+<<<<<<< HEAD
 #ifdef CONFIG_MTK_TASK_TURBO
 		binder_stop_turbo_inherit(current);
 #endif
 		binder_restore_priority(current, proc->default_priority);
+=======
+		trace_android_vh_binder_restore_priority(NULL, current);
+		binder_restore_priority(thread, &proc->default_priority);
+>>>>>>> upstream/android-13
 	}
 
 	if (non_block) {
@@ -4432,6 +5608,13 @@ retry:
 		size_t trsize = sizeof(*trd);
 
 		binder_inner_proc_lock(proc);
+<<<<<<< HEAD
+=======
+		trace_android_vh_binder_select_worklist_ilocked(&list, thread,
+						proc, wait_for_proc_work);
+		if (list)
+			goto skip;
+>>>>>>> upstream/android-13
 		if (!binder_worklist_empty_ilocked(&thread->todo))
 			list = &thread->todo;
 		else if (!binder_worklist_empty_ilocked(&proc->todo) &&
@@ -4445,11 +5628,19 @@ retry:
 				goto retry;
 			break;
 		}
+<<<<<<< HEAD
 
+=======
+skip:
+>>>>>>> upstream/android-13
 		if (end - ptr < sizeof(tr) + 4) {
 			binder_inner_proc_unlock(proc);
 			break;
 		}
+<<<<<<< HEAD
+=======
+		trace_android_vh_binder_thread_read(&list, proc, thread);
+>>>>>>> upstream/android-13
 		w = binder_dequeue_work_head_ilocked(list);
 		if (binder_worklist_empty_ilocked(&thread->todo))
 			thread->process_todo = false;
@@ -4473,9 +5664,20 @@ retry:
 
 			binder_stat_br(proc, thread, cmd);
 		} break;
+<<<<<<< HEAD
 		case BINDER_WORK_TRANSACTION_COMPLETE: {
 			binder_inner_proc_unlock(proc);
 			cmd = BR_TRANSACTION_COMPLETE;
+=======
+		case BINDER_WORK_TRANSACTION_COMPLETE:
+		case BINDER_WORK_TRANSACTION_ONEWAY_SPAM_SUSPECT: {
+			if (proc->oneway_spam_detection_enabled &&
+				   w->type == BINDER_WORK_TRANSACTION_ONEWAY_SPAM_SUSPECT)
+				cmd = BR_ONEWAY_SPAM_SUSPECT;
+			else
+				cmd = BR_TRANSACTION_COMPLETE;
+			binder_inner_proc_unlock(proc);
+>>>>>>> upstream/android-13
 			kfree(w);
 			binder_stats_deleted(BINDER_STAT_TRANSACTION_COMPLETE);
 			if (put_user(cmd, (uint32_t __user *)ptr))
@@ -4615,6 +5817,14 @@ retry:
 			if (cmd == BR_DEAD_BINDER)
 				goto done; /* DEAD_BINDER notifications can cause transactions */
 		} break;
+<<<<<<< HEAD
+=======
+		default:
+			binder_inner_proc_unlock(proc);
+			pr_err("%d:%d: bad work type %d\n",
+			       proc->pid, thread->pid, w->type);
+			break;
+>>>>>>> upstream/android-13
 		}
 
 		if (!t)
@@ -4623,6 +5833,7 @@ retry:
 		BUG_ON(t->buffer == NULL);
 		if (t->buffer->target_node) {
 			struct binder_node *target_node = t->buffer->target_node;
+<<<<<<< HEAD
 			struct binder_priority node_prio;
 
 			trd->target.ptr = target_node->ptr;
@@ -4631,6 +5842,12 @@ retry:
 			node_prio.prio = target_node->min_priority;
 			binder_transaction_priority(current, t, node_prio,
 						    target_node->inherit_rt);
+=======
+
+			trd->target.ptr = target_node->ptr;
+			trd->cookie =  target_node->cookie;
+			binder_transaction_priority(thread, t, target_node);
+>>>>>>> upstream/android-13
 			cmd = BR_TRANSACTION;
 		} else {
 			trd->target.ptr = 0;
@@ -4648,6 +5865,7 @@ retry:
 			trd->sender_pid =
 				task_tgid_nr_ns(sender,
 						task_active_pid_ns(current));
+<<<<<<< HEAD
 
 #ifdef CONFIG_MTK_TASK_TURBO
 			if (binder_start_turbo_inherit(t_from->task,
@@ -4655,10 +5873,44 @@ retry:
 				t->inherit_task = thread->task;
 #endif
 
+=======
+			trace_android_vh_sync_txn_recvd(thread->task, t_from->task);
+>>>>>>> upstream/android-13
 		} else {
 			trd->sender_pid = 0;
 		}
 
+<<<<<<< HEAD
+=======
+		ret = binder_apply_fd_fixups(proc, t);
+		if (ret) {
+			struct binder_buffer *buffer = t->buffer;
+			bool oneway = !!(t->flags & TF_ONE_WAY);
+			int tid = t->debug_id;
+
+			if (t_from)
+				binder_thread_dec_tmpref(t_from);
+			buffer->transaction = NULL;
+			binder_cleanup_transaction(t, "fd fixups failed",
+						   BR_FAILED_REPLY);
+			binder_free_buf(proc, thread, buffer, true);
+			binder_debug(BINDER_DEBUG_FAILED_TRANSACTION,
+				     "%d:%d %stransaction %d fd fixups failed %d/%d, line %d\n",
+				     proc->pid, thread->pid,
+				     oneway ? "async " :
+					(cmd == BR_REPLY ? "reply " : ""),
+				     tid, BR_FAILED_REPLY, ret, __LINE__);
+			if (cmd == BR_REPLY) {
+				cmd = BR_FAILED_REPLY;
+				if (put_user(cmd, (uint32_t __user *)ptr))
+					return -EFAULT;
+				ptr += sizeof(uint32_t);
+				binder_stat_br(proc, thread, cmd);
+				break;
+			}
+			continue;
+		}
+>>>>>>> upstream/android-13
 		trd->data_size = t->buffer->data_size;
 		trd->offsets_size = t->buffer->offsets_size;
 		trd->data.ptr.buffer = (uintptr_t)t->buffer->user_data;
@@ -4839,6 +6091,11 @@ static struct binder_thread *binder_get_thread_ilocked(
 	thread->return_error.cmd = BR_OK;
 	thread->reply_error.work.type = BINDER_WORK_RETURN_ERROR;
 	thread->reply_error.cmd = BR_OK;
+<<<<<<< HEAD
+=======
+	spin_lock_init(&thread->prio_lock);
+	thread->prio_state = BINDER_PRIO_SET;
+>>>>>>> upstream/android-13
 	INIT_LIST_HEAD(&new_thread->waiting_thread_node);
 	return thread;
 }
@@ -4870,6 +6127,12 @@ static void binder_free_proc(struct binder_proc *proc)
 
 	BUG_ON(!list_empty(&proc->todo));
 	BUG_ON(!list_empty(&proc->delivered_death));
+<<<<<<< HEAD
+=======
+	if (proc->outstanding_txns)
+		pr_warn("%s: Unexpected outstanding_txns %d\n",
+			__func__, proc->outstanding_txns);
+>>>>>>> upstream/android-13
 	device = container_of(proc->context, struct binder_device, context);
 	if (refcount_dec_and_test(&device->ref)) {
 		kfree(proc->context->name);
@@ -4879,6 +6142,10 @@ static void binder_free_proc(struct binder_proc *proc)
 	put_task_struct(proc->tsk);
 	put_cred(proc->cred);
 	binder_stats_deleted(BINDER_STAT_PROC);
+<<<<<<< HEAD
+=======
+	trace_android_vh_binder_free_proc(proc);
+>>>>>>> upstream/android-13
 	kfree(proc);
 }
 
@@ -4918,6 +6185,11 @@ static int binder_thread_release(struct binder_proc *proc,
 		spin_lock(&t->lock);
 		if (t->to_thread == thread)
 			send_reply = t;
+<<<<<<< HEAD
+=======
+	} else {
+		__acquire(&t->lock);
+>>>>>>> upstream/android-13
 	}
 	thread->is_dead = true;
 
@@ -4931,6 +6203,10 @@ static int binder_thread_release(struct binder_proc *proc,
 			     (t->to_thread == thread) ? "in" : "out");
 
 		if (t->to_thread == thread) {
+<<<<<<< HEAD
+=======
+			thread->proc->outstanding_txns--;
+>>>>>>> upstream/android-13
 			t->to_proc = NULL;
 			t->to_thread = NULL;
 			if (t->buffer) {
@@ -4946,7 +6222,15 @@ static int binder_thread_release(struct binder_proc *proc,
 		spin_unlock(&last_t->lock);
 		if (t)
 			spin_lock(&t->lock);
+<<<<<<< HEAD
 	}
+=======
+		else
+			__acquire(&t->lock);
+	}
+	/* annotation for sparse, lock not acquired in last iteration above */
+	__release(&t->lock);
+>>>>>>> upstream/android-13
 
 	/*
 	 * If this thread used poll, make sure we remove the waitqueue from any
@@ -4970,6 +6254,10 @@ static int binder_thread_release(struct binder_proc *proc,
 	if (send_reply)
 		binder_send_failed_reply(send_reply, BR_DEAD_REPLY);
 	binder_release_work(proc, &thread->todo);
+<<<<<<< HEAD
+=======
+	trace_android_vh_binder_thread_release(proc, thread);
+>>>>>>> upstream/android-13
 	binder_thread_dec_tmpref(thread);
 	return active_transactions;
 }
@@ -5046,6 +6334,10 @@ static int binder_ioctl_write_read(struct file *filp,
 		if (!binder_worklist_empty_ilocked(&proc->todo))
 			binder_wakeup_proc_ilocked(proc);
 		binder_inner_proc_unlock(proc);
+<<<<<<< HEAD
+=======
+		trace_android_vh_binder_read_done(proc, thread);
+>>>>>>> upstream/android-13
 		if (ret < 0) {
 			if (copy_to_user(ubuf, &bwr, sizeof(bwr)))
 				ret = -EFAULT;
@@ -5174,6 +6466,103 @@ static int binder_ioctl_get_node_debug_info(struct binder_proc *proc,
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static bool binder_txns_pending_ilocked(struct binder_proc *proc)
+{
+	struct rb_node *n;
+	struct binder_thread *thread;
+
+	if (proc->outstanding_txns > 0)
+		return true;
+
+	for (n = rb_first(&proc->threads); n; n = rb_next(n)) {
+		thread = rb_entry(n, struct binder_thread, rb_node);
+		if (thread->transaction_stack)
+			return true;
+	}
+	return false;
+}
+
+static int binder_ioctl_freeze(struct binder_freeze_info *info,
+			       struct binder_proc *target_proc)
+{
+	int ret = 0;
+
+	if (!info->enable) {
+		binder_inner_proc_lock(target_proc);
+		target_proc->sync_recv = false;
+		target_proc->async_recv = false;
+		target_proc->is_frozen = false;
+		binder_inner_proc_unlock(target_proc);
+		return 0;
+	}
+
+	/*
+	 * Freezing the target. Prevent new transactions by
+	 * setting frozen state. If timeout specified, wait
+	 * for transactions to drain.
+	 */
+	binder_inner_proc_lock(target_proc);
+	target_proc->sync_recv = false;
+	target_proc->async_recv = false;
+	target_proc->is_frozen = true;
+	binder_inner_proc_unlock(target_proc);
+
+	if (info->timeout_ms > 0)
+		ret = wait_event_interruptible_timeout(
+			target_proc->freeze_wait,
+			(!target_proc->outstanding_txns),
+			msecs_to_jiffies(info->timeout_ms));
+
+	/* Check pending transactions that wait for reply */
+	if (ret >= 0) {
+		binder_inner_proc_lock(target_proc);
+		if (binder_txns_pending_ilocked(target_proc))
+			ret = -EAGAIN;
+		binder_inner_proc_unlock(target_proc);
+	}
+
+	if (ret < 0) {
+		binder_inner_proc_lock(target_proc);
+		target_proc->is_frozen = false;
+		binder_inner_proc_unlock(target_proc);
+	}
+
+	return ret;
+}
+
+static int binder_ioctl_get_freezer_info(
+				struct binder_frozen_status_info *info)
+{
+	struct binder_proc *target_proc;
+	bool found = false;
+	__u32 txns_pending;
+
+	info->sync_recv = 0;
+	info->async_recv = 0;
+
+	mutex_lock(&binder_procs_lock);
+	hlist_for_each_entry(target_proc, &binder_procs, proc_node) {
+		if (target_proc->pid == info->pid) {
+			found = true;
+			binder_inner_proc_lock(target_proc);
+			txns_pending = binder_txns_pending_ilocked(target_proc);
+			info->sync_recv |= target_proc->sync_recv |
+					(txns_pending << 1);
+			info->async_recv |= target_proc->async_recv;
+			binder_inner_proc_unlock(target_proc);
+		}
+	}
+	mutex_unlock(&binder_procs_lock);
+
+	if (!found)
+		return -EINVAL;
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static long binder_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 {
 	int ret;
@@ -5292,6 +6681,99 @@ static long binder_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 		}
 		break;
 	}
+<<<<<<< HEAD
+=======
+	case BINDER_FREEZE: {
+		struct binder_freeze_info info;
+		struct binder_proc **target_procs = NULL, *target_proc;
+		int target_procs_count = 0, i = 0;
+
+		ret = 0;
+
+		if (copy_from_user(&info, ubuf, sizeof(info))) {
+			ret = -EFAULT;
+			goto err;
+		}
+
+		mutex_lock(&binder_procs_lock);
+		hlist_for_each_entry(target_proc, &binder_procs, proc_node) {
+			if (target_proc->pid == info.pid)
+				target_procs_count++;
+		}
+
+		if (target_procs_count == 0) {
+			mutex_unlock(&binder_procs_lock);
+			ret = -EINVAL;
+			goto err;
+		}
+
+		target_procs = kcalloc(target_procs_count,
+				       sizeof(struct binder_proc *),
+				       GFP_KERNEL);
+
+		if (!target_procs) {
+			mutex_unlock(&binder_procs_lock);
+			ret = -ENOMEM;
+			goto err;
+		}
+
+		hlist_for_each_entry(target_proc, &binder_procs, proc_node) {
+			if (target_proc->pid != info.pid)
+				continue;
+
+			binder_inner_proc_lock(target_proc);
+			target_proc->tmp_ref++;
+			binder_inner_proc_unlock(target_proc);
+
+			target_procs[i++] = target_proc;
+		}
+		mutex_unlock(&binder_procs_lock);
+
+		for (i = 0; i < target_procs_count; i++) {
+			if (ret >= 0)
+				ret = binder_ioctl_freeze(&info,
+							  target_procs[i]);
+
+			binder_proc_dec_tmpref(target_procs[i]);
+		}
+
+		kfree(target_procs);
+
+		if (ret < 0)
+			goto err;
+		break;
+	}
+	case BINDER_GET_FROZEN_INFO: {
+		struct binder_frozen_status_info info;
+
+		if (copy_from_user(&info, ubuf, sizeof(info))) {
+			ret = -EFAULT;
+			goto err;
+		}
+
+		ret = binder_ioctl_get_freezer_info(&info);
+		if (ret < 0)
+			goto err;
+
+		if (copy_to_user(ubuf, &info, sizeof(info))) {
+			ret = -EFAULT;
+			goto err;
+		}
+		break;
+	}
+	case BINDER_ENABLE_ONEWAY_SPAM_DETECTION: {
+		uint32_t enable;
+
+		if (copy_from_user(&enable, ubuf, sizeof(enable))) {
+			ret = -EFAULT;
+			goto err;
+		}
+		binder_inner_proc_lock(proc);
+		proc->oneway_spam_detection_enabled = (bool)enable;
+		binder_inner_proc_unlock(proc);
+		break;
+	}
+>>>>>>> upstream/android-13
 	default:
 		ret = -EINVAL;
 		goto err;
@@ -5301,7 +6783,11 @@ err:
 	if (thread)
 		thread->looper_need_return = false;
 	wait_event_interruptible(binder_user_error_wait, binder_stop_on_user_error < 2);
+<<<<<<< HEAD
 	if (ret && ret != -ERESTARTSYS)
+=======
+	if (ret && ret != -EINTR)
+>>>>>>> upstream/android-13
 		pr_info("%d:%d ioctl %x %lx returned %d\n", proc->pid, current->pid, cmd, arg, ret);
 err_unlocked:
 	trace_binder_ioctl_done(ret);
@@ -5329,7 +6815,10 @@ static void binder_vma_close(struct vm_area_struct *vma)
 		     (vma->vm_end - vma->vm_start) / SZ_1K, vma->vm_flags,
 		     (unsigned long)pgprot_val(vma->vm_page_prot));
 	binder_alloc_vma_close(&proc->alloc);
+<<<<<<< HEAD
 	binder_defer_work(proc, BINDER_DEFERRED_PUT_FILES);
+=======
+>>>>>>> upstream/android-13
 }
 
 static vm_fault_t binder_vm_fault(struct vm_fault *vmf)
@@ -5345,16 +6834,23 @@ static const struct vm_operations_struct binder_vm_ops = {
 
 static int binder_mmap(struct file *filp, struct vm_area_struct *vma)
 {
+<<<<<<< HEAD
 	int ret;
 	struct binder_proc *proc = filp->private_data;
 	const char *failure_string;
+=======
+	struct binder_proc *proc = filp->private_data;
+>>>>>>> upstream/android-13
 
 	if (proc->tsk != current->group_leader)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	if ((vma->vm_end - vma->vm_start) > SZ_4M)
 		vma->vm_end = vma->vm_start + SZ_4M;
 
+=======
+>>>>>>> upstream/android-13
 	binder_debug(BINDER_DEBUG_OPEN_CLOSE,
 		     "%s: %d %lx-%lx (%ld K) vma %lx pagep %lx\n",
 		     __func__, proc->pid, vma->vm_start, vma->vm_end,
@@ -5362,9 +6858,15 @@ static int binder_mmap(struct file *filp, struct vm_area_struct *vma)
 		     (unsigned long)pgprot_val(vma->vm_page_prot));
 
 	if (vma->vm_flags & FORBIDDEN_MMAP_FLAGS) {
+<<<<<<< HEAD
 		ret = -EPERM;
 		failure_string = "bad vm_flags";
 		goto err_bad_arg;
+=======
+		pr_err("%s: %d %lx-%lx %s failed %d\n", __func__,
+		       proc->pid, vma->vm_start, vma->vm_end, "bad vm_flags", -EPERM);
+		return -EPERM;
+>>>>>>> upstream/android-13
 	}
 	vma->vm_flags |= VM_DONTCOPY | VM_MIXEDMAP;
 	vma->vm_flags &= ~VM_MAYWRITE;
@@ -5372,6 +6874,7 @@ static int binder_mmap(struct file *filp, struct vm_area_struct *vma)
 	vma->vm_ops = &binder_vm_ops;
 	vma->vm_private_data = proc;
 
+<<<<<<< HEAD
 	ret = binder_alloc_mmap_handler(&proc->alloc, vma);
 	if (ret)
 		return ret;
@@ -5384,14 +6887,25 @@ err_bad_arg:
 	pr_err_ratelimited("%s: %d %lx-%lx %s failed %d\n", __func__,
 	       proc->pid, vma->vm_start, vma->vm_end, failure_string, ret);
 	return ret;
+=======
+	return binder_alloc_mmap_handler(&proc->alloc, vma);
+>>>>>>> upstream/android-13
 }
 
 static int binder_open(struct inode *nodp, struct file *filp)
 {
+<<<<<<< HEAD
 	struct binder_proc *proc;
 	struct binder_device *binder_dev;
 	struct binderfs_info *info;
 	struct dentry *binder_binderfs_dir_entry_proc = NULL;
+=======
+	struct binder_proc *proc, *itr;
+	struct binder_device *binder_dev;
+	struct binderfs_info *info;
+	struct dentry *binder_binderfs_dir_entry_proc = NULL;
+	bool existing_pid = false;
+>>>>>>> upstream/android-13
 
 	binder_debug(BINDER_DEBUG_OPEN_CLOSE, "%s: %d:%d\n", __func__,
 		     current->group_leader->pid, current->pid);
@@ -5403,9 +6917,15 @@ static int binder_open(struct inode *nodp, struct file *filp)
 	spin_lock_init(&proc->outer_lock);
 	get_task_struct(current->group_leader);
 	proc->tsk = current->group_leader;
+<<<<<<< HEAD
 	mutex_init(&proc->files_lock);
 	proc->cred = get_cred(filp->f_cred);
 	INIT_LIST_HEAD(&proc->todo);
+=======
+	proc->cred = get_cred(filp->f_cred);
+	INIT_LIST_HEAD(&proc->todo);
+	init_waitqueue_head(&proc->freeze_wait);
+>>>>>>> upstream/android-13
 	if (binder_supported_policy(current->policy)) {
 		proc->default_priority.sched_policy = current->policy;
 		proc->default_priority.prio = current->normal_prio;
@@ -5434,19 +6954,39 @@ static int binder_open(struct inode *nodp, struct file *filp)
 	filp->private_data = proc;
 
 	mutex_lock(&binder_procs_lock);
+<<<<<<< HEAD
 	hlist_add_head(&proc->proc_node, &binder_procs);
 	mutex_unlock(&binder_procs_lock);
 
 	if (binder_debugfs_dir_entry_proc) {
+=======
+	hlist_for_each_entry(itr, &binder_procs, proc_node) {
+		if (itr->pid == proc->pid) {
+			existing_pid = true;
+			break;
+		}
+	}
+	hlist_add_head(&proc->proc_node, &binder_procs);
+	mutex_unlock(&binder_procs_lock);
+	trace_android_vh_binder_preset(&binder_procs, &binder_procs_lock);
+	if (binder_debugfs_dir_entry_proc && !existing_pid) {
+>>>>>>> upstream/android-13
 		char strbuf[11];
 
 		snprintf(strbuf, sizeof(strbuf), "%u", proc->pid);
 		/*
+<<<<<<< HEAD
 		 * proc debug entries are shared between contexts, so
 		 * this will fail if the process tries to open the driver
 		 * again with a different context. The priting code will
 		 * anyway print all contexts that a given PID has, so this
 		 * is not a problem.
+=======
+		 * proc debug entries are shared between contexts.
+		 * Only create for the first PID to avoid debugfs log spamming
+		 * The printing code will anyway print all contexts for a given
+		 * PID so this is not a problem.
+>>>>>>> upstream/android-13
 		 */
 		proc->debugfs_entry = debugfs_create_file(strbuf, 0444,
 			binder_debugfs_dir_entry_proc,
@@ -5454,19 +6994,29 @@ static int binder_open(struct inode *nodp, struct file *filp)
 			&proc_fops);
 	}
 
+<<<<<<< HEAD
 	if (binder_binderfs_dir_entry_proc) {
+=======
+	if (binder_binderfs_dir_entry_proc && !existing_pid) {
+>>>>>>> upstream/android-13
 		char strbuf[11];
 		struct dentry *binderfs_entry;
 
 		snprintf(strbuf, sizeof(strbuf), "%u", proc->pid);
 		/*
 		 * Similar to debugfs, the process specific log file is shared
+<<<<<<< HEAD
 		 * between contexts. If the file has already been created for a
 		 * process, the following binderfs_create_file() call will
 		 * fail with error code EEXIST if another context of the same
 		 * process invoked binder_open(). This is ok since same as
 		 * debugfs, the log file will contain information on all
 		 * contexts of a given PID.
+=======
+		 * between contexts. Only create for the first PID.
+		 * This is ok since same as debugfs, the log file will contain
+		 * information on all contexts of a given PID.
+>>>>>>> upstream/android-13
 		 */
 		binderfs_entry = binderfs_create_file(binder_binderfs_dir_entry_proc,
 			strbuf, &proc_fops, (void *)(unsigned long)proc->pid);
@@ -5476,10 +7026,15 @@ static int binder_open(struct inode *nodp, struct file *filp)
 			int error;
 
 			error = PTR_ERR(binderfs_entry);
+<<<<<<< HEAD
 			if (error != -EEXIST) {
 				pr_warn("Unable to create file %s in binderfs (error %d)\n",
 					strbuf, error);
 			}
+=======
+			pr_warn("Unable to create file %s in binderfs (error %d)\n",
+				strbuf, error);
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -5604,8 +7159,11 @@ static void binder_deferred_release(struct binder_proc *proc)
 	struct rb_node *n;
 	int threads, nodes, incoming_refs, outgoing_refs, active_transactions;
 
+<<<<<<< HEAD
 	BUG_ON(proc->files);
 
+=======
+>>>>>>> upstream/android-13
 	mutex_lock(&binder_procs_lock);
 	hlist_del(&proc->proc_node);
 	mutex_unlock(&binder_procs_lock);
@@ -5627,6 +7185,12 @@ static void binder_deferred_release(struct binder_proc *proc)
 	proc->tmp_ref++;
 
 	proc->is_dead = true;
+<<<<<<< HEAD
+=======
+	proc->is_frozen = false;
+	proc->sync_recv = false;
+	proc->async_recv = false;
+>>>>>>> upstream/android-13
 	threads = 0;
 	active_transactions = 0;
 	while ((n = rb_first(&proc->threads))) {
@@ -5687,7 +7251,10 @@ static void binder_deferred_release(struct binder_proc *proc)
 static void binder_deferred_func(struct work_struct *work)
 {
 	struct binder_proc *proc;
+<<<<<<< HEAD
 	struct files_struct *files;
+=======
+>>>>>>> upstream/android-13
 
 	int defer;
 
@@ -5705,6 +7272,7 @@ static void binder_deferred_func(struct work_struct *work)
 		}
 		mutex_unlock(&binder_deferred_lock);
 
+<<<<<<< HEAD
 		files = NULL;
 		if (defer & BINDER_DEFERRED_PUT_FILES) {
 			mutex_lock(&proc->files_lock);
@@ -5714,14 +7282,19 @@ static void binder_deferred_func(struct work_struct *work)
 			mutex_unlock(&proc->files_lock);
 		}
 
+=======
+>>>>>>> upstream/android-13
 		if (defer & BINDER_DEFERRED_FLUSH)
 			binder_deferred_flush(proc);
 
 		if (defer & BINDER_DEFERRED_RELEASE)
 			binder_deferred_release(proc); /* frees proc */
+<<<<<<< HEAD
 
 		if (files)
 			put_files_struct(files);
+=======
+>>>>>>> upstream/android-13
 	} while (proc);
 }
 static DECLARE_WORK(binder_deferred_work, binder_deferred_func);
@@ -5746,6 +7319,7 @@ static void print_binder_transaction_ilocked(struct seq_file *m,
 {
 	struct binder_proc *to_proc;
 	struct binder_buffer *buffer = t->buffer;
+<<<<<<< HEAD
 #ifdef CONFIG_ANDROID_BINDER_USER_TRACKING
 	struct rtc_time tm;
 
@@ -5753,6 +7327,11 @@ static void print_binder_transaction_ilocked(struct seq_file *m,
 #endif
 
 	spin_lock(&t->lock);
+=======
+
+	spin_lock(&t->lock);
+	trace_android_vh_binder_print_transaction_info(m, proc, prefix, t);
+>>>>>>> upstream/android-13
 	to_proc = t->to_proc;
 	seq_printf(m,
 		   "%s %d: %pK from %d:%d to %d:%d code %x flags %x pri %d:%d r%d",
@@ -5763,6 +7342,7 @@ static void print_binder_transaction_ilocked(struct seq_file *m,
 		   t->to_thread ? t->to_thread->pid : 0,
 		   t->code, t->flags, t->priority.sched_policy,
 		   t->priority.prio, t->need_reply);
+<<<<<<< HEAD
 #ifdef CONFIG_ANDROID_BINDER_USER_TRACKING
 	seq_printf(m,
 		   " start %lu.%06lu android %d-%02d-%02d %02d:%02d:%02d.%03lu",
@@ -5772,6 +7352,8 @@ static void print_binder_transaction_ilocked(struct seq_file *m,
 		   tm.tm_hour, tm.tm_min, tm.tm_sec,
 		   (unsigned long)(t->tv.tv_usec / USEC_PER_MSEC));
 #endif
+=======
+>>>>>>> upstream/android-13
 	spin_unlock(&t->lock);
 
 	if (proc != to_proc) {
@@ -5878,6 +7460,7 @@ static void print_binder_thread_ilocked(struct seq_file *m,
 		m->count = start_pos;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_SAMSUNG_FREECESS
 static void binder_in_transaction(struct binder_proc *proc, int uid)
 {
@@ -6003,6 +7586,8 @@ void binders_in_transcation(int uid)
 }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 static void print_binder_node_nilocked(struct seq_file *m,
 				       struct binder_node *node)
 {
@@ -6131,7 +7716,13 @@ static const char * const binder_return_strings[] = {
 	"BR_FINISHED",
 	"BR_DEAD_BINDER",
 	"BR_CLEAR_DEATH_NOTIFICATION_DONE",
+<<<<<<< HEAD
 	"BR_FAILED_REPLY"
+=======
+	"BR_FAILED_REPLY",
+	"BR_FROZEN_REPLY",
+	"BR_ONEWAY_SPAM_SUSPECT",
+>>>>>>> upstream/android-13
 };
 
 static const char * const binder_command_strings[] = {
@@ -6272,8 +7863,12 @@ static void print_binder_proc_stats(struct seq_file *m,
 	print_binder_stats(m, "  ", &proc->stats);
 }
 
+<<<<<<< HEAD
 
 int binder_state_show(struct seq_file *m, void *unused)
+=======
+static int state_show(struct seq_file *m, void *unused)
+>>>>>>> upstream/android-13
 {
 	struct binder_proc *proc;
 	struct binder_node *node;
@@ -6312,7 +7907,11 @@ int binder_state_show(struct seq_file *m, void *unused)
 	return 0;
 }
 
+<<<<<<< HEAD
 int binder_stats_show(struct seq_file *m, void *unused)
+=======
+static int stats_show(struct seq_file *m, void *unused)
+>>>>>>> upstream/android-13
 {
 	struct binder_proc *proc;
 
@@ -6328,7 +7927,11 @@ int binder_stats_show(struct seq_file *m, void *unused)
 	return 0;
 }
 
+<<<<<<< HEAD
 int binder_transactions_show(struct seq_file *m, void *unused)
+=======
+static int transactions_show(struct seq_file *m, void *unused)
+>>>>>>> upstream/android-13
 {
 	struct binder_proc *proc;
 
@@ -6384,7 +7987,11 @@ static void print_binder_transaction_log_entry(struct seq_file *m,
 			"\n" : " (incomplete)\n");
 }
 
+<<<<<<< HEAD
 int binder_transaction_log_show(struct seq_file *m, void *unused)
+=======
+static int transaction_log_show(struct seq_file *m, void *unused)
+>>>>>>> upstream/android-13
 {
 	struct binder_transaction_log *log = m->private;
 	unsigned int log_cur = atomic_read(&log->cur);
@@ -6409,13 +8016,59 @@ const struct file_operations binder_fops = {
 	.owner = THIS_MODULE,
 	.poll = binder_poll,
 	.unlocked_ioctl = binder_ioctl,
+<<<<<<< HEAD
 	.compat_ioctl = binder_ioctl,
+=======
+	.compat_ioctl = compat_ptr_ioctl,
+>>>>>>> upstream/android-13
 	.mmap = binder_mmap,
 	.open = binder_open,
 	.flush = binder_flush,
 	.release = binder_release,
 };
 
+<<<<<<< HEAD
+=======
+DEFINE_SHOW_ATTRIBUTE(state);
+DEFINE_SHOW_ATTRIBUTE(stats);
+DEFINE_SHOW_ATTRIBUTE(transactions);
+DEFINE_SHOW_ATTRIBUTE(transaction_log);
+
+const struct binder_debugfs_entry binder_debugfs_entries[] = {
+	{
+		.name = "state",
+		.mode = 0444,
+		.fops = &state_fops,
+		.data = NULL,
+	},
+	{
+		.name = "stats",
+		.mode = 0444,
+		.fops = &stats_fops,
+		.data = NULL,
+	},
+	{
+		.name = "transactions",
+		.mode = 0444,
+		.fops = &transactions_fops,
+		.data = NULL,
+	},
+	{
+		.name = "transaction_log",
+		.mode = 0444,
+		.fops = &transaction_log_fops,
+		.data = &binder_transaction_log,
+	},
+	{
+		.name = "failed_transaction_log",
+		.mode = 0444,
+		.fops = &transaction_log_fops,
+		.data = &binder_transaction_log_failed,
+	},
+	{} /* terminator */
+};
+
+>>>>>>> upstream/android-13
 static int __init init_binder_device(const char *name)
 {
 	int ret;
@@ -6461,6 +8114,7 @@ static int __init binder_init(void)
 	atomic_set(&binder_transaction_log_failed.cur, ~0U);
 
 	binder_debugfs_dir_entry_root = debugfs_create_dir("binder", NULL);
+<<<<<<< HEAD
 	if (binder_debugfs_dir_entry_root)
 		binder_debugfs_dir_entry_proc = debugfs_create_dir("proc",
 						 binder_debugfs_dir_entry_root);
@@ -6491,6 +8145,20 @@ static int __init binder_init(void)
 				    binder_debugfs_dir_entry_root,
 				    &binder_transaction_log_failed,
 				    &binder_transaction_log_fops);
+=======
+	if (binder_debugfs_dir_entry_root) {
+		const struct binder_debugfs_entry *db_entry;
+
+		binder_for_each_debugfs_entry(db_entry)
+			debugfs_create_file(db_entry->name,
+					    db_entry->mode,
+					    binder_debugfs_dir_entry_root,
+					    db_entry->data,
+					    db_entry->fops);
+
+		binder_debugfs_dir_entry_proc = debugfs_create_dir("proc",
+						 binder_debugfs_dir_entry_root);
+>>>>>>> upstream/android-13
 	}
 
 	if (!IS_ENABLED(CONFIG_ANDROID_BINDERFS) &&
@@ -6538,5 +8206,10 @@ device_initcall(binder_init);
 
 #define CREATE_TRACE_POINTS
 #include "binder_trace.h"
+<<<<<<< HEAD
+=======
+EXPORT_TRACEPOINT_SYMBOL_GPL(binder_transaction_received);
+EXPORT_TRACEPOINT_SYMBOL_GPL(binder_txn_latency_free);
+>>>>>>> upstream/android-13
 
 MODULE_LICENSE("GPL v2");

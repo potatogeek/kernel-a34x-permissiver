@@ -33,7 +33,11 @@ EXPORT_SYMBOL(pm_power_off);
 
 void arch_cpu_idle(void)
 {
+<<<<<<< HEAD
 	local_irq_enable();
+=======
+	raw_local_irq_enable();
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -100,8 +104,13 @@ void flush_thread(void)
 {
 }
 
+<<<<<<< HEAD
 int copy_thread(unsigned long clone_flags,
 		unsigned long usp, unsigned long arg, struct task_struct *p)
+=======
+int copy_thread(unsigned long clone_flags, unsigned long usp, unsigned long arg,
+		struct task_struct *p, unsigned long tls)
+>>>>>>> upstream/android-13
 {
 	struct pt_regs *childregs = task_pt_regs(p);
 	struct pt_regs *regs;
@@ -109,7 +118,11 @@ int copy_thread(unsigned long clone_flags,
 	struct switch_stack *childstack =
 		((struct switch_stack *)childregs) - 1;
 
+<<<<<<< HEAD
 	if (unlikely(p->flags & PF_KTHREAD)) {
+=======
+	if (unlikely(p->flags & (PF_KTHREAD | PF_IO_WORKER))) {
+>>>>>>> upstream/android-13
 		memset(childstack, 0,
 			sizeof(struct switch_stack) + sizeof(struct pt_regs));
 
@@ -140,7 +153,11 @@ int copy_thread(unsigned long clone_flags,
 
 	/* Initialize tls register. */
 	if (clone_flags & CLONE_SETTLS)
+<<<<<<< HEAD
 		childstack->r23 = regs->r8;
+=======
+		childstack->r23 = tls;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -223,7 +240,11 @@ unsigned long get_wchan(struct task_struct *p)
 	unsigned long stack_page;
 	int count = 0;
 
+<<<<<<< HEAD
 	if (!p || p == current || p->state == TASK_RUNNING)
+=======
+	if (!p || p == current || task_is_running(p))
+>>>>>>> upstream/android-13
 		return 0;
 
 	stack_page = (unsigned long)p;
@@ -252,10 +273,28 @@ void start_thread(struct pt_regs *regs, unsigned long pc, unsigned long sp)
 	regs->sp = sp;
 }
 
+<<<<<<< HEAD
 #include <linux/elfcore.h>
 
 /* Fill in the FPU structure for a core dump. */
 int dump_fpu(struct pt_regs *regs, elf_fpregset_t *r)
 {
 	return 0; /* Nios2 has no FPU and thus no FPU registers */
+=======
+asmlinkage int nios2_clone(unsigned long clone_flags, unsigned long newsp,
+			   int __user *parent_tidptr, int __user *child_tidptr,
+			   unsigned long tls)
+{
+	struct kernel_clone_args args = {
+		.flags		= (lower_32_bits(clone_flags) & ~CSIGNAL),
+		.pidfd		= parent_tidptr,
+		.child_tid	= child_tidptr,
+		.parent_tid	= parent_tidptr,
+		.exit_signal	= (lower_32_bits(clone_flags) & CSIGNAL),
+		.stack		= newsp,
+		.tls		= tls,
+	};
+
+	return kernel_clone(&args);
+>>>>>>> upstream/android-13
 }

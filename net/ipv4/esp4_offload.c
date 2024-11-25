@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * IPV4 GSO/GRO offload support
  * Linux INET implementation
@@ -5,10 +9,13 @@
  * Copyright (C) 2016 secunet Security Networks AG
  * Author: Steffen Klassert <steffen.klassert@secunet.com>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
  * version 2, as published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * ESP GRO support
  */
 
@@ -36,27 +43,45 @@ static struct sk_buff *esp4_gro_receive(struct list_head *head,
 	struct xfrm_state *x;
 	__be32 seq;
 	__be32 spi;
+<<<<<<< HEAD
 	int err;
+=======
+>>>>>>> upstream/android-13
 
 	if (!pskb_pull(skb, offset))
 		return NULL;
 
+<<<<<<< HEAD
 	if ((err = xfrm_parse_spi(skb, IPPROTO_ESP, &spi, &seq)) != 0)
+=======
+	if (xfrm_parse_spi(skb, IPPROTO_ESP, &spi, &seq) != 0)
+>>>>>>> upstream/android-13
 		goto out;
 
 	xo = xfrm_offload(skb);
 	if (!xo || !(xo->flags & CRYPTO_DONE)) {
+<<<<<<< HEAD
 		err = secpath_set(skb);
 		if (err)
 			goto out;
 
 		if (skb->sp->len == XFRM_MAX_DEPTH)
 			goto out;
+=======
+		struct sec_path *sp = secpath_set(skb);
+
+		if (!sp)
+			goto out;
+
+		if (sp->len == XFRM_MAX_DEPTH)
+			goto out_reset;
+>>>>>>> upstream/android-13
 
 		x = xfrm_state_lookup(dev_net(skb->dev), skb->mark,
 				      (xfrm_address_t *)&ip_hdr(skb)->daddr,
 				      spi, IPPROTO_ESP, AF_INET);
 		if (!x)
+<<<<<<< HEAD
 			goto out;
 
 		skb->sp->xvec[skb->sp->len++] = x;
@@ -67,6 +92,18 @@ static struct sk_buff *esp4_gro_receive(struct list_head *head,
 			xfrm_state_put(x);
 			goto out;
 		}
+=======
+			goto out_reset;
+
+		skb->mark = xfrm_smark_get(skb->mark, x);
+
+		sp->xvec[sp->len++] = x;
+		sp->olen++;
+
+		xo = xfrm_offload(skb);
+		if (!xo)
+			goto out_reset;
+>>>>>>> upstream/android-13
 	}
 
 	xo->flags |= XFRM_GRO;
@@ -81,6 +118,11 @@ static struct sk_buff *esp4_gro_receive(struct list_head *head,
 	xfrm_input(skb, IPPROTO_ESP, spi, -2);
 
 	return ERR_PTR(-EINPROGRESS);
+<<<<<<< HEAD
+=======
+out_reset:
+	secpath_reset(skb);
+>>>>>>> upstream/android-13
 out:
 	skb_push(skb, offset);
 	NAPI_GRO_CB(skb)->same_flow = 0;
@@ -106,6 +148,90 @@ static void esp4_gso_encap(struct xfrm_state *x, struct sk_buff *skb)
 	xo->proto = proto;
 }
 
+<<<<<<< HEAD
+=======
+static struct sk_buff *xfrm4_tunnel_gso_segment(struct xfrm_state *x,
+						struct sk_buff *skb,
+						netdev_features_t features)
+{
+	__skb_push(skb, skb->mac_len);
+	return skb_mac_gso_segment(skb, features);
+}
+
+static struct sk_buff *xfrm4_transport_gso_segment(struct xfrm_state *x,
+						   struct sk_buff *skb,
+						   netdev_features_t features)
+{
+	const struct net_offload *ops;
+	struct sk_buff *segs = ERR_PTR(-EINVAL);
+	struct xfrm_offload *xo = xfrm_offload(skb);
+
+	skb->transport_header += x->props.header_len;
+	ops = rcu_dereference(inet_offloads[xo->proto]);
+	if (likely(ops && ops->callbacks.gso_segment))
+		segs = ops->callbacks.gso_segment(skb, features);
+
+	return segs;
+}
+
+static struct sk_buff *xfrm4_beet_gso_segment(struct xfrm_state *x,
+					      struct sk_buff *skb,
+					      netdev_features_t features)
+{
+	struct xfrm_offload *xo = xfrm_offload(skb);
+	struct sk_buff *segs = ERR_PTR(-EINVAL);
+	const struct net_offload *ops;
+	u8 proto = xo->proto;
+
+	skb->transport_header += x->props.header_len;
+
+	if (x->sel.family != AF_INET6) {
+		if (proto == IPPROTO_BEETPH) {
+			struct ip_beet_phdr *ph =
+				(struct ip_beet_phdr *)skb->data;
+
+			skb->transport_header += ph->hdrlen * 8;
+			proto = ph->nexthdr;
+		} else {
+			skb->transport_header -= IPV4_BEET_PHMAXLEN;
+		}
+	} else {
+		__be16 frag;
+
+		skb->transport_header +=
+			ipv6_skip_exthdr(skb, 0, &proto, &frag);
+		if (proto == IPPROTO_TCP)
+			skb_shinfo(skb)->gso_type |= SKB_GSO_TCPV4;
+	}
+
+	if (proto == IPPROTO_IPV6)
+		skb_shinfo(skb)->gso_type |= SKB_GSO_IPXIP4;
+
+	__skb_pull(skb, skb_transport_offset(skb));
+	ops = rcu_dereference(inet_offloads[proto]);
+	if (likely(ops && ops->callbacks.gso_segment))
+		segs = ops->callbacks.gso_segment(skb, features);
+
+	return segs;
+}
+
+static struct sk_buff *xfrm4_outer_mode_gso_segment(struct xfrm_state *x,
+						    struct sk_buff *skb,
+						    netdev_features_t features)
+{
+	switch (x->outer_mode.encap) {
+	case XFRM_MODE_TUNNEL:
+		return xfrm4_tunnel_gso_segment(x, skb, features);
+	case XFRM_MODE_TRANSPORT:
+		return xfrm4_transport_gso_segment(x, skb, features);
+	case XFRM_MODE_BEET:
+		return xfrm4_beet_gso_segment(x, skb, features);
+	}
+
+	return ERR_PTR(-EOPNOTSUPP);
+}
+
+>>>>>>> upstream/android-13
 static struct sk_buff *esp4_gso_segment(struct sk_buff *skb,
 				        netdev_features_t features)
 {
@@ -114,6 +240,10 @@ static struct sk_buff *esp4_gso_segment(struct sk_buff *skb,
 	struct crypto_aead *aead;
 	netdev_features_t esp_features = features;
 	struct xfrm_offload *xo = xfrm_offload(skb);
+<<<<<<< HEAD
+=======
+	struct sec_path *sp;
+>>>>>>> upstream/android-13
 
 	if (!xo)
 		return ERR_PTR(-EINVAL);
@@ -121,7 +251,12 @@ static struct sk_buff *esp4_gso_segment(struct sk_buff *skb,
 	if (!(skb_shinfo(skb)->gso_type & SKB_GSO_ESP))
 		return ERR_PTR(-EINVAL);
 
+<<<<<<< HEAD
 	x = skb->sp->xvec[skb->sp->len - 1];
+=======
+	sp = skb_sec_path(skb);
+	x = sp->xvec[sp->len - 1];
+>>>>>>> upstream/android-13
 	aead = x->data;
 	esph = ip_esp_hdr(skb);
 
@@ -135,6 +270,7 @@ static struct sk_buff *esp4_gso_segment(struct sk_buff *skb,
 
 	skb->encap_hdr_csum = 1;
 
+<<<<<<< HEAD
 	if (!(features & NETIF_F_HW_ESP) || x->xso.dev != skb->dev)
 		esp_features = features & ~(NETIF_F_SG | NETIF_F_CSUM_MASK);
 	else if (!(features & NETIF_F_HW_ESP_TX_CSUM))
@@ -143,6 +279,20 @@ static struct sk_buff *esp4_gso_segment(struct sk_buff *skb,
 	xo->flags |= XFRM_GSO_SEGMENT;
 
 	return x->outer_mode->gso_segment(x, skb, esp_features);
+=======
+	if ((!(skb->dev->gso_partial_features & NETIF_F_HW_ESP) &&
+	     !(features & NETIF_F_HW_ESP)) || x->xso.dev != skb->dev)
+		esp_features = features & ~(NETIF_F_SG | NETIF_F_CSUM_MASK |
+					    NETIF_F_SCTP_CRC);
+	else if (!(features & NETIF_F_HW_ESP_TX_CSUM) &&
+		 !(skb->dev->gso_partial_features & NETIF_F_HW_ESP_TX_CSUM))
+		esp_features = features & ~(NETIF_F_CSUM_MASK |
+					    NETIF_F_SCTP_CRC);
+
+	xo->flags |= XFRM_GSO_SEGMENT;
+
+	return xfrm4_outer_mode_gso_segment(x, skb, esp_features);
+>>>>>>> upstream/android-13
 }
 
 static int esp_input_tail(struct xfrm_state *x, struct sk_buff *skb)
@@ -178,7 +328,13 @@ static int esp_xmit(struct xfrm_state *x, struct sk_buff *skb,  netdev_features_
 	if (!xo)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	if (!(features & NETIF_F_HW_ESP) || x->xso.dev != skb->dev) {
+=======
+	if ((!(features & NETIF_F_HW_ESP) &&
+	     !(skb->dev->gso_partial_features & NETIF_F_HW_ESP)) ||
+	    x->xso.dev != skb->dev) {
+>>>>>>> upstream/android-13
 		xo->flags |= CRYPTO_FALLBACK;
 		hw_offload = false;
 	}
@@ -201,7 +357,11 @@ static int esp_xmit(struct xfrm_state *x, struct sk_buff *skb,  netdev_features_
 	esp.esph = ip_esp_hdr(skb);
 
 
+<<<<<<< HEAD
 	if (!hw_offload || (hw_offload && !skb_is_gso(skb))) {
+=======
+	if (!hw_offload || !skb_is_gso(skb)) {
+>>>>>>> upstream/android-13
 		esp.nfrags = esp_output_head(x, skb, &esp);
 		if (esp.nfrags < 0)
 			return esp.nfrags;
@@ -228,8 +388,22 @@ static int esp_xmit(struct xfrm_state *x, struct sk_buff *skb,  netdev_features_
 	ip_hdr(skb)->tot_len = htons(skb->len);
 	ip_send_check(ip_hdr(skb));
 
+<<<<<<< HEAD
 	if (hw_offload)
 		return 0;
+=======
+	if (hw_offload) {
+		if (!skb_ext_add(skb, SKB_EXT_SEC_PATH))
+			return -ENOMEM;
+
+		xo = xfrm_offload(skb);
+		if (!xo)
+			return -EINVAL;
+
+		xo->flags |= XFRM_XMIT;
+		return 0;
+	}
+>>>>>>> upstream/android-13
 
 	err = esp_output_tail(x, skb, &esp);
 	if (err)
@@ -248,7 +422,10 @@ static const struct net_offload esp4_offload = {
 };
 
 static const struct xfrm_type_offload esp_type_offload = {
+<<<<<<< HEAD
 	.description	= "ESP4 OFFLOAD",
+=======
+>>>>>>> upstream/android-13
 	.owner		= THIS_MODULE,
 	.proto	     	= IPPROTO_ESP,
 	.input_tail	= esp_input_tail,
@@ -268,9 +445,13 @@ static int __init esp4_offload_init(void)
 
 static void __exit esp4_offload_exit(void)
 {
+<<<<<<< HEAD
 	if (xfrm_unregister_type_offload(&esp_type_offload, AF_INET) < 0)
 		pr_info("%s: can't remove xfrm type offload\n", __func__);
 
+=======
+	xfrm_unregister_type_offload(&esp_type_offload, AF_INET);
+>>>>>>> upstream/android-13
 	inet_del_offload(&esp4_offload, IPPROTO_ESP);
 }
 
@@ -279,3 +460,7 @@ module_exit(esp4_offload_exit);
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Steffen Klassert <steffen.klassert@secunet.com>");
 MODULE_ALIAS_XFRM_OFFLOAD_TYPE(AF_INET, XFRM_PROTO_ESP);
+<<<<<<< HEAD
+=======
+MODULE_DESCRIPTION("IPV4 GSO/GRO offload support");
+>>>>>>> upstream/android-13

@@ -5,8 +5,14 @@
 #include "stat.h"
 #include "counts.h"
 #include "debug.h"
+<<<<<<< HEAD
 
 static bool has_term(struct stat_config_event *config,
+=======
+#include "util/synthetic-events.h"
+
+static bool has_term(struct perf_record_stat_config *config,
+>>>>>>> upstream/android-13
 		     u64 tag, u64 val)
 {
 	unsigned i;
@@ -25,7 +31,11 @@ static int process_stat_config_event(struct perf_tool *tool __maybe_unused,
 				     struct perf_sample *sample __maybe_unused,
 				     struct machine *machine __maybe_unused)
 {
+<<<<<<< HEAD
 	struct stat_config_event *config = &event->stat_config;
+=======
+	struct perf_record_stat_config *config = &event->stat_config;
+>>>>>>> upstream/android-13
 	struct perf_stat_config stat_config;
 
 #define HAS(term, val) \
@@ -65,7 +75,11 @@ static int process_stat_event(struct perf_tool *tool __maybe_unused,
 			      struct perf_sample *sample __maybe_unused,
 			      struct machine *machine __maybe_unused)
 {
+<<<<<<< HEAD
 	struct stat_event *st = &event->stat;
+=======
+	struct perf_record_stat *st = &event->stat;
+>>>>>>> upstream/android-13
 
 	TEST_ASSERT_VAL("wrong cpu",    st->cpu    == 1);
 	TEST_ASSERT_VAL("wrong thread", st->thread == 2);
@@ -95,7 +109,11 @@ static int process_stat_round_event(struct perf_tool *tool __maybe_unused,
 				    struct perf_sample *sample __maybe_unused,
 				    struct machine *machine __maybe_unused)
 {
+<<<<<<< HEAD
 	struct stat_round_event *stat_round = &event->stat_round;
+=======
+	struct perf_record_stat_round *stat_round = &event->stat_round;
+>>>>>>> upstream/android-13
 
 	TEST_ASSERT_VAL("wrong time", stat_round->time == 0xdeadbeef);
 	TEST_ASSERT_VAL("wrong type", stat_round->type == PERF_STAT_ROUND_TYPE__INTERVAL);

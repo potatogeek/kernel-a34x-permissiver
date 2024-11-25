@@ -19,8 +19,11 @@ static inline enum paravirt_lazy_mode paravirt_get_lazy_mode(void)
 	return PARAVIRT_LAZY_NONE;
 }
 
+<<<<<<< HEAD
 extern const struct dma_map_ops *xen_dma_ops;
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_XEN
 void __init xen_early_init(void);
 #else

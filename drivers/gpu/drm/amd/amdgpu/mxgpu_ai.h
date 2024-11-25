@@ -25,8 +25,14 @@
 #define __MXGPU_AI_H__
 
 #define AI_MAILBOX_POLL_ACK_TIMEDOUT	500
+<<<<<<< HEAD
 #define AI_MAILBOX_POLL_MSG_TIMEDOUT	12000
 #define AI_MAILBOX_POLL_FLR_TIMEDOUT	500
+=======
+#define AI_MAILBOX_POLL_MSG_TIMEDOUT	6000
+#define AI_MAILBOX_POLL_FLR_TIMEDOUT	5000
+#define AI_MAILBOX_POLL_MSG_REP_MAX	11
+>>>>>>> upstream/android-13
 
 enum idh_request {
 	IDH_REQ_GPU_INIT_ACCESS = 1,
@@ -36,6 +42,10 @@ enum idh_request {
 	IDH_REQ_GPU_RESET_ACCESS,
 
 	IDH_LOG_VF_ERROR       = 200,
+<<<<<<< HEAD
+=======
+	IDH_READY_TO_RESET 	= 201,
+>>>>>>> upstream/android-13
 };
 
 enum idh_event {
@@ -43,7 +53,15 @@ enum idh_event {
 	IDH_READY_TO_ACCESS_GPU,
 	IDH_FLR_NOTIFICATION,
 	IDH_FLR_NOTIFICATION_CMPL,
+<<<<<<< HEAD
 	IDH_EVENT_MAX
+=======
+	IDH_SUCCESS,
+	IDH_FAIL,
+	IDH_QUERY_ALIVE,
+
+	IDH_TEXT_MESSAGE = 255,
+>>>>>>> upstream/android-13
 };
 
 extern const struct amdgpu_virt_ops xgpu_ai_virt_ops;

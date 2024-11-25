@@ -26,7 +26,11 @@ static ssize_t _name##_show(struct device *dev,				\
 {									\
 	struct wakeup_source *ws = dev_get_drvdata(dev);		\
 									\
+<<<<<<< HEAD
 	return sprintf(buf, "%lu\n", ws->_name);			\
+=======
+	return sysfs_emit(buf, "%lu\n", ws->_name);			\
+>>>>>>> upstream/android-13
 }									\
 static DEVICE_ATTR_RO(_name)
 
@@ -42,7 +46,11 @@ static ssize_t active_time_ms_show(struct device *dev,
 	ktime_t active_time =
 		ws->active ? ktime_sub(ktime_get(), ws->last_time) : 0;
 
+<<<<<<< HEAD
 	return sprintf(buf, "%lld\n", ktime_to_ms(active_time));
+=======
+	return sysfs_emit(buf, "%lld\n", ktime_to_ms(active_time));
+>>>>>>> upstream/android-13
 }
 static DEVICE_ATTR_RO(active_time_ms);
 
@@ -57,7 +65,12 @@ static ssize_t total_time_ms_show(struct device *dev,
 		active_time = ktime_sub(ktime_get(), ws->last_time);
 		total_time = ktime_add(total_time, active_time);
 	}
+<<<<<<< HEAD
 	return sprintf(buf, "%lld\n", ktime_to_ms(total_time));
+=======
+
+	return sysfs_emit(buf, "%lld\n", ktime_to_ms(total_time));
+>>>>>>> upstream/android-13
 }
 static DEVICE_ATTR_RO(total_time_ms);
 
@@ -73,7 +86,12 @@ static ssize_t max_time_ms_show(struct device *dev,
 		if (active_time > max_time)
 			max_time = active_time;
 	}
+<<<<<<< HEAD
 	return sprintf(buf, "%lld\n", ktime_to_ms(max_time));
+=======
+
+	return sysfs_emit(buf, "%lld\n", ktime_to_ms(max_time));
+>>>>>>> upstream/android-13
 }
 static DEVICE_ATTR_RO(max_time_ms);
 
@@ -82,7 +100,11 @@ static ssize_t last_change_ms_show(struct device *dev,
 {
 	struct wakeup_source *ws = dev_get_drvdata(dev);
 
+<<<<<<< HEAD
 	return sprintf(buf, "%lld\n", ktime_to_ms(ws->last_time));
+=======
+	return sysfs_emit(buf, "%lld\n", ktime_to_ms(ws->last_time));
+>>>>>>> upstream/android-13
 }
 static DEVICE_ATTR_RO(last_change_ms);
 
@@ -91,7 +113,11 @@ static ssize_t name_show(struct device *dev, struct device_attribute *attr,
 {
 	struct wakeup_source *ws = dev_get_drvdata(dev);
 
+<<<<<<< HEAD
 	return sprintf(buf, "%s\n", ws->name);
+=======
+	return sysfs_emit(buf, "%s\n", ws->name);
+>>>>>>> upstream/android-13
 }
 static DEVICE_ATTR_RO(name);
 
@@ -106,7 +132,12 @@ static ssize_t prevent_suspend_time_ms_show(struct device *dev,
 		prevent_sleep_time = ktime_add(prevent_sleep_time,
 			ktime_sub(ktime_get(), ws->start_prevent_time));
 	}
+<<<<<<< HEAD
 	return sprintf(buf, "%lld\n", ktime_to_ms(prevent_sleep_time));
+=======
+
+	return sysfs_emit(buf, "%lld\n", ktime_to_ms(prevent_sleep_time));
+>>>>>>> upstream/android-13
 }
 static DEVICE_ATTR_RO(prevent_suspend_time_ms);
 
@@ -134,7 +165,11 @@ static struct device *wakeup_source_device_create(struct device *parent,
 						  struct wakeup_source *ws)
 {
 	struct device *dev = NULL;
+<<<<<<< HEAD
 	int retval = -ENODEV;
+=======
+	int retval;
+>>>>>>> upstream/android-13
 
 	dev = kzalloc(sizeof(*dev), GFP_KERNEL);
 	if (!dev) {
@@ -151,7 +186,11 @@ static struct device *wakeup_source_device_create(struct device *parent,
 	dev_set_drvdata(dev, ws);
 	device_set_pm_not_required(dev);
 
+<<<<<<< HEAD
 	retval = kobject_set_name(&dev->kobj, "wakeup%d", ws->id);
+=======
+	retval = dev_set_name(dev, "wakeup%d", ws->id);
+>>>>>>> upstream/android-13
 	if (retval)
 		goto error;
 

@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0+
+=======
+// SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+>>>>>>> upstream/android-13
 // Copyright (C) 2017 Facebook
 // Author: Roman Gushchin <guro@fb.com>
 
@@ -14,7 +18,11 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+<<<<<<< HEAD
 #include <bpf.h>
+=======
+#include <bpf/bpf.h>
+>>>>>>> upstream/android-13
 
 #include "main.h"
 
@@ -25,6 +33,7 @@
 	"       ATTACH_TYPE := { ingress | egress | sock_create |\n"	       \
 	"                        sock_ops | device | bind4 | bind6 |\n"	       \
 	"                        post_bind4 | post_bind6 | connect4 |\n"       \
+<<<<<<< HEAD
 	"                        connect6 | sendmsg4 | sendmsg6 }"
 
 static const char * const attach_type_strings[] = {
@@ -43,21 +52,39 @@ static const char * const attach_type_strings[] = {
 	[BPF_CGROUP_UDP6_SENDMSG] = "sendmsg6",
 	[__MAX_BPF_ATTACH_TYPE] = NULL,
 };
+=======
+	"                        connect6 | getpeername4 | getpeername6 |\n"   \
+	"                        getsockname4 | getsockname6 | sendmsg4 |\n"   \
+	"                        sendmsg6 | recvmsg4 | recvmsg6 |\n"           \
+	"                        sysctl | getsockopt | setsockopt |\n"	       \
+	"                        sock_release }"
+
+static unsigned int query_flags;
+>>>>>>> upstream/android-13
 
 static enum bpf_attach_type parse_attach_type(const char *str)
 {
 	enum bpf_attach_type type;
 
 	for (type = 0; type < __MAX_BPF_ATTACH_TYPE; type++) {
+<<<<<<< HEAD
 		if (attach_type_strings[type] &&
 		    is_prefix(str, attach_type_strings[type]))
+=======
+		if (attach_type_name[type] &&
+		    is_prefix(str, attach_type_name[type]))
+>>>>>>> upstream/android-13
 			return type;
 	}
 
 	return __MAX_BPF_ATTACH_TYPE;
 }
 
+<<<<<<< HEAD
 static int show_bpf_prog(int id, const char *attach_type_str,
+=======
+static int show_bpf_prog(int id, enum bpf_attach_type attach_type,
+>>>>>>> upstream/android-13
 			 const char *attach_flags_str,
 			 int level)
 {
@@ -77,18 +104,35 @@ static int show_bpf_prog(int id, const char *attach_type_str,
 	if (json_output) {
 		jsonw_start_object(json_wtr);
 		jsonw_uint_field(json_wtr, "id", info.id);
+<<<<<<< HEAD
 		jsonw_string_field(json_wtr, "attach_type",
 				   attach_type_str);
+=======
+		if (attach_type < ARRAY_SIZE(attach_type_name))
+			jsonw_string_field(json_wtr, "attach_type",
+					   attach_type_name[attach_type]);
+		else
+			jsonw_uint_field(json_wtr, "attach_type", attach_type);
+>>>>>>> upstream/android-13
 		jsonw_string_field(json_wtr, "attach_flags",
 				   attach_flags_str);
 		jsonw_string_field(json_wtr, "name", info.name);
 		jsonw_end_object(json_wtr);
 	} else {
+<<<<<<< HEAD
 		printf("%s%-8u %-15s %-15s %-15s\n", level ? "    " : "",
 		       info.id,
 		       attach_type_str,
 		       attach_flags_str,
 		       info.name);
+=======
+		printf("%s%-8u ", level ? "    " : "", info.id);
+		if (attach_type < ARRAY_SIZE(attach_type_name))
+			printf("%-15s", attach_type_name[attach_type]);
+		else
+			printf("type %-10u", attach_type);
+		printf(" %-15s %-15s\n", attach_flags_str, info.name);
+>>>>>>> upstream/android-13
 	}
 
 	close(prog_fd);
@@ -100,26 +144,63 @@ static int count_attached_bpf_progs(int cgroup_fd, enum bpf_attach_type type)
 	__u32 prog_cnt = 0;
 	int ret;
 
+<<<<<<< HEAD
 	ret = bpf_prog_query(cgroup_fd, type, 0, NULL, NULL, &prog_cnt);
+=======
+	ret = bpf_prog_query(cgroup_fd, type, query_flags, NULL,
+			     NULL, &prog_cnt);
+>>>>>>> upstream/android-13
 	if (ret)
 		return -1;
 
 	return prog_cnt;
 }
 
+<<<<<<< HEAD
 static int show_attached_bpf_progs(int cgroup_fd, enum bpf_attach_type type,
 				   int level)
 {
 	__u32 prog_ids[1024] = {0};
 	char *attach_flags_str;
+=======
+static int cgroup_has_attached_progs(int cgroup_fd)
+{
+	enum bpf_attach_type type;
+	bool no_prog = true;
+
+	for (type = 0; type < __MAX_BPF_ATTACH_TYPE; type++) {
+		int count = count_attached_bpf_progs(cgroup_fd, type);
+
+		if (count < 0 && errno != EINVAL)
+			return -1;
+
+		if (count > 0) {
+			no_prog = false;
+			break;
+		}
+	}
+
+	return no_prog ? 0 : 1;
+}
+static int show_attached_bpf_progs(int cgroup_fd, enum bpf_attach_type type,
+				   int level)
+{
+	const char *attach_flags_str;
+	__u32 prog_ids[1024] = {0};
+>>>>>>> upstream/android-13
 	__u32 prog_cnt, iter;
 	__u32 attach_flags;
 	char buf[32];
 	int ret;
 
 	prog_cnt = ARRAY_SIZE(prog_ids);
+<<<<<<< HEAD
 	ret = bpf_prog_query(cgroup_fd, type, 0, &attach_flags, prog_ids,
 			     &prog_cnt);
+=======
+	ret = bpf_prog_query(cgroup_fd, type, query_flags, &attach_flags,
+			     prog_ids, &prog_cnt);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 
@@ -142,7 +223,11 @@ static int show_attached_bpf_progs(int cgroup_fd, enum bpf_attach_type type,
 	}
 
 	for (iter = 0; iter < prog_cnt; iter++)
+<<<<<<< HEAD
 		show_bpf_prog(prog_ids[iter], attach_type_strings[type],
+=======
+		show_bpf_prog(prog_ids[iter], type,
+>>>>>>> upstream/android-13
 			      attach_flags_str, level);
 
 	return 0;
@@ -151,6 +236,7 @@ static int show_attached_bpf_progs(int cgroup_fd, enum bpf_attach_type type,
 static int do_show(int argc, char **argv)
 {
 	enum bpf_attach_type type;
+<<<<<<< HEAD
 	int cgroup_fd;
 	int ret = -1;
 
@@ -166,6 +252,48 @@ static int do_show(int argc, char **argv)
 	if (cgroup_fd < 0) {
 		p_err("can't open cgroup %s", argv[0]);
 		goto exit;
+=======
+	int has_attached_progs;
+	const char *path;
+	int cgroup_fd;
+	int ret = -1;
+
+	query_flags = 0;
+
+	if (!REQ_ARGS(1))
+		return -1;
+	path = GET_ARG();
+
+	while (argc) {
+		if (is_prefix(*argv, "effective")) {
+			if (query_flags & BPF_F_QUERY_EFFECTIVE) {
+				p_err("duplicated argument: %s", *argv);
+				return -1;
+			}
+			query_flags |= BPF_F_QUERY_EFFECTIVE;
+			NEXT_ARG();
+		} else {
+			p_err("expected no more arguments, 'effective', got: '%s'?",
+			      *argv);
+			return -1;
+		}
+	}
+
+	cgroup_fd = open(path, O_RDONLY);
+	if (cgroup_fd < 0) {
+		p_err("can't open cgroup %s", path);
+		goto exit;
+	}
+
+	has_attached_progs = cgroup_has_attached_progs(cgroup_fd);
+	if (has_attached_progs < 0) {
+		p_err("can't query bpf programs attached to %s: %s",
+		      path, strerror(errno));
+		goto exit_cgroup;
+	} else if (!has_attached_progs) {
+		ret = 0;
+		goto exit_cgroup;
+>>>>>>> upstream/android-13
 	}
 
 	if (json_output)
@@ -188,6 +316,10 @@ static int do_show(int argc, char **argv)
 	if (json_output)
 		jsonw_end_array(json_wtr);
 
+<<<<<<< HEAD
+=======
+exit_cgroup:
+>>>>>>> upstream/android-13
 	close(cgroup_fd);
 exit:
 	return ret;
@@ -204,7 +336,11 @@ static int do_show_tree_fn(const char *fpath, const struct stat *sb,
 			   int typeflag, struct FTW *ftw)
 {
 	enum bpf_attach_type type;
+<<<<<<< HEAD
 	bool skip = true;
+=======
+	int has_attached_progs;
+>>>>>>> upstream/android-13
 	int cgroup_fd;
 
 	if (typeflag != FTW_D)
@@ -216,6 +352,7 @@ static int do_show_tree_fn(const char *fpath, const struct stat *sb,
 		return SHOW_TREE_FN_ERR;
 	}
 
+<<<<<<< HEAD
 	for (type = 0; type < __MAX_BPF_ATTACH_TYPE; type++) {
 		int count = count_attached_bpf_progs(cgroup_fd, type);
 
@@ -232,6 +369,15 @@ static int do_show_tree_fn(const char *fpath, const struct stat *sb,
 	}
 
 	if (skip) {
+=======
+	has_attached_progs = cgroup_has_attached_progs(cgroup_fd);
+	if (has_attached_progs < 0) {
+		p_err("can't query bpf programs attached to %s: %s",
+		      fpath, strerror(errno));
+		close(cgroup_fd);
+		return SHOW_TREE_FN_ERR;
+	} else if (!has_attached_progs) {
+>>>>>>> upstream/android-13
 		close(cgroup_fd);
 		return 0;
 	}
@@ -248,6 +394,16 @@ static int do_show_tree_fn(const char *fpath, const struct stat *sb,
 	for (type = 0; type < __MAX_BPF_ATTACH_TYPE; type++)
 		show_attached_bpf_progs(cgroup_fd, type, ftw->level);
 
+<<<<<<< HEAD
+=======
+	if (errno == EINVAL)
+		/* Last attach type does not support query.
+		 * Do not report an error for this, especially because batch
+		 * mode would stop processing commands.
+		 */
+		errno = 0;
+
+>>>>>>> upstream/android-13
 	if (json_output) {
 		jsonw_end_array(json_wtr);
 		jsonw_end_object(json_wtr);
@@ -280,6 +436,7 @@ static char *find_cgroup_root(void)
 
 static int do_show_tree(int argc, char **argv)
 {
+<<<<<<< HEAD
 	char *cgroup_root;
 	int ret;
 
@@ -299,6 +456,38 @@ static int do_show_tree(int argc, char **argv)
 		return -1;
 	}
 
+=======
+	char *cgroup_root, *cgroup_alloced = NULL;
+	int ret;
+
+	query_flags = 0;
+
+	if (!argc) {
+		cgroup_alloced = find_cgroup_root();
+		if (!cgroup_alloced) {
+			p_err("cgroup v2 isn't mounted");
+			return -1;
+		}
+		cgroup_root = cgroup_alloced;
+	} else {
+		cgroup_root = GET_ARG();
+
+		while (argc) {
+			if (is_prefix(*argv, "effective")) {
+				if (query_flags & BPF_F_QUERY_EFFECTIVE) {
+					p_err("duplicated argument: %s", *argv);
+					return -1;
+				}
+				query_flags |= BPF_F_QUERY_EFFECTIVE;
+				NEXT_ARG();
+			} else {
+				p_err("expected no more arguments, 'effective', got: '%s'?",
+				      *argv);
+				return -1;
+			}
+		}
+	}
+>>>>>>> upstream/android-13
 
 	if (json_output)
 		jsonw_start_array(json_wtr);
@@ -324,8 +513,12 @@ static int do_show_tree(int argc, char **argv)
 	if (json_output)
 		jsonw_end_array(json_wtr);
 
+<<<<<<< HEAD
 	if (argc == 0)
 		free(cgroup_root);
+=======
+	free(cgroup_alloced);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -445,20 +638,35 @@ static int do_help(int argc, char **argv)
 	}
 
 	fprintf(stderr,
+<<<<<<< HEAD
 		"Usage: %s %s { show | list } CGROUP\n"
 		"       %s %s tree [CGROUP_ROOT]\n"
 		"       %s %s attach CGROUP ATTACH_TYPE PROG [ATTACH_FLAGS]\n"
 		"       %s %s detach CGROUP ATTACH_TYPE PROG\n"
 		"       %s %s help\n"
+=======
+		"Usage: %1$s %2$s { show | list } CGROUP [**effective**]\n"
+		"       %1$s %2$s tree [CGROUP_ROOT] [**effective**]\n"
+		"       %1$s %2$s attach CGROUP ATTACH_TYPE PROG [ATTACH_FLAGS]\n"
+		"       %1$s %2$s detach CGROUP ATTACH_TYPE PROG\n"
+		"       %1$s %2$s help\n"
+>>>>>>> upstream/android-13
 		"\n"
 		HELP_SPEC_ATTACH_TYPES "\n"
 		"       " HELP_SPEC_ATTACH_FLAGS "\n"
 		"       " HELP_SPEC_PROGRAM "\n"
+<<<<<<< HEAD
 		"       " HELP_SPEC_OPTIONS "\n"
 		"",
 		bin_name, argv[-2],
 		bin_name, argv[-2], bin_name, argv[-2],
 		bin_name, argv[-2], bin_name, argv[-2]);
+=======
+		"       " HELP_SPEC_OPTIONS " |\n"
+		"                    {-f|--bpffs} }\n"
+		"",
+		bin_name, argv[-2]);
+>>>>>>> upstream/android-13
 
 	return 0;
 }

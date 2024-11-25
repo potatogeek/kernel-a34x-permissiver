@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2003 Evgeniy Polyakov <zbr@ioremap.net>
  *
@@ -10,6 +11,11 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright (c) 2003 Evgeniy Polyakov <zbr@ioremap.net>
+>>>>>>> upstream/android-13
  */
 
 #ifndef __W1_NETLINK_H
@@ -82,7 +88,11 @@ struct w1_netlink_msg
 			__u32		res;
 		} mst;
 	} id;
+<<<<<<< HEAD
 	__u8				data[0];
+=======
+	__u8				data[];
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -131,7 +141,11 @@ struct w1_netlink_cmd
 	__u8				cmd;
 	__u8				res;
 	__u16				len;
+<<<<<<< HEAD
 	__u8				data[0];
+=======
+	__u8				data[];
+>>>>>>> upstream/android-13
 };
 
 #ifdef __KERNEL__

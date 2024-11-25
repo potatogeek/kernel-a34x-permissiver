@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * OMAP2xxx/3xxx-common Power/Reset Management (PRM) register definitions
  *
@@ -5,10 +9,13 @@
  * Copyright (C) 2008-2010 Nokia Corporation
  * Paul Walmsley
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * The PRM hardware modules on the OMAP2/3 are quite similar to each
  * other.  The PRM on OMAP4 has a new register layout, and is handled
  * in a separate file.

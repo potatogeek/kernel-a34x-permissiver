@@ -1,8 +1,15 @@
+<<<<<<< HEAD
 /*
  * QLogic iSCSI HBA Driver
  * Copyright (c)  2003-2013 QLogic Corporation
  *
  * See LICENSE.qla4xxx for copyright and licensing details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * QLogic iSCSI HBA Driver
+ * Copyright (c)  2003-2013 QLogic Corporation
+>>>>>>> upstream/android-13
  */
 #ifndef __QLA_NX_H
 #define __QLA_NX_H
@@ -599,6 +606,7 @@ enum qla_regs {
 	QLA8XXX_CRB_TEMP_STATE,
 };
 
+<<<<<<< HEAD
 static const uint32_t qla4_82xx_reg_tbl[] = {
 	QLA82XX_PEG_HALT_STATUS1,
 	QLA82XX_PEG_HALT_STATUS2,
@@ -616,6 +624,8 @@ static const uint32_t qla4_82xx_reg_tbl[] = {
 	CRB_TEMP_STATE,
 };
 
+=======
+>>>>>>> upstream/android-13
 /* Every driver should use these Device State */
 #define QLA8XXX_DEV_COLD		1
 #define QLA8XXX_DEV_INITIALIZING	2

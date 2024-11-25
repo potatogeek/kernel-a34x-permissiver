@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Quick & dirty crypto testing module.
  *
@@ -14,12 +18,15 @@
  *             Gabriele Paoloni <gabriele.paoloni@intel.com>
  *             Tadeusz Struk (tadeusz.struk@intel.com)
  *             Copyright (c) 2010, Intel Corporation.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; either version 2 of the License, or (at your option)
  * any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -68,6 +75,7 @@ static u32 type;
 static u32 mask;
 static int mode;
 static u32 num_mb = 8;
+<<<<<<< HEAD
 static char *tvmem[TVMEMSIZE];
 
 static char *check[] = {
@@ -82,6 +90,24 @@ static char *check[] = {
 
 static u32 block_sizes[] = { 16, 64, 256, 1024, 8192, 0 };
 static u32 aead_sizes[] = { 16, 64, 256, 512, 1024, 2048, 4096, 8192, 0 };
+=======
+static unsigned int klen;
+static char *tvmem[TVMEMSIZE];
+
+static const char *check[] = {
+	"des", "md5", "des3_ede", "rot13", "sha1", "sha224", "sha256", "sm3",
+	"blowfish", "twofish", "serpent", "sha384", "sha512", "md4", "aes",
+	"cast6", "arc4", "michael_mic", "deflate", "crc32c", "tea", "xtea",
+	"khazad", "wp512", "wp384", "wp256", "xeta",  "fcrypt",
+	"camellia", "seed", "rmd160",
+	"lzo", "lzo-rle", "cts", "sha3-224", "sha3-256", "sha3-384",
+	"sha3-512", "streebog256", "streebog512",
+	NULL
+};
+
+static const int block_sizes[] = { 16, 64, 128, 256, 1024, 1420, 4096, 0 };
+static const int aead_sizes[] = { 16, 64, 256, 512, 1024, 1420, 4096, 8192, 0 };
+>>>>>>> upstream/android-13
 
 #define XBUFSIZE 8
 #define MAX_IVLEN 32
@@ -259,10 +285,17 @@ static void test_mb_aead_speed(const char *algo, int enc, int secs,
 	struct test_mb_aead_data *data;
 	struct crypto_aead *tfm;
 	unsigned int i, j, iv_len;
+<<<<<<< HEAD
 	const char *key;
 	const char *e;
 	void *assoc;
 	u32 *b_size;
+=======
+	const int *b_size;
+	const char *key;
+	const char *e;
+	void *assoc;
+>>>>>>> upstream/android-13
 	char *iv;
 	int ret;
 
@@ -293,6 +326,14 @@ static void test_mb_aead_speed(const char *algo, int enc, int secs,
 	}
 
 	ret = crypto_aead_setauthsize(tfm, authsize);
+<<<<<<< HEAD
+=======
+	if (ret) {
+		pr_err("alg: aead: Failed to setauthsize for %s: %d\n", algo,
+		       ret);
+		goto out_free_tfm;
+	}
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < num_mb; ++i)
 		if (testmgr_alloc_buf(data[i].xbuf)) {
@@ -318,7 +359,11 @@ static void test_mb_aead_speed(const char *algo, int enc, int secs,
 	for (i = 0; i < num_mb; ++i) {
 		data[i].req = aead_request_alloc(tfm, GFP_KERNEL);
 		if (!data[i].req) {
+<<<<<<< HEAD
 			pr_err("alg: skcipher: Failed to allocate request for %s\n",
+=======
+			pr_err("alg: aead: Failed to allocate request for %s\n",
+>>>>>>> upstream/android-13
 			       algo);
 			while (i--)
 				aead_request_free(data[i].req);
@@ -340,15 +385,27 @@ static void test_mb_aead_speed(const char *algo, int enc, int secs,
 	do {
 		b_size = aead_sizes;
 		do {
+<<<<<<< HEAD
 			if (*b_size + authsize > XBUFSIZE * PAGE_SIZE) {
 				pr_err("template (%u) too big for buffer (%lu)\n",
 				       authsize + *b_size,
+=======
+			int bs = round_up(*b_size, crypto_aead_blocksize(tfm));
+
+			if (bs + authsize > XBUFSIZE * PAGE_SIZE) {
+				pr_err("template (%u) too big for buffer (%lu)\n",
+				       authsize + bs,
+>>>>>>> upstream/android-13
 				       XBUFSIZE * PAGE_SIZE);
 				goto out;
 			}
 
 			pr_info("test %u (%d bit key, %d byte blocks): ", i,
+<<<<<<< HEAD
 				*keysize * 8, *b_size);
+=======
+				*keysize * 8, bs);
+>>>>>>> upstream/android-13
 
 			/* Set up tfm global state, i.e. the key */
 
@@ -383,11 +440,19 @@ static void test_mb_aead_speed(const char *algo, int enc, int secs,
 				memset(assoc, 0xff, aad_size);
 
 				sg_init_aead(cur->sg, cur->xbuf,
+<<<<<<< HEAD
 					     *b_size + (enc ? 0 : authsize),
 					     assoc, aad_size);
 
 				sg_init_aead(cur->sgout, cur->xoutbuf,
 					     *b_size + (enc ? authsize : 0),
+=======
+					     bs + (enc ? 0 : authsize),
+					     assoc, aad_size);
+
+				sg_init_aead(cur->sgout, cur->xoutbuf,
+					     bs + (enc ? authsize : 0),
+>>>>>>> upstream/android-13
 					     assoc, aad_size);
 
 				aead_request_set_ad(cur->req, aad_size);
@@ -397,30 +462,50 @@ static void test_mb_aead_speed(const char *algo, int enc, int secs,
 					aead_request_set_crypt(cur->req,
 							       cur->sgout,
 							       cur->sg,
+<<<<<<< HEAD
 							       *b_size, iv);
+=======
+							       bs, iv);
+>>>>>>> upstream/android-13
 					ret = crypto_aead_encrypt(cur->req);
 					ret = do_one_aead_op(cur->req, ret);
 
 					if (ret) {
+<<<<<<< HEAD
 						pr_err("calculating auth failed failed (%d)\n",
+=======
+						pr_err("calculating auth failed (%d)\n",
+>>>>>>> upstream/android-13
 						       ret);
 						break;
 					}
 				}
 
 				aead_request_set_crypt(cur->req, cur->sg,
+<<<<<<< HEAD
 						       cur->sgout, *b_size +
+=======
+						       cur->sgout, bs +
+>>>>>>> upstream/android-13
 						       (enc ? 0 : authsize),
 						       iv);
 
 			}
 
 			if (secs) {
+<<<<<<< HEAD
 				ret = test_mb_aead_jiffies(data, enc, *b_size,
 							   secs, num_mb);
 				cond_resched();
 			} else {
 				ret = test_mb_aead_cycles(data, enc, *b_size,
+=======
+				ret = test_mb_aead_jiffies(data, enc, bs,
+							   secs, num_mb);
+				cond_resched();
+			} else {
+				ret = test_mb_aead_cycles(data, enc, bs,
+>>>>>>> upstream/android-13
 							  num_mb);
 			}
 
@@ -537,7 +622,11 @@ static void test_aead_speed(const char *algo, int enc, unsigned int secs,
 	char *xbuf[XBUFSIZE];
 	char *xoutbuf[XBUFSIZE];
 	char *axbuf[XBUFSIZE];
+<<<<<<< HEAD
 	unsigned int *b_size;
+=======
+	const int *b_size;
+>>>>>>> upstream/android-13
 	unsigned int iv_len;
 	struct crypto_wait wait;
 
@@ -568,13 +657,26 @@ static void test_aead_speed(const char *algo, int enc, unsigned int secs,
 	sgout = &sg[9];
 
 	tfm = crypto_alloc_aead(algo, 0, 0);
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	if (IS_ERR(tfm)) {
 		pr_err("alg: aead: Failed to load transform for %s: %ld\n", algo,
 		       PTR_ERR(tfm));
 		goto out_notfm;
 	}
 
+<<<<<<< HEAD
+=======
+	ret = crypto_aead_setauthsize(tfm, authsize);
+	if (ret) {
+		pr_err("alg: aead: Failed to setauthsize for %s: %d\n", algo,
+		       ret);
+		goto out_noreq;
+	}
+
+>>>>>>> upstream/android-13
 	crypto_init_wait(&wait);
 	printk(KERN_INFO "\ntesting speed of %s (%s) %s\n", algo,
 			get_driver_name(crypto_aead, tfm), e);
@@ -593,12 +695,23 @@ static void test_aead_speed(const char *algo, int enc, unsigned int secs,
 	do {
 		b_size = aead_sizes;
 		do {
+<<<<<<< HEAD
 			assoc = axbuf[0];
 			memset(assoc, 0xff, aad_size);
 
 			if ((*keysize + *b_size) > TVMEMSIZE * PAGE_SIZE) {
 				pr_err("template (%u) too big for tvmem (%lu)\n",
 				       *keysize + *b_size,
+=======
+			u32 bs = round_up(*b_size, crypto_aead_blocksize(tfm));
+
+			assoc = axbuf[0];
+			memset(assoc, 0xff, aad_size);
+
+			if ((*keysize + bs) > TVMEMSIZE * PAGE_SIZE) {
+				pr_err("template (%u) too big for tvmem (%lu)\n",
+				       *keysize + bs,
+>>>>>>> upstream/android-13
 					TVMEMSIZE * PAGE_SIZE);
 				goto out;
 			}
@@ -610,8 +723,18 @@ static void test_aead_speed(const char *algo, int enc, unsigned int secs,
 					break;
 				}
 			}
+<<<<<<< HEAD
 			ret = crypto_aead_setkey(tfm, key, *keysize);
 			ret = crypto_aead_setauthsize(tfm, authsize);
+=======
+
+			ret = crypto_aead_setkey(tfm, key, *keysize);
+			if (ret) {
+				pr_err("setkey() failed flags=%x: %d\n",
+					crypto_aead_get_flags(tfm), ret);
+				goto out;
+			}
+>>>>>>> upstream/android-13
 
 			iv_len = crypto_aead_ivsize(tfm);
 			if (iv_len)
@@ -619,6 +742,7 @@ static void test_aead_speed(const char *algo, int enc, unsigned int secs,
 
 			crypto_aead_clear_flags(tfm, ~0);
 			printk(KERN_INFO "test %u (%d bit key, %d byte blocks): ",
+<<<<<<< HEAD
 					i, *keysize * 8, *b_size);
 
 
@@ -635,6 +759,17 @@ static void test_aead_speed(const char *algo, int enc, unsigned int secs,
 
 			sg_init_aead(sgout, xoutbuf,
 				     *b_size + (enc ? authsize : 0), assoc,
+=======
+					i, *keysize * 8, bs);
+
+			memset(tvmem[0], 0xff, PAGE_SIZE);
+
+			sg_init_aead(sg, xbuf, bs + (enc ? 0 : authsize),
+				     assoc, aad_size);
+
+			sg_init_aead(sgout, xoutbuf,
+				     bs + (enc ? authsize : 0), assoc,
+>>>>>>> upstream/android-13
 				     aad_size);
 
 			aead_request_set_ad(req, aad_size);
@@ -647,18 +782,27 @@ static void test_aead_speed(const char *algo, int enc, unsigned int secs,
 				 * reversed (input <-> output) to calculate it
 				 */
 				aead_request_set_crypt(req, sgout, sg,
+<<<<<<< HEAD
 						       *b_size, iv);
+=======
+						       bs, iv);
+>>>>>>> upstream/android-13
 				ret = do_one_aead_op(req,
 						     crypto_aead_encrypt(req));
 
 				if (ret) {
+<<<<<<< HEAD
 					pr_err("calculating auth failed failed (%d)\n",
+=======
+					pr_err("calculating auth failed (%d)\n",
+>>>>>>> upstream/android-13
 					       ret);
 					break;
 				}
 			}
 
 			aead_request_set_crypt(req, sg, sgout,
+<<<<<<< HEAD
 					       *b_size + (enc ? 0 : authsize),
 					       iv);
 
@@ -668,6 +812,17 @@ static void test_aead_speed(const char *algo, int enc, unsigned int secs,
 				cond_resched();
 			} else {
 				ret = test_aead_cycles(req, enc, *b_size);
+=======
+					       bs + (enc ? 0 : authsize),
+					       iv);
+
+			if (secs) {
+				ret = test_aead_jiffies(req, enc, bs,
+							secs);
+				cond_resched();
+			} else {
+				ret = test_aead_cycles(req, enc, bs);
+>>>>>>> upstream/android-13
 			}
 
 			if (ret) {
@@ -868,8 +1023,13 @@ static void test_mb_ahash_speed(const char *algo, unsigned int secs,
 			goto out;
 		}
 
+<<<<<<< HEAD
 		if (speed[i].klen)
 			crypto_ahash_setkey(tfm, tvmem[0], speed[i].klen);
+=======
+		if (klen)
+			crypto_ahash_setkey(tfm, tvmem[0], klen);
+>>>>>>> upstream/android-13
 
 		for (k = 0; k < num_mb; k++)
 			ahash_request_set_crypt(data[k].req, data[k].sg,
@@ -1103,8 +1263,13 @@ static void test_ahash_speed_common(const char *algo, unsigned int secs,
 			break;
 		}
 
+<<<<<<< HEAD
 		if (speed[i].klen)
 			crypto_ahash_setkey(tfm, tvmem[0], speed[i].klen);
+=======
+		if (klen)
+			crypto_ahash_setkey(tfm, tvmem[0], klen);
+>>>>>>> upstream/android-13
 
 		pr_info("test%3u "
 			"(%5u byte blocks,%5u bytes per update,%4u updates): ",
@@ -1256,9 +1421,15 @@ static void test_mb_skcipher_speed(const char *algo, int enc, int secs,
 	struct test_mb_skcipher_data *data;
 	struct crypto_skcipher *tfm;
 	unsigned int i, j, iv_len;
+<<<<<<< HEAD
 	const char *key;
 	const char *e;
 	u32 *b_size;
+=======
+	const int *b_size;
+	const char *key;
+	const char *e;
+>>>>>>> upstream/android-13
 	char iv[128];
 	int ret;
 
@@ -1319,14 +1490,26 @@ static void test_mb_skcipher_speed(const char *algo, int enc, int secs,
 	do {
 		b_size = block_sizes;
 		do {
+<<<<<<< HEAD
 			if (*b_size > XBUFSIZE * PAGE_SIZE) {
 				pr_err("template (%u) too big for buffer (%lu)\n",
 				       *b_size, XBUFSIZE * PAGE_SIZE);
+=======
+			u32 bs = round_up(*b_size, crypto_skcipher_blocksize(tfm));
+
+			if (bs > XBUFSIZE * PAGE_SIZE) {
+				pr_err("template (%u) too big for buffer (%lu)\n",
+				       bs, XBUFSIZE * PAGE_SIZE);
+>>>>>>> upstream/android-13
 				goto out;
 			}
 
 			pr_info("test %u (%d bit key, %d byte blocks): ", i,
+<<<<<<< HEAD
 				*keysize * 8, *b_size);
+=======
+				*keysize * 8, bs);
+>>>>>>> upstream/android-13
 
 			/* Set up tfm global state, i.e. the key */
 
@@ -1356,7 +1539,11 @@ static void test_mb_skcipher_speed(const char *algo, int enc, int secs,
 
 			for (j = 0; j < num_mb; ++j) {
 				struct test_mb_skcipher_data *cur = &data[j];
+<<<<<<< HEAD
 				unsigned int k = *b_size;
+=======
+				unsigned int k = bs;
+>>>>>>> upstream/android-13
 				unsigned int pages = DIV_ROUND_UP(k, PAGE_SIZE);
 				unsigned int p = 0;
 
@@ -1374,18 +1561,30 @@ static void test_mb_skcipher_speed(const char *algo, int enc, int secs,
 				memset(cur->xbuf[p], 0xff, k);
 
 				skcipher_request_set_crypt(cur->req, cur->sg,
+<<<<<<< HEAD
 							   cur->sg, *b_size,
 							   iv);
+=======
+							   cur->sg, bs, iv);
+>>>>>>> upstream/android-13
 			}
 
 			if (secs) {
 				ret = test_mb_acipher_jiffies(data, enc,
+<<<<<<< HEAD
 							      *b_size, secs,
+=======
+							      bs, secs,
+>>>>>>> upstream/android-13
 							      num_mb);
 				cond_resched();
 			} else {
 				ret = test_mb_acipher_cycles(data, enc,
+<<<<<<< HEAD
 							     *b_size, num_mb);
+=======
+							     bs, num_mb);
+>>>>>>> upstream/android-13
 			}
 
 			if (ret) {
@@ -1500,8 +1699,13 @@ static void test_skcipher_speed(const char *algo, int enc, unsigned int secs,
 	char iv[128];
 	struct skcipher_request *req;
 	struct crypto_skcipher *tfm;
+<<<<<<< HEAD
 	const char *e;
 	u32 *b_size;
+=======
+	const int *b_size;
+	const char *e;
+>>>>>>> upstream/android-13
 
 	if (enc == ENCRYPT)
 		e = "encryption";
@@ -1518,8 +1722,13 @@ static void test_skcipher_speed(const char *algo, int enc, unsigned int secs,
 		return;
 	}
 
+<<<<<<< HEAD
 	pr_info("\ntesting speed of async %s (%s) %s\n", algo,
 			get_driver_name(crypto_skcipher, tfm), e);
+=======
+	pr_info("\ntesting speed of %s %s (%s) %s\n", async ? "async" : "sync",
+		algo, get_driver_name(crypto_skcipher, tfm), e);
+>>>>>>> upstream/android-13
 
 	req = skcipher_request_alloc(tfm, GFP_KERNEL);
 	if (!req) {
@@ -1536,17 +1745,30 @@ static void test_skcipher_speed(const char *algo, int enc, unsigned int secs,
 		b_size = block_sizes;
 
 		do {
+<<<<<<< HEAD
 			struct scatterlist sg[TVMEMSIZE];
 
 			if ((*keysize + *b_size) > TVMEMSIZE * PAGE_SIZE) {
 				pr_err("template (%u) too big for "
 				       "tvmem (%lu)\n", *keysize + *b_size,
+=======
+			u32 bs = round_up(*b_size, crypto_skcipher_blocksize(tfm));
+			struct scatterlist sg[TVMEMSIZE];
+
+			if ((*keysize + bs) > TVMEMSIZE * PAGE_SIZE) {
+				pr_err("template (%u) too big for "
+				       "tvmem (%lu)\n", *keysize + bs,
+>>>>>>> upstream/android-13
 				       TVMEMSIZE * PAGE_SIZE);
 				goto out_free_req;
 			}
 
 			pr_info("test %u (%d bit key, %d byte blocks): ", i,
+<<<<<<< HEAD
 				*keysize * 8, *b_size);
+=======
+				*keysize * 8, bs);
+>>>>>>> upstream/android-13
 
 			memset(tvmem[0], 0xff, PAGE_SIZE);
 
@@ -1568,7 +1790,11 @@ static void test_skcipher_speed(const char *algo, int enc, unsigned int secs,
 				goto out_free_req;
 			}
 
+<<<<<<< HEAD
 			k = *keysize + *b_size;
+=======
+			k = *keysize + bs;
+>>>>>>> upstream/android-13
 			sg_init_table(sg, DIV_ROUND_UP(k, PAGE_SIZE));
 
 			if (k > PAGE_SIZE) {
@@ -1585,13 +1811,18 @@ static void test_skcipher_speed(const char *algo, int enc, unsigned int secs,
 				sg_set_buf(sg + j, tvmem[j], k);
 				memset(tvmem[j], 0xff, k);
 			} else {
+<<<<<<< HEAD
 				sg_set_buf(sg, tvmem[0] + *keysize, *b_size);
+=======
+				sg_set_buf(sg, tvmem[0] + *keysize, bs);
+>>>>>>> upstream/android-13
 			}
 
 			iv_len = crypto_skcipher_ivsize(tfm);
 			if (iv_len)
 				memset(&iv, 0xff, iv_len);
 
+<<<<<<< HEAD
 			skcipher_request_set_crypt(req, sg, sg, *b_size, iv);
 
 			if (secs) {
@@ -1601,6 +1832,17 @@ static void test_skcipher_speed(const char *algo, int enc, unsigned int secs,
 			} else {
 				ret = test_acipher_cycles(req, enc,
 							  *b_size);
+=======
+			skcipher_request_set_crypt(req, sg, sg, bs, iv);
+
+			if (secs) {
+				ret = test_acipher_jiffies(req, enc,
+							   bs, secs);
+				cond_resched();
+			} else {
+				ret = test_acipher_cycles(req, enc,
+							  bs);
+>>>>>>> upstream/android-13
 			}
 
 			if (ret) {
@@ -1638,7 +1880,11 @@ static void test_cipher_speed(const char *algo, int enc, unsigned int secs,
 
 static void test_available(void)
 {
+<<<<<<< HEAD
 	char **name = check;
+=======
+	const char **name = check;
+>>>>>>> upstream/android-13
 
 	while (*name) {
 		printk("alg %s ", *name);
@@ -1736,6 +1982,10 @@ static int do_test(const char *alg, u32 type, u32 mask, int m, u32 num_mb)
 		ret += tcrypt_test("xts(aes)");
 		ret += tcrypt_test("ctr(aes)");
 		ret += tcrypt_test("rfc3686(ctr(aes))");
+<<<<<<< HEAD
+=======
+		ret += tcrypt_test("ofb(aes)");
+>>>>>>> upstream/android-13
 		ret += tcrypt_test("cfb(aes)");
 		break;
 
@@ -1801,15 +2051,19 @@ static int do_test(const char *alg, u32 type, u32 mask, int m, u32 num_mb)
 		ret += tcrypt_test("wp256");
 		break;
 
+<<<<<<< HEAD
 	case 25:
 		ret += tcrypt_test("ecb(tnepres)");
 		break;
 
+=======
+>>>>>>> upstream/android-13
 	case 26:
 		ret += tcrypt_test("ecb(anubis)");
 		ret += tcrypt_test("cbc(anubis)");
 		break;
 
+<<<<<<< HEAD
 	case 27:
 		ret += tcrypt_test("tgr192");
 		break;
@@ -1822,6 +2076,8 @@ static int do_test(const char *alg, u32 type, u32 mask, int m, u32 num_mb)
 		ret += tcrypt_test("tgr128");
 		break;
 
+=======
+>>>>>>> upstream/android-13
 	case 30:
 		ret += tcrypt_test("ecb(xeta)");
 		break;
@@ -1842,10 +2098,13 @@ static int do_test(const char *alg, u32 type, u32 mask, int m, u32 num_mb)
 		ret += tcrypt_test("sha224");
 		break;
 
+<<<<<<< HEAD
 	case 34:
 		ret += tcrypt_test("salsa20");
 		break;
 
+=======
+>>>>>>> upstream/android-13
 	case 35:
 		ret += tcrypt_test("gcm(aes)");
 		break;
@@ -1863,7 +2122,11 @@ static int do_test(const char *alg, u32 type, u32 mask, int m, u32 num_mb)
 		break;
 
         case 39:
+<<<<<<< HEAD
 		ret += tcrypt_test("rmd128");
+=======
+		ret += tcrypt_test("xxhash64");
+>>>>>>> upstream/android-13
 		break;
 
         case 40:
@@ -1871,21 +2134,32 @@ static int do_test(const char *alg, u32 type, u32 mask, int m, u32 num_mb)
 		break;
 
 	case 41:
+<<<<<<< HEAD
 		ret += tcrypt_test("rmd256");
 		break;
 
 	case 42:
 		ret += tcrypt_test("rmd320");
+=======
+		ret += tcrypt_test("blake2s-256");
+		break;
+
+	case 42:
+		ret += tcrypt_test("blake2b-512");
+>>>>>>> upstream/android-13
 		break;
 
 	case 43:
 		ret += tcrypt_test("ecb(seed)");
 		break;
 
+<<<<<<< HEAD
 	case 44:
 		ret += tcrypt_test("zlib");
 		break;
 
+=======
+>>>>>>> upstream/android-13
 	case 45:
 		ret += tcrypt_test("rfc4309(ccm(aes))");
 		break;
@@ -1918,6 +2192,25 @@ static int do_test(const char *alg, u32 type, u32 mask, int m, u32 num_mb)
 		ret += tcrypt_test("sm3");
 		break;
 
+<<<<<<< HEAD
+=======
+	case 53:
+		ret += tcrypt_test("streebog256");
+		break;
+
+	case 54:
+		ret += tcrypt_test("streebog512");
+		break;
+
+	case 55:
+		ret += tcrypt_test("gcm(sm4)");
+		break;
+
+	case 56:
+		ret += tcrypt_test("ccm(sm4)");
+		break;
+
+>>>>>>> upstream/android-13
 	case 100:
 		ret += tcrypt_test("hmac(md5)");
 		break;
@@ -1946,10 +2239,13 @@ static int do_test(const char *alg, u32 type, u32 mask, int m, u32 num_mb)
 		ret += tcrypt_test("xcbc(aes)");
 		break;
 
+<<<<<<< HEAD
 	case 107:
 		ret += tcrypt_test("hmac(rmd128)");
 		break;
 
+=======
+>>>>>>> upstream/android-13
 	case 108:
 		ret += tcrypt_test("hmac(rmd160)");
 		break;
@@ -1974,6 +2270,17 @@ static int do_test(const char *alg, u32 type, u32 mask, int m, u32 num_mb)
 		ret += tcrypt_test("hmac(sha3-512)");
 		break;
 
+<<<<<<< HEAD
+=======
+	case 115:
+		ret += tcrypt_test("hmac(streebog256)");
+		break;
+
+	case 116:
+		ret += tcrypt_test("hmac(streebog512)");
+		break;
+
+>>>>>>> upstream/android-13
 	case 150:
 		ret += tcrypt_test("ansi_cprng");
 		break;
@@ -2005,6 +2312,18 @@ static int do_test(const char *alg, u32 type, u32 mask, int m, u32 num_mb)
 	case 157:
 		ret += tcrypt_test("authenc(hmac(sha1),ecb(cipher_null))");
 		break;
+<<<<<<< HEAD
+=======
+
+	case 158:
+		ret += tcrypt_test("cbcmac(sm4)");
+		break;
+
+	case 159:
+		ret += tcrypt_test("cmac(sm4)");
+		break;
+
+>>>>>>> upstream/android-13
 	case 181:
 		ret += tcrypt_test("authenc(hmac(sha1),cbc(des))");
 		break;
@@ -2037,6 +2356,12 @@ static int do_test(const char *alg, u32 type, u32 mask, int m, u32 num_mb)
 		break;
 	case 191:
 		ret += tcrypt_test("ecb(sm4)");
+<<<<<<< HEAD
+=======
+		ret += tcrypt_test("cbc(sm4)");
+		ret += tcrypt_test("cfb(sm4)");
+		ret += tcrypt_test("ctr(sm4)");
+>>>>>>> upstream/android-13
 		break;
 	case 200:
 		test_cipher_speed("ecb(aes)", ENCRYPT, sec, NULL, 0,
@@ -2162,11 +2487,14 @@ static int do_test(const char *alg, u32 type, u32 mask, int m, u32 num_mb)
 				speed_template_32_48_64);
 		break;
 
+<<<<<<< HEAD
 	case 206:
 		test_cipher_speed("salsa20", ENCRYPT, sec, NULL, 0,
 				  speed_template_16_32);
 		break;
 
+=======
+>>>>>>> upstream/android-13
 	case 207:
 		test_cipher_speed("ecb(serpent)", ENCRYPT, sec, NULL, 0,
 				  speed_template_16_32);
@@ -2290,6 +2618,28 @@ static int do_test(const char *alg, u32 type, u32 mask, int m, u32 num_mb)
 				   num_mb);
 		break;
 
+<<<<<<< HEAD
+=======
+	case 218:
+		test_cipher_speed("ecb(sm4)", ENCRYPT, sec, NULL, 0,
+				speed_template_16);
+		test_cipher_speed("ecb(sm4)", DECRYPT, sec, NULL, 0,
+				speed_template_16);
+		test_cipher_speed("cbc(sm4)", ENCRYPT, sec, NULL, 0,
+				speed_template_16);
+		test_cipher_speed("cbc(sm4)", DECRYPT, sec, NULL, 0,
+				speed_template_16);
+		test_cipher_speed("cfb(sm4)", ENCRYPT, sec, NULL, 0,
+				speed_template_16);
+		test_cipher_speed("cfb(sm4)", DECRYPT, sec, NULL, 0,
+				speed_template_16);
+		test_cipher_speed("ctr(sm4)", ENCRYPT, sec, NULL, 0,
+				speed_template_16);
+		test_cipher_speed("ctr(sm4)", DECRYPT, sec, NULL, 0,
+				speed_template_16);
+		break;
+
+>>>>>>> upstream/android-13
 	case 219:
 		test_cipher_speed("adiantum(xchacha12,aes)", ENCRYPT, sec, NULL,
 				  0, speed_template_32);
@@ -2301,11 +2651,59 @@ static int do_test(const char *alg, u32 type, u32 mask, int m, u32 num_mb)
 				  0, speed_template_32);
 		break;
 
+<<<<<<< HEAD
+=======
+	case 220:
+		test_acipher_speed("essiv(cbc(aes),sha256)",
+				  ENCRYPT, sec, NULL, 0,
+				  speed_template_16_24_32);
+		test_acipher_speed("essiv(cbc(aes),sha256)",
+				  DECRYPT, sec, NULL, 0,
+				  speed_template_16_24_32);
+		break;
+
+	case 221:
+		test_aead_speed("aegis128", ENCRYPT, sec,
+				NULL, 0, 16, 8, speed_template_16);
+		test_aead_speed("aegis128", DECRYPT, sec,
+				NULL, 0, 16, 8, speed_template_16);
+		break;
+
+	case 222:
+		test_aead_speed("gcm(sm4)", ENCRYPT, sec,
+				NULL, 0, 16, 8, speed_template_16);
+		test_aead_speed("gcm(sm4)", DECRYPT, sec,
+				NULL, 0, 16, 8, speed_template_16);
+		break;
+
+	case 223:
+		test_aead_speed("rfc4309(ccm(sm4))", ENCRYPT, sec,
+				NULL, 0, 16, 16, aead_speed_template_19);
+		test_aead_speed("rfc4309(ccm(sm4))", DECRYPT, sec,
+				NULL, 0, 16, 16, aead_speed_template_19);
+		break;
+
+	case 224:
+		test_mb_aead_speed("gcm(sm4)", ENCRYPT, sec, NULL, 0, 16, 8,
+				   speed_template_16, num_mb);
+		test_mb_aead_speed("gcm(sm4)", DECRYPT, sec, NULL, 0, 16, 8,
+				   speed_template_16, num_mb);
+		break;
+
+	case 225:
+		test_mb_aead_speed("rfc4309(ccm(sm4))", ENCRYPT, sec, NULL, 0,
+				   16, 16, aead_speed_template_19, num_mb);
+		test_mb_aead_speed("rfc4309(ccm(sm4))", DECRYPT, sec, NULL, 0,
+				   16, 16, aead_speed_template_19, num_mb);
+		break;
+
+>>>>>>> upstream/android-13
 	case 300:
 		if (alg) {
 			test_hash_speed(alg, sec, generic_hash_speed_template);
 			break;
 		}
+<<<<<<< HEAD
 		/* fall through */
 	case 301:
 		test_hash_speed("md4", sec, generic_hash_speed_template);
@@ -2411,6 +2809,112 @@ static int do_test(const char *alg, u32 type, u32 mask, int m, u32 num_mb)
 		test_hash_speed("sm3", sec, generic_hash_speed_template);
 		if (mode > 300 && mode < 400) break;
 		/* fall through */
+=======
+		fallthrough;
+	case 301:
+		test_hash_speed("md4", sec, generic_hash_speed_template);
+		if (mode > 300 && mode < 400) break;
+		fallthrough;
+	case 302:
+		test_hash_speed("md5", sec, generic_hash_speed_template);
+		if (mode > 300 && mode < 400) break;
+		fallthrough;
+	case 303:
+		test_hash_speed("sha1", sec, generic_hash_speed_template);
+		if (mode > 300 && mode < 400) break;
+		fallthrough;
+	case 304:
+		test_hash_speed("sha256", sec, generic_hash_speed_template);
+		if (mode > 300 && mode < 400) break;
+		fallthrough;
+	case 305:
+		test_hash_speed("sha384", sec, generic_hash_speed_template);
+		if (mode > 300 && mode < 400) break;
+		fallthrough;
+	case 306:
+		test_hash_speed("sha512", sec, generic_hash_speed_template);
+		if (mode > 300 && mode < 400) break;
+		fallthrough;
+	case 307:
+		test_hash_speed("wp256", sec, generic_hash_speed_template);
+		if (mode > 300 && mode < 400) break;
+		fallthrough;
+	case 308:
+		test_hash_speed("wp384", sec, generic_hash_speed_template);
+		if (mode > 300 && mode < 400) break;
+		fallthrough;
+	case 309:
+		test_hash_speed("wp512", sec, generic_hash_speed_template);
+		if (mode > 300 && mode < 400) break;
+		fallthrough;
+	case 313:
+		test_hash_speed("sha224", sec, generic_hash_speed_template);
+		if (mode > 300 && mode < 400) break;
+		fallthrough;
+	case 314:
+		test_hash_speed("xxhash64", sec, generic_hash_speed_template);
+		if (mode > 300 && mode < 400) break;
+		fallthrough;
+	case 315:
+		test_hash_speed("rmd160", sec, generic_hash_speed_template);
+		if (mode > 300 && mode < 400) break;
+		fallthrough;
+	case 316:
+		test_hash_speed("blake2s-256", sec, generic_hash_speed_template);
+		if (mode > 300 && mode < 400) break;
+		fallthrough;
+	case 317:
+		test_hash_speed("blake2b-512", sec, generic_hash_speed_template);
+		if (mode > 300 && mode < 400) break;
+		fallthrough;
+	case 318:
+		klen = 16;
+		test_hash_speed("ghash", sec, generic_hash_speed_template);
+		if (mode > 300 && mode < 400) break;
+		fallthrough;
+	case 319:
+		test_hash_speed("crc32c", sec, generic_hash_speed_template);
+		if (mode > 300 && mode < 400) break;
+		fallthrough;
+	case 320:
+		test_hash_speed("crct10dif", sec, generic_hash_speed_template);
+		if (mode > 300 && mode < 400) break;
+		fallthrough;
+	case 321:
+		test_hash_speed("poly1305", sec, poly1305_speed_template);
+		if (mode > 300 && mode < 400) break;
+		fallthrough;
+	case 322:
+		test_hash_speed("sha3-224", sec, generic_hash_speed_template);
+		if (mode > 300 && mode < 400) break;
+		fallthrough;
+	case 323:
+		test_hash_speed("sha3-256", sec, generic_hash_speed_template);
+		if (mode > 300 && mode < 400) break;
+		fallthrough;
+	case 324:
+		test_hash_speed("sha3-384", sec, generic_hash_speed_template);
+		if (mode > 300 && mode < 400) break;
+		fallthrough;
+	case 325:
+		test_hash_speed("sha3-512", sec, generic_hash_speed_template);
+		if (mode > 300 && mode < 400) break;
+		fallthrough;
+	case 326:
+		test_hash_speed("sm3", sec, generic_hash_speed_template);
+		if (mode > 300 && mode < 400) break;
+		fallthrough;
+	case 327:
+		test_hash_speed("streebog256", sec,
+				generic_hash_speed_template);
+		if (mode > 300 && mode < 400) break;
+		fallthrough;
+	case 328:
+		test_hash_speed("streebog512", sec,
+				generic_hash_speed_template);
+		if (mode > 300 && mode < 400) break;
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 399:
 		break;
 
@@ -2419,6 +2923,7 @@ static int do_test(const char *alg, u32 type, u32 mask, int m, u32 num_mb)
 			test_ahash_speed(alg, sec, generic_hash_speed_template);
 			break;
 		}
+<<<<<<< HEAD
 		/* fall through */
 	case 401:
 		test_ahash_speed("md4", sec, generic_hash_speed_template);
@@ -2504,26 +3009,127 @@ static int do_test(const char *alg, u32 type, u32 mask, int m, u32 num_mb)
 		test_ahash_speed("sha3-512", sec, generic_hash_speed_template);
 		if (mode > 400 && mode < 500) break;
 		/* fall through */
+=======
+		fallthrough;
+	case 401:
+		test_ahash_speed("md4", sec, generic_hash_speed_template);
+		if (mode > 400 && mode < 500) break;
+		fallthrough;
+	case 402:
+		test_ahash_speed("md5", sec, generic_hash_speed_template);
+		if (mode > 400 && mode < 500) break;
+		fallthrough;
+	case 403:
+		test_ahash_speed("sha1", sec, generic_hash_speed_template);
+		if (mode > 400 && mode < 500) break;
+		fallthrough;
+	case 404:
+		test_ahash_speed("sha256", sec, generic_hash_speed_template);
+		if (mode > 400 && mode < 500) break;
+		fallthrough;
+	case 405:
+		test_ahash_speed("sha384", sec, generic_hash_speed_template);
+		if (mode > 400 && mode < 500) break;
+		fallthrough;
+	case 406:
+		test_ahash_speed("sha512", sec, generic_hash_speed_template);
+		if (mode > 400 && mode < 500) break;
+		fallthrough;
+	case 407:
+		test_ahash_speed("wp256", sec, generic_hash_speed_template);
+		if (mode > 400 && mode < 500) break;
+		fallthrough;
+	case 408:
+		test_ahash_speed("wp384", sec, generic_hash_speed_template);
+		if (mode > 400 && mode < 500) break;
+		fallthrough;
+	case 409:
+		test_ahash_speed("wp512", sec, generic_hash_speed_template);
+		if (mode > 400 && mode < 500) break;
+		fallthrough;
+	case 413:
+		test_ahash_speed("sha224", sec, generic_hash_speed_template);
+		if (mode > 400 && mode < 500) break;
+		fallthrough;
+	case 414:
+		test_ahash_speed("xxhash64", sec, generic_hash_speed_template);
+		if (mode > 400 && mode < 500) break;
+		fallthrough;
+	case 415:
+		test_ahash_speed("rmd160", sec, generic_hash_speed_template);
+		if (mode > 400 && mode < 500) break;
+		fallthrough;
+	case 416:
+		test_ahash_speed("blake2s-256", sec, generic_hash_speed_template);
+		if (mode > 400 && mode < 500) break;
+		fallthrough;
+	case 417:
+		test_ahash_speed("blake2b-512", sec, generic_hash_speed_template);
+		if (mode > 400 && mode < 500) break;
+		fallthrough;
+	case 418:
+		test_ahash_speed("sha3-224", sec, generic_hash_speed_template);
+		if (mode > 400 && mode < 500) break;
+		fallthrough;
+	case 419:
+		test_ahash_speed("sha3-256", sec, generic_hash_speed_template);
+		if (mode > 400 && mode < 500) break;
+		fallthrough;
+	case 420:
+		test_ahash_speed("sha3-384", sec, generic_hash_speed_template);
+		if (mode > 400 && mode < 500) break;
+		fallthrough;
+	case 421:
+		test_ahash_speed("sha3-512", sec, generic_hash_speed_template);
+		if (mode > 400 && mode < 500) break;
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 422:
 		test_mb_ahash_speed("sha1", sec, generic_hash_speed_template,
 				    num_mb);
 		if (mode > 400 && mode < 500) break;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 423:
 		test_mb_ahash_speed("sha256", sec, generic_hash_speed_template,
 				    num_mb);
 		if (mode > 400 && mode < 500) break;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 424:
 		test_mb_ahash_speed("sha512", sec, generic_hash_speed_template,
 				    num_mb);
 		if (mode > 400 && mode < 500) break;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 425:
 		test_mb_ahash_speed("sm3", sec, generic_hash_speed_template,
 				    num_mb);
 		if (mode > 400 && mode < 500) break;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+	case 426:
+		test_mb_ahash_speed("streebog256", sec,
+				    generic_hash_speed_template, num_mb);
+		if (mode > 400 && mode < 500) break;
+		fallthrough;
+	case 427:
+		test_mb_ahash_speed("streebog512", sec,
+				    generic_hash_speed_template, num_mb);
+		if (mode > 400 && mode < 500) break;
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 499:
 		break;
 
@@ -2739,6 +3345,28 @@ static int do_test(const char *alg, u32 type, u32 mask, int m, u32 num_mb)
 				   speed_template_8_32);
 		break;
 
+<<<<<<< HEAD
+=======
+	case 518:
+		test_acipher_speed("ecb(sm4)", ENCRYPT, sec, NULL, 0,
+				speed_template_16);
+		test_acipher_speed("ecb(sm4)", DECRYPT, sec, NULL, 0,
+				speed_template_16);
+		test_acipher_speed("cbc(sm4)", ENCRYPT, sec, NULL, 0,
+				speed_template_16);
+		test_acipher_speed("cbc(sm4)", DECRYPT, sec, NULL, 0,
+				speed_template_16);
+		test_acipher_speed("cfb(sm4)", ENCRYPT, sec, NULL, 0,
+				speed_template_16);
+		test_acipher_speed("cfb(sm4)", DECRYPT, sec, NULL, 0,
+				speed_template_16);
+		test_acipher_speed("ctr(sm4)", ENCRYPT, sec, NULL, 0,
+				speed_template_16);
+		test_acipher_speed("ctr(sm4)", DECRYPT, sec, NULL, 0,
+				speed_template_16);
+		break;
+
+>>>>>>> upstream/android-13
 	case 600:
 		test_mb_skcipher_speed("ecb(aes)", ENCRYPT, sec, NULL, 0,
 				       speed_template_16_24_32, num_mb);
@@ -3002,7 +3630,11 @@ err_free_tv:
  */
 static void __exit tcrypt_mod_fini(void) { }
 
+<<<<<<< HEAD
 module_init(tcrypt_mod_init);
+=======
+late_initcall(tcrypt_mod_init);
+>>>>>>> upstream/android-13
 module_exit(tcrypt_mod_fini);
 
 module_param(alg, charp, 0);
@@ -3014,6 +3646,11 @@ MODULE_PARM_DESC(sec, "Length in seconds of speed tests "
 		      "(defaults to zero which uses CPU cycles instead)");
 module_param(num_mb, uint, 0000);
 MODULE_PARM_DESC(num_mb, "Number of concurrent requests to be used in mb speed tests (defaults to 8)");
+<<<<<<< HEAD
+=======
+module_param(klen, uint, 0);
+MODULE_PARM_DESC(klen, "Key length (defaults to 0)");
+>>>>>>> upstream/android-13
 
 MODULE_LICENSE("GPL");
 MODULE_DESCRIPTION("Quick & dirty crypto testing module");

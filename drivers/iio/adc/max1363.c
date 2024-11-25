@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
  /*
   * iio/adc/max1363.c
   * Copyright (C) 2008-2010 Jonathan Cameron
@@ -9,10 +13,13 @@
   * Copyright (C) 2000 Russell King
   *
   * Driver for max1363 and similar chips.
+<<<<<<< HEAD
   *
   * This program is free software; you can redistribute it and/or modify
   * it under the terms of the GNU General Public License version 2 as
   * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
   */
 
 #include <linux/interrupt.h>
@@ -25,8 +32,13 @@
 #include <linux/slab.h>
 #include <linux/err.h>
 #include <linux/module.h>
+<<<<<<< HEAD
 #include <linux/of.h>
 #include <linux/of_device.h>
+=======
+#include <linux/mod_devicetable.h>
+#include <linux/property.h>
+>>>>>>> upstream/android-13
 
 #include <linux/iio/iio.h>
 #include <linux/iio/sysfs.h>
@@ -153,6 +165,10 @@ struct max1363_chip_info {
  * @current_mode:	the scan mode of this chip
  * @requestedmask:	a valid requested set of channels
  * @reg:		supply regulator
+<<<<<<< HEAD
+=======
+ * @lock:		lock to ensure state is consistent
+>>>>>>> upstream/android-13
  * @monitor_on:		whether monitor mode is enabled
  * @monitor_speed:	parameter corresponding to device monitor speed setting
  * @mask_high:		bitmask for enabled high thresholds
@@ -172,6 +188,10 @@ struct max1363_state {
 	const struct max1363_mode	*current_mode;
 	u32				requestedmask;
 	struct regulator		*reg;
+<<<<<<< HEAD
+=======
+	struct mutex			lock;
+>>>>>>> upstream/android-13
 
 	/* Using monitor modes and buffer at the same time is
 	   currently not supported */
@@ -367,7 +387,15 @@ static int max1363_read_single_chan(struct iio_dev *indio_dev,
 	struct max1363_state *st = iio_priv(indio_dev);
 	struct i2c_client *client = st->client;
 
+<<<<<<< HEAD
 	mutex_lock(&indio_dev->mlock);
+=======
+	ret = iio_device_claim_direct_mode(indio_dev);
+	if (ret)
+		return ret;
+	mutex_lock(&st->lock);
+
+>>>>>>> upstream/android-13
 	/*
 	 * If monitor mode is enabled, the method for reading a single
 	 * channel will have to be rather different and has not yet
@@ -375,7 +403,11 @@ static int max1363_read_single_chan(struct iio_dev *indio_dev,
 	 *
 	 * Also, cannot read directly if buffered capture enabled.
 	 */
+<<<<<<< HEAD
 	if (st->monitor_on || iio_buffer_enabled(indio_dev)) {
+=======
+	if (st->monitor_on) {
+>>>>>>> upstream/android-13
 		ret = -EBUSY;
 		goto error_ret;
 	}
@@ -407,8 +439,15 @@ static int max1363_read_single_chan(struct iio_dev *indio_dev,
 		data = rxbuf[0];
 	}
 	*val = data;
+<<<<<<< HEAD
 error_ret:
 	mutex_unlock(&indio_dev->mlock);
+=======
+
+error_ret:
+	mutex_unlock(&st->lock);
+	iio_device_release_direct_mode(indio_dev);
+>>>>>>> upstream/android-13
 	return ret;
 
 }
@@ -708,9 +747,15 @@ static ssize_t max1363_monitor_store_freq(struct device *dev,
 	if (!found)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	mutex_lock(&indio_dev->mlock);
 	st->monitor_speed = i;
 	mutex_unlock(&indio_dev->mlock);
+=======
+	mutex_lock(&st->lock);
+	st->monitor_speed = i;
+	mutex_unlock(&st->lock);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -813,12 +858,20 @@ static int max1363_read_event_config(struct iio_dev *indio_dev,
 	int val;
 	int number = chan->channel;
 
+<<<<<<< HEAD
 	mutex_lock(&indio_dev->mlock);
+=======
+	mutex_lock(&st->lock);
+>>>>>>> upstream/android-13
 	if (dir == IIO_EV_DIR_FALLING)
 		val = (1 << number) & st->mask_low;
 	else
 		val = (1 << number) & st->mask_high;
+<<<<<<< HEAD
 	mutex_unlock(&indio_dev->mlock);
+=======
+	mutex_unlock(&st->lock);
+>>>>>>> upstream/android-13
 
 	return val;
 }
@@ -965,7 +1018,15 @@ static int max1363_write_event_config(struct iio_dev *indio_dev,
 	u16 unifiedmask;
 	int number = chan->channel;
 
+<<<<<<< HEAD
 	mutex_lock(&indio_dev->mlock);
+=======
+	ret = iio_device_claim_direct_mode(indio_dev);
+	if (ret)
+		return ret;
+	mutex_lock(&st->lock);
+
+>>>>>>> upstream/android-13
 	unifiedmask = st->mask_low | st->mask_high;
 	if (dir == IIO_EV_DIR_FALLING) {
 
@@ -992,7 +1053,12 @@ static int max1363_write_event_config(struct iio_dev *indio_dev,
 
 	max1363_monitor_mode_update(st, !!(st->mask_high | st->mask_low));
 error_ret:
+<<<<<<< HEAD
 	mutex_unlock(&indio_dev->mlock);
+=======
+	mutex_unlock(&st->lock);
+	iio_device_release_direct_mode(indio_dev);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -1519,8 +1585,11 @@ done:
 	return IRQ_HANDLED;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_OF
 
+=======
+>>>>>>> upstream/android-13
 #define MAX1363_COMPATIBLE(of_compatible, cfg) {		\
 			.compatible = of_compatible,		\
 			.data = &max1363_chip_info_tbl[cfg],	\
@@ -1568,7 +1637,10 @@ static const struct of_device_id max1363_of_match[] = {
 	{ /* sentinel */ }
 };
 MODULE_DEVICE_TABLE(of, max1363_of_match);
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 
 static int max1363_probe(struct i2c_client *client,
 			 const struct i2c_device_id *id)
@@ -1583,13 +1655,20 @@ static int max1363_probe(struct i2c_client *client,
 	if (!indio_dev)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	indio_dev->dev.of_node = client->dev.of_node;
+=======
+>>>>>>> upstream/android-13
 	ret = iio_map_array_register(indio_dev, client->dev.platform_data);
 	if (ret < 0)
 		return ret;
 
 	st = iio_priv(indio_dev);
 
+<<<<<<< HEAD
+=======
+	mutex_init(&st->lock);
+>>>>>>> upstream/android-13
 	st->reg = devm_regulator_get(&client->dev, "vcc");
 	if (IS_ERR(st->reg)) {
 		ret = PTR_ERR(st->reg);
@@ -1603,7 +1682,11 @@ static int max1363_probe(struct i2c_client *client,
 	/* this is only used for device removal purposes */
 	i2c_set_clientdata(client, indio_dev);
 
+<<<<<<< HEAD
 	st->chip_info = of_device_get_match_data(&client->dev);
+=======
+	st->chip_info = device_get_match_data(&client->dev);
+>>>>>>> upstream/android-13
 	if (!st->chip_info)
 		st->chip_info = &max1363_chip_info_tbl[id->driver_data];
 	st->client = client;
@@ -1641,9 +1724,12 @@ static int max1363_probe(struct i2c_client *client,
 	if (ret)
 		goto error_disable_reg;
 
+<<<<<<< HEAD
 	/* Establish that the iio_dev is a child of the i2c device */
 	indio_dev->dev.parent = &client->dev;
 	indio_dev->dev.of_node = client->dev.of_node;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->name = id->name;
 	indio_dev->channels = st->chip_info->channels;
 	indio_dev->num_channels = st->chip_info->num_channels;
@@ -1749,7 +1835,11 @@ MODULE_DEVICE_TABLE(i2c, max1363_id);
 static struct i2c_driver max1363_driver = {
 	.driver = {
 		.name = "max1363",
+<<<<<<< HEAD
 		.of_match_table = of_match_ptr(max1363_of_match),
+=======
+		.of_match_table = max1363_of_match,
+>>>>>>> upstream/android-13
 	},
 	.probe = max1363_probe,
 	.remove = max1363_remove,

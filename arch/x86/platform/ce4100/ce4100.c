@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Intel CE4100  platform specific setup code
  *
  * (C) Copyright 2010 Intel Corporation
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; version 2
  * of the License.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/init.h>
 #include <linux/kernel.h>
@@ -84,7 +91,11 @@ static void ce4100_mem_serial_out(struct uart_port *p, int offset, int value)
 }
 
 static void ce4100_serial_fixup(int port, struct uart_port *up,
+<<<<<<< HEAD
 	u32 *capabilites)
+=======
+	u32 *capabilities)
+>>>>>>> upstream/android-13
 {
 #ifdef CONFIG_EARLY_PRINTK
 	/*
@@ -111,7 +122,11 @@ static void ce4100_serial_fixup(int port, struct uart_port *up,
 	up->serial_in = ce4100_mem_serial_in;
 	up->serial_out = ce4100_mem_serial_out;
 
+<<<<<<< HEAD
 	*capabilites |= (1 << 12);
+=======
+	*capabilities |= (1 << 12);
+>>>>>>> upstream/android-13
 }
 
 static __init void sdv_serial_fixup(void)

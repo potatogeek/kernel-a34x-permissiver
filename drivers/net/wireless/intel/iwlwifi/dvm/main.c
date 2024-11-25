@@ -1,11 +1,19 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * Copyright(c) 2003 - 2014 Intel Corporation. All rights reserved.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/******************************************************************************
+ *
+ * Copyright(c) 2003 - 2014, 2018 - 2021  Intel Corporation. All rights reserved.
+>>>>>>> upstream/android-13
  * Copyright(c) 2015 Intel Deutschland GmbH
  *
  * Portions of this file are derived from the ipw3945 project, as well
  * as portions of the ieee80211 subsystem header files.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
  * published by the Free Software Foundation.
@@ -22,6 +30,8 @@
  * The full GNU General Public License is included in this distribution in the
  * file called LICENSE.
  *
+=======
+>>>>>>> upstream/android-13
  * Contact Information:
  *  Intel Linux Wireless <linuxwifi@intel.com>
  * Intel Corporation, 5200 N.E. Elam Young Parkway, Hillsboro, OR 97124-6497
@@ -67,7 +77,11 @@
 
 #define DRV_DESCRIPTION	"Intel(R) Wireless WiFi Link AGN driver for Linux"
 MODULE_DESCRIPTION(DRV_DESCRIPTION);
+<<<<<<< HEAD
 MODULE_AUTHOR(DRV_COPYRIGHT " " DRV_AUTHOR);
+=======
+MODULE_AUTHOR(DRV_AUTHOR);
+>>>>>>> upstream/android-13
 MODULE_LICENSE("GPL");
 
 /* Please keep this array *SORTED* by hex value.
@@ -389,7 +403,11 @@ int iwl_send_statistics_request(struct iwl_priv *priv, u8 flags, bool clear)
 					&statistics_cmd);
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * iwl_bg_statistics_periodic - Timer callback to queue statistics
  *
  * This callback is provided in order to send a statistics request.
@@ -421,7 +439,10 @@ static void iwl_print_cont_event_trace(struct iwl_priv *priv, u32 base,
 	u32 i;
 	u32 ptr;        /* SRAM byte address of log data */
 	u32 ev, time, data; /* event log data */
+<<<<<<< HEAD
 	unsigned long reg_flags;
+=======
+>>>>>>> upstream/android-13
 
 	if (mode == 0)
 		ptr = base + (4 * sizeof(u32)) + (start_idx * 2 * sizeof(u32));
@@ -429,7 +450,11 @@ static void iwl_print_cont_event_trace(struct iwl_priv *priv, u32 base,
 		ptr = base + (4 * sizeof(u32)) + (start_idx * 3 * sizeof(u32));
 
 	/* Make sure device is powered up for SRAM reads */
+<<<<<<< HEAD
 	if (!iwl_trans_grab_nic_access(priv->trans, &reg_flags))
+=======
+	if (!iwl_trans_grab_nic_access(priv->trans))
+>>>>>>> upstream/android-13
 		return;
 
 	/* Set starting address; reads will auto-increment */
@@ -461,7 +486,11 @@ static void iwl_print_cont_event_trace(struct iwl_priv *priv, u32 base,
 		}
 	}
 	/* Allow device to power down */
+<<<<<<< HEAD
 	iwl_trans_release_nic_access(priv->trans, &reg_flags);
+=======
+	iwl_trans_release_nic_access(priv->trans);
+>>>>>>> upstream/android-13
 }
 
 static void iwl_continuous_event_trace(struct iwl_priv *priv)
@@ -548,7 +577,11 @@ static void iwl_continuous_event_trace(struct iwl_priv *priv)
 	priv->event_log.next_entry = next_entry;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * iwl_bg_ucode_trace - Timer callback to log ucode event
  *
  * The timer is continually set to execute every
@@ -777,7 +810,11 @@ static void iwl_send_bt_config(struct iwl_priv *priv)
 		IWL_ERR(priv, "failed to send BT Coex Config\n");
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * iwl_alive_start - called after REPLY_ALIVE notification received
  *                   from protocol/runtime uCode (initialization uCode's
  *                   Alive gets handled by iwl_init_alive_start()).
@@ -1057,7 +1094,11 @@ static void iwl_bg_restart(struct work_struct *data)
 			ieee80211_restart_hw(priv->hw);
 		else
 			IWL_ERR(priv,
+<<<<<<< HEAD
 				"Cannot request restart before registrating with mac80211\n");
+=======
+				"Cannot request restart before registering with mac80211\n");
+>>>>>>> upstream/android-13
 	} else {
 		WARN_ON(1);
 	}
@@ -1269,7 +1310,11 @@ static struct iwl_op_mode *iwl_op_mode_dvm_start(struct iwl_trans *trans,
 	 ************************/
 	hw = iwl_alloc_all();
 	if (!hw) {
+<<<<<<< HEAD
 		pr_err("%s: Cannot allocate network device\n", cfg->name);
+=======
+		pr_err("%s: Cannot allocate network device\n", trans->name);
+>>>>>>> upstream/android-13
 		goto out;
 	}
 
@@ -1281,7 +1326,11 @@ static struct iwl_op_mode *iwl_op_mode_dvm_start(struct iwl_trans *trans,
 	priv->cfg = cfg;
 	priv->fw = fw;
 
+<<<<<<< HEAD
 	switch (priv->cfg->device_family) {
+=======
+	switch (priv->trans->trans_cfg->device_family) {
+>>>>>>> upstream/android-13
 	case IWL_DEVICE_FAMILY_1000:
 	case IWL_DEVICE_FAMILY_100:
 		priv->lib = &iwl_dvm_1000_cfg;
@@ -1356,7 +1405,11 @@ static struct iwl_op_mode *iwl_op_mode_dvm_start(struct iwl_trans *trans,
 					  driver_data[2]);
 
 	WARN_ON(sizeof(priv->transport_queue_stop) * BITS_PER_BYTE <
+<<<<<<< HEAD
 		priv->cfg->base_params->num_of_queues);
+=======
+		priv->trans->trans_cfg->base_params->num_of_queues);
+>>>>>>> upstream/android-13
 
 	ucode_flags = fw->ucode_capa.flags;
 
@@ -1384,12 +1437,15 @@ static struct iwl_op_mode *iwl_op_mode_dvm_start(struct iwl_trans *trans,
 
 	IWL_DEBUG_INFO(priv, "*** LOAD DRIVER ***\n");
 
+<<<<<<< HEAD
 	/* is antenna coupling more than 35dB ? */
 	priv->bt_ant_couple_ok =
 		(iwlwifi_mod_params.antenna_coupling >
 			IWL_BT_ANTENNA_COUPLING_THRESHOLD) ?
 			true : false;
 
+=======
+>>>>>>> upstream/android-13
 	/* bt channel inhibition enabled*/
 	priv->bt_ch_announce = true;
 	IWL_DEBUG_INFO(priv, "BT channel inhibition is %s\n",
@@ -1404,7 +1460,11 @@ static struct iwl_op_mode *iwl_op_mode_dvm_start(struct iwl_trans *trans,
 	 * 2. Read REV register
 	 ***********************/
 	IWL_INFO(priv, "Detected %s, REV=0x%X\n",
+<<<<<<< HEAD
 		priv->cfg->name, priv->trans->hw_rev);
+=======
+		priv->trans->name, priv->trans->hw_rev);
+>>>>>>> upstream/android-13
 
 	if (iwl_trans_start_hw(priv->trans))
 		goto out_free_hw;
@@ -1419,9 +1479,15 @@ static struct iwl_op_mode *iwl_op_mode_dvm_start(struct iwl_trans *trans,
 	/* Reset chip to save power until we load uCode during "up". */
 	iwl_trans_stop_device(priv->trans);
 
+<<<<<<< HEAD
 	priv->nvm_data = iwl_parse_eeprom_data(priv->trans->dev, priv->cfg,
 						  priv->eeprom_blob,
 						  priv->eeprom_blob_size);
+=======
+	priv->nvm_data = iwl_parse_eeprom_data(priv->trans, priv->cfg,
+					       priv->eeprom_blob,
+					       priv->eeprom_blob_size);
+>>>>>>> upstream/android-13
 	if (!priv->nvm_data)
 		goto out_free_eeprom_blob;
 
@@ -1512,6 +1578,7 @@ static struct iwl_op_mode *iwl_op_mode_dvm_start(struct iwl_trans *trans,
 	if (iwlagn_mac_setup_register(priv, &fw->ucode_capa))
 		goto out_destroy_workqueue;
 
+<<<<<<< HEAD
 	if (iwl_dbgfs_register(priv, dbgfs_dir))
 		goto out_mac80211_unregister;
 
@@ -1519,6 +1586,12 @@ static struct iwl_op_mode *iwl_op_mode_dvm_start(struct iwl_trans *trans,
 
 out_mac80211_unregister:
 	iwlagn_mac_unregister(priv);
+=======
+	iwl_dbgfs_register(priv, dbgfs_dir);
+
+	return op_mode;
+
+>>>>>>> upstream/android-13
 out_destroy_workqueue:
 	iwl_tt_exit(priv);
 	iwl_cancel_deferred_work(priv);
@@ -1668,7 +1741,10 @@ static void iwl_dump_nic_error_log(struct iwl_priv *priv)
 			priv->status, table.valid);
 	}
 
+<<<<<<< HEAD
 	trace_iwlwifi_dev_ucode_error(trans->dev, &table, 0, table.brd_ver);
+=======
+>>>>>>> upstream/android-13
 	IWL_ERR(priv, "0x%08X | %-28s\n", table.error_id,
 		desc_lookup(table.error_id));
 	IWL_ERR(priv, "0x%08X | uPc\n", table.pc);
@@ -1707,9 +1783,14 @@ static void iwl_dump_nic_error_log(struct iwl_priv *priv)
 
 #define EVENT_START_OFFSET  (4 * sizeof(u32))
 
+<<<<<<< HEAD
 /**
  * iwl_print_event_log - Dump error event log to syslog
  *
+=======
+/*
+ * iwl_print_event_log - Dump error event log to syslog
+>>>>>>> upstream/android-13
  */
 static int iwl_print_event_log(struct iwl_priv *priv, u32 start_idx,
 			       u32 num_events, u32 mode,
@@ -1720,7 +1801,10 @@ static int iwl_print_event_log(struct iwl_priv *priv, u32 start_idx,
 	u32 event_size; /* 2 u32s, or 3 u32s if timestamp recorded */
 	u32 ptr;        /* SRAM byte address of log data */
 	u32 ev, time, data; /* event log data */
+<<<<<<< HEAD
 	unsigned long reg_flags;
+=======
+>>>>>>> upstream/android-13
 
 	struct iwl_trans *trans = priv->trans;
 
@@ -1744,7 +1828,11 @@ static int iwl_print_event_log(struct iwl_priv *priv, u32 start_idx,
 	ptr = base + EVENT_START_OFFSET + (start_idx * event_size);
 
 	/* Make sure device is powered up for SRAM reads */
+<<<<<<< HEAD
 	if (!iwl_trans_grab_nic_access(trans, &reg_flags))
+=======
+	if (!iwl_trans_grab_nic_access(trans))
+>>>>>>> upstream/android-13
 		return pos;
 
 	/* Set starting address; reads will auto-increment */
@@ -1783,11 +1871,19 @@ static int iwl_print_event_log(struct iwl_priv *priv, u32 start_idx,
 	}
 
 	/* Allow device to power down */
+<<<<<<< HEAD
 	iwl_trans_release_nic_access(trans, &reg_flags);
 	return pos;
 }
 
 /**
+=======
+	iwl_trans_release_nic_access(trans);
+	return pos;
+}
+
+/*
+>>>>>>> upstream/android-13
  * iwl_print_last_event_logs - Dump the newest # of event log to syslog
  */
 static int iwl_print_last_event_logs(struct iwl_priv *priv, u32 capacity,
@@ -1885,7 +1981,11 @@ int iwl_dump_nic_event_log(struct iwl_priv *priv, bool full_log,
 		return pos;
 	}
 
+<<<<<<< HEAD
 	if (!(iwl_have_debug_level(IWL_DL_FW_ERRORS)) && !full_log)
+=======
+	if (!(iwl_have_debug_level(IWL_DL_FW)) && !full_log)
+>>>>>>> upstream/android-13
 		size = (size > DEFAULT_DUMP_EVENT_LOG_ENTRIES)
 			? DEFAULT_DUMP_EVENT_LOG_ENTRIES : size;
 	IWL_ERR(priv, "Start IWL Event Log Dump: display last %u entries\n",
@@ -1901,7 +2001,11 @@ int iwl_dump_nic_event_log(struct iwl_priv *priv, bool full_log,
 		if (!*buf)
 			return -ENOMEM;
 	}
+<<<<<<< HEAD
 	if (iwl_have_debug_level(IWL_DL_FW_ERRORS) || full_log) {
+=======
+	if (iwl_have_debug_level(IWL_DL_FW) || full_log) {
+>>>>>>> upstream/android-13
 		/*
 		 * if uCode has wrapped back to top of log,
 		 * start at the oldest entry,
@@ -1931,7 +2035,11 @@ static void iwlagn_fw_error(struct iwl_priv *priv, bool ondemand)
 	unsigned int reload_msec;
 	unsigned long reload_jiffies;
 
+<<<<<<< HEAD
 	if (iwl_have_debug_level(IWL_DL_FW_ERRORS))
+=======
+	if (iwl_have_debug_level(IWL_DL_FW))
+>>>>>>> upstream/android-13
 		iwl_print_rx_config_cmd(priv, IWL_RXON_CTX_BSS);
 
 	/* uCode is no longer loaded. */
@@ -1969,6 +2077,7 @@ static void iwlagn_fw_error(struct iwl_priv *priv, bool ondemand)
 
 	if (!test_bit(STATUS_EXIT_PENDING, &priv->status)) {
 		if (iwlwifi_mod_params.fw_restart) {
+<<<<<<< HEAD
 			IWL_DEBUG_FW_ERRORS(priv,
 				  "Restarting adapter due to uCode error.\n");
 			queue_work(priv->workqueue, &priv->restart);
@@ -1979,6 +2088,18 @@ static void iwlagn_fw_error(struct iwl_priv *priv, bool ondemand)
 }
 
 static void iwl_nic_error(struct iwl_op_mode *op_mode)
+=======
+			IWL_DEBUG_FW(priv,
+				     "Restarting adapter due to uCode error.\n");
+			queue_work(priv->workqueue, &priv->restart);
+		} else
+			IWL_DEBUG_FW(priv,
+				     "Detected FW error, but not restarting\n");
+	}
+}
+
+static void iwl_nic_error(struct iwl_op_mode *op_mode, bool sync)
+>>>>>>> upstream/android-13
 {
 	struct iwl_priv *priv = IWL_OP_MODE_GET_DVM(op_mode);
 

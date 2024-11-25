@@ -4,20 +4,30 @@
  * Copyright(c) 2007 - 2012 Realtek Corporation. All rights reserved.
  *
  ******************************************************************************/
+<<<<<<< HEAD
 #define _RTL8723BS_RECV_C_
+=======
+>>>>>>> upstream/android-13
 
 #include <drv_types.h>
 #include <rtw_debug.h>
 #include <rtl8723b_hal.h>
 
+<<<<<<< HEAD
 static s32 initrecvbuf(struct recv_buf *precvbuf, struct adapter *padapter)
+=======
+static void initrecvbuf(struct recv_buf *precvbuf, struct adapter *padapter)
+>>>>>>> upstream/android-13
 {
 	INIT_LIST_HEAD(&precvbuf->list);
 	spin_lock_init(&precvbuf->recvbuf_lock);
 
 	precvbuf->adapter = padapter;
+<<<<<<< HEAD
 
 	return _SUCCESS;
+=======
+>>>>>>> upstream/android-13
 }
 
 static void update_recvframe_attrib(struct adapter *padapter,
@@ -26,7 +36,11 @@ static void update_recvframe_attrib(struct adapter *padapter,
 {
 	struct rx_pkt_attrib *pattrib;
 	struct recv_stat report;
+<<<<<<< HEAD
 	PRXREPORT prxreport = (PRXREPORT)&report;
+=======
+	struct rxreport_8723b *prxreport = (struct rxreport_8723b *)&report;
+>>>>>>> upstream/android-13
 
 	report.rxdw0 = prxstat->rxdw0;
 	report.rxdw1 = prxstat->rxdw1;
@@ -40,7 +54,10 @@ static void update_recvframe_attrib(struct adapter *padapter,
 
 	/*  update rx report to recv_frame attribute */
 	pattrib->pkt_rpt_type = prxreport->c2h_ind ? C2H_PACKET : NORMAL_RX;
+<<<<<<< HEAD
 /* 	DBG_871X("%s: pkt_rpt_type =%d\n", __func__, pattrib->pkt_rpt_type); */
+=======
+>>>>>>> upstream/android-13
 
 	if (pattrib->pkt_rpt_type == NORMAL_RX) {
 		/*  Normal rx packet */
@@ -100,7 +117,11 @@ static void update_recvframe_phyinfo(union recv_frame *precvframe,
 		.is_beacon   = false,
 	};
 
+<<<<<<< HEAD
 	/* _irqL		irqL; */
+=======
+	/* unsigned long		irqL; */
+>>>>>>> upstream/android-13
 	struct sta_priv *pstapriv;
 	struct sta_info *psta;
 
@@ -111,7 +132,11 @@ static void update_recvframe_phyinfo(union recv_frame *precvframe,
 				!pattrib->icv_err && !pattrib->crc_err &&
 				ether_addr_equal(rx_bssid, my_bssid));
 
+<<<<<<< HEAD
 	rx_ra = get_ra(wlanhdr);
+=======
+	rx_ra = rtl8723bs_get_ra(wlanhdr);
+>>>>>>> upstream/android-13
 	my_hwaddr = myid(&padapter->eeprompriv);
 	pkt_info.to_self = pkt_info.bssid_match &&
 		ether_addr_equal(rx_ra, my_hwaddr);
@@ -126,16 +151,26 @@ static void update_recvframe_phyinfo(union recv_frame *precvframe,
 
 	pstapriv = &padapter->stapriv;
 	psta = rtw_get_stainfo(pstapriv, sa);
+<<<<<<< HEAD
 	if (psta) {
 		pkt_info.station_id = psta->mac_id;
 		/* DBG_8192C("%s ==> StationID(%d)\n",
 		 * 	  __func__, pkt_info.station_id); */
 	}
+=======
+	if (psta)
+		pkt_info.station_id = psta->mac_id;
+
+>>>>>>> upstream/android-13
 	pkt_info.data_rate = pattrib->data_rate;
 
 	/* rtl8723b_query_rx_phy_status(precvframe, pphy_status); */
 	/* spin_lock_bh(&p_hal_data->odm_stainfo_lock); */
+<<<<<<< HEAD
 	ODM_PhyStatusQuery(&p_hal_data->odmpriv, p_phy_info,
+=======
+	odm_phy_status_query(&p_hal_data->odmpriv, p_phy_info,
+>>>>>>> upstream/android-13
 			   (u8 *)pphy_status, &(pkt_info));
 	if (psta)
 		psta->rssi = pattrib->phy_info.RecvSignalPower;
@@ -167,22 +202,32 @@ static void rtl8723bs_c2h_packet_handler(struct adapter *padapter,
 	if (length == 0)
 		return;
 
+<<<<<<< HEAD
 	/* DBG_871X("+%s() length =%d\n", __func__, length); */
 
 	tmp = rtw_zmalloc(length);
 	if (tmp == NULL)
+=======
+	tmp = rtw_zmalloc(length);
+	if (!tmp)
+>>>>>>> upstream/android-13
 		return;
 
 	memcpy(tmp, pbuf, length);
 
 	res = rtw_c2h_packet_wk_cmd(padapter, tmp, length);
 
+<<<<<<< HEAD
 	if (res == false)
 		kfree(tmp);
 
 	/* DBG_871X("-%s res(%d)\n", __func__, res); */
 
 	return;
+=======
+	if (!res)
+		kfree(tmp);
+>>>>>>> upstream/android-13
 }
 
 static inline union recv_frame *try_alloc_recvframe(struct recv_priv *precvpriv,
@@ -192,11 +237,18 @@ static inline union recv_frame *try_alloc_recvframe(struct recv_priv *precvpriv,
 
 	precvframe = rtw_alloc_recvframe(&precvpriv->free_recv_queue);
 	if (!precvframe) {
+<<<<<<< HEAD
 		DBG_8192C("%s: no enough recv frame!\n", __func__);
 		rtw_enqueue_recvbuf_to_head(precvbuf,
 					    &precvpriv->recv_buf_pending_queue);
 
 		/*  The case of can't allocte recvframe should be temporary, */
+=======
+		rtw_enqueue_recvbuf_to_head(precvbuf,
+					    &precvpriv->recv_buf_pending_queue);
+
+		/*  The case of can't allocate recvframe should be temporary, */
+>>>>>>> upstream/android-13
 		/*  schedule again and hope recvframe is available next time. */
 		tasklet_schedule(&precvpriv->recv_tasklet);
 	}
@@ -211,8 +263,11 @@ static inline bool rx_crc_err(struct recv_priv *precvpriv,
 {
 	/*  fix Hardware RX data error, drop whole recv_buffer */
 	if ((!(p_hal_data->ReceiveConfig & RCR_ACRC32)) && pattrib->crc_err) {
+<<<<<<< HEAD
 		DBG_8192C("%s()-%d: RX Warning! rx CRC ERROR !!\n",
 			  __func__, __LINE__);
+=======
+>>>>>>> upstream/android-13
 		rtw_free_recvframe(precvframe, &precvpriv->free_recv_queue);
 		return true;
 	}
@@ -225,8 +280,11 @@ static inline bool pkt_exceeds_tail(struct recv_priv *precvpriv,
 				    union recv_frame *precvframe)
 {
 	if (end > tail) {
+<<<<<<< HEAD
 		DBG_8192C("%s()-%d: : next pkt len(%p,%d) exceed ptail(%p)!\n",
 			  __func__, __LINE__, ptr, pkt_offset, precvbuf->ptail);
+=======
+>>>>>>> upstream/android-13
 		rtw_free_recvframe(precvframe, &precvpriv->free_recv_queue);
 		return true;
 	}
@@ -234,9 +292,16 @@ static inline bool pkt_exceeds_tail(struct recv_priv *precvpriv,
 	return false;
 }
 
+<<<<<<< HEAD
 static void rtl8723bs_recv_tasklet(void *priv)
 {
 	struct adapter *padapter;
+=======
+static void rtl8723bs_recv_tasklet(struct tasklet_struct *t)
+{
+	struct adapter *padapter = from_tasklet(padapter, t,
+						recvpriv.recv_tasklet);
+>>>>>>> upstream/android-13
 	struct hal_com_data *p_hal_data;
 	struct recv_priv *precvpriv;
 	struct recv_buf *precvbuf;
@@ -245,10 +310,16 @@ static void rtl8723bs_recv_tasklet(void *priv)
 	struct __queue *recv_buf_queue;
 	u8 *ptr;
 	u32 pkt_offset, skb_len, alloc_sz;
+<<<<<<< HEAD
 	_pkt *pkt_copy = NULL;
 	u8 shift_sz = 0, rx_report_sz = 0;
 
 	padapter = priv;
+=======
+	struct sk_buff *pkt_copy = NULL;
+	u8 shift_sz = 0, rx_report_sz = 0;
+
+>>>>>>> upstream/android-13
 	p_hal_data = GET_HAL_DATA(padapter);
 	precvpriv = &padapter->recvpriv;
 	recv_buf_queue = &precvpriv->recv_buf_pending_queue;
@@ -262,7 +333,11 @@ static void rtl8723bs_recv_tasklet(void *priv)
 
 		while (ptr < precvbuf->ptail) {
 			precvframe = try_alloc_recvframe(precvpriv, precvbuf);
+<<<<<<< HEAD
 			if(!precvframe)
+=======
+			if (!precvframe)
+>>>>>>> upstream/android-13
 				return;
 
 			/* rx desc parsing */
@@ -271,8 +346,13 @@ static void rtl8723bs_recv_tasklet(void *priv)
 
 			pattrib = &precvframe->u.hdr.attrib;
 
+<<<<<<< HEAD
 			if(rx_crc_err(precvpriv, p_hal_data,
 				      pattrib, precvframe))
+=======
+			if (rx_crc_err(precvpriv, p_hal_data,
+				       pattrib, precvframe))
+>>>>>>> upstream/android-13
 				break;
 
 			rx_report_sz = RXDESC_SIZE + pattrib->drvinfo_sz;
@@ -280,6 +360,7 @@ static void rtl8723bs_recv_tasklet(void *priv)
 				pattrib->shift_sz +
 				pattrib->pkt_len;
 
+<<<<<<< HEAD
 			if(pkt_exceeds_tail(precvpriv, ptr + pkt_offset,
 					    precvbuf->ptail, precvframe))
 				break;
@@ -288,6 +369,13 @@ static void rtl8723bs_recv_tasklet(void *priv)
 				DBG_8192C("%s: crc_err =%d icv_err =%d, skip!\n",
 					  __func__, pattrib->crc_err,
 					  pattrib->icv_err);
+=======
+			if (pkt_exceeds_tail(precvpriv, ptr + pkt_offset,
+					     precvbuf->ptail, precvframe))
+				break;
+
+			if ((pattrib->crc_err) || (pattrib->icv_err)) {
+>>>>>>> upstream/android-13
 				rtw_free_recvframe(precvframe,
 						   &precvpriv->free_recv_queue);
 			} else {
@@ -315,6 +403,7 @@ static void rtl8723bs_recv_tasklet(void *priv)
 				}
 
 				pkt_copy = rtw_skb_alloc(alloc_sz);
+<<<<<<< HEAD
 
 				if (pkt_copy) {
 					pkt_copy->dev = padapter->pnetdev;
@@ -348,6 +437,22 @@ static void rtl8723bs_recv_tasklet(void *priv)
 					}
 				}
 
+=======
+				if (!pkt_copy) {
+					rtw_free_recvframe(precvframe, &precvpriv->free_recv_queue);
+					break;
+				}
+
+				pkt_copy->dev = padapter->pnetdev;
+				precvframe->u.hdr.pkt = pkt_copy;
+				skb_reserve(pkt_copy, 8 - ((SIZE_PTR)(pkt_copy->data) & 7));/* force pkt_copy->data at 8-byte alignment address */
+				skb_reserve(pkt_copy, shift_sz);/* force ip_hdr at 8-byte alignment address according to shift_sz. */
+				memcpy(pkt_copy->data, (ptr + rx_report_sz + pattrib->shift_sz), skb_len);
+				precvframe->u.hdr.rx_head = pkt_copy->head;
+				precvframe->u.hdr.rx_data = precvframe->u.hdr.rx_tail = pkt_copy->data;
+				precvframe->u.hdr.rx_end = skb_end_pointer(pkt_copy);
+
+>>>>>>> upstream/android-13
 				recvframe_put(precvframe, skb_len);
 				/* recvframe_pull(precvframe, drvinfo_sz + RXDESC_SIZE); */
 
@@ -367,11 +472,17 @@ static void rtl8723bs_recv_tasklet(void *priv)
 					if (pattrib->physt)
 						update_recvframe_phyinfo(precvframe, (struct phy_stat *)ptr);
 
+<<<<<<< HEAD
 					if (rtw_recv_entry(precvframe) != _SUCCESS) {
 						RT_TRACE(_module_rtl871x_recv_c_, _drv_dump_, ("%s: rtw_recv_entry(precvframe) != _SUCCESS\n", __func__));
 					}
 				} else if (pattrib->pkt_rpt_type == C2H_PACKET) {
 					C2H_EVT_HDR	C2hEvent;
+=======
+					rtw_recv_entry(precvframe);
+				} else if (pattrib->pkt_rpt_type == C2H_PACKET) {
+					struct c2h_evt_hdr_t	C2hEvent;
+>>>>>>> upstream/android-13
 
 					u16 len_c2h = pattrib->pkt_len;
 					u8 *pbuf_c2h = precvframe->u.hdr.rx_data;
@@ -391,7 +502,11 @@ static void rtl8723bs_recv_tasklet(void *priv)
 				}
 			}
 
+<<<<<<< HEAD
 			pkt_offset = _RND8(pkt_offset);
+=======
+			pkt_offset = round_up(pkt_offset, 8);
+>>>>>>> upstream/android-13
 			precvbuf->pdata += pkt_offset;
 			ptr = precvbuf->pdata;
 			precvframe = NULL;
@@ -424,9 +539,14 @@ s32 rtl8723bs_init_recv_priv(struct adapter *padapter)
 
 	n = NR_RECVBUFF * sizeof(struct recv_buf) + 4;
 	precvpriv->pallocated_recv_buf = rtw_zmalloc(n);
+<<<<<<< HEAD
 	if (precvpriv->pallocated_recv_buf == NULL) {
 		res = _FAIL;
 		RT_TRACE(_module_rtl871x_recv_c_, _drv_err_, ("alloc recv_buf fail!\n"));
+=======
+	if (!precvpriv->pallocated_recv_buf) {
+		res = _FAIL;
+>>>>>>> upstream/android-13
 		goto exit;
 	}
 
@@ -435,11 +555,17 @@ s32 rtl8723bs_init_recv_priv(struct adapter *padapter)
 	/*  init each recv buffer */
 	precvbuf = (struct recv_buf *)precvpriv->precv_buf;
 	for (i = 0; i < NR_RECVBUFF; i++) {
+<<<<<<< HEAD
 		res = initrecvbuf(precvbuf, padapter);
 		if (res == _FAIL)
 			break;
 
 		if (precvbuf->pskb == NULL) {
+=======
+		initrecvbuf(precvbuf, padapter);
+
+		if (!precvbuf->pskb) {
+>>>>>>> upstream/android-13
 			SIZE_PTR tmpaddr = 0;
 			SIZE_PTR alignment = 0;
 
@@ -452,10 +578,13 @@ s32 rtl8723bs_init_recv_priv(struct adapter *padapter)
 				alignment = tmpaddr & (RECVBUFF_ALIGN_SZ-1);
 				skb_reserve(precvbuf->pskb, (RECVBUFF_ALIGN_SZ - alignment));
 			}
+<<<<<<< HEAD
 
 			if (precvbuf->pskb == NULL) {
 				DBG_871X("%s: alloc_skb fail!\n", __func__);
 			}
+=======
+>>>>>>> upstream/android-13
 		}
 
 		list_add_tail(&precvbuf->list, &precvpriv->free_recv_buf_queue.queue);
@@ -468,11 +597,15 @@ s32 rtl8723bs_init_recv_priv(struct adapter *padapter)
 		goto initbuferror;
 
 	/* 3 2. init tasklet */
+<<<<<<< HEAD
 	tasklet_init(
 		&precvpriv->recv_tasklet,
 		(void(*)(unsigned long))rtl8723bs_recv_tasklet,
 		(unsigned long)padapter
 	);
+=======
+	tasklet_setup(&precvpriv->recv_tasklet, rtl8723bs_recv_tasklet);
+>>>>>>> upstream/android-13
 
 	goto exit;
 
@@ -489,11 +622,16 @@ initbuferror:
 		precvpriv->precv_buf = NULL;
 	}
 
+<<<<<<< HEAD
 	if (precvpriv->pallocated_recv_buf) {
 		n = NR_RECVBUFF * sizeof(struct recv_buf) + 4;
 		kfree(precvpriv->pallocated_recv_buf);
 		precvpriv->pallocated_recv_buf = NULL;
 	}
+=======
+	kfree(precvpriv->pallocated_recv_buf);
+	precvpriv->pallocated_recv_buf = NULL;
+>>>>>>> upstream/android-13
 
 exit:
 	return res;
@@ -507,7 +645,11 @@ exit:
  */
 void rtl8723bs_free_recv_priv(struct adapter *padapter)
 {
+<<<<<<< HEAD
 	u32 i, n;
+=======
+	u32 i;
+>>>>>>> upstream/android-13
 	struct recv_priv *precvpriv;
 	struct recv_buf *precvbuf;
 
@@ -519,9 +661,14 @@ void rtl8723bs_free_recv_priv(struct adapter *padapter)
 	/* 3 2. free all recv buffers */
 	precvbuf = (struct recv_buf *)precvpriv->precv_buf;
 	if (precvbuf) {
+<<<<<<< HEAD
 		n = NR_RECVBUFF;
 		precvpriv->free_recv_buf_queue_cnt = 0;
 		for (i = 0; i < n ; i++) {
+=======
+		precvpriv->free_recv_buf_queue_cnt = 0;
+		for (i = 0; i < NR_RECVBUFF; i++) {
+>>>>>>> upstream/android-13
 			list_del_init(&precvbuf->list);
 			rtw_os_recvbuf_resource_free(padapter, precvbuf);
 			precvbuf++;
@@ -529,9 +676,14 @@ void rtl8723bs_free_recv_priv(struct adapter *padapter)
 		precvpriv->precv_buf = NULL;
 	}
 
+<<<<<<< HEAD
 	if (precvpriv->pallocated_recv_buf) {
 		n = NR_RECVBUFF * sizeof(struct recv_buf) + 4;
 		kfree(precvpriv->pallocated_recv_buf);
 		precvpriv->pallocated_recv_buf = NULL;
 	}
+=======
+	kfree(precvpriv->pallocated_recv_buf);
+	precvpriv->pallocated_recv_buf = NULL;
+>>>>>>> upstream/android-13
 }

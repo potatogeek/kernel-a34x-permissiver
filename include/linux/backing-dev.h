@@ -25,6 +25,10 @@ static inline struct backing_dev_info *bdi_get(struct backing_dev_info *bdi)
 	return bdi;
 }
 
+<<<<<<< HEAD
+=======
+struct backing_dev_info *bdi_get_by_id(u64 id);
+>>>>>>> upstream/android-13
 void bdi_put(struct backing_dev_info *bdi);
 
 __printf(2, 3)
@@ -32,6 +36,7 @@ int bdi_register(struct backing_dev_info *bdi, const char *fmt, ...);
 __printf(2, 0)
 int bdi_register_va(struct backing_dev_info *bdi, const char *fmt,
 		    va_list args);
+<<<<<<< HEAD
 int bdi_register_owner(struct backing_dev_info *bdi, struct device *owner);
 void bdi_unregister(struct backing_dev_info *bdi);
 
@@ -46,15 +51,31 @@ static inline struct backing_dev_info *sec_bdi_alloc(gfp_t gfp_mask)
 {
 	return sec_bdi_alloc_node(gfp_mask, NUMA_NO_NODE);
 }
+=======
+void bdi_set_owner(struct backing_dev_info *bdi, struct device *owner);
+void bdi_unregister(struct backing_dev_info *bdi);
+
+struct backing_dev_info *bdi_alloc(int node_id);
+struct backing_dev_info *sec_bdi_alloc(int node_id);
+>>>>>>> upstream/android-13
 
 void wb_start_background_writeback(struct bdi_writeback *wb);
 void wb_workfn(struct work_struct *work);
 void wb_wakeup_delayed(struct bdi_writeback *wb);
 
+<<<<<<< HEAD
+=======
+void wb_wait_for_completion(struct wb_completion *done);
+
+>>>>>>> upstream/android-13
 extern spinlock_t bdi_lock;
 extern struct list_head bdi_list;
 
 extern struct workqueue_struct *bdi_wq;
+<<<<<<< HEAD
+=======
+extern struct workqueue_struct *bdi_async_bio_wq;
+>>>>>>> upstream/android-13
 
 static inline bool wb_has_dirty_io(struct bdi_writeback *wb)
 {
@@ -116,6 +137,7 @@ int bdi_set_max_ratio(struct backing_dev_info *bdi, unsigned int max_ratio);
 /*
  * Flags in backing_dev_info::capability
  *
+<<<<<<< HEAD
  * The first three flags control whether dirty pages will contribute to the
  * VM's accounting and whether writepages() should be called for dirty pages
  * (something that would not, for example, be appropriate for ramfs)
@@ -144,6 +166,17 @@ int bdi_set_max_ratio(struct backing_dev_info *bdi, unsigned int max_ratio);
 
 #define BDI_CAP_NO_ACCT_AND_WRITEBACK \
 	(BDI_CAP_NO_WRITEBACK | BDI_CAP_NO_ACCT_DIRTY | BDI_CAP_NO_ACCT_WB)
+=======
+ * BDI_CAP_WRITEBACK:		Supports dirty page writeback, and dirty pages
+ *				should contribute to accounting
+ * BDI_CAP_WRITEBACK_ACCT:	Automatically account writeback pages
+ * BDI_CAP_STRICTLIMIT:		Keep number of dirty pages below bdi threshold
+ */
+#define BDI_CAP_WRITEBACK		(1 << 0)
+#define BDI_CAP_WRITEBACK_ACCT		(1 << 1)
+#define BDI_CAP_STRICTLIMIT		(1 << 2)
+#define BDI_CAP_SEC_DEBUG		(1 << 3)
+>>>>>>> upstream/android-13
 
 extern struct backing_dev_info noop_backing_dev_info;
 
@@ -169,23 +202,32 @@ static inline struct backing_dev_info *inode_to_bdi(struct inode *inode)
 	sb = inode->i_sb;
 #ifdef CONFIG_BLOCK
 	if (sb_is_blkdev_sb(sb))
+<<<<<<< HEAD
 		return I_BDEV(inode)->bd_bdi;
+=======
+		return I_BDEV(inode)->bd_disk->bdi;
+>>>>>>> upstream/android-13
 #endif
 	return sb->s_bdi;
 }
 
 static inline int wb_congested(struct bdi_writeback *wb, int cong_bits)
 {
+<<<<<<< HEAD
 	struct backing_dev_info *bdi = wb->bdi;
 
 	if (bdi->congested_fn)
 		return bdi->congested_fn(bdi->congested_data, cong_bits);
 	return wb->congested->state & cong_bits;
+=======
+	return wb->congested & cong_bits;
+>>>>>>> upstream/android-13
 }
 
 long congestion_wait(int sync, long timeout);
 long wait_iff_congested(int sync, long timeout);
 
+<<<<<<< HEAD
 static inline bool bdi_cap_synchronous_io(struct backing_dev_info *bdi)
 {
 	return bdi->capabilities & BDI_CAP_SYNCHRONOUS_IO;
@@ -221,6 +263,11 @@ static inline bool mapping_cap_writeback_dirty(struct address_space *mapping)
 static inline bool mapping_cap_account_dirty(struct address_space *mapping)
 {
 	return bdi_cap_account_dirty(inode_to_bdi(mapping->host));
+=======
+static inline bool mapping_can_writeback(struct address_space *mapping)
+{
+	return inode_to_bdi(mapping->host)->capabilities & BDI_CAP_WRITEBACK;
+>>>>>>> upstream/android-13
 }
 
 static inline int bdi_sched_wait(void *word)
@@ -231,9 +278,14 @@ static inline int bdi_sched_wait(void *word)
 
 #ifdef CONFIG_CGROUP_WRITEBACK
 
+<<<<<<< HEAD
 struct bdi_writeback_congested *
 wb_congested_get_create(struct backing_dev_info *bdi, int blkcg_id, gfp_t gfp);
 void wb_congested_put(struct bdi_writeback_congested *congested);
+=======
+struct bdi_writeback *wb_get_lookup(struct backing_dev_info *bdi,
+				    struct cgroup_subsys_state *memcg_css);
+>>>>>>> upstream/android-13
 struct bdi_writeback *wb_get_create(struct backing_dev_info *bdi,
 				    struct cgroup_subsys_state *memcg_css,
 				    gfp_t gfp);
@@ -245,9 +297,15 @@ int inode_congested(struct inode *inode, int cong_bits);
  * inode_cgwb_enabled - test whether cgroup writeback is enabled on an inode
  * @inode: inode of interest
  *
+<<<<<<< HEAD
  * cgroup writeback requires support from both the bdi and filesystem.
  * Also, both memcg and iocg have to be on the default hierarchy.  Test
  * whether all conditions are met.
+=======
+ * Cgroup writeback requires support from the filesystem.  Also, both memcg and
+ * iocg have to be on the default hierarchy.  Test whether all conditions are
+ * met.
+>>>>>>> upstream/android-13
  *
  * Note that the test result may change dynamically on the same inode
  * depending on how memcg and iocg are configured.
@@ -258,8 +316,12 @@ static inline bool inode_cgwb_enabled(struct inode *inode)
 
 	return cgroup_subsys_on_dfl(memory_cgrp_subsys) &&
 		cgroup_subsys_on_dfl(io_cgrp_subsys) &&
+<<<<<<< HEAD
 		bdi_cap_account_dirty(bdi) &&
 		(bdi->capabilities & BDI_CAP_CGROUP_WRITEBACK) &&
+=======
+		(bdi->capabilities & BDI_CAP_WRITEBACK) &&
+>>>>>>> upstream/android-13
 		(inode->i_sb->s_iflags & SB_I_CGROUPWB);
 }
 
@@ -352,6 +414,20 @@ static inline struct bdi_writeback *inode_to_wb(const struct inode *inode)
 	return inode->i_wb;
 }
 
+<<<<<<< HEAD
+=======
+static inline struct bdi_writeback *inode_to_wb_wbc(
+				struct inode *inode,
+				struct writeback_control *wbc)
+{
+	/*
+	 * If wbc does not have inode attached, it means cgroup writeback was
+	 * disabled when wbc started. Just use the default wb in that case.
+	 */
+	return wbc->wb ? wbc->wb : &inode_to_bdi(inode)->wb;
+}
+
+>>>>>>> upstream/android-13
 /**
  * unlocked_inode_to_wb_begin - begin unlocked inode wb access transaction
  * @inode: target inode
@@ -373,7 +449,11 @@ unlocked_inode_to_wb_begin(struct inode *inode, struct wb_lock_cookie *cookie)
 	rcu_read_lock();
 
 	/*
+<<<<<<< HEAD
 	 * Paired with store_release in inode_switch_wb_work_fn() and
+=======
+	 * Paired with store_release in inode_switch_wbs_work_fn() and
+>>>>>>> upstream/android-13
 	 * ensures that we see the new wb if we see cleared I_WB_SWITCH.
 	 */
 	cookie->locked = smp_load_acquire(&inode->i_state) & I_WB_SWITCH;
@@ -409,6 +489,7 @@ static inline bool inode_cgwb_enabled(struct inode *inode)
 	return false;
 }
 
+<<<<<<< HEAD
 static inline struct bdi_writeback_congested *
 wb_congested_get_create(struct backing_dev_info *bdi, int blkcg_id, gfp_t gfp)
 {
@@ -422,6 +503,8 @@ static inline void wb_congested_put(struct bdi_writeback_congested *congested)
 		kfree(congested);
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline struct bdi_writeback *wb_find_current(struct backing_dev_info *bdi)
 {
 	return &bdi->wb;
@@ -443,6 +526,17 @@ static inline struct bdi_writeback *inode_to_wb(struct inode *inode)
 	return &inode_to_bdi(inode)->wb;
 }
 
+<<<<<<< HEAD
+=======
+static inline struct bdi_writeback *inode_to_wb_wbc(
+				struct inode *inode,
+				struct writeback_control *wbc)
+{
+	return inode_to_wb(inode);
+}
+
+
+>>>>>>> upstream/android-13
 static inline struct bdi_writeback *
 unlocked_inode_to_wb_begin(struct inode *inode, struct wb_lock_cookie *cookie)
 {
@@ -506,6 +600,7 @@ static inline int bdi_rw_congested(struct backing_dev_info *bdi)
 				  (1 << WB_async_congested));
 }
 
+<<<<<<< HEAD
 extern const char *bdi_unknown_name;
 
 static inline const char *bdi_dev_name(struct backing_dev_info *bdi)
@@ -514,5 +609,8 @@ static inline const char *bdi_dev_name(struct backing_dev_info *bdi)
 		return bdi_unknown_name;
 	return dev_name(bdi->dev);
 }
+=======
+const char *bdi_dev_name(struct backing_dev_info *bdi);
+>>>>>>> upstream/android-13
 
 #endif	/* _LINUX_BACKING_DEV_H */

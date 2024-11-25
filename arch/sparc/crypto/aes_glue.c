@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* Glue code for AES encryption optimized for sparc64 crypto opcodes.
  *
  * This is based largely upon arch/x86/crypto/aesni-intel_glue.c
@@ -23,6 +27,10 @@
 #include <linux/types.h>
 #include <crypto/algapi.h>
 #include <crypto/aes.h>
+<<<<<<< HEAD
+=======
+#include <crypto/internal/skcipher.h>
+>>>>>>> upstream/android-13
 
 #include <asm/fpumacro.h>
 #include <asm/pstate.h>
@@ -167,7 +175,10 @@ static int aes_set_key(struct crypto_tfm *tfm, const u8 *in_key,
 		       unsigned int key_len)
 {
 	struct crypto_sparc64_aes_ctx *ctx = crypto_tfm_ctx(tfm);
+<<<<<<< HEAD
 	u32 *flags = &tfm->crt_flags;
+=======
+>>>>>>> upstream/android-13
 
 	switch (key_len) {
 	case AES_KEYSIZE_128:
@@ -186,7 +197,10 @@ static int aes_set_key(struct crypto_tfm *tfm, const u8 *in_key,
 		break;
 
 	default:
+<<<<<<< HEAD
 		*flags |= CRYPTO_TFM_RES_BAD_KEY_LEN;
+=======
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -196,20 +210,35 @@ static int aes_set_key(struct crypto_tfm *tfm, const u8 *in_key,
 	return 0;
 }
 
+<<<<<<< HEAD
 static void aes_encrypt(struct crypto_tfm *tfm, u8 *dst, const u8 *src)
+=======
+static int aes_set_key_skcipher(struct crypto_skcipher *tfm, const u8 *in_key,
+				unsigned int key_len)
+{
+	return aes_set_key(crypto_skcipher_tfm(tfm), in_key, key_len);
+}
+
+static void crypto_aes_encrypt(struct crypto_tfm *tfm, u8 *dst, const u8 *src)
+>>>>>>> upstream/android-13
 {
 	struct crypto_sparc64_aes_ctx *ctx = crypto_tfm_ctx(tfm);
 
 	ctx->ops->encrypt(&ctx->key[0], (const u32 *) src, (u32 *) dst);
 }
 
+<<<<<<< HEAD
 static void aes_decrypt(struct crypto_tfm *tfm, u8 *dst, const u8 *src)
+=======
+static void crypto_aes_decrypt(struct crypto_tfm *tfm, u8 *dst, const u8 *src)
+>>>>>>> upstream/android-13
 {
 	struct crypto_sparc64_aes_ctx *ctx = crypto_tfm_ctx(tfm);
 
 	ctx->ops->decrypt(&ctx->key[0], (const u32 *) src, (u32 *) dst);
 }
 
+<<<<<<< HEAD
 #define AES_BLOCK_MASK	(~(AES_BLOCK_SIZE-1))
 
 static int ecb_encrypt(struct blkcipher_desc *desc,
@@ -236,11 +265,32 @@ static int ecb_encrypt(struct blkcipher_desc *desc,
 		}
 		nbytes &= AES_BLOCK_SIZE - 1;
 		err = blkcipher_walk_done(desc, &walk, nbytes);
+=======
+static int ecb_encrypt(struct skcipher_request *req)
+{
+	struct crypto_skcipher *tfm = crypto_skcipher_reqtfm(req);
+	const struct crypto_sparc64_aes_ctx *ctx = crypto_skcipher_ctx(tfm);
+	struct skcipher_walk walk;
+	unsigned int nbytes;
+	int err;
+
+	err = skcipher_walk_virt(&walk, req, true);
+	if (err)
+		return err;
+
+	ctx->ops->load_encrypt_keys(&ctx->key[0]);
+	while ((nbytes = walk.nbytes) != 0) {
+		ctx->ops->ecb_encrypt(&ctx->key[0], walk.src.virt.addr,
+				      walk.dst.virt.addr,
+				      round_down(nbytes, AES_BLOCK_SIZE));
+		err = skcipher_walk_done(&walk, nbytes % AES_BLOCK_SIZE);
+>>>>>>> upstream/android-13
 	}
 	fprs_write(0);
 	return err;
 }
 
+<<<<<<< HEAD
 static int ecb_decrypt(struct blkcipher_desc *desc,
 		       struct scatterlist *dst, struct scatterlist *src,
 		       unsigned int nbytes)
@@ -266,12 +316,35 @@ static int ecb_decrypt(struct blkcipher_desc *desc,
 		}
 		nbytes &= AES_BLOCK_SIZE - 1;
 		err = blkcipher_walk_done(desc, &walk, nbytes);
+=======
+static int ecb_decrypt(struct skcipher_request *req)
+{
+	struct crypto_skcipher *tfm = crypto_skcipher_reqtfm(req);
+	const struct crypto_sparc64_aes_ctx *ctx = crypto_skcipher_ctx(tfm);
+	const u64 *key_end;
+	struct skcipher_walk walk;
+	unsigned int nbytes;
+	int err;
+
+	err = skcipher_walk_virt(&walk, req, true);
+	if (err)
+		return err;
+
+	ctx->ops->load_decrypt_keys(&ctx->key[0]);
+	key_end = &ctx->key[ctx->expanded_key_length / sizeof(u64)];
+	while ((nbytes = walk.nbytes) != 0) {
+		ctx->ops->ecb_decrypt(key_end, walk.src.virt.addr,
+				      walk.dst.virt.addr,
+				      round_down(nbytes, AES_BLOCK_SIZE));
+		err = skcipher_walk_done(&walk, nbytes % AES_BLOCK_SIZE);
+>>>>>>> upstream/android-13
 	}
 	fprs_write(0);
 
 	return err;
 }
 
+<<<<<<< HEAD
 static int cbc_encrypt(struct blkcipher_desc *desc,
 		       struct scatterlist *dst, struct scatterlist *src,
 		       unsigned int nbytes)
@@ -296,11 +369,33 @@ static int cbc_encrypt(struct blkcipher_desc *desc,
 		}
 		nbytes &= AES_BLOCK_SIZE - 1;
 		err = blkcipher_walk_done(desc, &walk, nbytes);
+=======
+static int cbc_encrypt(struct skcipher_request *req)
+{
+	struct crypto_skcipher *tfm = crypto_skcipher_reqtfm(req);
+	const struct crypto_sparc64_aes_ctx *ctx = crypto_skcipher_ctx(tfm);
+	struct skcipher_walk walk;
+	unsigned int nbytes;
+	int err;
+
+	err = skcipher_walk_virt(&walk, req, true);
+	if (err)
+		return err;
+
+	ctx->ops->load_encrypt_keys(&ctx->key[0]);
+	while ((nbytes = walk.nbytes) != 0) {
+		ctx->ops->cbc_encrypt(&ctx->key[0], walk.src.virt.addr,
+				      walk.dst.virt.addr,
+				      round_down(nbytes, AES_BLOCK_SIZE),
+				      walk.iv);
+		err = skcipher_walk_done(&walk, nbytes % AES_BLOCK_SIZE);
+>>>>>>> upstream/android-13
 	}
 	fprs_write(0);
 	return err;
 }
 
+<<<<<<< HEAD
 static int cbc_decrypt(struct blkcipher_desc *desc,
 		       struct scatterlist *dst, struct scatterlist *src,
 		       unsigned int nbytes)
@@ -327,14 +422,42 @@ static int cbc_decrypt(struct blkcipher_desc *desc,
 		}
 		nbytes &= AES_BLOCK_SIZE - 1;
 		err = blkcipher_walk_done(desc, &walk, nbytes);
+=======
+static int cbc_decrypt(struct skcipher_request *req)
+{
+	struct crypto_skcipher *tfm = crypto_skcipher_reqtfm(req);
+	const struct crypto_sparc64_aes_ctx *ctx = crypto_skcipher_ctx(tfm);
+	const u64 *key_end;
+	struct skcipher_walk walk;
+	unsigned int nbytes;
+	int err;
+
+	err = skcipher_walk_virt(&walk, req, true);
+	if (err)
+		return err;
+
+	ctx->ops->load_decrypt_keys(&ctx->key[0]);
+	key_end = &ctx->key[ctx->expanded_key_length / sizeof(u64)];
+	while ((nbytes = walk.nbytes) != 0) {
+		ctx->ops->cbc_decrypt(key_end, walk.src.virt.addr,
+				      walk.dst.virt.addr,
+				      round_down(nbytes, AES_BLOCK_SIZE),
+				      walk.iv);
+		err = skcipher_walk_done(&walk, nbytes % AES_BLOCK_SIZE);
+>>>>>>> upstream/android-13
 	}
 	fprs_write(0);
 
 	return err;
 }
 
+<<<<<<< HEAD
 static void ctr_crypt_final(struct crypto_sparc64_aes_ctx *ctx,
 			    struct blkcipher_walk *walk)
+=======
+static void ctr_crypt_final(const struct crypto_sparc64_aes_ctx *ctx,
+			    struct skcipher_walk *walk)
+>>>>>>> upstream/android-13
 {
 	u8 *ctrblk = walk->iv;
 	u64 keystream[AES_BLOCK_SIZE / sizeof(u64)];
@@ -348,6 +471,7 @@ static void ctr_crypt_final(struct crypto_sparc64_aes_ctx *ctx,
 	crypto_inc(ctrblk, AES_BLOCK_SIZE);
 }
 
+<<<<<<< HEAD
 static int ctr_crypt(struct blkcipher_desc *desc,
 		     struct scatterlist *dst, struct scatterlist *src,
 		     unsigned int nbytes)
@@ -376,12 +500,41 @@ static int ctr_crypt(struct blkcipher_desc *desc,
 	if (walk.nbytes) {
 		ctr_crypt_final(ctx, &walk);
 		err = blkcipher_walk_done(desc, &walk, 0);
+=======
+static int ctr_crypt(struct skcipher_request *req)
+{
+	struct crypto_skcipher *tfm = crypto_skcipher_reqtfm(req);
+	const struct crypto_sparc64_aes_ctx *ctx = crypto_skcipher_ctx(tfm);
+	struct skcipher_walk walk;
+	unsigned int nbytes;
+	int err;
+
+	err = skcipher_walk_virt(&walk, req, true);
+	if (err)
+		return err;
+
+	ctx->ops->load_encrypt_keys(&ctx->key[0]);
+	while ((nbytes = walk.nbytes) >= AES_BLOCK_SIZE) {
+		ctx->ops->ctr_crypt(&ctx->key[0], walk.src.virt.addr,
+				    walk.dst.virt.addr,
+				    round_down(nbytes, AES_BLOCK_SIZE),
+				    walk.iv);
+		err = skcipher_walk_done(&walk, nbytes % AES_BLOCK_SIZE);
+	}
+	if (walk.nbytes) {
+		ctr_crypt_final(ctx, &walk);
+		err = skcipher_walk_done(&walk, 0);
+>>>>>>> upstream/android-13
 	}
 	fprs_write(0);
 	return err;
 }
 
+<<<<<<< HEAD
 static struct crypto_alg algs[] = { {
+=======
+static struct crypto_alg cipher_alg = {
+>>>>>>> upstream/android-13
 	.cra_name		= "aes",
 	.cra_driver_name	= "aes-sparc64",
 	.cra_priority		= SPARC_CR_OPCODE_PRIORITY,
@@ -395,6 +548,7 @@ static struct crypto_alg algs[] = { {
 			.cia_min_keysize	= AES_MIN_KEY_SIZE,
 			.cia_max_keysize	= AES_MAX_KEY_SIZE,
 			.cia_setkey		= aes_set_key,
+<<<<<<< HEAD
 			.cia_encrypt		= aes_encrypt,
 			.cia_decrypt		= aes_decrypt
 		}
@@ -459,6 +613,59 @@ static struct crypto_alg algs[] = { {
 		},
 	},
 } };
+=======
+			.cia_encrypt		= crypto_aes_encrypt,
+			.cia_decrypt		= crypto_aes_decrypt
+		}
+	}
+};
+
+static struct skcipher_alg skcipher_algs[] = {
+	{
+		.base.cra_name		= "ecb(aes)",
+		.base.cra_driver_name	= "ecb-aes-sparc64",
+		.base.cra_priority	= SPARC_CR_OPCODE_PRIORITY,
+		.base.cra_blocksize	= AES_BLOCK_SIZE,
+		.base.cra_ctxsize	= sizeof(struct crypto_sparc64_aes_ctx),
+		.base.cra_alignmask	= 7,
+		.base.cra_module	= THIS_MODULE,
+		.min_keysize		= AES_MIN_KEY_SIZE,
+		.max_keysize		= AES_MAX_KEY_SIZE,
+		.setkey			= aes_set_key_skcipher,
+		.encrypt		= ecb_encrypt,
+		.decrypt		= ecb_decrypt,
+	}, {
+		.base.cra_name		= "cbc(aes)",
+		.base.cra_driver_name	= "cbc-aes-sparc64",
+		.base.cra_priority	= SPARC_CR_OPCODE_PRIORITY,
+		.base.cra_blocksize	= AES_BLOCK_SIZE,
+		.base.cra_ctxsize	= sizeof(struct crypto_sparc64_aes_ctx),
+		.base.cra_alignmask	= 7,
+		.base.cra_module	= THIS_MODULE,
+		.min_keysize		= AES_MIN_KEY_SIZE,
+		.max_keysize		= AES_MAX_KEY_SIZE,
+		.ivsize			= AES_BLOCK_SIZE,
+		.setkey			= aes_set_key_skcipher,
+		.encrypt		= cbc_encrypt,
+		.decrypt		= cbc_decrypt,
+	}, {
+		.base.cra_name		= "ctr(aes)",
+		.base.cra_driver_name	= "ctr-aes-sparc64",
+		.base.cra_priority	= SPARC_CR_OPCODE_PRIORITY,
+		.base.cra_blocksize	= 1,
+		.base.cra_ctxsize	= sizeof(struct crypto_sparc64_aes_ctx),
+		.base.cra_alignmask	= 7,
+		.base.cra_module	= THIS_MODULE,
+		.min_keysize		= AES_MIN_KEY_SIZE,
+		.max_keysize		= AES_MAX_KEY_SIZE,
+		.ivsize			= AES_BLOCK_SIZE,
+		.setkey			= aes_set_key_skcipher,
+		.encrypt		= ctr_crypt,
+		.decrypt		= ctr_crypt,
+		.chunksize		= AES_BLOCK_SIZE,
+	}
+};
+>>>>>>> upstream/android-13
 
 static bool __init sparc64_has_aes_opcode(void)
 {
@@ -476,6 +683,7 @@ static bool __init sparc64_has_aes_opcode(void)
 
 static int __init aes_sparc64_mod_init(void)
 {
+<<<<<<< HEAD
 	int i;
 
 	for (i = 0; i < ARRAY_SIZE(algs); i++)
@@ -487,11 +695,33 @@ static int __init aes_sparc64_mod_init(void)
 	}
 	pr_info("sparc64 aes opcodes not available.\n");
 	return -ENODEV;
+=======
+	int err;
+
+	if (!sparc64_has_aes_opcode()) {
+		pr_info("sparc64 aes opcodes not available.\n");
+		return -ENODEV;
+	}
+	pr_info("Using sparc64 aes opcodes optimized AES implementation\n");
+	err = crypto_register_alg(&cipher_alg);
+	if (err)
+		return err;
+	err = crypto_register_skciphers(skcipher_algs,
+					ARRAY_SIZE(skcipher_algs));
+	if (err)
+		crypto_unregister_alg(&cipher_alg);
+	return err;
+>>>>>>> upstream/android-13
 }
 
 static void __exit aes_sparc64_mod_fini(void)
 {
+<<<<<<< HEAD
 	crypto_unregister_algs(algs, ARRAY_SIZE(algs));
+=======
+	crypto_unregister_alg(&cipher_alg);
+	crypto_unregister_skciphers(skcipher_algs, ARRAY_SIZE(skcipher_algs));
+>>>>>>> upstream/android-13
 }
 
 module_init(aes_sparc64_mod_init);

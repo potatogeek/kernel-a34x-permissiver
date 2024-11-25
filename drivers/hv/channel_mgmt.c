@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2009, Microsoft Corporation.
  *
@@ -14,6 +15,12 @@
  * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
  * Place - Suite 330, Boston, MA 02111-1307 USA.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2009, Microsoft Corporation.
+ *
+>>>>>>> upstream/android-13
  * Authors:
  *   Haiyang Zhang <haiyangz@microsoft.com>
  *   Hank Janssen  <hjanssen@microsoft.com>
@@ -30,118 +37,200 @@
 #include <linux/module.h>
 #include <linux/completion.h>
 #include <linux/delay.h>
+<<<<<<< HEAD
+=======
+#include <linux/cpu.h>
+>>>>>>> upstream/android-13
 #include <linux/hyperv.h>
 #include <asm/mshyperv.h>
 
 #include "hyperv_vmbus.h"
 
+<<<<<<< HEAD
 static void init_vp_index(struct vmbus_channel *channel, u16 dev_type);
 
 static const struct vmbus_device vmbus_devs[] = {
+=======
+static void init_vp_index(struct vmbus_channel *channel);
+
+const struct vmbus_device vmbus_devs[] = {
+>>>>>>> upstream/android-13
 	/* IDE */
 	{ .dev_type = HV_IDE,
 	  HV_IDE_GUID,
 	  .perf_device = true,
+<<<<<<< HEAD
+=======
+	  .allowed_in_isolated = false,
+>>>>>>> upstream/android-13
 	},
 
 	/* SCSI */
 	{ .dev_type = HV_SCSI,
 	  HV_SCSI_GUID,
 	  .perf_device = true,
+<<<<<<< HEAD
+=======
+	  .allowed_in_isolated = true,
+>>>>>>> upstream/android-13
 	},
 
 	/* Fibre Channel */
 	{ .dev_type = HV_FC,
 	  HV_SYNTHFC_GUID,
 	  .perf_device = true,
+<<<<<<< HEAD
+=======
+	  .allowed_in_isolated = false,
+>>>>>>> upstream/android-13
 	},
 
 	/* Synthetic NIC */
 	{ .dev_type = HV_NIC,
 	  HV_NIC_GUID,
 	  .perf_device = true,
+<<<<<<< HEAD
+=======
+	  .allowed_in_isolated = true,
+>>>>>>> upstream/android-13
 	},
 
 	/* Network Direct */
 	{ .dev_type = HV_ND,
 	  HV_ND_GUID,
 	  .perf_device = true,
+<<<<<<< HEAD
+=======
+	  .allowed_in_isolated = false,
+>>>>>>> upstream/android-13
 	},
 
 	/* PCIE */
 	{ .dev_type = HV_PCIE,
 	  HV_PCIE_GUID,
 	  .perf_device = false,
+<<<<<<< HEAD
+=======
+	  .allowed_in_isolated = false,
+>>>>>>> upstream/android-13
 	},
 
 	/* Synthetic Frame Buffer */
 	{ .dev_type = HV_FB,
 	  HV_SYNTHVID_GUID,
 	  .perf_device = false,
+<<<<<<< HEAD
+=======
+	  .allowed_in_isolated = false,
+>>>>>>> upstream/android-13
 	},
 
 	/* Synthetic Keyboard */
 	{ .dev_type = HV_KBD,
 	  HV_KBD_GUID,
 	  .perf_device = false,
+<<<<<<< HEAD
+=======
+	  .allowed_in_isolated = false,
+>>>>>>> upstream/android-13
 	},
 
 	/* Synthetic MOUSE */
 	{ .dev_type = HV_MOUSE,
 	  HV_MOUSE_GUID,
 	  .perf_device = false,
+<<<<<<< HEAD
+=======
+	  .allowed_in_isolated = false,
+>>>>>>> upstream/android-13
 	},
 
 	/* KVP */
 	{ .dev_type = HV_KVP,
 	  HV_KVP_GUID,
 	  .perf_device = false,
+<<<<<<< HEAD
+=======
+	  .allowed_in_isolated = false,
+>>>>>>> upstream/android-13
 	},
 
 	/* Time Synch */
 	{ .dev_type = HV_TS,
 	  HV_TS_GUID,
 	  .perf_device = false,
+<<<<<<< HEAD
+=======
+	  .allowed_in_isolated = true,
+>>>>>>> upstream/android-13
 	},
 
 	/* Heartbeat */
 	{ .dev_type = HV_HB,
 	  HV_HEART_BEAT_GUID,
 	  .perf_device = false,
+<<<<<<< HEAD
+=======
+	  .allowed_in_isolated = true,
+>>>>>>> upstream/android-13
 	},
 
 	/* Shutdown */
 	{ .dev_type = HV_SHUTDOWN,
 	  HV_SHUTDOWN_GUID,
 	  .perf_device = false,
+<<<<<<< HEAD
+=======
+	  .allowed_in_isolated = true,
+>>>>>>> upstream/android-13
 	},
 
 	/* File copy */
 	{ .dev_type = HV_FCOPY,
 	  HV_FCOPY_GUID,
 	  .perf_device = false,
+<<<<<<< HEAD
+=======
+	  .allowed_in_isolated = false,
+>>>>>>> upstream/android-13
 	},
 
 	/* Backup */
 	{ .dev_type = HV_BACKUP,
 	  HV_VSS_GUID,
 	  .perf_device = false,
+<<<<<<< HEAD
+=======
+	  .allowed_in_isolated = false,
+>>>>>>> upstream/android-13
 	},
 
 	/* Dynamic Memory */
 	{ .dev_type = HV_DM,
 	  HV_DM_GUID,
 	  .perf_device = false,
+<<<<<<< HEAD
+=======
+	  .allowed_in_isolated = false,
+>>>>>>> upstream/android-13
 	},
 
 	/* Unknown GUID */
 	{ .dev_type = HV_UNKNOWN,
 	  .perf_device = false,
+<<<<<<< HEAD
+=======
+	  .allowed_in_isolated = false,
+>>>>>>> upstream/android-13
 	},
 };
 
 static const struct {
+<<<<<<< HEAD
 	uuid_le guid;
+=======
+	guid_t guid;
+>>>>>>> upstream/android-13
 } vmbus_unsupported_devs[] = {
 	{ HV_AVMA1_GUID },
 	{ HV_AVMA2_GUID },
@@ -171,26 +260,42 @@ static void vmbus_rescind_cleanup(struct vmbus_channel *channel)
 	spin_unlock_irqrestore(&vmbus_connection.channelmsg_lock, flags);
 }
 
+<<<<<<< HEAD
 static bool is_unsupported_vmbus_devs(const uuid_le *guid)
+=======
+static bool is_unsupported_vmbus_devs(const guid_t *guid)
+>>>>>>> upstream/android-13
 {
 	int i;
 
 	for (i = 0; i < ARRAY_SIZE(vmbus_unsupported_devs); i++)
+<<<<<<< HEAD
 		if (!uuid_le_cmp(*guid, vmbus_unsupported_devs[i].guid))
+=======
+		if (guid_equal(guid, &vmbus_unsupported_devs[i].guid))
+>>>>>>> upstream/android-13
 			return true;
 	return false;
 }
 
 static u16 hv_get_dev_type(const struct vmbus_channel *channel)
 {
+<<<<<<< HEAD
 	const uuid_le *guid = &channel->offermsg.offer.if_type;
+=======
+	const guid_t *guid = &channel->offermsg.offer.if_type;
+>>>>>>> upstream/android-13
 	u16 i;
 
 	if (is_hvsock_channel(channel) || is_unsupported_vmbus_devs(guid))
 		return HV_UNKNOWN;
 
 	for (i = HV_IDE; i < HV_UNKNOWN; i++) {
+<<<<<<< HEAD
 		if (!uuid_le_cmp(*guid, vmbus_devs[i].guid))
+=======
+		if (guid_equal(guid, &vmbus_devs[i].guid))
+>>>>>>> upstream/android-13
 			return i;
 	}
 	pr_info("Unknown GUID: %pUl\n", guid);
@@ -198,6 +303,7 @@ static u16 hv_get_dev_type(const struct vmbus_channel *channel)
 }
 
 /**
+<<<<<<< HEAD
  * vmbus_prep_negotiate_resp() - Create default response for Hyper-V Negotiate message
  * @icmsghdrp: Pointer to msg header structure
  * @icmsg_negotiate: Pointer to negotiate message structure
@@ -220,6 +326,26 @@ static u16 hv_get_dev_type(const struct vmbus_channel *channel)
  */
 bool vmbus_prep_negotiate_resp(struct icmsg_hdr *icmsghdrp,
 				u8 *buf, const int *fw_version, int fw_vercnt,
+=======
+ * vmbus_prep_negotiate_resp() - Create default response for Negotiate message
+ * @icmsghdrp: Pointer to msg header structure
+ * @buf: Raw buffer channel data
+ * @buflen: Length of the raw buffer channel data.
+ * @fw_version: The framework versions we can support.
+ * @fw_vercnt: The size of @fw_version.
+ * @srv_version: The service versions we can support.
+ * @srv_vercnt: The size of @srv_version.
+ * @nego_fw_version: The selected framework version.
+ * @nego_srv_version: The selected service version.
+ *
+ * Note: Versions are given in decreasing order.
+ *
+ * Set up and fill in default negotiate response message.
+ * Mainly used by Hyper-V drivers.
+ */
+bool vmbus_prep_negotiate_resp(struct icmsg_hdr *icmsghdrp, u8 *buf,
+				u32 buflen, const int *fw_version, int fw_vercnt,
+>>>>>>> upstream/android-13
 				const int *srv_version, int srv_vercnt,
 				int *nego_fw_version, int *nego_srv_version)
 {
@@ -231,10 +357,21 @@ bool vmbus_prep_negotiate_resp(struct icmsg_hdr *icmsghdrp,
 	bool found_match = false;
 	struct icmsg_negotiate *negop;
 
+<<<<<<< HEAD
 	icmsghdrp->icmsgsize = 0x10;
 	negop = (struct icmsg_negotiate *)&buf[
 		sizeof(struct vmbuspipe_hdr) +
 		sizeof(struct icmsg_hdr)];
+=======
+	/* Check that there's enough space for icframe_vercnt, icmsg_vercnt */
+	if (buflen < ICMSG_HDR + offsetof(struct icmsg_negotiate, reserved)) {
+		pr_err_ratelimited("Invalid icmsg negotiate\n");
+		return false;
+	}
+
+	icmsghdrp->icmsgsize = 0x10;
+	negop = (struct icmsg_negotiate *)&buf[ICMSG_HDR];
+>>>>>>> upstream/android-13
 
 	icframe_major = negop->icframe_vercnt;
 	icframe_minor = 0;
@@ -242,6 +379,18 @@ bool vmbus_prep_negotiate_resp(struct icmsg_hdr *icmsghdrp,
 	icmsg_major = negop->icmsg_vercnt;
 	icmsg_minor = 0;
 
+<<<<<<< HEAD
+=======
+	/* Validate negop packet */
+	if (icframe_major > IC_VERSION_NEGOTIATION_MAX_VER_COUNT ||
+	    icmsg_major > IC_VERSION_NEGOTIATION_MAX_VER_COUNT ||
+	    ICMSG_NEGOTIATE_PKT_SIZE(icframe_major, icmsg_major) > buflen) {
+		pr_err_ratelimited("Invalid icmsg negotiate - icframe_major: %u, icmsg_major: %u\n",
+				   icframe_major, icmsg_major);
+		goto fw_error;
+	}
+
+>>>>>>> upstream/android-13
 	/*
 	 * Select the framework version number we will
 	 * support.
@@ -318,7 +467,10 @@ fw_error:
 	negop->icversion_data[1].minor = icmsg_minor;
 	return found_match;
 }
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 EXPORT_SYMBOL_GPL(vmbus_prep_negotiate_resp);
 
 /*
@@ -332,15 +484,27 @@ static struct vmbus_channel *alloc_channel(void)
 	if (!channel)
 		return NULL;
 
+<<<<<<< HEAD
 	spin_lock_init(&channel->lock);
 	init_completion(&channel->rescind_event);
 
 	INIT_LIST_HEAD(&channel->sc_list);
 	INIT_LIST_HEAD(&channel->percpu_list);
+=======
+	spin_lock_init(&channel->sched_lock);
+	init_completion(&channel->rescind_event);
+
+	INIT_LIST_HEAD(&channel->sc_list);
+>>>>>>> upstream/android-13
 
 	tasklet_init(&channel->callback_event,
 		     vmbus_on_event, (unsigned long)channel);
 
+<<<<<<< HEAD
+=======
+	hv_ringbuffer_pre_init(channel);
+
+>>>>>>> upstream/android-13
 	return channel;
 }
 
@@ -350,10 +514,15 @@ static struct vmbus_channel *alloc_channel(void)
 static void free_channel(struct vmbus_channel *channel)
 {
 	tasklet_kill(&channel->callback_event);
+<<<<<<< HEAD
+=======
+	vmbus_remove_channel_attr_group(channel);
+>>>>>>> upstream/android-13
 
 	kobject_put(&channel->kobj);
 }
 
+<<<<<<< HEAD
 static void percpu_channel_enq(void *arg)
 {
 	struct vmbus_channel *channel = arg;
@@ -371,6 +540,51 @@ static void percpu_channel_deq(void *arg)
 }
 
 
+=======
+void vmbus_channel_map_relid(struct vmbus_channel *channel)
+{
+	if (WARN_ON(channel->offermsg.child_relid >= MAX_CHANNEL_RELIDS))
+		return;
+	/*
+	 * The mapping of the channel's relid is visible from the CPUs that
+	 * execute vmbus_chan_sched() by the time that vmbus_chan_sched() will
+	 * execute:
+	 *
+	 *  (a) In the "normal (i.e., not resuming from hibernation)" path,
+	 *      the full barrier in virt_store_mb() guarantees that the store
+	 *      is propagated to all CPUs before the add_channel_work work
+	 *      is queued.  In turn, add_channel_work is queued before the
+	 *      channel's ring buffer is allocated/initialized and the
+	 *      OPENCHANNEL message for the channel is sent in vmbus_open().
+	 *      Hyper-V won't start sending the interrupts for the channel
+	 *      before the OPENCHANNEL message is acked.  The memory barrier
+	 *      in vmbus_chan_sched() -> sync_test_and_clear_bit() ensures
+	 *      that vmbus_chan_sched() must find the channel's relid in
+	 *      recv_int_page before retrieving the channel pointer from the
+	 *      array of channels.
+	 *
+	 *  (b) In the "resuming from hibernation" path, the virt_store_mb()
+	 *      guarantees that the store is propagated to all CPUs before
+	 *      the VMBus connection is marked as ready for the resume event
+	 *      (cf. check_ready_for_resume_event()).  The interrupt handler
+	 *      of the VMBus driver and vmbus_chan_sched() can not run before
+	 *      vmbus_bus_resume() has completed execution (cf. resume_noirq).
+	 */
+	virt_store_mb(
+		vmbus_connection.channels[channel->offermsg.child_relid],
+		channel);
+}
+
+void vmbus_channel_unmap_relid(struct vmbus_channel *channel)
+{
+	if (WARN_ON(channel->offermsg.child_relid >= MAX_CHANNEL_RELIDS))
+		return;
+	WRITE_ONCE(
+		vmbus_connection.channels[channel->offermsg.child_relid],
+		NULL);
+}
+
+>>>>>>> upstream/android-13
 static void vmbus_release_relid(u32 relid)
 {
 	struct vmbus_channel_relid_released msg;
@@ -385,6 +599,7 @@ static void vmbus_release_relid(u32 relid)
 	trace_vmbus_release_relid(&msg, ret);
 }
 
+<<<<<<< HEAD
 void hv_process_channel_removal(u32 relid)
 {
 	unsigned long flags;
@@ -430,6 +645,51 @@ void hv_process_channel_removal(u32 relid)
 				  &primary_channel->alloced_cpus_in_node);
 
 	vmbus_release_relid(relid);
+=======
+void hv_process_channel_removal(struct vmbus_channel *channel)
+{
+	lockdep_assert_held(&vmbus_connection.channel_mutex);
+	BUG_ON(!channel->rescind);
+
+	/*
+	 * hv_process_channel_removal() could find INVALID_RELID only for
+	 * hv_sock channels.  See the inline comments in vmbus_onoffer().
+	 */
+	WARN_ON(channel->offermsg.child_relid == INVALID_RELID &&
+		!is_hvsock_channel(channel));
+
+	/*
+	 * Upon suspend, an in-use hv_sock channel is removed from the array of
+	 * channels and the relid is invalidated.  After hibernation, when the
+	 * user-space appplication destroys the channel, it's unnecessary and
+	 * unsafe to remove the channel from the array of channels.  See also
+	 * the inline comments before the call of vmbus_release_relid() below.
+	 */
+	if (channel->offermsg.child_relid != INVALID_RELID)
+		vmbus_channel_unmap_relid(channel);
+
+	if (channel->primary_channel == NULL)
+		list_del(&channel->listentry);
+	else
+		list_del(&channel->sc_list);
+
+	/*
+	 * If this is a "perf" channel, updates the hv_numa_map[] masks so that
+	 * init_vp_index() can (re-)use the CPU.
+	 */
+	if (hv_is_perf_channel(channel))
+		hv_clear_alloced_cpu(channel->target_cpu);
+
+	/*
+	 * Upon suspend, an in-use hv_sock channel is marked as "rescinded" and
+	 * the relid is invalidated; after hibernation, when the user-space app
+	 * destroys the channel, the relid is INVALID_RELID, and in this case
+	 * it's unnecessary and unsafe to release the old relid, since the same
+	 * relid can refer to a completely different channel now.
+	 */
+	if (channel->offermsg.child_relid != INVALID_RELID)
+		vmbus_release_relid(channel->offermsg.child_relid);
+>>>>>>> upstream/android-13
 
 	free_channel(channel);
 }
@@ -453,6 +713,7 @@ static void vmbus_add_channel_work(struct work_struct *work)
 	struct vmbus_channel *newchannel =
 		container_of(work, struct vmbus_channel, add_channel_work);
 	struct vmbus_channel *primary_channel = newchannel->primary_channel;
+<<<<<<< HEAD
 	unsigned long flags;
 	u16 dev_type;
 	int ret;
@@ -471,6 +732,10 @@ static void vmbus_add_channel_work(struct work_struct *work)
 		put_cpu();
 	}
 
+=======
+	int ret;
+
+>>>>>>> upstream/android-13
 	/*
 	 * This state is used to indicate a successful open
 	 * so that when we do close the channel normally, we
@@ -502,7 +767,11 @@ static void vmbus_add_channel_work(struct work_struct *work)
 	if (!newchannel->device_obj)
 		goto err_deq_chan;
 
+<<<<<<< HEAD
 	newchannel->device_obj->device_id = dev_type;
+=======
+	newchannel->device_obj->device_id = newchannel->device_id;
+>>>>>>> upstream/android-13
 	/*
 	 * Add the new device to the bus. This will kick off device-driver
 	 * binding which eventually invokes the device driver's AddDevice()
@@ -529,6 +798,7 @@ err_deq_chan:
 	 */
 	newchannel->probe_done = true;
 
+<<<<<<< HEAD
 	if (primary_channel == NULL) {
 		list_del(&newchannel->listentry);
 	} else {
@@ -549,6 +819,18 @@ err_deq_chan:
 		put_cpu();
 	}
 
+=======
+	if (primary_channel == NULL)
+		list_del(&newchannel->listentry);
+	else
+		list_del(&newchannel->sc_list);
+
+	/* vmbus_process_offer() has mapped the channel. */
+	vmbus_channel_unmap_relid(newchannel);
+
+	mutex_unlock(&vmbus_connection.channel_mutex);
+
+>>>>>>> upstream/android-13
 	vmbus_release_relid(newchannel->offermsg.child_relid);
 
 	free_channel(newchannel);
@@ -562,17 +844,67 @@ static void vmbus_process_offer(struct vmbus_channel *newchannel)
 {
 	struct vmbus_channel *channel;
 	struct workqueue_struct *wq;
+<<<<<<< HEAD
 	unsigned long flags;
 	bool fnew = true;
 
 	mutex_lock(&vmbus_connection.channel_mutex);
 
+=======
+	bool fnew = true;
+
+	/*
+	 * Synchronize vmbus_process_offer() and CPU hotplugging:
+	 *
+	 * CPU1				CPU2
+	 *
+	 * [vmbus_process_offer()]	[Hot removal of the CPU]
+	 *
+	 * CPU_READ_LOCK		CPUS_WRITE_LOCK
+	 * LOAD cpu_online_mask		SEARCH chn_list
+	 * STORE target_cpu		LOAD target_cpu
+	 * INSERT chn_list		STORE cpu_online_mask
+	 * CPUS_READ_UNLOCK		CPUS_WRITE_UNLOCK
+	 *
+	 * Forbids: CPU1's LOAD from *not* seing CPU2's STORE &&
+	 *              CPU2's SEARCH from *not* seeing CPU1's INSERT
+	 *
+	 * Forbids: CPU2's SEARCH from seeing CPU1's INSERT &&
+	 *              CPU2's LOAD from *not* seing CPU1's STORE
+	 */
+	cpus_read_lock();
+
+	/*
+	 * Serializes the modifications of the chn_list list as well as
+	 * the accesses to next_numa_node_id in init_vp_index().
+	 */
+	mutex_lock(&vmbus_connection.channel_mutex);
+
+	list_for_each_entry(channel, &vmbus_connection.chn_list, listentry) {
+		if (guid_equal(&channel->offermsg.offer.if_type,
+			       &newchannel->offermsg.offer.if_type) &&
+		    guid_equal(&channel->offermsg.offer.if_instance,
+			       &newchannel->offermsg.offer.if_instance)) {
+			fnew = false;
+			newchannel->primary_channel = channel;
+			break;
+		}
+	}
+
+	init_vp_index(newchannel);
+
+	/* Remember the channels that should be cleaned up upon suspend. */
+	if (is_hvsock_channel(newchannel) || is_sub_channel(newchannel))
+		atomic_inc(&vmbus_connection.nr_chan_close_on_suspend);
+
+>>>>>>> upstream/android-13
 	/*
 	 * Now that we have acquired the channel_mutex,
 	 * we can release the potentially racing rescind thread.
 	 */
 	atomic_dec(&vmbus_connection.offer_in_progress);
 
+<<<<<<< HEAD
 	list_for_each_entry(channel, &vmbus_connection.chn_list, listentry) {
 		if (!uuid_le_cmp(channel->offermsg.offer.if_type,
 				 newchannel->offermsg.offer.if_type) &&
@@ -587,6 +919,12 @@ static void vmbus_process_offer(struct vmbus_channel *newchannel)
 		list_add_tail(&newchannel->listentry,
 			      &vmbus_connection.chn_list);
 	else {
+=======
+	if (fnew) {
+		list_add_tail(&newchannel->listentry,
+			      &vmbus_connection.chn_list);
+	} else {
+>>>>>>> upstream/android-13
 		/*
 		 * Check to see if this is a valid sub-channel.
 		 */
@@ -603,6 +941,7 @@ static void vmbus_process_offer(struct vmbus_channel *newchannel)
 		/*
 		 * Process the sub-channel.
 		 */
+<<<<<<< HEAD
 		newchannel->primary_channel = channel;
 		spin_lock_irqsave(&channel->lock, flags);
 		list_add_tail(&newchannel->sc_list, &channel->sc_list);
@@ -610,6 +949,15 @@ static void vmbus_process_offer(struct vmbus_channel *newchannel)
 	}
 
 	mutex_unlock(&vmbus_connection.channel_mutex);
+=======
+		list_add_tail(&newchannel->sc_list, &channel->sc_list);
+	}
+
+	vmbus_channel_map_relid(newchannel);
+
+	mutex_unlock(&vmbus_connection.channel_mutex);
+	cpus_read_unlock();
+>>>>>>> upstream/android-13
 
 	/*
 	 * vmbus_process_offer() mustn't call channel->sc_creation_callback()
@@ -639,6 +987,7 @@ static void vmbus_process_offer(struct vmbus_channel *newchannel)
 }
 
 /*
+<<<<<<< HEAD
  * We use this state to statically distribute the channel interrupt load.
  */
 static int next_numa_node_id;
@@ -649,10 +998,40 @@ static int next_numa_node_id;
  * variables.
  */
 static DEFINE_SPINLOCK(bind_channel_to_cpu_lock);
+=======
+ * Check if CPUs used by other channels of the same device.
+ * It should only be called by init_vp_index().
+ */
+static bool hv_cpuself_used(u32 cpu, struct vmbus_channel *chn)
+{
+	struct vmbus_channel *primary = chn->primary_channel;
+	struct vmbus_channel *sc;
+
+	lockdep_assert_held(&vmbus_connection.channel_mutex);
+
+	if (!primary)
+		return false;
+
+	if (primary->target_cpu == cpu)
+		return true;
+
+	list_for_each_entry(sc, &primary->sc_list, sc_list)
+		if (sc != chn && sc->target_cpu == cpu)
+			return true;
+
+	return false;
+}
+
+/*
+ * We use this state to statically distribute the channel interrupt load.
+ */
+static int next_numa_node_id;
+>>>>>>> upstream/android-13
 
 /*
  * Starting with Win8, we can statically distribute the incoming
  * channel interrupt load by binding a channel to VCPU.
+<<<<<<< HEAD
  * We distribute the interrupt loads to one or more NUMA nodes based on
  * the channel's affinity_policy.
  *
@@ -667,12 +1046,31 @@ static void init_vp_index(struct vmbus_channel *channel, u16 dev_type)
 	int next_node;
 	cpumask_var_t available_mask;
 	struct cpumask *alloced_mask;
+=======
+ *
+ * For pre-win8 hosts or non-performance critical channels we assign the
+ * VMBUS_CONNECT_CPU.
+ *
+ * Starting with win8, performance critical channels will be distributed
+ * evenly among all the available NUMA nodes.  Once the node is assigned,
+ * we will assign the CPU based on a simple round robin scheme.
+ */
+static void init_vp_index(struct vmbus_channel *channel)
+{
+	bool perf_chn = hv_is_perf_channel(channel);
+	u32 i, ncpu = num_online_cpus();
+	cpumask_var_t available_mask;
+	struct cpumask *alloced_mask;
+	u32 target_cpu;
+	int numa_node;
+>>>>>>> upstream/android-13
 
 	if ((vmbus_proto_version == VERSION_WS2008) ||
 	    (vmbus_proto_version == VERSION_WIN7) || (!perf_chn) ||
 	    !alloc_cpumask_var(&available_mask, GFP_KERNEL)) {
 		/*
 		 * Prior to win8, all channel interrupts are
+<<<<<<< HEAD
 		 * delivered on cpu 0.
 		 * Also if the channel is not a performance critical
 		 * channel, bind it to cpu 0.
@@ -769,6 +1167,54 @@ static void init_vp_index(struct vmbus_channel *channel, u16 dev_type)
 	channel->target_vp = hv_cpu_number_to_vp_number(cur_cpu);
 
 	spin_unlock(&bind_channel_to_cpu_lock);
+=======
+		 * delivered on VMBUS_CONNECT_CPU.
+		 * Also if the channel is not a performance critical
+		 * channel, bind it to VMBUS_CONNECT_CPU.
+		 * In case alloc_cpumask_var() fails, bind it to
+		 * VMBUS_CONNECT_CPU.
+		 */
+		channel->target_cpu = VMBUS_CONNECT_CPU;
+		if (perf_chn)
+			hv_set_alloced_cpu(VMBUS_CONNECT_CPU);
+		return;
+	}
+
+	for (i = 1; i <= ncpu + 1; i++) {
+		while (true) {
+			numa_node = next_numa_node_id++;
+			if (numa_node == nr_node_ids) {
+				next_numa_node_id = 0;
+				continue;
+			}
+			if (cpumask_empty(cpumask_of_node(numa_node)))
+				continue;
+			break;
+		}
+		alloced_mask = &hv_context.hv_numa_map[numa_node];
+
+		if (cpumask_weight(alloced_mask) ==
+		    cpumask_weight(cpumask_of_node(numa_node))) {
+			/*
+			 * We have cycled through all the CPUs in the node;
+			 * reset the alloced map.
+			 */
+			cpumask_clear(alloced_mask);
+		}
+
+		cpumask_xor(available_mask, alloced_mask,
+			    cpumask_of_node(numa_node));
+
+		target_cpu = cpumask_first(available_mask);
+		cpumask_set_cpu(target_cpu, alloced_mask);
+
+		if (channel->offermsg.offer.sub_channel_index >= ncpu ||
+		    i > ncpu || !hv_cpuself_used(target_cpu, channel))
+			break;
+	}
+
+	channel->target_cpu = target_cpu;
+>>>>>>> upstream/android-13
 
 	free_cpumask_var(available_mask);
 }
@@ -864,6 +1310,14 @@ static void vmbus_unload_response(struct vmbus_channel_message_header *hdr)
 	/*
 	 * This is a global event; just wakeup the waiting thread.
 	 * Once we successfully unload, we can cleanup the monitor state.
+<<<<<<< HEAD
+=======
+	 *
+	 * NB.  A malicious or compromised Hyper-V could send a spurious
+	 * message of type CHANNELMSG_UNLOAD_RESPONSE, and trigger a call
+	 * of the complete() below.  Make sure that unload_event has been
+	 * initialized by the time this complete() is executed.
+>>>>>>> upstream/android-13
 	 */
 	complete(&vmbus_connection.unload_event);
 }
@@ -879,7 +1333,11 @@ void vmbus_initiate_unload(bool crash)
 	if (vmbus_proto_version < VERSION_WIN8_1)
 		return;
 
+<<<<<<< HEAD
 	init_completion(&vmbus_connection.unload_event);
+=======
+	reinit_completion(&vmbus_connection.unload_event);
+>>>>>>> upstream/android-13
 	memset(&hdr, 0, sizeof(struct vmbus_channel_message_header));
 	hdr.msgtype = CHANNELMSG_UNLOAD;
 	vmbus_post_msg(&hdr, sizeof(struct vmbus_channel_message_header),
@@ -895,6 +1353,85 @@ void vmbus_initiate_unload(bool crash)
 		vmbus_wait_for_unload();
 }
 
+<<<<<<< HEAD
+=======
+static void check_ready_for_resume_event(void)
+{
+	/*
+	 * If all the old primary channels have been fixed up, then it's safe
+	 * to resume.
+	 */
+	if (atomic_dec_and_test(&vmbus_connection.nr_chan_fixup_on_resume))
+		complete(&vmbus_connection.ready_for_resume_event);
+}
+
+static void vmbus_setup_channel_state(struct vmbus_channel *channel,
+				      struct vmbus_channel_offer_channel *offer)
+{
+	/*
+	 * Setup state for signalling the host.
+	 */
+	channel->sig_event = VMBUS_EVENT_CONNECTION_ID;
+
+	if (vmbus_proto_version != VERSION_WS2008) {
+		channel->is_dedicated_interrupt =
+				(offer->is_dedicated_interrupt != 0);
+		channel->sig_event = offer->connection_id;
+	}
+
+	memcpy(&channel->offermsg, offer,
+	       sizeof(struct vmbus_channel_offer_channel));
+	channel->monitor_grp = (u8)offer->monitorid / 32;
+	channel->monitor_bit = (u8)offer->monitorid % 32;
+	channel->device_id = hv_get_dev_type(channel);
+}
+
+/*
+ * find_primary_channel_by_offer - Get the channel object given the new offer.
+ * This is only used in the resume path of hibernation.
+ */
+static struct vmbus_channel *
+find_primary_channel_by_offer(const struct vmbus_channel_offer_channel *offer)
+{
+	struct vmbus_channel *channel = NULL, *iter;
+	const guid_t *inst1, *inst2;
+
+	/* Ignore sub-channel offers. */
+	if (offer->offer.sub_channel_index != 0)
+		return NULL;
+
+	mutex_lock(&vmbus_connection.channel_mutex);
+
+	list_for_each_entry(iter, &vmbus_connection.chn_list, listentry) {
+		inst1 = &iter->offermsg.offer.if_instance;
+		inst2 = &offer->offer.if_instance;
+
+		if (guid_equal(inst1, inst2)) {
+			channel = iter;
+			break;
+		}
+	}
+
+	mutex_unlock(&vmbus_connection.channel_mutex);
+
+	return channel;
+}
+
+static bool vmbus_is_valid_device(const guid_t *guid)
+{
+	u16 i;
+
+	if (!hv_is_isolation_supported())
+		return true;
+
+	for (i = 0; i < ARRAY_SIZE(vmbus_devs); i++) {
+		if (guid_equal(guid, &vmbus_devs[i].guid))
+			return vmbus_devs[i].allowed_in_isolated;
+	}
+	return false;
+}
+
+>>>>>>> upstream/android-13
 /*
  * vmbus_onoffer - Handler for channel offers from vmbus in parent partition.
  *
@@ -902,12 +1439,99 @@ void vmbus_initiate_unload(bool crash)
 static void vmbus_onoffer(struct vmbus_channel_message_header *hdr)
 {
 	struct vmbus_channel_offer_channel *offer;
+<<<<<<< HEAD
 	struct vmbus_channel *newchannel;
+=======
+	struct vmbus_channel *oldchannel, *newchannel;
+	size_t offer_sz;
+>>>>>>> upstream/android-13
 
 	offer = (struct vmbus_channel_offer_channel *)hdr;
 
 	trace_vmbus_onoffer(offer);
 
+<<<<<<< HEAD
+=======
+	if (!vmbus_is_valid_device(&offer->offer.if_type)) {
+		pr_err_ratelimited("Invalid offer %d from the host supporting isolation\n",
+				   offer->child_relid);
+		atomic_dec(&vmbus_connection.offer_in_progress);
+		return;
+	}
+
+	oldchannel = find_primary_channel_by_offer(offer);
+
+	if (oldchannel != NULL) {
+		/*
+		 * We're resuming from hibernation: all the sub-channel and
+		 * hv_sock channels we had before the hibernation should have
+		 * been cleaned up, and now we must be seeing a re-offered
+		 * primary channel that we had before the hibernation.
+		 */
+
+		/*
+		 * { Initially: channel relid = INVALID_RELID,
+		 *		channels[valid_relid] = NULL }
+		 *
+		 * CPU1					CPU2
+		 *
+		 * [vmbus_onoffer()]			[vmbus_device_release()]
+		 *
+		 * LOCK channel_mutex			LOCK channel_mutex
+		 * STORE channel relid = valid_relid	LOAD r1 = channel relid
+		 * MAP_RELID channel			if (r1 != INVALID_RELID)
+		 * UNLOCK channel_mutex			  UNMAP_RELID channel
+		 *					UNLOCK channel_mutex
+		 *
+		 * Forbids: r1 == valid_relid &&
+		 *              channels[valid_relid] == channel
+		 *
+		 * Note.  r1 can be INVALID_RELID only for an hv_sock channel.
+		 * None of the hv_sock channels which were present before the
+		 * suspend are re-offered upon the resume.  See the WARN_ON()
+		 * in hv_process_channel_removal().
+		 */
+		mutex_lock(&vmbus_connection.channel_mutex);
+
+		atomic_dec(&vmbus_connection.offer_in_progress);
+
+		WARN_ON(oldchannel->offermsg.child_relid != INVALID_RELID);
+		/* Fix up the relid. */
+		oldchannel->offermsg.child_relid = offer->child_relid;
+
+		offer_sz = sizeof(*offer);
+		if (memcmp(offer, &oldchannel->offermsg, offer_sz) != 0) {
+			/*
+			 * This is not an error, since the host can also change
+			 * the other field(s) of the offer, e.g. on WS RS5
+			 * (Build 17763), the offer->connection_id of the
+			 * Mellanox VF vmbus device can change when the host
+			 * reoffers the device upon resume.
+			 */
+			pr_debug("vmbus offer changed: relid=%d\n",
+				 offer->child_relid);
+
+			print_hex_dump_debug("Old vmbus offer: ",
+					     DUMP_PREFIX_OFFSET, 16, 4,
+					     &oldchannel->offermsg, offer_sz,
+					     false);
+			print_hex_dump_debug("New vmbus offer: ",
+					     DUMP_PREFIX_OFFSET, 16, 4,
+					     offer, offer_sz, false);
+
+			/* Fix up the old channel. */
+			vmbus_setup_channel_state(oldchannel, offer);
+		}
+
+		/* Add the channel back to the array of channels. */
+		vmbus_channel_map_relid(oldchannel);
+		check_ready_for_resume_event();
+
+		mutex_unlock(&vmbus_connection.channel_mutex);
+		return;
+	}
+
+>>>>>>> upstream/android-13
 	/* Allocate the channel object and save this offer. */
 	newchannel = alloc_channel();
 	if (!newchannel) {
@@ -917,6 +1541,7 @@ static void vmbus_onoffer(struct vmbus_channel_message_header *hdr)
 		return;
 	}
 
+<<<<<<< HEAD
 	/*
 	 * Setup state for signalling the host.
 	 */
@@ -932,10 +1557,26 @@ static void vmbus_onoffer(struct vmbus_channel_message_header *hdr)
 	       sizeof(struct vmbus_channel_offer_channel));
 	newchannel->monitor_grp = (u8)offer->monitorid / 32;
 	newchannel->monitor_bit = (u8)offer->monitorid % 32;
+=======
+	vmbus_setup_channel_state(newchannel, offer);
+>>>>>>> upstream/android-13
 
 	vmbus_process_offer(newchannel);
 }
 
+<<<<<<< HEAD
+=======
+static void check_ready_for_suspend_event(void)
+{
+	/*
+	 * If all the sub-channels or hv_sock channels have been cleaned up,
+	 * then it's safe to suspend.
+	 */
+	if (atomic_dec_and_test(&vmbus_connection.nr_chan_close_on_suspend))
+		complete(&vmbus_connection.ready_for_suspend_event);
+}
+
+>>>>>>> upstream/android-13
 /*
  * vmbus_onoffer_rescind - Rescind offer handler.
  *
@@ -946,6 +1587,10 @@ static void vmbus_onoffer_rescind(struct vmbus_channel_message_header *hdr)
 	struct vmbus_channel_rescind_offer *rescind;
 	struct vmbus_channel *channel;
 	struct device *dev;
+<<<<<<< HEAD
+=======
+	bool clean_up_chan_for_suspend;
+>>>>>>> upstream/android-13
 
 	rescind = (struct vmbus_channel_rescind_offer *)hdr;
 
@@ -957,11 +1602,30 @@ static void vmbus_onoffer_rescind(struct vmbus_channel_message_header *hdr)
 	 * offer comes in first and then the rescind.
 	 * Since we process these events in work elements,
 	 * and with preemption, we may end up processing
+<<<<<<< HEAD
 	 * the events out of order. Given that we handle these
 	 * work elements on the same CPU, this is possible only
 	 * in the case of preemption. In any case wait here
 	 * until the offer processing has moved beyond the
 	 * point where the channel is discoverable.
+=======
+	 * the events out of order.  We rely on the synchronization
+	 * provided by offer_in_progress and by channel_mutex for
+	 * ordering these events:
+	 *
+	 * { Initially: offer_in_progress = 1 }
+	 *
+	 * CPU1				CPU2
+	 *
+	 * [vmbus_onoffer()]		[vmbus_onoffer_rescind()]
+	 *
+	 * LOCK channel_mutex		WAIT_ON offer_in_progress == 0
+	 * DECREMENT offer_in_progress	LOCK channel_mutex
+	 * STORE channels[]		LOAD channels[]
+	 * UNLOCK channel_mutex		UNLOCK channel_mutex
+	 *
+	 * Forbids: CPU2's LOAD from *not* seeing CPU1's STORE
+>>>>>>> upstream/android-13
 	 */
 
 	while (atomic_read(&vmbus_connection.offer_in_progress) != 0) {
@@ -974,6 +1638,21 @@ static void vmbus_onoffer_rescind(struct vmbus_channel_message_header *hdr)
 
 	mutex_lock(&vmbus_connection.channel_mutex);
 	channel = relid2channel(rescind->child_relid);
+<<<<<<< HEAD
+=======
+	if (channel != NULL) {
+		/*
+		 * Guarantee that no other instance of vmbus_onoffer_rescind()
+		 * has got a reference to the channel object.  Synchronize on
+		 * &vmbus_connection.channel_mutex.
+		 */
+		if (channel->rescind_ref) {
+			mutex_unlock(&vmbus_connection.channel_mutex);
+			return;
+		}
+		channel->rescind_ref = true;
+	}
+>>>>>>> upstream/android-13
 	mutex_unlock(&vmbus_connection.channel_mutex);
 
 	if (channel == NULL) {
@@ -985,6 +1664,11 @@ static void vmbus_onoffer_rescind(struct vmbus_channel_message_header *hdr)
 		return;
 	}
 
+<<<<<<< HEAD
+=======
+	clean_up_chan_for_suspend = is_hvsock_channel(channel) ||
+				    is_sub_channel(channel);
+>>>>>>> upstream/android-13
 	/*
 	 * Before setting channel->rescind in vmbus_rescind_cleanup(), we
 	 * should make sure the channel callback is not running any more.
@@ -1010,6 +1694,13 @@ static void vmbus_onoffer_rescind(struct vmbus_channel_message_header *hdr)
 	if (channel->device_obj) {
 		if (channel->chn_rescind_callback) {
 			channel->chn_rescind_callback(channel);
+<<<<<<< HEAD
+=======
+
+			if (clean_up_chan_for_suspend)
+				check_ready_for_suspend_event();
+
+>>>>>>> upstream/android-13
 			return;
 		}
 		/*
@@ -1035,12 +1726,24 @@ static void vmbus_onoffer_rescind(struct vmbus_channel_message_header *hdr)
 			 * The channel is currently not open;
 			 * it is safe for us to cleanup the channel.
 			 */
+<<<<<<< HEAD
 			hv_process_channel_removal(rescind->child_relid);
+=======
+			hv_process_channel_removal(channel);
+>>>>>>> upstream/android-13
 		} else {
 			complete(&channel->rescind_event);
 		}
 		mutex_unlock(&vmbus_connection.channel_mutex);
 	}
+<<<<<<< HEAD
+=======
+
+	/* The "channel" may have been freed. Do not access it any longer. */
+
+	if (clean_up_chan_for_suspend)
+		check_ready_for_suspend_event();
+>>>>>>> upstream/android-13
 }
 
 void vmbus_hvsock_device_unregister(struct vmbus_channel *channel)
@@ -1163,6 +1866,49 @@ static void vmbus_ongpadl_created(struct vmbus_channel_message_header *hdr)
 }
 
 /*
+<<<<<<< HEAD
+=======
+ * vmbus_onmodifychannel_response - Modify Channel response handler.
+ *
+ * This is invoked when we received a response to our channel modify request.
+ * Find the matching request, copy the response and signal the requesting thread.
+ */
+static void vmbus_onmodifychannel_response(struct vmbus_channel_message_header *hdr)
+{
+	struct vmbus_channel_modifychannel_response *response;
+	struct vmbus_channel_msginfo *msginfo;
+	unsigned long flags;
+
+	response = (struct vmbus_channel_modifychannel_response *)hdr;
+
+	trace_vmbus_onmodifychannel_response(response);
+
+	/*
+	 * Find the modify msg, copy the response and signal/unblock the wait event.
+	 */
+	spin_lock_irqsave(&vmbus_connection.channelmsg_lock, flags);
+
+	list_for_each_entry(msginfo, &vmbus_connection.chn_msg_list, msglistentry) {
+		struct vmbus_channel_message_header *responseheader =
+				(struct vmbus_channel_message_header *)msginfo->msg;
+
+		if (responseheader->msgtype == CHANNELMSG_MODIFYCHANNEL) {
+			struct vmbus_channel_modifychannel *modifymsg;
+
+			modifymsg = (struct vmbus_channel_modifychannel *)msginfo->msg;
+			if (modifymsg->child_relid == response->child_relid) {
+				memcpy(&msginfo->response.modify_response, response,
+				       sizeof(*response));
+				complete(&msginfo->waitevent);
+				break;
+			}
+		}
+	}
+	spin_unlock_irqrestore(&vmbus_connection.channelmsg_lock, flags);
+}
+
+/*
+>>>>>>> upstream/android-13
  * vmbus_ongpadl_torndown - GPADL torndown handler.
  *
  * This is invoked when we received a response to our gpadl teardown request.
@@ -1249,6 +1995,7 @@ static void vmbus_onversion_response(
 /* Channel message dispatch table */
 const struct vmbus_channel_message_table_entry
 channel_message_table[CHANNELMSG_COUNT] = {
+<<<<<<< HEAD
 	{ CHANNELMSG_INVALID,			0, NULL },
 	{ CHANNELMSG_OFFERCHANNEL,		0, vmbus_onoffer },
 	{ CHANNELMSG_RESCIND_CHANNELOFFER,	0, vmbus_onoffer_rescind },
@@ -1273,6 +2020,40 @@ channel_message_table[CHANNELMSG_COUNT] = {
 	{ CHANNELMSG_TL_CONNECT_REQUEST,	0, NULL },
 	{ CHANNELMSG_22,			0, NULL },
 	{ CHANNELMSG_TL_CONNECT_RESULT,		0, NULL },
+=======
+	{ CHANNELMSG_INVALID,			0, NULL, 0},
+	{ CHANNELMSG_OFFERCHANNEL,		0, vmbus_onoffer,
+		sizeof(struct vmbus_channel_offer_channel)},
+	{ CHANNELMSG_RESCIND_CHANNELOFFER,	0, vmbus_onoffer_rescind,
+		sizeof(struct vmbus_channel_rescind_offer) },
+	{ CHANNELMSG_REQUESTOFFERS,		0, NULL, 0},
+	{ CHANNELMSG_ALLOFFERS_DELIVERED,	1, vmbus_onoffers_delivered, 0},
+	{ CHANNELMSG_OPENCHANNEL,		0, NULL, 0},
+	{ CHANNELMSG_OPENCHANNEL_RESULT,	1, vmbus_onopen_result,
+		sizeof(struct vmbus_channel_open_result)},
+	{ CHANNELMSG_CLOSECHANNEL,		0, NULL, 0},
+	{ CHANNELMSG_GPADL_HEADER,		0, NULL, 0},
+	{ CHANNELMSG_GPADL_BODY,		0, NULL, 0},
+	{ CHANNELMSG_GPADL_CREATED,		1, vmbus_ongpadl_created,
+		sizeof(struct vmbus_channel_gpadl_created)},
+	{ CHANNELMSG_GPADL_TEARDOWN,		0, NULL, 0},
+	{ CHANNELMSG_GPADL_TORNDOWN,		1, vmbus_ongpadl_torndown,
+		sizeof(struct vmbus_channel_gpadl_torndown) },
+	{ CHANNELMSG_RELID_RELEASED,		0, NULL, 0},
+	{ CHANNELMSG_INITIATE_CONTACT,		0, NULL, 0},
+	{ CHANNELMSG_VERSION_RESPONSE,		1, vmbus_onversion_response,
+		sizeof(struct vmbus_channel_version_response)},
+	{ CHANNELMSG_UNLOAD,			0, NULL, 0},
+	{ CHANNELMSG_UNLOAD_RESPONSE,		1, vmbus_unload_response, 0},
+	{ CHANNELMSG_18,			0, NULL, 0},
+	{ CHANNELMSG_19,			0, NULL, 0},
+	{ CHANNELMSG_20,			0, NULL, 0},
+	{ CHANNELMSG_TL_CONNECT_REQUEST,	0, NULL, 0},
+	{ CHANNELMSG_MODIFYCHANNEL,		0, NULL, 0},
+	{ CHANNELMSG_TL_CONNECT_RESULT,		0, NULL, 0},
+	{ CHANNELMSG_MODIFYCHANNEL_RESPONSE,	1, vmbus_onmodifychannel_response,
+		sizeof(struct vmbus_channel_modifychannel_response)},
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -1280,6 +2061,7 @@ channel_message_table[CHANNELMSG_COUNT] = {
  *
  * This is invoked in the vmbus worker thread context.
  */
+<<<<<<< HEAD
 void vmbus_onmessage(void *context)
 {
 	struct hv_message *msg = context;
@@ -1287,6 +2069,10 @@ void vmbus_onmessage(void *context)
 
 	hdr = (struct vmbus_channel_message_header *)msg->u.payload;
 
+=======
+void vmbus_onmessage(struct vmbus_channel_message_header *hdr)
+{
+>>>>>>> upstream/android-13
 	trace_vmbus_on_message(hdr);
 
 	/*
@@ -1332,6 +2118,7 @@ cleanup:
 	return ret;
 }
 
+<<<<<<< HEAD
 /*
  * Retrieve the (sub) channel on which to send an outgoing request.
  * When a primary channel has multiple sub-channels, we try to
@@ -1375,6 +2162,8 @@ struct vmbus_channel *vmbus_get_outgoing_channel(struct vmbus_channel *primary)
 }
 EXPORT_SYMBOL_GPL(vmbus_get_outgoing_channel);
 
+=======
+>>>>>>> upstream/android-13
 static void invoke_sc_cb(struct vmbus_channel *primary_channel)
 {
 	struct list_head *cur, *tmp;

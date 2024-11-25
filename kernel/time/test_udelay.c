@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * udelay() test kernel module
  *
@@ -7,6 +11,7 @@
  * Specifying usecs of 0 or negative values will run multiples tests.
  *
  * Copyright (C) 2014 Google, Inc.
+<<<<<<< HEAD
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -16,6 +21,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/debugfs.h>
@@ -29,7 +36,10 @@
 #define DEBUGFS_FILENAME "udelay_test"
 
 static DEFINE_MUTEX(udelay_test_lock);
+<<<<<<< HEAD
 static struct dentry *udelay_test_debugfs_file;
+=======
+>>>>>>> upstream/android-13
 static int udelay_test_usecs;
 static int udelay_test_iterations = DEFAULT_ITERATIONS;
 
@@ -146,8 +156,13 @@ static const struct file_operations udelay_test_debugfs_ops = {
 static int __init udelay_test_init(void)
 {
 	mutex_lock(&udelay_test_lock);
+<<<<<<< HEAD
 	udelay_test_debugfs_file = debugfs_create_file(DEBUGFS_FILENAME,
 			S_IRUSR, NULL, NULL, &udelay_test_debugfs_ops);
+=======
+	debugfs_create_file(DEBUGFS_FILENAME, S_IRUSR, NULL, NULL,
+			    &udelay_test_debugfs_ops);
+>>>>>>> upstream/android-13
 	mutex_unlock(&udelay_test_lock);
 
 	return 0;
@@ -158,7 +173,11 @@ module_init(udelay_test_init);
 static void __exit udelay_test_exit(void)
 {
 	mutex_lock(&udelay_test_lock);
+<<<<<<< HEAD
 	debugfs_remove(udelay_test_debugfs_file);
+=======
+	debugfs_remove(debugfs_lookup(DEBUGFS_FILENAME, NULL));
+>>>>>>> upstream/android-13
 	mutex_unlock(&udelay_test_lock);
 }
 

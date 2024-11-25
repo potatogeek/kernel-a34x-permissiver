@@ -1,24 +1,37 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * linux/drivers/misc/xillybus_pcie.c
  *
  * Copyright 2011 Xillybus Ltd, http://xillybus.com
  *
  * Driver for the Xillybus FPGA/host framework using PCI Express.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the smems of the GNU General Public License as published by
  * the Free Software Foundation; version 2 of the License.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
 #include <linux/pci.h>
+<<<<<<< HEAD
 #include <linux/pci-aspm.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/slab.h>
 #include "xillybus.h"
 
 MODULE_DESCRIPTION("Xillybus driver for PCIe");
 MODULE_AUTHOR("Eli Billauer, Xillybus Ltd.");
+<<<<<<< HEAD
 MODULE_VERSION("1.06");
+=======
+>>>>>>> upstream/android-13
 MODULE_ALIAS("xillybus_pcie");
 MODULE_LICENSE("GPL v2");
 

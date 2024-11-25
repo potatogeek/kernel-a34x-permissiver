@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /******************************************************************************
  *
  * Copyright(c) 2009 - 2014 Intel Corporation. All rights reserved.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
  * published by the Free Software Foundation.
@@ -18,6 +23,8 @@
  * The full GNU General Public License is included in this distribution in the
  * file called LICENSE.
  *
+=======
+>>>>>>> upstream/android-13
  * Contact Information:
  *  Intel Linux Wireless <linuxwifi@intel.com>
  * Intel Corporation, 5200 N.E. Elam Young Parkway, Hillsboro, OR 97124-6497
@@ -69,18 +76,29 @@ DEFINE_EVENT(iwlwifi_msg_event, iwlwifi_crit,
 );
 
 TRACE_EVENT(iwlwifi_dbg,
+<<<<<<< HEAD
 	TP_PROTO(u32 level, bool in_interrupt, const char *function,
 		 struct va_format *vaf),
 	TP_ARGS(level, in_interrupt, function, vaf),
 	TP_STRUCT__entry(
 		__field(u32, level)
 		__field(u8, in_interrupt)
+=======
+	TP_PROTO(u32 level, const char *function,
+		 struct va_format *vaf),
+	TP_ARGS(level, function, vaf),
+	TP_STRUCT__entry(
+		__field(u32, level)
+>>>>>>> upstream/android-13
 		__string(function, function)
 		__dynamic_array(char, msg, MAX_MSG_LEN)
 	),
 	TP_fast_assign(
 		__entry->level = level;
+<<<<<<< HEAD
 		__entry->in_interrupt = in_interrupt;
+=======
+>>>>>>> upstream/android-13
 		__assign_str(function, function);
 		WARN_ON_ONCE(vsnprintf(__get_dynamic_array(msg),
 				       MAX_MSG_LEN, vaf->fmt,

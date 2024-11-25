@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * STMicroelectronics uvis25 sensor driver
  *
  * Copyright 2017 STMicroelectronics Inc.
  *
  * Lorenzo Bianconi <lorenzo.bianconi83@gmail.com>
+<<<<<<< HEAD
  *
  * Licensed under the GPL-2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -211,7 +218,10 @@ static int st_uvis25_allocate_trigger(struct iio_dev *iio_dev)
 		return -ENOMEM;
 
 	iio_trigger_set_drvdata(hw->trig, iio_dev);
+<<<<<<< HEAD
 	hw->trig->dev.parent = dev;
+=======
+>>>>>>> upstream/android-13
 
 	return devm_iio_trigger_register(dev, hw->trig);
 }
@@ -228,8 +238,11 @@ static int st_uvis25_buffer_postdisable(struct iio_dev *iio_dev)
 
 static const struct iio_buffer_setup_ops st_uvis25_buffer_ops = {
 	.preenable = st_uvis25_buffer_preenable,
+<<<<<<< HEAD
 	.postenable = iio_triggered_buffer_postenable,
 	.predisable = iio_triggered_buffer_predisable,
+=======
+>>>>>>> upstream/android-13
 	.postdisable = st_uvis25_buffer_postdisable,
 };
 
@@ -306,7 +319,10 @@ int st_uvis25_probe(struct device *dev, int irq, struct regmap *regmap)
 		return err;
 
 	iio_dev->modes = INDIO_DIRECT_MODE;
+<<<<<<< HEAD
 	iio_dev->dev.parent = dev;
+=======
+>>>>>>> upstream/android-13
 	iio_dev->channels = st_uvis25_channels;
 	iio_dev->num_channels = ARRAY_SIZE(st_uvis25_channels);
 	iio_dev->name = ST_UVIS25_DEV_NAME;

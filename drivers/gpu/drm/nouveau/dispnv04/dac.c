@@ -24,7 +24,10 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
+<<<<<<< HEAD
 #include <drm/drmP.h>
+=======
+>>>>>>> upstream/android-13
 #include <drm/drm_crtc_helper.h>
 
 #include "nouveau_drv.h"
@@ -36,7 +39,12 @@
 
 #include <subdev/bios/gpio.h>
 #include <subdev/gpio.h>
+<<<<<<< HEAD
 #include <subdev/timer.h>
+=======
+
+#include <nvif/timer.h>
+>>>>>>> upstream/android-13
 
 int nv04_dac_output_offset(struct drm_encoder *encoder)
 {
@@ -419,7 +427,11 @@ static void nv04_dac_commit(struct drm_encoder *encoder)
 	helper->dpms(encoder, DRM_MODE_DPMS_ON);
 
 	NV_DEBUG(drm, "Output %s is running on CRTC %d using output %c\n",
+<<<<<<< HEAD
 		 nouveau_encoder_connector_get(nv_encoder)->base.name,
+=======
+		 nv04_encoder_get_connector(nv_encoder)->base.name,
+>>>>>>> upstream/android-13
 		 nv_crtc->index, '@' + ffs(nv_encoder->dcb->or));
 }
 

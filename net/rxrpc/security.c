@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* RxRPC security handling
  *
  * Copyright (C) 2007 Red Hat, Inc. All Rights Reserved.
  * Written by David Howells (dhowells@redhat.com)
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -59,7 +66,11 @@ void rxrpc_exit_security(void)
 /*
  * look up an rxrpc security module
  */
+<<<<<<< HEAD
 static const struct rxrpc_security *rxrpc_security_lookup(u8 security_index)
+=======
+const struct rxrpc_security *rxrpc_security_lookup(u8 security_index)
+>>>>>>> upstream/android-13
 {
 	if (security_index >= ARRAY_SIZE(rxrpc_security_types))
 		return NULL;
@@ -85,6 +96,7 @@ int rxrpc_init_client_conn_security(struct rxrpc_connection *conn)
 	if (ret < 0)
 		return ret;
 
+<<<<<<< HEAD
 	token = key->payload.data[0];
 	if (!token)
 		return -EKEYREJECTED;
@@ -95,6 +107,19 @@ int rxrpc_init_client_conn_security(struct rxrpc_connection *conn)
 	conn->security = sec;
 
 	ret = conn->security->init_connection_security(conn);
+=======
+	for (token = key->payload.data[0]; token; token = token->next) {
+		sec = rxrpc_security_lookup(token->security_index);
+		if (sec)
+			goto found;
+	}
+	return -EKEYREJECTED;
+
+found:
+	conn->security = sec;
+
+	ret = conn->security->init_connection_security(conn, token);
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		conn->security = &rxrpc_no_security;
 		return ret;
@@ -105,6 +130,7 @@ int rxrpc_init_client_conn_security(struct rxrpc_connection *conn)
 }
 
 /*
+<<<<<<< HEAD
  * initialise the security on a server connection
  */
 int rxrpc_init_server_conn_security(struct rxrpc_connection *conn)
@@ -163,4 +189,91 @@ found_service:
 
 	_leave(" = 0");
 	return 0;
+=======
+ * Set the ops a server connection.
+ */
+const struct rxrpc_security *rxrpc_get_incoming_security(struct rxrpc_sock *rx,
+							 struct sk_buff *skb)
+{
+	const struct rxrpc_security *sec;
+	struct rxrpc_skb_priv *sp = rxrpc_skb(skb);
+
+	_enter("");
+
+	sec = rxrpc_security_lookup(sp->hdr.securityIndex);
+	if (!sec) {
+		trace_rxrpc_abort(0, "SVS",
+				  sp->hdr.cid, sp->hdr.callNumber, sp->hdr.seq,
+				  RX_INVALID_OPERATION, EKEYREJECTED);
+		skb->mark = RXRPC_SKB_MARK_REJECT_ABORT;
+		skb->priority = RX_INVALID_OPERATION;
+		return NULL;
+	}
+
+	if (sp->hdr.securityIndex != RXRPC_SECURITY_NONE &&
+	    !rx->securities) {
+		trace_rxrpc_abort(0, "SVR",
+				  sp->hdr.cid, sp->hdr.callNumber, sp->hdr.seq,
+				  RX_INVALID_OPERATION, EKEYREJECTED);
+		skb->mark = RXRPC_SKB_MARK_REJECT_ABORT;
+		skb->priority = sec->no_key_abort;
+		return NULL;
+	}
+
+	return sec;
+}
+
+/*
+ * Find the security key for a server connection.
+ */
+struct key *rxrpc_look_up_server_security(struct rxrpc_connection *conn,
+					  struct sk_buff *skb,
+					  u32 kvno, u32 enctype)
+{
+	struct rxrpc_skb_priv *sp = rxrpc_skb(skb);
+	struct rxrpc_sock *rx;
+	struct key *key = ERR_PTR(-EKEYREJECTED);
+	key_ref_t kref = NULL;
+	char kdesc[5 + 1 + 3 + 1 + 12 + 1 + 12 + 1];
+	int ret;
+
+	_enter("");
+
+	if (enctype)
+		sprintf(kdesc, "%u:%u:%u:%u",
+			sp->hdr.serviceId, sp->hdr.securityIndex, kvno, enctype);
+	else if (kvno)
+		sprintf(kdesc, "%u:%u:%u",
+			sp->hdr.serviceId, sp->hdr.securityIndex, kvno);
+	else
+		sprintf(kdesc, "%u:%u",
+			sp->hdr.serviceId, sp->hdr.securityIndex);
+
+	rcu_read_lock();
+
+	rx = rcu_dereference(conn->params.local->service);
+	if (!rx)
+		goto out;
+
+	/* look through the service's keyring */
+	kref = keyring_search(make_key_ref(rx->securities, 1UL),
+			      &key_type_rxrpc_s, kdesc, true);
+	if (IS_ERR(kref)) {
+		key = ERR_CAST(kref);
+		goto out;
+	}
+
+	key = key_ref_to_ptr(kref);
+
+	ret = key_validate(key);
+	if (ret < 0) {
+		key_put(key);
+		key = ERR_PTR(ret);
+		goto out;
+	}
+
+out:
+	rcu_read_unlock();
+	return key;
+>>>>>>> upstream/android-13
 }

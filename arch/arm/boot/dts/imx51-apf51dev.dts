@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2013 Armadeus Systems - <support@armadeus.com>
  *
@@ -7,6 +8,11 @@
  *
  * http://www.opensource.org/licenses/gpl-license.html
  * http://www.gnu.org/copyleft/gpl.html
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright 2013 Armadeus Systems - <support@armadeus.com>
+>>>>>>> upstream/android-13
  */
 
 /* APF51Dev is a docking board for the APF51 SOM */
@@ -80,8 +86,13 @@
 &ecspi1 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_ecspi1>;
+<<<<<<< HEAD
 	cs-gpios = <&gpio4 24 GPIO_ACTIVE_HIGH>,
 		   <&gpio4 25 GPIO_ACTIVE_HIGH>;
+=======
+	cs-gpios = <&gpio4 24 GPIO_ACTIVE_LOW>,
+		   <&gpio4 25 GPIO_ACTIVE_LOW>;
+>>>>>>> upstream/android-13
 	status = "okay";
 };
 

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2013-2017 Qualcomm Atheros, Inc.
  *
@@ -12,6 +13,11 @@
  * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+=======
+// SPDX-License-Identifier: ISC
+/*
+ * Copyright (c) 2013-2017 Qualcomm Atheros, Inc.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/relay.h>
@@ -494,6 +500,12 @@ static struct dentry *create_buf_file_handler(const char *filename,
 
 	buf_file = debugfs_create_file(filename, mode, parent, buf,
 				       &relay_file_operations);
+<<<<<<< HEAD
+=======
+	if (IS_ERR(buf_file))
+		return NULL;
+
+>>>>>>> upstream/android-13
 	*is_global = 1;
 	return buf_file;
 }
@@ -505,7 +517,11 @@ static int remove_buf_file_handler(struct dentry *dentry)
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct rchan_callbacks rfs_spec_scan_cb = {
+=======
+static const struct rchan_callbacks rfs_spec_scan_cb = {
+>>>>>>> upstream/android-13
 	.create_buf_file = create_buf_file_handler,
 	.remove_buf_file = remove_buf_file_handler,
 };

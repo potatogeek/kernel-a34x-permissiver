@@ -110,6 +110,7 @@ static void ts_nbus_set_direction(struct ts_nbus *ts_nbus, int direction)
  */
 static void ts_nbus_reset_bus(struct ts_nbus *ts_nbus)
 {
+<<<<<<< HEAD
 	int i;
 	int values[8];
 
@@ -117,6 +118,14 @@ static void ts_nbus_reset_bus(struct ts_nbus *ts_nbus)
 		values[i] = 0;
 
 	gpiod_set_array_value_cansleep(8, ts_nbus->data->desc, values);
+=======
+	DECLARE_BITMAP(values, 8);
+
+	values[0] = 0;
+
+	gpiod_set_array_value_cansleep(8, ts_nbus->data->desc,
+				       ts_nbus->data->info, values);
+>>>>>>> upstream/android-13
 	gpiod_set_value_cansleep(ts_nbus->csn, 0);
 	gpiod_set_value_cansleep(ts_nbus->strobe, 0);
 	gpiod_set_value_cansleep(ts_nbus->ale, 0);
@@ -157,6 +166,7 @@ static int ts_nbus_read_byte(struct ts_nbus *ts_nbus, u8 *val)
 static void ts_nbus_write_byte(struct ts_nbus *ts_nbus, u8 byte)
 {
 	struct gpio_descs *gpios = ts_nbus->data;
+<<<<<<< HEAD
 	int i;
 	int values[8];
 
@@ -167,6 +177,13 @@ static void ts_nbus_write_byte(struct ts_nbus *ts_nbus, u8 byte)
 			values[i] = 0;
 
 	gpiod_set_array_value_cansleep(8, gpios->desc, values);
+=======
+	DECLARE_BITMAP(values, 8);
+
+	values[0] = byte;
+
+	gpiod_set_array_value_cansleep(8, gpios->desc, gpios->info, values);
+>>>>>>> upstream/android-13
 }
 
 /*

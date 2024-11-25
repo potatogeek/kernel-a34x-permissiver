@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Driver for USB ethernet port of Conexant CX82310-based ADSL routers
  * Copyright (C) 2010 by Ondrej Zary
  * some parts inspired by the cxacru driver
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,6 +20,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -52,6 +59,14 @@ enum cx82310_status {
 #define CX82310_MTU	1514
 #define CMD_EP		0x01
 
+<<<<<<< HEAD
+=======
+struct cx82310_priv {
+	struct work_struct reenable_work;
+	struct usbnet *dev;
+};
+
+>>>>>>> upstream/android-13
 /*
  * execute control command
  *  - optionally send some data (command parameters)
@@ -78,8 +93,13 @@ static int cx82310_cmd(struct usbnet *dev, enum cx82310_cmd cmd, bool reply,
 			   CMD_PACKET_SIZE, &actual_len, CMD_TIMEOUT);
 	if (ret < 0) {
 		if (cmd != CMD_GET_LINK_STATUS)
+<<<<<<< HEAD
 			dev_err(&dev->udev->dev, "send command %#x: error %d\n",
 				cmd, ret);
+=======
+			netdev_err(dev->net, "send command %#x: error %d\n",
+				   cmd, ret);
+>>>>>>> upstream/android-13
 		goto end;
 	}
 
@@ -91,30 +111,49 @@ static int cx82310_cmd(struct usbnet *dev, enum cx82310_cmd cmd, bool reply,
 					   CMD_TIMEOUT);
 			if (ret < 0) {
 				if (cmd != CMD_GET_LINK_STATUS)
+<<<<<<< HEAD
 					dev_err(&dev->udev->dev,
 						"reply receive error %d\n",
 						ret);
+=======
+					netdev_err(dev->net, "reply receive error %d\n",
+						   ret);
+>>>>>>> upstream/android-13
 				goto end;
 			}
 			if (actual_len > 0)
 				break;
 		}
 		if (actual_len == 0) {
+<<<<<<< HEAD
 			dev_err(&dev->udev->dev, "no reply to command %#x\n",
 				cmd);
+=======
+			netdev_err(dev->net, "no reply to command %#x\n", cmd);
+>>>>>>> upstream/android-13
 			ret = -EIO;
 			goto end;
 		}
 		if (buf[0] != cmd) {
+<<<<<<< HEAD
 			dev_err(&dev->udev->dev,
 				"got reply to command %#x, expected: %#x\n",
 				buf[0], cmd);
+=======
+			netdev_err(dev->net, "got reply to command %#x, expected: %#x\n",
+				   buf[0], cmd);
+>>>>>>> upstream/android-13
 			ret = -EIO;
 			goto end;
 		}
 		if (buf[1] != STATUS_SUCCESS) {
+<<<<<<< HEAD
 			dev_err(&dev->udev->dev, "command %#x failed: %#x\n",
 				cmd, buf[1]);
+=======
+			netdev_err(dev->net, "command %#x failed: %#x\n", cmd,
+				   buf[1]);
+>>>>>>> upstream/android-13
 			ret = -EIO;
 			goto end;
 		}
@@ -127,6 +166,26 @@ end:
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+static int cx82310_enable_ethernet(struct usbnet *dev)
+{
+	int ret = cx82310_cmd(dev, CMD_ETHERNET_MODE, true, "\x01", 1, NULL, 0);
+
+	if (ret)
+		netdev_err(dev->net, "unable to enable ethernet mode: %d\n",
+			   ret);
+	return ret;
+}
+
+static void cx82310_reenable_work(struct work_struct *work)
+{
+	struct cx82310_priv *priv = container_of(work, struct cx82310_priv,
+						 reenable_work);
+	cx82310_enable_ethernet(priv->dev);
+}
+
+>>>>>>> upstream/android-13
 #define partial_len	data[0]		/* length of partial packet data */
 #define partial_rem	data[1]		/* remaining (missing) data length */
 #define partial_data	data[2]		/* partial packet data */
@@ -138,6 +197,10 @@ static int cx82310_bind(struct usbnet *dev, struct usb_interface *intf)
 	struct usb_device *udev = dev->udev;
 	u8 link[3];
 	int timeout = 50;
+<<<<<<< HEAD
+=======
+	struct cx82310_priv *priv;
+>>>>>>> upstream/android-13
 
 	/* avoid ADSL modems - continue only if iProduct is "USB NET CARD" */
 	if (usb_string(udev, udev->descriptor.iProduct, buf, sizeof(buf)) > 0
@@ -164,6 +227,18 @@ static int cx82310_bind(struct usbnet *dev, struct usb_interface *intf)
 	if (!dev->partial_data)
 		return -ENOMEM;
 
+<<<<<<< HEAD
+=======
+	priv = kzalloc(sizeof(*priv), GFP_KERNEL);
+	if (!priv) {
+		ret = -ENOMEM;
+		goto err_partial;
+	}
+	dev->driver_priv = priv;
+	INIT_WORK(&priv->reenable_work, cx82310_reenable_work);
+	priv->dev = dev;
+
+>>>>>>> upstream/android-13
 	/* wait for firmware to become ready (indicated by the link being up) */
 	while (--timeout) {
 		ret = cx82310_cmd(dev, CMD_GET_LINK_STATUS, true, NULL, 0,
@@ -174,24 +249,38 @@ static int cx82310_bind(struct usbnet *dev, struct usb_interface *intf)
 		msleep(500);
 	}
 	if (!timeout) {
+<<<<<<< HEAD
 		dev_err(&udev->dev, "firmware not ready in time\n");
+=======
+		netdev_err(dev->net, "firmware not ready in time\n");
+>>>>>>> upstream/android-13
 		ret = -ETIMEDOUT;
 		goto err;
 	}
 
 	/* enable ethernet mode (?) */
+<<<<<<< HEAD
 	ret = cx82310_cmd(dev, CMD_ETHERNET_MODE, true, "\x01", 1, NULL, 0);
 	if (ret) {
 		dev_err(&udev->dev, "unable to enable ethernet mode: %d\n",
 			ret);
 		goto err;
 	}
+=======
+	ret = cx82310_enable_ethernet(dev);
+	if (ret)
+		goto err;
+>>>>>>> upstream/android-13
 
 	/* get the MAC address */
 	ret = cx82310_cmd(dev, CMD_GET_MAC_ADDR, true, NULL, 0,
 			  dev->net->dev_addr, ETH_ALEN);
 	if (ret) {
+<<<<<<< HEAD
 		dev_err(&udev->dev, "unable to read MAC address: %d\n", ret);
+=======
+		netdev_err(dev->net, "unable to read MAC address: %d\n", ret);
+>>>>>>> upstream/android-13
 		goto err;
 	}
 
@@ -202,13 +291,26 @@ static int cx82310_bind(struct usbnet *dev, struct usb_interface *intf)
 
 	return 0;
 err:
+<<<<<<< HEAD
+=======
+	kfree(dev->driver_priv);
+err_partial:
+>>>>>>> upstream/android-13
 	kfree((void *)dev->partial_data);
 	return ret;
 }
 
 static void cx82310_unbind(struct usbnet *dev, struct usb_interface *intf)
 {
+<<<<<<< HEAD
 	kfree((void *)dev->partial_data);
+=======
+	struct cx82310_priv *priv = dev->driver_priv;
+
+	kfree((void *)dev->partial_data);
+	cancel_work_sync(&priv->reenable_work);
+	kfree(dev->driver_priv);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -223,6 +325,10 @@ static int cx82310_rx_fixup(struct usbnet *dev, struct sk_buff *skb)
 {
 	int len;
 	struct sk_buff *skb2;
+<<<<<<< HEAD
+=======
+	struct cx82310_priv *priv = dev->driver_priv;
+>>>>>>> upstream/android-13
 
 	/*
 	 * If the last skb ended with an incomplete packet, this skb contains
@@ -257,9 +363,17 @@ static int cx82310_rx_fixup(struct usbnet *dev, struct sk_buff *skb)
 			break;
 		}
 
+<<<<<<< HEAD
 		if (len > CX82310_MTU) {
 			dev_err(&dev->udev->dev, "RX packet too long: %d B\n",
 				len);
+=======
+		if (len == 0xffff) {
+			netdev_info(dev->net, "router was rebooted, re-enabling ethernet mode");
+			schedule_work(&priv->reenable_work);
+		} else if (len > CX82310_MTU) {
+			netdev_err(dev->net, "RX packet too long: %d B\n", len);
+>>>>>>> upstream/android-13
 			return 0;
 		}
 

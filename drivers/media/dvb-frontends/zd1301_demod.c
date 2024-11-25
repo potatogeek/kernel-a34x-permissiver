@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * ZyDAS ZD1301 driver (demodulator)
  *
  * Copyright (C) 2015 Antti Palosaari <crope@iki.fi>
+<<<<<<< HEAD
  *
  *    This program is free software; you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
@@ -12,6 +17,8 @@
  *    but WITHOUT ANY WARRANTY; without even the implied warranty of
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *    GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "zd1301_demod.h"
@@ -430,8 +437,12 @@ static int zd1301_demod_i2c_master_xfer(struct i2c_adapter *adapter,
 	} else {
 		dev_dbg(&pdev->dev, "unknown msg[0].len=%u\n", msg[0].len);
 		ret = -EOPNOTSUPP;
+<<<<<<< HEAD
 		if (ret)
 			goto err;
+=======
+		goto err;
+>>>>>>> upstream/android-13
 	}
 
 	return num;
@@ -499,7 +510,12 @@ static int zd1301_demod_probe(struct platform_device *pdev)
 		goto err_kfree;
 
 	/* Create I2C adapter */
+<<<<<<< HEAD
 	strlcpy(dev->adapter.name, "ZyDAS ZD1301 demod", sizeof(dev->adapter.name));
+=======
+	strscpy(dev->adapter.name, "ZyDAS ZD1301 demod",
+		sizeof(dev->adapter.name));
+>>>>>>> upstream/android-13
 	dev->adapter.algo = &zd1301_demod_i2c_algorithm;
 	dev->adapter.algo_data = NULL;
 	dev->adapter.dev.parent = pdev->dev.parent;

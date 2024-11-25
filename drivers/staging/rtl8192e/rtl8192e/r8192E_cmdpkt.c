@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  * Copyright(c) 2008 - 2010 Realtek Corporation. All rights reserved.
  *
@@ -13,6 +14,14 @@
  * wlanfae <wlanfae@realtek.com>
  *****************************************************************************/
 
+=======
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright(c) 2008 - 2010 Realtek Corporation. All rights reserved.
+ *
+ * Contact Information: wlanfae <wlanfae@realtek.com>
+ */
+>>>>>>> upstream/android-13
 #include "rtl_core.h"
 #include "r8192E_hw.h"
 #include "r8192E_cmdpkt.h"
@@ -20,7 +29,10 @@
 bool rtl92e_send_cmd_pkt(struct net_device *dev, u32 type, const void *data,
 			 u32 len)
 {
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	bool				rt_status = true;
 	struct r8192_priv *priv = rtllib_priv(dev);
 	u16				frag_length = 0, frag_offset = 0;

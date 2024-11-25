@@ -1,8 +1,16 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0
 /**
  * debug.h - DesignWare USB3 DRD Controller Debug Header
  *
  * Copyright (C) 2010-2011 Texas Instruments Incorporated - http://www.ti.com
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+/*
+ * debug.h - DesignWare USB3 DRD Controller Debug Header
+ *
+ * Copyright (C) 2010-2011 Texas Instruments Incorporated - https://www.ti.com
+>>>>>>> upstream/android-13
  *
  * Authors: Felipe Balbi <balbi@ti.com>,
  *	    Sebastian Andrzej Siewior <bigeasy@linutronix.de>
@@ -68,6 +76,11 @@ dwc3_gadget_generic_cmd_string(u8 cmd)
 		return "All FIFO Flush";
 	case DWC3_DGCMD_SET_ENDPOINT_NRDY:
 		return "Set Endpoint NRDY";
+<<<<<<< HEAD
+=======
+	case DWC3_DGCMD_SET_ENDPOINT_PRIME:
+		return "Set Endpoint Prime";
+>>>>>>> upstream/android-13
 	case DWC3_DGCMD_RUN_SOC_BUS_LOOPBACK:
 		return "Run SoC Bus Loopback Test";
 	default:
@@ -112,7 +125,11 @@ dwc3_gadget_link_string(enum dwc3_link_state link_state)
 	case DWC3_LINK_STATE_RESUME:
 		return "Resume";
 	default:
+<<<<<<< HEAD
 		return "UNKNOWN link state\n";
+=======
+		return "UNKNOWN link state";
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -141,7 +158,11 @@ dwc3_gadget_hs_link_string(enum dwc3_link_state link_state)
 	case DWC3_LINK_STATE_RESUME:
 		return "Resume";
 	default:
+<<<<<<< HEAD
 		return "UNKNOWN link state\n";
+=======
+		return "UNKNOWN link state";
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -193,13 +214,19 @@ static inline const char *dwc3_ep0_state_string(enum dwc3_ep0_state state)
  * dwc3_gadget_event_string - returns event name
  * @event: the event code
  */
+<<<<<<< HEAD
 static inline const char *
 dwc3_gadget_event_string(char *str, const struct dwc3_event_devt *event)
+=======
+static inline const char *dwc3_gadget_event_string(char *str, size_t size,
+		const struct dwc3_event_devt *event)
+>>>>>>> upstream/android-13
 {
 	enum dwc3_link_state state = event->event_info & DWC3_LINK_STATE_MASK;
 
 	switch (event->type) {
 	case DWC3_DEVICE_EVENT_DISCONNECT:
+<<<<<<< HEAD
 		sprintf(str, "Disconnect: [%s]",
 				dwc3_gadget_link_string(state));
 		break;
@@ -481,6 +508,49 @@ static inline const char *dwc3_decode_ctrl(char *str, __u8 bRequestType,
 			cpu_to_le16(wIndex) >> 8,
 			cpu_to_le16(wLength) & 0xff,
 			cpu_to_le16(wLength) >> 8);
+=======
+		snprintf(str, size, "Disconnect: [%s]",
+				dwc3_gadget_link_string(state));
+		break;
+	case DWC3_DEVICE_EVENT_RESET:
+		snprintf(str, size, "Reset [%s]",
+				dwc3_gadget_link_string(state));
+		break;
+	case DWC3_DEVICE_EVENT_CONNECT_DONE:
+		snprintf(str, size, "Connection Done [%s]",
+				dwc3_gadget_link_string(state));
+		break;
+	case DWC3_DEVICE_EVENT_LINK_STATUS_CHANGE:
+		snprintf(str, size, "Link Change [%s]",
+				dwc3_gadget_link_string(state));
+		break;
+	case DWC3_DEVICE_EVENT_WAKEUP:
+		snprintf(str, size, "WakeUp [%s]",
+				dwc3_gadget_link_string(state));
+		break;
+	case DWC3_DEVICE_EVENT_SUSPEND:
+		snprintf(str, size, "Suspend [%s]",
+				dwc3_gadget_link_string(state));
+		break;
+	case DWC3_DEVICE_EVENT_SOF:
+		snprintf(str, size, "Start-Of-Frame [%s]",
+				dwc3_gadget_link_string(state));
+		break;
+	case DWC3_DEVICE_EVENT_ERRATIC_ERROR:
+		snprintf(str, size, "Erratic Error [%s]",
+				dwc3_gadget_link_string(state));
+		break;
+	case DWC3_DEVICE_EVENT_CMD_CMPL:
+		snprintf(str, size, "Command Complete [%s]",
+				dwc3_gadget_link_string(state));
+		break;
+	case DWC3_DEVICE_EVENT_OVERFLOW:
+		snprintf(str, size, "Overflow [%s]",
+				dwc3_gadget_link_string(state));
+		break;
+	default:
+		snprintf(str, size, "UNKNOWN");
+>>>>>>> upstream/android-13
 	}
 
 	return str;
@@ -490,30 +560,47 @@ static inline const char *dwc3_decode_ctrl(char *str, __u8 bRequestType,
  * dwc3_ep_event_string - returns event name
  * @event: then event code
  */
+<<<<<<< HEAD
 static inline const char *
 dwc3_ep_event_string(char *str, const struct dwc3_event_depevt *event,
 		     u32 ep0state)
+=======
+static inline const char *dwc3_ep_event_string(char *str, size_t size,
+		const struct dwc3_event_depevt *event, u32 ep0state)
+>>>>>>> upstream/android-13
 {
 	u8 epnum = event->endpoint_number;
 	size_t len;
 	int status;
+<<<<<<< HEAD
 	int ret;
 
 	ret = sprintf(str, "ep%d%s: ", epnum >> 1,
 			(epnum & 1) ? "in" : "out");
 	if (ret < 0)
 		return "UNKNOWN";
+=======
+
+	len = scnprintf(str, size, "ep%d%s: ", epnum >> 1,
+			(epnum & 1) ? "in" : "out");
+>>>>>>> upstream/android-13
 
 	status = event->status;
 
 	switch (event->endpoint_event) {
 	case DWC3_DEPEVT_XFERCOMPLETE:
+<<<<<<< HEAD
 		len = strlen(str);
 		sprintf(str + len, "Transfer Complete (%c%c%c)",
+=======
+		len += scnprintf(str + len, size - len,
+				"Transfer Complete (%c%c%c)",
+>>>>>>> upstream/android-13
 				status & DEPEVT_STATUS_SHORT ? 'S' : 's',
 				status & DEPEVT_STATUS_IOC ? 'I' : 'i',
 				status & DEPEVT_STATUS_LST ? 'L' : 'l');
 
+<<<<<<< HEAD
 		len = strlen(str);
 
 		if (epnum <= 1)
@@ -523,15 +610,29 @@ dwc3_ep_event_string(char *str, const struct dwc3_event_depevt *event,
 		len = strlen(str);
 
 		sprintf(str + len, "Transfer In Progress [%d] (%c%c%c)",
+=======
+		if (epnum <= 1)
+			scnprintf(str + len, size - len, " [%s]",
+					dwc3_ep0_state_string(ep0state));
+		break;
+	case DWC3_DEPEVT_XFERINPROGRESS:
+		scnprintf(str + len, size - len,
+				"Transfer In Progress [%d] (%c%c%c)",
+>>>>>>> upstream/android-13
 				event->parameters,
 				status & DEPEVT_STATUS_SHORT ? 'S' : 's',
 				status & DEPEVT_STATUS_IOC ? 'I' : 'i',
 				status & DEPEVT_STATUS_LST ? 'M' : 'm');
 		break;
 	case DWC3_DEPEVT_XFERNOTREADY:
+<<<<<<< HEAD
 		len = strlen(str);
 
 		sprintf(str + len, "Transfer Not Ready [%d]%s",
+=======
+		len += scnprintf(str + len, size - len,
+				"Transfer Not Ready [%d]%s",
+>>>>>>> upstream/android-13
 				event->parameters,
 				status & DEPEVT_STATUS_TRANSFER_ACTIVE ?
 				" (Active)" : " (Not Active)");
@@ -542,36 +643,64 @@ dwc3_ep_event_string(char *str, const struct dwc3_event_depevt *event,
 
 			switch (phase) {
 			case DEPEVT_STATUS_CONTROL_DATA:
+<<<<<<< HEAD
 				strcat(str, " [Data Phase]");
 				break;
 			case DEPEVT_STATUS_CONTROL_STATUS:
 				strcat(str, " [Status Phase]");
+=======
+				scnprintf(str + len, size - len,
+						" [Data Phase]");
+				break;
+			case DEPEVT_STATUS_CONTROL_STATUS:
+				scnprintf(str + len, size - len,
+						" [Status Phase]");
+>>>>>>> upstream/android-13
 			}
 		}
 		break;
 	case DWC3_DEPEVT_RXTXFIFOEVT:
+<<<<<<< HEAD
 		strcat(str, "FIFO");
+=======
+		scnprintf(str + len, size - len, "FIFO");
+>>>>>>> upstream/android-13
 		break;
 	case DWC3_DEPEVT_STREAMEVT:
 		status = event->status;
 
 		switch (status) {
 		case DEPEVT_STREAMEVT_FOUND:
+<<<<<<< HEAD
 			sprintf(str + ret, " Stream %d Found",
+=======
+			scnprintf(str + len, size - len, " Stream %d Found",
+>>>>>>> upstream/android-13
 					event->parameters);
 			break;
 		case DEPEVT_STREAMEVT_NOTFOUND:
 		default:
+<<<<<<< HEAD
 			strcat(str, " Stream Not Found");
+=======
+			scnprintf(str + len, size - len, " Stream Not Found");
+>>>>>>> upstream/android-13
 			break;
 		}
 
 		break;
 	case DWC3_DEPEVT_EPCMDCMPLT:
+<<<<<<< HEAD
 		strcat(str, "Endpoint Command Complete");
 		break;
 	default:
 		sprintf(str, "UNKNOWN");
+=======
+		scnprintf(str + len, size - len, "Endpoint Command Complete");
+		break;
+	default:
+		scnprintf(str + len, size - len, "UNKNOWN");
+>>>>>>> upstream/android-13
 	}
 
 	return str;
@@ -596,8 +725,13 @@ static inline const char *dwc3_gadget_event_type_string(u8 event)
 		return "Wake-Up";
 	case DWC3_DEVICE_EVENT_HIBER_REQ:
 		return "Hibernation";
+<<<<<<< HEAD
 	case DWC3_DEVICE_EVENT_EOPF:
 		return "End of Periodic Frame";
+=======
+	case DWC3_DEVICE_EVENT_SUSPEND:
+		return "Suspend";
+>>>>>>> upstream/android-13
 	case DWC3_DEVICE_EVENT_SOF:
 		return "Start of Frame";
 	case DWC3_DEVICE_EVENT_ERRATIC_ERROR:
@@ -611,6 +745,7 @@ static inline const char *dwc3_gadget_event_type_string(u8 event)
 	}
 }
 
+<<<<<<< HEAD
 static inline const char *dwc3_decode_event(char *str, u32 event, u32 ep0state)
 {
 	const union dwc3_event evt = (union dwc3_event) event;
@@ -619,6 +754,19 @@ static inline const char *dwc3_decode_event(char *str, u32 event, u32 ep0state)
 		return dwc3_gadget_event_string(str, &evt.devt);
 	else
 		return dwc3_ep_event_string(str, &evt.depevt, ep0state);
+=======
+static inline const char *dwc3_decode_event(char *str, size_t size, u32 event,
+		u32 ep0state)
+{
+	union dwc3_event evt;
+
+	memcpy(&evt, &event, sizeof(event));
+
+	if (evt.type.is_devspec)
+		return dwc3_gadget_event_string(str, size, &evt.devt);
+	else
+		return dwc3_ep_event_string(str, size, &evt.depevt, ep0state);
+>>>>>>> upstream/android-13
 }
 
 static inline const char *dwc3_ep_cmd_status_string(int status)
@@ -653,9 +801,18 @@ static inline const char *dwc3_gadget_generic_cmd_status_string(int status)
 
 
 #ifdef CONFIG_DEBUG_FS
+<<<<<<< HEAD
 extern void dwc3_debugfs_init(struct dwc3 *);
 extern void dwc3_debugfs_exit(struct dwc3 *);
 #else
+=======
+extern void dwc3_debugfs_create_endpoint_dir(struct dwc3_ep *dep);
+extern void dwc3_debugfs_init(struct dwc3 *d);
+extern void dwc3_debugfs_exit(struct dwc3 *d);
+#else
+static inline void dwc3_debugfs_create_endpoint_dir(struct dwc3_ep *dep)
+{  }
+>>>>>>> upstream/android-13
 static inline void dwc3_debugfs_init(struct dwc3 *d)
 {  }
 static inline void dwc3_debugfs_exit(struct dwc3 *d)

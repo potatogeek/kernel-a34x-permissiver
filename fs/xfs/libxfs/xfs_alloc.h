@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 2000-2002,2005 Silicon Graphics, Inc.
  * All Rights Reserved.
@@ -54,7 +58,10 @@ typedef struct xfs_alloc_arg {
 	struct xfs_mount *mp;		/* file system mount point */
 	struct xfs_buf	*agbp;		/* buffer for a.g. freelist header */
 	struct xfs_perag *pag;		/* per-ag struct for this agno */
+<<<<<<< HEAD
 	struct xfs_inode *ip;		/* for userdata zeroing method */
+=======
+>>>>>>> upstream/android-13
 	xfs_fsblock_t	fsbno;		/* file system block number */
 	xfs_agnumber_t	agno;		/* allocation group number */
 	xfs_agblock_t	agbno;		/* allocation group-relative block # */
@@ -76,6 +83,12 @@ typedef struct xfs_alloc_arg {
 	char		wasfromfl;	/* set if allocation is from freelist */
 	struct xfs_owner_info	oinfo;	/* owner of blocks being allocated */
 	enum xfs_ag_resv_type	resv;	/* block reservation to use */
+<<<<<<< HEAD
+=======
+#ifdef DEBUG
+	bool		alloc_minlen_only; /* allocate exact minlen extent */
+#endif
+>>>>>>> upstream/android-13
 } xfs_alloc_arg_t;
 
 /*
@@ -83,6 +96,7 @@ typedef struct xfs_alloc_arg {
  */
 #define XFS_ALLOC_USERDATA		(1 << 0)/* allocation is for user data*/
 #define XFS_ALLOC_INITIAL_USER_DATA	(1 << 1)/* special case start of file */
+<<<<<<< HEAD
 #define XFS_ALLOC_USERDATA_ZERO		(1 << 2)/* zero extent on allocation */
 #define XFS_ALLOC_NOBUSY		(1 << 3)/* Busy extents not allowed */
 
@@ -97,6 +111,9 @@ xfs_alloc_allow_busy_reuse(int datatype)
 {
 	return (datatype & XFS_ALLOC_NOBUSY) == 0;
 }
+=======
+#define XFS_ALLOC_NOBUSY		(1 << 2)/* Busy extents not allowed */
+>>>>>>> upstream/android-13
 
 /* freespace limit calculations */
 #define XFS_ALLOC_AGFL_RESERVE	4
@@ -182,7 +199,11 @@ __xfs_free_extent(
 	struct xfs_trans	*tp,	/* transaction pointer */
 	xfs_fsblock_t		bno,	/* starting block number of extent */
 	xfs_extlen_t		len,	/* length of extent */
+<<<<<<< HEAD
 	struct xfs_owner_info	*oinfo,	/* extent owner */
+=======
+	const struct xfs_owner_info	*oinfo,	/* extent owner */
+>>>>>>> upstream/android-13
 	enum xfs_ag_resv_type	type,	/* block reservation type */
 	bool			skip_discard);
 
@@ -191,7 +212,11 @@ xfs_free_extent(
 	struct xfs_trans	*tp,
 	xfs_fsblock_t		bno,
 	xfs_extlen_t		len,
+<<<<<<< HEAD
 	struct xfs_owner_info	*oinfo,
+=======
+	const struct xfs_owner_info	*oinfo,
+>>>>>>> upstream/android-13
 	enum xfs_ag_resv_type	type)
 {
 	return __xfs_free_extent(tp, bno, len, oinfo, type, false);
@@ -225,12 +250,17 @@ int xfs_alloc_read_agfl(struct xfs_mount *mp, struct xfs_trans *tp,
 int xfs_free_agfl_block(struct xfs_trans *, xfs_agnumber_t, xfs_agblock_t,
 			struct xfs_buf *, struct xfs_owner_info *);
 int xfs_alloc_fix_freelist(struct xfs_alloc_arg *args, int flags);
+<<<<<<< HEAD
 int xfs_free_extent_fix_freelist(struct xfs_trans *tp, xfs_agnumber_t agno,
+=======
+int xfs_free_extent_fix_freelist(struct xfs_trans *tp, struct xfs_perag *pag,
+>>>>>>> upstream/android-13
 		struct xfs_buf **agbp);
 
 xfs_extlen_t xfs_prealloc_blocks(struct xfs_mount *mp);
 
 typedef int (*xfs_alloc_query_range_fn)(
+<<<<<<< HEAD
 	struct xfs_btree_cur		*cur,
 	struct xfs_alloc_rec_incore	*rec,
 	void				*priv);
@@ -238,6 +268,15 @@ typedef int (*xfs_alloc_query_range_fn)(
 int xfs_alloc_query_range(struct xfs_btree_cur *cur,
 		struct xfs_alloc_rec_incore *low_rec,
 		struct xfs_alloc_rec_incore *high_rec,
+=======
+	struct xfs_btree_cur			*cur,
+	const struct xfs_alloc_rec_incore	*rec,
+	void					*priv);
+
+int xfs_alloc_query_range(struct xfs_btree_cur *cur,
+		const struct xfs_alloc_rec_incore *low_rec,
+		const struct xfs_alloc_rec_incore *high_rec,
+>>>>>>> upstream/android-13
 		xfs_alloc_query_range_fn fn, void *priv);
 int xfs_alloc_query_all(struct xfs_btree_cur *cur, xfs_alloc_query_range_fn fn,
 		void *priv);
@@ -250,4 +289,16 @@ typedef int (*xfs_agfl_walk_fn)(struct xfs_mount *mp, xfs_agblock_t bno,
 int xfs_agfl_walk(struct xfs_mount *mp, struct xfs_agf *agf,
 		struct xfs_buf *agflbp, xfs_agfl_walk_fn walk_fn, void *priv);
 
+<<<<<<< HEAD
+=======
+static inline __be32 *
+xfs_buf_to_agfl_bno(
+	struct xfs_buf		*bp)
+{
+	if (xfs_has_crc(bp->b_mount))
+		return bp->b_addr + sizeof(struct xfs_agfl);
+	return bp->b_addr;
+}
+
+>>>>>>> upstream/android-13
 #endif	/* __XFS_ALLOC_H__ */

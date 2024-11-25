@@ -33,7 +33,11 @@
 #include <linux/ioport.h>
 #include <linux/delay.h>
 #include <linux/netdevice.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
+=======
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 #include <linux/init.h>
 #include <linux/interrupt.h>
 #include <linux/io.h>
@@ -332,7 +336,11 @@ static int __init arc_rimi_init(void)
 		dev->irq = 9;
 
 	if (arcrimi_probe(dev)) {
+<<<<<<< HEAD
 		free_netdev(dev);
+=======
+		free_arcdev(dev);
+>>>>>>> upstream/android-13
 		return -EIO;
 	}
 
@@ -349,7 +357,11 @@ static void __exit arc_rimi_exit(void)
 	iounmap(lp->mem_start);
 	release_mem_region(dev->mem_start, dev->mem_end - dev->mem_start + 1);
 	free_irq(dev->irq, dev);
+<<<<<<< HEAD
 	free_netdev(dev);
+=======
+	free_arcdev(dev);
+>>>>>>> upstream/android-13
 }
 
 #ifndef MODULE
@@ -363,10 +375,20 @@ static int __init arcrimi_setup(char *s)
 	switch (ints[0]) {
 	default:		/* ERROR */
 		pr_err("Too many arguments\n");
+<<<<<<< HEAD
 	case 3:		/* Node ID */
 		node = ints[3];
 	case 2:		/* IRQ */
 		irq = ints[2];
+=======
+		fallthrough;
+	case 3:		/* Node ID */
+		node = ints[3];
+		fallthrough;
+	case 2:		/* IRQ */
+		irq = ints[2];
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 1:		/* IO address */
 		io = ints[1];
 	}

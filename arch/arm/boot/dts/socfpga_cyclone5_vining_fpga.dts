@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  Copyright (C) 2015 Marek Vasut <marex@denx.de>
  *
@@ -43,6 +44,11 @@
  *     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  *     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *     OTHER DEALINGS IN THE SOFTWARE.
+=======
+// SPDX-License-Identifier: (GPL-2.0+ OR X11)
+/*
+ * Copyright (C) 2015 Marek Vasut <marex@denx.de>
+>>>>>>> upstream/android-13
  */
 
 #include "socfpga_cyclone5.dtsi"
@@ -54,7 +60,12 @@
 	compatible = "samtec,vining", "altr,socfpga-cyclone5", "altr,socfpga";
 
 	chosen {
+<<<<<<< HEAD
 		bootargs = "console=ttyS0,115200";
+=======
+		bootargs = "earlyprintk";
+		stdout-path = "serial0:115200n8";
+>>>>>>> upstream/android-13
 	};
 
 	memory@0 {
@@ -77,21 +88,49 @@
 
 		hps_temp0 {
 			label = "BTN_0";			/* TEMP_OS */
+<<<<<<< HEAD
 			gpios = <&portc 18 GPIO_ACTIVE_LOW>;	/* HPS_GPIO60 */
+=======
+			gpios = <&portc 18 GPIO_ACTIVE_LOW>;	/* HPS_GPI5 */
+>>>>>>> upstream/android-13
 			linux,code = <BTN_0>;
 		};
 
 		hps_hkey0 {
+<<<<<<< HEAD
 			label = "BTN_1";			/* DIS_PWR */
 			gpios = <&portc 19 GPIO_ACTIVE_LOW>;	/* HPS_GPIO61 */
+=======
+			label = "GP_SWITCH";			/* GP_SWITCH */
+			gpios = <&portc 19 GPIO_ACTIVE_LOW>;	/* HPS_GPI6 */
+>>>>>>> upstream/android-13
 			linux,code = <BTN_1>;
 		};
 
 		hps_hkey1 {
+<<<<<<< HEAD
 			label = "hps_hkey1";			/* POWER_DOWN */
 			gpios = <&portc 20 GPIO_ACTIVE_LOW>;	/* HPS_GPIO62 */
 			linux,code = <KEY_POWER>;
 		};
+=======
+			label = "RESET_SWITCH";			/* RESET_SWITCH */
+			gpios = <&portc 20 GPIO_ACTIVE_LOW>;	/* HPS_GPI7 */
+			linux,code = <BTN_2>;
+		};
+
+		hps_hkey2 {
+			label = "POWER_DOWN";			/* POWER_DOWN */
+			gpios = <&portc 4 GPIO_ACTIVE_LOW>;	/* HPS_GPIO62 */
+			linux,code = <KEY_POWER>;
+		};
+
+		hps_hkey3 {
+			label = "SENSE";			/* SENSE */
+			gpios = <&porta 9 GPIO_ACTIVE_LOW>;	/* HPS_GPIO9 */
+			linux,code = <BTN_3>;
+		};
+>>>>>>> upstream/android-13
 	};
 
 	regulator-usb-nrst {
@@ -125,10 +164,21 @@
 			rxd1-skew-ps = <0>;
 			rxd2-skew-ps = <0>;
 			rxd3-skew-ps = <0>;
+<<<<<<< HEAD
 			txen-skew-ps = <0>;
 			txc-skew-ps = <2600>;
 			rxdv-skew-ps = <0>;
 			rxc-skew-ps = <2000>;
+=======
+			txd0-skew-ps = <0>;
+			txd1-skew-ps = <0>;
+			txd2-skew-ps = <0>;
+			txd3-skew-ps = <0>;
+			txen-skew-ps = <0>;
+			txc-skew-ps = <1860>;
+			rxdv-skew-ps = <0>;
+			rxc-skew-ps = <1860>;
+>>>>>>> upstream/android-13
 		};
 	};
 };
@@ -249,7 +299,11 @@
 	n25q128@0 {
 		#address-cells = <1>;
 		#size-cells = <1>;
+<<<<<<< HEAD
 		compatible = "n25q128";
+=======
+		compatible = "micron,n25q128", "jedec,spi-nor";
+>>>>>>> upstream/android-13
 		reg = <0>;		/* chip select */
 		spi-max-frequency = <100000000>;
 		m25p,fast-read;
@@ -266,7 +320,11 @@
 	n25q00@1 {
 		#address-cells = <1>;
 		#size-cells = <1>;
+<<<<<<< HEAD
 		compatible = "n25q00";
+=======
+		compatible = "micron,mt25qu02g", "jedec,spi-nor";
+>>>>>>> upstream/android-13
 		reg = <1>;		/* chip select */
 		spi-max-frequency = <100000000>;
 		m25p,fast-read;

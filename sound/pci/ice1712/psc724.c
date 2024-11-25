@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *   ALSA driver for ICEnsemble VT1724 (Envy24HT)
  *
  *   Lowlevel functions for Philips PSC724 Ultimate Edge
  *
  *	Copyright (c) 2012 Ondrej Zary <linux@rainbow-software.org>
+<<<<<<< HEAD
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -19,6 +24,8 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/delay.h>
@@ -203,12 +210,20 @@ static void psc724_set_jack_state(struct snd_ice1712 *ice, bool hp_connected)
 	/* notify about master speaker mute change */
 	memset(&elem_id, 0, sizeof(elem_id));
 	elem_id.iface = SNDRV_CTL_ELEM_IFACE_MIXER;
+<<<<<<< HEAD
 	strlcpy(elem_id.name, "Master Speakers Playback Switch",
+=======
+	strscpy(elem_id.name, "Master Speakers Playback Switch",
+>>>>>>> upstream/android-13
 						sizeof(elem_id.name));
 	kctl = snd_ctl_find_id(ice->card, &elem_id);
 	snd_ctl_notify(ice->card, SNDRV_CTL_EVENT_MASK_VALUE, &kctl->id);
 	/* and headphone mute change */
+<<<<<<< HEAD
 	strlcpy(elem_id.name, spec->wm8776.ctl[WM8776_CTL_HP_SW].name,
+=======
+	strscpy(elem_id.name, spec->wm8776.ctl[WM8776_CTL_HP_SW].name,
+>>>>>>> upstream/android-13
 						sizeof(elem_id.name));
 	kctl = snd_ctl_find_id(ice->card, &elem_id);
 	snd_ctl_notify(ice->card, SNDRV_CTL_EVENT_MASK_VALUE, &kctl->id);
@@ -434,7 +449,11 @@ static void psc724_exit(struct snd_ice1712 *ice)
 }
 
 /* PSC724 has buggy EEPROM (no 96&192kHz, all FFh GPIOs), so override it here */
+<<<<<<< HEAD
 static unsigned char psc724_eeprom[] = {
+=======
+static const unsigned char psc724_eeprom[] = {
+>>>>>>> upstream/android-13
 	[ICE_EEP2_SYSCONF]	= 0x42,	/* 49.152MHz, 1 ADC, 3 DACs */
 	[ICE_EEP2_ACLINK]	= 0x80,	/* I2S */
 	[ICE_EEP2_I2S]		= 0xf0,	/* I2S volume, 96kHz, 24bit */

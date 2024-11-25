@@ -1,4 +1,9 @@
+<<<<<<< HEAD
 /**
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+>>>>>>> upstream/android-13
  * Copyright (C) ST-Ericsson SA 2010
  * Author: Shujuan Chen <shujuan.chen@stericsson.com> for ST-Ericsson.
  * Author: Joakim Bech <joakim.xx.bech@stericsson.com> for ST-Ericsson.
@@ -6,18 +11,30 @@
  * Author: Niklas Hernaeus <niklas.hernaeus@stericsson.com> for ST-Ericsson.
  * Author: Jonas Linde <jonas.linde@stericsson.com> for ST-Ericsson.
  * Author: Andreas Westin <andreas.westin@stericsson.com> for ST-Ericsson.
+<<<<<<< HEAD
  * License terms: GNU General Public License (GPL) version 2
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
 #include <linux/completion.h>
+<<<<<<< HEAD
 #include <linux/crypto.h>
+=======
+#include <linux/device.h>
+#include <linux/dma-mapping.h>
+>>>>>>> upstream/android-13
 #include <linux/dmaengine.h>
 #include <linux/err.h>
 #include <linux/errno.h>
 #include <linux/interrupt.h>
 #include <linux/io.h>
 #include <linux/irqreturn.h>
+<<<<<<< HEAD
+=======
+#include <linux/kernel.h>
+>>>>>>> upstream/android-13
 #include <linux/klist.h>
 #include <linux/module.h>
 #include <linux/mod_devicetable.h>
@@ -27,9 +44,15 @@
 #include <linux/platform_data/dma-ste-dma40.h>
 
 #include <crypto/aes.h>
+<<<<<<< HEAD
 #include <crypto/algapi.h>
 #include <crypto/ctr.h>
 #include <crypto/des.h>
+=======
+#include <crypto/ctr.h>
+#include <crypto/internal/des.h>
+#include <crypto/internal/skcipher.h>
+>>>>>>> upstream/android-13
 #include <crypto/scatterwalk.h>
 
 #include <linux/platform_data/crypto-ux500.h>
@@ -60,7 +83,11 @@ struct cryp_driver_data {
 /**
  * struct cryp_ctx - Crypto context
  * @config: Crypto mode.
+<<<<<<< HEAD
  * @key[CRYP_MAX_KEY_SIZE]: Key.
+=======
+ * @key: Key array.
+>>>>>>> upstream/android-13
  * @keylen: Length of key.
  * @iv: Pointer to initialization vector.
  * @indata: Pointer to indata.
@@ -71,6 +98,10 @@ struct cryp_driver_data {
  * @updated: Updated flag.
  * @dev_ctx: Device dependent context.
  * @device: Pointer to the device.
+<<<<<<< HEAD
+=======
+ * @session_id: Atomic session ID.
+>>>>>>> upstream/android-13
  */
 struct cryp_ctx {
 	struct cryp_config config;
@@ -91,6 +122,7 @@ struct cryp_ctx {
 static struct cryp_driver_data driver_data;
 
 /**
+<<<<<<< HEAD
  * uint8p_to_uint32_be - 4*uint8 to uint32 big endian
  * @in: Data to convert.
  */
@@ -102,6 +134,8 @@ static inline u32 uint8p_to_uint32_be(u8 *in)
 }
 
 /**
+=======
+>>>>>>> upstream/android-13
  * swap_bits_in_byte - mirror the bits in a byte
  * @b: the byte to be mirrored
  *
@@ -283,6 +317,10 @@ static int cfg_ivs(struct cryp_device_data *device_data, struct cryp_ctx *ctx)
 	int i;
 	int status = 0;
 	int num_of_regs = ctx->blocksize / 8;
+<<<<<<< HEAD
+=======
+	__be32 *civ = (__be32 *)ctx->iv;
+>>>>>>> upstream/android-13
 	u32 iv[AES_BLOCK_SIZE / 4];
 
 	dev_dbg(device_data->dev, "[%s]", __func__);
@@ -299,7 +337,11 @@ static int cfg_ivs(struct cryp_device_data *device_data, struct cryp_ctx *ctx)
 	}
 
 	for (i = 0; i < ctx->blocksize / 4; i++)
+<<<<<<< HEAD
 		iv[i] = uint8p_to_uint32_be(ctx->iv + i*4);
+=======
+		iv[i] = be32_to_cpup(civ + i);
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < num_of_regs; i++) {
 		status = cfg_iv(device_data, iv[i*2], iv[i*2+1],
@@ -338,23 +380,40 @@ static int cfg_keys(struct cryp_ctx *ctx)
 	int i;
 	int num_of_regs = ctx->keylen / 8;
 	u32 swapped_key[CRYP_MAX_KEY_SIZE / 4];
+<<<<<<< HEAD
+=======
+	__be32 *ckey = (__be32 *)ctx->key;
+>>>>>>> upstream/android-13
 	int cryp_error = 0;
 
 	dev_dbg(ctx->device->dev, "[%s]", __func__);
 
 	if (mode_is_aes(ctx->config.algomode)) {
+<<<<<<< HEAD
 		swap_words_in_key_and_bits_in_byte((u8 *)ctx->key,
+=======
+		swap_words_in_key_and_bits_in_byte((u8 *)ckey,
+>>>>>>> upstream/android-13
 						   (u8 *)swapped_key,
 						   ctx->keylen);
 	} else {
 		for (i = 0; i < ctx->keylen / 4; i++)
+<<<<<<< HEAD
 			swapped_key[i] = uint8p_to_uint32_be(ctx->key + i*4);
+=======
+			swapped_key[i] = be32_to_cpup(ckey + i);
+>>>>>>> upstream/android-13
 	}
 
 	for (i = 0; i < num_of_regs; i++) {
 		cryp_error = set_key(ctx->device,
+<<<<<<< HEAD
 				     *(((u32 *)swapped_key)+i*2),
 				     *(((u32 *)swapped_key)+i*2+1),
+=======
+				     swapped_key[i * 2],
+				     swapped_key[i * 2 + 1],
+>>>>>>> upstream/android-13
 				     (enum cryp_key_reg_index) i);
 
 		if (cryp_error != 0) {
@@ -528,9 +587,15 @@ static int cryp_set_dma_transfer(struct cryp_ctx *ctx,
 
 	dev_dbg(ctx->device->dev, "[%s]: ", __func__);
 
+<<<<<<< HEAD
 	if (unlikely(!IS_ALIGNED((u32)sg, 4))) {
 		dev_err(ctx->device->dev, "[%s]: Data in sg list isn't "
 			"aligned! Addr: 0x%08x", __func__, (u32)sg);
+=======
+	if (unlikely(!IS_ALIGNED((unsigned long)sg, 4))) {
+		dev_err(ctx->device->dev, "[%s]: Data in sg list isn't "
+			"aligned! Addr: 0x%08lx", __func__, (unsigned long)sg);
+>>>>>>> upstream/android-13
 		return -EFAULT;
 	}
 
@@ -595,6 +660,15 @@ static int cryp_set_dma_transfer(struct cryp_ctx *ctx,
 	}
 
 	cookie = dmaengine_submit(desc);
+<<<<<<< HEAD
+=======
+	if (dma_submit_error(cookie)) {
+		dev_dbg(ctx->device->dev, "[%s]: DMA submission failed\n",
+			__func__);
+		return cookie;
+	}
+
+>>>>>>> upstream/android-13
 	dma_async_issue_pending(channel);
 
 	return 0;
@@ -609,12 +683,20 @@ static void cryp_dma_done(struct cryp_ctx *ctx)
 	chan = ctx->device->dma.chan_mem2cryp;
 	dmaengine_terminate_all(chan);
 	dma_unmap_sg(chan->device->dev, ctx->device->dma.sg_src,
+<<<<<<< HEAD
 		     ctx->device->dma.sg_src_len, DMA_TO_DEVICE);
+=======
+		     ctx->device->dma.nents_src, DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 
 	chan = ctx->device->dma.chan_cryp2mem;
 	dmaengine_terminate_all(chan);
 	dma_unmap_sg(chan->device->dev, ctx->device->dma.sg_dst,
+<<<<<<< HEAD
 		     ctx->device->dma.sg_dst_len, DMA_FROM_DEVICE);
+=======
+		     ctx->device->dma.nents_dst, DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 }
 
 static int cryp_dma_write(struct cryp_ctx *ctx, struct scatterlist *sg,
@@ -757,9 +839,15 @@ static int hw_crypt_noxts(struct cryp_ctx *ctx,
 
 	ctx->outlen = ctx->datalen;
 
+<<<<<<< HEAD
 	if (unlikely(!IS_ALIGNED((u32)indata, 4))) {
 		pr_debug(DEV_DBG_NAME " [%s]: Data isn't aligned! Addr: "
 			 "0x%08x", __func__, (u32)indata);
+=======
+	if (unlikely(!IS_ALIGNED((unsigned long)indata, 4))) {
+		pr_debug(DEV_DBG_NAME " [%s]: Data isn't aligned! Addr: "
+			 "0x%08lx", __func__, (unsigned long)indata);
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -822,10 +910,17 @@ static int get_nents(struct scatterlist *sg, int nbytes)
 	return nents;
 }
 
+<<<<<<< HEAD
 static int ablk_dma_crypt(struct ablkcipher_request *areq)
 {
 	struct crypto_ablkcipher *cipher = crypto_ablkcipher_reqtfm(areq);
 	struct cryp_ctx *ctx = crypto_ablkcipher_ctx(cipher);
+=======
+static int ablk_dma_crypt(struct skcipher_request *areq)
+{
+	struct crypto_skcipher *cipher = crypto_skcipher_reqtfm(areq);
+	struct cryp_ctx *ctx = crypto_skcipher_ctx(cipher);
+>>>>>>> upstream/android-13
 	struct cryp_device_data *device_data;
 
 	int bytes_written = 0;
@@ -834,8 +929,13 @@ static int ablk_dma_crypt(struct ablkcipher_request *areq)
 
 	pr_debug(DEV_DBG_NAME " [%s]", __func__);
 
+<<<<<<< HEAD
 	ctx->datalen = areq->nbytes;
 	ctx->outlen = areq->nbytes;
+=======
+	ctx->datalen = areq->cryptlen;
+	ctx->outlen = areq->cryptlen;
+>>>>>>> upstream/android-13
 
 	ret = cryp_get_device_data(ctx, &device_data);
 	if (ret)
@@ -879,11 +979,19 @@ out:
 	return 0;
 }
 
+<<<<<<< HEAD
 static int ablk_crypt(struct ablkcipher_request *areq)
 {
 	struct ablkcipher_walk walk;
 	struct crypto_ablkcipher *cipher = crypto_ablkcipher_reqtfm(areq);
 	struct cryp_ctx *ctx = crypto_ablkcipher_ctx(cipher);
+=======
+static int ablk_crypt(struct skcipher_request *areq)
+{
+	struct skcipher_walk walk;
+	struct crypto_skcipher *cipher = crypto_skcipher_reqtfm(areq);
+	struct cryp_ctx *ctx = crypto_skcipher_ctx(cipher);
+>>>>>>> upstream/android-13
 	struct cryp_device_data *device_data;
 	unsigned long src_paddr;
 	unsigned long dst_paddr;
@@ -896,21 +1004,35 @@ static int ablk_crypt(struct ablkcipher_request *areq)
 	if (ret)
 		goto out;
 
+<<<<<<< HEAD
 	ablkcipher_walk_init(&walk, areq->dst, areq->src, areq->nbytes);
 	ret = ablkcipher_walk_phys(areq, &walk);
 
 	if (ret) {
 		pr_err(DEV_DBG_NAME "[%s]: ablkcipher_walk_phys() failed!",
+=======
+	ret = skcipher_walk_async(&walk, areq);
+
+	if (ret) {
+		pr_err(DEV_DBG_NAME "[%s]: skcipher_walk_async() failed!",
+>>>>>>> upstream/android-13
 			__func__);
 		goto out;
 	}
 
 	while ((nbytes = walk.nbytes) > 0) {
 		ctx->iv = walk.iv;
+<<<<<<< HEAD
 		src_paddr = (page_to_phys(walk.src.page) + walk.src.offset);
 		ctx->indata = phys_to_virt(src_paddr);
 
 		dst_paddr = (page_to_phys(walk.dst.page) + walk.dst.offset);
+=======
+		src_paddr = (page_to_phys(walk.src.phys.page) + walk.src.phys.offset);
+		ctx->indata = phys_to_virt(src_paddr);
+
+		dst_paddr = (page_to_phys(walk.dst.phys.page) + walk.dst.phys.offset);
+>>>>>>> upstream/android-13
 		ctx->outdata = phys_to_virt(dst_paddr);
 
 		ctx->datalen = nbytes - (nbytes % ctx->blocksize);
@@ -920,11 +1042,18 @@ static int ablk_crypt(struct ablkcipher_request *areq)
 			goto out;
 
 		nbytes -= ctx->datalen;
+<<<<<<< HEAD
 		ret = ablkcipher_walk_done(areq, &walk, nbytes);
 		if (ret)
 			goto out;
 	}
 	ablkcipher_walk_complete(&walk);
+=======
+		ret = skcipher_walk_done(&walk, nbytes);
+		if (ret)
+			goto out;
+	}
+>>>>>>> upstream/android-13
 
 out:
 	/* Release the device */
@@ -942,11 +1071,18 @@ out:
 	return ret;
 }
 
+<<<<<<< HEAD
 static int aes_ablkcipher_setkey(struct crypto_ablkcipher *cipher,
 				 const u8 *key, unsigned int keylen)
 {
 	struct cryp_ctx *ctx = crypto_ablkcipher_ctx(cipher);
 	u32 *flags = &cipher->base.crt_flags;
+=======
+static int aes_skcipher_setkey(struct crypto_skcipher *cipher,
+				 const u8 *key, unsigned int keylen)
+{
+	struct cryp_ctx *ctx = crypto_skcipher_ctx(cipher);
+>>>>>>> upstream/android-13
 
 	pr_debug(DEV_DBG_NAME " [%s]", __func__);
 
@@ -965,7 +1101,10 @@ static int aes_ablkcipher_setkey(struct crypto_ablkcipher *cipher,
 
 	default:
 		pr_err(DEV_DBG_NAME "[%s]: Unknown keylen!", __func__);
+<<<<<<< HEAD
 		*flags |= CRYPTO_TFM_RES_BAD_KEY_LEN;
+=======
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -977,6 +1116,7 @@ static int aes_ablkcipher_setkey(struct crypto_ablkcipher *cipher,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int des_ablkcipher_setkey(struct crypto_ablkcipher *cipher,
 				 const u8 *key, unsigned int keylen)
 {
@@ -1000,6 +1140,19 @@ static int des_ablkcipher_setkey(struct crypto_ablkcipher *cipher,
 				__func__);
 		return -EINVAL;
 	}
+=======
+static int des_skcipher_setkey(struct crypto_skcipher *cipher,
+				 const u8 *key, unsigned int keylen)
+{
+	struct cryp_ctx *ctx = crypto_skcipher_ctx(cipher);
+	int err;
+
+	pr_debug(DEV_DBG_NAME " [%s]", __func__);
+
+	err = verify_skcipher_des_key(cipher, key);
+	if (err)
+		return err;
+>>>>>>> upstream/android-13
 
 	memcpy(ctx->key, key, keylen);
 	ctx->keylen = keylen;
@@ -1008,6 +1161,7 @@ static int des_ablkcipher_setkey(struct crypto_ablkcipher *cipher,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int des3_ablkcipher_setkey(struct crypto_ablkcipher *cipher,
 				  const u8 *key, unsigned int keylen)
 {
@@ -1043,6 +1197,19 @@ static int des3_ablkcipher_setkey(struct crypto_ablkcipher *cipher,
 			return -EINVAL;
 		}
 	}
+=======
+static int des3_skcipher_setkey(struct crypto_skcipher *cipher,
+				  const u8 *key, unsigned int keylen)
+{
+	struct cryp_ctx *ctx = crypto_skcipher_ctx(cipher);
+	int err;
+
+	pr_debug(DEV_DBG_NAME " [%s]", __func__);
+
+	err = verify_skcipher_des3_key(cipher, key);
+	if (err)
+		return err;
+>>>>>>> upstream/android-13
 
 	memcpy(ctx->key, key, keylen);
 	ctx->keylen = keylen;
@@ -1051,10 +1218,17 @@ static int des3_ablkcipher_setkey(struct crypto_ablkcipher *cipher,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int cryp_blk_encrypt(struct ablkcipher_request *areq)
 {
 	struct crypto_ablkcipher *cipher = crypto_ablkcipher_reqtfm(areq);
 	struct cryp_ctx *ctx = crypto_ablkcipher_ctx(cipher);
+=======
+static int cryp_blk_encrypt(struct skcipher_request *areq)
+{
+	struct crypto_skcipher *cipher = crypto_skcipher_reqtfm(areq);
+	struct cryp_ctx *ctx = crypto_skcipher_ctx(cipher);
+>>>>>>> upstream/android-13
 
 	pr_debug(DEV_DBG_NAME " [%s]", __func__);
 
@@ -1069,10 +1243,17 @@ static int cryp_blk_encrypt(struct ablkcipher_request *areq)
 	return ablk_crypt(areq);
 }
 
+<<<<<<< HEAD
 static int cryp_blk_decrypt(struct ablkcipher_request *areq)
 {
 	struct crypto_ablkcipher *cipher = crypto_ablkcipher_reqtfm(areq);
 	struct cryp_ctx *ctx = crypto_ablkcipher_ctx(cipher);
+=======
+static int cryp_blk_decrypt(struct skcipher_request *areq)
+{
+	struct crypto_skcipher *cipher = crypto_skcipher_reqtfm(areq);
+	struct cryp_ctx *ctx = crypto_skcipher_ctx(cipher);
+>>>>>>> upstream/android-13
 
 	pr_debug(DEV_DBG_NAME " [%s]", __func__);
 
@@ -1088,6 +1269,7 @@ static int cryp_blk_decrypt(struct ablkcipher_request *areq)
 
 struct cryp_algo_template {
 	enum cryp_algo_mode algomode;
+<<<<<<< HEAD
 	struct crypto_alg crypto;
 };
 
@@ -1101,6 +1283,21 @@ static int cryp_cra_init(struct crypto_tfm *tfm)
 
 	ctx->config.algomode = cryp_alg->algomode;
 	ctx->blocksize = crypto_tfm_alg_blocksize(tfm);
+=======
+	struct skcipher_alg skcipher;
+};
+
+static int cryp_init_tfm(struct crypto_skcipher *tfm)
+{
+	struct cryp_ctx *ctx = crypto_skcipher_ctx(tfm);
+	struct skcipher_alg *alg = crypto_skcipher_alg(tfm);
+	struct cryp_algo_template *cryp_alg = container_of(alg,
+			struct cryp_algo_template,
+			skcipher);
+
+	ctx->config.algomode = cryp_alg->algomode;
+	ctx->blocksize = crypto_skcipher_blocksize(tfm);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -1108,6 +1305,7 @@ static int cryp_cra_init(struct crypto_tfm *tfm)
 static struct cryp_algo_template cryp_algs[] = {
 	{
 		.algomode = CRYP_ALGO_AES_ECB,
+<<<<<<< HEAD
 		.crypto = {
 			.cra_name = "aes",
 			.cra_driver_name = "aes-ux500",
@@ -1154,10 +1352,29 @@ static struct cryp_algo_template cryp_algs[] = {
 					.decrypt = cryp_blk_decrypt,
 				}
 			}
+=======
+		.skcipher = {
+			.base.cra_name		= "ecb(aes)",
+			.base.cra_driver_name	= "ecb-aes-ux500",
+			.base.cra_priority	= 300,
+			.base.cra_flags		= CRYPTO_ALG_ASYNC,
+			.base.cra_blocksize	= AES_BLOCK_SIZE,
+			.base.cra_ctxsize	= sizeof(struct cryp_ctx),
+			.base.cra_alignmask	= 3,
+			.base.cra_module	= THIS_MODULE,
+
+			.min_keysize		= AES_MIN_KEY_SIZE,
+			.max_keysize		= AES_MAX_KEY_SIZE,
+			.setkey			= aes_skcipher_setkey,
+			.encrypt		= cryp_blk_encrypt,
+			.decrypt		= cryp_blk_decrypt,
+			.init			= cryp_init_tfm,
+>>>>>>> upstream/android-13
 		}
 	},
 	{
 		.algomode = CRYP_ALGO_AES_CBC,
+<<<<<<< HEAD
 		.crypto = {
 			.cra_name = "cbc(aes)",
 			.cra_driver_name = "cbc-aes-ux500",
@@ -1180,10 +1397,30 @@ static struct cryp_algo_template cryp_algs[] = {
 					.ivsize = AES_BLOCK_SIZE,
 				}
 			}
+=======
+		.skcipher = {
+			.base.cra_name		= "cbc(aes)",
+			.base.cra_driver_name	= "cbc-aes-ux500",
+			.base.cra_priority	= 300,
+			.base.cra_flags		= CRYPTO_ALG_ASYNC,
+			.base.cra_blocksize	= AES_BLOCK_SIZE,
+			.base.cra_ctxsize	= sizeof(struct cryp_ctx),
+			.base.cra_alignmask	= 3,
+			.base.cra_module	= THIS_MODULE,
+
+			.min_keysize		= AES_MIN_KEY_SIZE,
+			.max_keysize		= AES_MAX_KEY_SIZE,
+			.setkey			= aes_skcipher_setkey,
+			.encrypt		= cryp_blk_encrypt,
+			.decrypt		= cryp_blk_decrypt,
+			.init			= cryp_init_tfm,
+			.ivsize			= AES_BLOCK_SIZE,
+>>>>>>> upstream/android-13
 		}
 	},
 	{
 		.algomode = CRYP_ALGO_AES_CTR,
+<<<<<<< HEAD
 		.crypto = {
 			.cra_name = "ctr(aes)",
 			.cra_driver_name = "ctr-aes-ux500",
@@ -1257,10 +1494,31 @@ static struct cryp_algo_template cryp_algs[] = {
 					.decrypt = cryp_blk_decrypt
 				}
 			}
+=======
+		.skcipher = {
+			.base.cra_name		= "ctr(aes)",
+			.base.cra_driver_name	= "ctr-aes-ux500",
+			.base.cra_priority	= 300,
+			.base.cra_flags		= CRYPTO_ALG_ASYNC,
+			.base.cra_blocksize	= 1,
+			.base.cra_ctxsize	= sizeof(struct cryp_ctx),
+			.base.cra_alignmask	= 3,
+			.base.cra_module	= THIS_MODULE,
+
+			.min_keysize		= AES_MIN_KEY_SIZE,
+			.max_keysize		= AES_MAX_KEY_SIZE,
+			.setkey			= aes_skcipher_setkey,
+			.encrypt		= cryp_blk_encrypt,
+			.decrypt		= cryp_blk_decrypt,
+			.init			= cryp_init_tfm,
+			.ivsize			= AES_BLOCK_SIZE,
+			.chunksize		= AES_BLOCK_SIZE,
+>>>>>>> upstream/android-13
 		}
 	},
 	{
 		.algomode = CRYP_ALGO_DES_ECB,
+<<<<<<< HEAD
 		.crypto = {
 			.cra_name = "ecb(des)",
 			.cra_driver_name = "ecb-des-ux500",
@@ -1282,10 +1540,29 @@ static struct cryp_algo_template cryp_algs[] = {
 					.decrypt = cryp_blk_decrypt,
 				}
 			}
+=======
+		.skcipher = {
+			.base.cra_name		= "ecb(des)",
+			.base.cra_driver_name	= "ecb-des-ux500",
+			.base.cra_priority	= 300,
+			.base.cra_flags		= CRYPTO_ALG_ASYNC,
+			.base.cra_blocksize	= DES_BLOCK_SIZE,
+			.base.cra_ctxsize	= sizeof(struct cryp_ctx),
+			.base.cra_alignmask	= 3,
+			.base.cra_module	= THIS_MODULE,
+
+			.min_keysize		= DES_KEY_SIZE,
+			.max_keysize		= DES_KEY_SIZE,
+			.setkey			= des_skcipher_setkey,
+			.encrypt		= cryp_blk_encrypt,
+			.decrypt		= cryp_blk_decrypt,
+			.init			= cryp_init_tfm,
+>>>>>>> upstream/android-13
 		}
 	},
 	{
 		.algomode = CRYP_ALGO_TDES_ECB,
+<<<<<<< HEAD
 		.crypto = {
 			.cra_name = "ecb(des3_ede)",
 			.cra_driver_name = "ecb-des3_ede-ux500",
@@ -1307,10 +1584,29 @@ static struct cryp_algo_template cryp_algs[] = {
 					.decrypt = cryp_blk_decrypt,
 				}
 			}
+=======
+		.skcipher = {
+			.base.cra_name		= "ecb(des3_ede)",
+			.base.cra_driver_name	= "ecb-des3_ede-ux500",
+			.base.cra_priority	= 300,
+			.base.cra_flags		= CRYPTO_ALG_ASYNC,
+			.base.cra_blocksize	= DES3_EDE_BLOCK_SIZE,
+			.base.cra_ctxsize	= sizeof(struct cryp_ctx),
+			.base.cra_alignmask	= 3,
+			.base.cra_module	= THIS_MODULE,
+
+			.min_keysize		= DES3_EDE_KEY_SIZE,
+			.max_keysize		= DES3_EDE_KEY_SIZE,
+			.setkey			= des3_skcipher_setkey,
+			.encrypt		= cryp_blk_encrypt,
+			.decrypt		= cryp_blk_decrypt,
+			.init			= cryp_init_tfm,
+>>>>>>> upstream/android-13
 		}
 	},
 	{
 		.algomode = CRYP_ALGO_DES_CBC,
+<<<<<<< HEAD
 		.crypto = {
 			.cra_name = "cbc(des)",
 			.cra_driver_name = "cbc-des-ux500",
@@ -1332,10 +1628,30 @@ static struct cryp_algo_template cryp_algs[] = {
 					.decrypt = cryp_blk_decrypt,
 				}
 			}
+=======
+		.skcipher = {
+			.base.cra_name		= "cbc(des)",
+			.base.cra_driver_name	= "cbc-des-ux500",
+			.base.cra_priority	= 300,
+			.base.cra_flags		= CRYPTO_ALG_ASYNC,
+			.base.cra_blocksize	= DES_BLOCK_SIZE,
+			.base.cra_ctxsize	= sizeof(struct cryp_ctx),
+			.base.cra_alignmask	= 3,
+			.base.cra_module	= THIS_MODULE,
+
+			.min_keysize		= DES_KEY_SIZE,
+			.max_keysize		= DES_KEY_SIZE,
+			.setkey			= des_skcipher_setkey,
+			.encrypt		= cryp_blk_encrypt,
+			.decrypt		= cryp_blk_decrypt,
+			.ivsize			= DES_BLOCK_SIZE,
+			.init			= cryp_init_tfm,
+>>>>>>> upstream/android-13
 		}
 	},
 	{
 		.algomode = CRYP_ALGO_TDES_CBC,
+<<<<<<< HEAD
 		.crypto = {
 			.cra_name = "cbc(des3_ede)",
 			.cra_driver_name = "cbc-des3_ede-ux500",
@@ -1358,6 +1674,25 @@ static struct cryp_algo_template cryp_algs[] = {
 					.ivsize = DES3_EDE_BLOCK_SIZE,
 				}
 			}
+=======
+		.skcipher = {
+			.base.cra_name		= "cbc(des3_ede)",
+			.base.cra_driver_name	= "cbc-des3_ede-ux500",
+			.base.cra_priority	= 300,
+			.base.cra_flags		= CRYPTO_ALG_ASYNC,
+			.base.cra_blocksize	= DES3_EDE_BLOCK_SIZE,
+			.base.cra_ctxsize	= sizeof(struct cryp_ctx),
+			.base.cra_alignmask	= 3,
+			.base.cra_module	= THIS_MODULE,
+
+			.min_keysize		= DES3_EDE_KEY_SIZE,
+			.max_keysize		= DES3_EDE_KEY_SIZE,
+			.setkey			= des3_skcipher_setkey,
+			.encrypt		= cryp_blk_encrypt,
+			.decrypt		= cryp_blk_decrypt,
+			.ivsize			= DES3_EDE_BLOCK_SIZE,
+			.init			= cryp_init_tfm,
+>>>>>>> upstream/android-13
 		}
 	}
 };
@@ -1374,18 +1709,30 @@ static int cryp_algs_register_all(void)
 	pr_debug("[%s]", __func__);
 
 	for (i = 0; i < ARRAY_SIZE(cryp_algs); i++) {
+<<<<<<< HEAD
 		ret = crypto_register_alg(&cryp_algs[i].crypto);
 		if (ret) {
 			count = i;
 			pr_err("[%s] alg registration failed",
 					cryp_algs[i].crypto.cra_driver_name);
+=======
+		ret = crypto_register_skcipher(&cryp_algs[i].skcipher);
+		if (ret) {
+			count = i;
+			pr_err("[%s] alg registration failed",
+					cryp_algs[i].skcipher.base.cra_driver_name);
+>>>>>>> upstream/android-13
 			goto unreg;
 		}
 	}
 	return 0;
 unreg:
 	for (i = 0; i < count; i++)
+<<<<<<< HEAD
 		crypto_unregister_alg(&cryp_algs[i].crypto);
+=======
+		crypto_unregister_skcipher(&cryp_algs[i].skcipher);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -1399,7 +1746,11 @@ static void cryp_algs_unregister_all(void)
 	pr_debug(DEV_DBG_NAME " [%s]", __func__);
 
 	for (i = 0; i < ARRAY_SIZE(cryp_algs); i++)
+<<<<<<< HEAD
 		crypto_unregister_alg(&cryp_algs[i].crypto);
+=======
+		crypto_unregister_skcipher(&cryp_algs[i].skcipher);
+>>>>>>> upstream/android-13
 }
 
 static int ux500_cryp_probe(struct platform_device *pdev)
@@ -1440,7 +1791,10 @@ static int ux500_cryp_probe(struct platform_device *pdev)
 	device_data->phybase = res->start;
 	device_data->base = devm_ioremap_resource(dev, res);
 	if (IS_ERR(device_data->base)) {
+<<<<<<< HEAD
 		dev_err(dev, "[%s]: ioremap failed!", __func__);
+=======
+>>>>>>> upstream/android-13
 		ret = PTR_ERR(device_data->base);
 		goto out;
 	}

@@ -59,18 +59,49 @@ static unsigned int pt_regs_offset[PERF_REG_X86_MAX] = {
 
 u64 perf_reg_value(struct pt_regs *regs, int idx)
 {
+<<<<<<< HEAD
+=======
+	struct x86_perf_regs *perf_regs;
+
+	if (idx >= PERF_REG_X86_XMM0 && idx < PERF_REG_X86_XMM_MAX) {
+		perf_regs = container_of(regs, struct x86_perf_regs, regs);
+		if (!perf_regs->xmm_regs)
+			return 0;
+		return perf_regs->xmm_regs[idx - PERF_REG_X86_XMM0];
+	}
+
+>>>>>>> upstream/android-13
 	if (WARN_ON_ONCE(idx >= ARRAY_SIZE(pt_regs_offset)))
 		return 0;
 
 	return regs_get_register(regs, pt_regs_offset[idx]);
 }
 
+<<<<<<< HEAD
 #define REG_RESERVED (~((1ULL << PERF_REG_X86_MAX) - 1ULL))
 
 #ifdef CONFIG_X86_32
 int perf_reg_validate(u64 mask)
 {
 	if (!mask || mask & REG_RESERVED)
+=======
+#define PERF_REG_X86_RESERVED	(((1ULL << PERF_REG_X86_XMM0) - 1) & \
+				 ~((1ULL << PERF_REG_X86_MAX) - 1))
+
+#ifdef CONFIG_X86_32
+#define REG_NOSUPPORT ((1ULL << PERF_REG_X86_R8) | \
+		       (1ULL << PERF_REG_X86_R9) | \
+		       (1ULL << PERF_REG_X86_R10) | \
+		       (1ULL << PERF_REG_X86_R11) | \
+		       (1ULL << PERF_REG_X86_R12) | \
+		       (1ULL << PERF_REG_X86_R13) | \
+		       (1ULL << PERF_REG_X86_R14) | \
+		       (1ULL << PERF_REG_X86_R15))
+
+int perf_reg_validate(u64 mask)
+{
+	if (!mask || (mask & (REG_NOSUPPORT | PERF_REG_X86_RESERVED)))
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	return 0;
@@ -82,8 +113,12 @@ u64 perf_reg_abi(struct task_struct *task)
 }
 
 void perf_get_regs_user(struct perf_regs *regs_user,
+<<<<<<< HEAD
 			struct pt_regs *regs,
 			struct pt_regs *regs_user_copy)
+=======
+			struct pt_regs *regs)
+>>>>>>> upstream/android-13
 {
 	regs_user->regs = task_pt_regs(current);
 	regs_user->abi = perf_reg_abi(current);
@@ -96,10 +131,14 @@ void perf_get_regs_user(struct perf_regs *regs_user,
 
 int perf_reg_validate(u64 mask)
 {
+<<<<<<< HEAD
 	if (!mask || mask & REG_RESERVED)
 		return -EINVAL;
 
 	if (mask & REG_NOSUPPORT)
+=======
+	if (!mask || (mask & (REG_NOSUPPORT | PERF_REG_X86_RESERVED)))
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	return 0;
@@ -107,18 +146,39 @@ int perf_reg_validate(u64 mask)
 
 u64 perf_reg_abi(struct task_struct *task)
 {
+<<<<<<< HEAD
 	if (test_tsk_thread_flag(task, TIF_IA32))
+=======
+	if (!user_64bit_mode(task_pt_regs(task)))
+>>>>>>> upstream/android-13
 		return PERF_SAMPLE_REGS_ABI_32;
 	else
 		return PERF_SAMPLE_REGS_ABI_64;
 }
 
+<<<<<<< HEAD
 void perf_get_regs_user(struct perf_regs *regs_user,
 			struct pt_regs *regs,
 			struct pt_regs *regs_user_copy)
 {
 	struct pt_regs *user_regs = task_pt_regs(current);
 
+=======
+static DEFINE_PER_CPU(struct pt_regs, nmi_user_regs);
+
+void perf_get_regs_user(struct perf_regs *regs_user,
+			struct pt_regs *regs)
+{
+	struct pt_regs *regs_user_copy = this_cpu_ptr(&nmi_user_regs);
+	struct pt_regs *user_regs = task_pt_regs(current);
+
+	if (!in_nmi()) {
+		regs_user->regs = user_regs;
+		regs_user->abi = perf_reg_abi(current);
+		return;
+	}
+
+>>>>>>> upstream/android-13
 	/*
 	 * If we're in an NMI that interrupted task_pt_regs setup, then
 	 * we can't sample user regs at all.  This check isn't really

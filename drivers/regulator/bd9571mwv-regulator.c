@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * ROHM BD9571MWV-M regulator driver
  *
@@ -12,11 +13,23 @@
  * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License version 2 for more details.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * ROHM BD9571MWV-M and BD9574MWF-M regulator driver
+ *
+ * Copyright (C) 2017 Marek Vasut <marek.vasut+renesas@gmail.com>
+ *
+>>>>>>> upstream/android-13
  * Based on the TPS65086 driver
  *
  * NOTE: VD09 is missing
  */
 
+<<<<<<< HEAD
+=======
+#include <linux/mfd/rohm-generic.h>
+>>>>>>> upstream/android-13
 #include <linux/module.h>
 #include <linux/of.h>
 #include <linux/platform_device.h>
@@ -25,7 +38,11 @@
 #include <linux/mfd/bd9571mwv.h>
 
 struct bd9571mwv_reg {
+<<<<<<< HEAD
 	struct bd9571mwv *bd;
+=======
+	struct regmap *regmap;
+>>>>>>> upstream/android-13
 
 	/* DDR Backup Power */
 	u8 bkup_mode_cnt_keepon;	/* from "rohm,ddr-backup-power" */
@@ -108,7 +125,11 @@ static int bd9571mwv_reg_set_voltage_sel_regmap(struct regulator_dev *rdev,
 }
 
 /* Operations permitted on AVS voltage regulator */
+<<<<<<< HEAD
 static struct regulator_ops avs_ops = {
+=======
+static const struct regulator_ops avs_ops = {
+>>>>>>> upstream/android-13
 	.set_voltage_sel	= bd9571mwv_avs_set_voltage_sel_regmap,
 	.map_voltage		= regulator_map_voltage_linear,
 	.get_voltage_sel	= bd9571mwv_avs_get_voltage_sel_regmap,
@@ -116,7 +137,11 @@ static struct regulator_ops avs_ops = {
 };
 
 /* Operations permitted on voltage regulators */
+<<<<<<< HEAD
 static struct regulator_ops reg_ops = {
+=======
+static const struct regulator_ops reg_ops = {
+>>>>>>> upstream/android-13
 	.set_voltage_sel	= bd9571mwv_reg_set_voltage_sel_regmap,
 	.map_voltage		= regulator_map_voltage_linear,
 	.get_voltage_sel	= regulator_get_voltage_sel_regmap,
@@ -124,13 +149,21 @@ static struct regulator_ops reg_ops = {
 };
 
 /* Operations permitted on voltage monitors */
+<<<<<<< HEAD
 static struct regulator_ops vid_ops = {
+=======
+static const struct regulator_ops vid_ops = {
+>>>>>>> upstream/android-13
 	.map_voltage		= regulator_map_voltage_linear,
 	.get_voltage_sel	= regulator_get_voltage_sel_regmap,
 	.list_voltage		= regulator_list_voltage_linear,
 };
 
+<<<<<<< HEAD
 static struct regulator_desc regulators[] = {
+=======
+static const struct regulator_desc regulators[] = {
+>>>>>>> upstream/android-13
 	BD9571MWV_REG("VD09", "vd09", VD09, avs_ops, 0, 0x7f,
 		      0x6f, 600000, 10000, 0x3c),
 	BD9571MWV_REG("VD18", "vd18", VD18, vid_ops, BD9571MWV_VD18_VID, 0xf,
@@ -145,6 +178,7 @@ static struct regulator_desc regulators[] = {
 };
 
 #ifdef CONFIG_PM_SLEEP
+<<<<<<< HEAD
 static int bd9571mwv_bkup_mode_read(struct bd9571mwv *bd, unsigned int *mode)
 {
 	int ret;
@@ -152,12 +186,24 @@ static int bd9571mwv_bkup_mode_read(struct bd9571mwv *bd, unsigned int *mode)
 	ret = regmap_read(bd->regmap, BD9571MWV_BKUP_MODE_CNT, mode);
 	if (ret) {
 		dev_err(bd->dev, "failed to read backup mode (%d)\n", ret);
+=======
+static int bd9571mwv_bkup_mode_read(struct bd9571mwv_reg *bdreg,
+				    unsigned int *mode)
+{
+	int ret;
+
+	ret = regmap_read(bdreg->regmap, BD9571MWV_BKUP_MODE_CNT, mode);
+	if (ret) {
+		dev_err(regmap_get_device(bdreg->regmap),
+			"failed to read backup mode (%d)\n", ret);
+>>>>>>> upstream/android-13
 		return ret;
 	}
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static int bd9571mwv_bkup_mode_write(struct bd9571mwv *bd, unsigned int mode)
 {
 	int ret;
@@ -165,6 +211,17 @@ static int bd9571mwv_bkup_mode_write(struct bd9571mwv *bd, unsigned int mode)
 	ret = regmap_write(bd->regmap, BD9571MWV_BKUP_MODE_CNT, mode);
 	if (ret) {
 		dev_err(bd->dev, "failed to configure backup mode 0x%x (%d)\n",
+=======
+static int bd9571mwv_bkup_mode_write(struct bd9571mwv_reg *bdreg,
+				     unsigned int mode)
+{
+	int ret;
+
+	ret = regmap_write(bdreg->regmap, BD9571MWV_BKUP_MODE_CNT, mode);
+	if (ret) {
+		dev_err(regmap_get_device(bdreg->regmap),
+			"failed to configure backup mode 0x%x (%d)\n",
+>>>>>>> upstream/android-13
 			mode, ret);
 		return ret;
 	}
@@ -177,7 +234,11 @@ static ssize_t backup_mode_show(struct device *dev,
 {
 	struct bd9571mwv_reg *bdreg = dev_get_drvdata(dev);
 
+<<<<<<< HEAD
 	return sprintf(buf, "%s\n", bdreg->bkup_mode_enabled ? "on" : "off");
+=======
+	return sysfs_emit(buf, "%s\n", bdreg->bkup_mode_enabled ? "on" : "off");
+>>>>>>> upstream/android-13
 }
 
 static ssize_t backup_mode_store(struct device *dev,
@@ -202,7 +263,11 @@ static ssize_t backup_mode_store(struct device *dev,
 	 * Configure DDR Backup Mode, to change the role of the accessory power
 	 * switch from a power switch to a wake-up switch, or vice versa
 	 */
+<<<<<<< HEAD
 	ret = bd9571mwv_bkup_mode_read(bdreg->bd, &mode);
+=======
+	ret = bd9571mwv_bkup_mode_read(bdreg, &mode);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 
@@ -210,7 +275,11 @@ static ssize_t backup_mode_store(struct device *dev,
 	if (bdreg->bkup_mode_enabled)
 		mode |= bdreg->bkup_mode_cnt_keepon;
 
+<<<<<<< HEAD
 	ret = bd9571mwv_bkup_mode_write(bdreg->bd, mode);
+=======
+	ret = bd9571mwv_bkup_mode_write(bdreg, mode);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 
@@ -229,7 +298,11 @@ static int bd9571mwv_suspend(struct device *dev)
 		return 0;
 
 	/* Save DDR Backup Mode */
+<<<<<<< HEAD
 	ret = bd9571mwv_bkup_mode_read(bdreg->bd, &mode);
+=======
+	ret = bd9571mwv_bkup_mode_read(bdreg, &mode);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 
@@ -243,7 +316,11 @@ static int bd9571mwv_suspend(struct device *dev)
 	mode |= bdreg->bkup_mode_cnt_keepon;
 
 	if (mode != bdreg->bkup_mode_cnt_saved)
+<<<<<<< HEAD
 		return bd9571mwv_bkup_mode_write(bdreg->bd, mode);
+=======
+		return bd9571mwv_bkup_mode_write(bdreg, mode);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -256,7 +333,11 @@ static int bd9571mwv_resume(struct device *dev)
 		return 0;
 
 	/* Restore DDR Backup Mode */
+<<<<<<< HEAD
 	return bd9571mwv_bkup_mode_write(bdreg->bd, bdreg->bkup_mode_cnt_saved);
+=======
+	return bd9571mwv_bkup_mode_write(bdreg, bdreg->bkup_mode_cnt_saved);
+>>>>>>> upstream/android-13
 }
 
 static const struct dev_pm_ops bd9571mwv_pm  = {
@@ -276,22 +357,34 @@ static int bd9571mwv_regulator_remove(struct platform_device *pdev)
 
 static int bd9571mwv_regulator_probe(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	struct bd9571mwv *bd = dev_get_drvdata(pdev->dev.parent);
+=======
+>>>>>>> upstream/android-13
 	struct regulator_config config = { };
 	struct bd9571mwv_reg *bdreg;
 	struct regulator_dev *rdev;
 	unsigned int val;
 	int i;
+<<<<<<< HEAD
+=======
+	enum rohm_chip_type chip = platform_get_device_id(pdev)->driver_data;
+>>>>>>> upstream/android-13
 
 	bdreg = devm_kzalloc(&pdev->dev, sizeof(*bdreg), GFP_KERNEL);
 	if (!bdreg)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	bdreg->bd = bd;
+=======
+	bdreg->regmap = dev_get_regmap(pdev->dev.parent, NULL);
+>>>>>>> upstream/android-13
 
 	platform_set_drvdata(pdev, bdreg);
 
 	config.dev = &pdev->dev;
+<<<<<<< HEAD
 	config.dev->of_node = bd->dev->of_node;
 	config.driver_data = bd;
 	config.regmap = bd->regmap;
@@ -302,25 +395,55 @@ static int bd9571mwv_regulator_probe(struct platform_device *pdev)
 		if (IS_ERR(rdev)) {
 			dev_err(bd->dev, "failed to register %s regulator\n",
 				pdev->name);
+=======
+	config.dev->of_node = pdev->dev.parent->of_node;
+	config.driver_data = bdreg;
+	config.regmap = bdreg->regmap;
+
+	for (i = 0; i < ARRAY_SIZE(regulators); i++) {
+		/* BD9574MWF supports DVFS only */
+		if (chip == ROHM_CHIP_TYPE_BD9574 && regulators[i].id != DVFS)
+			continue;
+		rdev = devm_regulator_register(&pdev->dev, &regulators[i],
+					       &config);
+		if (IS_ERR(rdev)) {
+			dev_err(&pdev->dev, "failed to register %s regulator\n",
+				regulators[i].name);
+>>>>>>> upstream/android-13
 			return PTR_ERR(rdev);
 		}
 	}
 
 	val = 0;
+<<<<<<< HEAD
 	of_property_read_u32(bd->dev->of_node, "rohm,ddr-backup-power", &val);
 	if (val & ~BD9571MWV_BKUP_MODE_CNT_KEEPON_MASK) {
 		dev_err(bd->dev, "invalid %s mode %u\n",
+=======
+	of_property_read_u32(config.dev->of_node, "rohm,ddr-backup-power", &val);
+	if (val & ~BD9571MWV_BKUP_MODE_CNT_KEEPON_MASK) {
+		dev_err(&pdev->dev, "invalid %s mode %u\n",
+>>>>>>> upstream/android-13
 			"rohm,ddr-backup-power", val);
 		return -EINVAL;
 	}
 	bdreg->bkup_mode_cnt_keepon = val;
 
+<<<<<<< HEAD
 	bdreg->rstbmode_level = of_property_read_bool(bd->dev->of_node,
 						      "rohm,rstbmode-level");
 	bdreg->rstbmode_pulse = of_property_read_bool(bd->dev->of_node,
 						      "rohm,rstbmode-pulse");
 	if (bdreg->rstbmode_level && bdreg->rstbmode_pulse) {
 		dev_err(bd->dev, "only one rohm,rstbmode-* may be specified");
+=======
+	bdreg->rstbmode_level = of_property_read_bool(config.dev->of_node,
+						      "rohm,rstbmode-level");
+	bdreg->rstbmode_pulse = of_property_read_bool(config.dev->of_node,
+						      "rohm,rstbmode-pulse");
+	if (bdreg->rstbmode_level && bdreg->rstbmode_pulse) {
+		dev_err(&pdev->dev, "only one rohm,rstbmode-* may be specified");
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -344,7 +467,12 @@ static int bd9571mwv_regulator_probe(struct platform_device *pdev)
 }
 
 static const struct platform_device_id bd9571mwv_regulator_id_table[] = {
+<<<<<<< HEAD
 	{ "bd9571mwv-regulator", },
+=======
+	{ "bd9571mwv-regulator", ROHM_CHIP_TYPE_BD9571 },
+	{ "bd9574mwf-regulator", ROHM_CHIP_TYPE_BD9574 },
+>>>>>>> upstream/android-13
 	{ /* sentinel */ }
 };
 MODULE_DEVICE_TABLE(platform, bd9571mwv_regulator_id_table);

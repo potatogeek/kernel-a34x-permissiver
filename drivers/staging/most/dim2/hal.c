@@ -13,6 +13,10 @@
 #include "reg.h"
 #include <linux/stddef.h>
 #include <linux/kernel.h>
+<<<<<<< HEAD
+=======
+#include <linux/io.h>
+>>>>>>> upstream/android-13
 
 /*
  * Size factor for isochronous DBR buffer.
@@ -95,9 +99,15 @@ static int dbr_get_mask_size(u16 size)
 }
 
 /**
+<<<<<<< HEAD
  * Allocates DBR memory.
  * @param size Allocating memory size.
  * @return Offset in DBR memory by success or DBR_SIZE if out of memory.
+=======
+ * alloc_dbr() - Allocates DBR memory.
+ * @size: Allocating memory size.
+ * Returns: Offset in DBR memory by success or DBR_SIZE if out of memory.
+>>>>>>> upstream/android-13
  */
 static int alloc_dbr(u16 size)
 {
@@ -143,6 +153,7 @@ static void free_dbr(int offs, int size)
 
 static void dim2_transfer_madr(u32 val)
 {
+<<<<<<< HEAD
 	dimcb_io_write(&g.dim2->MADR, val);
 
 	/* wait for transfer completion */
@@ -150,6 +161,15 @@ static void dim2_transfer_madr(u32 val)
 		continue;
 
 	dimcb_io_write(&g.dim2->MCTL, 0);   /* clear transfer complete */
+=======
+	writel(val, &g.dim2->MADR);
+
+	/* wait for transfer completion */
+	while ((readl(&g.dim2->MCTL) & 1) != 1)
+		continue;
+
+	writel(0, &g.dim2->MCTL);   /* clear transfer complete */
+>>>>>>> upstream/android-13
 }
 
 static void dim2_clear_dbr(u16 addr, u16 size)
@@ -159,8 +179,13 @@ static void dim2_clear_dbr(u16 addr, u16 size)
 	u16 const end_addr = addr + size;
 	u32 const cmd = bit_mask(MADR_WNR_BIT) | bit_mask(MADR_TB_BIT);
 
+<<<<<<< HEAD
 	dimcb_io_write(&g.dim2->MCTL, 0);   /* clear transfer complete */
 	dimcb_io_write(&g.dim2->MDAT0, 0);
+=======
+	writel(0, &g.dim2->MCTL);   /* clear transfer complete */
+	writel(0, &g.dim2->MDAT0);
+>>>>>>> upstream/android-13
 
 	for (; addr < end_addr; addr++)
 		dim2_transfer_madr(cmd | addr);
@@ -170,13 +195,18 @@ static u32 dim2_read_ctr(u32 ctr_addr, u16 mdat_idx)
 {
 	dim2_transfer_madr(ctr_addr);
 
+<<<<<<< HEAD
 	return dimcb_io_read((&g.dim2->MDAT0) + mdat_idx);
+=======
+	return readl((&g.dim2->MDAT0) + mdat_idx);
+>>>>>>> upstream/android-13
 }
 
 static void dim2_write_ctr_mask(u32 ctr_addr, const u32 *mask, const u32 *value)
 {
 	enum { MADR_WNR_BIT = 31 };
 
+<<<<<<< HEAD
 	dimcb_io_write(&g.dim2->MCTL, 0);   /* clear transfer complete */
 
 	if (mask[0] != 0)
@@ -192,6 +222,23 @@ static void dim2_write_ctr_mask(u32 ctr_addr, const u32 *mask, const u32 *value)
 	dimcb_io_write(&g.dim2->MDWE1, mask[1]);
 	dimcb_io_write(&g.dim2->MDWE2, mask[2]);
 	dimcb_io_write(&g.dim2->MDWE3, mask[3]);
+=======
+	writel(0, &g.dim2->MCTL);   /* clear transfer complete */
+
+	if (mask[0] != 0)
+		writel(value[0], &g.dim2->MDAT0);
+	if (mask[1] != 0)
+		writel(value[1], &g.dim2->MDAT1);
+	if (mask[2] != 0)
+		writel(value[2], &g.dim2->MDAT2);
+	if (mask[3] != 0)
+		writel(value[3], &g.dim2->MDAT3);
+
+	writel(mask[0], &g.dim2->MDWE0);
+	writel(mask[1], &g.dim2->MDWE1);
+	writel(mask[2], &g.dim2->MDWE2);
+	writel(mask[3], &g.dim2->MDWE3);
+>>>>>>> upstream/android-13
 
 	dim2_transfer_madr(bit_mask(MADR_WNR_BIT) | ctr_addr);
 }
@@ -356,15 +403,23 @@ static void dim2_configure_channel(
 	dim2_configure_cat(AHB_CAT, ch_addr, type, is_tx ? 0 : 1);
 
 	/* unmask interrupt for used channel, enable mlb_sys_int[0] interrupt */
+<<<<<<< HEAD
 	dimcb_io_write(&g.dim2->ACMR0,
 		       dimcb_io_read(&g.dim2->ACMR0) | bit_mask(ch_addr));
+=======
+	writel(readl(&g.dim2->ACMR0) | bit_mask(ch_addr), &g.dim2->ACMR0);
+>>>>>>> upstream/android-13
 }
 
 static void dim2_clear_channel(u8 ch_addr)
 {
 	/* mask interrupt for used channel, disable mlb_sys_int[0] interrupt */
+<<<<<<< HEAD
 	dimcb_io_write(&g.dim2->ACMR0,
 		       dimcb_io_read(&g.dim2->ACMR0) & ~bit_mask(ch_addr));
+=======
+	writel(readl(&g.dim2->ACMR0) & ~bit_mask(ch_addr), &g.dim2->ACMR0);
+>>>>>>> upstream/android-13
 
 	dim2_clear_cat(AHB_CAT, ch_addr);
 	dim2_clear_adt(ch_addr);
@@ -373,7 +428,11 @@ static void dim2_clear_channel(u8 ch_addr)
 	dim2_clear_cdt(ch_addr);
 
 	/* clear channel status bit */
+<<<<<<< HEAD
 	dimcb_io_write(&g.dim2->ACSR0, bit_mask(ch_addr));
+=======
+	writel(bit_mask(ch_addr), &g.dim2->ACSR0);
+>>>>>>> upstream/android-13
 }
 
 /* -------------------------------------------------------------------------- */
@@ -471,7 +530,11 @@ static inline bool check_bytes_per_frame(u32 bytes_per_frame)
 	return true;
 }
 
+<<<<<<< HEAD
 static inline u16 norm_ctrl_async_buffer_size(u16 buf_size)
+=======
+u16 dim_norm_ctrl_async_buffer_size(u16 buf_size)
+>>>>>>> upstream/android-13
 {
 	u16 const max_size = (u16)ADT1_CTRL_ASYNC_BD_MASK + 1u;
 
@@ -517,11 +580,16 @@ static inline u16 norm_sync_buffer_size(u16 buf_size, u16 bytes_per_frame)
 static void dim2_cleanup(void)
 {
 	/* disable MediaLB */
+<<<<<<< HEAD
 	dimcb_io_write(&g.dim2->MLBC0, false << MLBC0_MLBEN_BIT);
+=======
+	writel(false << MLBC0_MLBEN_BIT, &g.dim2->MLBC0);
+>>>>>>> upstream/android-13
 
 	dim2_clear_ctram();
 
 	/* disable mlb_int interrupt */
+<<<<<<< HEAD
 	dimcb_io_write(&g.dim2->MIEN, 0);
 
 	/* clear status for all dma channels */
@@ -531,6 +599,17 @@ static void dim2_cleanup(void)
 	/* mask interrupts for all channels */
 	dimcb_io_write(&g.dim2->ACMR0, 0);
 	dimcb_io_write(&g.dim2->ACMR1, 0);
+=======
+	writel(0, &g.dim2->MIEN);
+
+	/* clear status for all dma channels */
+	writel(0xFFFFFFFF, &g.dim2->ACSR0);
+	writel(0xFFFFFFFF, &g.dim2->ACSR1);
+
+	/* mask interrupts for all channels */
+	writel(0, &g.dim2->ACMR0);
+	writel(0, &g.dim2->ACMR1);
+>>>>>>> upstream/android-13
 }
 
 static void dim2_initialize(bool enable_6pin, u8 mlb_clock)
@@ -538,6 +617,7 @@ static void dim2_initialize(bool enable_6pin, u8 mlb_clock)
 	dim2_cleanup();
 
 	/* configure and enable MediaLB */
+<<<<<<< HEAD
 	dimcb_io_write(&g.dim2->MLBC0,
 		       enable_6pin << MLBC0_MLBPEN_BIT |
 		       mlb_clock << MLBC0_MLBCLK_SHIFT |
@@ -555,6 +635,24 @@ static void dim2_initialize(bool enable_6pin, u8 mlb_clock)
 	dimcb_io_write(&g.dim2->ACTL,
 		       ACTL_DMA_MODE_VAL_DMA_MODE_1 << ACTL_DMA_MODE_BIT |
 		       true << ACTL_SCE_BIT);
+=======
+	writel(enable_6pin << MLBC0_MLBPEN_BIT |
+	       mlb_clock << MLBC0_MLBCLK_SHIFT |
+	       g.fcnt << MLBC0_FCNT_SHIFT |
+	       true << MLBC0_MLBEN_BIT,
+	       &g.dim2->MLBC0);
+
+	/* activate all HBI channels */
+	writel(0xFFFFFFFF, &g.dim2->HCMR0);
+	writel(0xFFFFFFFF, &g.dim2->HCMR1);
+
+	/* enable HBI */
+	writel(bit_mask(HCTL_EN_BIT), &g.dim2->HCTL);
+
+	/* configure DMA */
+	writel(ACTL_DMA_MODE_VAL_DMA_MODE_1 << ACTL_DMA_MODE_BIT |
+	       true << ACTL_SCE_BIT, &g.dim2->ACTL);
+>>>>>>> upstream/android-13
 }
 
 static bool dim2_is_mlb_locked(void)
@@ -562,12 +660,21 @@ static bool dim2_is_mlb_locked(void)
 	u32 const mask0 = bit_mask(MLBC0_MLBLK_BIT);
 	u32 const mask1 = bit_mask(MLBC1_CLKMERR_BIT) |
 			  bit_mask(MLBC1_LOCKERR_BIT);
+<<<<<<< HEAD
 	u32 const c1 = dimcb_io_read(&g.dim2->MLBC1);
 	u32 const nda_mask = (u32)MLBC1_NDA_MASK << MLBC1_NDA_SHIFT;
 
 	dimcb_io_write(&g.dim2->MLBC1, c1 & nda_mask);
 	return (dimcb_io_read(&g.dim2->MLBC1) & mask1) == 0 &&
 	       (dimcb_io_read(&g.dim2->MLBC0) & mask0) != 0;
+=======
+	u32 const c1 = readl(&g.dim2->MLBC1);
+	u32 const nda_mask = (u32)MLBC1_NDA_MASK << MLBC1_NDA_SHIFT;
+
+	writel(c1 & nda_mask, &g.dim2->MLBC1);
+	return (readl(&g.dim2->MLBC1) & mask1) == 0 &&
+	       (readl(&g.dim2->MLBC0) & mask0) != 0;
+>>>>>>> upstream/android-13
 }
 
 /* -------------------------------------------------------------------------- */
@@ -590,7 +697,11 @@ static inline bool service_channel(u8 ch_addr, u8 idx)
 	dim2_write_ctr_mask(ADT + ch_addr, mask, adt_w);
 
 	/* clear channel status bit */
+<<<<<<< HEAD
 	dimcb_io_write(&g.dim2->ACSR0, bit_mask(ch_addr));
+=======
+	writel(bit_mask(ch_addr), &g.dim2->ACSR0);
+>>>>>>> upstream/android-13
 
 	return true;
 }
@@ -652,7 +763,11 @@ static bool channel_start(struct dim_channel *ch, u32 buf_addr, u16 buf_size)
 		return dim_on_error(DIM_ERR_BAD_BUFFER_SIZE, "Bad buffer size");
 
 	if (ch->packet_length == 0 && ch->bytes_per_frame == 0 &&
+<<<<<<< HEAD
 	    buf_size != norm_ctrl_async_buffer_size(buf_size))
+=======
+	    buf_size != dim_norm_ctrl_async_buffer_size(buf_size))
+>>>>>>> upstream/android-13
 		return dim_on_error(DIM_ERR_BAD_BUFFER_SIZE,
 				    "Bad control/async buffer size");
 
@@ -776,6 +891,7 @@ static u8 init_ctrl_async(struct dim_channel *ch, u8 type, u8 is_tx,
 
 void dim_service_mlb_int_irq(void)
 {
+<<<<<<< HEAD
 	dimcb_io_write(&g.dim2->MS0, 0);
 	dimcb_io_write(&g.dim2->MS1, 0);
 }
@@ -786,6 +902,13 @@ u16 dim_norm_ctrl_async_buffer_size(u16 buf_size)
 }
 
 /**
+=======
+	writel(0, &g.dim2->MS0);
+	writel(0, &g.dim2->MS1);
+}
+
+/*
+>>>>>>> upstream/android-13
  * Retrieves maximal possible correct buffer size for isochronous data type
  * conform to given packet length and not bigger than given buffer size.
  *
@@ -799,7 +922,11 @@ u16 dim_norm_isoc_buffer_size(u16 buf_size, u16 packet_length)
 	return norm_isoc_buffer_size(buf_size, packet_length);
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * Retrieves maximal possible correct buffer size for synchronous data type
  * conform to given bytes per frame and not bigger than given buffer size.
  *
@@ -829,7 +956,11 @@ u8 dim_init_async(struct dim_channel *ch, u8 is_tx, u16 ch_address,
 	if (is_tx && !g.atx_dbr.ch_addr) {
 		g.atx_dbr.ch_addr = ch->addr;
 		dbrcnt_init(ch->addr, ch->dbr_size);
+<<<<<<< HEAD
 		dimcb_io_write(&g.dim2->MIEN, bit_mask(20));
+=======
+		writel(bit_mask(20), &g.dim2->MIEN);
+>>>>>>> upstream/android-13
 	}
 
 	return ret;
@@ -896,7 +1027,11 @@ u8 dim_destroy_channel(struct dim_channel *ch)
 		return DIM_ERR_DRIVER_NOT_INITIALIZED;
 
 	if (ch->addr == g.atx_dbr.ch_addr) {
+<<<<<<< HEAD
 		dimcb_io_write(&g.dim2->MIEN, 0);
+=======
+		writel(0, &g.dim2->MIEN);
+>>>>>>> upstream/android-13
 		g.atx_dbr.ch_addr = 0;
 	}
 

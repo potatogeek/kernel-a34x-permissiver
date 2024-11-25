@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
 	Copyright (C) 2010 Willow Garage <http://www.willowgarage.com>
 	Copyright (C) 2004 - 2010 Ivo van Doorn <IvDoorn@gmail.com>
 	Copyright (C) 2004 - 2009 Gertjan van Wingerde <gwingerde@gmail.com>
 	<http://rt2x00.serialmonkey.com>
 
+<<<<<<< HEAD
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation; either version 2 of the License, or
@@ -16,6 +21,8 @@
 
 	You should have received a copy of the GNU General Public License
 	along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -113,6 +120,10 @@ int rt2x00queue_map_txskb(struct queue_entry *entry)
 		return -ENOMEM;
 
 	skbdesc->flags |= SKBDESC_DMA_MAPPED_TX;
+<<<<<<< HEAD
+=======
+	rt2x00lib_dmadone(entry);
+>>>>>>> upstream/android-13
 	return 0;
 }
 EXPORT_SYMBOL_GPL(rt2x00queue_map_txskb);
@@ -456,8 +467,14 @@ static void rt2x00queue_create_tx_descriptor(struct rt2x00_dev *rt2x00dev,
 	 * Beacons and probe responses require the tsf timestamp
 	 * to be inserted into the frame.
 	 */
+<<<<<<< HEAD
 	if (ieee80211_is_beacon(hdr->frame_control) ||
 	    ieee80211_is_probe_resp(hdr->frame_control))
+=======
+	if ((ieee80211_is_beacon(hdr->frame_control) ||
+	     ieee80211_is_probe_resp(hdr->frame_control)) &&
+	    !(tx_info->flags & IEEE80211_TX_CTL_INJECTED))
+>>>>>>> upstream/android-13
 		__set_bit(ENTRY_TXD_REQ_TIMESTAMP, &txdesc->flags);
 
 	if ((tx_info->flags & IEEE80211_TX_CTL_FIRST_FRAGMENT) &&
@@ -673,7 +690,11 @@ int rt2x00queue_write_tx_frame(struct data_queue *queue, struct sk_buff *skb,
 	spin_lock(&queue->tx_lock);
 
 	if (unlikely(rt2x00queue_full(queue))) {
+<<<<<<< HEAD
 		rt2x00_err(queue->rt2x00dev, "Dropping frame due to full tx queue %d\n",
+=======
+		rt2x00_dbg(queue->rt2x00dev, "Dropping frame due to full tx queue %d\n",
+>>>>>>> upstream/android-13
 			   queue->qid);
 		ret = -ENOBUFS;
 		goto out;
@@ -951,6 +972,10 @@ void rt2x00queue_unpause_queue(struct data_queue *queue)
 		 * receive frames.
 		 */
 		queue->rt2x00dev->ops->lib->kick_queue(queue);
+<<<<<<< HEAD
+=======
+		break;
+>>>>>>> upstream/android-13
 	default:
 		break;
 	}

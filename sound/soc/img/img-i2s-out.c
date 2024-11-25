@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * IMG I2S output controller driver
  *
  * Copyright (C) 2015 Imagination Technologies Ltd.
  *
  * Author: Damien Horsley <Damien.Horsley@imgtec.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
  * version 2, as published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
@@ -408,7 +415,11 @@ static int img_i2s_out_dma_prepare_slave_config(struct snd_pcm_substream *st,
 	struct snd_dmaengine_dai_dma_data *dma_data;
 	int ret;
 
+<<<<<<< HEAD
 	dma_data = snd_soc_dai_get_dma_data(rtd->cpu_dai, st);
+=======
+	dma_data = snd_soc_dai_get_dma_data(asoc_rtd_to_cpu(rtd, 0), st);
+>>>>>>> upstream/android-13
 
 	ret = snd_hwparams_to_dma_slave_config(st, params, sc);
 	if (ret)
@@ -443,8 +454,12 @@ static int img_i2s_out_probe(struct platform_device *pdev)
 
 	i2s->dev = &pdev->dev;
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	base = devm_ioremap_resource(&pdev->dev, res);
+=======
+	base = devm_platform_get_and_ioremap_resource(pdev, 0, &res);
+>>>>>>> upstream/android-13
 	if (IS_ERR(base))
 		return PTR_ERR(base);
 

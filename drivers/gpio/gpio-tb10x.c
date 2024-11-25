@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* Abilis Systems MODULE DESCRIPTION
  *
  * Copyright (C) Abilis Systems 2013
  *
  * Authors: Sascha Leuenberger <sascha.leuenberger@abilis.com>
  *          Christian Ruppert <christian.ruppert@abilis.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -17,6 +22,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -45,14 +52,20 @@
 
 
 /**
+<<<<<<< HEAD
  * @spinlock: used for atomic read/modify/write of registers
+=======
+>>>>>>> upstream/android-13
  * @base: register base address
  * @domain: IRQ domain of GPIO generated interrupts managed by this controller
  * @irq: Interrupt line of parent interrupt controller
  * @gc: gpio_chip structure associated to this GPIO controller
  */
 struct tb10x_gpio {
+<<<<<<< HEAD
 	spinlock_t spinlock;
+=======
+>>>>>>> upstream/android-13
 	void __iomem *base;
 	struct irq_domain *domain;
 	int irq;
@@ -76,13 +89,18 @@ static inline void tb10x_set_bits(struct tb10x_gpio *gpio, unsigned int offs,
 	u32 r;
 	unsigned long flags;
 
+<<<<<<< HEAD
 	spin_lock_irqsave(&gpio->spinlock, flags);
+=======
+	spin_lock_irqsave(&gpio->gc.bgpio_lock, flags);
+>>>>>>> upstream/android-13
 
 	r = tb10x_reg_read(gpio, offs);
 	r = (r & ~mask) | (val & mask);
 
 	tb10x_reg_write(gpio, offs, r);
 
+<<<<<<< HEAD
 	spin_unlock_irqrestore(&gpio->spinlock, flags);
 }
 
@@ -130,6 +148,9 @@ static int tb10x_gpio_direction_out(struct gpio_chip *chip,
 	tb10x_set_bits(tb10x_gpio, OFFSET_TO_REG_DDR, mask, val);
 
 	return 0;
+=======
+	spin_unlock_irqrestore(&gpio->gc.bgpio_lock, flags);
+>>>>>>> upstream/android-13
 }
 
 static int tb10x_gpio_to_irq(struct gpio_chip *chip, unsigned offset)
@@ -160,7 +181,11 @@ static irqreturn_t tb10x_gpio_irq_cascade(int irq, void *data)
 	int i;
 
 	for_each_set_bit(i, &bits, 32)
+<<<<<<< HEAD
 		generic_handle_irq(irq_find_mapping(tb10x_gpio->domain, i));
+=======
+		generic_handle_domain_irq(tb10x_gpio->domain, i);
+>>>>>>> upstream/android-13
 
 	return IRQ_HANDLED;
 }
@@ -168,6 +193,7 @@ static irqreturn_t tb10x_gpio_irq_cascade(int irq, void *data)
 static int tb10x_gpio_probe(struct platform_device *pdev)
 {
 	struct tb10x_gpio *tb10x_gpio;
+<<<<<<< HEAD
 	struct resource *mem;
 	struct device_node *dn = pdev->dev.of_node;
 	int ret = -EBUSY;
@@ -211,11 +237,68 @@ static int tb10x_gpio_probe(struct platform_device *pdev)
 	ret = devm_gpiochip_add_data(&pdev->dev, &tb10x_gpio->gc, tb10x_gpio);
 	if (ret < 0) {
 		dev_err(&pdev->dev, "Could not add gpiochip.\n");
+=======
+	struct device *dev = &pdev->dev;
+	struct device_node *np = dev->of_node;
+	int ret = -EBUSY;
+	u32 ngpio;
+
+	if (!np)
+		return -EINVAL;
+
+	if (of_property_read_u32(np, "abilis,ngpio", &ngpio))
+		return -EINVAL;
+
+	tb10x_gpio = devm_kzalloc(dev, sizeof(*tb10x_gpio), GFP_KERNEL);
+	if (tb10x_gpio == NULL)
+		return -ENOMEM;
+
+	tb10x_gpio->base = devm_platform_ioremap_resource(pdev, 0);
+	if (IS_ERR(tb10x_gpio->base))
+		return PTR_ERR(tb10x_gpio->base);
+
+	tb10x_gpio->gc.label =
+		devm_kasprintf(dev, GFP_KERNEL, "%pOF", pdev->dev.of_node);
+	if (!tb10x_gpio->gc.label)
+		return -ENOMEM;
+
+	/*
+	 * Initialize generic GPIO with one single register for reading and setting
+	 * the lines, no special set or clear registers and a data direction register
+	 * wher 1 means "output".
+	 */
+	ret = bgpio_init(&tb10x_gpio->gc, dev, 4,
+			 tb10x_gpio->base + OFFSET_TO_REG_DATA,
+			 NULL,
+			 NULL,
+			 tb10x_gpio->base + OFFSET_TO_REG_DDR,
+			 NULL,
+			 0);
+	if (ret) {
+		dev_err(dev, "unable to init generic GPIO\n");
+		return ret;
+	}
+	tb10x_gpio->gc.base = -1;
+	tb10x_gpio->gc.parent = dev;
+	tb10x_gpio->gc.owner = THIS_MODULE;
+	/*
+	 * ngpio is set by bgpio_init() but we override it, this .request()
+	 * callback also overrides the one set up by generic GPIO.
+	 */
+	tb10x_gpio->gc.ngpio = ngpio;
+	tb10x_gpio->gc.request = gpiochip_generic_request;
+	tb10x_gpio->gc.free = gpiochip_generic_free;
+
+	ret = devm_gpiochip_add_data(dev, &tb10x_gpio->gc, tb10x_gpio);
+	if (ret < 0) {
+		dev_err(dev, "Could not add gpiochip.\n");
+>>>>>>> upstream/android-13
 		return ret;
 	}
 
 	platform_set_drvdata(pdev, tb10x_gpio);
 
+<<<<<<< HEAD
 	if (of_find_property(dn, "interrupt-controller", NULL)) {
 		struct irq_chip_generic *gc;
 
@@ -224,10 +307,19 @@ static int tb10x_gpio_probe(struct platform_device *pdev)
 			dev_err(&pdev->dev, "No interrupt specified.\n");
 			return ret;
 		}
+=======
+	if (of_find_property(np, "interrupt-controller", NULL)) {
+		struct irq_chip_generic *gc;
+
+		ret = platform_get_irq(pdev, 0);
+		if (ret < 0)
+			return ret;
+>>>>>>> upstream/android-13
 
 		tb10x_gpio->gc.to_irq	= tb10x_gpio_to_irq;
 		tb10x_gpio->irq		= ret;
 
+<<<<<<< HEAD
 		ret = devm_request_irq(&pdev->dev, ret, tb10x_gpio_irq_cascade,
 				IRQF_TRIGGER_NONE | IRQF_SHARED,
 				dev_name(&pdev->dev), tb10x_gpio);
@@ -235,6 +327,15 @@ static int tb10x_gpio_probe(struct platform_device *pdev)
 			return ret;
 
 		tb10x_gpio->domain = irq_domain_add_linear(dn,
+=======
+		ret = devm_request_irq(dev, ret, tb10x_gpio_irq_cascade,
+				IRQF_TRIGGER_NONE | IRQF_SHARED,
+				dev_name(dev), tb10x_gpio);
+		if (ret != 0)
+			return ret;
+
+		tb10x_gpio->domain = irq_domain_add_linear(np,
+>>>>>>> upstream/android-13
 						tb10x_gpio->gc.ngpio,
 						&irq_generic_chip_ops, NULL);
 		if (!tb10x_gpio->domain) {
@@ -294,4 +395,7 @@ static struct platform_driver tb10x_gpio_driver = {
 module_platform_driver(tb10x_gpio_driver);
 MODULE_LICENSE("GPL");
 MODULE_DESCRIPTION("tb10x gpio.");
+<<<<<<< HEAD
 MODULE_VERSION("0.0.1");
+=======
+>>>>>>> upstream/android-13

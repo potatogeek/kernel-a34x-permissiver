@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *    Lance ethernet driver for the MIPS processor based
  *      DECstation family
@@ -607,7 +611,11 @@ static int lance_rx(struct net_device *dev)
 			len = (*rds_ptr(rd, mblength, lp->type) & 0xfff) - 4;
 			skb = netdev_alloc_skb(dev, len + 2);
 
+<<<<<<< HEAD
 			if (skb == 0) {
+=======
+			if (!skb) {
+>>>>>>> upstream/android-13
 				dev->stats.rx_dropped++;
 				*rds_ptr(rd, mblength, lp->type) = 0;
 				*rds_ptr(rd, rmd1, lp->type) =
@@ -883,7 +891,11 @@ static inline int lance_reset(struct net_device *dev)
 	return status;
 }
 
+<<<<<<< HEAD
 static void lance_tx_timeout(struct net_device *dev)
+=======
+static void lance_tx_timeout(struct net_device *dev, unsigned int txqueue)
+>>>>>>> upstream/android-13
 {
 	struct lance_private *lp = netdev_priv(dev);
 	volatile struct lance_regs *ll = lp->ll;
@@ -936,7 +948,11 @@ static netdev_tx_t lance_start_xmit(struct sk_buff *skb, struct net_device *dev)
 
 	dev_kfree_skb(skb);
 
+<<<<<<< HEAD
  	return NETDEV_TX_OK;
+=======
+	return NETDEV_TX_OK;
+>>>>>>> upstream/android-13
 }
 
 static void lance_load_multicast(struct net_device *dev)

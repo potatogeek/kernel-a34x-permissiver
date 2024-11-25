@@ -10,7 +10,10 @@
 
 #include <asm/hwrpb.h>
 #include <asm/io.h>
+<<<<<<< HEAD
 #include <asm/segment.h>
+=======
+>>>>>>> upstream/android-13
 
 #if 0
 # define DBG_DEVS(args)         printk args

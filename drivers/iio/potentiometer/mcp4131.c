@@ -1,10 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Industrial I/O driver for Microchip digital potentiometers
  *
  * Copyright (c) 2016 Slawomir Stepien
  * Based on: Peter Rosin's code from mcp4531.c
  *
+<<<<<<< HEAD
  * Datasheet: http://ww1.microchip.com/downloads/en/DeviceDoc/22060b.pdf
+=======
+ * Datasheet: https://ww1.microchip.com/downloads/en/DeviceDoc/22060b.pdf
+>>>>>>> upstream/android-13
  *
  * DEVID	#Wipers	#Positions	Resistor Opts (kOhm)
  * mcp4131	1	129		5, 10, 50, 100
@@ -23,10 +31,13 @@
  * mcp4252	2	257		5, 10, 50, 100
  * mcp4261	2	257		5, 10, 50, 100
  * mcp4262	2	257		5, 10, 50, 100
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
  * the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -40,8 +51,14 @@
 #include <linux/iio/iio.h>
 #include <linux/iio/types.h>
 #include <linux/module.h>
+<<<<<<< HEAD
 #include <linux/mutex.h>
 #include <linux/of.h>
+=======
+#include <linux/mod_devicetable.h>
+#include <linux/mutex.h>
+#include <linux/property.h>
+>>>>>>> upstream/android-13
 #include <linux/spi/spi.h>
 
 #define MCP4131_WRITE		(0x00 << 2)
@@ -243,7 +260,11 @@ static int mcp4131_probe(struct spi_device *spi)
 {
 	int err;
 	struct device *dev = &spi->dev;
+<<<<<<< HEAD
 	unsigned long devid = spi_get_device_id(spi)->driver_data;
+=======
+	unsigned long devid;
+>>>>>>> upstream/android-13
 	struct mcp4131_data *data;
 	struct iio_dev *indio_dev;
 
@@ -254,11 +275,22 @@ static int mcp4131_probe(struct spi_device *spi)
 	data = iio_priv(indio_dev);
 	spi_set_drvdata(spi, indio_dev);
 	data->spi = spi;
+<<<<<<< HEAD
 	data->cfg = &mcp4131_cfg[devid];
 
 	mutex_init(&data->lock);
 
 	indio_dev->dev.parent = dev;
+=======
+	data->cfg = device_get_match_data(&spi->dev);
+	if (!data->cfg) {
+		devid = spi_get_device_id(spi)->driver_data;
+		data->cfg = &mcp4131_cfg[devid];
+	}
+
+	mutex_init(&data->lock);
+
+>>>>>>> upstream/android-13
 	indio_dev->info = &mcp4131_info;
 	indio_dev->channels = mcp4131_channels;
 	indio_dev->num_channels = data->cfg->wipers;
@@ -273,7 +305,10 @@ static int mcp4131_probe(struct spi_device *spi)
 	return 0;
 }
 
+<<<<<<< HEAD
 #if defined(CONFIG_OF)
+=======
+>>>>>>> upstream/android-13
 static const struct of_device_id mcp4131_dt_ids[] = {
 	{ .compatible = "microchip,mcp4131-502",
 		.data = &mcp4131_cfg[MCP413x_502] },
@@ -406,7 +441,10 @@ static const struct of_device_id mcp4131_dt_ids[] = {
 	{}
 };
 MODULE_DEVICE_TABLE(of, mcp4131_dt_ids);
+<<<<<<< HEAD
 #endif /* CONFIG_OF */
+=======
+>>>>>>> upstream/android-13
 
 static const struct spi_device_id mcp4131_id[] = {
 	{ "mcp4131-502", MCP413x_502 },
@@ -480,7 +518,11 @@ MODULE_DEVICE_TABLE(spi, mcp4131_id);
 static struct spi_driver mcp4131_driver = {
 	.driver = {
 		.name	= "mcp4131",
+<<<<<<< HEAD
 		.of_match_table = of_match_ptr(mcp4131_dt_ids),
+=======
+		.of_match_table = mcp4131_dt_ids,
+>>>>>>> upstream/android-13
 	},
 	.probe		= mcp4131_probe,
 	.id_table	= mcp4131_id,

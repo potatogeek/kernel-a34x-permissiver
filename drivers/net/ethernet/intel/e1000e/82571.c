@@ -154,7 +154,11 @@ static s32 e1000_init_nvm_params_82571(struct e1000_hw *hw)
 			ew32(EECD, eecd);
 			break;
 		}
+<<<<<<< HEAD
 		/* Fall Through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		nvm->type = e1000_nvm_eeprom_spi;
 		size = (u16)((eecd & E1000_EECD_SIZE_EX_MASK) >>
@@ -961,7 +965,11 @@ static s32 e1000_reset_hw_82571(struct e1000_hw *hw)
 	ew32(TCTL, tctl);
 	e1e_flush();
 
+<<<<<<< HEAD
 	usleep_range(10000, 20000);
+=======
+	usleep_range(10000, 11000);
+>>>>>>> upstream/android-13
 
 	/* Must acquire the MDIO ownership before MAC reset.
 	 * Ownership defaults to firmware after a reset.
@@ -1109,7 +1117,11 @@ static s32 e1000_init_hw_82571(struct e1000_hw *hw)
 	switch (mac->type) {
 	case e1000_82573:
 		e1000e_enable_tx_pkt_filtering(hw);
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case e1000_82574:
 	case e1000_82583:
 		reg_data = er32(GCR);

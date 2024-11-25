@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 adv748x-objs	:= \
 		adv748x-afe.o \
 		adv748x-core.o \

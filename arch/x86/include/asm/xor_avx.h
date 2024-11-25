@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 #ifndef _ASM_X86_XOR_AVX_H
 #define _ASM_X86_XOR_AVX_H
 
@@ -8,6 +12,7 @@
  * Author: Jim Kukunas <james.t.kukunas@linux.intel.com>
  *
  * Based on Ingo Molnar and Zach Brown's respective MMX and SSE routines
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -17,6 +22,10 @@
 
 #ifdef CONFIG_AS_AVX
 
+=======
+ */
+
+>>>>>>> upstream/android-13
 #include <linux/compiler.h>
 #include <asm/fpu/api.h>
 
@@ -174,6 +183,7 @@ do { \
 #define AVX_SELECT(FASTEST) \
 	(boot_cpu_has(X86_FEATURE_AVX) && boot_cpu_has(X86_FEATURE_OSXSAVE) ? &xor_block_avx : FASTEST)
 
+<<<<<<< HEAD
 #else
 
 #define AVX_XOR_SPEED {}
@@ -181,4 +191,6 @@ do { \
 #define AVX_SELECT(FASTEST) (FASTEST)
 
 #endif
+=======
+>>>>>>> upstream/android-13
 #endif

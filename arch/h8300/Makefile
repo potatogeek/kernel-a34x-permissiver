@@ -30,15 +30,19 @@ ifeq ($(CROSS_COMPILE),)
 CROSS_COMPILE := $(call cc-cross-prefix, h8300-unknown-linux- h8300-linux-)
 endif
 
+<<<<<<< HEAD
 core-y	+= arch/$(ARCH)/kernel/ arch/$(ARCH)/mm/
 ifneq '$(CONFIG_H8300_BUILTIN_DTB)' '""'
 core-y += arch/h8300/boot/dts/
 endif
 
+=======
+>>>>>>> upstream/android-13
 libs-y	+= arch/$(ARCH)/lib/
 
 boot := arch/h8300/boot
 
+<<<<<<< HEAD
 %.dtb %.dtb.S %.dtb.o: | scripts
 	$(Q)$(MAKE) $(build)=arch/h8300/boot/dts arch/h8300/boot/dts/$@
 
@@ -48,6 +52,8 @@ dtbs: scripts
 
 archmrproper:
 
+=======
+>>>>>>> upstream/android-13
 archclean:
 	$(Q)$(MAKE) $(clean)=$(boot)
 

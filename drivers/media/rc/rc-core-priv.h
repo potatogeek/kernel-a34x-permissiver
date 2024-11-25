@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 /*
  * SPDX-License-Identifier: GPL-2.0
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+/*
+>>>>>>> upstream/android-13
  * Remote Controller core raw events header
  *
  * Copyright (C) 2010 by Mauro Carvalho Chehab
@@ -64,6 +69,10 @@ struct ir_raw_event_ctrl {
 	u32				bpf_sample;
 	struct bpf_prog_array __rcu	*progs;
 #endif
+<<<<<<< HEAD
+=======
+#if IS_ENABLED(CONFIG_IR_NEC_DECODER)
+>>>>>>> upstream/android-13
 	struct nec_dec {
 		int state;
 		unsigned count;
@@ -71,12 +80,22 @@ struct ir_raw_event_ctrl {
 		bool is_nec_x;
 		bool necx_repeat;
 	} nec;
+<<<<<<< HEAD
+=======
+#endif
+#if IS_ENABLED(CONFIG_IR_RC5_DECODER)
+>>>>>>> upstream/android-13
 	struct rc5_dec {
 		int state;
 		u32 bits;
 		unsigned count;
 		bool is_rc5x;
 	} rc5;
+<<<<<<< HEAD
+=======
+#endif
+#if IS_ENABLED(CONFIG_IR_RC6_DECODER)
+>>>>>>> upstream/android-13
 	struct rc6_dec {
 		int state;
 		u8 header;
@@ -85,11 +104,21 @@ struct ir_raw_event_ctrl {
 		unsigned count;
 		unsigned wanted_bits;
 	} rc6;
+<<<<<<< HEAD
+=======
+#endif
+#if IS_ENABLED(CONFIG_IR_SONY_DECODER)
+>>>>>>> upstream/android-13
 	struct sony_dec {
 		int state;
 		u32 bits;
 		unsigned count;
 	} sony;
+<<<<<<< HEAD
+=======
+#endif
+#if IS_ENABLED(CONFIG_IR_JVC_DECODER)
+>>>>>>> upstream/android-13
 	struct jvc_dec {
 		int state;
 		u16 bits;
@@ -98,17 +127,28 @@ struct ir_raw_event_ctrl {
 		bool first;
 		bool toggle;
 	} jvc;
+<<<<<<< HEAD
+=======
+#endif
+#if IS_ENABLED(CONFIG_IR_SANYO_DECODER)
+>>>>>>> upstream/android-13
 	struct sanyo_dec {
 		int state;
 		unsigned count;
 		u64 bits;
 	} sanyo;
+<<<<<<< HEAD
+=======
+#endif
+#if IS_ENABLED(CONFIG_IR_SHARP_DECODER)
+>>>>>>> upstream/android-13
 	struct sharp_dec {
 		int state;
 		unsigned count;
 		u32 bits;
 		unsigned int pulse_len;
 	} sharp;
+<<<<<<< HEAD
 	struct mce_kbd_dec {
 		struct input_dev *idev;
 		/* locks key up timer */
@@ -116,26 +156,56 @@ struct ir_raw_event_ctrl {
 		struct timer_list rx_timeout;
 		char name[64];
 		char phys[64];
+=======
+#endif
+#if IS_ENABLED(CONFIG_IR_MCE_KBD_DECODER)
+	struct mce_kbd_dec {
+		/* locks key up timer */
+		spinlock_t keylock;
+		struct timer_list rx_timeout;
+>>>>>>> upstream/android-13
 		int state;
 		u8 header;
 		u32 body;
 		unsigned count;
 		unsigned wanted_bits;
 	} mce_kbd;
+<<<<<<< HEAD
+=======
+#endif
+#if IS_ENABLED(CONFIG_IR_XMP_DECODER)
+>>>>>>> upstream/android-13
 	struct xmp_dec {
 		int state;
 		unsigned count;
 		u32 durations[16];
 	} xmp;
+<<<<<<< HEAD
+=======
+#endif
+#if IS_ENABLED(CONFIG_IR_IMON_DECODER)
+>>>>>>> upstream/android-13
 	struct imon_dec {
 		int state;
 		int count;
 		int last_chk;
 		unsigned int bits;
 		bool stick_keyboard;
+<<<<<<< HEAD
 		struct input_dev *idev;
 		char name[64];
 	} imon;
+=======
+	} imon;
+#endif
+#if IS_ENABLED(CONFIG_IR_RCMM_DECODER)
+	struct rcmm_dec {
+		int state;
+		unsigned int count;
+		u32 bits;
+	} rcmm;
+#endif
+>>>>>>> upstream/android-13
 };
 
 /* Mutex for locking raw IR processing and handler change */
@@ -171,7 +241,10 @@ static inline bool is_timing_event(struct ir_raw_event ev)
 	return !ev.carrier_report && !ev.reset;
 }
 
+<<<<<<< HEAD
 #define TO_US(duration)			DIV_ROUND_CLOSEST((duration), 1000)
+=======
+>>>>>>> upstream/android-13
 #define TO_STR(is_pulse)		((is_pulse) ? "pulse" : "space")
 
 /* functions for IR encoders */
@@ -181,9 +254,16 @@ static inline void init_ir_raw_event_duration(struct ir_raw_event *ev,
 					      unsigned int pulse,
 					      u32 duration)
 {
+<<<<<<< HEAD
 	init_ir_raw_event(ev);
 	ev->duration = duration;
 	ev->pulse = pulse;
+=======
+	*ev = (struct ir_raw_event) {
+		.duration = duration,
+		.pulse = pulse
+	};
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -299,20 +379,36 @@ void ir_raw_init(void);
 #ifdef CONFIG_LIRC
 int lirc_dev_init(void);
 void lirc_dev_exit(void);
+<<<<<<< HEAD
 void ir_lirc_raw_event(struct rc_dev *dev, struct ir_raw_event ev);
 void ir_lirc_scancode_event(struct rc_dev *dev, struct lirc_scancode *lsc);
 int ir_lirc_register(struct rc_dev *dev);
 void ir_lirc_unregister(struct rc_dev *dev);
+=======
+void lirc_raw_event(struct rc_dev *dev, struct ir_raw_event ev);
+void lirc_scancode_event(struct rc_dev *dev, struct lirc_scancode *lsc);
+int lirc_register(struct rc_dev *dev);
+void lirc_unregister(struct rc_dev *dev);
+>>>>>>> upstream/android-13
 struct rc_dev *rc_dev_get_from_fd(int fd);
 #else
 static inline int lirc_dev_init(void) { return 0; }
 static inline void lirc_dev_exit(void) {}
+<<<<<<< HEAD
 static inline void ir_lirc_raw_event(struct rc_dev *dev,
 				     struct ir_raw_event ev) { }
 static inline void ir_lirc_scancode_event(struct rc_dev *dev,
 					  struct lirc_scancode *lsc) { }
 static inline int ir_lirc_register(struct rc_dev *dev) { return 0; }
 static inline void ir_lirc_unregister(struct rc_dev *dev) { }
+=======
+static inline void lirc_raw_event(struct rc_dev *dev,
+				  struct ir_raw_event ev) { }
+static inline void lirc_scancode_event(struct rc_dev *dev,
+				       struct lirc_scancode *lsc) { }
+static inline int lirc_register(struct rc_dev *dev) { return 0; }
+static inline void lirc_unregister(struct rc_dev *dev) { }
+>>>>>>> upstream/android-13
 #endif
 
 /*

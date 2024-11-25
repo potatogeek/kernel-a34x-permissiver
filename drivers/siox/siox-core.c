@@ -512,6 +512,7 @@ static int siox_match(struct device *dev, struct device_driver *drv)
 	return 1;
 }
 
+<<<<<<< HEAD
 static struct bus_type siox_bus_type = {
 	.name = "siox",
 	.match = siox_match,
@@ -539,14 +540,53 @@ static int siox_driver_remove(struct device *dev)
 }
 
 static void siox_driver_shutdown(struct device *dev)
+=======
+static int siox_probe(struct device *dev)
+{
+	struct siox_driver *sdriver = to_siox_driver(dev->driver);
+	struct siox_device *sdevice = to_siox_device(dev);
+
+	return sdriver->probe(sdevice);
+}
+
+static void siox_remove(struct device *dev)
+>>>>>>> upstream/android-13
 {
 	struct siox_driver *sdriver =
 		container_of(dev->driver, struct siox_driver, driver);
 	struct siox_device *sdevice = to_siox_device(dev);
 
+<<<<<<< HEAD
 	sdriver->shutdown(sdevice);
 }
 
+=======
+	if (sdriver->remove)
+		sdriver->remove(sdevice);
+}
+
+static void siox_shutdown(struct device *dev)
+{
+	struct siox_device *sdevice = to_siox_device(dev);
+	struct siox_driver *sdriver;
+
+	if (!dev->driver)
+		return;
+
+	sdriver = container_of(dev->driver, struct siox_driver, driver);
+	if (sdriver->shutdown)
+		sdriver->shutdown(sdevice);
+}
+
+static struct bus_type siox_bus_type = {
+	.name = "siox",
+	.match = siox_match,
+	.probe = siox_probe,
+	.remove = siox_remove,
+	.shutdown = siox_shutdown,
+};
+
+>>>>>>> upstream/android-13
 static ssize_t active_show(struct device *dev,
 			   struct device_attribute *attr, char *buf)
 {
@@ -882,7 +922,12 @@ int __siox_driver_register(struct siox_driver *sdriver, struct module *owner)
 	if (unlikely(!siox_is_registered))
 		return -EPROBE_DEFER;
 
+<<<<<<< HEAD
 	if (!sdriver->set_data && !sdriver->get_data) {
+=======
+	if (!sdriver->probe ||
+	    (!sdriver->set_data && !sdriver->get_data)) {
+>>>>>>> upstream/android-13
 		pr_err("Driver %s doesn't provide needed callbacks\n",
 		       sdriver->driver.name);
 		return -EINVAL;
@@ -891,6 +936,7 @@ int __siox_driver_register(struct siox_driver *sdriver, struct module *owner)
 	sdriver->driver.owner = owner;
 	sdriver->driver.bus = &siox_bus_type;
 
+<<<<<<< HEAD
 	if (sdriver->probe)
 		sdriver->driver.probe = siox_driver_probe;
 	if (sdriver->remove)
@@ -898,6 +944,8 @@ int __siox_driver_register(struct siox_driver *sdriver, struct module *owner)
 	if (sdriver->shutdown)
 		sdriver->driver.shutdown = siox_driver_shutdown;
 
+=======
+>>>>>>> upstream/android-13
 	ret = driver_register(&sdriver->driver);
 	if (ret)
 		pr_err("Failed to register siox driver %s (%d)\n",

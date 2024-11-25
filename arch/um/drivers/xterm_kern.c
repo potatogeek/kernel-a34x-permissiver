@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 /* 
  * Copyright (C) 2001 - 2007 Jeff Dike (jdike@{addtoit,linux.intel}.com)
  * Licensed under the GPL
+=======
+// SPDX-License-Identifier: GPL-2.0
+/* 
+ * Copyright (C) 2001 - 2007 Jeff Dike (jdike@{addtoit,linux.intel}.com)
+>>>>>>> upstream/android-13
  */
 
 #include <linux/slab.h>
@@ -51,7 +57,11 @@ int xterm_fd(int socket, int *pid_out)
 
 	err = um_request_irq(XTERM_IRQ, socket, IRQ_READ, xterm_interrupt,
 			     IRQF_SHARED, "xterm", data);
+<<<<<<< HEAD
 	if (err) {
+=======
+	if (err < 0) {
+>>>>>>> upstream/android-13
 		printk(KERN_ERR "xterm_fd : failed to get IRQ for xterm, "
 		       "err = %d\n",  err);
 		ret = err;

@@ -13,7 +13,11 @@
 # Written by Andy Polyakov <appro@openssl.org> for the OpenSSL
 # project. The module is, however, dual licensed under OpenSSL and
 # CRYPTOGAMS licenses depending on where you obtain it. For further
+<<<<<<< HEAD
 # details see http://www.openssl.org/~appro/cryptogams/.
+=======
+# details see https://www.openssl.org/~appro/cryptogams/.
+>>>>>>> upstream/android-13
 # ====================================================================
 
 # SHA256 block procedure for ARMv4. May 2007.
@@ -175,7 +179,10 @@ $code=<<___;
 #else
 .syntax unified
 # ifdef __thumb2__
+<<<<<<< HEAD
 #  define adrl adr
+=======
+>>>>>>> upstream/android-13
 .thumb
 # else
 .code   32
@@ -471,7 +478,12 @@ sha256_block_data_order_neon:
 	stmdb	sp!,{r4-r12,lr}
 
 	sub	$H,sp,#16*4+16
+<<<<<<< HEAD
 	adrl	$Ktbl,K256
+=======
+	adr	$Ktbl,.Lsha256_block_data_order
+	sub	$Ktbl,$Ktbl,#.Lsha256_block_data_order-K256
+>>>>>>> upstream/android-13
 	bic	$H,$H,#15		@ align for 128-bit stores
 	mov	$t2,sp
 	mov	sp,$H			@ alloca

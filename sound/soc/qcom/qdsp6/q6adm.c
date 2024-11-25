@@ -2,6 +2,7 @@
 // Copyright (c) 2011-2017, The Linux Foundation. All rights reserved.
 // Copyright (c) 2018, Linaro Limited
 
+<<<<<<< HEAD
 #include <linux/slab.h>
 #include <linux/wait.h>
 #include <linux/kernel.h>
@@ -15,12 +16,31 @@
 #include <linux/wait.h>
 #include <linux/soc/qcom/apr.h>
 #include <linux/platform_device.h>
+=======
+#include <linux/device.h>
+#include <linux/jiffies.h>
+#include <linux/kernel.h>
+#include <linux/kref.h>
+#include <linux/module.h>
+#include <linux/of.h>
+#include <linux/of_platform.h>
+#include <linux/platform_device.h>
+#include <linux/sched.h>
+#include <linux/slab.h>
+#include <linux/soc/qcom/apr.h>
+#include <linux/wait.h>
+>>>>>>> upstream/android-13
 #include <sound/asound.h>
 #include "q6adm.h"
 #include "q6afe.h"
 #include "q6core.h"
+<<<<<<< HEAD
 #include "q6dsp-errno.h"
 #include "q6dsp-common.h"
+=======
+#include "q6dsp-common.h"
+#include "q6dsp-errno.h"
+>>>>>>> upstream/android-13
 
 #define ADM_CMD_DEVICE_OPEN_V5		0x00010326
 #define ADM_CMDRSP_DEVICE_OPEN_V5	0x00010329
@@ -404,7 +424,11 @@ struct q6copp *q6adm_open(struct device *dev, int port_id, int path, int rate,
 
 	spin_lock_irqsave(&adm->copps_list_lock, flags);
 	copp = q6adm_alloc_copp(adm, port_id);
+<<<<<<< HEAD
 	if (IS_ERR_OR_NULL(copp)) {
+=======
+	if (IS_ERR(copp)) {
+>>>>>>> upstream/android-13
 		spin_unlock_irqrestore(&adm->copps_list_lock, flags);
 		return ERR_CAST(copp);
 	}
@@ -420,7 +444,10 @@ struct q6copp *q6adm_open(struct device *dev, int port_id, int path, int rate,
 	copp->bit_width = bit_width;
 	copp->app_type = app_type;
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	ret = q6adm_device_open(adm, copp, port_id, path, topology,
 				channel_mode, bit_width, rate);
 	if (ret < 0) {
@@ -467,7 +494,11 @@ int q6adm_matrix_map(struct device *dev, int path,
 	struct apr_pkt *pkt;
 	uint16_t *copps_list;
 	int pkt_size, ret, i, copp_idx;
+<<<<<<< HEAD
 	void *matrix_map = NULL;
+=======
+	void *matrix_map;
+>>>>>>> upstream/android-13
 	struct q6copp *copp;
 
 	/* Assumes port_ids have already been validated during adm_open */
@@ -589,12 +620,20 @@ static int q6adm_probe(struct apr_device *adev)
 	struct device *dev = &adev->dev;
 	struct q6adm *adm;
 
+<<<<<<< HEAD
 	adm = devm_kzalloc(&adev->dev, sizeof(*adm), GFP_KERNEL);
+=======
+	adm = devm_kzalloc(dev, sizeof(*adm), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!adm)
 		return -ENOMEM;
 
 	adm->apr = adev;
+<<<<<<< HEAD
 	dev_set_drvdata(&adev->dev, adm);
+=======
+	dev_set_drvdata(dev, adm);
+>>>>>>> upstream/android-13
 	adm->dev = dev;
 	q6core_get_svc_api_info(adev->svc_id, &adm->ainfo);
 	mutex_init(&adm->lock);
@@ -603,6 +642,7 @@ static int q6adm_probe(struct apr_device *adev)
 	INIT_LIST_HEAD(&adm->copps_list);
 	spin_lock_init(&adm->copps_list_lock);
 
+<<<<<<< HEAD
 	return of_platform_populate(dev->of_node, NULL, NULL, dev);
 }
 
@@ -613,15 +653,28 @@ static int q6adm_remove(struct apr_device *adev)
 	return 0;
 }
 
+=======
+	return devm_of_platform_populate(dev);
+}
+
+#ifdef CONFIG_OF
+>>>>>>> upstream/android-13
 static const struct of_device_id q6adm_device_id[]  = {
 	{ .compatible = "qcom,q6adm" },
 	{},
 };
 MODULE_DEVICE_TABLE(of, q6adm_device_id);
+<<<<<<< HEAD
 
 static struct apr_driver qcom_q6adm_driver = {
 	.probe = q6adm_probe,
 	.remove = q6adm_remove,
+=======
+#endif
+
+static struct apr_driver qcom_q6adm_driver = {
+	.probe = q6adm_probe,
+>>>>>>> upstream/android-13
 	.callback = q6adm_callback,
 	.driver = {
 		.name = "qcom-q6adm",

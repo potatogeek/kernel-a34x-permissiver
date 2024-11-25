@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2016-2017 Netronome Systems, Inc.
  *
@@ -30,6 +31,10 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+=======
+/* SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause) */
+/* Copyright (C) 2016-2018 Netronome Systems, Inc. */
+>>>>>>> upstream/android-13
 
 #ifndef __NFP_ASM_H__
 #define __NFP_ASM_H__ 1
@@ -82,6 +87,18 @@
 #define OP_BR_BIT_ADDR_LO	OP_BR_ADDR_LO
 #define OP_BR_BIT_ADDR_HI	OP_BR_ADDR_HI
 
+<<<<<<< HEAD
+=======
+#define OP_BR_ALU_BASE		0x0e800000000ULL
+#define OP_BR_ALU_BASE_MASK	0x0ff80000000ULL
+#define OP_BR_ALU_A_SRC		0x000000003ffULL
+#define OP_BR_ALU_B_SRC		0x000000ffc00ULL
+#define OP_BR_ALU_DEFBR		0x00000300000ULL
+#define OP_BR_ALU_IMM_HI	0x0007fc00000ULL
+#define OP_BR_ALU_SRC_LMEXTN	0x40000000000ULL
+#define OP_BR_ALU_DST_LMEXTN	0x80000000000ULL
+
+>>>>>>> upstream/android-13
 static inline bool nfp_is_br(u64 insn)
 {
 	return (insn & OP_BR_BASE_MASK) == OP_BR_BASE ||

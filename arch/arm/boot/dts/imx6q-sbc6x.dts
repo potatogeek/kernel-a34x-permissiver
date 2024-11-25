@@ -1,8 +1,14 @@
+<<<<<<< HEAD
 /*
  * Copyright 2013 Pavel Machek <pavel@denx.de>
  *
  * The code contained herein is licensed under the GNU General Public
  * License V2.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright 2013 Pavel Machek <pavel@denx.de>
+>>>>>>> upstream/android-13
  */
 
 /dts-v1/;
@@ -13,6 +19,10 @@
 	compatible = "microsys,sbc6x", "fsl,imx6q";
 
 	memory@10000000 {
+<<<<<<< HEAD
+=======
+		device_type = "memory";
+>>>>>>> upstream/android-13
 		reg = <0x10000000 0x80000000>;
 	};
 };

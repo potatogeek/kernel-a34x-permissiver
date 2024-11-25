@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0+
+>>>>>>> upstream/android-13
 /*
  * Access to GPOs on TWL6040 chip
  *
@@ -6,6 +10,7 @@
  * Authors:
  *	Sergio Aguirre <saaguirre@ti.com>
  *	Peter Ujfalusi <peter.ujfalusi@ti.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,14 +25,22 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
 #include <linux/init.h>
 #include <linux/kthread.h>
 #include <linux/irq.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
 #include <linux/platform_device.h>
+=======
+#include <linux/gpio/driver.h>
+#include <linux/platform_device.h>
+#include <linux/bitops.h>
+>>>>>>> upstream/android-13
 #include <linux/of.h>
 
 #include <linux/mfd/twl6040.h>
@@ -41,7 +54,16 @@ static int twl6040gpo_get(struct gpio_chip *chip, unsigned offset)
 	if (ret < 0)
 		return ret;
 
+<<<<<<< HEAD
 	return (ret >> offset) & 1;
+=======
+	return !!(ret & BIT(offset));
+}
+
+static int twl6040gpo_get_direction(struct gpio_chip *chip, unsigned offset)
+{
+	return GPIO_LINE_DIRECTION_OUT;
+>>>>>>> upstream/android-13
 }
 
 static int twl6040gpo_direction_out(struct gpio_chip *chip, unsigned offset,
@@ -62,9 +84,15 @@ static void twl6040gpo_set(struct gpio_chip *chip, unsigned offset, int value)
 		return;
 
 	if (value)
+<<<<<<< HEAD
 		gpoctl = ret | (1 << offset);
 	else
 		gpoctl = ret & ~(1 << offset);
+=======
+		gpoctl = ret | BIT(offset);
+	else
+		gpoctl = ret & ~BIT(offset);
+>>>>>>> upstream/android-13
 
 	twl6040_reg_write(twl6040, TWL6040_REG_GPOCTL, gpoctl);
 }
@@ -74,6 +102,10 @@ static struct gpio_chip twl6040gpo_chip = {
 	.owner			= THIS_MODULE,
 	.get			= twl6040gpo_get,
 	.direction_output	= twl6040gpo_direction_out,
+<<<<<<< HEAD
+=======
+	.get_direction		= twl6040gpo_get_direction,
+>>>>>>> upstream/android-13
 	.set			= twl6040gpo_set,
 	.can_sleep		= true,
 };

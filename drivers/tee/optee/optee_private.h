@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2015, Linaro Limited
  *
@@ -10,6 +11,11 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (c) 2015, Linaro Limited
+>>>>>>> upstream/android-13
  */
 
 #ifndef OPTEE_PRIVATE_H
@@ -26,8 +32,15 @@
 /* Some Global Platform error codes used in this driver */
 #define TEEC_SUCCESS			0x00000000
 #define TEEC_ERROR_BAD_PARAMETERS	0xFFFF0006
+<<<<<<< HEAD
 #define TEEC_ERROR_COMMUNICATION	0xFFFF000E
 #define TEEC_ERROR_OUT_OF_MEMORY	0xFFFF000C
+=======
+#define TEEC_ERROR_NOT_SUPPORTED	0xFFFF000A
+#define TEEC_ERROR_COMMUNICATION	0xFFFF000E
+#define TEEC_ERROR_OUT_OF_MEMORY	0xFFFF000C
+#define TEEC_ERROR_SHORT_BUFFER		0xFFFF0010
+>>>>>>> upstream/android-13
 
 #define TEEC_ORIGIN_COMMS		0x00000002
 
@@ -77,6 +90,10 @@ struct optee_supp {
  * struct optee - main service struct
  * @supp_teedev:	supplicant device
  * @teedev:		client device
+<<<<<<< HEAD
+=======
+ * @ctx:		driver internal TEE context
+>>>>>>> upstream/android-13
  * @invoke_fn:		function to issue smc or hvc
  * @call_queue:		queue of threads waiting to call @invoke_fn
  * @wait_queue:		queue of threads from secure world waiting for a
@@ -86,17 +103,33 @@ struct optee_supp {
  * @memremaped_shm	virtual address of memory in shared memory pool
  * @sec_caps:		secure world capabilities defined by
  *			OPTEE_SMC_SEC_CAP_* in optee_smc.h
+<<<<<<< HEAD
+=======
+ * @scan_bus_done	flag if device registation was already done.
+ * @scan_bus_wq		workqueue to scan optee bus and register optee drivers
+ * @scan_bus_work	workq to scan optee bus and register optee drivers
+>>>>>>> upstream/android-13
  */
 struct optee {
 	struct tee_device *supp_teedev;
 	struct tee_device *teedev;
 	optee_invoke_fn *invoke_fn;
+<<<<<<< HEAD
+=======
+	struct tee_context *ctx;
+>>>>>>> upstream/android-13
 	struct optee_call_queue call_queue;
 	struct optee_wait_queue wait_queue;
 	struct optee_supp supp;
 	struct tee_shm_pool *pool;
 	void *memremaped_shm;
 	u32 sec_caps;
+<<<<<<< HEAD
+=======
+	bool   scan_bus_done;
+	struct workqueue_struct *scan_bus_wq;
+	struct work_struct scan_bus_work;
+>>>>>>> upstream/android-13
 };
 
 struct optee_session {
@@ -160,6 +193,10 @@ int optee_cancel_req(struct tee_context *ctx, u32 cancel_id, u32 session);
 
 void optee_enable_shm_cache(struct optee *optee);
 void optee_disable_shm_cache(struct optee *optee);
+<<<<<<< HEAD
+=======
+void optee_disable_unmapped_shm_cache(struct optee *optee);
+>>>>>>> upstream/android-13
 
 int optee_shm_register(struct tee_context *ctx, struct tee_shm *shm,
 		       struct page **pages, size_t num_pages,
@@ -181,6 +218,14 @@ void optee_free_pages_list(void *array, size_t num_entries);
 void optee_fill_pages_list(u64 *dst, struct page **pages, int num_pages,
 			   size_t page_offset);
 
+<<<<<<< HEAD
+=======
+#define PTA_CMD_GET_DEVICES		0x0
+#define PTA_CMD_GET_DEVICES_SUPP	0x1
+int optee_enumerate_devices(u32 func);
+void optee_unregister_devices(void);
+
+>>>>>>> upstream/android-13
 /*
  * Small helpers
  */

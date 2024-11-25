@@ -7,6 +7,7 @@
  * This script controls its layout.
  */
 
+<<<<<<< HEAD
 #if defined(BUILD_VDSO64)
 # define SHDR_SIZE 64
 #elif defined(BUILD_VDSO32) || defined(BUILD_VDSOX32)
@@ -17,6 +18,8 @@
 
 #define NUM_FAKE_SHDRS 13
 
+=======
+>>>>>>> upstream/android-13
 SECTIONS
 {
 	/*
@@ -26,6 +29,7 @@ SECTIONS
 	 * segment.
 	 */
 
+<<<<<<< HEAD
 	vvar_start = . - 3 * PAGE_SIZE;
 	vvar_page = vvar_start;
 
@@ -34,10 +38,28 @@ SECTIONS
 #define __VVAR_KERNEL_LDS
 #include <asm/vvar.h>
 #undef __VVAR_KERNEL_LDS
+=======
+	vvar_start = . - 4 * PAGE_SIZE;
+	vvar_page  = vvar_start;
+
+	/* Place all vvars at the offsets in asm/vvar.h. */
+#define EMIT_VVAR(name, offset) vvar_ ## name = vvar_page + offset;
+#include <asm/vvar.h>
+>>>>>>> upstream/android-13
 #undef EMIT_VVAR
 
 	pvclock_page = vvar_start + PAGE_SIZE;
 	hvclock_page = vvar_start + 2 * PAGE_SIZE;
+<<<<<<< HEAD
+=======
+	timens_page  = vvar_start + 3 * PAGE_SIZE;
+
+#undef _ASM_X86_VVAR_H
+	/* Place all vvars in timens too at the offsets in asm/vvar.h. */
+#define EMIT_VVAR(name, offset) timens_ ## name = timens_page + offset;
+#include <asm/vvar.h>
+#undef EMIT_VVAR
+>>>>>>> upstream/android-13
 
 	. = SIZEOF_HEADERS;
 
@@ -60,6 +82,7 @@ SECTIONS
 		*(.bss*)
 		*(.dynbss*)
 		*(.gnu.linkonce.b.*)
+<<<<<<< HEAD
 
 		/*
 		 * Ideally this would live in a C file, but that won't
@@ -74,6 +97,17 @@ SECTIONS
 	.fake_shstrtab	: { *(.fake_shstrtab) }		:text
 
 
+=======
+	}						:text
+
+	/*
+	 * Discard .note.gnu.property sections which are unused and have
+	 * different alignment requirement from vDSO note sections.
+	 */
+	/DISCARD/ : {
+		*(.note.gnu.property)
+	}
+>>>>>>> upstream/android-13
 	.note		: { *(.note.*) }		:text	:note
 
 	.eh_frame_hdr	: { *(.eh_frame_hdr) }		:text	:eh_frame_hdr
@@ -85,6 +119,7 @@ SECTIONS
 	 * stuff that isn't used at runtime in between.
 	 */
 
+<<<<<<< HEAD
 	.text		: { *(.text*) }			:text	=0x90909090,
 
 	/*
@@ -95,6 +130,20 @@ SECTIONS
 	.altinstructions	: { *(.altinstructions) }	:text
 	.altinstr_replacement	: { *(.altinstr_replacement) }	:text
 
+=======
+	.text		: {
+		*(.text*)
+		*(.fixup)
+	}						:text	=0x90909090,
+
+
+
+	.altinstructions	: { *(.altinstructions) }	:text
+	.altinstr_replacement	: { *(.altinstr_replacement) }	:text
+
+	__ex_table		: { *(__ex_table) }		:text
+
+>>>>>>> upstream/android-13
 	/DISCARD/ : {
 		*(.discard)
 		*(.discard.*)

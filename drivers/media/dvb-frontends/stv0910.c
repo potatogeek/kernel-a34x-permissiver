@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * Driver for the ST STV0910 DVB-S/S2 demodulator.
  *
@@ -1237,7 +1241,11 @@ static int gate_ctrl(struct dvb_frontend *fe, int enable)
 	 * mutex_lock note: Concurrent I2C gate bus accesses must be
 	 * prevented (STV0910 = dual demod on a single IC with a single I2C
 	 * gate/bus, and two tuners attached), similar to most (if not all)
+<<<<<<< HEAD
 	 * other I2C host interfaces/busses.
+=======
+	 * other I2C host interfaces/buses.
+>>>>>>> upstream/android-13
 	 *
 	 * enable=1 (open I2C gate) will grab the lock
 	 * enable=0 (close I2C gate) releases the lock
@@ -1499,7 +1507,11 @@ static int read_status(struct dvb_frontend *fe, enum fe_status *status)
 				  RSTV0910_P2_FBERCPT4 + state->regoff, 0x00);
 			/*
 			 * Reset the packet Error counter2 (and Set it to
+<<<<<<< HEAD
 			 * infinit error count mode)
+=======
+			 * infinite error count mode)
+>>>>>>> upstream/android-13
 			 */
 			write_reg(state,
 				  RSTV0910_P2_ERRCTRL2 + state->regoff, 0xc1);
@@ -1839,4 +1851,8 @@ EXPORT_SYMBOL_GPL(stv0910_attach);
 
 MODULE_DESCRIPTION("ST STV0910 multistandard frontend driver");
 MODULE_AUTHOR("Ralph and Marcus Metzler, Manfred Voelkel");
+<<<<<<< HEAD
 MODULE_LICENSE("GPL");
+=======
+MODULE_LICENSE("GPL v2");
+>>>>>>> upstream/android-13

@@ -1,9 +1,17 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * H-TCP congestion control. The algorithm is detailed in:
  * R.N.Shorten, D.J.Leith:
  *   "H-TCP: TCP for high-speed and long-distance networks"
  *   Proc. PFLDnet, Argonne, 2004.
+<<<<<<< HEAD
  * http://www.hamilton.ie/net/htcp3.pdf
+=======
+ * https://www.hamilton.ie/net/htcp3.pdf
+>>>>>>> upstream/android-13
  */
 
 #include <linux/mm.h>

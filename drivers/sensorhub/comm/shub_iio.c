@@ -23,13 +23,17 @@
 #include <linux/version.h>
 
 #include "../sensorhub/shub_device.h"
+<<<<<<< HEAD
 #include "../utility/shub_wakelock.h"
+=======
+>>>>>>> upstream/android-13
 #include "../utility/shub_utility.h"
 #include "../sensormanager/shub_sensor_type.h"
 #include "../sensormanager/shub_sensor.h"
 #include "../sensormanager/shub_sensor_manager.h"
 #include "shub_kfifo_buf.h"
 
+<<<<<<< HEAD
 #if defined(CONFIG_SHUB_KUNIT)
 #include <kunit/mock.h>
 #define __mockable __weak
@@ -39,6 +43,8 @@
 #define __visible_for_testing static
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #define SCONTEXT_DATA_LEN       56
 #define SCONTEXT_HEADER_LEN     8
 
@@ -47,6 +53,7 @@
 #define IIO_SIGN               's'
 #define IIO_SHIFT               0
 
+<<<<<<< HEAD
 struct iio_probe_device {
 	int type;
 	char *name;
@@ -96,6 +103,8 @@ static struct iio_probe_device iio_probe_list[] = {
 	{SENSOR_TYPE_SEQUENTIAL_STEP, "sequential_step", 4 },
 };
 
+=======
+>>>>>>> upstream/android-13
 struct shub_iio_device {
 	int type;
 	struct iio_chan_spec iio_channel;
@@ -171,9 +180,13 @@ static void *init_indio_device(struct device *dev, const struct iio_info *info,
 	indio_dev->channels = channels;
 	indio_dev->num_channels = 1;
 	indio_dev->modes = INDIO_DIRECT_MODE;
+<<<<<<< HEAD
 #if (LINUX_VERSION_CODE < KERNEL_VERSION(6, 1, 0))
 	indio_dev->currentmode = INDIO_DIRECT_MODE;
 #endif
+=======
+	indio_dev->currentmode = INDIO_DIRECT_MODE;
+>>>>>>> upstream/android-13
 
 	ret = shub_iio_configure_buffer(indio_dev, bytes);
 	if (ret) {
@@ -231,6 +244,7 @@ static inline void set_channel_spec(struct iio_chan_spec *iio_channel, int realb
 }
 
 /* this function should be called when sensor list of sensor manager is existed */
+<<<<<<< HEAD
 int __mockable initialize_indio_dev(struct device *dev)
 {
 	int timestamp_len = sizeof(u64);
@@ -248,6 +262,23 @@ int __mockable initialize_indio_dev(struct device *dev)
 
 		type = iio_dev_probe.type;
 		bytes = iio_dev_probe.report_event_size + timestamp_len;
+=======
+int initialize_indio_dev(struct device *dev)
+{
+	int timestamp_len = sizeof(u64);
+	int type;
+	int realbits_size = 0;
+	int repeat_size = 0;
+	int bytes = 0;
+	struct shub_sensor *sensor;
+
+	for (type = 0 ; type < SENSOR_TYPE_LEGACY_MAX; type++) {
+		sensor = get_sensor(type);
+		if (!sensor || !sensor->hal_sensor)
+			continue;
+
+		bytes = (sensor->report_event_size+timestamp_len);
+>>>>>>> upstream/android-13
 		realbits_size =  bytes * BITS_PER_BYTE;
 		repeat_size = 1;
 
@@ -257,6 +288,7 @@ int __mockable initialize_indio_dev(struct device *dev)
 
 		iio_list[type] = (struct shub_iio_device *)kzalloc(sizeof(struct shub_iio_device), GFP_KERNEL);
 		if (!iio_list[type]) {
+<<<<<<< HEAD
 			shub_errf("fail to malloc %s iio dev", iio_dev_probe.name);
 			continue;
 		}
@@ -264,6 +296,15 @@ int __mockable initialize_indio_dev(struct device *dev)
 		iio_list[type]->indio_dev = (struct iio_dev *)init_indio_device(dev, &indio_info, &iio_list[type]->iio_channel, iio_dev_probe.name, bytes);
 		if (!iio_list[type]->indio_dev) {
 			shub_errf("fail to init_indio_device %s", iio_dev_probe.name);
+=======
+			shub_errf("fail to malloc %s iio dev", sensor->name);
+			continue;
+		}
+		set_channel_spec(&iio_list[type]->iio_channel, realbits_size, repeat_size);
+		iio_list[type]->indio_dev = (struct iio_dev *)init_indio_device(dev, &indio_info, &iio_list[type]->iio_channel, sensor->name, bytes);
+		if (!iio_list[type]->indio_dev) {
+			shub_errf("fail to init_indio_device %s", sensor->name);
+>>>>>>> upstream/android-13
 			kfree(iio_list[type]);
 			iio_list[type] = NULL;
 		}
@@ -278,8 +319,15 @@ void shub_report_sensordata(int type, u64 timestamp, char *data, int data_len)
 	struct shub_sensor *sensor = get_sensor(type);
 	char *buf;
 
+<<<<<<< HEAD
 	if (!sensor || !indio_dev)
 		return;
+=======
+	if (!sensor || !indio_dev) {
+		shub_err("sensor or indio_dev is null");
+		return;
+	}
+>>>>>>> upstream/android-13
 
 	buf = kzalloc(sensor->report_event_size + sizeof(timestamp), GFP_KERNEL);
 	if (!buf) {
@@ -290,9 +338,12 @@ void shub_report_sensordata(int type, u64 timestamp, char *data, int data_len)
 	if (data && data_len > 0)
 		memcpy(buf, data, data_len);
 
+<<<<<<< HEAD
 	if (sensor->spec.is_wake_up)
 		shub_wake_lock_timeout(300);
 
+=======
+>>>>>>> upstream/android-13
 	memcpy(buf + data_len, &timestamp, sizeof(timestamp));
 	mutex_lock(&indio_dev->mlock);
 	iio_push_to_buffers(indio_dev, buf);
@@ -300,6 +351,7 @@ void shub_report_sensordata(int type, u64 timestamp, char *data, int data_len)
 
 	kfree(buf);
 }
+<<<<<<< HEAD
 
 void remove_empty_dev(void)
 {
@@ -314,3 +366,5 @@ void remove_empty_dev(void)
 		}
 	}
 }
+=======
+>>>>>>> upstream/android-13

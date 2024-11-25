@@ -5,7 +5,13 @@
  */
 #include <linux/seq_file.h>
 
+<<<<<<< HEAD
 #include <drm/drmP.h>
+=======
+#include <drm/drm_debugfs.h>
+#include <drm/drm_file.h>
+#include <drm/drm_print.h>
+>>>>>>> upstream/android-13
 
 #include "sti_plane.h"
 #include "sti_vid.h"
@@ -122,16 +128,26 @@ static struct drm_info_list vid_debugfs_files[] = {
 	{ "vid", vid_dbg_show, 0, NULL },
 };
 
+<<<<<<< HEAD
 int vid_debugfs_init(struct sti_vid *vid, struct drm_minor *minor)
+=======
+void vid_debugfs_init(struct sti_vid *vid, struct drm_minor *minor)
+>>>>>>> upstream/android-13
 {
 	unsigned int i;
 
 	for (i = 0; i < ARRAY_SIZE(vid_debugfs_files); i++)
 		vid_debugfs_files[i].data = vid;
 
+<<<<<<< HEAD
 	return drm_debugfs_create_files(vid_debugfs_files,
 					ARRAY_SIZE(vid_debugfs_files),
 					minor->debugfs_root, minor);
+=======
+	drm_debugfs_create_files(vid_debugfs_files,
+				 ARRAY_SIZE(vid_debugfs_files),
+				 minor->debugfs_root, minor);
+>>>>>>> upstream/android-13
 }
 
 void sti_vid_commit(struct sti_vid *vid,

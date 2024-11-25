@@ -1,8 +1,15 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) ST Ericsson SA 2011
  *
  * License Terms: GNU General Public License v2
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) ST Ericsson SA 2011
+ *
+>>>>>>> upstream/android-13
  * STE Ux500 PRCMU API
  */
 #ifndef __MACH_PRCMU_H
@@ -187,10 +194,19 @@ enum ddr_pwrst {
 #define PRCMU_FW_PROJECT_U8500_C3	8
 #define PRCMU_FW_PROJECT_U8500_C4	9
 #define PRCMU_FW_PROJECT_U9500_MBL	10
+<<<<<<< HEAD
 #define PRCMU_FW_PROJECT_U8500_MBL	11 /* Customer specific */
 #define PRCMU_FW_PROJECT_U8500_MBL2	12 /* Customer specific */
 #define PRCMU_FW_PROJECT_U8520		13
 #define PRCMU_FW_PROJECT_U8420		14
+=======
+#define PRCMU_FW_PROJECT_U8500_SSG1	11 /* Samsung specific */
+#define PRCMU_FW_PROJECT_U8500_MBL2	12 /* Customer specific */
+#define PRCMU_FW_PROJECT_U8520		13
+#define PRCMU_FW_PROJECT_U8420		14
+#define PRCMU_FW_PROJECT_U8500_SSG2	15 /* Samsung specific */
+#define PRCMU_FW_PROJECT_U8420_SYSCLK	17
+>>>>>>> upstream/android-13
 #define PRCMU_FW_PROJECT_A9420		20
 /* [32..63] 9540 and derivatives */
 #define PRCMU_FW_PROJECT_U9540		32
@@ -212,9 +228,15 @@ struct prcmu_fw_version {
 
 #if defined(CONFIG_UX500_SOC_DB8500)
 
+<<<<<<< HEAD
 static inline void prcmu_early_init(u32 phy_base, u32 size)
 {
 	return db8500_prcmu_early_init(phy_base, size);
+=======
+static inline void prcmu_early_init(void)
+{
+	return db8500_prcmu_early_init();
+>>>>>>> upstream/android-13
 }
 
 static inline int prcmu_set_power_state(u8 state, bool keep_ulp_clk,
@@ -321,6 +343,7 @@ static inline bool prcmu_is_ac_wake_requested(void)
 	return db8500_prcmu_is_ac_wake_requested();
 }
 
+<<<<<<< HEAD
 static inline int prcmu_set_display_clocks(void)
 {
 	return db8500_prcmu_set_display_clocks();
@@ -336,6 +359,8 @@ static inline int prcmu_enable_dsipll(void)
 	return db8500_prcmu_enable_dsipll();
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline int prcmu_config_esram0_deep_sleep(u8 state)
 {
 	return db8500_prcmu_config_esram0_deep_sleep(state);
@@ -402,7 +427,11 @@ static inline int prcmu_config_a9wdog(u8 num, bool sleep_auto_off)
 }
 #else
 
+<<<<<<< HEAD
 static inline void prcmu_early_init(u32 phy_base, u32 size) {}
+=======
+static inline void prcmu_early_init(void) {}
+>>>>>>> upstream/android-13
 
 static inline int prcmu_set_power_state(u8 state, bool keep_ulp_clk,
 	bool keep_ap_pll)
@@ -511,6 +540,7 @@ static inline bool prcmu_is_ac_wake_requested(void)
 	return false;
 }
 
+<<<<<<< HEAD
 static inline int prcmu_set_display_clocks(void)
 {
 	return 0;
@@ -526,6 +556,8 @@ static inline int prcmu_enable_dsipll(void)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline int prcmu_config_esram0_deep_sleep(u8 state)
 {
 	return 0;

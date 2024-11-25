@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2002 - 2007 Jeff Dike (jdike@{addtoit,linux.intel}.com)
  * Licensed under the GPL
+=======
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright (C) 2002 - 2007 Jeff Dike (jdike@{addtoit,linux.intel}.com)
+>>>>>>> upstream/android-13
  */
 
 #include <linux/ctype.h>
@@ -55,6 +61,7 @@ static ssize_t exitcode_proc_write(struct file *file,
 	return count;
 }
 
+<<<<<<< HEAD
 static const struct file_operations exitcode_proc_fops = {
 	.owner		= THIS_MODULE,
 	.open		= exitcode_proc_open,
@@ -62,13 +69,25 @@ static const struct file_operations exitcode_proc_fops = {
 	.llseek		= seq_lseek,
 	.release	= single_release,
 	.write		= exitcode_proc_write,
+=======
+static const struct proc_ops exitcode_proc_ops = {
+	.proc_open	= exitcode_proc_open,
+	.proc_read	= seq_read,
+	.proc_lseek	= seq_lseek,
+	.proc_release	= single_release,
+	.proc_write	= exitcode_proc_write,
+>>>>>>> upstream/android-13
 };
 
 static int make_proc_exitcode(void)
 {
 	struct proc_dir_entry *ent;
 
+<<<<<<< HEAD
 	ent = proc_create("exitcode", 0600, NULL, &exitcode_proc_fops);
+=======
+	ent = proc_create("exitcode", 0600, NULL, &exitcode_proc_ops);
+>>>>>>> upstream/android-13
 	if (ent == NULL) {
 		printk(KERN_WARNING "make_proc_exitcode : Failed to register "
 		       "/proc/exitcode\n");

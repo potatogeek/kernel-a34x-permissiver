@@ -23,7 +23,11 @@ struct kmem_cache *stub_priv_cache;
  */
 #define MAX_BUSID 16
 static struct bus_id_priv busid_table[MAX_BUSID];
+<<<<<<< HEAD
 static spinlock_t busid_table_lock;
+=======
+static DEFINE_SPINLOCK(busid_table_lock);
+>>>>>>> upstream/android-13
 
 static void init_busid_table(void)
 {
@@ -35,8 +39,11 @@ static void init_busid_table(void)
 	 */
 	memset(busid_table, 0, sizeof(busid_table));
 
+<<<<<<< HEAD
 	spin_lock_init(&busid_table_lock);
 
+=======
+>>>>>>> upstream/android-13
 	for (i = 0; i < MAX_BUSID; i++)
 		spin_lock_init(&busid_table[i].busid_lock);
 }
@@ -202,7 +209,11 @@ static DRIVER_ATTR_RW(match_busid);
 
 static int do_rebind(char *busid, struct bus_id_priv *busid_priv)
 {
+<<<<<<< HEAD
 	int ret;
+=======
+	int ret = 0;
+>>>>>>> upstream/android-13
 
 	/* device_attach() callers should hold parent lock for USB */
 	if (busid_priv->udev->dev.parent)
@@ -210,11 +221,17 @@ static int do_rebind(char *busid, struct bus_id_priv *busid_priv)
 	ret = device_attach(&busid_priv->udev->dev);
 	if (busid_priv->udev->dev.parent)
 		device_unlock(busid_priv->udev->dev.parent);
+<<<<<<< HEAD
 	if (ret < 0) {
 		dev_err(&busid_priv->udev->dev, "rebind failed\n");
 		return ret;
 	}
 	return 0;
+=======
+	if (ret < 0)
+		dev_err(&busid_priv->udev->dev, "rebind failed\n");
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static void stub_device_rebind(void)

@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /******************************************************************************
  * rtl871x_cmd.c
  *
  * Copyright(c) 2007 - 2010 Realtek Corporation. All rights reserved.
  * Linux device driver for RTL8192SU
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
  * published by the Free Software Foundation.
@@ -17,6 +22,8 @@
  * this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA
  *
+=======
+>>>>>>> upstream/android-13
  * Modifications for inclusion into the Linux staging tree are
  * Copyright(c) 2010 Larry Finger. All rights reserved.
  *
@@ -55,7 +62,11 @@
  * No irqsave is necessary.
  */
 
+<<<<<<< HEAD
 static sint _init_cmd_priv(struct cmd_priv *pcmdpriv)
+=======
+int r8712_init_cmd_priv(struct cmd_priv *pcmdpriv)
+>>>>>>> upstream/android-13
 {
 	init_completion(&pcmdpriv->cmd_queue_comp);
 	init_completion(&pcmdpriv->terminate_cmdthread_comp);
@@ -67,7 +78,11 @@ static sint _init_cmd_priv(struct cmd_priv *pcmdpriv)
 	pcmdpriv->cmd_allocated_buf = kmalloc(MAX_CMDSZ + CMDBUFF_ALIGN_SZ,
 					      GFP_ATOMIC);
 	if (!pcmdpriv->cmd_allocated_buf)
+<<<<<<< HEAD
 		return _FAIL;
+=======
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 	pcmdpriv->cmd_buf = pcmdpriv->cmd_allocated_buf  +  CMDBUFF_ALIGN_SZ -
 			    ((addr_t)(pcmdpriv->cmd_allocated_buf) &
 			    (CMDBUFF_ALIGN_SZ - 1));
@@ -75,23 +90,35 @@ static sint _init_cmd_priv(struct cmd_priv *pcmdpriv)
 	if (!pcmdpriv->rsp_allocated_buf) {
 		kfree(pcmdpriv->cmd_allocated_buf);
 		pcmdpriv->cmd_allocated_buf = NULL;
+<<<<<<< HEAD
 		return _FAIL;
+=======
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 	}
 	pcmdpriv->rsp_buf = pcmdpriv->rsp_allocated_buf  +  4 -
 			    ((addr_t)(pcmdpriv->rsp_allocated_buf) & 3);
 	pcmdpriv->cmd_issued_cnt = 0;
 	pcmdpriv->cmd_done_cnt = 0;
 	pcmdpriv->rsp_cnt = 0;
+<<<<<<< HEAD
 	return _SUCCESS;
 }
 
 static sint _init_evt_priv(struct evt_priv *pevtpriv)
+=======
+	return 0;
+}
+
+int r8712_init_evt_priv(struct evt_priv *pevtpriv)
+>>>>>>> upstream/android-13
 {
 	/* allocate DMA-able/Non-Page memory for cmd_buf and rsp_buf */
 	pevtpriv->event_seq = 0;
 	pevtpriv->evt_allocated_buf = kmalloc(MAX_EVTSZ + 4, GFP_ATOMIC);
 
 	if (!pevtpriv->evt_allocated_buf)
+<<<<<<< HEAD
 		return _FAIL;
 	pevtpriv->evt_buf = pevtpriv->evt_allocated_buf  +  4 -
 			    ((addr_t)(pevtpriv->evt_allocated_buf) & 3);
@@ -100,11 +127,25 @@ static sint _init_evt_priv(struct evt_priv *pevtpriv)
 }
 
 static void _free_evt_priv(struct evt_priv *pevtpriv)
+=======
+		return -ENOMEM;
+	pevtpriv->evt_buf = pevtpriv->evt_allocated_buf  +  4 -
+			    ((addr_t)(pevtpriv->evt_allocated_buf) & 3);
+	pevtpriv->evt_done_cnt = 0;
+	return 0;
+}
+
+void r8712_free_evt_priv(struct evt_priv *pevtpriv)
+>>>>>>> upstream/android-13
 {
 	kfree(pevtpriv->evt_allocated_buf);
 }
 
+<<<<<<< HEAD
 static void _free_cmd_priv(struct cmd_priv *pcmdpriv)
+=======
+void r8712_free_cmd_priv(struct cmd_priv *pcmdpriv)
+>>>>>>> upstream/android-13
 {
 	if (pcmdpriv) {
 		kfree(pcmdpriv->cmd_allocated_buf);
@@ -115,13 +156,18 @@ static void _free_cmd_priv(struct cmd_priv *pcmdpriv)
 /*
  * Calling Context:
  *
+<<<<<<< HEAD
  * _enqueue_cmd can only be called between kernel thread,
+=======
+ * r8712_enqueue_cmd can only be called between kernel thread,
+>>>>>>> upstream/android-13
  * since only spin_lock is used.
  *
  * ISR/Call-Back functions can't call this sub-function.
  *
  */
 
+<<<<<<< HEAD
 static sint _enqueue_cmd(struct  __queue *queue, struct cmd_obj *obj)
 {
 	unsigned long irqL;
@@ -135,6 +181,25 @@ static sint _enqueue_cmd(struct  __queue *queue, struct cmd_obj *obj)
 }
 
 static struct cmd_obj *_dequeue_cmd(struct  __queue *queue)
+=======
+void r8712_enqueue_cmd(struct cmd_priv *pcmdpriv, struct cmd_obj *obj)
+{
+	struct __queue *queue;
+	unsigned long irqL;
+
+	if (pcmdpriv->padapter->eeprompriv.bautoload_fail_flag)
+		return;
+	if (!obj)
+		return;
+	queue = &pcmdpriv->cmd_queue;
+	spin_lock_irqsave(&queue->lock, irqL);
+	list_add_tail(&obj->list, &queue->queue);
+	spin_unlock_irqrestore(&queue->lock, irqL);
+	complete(&pcmdpriv->cmd_queue_comp);
+}
+
+struct cmd_obj *r8712_dequeue_cmd(struct  __queue *queue)
+>>>>>>> upstream/android-13
 {
 	unsigned long irqL;
 	struct cmd_obj *obj;
@@ -148,6 +213,7 @@ static struct cmd_obj *_dequeue_cmd(struct  __queue *queue)
 	return obj;
 }
 
+<<<<<<< HEAD
 u32 r8712_init_cmd_priv(struct cmd_priv *pcmdpriv)
 {
 	return _init_cmd_priv(pcmdpriv);
@@ -180,25 +246,37 @@ u32 r8712_enqueue_cmd(struct cmd_priv *pcmdpriv, struct cmd_obj *obj)
 }
 
 u32 r8712_enqueue_cmd_ex(struct cmd_priv *pcmdpriv, struct cmd_obj *obj)
+=======
+void r8712_enqueue_cmd_ex(struct cmd_priv *pcmdpriv, struct cmd_obj *obj)
+>>>>>>> upstream/android-13
 {
 	unsigned long irqL;
 	struct  __queue *queue;
 
 	if (!obj)
+<<<<<<< HEAD
 		return _SUCCESS;
 	if (pcmdpriv->padapter->eeprompriv.bautoload_fail_flag)
 		return _FAIL;
+=======
+		return;
+	if (pcmdpriv->padapter->eeprompriv.bautoload_fail_flag)
+		return;
+>>>>>>> upstream/android-13
 	queue = &pcmdpriv->cmd_queue;
 	spin_lock_irqsave(&queue->lock, irqL);
 	list_add_tail(&obj->list, &queue->queue);
 	spin_unlock_irqrestore(&queue->lock, irqL);
 	complete(&pcmdpriv->cmd_queue_comp);
+<<<<<<< HEAD
 	return _SUCCESS;
 }
 
 struct cmd_obj *r8712_dequeue_cmd(struct  __queue *queue)
 {
 	return _dequeue_cmd(queue);
+=======
+>>>>>>> upstream/android-13
 }
 
 void r8712_free_cmd_obj(struct cmd_obj *pcmd)
@@ -206,13 +284,18 @@ void r8712_free_cmd_obj(struct cmd_obj *pcmd)
 	if ((pcmd->cmdcode != _JoinBss_CMD_) &&
 	    (pcmd->cmdcode != _CreateBss_CMD_))
 		kfree(pcmd->parmbuf);
+<<<<<<< HEAD
 	if (pcmd->rsp != NULL) {
+=======
+	if (pcmd->rsp) {
+>>>>>>> upstream/android-13
 		if (pcmd->rspsz != 0)
 			kfree(pcmd->rsp);
 	}
 	kfree(pcmd);
 }
 
+<<<<<<< HEAD
 /*
  *	r8712_sitesurvey_cmd(~)
  *		### NOTE:#### (!!!!)
@@ -221,6 +304,11 @@ void r8712_free_cmd_obj(struct cmd_obj *pcmd)
  */
 u8 r8712_sitesurvey_cmd(struct _adapter *padapter,
 			struct ndis_802_11_ssid *pssid)
+=======
+u8 r8712_sitesurvey_cmd(struct _adapter *padapter,
+			struct ndis_802_11_ssid *pssid)
+	__must_hold(&padapter->mlmepriv.lock)
+>>>>>>> upstream/android-13
 {
 	struct cmd_obj	*ph2c;
 	struct sitesurvey_parm	*psurveyPara;
@@ -241,7 +329,11 @@ u8 r8712_sitesurvey_cmd(struct _adapter *padapter,
 	psurveyPara->passive_mode = cpu_to_le32(pmlmepriv->passive_mode);
 	psurveyPara->ss_ssidlen = 0;
 	memset(psurveyPara->ss_ssid, 0, IW_ESSID_MAX_SIZE + 1);
+<<<<<<< HEAD
 	if ((pssid != NULL) && (pssid->SsidLength)) {
+=======
+	if (pssid && pssid->SsidLength) {
+>>>>>>> upstream/android-13
 		int len = min_t(int, pssid->SsidLength, IW_ESSID_MAX_SIZE);
 
 		memcpy(psurveyPara->ss_ssid, pssid->Ssid, len);
@@ -256,7 +348,11 @@ u8 r8712_sitesurvey_cmd(struct _adapter *padapter,
 	return _SUCCESS;
 }
 
+<<<<<<< HEAD
 u8 r8712_setdatarate_cmd(struct _adapter *padapter, u8 *rateset)
+=======
+int r8712_setdatarate_cmd(struct _adapter *padapter, u8 *rateset)
+>>>>>>> upstream/android-13
 {
 	struct cmd_obj		*ph2c;
 	struct setdatarate_parm	*pbsetdataratepara;
@@ -264,21 +360,36 @@ u8 r8712_setdatarate_cmd(struct _adapter *padapter, u8 *rateset)
 
 	ph2c = kmalloc(sizeof(*ph2c), GFP_ATOMIC);
 	if (!ph2c)
+<<<<<<< HEAD
 		return _FAIL;
 	pbsetdataratepara = kmalloc(sizeof(*pbsetdataratepara), GFP_ATOMIC);
 	if (!pbsetdataratepara) {
 		kfree(ph2c);
 		return _FAIL;
+=======
+		return -ENOMEM;
+	pbsetdataratepara = kmalloc(sizeof(*pbsetdataratepara), GFP_ATOMIC);
+	if (!pbsetdataratepara) {
+		kfree(ph2c);
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 	}
 	init_h2fwcmd_w_parm_no_rsp(ph2c, pbsetdataratepara,
 				   GEN_CMD_CODE(_SetDataRate));
 	pbsetdataratepara->mac_id = 5;
 	memcpy(pbsetdataratepara->datarates, rateset, NumRates);
 	r8712_enqueue_cmd(pcmdpriv, ph2c);
+<<<<<<< HEAD
 	return _SUCCESS;
 }
 
 u8 r8712_set_chplan_cmd(struct _adapter *padapter, int chplan)
+=======
+	return 0;
+}
+
+void r8712_set_chplan_cmd(struct _adapter *padapter, int chplan)
+>>>>>>> upstream/android-13
 {
 	struct cmd_obj *ph2c;
 	struct SetChannelPlan_param *psetchplanpara;
@@ -286,16 +397,25 @@ u8 r8712_set_chplan_cmd(struct _adapter *padapter, int chplan)
 
 	ph2c = kmalloc(sizeof(*ph2c), GFP_ATOMIC);
 	if (!ph2c)
+<<<<<<< HEAD
 		return _FAIL;
 	psetchplanpara = kmalloc(sizeof(*psetchplanpara), GFP_ATOMIC);
 	if (!psetchplanpara) {
 		kfree(ph2c);
 		return _FAIL;
+=======
+		return;
+	psetchplanpara = kmalloc(sizeof(*psetchplanpara), GFP_ATOMIC);
+	if (!psetchplanpara) {
+		kfree(ph2c);
+		return;
+>>>>>>> upstream/android-13
 	}
 	init_h2fwcmd_w_parm_no_rsp(ph2c, psetchplanpara,
 				GEN_CMD_CODE(_SetChannelPlan));
 	psetchplanpara->ChannelPlan = chplan;
 	r8712_enqueue_cmd(pcmdpriv, ph2c);
+<<<<<<< HEAD
 	return _SUCCESS;
 }
 
@@ -361,6 +481,11 @@ u8 r8712_setfwra_cmd(struct _adapter *padapter, u8 type)
 }
 
 u8 r8712_setrfreg_cmd(struct _adapter  *padapter, u8 offset, u32 val)
+=======
+}
+
+int r8712_setrfreg_cmd(struct _adapter  *padapter, u8 offset, u32 val)
+>>>>>>> upstream/android-13
 {
 	struct cmd_obj *ph2c;
 	struct writeRF_parm *pwriterfparm;
@@ -368,20 +493,35 @@ u8 r8712_setrfreg_cmd(struct _adapter  *padapter, u8 offset, u32 val)
 
 	ph2c = kmalloc(sizeof(*ph2c), GFP_ATOMIC);
 	if (!ph2c)
+<<<<<<< HEAD
 		return _FAIL;
 	pwriterfparm = kmalloc(sizeof(*pwriterfparm), GFP_ATOMIC);
 	if (!pwriterfparm) {
 		kfree(ph2c);
 		return _FAIL;
+=======
+		return -ENOMEM;
+	pwriterfparm = kmalloc(sizeof(*pwriterfparm), GFP_ATOMIC);
+	if (!pwriterfparm) {
+		kfree(ph2c);
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 	}
 	init_h2fwcmd_w_parm_no_rsp(ph2c, pwriterfparm, GEN_CMD_CODE(_SetRFReg));
 	pwriterfparm->offset = offset;
 	pwriterfparm->value = val;
 	r8712_enqueue_cmd(pcmdpriv, ph2c);
+<<<<<<< HEAD
 	return _SUCCESS;
 }
 
 u8 r8712_getrfreg_cmd(struct _adapter *padapter, u8 offset, u8 *pval)
+=======
+	return 0;
+}
+
+int r8712_getrfreg_cmd(struct _adapter *padapter, u8 offset, u8 *pval)
+>>>>>>> upstream/android-13
 {
 	struct cmd_obj *ph2c;
 	struct readRF_parm *prdrfparm;
@@ -389,11 +529,19 @@ u8 r8712_getrfreg_cmd(struct _adapter *padapter, u8 offset, u8 *pval)
 
 	ph2c = kmalloc(sizeof(*ph2c), GFP_ATOMIC);
 	if (!ph2c)
+<<<<<<< HEAD
 		return _FAIL;
 	prdrfparm = kmalloc(sizeof(*prdrfparm), GFP_ATOMIC);
 	if (!prdrfparm) {
 		kfree(ph2c);
 		return _FAIL;
+=======
+		return -ENOMEM;
+	prdrfparm = kmalloc(sizeof(*prdrfparm), GFP_ATOMIC);
+	if (!prdrfparm) {
+		kfree(ph2c);
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 	}
 	INIT_LIST_HEAD(&ph2c->list);
 	ph2c->cmdcode = GEN_CMD_CODE(_GetRFReg);
@@ -403,7 +551,11 @@ u8 r8712_getrfreg_cmd(struct _adapter *padapter, u8 offset, u8 *pval)
 	ph2c->rspsz = sizeof(struct readRF_rsp);
 	prdrfparm->offset = offset;
 	r8712_enqueue_cmd(pcmdpriv, ph2c);
+<<<<<<< HEAD
 	return _SUCCESS;
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 void r8712_getbbrfreg_cmdrsp_callback(struct _adapter *padapter,
@@ -423,7 +575,11 @@ void r8712_readtssi_cmdrsp_callback(struct _adapter *padapter,
 	padapter->mppriv.workparam.bcompleted = true;
 }
 
+<<<<<<< HEAD
 u8 r8712_createbss_cmd(struct _adapter *padapter)
+=======
+int r8712_createbss_cmd(struct _adapter *padapter)
+>>>>>>> upstream/android-13
 {
 	struct cmd_obj *pcmd;
 	struct cmd_priv *pcmdpriv = &padapter->cmdpriv;
@@ -433,7 +589,11 @@ u8 r8712_createbss_cmd(struct _adapter *padapter)
 	padapter->ledpriv.LedControlHandler(padapter, LED_CTL_START_TO_LINK);
 	pcmd = kmalloc(sizeof(*pcmd), GFP_ATOMIC);
 	if (!pcmd)
+<<<<<<< HEAD
 		return _FAIL;
+=======
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 	INIT_LIST_HEAD(&pcmd->list);
 	pcmd->cmdcode = _CreateBss_CMD_;
 	pcmd->parmbuf = (unsigned char *)pdev_network;
@@ -445,10 +605,17 @@ u8 r8712_createbss_cmd(struct _adapter *padapter)
 	pdev_network->IELength = pdev_network->IELength;
 	pdev_network->Ssid.SsidLength =	pdev_network->Ssid.SsidLength;
 	r8712_enqueue_cmd(pcmdpriv, pcmd);
+<<<<<<< HEAD
 	return _SUCCESS;
 }
 
 u8 r8712_joinbss_cmd(struct _adapter  *padapter, struct wlan_network *pnetwork)
+=======
+	return 0;
+}
+
+int r8712_joinbss_cmd(struct _adapter  *padapter, struct wlan_network *pnetwork)
+>>>>>>> upstream/android-13
 {
 	struct wlan_bssid_ex *psecnetwork;
 	struct cmd_obj		*pcmd;
@@ -463,7 +630,11 @@ u8 r8712_joinbss_cmd(struct _adapter  *padapter, struct wlan_network *pnetwork)
 	padapter->ledpriv.LedControlHandler(padapter, LED_CTL_START_TO_LINK);
 	pcmd = kmalloc(sizeof(*pcmd), GFP_ATOMIC);
 	if (!pcmd)
+<<<<<<< HEAD
 		return _FAIL;
+=======
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 
 	/* for hidden ap to set fw_state here */
 	if (check_fwstate(pmlmepriv, WIFI_STATION_STATE | WIFI_ADHOC_STATE) !=
@@ -482,10 +653,13 @@ u8 r8712_joinbss_cmd(struct _adapter  *padapter, struct wlan_network *pnetwork)
 		}
 	}
 	psecnetwork = &psecuritypriv->sec_bss;
+<<<<<<< HEAD
 	if (!psecnetwork) {
 		kfree(pcmd);
 		return _FAIL;
 	}
+=======
+>>>>>>> upstream/android-13
 	memcpy(psecnetwork, &pnetwork->network, sizeof(*psecnetwork));
 	psecuritypriv->authenticator_ie[0] = (unsigned char)
 					     psecnetwork->IELength;
@@ -584,10 +758,17 @@ u8 r8712_joinbss_cmd(struct _adapter  *padapter, struct wlan_network *pnetwork)
 	pcmd->rsp = NULL;
 	pcmd->rspsz = 0;
 	r8712_enqueue_cmd(pcmdpriv, pcmd);
+<<<<<<< HEAD
 	return _SUCCESS;
 }
 
 u8 r8712_disassoc_cmd(struct _adapter *padapter) /* for sta_mode */
+=======
+	return 0;
+}
+
+void r8712_disassoc_cmd(struct _adapter *padapter) /* for sta_mode */
+>>>>>>> upstream/android-13
 {
 	struct cmd_obj *pdisconnect_cmd;
 	struct disconnect_parm *pdisconnect;
@@ -595,19 +776,33 @@ u8 r8712_disassoc_cmd(struct _adapter *padapter) /* for sta_mode */
 
 	pdisconnect_cmd = kmalloc(sizeof(*pdisconnect_cmd), GFP_ATOMIC);
 	if (!pdisconnect_cmd)
+<<<<<<< HEAD
 		return _FAIL;
 	pdisconnect = kmalloc(sizeof(*pdisconnect), GFP_ATOMIC);
 	if (!pdisconnect) {
 		kfree(pdisconnect_cmd);
 		return _FAIL;
+=======
+		return;
+	pdisconnect = kmalloc(sizeof(*pdisconnect), GFP_ATOMIC);
+	if (!pdisconnect) {
+		kfree(pdisconnect_cmd);
+		return;
+>>>>>>> upstream/android-13
 	}
 	init_h2fwcmd_w_parm_no_rsp(pdisconnect_cmd, pdisconnect,
 				   _DisConnect_CMD_);
 	r8712_enqueue_cmd(pcmdpriv, pdisconnect_cmd);
+<<<<<<< HEAD
 	return _SUCCESS;
 }
 
 u8 r8712_setopmode_cmd(struct _adapter *padapter,
+=======
+}
+
+void r8712_setopmode_cmd(struct _adapter *padapter,
+>>>>>>> upstream/android-13
 		 enum NDIS_802_11_NETWORK_INFRASTRUCTURE networktype)
 {
 	struct cmd_obj *ph2c;
@@ -617,19 +812,33 @@ u8 r8712_setopmode_cmd(struct _adapter *padapter,
 
 	ph2c = kmalloc(sizeof(*ph2c), GFP_ATOMIC);
 	if (!ph2c)
+<<<<<<< HEAD
 		return _FAIL;
 	psetop = kmalloc(sizeof(*psetop), GFP_ATOMIC);
 	if (!psetop) {
 		kfree(ph2c);
 		return _FAIL;
+=======
+		return;
+	psetop = kmalloc(sizeof(*psetop), GFP_ATOMIC);
+	if (!psetop) {
+		kfree(ph2c);
+		return;
+>>>>>>> upstream/android-13
 	}
 	init_h2fwcmd_w_parm_no_rsp(ph2c, psetop, _SetOpMode_CMD_);
 	psetop->mode = (u8)networktype;
 	r8712_enqueue_cmd(pcmdpriv, ph2c);
+<<<<<<< HEAD
 	return _SUCCESS;
 }
 
 u8 r8712_setstakey_cmd(struct _adapter *padapter, u8 *psta, u8 unicast_key)
+=======
+}
+
+void r8712_setstakey_cmd(struct _adapter *padapter, u8 *psta, u8 unicast_key)
+>>>>>>> upstream/android-13
 {
 	struct cmd_obj *ph2c;
 	struct set_stakey_parm *psetstakey_para;
@@ -641,17 +850,29 @@ u8 r8712_setstakey_cmd(struct _adapter *padapter, u8 *psta, u8 unicast_key)
 
 	ph2c = kmalloc(sizeof(*ph2c), GFP_ATOMIC);
 	if (!ph2c)
+<<<<<<< HEAD
 		return _FAIL;
 	psetstakey_para = kmalloc(sizeof(*psetstakey_para), GFP_ATOMIC);
 	if (!psetstakey_para) {
 		kfree(ph2c);
 		return _FAIL;
+=======
+		return;
+	psetstakey_para = kmalloc(sizeof(*psetstakey_para), GFP_ATOMIC);
+	if (!psetstakey_para) {
+		kfree(ph2c);
+		return;
+>>>>>>> upstream/android-13
 	}
 	psetstakey_rsp = kmalloc(sizeof(*psetstakey_rsp), GFP_ATOMIC);
 	if (!psetstakey_rsp) {
 		kfree(ph2c);
 		kfree(psetstakey_para);
+<<<<<<< HEAD
 		return _FAIL;
+=======
+		return;
+>>>>>>> upstream/android-13
 	}
 	init_h2fwcmd_w_parm_no_rsp(ph2c, psetstakey_para, _SetStaKey_CMD_);
 	ph2c->rsp = (u8 *) psetstakey_rsp;
@@ -670,6 +891,7 @@ u8 r8712_setstakey_cmd(struct _adapter *padapter, u8 *psta, u8 unicast_key)
 			&psecuritypriv->XGrpKey[
 			psecuritypriv->XGrpKeyid - 1]. skey, 16);
 	r8712_enqueue_cmd(pcmdpriv, ph2c);
+<<<<<<< HEAD
 	return _SUCCESS;
 }
 
@@ -717,6 +939,11 @@ u8 r8712_setrttbl_cmd(struct _adapter *padapter,
 }
 
 u8 r8712_setMacAddr_cmd(struct _adapter *padapter, u8 *mac_addr)
+=======
+}
+
+void r8712_setMacAddr_cmd(struct _adapter *padapter, u8 *mac_addr)
+>>>>>>> upstream/android-13
 {
 	struct cmd_priv	*pcmdpriv = &padapter->cmdpriv;
 	struct cmd_obj *ph2c;
@@ -724,16 +951,25 @@ u8 r8712_setMacAddr_cmd(struct _adapter *padapter, u8 *mac_addr)
 
 	ph2c = kmalloc(sizeof(*ph2c), GFP_ATOMIC);
 	if (!ph2c)
+<<<<<<< HEAD
 		return _FAIL;
 	psetMacAddr_para = kmalloc(sizeof(*psetMacAddr_para), GFP_ATOMIC);
 	if (!psetMacAddr_para) {
 		kfree(ph2c);
 		return _FAIL;
+=======
+		return;
+	psetMacAddr_para = kmalloc(sizeof(*psetMacAddr_para), GFP_ATOMIC);
+	if (!psetMacAddr_para) {
+		kfree(ph2c);
+		return;
+>>>>>>> upstream/android-13
 	}
 	init_h2fwcmd_w_parm_no_rsp(ph2c, psetMacAddr_para,
 				   _SetMacAddress_CMD_);
 	ether_addr_copy(psetMacAddr_para->MacAddr, mac_addr);
 	r8712_enqueue_cmd(pcmdpriv, ph2c);
+<<<<<<< HEAD
 	return _SUCCESS;
 }
 
@@ -767,6 +1003,11 @@ u8 r8712_setassocsta_cmd(struct _adapter *padapter, u8 *mac_addr)
 }
 
 u8 r8712_addbareq_cmd(struct _adapter *padapter, u8 tid)
+=======
+}
+
+void r8712_addbareq_cmd(struct _adapter *padapter, u8 tid)
+>>>>>>> upstream/android-13
 {
 	struct cmd_priv		*pcmdpriv = &padapter->cmdpriv;
 	struct cmd_obj		*ph2c;
@@ -774,20 +1015,34 @@ u8 r8712_addbareq_cmd(struct _adapter *padapter, u8 tid)
 
 	ph2c = kmalloc(sizeof(*ph2c), GFP_ATOMIC);
 	if (!ph2c)
+<<<<<<< HEAD
 		return _FAIL;
 	paddbareq_parm = kmalloc(sizeof(*paddbareq_parm), GFP_ATOMIC);
 	if (!paddbareq_parm) {
 		kfree(ph2c);
 		return _FAIL;
+=======
+		return;
+	paddbareq_parm = kmalloc(sizeof(*paddbareq_parm), GFP_ATOMIC);
+	if (!paddbareq_parm) {
+		kfree(ph2c);
+		return;
+>>>>>>> upstream/android-13
 	}
 	paddbareq_parm->tid = tid;
 	init_h2fwcmd_w_parm_no_rsp(ph2c, paddbareq_parm,
 				   GEN_CMD_CODE(_AddBAReq));
 	r8712_enqueue_cmd_ex(pcmdpriv, ph2c);
+<<<<<<< HEAD
 	return _SUCCESS;
 }
 
 u8 r8712_wdg_wk_cmd(struct _adapter *padapter)
+=======
+}
+
+void r8712_wdg_wk_cmd(struct _adapter *padapter)
+>>>>>>> upstream/android-13
 {
 	struct cmd_obj *ph2c;
 	struct drvint_cmd_parm  *pdrvintcmd_param;
@@ -795,18 +1050,29 @@ u8 r8712_wdg_wk_cmd(struct _adapter *padapter)
 
 	ph2c = kmalloc(sizeof(*ph2c), GFP_ATOMIC);
 	if (!ph2c)
+<<<<<<< HEAD
 		return _FAIL;
 	pdrvintcmd_param = kmalloc(sizeof(*pdrvintcmd_param), GFP_ATOMIC);
 	if (!pdrvintcmd_param) {
 		kfree(ph2c);
 		return _FAIL;
+=======
+		return;
+	pdrvintcmd_param = kmalloc(sizeof(*pdrvintcmd_param), GFP_ATOMIC);
+	if (!pdrvintcmd_param) {
+		kfree(ph2c);
+		return;
+>>>>>>> upstream/android-13
 	}
 	pdrvintcmd_param->i_cid = WDG_WK_CID;
 	pdrvintcmd_param->sz = 0;
 	pdrvintcmd_param->pbuf = NULL;
 	init_h2fwcmd_w_parm_no_rsp(ph2c, pdrvintcmd_param, _DRV_INT_CMD_);
 	r8712_enqueue_cmd_ex(pcmdpriv, ph2c);
+<<<<<<< HEAD
 	return _SUCCESS;
+=======
+>>>>>>> upstream/android-13
 }
 
 void r8712_survey_cmd_callback(struct _adapter *padapter, struct cmd_obj *pcmd)
@@ -963,7 +1229,11 @@ void r8712_setassocsta_cmdrsp_callback(struct _adapter *padapter,
 	r8712_free_cmd_obj(pcmd);
 }
 
+<<<<<<< HEAD
 u8 r8712_disconnectCtrlEx_cmd(struct _adapter *adapter, u32 enableDrvCtrl,
+=======
+void r8712_disconnectCtrlEx_cmd(struct _adapter *adapter, u32 enableDrvCtrl,
+>>>>>>> upstream/android-13
 			u32 tryPktCnt, u32 tryPktInterval, u32 firstStageTO)
 {
 	struct cmd_obj *ph2c;
@@ -972,11 +1242,19 @@ u8 r8712_disconnectCtrlEx_cmd(struct _adapter *adapter, u32 enableDrvCtrl,
 
 	ph2c = kmalloc(sizeof(*ph2c), GFP_ATOMIC);
 	if (!ph2c)
+<<<<<<< HEAD
 		return _FAIL;
 	param = kzalloc(sizeof(*param), GFP_ATOMIC);
 	if (!param) {
 		kfree(ph2c);
 		return _FAIL;
+=======
+		return;
+	param = kzalloc(sizeof(*param), GFP_ATOMIC);
+	if (!param) {
+		kfree(ph2c);
+		return;
+>>>>>>> upstream/android-13
 	}
 
 	param->EnableDrvCtrl = (unsigned char)enableDrvCtrl;
@@ -987,5 +1265,8 @@ u8 r8712_disconnectCtrlEx_cmd(struct _adapter *adapter, u32 enableDrvCtrl,
 	init_h2fwcmd_w_parm_no_rsp(ph2c, param,
 				GEN_CMD_CODE(_DisconnectCtrlEx));
 	r8712_enqueue_cmd(pcmdpriv, ph2c);
+<<<<<<< HEAD
 	return _SUCCESS;
+=======
+>>>>>>> upstream/android-13
 }

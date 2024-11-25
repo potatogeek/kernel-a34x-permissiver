@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  *  arch/arm/include/asm/tlbflush.h
  *
  *  Copyright (C) 1999-2003 Russell King
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef _ASMARM_TLBFLUSH_H
 #define _ASMARM_TLBFLUSH_H
@@ -256,7 +263,11 @@ extern struct cpu_tlb_fns cpu_tlb;
  *		space.
  *		- mm	- mm_struct describing address space
  *
+<<<<<<< HEAD
  *	flush_tlb_range(mm,start,end)
+=======
+ *	flush_tlb_range(vma,start,end)
+>>>>>>> upstream/android-13
  *
  *		Invalidate a range of TLB entries in the specified
  *		address space.
@@ -264,6 +275,7 @@ extern struct cpu_tlb_fns cpu_tlb;
  *		- start - start address (may not be aligned)
  *		- end	- end address (exclusive, may not be aligned)
  *
+<<<<<<< HEAD
  *	flush_tlb_page(vaddr,vma)
  *
  *		Invalidate the specified page in the specified address range.
@@ -276,6 +288,13 @@ extern struct cpu_tlb_fns cpu_tlb;
  *		will be in the kernels virtual memory space.  Current uses
  *		only require the D-TLB to be invalidated.
  *		- kaddr - Kernel virtual memory address
+=======
+ *	flush_tlb_page(vma, uaddr)
+ *
+ *		Invalidate the specified page in the specified address range.
+ *		- vma	- vm_area_struct describing address range
+ *		- vaddr - virtual address (may not be aligned)
+>>>>>>> upstream/android-13
  */
 
 /*

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2012,2013 - ARM Ltd
  * Author: Marc Zyngier <marc.zyngier@arm.com>
@@ -13,6 +14,12 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) 2012,2013 - ARM Ltd
+ * Author: Marc Zyngier <marc.zyngier@arm.com>
+>>>>>>> upstream/android-13
  */
 
 #ifndef __KVM_ARM_PSCI_H__
@@ -24,8 +31,14 @@
 #define KVM_ARM_PSCI_0_1	PSCI_VERSION(0, 1)
 #define KVM_ARM_PSCI_0_2	PSCI_VERSION(0, 2)
 #define KVM_ARM_PSCI_1_0	PSCI_VERSION(1, 0)
+<<<<<<< HEAD
 
 #define KVM_ARM_PSCI_LATEST	KVM_ARM_PSCI_1_0
+=======
+#define KVM_ARM_PSCI_1_1	PSCI_VERSION(1, 1)
+
+#define KVM_ARM_PSCI_LATEST	KVM_ARM_PSCI_1_1
+>>>>>>> upstream/android-13
 
 /*
  * We need the KVM pointer independently from the vcpu as we can call
@@ -51,7 +64,11 @@ static inline int kvm_psci_version(struct kvm_vcpu *vcpu, struct kvm *kvm)
 }
 
 
+<<<<<<< HEAD
 int kvm_hvc_call_handler(struct kvm_vcpu *vcpu);
+=======
+int kvm_psci_call(struct kvm_vcpu *vcpu);
+>>>>>>> upstream/android-13
 
 struct kvm_one_reg;
 

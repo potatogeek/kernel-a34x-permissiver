@@ -22,11 +22,18 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
  */
+<<<<<<< HEAD
 #include <linux/pm_runtime.h>
 
 #include <drm/drmP.h>
 #include <drm/drm_crtc_helper.h>
 #include <drm/drm_plane_helper.h>
+=======
+#include <drm/drm_crtc_helper.h>
+#include <drm/drm_fourcc.h>
+#include <drm/drm_plane_helper.h>
+#include <drm/drm_vblank.h>
+>>>>>>> upstream/android-13
 
 #include "nouveau_drv.h"
 #include "nouveau_reg.h"
@@ -40,10 +47,22 @@
 #include "nvreg.h"
 #include "nouveau_fbcon.h"
 #include "disp.h"
+<<<<<<< HEAD
+=======
+#include "nouveau_dma.h"
+>>>>>>> upstream/android-13
 
 #include <subdev/bios/pll.h>
 #include <subdev/clk.h>
 
+<<<<<<< HEAD
+=======
+#include <nvif/push006c.h>
+
+#include <nvif/event.h>
+#include <nvif/cl0046.h>
+
+>>>>>>> upstream/android-13
 static int
 nv04_crtc_mode_set_base(struct drm_crtc *crtc, int x, int y,
 			struct drm_framebuffer *old_fb);
@@ -605,6 +624,7 @@ static int
 nv_crtc_swap_fbs(struct drm_crtc *crtc, struct drm_framebuffer *old_fb)
 {
 	struct nv04_display *disp = nv04_display(crtc->dev);
+<<<<<<< HEAD
 	struct nouveau_framebuffer *nvfb = nouveau_framebuffer(crtc->primary->fb);
 	struct nouveau_crtc *nv_crtc = nouveau_crtc(crtc);
 	int ret;
@@ -614,6 +634,18 @@ nv_crtc_swap_fbs(struct drm_crtc *crtc, struct drm_framebuffer *old_fb)
 		if (disp->image[nv_crtc->index])
 			nouveau_bo_unpin(disp->image[nv_crtc->index]);
 		nouveau_bo_ref(nvfb->nvbo, &disp->image[nv_crtc->index]);
+=======
+	struct drm_framebuffer *fb = crtc->primary->fb;
+	struct nouveau_bo *nvbo = nouveau_gem_object(fb->obj[0]);
+	struct nouveau_crtc *nv_crtc = nouveau_crtc(crtc);
+	int ret;
+
+	ret = nouveau_bo_pin(nvbo, NOUVEAU_GEM_DOMAIN_VRAM, false);
+	if (ret == 0) {
+		if (disp->image[nv_crtc->index])
+			nouveau_bo_unpin(disp->image[nv_crtc->index]);
+		nouveau_bo_ref(nvbo, &disp->image[nv_crtc->index]);
+>>>>>>> upstream/android-13
 	}
 
 	return ret;
@@ -755,6 +787,10 @@ static void nv_crtc_destroy(struct drm_crtc *crtc)
 	nouveau_bo_unmap(nv_crtc->cursor.nvbo);
 	nouveau_bo_unpin(nv_crtc->cursor.nvbo);
 	nouveau_bo_ref(NULL, &nv_crtc->cursor.nvbo);
+<<<<<<< HEAD
+=======
+	nvif_notify_dtor(&nv_crtc->vblank);
+>>>>>>> upstream/android-13
 	kfree(nv_crtc);
 }
 
@@ -822,8 +858,13 @@ nv04_crtc_do_mode_set_base(struct drm_crtc *crtc,
 	struct drm_device *dev = crtc->dev;
 	struct nouveau_drm *drm = nouveau_drm(dev);
 	struct nv04_crtc_reg *regp = &nv04_display(dev)->mode_reg.crtc_reg[nv_crtc->index];
+<<<<<<< HEAD
 	struct drm_framebuffer *drm_fb;
 	struct nouveau_framebuffer *fb;
+=======
+	struct nouveau_bo *nvbo;
+	struct drm_framebuffer *drm_fb;
+>>>>>>> upstream/android-13
 	int arb_burst, arb_lwm;
 
 	NV_DEBUG(drm, "index %d\n", nv_crtc->index);
@@ -839,6 +880,7 @@ nv04_crtc_do_mode_set_base(struct drm_crtc *crtc,
 	 */
 	if (atomic) {
 		drm_fb = passed_fb;
+<<<<<<< HEAD
 		fb = nouveau_framebuffer(passed_fb);
 	} else {
 		drm_fb = crtc->primary->fb;
@@ -846,6 +888,14 @@ nv04_crtc_do_mode_set_base(struct drm_crtc *crtc,
 	}
 
 	nv_crtc->fb.offset = fb->nvbo->bo.offset;
+=======
+	} else {
+		drm_fb = crtc->primary->fb;
+	}
+
+	nvbo = nouveau_gem_object(drm_fb->obj[0]);
+	nv_crtc->fb.offset = nvbo->offset;
+>>>>>>> upstream/android-13
 
 	if (nv_crtc->lut.depth != drm_fb->format->depth) {
 		nv_crtc->lut.depth = drm_fb->format->depth;
@@ -1013,11 +1063,19 @@ nv04_crtc_cursor_set(struct drm_crtc *crtc, struct drm_file *file_priv,
 		nv04_cursor_upload(dev, cursor, nv_crtc->cursor.nvbo);
 
 	nouveau_bo_unmap(cursor);
+<<<<<<< HEAD
 	nv_crtc->cursor.offset = nv_crtc->cursor.nvbo->bo.offset;
 	nv_crtc->cursor.set_offset(nv_crtc, nv_crtc->cursor.offset);
 	nv_crtc->cursor.show(nv_crtc, true);
 out:
 	drm_gem_object_put_unlocked(gem);
+=======
+	nv_crtc->cursor.offset = nv_crtc->cursor.nvbo->offset;
+	nv_crtc->cursor.set_offset(nv_crtc, nv_crtc->cursor.offset);
+	nv_crtc->cursor.show(nv_crtc, true);
+out:
+	drm_gem_object_put(gem);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -1030,6 +1088,7 @@ nv04_crtc_cursor_move(struct drm_crtc *crtc, int x, int y)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int
 nouveau_crtc_set_config(struct drm_mode_set *set,
 			struct drm_modeset_acquire_ctx *ctx)
@@ -1074,6 +1133,215 @@ nouveau_crtc_set_config(struct drm_mode_set *set,
 	}
 	/* drop the power reference we got coming in here */
 	pm_runtime_put_autosuspend(dev->dev);
+=======
+struct nv04_page_flip_state {
+	struct list_head head;
+	struct drm_pending_vblank_event *event;
+	struct drm_crtc *crtc;
+	int bpp, pitch;
+	u64 offset;
+};
+
+static int
+nv04_finish_page_flip(struct nouveau_channel *chan,
+		      struct nv04_page_flip_state *ps)
+{
+	struct nouveau_fence_chan *fctx = chan->fence;
+	struct nouveau_drm *drm = chan->drm;
+	struct drm_device *dev = drm->dev;
+	struct nv04_page_flip_state *s;
+	unsigned long flags;
+
+	spin_lock_irqsave(&dev->event_lock, flags);
+
+	if (list_empty(&fctx->flip)) {
+		NV_ERROR(drm, "unexpected pageflip\n");
+		spin_unlock_irqrestore(&dev->event_lock, flags);
+		return -EINVAL;
+	}
+
+	s = list_first_entry(&fctx->flip, struct nv04_page_flip_state, head);
+	if (s->event) {
+		drm_crtc_arm_vblank_event(s->crtc, s->event);
+	} else {
+		/* Give up ownership of vblank for page-flipped crtc */
+		drm_crtc_vblank_put(s->crtc);
+	}
+
+	list_del(&s->head);
+	if (ps)
+		*ps = *s;
+	kfree(s);
+
+	spin_unlock_irqrestore(&dev->event_lock, flags);
+	return 0;
+}
+
+int
+nv04_flip_complete(struct nvif_notify *notify)
+{
+	struct nouveau_cli *cli = (void *)notify->object->client;
+	struct nouveau_drm *drm = cli->drm;
+	struct nouveau_channel *chan = drm->channel;
+	struct nv04_page_flip_state state;
+
+	if (!nv04_finish_page_flip(chan, &state)) {
+		nv_set_crtc_base(drm->dev, drm_crtc_index(state.crtc),
+				 state.offset + state.crtc->y *
+				 state.pitch + state.crtc->x *
+				 state.bpp / 8);
+	}
+
+	return NVIF_NOTIFY_KEEP;
+}
+
+static int
+nv04_page_flip_emit(struct nouveau_channel *chan,
+		    struct nouveau_bo *old_bo,
+		    struct nouveau_bo *new_bo,
+		    struct nv04_page_flip_state *s,
+		    struct nouveau_fence **pfence)
+{
+	struct nouveau_fence_chan *fctx = chan->fence;
+	struct nouveau_drm *drm = chan->drm;
+	struct drm_device *dev = drm->dev;
+	struct nvif_push *push = chan->chan.push;
+	unsigned long flags;
+	int ret;
+
+	/* Queue it to the pending list */
+	spin_lock_irqsave(&dev->event_lock, flags);
+	list_add_tail(&s->head, &fctx->flip);
+	spin_unlock_irqrestore(&dev->event_lock, flags);
+
+	/* Synchronize with the old framebuffer */
+	ret = nouveau_fence_sync(old_bo, chan, false, false);
+	if (ret)
+		goto fail;
+
+	/* Emit the pageflip */
+	ret = PUSH_WAIT(push, 2);
+	if (ret)
+		goto fail;
+
+	PUSH_NVSQ(push, NV_SW, NV_SW_PAGE_FLIP, 0x00000000);
+	PUSH_KICK(push);
+
+	ret = nouveau_fence_new(chan, false, pfence);
+	if (ret)
+		goto fail;
+
+	return 0;
+fail:
+	spin_lock_irqsave(&dev->event_lock, flags);
+	list_del(&s->head);
+	spin_unlock_irqrestore(&dev->event_lock, flags);
+	return ret;
+}
+
+static int
+nv04_crtc_page_flip(struct drm_crtc *crtc, struct drm_framebuffer *fb,
+		    struct drm_pending_vblank_event *event, u32 flags,
+		    struct drm_modeset_acquire_ctx *ctx)
+{
+	const int swap_interval = (flags & DRM_MODE_PAGE_FLIP_ASYNC) ? 0 : 1;
+	struct drm_device *dev = crtc->dev;
+	struct nouveau_drm *drm = nouveau_drm(dev);
+	struct drm_framebuffer *old_fb = crtc->primary->fb;
+	struct nouveau_bo *old_bo = nouveau_gem_object(old_fb->obj[0]);
+	struct nouveau_bo *new_bo = nouveau_gem_object(fb->obj[0]);
+	struct nv04_page_flip_state *s;
+	struct nouveau_channel *chan;
+	struct nouveau_cli *cli;
+	struct nouveau_fence *fence;
+	struct nv04_display *dispnv04 = nv04_display(dev);
+	struct nvif_push *push;
+	int head = nouveau_crtc(crtc)->index;
+	int ret;
+
+	chan = drm->channel;
+	if (!chan)
+		return -ENODEV;
+	cli = (void *)chan->user.client;
+	push = chan->chan.push;
+
+	s = kzalloc(sizeof(*s), GFP_KERNEL);
+	if (!s)
+		return -ENOMEM;
+
+	if (new_bo != old_bo) {
+		ret = nouveau_bo_pin(new_bo, NOUVEAU_GEM_DOMAIN_VRAM, true);
+		if (ret)
+			goto fail_free;
+	}
+
+	mutex_lock(&cli->mutex);
+	ret = ttm_bo_reserve(&new_bo->bo, true, false, NULL);
+	if (ret)
+		goto fail_unpin;
+
+	/* synchronise rendering channel with the kernel's channel */
+	ret = nouveau_fence_sync(new_bo, chan, false, true);
+	if (ret) {
+		ttm_bo_unreserve(&new_bo->bo);
+		goto fail_unpin;
+	}
+
+	if (new_bo != old_bo) {
+		ttm_bo_unreserve(&new_bo->bo);
+
+		ret = ttm_bo_reserve(&old_bo->bo, true, false, NULL);
+		if (ret)
+			goto fail_unpin;
+	}
+
+	/* Initialize a page flip struct */
+	*s = (struct nv04_page_flip_state)
+		{ { }, event, crtc, fb->format->cpp[0] * 8, fb->pitches[0],
+		  new_bo->offset };
+
+	/* Keep vblanks on during flip, for the target crtc of this flip */
+	drm_crtc_vblank_get(crtc);
+
+	/* Emit a page flip */
+	if (swap_interval) {
+		ret = PUSH_WAIT(push, 8);
+		if (ret)
+			goto fail_unreserve;
+
+		PUSH_NVSQ(push, NV05F, 0x012c, 0);
+		PUSH_NVSQ(push, NV05F, 0x0134, head);
+		PUSH_NVSQ(push, NV05F, 0x0100, 0);
+		PUSH_NVSQ(push, NV05F, 0x0130, 0);
+	}
+
+	nouveau_bo_ref(new_bo, &dispnv04->image[head]);
+
+	ret = nv04_page_flip_emit(chan, old_bo, new_bo, s, &fence);
+	if (ret)
+		goto fail_unreserve;
+	mutex_unlock(&cli->mutex);
+
+	/* Update the crtc struct and cleanup */
+	crtc->primary->fb = fb;
+
+	nouveau_bo_fence(old_bo, fence, false);
+	ttm_bo_unreserve(&old_bo->bo);
+	if (old_bo != new_bo)
+		nouveau_bo_unpin(old_bo);
+	nouveau_fence_unref(&fence);
+	return 0;
+
+fail_unreserve:
+	drm_crtc_vblank_put(crtc);
+	ttm_bo_unreserve(&old_bo->bo);
+fail_unpin:
+	mutex_unlock(&cli->mutex);
+	if (old_bo != new_bo)
+		nouveau_bo_unpin(new_bo);
+fail_free:
+	kfree(s);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -1081,9 +1349,18 @@ static const struct drm_crtc_funcs nv04_crtc_funcs = {
 	.cursor_set = nv04_crtc_cursor_set,
 	.cursor_move = nv04_crtc_cursor_move,
 	.gamma_set = nv_crtc_gamma_set,
+<<<<<<< HEAD
 	.set_config = nouveau_crtc_set_config,
 	.page_flip = nouveau_crtc_page_flip,
 	.destroy = nv_crtc_destroy,
+=======
+	.set_config = drm_crtc_helper_set_config,
+	.page_flip = nv04_crtc_page_flip,
+	.destroy = nv_crtc_destroy,
+	.enable_vblank = nouveau_display_vblank_enable,
+	.disable_vblank = nouveau_display_vblank_disable,
+	.get_vblank_timestamp = drm_crtc_vblank_helper_get_vblank_timestamp,
+>>>>>>> upstream/android-13
 };
 
 static const struct drm_crtc_helper_funcs nv04_crtc_helper_funcs = {
@@ -1094,6 +1371,10 @@ static const struct drm_crtc_helper_funcs nv04_crtc_helper_funcs = {
 	.mode_set_base = nv04_crtc_mode_set_base,
 	.mode_set_base_atomic = nv04_crtc_mode_set_base_atomic,
 	.disable = nv_crtc_disable,
+<<<<<<< HEAD
+=======
+	.get_scanout_position = nouveau_display_scanoutpos,
+>>>>>>> upstream/android-13
 };
 
 static const uint32_t modeset_formats[] = {
@@ -1128,9 +1409,25 @@ create_primary_plane(struct drm_device *dev)
         return primary;
 }
 
+<<<<<<< HEAD
 int
 nv04_crtc_create(struct drm_device *dev, int crtc_num)
 {
+=======
+static int nv04_crtc_vblank_handler(struct nvif_notify *notify)
+{
+	struct nouveau_crtc *nv_crtc =
+		container_of(notify, struct nouveau_crtc, vblank);
+
+	drm_crtc_handle_vblank(&nv_crtc->base);
+	return NVIF_NOTIFY_KEEP;
+}
+
+int
+nv04_crtc_create(struct drm_device *dev, int crtc_num)
+{
+	struct nouveau_display *disp = nouveau_display(dev);
+>>>>>>> upstream/android-13
 	struct nouveau_crtc *nv_crtc;
 	int ret;
 
@@ -1153,10 +1450,18 @@ nv04_crtc_create(struct drm_device *dev, int crtc_num)
 	drm_mode_crtc_set_gamma_size(&nv_crtc->base, 256);
 
 	ret = nouveau_bo_new(&nouveau_drm(dev)->client, 64*64*4, 0x100,
+<<<<<<< HEAD
 			     TTM_PL_FLAG_VRAM, 0, 0x0000, NULL, NULL,
 			     &nv_crtc->cursor.nvbo);
 	if (!ret) {
 		ret = nouveau_bo_pin(nv_crtc->cursor.nvbo, TTM_PL_FLAG_VRAM, false);
+=======
+			     NOUVEAU_GEM_DOMAIN_VRAM, 0, 0x0000, NULL, NULL,
+			     &nv_crtc->cursor.nvbo);
+	if (!ret) {
+		ret = nouveau_bo_pin(nv_crtc->cursor.nvbo,
+				     NOUVEAU_GEM_DOMAIN_VRAM, false);
+>>>>>>> upstream/android-13
 		if (!ret) {
 			ret = nouveau_bo_map(nv_crtc->cursor.nvbo);
 			if (ret)
@@ -1168,5 +1473,18 @@ nv04_crtc_create(struct drm_device *dev, int crtc_num)
 
 	nv04_cursor_init(nv_crtc);
 
+<<<<<<< HEAD
 	return 0;
+=======
+	ret = nvif_notify_ctor(&disp->disp.object, "kmsVbl", nv04_crtc_vblank_handler,
+			       false, NV04_DISP_NTFY_VBLANK,
+			       &(struct nvif_notify_head_req_v0) {
+				    .head = nv_crtc->index,
+			       },
+			       sizeof(struct nvif_notify_head_req_v0),
+			       sizeof(struct nvif_notify_head_rep_v0),
+			       &nv_crtc->vblank);
+
+	return ret;
+>>>>>>> upstream/android-13
 }

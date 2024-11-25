@@ -1,8 +1,18 @@
+<<<<<<< HEAD
 #define pr_fmt(fmt) "%s: " fmt "\n", __func__
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+#define pr_fmt(fmt) "%s: " fmt, __func__
+>>>>>>> upstream/android-13
 
 #include <linux/kernel.h>
 #include <linux/sched.h>
 #include <linux/wait.h>
+<<<<<<< HEAD
+=======
+#include <linux/slab.h>
+#include <linux/mm.h>
+>>>>>>> upstream/android-13
 #include <linux/percpu-refcount.h>
 
 /*
@@ -49,9 +59,16 @@ static unsigned long __percpu *percpu_count_ptr(struct percpu_ref *ref)
  * @flags: PERCPU_REF_INIT_* flags
  * @gfp: allocation mask to use
  *
+<<<<<<< HEAD
  * Initializes @ref.  If @flags is zero, @ref starts in percpu mode with a
  * refcount of 1; analagous to atomic_long_set(ref, 1).  See the
  * definitions of PERCPU_REF_INIT_* flags for flag behaviors.
+=======
+ * Initializes @ref.  @ref starts out in percpu mode with a refcount of 1 unless
+ * @flags contains PERCPU_REF_INIT_ATOMIC or PERCPU_REF_INIT_DEAD.  These flags
+ * change the start state to atomic with the latter setting the initial refcount
+ * to 0.  See the definitions of PERCPU_REF_INIT_* flags for flag behaviors.
+>>>>>>> upstream/android-13
  *
  * Note that @release must not sleep - it may potentially be called from RCU
  * callback context by percpu_ref_kill().
@@ -62,32 +79,78 @@ int percpu_ref_init(struct percpu_ref *ref, percpu_ref_func_t *release,
 	size_t align = max_t(size_t, 1 << __PERCPU_REF_FLAG_BITS,
 			     __alignof__(unsigned long));
 	unsigned long start_count = 0;
+<<<<<<< HEAD
+=======
+	struct percpu_ref_data *data;
+>>>>>>> upstream/android-13
 
 	ref->percpu_count_ptr = (unsigned long)
 		__alloc_percpu_gfp(sizeof(unsigned long), align, gfp);
 	if (!ref->percpu_count_ptr)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	ref->force_atomic = flags & PERCPU_REF_INIT_ATOMIC;
 
 	if (flags & (PERCPU_REF_INIT_ATOMIC | PERCPU_REF_INIT_DEAD))
 		ref->percpu_count_ptr |= __PERCPU_REF_ATOMIC;
 	else
 		start_count += PERCPU_COUNT_BIAS;
+=======
+	data = kzalloc(sizeof(*ref->data), gfp);
+	if (!data) {
+		free_percpu((void __percpu *)ref->percpu_count_ptr);
+		return -ENOMEM;
+	}
+
+	data->force_atomic = flags & PERCPU_REF_INIT_ATOMIC;
+	data->allow_reinit = flags & PERCPU_REF_ALLOW_REINIT;
+
+	if (flags & (PERCPU_REF_INIT_ATOMIC | PERCPU_REF_INIT_DEAD)) {
+		ref->percpu_count_ptr |= __PERCPU_REF_ATOMIC;
+		data->allow_reinit = true;
+	} else {
+		start_count += PERCPU_COUNT_BIAS;
+	}
+>>>>>>> upstream/android-13
 
 	if (flags & PERCPU_REF_INIT_DEAD)
 		ref->percpu_count_ptr |= __PERCPU_REF_DEAD;
 	else
 		start_count++;
 
+<<<<<<< HEAD
 	atomic_long_set(&ref->count, start_count);
 
 	ref->release = release;
 	ref->confirm_switch = NULL;
+=======
+	atomic_long_set(&data->count, start_count);
+
+	data->release = release;
+	data->confirm_switch = NULL;
+	data->ref = ref;
+	ref->data = data;
+>>>>>>> upstream/android-13
 	return 0;
 }
 EXPORT_SYMBOL_GPL(percpu_ref_init);
 
+<<<<<<< HEAD
+=======
+static void __percpu_ref_exit(struct percpu_ref *ref)
+{
+	unsigned long __percpu *percpu_count = percpu_count_ptr(ref);
+
+	if (percpu_count) {
+		/* non-NULL confirm_switch indicates switching in progress */
+		WARN_ON_ONCE(ref->data && ref->data->confirm_switch);
+		free_percpu(percpu_count);
+		ref->percpu_count_ptr = __PERCPU_REF_ATOMIC_DEAD;
+	}
+}
+
+>>>>>>> upstream/android-13
 /**
  * percpu_ref_exit - undo percpu_ref_init()
  * @ref: percpu_ref to exit
@@ -100,6 +163,7 @@ EXPORT_SYMBOL_GPL(percpu_ref_init);
  */
 void percpu_ref_exit(struct percpu_ref *ref)
 {
+<<<<<<< HEAD
 	unsigned long __percpu *percpu_count = percpu_count_ptr(ref);
 
 	if (percpu_count) {
@@ -108,33 +172,77 @@ void percpu_ref_exit(struct percpu_ref *ref)
 		free_percpu(percpu_count);
 		ref->percpu_count_ptr = __PERCPU_REF_ATOMIC_DEAD;
 	}
+=======
+	struct percpu_ref_data *data = ref->data;
+	unsigned long flags;
+
+	__percpu_ref_exit(ref);
+
+	if (!data)
+		return;
+
+	spin_lock_irqsave(&percpu_ref_switch_lock, flags);
+	ref->percpu_count_ptr |= atomic_long_read(&ref->data->count) <<
+		__PERCPU_REF_FLAG_BITS;
+	ref->data = NULL;
+	spin_unlock_irqrestore(&percpu_ref_switch_lock, flags);
+
+	kfree(data);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(percpu_ref_exit);
 
 static void percpu_ref_call_confirm_rcu(struct rcu_head *rcu)
 {
+<<<<<<< HEAD
 	struct percpu_ref *ref = container_of(rcu, struct percpu_ref, rcu);
 
 	ref->confirm_switch(ref);
 	ref->confirm_switch = NULL;
 	wake_up_all(&percpu_ref_switch_waitq);
 
+=======
+	struct percpu_ref_data *data = container_of(rcu,
+			struct percpu_ref_data, rcu);
+	struct percpu_ref *ref = data->ref;
+
+	data->confirm_switch(ref);
+	data->confirm_switch = NULL;
+	wake_up_all(&percpu_ref_switch_waitq);
+
+	if (!data->allow_reinit)
+		__percpu_ref_exit(ref);
+
+>>>>>>> upstream/android-13
 	/* drop ref from percpu_ref_switch_to_atomic() */
 	percpu_ref_put(ref);
 }
 
 static void percpu_ref_switch_to_atomic_rcu(struct rcu_head *rcu)
 {
+<<<<<<< HEAD
 	struct percpu_ref *ref = container_of(rcu, struct percpu_ref, rcu);
 	unsigned long __percpu *percpu_count = percpu_count_ptr(ref);
+=======
+	struct percpu_ref_data *data = container_of(rcu,
+			struct percpu_ref_data, rcu);
+	struct percpu_ref *ref = data->ref;
+	unsigned long __percpu *percpu_count = percpu_count_ptr(ref);
+	static atomic_t underflows;
+>>>>>>> upstream/android-13
 	unsigned long count = 0;
 	int cpu;
 
 	for_each_possible_cpu(cpu)
 		count += *per_cpu_ptr(percpu_count, cpu);
 
+<<<<<<< HEAD
 	pr_debug("global %ld percpu %ld",
 		 atomic_long_read(&ref->count), (long)count);
+=======
+	pr_debug("global %lu percpu %lu\n",
+		 atomic_long_read(&data->count), count);
+>>>>>>> upstream/android-13
 
 	/*
 	 * It's crucial that we sum the percpu counters _before_ adding the sum
@@ -148,11 +256,23 @@ static void percpu_ref_switch_to_atomic_rcu(struct rcu_head *rcu)
 	 * reaching 0 before we add the percpu counts. But doing it at the same
 	 * time is equivalent and saves us atomic operations:
 	 */
+<<<<<<< HEAD
 	atomic_long_add((long)count - PERCPU_COUNT_BIAS, &ref->count);
 
 	WARN_ONCE(atomic_long_read(&ref->count) <= 0,
 		  "percpu ref (%pf) <= 0 (%ld) after switching to atomic",
 		  ref->release, atomic_long_read(&ref->count));
+=======
+	atomic_long_add((long)count - PERCPU_COUNT_BIAS, &data->count);
+
+	if (WARN_ONCE(atomic_long_read(&data->count) <= 0,
+		      "percpu ref (%ps) <= 0 (%ld) after switching to atomic",
+		      data->release, atomic_long_read(&data->count)) &&
+	    atomic_inc_return(&underflows) < 4) {
+		pr_err("%s(): percpu_ref underflow", __func__);
+		mem_dump_obj(data);
+	}
+>>>>>>> upstream/android-13
 
 	/* @ref is viewed as dead on all CPUs, send out switch confirmation */
 	percpu_ref_call_confirm_rcu(rcu);
@@ -178,10 +298,18 @@ static void __percpu_ref_switch_to_atomic(struct percpu_ref *ref,
 	 * Non-NULL ->confirm_switch is used to indicate that switching is
 	 * in progress.  Use noop one if unspecified.
 	 */
+<<<<<<< HEAD
 	ref->confirm_switch = confirm_switch ?: percpu_ref_noop_confirm_switch;
 
 	percpu_ref_get(ref);	/* put after confirmation */
 	call_rcu_sched(&ref->rcu, percpu_ref_switch_to_atomic_rcu);
+=======
+	ref->data->confirm_switch = confirm_switch ?:
+		percpu_ref_noop_confirm_switch;
+
+	percpu_ref_get(ref);	/* put after confirmation */
+	call_rcu(&ref->data->rcu, percpu_ref_switch_to_atomic_rcu);
+>>>>>>> upstream/android-13
 }
 
 static void __percpu_ref_switch_to_percpu(struct percpu_ref *ref)
@@ -194,7 +322,14 @@ static void __percpu_ref_switch_to_percpu(struct percpu_ref *ref)
 	if (!(ref->percpu_count_ptr & __PERCPU_REF_ATOMIC))
 		return;
 
+<<<<<<< HEAD
 	atomic_long_add(PERCPU_COUNT_BIAS, &ref->count);
+=======
+	if (WARN_ON_ONCE(!ref->data->allow_reinit))
+		return;
+
+	atomic_long_add(PERCPU_COUNT_BIAS, &ref->data->count);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Restore per-cpu operation.  smp_store_release() is paired
@@ -212,6 +347,11 @@ static void __percpu_ref_switch_to_percpu(struct percpu_ref *ref)
 static void __percpu_ref_switch_mode(struct percpu_ref *ref,
 				     percpu_ref_func_t *confirm_switch)
 {
+<<<<<<< HEAD
+=======
+	struct percpu_ref_data *data = ref->data;
+
+>>>>>>> upstream/android-13
 	lockdep_assert_held(&percpu_ref_switch_lock);
 
 	/*
@@ -219,10 +359,17 @@ static void __percpu_ref_switch_mode(struct percpu_ref *ref,
 	 * its completion.  If the caller ensures that ATOMIC switching
 	 * isn't in progress, this function can be called from any context.
 	 */
+<<<<<<< HEAD
 	wait_event_lock_irq(percpu_ref_switch_waitq, !ref->confirm_switch,
 			    percpu_ref_switch_lock);
 
 	if (ref->force_atomic || (ref->percpu_count_ptr & __PERCPU_REF_DEAD))
+=======
+	wait_event_lock_irq(percpu_ref_switch_waitq, !data->confirm_switch,
+			    percpu_ref_switch_lock);
+
+	if (data->force_atomic || percpu_ref_is_dying(ref))
+>>>>>>> upstream/android-13
 		__percpu_ref_switch_to_atomic(ref, confirm_switch);
 	else
 		__percpu_ref_switch_to_percpu(ref);
@@ -255,7 +402,11 @@ void percpu_ref_switch_to_atomic(struct percpu_ref *ref,
 
 	spin_lock_irqsave(&percpu_ref_switch_lock, flags);
 
+<<<<<<< HEAD
 	ref->force_atomic = true;
+=======
+	ref->data->force_atomic = true;
+>>>>>>> upstream/android-13
 	__percpu_ref_switch_mode(ref, confirm_switch);
 
 	spin_unlock_irqrestore(&percpu_ref_switch_lock, flags);
@@ -273,7 +424,11 @@ EXPORT_SYMBOL_GPL(percpu_ref_switch_to_atomic);
 void percpu_ref_switch_to_atomic_sync(struct percpu_ref *ref)
 {
 	percpu_ref_switch_to_atomic(ref, NULL);
+<<<<<<< HEAD
 	wait_event(percpu_ref_switch_waitq, !ref->confirm_switch);
+=======
+	wait_event(percpu_ref_switch_waitq, !ref->data->confirm_switch);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(percpu_ref_switch_to_atomic_sync);
 
@@ -301,7 +456,11 @@ void percpu_ref_switch_to_percpu(struct percpu_ref *ref)
 
 	spin_lock_irqsave(&percpu_ref_switch_lock, flags);
 
+<<<<<<< HEAD
 	ref->force_atomic = false;
+=======
+	ref->data->force_atomic = false;
+>>>>>>> upstream/android-13
 	__percpu_ref_switch_mode(ref, NULL);
 
 	spin_unlock_irqrestore(&percpu_ref_switch_lock, flags);
@@ -332,8 +491,14 @@ void percpu_ref_kill_and_confirm(struct percpu_ref *ref,
 
 	spin_lock_irqsave(&percpu_ref_switch_lock, flags);
 
+<<<<<<< HEAD
 	WARN_ONCE(ref->percpu_count_ptr & __PERCPU_REF_DEAD,
 		  "%s called more than once on %pf!", __func__, ref->release);
+=======
+	WARN_ONCE(percpu_ref_is_dying(ref),
+		  "%s called more than once on %ps!", __func__,
+		  ref->data->release);
+>>>>>>> upstream/android-13
 
 	ref->percpu_count_ptr |= __PERCPU_REF_DEAD;
 	__percpu_ref_switch_mode(ref, confirm_kill);
@@ -344,6 +509,37 @@ void percpu_ref_kill_and_confirm(struct percpu_ref *ref,
 EXPORT_SYMBOL_GPL(percpu_ref_kill_and_confirm);
 
 /**
+<<<<<<< HEAD
+=======
+ * percpu_ref_is_zero - test whether a percpu refcount reached zero
+ * @ref: percpu_ref to test
+ *
+ * Returns %true if @ref reached zero.
+ *
+ * This function is safe to call as long as @ref is between init and exit.
+ */
+bool percpu_ref_is_zero(struct percpu_ref *ref)
+{
+	unsigned long __percpu *percpu_count;
+	unsigned long count, flags;
+
+	if (__ref_is_percpu(ref, &percpu_count))
+		return false;
+
+	/* protect us from being destroyed */
+	spin_lock_irqsave(&percpu_ref_switch_lock, flags);
+	if (ref->data)
+		count = atomic_long_read(&ref->data->count);
+	else
+		count = ref->percpu_count_ptr >> __PERCPU_REF_FLAG_BITS;
+	spin_unlock_irqrestore(&percpu_ref_switch_lock, flags);
+
+	return count == 0;
+}
+EXPORT_SYMBOL_GPL(percpu_ref_is_zero);
+
+/**
+>>>>>>> upstream/android-13
  * percpu_ref_reinit - re-initialize a percpu refcount
  * @ref: perpcu_ref to re-initialize
  *
@@ -356,11 +552,42 @@ EXPORT_SYMBOL_GPL(percpu_ref_kill_and_confirm);
  */
 void percpu_ref_reinit(struct percpu_ref *ref)
 {
+<<<<<<< HEAD
+=======
+	WARN_ON_ONCE(!percpu_ref_is_zero(ref));
+
+	percpu_ref_resurrect(ref);
+}
+EXPORT_SYMBOL_GPL(percpu_ref_reinit);
+
+/**
+ * percpu_ref_resurrect - modify a percpu refcount from dead to live
+ * @ref: perpcu_ref to resurrect
+ *
+ * Modify @ref so that it's in the same state as before percpu_ref_kill() was
+ * called. @ref must be dead but must not yet have exited.
+ *
+ * If @ref->release() frees @ref then the caller is responsible for
+ * guaranteeing that @ref->release() does not get called while this
+ * function is in progress.
+ *
+ * Note that percpu_ref_tryget[_live]() are safe to perform on @ref while
+ * this function is in progress.
+ */
+void percpu_ref_resurrect(struct percpu_ref *ref)
+{
+	unsigned long __percpu *percpu_count;
+>>>>>>> upstream/android-13
 	unsigned long flags;
 
 	spin_lock_irqsave(&percpu_ref_switch_lock, flags);
 
+<<<<<<< HEAD
 	WARN_ON_ONCE(!percpu_ref_is_zero(ref));
+=======
+	WARN_ON_ONCE(!percpu_ref_is_dying(ref));
+	WARN_ON_ONCE(__ref_is_percpu(ref, &percpu_count));
+>>>>>>> upstream/android-13
 
 	ref->percpu_count_ptr &= ~__PERCPU_REF_DEAD;
 	percpu_ref_get(ref);
@@ -368,4 +595,8 @@ void percpu_ref_reinit(struct percpu_ref *ref)
 
 	spin_unlock_irqrestore(&percpu_ref_switch_lock, flags);
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(percpu_ref_reinit);
+=======
+EXPORT_SYMBOL_GPL(percpu_ref_resurrect);
+>>>>>>> upstream/android-13

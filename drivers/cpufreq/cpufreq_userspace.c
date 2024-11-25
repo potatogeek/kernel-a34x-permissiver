@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 
 /*
  *  linux/drivers/cpufreq/cpufreq_userspace.c
  *
  *  Copyright (C)  2001 Russell King
  *            (C)  2002 - 2004 Dominik Brodowski <linux@brodo.de>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -130,6 +137,7 @@ static struct cpufreq_governor cpufreq_gov_userspace = {
 	.owner		= THIS_MODULE,
 };
 
+<<<<<<< HEAD
 static int __init cpufreq_gov_userspace_init(void)
 {
 	return cpufreq_register_governor(&cpufreq_gov_userspace);
@@ -140,6 +148,8 @@ static void __exit cpufreq_gov_userspace_exit(void)
 	cpufreq_unregister_governor(&cpufreq_gov_userspace);
 }
 
+=======
+>>>>>>> upstream/android-13
 MODULE_AUTHOR("Dominik Brodowski <linux@brodo.de>, "
 		"Russell King <rmk@arm.linux.org.uk>");
 MODULE_DESCRIPTION("CPUfreq policy governor 'userspace'");
@@ -150,9 +160,16 @@ struct cpufreq_governor *cpufreq_default_governor(void)
 {
 	return &cpufreq_gov_userspace;
 }
+<<<<<<< HEAD
 
 fs_initcall(cpufreq_gov_userspace_init);
 #else
 module_init(cpufreq_gov_userspace_init);
 #endif
 module_exit(cpufreq_gov_userspace_exit);
+=======
+#endif
+
+cpufreq_governor_init(cpufreq_gov_userspace);
+cpufreq_governor_exit(cpufreq_gov_userspace);
+>>>>>>> upstream/android-13

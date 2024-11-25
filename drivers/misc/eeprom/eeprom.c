@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 1998, 1999  Frodo Looijaard <frodol@dds.nl> and
  *                           Philip Edelbrock <phil@netroedge.com>
  * Copyright (C) 2003 Greg Kroah-Hartman <greg@kroah.com>
  * Copyright (C) 2003 IBM Corp.
  * Copyright (C) 2004 Jean Delvare <jdelvare@suse.de>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,6 +19,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -85,7 +92,11 @@ static ssize_t eeprom_read(struct file *filp, struct kobject *kobj,
 			   struct bin_attribute *bin_attr,
 			   char *buf, loff_t off, size_t count)
 {
+<<<<<<< HEAD
 	struct i2c_client *client = to_i2c_client(kobj_to_dev(kobj));
+=======
+	struct i2c_client *client = kobj_to_i2c_client(kobj);
+>>>>>>> upstream/android-13
 	struct eeprom_data *data = i2c_get_clientdata(client);
 	u8 slice;
 
@@ -184,6 +195,13 @@ static int eeprom_probe(struct i2c_client *client,
 		}
 	}
 
+<<<<<<< HEAD
+=======
+	/* Let the users know they are using deprecated driver */
+	dev_notice(&client->dev,
+		   "eeprom driver is deprecated, please use at24 instead\n");
+
+>>>>>>> upstream/android-13
 	/* create the sysfs eeprom file */
 	return sysfs_create_bin_file(&client->dev.kobj, &eeprom_attr);
 }

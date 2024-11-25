@@ -60,9 +60,12 @@ static ssize_t qeth_l3_dev_route4_show(struct device *dev,
 {
 	struct qeth_card *card = dev_get_drvdata(dev);
 
+<<<<<<< HEAD
 	if (!card)
 		return -EINVAL;
 
+=======
+>>>>>>> upstream/android-13
 	return qeth_l3_dev_route_show(card, &card->options.route4, buf);
 }
 
@@ -109,9 +112,12 @@ static ssize_t qeth_l3_dev_route4_store(struct device *dev,
 {
 	struct qeth_card *card = dev_get_drvdata(dev);
 
+<<<<<<< HEAD
 	if (!card)
 		return -EINVAL;
 
+=======
+>>>>>>> upstream/android-13
 	return qeth_l3_dev_route_store(card, &card->options.route4,
 				QETH_PROT_IPV4, buf, count);
 }
@@ -124,9 +130,12 @@ static ssize_t qeth_l3_dev_route6_show(struct device *dev,
 {
 	struct qeth_card *card = dev_get_drvdata(dev);
 
+<<<<<<< HEAD
 	if (!card)
 		return -EINVAL;
 
+=======
+>>>>>>> upstream/android-13
 	return qeth_l3_dev_route_show(card, &card->options.route6, buf);
 }
 
@@ -135,9 +144,12 @@ static ssize_t qeth_l3_dev_route6_store(struct device *dev,
 {
 	struct qeth_card *card = dev_get_drvdata(dev);
 
+<<<<<<< HEAD
 	if (!card)
 		return -EINVAL;
 
+=======
+>>>>>>> upstream/android-13
 	return qeth_l3_dev_route_store(card, &card->options.route6,
 				QETH_PROT_IPV6, buf, count);
 }
@@ -145,6 +157,7 @@ static ssize_t qeth_l3_dev_route6_store(struct device *dev,
 static DEVICE_ATTR(route6, 0644, qeth_l3_dev_route6_show,
 			qeth_l3_dev_route6_store);
 
+<<<<<<< HEAD
 static ssize_t qeth_l3_dev_fake_broadcast_show(struct device *dev,
 			struct device_attribute *attr, char *buf)
 {
@@ -186,14 +199,19 @@ out:
 static DEVICE_ATTR(fake_broadcast, 0644, qeth_l3_dev_fake_broadcast_show,
 		   qeth_l3_dev_fake_broadcast_store);
 
+=======
+>>>>>>> upstream/android-13
 static ssize_t qeth_l3_dev_sniffer_show(struct device *dev,
 		struct device_attribute *attr, char *buf)
 {
 	struct qeth_card *card = dev_get_drvdata(dev);
 
+<<<<<<< HEAD
 	if (!card)
 		return -EINVAL;
 
+=======
+>>>>>>> upstream/android-13
 	return sprintf(buf, "%i\n", card->options.sniffer ? 1 : 0);
 }
 
@@ -204,17 +222,25 @@ static ssize_t qeth_l3_dev_sniffer_store(struct device *dev,
 	int rc = 0;
 	unsigned long i;
 
+<<<<<<< HEAD
 	if (!card)
 		return -EINVAL;
 
 	if (card->info.type != QETH_CARD_TYPE_IQD)
+=======
+	if (!IS_IQD(card))
+>>>>>>> upstream/android-13
 		return -EPERM;
 	if (card->options.cq == QETH_CQ_ENABLED)
 		return -EPERM;
 
 	mutex_lock(&card->conf_mutex);
+<<<<<<< HEAD
 	if ((card->state != CARD_STATE_DOWN) &&
 	    (card->state != CARD_STATE_RECOVER)) {
+=======
+	if (card->state != CARD_STATE_DOWN) {
+>>>>>>> upstream/android-13
 		rc = -EPERM;
 		goto out;
 	}
@@ -230,6 +256,7 @@ static ssize_t qeth_l3_dev_sniffer_store(struct device *dev,
 		break;
 	case 1:
 		qdio_get_ssqd_desc(CARD_DDEV(card), &card->ssqd);
+<<<<<<< HEAD
 		if (card->ssqd.qdioac2 & QETH_SNIFF_AVAIL) {
 			card->options.sniffer = i;
 			if (card->qdio.init_pool.buf_count !=
@@ -238,6 +265,15 @@ static ssize_t qeth_l3_dev_sniffer_store(struct device *dev,
 					QETH_IN_BUF_COUNT_MAX);
 		} else
 			rc = -EPERM;
+=======
+		if (card->ssqd.qdioac2 & CHSC_AC2_SNIFFER_AVAILABLE) {
+			card->options.sniffer = i;
+			qeth_resize_buffer_pool(card, QETH_IN_BUF_COUNT_MAX);
+		} else {
+			rc = -EPERM;
+		}
+
+>>>>>>> upstream/android-13
 		break;
 	default:
 		rc = -EINVAL;
@@ -250,17 +286,24 @@ out:
 static DEVICE_ATTR(sniffer, 0644, qeth_l3_dev_sniffer_show,
 		qeth_l3_dev_sniffer_store);
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 static ssize_t qeth_l3_dev_hsuid_show(struct device *dev,
 		struct device_attribute *attr, char *buf)
 {
 	struct qeth_card *card = dev_get_drvdata(dev);
 	char tmp_hsuid[9];
 
+<<<<<<< HEAD
 	if (!card)
 		return -EINVAL;
 
 	if (card->info.type != QETH_CARD_TYPE_IQD)
+=======
+	if (!IS_IQD(card))
+>>>>>>> upstream/android-13
 		return -EPERM;
 
 	memcpy(tmp_hsuid, card->options.hsuid, sizeof(tmp_hsuid));
@@ -272,6 +315,7 @@ static ssize_t qeth_l3_dev_hsuid_store(struct device *dev,
 		struct device_attribute *attr, const char *buf, size_t count)
 {
 	struct qeth_card *card = dev_get_drvdata(dev);
+<<<<<<< HEAD
 	char *tmp;
 	int rc;
 
@@ -291,6 +335,35 @@ static ssize_t qeth_l3_dev_hsuid_store(struct device *dev,
 	tmp = strsep((char **)&buf, "\n");
 	if (strlen(tmp) > 8)
 		return -EINVAL;
+=======
+	int rc = 0;
+	char *tmp;
+
+	if (!IS_IQD(card))
+		return -EPERM;
+
+	mutex_lock(&card->conf_mutex);
+	if (card->state != CARD_STATE_DOWN) {
+		rc = -EPERM;
+		goto out;
+	}
+
+	if (card->options.sniffer) {
+		rc = -EPERM;
+		goto out;
+	}
+
+	if (card->options.cq == QETH_CQ_NOTAVAILABLE) {
+		rc = -EPERM;
+		goto out;
+	}
+
+	tmp = strsep((char **)&buf, "\n");
+	if (strlen(tmp) > 8) {
+		rc = -EINVAL;
+		goto out;
+	}
+>>>>>>> upstream/android-13
 
 	if (card->options.hsuid[0])
 		/* delete old ip address */
@@ -301,11 +374,21 @@ static ssize_t qeth_l3_dev_hsuid_store(struct device *dev,
 		card->options.hsuid[0] = '\0';
 		memcpy(card->dev->perm_addr, card->options.hsuid, 9);
 		qeth_configure_cq(card, QETH_CQ_DISABLED);
+<<<<<<< HEAD
 		return count;
 	}
 
 	if (qeth_configure_cq(card, QETH_CQ_ENABLED))
 		return -EPERM;
+=======
+		goto out;
+	}
+
+	if (qeth_configure_cq(card, QETH_CQ_ENABLED)) {
+		rc = -EPERM;
+		goto out;
+	}
+>>>>>>> upstream/android-13
 
 	snprintf(card->options.hsuid, sizeof(card->options.hsuid),
 		 "%-8s", tmp);
@@ -314,6 +397,11 @@ static ssize_t qeth_l3_dev_hsuid_store(struct device *dev,
 
 	rc = qeth_l3_modify_hsuid(card, true);
 
+<<<<<<< HEAD
+=======
+out:
+	mutex_unlock(&card->conf_mutex);
+>>>>>>> upstream/android-13
 	return rc ? rc : count;
 }
 
@@ -324,7 +412,10 @@ static DEVICE_ATTR(hsuid, 0644, qeth_l3_dev_hsuid_show,
 static struct attribute *qeth_l3_device_attrs[] = {
 	&dev_attr_route4.attr,
 	&dev_attr_route6.attr,
+<<<<<<< HEAD
 	&dev_attr_fake_broadcast.attr,
+=======
+>>>>>>> upstream/android-13
 	&dev_attr_sniffer.attr,
 	&dev_attr_hsuid.attr,
 	NULL,
@@ -339,10 +430,14 @@ static ssize_t qeth_l3_dev_ipato_enable_show(struct device *dev,
 {
 	struct qeth_card *card = dev_get_drvdata(dev);
 
+<<<<<<< HEAD
 	if (!card)
 		return -EINVAL;
 
 	return sprintf(buf, "%i\n", card->ipato.enabled? 1:0);
+=======
+	return sprintf(buf, "%u\n", card->ipato.enabled ? 1 : 0);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t qeth_l3_dev_ipato_enable_store(struct device *dev,
@@ -352,29 +447,50 @@ static ssize_t qeth_l3_dev_ipato_enable_store(struct device *dev,
 	bool enable;
 	int rc = 0;
 
+<<<<<<< HEAD
 	if (!card)
 		return -EINVAL;
 
 	mutex_lock(&card->conf_mutex);
 	if ((card->state != CARD_STATE_DOWN) &&
 	    (card->state != CARD_STATE_RECOVER)) {
+=======
+	mutex_lock(&card->conf_mutex);
+	if (card->state != CARD_STATE_DOWN) {
+>>>>>>> upstream/android-13
 		rc = -EPERM;
 		goto out;
 	}
 
+<<<<<<< HEAD
+=======
+	mutex_lock(&card->ip_lock);
+>>>>>>> upstream/android-13
 	if (sysfs_streq(buf, "toggle")) {
 		enable = !card->ipato.enabled;
 	} else if (kstrtobool(buf, &enable)) {
 		rc = -EINVAL;
+<<<<<<< HEAD
 		goto out;
+=======
+		goto unlock_ip;
+>>>>>>> upstream/android-13
 	}
 
 	if (card->ipato.enabled != enable) {
 		card->ipato.enabled = enable;
+<<<<<<< HEAD
 		spin_lock_bh(&card->ip_lock);
 		qeth_l3_update_ipato(card);
 		spin_unlock_bh(&card->ip_lock);
 	}
+=======
+		qeth_l3_update_ipato(card);
+	}
+
+unlock_ip:
+	mutex_unlock(&card->ip_lock);
+>>>>>>> upstream/android-13
 out:
 	mutex_unlock(&card->conf_mutex);
 	return rc ? rc : count;
@@ -389,10 +505,14 @@ static ssize_t qeth_l3_dev_ipato_invert4_show(struct device *dev,
 {
 	struct qeth_card *card = dev_get_drvdata(dev);
 
+<<<<<<< HEAD
 	if (!card)
 		return -EINVAL;
 
 	return sprintf(buf, "%i\n", card->ipato.invert4? 1:0);
+=======
+	return sprintf(buf, "%u\n", card->ipato.invert4 ? 1 : 0);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t qeth_l3_dev_ipato_invert4_store(struct device *dev,
@@ -403,10 +523,14 @@ static ssize_t qeth_l3_dev_ipato_invert4_store(struct device *dev,
 	bool invert;
 	int rc = 0;
 
+<<<<<<< HEAD
 	if (!card)
 		return -EINVAL;
 
 	mutex_lock(&card->conf_mutex);
+=======
+	mutex_lock(&card->ip_lock);
+>>>>>>> upstream/android-13
 	if (sysfs_streq(buf, "toggle")) {
 		invert = !card->ipato.invert4;
 	} else if (kstrtobool(buf, &invert)) {
@@ -416,12 +540,20 @@ static ssize_t qeth_l3_dev_ipato_invert4_store(struct device *dev,
 
 	if (card->ipato.invert4 != invert) {
 		card->ipato.invert4 = invert;
+<<<<<<< HEAD
 		spin_lock_bh(&card->ip_lock);
 		qeth_l3_update_ipato(card);
 		spin_unlock_bh(&card->ip_lock);
 	}
 out:
 	mutex_unlock(&card->conf_mutex);
+=======
+		qeth_l3_update_ipato(card);
+	}
+
+out:
+	mutex_unlock(&card->ip_lock);
+>>>>>>> upstream/android-13
 	return rc ? rc : count;
 }
 
@@ -433,6 +565,7 @@ static ssize_t qeth_l3_dev_ipato_add_show(char *buf, struct qeth_card *card,
 			enum qeth_prot_versions proto)
 {
 	struct qeth_ipato_entry *ipatoe;
+<<<<<<< HEAD
 	char addr_str[40];
 	int entry_len; /* length of 1 entry string, differs between v4 and v6 */
 	int i = 0;
@@ -457,6 +590,37 @@ static ssize_t qeth_l3_dev_ipato_add_show(char *buf, struct qeth_card *card,
 	i += snprintf(buf + i, PAGE_SIZE - i, "\n");
 
 	return i;
+=======
+	int str_len = 0;
+
+	mutex_lock(&card->ip_lock);
+	list_for_each_entry(ipatoe, &card->ipato.entries, entry) {
+		char addr_str[40];
+		int entry_len;
+
+		if (ipatoe->proto != proto)
+			continue;
+
+		entry_len = qeth_l3_ipaddr_to_string(proto, ipatoe->addr,
+						     addr_str);
+		if (entry_len < 0)
+			continue;
+
+		/* Append /%mask to the entry: */
+		entry_len += 1 + ((proto == QETH_PROT_IPV4) ? 2 : 3);
+		/* Enough room to format %entry\n into null terminated page? */
+		if (entry_len + 1 > PAGE_SIZE - str_len - 1)
+			break;
+
+		entry_len = scnprintf(buf, PAGE_SIZE - str_len,
+				      "%s/%i\n", addr_str, ipatoe->mask_bits);
+		str_len += entry_len;
+		buf += entry_len;
+	}
+	mutex_unlock(&card->ip_lock);
+
+	return str_len ? str_len : scnprintf(buf, PAGE_SIZE, "\n");
+>>>>>>> upstream/android-13
 }
 
 static ssize_t qeth_l3_dev_ipato_add4_show(struct device *dev,
@@ -464,13 +628,17 @@ static ssize_t qeth_l3_dev_ipato_add4_show(struct device *dev,
 {
 	struct qeth_card *card = dev_get_drvdata(dev);
 
+<<<<<<< HEAD
 	if (!card)
 		return -EINVAL;
 
+=======
+>>>>>>> upstream/android-13
 	return qeth_l3_dev_ipato_add_show(buf, card, QETH_PROT_IPV4);
 }
 
 static int qeth_l3_parse_ipatoe(const char *buf, enum qeth_prot_versions proto,
+<<<<<<< HEAD
 		  u8 *addr, int *mask_bits)
 {
 	const char *start, *end;
@@ -494,6 +662,31 @@ static int qeth_l3_parse_ipatoe(const char *buf, enum qeth_prot_versions proto,
 	    (*mask_bits > ((proto == QETH_PROT_IPV4) ? 32 : 128))) {
 		return -EINVAL;
 	}
+=======
+				u8 *addr, unsigned int *mask_bits)
+{
+	char *sep;
+	int rc;
+
+	/* Expected input pattern: %addr/%mask */
+	sep = strnchr(buf, 40, '/');
+	if (!sep)
+		return -EINVAL;
+
+	/* Terminate the %addr sub-string, and parse it: */
+	*sep = '\0';
+	rc = qeth_l3_string_to_ipaddr(buf, proto, addr);
+	if (rc)
+		return rc;
+
+	rc = kstrtouint(sep + 1, 10, mask_bits);
+	if (rc)
+		return rc;
+
+	if (*mask_bits > ((proto == QETH_PROT_IPV4) ? 32 : 128))
+		return -EINVAL;
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -501,6 +694,7 @@ static ssize_t qeth_l3_dev_ipato_add_store(const char *buf, size_t count,
 			 struct qeth_card *card, enum qeth_prot_versions proto)
 {
 	struct qeth_ipato_entry *ipatoe;
+<<<<<<< HEAD
 	u8 addr[16];
 	int mask_bits;
 	int rc = 0;
@@ -517,13 +711,33 @@ static ssize_t qeth_l3_dev_ipato_add_store(const char *buf, size_t count,
 	}
 	ipatoe->proto = proto;
 	memcpy(ipatoe->addr, addr, (proto == QETH_PROT_IPV4)? 4:16);
+=======
+	unsigned int mask_bits;
+	u8 addr[16];
+	int rc = 0;
+
+	rc = qeth_l3_parse_ipatoe(buf, proto, addr, &mask_bits);
+	if (rc)
+		return rc;
+
+	ipatoe = kzalloc(sizeof(struct qeth_ipato_entry), GFP_KERNEL);
+	if (!ipatoe)
+		return -ENOMEM;
+
+	ipatoe->proto = proto;
+	memcpy(ipatoe->addr, addr, (proto == QETH_PROT_IPV4) ? 4 : 16);
+>>>>>>> upstream/android-13
 	ipatoe->mask_bits = mask_bits;
 
 	rc = qeth_l3_add_ipato_entry(card, ipatoe);
 	if (rc)
 		kfree(ipatoe);
+<<<<<<< HEAD
 out:
 	mutex_unlock(&card->conf_mutex);
+=======
+
+>>>>>>> upstream/android-13
 	return rc ? rc : count;
 }
 
@@ -532,9 +746,12 @@ static ssize_t qeth_l3_dev_ipato_add4_store(struct device *dev,
 {
 	struct qeth_card *card = dev_get_drvdata(dev);
 
+<<<<<<< HEAD
 	if (!card)
 		return -EINVAL;
 
+=======
+>>>>>>> upstream/android-13
 	return qeth_l3_dev_ipato_add_store(buf, count, card, QETH_PROT_IPV4);
 }
 
@@ -545,6 +762,7 @@ static QETH_DEVICE_ATTR(ipato_add4, add4, 0644,
 static ssize_t qeth_l3_dev_ipato_del_store(const char *buf, size_t count,
 			 struct qeth_card *card, enum qeth_prot_versions proto)
 {
+<<<<<<< HEAD
 	u8 addr[16];
 	int mask_bits;
 	int rc = 0;
@@ -554,6 +772,15 @@ static ssize_t qeth_l3_dev_ipato_del_store(const char *buf, size_t count,
 	if (!rc)
 		rc = qeth_l3_del_ipato_entry(card, proto, addr, mask_bits);
 	mutex_unlock(&card->conf_mutex);
+=======
+	unsigned int mask_bits;
+	u8 addr[16];
+	int rc = 0;
+
+	rc = qeth_l3_parse_ipatoe(buf, proto, addr, &mask_bits);
+	if (!rc)
+		rc = qeth_l3_del_ipato_entry(card, proto, addr, mask_bits);
+>>>>>>> upstream/android-13
 	return rc ? rc : count;
 }
 
@@ -562,9 +789,12 @@ static ssize_t qeth_l3_dev_ipato_del4_store(struct device *dev,
 {
 	struct qeth_card *card = dev_get_drvdata(dev);
 
+<<<<<<< HEAD
 	if (!card)
 		return -EINVAL;
 
+=======
+>>>>>>> upstream/android-13
 	return qeth_l3_dev_ipato_del_store(buf, count, card, QETH_PROT_IPV4);
 }
 
@@ -576,10 +806,14 @@ static ssize_t qeth_l3_dev_ipato_invert6_show(struct device *dev,
 {
 	struct qeth_card *card = dev_get_drvdata(dev);
 
+<<<<<<< HEAD
 	if (!card)
 		return -EINVAL;
 
 	return sprintf(buf, "%i\n", card->ipato.invert6? 1:0);
+=======
+	return sprintf(buf, "%u\n", card->ipato.invert6 ? 1 : 0);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t qeth_l3_dev_ipato_invert6_store(struct device *dev,
@@ -589,10 +823,14 @@ static ssize_t qeth_l3_dev_ipato_invert6_store(struct device *dev,
 	bool invert;
 	int rc = 0;
 
+<<<<<<< HEAD
 	if (!card)
 		return -EINVAL;
 
 	mutex_lock(&card->conf_mutex);
+=======
+	mutex_lock(&card->ip_lock);
+>>>>>>> upstream/android-13
 	if (sysfs_streq(buf, "toggle")) {
 		invert = !card->ipato.invert6;
 	} else if (kstrtobool(buf, &invert)) {
@@ -602,12 +840,20 @@ static ssize_t qeth_l3_dev_ipato_invert6_store(struct device *dev,
 
 	if (card->ipato.invert6 != invert) {
 		card->ipato.invert6 = invert;
+<<<<<<< HEAD
 		spin_lock_bh(&card->ip_lock);
 		qeth_l3_update_ipato(card);
 		spin_unlock_bh(&card->ip_lock);
 	}
 out:
 	mutex_unlock(&card->conf_mutex);
+=======
+		qeth_l3_update_ipato(card);
+	}
+
+out:
+	mutex_unlock(&card->ip_lock);
+>>>>>>> upstream/android-13
 	return rc ? rc : count;
 }
 
@@ -621,9 +867,12 @@ static ssize_t qeth_l3_dev_ipato_add6_show(struct device *dev,
 {
 	struct qeth_card *card = dev_get_drvdata(dev);
 
+<<<<<<< HEAD
 	if (!card)
 		return -EINVAL;
 
+=======
+>>>>>>> upstream/android-13
 	return qeth_l3_dev_ipato_add_show(buf, card, QETH_PROT_IPV6);
 }
 
@@ -632,9 +881,12 @@ static ssize_t qeth_l3_dev_ipato_add6_store(struct device *dev,
 {
 	struct qeth_card *card = dev_get_drvdata(dev);
 
+<<<<<<< HEAD
 	if (!card)
 		return -EINVAL;
 
+=======
+>>>>>>> upstream/android-13
 	return qeth_l3_dev_ipato_add_store(buf, count, card, QETH_PROT_IPV6);
 }
 
@@ -647,9 +899,12 @@ static ssize_t qeth_l3_dev_ipato_del6_store(struct device *dev,
 {
 	struct qeth_card *card = dev_get_drvdata(dev);
 
+<<<<<<< HEAD
 	if (!card)
 		return -EINVAL;
 
+=======
+>>>>>>> upstream/android-13
 	return qeth_l3_dev_ipato_del_store(buf, count, card, QETH_PROT_IPV6);
 }
 
@@ -678,6 +933,7 @@ static ssize_t qeth_l3_dev_ip_add_show(struct device *dev, char *buf,
 {
 	struct qeth_card *card = dev_get_drvdata(dev);
 	struct qeth_ipaddr *ipaddr;
+<<<<<<< HEAD
 	char addr_str[40];
 	int str_len = 0;
 	int entry_len; /* length of 1 entry string, differs between v4 and v6 */
@@ -706,6 +962,36 @@ static ssize_t qeth_l3_dev_ip_add_show(struct device *dev, char *buf,
 	str_len += snprintf(buf + str_len, PAGE_SIZE - str_len, "\n");
 
 	return str_len;
+=======
+	int str_len = 0;
+	int i;
+
+	mutex_lock(&card->ip_lock);
+	hash_for_each(card->ip_htable, i, ipaddr, hnode) {
+		char addr_str[40];
+		int entry_len;
+
+		if (ipaddr->proto != proto || ipaddr->type != type)
+			continue;
+
+		entry_len = qeth_l3_ipaddr_to_string(proto, (u8 *)&ipaddr->u,
+						     addr_str);
+		if (entry_len < 0)
+			continue;
+
+		/* Enough room to format %addr\n into null terminated page? */
+		if (entry_len + 1 > PAGE_SIZE - str_len - 1)
+			break;
+
+		entry_len = scnprintf(buf, PAGE_SIZE - str_len, "%s\n",
+				      addr_str);
+		str_len += entry_len;
+		buf += entry_len;
+	}
+	mutex_unlock(&card->ip_lock);
+
+	return str_len ? str_len : scnprintf(buf, PAGE_SIZE, "\n");
+>>>>>>> upstream/android-13
 }
 
 static ssize_t qeth_l3_dev_vipa_add4_show(struct device *dev,
@@ -716,6 +1002,7 @@ static ssize_t qeth_l3_dev_vipa_add4_show(struct device *dev,
 				       QETH_IP_TYPE_VIPA);
 }
 
+<<<<<<< HEAD
 static int qeth_l3_parse_vipae(const char *buf, enum qeth_prot_versions proto,
 		 u8 *addr)
 {
@@ -737,24 +1024,42 @@ static ssize_t qeth_l3_dev_vipa_add_store(const char *buf, size_t count,
 		rc = qeth_l3_modify_rxip_vipa(card, true, addr,
 					      QETH_IP_TYPE_VIPA, proto);
 	mutex_unlock(&card->conf_mutex);
+=======
+static ssize_t qeth_l3_vipa_store(struct device *dev, const char *buf, bool add,
+				  size_t count, enum qeth_prot_versions proto)
+{
+	struct qeth_card *card = dev_get_drvdata(dev);
+	u8 addr[16] = {0, };
+	int rc;
+
+	rc = qeth_l3_string_to_ipaddr(buf, proto, addr);
+	if (!rc)
+		rc = qeth_l3_modify_rxip_vipa(card, add, addr,
+					      QETH_IP_TYPE_VIPA, proto);
+>>>>>>> upstream/android-13
 	return rc ? rc : count;
 }
 
 static ssize_t qeth_l3_dev_vipa_add4_store(struct device *dev,
 		struct device_attribute *attr, const char *buf, size_t count)
 {
+<<<<<<< HEAD
 	struct qeth_card *card = dev_get_drvdata(dev);
 
 	if (!card)
 		return -EINVAL;
 
 	return qeth_l3_dev_vipa_add_store(buf, count, card, QETH_PROT_IPV4);
+=======
+	return qeth_l3_vipa_store(dev, buf, true, count, QETH_PROT_IPV4);
+>>>>>>> upstream/android-13
 }
 
 static QETH_DEVICE_ATTR(vipa_add4, add4, 0644,
 			qeth_l3_dev_vipa_add4_show,
 			qeth_l3_dev_vipa_add4_store);
 
+<<<<<<< HEAD
 static ssize_t qeth_l3_dev_vipa_del_store(const char *buf, size_t count,
 			 struct qeth_card *card, enum qeth_prot_versions proto)
 {
@@ -779,6 +1084,12 @@ static ssize_t qeth_l3_dev_vipa_del4_store(struct device *dev,
 		return -EINVAL;
 
 	return qeth_l3_dev_vipa_del_store(buf, count, card, QETH_PROT_IPV4);
+=======
+static ssize_t qeth_l3_dev_vipa_del4_store(struct device *dev,
+		struct device_attribute *attr, const char *buf, size_t count)
+{
+	return qeth_l3_vipa_store(dev, buf, true, count, QETH_PROT_IPV4);
+>>>>>>> upstream/android-13
 }
 
 static QETH_DEVICE_ATTR(vipa_del4, del4, 0200, NULL,
@@ -795,12 +1106,16 @@ static ssize_t qeth_l3_dev_vipa_add6_show(struct device *dev,
 static ssize_t qeth_l3_dev_vipa_add6_store(struct device *dev,
 		struct device_attribute *attr, const char *buf, size_t count)
 {
+<<<<<<< HEAD
 	struct qeth_card *card = dev_get_drvdata(dev);
 
 	if (!card)
 		return -EINVAL;
 
 	return qeth_l3_dev_vipa_add_store(buf, count, card, QETH_PROT_IPV6);
+=======
+	return qeth_l3_vipa_store(dev, buf, true, count, QETH_PROT_IPV6);
+>>>>>>> upstream/android-13
 }
 
 static QETH_DEVICE_ATTR(vipa_add6, add6, 0644,
@@ -810,12 +1125,16 @@ static QETH_DEVICE_ATTR(vipa_add6, add6, 0644,
 static ssize_t qeth_l3_dev_vipa_del6_store(struct device *dev,
 		struct device_attribute *attr, const char *buf, size_t count)
 {
+<<<<<<< HEAD
 	struct qeth_card *card = dev_get_drvdata(dev);
 
 	if (!card)
 		return -EINVAL;
 
 	return qeth_l3_dev_vipa_del_store(buf, count, card, QETH_PROT_IPV6);
+=======
+	return qeth_l3_vipa_store(dev, buf, false, count, QETH_PROT_IPV6);
+>>>>>>> upstream/android-13
 }
 
 static QETH_DEVICE_ATTR(vipa_del6, del6, 0200, NULL,
@@ -868,6 +1187,7 @@ static int qeth_l3_parse_rxipe(const char *buf, enum qeth_prot_versions proto,
 	return 0;
 }
 
+<<<<<<< HEAD
 static ssize_t qeth_l3_dev_rxip_add_store(const char *buf, size_t count,
 			struct qeth_card *card, enum qeth_prot_versions proto)
 {
@@ -880,24 +1200,42 @@ static ssize_t qeth_l3_dev_rxip_add_store(const char *buf, size_t count,
 		rc = qeth_l3_modify_rxip_vipa(card, true, addr,
 					      QETH_IP_TYPE_RXIP, proto);
 	mutex_unlock(&card->conf_mutex);
+=======
+static ssize_t qeth_l3_rxip_store(struct device *dev, const char *buf, bool add,
+				  size_t count, enum qeth_prot_versions proto)
+{
+	struct qeth_card *card = dev_get_drvdata(dev);
+	u8 addr[16] = {0, };
+	int rc;
+
+	rc = qeth_l3_parse_rxipe(buf, proto, addr);
+	if (!rc)
+		rc = qeth_l3_modify_rxip_vipa(card, add, addr,
+					      QETH_IP_TYPE_RXIP, proto);
+>>>>>>> upstream/android-13
 	return rc ? rc : count;
 }
 
 static ssize_t qeth_l3_dev_rxip_add4_store(struct device *dev,
 		struct device_attribute *attr, const char *buf, size_t count)
 {
+<<<<<<< HEAD
 	struct qeth_card *card = dev_get_drvdata(dev);
 
 	if (!card)
 		return -EINVAL;
 
 	return qeth_l3_dev_rxip_add_store(buf, count, card, QETH_PROT_IPV4);
+=======
+	return qeth_l3_rxip_store(dev, buf, true, count, QETH_PROT_IPV4);
+>>>>>>> upstream/android-13
 }
 
 static QETH_DEVICE_ATTR(rxip_add4, add4, 0644,
 			qeth_l3_dev_rxip_add4_show,
 			qeth_l3_dev_rxip_add4_store);
 
+<<<<<<< HEAD
 static ssize_t qeth_l3_dev_rxip_del_store(const char *buf, size_t count,
 			struct qeth_card *card, enum qeth_prot_versions proto)
 {
@@ -922,6 +1260,12 @@ static ssize_t qeth_l3_dev_rxip_del4_store(struct device *dev,
 		return -EINVAL;
 
 	return qeth_l3_dev_rxip_del_store(buf, count, card, QETH_PROT_IPV4);
+=======
+static ssize_t qeth_l3_dev_rxip_del4_store(struct device *dev,
+		struct device_attribute *attr, const char *buf, size_t count)
+{
+	return qeth_l3_rxip_store(dev, buf, false, count, QETH_PROT_IPV4);
+>>>>>>> upstream/android-13
 }
 
 static QETH_DEVICE_ATTR(rxip_del4, del4, 0200, NULL,
@@ -938,12 +1282,16 @@ static ssize_t qeth_l3_dev_rxip_add6_show(struct device *dev,
 static ssize_t qeth_l3_dev_rxip_add6_store(struct device *dev,
 		struct device_attribute *attr, const char *buf, size_t count)
 {
+<<<<<<< HEAD
 	struct qeth_card *card = dev_get_drvdata(dev);
 
 	if (!card)
 		return -EINVAL;
 
 	return qeth_l3_dev_rxip_add_store(buf, count, card, QETH_PROT_IPV6);
+=======
+	return qeth_l3_rxip_store(dev, buf, true, count, QETH_PROT_IPV6);
+>>>>>>> upstream/android-13
 }
 
 static QETH_DEVICE_ATTR(rxip_add6, add6, 0644,
@@ -953,12 +1301,16 @@ static QETH_DEVICE_ATTR(rxip_add6, add6, 0644,
 static ssize_t qeth_l3_dev_rxip_del6_store(struct device *dev,
 		struct device_attribute *attr, const char *buf, size_t count)
 {
+<<<<<<< HEAD
 	struct qeth_card *card = dev_get_drvdata(dev);
 
 	if (!card)
 		return -EINVAL;
 
 	return qeth_l3_dev_rxip_del_store(buf, count, card, QETH_PROT_IPV6);
+=======
+	return qeth_l3_rxip_store(dev, buf, false, count, QETH_PROT_IPV6);
+>>>>>>> upstream/android-13
 }
 
 static QETH_DEVICE_ATTR(rxip_del6, del6, 0200, NULL,
@@ -977,6 +1329,7 @@ static const struct attribute_group qeth_device_rxip_group = {
 	.attrs = qeth_rxip_device_attrs,
 };
 
+<<<<<<< HEAD
 static const struct attribute_group *qeth_l3_only_attr_groups[] = {
 	&qeth_l3_device_attr_group,
 	&qeth_device_ipato_group,
@@ -999,6 +1352,9 @@ const struct attribute_group *qeth_l3_attr_groups[] = {
 	&qeth_device_attr_group,
 	&qeth_device_blkt_group,
 	/* l3 specific, see qeth_l3_only_attr_groups: */
+=======
+const struct attribute_group *qeth_l3_attr_groups[] = {
+>>>>>>> upstream/android-13
 	&qeth_l3_device_attr_group,
 	&qeth_device_ipato_group,
 	&qeth_device_vipa_group,

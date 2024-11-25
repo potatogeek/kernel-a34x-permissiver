@@ -20,12 +20,23 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+<<<<<<< HEAD
+=======
+#include <linux/dma-buf-map.h>
+
+#include <drm/drm_fourcc.h>
+
+>>>>>>> upstream/android-13
 #include "qxl_drv.h"
 #include "qxl_object.h"
 
 static int alloc_clips(struct qxl_device *qdev,
 		       struct qxl_release *release,
+<<<<<<< HEAD
 		       unsigned num_clips,
+=======
+		       unsigned int num_clips,
+>>>>>>> upstream/android-13
 		       struct qxl_bo **clips_bo)
 {
 	int size = sizeof(struct qxl_clip_rects) + sizeof(struct qxl_rect) * num_clips;
@@ -37,6 +48,7 @@ static int alloc_clips(struct qxl_device *qdev,
  * the qxl_clip_rects. This is *not* the same as the memory allocated
  * on the device, it is offset to qxl_clip_rects.chunk.data */
 static struct qxl_rect *drawable_set_clipping(struct qxl_device *qdev,
+<<<<<<< HEAD
 					      unsigned num_clips,
 					      struct qxl_bo *clips_bo)
 {
@@ -47,6 +59,20 @@ static struct qxl_rect *drawable_set_clipping(struct qxl_device *qdev,
 	if (ret) {
 		return NULL;
 	}
+=======
+					      unsigned int num_clips,
+					      struct qxl_bo *clips_bo)
+{
+	struct dma_buf_map map;
+	struct qxl_clip_rects *dev_clips;
+	int ret;
+
+	ret = qxl_bo_vmap_locked(clips_bo, &map);
+	if (ret)
+		return NULL;
+	dev_clips = map.vaddr; /* TODO: Use mapping abstraction properly */
+
+>>>>>>> upstream/android-13
 	dev_clips->num_rects = num_clips;
 	dev_clips->chunk.next_chunk = 0;
 	dev_clips->chunk.prev_chunk = 0;
@@ -109,6 +135,7 @@ make_drawable(struct qxl_device *qdev, int surface, uint8_t type,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int alloc_palette_object(struct qxl_device *qdev,
 				struct qxl_release *release,
 				struct qxl_bo **palette_bo)
@@ -254,6 +281,8 @@ out_free_drawable:
 		free_drawable(qdev, release);
 }
 
+=======
+>>>>>>> upstream/android-13
 /* push a draw command using the given clipping rectangles as
  * the sources from the shadow framebuffer.
  *
@@ -262,11 +291,20 @@ out_free_drawable:
  * by treating them differently in the server.
  */
 void qxl_draw_dirty_fb(struct qxl_device *qdev,
+<<<<<<< HEAD
 		       struct qxl_framebuffer *qxl_fb,
 		       struct qxl_bo *bo,
 		       unsigned flags, unsigned color,
 		       struct drm_clip_rect *clips,
 		       unsigned num_clips, int inc)
+=======
+		       struct drm_framebuffer *fb,
+		       struct qxl_bo *bo,
+		       unsigned int flags, unsigned int color,
+		       struct drm_clip_rect *clips,
+		       unsigned int num_clips, int inc,
+		       uint32_t dumb_shadow_offset)
+>>>>>>> upstream/android-13
 {
 	/*
 	 * TODO: if flags & DRM_MODE_FB_DIRTY_ANNOTATE_FILL then we should
@@ -281,9 +319,16 @@ void qxl_draw_dirty_fb(struct qxl_device *qdev,
 	struct qxl_drawable *drawable;
 	struct qxl_rect drawable_rect;
 	struct qxl_rect *rects;
+<<<<<<< HEAD
 	int stride = qxl_fb->base.pitches[0];
 	/* depth is not actually interesting, we don't mask with it */
 	int depth = qxl_fb->base.format->cpp[0] * 8;
+=======
+	int stride = fb->pitches[0];
+	/* depth is not actually interesting, we don't mask with it */
+	int depth = fb->format->cpp[0] * 8;
+	struct dma_buf_map surface_map;
+>>>>>>> upstream/android-13
 	uint8_t *surface_base;
 	struct qxl_release *release;
 	struct qxl_bo *clips_bo;
@@ -294,6 +339,12 @@ void qxl_draw_dirty_fb(struct qxl_device *qdev,
 	if (ret)
 		return;
 
+<<<<<<< HEAD
+=======
+	clips->x1 += dumb_shadow_offset;
+	clips->x2 += dumb_shadow_offset;
+
+>>>>>>> upstream/android-13
 	left = clips->x1;
 	right = clips->x2;
 	top = clips->y1;
@@ -336,6 +387,7 @@ void qxl_draw_dirty_fb(struct qxl_device *qdev,
 	if (ret)
 		goto out_release_backoff;
 
+<<<<<<< HEAD
 	ret = qxl_bo_kmap(bo, (void **)&surface_base);
 	if (ret)
 		goto out_release_backoff;
@@ -344,6 +396,17 @@ void qxl_draw_dirty_fb(struct qxl_device *qdev,
 	ret = qxl_image_init(qdev, release, dimage, surface_base,
 			     left, top, width, height, depth, stride);
 	qxl_bo_kunmap(bo);
+=======
+	ret = qxl_bo_vmap_locked(bo, &surface_map);
+	if (ret)
+		goto out_release_backoff;
+	surface_base = surface_map.vaddr; /* TODO: Use mapping abstraction properly */
+
+	ret = qxl_image_init(qdev, release, dimage, surface_base,
+			     left - dumb_shadow_offset,
+			     top, width, height, depth, stride);
+	qxl_bo_vunmap_locked(bo);
+>>>>>>> upstream/android-13
 	if (ret)
 		goto out_release_backoff;
 
@@ -380,7 +443,11 @@ void qxl_draw_dirty_fb(struct qxl_device *qdev,
 		rects[i].top    = clips_ptr->y1;
 		rects[i].bottom = clips_ptr->y2;
 	}
+<<<<<<< HEAD
 	qxl_bo_kunmap(clips_bo);
+=======
+	qxl_bo_vunmap_locked(clips_bo);
+>>>>>>> upstream/android-13
 
 	qxl_release_fence_buffer_objects(release);
 	qxl_push_command_ring_release(qdev, release, QXL_CMD_DRAW, false);
@@ -398,6 +465,7 @@ out_free_drawable:
 		free_drawable(qdev, release);
 
 }
+<<<<<<< HEAD
 
 void qxl_draw_copyarea(struct qxl_device *qdev,
 		       u32 width, u32 height,
@@ -484,3 +552,5 @@ out_free_release:
 	if (ret)
 		free_drawable(qdev, release);
 }
+=======
+>>>>>>> upstream/android-13

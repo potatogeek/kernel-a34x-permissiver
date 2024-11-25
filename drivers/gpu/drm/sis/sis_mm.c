@@ -31,11 +31,22 @@
  *    Thomas Hellström <thomas-at-tungstengraphics-dot-com>
  */
 
+<<<<<<< HEAD
 #include <drm/drmP.h>
 #include <drm/sis_drm.h>
 #include "sis_drv.h"
 
 #include <video/sisfb.h>
+=======
+#include <video/sisfb.h>
+
+#include <drm/drm_device.h>
+#include <drm/drm_file.h>
+#include <drm/sis_drm.h>
+
+#include "sis_drv.h"
+
+>>>>>>> upstream/android-13
 
 #define VIDEO_TYPE 0
 #define AGP_TYPE 1

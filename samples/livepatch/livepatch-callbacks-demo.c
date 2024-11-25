@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2017 Joe Lawrence <joe.lawrence@redhat.com>
  *
@@ -13,6 +14,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (C) 2017 Joe Lawrence <joe.lawrence@redhat.com>
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -195,6 +201,7 @@ static struct klp_patch patch = {
 
 static int livepatch_callbacks_demo_init(void)
 {
+<<<<<<< HEAD
 	int ret;
 
 	ret = klp_register_patch(&patch);
@@ -206,11 +213,17 @@ static int livepatch_callbacks_demo_init(void)
 		return ret;
 	}
 	return 0;
+=======
+	return klp_enable_patch(&patch);
+>>>>>>> upstream/android-13
 }
 
 static void livepatch_callbacks_demo_exit(void)
 {
+<<<<<<< HEAD
 	WARN_ON(klp_unregister_patch(&patch));
+=======
+>>>>>>> upstream/android-13
 }
 
 module_init(livepatch_callbacks_demo_init);

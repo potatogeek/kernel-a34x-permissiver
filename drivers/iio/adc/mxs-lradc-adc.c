@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Freescale MXS LRADC ADC driver
  *
@@ -7,6 +11,7 @@
  * Authors:
  *  Marek Vasut <marex@denx.de>
  *  Ksenija Stanojevic <ksenija.stanojevic@gmail.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +22,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/completion.h>
@@ -124,7 +131,12 @@ struct mxs_lradc_adc {
 	struct device		*dev;
 
 	void __iomem		*base;
+<<<<<<< HEAD
 	u32			buffer[10];
+=======
+	/* Maximum of 8 channels + 8 byte ts */
+	u32			buffer[10] __aligned(8);
+>>>>>>> upstream/android-13
 	struct iio_trigger	*trig;
 	struct completion	completion;
 	spinlock_t		lock;
@@ -464,7 +476,13 @@ static int mxs_lradc_adc_trigger_init(struct iio_dev *iio)
 	struct mxs_lradc_adc *adc = iio_priv(iio);
 
 	trig = devm_iio_trigger_alloc(&iio->dev, "%s-dev%i", iio->name,
+<<<<<<< HEAD
 				      iio->id);
+=======
+				      iio_device_id(iio));
+	if (!trig)
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 
 	trig->dev.parent = adc->dev;
 	iio_trigger_set_drvdata(trig, iio);
@@ -575,8 +593,11 @@ static bool mxs_lradc_adc_validate_scan_mask(struct iio_dev *iio,
 
 static const struct iio_buffer_setup_ops mxs_lradc_adc_buffer_ops = {
 	.preenable = &mxs_lradc_adc_buffer_preenable,
+<<<<<<< HEAD
 	.postenable = &iio_triggered_buffer_postenable,
 	.predisable = &iio_triggered_buffer_predisable,
+=======
+>>>>>>> upstream/android-13
 	.postdisable = &mxs_lradc_adc_buffer_postdisable,
 	.validate_scan_mask = &mxs_lradc_adc_validate_scan_mask,
 };
@@ -729,7 +750,10 @@ static int mxs_lradc_adc_probe(struct platform_device *pdev)
 	platform_set_drvdata(pdev, iio);
 
 	iio->name = pdev->name;
+<<<<<<< HEAD
 	iio->dev.parent = dev;
+=======
+>>>>>>> upstream/android-13
 	iio->dev.of_node = dev->parent->of_node;
 	iio->info = &mxs_lradc_adc_iio_info;
 	iio->modes = INDIO_DIRECT_MODE;

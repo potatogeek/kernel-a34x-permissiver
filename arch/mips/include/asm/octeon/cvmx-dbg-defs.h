@@ -62,7 +62,10 @@ union cvmx_dbg_data {
 		uint64_t reserved_31_63:33;
 #endif
 	} cn30xx;
+<<<<<<< HEAD
 	struct cvmx_dbg_data_cn30xx cn31xx;
+=======
+>>>>>>> upstream/android-13
 	struct cvmx_dbg_data_cn38xx {
 #ifdef __BIG_ENDIAN_BITFIELD
 		uint64_t reserved_29_63:35;
@@ -82,8 +85,11 @@ union cvmx_dbg_data {
 		uint64_t reserved_29_63:35;
 #endif
 	} cn38xx;
+<<<<<<< HEAD
 	struct cvmx_dbg_data_cn38xx cn38xxp2;
 	struct cvmx_dbg_data_cn30xx cn50xx;
+=======
+>>>>>>> upstream/android-13
 	struct cvmx_dbg_data_cn58xx {
 #ifdef __BIG_ENDIAN_BITFIELD
 		uint64_t reserved_29_63:35;
@@ -99,7 +105,10 @@ union cvmx_dbg_data {
 		uint64_t reserved_29_63:35;
 #endif
 	} cn58xx;
+<<<<<<< HEAD
 	struct cvmx_dbg_data_cn58xx cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 #endif

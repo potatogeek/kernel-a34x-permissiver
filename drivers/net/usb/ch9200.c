@@ -111,8 +111,13 @@ static int control_read(struct usbnet *dev,
 		request_type = (USB_DIR_IN | USB_TYPE_VENDOR |
 				USB_RECIP_DEVICE);
 
+<<<<<<< HEAD
 	netdev_dbg(dev->net, "Control_read() index=0x%02x size=%d\n",
 		   index, size);
+=======
+	netdev_dbg(dev->net, "%s() index=0x%02x size=%d\n",
+		   __func__, index, size);
+>>>>>>> upstream/android-13
 
 	buf = kmalloc(size, GFP_KERNEL);
 	if (!buf) {
@@ -130,8 +135,11 @@ static int control_read(struct usbnet *dev,
 		err = -EINVAL;
 	kfree(buf);
 
+<<<<<<< HEAD
 	return err;
 
+=======
+>>>>>>> upstream/android-13
 err_out:
 	return err;
 }
@@ -151,8 +159,13 @@ static int control_write(struct usbnet *dev, unsigned char request,
 		request_type = (USB_DIR_OUT | USB_TYPE_VENDOR |
 				USB_RECIP_DEVICE);
 
+<<<<<<< HEAD
 	netdev_dbg(dev->net, "Control_write() index=0x%02x size=%d\n",
 		   index, size);
+=======
+	netdev_dbg(dev->net, "%s() index=0x%02x size=%d\n",
+		   __func__, index, size);
+>>>>>>> upstream/android-13
 
 	if (data) {
 		buf = kmemdup(data, size, GFP_KERNEL);
@@ -181,8 +194,13 @@ static int ch9200_mdio_read(struct net_device *netdev, int phy_id, int loc)
 	struct usbnet *dev = netdev_priv(netdev);
 	unsigned char buff[2];
 
+<<<<<<< HEAD
 	netdev_dbg(netdev, "ch9200_mdio_read phy_id:%02x loc:%02x\n",
 		   phy_id, loc);
+=======
+	netdev_dbg(netdev, "%s phy_id:%02x loc:%02x\n",
+		   __func__, phy_id, loc);
+>>>>>>> upstream/android-13
 
 	if (phy_id != 0)
 		return -ENODEV;
@@ -199,8 +217,13 @@ static void ch9200_mdio_write(struct net_device *netdev,
 	struct usbnet *dev = netdev_priv(netdev);
 	unsigned char buff[2];
 
+<<<<<<< HEAD
 	netdev_dbg(netdev, "ch9200_mdio_write() phy_id=%02x loc:%02x\n",
 		   phy_id, loc);
+=======
+	netdev_dbg(netdev, "%s() phy_id=%02x loc:%02x\n",
+		   __func__, phy_id, loc);
+>>>>>>> upstream/android-13
 
 	if (phy_id != 0)
 		return;
@@ -219,8 +242,13 @@ static int ch9200_link_reset(struct usbnet *dev)
 	mii_check_media(&dev->mii, 1, 1);
 	mii_ethtool_gset(&dev->mii, &ecmd);
 
+<<<<<<< HEAD
 	netdev_dbg(dev->net, "link_reset() speed:%d duplex:%d\n",
 		   ecmd.speed, ecmd.duplex);
+=======
+	netdev_dbg(dev->net, "%s() speed:%d duplex:%d\n",
+		   __func__, ecmd.speed, ecmd.duplex);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -309,7 +337,11 @@ static int get_mac_address(struct usbnet *dev, unsigned char *data)
 	unsigned char mac_addr[0x06];
 	int rd_mac_len = 0;
 
+<<<<<<< HEAD
 	netdev_dbg(dev->net, "get_mac_address:\n\tusbnet VID:%0x PID:%0x\n",
+=======
+	netdev_dbg(dev->net, "%s:\n\tusbnet VID:%0x PID:%0x\n", __func__,
+>>>>>>> upstream/android-13
 		   le16_to_cpu(dev->udev->descriptor.idVendor),
 		   le16_to_cpu(dev->udev->descriptor.idProduct));
 

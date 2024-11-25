@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * arch/arm64/kernel/ftrace.c
  *
  * Copyright (C) 2013 Linaro Limited
  * Author: AKASHI Takahiro <takahiro.akashi@linaro.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/ftrace.h>
@@ -18,6 +25,10 @@
 #include <asm/debug-monitors.h>
 #include <asm/ftrace.h>
 #include <asm/insn.h>
+<<<<<<< HEAD
+=======
+#include <asm/patching.h>
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_DYNAMIC_FTRACE
 /*
@@ -58,13 +69,34 @@ int ftrace_update_ftrace_func(ftrace_func_t func)
 	unsigned long pc;
 	u32 new;
 
+<<<<<<< HEAD
 	pc = (unsigned long)&ftrace_call;
+=======
+	pc = (unsigned long)function_nocfi(ftrace_call);
+>>>>>>> upstream/android-13
 	new = aarch64_insn_gen_branch_imm(pc, (unsigned long)func,
 					  AARCH64_INSN_BRANCH_LINK);
 
 	return ftrace_modify_code(pc, 0, new, false);
 }
 
+<<<<<<< HEAD
+=======
+static struct plt_entry *get_ftrace_plt(struct module *mod, unsigned long addr)
+{
+#ifdef CONFIG_ARM64_MODULE_PLTS
+	struct plt_entry *plt = mod->arch.ftrace_trampolines;
+
+	if (addr == FTRACE_ADDR)
+		return &plt[FTRACE_PLT_IDX];
+	if (addr == FTRACE_REGS_ADDR &&
+	    IS_ENABLED(CONFIG_DYNAMIC_FTRACE_WITH_REGS))
+		return &plt[FTRACE_REGS_PLT_IDX];
+#endif
+	return NULL;
+}
+
+>>>>>>> upstream/android-13
 /*
  * Turn on the call to ftrace_caller() in instrumented function
  */
@@ -75,9 +107,17 @@ int ftrace_make_call(struct dyn_ftrace *rec, unsigned long addr)
 	long offset = (long)pc - (long)addr;
 
 	if (offset < -SZ_128M || offset >= SZ_128M) {
+<<<<<<< HEAD
 #ifdef CONFIG_ARM64_MODULE_PLTS
 		struct plt_entry trampoline, *dst;
 		struct module *mod;
+=======
+		struct module *mod;
+		struct plt_entry *plt;
+
+		if (!IS_ENABLED(CONFIG_ARM64_MODULE_PLTS))
+			return -EINVAL;
+>>>>>>> upstream/android-13
 
 		/*
 		 * On kernels that support module PLTs, the offset between the
@@ -96,6 +136,7 @@ int ftrace_make_call(struct dyn_ftrace *rec, unsigned long addr)
 		if (WARN_ON(!mod))
 			return -EINVAL;
 
+<<<<<<< HEAD
 		/*
 		 * There is only one ftrace trampoline per module. For now,
 		 * this is not a problem since on arm64, all dynamic ftrace
@@ -134,6 +175,15 @@ int ftrace_make_call(struct dyn_ftrace *rec, unsigned long addr)
 #else /* CONFIG_ARM64_MODULE_PLTS */
 		return -EINVAL;
 #endif /* CONFIG_ARM64_MODULE_PLTS */
+=======
+		plt = get_ftrace_plt(mod, addr);
+		if (!plt) {
+			pr_err("ftrace: no module PLT for %ps\n", (void *)addr);
+			return -EINVAL;
+		}
+
+		addr = (unsigned long)plt;
+>>>>>>> upstream/android-13
 	}
 
 	old = aarch64_insn_gen_nop();
@@ -142,6 +192,58 @@ int ftrace_make_call(struct dyn_ftrace *rec, unsigned long addr)
 	return ftrace_modify_code(pc, old, new, true);
 }
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_DYNAMIC_FTRACE_WITH_REGS
+int ftrace_modify_call(struct dyn_ftrace *rec, unsigned long old_addr,
+			unsigned long addr)
+{
+	unsigned long pc = rec->ip;
+	u32 old, new;
+
+	old = aarch64_insn_gen_branch_imm(pc, old_addr,
+					  AARCH64_INSN_BRANCH_LINK);
+	new = aarch64_insn_gen_branch_imm(pc, addr, AARCH64_INSN_BRANCH_LINK);
+
+	return ftrace_modify_code(pc, old, new, true);
+}
+
+/*
+ * The compiler has inserted two NOPs before the regular function prologue.
+ * All instrumented functions follow the AAPCS, so x0-x8 and x19-x30 are live,
+ * and x9-x18 are free for our use.
+ *
+ * At runtime we want to be able to swing a single NOP <-> BL to enable or
+ * disable the ftrace call. The BL requires us to save the original LR value,
+ * so here we insert a <MOV X9, LR> over the first NOP so the instructions
+ * before the regular prologue are:
+ *
+ * | Compiled | Disabled   | Enabled    |
+ * +----------+------------+------------+
+ * | NOP      | MOV X9, LR | MOV X9, LR |
+ * | NOP      | NOP        | BL <entry> |
+ *
+ * The LR value will be recovered by ftrace_regs_entry, and restored into LR
+ * before returning to the regular function prologue. When a function is not
+ * being traced, the MOV is not harmful given x9 is not live per the AAPCS.
+ *
+ * Note: ftrace_process_locs() has pre-adjusted rec->ip to be the address of
+ * the BL.
+ */
+int ftrace_init_nop(struct module *mod, struct dyn_ftrace *rec)
+{
+	unsigned long pc = rec->ip - AARCH64_INSN_SIZE;
+	u32 old, new;
+
+	old = aarch64_insn_gen_nop();
+	new = aarch64_insn_gen_move_reg(AARCH64_INSN_REG_9,
+					AARCH64_INSN_REG_LR,
+					AARCH64_INSN_VARIANT_64BIT);
+	return ftrace_modify_code(pc, old, new, true);
+}
+#endif
+
+>>>>>>> upstream/android-13
 /*
  * Turn off the call to ftrace_caller() in instrumented function
  */
@@ -154,9 +256,17 @@ int ftrace_make_nop(struct module *mod, struct dyn_ftrace *rec,
 	long offset = (long)pc - (long)addr;
 
 	if (offset < -SZ_128M || offset >= SZ_128M) {
+<<<<<<< HEAD
 #ifdef CONFIG_ARM64_MODULE_PLTS
 		u32 replaced;
 
+=======
+		u32 replaced;
+
+		if (!IS_ENABLED(CONFIG_ARM64_MODULE_PLTS))
+			return -EINVAL;
+
+>>>>>>> upstream/android-13
 		/*
 		 * 'mod' is only set at module load time, but if we end up
 		 * dealing with an out-of-range condition, we can assume it
@@ -187,9 +297,12 @@ int ftrace_make_nop(struct module *mod, struct dyn_ftrace *rec,
 			return -EINVAL;
 
 		validate = false;
+<<<<<<< HEAD
 #else /* CONFIG_ARM64_MODULE_PLTS */
 		return -EINVAL;
 #endif /* CONFIG_ARM64_MODULE_PLTS */
+=======
+>>>>>>> upstream/android-13
 	} else {
 		old = aarch64_insn_gen_branch_imm(pc, addr,
 						  AARCH64_INSN_BRANCH_LINK);
@@ -202,6 +315,10 @@ int ftrace_make_nop(struct module *mod, struct dyn_ftrace *rec,
 
 void arch_ftrace_update_code(int command)
 {
+<<<<<<< HEAD
+=======
+	command |= FTRACE_MAY_SLEEP;
+>>>>>>> upstream/android-13
 	ftrace_modify_all_code(command);
 }
 
@@ -220,7 +337,11 @@ int __init ftrace_dyn_arch_init(void)
  *
  * Note that @frame_pointer is used only for sanity check later.
  */
+<<<<<<< HEAD
 void prepare_ftrace_return(unsigned long *parent, unsigned long self_addr,
+=======
+void prepare_ftrace_return(unsigned long self_addr, unsigned long *parent,
+>>>>>>> upstream/android-13
 			   unsigned long frame_pointer)
 {
 	unsigned long return_hooker = (unsigned long)&return_to_handler;

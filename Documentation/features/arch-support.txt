@@ -8,4 +8,8 @@ The meaning of entries in the tables is:
     | ok |  # feature supported by the architecture
     |TODO|  # feature not yet supported by the architecture
     | .. |  # feature cannot be supported by the hardware
+<<<<<<< HEAD
+=======
+    | N/A|  # feature doesn't apply to the architecture
+>>>>>>> upstream/android-13
 

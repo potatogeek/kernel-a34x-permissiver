@@ -31,6 +31,7 @@
 #define SERIAL_MAX_NUM_LINES 1
 #define SERIAL_TIMER_VALUE (HZ / 10)
 
+<<<<<<< HEAD
 static struct tty_driver *serial_driver;
 static struct tty_port serial_port;
 static struct timer_list serial_timer;
@@ -58,10 +59,23 @@ static int rs_open(struct tty_struct *tty, struct file * filp)
 		mod_timer(&serial_timer, jiffies + SERIAL_TIMER_VALUE);
 	}
 	spin_unlock_bh(&timer_lock);
+=======
+static void rs_poll(struct timer_list *);
+
+static struct tty_driver *serial_driver;
+static struct tty_port serial_port;
+static DEFINE_TIMER(serial_timer, rs_poll);
+
+static int rs_open(struct tty_struct *tty, struct file * filp)
+{
+	if (tty->count == 1)
+		mod_timer(&serial_timer, jiffies + SERIAL_TIMER_VALUE);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 
 /*
  * ------------------------------------------------------------
@@ -79,6 +93,12 @@ static void rs_close(struct tty_struct *tty, struct file * filp)
 	if (tty->count == 1)
 		del_timer_sync(&serial_timer);
 	spin_unlock_bh(&timer_lock);
+=======
+static void rs_close(struct tty_struct *tty, struct file * filp)
+{
+	if (tty->count == 1)
+		del_timer_sync(&serial_timer);
+>>>>>>> upstream/android-13
 }
 
 
@@ -98,8 +118,11 @@ static void rs_poll(struct timer_list *unused)
 	int rd = 1;
 	unsigned char c;
 
+<<<<<<< HEAD
 	spin_lock(&timer_lock);
 
+=======
+>>>>>>> upstream/android-13
 	while (simc_poll(0)) {
 		rd = simc_read(0, &c, 1);
 		if (rd <= 0)
@@ -112,7 +135,10 @@ static void rs_poll(struct timer_list *unused)
 		tty_flip_buffer_push(port);
 	if (rd)
 		mod_timer(&serial_timer, jiffies + SERIAL_TIMER_VALUE);
+<<<<<<< HEAD
 	spin_unlock(&timer_lock);
+=======
+>>>>>>> upstream/android-13
 }
 
 
@@ -125,18 +151,25 @@ static void rs_flush_chars(struct tty_struct *tty)
 {
 }
 
+<<<<<<< HEAD
 static int rs_write_room(struct tty_struct *tty)
+=======
+static unsigned int rs_write_room(struct tty_struct *tty)
+>>>>>>> upstream/android-13
 {
 	/* Let's say iss can always accept 2K characters.. */
 	return 2 * 1024;
 }
 
+<<<<<<< HEAD
 static int rs_chars_in_buffer(struct tty_struct *tty)
 {
 	/* the iss doesn't buffer characters */
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static void rs_hangup(struct tty_struct *tty)
 {
 	/* Stub, once again.. */
@@ -149,7 +182,11 @@ static void rs_wait_until_sent(struct tty_struct *tty, int timeout)
 
 static int rs_proc_show(struct seq_file *m, void *v)
 {
+<<<<<<< HEAD
 	seq_printf(m, "serinfo:1.0 driver:%s\n", serial_version);
+=======
+	seq_printf(m, "serinfo:1.0 driver:0.1\n");
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -160,12 +197,16 @@ static const struct tty_operations serial_ops = {
 	.put_char = rs_put_char,
 	.flush_chars = rs_flush_chars,
 	.write_room = rs_write_room,
+<<<<<<< HEAD
 	.chars_in_buffer = rs_chars_in_buffer,
+=======
+>>>>>>> upstream/android-13
 	.hangup = rs_hangup,
 	.wait_until_sent = rs_wait_until_sent,
 	.proc_show = rs_proc_show,
 };
 
+<<<<<<< HEAD
 int __init rs_init(void)
 {
 	tty_port_init(&serial_port);
@@ -192,18 +233,62 @@ int __init rs_init(void)
 
 	if (tty_register_driver(serial_driver))
 		panic("Couldn't register serial driver\n");
+=======
+static int __init rs_init(void)
+{
+	struct tty_driver *driver;
+	int ret;
+
+	driver = tty_alloc_driver(SERIAL_MAX_NUM_LINES, TTY_DRIVER_REAL_RAW);
+	if (IS_ERR(driver))
+		return PTR_ERR(driver);
+
+	tty_port_init(&serial_port);
+
+	/* Initialize the tty_driver structure */
+
+	driver->driver_name = "iss_serial";
+	driver->name = "ttyS";
+	driver->major = TTY_MAJOR;
+	driver->minor_start = 64;
+	driver->type = TTY_DRIVER_TYPE_SERIAL;
+	driver->subtype = SERIAL_TYPE_NORMAL;
+	driver->init_termios = tty_std_termios;
+	driver->init_termios.c_cflag =
+		B9600 | CS8 | CREAD | HUPCL | CLOCAL;
+
+	tty_set_operations(driver, &serial_ops);
+	tty_port_link_device(&serial_port, driver, 0);
+
+	ret = tty_register_driver(driver);
+	if (ret) {
+		pr_err("Couldn't register serial driver\n");
+		tty_driver_kref_put(driver);
+		tty_port_destroy(&serial_port);
+
+		return ret;
+	}
+
+	serial_driver = driver;
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 
 static __exit void rs_exit(void)
 {
+<<<<<<< HEAD
 	int error;
 
 	if ((error = tty_unregister_driver(serial_driver)))
 		pr_err("ISS_SERIAL: failed to unregister serial driver (%d)\n",
 		       error);
 	put_tty_driver(serial_driver);
+=======
+	tty_unregister_driver(serial_driver);
+	tty_driver_kref_put(serial_driver);
+>>>>>>> upstream/android-13
 	tty_port_destroy(&serial_port);
 }
 
@@ -224,10 +309,17 @@ late_initcall(rs_init);
 
 static void iss_console_write(struct console *co, const char *s, unsigned count)
 {
+<<<<<<< HEAD
 	int len = strlen(s);
 
 	if (s != 0 && *s != 0)
 		simc_write(1, s, count < len ? count : len);
+=======
+	if (s && *s != 0) {
+		int len = strlen(s);
+		simc_write(1, s, count < len ? count : len);
+	}
+>>>>>>> upstream/android-13
 }
 
 static struct tty_driver* iss_console_device(struct console *c, int *index)

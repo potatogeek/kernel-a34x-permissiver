@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * OpenRISC traps.c
  *
@@ -9,6 +13,7 @@
  * Copyright (C) 2003 Matjaz Breskvar <phoenix@bsemi.com>
  * Copyright (C) 2010-2011 Jonas Bonn <jonas@southpole.se>
  *
+<<<<<<< HEAD
  *      This program is free software; you can redistribute it and/or
  *      modify it under the terms of the GNU General Public License
  *      as published by the Free Software Foundation; either version
@@ -18,6 +23,11 @@
  *  mechanism, as well as some general stack/register dumping
  *  things.
  *
+=======
+ *  Here we handle the break vectors not used by the system call
+ *  mechanism, as well as some general stack/register dumping
+ *  things.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -35,9 +45,13 @@
 #include <linux/kallsyms.h>
 #include <linux/uaccess.h>
 
+<<<<<<< HEAD
 #include <asm/segment.h>
 #include <asm/io.h>
 #include <asm/pgtable.h>
+=======
+#include <asm/io.h>
+>>>>>>> upstream/android-13
 #include <asm/unwinder.h>
 #include <asm/sections.h>
 
@@ -47,16 +61,27 @@ unsigned long __user *lwa_addr;
 
 void print_trace(void *data, unsigned long addr, int reliable)
 {
+<<<<<<< HEAD
 	pr_emerg("[<%p>] %s%pS\n", (void *) addr, reliable ? "" : "? ",
+=======
+	const char *loglvl = data;
+
+	printk("%s[<%p>] %s%pS\n", loglvl, (void *) addr, reliable ? "" : "? ",
+>>>>>>> upstream/android-13
 	       (void *) addr);
 }
 
 /* displays a short stack trace */
+<<<<<<< HEAD
 void show_stack(struct task_struct *task, unsigned long *esp)
+=======
+void show_stack(struct task_struct *task, unsigned long *esp, const char *loglvl)
+>>>>>>> upstream/android-13
 {
 	if (esp == NULL)
 		esp = (unsigned long *)&esp;
 
+<<<<<<< HEAD
 	pr_emerg("Call trace:\n");
 	unwind_stack(NULL, esp, print_trace);
 }
@@ -66,6 +91,10 @@ void show_trace_task(struct task_struct *tsk)
 	/*
 	 * TODO: SysRq-T trace dump...
 	 */
+=======
+	printk("%sCall trace:\n", loglvl);
+	unwind_stack((void *)loglvl, esp, print_trace);
+>>>>>>> upstream/android-13
 }
 
 void show_registers(struct pt_regs *regs)
@@ -109,7 +138,11 @@ void show_registers(struct pt_regs *regs)
 	if (in_kernel) {
 
 		printk("\nStack: ");
+<<<<<<< HEAD
 		show_stack(NULL, (unsigned long *)esp);
+=======
+		show_stack(NULL, (unsigned long *)esp, KERN_EMERG);
+>>>>>>> upstream/android-13
 
 		printk("\nCode: ");
 		if (regs->pc < PAGE_OFFSET)
@@ -243,6 +276,7 @@ void unhandled_exception(struct pt_regs *regs, int ea, int vector)
 	die("Oops", regs, 9);
 }
 
+<<<<<<< HEAD
 void __init trap_init(void)
 {
 	/* Nothing needs to be done */
@@ -253,13 +287,22 @@ asmlinkage void do_trap(struct pt_regs *regs, unsigned long address)
 	force_sig_fault(SIGTRAP, TRAP_TRACE, (void __user *)address, current);
 
 	regs->pc += 4;
+=======
+asmlinkage void do_trap(struct pt_regs *regs, unsigned long address)
+{
+	force_sig_fault(SIGTRAP, TRAP_BRKPT, (void __user *)regs->pc);
+>>>>>>> upstream/android-13
 }
 
 asmlinkage void do_unaligned_access(struct pt_regs *regs, unsigned long address)
 {
 	if (user_mode(regs)) {
 		/* Send a SIGBUS */
+<<<<<<< HEAD
 		force_sig_fault(SIGBUS, BUS_ADRALN, (void __user *)address, current);
+=======
+		force_sig_fault(SIGBUS, BUS_ADRALN, (void __user *)address);
+>>>>>>> upstream/android-13
 	} else {
 		printk("KERNEL: Unaligned Access 0x%.8lx\n", address);
 		show_registers(regs);
@@ -272,7 +315,11 @@ asmlinkage void do_bus_fault(struct pt_regs *regs, unsigned long address)
 {
 	if (user_mode(regs)) {
 		/* Send a SIGBUS */
+<<<<<<< HEAD
 		force_sig_fault(SIGBUS, BUS_ADRERR, (void __user *)address, current);
+=======
+		force_sig_fault(SIGBUS, BUS_ADRERR, (void __user *)address);
+>>>>>>> upstream/android-13
 	} else {		/* Kernel mode */
 		printk("KERNEL: Bus error (SIGBUS) 0x%.8lx\n", address);
 		show_registers(regs);
@@ -377,7 +424,11 @@ static inline void simulate_lwa(struct pt_regs *regs, unsigned long address,
 
 	if (get_user(value, lwa_addr)) {
 		if (user_mode(regs)) {
+<<<<<<< HEAD
 			force_sig(SIGSEGV, current);
+=======
+			force_sig(SIGSEGV);
+>>>>>>> upstream/android-13
 			return;
 		}
 
@@ -424,7 +475,11 @@ static inline void simulate_swa(struct pt_regs *regs, unsigned long address,
 
 	if (put_user(regs->gpr[rb], vaddr)) {
 		if (user_mode(regs)) {
+<<<<<<< HEAD
 			force_sig(SIGSEGV, current);
+=======
+			force_sig(SIGSEGV);
+>>>>>>> upstream/android-13
 			return;
 		}
 
@@ -467,7 +522,11 @@ asmlinkage void do_illegal_instruction(struct pt_regs *regs,
 
 	if (user_mode(regs)) {
 		/* Send a SIGILL */
+<<<<<<< HEAD
 		force_sig_fault(SIGILL, ILL_ILLOPC, (void __user *)address, current);
+=======
+		force_sig_fault(SIGILL, ILL_ILLOPC, (void __user *)address);
+>>>>>>> upstream/android-13
 	} else {		/* Kernel mode */
 		printk("KERNEL: Illegal instruction (SIGILL) 0x%.8lx\n",
 		       address);

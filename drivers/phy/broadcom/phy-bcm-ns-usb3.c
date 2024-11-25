@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Broadcom Northstar USB 3.0 PHY Driver
  *
@@ -7,15 +11,22 @@
  * All magic values used for initialization (and related comments) were obtained
  * from Broadcom's SDK:
  * Copyright (c) Broadcom Corp, 2012
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/bcma/bcma.h>
 #include <linux/delay.h>
 #include <linux/err.h>
+<<<<<<< HEAD
+=======
+#include <linux/iopoll.h>
+>>>>>>> upstream/android-13
 #include <linux/mdio.h>
 #include <linux/module.h>
 #include <linux/of_address.h>
@@ -24,8 +35,11 @@
 #include <linux/phy/phy.h>
 #include <linux/slab.h>
 
+<<<<<<< HEAD
 #define BCM_NS_USB3_MII_MNG_TIMEOUT_US	1000	/* usecs */
 
+=======
+>>>>>>> upstream/android-13
 #define BCM_NS_USB3_PHY_BASE_ADDR_REG	0x1f
 #define BCM_NS_USB3_PHY_PLL30_BLOCK	0x8000
 #define BCM_NS_USB3_PHY_TX_PMD_BLOCK	0x8040
@@ -53,11 +67,16 @@ struct bcm_ns_usb3 {
 	struct device *dev;
 	enum bcm_ns_family family;
 	void __iomem *dmp;
+<<<<<<< HEAD
 	void __iomem *ccb_mii;
 	struct mdio_device *mdiodev;
 	struct phy *phy;
 
 	int (*phy_write)(struct bcm_ns_usb3 *usb3, u16 reg, u16 value);
+=======
+	struct mdio_device *mdiodev;
+	struct phy *phy;
+>>>>>>> upstream/android-13
 };
 
 static const struct of_device_id bcm_ns_usb3_id_table[] = {
@@ -71,6 +90,7 @@ static const struct of_device_id bcm_ns_usb3_id_table[] = {
 	},
 	{},
 };
+<<<<<<< HEAD
 MODULE_DEVICE_TABLE(of, bcm_ns_usb3_id_table);
 
 static int bcm_ns_usb3_mdio_phy_write(struct bcm_ns_usb3 *usb3, u16 reg,
@@ -78,6 +98,11 @@ static int bcm_ns_usb3_mdio_phy_write(struct bcm_ns_usb3 *usb3, u16 reg,
 {
 	return usb3->phy_write(usb3, reg, value);
 }
+=======
+
+static int bcm_ns_usb3_mdio_phy_write(struct bcm_ns_usb3 *usb3, u16 reg,
+				      u16 value);
+>>>>>>> upstream/android-13
 
 static int bcm_ns_usb3_phy_init_ns_bx(struct bcm_ns_usb3 *usb3)
 {
@@ -189,8 +214,13 @@ static const struct phy_ops ops = {
  * MDIO driver code
  **************************************************/
 
+<<<<<<< HEAD
 static int bcm_ns_usb3_mdiodev_phy_write(struct bcm_ns_usb3 *usb3, u16 reg,
 					 u16 value)
+=======
+static int bcm_ns_usb3_mdio_phy_write(struct bcm_ns_usb3 *usb3, u16 reg,
+				      u16 value)
+>>>>>>> upstream/android-13
 {
 	struct mdio_device *mdiodev = usb3->mdiodev;
 
@@ -226,12 +256,17 @@ static int bcm_ns_usb3_mdio_probe(struct mdio_device *mdiodev)
 		return err;
 
 	usb3->dmp = devm_ioremap_resource(dev, &res);
+<<<<<<< HEAD
 	if (IS_ERR(usb3->dmp)) {
 		dev_err(dev, "Failed to map DMP regs\n");
 		return PTR_ERR(usb3->dmp);
 	}
 
 	usb3->phy_write = bcm_ns_usb3_mdiodev_phy_write;
+=======
+	if (IS_ERR(usb3->dmp))
+		return PTR_ERR(usb3->dmp);
+>>>>>>> upstream/android-13
 
 	usb3->phy = devm_phy_create(dev, NULL, &ops);
 	if (IS_ERR(usb3->phy)) {
@@ -256,6 +291,7 @@ static struct mdio_driver bcm_ns_usb3_mdio_driver = {
 	.probe = bcm_ns_usb3_mdio_probe,
 };
 
+<<<<<<< HEAD
 /**************************************************
  * Platform driver code
  **************************************************/
@@ -403,3 +439,9 @@ static void __exit bcm_ns_usb3_module_exit(void)
 module_exit(bcm_ns_usb3_module_exit)
 
 MODULE_LICENSE("GPL v2");
+=======
+mdio_module_driver(bcm_ns_usb3_mdio_driver);
+
+MODULE_LICENSE("GPL v2");
+MODULE_DEVICE_TABLE(of, bcm_ns_usb3_id_table);
+>>>>>>> upstream/android-13

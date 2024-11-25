@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* Copyright (C) 2000-2002 Joakim Axelsson <gozem@linux.nu>
  *                         Patrick Schaaf <bof@bof.de>
  *                         Martin Josefsson <gandalf@wlug.westbo.se>
@@ -6,6 +7,13 @@
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/* Copyright (C) 2000-2002 Joakim Axelsson <gozem@linux.nu>
+ *                         Patrick Schaaf <bof@bof.de>
+ *                         Martin Josefsson <gandalf@wlug.westbo.se>
+ * Copyright (C) 2003-2013 Jozsef Kadlecsik <kadlec@netfilter.org>
+>>>>>>> upstream/android-13
  */
 #ifndef _IP_SET_H
 #define _IP_SET_H
@@ -17,6 +25,10 @@
 #include <linux/netfilter/x_tables.h>
 #include <linux/stringify.h>
 #include <linux/vmalloc.h>
+<<<<<<< HEAD
+=======
+#include <linux/android_kabi.h>
+>>>>>>> upstream/android-13
 #include <net/netlink.h>
 #include <uapi/linux/netfilter/ipset/ip_set.h>
 
@@ -101,7 +113,11 @@ struct ip_set_counter {
 
 struct ip_set_comment_rcu {
 	struct rcu_head rcu;
+<<<<<<< HEAD
 	char str[0];
+=======
+	char str[];
+>>>>>>> upstream/android-13
 };
 
 struct ip_set_comment {
@@ -124,10 +140,16 @@ struct ip_set_ext {
 	u32 timeout;
 	u8 packets_op;
 	u8 bytes_op;
+<<<<<<< HEAD
 };
 
 struct ip_set;
 
+=======
+	bool target;
+};
+
+>>>>>>> upstream/android-13
 #define ext_timeout(e, s)	\
 ((unsigned long *)(((void *)(e)) + (s)->offset[IPSET_EXT_ID_TIMEOUT]))
 #define ext_counter(e, s)	\
@@ -190,8 +212,29 @@ struct ip_set_type_variant {
 	/* Return true if "b" set is the same as "a"
 	 * according to the create set parameters */
 	bool (*same_set)(const struct ip_set *a, const struct ip_set *b);
+<<<<<<< HEAD
 };
 
+=======
+	/* Region-locking is used */
+	bool region_lock;
+
+	ANDROID_KABI_RESERVE(1);
+};
+
+struct ip_set_region {
+	spinlock_t lock;	/* Region lock */
+	size_t ext_size;	/* Size of the dynamic extensions */
+	u32 elements;		/* Number of elements vs timeout */
+};
+
+/* Max range where every element is added/deleted in one step */
+#define IPSET_MAX_RANGE		(1<<20)
+
+/* The max revision number supported by any set type + 1 */
+#define IPSET_REVISION_MAX	9
+
+>>>>>>> upstream/android-13
 /* The core set type structure */
 struct ip_set_type {
 	struct list_head list;
@@ -209,6 +252,11 @@ struct ip_set_type {
 	u8 family;
 	/* Type revisions */
 	u8 revision_min, revision_max;
+<<<<<<< HEAD
+=======
+	/* Revision-specific supported (create) flags */
+	u8 create_flags[IPSET_REVISION_MAX+1];
+>>>>>>> upstream/android-13
 	/* Set features to control swapping */
 	u16 features;
 
@@ -222,6 +270,11 @@ struct ip_set_type {
 
 	/* Set this to THIS_MODULE if you are a module, otherwise NULL */
 	struct module *me;
+<<<<<<< HEAD
+=======
+
+	ANDROID_KABI_RESERVE(1);
+>>>>>>> upstream/android-13
 };
 
 /* register and unregister set type */
@@ -264,6 +317,11 @@ struct ip_set {
 	size_t offset[IPSET_EXT_ID_MAX];
 	/* The type specific data */
 	void *data;
+<<<<<<< HEAD
+=======
+
+	ANDROID_KABI_RESERVE(1);
+>>>>>>> upstream/android-13
 };
 
 static inline void
@@ -272,6 +330,7 @@ ip_set_ext_destroy(struct ip_set *set, void *data)
 	/* Check that the extension is enabled for the set and
 	 * call it's destroy function for its extension part in data.
 	 */
+<<<<<<< HEAD
 	if (SET_WITH_COMMENT(set))
 		ip_set_extensions[IPSET_EXT_ID_COMMENT].destroy(
 			set, ext_comment(data, set));
@@ -299,15 +358,32 @@ ip_set_put_flags(struct sk_buff *skb, struct ip_set *set)
 		return 0;
 	return nla_put_net32(skb, IPSET_ATTR_CADT_FLAGS, htonl(cadt_flags));
 }
+=======
+	if (SET_WITH_COMMENT(set)) {
+		struct ip_set_comment *c = ext_comment(data, set);
+
+		ip_set_extensions[IPSET_EXT_ID_COMMENT].destroy(set, c);
+	}
+}
+
+int ip_set_put_flags(struct sk_buff *skb, struct ip_set *set);
+>>>>>>> upstream/android-13
 
 /* Netlink CB args */
 enum {
 	IPSET_CB_NET = 0,	/* net namespace */
+<<<<<<< HEAD
+=======
+	IPSET_CB_PROTO,		/* ipset protocol */
+>>>>>>> upstream/android-13
 	IPSET_CB_DUMP,		/* dump single set/all sets */
 	IPSET_CB_INDEX,		/* set index */
 	IPSET_CB_PRIVATE,	/* set private data */
 	IPSET_CB_ARG0,		/* type specific */
+<<<<<<< HEAD
 	IPSET_CB_ARG1,
+=======
+>>>>>>> upstream/android-13
 };
 
 /* register and unregister set references */
@@ -401,33 +477,51 @@ ip_set_get_h16(const struct nlattr *attr)
 	return ntohs(nla_get_be16(attr));
 }
 
+<<<<<<< HEAD
 #define ipset_nest_start(skb, attr) nla_nest_start(skb, attr | NLA_F_NESTED)
 #define ipset_nest_end(skb, start)  nla_nest_end(skb, start)
 
 static inline int nla_put_ipaddr4(struct sk_buff *skb, int type, __be32 ipaddr)
 {
 	struct nlattr *__nested = ipset_nest_start(skb, type);
+=======
+static inline int nla_put_ipaddr4(struct sk_buff *skb, int type, __be32 ipaddr)
+{
+	struct nlattr *__nested = nla_nest_start(skb, type);
+>>>>>>> upstream/android-13
 	int ret;
 
 	if (!__nested)
 		return -EMSGSIZE;
 	ret = nla_put_in_addr(skb, IPSET_ATTR_IPADDR_IPV4, ipaddr);
 	if (!ret)
+<<<<<<< HEAD
 		ipset_nest_end(skb, __nested);
+=======
+		nla_nest_end(skb, __nested);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
 static inline int nla_put_ipaddr6(struct sk_buff *skb, int type,
 				  const struct in6_addr *ipaddrptr)
 {
+<<<<<<< HEAD
 	struct nlattr *__nested = ipset_nest_start(skb, type);
+=======
+	struct nlattr *__nested = nla_nest_start(skb, type);
+>>>>>>> upstream/android-13
 	int ret;
 
 	if (!__nested)
 		return -EMSGSIZE;
 	ret = nla_put_in6_addr(skb, IPSET_ATTR_IPADDR_IPV6, ipaddrptr);
 	if (!ret)
+<<<<<<< HEAD
 		ipset_nest_end(skb, __nested);
+=======
+		nla_nest_end(skb, __nested);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -451,6 +545,7 @@ ip6addrptr(const struct sk_buff *skb, bool src, struct in6_addr *addr)
 	       sizeof(*addr));
 }
 
+<<<<<<< HEAD
 #include <linux/netfilter/ipset/ip_set_timeout.h>
 #include <linux/netfilter/ipset/ip_set_comment.h>
 #include <linux/netfilter/ipset/ip_set_counter.h>
@@ -458,6 +553,84 @@ ip6addrptr(const struct sk_buff *skb, bool src, struct in6_addr *addr)
 
 #define IP_SET_INIT_KEXT(skb, opt, set)			\
 	{ .bytes = (skb)->len, .packets = 1,		\
+=======
+/* How often should the gc be run by default */
+#define IPSET_GC_TIME			(3 * 60)
+
+/* Timeout period depending on the timeout value of the given set */
+#define IPSET_GC_PERIOD(timeout) \
+	((timeout/3) ? min_t(u32, (timeout)/3, IPSET_GC_TIME) : 1)
+
+/* Entry is set with no timeout value */
+#define IPSET_ELEM_PERMANENT	0
+
+/* Set is defined with timeout support: timeout value may be 0 */
+#define IPSET_NO_TIMEOUT	UINT_MAX
+
+/* Max timeout value, see msecs_to_jiffies() in jiffies.h */
+#define IPSET_MAX_TIMEOUT	(UINT_MAX >> 1)/MSEC_PER_SEC
+
+#define ip_set_adt_opt_timeout(opt, set)	\
+((opt)->ext.timeout != IPSET_NO_TIMEOUT ? (opt)->ext.timeout : (set)->timeout)
+
+static inline unsigned int
+ip_set_timeout_uget(struct nlattr *tb)
+{
+	unsigned int timeout = ip_set_get_h32(tb);
+
+	/* Normalize to fit into jiffies */
+	if (timeout > IPSET_MAX_TIMEOUT)
+		timeout = IPSET_MAX_TIMEOUT;
+
+	return timeout;
+}
+
+static inline bool
+ip_set_timeout_expired(const unsigned long *t)
+{
+	return *t != IPSET_ELEM_PERMANENT && time_is_before_jiffies(*t);
+}
+
+static inline void
+ip_set_timeout_set(unsigned long *timeout, u32 value)
+{
+	unsigned long t;
+
+	if (!value) {
+		*timeout = IPSET_ELEM_PERMANENT;
+		return;
+	}
+
+	t = msecs_to_jiffies(value * MSEC_PER_SEC) + jiffies;
+	if (t == IPSET_ELEM_PERMANENT)
+		/* Bingo! :-) */
+		t--;
+	*timeout = t;
+}
+
+void ip_set_init_comment(struct ip_set *set, struct ip_set_comment *comment,
+			 const struct ip_set_ext *ext);
+
+static inline void
+ip_set_init_counter(struct ip_set_counter *counter,
+		    const struct ip_set_ext *ext)
+{
+	if (ext->bytes != ULLONG_MAX)
+		atomic64_set(&(counter)->bytes, (long long)(ext->bytes));
+	if (ext->packets != ULLONG_MAX)
+		atomic64_set(&(counter)->packets, (long long)(ext->packets));
+}
+
+static inline void
+ip_set_init_skbinfo(struct ip_set_skbinfo *skbinfo,
+		    const struct ip_set_ext *ext)
+{
+	*skbinfo = ext->skbinfo;
+}
+
+#define IP_SET_INIT_KEXT(skb, opt, set)			\
+	{ .bytes = (skb)->len, .packets = 1, .target = true,\
+>>>>>>> upstream/android-13
 	  .timeout = ip_set_adt_opt_timeout(opt, set) }
 
 #define IP_SET_INIT_UEXT(set)				\

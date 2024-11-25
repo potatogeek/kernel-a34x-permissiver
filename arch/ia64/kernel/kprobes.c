@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  Kernel Probes (KProbes)
  *  arch/ia64/kernel/kprobes.c
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -16,6 +21,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  *
+=======
+>>>>>>> upstream/android-13
  * Copyright (C) IBM Corporation, 2002, 2004
  * Copyright (C) Intel Corporation, 2005
  *
@@ -30,8 +37,13 @@
 #include <linux/preempt.h>
 #include <linux/extable.h>
 #include <linux/kdebug.h>
+<<<<<<< HEAD
 
 #include <asm/pgtable.h>
+=======
+#include <linux/pgtable.h>
+
+>>>>>>> upstream/android-13
 #include <asm/sections.h>
 #include <asm/exception.h>
 
@@ -411,7 +423,12 @@ static void kretprobe_trampoline(void)
 
 int __kprobes trampoline_probe_handler(struct kprobe *p, struct pt_regs *regs)
 {
+<<<<<<< HEAD
 	regs->cr_iip = __kretprobe_trampoline_handler(regs, kretprobe_trampoline, NULL);
+=======
+	regs->cr_iip = __kretprobe_trampoline_handler(regs,
+		dereference_function_descriptor(kretprobe_trampoline), NULL);
+>>>>>>> upstream/android-13
 	/*
 	 * By returning a non-zero value, we are telling
 	 * kprobe_handler() that we don't want the post_handler
@@ -427,7 +444,11 @@ void __kprobes arch_prepare_kretprobe(struct kretprobe_instance *ri,
 	ri->fp = NULL;
 
 	/* Replace the return addr with trampoline addr */
+<<<<<<< HEAD
 	regs->b0 = ((struct fnptr *)kretprobe_trampoline)->ip;
+=======
+	regs->b0 = (unsigned long)dereference_function_descriptor(kretprobe_trampoline);
+>>>>>>> upstream/android-13
 }
 
 /* Check the instruction in the slot is break */
@@ -781,7 +802,11 @@ static int __kprobes pre_kprobes_handler(struct die_args *args)
 		return 1;
 	}
 
+<<<<<<< HEAD
 #if !defined(CONFIG_PREEMPT)
+=======
+#if !defined(CONFIG_PREEMPTION)
+>>>>>>> upstream/android-13
 	if (p->ainsn.inst_flag == INST_FLAG_BOOSTABLE && !p->post_handler) {
 		/* Boost up -- we can execute copied instructions directly */
 		ia64_psr(regs)->ri = p->ainsn.slot;
@@ -857,6 +882,7 @@ int __kprobes kprobe_fault_handler(struct pt_regs *regs, int trapnr)
 	case KPROBE_HIT_ACTIVE:
 	case KPROBE_HIT_SSDONE:
 		/*
+<<<<<<< HEAD
 		 * We increment the nmissed count for accounting,
 		 * we can also use npre/npostfault count for accounting
 		 * these specific fault cases.
@@ -873,6 +899,8 @@ int __kprobes kprobe_fault_handler(struct pt_regs *regs, int trapnr)
 		if (cur->fault_handler && cur->fault_handler(cur, regs, trapnr))
 			return 1;
 		/*
+=======
+>>>>>>> upstream/android-13
 		 * In case the user-specified fault handler returned
 		 * zero, try to fix up.
 		 */
@@ -919,6 +947,7 @@ int __kprobes kprobe_exceptions_notify(struct notifier_block *self,
 	return ret;
 }
 
+<<<<<<< HEAD
 struct param_bsp_cfm {
 	unsigned long ip;
 	unsigned long *bsp;
@@ -945,6 +974,8 @@ static void ia64_get_bsp_cfm(struct unw_frame_info *info, void *arg)
 	return;
 }
 
+=======
+>>>>>>> upstream/android-13
 unsigned long arch_deref_entry_point(void *entry)
 {
 	return ((struct fnptr *)entry)->ip;
@@ -957,14 +988,22 @@ static struct kprobe trampoline_p = {
 int __init arch_init_kprobes(void)
 {
 	trampoline_p.addr =
+<<<<<<< HEAD
 		(kprobe_opcode_t *)((struct fnptr *)kretprobe_trampoline)->ip;
+=======
+		dereference_function_descriptor(kretprobe_trampoline);
+>>>>>>> upstream/android-13
 	return register_kprobe(&trampoline_p);
 }
 
 int __kprobes arch_trampoline_kprobe(struct kprobe *p)
 {
 	if (p->addr ==
+<<<<<<< HEAD
 		(kprobe_opcode_t *)((struct fnptr *)kretprobe_trampoline)->ip)
+=======
+		dereference_function_descriptor(kretprobe_trampoline))
+>>>>>>> upstream/android-13
 		return 1;
 
 	return 0;

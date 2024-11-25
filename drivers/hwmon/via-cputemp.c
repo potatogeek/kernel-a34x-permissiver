@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * via-cputemp.c - Driver for VIA CPU core temperature monitoring
  * Copyright (C) 2009 VIA Technologies, Inc.
@@ -5,6 +9,7 @@
  * based on existing coretemp.c, which is
  *
  * Copyright (C) 2007 Rudolf Marek <r.marek@assembler.cz>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +24,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301 USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -60,8 +67,13 @@ struct via_cputemp_data {
  * Sysfs stuff
  */
 
+<<<<<<< HEAD
 static ssize_t show_name(struct device *dev, struct device_attribute
 			  *devattr, char *buf)
+=======
+static ssize_t name_show(struct device *dev, struct device_attribute *devattr,
+			 char *buf)
+>>>>>>> upstream/android-13
 {
 	int ret;
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
@@ -74,8 +86,13 @@ static ssize_t show_name(struct device *dev, struct device_attribute
 	return ret;
 }
 
+<<<<<<< HEAD
 static ssize_t show_temp(struct device *dev,
 			 struct device_attribute *devattr, char *buf)
+=======
+static ssize_t temp_show(struct device *dev, struct device_attribute *devattr,
+			 char *buf)
+>>>>>>> upstream/android-13
 {
 	struct via_cputemp_data *data = dev_get_drvdata(dev);
 	u32 eax, edx;
@@ -102,10 +119,16 @@ static ssize_t cpu0_vid_show(struct device *dev,
 	return sprintf(buf, "%d\n", vid_from_reg(~edx & 0x7f, data->vrm));
 }
 
+<<<<<<< HEAD
 static SENSOR_DEVICE_ATTR(temp1_input, S_IRUGO, show_temp, NULL,
 			  SHOW_TEMP);
 static SENSOR_DEVICE_ATTR(temp1_label, S_IRUGO, show_name, NULL, SHOW_LABEL);
 static SENSOR_DEVICE_ATTR(name, S_IRUGO, show_name, NULL, SHOW_NAME);
+=======
+static SENSOR_DEVICE_ATTR_RO(temp1_input, temp, SHOW_TEMP);
+static SENSOR_DEVICE_ATTR_RO(temp1_label, name, SHOW_LABEL);
+static SENSOR_DEVICE_ATTR_RO(name, name, SHOW_NAME);
+>>>>>>> upstream/android-13
 
 static struct attribute *via_cputemp_attributes[] = {
 	&sensor_dev_attr_name.dev_attr.attr,
@@ -284,10 +307,17 @@ static int via_cputemp_down_prep(unsigned int cpu)
 }
 
 static const struct x86_cpu_id __initconst cputemp_ids[] = {
+<<<<<<< HEAD
 	{ X86_VENDOR_CENTAUR, 6, 0xa, }, /* C7 A */
 	{ X86_VENDOR_CENTAUR, 6, 0xd, }, /* C7 D */
 	{ X86_VENDOR_CENTAUR, 6, 0xf, }, /* Nano */
 	{ X86_VENDOR_CENTAUR, 7, X86_MODEL_ANY, },
+=======
+	X86_MATCH_VENDOR_FAM_MODEL(CENTAUR, 6, X86_CENTAUR_FAM6_C7_A,	NULL),
+	X86_MATCH_VENDOR_FAM_MODEL(CENTAUR, 6, X86_CENTAUR_FAM6_C7_D,	NULL),
+	X86_MATCH_VENDOR_FAM_MODEL(CENTAUR, 6, X86_CENTAUR_FAM6_NANO,	NULL),
+	X86_MATCH_VENDOR_FAM_MODEL(CENTAUR, 7, X86_MODEL_ANY,		NULL),
+>>>>>>> upstream/android-13
 	{}
 };
 MODULE_DEVICE_TABLE(x86cpu, cputemp_ids);

@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * This header provides constants for most at91 pinctrl bindings.
  *
  * Copyright (C) 2013 Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+<<<<<<< HEAD
  *
  * GPLv2 only
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __DT_BINDINGS_AT91_PINCTRL_H__
@@ -17,6 +24,10 @@
 #define AT91_PINCTRL_DIS_SCHMIT		(1 << 4)
 #define AT91_PINCTRL_OUTPUT		(1 << 7)
 #define AT91_PINCTRL_OUTPUT_VAL(x)	((x & 0x1) << 8)
+<<<<<<< HEAD
+=======
+#define AT91_PINCTRL_SLEWRATE		(1 << 9)
+>>>>>>> upstream/android-13
 #define AT91_PINCTRL_DEBOUNCE		(1 << 16)
 #define AT91_PINCTRL_DEBOUNCE_VAL(x)	(x << 17)
 
@@ -27,6 +38,12 @@
 #define AT91_PINCTRL_DRIVE_STRENGTH_MED			(0x2 << 5)
 #define AT91_PINCTRL_DRIVE_STRENGTH_HI			(0x3 << 5)
 
+<<<<<<< HEAD
+=======
+#define AT91_PINCTRL_SLEWRATE_ENA	(0x0 << 9)
+#define AT91_PINCTRL_SLEWRATE_DIS	(0x1 << 9)
+
+>>>>>>> upstream/android-13
 #define AT91_PIOA	0
 #define AT91_PIOB	1
 #define AT91_PIOC	2

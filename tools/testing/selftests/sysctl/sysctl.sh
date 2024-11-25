@@ -24,11 +24,16 @@ TEST_FILE=$(mktemp)
 
 # This represents
 #
+<<<<<<< HEAD
 # TEST_ID:TEST_COUNT:ENABLED
+=======
+# TEST_ID:TEST_COUNT:ENABLED:TARGET
+>>>>>>> upstream/android-13
 #
 # TEST_ID: is the test id number
 # TEST_COUNT: number of times we should run the test
 # ENABLED: 1 if enabled, 0 otherwise
+<<<<<<< HEAD
 #
 # Once these are enabled please leave them as-is. Write your own test,
 # we have tons of space.
@@ -47,6 +52,19 @@ test_modprobe()
                exit $ksft_skip
        fi
 }
+=======
+# TARGET: test target file required on the test_sysctl module
+#
+# Once these are enabled please leave them as-is. Write your own test,
+# we have tons of space.
+ALL_TESTS="0001:1:1:int_0001"
+ALL_TESTS="$ALL_TESTS 0002:1:1:string_0001"
+ALL_TESTS="$ALL_TESTS 0003:1:1:int_0002"
+ALL_TESTS="$ALL_TESTS 0004:1:1:uint_0001"
+ALL_TESTS="$ALL_TESTS 0005:3:1:int_0003"
+ALL_TESTS="$ALL_TESTS 0006:50:1:bitmap_0001"
+ALL_TESTS="$ALL_TESTS 0007:1:1:boot_int"
+>>>>>>> upstream/android-13
 
 function allow_user_defaults()
 {
@@ -120,13 +138,24 @@ test_reqs()
 
 function load_req_mod()
 {
+<<<<<<< HEAD
 	if [ ! -d $DIR ]; then
 		if ! modprobe -q -n $TEST_DRIVER; then
 			echo "$0: module $TEST_DRIVER not found [SKIP]"
+=======
+	if [ ! -d $SYSCTL ]; then
+		if ! modprobe -q -n $TEST_DRIVER; then
+			echo "$0: module $TEST_DRIVER not found [SKIP]"
+			echo "You must set CONFIG_TEST_SYSCTL=m in your kernel" >&2
+>>>>>>> upstream/android-13
 			exit $ksft_skip
 		fi
 		modprobe $TEST_DRIVER
 		if [ $? -ne 0 ]; then
+<<<<<<< HEAD
+=======
+			echo "$0: modprobe $TEST_DRIVER failed."
+>>>>>>> upstream/android-13
 			exit
 		fi
 	fi
@@ -149,6 +178,12 @@ reset_vals()
 		string_0001)
 			VAL="(none)"
 			;;
+<<<<<<< HEAD
+=======
+		bitmap_0001)
+			VAL=""
+			;;
+>>>>>>> upstream/android-13
 		*)
 			;;
 	esac
@@ -157,8 +192,15 @@ reset_vals()
 
 set_orig()
 {
+<<<<<<< HEAD
 	if [ ! -z $TARGET ]; then
 		echo "${ORIG}" > "${TARGET}"
+=======
+	if [ ! -z $TARGET ] && [ ! -z $ORIG ]; then
+		if [ -f ${TARGET} ]; then
+			echo "${ORIG}" > "${TARGET}"
+		fi
+>>>>>>> upstream/android-13
 	fi
 }
 
@@ -177,9 +219,31 @@ verify()
 	return 0
 }
 
+<<<<<<< HEAD
 verify_diff_w()
 {
 	echo "$TEST_STR" | diff -q -w -u - $1
+=======
+# proc files get read a page at a time, which can confuse diff,
+# and get you incorrect results on proc files with long data. To use
+# diff against them you must first extract the output to a file, and
+# then compare against that file.
+verify_diff_proc_file()
+{
+	TMP_DUMP_FILE=$(mktemp)
+	cat $1 > $TMP_DUMP_FILE
+
+	if ! diff -w -q $TMP_DUMP_FILE $2; then
+		return 1
+	else
+		return 0
+	fi
+}
+
+verify_diff_w()
+{
+	echo "$TEST_STR" | diff -q -w -u - $1 > /dev/null
+>>>>>>> upstream/android-13
 	return $?
 }
 
@@ -290,6 +354,61 @@ run_numerictests()
 	test_rc
 }
 
+<<<<<<< HEAD
+=======
+check_failure()
+{
+	echo -n "Testing that $1 fails as expected..."
+	reset_vals
+	TEST_STR="$1"
+	orig="$(cat $TARGET)"
+	echo -n "$TEST_STR" > $TARGET 2> /dev/null
+
+	# write should fail and $TARGET should retain its original value
+	if [ $? = 0 ] || [ "$(cat $TARGET)" != "$orig" ]; then
+		echo "FAIL" >&2
+		rc=1
+	else
+		echo "ok"
+	fi
+	test_rc
+}
+
+run_wideint_tests()
+{
+	# sysctl conversion functions receive a boolean sign and ulong
+	# magnitude; here we list the magnitudes we want to test (each of
+	# which will be tested in both positive and negative forms).  Since
+	# none of these values fit in 32 bits, writing them to an int- or
+	# uint-typed sysctl should fail.
+	local magnitudes=(
+		# common boundary-condition values (zero, +1, -1, INT_MIN,
+		# and INT_MAX respectively) if truncated to lower 32 bits
+		# (potential for being falsely deemed in range)
+		0x0000000100000000
+		0x0000000100000001
+		0x00000001ffffffff
+		0x0000000180000000
+		0x000000017fffffff
+
+		# these look like negatives, but without a leading '-' are
+		# actually large positives (should be rejected as above
+		# despite being zero/+1/-1/INT_MIN/INT_MAX in the lower 32)
+		0xffffffff00000000
+		0xffffffff00000001
+		0xffffffffffffffff
+		0xffffffff80000000
+		0xffffffff7fffffff
+	)
+
+	for sign in '' '-'; do
+		for mag in "${magnitudes[@]}"; do
+			check_failure "${sign}${mag}"
+		done
+	done
+}
+
+>>>>>>> upstream/android-13
 # Your test must accept digits 3 and 4 to use this
 run_limit_digit()
 {
@@ -548,20 +667,95 @@ run_stringtests()
 	test_rc
 }
 
+<<<<<<< HEAD
 sysctl_test_0001()
 {
 	TARGET="${SYSCTL}/int_0001"
+=======
+target_exists()
+{
+	TARGET="${SYSCTL}/$1"
+	TEST_ID="$2"
+
+	if [ ! -f ${TARGET} ] ; then
+		echo "Target for test $TEST_ID: $TARGET not exist, skipping test ..."
+		return 0
+	fi
+	return 1
+}
+
+run_bitmaptest() {
+	# Total length of bitmaps string to use, a bit under
+	# the maximum input size of the test node
+	LENGTH=$((RANDOM % 65000))
+
+	# First bit to set
+	BIT=$((RANDOM % 1024))
+
+	# String containing our list of bits to set
+	TEST_STR=$BIT
+
+	# build up the string
+	while [ "${#TEST_STR}" -le "$LENGTH" ]; do
+		# Make sure next entry is discontiguous,
+		# skip ahead at least 2
+		BIT=$((BIT + $((2 + RANDOM % 10))))
+
+		# Add new bit to the list
+		TEST_STR="${TEST_STR},${BIT}"
+
+		# Randomly make it a range
+		if [ "$((RANDOM % 2))" -eq "1" ]; then
+			RANGE_END=$((BIT + $((1 + RANDOM % 10))))
+			TEST_STR="${TEST_STR}-${RANGE_END}"
+			BIT=$RANGE_END
+		fi
+	done
+
+	echo -n "Checking bitmap handler... "
+	TEST_FILE=$(mktemp)
+	echo -n "$TEST_STR" > $TEST_FILE
+
+	cat $TEST_FILE > $TARGET 2> /dev/null
+	if [ $? -ne 0 ]; then
+		echo "FAIL" >&2
+		rc=1
+		test_rc
+	fi
+
+	if ! verify_diff_proc_file "$TARGET" "$TEST_FILE"; then
+		echo "FAIL" >&2
+		rc=1
+	else
+		echo "ok"
+		rc=0
+	fi
+	test_rc
+}
+
+sysctl_test_0001()
+{
+	TARGET="${SYSCTL}/$(get_test_target 0001)"
+>>>>>>> upstream/android-13
 	reset_vals
 	ORIG=$(cat "${TARGET}")
 	TEST_STR=$(( $ORIG + 1 ))
 
 	run_numerictests
+<<<<<<< HEAD
+=======
+	run_wideint_tests
+>>>>>>> upstream/android-13
 	run_limit_digit
 }
 
 sysctl_test_0002()
 {
+<<<<<<< HEAD
 	TARGET="${SYSCTL}/string_0001"
+=======
+	TARGET="${SYSCTL}/$(get_test_target 0002)"
+>>>>>>> upstream/android-13
 	reset_vals
 	ORIG=$(cat "${TARGET}")
 	TEST_STR="Testing sysctl"
@@ -574,37 +768,108 @@ sysctl_test_0002()
 
 sysctl_test_0003()
 {
+<<<<<<< HEAD
 	TARGET="${SYSCTL}/int_0002"
+=======
+	TARGET="${SYSCTL}/$(get_test_target 0003)"
+>>>>>>> upstream/android-13
 	reset_vals
 	ORIG=$(cat "${TARGET}")
 	TEST_STR=$(( $ORIG + 1 ))
 
 	run_numerictests
+<<<<<<< HEAD
+=======
+	run_wideint_tests
+>>>>>>> upstream/android-13
 	run_limit_digit
 	run_limit_digit_int
 }
 
 sysctl_test_0004()
 {
+<<<<<<< HEAD
 	TARGET="${SYSCTL}/uint_0001"
+=======
+	TARGET="${SYSCTL}/$(get_test_target 0004)"
+>>>>>>> upstream/android-13
 	reset_vals
 	ORIG=$(cat "${TARGET}")
 	TEST_STR=$(( $ORIG + 1 ))
 
 	run_numerictests
+<<<<<<< HEAD
+=======
+	run_wideint_tests
+>>>>>>> upstream/android-13
 	run_limit_digit
 	run_limit_digit_uint
 }
 
 sysctl_test_0005()
 {
+<<<<<<< HEAD
 	TARGET="${SYSCTL}/int_0003"
+=======
+	TARGET="${SYSCTL}/$(get_test_target 0005)"
+>>>>>>> upstream/android-13
 	reset_vals
 	ORIG=$(cat "${TARGET}")
 
 	run_limit_digit_int_array
 }
 
+<<<<<<< HEAD
+=======
+sysctl_test_0006()
+{
+	TARGET="${SYSCTL}/bitmap_0001"
+	reset_vals
+	ORIG=""
+	run_bitmaptest
+}
+
+sysctl_test_0007()
+{
+	TARGET="${SYSCTL}/boot_int"
+	if [ ! -f $TARGET ]; then
+		echo "Skipping test for $TARGET as it is not present ..."
+		return $ksft_skip
+	fi
+
+	if [ -d $DIR ]; then
+		echo "Boot param test only possible sysctl_test is built-in, not module:"
+		cat $TEST_DIR/config >&2
+		return $ksft_skip
+	fi
+
+	echo -n "Testing if $TARGET is set to 1 ..."
+	ORIG=$(cat "${TARGET}")
+
+	if [ x$ORIG = "x1" ]; then
+		echo "ok"
+		return 0
+	fi
+	echo "FAIL"
+	echo "Checking if /proc/cmdline contains setting of the expected parameter ..."
+	if [ ! -f /proc/cmdline ]; then
+		echo "/proc/cmdline does not exist, test inconclusive"
+		return 0
+	fi
+
+	FOUND=$(grep -c "sysctl[./]debug[./]test_sysctl[./]boot_int=1" /proc/cmdline)
+	if [ $FOUND = "1" ]; then
+		echo "Kernel param found but $TARGET is not 1, TEST FAILED"
+		rc=1
+		test_rc
+	fi
+
+	echo "Skipping test, expected kernel parameter missing."
+	echo "To perform this test, make sure kernel is booted with parameter: sysctl.debug.test_sysctl.boot_int=1"
+	return $ksft_skip
+}
+
+>>>>>>> upstream/android-13
 list_tests()
 {
 	echo "Test ID list:"
@@ -618,10 +883,17 @@ list_tests()
 	echo "0003 x $(get_test_count 0003) - tests proc_dointvec()"
 	echo "0004 x $(get_test_count 0004) - tests proc_douintvec()"
 	echo "0005 x $(get_test_count 0005) - tests proc_douintvec() array"
+<<<<<<< HEAD
 }
 
 test_reqs
 
+=======
+	echo "0006 x $(get_test_count 0006) - tests proc_do_large_bitmap()"
+	echo "0007 x $(get_test_count 0007) - tests setting sysctl from kernel boot param"
+}
+
+>>>>>>> upstream/android-13
 usage()
 {
 	NUM_TESTS=$(grep -o ' ' <<<"$ALL_TESTS" | grep -c .)
@@ -669,25 +941,52 @@ function get_test_count()
 {
 	test_num $1
 	TEST_DATA=$(echo $ALL_TESTS | awk '{print $'$1'}')
+<<<<<<< HEAD
 	LAST_TWO=${TEST_DATA#*:*}
 	echo ${LAST_TWO%:*}
+=======
+	echo ${TEST_DATA} | awk -F":" '{print $2}'
+>>>>>>> upstream/android-13
 }
 
 function get_test_enabled()
 {
 	test_num $1
 	TEST_DATA=$(echo $ALL_TESTS | awk '{print $'$1'}')
+<<<<<<< HEAD
 	echo ${TEST_DATA#*:*:}
+=======
+	echo ${TEST_DATA} | awk -F":" '{print $3}'
+}
+
+function get_test_target()
+{
+	test_num $1
+	TEST_DATA=$(echo $ALL_TESTS | awk '{print $'$1'}')
+	echo ${TEST_DATA} | awk -F":" '{print $4}'
+>>>>>>> upstream/android-13
 }
 
 function run_all_tests()
 {
 	for i in $ALL_TESTS ; do
+<<<<<<< HEAD
 		TEST_ID=${i%:*:*}
 		ENABLED=$(get_test_enabled $TEST_ID)
 		TEST_COUNT=$(get_test_count $TEST_ID)
 		if [[ $ENABLED -eq "1" ]]; then
 			test_case $TEST_ID $TEST_COUNT
+=======
+		TEST_ID=${i%:*:*:*}
+		ENABLED=$(get_test_enabled $TEST_ID)
+		TEST_COUNT=$(get_test_count $TEST_ID)
+		TEST_TARGET=$(get_test_target $TEST_ID)
+		if target_exists $TEST_TARGET $TEST_ID; then
+			continue
+		fi
+		if [[ $ENABLED -eq "1" ]]; then
+			test_case $TEST_ID $TEST_COUNT $TEST_TARGET
+>>>>>>> upstream/android-13
 		fi
 	done
 }
@@ -720,12 +1019,23 @@ function watch_case()
 
 function test_case()
 {
+<<<<<<< HEAD
 	NUM_TESTS=$DEFAULT_NUM_TESTS
 	if [ $# -eq 2 ]; then
 		NUM_TESTS=$2
 	fi
 
 	i=0
+=======
+	NUM_TESTS=$2
+
+	i=0
+
+	if target_exists $3 $1; then
+		continue
+	fi
+
+>>>>>>> upstream/android-13
 	while [ $i -lt $NUM_TESTS ]; do
 		test_num $1
 		watch_log $i ${TEST_NAME}_test_$1 noclear
@@ -748,15 +1058,26 @@ function parse_args()
 		elif [[ "$1" = "-t" ]]; then
 			shift
 			test_num $1
+<<<<<<< HEAD
 			test_case $1 $(get_test_count $1)
+=======
+			test_case $1 $(get_test_count $1) $(get_test_target $1)
+>>>>>>> upstream/android-13
 		elif [[ "$1" = "-c" ]]; then
 			shift
 			test_num $1
 			test_num $2
+<<<<<<< HEAD
 			test_case $1 $2
 		elif [[ "$1" = "-s" ]]; then
 			shift
 			test_case $1 1
+=======
+			test_case $1 $2 $(get_test_target $1)
+		elif [[ "$1" = "-s" ]]; then
+			shift
+			test_case $1 1 $(get_test_target $1)
+>>>>>>> upstream/android-13
 		elif [[ "$1" = "-l" ]]; then
 			list_tests
 		elif [[ "$1" = "-h" || "$1" = "--help" ]]; then
@@ -770,7 +1091,10 @@ function parse_args()
 test_reqs
 allow_user_defaults
 check_production_sysctl_writes_strict
+<<<<<<< HEAD
 test_modprobe
+=======
+>>>>>>> upstream/android-13
 load_req_mod
 
 trap "test_finish" EXIT

@@ -104,16 +104,28 @@ static int au8522_rc_andor(struct au0828_rc *ir, u16 reg, u8 mask, u8 value)
 
 /* Remote Controller time units */
 
+<<<<<<< HEAD
 #define AU8522_UNIT		200000 /* ns */
 #define NEC_START_SPACE		(4500000 / AU8522_UNIT)
 #define NEC_START_PULSE		(562500 * 16)
 #define RC5_START_SPACE		(4 * AU8522_UNIT)
 #define RC5_START_PULSE		888888
+=======
+#define AU8522_UNIT		200 /* us */
+#define NEC_START_SPACE		(4500 / AU8522_UNIT)
+#define NEC_START_PULSE		(563 * 16)
+#define RC5_START_SPACE		(4 * AU8522_UNIT)
+#define RC5_START_PULSE		889
+>>>>>>> upstream/android-13
 
 static int au0828_get_key_au8522(struct au0828_rc *ir)
 {
 	unsigned char buf[40];
+<<<<<<< HEAD
 	DEFINE_IR_RAW_EVENT(rawir);
+=======
+	struct ir_raw_event rawir = {};
+>>>>>>> upstream/android-13
 	int i, j, rc;
 	int prv_bit, bit, width;
 	bool first = true;
@@ -167,7 +179,10 @@ static int au0828_get_key_au8522(struct au0828_rc *ir)
 			if (first) {
 				first = false;
 
+<<<<<<< HEAD
 				init_ir_raw_event(&rawir);
+=======
+>>>>>>> upstream/android-13
 				rawir.pulse = true;
 				if (width > NEC_START_SPACE - 2 &&
 				    width < NEC_START_SPACE + 2) {
@@ -186,7 +201,10 @@ static int au0828_get_key_au8522(struct au0828_rc *ir)
 				ir_raw_event_store(ir->rc, &rawir);
 			}
 
+<<<<<<< HEAD
 			init_ir_raw_event(&rawir);
+=======
+>>>>>>> upstream/android-13
 			rawir.pulse = prv_bit ? false : true;
 			rawir.duration = AU8522_UNIT * width;
 			dprintk(16, "Storing %s with duration %d",
@@ -199,7 +217,10 @@ static int au0828_get_key_au8522(struct au0828_rc *ir)
 		}
 	}
 
+<<<<<<< HEAD
 	init_ir_raw_event(&rawir);
+=======
+>>>>>>> upstream/android-13
 	rawir.pulse = prv_bit ? false : true;
 	rawir.duration = AU8522_UNIT * width;
 	dprintk(16, "Storing end %s with duration %d",

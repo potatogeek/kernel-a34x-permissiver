@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 SPI (Serial Peripheral Interface) busses
 
 SPI busses can be described with a node for the SPI controller device
@@ -109,3 +110,6 @@ SPI example for an MPC5200 SPI bus:
 			reg = <1>;
 		};
 	};
+=======
+This file has moved to spi-controller.yaml.
+>>>>>>> upstream/android-13

@@ -181,12 +181,15 @@ static irqreturn_t spear_timer_interrupt(int irq, void *dev_id)
 	return IRQ_HANDLED;
 }
 
+<<<<<<< HEAD
 static struct irqaction spear_timer_irq = {
 	.name = "timer",
 	.flags = IRQF_TIMER,
 	.handler = spear_timer_interrupt
 };
 
+=======
+>>>>>>> upstream/android-13
 static void __init spear_clockevent_init(int irq)
 {
 	u32 tick_rate;
@@ -201,7 +204,12 @@ static void __init spear_clockevent_init(int irq)
 
 	clockevents_config_and_register(&clkevt, tick_rate, 3, 0xfff0);
 
+<<<<<<< HEAD
 	setup_irq(irq, &spear_timer_irq);
+=======
+	if (request_irq(irq, spear_timer_interrupt, IRQF_TIMER, "timer", NULL))
+		pr_err("Failed to request irq %d (timer)\n", irq);
+>>>>>>> upstream/android-13
 }
 
 static const struct of_device_id timer_of_match[] __initconst = {

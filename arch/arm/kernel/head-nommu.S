@@ -1,15 +1,23 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  *  linux/arch/arm/kernel/head-nommu.S
  *
  *  Copyright (C) 1994-2002 Russell King
  *  Copyright (C) 2003-2006 Hyok S. Choi
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
  *  Common kernel startup code (non-paged MM)
  *
+=======
+ *  Common kernel startup code (non-paged MM)
+>>>>>>> upstream/android-13
  */
 #include <linux/linkage.h>
 #include <linux/init.h>
@@ -118,6 +126,10 @@ ENTRY(secondary_startup)
 	add	r12, r12, r10
 	ret	r12
 1:	bl	__after_proc_init
+<<<<<<< HEAD
+=======
+	ldr	r7, __secondary_data		@ reload r7
+>>>>>>> upstream/android-13
 	ldr	sp, [r7, #12]			@ set up the stack pointer
 	mov	fp, #0
 	b	secondary_start_kernel

@@ -34,7 +34,10 @@
 #include <linux/stat.h>
 #include <linux/filter.h>
 #include <linux/highmem.h>
+<<<<<<< HEAD
 #include <linux/highuid.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/mman.h>
 #include <linux/ipv6.h>
 #include <linux/in.h>
@@ -58,6 +61,7 @@
 
 #include "compat_linux.h"
 
+<<<<<<< HEAD
 /* For this source file, we want overflow handling. */
 
 #undef high2lowuid
@@ -290,13 +294,19 @@ COMPAT_SYSCALL_DEFINE0(s390_getegid16)
 	return high2lowgid(from_kgid_munged(current_user_ns(), current_egid()));
 }
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_SYSVIPC
 COMPAT_SYSCALL_DEFINE5(s390_ipc, uint, call, int, first, compat_ulong_t, second,
 		compat_ulong_t, third, compat_uptr_t, ptr)
 {
 	if (call >> 16)		/* hack for backward compatibility */
 		return -EINVAL;
+<<<<<<< HEAD
 	return compat_sys_ipc(call, first, second, third, ptr, third);
+=======
+	return compat_ksys_ipc(call, first, second, third, ptr, third);
+>>>>>>> upstream/android-13
 }
 #endif
 

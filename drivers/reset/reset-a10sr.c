@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  Copyright Intel Corporation (C) 2017. All Rights Reserved
  *
@@ -13,6 +14,12 @@
  * You should have received a copy of the GNU General Public License along with
  * this program.  If not, see <http://www.gnu.org/licenses/>.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ *  Copyright Intel Corporation (C) 2017. All Rights Reserved
+ *
+>>>>>>> upstream/android-13
  * Reset driver for Altera Arria10 MAX5 System Resource Chip
  *
  * Adapted from reset-socfpga.c
@@ -129,6 +136,10 @@ static struct platform_driver a10sr_reset_driver = {
 	.probe	= a10sr_reset_probe,
 	.driver = {
 		.name		= "altr_a10sr_reset",
+<<<<<<< HEAD
+=======
+		.of_match_table	= a10sr_reset_of_match,
+>>>>>>> upstream/android-13
 	},
 };
 module_platform_driver(a10sr_reset_driver);

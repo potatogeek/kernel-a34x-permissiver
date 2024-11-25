@@ -6,9 +6,18 @@
 #
 
 util/python.c
+<<<<<<< HEAD
 util/ctype.c
 util/evlist.c
 util/evsel.c
+=======
+../lib/ctype.c
+util/cap.c
+util/evlist.c
+util/evsel.c
+util/evsel_fprintf.c
+util/perf_event_attr_fprintf.c
+>>>>>>> upstream/android-13
 util/cpumap.c
 util/memswap.c
 util/mmap.c
@@ -16,10 +25,17 @@ util/namespaces.c
 ../lib/bitmap.c
 ../lib/find_bit.c
 ../lib/hweight.c
+<<<<<<< HEAD
 ../lib/vsprintf.c
 util/thread_map.c
 util/util.c
 util/xyarray.c
+=======
+../lib/string.c
+../lib/vsprintf.c
+util/thread_map.c
+util/util.c
+>>>>>>> upstream/android-13
 util/cgroup.c
 util/parse-branch-options.c
 util/rblist.c
@@ -31,3 +47,11 @@ util/trace-event.c
 util/string.c
 util/symbol_fprintf.c
 util/units.c
+<<<<<<< HEAD
+=======
+util/affinity.c
+util/rwsem.c
+util/hashmap.c
+util/pmu-hybrid.c
+util/fncache.c
+>>>>>>> upstream/android-13

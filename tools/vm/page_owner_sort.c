@@ -4,8 +4,14 @@
  *
  * Example use:
  * cat /sys/kernel/debug/page_owner > page_owner_full.txt
+<<<<<<< HEAD
  * grep -v ^PFN page_owner_full.txt > page_owner.txt
  * ./sort page_owner.txt sorted_page_owner.txt
+=======
+ * ./page_owner_sort page_owner_full.txt sorted_page_owner.txt
+ *
+ * See Documentation/vm/page_owner.rst
+>>>>>>> upstream/android-13
 */
 
 #include <stdio.h>
@@ -36,6 +42,11 @@ int read_block(char *buf, int buf_size, FILE *fin)
 	while (buf_end - curr > 1 && fgets(curr, buf_end - curr, fin)) {
 		if (*curr == '\n') /* empty line */
 			return curr - buf;
+<<<<<<< HEAD
+=======
+		if (!strncmp(curr, "PFN", 3))
+			continue;
+>>>>>>> upstream/android-13
 		curr += strlen(curr);
 	}
 
@@ -129,6 +140,13 @@ int main(int argc, char **argv)
 	qsort(list, list_size, sizeof(list[0]), compare_txt);
 
 	list2 = malloc(sizeof(*list) * list_size);
+<<<<<<< HEAD
+=======
+	if (!list2) {
+		printf("Out of memory\n");
+		exit(1);
+	}
+>>>>>>> upstream/android-13
 
 	printf("culling\n");
 

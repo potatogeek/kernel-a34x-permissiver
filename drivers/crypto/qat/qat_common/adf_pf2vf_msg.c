@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
   This file is provided under a dual BSD/GPLv2 license.  When using or
   redistributing this file, you may do so under either license.
@@ -45,6 +46,10 @@
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+=======
+// SPDX-License-Identifier: (BSD-3-Clause OR GPL-2.0-only)
+/* Copyright(c) 2015 - 2020 Intel Corporation */
+>>>>>>> upstream/android-13
 #include <linux/delay.h>
 #include "adf_accel_devices.h"
 #include "adf_common_drv.h"
@@ -56,6 +61,7 @@
 #define ADF_DH895XCC_ERRMSK5	(ADF_DH895XCC_EP_OFFSET + 0xDC)
 #define ADF_DH895XCC_ERRMSK5_VF2PF_U_MASK(vf_mask) (vf_mask >> 16)
 
+<<<<<<< HEAD
 void adf_enable_pf2vf_interrupts(struct adf_accel_dev *accel_dev)
 {
 	struct adf_accel_pci *pci_info = &accel_dev->accel_pci_dev;
@@ -78,6 +84,10 @@ void adf_disable_pf2vf_interrupts(struct adf_accel_dev *accel_dev)
 
 void adf_enable_vf2pf_interrupts(struct adf_accel_dev *accel_dev,
 				 u32 vf_mask)
+=======
+static void __adf_enable_vf2pf_interrupts(struct adf_accel_dev *accel_dev,
+					  u32 vf_mask)
+>>>>>>> upstream/android-13
 {
 	struct adf_hw_device_data *hw_data = accel_dev->hw_device;
 	struct adf_bar *pmisc =
@@ -100,7 +110,21 @@ void adf_enable_vf2pf_interrupts(struct adf_accel_dev *accel_dev,
 	}
 }
 
+<<<<<<< HEAD
 void adf_disable_vf2pf_interrupts(struct adf_accel_dev *accel_dev, u32 vf_mask)
+=======
+void adf_enable_vf2pf_interrupts(struct adf_accel_dev *accel_dev, u32 vf_mask)
+{
+	unsigned long flags;
+
+	spin_lock_irqsave(&accel_dev->pf.vf2pf_ints_lock, flags);
+	__adf_enable_vf2pf_interrupts(accel_dev, vf_mask);
+	spin_unlock_irqrestore(&accel_dev->pf.vf2pf_ints_lock, flags);
+}
+
+static void __adf_disable_vf2pf_interrupts(struct adf_accel_dev *accel_dev,
+					   u32 vf_mask)
+>>>>>>> upstream/android-13
 {
 	struct adf_hw_device_data *hw_data = accel_dev->hw_device;
 	struct adf_bar *pmisc =
@@ -123,6 +147,25 @@ void adf_disable_vf2pf_interrupts(struct adf_accel_dev *accel_dev, u32 vf_mask)
 	}
 }
 
+<<<<<<< HEAD
+=======
+void adf_disable_vf2pf_interrupts(struct adf_accel_dev *accel_dev, u32 vf_mask)
+{
+	unsigned long flags;
+
+	spin_lock_irqsave(&accel_dev->pf.vf2pf_ints_lock, flags);
+	__adf_disable_vf2pf_interrupts(accel_dev, vf_mask);
+	spin_unlock_irqrestore(&accel_dev->pf.vf2pf_ints_lock, flags);
+}
+
+void adf_disable_vf2pf_interrupts_irq(struct adf_accel_dev *accel_dev, u32 vf_mask)
+{
+	spin_lock(&accel_dev->pf.vf2pf_ints_lock);
+	__adf_disable_vf2pf_interrupts(accel_dev, vf_mask);
+	spin_unlock(&accel_dev->pf.vf2pf_ints_lock);
+}
+
+>>>>>>> upstream/android-13
 static int __adf_iov_putmsg(struct adf_accel_dev *accel_dev, u32 msg, u8 vf_nr)
 {
 	struct adf_accel_pci *pci_info = &accel_dev->accel_pci_dev;
@@ -156,15 +199,24 @@ static int __adf_iov_putmsg(struct adf_accel_dev *accel_dev, u32 msg, u8 vf_nr)
 
 	mutex_lock(lock);
 
+<<<<<<< HEAD
 	/* Check if PF2VF CSR is in use by remote function */
 	val = ADF_CSR_RD(pmisc_bar_addr, pf2vf_offset);
 	if ((val & remote_in_use_mask) == remote_in_use_pattern) {
 		dev_dbg(&GET_DEV(accel_dev),
 			"PF2VF CSR in use by remote function\n");
+=======
+	/* Check if the PFVF CSR is in use by remote function */
+	val = ADF_CSR_RD(pmisc_bar_addr, pf2vf_offset);
+	if ((val & remote_in_use_mask) == remote_in_use_pattern) {
+		dev_dbg(&GET_DEV(accel_dev),
+			"PFVF CSR in use by remote function\n");
+>>>>>>> upstream/android-13
 		ret = -EBUSY;
 		goto out;
 	}
 
+<<<<<<< HEAD
 	/* Attempt to get ownership of PF2VF CSR */
 	msg &= ~local_in_use_mask;
 	msg |= local_in_use_pattern;
@@ -187,6 +239,12 @@ static int __adf_iov_putmsg(struct adf_accel_dev *accel_dev, u32 msg, u8 vf_nr)
 	 * until this local function relinquishes the CSR.  Send the message
 	 * by interrupting the remote.
 	 */
+=======
+	msg &= ~local_in_use_mask;
+	msg |= local_in_use_pattern;
+
+	/* Attempt to get ownership of the PFVF CSR */
+>>>>>>> upstream/android-13
 	ADF_CSR_WR(pmisc_bar_addr, pf2vf_offset, msg | int_bit);
 
 	/* Wait for confirmation from remote func it received the message */
@@ -201,7 +259,18 @@ static int __adf_iov_putmsg(struct adf_accel_dev *accel_dev, u32 msg, u8 vf_nr)
 		ret = -EIO;
 	}
 
+<<<<<<< HEAD
 	/* Finished with PF2VF CSR; relinquish it and leave msg in CSR */
+=======
+	if (val != msg) {
+		dev_dbg(&GET_DEV(accel_dev),
+			"Collision - PFVF CSR overwritten by remote function\n");
+		ret = -EIO;
+		goto out;
+	}
+
+	/* Finished with the PFVF CSR; relinquish it and leave msg in CSR */
+>>>>>>> upstream/android-13
 	ADF_CSR_WR(pmisc_bar_addr, pf2vf_offset, val & ~local_in_use_mask);
 out:
 	mutex_unlock(lock);
@@ -209,12 +278,22 @@ out:
 }
 
 /**
+<<<<<<< HEAD
  * adf_iov_putmsg() - send PF2VF message
  * @accel_dev:  Pointer to acceleration device.
  * @msg:	Message to send
  * @vf_nr:	VF number to which the message will be sent
  *
  * Function sends a messge from the PF to a VF
+=======
+ * adf_iov_putmsg() - send PFVF message
+ * @accel_dev:  Pointer to acceleration device.
+ * @msg:	Message to send
+ * @vf_nr:	VF number to which the message will be sent if on PF, ignored
+ *		otherwise
+ *
+ * Function sends a message through the PFVF channel
+>>>>>>> upstream/android-13
  *
  * Return: 0 on success, error code otherwise.
  */
@@ -231,7 +310,10 @@ int adf_iov_putmsg(struct adf_accel_dev *accel_dev, u32 msg, u8 vf_nr)
 
 	return ret;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(adf_iov_putmsg);
+=======
+>>>>>>> upstream/android-13
 
 void adf_vf2pf_req_hndl(struct adf_accel_vf_info *vf_info)
 {
@@ -244,6 +326,14 @@ void adf_vf2pf_req_hndl(struct adf_accel_vf_info *vf_info)
 
 	/* Read message from the VF */
 	msg = ADF_CSR_RD(pmisc_addr, hw_data->get_pf2vf_offset(vf_nr));
+<<<<<<< HEAD
+=======
+	if (!(msg & ADF_VF2PF_INT)) {
+		dev_info(&GET_DEV(accel_dev),
+			 "Spurious VF2PF interrupt, msg %X. Ignored\n", msg);
+		goto out;
+	}
+>>>>>>> upstream/android-13
 
 	/* To ACK, clear the VF2PFINT bit */
 	msg &= ~ADF_VF2PF_INT;
@@ -261,7 +351,11 @@ void adf_vf2pf_req_hndl(struct adf_accel_vf_info *vf_info)
 		resp = (ADF_PF2VF_MSGORIGIN_SYSTEM |
 			 (ADF_PF2VF_MSGTYPE_VERSION_RESP <<
 			  ADF_PF2VF_MSGTYPE_SHIFT) |
+<<<<<<< HEAD
 			 (ADF_PFVF_COMPATIBILITY_VERSION <<
+=======
+			 (ADF_PFVF_COMPAT_THIS_VERSION <<
+>>>>>>> upstream/android-13
 			  ADF_PF2VF_VERSION_RESP_VERS_SHIFT));
 
 		dev_dbg(&GET_DEV(accel_dev),
@@ -271,6 +365,7 @@ void adf_vf2pf_req_hndl(struct adf_accel_vf_info *vf_info)
 		if (vf_compat_ver < hw_data->min_iov_compat_ver) {
 			dev_err(&GET_DEV(accel_dev),
 				"VF (vers %d) incompatible with PF (vers %d)\n",
+<<<<<<< HEAD
 				vf_compat_ver, ADF_PFVF_COMPATIBILITY_VERSION);
 			resp |= ADF_PF2VF_VF_INCOMPATIBLE <<
 				ADF_PF2VF_VERSION_RESP_RESULT_SHIFT;
@@ -278,12 +373,25 @@ void adf_vf2pf_req_hndl(struct adf_accel_vf_info *vf_info)
 			dev_err(&GET_DEV(accel_dev),
 				"VF (vers %d) compat with PF (vers %d) unkn.\n",
 				vf_compat_ver, ADF_PFVF_COMPATIBILITY_VERSION);
+=======
+				vf_compat_ver, ADF_PFVF_COMPAT_THIS_VERSION);
+			resp |= ADF_PF2VF_VF_INCOMPATIBLE <<
+				ADF_PF2VF_VERSION_RESP_RESULT_SHIFT;
+		} else if (vf_compat_ver > ADF_PFVF_COMPAT_THIS_VERSION) {
+			dev_err(&GET_DEV(accel_dev),
+				"VF (vers %d) compat with PF (vers %d) unkn.\n",
+				vf_compat_ver, ADF_PFVF_COMPAT_THIS_VERSION);
+>>>>>>> upstream/android-13
 			resp |= ADF_PF2VF_VF_COMPAT_UNKNOWN <<
 				ADF_PF2VF_VERSION_RESP_RESULT_SHIFT;
 		} else {
 			dev_dbg(&GET_DEV(accel_dev),
 				"VF (vers %d) compatible with PF (vers %d)\n",
+<<<<<<< HEAD
 				vf_compat_ver, ADF_PFVF_COMPATIBILITY_VERSION);
+=======
+				vf_compat_ver, ADF_PFVF_COMPAT_THIS_VERSION);
+>>>>>>> upstream/android-13
 			resp |= ADF_PF2VF_VF_COMPATIBLE <<
 				ADF_PF2VF_VERSION_RESP_RESULT_SHIFT;
 		}
@@ -296,7 +404,11 @@ void adf_vf2pf_req_hndl(struct adf_accel_vf_info *vf_info)
 		resp = (ADF_PF2VF_MSGORIGIN_SYSTEM |
 			 (ADF_PF2VF_MSGTYPE_VERSION_RESP <<
 			  ADF_PF2VF_MSGTYPE_SHIFT) |
+<<<<<<< HEAD
 			 (ADF_PFVF_COMPATIBILITY_VERSION <<
+=======
+			 (ADF_PFVF_COMPAT_THIS_VERSION <<
+>>>>>>> upstream/android-13
 			  ADF_PF2VF_VERSION_RESP_VERS_SHIFT));
 		resp |= ADF_PF2VF_VF_COMPATIBLE <<
 			ADF_PF2VF_VERSION_RESP_RESULT_SHIFT;
@@ -327,8 +439,15 @@ void adf_vf2pf_req_hndl(struct adf_accel_vf_info *vf_info)
 	if (resp && adf_iov_putmsg(accel_dev, resp, vf_nr))
 		dev_err(&GET_DEV(accel_dev), "Failed to send response to VF\n");
 
+<<<<<<< HEAD
 	/* re-enable interrupt on PF from this VF */
 	adf_enable_vf2pf_interrupts(accel_dev, (1 << vf_nr));
+=======
+out:
+	/* re-enable interrupt on PF from this VF */
+	adf_enable_vf2pf_interrupts(accel_dev, (1 << vf_nr));
+
+>>>>>>> upstream/android-13
 	return;
 err:
 	dev_dbg(&GET_DEV(accel_dev), "Unknown message from VF%d (0x%x);\n",
@@ -358,8 +477,15 @@ static int adf_vf2pf_request_version(struct adf_accel_dev *accel_dev)
 
 	msg = ADF_VF2PF_MSGORIGIN_SYSTEM;
 	msg |= ADF_VF2PF_MSGTYPE_COMPAT_VER_REQ << ADF_VF2PF_MSGTYPE_SHIFT;
+<<<<<<< HEAD
 	msg |= ADF_PFVF_COMPATIBILITY_VERSION << ADF_VF2PF_COMPAT_VER_REQ_SHIFT;
 	BUILD_BUG_ON(ADF_PFVF_COMPATIBILITY_VERSION > 255);
+=======
+	msg |= ADF_PFVF_COMPAT_THIS_VERSION << ADF_VF2PF_COMPAT_VER_REQ_SHIFT;
+	BUILD_BUG_ON(ADF_PFVF_COMPAT_THIS_VERSION > 255);
+
+	reinit_completion(&accel_dev->vf.iov_msg_completion);
+>>>>>>> upstream/android-13
 
 	/* Send request from VF to PF */
 	ret = adf_iov_putmsg(accel_dev, msg, 0);
@@ -383,14 +509,26 @@ static int adf_vf2pf_request_version(struct adf_accel_dev *accel_dev)
 		break;
 	case ADF_PF2VF_VF_COMPAT_UNKNOWN:
 		/* VF is newer than PF and decides whether it is compatible */
+<<<<<<< HEAD
 		if (accel_dev->vf.pf_version >= hw_data->min_iov_compat_ver)
 			break;
 		/* fall through */
+=======
+		if (accel_dev->vf.pf_version >= hw_data->min_iov_compat_ver) {
+			accel_dev->vf.compatible = ADF_PF2VF_VF_COMPATIBLE;
+			break;
+		}
+		fallthrough;
+>>>>>>> upstream/android-13
 	case ADF_PF2VF_VF_INCOMPATIBLE:
 		dev_err(&GET_DEV(accel_dev),
 			"PF (vers %d) and VF (vers %d) are not compatible\n",
 			accel_dev->vf.pf_version,
+<<<<<<< HEAD
 			ADF_PFVF_COMPATIBILITY_VERSION);
+=======
+			ADF_PFVF_COMPAT_THIS_VERSION);
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	default:
 		dev_err(&GET_DEV(accel_dev),

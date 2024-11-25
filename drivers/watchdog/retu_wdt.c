@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0+
+>>>>>>> upstream/android-13
 /*
  * Retu watchdog driver
  *
@@ -5,6 +9,7 @@
  *
  * Based on code written by Amit Kucheria and Michael Buesch.
  * Rewritten by Aaro Koskinen.
+<<<<<<< HEAD
  *
  * This file is subject to the terms and conditions of the GNU General
  * Public License. See the file "COPYING" in the main directory of this
@@ -16,6 +21,11 @@
  * GNU General Public License for more details.
  */
 
+=======
+ */
+
+#include <linux/devm-helpers.h>
+>>>>>>> upstream/android-13
 #include <linux/slab.h>
 #include <linux/errno.h>
 #include <linux/device.h>
@@ -135,9 +145,18 @@ static int retu_wdt_probe(struct platform_device *pdev)
 	wdev->rdev		= rdev;
 	wdev->dev		= &pdev->dev;
 
+<<<<<<< HEAD
 	INIT_DELAYED_WORK(&wdev->ping_work, retu_wdt_ping_work);
 
 	ret = watchdog_register_device(retu_wdt);
+=======
+	ret = devm_delayed_work_autocancel(&pdev->dev, &wdev->ping_work,
+					   retu_wdt_ping_work);
+	if (ret)
+		return ret;
+
+	ret = devm_watchdog_register_device(&pdev->dev, retu_wdt);
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		return ret;
 
@@ -146,6 +165,7 @@ static int retu_wdt_probe(struct platform_device *pdev)
 	else
 		retu_wdt_ping_enable(wdev);
 
+<<<<<<< HEAD
 	platform_set_drvdata(pdev, retu_wdt);
 
 	return 0;
@@ -159,12 +179,17 @@ static int retu_wdt_remove(struct platform_device *pdev)
 	watchdog_unregister_device(wdog);
 	cancel_delayed_work_sync(&wdev->ping_work);
 
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 static struct platform_driver retu_wdt_driver = {
 	.probe		= retu_wdt_probe,
+<<<<<<< HEAD
 	.remove		= retu_wdt_remove,
+=======
+>>>>>>> upstream/android-13
 	.driver		= {
 		.name	= "retu-wdt",
 	},

@@ -1019,7 +1019,11 @@ static int isp116x_hub_control(struct usb_hcd *hcd,
 			spin_lock_irqsave(&isp116x->lock, flags);
 			isp116x_write_reg32(isp116x, HCRHSTATUS, RH_HS_OCIC);
 			spin_unlock_irqrestore(&isp116x->lock, flags);
+<<<<<<< HEAD
 			/* fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case C_HUB_LOCAL_POWER:
 			DBG("C_HUB_LOCAL_POWER\n");
 			break;
@@ -1200,14 +1204,23 @@ DEFINE_SHOW_ATTRIBUTE(isp116x_debug);
 
 static void create_debug_file(struct isp116x *isp116x)
 {
+<<<<<<< HEAD
 	isp116x->dentry = debugfs_create_file(hcd_name,
 					      S_IRUGO, NULL, isp116x,
 					      &isp116x_debug_fops);
+=======
+	debugfs_create_file(hcd_name, S_IRUGO, usb_debug_root, isp116x,
+			    &isp116x_debug_fops);
+>>>>>>> upstream/android-13
 }
 
 static void remove_debug_file(struct isp116x *isp116x)
 {
+<<<<<<< HEAD
 	debugfs_remove(isp116x->dentry);
+=======
+	debugfs_remove(debugfs_lookup(hcd_name, usb_debug_root));
+>>>>>>> upstream/android-13
 }
 
 #else
@@ -1421,10 +1434,17 @@ static int isp116x_bus_suspend(struct usb_hcd *hcd)
 		isp116x_write_reg32(isp116x, HCCONTROL,
 				    (val & ~HCCONTROL_HCFS) |
 				    HCCONTROL_USB_RESET);
+<<<<<<< HEAD
 		/* fall through */
 	case HCCONTROL_USB_RESET:
 		ret = -EBUSY;
 		/* fall through */
+=======
+		fallthrough;
+	case HCCONTROL_USB_RESET:
+		ret = -EBUSY;
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:		/* HCCONTROL_USB_SUSPEND */
 		spin_unlock_irqrestore(&isp116x->lock, flags);
 		break;
@@ -1447,6 +1467,10 @@ static int isp116x_bus_resume(struct usb_hcd *hcd)
 		val &= ~HCCONTROL_HCFS;
 		val |= HCCONTROL_USB_RESUME;
 		isp116x_write_reg32(isp116x, HCCONTROL, val);
+<<<<<<< HEAD
+=======
+		break;
+>>>>>>> upstream/android-13
 	case HCCONTROL_USB_RESUME:
 		break;
 	case HCCONTROL_USB_OPER:
@@ -1581,12 +1605,15 @@ static int isp116x_probe(struct platform_device *pdev)
 	irq = ires->start;
 	irqflags = ires->flags & IRQF_TRIGGER_MASK;
 
+<<<<<<< HEAD
 	if (pdev->dev.dma_mask) {
 		DBG("DMA not supported\n");
 		ret = -EINVAL;
 		goto err1;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	if (!request_mem_region(addr->start, 2, hcd_name)) {
 		ret = -EBUSY;
 		goto err1;

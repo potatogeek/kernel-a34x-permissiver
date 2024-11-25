@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright Intel Corporation (C) 2014-2016. All Rights Reserved
  *
@@ -13,6 +14,12 @@
  * You should have received a copy of the GNU General Public License along with
  * this program.  If not, see <http://www.gnu.org/licenses/>.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright Intel Corporation (C) 2014-2016. All Rights Reserved
+ *
+>>>>>>> upstream/android-13
  * Declarations for Altera Arria10 MAX5 System Resource Chip
  *
  * Adapted from DA9052

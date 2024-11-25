@@ -1,11 +1,20 @@
 // SPDX-License-Identifier: GPL-2.0
 #include "builtin.h"
 #include "perf.h"
+<<<<<<< HEAD
 
 #include "util/util.h"
 #include "util/evlist.h"
 #include "util/cache.h"
 #include "util/evsel.h"
+=======
+#include "perf-sys.h"
+
+#include "util/cpumap.h"
+#include "util/evlist.h"
+#include "util/evsel.h"
+#include "util/evsel_fprintf.h"
+>>>>>>> upstream/android-13
 #include "util/symbol.h"
 #include "util/thread.h"
 #include "util/header.h"
@@ -15,16 +24,32 @@
 #include "util/thread_map.h"
 #include "util/color.h"
 #include "util/stat.h"
+<<<<<<< HEAD
 #include "util/callchain.h"
 #include "util/time-utils.h"
 
+=======
+#include "util/string2.h"
+#include "util/callchain.h"
+#include "util/time-utils.h"
+
+#include <subcmd/pager.h>
+>>>>>>> upstream/android-13
 #include <subcmd/parse-options.h>
 #include "util/trace-event.h"
 
 #include "util/debug.h"
+<<<<<<< HEAD
 
 #include <linux/kernel.h>
 #include <linux/log2.h>
+=======
+#include "util/event.h"
+
+#include <linux/kernel.h>
+#include <linux/log2.h>
+#include <linux/zalloc.h>
+>>>>>>> upstream/android-13
 #include <sys/prctl.h>
 #include <sys/resource.h>
 #include <inttypes.h>
@@ -34,9 +59,17 @@
 #include <pthread.h>
 #include <math.h>
 #include <api/fs/fs.h>
+<<<<<<< HEAD
 #include <linux/time64.h>
 
 #include "sane_ctype.h"
+=======
+#include <perf/cpumap.h>
+#include <linux/time64.h>
+#include <linux/err.h>
+
+#include <linux/ctype.h>
+>>>>>>> upstream/android-13
 
 #define PR_SET_NAME		15               /* Set process name */
 #define MAX_CPUS		4096
@@ -44,6 +77,12 @@
 #define SYM_LEN			129
 #define MAX_PID			1024000
 
+<<<<<<< HEAD
+=======
+static const char *cpu_list;
+static DECLARE_BITMAP(cpu_bitmap, MAX_NR_CPUS);
+
+>>>>>>> upstream/android-13
 struct sched_atom;
 
 struct task_desc {
@@ -120,7 +159,12 @@ struct work_atoms {
 	struct thread		*thread;
 	struct rb_node		node;
 	u64			max_lat;
+<<<<<<< HEAD
 	u64			max_lat_at;
+=======
+	u64			max_lat_start;
+	u64			max_lat_end;
+>>>>>>> upstream/android-13
 	u64			total_lat;
 	u64			nb_atoms;
 	u64			total_runtime;
@@ -132,6 +176,7 @@ typedef int (*sort_fn_t)(struct work_atoms *, struct work_atoms *);
 struct perf_sched;
 
 struct trace_sched_handler {
+<<<<<<< HEAD
 	int (*switch_event)(struct perf_sched *sched, struct perf_evsel *evsel,
 			    struct perf_sample *sample, struct machine *machine);
 
@@ -139,6 +184,15 @@ struct trace_sched_handler {
 			     struct perf_sample *sample, struct machine *machine);
 
 	int (*wakeup_event)(struct perf_sched *sched, struct perf_evsel *evsel,
+=======
+	int (*switch_event)(struct perf_sched *sched, struct evsel *evsel,
+			    struct perf_sample *sample, struct machine *machine);
+
+	int (*runtime_event)(struct perf_sched *sched, struct evsel *evsel,
+			     struct perf_sample *sample, struct machine *machine);
+
+	int (*wakeup_event)(struct perf_sched *sched, struct evsel *evsel,
+>>>>>>> upstream/android-13
 			    struct perf_sample *sample, struct machine *machine);
 
 	/* PERF_RECORD_FORK event, not sched_process_fork tracepoint */
@@ -146,7 +200,11 @@ struct trace_sched_handler {
 			  struct machine *machine);
 
 	int (*migrate_task_event)(struct perf_sched *sched,
+<<<<<<< HEAD
 				  struct perf_evsel *evsel,
+=======
+				  struct evsel *evsel,
+>>>>>>> upstream/android-13
 				  struct perf_sample *sample,
 				  struct machine *machine);
 };
@@ -158,11 +216,19 @@ struct perf_sched_map {
 	DECLARE_BITMAP(comp_cpus_mask, MAX_CPUS);
 	int			*comp_cpus;
 	bool			 comp;
+<<<<<<< HEAD
 	struct thread_map	*color_pids;
 	const char		*color_pids_str;
 	struct cpu_map		*color_cpus;
 	const char		*color_cpus_str;
 	struct cpu_map		*cpus;
+=======
+	struct perf_thread_map *color_pids;
+	const char		*color_pids_str;
+	struct perf_cpu_map	*color_cpus;
+	const char		*color_cpus_str;
+	struct perf_cpu_map	*cpus;
+>>>>>>> upstream/android-13
 	const char		*cpus_str;
 };
 
@@ -213,7 +279,11 @@ struct perf_sched {
 	u64		 all_runtime;
 	u64		 all_count;
 	u64		 cpu_last_switched[MAX_CPUS];
+<<<<<<< HEAD
 	struct rb_root	 atom_root, sorted_atom_root, merged_atom_root;
+=======
+	struct rb_root_cached atom_root, sorted_atom_root, merged_atom_root;
+>>>>>>> upstream/android-13
 	struct list_head sort_list, cmp_pid;
 	bool force;
 	bool skip_merge;
@@ -271,7 +341,11 @@ struct evsel_runtime {
 struct idle_thread_runtime {
 	struct thread_runtime	tr;
 	struct thread		*last_thread;
+<<<<<<< HEAD
 	struct rb_root		sorted_root;
+=======
+	struct rb_root_cached	sorted_root;
+>>>>>>> upstream/android-13
 	struct callchain_root	callchain;
 	struct callchain_cursor	cursor;
 };
@@ -659,7 +733,11 @@ static void create_tasks(struct perf_sched *sched)
 	err = pthread_attr_init(&attr);
 	BUG_ON(err);
 	err = pthread_attr_setstacksize(&attr,
+<<<<<<< HEAD
 			(size_t) max(16 * 1024, PTHREAD_STACK_MIN));
+=======
+			(size_t) max(16 * 1024, (int)PTHREAD_STACK_MIN));
+>>>>>>> upstream/android-13
 	BUG_ON(err);
 	err = pthread_mutex_lock(&sched->start_work_mutex);
 	BUG_ON(err);
@@ -798,11 +876,19 @@ static void test_calibrations(struct perf_sched *sched)
 
 static int
 replay_wakeup_event(struct perf_sched *sched,
+<<<<<<< HEAD
 		    struct perf_evsel *evsel, struct perf_sample *sample,
 		    struct machine *machine __maybe_unused)
 {
 	const char *comm = perf_evsel__strval(evsel, sample, "comm");
 	const u32 pid	 = perf_evsel__intval(evsel, sample, "pid");
+=======
+		    struct evsel *evsel, struct perf_sample *sample,
+		    struct machine *machine __maybe_unused)
+{
+	const char *comm = evsel__strval(evsel, sample, "comm");
+	const u32 pid	 = evsel__intval(evsel, sample, "pid");
+>>>>>>> upstream/android-13
 	struct task_desc *waker, *wakee;
 
 	if (verbose > 0) {
@@ -819,6 +905,7 @@ replay_wakeup_event(struct perf_sched *sched,
 }
 
 static int replay_switch_event(struct perf_sched *sched,
+<<<<<<< HEAD
 			       struct perf_evsel *evsel,
 			       struct perf_sample *sample,
 			       struct machine *machine __maybe_unused)
@@ -828,6 +915,17 @@ static int replay_switch_event(struct perf_sched *sched,
 	const u32 prev_pid = perf_evsel__intval(evsel, sample, "prev_pid"),
 		  next_pid = perf_evsel__intval(evsel, sample, "next_pid");
 	const u64 prev_state = perf_evsel__intval(evsel, sample, "prev_state");
+=======
+			       struct evsel *evsel,
+			       struct perf_sample *sample,
+			       struct machine *machine __maybe_unused)
+{
+	const char *prev_comm  = evsel__strval(evsel, sample, "prev_comm"),
+		   *next_comm  = evsel__strval(evsel, sample, "next_comm");
+	const u32 prev_pid = evsel__intval(evsel, sample, "prev_pid"),
+		  next_pid = evsel__intval(evsel, sample, "next_pid");
+	const u64 prev_state = evsel__intval(evsel, sample, "prev_state");
+>>>>>>> upstream/android-13
 	struct task_desc *prev, __maybe_unused *next;
 	u64 timestamp0, timestamp = sample->time;
 	int cpu = sample->cpu;
@@ -950,10 +1048,17 @@ thread_lat_cmp(struct list_head *list, struct work_atoms *l, struct work_atoms *
 }
 
 static struct work_atoms *
+<<<<<<< HEAD
 thread_atoms_search(struct rb_root *root, struct thread *thread,
 			 struct list_head *sort_list)
 {
 	struct rb_node *node = root->rb_node;
+=======
+thread_atoms_search(struct rb_root_cached *root, struct thread *thread,
+			 struct list_head *sort_list)
+{
+	struct rb_node *node = root->rb_root.rb_node;
+>>>>>>> upstream/android-13
 	struct work_atoms key = { .thread = thread };
 
 	while (node) {
@@ -976,10 +1081,18 @@ thread_atoms_search(struct rb_root *root, struct thread *thread,
 }
 
 static void
+<<<<<<< HEAD
 __thread_latency_insert(struct rb_root *root, struct work_atoms *data,
 			 struct list_head *sort_list)
 {
 	struct rb_node **new = &(root->rb_node), *parent = NULL;
+=======
+__thread_latency_insert(struct rb_root_cached *root, struct work_atoms *data,
+			 struct list_head *sort_list)
+{
+	struct rb_node **new = &(root->rb_root.rb_node), *parent = NULL;
+	bool leftmost = true;
+>>>>>>> upstream/android-13
 
 	while (*new) {
 		struct work_atoms *this;
@@ -992,12 +1105,23 @@ __thread_latency_insert(struct rb_root *root, struct work_atoms *data,
 
 		if (cmp > 0)
 			new = &((*new)->rb_left);
+<<<<<<< HEAD
 		else
 			new = &((*new)->rb_right);
 	}
 
 	rb_link_node(&data->node, parent, new);
 	rb_insert_color(&data->node, root);
+=======
+		else {
+			new = &((*new)->rb_right);
+			leftmost = false;
+		}
+	}
+
+	rb_link_node(&data->node, parent, new);
+	rb_insert_color_cached(&data->node, root, leftmost);
+>>>>>>> upstream/android-13
 }
 
 static int thread_atoms_insert(struct perf_sched *sched, struct thread *thread)
@@ -1083,12 +1207,18 @@ add_sched_in_event(struct work_atoms *atoms, u64 timestamp)
 	atoms->total_lat += delta;
 	if (delta > atoms->max_lat) {
 		atoms->max_lat = delta;
+<<<<<<< HEAD
 		atoms->max_lat_at = timestamp;
+=======
+		atoms->max_lat_start = atom->wake_up_time;
+		atoms->max_lat_end = timestamp;
+>>>>>>> upstream/android-13
 	}
 	atoms->nb_atoms++;
 }
 
 static int latency_switch_event(struct perf_sched *sched,
+<<<<<<< HEAD
 				struct perf_evsel *evsel,
 				struct perf_sample *sample,
 				struct machine *machine)
@@ -1096,6 +1226,15 @@ static int latency_switch_event(struct perf_sched *sched,
 	const u32 prev_pid = perf_evsel__intval(evsel, sample, "prev_pid"),
 		  next_pid = perf_evsel__intval(evsel, sample, "next_pid");
 	const u64 prev_state = perf_evsel__intval(evsel, sample, "prev_state");
+=======
+				struct evsel *evsel,
+				struct perf_sample *sample,
+				struct machine *machine)
+{
+	const u32 prev_pid = evsel__intval(evsel, sample, "prev_pid"),
+		  next_pid = evsel__intval(evsel, sample, "next_pid");
+	const u64 prev_state = evsel__intval(evsel, sample, "prev_state");
+>>>>>>> upstream/android-13
 	struct work_atoms *out_events, *in_events;
 	struct thread *sched_out, *sched_in;
 	u64 timestamp0, timestamp = sample->time;
@@ -1159,12 +1298,21 @@ out_put:
 }
 
 static int latency_runtime_event(struct perf_sched *sched,
+<<<<<<< HEAD
 				 struct perf_evsel *evsel,
 				 struct perf_sample *sample,
 				 struct machine *machine)
 {
 	const u32 pid	   = perf_evsel__intval(evsel, sample, "pid");
 	const u64 runtime  = perf_evsel__intval(evsel, sample, "runtime");
+=======
+				 struct evsel *evsel,
+				 struct perf_sample *sample,
+				 struct machine *machine)
+{
+	const u32 pid	   = evsel__intval(evsel, sample, "pid");
+	const u64 runtime  = evsel__intval(evsel, sample, "runtime");
+>>>>>>> upstream/android-13
 	struct thread *thread = machine__findnew_thread(machine, -1, pid);
 	struct work_atoms *atoms = thread_atoms_search(&sched->atom_root, thread, &sched->cmp_pid);
 	u64 timestamp = sample->time;
@@ -1194,11 +1342,19 @@ out_put:
 }
 
 static int latency_wakeup_event(struct perf_sched *sched,
+<<<<<<< HEAD
 				struct perf_evsel *evsel,
 				struct perf_sample *sample,
 				struct machine *machine)
 {
 	const u32 pid	  = perf_evsel__intval(evsel, sample, "pid");
+=======
+				struct evsel *evsel,
+				struct perf_sample *sample,
+				struct machine *machine)
+{
+	const u32 pid	  = evsel__intval(evsel, sample, "pid");
+>>>>>>> upstream/android-13
 	struct work_atoms *atoms;
 	struct work_atom *atom;
 	struct thread *wakee;
@@ -1255,11 +1411,19 @@ out_put:
 }
 
 static int latency_migrate_task_event(struct perf_sched *sched,
+<<<<<<< HEAD
 				      struct perf_evsel *evsel,
 				      struct perf_sample *sample,
 				      struct machine *machine)
 {
 	const u32 pid = perf_evsel__intval(evsel, sample, "pid");
+=======
+				      struct evsel *evsel,
+				      struct perf_sample *sample,
+				      struct machine *machine)
+{
+	const u32 pid = evsel__intval(evsel, sample, "pid");
+>>>>>>> upstream/android-13
 	u64 timestamp = sample->time;
 	struct work_atoms *atoms;
 	struct work_atom *atom;
@@ -1309,7 +1473,11 @@ static void output_lat_thread(struct perf_sched *sched, struct work_atoms *work_
 	int i;
 	int ret;
 	u64 avg;
+<<<<<<< HEAD
 	char max_lat_at[32];
+=======
+	char max_lat_start[32], max_lat_end[32];
+>>>>>>> upstream/android-13
 
 	if (!work_list->nb_atoms)
 		return;
@@ -1331,6 +1499,7 @@ static void output_lat_thread(struct perf_sched *sched, struct work_atoms *work_
 		printf(" ");
 
 	avg = work_list->total_lat / work_list->nb_atoms;
+<<<<<<< HEAD
 	timestamp__scnprintf_usec(work_list->max_lat_at, max_lat_at, sizeof(max_lat_at));
 
 	printf("|%11.3f ms |%9" PRIu64 " | avg:%9.3f ms | max:%9.3f ms | max at: %13s s\n",
@@ -1338,6 +1507,16 @@ static void output_lat_thread(struct perf_sched *sched, struct work_atoms *work_
 		 work_list->nb_atoms, (double)avg / NSEC_PER_MSEC,
 		 (double)work_list->max_lat / NSEC_PER_MSEC,
 		 max_lat_at);
+=======
+	timestamp__scnprintf_usec(work_list->max_lat_start, max_lat_start, sizeof(max_lat_start));
+	timestamp__scnprintf_usec(work_list->max_lat_end, max_lat_end, sizeof(max_lat_end));
+
+	printf("|%11.3f ms |%9" PRIu64 " | avg:%8.3f ms | max:%8.3f ms | max start: %12s s | max end: %12s s\n",
+	      (double)work_list->total_runtime / NSEC_PER_MSEC,
+		 work_list->nb_atoms, (double)avg / NSEC_PER_MSEC,
+		 (double)work_list->max_lat / NSEC_PER_MSEC,
+		 max_lat_start, max_lat_end);
+>>>>>>> upstream/android-13
 }
 
 static int pid_cmp(struct work_atoms *l, struct work_atoms *r)
@@ -1447,6 +1626,7 @@ static int sort_dimension__add(const char *tok, struct list_head *list)
 static void perf_sched__sort_lat(struct perf_sched *sched)
 {
 	struct rb_node *node;
+<<<<<<< HEAD
 	struct rb_root *root = &sched->atom_root;
 again:
 	for (;;) {
@@ -1456,6 +1636,17 @@ again:
 			break;
 
 		rb_erase(node, root);
+=======
+	struct rb_root_cached *root = &sched->atom_root;
+again:
+	for (;;) {
+		struct work_atoms *data;
+		node = rb_first_cached(root);
+		if (!node)
+			break;
+
+		rb_erase_cached(node, root);
+>>>>>>> upstream/android-13
 		data = rb_entry(node, struct work_atoms, node);
 		__thread_latency_insert(&sched->sorted_atom_root, data, &sched->sort_list);
 	}
@@ -1466,7 +1657,11 @@ again:
 }
 
 static int process_sched_wakeup_event(struct perf_tool *tool,
+<<<<<<< HEAD
 				      struct perf_evsel *evsel,
+=======
+				      struct evsel *evsel,
+>>>>>>> upstream/android-13
 				      struct perf_sample *sample,
 				      struct machine *machine)
 {
@@ -1510,10 +1705,17 @@ map__findnew_thread(struct perf_sched *sched, struct machine *machine, pid_t pid
 	return thread;
 }
 
+<<<<<<< HEAD
 static int map_switch_event(struct perf_sched *sched, struct perf_evsel *evsel,
 			    struct perf_sample *sample, struct machine *machine)
 {
 	const u32 next_pid = perf_evsel__intval(evsel, sample, "next_pid");
+=======
+static int map_switch_event(struct perf_sched *sched, struct evsel *evsel,
+			    struct perf_sample *sample, struct machine *machine)
+{
+	const u32 next_pid = evsel__intval(evsel, sample, "next_pid");
+>>>>>>> upstream/android-13
 	struct thread *sched_in;
 	struct thread_runtime *tr;
 	int new_shortname;
@@ -1651,14 +1853,23 @@ out:
 }
 
 static int process_sched_switch_event(struct perf_tool *tool,
+<<<<<<< HEAD
 				      struct perf_evsel *evsel,
+=======
+				      struct evsel *evsel,
+>>>>>>> upstream/android-13
 				      struct perf_sample *sample,
 				      struct machine *machine)
 {
 	struct perf_sched *sched = container_of(tool, struct perf_sched, tool);
 	int this_cpu = sample->cpu, err = 0;
+<<<<<<< HEAD
 	u32 prev_pid = perf_evsel__intval(evsel, sample, "prev_pid"),
 	    next_pid = perf_evsel__intval(evsel, sample, "next_pid");
+=======
+	u32 prev_pid = evsel__intval(evsel, sample, "prev_pid"),
+	    next_pid = evsel__intval(evsel, sample, "next_pid");
+>>>>>>> upstream/android-13
 
 	if (sched->curr_pid[this_cpu] != (u32)-1) {
 		/*
@@ -1677,7 +1888,11 @@ static int process_sched_switch_event(struct perf_tool *tool,
 }
 
 static int process_sched_runtime_event(struct perf_tool *tool,
+<<<<<<< HEAD
 				       struct perf_evsel *evsel,
+=======
+				       struct evsel *evsel,
+>>>>>>> upstream/android-13
 				       struct perf_sample *sample,
 				       struct machine *machine)
 {
@@ -1696,7 +1911,11 @@ static int perf_sched__process_fork_event(struct perf_tool *tool,
 {
 	struct perf_sched *sched = container_of(tool, struct perf_sched, tool);
 
+<<<<<<< HEAD
 	/* run the fork event through the perf machineruy */
+=======
+	/* run the fork event through the perf machinery */
+>>>>>>> upstream/android-13
 	perf_event__process_fork(tool, event, sample, machine);
 
 	/* and then run additional processing needed for this command */
@@ -1707,7 +1926,11 @@ static int perf_sched__process_fork_event(struct perf_tool *tool,
 }
 
 static int process_sched_migrate_task_event(struct perf_tool *tool,
+<<<<<<< HEAD
 					    struct perf_evsel *evsel,
+=======
+					    struct evsel *evsel,
+>>>>>>> upstream/android-13
 					    struct perf_sample *sample,
 					    struct machine *machine)
 {
@@ -1720,14 +1943,22 @@ static int process_sched_migrate_task_event(struct perf_tool *tool,
 }
 
 typedef int (*tracepoint_handler)(struct perf_tool *tool,
+<<<<<<< HEAD
 				  struct perf_evsel *evsel,
+=======
+				  struct evsel *evsel,
+>>>>>>> upstream/android-13
 				  struct perf_sample *sample,
 				  struct machine *machine);
 
 static int perf_sched__process_tracepoint_sample(struct perf_tool *tool __maybe_unused,
 						 union perf_event *event __maybe_unused,
 						 struct perf_sample *sample,
+<<<<<<< HEAD
 						 struct perf_evsel *evsel,
+=======
+						 struct evsel *evsel,
+>>>>>>> upstream/android-13
 						 struct machine *machine)
 {
 	int err = 0;
@@ -1773,7 +2004,11 @@ static int perf_sched__process_comm(struct perf_tool *tool __maybe_unused,
 
 static int perf_sched__read_events(struct perf_sched *sched)
 {
+<<<<<<< HEAD
 	const struct perf_evsel_str_handler handlers[] = {
+=======
+	const struct evsel_str_handler handlers[] = {
+>>>>>>> upstream/android-13
 		{ "sched:sched_switch",	      process_sched_switch_event, },
 		{ "sched:sched_stat_runtime", process_sched_runtime_event, },
 		{ "sched:sched_wakeup",	      process_sched_wakeup_event, },
@@ -1782,6 +2017,7 @@ static int perf_sched__read_events(struct perf_sched *sched)
 	};
 	struct perf_session *session;
 	struct perf_data data = {
+<<<<<<< HEAD
 		.file      = {
 			.path = input_name,
 		},
@@ -1794,6 +2030,18 @@ static int perf_sched__read_events(struct perf_sched *sched)
 	if (session == NULL) {
 		pr_debug("No Memory for session\n");
 		return -1;
+=======
+		.path  = input_name,
+		.mode  = PERF_DATA_MODE_READ,
+		.force = sched->force,
+	};
+	int rc = -1;
+
+	session = perf_session__new(&data, &sched->tool);
+	if (IS_ERR(session)) {
+		pr_debug("Error creating perf session");
+		return PTR_ERR(session);
+>>>>>>> upstream/android-13
 	}
 
 	symbol__init(&session->header.env);
@@ -1837,7 +2085,11 @@ static inline void print_sched_time(unsigned long long nsecs, int width)
  * returns runtime data for event, allocating memory for it the
  * first time it is used.
  */
+<<<<<<< HEAD
 static struct evsel_runtime *perf_evsel__get_runtime(struct perf_evsel *evsel)
+=======
+static struct evsel_runtime *evsel__get_runtime(struct evsel *evsel)
+>>>>>>> upstream/android-13
 {
 	struct evsel_runtime *r = evsel->priv;
 
@@ -1852,10 +2104,16 @@ static struct evsel_runtime *perf_evsel__get_runtime(struct perf_evsel *evsel)
 /*
  * save last time event was seen per cpu
  */
+<<<<<<< HEAD
 static void perf_evsel__save_time(struct perf_evsel *evsel,
 				  u64 timestamp, u32 cpu)
 {
 	struct evsel_runtime *r = perf_evsel__get_runtime(evsel);
+=======
+static void evsel__save_time(struct evsel *evsel, u64 timestamp, u32 cpu)
+{
+	struct evsel_runtime *r = evsel__get_runtime(evsel);
+>>>>>>> upstream/android-13
 
 	if (r == NULL)
 		return;
@@ -1879,9 +2137,15 @@ static void perf_evsel__save_time(struct perf_evsel *evsel,
 }
 
 /* returns last time this event was seen on the given cpu */
+<<<<<<< HEAD
 static u64 perf_evsel__get_time(struct perf_evsel *evsel, u32 cpu)
 {
 	struct evsel_runtime *r = perf_evsel__get_runtime(evsel);
+=======
+static u64 evsel__get_time(struct evsel *evsel, u32 cpu)
+{
+	struct evsel_runtime *r = evsel__get_runtime(evsel);
+>>>>>>> upstream/android-13
 
 	if ((r == NULL) || (r->last_time == NULL) || (cpu >= r->ncpu))
 		return 0;
@@ -1986,20 +2250,35 @@ static char task_state_char(struct thread *thread, int state)
 }
 
 static void timehist_print_sample(struct perf_sched *sched,
+<<<<<<< HEAD
 				  struct perf_evsel *evsel,
+=======
+				  struct evsel *evsel,
+>>>>>>> upstream/android-13
 				  struct perf_sample *sample,
 				  struct addr_location *al,
 				  struct thread *thread,
 				  u64 t, int state)
 {
 	struct thread_runtime *tr = thread__priv(thread);
+<<<<<<< HEAD
 	const char *next_comm = perf_evsel__strval(evsel, sample, "next_comm");
 	const u32 next_pid = perf_evsel__intval(evsel, sample, "next_pid");
+=======
+	const char *next_comm = evsel__strval(evsel, sample, "next_comm");
+	const u32 next_pid = evsel__intval(evsel, sample, "next_pid");
+>>>>>>> upstream/android-13
 	u32 max_cpus = sched->max_cpu + 1;
 	char tstr[64];
 	char nstr[30];
 	u64 wait_time;
 
+<<<<<<< HEAD
+=======
+	if (cpu_list && !test_bit(sample->cpu, cpu_bitmap))
+		return;
+
+>>>>>>> upstream/android-13
 	timestamp__scnprintf_usec(t, tstr, sizeof(tstr));
 	printf("%15s [%04d] ", tstr, sample->cpu);
 
@@ -2048,7 +2327,11 @@ static void timehist_print_sample(struct perf_sched *sched,
 			    EVSEL__PRINT_SYM | EVSEL__PRINT_ONELINE |
 			    EVSEL__PRINT_CALLCHAIN_ARROW |
 			    EVSEL__PRINT_SKIP_IGNORED,
+<<<<<<< HEAD
 			    &callchain_cursor, stdout);
+=======
+			    &callchain_cursor, symbol_conf.bt_stop_list,  stdout);
+>>>>>>> upstream/android-13
 
 out:
 	printf("\n");
@@ -2119,18 +2402,30 @@ static void timehist_update_runtime_stats(struct thread_runtime *r,
 }
 
 static bool is_idle_sample(struct perf_sample *sample,
+<<<<<<< HEAD
 			   struct perf_evsel *evsel)
 {
 	/* pid 0 == swapper == idle task */
 	if (strcmp(perf_evsel__name(evsel), "sched:sched_switch") == 0)
 		return perf_evsel__intval(evsel, sample, "prev_pid") == 0;
+=======
+			   struct evsel *evsel)
+{
+	/* pid 0 == swapper == idle task */
+	if (strcmp(evsel__name(evsel), "sched:sched_switch") == 0)
+		return evsel__intval(evsel, sample, "prev_pid") == 0;
+>>>>>>> upstream/android-13
 
 	return sample->pid == 0;
 }
 
 static void save_task_callchain(struct perf_sched *sched,
 				struct perf_sample *sample,
+<<<<<<< HEAD
 				struct perf_evsel *evsel,
+=======
+				struct evsel *evsel,
+>>>>>>> upstream/android-13
 				struct machine *machine)
 {
 	struct callchain_cursor *cursor = &callchain_cursor;
@@ -2164,7 +2459,11 @@ static void save_task_callchain(struct perf_sched *sched,
 		if (node == NULL)
 			break;
 
+<<<<<<< HEAD
 		sym = node->sym;
+=======
+		sym = node->ms.sym;
+>>>>>>> upstream/android-13
 		if (sym) {
 			if (!strcmp(sym->name, "schedule") ||
 			    !strcmp(sym->name, "__schedule") ||
@@ -2284,7 +2583,11 @@ static void save_idle_callchain(struct perf_sched *sched,
 static struct thread *timehist_get_thread(struct perf_sched *sched,
 					  struct perf_sample *sample,
 					  struct machine *machine,
+<<<<<<< HEAD
 					  struct perf_evsel *evsel)
+=======
+					  struct evsel *evsel)
+>>>>>>> upstream/android-13
 {
 	struct thread *thread;
 
@@ -2320,7 +2623,11 @@ static struct thread *timehist_get_thread(struct perf_sched *sched,
 			itr->last_thread = thread;
 
 			/* copy task callchain when entering to idle */
+<<<<<<< HEAD
 			if (perf_evsel__intval(evsel, sample, "next_pid") == 0)
+=======
+			if (evsel__intval(evsel, sample, "next_pid") == 0)
+>>>>>>> upstream/android-13
 				save_idle_callchain(sched, itr, sample);
 		}
 	}
@@ -2330,7 +2637,11 @@ static struct thread *timehist_get_thread(struct perf_sched *sched,
 
 static bool timehist_skip_sample(struct perf_sched *sched,
 				 struct thread *thread,
+<<<<<<< HEAD
 				 struct perf_evsel *evsel,
+=======
+				 struct evsel *evsel,
+>>>>>>> upstream/android-13
 				 struct perf_sample *sample)
 {
 	bool rc = false;
@@ -2341,10 +2652,17 @@ static bool timehist_skip_sample(struct perf_sched *sched,
 	}
 
 	if (sched->idle_hist) {
+<<<<<<< HEAD
 		if (strcmp(perf_evsel__name(evsel), "sched:sched_switch"))
 			rc = true;
 		else if (perf_evsel__intval(evsel, sample, "prev_pid") != 0 &&
 			 perf_evsel__intval(evsel, sample, "next_pid") != 0)
+=======
+		if (strcmp(evsel__name(evsel), "sched:sched_switch"))
+			rc = true;
+		else if (evsel__intval(evsel, sample, "prev_pid") != 0 &&
+			 evsel__intval(evsel, sample, "next_pid") != 0)
+>>>>>>> upstream/android-13
 			rc = true;
 	}
 
@@ -2352,7 +2670,11 @@ static bool timehist_skip_sample(struct perf_sched *sched,
 }
 
 static void timehist_print_wakeup_event(struct perf_sched *sched,
+<<<<<<< HEAD
 					struct perf_evsel *evsel,
+=======
+					struct evsel *evsel,
+>>>>>>> upstream/android-13
 					struct perf_sample *sample,
 					struct machine *machine,
 					struct thread *awakened)
@@ -2385,9 +2707,24 @@ static void timehist_print_wakeup_event(struct perf_sched *sched,
 	printf("\n");
 }
 
+<<<<<<< HEAD
 static int timehist_sched_wakeup_event(struct perf_tool *tool,
 				       union perf_event *event __maybe_unused,
 				       struct perf_evsel *evsel,
+=======
+static int timehist_sched_wakeup_ignore(struct perf_tool *tool __maybe_unused,
+					union perf_event *event __maybe_unused,
+					struct evsel *evsel __maybe_unused,
+					struct perf_sample *sample __maybe_unused,
+					struct machine *machine __maybe_unused)
+{
+	return 0;
+}
+
+static int timehist_sched_wakeup_event(struct perf_tool *tool,
+				       union perf_event *event __maybe_unused,
+				       struct evsel *evsel,
+>>>>>>> upstream/android-13
 				       struct perf_sample *sample,
 				       struct machine *machine)
 {
@@ -2395,7 +2732,11 @@ static int timehist_sched_wakeup_event(struct perf_tool *tool,
 	struct thread *thread;
 	struct thread_runtime *tr = NULL;
 	/* want pid of awakened task not pid in sample */
+<<<<<<< HEAD
 	const u32 pid = perf_evsel__intval(evsel, sample, "pid");
+=======
+	const u32 pid = evsel__intval(evsel, sample, "pid");
+>>>>>>> upstream/android-13
 
 	thread = machine__findnew_thread(machine, 0, pid);
 	if (thread == NULL)
@@ -2417,7 +2758,11 @@ static int timehist_sched_wakeup_event(struct perf_tool *tool,
 }
 
 static void timehist_print_migration_event(struct perf_sched *sched,
+<<<<<<< HEAD
 					struct perf_evsel *evsel,
+=======
+					struct evsel *evsel,
+>>>>>>> upstream/android-13
 					struct perf_sample *sample,
 					struct machine *machine,
 					struct thread *migrated)
@@ -2431,8 +2776,13 @@ static void timehist_print_migration_event(struct perf_sched *sched,
 		return;
 
 	max_cpus = sched->max_cpu + 1;
+<<<<<<< HEAD
 	ocpu = perf_evsel__intval(evsel, sample, "orig_cpu");
 	dcpu = perf_evsel__intval(evsel, sample, "dest_cpu");
+=======
+	ocpu = evsel__intval(evsel, sample, "orig_cpu");
+	dcpu = evsel__intval(evsel, sample, "dest_cpu");
+>>>>>>> upstream/android-13
 
 	thread = machine__findnew_thread(machine, sample->pid, sample->tid);
 	if (thread == NULL)
@@ -2471,7 +2821,11 @@ static void timehist_print_migration_event(struct perf_sched *sched,
 
 static int timehist_migrate_task_event(struct perf_tool *tool,
 				       union perf_event *event __maybe_unused,
+<<<<<<< HEAD
 				       struct perf_evsel *evsel,
+=======
+				       struct evsel *evsel,
+>>>>>>> upstream/android-13
 				       struct perf_sample *sample,
 				       struct machine *machine)
 {
@@ -2479,7 +2833,11 @@ static int timehist_migrate_task_event(struct perf_tool *tool,
 	struct thread *thread;
 	struct thread_runtime *tr = NULL;
 	/* want pid of migrated task not pid in sample */
+<<<<<<< HEAD
 	const u32 pid = perf_evsel__intval(evsel, sample, "pid");
+=======
+	const u32 pid = evsel__intval(evsel, sample, "pid");
+>>>>>>> upstream/android-13
 
 	thread = machine__findnew_thread(machine, 0, pid);
 	if (thread == NULL)
@@ -2499,7 +2857,11 @@ static int timehist_migrate_task_event(struct perf_tool *tool,
 
 static int timehist_sched_change_event(struct perf_tool *tool,
 				       union perf_event *event,
+<<<<<<< HEAD
 				       struct perf_evsel *evsel,
+=======
+				       struct evsel *evsel,
+>>>>>>> upstream/android-13
 				       struct perf_sample *sample,
 				       struct machine *machine)
 {
@@ -2510,8 +2872,12 @@ static int timehist_sched_change_event(struct perf_tool *tool,
 	struct thread_runtime *tr = NULL;
 	u64 tprev, t = sample->time;
 	int rc = 0;
+<<<<<<< HEAD
 	int state = perf_evsel__intval(evsel, sample, "prev_state");
 
+=======
+	int state = evsel__intval(evsel, sample, "prev_state");
+>>>>>>> upstream/android-13
 
 	if (machine__resolve(machine, &al, sample) < 0) {
 		pr_err("problem processing %d event. skipping it\n",
@@ -2535,7 +2901,11 @@ static int timehist_sched_change_event(struct perf_tool *tool,
 		goto out;
 	}
 
+<<<<<<< HEAD
 	tprev = perf_evsel__get_time(evsel, sample->cpu);
+=======
+	tprev = evsel__get_time(evsel, sample->cpu);
+>>>>>>> upstream/android-13
 
 	/*
 	 * If start time given:
@@ -2563,7 +2933,12 @@ static int timehist_sched_change_event(struct perf_tool *tool,
 	}
 
 	if (!sched->idle_hist || thread->tid == 0) {
+<<<<<<< HEAD
 		timehist_update_runtime_stats(tr, t, tprev);
+=======
+		if (!cpu_list || test_bit(sample->cpu, cpu_bitmap))
+			timehist_update_runtime_stats(tr, t, tprev);
+>>>>>>> upstream/android-13
 
 		if (sched->idle_hist) {
 			struct idle_thread_runtime *itr = (void *)tr;
@@ -2618,14 +2993,22 @@ out:
 		tr->ready_to_run = 0;
 	}
 
+<<<<<<< HEAD
 	perf_evsel__save_time(evsel, sample->time, sample->cpu);
+=======
+	evsel__save_time(evsel, sample->time, sample->cpu);
+>>>>>>> upstream/android-13
 
 	return rc;
 }
 
 static int timehist_sched_switch_event(struct perf_tool *tool,
 			     union perf_event *event,
+<<<<<<< HEAD
 			     struct perf_evsel *evsel,
+=======
+			     struct evsel *evsel,
+>>>>>>> upstream/android-13
 			     struct perf_sample *sample,
 			     struct machine *machine __maybe_unused)
 {
@@ -2641,7 +3024,11 @@ static int process_lost(struct perf_tool *tool __maybe_unused,
 
 	timestamp__scnprintf_usec(sample->time, tstr, sizeof(tstr));
 	printf("%15s ", tstr);
+<<<<<<< HEAD
 	printf("lost %" PRIu64 " events on cpu %d\n", event->lost.lost, sample->cpu);
+=======
+	printf("lost %" PRI_lu64 " events on cpu %d\n", event->lost.lost, sample->cpu);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -2762,12 +3149,20 @@ static size_t callchain__fprintf_folded(FILE *fp, struct callchain_node *node)
 	return ret;
 }
 
+<<<<<<< HEAD
 static size_t timehist_print_idlehist_callchain(struct rb_root *root)
+=======
+static size_t timehist_print_idlehist_callchain(struct rb_root_cached *root)
+>>>>>>> upstream/android-13
 {
 	size_t ret = 0;
 	FILE *fp = stdout;
 	struct callchain_node *chain;
+<<<<<<< HEAD
 	struct rb_node *rb_node = rb_first(root);
+=======
+	struct rb_node *rb_node = rb_first_cached(root);
+>>>>>>> upstream/android-13
 
 	printf("  %16s  %8s  %s\n", "Idle time (msec)", "Count", "Callchains");
 	printf("  %.16s  %.8s  %.50s\n", graph_dotted_line, graph_dotted_line,
@@ -2836,6 +3231,12 @@ static void timehist_print_summary(struct perf_sched *sched,
 
 	printf("\nIdle stats:\n");
 	for (i = 0; i < idle_max_cpu; ++i) {
+<<<<<<< HEAD
+=======
+		if (cpu_list && !test_bit(i, cpu_bitmap))
+			continue;
+
+>>>>>>> upstream/android-13
 		t = idle_threads[i];
 		if (!t)
 			continue;
@@ -2868,7 +3269,11 @@ static void timehist_print_summary(struct perf_sched *sched,
 			if (itr == NULL)
 				continue;
 
+<<<<<<< HEAD
 			callchain_param.sort(&itr->sorted_root, &itr->callchain,
+=======
+			callchain_param.sort(&itr->sorted_root.rb_root, &itr->callchain,
+>>>>>>> upstream/android-13
 					     0, &callchain_param);
 
 			printf("  CPU %2d:", i);
@@ -2895,14 +3300,22 @@ static void timehist_print_summary(struct perf_sched *sched,
 
 typedef int (*sched_handler)(struct perf_tool *tool,
 			  union perf_event *event,
+<<<<<<< HEAD
 			  struct perf_evsel *evsel,
+=======
+			  struct evsel *evsel,
+>>>>>>> upstream/android-13
 			  struct perf_sample *sample,
 			  struct machine *machine);
 
 static int perf_timehist__process_sample(struct perf_tool *tool,
 					 union perf_event *event,
 					 struct perf_sample *sample,
+<<<<<<< HEAD
 					 struct perf_evsel *evsel,
+=======
+					 struct evsel *evsel,
+>>>>>>> upstream/android-13
 					 struct machine *machine)
 {
 	struct perf_sched *sched = container_of(tool, struct perf_sched, tool);
@@ -2922,6 +3335,7 @@ static int perf_timehist__process_sample(struct perf_tool *tool,
 }
 
 static int timehist_check_attr(struct perf_sched *sched,
+<<<<<<< HEAD
 			       struct perf_evlist *evlist)
 {
 	struct perf_evsel *evsel;
@@ -2929,6 +3343,15 @@ static int timehist_check_attr(struct perf_sched *sched,
 
 	list_for_each_entry(evsel, &evlist->entries, node) {
 		er = perf_evsel__get_runtime(evsel);
+=======
+			       struct evlist *evlist)
+{
+	struct evsel *evsel;
+	struct evsel_runtime *er;
+
+	list_for_each_entry(evsel, &evlist->core.entries, core.node) {
+		er = evsel__get_runtime(evsel);
+>>>>>>> upstream/android-13
 		if (er == NULL) {
 			pr_err("Failed to allocate memory for evsel runtime data\n");
 			return -1;
@@ -2946,6 +3369,7 @@ static int timehist_check_attr(struct perf_sched *sched,
 
 static int perf_sched__timehist(struct perf_sched *sched)
 {
+<<<<<<< HEAD
 	const struct perf_evsel_str_handler handlers[] = {
 		{ "sched:sched_switch",       timehist_sched_switch_event, },
 		{ "sched:sched_wakeup",	      timehist_sched_wakeup_event, },
@@ -2964,6 +3388,25 @@ static int perf_sched__timehist(struct perf_sched *sched)
 
 	struct perf_session *session;
 	struct perf_evlist *evlist;
+=======
+	struct evsel_str_handler handlers[] = {
+		{ "sched:sched_switch",       timehist_sched_switch_event, },
+		{ "sched:sched_wakeup",	      timehist_sched_wakeup_event, },
+		{ "sched:sched_waking",       timehist_sched_wakeup_event, },
+		{ "sched:sched_wakeup_new",   timehist_sched_wakeup_event, },
+	};
+	const struct evsel_str_handler migrate_handlers[] = {
+		{ "sched:sched_migrate_task", timehist_migrate_task_event, },
+	};
+	struct perf_data data = {
+		.path  = input_name,
+		.mode  = PERF_DATA_MODE_READ,
+		.force = sched->force,
+	};
+
+	struct perf_session *session;
+	struct evlist *evlist;
+>>>>>>> upstream/android-13
 	int err = -1;
 
 	/*
@@ -2984,9 +3427,21 @@ static int perf_sched__timehist(struct perf_sched *sched)
 
 	symbol_conf.use_callchain = sched->show_callchain;
 
+<<<<<<< HEAD
 	session = perf_session__new(&data, false, &sched->tool);
 	if (session == NULL)
 		return -ENOMEM;
+=======
+	session = perf_session__new(&data, &sched->tool);
+	if (IS_ERR(session))
+		return PTR_ERR(session);
+
+	if (cpu_list) {
+		err = perf_session__cpu_bitmap(session, cpu_list, cpu_bitmap);
+		if (err < 0)
+			goto out;
+	}
+>>>>>>> upstream/android-13
 
 	evlist = session->evlist;
 
@@ -3002,13 +3457,24 @@ static int perf_sched__timehist(struct perf_sched *sched)
 
 	setup_pager();
 
+<<<<<<< HEAD
+=======
+	/* prefer sched_waking if it is captured */
+	if (evlist__find_tracepoint_by_name(session->evlist, "sched:sched_waking"))
+		handlers[1].handler = timehist_sched_wakeup_ignore;
+
+>>>>>>> upstream/android-13
 	/* setup per-evsel handlers */
 	if (perf_session__set_tracepoints_handlers(session, handlers))
 		goto out;
 
 	/* sched_switch event at a minimum needs to exist */
+<<<<<<< HEAD
 	if (!perf_evlist__find_tracepoint_by_name(session->evlist,
 						  "sched:sched_switch")) {
+=======
+	if (!evlist__find_tracepoint_by_name(session->evlist, "sched:sched_switch")) {
+>>>>>>> upstream/android-13
 		pr_err("No sched_switch events found. Have you run 'perf sched record'?\n");
 		goto out;
 	}
@@ -3074,11 +3540,20 @@ static void print_bad_events(struct perf_sched *sched)
 	}
 }
 
+<<<<<<< HEAD
 static void __merge_work_atoms(struct rb_root *root, struct work_atoms *data)
 {
 	struct rb_node **new = &(root->rb_node), *parent = NULL;
 	struct work_atoms *this;
 	const char *comm = thread__comm_str(data->thread), *this_comm;
+=======
+static void __merge_work_atoms(struct rb_root_cached *root, struct work_atoms *data)
+{
+	struct rb_node **new = &(root->rb_root.rb_node), *parent = NULL;
+	struct work_atoms *this;
+	const char *comm = thread__comm_str(data->thread), *this_comm;
+	bool leftmost = true;
+>>>>>>> upstream/android-13
 
 	while (*new) {
 		int cmp;
@@ -3092,6 +3567,10 @@ static void __merge_work_atoms(struct rb_root *root, struct work_atoms *data)
 			new = &((*new)->rb_left);
 		} else if (cmp < 0) {
 			new = &((*new)->rb_right);
+<<<<<<< HEAD
+=======
+			leftmost = false;
+>>>>>>> upstream/android-13
 		} else {
 			this->num_merged++;
 			this->total_runtime += data->total_runtime;
@@ -3100,7 +3579,12 @@ static void __merge_work_atoms(struct rb_root *root, struct work_atoms *data)
 			list_splice(&data->work_list, &this->work_list);
 			if (this->max_lat < data->max_lat) {
 				this->max_lat = data->max_lat;
+<<<<<<< HEAD
 				this->max_lat_at = data->max_lat_at;
+=======
+				this->max_lat_start = data->max_lat_start;
+				this->max_lat_end = data->max_lat_end;
+>>>>>>> upstream/android-13
 			}
 			zfree(&data);
 			return;
@@ -3109,7 +3593,11 @@ static void __merge_work_atoms(struct rb_root *root, struct work_atoms *data)
 
 	data->num_merged++;
 	rb_link_node(&data->node, parent, new);
+<<<<<<< HEAD
 	rb_insert_color(&data->node, root);
+=======
+	rb_insert_color_cached(&data->node, root, leftmost);
+>>>>>>> upstream/android-13
 }
 
 static void perf_sched__merge_lat(struct perf_sched *sched)
@@ -3120,8 +3608,13 @@ static void perf_sched__merge_lat(struct perf_sched *sched)
 	if (sched->skip_merge)
 		return;
 
+<<<<<<< HEAD
 	while ((node = rb_first(&sched->atom_root))) {
 		rb_erase(node, &sched->atom_root);
+=======
+	while ((node = rb_first_cached(&sched->atom_root))) {
+		rb_erase_cached(node, &sched->atom_root);
+>>>>>>> upstream/android-13
 		data = rb_entry(node, struct work_atoms, node);
 		__merge_work_atoms(&sched->merged_atom_root, data);
 	}
@@ -3139,11 +3632,19 @@ static int perf_sched__lat(struct perf_sched *sched)
 	perf_sched__merge_lat(sched);
 	perf_sched__sort_lat(sched);
 
+<<<<<<< HEAD
 	printf("\n -----------------------------------------------------------------------------------------------------------------\n");
 	printf("  Task                  |   Runtime ms  | Switches | Average delay ms | Maximum delay ms | Maximum delay at       |\n");
 	printf(" -----------------------------------------------------------------------------------------------------------------\n");
 
 	next = rb_first(&sched->sorted_atom_root);
+=======
+	printf("\n -------------------------------------------------------------------------------------------------------------------------------------------\n");
+	printf("  Task                  |   Runtime ms  | Switches | Avg delay ms    | Max delay ms    | Max delay start           | Max delay end          |\n");
+	printf(" -------------------------------------------------------------------------------------------------------------------------------------------\n");
+
+	next = rb_first_cached(&sched->sorted_atom_root);
+>>>>>>> upstream/android-13
 
 	while (next) {
 		struct work_atoms *work_list;
@@ -3168,7 +3669,11 @@ static int perf_sched__lat(struct perf_sched *sched)
 
 static int setup_map_cpus(struct perf_sched *sched)
 {
+<<<<<<< HEAD
 	struct cpu_map *map;
+=======
+	struct perf_cpu_map *map;
+>>>>>>> upstream/android-13
 
 	sched->max_cpu  = sysconf(_SC_NPROCESSORS_CONF);
 
@@ -3181,7 +3686,11 @@ static int setup_map_cpus(struct perf_sched *sched)
 	if (!sched->map.cpus_str)
 		return 0;
 
+<<<<<<< HEAD
 	map = cpu_map__new(sched->map.cpus_str);
+=======
+	map = perf_cpu_map__new(sched->map.cpus_str);
+>>>>>>> upstream/android-13
 	if (!map) {
 		pr_err("failed to get cpus map from %s\n", sched->map.cpus_str);
 		return -1;
@@ -3193,7 +3702,11 @@ static int setup_map_cpus(struct perf_sched *sched)
 
 static int setup_color_pids(struct perf_sched *sched)
 {
+<<<<<<< HEAD
 	struct thread_map *map;
+=======
+	struct perf_thread_map *map;
+>>>>>>> upstream/android-13
 
 	if (!sched->map.color_pids_str)
 		return 0;
@@ -3210,12 +3723,20 @@ static int setup_color_pids(struct perf_sched *sched)
 
 static int setup_color_cpus(struct perf_sched *sched)
 {
+<<<<<<< HEAD
 	struct cpu_map *map;
+=======
+	struct perf_cpu_map *map;
+>>>>>>> upstream/android-13
 
 	if (!sched->map.color_cpus_str)
 		return 0;
 
+<<<<<<< HEAD
 	map = cpu_map__new(sched->map.color_cpus_str);
+=======
+	map = perf_cpu_map__new(sched->map.color_cpus_str);
+>>>>>>> upstream/android-13
 	if (!map) {
 		pr_err("failed to get thread map from %s\n", sched->map.color_cpus_str);
 		return -1;
@@ -3296,6 +3817,19 @@ static void setup_sorting(struct perf_sched *sched, const struct option *options
 	sort_dimension__add("pid", &sched->cmp_pid);
 }
 
+<<<<<<< HEAD
+=======
+static bool schedstat_events_exposed(void)
+{
+	/*
+	 * Select "sched:sched_stat_wait" event to check
+	 * whether schedstat tracepoints are exposed.
+	 */
+	return IS_ERR(trace_event__tp_format("sched", "sched_stat_wait")) ?
+		false : true;
+}
+
+>>>>>>> upstream/android-13
 static int __cmd_record(int argc, const char **argv)
 {
 	unsigned int rec_argc, i, j;
@@ -3307,17 +3841,46 @@ static int __cmd_record(int argc, const char **argv)
 		"-m", "1024",
 		"-c", "1",
 		"-e", "sched:sched_switch",
+<<<<<<< HEAD
 		"-e", "sched:sched_stat_wait",
 		"-e", "sched:sched_stat_sleep",
 		"-e", "sched:sched_stat_iowait",
 		"-e", "sched:sched_stat_runtime",
 		"-e", "sched:sched_process_fork",
 		"-e", "sched:sched_wakeup",
+=======
+		"-e", "sched:sched_stat_runtime",
+		"-e", "sched:sched_process_fork",
+>>>>>>> upstream/android-13
 		"-e", "sched:sched_wakeup_new",
 		"-e", "sched:sched_migrate_task",
 	};
 
+<<<<<<< HEAD
 	rec_argc = ARRAY_SIZE(record_args) + argc - 1;
+=======
+	/*
+	 * The tracepoints trace_sched_stat_{wait, sleep, iowait}
+	 * are not exposed to user if CONFIG_SCHEDSTATS is not set,
+	 * to prevent "perf sched record" execution failure, determine
+	 * whether to record schedstat events according to actual situation.
+	 */
+	const char * const schedstat_args[] = {
+		"-e", "sched:sched_stat_wait",
+		"-e", "sched:sched_stat_sleep",
+		"-e", "sched:sched_stat_iowait",
+	};
+	unsigned int schedstat_argc = schedstat_events_exposed() ?
+		ARRAY_SIZE(schedstat_args) : 0;
+
+	struct tep_event *waking_event;
+
+	/*
+	 * +2 for either "-e", "sched:sched_wakeup" or
+	 * "-e", "sched:sched_waking"
+	 */
+	rec_argc = ARRAY_SIZE(record_args) + 2 + schedstat_argc + argc - 1;
+>>>>>>> upstream/android-13
 	rec_argv = calloc(rec_argc + 1, sizeof(char *));
 
 	if (rec_argv == NULL)
@@ -3326,6 +3889,19 @@ static int __cmd_record(int argc, const char **argv)
 	for (i = 0; i < ARRAY_SIZE(record_args); i++)
 		rec_argv[i] = strdup(record_args[i]);
 
+<<<<<<< HEAD
+=======
+	rec_argv[i++] = "-e";
+	waking_event = trace_event__tp_format("sched", "sched_waking");
+	if (!IS_ERR(waking_event))
+		rec_argv[i++] = strdup("sched:sched_waking");
+	else
+		rec_argv[i++] = strdup("sched:sched_wakeup");
+
+	for (j = 0; j < schedstat_argc; j++)
+		rec_argv[i++] = strdup(schedstat_args[j]);
+
+>>>>>>> upstream/android-13
 	for (j = 1; j < (unsigned int)argc; j++, i++)
 		rec_argv[i] = argv[j];
 
@@ -3336,7 +3912,11 @@ static int __cmd_record(int argc, const char **argv)
 
 int cmd_sched(int argc, const char **argv)
 {
+<<<<<<< HEAD
 	const char default_sort_order[] = "avg, max, switch, runtime";
+=======
+	static const char default_sort_order[] = "avg, max, switch, runtime";
+>>>>>>> upstream/android-13
 	struct perf_sched sched = {
 		.tool = {
 			.sample		 = perf_sched__process_tracepoint_sample,
@@ -3421,6 +4001,10 @@ int cmd_sched(int argc, const char **argv)
 		   "analyze events only for given process id(s)"),
 	OPT_STRING('t', "tid", &symbol_conf.tid_list_str, "tid[,tid...]",
 		   "analyze events only for given thread id(s)"),
+<<<<<<< HEAD
+=======
+	OPT_STRING('C', "cpu", &cpu_list, "cpu", "list of cpus to profile"),
+>>>>>>> upstream/android-13
 	OPT_PARENT(sched_options)
 	};
 

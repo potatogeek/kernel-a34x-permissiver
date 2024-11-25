@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 # tools/power/acpi/Makefile - ACPI tool Makefile
 #
 # Copyright (c) 2013, Intel Corporation
 #   Author: Lv Zheng <lv.zheng@intel.com>
 #
+<<<<<<< HEAD
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
 # as published by the Free Software Foundation; version 2
@@ -10,6 +15,13 @@
 
 include ../../scripts/Makefile.include
 
+=======
+
+include ../../scripts/Makefile.include
+
+.NOTPARALLEL:
+
+>>>>>>> upstream/android-13
 all: acpidbg acpidump ec
 clean: acpidbg_clean acpidump_clean ec_clean
 install: acpidbg_install acpidump_install ec_install

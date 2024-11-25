@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0+
+>>>>>>> upstream/android-13
 /*
  * Renesas Europe EDOSK7760 Board Support
  *
  * Copyright (C) 2008 SPES Societa' Progettazione Elettronica e Software Ltd.
  * Author: Luca Santini <luca.santini@spesonline.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +22,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/init.h>
 #include <linux/types.h>
@@ -31,7 +38,11 @@
 #include <asm/addrspace.h>
 #include <asm/delay.h>
 #include <asm/i2c-sh7760.h>
+<<<<<<< HEAD
 #include <asm/sizes.h>
+=======
+#include <linux/sizes.h>
+>>>>>>> upstream/android-13
 
 /* Bus state controller registers for CS4 area */
 #define BSC_CS4BCR	0xA4FD0010

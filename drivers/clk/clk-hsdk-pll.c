@@ -12,6 +12,10 @@
 #include <linux/delay.h>
 #include <linux/device.h>
 #include <linux/err.h>
+<<<<<<< HEAD
+=======
+#include <linux/io.h>
+>>>>>>> upstream/android-13
 #include <linux/of.h>
 #include <linux/of_address.h>
 #include <linux/of_device.h>
@@ -52,6 +56,7 @@ struct hsdk_pll_cfg {
 	u32 fbdiv;
 	u32 odiv;
 	u32 band;
+<<<<<<< HEAD
 };
 
 static const struct hsdk_pll_cfg asdt_pll_cfg[] = {
@@ -74,13 +79,46 @@ static const struct hsdk_pll_cfg asdt_pll_cfg[] = {
 	{ 1400000000, 1, 41, 0, 0 },
 	{ 1500000000, 1, 44, 0, 0 },
 	{ 1600000000, 1, 47, 0, 0 },
+=======
+	u32 bypass;
+};
+
+static const struct hsdk_pll_cfg asdt_pll_cfg[] = {
+	{ 100000000,  0, 11, 3, 0, 0 },
+	{ 133000000,  0, 15, 3, 0, 0 },
+	{ 200000000,  1, 47, 3, 0, 0 },
+	{ 233000000,  1, 27, 2, 0, 0 },
+	{ 300000000,  1, 35, 2, 0, 0 },
+	{ 333000000,  1, 39, 2, 0, 0 },
+	{ 400000000,  1, 47, 2, 0, 0 },
+	{ 500000000,  0, 14, 1, 0, 0 },
+	{ 600000000,  0, 17, 1, 0, 0 },
+	{ 700000000,  0, 20, 1, 0, 0 },
+	{ 800000000,  0, 23, 1, 0, 0 },
+	{ 900000000,  1, 26, 0, 0, 0 },
+	{ 1000000000, 1, 29, 0, 0, 0 },
+	{ 1100000000, 1, 32, 0, 0, 0 },
+	{ 1200000000, 1, 35, 0, 0, 0 },
+	{ 1300000000, 1, 38, 0, 0, 0 },
+	{ 1400000000, 1, 41, 0, 0, 0 },
+	{ 1500000000, 1, 44, 0, 0, 0 },
+	{ 1600000000, 1, 47, 0, 0, 0 },
+>>>>>>> upstream/android-13
 	{}
 };
 
 static const struct hsdk_pll_cfg hdmi_pll_cfg[] = {
+<<<<<<< HEAD
 	{ 297000000,  0, 21, 2, 0 },
 	{ 540000000,  0, 19, 1, 0 },
 	{ 594000000,  0, 21, 1, 0 },
+=======
+	{ 27000000,   0, 0,  0, 0, 1 },
+	{ 148500000,  0, 21, 3, 0, 0 },
+	{ 297000000,  0, 21, 2, 0, 0 },
+	{ 540000000,  0, 19, 1, 0, 0 },
+	{ 594000000,  0, 21, 1, 0, 0 },
+>>>>>>> upstream/android-13
 	{}
 };
 
@@ -133,11 +171,24 @@ static inline void hsdk_pll_set_cfg(struct hsdk_pll_clk *clk,
 {
 	u32 val = 0;
 
+<<<<<<< HEAD
 	/* Powerdown and Bypass bits should be cleared */
 	val |= cfg->idiv << CGU_PLL_CTRL_IDIV_SHIFT;
 	val |= cfg->fbdiv << CGU_PLL_CTRL_FBDIV_SHIFT;
 	val |= cfg->odiv << CGU_PLL_CTRL_ODIV_SHIFT;
 	val |= cfg->band << CGU_PLL_CTRL_BAND_SHIFT;
+=======
+	if (cfg->bypass) {
+		val = hsdk_pll_read(clk, CGU_PLL_CTRL);
+		val |= CGU_PLL_CTRL_BYPASS;
+	} else {
+		/* Powerdown and Bypass bits should be cleared */
+		val |= cfg->idiv << CGU_PLL_CTRL_IDIV_SHIFT;
+		val |= cfg->fbdiv << CGU_PLL_CTRL_FBDIV_SHIFT;
+		val |= cfg->odiv << CGU_PLL_CTRL_ODIV_SHIFT;
+		val |= cfg->band << CGU_PLL_CTRL_BAND_SHIFT;
+	}
+>>>>>>> upstream/android-13
 
 	dev_dbg(clk->dev, "write configuration: %#x\n", val);
 
@@ -171,14 +222,24 @@ static unsigned long hsdk_pll_recalc_rate(struct clk_hw *hw,
 
 	dev_dbg(clk->dev, "current configuration: %#x\n", val);
 
+<<<<<<< HEAD
 	/* Check if PLL is disabled */
 	if (val & CGU_PLL_CTRL_PD)
 		return 0;
 
+=======
+>>>>>>> upstream/android-13
 	/* Check if PLL is bypassed */
 	if (val & CGU_PLL_CTRL_BYPASS)
 		return parent_rate;
 
+<<<<<<< HEAD
+=======
+	/* Check if PLL is disabled */
+	if (val & CGU_PLL_CTRL_PD)
+		return 0;
+
+>>>>>>> upstream/android-13
 	/* input divider = reg.idiv + 1 */
 	idiv = 1 + ((val & CGU_PLL_CTRL_IDIV_MASK) >> CGU_PLL_CTRL_IDIV_SHIFT);
 	/* fb divider = 2*(reg.fbdiv + 1) */
@@ -390,13 +451,21 @@ static void __init of_hsdk_pll_clk_setup(struct device_node *node)
 
 	ret = clk_hw_register(NULL, &pll_clk->hw);
 	if (ret) {
+<<<<<<< HEAD
 		pr_err("failed to register %s clock\n", node->name);
+=======
+		pr_err("failed to register %pOFn clock\n", node);
+>>>>>>> upstream/android-13
 		goto err_unmap_spec_regs;
 	}
 
 	ret = of_clk_add_hw_provider(node, of_clk_hw_simple_get, &pll_clk->hw);
 	if (ret) {
+<<<<<<< HEAD
 		pr_err("failed to add hw provider for %s clock\n", node->name);
+=======
+		pr_err("failed to add hw provider for %pOFn clock\n", node);
+>>>>>>> upstream/android-13
 		goto err_unmap_spec_regs;
 	}
 

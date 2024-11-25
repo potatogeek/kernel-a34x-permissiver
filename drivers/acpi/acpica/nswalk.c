@@ -3,7 +3,11 @@
  *
  * Module Name: nswalk - Functions for walking the ACPI namespace
  *
+<<<<<<< HEAD
  * Copyright (C) 2000 - 2018, Intel Corp.
+=======
+ * Copyright (C) 2000 - 2021, Intel Corp.
+>>>>>>> upstream/android-13
  *
  *****************************************************************************/
 
@@ -169,6 +173,12 @@ acpi_ns_walk_namespace(acpi_object_type type,
 
 	if (start_node == ACPI_ROOT_OBJECT) {
 		start_node = acpi_gbl_root_node;
+<<<<<<< HEAD
+=======
+		if (!start_node) {
+			return_ACPI_STATUS(AE_NO_NAMESPACE);
+		}
+>>>>>>> upstream/android-13
 	}
 
 	/* Null child means "get first node" */

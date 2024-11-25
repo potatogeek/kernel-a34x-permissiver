@@ -40,8 +40,12 @@
  * generic code while CVMX_PKO_LOCK_CMD_QUEUE should be used
  * with hand tuned fast path code.
  *
+<<<<<<< HEAD
  * Some of other SDK differences visible to the command command
  * queuing:
+=======
+ * Some of other SDK differences visible to the command queuing:
+>>>>>>> upstream/android-13
  * - PKO indexes are no longer stored in the FAU. A large
  *   percentage of the FAU register block used to be tied up
  *   maintaining PKO queue pointers. These are now stored in a
@@ -169,7 +173,11 @@ typedef union {
 /**
  * Structure of the first packet output command word.
  */
+<<<<<<< HEAD
 typedef union {
+=======
+union cvmx_pko_command_word0 {
+>>>>>>> upstream/android-13
 	uint64_t u64;
 	struct {
 #ifdef __BIG_ENDIAN_BITFIELD
@@ -261,7 +269,11 @@ typedef union {
 	        uint64_t size1:2;
 #endif
 	} s;
+<<<<<<< HEAD
 } cvmx_pko_command_word0_t;
+=======
+};
+>>>>>>> upstream/android-13
 
 /* CSR typedefs have been moved to cvmx-csr-*.h */
 
@@ -394,7 +406,11 @@ static inline void cvmx_pko_send_packet_prepare(uint64_t port, uint64_t queue,
 		    CVMX_TAG_SW_BITS_INTERNAL << CVMX_TAG_SW_SHIFT |
 		    CVMX_TAG_SUBGROUP_PKO << CVMX_TAG_SUBGROUP_SHIFT |
 		    (CVMX_TAG_SUBGROUP_MASK & queue);
+<<<<<<< HEAD
 		cvmx_pow_tag_sw_full((cvmx_wqe_t *) cvmx_phys_to_ptr(0x80), tag,
+=======
+		cvmx_pow_tag_sw_full((struct cvmx_wqe *) cvmx_phys_to_ptr(0x80), tag,
+>>>>>>> upstream/android-13
 				     CVMX_POW_TAG_TYPE_ATOMIC, 0);
 	}
 }
@@ -413,13 +429,21 @@ static inline void cvmx_pko_send_packet_prepare(uint64_t port, uint64_t queue,
  * @use_locking: CVMX_PKO_LOCK_NONE, CVMX_PKO_LOCK_ATOMIC_TAG, or
  *		 CVMX_PKO_LOCK_CMD_QUEUE
  *
+<<<<<<< HEAD
  * Returns returns CVMX_PKO_SUCCESS on success, or error code on
+=======
+ * Returns: CVMX_PKO_SUCCESS on success, or error code on
+>>>>>>> upstream/android-13
  * failure of output
  */
 static inline cvmx_pko_status_t cvmx_pko_send_packet_finish(
 	uint64_t port,
 	uint64_t queue,
+<<<<<<< HEAD
 	cvmx_pko_command_word0_t pko_command,
+=======
+	union cvmx_pko_command_word0 pko_command,
+>>>>>>> upstream/android-13
 	union cvmx_buf_ptr packet,
 	cvmx_pko_lock_t use_locking)
 {
@@ -456,13 +480,21 @@ static inline cvmx_pko_status_t cvmx_pko_send_packet_finish(
  * @use_locking: CVMX_PKO_LOCK_NONE, CVMX_PKO_LOCK_ATOMIC_TAG, or
  *		 CVMX_PKO_LOCK_CMD_QUEUE
  *
+<<<<<<< HEAD
  * Returns returns CVMX_PKO_SUCCESS on success, or error code on
+=======
+ * Returns: CVMX_PKO_SUCCESS on success, or error code on
+>>>>>>> upstream/android-13
  * failure of output
  */
 static inline cvmx_pko_status_t cvmx_pko_send_packet_finish3(
 	uint64_t port,
 	uint64_t queue,
+<<<<<<< HEAD
 	cvmx_pko_command_word0_t pko_command,
+=======
+	union cvmx_pko_command_word0 pko_command,
+>>>>>>> upstream/android-13
 	union cvmx_buf_ptr packet,
 	uint64_t addr,
 	cvmx_pko_lock_t use_locking)

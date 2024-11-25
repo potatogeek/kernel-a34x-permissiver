@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2018 Daniel Mack
  *
@@ -5,6 +6,11 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) 2018 Daniel Mack
+>>>>>>> upstream/android-13
  */
 
 #ifndef __DT_BINDINGS_MAX9485_CLK_H

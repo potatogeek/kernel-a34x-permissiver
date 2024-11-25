@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Header file for SCSI device handler infrastruture.
  *
@@ -17,6 +18,14 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Header file for SCSI device handler infrastructure.
+ *
+ * Modified version of patches posted by Mike Christie <michaelc@cs.wisc.edu>
+ *
+>>>>>>> upstream/android-13
  * Copyright IBM Corporation, 2007
  *      Authors:
  *               Chandra Seetharaman <sekharan@us.ibm.com>
@@ -65,11 +74,20 @@ struct scsi_device_handler {
 	/* Filled by the hardware handler */
 	struct module *module;
 	const char *name;
+<<<<<<< HEAD
 	int (*check_sense)(struct scsi_device *, struct scsi_sense_hdr *);
 	int (*attach)(struct scsi_device *);
 	void (*detach)(struct scsi_device *);
 	int (*activate)(struct scsi_device *, activate_complete, void *);
 	int (*prep_fn)(struct scsi_device *, struct request *);
+=======
+	enum scsi_disposition (*check_sense)(struct scsi_device *,
+					     struct scsi_sense_hdr *);
+	int (*attach)(struct scsi_device *);
+	void (*detach)(struct scsi_device *);
+	int (*activate)(struct scsi_device *, activate_complete, void *);
+	blk_status_t (*prep_fn)(struct scsi_device *, struct request *);
+>>>>>>> upstream/android-13
 	int (*set_params)(struct scsi_device *, const char *);
 	void (*rescan)(struct scsi_device *);
 };

@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /* PKCS#7 crypto data parser internal definitions
  *
  * Copyright (C) 2012 Red Hat, Inc. All Rights Reserved.
  * Written by David Howells (dhowells@redhat.com)
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public Licence
  * as published by the Free Software Foundation; either version
  * 2 of the Licence, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/oid_registry.h>
@@ -45,10 +52,16 @@ struct pkcs7_signed_info {
 	 *
 	 * This contains the generated digest of _either_ the Content Data or
 	 * the Authenticated Attributes [RFC2315 9.3].  If the latter, one of
+<<<<<<< HEAD
 	 * the attributes contains the digest of the the Content Data within
 	 * it.
 	 *
 	 * THis also contains the issuing cert serial number and issuer's name
+=======
+	 * the attributes contains the digest of the Content Data within it.
+	 *
+	 * This also contains the issuing cert serial number and issuer's name
+>>>>>>> upstream/android-13
 	 * [PKCS#7 or CMS ver 1] or issuing cert's SKID [CMS ver 3].
 	 */
 	struct public_key_signature *sig;

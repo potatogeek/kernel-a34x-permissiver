@@ -48,7 +48,11 @@ struct ext4_xattr_entry {
 	__le32	e_value_inum;	/* inode in which the value is stored */
 	__le32	e_value_size;	/* size of attribute value */
 	__le32	e_hash;		/* hash value of name and value */
+<<<<<<< HEAD
 	char	e_name[0];	/* attribute name */
+=======
+	char	e_name[];	/* attribute name */
+>>>>>>> upstream/android-13
 };
 
 #define EXT4_XATTR_PAD_BITS		2
@@ -118,12 +122,20 @@ struct ext4_xattr_ibody_find {
 
 struct ext4_xattr_inode_array {
 	unsigned int count;		/* # of used items in the array */
+<<<<<<< HEAD
 	struct inode *inodes[0];
+=======
+	struct inode *inodes[];
+>>>>>>> upstream/android-13
 };
 
 extern const struct xattr_handler ext4_xattr_user_handler;
 extern const struct xattr_handler ext4_xattr_trusted_handler;
 extern const struct xattr_handler ext4_xattr_security_handler;
+<<<<<<< HEAD
+=======
+extern const struct xattr_handler ext4_xattr_hurd_handler;
+>>>>>>> upstream/android-13
 
 #define EXT4_XATTR_NAME_ENCRYPTION_CONTEXT "c"
 
@@ -185,9 +197,15 @@ extern int ext4_xattr_ibody_find(struct inode *inode, struct ext4_xattr_info *i,
 extern int ext4_xattr_ibody_get(struct inode *inode, int name_index,
 				const char *name,
 				void *buffer, size_t buffer_size);
+<<<<<<< HEAD
 extern int ext4_xattr_ibody_inline_set(handle_t *handle, struct inode *inode,
 				       struct ext4_xattr_info *i,
 				       struct ext4_xattr_ibody_find *is);
+=======
+extern int ext4_xattr_ibody_set(handle_t *handle, struct inode *inode,
+				struct ext4_xattr_info *i,
+				struct ext4_xattr_ibody_find *is);
+>>>>>>> upstream/android-13
 
 extern struct mb_cache *ext4_xattr_create_cache(void);
 extern void ext4_xattr_destroy_cache(struct mb_cache *);

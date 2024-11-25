@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * Performance event support framework for SuperH hardware counters.
  *
@@ -15,10 +19,13 @@
  *
  * ppc:
  *  Copyright 2008-2009 Paul Mackerras, IBM Corporation.
+<<<<<<< HEAD
  *
  * This file is subject to the terms and conditions of the GNU General Public
  * License.  See the file "COPYING" in the main directory of this archive
  * for more details.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/kernel.h>
 #include <linux/init.h>
@@ -60,6 +67,7 @@ static inline int sh_pmu_initialized(void)
 	return !!sh_pmu;
 }
 
+<<<<<<< HEAD
 const char *perf_pmu_name(void)
 {
 	if (!sh_pmu)
@@ -78,6 +86,8 @@ int perf_num_counters(void)
 }
 EXPORT_SYMBOL_GPL(perf_num_counters);
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Release the PMU if this is the last perf_event.
  */

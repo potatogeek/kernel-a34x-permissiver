@@ -67,7 +67,11 @@ int cx231xx_ir_init(struct cx231xx *dev)
 
 	dev->init_data.name = cx231xx_boards[dev->model].name;
 
+<<<<<<< HEAD
 	strlcpy(info.type, "ir_video", I2C_NAME_SIZE);
+=======
+	strscpy(info.type, "ir_video", I2C_NAME_SIZE);
+>>>>>>> upstream/android-13
 	info.platform_data = &dev->init_data;
 
 	/*
@@ -88,7 +92,11 @@ int cx231xx_ir_init(struct cx231xx *dev)
 	ir_i2c_bus = cx231xx_boards[dev->model].ir_i2c_master;
 	dev_dbg(dev->dev, "Trying to bind ir at bus %d, addr 0x%02x\n",
 		ir_i2c_bus, info.addr);
+<<<<<<< HEAD
 	dev->ir_i2c_client = i2c_new_device(
+=======
+	dev->ir_i2c_client = i2c_new_client_device(
+>>>>>>> upstream/android-13
 		cx231xx_get_i2c_adap(dev, ir_i2c_bus), &info);
 
 	return 0;
@@ -96,7 +104,11 @@ int cx231xx_ir_init(struct cx231xx *dev)
 
 void cx231xx_ir_exit(struct cx231xx *dev)
 {
+<<<<<<< HEAD
 	if (dev->ir_i2c_client)
 		i2c_unregister_device(dev->ir_i2c_client);
+=======
+	i2c_unregister_device(dev->ir_i2c_client);
+>>>>>>> upstream/android-13
 	dev->ir_i2c_client = NULL;
 }

@@ -1,15 +1,22 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2004, 2007-2010, 2011-2012 Synopsys, Inc. (www.synopsys.com)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) 2004, 2007-2010, 2011-2012 Synopsys, Inc. (www.synopsys.com)
+>>>>>>> upstream/android-13
  */
 
 #ifndef _ASM_ARC_MMU_H
 #define _ASM_ARC_MMU_H
 
 #ifndef __ASSEMBLY__
+<<<<<<< HEAD
 #include <linux/threads.h>	/* NR_CPUS */
 #endif
 
@@ -74,11 +81,16 @@
 #endif
 
 #ifndef __ASSEMBLY__
+=======
+
+#include <linux/threads.h>	/* NR_CPUS */
+>>>>>>> upstream/android-13
 
 typedef struct {
 	unsigned long asid[NR_CPUS];	/* 8 bit MMU PID + Generation cycle */
 } mm_context_t;
 
+<<<<<<< HEAD
 #ifdef CONFIG_ARC_DBG_TLB_PARANOIA
 void tlb_paranoid_check(unsigned int mm_asid, unsigned long address);
 #else
@@ -97,5 +109,10 @@ static inline int is_pae40_enabled(void)
 extern int pae40_exist_but_not_enab(void);
 
 #endif	/* !__ASSEMBLY__ */
+=======
+#endif
+
+#include <asm/mmu-arcv2.h>
+>>>>>>> upstream/android-13
 
 #endif

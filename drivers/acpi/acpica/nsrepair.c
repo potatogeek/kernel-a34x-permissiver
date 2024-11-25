@@ -3,7 +3,11 @@
  *
  * Module Name: nsrepair - Repair for objects returned by predefined methods
  *
+<<<<<<< HEAD
  * Copyright (C) 2000 - 2018, Intel Corp.
+=======
+ * Copyright (C) 2000 - 2021, Intel Corp.
+>>>>>>> upstream/android-13
  *
  *****************************************************************************/
 
@@ -316,7 +320,11 @@ static const struct acpi_simple_repair_info *acpi_ns_match_simple_repair(struct
 
 	this_name = acpi_object_repair_info;
 	while (this_name->object_converter) {
+<<<<<<< HEAD
 		if (ACPI_COMPARE_NAME(node->name.ascii, this_name->name)) {
+=======
+		if (ACPI_COMPARE_NAMESEG(node->name.ascii, this_name->name)) {
+>>>>>>> upstream/android-13
 
 			/* Check if we can actually repair this name/type combination */
 

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  linux/fs/file_table.c
  *
@@ -80,14 +84,22 @@ EXPORT_SYMBOL_GPL(get_max_files);
  */
 #if defined(CONFIG_SYSCTL) && defined(CONFIG_PROC_FS)
 int proc_nr_files(struct ctl_table *table, int write,
+<<<<<<< HEAD
                      void __user *buffer, size_t *lenp, loff_t *ppos)
+=======
+                     void *buffer, size_t *lenp, loff_t *ppos)
+>>>>>>> upstream/android-13
 {
 	files_stat.nr_files = get_nr_files();
 	return proc_doulongvec_minmax(table, write, buffer, lenp, ppos);
 }
 #else
 int proc_nr_files(struct ctl_table *table, int write,
+<<<<<<< HEAD
                      void __user *buffer, size_t *lenp, loff_t *ppos)
+=======
+                     void *buffer, size_t *lenp, loff_t *ppos)
+>>>>>>> upstream/android-13
 {
 	return -ENOSYS;
 }
@@ -113,7 +125,10 @@ static struct file *__alloc_file(int flags, const struct cred *cred)
 	rwlock_init(&f->f_owner.lock);
 	spin_lock_init(&f->f_lock);
 	mutex_init(&f->f_pos_lock);
+<<<<<<< HEAD
 	eventpoll_init_file(f);
+=======
+>>>>>>> upstream/android-13
 	f->f_flags = flags;
 	f->f_mode = OPEN_FMODE(flags);
 	/* f->f_version: 0 */
@@ -198,6 +213,10 @@ static struct file *alloc_file(const struct path *path, int flags,
 	file->f_inode = path->dentry->d_inode;
 	file->f_mapping = path->dentry->d_inode->i_mapping;
 	file->f_wb_err = filemap_sample_wb_err(file->f_mapping);
+<<<<<<< HEAD
+=======
+	file->f_sb_err = file_sample_sb_err(file);
+>>>>>>> upstream/android-13
 	if ((file->f_mode & FMODE_READ) &&
 	     likely(fop->read || fop->read_iter))
 		file->f_mode |= FMODE_CAN_READ;
@@ -256,6 +275,10 @@ static void __fput(struct file *file)
 	struct dentry *dentry = file->f_path.dentry;
 	struct vfsmount *mnt = file->f_path.mnt;
 	struct inode *inode = file->f_inode;
+<<<<<<< HEAD
+=======
+	fmode_t mode = file->f_mode;
+>>>>>>> upstream/android-13
 
 	if (unlikely(!(file->f_mode & FMODE_OPENED)))
 		goto out;
@@ -270,8 +293,13 @@ static void __fput(struct file *file)
 	eventpoll_release(file);
 	locks_remove_file(file);
 
+<<<<<<< HEAD
 	five_file_free(file);
 	ima_file_free(file);
+=======
+	ima_file_free(file);
+	five_file_free(file);
+>>>>>>> upstream/android-13
 	if (unlikely(file->f_flags & FASYNC)) {
 		if (file->f_op->fasync)
 			file->f_op->fasync(-1, file, 0);
@@ -279,18 +307,33 @@ static void __fput(struct file *file)
 	if (file->f_op->release)
 		file->f_op->release(inode, file);
 	if (unlikely(S_ISCHR(inode->i_mode) && inode->i_cdev != NULL &&
+<<<<<<< HEAD
 		     !(file->f_mode & FMODE_PATH))) {
+=======
+		     !(mode & FMODE_PATH))) {
+>>>>>>> upstream/android-13
 		cdev_put(inode->i_cdev);
 	}
 	fops_put(file->f_op);
 	put_pid(file->f_owner.pid);
+<<<<<<< HEAD
 	if ((file->f_mode & (FMODE_READ | FMODE_WRITE)) == FMODE_READ)
 		i_readcount_dec(inode);
 	if (file->f_mode & FMODE_WRITER) {
+=======
+	if ((mode & (FMODE_READ | FMODE_WRITE)) == FMODE_READ)
+		i_readcount_dec(inode);
+	if (mode & FMODE_WRITER) {
+>>>>>>> upstream/android-13
 		put_write_access(inode);
 		__mnt_drop_write(mnt);
 	}
 	dput(dentry);
+<<<<<<< HEAD
+=======
+	if (unlikely(mode & FMODE_NEED_UNMOUNT))
+		dissolve_on_fput(mnt);
+>>>>>>> upstream/android-13
 	mntput(mnt);
 out:
 	file_free(file);
@@ -325,6 +368,10 @@ void flush_delayed_fput(void)
 {
 	delayed_fput(NULL);
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(flush_delayed_fput);
+>>>>>>> upstream/android-13
 
 static DECLARE_DELAYED_WORK(delayed_fput_work, delayed_fput);
 
@@ -335,7 +382,11 @@ void fput_many(struct file *file, unsigned int refs)
 
 		if (likely(!in_interrupt() && !(task->flags & PF_KTHREAD))) {
 			init_task_work(&file->f_u.fu_rcuhead, ____fput);
+<<<<<<< HEAD
 			if (!task_work_add(task, &file->f_u.fu_rcuhead, true))
+=======
+			if (!task_work_add(task, &file->f_u.fu_rcuhead, TWA_RESUME))
+>>>>>>> upstream/android-13
 				return;
 			/*
 			 * After this task has run exit_task_work(),
@@ -372,6 +423,10 @@ void __fput_sync(struct file *file)
 }
 
 EXPORT_SYMBOL(fput);
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL(__fput_sync);
+>>>>>>> upstream/android-13
 
 void __init files_init(void)
 {
@@ -387,10 +442,18 @@ void __init files_init(void)
 void __init files_maxfiles_init(void)
 {
 	unsigned long n;
+<<<<<<< HEAD
 	unsigned long memreserve = (totalram_pages - nr_free_pages()) * 3/2;
 
 	memreserve = min(memreserve, totalram_pages - 1);
 	n = ((totalram_pages - memreserve) * (PAGE_SIZE / 1024)) / 10;
+=======
+	unsigned long nr_pages = totalram_pages();
+	unsigned long memreserve = (nr_pages - nr_free_pages()) * 3/2;
+
+	memreserve = min(memreserve, nr_pages - 1);
+	n = ((nr_pages - memreserve) * (PAGE_SIZE / 1024)) / 10;
+>>>>>>> upstream/android-13
 
 	files_stat.max_files = max_t(unsigned long, n, NR_FILE);
 }

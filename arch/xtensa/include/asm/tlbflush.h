@@ -26,8 +26,13 @@
  *
  *  - flush_tlb_all() flushes all processes TLB entries
  *  - flush_tlb_mm(mm) flushes the specified mm context TLB entries
+<<<<<<< HEAD
  *  - flush_tlb_page(mm, vmaddr) flushes a single page
  *  - flush_tlb_range(mm, start, end) flushes a range of pages
+=======
+ *  - flush_tlb_page(vma, page) flushes a single page
+ *  - flush_tlb_range(vma, vmaddr, end) flushes a range of pages
+>>>>>>> upstream/android-13
  */
 
 void local_flush_tlb_all(void);
@@ -160,9 +165,12 @@ static inline void invalidate_dtlb_mapping (unsigned address)
 		invalidate_dtlb_entry(tlb_entry);
 }
 
+<<<<<<< HEAD
 #define check_pgt_cache()	do { } while (0)
 
 
+=======
+>>>>>>> upstream/android-13
 /*
  * DO NOT USE THESE FUNCTIONS.  These instructions aren't part of the Xtensa
  * ISA and exist only for test purposes..

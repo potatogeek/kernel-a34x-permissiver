@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * JMicron JMC2x0 series PCIe Ethernet Linux Device Driver
  *
  * Copyright 2008 JMicron Technology Corporation
+<<<<<<< HEAD
  * http://www.jmicron.com/
  * Copyright (c) 2009 - 2010 Guo-Fu Tseng <cooldavid@cooldavid.org>
  *
@@ -20,6 +25,12 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
+=======
+ * https://www.jmicron.com/
+ * Copyright (c) 2009 - 2010 Guo-Fu Tseng <cooldavid@cooldavid.org>
+ *
+ * Author: Guo-Fu Tseng <cooldavid@cooldavid.org>
+>>>>>>> upstream/android-13
  */
 
 #ifndef __JME_H_INCLUDED__
@@ -424,7 +435,11 @@ struct jme_adapter {
 	struct tasklet_struct	rxempty_task;
 	struct tasklet_struct	rxclean_task;
 	struct tasklet_struct	txclean_task;
+<<<<<<< HEAD
 	struct tasklet_struct	linkch_task;
+=======
+	struct work_struct	linkch_task;
+>>>>>>> upstream/android-13
 	struct tasklet_struct	pcc_task;
 	unsigned long		flags;
 	u32			reg_txcs;

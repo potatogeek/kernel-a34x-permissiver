@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * linux/net/sunrpc/xdr.c
  *
@@ -15,6 +19,14 @@
 #include <linux/errno.h>
 #include <linux/sunrpc/xdr.h>
 #include <linux/sunrpc/msg_prot.h>
+<<<<<<< HEAD
+=======
+#include <linux/bvec.h>
+#include <trace/events/sunrpc.h>
+
+static void _copy_to_pages(struct page **, size_t, const char *, size_t);
+
+>>>>>>> upstream/android-13
 
 /*
  * XDR functions for basic NFS types
@@ -117,8 +129,12 @@ EXPORT_SYMBOL_GPL(xdr_decode_string_inplace);
  * @len: length of string, in bytes
  *
  */
+<<<<<<< HEAD
 void
 xdr_terminate_string(struct xdr_buf *buf, const u32 len)
+=======
+void xdr_terminate_string(const struct xdr_buf *buf, const u32 len)
+>>>>>>> upstream/android-13
 {
 	char *kaddr;
 
@@ -128,6 +144,50 @@ xdr_terminate_string(struct xdr_buf *buf, const u32 len)
 }
 EXPORT_SYMBOL_GPL(xdr_terminate_string);
 
+<<<<<<< HEAD
+=======
+size_t xdr_buf_pagecount(const struct xdr_buf *buf)
+{
+	if (!buf->page_len)
+		return 0;
+	return (buf->page_base + buf->page_len + PAGE_SIZE - 1) >> PAGE_SHIFT;
+}
+
+int
+xdr_alloc_bvec(struct xdr_buf *buf, gfp_t gfp)
+{
+	size_t i, n = xdr_buf_pagecount(buf);
+
+	if (n != 0 && buf->bvec == NULL) {
+		buf->bvec = kmalloc_array(n, sizeof(buf->bvec[0]), gfp);
+		if (!buf->bvec)
+			return -ENOMEM;
+		for (i = 0; i < n; i++) {
+			buf->bvec[i].bv_page = buf->pages[i];
+			buf->bvec[i].bv_len = PAGE_SIZE;
+			buf->bvec[i].bv_offset = 0;
+		}
+	}
+	return 0;
+}
+
+void
+xdr_free_bvec(struct xdr_buf *buf)
+{
+	kfree(buf->bvec);
+	buf->bvec = NULL;
+}
+
+/**
+ * xdr_inline_pages - Prepare receive buffer for a large reply
+ * @xdr: xdr_buf into which reply will be placed
+ * @offset: expected offset where data payload will start, in bytes
+ * @pages: vector of struct page pointers
+ * @base: offset in first page where receive should start, in bytes
+ * @len: expected size of the upper layer data payload, in bytes
+ *
+ */
+>>>>>>> upstream/android-13
 void
 xdr_inline_pages(struct xdr_buf *xdr, unsigned int offset,
 		 struct page **pages, unsigned int base, unsigned int len)
@@ -145,7 +205,10 @@ xdr_inline_pages(struct xdr_buf *xdr, unsigned int offset,
 
 	tail->iov_base = buf + offset;
 	tail->iov_len = buflen - offset;
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	xdr->buflen += len;
 }
 EXPORT_SYMBOL_GPL(xdr_inline_pages);
@@ -155,6 +218,74 @@ EXPORT_SYMBOL_GPL(xdr_inline_pages);
  */
 
 /**
+<<<<<<< HEAD
+=======
+ * _shift_data_left_pages
+ * @pages: vector of pages containing both the source and dest memory area.
+ * @pgto_base: page vector address of destination
+ * @pgfrom_base: page vector address of source
+ * @len: number of bytes to copy
+ *
+ * Note: the addresses pgto_base and pgfrom_base are both calculated in
+ *       the same way:
+ *            if a memory area starts at byte 'base' in page 'pages[i]',
+ *            then its address is given as (i << PAGE_CACHE_SHIFT) + base
+ * Alse note: pgto_base must be < pgfrom_base, but the memory areas
+ * 	they point to may overlap.
+ */
+static void
+_shift_data_left_pages(struct page **pages, size_t pgto_base,
+			size_t pgfrom_base, size_t len)
+{
+	struct page **pgfrom, **pgto;
+	char *vfrom, *vto;
+	size_t copy;
+
+	BUG_ON(pgfrom_base <= pgto_base);
+
+	if (!len)
+		return;
+
+	pgto = pages + (pgto_base >> PAGE_SHIFT);
+	pgfrom = pages + (pgfrom_base >> PAGE_SHIFT);
+
+	pgto_base &= ~PAGE_MASK;
+	pgfrom_base &= ~PAGE_MASK;
+
+	do {
+		if (pgto_base >= PAGE_SIZE) {
+			pgto_base = 0;
+			pgto++;
+		}
+		if (pgfrom_base >= PAGE_SIZE){
+			pgfrom_base = 0;
+			pgfrom++;
+		}
+
+		copy = len;
+		if (copy > (PAGE_SIZE - pgto_base))
+			copy = PAGE_SIZE - pgto_base;
+		if (copy > (PAGE_SIZE - pgfrom_base))
+			copy = PAGE_SIZE - pgfrom_base;
+
+		vto = kmap_atomic(*pgto);
+		if (*pgto != *pgfrom) {
+			vfrom = kmap_atomic(*pgfrom);
+			memcpy(vto + pgto_base, vfrom + pgfrom_base, copy);
+			kunmap_atomic(vfrom);
+		} else
+			memmove(vto + pgto_base, vto + pgfrom_base, copy);
+		flush_dcache_page(*pgto);
+		kunmap_atomic(vto);
+
+		pgto_base += copy;
+		pgfrom_base += copy;
+
+	} while ((len -= copy) != 0);
+}
+
+/**
+>>>>>>> upstream/android-13
  * _shift_data_right_pages
  * @pages: vector of pages containing both the source and dest memory area.
  * @pgto_base: page vector address of destination
@@ -178,6 +309,12 @@ _shift_data_right_pages(struct page **pages, size_t pgto_base,
 
 	BUG_ON(pgto_base <= pgfrom_base);
 
+<<<<<<< HEAD
+=======
+	if (!len)
+		return;
+
+>>>>>>> upstream/android-13
 	pgto_base += len;
 	pgfrom_base += len;
 
@@ -236,6 +373,12 @@ _copy_to_pages(struct page **pages, size_t pgbase, const char *p, size_t len)
 	char *vto;
 	size_t copy;
 
+<<<<<<< HEAD
+=======
+	if (!len)
+		return;
+
+>>>>>>> upstream/android-13
 	pgto = pages + (pgbase >> PAGE_SHIFT);
 	pgbase &= ~PAGE_MASK;
 
@@ -280,6 +423,12 @@ _copy_from_pages(char *p, struct page **pages, size_t pgbase, size_t len)
 	char *vfrom;
 	size_t copy;
 
+<<<<<<< HEAD
+=======
+	if (!len)
+		return;
+
+>>>>>>> upstream/android-13
 	pgfrom = pages + (pgbase >> PAGE_SHIFT);
 	pgbase &= ~PAGE_MASK;
 
@@ -303,6 +452,7 @@ _copy_from_pages(char *p, struct page **pages, size_t pgbase, size_t len)
 }
 EXPORT_SYMBOL_GPL(_copy_from_pages);
 
+<<<<<<< HEAD
 /**
  * xdr_shrink_bufhead
  * @buf: xdr_buf
@@ -425,12 +575,429 @@ xdr_shrink_pagelen(struct xdr_buf *buf, size_t len)
 	/* Have we truncated the message? */
 	if (buf->len > buf->buflen)
 		buf->len = buf->buflen;
+=======
+static void xdr_buf_iov_zero(const struct kvec *iov, unsigned int base,
+			     unsigned int len)
+{
+	if (base >= iov->iov_len)
+		return;
+	if (len > iov->iov_len - base)
+		len = iov->iov_len - base;
+	memset(iov->iov_base + base, 0, len);
+}
+
+/**
+ * xdr_buf_pages_zero
+ * @buf: xdr_buf
+ * @pgbase: beginning offset
+ * @len: length
+ */
+static void xdr_buf_pages_zero(const struct xdr_buf *buf, unsigned int pgbase,
+			       unsigned int len)
+{
+	struct page **pages = buf->pages;
+	struct page **page;
+	char *vpage;
+	unsigned int zero;
+
+	if (!len)
+		return;
+	if (pgbase >= buf->page_len) {
+		xdr_buf_iov_zero(buf->tail, pgbase - buf->page_len, len);
+		return;
+	}
+	if (pgbase + len > buf->page_len) {
+		xdr_buf_iov_zero(buf->tail, 0, pgbase + len - buf->page_len);
+		len = buf->page_len - pgbase;
+	}
+
+	pgbase += buf->page_base;
+
+	page = pages + (pgbase >> PAGE_SHIFT);
+	pgbase &= ~PAGE_MASK;
+
+	do {
+		zero = PAGE_SIZE - pgbase;
+		if (zero > len)
+			zero = len;
+
+		vpage = kmap_atomic(*page);
+		memset(vpage + pgbase, 0, zero);
+		kunmap_atomic(vpage);
+
+		flush_dcache_page(*page);
+		pgbase = 0;
+		page++;
+
+	} while ((len -= zero) != 0);
+}
+
+static unsigned int xdr_buf_pages_fill_sparse(const struct xdr_buf *buf,
+					      unsigned int buflen, gfp_t gfp)
+{
+	unsigned int i, npages, pagelen;
+
+	if (!(buf->flags & XDRBUF_SPARSE_PAGES))
+		return buflen;
+	if (buflen <= buf->head->iov_len)
+		return buflen;
+	pagelen = buflen - buf->head->iov_len;
+	if (pagelen > buf->page_len)
+		pagelen = buf->page_len;
+	npages = (pagelen + buf->page_base + PAGE_SIZE - 1) >> PAGE_SHIFT;
+	for (i = 0; i < npages; i++) {
+		if (!buf->pages[i])
+			continue;
+		buf->pages[i] = alloc_page(gfp);
+		if (likely(buf->pages[i]))
+			continue;
+		buflen -= pagelen;
+		pagelen = i << PAGE_SHIFT;
+		if (pagelen > buf->page_base)
+			buflen += pagelen - buf->page_base;
+		break;
+	}
+	return buflen;
+}
+
+static void xdr_buf_try_expand(struct xdr_buf *buf, unsigned int len)
+{
+	struct kvec *head = buf->head;
+	struct kvec *tail = buf->tail;
+	unsigned int sum = head->iov_len + buf->page_len + tail->iov_len;
+	unsigned int free_space, newlen;
+
+	if (sum > buf->len) {
+		free_space = min_t(unsigned int, sum - buf->len, len);
+		newlen = xdr_buf_pages_fill_sparse(buf, buf->len + free_space,
+						   GFP_KERNEL);
+		free_space = newlen - buf->len;
+		buf->len = newlen;
+		len -= free_space;
+		if (!len)
+			return;
+	}
+
+	if (buf->buflen > sum) {
+		/* Expand the tail buffer */
+		free_space = min_t(unsigned int, buf->buflen - sum, len);
+		tail->iov_len += free_space;
+		buf->len += free_space;
+	}
+}
+
+static void xdr_buf_tail_copy_right(const struct xdr_buf *buf,
+				    unsigned int base, unsigned int len,
+				    unsigned int shift)
+{
+	const struct kvec *tail = buf->tail;
+	unsigned int to = base + shift;
+
+	if (to >= tail->iov_len)
+		return;
+	if (len + to > tail->iov_len)
+		len = tail->iov_len - to;
+	memmove(tail->iov_base + to, tail->iov_base + base, len);
+}
+
+static void xdr_buf_pages_copy_right(const struct xdr_buf *buf,
+				     unsigned int base, unsigned int len,
+				     unsigned int shift)
+{
+	const struct kvec *tail = buf->tail;
+	unsigned int to = base + shift;
+	unsigned int pglen = 0;
+	unsigned int talen = 0, tato = 0;
+
+	if (base >= buf->page_len)
+		return;
+	if (len > buf->page_len - base)
+		len = buf->page_len - base;
+	if (to >= buf->page_len) {
+		tato = to - buf->page_len;
+		if (tail->iov_len >= len + tato)
+			talen = len;
+		else if (tail->iov_len > tato)
+			talen = tail->iov_len - tato;
+	} else if (len + to >= buf->page_len) {
+		pglen = buf->page_len - to;
+		talen = len - pglen;
+		if (talen > tail->iov_len)
+			talen = tail->iov_len;
+	} else
+		pglen = len;
+
+	_copy_from_pages(tail->iov_base + tato, buf->pages,
+			 buf->page_base + base + pglen, talen);
+	_shift_data_right_pages(buf->pages, buf->page_base + to,
+				buf->page_base + base, pglen);
+}
+
+static void xdr_buf_head_copy_right(const struct xdr_buf *buf,
+				    unsigned int base, unsigned int len,
+				    unsigned int shift)
+{
+	const struct kvec *head = buf->head;
+	const struct kvec *tail = buf->tail;
+	unsigned int to = base + shift;
+	unsigned int pglen = 0, pgto = 0;
+	unsigned int talen = 0, tato = 0;
+
+	if (base >= head->iov_len)
+		return;
+	if (len > head->iov_len - base)
+		len = head->iov_len - base;
+	if (to >= buf->page_len + head->iov_len) {
+		tato = to - buf->page_len - head->iov_len;
+		talen = len;
+	} else if (to >= head->iov_len) {
+		pgto = to - head->iov_len;
+		pglen = len;
+		if (pgto + pglen > buf->page_len) {
+			talen = pgto + pglen - buf->page_len;
+			pglen -= talen;
+		}
+	} else {
+		pglen = len - to;
+		if (pglen > buf->page_len) {
+			talen = pglen - buf->page_len;
+			pglen = buf->page_len;
+		}
+	}
+
+	len -= talen;
+	base += len;
+	if (talen + tato > tail->iov_len)
+		talen = tail->iov_len > tato ? tail->iov_len - tato : 0;
+	memcpy(tail->iov_base + tato, head->iov_base + base, talen);
+
+	len -= pglen;
+	base -= pglen;
+	_copy_to_pages(buf->pages, buf->page_base + pgto, head->iov_base + base,
+		       pglen);
+
+	base -= len;
+	memmove(head->iov_base + to, head->iov_base + base, len);
+}
+
+static void xdr_buf_tail_shift_right(const struct xdr_buf *buf,
+				     unsigned int base, unsigned int len,
+				     unsigned int shift)
+{
+	const struct kvec *tail = buf->tail;
+
+	if (base >= tail->iov_len || !shift || !len)
+		return;
+	xdr_buf_tail_copy_right(buf, base, len, shift);
+}
+
+static void xdr_buf_pages_shift_right(const struct xdr_buf *buf,
+				      unsigned int base, unsigned int len,
+				      unsigned int shift)
+{
+	if (!shift || !len)
+		return;
+	if (base >= buf->page_len) {
+		xdr_buf_tail_shift_right(buf, base - buf->page_len, len, shift);
+		return;
+	}
+	if (base + len > buf->page_len)
+		xdr_buf_tail_shift_right(buf, 0, base + len - buf->page_len,
+					 shift);
+	xdr_buf_pages_copy_right(buf, base, len, shift);
+}
+
+static void xdr_buf_head_shift_right(const struct xdr_buf *buf,
+				     unsigned int base, unsigned int len,
+				     unsigned int shift)
+{
+	const struct kvec *head = buf->head;
+
+	if (!shift)
+		return;
+	if (base >= head->iov_len) {
+		xdr_buf_pages_shift_right(buf, head->iov_len - base, len,
+					  shift);
+		return;
+	}
+	if (base + len > head->iov_len)
+		xdr_buf_pages_shift_right(buf, 0, base + len - head->iov_len,
+					  shift);
+	xdr_buf_head_copy_right(buf, base, len, shift);
+}
+
+static void xdr_buf_tail_copy_left(const struct xdr_buf *buf, unsigned int base,
+				   unsigned int len, unsigned int shift)
+{
+	const struct kvec *tail = buf->tail;
+
+	if (base >= tail->iov_len)
+		return;
+	if (len > tail->iov_len - base)
+		len = tail->iov_len - base;
+	/* Shift data into head */
+	if (shift > buf->page_len + base) {
+		const struct kvec *head = buf->head;
+		unsigned int hdto =
+			head->iov_len + buf->page_len + base - shift;
+		unsigned int hdlen = len;
+
+		if (WARN_ONCE(shift > head->iov_len + buf->page_len + base,
+			      "SUNRPC: Misaligned data.\n"))
+			return;
+		if (hdto + hdlen > head->iov_len)
+			hdlen = head->iov_len - hdto;
+		memcpy(head->iov_base + hdto, tail->iov_base + base, hdlen);
+		base += hdlen;
+		len -= hdlen;
+		if (!len)
+			return;
+	}
+	/* Shift data into pages */
+	if (shift > base) {
+		unsigned int pgto = buf->page_len + base - shift;
+		unsigned int pglen = len;
+
+		if (pgto + pglen > buf->page_len)
+			pglen = buf->page_len - pgto;
+		_copy_to_pages(buf->pages, buf->page_base + pgto,
+			       tail->iov_base + base, pglen);
+		base += pglen;
+		len -= pglen;
+		if (!len)
+			return;
+	}
+	memmove(tail->iov_base + base - shift, tail->iov_base + base, len);
+}
+
+static void xdr_buf_pages_copy_left(const struct xdr_buf *buf,
+				    unsigned int base, unsigned int len,
+				    unsigned int shift)
+{
+	unsigned int pgto;
+
+	if (base >= buf->page_len)
+		return;
+	if (len > buf->page_len - base)
+		len = buf->page_len - base;
+	/* Shift data into head */
+	if (shift > base) {
+		const struct kvec *head = buf->head;
+		unsigned int hdto = head->iov_len + base - shift;
+		unsigned int hdlen = len;
+
+		if (WARN_ONCE(shift > head->iov_len + base,
+			      "SUNRPC: Misaligned data.\n"))
+			return;
+		if (hdto + hdlen > head->iov_len)
+			hdlen = head->iov_len - hdto;
+		_copy_from_pages(head->iov_base + hdto, buf->pages,
+				 buf->page_base + base, hdlen);
+		base += hdlen;
+		len -= hdlen;
+		if (!len)
+			return;
+	}
+	pgto = base - shift;
+	_shift_data_left_pages(buf->pages, buf->page_base + pgto,
+			       buf->page_base + base, len);
+}
+
+static void xdr_buf_tail_shift_left(const struct xdr_buf *buf,
+				    unsigned int base, unsigned int len,
+				    unsigned int shift)
+{
+	if (!shift || !len)
+		return;
+	xdr_buf_tail_copy_left(buf, base, len, shift);
+}
+
+static void xdr_buf_pages_shift_left(const struct xdr_buf *buf,
+				     unsigned int base, unsigned int len,
+				     unsigned int shift)
+{
+	if (!shift || !len)
+		return;
+	if (base >= buf->page_len) {
+		xdr_buf_tail_shift_left(buf, base - buf->page_len, len, shift);
+		return;
+	}
+	xdr_buf_pages_copy_left(buf, base, len, shift);
+	len += base;
+	if (len <= buf->page_len)
+		return;
+	xdr_buf_tail_copy_left(buf, 0, len - buf->page_len, shift);
+}
+
+/**
+ * xdr_shrink_bufhead
+ * @buf: xdr_buf
+ * @len: new length of buf->head[0]
+ *
+ * Shrinks XDR buffer's header kvec buf->head[0], setting it to
+ * 'len' bytes. The extra data is not lost, but is instead
+ * moved into the inlined pages and/or the tail.
+ */
+static unsigned int xdr_shrink_bufhead(struct xdr_buf *buf, unsigned int len)
+{
+	struct kvec *head = buf->head;
+	unsigned int shift, buflen = max(buf->len, len);
+
+	WARN_ON_ONCE(len > head->iov_len);
+	if (head->iov_len > buflen) {
+		buf->buflen -= head->iov_len - buflen;
+		head->iov_len = buflen;
+	}
+	if (len >= head->iov_len)
+		return 0;
+	shift = head->iov_len - len;
+	xdr_buf_try_expand(buf, shift);
+	xdr_buf_head_shift_right(buf, len, buflen - len, shift);
+	head->iov_len = len;
+	buf->buflen -= shift;
+	buf->len -= shift;
+	return shift;
+}
+
+/**
+ * xdr_shrink_pagelen - shrinks buf->pages to @len bytes
+ * @buf: xdr_buf
+ * @len: new page buffer length
+ *
+ * The extra data is not lost, but is instead moved into buf->tail.
+ * Returns the actual number of bytes moved.
+ */
+static unsigned int xdr_shrink_pagelen(struct xdr_buf *buf, unsigned int len)
+{
+	unsigned int shift, buflen = buf->len - buf->head->iov_len;
+
+	WARN_ON_ONCE(len > buf->page_len);
+	if (buf->head->iov_len >= buf->len || len > buflen)
+		buflen = len;
+	if (buf->page_len > buflen) {
+		buf->buflen -= buf->page_len - buflen;
+		buf->page_len = buflen;
+	}
+	if (len >= buf->page_len)
+		return 0;
+	shift = buf->page_len - len;
+	xdr_buf_try_expand(buf, shift);
+	xdr_buf_pages_shift_right(buf, len, buflen - len, shift);
+	buf->page_len = len;
+	buf->len -= shift;
+	buf->buflen -= shift;
+	return shift;
+>>>>>>> upstream/android-13
 }
 
 void
 xdr_shift_buf(struct xdr_buf *buf, size_t len)
 {
+<<<<<<< HEAD
 	xdr_shrink_bufhead(buf, len);
+=======
+	xdr_shrink_bufhead(buf, buf->head->iov_len - len);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(xdr_shift_buf);
 
@@ -444,11 +1011,43 @@ unsigned int xdr_stream_pos(const struct xdr_stream *xdr)
 }
 EXPORT_SYMBOL_GPL(xdr_stream_pos);
 
+<<<<<<< HEAD
+=======
+static void xdr_stream_set_pos(struct xdr_stream *xdr, unsigned int pos)
+{
+	unsigned int blen = xdr->buf->len;
+
+	xdr->nwords = blen > pos ? XDR_QUADLEN(blen) - XDR_QUADLEN(pos) : 0;
+}
+
+static void xdr_stream_page_set_pos(struct xdr_stream *xdr, unsigned int pos)
+{
+	xdr_stream_set_pos(xdr, pos + xdr->buf->head[0].iov_len);
+}
+
+/**
+ * xdr_page_pos - Return the current offset from the start of the xdr pages
+ * @xdr: pointer to struct xdr_stream
+ */
+unsigned int xdr_page_pos(const struct xdr_stream *xdr)
+{
+	unsigned int pos = xdr_stream_pos(xdr);
+
+	WARN_ON(pos < xdr->buf->head[0].iov_len);
+	return pos - xdr->buf->head[0].iov_len;
+}
+EXPORT_SYMBOL_GPL(xdr_page_pos);
+
+>>>>>>> upstream/android-13
 /**
  * xdr_init_encode - Initialize a struct xdr_stream for sending data.
  * @xdr: pointer to xdr_stream struct
  * @buf: pointer to XDR buffer in which to encode data
  * @p: current pointer inside XDR buffer
+<<<<<<< HEAD
+=======
+ * @rqst: pointer to controlling rpc_rqst, for debugging
+>>>>>>> upstream/android-13
  *
  * Note: at the moment the RPC client only passes the length of our
  *	 scratch buffer in the xdr_buf's header kvec. Previously this
@@ -457,12 +1056,21 @@ EXPORT_SYMBOL_GPL(xdr_stream_pos);
  *	 of the buffer length, and takes care of adjusting the kvec
  *	 length for us.
  */
+<<<<<<< HEAD
 void xdr_init_encode(struct xdr_stream *xdr, struct xdr_buf *buf, __be32 *p)
+=======
+void xdr_init_encode(struct xdr_stream *xdr, struct xdr_buf *buf, __be32 *p,
+		     struct rpc_rqst *rqst)
+>>>>>>> upstream/android-13
 {
 	struct kvec *iov = buf->head;
 	int scratch_len = buf->buflen - buf->page_len - buf->tail[0].iov_len;
 
+<<<<<<< HEAD
 	xdr_set_scratch_buffer(xdr, NULL, 0);
+=======
+	xdr_reset_scratch_buffer(xdr);
+>>>>>>> upstream/android-13
 	BUG_ON(scratch_len < 0);
 	xdr->buf = buf;
 	xdr->iov = iov;
@@ -479,6 +1087,10 @@ void xdr_init_encode(struct xdr_stream *xdr, struct xdr_buf *buf, __be32 *p)
 		buf->len += len;
 		iov->iov_len += len;
 	}
+<<<<<<< HEAD
+=======
+	xdr->rqst = rqst;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(xdr_init_encode);
 
@@ -495,7 +1107,11 @@ EXPORT_SYMBOL_GPL(xdr_init_encode);
  * required at the end of encoding, or any other time when the xdr_buf
  * data might be read.
  */
+<<<<<<< HEAD
 void xdr_commit_encode(struct xdr_stream *xdr)
+=======
+inline void xdr_commit_encode(struct xdr_stream *xdr)
+>>>>>>> upstream/android-13
 {
 	int shift = xdr->scratch.iov_len;
 	void *page;
@@ -505,7 +1121,11 @@ void xdr_commit_encode(struct xdr_stream *xdr)
 	page = page_address(*xdr->page_ptr);
 	memcpy(xdr->scratch.iov_base, page, shift);
 	memmove(page, page + shift, (void *)xdr->p - page);
+<<<<<<< HEAD
 	xdr->scratch.iov_len = 0;
+=======
+	xdr_reset_scratch_buffer(xdr);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(xdr_commit_encode);
 
@@ -517,9 +1137,15 @@ static __be32 *xdr_get_next_encode_buffer(struct xdr_stream *xdr,
 	int frag1bytes, frag2bytes;
 
 	if (nbytes > PAGE_SIZE)
+<<<<<<< HEAD
 		return NULL; /* Bigger buffers require special handling */
 	if (xdr->buf->len + nbytes > xdr->buf->buflen)
 		return NULL; /* Sorry, we're totally out of space */
+=======
+		goto out_overflow; /* Bigger buffers require special handling */
+	if (xdr->buf->len + nbytes > xdr->buf->buflen)
+		goto out_overflow; /* Sorry, we're totally out of space */
+>>>>>>> upstream/android-13
 	frag1bytes = (xdr->end - xdr->p) << 2;
 	frag2bytes = nbytes - frag1bytes;
 	if (xdr->iov)
@@ -535,8 +1161,12 @@ static __be32 *xdr_get_next_encode_buffer(struct xdr_stream *xdr,
 	 * the "scratch" iov to track any temporarily unused fragment of
 	 * space at the end of the previous buffer:
 	 */
+<<<<<<< HEAD
 	xdr->scratch.iov_base = xdr->p;
 	xdr->scratch.iov_len = frag1bytes;
+=======
+	xdr_set_scratch_buffer(xdr, xdr->p, frag1bytes);
+>>>>>>> upstream/android-13
 	p = page_address(*xdr->page_ptr);
 	/*
 	 * Note this is where the next encode will start after we've
@@ -548,6 +1178,12 @@ static __be32 *xdr_get_next_encode_buffer(struct xdr_stream *xdr,
 	xdr->buf->page_len += frag2bytes;
 	xdr->buf->len += nbytes;
 	return p;
+<<<<<<< HEAD
+=======
+out_overflow:
+	trace_rpc_xdr_overflow(xdr, nbytes);
+	return NULL;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -581,6 +1217,54 @@ __be32 * xdr_reserve_space(struct xdr_stream *xdr, size_t nbytes)
 }
 EXPORT_SYMBOL_GPL(xdr_reserve_space);
 
+<<<<<<< HEAD
+=======
+
+/**
+ * xdr_reserve_space_vec - Reserves a large amount of buffer space for sending
+ * @xdr: pointer to xdr_stream
+ * @vec: pointer to a kvec array
+ * @nbytes: number of bytes to reserve
+ *
+ * Reserves enough buffer space to encode 'nbytes' of data and stores the
+ * pointers in 'vec'. The size argument passed to xdr_reserve_space() is
+ * determined based on the number of bytes remaining in the current page to
+ * avoid invalidating iov_base pointers when xdr_commit_encode() is called.
+ */
+int xdr_reserve_space_vec(struct xdr_stream *xdr, struct kvec *vec, size_t nbytes)
+{
+	int thislen;
+	int v = 0;
+	__be32 *p;
+
+	/*
+	 * svcrdma requires every READ payload to start somewhere
+	 * in xdr->pages.
+	 */
+	if (xdr->iov == xdr->buf->head) {
+		xdr->iov = NULL;
+		xdr->end = xdr->p;
+	}
+
+	while (nbytes) {
+		thislen = xdr->buf->page_len % PAGE_SIZE;
+		thislen = min_t(size_t, nbytes, PAGE_SIZE - thislen);
+
+		p = xdr_reserve_space(xdr, thislen);
+		if (!p)
+			return -EIO;
+
+		vec[v].iov_base = p;
+		vec[v].iov_len = thislen;
+		v++;
+		nbytes -= thislen;
+	}
+
+	return v;
+}
+EXPORT_SYMBOL_GPL(xdr_reserve_space_vec);
+
+>>>>>>> upstream/android-13
 /**
  * xdr_truncate_encode - truncate an encode buffer
  * @xdr: pointer to xdr_stream
@@ -591,7 +1275,11 @@ EXPORT_SYMBOL_GPL(xdr_reserve_space);
  * head, tail, and page lengths are adjusted to correspond.
  *
  * If this means moving xdr->p to a different buffer, we assume that
+<<<<<<< HEAD
  * that the end pointer should be set to the end of the current page,
+=======
+ * the end pointer should be set to the end of the current page,
+>>>>>>> upstream/android-13
  * except in the case of the head buffer when we assume the head
  * buffer's current length represents the end of the available buffer.
  *
@@ -714,6 +1402,7 @@ void xdr_write_pages(struct xdr_stream *xdr, struct page **pages, unsigned int b
 }
 EXPORT_SYMBOL_GPL(xdr_write_pages);
 
+<<<<<<< HEAD
 static void xdr_set_iov(struct xdr_stream *xdr, struct kvec *iov,
 		unsigned int len)
 {
@@ -727,6 +1416,33 @@ static void xdr_set_iov(struct xdr_stream *xdr, struct kvec *iov,
 
 static int xdr_set_page_base(struct xdr_stream *xdr,
 		unsigned int base, unsigned int len)
+=======
+static unsigned int xdr_set_iov(struct xdr_stream *xdr, struct kvec *iov,
+				unsigned int base, unsigned int len)
+{
+	if (len > iov->iov_len)
+		len = iov->iov_len;
+	if (unlikely(base > len))
+		base = len;
+	xdr->p = (__be32*)(iov->iov_base + base);
+	xdr->end = (__be32*)(iov->iov_base + len);
+	xdr->iov = iov;
+	xdr->page_ptr = NULL;
+	return len - base;
+}
+
+static unsigned int xdr_set_tail_base(struct xdr_stream *xdr,
+				      unsigned int base, unsigned int len)
+{
+	struct xdr_buf *buf = xdr->buf;
+
+	xdr_stream_set_pos(xdr, base + buf->page_len + buf->head->iov_len);
+	return xdr_set_iov(xdr, buf->tail, base, len);
+}
+
+static unsigned int xdr_set_page_base(struct xdr_stream *xdr,
+				      unsigned int base, unsigned int len)
+>>>>>>> upstream/android-13
 {
 	unsigned int pgnr;
 	unsigned int maxlen;
@@ -736,11 +1452,21 @@ static int xdr_set_page_base(struct xdr_stream *xdr,
 
 	maxlen = xdr->buf->page_len;
 	if (base >= maxlen)
+<<<<<<< HEAD
 		return -EINVAL;
 	maxlen -= base;
 	if (len > maxlen)
 		len = maxlen;
 
+=======
+		return 0;
+	else
+		maxlen -= base;
+	if (len > maxlen)
+		len = maxlen;
+
+	xdr_stream_page_set_pos(xdr, base);
+>>>>>>> upstream/android-13
 	base += xdr->buf->page_base;
 
 	pgnr = base >> PAGE_SHIFT;
@@ -755,7 +1481,20 @@ static int xdr_set_page_base(struct xdr_stream *xdr,
 		pgend = PAGE_SIZE;
 	xdr->end = (__be32*)(kaddr + pgend);
 	xdr->iov = NULL;
+<<<<<<< HEAD
 	return 0;
+=======
+	return len;
+}
+
+static void xdr_set_page(struct xdr_stream *xdr, unsigned int base,
+			 unsigned int len)
+{
+	if (xdr_set_page_base(xdr, base, len) == 0) {
+		base -= xdr->buf->page_len;
+		xdr_set_tail_base(xdr, base, len);
+	}
+>>>>>>> upstream/android-13
 }
 
 static void xdr_set_next_page(struct xdr_stream *xdr)
@@ -764,19 +1503,31 @@ static void xdr_set_next_page(struct xdr_stream *xdr)
 
 	newbase = (1 + xdr->page_ptr - xdr->buf->pages) << PAGE_SHIFT;
 	newbase -= xdr->buf->page_base;
+<<<<<<< HEAD
 
 	if (xdr_set_page_base(xdr, newbase, PAGE_SIZE) < 0)
 		xdr_set_iov(xdr, xdr->buf->tail, xdr->nwords << 2);
+=======
+	if (newbase < xdr->buf->page_len)
+		xdr_set_page_base(xdr, newbase, xdr_stream_remaining(xdr));
+	else
+		xdr_set_tail_base(xdr, 0, xdr_stream_remaining(xdr));
+>>>>>>> upstream/android-13
 }
 
 static bool xdr_set_next_buffer(struct xdr_stream *xdr)
 {
 	if (xdr->page_ptr != NULL)
 		xdr_set_next_page(xdr);
+<<<<<<< HEAD
 	else if (xdr->iov == xdr->buf->head) {
 		if (xdr_set_page_base(xdr, 0, PAGE_SIZE) < 0)
 			xdr_set_iov(xdr, xdr->buf->tail, xdr->nwords << 2);
 	}
+=======
+	else if (xdr->iov == xdr->buf->head)
+		xdr_set_page(xdr, 0, xdr_stream_remaining(xdr));
+>>>>>>> upstream/android-13
 	return xdr->p != xdr->end;
 }
 
@@ -785,6 +1536,7 @@ static bool xdr_set_next_buffer(struct xdr_stream *xdr)
  * @xdr: pointer to xdr_stream struct
  * @buf: pointer to XDR buffer from which to decode data
  * @p: current pointer inside XDR buffer
+<<<<<<< HEAD
  */
 void xdr_init_decode(struct xdr_stream *xdr, struct xdr_buf *buf, __be32 *p)
 {
@@ -798,10 +1550,27 @@ void xdr_init_decode(struct xdr_stream *xdr, struct xdr_buf *buf, __be32 *p)
 		xdr_set_page_base(xdr, 0, buf->len);
 	else
 		xdr_set_iov(xdr, buf->head, buf->len);
+=======
+ * @rqst: pointer to controlling rpc_rqst, for debugging
+ */
+void xdr_init_decode(struct xdr_stream *xdr, struct xdr_buf *buf, __be32 *p,
+		     struct rpc_rqst *rqst)
+{
+	xdr->buf = buf;
+	xdr_reset_scratch_buffer(xdr);
+	xdr->nwords = XDR_QUADLEN(buf->len);
+	if (xdr_set_iov(xdr, buf->head, 0, buf->len) == 0 &&
+	    xdr_set_page_base(xdr, 0, buf->len) == 0)
+		xdr_set_iov(xdr, buf->tail, 0, buf->len);
+>>>>>>> upstream/android-13
 	if (p != NULL && p > xdr->p && xdr->end >= p) {
 		xdr->nwords -= p - xdr->p;
 		xdr->p = p;
 	}
+<<<<<<< HEAD
+=======
+	xdr->rqst = rqst;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(xdr_init_decode);
 
@@ -820,7 +1589,11 @@ void xdr_init_decode_pages(struct xdr_stream *xdr, struct xdr_buf *buf,
 	buf->page_len =  len;
 	buf->buflen =  len;
 	buf->len = len;
+<<<<<<< HEAD
 	xdr_init_decode(xdr, buf, NULL);
+=======
+	xdr_init_decode(xdr, buf, NULL, NULL);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(xdr_init_decode_pages);
 
@@ -837,6 +1610,7 @@ static __be32 * __xdr_inline_decode(struct xdr_stream *xdr, size_t nbytes)
 	return p;
 }
 
+<<<<<<< HEAD
 /**
  * xdr_set_scratch_buffer - Attach a scratch buffer for decoding data.
  * @xdr: pointer to xdr_stream struct
@@ -855,6 +1629,8 @@ void xdr_set_scratch_buffer(struct xdr_stream *xdr, void *buf, size_t buflen)
 }
 EXPORT_SYMBOL_GPL(xdr_set_scratch_buffer);
 
+=======
+>>>>>>> upstream/android-13
 static __be32 *xdr_copy_to_scratch(struct xdr_stream *xdr, size_t nbytes)
 {
 	__be32 *p;
@@ -862,20 +1638,37 @@ static __be32 *xdr_copy_to_scratch(struct xdr_stream *xdr, size_t nbytes)
 	size_t cplen = (char *)xdr->end - (char *)xdr->p;
 
 	if (nbytes > xdr->scratch.iov_len)
+<<<<<<< HEAD
 		return NULL;
+=======
+		goto out_overflow;
+>>>>>>> upstream/android-13
 	p = __xdr_inline_decode(xdr, cplen);
 	if (p == NULL)
 		return NULL;
 	memcpy(cpdest, p, cplen);
+<<<<<<< HEAD
 	cpdest += cplen;
 	nbytes -= cplen;
 	if (!xdr_set_next_buffer(xdr))
 		return NULL;
+=======
+	if (!xdr_set_next_buffer(xdr))
+		goto out_overflow;
+	cpdest += cplen;
+	nbytes -= cplen;
+>>>>>>> upstream/android-13
 	p = __xdr_inline_decode(xdr, nbytes);
 	if (p == NULL)
 		return NULL;
 	memcpy(cpdest, p, nbytes);
 	return xdr->scratch.iov_base;
+<<<<<<< HEAD
+=======
+out_overflow:
+	trace_rpc_xdr_overflow(xdr, nbytes);
+	return NULL;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -892,14 +1685,22 @@ __be32 * xdr_inline_decode(struct xdr_stream *xdr, size_t nbytes)
 {
 	__be32 *p;
 
+<<<<<<< HEAD
 	if (nbytes == 0)
 		return xdr->p;
 	if (xdr->p == xdr->end && !xdr_set_next_buffer(xdr))
 		return NULL;
+=======
+	if (unlikely(nbytes == 0))
+		return xdr->p;
+	if (xdr->p == xdr->end && !xdr_set_next_buffer(xdr))
+		goto out_overflow;
+>>>>>>> upstream/android-13
 	p = __xdr_inline_decode(xdr, nbytes);
 	if (p != NULL)
 		return p;
 	return xdr_copy_to_scratch(xdr, nbytes);
+<<<<<<< HEAD
 }
 EXPORT_SYMBOL_GPL(xdr_inline_decode);
 
@@ -919,6 +1720,39 @@ static unsigned int xdr_align_pages(struct xdr_stream *xdr, unsigned int len)
 		xdr->nwords = XDR_QUADLEN(buf->len - cur);
 	}
 
+=======
+out_overflow:
+	trace_rpc_xdr_overflow(xdr, nbytes);
+	return NULL;
+}
+EXPORT_SYMBOL_GPL(xdr_inline_decode);
+
+static void xdr_realign_pages(struct xdr_stream *xdr)
+{
+	struct xdr_buf *buf = xdr->buf;
+	struct kvec *iov = buf->head;
+	unsigned int cur = xdr_stream_pos(xdr);
+	unsigned int copied;
+
+	/* Realign pages to current pointer position */
+	if (iov->iov_len > cur) {
+		copied = xdr_shrink_bufhead(buf, cur);
+		trace_rpc_xdr_alignment(xdr, cur, copied);
+		xdr_set_page(xdr, 0, buf->page_len);
+	}
+}
+
+static unsigned int xdr_align_pages(struct xdr_stream *xdr, unsigned int len)
+{
+	struct xdr_buf *buf = xdr->buf;
+	unsigned int nwords = XDR_QUADLEN(len);
+	unsigned int copied;
+
+	if (xdr->nwords == 0)
+		return 0;
+
+	xdr_realign_pages(xdr);
+>>>>>>> upstream/android-13
 	if (nwords > xdr->nwords) {
 		nwords = xdr->nwords;
 		len = nwords << 2;
@@ -927,25 +1761,41 @@ static unsigned int xdr_align_pages(struct xdr_stream *xdr, unsigned int len)
 		len = buf->page_len;
 	else if (nwords < xdr->nwords) {
 		/* Truncate page data and move it into the tail */
+<<<<<<< HEAD
 		xdr_shrink_pagelen(buf, buf->page_len - len);
 		xdr->nwords = XDR_QUADLEN(buf->len - cur);
+=======
+		copied = xdr_shrink_pagelen(buf, len);
+		trace_rpc_xdr_alignment(xdr, len, copied);
+>>>>>>> upstream/android-13
 	}
 	return len;
 }
 
 /**
+<<<<<<< HEAD
  * xdr_read_pages - Ensure page-based XDR data to decode is aligned at current pointer position
+=======
+ * xdr_read_pages - align page-based XDR data to current pointer position
+>>>>>>> upstream/android-13
  * @xdr: pointer to xdr_stream struct
  * @len: number of bytes of page data
  *
  * Moves data beyond the current pointer position from the XDR head[] buffer
+<<<<<<< HEAD
  * into the page list. Any data that lies beyond current position + "len"
  * bytes is moved into the XDR tail[].
+=======
+ * into the page list. Any data that lies beyond current position + @len
+ * bytes is moved into the XDR tail[]. The xdr_stream current position is
+ * then advanced past that data to align to the next XDR object in the tail.
+>>>>>>> upstream/android-13
  *
  * Returns the number of XDR encoded bytes now contained in the pages
  */
 unsigned int xdr_read_pages(struct xdr_stream *xdr, unsigned int len)
 {
+<<<<<<< HEAD
 	struct xdr_buf *buf = xdr->buf;
 	struct kvec *iov;
 	unsigned int nwords;
@@ -975,6 +1825,89 @@ unsigned int xdr_read_pages(struct xdr_stream *xdr, unsigned int len)
 }
 EXPORT_SYMBOL_GPL(xdr_read_pages);
 
+=======
+	unsigned int nwords = XDR_QUADLEN(len);
+	unsigned int base, end, pglen;
+
+	pglen = xdr_align_pages(xdr, nwords << 2);
+	if (pglen == 0)
+		return 0;
+
+	base = (nwords << 2) - pglen;
+	end = xdr_stream_remaining(xdr) - pglen;
+
+	xdr_set_tail_base(xdr, base, end);
+	return len <= pglen ? len : pglen;
+}
+EXPORT_SYMBOL_GPL(xdr_read_pages);
+
+unsigned int xdr_align_data(struct xdr_stream *xdr, unsigned int offset,
+			    unsigned int length)
+{
+	struct xdr_buf *buf = xdr->buf;
+	unsigned int from, bytes, len;
+	unsigned int shift;
+
+	xdr_realign_pages(xdr);
+	from = xdr_page_pos(xdr);
+
+	if (from >= buf->page_len + buf->tail->iov_len)
+		return 0;
+	if (from + buf->head->iov_len >= buf->len)
+		return 0;
+
+	len = buf->len - buf->head->iov_len;
+
+	/* We only shift data left! */
+	if (WARN_ONCE(from < offset, "SUNRPC: misaligned data src=%u dst=%u\n",
+		      from, offset))
+		return 0;
+	if (WARN_ONCE(offset > buf->page_len,
+		      "SUNRPC: buffer overflow. offset=%u, page_len=%u\n",
+		      offset, buf->page_len))
+		return 0;
+
+	/* Move page data to the left */
+	shift = from - offset;
+	xdr_buf_pages_shift_left(buf, from, len, shift);
+
+	bytes = xdr_stream_remaining(xdr);
+	if (length > bytes)
+		length = bytes;
+	bytes -= length;
+
+	xdr->buf->len -= shift;
+	xdr_set_page(xdr, offset + length, bytes);
+	return length;
+}
+EXPORT_SYMBOL_GPL(xdr_align_data);
+
+unsigned int xdr_expand_hole(struct xdr_stream *xdr, unsigned int offset,
+			     unsigned int length)
+{
+	struct xdr_buf *buf = xdr->buf;
+	unsigned int from, to, shift;
+
+	xdr_realign_pages(xdr);
+	from = xdr_page_pos(xdr);
+	to = xdr_align_size(offset + length);
+
+	/* Could the hole be behind us? */
+	if (to > from) {
+		unsigned int buflen = buf->len - buf->head->iov_len;
+		shift = to - from;
+		xdr_buf_try_expand(buf, shift);
+		xdr_buf_pages_shift_right(buf, from, buflen, shift);
+		xdr_set_page(xdr, to, xdr_stream_remaining(xdr));
+	} else if (to != from)
+		xdr_align_data(xdr, to, 0);
+	xdr_buf_pages_zero(buf, offset, length);
+
+	return length;
+}
+EXPORT_SYMBOL_GPL(xdr_expand_hole);
+
+>>>>>>> upstream/android-13
 /**
  * xdr_enter_page - decode data from the XDR page
  * @xdr: pointer to xdr_stream struct
@@ -997,10 +1930,16 @@ void xdr_enter_page(struct xdr_stream *xdr, unsigned int len)
 }
 EXPORT_SYMBOL_GPL(xdr_enter_page);
 
+<<<<<<< HEAD
 static struct kvec empty_iov = {.iov_base = NULL, .iov_len = 0};
 
 void
 xdr_buf_from_iov(struct kvec *iov, struct xdr_buf *buf)
+=======
+static const struct kvec empty_iov = {.iov_base = NULL, .iov_len = 0};
+
+void xdr_buf_from_iov(const struct kvec *iov, struct xdr_buf *buf)
+>>>>>>> upstream/android-13
 {
 	buf->head[0] = *iov;
 	buf->tail[0] = empty_iov;
@@ -1023,9 +1962,14 @@ EXPORT_SYMBOL_GPL(xdr_buf_from_iov);
  *
  * Returns -1 if base of length are out of bounds.
  */
+<<<<<<< HEAD
 int
 xdr_buf_subsegment(struct xdr_buf *buf, struct xdr_buf *subbuf,
 			unsigned int base, unsigned int len)
+=======
+int xdr_buf_subsegment(const struct xdr_buf *buf, struct xdr_buf *subbuf,
+		       unsigned int base, unsigned int len)
+>>>>>>> upstream/android-13
 {
 	subbuf->buflen = subbuf->len = len;
 	if (base < buf->head[0].iov_len) {
@@ -1073,6 +2017,54 @@ xdr_buf_subsegment(struct xdr_buf *buf, struct xdr_buf *subbuf,
 EXPORT_SYMBOL_GPL(xdr_buf_subsegment);
 
 /**
+<<<<<<< HEAD
+=======
+ * xdr_stream_subsegment - set @subbuf to a portion of @xdr
+ * @xdr: an xdr_stream set up for decoding
+ * @subbuf: the result buffer
+ * @nbytes: length of @xdr to extract, in bytes
+ *
+ * Sets up @subbuf to represent a portion of @xdr. The portion
+ * starts at the current offset in @xdr, and extends for a length
+ * of @nbytes. If this is successful, @xdr is advanced to the next
+ * position following that portion.
+ *
+ * Return values:
+ *   %true: @subbuf has been initialized, and @xdr has been advanced.
+ *   %false: a bounds error has occurred
+ */
+bool xdr_stream_subsegment(struct xdr_stream *xdr, struct xdr_buf *subbuf,
+			   unsigned int nbytes)
+{
+	unsigned int remaining, offset, len;
+
+	if (xdr_buf_subsegment(xdr->buf, subbuf, xdr_stream_pos(xdr), nbytes))
+		return false;
+
+	if (subbuf->head[0].iov_len)
+		if (!__xdr_inline_decode(xdr, subbuf->head[0].iov_len))
+			return false;
+
+	remaining = subbuf->page_len;
+	offset = subbuf->page_base;
+	while (remaining) {
+		len = min_t(unsigned int, remaining, PAGE_SIZE) - offset;
+
+		if (xdr->p == xdr->end && !xdr_set_next_buffer(xdr))
+			return false;
+		if (!__xdr_inline_decode(xdr, len))
+			return false;
+
+		remaining -= len;
+		offset = 0;
+	}
+
+	return true;
+}
+EXPORT_SYMBOL_GPL(xdr_stream_subsegment);
+
+/**
+>>>>>>> upstream/android-13
  * xdr_buf_trim - lop at most "len" bytes off the end of "buf"
  * @buf: buf to be trimmed
  * @len: number of bytes to reduce "buf" by
@@ -1113,7 +2105,12 @@ fix_len:
 }
 EXPORT_SYMBOL_GPL(xdr_buf_trim);
 
+<<<<<<< HEAD
 static void __read_bytes_from_xdr_buf(struct xdr_buf *subbuf, void *obj, unsigned int len)
+=======
+static void __read_bytes_from_xdr_buf(const struct xdr_buf *subbuf,
+				      void *obj, unsigned int len)
+>>>>>>> upstream/android-13
 {
 	unsigned int this_len;
 
@@ -1122,8 +2119,12 @@ static void __read_bytes_from_xdr_buf(struct xdr_buf *subbuf, void *obj, unsigne
 	len -= this_len;
 	obj += this_len;
 	this_len = min_t(unsigned int, len, subbuf->page_len);
+<<<<<<< HEAD
 	if (this_len)
 		_copy_from_pages(obj, subbuf->pages, subbuf->page_base, this_len);
+=======
+	_copy_from_pages(obj, subbuf->pages, subbuf->page_base, this_len);
+>>>>>>> upstream/android-13
 	len -= this_len;
 	obj += this_len;
 	this_len = min_t(unsigned int, len, subbuf->tail[0].iov_len);
@@ -1131,7 +2132,12 @@ static void __read_bytes_from_xdr_buf(struct xdr_buf *subbuf, void *obj, unsigne
 }
 
 /* obj is assumed to point to allocated memory of size at least len: */
+<<<<<<< HEAD
 int read_bytes_from_xdr_buf(struct xdr_buf *buf, unsigned int base, void *obj, unsigned int len)
+=======
+int read_bytes_from_xdr_buf(const struct xdr_buf *buf, unsigned int base,
+			    void *obj, unsigned int len)
+>>>>>>> upstream/android-13
 {
 	struct xdr_buf subbuf;
 	int status;
@@ -1144,7 +2150,12 @@ int read_bytes_from_xdr_buf(struct xdr_buf *buf, unsigned int base, void *obj, u
 }
 EXPORT_SYMBOL_GPL(read_bytes_from_xdr_buf);
 
+<<<<<<< HEAD
 static void __write_bytes_to_xdr_buf(struct xdr_buf *subbuf, void *obj, unsigned int len)
+=======
+static void __write_bytes_to_xdr_buf(const struct xdr_buf *subbuf,
+				     void *obj, unsigned int len)
+>>>>>>> upstream/android-13
 {
 	unsigned int this_len;
 
@@ -1153,8 +2164,12 @@ static void __write_bytes_to_xdr_buf(struct xdr_buf *subbuf, void *obj, unsigned
 	len -= this_len;
 	obj += this_len;
 	this_len = min_t(unsigned int, len, subbuf->page_len);
+<<<<<<< HEAD
 	if (this_len)
 		_copy_to_pages(subbuf->pages, subbuf->page_base, obj, this_len);
+=======
+	_copy_to_pages(subbuf->pages, subbuf->page_base, obj, this_len);
+>>>>>>> upstream/android-13
 	len -= this_len;
 	obj += this_len;
 	this_len = min_t(unsigned int, len, subbuf->tail[0].iov_len);
@@ -1162,7 +2177,12 @@ static void __write_bytes_to_xdr_buf(struct xdr_buf *subbuf, void *obj, unsigned
 }
 
 /* obj is assumed to point to allocated memory of size at least len: */
+<<<<<<< HEAD
 int write_bytes_to_xdr_buf(struct xdr_buf *buf, unsigned int base, void *obj, unsigned int len)
+=======
+int write_bytes_to_xdr_buf(const struct xdr_buf *buf, unsigned int base,
+			   void *obj, unsigned int len)
+>>>>>>> upstream/android-13
 {
 	struct xdr_buf subbuf;
 	int status;
@@ -1175,8 +2195,12 @@ int write_bytes_to_xdr_buf(struct xdr_buf *buf, unsigned int base, void *obj, un
 }
 EXPORT_SYMBOL_GPL(write_bytes_to_xdr_buf);
 
+<<<<<<< HEAD
 int
 xdr_decode_word(struct xdr_buf *buf, unsigned int base, u32 *obj)
+=======
+int xdr_decode_word(const struct xdr_buf *buf, unsigned int base, u32 *obj)
+>>>>>>> upstream/android-13
 {
 	__be32	raw;
 	int	status;
@@ -1189,8 +2213,12 @@ xdr_decode_word(struct xdr_buf *buf, unsigned int base, u32 *obj)
 }
 EXPORT_SYMBOL_GPL(xdr_decode_word);
 
+<<<<<<< HEAD
 int
 xdr_encode_word(struct xdr_buf *buf, unsigned int base, u32 obj)
+=======
+int xdr_encode_word(const struct xdr_buf *buf, unsigned int base, u32 obj)
+>>>>>>> upstream/android-13
 {
 	__be32	raw = cpu_to_be32(obj);
 
@@ -1198,6 +2226,7 @@ xdr_encode_word(struct xdr_buf *buf, unsigned int base, u32 obj)
 }
 EXPORT_SYMBOL_GPL(xdr_encode_word);
 
+<<<<<<< HEAD
 /* If the netobj starting offset bytes from the start of xdr_buf is contained
  * entirely in the head or the tail, set object to point to it; otherwise
  * try to find space for it at the end of the tail, copy it there, and
@@ -1240,6 +2269,11 @@ EXPORT_SYMBOL_GPL(xdr_buf_read_netobj);
 static int
 xdr_xcode_array2(struct xdr_buf *buf, unsigned int base,
 		 struct xdr_array2_desc *desc, int encode)
+=======
+/* Returns 0 on success, or else a negative error code. */
+static int xdr_xcode_array2(const struct xdr_buf *buf, unsigned int base,
+			    struct xdr_array2_desc *desc, int encode)
+>>>>>>> upstream/android-13
 {
 	char *elem = NULL, *c;
 	unsigned int copied = 0, todo, avail_here;
@@ -1431,9 +2465,14 @@ out:
 	return err;
 }
 
+<<<<<<< HEAD
 int
 xdr_decode_array2(struct xdr_buf *buf, unsigned int base,
 		  struct xdr_array2_desc *desc)
+=======
+int xdr_decode_array2(const struct xdr_buf *buf, unsigned int base,
+		      struct xdr_array2_desc *desc)
+>>>>>>> upstream/android-13
 {
 	if (base >= buf->len)
 		return -EINVAL;
@@ -1442,9 +2481,14 @@ xdr_decode_array2(struct xdr_buf *buf, unsigned int base,
 }
 EXPORT_SYMBOL_GPL(xdr_decode_array2);
 
+<<<<<<< HEAD
 int
 xdr_encode_array2(struct xdr_buf *buf, unsigned int base,
 		  struct xdr_array2_desc *desc)
+=======
+int xdr_encode_array2(const struct xdr_buf *buf, unsigned int base,
+		      struct xdr_array2_desc *desc)
+>>>>>>> upstream/android-13
 {
 	if ((unsigned long) base + 4 + desc->array_len * desc->elem_size >
 	    buf->head->iov_len + buf->page_len + buf->tail->iov_len)
@@ -1454,9 +2498,15 @@ xdr_encode_array2(struct xdr_buf *buf, unsigned int base,
 }
 EXPORT_SYMBOL_GPL(xdr_encode_array2);
 
+<<<<<<< HEAD
 int
 xdr_process_buf(struct xdr_buf *buf, unsigned int offset, unsigned int len,
 		int (*actor)(struct scatterlist *, void *), void *data)
+=======
+int xdr_process_buf(const struct xdr_buf *buf, unsigned int offset,
+		    unsigned int len,
+		    int (*actor)(struct scatterlist *, void *), void *data)
+>>>>>>> upstream/android-13
 {
 	int i, ret = 0;
 	unsigned int page_len, thislen, page_offset;
@@ -1624,10 +2674,15 @@ ssize_t xdr_stream_decode_string_dup(struct xdr_stream *xdr, char **str,
 
 	ret = xdr_stream_decode_opaque_inline(xdr, &p, maxlen);
 	if (ret > 0) {
+<<<<<<< HEAD
 		char *s = kmalloc(ret + 1, gfp_flags);
 		if (s != NULL) {
 			memcpy(s, p, ret);
 			s[ret] = '\0';
+=======
+		char *s = kmemdup_nul(p, ret, gfp_flags);
+		if (s != NULL) {
+>>>>>>> upstream/android-13
 			*str = s;
 			return strlen(s);
 		}

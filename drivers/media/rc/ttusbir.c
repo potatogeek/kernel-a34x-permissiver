@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * TechnoTrend USB IR Receiver
  *
  * Copyright (C) 2012 Sean Young <sean@mess.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,6 +17,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -29,8 +36,13 @@
  * messages per second (!), whether IR is idle or not.
  */
 #define NUM_URBS	4
+<<<<<<< HEAD
 #define NS_PER_BYTE	62500
 #define NS_PER_BIT	(NS_PER_BYTE/8)
+=======
+#define US_PER_BYTE	62
+#define US_PER_BIT	(US_PER_BYTE / 8)
+>>>>>>> upstream/android-13
 
 struct ttusbir {
 	struct rc_dev *rc;
@@ -117,24 +129,39 @@ static void ttusbir_bulk_complete(struct urb *urb)
  */
 static void ttusbir_process_ir_data(struct ttusbir *tt, uint8_t *buf)
 {
+<<<<<<< HEAD
 	struct ir_raw_event rawir;
 	unsigned i, v, b;
 	bool event = false;
 
 	init_ir_raw_event(&rawir);
 
+=======
+	struct ir_raw_event rawir = {};
+	unsigned i, v, b;
+	bool event = false;
+
+>>>>>>> upstream/android-13
 	for (i = 0; i < 128; i++) {
 		v = buf[i] & 0xfe;
 		switch (v) {
 		case 0xfe:
 			rawir.pulse = false;
+<<<<<<< HEAD
 			rawir.duration = NS_PER_BYTE;
+=======
+			rawir.duration = US_PER_BYTE;
+>>>>>>> upstream/android-13
 			if (ir_raw_event_store_with_filter(tt->rc, &rawir))
 				event = true;
 			break;
 		case 0:
 			rawir.pulse = true;
+<<<<<<< HEAD
 			rawir.duration = NS_PER_BYTE;
+=======
+			rawir.duration = US_PER_BYTE;
+>>>>>>> upstream/android-13
 			if (ir_raw_event_store_with_filter(tt->rc, &rawir))
 				event = true;
 			break;
@@ -148,12 +175,20 @@ static void ttusbir_process_ir_data(struct ttusbir *tt, uint8_t *buf)
 				rawir.pulse = false;
 			}
 
+<<<<<<< HEAD
 			rawir.duration = NS_PER_BIT * (8 - b);
+=======
+			rawir.duration = US_PER_BIT * (8 - b);
+>>>>>>> upstream/android-13
 			if (ir_raw_event_store_with_filter(tt->rc, &rawir))
 				event = true;
 
 			rawir.pulse = !rawir.pulse;
+<<<<<<< HEAD
 			rawir.duration = NS_PER_BIT * b;
+=======
+			rawir.duration = US_PER_BIT * b;
+>>>>>>> upstream/android-13
 			if (ir_raw_event_store_with_filter(tt->rc, &rawir))
 				event = true;
 			break;
@@ -322,10 +357,17 @@ static int ttusbir_probe(struct usb_interface *intf,
 	rc->max_timeout = 10 * IR_DEFAULT_TIMEOUT;
 
 	/*
+<<<<<<< HEAD
 	 * The precision is NS_PER_BIT, but since every 8th bit can be
 	 * overwritten with garbage the accuracy is at best 2 * NS_PER_BIT.
 	 */
 	rc->rx_resolution = NS_PER_BIT;
+=======
+	 * The precision is US_PER_BIT, but since every 8th bit can be
+	 * overwritten with garbage the accuracy is at best 2 * US_PER_BIT.
+	 */
+	rc->rx_resolution = 2 * US_PER_BIT;
+>>>>>>> upstream/android-13
 
 	ret = rc_register_device(rc);
 	if (ret) {

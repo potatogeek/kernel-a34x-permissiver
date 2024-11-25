@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #include "cgroup-internal.h"
 
 #include <linux/ctype.h>
@@ -13,11 +17,18 @@
 #include <linux/delayacct.h>
 #include <linux/pid_namespace.h>
 #include <linux/cgroupstats.h>
+<<<<<<< HEAD
 
 #include <trace/events/cgroup.h>
 #ifdef CONFIG_MTK_TASK_TURBO
 #include <mt-plat/turbo_common.h>
 #endif
+=======
+#include <linux/fs_parser.h>
+
+#include <trace/events/cgroup.h>
+#include <trace/hooks/cgroup.h>
+>>>>>>> upstream/android-13
 
 /*
  * pidlists linger the following amount before being destroyed.  The goal
@@ -39,10 +50,14 @@ static bool cgroup_no_v1_named;
  */
 static struct workqueue_struct *cgroup_pidlist_destroy_wq;
 
+<<<<<<< HEAD
 /*
  * Protects cgroup_subsys->release_agent_path.  Modifying it also requires
  * cgroup_mutex.  Reading requires either cgroup_mutex or this spinlock.
  */
+=======
+/* protects cgroup_subsys->release_agent_path */
+>>>>>>> upstream/android-13
 static DEFINE_SPINLOCK(release_agent_path_lock);
 
 bool cgroup1_ssid_disabled(int ssid)
@@ -54,6 +69,11 @@ bool cgroup1_ssid_disabled(int ssid)
  * cgroup_attach_task_all - attach task 'tsk' to all cgroups of task 'from'
  * @from: attach to all cgroups of a given task
  * @tsk: the task to be attached
+<<<<<<< HEAD
+=======
+ *
+ * Return: %0 on success or a negative errno code on failure
+>>>>>>> upstream/android-13
  */
 int cgroup_attach_task_all(struct task_struct *from, struct task_struct *tsk)
 {
@@ -84,7 +104,11 @@ int cgroup_attach_task_all(struct task_struct *from, struct task_struct *tsk)
 EXPORT_SYMBOL_GPL(cgroup_attach_task_all);
 
 /**
+<<<<<<< HEAD
  * cgroup_trasnsfer_tasks - move tasks from one cgroup to another
+=======
+ * cgroup_transfer_tasks - move tasks from one cgroup to another
+>>>>>>> upstream/android-13
  * @to: cgroup to which the tasks will be moved
  * @from: cgroup in which the tasks currently reside
  *
@@ -93,6 +117,11 @@ EXPORT_SYMBOL_GPL(cgroup_attach_task_all);
  * is guaranteed to be either visible in the source cgroup after the
  * parent's migration is complete or put into the target cgroup.  No task
  * can slip out of migration through forking.
+<<<<<<< HEAD
+=======
+ *
+ * Return: %0 on success or a negative errno code on failure
+>>>>>>> upstream/android-13
  */
 int cgroup_transfer_tasks(struct cgroup *to, struct cgroup *from)
 {
@@ -193,6 +222,7 @@ struct cgroup_pidlist {
 };
 
 /*
+<<<<<<< HEAD
  * The following two functions "fix" the issue where there are more pids
  * than kmalloc will give memory for; in such cases, we use vmalloc/vfree.
  * TODO: replace with a kernel-wide solution to this problem
@@ -212,6 +242,8 @@ static void pidlist_free(void *p)
 }
 
 /*
+=======
+>>>>>>> upstream/android-13
  * Used to destroy all pidlists lingering waiting for destroy timer.  None
  * should be left afterwards.
  */
@@ -243,7 +275,11 @@ static void cgroup_pidlist_destroy_work_fn(struct work_struct *work)
 	 */
 	if (!delayed_work_pending(dwork)) {
 		list_del(&l->links);
+<<<<<<< HEAD
 		pidlist_free(l->list);
+=======
+		kvfree(l->list);
+>>>>>>> upstream/android-13
 		put_pid_ns(l->key.ns);
 		tofree = l;
 	}
@@ -364,7 +400,11 @@ static int pidlist_array_load(struct cgroup *cgrp, enum cgroup_filetype type,
 	 * show up until sometime later on.
 	 */
 	length = cgroup_task_count(cgrp);
+<<<<<<< HEAD
 	array = pidlist_allocate(length);
+=======
+	array = kvmalloc_array(length, sizeof(pid_t), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!array)
 		return -ENOMEM;
 	/* now, populate the array */
@@ -389,12 +429,20 @@ static int pidlist_array_load(struct cgroup *cgrp, enum cgroup_filetype type,
 
 	l = cgroup_pidlist_find_create(cgrp, type);
 	if (!l) {
+<<<<<<< HEAD
 		pidlist_free(array);
+=======
+		kvfree(array);
+>>>>>>> upstream/android-13
 		return -ENOMEM;
 	}
 
 	/* store array, freeing old if necessary */
+<<<<<<< HEAD
 	pidlist_free(l->list);
+=======
+	kvfree(l->list);
+>>>>>>> upstream/android-13
 	l->list = array;
 	l->length = length;
 	*lp = l;
@@ -416,6 +464,10 @@ static void *cgroup_pidlist_start(struct seq_file *s, loff_t *pos)
 	 * next pid to display, if any
 	 */
 	struct kernfs_open_file *of = s->private;
+<<<<<<< HEAD
+=======
+	struct cgroup_file_ctx *ctx = of->priv;
+>>>>>>> upstream/android-13
 	struct cgroup *cgrp = seq_css(s)->cgroup;
 	struct cgroup_pidlist *l;
 	enum cgroup_filetype type = seq_cft(s)->private;
@@ -425,6 +477,7 @@ static void *cgroup_pidlist_start(struct seq_file *s, loff_t *pos)
 	mutex_lock(&cgrp->pidlist_mutex);
 
 	/*
+<<<<<<< HEAD
 	 * !NULL @of->priv indicates that this isn't the first start()
 	 * after open.  If the matching pidlist is around, we can use that.
 	 * Look for it.  Note that @of->priv can't be used directly.  It
@@ -432,11 +485,21 @@ static void *cgroup_pidlist_start(struct seq_file *s, loff_t *pos)
 	 */
 	if (of->priv)
 		of->priv = cgroup_pidlist_find(cgrp, type);
+=======
+	 * !NULL @ctx->procs1.pidlist indicates that this isn't the first
+	 * start() after open. If the matching pidlist is around, we can use
+	 * that. Look for it. Note that @ctx->procs1.pidlist can't be used
+	 * directly. It could already have been destroyed.
+	 */
+	if (ctx->procs1.pidlist)
+		ctx->procs1.pidlist = cgroup_pidlist_find(cgrp, type);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Either this is the first start() after open or the matching
 	 * pidlist has been destroyed inbetween.  Create a new one.
 	 */
+<<<<<<< HEAD
 	if (!of->priv) {
 		ret = pidlist_array_load(cgrp, type,
 					 (struct cgroup_pidlist **)&of->priv);
@@ -444,6 +507,14 @@ static void *cgroup_pidlist_start(struct seq_file *s, loff_t *pos)
 			return ERR_PTR(ret);
 	}
 	l = of->priv;
+=======
+	if (!ctx->procs1.pidlist) {
+		ret = pidlist_array_load(cgrp, type, &ctx->procs1.pidlist);
+		if (ret)
+			return ERR_PTR(ret);
+	}
+	l = ctx->procs1.pidlist;
+>>>>>>> upstream/android-13
 
 	if (pid) {
 		int end = l->length;
@@ -471,7 +542,12 @@ static void *cgroup_pidlist_start(struct seq_file *s, loff_t *pos)
 static void cgroup_pidlist_stop(struct seq_file *s, void *v)
 {
 	struct kernfs_open_file *of = s->private;
+<<<<<<< HEAD
 	struct cgroup_pidlist *l = of->priv;
+=======
+	struct cgroup_file_ctx *ctx = of->priv;
+	struct cgroup_pidlist *l = ctx->procs1.pidlist;
+>>>>>>> upstream/android-13
 
 	if (l)
 		mod_delayed_work(cgroup_pidlist_destroy_wq, &l->destroy_dwork,
@@ -482,7 +558,12 @@ static void cgroup_pidlist_stop(struct seq_file *s, void *v)
 static void *cgroup_pidlist_next(struct seq_file *s, void *v, loff_t *pos)
 {
 	struct kernfs_open_file *of = s->private;
+<<<<<<< HEAD
 	struct cgroup_pidlist *l = of->priv;
+=======
+	struct cgroup_file_ctx *ctx = of->priv;
+	struct cgroup_pidlist *l = ctx->procs1.pidlist;
+>>>>>>> upstream/android-13
 	pid_t *p = v;
 	pid_t *end = l->list + l->length;
 	/*
@@ -514,21 +595,37 @@ static ssize_t __cgroup1_procs_write(struct kernfs_open_file *of,
 	struct task_struct *task;
 	const struct cred *cred, *tcred;
 	ssize_t ret;
+<<<<<<< HEAD
+=======
+	bool locked;
+>>>>>>> upstream/android-13
 
 	cgrp = cgroup_kn_lock_live(of->kn, false);
 	if (!cgrp)
 		return -ENODEV;
 
+<<<<<<< HEAD
 	task = cgroup_procs_write_start(buf, threadgroup);
+=======
+	task = cgroup_procs_write_start(buf, threadgroup, &locked, cgrp);
+>>>>>>> upstream/android-13
 	ret = PTR_ERR_OR_ZERO(task);
 	if (ret)
 		goto out_unlock;
 
 	/*
+<<<<<<< HEAD
 	 * Even if we're attaching all tasks in the thread group, we only
 	 * need to check permissions on one of them.
 	 */
 	cred = current_cred();
+=======
+	 * Even if we're attaching all tasks in the thread group, we only need
+	 * to check permissions on one of them. Check permissions using the
+	 * credentials from file open to protect against inherited fd attacks.
+	 */
+	cred = of->file->f_cred;
+>>>>>>> upstream/android-13
 	tcred = get_task_cred(task);
 	if (!uid_eq(cred->euid, GLOBAL_ROOT_UID) &&
 	    !uid_eq(cred->euid, tcred->uid) &&
@@ -540,6 +637,7 @@ static ssize_t __cgroup1_procs_write(struct kernfs_open_file *of,
 		goto out_finish;
 
 	ret = cgroup_attach_task(cgrp, task, threadgroup);
+<<<<<<< HEAD
 #ifdef CONFIG_MTK_TASK_TURBO
 	if (!ret)
 		cgroup_set_turbo_task(task);
@@ -547,6 +645,12 @@ static ssize_t __cgroup1_procs_write(struct kernfs_open_file *of,
 
 out_finish:
 	cgroup_procs_write_finish(task);
+=======
+	trace_android_vh_cgroup_set_task(ret, task);
+
+out_finish:
+	cgroup_procs_write_finish(task, locked);
+>>>>>>> upstream/android-13
 out_unlock:
 	cgroup_kn_unlock(of->kn);
 
@@ -569,9 +673,25 @@ static ssize_t cgroup_release_agent_write(struct kernfs_open_file *of,
 					  char *buf, size_t nbytes, loff_t off)
 {
 	struct cgroup *cgrp;
+<<<<<<< HEAD
 
 	BUILD_BUG_ON(sizeof(cgrp->root->release_agent_path) < PATH_MAX);
 
+=======
+	struct cgroup_file_ctx *ctx;
+
+	BUILD_BUG_ON(sizeof(cgrp->root->release_agent_path) < PATH_MAX);
+
+	/*
+	 * Release agent gets called with all capabilities,
+	 * require capabilities to set release agent.
+	 */
+	ctx = of->priv;
+	if ((ctx->ns->user_ns != &init_user_ns) ||
+	    !file_ns_capable(of->file, &init_user_ns, CAP_SYS_ADMIN))
+		return -EPERM;
+
+>>>>>>> upstream/android-13
 	cgrp = cgroup_kn_lock_live(of->kn, false);
 	if (!cgrp)
 		return -ENODEV;
@@ -709,6 +829,11 @@ int proc_cgroupstats_show(struct seq_file *m, void *v)
  *
  * Build and fill cgroupstats so that taskstats can export it to user
  * space.
+<<<<<<< HEAD
+=======
+ *
+ * Return: %0 on success or a negative errno code on failure
+>>>>>>> upstream/android-13
  */
 int cgroupstats_build(struct cgroupstats *stats, struct dentry *dentry)
 {
@@ -740,7 +865,11 @@ int cgroupstats_build(struct cgroupstats *stats, struct dentry *dentry)
 
 	css_task_iter_start(&cgrp->self, 0, &it);
 	while ((tsk = css_task_iter_next(&it))) {
+<<<<<<< HEAD
 		switch (tsk->state) {
+=======
+		switch (READ_ONCE(tsk->__state)) {
+>>>>>>> upstream/android-13
 		case TASK_RUNNING:
 			stats->nr_running++;
 			break;
@@ -754,7 +883,11 @@ int cgroupstats_build(struct cgroupstats *stats, struct dentry *dentry)
 			stats->nr_stopped++;
 			break;
 		default:
+<<<<<<< HEAD
 			if (delayacct_is_task_waiting_on_io(tsk))
+=======
+			if (tsk->in_iowait)
+>>>>>>> upstream/android-13
 				stats->nr_io_wait++;
 			break;
 		}
@@ -799,6 +932,7 @@ void cgroup1_release_agent(struct work_struct *work)
 {
 	struct cgroup *cgrp =
 		container_of(work, struct cgroup, release_agent_work);
+<<<<<<< HEAD
 	char *pathbuf = NULL, *agentbuf = NULL;
 	char *argv[3], *envp[3];
 	int ret;
@@ -815,6 +949,31 @@ void cgroup1_release_agent(struct work_struct *work)
 	spin_unlock_irq(&css_set_lock);
 	if (ret < 0 || ret >= PATH_MAX)
 		goto out;
+=======
+	char *pathbuf, *agentbuf;
+	char *argv[3], *envp[3];
+	int ret;
+
+	/* snoop agent path and exit early if empty */
+	if (!cgrp->root->release_agent_path[0])
+		return;
+
+	/* prepare argument buffers */
+	pathbuf = kmalloc(PATH_MAX, GFP_KERNEL);
+	agentbuf = kmalloc(PATH_MAX, GFP_KERNEL);
+	if (!pathbuf || !agentbuf)
+		goto out_free;
+
+	spin_lock(&release_agent_path_lock);
+	strlcpy(agentbuf, cgrp->root->release_agent_path, PATH_MAX);
+	spin_unlock(&release_agent_path_lock);
+	if (!agentbuf[0])
+		goto out_free;
+
+	ret = cgroup_path_ns(cgrp, pathbuf, PATH_MAX, &init_cgroup_ns);
+	if (ret < 0 || ret >= PATH_MAX)
+		goto out_free;
+>>>>>>> upstream/android-13
 
 	argv[0] = agentbuf;
 	argv[1] = pathbuf;
@@ -825,11 +984,15 @@ void cgroup1_release_agent(struct work_struct *work)
 	envp[1] = "PATH=/sbin:/bin:/usr/sbin:/usr/bin";
 	envp[2] = NULL;
 
+<<<<<<< HEAD
 	mutex_unlock(&cgroup_mutex);
 	call_usermodehelper(argv[0], argv, envp, UMH_WAIT_EXEC);
 	goto out_free;
 out:
 	mutex_unlock(&cgroup_mutex);
+=======
+	call_usermodehelper(argv[0], argv, envp, UMH_WAIT_EXEC);
+>>>>>>> upstream/android-13
 out_free:
 	kfree(agentbuf);
 	kfree(pathbuf);
@@ -844,6 +1007,13 @@ static int cgroup1_rename(struct kernfs_node *kn, struct kernfs_node *new_parent
 	struct cgroup *cgrp = kn->priv;
 	int ret;
 
+<<<<<<< HEAD
+=======
+	/* do not accept '\n' to prevent making /proc/<pid>/cgroup unparsable */
+	if (strchr(new_name_str, '\n'))
+		return -EINVAL;
+
+>>>>>>> upstream/android-13
 	if (kernfs_type(kn) != KERNFS_DIR)
 		return -ENOTDIR;
 	if (kn->parent != new_parent)
@@ -899,6 +1069,7 @@ static int cgroup1_show_options(struct seq_file *seq, struct kernfs_root *kf_roo
 	return 0;
 }
 
+<<<<<<< HEAD
 static int parse_cgroupfs_options(char *data, struct cgroup_sb_opts *opts)
 {
 	char *token, *o = data;
@@ -906,11 +1077,132 @@ static int parse_cgroupfs_options(char *data, struct cgroup_sb_opts *opts)
 	u16 mask = U16_MAX;
 	struct cgroup_subsys *ss;
 	int nr_opts = 0;
+=======
+enum cgroup1_param {
+	Opt_all,
+	Opt_clone_children,
+	Opt_cpuset_v2_mode,
+	Opt_name,
+	Opt_none,
+	Opt_noprefix,
+	Opt_release_agent,
+	Opt_xattr,
+};
+
+const struct fs_parameter_spec cgroup1_fs_parameters[] = {
+	fsparam_flag  ("all",		Opt_all),
+	fsparam_flag  ("clone_children", Opt_clone_children),
+	fsparam_flag  ("cpuset_v2_mode", Opt_cpuset_v2_mode),
+	fsparam_string("name",		Opt_name),
+	fsparam_flag  ("none",		Opt_none),
+	fsparam_flag  ("noprefix",	Opt_noprefix),
+	fsparam_string("release_agent",	Opt_release_agent),
+	fsparam_flag  ("xattr",		Opt_xattr),
+	{}
+};
+
+int cgroup1_parse_param(struct fs_context *fc, struct fs_parameter *param)
+{
+	struct cgroup_fs_context *ctx = cgroup_fc2context(fc);
+	struct cgroup_subsys *ss;
+	struct fs_parse_result result;
+	int opt, i;
+
+	opt = fs_parse(fc, cgroup1_fs_parameters, param, &result);
+	if (opt == -ENOPARAM) {
+		int ret;
+
+		ret = vfs_parse_fs_param_source(fc, param);
+		if (ret != -ENOPARAM)
+			return ret;
+		for_each_subsys(ss, i) {
+			if (strcmp(param->key, ss->legacy_name))
+				continue;
+			if (!cgroup_ssid_enabled(i) || cgroup1_ssid_disabled(i))
+				return invalfc(fc, "Disabled controller '%s'",
+					       param->key);
+			ctx->subsys_mask |= (1 << i);
+			return 0;
+		}
+		return invalfc(fc, "Unknown subsys name '%s'", param->key);
+	}
+	if (opt < 0)
+		return opt;
+
+	switch (opt) {
+	case Opt_none:
+		/* Explicitly have no subsystems */
+		ctx->none = true;
+		break;
+	case Opt_all:
+		ctx->all_ss = true;
+		break;
+	case Opt_noprefix:
+		ctx->flags |= CGRP_ROOT_NOPREFIX;
+		break;
+	case Opt_clone_children:
+		ctx->cpuset_clone_children = true;
+		break;
+	case Opt_cpuset_v2_mode:
+		ctx->flags |= CGRP_ROOT_CPUSET_V2_MODE;
+		break;
+	case Opt_xattr:
+		ctx->flags |= CGRP_ROOT_XATTR;
+		break;
+	case Opt_release_agent:
+		/* Specifying two release agents is forbidden */
+		if (ctx->release_agent)
+			return invalfc(fc, "release_agent respecified");
+		/*
+		 * Release agent gets called with all capabilities,
+		 * require capabilities to set release agent.
+		 */
+		if ((fc->user_ns != &init_user_ns) || !capable(CAP_SYS_ADMIN))
+			return invalfc(fc, "Setting release_agent not allowed");
+		ctx->release_agent = param->string;
+		param->string = NULL;
+		break;
+	case Opt_name:
+		/* blocked by boot param? */
+		if (cgroup_no_v1_named)
+			return -ENOENT;
+		/* Can't specify an empty name */
+		if (!param->size)
+			return invalfc(fc, "Empty name");
+		if (param->size > MAX_CGROUP_ROOT_NAMELEN - 1)
+			return invalfc(fc, "Name too long");
+		/* Must match [\w.-]+ */
+		for (i = 0; i < param->size; i++) {
+			char c = param->string[i];
+			if (isalnum(c))
+				continue;
+			if ((c == '.') || (c == '-') || (c == '_'))
+				continue;
+			return invalfc(fc, "Invalid name");
+		}
+		/* Specifying two names is forbidden */
+		if (ctx->name)
+			return invalfc(fc, "name respecified");
+		ctx->name = param->string;
+		param->string = NULL;
+		break;
+	}
+	return 0;
+}
+
+static int check_cgroupfs_options(struct fs_context *fc)
+{
+	struct cgroup_fs_context *ctx = cgroup_fc2context(fc);
+	u16 mask = U16_MAX;
+	u16 enabled = 0;
+	struct cgroup_subsys *ss;
+>>>>>>> upstream/android-13
 	int i;
 
 #ifdef CONFIG_CPUSETS
 	mask = ~((u16)1 << cpuset_cgrp_id);
 #endif
+<<<<<<< HEAD
 
 	memset(opts, 0, sizeof(*opts));
 
@@ -1016,39 +1308,85 @@ static int parse_cgroupfs_options(char *data, struct cgroup_sb_opts *opts)
 		for_each_subsys(ss, i)
 			if (cgroup_ssid_enabled(i) && !cgroup1_ssid_disabled(i))
 				opts->subsys_mask |= (1 << i);
+=======
+	for_each_subsys(ss, i)
+		if (cgroup_ssid_enabled(i) && !cgroup1_ssid_disabled(i))
+			enabled |= 1 << i;
+
+	ctx->subsys_mask &= enabled;
+
+	/*
+	 * In absence of 'none', 'name=' and subsystem name options,
+	 * let's default to 'all'.
+	 */
+	if (!ctx->subsys_mask && !ctx->none && !ctx->name)
+		ctx->all_ss = true;
+
+	if (ctx->all_ss) {
+		/* Mutually exclusive option 'all' + subsystem name */
+		if (ctx->subsys_mask)
+			return invalfc(fc, "subsys name conflicts with all");
+		/* 'all' => select all the subsystems */
+		ctx->subsys_mask = enabled;
+	}
+>>>>>>> upstream/android-13
 
 	/*
 	 * We either have to specify by name or by subsystems. (So all
 	 * empty hierarchies must have a name).
 	 */
+<<<<<<< HEAD
 	if (!opts->subsys_mask && !opts->name)
 		return -EINVAL;
+=======
+	if (!ctx->subsys_mask && !ctx->name)
+		return invalfc(fc, "Need name or subsystem set");
+>>>>>>> upstream/android-13
 
 	/*
 	 * Option noprefix was introduced just for backward compatibility
 	 * with the old cpuset, so we allow noprefix only if mounting just
 	 * the cpuset subsystem.
 	 */
+<<<<<<< HEAD
 	if ((opts->flags & CGRP_ROOT_NOPREFIX) && (opts->subsys_mask & mask))
 		return -EINVAL;
 
 	/* Can't specify "none" and some subsystems */
 	if (opts->subsys_mask && opts->none)
 		return -EINVAL;
+=======
+	if ((ctx->flags & CGRP_ROOT_NOPREFIX) && (ctx->subsys_mask & mask))
+		return invalfc(fc, "noprefix used incorrectly");
+
+	/* Can't specify "none" and some subsystems */
+	if (ctx->subsys_mask && ctx->none)
+		return invalfc(fc, "none used incorrectly");
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static int cgroup1_remount(struct kernfs_root *kf_root, int *flags, char *data)
 {
 	int ret = 0;
 	struct cgroup_root *root = cgroup_root_from_kf(kf_root);
 	struct cgroup_sb_opts opts;
+=======
+int cgroup1_reconfigure(struct fs_context *fc)
+{
+	struct cgroup_fs_context *ctx = cgroup_fc2context(fc);
+	struct kernfs_root *kf_root = kernfs_root_from_sb(fc->root->d_sb);
+	struct cgroup_root *root = cgroup_root_from_kf(kf_root);
+	int ret = 0;
+>>>>>>> upstream/android-13
 	u16 added_mask, removed_mask;
 
 	cgroup_lock_and_drain_offline(&cgrp_dfl_root.cgrp);
 
 	/* See what subsystems are wanted */
+<<<<<<< HEAD
 	ret = parse_cgroupfs_options(data, &opts);
 	if (ret)
 		goto out_unlock;
@@ -1065,6 +1403,24 @@ static int cgroup1_remount(struct kernfs_root *kf_root, int *flags, char *data)
 	    (opts.name && strcmp(opts.name, root->name))) {
 		pr_err("option or name mismatch, new: 0x%x \"%s\", old: 0x%x \"%s\"\n",
 		       opts.flags, opts.name ?: "", root->flags, root->name);
+=======
+	ret = check_cgroupfs_options(fc);
+	if (ret)
+		goto out_unlock;
+
+	if (ctx->subsys_mask != root->subsys_mask || ctx->release_agent)
+		pr_warn("option changes via remount are deprecated (pid=%d comm=%s)\n",
+			task_tgid_nr(current), current->comm);
+
+	added_mask = ctx->subsys_mask & ~root->subsys_mask;
+	removed_mask = root->subsys_mask & ~ctx->subsys_mask;
+
+	/* Don't allow flags or name to change at remount */
+	if ((ctx->flags ^ root->flags) ||
+	    (ctx->name && strcmp(ctx->name, root->name))) {
+		errorfc(fc, "option or name mismatch, new: 0x%x \"%s\", old: 0x%x \"%s\"",
+		       ctx->flags, ctx->name ?: "", root->flags, root->name);
+>>>>>>> upstream/android-13
 		ret = -EINVAL;
 		goto out_unlock;
 	}
@@ -1081,17 +1437,26 @@ static int cgroup1_remount(struct kernfs_root *kf_root, int *flags, char *data)
 
 	WARN_ON(rebind_subsystems(&cgrp_dfl_root, removed_mask));
 
+<<<<<<< HEAD
 	if (opts.release_agent) {
 		spin_lock(&release_agent_path_lock);
 		strcpy(root->release_agent_path, opts.release_agent);
+=======
+	if (ctx->release_agent) {
+		spin_lock(&release_agent_path_lock);
+		strcpy(root->release_agent_path, ctx->release_agent);
+>>>>>>> upstream/android-13
 		spin_unlock(&release_agent_path_lock);
 	}
 
 	trace_cgroup_remount(root);
 
  out_unlock:
+<<<<<<< HEAD
 	kfree(opts.release_agent);
 	kfree(opts.name);
+=======
+>>>>>>> upstream/android-13
 	mutex_unlock(&cgroup_mutex);
 	return ret;
 }
@@ -1099,12 +1464,16 @@ static int cgroup1_remount(struct kernfs_root *kf_root, int *flags, char *data)
 struct kernfs_syscall_ops cgroup1_kf_syscall_ops = {
 	.rename			= cgroup1_rename,
 	.show_options		= cgroup1_show_options,
+<<<<<<< HEAD
 	.remount_fs		= cgroup1_remount,
+=======
+>>>>>>> upstream/android-13
 	.mkdir			= cgroup_mkdir,
 	.rmdir			= cgroup_rmdir,
 	.show_path		= cgroup_show_path,
 };
 
+<<<<<<< HEAD
 struct dentry *cgroup1_mount(struct file_system_type *fs_type, int flags,
 			     void *data, unsigned long magic,
 			     struct cgroup_namespace *ns)
@@ -1121,6 +1490,27 @@ struct dentry *cgroup1_mount(struct file_system_type *fs_type, int flags,
 	ret = parse_cgroupfs_options(data, &opts);
 	if (ret)
 		goto out_unlock;
+=======
+/*
+ * The guts of cgroup1 mount - find or create cgroup_root to use.
+ * Called with cgroup_mutex held; returns 0 on success, -E... on
+ * error and positive - in case when the candidate is busy dying.
+ * On success it stashes a reference to cgroup_root into given
+ * cgroup_fs_context; that reference is *NOT* counting towards the
+ * cgroup_root refcount.
+ */
+static int cgroup1_root_to_use(struct fs_context *fc)
+{
+	struct cgroup_fs_context *ctx = cgroup_fc2context(fc);
+	struct cgroup_root *root;
+	struct cgroup_subsys *ss;
+	int i, ret;
+
+	/* First find the desired set of subsystems */
+	ret = check_cgroupfs_options(fc);
+	if (ret)
+		return ret;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Destruction of cgroup root is asynchronous, so subsystems may
@@ -1130,6 +1520,7 @@ struct dentry *cgroup1_mount(struct file_system_type *fs_type, int flags,
 	 * starting.  Testing ref liveliness is good enough.
 	 */
 	for_each_subsys(ss, i) {
+<<<<<<< HEAD
 		if (!(opts.subsys_mask & (1 << i)) ||
 		    ss->root == &cgrp_dfl_root)
 			continue;
@@ -1140,6 +1531,14 @@ struct dentry *cgroup1_mount(struct file_system_type *fs_type, int flags,
 			ret = restart_syscall();
 			goto out_free;
 		}
+=======
+		if (!(ctx->subsys_mask & (1 << i)) ||
+		    ss->root == &cgrp_dfl_root)
+			continue;
+
+		if (!percpu_ref_tryget_live(&ss->root->cgrp.self.refcnt))
+			return 1;	/* restart */
+>>>>>>> upstream/android-13
 		cgroup_put(&ss->root->cgrp);
 	}
 
@@ -1154,8 +1553,13 @@ struct dentry *cgroup1_mount(struct file_system_type *fs_type, int flags,
 		 * name matches but sybsys_mask doesn't, we should fail.
 		 * Remember whether name matched.
 		 */
+<<<<<<< HEAD
 		if (opts.name) {
 			if (strcmp(opts.name, root->name))
+=======
+		if (ctx->name) {
+			if (strcmp(ctx->name, root->name))
+>>>>>>> upstream/android-13
 				continue;
 			name_match = true;
 		}
@@ -1164,6 +1568,7 @@ struct dentry *cgroup1_mount(struct file_system_type *fs_type, int flags,
 		 * If we asked for subsystems (or explicitly for no
 		 * subsystems) then they must match.
 		 */
+<<<<<<< HEAD
 		if ((opts.subsys_mask || opts.none) &&
 		    (opts.subsys_mask != root->subsys_mask)) {
 			if (!name_match)
@@ -1177,6 +1582,20 @@ struct dentry *cgroup1_mount(struct file_system_type *fs_type, int flags,
 
 		ret = 0;
 		goto out_unlock;
+=======
+		if ((ctx->subsys_mask || ctx->none) &&
+		    (ctx->subsys_mask != root->subsys_mask)) {
+			if (!name_match)
+				continue;
+			return -EBUSY;
+		}
+
+		if (root->flags ^ ctx->flags)
+			pr_warn("new mount options do not match the existing superblock, will be ignored\n");
+
+		ctx->root = root;
+		return 0;
+>>>>>>> upstream/android-13
 	}
 
 	/*
@@ -1184,6 +1603,7 @@ struct dentry *cgroup1_mount(struct file_system_type *fs_type, int flags,
 	 * specification is allowed for already existing hierarchies but we
 	 * can't create new one without subsys specification.
 	 */
+<<<<<<< HEAD
 	if (!opts.subsys_mask && !opts.none) {
 		ret = -EINVAL;
 		goto out_unlock;
@@ -1233,6 +1653,58 @@ out_free:
 		dentry = ERR_PTR(restart_syscall());
 	}
 	return dentry;
+=======
+	if (!ctx->subsys_mask && !ctx->none)
+		return invalfc(fc, "No subsys list or none specified");
+
+	/* Hierarchies may only be created in the initial cgroup namespace. */
+	if (ctx->ns != &init_cgroup_ns)
+		return -EPERM;
+
+	root = kzalloc(sizeof(*root), GFP_KERNEL);
+	if (!root)
+		return -ENOMEM;
+
+	ctx->root = root;
+	init_cgroup_root(ctx);
+
+	ret = cgroup_setup_root(root, ctx->subsys_mask);
+	if (ret)
+		cgroup_free_root(root);
+	return ret;
+}
+
+int cgroup1_get_tree(struct fs_context *fc)
+{
+	struct cgroup_fs_context *ctx = cgroup_fc2context(fc);
+	int ret;
+
+	/* Check if the caller has permission to mount. */
+	if (!ns_capable(ctx->ns->user_ns, CAP_SYS_ADMIN))
+		return -EPERM;
+
+	cgroup_lock_and_drain_offline(&cgrp_dfl_root.cgrp);
+
+	ret = cgroup1_root_to_use(fc);
+	if (!ret && !percpu_ref_tryget_live(&ctx->root->cgrp.self.refcnt))
+		ret = 1;	/* restart */
+
+	mutex_unlock(&cgroup_mutex);
+
+	if (!ret)
+		ret = cgroup_do_get_tree(fc);
+
+	if (!ret && percpu_ref_is_dying(&ctx->root->cgrp.self.refcnt)) {
+		fc_drop_locked(fc);
+		ret = 1;
+	}
+
+	if (unlikely(ret > 0)) {
+		msleep(10);
+		return restart_syscall();
+	}
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static int __init cgroup1_wq_init(void)

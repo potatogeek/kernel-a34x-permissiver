@@ -38,7 +38,11 @@
 #include <drm/drm_crtc_helper.h>
 #include <drm/drm_fb_helper.h>
 #include <drm/drm_plane_helper.h>
+<<<<<<< HEAD
 #include <drm/drm_fb_helper.h>
+=======
+#include <drm/drm_probe_helper.h>
+>>>>>>> upstream/android-13
 #include <linux/i2c.h>
 #include <linux/i2c-algo-bit.h>
 #include <linux/hrtimer.h>
@@ -46,6 +50,10 @@
 
 #include <drm/drm_dp_mst_helper.h>
 #include "modules/inc/mod_freesync.h"
+<<<<<<< HEAD
+=======
+#include "amdgpu_dm_irq_params.h"
+>>>>>>> upstream/android-13
 
 struct amdgpu_bo;
 struct amdgpu_device;
@@ -57,9 +65,14 @@ struct amdgpu_hpd;
 #define to_amdgpu_connector(x) container_of(x, struct amdgpu_connector, base)
 #define to_amdgpu_encoder(x) container_of(x, struct amdgpu_encoder, base)
 #define to_amdgpu_framebuffer(x) container_of(x, struct amdgpu_framebuffer, base)
+<<<<<<< HEAD
 #define to_amdgpu_plane(x)	container_of(x, struct amdgpu_plane, base)
 
 #define to_dm_plane_state(x)	container_of(x, struct dm_plane_state, base);
+=======
+
+#define to_dm_plane_state(x)	container_of(x, struct dm_plane_state, base)
+>>>>>>> upstream/android-13
 
 #define AMDGPU_MAX_HPD_PINS 6
 #define AMDGPU_MAX_CRTCS 6
@@ -295,6 +308,7 @@ struct amdgpu_display_funcs {
 			      uint16_t connector_object_id,
 			      struct amdgpu_hpd *hpd,
 			      struct amdgpu_router *router);
+<<<<<<< HEAD
 	/* it is used to enter or exit into free sync mode */
 	int (*notify_freesync)(struct drm_device *dev, void *data,
 			       struct drm_file *filp);
@@ -302,6 +316,8 @@ struct amdgpu_display_funcs {
 	int (*set_freesync_property)(struct drm_connector *connector,
 				     struct drm_property *property,
 				     uint64_t val);
+=======
+>>>>>>> upstream/android-13
 
 
 };
@@ -309,6 +325,12 @@ struct amdgpu_display_funcs {
 struct amdgpu_framebuffer {
 	struct drm_framebuffer base;
 
+<<<<<<< HEAD
+=======
+	uint64_t tiling_flags;
+	bool tmz_surface;
+
+>>>>>>> upstream/android-13
 	/* caching for later use */
 	uint64_t address;
 };
@@ -325,7 +347,11 @@ struct amdgpu_mode_info {
 	struct card_info *atom_card_info;
 	bool mode_config_initialized;
 	struct amdgpu_crtc *crtcs[AMDGPU_MAX_CRTCS];
+<<<<<<< HEAD
 	struct amdgpu_plane *planes[AMDGPU_MAX_PLANES];
+=======
+	struct drm_plane *planes[AMDGPU_MAX_PLANES];
+>>>>>>> upstream/android-13
 	struct amdgpu_afmt *afmt[AMDGPU_MAX_AFMT_BLOCKS];
 	/* DVI-I properties */
 	struct drm_property *coherent_mode_property;
@@ -339,8 +365,13 @@ struct amdgpu_mode_info {
 	struct drm_property *audio_property;
 	/* FMT dithering */
 	struct drm_property *dither_property;
+<<<<<<< HEAD
 	/* maximum number of bits per channel for monitor color */
 	struct drm_property *max_bpc_property;
+=======
+	/* Adaptive Backlight Modulation (power feature) */
+	struct drm_property *abm_level_property;
+>>>>>>> upstream/android-13
 	/* hardcoded DFP edid from BIOS */
 	struct edid *bios_hardcoded_edid;
 	int bios_hardcoded_edid_size;
@@ -348,7 +379,11 @@ struct amdgpu_mode_info {
 	/* pointer to fbdev info structure */
 	struct amdgpu_fbdev *rfbdev;
 	/* firmware flags */
+<<<<<<< HEAD
 	u16 firmware_flags;
+=======
+	u32 firmware_flags;
+>>>>>>> upstream/android-13
 	/* pointer to backlight encoder */
 	struct amdgpu_encoder *bl_encoder;
 	u8 bl_level; /* saved backlight level */
@@ -412,6 +447,11 @@ struct amdgpu_crtc {
 	struct amdgpu_flip_work *pflip_works;
 	enum amdgpu_flip_status pflip_status;
 	int deferred_flip_completion;
+<<<<<<< HEAD
+=======
+	/* parameters access from DM IRQ handler */
+	struct dm_irq_params dm_irq_params;
+>>>>>>> upstream/android-13
 	/* pll sharing */
 	struct amdgpu_atom_ss ss;
 	bool ss_enabled;
@@ -436,11 +476,14 @@ struct amdgpu_crtc {
 	struct drm_pending_vblank_event *event;
 };
 
+<<<<<<< HEAD
 struct amdgpu_plane {
 	struct drm_plane base;
 	enum drm_plane_type plane_type;
 };
 
+=======
+>>>>>>> upstream/android-13
 struct amdgpu_encoder_atom_dig {
 	bool linkb;
 	/* atom dig */
@@ -481,6 +524,10 @@ struct amdgpu_encoder {
 struct amdgpu_connector_atom_dig {
 	/* displayport */
 	u8 dpcd[DP_RECEIVER_CAP_SIZE];
+<<<<<<< HEAD
+=======
+	u8 downstream_ports[DP_MAX_DOWNSTREAM_PORTS];
+>>>>>>> upstream/android-13
 	u8 dp_sink_type;
 	int dp_clock;
 	int dp_lane_count;
@@ -608,6 +655,17 @@ int amdgpu_display_get_crtc_scanoutpos(struct drm_device *dev,
 			int *hpos, ktime_t *stime, ktime_t *etime,
 			const struct drm_display_mode *mode);
 
+<<<<<<< HEAD
+=======
+int amdgpu_display_gem_fb_init(struct drm_device *dev,
+			       struct amdgpu_framebuffer *rfb,
+			       const struct drm_mode_fb_cmd2 *mode_cmd,
+			       struct drm_gem_object *obj);
+int amdgpu_display_gem_fb_verify_and_init(
+	struct drm_device *dev, struct amdgpu_framebuffer *rfb,
+	struct drm_file *file_priv, const struct drm_mode_fb_cmd2 *mode_cmd,
+	struct drm_gem_object *obj);
+>>>>>>> upstream/android-13
 int amdgpu_display_framebuffer_init(struct drm_device *dev,
 				    struct amdgpu_framebuffer *rfb,
 				    const struct drm_mode_fb_cmd2 *mode_cmd,
@@ -624,6 +682,14 @@ void amdgpu_panel_mode_fixup(struct drm_encoder *encoder,
 			     struct drm_display_mode *adjusted_mode);
 int amdgpu_display_crtc_idx_to_irq_type(struct amdgpu_device *adev, int crtc);
 
+<<<<<<< HEAD
+=======
+bool amdgpu_crtc_get_scanout_position(struct drm_crtc *crtc,
+			bool in_vblank_irq, int *vpos,
+			int *hpos, ktime_t *stime, ktime_t *etime,
+			const struct drm_display_mode *mode);
+
+>>>>>>> upstream/android-13
 /* fbdev layer */
 int amdgpu_fbdev_init(struct amdgpu_device *adev);
 void amdgpu_fbdev_fini(struct amdgpu_device *adev);

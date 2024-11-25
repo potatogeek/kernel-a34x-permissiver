@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  bytcht_nocodec.c - ASoc Machine driver for MinnowBoard Max and Up
  *  to make I2S signals observable on the Low-Speed connector. Audio codec
@@ -7,6 +11,7 @@
  *
  *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  *
+<<<<<<< HEAD
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; version 2 of the License.
@@ -16,6 +21,8 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  */
 
@@ -66,7 +73,11 @@ static int codec_fixup(struct snd_soc_pcm_runtime *rtd,
 	 * with explicit setting to I2S 2ch 24-bit. The word length is set with
 	 * dai_set_tdm_slot() since there is no other API exposed
 	 */
+<<<<<<< HEAD
 	ret = snd_soc_dai_set_fmt(rtd->cpu_dai,
+=======
+	ret = snd_soc_dai_set_fmt(asoc_rtd_to_cpu(rtd, 0),
+>>>>>>> upstream/android-13
 				  SND_SOC_DAIFMT_I2S     |
 				  SND_SOC_DAIFMT_NB_NF   |
 				  SND_SOC_DAIFMT_CBS_CFS);
@@ -76,7 +87,11 @@ static int codec_fixup(struct snd_soc_pcm_runtime *rtd,
 		return ret;
 	}
 
+<<<<<<< HEAD
 	ret = snd_soc_dai_set_tdm_slot(rtd->cpu_dai, 0x3, 0x3, 2, 24);
+=======
+	ret = snd_soc_dai_set_tdm_slot(asoc_rtd_to_cpu(rtd, 0), 0x3, 0x3, 2, 24);
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		dev_err(rtd->dev, "can't set I2S config, err %d\n", ret);
 		return ret;
@@ -105,51 +120,93 @@ static struct snd_soc_ops aif1_ops = {
 	.startup = aif1_startup,
 };
 
+<<<<<<< HEAD
+=======
+SND_SOC_DAILINK_DEF(dummy,
+	DAILINK_COMP_ARRAY(COMP_DUMMY()));
+
+SND_SOC_DAILINK_DEF(media,
+	DAILINK_COMP_ARRAY(COMP_CPU("media-cpu-dai")));
+
+SND_SOC_DAILINK_DEF(deepbuffer,
+	DAILINK_COMP_ARRAY(COMP_CPU("deepbuffer-cpu-dai")));
+
+SND_SOC_DAILINK_DEF(ssp2_port,
+	DAILINK_COMP_ARRAY(COMP_CPU("ssp2-port")));
+
+SND_SOC_DAILINK_DEF(platform,
+	DAILINK_COMP_ARRAY(COMP_PLATFORM("sst-mfld-platform")));
+
+>>>>>>> upstream/android-13
 static struct snd_soc_dai_link dais[] = {
 	[MERR_DPCM_AUDIO] = {
 		.name = "Audio Port",
 		.stream_name = "Audio",
+<<<<<<< HEAD
 		.cpu_dai_name = "media-cpu-dai",
 		.codec_dai_name = "snd-soc-dummy-dai",
 		.codec_name = "snd-soc-dummy",
 		.platform_name = "sst-mfld-platform",
+=======
+>>>>>>> upstream/android-13
 		.ignore_suspend = 1,
 		.nonatomic = true,
 		.dynamic = 1,
 		.dpcm_playback = 1,
 		.dpcm_capture = 1,
 		.ops = &aif1_ops,
+<<<<<<< HEAD
+=======
+		SND_SOC_DAILINK_REG(media, dummy, platform),
+>>>>>>> upstream/android-13
 	},
 	[MERR_DPCM_DEEP_BUFFER] = {
 		.name = "Deep-Buffer Audio Port",
 		.stream_name = "Deep-Buffer Audio",
+<<<<<<< HEAD
 		.cpu_dai_name = "deepbuffer-cpu-dai",
 		.codec_dai_name = "snd-soc-dummy-dai",
 		.codec_name = "snd-soc-dummy",
 		.platform_name = "sst-mfld-platform",
+=======
+>>>>>>> upstream/android-13
 		.ignore_suspend = 1,
 		.nonatomic = true,
 		.dynamic = 1,
 		.dpcm_playback = 1,
 		.ops = &aif1_ops,
+<<<<<<< HEAD
+=======
+		SND_SOC_DAILINK_REG(deepbuffer, dummy, platform),
+>>>>>>> upstream/android-13
 	},
 	/* CODEC<->CODEC link */
 	/* back ends */
 	{
 		.name = "SSP2-LowSpeed Connector",
 		.id = 0,
+<<<<<<< HEAD
 		.cpu_dai_name = "ssp2-port",
 		.platform_name = "sst-mfld-platform",
 		.no_pcm = 1,
 		.codec_dai_name = "snd-soc-dummy-dai",
 		.codec_name = "snd-soc-dummy",
+=======
+		.no_pcm = 1,
+>>>>>>> upstream/android-13
 		.dai_fmt = SND_SOC_DAIFMT_I2S | SND_SOC_DAIFMT_NB_NF
 						| SND_SOC_DAIFMT_CBS_CFS,
 		.be_hw_params_fixup = codec_fixup,
 		.ignore_suspend = 1,
+<<<<<<< HEAD
 		.nonatomic = true,
 		.dpcm_playback = 1,
 		.dpcm_capture = 1,
+=======
+		.dpcm_playback = 1,
+		.dpcm_capture = 1,
+		SND_SOC_DAILINK_REG(ssp2_port, dummy, platform),
+>>>>>>> upstream/android-13
 	},
 };
 

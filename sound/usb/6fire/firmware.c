@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Linux driver for TerraTec DMX 6Fire USB
  *
@@ -6,11 +10,14 @@
  * Author:	Torsten Schenk <torsten.schenk@zoho.com>
  * Created:	Jan 01, 2011
  * Copyright:	(C) Torsten Schenk
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/firmware.h>
@@ -162,6 +169,7 @@ static int usb6fire_fw_ihex_init(const struct firmware *fw,
 static int usb6fire_fw_ezusb_write(struct usb_device *device,
 		int type, int value, char *data, int len)
 {
+<<<<<<< HEAD
 	int ret;
 
 	ret = usb_control_msg(device, usb_sndctrlpipe(device, 0), type,
@@ -172,11 +180,17 @@ static int usb6fire_fw_ezusb_write(struct usb_device *device,
 	else if (ret != len)
 		return -EIO;
 	return 0;
+=======
+	return usb_control_msg_send(device, 0, type,
+				    USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
+				    value, 0, data, len, 1000, GFP_KERNEL);
+>>>>>>> upstream/android-13
 }
 
 static int usb6fire_fw_ezusb_read(struct usb_device *device,
 		int type, int value, char *data, int len)
 {
+<<<<<<< HEAD
 	int ret = usb_control_msg(device, usb_rcvctrlpipe(device, 0), type,
 			USB_DIR_IN | USB_TYPE_VENDOR | USB_RECIP_DEVICE, value,
 			0, data, len, HZ);
@@ -185,6 +199,11 @@ static int usb6fire_fw_ezusb_read(struct usb_device *device,
 	else if (ret != len)
 		return -EIO;
 	return 0;
+=======
+	return usb_control_msg_recv(device, 0, type,
+				    USB_DIR_IN | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
+				    value, 0, data, len, 1000, GFP_KERNEL);
+>>>>>>> upstream/android-13
 }
 
 static int usb6fire_fw_fpga_write(struct usb_device *device,
@@ -194,7 +213,11 @@ static int usb6fire_fw_fpga_write(struct usb_device *device,
 	int ret;
 
 	ret = usb_bulk_msg(device, usb_sndbulkpipe(device, FPGA_EP), data, len,
+<<<<<<< HEAD
 			&actual_len, HZ);
+=======
+			&actual_len, 1000);
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		return ret;
 	else if (actual_len != len)
@@ -234,7 +257,11 @@ static int usb6fire_fw_ezusb_upload(
 	/* upload firmware image */
 	data = 0x01; /* stop ezusb cpu */
 	ret = usb6fire_fw_ezusb_write(device, 0xa0, 0xe600, &data, 1);
+<<<<<<< HEAD
 	if (ret < 0) {
+=======
+	if (ret) {
+>>>>>>> upstream/android-13
 		kfree(rec);
 		release_firmware(fw);
 		dev_err(&intf->dev,
@@ -246,7 +273,11 @@ static int usb6fire_fw_ezusb_upload(
 	while (usb6fire_fw_ihex_next_record(rec)) { /* write firmware */
 		ret = usb6fire_fw_ezusb_write(device, 0xa0, rec->address,
 				rec->data, rec->len);
+<<<<<<< HEAD
 		if (ret < 0) {
+=======
+		if (ret) {
+>>>>>>> upstream/android-13
 			kfree(rec);
 			release_firmware(fw);
 			dev_err(&intf->dev,
@@ -261,7 +292,11 @@ static int usb6fire_fw_ezusb_upload(
 	if (postdata) { /* write data after firmware has been uploaded */
 		ret = usb6fire_fw_ezusb_write(device, 0xa0, postaddr,
 				postdata, postlen);
+<<<<<<< HEAD
 		if (ret < 0) {
+=======
+		if (ret) {
+>>>>>>> upstream/android-13
 			dev_err(&intf->dev,
 				"unable to upload ezusb firmware %s: post urb.\n",
 				fwname);
@@ -271,7 +306,11 @@ static int usb6fire_fw_ezusb_upload(
 
 	data = 0x00; /* resume ezusb cpu */
 	ret = usb6fire_fw_ezusb_write(device, 0xa0, 0xe600, &data, 1);
+<<<<<<< HEAD
 	if (ret < 0) {
+=======
+	if (ret) {
+>>>>>>> upstream/android-13
 		dev_err(&intf->dev,
 			"unable to upload ezusb firmware %s: end message.\n",
 			fwname);
@@ -306,7 +345,11 @@ static int usb6fire_fw_fpga_upload(
 	end = fw->data + fw->size;
 
 	ret = usb6fire_fw_ezusb_write(device, 8, 0, NULL, 0);
+<<<<<<< HEAD
 	if (ret < 0) {
+=======
+	if (ret) {
+>>>>>>> upstream/android-13
 		kfree(buffer);
 		release_firmware(fw);
 		dev_err(&intf->dev,
@@ -331,7 +374,11 @@ static int usb6fire_fw_fpga_upload(
 	kfree(buffer);
 
 	ret = usb6fire_fw_ezusb_write(device, 9, 0, NULL, 0);
+<<<<<<< HEAD
 	if (ret < 0) {
+=======
+	if (ret) {
+>>>>>>> upstream/android-13
 		dev_err(&intf->dev,
 			"unable to upload fpga firmware: end urb.\n");
 		return ret;
@@ -367,7 +414,11 @@ int usb6fire_fw_init(struct usb_interface *intf)
 	u8 buffer[12];
 
 	ret = usb6fire_fw_ezusb_read(device, 1, 0, buffer, 8);
+<<<<<<< HEAD
 	if (ret < 0) {
+=======
+	if (ret) {
+>>>>>>> upstream/android-13
 		dev_err(&intf->dev,
 			"unable to receive device firmware state.\n");
 		return ret;

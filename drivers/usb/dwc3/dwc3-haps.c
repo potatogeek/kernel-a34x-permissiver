@@ -1,5 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * dwc3-haps.c - Synopsys HAPS PCI Specific glue layer
  *
  * Copyright (C) 2018 Synopsys, Inc.
@@ -33,6 +37,13 @@ static const struct property_entry initial_properties[] = {
 	{ },
 };
 
+<<<<<<< HEAD
+=======
+static const struct software_node dwc3_haps_swnode = {
+	.properties = initial_properties,
+};
+
+>>>>>>> upstream/android-13
 static int dwc3_haps_probe(struct pci_dev *pci,
 			   const struct pci_device_id *id)
 {
@@ -77,7 +88,11 @@ static int dwc3_haps_probe(struct pci_dev *pci,
 	dwc->pci = pci;
 	dwc->dwc3->dev.parent = dev;
 
+<<<<<<< HEAD
 	ret = platform_device_add_properties(dwc->dwc3, initial_properties);
+=======
+	ret = device_add_software_node(&dwc->dwc3->dev, &dwc3_haps_swnode);
+>>>>>>> upstream/android-13
 	if (ret)
 		goto err;
 
@@ -91,6 +106,10 @@ static int dwc3_haps_probe(struct pci_dev *pci,
 
 	return 0;
 err:
+<<<<<<< HEAD
+=======
+	device_remove_software_node(&dwc->dwc3->dev);
+>>>>>>> upstream/android-13
 	platform_device_put(dwc->dwc3);
 	return ret;
 }
@@ -99,6 +118,10 @@ static void dwc3_haps_remove(struct pci_dev *pci)
 {
 	struct dwc3_haps *dwc = pci_get_drvdata(pci);
 
+<<<<<<< HEAD
+=======
+	device_remove_software_node(&dwc->dwc3->dev);
+>>>>>>> upstream/android-13
 	platform_device_unregister(dwc->dwc3);
 }
 
@@ -106,6 +129,18 @@ static const struct pci_device_id dwc3_haps_id_table[] = {
 	{
 		PCI_DEVICE(PCI_VENDOR_ID_SYNOPSYS,
 			   PCI_DEVICE_ID_SYNOPSYS_HAPSUSB3),
+<<<<<<< HEAD
+=======
+		/*
+		 * i.MX6QP and i.MX7D platform use a PCIe controller with the
+		 * same VID and PID as this USB controller. The system may
+		 * incorrectly match this driver to that PCIe controller. To
+		 * workaround this, specifically use class type USB to prevent
+		 * incorrect driver matching.
+		 */
+		.class = (PCI_CLASS_SERIAL_USB << 8),
+		.class_mask = 0xffff00,
+>>>>>>> upstream/android-13
 	},
 	{
 		PCI_DEVICE(PCI_VENDOR_ID_SYNOPSYS,

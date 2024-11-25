@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Generic Syscon Poweroff Driver
  *
  * Copyright (c) 2015, National Instruments Corp.
  * Author: Moritz Fischer <moritz.fischer@ettus.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,6 +21,10 @@
  */
 
 #include <linux/kallsyms.h>
+=======
+ */
+
+>>>>>>> upstream/android-13
 #include <linux/delay.h>
 #include <linux/io.h>
 #include <linux/notifier.h>
@@ -43,7 +52,10 @@ static void syscon_poweroff(void)
 
 static int syscon_poweroff_probe(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	char symname[KSYM_NAME_LEN];
+=======
+>>>>>>> upstream/android-13
 	int mask_err, value_err;
 
 	map = syscon_regmap_lookup_by_phandle(pdev->dev.of_node, "regmap");
@@ -74,10 +86,15 @@ static int syscon_poweroff_probe(struct platform_device *pdev)
 	}
 
 	if (pm_power_off) {
+<<<<<<< HEAD
 		lookup_symbol_name((ulong)pm_power_off, symname);
 		dev_err(&pdev->dev,
 		"pm_power_off already claimed %p %s",
 		pm_power_off, symname);
+=======
+		dev_err(&pdev->dev, "pm_power_off already claimed for %ps",
+			pm_power_off);
+>>>>>>> upstream/android-13
 		return -EBUSY;
 	}
 

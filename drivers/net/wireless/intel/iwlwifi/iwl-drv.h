@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * This file is provided under a dual BSD/GPLv2 license.  When using or
@@ -62,14 +63,25 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *****************************************************************************/
 
+=======
+/* SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause */
+/*
+ * Copyright (C) 2005-2014, 2020 Intel Corporation
+ * Copyright (C) 2013-2014 Intel Mobile Communications GmbH
+ */
+>>>>>>> upstream/android-13
 #ifndef __iwl_drv_h__
 #define __iwl_drv_h__
 #include <linux/export.h>
 
 /* for all modules */
 #define DRV_NAME        "iwlwifi"
+<<<<<<< HEAD
 #define DRV_COPYRIGHT	"Copyright(c) 2003- 2015 Intel Corporation"
 #define DRV_AUTHOR     "<linuxwifi@intel.com>"
+=======
+#define DRV_AUTHOR	"Intel Corporation <linuxwifi@intel.com>"
+>>>>>>> upstream/android-13
 
 /* radio config bits (actual values from NVM definition) */
 #define NVM_RF_CFG_DASH_MSK(x)   (x & 0x3)         /* bits 0-1   */
@@ -150,4 +162,10 @@ void iwl_drv_stop(struct iwl_drv *drv);
 #define IWL_EXPORT_SYMBOL(sym)
 #endif
 
+<<<<<<< HEAD
+=======
+/* max retry for init flow */
+#define IWL_MAX_INIT_RETRY 2
+
+>>>>>>> upstream/android-13
 #endif /* __iwl_drv_h__ */

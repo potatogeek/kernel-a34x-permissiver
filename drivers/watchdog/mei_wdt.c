@@ -105,7 +105,11 @@ struct mei_wdt {
 #endif /* CONFIG_DEBUG_FS */
 };
 
+<<<<<<< HEAD
 /*
+=======
+/**
+>>>>>>> upstream/android-13
  * struct mei_mc_hdr - Management Control Command Header
  *
  * @command: Management Control (0x2)
@@ -121,7 +125,11 @@ struct mei_mc_hdr {
 };
 
 /**
+<<<<<<< HEAD
  * struct mei_wdt_start_request watchdog start/ping
+=======
+ * struct mei_wdt_start_request - watchdog start/ping
+>>>>>>> upstream/android-13
  *
  * @hdr: Management Control Command Header
  * @timeout: timeout value
@@ -134,7 +142,11 @@ struct mei_wdt_start_request {
 } __packed;
 
 /**
+<<<<<<< HEAD
  * struct mei_wdt_start_response watchdog start/ping response
+=======
+ * struct mei_wdt_start_response - watchdog start/ping response
+>>>>>>> upstream/android-13
  *
  * @hdr: Management Control Command Header
  * @status: operation status
@@ -385,10 +397,15 @@ static int mei_wdt_register(struct mei_wdt *wdt)
 	watchdog_stop_on_unregister(&wdt->wdd);
 
 	ret = watchdog_register_device(&wdt->wdd);
+<<<<<<< HEAD
 	if (ret) {
 		dev_err(dev, "unable to register watchdog device = %d.\n", ret);
 		watchdog_set_drvdata(&wdt->wdd, NULL);
 	}
+=======
+	if (ret)
+		watchdog_set_drvdata(&wdt->wdd, NULL);
+>>>>>>> upstream/android-13
 
 	wdt->state = MEI_WDT_IDLE;
 
@@ -476,7 +493,11 @@ out:
 		complete(&wdt->response);
 }
 
+<<<<<<< HEAD
 /*
+=======
+/**
+>>>>>>> upstream/android-13
  * mei_wdt_notif - callback for event notification
  *
  * @cldev: bus device
@@ -540,6 +561,7 @@ static void dbgfs_unregister(struct mei_wdt *wdt)
 	wdt->dbgfs_dir = NULL;
 }
 
+<<<<<<< HEAD
 static int dbgfs_register(struct mei_wdt *wdt)
 {
 	struct dentry *dir, *f;
@@ -562,16 +584,33 @@ static int dbgfs_register(struct mei_wdt *wdt)
 err:
 	dbgfs_unregister(wdt);
 	return -ENODEV;
+=======
+static void dbgfs_register(struct mei_wdt *wdt)
+{
+	struct dentry *dir;
+
+	dir = debugfs_create_dir(KBUILD_MODNAME, NULL);
+	wdt->dbgfs_dir = dir;
+
+	debugfs_create_file("state", S_IRUSR, dir, wdt, &dbgfs_fops_state);
+
+	debugfs_create_file("activation", S_IRUSR, dir, wdt,
+			    &dbgfs_fops_activation);
+>>>>>>> upstream/android-13
 }
 
 #else
 
 static inline void dbgfs_unregister(struct mei_wdt *wdt) {}
+<<<<<<< HEAD
 
 static inline int dbgfs_register(struct mei_wdt *wdt)
 {
 	return 0;
 }
+=======
+static inline void dbgfs_register(struct mei_wdt *wdt) {}
+>>>>>>> upstream/android-13
 #endif /* CONFIG_DEBUG_FS */
 
 static int mei_wdt_probe(struct mei_cl_device *cldev,
@@ -624,8 +663,12 @@ static int mei_wdt_probe(struct mei_cl_device *cldev,
 	if (ret)
 		goto err_disable;
 
+<<<<<<< HEAD
 	if (dbgfs_register(wdt))
 		dev_warn(&cldev->dev, "cannot register debugfs\n");
+=======
+	dbgfs_register(wdt);
+>>>>>>> upstream/android-13
 
 	return 0;
 
@@ -638,7 +681,11 @@ err_out:
 	return ret;
 }
 
+<<<<<<< HEAD
 static int mei_wdt_remove(struct mei_cl_device *cldev)
+=======
+static void mei_wdt_remove(struct mei_cl_device *cldev)
+>>>>>>> upstream/android-13
 {
 	struct mei_wdt *wdt = mei_cldev_get_drvdata(cldev);
 
@@ -655,8 +702,11 @@ static int mei_wdt_remove(struct mei_cl_device *cldev)
 	dbgfs_unregister(wdt);
 
 	kfree(wdt);
+<<<<<<< HEAD
 
 	return 0;
+=======
+>>>>>>> upstream/android-13
 }
 
 #define MEI_UUID_WD UUID_LE(0x05B79A6F, 0x4628, 0x4D7F, \

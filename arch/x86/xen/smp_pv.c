@@ -22,11 +22,22 @@
 #include <linux/tick.h>
 #include <linux/nmi.h>
 #include <linux/cpuhotplug.h>
+<<<<<<< HEAD
 
 #include <asm/paravirt.h>
 #include <asm/desc.h>
 #include <asm/pgtable.h>
 #include <asm/cpu.h>
+=======
+#include <linux/stackprotector.h>
+#include <linux/pgtable.h>
+
+#include <asm/paravirt.h>
+#include <asm/idtentry.h>
+#include <asm/desc.h>
+#include <asm/cpu.h>
+#include <asm/io_apic.h>
+>>>>>>> upstream/android-13
 
 #include <xen/interface/xen.h>
 #include <xen/interface/vcpu.h>
@@ -52,14 +63,24 @@ static DEFINE_PER_CPU(struct xen_common_irq, xen_irq_work) = { .irq = -1 };
 static DEFINE_PER_CPU(struct xen_common_irq, xen_pmu_irq) = { .irq = -1 };
 
 static irqreturn_t xen_irq_work_interrupt(int irq, void *dev_id);
+<<<<<<< HEAD
+=======
+void asm_cpu_bringup_and_idle(void);
+>>>>>>> upstream/android-13
 
 static void cpu_bringup(void)
 {
 	int cpu;
 
+<<<<<<< HEAD
 	cpu_init();
 	touch_softlockup_watchdog();
 	preempt_disable();
+=======
+	cr4_init();
+	cpu_init();
+	touch_softlockup_watchdog();
+>>>>>>> upstream/android-13
 
 	/* PVH runs in ring 0 and allows us to do native syscalls. Yay! */
 	if (!xen_feature(XENFEAT_supervisor_mode_kernel)) {
@@ -89,7 +110,10 @@ asmlinkage __visible void cpu_bringup_and_idle(void)
 {
 	cpu_bringup();
 	cpu_startup_entry(CPUHP_AP_ONLINE_IDLE);
+<<<<<<< HEAD
 	prevent_tail_call_optimization();
+=======
+>>>>>>> upstream/android-13
 }
 
 void xen_smp_intr_free_pv(unsigned int cpu)
@@ -126,7 +150,11 @@ int xen_smp_intr_init_pv(unsigned int cpu)
 	per_cpu(xen_irq_work, cpu).irq = rc;
 	per_cpu(xen_irq_work, cpu).name = callfunc_name;
 
+<<<<<<< HEAD
 	if (is_xen_pmu(cpu)) {
+=======
+	if (is_xen_pmu) {
+>>>>>>> upstream/android-13
 		pmu_name = kasprintf(GFP_KERNEL, "pmu%d", cpu);
 		rc = bind_virq_to_irqhandler(VIRQ_XENPMU, cpu,
 					     xen_pmu_irq_handler,
@@ -145,6 +173,7 @@ int xen_smp_intr_init_pv(unsigned int cpu)
 	return rc;
 }
 
+<<<<<<< HEAD
 static void __init xen_fill_possible_map(void)
 {
 	int i, rc;
@@ -162,11 +191,18 @@ static void __init xen_fill_possible_map(void)
 }
 
 static void __init xen_filter_cpu_maps(void)
+=======
+static void __init _get_smp_config(unsigned int early)
+>>>>>>> upstream/android-13
 {
 	int i, rc;
 	unsigned int subtract = 0;
 
+<<<<<<< HEAD
 	if (!xen_initial_domain())
+=======
+	if (early)
+>>>>>>> upstream/android-13
 		return;
 
 	num_processors = 0;
@@ -207,6 +243,7 @@ static void __init xen_pv_smp_prepare_boot_cpu(void)
 		 * sure the old memory can be recycled. */
 		make_lowmem_page_readwrite(xen_initial_gdt);
 
+<<<<<<< HEAD
 #ifdef CONFIG_X86_32
 	/*
 	 * Xen starts us with XEN_FLAT_RING1_DS, but linux code
@@ -217,6 +254,8 @@ static void __init xen_pv_smp_prepare_boot_cpu(void)
 #endif
 
 	xen_filter_cpu_maps();
+=======
+>>>>>>> upstream/android-13
 	xen_setup_vcpu_info_placement();
 
 	/*
@@ -250,6 +289,10 @@ static void __init xen_pv_smp_prepare_cpus(unsigned int max_cpus)
 	for_each_possible_cpu(i) {
 		zalloc_cpumask_var(&per_cpu(cpu_sibling_map, i), GFP_KERNEL);
 		zalloc_cpumask_var(&per_cpu(cpu_core_map, i), GFP_KERNEL);
+<<<<<<< HEAD
+=======
+		zalloc_cpumask_var(&per_cpu(cpu_die_map, i), GFP_KERNEL);
+>>>>>>> upstream/android-13
 		zalloc_cpumask_var(&per_cpu(cpu_llc_shared_map, i), GFP_KERNEL);
 	}
 	set_cpu_sibling_map(0);
@@ -295,18 +338,25 @@ cpu_initialize_context(unsigned int cpu, struct task_struct *idle)
 
 	gdt = get_cpu_gdt_rw(cpu);
 
+<<<<<<< HEAD
 #ifdef CONFIG_X86_32
 	ctxt->user_regs.fs = __KERNEL_PERCPU;
 	ctxt->user_regs.gs = __KERNEL_STACK_CANARY;
 #endif
 	memset(&ctxt->fpu_ctxt, 0, sizeof(ctxt->fpu_ctxt));
 
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * Bring up the CPU in cpu_bringup_and_idle() with the stack
 	 * pointing just below where pt_regs would be if it were a normal
 	 * kernel entry.
 	 */
+<<<<<<< HEAD
 	ctxt->user_regs.eip = (unsigned long)cpu_bringup_and_idle;
+=======
+	ctxt->user_regs.eip = (unsigned long)asm_cpu_bringup_and_idle;
+>>>>>>> upstream/android-13
 	ctxt->flags = VGCF_IN_KERNEL;
 	ctxt->user_regs.eflags = 0x1000; /* IOPL_RING1 */
 	ctxt->user_regs.ds = __USER_DS;
@@ -317,8 +367,11 @@ cpu_initialize_context(unsigned int cpu, struct task_struct *idle)
 
 	xen_copy_trap_info(ctxt->trap_ctxt);
 
+<<<<<<< HEAD
 	ctxt->ldt_ents = 0;
 
+=======
+>>>>>>> upstream/android-13
 	BUG_ON((unsigned long)gdt & ~PAGE_MASK);
 
 	gdt_mfn = arbitrary_virt_to_mfn(gdt);
@@ -336,6 +389,7 @@ cpu_initialize_context(unsigned int cpu, struct task_struct *idle)
 	ctxt->kernel_ss = __KERNEL_DS;
 	ctxt->kernel_sp = task_top_of_stack(idle);
 
+<<<<<<< HEAD
 #ifdef CONFIG_X86_32
 	ctxt->event_callback_cs     = __KERNEL_CS;
 	ctxt->failsafe_callback_cs  = __KERNEL_CS;
@@ -344,6 +398,11 @@ cpu_initialize_context(unsigned int cpu, struct task_struct *idle)
 #endif
 	ctxt->event_callback_eip    =
 		(unsigned long)xen_hypervisor_callback;
+=======
+	ctxt->gs_base_kernel = per_cpu_offset(cpu);
+	ctxt->event_callback_eip    =
+		(unsigned long)xen_asm_exc_xen_hypervisor_callback;
+>>>>>>> upstream/android-13
 	ctxt->failsafe_callback_eip =
 		(unsigned long)xen_failsafe_callback;
 	per_cpu(xen_cr3, cpu) = __pa(swapper_pg_dir);
@@ -360,7 +419,13 @@ static int xen_pv_cpu_up(unsigned int cpu, struct task_struct *idle)
 {
 	int rc;
 
+<<<<<<< HEAD
 	common_cpu_up(cpu, idle);
+=======
+	rc = common_cpu_up(cpu, idle);
+	if (rc)
+		return rc;
+>>>>>>> upstream/android-13
 
 	xen_setup_runstate_info(cpu);
 
@@ -502,5 +567,12 @@ static const struct smp_ops xen_smp_ops __initconst = {
 void __init xen_smp_init(void)
 {
 	smp_ops = xen_smp_ops;
+<<<<<<< HEAD
 	xen_fill_possible_map();
+=======
+
+	/* Avoid searching for BIOS MP tables */
+	x86_init.mpparse.find_smp_config = x86_init_noop;
+	x86_init.mpparse.get_smp_config = _get_smp_config;
+>>>>>>> upstream/android-13
 }

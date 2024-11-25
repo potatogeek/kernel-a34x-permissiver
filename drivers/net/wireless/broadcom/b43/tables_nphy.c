@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
 
   Broadcom B43 wireless driver
@@ -6,6 +10,7 @@
   Copyright (c) 2008 Michael Buesch <m@bues.ch>
   Copyright (c) 2010 Rafał Miłecki <zajec5@gmail.com>
 
+<<<<<<< HEAD
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation; either version 2 of the License, or
@@ -20,6 +25,8 @@
   along with this program; see the file COPYING.  If not, write to
   the Free Software Foundation, Inc., 51 Franklin Steet, Fifth Floor,
   Boston, MA 02110-1301, USA.
+=======
+>>>>>>> upstream/android-13
 
 */
 
@@ -3633,7 +3640,11 @@ static void b43_nphy_tables_init_rev0(struct b43_wldev *dev)
 	ntab_upload(dev, B43_NTAB_C1_LOFEEDTH, b43_ntab_loftlt1);
 }
 
+<<<<<<< HEAD
 /* http://bcm-v4.sipsolutions.net/802.11/PHY/N/InitTables */
+=======
+/* https://bcm-v4.sipsolutions.net/802.11/PHY/N/InitTables */
+>>>>>>> upstream/android-13
 void b43_nphy_tables_init(struct b43_wldev *dev)
 {
 	if (dev->phy.rev >= 16)
@@ -3646,7 +3657,11 @@ void b43_nphy_tables_init(struct b43_wldev *dev)
 		b43_nphy_tables_init_rev0(dev);
 }
 
+<<<<<<< HEAD
 /* http://bcm-v4.sipsolutions.net/802.11/PHY/N/GetIpaGainTbl */
+=======
+/* https://bcm-v4.sipsolutions.net/802.11/PHY/N/GetIpaGainTbl */
+>>>>>>> upstream/android-13
 static const u32 *b43_nphy_get_ipa_gain_table(struct b43_wldev *dev)
 {
 	struct b43_phy *phy = &dev->phy;
@@ -3730,7 +3745,11 @@ const u32 *b43_nphy_get_tx_gain_table(struct b43_wldev *dev)
 		case 5:
 			if (sprom->fem.ghz2.extpa_gain == 3)
 				return b43_ntab_tx_gain_epa_rev3_hi_pwr_2g;
+<<<<<<< HEAD
 			/* fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case 4:
 		case 3:
 			return b43_ntab_tx_gain_epa_rev3_2g;

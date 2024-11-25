@@ -10,8 +10,13 @@
  */
 
 #include <linux/linkage.h>
+<<<<<<< HEAD
 #include <variant/core.h>
 #include <asm/asmmacro.h>
+=======
+#include <asm/asmmacro.h>
+#include <asm/core.h>
+>>>>>>> upstream/android-13
 
 /*
  * void *memcpy(void *dst, const void *src, size_t len);
@@ -79,7 +84,11 @@
 	bne	a3, a7, .Lnextbyte # continue loop if $a3:src != $a7:src_end
 #endif /* !XCHAL_HAVE_LOOPS */
 .Lbytecopydone:
+<<<<<<< HEAD
 	retw
+=======
+	abi_ret_default
+>>>>>>> upstream/android-13
 
 /*
  * Destination is unaligned
@@ -112,7 +121,11 @@
 ENTRY(__memcpy)
 WEAK(memcpy)
 
+<<<<<<< HEAD
 	entry	sp, 16		# minimal stack frame
+=======
+	abi_entry_default
+>>>>>>> upstream/android-13
 	# a2/ dst, a3/ src, a4/ len
 	mov	a5, a2		# copy dst so that a2 is return value
 .Lcommon:
@@ -161,7 +174,11 @@ WEAK(memcpy)
 	bbsi.l	a4, 2, .L3
 	bbsi.l	a4, 1, .L4
 	bbsi.l	a4, 0, .L5
+<<<<<<< HEAD
 	retw
+=======
+	abi_ret_default
+>>>>>>> upstream/android-13
 .L3:
 	# copy 4 bytes
 	l32i	a6, a3,  0
@@ -170,7 +187,11 @@ WEAK(memcpy)
 	addi	a5, a5,  4
 	bbsi.l	a4, 1, .L4
 	bbsi.l	a4, 0, .L5
+<<<<<<< HEAD
 	retw
+=======
+	abi_ret_default
+>>>>>>> upstream/android-13
 .L4:
 	# copy 2 bytes
 	l16ui	a6, a3,  0
@@ -178,12 +199,20 @@ WEAK(memcpy)
 	s16i	a6, a5,  0
 	addi	a5, a5,  2
 	bbsi.l	a4, 0, .L5
+<<<<<<< HEAD
 	retw
+=======
+	abi_ret_default
+>>>>>>> upstream/android-13
 .L5:
 	# copy 1 byte
 	l8ui	a6, a3,  0
 	s8i	a6, a5,  0
+<<<<<<< HEAD
 	retw
+=======
+	abi_ret_default
+>>>>>>> upstream/android-13
 
 /*
  * Destination is aligned, Source is unaligned
@@ -255,7 +284,11 @@ WEAK(memcpy)
 #endif
 	bbsi.l	a4, 1, .L14
 	bbsi.l	a4, 0, .L15
+<<<<<<< HEAD
 .Ldone:	retw
+=======
+.Ldone:	abi_ret_default
+>>>>>>> upstream/android-13
 .L14:
 	# copy 2 bytes
 	l8ui	a6, a3,  0
@@ -265,12 +298,20 @@ WEAK(memcpy)
 	s8i	a7, a5,  1
 	addi	a5, a5,  2
 	bbsi.l	a4, 0, .L15
+<<<<<<< HEAD
 	retw
+=======
+	abi_ret_default
+>>>>>>> upstream/android-13
 .L15:
 	# copy 1 byte
 	l8ui	a6, a3,  0
 	s8i	a6, a5,  0
+<<<<<<< HEAD
 	retw
+=======
+	abi_ret_default
+>>>>>>> upstream/android-13
 
 ENDPROC(__memcpy)
 
@@ -280,7 +321,11 @@ ENDPROC(__memcpy)
 
 ENTRY(bcopy)
 
+<<<<<<< HEAD
 	entry	sp, 16		# minimal stack frame
+=======
+	abi_entry_default
+>>>>>>> upstream/android-13
 	# a2=src, a3=dst, a4=len
 	mov	a5, a3
 	mov	a3, a2
@@ -346,7 +391,11 @@ ENDPROC(bcopy)
 				       # $a3:src != $a7:src_start
 #endif /* !XCHAL_HAVE_LOOPS */
 .Lbackbytecopydone:
+<<<<<<< HEAD
 	retw
+=======
+	abi_ret_default
+>>>>>>> upstream/android-13
 
 /*
  * Destination is unaligned
@@ -380,7 +429,11 @@ ENDPROC(bcopy)
 ENTRY(__memmove)
 WEAK(memmove)
 
+<<<<<<< HEAD
 	entry	sp, 16		# minimal stack frame
+=======
+	abi_entry_default
+>>>>>>> upstream/android-13
 	# a2/ dst, a3/ src, a4/ len
 	mov	a5, a2		# copy dst so that a2 is return value
 .Lmovecommon:
@@ -435,7 +488,11 @@ WEAK(memmove)
 	bbsi.l	a4, 2, .Lback3
 	bbsi.l	a4, 1, .Lback4
 	bbsi.l	a4, 0, .Lback5
+<<<<<<< HEAD
 	retw
+=======
+	abi_ret_default
+>>>>>>> upstream/android-13
 .Lback3:
 	# copy 4 bytes
 	addi	a3, a3, -4
@@ -444,7 +501,11 @@ WEAK(memmove)
 	s32i	a6, a5,  0
 	bbsi.l	a4, 1, .Lback4
 	bbsi.l	a4, 0, .Lback5
+<<<<<<< HEAD
 	retw
+=======
+	abi_ret_default
+>>>>>>> upstream/android-13
 .Lback4:
 	# copy 2 bytes
 	addi	a3, a3, -2
@@ -452,14 +513,22 @@ WEAK(memmove)
 	addi	a5, a5, -2
 	s16i	a6, a5,  0
 	bbsi.l	a4, 0, .Lback5
+<<<<<<< HEAD
 	retw
+=======
+	abi_ret_default
+>>>>>>> upstream/android-13
 .Lback5:
 	# copy 1 byte
 	addi	a3, a3, -1
 	l8ui	a6, a3,  0
 	addi	a5, a5, -1
 	s8i	a6, a5,  0
+<<<<<<< HEAD
 	retw
+=======
+	abi_ret_default
+>>>>>>> upstream/android-13
 
 /*
  * Destination is aligned, Source is unaligned
@@ -531,7 +600,11 @@ WEAK(memmove)
 	bbsi.l	a4, 1, .Lback14
 	bbsi.l	a4, 0, .Lback15
 .Lbackdone:
+<<<<<<< HEAD
 	retw
+=======
+	abi_ret_default
+>>>>>>> upstream/android-13
 .Lback14:
 	# copy 2 bytes
 	addi	a3, a3, -2
@@ -541,13 +614,21 @@ WEAK(memmove)
 	s8i	a6, a5,  0
 	s8i	a7, a5,  1
 	bbsi.l	a4, 0, .Lback15
+<<<<<<< HEAD
 	retw
+=======
+	abi_ret_default
+>>>>>>> upstream/android-13
 .Lback15:
 	# copy 1 byte
 	addi	a3, a3, -1
 	addi	a5, a5, -1
 	l8ui	a6, a3,  0
 	s8i	a6, a5,  0
+<<<<<<< HEAD
 	retw
+=======
+	abi_ret_default
+>>>>>>> upstream/android-13
 
 ENDPROC(__memmove)

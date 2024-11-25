@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2010 Broadcom Corporation
  *
@@ -12,6 +13,11 @@
  * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION
  * OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+=======
+// SPDX-License-Identifier: ISC
+/*
+ * Copyright (c) 2010 Broadcom Corporation
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -9025,6 +9031,7 @@ static const u16 papd_comp_rfpwr_tbl_core1_rev3[] = {
 	0x01d6,
 };
 
+<<<<<<< HEAD
 static const u32 papd_comp_epsilon_tbl_core0_rev3[] = {
 	0x00000000,
 	0x00001fa0,
@@ -9293,6 +9300,8 @@ static const u32 papd_cal_scalars_tbl_core1_rev3[] = {
 	0x002606a4,
 };
 
+=======
+>>>>>>> upstream/android-13
 const struct phytbl_info mimophytbl_info_rev3_volatile[] = {
 	{&ant_swctrl_tbl_rev3, ARRAY_SIZE(ant_swctrl_tbl_rev3), 9, 0, 16},
 };

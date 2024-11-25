@@ -2,6 +2,12 @@
 #define __NV50_KMS_ATOM_H__
 #define nv50_atom(p) container_of((p), struct nv50_atom, state)
 #include <drm/drm_atomic.h>
+<<<<<<< HEAD
+=======
+#include "crc.h"
+
+struct nouveau_encoder;
+>>>>>>> upstream/android-13
 
 struct nv50_atom {
 	struct drm_atomic_state state;
@@ -18,6 +24,10 @@ struct nv50_head_atom {
 
 	struct {
 		u32 mask;
+<<<<<<< HEAD
+=======
+		u32 owned;
+>>>>>>> upstream/android-13
 		u32 olut;
 	} wndw;
 
@@ -54,9 +64,16 @@ struct nv50_head_atom {
 		u64 offset:40;
 		u8 buffer:1;
 		u8 mode:4;
+<<<<<<< HEAD
 		u8 size:2;
 		u8 range:2;
 		u8 output_mode:2;
+=======
+		u16 size:11;
+		u8 range:2;
+		u8 output_mode:2;
+		void (*load)(struct drm_color_lut *, int size, void __iomem *);
+>>>>>>> upstream/android-13
 	} olut;
 
 	struct {
@@ -113,8 +130,23 @@ struct nv50_head_atom {
 		u8 nhsync:1;
 		u8 nvsync:1;
 		u8 depth:4;
+<<<<<<< HEAD
 	} or;
 
+=======
+		u8 crc_raster:2;
+		u8 bpc;
+	} or;
+
+	struct nv50_crc_atom crc;
+
+	/* Currently only used for MST */
+	struct {
+		int pbn;
+		u8 tu:6;
+	} dp;
+
+>>>>>>> upstream/android-13
 	union nv50_head_atom_mask {
 		struct {
 			bool olut:1;
@@ -126,6 +158,10 @@ struct nv50_head_atom {
 			bool ovly:1;
 			bool dither:1;
 			bool procamp:1;
+<<<<<<< HEAD
+=======
+			bool crc:1;
+>>>>>>> upstream/android-13
 			bool or:1;
 		};
 		u16 mask;
@@ -141,6 +177,22 @@ nv50_head_atom_get(struct drm_atomic_state *state, struct drm_crtc *crtc)
 	return nv50_head_atom(statec);
 }
 
+<<<<<<< HEAD
+=======
+static inline struct drm_encoder *
+nv50_head_atom_get_encoder(struct nv50_head_atom *atom)
+{
+	struct drm_encoder *encoder = NULL;
+
+	/* We only ever have a single encoder */
+	drm_for_each_encoder_mask(encoder, atom->state.crtc->dev,
+				  atom->state.encoder_mask)
+		break;
+
+	return encoder;
+}
+
+>>>>>>> upstream/android-13
 #define nv50_wndw_atom(p) container_of((p), struct nv50_wndw_atom, state)
 
 struct nv50_wndw_atom {
@@ -169,13 +221,29 @@ struct nv50_wndw_atom {
 			u8  buffer:1;
 			u8  enable:2;
 			u8  mode:4;
+<<<<<<< HEAD
 			u8  size:2;
 			u8  range:2;
 			u8  output_mode:2;
+=======
+			u16 size:11;
+			u8  range:2;
+			u8  output_mode:2;
+			void (*load)(struct drm_color_lut *, int size,
+				     void __iomem *);
+>>>>>>> upstream/android-13
 		} i;
 	} xlut;
 
 	struct {
+<<<<<<< HEAD
+=======
+		u32 matrix[12];
+		bool valid;
+	} csc;
+
+	struct {
+>>>>>>> upstream/android-13
 		u8  mode:2;
 		u8  interval:4;
 
@@ -207,14 +275,32 @@ struct nv50_wndw_atom {
 		u16 y;
 	} point;
 
+<<<<<<< HEAD
+=======
+	struct {
+		u8 depth;
+		u8 k1;
+		u8 src_color:4;
+		u8 dst_color:4;
+	} blend;
+
+>>>>>>> upstream/android-13
 	union nv50_wndw_atom_mask {
 		struct {
 			bool ntfy:1;
 			bool sema:1;
 			bool xlut:1;
+<<<<<<< HEAD
 			bool image:1;
 			bool scale:1;
 			bool point:1;
+=======
+			bool csc:1;
+			bool image:1;
+			bool scale:1;
+			bool point:1;
+			bool blend:1;
+>>>>>>> upstream/android-13
 		};
 		u8 mask;
 	} set, clr;

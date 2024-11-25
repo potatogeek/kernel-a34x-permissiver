@@ -11,6 +11,7 @@
 #include <linux/rcupdate.h>
 
 /*
+<<<<<<< HEAD
  * Why is there no list_empty_rcu()?  Because list_empty() serves this
  * purpose.  The list_empty() function fetches the RCU-protected pointer
  * and compares it to the address of the list head, but neither dereferences
@@ -20,6 +21,8 @@
  */
 
 /*
+=======
+>>>>>>> upstream/android-13
  * INIT_LIST_HEAD_RCU - Initialize a list_head visible to RCU readers
  * @list: list to be initialized
  *
@@ -40,6 +43,45 @@ static inline void INIT_LIST_HEAD_RCU(struct list_head *list)
  */
 #define list_next_rcu(list)	(*((struct list_head __rcu **)(&(list)->next)))
 
+<<<<<<< HEAD
+=======
+/**
+ * list_tail_rcu - returns the prev pointer of the head of the list
+ * @head: the head of the list
+ *
+ * Note: This should only be used with the list header, and even then
+ * only if list_del() and similar primitives are not also used on the
+ * list header.
+ */
+#define list_tail_rcu(head)	(*((struct list_head __rcu **)(&(head)->prev)))
+
+/*
+ * Check during list traversal that we are within an RCU reader
+ */
+
+#define check_arg_count_one(dummy)
+
+#ifdef CONFIG_PROVE_RCU_LIST
+#define __list_check_rcu(dummy, cond, extra...)				\
+	({								\
+	check_arg_count_one(extra);					\
+	RCU_LOCKDEP_WARN(!(cond) && !rcu_read_lock_any_held(),		\
+			 "RCU-list traversed in non-reader section!");	\
+	})
+
+#define __list_check_srcu(cond)					 \
+	({								 \
+	RCU_LOCKDEP_WARN(!(cond),					 \
+		"RCU-list traversed without holding the required lock!");\
+	})
+#else
+#define __list_check_rcu(dummy, cond, extra...)				\
+	({ check_arg_count_one(extra); })
+
+#define __list_check_srcu(cond) ({ })
+#endif
+
+>>>>>>> upstream/android-13
 /*
  * Insert a new entry between two known consecutive entries.
  *
@@ -155,7 +197,11 @@ static inline void hlist_del_init_rcu(struct hlist_node *n)
 {
 	if (!hlist_unhashed(n)) {
 		__hlist_del(n);
+<<<<<<< HEAD
 		n->pprev = NULL;
+=======
+		WRITE_ONCE(n->pprev, NULL);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -182,7 +228,11 @@ static inline void list_replace_rcu(struct list_head *old,
  * @list:	the RCU-protected list to splice
  * @prev:	points to the last element of the existing list
  * @next:	points to the first element of the existing list
+<<<<<<< HEAD
  * @sync:	function to sync: synchronize_rcu(), synchronize_sched(), ...
+=======
+ * @sync:	synchronize_rcu, synchronize_rcu_expedited, ...
+>>>>>>> upstream/android-13
  *
  * The list pointed to by @prev and @next can be RCU-read traversed
  * concurrently with this function.
@@ -220,6 +270,11 @@ static inline void __list_splice_init_rcu(struct list_head *list,
 	 */
 
 	sync();
+<<<<<<< HEAD
+=======
+	ASSERT_EXCLUSIVE_ACCESS(*first);
+	ASSERT_EXCLUSIVE_ACCESS(*last);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Readers are finished with the source list, so perform splice.
@@ -240,7 +295,11 @@ static inline void __list_splice_init_rcu(struct list_head *list,
  *                        designed for stacks.
  * @list:	the RCU-protected list to splice
  * @head:	the place in the existing list to splice the first list into
+<<<<<<< HEAD
  * @sync:	function to sync: synchronize_rcu(), synchronize_sched(), ...
+=======
+ * @sync:	synchronize_rcu, synchronize_rcu_expedited, ...
+>>>>>>> upstream/android-13
  */
 static inline void list_splice_init_rcu(struct list_head *list,
 					struct list_head *head,
@@ -255,7 +314,11 @@ static inline void list_splice_init_rcu(struct list_head *list,
  *                             list, designed for queues.
  * @list:	the RCU-protected list to splice
  * @head:	the place in the existing list to splice the first list into
+<<<<<<< HEAD
  * @sync:	function to sync: synchronize_rcu(), synchronize_sched(), ...
+=======
+ * @sync:	synchronize_rcu, synchronize_rcu_expedited, ...
+>>>>>>> upstream/android-13
  */
 static inline void list_splice_tail_init_rcu(struct list_head *list,
 					     struct list_head *head,
@@ -280,21 +343,44 @@ static inline void list_splice_tail_init_rcu(struct list_head *list,
 /*
  * Where are list_empty_rcu() and list_first_entry_rcu()?
  *
+<<<<<<< HEAD
  * Implementing those functions following their counterparts list_empty() and
  * list_first_entry() is not advisable because they lead to subtle race
  * conditions as the following snippet shows:
+=======
+ * They do not exist because they would lead to subtle race conditions:
+>>>>>>> upstream/android-13
  *
  * if (!list_empty_rcu(mylist)) {
  *	struct foo *bar = list_first_entry_rcu(mylist, struct foo, list_member);
  *	do_something(bar);
  * }
  *
+<<<<<<< HEAD
  * The list may not be empty when list_empty_rcu checks it, but it may be when
  * list_first_entry_rcu rereads the ->next pointer.
  *
  * Rereading the ->next pointer is not a problem for list_empty() and
  * list_first_entry() because they would be protected by a lock that blocks
  * writers.
+=======
+ * The list might be non-empty when list_empty_rcu() checks it, but it
+ * might have become empty by the time that list_first_entry_rcu() rereads
+ * the ->next pointer, which would result in a SEGV.
+ *
+ * When not using RCU, it is OK for list_first_entry() to re-read that
+ * pointer because both functions should be protected by some lock that
+ * blocks writers.
+ *
+ * When using RCU, list_empty() uses READ_ONCE() to fetch the
+ * RCU-protected ->next pointer and then compares it to the address of the
+ * list head.  However, it neither dereferences this pointer nor provides
+ * this pointer to its caller.  Thus, READ_ONCE() suffices (that is,
+ * rcu_dereference() is not needed), which means that list_empty() can be
+ * used anywhere you would want to use list_empty_rcu().  Just don't
+ * expect anything useful to happen if you do a subsequent lockless
+ * call to list_first_entry_rcu()!!!
+>>>>>>> upstream/android-13
  *
  * See list_first_or_null_rcu for an alternative.
  */
@@ -343,14 +429,44 @@ static inline void list_splice_tail_init_rcu(struct list_head *list,
  * @pos:	the type * to use as a loop cursor.
  * @head:	the head for your list.
  * @member:	the name of the list_head within the struct.
+<<<<<<< HEAD
+=======
+ * @cond:	optional lockdep expression if called from non-RCU protection.
+>>>>>>> upstream/android-13
  *
  * This list-traversal primitive may safely run concurrently with
  * the _rcu list-mutation primitives such as list_add_rcu()
  * as long as the traversal is guarded by rcu_read_lock().
  */
+<<<<<<< HEAD
 #define list_for_each_entry_rcu(pos, head, member) \
 	for (pos = list_entry_rcu((head)->next, typeof(*pos), member); \
 		&pos->member != (head); \
+=======
+#define list_for_each_entry_rcu(pos, head, member, cond...)		\
+	for (__list_check_rcu(dummy, ## cond, 0),			\
+	     pos = list_entry_rcu((head)->next, typeof(*pos), member);	\
+		&pos->member != (head);					\
+		pos = list_entry_rcu(pos->member.next, typeof(*pos), member))
+
+/**
+ * list_for_each_entry_srcu	-	iterate over rcu list of given type
+ * @pos:	the type * to use as a loop cursor.
+ * @head:	the head for your list.
+ * @member:	the name of the list_head within the struct.
+ * @cond:	lockdep expression for the lock required to traverse the list.
+ *
+ * This list-traversal primitive may safely run concurrently with
+ * the _rcu list-mutation primitives such as list_add_rcu()
+ * as long as the traversal is guarded by srcu_read_lock().
+ * The lockdep expression srcu_read_lock_held() can be passed as the
+ * cond argument from read side.
+ */
+#define list_for_each_entry_srcu(pos, head, member, cond)		\
+	for (__list_check_srcu(cond),					\
+	     pos = list_entry_rcu((head)->next, typeof(*pos), member);	\
+		&pos->member != (head);					\
+>>>>>>> upstream/android-13
 		pos = list_entry_rcu(pos->member.next, typeof(*pos), member))
 
 /**
@@ -359,6 +475,7 @@ static inline void list_splice_tail_init_rcu(struct list_head *list,
  * @type:       the type of the struct this is embedded in.
  * @member:     the name of the list_head within the struct.
  *
+<<<<<<< HEAD
  * This primitive may safely run concurrently with the _rcu list-mutation
  * primitives such as list_add_rcu(), but requires some implicit RCU
  * read-side guarding.  One example is running within a special
@@ -366,6 +483,14 @@ static inline void list_splice_tail_init_rcu(struct list_head *list,
  * lockdep cannot be invoked (in which case updaters must use RCU-sched,
  * as in synchronize_sched(), call_rcu_sched(), and friends).  Another
  * example is when items are added to the list, but never deleted.
+=======
+ * This primitive may safely run concurrently with the _rcu
+ * list-mutation primitives such as list_add_rcu(), but requires some
+ * implicit RCU read-side guarding.  One example is running within a special
+ * exception-time environment where preemption is disabled and where lockdep
+ * cannot be invoked.  Another example is when items are added to the list,
+ * but never deleted.
+>>>>>>> upstream/android-13
  */
 #define list_entry_lockless(ptr, type, member) \
 	container_of((typeof(ptr))READ_ONCE(ptr), type, member)
@@ -376,6 +501,7 @@ static inline void list_splice_tail_init_rcu(struct list_head *list,
  * @head:	the head for your list.
  * @member:	the name of the list_struct within the struct.
  *
+<<<<<<< HEAD
  * This primitive may safely run concurrently with the _rcu list-mutation
  * primitives such as list_add_rcu(), but requires some implicit RCU
  * read-side guarding.  One example is running within a special
@@ -383,6 +509,14 @@ static inline void list_splice_tail_init_rcu(struct list_head *list,
  * lockdep cannot be invoked (in which case updaters must use RCU-sched,
  * as in synchronize_sched(), call_rcu_sched(), and friends).  Another
  * example is when items are added to the list, but never deleted.
+=======
+ * This primitive may safely run concurrently with the _rcu
+ * list-mutation primitives such as list_add_rcu(), but requires some
+ * implicit RCU read-side guarding.  One example is running within a special
+ * exception-time environment where preemption is disabled and where lockdep
+ * cannot be invoked.  Another example is when items are added to the list,
+ * but never deleted.
+>>>>>>> upstream/android-13
  */
 #define list_for_each_entry_lockless(pos, head, member) \
 	for (pos = list_entry_lockless((head)->next, typeof(*pos), member); \
@@ -455,7 +589,11 @@ static inline void list_splice_tail_init_rcu(struct list_head *list,
 static inline void hlist_del_rcu(struct hlist_node *n)
 {
 	__hlist_del(n);
+<<<<<<< HEAD
 	n->pprev = LIST_POISON2;
+=======
+	WRITE_ONCE(n->pprev, LIST_POISON2);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -471,11 +609,40 @@ static inline void hlist_replace_rcu(struct hlist_node *old,
 	struct hlist_node *next = old->next;
 
 	new->next = next;
+<<<<<<< HEAD
 	new->pprev = old->pprev;
 	rcu_assign_pointer(*(struct hlist_node __rcu **)new->pprev, new);
 	if (next)
 		new->next->pprev = &new->next;
 	old->pprev = LIST_POISON2;
+=======
+	WRITE_ONCE(new->pprev, old->pprev);
+	rcu_assign_pointer(*(struct hlist_node __rcu **)new->pprev, new);
+	if (next)
+		WRITE_ONCE(new->next->pprev, &new->next);
+	WRITE_ONCE(old->pprev, LIST_POISON2);
+}
+
+/**
+ * hlists_swap_heads_rcu - swap the lists the hlist heads point to
+ * @left:  The hlist head on the left
+ * @right: The hlist head on the right
+ *
+ * The lists start out as [@left  ][node1 ... ] and
+ *                        [@right ][node2 ... ]
+ * The lists end up as    [@left  ][node2 ... ]
+ *                        [@right ][node1 ... ]
+ */
+static inline void hlists_swap_heads_rcu(struct hlist_head *left, struct hlist_head *right)
+{
+	struct hlist_node *node1 = left->first;
+	struct hlist_node *node2 = right->first;
+
+	rcu_assign_pointer(left->first, node2);
+	rcu_assign_pointer(right->first, node1);
+	WRITE_ONCE(node2->pprev, &left->first);
+	WRITE_ONCE(node1->pprev, &right->first);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -510,10 +677,17 @@ static inline void hlist_add_head_rcu(struct hlist_node *n,
 	struct hlist_node *first = h->first;
 
 	n->next = first;
+<<<<<<< HEAD
 	n->pprev = &h->first;
 	rcu_assign_pointer(hlist_first_rcu(h), n);
 	if (first)
 		first->pprev = &n->next;
+=======
+	WRITE_ONCE(n->pprev, &h->first);
+	rcu_assign_pointer(hlist_first_rcu(h), n);
+	if (first)
+		WRITE_ONCE(first->pprev, &n->next);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -546,7 +720,11 @@ static inline void hlist_add_tail_rcu(struct hlist_node *n,
 
 	if (last) {
 		n->next = last->next;
+<<<<<<< HEAD
 		n->pprev = &last->next;
+=======
+		WRITE_ONCE(n->pprev, &last->next);
+>>>>>>> upstream/android-13
 		rcu_assign_pointer(hlist_next_rcu(last), n);
 	} else {
 		hlist_add_head_rcu(n, h);
@@ -574,10 +752,17 @@ static inline void hlist_add_tail_rcu(struct hlist_node *n,
 static inline void hlist_add_before_rcu(struct hlist_node *n,
 					struct hlist_node *next)
 {
+<<<<<<< HEAD
 	n->pprev = next->pprev;
 	n->next = next;
 	rcu_assign_pointer(hlist_pprev_rcu(n), n);
 	next->pprev = &n->next;
+=======
+	WRITE_ONCE(n->pprev, next->pprev);
+	n->next = next;
+	rcu_assign_pointer(hlist_pprev_rcu(n), n);
+	WRITE_ONCE(next->pprev, &n->next);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -602,10 +787,17 @@ static inline void hlist_add_behind_rcu(struct hlist_node *n,
 					struct hlist_node *prev)
 {
 	n->next = prev->next;
+<<<<<<< HEAD
 	n->pprev = &prev->next;
 	rcu_assign_pointer(hlist_next_rcu(prev), n);
 	if (n->next)
 		n->next->pprev = &n->next;
+=======
+	WRITE_ONCE(n->pprev, &prev->next);
+	rcu_assign_pointer(hlist_next_rcu(prev), n);
+	if (n->next)
+		WRITE_ONCE(n->next->pprev, &n->next);
+>>>>>>> upstream/android-13
 }
 
 #define __hlist_for_each_rcu(pos, head)				\
@@ -618,13 +810,44 @@ static inline void hlist_add_behind_rcu(struct hlist_node *n,
  * @pos:	the type * to use as a loop cursor.
  * @head:	the head for your list.
  * @member:	the name of the hlist_node within the struct.
+<<<<<<< HEAD
+=======
+ * @cond:	optional lockdep expression if called from non-RCU protection.
+>>>>>>> upstream/android-13
  *
  * This list-traversal primitive may safely run concurrently with
  * the _rcu list-mutation primitives such as hlist_add_head_rcu()
  * as long as the traversal is guarded by rcu_read_lock().
  */
+<<<<<<< HEAD
 #define hlist_for_each_entry_rcu(pos, head, member)			\
 	for (pos = hlist_entry_safe (rcu_dereference_raw(hlist_first_rcu(head)),\
+=======
+#define hlist_for_each_entry_rcu(pos, head, member, cond...)		\
+	for (__list_check_rcu(dummy, ## cond, 0),			\
+	     pos = hlist_entry_safe(rcu_dereference_raw(hlist_first_rcu(head)),\
+			typeof(*(pos)), member);			\
+		pos;							\
+		pos = hlist_entry_safe(rcu_dereference_raw(hlist_next_rcu(\
+			&(pos)->member)), typeof(*(pos)), member))
+
+/**
+ * hlist_for_each_entry_srcu - iterate over rcu list of given type
+ * @pos:	the type * to use as a loop cursor.
+ * @head:	the head for your list.
+ * @member:	the name of the hlist_node within the struct.
+ * @cond:	lockdep expression for the lock required to traverse the list.
+ *
+ * This list-traversal primitive may safely run concurrently with
+ * the _rcu list-mutation primitives such as hlist_add_head_rcu()
+ * as long as the traversal is guarded by srcu_read_lock().
+ * The lockdep expression srcu_read_lock_held() can be passed as the
+ * cond argument from read side.
+ */
+#define hlist_for_each_entry_srcu(pos, head, member, cond)		\
+	for (__list_check_srcu(cond),					\
+	     pos = hlist_entry_safe(rcu_dereference_raw(hlist_first_rcu(head)),\
+>>>>>>> upstream/android-13
 			typeof(*(pos)), member);			\
 		pos;							\
 		pos = hlist_entry_safe(rcu_dereference_raw(hlist_next_rcu(\
@@ -644,10 +867,17 @@ static inline void hlist_add_behind_rcu(struct hlist_node *n,
  * not do any RCU debugging or tracing.
  */
 #define hlist_for_each_entry_rcu_notrace(pos, head, member)			\
+<<<<<<< HEAD
 	for (pos = hlist_entry_safe (rcu_dereference_raw_notrace(hlist_first_rcu(head)),\
 			typeof(*(pos)), member);			\
 		pos;							\
 		pos = hlist_entry_safe(rcu_dereference_raw_notrace(hlist_next_rcu(\
+=======
+	for (pos = hlist_entry_safe(rcu_dereference_raw_check(hlist_first_rcu(head)),\
+			typeof(*(pos)), member);			\
+		pos;							\
+		pos = hlist_entry_safe(rcu_dereference_raw_check(hlist_next_rcu(\
+>>>>>>> upstream/android-13
 			&(pos)->member)), typeof(*(pos)), member))
 
 /**

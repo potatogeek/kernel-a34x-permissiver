@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * Copyright(c) 2009-2012  Realtek Corporation.
@@ -22,6 +23,11 @@
  * Larry Finger <Larry.Finger@lwfinger.net>
  *
  *****************************************************************************/
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+/* Copyright(c) 2009-2012  Realtek Corporation.*/
+
+>>>>>>> upstream/android-13
 #ifndef	__RTL_92S_DM_H__
 #define __RTL_92S_DM_H__
 
@@ -79,7 +85,11 @@ enum dm_ratr_sta {
 
 #define	DM_DIG_HIGH_PWR_THRESH_HIGH	75
 #define	DM_DIG_HIGH_PWR_THRESH_LOW	70
+<<<<<<< HEAD
 #define	DM_DIG_MIN_Netcore		0x12
+=======
+#define	DM_DIG_MIN_NETCORE		0x12
+>>>>>>> upstream/android-13
 
 void rtl92s_dm_watchdog(struct ieee80211_hw *hw);
 void rtl92s_dm_init(struct ieee80211_hw *hw);

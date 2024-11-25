@@ -12,6 +12,7 @@
 #include "xfs_trans_resv.h"
 #include "xfs_bit.h"
 #include "xfs_mount.h"
+<<<<<<< HEAD
 #include "xfs_da_format.h"
 #include "xfs_da_btree.h"
 #include "xfs_defer.h"
@@ -29,6 +30,18 @@
 #include "xfs_symlink.h"
 #include "xfs_trans.h"
 #include "xfs_log.h"
+=======
+#include "xfs_dir2.h"
+#include "xfs_inode.h"
+#include "xfs_bmap.h"
+#include "xfs_bmap_btree.h"
+#include "xfs_quota.h"
+#include "xfs_symlink.h"
+#include "xfs_trans_space.h"
+#include "xfs_trace.h"
+#include "xfs_trans.h"
+#include "xfs_ialloc.h"
+>>>>>>> upstream/android-13
 
 /* ----- Kernel only functions below ----- */
 int
@@ -41,7 +54,11 @@ xfs_readlink_bmap_ilocked(
 	struct xfs_buf		*bp;
 	xfs_daddr_t		d;
 	char			*cur_chunk;
+<<<<<<< HEAD
 	int			pathlen = ip->i_d.di_size;
+=======
+	int			pathlen = ip->i_disk_size;
+>>>>>>> upstream/android-13
 	int			nmaps = XFS_SYMLINK_MAPS;
 	int			byte_cnt;
 	int			n;
@@ -61,6 +78,7 @@ xfs_readlink_bmap_ilocked(
 		d = XFS_FSB_TO_DADDR(mp, mval[n].br_startblock);
 		byte_cnt = XFS_FSB_TO_B(mp, mval[n].br_blockcount);
 
+<<<<<<< HEAD
 		bp = xfs_buf_read(mp->m_ddev_targp, d, BTOBB(byte_cnt), 0,
 				  &xfs_symlink_buf_ops);
 		if (!bp)
@@ -75,12 +93,22 @@ xfs_readlink_bmap_ilocked(
 				error = -EFSCORRUPTED;
 			goto out;
 		}
+=======
+		error = xfs_buf_read(mp->m_ddev_targp, d, BTOBB(byte_cnt), 0,
+				&bp, &xfs_symlink_buf_ops);
+		if (error)
+			return error;
+>>>>>>> upstream/android-13
 		byte_cnt = XFS_SYMLINK_BUF_SPACE(mp, byte_cnt);
 		if (pathlen < byte_cnt)
 			byte_cnt = pathlen;
 
 		cur_chunk = bp->b_addr;
+<<<<<<< HEAD
 		if (xfs_sb_version_hascrc(&mp->m_sb)) {
+=======
+		if (xfs_has_crc(mp)) {
+>>>>>>> upstream/android-13
 			if (!xfs_symlink_hdr_ok(ip->i_ino, offset,
 							byte_cnt, bp)) {
 				error = -EFSCORRUPTED;
@@ -104,7 +132,11 @@ xfs_readlink_bmap_ilocked(
 	}
 	ASSERT(pathlen == 0);
 
+<<<<<<< HEAD
 	link[ip->i_d.di_size] = '\0';
+=======
+	link[ip->i_disk_size] = '\0';
+>>>>>>> upstream/android-13
 	error = 0;
 
  out:
@@ -122,14 +154,24 @@ xfs_readlink(
 
 	trace_xfs_readlink(ip);
 
+<<<<<<< HEAD
 	ASSERT(!(ip->i_df.if_flags & XFS_IFINLINE));
 
 	if (XFS_FORCED_SHUTDOWN(mp))
+=======
+	ASSERT(ip->i_df.if_format != XFS_DINODE_FMT_LOCAL);
+
+	if (xfs_is_shutdown(mp))
+>>>>>>> upstream/android-13
 		return -EIO;
 
 	xfs_ilock(ip, XFS_ILOCK_SHARED);
 
+<<<<<<< HEAD
 	pathlen = ip->i_d.di_size;
+=======
+	pathlen = ip->i_disk_size;
+>>>>>>> upstream/android-13
 	if (!pathlen)
 		goto out;
 
@@ -152,6 +194,10 @@ xfs_readlink(
 
 int
 xfs_symlink(
+<<<<<<< HEAD
+=======
+	struct user_namespace	*mnt_userns,
+>>>>>>> upstream/android-13
 	struct xfs_inode	*dp,
 	struct xfs_name		*link_name,
 	const char		*target_path,
@@ -172,18 +218,30 @@ xfs_symlink(
 	const char		*cur_chunk;
 	int			byte_cnt;
 	int			n;
+<<<<<<< HEAD
 	xfs_buf_t		*bp;
+=======
+	struct xfs_buf		*bp;
+>>>>>>> upstream/android-13
 	prid_t			prid;
 	struct xfs_dquot	*udqp = NULL;
 	struct xfs_dquot	*gdqp = NULL;
 	struct xfs_dquot	*pdqp = NULL;
 	uint			resblks;
+<<<<<<< HEAD
+=======
+	xfs_ino_t		ino;
+>>>>>>> upstream/android-13
 
 	*ipp = NULL;
 
 	trace_xfs_symlink(dp, link_name);
 
+<<<<<<< HEAD
 	if (XFS_FORCED_SHUTDOWN(mp))
+=======
+	if (xfs_is_shutdown(mp))
+>>>>>>> upstream/android-13
 		return -EIO;
 
 	/*
@@ -194,15 +252,23 @@ xfs_symlink(
 		return -ENAMETOOLONG;
 	ASSERT(pathlen > 0);
 
+<<<<<<< HEAD
 	udqp = gdqp = NULL;
+=======
+>>>>>>> upstream/android-13
 	prid = xfs_get_initial_prid(dp);
 
 	/*
 	 * Make sure that we have allocated dquot(s) on disk.
 	 */
+<<<<<<< HEAD
 	error = xfs_qm_vop_dqalloc(dp,
 			xfs_kuid_to_uid(current_fsuid()),
 			xfs_kgid_to_gid(current_fsgid()), prid,
+=======
+	error = xfs_qm_vop_dqalloc(dp, mapped_fsuid(mnt_userns),
+			mapped_fsgid(mnt_userns), prid,
+>>>>>>> upstream/android-13
 			XFS_QMOPT_QUOTALL | XFS_QMOPT_INHERIT,
 			&udqp, &gdqp, &pdqp);
 	if (error)
@@ -212,15 +278,26 @@ xfs_symlink(
 	 * The symlink will fit into the inode data fork?
 	 * There can't be any attributes so we get the whole variable part.
 	 */
+<<<<<<< HEAD
 	if (pathlen <= XFS_LITINO(mp, dp->i_d.di_version))
+=======
+	if (pathlen <= XFS_LITINO(mp))
+>>>>>>> upstream/android-13
 		fs_blocks = 0;
 	else
 		fs_blocks = xfs_symlink_blocks(mp, pathlen);
 	resblks = XFS_SYMLINK_SPACE_RES(mp, link_name->len, fs_blocks);
 
+<<<<<<< HEAD
 	error = xfs_trans_alloc(mp, &M_RES(mp)->tr_symlink, resblks, 0, 0, &tp);
 	if (error)
 		goto out_release_inode;
+=======
+	error = xfs_trans_alloc_icreate(mp, &M_RES(mp)->tr_symlink, udqp, gdqp,
+			pdqp, resblks, &tp);
+	if (error)
+		goto out_release_dquots;
+>>>>>>> upstream/android-13
 
 	xfs_ilock(dp, XFS_ILOCK_EXCL | XFS_ILOCK_PARENT);
 	unlock_dp_on_error = true;
@@ -228,24 +305,41 @@ xfs_symlink(
 	/*
 	 * Check whether the directory allows new symlinks or not.
 	 */
+<<<<<<< HEAD
 	if (dp->i_d.di_flags & XFS_DIFLAG_NOSYMLINKS) {
+=======
+	if (dp->i_diflags & XFS_DIFLAG_NOSYMLINKS) {
+>>>>>>> upstream/android-13
 		error = -EPERM;
 		goto out_trans_cancel;
 	}
 
+<<<<<<< HEAD
 	/*
 	 * Reserve disk quota : blocks and inode.
 	 */
 	error = xfs_trans_reserve_quota(tp, mp, udqp, gdqp,
 						pdqp, resblks, 1, 0);
+=======
+	error = xfs_iext_count_may_overflow(dp, XFS_DATA_FORK,
+			XFS_IEXT_DIR_MANIP_CNT(mp));
+>>>>>>> upstream/android-13
 	if (error)
 		goto out_trans_cancel;
 
 	/*
 	 * Allocate an inode for the symlink.
 	 */
+<<<<<<< HEAD
 	error = xfs_dir_ialloc(&tp, dp, S_IFLNK | (mode & ~S_IFMT), 1, 0,
 			       prid, &ip);
+=======
+	error = xfs_dialloc(&tp, dp->i_ino, S_IFLNK, &ino);
+	if (!error)
+		error = xfs_init_new_inode(mnt_userns, tp, dp, ino,
+				S_IFLNK | (mode & ~S_IFMT), 1, 0, prid,
+				false, &ip);
+>>>>>>> upstream/android-13
 	if (error)
 		goto out_trans_cancel;
 
@@ -264,16 +358,25 @@ xfs_symlink(
 	 */
 	xfs_qm_vop_create_dqattach(tp, ip, udqp, gdqp, pdqp);
 
+<<<<<<< HEAD
 	if (resblks)
 		resblks -= XFS_IALLOC_SPACE_RES(mp);
+=======
+	resblks -= XFS_IALLOC_SPACE_RES(mp);
+>>>>>>> upstream/android-13
 	/*
 	 * If the symlink will fit into the inode, write it inline.
 	 */
 	if (pathlen <= XFS_IFORK_DSIZE(ip)) {
 		xfs_init_local_fork(ip, XFS_DATA_FORK, target_path, pathlen);
 
+<<<<<<< HEAD
 		ip->i_d.di_size = pathlen;
 		ip->i_d.di_format = XFS_DINODE_FMT_LOCAL;
+=======
+		ip->i_disk_size = pathlen;
+		ip->i_df.if_format = XFS_DINODE_FMT_LOCAL;
+>>>>>>> upstream/android-13
 		xfs_trans_log_inode(tp, ip, XFS_ILOG_DDATA | XFS_ILOG_CORE);
 	} else {
 		int	offset;
@@ -286,9 +389,14 @@ xfs_symlink(
 		if (error)
 			goto out_trans_cancel;
 
+<<<<<<< HEAD
 		if (resblks)
 			resblks -= fs_blocks;
 		ip->i_d.di_size = pathlen;
+=======
+		resblks -= fs_blocks;
+		ip->i_disk_size = pathlen;
+>>>>>>> upstream/android-13
 		xfs_trans_log_inode(tp, ip, XFS_ILOG_CORE);
 
 		cur_chunk = target_path;
@@ -298,12 +406,19 @@ xfs_symlink(
 
 			d = XFS_FSB_TO_DADDR(mp, mval[n].br_startblock);
 			byte_cnt = XFS_FSB_TO_B(mp, mval[n].br_blockcount);
+<<<<<<< HEAD
 			bp = xfs_trans_get_buf(tp, mp->m_ddev_targp, d,
 					       BTOBB(byte_cnt), 0);
 			if (!bp) {
 				error = -ENOMEM;
 				goto out_trans_cancel;
 			}
+=======
+			error = xfs_trans_get_buf(tp, mp->m_ddev_targp, d,
+					       BTOBB(byte_cnt), 0, &bp);
+			if (error)
+				goto out_trans_cancel;
+>>>>>>> upstream/android-13
 			bp->b_ops = &xfs_symlink_buf_ops;
 
 			byte_cnt = XFS_SYMLINK_BUF_SPACE(mp, byte_cnt);
@@ -325,6 +440,10 @@ xfs_symlink(
 		}
 		ASSERT(pathlen == 0);
 	}
+<<<<<<< HEAD
+=======
+	i_size_write(VFS_I(ip), ip->i_disk_size);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Create the directory entry for the symlink.
@@ -340,9 +459,14 @@ xfs_symlink(
 	 * symlink transaction goes to disk before returning to
 	 * the user.
 	 */
+<<<<<<< HEAD
 	if (mp->m_flags & (XFS_MOUNT_WSYNC|XFS_MOUNT_DIRSYNC)) {
 		xfs_trans_set_sync(tp);
 	}
+=======
+	if (xfs_has_wsync(mp) || xfs_has_dirsync(mp))
+		xfs_trans_set_sync(tp);
+>>>>>>> upstream/android-13
 
 	error = xfs_trans_commit(tp);
 	if (error)
@@ -367,7 +491,11 @@ out_release_inode:
 		xfs_finish_inode_setup(ip);
 		xfs_irele(ip);
 	}
+<<<<<<< HEAD
 
+=======
+out_release_dquots:
+>>>>>>> upstream/android-13
 	xfs_qm_dqrele(udqp);
 	xfs_qm_dqrele(gdqp);
 	xfs_qm_dqrele(pdqp);
@@ -390,7 +518,11 @@ STATIC int
 xfs_inactive_symlink_rmt(
 	struct xfs_inode *ip)
 {
+<<<<<<< HEAD
 	xfs_buf_t	*bp;
+=======
+	struct xfs_buf	*bp;
+>>>>>>> upstream/android-13
 	int		done;
 	int		error;
 	int		i;
@@ -401,7 +533,11 @@ xfs_inactive_symlink_rmt(
 	xfs_trans_t	*tp;
 
 	mp = ip->i_mount;
+<<<<<<< HEAD
 	ASSERT(ip->i_df.if_flags & XFS_IFEXTENTS);
+=======
+	ASSERT(!xfs_need_iread_extents(&ip->i_df));
+>>>>>>> upstream/android-13
 	/*
 	 * We're freeing a symlink that has some
 	 * blocks allocated to it.  Free the
@@ -409,7 +545,11 @@ xfs_inactive_symlink_rmt(
 	 * either 1 or 2 extents and that we can
 	 * free them all in one bunmapi call.
 	 */
+<<<<<<< HEAD
 	ASSERT(ip->i_d.di_nextents > 0 && ip->i_d.di_nextents <= 2);
+=======
+	ASSERT(ip->i_df.if_nextents > 0 && ip->i_df.if_nextents <= 2);
+>>>>>>> upstream/android-13
 
 	error = xfs_trans_alloc(mp, &M_RES(mp)->tr_itruncate, 0, 0, 0, &tp);
 	if (error)
@@ -424,8 +564,13 @@ xfs_inactive_symlink_rmt(
 	 * locked for the second transaction.  In the error paths we need it
 	 * held so the cancel won't rele it, see below.
 	 */
+<<<<<<< HEAD
 	size = (int)ip->i_d.di_size;
 	ip->i_d.di_size = 0;
+=======
+	size = (int)ip->i_disk_size;
+	ip->i_disk_size = 0;
+>>>>>>> upstream/android-13
 	VFS_I(ip)->i_mode = (VFS_I(ip)->i_mode & ~S_IFMT) | S_IFREG;
 	xfs_trans_log_inode(tp, ip, XFS_ILOG_CORE);
 	/*
@@ -441,6 +586,7 @@ xfs_inactive_symlink_rmt(
 	 * Invalidate the block(s). No validation is done.
 	 */
 	for (i = 0; i < nmaps; i++) {
+<<<<<<< HEAD
 		bp = xfs_trans_get_buf(tp, mp->m_ddev_targp,
 			XFS_FSB_TO_DADDR(mp, mval[i].br_startblock),
 			XFS_FSB_TO_BB(mp, mval[i].br_blockcount), 0);
@@ -448,6 +594,14 @@ xfs_inactive_symlink_rmt(
 			error = -ENOMEM;
 			goto error_trans_cancel;
 		}
+=======
+		error = xfs_trans_get_buf(tp, mp->m_ddev_targp,
+				XFS_FSB_TO_DADDR(mp, mval[i].br_startblock),
+				XFS_FSB_TO_BB(mp, mval[i].br_blockcount), 0,
+				&bp);
+		if (error)
+			goto error_trans_cancel;
+>>>>>>> upstream/android-13
 		xfs_trans_binval(tp, bp);
 	}
 	/*
@@ -465,7 +619,11 @@ xfs_inactive_symlink_rmt(
 	xfs_trans_log_inode(tp, ip, XFS_ILOG_CORE);
 	error = xfs_trans_commit(tp);
 	if (error) {
+<<<<<<< HEAD
 		ASSERT(XFS_FORCED_SHUTDOWN(mp));
+=======
+		ASSERT(xfs_is_shutdown(mp));
+>>>>>>> upstream/android-13
 		goto error_unlock;
 	}
 
@@ -498,11 +656,19 @@ xfs_inactive_symlink(
 
 	trace_xfs_inactive_symlink(ip);
 
+<<<<<<< HEAD
 	if (XFS_FORCED_SHUTDOWN(mp))
 		return -EIO;
 
 	xfs_ilock(ip, XFS_ILOCK_EXCL);
 	pathlen = (int)ip->i_d.di_size;
+=======
+	if (xfs_is_shutdown(mp))
+		return -EIO;
+
+	xfs_ilock(ip, XFS_ILOCK_EXCL);
+	pathlen = (int)ip->i_disk_size;
+>>>>>>> upstream/android-13
 	ASSERT(pathlen);
 
 	if (pathlen <= 0 || pathlen > XFS_SYMLINK_MAXLEN) {
@@ -517,7 +683,11 @@ xfs_inactive_symlink(
 	 * Inline fork state gets removed by xfs_difree() so we have nothing to
 	 * do here in that case.
 	 */
+<<<<<<< HEAD
 	if (ip->i_df.if_flags & XFS_IFINLINE) {
+=======
+	if (ip->i_df.if_format == XFS_DINODE_FMT_LOCAL) {
+>>>>>>> upstream/android-13
 		xfs_iunlock(ip, XFS_ILOCK_EXCL);
 		return 0;
 	}

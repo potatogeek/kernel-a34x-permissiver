@@ -44,7 +44,11 @@ FPGA Region
 -----------
 
 If you are adding a new interface to the FPGA framework, add it on top
+<<<<<<< HEAD
 of an FPGA region to allow the most reuse of your interface.
+=======
+of an FPGA region.
+>>>>>>> upstream/android-13
 
 The FPGA Region framework (fpga-region.c) associates managers and
 bridges as reconfigurable regions.  A region may refer to the whole

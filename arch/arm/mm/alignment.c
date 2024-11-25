@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  linux/arch/arm/mm/alignment.c
  *
@@ -6,10 +10,13 @@
  *  Thumb alignment fault fixups (c) 2004 MontaVista Software, Inc.
  *  - Adapted from gdb/sim/arm/thumbemu.c -- Thumb instruction emulation.
  *    Copyright (C) 1996, Cygnus Software Technologies Ltd.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/moduleparam.h>
 #include <linux/compiler.h>
@@ -133,7 +140,11 @@ static const char *usermode_action[] = {
 static int alignment_proc_show(struct seq_file *m, void *v)
 {
 	seq_printf(m, "User:\t\t%lu\n", ai_user);
+<<<<<<< HEAD
 	seq_printf(m, "System:\t\t%lu (%pF)\n", ai_sys, ai_sys_last_pc);
+=======
+	seq_printf(m, "System:\t\t%lu (%pS)\n", ai_sys, ai_sys_last_pc);
+>>>>>>> upstream/android-13
 	seq_printf(m, "Skipped:\t%lu\n", ai_skipped);
 	seq_printf(m, "Half:\t\t%lu\n", ai_half);
 	seq_printf(m, "Word:\t\t%lu\n", ai_word);
@@ -165,12 +176,21 @@ static ssize_t alignment_proc_write(struct file *file, const char __user *buffer
 	return count;
 }
 
+<<<<<<< HEAD
 static const struct file_operations alignment_proc_fops = {
 	.open		= alignment_proc_open,
 	.read		= seq_read,
 	.llseek		= seq_lseek,
 	.release	= single_release,
 	.write		= alignment_proc_write,
+=======
+static const struct proc_ops alignment_proc_ops = {
+	.proc_open	= alignment_proc_open,
+	.proc_read	= seq_read,
+	.proc_lseek	= seq_lseek,
+	.proc_release	= single_release,
+	.proc_write	= alignment_proc_write,
+>>>>>>> upstream/android-13
 };
 #endif /* CONFIG_PROC_FS */
 
@@ -327,7 +347,11 @@ union offset_union {
 	__put32_unaligned_check("strbt", val, addr)
 
 static void
+<<<<<<< HEAD
 do_alignment_finish_ldst(unsigned long addr, unsigned long instr, struct pt_regs *regs, union offset_union offset)
+=======
+do_alignment_finish_ldst(unsigned long addr, u32 instr, struct pt_regs *regs, union offset_union offset)
+>>>>>>> upstream/android-13
 {
 	if (!LDST_U_BIT(instr))
 		offset.un = -offset.un;
@@ -340,7 +364,11 @@ do_alignment_finish_ldst(unsigned long addr, unsigned long instr, struct pt_regs
 }
 
 static int
+<<<<<<< HEAD
 do_alignment_ldrhstrh(unsigned long addr, unsigned long instr, struct pt_regs *regs)
+=======
+do_alignment_ldrhstrh(unsigned long addr, u32 instr, struct pt_regs *regs)
+>>>>>>> upstream/android-13
 {
 	unsigned int rd = RD_BITS(instr);
 
@@ -389,8 +417,12 @@ do_alignment_ldrhstrh(unsigned long addr, unsigned long instr, struct pt_regs *r
 }
 
 static int
+<<<<<<< HEAD
 do_alignment_ldrdstrd(unsigned long addr, unsigned long instr,
 		      struct pt_regs *regs)
+=======
+do_alignment_ldrdstrd(unsigned long addr, u32 instr, struct pt_regs *regs)
+>>>>>>> upstream/android-13
 {
 	unsigned int rd = RD_BITS(instr);
 	unsigned int rd2;
@@ -452,7 +484,11 @@ do_alignment_ldrdstrd(unsigned long addr, unsigned long instr,
 }
 
 static int
+<<<<<<< HEAD
 do_alignment_ldrstr(unsigned long addr, unsigned long instr, struct pt_regs *regs)
+=======
+do_alignment_ldrstr(unsigned long addr, u32 instr, struct pt_regs *regs)
+>>>>>>> upstream/android-13
 {
 	unsigned int rd = RD_BITS(instr);
 
@@ -501,7 +537,11 @@ do_alignment_ldrstr(unsigned long addr, unsigned long instr, struct pt_regs *reg
  * PU = 10             A                    B
  */
 static int
+<<<<<<< HEAD
 do_alignment_ldmstm(unsigned long addr, unsigned long instr, struct pt_regs *regs)
+=======
+do_alignment_ldmstm(unsigned long addr, u32 instr, struct pt_regs *regs)
+>>>>>>> upstream/android-13
 {
 	unsigned int rd, rn, correction, nr_regs, regbits;
 	unsigned long eaddr, newaddr;
@@ -542,7 +582,11 @@ do_alignment_ldmstm(unsigned long addr, unsigned long instr, struct pt_regs *reg
 	 * processor for us.
 	 */
 	if (addr != eaddr) {
+<<<<<<< HEAD
 		pr_err("LDMSTM: PC = %08lx, instr = %08lx, "
+=======
+		pr_err("LDMSTM: PC = %08lx, instr = %08x, "
+>>>>>>> upstream/android-13
 			"addr = %08lx, eaddr = %08lx\n",
 			 instruction_pointer(regs), instr, addr, eaddr);
 		show_regs(regs);
@@ -698,7 +742,11 @@ thumb2arm(u16 tinstr)
 			return subset[(L<<1) | ((tinstr & (1<<8)) >> 8)] |
 			    (tinstr & 255);		/* register_list */
 		}
+<<<<<<< HEAD
 		/* Else fall through for illegal instruction case */
+=======
+		fallthrough;	/* for illegal instruction case */
+>>>>>>> upstream/android-13
 
 	default:
 		return BAD_INSTR;
@@ -719,10 +767,17 @@ thumb2arm(u16 tinstr)
  * 2. Register name Rt from ARMv7 is same as Rd from ARMv6 (Rd is Rt)
  */
 static void *
+<<<<<<< HEAD
 do_alignment_t32_to_handler(unsigned long *pinstr, struct pt_regs *regs,
 			    union offset_union *poffset)
 {
 	unsigned long instr = *pinstr;
+=======
+do_alignment_t32_to_handler(u32 *pinstr, struct pt_regs *regs,
+			    union offset_union *poffset)
+{
+	u32 instr = *pinstr;
+>>>>>>> upstream/android-13
 	u16 tinst1 = (instr >> 16) & 0xffff;
 	u16 tinst2 = instr & 0xffff;
 
@@ -754,6 +809,11 @@ do_alignment_t32_to_handler(unsigned long *pinstr, struct pt_regs *regs,
 	case 0xe8e0:
 	case 0xe9e0:
 		poffset->un = (tinst2 & 0xff) << 2;
+<<<<<<< HEAD
+=======
+		fallthrough;
+
+>>>>>>> upstream/android-13
 	case 0xe940:
 	case 0xe9c0:
 		return do_alignment_ldrdstrd;
@@ -768,7 +828,11 @@ do_alignment_t32_to_handler(unsigned long *pinstr, struct pt_regs *regs,
 	return NULL;
 }
 
+<<<<<<< HEAD
 static int alignment_get_arm(struct pt_regs *regs, u32 *ip, unsigned long *inst)
+=======
+static int alignment_get_arm(struct pt_regs *regs, u32 *ip, u32 *inst)
+>>>>>>> upstream/android-13
 {
 	u32 instr = 0;
 	int fault;
@@ -776,7 +840,11 @@ static int alignment_get_arm(struct pt_regs *regs, u32 *ip, unsigned long *inst)
 	if (user_mode(regs))
 		fault = get_user(instr, ip);
 	else
+<<<<<<< HEAD
 		fault = probe_kernel_address(ip, instr);
+=======
+		fault = get_kernel_nofault(instr, ip);
+>>>>>>> upstream/android-13
 
 	*inst = __mem_to_opcode_arm(instr);
 
@@ -791,7 +859,11 @@ static int alignment_get_thumb(struct pt_regs *regs, u16 *ip, u16 *inst)
 	if (user_mode(regs))
 		fault = get_user(instr, ip);
 	else
+<<<<<<< HEAD
 		fault = probe_kernel_address(ip, instr);
+=======
+		fault = get_kernel_nofault(instr, ip);
+>>>>>>> upstream/android-13
 
 	*inst = __mem_to_opcode_thumb16(instr);
 
@@ -801,10 +873,18 @@ static int alignment_get_thumb(struct pt_regs *regs, u16 *ip, u16 *inst)
 static int
 do_alignment(unsigned long addr, unsigned int fsr, struct pt_regs *regs)
 {
+<<<<<<< HEAD
 	union offset_union uninitialized_var(offset);
 	unsigned long instr = 0, instrptr;
 	int (*handler)(unsigned long addr, unsigned long instr, struct pt_regs *regs);
 	unsigned int type;
+=======
+	union offset_union offset;
+	unsigned long instrptr;
+	int (*handler)(unsigned long addr, u32 instr, struct pt_regs *regs);
+	unsigned int type;
+	u32 instr = 0;
+>>>>>>> upstream/android-13
 	u16 tinstr = 0;
 	int isize = 4;
 	int thumb2_32b = 0;
@@ -955,7 +1035,11 @@ do_alignment(unsigned long addr, unsigned int fsr, struct pt_regs *regs)
 	 * Oops, we didn't handle the instruction.
 	 */
 	pr_err("Alignment trap: not handling instruction "
+<<<<<<< HEAD
 		"%0*lx at [<%08lx>]\n",
+=======
+		"%0*x at [<%08lx>]\n",
+>>>>>>> upstream/android-13
 		isize << 1,
 		isize == 2 ? tinstr : instr, instrptr);
 	ai_skipped += 1;
@@ -965,7 +1049,11 @@ do_alignment(unsigned long addr, unsigned int fsr, struct pt_regs *regs)
 	ai_user += 1;
 
 	if (ai_usermode & UM_WARN)
+<<<<<<< HEAD
 		printk("Alignment trap: %s (%d) PC=0x%08lx Instr=0x%0*lx "
+=======
+		printk("Alignment trap: %s (%d) PC=0x%08lx Instr=0x%0*x "
+>>>>>>> upstream/android-13
 		       "Address=0x%08lx FSR 0x%03x\n", current->comm,
 			task_pid_nr(current), instrptr,
 			isize << 1,
@@ -976,6 +1064,7 @@ do_alignment(unsigned long addr, unsigned int fsr, struct pt_regs *regs)
 		goto fixup;
 
 	if (ai_usermode & UM_SIGNAL) {
+<<<<<<< HEAD
 		siginfo_t si;
 
 		clear_siginfo(&si);
@@ -985,6 +1074,9 @@ do_alignment(unsigned long addr, unsigned int fsr, struct pt_regs *regs)
 		si.si_addr = (void __user *)addr;
 
 		force_sig_info(si.si_signo, &si, current);
+=======
+		force_sig_fault(SIGBUS, BUS_ADRALN, (void __user *)addr);
+>>>>>>> upstream/android-13
 	} else {
 		/*
 		 * We're about to disable the alignment trap and return to
@@ -1025,7 +1117,11 @@ static int __init alignment_init(void)
 	struct proc_dir_entry *res;
 
 	res = proc_create("cpu/alignment", S_IWUSR | S_IRUGO, NULL,
+<<<<<<< HEAD
 			  &alignment_proc_fops);
+=======
+			  &alignment_proc_ops);
+>>>>>>> upstream/android-13
 	if (!res)
 		return -ENOMEM;
 #endif

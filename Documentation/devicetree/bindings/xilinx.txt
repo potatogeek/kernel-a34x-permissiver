@@ -86,6 +86,7 @@
 		xlnx,use-parity = <0>;
 	};
 
+<<<<<<< HEAD
    Some IP cores actually implement 2 or more logical devices.  In
    this case, the device should still describe the whole IP core with
    a single node and add a child node for each logical device.  The
@@ -229,6 +230,8 @@
 		};
 	};
 
+=======
+>>>>>>> upstream/android-13
    That covers the general approach to binding xilinx IP cores into the
    device tree.  The following are bindings for specific devices:
 

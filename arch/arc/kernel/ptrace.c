@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2004, 2007-2010, 2011-2012 Synopsys, Inc. (www.synopsys.com)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2004, 2007-2010, 2011-2012 Synopsys, Inc. (www.synopsys.com)
+>>>>>>> upstream/android-13
  */
 
 #include <linux/ptrace.h>
@@ -21,6 +27,7 @@ static struct callee_regs *task_callee_regs(struct task_struct *tsk)
 
 static int genregs_get(struct task_struct *target,
 		       const struct user_regset *regset,
+<<<<<<< HEAD
 		       unsigned int pos, unsigned int count,
 		       void *kbuf, void __user *ubuf)
 {
@@ -103,6 +110,63 @@ static int genregs_get(struct task_struct *target,
 	}
 
 	return ret;
+=======
+		       struct membuf to)
+{
+	const struct pt_regs *ptregs = task_pt_regs(target);
+	const struct callee_regs *cregs = task_callee_regs(target);
+	unsigned int stop_pc_val;
+
+	membuf_zero(&to, 4);	// pad
+	membuf_store(&to, ptregs->bta);
+	membuf_store(&to, ptregs->lp_start);
+	membuf_store(&to, ptregs->lp_end);
+	membuf_store(&to, ptregs->lp_count);
+	membuf_store(&to, ptregs->status32);
+	membuf_store(&to, ptregs->ret);
+	membuf_store(&to, ptregs->blink);
+	membuf_store(&to, ptregs->fp);
+	membuf_store(&to, ptregs->r26);	// gp
+	membuf_store(&to, ptregs->r12);
+	membuf_store(&to, ptregs->r11);
+	membuf_store(&to, ptregs->r10);
+	membuf_store(&to, ptregs->r9);
+	membuf_store(&to, ptregs->r8);
+	membuf_store(&to, ptregs->r7);
+	membuf_store(&to, ptregs->r6);
+	membuf_store(&to, ptregs->r5);
+	membuf_store(&to, ptregs->r4);
+	membuf_store(&to, ptregs->r3);
+	membuf_store(&to, ptregs->r2);
+	membuf_store(&to, ptregs->r1);
+	membuf_store(&to, ptregs->r0);
+	membuf_store(&to, ptregs->sp);
+	membuf_zero(&to, 4);	// pad2
+	membuf_store(&to, cregs->r25);
+	membuf_store(&to, cregs->r24);
+	membuf_store(&to, cregs->r23);
+	membuf_store(&to, cregs->r22);
+	membuf_store(&to, cregs->r21);
+	membuf_store(&to, cregs->r20);
+	membuf_store(&to, cregs->r19);
+	membuf_store(&to, cregs->r18);
+	membuf_store(&to, cregs->r17);
+	membuf_store(&to, cregs->r16);
+	membuf_store(&to, cregs->r15);
+	membuf_store(&to, cregs->r14);
+	membuf_store(&to, cregs->r13);
+	membuf_store(&to, target->thread.fault_address); // efa
+
+	if (in_brkpt_trap(ptregs)) {
+		stop_pc_val = target->thread.fault_address;
+		pr_debug("\t\tstop_pc (brk-pt)\n");
+	} else {
+		stop_pc_val = ptregs->ret;
+		pr_debug("\t\tstop_pc (others)\n");
+	}
+
+	return membuf_store(&to, stop_pc_val); // stop_pc
+>>>>>>> upstream/android-13
 }
 
 static int genregs_set(struct task_struct *target,
@@ -187,6 +251,7 @@ static int genregs_set(struct task_struct *target,
 #ifdef CONFIG_ISA_ARCV2
 static int arcv2regs_get(struct task_struct *target,
 		       const struct user_regset *regset,
+<<<<<<< HEAD
 		       unsigned int pos, unsigned int count,
 		       void *kbuf, void __user *ubuf)
 {
@@ -206,6 +271,22 @@ static int arcv2regs_get(struct task_struct *target,
 				  0, copy_sz);
 
 	return ret;
+=======
+		       struct membuf to)
+{
+	const struct pt_regs *regs = task_pt_regs(target);
+
+	if (IS_ENABLED(CONFIG_ARC_HAS_ACCL_REGS))
+		/*
+		 * itemized copy not needed like above as layout of regs (r30,r58,r59)
+		 * is exactly same in kernel (pt_regs) and userspace (user_regs_arcv2)
+		 */
+		return membuf_write(&to, &regs->r30, sizeof(struct user_regs_arcv2));
+
+
+	membuf_write(&to, &regs->r30, 4); /* r30 only */
+	return membuf_zero(&to, sizeof(struct user_regs_arcv2) - 4);
+>>>>>>> upstream/android-13
 }
 
 static int arcv2regs_set(struct task_struct *target,
@@ -240,7 +321,11 @@ static const struct user_regset arc_regsets[] = {
 	       .n = ELF_NGREG,
 	       .size = sizeof(unsigned long),
 	       .align = sizeof(unsigned long),
+<<<<<<< HEAD
 	       .get = genregs_get,
+=======
+	       .regset_get = genregs_get,
+>>>>>>> upstream/android-13
 	       .set = genregs_set,
 	},
 #ifdef CONFIG_ISA_ARCV2
@@ -249,14 +334,22 @@ static const struct user_regset arc_regsets[] = {
 	       .n = ELF_ARCV2REG,
 	       .size = sizeof(unsigned long),
 	       .align = sizeof(unsigned long),
+<<<<<<< HEAD
 	       .get = arcv2regs_get,
+=======
+	       .regset_get = arcv2regs_get,
+>>>>>>> upstream/android-13
 	       .set = arcv2regs_set,
 	},
 #endif
 };
 
 static const struct user_regset_view user_arc_view = {
+<<<<<<< HEAD
 	.name		= UTS_MACHINE,
+=======
+	.name		= "arc",
+>>>>>>> upstream/android-13
 	.e_machine	= EM_ARC_INUSE,
 	.regsets	= arc_regsets,
 	.n		= ARRAY_SIZE(arc_regsets)

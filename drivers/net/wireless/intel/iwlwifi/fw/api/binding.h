@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * This file is provided under a dual BSD/GPLv2 license.  When using or
@@ -63,6 +64,20 @@
 #ifndef __iwl_fw_api_binding_h__
 #define __iwl_fw_api_binding_h__
 
+=======
+/* SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause */
+/*
+ * Copyright (C) 2012-2014, 2020 Intel Corporation
+ * Copyright (C) 2013-2015 Intel Mobile Communications GmbH
+ * Copyright (C) 2016-2017 Intel Deutschland GmbH
+ */
+#ifndef __iwl_fw_api_binding_h__
+#define __iwl_fw_api_binding_h__
+
+#include <fw/file.h>
+#include <fw/img.h>
+
+>>>>>>> upstream/android-13
 #define MAX_MACS_IN_BINDING	(3)
 #define MAX_BINDINGS		(4)
 
@@ -112,6 +127,17 @@ struct iwl_binding_cmd {
 #define IWL_LMAC_24G_INDEX		0
 #define IWL_LMAC_5G_INDEX		1
 
+<<<<<<< HEAD
+=======
+static inline u32 iwl_mvm_get_lmac_id(const struct iwl_fw *fw,
+				      enum nl80211_band band){
+	if (!fw_has_capa(&fw->ucode_capa, IWL_UCODE_TLV_CAPA_CDB_SUPPORT) ||
+	    band == NL80211_BAND_2GHZ)
+		return IWL_LMAC_24G_INDEX;
+	return IWL_LMAC_5G_INDEX;
+}
+
+>>>>>>> upstream/android-13
 /* The maximal number of fragments in the FW's schedule session */
 #define IWL_MVM_MAX_QUOTA 128
 

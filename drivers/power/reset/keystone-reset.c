@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * TI keystone reboot driver
  *
@@ -8,6 +9,15 @@
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * TI keystone reboot driver
+ *
+ * Copyright (C) 2014 Texas Instruments Incorporated. https://www.ti.com/
+ *
+ * Author: Ivan Khoronzhuk <ivan.khoronzhuk@ti.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/io.h>
@@ -74,6 +84,10 @@ static const struct of_device_id rsctrl_of_match[] = {
 	{.compatible = "ti,keystone-reset", },
 	{},
 };
+<<<<<<< HEAD
+=======
+MODULE_DEVICE_TABLE(of, rsctrl_of_match);
+>>>>>>> upstream/android-13
 
 static int rsctrl_probe(struct platform_device *pdev)
 {

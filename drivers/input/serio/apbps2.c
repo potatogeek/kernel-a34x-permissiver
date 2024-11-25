@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2013 Aeroflex Gaisler
  *
@@ -10,11 +14,14 @@
  * See "Documentation/devicetree/bindings/input/ps2keyb-mouse-apbps2.txt" for
  * information on open firmware properties.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  * Contributors: Daniel Hellstrom <daniel@gaisler.com>
  */
 #include <linux/platform_device.h>
@@ -55,7 +62,11 @@ struct apbps2_regs {
 
 struct apbps2_priv {
 	struct serio		*io;
+<<<<<<< HEAD
 	struct apbps2_regs	*regs;
+=======
+	struct apbps2_regs	__iomem *regs;
+>>>>>>> upstream/android-13
 };
 
 static int apbps2_idx;
@@ -107,7 +118,10 @@ static int apbps2_open(struct serio *io)
 {
 	struct apbps2_priv *priv = io->port_data;
 	int limit;
+<<<<<<< HEAD
 	unsigned long tmp;
+=======
+>>>>>>> upstream/android-13
 
 	/* clear error flags */
 	iowrite32be(0, &priv->regs->status);
@@ -115,7 +129,11 @@ static int apbps2_open(struct serio *io)
 	/* Clear old data if available (unlikely) */
 	limit = 1024;
 	while ((ioread32be(&priv->regs->status) & APBPS2_STATUS_DR) && --limit)
+<<<<<<< HEAD
 		tmp = ioread32be(&priv->regs->data);
+=======
+		ioread32be(&priv->regs->data);
+>>>>>>> upstream/android-13
 
 	/* Enable reciever and it's interrupt */
 	iowrite32be(APBPS2_CTRL_RE | APBPS2_CTRL_RI, &priv->regs->ctrl);

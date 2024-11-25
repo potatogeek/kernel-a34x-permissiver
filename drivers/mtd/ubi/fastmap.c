@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 2012 Linutronix GmbH
  * Copyright (c) 2014 sigma star gmbh
  * Author: Richard Weinberger <richard@nod.at>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,6 +17,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See
  * the GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/crc32.h>
@@ -477,7 +484,13 @@ static int scan_pool(struct ubi_device *ubi, struct ubi_attach_info *ai,
 			if (err == UBI_IO_FF_BITFLIPS)
 				scrub = 1;
 
+<<<<<<< HEAD
 			add_aeb(ai, free, pnum, ec, scrub);
+=======
+			ret = add_aeb(ai, free, pnum, ec, scrub);
+			if (ret)
+				goto out;
+>>>>>>> upstream/android-13
 			continue;
 		} else if (err == 0 || err == UBI_IO_BITFLIPS) {
 			dbg_bld("Found non empty PEB:%i in pool", pnum);
@@ -647,8 +660,15 @@ static int ubi_attach_fastmap(struct ubi_device *ubi,
 		if (fm_pos >= fm_size)
 			goto fail_bad;
 
+<<<<<<< HEAD
 		add_aeb(ai, &ai->free, be32_to_cpu(fmec->pnum),
 			be32_to_cpu(fmec->ec), 0);
+=======
+		ret = add_aeb(ai, &ai->free, be32_to_cpu(fmec->pnum),
+			      be32_to_cpu(fmec->ec), 0);
+		if (ret)
+			goto fail;
+>>>>>>> upstream/android-13
 	}
 
 	/* read EC values from used list */
@@ -658,8 +678,15 @@ static int ubi_attach_fastmap(struct ubi_device *ubi,
 		if (fm_pos >= fm_size)
 			goto fail_bad;
 
+<<<<<<< HEAD
 		add_aeb(ai, &used, be32_to_cpu(fmec->pnum),
 			be32_to_cpu(fmec->ec), 0);
+=======
+		ret = add_aeb(ai, &used, be32_to_cpu(fmec->pnum),
+			      be32_to_cpu(fmec->ec), 0);
+		if (ret)
+			goto fail;
+>>>>>>> upstream/android-13
 	}
 
 	/* read EC values from scrub list */
@@ -669,8 +696,15 @@ static int ubi_attach_fastmap(struct ubi_device *ubi,
 		if (fm_pos >= fm_size)
 			goto fail_bad;
 
+<<<<<<< HEAD
 		add_aeb(ai, &used, be32_to_cpu(fmec->pnum),
 			be32_to_cpu(fmec->ec), 1);
+=======
+		ret = add_aeb(ai, &used, be32_to_cpu(fmec->pnum),
+			      be32_to_cpu(fmec->ec), 1);
+		if (ret)
+			goto fail;
+>>>>>>> upstream/android-13
 	}
 
 	/* read EC values from erase list */
@@ -680,8 +714,15 @@ static int ubi_attach_fastmap(struct ubi_device *ubi,
 		if (fm_pos >= fm_size)
 			goto fail_bad;
 
+<<<<<<< HEAD
 		add_aeb(ai, &ai->erase, be32_to_cpu(fmec->pnum),
 			be32_to_cpu(fmec->ec), 1);
+=======
+		ret = add_aeb(ai, &ai->erase, be32_to_cpu(fmec->pnum),
+			      be32_to_cpu(fmec->ec), 1);
+		if (ret)
+			goto fail;
+>>>>>>> upstream/android-13
 	}
 
 	ai->mean_ec = div_u64(ai->ec_sum, ai->ec_count);
@@ -1229,6 +1270,20 @@ static int ubi_write_fastmap(struct ubi_device *ubi,
 		fm_pos += sizeof(*fec);
 		ubi_assert(fm_pos <= ubi->fm_size);
 	}
+<<<<<<< HEAD
+=======
+	if (ubi->fm_next_anchor) {
+		fec = (struct ubi_fm_ec *)(fm_raw + fm_pos);
+
+		fec->pnum = cpu_to_be32(ubi->fm_next_anchor->pnum);
+		set_seen(ubi, ubi->fm_next_anchor->pnum, seen_pebs);
+		fec->ec = cpu_to_be32(ubi->fm_next_anchor->ec);
+
+		free_peb_count++;
+		fm_pos += sizeof(*fec);
+		ubi_assert(fm_pos <= ubi->fm_size);
+	}
+>>>>>>> upstream/android-13
 	fmh->free_peb_count = cpu_to_be32(free_peb_count);
 
 	ubi_for_each_used_peb(ubi, wl_e, tmp_rb) {

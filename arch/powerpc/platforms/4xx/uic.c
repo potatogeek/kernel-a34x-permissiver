@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * arch/powerpc/sysdev/uic.c
  *
  * IBM PowerPC 4xx Universal Interrupt Controller
  *
  * Copyright 2007 David Gibson <dwg@au1.ibm.com>, IBM Corporation.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/kernel.h>
 #include <linux/init.h>
@@ -202,7 +209,10 @@ static void uic_irq_cascade(struct irq_desc *desc)
 	struct uic *uic = irq_desc_get_handler_data(desc);
 	u32 msr;
 	int src;
+<<<<<<< HEAD
 	int subvirq;
+=======
+>>>>>>> upstream/android-13
 
 	raw_spin_lock(&desc->lock);
 	if (irqd_is_level_type(idata))
@@ -217,8 +227,12 @@ static void uic_irq_cascade(struct irq_desc *desc)
 
 	src = 32 - ffs(msr);
 
+<<<<<<< HEAD
 	subvirq = irq_linear_revmap(uic->irqhost, src);
 	generic_handle_irq(subvirq);
+=======
+	generic_handle_domain_irq(uic->irqhost, src);
+>>>>>>> upstream/android-13
 
 uic_irq_ret:
 	raw_spin_lock(&desc->lock);

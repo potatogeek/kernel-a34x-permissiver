@@ -10,6 +10,7 @@
 #ifndef __AXG_AOCLKC_H
 #define __AXG_AOCLKC_H
 
+<<<<<<< HEAD
 #define NR_CLKS	11
 /* AO Configuration Clock registers offsets
  * Register offsets from the data sheet must be multiplied by 4.
@@ -22,6 +23,9 @@
 #define AO_SAR_CLK		0x90
 #define AO_RTC_ALT_CLK_CNTL0	0x94
 #define AO_RTC_ALT_CLK_CNTL1	0x98
+=======
+#define NR_CLKS	17
+>>>>>>> upstream/android-13
 
 #include <dt-bindings/clock/axg-aoclkc.h>
 #include <dt-bindings/reset/axg-aoclkc.h>

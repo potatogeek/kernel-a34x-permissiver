@@ -69,13 +69,25 @@ static int build_request(struct ceph_auth_client *ac, void *buf, void *end)
  * the generic auth code decode the global_id, and we carry no actual
  * authenticate state, so nothing happens here.
  */
+<<<<<<< HEAD
 static int handle_reply(struct ceph_auth_client *ac, int result,
 			void *buf, void *end)
+=======
+static int handle_reply(struct ceph_auth_client *ac, u64 global_id,
+			void *buf, void *end, u8 *session_key,
+			int *session_key_len, u8 *con_secret,
+			int *con_secret_len)
+>>>>>>> upstream/android-13
 {
 	struct ceph_auth_none_info *xi = ac->private;
 
 	xi->starting = false;
+<<<<<<< HEAD
 	return result;
+=======
+	ceph_auth_set_global_id(ac, global_id);
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static void ceph_auth_none_destroy_authorizer(struct ceph_authorizer *a)
@@ -109,14 +121,22 @@ static int ceph_auth_none_create_authorizer(
 	auth->authorizer = (struct ceph_authorizer *) au;
 	auth->authorizer_buf = au->buf;
 	auth->authorizer_buf_len = au->buf_len;
+<<<<<<< HEAD
 	auth->authorizer_reply_buf = au->reply_buf;
 	auth->authorizer_reply_buf_len = sizeof (au->reply_buf);
+=======
+	auth->authorizer_reply_buf = NULL;
+	auth->authorizer_reply_buf_len = 0;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
 static const struct ceph_auth_client_ops ceph_auth_none_ops = {
+<<<<<<< HEAD
 	.name = "none",
+=======
+>>>>>>> upstream/android-13
 	.reset = reset,
 	.destroy = destroy,
 	.is_authenticated = is_authenticated,

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * internal.h  --  Voltage/Current Regulator framework internal code
  *
@@ -5,12 +9,15 @@
  * Copyright 2008 SlimLogic Ltd.
  *
  * Author: Liam Girdwood <lrg@slimlogic.co.uk>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute  it and/or modify it
  *  under  the terms of  the GNU General  Public License as published by the
  *  Free Software Foundation;  either version 2 of the  License, or (at your
  *  option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __REGULATOR_INTERNAL_H
@@ -20,6 +27,20 @@
 
 #define REGULATOR_STATES_NUM	(PM_SUSPEND_MAX + 1)
 
+<<<<<<< HEAD
+=======
+#define rdev_crit(rdev, fmt, ...)					\
+	pr_crit("%s: " fmt, rdev_get_name(rdev), ##__VA_ARGS__)
+#define rdev_err(rdev, fmt, ...)					\
+	pr_err("%s: " fmt, rdev_get_name(rdev), ##__VA_ARGS__)
+#define rdev_warn(rdev, fmt, ...)					\
+	pr_warn("%s: " fmt, rdev_get_name(rdev), ##__VA_ARGS__)
+#define rdev_info(rdev, fmt, ...)					\
+	pr_info("%s: " fmt, rdev_get_name(rdev), ##__VA_ARGS__)
+#define rdev_dbg(rdev, fmt, ...)					\
+	pr_debug("%s: " fmt, rdev_get_name(rdev), ##__VA_ARGS__)
+
+>>>>>>> upstream/android-13
 struct regulator_voltage {
 	int min_uV;
 	int max_uV;
@@ -41,7 +62,14 @@ struct regulator {
 	struct list_head list;
 	unsigned int always_on:1;
 	unsigned int bypass:1;
+<<<<<<< HEAD
 	int uA_load;
+=======
+	unsigned int device_link:1;
+	int uA_load;
+	unsigned int enable_count;
+	unsigned int deferred_disables;
+>>>>>>> upstream/android-13
 	struct regulator_voltage voltage[REGULATOR_STATES_NUM];
 	const char *supply_name;
 	struct device_attribute dev_attr;

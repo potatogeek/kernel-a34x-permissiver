@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Cryptographic API.
  * Glue code for the SHA1 Secure Hash Algorithm assembler implementation
@@ -8,20 +12,28 @@
  * Copyright (c) Andrew McDonald <andrew@mcdonald.org.uk>
  * Copyright (c) Jean-Francois Dive <jef@linuxbe.org>
  * Copyright (c) Mathias Krause <minipli@googlemail.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; either version 2 of the License, or (at your option)
  * any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <crypto/internal/hash.h>
 #include <linux/init.h>
 #include <linux/module.h>
+<<<<<<< HEAD
 #include <linux/cryptohash.h>
 #include <linux/types.h>
 #include <crypto/sha.h>
+=======
+#include <linux/types.h>
+#include <crypto/sha1.h>
+>>>>>>> upstream/android-13
 #include <crypto/sha1_base.h>
 #include <asm/byteorder.h>
 

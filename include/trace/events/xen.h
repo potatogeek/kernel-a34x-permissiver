@@ -77,7 +77,11 @@ TRACE_EVENT(xen_mc_callback,
 		    __entry->fn = fn;
 		    __entry->data = data;
 		    ),
+<<<<<<< HEAD
 	    TP_printk("callback %pf, data %p",
+=======
+	    TP_printk("callback %ps, data %p",
+>>>>>>> upstream/android-13
 		      __entry->fn, __entry->data)
 	);
 
@@ -153,6 +157,7 @@ DECLARE_EVENT_CLASS(xen_mmu__set_pte,
 
 DEFINE_XEN_MMU_SET_PTE(xen_mmu_set_pte);
 
+<<<<<<< HEAD
 TRACE_EVENT(xen_mmu_set_pte_at,
 	    TP_PROTO(struct mm_struct *mm, unsigned long addr,
 		     pte_t *ptep, pte_t pteval),
@@ -173,6 +178,8 @@ TRACE_EVENT(xen_mmu_set_pte_at,
 		      (int)sizeof(pteval_t) * 2, (unsigned long long)__entry->pteval)
 	);
 
+=======
+>>>>>>> upstream/android-13
 TRACE_DEFINE_SIZEOF(pmdval_t);
 
 TRACE_EVENT(xen_mmu_set_pmd,
@@ -366,7 +373,11 @@ TRACE_EVENT(xen_mmu_flush_tlb_one_user,
 	    TP_printk("addr %lx", __entry->addr)
 	);
 
+<<<<<<< HEAD
 TRACE_EVENT(xen_mmu_flush_tlb_others,
+=======
+TRACE_EVENT(xen_mmu_flush_tlb_multi,
+>>>>>>> upstream/android-13
 	    TP_PROTO(const struct cpumask *cpus, struct mm_struct *mm,
 		     unsigned long addr, unsigned long end),
 	    TP_ARGS(cpus, mm, addr, end),

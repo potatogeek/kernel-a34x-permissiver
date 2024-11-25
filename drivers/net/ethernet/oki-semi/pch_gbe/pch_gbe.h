@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 1999 - 2010 Intel Corporation.
  * Copyright (C) 2010 OKI SEMICONDUCTOR Co., LTD.
  *
  * This code was derived from the Intel e1000e Linux driver.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,6 +20,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _PCH_GBE_H_
@@ -158,7 +165,11 @@ struct pch_gbe_regs {
 #define PCH_GBE_RH_ALM_FULL_8   0x00001000      /* 8 words */
 #define PCH_GBE_RH_ALM_FULL_16  0x00002000      /* 16 words */
 #define PCH_GBE_RH_ALM_FULL_32  0x00003000      /* 32 words */
+<<<<<<< HEAD
 /* RX FIFO Read Triger Threshold */
+=======
+/* RX FIFO Read Trigger Threshold */
+>>>>>>> upstream/android-13
 #define PCH_GBE_RH_RD_TRG_4     0x00000000      /* 4 words */
 #define PCH_GBE_RH_RD_TRG_8     0x00000200      /* 8 words */
 #define PCH_GBE_RH_RD_TRG_16    0x00000400      /* 16 words */
@@ -607,8 +618,11 @@ struct pch_gbe_adapter {
 
 #define pch_gbe_hw_to_adapter(hw)	container_of(hw, struct pch_gbe_adapter, hw)
 
+<<<<<<< HEAD
 extern const char pch_driver_version[];
 
+=======
+>>>>>>> upstream/android-13
 /* pch_gbe_main.c */
 int pch_gbe_up(struct pch_gbe_adapter *adapter);
 void pch_gbe_down(struct pch_gbe_adapter *adapter);
@@ -623,6 +637,7 @@ void pch_gbe_free_tx_resources(struct pch_gbe_adapter *adapter,
 void pch_gbe_free_rx_resources(struct pch_gbe_adapter *adapter,
 			       struct pch_gbe_rx_ring *rx_ring);
 void pch_gbe_update_stats(struct pch_gbe_adapter *adapter);
+<<<<<<< HEAD
 u32 pch_ch_control_read(struct pci_dev *pdev);
 void pch_ch_control_write(struct pci_dev *pdev, u32 val);
 u32 pch_ch_event_read(struct pci_dev *pdev);
@@ -632,6 +647,8 @@ u32 pch_src_uuid_hi_read(struct pci_dev *pdev);
 u64 pch_rx_snap_read(struct pci_dev *pdev);
 u64 pch_tx_snap_read(struct pci_dev *pdev);
 int pch_set_station_address(u8 *addr, struct pci_dev *pdev);
+=======
+>>>>>>> upstream/android-13
 
 /* pch_gbe_param.c */
 void pch_gbe_check_options(struct pch_gbe_adapter *adapter);

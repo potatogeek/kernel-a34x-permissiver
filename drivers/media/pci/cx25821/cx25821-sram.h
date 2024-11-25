@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  *  Driver for the Conexant CX25821 PCIe bridge
  *
  *  Copyright (C) 2009 Conexant Systems Inc.
  *  Authors  <shu.lin@conexant.com>, <hiep.huynh@conexant.com>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -14,6 +19,8 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *
  *  GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __ATHENA_SRAM_H__
@@ -24,7 +31,11 @@
 #define AUDIO_CMDS_SIZE           80	/* AUDIO CMDS size in bytes */
 #define MBIF_CMDS_SIZE            80	/* MBIF  CMDS size in bytes */
 
+<<<<<<< HEAD
 /* #define RX_SRAM_POOL_START_SIZE   = 0;  //  Start of useable RX SRAM for buffers */
+=======
+/* #define RX_SRAM_POOL_START_SIZE   = 0;  //  Start of usable RX SRAM for buffers */
+>>>>>>> upstream/android-13
 #define VID_IQ_SIZE               64	/* VID instruction queue size in bytes */
 #define MBIF_IQ_SIZE              64
 #define AUDIO_IQ_SIZE             64	/* AUD instruction queue size in bytes */

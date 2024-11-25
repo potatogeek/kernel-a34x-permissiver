@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2014-2015 Hisilicon Limited.
  *
@@ -5,6 +6,11 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (c) 2014-2015 Hisilicon Limited.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -61,7 +67,11 @@ void hns_ppe_set_indir_table(struct hns_ppe_cb *ppe_cb,
 	}
 }
 
+<<<<<<< HEAD
 static void __iomem *
+=======
+static u8 __iomem *
+>>>>>>> upstream/android-13
 hns_ppe_common_get_ioaddr(struct ppe_common_cb *ppe_common)
 {
 	return ppe_common->dsaf_dev->ppe_base + PPE_COMMON_REG_OFFSET;
@@ -70,8 +80,13 @@ hns_ppe_common_get_ioaddr(struct ppe_common_cb *ppe_common)
 /**
  * hns_ppe_common_get_cfg - get ppe common config
  * @dsaf_dev: dasf device
+<<<<<<< HEAD
  * comm_index: common index
  * retuen 0 - success , negative --fail
+=======
+ * @comm_index: common index
+ * return 0 - success , negative --fail
+>>>>>>> upstream/android-13
  */
 static int hns_ppe_common_get_cfg(struct dsaf_device *dsaf_dev, int comm_index)
 {
@@ -83,8 +98,14 @@ static int hns_ppe_common_get_cfg(struct dsaf_device *dsaf_dev, int comm_index)
 	else
 		ppe_num = HNS_PPE_DEBUG_NW_ENGINE_NUM;
 
+<<<<<<< HEAD
 	ppe_common = devm_kzalloc(dsaf_dev->dev, sizeof(*ppe_common) +
 		ppe_num * sizeof(struct hns_ppe_cb), GFP_KERNEL);
+=======
+	ppe_common = devm_kzalloc(dsaf_dev->dev,
+				  struct_size(ppe_common, ppe_cb, ppe_num),
+				  GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!ppe_common)
 		return -ENOMEM;
 
@@ -110,8 +131,13 @@ hns_ppe_common_free_cfg(struct dsaf_device *dsaf_dev, u32 comm_index)
 	dsaf_dev->ppe_common[comm_index] = NULL;
 }
 
+<<<<<<< HEAD
 static void __iomem *hns_ppe_get_iobase(struct ppe_common_cb *ppe_common,
 					int ppe_idx)
+=======
+static u8 __iomem *hns_ppe_get_iobase(struct ppe_common_cb *ppe_common,
+				      int ppe_idx)
+>>>>>>> upstream/android-13
 {
 	return ppe_common->dsaf_dev->ppe_base + ppe_idx * PPE_REG_OFFSET;
 }
@@ -146,7 +172,11 @@ static void hns_ppe_set_vlan_strip(struct hns_ppe_cb *ppe_cb, int en)
 
 /**
  * hns_ppe_checksum_hw - set ppe checksum caculate
+<<<<<<< HEAD
  * @ppe_device: ppe device
+=======
+ * @ppe_cb: ppe device
+>>>>>>> upstream/android-13
  * @value: value
  */
 static void hns_ppe_checksum_hw(struct hns_ppe_cb *ppe_cb, u32 value)
@@ -182,7 +212,11 @@ static void hns_ppe_set_qid(struct ppe_common_cb *ppe_common, u32 qid)
 
 /**
  * hns_ppe_set_port_mode - set port mode
+<<<<<<< HEAD
  * @ppe_device: ppe device
+=======
+ * @ppe_cb: ppe device
+>>>>>>> upstream/android-13
  * @mode: port mode
  */
 static void hns_ppe_set_port_mode(struct hns_ppe_cb *ppe_cb,
@@ -299,7 +333,11 @@ int hns_ppe_wait_tx_fifo_clean(struct hns_ppe_cb *ppe_cb)
 }
 
 /**
+<<<<<<< HEAD
  * ppe_init_hw - init ppe
+=======
+ * hns_ppe_init_hw - init ppe
+>>>>>>> upstream/android-13
  * @ppe_cb: ppe device
  */
 static void hns_ppe_init_hw(struct hns_ppe_cb *ppe_cb)
@@ -346,8 +384,13 @@ static void hns_ppe_init_hw(struct hns_ppe_cb *ppe_cb)
 }
 
 /**
+<<<<<<< HEAD
  * ppe_uninit_hw - uninit ppe
  * @ppe_device: ppe device
+=======
+ * hns_ppe_uninit_hw - uninit ppe
+ * @ppe_cb: ppe device
+>>>>>>> upstream/android-13
  */
 static void hns_ppe_uninit_hw(struct hns_ppe_cb *ppe_cb)
 {
@@ -385,9 +428,16 @@ void hns_ppe_uninit(struct dsaf_device *dsaf_dev)
 }
 
 /**
+<<<<<<< HEAD
  * hns_ppe_reset - reinit ppe/rcb hw
  * @dsaf_dev: dasf device
  * retuen void
+=======
+ * hns_ppe_reset_common - reinit ppe/rcb hw
+ * @dsaf_dev: dasf device
+ * @ppe_common_index: the index
+ * return void
+>>>>>>> upstream/android-13
  */
 void hns_ppe_reset_common(struct dsaf_device *dsaf_dev, u8 ppe_common_index)
 {
@@ -457,13 +507,19 @@ int hns_ppe_get_regs_count(void)
 }
 
 /**
+<<<<<<< HEAD
  * ppe_get_strings - get ppe srting
  * @ppe_device: ppe device
+=======
+ * hns_ppe_get_strings - get ppe srting
+ * @ppe_cb: ppe device
+>>>>>>> upstream/android-13
  * @stringset: string set type
  * @data: output string
  */
 void hns_ppe_get_strings(struct hns_ppe_cb *ppe_cb, int stringset, u8 *data)
 {
+<<<<<<< HEAD
 	char *buff = (char *)data;
 	int index = ppe_cb->index;
 
@@ -491,6 +547,24 @@ void hns_ppe_get_strings(struct hns_ppe_cb *ppe_cb, int stringset, u8 *data)
 	snprintf(buff, ETH_GSTRING_LEN, "ppe%d_tx_pkt_err_fifo_empty", index);
 	buff = buff + ETH_GSTRING_LEN;
 	snprintf(buff, ETH_GSTRING_LEN, "ppe%d_tx_pkt_err_csum_fail", index);
+=======
+	int index = ppe_cb->index;
+	u8 *buff = data;
+
+	ethtool_sprintf(&buff, "ppe%d_rx_sw_pkt", index);
+	ethtool_sprintf(&buff, "ppe%d_rx_pkt_ok", index);
+	ethtool_sprintf(&buff, "ppe%d_rx_drop_pkt_no_bd", index);
+	ethtool_sprintf(&buff, "ppe%d_rx_alloc_buf_fail", index);
+	ethtool_sprintf(&buff, "ppe%d_rx_alloc_buf_wait", index);
+	ethtool_sprintf(&buff, "ppe%d_rx_pkt_drop_no_buf", index);
+	ethtool_sprintf(&buff, "ppe%d_rx_pkt_err_fifo_full", index);
+
+	ethtool_sprintf(&buff, "ppe%d_tx_bd", index);
+	ethtool_sprintf(&buff, "ppe%d_tx_pkt", index);
+	ethtool_sprintf(&buff, "ppe%d_tx_pkt_ok", index);
+	ethtool_sprintf(&buff, "ppe%d_tx_pkt_err_fifo_empty", index);
+	ethtool_sprintf(&buff, "ppe%d_tx_pkt_err_csum_fail", index);
+>>>>>>> upstream/android-13
 }
 
 void hns_ppe_get_stats(struct hns_ppe_cb *ppe_cb, u64 *data)
@@ -516,7 +590,11 @@ void hns_ppe_get_stats(struct hns_ppe_cb *ppe_cb, u64 *data)
 /**
  * hns_ppe_init - init ppe device
  * @dsaf_dev: dasf device
+<<<<<<< HEAD
  * retuen 0 - success , negative --fail
+=======
+ * return 0 - success , negative --fail
+>>>>>>> upstream/android-13
  */
 int hns_ppe_init(struct dsaf_device *dsaf_dev)
 {

@@ -1,7 +1,13 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2010 Werner Fink, Jiri Slaby
  *
  * Licensed under GPLv2
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2010 Werner Fink, Jiri Slaby
+>>>>>>> upstream/android-13
  */
 
 #include <linux/console.h>

@@ -2,6 +2,11 @@
 #ifndef __S390_IPCBUF_H__
 #define __S390_IPCBUF_H__
 
+<<<<<<< HEAD
+=======
+#include <linux/posix_types.h>
+
+>>>>>>> upstream/android-13
 /*
  * The user_ipc_perm structure for S/390 architecture.
  * Note extra padding because this structure is passed back and forth

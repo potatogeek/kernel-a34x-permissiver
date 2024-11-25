@@ -4,20 +4,31 @@
  * Copyright(c) 2007 - 2012 Realtek Corporation. All rights reserved.
  *
  ******************************************************************************/
+<<<<<<< HEAD
 #define _RTW_RECV_C_
 
+=======
+>>>>>>> upstream/android-13
 #include <drv_types.h>
 #include <rtw_debug.h>
 #include <linux/jiffies.h>
 #include <rtw_recv.h>
+<<<<<<< HEAD
+=======
+#include <net/cfg80211.h>
+#include <asm/unaligned.h>
+>>>>>>> upstream/android-13
 
 static u8 SNAP_ETH_TYPE_IPX[2] = {0x81, 0x37};
 static u8 SNAP_ETH_TYPE_APPLETALK_AARP[2] = {0x80, 0xf3};
 
+<<<<<<< HEAD
 u8 rtw_rfc1042_header[] = { 0xaa, 0xaa, 0x03, 0x00, 0x00, 0x00 };
 /* Bridge-Tunnel header (for EtherTypes ETH_P_AARP and ETH_P_IPX) */
 u8 rtw_bridge_tunnel_header[] = { 0xaa, 0xaa, 0x03, 0x00, 0x00, 0xf8 };
 
+=======
+>>>>>>> upstream/android-13
 static void rtw_signal_stat_timer_hdl(struct timer_list *t);
 
 void _rtw_init_sta_recv_priv(struct sta_recv_priv *psta_recvpriv)
@@ -27,16 +38,28 @@ void _rtw_init_sta_recv_priv(struct sta_recv_priv *psta_recvpriv)
 	spin_lock_init(&psta_recvpriv->lock);
 
 	/* for (i = 0; i<MAX_RX_NUMBLKS; i++) */
+<<<<<<< HEAD
 	/* 	_rtw_init_queue(&psta_recvpriv->blk_strms[i]); */
+=======
+	/* _rtw_init_queue(&psta_recvpriv->blk_strms[i]); */
+>>>>>>> upstream/android-13
 
 	_rtw_init_queue(&psta_recvpriv->defrag_q);
 }
 
+<<<<<<< HEAD
 sint _rtw_init_recv_priv(struct recv_priv *precvpriv, struct adapter *padapter)
 {
 	sint i;
 	union recv_frame *precvframe;
 	sint	res = _SUCCESS;
+=======
+signed int _rtw_init_recv_priv(struct recv_priv *precvpriv, struct adapter *padapter)
+{
+	signed int i;
+	union recv_frame *precvframe;
+	signed int	res = _SUCCESS;
+>>>>>>> upstream/android-13
 
 	spin_lock_init(&precvpriv->lock);
 
@@ -50,14 +73,22 @@ sint _rtw_init_recv_priv(struct recv_priv *precvpriv, struct adapter *padapter)
 
 	precvpriv->pallocated_frame_buf = vzalloc(NR_RECVFRAME * sizeof(union recv_frame) + RXFRAME_ALIGN_SZ);
 
+<<<<<<< HEAD
 	if (precvpriv->pallocated_frame_buf == NULL) {
+=======
+	if (!precvpriv->pallocated_frame_buf) {
+>>>>>>> upstream/android-13
 		res = _FAIL;
 		goto exit;
 	}
 
 	precvpriv->precv_frame_buf = (u8 *)N_BYTE_ALIGMENT((SIZE_PTR)(precvpriv->pallocated_frame_buf), RXFRAME_ALIGN_SZ);
 	/* precvpriv->precv_frame_buf = precvpriv->pallocated_frame_buf + RXFRAME_ALIGN_SZ - */
+<<<<<<< HEAD
 	/* 						((SIZE_PTR) (precvpriv->pallocated_frame_buf) &(RXFRAME_ALIGN_SZ-1)); */
+=======
+	/* ((SIZE_PTR) (precvpriv->pallocated_frame_buf) &(RXFRAME_ALIGN_SZ-1)); */
+>>>>>>> upstream/android-13
 
 	precvframe = (union recv_frame *) precvpriv->precv_frame_buf;
 
@@ -67,7 +98,11 @@ sint _rtw_init_recv_priv(struct recv_priv *precvpriv, struct adapter *padapter)
 
 		list_add_tail(&(precvframe->u.list), &(precvpriv->free_recv_queue.queue));
 
+<<<<<<< HEAD
 		res = rtw_os_recv_resource_alloc(padapter, precvframe);
+=======
+		rtw_os_recv_resource_alloc(padapter, precvframe);
+>>>>>>> upstream/android-13
 
 		precvframe->u.hdr.len = 0;
 
@@ -97,8 +132,12 @@ void _rtw_free_recv_priv(struct recv_priv *precvpriv)
 
 	rtw_os_recv_resource_free(precvpriv);
 
+<<<<<<< HEAD
 	if (precvpriv->pallocated_frame_buf)
 		vfree(precvpriv->pallocated_frame_buf);
+=======
+	vfree(precvpriv->pallocated_frame_buf);
+>>>>>>> upstream/android-13
 
 	rtw_hal_free_recv_priv(padapter);
 }
@@ -113,7 +152,11 @@ union recv_frame *_rtw_alloc_recvframe(struct __queue *pfree_recv_queue)
 
 	if (list_empty(&pfree_recv_queue->queue))
 		precvframe = NULL;
+<<<<<<< HEAD
 	else{
+=======
+	else {
+>>>>>>> upstream/android-13
 		phead = get_list_head(pfree_recv_queue);
 
 		plist = get_next(phead);
@@ -122,7 +165,11 @@ union recv_frame *_rtw_alloc_recvframe(struct __queue *pfree_recv_queue)
 
 		list_del_init(&precvframe->u.hdr.list);
 		padapter = precvframe->u.hdr.adapter;
+<<<<<<< HEAD
 		if (padapter != NULL) {
+=======
+		if (padapter) {
+>>>>>>> upstream/android-13
 			precvpriv = &padapter->recvpriv;
 			if (pfree_recv_queue == &precvpriv->free_recv_queue)
 				precvpriv->free_recvframe_cnt--;
@@ -160,7 +207,11 @@ int rtw_free_recvframe(union recv_frame *precvframe, struct __queue *pfree_recv_
 
 	list_add_tail(&(precvframe->u.hdr.list), get_list_head(pfree_recv_queue));
 
+<<<<<<< HEAD
 	if (padapter != NULL) {
+=======
+	if (padapter) {
+>>>>>>> upstream/android-13
 		if (pfree_recv_queue == &precvpriv->free_recv_queue)
 				precvpriv->free_recvframe_cnt++;
 	}
@@ -171,7 +222,11 @@ int rtw_free_recvframe(union recv_frame *precvframe, struct __queue *pfree_recv_
 
 
 
+<<<<<<< HEAD
 sint _rtw_enqueue_recvframe(union recv_frame *precvframe, struct __queue *queue)
+=======
+signed int _rtw_enqueue_recvframe(union recv_frame *precvframe, struct __queue *queue)
+>>>>>>> upstream/android-13
 {
 
 	struct adapter *padapter = precvframe->u.hdr.adapter;
@@ -183,16 +238,26 @@ sint _rtw_enqueue_recvframe(union recv_frame *precvframe, struct __queue *queue)
 
 	list_add_tail(&(precvframe->u.hdr.list), get_list_head(queue));
 
+<<<<<<< HEAD
 	if (padapter != NULL)
+=======
+	if (padapter)
+>>>>>>> upstream/android-13
 		if (queue == &precvpriv->free_recv_queue)
 			precvpriv->free_recvframe_cnt++;
 
 	return _SUCCESS;
 }
 
+<<<<<<< HEAD
 sint rtw_enqueue_recvframe(union recv_frame *precvframe, struct __queue *queue)
 {
 	sint ret;
+=======
+signed int rtw_enqueue_recvframe(union recv_frame *precvframe, struct __queue *queue)
+{
+	signed int ret;
+>>>>>>> upstream/android-13
 
 	/* _spinlock(&pfree_recv_queue->lock); */
 	spin_lock_bh(&queue->lock);
@@ -204,7 +269,11 @@ sint rtw_enqueue_recvframe(union recv_frame *precvframe, struct __queue *queue)
 }
 
 /*
+<<<<<<< HEAD
 sint	rtw_enqueue_recvframe(union recv_frame *precvframe, struct __queue *queue)
+=======
+signed int	rtw_enqueue_recvframe(union recv_frame *precvframe, struct __queue *queue)
+>>>>>>> upstream/android-13
 {
 	return rtw_free_recvframe(precvframe, queue);
 }
@@ -251,14 +320,21 @@ u32 rtw_free_uc_swdec_pending_queue(struct adapter *adapter)
 		cnt++;
 	}
 
+<<<<<<< HEAD
 	if (cnt)
 		DBG_871X(FUNC_ADPT_FMT" dequeue %d\n", FUNC_ADPT_ARG(adapter), cnt);
 
+=======
+>>>>>>> upstream/android-13
 	return cnt;
 }
 
 
+<<<<<<< HEAD
 sint rtw_enqueue_recvbuf_to_head(struct recv_buf *precvbuf, struct __queue *queue)
+=======
+signed int rtw_enqueue_recvbuf_to_head(struct recv_buf *precvbuf, struct __queue *queue)
+>>>>>>> upstream/android-13
 {
 	spin_lock_bh(&queue->lock);
 
@@ -270,7 +346,11 @@ sint rtw_enqueue_recvbuf_to_head(struct recv_buf *precvbuf, struct __queue *queu
 	return _SUCCESS;
 }
 
+<<<<<<< HEAD
 sint rtw_enqueue_recvbuf(struct recv_buf *precvbuf, struct __queue *queue)
+=======
+signed int rtw_enqueue_recvbuf(struct recv_buf *precvbuf, struct __queue *queue)
+>>>>>>> upstream/android-13
 {
 	spin_lock_bh(&queue->lock);
 
@@ -291,12 +371,20 @@ struct recv_buf *rtw_dequeue_recvbuf(struct __queue *queue)
 
 	if (list_empty(&queue->queue))
 		precvbuf = NULL;
+<<<<<<< HEAD
 	else{
+=======
+	else {
+>>>>>>> upstream/android-13
 		phead = get_list_head(queue);
 
 		plist = get_next(phead);
 
+<<<<<<< HEAD
 		precvbuf = LIST_CONTAINOR(plist, struct recv_buf, list);
+=======
+		precvbuf = container_of(plist, struct recv_buf, list);
+>>>>>>> upstream/android-13
 
 		list_del_init(&precvbuf->list);
 
@@ -308,20 +396,33 @@ struct recv_buf *rtw_dequeue_recvbuf(struct __queue *queue)
 
 }
 
+<<<<<<< HEAD
 sint recvframe_chkmic(struct adapter *adapter,  union recv_frame *precvframe);
 sint recvframe_chkmic(struct adapter *adapter,  union recv_frame *precvframe)
 {
 
 	sint	i, res = _SUCCESS;
+=======
+static signed int recvframe_chkmic(struct adapter *adapter,  union recv_frame *precvframe)
+{
+
+	signed int	i, res = _SUCCESS;
+>>>>>>> upstream/android-13
 	u32 datalen;
 	u8 miccode[8];
 	u8 bmic_err = false, brpt_micerror = true;
 	u8 *pframe, *payload, *pframemic;
 	u8 *mickey;
 	/* u8 *iv, rxdata_key_idx = 0; */
+<<<<<<< HEAD
 	struct	sta_info 	*stainfo;
 	struct	rx_pkt_attrib	*prxattrib = &precvframe->u.hdr.attrib;
 	struct	security_priv *psecuritypriv = &adapter->securitypriv;
+=======
+	struct sta_info *stainfo;
+	struct rx_pkt_attrib *prxattrib = &precvframe->u.hdr.attrib;
+	struct security_priv *psecuritypriv = &adapter->securitypriv;
+>>>>>>> upstream/android-13
 
 	struct mlme_ext_priv *pmlmeext = &adapter->mlmeextpriv;
 	struct mlme_ext_info *pmlmeinfo = &(pmlmeext->mlmext_info);
@@ -329,18 +430,24 @@ sint recvframe_chkmic(struct adapter *adapter,  union recv_frame *precvframe)
 	stainfo = rtw_get_stainfo(&adapter->stapriv, &prxattrib->ta[0]);
 
 	if (prxattrib->encrypt == _TKIP_) {
+<<<<<<< HEAD
 		RT_TRACE(_module_rtl871x_recv_c_, _drv_info_, ("\n recvframe_chkmic:prxattrib->encrypt == _TKIP_\n"));
 		RT_TRACE(_module_rtl871x_recv_c_, _drv_info_, ("\n recvframe_chkmic:da = 0x%02x:0x%02x:0x%02x:0x%02x:0x%02x:0x%02x\n",
 			prxattrib->ra[0], prxattrib->ra[1], prxattrib->ra[2], prxattrib->ra[3], prxattrib->ra[4], prxattrib->ra[5]));
 
 		/* calculate mic code */
 		if (stainfo != NULL) {
+=======
+		/* calculate mic code */
+		if (stainfo) {
+>>>>>>> upstream/android-13
 			if (IS_MCAST(prxattrib->ra)) {
 				/* mickey =&psecuritypriv->dot118021XGrprxmickey.skey[0]; */
 				/* iv = precvframe->u.hdr.rx_data+prxattrib->hdrlen; */
 				/* rxdata_key_idx =(((iv[3])>>6)&0x3) ; */
 				mickey = &psecuritypriv->dot118021XGrprxmickey[prxattrib->key_index].skey[0];
 
+<<<<<<< HEAD
 				RT_TRACE(_module_rtl871x_recv_c_, _drv_info_, ("\n recvframe_chkmic: bcmc key\n"));
 				/* DBG_871X("\n recvframe_chkmic: bcmc key psecuritypriv->dot118021XGrpKeyid(%d), pmlmeinfo->key_index(%d) , recv key_id(%d)\n", */
 				/* 								psecuritypriv->dot118021XGrpKeyid, pmlmeinfo->key_index, rxdata_key_idx); */
@@ -349,20 +456,32 @@ sint recvframe_chkmic(struct adapter *adapter,  union recv_frame *precvframe)
 					res = _FAIL;
 					RT_TRACE(_module_rtl871x_recv_c_, _drv_err_, ("\n recvframe_chkmic:didn't install group key!!!!!!!!!!\n"));
 					DBG_871X("\n recvframe_chkmic:didn't install group key!!!!!!!!!!\n");
+=======
+				/* psecuritypriv->dot118021XGrpKeyid, pmlmeinfo->key_index, rxdata_key_idx); */
+
+				if (psecuritypriv->binstallGrpkey == false) {
+					res = _FAIL;
+>>>>>>> upstream/android-13
 					goto exit;
 				}
 			} else {
 				mickey = &stainfo->dot11tkiprxmickey.skey[0];
+<<<<<<< HEAD
 				RT_TRACE(_module_rtl871x_recv_c_, _drv_err_, ("\n recvframe_chkmic: unicast key\n"));
+=======
+>>>>>>> upstream/android-13
 			}
 
 			datalen = precvframe->u.hdr.len-prxattrib->hdrlen-prxattrib->iv_len-prxattrib->icv_len-8;/* icv_len included the mic code */
 			pframe = precvframe->u.hdr.rx_data;
 			payload = pframe+prxattrib->hdrlen+prxattrib->iv_len;
 
+<<<<<<< HEAD
 			RT_TRACE(_module_rtl871x_recv_c_, _drv_info_, ("\n prxattrib->iv_len =%d prxattrib->icv_len =%d\n", prxattrib->iv_len, prxattrib->icv_len));
 
 
+=======
+>>>>>>> upstream/android-13
 			rtw_seccalctkipmic(mickey, pframe, payload, datalen, &miccode[0], (unsigned char)prxattrib->priority); /* care the length of the data */
 
 			pframemic = payload+datalen;
@@ -370,14 +489,20 @@ sint recvframe_chkmic(struct adapter *adapter,  union recv_frame *precvframe)
 			bmic_err = false;
 
 			for (i = 0; i < 8; i++) {
+<<<<<<< HEAD
 				if (miccode[i] != *(pframemic+i)) {
 					RT_TRACE(_module_rtl871x_recv_c_, _drv_err_, ("recvframe_chkmic:miccode[%d](%02x) != *(pframemic+%d)(%02x) ", i, miccode[i], i, *(pframemic+i)));
 					bmic_err = true;
 				}
+=======
+				if (miccode[i] != *(pframemic + i))
+					bmic_err = true;
+>>>>>>> upstream/android-13
 			}
 
 
 			if (bmic_err == true) {
+<<<<<<< HEAD
 
 				RT_TRACE(_module_rtl871x_recv_c_, _drv_err_, ("\n *(pframemic-8)-*(pframemic-1) = 0x%02x:0x%02x:0x%02x:0x%02x:0x%02x:0x%02x:0x%02x:0x%02x\n",
 					*(pframemic-8), *(pframemic-7), *(pframemic-6), *(pframemic-5), *(pframemic-4), *(pframemic-3), *(pframemic-2), *(pframemic-1)));
@@ -402,11 +527,14 @@ sint recvframe_chkmic(struct adapter *adapter,  union recv_frame *precvframe)
 					prxattrib->ra[0], prxattrib->ra[1], prxattrib->ra[2],
 					prxattrib->ra[3], prxattrib->ra[4], prxattrib->ra[5], psecuritypriv->binstallGrpkey));
 
+=======
+>>>>>>> upstream/android-13
 				/*  double check key_index for some timing issue , */
 				/*  cannot compare with psecuritypriv->dot118021XGrpKeyid also cause timing issue */
 				if ((IS_MCAST(prxattrib->ra) == true)  && (prxattrib->key_index != pmlmeinfo->key_index))
 					brpt_micerror = false;
 
+<<<<<<< HEAD
 				if ((prxattrib->bdecrypted == true) && (brpt_micerror == true)) {
 					rtw_handle_tkip_mic_err(adapter, (u8)IS_MCAST(prxattrib->ra));
 					RT_TRACE(_module_rtl871x_recv_c_, _drv_err_, (" mic error :prxattrib->bdecrypted =%d ", prxattrib->bdecrypted));
@@ -415,11 +543,16 @@ sint recvframe_chkmic(struct adapter *adapter,  union recv_frame *precvframe)
 					RT_TRACE(_module_rtl871x_recv_c_, _drv_err_, (" mic error :prxattrib->bdecrypted =%d ", prxattrib->bdecrypted));
 					DBG_871X(" mic error :prxattrib->bdecrypted =%d\n", prxattrib->bdecrypted);
 				}
+=======
+				if (prxattrib->bdecrypted && brpt_micerror)
+					rtw_handle_tkip_mic_err(adapter, (u8)IS_MCAST(prxattrib->ra));
+>>>>>>> upstream/android-13
 
 				res = _FAIL;
 
 			} else {
 				/* mic checked ok */
+<<<<<<< HEAD
 				if ((psecuritypriv->bcheck_grpkey == false) && (IS_MCAST(prxattrib->ra) == true)) {
 					psecuritypriv->bcheck_grpkey = true;
 					RT_TRACE(_module_rtl871x_recv_c_, _drv_err_, ("psecuritypriv->bcheck_grpkey =true"));
@@ -428,6 +561,13 @@ sint recvframe_chkmic(struct adapter *adapter,  union recv_frame *precvframe)
 
 		} else
 			RT_TRACE(_module_rtl871x_recv_c_, _drv_err_, ("recvframe_chkmic: rtw_get_stainfo == NULL!!!\n"));
+=======
+				if (!psecuritypriv->bcheck_grpkey &&
+				    IS_MCAST(prxattrib->ra))
+					psecuritypriv->bcheck_grpkey = true;
+			}
+		}
+>>>>>>> upstream/android-13
 
 		recvframe_pull_tail(precvframe, 8);
 
@@ -439,8 +579,12 @@ exit:
 }
 
 /* decrypt and set the ivlen, icvlen of the recv_frame */
+<<<<<<< HEAD
 union recv_frame *decryptor(struct adapter *padapter, union recv_frame *precv_frame);
 union recv_frame *decryptor(struct adapter *padapter, union recv_frame *precv_frame)
+=======
+static union recv_frame *decryptor(struct adapter *padapter, union recv_frame *precv_frame)
+>>>>>>> upstream/android-13
 {
 
 	struct rx_pkt_attrib *prxattrib = &precv_frame->u.hdr.attrib;
@@ -448,17 +592,23 @@ union recv_frame *decryptor(struct adapter *padapter, union recv_frame *precv_fr
 	union recv_frame *return_packet = precv_frame;
 	u32  res = _SUCCESS;
 
+<<<<<<< HEAD
 	DBG_COUNTER(padapter->rx_logs.core_rx_post_decrypt);
 
 	RT_TRACE(_module_rtl871x_recv_c_, _drv_info_, ("prxstat->decrypted =%x prxattrib->encrypt = 0x%03x\n", prxattrib->bdecrypted, prxattrib->encrypt));
 
+=======
+>>>>>>> upstream/android-13
 	if (prxattrib->encrypt > 0) {
 		u8 *iv = precv_frame->u.hdr.rx_data+prxattrib->hdrlen;
 		prxattrib->key_index = (((iv[3])>>6)&0x3);
 
 		if (prxattrib->key_index > WEP_KEYS) {
+<<<<<<< HEAD
 			DBG_871X("prxattrib->key_index(%d) > WEP_KEYS\n", prxattrib->key_index);
 
+=======
+>>>>>>> upstream/android-13
 			switch (prxattrib->encrypt) {
 			case _WEP40_:
 			case _WEP104_:
@@ -476,6 +626,7 @@ union recv_frame *decryptor(struct adapter *padapter, union recv_frame *precv_fr
 	if ((prxattrib->encrypt > 0) && ((prxattrib->bdecrypted == 0) || (psecuritypriv->sw_decrypt == true))) {
 		psecuritypriv->hw_decrypted = false;
 
+<<<<<<< HEAD
 		#ifdef DBG_RX_DECRYPTOR
 		DBG_871X("[%s] %d:prxstat->bdecrypted:%d,  prxattrib->encrypt:%d,  Setting psecuritypriv->hw_decrypted = %d\n",
 			__func__,
@@ -497,11 +648,23 @@ union recv_frame *decryptor(struct adapter *padapter, union recv_frame *precv_fr
 			break;
 		case _AES_:
 			DBG_COUNTER(padapter->rx_logs.core_rx_post_decrypt_aes);
+=======
+		switch (prxattrib->encrypt) {
+		case _WEP40_:
+		case _WEP104_:
+			rtw_wep_decrypt(padapter, (u8 *)precv_frame);
+			break;
+		case _TKIP_:
+			res = rtw_tkip_decrypt(padapter, (u8 *)precv_frame);
+			break;
+		case _AES_:
+>>>>>>> upstream/android-13
 			res = rtw_aes_decrypt(padapter, (u8 *)precv_frame);
 			break;
 		default:
 				break;
 		}
+<<<<<<< HEAD
 	} else if (prxattrib->bdecrypted == 1
 		&& prxattrib->encrypt > 0
 		&& (psecuritypriv->busetkipkey == 1 || prxattrib->encrypt != _TKIP_)
@@ -528,6 +691,13 @@ union recv_frame *decryptor(struct adapter *padapter, union recv_frame *precv_fr
 			prxattrib->encrypt,
 			psecuritypriv->hw_decrypted);
 		#endif
+=======
+	} else if (prxattrib->bdecrypted == 1 && prxattrib->encrypt > 0 &&
+		   (psecuritypriv->busetkipkey == 1 || prxattrib->encrypt != _TKIP_)
+		) {
+		psecuritypriv->hw_decrypted = true;
+	} else {
+>>>>>>> upstream/android-13
 	}
 
 	if (res == _FAIL) {
@@ -540,8 +710,12 @@ union recv_frame *decryptor(struct adapter *padapter, union recv_frame *precv_fr
 }
 
 /* set the security information in the recv_frame */
+<<<<<<< HEAD
 union recv_frame *portctrl(struct adapter *adapter, union recv_frame *precv_frame);
 union recv_frame *portctrl(struct adapter *adapter, union recv_frame *precv_frame)
+=======
+static union recv_frame *portctrl(struct adapter *adapter, union recv_frame *precv_frame)
+>>>>>>> upstream/android-13
 {
 	u8 *psta_addr = NULL;
 	u8 *ptr;
@@ -567,20 +741,32 @@ union recv_frame *portctrl(struct adapter *adapter, union recv_frame *precv_fram
 
 	psta = rtw_get_stainfo(pstapriv, psta_addr);
 
+<<<<<<< HEAD
 	RT_TRACE(_module_rtl871x_recv_c_, _drv_info_, ("########portctrl:adapter->securitypriv.dot11AuthAlgrthm =%d\n", adapter->securitypriv.dot11AuthAlgrthm));
 
 	if (auth_alg == 2) {
 		if ((psta != NULL) && (psta->ieee8021x_blocked)) {
+=======
+	if (auth_alg == 2) {
+		if ((psta) && (psta->ieee8021x_blocked)) {
+>>>>>>> upstream/android-13
 			__be16 be_tmp;
 
 			/* blocked */
 			/* only accept EAPOL frame */
+<<<<<<< HEAD
 			RT_TRACE(_module_rtl871x_recv_c_, _drv_info_, ("########portctrl:psta->ieee8021x_blocked == 1\n"));
+=======
+>>>>>>> upstream/android-13
 
 			prtnframe = precv_frame;
 
 			/* get ether_type */
+<<<<<<< HEAD
 			ptr = ptr+pfhdr->attrib.hdrlen+pfhdr->attrib.iv_len+LLC_HEADER_SIZE;
+=======
+			ptr = ptr + pfhdr->attrib.hdrlen + pfhdr->attrib.iv_len + LLC_HEADER_LENGTH;
+>>>>>>> upstream/android-13
 			memcpy(&be_tmp, ptr, 2);
 			ether_type = ntohs(be_tmp);
 
@@ -591,6 +777,7 @@ union recv_frame *portctrl(struct adapter *adapter, union recv_frame *precv_fram
 				rtw_free_recvframe(precv_frame, &adapter->recvpriv.free_recv_queue);
 				prtnframe = NULL;
 			}
+<<<<<<< HEAD
 		} else{
 			/* allowed */
 			/* check decryption status, and decrypt the frame if needed */
@@ -599,10 +786,16 @@ union recv_frame *portctrl(struct adapter *adapter, union recv_frame *precv_fram
 
 			if (pattrib->bdecrypted == 0)
 				RT_TRACE(_module_rtl871x_recv_c_, _drv_info_, ("portctrl:prxstat->decrypted =%x\n", pattrib->bdecrypted));
+=======
+		} else {
+			/* allowed */
+			/* check decryption status, and decrypt the frame if needed */
+>>>>>>> upstream/android-13
 
 			prtnframe = precv_frame;
 			/* check is the EAPOL frame or not (Rekey) */
 			/* if (ether_type == eapol_type) { */
+<<<<<<< HEAD
 			/* 	RT_TRACE(_module_rtl871x_recv_c_, _drv_notice_, ("########portctrl:ether_type == 0x888e\n")); */
 				/* check Rekey */
 
@@ -610,6 +803,13 @@ union recv_frame *portctrl(struct adapter *adapter, union recv_frame *precv_fram
 			/*  */
 			/* else { */
 			/* 	RT_TRACE(_module_rtl871x_recv_c_, _drv_info_, ("########portctrl:ether_type = 0x%04x\n", ether_type)); */
+=======
+				/* check Rekey */
+
+			/* prtnframe =precv_frame; */
+			/*  */
+			/* else { */
+>>>>>>> upstream/android-13
 			/*  */
 		}
 	} else
@@ -618,14 +818,21 @@ union recv_frame *portctrl(struct adapter *adapter, union recv_frame *precv_fram
 	return prtnframe;
 }
 
+<<<<<<< HEAD
 sint recv_decache(union recv_frame *precv_frame, u8 bretry, struct stainfo_rxcache *prxcache);
 sint recv_decache(union recv_frame *precv_frame, u8 bretry, struct stainfo_rxcache *prxcache)
 {
 	sint tid = precv_frame->u.hdr.attrib.priority;
+=======
+static signed int recv_decache(union recv_frame *precv_frame, u8 bretry, struct stainfo_rxcache *prxcache)
+{
+	signed int tid = precv_frame->u.hdr.attrib.priority;
+>>>>>>> upstream/android-13
 
 	u16 seq_ctrl = ((precv_frame->u.hdr.attrib.seq_num&0xffff) << 4) |
 		(precv_frame->u.hdr.attrib.frag_num & 0xf);
 
+<<<<<<< HEAD
 	if (tid > 15) {
 		RT_TRACE(_module_rtl871x_recv_c_, _drv_notice_, ("recv_decache, (tid>15)! seq_ctrl = 0x%x, tid = 0x%x\n", seq_ctrl, tid));
 
@@ -638,6 +845,14 @@ sint recv_decache(union recv_frame *precv_frame, u8 bretry, struct stainfo_rxcac
 
 			return _FAIL;
 		}
+=======
+	if (tid > 15)
+		return _FAIL;
+
+	if (1) { /* if (bretry) */
+		if (seq_ctrl == prxcache->tid_rxseq[tid])
+			return _FAIL;
+>>>>>>> upstream/android-13
 	}
 
 	prxcache->tid_rxseq[tid] = seq_ctrl;
@@ -646,8 +861,12 @@ sint recv_decache(union recv_frame *precv_frame, u8 bretry, struct stainfo_rxcac
 
 }
 
+<<<<<<< HEAD
 void process_pwrbit_data(struct adapter *padapter, union recv_frame *precv_frame);
 void process_pwrbit_data(struct adapter *padapter, union recv_frame *precv_frame)
+=======
+static void process_pwrbit_data(struct adapter *padapter, union recv_frame *precv_frame)
+>>>>>>> upstream/android-13
 {
 	unsigned char pwrbit;
 	u8 *ptr = precv_frame->u.hdr.rx_data;
@@ -667,24 +886,36 @@ void process_pwrbit_data(struct adapter *padapter, union recv_frame *precv_frame
 
 				stop_sta_xmit(padapter, psta);
 
+<<<<<<< HEAD
 				/* DBG_871X("to sleep, sta_dz_bitmap =%x\n", pstapriv->sta_dz_bitmap); */
 			}
 		} else{
+=======
+			}
+		} else {
+>>>>>>> upstream/android-13
 			if (psta->state & WIFI_SLEEP_STATE) {
 				/* psta->state ^= WIFI_SLEEP_STATE; */
 				/* pstapriv->sta_dz_bitmap &= ~BIT(psta->aid); */
 
 				wakeup_sta_to_xmit(padapter, psta);
+<<<<<<< HEAD
 
 				/* DBG_871X("to wakeup, sta_dz_bitmap =%x\n", pstapriv->sta_dz_bitmap); */
+=======
+>>>>>>> upstream/android-13
 			}
 		}
 
 	}
 }
 
+<<<<<<< HEAD
 void process_wmmps_data(struct adapter *padapter, union recv_frame *precv_frame);
 void process_wmmps_data(struct adapter *padapter, union recv_frame *precv_frame)
+=======
+static void process_wmmps_data(struct adapter *padapter, union recv_frame *precv_frame)
+>>>>>>> upstream/android-13
 {
 	struct rx_pkt_attrib *pattrib = &precv_frame->u.hdr.attrib;
 	struct sta_priv *pstapriv = &padapter->stapriv;
@@ -735,6 +966,7 @@ void process_wmmps_data(struct adapter *padapter, union recv_frame *precv_frame)
 	}
 }
 
+<<<<<<< HEAD
 void count_rx_stats(struct adapter *padapter, union recv_frame *prframe, struct sta_info *sta);
 void count_rx_stats(struct adapter *padapter, union recv_frame *prframe, struct sta_info *sta)
 {
@@ -743,15 +975,29 @@ void count_rx_stats(struct adapter *padapter, union recv_frame *prframe, struct 
 	struct stainfo_stats	*pstats = NULL;
 	struct rx_pkt_attrib	*pattrib = &prframe->u.hdr.attrib;
 	struct recv_priv 	*precvpriv = &padapter->recvpriv;
+=======
+static void count_rx_stats(struct adapter *padapter, union recv_frame *prframe, struct sta_info *sta)
+{
+	int sz;
+	struct sta_info *psta = NULL;
+	struct stainfo_stats *pstats = NULL;
+	struct rx_pkt_attrib *pattrib = &prframe->u.hdr.attrib;
+	struct recv_priv *precvpriv = &padapter->recvpriv;
+>>>>>>> upstream/android-13
 
 	sz = get_recvframe_len(prframe);
 	precvpriv->rx_bytes += sz;
 
 	padapter->mlmepriv.LinkDetectInfo.NumRxOkInPeriod++;
 
+<<<<<<< HEAD
 	if ((!MacAddr_isBcst(pattrib->dst)) && (!IS_MCAST(pattrib->dst))) {
 		padapter->mlmepriv.LinkDetectInfo.NumRxUnicastOkInPeriod++;
 	}
+=======
+	if ((!MacAddr_isBcst(pattrib->dst)) && (!IS_MCAST(pattrib->dst)))
+		padapter->mlmepriv.LinkDetectInfo.NumRxUnicastOkInPeriod++;
+>>>>>>> upstream/android-13
 
 	if (sta)
 		psta = sta;
@@ -768,6 +1014,7 @@ void count_rx_stats(struct adapter *padapter, union recv_frame *prframe, struct 
 	traffic_check_for_leave_lps(padapter, false, 0);
 }
 
+<<<<<<< HEAD
 sint sta2sta_data_frame(
 	struct adapter *adapter,
 	union recv_frame *precv_frame,
@@ -790,13 +1037,30 @@ sint sta2sta_data_frame(
 	sint bmcast = IS_MCAST(pattrib->dst);
 
 	/* DBG_871X("[%s] %d, seqnum:%d\n", __func__, __LINE__, pattrib->seq_num); */
+=======
+static signed int sta2sta_data_frame(struct adapter *adapter, union recv_frame *precv_frame,
+			struct sta_info **psta)
+{
+	u8 *ptr = precv_frame->u.hdr.rx_data;
+	signed int ret = _SUCCESS;
+	struct rx_pkt_attrib *pattrib = &precv_frame->u.hdr.attrib;
+	struct sta_priv *pstapriv = &adapter->stapriv;
+	struct mlme_priv *pmlmepriv = &adapter->mlmepriv;
+	u8 *mybssid  = get_bssid(pmlmepriv);
+	u8 *myhwaddr = myid(&adapter->eeprompriv);
+	u8 *sta_addr = NULL;
+	signed int bmcast = IS_MCAST(pattrib->dst);
+>>>>>>> upstream/android-13
 
 	if ((check_fwstate(pmlmepriv, WIFI_ADHOC_STATE) == true) ||
 		(check_fwstate(pmlmepriv, WIFI_ADHOC_MASTER_STATE) == true)) {
 
 		/*  filter packets that SA is myself or multicast or broadcast */
 		if (!memcmp(myhwaddr, pattrib->src, ETH_ALEN)) {
+<<<<<<< HEAD
 			RT_TRACE(_module_rtl871x_recv_c_, _drv_err_, (" SA ==myself\n"));
+=======
+>>>>>>> upstream/android-13
 			ret = _FAIL;
 			goto exit;
 		}
@@ -818,7 +1082,10 @@ sint sta2sta_data_frame(
 	} else if (check_fwstate(pmlmepriv, WIFI_STATION_STATE) == true) {
 		/*  For Station mode, sa and bssid should always be BSSID, and DA is my mac-address */
 		if (memcmp(pattrib->bssid, pattrib->src, ETH_ALEN)) {
+<<<<<<< HEAD
 			RT_TRACE(_module_rtl871x_recv_c_, _drv_err_, ("bssid != TA under STATION_MODE; drop pkt\n"));
+=======
+>>>>>>> upstream/android-13
 			ret = _FAIL;
 			goto exit;
 		}
@@ -831,7 +1098,11 @@ sint sta2sta_data_frame(
 					ret = _FAIL;
 					goto exit;
 			}
+<<<<<<< HEAD
 		} else{ /*  not mc-frame */
+=======
+		} else { /*  not mc-frame */
+>>>>>>> upstream/android-13
 			/*  For AP mode, if DA is non-MCAST, then it must be BSSID, and bssid == BSSID */
 			if (memcmp(pattrib->bssid, pattrib->dst, ETH_ALEN)) {
 				ret = _FAIL;
@@ -859,8 +1130,12 @@ sint sta2sta_data_frame(
 	else
 		*psta = rtw_get_stainfo(pstapriv, sta_addr); /*  get ap_info */
 
+<<<<<<< HEAD
 	if (*psta == NULL) {
 		RT_TRACE(_module_rtl871x_recv_c_, _drv_err_, ("can't get psta under sta2sta_data_frame ; drop pkt\n"));
+=======
+	if (!*psta) {
+>>>>>>> upstream/android-13
 		ret = _FAIL;
 		goto exit;
 	}
@@ -869,6 +1144,7 @@ exit:
 	return ret;
 }
 
+<<<<<<< HEAD
 sint ap2sta_data_frame(
 	struct adapter *adapter,
 	union recv_frame *precv_frame,
@@ -890,26 +1166,49 @@ sint ap2sta_data_frame(
 	if ((check_fwstate(pmlmepriv, WIFI_STATION_STATE) == true)
 		&& (check_fwstate(pmlmepriv, _FW_LINKED) == true
 			|| check_fwstate(pmlmepriv, _FW_UNDER_LINKING) == true)
+=======
+static signed int ap2sta_data_frame(struct adapter *adapter, union recv_frame *precv_frame,
+		       struct sta_info **psta)
+{
+	u8 *ptr = precv_frame->u.hdr.rx_data;
+	struct rx_pkt_attrib *pattrib = &precv_frame->u.hdr.attrib;
+	signed int ret = _SUCCESS;
+	struct sta_priv *pstapriv = &adapter->stapriv;
+	struct mlme_priv *pmlmepriv = &adapter->mlmepriv;
+	u8 *mybssid  = get_bssid(pmlmepriv);
+	u8 *myhwaddr = myid(&adapter->eeprompriv);
+	signed int bmcast = IS_MCAST(pattrib->dst);
+
+	if ((check_fwstate(pmlmepriv, WIFI_STATION_STATE) == true) &&
+	    (check_fwstate(pmlmepriv, _FW_LINKED) == true ||
+	     check_fwstate(pmlmepriv, _FW_UNDER_LINKING) == true)
+>>>>>>> upstream/android-13
 		) {
 
 		/*  filter packets that SA is myself or multicast or broadcast */
 		if (!memcmp(myhwaddr, pattrib->src, ETH_ALEN)) {
+<<<<<<< HEAD
 			RT_TRACE(_module_rtl871x_recv_c_, _drv_err_, (" SA ==myself\n"));
 			#ifdef DBG_RX_DROP_FRAME
 			DBG_871X("DBG_RX_DROP_FRAME %s SA ="MAC_FMT", myhwaddr ="MAC_FMT"\n",
 				__func__, MAC_ARG(pattrib->src), MAC_ARG(myhwaddr));
 			#endif
+=======
+>>>>>>> upstream/android-13
 			ret = _FAIL;
 			goto exit;
 		}
 
 		/*  da should be for me */
 		if ((memcmp(myhwaddr, pattrib->dst, ETH_ALEN)) && (!bmcast)) {
+<<<<<<< HEAD
 			RT_TRACE(_module_rtl871x_recv_c_, _drv_info_,
 				(" ap2sta_data_frame:  compare DA fail; DA ="MAC_FMT"\n", MAC_ARG(pattrib->dst)));
 			#ifdef DBG_RX_DROP_FRAME
 			DBG_871X("DBG_RX_DROP_FRAME %s DA ="MAC_FMT"\n", __func__, MAC_ARG(pattrib->dst));
 			#endif
+=======
+>>>>>>> upstream/android-13
 			ret = _FAIL;
 			goto exit;
 		}
@@ -919,6 +1218,7 @@ sint ap2sta_data_frame(
 		if (!memcmp(pattrib->bssid, "\x0\x0\x0\x0\x0\x0", ETH_ALEN) ||
 		     !memcmp(mybssid, "\x0\x0\x0\x0\x0\x0", ETH_ALEN) ||
 		     (memcmp(pattrib->bssid, mybssid, ETH_ALEN))) {
+<<<<<<< HEAD
 			RT_TRACE(_module_rtl871x_recv_c_, _drv_info_,
 				(" ap2sta_data_frame:  compare BSSID fail ; BSSID ="MAC_FMT"\n", MAC_ARG(pattrib->bssid)));
 			RT_TRACE(_module_rtl871x_recv_c_, _drv_info_, ("mybssid ="MAC_FMT"\n", MAC_ARG(mybssid)));
@@ -932,6 +1232,11 @@ sint ap2sta_data_frame(
 				DBG_871X("issue_deauth to the nonassociated ap =" MAC_FMT " for the reason(7)\n", MAC_ARG(pattrib->bssid));
 				issue_deauth(adapter, pattrib->bssid, WLAN_REASON_CLASS3_FRAME_FROM_NONASSOC_STA);
 			}
+=======
+
+			if (!bmcast)
+				issue_deauth(adapter, pattrib->bssid, WLAN_REASON_CLASS3_FRAME_FROM_NONASSOC_STA);
+>>>>>>> upstream/android-13
 
 			ret = _FAIL;
 			goto exit;
@@ -942,18 +1247,25 @@ sint ap2sta_data_frame(
 		else
 			*psta = rtw_get_stainfo(pstapriv, pattrib->bssid); /*  get ap_info */
 
+<<<<<<< HEAD
 		if (*psta == NULL) {
 			RT_TRACE(_module_rtl871x_recv_c_, _drv_err_, ("ap2sta: can't get psta under STATION_MODE ; drop pkt\n"));
 			#ifdef DBG_RX_DROP_FRAME
 			DBG_871X("DBG_RX_DROP_FRAME %s can't get psta under STATION_MODE ; drop pkt\n", __func__);
 			#endif
+=======
+		if (!*psta) {
+>>>>>>> upstream/android-13
 			ret = _FAIL;
 			goto exit;
 		}
 
+<<<<<<< HEAD
 		if ((GetFrameSubType(ptr) & WIFI_QOS_DATA_TYPE) == WIFI_QOS_DATA_TYPE) {
 		}
 
+=======
+>>>>>>> upstream/android-13
 		if (GetFrameSubType(ptr) & BIT(6)) {
 			/* No data, will not indicate to upper layer, temporily count it here */
 			count_rx_stats(adapter, precv_frame, *psta);
@@ -974,11 +1286,15 @@ sint ap2sta_data_frame(
 
 
 		*psta = rtw_get_stainfo(pstapriv, pattrib->bssid); /*  get sta_info */
+<<<<<<< HEAD
 		if (*psta == NULL) {
 			RT_TRACE(_module_rtl871x_recv_c_, _drv_err_, ("can't get psta under MP_MODE ; drop pkt\n"));
 			#ifdef DBG_RX_DROP_FRAME
 			DBG_871X("DBG_RX_DROP_FRAME %s can't get psta under WIFI_MP_STATE ; drop pkt\n", __func__);
 			#endif
+=======
+		if (!*psta) {
+>>>>>>> upstream/android-13
 			ret = _FAIL;
 			goto exit;
 		}
@@ -988,14 +1304,22 @@ sint ap2sta_data_frame(
 		/* Special case */
 		ret = RTW_RX_HANDLED;
 		goto exit;
+<<<<<<< HEAD
 	} else{
 		if (!memcmp(myhwaddr, pattrib->dst, ETH_ALEN) && (!bmcast)) {
 			*psta = rtw_get_stainfo(pstapriv, pattrib->bssid); /*  get sta_info */
 			if (*psta == NULL) {
+=======
+	} else {
+		if (!memcmp(myhwaddr, pattrib->dst, ETH_ALEN) && (!bmcast)) {
+			*psta = rtw_get_stainfo(pstapriv, pattrib->bssid); /*  get sta_info */
+			if (!*psta) {
+>>>>>>> upstream/android-13
 
 				/* for AP multicast issue , modify by yiwei */
 				static unsigned long send_issue_deauth_time;
 
+<<<<<<< HEAD
 				/* DBG_871X("After send deauth , %u ms has elapsed.\n", jiffies_to_msecs(jiffies - send_issue_deauth_time)); */
 
 				if (jiffies_to_msecs(jiffies - send_issue_deauth_time) > 10000 || send_issue_deauth_time == 0) {
@@ -1003,21 +1327,30 @@ sint ap2sta_data_frame(
 
 					DBG_871X("issue_deauth to the ap =" MAC_FMT " for the reason(7)\n", MAC_ARG(pattrib->bssid));
 
+=======
+				if (jiffies_to_msecs(jiffies - send_issue_deauth_time) > 10000 || send_issue_deauth_time == 0) {
+					send_issue_deauth_time = jiffies;
+
+>>>>>>> upstream/android-13
 					issue_deauth(adapter, pattrib->bssid, WLAN_REASON_CLASS3_FRAME_FROM_NONASSOC_STA);
 				}
 			}
 		}
 
 		ret = _FAIL;
+<<<<<<< HEAD
 		#ifdef DBG_RX_DROP_FRAME
 		DBG_871X("DBG_RX_DROP_FRAME %s fw_state:0x%x\n", __func__, get_fwstate(pmlmepriv));
 		#endif
+=======
+>>>>>>> upstream/android-13
 	}
 
 exit:
 	return ret;
 }
 
+<<<<<<< HEAD
 sint sta2ap_data_frame(
 	struct adapter *adapter,
 	union recv_frame *precv_frame,
@@ -1033,6 +1366,17 @@ sint sta2ap_data_frame(
 	struct	mlme_priv *pmlmepriv = &adapter->mlmepriv;
 	unsigned char *mybssid  = get_bssid(pmlmepriv);
 	sint ret = _SUCCESS;
+=======
+static signed int sta2ap_data_frame(struct adapter *adapter, union recv_frame *precv_frame,
+		       struct sta_info **psta)
+{
+	u8 *ptr = precv_frame->u.hdr.rx_data;
+	struct rx_pkt_attrib *pattrib = &precv_frame->u.hdr.attrib;
+	struct sta_priv *pstapriv = &adapter->stapriv;
+	struct mlme_priv *pmlmepriv = &adapter->mlmepriv;
+	unsigned char *mybssid  = get_bssid(pmlmepriv);
+	signed int ret = _SUCCESS;
+>>>>>>> upstream/android-13
 
 	if (check_fwstate(pmlmepriv, WIFI_AP_STATE) == true) {
 		/* For AP mode, RA =BSSID, TX =STA(SRC_ADDR), A3 =DST_ADDR */
@@ -1042,10 +1386,14 @@ sint sta2ap_data_frame(
 		}
 
 		*psta = rtw_get_stainfo(pstapriv, pattrib->src);
+<<<<<<< HEAD
 		if (*psta == NULL) {
 			RT_TRACE(_module_rtl871x_recv_c_, _drv_err_, ("can't get psta under AP_MODE; drop pkt\n"));
 			DBG_871X("issue_deauth to sta =" MAC_FMT " for the reason(7)\n", MAC_ARG(pattrib->src));
 
+=======
+		if (!*psta) {
+>>>>>>> upstream/android-13
 			issue_deauth(adapter, pattrib->src, WLAN_REASON_CLASS3_FRAME_FROM_NONASSOC_STA);
 
 			ret = RTW_RX_HANDLED;
@@ -1054,9 +1402,14 @@ sint sta2ap_data_frame(
 
 		process_pwrbit_data(adapter, precv_frame);
 
+<<<<<<< HEAD
 		if ((GetFrameSubType(ptr) & WIFI_QOS_DATA_TYPE) == WIFI_QOS_DATA_TYPE) {
 			process_wmmps_data(adapter, precv_frame);
 		}
+=======
+		if ((GetFrameSubType(ptr) & WIFI_QOS_DATA_TYPE) == WIFI_QOS_DATA_TYPE)
+			process_wmmps_data(adapter, precv_frame);
+>>>>>>> upstream/android-13
 
 		if (GetFrameSubType(ptr) & BIT(6)) {
 			/* No data, will not indicate to upper layer, temporily count it here */
@@ -1070,7 +1423,10 @@ sint sta2ap_data_frame(
 			ret = RTW_RX_HANDLED;
 			goto exit;
 		}
+<<<<<<< HEAD
 		DBG_871X("issue_deauth to sta =" MAC_FMT " for the reason(7)\n", MAC_ARG(pattrib->src));
+=======
+>>>>>>> upstream/android-13
 		issue_deauth(adapter, pattrib->src, WLAN_REASON_CLASS3_FRAME_FROM_NONASSOC_STA);
 		ret = RTW_RX_HANDLED;
 		goto exit;
@@ -1080,8 +1436,12 @@ exit:
 	return ret;
 }
 
+<<<<<<< HEAD
 sint validate_recv_ctrl_frame(struct adapter *padapter, union recv_frame *precv_frame);
 sint validate_recv_ctrl_frame(struct adapter *padapter, union recv_frame *precv_frame)
+=======
+static signed int validate_recv_ctrl_frame(struct adapter *padapter, union recv_frame *precv_frame)
+>>>>>>> upstream/android-13
 {
 	struct rx_pkt_attrib *pattrib = &precv_frame->u.hdr.attrib;
 	struct sta_priv *pstapriv = &padapter->stapriv;
@@ -1089,8 +1449,11 @@ sint validate_recv_ctrl_frame(struct adapter *padapter, union recv_frame *precv_
 	struct sta_info *psta = NULL;
 	/* uint len = precv_frame->u.hdr.len; */
 
+<<<<<<< HEAD
 	/* DBG_871X("+validate_recv_ctrl_frame\n"); */
 
+=======
+>>>>>>> upstream/android-13
 	if (GetFrameType(pframe) != WIFI_CTRL_TYPE)
 		return _FAIL;
 
@@ -1099,7 +1462,11 @@ sint validate_recv_ctrl_frame(struct adapter *padapter, union recv_frame *precv_
 		return _FAIL;
 
 	psta = rtw_get_stainfo(pstapriv, GetAddr2Ptr(pframe));
+<<<<<<< HEAD
 	if (psta == NULL)
+=======
+	if (!psta)
+>>>>>>> upstream/android-13
 		return _FAIL;
 
 	/* for rx pkt statistics */
@@ -1138,7 +1505,10 @@ sint validate_recv_ctrl_frame(struct adapter *padapter, union recv_frame *precv_
 			return _FAIL;
 
 		if (psta->state & WIFI_STA_ALIVE_CHK_STATE) {
+<<<<<<< HEAD
 			DBG_871X("%s alive check-rx ps-poll\n", __func__);
+=======
+>>>>>>> upstream/android-13
 			psta->expire_to = pstapriv->expire_to;
 			psta->state ^= WIFI_STA_ALIVE_CHK_STATE;
 		}
@@ -1155,7 +1525,11 @@ sint validate_recv_ctrl_frame(struct adapter *padapter, union recv_frame *precv_
 			xmitframe_plist = get_next(xmitframe_phead);
 
 			if (xmitframe_phead != xmitframe_plist) {
+<<<<<<< HEAD
 				pxmitframe = LIST_CONTAINOR(xmitframe_plist, struct xmit_frame, list);
+=======
+				pxmitframe = container_of(xmitframe_plist, struct xmit_frame, list);
+>>>>>>> upstream/android-13
 
 				xmitframe_plist = get_next(xmitframe_plist);
 
@@ -1170,23 +1544,33 @@ sint validate_recv_ctrl_frame(struct adapter *padapter, union recv_frame *precv_
 
 				pxmitframe->attrib.triggered = 1;
 
+<<<<<<< HEAD
 				/* DBG_871X("handling ps-poll, q_len =%d, tim =%x\n", psta->sleepq_len, pstapriv->tim_bitmap); */
 
+=======
+>>>>>>> upstream/android-13
 				rtw_hal_xmitframe_enqueue(padapter, pxmitframe);
 
 				if (psta->sleepq_len == 0) {
 					pstapriv->tim_bitmap &= ~BIT(psta->aid);
 
+<<<<<<< HEAD
 					/* DBG_871X("after handling ps-poll, tim =%x\n", pstapriv->tim_bitmap); */
 
 					/* upate BCN for TIM IE */
 					/* update_BCNTIM(padapter); */
 					update_beacon(padapter, _TIM_IE_, NULL, true);
+=======
+					/* update BCN for TIM IE */
+					/* update_BCNTIM(padapter); */
+					update_beacon(padapter, WLAN_EID_TIM, NULL, true);
+>>>>>>> upstream/android-13
 				}
 
 				/* spin_unlock_bh(&psta->sleep_q.lock); */
 				spin_unlock_bh(&pxmitpriv->lock);
 
+<<<<<<< HEAD
 			} else{
 				/* spin_unlock_bh(&psta->sleep_q.lock); */
 				spin_unlock_bh(&pxmitpriv->lock);
@@ -1200,14 +1584,31 @@ sint validate_recv_ctrl_frame(struct adapter *padapter, union recv_frame *precv_
 						issue_nulldata_in_interrupt(padapter, psta->hwaddr);
 					} else{
 						DBG_871X("error!psta->sleepq_len =%d\n", psta->sleepq_len);
+=======
+			} else {
+				/* spin_unlock_bh(&psta->sleep_q.lock); */
+				spin_unlock_bh(&pxmitpriv->lock);
+
+				if (pstapriv->tim_bitmap&BIT(psta->aid)) {
+					if (psta->sleepq_len == 0) {
+						/* issue nulldata with More data bit = 0 to indicate we have no buffered packets */
+						issue_nulldata_in_interrupt(padapter, psta->hwaddr);
+					} else {
+>>>>>>> upstream/android-13
 						psta->sleepq_len = 0;
 					}
 
 					pstapriv->tim_bitmap &= ~BIT(psta->aid);
 
+<<<<<<< HEAD
 					/* upate BCN for TIM IE */
 					/* update_BCNTIM(padapter); */
 					update_beacon(padapter, _TIM_IE_, NULL, true);
+=======
+					/* update BCN for TIM IE */
+					/* update_BCNTIM(padapter); */
+					update_beacon(padapter, WLAN_EID_TIM, NULL, true);
+>>>>>>> upstream/android-13
 				}
 			}
 		}
@@ -1217,6 +1618,7 @@ sint validate_recv_ctrl_frame(struct adapter *padapter, union recv_frame *precv_
 
 }
 
+<<<<<<< HEAD
 union recv_frame *recvframe_chk_defrag(struct adapter *padapter, union recv_frame *precv_frame);
 sint validate_recv_mgnt_frame(struct adapter *padapter, union recv_frame *precv_frame);
 sint validate_recv_mgnt_frame(struct adapter *padapter, union recv_frame *precv_frame)
@@ -1705,12 +2107,18 @@ sint wlanhdr_to_ethhdr(union recv_frame *precvframe)
 	return ret;
 }
 
+=======
+>>>>>>> upstream/android-13
 /* perform defrag */
 static union recv_frame *recvframe_defrag(struct adapter *adapter,
 					  struct __queue *defrag_q)
 {
 	struct list_head	 *plist, *phead;
+<<<<<<< HEAD
 	u8 *data, wlanhdr_offset;
+=======
+	u8  wlanhdr_offset;
+>>>>>>> upstream/android-13
 	u8 curfragnum;
 	struct recv_frame_hdr *pfhdr, *pnfhdr;
 	union recv_frame *prframe, *pnextrframe;
@@ -1740,8 +2148,11 @@ static union recv_frame *recvframe_defrag(struct adapter *adapter,
 
 	plist = get_next(plist);
 
+<<<<<<< HEAD
 	data = get_recvframe_data(prframe);
 
+=======
+>>>>>>> upstream/android-13
 	while (phead != plist) {
 		pnextrframe = (union recv_frame *)plist;
 		pnfhdr = &pnextrframe->u.hdr;
@@ -1782,13 +2193,20 @@ static union recv_frame *recvframe_defrag(struct adapter *adapter,
 	/* free the defrag_q queue and return the prframe */
 	rtw_free_recvframe_queue(defrag_q, pfree_recv_queue);
 
+<<<<<<< HEAD
 	RT_TRACE(_module_rtl871x_recv_c_, _drv_info_, ("Performance defrag!!!!!\n"));
 
+=======
+>>>>>>> upstream/android-13
 	return prframe;
 }
 
 /* check if need to defrag, if needed queue the frame to defrag_q */
+<<<<<<< HEAD
 union recv_frame *recvframe_chk_defrag(struct adapter *padapter, union recv_frame *precv_frame)
+=======
+static union recv_frame *recvframe_chk_defrag(struct adapter *padapter, union recv_frame *precv_frame)
+>>>>>>> upstream/android-13
 {
 	u8 ismfrag;
 	u8 fragnum;
@@ -1812,7 +2230,11 @@ union recv_frame *recvframe_chk_defrag(struct adapter *padapter, union recv_fram
 
 	psta_addr = pfhdr->attrib.ta;
 	psta = rtw_get_stainfo(pstapriv, psta_addr);
+<<<<<<< HEAD
 	if (psta == NULL) {
+=======
+	if (!psta) {
+>>>>>>> upstream/android-13
 		u8 type = GetFrameType(pfhdr->rx_data);
 		if (type != WIFI_DATA_TYPE) {
 			psta = rtw_get_bcmc_stainfo(padapter);
@@ -1828,7 +2250,11 @@ union recv_frame *recvframe_chk_defrag(struct adapter *padapter, union recv_fram
 	if (ismfrag == 1) {
 		/* 0~(n-1) fragment frame */
 		/* enqueue to defraf_g */
+<<<<<<< HEAD
 		if (pdefrag_q != NULL) {
+=======
+		if (pdefrag_q) {
+>>>>>>> upstream/android-13
 			if (fragnum == 0)
 				/* the first fragment */
 				if (!list_empty(&pdefrag_q->queue))
@@ -1843,6 +2269,7 @@ union recv_frame *recvframe_chk_defrag(struct adapter *padapter, union recv_fram
 			list_add_tail(&pfhdr->list, phead);
 			/* spin_unlock(&pdefrag_q->lock); */
 
+<<<<<<< HEAD
 			RT_TRACE(_module_rtl871x_recv_c_, _drv_info_, ("Enqueuq: ismfrag = %d, fragnum = %d\n", ismfrag, fragnum));
 
 			prtnframe = NULL;
@@ -1852,6 +2279,14 @@ union recv_frame *recvframe_chk_defrag(struct adapter *padapter, union recv_fram
 			rtw_free_recvframe(precv_frame, pfree_recv_queue);
 			prtnframe = NULL;
 			RT_TRACE(_module_rtl871x_recv_c_, _drv_err_, ("Free because pdefrag_q == NULL: ismfrag = %d, fragnum = %d\n", ismfrag, fragnum));
+=======
+			prtnframe = NULL;
+
+		} else {
+			/* can't find this ta's defrag_queue, so free this recv_frame */
+			rtw_free_recvframe(precv_frame, pfree_recv_queue);
+			prtnframe = NULL;
+>>>>>>> upstream/android-13
 		}
 
 	}
@@ -1859,13 +2294,18 @@ union recv_frame *recvframe_chk_defrag(struct adapter *padapter, union recv_fram
 	if ((ismfrag == 0) && (fragnum != 0)) {
 		/* the last fragment frame */
 		/* enqueue the last fragment */
+<<<<<<< HEAD
 		if (pdefrag_q != NULL) {
+=======
+		if (pdefrag_q) {
+>>>>>>> upstream/android-13
 			/* spin_lock(&pdefrag_q->lock); */
 			phead = get_list_head(pdefrag_q);
 			list_add_tail(&pfhdr->list, phead);
 			/* spin_unlock(&pdefrag_q->lock); */
 
 			/* call recvframe_defrag to defrag */
+<<<<<<< HEAD
 			RT_TRACE(_module_rtl871x_recv_c_, _drv_info_, ("defrag: ismfrag = %d, fragnum = %d\n", ismfrag, fragnum));
 			precv_frame = recvframe_defrag(padapter, pdefrag_q);
 			prtnframe = precv_frame;
@@ -1875,15 +2315,30 @@ union recv_frame *recvframe_chk_defrag(struct adapter *padapter, union recv_fram
 			rtw_free_recvframe(precv_frame, pfree_recv_queue);
 			prtnframe = NULL;
 			RT_TRACE(_module_rtl871x_recv_c_, _drv_err_, ("Free because pdefrag_q == NULL: ismfrag = %d, fragnum = %d\n", ismfrag, fragnum));
+=======
+			precv_frame = recvframe_defrag(padapter, pdefrag_q);
+			prtnframe = precv_frame;
+
+		} else {
+			/* can't find this ta's defrag_queue, so free this recv_frame */
+			rtw_free_recvframe(precv_frame, pfree_recv_queue);
+			prtnframe = NULL;
+>>>>>>> upstream/android-13
 		}
 
 	}
 
 
+<<<<<<< HEAD
 	if ((prtnframe != NULL) && (prtnframe->u.hdr.attrib.privacy)) {
 		/* after defrag we must check tkip mic code */
 		if (recvframe_chkmic(padapter,  prtnframe) == _FAIL) {
 			RT_TRACE(_module_rtl871x_recv_c_, _drv_err_, ("recvframe_chkmic(padapter,  prtnframe) == _FAIL\n"));
+=======
+	if ((prtnframe) && (prtnframe->u.hdr.attrib.privacy)) {
+		/* after defrag we must check tkip mic code */
+		if (recvframe_chkmic(padapter,  prtnframe) == _FAIL) {
+>>>>>>> upstream/android-13
 			rtw_free_recvframe(prtnframe, pfree_recv_queue);
 			prtnframe = NULL;
 		}
@@ -1891,16 +2346,395 @@ union recv_frame *recvframe_chk_defrag(struct adapter *padapter, union recv_fram
 	return prtnframe;
 }
 
+<<<<<<< HEAD
+=======
+static signed int validate_recv_mgnt_frame(struct adapter *padapter, union recv_frame *precv_frame)
+{
+	/* struct mlme_priv *pmlmepriv = &adapter->mlmepriv; */
+
+	precv_frame = recvframe_chk_defrag(padapter, precv_frame);
+	if (!precv_frame)
+		return _SUCCESS;
+
+	{
+		/* for rx pkt statistics */
+		struct sta_info *psta = rtw_get_stainfo(&padapter->stapriv, GetAddr2Ptr(precv_frame->u.hdr.rx_data));
+		if (psta) {
+			psta->sta_stats.rx_mgnt_pkts++;
+			if (GetFrameSubType(precv_frame->u.hdr.rx_data) == WIFI_BEACON)
+				psta->sta_stats.rx_beacon_pkts++;
+			else if (GetFrameSubType(precv_frame->u.hdr.rx_data) == WIFI_PROBEREQ)
+				psta->sta_stats.rx_probereq_pkts++;
+			else if (GetFrameSubType(precv_frame->u.hdr.rx_data) == WIFI_PROBERSP) {
+				if (!memcmp(padapter->eeprompriv.mac_addr, GetAddr1Ptr(precv_frame->u.hdr.rx_data), ETH_ALEN))
+					psta->sta_stats.rx_probersp_pkts++;
+				else if (is_broadcast_mac_addr(GetAddr1Ptr(precv_frame->u.hdr.rx_data)) ||
+					 is_multicast_mac_addr(GetAddr1Ptr(precv_frame->u.hdr.rx_data)))
+					psta->sta_stats.rx_probersp_bm_pkts++;
+				else
+					psta->sta_stats.rx_probersp_uo_pkts++;
+			}
+		}
+	}
+
+	mgt_dispatcher(padapter, precv_frame);
+
+	return _SUCCESS;
+
+}
+
+static signed int validate_recv_data_frame(struct adapter *adapter, union recv_frame *precv_frame)
+{
+	u8 bretry;
+	u8 *psa, *pda, *pbssid;
+	struct sta_info *psta = NULL;
+	u8 *ptr = precv_frame->u.hdr.rx_data;
+	struct rx_pkt_attrib	*pattrib = &precv_frame->u.hdr.attrib;
+	struct security_priv *psecuritypriv = &adapter->securitypriv;
+	signed int ret = _SUCCESS;
+
+	bretry = GetRetry(ptr);
+	pda = get_da(ptr);
+	psa = get_sa(ptr);
+	pbssid = get_hdr_bssid(ptr);
+
+	if (!pbssid) {
+		ret = _FAIL;
+		goto exit;
+	}
+
+	memcpy(pattrib->dst, pda, ETH_ALEN);
+	memcpy(pattrib->src, psa, ETH_ALEN);
+
+	memcpy(pattrib->bssid, pbssid, ETH_ALEN);
+
+	switch (pattrib->to_fr_ds) {
+	case 0:
+		memcpy(pattrib->ra, pda, ETH_ALEN);
+		memcpy(pattrib->ta, psa, ETH_ALEN);
+		ret = sta2sta_data_frame(adapter, precv_frame, &psta);
+		break;
+
+	case 1:
+		memcpy(pattrib->ra, pda, ETH_ALEN);
+		memcpy(pattrib->ta, pbssid, ETH_ALEN);
+		ret = ap2sta_data_frame(adapter, precv_frame, &psta);
+		break;
+
+	case 2:
+		memcpy(pattrib->ra, pbssid, ETH_ALEN);
+		memcpy(pattrib->ta, psa, ETH_ALEN);
+		ret = sta2ap_data_frame(adapter, precv_frame, &psta);
+		break;
+
+	case 3:
+		memcpy(pattrib->ra, GetAddr1Ptr(ptr), ETH_ALEN);
+		memcpy(pattrib->ta, GetAddr2Ptr(ptr), ETH_ALEN);
+		ret = _FAIL;
+		break;
+
+	default:
+		ret = _FAIL;
+		break;
+
+	}
+
+	if (ret == _FAIL) {
+		goto exit;
+	} else if (ret == RTW_RX_HANDLED) {
+		goto exit;
+	}
+
+
+	if (!psta) {
+		ret = _FAIL;
+		goto exit;
+	}
+
+	/* psta->rssi = prxcmd->rssi; */
+	/* psta->signal_quality = prxcmd->sq; */
+	precv_frame->u.hdr.psta = psta;
+
+
+	pattrib->amsdu = 0;
+	pattrib->ack_policy = 0;
+	/* parsing QC field */
+	if (pattrib->qos == 1) {
+		pattrib->priority = GetPriority((ptr + 24));
+		pattrib->ack_policy = GetAckpolicy((ptr + 24));
+		pattrib->amsdu = GetAMsdu((ptr + 24));
+		pattrib->hdrlen = pattrib->to_fr_ds == 3 ? 32 : 26;
+
+		if (pattrib->priority != 0 && pattrib->priority != 3)
+			adapter->recvpriv.bIsAnyNonBEPkts = true;
+
+	} else {
+		pattrib->priority = 0;
+		pattrib->hdrlen = pattrib->to_fr_ds == 3 ? 30 : 24;
+	}
+
+
+	if (pattrib->order)/* HT-CTRL 11n */
+		pattrib->hdrlen += 4;
+
+	precv_frame->u.hdr.preorder_ctrl = &psta->recvreorder_ctrl[pattrib->priority];
+
+	/*  decache, drop duplicate recv packets */
+	if (recv_decache(precv_frame, bretry, &psta->sta_recvpriv.rxcache) == _FAIL) {
+		ret = _FAIL;
+		goto exit;
+	}
+
+	if (pattrib->privacy) {
+		GET_ENCRY_ALGO(psecuritypriv, psta, pattrib->encrypt, IS_MCAST(pattrib->ra));
+
+		SET_ICE_IV_LEN(pattrib->iv_len, pattrib->icv_len, pattrib->encrypt);
+	} else {
+		pattrib->encrypt = 0;
+		pattrib->iv_len = pattrib->icv_len = 0;
+	}
+
+exit:
+	return ret;
+}
+
+static signed int validate_80211w_mgmt(struct adapter *adapter, union recv_frame *precv_frame)
+{
+	struct mlme_priv *pmlmepriv = &adapter->mlmepriv;
+	struct rx_pkt_attrib *pattrib = &precv_frame->u.hdr.attrib;
+	u8 *ptr = precv_frame->u.hdr.rx_data;
+	u8 subtype;
+
+	subtype = GetFrameSubType(ptr); /* bit(7)~bit(2) */
+
+	/* only support station mode */
+	if (check_fwstate(pmlmepriv, WIFI_STATION_STATE) && check_fwstate(pmlmepriv, _FW_LINKED) &&
+	    adapter->securitypriv.binstallBIPkey == true) {
+		/* unicast management frame decrypt */
+		if (pattrib->privacy && !(IS_MCAST(GetAddr1Ptr(ptr))) &&
+			(subtype == WIFI_DEAUTH || subtype == WIFI_DISASSOC || subtype == WIFI_ACTION)) {
+			u8 *mgmt_DATA;
+			u32 data_len = 0;
+
+			pattrib->bdecrypted = 0;
+			pattrib->encrypt = _AES_;
+			pattrib->hdrlen = sizeof(struct ieee80211_hdr_3addr);
+			/* set iv and icv length */
+			SET_ICE_IV_LEN(pattrib->iv_len, pattrib->icv_len, pattrib->encrypt);
+			memcpy(pattrib->ra, GetAddr1Ptr(ptr), ETH_ALEN);
+			memcpy(pattrib->ta, GetAddr2Ptr(ptr), ETH_ALEN);
+			/* actual management data frame body */
+			data_len = pattrib->pkt_len - pattrib->hdrlen - pattrib->iv_len - pattrib->icv_len;
+			mgmt_DATA = rtw_zmalloc(data_len);
+			if (!mgmt_DATA) {
+				goto validate_80211w_fail;
+			}
+			precv_frame = decryptor(adapter, precv_frame);
+			/* save actual management data frame body */
+			memcpy(mgmt_DATA, ptr+pattrib->hdrlen+pattrib->iv_len, data_len);
+			/* overwrite the iv field */
+			memcpy(ptr+pattrib->hdrlen, mgmt_DATA, data_len);
+			/* remove the iv and icv length */
+			pattrib->pkt_len = pattrib->pkt_len - pattrib->iv_len - pattrib->icv_len;
+			kfree(mgmt_DATA);
+			if (!precv_frame) {
+				goto validate_80211w_fail;
+			}
+		} else if (IS_MCAST(GetAddr1Ptr(ptr)) &&
+			(subtype == WIFI_DEAUTH || subtype == WIFI_DISASSOC)) {
+			signed int BIP_ret = _SUCCESS;
+			/* verify BIP MME IE of broadcast/multicast de-auth/disassoc packet */
+			BIP_ret = rtw_BIP_verify(adapter, (u8 *)precv_frame);
+			if (BIP_ret == _FAIL) {
+				goto validate_80211w_fail;
+			} else if (BIP_ret == RTW_RX_HANDLED) {
+				/* issue sa query request */
+				issue_action_SA_Query(adapter, NULL, 0, 0);
+				goto validate_80211w_fail;
+			}
+		} else { /* 802.11w protect */
+			if (subtype == WIFI_ACTION) {
+				/* according 802.11-2012 standard, these five types are not robust types */
+				if (ptr[WLAN_HDR_A3_LEN] != RTW_WLAN_CATEGORY_PUBLIC          &&
+					ptr[WLAN_HDR_A3_LEN] != RTW_WLAN_CATEGORY_HT              &&
+					ptr[WLAN_HDR_A3_LEN] != RTW_WLAN_CATEGORY_UNPROTECTED_WNM &&
+					ptr[WLAN_HDR_A3_LEN] != RTW_WLAN_CATEGORY_SELF_PROTECTED  &&
+					ptr[WLAN_HDR_A3_LEN] != RTW_WLAN_CATEGORY_P2P) {
+					goto validate_80211w_fail;
+				}
+			} else if (subtype == WIFI_DEAUTH || subtype == WIFI_DISASSOC) {
+				/* issue sa query request */
+				issue_action_SA_Query(adapter, NULL, 0, 0);
+				goto validate_80211w_fail;
+			}
+		}
+	}
+	return _SUCCESS;
+
+validate_80211w_fail:
+	return _FAIL;
+
+}
+
+static signed int validate_recv_frame(struct adapter *adapter, union recv_frame *precv_frame)
+{
+	/* shall check frame subtype, to / from ds, da, bssid */
+
+	/* then call check if rx seq/frag. duplicated. */
+
+	u8 type;
+	u8 subtype;
+	signed int retval = _SUCCESS;
+	u8 bDumpRxPkt;
+
+	struct rx_pkt_attrib *pattrib = &precv_frame->u.hdr.attrib;
+
+	u8 *ptr = precv_frame->u.hdr.rx_data;
+	u8  ver = (unsigned char) (*ptr)&0x3;
+
+	/* add version chk */
+	if (ver != 0) {
+		retval = _FAIL;
+		goto exit;
+	}
+
+	type =  GetFrameType(ptr);
+	subtype = GetFrameSubType(ptr); /* bit(7)~bit(2) */
+
+	pattrib->to_fr_ds = get_tofr_ds(ptr);
+
+	pattrib->frag_num = GetFragNum(ptr);
+	pattrib->seq_num = GetSequence(ptr);
+
+	pattrib->pw_save = GetPwrMgt(ptr);
+	pattrib->mfrag = GetMFrag(ptr);
+	pattrib->mdata = GetMData(ptr);
+	pattrib->privacy = GetPrivacy(ptr);
+	pattrib->order = GetOrder(ptr);
+	rtw_hal_get_def_var(adapter, HAL_DEF_DBG_DUMP_RXPKT, &(bDumpRxPkt));
+
+	switch (type) {
+	case WIFI_MGT_TYPE: /* mgnt */
+		if (validate_80211w_mgmt(adapter, precv_frame) == _FAIL) {
+			retval = _FAIL;
+			break;
+		}
+
+		retval = validate_recv_mgnt_frame(adapter, precv_frame);
+		retval = _FAIL; /*  only data frame return _SUCCESS */
+		break;
+	case WIFI_CTRL_TYPE: /* ctrl */
+		retval = validate_recv_ctrl_frame(adapter, precv_frame);
+		retval = _FAIL; /*  only data frame return _SUCCESS */
+		break;
+	case WIFI_DATA_TYPE: /* data */
+		pattrib->qos = (subtype & BIT(7)) ? 1:0;
+		retval = validate_recv_data_frame(adapter, precv_frame);
+		if (retval == _FAIL) {
+			struct recv_priv *precvpriv = &adapter->recvpriv;
+			precvpriv->rx_drop++;
+		} else if (retval == _SUCCESS) {
+#ifdef DBG_RX_DUMP_EAP
+			u8 bDumpRxPkt;
+			u16 eth_type;
+
+			/*  dump eapol */
+			rtw_hal_get_def_var(adapter, HAL_DEF_DBG_DUMP_RXPKT, &(bDumpRxPkt));
+			/*  get ether_type */
+			memcpy(&eth_type, ptr + pattrib->hdrlen + pattrib->iv_len + LLC_HEADER_LENGTH, 2);
+			eth_type = ntohs((unsigned short) eth_type);
+#endif
+		}
+		break;
+	default:
+		retval = _FAIL;
+		break;
+	}
+
+exit:
+	return retval;
+}
+
+/* remove the wlanhdr and add the eth_hdr */
+static signed int wlanhdr_to_ethhdr(union recv_frame *precvframe)
+{
+	signed int	rmv_len;
+	u16 eth_type, len;
+	u8 bsnaphdr;
+	u8 *psnap_type;
+	struct ieee80211_snap_hdr	*psnap;
+	__be16 be_tmp;
+	struct adapter			*adapter = precvframe->u.hdr.adapter;
+	struct mlme_priv *pmlmepriv = &adapter->mlmepriv;
+	u8 *ptr = get_recvframe_data(precvframe) ; /*  point to frame_ctrl field */
+	struct rx_pkt_attrib *pattrib = &precvframe->u.hdr.attrib;
+
+	if (pattrib->encrypt)
+		recvframe_pull_tail(precvframe, pattrib->icv_len);
+
+	psnap = (struct ieee80211_snap_hdr	*)(ptr+pattrib->hdrlen + pattrib->iv_len);
+	psnap_type = ptr+pattrib->hdrlen + pattrib->iv_len+SNAP_SIZE;
+	/* convert hdr + possible LLC headers into Ethernet header */
+	/* eth_type = (psnap_type[0] << 8) | psnap_type[1]; */
+	if ((!memcmp(psnap, rfc1042_header, SNAP_SIZE) &&
+		(memcmp(psnap_type, SNAP_ETH_TYPE_IPX, 2)) &&
+		(memcmp(psnap_type, SNAP_ETH_TYPE_APPLETALK_AARP, 2))) ||
+		/* eth_type != ETH_P_AARP && eth_type != ETH_P_IPX) || */
+		 !memcmp(psnap, bridge_tunnel_header, SNAP_SIZE)) {
+		/* remove RFC1042 or Bridge-Tunnel encapsulation and replace EtherType */
+		bsnaphdr = true;
+	} else
+		/* Leave Ethernet header part of hdr and full payload */
+		bsnaphdr = false;
+
+	rmv_len = pattrib->hdrlen + pattrib->iv_len + (bsnaphdr?SNAP_SIZE:0);
+	len = precvframe->u.hdr.len - rmv_len;
+
+	memcpy(&be_tmp, ptr+rmv_len, 2);
+	eth_type = ntohs(be_tmp); /* pattrib->ether_type */
+	pattrib->eth_type = eth_type;
+
+	if ((check_fwstate(pmlmepriv, WIFI_MP_STATE) == true)) {
+		ptr += rmv_len;
+		*ptr = 0x87;
+		*(ptr+1) = 0x12;
+
+		eth_type = 0x8712;
+		/*  append rx status for mp test packets */
+		ptr = recvframe_pull(precvframe, (rmv_len-sizeof(struct ethhdr)+2)-24);
+		memcpy(ptr, get_rxmem(precvframe), 24);
+		ptr += 24;
+	} else
+		ptr = recvframe_pull(precvframe, (rmv_len-sizeof(struct ethhdr) + (bsnaphdr?2:0)));
+
+	memcpy(ptr, pattrib->dst, ETH_ALEN);
+	memcpy(ptr+ETH_ALEN, pattrib->src, ETH_ALEN);
+
+	if (!bsnaphdr) {
+		be_tmp = htons(len);
+		memcpy(ptr+12, &be_tmp, 2);
+	}
+
+	return _SUCCESS;
+}
+
+>>>>>>> upstream/android-13
 static int amsdu_to_msdu(struct adapter *padapter, union recv_frame *prframe)
 {
 	int	a_len, padding_len;
 	u16 nSubframe_Length;
 	u8 nr_subframes, i;
 	u8 *pdata;
+<<<<<<< HEAD
 	_pkt *sub_pkt, *subframes[MAX_SUBFRAME_COUNT];
 	struct recv_priv *precvpriv = &padapter->recvpriv;
 	struct __queue *pfree_recv_queue = &(precvpriv->free_recv_queue);
 	int	ret = _SUCCESS;
+=======
+	struct sk_buff *sub_pkt, *subframes[MAX_SUBFRAME_COUNT];
+	struct recv_priv *precvpriv = &padapter->recvpriv;
+	struct __queue *pfree_recv_queue = &(precvpriv->free_recv_queue);
+>>>>>>> upstream/android-13
 
 	nr_subframes = 0;
 
@@ -1916,6 +2750,7 @@ static int amsdu_to_msdu(struct adapter *padapter, union recv_frame *prframe)
 	while (a_len > ETH_HLEN) {
 
 		/* Offset 12 denote 2 mac address */
+<<<<<<< HEAD
 		nSubframe_Length = RTW_GET_BE16(pdata + 12);
 
 		if (a_len < (ETHERNET_HEADER_SIZE + nSubframe_Length)) {
@@ -1928,6 +2763,16 @@ static int amsdu_to_msdu(struct adapter *padapter, union recv_frame *prframe)
 			DBG_871X("%s(): allocate sub packet fail !!!\n", __func__);
 			break;
 		}
+=======
+		nSubframe_Length = get_unaligned_be16(pdata + 12);
+
+		if (a_len < ETH_HLEN + nSubframe_Length)
+			break;
+
+		sub_pkt = rtw_os_alloc_msdu_pkt(prframe, nSubframe_Length, pdata);
+		if (!sub_pkt)
+			break;
+>>>>>>> upstream/android-13
 
 		/* move the data point to data content */
 		pdata += ETH_HLEN;
@@ -1935,15 +2780,21 @@ static int amsdu_to_msdu(struct adapter *padapter, union recv_frame *prframe)
 
 		subframes[nr_subframes++] = sub_pkt;
 
+<<<<<<< HEAD
 		if (nr_subframes >= MAX_SUBFRAME_COUNT) {
 			DBG_871X("ParseSubframe(): Too many Subframes! Packets dropped!\n");
 			break;
 		}
+=======
+		if (nr_subframes >= MAX_SUBFRAME_COUNT)
+			break;
+>>>>>>> upstream/android-13
 
 		pdata += nSubframe_Length;
 		a_len -= nSubframe_Length;
 		if (a_len != 0) {
 			padding_len = 4 - ((nSubframe_Length + ETH_HLEN) & (4-1));
+<<<<<<< HEAD
 			if (padding_len == 4) {
 				padding_len = 0;
 			}
@@ -1952,6 +2803,14 @@ static int amsdu_to_msdu(struct adapter *padapter, union recv_frame *prframe)
 				DBG_871X("ParseSubframe(): a_len < padding_len !\n");
 				break;
 			}
+=======
+			if (padding_len == 4)
+				padding_len = 0;
+
+			if (a_len < padding_len)
+				break;
+
+>>>>>>> upstream/android-13
 			pdata += padding_len;
 			a_len -= padding_len;
 		}
@@ -1960,20 +2819,33 @@ static int amsdu_to_msdu(struct adapter *padapter, union recv_frame *prframe)
 	for (i = 0; i < nr_subframes; i++) {
 		sub_pkt = subframes[i];
 
+<<<<<<< HEAD
 		/* Indicat the packets to upper layer */
 		if (sub_pkt) {
 			rtw_os_recv_indicate_pkt(padapter, sub_pkt, &prframe->u.hdr.attrib);
 		}
+=======
+		/* Indicate the packets to upper layer */
+		if (sub_pkt)
+			rtw_os_recv_indicate_pkt(padapter, sub_pkt, &prframe->u.hdr.attrib);
+>>>>>>> upstream/android-13
 	}
 
 	prframe->u.hdr.len = 0;
 	rtw_free_recvframe(prframe, pfree_recv_queue);/* free this recv_frame */
 
+<<<<<<< HEAD
 	return ret;
 }
 
 int check_indicate_seq(struct recv_reorder_ctrl *preorder_ctrl, u16 seq_num);
 int check_indicate_seq(struct recv_reorder_ctrl *preorder_ctrl, u16 seq_num)
+=======
+	return  _SUCCESS;
+}
+
+static int check_indicate_seq(struct recv_reorder_ctrl *preorder_ctrl, u16 seq_num)
+>>>>>>> upstream/android-13
 {
 	struct adapter *padapter = preorder_ctrl->padapter;
 	struct dvobj_priv *psdpriv = padapter->dvobj;
@@ -1984,6 +2856,7 @@ int check_indicate_seq(struct recv_reorder_ctrl *preorder_ctrl, u16 seq_num)
 	/*  Rx Reorder initialize condition. */
 	if (preorder_ctrl->indicate_seq == 0xFFFF) {
 		preorder_ctrl->indicate_seq = seq_num;
+<<<<<<< HEAD
 		#ifdef DBG_RX_SEQ
 		DBG_871X("DBG_RX_SEQ %s:%d init IndicateSeq: %d, NewSeq: %d\n", __func__, __LINE__,
 			preorder_ctrl->indicate_seq, seq_num);
@@ -2005,6 +2878,12 @@ int check_indicate_seq(struct recv_reorder_ctrl *preorder_ctrl, u16 seq_num)
 		#endif
 
 
+=======
+	}
+
+	/*  Drop out the packet which SeqNum is smaller than WinStart */
+	if (SN_LESS(seq_num, preorder_ctrl->indicate_seq)) {
+>>>>>>> upstream/android-13
 		return false;
 	}
 
@@ -2016,6 +2895,7 @@ int check_indicate_seq(struct recv_reorder_ctrl *preorder_ctrl, u16 seq_num)
 	if (SN_EQUAL(seq_num, preorder_ctrl->indicate_seq)) {
 		preorder_ctrl->indicate_seq = (preorder_ctrl->indicate_seq + 1) & 0xFFF;
 
+<<<<<<< HEAD
 		#ifdef DBG_RX_SEQ
 		DBG_871X("DBG_RX_SEQ %s:%d SN_EQUAL IndicateSeq: %d, NewSeq: %d\n", __func__, __LINE__,
 			preorder_ctrl->indicate_seq, seq_num);
@@ -2024,12 +2904,16 @@ int check_indicate_seq(struct recv_reorder_ctrl *preorder_ctrl, u16 seq_num)
 		/* RT_TRACE(COMP_RX_REORDER, DBG_LOUD, ("CheckRxTsIndicateSeq(): Window Shift! IndicateSeq: %d, NewSeq: %d\n", pTS->RxIndicateSeq, NewSeqNum)); */
 		/* DbgPrint("CheckRxTsIndicateSeq(): Window Shift! IndicateSeq: %d, NewSeq: %d\n", precvpriv->indicate_seq, seq_num); */
 
+=======
+	} else if (SN_LESS(wend, seq_num)) {
+>>>>>>> upstream/android-13
 		/*  boundary situation, when seq_num cross 0xFFF */
 		if (seq_num >= (wsize - 1))
 			preorder_ctrl->indicate_seq = seq_num + 1 - wsize;
 		else
 			preorder_ctrl->indicate_seq = 0xFFF - (wsize - (seq_num + 1)) + 1;
 		pdbgpriv->dbg_rx_ampdu_window_shift_cnt++;
+<<<<<<< HEAD
 		#ifdef DBG_RX_SEQ
 		DBG_871X("DBG_RX_SEQ %s:%d SN_LESS(wend, seq_num) IndicateSeq: %d, NewSeq: %d\n", __func__, __LINE__,
 			preorder_ctrl->indicate_seq, seq_num);
@@ -2043,6 +2927,14 @@ int check_indicate_seq(struct recv_reorder_ctrl *preorder_ctrl, u16 seq_num)
 
 int enqueue_reorder_recvframe(struct recv_reorder_ctrl *preorder_ctrl, union recv_frame *prframe);
 int enqueue_reorder_recvframe(struct recv_reorder_ctrl *preorder_ctrl, union recv_frame *prframe)
+=======
+	}
+
+	return true;
+}
+
+static int enqueue_reorder_recvframe(struct recv_reorder_ctrl *preorder_ctrl, union recv_frame *prframe)
+>>>>>>> upstream/android-13
 {
 	struct rx_pkt_attrib *pattrib = &prframe->u.hdr.attrib;
 	struct __queue *ppending_recvframe_queue = &preorder_ctrl->pending_recvframe_queue;
@@ -2050,8 +2942,11 @@ int enqueue_reorder_recvframe(struct recv_reorder_ctrl *preorder_ctrl, union rec
 	union recv_frame *pnextrframe;
 	struct rx_pkt_attrib *pnextattrib;
 
+<<<<<<< HEAD
 	/* DbgPrint("+enqueue_reorder_recvframe()\n"); */
 
+=======
+>>>>>>> upstream/android-13
 	/* spin_lock_irqsave(&ppending_recvframe_queue->lock, irql); */
 	/* spin_lock(&ppending_recvframe_queue->lock); */
 
@@ -2067,14 +2962,20 @@ int enqueue_reorder_recvframe(struct recv_reorder_ctrl *preorder_ctrl, union rec
 			plist = get_next(plist);
 		else if (SN_EQUAL(pnextattrib->seq_num, pattrib->seq_num))
 			/* Duplicate entry is found!! Do not insert current entry. */
+<<<<<<< HEAD
 			/* RT_TRACE(COMP_RX_REORDER, DBG_TRACE, ("InsertRxReorderList(): Duplicate packet is dropped!! IndicateSeq: %d, NewSeq: %d\n", pTS->RxIndicateSeq, SeqNum)); */
+=======
+>>>>>>> upstream/android-13
 			/* spin_unlock_irqrestore(&ppending_recvframe_queue->lock, irql); */
 			return false;
 		else
 			break;
 
+<<<<<<< HEAD
 		/* DbgPrint("enqueue_reorder_recvframe():while\n"); */
 
+=======
+>>>>>>> upstream/android-13
 	}
 
 
@@ -2088,14 +2989,21 @@ int enqueue_reorder_recvframe(struct recv_reorder_ctrl *preorder_ctrl, union rec
 	/* spin_unlock(&ppending_recvframe_queue->lock); */
 	/* spin_unlock_irqrestore(&ppending_recvframe_queue->lock, irql); */
 
+<<<<<<< HEAD
 
 	/* RT_TRACE(COMP_RX_REORDER, DBG_TRACE, ("InsertRxReorderList(): Pkt insert into buffer!! IndicateSeq: %d, NewSeq: %d\n", pTS->RxIndicateSeq, SeqNum)); */
+=======
+>>>>>>> upstream/android-13
 	return true;
 
 }
 
+<<<<<<< HEAD
 void recv_indicatepkts_pkt_loss_cnt(struct debug_priv *pdbgpriv, u64 prev_seq, u64 current_seq);
 void recv_indicatepkts_pkt_loss_cnt(struct debug_priv *pdbgpriv, u64 prev_seq, u64 current_seq)
+=======
+static void recv_indicatepkts_pkt_loss_cnt(struct debug_priv *pdbgpriv, u64 prev_seq, u64 current_seq)
+>>>>>>> upstream/android-13
 {
 	if (current_seq < prev_seq)
 		pdbgpriv->dbg_rx_ampdu_loss_count += (4096 + current_seq - prev_seq);
@@ -2103,8 +3011,13 @@ void recv_indicatepkts_pkt_loss_cnt(struct debug_priv *pdbgpriv, u64 prev_seq, u
 		pdbgpriv->dbg_rx_ampdu_loss_count += (current_seq - prev_seq);
 
 }
+<<<<<<< HEAD
 int recv_indicatepkts_in_order(struct adapter *padapter, struct recv_reorder_ctrl *preorder_ctrl, int bforced);
 int recv_indicatepkts_in_order(struct adapter *padapter, struct recv_reorder_ctrl *preorder_ctrl, int bforced)
+=======
+
+static int recv_indicatepkts_in_order(struct adapter *padapter, struct recv_reorder_ctrl *preorder_ctrl, int bforced)
+>>>>>>> upstream/android-13
 {
 	struct list_head	*phead, *plist;
 	union recv_frame *prframe;
@@ -2116,10 +3029,13 @@ int recv_indicatepkts_in_order(struct adapter *padapter, struct recv_reorder_ctr
 	struct dvobj_priv *psdpriv = padapter->dvobj;
 	struct debug_priv *pdbgpriv = &psdpriv->drv_dbg;
 
+<<<<<<< HEAD
 	DBG_COUNTER(padapter->rx_logs.core_rx_post_indicate_in_oder);
 
 	/* DbgPrint("+recv_indicatepkts_in_order\n"); */
 
+=======
+>>>>>>> upstream/android-13
 	/* spin_lock_irqsave(&ppending_recvframe_queue->lock, irql); */
 	/* spin_lock(&ppending_recvframe_queue->lock); */
 
@@ -2138,10 +3054,13 @@ int recv_indicatepkts_in_order(struct adapter *padapter, struct recv_reorder_ctr
 		prframe = (union recv_frame *)plist;
 		pattrib = &prframe->u.hdr.attrib;
 
+<<<<<<< HEAD
 		#ifdef DBG_RX_SEQ
 		DBG_871X("DBG_RX_SEQ %s:%d IndicateSeq: %d, NewSeq: %d\n", __func__, __LINE__,
 			preorder_ctrl->indicate_seq, pattrib->seq_num);
 		#endif
+=======
+>>>>>>> upstream/android-13
 		recv_indicatepkts_pkt_loss_cnt(pdbgpriv, preorder_ctrl->indicate_seq, pattrib->seq_num);
 		preorder_ctrl->indicate_seq = pattrib->seq_num;
 
@@ -2155,6 +3074,7 @@ int recv_indicatepkts_in_order(struct adapter *padapter, struct recv_reorder_ctr
 		pattrib = &prframe->u.hdr.attrib;
 
 		if (!SN_LESS(preorder_ctrl->indicate_seq, pattrib->seq_num)) {
+<<<<<<< HEAD
 			RT_TRACE(_module_rtl871x_recv_c_, _drv_notice_,
 				 ("recv_indicatepkts_in_order: indicate =%d seq =%d amsdu =%d\n",
 				  preorder_ctrl->indicate_seq, pattrib->seq_num, pattrib->amsdu));
@@ -2169,11 +3089,19 @@ int recv_indicatepkts_in_order(struct adapter *padapter, struct recv_reorder_ctr
 					preorder_ctrl->indicate_seq, pattrib->seq_num);
 				#endif
 			}
+=======
+			plist = get_next(plist);
+			list_del_init(&(prframe->u.hdr.list));
+
+			if (SN_EQUAL(preorder_ctrl->indicate_seq, pattrib->seq_num))
+				preorder_ctrl->indicate_seq = (preorder_ctrl->indicate_seq + 1) & 0xFFF;
+>>>>>>> upstream/android-13
 
 			/* Set this as a lock to make sure that only one thread is indicating packet. */
 			/* pTS->RxIndicateState = RXTS_INDICATE_PROCESSING; */
 
 			/*  Indicate packets */
+<<<<<<< HEAD
 			/* RT_ASSERT((index<=REORDER_WIN_SIZE), ("RxReorderIndicatePacket(): Rx Reorder buffer full!!\n")); */
 
 
@@ -2182,6 +3110,11 @@ int recv_indicatepkts_in_order(struct adapter *padapter, struct recv_reorder_ctr
 			if (!pattrib->amsdu) {
 				/* DBG_871X("recv_indicatepkts_in_order, amsdu!= 1, indicate_seq =%d, seq_num =%d\n", preorder_ctrl->indicate_seq, pattrib->seq_num); */
 
+=======
+
+			/* indicate this recv_frame */
+			if (!pattrib->amsdu) {
+>>>>>>> upstream/android-13
 				if ((padapter->bDriverStopped == false) &&
 				    (padapter->bSurpriseRemoved == false))
 					rtw_recv_indicatepkt(padapter, prframe);/* indicate this recv_frame */
@@ -2190,7 +3123,11 @@ int recv_indicatepkts_in_order(struct adapter *padapter, struct recv_reorder_ctr
 				if (amsdu_to_msdu(padapter, prframe) != _SUCCESS)
 					rtw_free_recvframe(prframe, &precvpriv->free_recv_queue);
 
+<<<<<<< HEAD
 			} else{
+=======
+			} else {
+>>>>>>> upstream/android-13
 				/* error condition; */
 			}
 
@@ -2198,13 +3135,20 @@ int recv_indicatepkts_in_order(struct adapter *padapter, struct recv_reorder_ctr
 			/* Update local variables. */
 			bPktInBuf = false;
 
+<<<<<<< HEAD
 		} else{
+=======
+		} else {
+>>>>>>> upstream/android-13
 			bPktInBuf = true;
 			break;
 		}
 
+<<<<<<< HEAD
 		/* DbgPrint("recv_indicatepkts_in_order():while\n"); */
 
+=======
+>>>>>>> upstream/android-13
 	}
 
 	/* spin_unlock(&ppending_recvframe_queue->lock); */
@@ -2213,8 +3157,12 @@ int recv_indicatepkts_in_order(struct adapter *padapter, struct recv_reorder_ctr
 	return bPktInBuf;
 }
 
+<<<<<<< HEAD
 int recv_indicatepkt_reorder(struct adapter *padapter, union recv_frame *prframe);
 int recv_indicatepkt_reorder(struct adapter *padapter, union recv_frame *prframe)
+=======
+static int recv_indicatepkt_reorder(struct adapter *padapter, union recv_frame *prframe)
+>>>>>>> upstream/android-13
 {
 	int retval = _SUCCESS;
 	struct rx_pkt_attrib *pattrib = &prframe->u.hdr.attrib;
@@ -2223,8 +3171,11 @@ int recv_indicatepkt_reorder(struct adapter *padapter, union recv_frame *prframe
 	struct dvobj_priv *psdpriv = padapter->dvobj;
 	struct debug_priv *pdbgpriv = &psdpriv->drv_dbg;
 
+<<<<<<< HEAD
 	DBG_COUNTER(padapter->rx_logs.core_rx_post_indicate_reoder);
 
+=======
+>>>>>>> upstream/android-13
 	if (!pattrib->amsdu) {
 		/* s1. */
 		wlanhdr_to_ethhdr(prframe);
@@ -2232,17 +3183,23 @@ int recv_indicatepkt_reorder(struct adapter *padapter, union recv_frame *prframe
 		if (pattrib->qos != 1) {
 			if ((padapter->bDriverStopped == false) &&
 			    (padapter->bSurpriseRemoved == false)) {
+<<<<<<< HEAD
 				RT_TRACE(_module_rtl871x_recv_c_, _drv_notice_, ("@@@@  recv_indicatepkt_reorder -recv_func recv_indicatepkt\n"));
 
+=======
+>>>>>>> upstream/android-13
 				rtw_recv_indicatepkt(padapter, prframe);
 				return _SUCCESS;
 
 			}
 
+<<<<<<< HEAD
 			#ifdef DBG_RX_DROP_FRAME
 			DBG_871X("DBG_RX_DROP_FRAME %s pattrib->qos != 1\n", __func__);
 			#endif
 
+=======
+>>>>>>> upstream/android-13
 			return _FAIL;
 
 		}
@@ -2250,32 +3207,42 @@ int recv_indicatepkt_reorder(struct adapter *padapter, union recv_frame *prframe
 		if (preorder_ctrl->enable == false) {
 			/* indicate this recv_frame */
 			preorder_ctrl->indicate_seq = pattrib->seq_num;
+<<<<<<< HEAD
 			#ifdef DBG_RX_SEQ
 			DBG_871X("DBG_RX_SEQ %s:%d IndicateSeq: %d, NewSeq: %d\n", __func__, __LINE__,
 				preorder_ctrl->indicate_seq, pattrib->seq_num);
 			#endif
+=======
+>>>>>>> upstream/android-13
 
 			rtw_recv_indicatepkt(padapter, prframe);
 
 			preorder_ctrl->indicate_seq = (preorder_ctrl->indicate_seq + 1)%4096;
+<<<<<<< HEAD
 			#ifdef DBG_RX_SEQ
 			DBG_871X("DBG_RX_SEQ %s:%d IndicateSeq: %d, NewSeq: %d\n", __func__, __LINE__,
 				preorder_ctrl->indicate_seq, pattrib->seq_num);
 			#endif
+=======
+>>>>>>> upstream/android-13
 
 			return _SUCCESS;
 		}
 	} else if (pattrib->amsdu == 1) { /* temp filter -> means didn't support A-MSDUs in a A-MPDU */
 		if (preorder_ctrl->enable == false) {
 			preorder_ctrl->indicate_seq = pattrib->seq_num;
+<<<<<<< HEAD
 			#ifdef DBG_RX_SEQ
 			DBG_871X("DBG_RX_SEQ %s:%d IndicateSeq: %d, NewSeq: %d\n", __func__, __LINE__,
 				preorder_ctrl->indicate_seq, pattrib->seq_num);
 			#endif
+=======
+>>>>>>> upstream/android-13
 
 			retval = amsdu_to_msdu(padapter, prframe);
 
 			preorder_ctrl->indicate_seq = (preorder_ctrl->indicate_seq + 1)%4096;
+<<<<<<< HEAD
 			#ifdef DBG_RX_SEQ
 			DBG_871X("DBG_RX_SEQ %s:%d IndicateSeq: %d, NewSeq: %d\n", __func__, __LINE__,
 				preorder_ctrl->indicate_seq, pattrib->seq_num);
@@ -2285,6 +3252,10 @@ int recv_indicatepkt_reorder(struct adapter *padapter, union recv_frame *prframe
 				#ifdef DBG_RX_DROP_FRAME
 				DBG_871X("DBG_RX_DROP_FRAME %s amsdu_to_msdu fail\n", __func__);
 				#endif
+=======
+
+			if (retval != _SUCCESS) {
+>>>>>>> upstream/android-13
 			}
 
 			return retval;
@@ -2293,6 +3264,7 @@ int recv_indicatepkt_reorder(struct adapter *padapter, union recv_frame *prframe
 
 	spin_lock_bh(&ppending_recvframe_queue->lock);
 
+<<<<<<< HEAD
 	RT_TRACE(_module_rtl871x_recv_c_, _drv_notice_,
 		 ("recv_indicatepkt_reorder: indicate =%d seq =%d\n",
 		  preorder_ctrl->indicate_seq, pattrib->seq_num));
@@ -2303,18 +3275,28 @@ int recv_indicatepkt_reorder(struct adapter *padapter, union recv_frame *prframe
 		#ifdef DBG_RX_DROP_FRAME
 		DBG_871X("DBG_RX_DROP_FRAME %s check_indicate_seq fail\n", __func__);
 		#endif
+=======
+	/* s2. check if winstart_b(indicate_seq) needs to been updated */
+	if (!check_indicate_seq(preorder_ctrl, pattrib->seq_num)) {
+		pdbgpriv->dbg_rx_ampdu_drop_count++;
+>>>>>>> upstream/android-13
 		goto _err_exit;
 	}
 
 
 	/* s3. Insert all packet into Reorder Queue to maintain its ordering. */
 	if (!enqueue_reorder_recvframe(preorder_ctrl, prframe)) {
+<<<<<<< HEAD
 		/* DbgPrint("recv_indicatepkt_reorder, enqueue_reorder_recvframe fail!\n"); */
 		/* spin_unlock_irqrestore(&ppending_recvframe_queue->lock, irql); */
 		/* return _FAIL; */
 		#ifdef DBG_RX_DROP_FRAME
 		DBG_871X("DBG_RX_DROP_FRAME %s enqueue_reorder_recvframe fail\n", __func__);
 		#endif
+=======
+		/* spin_unlock_irqrestore(&ppending_recvframe_queue->lock, irql); */
+		/* return _FAIL; */
+>>>>>>> upstream/android-13
 		goto _err_exit;
 	}
 
@@ -2333,7 +3315,11 @@ int recv_indicatepkt_reorder(struct adapter *padapter, union recv_frame *prframe
 	if (recv_indicatepkts_in_order(padapter, preorder_ctrl, false) == true) {
 		_set_timer(&preorder_ctrl->reordering_ctrl_timer, REORDER_WAIT_TIME);
 		spin_unlock_bh(&ppending_recvframe_queue->lock);
+<<<<<<< HEAD
 	} else{
+=======
+	} else {
+>>>>>>> upstream/android-13
 		spin_unlock_bh(&ppending_recvframe_queue->lock);
 		del_timer_sync(&preorder_ctrl->reordering_ctrl_timer);
 	}
@@ -2358,8 +3344,11 @@ void rtw_reordering_ctrl_timeout_handler(struct timer_list *t)
 	if (padapter->bDriverStopped || padapter->bSurpriseRemoved)
 		return;
 
+<<<<<<< HEAD
 	/* DBG_871X("+rtw_reordering_ctrl_timeout_handler() =>\n"); */
 
+=======
+>>>>>>> upstream/android-13
 	spin_lock_bh(&ppending_recvframe_queue->lock);
 
 	if (recv_indicatepkts_in_order(padapter, preorder_ctrl, true) == true)
@@ -2369,8 +3358,12 @@ void rtw_reordering_ctrl_timeout_handler(struct timer_list *t)
 
 }
 
+<<<<<<< HEAD
 int process_recv_indicatepkts(struct adapter *padapter, union recv_frame *prframe);
 int process_recv_indicatepkts(struct adapter *padapter, union recv_frame *prframe)
+=======
+static int process_recv_indicatepkts(struct adapter *padapter, union recv_frame *prframe)
+>>>>>>> upstream/android-13
 {
 	int retval = _SUCCESS;
 	/* struct recv_priv *precvpriv = &padapter->recvpriv; */
@@ -2378,15 +3371,21 @@ int process_recv_indicatepkts(struct adapter *padapter, union recv_frame *prfram
 	struct mlme_priv *pmlmepriv = &padapter->mlmepriv;
 	struct ht_priv *phtpriv = &pmlmepriv->htpriv;
 
+<<<<<<< HEAD
 	DBG_COUNTER(padapter->rx_logs.core_rx_post_indicate);
 
+=======
+>>>>>>> upstream/android-13
 	if (phtpriv->ht_option == true) { /* B/G/N Mode */
 		/* prframe->u.hdr.preorder_ctrl = &precvpriv->recvreorder_ctrl[pattrib->priority]; */
 
 		if (recv_indicatepkt_reorder(padapter, prframe) != _SUCCESS) { /*  including perform A-MPDU Rx Ordering Buffer Control */
+<<<<<<< HEAD
 			#ifdef DBG_RX_DROP_FRAME
 			DBG_871X("DBG_RX_DROP_FRAME %s recv_indicatepkt_reorder error!\n", __func__);
 			#endif
+=======
+>>>>>>> upstream/android-13
 
 			if ((padapter->bDriverStopped == false) &&
 			    (padapter->bSurpriseRemoved == false)) {
@@ -2396,6 +3395,7 @@ int process_recv_indicatepkts(struct adapter *padapter, union recv_frame *prfram
 		}
 	} else { /* B/G mode */
 		retval = wlanhdr_to_ethhdr(prframe);
+<<<<<<< HEAD
 		if (retval != _SUCCESS) {
 			RT_TRACE(_module_rtl871x_recv_c_, _drv_err_, ("wlanhdr_to_ethhdr: drop pkt\n"));
 			#ifdef DBG_RX_DROP_FRAME
@@ -2414,6 +3414,15 @@ int process_recv_indicatepkts(struct adapter *padapter, union recv_frame *prfram
 			RT_TRACE(_module_rtl871x_recv_c_, _drv_notice_, ("@@@@ process_recv_indicatepkts- recv_func free_indicatepkt\n"));
 
 			RT_TRACE(_module_rtl871x_recv_c_, _drv_notice_, ("recv_func:bDriverStopped(%d) OR bSurpriseRemoved(%d)", padapter->bDriverStopped, padapter->bSurpriseRemoved));
+=======
+		if (retval != _SUCCESS)
+			return retval;
+
+		if ((padapter->bDriverStopped == false) && (padapter->bSurpriseRemoved == false)) {
+			/* indicate this recv_frame */
+			rtw_recv_indicatepkt(padapter, prframe);
+		} else {
+>>>>>>> upstream/android-13
 			retval = _FAIL;
 			return retval;
 		}
@@ -2429,12 +3438,18 @@ static int recv_func_prehandle(struct adapter *padapter, union recv_frame *rfram
 	int ret = _SUCCESS;
 	struct __queue *pfree_recv_queue = &padapter->recvpriv.free_recv_queue;
 
+<<<<<<< HEAD
 	DBG_COUNTER(padapter->rx_logs.core_rx_pre);
 
 	/* check the frame crtl field and decache */
 	ret = validate_recv_frame(padapter, rframe);
 	if (ret != _SUCCESS) {
 		RT_TRACE(_module_rtl871x_recv_c_, _drv_info_, ("recv_func: validate_recv_frame fail! drop pkt\n"));
+=======
+	/* check the frame crtl field and decache */
+	ret = validate_recv_frame(padapter, rframe);
+	if (ret != _SUCCESS) {
+>>>>>>> upstream/android-13
 		rtw_free_recvframe(rframe, pfree_recv_queue);/* free this recv_frame */
 		goto exit;
 	}
@@ -2450,6 +3465,7 @@ static int recv_func_posthandle(struct adapter *padapter, union recv_frame *prfr
 	struct recv_priv *precvpriv = &padapter->recvpriv;
 	struct __queue *pfree_recv_queue = &padapter->recvpriv.free_recv_queue;
 
+<<<<<<< HEAD
 	DBG_COUNTER(padapter->rx_logs.core_rx_post);
 
 	prframe = decryptor(padapter, prframe);
@@ -2460,10 +3476,16 @@ static int recv_func_posthandle(struct adapter *padapter, union recv_frame *prfr
 		#endif
 		ret = _FAIL;
 		DBG_COUNTER(padapter->rx_logs.core_rx_post_decrypt_err);
+=======
+	prframe = decryptor(padapter, prframe);
+	if (!prframe) {
+		ret = _FAIL;
+>>>>>>> upstream/android-13
 		goto _recv_data_drop;
 	}
 
 	prframe = recvframe_chk_defrag(padapter, prframe);
+<<<<<<< HEAD
 	if (prframe == NULL)	{
 		RT_TRACE(_module_rtl871x_recv_c_, _drv_err_, ("recvframe_chk_defrag: drop pkt\n"));
 		#ifdef DBG_RX_DROP_FRAME
@@ -2481,6 +3503,14 @@ static int recv_func_posthandle(struct adapter *padapter, union recv_frame *prfr
 		#endif
 		ret = _FAIL;
 		DBG_COUNTER(padapter->rx_logs.core_rx_post_portctrl_err);
+=======
+	if (!prframe)
+		goto _recv_data_drop;
+
+	prframe = portctrl(padapter, prframe);
+	if (!prframe) {
+		ret = _FAIL;
+>>>>>>> upstream/android-13
 		goto _recv_data_drop;
 	}
 
@@ -2488,12 +3518,16 @@ static int recv_func_posthandle(struct adapter *padapter, union recv_frame *prfr
 
 	ret = process_recv_indicatepkts(padapter, prframe);
 	if (ret != _SUCCESS) {
+<<<<<<< HEAD
 		RT_TRACE(_module_rtl871x_recv_c_, _drv_err_, ("recv_func: process_recv_indicatepkts fail!\n"));
 		#ifdef DBG_RX_DROP_FRAME
 		DBG_871X("DBG_RX_DROP_FRAME %s process_recv_indicatepkts fail!\n", __func__);
 		#endif
 		rtw_free_recvframe(orig_prframe, pfree_recv_queue);/* free this recv_frame */
 		DBG_COUNTER(padapter->rx_logs.core_rx_post_indicate_err);
+=======
+		rtw_free_recvframe(orig_prframe, pfree_recv_queue);/* free this recv_frame */
+>>>>>>> upstream/android-13
 		goto _recv_data_drop;
 	}
 
@@ -2502,9 +3536,13 @@ _recv_data_drop:
 	return ret;
 }
 
+<<<<<<< HEAD
 
 int recv_func(struct adapter *padapter, union recv_frame *rframe);
 int recv_func(struct adapter *padapter, union recv_frame *rframe)
+=======
+static int recv_func(struct adapter *padapter, union recv_frame *rframe)
+>>>>>>> upstream/android-13
 {
 	int ret;
 	struct rx_pkt_attrib *prxattrib = &rframe->u.hdr.attrib;
@@ -2519,6 +3557,7 @@ int recv_func(struct adapter *padapter, union recv_frame *rframe)
 
 		while ((pending_frame = rtw_alloc_recvframe(&padapter->recvpriv.uc_swdec_pending_queue))) {
 			cnt++;
+<<<<<<< HEAD
 			DBG_COUNTER(padapter->rx_logs.core_rx_dequeue);
 			recv_func_posthandle(padapter, pending_frame);
 		}
@@ -2529,6 +3568,12 @@ int recv_func(struct adapter *padapter, union recv_frame *rframe)
 	}
 
 	DBG_COUNTER(padapter->rx_logs.core_rx);
+=======
+			recv_func_posthandle(padapter, pending_frame);
+		}
+	}
+
+>>>>>>> upstream/android-13
 	ret = recv_func_prehandle(padapter, rframe);
 
 	if (ret == _SUCCESS) {
@@ -2539,9 +3584,13 @@ int recv_func(struct adapter *padapter, union recv_frame *rframe)
 			(prxattrib->bdecrypted == 0 || psecuritypriv->sw_decrypt == true) &&
 			psecuritypriv->ndisauthtype == Ndis802_11AuthModeWPAPSK &&
 			!psecuritypriv->busetkipkey) {
+<<<<<<< HEAD
 			DBG_COUNTER(padapter->rx_logs.core_rx_enqueue);
 			rtw_enqueue_recvframe(rframe, &padapter->recvpriv.uc_swdec_pending_queue);
 			/* DBG_871X("%s: no key, enqueue uc_swdec_pending_queue\n", __func__); */
+=======
+			rtw_enqueue_recvframe(rframe, &padapter->recvpriv.uc_swdec_pending_queue);
+>>>>>>> upstream/android-13
 
 			if (recvpriv->free_recvframe_cnt < NR_RECVFRAME/4) {
 				/* to prevent from recvframe starvation, get recvframe from uc_swdec_pending_queue to free_recvframe_cnt  */
@@ -2567,15 +3616,21 @@ s32 rtw_recv_entry(union recv_frame *precvframe)
 	struct recv_priv *precvpriv;
 	s32 ret = _SUCCESS;
 
+<<<<<<< HEAD
 /* 	RT_TRACE(_module_rtl871x_recv_c_, _drv_info_, ("+rtw_recv_entry\n")); */
 
+=======
+>>>>>>> upstream/android-13
 	padapter = precvframe->u.hdr.adapter;
 
 	precvpriv = &padapter->recvpriv;
 
 	ret = recv_func(padapter, precvframe);
 	if (ret == _FAIL) {
+<<<<<<< HEAD
 		RT_TRACE(_module_rtl871x_recv_c_, _drv_info_, ("rtw_recv_entry: recv_func return fail!!!\n"));
+=======
+>>>>>>> upstream/android-13
 		goto _recv_entry_drop;
 	}
 
@@ -2586,8 +3641,11 @@ s32 rtw_recv_entry(union recv_frame *precvframe)
 
 _recv_entry_drop:
 
+<<<<<<< HEAD
 	/* RT_TRACE(_module_rtl871x_recv_c_, _drv_err_, ("_recv_entry_drop\n")); */
 
+=======
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -2601,7 +3659,11 @@ static void rtw_signal_stat_timer_hdl(struct timer_list *t)
 	u8 avg_signal_strength = 0;
 	u8 avg_signal_qual = 0;
 	u32 num_signal_strength = 0;
+<<<<<<< HEAD
 	u32 num_signal_qual = 0;
+=======
+	u32 __maybe_unused num_signal_qual = 0;
+>>>>>>> upstream/android-13
 	u8 _alpha = 5; /*  this value is based on converging_constant = 5000 and sampling_interval = 1000 */
 
 	if (adapter->recvpriv.is_signal_dbg) {
@@ -2613,27 +3675,45 @@ static void rtw_signal_stat_timer_hdl(struct timer_list *t)
 		if (recvpriv->signal_strength_data.update_req == 0) {/*  update_req is clear, means we got rx */
 			avg_signal_strength = recvpriv->signal_strength_data.avg_val;
 			num_signal_strength = recvpriv->signal_strength_data.total_num;
+<<<<<<< HEAD
 			/*  after avg_vals are accquired, we can re-stat the signal values */
+=======
+			/*  after avg_vals are acquired, we can re-stat the signal values */
+>>>>>>> upstream/android-13
 			recvpriv->signal_strength_data.update_req = 1;
 		}
 
 		if (recvpriv->signal_qual_data.update_req == 0) {/*  update_req is clear, means we got rx */
 			avg_signal_qual = recvpriv->signal_qual_data.avg_val;
 			num_signal_qual = recvpriv->signal_qual_data.total_num;
+<<<<<<< HEAD
 			/*  after avg_vals are accquired, we can re-stat the signal values */
+=======
+			/*  after avg_vals are acquired, we can re-stat the signal values */
+>>>>>>> upstream/android-13
 			recvpriv->signal_qual_data.update_req = 1;
 		}
 
 		if (num_signal_strength == 0) {
+<<<<<<< HEAD
 			if (rtw_get_on_cur_ch_time(adapter) == 0
 				|| jiffies_to_msecs(jiffies - rtw_get_on_cur_ch_time(adapter)) < 2 * adapter->mlmeextpriv.mlmext_info.bcn_interval
+=======
+			if (rtw_get_on_cur_ch_time(adapter) == 0 ||
+			    jiffies_to_msecs(jiffies - rtw_get_on_cur_ch_time(adapter)) < 2 * adapter->mlmeextpriv.mlmext_info.bcn_interval
+>>>>>>> upstream/android-13
 			) {
 				goto set_timer;
 			}
 		}
 
+<<<<<<< HEAD
 		if (check_fwstate(&adapter->mlmepriv, _FW_UNDER_SURVEY) == true
 			|| check_fwstate(&adapter->mlmepriv, _FW_LINKED) == false
+=======
+		if (check_fwstate(&adapter->mlmepriv, _FW_UNDER_SURVEY) == true ||
+		    check_fwstate(&adapter->mlmepriv, _FW_LINKED) == false
+>>>>>>> upstream/android-13
 		) {
 			goto set_timer;
 		}
@@ -2658,6 +3738,7 @@ static void rtw_signal_stat_timer_hdl(struct timer_list *t)
 		recvpriv->signal_strength = tmp_s;
 		recvpriv->rssi = (s8)translate_percentage_to_dbm(tmp_s);
 		recvpriv->signal_qual = tmp_q;
+<<<<<<< HEAD
 
 		#if defined(DBG_RX_SIGNAL_DISPLAY_PROCESSING) && 1
 		DBG_871X(FUNC_ADPT_FMT" signal_strength:%3u, rssi:%3d, signal_qual:%3u"
@@ -2672,6 +3753,8 @@ static void rtw_signal_stat_timer_hdl(struct timer_list *t)
 			, rtw_get_on_cur_ch_time(adapter) ? jiffies_to_msecs(jiffies - rtw_get_on_cur_ch_time(adapter)) : 0
 		);
 		#endif
+=======
+>>>>>>> upstream/android-13
 	}
 
 set_timer:

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *    PARISC Architecture-dependent parts of process handling
  *    based on the work for i386
@@ -15,6 +19,7 @@
  *    Copyright (C) 2001-2002 Ryan Bradetich <rbrad at parisc-linux.org>
  *    Copyright (C) 2001-2014 Helge Deller <deller@gmx.de>
  *    Copyright (C) 2002 Randolph Chung <tausq with parisc-linux.org>
+<<<<<<< HEAD
  *
  *
  *    This program is free software; you can redistribute it and/or modify
@@ -34,6 +39,9 @@
 
 #include <stdarg.h>
 
+=======
+ */
+>>>>>>> upstream/android-13
 #include <linux/elf.h>
 #include <linux/errno.h>
 #include <linux/kernel.h>
@@ -61,7 +69,10 @@
 #include <asm/assembly.h>
 #include <asm/pdc.h>
 #include <asm/pdc_chassis.h>
+<<<<<<< HEAD
 #include <asm/pgalloc.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/unwind.h>
 #include <asm/sections.h>
 
@@ -167,6 +178,7 @@ void release_thread(struct task_struct *dead_task)
 }
 
 /*
+<<<<<<< HEAD
  * Fill in the FPU structure for a core dump.
  */
 
@@ -186,13 +198,19 @@ int dump_task_fpu (struct task_struct *tsk, elf_fpregset_t *r)
 }
 
 /*
+=======
+>>>>>>> upstream/android-13
  * Idle thread support
  *
  * Detect when running on QEMU with SeaBIOS PDC Firmware and let
  * QEMU idle the host too.
  */
 
+<<<<<<< HEAD
 int running_on_qemu __read_mostly;
+=======
+int running_on_qemu __ro_after_init;
+>>>>>>> upstream/android-13
 EXPORT_SYMBOL(running_on_qemu);
 
 void __cpuidle arch_cpu_idle_dead(void)
@@ -203,7 +221,11 @@ void __cpuidle arch_cpu_idle_dead(void)
 
 void __cpuidle arch_cpu_idle(void)
 {
+<<<<<<< HEAD
 	local_irq_enable();
+=======
+	raw_local_irq_enable();
+>>>>>>> upstream/android-13
 
 	/* nop on real hardware, qemu will idle sleep. */
 	asm volatile("or %%r10,%%r10,%%r10\n":::);
@@ -223,7 +245,11 @@ arch_initcall(parisc_idle_init);
  */
 int
 copy_thread(unsigned long clone_flags, unsigned long usp,
+<<<<<<< HEAD
 	    unsigned long kthread_arg, struct task_struct *p)
+=======
+	    unsigned long kthread_arg, struct task_struct *p, unsigned long tls)
+>>>>>>> upstream/android-13
 {
 	struct pt_regs *cregs = &(p->thread.regs);
 	void *stack = task_stack_page(p);
@@ -234,7 +260,11 @@ copy_thread(unsigned long clone_flags, unsigned long usp,
 	extern void * const ret_from_kernel_thread;
 	extern void * const child_return;
 
+<<<<<<< HEAD
 	if (unlikely(p->flags & PF_KTHREAD)) {
+=======
+	if (unlikely(p->flags & (PF_KTHREAD | PF_IO_WORKER))) {
+>>>>>>> upstream/android-13
 		/* kernel thread */
 		memset(cregs, 0, sizeof(struct pt_regs));
 		if (!usp) /* idle thread */
@@ -268,9 +298,15 @@ copy_thread(unsigned long clone_flags, unsigned long usp,
 		cregs->ksp = (unsigned long)stack + THREAD_SZ_ALGN + FRAME_SIZE;
 		cregs->kpc = (unsigned long) &child_return;
 
+<<<<<<< HEAD
 		/* Setup thread TLS area from the 4th parameter in clone */
 		if (clone_flags & CLONE_SETTLS)
 			cregs->cr27 = cregs->gr[23];
+=======
+		/* Setup thread TLS area */
+		if (clone_flags & CLONE_SETTLS)
+			cregs->cr27 = tls;
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
@@ -283,7 +319,11 @@ get_wchan(struct task_struct *p)
 	unsigned long ip;
 	int count = 0;
 
+<<<<<<< HEAD
 	if (!p || p == current || p->state == TASK_RUNNING)
+=======
+	if (!p || p == current || task_is_running(p))
+>>>>>>> upstream/android-13
 		return 0;
 
 	/*
@@ -294,6 +334,11 @@ get_wchan(struct task_struct *p)
 	do {
 		if (unwind_once(&info) < 0)
 			return 0;
+<<<<<<< HEAD
+=======
+		if (task_is_running(p))
+                        return 0;
+>>>>>>> upstream/android-13
 		ip = info.ip;
 		if (!in_sched_functions(ip))
 			return ip;
@@ -307,7 +352,11 @@ void *dereference_function_descriptor(void *ptr)
 	Elf64_Fdesc *desc = ptr;
 	void *p;
 
+<<<<<<< HEAD
 	if (!probe_kernel_address(&desc->addr, p))
+=======
+	if (!get_kernel_nofault(p, (void *)&desc->addr))
+>>>>>>> upstream/android-13
 		ptr = p;
 	return ptr;
 }

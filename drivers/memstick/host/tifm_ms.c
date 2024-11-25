@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  TI FlashMedia driver
  *
  *  Copyright (C) 2007 Alex Dubov <oakad@yahoo.com>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
@@ -10,6 +15,10 @@
  * Special thanks to Carlos Corbacho for providing various MemoryStick cards
  * that made this driver possible.
  *
+=======
+ * Special thanks to Carlos Corbacho for providing various MemoryStick cards
+ * that made this driver possible.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/tifm.h>
@@ -166,9 +175,17 @@ static unsigned int tifm_ms_write_data(struct tifm_ms *host,
 	case 3:
 		host->io_word |= buf[off + 2] << 16;
 		host->io_pos++;
+<<<<<<< HEAD
 	case 2:
 		host->io_word |= buf[off + 1] << 8;
 		host->io_pos++;
+=======
+		fallthrough;
+	case 2:
+		host->io_word |= buf[off + 1] << 8;
+		host->io_pos++;
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 1:
 		host->io_word |= buf[off];
 		host->io_pos++;
@@ -200,7 +217,11 @@ static unsigned int tifm_ms_transfer_data(struct tifm_ms *host)
 		host->block_pos);
 
 	while (length) {
+<<<<<<< HEAD
 		unsigned int uninitialized_var(p_off);
+=======
+		unsigned int p_off;
+>>>>>>> upstream/android-13
 
 		if (host->req->long_data) {
 			pg = nth_page(sg_page(&host->req->sg),
@@ -254,7 +275,10 @@ static unsigned int tifm_ms_transfer_data(struct tifm_ms *host)
 static int tifm_ms_issue_cmd(struct tifm_ms *host)
 {
 	struct tifm_dev *sock = host->dev;
+<<<<<<< HEAD
 	unsigned char *data;
+=======
+>>>>>>> upstream/android-13
 	unsigned int data_len, cmd, sys_param;
 
 	host->cmd_flags = 0;
@@ -263,8 +287,11 @@ static int tifm_ms_issue_cmd(struct tifm_ms *host)
 	host->io_word = 0;
 	host->cmd_flags = 0;
 
+<<<<<<< HEAD
 	data = host->req->data;
 
+=======
+>>>>>>> upstream/android-13
 	host->use_dma = !no_dma;
 
 	if (host->req->long_data) {
@@ -284,8 +311,13 @@ static int tifm_ms_issue_cmd(struct tifm_ms *host)
 	if (host->use_dma) {
 		if (1 != tifm_map_sg(sock, &host->req->sg, 1,
 				     host->req->data_dir == READ
+<<<<<<< HEAD
 				     ? PCI_DMA_FROMDEVICE
 				     : PCI_DMA_TODEVICE)) {
+=======
+				     ? DMA_FROM_DEVICE
+				     : DMA_TO_DEVICE)) {
+>>>>>>> upstream/android-13
 			host->req->error = -ENOMEM;
 			return host->req->error;
 		}
@@ -355,8 +387,13 @@ static void tifm_ms_complete_cmd(struct tifm_ms *host)
 	if (host->use_dma) {
 		tifm_unmap_sg(sock, &host->req->sg, 1,
 			      host->req->data_dir == READ
+<<<<<<< HEAD
 			      ? PCI_DMA_FROMDEVICE
 			      : PCI_DMA_TODEVICE);
+=======
+			      ? DMA_FROM_DEVICE
+			      : DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 	}
 
 	writel((~TIFM_CTRL_LED) & readl(sock->addr + SOCK_CONTROL),
@@ -533,7 +570,11 @@ static int tifm_ms_set_param(struct memstick_host *msh,
 		} else
 			return -EINVAL;
 		break;
+<<<<<<< HEAD
 	};
+=======
+	}
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -612,8 +653,13 @@ static void tifm_ms_remove(struct tifm_dev *sock)
 		if (host->use_dma)
 			tifm_unmap_sg(sock, &host->req->sg, 1,
 				      host->req->data_dir == READ
+<<<<<<< HEAD
 				      ? PCI_DMA_TODEVICE
 				      : PCI_DMA_FROMDEVICE);
+=======
+				      ? DMA_TO_DEVICE
+				      : DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 		host->req->error = -ETIME;
 
 		do {

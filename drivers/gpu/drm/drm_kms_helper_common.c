@@ -26,7 +26,12 @@
  */
 
 #include <linux/module.h>
+<<<<<<< HEAD
 #include <drm/drmP.h>
+=======
+
+#include <drm/drm_print.h>
+>>>>>>> upstream/android-13
 
 #include "drm_crtc_helper_internal.h"
 
@@ -39,7 +44,11 @@ MODULE_LICENSE("GPL and additional rights");
 /* Backward compatibility for drm_kms_helper.edid_firmware */
 static int edid_firmware_set(const char *val, const struct kernel_param *kp)
 {
+<<<<<<< HEAD
 	DRM_NOTE("drm_kms_firmware.edid_firmware is deprecated, please use drm.edid_firmware intead.\n");
+=======
+	DRM_NOTE("drm_kms_helper.edid_firmware is deprecated, please use drm.edid_firmware instead.\n");
+>>>>>>> upstream/android-13
 
 	return __drm_set_edid_firmware_path(val);
 }
@@ -63,6 +72,7 @@ MODULE_PARM_DESC(edid_firmware,
 
 static int __init drm_kms_helper_init(void)
 {
+<<<<<<< HEAD
 	int ret;
 
 	/* Call init functions from specific kms helpers here */
@@ -76,6 +86,20 @@ static int __init drm_kms_helper_init(void)
 
 out:
 	return ret;
+=======
+	/*
+	 * The Kconfig DRM_KMS_HELPER selects FRAMEBUFFER_CONSOLE (if !EXPERT)
+	 * but the module doesn't depend on any fb console symbols.  At least
+	 * attempt to load fbcon to avoid leaving the system without a usable
+	 * console.
+	 */
+	if (IS_ENABLED(CONFIG_DRM_FBDEV_EMULATION) &&
+	    IS_MODULE(CONFIG_FRAMEBUFFER_CONSOLE) &&
+	    !IS_ENABLED(CONFIG_EXPERT))
+		request_module_nowait("fbcon");
+
+	return drm_dp_aux_dev_init();
+>>>>>>> upstream/android-13
 }
 
 static void __exit drm_kms_helper_exit(void)

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* IEEE754 floating point arithmetic
  * double precision: common utilities
  */
@@ -6,6 +10,7 @@
  * Copyright (C) 1994-2000 Algorithmics Ltd.
  * Copyright (C) 2017 Imagination Technologies, Ltd.
  * Author: Aleksandar Markovic <aleksandar.markovic@imgtec.com>
+<<<<<<< HEAD
  *
  *  This program is free software; you can distribute it and/or modify it
  *  under the terms of the GNU General Public License (Version 2) as
@@ -18,6 +23,8 @@
  *
  *  You should have received a copy of the GNU General Public License along
  *  with this program.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "ieee754dp.h"

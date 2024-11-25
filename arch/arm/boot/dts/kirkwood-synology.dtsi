@@ -244,7 +244,11 @@
 
 			rs5c372: rs5c372@32 {
 				status = "disabled";
+<<<<<<< HEAD
 				compatible = "ricoh,rs5c372";
+=======
+				compatible = "ricoh,rs5c372a";
+>>>>>>> upstream/android-13
 				reg = <0x32>;
 			};
 

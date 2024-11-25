@@ -31,8 +31,11 @@ struct netpoll {
 	bool ipv6;
 	u16 local_port, remote_port;
 	u8 remote_mac[ETH_ALEN];
+<<<<<<< HEAD
 
 	struct work_struct cleanup_work;
+=======
+>>>>>>> upstream/android-13
 };
 
 struct netpoll_info {
@@ -63,6 +66,7 @@ int netpoll_parse_options(struct netpoll *np, char *opt);
 int __netpoll_setup(struct netpoll *np, struct net_device *ndev);
 int netpoll_setup(struct netpoll *np);
 void __netpoll_cleanup(struct netpoll *np);
+<<<<<<< HEAD
 void __netpoll_free_async(struct netpoll *np);
 void netpoll_cleanup(struct netpoll *np);
 void netpoll_send_skb_on_dev(struct netpoll *np, struct sk_buff *skb,
@@ -74,6 +78,11 @@ static inline void netpoll_send_skb(struct netpoll *np, struct sk_buff *skb)
 	netpoll_send_skb_on_dev(np, skb, np->dev);
 	local_irq_restore(flags);
 }
+=======
+void __netpoll_free(struct netpoll *np);
+void netpoll_cleanup(struct netpoll *np);
+netdev_tx_t netpoll_send_skb(struct netpoll *np, struct sk_buff *skb);
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_NETPOLL
 static inline void *netpoll_poll_lock(struct napi_struct *napi)
@@ -112,9 +121,12 @@ static inline void *netpoll_poll_lock(struct napi_struct *napi)
 static inline void netpoll_poll_unlock(void *have)
 {
 }
+<<<<<<< HEAD
 static inline void netpoll_netdev_init(struct net_device *dev)
 {
 }
+=======
+>>>>>>> upstream/android-13
 static inline bool netpoll_tx_running(struct net_device *dev)
 {
 	return false;

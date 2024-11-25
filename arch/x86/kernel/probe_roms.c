@@ -94,12 +94,20 @@ static bool match_id(struct pci_dev *pdev, unsigned short vendor, unsigned short
 }
 
 static bool probe_list(struct pci_dev *pdev, unsigned short vendor,
+<<<<<<< HEAD
 		       const unsigned char *rom_list)
+=======
+		       const void *rom_list)
+>>>>>>> upstream/android-13
 {
 	unsigned short device;
 
 	do {
+<<<<<<< HEAD
 		if (probe_kernel_address(rom_list, device) != 0)
+=======
+		if (get_kernel_nofault(device, rom_list) != 0)
+>>>>>>> upstream/android-13
 			device = 0;
 
 		if (device && match_id(pdev, vendor, device))
@@ -119,12 +127,17 @@ static struct resource *find_oprom(struct pci_dev *pdev)
 	for (i = 0; i < ARRAY_SIZE(adapter_rom_resources); i++) {
 		struct resource *res = &adapter_rom_resources[i];
 		unsigned short offset, vendor, device, list, rev;
+<<<<<<< HEAD
 		const unsigned char *rom;
+=======
+		const void *rom;
+>>>>>>> upstream/android-13
 
 		if (res->end == 0)
 			break;
 
 		rom = isa_bus_to_virt(res->start);
+<<<<<<< HEAD
 		if (probe_kernel_address(rom + 0x18, offset) != 0)
 			continue;
 
@@ -132,6 +145,15 @@ static struct resource *find_oprom(struct pci_dev *pdev)
 			continue;
 
 		if (probe_kernel_address(rom + offset + 0x6, device) != 0)
+=======
+		if (get_kernel_nofault(offset, rom + 0x18) != 0)
+			continue;
+
+		if (get_kernel_nofault(vendor, rom + offset + 0x4) != 0)
+			continue;
+
+		if (get_kernel_nofault(device, rom + offset + 0x6) != 0)
+>>>>>>> upstream/android-13
 			continue;
 
 		if (match_id(pdev, vendor, device)) {
@@ -139,8 +161,13 @@ static struct resource *find_oprom(struct pci_dev *pdev)
 			break;
 		}
 
+<<<<<<< HEAD
 		if (probe_kernel_address(rom + offset + 0x8, list) == 0 &&
 		    probe_kernel_address(rom + offset + 0xc, rev) == 0 &&
+=======
+		if (get_kernel_nofault(list, rom + offset + 0x8) == 0 &&
+		    get_kernel_nofault(rev, rom + offset + 0xc) == 0 &&
+>>>>>>> upstream/android-13
 		    rev >= 3 && list &&
 		    probe_list(pdev, vendor, rom + offset + list)) {
 			oprom = res;
@@ -183,14 +210,22 @@ static int __init romsignature(const unsigned char *rom)
 	const unsigned short * const ptr = (const unsigned short *)rom;
 	unsigned short sig;
 
+<<<<<<< HEAD
 	return probe_kernel_address(ptr, sig) == 0 && sig == ROMSIGNATURE;
+=======
+	return get_kernel_nofault(sig, ptr) == 0 && sig == ROMSIGNATURE;
+>>>>>>> upstream/android-13
 }
 
 static int __init romchecksum(const unsigned char *rom, unsigned long length)
 {
 	unsigned char sum, c;
 
+<<<<<<< HEAD
 	for (sum = 0; length && probe_kernel_address(rom++, c) == 0; length--)
+=======
+	for (sum = 0; length && get_kernel_nofault(c, rom++) == 0; length--)
+>>>>>>> upstream/android-13
 		sum += c;
 	return !length && !sum;
 }
@@ -211,7 +246,11 @@ void __init probe_roms(void)
 
 		video_rom_resource.start = start;
 
+<<<<<<< HEAD
 		if (probe_kernel_address(rom + 2, c) != 0)
+=======
+		if (get_kernel_nofault(c, rom + 2) != 0)
+>>>>>>> upstream/android-13
 			continue;
 
 		/* 0 < length <= 0x7f * 512, historically */
@@ -249,7 +288,11 @@ void __init probe_roms(void)
 		if (!romsignature(rom))
 			continue;
 
+<<<<<<< HEAD
 		if (probe_kernel_address(rom + 2, c) != 0)
+=======
+		if (get_kernel_nofault(c, rom + 2) != 0)
+>>>>>>> upstream/android-13
 			continue;
 
 		/* 0 < length <= 0x7f * 512, historically */

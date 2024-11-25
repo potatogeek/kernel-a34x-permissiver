@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Defines for Mobile High-Definition Link (MHL) interface
  *
@@ -6,10 +10,13 @@
  *
  * Based on MHL driver for Android devices.
  * Copyright (C) 2013-2014 Silicon Image, Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __MHL_H__
@@ -330,13 +337,21 @@ struct mhl_burst_bits_per_pixel_fmt {
 	struct {
 		u8 stream_id;
 		u8 pixel_format;
+<<<<<<< HEAD
 	} __packed desc[0];
+=======
+	} __packed desc[];
+>>>>>>> upstream/android-13
 } __packed;
 
 struct mhl_burst_emsc_support {
 	struct mhl3_burst_header hdr;
 	u8 num_entries;
+<<<<<<< HEAD
 	__be16 burst_id[0];
+=======
+	__be16 burst_id[];
+>>>>>>> upstream/android-13
 } __packed;
 
 struct mhl_burst_audio_descr {

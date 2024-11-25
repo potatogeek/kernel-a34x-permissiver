@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Driver for the SGS-Thomson M48T35 Timekeeper RAM chip
  *
@@ -7,11 +11,14 @@
  * Copyright (C) 2008 Thomas Bogendoerfer
  *
  * Based on code written by Paul Gortmaker.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -24,6 +31,19 @@
 
 struct m48t35_rtc {
 	u8	pad[0x7ff8];    /* starts at 0x7ff8 */
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_SGI_IP27
+	u8	hour;
+	u8	min;
+	u8	sec;
+	u8	control;
+	u8	year;
+	u8	month;
+	u8	date;
+	u8	day;
+#else
+>>>>>>> upstream/android-13
 	u8	control;
 	u8	sec;
 	u8	min;
@@ -32,6 +52,10 @@ struct m48t35_rtc {
 	u8	date;
 	u8	month;
 	u8	year;
+<<<<<<< HEAD
+=======
+#endif
+>>>>>>> upstream/android-13
 };
 
 #define M48T35_RTC_SET		0x80
@@ -153,6 +177,7 @@ static int m48t35_probe(struct platform_device *pdev)
 		return -ENOMEM;
 
 	priv->size = resource_size(res);
+<<<<<<< HEAD
 	/*
 	 * kludge: remove the #ifndef after ioc3 resource
 	 * conflicts are resolved
@@ -162,6 +187,12 @@ static int m48t35_probe(struct platform_device *pdev)
 				     pdev->name))
 		return -EBUSY;
 #endif
+=======
+	if (!devm_request_mem_region(&pdev->dev, res->start, priv->size,
+				     pdev->name))
+		return -EBUSY;
+
+>>>>>>> upstream/android-13
 	priv->baseaddr = res->start;
 	priv->reg = devm_ioremap(&pdev->dev, priv->baseaddr, priv->size);
 	if (!priv->reg)

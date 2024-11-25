@@ -15,7 +15,11 @@ union uu {
 	unsigned char b[2];
 };
 
+<<<<<<< HEAD
 /* Endian independed version */
+=======
+/* Endian independent version */
+>>>>>>> upstream/android-13
 static inline unsigned short
 get_unaligned16(const unsigned short *p)
 {
@@ -253,6 +257,7 @@ void inflate_fast(z_streamp strm, unsigned start)
 
 			sfrom = (unsigned short *)(from);
 			loops = len >> 1;
+<<<<<<< HEAD
 			do
 #ifdef CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS
 			    *sout++ = *sfrom++;
@@ -260,6 +265,14 @@ void inflate_fast(z_streamp strm, unsigned start)
 			    *sout++ = get_unaligned16(sfrom++);
 #endif
 			while (--loops);
+=======
+			do {
+			    if (IS_ENABLED(CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS))
+				*sout++ = *sfrom++;
+			    else
+				*sout++ = get_unaligned16(sfrom++);
+			} while (--loops);
+>>>>>>> upstream/android-13
 			out = (unsigned char *)sout;
 			from = (unsigned char *)sfrom;
 		    } else { /* dist == 1 or dist == 2 */

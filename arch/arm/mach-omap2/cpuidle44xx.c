@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * OMAP4+ CPU idle Routines
  *
  * Copyright (C) 2011-2013 Texas Instruments, Inc.
  * Santosh Shilimkar <santosh.shilimkar@ti.com>
  * Rajendra Nayak <rnayak@ti.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/sched.h>
@@ -125,6 +132,10 @@ static int omap_enter_idle_coupled(struct cpuidle_device *dev,
 {
 	struct idle_statedata *cx = state_ptr + index;
 	u32 mpuss_can_lose_context = 0;
+<<<<<<< HEAD
+=======
+	int error;
+>>>>>>> upstream/android-13
 
 	/*
 	 * CPU0 has to wait and stay ON until CPU1 is OFF state.
@@ -153,27 +164,57 @@ static int omap_enter_idle_coupled(struct cpuidle_device *dev,
 				 (cx->mpu_logic_state == PWRDM_POWER_OFF);
 
 	/* Enter broadcast mode for periodic timers */
+<<<<<<< HEAD
 	tick_broadcast_enable();
 
 	/* Enter broadcast mode for one-shot timers */
 	tick_broadcast_enter();
+=======
+	RCU_NONIDLE(tick_broadcast_enable());
+
+	/* Enter broadcast mode for one-shot timers */
+	RCU_NONIDLE(tick_broadcast_enter());
+>>>>>>> upstream/android-13
 
 	/*
 	 * Call idle CPU PM enter notifier chain so that
 	 * VFP and per CPU interrupt context is saved.
 	 */
+<<<<<<< HEAD
 	cpu_pm_enter();
 
 	if (dev->cpu == 0) {
 		pwrdm_set_logic_retst(mpu_pd, cx->mpu_logic_state);
 		omap_set_pwrdm_state(mpu_pd, cx->mpu_state);
+=======
+	error = cpu_pm_enter();
+	if (error)
+		goto cpu_pm_out;
+
+	if (dev->cpu == 0) {
+		pwrdm_set_logic_retst(mpu_pd, cx->mpu_logic_state);
+		RCU_NONIDLE(omap_set_pwrdm_state(mpu_pd, cx->mpu_state));
+>>>>>>> upstream/android-13
 
 		/*
 		 * Call idle CPU cluster PM enter notifier chain
 		 * to save GIC and wakeupgen context.
 		 */
+<<<<<<< HEAD
 		if (mpuss_can_lose_context)
 			cpu_cluster_pm_enter();
+=======
+		if (mpuss_can_lose_context) {
+			error = cpu_cluster_pm_enter();
+			if (error) {
+				index = 0;
+				cx = state_ptr + index;
+				pwrdm_set_logic_retst(mpu_pd, cx->mpu_logic_state);
+				RCU_NONIDLE(omap_set_pwrdm_state(mpu_pd, cx->mpu_state));
+				mpuss_can_lose_context = 0;
+			}
+		}
+>>>>>>> upstream/android-13
 	}
 
 	omap4_enter_lowpower(dev->cpu, cx->cpu_state);
@@ -186,9 +227,15 @@ static int omap_enter_idle_coupled(struct cpuidle_device *dev,
 		    mpuss_can_lose_context)
 			gic_dist_disable();
 
+<<<<<<< HEAD
 		clkdm_deny_idle(cpu_clkdm[1]);
 		omap_set_pwrdm_state(cpu_pd[1], PWRDM_POWER_ON);
 		clkdm_allow_idle(cpu_clkdm[1]);
+=======
+		RCU_NONIDLE(clkdm_deny_idle(cpu_clkdm[1]));
+		RCU_NONIDLE(omap_set_pwrdm_state(cpu_pd[1], PWRDM_POWER_ON));
+		RCU_NONIDLE(clkdm_allow_idle(cpu_clkdm[1]));
+>>>>>>> upstream/android-13
 
 		if (IS_PM44XX_ERRATUM(PM_OMAP4_ROM_SMP_BOOT_ERRATUM_GICD) &&
 		    mpuss_can_lose_context) {
@@ -201,19 +248,33 @@ static int omap_enter_idle_coupled(struct cpuidle_device *dev,
 	}
 
 	/*
+<<<<<<< HEAD
 	 * Call idle CPU PM exit notifier chain to restore
 	 * VFP and per CPU IRQ context.
 	 */
 	cpu_pm_exit();
 
 	/*
+=======
+>>>>>>> upstream/android-13
 	 * Call idle CPU cluster PM exit notifier chain
 	 * to restore GIC and wakeupgen context.
 	 */
 	if (dev->cpu == 0 && mpuss_can_lose_context)
 		cpu_cluster_pm_exit();
 
+<<<<<<< HEAD
 	tick_broadcast_exit();
+=======
+	/*
+	 * Call idle CPU PM exit notifier chain to restore
+	 * VFP and per CPU IRQ context.
+	 */
+	cpu_pm_exit();
+
+cpu_pm_out:
+	RCU_NONIDLE(tick_broadcast_exit());
+>>>>>>> upstream/android-13
 
 fail:
 	cpuidle_coupled_parallel_barrier(dev, &abort_barrier);

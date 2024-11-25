@@ -27,12 +27,18 @@
 
 #include "odm.h"
 #include "odm_HWConfig.h"
+<<<<<<< HEAD
 #include "odm_debug.h"
 #include "odm_RegDefine11N.h"
 #include "odm_AntDiv.h"
 #include "odm_EdcaTurboCheck.h"
 #include "odm_DIG.h"
 #include "odm_PathDiv.h"
+=======
+#include "odm_RegDefine11N.h"
+#include "odm_EdcaTurboCheck.h"
+#include "odm_DIG.h"
+>>>>>>> upstream/android-13
 #include "odm_DynamicBBPowerSaving.h"
 #include "odm_DynamicTxPower.h"
 #include "odm_CfoTracking.h"
@@ -46,7 +52,10 @@
 #include "HalHWImg8723B_RF.h"
 #include "HalHWImg8723B_BB.h"
 #include "Hal8723BReg.h"
+<<<<<<< HEAD
 #include "odm_RTL8723B.h"
+=======
+>>>>>>> upstream/android-13
 #include "odm_RegConfig8723B.h"
 
 #endif	/*  __ODM_PRECOMP_H__ */

@@ -152,8 +152,13 @@ static inline struct ceu_buffer *vb2_to_ceu(struct vb2_v4l2_buffer *vbuf)
  * ceu_subdev - Wraps v4l2 sub-device and provides async subdevice.
  */
 struct ceu_subdev {
+<<<<<<< HEAD
 	struct v4l2_subdev *v4l2_sd;
 	struct v4l2_async_subdev asd;
+=======
+	struct v4l2_async_subdev asd;
+	struct v4l2_subdev *v4l2_sd;
+>>>>>>> upstream/android-13
 
 	/* per-subdevice mbus configuration options */
 	unsigned int mbus_flags;
@@ -174,7 +179,11 @@ struct ceu_device {
 	struct v4l2_device	v4l2_dev;
 
 	/* subdevices descriptors */
+<<<<<<< HEAD
 	struct ceu_subdev	*subdevs;
+=======
+	struct ceu_subdev	**subdevs;
+>>>>>>> upstream/android-13
 	/* the subdevice currently in use */
 	struct ceu_subdev	*sd;
 	unsigned int		sd_index;
@@ -189,8 +198,11 @@ struct ceu_device {
 
 	/* async subdev notification helpers */
 	struct v4l2_async_notifier notifier;
+<<<<<<< HEAD
 	/* pointers to "struct ceu_subdevice -> asd" */
 	struct v4l2_async_subdev **asds;
+=======
+>>>>>>> upstream/android-13
 
 	/* vb2 queue, capture buffer list and active buffer pointer */
 	struct vb2_queue	vb2_vq;
@@ -407,7 +419,11 @@ static int ceu_hw_config(struct ceu_device *ceudev)
 	/* Non-swapped planar image capture mode. */
 	case V4L2_PIX_FMT_NV16:
 		cdocr	|= CEU_CDOCR_NO_DOWSAMPLE;
+<<<<<<< HEAD
 		/* fall-through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case V4L2_PIX_FMT_NV12:
 		if (mbus_fmt->swapped)
 			camcr = mbus_fmt->fmt_order_swap;
@@ -421,7 +437,11 @@ static int ceu_hw_config(struct ceu_device *ceudev)
 	/* Swapped planar image capture mode. */
 	case V4L2_PIX_FMT_NV61:
 		cdocr	|= CEU_CDOCR_NO_DOWSAMPLE;
+<<<<<<< HEAD
 		/* fall-through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case V4L2_PIX_FMT_NV21:
 		if (mbus_fmt->swapped)
 			camcr = mbus_fmt->fmt_order;
@@ -796,6 +816,12 @@ static int __ceu_try_fmt(struct ceu_device *ceudev, struct v4l2_format *v4l2_fmt
 	struct v4l2_pix_format_mplane *pix = &v4l2_fmt->fmt.pix_mp;
 	struct v4l2_subdev *v4l2_sd = ceu_sd->v4l2_sd;
 	struct v4l2_subdev_pad_config pad_cfg;
+<<<<<<< HEAD
+=======
+	struct v4l2_subdev_state pad_state = {
+		.pads = &pad_cfg
+		};
+>>>>>>> upstream/android-13
 	const struct ceu_fmt *ceu_fmt;
 	u32 mbus_code_old;
 	u32 mbus_code;
@@ -852,13 +878,21 @@ static int __ceu_try_fmt(struct ceu_device *ceudev, struct v4l2_format *v4l2_fmt
 	 * time.
 	 */
 	sd_format.format.code = mbus_code;
+<<<<<<< HEAD
 	ret = v4l2_subdev_call(v4l2_sd, pad, set_fmt, &pad_cfg, &sd_format);
+=======
+	ret = v4l2_subdev_call(v4l2_sd, pad, set_fmt, &pad_state, &sd_format);
+>>>>>>> upstream/android-13
 	if (ret) {
 		if (ret == -EINVAL) {
 			/* fallback */
 			sd_format.format.code = mbus_code_old;
 			ret = v4l2_subdev_call(v4l2_sd, pad, set_fmt,
+<<<<<<< HEAD
 					       &pad_cfg, &sd_format);
+=======
+					       &pad_state, &sd_format);
+>>>>>>> upstream/android-13
 		}
 
 		if (ret)
@@ -1101,10 +1135,17 @@ static int ceu_open(struct file *file)
 
 	mutex_lock(&ceudev->mlock);
 	/* Causes soft-reset and sensor power on on first open */
+<<<<<<< HEAD
 	pm_runtime_get_sync(ceudev->dev);
 	mutex_unlock(&ceudev->mlock);
 
 	return 0;
+=======
+	ret = pm_runtime_resume_and_get(ceudev->dev);
+	mutex_unlock(&ceudev->mlock);
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static int ceu_release(struct file *file)
@@ -1137,8 +1178,13 @@ static int ceu_querycap(struct file *file, void *priv,
 {
 	struct ceu_device *ceudev = video_drvdata(file);
 
+<<<<<<< HEAD
 	strlcpy(cap->card, "Renesas CEU", sizeof(cap->card));
 	strlcpy(cap->driver, DRIVER_NAME, sizeof(cap->driver));
+=======
+	strscpy(cap->card, "Renesas CEU", sizeof(cap->card));
+	strscpy(cap->driver, DRIVER_NAME, sizeof(cap->driver));
+>>>>>>> upstream/android-13
 	snprintf(cap->bus_info, sizeof(cap->bus_info),
 		 "platform:renesas-ceu-%s", dev_name(ceudev->dev));
 
@@ -1197,7 +1243,11 @@ static int ceu_enum_input(struct file *file, void *priv,
 	if (inp->index >= ceudev->num_sd)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	ceusd = &ceudev->subdevs[inp->index];
+=======
+	ceusd = ceudev->subdevs[inp->index];
+>>>>>>> upstream/android-13
 
 	inp->type = V4L2_INPUT_TYPE_CAMERA;
 	inp->std = 0;
@@ -1232,7 +1282,11 @@ static int ceu_s_input(struct file *file, void *priv, unsigned int i)
 		return 0;
 
 	ceu_sd_old = ceudev->sd;
+<<<<<<< HEAD
 	ceudev->sd = &ceudev->subdevs[i];
+=======
+	ceudev->sd = ceudev->subdevs[i];
+>>>>>>> upstream/android-13
 
 	/*
 	 * Make sure we can generate output image formats and apply
@@ -1341,7 +1395,11 @@ static int ceu_enum_frameintervals(struct file *file, void *fh,
 static const struct v4l2_ioctl_ops ceu_ioctl_ops = {
 	.vidioc_querycap		= ceu_querycap,
 
+<<<<<<< HEAD
 	.vidioc_enum_fmt_vid_cap_mplane	= ceu_enum_fmt_vid_cap,
+=======
+	.vidioc_enum_fmt_vid_cap	= ceu_enum_fmt_vid_cap,
+>>>>>>> upstream/android-13
 	.vidioc_try_fmt_vid_cap_mplane	= ceu_try_fmt_vid_cap,
 	.vidioc_s_fmt_vid_cap_mplane	= ceu_s_fmt_vid_cap,
 	.vidioc_g_fmt_vid_cap_mplane	= ceu_g_fmt_vid_cap,
@@ -1425,7 +1483,11 @@ static int ceu_notify_complete(struct v4l2_async_notifier *notifier)
 	 * ceu formats.
 	 */
 	if (!ceudev->sd) {
+<<<<<<< HEAD
 		ceudev->sd = &ceudev->subdevs[0];
+=======
+		ceudev->sd = ceudev->subdevs[0];
+>>>>>>> upstream/android-13
 		ceudev->sd_index = 0;
 	}
 
@@ -1440,7 +1502,11 @@ static int ceu_notify_complete(struct v4l2_async_notifier *notifier)
 		return ret;
 
 	/* Register the video device. */
+<<<<<<< HEAD
 	strlcpy(vdev->name, DRIVER_NAME, sizeof(vdev->name));
+=======
+	strscpy(vdev->name, DRIVER_NAME, sizeof(vdev->name));
+>>>>>>> upstream/android-13
 	vdev->v4l2_dev		= v4l2_dev;
 	vdev->lock		= &ceudev->mlock;
 	vdev->queue		= &ceudev->vb2_vq;
@@ -1452,7 +1518,11 @@ static int ceu_notify_complete(struct v4l2_async_notifier *notifier)
 				  V4L2_CAP_STREAMING;
 	video_set_drvdata(vdev, ceudev);
 
+<<<<<<< HEAD
 	ret = video_register_device(vdev, VFL_TYPE_GRABBER, -1);
+=======
+	ret = video_register_device(vdev, VFL_TYPE_VIDEO, -1);
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		v4l2_err(vdev->v4l2_dev,
 			 "video_register_device failed: %d\n", ret);
@@ -1469,8 +1539,13 @@ static const struct v4l2_async_notifier_operations ceu_notify_ops = {
 
 /*
  * ceu_init_async_subdevs() - Initialize CEU subdevices and async_subdevs in
+<<<<<<< HEAD
  *			      ceu device. Both DT and platform data parsing use
  *			      this routine.
+=======
+ *                           ceu device. Both DT and platform data parsing use
+ *                           this routine.
+>>>>>>> upstream/android-13
  *
  * Returns 0 for success, -ENOMEM for failure.
  */
@@ -1482,6 +1557,7 @@ static int ceu_init_async_subdevs(struct ceu_device *ceudev, unsigned int n_sd)
 	if (!ceudev->subdevs)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	/*
 	 * Reserve memory for 'n_sd' pointers to async_subdevices.
 	 * ceudev->asds members will point to &ceu_subdev.asd
@@ -1491,6 +1567,8 @@ static int ceu_init_async_subdevs(struct ceu_device *ceudev, unsigned int n_sd)
 	if (!ceudev->asds)
 		return -ENOMEM;
 
+=======
+>>>>>>> upstream/android-13
 	ceudev->sd = NULL;
 	ceudev->sd_index = 0;
 	ceudev->num_sd = 0;
@@ -1518,6 +1596,7 @@ static int ceu_parse_platform_data(struct ceu_device *ceudev,
 		return ret;
 
 	for (i = 0; i < pdata->num_subdevs; i++) {
+<<<<<<< HEAD
 		/* Setup the ceu subdevice and the async subdevice. */
 		async_sd = &pdata->subdevs[i];
 		ceu_sd = &ceudev->subdevs[i];
@@ -1530,6 +1609,21 @@ static int ceu_parse_platform_data(struct ceu_device *ceudev,
 		ceu_sd->asd.match.i2c.address = async_sd->i2c_address;
 
 		ceudev->asds[i] = &ceu_sd->asd;
+=======
+
+		/* Setup the ceu subdevice and the async subdevice. */
+		async_sd = &pdata->subdevs[i];
+		ceu_sd = v4l2_async_notifier_add_i2c_subdev(&ceudev->notifier,
+				async_sd->i2c_adapter_id,
+				async_sd->i2c_address,
+				struct ceu_subdev);
+		if (IS_ERR(ceu_sd)) {
+			v4l2_async_notifier_cleanup(&ceudev->notifier);
+			return PTR_ERR(ceu_sd);
+		}
+		ceu_sd->mbus_flags = async_sd->flags;
+		ceudev->subdevs[i] = ceu_sd;
+>>>>>>> upstream/android-13
 	}
 
 	return pdata->num_subdevs;
@@ -1541,9 +1635,14 @@ static int ceu_parse_platform_data(struct ceu_device *ceudev,
 static int ceu_parse_dt(struct ceu_device *ceudev)
 {
 	struct device_node *of = ceudev->dev->of_node;
+<<<<<<< HEAD
 	struct v4l2_fwnode_endpoint fw_ep;
 	struct ceu_subdev *ceu_sd;
 	struct device_node *ep;
+=======
+	struct device_node *ep;
+	struct ceu_subdev *ceu_sd;
+>>>>>>> upstream/android-13
 	unsigned int i;
 	int num_ep;
 	int ret;
@@ -1557,17 +1656,36 @@ static int ceu_parse_dt(struct ceu_device *ceudev)
 		return ret;
 
 	for (i = 0; i < num_ep; i++) {
+<<<<<<< HEAD
+=======
+		struct v4l2_fwnode_endpoint fw_ep = {
+			.bus_type = V4L2_MBUS_PARALLEL,
+			.bus = {
+				.parallel = {
+					.flags = V4L2_MBUS_HSYNC_ACTIVE_HIGH |
+						 V4L2_MBUS_VSYNC_ACTIVE_HIGH,
+					.bus_width = 8,
+				},
+			},
+		};
+
+>>>>>>> upstream/android-13
 		ep = of_graph_get_endpoint_by_regs(of, 0, i);
 		if (!ep) {
 			dev_err(ceudev->dev,
 				"No subdevice connected on endpoint %u.\n", i);
 			ret = -ENODEV;
+<<<<<<< HEAD
 			goto error_put_node;
+=======
+			goto error_cleanup;
+>>>>>>> upstream/android-13
 		}
 
 		ret = v4l2_fwnode_endpoint_parse(of_fwnode_handle(ep), &fw_ep);
 		if (ret) {
 			dev_err(ceudev->dev,
+<<<<<<< HEAD
 				"Unable to parse endpoint #%u.\n", i);
 			goto error_put_node;
 		}
@@ -1590,12 +1708,34 @@ static int ceu_parse_dt(struct ceu_device *ceudev)
 					of_fwnode_handle(ep));
 
 		ceudev->asds[i] = &ceu_sd->asd;
+=======
+				"Unable to parse endpoint #%u: %d.\n", i, ret);
+			goto error_cleanup;
+		}
+
+		/* Setup the ceu subdevice and the async subdevice. */
+		ceu_sd = v4l2_async_notifier_add_fwnode_remote_subdev(
+				&ceudev->notifier, of_fwnode_handle(ep),
+				struct ceu_subdev);
+		if (IS_ERR(ceu_sd)) {
+			ret = PTR_ERR(ceu_sd);
+			goto error_cleanup;
+		}
+		ceu_sd->mbus_flags = fw_ep.bus.parallel.flags;
+		ceudev->subdevs[i] = ceu_sd;
+
+>>>>>>> upstream/android-13
 		of_node_put(ep);
 	}
 
 	return num_ep;
 
+<<<<<<< HEAD
 error_put_node:
+=======
+error_cleanup:
+	v4l2_async_notifier_cleanup(&ceudev->notifier);
+>>>>>>> upstream/android-13
 	of_node_put(ep);
 	return ret;
 }
@@ -1655,10 +1795,15 @@ static int ceu_probe(struct platform_device *pdev)
 	}
 
 	ret = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (ret < 0) {
 		dev_err(dev, "Failed to get irq: %d\n", ret);
 		goto error_free_ceudev;
 	}
+=======
+	if (ret < 0)
+		goto error_free_ceudev;
+>>>>>>> upstream/android-13
 	irq = ret;
 
 	ret = devm_request_irq(dev, irq, ceu_irq,
@@ -1674,8 +1819,15 @@ static int ceu_probe(struct platform_device *pdev)
 	if (ret)
 		goto error_pm_disable;
 
+<<<<<<< HEAD
 	if (IS_ENABLED(CONFIG_OF) && dev->of_node) {
 		ceu_data = of_match_device(ceu_of_match, dev)->data;
+=======
+	v4l2_async_notifier_init(&ceudev->notifier);
+
+	if (IS_ENABLED(CONFIG_OF) && dev->of_node) {
+		ceu_data = of_device_get_match_data(dev);
+>>>>>>> upstream/android-13
 		num_subdevs = ceu_parse_dt(ceudev);
 	} else if (dev->platform_data) {
 		/* Assume SH4 if booting with platform data. */
@@ -1693,18 +1845,30 @@ static int ceu_probe(struct platform_device *pdev)
 	ceudev->irq_mask = ceu_data->irq_mask;
 
 	ceudev->notifier.v4l2_dev	= &ceudev->v4l2_dev;
+<<<<<<< HEAD
 	ceudev->notifier.subdevs	= ceudev->asds;
 	ceudev->notifier.num_subdevs	= num_subdevs;
+=======
+>>>>>>> upstream/android-13
 	ceudev->notifier.ops		= &ceu_notify_ops;
 	ret = v4l2_async_notifier_register(&ceudev->v4l2_dev,
 					   &ceudev->notifier);
 	if (ret)
+<<<<<<< HEAD
 		goto error_v4l2_unregister;
+=======
+		goto error_cleanup;
+>>>>>>> upstream/android-13
 
 	dev_info(dev, "Renesas Capture Engine Unit %s\n", dev_name(dev));
 
 	return 0;
 
+<<<<<<< HEAD
+=======
+error_cleanup:
+	v4l2_async_notifier_cleanup(&ceudev->notifier);
+>>>>>>> upstream/android-13
 error_v4l2_unregister:
 	v4l2_device_unregister(&ceudev->v4l2_dev);
 error_pm_disable:
@@ -1723,6 +1887,11 @@ static int ceu_remove(struct platform_device *pdev)
 
 	v4l2_async_notifier_unregister(&ceudev->notifier);
 
+<<<<<<< HEAD
+=======
+	v4l2_async_notifier_cleanup(&ceudev->notifier);
+
+>>>>>>> upstream/android-13
 	v4l2_device_unregister(&ceudev->v4l2_dev);
 
 	video_unregister_device(&ceudev->vdev);

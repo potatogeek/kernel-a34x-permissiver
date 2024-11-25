@@ -34,7 +34,11 @@ struct saved_context {
 	 */
 	unsigned long kernelmode_gs_base, usermode_gs_base, fs_base;
 
+<<<<<<< HEAD
 	unsigned long cr0, cr2, cr3, cr4, cr8;
+=======
+	unsigned long cr0, cr2, cr3, cr4;
+>>>>>>> upstream/android-13
 	u64 misc_enable;
 	bool misc_enable_saved;
 	struct saved_msrs saved_msrs;

@@ -27,6 +27,7 @@
  */
 
 #include <linux/console.h>
+<<<<<<< HEAD
 #include <drm/drmP.h>
 #include <drm/drm_crtc_helper.h>
 #include <drm/radeon_drm.h>
@@ -35,6 +36,18 @@
 #include "radeon.h"
 #include "radeon_asic.h"
 #include "atom.h"
+=======
+#include <linux/pci.h>
+#include <linux/vgaarb.h>
+
+#include <drm/drm_crtc_helper.h>
+#include <drm/radeon_drm.h>
+
+#include "atom.h"
+#include "radeon.h"
+#include "radeon_asic.h"
+#include "radeon_reg.h"
+>>>>>>> upstream/android-13
 
 /*
  * Registers accessors functions.
@@ -1511,6 +1524,10 @@ static struct radeon_asic sumo_asic = {
 		.force_performance_level = &sumo_dpm_force_performance_level,
 		.get_current_sclk = &sumo_dpm_get_current_sclk,
 		.get_current_mclk = &sumo_dpm_get_current_mclk,
+<<<<<<< HEAD
+=======
+		.get_current_vddc = &sumo_dpm_get_current_vddc,
+>>>>>>> upstream/android-13
 	},
 	.pflip = {
 		.page_flip = &evergreen_page_flip,
@@ -2475,6 +2492,12 @@ int radeon_asic_init(struct radeon_device *rdev)
 		if (rdev->family == CHIP_HAINAN) {
 			rdev->has_uvd = false;
 			rdev->has_vce = false;
+<<<<<<< HEAD
+=======
+		} else if (rdev->family == CHIP_OLAND) {
+			rdev->has_uvd = true;
+			rdev->has_vce = false;
+>>>>>>> upstream/android-13
 		} else {
 			rdev->has_uvd = true;
 			rdev->has_vce = true;

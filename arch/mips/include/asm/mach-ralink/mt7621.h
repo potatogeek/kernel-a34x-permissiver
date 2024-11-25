@@ -1,7 +1,12 @@
+<<<<<<< HEAD
 /*
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published
  * by the Free Software Foundation.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+>>>>>>> upstream/android-13
  *
  * Copyright (C) 2015 John Crispin <john@phrozen.org>
  */
@@ -26,13 +31,23 @@
 #define CHIP_REV_VER_SHIFT		8
 #define CHIP_REV_ECO_MASK		0xf
 
+<<<<<<< HEAD
 #define MT7621_DRAM_BASE                0x0
 #define MT7621_DDR2_SIZE_MIN		32
 #define MT7621_DDR2_SIZE_MAX		256
+=======
+#define MT7621_LOWMEM_BASE		0x0
+#define MT7621_LOWMEM_MAX_SIZE		0x1C000000
+#define MT7621_HIGHMEM_BASE		0x20000000
+#define MT7621_HIGHMEM_SIZE		0x4000000
+>>>>>>> upstream/android-13
 
 #define MT7621_CHIP_NAME0		0x3637544D
 #define MT7621_CHIP_NAME1		0x20203132
 
+<<<<<<< HEAD
 #define MIPS_GIC_IRQ_BASE           (MIPS_CPU_IRQ_BASE + 8)
 
+=======
+>>>>>>> upstream/android-13
 #endif

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright(c) 2007 - 2009 Intel Corporation. All rights reserved.
  *
@@ -14,6 +15,12 @@
  * this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright(c) 2007 - 2009 Intel Corporation. All rights reserved.
+ *
+>>>>>>> upstream/android-13
  * Maintained at www.Open-FCoE.org
  */
 
@@ -286,7 +293,10 @@ static struct scsi_host_template fcoe_shost_template = {
 	.this_id = -1,
 	.cmd_per_lun = 3,
 	.can_queue = FCOE_MAX_OUTSTANDING_COMMANDS,
+<<<<<<< HEAD
 	.use_clustering = ENABLE_CLUSTERING,
+=======
+>>>>>>> upstream/android-13
 	.sg_tablesize = SG_ALL,
 	.max_sectors = 0xffff,
 	.track_queue_depth = 1,
@@ -306,7 +316,11 @@ static int fcoe_interface_setup(struct fcoe_interface *fcoe,
 	struct fcoe_ctlr *fip = fcoe_to_ctlr(fcoe);
 	struct netdev_hw_addr *ha;
 	struct net_device *real_dev;
+<<<<<<< HEAD
 	u8 flogi_maddr[ETH_ALEN];
+=======
+	static const u8 flogi_maddr[ETH_ALEN] = FC_FCOE_FLOGI_MAC;
+>>>>>>> upstream/android-13
 	const struct net_device_ops *ops;
 
 	fcoe->netdev = netdev;
@@ -349,7 +363,10 @@ static int fcoe_interface_setup(struct fcoe_interface *fcoe,
 	 * or enter promiscuous mode if not capable of listening
 	 * for multiple unicast MACs.
 	 */
+<<<<<<< HEAD
 	memcpy(flogi_maddr, (u8[6]) FC_FCOE_FLOGI_MAC, ETH_ALEN);
+=======
+>>>>>>> upstream/android-13
 	dev_uc_add(netdev, flogi_maddr);
 	if (fip->spma)
 		dev_uc_add(netdev, fip->ctl_src_addr);
@@ -455,7 +472,11 @@ static void fcoe_interface_remove(struct fcoe_interface *fcoe)
 {
 	struct net_device *netdev = fcoe->netdev;
 	struct fcoe_ctlr *fip = fcoe_to_ctlr(fcoe);
+<<<<<<< HEAD
 	u8 flogi_maddr[ETH_ALEN];
+=======
+	static const u8 flogi_maddr[ETH_ALEN] = FC_FCOE_FLOGI_MAC;
+>>>>>>> upstream/android-13
 	const struct net_device_ops *ops;
 
 	/*
@@ -471,7 +492,10 @@ static void fcoe_interface_remove(struct fcoe_interface *fcoe)
 	synchronize_net();
 
 	/* Delete secondary MAC addresses */
+<<<<<<< HEAD
 	memcpy(flogi_maddr, (u8[6]) FC_FCOE_FLOGI_MAC, ETH_ALEN);
+=======
+>>>>>>> upstream/android-13
 	dev_uc_del(netdev, flogi_maddr);
 	if (fip->spma)
 		dev_uc_del(netdev, fip->ctl_src_addr);
@@ -658,7 +682,11 @@ static int fcoe_lport_config(struct fc_lport *lport)
 	return 0;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * fcoe_netdev_features_change - Updates the lport's offload flags based
  * on the LLD netdev's FCoE feature flags
  */
@@ -1263,6 +1291,7 @@ static int __init fcoe_if_init(void)
 	/* attach to scsi transport */
 	fcoe_nport_scsi_transport =
 		fc_attach_transport(&fcoe_nport_fc_functions);
+<<<<<<< HEAD
 	fcoe_vport_scsi_transport =
 		fc_attach_transport(&fcoe_vport_fc_functions);
 
@@ -1272,6 +1301,23 @@ static int __init fcoe_if_init(void)
 	}
 
 	return 0;
+=======
+	if (!fcoe_nport_scsi_transport)
+		goto err;
+
+	fcoe_vport_scsi_transport =
+		fc_attach_transport(&fcoe_vport_fc_functions);
+	if (!fcoe_vport_scsi_transport)
+		goto err_vport;
+
+	return 0;
+
+err_vport:
+	fc_release_transport(fcoe_nport_scsi_transport);
+err:
+	printk(KERN_ERR "fcoe: Failed to attach to the FC transport\n");
+	return -ENODEV;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -1535,8 +1581,12 @@ static int fcoe_xmit(struct fc_lport *lport, struct fc_frame *fp)
 			return -ENOMEM;
 		}
 		frag = &skb_shinfo(skb)->frags[skb_shinfo(skb)->nr_frags - 1];
+<<<<<<< HEAD
 		cp = kmap_atomic(skb_frag_page(frag))
 			+ frag->page_offset;
+=======
+		cp = kmap_atomic(skb_frag_page(frag)) + skb_frag_off(frag);
+>>>>>>> upstream/android-13
 	} else {
 		cp = skb_put(skb, tlen);
 	}
@@ -1631,7 +1681,10 @@ static inline int fcoe_filter_frames(struct fc_lport *lport,
 	else
 		fr_flags(fp) |= FCPHF_CRC_UNCHECKED;
 
+<<<<<<< HEAD
 	fh = (struct fc_frame_header *) skb_transport_header(skb);
+=======
+>>>>>>> upstream/android-13
 	fh = fc_frame_header_get(fp);
 	if (fh->fh_r_ctl == FC_RCTL_DD_SOL_DATA && fh->fh_type == FC_TYPE_FCP)
 		return 0;
@@ -1670,7 +1723,10 @@ static void fcoe_recv_frame(struct sk_buff *skb)
 	struct fc_stats *stats;
 	struct fcoe_crc_eof crc_eof;
 	struct fc_frame *fp;
+<<<<<<< HEAD
 	struct fcoe_port *port;
+=======
+>>>>>>> upstream/android-13
 	struct fcoe_hdr *hp;
 
 	fr = fcoe_dev_from_skb(skb);
@@ -1688,7 +1744,10 @@ static void fcoe_recv_frame(struct sk_buff *skb)
 			skb_end_pointer(skb), skb->csum,
 			skb->dev ? skb->dev->name : "<NULL>");
 
+<<<<<<< HEAD
 	port = lport_priv(lport);
+=======
+>>>>>>> upstream/android-13
 	skb_linearize(skb); /* check for skb_is_nonlinear is within skb_linearize */
 
 	/*
@@ -1859,7 +1918,10 @@ static int fcoe_device_notification(struct notifier_block *notifier,
 	struct net_device *netdev = netdev_notifier_info_to_dev(ptr);
 	struct fcoe_ctlr *ctlr;
 	struct fcoe_interface *fcoe;
+<<<<<<< HEAD
 	struct fcoe_port *port;
+=======
+>>>>>>> upstream/android-13
 	struct fc_stats *stats;
 	u32 link_possible = 1;
 	u32 mfs;
@@ -1897,7 +1959,10 @@ static int fcoe_device_notification(struct notifier_block *notifier,
 		break;
 	case NETDEV_UNREGISTER:
 		list_del(&fcoe->list);
+<<<<<<< HEAD
 		port = lport_priv(ctlr->lp);
+=======
+>>>>>>> upstream/android-13
 		fcoe_vport_remove(lport);
 		mutex_lock(&fcoe_config_mutex);
 		fcoe_if_destroy(lport);
@@ -1907,7 +1972,10 @@ static int fcoe_device_notification(struct notifier_block *notifier,
 		mutex_unlock(&fcoe_config_mutex);
 		fcoe_ctlr_device_delete(fcoe_ctlr_to_ctlr_dev(ctlr));
 		goto out;
+<<<<<<< HEAD
 		break;
+=======
+>>>>>>> upstream/android-13
 	case NETDEV_FEAT_CHANGE:
 		fcoe_netdev_features_change(lport, netdev);
 		break;
@@ -1928,7 +1996,11 @@ static int fcoe_device_notification(struct notifier_block *notifier,
 		case FCOE_CTLR_ENABLED:
 		case FCOE_CTLR_UNUSED:
 			fcoe_ctlr_link_up(ctlr);
+<<<<<<< HEAD
 		};
+=======
+		}
+>>>>>>> upstream/android-13
 	} else if (fcoe_ctlr_link_down(ctlr)) {
 		switch (cdev->enabled) {
 		case FCOE_CTLR_DISABLED:
@@ -1940,7 +2012,11 @@ static int fcoe_device_notification(struct notifier_block *notifier,
 			stats->LinkFailureCount++;
 			put_cpu();
 			fcoe_clean_pending_queue(lport);
+<<<<<<< HEAD
 		};
+=======
+		}
+>>>>>>> upstream/android-13
 	}
 out:
 	return rc;
@@ -2037,12 +2113,20 @@ static int fcoe_ctlr_enabled(struct fcoe_ctlr_device *cdev)
 	case FCOE_CTLR_UNUSED:
 	default:
 		return -ENOTSUPP;
+<<<<<<< HEAD
 	};
+=======
+	}
+>>>>>>> upstream/android-13
 }
 
 /**
  * fcoe_ctlr_mode() - Switch FIP mode
+<<<<<<< HEAD
  * @cdev: The FCoE Controller that is being modified
+=======
+ * @ctlr_dev: The FCoE Controller that is being modified
+>>>>>>> upstream/android-13
  *
  * When the FIP mode has been changed we need to update
  * the multicast addresses to ensure we get the correct
@@ -2149,9 +2233,13 @@ static bool fcoe_match(struct net_device *netdev)
 
 /**
  * fcoe_dcb_create() - Initialize DCB attributes and hooks
+<<<<<<< HEAD
  * @netdev: The net_device object of the L2 link that should be queried
  * @port: The fcoe_port to bind FCoE APP priority with
  * @
+=======
+ * @fcoe:   The new FCoE interface
+>>>>>>> upstream/android-13
  */
 static void fcoe_dcb_create(struct fcoe_interface *fcoe)
 {
@@ -2622,7 +2710,11 @@ static void fcoe_logo_resp(struct fc_seq *seq, struct fc_frame *fp, void *arg)
 	fc_lport_logo_resp(seq, fp, lport);
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * fcoe_elsct_send - FCoE specific ELS handler
  *
  * This does special case handling of FIP encapsualted ELS exchanges for FCoE,
@@ -2787,7 +2879,11 @@ static int fcoe_vport_disable(struct fc_vport *vport, bool disable)
 }
 
 /**
+<<<<<<< HEAD
  * fcoe_vport_set_symbolic_name() - append vport string to symbolic name
+=======
+ * fcoe_set_vport_symbolic_name() - append vport string to symbolic name
+>>>>>>> upstream/android-13
  * @vport: fc_vport with a new symbolic name string
  *
  * After generating a new symbolic name string, a new RSPN_ID request is

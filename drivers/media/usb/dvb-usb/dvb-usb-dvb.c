@@ -56,9 +56,12 @@ static int dvb_usb_ctrl_feed(struct dvb_demux_feed *dvbdmxfeed, int onoff)
 	 * for reception.
 	 */
 	if (adap->feedcount == onoff && adap->feedcount > 0) {
+<<<<<<< HEAD
 		deb_ts("submitting all URBs\n");
 		usb_urb_submit(&adap->fe_adap[adap->active_fe].stream);
 
+=======
+>>>>>>> upstream/android-13
 		deb_ts("controlling pid parser\n");
 		if (adap->props.fe[adap->active_fe].caps & DVB_USB_ADAP_HAS_PID_FILTER &&
 			adap->props.fe[adap->active_fe].caps &
@@ -80,6 +83,11 @@ static int dvb_usb_ctrl_feed(struct dvb_demux_feed *dvbdmxfeed, int onoff)
 			}
 		}
 
+<<<<<<< HEAD
+=======
+		deb_ts("submitting all URBs\n");
+		usb_urb_submit(&adap->fe_adap[adap->active_fe].stream);
+>>>>>>> upstream/android-13
 	}
 	return 0;
 }

@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* file-nommu.c: no-MMU version of ramfs
  *
  * Copyright (C) 2005 Red Hat, Inc. All Rights Reserved.
  * Written by David Howells (dhowells@redhat.com)
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -26,7 +33,11 @@
 #include <linux/uaccess.h>
 #include "internal.h"
 
+<<<<<<< HEAD
 static int ramfs_nommu_setattr(struct dentry *, struct iattr *);
+=======
+static int ramfs_nommu_setattr(struct user_namespace *, struct dentry *, struct iattr *);
+>>>>>>> upstream/android-13
 static unsigned long ramfs_nommu_get_unmapped_area(struct file *file,
 						   unsigned long addr,
 						   unsigned long len,
@@ -162,14 +173,23 @@ static int ramfs_nommu_resize(struct inode *inode, loff_t newsize, loff_t size)
  * handle a change of attributes
  * - we're specifically interested in a change of size
  */
+<<<<<<< HEAD
 static int ramfs_nommu_setattr(struct dentry *dentry, struct iattr *ia)
+=======
+static int ramfs_nommu_setattr(struct user_namespace *mnt_userns,
+			       struct dentry *dentry, struct iattr *ia)
+>>>>>>> upstream/android-13
 {
 	struct inode *inode = d_inode(dentry);
 	unsigned int old_ia_valid = ia->ia_valid;
 	int ret = 0;
 
 	/* POSIX UID/GID verification for setting inode attributes */
+<<<<<<< HEAD
 	ret = setattr_prepare(dentry, ia);
+=======
+	ret = setattr_prepare(&init_user_ns, dentry, ia);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 
@@ -189,7 +209,11 @@ static int ramfs_nommu_setattr(struct dentry *dentry, struct iattr *ia)
 		}
 	}
 
+<<<<<<< HEAD
 	setattr_copy(inode, ia);
+=======
+	setattr_copy(&init_user_ns, inode, ia);
+>>>>>>> upstream/android-13
  out:
 	ia->ia_valid = old_ia_valid;
 	return ret;

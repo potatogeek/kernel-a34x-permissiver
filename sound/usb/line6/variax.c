@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Line 6 Linux USB driver
  *
  * Copyright (C) 2004-2010 Markus Grabner (grabner@icg.tugraz.at)
+<<<<<<< HEAD
  *
  *	This program is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU General Public License as
  *	published by the Free Software Foundation, version 2.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/slab.h>
@@ -26,6 +33,7 @@
 	Stages of Variax startup procedure
 */
 enum {
+<<<<<<< HEAD
 	VARIAX_STARTUP_INIT = 1,
 	VARIAX_STARTUP_VERSIONREQ,
 	VARIAX_STARTUP_WAIT,
@@ -33,6 +41,11 @@ enum {
 	VARIAX_STARTUP_WORKQUEUE,
 	VARIAX_STARTUP_SETUP,
 	VARIAX_STARTUP_LAST = VARIAX_STARTUP_SETUP - 1
+=======
+	VARIAX_STARTUP_VERSIONREQ,
+	VARIAX_STARTUP_ACTIVATE,
+	VARIAX_STARTUP_SETUP,
+>>>>>>> upstream/android-13
 };
 
 enum {
@@ -47,6 +60,7 @@ struct usb_line6_variax {
 	/* Buffer for activation code */
 	unsigned char *buffer_activate;
 
+<<<<<<< HEAD
 	/* Handler for device initialization */
 	struct work_struct startup_work;
 
@@ -54,10 +68,17 @@ struct usb_line6_variax {
 	struct timer_list startup_timer1;
 	struct timer_list startup_timer2;
 
+=======
+>>>>>>> upstream/android-13
 	/* Current progress in startup procedure */
 	int startup_progress;
 };
 
+<<<<<<< HEAD
+=======
+#define line6_to_variax(x)	container_of(x, struct usb_line6_variax, line6)
+
+>>>>>>> upstream/android-13
 #define VARIAX_OFFSET_ACTIVATE 7
 
 /*
@@ -81,11 +102,14 @@ static const char variax_activate[] = {
 	0xf7
 };
 
+<<<<<<< HEAD
 /* forward declarations: */
 static void variax_startup2(struct timer_list *t);
 static void variax_startup4(struct timer_list *t);
 static void variax_startup5(struct timer_list *t);
 
+=======
+>>>>>>> upstream/android-13
 static void variax_activate_async(struct usb_line6_variax *variax, int a)
 {
 	variax->buffer_activate[VARIAX_OFFSET_ACTIVATE] = a;
@@ -100,6 +124,7 @@ static void variax_activate_async(struct usb_line6_variax *variax, int a)
 	context). After the last one has finished, the device is ready to use.
 */
 
+<<<<<<< HEAD
 static void variax_startup1(struct usb_line6_variax *variax)
 {
 	CHECK_STARTUP_PROGRESS(variax->startup_progress, VARIAX_STARTUP_INIT);
@@ -168,6 +193,32 @@ static void variax_startup6(struct work_struct *work)
 
 	/* ALSA audio interface: */
 	snd_card_register(variax->line6.card);
+=======
+static void variax_startup(struct usb_line6 *line6)
+{
+	struct usb_line6_variax *variax = line6_to_variax(line6);
+
+	switch (variax->startup_progress) {
+	case VARIAX_STARTUP_VERSIONREQ:
+		/* repeat request until getting the response */
+		schedule_delayed_work(&line6->startup_work,
+				      msecs_to_jiffies(VARIAX_STARTUP_DELAY1));
+		/* request firmware version: */
+		line6_version_request_async(line6);
+		break;
+	case VARIAX_STARTUP_ACTIVATE:
+		/* activate device: */
+		variax_activate_async(variax, 1);
+		variax->startup_progress = VARIAX_STARTUP_SETUP;
+		schedule_delayed_work(&line6->startup_work,
+				      msecs_to_jiffies(VARIAX_STARTUP_DELAY4));
+		break;
+	case VARIAX_STARTUP_SETUP:
+		/* ALSA audio interface: */
+		snd_card_register(variax->line6.card);
+		break;
+	}
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -175,7 +226,11 @@ static void variax_startup6(struct work_struct *work)
 */
 static void line6_variax_process_message(struct usb_line6 *line6)
 {
+<<<<<<< HEAD
 	struct usb_line6_variax *variax = (struct usb_line6_variax *) line6;
+=======
+	struct usb_line6_variax *variax = line6_to_variax(line6);
+>>>>>>> upstream/android-13
 	const unsigned char *buf = variax->line6.buffer_message;
 
 	switch (buf[0]) {
@@ -186,11 +241,27 @@ static void line6_variax_process_message(struct usb_line6 *line6)
 	case LINE6_SYSEX_BEGIN:
 		if (memcmp(buf + 1, variax_init_version + 1,
 			   sizeof(variax_init_version) - 1) == 0) {
+<<<<<<< HEAD
 			variax_startup3(variax);
 		} else if (memcmp(buf + 1, variax_init_done + 1,
 				  sizeof(variax_init_done) - 1) == 0) {
 			/* notify of complete initialization: */
 			variax_startup4(&variax->startup_timer2);
+=======
+			if (variax->startup_progress >= VARIAX_STARTUP_ACTIVATE)
+				break;
+			variax->startup_progress = VARIAX_STARTUP_ACTIVATE;
+			cancel_delayed_work(&line6->startup_work);
+			schedule_delayed_work(&line6->startup_work,
+					      msecs_to_jiffies(VARIAX_STARTUP_DELAY3));
+		} else if (memcmp(buf + 1, variax_init_done + 1,
+				  sizeof(variax_init_done) - 1) == 0) {
+			/* notify of complete initialization: */
+			if (variax->startup_progress >= VARIAX_STARTUP_SETUP)
+				break;
+			cancel_delayed_work(&line6->startup_work);
+			schedule_delayed_work(&line6->startup_work, 0);
+>>>>>>> upstream/android-13
 		}
 		break;
 	}
@@ -201,11 +272,15 @@ static void line6_variax_process_message(struct usb_line6 *line6)
 */
 static void line6_variax_disconnect(struct usb_line6 *line6)
 {
+<<<<<<< HEAD
 	struct usb_line6_variax *variax = (struct usb_line6_variax *)line6;
 
 	del_timer(&variax->startup_timer1);
 	del_timer(&variax->startup_timer2);
 	cancel_work_sync(&variax->startup_work);
+=======
+	struct usb_line6_variax *variax = line6_to_variax(line6);
+>>>>>>> upstream/android-13
 
 	kfree(variax->buffer_activate);
 }
@@ -216,6 +291,7 @@ static void line6_variax_disconnect(struct usb_line6 *line6)
 static int variax_init(struct usb_line6 *line6,
 		       const struct usb_device_id *id)
 {
+<<<<<<< HEAD
 	struct usb_line6_variax *variax = (struct usb_line6_variax *) line6;
 	int err;
 
@@ -225,6 +301,13 @@ static int variax_init(struct usb_line6 *line6,
 	timer_setup(&variax->startup_timer1, NULL, 0);
 	timer_setup(&variax->startup_timer2, NULL, 0);
 	INIT_WORK(&variax->startup_work, variax_startup6);
+=======
+	struct usb_line6_variax *variax = line6_to_variax(line6);
+
+	line6->process_message = line6_variax_process_message;
+	line6->disconnect = line6_variax_disconnect;
+	line6->startup = variax_startup;
+>>>>>>> upstream/android-13
 
 	/* initialize USB buffers: */
 	variax->buffer_activate = kmemdup(variax_activate,
@@ -233,6 +316,7 @@ static int variax_init(struct usb_line6 *line6,
 	if (variax->buffer_activate == NULL)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	/* initialize MIDI subsystem: */
 	err = line6_init_midi(&variax->line6);
 	if (err < 0)
@@ -240,6 +324,11 @@ static int variax_init(struct usb_line6 *line6,
 
 	/* initiate startup procedure: */
 	variax_startup1(variax);
+=======
+	/* initiate startup procedure: */
+	schedule_delayed_work(&line6->startup_work,
+			      msecs_to_jiffies(VARIAX_STARTUP_DELAY1));
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -304,5 +393,9 @@ static struct usb_driver variax_driver = {
 
 module_usb_driver(variax_driver);
 
+<<<<<<< HEAD
 MODULE_DESCRIPTION("Vairax Workbench USB driver");
+=======
+MODULE_DESCRIPTION("Variax Workbench USB driver");
+>>>>>>> upstream/android-13
 MODULE_LICENSE("GPL");

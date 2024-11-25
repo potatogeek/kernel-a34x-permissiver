@@ -1,9 +1,17 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 menu "EEPROM support"
 
 config EEPROM_AT24
 	tristate "I2C EEPROMs / RAMs / ROMs from most vendors"
 	depends on I2C && SYSFS
 	select NVMEM
+<<<<<<< HEAD
+=======
+	select NVMEM_SYSFS
+>>>>>>> upstream/android-13
 	select REGMAP_I2C
 	help
 	  Enable this driver to get read/write support to most I2C EEPROMs
@@ -30,11 +38,21 @@ config EEPROM_AT24
 	  will be called at24.
 
 config EEPROM_AT25
+<<<<<<< HEAD
 	tristate "SPI EEPROMs from most vendors"
 	depends on SPI && SYSFS
 	select NVMEM
 	help
 	  Enable this driver to get read/write support to most SPI EEPROMs,
+=======
+	tristate "SPI EEPROMs (FRAMs) from most vendors"
+	depends on SPI && SYSFS
+	select NVMEM
+	select NVMEM_SYSFS
+	help
+	  Enable this driver to get read/write support to most SPI EEPROMs
+	  and Cypress FRAMs,
+>>>>>>> upstream/android-13
 	  after you configure the board init code to know about each eeprom
 	  on your target board.
 
@@ -42,13 +60,23 @@ config EEPROM_AT25
 	  will be called at25.
 
 config EEPROM_LEGACY
+<<<<<<< HEAD
 	tristate "Old I2C EEPROM reader"
+=======
+	tristate "Old I2C EEPROM reader (DEPRECATED)"
+>>>>>>> upstream/android-13
 	depends on I2C && SYSFS
 	help
 	  If you say yes here you get read-only access to the EEPROM data
 	  available on modern memory DIMMs and Sony Vaio laptops via I2C. Such
 	  EEPROMs could theoretically be available on other devices as well.
 
+<<<<<<< HEAD
+=======
+	  This driver is deprecated and will be removed soon, please use the
+	  better at24 driver instead.
+
+>>>>>>> upstream/android-13
 	  This driver can also be built as a module.  If so, the module
 	  will be called eeprom.
 
@@ -79,6 +107,10 @@ config EEPROM_93XX46
 	depends on SPI && SYSFS
 	select REGMAP
 	select NVMEM
+<<<<<<< HEAD
+=======
+	select NVMEM_SYSFS
+>>>>>>> upstream/android-13
 	help
 	  Driver for the microwire EEPROM chipsets 93xx46x. The driver
 	  supports both read and write commands and also the command to
@@ -111,4 +143,18 @@ config EEPROM_IDT_89HPESX
 	  This driver can also be built as a module. If so, the module
 	  will be called idt_89hpesx.
 
+<<<<<<< HEAD
+=======
+config EEPROM_EE1004
+	tristate "SPD EEPROMs on DDR4 memory modules"
+	depends on I2C && SYSFS
+	help
+	  Enable this driver to get read support to SPD EEPROMs following
+	  the JEDEC EE1004 standard. These are typically found on DDR4
+	  SDRAM memory modules.
+
+	  This driver can also be built as a module.  If so, the module
+	  will be called ee1004.
+
+>>>>>>> upstream/android-13
 endmenu

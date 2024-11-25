@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /******************************************************************************
 
   Copyright(c) 2004-2005 Intel Corporation. All rights reserved.
@@ -8,6 +12,7 @@
   <j@w1.fi>
   Copyright (c) 2002-2003, Jouni Malinen <j@w1.fi>
 
+<<<<<<< HEAD
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2 of the GNU General Public License as
   published by the Free Software Foundation.
@@ -23,6 +28,8 @@
 
   The full GNU General Public License is included in this distribution in the
   file called LICENSE.
+=======
+>>>>>>> upstream/android-13
 
   Contact Information:
   Intel Linux Wireless <ilw@linux.intel.com>
@@ -227,7 +234,11 @@ static char *libipw_translate_scan(struct libipw_device *ieee,
 	 * for given network. */
 	iwe.cmd = IWEVCUSTOM;
 	p = custom;
+<<<<<<< HEAD
 	p += snprintf(p, MAX_CUSTOM_LEN - (p - custom),
+=======
+	p += scnprintf(p, MAX_CUSTOM_LEN - (p - custom),
+>>>>>>> upstream/android-13
 		      " Last beacon: %ums ago",
 		      elapsed_jiffies_msecs(network->last_scanned));
 	iwe.u.data.length = p - custom;
@@ -237,18 +248,30 @@ static char *libipw_translate_scan(struct libipw_device *ieee,
 	/* Add spectrum management information */
 	iwe.cmd = -1;
 	p = custom;
+<<<<<<< HEAD
 	p += snprintf(p, MAX_CUSTOM_LEN - (p - custom), " Channel flags: ");
+=======
+	p += scnprintf(p, MAX_CUSTOM_LEN - (p - custom), " Channel flags: ");
+>>>>>>> upstream/android-13
 
 	if (libipw_get_channel_flags(ieee, network->channel) &
 	    LIBIPW_CH_INVALID) {
 		iwe.cmd = IWEVCUSTOM;
+<<<<<<< HEAD
 		p += snprintf(p, MAX_CUSTOM_LEN - (p - custom), "INVALID ");
+=======
+		p += scnprintf(p, MAX_CUSTOM_LEN - (p - custom), "INVALID ");
+>>>>>>> upstream/android-13
 	}
 
 	if (libipw_get_channel_flags(ieee, network->channel) &
 	    LIBIPW_CH_RADAR_DETECT) {
 		iwe.cmd = IWEVCUSTOM;
+<<<<<<< HEAD
 		p += snprintf(p, MAX_CUSTOM_LEN - (p - custom), "DFS ");
+=======
+		p += scnprintf(p, MAX_CUSTOM_LEN - (p - custom), "DFS ");
+>>>>>>> upstream/android-13
 	}
 
 	if (iwe.cmd == IWEVCUSTOM) {

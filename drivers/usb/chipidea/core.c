@@ -3,6 +3,7 @@
  * core.c - ChipIdea USB IP core family device controller
  *
  * Copyright (C) 2008 Chipidea - MIPS Technologies, Inc. All rights reserved.
+<<<<<<< HEAD
  *
  * Author: David Lopo
  */
@@ -39,6 +40,18 @@
  *
  * TODO List
  * - Suspend & Remote Wakeup
+=======
+ * Copyright (C) 2020 NXP
+ *
+ * Author: David Lopo
+ *	   Peter Chen <peter.chen@nxp.com>
+ *
+ * Main Features:
+ * - Four transfers are supported, usbtest is passed
+ * - USB Certification for gadget: CH9 and Mass Storage are passed
+ * - Low power mode
+ * - USB wakeup
+>>>>>>> upstream/android-13
  */
 #include <linux/delay.h>
 #include <linux/device.h>
@@ -53,6 +66,10 @@
 #include <linux/kernel.h>
 #include <linux/slab.h>
 #include <linux/pm_runtime.h>
+<<<<<<< HEAD
+=======
+#include <linux/pinctrl/consumer.h>
+>>>>>>> upstream/android-13
 #include <linux/usb/ch9.h>
 #include <linux/usb/gadget.h>
 #include <linux/usb/otg.h>
@@ -180,6 +197,10 @@ u32 hw_read_intr_status(struct ci_hdrc *ci)
 
 /**
  * hw_port_test_set: writes port test mode (execute without interruption)
+<<<<<<< HEAD
+=======
+ * @ci: the controller
+>>>>>>> upstream/android-13
  * @mode: new value
  *
  * This function returns an error code
@@ -219,7 +240,11 @@ static void hw_wait_phy_stable(void)
 }
 
 /* The PHY enters/leaves low power mode */
+<<<<<<< HEAD
 static void ci_hdrc_enter_lpm(struct ci_hdrc *ci, bool enable)
+=======
+static void ci_hdrc_enter_lpm_common(struct ci_hdrc *ci, bool enable)
+>>>>>>> upstream/android-13
 {
 	enum ci_hw_regs reg = ci->hw_bank.lpm ? OP_DEVLC : OP_PORTSC;
 	bool lpm = !!(hw_read(ci, reg, PORTSC_PHCD(ci->hw_bank.lpm)));
@@ -232,6 +257,14 @@ static void ci_hdrc_enter_lpm(struct ci_hdrc *ci, bool enable)
 				0);
 }
 
+<<<<<<< HEAD
+=======
+static void ci_hdrc_enter_lpm(struct ci_hdrc *ci, bool enable)
+{
+	return ci->platdata->enter_lpm(ci, enable);
+}
+
+>>>>>>> upstream/android-13
 static int hw_device_init(struct ci_hdrc *ci, void __iomem *base)
 {
 	u32 reg;
@@ -271,7 +304,11 @@ static int hw_device_init(struct ci_hdrc *ci, void __iomem *base)
 	ci->rev = ci_get_revision(ci);
 
 	dev_dbg(ci->dev,
+<<<<<<< HEAD
 		"ChipIdea HDRC found, revision: %d, lpm: %d; cap: %p op: %p\n",
+=======
+		"revision: %d, lpm: %d; cap: %px op: %px\n",
+>>>>>>> upstream/android-13
 		ci->rev, ci->hw_bank.lpm, ci->hw_bank.cap, ci->hw_bank.op);
 
 	/* setup lock mode ? */
@@ -354,7 +391,11 @@ static int _ci_usb_phy_init(struct ci_hdrc *ci)
 }
 
 /**
+<<<<<<< HEAD
  * _ci_usb_phy_exit: deinitialize phy taking in account both phy and usb_phy
+=======
+ * ci_usb_phy_exit: deinitialize phy taking in account both phy and usb_phy
+>>>>>>> upstream/android-13
  * interfaces
  * @ci: the controller
  */
@@ -522,8 +563,14 @@ int hw_device_reset(struct ci_hdrc *ci)
 	hw_write(ci, OP_USBMODE, USBMODE_SLOM, USBMODE_SLOM);
 
 	if (hw_read(ci, OP_USBMODE, USBMODE_CM) != USBMODE_CM_DC) {
+<<<<<<< HEAD
 		pr_err("cannot enter in %s device mode", ci_role(ci)->name);
 		pr_err("lpm = %i", ci->hw_bank.lpm);
+=======
+		dev_err(ci->dev, "cannot enter in %s device mode\n",
+			ci_role(ci)->name);
+		dev_err(ci->dev, "lpm = %i\n", ci->hw_bank.lpm);
+>>>>>>> upstream/android-13
 		return -ENODEV;
 	}
 
@@ -532,7 +579,11 @@ int hw_device_reset(struct ci_hdrc *ci)
 	return 0;
 }
 
+<<<<<<< HEAD
 static irqreturn_t ci_irq(int irq, void *data)
+=======
+static irqreturn_t ci_irq_handler(int irq, void *data)
+>>>>>>> upstream/android-13
 {
 	struct ci_hdrc *ci = data;
 	irqreturn_t ret = IRQ_NONE;
@@ -585,6 +636,18 @@ static irqreturn_t ci_irq(int irq, void *data)
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+static void ci_irq(struct ci_hdrc *ci)
+{
+	unsigned long flags;
+
+	local_irq_save(flags);
+	ci_irq_handler(ci->irq, ci);
+	local_irq_restore(flags);
+}
+
+>>>>>>> upstream/android-13
 static int ci_cable_notifier(struct notifier_block *nb, unsigned long event,
 			     void *ptr)
 {
@@ -594,10 +657,86 @@ static int ci_cable_notifier(struct notifier_block *nb, unsigned long event,
 	cbl->connected = event;
 	cbl->changed = true;
 
+<<<<<<< HEAD
 	ci_irq(ci->irq, ci);
 	return NOTIFY_DONE;
 }
 
+=======
+	ci_irq(ci);
+	return NOTIFY_DONE;
+}
+
+static enum usb_role ci_usb_role_switch_get(struct usb_role_switch *sw)
+{
+	struct ci_hdrc *ci = usb_role_switch_get_drvdata(sw);
+	enum usb_role role;
+	unsigned long flags;
+
+	spin_lock_irqsave(&ci->lock, flags);
+	role = ci_role_to_usb_role(ci);
+	spin_unlock_irqrestore(&ci->lock, flags);
+
+	return role;
+}
+
+static int ci_usb_role_switch_set(struct usb_role_switch *sw,
+				  enum usb_role role)
+{
+	struct ci_hdrc *ci = usb_role_switch_get_drvdata(sw);
+	struct ci_hdrc_cable *cable = NULL;
+	enum usb_role current_role = ci_role_to_usb_role(ci);
+	enum ci_role ci_role = usb_role_to_ci_role(role);
+	unsigned long flags;
+
+	if ((ci_role != CI_ROLE_END && !ci->roles[ci_role]) ||
+	    (current_role == role))
+		return 0;
+
+	pm_runtime_get_sync(ci->dev);
+	/* Stop current role */
+	spin_lock_irqsave(&ci->lock, flags);
+	if (current_role == USB_ROLE_DEVICE)
+		cable = &ci->platdata->vbus_extcon;
+	else if (current_role == USB_ROLE_HOST)
+		cable = &ci->platdata->id_extcon;
+
+	if (cable) {
+		cable->changed = true;
+		cable->connected = false;
+		ci_irq(ci);
+		spin_unlock_irqrestore(&ci->lock, flags);
+		if (ci->wq && role != USB_ROLE_NONE)
+			flush_workqueue(ci->wq);
+		spin_lock_irqsave(&ci->lock, flags);
+	}
+
+	cable = NULL;
+
+	/* Start target role */
+	if (role == USB_ROLE_DEVICE)
+		cable = &ci->platdata->vbus_extcon;
+	else if (role == USB_ROLE_HOST)
+		cable = &ci->platdata->id_extcon;
+
+	if (cable) {
+		cable->changed = true;
+		cable->connected = true;
+		ci_irq(ci);
+	}
+	spin_unlock_irqrestore(&ci->lock, flags);
+	pm_runtime_put_sync(ci->dev);
+
+	return 0;
+}
+
+static struct usb_role_switch_desc ci_role_switch = {
+	.set = ci_usb_role_switch_set,
+	.get = ci_usb_role_switch_get,
+	.allow_userspace_control = true,
+};
+
+>>>>>>> upstream/android-13
 static int ci_get_platdata(struct device *dev,
 		struct ci_hdrc_platform_data *platdata)
 {
@@ -616,7 +755,11 @@ static int ci_get_platdata(struct device *dev,
 
 	if (platdata->dr_mode != USB_DR_MODE_PERIPHERAL) {
 		/* Get the vbus regulator */
+<<<<<<< HEAD
 		platdata->reg_vbus = devm_regulator_get(dev, "vbus");
+=======
+		platdata->reg_vbus = devm_regulator_get_optional(dev, "vbus");
+>>>>>>> upstream/android-13
 		if (PTR_ERR(platdata->reg_vbus) == -EPROBE_DEFER) {
 			return -EPROBE_DEFER;
 		} else if (PTR_ERR(platdata->reg_vbus) == -ENODEV) {
@@ -723,6 +866,33 @@ static int ci_get_platdata(struct device *dev,
 		else
 			cable->connected = false;
 	}
+<<<<<<< HEAD
+=======
+
+	if (device_property_read_bool(dev, "usb-role-switch"))
+		ci_role_switch.fwnode = dev->fwnode;
+
+	platdata->pctl = devm_pinctrl_get(dev);
+	if (!IS_ERR(platdata->pctl)) {
+		struct pinctrl_state *p;
+
+		p = pinctrl_lookup_state(platdata->pctl, "default");
+		if (!IS_ERR(p))
+			platdata->pins_default = p;
+
+		p = pinctrl_lookup_state(platdata->pctl, "host");
+		if (!IS_ERR(p))
+			platdata->pins_host = p;
+
+		p = pinctrl_lookup_state(platdata->pctl, "device");
+		if (!IS_ERR(p))
+			platdata->pins_device = p;
+	}
+
+	if (!platdata->enter_lpm)
+		platdata->enter_lpm = ci_hdrc_enter_lpm_common;
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -811,6 +981,36 @@ void ci_hdrc_remove_device(struct platform_device *pdev)
 }
 EXPORT_SYMBOL_GPL(ci_hdrc_remove_device);
 
+<<<<<<< HEAD
+=======
+/**
+ * ci_hdrc_query_available_role: get runtime available operation mode
+ *
+ * The glue layer can get current operation mode (host/peripheral/otg)
+ * This function should be called after ci core device has created.
+ *
+ * @pdev: the platform device of ci core.
+ *
+ * Return runtime usb_dr_mode.
+ */
+enum usb_dr_mode ci_hdrc_query_available_role(struct platform_device *pdev)
+{
+	struct ci_hdrc *ci = platform_get_drvdata(pdev);
+
+	if (!ci)
+		return USB_DR_MODE_UNKNOWN;
+	if (ci->roles[CI_ROLE_HOST] && ci->roles[CI_ROLE_GADGET])
+		return USB_DR_MODE_OTG;
+	else if (ci->roles[CI_ROLE_HOST])
+		return USB_DR_MODE_HOST;
+	else if (ci->roles[CI_ROLE_GADGET])
+		return USB_DR_MODE_PERIPHERAL;
+	else
+		return USB_DR_MODE_UNKNOWN;
+}
+EXPORT_SYMBOL_GPL(ci_hdrc_query_available_role);
+
+>>>>>>> upstream/android-13
 static inline void ci_role_destroy(struct ci_hdrc *ci)
 {
 	ci_hdrc_gadget_destroy(ci);
@@ -883,10 +1083,14 @@ static struct attribute *ci_attrs[] = {
 	&dev_attr_role.attr,
 	NULL,
 };
+<<<<<<< HEAD
 
 static const struct attribute_group ci_attr_group = {
 	.attrs = ci_attrs,
 };
+=======
+ATTRIBUTE_GROUPS(ci);
+>>>>>>> upstream/android-13
 
 static int ci_hdrc_probe(struct platform_device *pdev)
 {
@@ -935,6 +1139,7 @@ static int ci_hdrc_probe(struct platform_device *pdev)
 	} else if (ci->platdata->usb_phy) {
 		ci->usb_phy = ci->platdata->usb_phy;
 	} else {
+<<<<<<< HEAD
 		ci->usb_phy = devm_usb_get_phy_by_phandle(dev->parent, "phys",
 							  0);
 		ci->phy = devm_phy_get(dev->parent, "usb-phy");
@@ -961,6 +1166,49 @@ static int ci_hdrc_probe(struct platform_device *pdev)
 			ci->phy = NULL;
 		else if (IS_ERR(ci->usb_phy))
 			ci->usb_phy = NULL;
+=======
+		/* Look for a generic PHY first */
+		ci->phy = devm_phy_get(dev->parent, "usb-phy");
+
+		if (PTR_ERR(ci->phy) == -EPROBE_DEFER) {
+			ret = -EPROBE_DEFER;
+			goto ulpi_exit;
+		} else if (IS_ERR(ci->phy)) {
+			ci->phy = NULL;
+		}
+
+		/* Look for a legacy USB PHY from device-tree next */
+		if (!ci->phy) {
+			ci->usb_phy = devm_usb_get_phy_by_phandle(dev->parent,
+								  "phys", 0);
+
+			if (PTR_ERR(ci->usb_phy) == -EPROBE_DEFER) {
+				ret = -EPROBE_DEFER;
+				goto ulpi_exit;
+			} else if (IS_ERR(ci->usb_phy)) {
+				ci->usb_phy = NULL;
+			}
+		}
+
+		/* Look for any registered legacy USB PHY as last resort */
+		if (!ci->phy && !ci->usb_phy) {
+			ci->usb_phy = devm_usb_get_phy(dev->parent,
+						       USB_PHY_TYPE_USB2);
+
+			if (PTR_ERR(ci->usb_phy) == -EPROBE_DEFER) {
+				ret = -EPROBE_DEFER;
+				goto ulpi_exit;
+			} else if (IS_ERR(ci->usb_phy)) {
+				ci->usb_phy = NULL;
+			}
+		}
+
+		/* No USB PHY was found in the end */
+		if (!ci->phy && !ci->usb_phy) {
+			ret = -ENXIO;
+			goto ulpi_exit;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	ret = ci_usb_phy_init(ci);
@@ -973,7 +1221,10 @@ static int ci_hdrc_probe(struct platform_device *pdev)
 
 	ci->irq = platform_get_irq(pdev, 0);
 	if (ci->irq < 0) {
+<<<<<<< HEAD
 		dev_err(dev, "missing IRQ\n");
+=======
+>>>>>>> upstream/android-13
 		ret = ci->irq;
 		goto deinit_phy;
 	}
@@ -1016,6 +1267,19 @@ static int ci_hdrc_probe(struct platform_device *pdev)
 		}
 	}
 
+<<<<<<< HEAD
+=======
+	if (ci_role_switch.fwnode) {
+		ci_role_switch.driver_data = ci;
+		ci->role_switch = usb_role_switch_register(dev,
+					&ci_role_switch);
+		if (IS_ERR(ci->role_switch)) {
+			ret = PTR_ERR(ci->role_switch);
+			goto deinit_otg;
+		}
+	}
+
+>>>>>>> upstream/android-13
 	if (ci->roles[CI_ROLE_HOST] && ci->roles[CI_ROLE_GADGET]) {
 		if (ci->is_otg) {
 			ci->role = ci_otg_role(ci);
@@ -1037,8 +1301,16 @@ static int ci_hdrc_probe(struct platform_device *pdev)
 
 	if (!ci_otg_is_fsm_mode(ci)) {
 		/* only update vbus status for peripheral */
+<<<<<<< HEAD
 		if (ci->role == CI_ROLE_GADGET)
 			ci_handle_vbus_change(ci);
+=======
+		if (ci->role == CI_ROLE_GADGET) {
+			/* Pull down DP for possible charger detection */
+			hw_write(ci, OP_USBCMD, USBCMD_RS, 0);
+			ci_handle_vbus_change(ci);
+		}
+>>>>>>> upstream/android-13
 
 		ret = ci_role_start(ci, ci->role);
 		if (ret) {
@@ -1048,7 +1320,11 @@ static int ci_hdrc_probe(struct platform_device *pdev)
 		}
 	}
 
+<<<<<<< HEAD
 	ret = devm_request_irq(dev, ci->irq, ci_irq, IRQF_SHARED,
+=======
+	ret = devm_request_irq(dev, ci->irq, ci_irq_handler, IRQF_SHARED,
+>>>>>>> upstream/android-13
 			ci->platdata->name, ci);
 	if (ret)
 		goto stop;
@@ -1071,6 +1347,7 @@ static int ci_hdrc_probe(struct platform_device *pdev)
 	device_set_wakeup_capable(&pdev->dev, true);
 	dbg_create_files(ci);
 
+<<<<<<< HEAD
 	ret = sysfs_create_group(&dev->kobj, &ci_attr_group);
 	if (ret)
 		goto remove_debug;
@@ -1080,6 +1357,14 @@ static int ci_hdrc_probe(struct platform_device *pdev)
 remove_debug:
 	dbg_remove_files(ci);
 stop:
+=======
+	return 0;
+
+stop:
+	if (ci->role_switch)
+		usb_role_switch_unregister(ci->role_switch);
+deinit_otg:
+>>>>>>> upstream/android-13
 	if (ci->is_otg && ci->roles[CI_ROLE_GADGET])
 		ci_hdrc_otg_destroy(ci);
 deinit_gadget:
@@ -1098,6 +1383,12 @@ static int ci_hdrc_remove(struct platform_device *pdev)
 {
 	struct ci_hdrc *ci = platform_get_drvdata(pdev);
 
+<<<<<<< HEAD
+=======
+	if (ci->role_switch)
+		usb_role_switch_unregister(ci->role_switch);
+
+>>>>>>> upstream/android-13
 	if (ci->supports_runtime_pm) {
 		pm_runtime_get_sync(&pdev->dev);
 		pm_runtime_disable(&pdev->dev);
@@ -1105,7 +1396,10 @@ static int ci_hdrc_remove(struct platform_device *pdev)
 	}
 
 	dbg_remove_files(ci);
+<<<<<<< HEAD
 	sysfs_remove_group(&ci->dev->kobj, &ci_attr_group);
+=======
+>>>>>>> upstream/android-13
 	ci_role_destroy(ci);
 	ci_hdrc_enter_lpm(ci, true);
 	ci_usb_phy_exit(ci);
@@ -1170,11 +1464,19 @@ static void ci_extcon_wakeup_int(struct ci_hdrc *ci)
 
 	if (!IS_ERR(cable_id->edev) && ci->is_otg &&
 		(otgsc & OTGSC_IDIE) && (otgsc & OTGSC_IDIS))
+<<<<<<< HEAD
 		ci_irq(ci->irq, ci);
 
 	if (!IS_ERR(cable_vbus->edev) && ci->is_otg &&
 		(otgsc & OTGSC_BSVIE) && (otgsc & OTGSC_BSVIS))
 		ci_irq(ci->irq, ci);
+=======
+		ci_irq(ci);
+
+	if (!IS_ERR(cable_vbus->edev) && ci->is_otg &&
+		(otgsc & OTGSC_BSVIE) && (otgsc & OTGSC_BSVIS))
+		ci_irq(ci);
+>>>>>>> upstream/android-13
 }
 
 static int ci_controller_resume(struct device *dev)
@@ -1308,6 +1610,10 @@ static struct platform_driver ci_hdrc_driver = {
 	.driver	= {
 		.name	= "ci_hdrc",
 		.pm	= &ci_pm_ops,
+<<<<<<< HEAD
+=======
+		.dev_groups = ci_groups,
+>>>>>>> upstream/android-13
 	},
 };
 

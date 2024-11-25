@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2016 Rockchip Electronics Co. Ltd.
  * Author: Lin Huang <hl@rock-chips.com>
@@ -11,6 +12,12 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (c) 2016 Rockchip Electronics Co. Ltd.
+ * Author: Lin Huang <hl@rock-chips.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/arm-smccc.h>
@@ -82,7 +89,11 @@ static u8 rockchip_ddrclk_get_parent(struct clk_hw *hw)
 	struct rockchip_ddrclk *ddrclk = to_rockchip_ddrclk_hw(hw);
 	u32 val;
 
+<<<<<<< HEAD
 	val = clk_readl(ddrclk->reg_base +
+=======
+	val = readl(ddrclk->reg_base +
+>>>>>>> upstream/android-13
 			ddrclk->mux_offset) >> ddrclk->mux_shift;
 	val &= GENMASK(ddrclk->mux_width - 1, 0);
 
@@ -105,7 +116,11 @@ struct clk *rockchip_clk_register_ddrclk(const char *name, int flags,
 					 spinlock_t *lock)
 {
 	struct rockchip_ddrclk *ddrclk;
+<<<<<<< HEAD
 	struct clk_init_data init = {};
+=======
+	struct clk_init_data init;
+>>>>>>> upstream/android-13
 	struct clk *clk;
 
 	ddrclk = kzalloc(sizeof(*ddrclk), GFP_KERNEL);
@@ -145,3 +160,7 @@ struct clk *rockchip_clk_register_ddrclk(const char *name, int flags,
 
 	return clk;
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(rockchip_clk_register_ddrclk);
+>>>>>>> upstream/android-13

@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  *  linux/arch/arm/vfp/entry.S
  *
  *  Copyright (C) 2004 ARM Limited.
  *  Written by Deep Blue Solutions Limited.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/init.h>
 #include <linux/linkage.h>
@@ -40,6 +47,7 @@ ENDPROC(vfp_null_entry)
 	.align	2
 .LCvfp:
 	.word	vfp_vector
+<<<<<<< HEAD
 
 @ This code is called if the VFP does not exist. It needs to flag the
 @ failure to the VFP initialisation code.
@@ -57,3 +65,5 @@ VFP_arch_address:
 	.word	VFP_arch
 
 	__FINIT
+=======
+>>>>>>> upstream/android-13

@@ -1,10 +1,17 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * libata-pmp.c - libata port multiplier support
  *
  * Copyright (c) 2007  SUSE Linux Products GmbH
  * Copyright (c) 2007  Tejun Heo <teheo@suse.de>
+<<<<<<< HEAD
  *
  * This file is released under the GPLv2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -63,7 +70,11 @@ static unsigned int sata_pmp_read(struct ata_link *link, int reg, u32 *r_val)
  *	sata_pmp_write - write PMP register
  *	@link: link to write PMP register for
  *	@reg: register to write
+<<<<<<< HEAD
  *	@r_val: value to write
+=======
+ *	@val: value to write
+>>>>>>> upstream/android-13
  *
  *	Write PMP register.
  *

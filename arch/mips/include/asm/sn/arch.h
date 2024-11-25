@@ -17,6 +17,7 @@
 #include <asm/sn/sn0/arch.h>
 #endif
 
+<<<<<<< HEAD
 typedef u64	hubreg_t;
 
 #define cputonasid(cpu)		(sn_cpu_info[(cpu)].p_nasid)
@@ -26,10 +27,17 @@ typedef u64	hubreg_t;
 
 #define INVALID_NASID		(nasid_t)-1
 #define INVALID_CNODEID		(cnodeid_t)-1
+=======
+#define cputonasid(cpu)		(sn_cpu_info[(cpu)].p_nasid)
+#define cputoslice(cpu)		(sn_cpu_info[(cpu)].p_slice)
+
+#define INVALID_NASID		(nasid_t)-1
+>>>>>>> upstream/android-13
 #define INVALID_PNODEID		(pnodeid_t)-1
 #define INVALID_MODULE		(moduleid_t)-1
 #define INVALID_PARTID		(partid_t)-1
 
+<<<<<<< HEAD
 extern nasid_t get_nasid(void);
 extern cnodeid_t get_cpu_cnode(cpuid_t);
 extern int get_cpu_slice(cpuid_t);
@@ -61,4 +69,6 @@ extern cnodeid_t cpuid_to_compact_node[MAXCPUS];
 #define COMPACT_TO_NASID_NODEID(cnode)	(compact_to_nasid_node[cnode])
 #define CPUID_TO_COMPACT_NODEID(cpu)	(cpuid_to_compact_node[(cpu)])
 
+=======
+>>>>>>> upstream/android-13
 #endif /* _ASM_SN_ARCH_H */

@@ -5,9 +5,15 @@
 // Author: Stephen Barber <smbarber@chromium.org>
 
 #include <linux/kernel.h>
+<<<<<<< HEAD
 #include <linux/mfd/cros_ec.h>
 #include <linux/mfd/cros_ec_commands.h>
 #include <linux/module.h>
+=======
+#include <linux/module.h>
+#include <linux/platform_data/cros_ec_commands.h>
+#include <linux/platform_data/cros_ec_proto.h>
+>>>>>>> upstream/android-13
 #include <linux/platform_device.h>
 #include <linux/rtc.h>
 #include <linux/slab.h>
@@ -106,11 +112,15 @@ static int cros_ec_rtc_set_time(struct device *dev, struct rtc_time *tm)
 	struct cros_ec_rtc *cros_ec_rtc = dev_get_drvdata(dev);
 	struct cros_ec_device *cros_ec = cros_ec_rtc->cros_ec;
 	int ret;
+<<<<<<< HEAD
 	time64_t time;
 
 	time = rtc_tm_to_time64(tm);
 	if (time < 0 || time > U32_MAX)
 		return -EINVAL;
+=======
+	time64_t time = rtc_tm_to_time64(tm);
+>>>>>>> upstream/android-13
 
 	ret = cros_ec_rtc_set(cros_ec, EC_CMD_RTC_SET_VALUE, (u32)time);
 	if (ret < 0) {
@@ -347,6 +357,7 @@ static int cros_ec_rtc_probe(struct platform_device *pdev)
 		return ret;
 	}
 
+<<<<<<< HEAD
 	cros_ec_rtc->rtc = devm_rtc_device_register(&pdev->dev, DRV_NAME,
 						    &cros_ec_rtc_ops,
 						    THIS_MODULE);
@@ -355,6 +366,18 @@ static int cros_ec_rtc_probe(struct platform_device *pdev)
 		dev_err(&pdev->dev, "failed to register rtc device\n");
 		return ret;
 	}
+=======
+	cros_ec_rtc->rtc = devm_rtc_allocate_device(&pdev->dev);
+	if (IS_ERR(cros_ec_rtc->rtc))
+		return PTR_ERR(cros_ec_rtc->rtc);
+
+	cros_ec_rtc->rtc->ops = &cros_ec_rtc_ops;
+	cros_ec_rtc->rtc->range_max = U32_MAX;
+
+	ret = devm_rtc_register_device(cros_ec_rtc->rtc);
+	if (ret)
+		return ret;
+>>>>>>> upstream/android-13
 
 	/* Get RTC events from the EC. */
 	cros_ec_rtc->notifier.notifier_call = cros_ec_rtc_event;

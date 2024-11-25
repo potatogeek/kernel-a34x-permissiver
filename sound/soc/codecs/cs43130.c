@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * cs43130.c  --  CS43130 ALSA Soc Audio driver
  *
  * Copyright 2017 Cirrus Logic, Inc.
  *
  * Authors: Li Xu <li.xu@cirrus.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/module.h>
 #include <linux/moduleparam.h>
@@ -39,6 +46,10 @@
 #include <sound/jack.h>
 
 #include "cs43130.h"
+<<<<<<< HEAD
+=======
+#include "cirrus_legacy.h"
+>>>>>>> upstream/android-13
 
 static const struct reg_default cs43130_reg_defaults[] = {
 	{CS43130_SYS_CLK_CTL_1, 0x06},
@@ -1584,7 +1595,11 @@ static struct snd_soc_dai_driver cs43130_dai[] = {
 			.formats = CS43130_PCM_FORMATS,
 		},
 		.ops = &cs43130_pcm_ops,
+<<<<<<< HEAD
 		.symmetric_rates = 1,
+=======
+		.symmetric_rate = 1,
+>>>>>>> upstream/android-13
 	},
 	{
 		.name = "cs43130-asp-dop",
@@ -1597,7 +1612,11 @@ static struct snd_soc_dai_driver cs43130_dai[] = {
 			.formats = CS43130_DOP_FORMATS,
 		},
 		.ops = &cs43130_dop_ops,
+<<<<<<< HEAD
 		.symmetric_rates = 1,
+=======
+		.symmetric_rate = 1,
+>>>>>>> upstream/android-13
 	},
 	{
 		.name = "cs43130-xsp-dop",
@@ -1610,7 +1629,11 @@ static struct snd_soc_dai_driver cs43130_dai[] = {
 			.formats = CS43130_DOP_FORMATS,
 		},
 		.ops = &cs43130_dop_ops,
+<<<<<<< HEAD
 		.symmetric_rates = 1,
+=======
+		.symmetric_rate = 1,
+>>>>>>> upstream/android-13
 	},
 	{
 		.name = "cs43130-xsp-dsd",
@@ -1674,14 +1697,24 @@ static int cs43130_show_dc(struct device *dev, char *buf, u8 ch)
 				 cs43130->hpload_dc[ch]);
 }
 
+<<<<<<< HEAD
 static ssize_t cs43130_show_dc_l(struct device *dev,
 				 struct device_attribute *attr, char *buf)
+=======
+static ssize_t hpload_dc_l_show(struct device *dev,
+				struct device_attribute *attr, char *buf)
+>>>>>>> upstream/android-13
 {
 	return cs43130_show_dc(dev, buf, HP_LEFT);
 }
 
+<<<<<<< HEAD
 static ssize_t cs43130_show_dc_r(struct device *dev,
 				 struct device_attribute *attr, char *buf)
+=======
+static ssize_t hpload_dc_r_show(struct device *dev,
+				struct device_attribute *attr, char *buf)
+>>>>>>> upstream/android-13
 {
 	return cs43130_show_dc(dev, buf, HP_RIGHT);
 }
@@ -1721,22 +1754,47 @@ static int cs43130_show_ac(struct device *dev, char *buf, u8 ch)
 	}
 }
 
+<<<<<<< HEAD
 static ssize_t cs43130_show_ac_l(struct device *dev,
 				 struct device_attribute *attr, char *buf)
+=======
+static ssize_t hpload_ac_l_show(struct device *dev,
+				struct device_attribute *attr, char *buf)
+>>>>>>> upstream/android-13
 {
 	return cs43130_show_ac(dev, buf, HP_LEFT);
 }
 
+<<<<<<< HEAD
 static ssize_t cs43130_show_ac_r(struct device *dev,
 				 struct device_attribute *attr, char *buf)
+=======
+static ssize_t hpload_ac_r_show(struct device *dev,
+				struct device_attribute *attr, char *buf)
+>>>>>>> upstream/android-13
 {
 	return cs43130_show_ac(dev, buf, HP_RIGHT);
 }
 
+<<<<<<< HEAD
 static DEVICE_ATTR(hpload_dc_l, 0444, cs43130_show_dc_l, NULL);
 static DEVICE_ATTR(hpload_dc_r, 0444, cs43130_show_dc_r, NULL);
 static DEVICE_ATTR(hpload_ac_l, 0444, cs43130_show_ac_l, NULL);
 static DEVICE_ATTR(hpload_ac_r, 0444, cs43130_show_ac_r, NULL);
+=======
+static DEVICE_ATTR_RO(hpload_dc_l);
+static DEVICE_ATTR_RO(hpload_dc_r);
+static DEVICE_ATTR_RO(hpload_ac_l);
+static DEVICE_ATTR_RO(hpload_ac_r);
+
+static struct attribute *hpload_attrs[] = {
+	&dev_attr_hpload_dc_l.attr,
+	&dev_attr_hpload_dc_r.attr,
+	&dev_attr_hpload_ac_l.attr,
+	&dev_attr_hpload_ac_r.attr,
+};
+ATTRIBUTE_GROUPS(hpload);
+>>>>>>> upstream/android-13
 
 static struct reg_sequence hp_en_cal_seq[] = {
 	{CS43130_INT_MASK_4, CS43130_INT_MASK_ALL},
@@ -2305,6 +2363,7 @@ static int cs43130_probe(struct snd_soc_component *component)
 
 	cs43130->hpload_done = false;
 	if (cs43130->dc_meas) {
+<<<<<<< HEAD
 		ret = device_create_file(component->dev, &dev_attr_hpload_dc_l);
 		if (ret < 0)
 			return ret;
@@ -2322,6 +2381,17 @@ static int cs43130_probe(struct snd_soc_component *component)
 			return ret;
 
 		cs43130->wq = create_singlethread_workqueue("cs43130_hp");
+=======
+		ret = sysfs_create_groups(&component->dev->kobj, hpload_groups);
+		if (ret)
+			return ret;
+
+		cs43130->wq = create_singlethread_workqueue("cs43130_hp");
+		if (!cs43130->wq) {
+			sysfs_remove_groups(&component->dev->kobj, hpload_groups);
+			return -ENOMEM;
+		}
+>>>>>>> upstream/android-13
 		INIT_WORK(&cs43130->work, cs43130_imp_meas);
 	}
 
@@ -2362,7 +2432,13 @@ static const struct regmap_config cs43130_regmap = {
 	.precious_reg		= cs43130_precious_register,
 	.volatile_reg		= cs43130_volatile_register,
 	.cache_type		= REGCACHE_RBTREE,
+<<<<<<< HEAD
 	.use_single_rw		= true, /* needed for regcache_sync */
+=======
+	/* needed for regcache_sync */
+	.use_single_read	= true,
+	.use_single_write	= true,
+>>>>>>> upstream/android-13
 };
 
 static u16 const cs43130_dc_threshold[CS43130_DC_THRESHOLD] = {
@@ -2423,9 +2499,14 @@ static int cs43130_i2c_probe(struct i2c_client *client,
 {
 	struct cs43130_private *cs43130;
 	int ret;
+<<<<<<< HEAD
 	unsigned int devid = 0;
 	unsigned int reg;
 	int i;
+=======
+	unsigned int reg;
+	int i, devid;
+>>>>>>> upstream/android-13
 
 	cs43130 = devm_kzalloc(&client->dev, sizeof(*cs43130), GFP_KERNEL);
 	if (!cs43130)
@@ -2463,13 +2544,21 @@ static int cs43130_i2c_probe(struct i2c_client *client,
 
 	cs43130->reset_gpio = devm_gpiod_get_optional(&client->dev,
 						      "reset", GPIOD_OUT_LOW);
+<<<<<<< HEAD
 	if (IS_ERR(cs43130->reset_gpio))
 		return PTR_ERR(cs43130->reset_gpio);
+=======
+	if (IS_ERR(cs43130->reset_gpio)) {
+		ret = PTR_ERR(cs43130->reset_gpio);
+		goto err_supplies;
+	}
+>>>>>>> upstream/android-13
 
 	gpiod_set_value_cansleep(cs43130->reset_gpio, 1);
 
 	usleep_range(2000, 2050);
 
+<<<<<<< HEAD
 	ret = regmap_read(cs43130->regmap, CS43130_DEVID_AB, &reg);
 
 	devid = (reg & 0xFF) << 12;
@@ -2477,6 +2566,14 @@ static int cs43130_i2c_probe(struct i2c_client *client,
 	devid |= (reg & 0xFF) << 4;
 	ret = regmap_read(cs43130->regmap, CS43130_DEVID_E, &reg);
 	devid |= (reg & 0xF0) >> 4;
+=======
+	devid = cirrus_read_device_id(cs43130->regmap, CS43130_DEVID_AB);
+	if (devid < 0) {
+		ret = devid;
+		dev_err(&client->dev, "Failed to read device ID: %d\n", ret);
+		goto err;
+	}
+>>>>>>> upstream/android-13
 
 	switch (devid) {
 	case CS43130_CHIP_ID:
@@ -2516,7 +2613,11 @@ static int cs43130_i2c_probe(struct i2c_client *client,
 					"cs43130", cs43130);
 	if (ret != 0) {
 		dev_err(&client->dev, "Failed to request IRQ: %d\n", ret);
+<<<<<<< HEAD
 		return ret;
+=======
+		goto err;
+>>>>>>> upstream/android-13
 	}
 
 	cs43130->mclk_int_src = CS43130_MCLK_SRC_RCO;
@@ -2575,7 +2676,17 @@ static int cs43130_i2c_probe(struct i2c_client *client,
 			   CS43130_XSP_3ST_MASK, 0);
 
 	return 0;
+<<<<<<< HEAD
 err:
+=======
+
+err:
+	gpiod_set_value_cansleep(cs43130->reset_gpio, 0);
+err_supplies:
+	regulator_bulk_disable(ARRAY_SIZE(cs43130->supplies),
+			       cs43130->supplies);
+
+>>>>>>> upstream/android-13
 	return ret;
 }
 

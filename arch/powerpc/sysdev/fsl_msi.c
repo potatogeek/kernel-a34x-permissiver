@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2007-2011 Freescale Semiconductor, Inc.
  *
@@ -5,12 +9,15 @@
  *	   Jason Jin <Jason.jin@freescale.com>
  *
  * The hwirq alloc and free code reuse from sysdev/mpic_msi.c
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; version 2 of the
  * License.
  *
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/irq.h>
 #include <linux/msi.h>
@@ -271,7 +278,10 @@ out_free:
 
 static irqreturn_t fsl_msi_cascade(int irq, void *data)
 {
+<<<<<<< HEAD
 	unsigned int cascade_irq;
+=======
+>>>>>>> upstream/android-13
 	struct fsl_msi *msi_data;
 	int msir_index = -1;
 	u32 msir_value = 0;
@@ -284,9 +294,12 @@ static irqreturn_t fsl_msi_cascade(int irq, void *data)
 
 	msir_index = cascade_data->index;
 
+<<<<<<< HEAD
 	if (msir_index >= NR_MSI_REG_MAX)
 		cascade_irq = 0;
 
+=======
+>>>>>>> upstream/android-13
 	switch (msi_data->feature & FSL_PIC_IP_MASK) {
 	case FSL_PIC_IP_MPIC:
 		msir_value = fsl_msi_read(msi_data->msi_regs,
@@ -310,6 +323,7 @@ static irqreturn_t fsl_msi_cascade(int irq, void *data)
 	}
 
 	while (msir_value) {
+<<<<<<< HEAD
 		intr_index = ffs(msir_value) - 1;
 
 		cascade_irq = irq_linear_revmap(msi_data->irqhost,
@@ -319,6 +333,17 @@ static irqreturn_t fsl_msi_cascade(int irq, void *data)
 			generic_handle_irq(cascade_irq);
 			ret = IRQ_HANDLED;
 		}
+=======
+		int err;
+		intr_index = ffs(msir_value) - 1;
+
+		err = generic_handle_domain_irq(msi_data->irqhost,
+				msi_hwirq(msi_data, msir_index,
+					  intr_index + have_shift));
+		if (!err)
+			ret = IRQ_HANDLED;
+
+>>>>>>> upstream/android-13
 		have_shift += intr_index + 1;
 		msir_value = msir_value >> (intr_index + 1);
 	}

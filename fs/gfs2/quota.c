@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) Sistina Software, Inc.  1997-2003 All rights reserved.
  * Copyright (C) 2004-2007 Red Hat, Inc.  All rights reserved.
@@ -5,6 +6,12 @@
  * This copyrighted material is made available to anyone wishing to use,
  * modify, copy, or redistribute it subject to the terms and conditions
  * of the GNU General Public License version 2.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) Sistina Software, Inc.  1997-2003 All rights reserved.
+ * Copyright (C) 2004-2007 Red Hat, Inc.  All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -118,7 +125,11 @@ static void gfs2_qd_dispose(struct list_head *list)
 	struct gfs2_sbd *sdp;
 
 	while (!list_empty(list)) {
+<<<<<<< HEAD
 		qd = list_entry(list->next, struct gfs2_quota_data, qd_lru);
+=======
+		qd = list_first_entry(list, struct gfs2_quota_data, qd_lru);
+>>>>>>> upstream/android-13
 		sdp = qd->qd_gl->gl_name.ln_sbd;
 
 		list_del(&qd->qd_lru);
@@ -528,11 +539,19 @@ static void qdsb_put(struct gfs2_quota_data *qd)
 }
 
 /**
+<<<<<<< HEAD
  * gfs2_qa_alloc - make sure we have a quota allocations data structure,
  *                 if necessary
  * @ip: the inode for this reservation
  */
 int gfs2_qa_alloc(struct gfs2_inode *ip)
+=======
+ * gfs2_qa_get - make sure we have a quota allocations data structure,
+ *               if necessary
+ * @ip: the inode for this reservation
+ */
+int gfs2_qa_get(struct gfs2_inode *ip)
+>>>>>>> upstream/android-13
 {
 	int error = 0;
 	struct gfs2_sbd *sdp = GFS2_SB(&ip->i_inode);
@@ -543,17 +562,34 @@ int gfs2_qa_alloc(struct gfs2_inode *ip)
 	down_write(&ip->i_rw_mutex);
 	if (ip->i_qadata == NULL) {
 		ip->i_qadata = kmem_cache_zalloc(gfs2_qadata_cachep, GFP_NOFS);
+<<<<<<< HEAD
 		if (!ip->i_qadata)
 			error = -ENOMEM;
 	}
+=======
+		if (!ip->i_qadata) {
+			error = -ENOMEM;
+			goto out;
+		}
+	}
+	ip->i_qadata->qa_ref++;
+out:
+>>>>>>> upstream/android-13
 	up_write(&ip->i_rw_mutex);
 	return error;
 }
 
+<<<<<<< HEAD
 void gfs2_qa_delete(struct gfs2_inode *ip, atomic_t *wcount)
 {
 	down_write(&ip->i_rw_mutex);
 	if (ip->i_qadata && ((wcount == NULL) || (atomic_read(wcount) <= 1))) {
+=======
+void gfs2_qa_put(struct gfs2_inode *ip)
+{
+	down_write(&ip->i_rw_mutex);
+	if (ip->i_qadata && --ip->i_qadata->qa_ref == 0) {
+>>>>>>> upstream/android-13
 		kmem_cache_free(gfs2_qadata_cachep, ip->i_qadata);
 		ip->i_qadata = NULL;
 	}
@@ -569,27 +605,48 @@ int gfs2_quota_hold(struct gfs2_inode *ip, kuid_t uid, kgid_t gid)
 	if (sdp->sd_args.ar_quota == GFS2_QUOTA_OFF)
 		return 0;
 
+<<<<<<< HEAD
 	if (ip->i_qadata == NULL) {
 		error = gfs2_rsqa_alloc(ip);
 		if (error)
 			return error;
 	}
+=======
+	error = gfs2_qa_get(ip);
+	if (error)
+		return error;
+>>>>>>> upstream/android-13
 
 	qd = ip->i_qadata->qa_qd;
 
 	if (gfs2_assert_warn(sdp, !ip->i_qadata->qa_qd_num) ||
+<<<<<<< HEAD
 	    gfs2_assert_warn(sdp, !test_bit(GIF_QD_LOCKED, &ip->i_flags)))
 		return -EIO;
 
 	error = qdsb_get(sdp, make_kqid_uid(ip->i_inode.i_uid), qd);
 	if (error)
 		goto out;
+=======
+	    gfs2_assert_warn(sdp, !test_bit(GIF_QD_LOCKED, &ip->i_flags))) {
+		error = -EIO;
+		goto out;
+	}
+
+	error = qdsb_get(sdp, make_kqid_uid(ip->i_inode.i_uid), qd);
+	if (error)
+		goto out_unhold;
+>>>>>>> upstream/android-13
 	ip->i_qadata->qa_qd_num++;
 	qd++;
 
 	error = qdsb_get(sdp, make_kqid_gid(ip->i_inode.i_gid), qd);
 	if (error)
+<<<<<<< HEAD
 		goto out;
+=======
+		goto out_unhold;
+>>>>>>> upstream/android-13
 	ip->i_qadata->qa_qd_num++;
 	qd++;
 
@@ -597,7 +654,11 @@ int gfs2_quota_hold(struct gfs2_inode *ip, kuid_t uid, kgid_t gid)
 	    !uid_eq(uid, ip->i_inode.i_uid)) {
 		error = qdsb_get(sdp, make_kqid_uid(uid), qd);
 		if (error)
+<<<<<<< HEAD
 			goto out;
+=======
+			goto out_unhold;
+>>>>>>> upstream/android-13
 		ip->i_qadata->qa_qd_num++;
 		qd++;
 	}
@@ -606,14 +667,25 @@ int gfs2_quota_hold(struct gfs2_inode *ip, kuid_t uid, kgid_t gid)
 	    !gid_eq(gid, ip->i_inode.i_gid)) {
 		error = qdsb_get(sdp, make_kqid_gid(gid), qd);
 		if (error)
+<<<<<<< HEAD
 			goto out;
+=======
+			goto out_unhold;
+>>>>>>> upstream/android-13
 		ip->i_qadata->qa_qd_num++;
 		qd++;
 	}
 
+<<<<<<< HEAD
 out:
 	if (error)
 		gfs2_quota_unhold(ip);
+=======
+out_unhold:
+	if (error)
+		gfs2_quota_unhold(ip);
+out:
+>>>>>>> upstream/android-13
 	return error;
 }
 
@@ -624,6 +696,10 @@ void gfs2_quota_unhold(struct gfs2_inode *ip)
 
 	if (ip->i_qadata == NULL)
 		return;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	gfs2_assert_warn(sdp, !test_bit(GIF_QD_LOCKED, &ip->i_flags));
 
 	for (x = 0; x < ip->i_qadata->qa_qd_num; x++) {
@@ -631,6 +707,10 @@ void gfs2_quota_unhold(struct gfs2_inode *ip)
 		ip->i_qadata->qa_qd[x] = NULL;
 	}
 	ip->i_qadata->qa_qd_num = 0;
+<<<<<<< HEAD
+=======
+	gfs2_qa_put(ip);
+>>>>>>> upstream/android-13
 }
 
 static int sort_qd(const void *a, const void *b)
@@ -777,7 +857,11 @@ static int gfs2_write_disk_quota(struct gfs2_inode *ip, struct gfs2_quota *qp,
 	nbytes = sizeof(struct gfs2_quota);
 
 	pg_beg = loc >> PAGE_SHIFT;
+<<<<<<< HEAD
 	pg_off = loc % PAGE_SIZE;
+=======
+	pg_off = offset_in_page(loc);
+>>>>>>> upstream/android-13
 
 	/* If the quota straddles a page boundary, split the write in two */
 	if ((pg_off + nbytes) > PAGE_SIZE) {
@@ -821,7 +905,11 @@ static int gfs2_adjust_quota(struct gfs2_inode *ip, loff_t loc,
 	u64 size;
 
 	if (gfs2_is_stuffed(ip)) {
+<<<<<<< HEAD
 		err = gfs2_unstuff_dinode(ip, NULL);
+=======
+		err = gfs2_unstuff_dinode(ip);
+>>>>>>> upstream/android-13
 		if (err)
 			return err;
 	}
@@ -879,7 +967,11 @@ static int do_sync(unsigned int num_qd, struct gfs2_quota_data **qda)
 	unsigned int nalloc = 0, blocks;
 	int error;
 
+<<<<<<< HEAD
 	error = gfs2_rsqa_alloc(ip);
+=======
+	error = gfs2_qa_get(ip);
+>>>>>>> upstream/android-13
 	if (error)
 		return error;
 
@@ -887,8 +979,15 @@ static int do_sync(unsigned int num_qd, struct gfs2_quota_data **qda)
 			      &data_blocks, &ind_blocks);
 
 	ghs = kmalloc_array(num_qd, sizeof(struct gfs2_holder), GFP_NOFS);
+<<<<<<< HEAD
 	if (!ghs)
 		return -ENOMEM;
+=======
+	if (!ghs) {
+		error = -ENOMEM;
+		goto out;
+	}
+>>>>>>> upstream/android-13
 
 	sort(qda, num_qd, sizeof(struct gfs2_quota_data *), sort_qd, NULL);
 	inode_lock(&ip->i_inode);
@@ -896,12 +995,20 @@ static int do_sync(unsigned int num_qd, struct gfs2_quota_data **qda)
 		error = gfs2_glock_nq_init(qda[qx]->qd_gl, LM_ST_EXCLUSIVE,
 					   GL_NOCACHE, &ghs[qx]);
 		if (error)
+<<<<<<< HEAD
 			goto out;
+=======
+			goto out_dq;
+>>>>>>> upstream/android-13
 	}
 
 	error = gfs2_glock_nq_init(ip->i_gl, LM_ST_EXCLUSIVE, 0, &i_gh);
 	if (error)
+<<<<<<< HEAD
 		goto out;
+=======
+		goto out_dq;
+>>>>>>> upstream/android-13
 
 	for (x = 0; x < num_qd; x++) {
 		offset = qd2offset(qda[x]);
@@ -953,13 +1060,22 @@ out_ipres:
 	gfs2_inplace_release(ip);
 out_alloc:
 	gfs2_glock_dq_uninit(&i_gh);
+<<<<<<< HEAD
 out:
+=======
+out_dq:
+>>>>>>> upstream/android-13
 	while (qx--)
 		gfs2_glock_dq_uninit(&ghs[qx]);
 	inode_unlock(&ip->i_inode);
 	kfree(ghs);
 	gfs2_log_flush(ip->i_gl->gl_name.ln_sbd, ip->i_gl,
 		       GFS2_LOG_HEAD_FLUSH_NORMAL | GFS2_LFC_DO_SYNC);
+<<<<<<< HEAD
+=======
+out:
+	gfs2_qa_put(ip);
+>>>>>>> upstream/android-13
 	return error;
 }
 
@@ -1116,7 +1232,11 @@ void gfs2_quota_unlock(struct gfs2_inode *ip)
 	int found;
 
 	if (!test_and_clear_bit(GIF_QD_LOCKED, &ip->i_flags))
+<<<<<<< HEAD
 		goto out;
+=======
+		return;
+>>>>>>> upstream/android-13
 
 	for (x = 0; x < ip->i_qadata->qa_qd_num; x++) {
 		struct gfs2_quota_data *qd;
@@ -1153,7 +1273,10 @@ void gfs2_quota_unlock(struct gfs2_inode *ip)
 			qd_unlock(qda[x]);
 	}
 
+<<<<<<< HEAD
 out:
+=======
+>>>>>>> upstream/android-13
 	gfs2_quota_unhold(ip);
 }
 
@@ -1182,7 +1305,11 @@ static int print_message(struct gfs2_quota_data *qd, char *type)
  *
  * Returns: 0 on success.
  *                  min_req = ap->min_target ? ap->min_target : ap->target;
+<<<<<<< HEAD
  *                  quota must allow atleast min_req blks for success and
+=======
+ *                  quota must allow at least min_req blks for success and
+>>>>>>> upstream/android-13
  *                  ap->allowed is set to the number of blocks allowed
  *
  *          -EDQUOT otherwise, quota violation. ap->allowed is set to number
@@ -1201,9 +1328,12 @@ int gfs2_quota_check(struct gfs2_inode *ip, kuid_t uid, kgid_t gid,
 	if (!test_bit(GIF_QD_LOCKED, &ip->i_flags))
 		return 0;
 
+<<<<<<< HEAD
         if (sdp->sd_args.ar_quota != GFS2_QUOTA_ON)
                 return 0;
 
+=======
+>>>>>>> upstream/android-13
 	for (x = 0; x < ip->i_qadata->qa_qd_num; x++) {
 		qd = ip->i_qadata->qa_qd[x];
 
@@ -1261,6 +1391,12 @@ void gfs2_quota_change(struct gfs2_inode *ip, s64 change,
 	if (ip->i_diskflags & GFS2_DIF_SYSTEM)
 		return;
 
+<<<<<<< HEAD
+=======
+	if (gfs2_assert_withdraw(sdp, ip->i_qadata &&
+				 ip->i_qadata->qa_ref > 0))
+		return;
+>>>>>>> upstream/android-13
 	for (x = 0; x < ip->i_qadata->qa_qd_num; x++) {
 		qd = ip->i_qadata->qa_qd[x];
 
@@ -1275,7 +1411,11 @@ int gfs2_quota_sync(struct super_block *sb, int type)
 {
 	struct gfs2_sbd *sdp = sb->s_fs_info;
 	struct gfs2_quota_data **qda;
+<<<<<<< HEAD
 	unsigned int max_qd = PAGE_SIZE/sizeof(struct gfs2_holder);
+=======
+	unsigned int max_qd = PAGE_SIZE / sizeof(struct gfs2_holder);
+>>>>>>> upstream/android-13
 	unsigned int num_qd;
 	unsigned int x;
 	int error = 0;
@@ -1358,7 +1498,11 @@ int gfs2_quota_init(struct gfs2_sbd *sdp)
 	sdp->sd_quota_bitmap = kzalloc(bm_size, GFP_NOFS | __GFP_NOWARN);
 	if (sdp->sd_quota_bitmap == NULL)
 		sdp->sd_quota_bitmap = __vmalloc(bm_size, GFP_NOFS |
+<<<<<<< HEAD
 						 __GFP_ZERO, PAGE_KERNEL);
+=======
+						 __GFP_ZERO);
+>>>>>>> upstream/android-13
 	if (!sdp->sd_quota_bitmap)
 		return error;
 
@@ -1368,8 +1512,13 @@ int gfs2_quota_init(struct gfs2_sbd *sdp)
 		unsigned int y;
 
 		if (!extlen) {
+<<<<<<< HEAD
 			int new = 0;
 			error = gfs2_extent_map(&ip->i_inode, x, &new, &dblock, &extlen);
+=======
+			extlen = 32;
+			error = gfs2_get_extent(&ip->i_inode, x, &dblock, &extlen);
+>>>>>>> upstream/android-13
 			if (error)
 				goto fail;
 		}
@@ -1443,7 +1592,11 @@ void gfs2_quota_cleanup(struct gfs2_sbd *sdp)
 
 	spin_lock(&qd_lock);
 	while (!list_empty(head)) {
+<<<<<<< HEAD
 		qd = list_entry(head->prev, struct gfs2_quota_data, qd_list);
+=======
+		qd = list_last_entry(head, struct gfs2_quota_data, qd_list);
+>>>>>>> upstream/android-13
 
 		list_del(&qd->qd_list);
 
@@ -1477,9 +1630,15 @@ static void quotad_error(struct gfs2_sbd *sdp, const char *msg, int error)
 {
 	if (error == 0 || error == -EROFS)
 		return;
+<<<<<<< HEAD
 	if (!test_bit(SDF_SHUTDOWN, &sdp->sd_flags)) {
 		fs_err(sdp, "gfs2_quotad: %s error %d\n", msg, error);
 		sdp->sd_log_error = error;
+=======
+	if (!gfs2_withdrawn(sdp)) {
+		if (!cmpxchg(&sdp->sd_log_error, 0, error))
+			fs_err(sdp, "gfs2_quotad: %s error %d\n", msg, error);
+>>>>>>> upstream/android-13
 		wake_up(&sdp->sd_logd_waitq);
 	}
 }
@@ -1506,7 +1665,11 @@ static void quotad_check_trunc_list(struct gfs2_sbd *sdp)
 		ip = NULL;
 		spin_lock(&sdp->sd_trunc_lock);
 		if (!list_empty(&sdp->sd_trunc_list)) {
+<<<<<<< HEAD
 			ip = list_entry(sdp->sd_trunc_list.next,
+=======
+			ip = list_first_entry(&sdp->sd_trunc_list,
+>>>>>>> upstream/android-13
 					struct gfs2_inode, i_trunc_list);
 			list_del_init(&ip->i_trunc_list);
 		}
@@ -1527,7 +1690,11 @@ void gfs2_wake_up_statfs(struct gfs2_sbd *sdp) {
 
 /**
  * gfs2_quotad - Write cached quota changes into the quota file
+<<<<<<< HEAD
  * @sdp: Pointer to GFS2 superblock
+=======
+ * @data: Pointer to GFS2 superblock
+>>>>>>> upstream/android-13
  *
  */
 
@@ -1543,6 +1710,11 @@ int gfs2_quotad(void *data)
 
 	while (!kthread_should_stop()) {
 
+<<<<<<< HEAD
+=======
+		if (gfs2_withdrawn(sdp))
+			goto bypass;
+>>>>>>> upstream/android-13
 		/* Update the master statfs file */
 		if (sdp->sd_statfs_force_sync) {
 			int error = gfs2_statfs_sync(sdp->sd_vfs, 0);
@@ -1563,6 +1735,10 @@ int gfs2_quotad(void *data)
 
 		try_to_freeze();
 
+<<<<<<< HEAD
+=======
+bypass:
+>>>>>>> upstream/android-13
 		t = min(quotad_timeo, statfs_timeo);
 
 		prepare_to_wait(&sdp->sd_quota_wait, &wait, TASK_INTERRUPTIBLE);
@@ -1589,7 +1765,11 @@ static int gfs2_quota_get_state(struct super_block *sb, struct qc_state *state)
 	case GFS2_QUOTA_ON:
 		state->s_state[USRQUOTA].flags |= QCI_LIMITS_ENFORCED;
 		state->s_state[GRPQUOTA].flags |= QCI_LIMITS_ENFORCED;
+<<<<<<< HEAD
 		/*FALLTHRU*/
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case GFS2_QUOTA_ACCOUNT:
 		state->s_state[USRQUOTA].flags |= QCI_ACCT_ENABLED |
 						  QCI_SYSFILE;
@@ -1676,7 +1856,11 @@ static int gfs2_set_dqblk(struct super_block *sb, struct kqid qid,
 	if (error)
 		return error;
 
+<<<<<<< HEAD
 	error = gfs2_rsqa_alloc(ip);
+=======
+	error = gfs2_qa_get(ip);
+>>>>>>> upstream/android-13
 	if (error)
 		goto out_put;
 
@@ -1745,6 +1929,10 @@ out_i:
 out_q:
 	gfs2_glock_dq_uninit(&q_gh);
 out_unlockput:
+<<<<<<< HEAD
+=======
+	gfs2_qa_put(ip);
+>>>>>>> upstream/android-13
 	inode_unlock(&ip->i_inode);
 out_put:
 	qd_put(qd);

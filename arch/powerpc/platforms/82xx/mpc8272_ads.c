@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * MPC8272 ADS board support
  *
@@ -6,11 +10,14 @@
  *
  * Based on code by Vitaly Bordug <vbordug@ru.mvista.com>
  * Copyright (c) 2006 MontaVista Software, Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -175,7 +182,10 @@ static void __init mpc8272_ads_setup_arch(void)
 	iounmap(bcsr);
 
 	init_ioports();
+<<<<<<< HEAD
 	pq2_init_pci();
+=======
+>>>>>>> upstream/android-13
 
 	if (ppc_md.progress)
 		ppc_md.progress("mpc8272_ads_setup_arch(), finish", 0);
@@ -209,6 +219,10 @@ define_machine(mpc8272_ads)
 	.name = "Freescale MPC8272 ADS",
 	.probe = mpc8272_ads_probe,
 	.setup_arch = mpc8272_ads_setup_arch,
+<<<<<<< HEAD
+=======
+	.discover_phbs = pq2_init_pci,
+>>>>>>> upstream/android-13
 	.init_IRQ = mpc8272_ads_pic_init,
 	.get_irq = cpm2_get_irq,
 	.calibrate_decr = generic_calibrate_decr,

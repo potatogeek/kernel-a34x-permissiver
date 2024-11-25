@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2014 Felix Fietkau <nbd@openwrt.org>
  * Copyright (C) 2015 Jakub Kicinski <kubakici@wp.pl>
@@ -10,6 +11,12 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2014 Felix Fietkau <nbd@openwrt.org>
+ * Copyright (C) 2015 Jakub Kicinski <kubakici@wp.pl>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/debugfs.h>
@@ -35,10 +42,17 @@ mt76_reg_get(void *data, u64 *val)
 	return 0;
 }
 
+<<<<<<< HEAD
 DEFINE_SIMPLE_ATTRIBUTE(fops_regval, mt76_reg_get, mt76_reg_set, "0x%08llx\n");
 
 static int
 mt7601u_ampdu_stat_read(struct seq_file *file, void *data)
+=======
+DEFINE_DEBUGFS_ATTRIBUTE(fops_regval, mt76_reg_get, mt76_reg_set, "0x%08llx\n");
+
+static int
+mt7601u_ampdu_stat_show(struct seq_file *file, void *data)
+>>>>>>> upstream/android-13
 {
 	struct mt7601u_dev *dev = file->private;
 	int i, j;
@@ -81,6 +95,7 @@ mt7601u_ampdu_stat_read(struct seq_file *file, void *data)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int
 mt7601u_ampdu_stat_open(struct inode *inode, struct file *f)
 {
@@ -96,6 +111,12 @@ static const struct file_operations fops_ampdu_stat = {
 
 static int
 mt7601u_eeprom_param_read(struct seq_file *file, void *data)
+=======
+DEFINE_SHOW_ATTRIBUTE(mt7601u_ampdu_stat);
+
+static int
+mt7601u_eeprom_param_show(struct seq_file *file, void *data)
+>>>>>>> upstream/android-13
 {
 	struct mt7601u_dev *dev = file->private;
 	struct mt7601u_rate_power *rp = &dev->ee->power_rate_table;
@@ -139,6 +160,7 @@ mt7601u_eeprom_param_read(struct seq_file *file, void *data)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int
 mt7601u_eeprom_param_open(struct inode *inode, struct file *f)
 {
@@ -151,6 +173,9 @@ static const struct file_operations fops_eeprom_param = {
 	.llseek = seq_lseek,
 	.release = single_release,
 };
+=======
+DEFINE_SHOW_ATTRIBUTE(mt7601u_eeprom_param);
+>>>>>>> upstream/android-13
 
 void mt7601u_init_debugfs(struct mt7601u_dev *dev)
 {
@@ -165,6 +190,11 @@ void mt7601u_init_debugfs(struct mt7601u_dev *dev)
 
 	debugfs_create_u32("regidx", 0600, dir, &dev->debugfs_reg);
 	debugfs_create_file("regval", 0600, dir, dev, &fops_regval);
+<<<<<<< HEAD
 	debugfs_create_file("ampdu_stat", 0400, dir, dev, &fops_ampdu_stat);
 	debugfs_create_file("eeprom_param", 0400, dir, dev, &fops_eeprom_param);
+=======
+	debugfs_create_file("ampdu_stat", 0400, dir, dev, &mt7601u_ampdu_stat_fops);
+	debugfs_create_file("eeprom_param", 0400, dir, dev, &mt7601u_eeprom_param_fops);
+>>>>>>> upstream/android-13
 }

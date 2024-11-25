@@ -4,6 +4,10 @@
 
 #include <linux/topology.h>
 #include <linux/android_kabi.h>
+<<<<<<< HEAD
+=======
+#include <linux/android_vendor.h>
+>>>>>>> upstream/android-13
 
 #include <linux/sched/idle.h>
 
@@ -12,6 +16,7 @@
  */
 #ifdef CONFIG_SMP
 
+<<<<<<< HEAD
 #define SD_LOAD_BALANCE		0x0001	/* Do load balancing on this domain. */
 #define SD_BALANCE_NEWIDLE	0x0002	/* Balance when about to become idle */
 #define SD_BALANCE_EXEC		0x0004	/* Balance on exec */
@@ -27,6 +32,31 @@
 #define SD_PREFER_SIBLING	0x1000	/* Prefer to place tasks in a sibling domain */
 #define SD_OVERLAP		0x2000	/* sched_domains of this level overlap */
 #define SD_NUMA			0x4000	/* cross-node balancing */
+=======
+/* Generate SD flag indexes */
+#define SD_FLAG(name, mflags) __##name,
+enum {
+	#include <linux/sched/sd_flags.h>
+	__SD_FLAG_CNT,
+};
+#undef SD_FLAG
+/* Generate SD flag bits */
+#define SD_FLAG(name, mflags) name = 1 << __##name,
+enum {
+	#include <linux/sched/sd_flags.h>
+};
+#undef SD_FLAG
+
+#ifdef CONFIG_SCHED_DEBUG
+
+struct sd_flag_debug {
+	unsigned int meta_flags;
+	char *name;
+};
+extern const struct sd_flag_debug sd_flag_debug[];
+
+#endif
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_SCHED_SMT
 static inline int cpu_smt_flags(void)
@@ -68,25 +98,37 @@ struct sched_domain_shared {
 	atomic_t	nr_busy_cpus;
 	int		has_idle_cores;
 
+<<<<<<< HEAD
 	bool            overutilized;
+=======
+	ANDROID_VENDOR_DATA(1);
+>>>>>>> upstream/android-13
 };
 
 struct sched_domain {
 	/* These fields must be setup */
+<<<<<<< HEAD
 	struct sched_domain *parent;	/* top domain must be null terminated */
 	struct sched_domain *child;	/* bottom domain must be null terminated */
+=======
+	struct sched_domain __rcu *parent;	/* top domain must be null terminated */
+	struct sched_domain __rcu *child;	/* bottom domain must be null terminated */
+>>>>>>> upstream/android-13
 	struct sched_group *groups;	/* the balancing groups of the domain */
 	unsigned long min_interval;	/* Minimum balance interval ms */
 	unsigned long max_interval;	/* Maximum balance interval ms */
 	unsigned int busy_factor;	/* less balancing by factor if busy */
 	unsigned int imbalance_pct;	/* No balance until over watermark */
 	unsigned int cache_nice_tries;	/* Leave cache hot tasks for # tries */
+<<<<<<< HEAD
 	unsigned int busy_idx;
 	unsigned int idle_idx;
 	unsigned int newidle_idx;
 	unsigned int wake_idx;
 	unsigned int forkexec_idx;
 	unsigned int smt_gain;
+=======
+>>>>>>> upstream/android-13
 
 	int nohz_idle;			/* NOHZ IDLE status */
 	int flags;			/* See SD_* */
@@ -155,7 +197,11 @@ struct sched_domain {
 	 * by attaching extra space to the end of the structure,
 	 * depending on how many CPUs the kernel has booted up with)
 	 */
+<<<<<<< HEAD
 	unsigned long span[0];
+=======
+	unsigned long span[];
+>>>>>>> upstream/android-13
 };
 
 static inline struct cpumask *sched_domain_span(struct sched_domain *sd)
@@ -163,6 +209,13 @@ static inline struct cpumask *sched_domain_span(struct sched_domain *sd)
 	return to_cpumask(sd->span);
 }
 
+<<<<<<< HEAD
+=======
+extern void partition_sched_domains_locked(int ndoms_new,
+					   cpumask_var_t doms_new[],
+					   struct sched_domain_attr *dattr_new);
+
+>>>>>>> upstream/android-13
 extern void partition_sched_domains(int ndoms_new, cpumask_var_t doms_new[],
 				    struct sched_domain_attr *dattr_new);
 
@@ -203,6 +256,7 @@ extern void set_sched_topology(struct sched_domain_topology_level *tl);
 # define SD_INIT_NAME(type)
 #endif
 
+<<<<<<< HEAD
 #ifndef arch_scale_cpu_capacity
 static __always_inline
 unsigned long arch_scale_cpu_capacity(struct sched_domain *sd, int cpu)
@@ -214,11 +268,22 @@ unsigned long arch_scale_cpu_capacity(struct sched_domain *sd, int cpu)
 }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #else /* CONFIG_SMP */
 
 struct sched_domain_attr;
 
 static inline void
+<<<<<<< HEAD
+=======
+partition_sched_domains_locked(int ndoms_new, cpumask_var_t doms_new[],
+			       struct sched_domain_attr *dattr_new)
+{
+}
+
+static inline void
+>>>>>>> upstream/android-13
 partition_sched_domains(int ndoms_new, cpumask_var_t doms_new[],
 			struct sched_domain_attr *dattr_new)
 {
@@ -229,15 +294,58 @@ static inline bool cpus_share_cache(int this_cpu, int that_cpu)
 	return true;
 }
 
+<<<<<<< HEAD
 #ifndef arch_scale_cpu_capacity
 static __always_inline
 unsigned long arch_scale_cpu_capacity(void __always_unused *sd, int cpu)
+=======
+#endif	/* !CONFIG_SMP */
+
+#if defined(CONFIG_ENERGY_MODEL) && defined(CONFIG_CPU_FREQ_GOV_SCHEDUTIL)
+extern void rebuild_sched_domains_energy(void);
+#else
+static inline void rebuild_sched_domains_energy(void)
+{
+}
+#endif
+
+#ifndef arch_scale_cpu_capacity
+/**
+ * arch_scale_cpu_capacity - get the capacity scale factor of a given CPU.
+ * @cpu: the CPU in question.
+ *
+ * Return: the CPU scale factor normalized against SCHED_CAPACITY_SCALE, i.e.
+ *
+ *             max_perf(cpu)
+ *      ----------------------------- * SCHED_CAPACITY_SCALE
+ *      max(max_perf(c) : c \in CPUs)
+ */
+static __always_inline
+unsigned long arch_scale_cpu_capacity(int cpu)
+>>>>>>> upstream/android-13
 {
 	return SCHED_CAPACITY_SCALE;
 }
 #endif
 
+<<<<<<< HEAD
 #endif	/* !CONFIG_SMP */
+=======
+#ifndef arch_scale_thermal_pressure
+static __always_inline
+unsigned long arch_scale_thermal_pressure(int cpu)
+{
+	return 0;
+}
+#endif
+
+#ifndef arch_set_thermal_pressure
+static __always_inline
+void arch_set_thermal_pressure(const struct cpumask *cpus,
+			       unsigned long th_pressure)
+{ }
+#endif
+>>>>>>> upstream/android-13
 
 static inline int task_node(const struct task_struct *p)
 {

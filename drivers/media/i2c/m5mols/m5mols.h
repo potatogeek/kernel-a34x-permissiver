@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * Header for M-5MOLS 8M Pixel camera sensor with ISP
  *
@@ -6,11 +10,14 @@
  *
  * Copyright (C) 2009 Samsung Electronics Co., Ltd.
  * Author: Dongsoo Nathaniel Kim <dongsoo45.kim@samsung.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef M5MOLS_H
@@ -54,6 +61,10 @@ struct m5mols_resolution {
  * @exposure_time: exposure time register value
  * @shutter_speed: speed of the shutter register value
  * @aperture: aperture register value
+<<<<<<< HEAD
+=======
+ * @brightness: brightness register value
+>>>>>>> upstream/android-13
  * @exposure_bias: it calls also EV bias
  * @iso_speed: ISO register value
  * @flash: status register value of the flash
@@ -130,6 +141,11 @@ struct m5mols_scenemode {
 	u8 wdr;
 };
 
+<<<<<<< HEAD
+=======
+#define VERSION_STRING_SIZE	22
+
+>>>>>>> upstream/android-13
 /**
  * struct m5mols_version - firmware version information
  * @customer:	customer information
@@ -148,7 +164,10 @@ struct m5mols_scenemode {
  * about manufacturer and the vendor of the sensor's packaging. The least
  * significant 2 bytes of the string indicate packaging manufacturer.
  */
+<<<<<<< HEAD
 #define VERSION_STRING_SIZE	22
+=======
+>>>>>>> upstream/android-13
 struct m5mols_version {
 	u8	customer;
 	u8	project;
@@ -253,7 +272,11 @@ struct m5mols_info {
  *
  * The I2C read operation of the M-5MOLS requires 2 messages. The first
  * message sends the information about the command, command category, and total
+<<<<<<< HEAD
  * message size. The second message is used to retrieve the data specifed in
+=======
+ * message size. The second message is used to retrieve the data specified in
+>>>>>>> upstream/android-13
  * the first message
  *
  *   1st message                                2nd message

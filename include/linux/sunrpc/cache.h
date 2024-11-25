@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * include/linux/sunrpc/cache.h
  *
@@ -5,9 +9,12 @@
  * used by sunrpc clients and servers.
  *
  * Copyright (C) 2002 Neil Brown <neilb@cse.unsw.edu.au>
+<<<<<<< HEAD
  *
  * Released under terms in GPL version 2.  See COPYING.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _LINUX_SUNRPC_CACHE_H_
@@ -16,6 +23,10 @@
 #include <linux/kref.h>
 #include <linux/slab.h>
 #include <linux/atomic.h>
+<<<<<<< HEAD
+=======
+#include <linux/kstrtox.h>
+>>>>>>> upstream/android-13
 #include <linux/proc_fs.h>
 
 /*
@@ -47,8 +58,14 @@
  */
 struct cache_head {
 	struct hlist_node	cache_list;
+<<<<<<< HEAD
 	time_t		expiry_time;	/* After time time, don't use the data */
 	time_t		last_refresh;   /* If CACHE_PENDING, this is when upcall was
+=======
+	time64_t	expiry_time;	/* After time expiry_time, don't use
+					 * the data */
+	time64_t	last_refresh;   /* If CACHE_PENDING, this is when upcall was
+>>>>>>> upstream/android-13
 					 * sent, else this is when update was
 					 * received, though it is alway set to
 					 * be *after* ->flush_time.
@@ -67,7 +84,11 @@ struct cache_detail {
 	struct module *		owner;
 	int			hash_size;
 	struct hlist_head *	hash_table;
+<<<<<<< HEAD
 	rwlock_t		hash_lock;
+=======
+	spinlock_t		hash_lock;
+>>>>>>> upstream/android-13
 
 	char			*name;
 	void			(*cache_put)(struct kref *);
@@ -89,6 +110,10 @@ struct cache_detail {
 					      int has_died);
 
 	struct cache_head *	(*alloc)(void);
+<<<<<<< HEAD
+=======
+	void			(*flush)(void);
+>>>>>>> upstream/android-13
 	int			(*match)(struct cache_head *orig, struct cache_head *new);
 	void			(*init)(struct cache_head *orig, struct cache_head *new);
 	void			(*update)(struct cache_head *orig, struct cache_head *new);
@@ -96,22 +121,36 @@ struct cache_detail {
 	/* fields below this comment are for internal use
 	 * and should not be touched by cache owners
 	 */
+<<<<<<< HEAD
 	time_t			flush_time;		/* flush all cache items with
+=======
+	time64_t		flush_time;		/* flush all cache items with
+>>>>>>> upstream/android-13
 							 * last_refresh at or earlier
 							 * than this.  last_refresh
 							 * is never set at or earlier
 							 * than this.
 							 */
 	struct list_head	others;
+<<<<<<< HEAD
 	time_t			nextcheck;
+=======
+	time64_t		nextcheck;
+>>>>>>> upstream/android-13
 	int			entries;
 
 	/* fields for communication over channel */
 	struct list_head	queue;
 
+<<<<<<< HEAD
 	atomic_t		readers;		/* how many time is /chennel open */
 	time_t			last_close;		/* if no readers, when did last close */
 	time_t			last_warn;		/* when we last warned about no readers */
+=======
+	atomic_t		writers;		/* how many time is /channel open */
+	time64_t		last_close;		/* if no writers, when did last close */
+	time64_t		last_warn;		/* when we last warned about no writers */
+>>>>>>> upstream/android-13
 
 	union {
 		struct proc_dir_entry	*procfs;
@@ -148,6 +187,7 @@ struct cache_deferred_req {
  * timestamps kept in the cache are expressed in seconds
  * since boot.  This is the best for measuring differences in
  * real time.
+<<<<<<< HEAD
  */
 static inline time_t seconds_since_boot(void)
 {
@@ -160,6 +200,24 @@ static inline time_t convert_to_wallclock(time_t sinceboot)
 {
 	struct timespec boot;
 	getboottime(&boot);
+=======
+ * This reimplemnts ktime_get_boottime_seconds() in a slightly
+ * faster but less accurate way. When we end up converting
+ * back to wallclock (CLOCK_REALTIME), that error often
+ * cancels out during the reverse operation.
+ */
+static inline time64_t seconds_since_boot(void)
+{
+	struct timespec64 boot;
+	getboottime64(&boot);
+	return ktime_get_real_seconds() - boot.tv_sec;
+}
+
+static inline time64_t convert_to_wallclock(time64_t sinceboot)
+{
+	struct timespec64 boot;
+	getboottime64(&boot);
+>>>>>>> upstream/android-13
 	return boot.tv_sec + sinceboot;
 }
 
@@ -168,14 +226,25 @@ extern const struct file_operations content_file_operations_pipefs;
 extern const struct file_operations cache_flush_operations_pipefs;
 
 extern struct cache_head *
+<<<<<<< HEAD
 sunrpc_cache_lookup(struct cache_detail *detail,
 		    struct cache_head *key, int hash);
+=======
+sunrpc_cache_lookup_rcu(struct cache_detail *detail,
+			struct cache_head *key, int hash);
+>>>>>>> upstream/android-13
 extern struct cache_head *
 sunrpc_cache_update(struct cache_detail *detail,
 		    struct cache_head *new, struct cache_head *old, int hash);
 
 extern int
 sunrpc_cache_pipe_upcall(struct cache_detail *detail, struct cache_head *h);
+<<<<<<< HEAD
+=======
+extern int
+sunrpc_cache_pipe_upcall_timeout(struct cache_detail *detail,
+				 struct cache_head *h);
+>>>>>>> upstream/android-13
 
 
 extern void cache_clean_deferred(void *owner);
@@ -186,6 +255,15 @@ static inline struct cache_head  *cache_get(struct cache_head *h)
 	return h;
 }
 
+<<<<<<< HEAD
+=======
+static inline struct cache_head  *cache_get_rcu(struct cache_head *h)
+{
+	if (kref_get_unless_zero(&h->ref))
+		return h;
+	return NULL;
+}
+>>>>>>> upstream/android-13
 
 static inline void cache_put(struct cache_head *h, struct cache_detail *cd)
 {
@@ -197,11 +275,19 @@ static inline void cache_put(struct cache_head *h, struct cache_detail *cd)
 
 static inline bool cache_is_expired(struct cache_detail *detail, struct cache_head *h)
 {
+<<<<<<< HEAD
 	if (!test_bit(CACHE_VALID, &h->flags))
 		return false;
 
 	return  (h->expiry_time < seconds_since_boot()) ||
 		(detail->flush_time >= h->last_refresh);
+=======
+	if (h->expiry_time < seconds_since_boot())
+		return true;
+	if (!test_bit(CACHE_VALID, &h->flags))
+		return false;
+	return detail->flush_time >= h->last_refresh;
+>>>>>>> upstream/android-13
 }
 
 extern int cache_check(struct cache_detail *detail,
@@ -224,9 +310,15 @@ extern void sunrpc_cache_unregister_pipefs(struct cache_detail *);
 extern void sunrpc_cache_unhash(struct cache_detail *, struct cache_head *);
 
 /* Must store cache_detail in seq_file->private if using next three functions */
+<<<<<<< HEAD
 extern void *cache_seq_start(struct seq_file *file, loff_t *pos);
 extern void *cache_seq_next(struct seq_file *file, void *p, loff_t *pos);
 extern void cache_seq_stop(struct seq_file *file, void *p);
+=======
+extern void *cache_seq_start_rcu(struct seq_file *file, loff_t *pos);
+extern void *cache_seq_next_rcu(struct seq_file *file, void *p, loff_t *pos);
+extern void cache_seq_stop_rcu(struct seq_file *file, void *p);
+>>>>>>> upstream/android-13
 
 extern void qword_add(char **bpp, int *lp, char *str);
 extern void qword_addhex(char **bpp, int *lp, char *buf, int blen);
@@ -268,7 +360,11 @@ static inline int get_uint(char **bpp, unsigned int *anint)
 	return 0;
 }
 
+<<<<<<< HEAD
 static inline int get_time(char **bpp, time_t *time)
+=======
+static inline int get_time(char **bpp, time64_t *time)
+>>>>>>> upstream/android-13
 {
 	char buf[50];
 	long long ll;
@@ -282,6 +378,7 @@ static inline int get_time(char **bpp, time_t *time)
 	if (kstrtoll(buf, 0, &ll))
 		return -EINVAL;
 
+<<<<<<< HEAD
 	*time = (time_t)ll;
 	return 0;
 }
@@ -290,12 +387,26 @@ static inline time_t get_expiry(char **bpp)
 {
 	time_t rv;
 	struct timespec boot;
+=======
+	*time = ll;
+	return 0;
+}
+
+static inline time64_t get_expiry(char **bpp)
+{
+	time64_t rv;
+	struct timespec64 boot;
+>>>>>>> upstream/android-13
 
 	if (get_time(bpp, &rv))
 		return 0;
 	if (rv < 0)
 		return 0;
+<<<<<<< HEAD
 	getboottime(&boot);
+=======
+	getboottime64(&boot);
+>>>>>>> upstream/android-13
 	return rv - boot.tv_sec;
 }
 

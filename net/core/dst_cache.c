@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * net/core/dst_cache.c - dst entry cache
  *
  * Copyright (c) 2016 Paolo Abeni <pabeni@redhat.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -166,3 +173,25 @@ void dst_cache_destroy(struct dst_cache *dst_cache)
 	free_percpu(dst_cache->cache);
 }
 EXPORT_SYMBOL_GPL(dst_cache_destroy);
+<<<<<<< HEAD
+=======
+
+void dst_cache_reset_now(struct dst_cache *dst_cache)
+{
+	int i;
+
+	if (!dst_cache->cache)
+		return;
+
+	dst_cache->reset_ts = jiffies;
+	for_each_possible_cpu(i) {
+		struct dst_cache_pcpu *idst = per_cpu_ptr(dst_cache->cache, i);
+		struct dst_entry *dst = idst->dst;
+
+		idst->cookie = 0;
+		idst->dst = NULL;
+		dst_release(dst);
+	}
+}
+EXPORT_SYMBOL_GPL(dst_cache_reset_now);
+>>>>>>> upstream/android-13

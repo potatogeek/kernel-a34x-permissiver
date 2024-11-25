@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) International Business Machines Corp., 2006
  *
@@ -15,6 +16,12 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (c) International Business Machines Corp., 2006
+ *
+>>>>>>> upstream/android-13
  * Author: Artem Bityutskiy (Битюцкий Артём)
  */
 
@@ -1072,6 +1079,10 @@ static int scan_peb(struct ubi_device *ubi, struct ubi_attach_info *ai,
 			 * be a result of power cut during erasure.
 			 */
 			ai->maybe_bad_peb_count += 1;
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case UBI_IO_BAD_HDR:
 			/*
 			 * If we're facing a bad VID header we have to drop *all*
@@ -1652,7 +1663,11 @@ int ubi_attach(struct ubi_device *ubi, int force_scan)
 out_wl:
 	ubi_wl_close(ubi);
 out_vtbl:
+<<<<<<< HEAD
 	ubi_free_internal_volumes(ubi);
+=======
+	ubi_free_all_volumes(ubi);
+>>>>>>> upstream/android-13
 	vfree(ubi->vtbl);
 out_ai:
 	destroy_ai(ai);

@@ -44,6 +44,7 @@ efi_status_t __efi_rt_asm_wrapper(void *, const char *, ...);
 
 #define ARCH_EFI_IRQ_FLAGS_MASK (PSR_D_BIT | PSR_A_BIT | PSR_I_BIT | PSR_F_BIT)
 
+<<<<<<< HEAD
 /* arch specific definitions used by the stub code */
 
 /*
@@ -52,6 +53,20 @@ efi_status_t __efi_rt_asm_wrapper(void *, const char *, ...);
  * 2MiB so we know it won't cross a 2MiB boundary.
  */
 #define EFI_FDT_ALIGN	SZ_2M   /* used by allocate_new_fdt_and_exit_boot() */
+=======
+/*
+ * Even when Linux uses IRQ priorities for IRQ disabling, EFI does not.
+ * And EFI shouldn't really play around with priority masking as it is not aware
+ * which priorities the OS has assigned to its interrupts.
+ */
+#define arch_efi_save_flags(state_flags)		\
+	((void)((state_flags) = read_sysreg(daif)))
+
+#define arch_efi_restore_flags(state_flags)	write_sysreg(state_flags, daif)
+
+
+/* arch specific definitions used by the stub code */
+>>>>>>> upstream/android-13
 
 /*
  * In some configurations (e.g. VMAP_STACK && 64K pages), stacks built into the
@@ -60,6 +75,7 @@ efi_status_t __efi_rt_asm_wrapper(void *, const char *, ...);
 #define EFI_KIMG_ALIGN	\
 	(SEGMENT_ALIGN > THREAD_ALIGN ? SEGMENT_ALIGN : THREAD_ALIGN)
 
+<<<<<<< HEAD
 /* on arm64, the FDT may be located anywhere in system RAM */
 static inline unsigned long efi_get_max_fdt_addr(unsigned long dram_base)
 {
@@ -104,6 +120,26 @@ static inline void free_screen_info(efi_system_table_t *sys_table_arg,
 extern struct screen_info screen_info __attribute__((__visibility__("hidden")));
 
 static inline void efifb_setup_from_dmi(struct screen_info *si, const char *opt)
+=======
+/*
+ * On arm64, we have to ensure that the initrd ends up in the linear region,
+ * which is a 1 GB aligned region of size '1UL << (VA_BITS_MIN - 1)' that is
+ * guaranteed to cover the kernel Image.
+ *
+ * Since the EFI stub is part of the kernel Image, we can relax the
+ * usual requirements in Documentation/arm64/booting.rst, which still
+ * apply to other bootloaders, and are required for some kernel
+ * configurations.
+ */
+static inline unsigned long efi_get_max_initrd_addr(unsigned long image_addr)
+{
+	return (image_addr & ~(SZ_1G - 1UL)) + (1UL << (VA_BITS_MIN - 1));
+}
+
+#define alloc_screen_info(x...)		&screen_info
+
+static inline void free_screen_info(struct screen_info *si)
+>>>>>>> upstream/android-13
 {
 }
 
@@ -153,4 +189,12 @@ static inline void efi_set_pgd(struct mm_struct *mm)
 void efi_virtmap_load(void);
 void efi_virtmap_unload(void);
 
+<<<<<<< HEAD
+=======
+static inline void efi_capsule_flush_cache_range(void *addr, int size)
+{
+	dcache_clean_inval_poc((unsigned long)addr, (unsigned long)addr + size);
+}
+
+>>>>>>> upstream/android-13
 #endif /* _ASM_EFI_H */

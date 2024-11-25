@@ -12,6 +12,10 @@
 #include <linux/kernel.h>
 #include <linux/sched/signal.h>
 #include <linux/notifier.h>
+<<<<<<< HEAD
+=======
+#include <linux/panic_notifier.h>
+>>>>>>> upstream/android-13
 #include <linux/pm.h>
 #include <linux/timer.h>
 

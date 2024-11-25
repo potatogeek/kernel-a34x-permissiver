@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * Copyright(c) 2009-2012  Realtek Corporation.
@@ -22,6 +23,10 @@
  * Larry Finger <Larry.Finger@lwfinger.net>
  *
  *****************************************************************************/
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+/* Copyright(c) 2009-2012  Realtek Corporation.*/
+>>>>>>> upstream/android-13
 
 #ifndef __RTL92C_DEF_H__
 #define __RTL92C_DEF_H__
@@ -39,6 +44,7 @@
 #define RX_MPDU_QUEUE					0
 #define RX_CMD_QUEUE					1
 
+<<<<<<< HEAD
 #define	C2H_RX_CMD_HDR_LEN				8
 #define	GET_C2H_CMD_CMD_LEN(__prxhdr)		\
 	LE_BITS_TO_4BYTE((__prxhdr), 0, 16)
@@ -72,6 +78,8 @@
 #define GET_RX_STATUS_DESC_BUFF_ADDR(__pdesc)			\
 	SHIFT_AND_MASK_LE(__pdesc + 24, 0, 32)
 
+=======
+>>>>>>> upstream/android-13
 #define CHIP_VER_B			BIT(4)
 #define CHIP_BONDING_IDENTIFIER(_value) (((_value) >> 22) & 0x3)
 #define CHIP_BONDING_92C_1T2R		0x1

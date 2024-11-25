@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * ADXL345 3-Axis Digital Accelerometer SPI driver
  *
  * Copyright (c) 2017 Eva Rachel Retuya <eraretuya@gmail.com>
+<<<<<<< HEAD
  *
  * This file is subject to the terms and conditions of version 2 of
  * the GNU General Public License. See the file COPYING in the main
  * directory of this archive for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -45,11 +52,14 @@ static int adxl345_spi_probe(struct spi_device *spi)
 	return adxl345_core_probe(&spi->dev, regmap, id->driver_data, id->name);
 }
 
+<<<<<<< HEAD
 static int adxl345_spi_remove(struct spi_device *spi)
 {
 	return adxl345_core_remove(&spi->dev);
 }
 
+=======
+>>>>>>> upstream/android-13
 static const struct spi_device_id adxl345_spi_id[] = {
 	{ "adxl345", ADXL345 },
 	{ "adxl375", ADXL375 },
@@ -72,7 +82,10 @@ static struct spi_driver adxl345_spi_driver = {
 		.of_match_table = adxl345_of_match,
 	},
 	.probe		= adxl345_spi_probe,
+<<<<<<< HEAD
 	.remove		= adxl345_spi_remove,
+=======
+>>>>>>> upstream/android-13
 	.id_table	= adxl345_spi_id,
 };
 

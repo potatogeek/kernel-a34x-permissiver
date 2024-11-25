@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  FUJITSU Extended Socket Network Device driver
  *  Copyright (c) 2015-2016 FUJITSU LIMITED
@@ -17,6 +18,12 @@
  * The full GNU General Public License is included in this distribution in
  * the file called "COPYING".
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ *  FUJITSU Extended Socket Network Device driver
+ *  Copyright (c) 2015-2016 FUJITSU LIMITED
+>>>>>>> upstream/android-13
  */
 
 /* debugfs support for fjes driver */
@@ -62,6 +69,7 @@ static int fjes_dbg_status_show(struct seq_file *m, void *v)
 
 	return 0;
 }
+<<<<<<< HEAD
 
 static int fjes_dbg_status_open(struct inode *inode, struct file *file)
 {
@@ -75,10 +83,14 @@ static const struct file_operations fjes_dbg_status_fops = {
 	.llseek		= seq_lseek,
 	.release	= single_release,
 };
+=======
+DEFINE_SHOW_ATTRIBUTE(fjes_dbg_status);
+>>>>>>> upstream/android-13
 
 void fjes_dbg_adapter_init(struct fjes_adapter *adapter)
 {
 	const char *name = dev_name(&adapter->plat_dev->dev);
+<<<<<<< HEAD
 	struct dentry *pfile;
 
 	adapter->dbg_adapter = debugfs_create_dir(name, fjes_debug_root);
@@ -93,6 +105,13 @@ void fjes_dbg_adapter_init(struct fjes_adapter *adapter)
 	if (!pfile)
 		dev_err(&adapter->plat_dev->dev,
 			"debugfs status for %s failed\n", name);
+=======
+
+	adapter->dbg_adapter = debugfs_create_dir(name, fjes_debug_root);
+
+	debugfs_create_file("status", 0444, adapter->dbg_adapter, adapter,
+			    &fjes_dbg_status_fops);
+>>>>>>> upstream/android-13
 }
 
 void fjes_dbg_adapter_exit(struct fjes_adapter *adapter)
@@ -104,8 +123,11 @@ void fjes_dbg_adapter_exit(struct fjes_adapter *adapter)
 void fjes_dbg_init(void)
 {
 	fjes_debug_root = debugfs_create_dir(fjes_driver_name, NULL);
+<<<<<<< HEAD
 	if (!fjes_debug_root)
 		pr_info("init of debugfs failed\n");
+=======
+>>>>>>> upstream/android-13
 }
 
 void fjes_dbg_exit(void)

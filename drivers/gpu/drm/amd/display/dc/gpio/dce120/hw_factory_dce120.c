@@ -27,10 +27,17 @@
 #include "include/gpio_types.h"
 #include "../hw_factory.h"
 
+<<<<<<< HEAD
 
 #include "../hw_gpio.h"
 #include "../hw_ddc.h"
 #include "../hw_hpd.h"
+=======
+#include "../hw_gpio.h"
+#include "../hw_ddc.h"
+#include "../hw_hpd.h"
+#include "../hw_generic.h"
+>>>>>>> upstream/android-13
 
 #include "hw_factory_dce120.h"
 
@@ -162,6 +169,7 @@ static void define_hpd_registers(struct hw_gpio_pin *pin, uint32_t en)
 }
 
 
+<<<<<<< HEAD
 /* fucntion table */
 static const struct hw_factory_funcs funcs = {
 	.create_ddc_data = dal_hw_ddc_create,
@@ -170,6 +178,16 @@ static const struct hw_factory_funcs funcs = {
 	.create_hpd = dal_hw_hpd_create,
 	.create_sync = NULL,
 	.create_gsl = NULL,
+=======
+/* function table */
+static const struct hw_factory_funcs funcs = {
+	.init_ddc_data = dal_hw_ddc_init,
+	.init_generic = NULL,
+	.init_hpd = dal_hw_hpd_init,
+	.get_ddc_pin = dal_hw_ddc_get_pin,
+	.get_hpd_pin = dal_hw_hpd_get_pin,
+	.get_generic_pin = NULL,
+>>>>>>> upstream/android-13
 	.define_hpd_registers = define_hpd_registers,
 	.define_ddc_registers = define_ddc_registers
 };

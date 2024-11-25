@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * I2C multiplexer using pinctrl API
  *
  * Copyright (c) 2012, NVIDIA CORPORATION.  All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -14,6 +19,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/i2c.h>
@@ -27,7 +34,11 @@
 
 struct i2c_mux_pinctrl {
 	struct pinctrl *pinctrl;
+<<<<<<< HEAD
 	struct pinctrl_state **states;
+=======
+	struct pinctrl_state *states[];
+>>>>>>> upstream/android-13
 };
 
 static int i2c_mux_pinctrl_select(struct i2c_mux_core *muxc, u32 chan)
@@ -104,14 +115,21 @@ static int i2c_mux_pinctrl_probe(struct platform_device *pdev)
 		return PTR_ERR(parent);
 
 	muxc = i2c_mux_alloc(parent, dev, num_names,
+<<<<<<< HEAD
 			     sizeof(*mux) + num_names * sizeof(*mux->states),
+=======
+			     struct_size(mux, states, num_names),
+>>>>>>> upstream/android-13
 			     0, i2c_mux_pinctrl_select, NULL);
 	if (!muxc) {
 		ret = -ENOMEM;
 		goto err_put_parent;
 	}
 	mux = i2c_mux_priv(muxc);
+<<<<<<< HEAD
 	mux->states = (struct pinctrl_state **)(mux + 1);
+=======
+>>>>>>> upstream/android-13
 
 	platform_set_drvdata(pdev, muxc);
 

@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2015 Freescale Semiconductor, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2015 Freescale Semiconductor, Inc.
+>>>>>>> upstream/android-13
  */
 #include <linux/irqchip.h>
 #include <linux/mfd/syscon.h>
@@ -17,6 +23,10 @@
 
 #include "common.h"
 #include "cpuidle.h"
+<<<<<<< HEAD
+=======
+#include "hardware.h"
+>>>>>>> upstream/android-13
 
 static void __init imx6ul_enet_clk_init(void)
 {
@@ -28,6 +38,7 @@ static void __init imx6ul_enet_clk_init(void)
 				   IMX6UL_GPR1_ENET_CLK_OUTPUT);
 	else
 		pr_err("failed to find fsl,imx6ul-iomux-gpr regmap\n");
+<<<<<<< HEAD
 
 }
 
@@ -49,16 +60,22 @@ static void __init imx6ul_enet_phy_init(void)
 	if (IS_BUILTIN(CONFIG_PHYLIB))
 		phy_register_fixup_for_uid(PHY_ID_KSZ8081, MICREL_PHY_ID_MASK,
 					   ksz8081_phy_fixup);
+=======
+>>>>>>> upstream/android-13
 }
 
 static inline void imx6ul_enet_init(void)
 {
 	imx6ul_enet_clk_init();
+<<<<<<< HEAD
 	imx6ul_enet_phy_init();
+=======
+>>>>>>> upstream/android-13
 }
 
 static void __init imx6ul_init_machine(void)
 {
+<<<<<<< HEAD
 	struct device *parent;
 
 	parent = imx_soc_device_init();
@@ -66,6 +83,12 @@ static void __init imx6ul_init_machine(void)
 		pr_warn("failed to initialize soc device\n");
 
 	of_platform_default_populate(NULL, NULL, parent);
+=======
+	imx_print_silicon_rev(cpu_is_imx6ull() ? "i.MX6ULL" : "i.MX6UL",
+		imx_get_soc_revision());
+
+	of_platform_default_populate(NULL, NULL, NULL);
+>>>>>>> upstream/android-13
 	imx6ul_enet_init();
 	imx_anatop_init();
 	imx6ul_pm_init();

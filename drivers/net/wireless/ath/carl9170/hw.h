@@ -851,7 +851,11 @@ struct ar9170_stream {
 	__le16 length;
 	__le16 tag;
 
+<<<<<<< HEAD
 	u8 payload[0];
+=======
+	u8 payload[];
+>>>>>>> upstream/android-13
 } __packed __aligned(4);
 #define AR9170_STREAM_LEN				4
 

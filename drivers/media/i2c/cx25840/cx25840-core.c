@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* cx25840 - Conexant CX25840 audio/video decoder driver
  *
  * Copyright (C) 2004 Ulf Eklund
@@ -21,6 +25,7 @@
  * CX23888 DIF support for the HVR1850
  * Copyright (C) 2011 Steven Toth <stoth@kernellabs.com>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
@@ -33,6 +38,12 @@
  */
 
 
+=======
+ * CX2584x pin to pad mapping and output format configuration support are
+ * Copyright (C) 2011 Maciej S. Szmigiero <mail@maciej.szmigiero.name>
+ */
+
+>>>>>>> upstream/android-13
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/slab.h>
@@ -73,17 +84,28 @@ MODULE_LICENSE("GPL");
 
 static int cx25840_debug;
 
+<<<<<<< HEAD
 module_param_named(debug,cx25840_debug, int, 0644);
 
 MODULE_PARM_DESC(debug, "Debugging messages [0=Off (default) 1=On]");
 
 
+=======
+module_param_named(debug, cx25840_debug, int, 0644);
+
+MODULE_PARM_DESC(debug, "Debugging messages [0=Off (default) 1=On]");
+
+>>>>>>> upstream/android-13
 /* ----------------------------------------------------------------------- */
 static void cx23888_std_setup(struct i2c_client *client);
 
 int cx25840_write(struct i2c_client *client, u16 addr, u8 value)
 {
 	u8 buffer[3];
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	buffer[0] = addr >> 8;
 	buffer[1] = addr & 0xff;
 	buffer[2] = value;
@@ -93,6 +115,10 @@ int cx25840_write(struct i2c_client *client, u16 addr, u8 value)
 int cx25840_write4(struct i2c_client *client, u16 addr, u32 value)
 {
 	u8 buffer[6];
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	buffer[0] = addr >> 8;
 	buffer[1] = addr & 0xff;
 	buffer[2] = value & 0xff;
@@ -102,7 +128,11 @@ int cx25840_write4(struct i2c_client *client, u16 addr, u32 value)
 	return i2c_master_send(client, buffer, 6);
 }
 
+<<<<<<< HEAD
 u8 cx25840_read(struct i2c_client * client, u16 addr)
+=======
+u8 cx25840_read(struct i2c_client *client, u16 addr)
+>>>>>>> upstream/android-13
 {
 	struct i2c_msg msgs[2];
 	u8 tx_buf[2], rx_buf[1];
@@ -113,13 +143,21 @@ u8 cx25840_read(struct i2c_client * client, u16 addr)
 	msgs[0].addr = client->addr;
 	msgs[0].flags = 0;
 	msgs[0].len = 2;
+<<<<<<< HEAD
 	msgs[0].buf = (char *) tx_buf;
+=======
+	msgs[0].buf = (char *)tx_buf;
+>>>>>>> upstream/android-13
 
 	/* Read data from register */
 	msgs[1].addr = client->addr;
 	msgs[1].flags = I2C_M_RD;
 	msgs[1].len = 1;
+<<<<<<< HEAD
 	msgs[1].buf = (char *) rx_buf;
+=======
+	msgs[1].buf = (char *)rx_buf;
+>>>>>>> upstream/android-13
 
 	if (i2c_transfer(client->adapter, msgs, 2) < 2)
 		return 0;
@@ -127,7 +165,11 @@ u8 cx25840_read(struct i2c_client * client, u16 addr)
 	return rx_buf[0];
 }
 
+<<<<<<< HEAD
 u32 cx25840_read4(struct i2c_client * client, u16 addr)
+=======
+u32 cx25840_read4(struct i2c_client *client, u16 addr)
+>>>>>>> upstream/android-13
 {
 	struct i2c_msg msgs[2];
 	u8 tx_buf[2], rx_buf[4];
@@ -138,13 +180,21 @@ u32 cx25840_read4(struct i2c_client * client, u16 addr)
 	msgs[0].addr = client->addr;
 	msgs[0].flags = 0;
 	msgs[0].len = 2;
+<<<<<<< HEAD
 	msgs[0].buf = (char *) tx_buf;
+=======
+	msgs[0].buf = (char *)tx_buf;
+>>>>>>> upstream/android-13
 
 	/* Read data from registers */
 	msgs[1].addr = client->addr;
 	msgs[1].flags = I2C_M_RD;
 	msgs[1].len = 4;
+<<<<<<< HEAD
 	msgs[1].buf = (char *) rx_buf;
+=======
+	msgs[1].buf = (char *)rx_buf;
+>>>>>>> upstream/android-13
 
 	if (i2c_transfer(client->adapter, msgs, 2) < 2)
 		return 0;
@@ -153,7 +203,11 @@ u32 cx25840_read4(struct i2c_client * client, u16 addr)
 		rx_buf[0];
 }
 
+<<<<<<< HEAD
 int cx25840_and_or(struct i2c_client *client, u16 addr, unsigned and_mask,
+=======
+int cx25840_and_or(struct i2c_client *client, u16 addr, unsigned int and_mask,
+>>>>>>> upstream/android-13
 		   u8 or_value)
 {
 	return cx25840_write(client, addr,
@@ -171,13 +225,23 @@ int cx25840_and_or4(struct i2c_client *client, u16 addr, u32 and_mask,
 
 /* ----------------------------------------------------------------------- */
 
+<<<<<<< HEAD
 static int set_input(struct i2c_client *client, enum cx25840_video_input vid_input,
 						enum cx25840_audio_input aud_input);
+=======
+static int set_input(struct i2c_client *client,
+		     enum cx25840_video_input vid_input,
+		     enum cx25840_audio_input aud_input);
+>>>>>>> upstream/android-13
 
 /* ----------------------------------------------------------------------- */
 
 static int cx23885_s_io_pin_config(struct v4l2_subdev *sd, size_t n,
+<<<<<<< HEAD
 				      struct v4l2_subdev_io_pin_config *p)
+=======
+				   struct v4l2_subdev_io_pin_config *p)
+>>>>>>> upstream/android-13
 {
 	struct i2c_client *client = v4l2_get_subdevdata(sd);
 	int i;
@@ -316,13 +380,233 @@ static int cx23885_s_io_pin_config(struct v4l2_subdev *sd, size_t n,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int common_s_io_pin_config(struct v4l2_subdev *sd, size_t n,
 				      struct v4l2_subdev_io_pin_config *pincfg)
+=======
+static u8 cx25840_function_to_pad(struct i2c_client *client, u8 function)
+{
+	if (function > CX25840_PAD_VRESET) {
+		v4l_err(client, "invalid function %u, assuming default\n",
+			(unsigned int)function);
+		return 0;
+	}
+
+	return function;
+}
+
+static void cx25840_set_invert(u8 *pinctrl3, u8 *voutctrl4, u8 function,
+			       u8 pin, bool invert)
+{
+	switch (function) {
+	case CX25840_PAD_IRQ_N:
+		if (invert)
+			*pinctrl3 &= ~2;
+		else
+			*pinctrl3 |= 2;
+		break;
+
+	case CX25840_PAD_ACTIVE:
+		if (invert)
+			*voutctrl4 |= BIT(2);
+		else
+			*voutctrl4 &= ~BIT(2);
+		break;
+
+	case CX25840_PAD_VACTIVE:
+		if (invert)
+			*voutctrl4 |= BIT(5);
+		else
+			*voutctrl4 &= ~BIT(5);
+		break;
+
+	case CX25840_PAD_CBFLAG:
+		if (invert)
+			*voutctrl4 |= BIT(4);
+		else
+			*voutctrl4 &= ~BIT(4);
+		break;
+
+	case CX25840_PAD_VRESET:
+		if (invert)
+			*voutctrl4 |= BIT(0);
+		else
+			*voutctrl4 &= ~BIT(0);
+		break;
+	}
+
+	if (function != CX25840_PAD_DEFAULT)
+		return;
+
+	switch (pin) {
+	case CX25840_PIN_DVALID_PRGM0:
+		if (invert)
+			*voutctrl4 |= BIT(6);
+		else
+			*voutctrl4 &= ~BIT(6);
+		break;
+
+	case CX25840_PIN_HRESET_PRGM2:
+		if (invert)
+			*voutctrl4 |= BIT(1);
+		else
+			*voutctrl4 &= ~BIT(1);
+		break;
+	}
+}
+
+static int cx25840_s_io_pin_config(struct v4l2_subdev *sd, size_t n,
+				   struct v4l2_subdev_io_pin_config *p)
+{
+	struct i2c_client *client = v4l2_get_subdevdata(sd);
+	unsigned int i;
+	u8 pinctrl[6], pinconf[10], voutctrl4;
+
+	for (i = 0; i < 6; i++)
+		pinctrl[i] = cx25840_read(client, 0x114 + i);
+
+	for (i = 0; i < 10; i++)
+		pinconf[i] = cx25840_read(client, 0x11c + i);
+
+	voutctrl4 = cx25840_read(client, 0x407);
+
+	for (i = 0; i < n; i++) {
+		u8 strength = p[i].strength;
+
+		if (strength != CX25840_PIN_DRIVE_SLOW &&
+		    strength != CX25840_PIN_DRIVE_MEDIUM &&
+		    strength != CX25840_PIN_DRIVE_FAST) {
+			v4l_err(client,
+				"invalid drive speed for pin %u (%u), assuming fast\n",
+				(unsigned int)p[i].pin,
+				(unsigned int)strength);
+
+			strength = CX25840_PIN_DRIVE_FAST;
+		}
+
+		switch (p[i].pin) {
+		case CX25840_PIN_DVALID_PRGM0:
+			if (p[i].flags & BIT(V4L2_SUBDEV_IO_PIN_DISABLE))
+				pinctrl[0] &= ~BIT(6);
+			else
+				pinctrl[0] |= BIT(6);
+
+			pinconf[3] &= 0xf0;
+			pinconf[3] |= cx25840_function_to_pad(client,
+							      p[i].function);
+
+			cx25840_set_invert(&pinctrl[3], &voutctrl4,
+					   p[i].function,
+					   CX25840_PIN_DVALID_PRGM0,
+					   p[i].flags &
+					   BIT(V4L2_SUBDEV_IO_PIN_ACTIVE_LOW));
+
+			pinctrl[4] &= ~(3 << 2); /* CX25840_PIN_DRIVE_MEDIUM */
+			switch (strength) {
+			case CX25840_PIN_DRIVE_SLOW:
+				pinctrl[4] |= 1 << 2;
+				break;
+
+			case CX25840_PIN_DRIVE_FAST:
+				pinctrl[4] |= 2 << 2;
+				break;
+			}
+
+			break;
+
+		case CX25840_PIN_HRESET_PRGM2:
+			if (p[i].flags & BIT(V4L2_SUBDEV_IO_PIN_DISABLE))
+				pinctrl[1] &= ~BIT(0);
+			else
+				pinctrl[1] |= BIT(0);
+
+			pinconf[4] &= 0xf0;
+			pinconf[4] |= cx25840_function_to_pad(client,
+							      p[i].function);
+
+			cx25840_set_invert(&pinctrl[3], &voutctrl4,
+					   p[i].function,
+					   CX25840_PIN_HRESET_PRGM2,
+					   p[i].flags &
+					   BIT(V4L2_SUBDEV_IO_PIN_ACTIVE_LOW));
+
+			pinctrl[4] &= ~(3 << 2); /* CX25840_PIN_DRIVE_MEDIUM */
+			switch (strength) {
+			case CX25840_PIN_DRIVE_SLOW:
+				pinctrl[4] |= 1 << 2;
+				break;
+
+			case CX25840_PIN_DRIVE_FAST:
+				pinctrl[4] |= 2 << 2;
+				break;
+			}
+
+			break;
+
+		case CX25840_PIN_PLL_CLK_PRGM7:
+			if (p[i].flags & BIT(V4L2_SUBDEV_IO_PIN_DISABLE))
+				pinctrl[2] &= ~BIT(2);
+			else
+				pinctrl[2] |= BIT(2);
+
+			switch (p[i].function) {
+			case CX25840_PAD_XTI_X5_DLL:
+				pinconf[6] = 0;
+				break;
+
+			case CX25840_PAD_AUX_PLL:
+				pinconf[6] = 1;
+				break;
+
+			case CX25840_PAD_VID_PLL:
+				pinconf[6] = 5;
+				break;
+
+			case CX25840_PAD_XTI:
+				pinconf[6] = 2;
+				break;
+
+			default:
+				pinconf[6] = 3;
+				pinconf[6] |=
+					cx25840_function_to_pad(client,
+								p[i].function)
+					<< 4;
+			}
+
+			break;
+
+		default:
+			v4l_err(client, "invalid or unsupported pin %u\n",
+				(unsigned int)p[i].pin);
+			break;
+		}
+	}
+
+	cx25840_write(client, 0x407, voutctrl4);
+
+	for (i = 0; i < 6; i++)
+		cx25840_write(client, 0x114 + i, pinctrl[i]);
+
+	for (i = 0; i < 10; i++)
+		cx25840_write(client, 0x11c + i, pinconf[i]);
+
+	return 0;
+}
+
+static int common_s_io_pin_config(struct v4l2_subdev *sd, size_t n,
+				  struct v4l2_subdev_io_pin_config *pincfg)
+>>>>>>> upstream/android-13
 {
 	struct cx25840_state *state = to_state(sd);
 
 	if (is_cx2388x(state))
 		return cx23885_s_io_pin_config(sd, n, pincfg);
+<<<<<<< HEAD
+=======
+	else if (is_cx2584x(state))
+		return cx25840_s_io_pin_config(sd, n, pincfg);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -330,8 +614,15 @@ static int common_s_io_pin_config(struct v4l2_subdev *sd, size_t n,
 
 static void init_dll1(struct i2c_client *client)
 {
+<<<<<<< HEAD
 	/* This is the Hauppauge sequence used to
 	 * initialize the Delay Lock Loop 1 (ADC DLL). */
+=======
+	/*
+	 * This is the Hauppauge sequence used to
+	 * initialize the Delay Lock Loop 1 (ADC DLL).
+	 */
+>>>>>>> upstream/android-13
 	cx25840_write(client, 0x159, 0x23);
 	cx25840_write(client, 0x15a, 0x87);
 	cx25840_write(client, 0x15b, 0x06);
@@ -346,8 +637,15 @@ static void init_dll1(struct i2c_client *client)
 
 static void init_dll2(struct i2c_client *client)
 {
+<<<<<<< HEAD
 	/* This is the Hauppauge sequence used to
 	 * initialize the Delay Lock Loop 2 (ADC DLL). */
+=======
+	/*
+	 * This is the Hauppauge sequence used to
+	 * initialize the Delay Lock Loop 2 (ADC DLL).
+	 */
+>>>>>>> upstream/android-13
 	cx25840_write(client, 0x15d, 0xe3);
 	cx25840_write(client, 0x15e, 0x86);
 	cx25840_write(client, 0x15f, 0x06);
@@ -359,7 +657,15 @@ static void init_dll2(struct i2c_client *client)
 
 static void cx25836_initialize(struct i2c_client *client)
 {
+<<<<<<< HEAD
 	/* reset configuration is described on page 3-77 of the CX25836 datasheet */
+=======
+	/*
+	 *reset configuration is described on page 3-77
+	 * of the CX25836 datasheet
+	 */
+
+>>>>>>> upstream/android-13
 	/* 2. */
 	cx25840_and_or(client, 0x000, ~0x01, 0x01);
 	cx25840_and_or(client, 0x000, ~0x01, 0x00);
@@ -385,10 +691,102 @@ static void cx25836_initialize(struct i2c_client *client)
 static void cx25840_work_handler(struct work_struct *work)
 {
 	struct cx25840_state *state = container_of(work, struct cx25840_state, fw_work);
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	cx25840_loadfw(state->c);
 	wake_up(&state->fw_wait);
 }
 
+<<<<<<< HEAD
+=======
+#define CX25840_VCONFIG_SET_BIT(state, opt_msk, voc, idx, bit, oneval)	\
+	do {								\
+		if ((state)->vid_config & (opt_msk)) {			\
+			if (((state)->vid_config & (opt_msk)) ==	\
+			    (oneval))					\
+				(voc)[idx] |= BIT(bit);		\
+			else						\
+				(voc)[idx] &= ~BIT(bit);		\
+		}							\
+	} while (0)
+
+/* apply current vconfig to hardware regs */
+static void cx25840_vconfig_apply(struct i2c_client *client)
+{
+	struct cx25840_state *state = to_state(i2c_get_clientdata(client));
+	u8 voutctrl[3];
+	unsigned int i;
+
+	for (i = 0; i < 3; i++)
+		voutctrl[i] = cx25840_read(client, 0x404 + i);
+
+	if (state->vid_config & CX25840_VCONFIG_FMT_MASK)
+		voutctrl[0] &= ~3;
+	switch (state->vid_config & CX25840_VCONFIG_FMT_MASK) {
+	case CX25840_VCONFIG_FMT_BT656:
+		voutctrl[0] |= 1;
+		break;
+
+	case CX25840_VCONFIG_FMT_VIP11:
+		voutctrl[0] |= 2;
+		break;
+
+	case CX25840_VCONFIG_FMT_VIP2:
+		voutctrl[0] |= 3;
+		break;
+
+	case CX25840_VCONFIG_FMT_BT601:
+		/* zero */
+	default:
+		break;
+	}
+
+	CX25840_VCONFIG_SET_BIT(state, CX25840_VCONFIG_RES_MASK, voutctrl,
+				0, 2, CX25840_VCONFIG_RES_10BIT);
+	CX25840_VCONFIG_SET_BIT(state, CX25840_VCONFIG_VBIRAW_MASK, voutctrl,
+				0, 3, CX25840_VCONFIG_VBIRAW_ENABLED);
+	CX25840_VCONFIG_SET_BIT(state, CX25840_VCONFIG_ANCDATA_MASK, voutctrl,
+				0, 4, CX25840_VCONFIG_ANCDATA_ENABLED);
+	CX25840_VCONFIG_SET_BIT(state, CX25840_VCONFIG_TASKBIT_MASK, voutctrl,
+				0, 5, CX25840_VCONFIG_TASKBIT_ONE);
+	CX25840_VCONFIG_SET_BIT(state, CX25840_VCONFIG_ACTIVE_MASK, voutctrl,
+				1, 2, CX25840_VCONFIG_ACTIVE_HORIZONTAL);
+	CX25840_VCONFIG_SET_BIT(state, CX25840_VCONFIG_VALID_MASK, voutctrl,
+				1, 3, CX25840_VCONFIG_VALID_ANDACTIVE);
+	CX25840_VCONFIG_SET_BIT(state, CX25840_VCONFIG_HRESETW_MASK, voutctrl,
+				1, 4, CX25840_VCONFIG_HRESETW_PIXCLK);
+
+	if (state->vid_config & CX25840_VCONFIG_CLKGATE_MASK)
+		voutctrl[1] &= ~(3 << 6);
+	switch (state->vid_config & CX25840_VCONFIG_CLKGATE_MASK) {
+	case CX25840_VCONFIG_CLKGATE_VALID:
+		voutctrl[1] |= 2;
+		break;
+
+	case CX25840_VCONFIG_CLKGATE_VALIDACTIVE:
+		voutctrl[1] |= 3;
+		break;
+
+	case CX25840_VCONFIG_CLKGATE_NONE:
+		/* zero */
+	default:
+		break;
+	}
+
+	CX25840_VCONFIG_SET_BIT(state, CX25840_VCONFIG_DCMODE_MASK, voutctrl,
+				2, 0, CX25840_VCONFIG_DCMODE_BYTES);
+	CX25840_VCONFIG_SET_BIT(state, CX25840_VCONFIG_IDID0S_MASK, voutctrl,
+				2, 1, CX25840_VCONFIG_IDID0S_LINECNT);
+	CX25840_VCONFIG_SET_BIT(state, CX25840_VCONFIG_VIPCLAMP_MASK, voutctrl,
+				2, 4, CX25840_VCONFIG_VIPCLAMP_ENABLED);
+
+	for (i = 0; i < 3; i++)
+		cx25840_write(client, 0x404 + i, voutctrl[i]);
+}
+
+>>>>>>> upstream/android-13
 static void cx25840_initialize(struct i2c_client *client)
 {
 	DEFINE_WAIT(wait);
@@ -398,8 +796,15 @@ static void cx25840_initialize(struct i2c_client *client)
 	/* datasheet startup in numbered steps, refer to page 3-77 */
 	/* 2. */
 	cx25840_and_or(client, 0x803, ~0x10, 0x00);
+<<<<<<< HEAD
 	/* The default of this register should be 4, but I get 0 instead.
 	 * Set this register to 4 manually. */
+=======
+	/*
+	 * The default of this register should be 4, but I get 0 instead.
+	 * Set this register to 4 manually.
+	 */
+>>>>>>> upstream/android-13
 	cx25840_write(client, 0x000, 0x04);
 	/* 3. */
 	init_dll1(client);
@@ -409,10 +814,19 @@ static void cx25840_initialize(struct i2c_client *client)
 	cx25840_write(client, 0x13c, 0x01);
 	cx25840_write(client, 0x13c, 0x00);
 	/* 5. */
+<<<<<<< HEAD
 	/* Do the firmware load in a work handler to prevent.
 	   Otherwise the kernel is blocked waiting for the
 	   bit-banging i2c interface to finish uploading the
 	   firmware. */
+=======
+	/*
+	 * Do the firmware load in a work handler to prevent.
+	 * Otherwise the kernel is blocked waiting for the
+	 * bit-banging i2c interface to finish uploading the
+	 * firmware.
+	 */
+>>>>>>> upstream/android-13
 	INIT_WORK(&state->fw_work, cx25840_work_handler);
 	init_waitqueue_head(&state->fw_wait);
 	q = create_singlethread_workqueue("cx25840_fw");
@@ -455,6 +869,12 @@ static void cx25840_initialize(struct i2c_client *client)
 	/* (re)set input */
 	set_input(client, state->vid_input, state->aud_input);
 
+<<<<<<< HEAD
+=======
+	if (state->generic_mode)
+		cx25840_vconfig_apply(client);
+
+>>>>>>> upstream/android-13
 	/* start microcontroller */
 	cx25840_and_or(client, 0x803, ~0x10, 0x10);
 }
@@ -641,10 +1061,19 @@ static void cx23885_initialize(struct i2c_client *client)
 	cx25840_write(client, 0x160, 0x1d);
 	cx25840_write(client, 0x164, 0x00);
 
+<<<<<<< HEAD
 	/* Do the firmware load in a work handler to prevent.
 	   Otherwise the kernel is blocked waiting for the
 	   bit-banging i2c interface to finish uploading the
 	   firmware. */
+=======
+	/*
+	 * Do the firmware load in a work handler to prevent.
+	 * Otherwise the kernel is blocked waiting for the
+	 * bit-banging i2c interface to finish uploading the
+	 * firmware.
+	 */
+>>>>>>> upstream/android-13
 	INIT_WORK(&state->fw_work, cx25840_work_handler);
 	init_waitqueue_head(&state->fw_wait);
 	q = create_singlethread_workqueue("cx25840_fw");
@@ -656,7 +1085,12 @@ static void cx23885_initialize(struct i2c_client *client)
 		destroy_workqueue(q);
 	}
 
+<<<<<<< HEAD
 	/* Call the cx23888 specific std setup func, we no longer rely on
+=======
+	/*
+	 * Call the cx23888 specific std setup func, we no longer rely on
+>>>>>>> upstream/android-13
 	 * the generic cx24840 func.
 	 */
 	if (is_cx23888(state))
@@ -678,20 +1112,34 @@ static void cx23885_initialize(struct i2c_client *client)
 	cx25840_write(client, CX25840_AUD_INT_STAT_REG, 0xff);
 
 	/* CC raw enable */
+<<<<<<< HEAD
 	/*  - VIP 1.1 control codes - 10bit, blue field enable.
+=======
+
+	/*
+	 *  - VIP 1.1 control codes - 10bit, blue field enable.
+>>>>>>> upstream/android-13
 	 *  - enable raw data during vertical blanking.
 	 *  - enable ancillary Data insertion for 656 or VIP.
 	 */
 	cx25840_write4(client, 0x404, 0x0010253e);
 
+<<<<<<< HEAD
 	/* CC on  - Undocumented Register */
+=======
+	/* CC on  - VBI_LINE_CTRL3, FLD_VBI_MD_LINE12 */
+>>>>>>> upstream/android-13
 	cx25840_write(client, state->vbi_regs_offset + 0x42f, 0x66);
 
 	/* HVR-1250 / HVR1850 DIF related */
 	/* Power everything up */
 	cx25840_write4(client, 0x130, 0x0);
 
+<<<<<<< HEAD
 	/* Undocumented */
+=======
+	/* SRC_COMB_CFG */
+>>>>>>> upstream/android-13
 	if (is_cx23888(state))
 		cx25840_write4(client, 0x454, 0x6628021F);
 	else
@@ -761,10 +1209,19 @@ static void cx231xx_initialize(struct i2c_client *client)
 	/* White crush, Chroma AGC & Chroma Killer enabled */
 	cx25840_write(client, 0x401, 0xe8);
 
+<<<<<<< HEAD
 	/* Do the firmware load in a work handler to prevent.
 	   Otherwise the kernel is blocked waiting for the
 	   bit-banging i2c interface to finish uploading the
 	   firmware. */
+=======
+	/*
+	 * Do the firmware load in a work handler to prevent.
+	 * Otherwise the kernel is blocked waiting for the
+	 * bit-banging i2c interface to finish uploading the
+	 * firmware.
+	 */
+>>>>>>> upstream/android-13
 	INIT_WORK(&state->fw_work, cx25840_work_handler);
 	init_waitqueue_head(&state->fw_wait);
 	q = create_singlethread_workqueue("cx25840_fw");
@@ -809,13 +1266,29 @@ void cx25840_std_setup(struct i2c_client *client)
 	else
 		cx25840_write(client, 0x49f, 0x14);
 
+<<<<<<< HEAD
+=======
+	/* generic mode uses the values that the chip autoconfig would set */
+>>>>>>> upstream/android-13
 	if (std & V4L2_STD_625_50) {
 		hblank = 132;
 		hactive = 720;
 		burst = 93;
+<<<<<<< HEAD
 		vblank = 36;
 		vactive = 580;
 		vblank656 = 40;
+=======
+		if (state->generic_mode) {
+			vblank = 34;
+			vactive = 576;
+			vblank656 = 38;
+		} else {
+			vblank = 36;
+			vactive = 580;
+			vblank656 = 40;
+		}
+>>>>>>> upstream/android-13
 		src_decimation = 0x21f;
 		luma_lpf = 2;
 
@@ -824,6 +1297,13 @@ void cx25840_std_setup(struct i2c_client *client)
 			comb = 0;
 			sc = 0x0a425f;
 		} else if (std == V4L2_STD_PAL_Nc) {
+<<<<<<< HEAD
+=======
+			if (state->generic_mode) {
+				burst = 95;
+				luma_lpf = 1;
+			}
+>>>>>>> upstream/android-13
 			uv_lpf = 1;
 			comb = 0x20;
 			sc = 556453;
@@ -838,12 +1318,29 @@ void cx25840_std_setup(struct i2c_client *client)
 		vactive = 487;
 		luma_lpf = 1;
 		uv_lpf = 1;
+<<<<<<< HEAD
 
 		src_decimation = 0x21f;
 		if (std == V4L2_STD_PAL_60) {
 			vblank = 26;
 			vblank656 = 26;
 			burst = 0x5b;
+=======
+		if (state->generic_mode) {
+			vblank = 20;
+			vblank656 = 24;
+		}
+
+		src_decimation = 0x21f;
+		if (std == V4L2_STD_PAL_60) {
+			if (!state->generic_mode) {
+				vblank = 26;
+				vblank656 = 26;
+				burst = 0x5b;
+			} else {
+				burst = 0x59;
+			}
+>>>>>>> upstream/android-13
 			luma_lpf = 2;
 			comb = 0x20;
 			sc = 688739;
@@ -854,8 +1351,15 @@ void cx25840_std_setup(struct i2c_client *client)
 			comb = 0x20;
 			sc = 555452;
 		} else {
+<<<<<<< HEAD
 			vblank = 26;
 			vblank656 = 26;
+=======
+			if (!state->generic_mode) {
+				vblank = 26;
+				vblank656 = 26;
+			}
+>>>>>>> upstream/android-13
 			burst = 0x5b;
 			comb = 0x66;
 			sc = 556063;
@@ -876,6 +1380,7 @@ void cx25840_std_setup(struct i2c_client *client)
 			int pll = (28636363L * ((((u64)pll_int) << 25L) + pll_frac)) >> 25L;
 
 			pll /= pll_post;
+<<<<<<< HEAD
 			v4l_dbg(1, cx25840_debug, client, "PLL = %d.%06d MHz\n",
 					pll / 1000000, pll % 1000000);
 			v4l_dbg(1, cx25840_debug, client, "PLL/8 = %d.%06d MHz\n",
@@ -894,6 +1399,30 @@ void cx25840_std_setup(struct i2c_client *client)
 			v4l_dbg(1, cx25840_debug, client, "hblank %i, hactive %i, vblank %i, vactive %i, vblank656 %i, src_dec %i, burst 0x%02x, luma_lpf %i, uv_lpf %i, comb 0x%02x, sc 0x%06x\n",
 				hblank, hactive, vblank, vactive, vblank656,
 				src_decimation, burst, luma_lpf, uv_lpf, comb, sc);
+=======
+			v4l_dbg(1, cx25840_debug, client,
+				"PLL = %d.%06d MHz\n",
+				pll / 1000000, pll % 1000000);
+			v4l_dbg(1, cx25840_debug, client,
+				"PLL/8 = %d.%06d MHz\n",
+				pll / 8000000, (pll / 8) % 1000000);
+
+			fin = ((u64)src_decimation * pll) >> 12;
+			v4l_dbg(1, cx25840_debug, client,
+				"ADC Sampling freq = %d.%06d MHz\n",
+				fin / 1000000, fin % 1000000);
+
+			fsc = (((u64)sc) * pll) >> 24L;
+			v4l_dbg(1, cx25840_debug, client,
+				"Chroma sub-carrier freq = %d.%06d MHz\n",
+				fsc / 1000000, fsc % 1000000);
+
+			v4l_dbg(1, cx25840_debug, client,
+				"hblank %i, hactive %i, vblank %i, vactive %i, vblank656 %i, src_dec %i, burst 0x%02x, luma_lpf %i, uv_lpf %i, comb 0x%02x, sc 0x%06x\n",
+				hblank, hactive, vblank, vactive, vblank656,
+				src_decimation, burst, luma_lpf, uv_lpf,
+				comb, sc);
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -948,10 +1477,17 @@ static void input_change(struct i2c_client *client)
 	/* Follow step 8c and 8d of section 3.16 in the cx25840 datasheet */
 	if (std & V4L2_STD_SECAM) {
 		cx25840_write(client, 0x402, 0);
+<<<<<<< HEAD
 	}
 	else {
 		cx25840_write(client, 0x402, 0x04);
 		cx25840_write(client, 0x49f, (std & V4L2_STD_NTSC) ? 0x14 : 0x11);
+=======
+	} else {
+		cx25840_write(client, 0x402, 0x04);
+		cx25840_write(client, 0x49f,
+			      (std & V4L2_STD_NTSC) ? 0x14 : 0x11);
+>>>>>>> upstream/android-13
 	}
 	cx25840_and_or(client, 0x401, ~0x60, 0);
 	cx25840_and_or(client, 0x401, ~0x60, 0x60);
@@ -965,6 +1501,7 @@ static void input_change(struct i2c_client *client)
 	if (state->radio) {
 		cx25840_write(client, 0x808, 0xf9);
 		cx25840_write(client, 0x80b, 0x00);
+<<<<<<< HEAD
 	}
 	else if (std & V4L2_STD_525_60) {
 		/* Certain Hauppauge PVR150 models have a hardware bug
@@ -972,6 +1509,16 @@ static void input_change(struct i2c_client *client)
 		   audio standard must be set explicitly.
 		   To be precise: it affects cards with tuner models
 		   85, 99 and 112 (model numbers from tveeprom). */
+=======
+	} else if (std & V4L2_STD_525_60) {
+		/*
+		 * Certain Hauppauge PVR150 models have a hardware bug
+		 * that causes audio to drop out. For these models the
+		 * audio standard must be set explicitly.
+		 * To be precise: it affects cards with tuner models
+		 * 85, 99 and 112 (model numbers from tveeprom).
+		 */
+>>>>>>> upstream/android-13
 		int hw_fix = state->pvr150_workaround;
 
 		if (std == V4L2_STD_NTSC_M_JP) {
@@ -988,20 +1535,37 @@ static void input_change(struct i2c_client *client)
 	} else if (std & V4L2_STD_PAL) {
 		/* Autodetect audio standard and audio system */
 		cx25840_write(client, 0x808, 0xff);
+<<<<<<< HEAD
 		/* Since system PAL-L is pretty much non-existent and
 		   not used by any public broadcast network, force
 		   6.5 MHz carrier to be interpreted as System DK,
 		   this avoids DK audio detection instability */
+=======
+		/*
+		 * Since system PAL-L is pretty much non-existent and
+		 * not used by any public broadcast network, force
+		 * 6.5 MHz carrier to be interpreted as System DK,
+		 * this avoids DK audio detection instability
+		 */
+>>>>>>> upstream/android-13
 		cx25840_write(client, 0x80b, 0x00);
 	} else if (std & V4L2_STD_SECAM) {
 		/* Autodetect audio standard and audio system */
 		cx25840_write(client, 0x808, 0xff);
+<<<<<<< HEAD
 		/* If only one of SECAM-DK / SECAM-L is required, then force
 		  6.5MHz carrier, else autodetect it */
+=======
+		/*
+		 * If only one of SECAM-DK / SECAM-L is required, then force
+		 * 6.5MHz carrier, else autodetect it
+		 */
+>>>>>>> upstream/android-13
 		if ((std & V4L2_STD_SECAM_DK) &&
 		    !(std & (V4L2_STD_SECAM_L | V4L2_STD_SECAM_LC))) {
 			/* 6.5 MHz carrier to be interpreted as System DK */
 			cx25840_write(client, 0x80b, 0x00);
+<<<<<<< HEAD
 	       } else if (!(std & V4L2_STD_SECAM_DK) &&
 			  (std & (V4L2_STD_SECAM_L | V4L2_STD_SECAM_LC))) {
 			/* 6.5 MHz carrier to be interpreted as System L */
@@ -1010,13 +1574,29 @@ static void input_change(struct i2c_client *client)
 			/* 6.5 MHz carrier to be autodetected */
 			cx25840_write(client, 0x80b, 0x10);
 	       }
+=======
+		} else if (!(std & V4L2_STD_SECAM_DK) &&
+			   (std & (V4L2_STD_SECAM_L | V4L2_STD_SECAM_LC))) {
+			/* 6.5 MHz carrier to be interpreted as System L */
+			cx25840_write(client, 0x80b, 0x08);
+		} else {
+			/* 6.5 MHz carrier to be autodetected */
+			cx25840_write(client, 0x80b, 0x10);
+		}
+>>>>>>> upstream/android-13
 	}
 
 	cx25840_and_or(client, 0x810, ~0x01, 0);
 }
 
+<<<<<<< HEAD
 static int set_input(struct i2c_client *client, enum cx25840_video_input vid_input,
 						enum cx25840_audio_input aud_input)
+=======
+static int set_input(struct i2c_client *client,
+		     enum cx25840_video_input vid_input,
+		     enum cx25840_audio_input aud_input)
+>>>>>>> upstream/android-13
 {
 	struct cx25840_state *state = to_state(i2c_get_clientdata(client));
 	u8 is_composite = (vid_input >= CX25840_COMPOSITE1 &&
@@ -1041,7 +1621,11 @@ static int set_input(struct i2c_client *client, enum cx25840_video_input vid_inp
 			vid_input);
 		reg = vid_input & 0xff;
 		is_composite = !is_component &&
+<<<<<<< HEAD
 			((vid_input & CX25840_SVIDEO_ON) != CX25840_SVIDEO_ON);
+=======
+			       ((vid_input & CX25840_SVIDEO_ON) != CX25840_SVIDEO_ON);
+>>>>>>> upstream/android-13
 
 		v4l_dbg(1, cx25840_debug, client, "mux cfg 0x%x comp=%d\n",
 			reg, is_composite);
@@ -1049,8 +1633,15 @@ static int set_input(struct i2c_client *client, enum cx25840_video_input vid_inp
 		reg = 0xf0 + (vid_input - CX25840_COMPOSITE1);
 	} else {
 		if ((vid_input & ~0xff0) ||
+<<<<<<< HEAD
 		    luma < CX25840_SVIDEO_LUMA1 || luma > CX25840_SVIDEO_LUMA8 ||
 		    chroma < CX25840_SVIDEO_CHROMA4 || chroma > CX25840_SVIDEO_CHROMA8) {
+=======
+		    luma < CX25840_SVIDEO_LUMA1 ||
+		    luma > CX25840_SVIDEO_LUMA8 ||
+		    chroma < CX25840_SVIDEO_CHROMA4 ||
+		    chroma > CX25840_SVIDEO_CHROMA8) {
+>>>>>>> upstream/android-13
 			v4l_err(client, "0x%04x is not a valid video input!\n",
 				vid_input);
 			return -EINVAL;
@@ -1074,12 +1665,33 @@ static int set_input(struct i2c_client *client, enum cx25840_video_input vid_inp
 		case CX25840_AUDIO_SERIAL:
 			/* do nothing, use serial audio input */
 			break;
+<<<<<<< HEAD
 		case CX25840_AUDIO4: reg &= ~0x30; break;
 		case CX25840_AUDIO5: reg &= ~0x30; reg |= 0x10; break;
 		case CX25840_AUDIO6: reg &= ~0x30; reg |= 0x20; break;
 		case CX25840_AUDIO7: reg &= ~0xc0; break;
 		case CX25840_AUDIO8: reg &= ~0xc0; reg |= 0x40; break;
 
+=======
+		case CX25840_AUDIO4:
+			reg &= ~0x30;
+			break;
+		case CX25840_AUDIO5:
+			reg &= ~0x30;
+			reg |= 0x10;
+			break;
+		case CX25840_AUDIO6:
+			reg &= ~0x30;
+			reg |= 0x20;
+			break;
+		case CX25840_AUDIO7:
+			reg &= ~0xc0;
+			break;
+		case CX25840_AUDIO8:
+			reg &= ~0xc0;
+			reg |= 0x40;
+			break;
+>>>>>>> upstream/android-13
 		default:
 			v4l_err(client, "0x%04x is not a valid audio input!\n",
 				aud_input);
@@ -1096,7 +1708,10 @@ static int set_input(struct i2c_client *client, enum cx25840_video_input vid_inp
 		cx25840_and_or(client, 0x401, ~0x6, is_composite ? 0 : 0x02);
 
 	if (is_cx2388x(state)) {
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 		/* Enable or disable the DIF for tuner use */
 		if (is_dif) {
 			cx25840_and_or(client, 0x102, ~0x80, 0x80);
@@ -1127,6 +1742,7 @@ static int set_input(struct i2c_client *client, enum cx25840_video_input vid_inp
 			cx25840_write4(client, 0x410, 0xffff0dbf);
 			cx25840_write4(client, 0x414, 0x00137d03);
 
+<<<<<<< HEAD
 			cx25840_write4(client, state->vbi_regs_offset + 0x42c, 0x42600000);
 			cx25840_write4(client, state->vbi_regs_offset + 0x430, 0x0000039b);
 			cx25840_write4(client, state->vbi_regs_offset + 0x438, 0x00000000);
@@ -1137,6 +1753,26 @@ static int set_input(struct i2c_client *client, enum cx25840_video_input vid_inp
 			cx25840_write4(client, state->vbi_regs_offset + 0x44c, 0x161f1000);
 			cx25840_write4(client, state->vbi_regs_offset + 0x450, 0x00000802);
 
+=======
+			if (is_cx23888(state)) {
+				/* 888 MISC_TIM_CTRL */
+				cx25840_write4(client, 0x42c, 0x42600000);
+				/* 888 FIELD_COUNT */
+				cx25840_write4(client, 0x430, 0x0000039b);
+				/* 888 VSCALE_CTRL */
+				cx25840_write4(client, 0x438, 0x00000000);
+				/* 888 DFE_CTRL1 */
+				cx25840_write4(client, 0x440, 0xF8E3E824);
+				/* 888 DFE_CTRL2 */
+				cx25840_write4(client, 0x444, 0x401040dc);
+				/* 888 DFE_CTRL3 */
+				cx25840_write4(client, 0x448, 0xcd3f02a0);
+				/* 888 PLL_CTRL */
+				cx25840_write4(client, 0x44c, 0x161f1000);
+				/* 888 HTL_CTRL */
+				cx25840_write4(client, 0x450, 0x00000802);
+			}
+>>>>>>> upstream/android-13
 			cx25840_write4(client, 0x91c, 0x01000000);
 			cx25840_write4(client, 0x8e0, 0x03063870);
 			cx25840_write4(client, 0x8d4, 0x7FFF0024);
@@ -1202,8 +1838,14 @@ static int set_input(struct i2c_client *client, enum cx25840_video_input vid_inp
 			 * Only one of the two will be in use.
 			 */
 			cx25840_write4(client, AFE_CTRL, val);
+<<<<<<< HEAD
 		} else
 			cx25840_and_or(client, 0x102, ~0x2, 0);
+=======
+		} else {
+			cx25840_and_or(client, 0x102, ~0x2, 0);
+		}
+>>>>>>> upstream/android-13
 	}
 
 	state->vid_input = vid_input;
@@ -1242,6 +1884,7 @@ static int set_input(struct i2c_client *client, enum cx25840_video_input vid_inp
 		cx25840_write(client, 0x919, 0x01);
 	}
 
+<<<<<<< HEAD
 	if (is_cx2388x(state) && ((aud_input == CX25840_AUDIO7) ||
 		(aud_input == CX25840_AUDIO6))) {
 		/* Configure audio from LR1 or LR2 input */
@@ -1249,12 +1892,21 @@ static int set_input(struct i2c_client *client, enum cx25840_video_input vid_inp
 		cx25840_write4(client, 0x8d0, 0x63073);
 	} else
 	if (is_cx2388x(state) && (aud_input == CX25840_AUDIO8)) {
+=======
+	if (is_cx2388x(state) &&
+	    ((aud_input == CX25840_AUDIO7) || (aud_input == CX25840_AUDIO6))) {
+		/* Configure audio from LR1 or LR2 input */
+		cx25840_write4(client, 0x910, 0);
+		cx25840_write4(client, 0x8d0, 0x63073);
+	} else if (is_cx2388x(state) && (aud_input == CX25840_AUDIO8)) {
+>>>>>>> upstream/android-13
 		/* Configure audio from tuner/sif input */
 		cx25840_write4(client, 0x910, 0x12b000c9);
 		cx25840_write4(client, 0x8d0, 0x1f063870);
 	}
 
 	if (is_cx23888(state)) {
+<<<<<<< HEAD
 		/* HVR1850 */
 		/* AUD_IO_CTRL - I2S Input, Parallel1*/
 		/*  - Channel 1 src - Parallel1 (Merlin out) */
@@ -1265,6 +1917,22 @@ static int set_input(struct i2c_client *client, enum cx25840_video_input vid_inp
 
 		if (!is_dif) {
 			/* Stop microcontroller if we don't need it
+=======
+		/*
+		 * HVR1850
+		 *
+		 * AUD_IO_CTRL - I2S Input, Parallel1
+		 *  - Channel 1 src - Parallel1 (Merlin out)
+		 *  - Channel 2 src - Parallel2 (Merlin out)
+		 *  - Channel 3 src - Parallel3 (Merlin AC97 out)
+		 *  - I2S source and dir - Merlin, output
+		 */
+		cx25840_write4(client, 0x124, 0x100);
+
+		if (!is_dif) {
+			/*
+			 * Stop microcontroller if we don't need it
+>>>>>>> upstream/android-13
 			 * to avoid audio popping on svideo/composite use.
 			 */
 			cx25840_and_or(client, 0x803, ~0x10, 0x00);
@@ -1306,11 +1974,22 @@ static int set_v4lstd(struct i2c_client *client)
 			fmt = 0xc;
 	}
 
+<<<<<<< HEAD
 	v4l_dbg(1, cx25840_debug, client, "changing video std to fmt %i\n",fmt);
 
 	/* Follow step 9 of section 3.16 in the cx25840 datasheet.
 	   Without this PAL may display a vertical ghosting effect.
 	   This happens for example with the Yuan MPC622. */
+=======
+	v4l_dbg(1, cx25840_debug, client,
+		"changing video std to fmt %i\n", fmt);
+
+	/*
+	 * Follow step 9 of section 3.16 in the cx25840 datasheet.
+	 * Without this PAL may display a vertical ghosting effect.
+	 * This happens for example with the Yuan MPC622.
+	 */
+>>>>>>> upstream/android-13
 	if (fmt >= 4 && fmt < 8) {
 		/* Set format to NTSC-M */
 		cx25840_and_or(client, 0x400, ~0xf, 1);
@@ -1372,14 +2051,25 @@ static int cx25840_s_ctrl(struct v4l2_ctrl *ctrl)
 /* ----------------------------------------------------------------------- */
 
 static int cx25840_set_fmt(struct v4l2_subdev *sd,
+<<<<<<< HEAD
 		struct v4l2_subdev_pad_config *cfg,
 		struct v4l2_subdev_format *format)
+=======
+			   struct v4l2_subdev_state *sd_state,
+			   struct v4l2_subdev_format *format)
+>>>>>>> upstream/android-13
 {
 	struct v4l2_mbus_framefmt *fmt = &format->format;
 	struct cx25840_state *state = to_state(sd);
 	struct i2c_client *client = v4l2_get_subdevdata(sd);
+<<<<<<< HEAD
 	int HSC, VSC, Vsrc, Hsrc, filter, Vlines;
 	int is_50Hz = !(state->std & V4L2_STD_525_60);
+=======
+	u32 hsc, vsc, v_src, h_src, v_add;
+	int filter;
+	int is_50hz = !(state->std & V4L2_STD_525_60);
+>>>>>>> upstream/android-13
 
 	if (format->pad || fmt->code != MEDIA_BUS_FMT_FIXED)
 		return -EINVAL;
@@ -1388,6 +2078,7 @@ static int cx25840_set_fmt(struct v4l2_subdev *sd,
 	fmt->colorspace = V4L2_COLORSPACE_SMPTE170M;
 
 	if (is_cx23888(state)) {
+<<<<<<< HEAD
 		Vsrc = (cx25840_read(client, 0x42a) & 0x3f) << 4;
 		Vsrc |= (cx25840_read(client, 0x429) & 0xf0) >> 4;
 	} else {
@@ -1424,6 +2115,65 @@ static int cx25840_set_fmt(struct v4l2_subdev *sd,
 	HSC = (Hsrc * (1 << 20)) / fmt->width - (1 << 20);
 	VSC = (1 << 16) - (Vsrc * (1 << 9) / Vlines - (1 << 9));
 	VSC &= 0x1fff;
+=======
+		v_src = (cx25840_read(client, 0x42a) & 0x3f) << 4;
+		v_src |= (cx25840_read(client, 0x429) & 0xf0) >> 4;
+	} else {
+		v_src = (cx25840_read(client, 0x476) & 0x3f) << 4;
+		v_src |= (cx25840_read(client, 0x475) & 0xf0) >> 4;
+	}
+
+	if (is_cx23888(state)) {
+		h_src = (cx25840_read(client, 0x426) & 0x3f) << 4;
+		h_src |= (cx25840_read(client, 0x425) & 0xf0) >> 4;
+	} else {
+		h_src = (cx25840_read(client, 0x472) & 0x3f) << 4;
+		h_src |= (cx25840_read(client, 0x471) & 0xf0) >> 4;
+	}
+
+	if (!state->generic_mode) {
+		v_add = is_50hz ? 4 : 7;
+
+		/*
+		 * cx23888 in 525-line mode is programmed for 486 active lines
+		 * while other chips use 487 active lines.
+		 *
+		 * See reg 0x428 bits [21:12] in cx23888_std_setup() vs
+		 * vactive in cx25840_std_setup().
+		 */
+		if (is_cx23888(state) && !is_50hz)
+			v_add--;
+	} else {
+		v_add = 0;
+	}
+
+	if (h_src == 0 ||
+	    v_src <= v_add) {
+		v4l_err(client,
+			"chip reported picture size (%u x %u) is far too small\n",
+			(unsigned int)h_src, (unsigned int)v_src);
+		/*
+		 * that's the best we can do since the output picture
+		 * size is completely unknown in this case
+		 */
+		return -EINVAL;
+	}
+
+	fmt->width = clamp(fmt->width, (h_src + 15) / 16, h_src);
+
+	if (v_add * 8 >= v_src)
+		fmt->height = clamp(fmt->height, (u32)1, v_src - v_add);
+	else
+		fmt->height = clamp(fmt->height, (v_src - v_add * 8 + 7) / 8,
+				    v_src - v_add);
+
+	if (format->which == V4L2_SUBDEV_FORMAT_TRY)
+		return 0;
+
+	hsc = (h_src * (1 << 20)) / fmt->width - (1 << 20);
+	vsc = (1 << 16) - (v_src * (1 << 9) / (fmt->height + v_add) - (1 << 9));
+	vsc &= 0x1fff;
+>>>>>>> upstream/android-13
 
 	if (fmt->width >= 385)
 		filter = 0;
@@ -1434,6 +2184,7 @@ static int cx25840_set_fmt(struct v4l2_subdev *sd,
 	else
 		filter = 3;
 
+<<<<<<< HEAD
 	v4l_dbg(1, cx25840_debug, client, "decoder set size %dx%d -> scale  %ux%u\n",
 			fmt->width, fmt->height, HSC, VSC);
 
@@ -1449,6 +2200,25 @@ static int cx25840_set_fmt(struct v4l2_subdev *sd,
 		/* VSCALE=VSC */
 		cx25840_write(client, 0x41c, VSC & 0xff);
 		cx25840_write(client, 0x41d, VSC >> 8);
+=======
+	v4l_dbg(1, cx25840_debug, client,
+		"decoder set size %u x %u with scale %x x %x\n",
+		(unsigned int)fmt->width, (unsigned int)fmt->height,
+		(unsigned int)hsc, (unsigned int)vsc);
+
+	/* HSCALE=hsc */
+	if (is_cx23888(state)) {
+		cx25840_write4(client, 0x434, hsc | (1 << 24));
+		/* VSCALE=vsc VS_INTRLACE=1 VFILT=filter */
+		cx25840_write4(client, 0x438, vsc | (1 << 19) | (filter << 16));
+	} else {
+		cx25840_write(client, 0x418, hsc & 0xff);
+		cx25840_write(client, 0x419, (hsc >> 8) & 0xff);
+		cx25840_write(client, 0x41a, hsc >> 16);
+		/* VSCALE=vsc */
+		cx25840_write(client, 0x41c, vsc & 0xff);
+		cx25840_write(client, 0x41d, vsc >> 8);
+>>>>>>> upstream/android-13
 		/* VS_INTRLACE=1 VFILT=filter */
 		cx25840_write(client, 0x41e, 0x8 | filter);
 	}
@@ -1475,16 +2245,26 @@ static void log_video_status(struct i2c_client *client)
 	int vid_input = state->vid_input;
 
 	v4l_info(client, "Video signal:              %spresent\n",
+<<<<<<< HEAD
 		    (gen_stat2 & 0x20) ? "" : "not ");
 	v4l_info(client, "Detected format:           %s\n",
 		    fmt_strs[gen_stat1 & 0xf]);
 
 	v4l_info(client, "Specified standard:        %s\n",
 		    vidfmt_sel ? fmt_strs[vidfmt_sel] : "automatic detection");
+=======
+		 (gen_stat2 & 0x20) ? "" : "not ");
+	v4l_info(client, "Detected format:           %s\n",
+		 fmt_strs[gen_stat1 & 0xf]);
+
+	v4l_info(client, "Specified standard:        %s\n",
+		 vidfmt_sel ? fmt_strs[vidfmt_sel] : "automatic detection");
+>>>>>>> upstream/android-13
 
 	if (vid_input >= CX25840_COMPOSITE1 &&
 	    vid_input <= CX25840_COMPOSITE8) {
 		v4l_info(client, "Specified video input:     Composite %d\n",
+<<<<<<< HEAD
 			vid_input - CX25840_COMPOSITE1 + 1);
 	} else {
 		v4l_info(client, "Specified video input:     S-Video (Luma In%d, Chroma In%d)\n",
@@ -1492,6 +2272,17 @@ static void log_video_status(struct i2c_client *client)
 	}
 
 	v4l_info(client, "Specified audioclock freq: %d Hz\n", state->audclk_freq);
+=======
+			 vid_input - CX25840_COMPOSITE1 + 1);
+	} else {
+		v4l_info(client,
+			 "Specified video input:     S-Video (Luma In%d, Chroma In%d)\n",
+			 (vid_input & 0xf0) >> 4, (vid_input & 0xf00) >> 8);
+	}
+
+	v4l_info(client, "Specified audioclock freq: %d Hz\n",
+		 state->audclk_freq);
+>>>>>>> upstream/android-13
 }
 
 /* ----------------------------------------------------------------------- */
@@ -1510,6 +2301,7 @@ static void log_audio_status(struct i2c_client *client)
 	char *p;
 
 	switch (mod_det_stat0) {
+<<<<<<< HEAD
 	case 0x00: p = "mono"; break;
 	case 0x01: p = "stereo"; break;
 	case 0x02: p = "dual"; break;
@@ -1520,10 +2312,42 @@ static void log_audio_status(struct i2c_client *client)
 	case 0x14: p = "tri with SAP"; break;
 	case 0xfe: p = "forced mode"; break;
 	default: p = "not defined";
+=======
+	case 0x00:
+		p = "mono";
+		break;
+	case 0x01:
+		p = "stereo";
+		break;
+	case 0x02:
+		p = "dual";
+		break;
+	case 0x04:
+		p = "tri";
+		break;
+	case 0x10:
+		p = "mono with SAP";
+		break;
+	case 0x11:
+		p = "stereo with SAP";
+		break;
+	case 0x12:
+		p = "dual with SAP";
+		break;
+	case 0x14:
+		p = "tri with SAP";
+		break;
+	case 0xfe:
+		p = "forced mode";
+		break;
+	default:
+		p = "not defined";
+>>>>>>> upstream/android-13
 	}
 	v4l_info(client, "Detected audio mode:       %s\n", p);
 
 	switch (mod_det_stat1) {
+<<<<<<< HEAD
 	case 0x00: p = "not defined"; break;
 	case 0x01: p = "EIAJ"; break;
 	case 0x02: p = "A2-M"; break;
@@ -1570,11 +2394,136 @@ static void log_audio_status(struct i2c_client *client)
 	case 0x0e: p = "FM radio"; break;
 	case 0x0f: p = "automatic detection"; break;
 	default: p = "undefined";
+=======
+	case 0x00:
+		p = "not defined";
+		break;
+	case 0x01:
+		p = "EIAJ";
+		break;
+	case 0x02:
+		p = "A2-M";
+		break;
+	case 0x03:
+		p = "A2-BG";
+		break;
+	case 0x04:
+		p = "A2-DK1";
+		break;
+	case 0x05:
+		p = "A2-DK2";
+		break;
+	case 0x06:
+		p = "A2-DK3";
+		break;
+	case 0x07:
+		p = "A1 (6.0 MHz FM Mono)";
+		break;
+	case 0x08:
+		p = "AM-L";
+		break;
+	case 0x09:
+		p = "NICAM-BG";
+		break;
+	case 0x0a:
+		p = "NICAM-DK";
+		break;
+	case 0x0b:
+		p = "NICAM-I";
+		break;
+	case 0x0c:
+		p = "NICAM-L";
+		break;
+	case 0x0d:
+		p = "BTSC/EIAJ/A2-M Mono (4.5 MHz FMMono)";
+		break;
+	case 0x0e:
+		p = "IF FM Radio";
+		break;
+	case 0x0f:
+		p = "BTSC";
+		break;
+	case 0x10:
+		p = "high-deviation FM";
+		break;
+	case 0x11:
+		p = "very high-deviation FM";
+		break;
+	case 0xfd:
+		p = "unknown audio standard";
+		break;
+	case 0xfe:
+		p = "forced audio standard";
+		break;
+	case 0xff:
+		p = "no detected audio standard";
+		break;
+	default:
+		p = "not defined";
+	}
+	v4l_info(client, "Detected audio standard:   %s\n", p);
+	v4l_info(client, "Audio microcontroller:     %s\n",
+		 (download_ctl & 0x10) ?
+		 ((mute_ctl & 0x2) ? "detecting" : "running") : "stopped");
+
+	switch (audio_config >> 4) {
+	case 0x00:
+		p = "undefined";
+		break;
+	case 0x01:
+		p = "BTSC";
+		break;
+	case 0x02:
+		p = "EIAJ";
+		break;
+	case 0x03:
+		p = "A2-M";
+		break;
+	case 0x04:
+		p = "A2-BG";
+		break;
+	case 0x05:
+		p = "A2-DK1";
+		break;
+	case 0x06:
+		p = "A2-DK2";
+		break;
+	case 0x07:
+		p = "A2-DK3";
+		break;
+	case 0x08:
+		p = "A1 (6.0 MHz FM Mono)";
+		break;
+	case 0x09:
+		p = "AM-L";
+		break;
+	case 0x0a:
+		p = "NICAM-BG";
+		break;
+	case 0x0b:
+		p = "NICAM-DK";
+		break;
+	case 0x0c:
+		p = "NICAM-I";
+		break;
+	case 0x0d:
+		p = "NICAM-L";
+		break;
+	case 0x0e:
+		p = "FM radio";
+		break;
+	case 0x0f:
+		p = "automatic detection";
+		break;
+	default:
+		p = "undefined";
+>>>>>>> upstream/android-13
 	}
 	v4l_info(client, "Configured audio standard: %s\n", p);
 
 	if ((audio_config >> 4) < 0xF) {
 		switch (audio_config & 0xF) {
+<<<<<<< HEAD
 		case 0x00: p = "MONO1 (LANGUAGE A/Mono L+R channel for BTSC, EIAJ, A2)"; break;
 		case 0x01: p = "MONO2 (LANGUAGE B)"; break;
 		case 0x02: p = "MONO3 (STEREO forced MONO)"; break;
@@ -1587,10 +2536,48 @@ static void log_audio_status(struct i2c_client *client)
 		case 0x09: p = "DUAL5 (BC) (AM)"; break;
 		case 0x0a: p = "SAP"; break;
 		default: p = "undefined";
+=======
+		case 0x00:
+			p = "MONO1 (LANGUAGE A/Mono L+R channel for BTSC, EIAJ, A2)";
+			break;
+		case 0x01:
+			p = "MONO2 (LANGUAGE B)";
+			break;
+		case 0x02:
+			p = "MONO3 (STEREO forced MONO)";
+			break;
+		case 0x03:
+			p = "MONO4 (NICAM ANALOG-Language C/Analog Fallback)";
+			break;
+		case 0x04:
+			p = "STEREO";
+			break;
+		case 0x05:
+			p = "DUAL1 (AB)";
+			break;
+		case 0x06:
+			p = "DUAL2 (AC) (FM)";
+			break;
+		case 0x07:
+			p = "DUAL3 (BC) (FM)";
+			break;
+		case 0x08:
+			p = "DUAL4 (AC) (AM)";
+			break;
+		case 0x09:
+			p = "DUAL5 (BC) (AM)";
+			break;
+		case 0x0a:
+			p = "SAP";
+			break;
+		default:
+			p = "undefined";
+>>>>>>> upstream/android-13
 		}
 		v4l_info(client, "Configured audio mode:     %s\n", p);
 	} else {
 		switch (audio_config & 0xF) {
+<<<<<<< HEAD
 		case 0x00: p = "BG"; break;
 		case 0x01: p = "DK1"; break;
 		case 0x02: p = "DK2"; break;
@@ -1603,17 +2590,60 @@ static void log_audio_status(struct i2c_client *client)
 		case 0x09: p = "FM Radio"; break;
 		case 0x0f: p = "automatic standard and mode detection"; break;
 		default: p = "undefined";
+=======
+		case 0x00:
+			p = "BG";
+			break;
+		case 0x01:
+			p = "DK1";
+			break;
+		case 0x02:
+			p = "DK2";
+			break;
+		case 0x03:
+			p = "DK3";
+			break;
+		case 0x04:
+			p = "I";
+			break;
+		case 0x05:
+			p = "L";
+			break;
+		case 0x06:
+			p = "BTSC";
+			break;
+		case 0x07:
+			p = "EIAJ";
+			break;
+		case 0x08:
+			p = "A2-M";
+			break;
+		case 0x09:
+			p = "FM Radio";
+			break;
+		case 0x0f:
+			p = "automatic standard and mode detection";
+			break;
+		default:
+			p = "undefined";
+>>>>>>> upstream/android-13
 		}
 		v4l_info(client, "Configured audio system:   %s\n", p);
 	}
 
 	if (aud_input) {
+<<<<<<< HEAD
 		v4l_info(client, "Specified audio input:     Tuner (In%d)\n", aud_input);
+=======
+		v4l_info(client, "Specified audio input:     Tuner (In%d)\n",
+			 aud_input);
+>>>>>>> upstream/android-13
 	} else {
 		v4l_info(client, "Specified audio input:     External\n");
 	}
 
 	switch (pref_mode & 0xf) {
+<<<<<<< HEAD
 	case 0: p = "mono/language A"; break;
 	case 1: p = "language B"; break;
 	case 2: p = "language C"; break;
@@ -1623,30 +2653,93 @@ static void log_audio_status(struct i2c_client *client)
 	case 6: p = "language BC"; break;
 	case 7: p = "language AB"; break;
 	default: p = "undefined";
+=======
+	case 0:
+		p = "mono/language A";
+		break;
+	case 1:
+		p = "language B";
+		break;
+	case 2:
+		p = "language C";
+		break;
+	case 3:
+		p = "analog fallback";
+		break;
+	case 4:
+		p = "stereo";
+		break;
+	case 5:
+		p = "language AC";
+		break;
+	case 6:
+		p = "language BC";
+		break;
+	case 7:
+		p = "language AB";
+		break;
+	default:
+		p = "undefined";
+>>>>>>> upstream/android-13
 	}
 	v4l_info(client, "Preferred audio mode:      %s\n", p);
 
 	if ((audio_config & 0xf) == 0xf) {
 		switch ((afc0 >> 3) & 0x3) {
+<<<<<<< HEAD
 		case 0: p = "system DK"; break;
 		case 1: p = "system L"; break;
 		case 2: p = "autodetect"; break;
 		default: p = "undefined";
+=======
+		case 0:
+			p = "system DK";
+			break;
+		case 1:
+			p = "system L";
+			break;
+		case 2:
+			p = "autodetect";
+			break;
+		default:
+			p = "undefined";
+>>>>>>> upstream/android-13
 		}
 		v4l_info(client, "Selected 65 MHz format:    %s\n", p);
 
 		switch (afc0 & 0x7) {
+<<<<<<< HEAD
 		case 0: p = "chroma"; break;
 		case 1: p = "BTSC"; break;
 		case 2: p = "EIAJ"; break;
 		case 3: p = "A2-M"; break;
 		case 4: p = "autodetect"; break;
 		default: p = "undefined";
+=======
+		case 0:
+			p = "chroma";
+			break;
+		case 1:
+			p = "BTSC";
+			break;
+		case 2:
+			p = "EIAJ";
+			break;
+		case 3:
+			p = "A2-M";
+			break;
+		case 4:
+			p = "autodetect";
+			break;
+		default:
+			p = "undefined";
+>>>>>>> upstream/android-13
 		}
 		v4l_info(client, "Selected 45 MHz format:    %s\n", p);
 	}
 }
 
+<<<<<<< HEAD
 /* ----------------------------------------------------------------------- */
 
 /* This load_fw operation must be called to load the driver's firmware.
@@ -1660,10 +2753,81 @@ static void log_audio_status(struct i2c_client *client)
    due to the slow i2c bus speed. So it will speed up the boot process if
    you can avoid loading the fw as long as the video device isn't used.  */
 static int cx25840_load_fw(struct v4l2_subdev *sd)
+=======
+#define CX25840_VCONFIG_OPTION(state, cfg_in, opt_msk)			\
+	do {								\
+		if ((cfg_in) & (opt_msk)) {				\
+			(state)->vid_config &= ~(opt_msk);		\
+			(state)->vid_config |= (cfg_in) & (opt_msk);	\
+		}							\
+	} while (0)
+
+/* apply incoming options to the current vconfig */
+static void cx25840_vconfig_add(struct cx25840_state *state, u32 cfg_in)
+{
+	CX25840_VCONFIG_OPTION(state, cfg_in, CX25840_VCONFIG_FMT_MASK);
+	CX25840_VCONFIG_OPTION(state, cfg_in, CX25840_VCONFIG_RES_MASK);
+	CX25840_VCONFIG_OPTION(state, cfg_in, CX25840_VCONFIG_VBIRAW_MASK);
+	CX25840_VCONFIG_OPTION(state, cfg_in, CX25840_VCONFIG_ANCDATA_MASK);
+	CX25840_VCONFIG_OPTION(state, cfg_in, CX25840_VCONFIG_TASKBIT_MASK);
+	CX25840_VCONFIG_OPTION(state, cfg_in, CX25840_VCONFIG_ACTIVE_MASK);
+	CX25840_VCONFIG_OPTION(state, cfg_in, CX25840_VCONFIG_VALID_MASK);
+	CX25840_VCONFIG_OPTION(state, cfg_in, CX25840_VCONFIG_HRESETW_MASK);
+	CX25840_VCONFIG_OPTION(state, cfg_in, CX25840_VCONFIG_CLKGATE_MASK);
+	CX25840_VCONFIG_OPTION(state, cfg_in, CX25840_VCONFIG_DCMODE_MASK);
+	CX25840_VCONFIG_OPTION(state, cfg_in, CX25840_VCONFIG_IDID0S_MASK);
+	CX25840_VCONFIG_OPTION(state, cfg_in, CX25840_VCONFIG_VIPCLAMP_MASK);
+}
+
+/* ----------------------------------------------------------------------- */
+
+/*
+ * Initializes the device in the generic mode.
+ * For cx2584x chips also adds additional video output settings provided
+ * in @val parameter (CX25840_VCONFIG_*).
+ *
+ * The generic mode disables some of the ivtv-related hacks in this driver.
+ * For cx2584x chips it also enables setting video output configuration while
+ * setting it according to datasheet defaults by default.
+ */
+static int cx25840_init(struct v4l2_subdev *sd, u32 val)
+{
+	struct cx25840_state *state = to_state(sd);
+
+	state->generic_mode = true;
+
+	if (is_cx2584x(state)) {
+		/* set datasheet video output defaults */
+		state->vid_config = CX25840_VCONFIG_FMT_BT656 |
+				    CX25840_VCONFIG_RES_8BIT |
+				    CX25840_VCONFIG_VBIRAW_DISABLED |
+				    CX25840_VCONFIG_ANCDATA_ENABLED |
+				    CX25840_VCONFIG_TASKBIT_ONE |
+				    CX25840_VCONFIG_ACTIVE_HORIZONTAL |
+				    CX25840_VCONFIG_VALID_NORMAL |
+				    CX25840_VCONFIG_HRESETW_NORMAL |
+				    CX25840_VCONFIG_CLKGATE_NONE |
+				    CX25840_VCONFIG_DCMODE_DWORDS |
+				    CX25840_VCONFIG_IDID0S_NORMAL |
+				    CX25840_VCONFIG_VIPCLAMP_DISABLED;
+
+		/* add additional settings */
+		cx25840_vconfig_add(state, val);
+	} else {
+		/* TODO: generic mode needs to be developed for other chips */
+		WARN_ON(1);
+	}
+
+	return 0;
+}
+
+static int cx25840_reset(struct v4l2_subdev *sd, u32 val)
+>>>>>>> upstream/android-13
 {
 	struct cx25840_state *state = to_state(sd);
 	struct i2c_client *client = v4l2_get_subdevdata(sd);
 
+<<<<<<< HEAD
 	if (!state->is_initialized) {
 		/* initialize and load firmware */
 		state->is_initialized = 1;
@@ -1675,12 +2839,54 @@ static int cx25840_load_fw(struct v4l2_subdev *sd)
 			cx231xx_initialize(client);
 		else
 			cx25840_initialize(client);
+=======
+	if (is_cx2583x(state))
+		cx25836_initialize(client);
+	else if (is_cx2388x(state))
+		cx23885_initialize(client);
+	else if (is_cx231xx(state))
+		cx231xx_initialize(client);
+	else
+		cx25840_initialize(client);
+
+	state->is_initialized = 1;
+
+	return 0;
+}
+
+/*
+ * This load_fw operation must be called to load the driver's firmware.
+ * This will load the firmware on the first invocation (further ones are NOP).
+ * Without this the audio standard detection will fail and you will
+ * only get mono.
+ * Alternatively, you can call the reset operation instead of this one.
+ *
+ * Since loading the firmware is often problematic when the driver is
+ * compiled into the kernel I recommend postponing calling this function
+ * until the first open of the video device. Another reason for
+ * postponing it is that loading this firmware takes a long time (seconds)
+ * due to the slow i2c bus speed. So it will speed up the boot process if
+ * you can avoid loading the fw as long as the video device isn't used.
+ */
+static int cx25840_load_fw(struct v4l2_subdev *sd)
+{
+	struct cx25840_state *state = to_state(sd);
+
+	if (!state->is_initialized) {
+		/* initialize and load firmware */
+		cx25840_reset(sd, 0);
+>>>>>>> upstream/android-13
 	}
 	return 0;
 }
 
 #ifdef CONFIG_VIDEO_ADV_DEBUG
+<<<<<<< HEAD
 static int cx25840_g_register(struct v4l2_subdev *sd, struct v4l2_dbg_register *reg)
+=======
+static int cx25840_g_register(struct v4l2_subdev *sd,
+			      struct v4l2_dbg_register *reg)
+>>>>>>> upstream/android-13
 {
 	struct i2c_client *client = v4l2_get_subdevdata(sd);
 
@@ -1689,7 +2895,12 @@ static int cx25840_g_register(struct v4l2_subdev *sd, struct v4l2_dbg_register *
 	return 0;
 }
 
+<<<<<<< HEAD
 static int cx25840_s_register(struct v4l2_subdev *sd, const struct v4l2_dbg_register *reg)
+=======
+static int cx25840_s_register(struct v4l2_subdev *sd,
+			      const struct v4l2_dbg_register *reg)
+>>>>>>> upstream/android-13
 {
 	struct i2c_client *client = v4l2_get_subdevdata(sd);
 
@@ -1708,7 +2919,11 @@ static int cx25840_s_audio_stream(struct v4l2_subdev *sd, int enable)
 		return 0;
 
 	v4l_dbg(1, cx25840_debug, client, "%s audio output\n",
+<<<<<<< HEAD
 			enable ? "enable" : "disable");
+=======
+		enable ? "enable" : "disable");
+>>>>>>> upstream/android-13
 
 	if (enable) {
 		v = cx25840_read(client, 0x115) | 0x80;
@@ -1731,7 +2946,11 @@ static int cx25840_s_stream(struct v4l2_subdev *sd, int enable)
 	u8 v;
 
 	v4l_dbg(1, cx25840_debug, client, "%s video output\n",
+<<<<<<< HEAD
 			enable ? "enable" : "disable");
+=======
+		enable ? "enable" : "disable");
+>>>>>>> upstream/android-13
 
 	/*
 	 * It's not clear what should be done for these devices.
@@ -1758,7 +2977,11 @@ static int cx25840_s_stream(struct v4l2_subdev *sd, int enable)
 }
 
 /* Query the current detected video format */
+<<<<<<< HEAD
 static int cx25840_g_std(struct v4l2_subdev *sd, v4l2_std_id *std)
+=======
+static int cx25840_querystd(struct v4l2_subdev *sd, v4l2_std_id *std)
+>>>>>>> upstream/android-13
 {
 	struct i2c_client *client = v4l2_get_subdevdata(sd);
 
@@ -1784,10 +3007,18 @@ static int cx25840_g_std(struct v4l2_subdev *sd, v4l2_std_id *std)
 	};
 
 	u32 fmt = (cx25840_read4(client, 0x40c) >> 8) & 0xf;
+<<<<<<< HEAD
 	*std = stds[ fmt ];
 
 	v4l_dbg(1, cx25840_debug, client, "g_std fmt = %x, v4l2_std_id = 0x%x\n",
 		fmt, (unsigned int)stds[ fmt ]);
+=======
+	*std = stds[fmt];
+
+	v4l_dbg(1, cx25840_debug, client,
+		"querystd fmt = %x, v4l2_std_id = 0x%x\n",
+		fmt, (unsigned int)stds[fmt]);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -1796,7 +3027,12 @@ static int cx25840_g_input_status(struct v4l2_subdev *sd, u32 *status)
 {
 	struct i2c_client *client = v4l2_get_subdevdata(sd);
 
+<<<<<<< HEAD
 	/* A limited function that checks for signal status and returns
+=======
+	/*
+	 * A limited function that checks for signal status and returns
+>>>>>>> upstream/android-13
 	 * the state.
 	 */
 
@@ -1807,6 +3043,18 @@ static int cx25840_g_input_status(struct v4l2_subdev *sd, u32 *status)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static int cx25840_g_std(struct v4l2_subdev *sd, v4l2_std_id *std)
+{
+	struct cx25840_state *state = to_state(sd);
+
+	*std = state->std;
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static int cx25840_s_std(struct v4l2_subdev *sd, v4l2_std_id std)
 {
 	struct cx25840_state *state = to_state(sd);
@@ -1836,6 +3084,14 @@ static int cx25840_s_video_routing(struct v4l2_subdev *sd,
 	if (is_cx23888(state))
 		cx23888_std_setup(client);
 
+<<<<<<< HEAD
+=======
+	if (is_cx2584x(state) && state->generic_mode && config) {
+		cx25840_vconfig_add(state, config);
+		cx25840_vconfig_apply(client);
+	}
+
+>>>>>>> upstream/android-13
 	return set_input(client, input, state->aud_input);
 }
 
@@ -1850,7 +3106,12 @@ static int cx25840_s_audio_routing(struct v4l2_subdev *sd,
 	return set_input(client, state->vid_input, input);
 }
 
+<<<<<<< HEAD
 static int cx25840_s_frequency(struct v4l2_subdev *sd, const struct v4l2_frequency *freq)
+=======
+static int cx25840_s_frequency(struct v4l2_subdev *sd,
+			       const struct v4l2_frequency *freq)
+>>>>>>> upstream/android-13
 {
 	struct i2c_client *client = v4l2_get_subdevdata(sd);
 
@@ -1873,9 +3134,14 @@ static int cx25840_g_tuner(struct v4l2_subdev *sd, struct v4l2_tuner *vt)
 	if (is_cx2583x(state))
 		return 0;
 
+<<<<<<< HEAD
 	vt->capability |=
 		V4L2_TUNER_CAP_STEREO | V4L2_TUNER_CAP_LANG1 |
 		V4L2_TUNER_CAP_LANG2 | V4L2_TUNER_CAP_SAP;
+=======
+	vt->capability |= V4L2_TUNER_CAP_STEREO | V4L2_TUNER_CAP_LANG1 |
+			  V4L2_TUNER_CAP_LANG2 | V4L2_TUNER_CAP_SAP;
+>>>>>>> upstream/android-13
 
 	mode = cx25840_read(client, 0x804);
 
@@ -1905,6 +3171,7 @@ static int cx25840_s_tuner(struct v4l2_subdev *sd, const struct v4l2_tuner *vt)
 		return 0;
 
 	switch (vt->audmode) {
+<<<<<<< HEAD
 		case V4L2_TUNER_MODE_MONO:
 			/* mono      -> mono
 			   stereo    -> mono
@@ -1932,11 +3199,49 @@ static int cx25840_s_tuner(struct v4l2_subdev *sd, const struct v4l2_tuner *vt)
 			break;
 		default:
 			return -EINVAL;
+=======
+	case V4L2_TUNER_MODE_MONO:
+		/*
+		 * mono      -> mono
+		 * stereo    -> mono
+		 * bilingual -> lang1
+		 */
+		cx25840_and_or(client, 0x809, ~0xf, 0x00);
+		break;
+	case V4L2_TUNER_MODE_STEREO:
+	case V4L2_TUNER_MODE_LANG1:
+		/*
+		 * mono      -> mono
+		 * stereo    -> stereo
+		 * bilingual -> lang1
+		 */
+		cx25840_and_or(client, 0x809, ~0xf, 0x04);
+		break;
+	case V4L2_TUNER_MODE_LANG1_LANG2:
+		/*
+		 * mono      -> mono
+		 * stereo    -> stereo
+		 * bilingual -> lang1/lang2
+		 */
+		cx25840_and_or(client, 0x809, ~0xf, 0x07);
+		break;
+	case V4L2_TUNER_MODE_LANG2:
+		/*
+		 * mono      -> mono
+		 * stereo    -> stereo
+		 * bilingual -> lang2
+		 */
+		cx25840_and_or(client, 0x809, ~0xf, 0x01);
+		break;
+	default:
+		return -EINVAL;
+>>>>>>> upstream/android-13
 	}
 	state->audmode = vt->audmode;
 	return 0;
 }
 
+<<<<<<< HEAD
 static int cx25840_reset(struct v4l2_subdev *sd, u32 val)
 {
 	struct cx25840_state *state = to_state(sd);
@@ -1953,6 +3258,8 @@ static int cx25840_reset(struct v4l2_subdev *sd, u32 val)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int cx25840_log_status(struct v4l2_subdev *sd)
 {
 	struct cx25840_state *state = to_state(sd);
@@ -5059,6 +6366,11 @@ static const struct v4l2_ctrl_ops cx25840_ctrl_ops = {
 static const struct v4l2_subdev_core_ops cx25840_core_ops = {
 	.log_status = cx25840_log_status,
 	.reset = cx25840_reset,
+<<<<<<< HEAD
+=======
+	/* calling the (optional) init op will turn on the generic mode */
+	.init = cx25840_init,
+>>>>>>> upstream/android-13
 	.load_fw = cx25840_load_fw,
 	.s_io_pin_config = common_s_io_pin_config,
 #ifdef CONFIG_VIDEO_ADV_DEBUG
@@ -5082,8 +6394,14 @@ static const struct v4l2_subdev_audio_ops cx25840_audio_ops = {
 };
 
 static const struct v4l2_subdev_video_ops cx25840_video_ops = {
+<<<<<<< HEAD
 	.s_std = cx25840_s_std,
 	.g_std = cx25840_g_std,
+=======
+	.g_std = cx25840_g_std,
+	.s_std = cx25840_s_std,
+	.querystd = cx25840_querystd,
+>>>>>>> upstream/android-13
 	.s_routing = cx25840_s_video_routing,
 	.s_stream = cx25840_s_stream,
 	.g_input_status = cx25840_g_input_status,
@@ -5119,6 +6437,7 @@ static u32 get_cx2388x_ident(struct i2c_client *client)
 	/* Come out of digital power down */
 	cx25840_write(client, 0x000, 0);
 
+<<<<<<< HEAD
 	/* Detecting whether the part is cx23885/7/8 is more
 	 * difficult than it needs to be. No ID register. Instead we
 	 * probe certain registers indicated in the datasheets to look
@@ -5128,13 +6447,35 @@ static u32 get_cx2388x_ident(struct i2c_client *client)
 	if (cx25840_read4(client, 0x204) & 0xffff) {
 		/* CX23885 returns bogus repetitive byte values for the DIF,
 		 * which doesn't exist for it. (Ex. 8a8a8a8a or 31313131) */
+=======
+	/*
+	 * Detecting whether the part is cx23885/7/8 is more
+	 * difficult than it needs to be. No ID register. Instead we
+	 * probe certain registers indicated in the datasheets to look
+	 * for specific defaults that differ between the silicon designs.
+	 */
+
+	/* It's either 885/7 if the IR Tx Clk Divider register exists */
+	if (cx25840_read4(client, 0x204) & 0xffff) {
+		/*
+		 * CX23885 returns bogus repetitive byte values for the DIF,
+		 * which doesn't exist for it. (Ex. 8a8a8a8a or 31313131)
+		 */
+>>>>>>> upstream/android-13
 		ret = cx25840_read4(client, 0x300);
 		if (((ret & 0xffff0000) >> 16) == (ret & 0xffff)) {
 			/* No DIF */
 			ret = CX23885_AV;
 		} else {
+<<<<<<< HEAD
 			/* CX23887 has a broken DIF, but the registers
 			 * appear valid (but unused), good enough to detect. */
+=======
+			/*
+			 * CX23887 has a broken DIF, but the registers
+			 * appear valid (but unused), good enough to detect.
+			 */
+>>>>>>> upstream/android-13
 			ret = CX23887_AV;
 		}
 	} else if (cx25840_read4(client, 0x300) & 0x0fffffff) {
@@ -5166,14 +6507,27 @@ static int cx25840_probe(struct i2c_client *client,
 	if (!i2c_check_functionality(client->adapter, I2C_FUNC_SMBUS_BYTE_DATA))
 		return -EIO;
 
+<<<<<<< HEAD
 	v4l_dbg(1, cx25840_debug, client, "detecting cx25840 client on address 0x%x\n", client->addr << 1);
+=======
+	v4l_dbg(1, cx25840_debug, client,
+		"detecting cx25840 client on address 0x%x\n",
+		client->addr << 1);
+>>>>>>> upstream/android-13
 
 	device_id = cx25840_read(client, 0x101) << 8;
 	device_id |= cx25840_read(client, 0x100);
 	v4l_dbg(1, cx25840_debug, client, "device_id = 0x%04x\n", device_id);
 
+<<<<<<< HEAD
 	/* The high byte of the device ID should be
 	 * 0x83 for the cx2583x and 0x84 for the cx2584x */
+=======
+	/*
+	 * The high byte of the device ID should be
+	 * 0x83 for the cx2583x and 0x84 for the cx2584x
+	 */
+>>>>>>> upstream/android-13
 	if ((device_id & 0xff00) == 0x8300) {
 		id = CX25836 + ((device_id >> 4) & 0xf) - 6;
 	} else if ((device_id & 0xff00) == 0x8400) {
@@ -5187,7 +6541,12 @@ static int cx25840_probe(struct i2c_client *client,
 		v4l_err(client,
 			"likely a confused/unresponsive cx2388[578] A/V decoder found @ 0x%x (%s)\n",
 			client->addr << 1, client->adapter->name);
+<<<<<<< HEAD
 		v4l_err(client, "A method to reset it from the cx25840 driver software is not known at this time\n");
+=======
+		v4l_err(client,
+			"A method to reset it from the cx25840 driver software is not known at this time\n");
+>>>>>>> upstream/android-13
 		return -ENODEV;
 	} else {
 		v4l_dbg(1, cx25840_debug, client, "cx25840 not found\n");
@@ -5195,7 +6554,11 @@ static int cx25840_probe(struct i2c_client *client,
 	}
 
 	state = devm_kzalloc(&client->dev, sizeof(*state), GFP_KERNEL);
+<<<<<<< HEAD
 	if (state == NULL)
+=======
+	if (!state)
+>>>>>>> upstream/android-13
 		return -ENOMEM;
 
 	sd = &state->sd;
@@ -5216,12 +6579,22 @@ static int cx25840_probe(struct i2c_client *client,
 	 * those extra inputs. So, let's add it only when needed.
 	 */
 	state->pads[CX25840_PAD_INPUT].flags = MEDIA_PAD_FL_SINK;
+<<<<<<< HEAD
 	state->pads[CX25840_PAD_VID_OUT].flags = MEDIA_PAD_FL_SOURCE;
 	state->pads[CX25840_PAD_VBI_OUT].flags = MEDIA_PAD_FL_SOURCE;
 	sd->entity.function = MEDIA_ENT_F_ATV_DECODER;
 
 	ret = media_entity_pads_init(&sd->entity, ARRAY_SIZE(state->pads),
 				state->pads);
+=======
+	state->pads[CX25840_PAD_INPUT].sig_type = PAD_SIGNAL_ANALOG;
+	state->pads[CX25840_PAD_VID_OUT].flags = MEDIA_PAD_FL_SOURCE;
+	state->pads[CX25840_PAD_VID_OUT].sig_type = PAD_SIGNAL_DV;
+	sd->entity.function = MEDIA_ENT_F_ATV_DECODER;
+
+	ret = media_entity_pads_init(&sd->entity, ARRAY_SIZE(state->pads),
+				     state->pads);
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		v4l_info(client, "failed to initialize media entity!\n");
 		return ret;
@@ -5249,8 +6622,15 @@ static int cx25840_probe(struct i2c_client *client,
 	case CX25841:
 	case CX25842:
 	case CX25843:
+<<<<<<< HEAD
 		/* Note: revision '(device_id & 0x0f) == 2' was never built. The
 		   marking skips from 0x1 == 22 to 0x3 == 23. */
+=======
+		/*
+		 * Note: revision '(device_id & 0x0f) == 2' was never built.
+		 * The marking skips from 0x1 == 22 to 0x3 == 23.
+		 */
+>>>>>>> upstream/android-13
 		v4l_info(client, "cx25%3x-2%x found @ 0x%x (%s)\n",
 			 (device_id & 0xfff0) >> 4,
 			 (device_id & 0x0f) < 3 ? (device_id & 0x0f) + 1
@@ -5278,6 +6658,7 @@ static int cx25840_probe(struct i2c_client *client,
 	state->std = V4L2_STD_NTSC_M;
 	v4l2_ctrl_handler_init(&state->hdl, 9);
 	v4l2_ctrl_new_std(&state->hdl, &cx25840_ctrl_ops,
+<<<<<<< HEAD
 			V4L2_CID_BRIGHTNESS, 0, 255, 1, 128);
 	v4l2_ctrl_new_std(&state->hdl, &cx25840_ctrl_ops,
 			V4L2_CID_CONTRAST, 0, 127, 1, 64);
@@ -5285,6 +6666,15 @@ static int cx25840_probe(struct i2c_client *client,
 			V4L2_CID_SATURATION, 0, 127, 1, 64);
 	v4l2_ctrl_new_std(&state->hdl, &cx25840_ctrl_ops,
 			V4L2_CID_HUE, -128, 127, 1, 0);
+=======
+			  V4L2_CID_BRIGHTNESS, 0, 255, 1, 128);
+	v4l2_ctrl_new_std(&state->hdl, &cx25840_ctrl_ops,
+			  V4L2_CID_CONTRAST, 0, 127, 1, 64);
+	v4l2_ctrl_new_std(&state->hdl, &cx25840_ctrl_ops,
+			  V4L2_CID_SATURATION, 0, 127, 1, 64);
+	v4l2_ctrl_new_std(&state->hdl, &cx25840_ctrl_ops,
+			  V4L2_CID_HUE, -128, 127, 1, 0);
+>>>>>>> upstream/android-13
 	if (!is_cx2583x(state)) {
 		default_volume = cx25840_read(client, 0x8d4);
 		/*
@@ -5296,8 +6686,12 @@ static int cx25840_probe(struct i2c_client *client,
 			/* Bottom out at -96 dB, v4l2 vol range 0x2e00-0x2fff */
 			default_volume = 228;
 			cx25840_write(client, 0x8d4, 228);
+<<<<<<< HEAD
 		}
 		else if (default_volume < 20) {
+=======
+		} else if (default_volume < 20) {
+>>>>>>> upstream/android-13
 			/* Top out at + 8 dB, v4l2 vol range 0xfe00-0xffff */
 			default_volume = 20;
 			cx25840_write(client, 0x8d4, 20);
@@ -5305,6 +6699,7 @@ static int cx25840_probe(struct i2c_client *client,
 		default_volume = (((228 - default_volume) >> 1) + 23) << 9;
 
 		state->volume = v4l2_ctrl_new_std(&state->hdl,
+<<<<<<< HEAD
 			&cx25840_audio_ctrl_ops, V4L2_CID_AUDIO_VOLUME,
 			0, 65535, 65535 / 100, default_volume);
 		state->mute = v4l2_ctrl_new_std(&state->hdl,
@@ -5319,6 +6714,25 @@ static int cx25840_probe(struct i2c_client *client,
 		v4l2_ctrl_new_std(&state->hdl, &cx25840_audio_ctrl_ops,
 			V4L2_CID_AUDIO_TREBLE,
 			0, 65535, 65535 / 100, 32768);
+=======
+						  &cx25840_audio_ctrl_ops,
+						  V4L2_CID_AUDIO_VOLUME,
+						  0, 65535, 65535 / 100,
+						  default_volume);
+		state->mute = v4l2_ctrl_new_std(&state->hdl,
+						&cx25840_audio_ctrl_ops,
+						V4L2_CID_AUDIO_MUTE,
+						0, 1, 1, 0);
+		v4l2_ctrl_new_std(&state->hdl, &cx25840_audio_ctrl_ops,
+				  V4L2_CID_AUDIO_BALANCE,
+				  0, 65535, 65535 / 100, 32768);
+		v4l2_ctrl_new_std(&state->hdl, &cx25840_audio_ctrl_ops,
+				  V4L2_CID_AUDIO_BASS,
+				  0, 65535, 65535 / 100, 32768);
+		v4l2_ctrl_new_std(&state->hdl, &cx25840_audio_ctrl_ops,
+				  V4L2_CID_AUDIO_TREBLE,
+				  0, 65535, 65535 / 100, 32768);
+>>>>>>> upstream/android-13
 	}
 	sd->ctrl_handler = &state->hdl;
 	if (state->hdl.error) {

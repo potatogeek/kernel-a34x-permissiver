@@ -22,7 +22,11 @@ static inline bool __is_tcf_gact_act(const struct tc_action *a, int act,
 #ifdef CONFIG_NET_CLS_ACT
 	struct tcf_gact *gact;
 
+<<<<<<< HEAD
 	if (a->ops && a->ops->type != TCA_ACT_GACT)
+=======
+	if (a->ops && a->ops->id != TCA_ID_GACT)
+>>>>>>> upstream/android-13
 		return false;
 
 	gact = to_gact(a);

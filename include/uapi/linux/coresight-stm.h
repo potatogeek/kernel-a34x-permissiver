@@ -5,6 +5,10 @@
 #include <linux/const.h>
 
 #define STM_FLAG_TIMESTAMPED   _BITUL(3)
+<<<<<<< HEAD
+=======
+#define STM_FLAG_MARKED        _BITUL(4)
+>>>>>>> upstream/android-13
 #define STM_FLAG_GUARANTEED    _BITUL(7)
 
 /*

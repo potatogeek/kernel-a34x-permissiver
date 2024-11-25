@@ -1,16 +1,27 @@
 #!/bin/sh
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 
 # pstore_tests - Check pstore's behavior before crash/reboot
 #
 # Copyright (C) Hitachi Ltd., 2015
 #  Written by Hiraku Toyooka <hiraku.toyooka.gu@hitachi.com>
 #
+<<<<<<< HEAD
 # Released under the terms of the GPL v2.
+=======
+>>>>>>> upstream/android-13
 
 . ./common_tests
 
 prlog -n "Checking pstore console is registered ... "
+<<<<<<< HEAD
 dmesg | grep -q "console \[pstore"
+=======
+dmesg | grep -Eq "console \[(pstore|${backend})"
+>>>>>>> upstream/android-13
 show_result $?
 
 prlog -n "Checking /dev/pmsg0 exists ... "

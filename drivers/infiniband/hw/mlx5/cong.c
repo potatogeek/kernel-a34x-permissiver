@@ -47,6 +47,10 @@ static const char * const mlx5_ib_dbg_cc_name[] = {
 	"rp_byte_reset",
 	"rp_threshold",
 	"rp_ai_rate",
+<<<<<<< HEAD
+=======
+	"rp_max_rate",
+>>>>>>> upstream/android-13
 	"rp_hai_rate",
 	"rp_min_dec_fac",
 	"rp_min_rate",
@@ -56,6 +60,10 @@ static const char * const mlx5_ib_dbg_cc_name[] = {
 	"rp_rate_reduce_monitor_period",
 	"rp_initial_alpha_value",
 	"rp_gd",
+<<<<<<< HEAD
+=======
+	"np_min_time_between_cnps",
+>>>>>>> upstream/android-13
 	"np_cnp_dscp",
 	"np_cnp_prio_mode",
 	"np_cnp_prio",
@@ -66,6 +74,10 @@ static const char * const mlx5_ib_dbg_cc_name[] = {
 #define MLX5_IB_RP_TIME_RESET_ATTR			BIT(3)
 #define MLX5_IB_RP_BYTE_RESET_ATTR			BIT(4)
 #define MLX5_IB_RP_THRESHOLD_ATTR			BIT(5)
+<<<<<<< HEAD
+=======
+#define MLX5_IB_RP_MAX_RATE_ATTR			BIT(6)
+>>>>>>> upstream/android-13
 #define MLX5_IB_RP_AI_RATE_ATTR				BIT(7)
 #define MLX5_IB_RP_HAI_RATE_ATTR			BIT(8)
 #define MLX5_IB_RP_MIN_DEC_FAC_ATTR			BIT(9)
@@ -77,6 +89,10 @@ static const char * const mlx5_ib_dbg_cc_name[] = {
 #define MLX5_IB_RP_INITIAL_ALPHA_VALUE_ATTR		BIT(15)
 #define MLX5_IB_RP_GD_ATTR				BIT(16)
 
+<<<<<<< HEAD
+=======
+#define MLX5_IB_NP_MIN_TIME_BETWEEN_CNPS_ATTR		BIT(2)
+>>>>>>> upstream/android-13
 #define MLX5_IB_NP_CNP_DSCP_ATTR			BIT(3)
 #define MLX5_IB_NP_CNP_PRIO_MODE_ATTR			BIT(4)
 
@@ -111,6 +127,12 @@ static u32 mlx5_get_cc_param_val(void *field, int offset)
 	case MLX5_IB_DBG_CC_RP_AI_RATE:
 		return MLX5_GET(cong_control_r_roce_ecn_rp, field,
 				rpg_ai_rate);
+<<<<<<< HEAD
+=======
+	case MLX5_IB_DBG_CC_RP_MAX_RATE:
+		return MLX5_GET(cong_control_r_roce_ecn_rp, field,
+				rpg_max_rate);
+>>>>>>> upstream/android-13
 	case MLX5_IB_DBG_CC_RP_HAI_RATE:
 		return MLX5_GET(cong_control_r_roce_ecn_rp, field,
 				rpg_hai_rate);
@@ -138,6 +160,12 @@ static u32 mlx5_get_cc_param_val(void *field, int offset)
 	case MLX5_IB_DBG_CC_RP_GD:
 		return MLX5_GET(cong_control_r_roce_ecn_rp, field,
 				rpg_gd);
+<<<<<<< HEAD
+=======
+	case MLX5_IB_DBG_CC_NP_MIN_TIME_BETWEEN_CNPS:
+		return MLX5_GET(cong_control_r_roce_ecn_np, field,
+				min_time_between_cnps);
+>>>>>>> upstream/android-13
 	case MLX5_IB_DBG_CC_NP_CNP_DSCP:
 		return MLX5_GET(cong_control_r_roce_ecn_np, field,
 				cnp_dscp);
@@ -186,6 +214,14 @@ static void mlx5_ib_set_cc_param_mask_val(void *field, int offset,
 		MLX5_SET(cong_control_r_roce_ecn_rp, field,
 			 rpg_ai_rate, var);
 		break;
+<<<<<<< HEAD
+=======
+	case MLX5_IB_DBG_CC_RP_MAX_RATE:
+		*attr_mask |= MLX5_IB_RP_MAX_RATE_ATTR;
+		MLX5_SET(cong_control_r_roce_ecn_rp, field,
+			 rpg_max_rate, var);
+		break;
+>>>>>>> upstream/android-13
 	case MLX5_IB_DBG_CC_RP_HAI_RATE:
 		*attr_mask |= MLX5_IB_RP_HAI_RATE_ATTR;
 		MLX5_SET(cong_control_r_roce_ecn_rp, field,
@@ -231,6 +267,14 @@ static void mlx5_ib_set_cc_param_mask_val(void *field, int offset,
 		MLX5_SET(cong_control_r_roce_ecn_rp, field,
 			 rpg_gd, var);
 		break;
+<<<<<<< HEAD
+=======
+	case MLX5_IB_DBG_CC_NP_MIN_TIME_BETWEEN_CNPS:
+		*attr_mask |= MLX5_IB_NP_MIN_TIME_BETWEEN_CNPS_ATTR;
+		MLX5_SET(cong_control_r_roce_ecn_np, field,
+			 min_time_between_cnps, var);
+		break;
+>>>>>>> upstream/android-13
 	case MLX5_IB_DBG_CC_NP_CNP_DSCP:
 		*attr_mask |= MLX5_IB_NP_CNP_DSCP_ATTR;
 		MLX5_SET(cong_control_r_roce_ecn_np, field, cnp_dscp, var);
@@ -247,7 +291,11 @@ static void mlx5_ib_set_cc_param_mask_val(void *field, int offset,
 	}
 }
 
+<<<<<<< HEAD
 static int mlx5_ib_get_cc_params(struct mlx5_ib_dev *dev, u8 port_num,
+=======
+static int mlx5_ib_get_cc_params(struct mlx5_ib_dev *dev, u32 port_num,
+>>>>>>> upstream/android-13
 				 int offset, u32 *var)
 {
 	int outlen = MLX5_ST_SZ_BYTES(query_cong_params_out);
@@ -270,7 +318,11 @@ static int mlx5_ib_get_cc_params(struct mlx5_ib_dev *dev, u8 port_num,
 
 	node = mlx5_ib_param_to_node(offset);
 
+<<<<<<< HEAD
 	err = mlx5_cmd_query_cong_params(mdev, node, out, outlen);
+=======
+	err = mlx5_cmd_query_cong_params(mdev, node, out);
+>>>>>>> upstream/android-13
 	if (err)
 		goto free;
 
@@ -284,7 +336,11 @@ alloc_err:
 	return err;
 }
 
+<<<<<<< HEAD
 static int mlx5_ib_set_cc_params(struct mlx5_ib_dev *dev, u8 port_num,
+=======
+static int mlx5_ib_set_cc_params(struct mlx5_ib_dev *dev, u32 port_num,
+>>>>>>> upstream/android-13
 				 int offset, u32 var)
 {
 	int inlen = MLX5_ST_SZ_BYTES(modify_cong_params_in);
@@ -319,7 +375,11 @@ static int mlx5_ib_set_cc_params(struct mlx5_ib_dev *dev, u8 port_num,
 	MLX5_SET(field_select_r_roce_rp, field, field_select_r_roce_rp,
 		 attr_mask);
 
+<<<<<<< HEAD
 	err = mlx5_cmd_modify_cong_params(mdev, in, inlen);
+=======
+	err = mlx5_cmd_exec_in(dev->mdev, modify_cong_params, in);
+>>>>>>> upstream/android-13
 	kvfree(in);
 alloc_err:
 	mlx5_ib_put_native_port_mdev(dev, port_num + 1);
@@ -377,7 +437,11 @@ static const struct file_operations dbg_cc_fops = {
 	.read	= get_param,
 };
 
+<<<<<<< HEAD
 void mlx5_ib_cleanup_cong_debugfs(struct mlx5_ib_dev *dev, u8 port_num)
+=======
+void mlx5_ib_cleanup_cong_debugfs(struct mlx5_ib_dev *dev, u32 port_num)
+>>>>>>> upstream/android-13
 {
 	if (!mlx5_debugfs_root ||
 	    !dev->port[port_num].dbg_cc_params ||
@@ -389,19 +453,31 @@ void mlx5_ib_cleanup_cong_debugfs(struct mlx5_ib_dev *dev, u8 port_num)
 	dev->port[port_num].dbg_cc_params = NULL;
 }
 
+<<<<<<< HEAD
 int mlx5_ib_init_cong_debugfs(struct mlx5_ib_dev *dev, u8 port_num)
+=======
+void mlx5_ib_init_cong_debugfs(struct mlx5_ib_dev *dev, u32 port_num)
+>>>>>>> upstream/android-13
 {
 	struct mlx5_ib_dbg_cc_params *dbg_cc_params;
 	struct mlx5_core_dev *mdev;
 	int i;
 
 	if (!mlx5_debugfs_root)
+<<<<<<< HEAD
 		goto out;
+=======
+		return;
+>>>>>>> upstream/android-13
 
 	/* Takes a 1-based port number */
 	mdev = mlx5_ib_get_native_port_mdev(dev, port_num + 1, NULL);
 	if (!mdev)
+<<<<<<< HEAD
 		goto out;
+=======
+		return;
+>>>>>>> upstream/android-13
 
 	if (!MLX5_CAP_GEN(mdev, cc_query_allowed) ||
 	    !MLX5_CAP_GEN(mdev, cc_modify_allowed))
@@ -415,8 +491,11 @@ int mlx5_ib_init_cong_debugfs(struct mlx5_ib_dev *dev, u8 port_num)
 
 	dbg_cc_params->root = debugfs_create_dir("cc_params",
 						 mdev->priv.dbg_root);
+<<<<<<< HEAD
 	if (!dbg_cc_params->root)
 		goto err;
+=======
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < MLX5_IB_DBG_CC_MAX; i++) {
 		dbg_cc_params->params[i].offset = i;
@@ -427,14 +506,21 @@ int mlx5_ib_init_cong_debugfs(struct mlx5_ib_dev *dev, u8 port_num)
 					    0600, dbg_cc_params->root,
 					    &dbg_cc_params->params[i],
 					    &dbg_cc_fops);
+<<<<<<< HEAD
 		if (!dbg_cc_params->params[i].dentry)
 			goto err;
+=======
+>>>>>>> upstream/android-13
 	}
 
 put_mdev:
 	mlx5_ib_put_native_port_mdev(dev, port_num + 1);
+<<<<<<< HEAD
 out:
 	return 0;
+=======
+	return;
+>>>>>>> upstream/android-13
 
 err:
 	mlx5_ib_warn(dev, "cong debugfs failure\n");
@@ -445,5 +531,9 @@ err:
 	 * We don't want to fail driver if debugfs failed to initialize,
 	 * so we are not forwarding error to the user.
 	 */
+<<<<<<< HEAD
 	return 0;
+=======
+	return;
+>>>>>>> upstream/android-13
 }

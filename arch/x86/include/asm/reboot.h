@@ -26,6 +26,10 @@ void __noreturn machine_real_restart(unsigned int type);
 #define MRR_APM		1
 
 typedef void (*nmi_shootdown_cb)(int, struct pt_regs*);
+<<<<<<< HEAD
+=======
+void nmi_panic_self_stop(struct pt_regs *regs);
+>>>>>>> upstream/android-13
 void nmi_shootdown_cpus(nmi_shootdown_cb callback);
 void run_crash_ipi_callback(struct pt_regs *regs);
 

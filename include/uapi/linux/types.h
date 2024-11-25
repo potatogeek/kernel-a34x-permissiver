@@ -7,7 +7,11 @@
 #ifndef __ASSEMBLY__
 #ifndef	__KERNEL__
 #ifndef __EXPORTED_HEADERS__
+<<<<<<< HEAD
 #warning "Attempt to use kernel headers from user space, see http://kernelnewbies.org/KernelHeaders"
+=======
+#warning "Attempt to use kernel headers from user space, see https://kernelnewbies.org/KernelHeaders"
+>>>>>>> upstream/android-13
 #endif /* __EXPORTED_HEADERS__ */
 #endif
 

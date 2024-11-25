@@ -13,6 +13,7 @@
 #include <asm/pti.h>
 #include <asm/processor-flags.h>
 
+<<<<<<< HEAD
 /*
  * The x86 feature is called PCID (Process Context IDentifier). It is similar
  * to what is traditionally called ASID on the RISC processors.
@@ -63,12 +64,55 @@
  */
 #define MAX_ASID_AVAILABLE ((1 << CR3_AVAIL_PCID_BITS) - 2)
 
+=======
+void __flush_tlb_all(void);
+
+#define TLB_FLUSH_ALL	-1UL
+
+void cr4_update_irqsoff(unsigned long set, unsigned long clear);
+unsigned long cr4_read_shadow(void);
+
+/* Set in this cpu's CR4. */
+static inline void cr4_set_bits_irqsoff(unsigned long mask)
+{
+	cr4_update_irqsoff(mask, 0);
+}
+
+/* Clear in this cpu's CR4. */
+static inline void cr4_clear_bits_irqsoff(unsigned long mask)
+{
+	cr4_update_irqsoff(0, mask);
+}
+
+/* Set in this cpu's CR4. */
+static inline void cr4_set_bits(unsigned long mask)
+{
+	unsigned long flags;
+
+	local_irq_save(flags);
+	cr4_set_bits_irqsoff(mask);
+	local_irq_restore(flags);
+}
+
+/* Clear in this cpu's CR4. */
+static inline void cr4_clear_bits(unsigned long mask)
+{
+	unsigned long flags;
+
+	local_irq_save(flags);
+	cr4_clear_bits_irqsoff(mask);
+	local_irq_restore(flags);
+}
+
+#ifndef MODULE
+>>>>>>> upstream/android-13
 /*
  * 6 because 6 should be plenty and struct tlb_state will fit in two cache
  * lines.
  */
 #define TLB_NR_DYN_ASIDS	6
 
+<<<<<<< HEAD
 /*
  * Given @asid, compute kPCID
  */
@@ -164,6 +208,8 @@ static inline bool tlb_defer_switch_to_init_mm(void)
 	return !static_cpu_has(X86_FEATURE_PCID);
 }
 
+=======
+>>>>>>> upstream/android-13
 struct tlb_context {
 	u64 ctx_id;
 	u64 tlb_gen;
@@ -183,18 +229,27 @@ struct tlb_state {
 	 */
 	struct mm_struct *loaded_mm;
 
+<<<<<<< HEAD
 #define LOADED_MM_SWITCHING ((struct mm_struct *)1)
+=======
+#define LOADED_MM_SWITCHING ((struct mm_struct *)1UL)
+>>>>>>> upstream/android-13
 
 	/* Last user mm for optimizing IBPB */
 	union {
 		struct mm_struct	*last_user_mm;
+<<<<<<< HEAD
 		unsigned long		last_user_mm_ibpb;
+=======
+		unsigned long		last_user_mm_spec;
+>>>>>>> upstream/android-13
 	};
 
 	u16 loaded_mm_asid;
 	u16 next_asid;
 
 	/*
+<<<<<<< HEAD
 	 * We can be in one of several states:
 	 *
 	 *  - Actively using an mm.  Our CPU's bit will be set in
@@ -212,6 +267,8 @@ struct tlb_state {
 	bool is_lazy;
 
 	/*
+=======
+>>>>>>> upstream/android-13
 	 * If set we changed the page tables in such a way that we
 	 * needed an invalidation of all contexts (aka. PCIDs / ASIDs).
 	 * This tells us to go invalidate all the non-loaded ctxs[]
@@ -256,6 +313,7 @@ struct tlb_state {
 	 */
 	struct tlb_context ctxs[TLB_NR_DYN_ASIDS];
 };
+<<<<<<< HEAD
 DECLARE_PER_CPU_SHARED_ALIGNED(struct tlb_state, cpu_tlbstate);
 
 /*
@@ -289,6 +347,32 @@ static inline bool nmi_uaccess_okay(void)
 
 	return true;
 }
+=======
+DECLARE_PER_CPU_ALIGNED(struct tlb_state, cpu_tlbstate);
+
+struct tlb_state_shared {
+	/*
+	 * We can be in one of several states:
+	 *
+	 *  - Actively using an mm.  Our CPU's bit will be set in
+	 *    mm_cpumask(loaded_mm) and is_lazy == false;
+	 *
+	 *  - Not using a real mm.  loaded_mm == &init_mm.  Our CPU's bit
+	 *    will not be set in mm_cpumask(&init_mm) and is_lazy == false.
+	 *
+	 *  - Lazily using a real mm.  loaded_mm != &init_mm, our bit
+	 *    is set in mm_cpumask(loaded_mm), but is_lazy == true.
+	 *    We're heuristically guessing that the CR3 load we
+	 *    skipped more than makes up for the overhead added by
+	 *    lazy mode.
+	 */
+	bool is_lazy;
+};
+DECLARE_PER_CPU_SHARED_ALIGNED(struct tlb_state_shared, cpu_tlbstate_shared);
+
+bool nmi_uaccess_okay(void);
+#define nmi_uaccess_okay nmi_uaccess_okay
+>>>>>>> upstream/android-13
 
 /* Initialize cr4 shadow for this CPU. */
 static inline void cr4_init_shadow(void)
@@ -296,6 +380,7 @@ static inline void cr4_init_shadow(void)
 	this_cpu_write(cpu_tlbstate.cr4, __read_cr4());
 }
 
+<<<<<<< HEAD
 static inline void __cr4_set(unsigned long cr4)
 {
 	lockdep_assert_irqs_disabled();
@@ -524,6 +609,14 @@ static inline void __flush_tlb_one_kernel(unsigned long addr)
 #define TLB_FLUSH_ALL	-1UL
 
 /*
+=======
+extern unsigned long mmu_cr4_features;
+extern u32 *trampoline_cr4_features;
+
+extern void initialize_tlbstate_and_flush(void);
+
+/*
+>>>>>>> upstream/android-13
  * TLB flushing:
  *
  *  - flush_tlb_all() flushes all processes TLBs
@@ -531,7 +624,11 @@ static inline void __flush_tlb_one_kernel(unsigned long addr)
  *  - flush_tlb_page(vma, vmaddr) flushes one page
  *  - flush_tlb_range(vma, start, end) flushes a range of pages
  *  - flush_tlb_kernel_range(start, end) flushes a range of kernel pages
+<<<<<<< HEAD
  *  - flush_tlb_others(cpumask, info) flushes TLBs on other cpus
+=======
+ *  - flush_tlb_multi(cpumask, info) flushes TLBs on multiple cpus
+>>>>>>> upstream/android-13
  *
  * ..but the i386 has somewhat limited tlb flushing capabilities,
  * and page-granular flushes are available only on i486 and up.
@@ -557,6 +654,7 @@ struct flush_tlb_info {
 	unsigned long		start;
 	unsigned long		end;
 	u64			new_tlb_gen;
+<<<<<<< HEAD
 };
 
 #define local_flush_tlb() __flush_tlb()
@@ -569,16 +667,52 @@ struct flush_tlb_info {
 extern void flush_tlb_all(void);
 extern void flush_tlb_mm_range(struct mm_struct *mm, unsigned long start,
 				unsigned long end, unsigned long vmflag);
+=======
+	unsigned int		initiating_cpu;
+	u8			stride_shift;
+	u8			freed_tables;
+};
+
+void flush_tlb_local(void);
+void flush_tlb_one_user(unsigned long addr);
+void flush_tlb_one_kernel(unsigned long addr);
+void flush_tlb_multi(const struct cpumask *cpumask,
+		      const struct flush_tlb_info *info);
+
+#ifdef CONFIG_PARAVIRT
+#include <asm/paravirt.h>
+#endif
+
+#define flush_tlb_mm(mm)						\
+		flush_tlb_mm_range(mm, 0UL, TLB_FLUSH_ALL, 0UL, true)
+
+#define flush_tlb_range(vma, start, end)				\
+	flush_tlb_mm_range((vma)->vm_mm, start, end,			\
+			   ((vma)->vm_flags & VM_HUGETLB)		\
+				? huge_page_shift(hstate_vma(vma))	\
+				: PAGE_SHIFT, false)
+
+extern void flush_tlb_all(void);
+extern void flush_tlb_mm_range(struct mm_struct *mm, unsigned long start,
+				unsigned long end, unsigned int stride_shift,
+				bool freed_tables);
+>>>>>>> upstream/android-13
 extern void flush_tlb_kernel_range(unsigned long start, unsigned long end);
 
 static inline void flush_tlb_page(struct vm_area_struct *vma, unsigned long a)
 {
+<<<<<<< HEAD
 	flush_tlb_mm_range(vma->vm_mm, a, a + PAGE_SIZE, VM_NONE);
 }
 
 void native_flush_tlb_others(const struct cpumask *cpumask,
 			     const struct flush_tlb_info *info);
 
+=======
+	flush_tlb_mm_range(vma->vm_mm, a, a + PAGE_SIZE, PAGE_SHIFT, false);
+}
+
+>>>>>>> upstream/android-13
 static inline u64 inc_mm_tlb_gen(struct mm_struct *mm)
 {
 	/*
@@ -599,6 +733,7 @@ static inline void arch_tlbbatch_add_mm(struct arch_tlbflush_unmap_batch *batch,
 
 extern void arch_tlbbatch_flush(struct arch_tlbflush_unmap_batch *batch);
 
+<<<<<<< HEAD
 #ifndef CONFIG_PARAVIRT
 #define flush_tlb_others(mask, info)	\
 	native_flush_tlb_others(mask, info)
@@ -606,5 +741,8 @@ extern void arch_tlbbatch_flush(struct arch_tlbflush_unmap_batch *batch);
 #define paravirt_tlb_remove_table(tlb, page) \
 	tlb_remove_page(tlb, (void *)(page))
 #endif
+=======
+#endif /* !MODULE */
+>>>>>>> upstream/android-13
 
 #endif /* _ASM_X86_TLBFLUSH_H */

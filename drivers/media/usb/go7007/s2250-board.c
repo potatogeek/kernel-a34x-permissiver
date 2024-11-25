@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2008 Sensoray Company Inc.
  *
@@ -9,6 +10,11 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2008 Sensoray Company Inc.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -406,7 +412,11 @@ static int s2250_s_ctrl(struct v4l2_ctrl *ctrl)
 }
 
 static int s2250_set_fmt(struct v4l2_subdev *sd,
+<<<<<<< HEAD
 		struct v4l2_subdev_pad_config *cfg,
+=======
+		struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 		struct v4l2_subdev_format *format)
 {
 	struct v4l2_mbus_framefmt *fmt = &format->format;
@@ -512,10 +522,18 @@ static int s2250_probe(struct i2c_client *client,
 	u8 *data;
 	struct go7007 *go = i2c_get_adapdata(adapter);
 	struct go7007_usb *usb = go->hpi_context;
+<<<<<<< HEAD
 
 	audio = i2c_new_dummy(adapter, TLV320_ADDRESS >> 1);
 	if (audio == NULL)
 		return -ENOMEM;
+=======
+	int err = -EIO;
+
+	audio = i2c_new_dummy_device(adapter, TLV320_ADDRESS >> 1);
+	if (IS_ERR(audio))
+		return PTR_ERR(audio);
+>>>>>>> upstream/android-13
 
 	state = kzalloc(sizeof(struct s2250), GFP_KERNEL);
 	if (state == NULL) {
@@ -540,11 +558,16 @@ static int s2250_probe(struct i2c_client *client,
 		V4L2_CID_HUE, -512, 511, 1, 0);
 	sd->ctrl_handler = &state->hdl;
 	if (state->hdl.error) {
+<<<<<<< HEAD
 		int err = state->hdl.error;
 
 		v4l2_ctrl_handler_free(&state->hdl);
 		kfree(state);
 		return err;
+=======
+		err = state->hdl.error;
+		goto fail;
+>>>>>>> upstream/android-13
 	}
 
 	state->std = V4L2_STD_NTSC;
@@ -608,13 +631,21 @@ fail:
 	i2c_unregister_device(audio);
 	v4l2_ctrl_handler_free(&state->hdl);
 	kfree(state);
+<<<<<<< HEAD
 	return -EIO;
+=======
+	return err;
+>>>>>>> upstream/android-13
 }
 
 static int s2250_remove(struct i2c_client *client)
 {
 	struct s2250 *state = to_state(i2c_get_clientdata(client));
 
+<<<<<<< HEAD
+=======
+	i2c_unregister_device(state->audio);
+>>>>>>> upstream/android-13
 	v4l2_device_unregister_subdev(&state->sd);
 	v4l2_ctrl_handler_free(&state->hdl);
 	kfree(state);

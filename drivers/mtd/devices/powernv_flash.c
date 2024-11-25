@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * OPAL PNOR flash MTD abstraction
  *
  * Copyright IBM 2015
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,6 +17,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -135,6 +142,10 @@ out:
 }
 
 /**
+<<<<<<< HEAD
+=======
+ * powernv_flash_read
+>>>>>>> upstream/android-13
  * @mtd: the device
  * @from: the offset to read from
  * @len: the number of bytes to read
@@ -151,6 +162,10 @@ static int powernv_flash_read(struct mtd_info *mtd, loff_t from, size_t len,
 }
 
 /**
+<<<<<<< HEAD
+=======
+ * powernv_flash_write
+>>>>>>> upstream/android-13
  * @mtd: the device
  * @to: the offset to write to
  * @len: the number of bytes to write
@@ -167,6 +182,10 @@ static int powernv_flash_write(struct mtd_info *mtd, loff_t to, size_t len,
 }
 
 /**
+<<<<<<< HEAD
+=======
+ * powernv_flash_erase
+>>>>>>> upstream/android-13
  * @mtd: the device
  * @erase: the erase info
  * Returns 0 if erase successful or -ERRNO if an error occurred
@@ -185,7 +204,11 @@ static int powernv_flash_erase(struct mtd_info *mtd, struct erase_info *erase)
 
 /**
  * powernv_flash_set_driver_info - Fill the mtd_info structure and docg3
+<<<<<<< HEAD
  * structure @pdev: The platform device
+=======
+ * @dev: The device structure
+>>>>>>> upstream/android-13
  * @mtd: The structure to fill
  */
 static int powernv_flash_set_driver_info(struct device *dev,
@@ -212,7 +235,11 @@ static int powernv_flash_set_driver_info(struct device *dev,
 	 * Going to have to check what details I need to set and how to
 	 * get them
 	 */
+<<<<<<< HEAD
 	mtd->name = of_get_property(dev->of_node, "name", NULL);
+=======
+	mtd->name = devm_kasprintf(dev, GFP_KERNEL, "%pOFP", dev->of_node);
+>>>>>>> upstream/android-13
 	mtd->type = MTD_NORFLASH;
 	mtd->flags = MTD_WRITEABLE;
 	mtd->size = size;

@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *
  * Copyright (c) 2003 Gerd Knorr
  * Copyright (c) 2003 Pavel Machek
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,6 +17,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -93,7 +100,11 @@ static void ir_enltv_handle_key(struct bttv *btv)
 	data = ir_extract_bits(gpio, ir->mask_keycode);
 
 	/* Check if it is keyup */
+<<<<<<< HEAD
 	keyup = (gpio & ir->mask_keyup) ? 1 << 31 : 0;
+=======
+	keyup = (gpio & ir->mask_keyup) ? 1UL << 31 : 0;
+>>>>>>> upstream/android-13
 
 	if ((ir->last_gpio & 0x7f) != data) {
 		dprintk("gpio=0x%x code=%d | %s\n",
@@ -104,7 +115,11 @@ static void ir_enltv_handle_key(struct bttv *btv)
 		if (keyup)
 			rc_keyup(ir->dev);
 	} else {
+<<<<<<< HEAD
 		if ((ir->last_gpio & 1 << 31) == keyup)
+=======
+		if ((ir->last_gpio & 1UL << 31) == keyup)
+>>>>>>> upstream/android-13
 			return;
 
 		dprintk("(cnt) gpio=0x%x code=%d | %s\n",
@@ -370,7 +385,11 @@ static int get_key_pv951(struct IR_i2c *ir, enum rc_proto *protocol,
 /* Instantiate the I2C IR receiver device, if present */
 void init_bttv_i2c_ir(struct bttv *btv)
 {
+<<<<<<< HEAD
 	const unsigned short addr_list[] = {
+=======
+	static const unsigned short addr_list[] = {
+>>>>>>> upstream/android-13
 		0x1a, 0x18, 0x64, 0x30, 0x71,
 		I2C_CLIENT_END
 	};
@@ -382,7 +401,11 @@ void init_bttv_i2c_ir(struct bttv *btv)
 
 	memset(&info, 0, sizeof(struct i2c_board_info));
 	memset(&btv->init_data, 0, sizeof(btv->init_data));
+<<<<<<< HEAD
 	strlcpy(info.type, "ir_video", I2C_NAME_SIZE);
+=======
+	strscpy(info.type, "ir_video", I2C_NAME_SIZE);
+>>>>>>> upstream/android-13
 
 	switch (btv->c.type) {
 	case BTTV_BOARD_PV951:
@@ -395,7 +418,11 @@ void init_bttv_i2c_ir(struct bttv *btv)
 
 	if (btv->init_data.name) {
 		info.platform_data = &btv->init_data;
+<<<<<<< HEAD
 		i2c_dev = i2c_new_device(&btv->c.i2c_adap, &info);
+=======
+		i2c_dev = i2c_new_client_device(&btv->c.i2c_adap, &info);
+>>>>>>> upstream/android-13
 	} else {
 		/*
 		 * The external IR receiver is at i2c address 0x34 (0x35 for
@@ -405,9 +432,15 @@ void init_bttv_i2c_ir(struct bttv *btv)
 		 * internal.
 		 * That's why we probe 0x1a (~0x34) first. CB
 		 */
+<<<<<<< HEAD
 		i2c_dev = i2c_new_probed_device(&btv->c.i2c_adap, &info, addr_list, NULL);
 	}
 	if (NULL == i2c_dev)
+=======
+		i2c_dev = i2c_new_scanned_device(&btv->c.i2c_adap, &info, addr_list, NULL);
+	}
+	if (IS_ERR(i2c_dev))
+>>>>>>> upstream/android-13
 		return;
 
 #if defined(CONFIG_MODULES) && defined(MODULE)

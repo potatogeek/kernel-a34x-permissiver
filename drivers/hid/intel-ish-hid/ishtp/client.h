@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * ISHTP client logic
  *
  * Copyright (c) 2003-2016, Intel Corporation.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -11,6 +16,8 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _ISHTP_CLIENT_H_
@@ -19,6 +26,7 @@
 #include <linux/types.h>
 #include "ishtp-dev.h"
 
+<<<<<<< HEAD
 /* Client state */
 enum cl_state {
 	ISHTP_CL_INITIALIZING = 0,
@@ -28,6 +36,8 @@ enum cl_state {
 	ISHTP_CL_DISCONNECTED
 };
 
+=======
+>>>>>>> upstream/android-13
 /* Tx and Rx ring size */
 #define	CL_DEF_RX_RING_SIZE	2
 #define	CL_DEF_TX_RING_SIZE	2
@@ -84,6 +94,10 @@ struct ishtp_cl {
 	/* Client Tx buffers list */
 	unsigned int	tx_ring_size;
 	struct ishtp_cl_tx_ring	tx_list, tx_free_list;
+<<<<<<< HEAD
+=======
+	int		tx_ring_free_size;
+>>>>>>> upstream/android-13
 	spinlock_t	tx_list_spinlock;
 	spinlock_t	tx_free_list_spinlock;
 	size_t	tx_offs;	/* Offset in buffer at head of 'tx_list' */
@@ -125,7 +139,11 @@ struct ishtp_cl {
 };
 
 /* Client connection managenment internal functions */
+<<<<<<< HEAD
 int ishtp_can_client_connect(struct ishtp_device *ishtp_dev, uuid_le *uuid);
+=======
+int ishtp_can_client_connect(struct ishtp_device *ishtp_dev, guid_t *uuid);
+>>>>>>> upstream/android-13
 int ishtp_fw_cl_by_id(struct ishtp_device *dev, uint8_t client_id);
 void ishtp_cl_send_msg(struct ishtp_device *dev, struct ishtp_cl *cl);
 void recv_ishtp_cl_msg(struct ishtp_device *dev,
@@ -137,6 +155,11 @@ int ishtp_cl_alloc_rx_ring(struct ishtp_cl *cl);
 int ishtp_cl_alloc_tx_ring(struct ishtp_cl *cl);
 void ishtp_cl_free_rx_ring(struct ishtp_cl *cl);
 void ishtp_cl_free_tx_ring(struct ishtp_cl *cl);
+<<<<<<< HEAD
+=======
+int ishtp_cl_get_tx_free_buffer_size(struct ishtp_cl *cl);
+int ishtp_cl_get_tx_free_rings(struct ishtp_cl *cl);
+>>>>>>> upstream/android-13
 
 /* DMA I/F functions */
 void recv_ishtp_cl_msg_dma(struct ishtp_device *dev, void *msg,
@@ -166,6 +189,7 @@ static inline bool ishtp_cl_cmp_id(const struct ishtp_cl *cl1,
 		(cl1->fw_client_id == cl2->fw_client_id);
 }
 
+<<<<<<< HEAD
 /* exported functions from ISHTP under client management scope */
 struct ishtp_cl	*ishtp_cl_allocate(struct ishtp_device *dev);
 void ishtp_cl_free(struct ishtp_cl *cl);
@@ -179,4 +203,6 @@ int ishtp_cl_flush_queues(struct ishtp_cl *cl);
 /* exported functions from ISHTP client buffer management scope */
 int ishtp_cl_io_rb_recycle(struct ishtp_cl_rb *rb);
 
+=======
+>>>>>>> upstream/android-13
 #endif /* _ISHTP_CLIENT_H_ */

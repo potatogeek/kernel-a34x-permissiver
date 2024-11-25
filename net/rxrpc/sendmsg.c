@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* AF_RXRPC sendmsg() implementation.
  *
  * Copyright (C) 2007, 2016 Red Hat, Inc. All Rights Reserved.
  * Written by David Howells (dhowells@redhat.com)
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public Licence
  * as published by the Free Software Foundation; either version
  * 2 of the Licence, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -22,6 +29,24 @@
 #include "ar-internal.h"
 
 /*
+<<<<<<< HEAD
+=======
+ * Return true if there's sufficient Tx queue space.
+ */
+static bool rxrpc_check_tx_space(struct rxrpc_call *call, rxrpc_seq_t *_tx_win)
+{
+	unsigned int win_size =
+		min_t(unsigned int, call->tx_winsize,
+		      call->cong_cwnd + call->cong_extra);
+	rxrpc_seq_t tx_win = READ_ONCE(call->tx_hard_ack);
+
+	if (_tx_win)
+		*_tx_win = tx_win;
+	return call->tx_top - tx_win < win_size;
+}
+
+/*
+>>>>>>> upstream/android-13
  * Wait for space to appear in the Tx queue or a signal to occur.
  */
 static int rxrpc_wait_for_tx_window_intr(struct rxrpc_sock *rx,
@@ -30,9 +55,13 @@ static int rxrpc_wait_for_tx_window_intr(struct rxrpc_sock *rx,
 {
 	for (;;) {
 		set_current_state(TASK_INTERRUPTIBLE);
+<<<<<<< HEAD
 		if (call->tx_top - call->tx_hard_ack <
 		    min_t(unsigned int, call->tx_winsize,
 			  call->cong_cwnd + call->cong_extra))
+=======
+		if (rxrpc_check_tx_space(call, NULL))
+>>>>>>> upstream/android-13
 			return 0;
 
 		if (call->state >= RXRPC_CALL_COMPLETE)
@@ -53,6 +82,7 @@ static int rxrpc_wait_for_tx_window_intr(struct rxrpc_sock *rx,
  * Wait for space to appear in the Tx queue uninterruptibly, but with
  * a timeout of 2*RTT if no progress was made and a signal occurred.
  */
+<<<<<<< HEAD
 static int rxrpc_wait_for_tx_window_nonintr(struct rxrpc_sock *rx,
 					    struct rxrpc_call *call)
 {
@@ -66,15 +96,33 @@ static int rxrpc_wait_for_tx_window_nonintr(struct rxrpc_sock *rx,
 		rtt2 = 2;
 
 	timeout = rtt2;
+=======
+static int rxrpc_wait_for_tx_window_waitall(struct rxrpc_sock *rx,
+					    struct rxrpc_call *call)
+{
+	rxrpc_seq_t tx_start, tx_win;
+	signed long rtt, timeout;
+
+	rtt = READ_ONCE(call->peer->srtt_us) >> 3;
+	rtt = usecs_to_jiffies(rtt) * 2;
+	if (rtt < 2)
+		rtt = 2;
+
+	timeout = rtt;
+>>>>>>> upstream/android-13
 	tx_start = READ_ONCE(call->tx_hard_ack);
 
 	for (;;) {
 		set_current_state(TASK_UNINTERRUPTIBLE);
 
 		tx_win = READ_ONCE(call->tx_hard_ack);
+<<<<<<< HEAD
 		if (call->tx_top - tx_win <
 		    min_t(unsigned int, call->tx_winsize,
 			  call->cong_cwnd + call->cong_extra))
+=======
+		if (rxrpc_check_tx_space(call, &tx_win))
+>>>>>>> upstream/android-13
 			return 0;
 
 		if (call->state >= RXRPC_CALL_COMPLETE)
@@ -85,7 +133,11 @@ static int rxrpc_wait_for_tx_window_nonintr(struct rxrpc_sock *rx,
 			return -EINTR;
 
 		if (tx_win != tx_start) {
+<<<<<<< HEAD
 			timeout = rtt2;
+=======
+			timeout = rtt;
+>>>>>>> upstream/android-13
 			tx_start = tx_win;
 		}
 
@@ -95,6 +147,29 @@ static int rxrpc_wait_for_tx_window_nonintr(struct rxrpc_sock *rx,
 }
 
 /*
+<<<<<<< HEAD
+=======
+ * Wait for space to appear in the Tx queue uninterruptibly.
+ */
+static int rxrpc_wait_for_tx_window_nonintr(struct rxrpc_sock *rx,
+					    struct rxrpc_call *call,
+					    long *timeo)
+{
+	for (;;) {
+		set_current_state(TASK_UNINTERRUPTIBLE);
+		if (rxrpc_check_tx_space(call, NULL))
+			return 0;
+
+		if (call->state >= RXRPC_CALL_COMPLETE)
+			return call->error;
+
+		trace_rxrpc_transmit(call, rxrpc_transmit_wait);
+		*timeo = schedule_timeout(*timeo);
+	}
+}
+
+/*
+>>>>>>> upstream/android-13
  * wait for space to appear in the transmit/ACK window
  * - caller holds the socket locked
  */
@@ -111,10 +186,26 @@ static int rxrpc_wait_for_tx_window(struct rxrpc_sock *rx,
 
 	add_wait_queue(&call->waitq, &myself);
 
+<<<<<<< HEAD
 	if (waitall)
 		ret = rxrpc_wait_for_tx_window_nonintr(rx, call);
 	else
 		ret = rxrpc_wait_for_tx_window_intr(rx, call, timeo);
+=======
+	switch (call->interruptibility) {
+	case RXRPC_INTERRUPTIBLE:
+		if (waitall)
+			ret = rxrpc_wait_for_tx_window_waitall(rx, call);
+		else
+			ret = rxrpc_wait_for_tx_window_intr(rx, call, timeo);
+		break;
+	case RXRPC_PREINTERRUPTIBLE:
+	case RXRPC_UNINTERRUPTIBLE:
+	default:
+		ret = rxrpc_wait_for_tx_window_nonintr(rx, call, timeo);
+		break;
+	}
+>>>>>>> upstream/android-13
 
 	remove_wait_queue(&call->waitq, &myself);
 	set_current_state(TASK_RUNNING);
@@ -152,12 +243,22 @@ static void rxrpc_notify_end_tx(struct rxrpc_sock *rx, struct rxrpc_call *call,
 }
 
 /*
+<<<<<<< HEAD
  * Queue a DATA packet for transmission, set the resend timeout and send the
  * packet immediately
  */
 static void rxrpc_queue_packet(struct rxrpc_sock *rx, struct rxrpc_call *call,
 			       struct sk_buff *skb, bool last,
 			       rxrpc_notify_end_tx_t notify_end_tx)
+=======
+ * Queue a DATA packet for transmission, set the resend timeout and send
+ * the packet immediately.  Returns the error from rxrpc_send_data_packet()
+ * in case the caller wants to do something with it.
+ */
+static int rxrpc_queue_packet(struct rxrpc_sock *rx, struct rxrpc_call *call,
+			      struct sk_buff *skb, bool last,
+			      rxrpc_notify_end_tx_t notify_end_tx)
+>>>>>>> upstream/android-13
 {
 	struct rxrpc_skb_priv *sp = rxrpc_skb(skb);
 	unsigned long now;
@@ -169,10 +270,15 @@ static void rxrpc_queue_packet(struct rxrpc_sock *rx, struct rxrpc_call *call,
 
 	ASSERTCMP(seq, ==, call->tx_top + 1);
 
+<<<<<<< HEAD
 	if (last) {
 		annotation |= RXRPC_TX_ANNO_LAST;
 		set_bit(RXRPC_CALL_TX_LASTQ, &call->flags);
 	}
+=======
+	if (last)
+		annotation |= RXRPC_TX_ANNO_LAST;
+>>>>>>> upstream/android-13
 
 	/* We have to set the timestamp before queueing as the retransmit
 	 * algorithm can see the packet as soon as we queue it.
@@ -180,7 +286,11 @@ static void rxrpc_queue_packet(struct rxrpc_sock *rx, struct rxrpc_call *call,
 	skb->tstamp = ktime_get_real();
 
 	ix = seq & RXRPC_RXTX_BUFF_MASK;
+<<<<<<< HEAD
 	rxrpc_get_skb(skb, rxrpc_skb_tx_got);
+=======
+	rxrpc_get_skb(skb, rxrpc_skb_got);
+>>>>>>> upstream/android-13
 	call->rxtx_annotations[ix] = annotation;
 	smp_wmb();
 	call->rxtx_buffer[ix] = skb;
@@ -207,7 +317,11 @@ static void rxrpc_queue_packet(struct rxrpc_sock *rx, struct rxrpc_call *call,
 			trace_rxrpc_timer(call, rxrpc_timer_init_for_send_reply, now);
 			if (!last)
 				break;
+<<<<<<< HEAD
 			/* Fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case RXRPC_CALL_SERVER_SEND_REPLY:
 			call->state = RXRPC_CALL_SERVER_AWAIT_ACK;
 			rxrpc_notify_end_tx(rx, call, notify_end_tx);
@@ -227,15 +341,21 @@ static void rxrpc_queue_packet(struct rxrpc_sock *rx, struct rxrpc_call *call,
 		case -ENETUNREACH:
 		case -EHOSTUNREACH:
 		case -ECONNREFUSED:
+<<<<<<< HEAD
 			rxrpc_set_call_completion(call,
 						  RXRPC_CALL_LOCAL_ERROR,
 						  0, ret);
 			rxrpc_notify_socket(call);
+=======
+			rxrpc_set_call_completion(call, RXRPC_CALL_LOCAL_ERROR,
+						  0, ret);
+>>>>>>> upstream/android-13
 			goto out;
 		}
 		_debug("need instant resend %d", ret);
 		rxrpc_instant_resend(call, ix);
 	} else {
+<<<<<<< HEAD
 		unsigned long now = jiffies, resend_at;
 
 		if (call->peer->rtt_usage > 1)
@@ -246,14 +366,25 @@ static void rxrpc_queue_packet(struct rxrpc_sock *rx, struct rxrpc_call *call,
 			resend_at = 1;
 
 		resend_at += now;
+=======
+		unsigned long now = jiffies;
+		unsigned long resend_at = now + call->peer->rto_j;
+
+>>>>>>> upstream/android-13
 		WRITE_ONCE(call->resend_at, resend_at);
 		rxrpc_reduce_call_timer(call, resend_at, now,
 					rxrpc_timer_set_for_send);
 	}
 
 out:
+<<<<<<< HEAD
 	rxrpc_free_skb(skb, rxrpc_skb_tx_freed);
 	_leave("");
+=======
+	rxrpc_free_skb(skb, rxrpc_skb_freed);
+	_leave(" = %d", ret);
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -292,7 +423,11 @@ static int rxrpc_send_data(struct rxrpc_sock *rx,
 
 	skb = call->tx_pending;
 	call->tx_pending = NULL;
+<<<<<<< HEAD
 	rxrpc_see_skb(skb, rxrpc_skb_tx_seen);
+=======
+	rxrpc_see_skb(skb, rxrpc_skb_seen);
+>>>>>>> upstream/android-13
 
 	copied = 0;
 	do {
@@ -301,6 +436,7 @@ static int rxrpc_send_data(struct rxrpc_sock *rx,
 			rxrpc_send_ack_packet(call, false, NULL);
 
 		if (!skb) {
+<<<<<<< HEAD
 			size_t size, chunk, max, space;
 
 			_debug("alloc");
@@ -308,6 +444,13 @@ static int rxrpc_send_data(struct rxrpc_sock *rx,
 			if (call->tx_top - call->tx_hard_ack >=
 			    min_t(unsigned int, call->tx_winsize,
 				  call->cong_cwnd + call->cong_extra)) {
+=======
+			size_t remain, bufsize, chunk, offset;
+
+			_debug("alloc");
+
+			if (!rxrpc_check_tx_space(call, NULL)) {
+>>>>>>> upstream/android-13
 				ret = -EAGAIN;
 				if (msg->msg_flags & MSG_DONTWAIT)
 					goto maybe_error;
@@ -318,6 +461,7 @@ static int rxrpc_send_data(struct rxrpc_sock *rx,
 					goto maybe_error;
 			}
 
+<<<<<<< HEAD
 			max = RXRPC_JUMBO_DATALEN;
 			max -= call->conn->security_size;
 			max &= ~(call->conn->size_align - 1UL);
@@ -340,16 +484,44 @@ static int rxrpc_send_data(struct rxrpc_sock *rx,
 				goto maybe_error;
 
 			rxrpc_new_skb(skb, rxrpc_skb_tx_new);
+=======
+			/* Work out the maximum size of a packet.  Assume that
+			 * the security header is going to be in the padded
+			 * region (enc blocksize), but the trailer is not.
+			 */
+			remain = more ? INT_MAX : msg_data_left(msg);
+			ret = call->conn->security->how_much_data(call, remain,
+								  &bufsize, &chunk, &offset);
+			if (ret < 0)
+				goto maybe_error;
+
+			_debug("SIZE: %zu/%zu @%zu", chunk, bufsize, offset);
+
+			/* create a buffer that we can retain until it's ACK'd */
+			skb = sock_alloc_send_skb(
+				sk, bufsize, msg->msg_flags & MSG_DONTWAIT, &ret);
+			if (!skb)
+				goto maybe_error;
+
+			sp = rxrpc_skb(skb);
+			sp->rx_flags |= RXRPC_SKB_TX_BUFFER;
+			rxrpc_new_skb(skb, rxrpc_skb_new);
+>>>>>>> upstream/android-13
 
 			_debug("ALLOC SEND %p", skb);
 
 			ASSERTCMP(skb->mark, ==, 0);
 
+<<<<<<< HEAD
 			_debug("HS: %u", call->conn->security_size);
 			skb_reserve(skb, call->conn->security_size);
 			skb->len += call->conn->security_size;
 
 			sp = rxrpc_skb(skb);
+=======
+			__skb_put(skb, offset);
+
+>>>>>>> upstream/android-13
 			sp->remain = chunk;
 			if (sp->remain > skb_tailroom(skb))
 				sp->remain = skb_tailroom(skb);
@@ -387,11 +559,20 @@ static int rxrpc_send_data(struct rxrpc_sock *rx,
 				call->tx_total_len -= copy;
 		}
 
+<<<<<<< HEAD
+=======
+		/* check for the far side aborting the call or a network error
+		 * occurring */
+		if (call->state == RXRPC_CALL_COMPLETE)
+			goto call_terminated;
+
+>>>>>>> upstream/android-13
 		/* add the packet to the send queue if it's now full */
 		if (sp->remain <= 0 ||
 		    (msg_data_left(msg) == 0 && !more)) {
 			struct rxrpc_connection *conn = call->conn;
 			uint32_t seq;
+<<<<<<< HEAD
 			size_t pad;
 
 			/* pad out if we're using security */
@@ -403,6 +584,8 @@ static int rxrpc_send_data(struct rxrpc_sock *rx,
 				if (pad)
 					skb_put_zero(skb, pad);
 			}
+=======
+>>>>>>> upstream/android-13
 
 			seq = call->tx_top + 1;
 
@@ -416,6 +599,7 @@ static int rxrpc_send_data(struct rxrpc_sock *rx,
 				 call->tx_winsize)
 				sp->hdr.flags |= RXRPC_MORE_PACKETS;
 
+<<<<<<< HEAD
 			ret = conn->security->secure_packet(
 				call, skb, skb->mark, skb->head);
 			if (ret < 0)
@@ -436,6 +620,18 @@ static int rxrpc_send_data(struct rxrpc_sock *rx,
 			ret = call->error;
 			goto out;
 		}
+=======
+			ret = call->security->secure_packet(call, skb, skb->mark);
+			if (ret < 0)
+				goto out;
+
+			ret = rxrpc_queue_packet(rx, call, skb,
+						 !msg_data_left(msg) && !more,
+						 notify_end_tx);
+			/* Should check for failure here */
+			skb = NULL;
+		}
+>>>>>>> upstream/android-13
 	} while (msg_data_left(msg) > 0);
 
 success:
@@ -445,6 +641,14 @@ out:
 	_leave(" = %d", ret);
 	return ret;
 
+<<<<<<< HEAD
+=======
+call_terminated:
+	rxrpc_free_skb(skb, rxrpc_skb_freed);
+	_leave(" = %d", call->error);
+	return call->error;
+
+>>>>>>> upstream/android-13
 maybe_error:
 	if (copied)
 		goto success;
@@ -504,10 +708,17 @@ static int rxrpc_sendmsg_cmsg(struct msghdr *msg, struct rxrpc_send_params *p)
 				return -EINVAL;
 			break;
 
+<<<<<<< HEAD
 		case RXRPC_ACCEPT:
 			if (p->command != RXRPC_CMD_SEND_DATA)
 				return -EINVAL;
 			p->command = RXRPC_CMD_ACCEPT;
+=======
+		case RXRPC_CHARGE_ACCEPT:
+			if (p->command != RXRPC_CMD_SEND_DATA)
+				return -EINVAL;
+			p->command = RXRPC_CMD_CHARGE_ACCEPT;
+>>>>>>> upstream/android-13
 			if (len != 0)
 				return -EINVAL;
 			break;
@@ -620,6 +831,10 @@ int rxrpc_do_sendmsg(struct rxrpc_sock *rx, struct msghdr *msg, size_t len)
 		.call.tx_total_len	= -1,
 		.call.user_call_ID	= 0,
 		.call.nr_timeouts	= 0,
+<<<<<<< HEAD
+=======
+		.call.interruptibility	= RXRPC_INTERRUPTIBLE,
+>>>>>>> upstream/android-13
 		.abort_code		= 0,
 		.command		= RXRPC_CMD_SEND_DATA,
 		.exclusive		= false,
@@ -632,6 +847,7 @@ int rxrpc_do_sendmsg(struct rxrpc_sock *rx, struct msghdr *msg, size_t len)
 	if (ret < 0)
 		goto error_release_sock;
 
+<<<<<<< HEAD
 	if (p.command == RXRPC_CMD_ACCEPT) {
 		ret = -EINVAL;
 		if (rx->sk.sk_state != RXRPC_SERVER_LISTENING)
@@ -642,6 +858,14 @@ int rxrpc_do_sendmsg(struct rxrpc_sock *rx, struct msghdr *msg, size_t len)
 			return PTR_ERR(call);
 		ret = 0;
 		goto out_put_unlock;
+=======
+	if (p.command == RXRPC_CMD_CHARGE_ACCEPT) {
+		ret = -EINVAL;
+		if (rx->sk.sk_state != RXRPC_SERVER_LISTENING)
+			goto error_release_sock;
+		ret = rxrpc_user_charge_accept(rx, p.call.user_call_ID);
+		goto error_release_sock;
+>>>>>>> upstream/android-13
 	}
 
 	call = rxrpc_find_call_by_user_ID(rx, p.call.user_call_ID);
@@ -663,7 +887,10 @@ int rxrpc_do_sendmsg(struct rxrpc_sock *rx, struct msghdr *msg, size_t len)
 		case RXRPC_CALL_CLIENT_AWAIT_CONN:
 		case RXRPC_CALL_SERVER_PREALLOC:
 		case RXRPC_CALL_SERVER_SECURING:
+<<<<<<< HEAD
 		case RXRPC_CALL_SERVER_ACCEPTING:
+=======
+>>>>>>> upstream/android-13
 			rxrpc_put_call(call, rxrpc_call_put);
 			ret = -EBUSY;
 			goto error_release_sock;
@@ -694,13 +921,21 @@ int rxrpc_do_sendmsg(struct rxrpc_sock *rx, struct msghdr *msg, size_t len)
 		if (p.call.timeouts.normal > 0 && j == 0)
 			j = 1;
 		WRITE_ONCE(call->next_rx_timo, j);
+<<<<<<< HEAD
 		/* Fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 2:
 		j = msecs_to_jiffies(p.call.timeouts.idle);
 		if (p.call.timeouts.idle > 0 && j == 0)
 			j = 1;
 		WRITE_ONCE(call->next_req_timo, j);
+<<<<<<< HEAD
 		/* Fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 1:
 		if (p.call.timeouts.hard > 0) {
 			j = msecs_to_jiffies(p.call.timeouts.hard);

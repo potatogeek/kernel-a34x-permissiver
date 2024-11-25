@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0+ */
+>>>>>>> upstream/android-13
 /*
  * TI OMAP4 ISS V4L2 Driver - Register defines
  *
  * Copyright (C) 2012 Texas Instruments.
  *
  * Author: Sergio Aguirre <sergio.a.aguirre@gmail.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _OMAP4_ISS_REGS_H_
@@ -201,7 +208,11 @@
 #define CSI2_TIMING_STOP_STATE_COUNTER_IO1_MASK		(0x1fff << 0)
 #define CSI2_TIMING_STOP_STATE_COUNTER_IO1_SHIFT	0
 
+<<<<<<< HEAD
 #define CSI2_CTX_CTRL1(i)				(0x70 + (0x20 * i))
+=======
+#define CSI2_CTX_CTRL1(i)				(0x70 + (0x20 * (i)))
+>>>>>>> upstream/android-13
 #define CSI2_CTX_CTRL1_GENERIC				BIT(30)
 #define CSI2_CTX_CTRL1_TRANSCODE			(0xf << 24)
 #define CSI2_CTX_CTRL1_FEC_NUMBER_MASK			(0xff << 16)
@@ -214,7 +225,11 @@
 #define CSI2_CTX_CTRL1_PING_PONG			BIT(3)
 #define CSI2_CTX_CTRL1_CTX_EN				BIT(0)
 
+<<<<<<< HEAD
 #define CSI2_CTX_CTRL2(i)				(0x74 + (0x20 * i))
+=======
+#define CSI2_CTX_CTRL2(i)				(0x74 + (0x20 * (i)))
+>>>>>>> upstream/android-13
 #define CSI2_CTX_CTRL2_FRAME_MASK			(0xffff << 16)
 #define CSI2_CTX_CTRL2_FRAME_SHIFT			16
 #define CSI2_CTX_CTRL2_USER_DEF_MAP_SHIFT		13
@@ -226,6 +241,7 @@
 #define CSI2_CTX_CTRL2_FORMAT_MASK			(0x3ff << 0)
 #define CSI2_CTX_CTRL2_FORMAT_SHIFT			0
 
+<<<<<<< HEAD
 #define CSI2_CTX_DAT_OFST(i)				(0x78 + (0x20 * i))
 #define CSI2_CTX_DAT_OFST_MASK				(0xfff << 5)
 
@@ -239,6 +255,21 @@
 #define CSI2_CTX_IRQSTATUS(i)				(0x88 + (0x20 * i))
 
 #define CSI2_CTX_CTRL3(i)				(0x8c + (0x20 * i))
+=======
+#define CSI2_CTX_DAT_OFST(i)				(0x78 + (0x20 * (i)))
+#define CSI2_CTX_DAT_OFST_MASK				(0xfff << 5)
+
+#define CSI2_CTX_PING_ADDR(i)				(0x7c + (0x20 * (i)))
+#define CSI2_CTX_PING_ADDR_MASK				0xffffffe0
+
+#define CSI2_CTX_PONG_ADDR(i)				(0x80 + (0x20 * (i)))
+#define CSI2_CTX_PONG_ADDR_MASK				CSI2_CTX_PING_ADDR_MASK
+
+#define CSI2_CTX_IRQENABLE(i)				(0x84 + (0x20 * (i)))
+#define CSI2_CTX_IRQSTATUS(i)				(0x88 + (0x20 * (i)))
+
+#define CSI2_CTX_CTRL3(i)				(0x8c + (0x20 * (i)))
+>>>>>>> upstream/android-13
 #define CSI2_CTX_CTRL3_ALPHA_SHIFT			5
 #define CSI2_CTX_CTRL3_ALPHA_MASK			\
 		(0x3fff << CSI2_CTX_CTRL3_ALPHA_SHIFT)

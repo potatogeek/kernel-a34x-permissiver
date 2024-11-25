@@ -55,6 +55,7 @@ static void iser_event_handler(struct ib_event_handler *handler,
 {
 	iser_err("async event %s (%d) on device %s port %d\n",
 		 ib_event_msg(event->event), event->event,
+<<<<<<< HEAD
 		 event->device->name, event->element.port_num);
 }
 
@@ -64,10 +65,22 @@ static void iser_event_handler(struct ib_event_handler *handler,
  * the adapator.
  *
  * returns 0 on success, -1 on failure
+=======
+		dev_name(&event->device->dev), event->element.port_num);
+}
+
+/*
+ * iser_create_device_ib_res - creates Protection Domain (PD), Completion
+ * Queue (CQ), DMA Memory Region (DMA MR) with the device associated with
+ * the adaptor.
+ *
+ * Return: 0 on success, -1 on failure
+>>>>>>> upstream/android-13
  */
 static int iser_create_device_ib_res(struct iser_device *device)
 {
 	struct ib_device *ib_dev = device->ib_device;
+<<<<<<< HEAD
 	int ret, i, max_cqe;
 
 	ret = iser_assign_reg_ops(device);
@@ -87,12 +100,20 @@ static int iser_create_device_ib_res(struct iser_device *device)
 	iser_info("using %d CQs, device %s supports %d vectors max_cqe %d\n",
 		  device->comps_used, ib_dev->name,
 		  ib_dev->num_comp_vectors, max_cqe);
+=======
+
+	if (!(ib_dev->attrs.device_cap_flags & IB_DEVICE_MEM_MGT_EXTENSIONS)) {
+		iser_err("IB device does not support memory registrations\n");
+		return -1;
+	}
+>>>>>>> upstream/android-13
 
 	device->pd = ib_alloc_pd(ib_dev,
 		iser_always_reg ? 0 : IB_PD_UNSAFE_GLOBAL_RKEY);
 	if (IS_ERR(device->pd))
 		goto pd_err;
 
+<<<<<<< HEAD
 	for (i = 0; i < device->comps_used; i++) {
 		struct iser_comp *comp = &device->comps[i];
 
@@ -104,11 +125,14 @@ static int iser_create_device_ib_res(struct iser_device *device)
 		}
 	}
 
+=======
+>>>>>>> upstream/android-13
 	INIT_IB_EVENT_HANDLER(&device->event_handler, ib_dev,
 			      iser_event_handler);
 	ib_register_event_handler(&device->event_handler);
 	return 0;
 
+<<<<<<< HEAD
 cq_err:
 	for (i = 0; i < device->comps_used; i++) {
 		struct iser_comp *comp = &device->comps[i];
@@ -120,10 +144,14 @@ cq_err:
 pd_err:
 	kfree(device->comps);
 comps_err:
+=======
+pd_err:
+>>>>>>> upstream/android-13
 	iser_err("failed to allocate an IB resource\n");
 	return -1;
 }
 
+<<<<<<< HEAD
 /**
  * iser_free_device_ib_res - destroy/dealloc/dereg the DMA MR,
  * CQ and PD created with the device associated with the adapator.
@@ -312,6 +340,20 @@ iser_free_pi_ctx(struct iser_pi_context *pi_ctx)
 	kfree(pi_ctx);
 }
 
+=======
+/*
+ * iser_free_device_ib_res - destroy/dealloc/dereg the DMA MR,
+ * CQ and PD created with the device associated with the adaptor.
+ */
+static void iser_free_device_ib_res(struct iser_device *device)
+{
+	ib_unregister_event_handler(&device->event_handler);
+	ib_dealloc_pd(device->pd);
+
+	device->pd = NULL;
+}
+
+>>>>>>> upstream/android-13
 static struct iser_fr_desc *
 iser_create_fastreg_desc(struct iser_device *device,
 			 struct ib_pd *pd,
@@ -319,12 +361,18 @@ iser_create_fastreg_desc(struct iser_device *device,
 			 unsigned int size)
 {
 	struct iser_fr_desc *desc;
+<<<<<<< HEAD
+=======
+	struct ib_device *ib_dev = device->ib_device;
+	enum ib_mr_type mr_type;
+>>>>>>> upstream/android-13
 	int ret;
 
 	desc = kzalloc(sizeof(*desc), GFP_KERNEL);
 	if (!desc)
 		return ERR_PTR(-ENOMEM);
 
+<<<<<<< HEAD
 	ret = iser_alloc_reg_res(device, pd, &desc->rsc, size);
 	if (ret)
 		goto reg_res_alloc_failure;
@@ -340,15 +388,67 @@ iser_create_fastreg_desc(struct iser_device *device,
 pi_ctx_alloc_failure:
 	iser_free_reg_res(&desc->rsc);
 reg_res_alloc_failure:
+=======
+	if (ib_dev->attrs.device_cap_flags & IB_DEVICE_SG_GAPS_REG)
+		mr_type = IB_MR_TYPE_SG_GAPS;
+	else
+		mr_type = IB_MR_TYPE_MEM_REG;
+
+	desc->rsc.mr = ib_alloc_mr(pd, mr_type, size);
+	if (IS_ERR(desc->rsc.mr)) {
+		ret = PTR_ERR(desc->rsc.mr);
+		iser_err("Failed to allocate ib_fast_reg_mr err=%d\n", ret);
+		goto err_alloc_mr;
+	}
+
+	if (pi_enable) {
+		desc->rsc.sig_mr = ib_alloc_mr_integrity(pd, size, size);
+		if (IS_ERR(desc->rsc.sig_mr)) {
+			ret = PTR_ERR(desc->rsc.sig_mr);
+			iser_err("Failed to allocate sig_mr err=%d\n", ret);
+			goto err_alloc_mr_integrity;
+		}
+	}
+	desc->rsc.mr_valid = 0;
+
+	return desc;
+
+err_alloc_mr_integrity:
+	ib_dereg_mr(desc->rsc.mr);
+err_alloc_mr:
+>>>>>>> upstream/android-13
 	kfree(desc);
 
 	return ERR_PTR(ret);
 }
 
+<<<<<<< HEAD
 /**
  * iser_alloc_fastreg_pool - Creates pool of fast_reg descriptors
  * for fast registration work requests.
  * returns 0 on success, or errno code on failure
+=======
+static void iser_destroy_fastreg_desc(struct iser_fr_desc *desc)
+{
+	struct iser_reg_resources *res = &desc->rsc;
+
+	ib_dereg_mr(res->mr);
+	if (res->sig_mr) {
+		ib_dereg_mr(res->sig_mr);
+		res->sig_mr = NULL;
+	}
+	kfree(desc);
+}
+
+/**
+ * iser_alloc_fastreg_pool - Creates pool of fast_reg descriptors
+ * for fast registration work requests.
+ * @ib_conn: connection RDMA resources
+ * @cmds_max: max number of SCSI commands for this connection
+ * @size: max number of pages per map request
+ *
+ * Return: 0 on success, or errno code on failure
+>>>>>>> upstream/android-13
  */
 int iser_alloc_fastreg_pool(struct ib_conn *ib_conn,
 			    unsigned cmds_max,
@@ -385,6 +485,10 @@ err:
 
 /**
  * iser_free_fastreg_pool - releases the pool of fast_reg descriptors
+<<<<<<< HEAD
+=======
+ * @ib_conn: connection RDMA resources
+>>>>>>> upstream/android-13
  */
 void iser_free_fastreg_pool(struct ib_conn *ib_conn)
 {
@@ -399,10 +503,14 @@ void iser_free_fastreg_pool(struct ib_conn *ib_conn)
 
 	list_for_each_entry_safe(desc, tmp, &fr_pool->all_list, all_list) {
 		list_del(&desc->all_list);
+<<<<<<< HEAD
 		iser_free_reg_res(&desc->rsc);
 		if (desc->pi_ctx)
 			iser_free_pi_ctx(desc->pi_ctx);
 		kfree(desc);
+=======
+		iser_destroy_fastreg_desc(desc);
+>>>>>>> upstream/android-13
 		++i;
 	}
 
@@ -411,10 +519,17 @@ void iser_free_fastreg_pool(struct ib_conn *ib_conn)
 			  fr_pool->size - i);
 }
 
+<<<<<<< HEAD
 /**
  * iser_create_ib_conn_res - Queue-Pair (QP)
  *
  * returns 0 on success, -1 on failure
+=======
+/*
+ * iser_create_ib_conn_res - Queue-Pair (QP)
+ *
+ * Return: 0 on success, -1 on failure
+>>>>>>> upstream/android-13
  */
 static int iser_create_ib_conn_res(struct ib_conn *ib_conn)
 {
@@ -423,13 +538,18 @@ static int iser_create_ib_conn_res(struct ib_conn *ib_conn)
 	struct ib_device	*ib_dev;
 	struct ib_qp_init_attr	init_attr;
 	int			ret = -ENOMEM;
+<<<<<<< HEAD
 	int index, min_index = 0;
+=======
+	unsigned int max_send_wr, cq_size;
+>>>>>>> upstream/android-13
 
 	BUG_ON(ib_conn->device == NULL);
 
 	device = ib_conn->device;
 	ib_dev = device->ib_device;
 
+<<<<<<< HEAD
 	memset(&init_attr, 0, sizeof init_attr);
 
 	mutex_lock(&ig.connlist_mutex);
@@ -448,11 +568,35 @@ static int iser_create_ib_conn_res(struct ib_conn *ib_conn)
 	init_attr.qp_context	= (void *)ib_conn;
 	init_attr.send_cq	= ib_conn->comp->cq;
 	init_attr.recv_cq	= ib_conn->comp->cq;
+=======
+	if (ib_conn->pi_support)
+		max_send_wr = ISER_QP_SIG_MAX_REQ_DTOS + 1;
+	else
+		max_send_wr = ISER_QP_MAX_REQ_DTOS + 1;
+	max_send_wr = min_t(unsigned int, max_send_wr,
+			    (unsigned int)ib_dev->attrs.max_qp_wr);
+
+	cq_size = max_send_wr + ISER_QP_MAX_RECV_DTOS;
+	ib_conn->cq = ib_cq_pool_get(ib_dev, cq_size, -1, IB_POLL_SOFTIRQ);
+	if (IS_ERR(ib_conn->cq)) {
+		ret = PTR_ERR(ib_conn->cq);
+		goto cq_err;
+	}
+	ib_conn->cq_size = cq_size;
+
+	memset(&init_attr, 0, sizeof(init_attr));
+
+	init_attr.event_handler = iser_qp_event_callback;
+	init_attr.qp_context	= (void *)ib_conn;
+	init_attr.send_cq	= ib_conn->cq;
+	init_attr.recv_cq	= ib_conn->cq;
+>>>>>>> upstream/android-13
 	init_attr.cap.max_recv_wr  = ISER_QP_MAX_RECV_DTOS;
 	init_attr.cap.max_send_sge = 2;
 	init_attr.cap.max_recv_sge = 1;
 	init_attr.sq_sig_type	= IB_SIGNAL_REQ_WR;
 	init_attr.qp_type	= IB_QPT_RC;
+<<<<<<< HEAD
 	if (ib_conn->pi_support) {
 		init_attr.cap.max_send_wr = ISER_QP_SIG_MAX_REQ_DTOS + 1;
 		init_attr.create_flags |= IB_QP_CREATE_SIGNATURE_EN;
@@ -471,12 +615,19 @@ static int iser_create_ib_conn_res(struct ib_conn *ib_conn)
 				 device->ib_device->name, ib_dev->attrs.max_qp_wr);
 		}
 	}
+=======
+	init_attr.cap.max_send_wr = max_send_wr;
+	if (ib_conn->pi_support)
+		init_attr.create_flags |= IB_QP_CREATE_INTEGRITY_EN;
+	iser_conn->max_cmds = ISER_GET_MAX_XMIT_CMDS(max_send_wr - 1);
+>>>>>>> upstream/android-13
 
 	ret = rdma_create_qp(ib_conn->cma_id, device->pd, &init_attr);
 	if (ret)
 		goto out_err;
 
 	ib_conn->qp = ib_conn->cma_id->qp;
+<<<<<<< HEAD
 	iser_info("setting conn %p cma_id %p qp %p\n",
 		  ib_conn, ib_conn->cma_id,
 		  ib_conn->cma_id->qp);
@@ -486,12 +637,26 @@ out_err:
 	mutex_lock(&ig.connlist_mutex);
 	ib_conn->comp->active_qps--;
 	mutex_unlock(&ig.connlist_mutex);
+=======
+	iser_info("setting conn %p cma_id %p qp %p max_send_wr %d\n",
+		  ib_conn, ib_conn->cma_id,
+		  ib_conn->cma_id->qp, max_send_wr);
+	return ret;
+
+out_err:
+	ib_cq_pool_put(ib_conn->cq, ib_conn->cq_size);
+cq_err:
+>>>>>>> upstream/android-13
 	iser_err("unable to alloc mem or create resource, err %d\n", ret);
 
 	return ret;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * based on the resolved device node GUID see if there already allocated
  * device for this device. If there's no such, create one.
  */
@@ -542,9 +707,15 @@ static void iser_device_try_release(struct iser_device *device)
 	mutex_unlock(&ig.device_list_mutex);
 }
 
+<<<<<<< HEAD
 /**
  * Called with state mutex held
  **/
+=======
+/*
+ * Called with state mutex held
+ */
+>>>>>>> upstream/android-13
 static int iser_conn_state_comp_exch(struct iser_conn *iser_conn,
 				     enum iser_conn_state comp,
 				     enum iser_conn_state exch)
@@ -597,10 +768,15 @@ static void iser_free_ib_conn_res(struct iser_conn *iser_conn,
 		  iser_conn, ib_conn->cma_id, ib_conn->qp);
 
 	if (ib_conn->qp != NULL) {
+<<<<<<< HEAD
 		mutex_lock(&ig.connlist_mutex);
 		ib_conn->comp->active_qps--;
 		mutex_unlock(&ig.connlist_mutex);
 		rdma_destroy_qp(ib_conn->cma_id);
+=======
+		rdma_destroy_qp(ib_conn->cma_id);
+		ib_cq_pool_put(ib_conn->cq, ib_conn->cq_size);
+>>>>>>> upstream/android-13
 		ib_conn->qp = NULL;
 	}
 
@@ -616,7 +792,12 @@ static void iser_free_ib_conn_res(struct iser_conn *iser_conn,
 }
 
 /**
+<<<<<<< HEAD
  * Frees all conn objects and deallocs conn descriptor
+=======
+ * iser_conn_release - Frees all conn objects and deallocs conn descriptor
+ * @iser_conn: iSER connection context
+>>>>>>> upstream/android-13
  */
 void iser_conn_release(struct iser_conn *iser_conn)
 {
@@ -650,7 +831,14 @@ void iser_conn_release(struct iser_conn *iser_conn)
 }
 
 /**
+<<<<<<< HEAD
  * triggers start of the disconnect procedures and wait for them to be done
+=======
+ * iser_conn_terminate - triggers start of the disconnect procedures and
+ * waits for them to be done
+ * @iser_conn: iSER connection context
+ *
+>>>>>>> upstream/android-13
  * Called with state mutex held
  */
 int iser_conn_terminate(struct iser_conn *iser_conn)
@@ -687,9 +875,15 @@ int iser_conn_terminate(struct iser_conn *iser_conn)
 	return 1;
 }
 
+<<<<<<< HEAD
 /**
  * Called with state mutex held
  **/
+=======
+/*
+ * Called with state mutex held
+ */
+>>>>>>> upstream/android-13
 static void iser_connect_error(struct rdma_cm_id *cma_id)
 {
 	struct iser_conn *iser_conn;
@@ -706,6 +900,7 @@ iser_calc_scsi_params(struct iser_conn *iser_conn,
 	struct ib_device_attr *attr = &device->ib_device->attrs;
 	unsigned short sg_tablesize, sup_sg_tablesize;
 	unsigned short reserved_mr_pages;
+<<<<<<< HEAD
 
 	/*
 	 * FRs without SG_GAPS or FMRs can only map up to a (device) page per
@@ -715,10 +910,22 @@ iser_calc_scsi_params(struct iser_conn *iser_conn,
 	 */
 	if ((attr->device_cap_flags & IB_DEVICE_MEM_MGT_EXTENSIONS) &&
 	    (attr->device_cap_flags & IB_DEVICE_SG_GAPS_REG))
+=======
+	u32 max_num_sg;
+
+	/*
+	 * FRs without SG_GAPS can only map up to a (device) page per entry,
+	 * but if the first entry is misaligned we'll end up using two entries
+	 * (head and tail) for a single page worth data, so one additional
+	 * entry is required.
+	 */
+	if (attr->device_cap_flags & IB_DEVICE_SG_GAPS_REG)
+>>>>>>> upstream/android-13
 		reserved_mr_pages = 0;
 	else
 		reserved_mr_pages = 1;
 
+<<<<<<< HEAD
 	sg_tablesize = DIV_ROUND_UP(max_sectors * 512, SIZE_4K);
 	if (attr->device_cap_flags & IB_DEVICE_MEM_MGT_EXTENSIONS)
 		sup_sg_tablesize =
@@ -728,14 +935,30 @@ iser_calc_scsi_params(struct iser_conn *iser_conn,
 	else
 		sup_sg_tablesize = ISCSI_ISER_MAX_SG_TABLESIZE;
 
+=======
+	if (iser_conn->ib_conn.pi_support)
+		max_num_sg = attr->max_pi_fast_reg_page_list_len;
+	else
+		max_num_sg = attr->max_fast_reg_page_list_len;
+
+	sg_tablesize = DIV_ROUND_UP(max_sectors * SECTOR_SIZE, SZ_4K);
+	sup_sg_tablesize = min_t(uint, ISCSI_ISER_MAX_SG_TABLESIZE,
+				 max_num_sg - reserved_mr_pages);
+>>>>>>> upstream/android-13
 	iser_conn->scsi_sg_tablesize = min(sg_tablesize, sup_sg_tablesize);
 	iser_conn->pages_per_mr =
 		iser_conn->scsi_sg_tablesize + reserved_mr_pages;
 }
 
+<<<<<<< HEAD
 /**
  * Called with state mutex held
  **/
+=======
+/*
+ * Called with state mutex held
+ */
+>>>>>>> upstream/android-13
 static void iser_addr_handler(struct rdma_cm_id *cma_id)
 {
 	struct iser_device *device;
@@ -761,10 +984,17 @@ static void iser_addr_handler(struct rdma_cm_id *cma_id)
 	/* connection T10-PI support */
 	if (iser_pi_enable) {
 		if (!(device->ib_device->attrs.device_cap_flags &
+<<<<<<< HEAD
 		      IB_DEVICE_SIGNATURE_HANDOVER)) {
 			iser_warn("T10-PI requested but not supported on %s, "
 				  "continue without T10-PI\n",
 				  ib_conn->device->ib_device->name);
+=======
+		      IB_DEVICE_INTEGRITY_HANDOVER)) {
+			iser_warn("T10-PI requested but not supported on %s, "
+				  "continue without T10-PI\n",
+				  dev_name(&ib_conn->device->ib_device->dev));
+>>>>>>> upstream/android-13
 			ib_conn->pi_support = false;
 		} else {
 			ib_conn->pi_support = true;
@@ -781,9 +1011,15 @@ static void iser_addr_handler(struct rdma_cm_id *cma_id)
 	}
 }
 
+<<<<<<< HEAD
 /**
  * Called with state mutex held
  **/
+=======
+/*
+ * Called with state mutex held
+ */
+>>>>>>> upstream/android-13
 static void iser_route_handler(struct rdma_cm_id *cma_id)
 {
 	struct rdma_conn_param conn_param;
@@ -791,7 +1027,11 @@ static void iser_route_handler(struct rdma_cm_id *cma_id)
 	struct iser_cm_hdr req_hdr;
 	struct iser_conn *iser_conn = (struct iser_conn *)cma_id->context;
 	struct ib_conn *ib_conn = &iser_conn->ib_conn;
+<<<<<<< HEAD
 	struct iser_device *device = ib_conn->device;
+=======
+	struct ib_device *ib_dev = ib_conn->device->ib_device;
+>>>>>>> upstream/android-13
 
 	if (iser_conn->state != ISER_CONN_PENDING)
 		/* bailout */
@@ -802,19 +1042,31 @@ static void iser_route_handler(struct rdma_cm_id *cma_id)
 		goto failure;
 
 	memset(&conn_param, 0, sizeof conn_param);
+<<<<<<< HEAD
 	conn_param.responder_resources = device->ib_device->attrs.max_qp_rd_atom;
+=======
+	conn_param.responder_resources = ib_dev->attrs.max_qp_rd_atom;
+>>>>>>> upstream/android-13
 	conn_param.initiator_depth     = 1;
 	conn_param.retry_count	       = 7;
 	conn_param.rnr_retry_count     = 6;
 
 	memset(&req_hdr, 0, sizeof(req_hdr));
 	req_hdr.flags = ISER_ZBVA_NOT_SUP;
+<<<<<<< HEAD
 	if (!device->remote_inv_sup)
+=======
+	if (!iser_always_reg)
+>>>>>>> upstream/android-13
 		req_hdr.flags |= ISER_SEND_W_INV_NOT_SUP;
 	conn_param.private_data	= (void *)&req_hdr;
 	conn_param.private_data_len = sizeof(struct iser_cm_hdr);
 
+<<<<<<< HEAD
 	ret = rdma_connect(cma_id, &conn_param);
+=======
+	ret = rdma_connect_locked(cma_id, &conn_param);
+>>>>>>> upstream/android-13
 	if (ret) {
 		iser_err("failure connecting: %d\n", ret);
 		goto failure;
@@ -879,7 +1131,11 @@ static void iser_cleanup_handler(struct rdma_cm_id *cma_id,
 	iser_disconnected_handler(cma_id);
 	iser_free_ib_conn_res(iser_conn, destroy);
 	complete(&iser_conn->ib_completion);
+<<<<<<< HEAD
 };
+=======
+}
+>>>>>>> upstream/android-13
 
 static int iser_cma_handler(struct rdma_cm_id *cma_id, struct rdma_cm_event *event)
 {
@@ -905,7 +1161,11 @@ static int iser_cma_handler(struct rdma_cm_id *cma_id, struct rdma_cm_event *eve
 	case RDMA_CM_EVENT_REJECTED:
 		iser_info("Connection rejected: %s\n",
 			 rdma_reject_msg(cma_id, event->status));
+<<<<<<< HEAD
 		/* FALLTHROUGH */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case RDMA_CM_EVENT_ADDR_ERROR:
 	case RDMA_CM_EVENT_ROUTE_ERROR:
 	case RDMA_CM_EVENT_CONNECT_ERROR:
@@ -955,7 +1215,11 @@ void iser_conn_init(struct iser_conn *iser_conn)
 	ib_conn->reg_cqe.done = iser_reg_comp;
 }
 
+<<<<<<< HEAD
  /**
+=======
+/*
+>>>>>>> upstream/android-13
  * starts the process of connecting to the target
  * sleeps until the connection is established or rejected
  */
@@ -1068,7 +1332,11 @@ int iser_post_recvm(struct iser_conn *iser_conn, int count)
 
 	ib_conn->post_recv_buf_count += count;
 	ib_ret = ib_post_recv(ib_conn->qp, ib_conn->rx_wr, NULL);
+<<<<<<< HEAD
 	if (ib_ret) {
+=======
+	if (unlikely(ib_ret)) {
+>>>>>>> upstream/android-13
 		iser_err("ib_post_recv failed ret=%d\n", ib_ret);
 		ib_conn->post_recv_buf_count -= count;
 	} else
@@ -1079,14 +1347,28 @@ int iser_post_recvm(struct iser_conn *iser_conn, int count)
 
 
 /**
+<<<<<<< HEAD
  * iser_start_send - Initiate a Send DTO operation
  *
  * returns 0 on success, -1 on failure
+=======
+ * iser_post_send - Initiate a Send DTO operation
+ * @ib_conn: connection RDMA resources
+ * @tx_desc: iSER TX descriptor
+ * @signal: true to send work request as SIGNALED
+ *
+ * Return: 0 on success, -1 on failure
+>>>>>>> upstream/android-13
  */
 int iser_post_send(struct ib_conn *ib_conn, struct iser_tx_desc *tx_desc,
 		   bool signal)
 {
+<<<<<<< HEAD
 	struct ib_send_wr *wr = iser_tx_next_wr(tx_desc);
+=======
+	struct ib_send_wr *wr = &tx_desc->send_wr;
+	struct ib_send_wr *first_wr;
+>>>>>>> upstream/android-13
 	int ib_ret;
 
 	ib_dma_sync_single_for_device(ib_conn->device->ib_device,
@@ -1100,8 +1382,20 @@ int iser_post_send(struct ib_conn *ib_conn, struct iser_tx_desc *tx_desc,
 	wr->opcode = IB_WR_SEND;
 	wr->send_flags = signal ? IB_SEND_SIGNALED : 0;
 
+<<<<<<< HEAD
 	ib_ret = ib_post_send(ib_conn->qp, &tx_desc->wrs[0].send, NULL);
 	if (ib_ret)
+=======
+	if (tx_desc->inv_wr.next)
+		first_wr = &tx_desc->inv_wr;
+	else if (tx_desc->reg_wr.wr.next)
+		first_wr = &tx_desc->reg_wr.wr;
+	else
+		first_wr = wr;
+
+	ib_ret = ib_post_send(ib_conn->qp, first_wr, NULL);
+	if (unlikely(ib_ret))
+>>>>>>> upstream/android-13
 		iser_err("ib_post_send failed, ret:%d opcode:%d\n",
 			 ib_ret, wr->opcode);
 
@@ -1117,12 +1411,21 @@ u8 iser_check_task_pi_status(struct iscsi_iser_task *iser_task,
 	struct ib_mr_status mr_status;
 	int ret;
 
+<<<<<<< HEAD
 	if (desc && desc->pi_ctx->sig_protected) {
 		desc->pi_ctx->sig_protected = 0;
 		ret = ib_check_mr_status(desc->pi_ctx->sig_mr,
 					 IB_MR_CHECK_SIG_STATUS, &mr_status);
 		if (ret) {
 			pr_err("ib_check_mr_status failed, ret %d\n", ret);
+=======
+	if (desc && desc->sig_protected) {
+		desc->sig_protected = false;
+		ret = ib_check_mr_status(desc->rsc.sig_mr,
+					 IB_MR_CHECK_SIG_STATUS, &mr_status);
+		if (ret) {
+			iser_err("ib_check_mr_status failed, ret %d\n", ret);
+>>>>>>> upstream/android-13
 			/* Not a lot we can do, return ambiguous guard error */
 			*sector = 0;
 			return 0x1;
@@ -1132,9 +1435,15 @@ u8 iser_check_task_pi_status(struct iscsi_iser_task *iser_task,
 			sector_t sector_off = mr_status.sig_err.sig_err_offset;
 
 			sector_div(sector_off, sector_size + 8);
+<<<<<<< HEAD
 			*sector = scsi_get_lba(iser_task->sc) + sector_off;
 
 			pr_err("PI error found type %d at sector %llx "
+=======
+			*sector = scsi_get_sector(iser_task->sc) + sector_off;
+
+			iser_err("PI error found type %d at sector %llx "
+>>>>>>> upstream/android-13
 			       "expected %x vs actual %x\n",
 			       mr_status.sig_err.err_type,
 			       (unsigned long long)*sector,

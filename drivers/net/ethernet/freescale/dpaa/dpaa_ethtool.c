@@ -47,6 +47,11 @@ static const char dpaa_stats_percpu[][ETH_GSTRING_LEN] = {
 	"tx S/G",
 	"tx error",
 	"rx error",
+<<<<<<< HEAD
+=======
+	"rx dropped",
+	"tx dropped",
+>>>>>>> upstream/android-13
 };
 
 static char dpaa_stats_global[][ETH_GSTRING_LEN] = {
@@ -78,10 +83,15 @@ static char dpaa_stats_global[][ETH_GSTRING_LEN] = {
 static int dpaa_get_link_ksettings(struct net_device *net_dev,
 				   struct ethtool_link_ksettings *cmd)
 {
+<<<<<<< HEAD
 	if (!net_dev->phydev) {
 		netdev_dbg(net_dev, "phy device not initialized\n");
 		return 0;
 	}
+=======
+	if (!net_dev->phydev)
+		return 0;
+>>>>>>> upstream/android-13
 
 	phy_ethtool_ksettings_get(net_dev->phydev, cmd);
 
@@ -93,10 +103,15 @@ static int dpaa_set_link_ksettings(struct net_device *net_dev,
 {
 	int err;
 
+<<<<<<< HEAD
 	if (!net_dev->phydev) {
 		netdev_err(net_dev, "phy device not initialized\n");
 		return -ENODEV;
 	}
+=======
+	if (!net_dev->phydev)
+		return -ENODEV;
+>>>>>>> upstream/android-13
 
 	err = phy_ethtool_ksettings_set(net_dev->phydev, cmd);
 	if (err < 0)
@@ -108,6 +123,7 @@ static int dpaa_set_link_ksettings(struct net_device *net_dev,
 static void dpaa_get_drvinfo(struct net_device *net_dev,
 			     struct ethtool_drvinfo *drvinfo)
 {
+<<<<<<< HEAD
 	int len;
 
 	strlcpy(drvinfo->driver, KBUILD_MODNAME,
@@ -121,6 +137,10 @@ static void dpaa_get_drvinfo(struct net_device *net_dev,
 		/* Truncated output */
 		netdev_notice(net_dev, "snprintf() = %d\n", len);
 	}
+=======
+	strlcpy(drvinfo->driver, KBUILD_MODNAME,
+		sizeof(drvinfo->driver));
+>>>>>>> upstream/android-13
 	strlcpy(drvinfo->bus_info, dev_name(net_dev->dev.parent->parent),
 		sizeof(drvinfo->bus_info));
 }
@@ -140,10 +160,15 @@ static int dpaa_nway_reset(struct net_device *net_dev)
 {
 	int err;
 
+<<<<<<< HEAD
 	if (!net_dev->phydev) {
 		netdev_err(net_dev, "phy device not initialized\n");
 		return -ENODEV;
 	}
+=======
+	if (!net_dev->phydev)
+		return -ENODEV;
+>>>>>>> upstream/android-13
 
 	err = 0;
 	if (net_dev->phydev->autoneg) {
@@ -165,10 +190,15 @@ static void dpaa_get_pauseparam(struct net_device *net_dev,
 	priv = netdev_priv(net_dev);
 	mac_dev = priv->mac_dev;
 
+<<<<<<< HEAD
 	if (!net_dev->phydev) {
 		netdev_err(net_dev, "phy device not initialized\n");
 		return;
 	}
+=======
+	if (!net_dev->phydev)
+		return;
+>>>>>>> upstream/android-13
 
 	epause->autoneg = mac_dev->autoneg_pause;
 	epause->rx_pause = mac_dev->rx_pause_active;
@@ -182,7 +212,10 @@ static int dpaa_set_pauseparam(struct net_device *net_dev,
 	struct phy_device *phydev;
 	bool rx_pause, tx_pause;
 	struct dpaa_priv *priv;
+<<<<<<< HEAD
 	u32 newadv, oldadv;
+=======
+>>>>>>> upstream/android-13
 	int err;
 
 	priv = netdev_priv(net_dev);
@@ -194,9 +227,13 @@ static int dpaa_set_pauseparam(struct net_device *net_dev,
 		return -ENODEV;
 	}
 
+<<<<<<< HEAD
 	if (!(phydev->supported & SUPPORTED_Pause) ||
 	    (!(phydev->supported & SUPPORTED_Asym_Pause) &&
 	    (epause->rx_pause != epause->tx_pause)))
+=======
+	if (!phy_validate_pause(phydev, epause))
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	/* The MAC should know how to handle PAUSE frame autonegotiation before
@@ -210,6 +247,7 @@ static int dpaa_set_pauseparam(struct net_device *net_dev,
 	/* Determine the sym/asym advertised PAUSE capabilities from the desired
 	 * rx/tx pause settings.
 	 */
+<<<<<<< HEAD
 	newadv = 0;
 	if (epause->rx_pause)
 		newadv = ADVERTISED_Pause | ADVERTISED_Asym_Pause;
@@ -233,6 +271,10 @@ static int dpaa_set_pauseparam(struct net_device *net_dev,
 					   err);
 		}
 	}
+=======
+
+	phy_set_asym_pause(phydev, epause->rx_pause, epause->tx_pause);
+>>>>>>> upstream/android-13
 
 	fman_get_pause_cfg(mac_dev, &rx_pause, &tx_pause);
 	err = fman_set_mac_active_pause(mac_dev, rx_pause, tx_pause);
@@ -247,7 +289,11 @@ static int dpaa_get_sset_count(struct net_device *net_dev, int type)
 	unsigned int total_stats, num_stats;
 
 	num_stats   = num_online_cpus() + 1;
+<<<<<<< HEAD
 	total_stats = num_stats * (DPAA_STATS_PERCPU_LEN + DPAA_BPS_NUM) +
+=======
+	total_stats = num_stats * (DPAA_STATS_PERCPU_LEN + 1) +
+>>>>>>> upstream/android-13
 			DPAA_STATS_GLOBAL_LEN;
 
 	switch (type) {
@@ -259,10 +305,17 @@ static int dpaa_get_sset_count(struct net_device *net_dev, int type)
 }
 
 static void copy_stats(struct dpaa_percpu_priv *percpu_priv, int num_cpus,
+<<<<<<< HEAD
 		       int crr_cpu, u64 *bp_count, u64 *data)
 {
 	int num_values = num_cpus + 1;
 	int crr = 0, j;
+=======
+		       int crr_cpu, u64 bp_count, u64 *data)
+{
+	int num_values = num_cpus + 1;
+	int crr = 0;
+>>>>>>> upstream/android-13
 
 	/* update current CPU's stats and also add them to the total values */
 	data[crr * num_values + crr_cpu] = percpu_priv->in_interrupt;
@@ -286,15 +339,27 @@ static void copy_stats(struct dpaa_percpu_priv *percpu_priv, int num_cpus,
 	data[crr * num_values + crr_cpu] = percpu_priv->stats.rx_errors;
 	data[crr++ * num_values + num_cpus] += percpu_priv->stats.rx_errors;
 
+<<<<<<< HEAD
 	for (j = 0; j < DPAA_BPS_NUM; j++) {
 		data[crr * num_values + crr_cpu] = bp_count[j];
 		data[crr++ * num_values + num_cpus] += bp_count[j];
 	}
+=======
+	data[crr * num_values + crr_cpu] = percpu_priv->stats.rx_dropped;
+	data[crr++ * num_values + num_cpus] += percpu_priv->stats.rx_dropped;
+
+	data[crr * num_values + crr_cpu] = percpu_priv->stats.tx_dropped;
+	data[crr++ * num_values + num_cpus] += percpu_priv->stats.tx_dropped;
+
+	data[crr * num_values + crr_cpu] = bp_count;
+	data[crr++ * num_values + num_cpus] += bp_count;
+>>>>>>> upstream/android-13
 }
 
 static void dpaa_get_ethtool_stats(struct net_device *net_dev,
 				   struct ethtool_stats *stats, u64 *data)
 {
+<<<<<<< HEAD
 	u64 bp_count[DPAA_BPS_NUM], cg_time, cg_num;
 	struct dpaa_percpu_priv *percpu_priv;
 	struct dpaa_rx_errors rx_errors;
@@ -303,6 +368,16 @@ static void dpaa_get_ethtool_stats(struct net_device *net_dev,
 	struct dpaa_bp *dpaa_bp;
 	struct dpaa_priv *priv;
 	int total_stats, i, j;
+=======
+	struct dpaa_percpu_priv *percpu_priv;
+	struct dpaa_rx_errors rx_errors;
+	unsigned int num_cpus, offset;
+	u64 bp_count, cg_time, cg_num;
+	struct dpaa_ern_cnt ern_cnt;
+	struct dpaa_bp *dpaa_bp;
+	struct dpaa_priv *priv;
+	int total_stats, i;
+>>>>>>> upstream/android-13
 	bool cg_status;
 
 	total_stats = dpaa_get_sset_count(net_dev, ETH_SS_STATS);
@@ -316,12 +391,19 @@ static void dpaa_get_ethtool_stats(struct net_device *net_dev,
 
 	for_each_online_cpu(i) {
 		percpu_priv = per_cpu_ptr(priv->percpu_priv, i);
+<<<<<<< HEAD
 		for (j = 0; j < DPAA_BPS_NUM; j++) {
 			dpaa_bp = priv->dpaa_bps[j];
 			if (!dpaa_bp->percpu_count)
 				continue;
 			bp_count[j] = *(per_cpu_ptr(dpaa_bp->percpu_count, i));
 		}
+=======
+		dpaa_bp = priv->dpaa_bp;
+		if (!dpaa_bp->percpu_count)
+			continue;
+		bp_count = *(per_cpu_ptr(dpaa_bp->percpu_count, i));
+>>>>>>> upstream/android-13
 		rx_errors.dme += percpu_priv->rx_errors.dme;
 		rx_errors.fpe += percpu_priv->rx_errors.fpe;
 		rx_errors.fse += percpu_priv->rx_errors.fse;
@@ -339,7 +421,11 @@ static void dpaa_get_ethtool_stats(struct net_device *net_dev,
 		copy_stats(percpu_priv, num_cpus, i, bp_count, data);
 	}
 
+<<<<<<< HEAD
 	offset = (num_cpus + 1) * (DPAA_STATS_PERCPU_LEN + DPAA_BPS_NUM);
+=======
+	offset = (num_cpus + 1) * (DPAA_STATS_PERCPU_LEN + 1);
+>>>>>>> upstream/android-13
 	memcpy(data + offset, &rx_errors, sizeof(struct dpaa_rx_errors));
 
 	offset += sizeof(struct dpaa_rx_errors) / sizeof(u64);
@@ -387,6 +473,7 @@ static void dpaa_get_strings(struct net_device *net_dev, u32 stringset,
 		memcpy(strings, string_cpu, ETH_GSTRING_LEN);
 		strings += ETH_GSTRING_LEN;
 	}
+<<<<<<< HEAD
 	for (i = 0; i < DPAA_BPS_NUM; i++) {
 		for (j = 0; j < num_cpus; j++) {
 			snprintf(string_cpu, ETH_GSTRING_LEN,
@@ -399,6 +486,18 @@ static void dpaa_get_strings(struct net_device *net_dev, u32 stringset,
 		memcpy(strings, string_cpu, ETH_GSTRING_LEN);
 		strings += ETH_GSTRING_LEN;
 	}
+=======
+	for (j = 0; j < num_cpus; j++) {
+		snprintf(string_cpu, ETH_GSTRING_LEN,
+			 "bpool [CPU %d]", j);
+		memcpy(strings, string_cpu, ETH_GSTRING_LEN);
+		strings += ETH_GSTRING_LEN;
+	}
+	snprintf(string_cpu, ETH_GSTRING_LEN, "bpool [TOTAL]");
+	memcpy(strings, string_cpu, ETH_GSTRING_LEN);
+	strings += ETH_GSTRING_LEN;
+
+>>>>>>> upstream/android-13
 	memcpy(strings, dpaa_stats_global, size);
 }
 
@@ -416,7 +515,11 @@ static int dpaa_get_hash_opts(struct net_device *dev,
 	case UDP_V6_FLOW:
 		if (priv->keygen_in_use)
 			cmd->data |= RXH_L4_B_0_1 | RXH_L4_B_2_3;
+<<<<<<< HEAD
 		/* Fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case IPV4_FLOW:
 	case IPV6_FLOW:
 	case SCTP_V4_FLOW:
@@ -525,16 +628,32 @@ static int dpaa_get_ts_info(struct net_device *net_dev,
 	struct device_node *mac_node = dev->of_node;
 	struct device_node *fman_node = NULL, *ptp_node = NULL;
 	struct platform_device *ptp_dev = NULL;
+<<<<<<< HEAD
 	struct qoriq_ptp *ptp = NULL;
+=======
+	struct ptp_qoriq *ptp = NULL;
+>>>>>>> upstream/android-13
 
 	info->phc_index = -1;
 
 	fman_node = of_get_parent(mac_node);
+<<<<<<< HEAD
 	if (fman_node)
 		ptp_node = of_parse_phandle(fman_node, "ptimer-handle", 0);
 
 	if (ptp_node)
 		ptp_dev = of_find_device_by_node(ptp_node);
+=======
+	if (fman_node) {
+		ptp_node = of_parse_phandle(fman_node, "ptimer-handle", 0);
+		of_node_put(fman_node);
+	}
+
+	if (ptp_node) {
+		ptp_dev = of_find_device_by_node(ptp_node);
+		of_node_put(ptp_node);
+	}
+>>>>>>> upstream/android-13
 
 	if (ptp_dev)
 		ptp = platform_get_drvdata(ptp_dev);
@@ -553,7 +672,82 @@ static int dpaa_get_ts_info(struct net_device *net_dev,
 	return 0;
 }
 
+<<<<<<< HEAD
 const struct ethtool_ops dpaa_ethtool_ops = {
+=======
+static int dpaa_get_coalesce(struct net_device *dev,
+			     struct ethtool_coalesce *c,
+			     struct kernel_ethtool_coalesce *kernel_coal,
+			     struct netlink_ext_ack *extack)
+{
+	struct qman_portal *portal;
+	u32 period;
+	u8 thresh;
+
+	portal = qman_get_affine_portal(smp_processor_id());
+	qman_portal_get_iperiod(portal, &period);
+	qman_dqrr_get_ithresh(portal, &thresh);
+
+	c->rx_coalesce_usecs = period;
+	c->rx_max_coalesced_frames = thresh;
+
+	return 0;
+}
+
+static int dpaa_set_coalesce(struct net_device *dev,
+			     struct ethtool_coalesce *c,
+			     struct kernel_ethtool_coalesce *kernel_coal,
+			     struct netlink_ext_ack *extack)
+{
+	const cpumask_t *cpus = qman_affine_cpus();
+	bool needs_revert[NR_CPUS] = {false};
+	struct qman_portal *portal;
+	u32 period, prev_period;
+	u8 thresh, prev_thresh;
+	int cpu, res;
+
+	period = c->rx_coalesce_usecs;
+	thresh = c->rx_max_coalesced_frames;
+
+	/* save previous values */
+	portal = qman_get_affine_portal(smp_processor_id());
+	qman_portal_get_iperiod(portal, &prev_period);
+	qman_dqrr_get_ithresh(portal, &prev_thresh);
+
+	/* set new values */
+	for_each_cpu_and(cpu, cpus, cpu_online_mask) {
+		portal = qman_get_affine_portal(cpu);
+		res = qman_portal_set_iperiod(portal, period);
+		if (res)
+			goto revert_values;
+		res = qman_dqrr_set_ithresh(portal, thresh);
+		if (res) {
+			qman_portal_set_iperiod(portal, prev_period);
+			goto revert_values;
+		}
+		needs_revert[cpu] = true;
+	}
+
+	return 0;
+
+revert_values:
+	/* restore previous values */
+	for_each_cpu_and(cpu, cpus, cpu_online_mask) {
+		if (!needs_revert[cpu])
+			continue;
+		portal = qman_get_affine_portal(cpu);
+		/* previous values will not fail, ignore return value */
+		qman_portal_set_iperiod(portal, prev_period);
+		qman_dqrr_set_ithresh(portal, prev_thresh);
+	}
+
+	return res;
+}
+
+const struct ethtool_ops dpaa_ethtool_ops = {
+	.supported_coalesce_params = ETHTOOL_COALESCE_RX_USECS |
+				     ETHTOOL_COALESCE_RX_MAX_FRAMES,
+>>>>>>> upstream/android-13
 	.get_drvinfo = dpaa_get_drvinfo,
 	.get_msglevel = dpaa_get_msglevel,
 	.set_msglevel = dpaa_set_msglevel,
@@ -569,4 +763,9 @@ const struct ethtool_ops dpaa_ethtool_ops = {
 	.get_rxnfc = dpaa_get_rxnfc,
 	.set_rxnfc = dpaa_set_rxnfc,
 	.get_ts_info = dpaa_get_ts_info,
+<<<<<<< HEAD
+=======
+	.get_coalesce = dpaa_get_coalesce,
+	.set_coalesce = dpaa_set_coalesce,
+>>>>>>> upstream/android-13
 };

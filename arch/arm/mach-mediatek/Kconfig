@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 menuconfig ARCH_MEDIATEK
 	bool "MediaTek SoC Support"
 	depends on ARCH_MULTI_V7
@@ -12,6 +16,7 @@ if ARCH_MEDIATEK
 
 config MACH_MT2701
 	bool "MediaTek MT2701 SoCs support"
+<<<<<<< HEAD
 
 config MACH_MT6589
 	bool "MediaTek MT6589 SoCs support"
@@ -254,3 +259,32 @@ config MACH_MT6768
 	  This enables support for MediaTek MT6768
 	  Support for mt6768 related projects
 
+=======
+	default ARCH_MEDIATEK
+
+config MACH_MT6589
+	bool "MediaTek MT6589 SoCs support"
+	default ARCH_MEDIATEK
+
+config MACH_MT6592
+	bool "MediaTek MT6592 SoCs support"
+	default ARCH_MEDIATEK
+
+config MACH_MT7623
+	bool "MediaTek MT7623 SoCs support"
+	default ARCH_MEDIATEK
+
+config MACH_MT7629
+	bool "MediaTek MT7629 SoCs support"
+	default ARCH_MEDIATEK
+
+config MACH_MT8127
+	bool "MediaTek MT8127 SoCs support"
+	default ARCH_MEDIATEK
+
+config MACH_MT8135
+	bool "MediaTek MT8135 SoCs support"
+	default ARCH_MEDIATEK
+
+endif
+>>>>>>> upstream/android-13

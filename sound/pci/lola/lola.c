@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  Support for Digigram Lola PCI-e boards
  *
  *  Copyright (c) 2011 Takashi Iwai <tiwai@suse.de>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify it
  *  under the terms of the GNU General Public License as published by the Free
@@ -16,6 +21,8 @@
  *  You should have received a copy of the GNU General Public License along with
  *  this program; if not, write to the Free Software Foundation, Inc., 59
  *  Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -67,7 +74,10 @@ MODULE_PARM_DESC(sample_rate_min, "Minimal sample rate");
  */
 
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
 MODULE_SUPPORTED_DEVICE("{{Digigram, Lola}}");
+=======
+>>>>>>> upstream/android-13
 MODULE_DESCRIPTION("Digigram Lola driver");
 MODULE_AUTHOR("Takashi Iwai <tiwai@suse.de>");
 
@@ -358,6 +368,7 @@ static void lola_irq_disable(struct lola *chip)
 
 static int setup_corb_rirb(struct lola *chip)
 {
+<<<<<<< HEAD
 	int err;
 	unsigned char tmp;
 	unsigned long end_time;
@@ -372,6 +383,20 @@ static int setup_corb_rirb(struct lola *chip)
 	chip->corb.buf = (__le32 *)chip->rb.area;
 	chip->rirb.addr = chip->rb.addr + 2048;
 	chip->rirb.buf = (__le32 *)(chip->rb.area + 2048);
+=======
+	unsigned char tmp;
+	unsigned long end_time;
+
+	chip->rb = snd_devm_alloc_pages(&chip->pci->dev, SNDRV_DMA_TYPE_DEV,
+					PAGE_SIZE);
+	if (!chip->rb)
+		return -ENOMEM;
+
+	chip->corb.addr = chip->rb->addr;
+	chip->corb.buf = (__le32 *)chip->rb->area;
+	chip->rirb.addr = chip->rb->addr + 2048;
+	chip->rirb.buf = (__le32 *)(chip->rb->area + 2048);
+>>>>>>> upstream/android-13
 
 	/* disable ringbuffer DMAs */
 	lola_writeb(chip, BAR0, RIRBCTL, 0);
@@ -543,6 +568,7 @@ static void lola_stop_hw(struct lola *chip)
 	lola_irq_disable(chip);
 }
 
+<<<<<<< HEAD
 static void lola_free(struct lola *chip)
 {
 	if (chip->initialized)
@@ -588,11 +614,36 @@ static int lola_create(struct snd_card *card, struct pci_dev *pci,
 		return -ENOMEM;
 	}
 
+=======
+static void lola_free(struct snd_card *card)
+{
+	struct lola *chip = card->private_data;
+
+	if (chip->initialized)
+		lola_stop_hw(chip);
+	lola_free_mixer(chip);
+}
+
+static int lola_create(struct snd_card *card, struct pci_dev *pci, int dev)
+{
+	struct lola *chip = card->private_data;
+	int err;
+	unsigned int dever;
+
+	err = pcim_enable_device(pci);
+	if (err < 0)
+		return err;
+
+>>>>>>> upstream/android-13
 	spin_lock_init(&chip->reg_lock);
 	mutex_init(&chip->open_mutex);
 	chip->card = card;
 	chip->pci = pci;
 	chip->irq = -1;
+<<<<<<< HEAD
+=======
+	card->private_free = lola_free;
+>>>>>>> upstream/android-13
 
 	chip->granularity = granularity[dev];
 	switch (chip->granularity) {
@@ -621,6 +672,7 @@ static int lola_create(struct snd_card *card, struct pci_dev *pci,
 		chip->sample_rate_min = 16000;
 	}
 
+<<<<<<< HEAD
 	err = pci_request_regions(pci, DRVNAME);
 	if (err < 0) {
 		kfree(chip);
@@ -637,11 +689,22 @@ static int lola_create(struct snd_card *card, struct pci_dev *pci,
 		err = -ENXIO;
 		goto errout;
 	}
+=======
+	err = pcim_iomap_regions(pci, (1 << 0) | (1 << 2), DRVNAME);
+	if (err < 0)
+		return err;
+
+	chip->bar[0].addr = pci_resource_start(pci, 0);
+	chip->bar[0].remap_addr = pcim_iomap_table(pci)[0];
+	chip->bar[1].addr = pci_resource_start(pci, 2);
+	chip->bar[1].remap_addr = pcim_iomap_table(pci)[2];
+>>>>>>> upstream/android-13
 
 	pci_set_master(pci);
 
 	err = reset_controller(chip);
 	if (err < 0)
+<<<<<<< HEAD
 		goto errout;
 
 	if (request_irq(pci->irq, lola_interrupt, IRQF_SHARED,
@@ -652,6 +715,17 @@ static int lola_create(struct snd_card *card, struct pci_dev *pci,
 	}
 	chip->irq = pci->irq;
 	synchronize_irq(chip->irq);
+=======
+		return err;
+
+	if (devm_request_irq(&pci->dev, pci->irq, lola_interrupt, IRQF_SHARED,
+			     KBUILD_MODNAME, chip)) {
+		dev_err(chip->card->dev, "unable to grab IRQ %d\n", pci->irq);
+		return -EBUSY;
+	}
+	chip->irq = pci->irq;
+	card->sync_irq = chip->irq;
+>>>>>>> upstream/android-13
 
 	dever = lola_readl(chip, BAR1, DEVER);
 	chip->pcm[CAPT].num_streams = (dever >> 0) & 0x3ff;
@@ -667,12 +741,17 @@ static int lola_create(struct snd_card *card, struct pci_dev *pci,
 	    (!chip->pcm[CAPT].num_streams &&
 	     !chip->pcm[PLAY].num_streams)) {
 		dev_err(chip->card->dev, "invalid DEVER = %x\n", dever);
+<<<<<<< HEAD
 		err = -EINVAL;
 		goto errout;
+=======
+		return -EINVAL;
+>>>>>>> upstream/android-13
 	}
 
 	err = setup_corb_rirb(chip);
 	if (err < 0)
+<<<<<<< HEAD
 		goto errout;
 
 	err = snd_device_new(card, SNDRV_DEV_LOWLEVEL, chip, &ops);
@@ -683,6 +762,12 @@ static int lola_create(struct snd_card *card, struct pci_dev *pci,
 
 	strcpy(card->driver, "Lola");
 	strlcpy(card->shortname, "Digigram Lola", sizeof(card->shortname));
+=======
+		return err;
+
+	strcpy(card->driver, "Lola");
+	strscpy(card->shortname, "Digigram Lola", sizeof(card->shortname));
+>>>>>>> upstream/android-13
 	snprintf(card->longname, sizeof(card->longname),
 		 "%s at 0x%lx irq %i",
 		 card->shortname, chip->bar[0].addr, chip->irq);
@@ -691,6 +776,7 @@ static int lola_create(struct snd_card *card, struct pci_dev *pci,
 	lola_irq_enable(chip);
 
 	chip->initialized = 1;
+<<<<<<< HEAD
 	*rchip = chip;
 	return 0;
 
@@ -701,6 +787,13 @@ static int lola_create(struct snd_card *card, struct pci_dev *pci,
 
 static int lola_probe(struct pci_dev *pci,
 		      const struct pci_device_id *pci_id)
+=======
+	return 0;
+}
+
+static int __lola_probe(struct pci_dev *pci,
+			const struct pci_device_id *pci_id)
+>>>>>>> upstream/android-13
 {
 	static int dev;
 	struct snd_card *card;
@@ -714,12 +807,18 @@ static int lola_probe(struct pci_dev *pci,
 		return -ENOENT;
 	}
 
+<<<<<<< HEAD
 	err = snd_card_new(&pci->dev, index[dev], id[dev], THIS_MODULE,
 			   0, &card);
+=======
+	err = snd_devm_card_new(&pci->dev, index[dev], id[dev], THIS_MODULE,
+				sizeof(*chip), &card);
+>>>>>>> upstream/android-13
 	if (err < 0) {
 		dev_err(&pci->dev, "Error creating card!\n");
 		return err;
 	}
+<<<<<<< HEAD
 
 	err = lola_create(card, pci, dev, &chip);
 	if (err < 0)
@@ -737,11 +836,31 @@ static int lola_probe(struct pci_dev *pci,
 	err = lola_create_mixer(chip);
 	if (err < 0)
 		goto out_free;
+=======
+	chip = card->private_data;
+
+	err = lola_create(card, pci, dev);
+	if (err < 0)
+		return err;
+
+	err = lola_parse_tree(chip);
+	if (err < 0)
+		return err;
+
+	err = lola_create_pcm(chip);
+	if (err < 0)
+		return err;
+
+	err = lola_create_mixer(chip);
+	if (err < 0)
+		return err;
+>>>>>>> upstream/android-13
 
 	lola_proc_debug_new(chip);
 
 	err = snd_card_register(card);
 	if (err < 0)
+<<<<<<< HEAD
 		goto out_free;
 
 	pci_set_drvdata(pci, card);
@@ -755,6 +874,19 @@ out_free:
 static void lola_remove(struct pci_dev *pci)
 {
 	snd_card_free(pci_get_drvdata(pci));
+=======
+		return err;
+
+	pci_set_drvdata(pci, card);
+	dev++;
+	return 0;
+}
+
+static int lola_probe(struct pci_dev *pci,
+		      const struct pci_device_id *pci_id)
+{
+	return snd_card_free_on_error(&pci->dev, __lola_probe(pci, pci_id));
+>>>>>>> upstream/android-13
 }
 
 /* PCI IDs */
@@ -769,7 +901,10 @@ static struct pci_driver lola_driver = {
 	.name = KBUILD_MODNAME,
 	.id_table = lola_ids,
 	.probe = lola_probe,
+<<<<<<< HEAD
 	.remove = lola_remove,
+=======
+>>>>>>> upstream/android-13
 };
 
 module_pci_driver(lola_driver);

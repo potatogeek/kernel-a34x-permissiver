@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * Renesas Technology Corp. SH7786 Urquell Support.
  *
@@ -6,10 +10,13 @@
  *
  * Based on board-sh7785lcr.c
  * Copyright (C) 2008  Yoshihiro Shimoda
+<<<<<<< HEAD
  *
  * This file is subject to the terms and conditions of the GNU General Public
  * License.  See the file "COPYING" in the main directory of this archive
  * for more details.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/init.h>
 #include <linux/platform_device.h>
@@ -24,7 +31,11 @@
 #include <mach/urquell.h>
 #include <cpu/sh7786.h>
 #include <asm/heartbeat.h>
+<<<<<<< HEAD
 #include <asm/sizes.h>
+=======
+#include <linux/sizes.h>
+>>>>>>> upstream/android-13
 #include <asm/smp-ops.h>
 
 /*

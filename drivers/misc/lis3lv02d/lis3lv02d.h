@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  *  lis3lv02d.h - ST LIS3LV02DL accelerometer driver
  *
  *  Copyright (C) 2007-2008 Yan Burman
  *  Copyright (C) 2008-2009 Eric Piel
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,6 +25,11 @@
  */
 #include <linux/platform_device.h>
 #include <linux/input-polldev.h>
+=======
+ */
+#include <linux/platform_device.h>
+#include <linux/input.h>
+>>>>>>> upstream/android-13
 #include <linux/regulator/consumer.h>
 #include <linux/miscdevice.h>
 
@@ -294,7 +304,11 @@ struct lis3lv02d {
 					* (1/1000th of earth gravity)
 					*/
 
+<<<<<<< HEAD
 	struct input_polled_dev	*idev;     /* input device */
+=======
+	struct input_dev	*idev;     /* input device */
+>>>>>>> upstream/android-13
 	struct platform_device	*pdev;     /* platform device */
 	struct regulator_bulk_data regulators[2];
 	atomic_t		count;     /* interrupt count after last read */

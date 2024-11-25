@@ -2,7 +2,10 @@
 #ifdef __KERNEL__
 # include <linux/slab.h>
 # include <linux/crush/crush.h>
+<<<<<<< HEAD
 void clear_choose_args(struct crush_map *c);
+=======
+>>>>>>> upstream/android-13
 #else
 # include "crush_compat.h"
 # include "crush.h"
@@ -130,6 +133,11 @@ void crush_destroy(struct crush_map *map)
 #ifndef __KERNEL__
 	kfree(map->choose_tries);
 #else
+<<<<<<< HEAD
+=======
+	clear_crush_names(&map->type_names);
+	clear_crush_names(&map->names);
+>>>>>>> upstream/android-13
 	clear_choose_args(map);
 #endif
 	kfree(map);

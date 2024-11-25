@@ -17,6 +17,14 @@
 #include <linux/fscrypt.h>
 #endif
 
+<<<<<<< HEAD
+=======
+/* Use of MS_* flags within the kernel is restricted to core mount(2) code. */
+#if !defined(__KERNEL__)
+#include <linux/mount.h>
+#endif
+
+>>>>>>> upstream/android-13
 /*
  * It's silly to have NR_OPEN bigger than NR_FILE, but you can change
  * the file limit at runtime and only root can increase the per-process
@@ -104,6 +112,7 @@ struct inodes_stat_t {
 
 #define NR_FILE  8192	/* this can well be larger on a larger system */
 
+<<<<<<< HEAD
 
 /*
  * These are the fs-independent mount-flags: up to 32 flags are supported
@@ -155,6 +164,8 @@ struct inodes_stat_t {
 #define MS_MGC_VAL 0xC0ED0000
 #define MS_MGC_MSK 0xffff0000
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Structure for FS_IOC_FSGETXATTR[A] and FS_IOC_FSSETXATTR.
  */
@@ -230,8 +241,14 @@ struct fsxattr {
 #define BLKSECDISCARD _IO(0x12,125)
 #define BLKROTATIONAL _IO(0x12,126)
 #define BLKZEROOUT _IO(0x12,127)
+<<<<<<< HEAD
 /*
  * A jump here: 130-131 are reserved for zoned block devices
+=======
+#define BLKGETDISKSEQ _IOR(0x12,128,__u64)
+/*
+ * A jump here: 130-136 are reserved for zoned block devices
+>>>>>>> upstream/android-13
  * (see uapi/linux/blkzoned.h)
  */
 
@@ -308,6 +325,10 @@ struct fsxattr {
 #define FS_EA_INODE_FL			0x00200000 /* Inode used for large EA */
 #define FS_EOFBLOCKS_FL			0x00400000 /* Reserved for ext4 */
 #define FS_NOCOW_FL			0x00800000 /* Do not cow file */
+<<<<<<< HEAD
+=======
+#define FS_DAX_FL			0x02000000 /* Inode is DAX */
+>>>>>>> upstream/android-13
 #define FS_INLINE_DATA_FL		0x10000000 /* Reserved for ext4 */
 #define FS_PROJINHERIT_FL		0x20000000 /* Create with parents projid */
 #define FS_CASEFOLD_FL			0x40000000 /* Folder is case insensitive */
@@ -320,6 +341,12 @@ struct fsxattr {
 #define SYNC_FILE_RANGE_WAIT_BEFORE	1
 #define SYNC_FILE_RANGE_WRITE		2
 #define SYNC_FILE_RANGE_WAIT_AFTER	4
+<<<<<<< HEAD
+=======
+#define SYNC_FILE_RANGE_WRITE_AND_WAIT	(SYNC_FILE_RANGE_WRITE | \
+					 SYNC_FILE_RANGE_WAIT_BEFORE | \
+					 SYNC_FILE_RANGE_WAIT_AFTER)
+>>>>>>> upstream/android-13
 
 /*
  * Flags for preadv2/pwritev2:

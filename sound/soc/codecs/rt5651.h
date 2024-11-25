@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * rt5651.h  --  RT5651 ALSA SoC audio driver
  *
  * Copyright 2011 Realtek Microelectronics
  * Author: Johnny Hsu <johnnyhsu@realtek.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __RT5651_H__
@@ -2073,6 +2080,10 @@ struct rt5651_priv {
 	struct regmap *regmap;
 	/* Jack and button detect data */
 	struct snd_soc_jack *hp_jack;
+<<<<<<< HEAD
+=======
+	struct gpio_desc *gpiod_hp_det;
+>>>>>>> upstream/android-13
 	struct work_struct jack_detect_work;
 	struct delayed_work bp_work;
 	bool ovcd_irq_enabled;
@@ -2082,6 +2093,10 @@ struct rt5651_priv {
 	int release_count;
 	int poll_count;
 	unsigned int jd_src;
+<<<<<<< HEAD
+=======
+	bool jd_active_high;
+>>>>>>> upstream/android-13
 	unsigned int ovcd_th;
 	unsigned int ovcd_sf;
 

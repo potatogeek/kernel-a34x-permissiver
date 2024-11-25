@@ -6,6 +6,11 @@
 #include <linux/pm_domain.h>
 #include <linux/soundwire/sdw.h>
 #include <linux/soundwire/sdw_type.h>
+<<<<<<< HEAD
+=======
+#include "bus.h"
+#include "sysfs_local.h"
+>>>>>>> upstream/android-13
 
 /**
  * sdw_get_device_id - find the matching SoundWire device id
@@ -18,6 +23,7 @@
 static const struct sdw_device_id *
 sdw_get_device_id(struct sdw_slave *slave, struct sdw_driver *drv)
 {
+<<<<<<< HEAD
 	const struct sdw_device_id *id = drv->id_table;
 
 	while (id && id->mfg_id) {
@@ -26,20 +32,47 @@ sdw_get_device_id(struct sdw_slave *slave, struct sdw_driver *drv)
 			return id;
 		id++;
 	}
+=======
+	const struct sdw_device_id *id;
+
+	for (id = drv->id_table; id && id->mfg_id; id++)
+		if (slave->id.mfg_id == id->mfg_id &&
+		    slave->id.part_id == id->part_id  &&
+		    (!id->sdw_version ||
+		     slave->id.sdw_version == id->sdw_version) &&
+		    (!id->class_id ||
+		     slave->id.class_id == id->class_id))
+			return id;
+>>>>>>> upstream/android-13
 
 	return NULL;
 }
 
 static int sdw_bus_match(struct device *dev, struct device_driver *ddrv)
 {
+<<<<<<< HEAD
 	struct sdw_slave *slave = dev_to_sdw_dev(dev);
 	struct sdw_driver *drv = drv_to_sdw_driver(ddrv);
 
 	return !!sdw_get_device_id(slave, drv);
+=======
+	struct sdw_slave *slave;
+	struct sdw_driver *drv;
+	int ret = 0;
+
+	if (is_sdw_slave(dev)) {
+		slave = dev_to_sdw_dev(dev);
+		drv = drv_to_sdw_driver(ddrv);
+
+		ret = !!sdw_get_device_id(slave, drv);
+	}
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 int sdw_slave_modalias(const struct sdw_slave *slave, char *buf, size_t size)
 {
+<<<<<<< HEAD
 	/* modalias is sdw:m<mfg_id>p<part_id> */
 
 	return snprintf(buf, size, "sdw:m%04Xp%04X\n",
@@ -47,6 +80,16 @@ int sdw_slave_modalias(const struct sdw_slave *slave, char *buf, size_t size)
 }
 
 static int sdw_uevent(struct device *dev, struct kobj_uevent_env *env)
+=======
+	/* modalias is sdw:m<mfg_id>p<part_id>v<version>c<class_id> */
+
+	return snprintf(buf, size, "sdw:m%04Xp%04Xv%02Xc%02X\n",
+			slave->id.mfg_id, slave->id.part_id,
+			slave->id.sdw_version, slave->id.class_id);
+}
+
+int sdw_slave_uevent(struct device *dev, struct kobj_uevent_env *env)
+>>>>>>> upstream/android-13
 {
 	struct sdw_slave *slave = dev_to_sdw_dev(dev);
 	char modalias[32];
@@ -62,7 +105,10 @@ static int sdw_uevent(struct device *dev, struct kobj_uevent_env *env)
 struct bus_type sdw_bus_type = {
 	.name = "soundwire",
 	.match = sdw_bus_match,
+<<<<<<< HEAD
 	.uevent = sdw_uevent,
+=======
+>>>>>>> upstream/android-13
 };
 EXPORT_SYMBOL_GPL(sdw_bus_type);
 
@@ -71,8 +117,23 @@ static int sdw_drv_probe(struct device *dev)
 	struct sdw_slave *slave = dev_to_sdw_dev(dev);
 	struct sdw_driver *drv = drv_to_sdw_driver(dev->driver);
 	const struct sdw_device_id *id;
+<<<<<<< HEAD
 	int ret;
 
+=======
+	const char *name;
+	int ret;
+
+	/*
+	 * fw description is mandatory to bind
+	 */
+	if (!dev->fwnode)
+		return -ENODEV;
+
+	if (!IS_ENABLED(CONFIG_ACPI) && !dev->of_node)
+		return -ENODEV;
+
+>>>>>>> upstream/android-13
 	id = sdw_get_device_id(slave, drv);
 	if (!id)
 		return -ENODEV;
@@ -88,7 +149,14 @@ static int sdw_drv_probe(struct device *dev)
 
 	ret = drv->probe(slave, id);
 	if (ret) {
+<<<<<<< HEAD
 		dev_err(dev, "Probe of %s failed: %d\n", drv->name, ret);
+=======
+		name = drv->name;
+		if (!name)
+			name = drv->driver.name;
+		dev_err(dev, "Probe of %s failed: %d\n", name, ret);
+>>>>>>> upstream/android-13
 		dev_pm_domain_detach(dev, false);
 		return ret;
 	}
@@ -97,6 +165,14 @@ static int sdw_drv_probe(struct device *dev)
 	if (slave->ops && slave->ops->read_prop)
 		slave->ops->read_prop(slave);
 
+<<<<<<< HEAD
+=======
+	/* init the sysfs as we have properties now */
+	ret = sdw_slave_sysfs_init(slave);
+	if (ret < 0)
+		dev_warn(dev, "Slave sysfs init failed:%d\n", ret);
+
+>>>>>>> upstream/android-13
 	/*
 	 * Check for valid clk_stop_timeout, use DisCo worst case value of
 	 * 300ms
@@ -107,7 +183,16 @@ static int sdw_drv_probe(struct device *dev)
 		slave->prop.clk_stop_timeout = 300;
 
 	slave->bus->clk_stop_timeout = max_t(u32, slave->bus->clk_stop_timeout,
+<<<<<<< HEAD
 					slave->prop.clk_stop_timeout);
+=======
+					     slave->prop.clk_stop_timeout);
+
+	slave->probed = true;
+	complete(&slave->probe_complete);
+
+	dev_dbg(dev, "probe complete\n");
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -144,11 +229,24 @@ static void sdw_drv_shutdown(struct device *dev)
  */
 int __sdw_register_driver(struct sdw_driver *drv, struct module *owner)
 {
+<<<<<<< HEAD
 	drv->driver.bus = &sdw_bus_type;
 
 	if (!drv->probe) {
 		pr_err("driver %s didn't provide SDW probe routine\n",
 							drv->name);
+=======
+	const char *name;
+
+	drv->driver.bus = &sdw_bus_type;
+
+	if (!drv->probe) {
+		name = drv->name;
+		if (!name)
+			name = drv->driver.name;
+
+		pr_err("driver %s didn't provide SDW probe routine\n", name);
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -177,11 +275,19 @@ EXPORT_SYMBOL_GPL(sdw_unregister_driver);
 
 static int __init sdw_bus_init(void)
 {
+<<<<<<< HEAD
+=======
+	sdw_debugfs_init();
+>>>>>>> upstream/android-13
 	return bus_register(&sdw_bus_type);
 }
 
 static void __exit sdw_bus_exit(void)
 {
+<<<<<<< HEAD
+=======
+	sdw_debugfs_exit();
+>>>>>>> upstream/android-13
 	bus_unregister(&sdw_bus_type);
 }
 

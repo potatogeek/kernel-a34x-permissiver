@@ -36,7 +36,11 @@
 		};
 
 		internal-regs {
+<<<<<<< HEAD
 			sdramc@1400 {
+=======
+			sdramc: sdramc@1400 {
+>>>>>>> upstream/android-13
 				compatible = "marvell,armada-xp-sdram-controller";
 				reg = <0x1400 0x500>;
 			};

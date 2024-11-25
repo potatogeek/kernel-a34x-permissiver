@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2017 Texas Instruments, Inc.
  *
@@ -9,6 +10,11 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright 2017 Texas Instruments, Inc.
+>>>>>>> upstream/android-13
  */
 #ifndef __DT_BINDINGS_CLK_DM816_H
 #define __DT_BINDINGS_CLK_DM816_H

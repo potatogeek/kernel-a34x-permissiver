@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * Devices PM QoS constraints management
  *
  * Copyright (C) 2011 Texas Instruments, Inc.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
  *
+=======
+>>>>>>> upstream/android-13
  * This module exposes the interface to kernel space for specifying
  * per-device PM QoS dependencies. It provides infrastructure for registration
  * of:
@@ -22,7 +29,11 @@
  * per-device constraint data struct.
  *
  * Note about the per-device constraint data struct allocation:
+<<<<<<< HEAD
  * . The per-device constraints data struct ptr is tored into the device
+=======
+ * . The per-device constraints data struct ptr is stored into the device
+>>>>>>> upstream/android-13
  *    dev_pm_info.
  * . To minimize the data usage by the per-device constraints, the data struct
  *   is only allocated at the first call to dev_pm_qos_add_request.
@@ -94,33 +105,79 @@ enum pm_qos_flags_status dev_pm_qos_flags(struct device *dev, s32 mask)
 EXPORT_SYMBOL_GPL(dev_pm_qos_flags);
 
 /**
+<<<<<<< HEAD
  * __dev_pm_qos_read_value - Get PM QoS constraint for a given device.
+=======
+ * __dev_pm_qos_resume_latency - Get resume latency constraint for a given device.
+>>>>>>> upstream/android-13
  * @dev: Device to get the PM QoS constraint value for.
  *
  * This routine must be called with dev->power.lock held.
  */
+<<<<<<< HEAD
 s32 __dev_pm_qos_read_value(struct device *dev)
 {
 	lockdep_assert_held(&dev->power.lock);
 
 	return dev_pm_qos_raw_read_value(dev);
+=======
+s32 __dev_pm_qos_resume_latency(struct device *dev)
+{
+	lockdep_assert_held(&dev->power.lock);
+
+	return dev_pm_qos_raw_resume_latency(dev);
+>>>>>>> upstream/android-13
 }
 
 /**
  * dev_pm_qos_read_value - Get PM QoS constraint for a given device (locked).
  * @dev: Device to get the PM QoS constraint value for.
+<<<<<<< HEAD
  */
 s32 dev_pm_qos_read_value(struct device *dev)
 {
+=======
+ * @type: QoS request type.
+ */
+s32 dev_pm_qos_read_value(struct device *dev, enum dev_pm_qos_req_type type)
+{
+	struct dev_pm_qos *qos = dev->power.qos;
+>>>>>>> upstream/android-13
 	unsigned long flags;
 	s32 ret;
 
 	spin_lock_irqsave(&dev->power.lock, flags);
+<<<<<<< HEAD
 	ret = __dev_pm_qos_read_value(dev);
+=======
+
+	switch (type) {
+	case DEV_PM_QOS_RESUME_LATENCY:
+		ret = IS_ERR_OR_NULL(qos) ? PM_QOS_RESUME_LATENCY_NO_CONSTRAINT
+			: pm_qos_read_value(&qos->resume_latency);
+		break;
+	case DEV_PM_QOS_MIN_FREQUENCY:
+		ret = IS_ERR_OR_NULL(qos) ? PM_QOS_MIN_FREQUENCY_DEFAULT_VALUE
+			: freq_qos_read_value(&qos->freq, FREQ_QOS_MIN);
+		break;
+	case DEV_PM_QOS_MAX_FREQUENCY:
+		ret = IS_ERR_OR_NULL(qos) ? PM_QOS_MAX_FREQUENCY_DEFAULT_VALUE
+			: freq_qos_read_value(&qos->freq, FREQ_QOS_MAX);
+		break;
+	default:
+		WARN_ON(1);
+		ret = 0;
+	}
+
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&dev->power.lock, flags);
 
 	return ret;
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(dev_pm_qos_read_value);
+>>>>>>> upstream/android-13
 
 /**
  * apply_constraint - Add/modify/remove device PM QoS request.
@@ -143,6 +200,7 @@ static int apply_constraint(struct dev_pm_qos_request *req,
 			value = 0;
 
 		ret = pm_qos_update_target(&qos->resume_latency,
+<<<<<<< HEAD
 					   &req->data.pnode, action, value,
 					   true);
 		break;
@@ -150,11 +208,25 @@ static int apply_constraint(struct dev_pm_qos_request *req,
 		ret = pm_qos_update_target(&qos->latency_tolerance,
 					   &req->data.pnode, action, value,
 					   true);
+=======
+					   &req->data.pnode, action, value);
+		break;
+	case DEV_PM_QOS_LATENCY_TOLERANCE:
+		ret = pm_qos_update_target(&qos->latency_tolerance,
+					   &req->data.pnode, action, value);
+>>>>>>> upstream/android-13
 		if (ret) {
 			value = pm_qos_read_value(&qos->latency_tolerance);
 			req->dev->power.set_latency_tolerance(req->dev, value);
 		}
 		break;
+<<<<<<< HEAD
+=======
+	case DEV_PM_QOS_MIN_FREQUENCY:
+	case DEV_PM_QOS_MAX_FREQUENCY:
+		ret = freq_qos_apply(&req->data.freq, action, value);
+		break;
+>>>>>>> upstream/android-13
 	case DEV_PM_QOS_FLAGS:
 		ret = pm_qos_update_flags(&qos->flags, &req->data.flr,
 					  action, value);
@@ -183,12 +255,19 @@ static int dev_pm_qos_constraints_allocate(struct device *dev)
 	if (!qos)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	n = kzalloc(sizeof(*n), GFP_KERNEL);
+=======
+	n = kzalloc(3 * sizeof(*n), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!n) {
 		kfree(qos);
 		return -ENOMEM;
 	}
+<<<<<<< HEAD
 	BLOCKING_INIT_NOTIFIER_HEAD(n);
+=======
+>>>>>>> upstream/android-13
 
 	c = &qos->resume_latency;
 	plist_head_init(&c->list);
@@ -197,6 +276,10 @@ static int dev_pm_qos_constraints_allocate(struct device *dev)
 	c->no_constraint_value = PM_QOS_RESUME_LATENCY_NO_CONSTRAINT;
 	c->type = PM_QOS_MIN;
 	c->notifiers = n;
+<<<<<<< HEAD
+=======
+	BLOCKING_INIT_NOTIFIER_HEAD(n);
+>>>>>>> upstream/android-13
 
 	c = &qos->latency_tolerance;
 	plist_head_init(&c->list);
@@ -205,6 +288,11 @@ static int dev_pm_qos_constraints_allocate(struct device *dev)
 	c->no_constraint_value = PM_QOS_LATENCY_TOLERANCE_NO_CONSTRAINT;
 	c->type = PM_QOS_MIN;
 
+<<<<<<< HEAD
+=======
+	freq_constraints_init(&qos->freq);
+
+>>>>>>> upstream/android-13
 	INIT_LIST_HEAD(&qos->flags.list);
 
 	spin_lock_irq(&dev->power.lock);
@@ -258,11 +346,33 @@ void dev_pm_qos_constraints_destroy(struct device *dev)
 		apply_constraint(req, PM_QOS_REMOVE_REQ, PM_QOS_DEFAULT_VALUE);
 		memset(req, 0, sizeof(*req));
 	}
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	c = &qos->latency_tolerance;
 	plist_for_each_entry_safe(req, tmp, &c->list, data.pnode) {
 		apply_constraint(req, PM_QOS_REMOVE_REQ, PM_QOS_DEFAULT_VALUE);
 		memset(req, 0, sizeof(*req));
 	}
+<<<<<<< HEAD
+=======
+
+	c = &qos->freq.min_freq;
+	plist_for_each_entry_safe(req, tmp, &c->list, data.freq.pnode) {
+		apply_constraint(req, PM_QOS_REMOVE_REQ,
+				 PM_QOS_MIN_FREQUENCY_DEFAULT_VALUE);
+		memset(req, 0, sizeof(*req));
+	}
+
+	c = &qos->freq.max_freq;
+	plist_for_each_entry_safe(req, tmp, &c->list, data.freq.pnode) {
+		apply_constraint(req, PM_QOS_REMOVE_REQ,
+				 PM_QOS_MAX_FREQUENCY_DEFAULT_VALUE);
+		memset(req, 0, sizeof(*req));
+	}
+
+>>>>>>> upstream/android-13
 	f = &qos->flags;
 	list_for_each_entry_safe(req, tmp, &f->list, data.flr.node) {
 		apply_constraint(req, PM_QOS_REMOVE_REQ, PM_QOS_DEFAULT_VALUE);
@@ -308,11 +418,30 @@ static int __dev_pm_qos_add_request(struct device *dev,
 		ret = dev_pm_qos_constraints_allocate(dev);
 
 	trace_dev_pm_qos_add_request(dev_name(dev), type, value);
+<<<<<<< HEAD
 	if (!ret) {
 		req->dev = dev;
 		req->type = type;
 		ret = apply_constraint(req, PM_QOS_ADD_REQ, value);
 	}
+=======
+	if (ret)
+		return ret;
+
+	req->dev = dev;
+	req->type = type;
+	if (req->type == DEV_PM_QOS_MIN_FREQUENCY)
+		ret = freq_qos_add_request(&dev->power.qos->freq,
+					   &req->data.freq,
+					   FREQ_QOS_MIN, value);
+	else if (req->type == DEV_PM_QOS_MAX_FREQUENCY)
+		ret = freq_qos_add_request(&dev->power.qos->freq,
+					   &req->data.freq,
+					   FREQ_QOS_MAX, value);
+	else
+		ret = apply_constraint(req, PM_QOS_ADD_REQ, value);
+
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -376,6 +505,13 @@ static int __dev_pm_qos_update_request(struct dev_pm_qos_request *req,
 	case DEV_PM_QOS_LATENCY_TOLERANCE:
 		curr_value = req->data.pnode.prio;
 		break;
+<<<<<<< HEAD
+=======
+	case DEV_PM_QOS_MIN_FREQUENCY:
+	case DEV_PM_QOS_MAX_FREQUENCY:
+		curr_value = req->data.freq.pnode.prio;
+		break;
+>>>>>>> upstream/android-13
 	case DEV_PM_QOS_FLAGS:
 		curr_value = req->data.flr.flags;
 		break;
@@ -473,6 +609,10 @@ EXPORT_SYMBOL_GPL(dev_pm_qos_remove_request);
  *
  * @dev: target device for the constraint
  * @notifier: notifier block managed by caller.
+<<<<<<< HEAD
+=======
+ * @type: request type.
+>>>>>>> upstream/android-13
  *
  * Will register the notifier into a notification chain that gets called
  * upon changes to the target value for the device.
@@ -480,7 +620,12 @@ EXPORT_SYMBOL_GPL(dev_pm_qos_remove_request);
  * If the device's constraints object doesn't exist when this routine is called,
  * it will be created (or error code will be returned if that fails).
  */
+<<<<<<< HEAD
 int dev_pm_qos_add_notifier(struct device *dev, struct notifier_block *notifier)
+=======
+int dev_pm_qos_add_notifier(struct device *dev, struct notifier_block *notifier,
+			    enum dev_pm_qos_req_type type)
+>>>>>>> upstream/android-13
 {
 	int ret = 0;
 
@@ -491,10 +636,35 @@ int dev_pm_qos_add_notifier(struct device *dev, struct notifier_block *notifier)
 	else if (!dev->power.qos)
 		ret = dev_pm_qos_constraints_allocate(dev);
 
+<<<<<<< HEAD
 	if (!ret)
 		ret = blocking_notifier_chain_register(dev->power.qos->resume_latency.notifiers,
 						       notifier);
 
+=======
+	if (ret)
+		goto unlock;
+
+	switch (type) {
+	case DEV_PM_QOS_RESUME_LATENCY:
+		ret = blocking_notifier_chain_register(dev->power.qos->resume_latency.notifiers,
+						       notifier);
+		break;
+	case DEV_PM_QOS_MIN_FREQUENCY:
+		ret = freq_qos_add_notifier(&dev->power.qos->freq,
+					    FREQ_QOS_MIN, notifier);
+		break;
+	case DEV_PM_QOS_MAX_FREQUENCY:
+		ret = freq_qos_add_notifier(&dev->power.qos->freq,
+					    FREQ_QOS_MAX, notifier);
+		break;
+	default:
+		WARN_ON(1);
+		ret = -EINVAL;
+	}
+
+unlock:
+>>>>>>> upstream/android-13
 	mutex_unlock(&dev_pm_qos_mtx);
 	return ret;
 }
@@ -506,24 +676,62 @@ EXPORT_SYMBOL_GPL(dev_pm_qos_add_notifier);
  *
  * @dev: target device for the constraint
  * @notifier: notifier block to be removed.
+<<<<<<< HEAD
+=======
+ * @type: request type.
+>>>>>>> upstream/android-13
  *
  * Will remove the notifier from the notification chain that gets called
  * upon changes to the target value.
  */
 int dev_pm_qos_remove_notifier(struct device *dev,
+<<<<<<< HEAD
 			       struct notifier_block *notifier)
 {
 	int retval = 0;
+=======
+			       struct notifier_block *notifier,
+			       enum dev_pm_qos_req_type type)
+{
+	int ret = 0;
+>>>>>>> upstream/android-13
 
 	mutex_lock(&dev_pm_qos_mtx);
 
 	/* Silently return if the constraints object is not present. */
+<<<<<<< HEAD
 	if (!IS_ERR_OR_NULL(dev->power.qos))
 		retval = blocking_notifier_chain_unregister(dev->power.qos->resume_latency.notifiers,
 							    notifier);
 
 	mutex_unlock(&dev_pm_qos_mtx);
 	return retval;
+=======
+	if (IS_ERR_OR_NULL(dev->power.qos))
+		goto unlock;
+
+	switch (type) {
+	case DEV_PM_QOS_RESUME_LATENCY:
+		ret = blocking_notifier_chain_unregister(dev->power.qos->resume_latency.notifiers,
+							 notifier);
+		break;
+	case DEV_PM_QOS_MIN_FREQUENCY:
+		ret = freq_qos_remove_notifier(&dev->power.qos->freq,
+					       FREQ_QOS_MIN, notifier);
+		break;
+	case DEV_PM_QOS_MAX_FREQUENCY:
+		ret = freq_qos_remove_notifier(&dev->power.qos->freq,
+					       FREQ_QOS_MAX, notifier);
+		break;
+	default:
+		WARN_ON(1);
+		ret = -EINVAL;
+	}
+
+unlock:
+	mutex_unlock(&dev_pm_qos_mtx);
+	return ret;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(dev_pm_qos_remove_notifier);
 
@@ -583,6 +791,12 @@ static void __dev_pm_qos_drop_user_request(struct device *dev,
 		req = dev->power.qos->flags_req;
 		dev->power.qos->flags_req = NULL;
 		break;
+<<<<<<< HEAD
+=======
+	default:
+		WARN_ON(1);
+		return;
+>>>>>>> upstream/android-13
 	}
 	__dev_pm_qos_remove_request(req);
 	kfree(req);

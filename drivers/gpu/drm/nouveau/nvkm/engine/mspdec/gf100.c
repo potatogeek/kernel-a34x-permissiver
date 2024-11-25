@@ -43,8 +43,15 @@ gf100_mspdec = {
 };
 
 int
+<<<<<<< HEAD
 gf100_mspdec_new(struct nvkm_device *device, int index,
 		 struct nvkm_engine **pengine)
 {
 	return nvkm_mspdec_new_(&gf100_mspdec, device, index, pengine);
+=======
+gf100_mspdec_new(struct nvkm_device *device, enum nvkm_subdev_type type, int inst,
+		 struct nvkm_engine **pengine)
+{
+	return nvkm_mspdec_new_(&gf100_mspdec, device, type, inst, pengine);
+>>>>>>> upstream/android-13
 }

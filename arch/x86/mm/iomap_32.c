@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright © 2008 Ingo Molnar
  *
@@ -18,6 +19,15 @@
 
 #include <asm/iomap.h>
 #include <asm/pat.h>
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright © 2008 Ingo Molnar
+ */
+
+#include <asm/iomap.h>
+#include <asm/memtype.h>
+>>>>>>> upstream/android-13
 #include <linux/export.h>
 #include <linux/highmem.h>
 
@@ -39,7 +49,11 @@ int iomap_create_wc(resource_size_t base, unsigned long size, pgprot_t *prot)
 	if (!is_io_mapping_possible(base, size))
 		return -EINVAL;
 
+<<<<<<< HEAD
 	ret = io_reserve_memtype(base, base + size, &pcm);
+=======
+	ret = memtype_reserve_io(base, base + size, &pcm);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 
@@ -53,6 +67,7 @@ EXPORT_SYMBOL_GPL(iomap_create_wc);
 
 void iomap_free(resource_size_t base, unsigned long size)
 {
+<<<<<<< HEAD
 	io_free_memtype(base, base + size);
 }
 EXPORT_SYMBOL_GPL(iomap_free);
@@ -79,6 +94,13 @@ void *kmap_atomic_prot_pfn(unsigned long pfn, pgprot_t prot)
  */
 void __iomem *
 iomap_atomic_prot_pfn(unsigned long pfn, pgprot_t prot)
+=======
+	memtype_free_io(base, base + size);
+}
+EXPORT_SYMBOL_GPL(iomap_free);
+
+void __iomem *__iomap_local_pfn_prot(unsigned long pfn, pgprot_t prot)
+>>>>>>> upstream/android-13
 {
 	/*
 	 * For non-PAT systems, translate non-WB request to UC- just in
@@ -94,6 +116,7 @@ iomap_atomic_prot_pfn(unsigned long pfn, pgprot_t prot)
 	/* Filter out unsupported __PAGE_KERNEL* bits: */
 	pgprot_val(prot) &= __default_kernel_pte_mask;
 
+<<<<<<< HEAD
 	return (void __force __iomem *) kmap_atomic_prot_pfn(pfn, prot);
 }
 EXPORT_SYMBOL_GPL(iomap_atomic_prot_pfn);
@@ -127,3 +150,8 @@ iounmap_atomic(void __iomem *kvaddr)
 	preempt_enable();
 }
 EXPORT_SYMBOL_GPL(iounmap_atomic);
+=======
+	return (void __force __iomem *)__kmap_local_pfn_prot(pfn, prot);
+}
+EXPORT_SYMBOL_GPL(__iomap_local_pfn_prot);
+>>>>>>> upstream/android-13

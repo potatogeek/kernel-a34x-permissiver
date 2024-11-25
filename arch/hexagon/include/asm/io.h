@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * IO definitions for the Hexagon architecture
  *
  * Copyright (c) 2010-2013, The Linux Foundation. All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -16,6 +21,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _ASM_IO_H
@@ -40,7 +47,11 @@
 extern int remap_area_pages(unsigned long start, unsigned long phys_addr,
 				unsigned long end, unsigned long flags);
 
+<<<<<<< HEAD
 extern void __iounmap(const volatile void __iomem *addr);
+=======
+extern void iounmap(const volatile void __iomem *addr);
+>>>>>>> upstream/android-13
 
 /* Defined in lib/io.c, needed for smc91x driver. */
 extern void __raw_readsw(const void __iomem *addr, void *data, int wordlen);
@@ -77,7 +88,10 @@ static inline void *phys_to_virt(unsigned long address)
  * convert a physical pointer to a virtual kernel pointer for
  * /dev/mem access.
  */
+<<<<<<< HEAD
 #define xlate_dev_kmem_ptr(p)    __va(p)
+=======
+>>>>>>> upstream/android-13
 #define xlate_dev_mem_ptr(p)    __va(p)
 
 /*
@@ -184,6 +198,7 @@ static inline void writel(u32 data, volatile void __iomem *addr)
 #define writew_relaxed __raw_writew
 #define writel_relaxed __raw_writel
 
+<<<<<<< HEAD
 #define mmiowb()
 
 void __iomem *ioremap(unsigned long phys_addr, unsigned long size);
@@ -196,6 +211,12 @@ static inline void iounmap(volatile void __iomem *addr)
 	__iounmap(addr);
 }
 
+=======
+void __iomem *ioremap(unsigned long phys_addr, unsigned long size);
+#define ioremap_uc(X, Y) ioremap((X), (Y))
+
+
+>>>>>>> upstream/android-13
 #define __raw_writel writel
 
 static inline void memcpy_fromio(void *dst, const volatile void __iomem *src,

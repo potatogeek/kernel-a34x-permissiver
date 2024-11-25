@@ -4,9 +4,12 @@
  * Copyright(c) 2007 - 2012 Realtek Corporation. All rights reserved.
  *
  ******************************************************************************/
+<<<<<<< HEAD
 
 #define _HAL_INTF_C_
 
+=======
+>>>>>>> upstream/android-13
 #include <drv_types.h>
 #include <rtw_debug.h>
 #include <hal_data.h>
@@ -63,9 +66,15 @@ void rtw_hal_dm_deinit(struct adapter *padapter)
 
 static void rtw_hal_init_opmode(struct adapter *padapter)
 {
+<<<<<<< HEAD
 	enum NDIS_802_11_NETWORK_INFRASTRUCTURE networkType = Ndis802_11InfrastructureMax;
 	struct  mlme_priv *pmlmepriv = &(padapter->mlmepriv);
 	sint fw_state;
+=======
+	enum ndis_802_11_network_infrastructure networkType = Ndis802_11InfrastructureMax;
+	struct  mlme_priv *pmlmepriv = &(padapter->mlmepriv);
+	signed int fw_state;
+>>>>>>> upstream/android-13
 
 	fw_state = get_fwstate(pmlmepriv);
 
@@ -105,6 +114,7 @@ uint rtw_hal_init(struct adapter *padapter)
 		rtw_bb_rf_gain_offset(padapter);
 	} else {
 		dvobj->padapters->hw_init_completed = false;
+<<<<<<< HEAD
 		DBG_871X("rtw_hal_init: hal__init fail\n");
 	}
 
@@ -112,11 +122,20 @@ uint rtw_hal_init(struct adapter *padapter)
 
 	return status;
 
+=======
+	}
+
+	return status;
+>>>>>>> upstream/android-13
 }
 
 uint rtw_hal_deinit(struct adapter *padapter)
 {
+<<<<<<< HEAD
 	uint	status = _SUCCESS;
+=======
+	uint status = _SUCCESS;
+>>>>>>> upstream/android-13
 	struct dvobj_priv *dvobj = adapter_to_dvobj(padapter);
 
 	status = padapter->HalFunc.hal_deinit(padapter);
@@ -124,9 +143,14 @@ uint rtw_hal_deinit(struct adapter *padapter)
 	if (status == _SUCCESS) {
 		padapter = dvobj->padapters;
 		padapter->hw_init_completed = false;
+<<<<<<< HEAD
 	} else {
 		DBG_871X("\n rtw_hal_deinit: hal_init fail\n");
 	}
+=======
+	}
+
+>>>>>>> upstream/android-13
 	return status;
 }
 
@@ -148,27 +172,43 @@ void rtw_hal_set_hwreg_with_buf(struct adapter *padapter, u8 variable, u8 *pbuf,
 		padapter->HalFunc.SetHwRegHandlerWithBuf(padapter, variable, pbuf, len);
 }
 
+<<<<<<< HEAD
 u8 rtw_hal_set_def_var(struct adapter *padapter, enum HAL_DEF_VARIABLE eVariable, void *pValue)
+=======
+u8 rtw_hal_set_def_var(struct adapter *padapter, enum hal_def_variable eVariable, void *pValue)
+>>>>>>> upstream/android-13
 {
 	if (padapter->HalFunc.SetHalDefVarHandler)
 		return padapter->HalFunc.SetHalDefVarHandler(padapter, eVariable, pValue);
 	return _FAIL;
 }
 
+<<<<<<< HEAD
 u8 rtw_hal_get_def_var(struct adapter *padapter, enum HAL_DEF_VARIABLE eVariable, void *pValue)
+=======
+u8 rtw_hal_get_def_var(struct adapter *padapter, enum hal_def_variable eVariable, void *pValue)
+>>>>>>> upstream/android-13
 {
 	if (padapter->HalFunc.GetHalDefVarHandler)
 		return padapter->HalFunc.GetHalDefVarHandler(padapter, eVariable, pValue);
 	return _FAIL;
 }
 
+<<<<<<< HEAD
 void rtw_hal_set_odm_var(struct adapter *padapter, enum HAL_ODM_VARIABLE eVariable, void *pValue1, bool bSet)
+=======
+void rtw_hal_set_odm_var(struct adapter *padapter, enum hal_odm_variable eVariable, void *pValue1, bool bSet)
+>>>>>>> upstream/android-13
 {
 	if (padapter->HalFunc.SetHalODMVarHandler)
 		padapter->HalFunc.SetHalODMVarHandler(padapter, eVariable, pValue1, bSet);
 }
 
+<<<<<<< HEAD
 void rtw_hal_get_odm_var(struct adapter *padapter, enum HAL_ODM_VARIABLE eVariable, void *pValue1, void *pValue2)
+=======
+void rtw_hal_get_odm_var(struct adapter *padapter, enum hal_odm_variable eVariable, void *pValue1, void *pValue2)
+>>>>>>> upstream/android-13
 {
 	if (padapter->HalFunc.GetHalODMVarHandler)
 		padapter->HalFunc.GetHalODMVarHandler(padapter, eVariable, pValue1, pValue2);
@@ -178,18 +218,24 @@ void rtw_hal_enable_interrupt(struct adapter *padapter)
 {
 	if (padapter->HalFunc.enable_interrupt)
 		padapter->HalFunc.enable_interrupt(padapter);
+<<<<<<< HEAD
 	else
 		DBG_871X("%s: HalFunc.enable_interrupt is NULL!\n", __func__);
 
+=======
+>>>>>>> upstream/android-13
 }
 
 void rtw_hal_disable_interrupt(struct adapter *padapter)
 {
 	if (padapter->HalFunc.disable_interrupt)
 		padapter->HalFunc.disable_interrupt(padapter);
+<<<<<<< HEAD
 	else
 		DBG_871X("%s: HalFunc.disable_interrupt is NULL!\n", __func__);
 
+=======
+>>>>>>> upstream/android-13
 }
 
 u8 rtw_hal_check_ips_status(struct adapter *padapter)
@@ -197,8 +243,11 @@ u8 rtw_hal_check_ips_status(struct adapter *padapter)
 	u8 val = false;
 	if (padapter->HalFunc.check_ips_status)
 		val = padapter->HalFunc.check_ips_status(padapter);
+<<<<<<< HEAD
 	else
 		DBG_871X("%s: HalFunc.check_ips_status is NULL!\n", __func__);
+=======
+>>>>>>> upstream/android-13
 
 	return val;
 }
@@ -248,14 +297,22 @@ s32	rtw_hal_mgnt_xmit(struct adapter *padapter, struct xmit_frame *pmgntframe)
 
 s32	rtw_hal_init_xmit_priv(struct adapter *padapter)
 {
+<<<<<<< HEAD
 	if (padapter->HalFunc.init_xmit_priv != NULL)
+=======
+	if (padapter->HalFunc.init_xmit_priv)
+>>>>>>> upstream/android-13
 		return padapter->HalFunc.init_xmit_priv(padapter);
 	return _FAIL;
 }
 
 void rtw_hal_free_xmit_priv(struct adapter *padapter)
 {
+<<<<<<< HEAD
 	if (padapter->HalFunc.free_xmit_priv != NULL)
+=======
+	if (padapter->HalFunc.free_xmit_priv)
+>>>>>>> upstream/android-13
 		padapter->HalFunc.free_xmit_priv(padapter);
 }
 
@@ -269,7 +326,10 @@ s32	rtw_hal_init_recv_priv(struct adapter *padapter)
 
 void rtw_hal_free_recv_priv(struct adapter *padapter)
 {
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	if (padapter->HalFunc.free_recv_priv)
 		padapter->HalFunc.free_recv_priv(padapter);
 }
@@ -346,7 +406,11 @@ void rtw_hal_set_chan(struct adapter *padapter, u8 channel)
 }
 
 void rtw_hal_set_chnl_bw(struct adapter *padapter, u8 channel,
+<<<<<<< HEAD
 			 enum CHANNEL_WIDTH Bandwidth, u8 Offset40, u8 Offset80)
+=======
+			 enum channel_width Bandwidth, u8 Offset40, u8 Offset80)
+>>>>>>> upstream/android-13
 {
 	if (padapter->HalFunc.set_chnl_bw_handler)
 		padapter->HalFunc.set_chnl_bw_handler(padapter, channel,
@@ -358,11 +422,15 @@ void rtw_hal_dm_watchdog(struct adapter *padapter)
 {
 	if (padapter->HalFunc.hal_dm_watchdog)
 		padapter->HalFunc.hal_dm_watchdog(padapter);
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 }
 
 void rtw_hal_dm_watchdog_in_lps(struct adapter *padapter)
 {
+<<<<<<< HEAD
 	if (adapter_to_pwrctl(padapter)->bFwCurrentInPSMode == true) {
 		if (padapter->HalFunc.hal_dm_watchdog_in_lps)
 			padapter->HalFunc.hal_dm_watchdog_in_lps(padapter); /* this fuction caller is in interrupt context */
@@ -370,6 +438,15 @@ void rtw_hal_dm_watchdog_in_lps(struct adapter *padapter)
 }
 
 void rtw_hal_bcn_related_reg_setting(struct adapter *padapter)
+=======
+	if (adapter_to_pwrctl(padapter)->fw_current_in_ps_mode) {
+		if (padapter->HalFunc.hal_dm_watchdog_in_lps)
+			padapter->HalFunc.hal_dm_watchdog_in_lps(padapter); /* this function caller is in interrupt context */
+	}
+}
+
+void beacon_timing_control(struct adapter *padapter)
+>>>>>>> upstream/android-13
 {
 	if (padapter->HalFunc.SetBeaconRelatedRegistersHandler)
 		padapter->HalFunc.SetBeaconRelatedRegistersHandler(padapter);
@@ -400,11 +477,14 @@ bool rtw_hal_c2h_valid(struct adapter *adapter, u8 *buf)
 	return c2h_evt_valid((struct c2h_evt_hdr_88xx *)buf);
 }
 
+<<<<<<< HEAD
 s32 rtw_hal_c2h_evt_read(struct adapter *adapter, u8 *buf)
 {
 	return c2h_evt_read_88xx(adapter, buf);
 }
 
+=======
+>>>>>>> upstream/android-13
 s32 rtw_hal_c2h_handler(struct adapter *adapter, u8 *c2h_evt)
 {
 	s32 ret = _FAIL;
@@ -427,7 +507,10 @@ s32 rtw_hal_macid_sleep(struct adapter *padapter, u32 macid)
 {
 	u8 support;
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	support = false;
 	rtw_hal_get_def_var(padapter, HAL_DEF_MACID_SLEEP, &support);
 	if (false == support)
@@ -442,7 +525,10 @@ s32 rtw_hal_macid_wakeup(struct adapter *padapter, u32 macid)
 {
 	u8 support;
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	support = false;
 	rtw_hal_get_def_var(padapter, HAL_DEF_MACID_SLEEP, &support);
 	if (false == support)
@@ -459,8 +545,11 @@ s32 rtw_hal_fill_h2c_cmd(struct adapter *padapter, u8 ElementID, u32 CmdLen, u8 
 
 	if (padapter->HalFunc.fill_h2c_cmd)
 		ret = padapter->HalFunc.fill_h2c_cmd(padapter, ElementID, CmdLen, pCmdBuffer);
+<<<<<<< HEAD
 	else
 		DBG_871X("%s:  func[fill_h2c_cmd] not defined!\n", __func__);
+=======
+>>>>>>> upstream/android-13
 
 	return ret;
 }

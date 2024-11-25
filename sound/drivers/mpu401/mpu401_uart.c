@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  Copyright (c) by Jaroslav Kysela <perex@perex.cz>
  *  Routines for control of MPU-401 in UART mode
@@ -6,6 +10,7 @@
  *  interrupts thus output is done via polling. Without interrupt,
  *  input is done also via polling. Do not expect good performance.
  *
+<<<<<<< HEAD
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -21,11 +26,16 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+>>>>>>> upstream/android-13
  *   13-03-2003:
  *      Added support for different kind of hardware I/O. Build in choices
  *      are port and mmio. For other kind of I/O, set mpu->read and
  *      mpu->write to your own I/O functions.
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/io.h>
@@ -286,8 +296,16 @@ static int snd_mpu401_uart_input_open(struct snd_rawmidi_substream *substream)
 	int err;
 
 	mpu = substream->rmidi->private_data;
+<<<<<<< HEAD
 	if (mpu->open_input && (err = mpu->open_input(mpu)) < 0)
 		return err;
+=======
+	if (mpu->open_input) {
+		err = mpu->open_input(mpu);
+		if (err < 0)
+			return err;
+	}
+>>>>>>> upstream/android-13
 	if (! test_bit(MPU401_MODE_BIT_OUTPUT, &mpu->mode)) {
 		if (snd_mpu401_do_reset(mpu) < 0)
 			goto error_out;
@@ -308,8 +326,16 @@ static int snd_mpu401_uart_output_open(struct snd_rawmidi_substream *substream)
 	int err;
 
 	mpu = substream->rmidi->private_data;
+<<<<<<< HEAD
 	if (mpu->open_output && (err = mpu->open_output(mpu)) < 0)
 		return err;
+=======
+	if (mpu->open_output) {
+		err = mpu->open_output(mpu);
+		if (err < 0)
+			return err;
+	}
+>>>>>>> upstream/android-13
 	if (! test_bit(MPU401_MODE_BIT_INPUT, &mpu->mode)) {
 		if (snd_mpu401_do_reset(mpu) < 0)
 			goto error_out;
@@ -539,8 +565,14 @@ int snd_mpu401_uart_new(struct snd_card *card, int device,
 		info_flags |= MPU401_INFO_INPUT | MPU401_INFO_OUTPUT;
 	in_enable = (info_flags & MPU401_INFO_INPUT) ? 1 : 0;
 	out_enable = (info_flags & MPU401_INFO_OUTPUT) ? 1 : 0;
+<<<<<<< HEAD
 	if ((err = snd_rawmidi_new(card, "MPU-401U", device,
 				   out_enable, in_enable, &rmidi)) < 0)
+=======
+	err = snd_rawmidi_new(card, "MPU-401U", device,
+			      out_enable, in_enable, &rmidi);
+	if (err < 0)
+>>>>>>> upstream/android-13
 		return err;
 	mpu = kzalloc(sizeof(*mpu), GFP_KERNEL);
 	if (!mpu) {

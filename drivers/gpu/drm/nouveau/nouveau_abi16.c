@@ -55,8 +55,13 @@ nouveau_abi16(struct drm_file *file_priv)
 			 * device (ie. the one that belongs to the fd it
 			 * opened)
 			 */
+<<<<<<< HEAD
 			if (nvif_device_init(&cli->base.object, 0, NV_DEVICE,
 					     &args, sizeof(args),
+=======
+			if (nvif_device_ctor(&cli->base.object, "abi16Device",
+					     0, NV_DEVICE, &args, sizeof(args),
+>>>>>>> upstream/android-13
 					     &abi16->device) == 0)
 				return cli->abi16;
 
@@ -114,7 +119,11 @@ static void
 nouveau_abi16_ntfy_fini(struct nouveau_abi16_chan *chan,
 			struct nouveau_abi16_ntfy *ntfy)
 {
+<<<<<<< HEAD
 	nvif_object_fini(&ntfy->object);
+=======
+	nvif_object_dtor(&ntfy->object);
+>>>>>>> upstream/android-13
 	nvkm_mm_free(&chan->heap, &ntfy->node);
 	list_del(&ntfy->head);
 	kfree(ntfy);
@@ -139,7 +148,11 @@ nouveau_abi16_chan_fini(struct nouveau_abi16 *abi16,
 	if (chan->ntfy) {
 		nouveau_vma_del(&chan->ntfy_vma);
 		nouveau_bo_unpin(chan->ntfy);
+<<<<<<< HEAD
 		drm_gem_object_put_unlocked(&chan->ntfy->gem);
+=======
+		drm_gem_object_put(&chan->ntfy->bo.base);
+>>>>>>> upstream/android-13
 	}
 
 	if (chan->heap.block_size)
@@ -167,7 +180,11 @@ nouveau_abi16_fini(struct nouveau_abi16 *abi16)
 	}
 
 	/* destroy the device object */
+<<<<<<< HEAD
 	nvif_device_fini(&abi16->device);
+=======
+	nvif_device_dtor(&abi16->device);
+>>>>>>> upstream/android-13
 
 	kfree(cli->abi16);
 	cli->abi16 = NULL;
@@ -181,6 +198,10 @@ nouveau_abi16_ioctl_getparam(ABI16_IOCTL_ARGS)
 	struct nvif_device *device = &drm->client.device;
 	struct nvkm_gr *gr = nvxx_gr(device);
 	struct drm_nouveau_getparam *getparam = data;
+<<<<<<< HEAD
+=======
+	struct pci_dev *pdev = to_pci_dev(dev->dev);
+>>>>>>> upstream/android-13
 
 	switch (getparam->param) {
 	case NOUVEAU_GETPARAM_CHIPSET_ID:
@@ -188,13 +209,21 @@ nouveau_abi16_ioctl_getparam(ABI16_IOCTL_ARGS)
 		break;
 	case NOUVEAU_GETPARAM_PCI_VENDOR:
 		if (device->info.platform != NV_DEVICE_INFO_V0_SOC)
+<<<<<<< HEAD
 			getparam->value = dev->pdev->vendor;
+=======
+			getparam->value = pdev->vendor;
+>>>>>>> upstream/android-13
 		else
 			getparam->value = 0;
 		break;
 	case NOUVEAU_GETPARAM_PCI_DEVICE:
 		if (device->info.platform != NV_DEVICE_INFO_V0_SOC)
+<<<<<<< HEAD
 			getparam->value = dev->pdev->device;
+=======
+			getparam->value = pdev->device;
+>>>>>>> upstream/android-13
 		else
 			getparam->value = 0;
 		break;
@@ -205,7 +234,11 @@ nouveau_abi16_ioctl_getparam(ABI16_IOCTL_ARGS)
 		case NV_DEVICE_INFO_V0_PCIE: getparam->value = 2; break;
 		case NV_DEVICE_INFO_V0_SOC : getparam->value = 3; break;
 		case NV_DEVICE_INFO_V0_IGP :
+<<<<<<< HEAD
 			if (!pci_is_pcie(dev->pdev))
+=======
+			if (!pci_is_pcie(pdev))
+>>>>>>> upstream/android-13
 				getparam->value = 1;
 			else
 				getparam->value = 2;
@@ -245,12 +278,15 @@ nouveau_abi16_ioctl_getparam(ABI16_IOCTL_ARGS)
 }
 
 int
+<<<<<<< HEAD
 nouveau_abi16_ioctl_setparam(ABI16_IOCTL_ARGS)
 {
 	return -EINVAL;
 }
 
 int
+=======
+>>>>>>> upstream/android-13
 nouveau_abi16_ioctl_channel_alloc(ABI16_IOCTL_ARGS)
 {
 	struct drm_nouveau_channel_alloc *init = data;
@@ -274,19 +310,34 @@ nouveau_abi16_ioctl_channel_alloc(ABI16_IOCTL_ARGS)
 	if (device->info.family >= NV_DEVICE_INFO_V0_KEPLER) {
 		if (init->fb_ctxdma_handle == ~0) {
 			switch (init->tt_ctxdma_handle) {
+<<<<<<< HEAD
 			case 0x01: engine = NV_DEVICE_INFO_ENGINE_GR    ; break;
 			case 0x02: engine = NV_DEVICE_INFO_ENGINE_MSPDEC; break;
 			case 0x04: engine = NV_DEVICE_INFO_ENGINE_MSPPP ; break;
 			case 0x08: engine = NV_DEVICE_INFO_ENGINE_MSVLD ; break;
 			case 0x30: engine = NV_DEVICE_INFO_ENGINE_CE    ; break;
+=======
+			case 0x01: engine = NV_DEVICE_HOST_RUNLIST_ENGINES_GR    ; break;
+			case 0x02: engine = NV_DEVICE_HOST_RUNLIST_ENGINES_MSPDEC; break;
+			case 0x04: engine = NV_DEVICE_HOST_RUNLIST_ENGINES_MSPPP ; break;
+			case 0x08: engine = NV_DEVICE_HOST_RUNLIST_ENGINES_MSVLD ; break;
+			case 0x30: engine = NV_DEVICE_HOST_RUNLIST_ENGINES_CE    ; break;
+>>>>>>> upstream/android-13
 			default:
 				return nouveau_abi16_put(abi16, -ENOSYS);
 			}
 		} else {
+<<<<<<< HEAD
 			engine = NV_DEVICE_INFO_ENGINE_GR;
 		}
 
 		if (engine != NV_DEVICE_INFO_ENGINE_CE)
+=======
+			engine = NV_DEVICE_HOST_RUNLIST_ENGINES_GR;
+		}
+
+		if (engine != NV_DEVICE_HOST_RUNLIST_ENGINES_CE)
+>>>>>>> upstream/android-13
 			engine = nvif_fifo_runlist(device, engine);
 		else
 			engine = nvif_fifo_runlist_ce(device);
@@ -307,7 +358,11 @@ nouveau_abi16_ioctl_channel_alloc(ABI16_IOCTL_ARGS)
 
 	/* create channel object and initialise dma and fence management */
 	ret = nouveau_channel_new(drm, device, init->fb_ctxdma_handle,
+<<<<<<< HEAD
 				  init->tt_ctxdma_handle, &chan->chan);
+=======
+				  init->tt_ctxdma_handle, false, &chan->chan);
+>>>>>>> upstream/android-13
 	if (ret)
 		goto done;
 
@@ -317,7 +372,11 @@ nouveau_abi16_ioctl_channel_alloc(ABI16_IOCTL_ARGS)
 		init->pushbuf_domains = NOUVEAU_GEM_DOMAIN_VRAM |
 					NOUVEAU_GEM_DOMAIN_GART;
 	else
+<<<<<<< HEAD
 	if (chan->chan->push.buffer->bo.mem.mem_type == TTM_PL_VRAM)
+=======
+	if (chan->chan->push.buffer->bo.resource->mem_type == TTM_PL_VRAM)
+>>>>>>> upstream/android-13
 		init->pushbuf_domains = NOUVEAU_GEM_DOMAIN_VRAM;
 	else
 		init->pushbuf_domains = NOUVEAU_GEM_DOMAIN_GART;
@@ -334,17 +393,31 @@ nouveau_abi16_ioctl_channel_alloc(ABI16_IOCTL_ARGS)
 	ret = nouveau_gem_new(cli, PAGE_SIZE, 0, NOUVEAU_GEM_DOMAIN_GART,
 			      0, 0, &chan->ntfy);
 	if (ret == 0)
+<<<<<<< HEAD
 		ret = nouveau_bo_pin(chan->ntfy, TTM_PL_FLAG_TT, false);
+=======
+		ret = nouveau_bo_pin(chan->ntfy, NOUVEAU_GEM_DOMAIN_GART,
+				     false);
+>>>>>>> upstream/android-13
 	if (ret)
 		goto done;
 
 	if (device->info.family >= NV_DEVICE_INFO_V0_TESLA) {
+<<<<<<< HEAD
 		ret = nouveau_vma_new(chan->ntfy, &cli->vmm, &chan->ntfy_vma);
+=======
+		ret = nouveau_vma_new(chan->ntfy, chan->chan->vmm,
+				      &chan->ntfy_vma);
+>>>>>>> upstream/android-13
 		if (ret)
 			goto done;
 	}
 
+<<<<<<< HEAD
 	ret = drm_gem_handle_create(file_priv, &chan->ntfy->gem,
+=======
+	ret = drm_gem_handle_create(file_priv, &chan->ntfy->bo.base,
+>>>>>>> upstream/android-13
 				    &init->notifier_handle);
 	if (ret)
 		goto done;
@@ -507,8 +580,13 @@ nouveau_abi16_ioctl_grobj_alloc(ABI16_IOCTL_ARGS)
 	list_add(&ntfy->head, &chan->notifiers);
 
 	client->route = NVDRM_OBJECT_ABI16;
+<<<<<<< HEAD
 	ret = nvif_object_init(&chan->chan->user, init->handle, oclass,
 			       NULL, 0, &ntfy->object);
+=======
+	ret = nvif_object_ctor(&chan->chan->user, "abi16EngObj", init->handle,
+			       oclass, NULL, 0, &ntfy->object);
+>>>>>>> upstream/android-13
 	client->route = NVDRM_OBJECT_NVIF;
 
 	if (ret)
@@ -563,6 +641,7 @@ nouveau_abi16_ioctl_notifierobj_alloc(ABI16_IOCTL_ARGS)
 	if (drm->agp.bridge) {
 		args.target = NV_DMA_V0_TARGET_AGP;
 		args.access = NV_DMA_V0_ACCESS_RDWR;
+<<<<<<< HEAD
 		args.start += drm->agp.base + chan->ntfy->bo.offset;
 		args.limit += drm->agp.base + chan->ntfy->bo.offset;
 	} else {
@@ -578,6 +657,21 @@ nouveau_abi16_ioctl_notifierobj_alloc(ABI16_IOCTL_ARGS)
 			       NV_DMA_IN_MEMORY, &args, sizeof(args),
 			       &ntfy->object);
 	client->super = false;
+=======
+		args.start += drm->agp.base + chan->ntfy->offset;
+		args.limit += drm->agp.base + chan->ntfy->offset;
+	} else {
+		args.target = NV_DMA_V0_TARGET_VM;
+		args.access = NV_DMA_V0_ACCESS_RDWR;
+		args.start += chan->ntfy->offset;
+		args.limit += chan->ntfy->offset;
+	}
+
+	client->route = NVDRM_OBJECT_ABI16;
+	ret = nvif_object_ctor(&chan->chan->user, "abi16Ntfy", info->handle,
+			       NV_DMA_IN_MEMORY, &args, sizeof(args),
+			       &ntfy->object);
+>>>>>>> upstream/android-13
 	client->route = NVDRM_OBJECT_NVIF;
 	if (ret)
 		goto done;

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  htc-i2cpld.c
  *  Chip driver for an unknown CPLD chip found on omap850 HTC devices like
@@ -9,6 +13,7 @@
  *
  *  Based on work done in the linwizard project
  *  Copyright (C) 2008-2009 Angelo Arrifano <miknix@gmail.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,11 +28,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
 #include <linux/init.h>
+<<<<<<< HEAD
 #include <linux/module.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/interrupt.h>
 #include <linux/platform_device.h>
 #include <linux/i2c.h>
@@ -360,6 +370,10 @@ static int htcpld_register_chip_i2c(
 	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_READ_BYTE_DATA)) {
 		dev_warn(dev, "i2c adapter %d non-functional\n",
 			 pdata->i2c_adapter_id);
+<<<<<<< HEAD
+=======
+		i2c_put_adapter(adapter);
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -369,12 +383,22 @@ static int htcpld_register_chip_i2c(
 	info.platform_data = chip;
 
 	/* Add the I2C device.  This calls the probe() function. */
+<<<<<<< HEAD
 	client = i2c_new_device(adapter, &info);
 	if (!client) {
 		/* I2C device registration failed, contineu with the next */
 		dev_warn(dev, "Unable to add I2C device for 0x%x\n",
 			 plat_chip_data->addr);
 		return -ENODEV;
+=======
+	client = i2c_new_client_device(adapter, &info);
+	if (IS_ERR(client)) {
+		/* I2C device registration failed, contineu with the next */
+		dev_warn(dev, "Unable to add I2C device for 0x%x\n",
+			 plat_chip_data->addr);
+		i2c_put_adapter(adapter);
+		return PTR_ERR(client);
+>>>>>>> upstream/android-13
 	}
 
 	i2c_set_clientdata(client, chip);
@@ -399,8 +423,12 @@ static void htcpld_unregister_chip_i2c(
 	htcpld = platform_get_drvdata(pdev);
 	chip = &htcpld->chip[chip_index];
 
+<<<<<<< HEAD
 	if (chip->client)
 		i2c_unregister_device(chip->client);
+=======
+	i2c_unregister_device(chip->client);
+>>>>>>> upstream/android-13
 }
 
 static int htcpld_register_chip_gpio(
@@ -614,8 +642,11 @@ static const struct i2c_device_id htcpld_chip_id[] = {
 	{ "htcpld-chip", 0 },
 	{ }
 };
+<<<<<<< HEAD
 MODULE_DEVICE_TABLE(i2c, htcpld_chip_id);
 
+=======
+>>>>>>> upstream/android-13
 
 static struct i2c_driver htcpld_chip_driver = {
 	.driver = {
@@ -643,6 +674,7 @@ static int __init htcpld_core_init(void)
 	/* Probe for our chips */
 	return platform_driver_probe(&htcpld_core_driver, htcpld_core_probe);
 }
+<<<<<<< HEAD
 
 static void __exit htcpld_core_exit(void)
 {
@@ -657,3 +689,6 @@ MODULE_AUTHOR("Cory Maccarrone <darkstar6262@gmail.com>");
 MODULE_DESCRIPTION("I2C HTC PLD Driver");
 MODULE_LICENSE("GPL");
 
+=======
+device_initcall(htcpld_core_init);
+>>>>>>> upstream/android-13

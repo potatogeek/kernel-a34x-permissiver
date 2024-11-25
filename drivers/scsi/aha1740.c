@@ -152,6 +152,10 @@ static int aha1740_makecode(unchar *sense, unchar *status)
 					retval=DID_ERROR; /* It's an Overrun */
 				/* If not overrun, assume underrun and
 				 * ignore it! */
+<<<<<<< HEAD
+=======
+				break;
+>>>>>>> upstream/android-13
 			case 0x00: /* No info, assume no error, should
 				    * not occur */
 				break;
@@ -266,8 +270,16 @@ static irqreturn_t aha1740_intr_handle(int irq, void *dev_id)
 			   guarantee that we will still have it in the
 			   cdb when we come back */
 			if ( (adapstat & G2INTST_MASK) == G2INTST_CCBERROR ) {
+<<<<<<< HEAD
 				memcpy(SCtmp->sense_buffer, ecbptr->sense, 
 				       SCSI_SENSE_BUFFERSIZE);
+=======
+				memcpy_and_pad(SCtmp->sense_buffer,
+					       SCSI_SENSE_BUFFERSIZE,
+					       ecbptr->sense,
+					       sizeof(ecbptr->sense),
+					       0);
+>>>>>>> upstream/android-13
 				errstatus = aha1740_makecode(ecbptr->sense,ecbptr->status);
 			} else
 				errstatus = 0;
@@ -545,7 +557,10 @@ static struct scsi_host_template aha1740_template = {
 	.can_queue        = AHA1740_ECBS,
 	.this_id          = 7,
 	.sg_tablesize     = AHA1740_SCATTER,
+<<<<<<< HEAD
 	.use_clustering   = ENABLE_CLUSTERING,
+=======
+>>>>>>> upstream/android-13
 	.eh_abort_handler = aha1740_eh_abort_handler,
 };
 
@@ -593,7 +608,10 @@ static int aha1740_probe (struct device *dev)
 					     DMA_BIDIRECTIONAL);
 	if (!host->ecb_dma_addr) {
 		printk (KERN_ERR "aha1740_probe: Couldn't map ECB, giving up\n");
+<<<<<<< HEAD
 		scsi_host_put (shpnt);
+=======
+>>>>>>> upstream/android-13
 		goto err_host_put;
 	}
 	

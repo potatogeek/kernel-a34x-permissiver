@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *    pata_it8213.c - iTE Tech. Inc.  IT8213 PATA driver
  *

@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * AirSpy SDR driver
  *
  * Copyright (C) 2014 Antti Palosaari <crope@iki.fi>
+<<<<<<< HEAD
  *
  *    This program is free software; you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
@@ -12,6 +17,8 @@
  *    but WITHOUT ANY WARRANTY; without even the implied warranty of
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *    GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -80,7 +87,10 @@ static const struct v4l2_frequency_band bands_rf[] = {
 
 /* stream formats */
 struct airspy_format {
+<<<<<<< HEAD
 	char	*name;
+=======
+>>>>>>> upstream/android-13
 	u32	pixelformat;
 	u32	buffersize;
 };
@@ -88,7 +98,10 @@ struct airspy_format {
 /* format descriptions for capture and preview */
 static struct airspy_format formats[] = {
 	{
+<<<<<<< HEAD
 		.name		= "Real U12LE",
+=======
+>>>>>>> upstream/android-13
 		.pixelformat	= V4L2_SDR_FMT_RU12LE,
 		.buffersize	= BULK_BUFFER_SIZE,
 	},
@@ -619,6 +632,7 @@ static int airspy_querycap(struct file *file, void *fh,
 {
 	struct airspy *s = video_drvdata(file);
 
+<<<<<<< HEAD
 	strlcpy(cap->driver, KBUILD_MODNAME, sizeof(cap->driver));
 	strlcpy(cap->card, s->vdev.name, sizeof(cap->card));
 	usb_make_path(s->udev, cap->bus_info, sizeof(cap->bus_info));
@@ -626,6 +640,11 @@ static int airspy_querycap(struct file *file, void *fh,
 			V4L2_CAP_READWRITE | V4L2_CAP_TUNER;
 	cap->capabilities = cap->device_caps | V4L2_CAP_DEVICE_CAPS;
 
+=======
+	strscpy(cap->driver, KBUILD_MODNAME, sizeof(cap->driver));
+	strscpy(cap->card, s->vdev.name, sizeof(cap->card));
+	usb_make_path(s->udev, cap->bus_info, sizeof(cap->bus_info));
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -635,7 +654,10 @@ static int airspy_enum_fmt_sdr_cap(struct file *file, void *priv,
 	if (f->index >= NUM_FORMATS)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	strlcpy(f->description, formats[f->index].name, sizeof(f->description));
+=======
+>>>>>>> upstream/android-13
 	f->pixelformat = formats[f->index].pixelformat;
 
 	return 0;
@@ -648,7 +670,10 @@ static int airspy_g_fmt_sdr_cap(struct file *file, void *priv,
 
 	f->fmt.sdr.pixelformat = s->pixelformat;
 	f->fmt.sdr.buffersize = s->buffersize;
+<<<<<<< HEAD
 	memset(f->fmt.sdr.reserved, 0, sizeof(f->fmt.sdr.reserved));
+=======
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -663,7 +688,10 @@ static int airspy_s_fmt_sdr_cap(struct file *file, void *priv,
 	if (vb2_is_busy(q))
 		return -EBUSY;
 
+<<<<<<< HEAD
 	memset(f->fmt.sdr.reserved, 0, sizeof(f->fmt.sdr.reserved));
+=======
+>>>>>>> upstream/android-13
 	for (i = 0; i < NUM_FORMATS; i++) {
 		if (formats[i].pixelformat == f->fmt.sdr.pixelformat) {
 			s->pixelformat = formats[i].pixelformat;
@@ -686,7 +714,10 @@ static int airspy_try_fmt_sdr_cap(struct file *file, void *priv,
 {
 	int i;
 
+<<<<<<< HEAD
 	memset(f->fmt.sdr.reserved, 0, sizeof(f->fmt.sdr.reserved));
+=======
+>>>>>>> upstream/android-13
 	for (i = 0; i < NUM_FORMATS; i++) {
 		if (formats[i].pixelformat == f->fmt.sdr.pixelformat) {
 			f->fmt.sdr.buffersize = formats[i].buffersize;
@@ -720,14 +751,22 @@ static int airspy_g_tuner(struct file *file, void *priv, struct v4l2_tuner *v)
 	int ret;
 
 	if (v->index == 0) {
+<<<<<<< HEAD
 		strlcpy(v->name, "AirSpy ADC", sizeof(v->name));
+=======
+		strscpy(v->name, "AirSpy ADC", sizeof(v->name));
+>>>>>>> upstream/android-13
 		v->type = V4L2_TUNER_ADC;
 		v->capability = V4L2_TUNER_CAP_1HZ | V4L2_TUNER_CAP_FREQ_BANDS;
 		v->rangelow  = bands[0].rangelow;
 		v->rangehigh = bands[0].rangehigh;
 		ret = 0;
 	} else if (v->index == 1) {
+<<<<<<< HEAD
 		strlcpy(v->name, "AirSpy RF", sizeof(v->name));
+=======
+		strscpy(v->name, "AirSpy RF", sizeof(v->name));
+>>>>>>> upstream/android-13
 		v->type = V4L2_TUNER_RF;
 		v->capability = V4L2_TUNER_CAP_1HZ | V4L2_TUNER_CAP_FREQ_BANDS;
 		v->rangelow  = bands_rf[0].rangelow;
@@ -1066,6 +1105,11 @@ static int airspy_probe(struct usb_interface *intf,
 	s->v4l2_dev.ctrl_handler = &s->hdl;
 	s->vdev.v4l2_dev = &s->v4l2_dev;
 	s->vdev.lock = &s->v4l2_lock;
+<<<<<<< HEAD
+=======
+	s->vdev.device_caps = V4L2_CAP_SDR_CAPTURE | V4L2_CAP_STREAMING |
+			      V4L2_CAP_READWRITE | V4L2_CAP_TUNER;
+>>>>>>> upstream/android-13
 
 	ret = video_register_device(&s->vdev, VFL_TYPE_SDR, -1);
 	if (ret) {

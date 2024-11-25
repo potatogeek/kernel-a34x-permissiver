@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * OMAP4 PRCM definitions
  *
@@ -6,10 +10,13 @@
  *
  * Paul Walmsley
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * This file contains macros and functions that are common to all of
  * the PRM/CM/PRCM blocks on the OMAP4 devices: PRM, CM1, CM2,
  * PRCM_MPU, SCRM

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  ec.c - ACPI Embedded Controller Driver (v3)
  *
@@ -9,6 +13,7 @@
  *            2001, 2002 Andy Grover <andrew.grover@intel.com>
  *            2001, 2002 Paul Diefenbaugh <paul.s.diefenbaugh@intel.com>
  *  Copyright (C) 2008      Alexey Starikovskiy <astarikovskiy@suse.de>
+<<<<<<< HEAD
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  *
@@ -23,6 +28,8 @@
  *  General Public License for more details.
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+=======
+>>>>>>> upstream/android-13
  */
 
 /* Uncomment next line to get verbose printout */
@@ -38,6 +45,10 @@
 #include <linux/list.h>
 #include <linux/spinlock.h>
 #include <linux/slab.h>
+<<<<<<< HEAD
+=======
+#include <linux/suspend.h>
+>>>>>>> upstream/android-13
 #include <linux/acpi.h>
 #include <linux/dmi.h>
 #include <asm/io.h>
@@ -46,7 +57,10 @@
 
 #define ACPI_EC_CLASS			"embedded_controller"
 #define ACPI_EC_DEVICE_NAME		"Embedded Controller"
+<<<<<<< HEAD
 #define ACPI_EC_FILE_INFO		"info"
+=======
+>>>>>>> upstream/android-13
 
 /* EC status register */
 #define ACPI_EC_FLAG_OBF	0x01	/* Output buffer full */
@@ -107,12 +121,21 @@ enum {
 	EC_FLAGS_QUERY_ENABLED,		/* Query is enabled */
 	EC_FLAGS_QUERY_PENDING,		/* Query is pending */
 	EC_FLAGS_QUERY_GUARDING,	/* Guard for SCI_EVT check */
+<<<<<<< HEAD
 	EC_FLAGS_GPE_HANDLER_INSTALLED,	/* GPE handler installed */
 	EC_FLAGS_EC_HANDLER_INSTALLED,	/* OpReg handler installed */
 	EC_FLAGS_EVT_HANDLER_INSTALLED, /* _Qxx handlers installed */
 	EC_FLAGS_STARTED,		/* Driver is started */
 	EC_FLAGS_STOPPED,		/* Driver is stopped */
 	EC_FLAGS_GPE_MASKED,		/* GPE masked */
+=======
+	EC_FLAGS_EVENT_HANDLER_INSTALLED,	/* Event handler installed */
+	EC_FLAGS_EC_HANDLER_INSTALLED,	/* OpReg handler installed */
+	EC_FLAGS_QUERY_METHODS_INSTALLED, /* _Qxx handlers installed */
+	EC_FLAGS_STARTED,		/* Driver is started */
+	EC_FLAGS_STOPPED,		/* Driver is stopped */
+	EC_FLAGS_EVENTS_MASKED,		/* Events masked */
+>>>>>>> upstream/android-13
 };
 
 #define ACPI_EC_COMMAND_POLL		0x01 /* Available for command byte */
@@ -179,6 +202,7 @@ struct acpi_ec_query {
 	struct transaction transaction;
 	struct work_struct work;
 	struct acpi_ec_query_handler *handler;
+<<<<<<< HEAD
 };
 
 static int acpi_ec_query(struct acpi_ec *ec, u8 *data);
@@ -194,6 +218,27 @@ static struct workqueue_struct *ec_query_wq;
 static int EC_FLAGS_QUERY_HANDSHAKE; /* Needs QR_EC issued when SCI_EVT set */
 static int EC_FLAGS_CORRECT_ECDT; /* Needs ECDT port address correction */
 static int EC_FLAGS_IGNORE_DSDT_GPE; /* Needs ECDT GPE as correction setting */
+=======
+	struct acpi_ec *ec;
+};
+
+static int acpi_ec_query(struct acpi_ec *ec, u8 *data);
+static void advance_transaction(struct acpi_ec *ec, bool interrupt);
+static void acpi_ec_event_handler(struct work_struct *work);
+static void acpi_ec_event_processor(struct work_struct *work);
+
+struct acpi_ec *first_ec;
+EXPORT_SYMBOL(first_ec);
+
+static struct acpi_ec *boot_ec;
+static bool boot_ec_is_ecdt = false;
+static struct workqueue_struct *ec_wq;
+static struct workqueue_struct *ec_query_wq;
+
+static int EC_FLAGS_CORRECT_ECDT; /* Needs ECDT port address correction */
+static int EC_FLAGS_IGNORE_DSDT_GPE; /* Needs ECDT GPE as correction setting */
+static int EC_FLAGS_TRUST_DSDT_GPE; /* Needs DSDT GPE as correction setting */
+>>>>>>> upstream/android-13
 static int EC_FLAGS_CLEAR_ON_RESUME; /* Needs acpi_ec_clear() on boot/resume */
 
 /* --------------------------------------------------------------------------
@@ -346,12 +391,20 @@ static const char *acpi_ec_cmd_string(u8 cmd)
  *                           GPE Registers
  * -------------------------------------------------------------------------- */
 
+<<<<<<< HEAD
 static inline bool acpi_ec_is_gpe_raised(struct acpi_ec *ec)
+=======
+static inline bool acpi_ec_gpe_status_set(struct acpi_ec *ec)
+>>>>>>> upstream/android-13
 {
 	acpi_event_status gpe_status = 0;
 
 	(void)acpi_get_gpe_status(NULL, ec->gpe, &gpe_status);
+<<<<<<< HEAD
 	return (gpe_status & ACPI_EVENT_FLAG_STATUS_SET) ? true : false;
+=======
+	return !!(gpe_status & ACPI_EVENT_FLAG_STATUS_SET);
+>>>>>>> upstream/android-13
 }
 
 static inline void acpi_ec_enable_gpe(struct acpi_ec *ec, bool open)
@@ -362,14 +415,22 @@ static inline void acpi_ec_enable_gpe(struct acpi_ec *ec, bool open)
 		BUG_ON(ec->reference_count < 1);
 		acpi_set_gpe(NULL, ec->gpe, ACPI_GPE_ENABLE);
 	}
+<<<<<<< HEAD
 	if (acpi_ec_is_gpe_raised(ec)) {
+=======
+	if (acpi_ec_gpe_status_set(ec)) {
+>>>>>>> upstream/android-13
 		/*
 		 * On some platforms, EN=1 writes cannot trigger GPE. So
 		 * software need to manually trigger a pseudo GPE event on
 		 * EN=1 writes.
 		 */
 		ec_dbg_raw("Polling quirk");
+<<<<<<< HEAD
 		advance_transaction(ec);
+=======
+		advance_transaction(ec, false);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -383,6 +444,7 @@ static inline void acpi_ec_disable_gpe(struct acpi_ec *ec, bool close)
 	}
 }
 
+<<<<<<< HEAD
 static inline void acpi_ec_clear_gpe(struct acpi_ec *ec)
 {
 	/*
@@ -400,6 +462,8 @@ static inline void acpi_ec_clear_gpe(struct acpi_ec *ec)
 	acpi_clear_gpe(NULL, ec->gpe);
 }
 
+=======
+>>>>>>> upstream/android-13
 /* --------------------------------------------------------------------------
  *                           Transaction Management
  * -------------------------------------------------------------------------- */
@@ -407,8 +471,13 @@ static inline void acpi_ec_clear_gpe(struct acpi_ec *ec)
 static void acpi_ec_submit_request(struct acpi_ec *ec)
 {
 	ec->reference_count++;
+<<<<<<< HEAD
 	if (test_bit(EC_FLAGS_GPE_HANDLER_INSTALLED, &ec->flags) &&
 	    ec->reference_count == 1)
+=======
+	if (test_bit(EC_FLAGS_EVENT_HANDLER_INSTALLED, &ec->flags) &&
+	    ec->gpe >= 0 && ec->reference_count == 1)
+>>>>>>> upstream/android-13
 		acpi_ec_enable_gpe(ec, true);
 }
 
@@ -417,14 +486,20 @@ static void acpi_ec_complete_request(struct acpi_ec *ec)
 	bool flushed = false;
 
 	ec->reference_count--;
+<<<<<<< HEAD
 	if (test_bit(EC_FLAGS_GPE_HANDLER_INSTALLED, &ec->flags) &&
 	    ec->reference_count == 0)
+=======
+	if (test_bit(EC_FLAGS_EVENT_HANDLER_INSTALLED, &ec->flags) &&
+	    ec->gpe >= 0 && ec->reference_count == 0)
+>>>>>>> upstream/android-13
 		acpi_ec_disable_gpe(ec, true);
 	flushed = acpi_ec_flushed(ec);
 	if (flushed)
 		wake_up(&ec->wait);
 }
 
+<<<<<<< HEAD
 static void acpi_ec_mask_gpe(struct acpi_ec *ec)
 {
 	if (!test_bit(EC_FLAGS_GPE_MASKED, &ec->flags)) {
@@ -439,6 +514,30 @@ static void acpi_ec_unmask_gpe(struct acpi_ec *ec)
 	if (test_bit(EC_FLAGS_GPE_MASKED, &ec->flags)) {
 		clear_bit(EC_FLAGS_GPE_MASKED, &ec->flags);
 		acpi_ec_enable_gpe(ec, false);
+=======
+static void acpi_ec_mask_events(struct acpi_ec *ec)
+{
+	if (!test_bit(EC_FLAGS_EVENTS_MASKED, &ec->flags)) {
+		if (ec->gpe >= 0)
+			acpi_ec_disable_gpe(ec, false);
+		else
+			disable_irq_nosync(ec->irq);
+
+		ec_dbg_drv("Polling enabled");
+		set_bit(EC_FLAGS_EVENTS_MASKED, &ec->flags);
+	}
+}
+
+static void acpi_ec_unmask_events(struct acpi_ec *ec)
+{
+	if (test_bit(EC_FLAGS_EVENTS_MASKED, &ec->flags)) {
+		clear_bit(EC_FLAGS_EVENTS_MASKED, &ec->flags);
+		if (ec->gpe >= 0)
+			acpi_ec_enable_gpe(ec, false);
+		else
+			enable_irq(ec->irq);
+
+>>>>>>> upstream/android-13
 		ec_dbg_drv("Polling disabled");
 	}
 }
@@ -464,14 +563,23 @@ static bool acpi_ec_submit_flushable_request(struct acpi_ec *ec)
 
 static void acpi_ec_submit_query(struct acpi_ec *ec)
 {
+<<<<<<< HEAD
 	acpi_ec_mask_gpe(ec);
+=======
+	acpi_ec_mask_events(ec);
+>>>>>>> upstream/android-13
 	if (!acpi_ec_event_enabled(ec))
 		return;
 	if (!test_and_set_bit(EC_FLAGS_QUERY_PENDING, &ec->flags)) {
 		ec_dbg_evt("Command(%s) submitted/blocked",
 			   acpi_ec_cmd_string(ACPI_EC_COMMAND_QUERY));
 		ec->nr_pending_queries++;
+<<<<<<< HEAD
 		schedule_work(&ec->work);
+=======
+		ec->events_in_progress++;
+		queue_work(ec_wq, &ec->work);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -480,7 +588,11 @@ static void acpi_ec_complete_query(struct acpi_ec *ec)
 	if (test_and_clear_bit(EC_FLAGS_QUERY_PENDING, &ec->flags))
 		ec_dbg_evt("Command(%s) unblocked",
 			   acpi_ec_cmd_string(ACPI_EC_COMMAND_QUERY));
+<<<<<<< HEAD
 	acpi_ec_unmask_gpe(ec);
+=======
+	acpi_ec_unmask_events(ec);
+>>>>>>> upstream/android-13
 }
 
 static inline void __acpi_ec_enable_event(struct acpi_ec *ec)
@@ -491,7 +603,11 @@ static inline void __acpi_ec_enable_event(struct acpi_ec *ec)
 	 * Unconditionally invoke this once after enabling the event
 	 * handling mechanism to detect the pending events.
 	 */
+<<<<<<< HEAD
 	advance_transaction(ec);
+=======
+	advance_transaction(ec, false);
+>>>>>>> upstream/android-13
 }
 
 static inline void __acpi_ec_disable_event(struct acpi_ec *ec)
@@ -535,6 +651,7 @@ static void acpi_ec_enable_event(struct acpi_ec *ec)
 }
 
 #ifdef CONFIG_PM_SLEEP
+<<<<<<< HEAD
 static bool acpi_ec_query_flushed(struct acpi_ec *ec)
 {
 	bool flushed;
@@ -555,6 +672,12 @@ static void __acpi_ec_flush_event(struct acpi_ec *ec)
 	wait_event(ec->wait, acpi_ec_query_flushed(ec));
 	if (ec_query_wq)
 		flush_workqueue(ec_query_wq);
+=======
+static void __acpi_ec_flush_work(void)
+{
+	flush_workqueue(ec_wq); /* flush ec->work */
+	flush_workqueue(ec_query_wq); /* flush queries */
+>>>>>>> upstream/android-13
 }
 
 static void acpi_ec_disable_event(struct acpi_ec *ec)
@@ -564,15 +687,32 @@ static void acpi_ec_disable_event(struct acpi_ec *ec)
 	spin_lock_irqsave(&ec->lock, flags);
 	__acpi_ec_disable_event(ec);
 	spin_unlock_irqrestore(&ec->lock, flags);
+<<<<<<< HEAD
 	__acpi_ec_flush_event(ec);
+=======
+
+	/*
+	 * When ec_freeze_events is true, we need to flush events in
+	 * the proper position before entering the noirq stage.
+	 */
+	__acpi_ec_flush_work();
+>>>>>>> upstream/android-13
 }
 
 void acpi_ec_flush_work(void)
 {
+<<<<<<< HEAD
 	if (first_ec)
 		__acpi_ec_flush_event(first_ec);
 
 	flush_scheduled_work();
+=======
+	/* Without ec_wq there is nothing to flush. */
+	if (!ec_wq)
+		return;
+
+	__acpi_ec_flush_work();
+>>>>>>> upstream/android-13
 }
 #endif /* CONFIG_PM_SLEEP */
 
@@ -645,6 +785,7 @@ static inline void ec_transaction_transition(struct acpi_ec *ec, unsigned long f
 	}
 }
 
+<<<<<<< HEAD
 static void advance_transaction(struct acpi_ec *ec)
 {
 	struct transaction *t;
@@ -661,6 +802,43 @@ static void advance_transaction(struct acpi_ec *ec)
 	acpi_ec_clear_gpe(ec);
 	status = acpi_ec_read_status(ec);
 	t = ec->curr;
+=======
+static void acpi_ec_spurious_interrupt(struct acpi_ec *ec, struct transaction *t)
+{
+	if (t->irq_count < ec_storm_threshold)
+		++t->irq_count;
+
+	/* Trigger if the threshold is 0 too. */
+	if (t->irq_count == ec_storm_threshold)
+		acpi_ec_mask_events(ec);
+}
+
+static void advance_transaction(struct acpi_ec *ec, bool interrupt)
+{
+	struct transaction *t = ec->curr;
+	bool wakeup = false;
+	u8 status;
+
+	ec_dbg_stm("%s (%d)", interrupt ? "IRQ" : "TASK", smp_processor_id());
+
+	/*
+	 * Clear GPE_STS upfront to allow subsequent hardware GPE_STS 0->1
+	 * changes to always trigger a GPE interrupt.
+	 *
+	 * GPE STS is a W1C register, which means:
+	 *
+	 * 1. Software can clear it without worrying about clearing the other
+	 *    GPEs' STS bits when the hardware sets them in parallel.
+	 *
+	 * 2. As long as software can ensure only clearing it when it is set,
+	 *    hardware won't set it in parallel.
+	 */
+	if (ec->gpe >= 0 && acpi_ec_gpe_status_set(ec))
+		acpi_clear_gpe(NULL, ec->gpe);
+
+	status = acpi_ec_read_status(ec);
+
+>>>>>>> upstream/android-13
 	/*
 	 * Another IRQ or a guarded polling mode advancement is detected,
 	 * the next QR_EC submission is then allowed.
@@ -672,6 +850,7 @@ static void advance_transaction(struct acpi_ec *ec)
 			clear_bit(EC_FLAGS_QUERY_GUARDING, &ec->flags);
 			acpi_ec_complete_query(ec);
 		}
+<<<<<<< HEAD
 	}
 	if (!t)
 		goto err;
@@ -734,6 +913,45 @@ out:
 	if (status & ACPI_EC_FLAG_SCI)
 		acpi_ec_submit_query(ec);
 	if (wakeup && in_interrupt())
+=======
+		if (!t)
+			goto out;
+	}
+
+	if (t->flags & ACPI_EC_COMMAND_POLL) {
+		if (t->wlen > t->wi) {
+			if (!(status & ACPI_EC_FLAG_IBF))
+				acpi_ec_write_data(ec, t->wdata[t->wi++]);
+			else if (interrupt && !(status & ACPI_EC_FLAG_SCI))
+				acpi_ec_spurious_interrupt(ec, t);
+		} else if (t->rlen > t->ri) {
+			if (status & ACPI_EC_FLAG_OBF) {
+				t->rdata[t->ri++] = acpi_ec_read_data(ec);
+				if (t->rlen == t->ri) {
+					ec_transaction_transition(ec, ACPI_EC_COMMAND_COMPLETE);
+					wakeup = true;
+					if (t->command == ACPI_EC_COMMAND_QUERY)
+						ec_dbg_evt("Command(%s) completed by hardware",
+							   acpi_ec_cmd_string(ACPI_EC_COMMAND_QUERY));
+				}
+			} else if (interrupt && !(status & ACPI_EC_FLAG_SCI)) {
+				acpi_ec_spurious_interrupt(ec, t);
+			}
+		} else if (t->wlen == t->wi && !(status & ACPI_EC_FLAG_IBF)) {
+			ec_transaction_transition(ec, ACPI_EC_COMMAND_COMPLETE);
+			wakeup = true;
+		}
+	} else if (!(status & ACPI_EC_FLAG_IBF)) {
+		acpi_ec_write_cmd(ec, t->command);
+		ec_transaction_transition(ec, ACPI_EC_COMMAND_POLL);
+	}
+
+out:
+	if (status & ACPI_EC_FLAG_SCI)
+		acpi_ec_submit_query(ec);
+
+	if (wakeup && interrupt)
+>>>>>>> upstream/android-13
 		wake_up(&ec->wait);
 }
 
@@ -790,7 +1008,11 @@ static int ec_poll(struct acpi_ec *ec)
 			if (!ec_guard(ec))
 				return 0;
 			spin_lock_irqsave(&ec->lock, flags);
+<<<<<<< HEAD
 			advance_transaction(ec);
+=======
+			advance_transaction(ec, false);
+>>>>>>> upstream/android-13
 			spin_unlock_irqrestore(&ec->lock, flags);
 		} while (time_before(jiffies, delay));
 		pr_debug("controller reset, restart transaction\n");
@@ -825,7 +1047,11 @@ static int acpi_ec_transaction_unlocked(struct acpi_ec *ec,
 
 	spin_lock_irqsave(&ec->lock, tmp);
 	if (t->irq_count == ec_storm_threshold)
+<<<<<<< HEAD
 		acpi_ec_unmask_gpe(ec);
+=======
+		acpi_ec_unmask_events(ec);
+>>>>>>> upstream/android-13
 	ec_dbg_req("Command(%s) stopped", acpi_ec_cmd_string(t->command));
 	ec->curr = NULL;
 	/* Disable GPE for command processing (IBF=0/OBF=1) */
@@ -1059,6 +1285,7 @@ void acpi_ec_unblock_transactions(void)
 		acpi_ec_start(first_ec, true);
 }
 
+<<<<<<< HEAD
 void acpi_ec_mark_gpe_for_wake(void)
 {
 	if (first_ec && !ec_no_wakeup)
@@ -1077,6 +1304,8 @@ void acpi_ec_dispatch_gpe(void)
 		acpi_dispatch_gpe(NULL, first_ec->gpe);
 }
 
+=======
+>>>>>>> upstream/android-13
 /* --------------------------------------------------------------------------
                                 Event Management
    -------------------------------------------------------------------------- */
@@ -1156,7 +1385,11 @@ void acpi_ec_remove_query_handler(struct acpi_ec *ec, u8 query_bit)
 }
 EXPORT_SYMBOL_GPL(acpi_ec_remove_query_handler);
 
+<<<<<<< HEAD
 static struct acpi_ec_query *acpi_ec_create_query(u8 *pval)
+=======
+static struct acpi_ec_query *acpi_ec_create_query(struct acpi_ec *ec, u8 *pval)
+>>>>>>> upstream/android-13
 {
 	struct acpi_ec_query *q;
 	struct transaction *t;
@@ -1164,11 +1397,19 @@ static struct acpi_ec_query *acpi_ec_create_query(u8 *pval)
 	q = kzalloc(sizeof (struct acpi_ec_query), GFP_KERNEL);
 	if (!q)
 		return NULL;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	INIT_WORK(&q->work, acpi_ec_event_processor);
 	t = &q->transaction;
 	t->command = ACPI_EC_COMMAND_QUERY;
 	t->rdata = pval;
 	t->rlen = 1;
+<<<<<<< HEAD
+=======
+	q->ec = ec;
+>>>>>>> upstream/android-13
 	return q;
 }
 
@@ -1185,13 +1426,30 @@ static void acpi_ec_event_processor(struct work_struct *work)
 {
 	struct acpi_ec_query *q = container_of(work, struct acpi_ec_query, work);
 	struct acpi_ec_query_handler *handler = q->handler;
+<<<<<<< HEAD
 
 	ec_dbg_evt("Query(0x%02x) started", handler->query_bit);
+=======
+	struct acpi_ec *ec = q->ec;
+
+	ec_dbg_evt("Query(0x%02x) started", handler->query_bit);
+
+>>>>>>> upstream/android-13
 	if (handler->func)
 		handler->func(handler->data);
 	else if (handler->handle)
 		acpi_evaluate_object(handler->handle, NULL, NULL, NULL);
+<<<<<<< HEAD
 	ec_dbg_evt("Query(0x%02x) stopped", handler->query_bit);
+=======
+
+	ec_dbg_evt("Query(0x%02x) stopped", handler->query_bit);
+
+	spin_lock_irq(&ec->lock);
+	ec->queries_in_progress--;
+	spin_unlock_irq(&ec->lock);
+
+>>>>>>> upstream/android-13
 	acpi_ec_delete_query(q);
 }
 
@@ -1201,7 +1459,11 @@ static int acpi_ec_query(struct acpi_ec *ec, u8 *data)
 	int result;
 	struct acpi_ec_query *q;
 
+<<<<<<< HEAD
 	q = acpi_ec_create_query(&value);
+=======
+	q = acpi_ec_create_query(ec, &value);
+>>>>>>> upstream/android-13
 	if (!q)
 		return -ENOMEM;
 
@@ -1223,6 +1485,7 @@ static int acpi_ec_query(struct acpi_ec *ec, u8 *data)
 	}
 
 	/*
+<<<<<<< HEAD
 	 * It is reported that _Qxx are evaluated in a parallel way on
 	 * Windows:
 	 * https://bugzilla.kernel.org/show_bug.cgi?id=94411
@@ -1236,6 +1499,22 @@ static int acpi_ec_query(struct acpi_ec *ec, u8 *data)
 		ec_dbg_evt("Query(0x%02x) overlapped", value);
 		result = -EBUSY;
 	}
+=======
+	 * It is reported that _Qxx are evaluated in a parallel way on Windows:
+	 * https://bugzilla.kernel.org/show_bug.cgi?id=94411
+	 *
+	 * Put this log entry before queue_work() to make it appear in the log
+	 * before any other messages emitted during workqueue handling.
+	 */
+	ec_dbg_evt("Query(0x%02x) scheduled", value);
+
+	spin_lock_irq(&ec->lock);
+
+	ec->queries_in_progress++;
+	queue_work(ec_query_wq, &q->work);
+
+	spin_unlock_irq(&ec->lock);
+>>>>>>> upstream/android-13
 
 err_exit:
 	if (result)
@@ -1257,7 +1536,11 @@ static void acpi_ec_check_event(struct acpi_ec *ec)
 			 * taking care of it.
 			 */
 			if (!ec->curr)
+<<<<<<< HEAD
 				advance_transaction(ec);
+=======
+				advance_transaction(ec, false);
+>>>>>>> upstream/android-13
 			spin_unlock_irqrestore(&ec->lock, flags);
 		}
 	}
@@ -1293,6 +1576,7 @@ static void acpi_ec_event_handler(struct work_struct *work)
 	ec_dbg_evt("Event stopped");
 
 	acpi_ec_check_event(ec);
+<<<<<<< HEAD
 }
 
 static u32 acpi_ec_gpe_handler(acpi_handle gpe_device,
@@ -1307,6 +1591,36 @@ static u32 acpi_ec_gpe_handler(acpi_handle gpe_device,
 	return ACPI_INTERRUPT_HANDLED;
 }
 
+=======
+
+	spin_lock_irqsave(&ec->lock, flags);
+	ec->events_in_progress--;
+	spin_unlock_irqrestore(&ec->lock, flags);
+}
+
+static void acpi_ec_handle_interrupt(struct acpi_ec *ec)
+{
+	unsigned long flags;
+
+	spin_lock_irqsave(&ec->lock, flags);
+	advance_transaction(ec, true);
+	spin_unlock_irqrestore(&ec->lock, flags);
+}
+
+static u32 acpi_ec_gpe_handler(acpi_handle gpe_device,
+			       u32 gpe_number, void *data)
+{
+	acpi_ec_handle_interrupt(data);
+	return ACPI_INTERRUPT_HANDLED;
+}
+
+static irqreturn_t acpi_ec_irq_handler(int irq, void *data)
+{
+	acpi_ec_handle_interrupt(data);
+	return IRQ_HANDLED;
+}
+
+>>>>>>> upstream/android-13
 /* --------------------------------------------------------------------------
  *                           Address Space Management
  * -------------------------------------------------------------------------- */
@@ -1379,6 +1693,11 @@ static struct acpi_ec *acpi_ec_alloc(void)
 	ec->timestamp = jiffies;
 	ec->busy_polling = true;
 	ec->polling_guard = 0;
+<<<<<<< HEAD
+=======
+	ec->gpe = -1;
+	ec->irq = -1;
+>>>>>>> upstream/android-13
 	return ec;
 }
 
@@ -1426,9 +1745,19 @@ ec_parse_device(acpi_handle handle, u32 Level, void *context, void **retval)
 		/* Get GPE bit assignment (EC events). */
 		/* TODO: Add support for _GPE returning a package */
 		status = acpi_evaluate_integer(handle, "_GPE", NULL, &tmp);
+<<<<<<< HEAD
 		if (ACPI_FAILURE(status))
 			return status;
 		ec->gpe = tmp;
+=======
+		if (ACPI_SUCCESS(status))
+			ec->gpe = tmp;
+
+		/*
+		 * Errors are non-fatal, allowing for ACPI Reduced Hardware
+		 * platforms which use GpioInt instead of GPE.
+		 */
+>>>>>>> upstream/android-13
 	}
 	/* Use the global lock for all EC transactions? */
 	tmp = 0;
@@ -1438,12 +1767,54 @@ ec_parse_device(acpi_handle handle, u32 Level, void *context, void **retval)
 	return AE_CTRL_TERMINATE;
 }
 
+<<<<<<< HEAD
 /*
  * Note: This function returns an error code only when the address space
  *       handler is not installed, which means "not able to handle
  *       transactions".
  */
 static int ec_install_handlers(struct acpi_ec *ec, bool handle_events)
+=======
+static bool install_gpe_event_handler(struct acpi_ec *ec)
+{
+	acpi_status status;
+
+	status = acpi_install_gpe_raw_handler(NULL, ec->gpe,
+					      ACPI_GPE_EDGE_TRIGGERED,
+					      &acpi_ec_gpe_handler, ec);
+	if (ACPI_FAILURE(status))
+		return false;
+
+	if (test_bit(EC_FLAGS_STARTED, &ec->flags) && ec->reference_count >= 1)
+		acpi_ec_enable_gpe(ec, true);
+
+	return true;
+}
+
+static bool install_gpio_irq_event_handler(struct acpi_ec *ec)
+{
+	return request_irq(ec->irq, acpi_ec_irq_handler, IRQF_SHARED,
+			   "ACPI EC", ec) >= 0;
+}
+
+/**
+ * ec_install_handlers - Install service callbacks and register query methods.
+ * @ec: Target EC.
+ * @device: ACPI device object corresponding to @ec.
+ *
+ * Install a handler for the EC address space type unless it has been installed
+ * already.  If @device is not NULL, also look for EC query methods in the
+ * namespace and register them, and install an event (either GPE or GPIO IRQ)
+ * handler for the EC, if possible.
+ *
+ * Return:
+ * -ENODEV if the address space handler cannot be installed, which means
+ *  "unable to handle transactions",
+ * -EPROBE_DEFER if GPIO IRQ acquisition needs to be deferred,
+ * or 0 (success) otherwise.
+ */
+static int ec_install_handlers(struct acpi_ec *ec, struct acpi_device *device)
+>>>>>>> upstream/android-13
 {
 	acpi_status status;
 
@@ -1456,6 +1827,7 @@ static int ec_install_handlers(struct acpi_ec *ec, bool handle_events)
 							    &acpi_ec_space_handler,
 							    NULL, ec);
 		if (ACPI_FAILURE(status)) {
+<<<<<<< HEAD
 			if (status == AE_NOT_FOUND) {
 				/*
 				 * Maybe OS fails in evaluating the _REG
@@ -1469,18 +1841,43 @@ static int ec_install_handlers(struct acpi_ec *ec, bool handle_events)
 				acpi_ec_stop(ec, false);
 				return -ENODEV;
 			}
+=======
+			acpi_ec_stop(ec, false);
+			return -ENODEV;
+>>>>>>> upstream/android-13
 		}
 		set_bit(EC_FLAGS_EC_HANDLER_INSTALLED, &ec->flags);
 	}
 
+<<<<<<< HEAD
 	if (!handle_events)
 		return 0;
 
 	if (!test_bit(EC_FLAGS_EVT_HANDLER_INSTALLED, &ec->flags)) {
+=======
+	if (!device)
+		return 0;
+
+	if (ec->gpe < 0) {
+		/* ACPI reduced hardware platforms use a GpioInt from _CRS. */
+		int irq = acpi_dev_gpio_irq_get(device, 0);
+		/*
+		 * Bail out right away for deferred probing or complete the
+		 * initialization regardless of any other errors.
+		 */
+		if (irq == -EPROBE_DEFER)
+			return -EPROBE_DEFER;
+		else if (irq >= 0)
+			ec->irq = irq;
+	}
+
+	if (!test_bit(EC_FLAGS_QUERY_METHODS_INSTALLED, &ec->flags)) {
+>>>>>>> upstream/android-13
 		/* Find and register all query methods */
 		acpi_walk_namespace(ACPI_TYPE_METHOD, ec->handle, 1,
 				    acpi_ec_register_query_methods,
 				    NULL, ec, NULL);
+<<<<<<< HEAD
 		set_bit(EC_FLAGS_EVT_HANDLER_INSTALLED, &ec->flags);
 	}
 	if (!test_bit(EC_FLAGS_GPE_HANDLER_INSTALLED, &ec->flags)) {
@@ -1495,6 +1892,26 @@ static int ec_install_handlers(struct acpi_ec *ec, bool handle_events)
 			    ec->reference_count >= 1)
 				acpi_ec_enable_gpe(ec, true);
 		}
+=======
+		set_bit(EC_FLAGS_QUERY_METHODS_INSTALLED, &ec->flags);
+	}
+	if (!test_bit(EC_FLAGS_EVENT_HANDLER_INSTALLED, &ec->flags)) {
+		bool ready = false;
+
+		if (ec->gpe >= 0)
+			ready = install_gpe_event_handler(ec);
+		else if (ec->irq >= 0)
+			ready = install_gpio_irq_event_handler(ec);
+
+		if (ready) {
+			set_bit(EC_FLAGS_EVENT_HANDLER_INSTALLED, &ec->flags);
+			acpi_ec_leave_noirq(ec);
+		}
+		/*
+		 * Failures to install an event handler are not fatal, because
+		 * the EC can be polled for events.
+		 */
+>>>>>>> upstream/android-13
 	}
 	/* EC is fully operational, allow queries */
 	acpi_ec_enable_event(ec);
@@ -1524,6 +1941,7 @@ static void ec_remove_handlers(struct acpi_ec *ec)
 	 */
 	acpi_ec_stop(ec, false);
 
+<<<<<<< HEAD
 	if (test_bit(EC_FLAGS_GPE_HANDLER_INSTALLED, &ec->flags)) {
 		if (ACPI_FAILURE(acpi_remove_gpe_handler(NULL, ec->gpe,
 					&acpi_ec_gpe_handler)))
@@ -1541,10 +1959,35 @@ static int acpi_ec_setup(struct acpi_ec *ec, bool handle_events)
 	int ret;
 
 	ret = ec_install_handlers(ec, handle_events);
+=======
+	if (test_bit(EC_FLAGS_EVENT_HANDLER_INSTALLED, &ec->flags)) {
+		if (ec->gpe >= 0 &&
+		    ACPI_FAILURE(acpi_remove_gpe_handler(NULL, ec->gpe,
+				 &acpi_ec_gpe_handler)))
+			pr_err("failed to remove gpe handler\n");
+
+		if (ec->irq >= 0)
+			free_irq(ec->irq, ec);
+
+		clear_bit(EC_FLAGS_EVENT_HANDLER_INSTALLED, &ec->flags);
+	}
+	if (test_bit(EC_FLAGS_QUERY_METHODS_INSTALLED, &ec->flags)) {
+		acpi_ec_remove_query_handlers(ec, true, 0);
+		clear_bit(EC_FLAGS_QUERY_METHODS_INSTALLED, &ec->flags);
+	}
+}
+
+static int acpi_ec_setup(struct acpi_ec *ec, struct acpi_device *device)
+{
+	int ret;
+
+	ret = ec_install_handlers(ec, device);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 
 	/* First EC capable of handling transactions */
+<<<<<<< HEAD
 	if (!first_ec) {
 		first_ec = ec;
 		acpi_handle_info(first_ec->handle, "Used as first EC\n");
@@ -1634,10 +2077,33 @@ static int acpi_ec_add(struct acpi_device *device)
 	int ret;
 	bool is_ecdt = false;
 	acpi_status status;
+=======
+	if (!first_ec)
+		first_ec = ec;
+
+	pr_info("EC_CMD/EC_SC=0x%lx, EC_DATA=0x%lx\n", ec->command_addr,
+		ec->data_addr);
+
+	if (test_bit(EC_FLAGS_EVENT_HANDLER_INSTALLED, &ec->flags)) {
+		if (ec->gpe >= 0)
+			pr_info("GPE=0x%x\n", ec->gpe);
+		else
+			pr_info("IRQ=%d\n", ec->irq);
+	}
+
+	return ret;
+}
+
+static int acpi_ec_add(struct acpi_device *device)
+{
+	struct acpi_ec *ec;
+	int ret;
+>>>>>>> upstream/android-13
 
 	strcpy(acpi_device_name(device), ACPI_EC_DEVICE_NAME);
 	strcpy(acpi_device_class(device), ACPI_EC_CLASS);
 
+<<<<<<< HEAD
 	if (!strcmp(acpi_device_hid(device), ACPI_ECDT_HID)) {
 		is_ecdt = true;
 		ec = boot_ec;
@@ -1655,6 +2121,28 @@ static int acpi_ec_add(struct acpi_device *device)
 	if (acpi_is_boot_ec(ec)) {
 		boot_ec_is_ecdt = is_ecdt;
 		if (!is_ecdt) {
+=======
+	if (boot_ec && (boot_ec->handle == device->handle ||
+	    !strcmp(acpi_device_hid(device), ACPI_ECDT_HID))) {
+		/* Fast path: this device corresponds to the boot EC. */
+		ec = boot_ec;
+	} else {
+		acpi_status status;
+
+		ec = acpi_ec_alloc();
+		if (!ec)
+			return -ENOMEM;
+
+		status = ec_parse_device(device->handle, 0, ec, NULL);
+		if (status != AE_CTRL_TERMINATE) {
+			ret = -EINVAL;
+			goto err;
+		}
+
+		if (boot_ec && ec->command_addr == boot_ec->command_addr &&
+		    ec->data_addr == boot_ec->data_addr &&
+		    !EC_FLAGS_TRUST_DSDT_GPE) {
+>>>>>>> upstream/android-13
 			/*
 			 * Trust PNP0C09 namespace location rather than
 			 * ECDT ID. But trust ECDT GPE rather than _GPE
@@ -1666,11 +2154,27 @@ static int acpi_ec_add(struct acpi_device *device)
 			acpi_ec_free(ec);
 			ec = boot_ec;
 		}
+<<<<<<< HEAD
 		ret = acpi_config_boot_ec(ec, ec->handle, true, is_ecdt);
 	} else
 		ret = acpi_ec_setup(ec, true);
 	if (ret)
 		goto err_query;
+=======
+	}
+
+	ret = acpi_ec_setup(ec, device);
+	if (ret)
+		goto err;
+
+	if (ec == boot_ec)
+		acpi_handle_info(boot_ec->handle,
+				 "Boot %s EC initialization complete\n",
+				 boot_ec_is_ecdt ? "ECDT" : "DSDT");
+
+	acpi_handle_info(ec->handle,
+			 "EC: Used to handle transactions and events\n");
+>>>>>>> upstream/android-13
 
 	device->driver_data = ec;
 
@@ -1679,6 +2183,7 @@ static int acpi_ec_add(struct acpi_device *device)
 	ret = !!request_region(ec->command_addr, 1, "EC cmd");
 	WARN(!ret, "Could not request EC cmd io port 0x%lx", ec->command_addr);
 
+<<<<<<< HEAD
 	if (!is_ecdt) {
 		/* Reprobe devices depending on the EC */
 		acpi_walk_dep_device_list(ec->handle);
@@ -1692,6 +2197,18 @@ err_query:
 err_alloc:
 	if (ec != boot_ec)
 		acpi_ec_free(ec);
+=======
+	/* Reprobe devices depending on the EC */
+	acpi_dev_clear_dependencies(device);
+
+	acpi_handle_debug(ec->handle, "enumerated.\n");
+	return 0;
+
+err:
+	if (ec != boot_ec)
+		acpi_ec_free(ec);
+
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -1747,10 +2264,17 @@ static const struct acpi_device_id ec_device_ids[] = {
  * namespace EC before the main ACPI device enumeration process. It is
  * retained for historical reason and will be deprecated in the future.
  */
+<<<<<<< HEAD
 int __init acpi_ec_dsdt_probe(void)
 {
 	acpi_status status;
 	struct acpi_ec *ec;
+=======
+void __init acpi_ec_dsdt_probe(void)
+{
+	struct acpi_ec *ec;
+	acpi_status status;
+>>>>>>> upstream/android-13
 	int ret;
 
 	/*
@@ -1760,21 +2284,39 @@ int __init acpi_ec_dsdt_probe(void)
 	 * picking up an invalid EC device.
 	 */
 	if (boot_ec)
+<<<<<<< HEAD
 		return -ENODEV;
 
 	ec = acpi_ec_alloc();
 	if (!ec)
 		return -ENOMEM;
+=======
+		return;
+
+	ec = acpi_ec_alloc();
+	if (!ec)
+		return;
+
+>>>>>>> upstream/android-13
 	/*
 	 * At this point, the namespace is initialized, so start to find
 	 * the namespace objects.
 	 */
+<<<<<<< HEAD
 	status = acpi_get_devices(ec_device_ids[0].id,
 				  ec_parse_device, ec, NULL);
 	if (ACPI_FAILURE(status) || !ec->handle) {
 		ret = -ENODEV;
 		goto error;
 	}
+=======
+	status = acpi_get_devices(ec_device_ids[0].id, ec_parse_device, ec, NULL);
+	if (ACPI_FAILURE(status) || !ec->handle) {
+		acpi_ec_free(ec);
+		return;
+	}
+
+>>>>>>> upstream/android-13
 	/*
 	 * When the DSDT EC is available, always re-configure boot EC to
 	 * have _REG evaluated. _REG can only be evaluated after the
@@ -1782,6 +2324,7 @@ int __init acpi_ec_dsdt_probe(void)
 	 * At this point, the GPE is not fully initialized, so do not to
 	 * handle the events.
 	 */
+<<<<<<< HEAD
 	ret = acpi_config_boot_ec(ec, ec->handle, false, false);
 error:
 	if (ret)
@@ -1836,6 +2379,59 @@ static int ec_flag_query_handshake(const struct dmi_system_id *id)
 	return 0;
 }
 #endif
+=======
+	ret = acpi_ec_setup(ec, NULL);
+	if (ret) {
+		acpi_ec_free(ec);
+		return;
+	}
+
+	boot_ec = ec;
+
+	acpi_handle_info(ec->handle,
+			 "Boot DSDT EC used to handle transactions\n");
+}
+
+/*
+ * acpi_ec_ecdt_start - Finalize the boot ECDT EC initialization.
+ *
+ * First, look for an ACPI handle for the boot ECDT EC if acpi_ec_add() has not
+ * found a matching object in the namespace.
+ *
+ * Next, in case the DSDT EC is not functioning, it is still necessary to
+ * provide a functional ECDT EC to handle events, so add an extra device object
+ * to represent it (see https://bugzilla.kernel.org/show_bug.cgi?id=115021).
+ *
+ * This is useful on platforms with valid ECDT and invalid DSDT EC settings,
+ * like ASUS X550ZE (see https://bugzilla.kernel.org/show_bug.cgi?id=196847).
+ */
+static void __init acpi_ec_ecdt_start(void)
+{
+	struct acpi_table_ecdt *ecdt_ptr;
+	acpi_handle handle;
+	acpi_status status;
+
+	/* Bail out if a matching EC has been found in the namespace. */
+	if (!boot_ec || boot_ec->handle != ACPI_ROOT_OBJECT)
+		return;
+
+	/* Look up the object pointed to from the ECDT in the namespace. */
+	status = acpi_get_table(ACPI_SIG_ECDT, 1,
+				(struct acpi_table_header **)&ecdt_ptr);
+	if (ACPI_FAILURE(status))
+		return;
+
+	status = acpi_get_handle(NULL, ecdt_ptr->id, &handle);
+	if (ACPI_SUCCESS(status)) {
+		boot_ec->handle = handle;
+
+		/* Add a special ACPI device object to represent the boot EC. */
+		acpi_bus_register_early_device(ACPI_BUS_TYPE_ECDT_EC);
+	}
+
+	acpi_put_table((struct acpi_table_header *)ecdt_ptr);
+}
+>>>>>>> upstream/android-13
 
 /*
  * On some hardware it is necessary to clear events accumulated by the EC during
@@ -1875,6 +2471,21 @@ static int ec_correct_ecdt(const struct dmi_system_id *id)
 }
 
 /*
+<<<<<<< HEAD
+=======
+ * Some ECDTs contain wrong GPE setting, but they share the same port addresses
+ * with DSDT EC, don't duplicate the DSDT EC with ECDT EC in this case.
+ * https://bugzilla.kernel.org/show_bug.cgi?id=209989
+ */
+static int ec_honor_dsdt_gpe(const struct dmi_system_id *id)
+{
+	pr_debug("Detected system needing DSDT GPE setting.\n");
+	EC_FLAGS_TRUST_DSDT_GPE = 1;
+	return 0;
+}
+
+/*
+>>>>>>> upstream/android-13
  * Some DSDTs contain wrong GPE setting.
  * Asus FX502VD/VE, GL702VMK, X550VXK, X580VD
  * https://bugzilla.kernel.org/show_bug.cgi?id=195651
@@ -1904,6 +2515,25 @@ static const struct dmi_system_id ec_dmi_table[] __initconst = {
 	DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
 	DMI_MATCH(DMI_PRODUCT_NAME, "GL702VMK"),}, NULL},
 	{
+<<<<<<< HEAD
+=======
+	ec_honor_ecdt_gpe, "ASUSTeK COMPUTER INC. X505BA", {
+	DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+	DMI_MATCH(DMI_PRODUCT_NAME, "X505BA"),}, NULL},
+	{
+	ec_honor_ecdt_gpe, "ASUSTeK COMPUTER INC. X505BP", {
+	DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+	DMI_MATCH(DMI_PRODUCT_NAME, "X505BP"),}, NULL},
+	{
+	ec_honor_ecdt_gpe, "ASUSTeK COMPUTER INC. X542BA", {
+	DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+	DMI_MATCH(DMI_PRODUCT_NAME, "X542BA"),}, NULL},
+	{
+	ec_honor_ecdt_gpe, "ASUSTeK COMPUTER INC. X542BP", {
+	DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+	DMI_MATCH(DMI_PRODUCT_NAME, "X542BP"),}, NULL},
+	{
+>>>>>>> upstream/android-13
 	ec_honor_ecdt_gpe, "ASUS X550VXK", {
 	DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
 	DMI_MATCH(DMI_PRODUCT_NAME, "X550VXK"),}, NULL},
@@ -1912,11 +2542,20 @@ static const struct dmi_system_id ec_dmi_table[] __initconst = {
 	DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
 	DMI_MATCH(DMI_PRODUCT_NAME, "X580VD"),}, NULL},
 	{
+<<<<<<< HEAD
+=======
+	/* https://bugzilla.kernel.org/show_bug.cgi?id=209989 */
+	ec_honor_dsdt_gpe, "HP Pavilion Gaming Laptop 15-cx0xxx", {
+	DMI_MATCH(DMI_SYS_VENDOR, "HP"),
+	DMI_MATCH(DMI_PRODUCT_NAME, "HP Pavilion Gaming Laptop 15-cx0xxx"),}, NULL},
+	{
+>>>>>>> upstream/android-13
 	ec_clear_on_resume, "Samsung hardware", {
 	DMI_MATCH(DMI_SYS_VENDOR, "SAMSUNG ELECTRONICS CO., LTD.")}, NULL},
 	{},
 };
 
+<<<<<<< HEAD
 int __init acpi_ec_ecdt_probe(void)
 {
 	int ret;
@@ -1937,16 +2576,41 @@ int __init acpi_ec_ecdt_probe(void)
 		ret = -ENODEV;
 		goto error;
 	}
+=======
+void __init acpi_ec_ecdt_probe(void)
+{
+	struct acpi_table_ecdt *ecdt_ptr;
+	struct acpi_ec *ec;
+	acpi_status status;
+	int ret;
+
+	/* Generate a boot ec context. */
+	dmi_check_system(ec_dmi_table);
+	status = acpi_get_table(ACPI_SIG_ECDT, 1,
+				(struct acpi_table_header **)&ecdt_ptr);
+	if (ACPI_FAILURE(status))
+		return;
+>>>>>>> upstream/android-13
 
 	if (!ecdt_ptr->control.address || !ecdt_ptr->data.address) {
 		/*
 		 * Asus X50GL:
 		 * https://bugzilla.kernel.org/show_bug.cgi?id=11880
 		 */
+<<<<<<< HEAD
 		ret = -ENODEV;
 		goto error;
 	}
 
+=======
+		goto out;
+	}
+
+	ec = acpi_ec_alloc();
+	if (!ec)
+		goto out;
+
+>>>>>>> upstream/android-13
 	if (EC_FLAGS_CORRECT_ECDT) {
 		ec->command_addr = ecdt_ptr->data.address;
 		ec->data_addr = ecdt_ptr->control.address;
@@ -1954,17 +2618,45 @@ int __init acpi_ec_ecdt_probe(void)
 		ec->command_addr = ecdt_ptr->control.address;
 		ec->data_addr = ecdt_ptr->data.address;
 	}
+<<<<<<< HEAD
 	ec->gpe = ecdt_ptr->gpe;
+=======
+
+	/*
+	 * Ignore the GPE value on Reduced Hardware platforms.
+	 * Some products have this set to an erroneous value.
+	 */
+	if (!acpi_gbl_reduced_hardware)
+		ec->gpe = ecdt_ptr->gpe;
+
+	ec->handle = ACPI_ROOT_OBJECT;
+>>>>>>> upstream/android-13
 
 	/*
 	 * At this point, the namespace is not initialized, so do not find
 	 * the namespace objects, or handle the events.
 	 */
+<<<<<<< HEAD
 	ret = acpi_config_boot_ec(ec, ACPI_ROOT_OBJECT, false, true);
 error:
 	if (ret)
 		acpi_ec_free(ec);
 	return ret;
+=======
+	ret = acpi_ec_setup(ec, NULL);
+	if (ret) {
+		acpi_ec_free(ec);
+		goto out;
+	}
+
+	boot_ec = ec;
+	boot_ec_is_ecdt = true;
+
+	pr_info("Boot ECDT EC used to handle transactions\n");
+
+out:
+	acpi_put_table((struct acpi_table_header *)ecdt_ptr);
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_PM_SLEEP
@@ -1973,7 +2665,11 @@ static int acpi_ec_suspend(struct device *dev)
 	struct acpi_ec *ec =
 		acpi_driver_data(to_acpi_device(dev));
 
+<<<<<<< HEAD
 	if (acpi_sleep_no_ec_events() && ec_freeze_events)
+=======
+	if (!pm_suspend_no_platform() && ec_freeze_events)
+>>>>>>> upstream/android-13
 		acpi_ec_disable_event(ec);
 	return 0;
 }
@@ -1987,11 +2683,18 @@ static int acpi_ec_suspend_noirq(struct device *dev)
 	 * masked at the low level without side effects.
 	 */
 	if (ec_no_wakeup && test_bit(EC_FLAGS_STARTED, &ec->flags) &&
+<<<<<<< HEAD
 	    ec->reference_count >= 1)
 		acpi_set_gpe(NULL, ec->gpe, ACPI_GPE_DISABLE);
 
 	if (acpi_sleep_no_ec_events())
 		acpi_ec_enter_noirq(ec);
+=======
+	    ec->gpe >= 0 && ec->reference_count >= 1)
+		acpi_set_gpe(NULL, ec->gpe, ACPI_GPE_DISABLE);
+
+	acpi_ec_enter_noirq(ec);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -2000,11 +2703,18 @@ static int acpi_ec_resume_noirq(struct device *dev)
 {
 	struct acpi_ec *ec = acpi_driver_data(to_acpi_device(dev));
 
+<<<<<<< HEAD
 	if (acpi_sleep_no_ec_events())
 		acpi_ec_leave_noirq(ec);
 
 	if (ec_no_wakeup && test_bit(EC_FLAGS_STARTED, &ec->flags) &&
 	    ec->reference_count >= 1)
+=======
+	acpi_ec_leave_noirq(ec);
+
+	if (ec_no_wakeup && test_bit(EC_FLAGS_STARTED, &ec->flags) &&
+	    ec->gpe >= 0 && ec->reference_count >= 1)
+>>>>>>> upstream/android-13
 		acpi_set_gpe(NULL, ec->gpe, ACPI_GPE_ENABLE);
 
 	return 0;
@@ -2018,7 +2728,64 @@ static int acpi_ec_resume(struct device *dev)
 	acpi_ec_enable_event(ec);
 	return 0;
 }
+<<<<<<< HEAD
 #endif
+=======
+
+void acpi_ec_mark_gpe_for_wake(void)
+{
+	if (first_ec && !ec_no_wakeup)
+		acpi_mark_gpe_for_wake(NULL, first_ec->gpe);
+}
+EXPORT_SYMBOL_GPL(acpi_ec_mark_gpe_for_wake);
+
+void acpi_ec_set_gpe_wake_mask(u8 action)
+{
+	if (pm_suspend_no_platform() && first_ec && !ec_no_wakeup)
+		acpi_set_gpe_wake_mask(NULL, first_ec->gpe, action);
+}
+
+bool acpi_ec_dispatch_gpe(void)
+{
+	bool work_in_progress;
+	u32 ret;
+
+	if (!first_ec)
+		return acpi_any_gpe_status_set(U32_MAX);
+
+	/*
+	 * Report wakeup if the status bit is set for any enabled GPE other
+	 * than the EC one.
+	 */
+	if (acpi_any_gpe_status_set(first_ec->gpe))
+		return true;
+
+	/*
+	 * Dispatch the EC GPE in-band, but do not report wakeup in any case
+	 * to allow the caller to process events properly after that.
+	 */
+	ret = acpi_dispatch_gpe(NULL, first_ec->gpe);
+	if (ret == ACPI_INTERRUPT_HANDLED)
+		pm_pr_dbg("ACPI EC GPE dispatched\n");
+
+	/* Drain EC work. */
+	do {
+		acpi_ec_flush_work();
+
+		pm_pr_dbg("ACPI EC work flushed\n");
+
+		spin_lock_irq(&first_ec->lock);
+
+		work_in_progress = first_ec->events_in_progress +
+			first_ec->queries_in_progress > 0;
+
+		spin_unlock_irq(&first_ec->lock);
+	} while (work_in_progress && !pm_wakeup_pending());
+
+	return false;
+}
+#endif /* CONFIG_PM_SLEEP */
+>>>>>>> upstream/android-13
 
 static const struct dev_pm_ops acpi_ec_pm = {
 	SET_NOIRQ_SYSTEM_SLEEP_PM_OPS(acpi_ec_suspend_noirq, acpi_ec_resume_noirq)
@@ -2049,6 +2816,7 @@ static int param_get_event_clearing(char *buffer,
 {
 	switch (ec_event_clearing) {
 	case ACPI_EC_EVT_TIMING_STATUS:
+<<<<<<< HEAD
 		return sprintf(buffer, "status");
 	case ACPI_EC_EVT_TIMING_QUERY:
 		return sprintf(buffer, "query");
@@ -2056,6 +2824,15 @@ static int param_get_event_clearing(char *buffer,
 		return sprintf(buffer, "event");
 	default:
 		return sprintf(buffer, "invalid");
+=======
+		return sprintf(buffer, "status\n");
+	case ACPI_EC_EVT_TIMING_QUERY:
+		return sprintf(buffer, "query\n");
+	case ACPI_EC_EVT_TIMING_EVENT:
+		return sprintf(buffer, "event\n");
+	default:
+		return sprintf(buffer, "invalid\n");
+>>>>>>> upstream/android-13
 	}
 	return 0;
 }
@@ -2075,6 +2852,7 @@ static struct acpi_driver acpi_ec_driver = {
 	.drv.pm = &acpi_ec_pm,
 };
 
+<<<<<<< HEAD
 static inline int acpi_ec_query_init(void)
 {
 	if (!ec_query_wq) {
@@ -2088,12 +2866,38 @@ static inline int acpi_ec_query_init(void)
 
 static inline void acpi_ec_query_exit(void)
 {
+=======
+static void acpi_ec_destroy_workqueues(void)
+{
+	if (ec_wq) {
+		destroy_workqueue(ec_wq);
+		ec_wq = NULL;
+	}
+>>>>>>> upstream/android-13
 	if (ec_query_wq) {
 		destroy_workqueue(ec_query_wq);
 		ec_query_wq = NULL;
 	}
 }
 
+<<<<<<< HEAD
+=======
+static int acpi_ec_init_workqueues(void)
+{
+	if (!ec_wq)
+		ec_wq = alloc_ordered_workqueue("kec", 0);
+
+	if (!ec_query_wq)
+		ec_query_wq = alloc_workqueue("kec_query", 0, ec_max_queries);
+
+	if (!ec_wq || !ec_query_wq) {
+		acpi_ec_destroy_workqueues();
+		return -ENODEV;
+	}
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static const struct dmi_system_id acpi_ec_no_wakeup[] = {
 	{
 		.ident = "Thinkpad X1 Carbon 6th",
@@ -2119,6 +2923,7 @@ static const struct dmi_system_id acpi_ec_no_wakeup[] = {
 	{ },
 };
 
+<<<<<<< HEAD
 int __init acpi_ec_init(void)
 {
 	int result;
@@ -2128,6 +2933,15 @@ int __init acpi_ec_init(void)
 	result = acpi_ec_query_init();
 	if (result)
 		return result;
+=======
+void __init acpi_ec_init(void)
+{
+	int result;
+
+	result = acpi_ec_init_workqueues();
+	if (result)
+		return;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Disable EC wakeup on following systems to prevent periodic
@@ -2138,6 +2952,7 @@ int __init acpi_ec_init(void)
 		pr_debug("Disabling EC wakeup on suspend-to-idle\n");
 	}
 
+<<<<<<< HEAD
 	/* Drivers must be started after acpi_ec_query_init() */
 	dsdt_fail = acpi_bus_register_driver(&acpi_ec_driver);
 	/*
@@ -2148,6 +2963,12 @@ int __init acpi_ec_init(void)
 	 */
 	ecdt_fail = acpi_ec_ecdt_start();
 	return ecdt_fail && dsdt_fail ? -ENODEV : 0;
+=======
+	/* Driver must be registered after acpi_ec_init_workqueues(). */
+	acpi_bus_register_driver(&acpi_ec_driver);
+
+	acpi_ec_ecdt_start();
+>>>>>>> upstream/android-13
 }
 
 /* EC driver currently not unloadable */
@@ -2156,6 +2977,10 @@ static void __exit acpi_ec_exit(void)
 {
 
 	acpi_bus_unregister_driver(&acpi_ec_driver);
+<<<<<<< HEAD
 	acpi_ec_query_exit();
+=======
+	acpi_ec_destroy_workqueues();
+>>>>>>> upstream/android-13
 }
 #endif	/* 0 */

@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * SPI driver for Nvidia's Tegra20/Tegra30 SLINK Controller.
  *
  * Copyright (c) 2012, NVIDIA CORPORATION.  All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -14,6 +19,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
@@ -215,9 +222,12 @@ struct tegra_slink_data {
 	struct dma_async_tx_descriptor		*tx_dma_desc;
 };
 
+<<<<<<< HEAD
 static int tegra_slink_runtime_suspend(struct device *dev);
 static int tegra_slink_runtime_resume(struct device *dev);
 
+=======
+>>>>>>> upstream/android-13
 static inline u32 tegra_slink_readl(struct tegra_slink_data *tspi,
 		unsigned long reg)
 {
@@ -610,6 +620,7 @@ static int tegra_slink_init_dma_param(struct tegra_slink_data *tspi,
 	int ret;
 	struct dma_slave_config dma_sconfig;
 
+<<<<<<< HEAD
 	dma_chan = dma_request_slave_channel_reason(tspi->dev,
 						dma_to_memory ? "rx" : "tx");
 	if (IS_ERR(dma_chan)) {
@@ -619,6 +630,12 @@ static int tegra_slink_init_dma_param(struct tegra_slink_data *tspi,
 				"Dma channel is not available: %d\n", ret);
 		return ret;
 	}
+=======
+	dma_chan = dma_request_chan(tspi->dev, dma_to_memory ? "rx" : "tx");
+	if (IS_ERR(dma_chan))
+		return dev_err_probe(tspi->dev, PTR_ERR(dma_chan),
+				     "Dma channel is not available\n");
+>>>>>>> upstream/android-13
 
 	dma_buf = dma_alloc_coherent(tspi->dev, tspi->dma_buf_size,
 				&dma_phys, GFP_KERNEL);
@@ -717,9 +734,12 @@ static int tegra_slink_start_transfer_one(struct spi_device *spi,
 	command2 = tspi->command2_reg;
 	command2 &= ~(SLINK_RXEN | SLINK_TXEN);
 
+<<<<<<< HEAD
 	tegra_slink_writel(tspi, command, SLINK_COMMAND);
 	tspi->command_reg = command;
 
+=======
+>>>>>>> upstream/android-13
 	tspi->cur_direction = 0;
 	if (t->rx_buf) {
 		command2 |= SLINK_RXEN;
@@ -729,9 +749,24 @@ static int tegra_slink_start_transfer_one(struct spi_device *spi,
 		command2 |= SLINK_TXEN;
 		tspi->cur_direction |= DATA_DIR_TX;
 	}
+<<<<<<< HEAD
 	tegra_slink_writel(tspi, command2, SLINK_COMMAND2);
 	tspi->command2_reg = command2;
 
+=======
+
+	/*
+	 * Writing to the command2 register bevore the command register prevents
+	 * a spike in chip_select line 0. This selects the chip_select line
+	 * before changing the chip_select value.
+	 */
+	tegra_slink_writel(tspi, command2, SLINK_COMMAND2);
+	tspi->command2_reg = command2;
+
+	tegra_slink_writel(tspi, command, SLINK_COMMAND);
+	tspi->command_reg = command;
+
+>>>>>>> upstream/android-13
 	if (total_fifo_words > SLINK_FIFO_DEPTH)
 		ret = tegra_slink_start_dma_based_transfer(tspi, t);
 	else
@@ -1016,6 +1051,7 @@ static int tegra_slink_probe(struct platform_device *pdev)
 	struct resource		*r;
 	int ret, spi_irq;
 	const struct tegra_slink_chip_data *cdata = NULL;
+<<<<<<< HEAD
 	const struct of_device_id *match;
 
 	match = of_match_device(tegra_slink_of_match, &pdev->dev);
@@ -1024,6 +1060,10 @@ static int tegra_slink_probe(struct platform_device *pdev)
 		return -ENODEV;
 	}
 	cdata = match->data;
+=======
+
+	cdata = of_device_get_match_data(&pdev->dev);
+>>>>>>> upstream/android-13
 
 	master = spi_alloc_master(&pdev->dev, sizeof(*tspi));
 	if (!master) {
@@ -1071,6 +1111,7 @@ static int tegra_slink_probe(struct platform_device *pdev)
 		dev_err(&pdev->dev, "Can not get clock %d\n", ret);
 		goto exit_free_master;
 	}
+<<<<<<< HEAD
 	ret = clk_prepare(tspi->clk);
 	if (ret < 0) {
 		dev_err(&pdev->dev, "Clock prepare failed %d\n", ret);
@@ -1092,12 +1133,18 @@ static int tegra_slink_probe(struct platform_device *pdev)
 					tspi->irq);
 		goto exit_clk_disable;
 	}
+=======
+>>>>>>> upstream/android-13
 
 	tspi->rst = devm_reset_control_get_exclusive(&pdev->dev, "spi");
 	if (IS_ERR(tspi->rst)) {
 		dev_err(&pdev->dev, "can not get reset\n");
 		ret = PTR_ERR(tspi->rst);
+<<<<<<< HEAD
 		goto exit_free_irq;
+=======
+		goto exit_free_master;
+>>>>>>> upstream/android-13
 	}
 
 	tspi->max_buf_size = SLINK_FIFO_DEPTH << 2;
@@ -1105,7 +1152,11 @@ static int tegra_slink_probe(struct platform_device *pdev)
 
 	ret = tegra_slink_init_dma_param(tspi, true);
 	if (ret < 0)
+<<<<<<< HEAD
 		goto exit_free_irq;
+=======
+		goto exit_free_master;
+>>>>>>> upstream/android-13
 	ret = tegra_slink_init_dma_param(tspi, false);
 	if (ret < 0)
 		goto exit_rx_dma_free;
@@ -1116,6 +1167,7 @@ static int tegra_slink_probe(struct platform_device *pdev)
 	init_completion(&tspi->xfer_completion);
 
 	pm_runtime_enable(&pdev->dev);
+<<<<<<< HEAD
 	if (!pm_runtime_enabled(&pdev->dev)) {
 		ret = tegra_slink_runtime_resume(&pdev->dev);
 		if (ret)
@@ -1127,10 +1179,34 @@ static int tegra_slink_probe(struct platform_device *pdev)
 		dev_err(&pdev->dev, "pm runtime get failed, e = %d\n", ret);
 		goto exit_pm_disable;
 	}
+=======
+	ret = pm_runtime_resume_and_get(&pdev->dev);
+	if (ret) {
+		dev_err(&pdev->dev, "pm runtime get failed, e = %d\n", ret);
+		goto exit_pm_disable;
+	}
+
+	reset_control_assert(tspi->rst);
+	udelay(2);
+	reset_control_deassert(tspi->rst);
+
+	spi_irq = platform_get_irq(pdev, 0);
+	tspi->irq = spi_irq;
+	ret = request_threaded_irq(tspi->irq, tegra_slink_isr,
+				   tegra_slink_isr_thread, IRQF_ONESHOT,
+				   dev_name(&pdev->dev), tspi);
+	if (ret < 0) {
+		dev_err(&pdev->dev, "Failed to register ISR for IRQ %d\n",
+			tspi->irq);
+		goto exit_pm_put;
+	}
+
+>>>>>>> upstream/android-13
 	tspi->def_command_reg  = SLINK_M_S;
 	tspi->def_command2_reg = SLINK_CS_ACTIVE_BETWEEN;
 	tegra_slink_writel(tspi, tspi->def_command_reg, SLINK_COMMAND);
 	tegra_slink_writel(tspi, tspi->def_command2_reg, SLINK_COMMAND2);
+<<<<<<< HEAD
 	pm_runtime_put(&pdev->dev);
 
 	master->dev.of_node = pdev->dev.of_node;
@@ -1154,6 +1230,30 @@ exit_clk_disable:
 	clk_disable(tspi->clk);
 exit_clk_unprepare:
 	clk_unprepare(tspi->clk);
+=======
+
+	master->dev.of_node = pdev->dev.of_node;
+	ret = spi_register_master(master);
+	if (ret < 0) {
+		dev_err(&pdev->dev, "can not register to master err %d\n", ret);
+		goto exit_free_irq;
+	}
+
+	pm_runtime_put(&pdev->dev);
+
+	return ret;
+
+exit_free_irq:
+	free_irq(spi_irq, tspi);
+exit_pm_put:
+	pm_runtime_put(&pdev->dev);
+exit_pm_disable:
+	pm_runtime_disable(&pdev->dev);
+
+	tegra_slink_deinit_dma_param(tspi, false);
+exit_rx_dma_free:
+	tegra_slink_deinit_dma_param(tspi, true);
+>>>>>>> upstream/android-13
 exit_free_master:
 	spi_master_put(master);
 	return ret;
@@ -1164,10 +1264,18 @@ static int tegra_slink_remove(struct platform_device *pdev)
 	struct spi_master *master = platform_get_drvdata(pdev);
 	struct tegra_slink_data	*tspi = spi_master_get_devdata(master);
 
+<<<<<<< HEAD
 	free_irq(tspi->irq, tspi);
 
 	clk_disable(tspi->clk);
 	clk_unprepare(tspi->clk);
+=======
+	spi_unregister_master(master);
+
+	free_irq(tspi->irq, tspi);
+
+	pm_runtime_disable(&pdev->dev);
+>>>>>>> upstream/android-13
 
 	if (tspi->tx_dma_chan)
 		tegra_slink_deinit_dma_param(tspi, false);
@@ -1175,10 +1283,13 @@ static int tegra_slink_remove(struct platform_device *pdev)
 	if (tspi->rx_dma_chan)
 		tegra_slink_deinit_dma_param(tspi, true);
 
+<<<<<<< HEAD
 	pm_runtime_disable(&pdev->dev);
 	if (!pm_runtime_status_suspended(&pdev->dev))
 		tegra_slink_runtime_suspend(&pdev->dev);
 
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1210,7 +1321,11 @@ static int tegra_slink_resume(struct device *dev)
 }
 #endif
 
+<<<<<<< HEAD
 static int tegra_slink_runtime_suspend(struct device *dev)
+=======
+static int __maybe_unused tegra_slink_runtime_suspend(struct device *dev)
+>>>>>>> upstream/android-13
 {
 	struct spi_master *master = dev_get_drvdata(dev);
 	struct tegra_slink_data *tspi = spi_master_get_devdata(master);
@@ -1222,7 +1337,11 @@ static int tegra_slink_runtime_suspend(struct device *dev)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int tegra_slink_runtime_resume(struct device *dev)
+=======
+static int __maybe_unused tegra_slink_runtime_resume(struct device *dev)
+>>>>>>> upstream/android-13
 {
 	struct spi_master *master = dev_get_drvdata(dev);
 	struct tegra_slink_data *tspi = spi_master_get_devdata(master);

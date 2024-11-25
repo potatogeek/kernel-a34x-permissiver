@@ -7,11 +7,19 @@
 #include <linux/mm.h>
 #include <linux/pci.h>
 #include <linux/gfp.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
 #include <linux/export.h>
 #include <linux/scatterlist.h>
 #include <linux/log2.h>
 #include <linux/dma-mapping.h>
+=======
+#include <linux/memblock.h>
+#include <linux/export.h>
+#include <linux/scatterlist.h>
+#include <linux/log2.h>
+#include <linux/dma-map-ops.h>
+>>>>>>> upstream/android-13
 #include <linux/iommu-helper.h>
 
 #include <asm/io.h>
@@ -71,6 +79,7 @@ iommu_arena_new_node(int nid, struct pci_controller *hose, dma_addr_t base,
 	if (align < mem_size)
 		align = mem_size;
 
+<<<<<<< HEAD
 
 #ifdef CONFIG_DISCONTIGMEM
 
@@ -96,6 +105,16 @@ iommu_arena_new_node(int nid, struct pci_controller *hose, dma_addr_t base,
 	arena->ptes = __alloc_bootmem(mem_size, align, 0);
 
 #endif /* CONFIG_DISCONTIGMEM */
+=======
+	arena = memblock_alloc(sizeof(*arena), SMP_CACHE_BYTES);
+	if (!arena)
+		panic("%s: Failed to allocate %zu bytes\n", __func__,
+		      sizeof(*arena));
+	arena->ptes = memblock_alloc(mem_size, align);
+	if (!arena->ptes)
+		panic("%s: Failed to allocate %lu bytes align=0x%lx\n",
+		      __func__, mem_size, align);
+>>>>>>> upstream/android-13
 
 	spin_lock_init(&arena->lock);
 	arena->hose = hose;
@@ -129,12 +148,16 @@ iommu_arena_find_pages(struct device *dev, struct pci_iommu_arena *arena,
 	unsigned long boundary_size;
 
 	base = arena->dma_base >> PAGE_SHIFT;
+<<<<<<< HEAD
 	if (dev) {
 		boundary_size = dma_get_seg_boundary(dev) + 1;
 		boundary_size >>= PAGE_SHIFT;
 	} else {
 		boundary_size = 1UL << (32 - PAGE_SHIFT);
 	}
+=======
+	boundary_size = dma_get_seg_boundary_nr_pages(dev, PAGE_SHIFT);
+>>>>>>> upstream/android-13
 
 	/* Search forward for the first mask-aligned sequence of N free ptes */
 	ptes = arena->ptes;
@@ -237,7 +260,11 @@ static int pci_dac_dma_supported(struct pci_dev *dev, u64 mask)
 		ok = 0;
 
 	/* If both conditions above are met, we are fine. */
+<<<<<<< HEAD
 	DBGA("pci_dac_dma_supported %s from %pf\n",
+=======
+	DBGA("pci_dac_dma_supported %s from %ps\n",
+>>>>>>> upstream/android-13
 	     ok ? "yes" : "no", __builtin_return_address(0));
 
 	return ok;
@@ -269,7 +296,11 @@ pci_map_single_1(struct pci_dev *pdev, void *cpu_addr, size_t size,
 	    && paddr + size <= __direct_map_size) {
 		ret = paddr + __direct_map_base;
 
+<<<<<<< HEAD
 		DBGA2("pci_map_single: [%p,%zx] -> direct %llx from %pf\n",
+=======
+		DBGA2("pci_map_single: [%p,%zx] -> direct %llx from %ps\n",
+>>>>>>> upstream/android-13
 		      cpu_addr, size, ret, __builtin_return_address(0));
 
 		return ret;
@@ -280,7 +311,11 @@ pci_map_single_1(struct pci_dev *pdev, void *cpu_addr, size_t size,
 	if (dac_allowed) {
 		ret = paddr + alpha_mv.pci_dac_offset;
 
+<<<<<<< HEAD
 		DBGA2("pci_map_single: [%p,%zx] -> DAC %llx from %pf\n",
+=======
+		DBGA2("pci_map_single: [%p,%zx] -> DAC %llx from %ps\n",
+>>>>>>> upstream/android-13
 		      cpu_addr, size, ret, __builtin_return_address(0));
 
 		return ret;
@@ -291,7 +326,11 @@ pci_map_single_1(struct pci_dev *pdev, void *cpu_addr, size_t size,
 	   use direct_map above, it now must be considered an error. */
 	if (! alpha_mv.mv_pci_tbi) {
 		printk_once(KERN_WARNING "pci_map_single: no HW sg\n");
+<<<<<<< HEAD
 		return 0;
+=======
+		return DMA_MAPPING_ERROR;
+>>>>>>> upstream/android-13
 	}
 
 	arena = hose->sg_pci;
@@ -307,7 +346,11 @@ pci_map_single_1(struct pci_dev *pdev, void *cpu_addr, size_t size,
 	if (dma_ofs < 0) {
 		printk(KERN_WARNING "pci_map_single failed: "
 		       "could not allocate dma page tables\n");
+<<<<<<< HEAD
 		return 0;
+=======
+		return DMA_MAPPING_ERROR;
+>>>>>>> upstream/android-13
 	}
 
 	paddr &= PAGE_MASK;
@@ -317,7 +360,11 @@ pci_map_single_1(struct pci_dev *pdev, void *cpu_addr, size_t size,
 	ret = arena->dma_base + dma_ofs * PAGE_SIZE;
 	ret += (unsigned long)cpu_addr & ~PAGE_MASK;
 
+<<<<<<< HEAD
 	DBGA2("pci_map_single: [%p,%zx] np %ld -> sg %llx from %pf\n",
+=======
+	DBGA2("pci_map_single: [%p,%zx] np %ld -> sg %llx from %ps\n",
+>>>>>>> upstream/android-13
 	      cpu_addr, size, npages, ret, __builtin_return_address(0));
 
 	return ret;
@@ -384,14 +431,22 @@ static void alpha_pci_unmap_page(struct device *dev, dma_addr_t dma_addr,
 	    && dma_addr < __direct_map_base + __direct_map_size) {
 		/* Nothing to do.  */
 
+<<<<<<< HEAD
 		DBGA2("pci_unmap_single: direct [%llx,%zx] from %pf\n",
+=======
+		DBGA2("pci_unmap_single: direct [%llx,%zx] from %ps\n",
+>>>>>>> upstream/android-13
 		      dma_addr, size, __builtin_return_address(0));
 
 		return;
 	}
 
 	if (dma_addr > 0xffffffff) {
+<<<<<<< HEAD
 		DBGA2("pci64_unmap_single: DAC [%llx,%zx] from %pf\n",
+=======
+		DBGA2("pci64_unmap_single: DAC [%llx,%zx] from %ps\n",
+>>>>>>> upstream/android-13
 		      dma_addr, size, __builtin_return_address(0));
 		return;
 	}
@@ -423,7 +478,11 @@ static void alpha_pci_unmap_page(struct device *dev, dma_addr_t dma_addr,
 
 	spin_unlock_irqrestore(&arena->lock, flags);
 
+<<<<<<< HEAD
 	DBGA2("pci_unmap_single: sg [%llx,%zx] np %ld from %pf\n",
+=======
+	DBGA2("pci_unmap_single: sg [%llx,%zx] np %ld from %ps\n",
+>>>>>>> upstream/android-13
 	      dma_addr, size, npages, __builtin_return_address(0));
 }
 
@@ -443,10 +502,17 @@ static void *alpha_pci_alloc_coherent(struct device *dev, size_t size,
 	gfp &= ~GFP_DMA;
 
 try_again:
+<<<<<<< HEAD
 	cpu_addr = (void *)__get_free_pages(gfp, order);
 	if (! cpu_addr) {
 		printk(KERN_INFO "pci_alloc_consistent: "
 		       "get_free_pages failed from %pf\n",
+=======
+	cpu_addr = (void *)__get_free_pages(gfp | __GFP_ZERO, order);
+	if (! cpu_addr) {
+		printk(KERN_INFO "pci_alloc_consistent: "
+		       "get_free_pages failed from %ps\n",
+>>>>>>> upstream/android-13
 			__builtin_return_address(0));
 		/* ??? Really atomic allocation?  Otherwise we could play
 		   with vmalloc and sg if we can't find contiguous memory.  */
@@ -455,7 +521,11 @@ try_again:
 	memset(cpu_addr, 0, size);
 
 	*dma_addrp = pci_map_single_1(pdev, cpu_addr, size, 0);
+<<<<<<< HEAD
 	if (*dma_addrp == 0) {
+=======
+	if (*dma_addrp == DMA_MAPPING_ERROR) {
+>>>>>>> upstream/android-13
 		free_pages((unsigned long)cpu_addr, order);
 		if (alpha_mv.mv_pci_tbi || (gfp & GFP_DMA))
 			return NULL;
@@ -465,7 +535,11 @@ try_again:
 		goto try_again;
 	}
 
+<<<<<<< HEAD
 	DBGA2("pci_alloc_consistent: %zx -> [%p,%llx] from %pf\n",
+=======
+	DBGA2("pci_alloc_consistent: %zx -> [%p,%llx] from %ps\n",
+>>>>>>> upstream/android-13
 	      size, cpu_addr, *dma_addrp, __builtin_return_address(0));
 
 	return cpu_addr;
@@ -485,7 +559,11 @@ static void alpha_pci_free_coherent(struct device *dev, size_t size,
 	pci_unmap_single(pdev, dma_addr, size, PCI_DMA_BIDIRECTIONAL);
 	free_pages((unsigned long)cpu_addr, get_order(size));
 
+<<<<<<< HEAD
 	DBGA2("pci_free_consistent: [%llx,%zx] from %pf\n",
+=======
+	DBGA2("pci_free_consistent: [%llx,%zx] from %ps\n",
+>>>>>>> upstream/android-13
 	      dma_addr, size, __builtin_return_address(0));
 }
 
@@ -626,7 +704,11 @@ sg_fill(struct device *dev, struct scatterlist *leader, struct scatterlist *end,
 
 		while (sg+1 < end && (int) sg[1].dma_address == -1) {
 			size += sg[1].length;
+<<<<<<< HEAD
 			sg++;
+=======
+			sg = sg_next(sg);
+>>>>>>> upstream/android-13
 		}
 
 		npages = iommu_num_pages(paddr, size, PAGE_SIZE);
@@ -671,7 +753,13 @@ static int alpha_pci_map_sg(struct device *dev, struct scatterlist *sg,
 		sg->dma_address
 		  = pci_map_single_1(pdev, SG_ENT_VIRT_ADDRESS(sg),
 				     sg->length, dac_allowed);
+<<<<<<< HEAD
 		return sg->dma_address != 0;
+=======
+		if (sg->dma_address == DMA_MAPPING_ERROR)
+			return -EIO;
+		return 1;
+>>>>>>> upstream/android-13
 	}
 
 	start = sg;
@@ -707,8 +795,15 @@ static int alpha_pci_map_sg(struct device *dev, struct scatterlist *sg,
 	if (out < end)
 		out->dma_length = 0;
 
+<<<<<<< HEAD
 	if (out - start == 0)
 		printk(KERN_WARNING "pci_map_sg failed: no entries?\n");
+=======
+	if (out - start == 0) {
+		printk(KERN_WARNING "pci_map_sg failed: no entries?\n");
+		return -ENOMEM;
+	}
+>>>>>>> upstream/android-13
 	DBGA("pci_map_sg: %ld entries\n", out - start);
 
 	return out - start;
@@ -721,7 +816,11 @@ static int alpha_pci_map_sg(struct device *dev, struct scatterlist *sg,
 	   entries.  Unmap them now.  */
 	if (out > start)
 		pci_unmap_sg(pdev, start, out - start, dir);
+<<<<<<< HEAD
 	return 0;
+=======
+	return -ENOMEM;
+>>>>>>> upstream/android-13
 }
 
 /* Unmap a set of streaming mode DMA translations.  Again, cpu read
@@ -935,11 +1034,14 @@ iommu_unbind(struct pci_iommu_arena *arena, long pg_start, long pg_count)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int alpha_pci_mapping_error(struct device *dev, dma_addr_t dma_addr)
 {
 	return dma_addr == 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 const struct dma_map_ops alpha_pci_ops = {
 	.alloc			= alpha_pci_alloc_coherent,
 	.free			= alpha_pci_free_coherent,
@@ -947,7 +1049,15 @@ const struct dma_map_ops alpha_pci_ops = {
 	.unmap_page		= alpha_pci_unmap_page,
 	.map_sg			= alpha_pci_map_sg,
 	.unmap_sg		= alpha_pci_unmap_sg,
+<<<<<<< HEAD
 	.mapping_error		= alpha_pci_mapping_error,
 	.dma_supported		= alpha_pci_supported,
+=======
+	.dma_supported		= alpha_pci_supported,
+	.mmap			= dma_common_mmap,
+	.get_sgtable		= dma_common_get_sgtable,
+	.alloc_pages		= dma_common_alloc_pages,
+	.free_pages		= dma_common_free_pages,
+>>>>>>> upstream/android-13
 };
 EXPORT_SYMBOL(alpha_pci_ops);

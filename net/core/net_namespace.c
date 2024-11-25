@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 
 #include <linux/workqueue.h>
@@ -18,6 +22,10 @@
 #include <linux/net_namespace.h>
 #include <linux/sched/task.h>
 #include <linux/uidgid.h>
+<<<<<<< HEAD
+=======
+#include <linux/cookie.h>
+>>>>>>> upstream/android-13
 
 #include <net/sock.h>
 #include <net/netlink.h>
@@ -38,10 +46,18 @@ EXPORT_SYMBOL_GPL(net_namespace_list);
 DECLARE_RWSEM(net_rwsem);
 EXPORT_SYMBOL_GPL(net_rwsem);
 
+<<<<<<< HEAD
 struct net init_net = {
 	.count		= REFCOUNT_INIT(1),
 	.dev_base_head	= LIST_HEAD_INIT(init_net.dev_base_head),
 };
+=======
+#ifdef CONFIG_KEYS
+static struct key_tag init_net_key_domain = { .usage = REFCOUNT_INIT(1) };
+#endif
+
+struct net init_net;
+>>>>>>> upstream/android-13
 EXPORT_SYMBOL(init_net);
 
 static bool init_net_initialized;
@@ -61,6 +77,11 @@ EXPORT_SYMBOL_GPL(pernet_ops_rwsem);
 
 static unsigned int max_gen_ptrs = INITIAL_NET_GEN_PTRS;
 
+<<<<<<< HEAD
+=======
+DEFINE_COOKIE(net_cookie);
+
+>>>>>>> upstream/android-13
 static struct net_generic *net_alloc_generic(void)
 {
 	struct net_generic *ng;
@@ -87,7 +108,11 @@ static int net_assign_generic(struct net *net, unsigned int id, void *data)
 	}
 
 	ng = net_alloc_generic();
+<<<<<<< HEAD
 	if (ng == NULL)
+=======
+	if (!ng)
+>>>>>>> upstream/android-13
 		return -ENOMEM;
 
 	/*
@@ -137,10 +162,21 @@ out:
 	return err;
 }
 
+<<<<<<< HEAD
 static void ops_free(const struct pernet_operations *ops, struct net *net)
 {
 	if (ops->id && ops->size) {
 		kfree(net_generic(net, *ops->id));
+=======
+static void ops_pre_exit_list(const struct pernet_operations *ops,
+			      struct list_head *net_exit_list)
+{
+	struct net *net;
+
+	if (ops->pre_exit) {
+		list_for_each_entry(net, net_exit_list, exit_list)
+			ops->pre_exit(net);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -149,8 +185,15 @@ static void ops_exit_list(const struct pernet_operations *ops,
 {
 	struct net *net;
 	if (ops->exit) {
+<<<<<<< HEAD
 		list_for_each_entry(net, net_exit_list, exit_list)
 			ops->exit(net);
+=======
+		list_for_each_entry(net, net_exit_list, exit_list) {
+			ops->exit(net);
+			cond_resched();
+		}
+>>>>>>> upstream/android-13
 	}
 	if (ops->exit_batch)
 		ops->exit_batch(net_exit_list);
@@ -162,7 +205,11 @@ static void ops_free_list(const struct pernet_operations *ops,
 	struct net *net;
 	if (ops->size && ops->id) {
 		list_for_each_entry(net, net_exit_list, exit_list)
+<<<<<<< HEAD
 			ops_free(ops, net);
+=======
+			kfree(net_generic(net, *ops->id));
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -192,6 +239,7 @@ static int net_eq_idr(int id, void *net, void *peer)
 	return 0;
 }
 
+<<<<<<< HEAD
 /* Should be called with nsid_lock held. If a new id is assigned, the bool alloc
  * is set to true, thus the caller knows that the new id must be notified via
  * rtnl.
@@ -202,6 +250,12 @@ static int __peernet2id_alloc(struct net *net, struct net *peer, bool *alloc)
 	bool alloc_it = *alloc;
 
 	*alloc = false;
+=======
+/* Must be called from RCU-critical section or with nsid_lock held */
+static int __peernet2id(const struct net *net, struct net *peer)
+{
+	int id = idr_for_each(&net->netns_ids, net_eq_idr, peer);
+>>>>>>> upstream/android-13
 
 	/* Magic value for id 0. */
 	if (id == NET_ID_ZERO)
@@ -209,6 +263,7 @@ static int __peernet2id_alloc(struct net *net, struct net *peer, bool *alloc)
 	if (id > 0)
 		return id;
 
+<<<<<<< HEAD
 	if (alloc_it) {
 		id = alloc_netid(net, peer, -1);
 		*alloc = true;
@@ -227,11 +282,19 @@ static int __peernet2id(struct net *net, struct net *peer)
 }
 
 static void rtnl_net_notifyid(struct net *net, int cmd, int id, gfp_t gfp);
+=======
+	return NETNSA_NSID_NOT_ASSIGNED;
+}
+
+static void rtnl_net_notifyid(struct net *net, int cmd, int id, u32 portid,
+			      struct nlmsghdr *nlh, gfp_t gfp);
+>>>>>>> upstream/android-13
 /* This function returns the id of a peer netns. If no id is assigned, one will
  * be allocated and returned.
  */
 int peernet2id_alloc(struct net *net, struct net *peer, gfp_t gfp)
 {
+<<<<<<< HEAD
 	bool alloc = false, alive = false;
 	int id;
 
@@ -240,10 +303,26 @@ int peernet2id_alloc(struct net *net, struct net *peer, gfp_t gfp)
 	spin_lock_bh(&net->nsid_lock);
 	/*
 	 * When peer is obtained from RCU lists, we may race with
+=======
+	int id;
+
+	if (refcount_read(&net->ns.count) == 0)
+		return NETNSA_NSID_NOT_ASSIGNED;
+
+	spin_lock_bh(&net->nsid_lock);
+	id = __peernet2id(net, peer);
+	if (id >= 0) {
+		spin_unlock_bh(&net->nsid_lock);
+		return id;
+	}
+
+	/* When peer is obtained from RCU lists, we may race with
+>>>>>>> upstream/android-13
 	 * its cleanup. Check whether it's alive, and this guarantees
 	 * we never hash a peer back to net->netns_ids, after it has
 	 * just been idr_remove()'d from there in cleanup_net().
 	 */
+<<<<<<< HEAD
 	if (maybe_get_net(peer))
 		alive = alloc = true;
 	id = __peernet2id_alloc(net, peer, &alloc);
@@ -252,11 +331,28 @@ int peernet2id_alloc(struct net *net, struct net *peer, gfp_t gfp)
 		rtnl_net_notifyid(net, RTM_NEWNSID, id, gfp);
 	if (alive)
 		put_net(peer);
+=======
+	if (!maybe_get_net(peer)) {
+		spin_unlock_bh(&net->nsid_lock);
+		return NETNSA_NSID_NOT_ASSIGNED;
+	}
+
+	id = alloc_netid(net, peer, -1);
+	spin_unlock_bh(&net->nsid_lock);
+
+	put_net(peer);
+	if (id < 0)
+		return NETNSA_NSID_NOT_ASSIGNED;
+
+	rtnl_net_notifyid(net, RTM_NEWNSID, id, 0, NULL, gfp);
+
+>>>>>>> upstream/android-13
 	return id;
 }
 EXPORT_SYMBOL_GPL(peernet2id_alloc);
 
 /* This function returns, if assigned, the id of a peer netns. */
+<<<<<<< HEAD
 int peernet2id(struct net *net, struct net *peer)
 {
 	int id;
@@ -264,6 +360,16 @@ int peernet2id(struct net *net, struct net *peer)
 	spin_lock_bh(&net->nsid_lock);
 	id = __peernet2id(net, peer);
 	spin_unlock_bh(&net->nsid_lock);
+=======
+int peernet2id(const struct net *net, struct net *peer)
+{
+	int id;
+
+	rcu_read_lock();
+	id = __peernet2id(net, peer);
+	rcu_read_unlock();
+
+>>>>>>> upstream/android-13
 	return id;
 }
 EXPORT_SYMBOL(peernet2id);
@@ -271,12 +377,20 @@ EXPORT_SYMBOL(peernet2id);
 /* This function returns true is the peer netns has an id assigned into the
  * current netns.
  */
+<<<<<<< HEAD
 bool peernet_has_id(struct net *net, struct net *peer)
+=======
+bool peernet_has_id(const struct net *net, struct net *peer)
+>>>>>>> upstream/android-13
 {
 	return peernet2id(net, peer) >= 0;
 }
 
+<<<<<<< HEAD
 struct net *get_net_ns_by_id(struct net *net, int id)
+=======
+struct net *get_net_ns_by_id(const struct net *net, int id)
+>>>>>>> upstream/android-13
 {
 	struct net *peer;
 
@@ -302,9 +416,18 @@ static __net_init int setup_net(struct net *net, struct user_namespace *user_ns)
 	int error = 0;
 	LIST_HEAD(net_exit_list);
 
+<<<<<<< HEAD
 	refcount_set(&net->count, 1);
 	refcount_set(&net->passive, 1);
 	get_random_bytes(&net->hash_mix, sizeof(u32));
+=======
+	refcount_set(&net->ns.count, 1);
+	refcount_set(&net->passive, 1);
+	get_random_bytes(&net->hash_mix, sizeof(u32));
+	preempt_disable();
+	net->net_cookie = gen_cookie_next(&net_cookie);
+	preempt_enable();
+>>>>>>> upstream/android-13
 	net->dev_base_seq = 1;
 	net->user_ns = user_ns;
 	idr_init(&net->netns_ids);
@@ -329,6 +452,15 @@ out_undo:
 	list_add(&net->exit_list, &net_exit_list);
 	saved_ops = ops;
 	list_for_each_entry_continue_reverse(ops, &pernet_list, list)
+<<<<<<< HEAD
+=======
+		ops_pre_exit_list(ops, &net_exit_list);
+
+	synchronize_rcu();
+
+	ops = saved_ops;
+	list_for_each_entry_continue_reverse(ops, &pernet_list, list)
+>>>>>>> upstream/android-13
 		ops_exit_list(ops, &net_exit_list);
 
 	ops = saved_ops;
@@ -386,10 +518,28 @@ static struct net *net_alloc(void)
 	if (!net)
 		goto out_free;
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_KEYS
+	net->key_domain = kzalloc(sizeof(struct key_tag), GFP_KERNEL);
+	if (!net->key_domain)
+		goto out_free_2;
+	refcount_set(&net->key_domain->usage, 1);
+#endif
+
+>>>>>>> upstream/android-13
 	rcu_assign_pointer(net->gen, ng);
 out:
 	return net;
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_KEYS
+out_free_2:
+	kmem_cache_free(net_cachep, net);
+	net = NULL;
+#endif
+>>>>>>> upstream/android-13
 out_free:
 	kfree(ng);
 	goto out;
@@ -397,15 +547,29 @@ out_free:
 
 static void net_free(struct net *net)
 {
+<<<<<<< HEAD
 	kfree(rcu_access_pointer(net->gen));
 	kmem_cache_free(net_cachep, net);
+=======
+	if (refcount_dec_and_test(&net->passive)) {
+		kfree(rcu_access_pointer(net->gen));
+		kmem_cache_free(net_cachep, net);
+	}
+>>>>>>> upstream/android-13
 }
 
 void net_drop_ns(void *p)
 {
+<<<<<<< HEAD
 	struct net *ns = p;
 	if (ns && refcount_dec_and_test(&ns->passive))
 		net_free(ns);
+=======
+	struct net *net = (struct net *)p;
+
+	if (net)
+		net_free(net);
+>>>>>>> upstream/android-13
 }
 
 struct net *copy_net_ns(unsigned long flags,
@@ -441,8 +605,16 @@ struct net *copy_net_ns(unsigned long flags,
 
 	if (rv < 0) {
 put_userns:
+<<<<<<< HEAD
 		put_user_ns(user_ns);
 		net_drop_ns(net);
+=======
+#ifdef CONFIG_KEYS
+		key_remove_domain(net->key_domain);
+#endif
+		put_user_ns(user_ns);
+		net_free(net);
+>>>>>>> upstream/android-13
 dec_ucounts:
 		dec_net_namespaces(ucounts);
 		return ERR_PTR(rv);
@@ -495,7 +667,11 @@ static void unhash_nsid(struct net *net, struct net *last)
 			idr_remove(&tmp->netns_ids, id);
 		spin_unlock_bh(&tmp->nsid_lock);
 		if (id >= 0)
+<<<<<<< HEAD
 			rtnl_net_notifyid(tmp, RTM_DELNSID, id,
+=======
+			rtnl_net_notifyid(tmp, RTM_DELNSID, id, 0, NULL,
+>>>>>>> upstream/android-13
 					  GFP_KERNEL);
 		if (tmp == last)
 			break;
@@ -541,10 +717,21 @@ static void cleanup_net(struct work_struct *work)
 		list_add_tail(&net->exit_list, &net_exit_list);
 	}
 
+<<<<<<< HEAD
+=======
+	/* Run all of the network namespace pre_exit methods */
+	list_for_each_entry_reverse(ops, &pernet_list, list)
+		ops_pre_exit_list(ops, &net_exit_list);
+
+>>>>>>> upstream/android-13
 	/*
 	 * Another CPU might be rcu-iterating the list, wait for it.
 	 * This needs to be before calling the exit() notifiers, so
 	 * the rcu_barrier() below isn't sufficient alone.
+<<<<<<< HEAD
+=======
+	 * Also the pre_exit() and exit() methods need this barrier.
+>>>>>>> upstream/android-13
 	 */
 	synchronize_rcu();
 
@@ -567,8 +754,16 @@ static void cleanup_net(struct work_struct *work)
 	list_for_each_entry_safe(net, tmp, &net_exit_list, exit_list) {
 		list_del_init(&net->exit_list);
 		dec_net_namespaces(net->ucounts);
+<<<<<<< HEAD
 		put_user_ns(net->user_ns);
 		net_drop_ns(net);
+=======
+#ifdef CONFIG_KEYS
+		key_remove_domain(net->key_domain);
+#endif
+		put_user_ns(net->user_ns);
+		net_free(net);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -598,6 +793,21 @@ void __put_net(struct net *net)
 }
 EXPORT_SYMBOL_GPL(__put_net);
 
+<<<<<<< HEAD
+=======
+/**
+ * get_net_ns - increment the refcount of the network namespace
+ * @ns: common namespace (net)
+ *
+ * Returns the net's common namespace.
+ */
+struct ns_common *get_net_ns(struct ns_common *ns)
+{
+	return &get_net(container_of(ns, struct net, ns))->ns;
+}
+EXPORT_SYMBOL_GPL(get_net_ns);
+
+>>>>>>> upstream/android-13
 struct net *get_net_ns_by_fd(int fd)
 {
 	struct file *file;
@@ -617,6 +827,7 @@ struct net *get_net_ns_by_fd(int fd)
 	fput(file);
 	return net;
 }
+<<<<<<< HEAD
 
 #else
 struct net *get_net_ns_by_fd(int fd)
@@ -625,6 +836,10 @@ struct net *get_net_ns_by_fd(int fd)
 }
 #endif
 EXPORT_SYMBOL_GPL(get_net_ns_by_fd);
+=======
+EXPORT_SYMBOL_GPL(get_net_ns_by_fd);
+#endif
+>>>>>>> upstream/android-13
 
 struct net *get_net_ns_by_pid(pid_t pid)
 {
@@ -671,6 +886,10 @@ static const struct nla_policy rtnl_net_policy[NETNSA_MAX + 1] = {
 	[NETNSA_NSID]		= { .type = NLA_S32 },
 	[NETNSA_PID]		= { .type = NLA_U32 },
 	[NETNSA_FD]		= { .type = NLA_U32 },
+<<<<<<< HEAD
+=======
+	[NETNSA_TARGET_NSID]	= { .type = NLA_S32 },
+>>>>>>> upstream/android-13
 };
 
 static int rtnl_net_newid(struct sk_buff *skb, struct nlmsghdr *nlh,
@@ -682,8 +901,13 @@ static int rtnl_net_newid(struct sk_buff *skb, struct nlmsghdr *nlh,
 	struct net *peer;
 	int nsid, err;
 
+<<<<<<< HEAD
 	err = nlmsg_parse(nlh, sizeof(struct rtgenmsg), tb, NETNSA_MAX,
 			  rtnl_net_policy, extack);
+=======
+	err = nlmsg_parse_deprecated(nlh, sizeof(struct rtgenmsg), tb,
+				     NETNSA_MAX, rtnl_net_policy, extack);
+>>>>>>> upstream/android-13
 	if (err < 0)
 		return err;
 	if (!tb[NETNSA_NSID]) {
@@ -721,7 +945,12 @@ static int rtnl_net_newid(struct sk_buff *skb, struct nlmsghdr *nlh,
 	err = alloc_netid(net, peer, nsid);
 	spin_unlock_bh(&net->nsid_lock);
 	if (err >= 0) {
+<<<<<<< HEAD
 		rtnl_net_notifyid(net, RTM_NEWNSID, err, GFP_KERNEL);
+=======
+		rtnl_net_notifyid(net, RTM_NEWNSID, err, NETLINK_CB(skb).portid,
+				  nlh, GFP_KERNEL);
+>>>>>>> upstream/android-13
 		err = 0;
 	} else if (err == -ENOSPC && nsid >= 0) {
 		err = -EEXIST;
@@ -737,23 +966,54 @@ static int rtnl_net_get_size(void)
 {
 	return NLMSG_ALIGN(sizeof(struct rtgenmsg))
 	       + nla_total_size(sizeof(s32)) /* NETNSA_NSID */
+<<<<<<< HEAD
 	       ;
 }
 
 static int rtnl_net_fill(struct sk_buff *skb, u32 portid, u32 seq, int flags,
 			 int cmd, struct net *net, int nsid)
+=======
+	       + nla_total_size(sizeof(s32)) /* NETNSA_CURRENT_NSID */
+	       ;
+}
+
+struct net_fill_args {
+	u32 portid;
+	u32 seq;
+	int flags;
+	int cmd;
+	int nsid;
+	bool add_ref;
+	int ref_nsid;
+};
+
+static int rtnl_net_fill(struct sk_buff *skb, struct net_fill_args *args)
+>>>>>>> upstream/android-13
 {
 	struct nlmsghdr *nlh;
 	struct rtgenmsg *rth;
 
+<<<<<<< HEAD
 	nlh = nlmsg_put(skb, portid, seq, cmd, sizeof(*rth), flags);
+=======
+	nlh = nlmsg_put(skb, args->portid, args->seq, args->cmd, sizeof(*rth),
+			args->flags);
+>>>>>>> upstream/android-13
 	if (!nlh)
 		return -EMSGSIZE;
 
 	rth = nlmsg_data(nlh);
 	rth->rtgen_family = AF_UNSPEC;
 
+<<<<<<< HEAD
 	if (nla_put_s32(skb, NETNSA_NSID, nsid))
+=======
+	if (nla_put_s32(skb, NETNSA_NSID, args->nsid))
+		goto nla_put_failure;
+
+	if (args->add_ref &&
+	    nla_put_s32(skb, NETNSA_CURRENT_NSID, args->ref_nsid))
+>>>>>>> upstream/android-13
 		goto nla_put_failure;
 
 	nlmsg_end(skb, nlh);
@@ -764,11 +1024,52 @@ nla_put_failure:
 	return -EMSGSIZE;
 }
 
+<<<<<<< HEAD
+=======
+static int rtnl_net_valid_getid_req(struct sk_buff *skb,
+				    const struct nlmsghdr *nlh,
+				    struct nlattr **tb,
+				    struct netlink_ext_ack *extack)
+{
+	int i, err;
+
+	if (!netlink_strict_get_check(skb))
+		return nlmsg_parse_deprecated(nlh, sizeof(struct rtgenmsg),
+					      tb, NETNSA_MAX, rtnl_net_policy,
+					      extack);
+
+	err = nlmsg_parse_deprecated_strict(nlh, sizeof(struct rtgenmsg), tb,
+					    NETNSA_MAX, rtnl_net_policy,
+					    extack);
+	if (err)
+		return err;
+
+	for (i = 0; i <= NETNSA_MAX; i++) {
+		if (!tb[i])
+			continue;
+
+		switch (i) {
+		case NETNSA_PID:
+		case NETNSA_FD:
+		case NETNSA_NSID:
+		case NETNSA_TARGET_NSID:
+			break;
+		default:
+			NL_SET_ERR_MSG(extack, "Unsupported attribute in peer netns getid request");
+			return -EINVAL;
+		}
+	}
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static int rtnl_net_getid(struct sk_buff *skb, struct nlmsghdr *nlh,
 			  struct netlink_ext_ack *extack)
 {
 	struct net *net = sock_net(skb->sk);
 	struct nlattr *tb[NETNSA_MAX + 1];
+<<<<<<< HEAD
 	struct nlattr *nla;
 	struct sk_buff *msg;
 	struct net *peer;
@@ -776,6 +1077,19 @@ static int rtnl_net_getid(struct sk_buff *skb, struct nlmsghdr *nlh,
 
 	err = nlmsg_parse(nlh, sizeof(struct rtgenmsg), tb, NETNSA_MAX,
 			  rtnl_net_policy, extack);
+=======
+	struct net_fill_args fillargs = {
+		.portid = NETLINK_CB(skb).portid,
+		.seq = nlh->nlmsg_seq,
+		.cmd = RTM_NEWNSID,
+	};
+	struct net *peer, *target = net;
+	struct nlattr *nla;
+	struct sk_buff *msg;
+	int err;
+
+	err = rtnl_net_valid_getid_req(skb, nlh, tb, extack);
+>>>>>>> upstream/android-13
 	if (err < 0)
 		return err;
 	if (tb[NETNSA_PID]) {
@@ -784,6 +1098,14 @@ static int rtnl_net_getid(struct sk_buff *skb, struct nlmsghdr *nlh,
 	} else if (tb[NETNSA_FD]) {
 		peer = get_net_ns_by_fd(nla_get_u32(tb[NETNSA_FD]));
 		nla = tb[NETNSA_FD];
+<<<<<<< HEAD
+=======
+	} else if (tb[NETNSA_NSID]) {
+		peer = get_net_ns_by_id(net, nla_get_s32(tb[NETNSA_NSID]));
+		if (!peer)
+			peer = ERR_PTR(-ENOENT);
+		nla = tb[NETNSA_NSID];
+>>>>>>> upstream/android-13
 	} else {
 		NL_SET_ERR_MSG(extack, "Peer netns reference is missing");
 		return -EINVAL;
@@ -795,15 +1117,38 @@ static int rtnl_net_getid(struct sk_buff *skb, struct nlmsghdr *nlh,
 		return PTR_ERR(peer);
 	}
 
+<<<<<<< HEAD
+=======
+	if (tb[NETNSA_TARGET_NSID]) {
+		int id = nla_get_s32(tb[NETNSA_TARGET_NSID]);
+
+		target = rtnl_get_net_ns_capable(NETLINK_CB(skb).sk, id);
+		if (IS_ERR(target)) {
+			NL_SET_BAD_ATTR(extack, tb[NETNSA_TARGET_NSID]);
+			NL_SET_ERR_MSG(extack,
+				       "Target netns reference is invalid");
+			err = PTR_ERR(target);
+			goto out;
+		}
+		fillargs.add_ref = true;
+		fillargs.ref_nsid = peernet2id(net, peer);
+	}
+
+>>>>>>> upstream/android-13
 	msg = nlmsg_new(rtnl_net_get_size(), GFP_KERNEL);
 	if (!msg) {
 		err = -ENOMEM;
 		goto out;
 	}
 
+<<<<<<< HEAD
 	id = peernet2id(net, peer);
 	err = rtnl_net_fill(msg, NETLINK_CB(skb).portid, nlh->nlmsg_seq, 0,
 			    RTM_NEWNSID, net, id);
+=======
+	fillargs.nsid = peernet2id(target, peer);
+	err = rtnl_net_fill(msg, &fillargs);
+>>>>>>> upstream/android-13
 	if (err < 0)
 		goto err_out;
 
@@ -813,18 +1158,34 @@ static int rtnl_net_getid(struct sk_buff *skb, struct nlmsghdr *nlh,
 err_out:
 	nlmsg_free(msg);
 out:
+<<<<<<< HEAD
+=======
+	if (fillargs.add_ref)
+		put_net(target);
+>>>>>>> upstream/android-13
 	put_net(peer);
 	return err;
 }
 
 struct rtnl_net_dump_cb {
+<<<<<<< HEAD
 	struct net *net;
 	struct sk_buff *skb;
 	struct netlink_callback *cb;
+=======
+	struct net *tgt_net;
+	struct net *ref_net;
+	struct sk_buff *skb;
+	struct net_fill_args fillargs;
+>>>>>>> upstream/android-13
 	int idx;
 	int s_idx;
 };
 
+<<<<<<< HEAD
+=======
+/* Runs in RCU-critical section. */
+>>>>>>> upstream/android-13
 static int rtnl_net_dumpid_one(int id, void *peer, void *data)
 {
 	struct rtnl_net_dump_cb *net_cb = (struct rtnl_net_dump_cb *)data;
@@ -833,9 +1194,16 @@ static int rtnl_net_dumpid_one(int id, void *peer, void *data)
 	if (net_cb->idx < net_cb->s_idx)
 		goto cont;
 
+<<<<<<< HEAD
 	ret = rtnl_net_fill(net_cb->skb, NETLINK_CB(net_cb->cb->skb).portid,
 			    net_cb->cb->nlh->nlmsg_seq, NLM_F_MULTI,
 			    RTM_NEWNSID, net_cb->net, id);
+=======
+	net_cb->fillargs.nsid = id;
+	if (net_cb->fillargs.add_ref)
+		net_cb->fillargs.ref_nsid = __peernet2id(net_cb->ref_net, peer);
+	ret = rtnl_net_fill(net_cb->skb, &net_cb->fillargs);
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		return ret;
 
@@ -844,6 +1212,7 @@ cont:
 	return 0;
 }
 
+<<<<<<< HEAD
 static int rtnl_net_dumpid(struct sk_buff *skb, struct netlink_callback *cb)
 {
 	struct net *net = sock_net(skb->sk);
@@ -865,6 +1234,92 @@ static int rtnl_net_dumpid(struct sk_buff *skb, struct netlink_callback *cb)
 
 static void rtnl_net_notifyid(struct net *net, int cmd, int id, gfp_t gfp)
 {
+=======
+static int rtnl_valid_dump_net_req(const struct nlmsghdr *nlh, struct sock *sk,
+				   struct rtnl_net_dump_cb *net_cb,
+				   struct netlink_callback *cb)
+{
+	struct netlink_ext_ack *extack = cb->extack;
+	struct nlattr *tb[NETNSA_MAX + 1];
+	int err, i;
+
+	err = nlmsg_parse_deprecated_strict(nlh, sizeof(struct rtgenmsg), tb,
+					    NETNSA_MAX, rtnl_net_policy,
+					    extack);
+	if (err < 0)
+		return err;
+
+	for (i = 0; i <= NETNSA_MAX; i++) {
+		if (!tb[i])
+			continue;
+
+		if (i == NETNSA_TARGET_NSID) {
+			struct net *net;
+
+			net = rtnl_get_net_ns_capable(sk, nla_get_s32(tb[i]));
+			if (IS_ERR(net)) {
+				NL_SET_BAD_ATTR(extack, tb[i]);
+				NL_SET_ERR_MSG(extack,
+					       "Invalid target network namespace id");
+				return PTR_ERR(net);
+			}
+			net_cb->fillargs.add_ref = true;
+			net_cb->ref_net = net_cb->tgt_net;
+			net_cb->tgt_net = net;
+		} else {
+			NL_SET_BAD_ATTR(extack, tb[i]);
+			NL_SET_ERR_MSG(extack,
+				       "Unsupported attribute in dump request");
+			return -EINVAL;
+		}
+	}
+
+	return 0;
+}
+
+static int rtnl_net_dumpid(struct sk_buff *skb, struct netlink_callback *cb)
+{
+	struct rtnl_net_dump_cb net_cb = {
+		.tgt_net = sock_net(skb->sk),
+		.skb = skb,
+		.fillargs = {
+			.portid = NETLINK_CB(cb->skb).portid,
+			.seq = cb->nlh->nlmsg_seq,
+			.flags = NLM_F_MULTI,
+			.cmd = RTM_NEWNSID,
+		},
+		.idx = 0,
+		.s_idx = cb->args[0],
+	};
+	int err = 0;
+
+	if (cb->strict_check) {
+		err = rtnl_valid_dump_net_req(cb->nlh, skb->sk, &net_cb, cb);
+		if (err < 0)
+			goto end;
+	}
+
+	rcu_read_lock();
+	idr_for_each(&net_cb.tgt_net->netns_ids, rtnl_net_dumpid_one, &net_cb);
+	rcu_read_unlock();
+
+	cb->args[0] = net_cb.idx;
+end:
+	if (net_cb.fillargs.add_ref)
+		put_net(net_cb.tgt_net);
+	return err < 0 ? err : skb->len;
+}
+
+static void rtnl_net_notifyid(struct net *net, int cmd, int id, u32 portid,
+			      struct nlmsghdr *nlh, gfp_t gfp)
+{
+	struct net_fill_args fillargs = {
+		.portid = portid,
+		.seq = nlh ? nlh->nlmsg_seq : 0,
+		.cmd = cmd,
+		.nsid = id,
+	};
+>>>>>>> upstream/android-13
 	struct sk_buff *msg;
 	int err = -ENOMEM;
 
@@ -872,11 +1327,19 @@ static void rtnl_net_notifyid(struct net *net, int cmd, int id, gfp_t gfp)
 	if (!msg)
 		goto out;
 
+<<<<<<< HEAD
 	err = rtnl_net_fill(msg, 0, 0, 0, cmd, net, id);
 	if (err < 0)
 		goto err_out;
 
 	rtnl_notify(msg, net, 0, RTNLGRP_NSID, NULL, gfp);
+=======
+	err = rtnl_net_fill(msg, &fillargs);
+	if (err < 0)
+		goto err_out;
+
+	rtnl_notify(msg, net, portid, RTNLGRP_NSID, nlh, gfp);
+>>>>>>> upstream/android-13
 	return;
 
 err_out:
@@ -885,7 +1348,11 @@ out:
 	rtnl_set_sk_err(net, RTNLGRP_NSID, err);
 }
 
+<<<<<<< HEAD
 static int __init net_ns_init(void)
+=======
+void __init net_ns_init(void)
+>>>>>>> upstream/android-13
 {
 	struct net_generic *ng;
 
@@ -906,6 +1373,12 @@ static int __init net_ns_init(void)
 
 	rcu_assign_pointer(init_net.gen, ng);
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_KEYS
+	init_net.key_domain = &init_net_key_domain;
+#endif
+>>>>>>> upstream/android-13
 	down_write(&pernet_ops_rwsem);
 	if (setup_net(&init_net, &init_user_ns))
 		panic("Could not setup the initial network namespace");
@@ -920,11 +1393,23 @@ static int __init net_ns_init(void)
 		      RTNL_FLAG_DOIT_UNLOCKED);
 	rtnl_register(PF_UNSPEC, RTM_GETNSID, rtnl_net_getid, rtnl_net_dumpid,
 		      RTNL_FLAG_DOIT_UNLOCKED);
+<<<<<<< HEAD
 
 	return 0;
 }
 
 pure_initcall(net_ns_init);
+=======
+}
+
+static void free_exit_list(struct pernet_operations *ops, struct list_head *net_exit_list)
+{
+	ops_pre_exit_list(ops, net_exit_list);
+	synchronize_rcu();
+	ops_exit_list(ops, net_exit_list);
+	ops_free_list(ops, net_exit_list);
+}
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_NET_NS
 static int __register_pernet_operations(struct list_head *list,
@@ -951,8 +1436,12 @@ static int __register_pernet_operations(struct list_head *list,
 out_undo:
 	/* If I have an error cleanup all namespaces I initialized */
 	list_del(&ops->list);
+<<<<<<< HEAD
 	ops_exit_list(ops, &net_exit_list);
 	ops_free_list(ops, &net_exit_list);
+=======
+	free_exit_list(ops, &net_exit_list);
+>>>>>>> upstream/android-13
 	return error;
 }
 
@@ -965,8 +1454,13 @@ static void __unregister_pernet_operations(struct pernet_operations *ops)
 	/* See comment in __register_pernet_operations() */
 	for_each_net(net)
 		list_add_tail(&net->exit_list, &net_exit_list);
+<<<<<<< HEAD
 	ops_exit_list(ops, &net_exit_list);
 	ops_free_list(ops, &net_exit_list);
+=======
+
+	free_exit_list(ops, &net_exit_list);
+>>>>>>> upstream/android-13
 }
 
 #else
@@ -989,8 +1483,12 @@ static void __unregister_pernet_operations(struct pernet_operations *ops)
 	} else {
 		LIST_HEAD(net_exit_list);
 		list_add(&init_net.exit_list, &net_exit_list);
+<<<<<<< HEAD
 		ops_exit_list(ops, &net_exit_list);
 		ops_free_list(ops, &net_exit_list);
+=======
+		free_exit_list(ops, &net_exit_list);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -1150,12 +1648,22 @@ static void netns_put(struct ns_common *ns)
 	put_net(to_net_ns(ns));
 }
 
+<<<<<<< HEAD
 static int netns_install(struct nsproxy *nsproxy, struct ns_common *ns)
 {
 	struct net *net = to_net_ns(ns);
 
 	if (!ns_capable(net->user_ns, CAP_SYS_ADMIN) ||
 	    !ns_capable(current_user_ns(), CAP_SYS_ADMIN))
+=======
+static int netns_install(struct nsset *nsset, struct ns_common *ns)
+{
+	struct nsproxy *nsproxy = nsset->nsproxy;
+	struct net *net = to_net_ns(ns);
+
+	if (!ns_capable(net->user_ns, CAP_SYS_ADMIN) ||
+	    !ns_capable(nsset->cred->user_ns, CAP_SYS_ADMIN))
+>>>>>>> upstream/android-13
 		return -EPERM;
 
 	put_net(nsproxy->net_ns);

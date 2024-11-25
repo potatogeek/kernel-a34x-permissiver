@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Media Bus API header
  *
  * Copyright (C) 2009, Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef V4L2_MEDIABUS_H
@@ -14,10 +21,41 @@
 #include <linux/v4l2-mediabus.h>
 #include <linux/bitops.h>
 
+<<<<<<< HEAD
 
 /* Parallel flags */
 /*
  * Can the client run in master or in slave mode. By "Master mode" an operation
+=======
+/*
+ * How to use the V4L2_MBUS_* flags:
+ * Flags are defined for each of the possible states and values of a media
+ * bus configuration parameter. One and only one bit of each group of flags
+ * shall be set by the users of the v4l2_subdev_pad_ops.get_mbus_config and
+ * v4l2_subdev_pad_ops.set_mbus_config operations to ensure that no
+ * conflicting settings are specified when reporting and setting the media bus
+ * configuration with the two operations respectively. For example, it is
+ * invalid to set or clear both the V4L2_MBUS_HSYNC_ACTIVE_HIGH and the
+ * V4L2_MBUS_HSYNC_ACTIVE_LOW flag at the same time. Instead either flag
+ * V4L2_MBUS_HSYNC_ACTIVE_HIGH or flag V4L2_MBUS_HSYNC_ACTIVE_LOW shall be
+ * set. The same is true for the V4L2_MBUS_CSI2_1/2/3/4_LANE flags group: only
+ * one of these four bits shall be set.
+ *
+ * TODO: replace the existing V4L2_MBUS_* flags with structures of fields
+ * to avoid conflicting settings.
+ *
+ * In example:
+ *     #define V4L2_MBUS_HSYNC_ACTIVE_HIGH             BIT(2)
+ *     #define V4L2_MBUS_HSYNC_ACTIVE_LOW              BIT(3)
+ * will be replaced by a field whose value reports the intended active state of
+ * the signal:
+ *     unsigned int v4l2_mbus_hsync_active : 1;
+ */
+
+/* Parallel flags */
+/*
+ * The client runs in master or in slave mode. By "Master mode" an operation
+>>>>>>> upstream/android-13
  * mode is meant, when the client (e.g., a camera sensor) is producing
  * horizontal and vertical synchronisation. In "Slave mode" the host is
  * providing these signals to the slave.
@@ -49,16 +87,25 @@
 #define V4L2_MBUS_DATA_ENABLE_LOW		BIT(15)
 
 /* Serial flags */
+<<<<<<< HEAD
 /* How many lanes the client can use */
+=======
+/* CSI-2 D-PHY number of data lanes. */
+>>>>>>> upstream/android-13
 #define V4L2_MBUS_CSI2_1_LANE			BIT(0)
 #define V4L2_MBUS_CSI2_2_LANE			BIT(1)
 #define V4L2_MBUS_CSI2_3_LANE			BIT(2)
 #define V4L2_MBUS_CSI2_4_LANE			BIT(3)
+<<<<<<< HEAD
 /* On which channels it can send video data */
+=======
+/* CSI-2 Virtual Channel identifiers. */
+>>>>>>> upstream/android-13
 #define V4L2_MBUS_CSI2_CHANNEL_0		BIT(4)
 #define V4L2_MBUS_CSI2_CHANNEL_1		BIT(5)
 #define V4L2_MBUS_CSI2_CHANNEL_2		BIT(6)
 #define V4L2_MBUS_CSI2_CHANNEL_3		BIT(7)
+<<<<<<< HEAD
 /* Does it support only continuous or also non-continuous clock mode */
 #define V4L2_MBUS_CSI2_CONTINUOUS_CLOCK		BIT(8)
 #define V4L2_MBUS_CSI2_NONCONTINUOUS_CLOCK	BIT(9)
@@ -70,19 +117,52 @@
 
 /**
  * enum v4l2_mbus_type - media bus type
+=======
+/* Clock non-continuous mode support. */
+#define V4L2_MBUS_CSI2_CONTINUOUS_CLOCK		BIT(8)
+#define V4L2_MBUS_CSI2_NONCONTINUOUS_CLOCK	BIT(9)
+
+#define V4L2_MBUS_CSI2_LANES		(V4L2_MBUS_CSI2_1_LANE | \
+					 V4L2_MBUS_CSI2_2_LANE | \
+					 V4L2_MBUS_CSI2_3_LANE | \
+					 V4L2_MBUS_CSI2_4_LANE)
+#define V4L2_MBUS_CSI2_CHANNELS		(V4L2_MBUS_CSI2_CHANNEL_0 | \
+					 V4L2_MBUS_CSI2_CHANNEL_1 | \
+					 V4L2_MBUS_CSI2_CHANNEL_2 | \
+					 V4L2_MBUS_CSI2_CHANNEL_3)
+
+/**
+ * enum v4l2_mbus_type - media bus type
+ * @V4L2_MBUS_UNKNOWN:	unknown bus type, no V4L2 mediabus configuration
+>>>>>>> upstream/android-13
  * @V4L2_MBUS_PARALLEL:	parallel interface with hsync and vsync
  * @V4L2_MBUS_BT656:	parallel interface with embedded synchronisation, can
  *			also be used for BT.1120
  * @V4L2_MBUS_CSI1:	MIPI CSI-1 serial interface
  * @V4L2_MBUS_CCP2:	CCP2 (Compact Camera Port 2)
+<<<<<<< HEAD
  * @V4L2_MBUS_CSI2:	MIPI CSI-2 serial interface
  */
 enum v4l2_mbus_type {
+=======
+ * @V4L2_MBUS_CSI2_DPHY: MIPI CSI-2 serial interface, with D-PHY
+ * @V4L2_MBUS_CSI2_CPHY: MIPI CSI-2 serial interface, with C-PHY
+ * @V4L2_MBUS_INVALID:	invalid bus type (keep as last)
+ */
+enum v4l2_mbus_type {
+	V4L2_MBUS_UNKNOWN,
+>>>>>>> upstream/android-13
 	V4L2_MBUS_PARALLEL,
 	V4L2_MBUS_BT656,
 	V4L2_MBUS_CSI1,
 	V4L2_MBUS_CCP2,
+<<<<<<< HEAD
 	V4L2_MBUS_CSI2,
+=======
+	V4L2_MBUS_CSI2_DPHY,
+	V4L2_MBUS_CSI2_CPHY,
+	V4L2_MBUS_INVALID,
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -102,8 +182,14 @@ struct v4l2_mbus_config {
  * @pix_fmt:	pointer to &struct v4l2_pix_format to be filled
  * @mbus_fmt:	pointer to &struct v4l2_mbus_framefmt to be used as model
  */
+<<<<<<< HEAD
 static inline void v4l2_fill_pix_format(struct v4l2_pix_format *pix_fmt,
 				const struct v4l2_mbus_framefmt *mbus_fmt)
+=======
+static inline void
+v4l2_fill_pix_format(struct v4l2_pix_format *pix_fmt,
+		     const struct v4l2_mbus_framefmt *mbus_fmt)
+>>>>>>> upstream/android-13
 {
 	pix_fmt->width = mbus_fmt->width;
 	pix_fmt->height = mbus_fmt->height;
@@ -115,7 +201,11 @@ static inline void v4l2_fill_pix_format(struct v4l2_pix_format *pix_fmt,
 }
 
 /**
+<<<<<<< HEAD
  * v4l2_fill_pix_format - Ancillary routine that fills a &struct
+=======
+ * v4l2_fill_mbus_format - Ancillary routine that fills a &struct
+>>>>>>> upstream/android-13
  *	v4l2_mbus_framefmt from a &struct v4l2_pix_format and a
  *	data format code.
  *
@@ -124,7 +214,11 @@ static inline void v4l2_fill_pix_format(struct v4l2_pix_format *pix_fmt,
  * @code:	data format code (from &enum v4l2_mbus_pixelcode)
  */
 static inline void v4l2_fill_mbus_format(struct v4l2_mbus_framefmt *mbus_fmt,
+<<<<<<< HEAD
 			   const struct v4l2_pix_format *pix_fmt,
+=======
+					 const struct v4l2_pix_format *pix_fmt,
+>>>>>>> upstream/android-13
 			   u32 code)
 {
 	mbus_fmt->width = pix_fmt->width;
@@ -138,15 +232,25 @@ static inline void v4l2_fill_mbus_format(struct v4l2_mbus_framefmt *mbus_fmt,
 }
 
 /**
+<<<<<<< HEAD
  * v4l2_fill_pix_format - Ancillary routine that fills a &struct
+=======
+ * v4l2_fill_pix_format_mplane - Ancillary routine that fills a &struct
+>>>>>>> upstream/android-13
  *	v4l2_pix_format_mplane fields from a media bus structure.
  *
  * @pix_mp_fmt:	pointer to &struct v4l2_pix_format_mplane to be filled
  * @mbus_fmt:	pointer to &struct v4l2_mbus_framefmt to be used as model
  */
+<<<<<<< HEAD
 static inline void v4l2_fill_pix_format_mplane(
 				struct v4l2_pix_format_mplane *pix_mp_fmt,
 				const struct v4l2_mbus_framefmt *mbus_fmt)
+=======
+static inline void
+v4l2_fill_pix_format_mplane(struct v4l2_pix_format_mplane *pix_mp_fmt,
+			    const struct v4l2_mbus_framefmt *mbus_fmt)
+>>>>>>> upstream/android-13
 {
 	pix_mp_fmt->width = mbus_fmt->width;
 	pix_mp_fmt->height = mbus_fmt->height;
@@ -158,15 +262,25 @@ static inline void v4l2_fill_pix_format_mplane(
 }
 
 /**
+<<<<<<< HEAD
  * v4l2_fill_pix_format - Ancillary routine that fills a &struct
+=======
+ * v4l2_fill_mbus_format_mplane - Ancillary routine that fills a &struct
+>>>>>>> upstream/android-13
  *	v4l2_mbus_framefmt from a &struct v4l2_pix_format_mplane.
  *
  * @mbus_fmt:	pointer to &struct v4l2_mbus_framefmt to be filled
  * @pix_mp_fmt:	pointer to &struct v4l2_pix_format_mplane to be used as model
  */
+<<<<<<< HEAD
 static inline void v4l2_fill_mbus_format_mplane(
 				struct v4l2_mbus_framefmt *mbus_fmt,
 				const struct v4l2_pix_format_mplane *pix_mp_fmt)
+=======
+static inline void
+v4l2_fill_mbus_format_mplane(struct v4l2_mbus_framefmt *mbus_fmt,
+			     const struct v4l2_pix_format_mplane *pix_mp_fmt)
+>>>>>>> upstream/android-13
 {
 	mbus_fmt->width = pix_mp_fmt->width;
 	mbus_fmt->height = pix_mp_fmt->height;

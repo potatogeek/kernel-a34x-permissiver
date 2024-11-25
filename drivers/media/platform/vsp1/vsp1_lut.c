@@ -99,27 +99,49 @@ static const unsigned int lut_codes[] = {
 };
 
 static int lut_enum_mbus_code(struct v4l2_subdev *subdev,
+<<<<<<< HEAD
 			      struct v4l2_subdev_pad_config *cfg,
 			      struct v4l2_subdev_mbus_code_enum *code)
 {
 	return vsp1_subdev_enum_mbus_code(subdev, cfg, code, lut_codes,
+=======
+			      struct v4l2_subdev_state *sd_state,
+			      struct v4l2_subdev_mbus_code_enum *code)
+{
+	return vsp1_subdev_enum_mbus_code(subdev, sd_state, code, lut_codes,
+>>>>>>> upstream/android-13
 					  ARRAY_SIZE(lut_codes));
 }
 
 static int lut_enum_frame_size(struct v4l2_subdev *subdev,
+<<<<<<< HEAD
 			       struct v4l2_subdev_pad_config *cfg,
 			       struct v4l2_subdev_frame_size_enum *fse)
 {
 	return vsp1_subdev_enum_frame_size(subdev, cfg, fse, LUT_MIN_SIZE,
+=======
+			       struct v4l2_subdev_state *sd_state,
+			       struct v4l2_subdev_frame_size_enum *fse)
+{
+	return vsp1_subdev_enum_frame_size(subdev, sd_state, fse,
+					   LUT_MIN_SIZE,
+>>>>>>> upstream/android-13
 					   LUT_MIN_SIZE, LUT_MAX_SIZE,
 					   LUT_MAX_SIZE);
 }
 
 static int lut_set_format(struct v4l2_subdev *subdev,
+<<<<<<< HEAD
 			  struct v4l2_subdev_pad_config *cfg,
 			  struct v4l2_subdev_format *fmt)
 {
 	return vsp1_subdev_set_pad_format(subdev, cfg, fmt, lut_codes,
+=======
+			  struct v4l2_subdev_state *sd_state,
+			  struct v4l2_subdev_format *fmt)
+{
+	return vsp1_subdev_set_pad_format(subdev, sd_state, fmt, lut_codes,
+>>>>>>> upstream/android-13
 					  ARRAY_SIZE(lut_codes),
 					  LUT_MIN_SIZE, LUT_MIN_SIZE,
 					  LUT_MAX_SIZE, LUT_MAX_SIZE);
@@ -147,6 +169,10 @@ static const struct v4l2_subdev_ops lut_ops = {
 
 static void lut_configure_stream(struct vsp1_entity *entity,
 				 struct vsp1_pipeline *pipe,
+<<<<<<< HEAD
+=======
+				 struct vsp1_dl_list *dl,
+>>>>>>> upstream/android-13
 				 struct vsp1_dl_body *dlb)
 {
 	struct vsp1_lut *lut = to_lut(&entity->subdev);

@@ -69,7 +69,10 @@ struct capi_ctr {
 	unsigned short state;			/* controller state */
 	int blocked;				/* output blocked */
 	int traceflag;				/* capi trace */
+<<<<<<< HEAD
 	wait_queue_head_t state_wait_queue;
+=======
+>>>>>>> upstream/android-13
 
 	struct proc_dir_entry *procent;
         char procfn[128];
@@ -80,8 +83,11 @@ int detach_capi_ctr(struct capi_ctr *);
 
 void capi_ctr_ready(struct capi_ctr * card);
 void capi_ctr_down(struct capi_ctr * card);
+<<<<<<< HEAD
 void capi_ctr_suspend_output(struct capi_ctr * card);
 void capi_ctr_resume_output(struct capi_ctr * card);
+=======
+>>>>>>> upstream/android-13
 void capi_ctr_handle_message(struct capi_ctr * card, u16 appl, struct sk_buff *skb);
 
 // ---------------------------------------------------------------------------
@@ -91,12 +97,16 @@ struct capi_driver {
 	char name[32];				/* driver name */
 	char revision[32];
 
+<<<<<<< HEAD
 	int (*add_card)(struct capi_driver *driver, capicardparams *data);
 
+=======
+>>>>>>> upstream/android-13
 	/* management information for kcapi */
 	struct list_head list; 
 };
 
+<<<<<<< HEAD
 void register_capi_driver(struct capi_driver *driver);
 void unregister_capi_driver(struct capi_driver *driver);
 
@@ -110,4 +120,6 @@ void capilib_release(struct list_head *head);
 void capilib_data_b3_conf(struct list_head *head, u16 applid, u32 ncci, u16 msgid);
 u16  capilib_data_b3_req(struct list_head *head, u16 applid, u32 ncci, u16 msgid);
 
+=======
+>>>>>>> upstream/android-13
 #endif				/* __CAPILLI_H__ */

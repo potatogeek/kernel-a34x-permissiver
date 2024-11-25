@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2017 MediaTek Inc.
  * Author: Weiyi Lu <weiyi.lu@mediatek.com>
@@ -10,6 +11,12 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2017 MediaTek Inc.
+ * Author: Weiyi Lu <weiyi.lu@mediatek.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk-provider.h>
@@ -132,15 +139,25 @@ static const struct mtk_gate mm_clks[] = {
 	GATE_MM2(CLK_MM_DSI2_DIGITAL, "mm_dsi2_digital", "dsi0_lntc", 4),
 	GATE_MM2(CLK_MM_DSI3, "mm_dsi3", "mm_sel", 5),
 	GATE_MM2(CLK_MM_DSI3_DIGITAL, "mm_dsi3_digital", "dsi1_lntc", 6),
+<<<<<<< HEAD
 	GATE_MM2(CLK_MM_DISP_PWM2_MM, "mm_pwm2_mm", "mm_sel", 7),
 	GATE_MM2(CLK_MM_DISP_PWM2_26M, "mm_pwm2_26m", "pwm_sel", 8),
+=======
+>>>>>>> upstream/android-13
 };
 
 static int clk_mt2712_mm_probe(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	struct clk_onecell_data *clk_data;
 	int r;
 	struct device_node *node = pdev->dev.of_node;
+=======
+	struct device *dev = &pdev->dev;
+	struct device_node *node = dev->parent->of_node;
+	struct clk_onecell_data *clk_data;
+	int r;
+>>>>>>> upstream/android-13
 
 	clk_data = mtk_alloc_clk_data(CLK_MM_NR_CLK);
 
@@ -156,16 +173,22 @@ static int clk_mt2712_mm_probe(struct platform_device *pdev)
 	return r;
 }
 
+<<<<<<< HEAD
 static const struct of_device_id of_match_clk_mt2712_mm[] = {
 	{ .compatible = "mediatek,mt2712-mmsys", },
 	{}
 };
 
+=======
+>>>>>>> upstream/android-13
 static struct platform_driver clk_mt2712_mm_drv = {
 	.probe = clk_mt2712_mm_probe,
 	.driver = {
 		.name = "clk-mt2712-mm",
+<<<<<<< HEAD
 		.of_match_table = of_match_clk_mt2712_mm,
+=======
+>>>>>>> upstream/android-13
 	},
 };
 

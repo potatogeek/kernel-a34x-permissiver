@@ -7,9 +7,13 @@
 #ifndef INCLUDE__PERF_CS_ETM_H__
 #define INCLUDE__PERF_CS_ETM_H__
 
+<<<<<<< HEAD
 #include "../../util/evsel.h"
 
 struct auxtrace_record *cs_etm_record_init(int *err);
 int cs_etm_set_drv_config(struct perf_evsel_config_term *term);
+=======
+struct auxtrace_record *cs_etm_record_init(int *err);
+>>>>>>> upstream/android-13
 
 #endif

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  FUJITSU Extended Socket Network Device driver
  *  Copyright (c) 2015-2016 FUJITSU LIMITED
@@ -17,6 +18,12 @@
  * The full GNU General Public License is included in this distribution in
  * the file called "COPYING".
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ *  FUJITSU Extended Socket Network Device driver
+ *  Copyright (c) 2015-2016 FUJITSU LIMITED
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>

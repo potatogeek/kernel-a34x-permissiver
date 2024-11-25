@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * drivers/clk/clkdev.c
  *
  *  Copyright (C) 2008 Russell King.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * Helper for the clk API to assist looking up a struct clk.
  */
 #include <linux/module.h>
@@ -27,6 +34,7 @@
 static LIST_HEAD(clocks);
 static DEFINE_MUTEX(clocks_mutex);
 
+<<<<<<< HEAD
 #if defined(CONFIG_OF) && defined(CONFIG_COMMON_CLK)
 static struct clk *__of_clk_get(struct device_node *np, int index,
 			       const char *dev_id, const char *con_id)
@@ -120,6 +128,8 @@ static struct clk *__of_clk_get_by_name(struct device_node *np,
 }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Find the correct struct clk for the device and connection ID.
  * We do slightly fuzzy matching here:
@@ -139,6 +149,11 @@ static struct clk_lookup *clk_find(const char *dev_id, const char *con_id)
 	if (con_id)
 		best_possible += 1;
 
+<<<<<<< HEAD
+=======
+	lockdep_assert_held(&clocks_mutex);
+
+>>>>>>> upstream/android-13
 	list_for_each_entry(p, &clocks, node) {
 		match = 0;
 		if (p->dev_id) {
@@ -163,6 +178,7 @@ static struct clk_lookup *clk_find(const char *dev_id, const char *con_id)
 	return cl;
 }
 
+<<<<<<< HEAD
 struct clk *clk_get_sys(const char *dev_id, const char *con_id)
 {
 	struct clk_lookup *cl;
@@ -188,12 +204,40 @@ out:
 	mutex_unlock(&clocks_mutex);
 
 	return cl ? clk : ERR_PTR(-ENOENT);
+=======
+struct clk_hw *clk_find_hw(const char *dev_id, const char *con_id)
+{
+	struct clk_lookup *cl;
+	struct clk_hw *hw = ERR_PTR(-ENOENT);
+
+	mutex_lock(&clocks_mutex);
+	cl = clk_find(dev_id, con_id);
+	if (cl)
+		hw = cl->clk_hw;
+	mutex_unlock(&clocks_mutex);
+
+	return hw;
+}
+
+static struct clk *__clk_get_sys(struct device *dev, const char *dev_id,
+				 const char *con_id)
+{
+	struct clk_hw *hw = clk_find_hw(dev_id, con_id);
+
+	return clk_hw_create_clk(dev, hw, dev_id, con_id);
+}
+
+struct clk *clk_get_sys(const char *dev_id, const char *con_id)
+{
+	return __clk_get_sys(NULL, dev_id, con_id);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(clk_get_sys);
 
 struct clk *clk_get(struct device *dev, const char *con_id)
 {
 	const char *dev_id = dev ? dev_name(dev) : NULL;
+<<<<<<< HEAD
 	struct clk *clk;
 
 	if (dev && dev->of_node) {
@@ -203,6 +247,17 @@ struct clk *clk_get(struct device *dev, const char *con_id)
 	}
 
 	return clk_get_sys(dev_id, con_id);
+=======
+	struct clk_hw *hw;
+
+	if (dev && dev->of_node) {
+		hw = of_clk_get_hw(dev->of_node, 0, con_id);
+		if (!IS_ERR(hw) || PTR_ERR(hw) == -EPROBE_DEFER)
+			return clk_hw_create_clk(dev, hw, dev_id, con_id);
+	}
+
+	return __clk_get_sys(dev, dev_id, con_id);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(clk_get);
 
@@ -284,6 +339,7 @@ vclkdev_create(struct clk_hw *hw, const char *con_id, const char *dev_fmt,
 	return cl;
 }
 
+<<<<<<< HEAD
 struct clk_lookup * __ref
 clkdev_alloc(struct clk *clk, const char *con_id, const char *dev_fmt, ...)
 {
@@ -312,6 +368,8 @@ clkdev_hw_alloc(struct clk_hw *hw, const char *con_id, const char *dev_fmt, ...)
 }
 EXPORT_SYMBOL(clkdev_hw_alloc);
 
+=======
+>>>>>>> upstream/android-13
 /**
  * clkdev_create - allocate and add a clkdev lookup structure
  * @clk: struct clk to associate with all clk_lookups
@@ -401,6 +459,26 @@ static struct clk_lookup *__clk_register_clkdev(struct clk_hw *hw,
 	return cl;
 }
 
+<<<<<<< HEAD
+=======
+static int do_clk_register_clkdev(struct clk_hw *hw,
+	struct clk_lookup **cl, const char *con_id, const char *dev_id)
+{
+	if (IS_ERR(hw))
+		return PTR_ERR(hw);
+	/*
+	 * Since dev_id can be NULL, and NULL is handled specially, we must
+	 * pass it as either a NULL format string, or with "%s".
+	 */
+	if (dev_id)
+		*cl = __clk_register_clkdev(hw, con_id, "%s", dev_id);
+	else
+		*cl = __clk_register_clkdev(hw, con_id, NULL);
+
+	return *cl ? 0 : -ENOMEM;
+}
+
+>>>>>>> upstream/android-13
 /**
  * clk_register_clkdev - register one clock lookup for a struct clk
  * @clk: struct clk to associate with all clk_lookups
@@ -423,6 +501,7 @@ int clk_register_clkdev(struct clk *clk, const char *con_id,
 	if (IS_ERR(clk))
 		return PTR_ERR(clk);
 
+<<<<<<< HEAD
 	/*
 	 * Since dev_id can be NULL, and NULL is handled specially, we must
 	 * pass it as either a NULL format string, or with "%s".
@@ -434,6 +513,10 @@ int clk_register_clkdev(struct clk *clk, const char *con_id,
 		cl = __clk_register_clkdev(__clk_get_hw(clk), con_id, NULL);
 
 	return cl ? 0 : -ENOMEM;
+=======
+	return do_clk_register_clkdev(__clk_get_hw(clk), &cl, con_id,
+					      dev_id);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(clk_register_clkdev);
 
@@ -456,6 +539,7 @@ int clk_hw_register_clkdev(struct clk_hw *hw, const char *con_id,
 {
 	struct clk_lookup *cl;
 
+<<<<<<< HEAD
 	if (IS_ERR(hw))
 		return PTR_ERR(hw);
 
@@ -471,3 +555,80 @@ int clk_hw_register_clkdev(struct clk_hw *hw, const char *con_id,
 	return cl ? 0 : -ENOMEM;
 }
 EXPORT_SYMBOL(clk_hw_register_clkdev);
+=======
+	return do_clk_register_clkdev(hw, &cl, con_id, dev_id);
+}
+EXPORT_SYMBOL(clk_hw_register_clkdev);
+
+static void devm_clkdev_release(struct device *dev, void *res)
+{
+	clkdev_drop(*(struct clk_lookup **)res);
+}
+
+static int devm_clk_match_clkdev(struct device *dev, void *res, void *data)
+{
+	struct clk_lookup **l = res;
+
+	return *l == data;
+}
+
+/**
+ * devm_clk_release_clkdev - Resource managed clkdev lookup release
+ * @dev: device this lookup is bound
+ * @con_id: connection ID string on device
+ * @dev_id: format string describing device name
+ *
+ * Drop the clkdev lookup created with devm_clk_hw_register_clkdev.
+ * Normally this function will not need to be called and the resource
+ * management code will ensure that the resource is freed.
+ */
+void devm_clk_release_clkdev(struct device *dev, const char *con_id,
+			     const char *dev_id)
+{
+	struct clk_lookup *cl;
+	int rval;
+
+	mutex_lock(&clocks_mutex);
+	cl = clk_find(dev_id, con_id);
+	mutex_unlock(&clocks_mutex);
+
+	WARN_ON(!cl);
+	rval = devres_release(dev, devm_clkdev_release,
+			      devm_clk_match_clkdev, cl);
+	WARN_ON(rval);
+}
+EXPORT_SYMBOL(devm_clk_release_clkdev);
+
+/**
+ * devm_clk_hw_register_clkdev - managed clk lookup registration for clk_hw
+ * @dev: device this lookup is bound
+ * @hw: struct clk_hw to associate with all clk_lookups
+ * @con_id: connection ID string on device
+ * @dev_id: format string describing device name
+ *
+ * con_id or dev_id may be NULL as a wildcard, just as in the rest of
+ * clkdev.
+ *
+ * To make things easier for mass registration, we detect error clk_hws
+ * from a previous clk_hw_register_*() call, and return the error code for
+ * those.  This is to permit this function to be called immediately
+ * after clk_hw_register_*().
+ */
+int devm_clk_hw_register_clkdev(struct device *dev, struct clk_hw *hw,
+				const char *con_id, const char *dev_id)
+{
+	int rval = -ENOMEM;
+	struct clk_lookup **cl;
+
+	cl = devres_alloc(devm_clkdev_release, sizeof(*cl), GFP_KERNEL);
+	if (cl) {
+		rval = do_clk_register_clkdev(hw, cl, con_id, dev_id);
+		if (!rval)
+			devres_add(dev, cl);
+		else
+			devres_free(cl);
+	}
+	return rval;
+}
+EXPORT_SYMBOL(devm_clk_hw_register_clkdev);
+>>>>>>> upstream/android-13

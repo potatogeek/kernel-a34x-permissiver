@@ -52,6 +52,10 @@
 #include <linux/usb/gadget.h>
 #include <linux/prefetch.h>
 #include <linux/io.h>
+<<<<<<< HEAD
+=======
+#include <linux/iopoll.h>
+>>>>>>> upstream/android-13
 
 #include <asm/byteorder.h>
 #include <asm/irq.h>
@@ -360,6 +364,7 @@ print_err:
 static int handshake(u32 __iomem *ptr, u32 mask, u32 done, int usec)
 {
 	u32	result;
+<<<<<<< HEAD
 
 	do {
 		result = readl(ptr);
@@ -372,6 +377,18 @@ static int handshake(u32 __iomem *ptr, u32 mask, u32 done, int usec)
 		usec--;
 	} while (usec > 0);
 	return -ETIMEDOUT;
+=======
+	int	ret;
+
+	ret = readl_poll_timeout_atomic(ptr, result,
+					((result & mask) == done ||
+					 result == U32_MAX),
+					1, usec);
+	if (result == U32_MAX)		/* device unplugged */
+		return -ENODEV;
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static const struct usb_ep_ops net2280_ep_ops;
@@ -516,8 +533,13 @@ static int net2280_disable(struct usb_ep *_ep)
 	unsigned long		flags;
 
 	ep = container_of(_ep, struct net2280_ep, ep);
+<<<<<<< HEAD
 	if (!_ep || !ep->desc || _ep->name == ep0name) {
 		pr_err("%s: Invalid ep=%p or ep->desc\n", __func__, _ep);
+=======
+	if (!_ep || _ep->name == ep0name) {
+		pr_err("%s: Invalid ep=%p\n", __func__, _ep);
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 	spin_lock_irqsave(&ep->dev->lock, flags);
@@ -789,8 +811,12 @@ static int read_fifo(struct net2280_ep *ep, struct net2280_request *req)
 		(void) readl(&ep->regs->ep_rsp);
 	}
 
+<<<<<<< HEAD
 	return is_short || ((req->req.actual == req->req.length) &&
 			!req->req.zero);
+=======
+	return is_short || req->req.actual == req->req.length;
+>>>>>>> upstream/android-13
 }
 
 /* fill out dma descriptor to match a given request */
@@ -1058,7 +1084,11 @@ net2280_queue(struct usb_ep *_ep, struct usb_request *_req, gfp_t gfp_flags)
 			/* PIO ... stuff the fifo, or unblock it.  */
 			if (ep->is_in)
 				write_fifo(ep, _req);
+<<<<<<< HEAD
 			else if (list_empty(&ep->queue)) {
+=======
+			else {
+>>>>>>> upstream/android-13
 				u32	s;
 
 				/* OUT FIFO might have packet(s) buffered */
@@ -1548,9 +1578,12 @@ static int net2280_pullup(struct usb_gadget *_gadget, int is_on)
 
 	spin_unlock_irqrestore(&dev->lock, flags);
 
+<<<<<<< HEAD
 	if (!is_on && dev->driver)
 		dev->driver->disconnect(&dev->gadget);
 
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1622,6 +1655,10 @@ static struct usb_ep *net2280_match_ep(struct usb_gadget *_gadget,
 static int net2280_start(struct usb_gadget *_gadget,
 		struct usb_gadget_driver *driver);
 static int net2280_stop(struct usb_gadget *_gadget);
+<<<<<<< HEAD
+=======
+static void net2280_async_callbacks(struct usb_gadget *_gadget, bool enable);
+>>>>>>> upstream/android-13
 
 static const struct usb_gadget_ops net2280_ops = {
 	.get_frame	= net2280_get_frame,
@@ -1630,6 +1667,10 @@ static const struct usb_gadget_ops net2280_ops = {
 	.pullup		= net2280_pullup,
 	.udc_start	= net2280_start,
 	.udc_stop	= net2280_stop,
+<<<<<<< HEAD
+=======
+	.udc_async_callbacks = net2280_async_callbacks,
+>>>>>>> upstream/android-13
 	.match_ep	= net2280_match_ep,
 };
 
@@ -2248,6 +2289,7 @@ static void usb_reinit_338x(struct net2280 *dev)
 	}
 
 	/* Hardware Defect and Workaround */
+<<<<<<< HEAD
 	val = readl(&dev->ll_lfps_regs->ll_lfps_5);
 	val &= ~(0xf << TIMER_LFPS_6US);
 	val |= 0x5 << TIMER_LFPS_6US;
@@ -2257,12 +2299,24 @@ static void usb_reinit_338x(struct net2280 *dev)
 	val &= ~(0xffff << TIMER_LFPS_80US);
 	val |= 0x0100 << TIMER_LFPS_80US;
 	writel(val, &dev->ll_lfps_regs->ll_lfps_6);
+=======
+	val = readl(&dev->llregs->ll_lfps_5);
+	val &= ~(0xf << TIMER_LFPS_6US);
+	val |= 0x5 << TIMER_LFPS_6US;
+	writel(val, &dev->llregs->ll_lfps_5);
+
+	val = readl(&dev->llregs->ll_lfps_6);
+	val &= ~(0xffff << TIMER_LFPS_80US);
+	val |= 0x0100 << TIMER_LFPS_80US;
+	writel(val, &dev->llregs->ll_lfps_6);
+>>>>>>> upstream/android-13
 
 	/*
 	 * AA_AB Errata. Issue 4. Workaround for SuperSpeed USB
 	 * Hot Reset Exit Handshake may Fail in Specific Case using
 	 * Default Register Settings. Workaround for Enumeration test.
 	 */
+<<<<<<< HEAD
 	val = readl(&dev->ll_tsn_regs->ll_tsn_counters_2);
 	val &= ~(0x1f << HOT_TX_NORESET_TS2);
 	val |= 0x10 << HOT_TX_NORESET_TS2;
@@ -2272,6 +2326,27 @@ static void usb_reinit_338x(struct net2280 *dev)
 	val &= ~(0x1f << HOT_RX_RESET_TS2);
 	val |= 0x3 << HOT_RX_RESET_TS2;
 	writel(val, &dev->ll_tsn_regs->ll_tsn_counters_3);
+=======
+	val = readl(&dev->llregs->ll_tsn_counters_2);
+	val &= ~(0x1f << HOT_TX_NORESET_TS2);
+	val |= 0x10 << HOT_TX_NORESET_TS2;
+	writel(val, &dev->llregs->ll_tsn_counters_2);
+
+	val = readl(&dev->llregs->ll_tsn_counters_3);
+	val &= ~(0x1f << HOT_RX_RESET_TS2);
+	val |= 0x3 << HOT_RX_RESET_TS2;
+	writel(val, &dev->llregs->ll_tsn_counters_3);
+
+	/*
+	 * AB errata. Errata 11. Workaround for Default Duration of LFPS
+	 * Handshake Signaling for Device-Initiated U1 Exit is too short.
+	 * Without this, various enumeration failures observed with
+	 * modern superspeed hosts.
+	 */
+	val = readl(&dev->llregs->ll_lfps_timers_2);
+	writel((val & 0xffff0000) | LFPS_TIMERS_2_WORKAROUND_VALUE,
+	       &dev->llregs->ll_lfps_timers_2);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Set Recovery Idle to Recover bit:
@@ -2281,9 +2356,15 @@ static void usb_reinit_338x(struct net2280 *dev)
 	 * - R-M-W to leave other bits undisturbed.
 	 * - Reference PLX TT-7372
 	*/
+<<<<<<< HEAD
 	val = readl(&dev->ll_chicken_reg->ll_tsn_chicken_bit);
 	val |= BIT(RECOVERY_IDLE_TO_RECOVER_FMW);
 	writel(val, &dev->ll_chicken_reg->ll_tsn_chicken_bit);
+=======
+	val = readl(&dev->llregs->ll_tsn_chicken_bit);
+	val |= BIT(RECOVERY_IDLE_TO_RECOVER_FMW);
+	writel(val, &dev->llregs->ll_tsn_chicken_bit);
+>>>>>>> upstream/android-13
 
 	INIT_LIST_HEAD(&dev->gadget.ep0->ep_list);
 
@@ -2467,7 +2548,11 @@ static void stop_activity(struct net2280 *dev, struct usb_gadget_driver *driver)
 		nuke(&dev->ep[i]);
 
 	/* report disconnect; the driver is already quiesced */
+<<<<<<< HEAD
 	if (driver) {
+=======
+	if (dev->async_callbacks && driver) {
+>>>>>>> upstream/android-13
 		spin_unlock(&dev->lock);
 		driver->disconnect(&dev->gadget);
 		spin_lock(&dev->lock);
@@ -2497,6 +2582,18 @@ static int net2280_stop(struct usb_gadget *_gadget)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static void net2280_async_callbacks(struct usb_gadget *_gadget, bool enable)
+{
+	struct net2280	*dev = container_of(_gadget, struct net2280, gadget);
+
+	spin_lock_irq(&dev->lock);
+	dev->async_callbacks = enable;
+	spin_unlock_irq(&dev->lock);
+}
+
+>>>>>>> upstream/android-13
 /*-------------------------------------------------------------------------*/
 
 /* handle ep0, ep-e, ep-f with 64 byte packets: packet per irq.
@@ -2809,8 +2906,11 @@ static void defect7374_workaround(struct net2280 *dev, struct usb_ctrlrequest r)
 		 * - Wait and try again.
 		 */
 		udelay(DEFECT_7374_PROCESSOR_WAIT_TIME);
+<<<<<<< HEAD
 
 		continue;
+=======
+>>>>>>> upstream/android-13
 	}
 
 
@@ -2855,6 +2955,11 @@ static void ep_clear_seqnum(struct net2280_ep *ep)
 static void handle_stat0_irqs_superspeed(struct net2280 *dev,
 		struct net2280_ep *ep, struct usb_ctrlrequest r)
 {
+<<<<<<< HEAD
+=======
+	struct net2280_ep *e;
+	u16 status;
+>>>>>>> upstream/android-13
 	int tmp = 0;
 
 #define	w_value		le16_to_cpu(r.wValue)
@@ -2862,9 +2967,12 @@ static void handle_stat0_irqs_superspeed(struct net2280 *dev,
 #define	w_length	le16_to_cpu(r.wLength)
 
 	switch (r.bRequest) {
+<<<<<<< HEAD
 		struct net2280_ep *e;
 		u16 status;
 
+=======
+>>>>>>> upstream/android-13
 	case USB_REQ_SET_CONFIGURATION:
 		dev->addressed_state = !w_value;
 		goto usb3_delegate;
@@ -3038,9 +3146,17 @@ usb3_delegate:
 				readl(&ep->cfg->ep_cfg));
 
 		ep->responded = 0;
+<<<<<<< HEAD
 		spin_unlock(&dev->lock);
 		tmp = dev->driver->setup(&dev->gadget, &r);
 		spin_lock(&dev->lock);
+=======
+		if (dev->async_callbacks) {
+			spin_unlock(&dev->lock);
+			tmp = dev->driver->setup(&dev->gadget, &r);
+			spin_lock(&dev->lock);
+		}
+>>>>>>> upstream/android-13
 	}
 do_stall3:
 	if (tmp < 0) {
@@ -3280,9 +3396,17 @@ delegate:
 				w_value, w_index, w_length,
 				readl(&ep->cfg->ep_cfg));
 			ep->responded = 0;
+<<<<<<< HEAD
 			spin_unlock(&dev->lock);
 			tmp = dev->driver->setup(&dev->gadget, &u.r);
 			spin_lock(&dev->lock);
+=======
+			if (dev->async_callbacks) {
+				spin_unlock(&dev->lock);
+				tmp = dev->driver->setup(&dev->gadget, &u.r);
+				spin_lock(&dev->lock);
+			}
+>>>>>>> upstream/android-13
 		}
 
 		/* stall ep0 on error */
@@ -3387,6 +3511,7 @@ __acquires(dev->lock)
 			if (disconnect || reset) {
 				stop_activity(dev, dev->driver);
 				ep0_start(dev);
+<<<<<<< HEAD
 				spin_unlock(&dev->lock);
 				if (reset)
 					usb_gadget_udc_reset
@@ -3395,6 +3520,16 @@ __acquires(dev->lock)
 					(dev->driver->disconnect)
 						(&dev->gadget);
 				spin_lock(&dev->lock);
+=======
+				if (dev->async_callbacks) {
+					spin_unlock(&dev->lock);
+					if (reset)
+						usb_gadget_udc_reset(&dev->gadget, dev->driver);
+					else
+						(dev->driver->disconnect)(&dev->gadget);
+					spin_lock(&dev->lock);
+				}
+>>>>>>> upstream/android-13
 				return;
 			}
 		}
@@ -3415,12 +3550,20 @@ __acquires(dev->lock)
 		writel(tmp, &dev->regs->irqstat1);
 		spin_unlock(&dev->lock);
 		if (stat & BIT(SUSPEND_REQUEST_INTERRUPT)) {
+<<<<<<< HEAD
 			if (dev->driver->suspend)
+=======
+			if (dev->async_callbacks && dev->driver->suspend)
+>>>>>>> upstream/android-13
 				dev->driver->suspend(&dev->gadget);
 			if (!enable_suspend)
 				stat &= ~BIT(SUSPEND_REQUEST_INTERRUPT);
 		} else {
+<<<<<<< HEAD
 			if (dev->driver->resume)
+=======
+			if (dev->async_callbacks && dev->driver->resume)
+>>>>>>> upstream/android-13
 				dev->driver->resume(&dev->gadget);
 			/* at high speed, note erratum 0133 */
 		}
@@ -3556,7 +3699,11 @@ static irqreturn_t net2280_irq(int irq, void *_dev)
 
 static void gadget_release(struct device *_dev)
 {
+<<<<<<< HEAD
 	struct net2280	*dev = dev_get_drvdata(_dev);
+=======
+	struct net2280	*dev = container_of(_dev, struct net2280, gadget.dev);
+>>>>>>> upstream/android-13
 
 	kfree(dev);
 }
@@ -3567,7 +3714,12 @@ static void net2280_remove(struct pci_dev *pdev)
 {
 	struct net2280		*dev = pci_get_drvdata(pdev);
 
+<<<<<<< HEAD
 	usb_del_gadget_udc(&dev->gadget);
+=======
+	if (dev->added)
+		usb_del_gadget(&dev->gadget);
+>>>>>>> upstream/android-13
 
 	BUG_ON(dev->driver);
 
@@ -3598,6 +3750,10 @@ static void net2280_remove(struct pci_dev *pdev)
 	device_remove_file(&pdev->dev, &dev_attr_registers);
 
 	ep_info(dev, "unbind\n");
+<<<<<<< HEAD
+=======
+	usb_put_gadget(&dev->gadget);
+>>>>>>> upstream/android-13
 }
 
 /* wrap this driver around the specified device, but
@@ -3619,6 +3775,10 @@ static int net2280_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 	}
 
 	pci_set_drvdata(pdev, dev);
+<<<<<<< HEAD
+=======
+	usb_initialize_gadget(&pdev->dev, &dev->gadget, gadget_release);
+>>>>>>> upstream/android-13
 	spin_lock_init(&dev->lock);
 	dev->quirks = id->driver_data;
 	dev->pdev = pdev;
@@ -3653,7 +3813,11 @@ static int net2280_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 	 * 8051 code into the chip, e.g. to turn on PCI PM.
 	 */
 
+<<<<<<< HEAD
 	base = ioremap_nocache(resource, len);
+=======
+	base = ioremap(resource, len);
+>>>>>>> upstream/android-13
 	if (base == NULL) {
 		ep_dbg(dev, "can't map memory\n");
 		retval = -EFAULT;
@@ -3673,12 +3837,15 @@ static int net2280_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 							(base + 0x00b4);
 		dev->llregs = (struct usb338x_ll_regs __iomem *)
 							(base + 0x0700);
+<<<<<<< HEAD
 		dev->ll_lfps_regs = (struct usb338x_ll_lfps_regs __iomem *)
 							(base + 0x0748);
 		dev->ll_tsn_regs = (struct usb338x_ll_tsn_regs __iomem *)
 							(base + 0x077c);
 		dev->ll_chicken_reg = (struct usb338x_ll_chi_regs __iomem *)
 							(base + 0x079c);
+=======
+>>>>>>> upstream/android-13
 		dev->plregs = (struct usb338x_pl_regs __iomem *)
 							(base + 0x0800);
 		usbstat = readl(&dev->usb->usbstat);
@@ -3775,10 +3942,17 @@ static int net2280_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 	if (retval)
 		goto done;
 
+<<<<<<< HEAD
 	retval = usb_add_gadget_udc_release(&pdev->dev, &dev->gadget,
 			gadget_release);
 	if (retval)
 		goto done;
+=======
+	retval = usb_add_gadget(&dev->gadget);
+	if (retval)
+		goto done;
+	dev->added = 1;
+>>>>>>> upstream/android-13
 	return 0;
 
 done:
@@ -3859,7 +4033,11 @@ MODULE_DEVICE_TABLE(pci, pci_ids);
 
 /* pci driver glue; this is a "new style" PCI driver module */
 static struct pci_driver net2280_pci_driver = {
+<<<<<<< HEAD
 	.name =		(char *) driver_name,
+=======
+	.name =		driver_name,
+>>>>>>> upstream/android-13
 	.id_table =	pci_ids,
 
 	.probe =	net2280_probe,

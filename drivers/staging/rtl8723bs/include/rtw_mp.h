@@ -10,13 +10,21 @@
 #define MAX_MP_XMITBUF_SZ	2048
 #define NR_MP_XMITFRAME		8
 
+<<<<<<< HEAD
 struct mp_xmit_frame
 {
+=======
+struct mp_xmit_frame {
+>>>>>>> upstream/android-13
 	struct list_head	list;
 
 	struct pkt_attrib attrib;
 
+<<<<<<< HEAD
 	_pkt *pkt;
+=======
+	struct sk_buff *pkt;
+>>>>>>> upstream/android-13
 
 	int frame_tag;
 
@@ -25,18 +33,26 @@ struct mp_xmit_frame
 	uint mem[(MAX_MP_XMITBUF_SZ >> 2)];
 };
 
+<<<<<<< HEAD
 struct mp_wiparam
 {
+=======
+struct mp_wiparam {
+>>>>>>> upstream/android-13
 	u32 bcompleted;
 	u32 act_type;
 	u32 io_offset;
 	u32 io_value;
 };
 
+<<<<<<< HEAD
 typedef void(*wi_act_func)(void* padapter);
 
 struct mp_tx
 {
+=======
+struct mp_tx {
+>>>>>>> upstream/android-13
 	u8 stop;
 	u32 count, sended;
 	u8 payload;
@@ -54,16 +70,24 @@ struct mp_tx
 #define MP_MAX_LINES_BYTES	256
 
 typedef void (*MPT_WORK_ITEM_HANDLER)(void *Adapter);
+<<<<<<< HEAD
 typedef struct _MPT_CONTEXT
 {
+=======
+struct mpt_context {
+>>>>>>> upstream/android-13
 	/*  Indicate if we have started Mass Production Test. */
 	bool			bMassProdTest;
 
 	/*  Indicate if the driver is unloading or unloaded. */
 	bool			bMptDrvUnload;
 
+<<<<<<< HEAD
 	_sema			MPh2c_Sema;
 	_timer			MPh2c_timeout_timer;
+=======
+	struct timer_list			MPh2c_timeout_timer;
+>>>>>>> upstream/android-13
 /*  Event used to sync H2c for BT control */
 
 	bool		MptH2cRspEvent;
@@ -96,7 +120,11 @@ typedef struct _MPT_CONTEXT
 	/*  The RfPath of IO operation is depend of MptActType. */
 	u32 		MptRfPath;
 
+<<<<<<< HEAD
 	enum WIRELESS_MODE		MptWirelessModeToSw;	/*  Wireless mode to switch. */
+=======
+	enum wireless_mode		MptWirelessModeToSw;	/*  Wireless mode to switch. */
+>>>>>>> upstream/android-13
 	u8 	MptChannelToSw;		/*  Channel to switch. */
 	u8 	MptInitGainToSet;	/*  Initial gain to set. */
 	u32 		MptBandWidth;		/*  bandwidth to switch. */
@@ -108,7 +136,11 @@ typedef struct _MPT_CONTEXT
 	/*  For MP Tx Power index */
 	u8 	TxPwrLevel[2];	/*  rf-A, rf-B */
 	u32 		RegTxPwrLimit;
+<<<<<<< HEAD
 	/*  Content of RCR Regsiter for Mass Production Test. */
+=======
+	/*  Content of RCR Register for Mass Production Test. */
+>>>>>>> upstream/android-13
 	u32 		MptRCR;
 	/*  true if we only receive packets with specific pattern. */
 	bool			bMptFilterPattern;
@@ -155,7 +187,11 @@ typedef struct _MPT_CONTEXT
 	u32 		mptOutLen;
     u8          mptOutBuf[100];
 
+<<<<<<< HEAD
 }MPT_CONTEXT, *PMPT_CONTEXT;
+=======
+};
+>>>>>>> upstream/android-13
 /* endif */
 
 /* E-Fuse */
@@ -196,18 +232,25 @@ enum {
 	CTA_TEST,
 	MP_DISABLE_BT_COEXIST,
 	MP_PwrCtlDM,
+<<<<<<< HEAD
 #ifdef CONFIG_WOWLAN
 	MP_WOW_ENABLE,
 #endif
 #ifdef CONFIG_AP_WOWLAN
 	MP_AP_WOW_ENABLE,
 #endif
+=======
+>>>>>>> upstream/android-13
 	MP_NULL,
 	MP_GET_TXPOWER_INX,
 };
 
+<<<<<<< HEAD
 struct mp_priv
 {
+=======
+struct mp_priv {
+>>>>>>> upstream/android-13
 	struct adapter *papdater;
 
 	/* Testing Flag */
@@ -268,11 +311,16 @@ struct mp_priv
 	bool bSetRxBssid;
 	bool bTxBufCkFail;
 
+<<<<<<< HEAD
 	MPT_CONTEXT MptCtx;
+=======
+	struct mpt_context MptCtx;
+>>>>>>> upstream/android-13
 
 	u8 *TXradomBuffer;
 };
 
+<<<<<<< HEAD
 typedef struct _IOCMD_STRUCT_ {
 	u8 cmdclass;
 	u16 value;
@@ -290,12 +338,15 @@ struct bb_reg_param {
 	u32 value;
 };
 
+=======
+>>>>>>> upstream/android-13
 #define LOWER	true
 #define RAISE	false
 
 /* Hardware Registers */
 #define BB_REG_BASE_ADDR		0x800
 
+<<<<<<< HEAD
 /* MP variables */
 enum MP_MODE {
 	MP_OFF,
@@ -309,10 +360,13 @@ enum MP_MODE {
 	MP_PACKET_RX
 };
 
+=======
+>>>>>>> upstream/android-13
 #define MAX_RF_PATH_NUMS	RF_PATH_MAX
 
 extern u8 mpdatarate[NumRates];
 
+<<<<<<< HEAD
 /* MP set force data rate base on the definition. */
 enum MPT_RATE_INDEX {
 	/* CCK rate. */
@@ -387,6 +441,10 @@ enum OFDM_TX_MODE {
 	OFDM_SingleTone		= 4,
 };
 
+=======
+#define MAX_TX_PWR_INDEX_N_MODE 64	/*  0x3F */
+
+>>>>>>> upstream/android-13
 #define RX_PKT_BROADCAST	1
 #define RX_PKT_DEST_ADDR	2
 #define RX_PKT_PHY_MATCH	3
@@ -402,6 +460,7 @@ enum OFDM_TX_MODE {
 #define Mac_HT_FasleAlarm		0x90000000
 #define Mac_DropPacket			0xA0000000
 
+<<<<<<< HEAD
 enum ENCRY_CTRL_STATE {
 	HW_CONTROL,		/* hw encryption& decryption */
 	SW_CONTROL,		/* sw encryption& decryption */
@@ -415,6 +474,8 @@ enum MPT_TXPWR_DEF {
 	MPT_VHT_OFDM
 };
 
+=======
+>>>>>>> upstream/android-13
 #define		REG_RF_BB_GAIN_OFFSET	0x7f
 #define		RF_GAIN_OFFSET_MASK	0xfffff
 
@@ -474,16 +535,23 @@ void Hal_SetBandwidth(struct adapter *padapter);
 
 void Hal_SetTxPower(struct adapter *padapter);
 void Hal_SetCarrierSuppressionTx(struct adapter *padapter, u8 bStart);
+<<<<<<< HEAD
 void Hal_SetSingleToneTx (struct adapter *padapter , u8 bStart);
 void Hal_SetSingleCarrierTx (struct adapter *padapter, u8 bStart);
 void Hal_SetContinuousTx (struct adapter *padapter, u8 bStart);
 void Hal_SetBandwidth(struct adapter *padapter);
+=======
+void Hal_SetSingleToneTx(struct adapter *padapter, u8 bStart);
+void Hal_SetSingleCarrierTx(struct adapter *padapter, u8 bStart);
+void Hal_SetContinuousTx(struct adapter *padapter, u8 bStart);
+>>>>>>> upstream/android-13
 
 void Hal_SetDataRate(struct adapter *padapter);
 void Hal_SetChannel(struct adapter *padapter);
 void Hal_SetAntennaPathPower(struct adapter *padapter);
 s32 Hal_SetThermalMeter(struct adapter *padapter, u8 target_ther);
 s32 Hal_SetPowerTracking(struct adapter *padapter, u8 enable);
+<<<<<<< HEAD
 void Hal_GetPowerTracking(struct adapter *padapter, u8 * enable);
 void Hal_GetThermalMeter(struct adapter *padapter, u8 *value);
 void Hal_mpt_SwitchRfSetting(struct adapter *padapter);
@@ -491,12 +559,26 @@ void Hal_MPT_CCKTxPowerAdjust(struct adapter * Adapter, bool bInCH14);
 void Hal_MPT_CCKTxPowerAdjustbyIndex(struct adapter *padapter, bool beven);
 void Hal_SetCCKTxPower(struct adapter *padapter, u8 * TxPower);
 void Hal_SetOFDMTxPower(struct adapter *padapter, u8 * TxPower);
+=======
+void Hal_GetPowerTracking(struct adapter *padapter, u8 *enable);
+void Hal_GetThermalMeter(struct adapter *padapter, u8 *value);
+void Hal_mpt_SwitchRfSetting(struct adapter *padapter);
+void Hal_MPT_CCKTxPowerAdjust(struct adapter *Adapter, bool bInCH14);
+void Hal_MPT_CCKTxPowerAdjustbyIndex(struct adapter *padapter, bool beven);
+void Hal_SetCCKTxPower(struct adapter *padapter, u8 *TxPower);
+void Hal_SetOFDMTxPower(struct adapter *padapter, u8 *TxPower);
+>>>>>>> upstream/android-13
 void Hal_TriggerRFThermalMeter(struct adapter *padapter);
 u8 Hal_ReadRFThermalMeter(struct adapter *padapter);
 void Hal_SetCCKContinuousTx(struct adapter *padapter, u8 bStart);
 void Hal_SetOFDMContinuousTx(struct adapter *padapter, u8 bStart);
+<<<<<<< HEAD
 void Hal_ProSetCrystalCap (struct adapter *padapter , u32 CrystalCapVal);
 void MP_PHY_SetRFPathSwitch(struct adapter *padapter , bool bMain);
+=======
+void Hal_ProSetCrystalCap(struct adapter *padapter, u32 CrystalCapVal);
+void MP_PHY_SetRFPathSwitch(struct adapter *padapter, bool bMain);
+>>>>>>> upstream/android-13
 u32 mpt_ProQueryCalTxPower(struct adapter *padapter, u8 RfPath);
 void MPT_PwrCtlDM(struct adapter *padapter, u32 bstart);
 u8 MptToMgntRate(u32 MptRateIdx);

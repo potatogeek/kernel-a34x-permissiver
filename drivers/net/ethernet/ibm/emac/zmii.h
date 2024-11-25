@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * drivers/net/ethernet/ibm/emac/zmii.h
  *
@@ -14,12 +18,15 @@
  * Based on original work by
  *      Armin Kuster <akuster@mvista.com>
  * 	Copyright 2001 MontaVista Softare Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef __IBM_NEWEMAC_ZMII_H
 #define __IBM_NEWEMAC_ZMII_H
@@ -55,7 +62,12 @@ struct zmii_instance {
 
 int zmii_init(void);
 void zmii_exit(void);
+<<<<<<< HEAD
 int zmii_attach(struct platform_device *ofdev, int input, int *mode);
+=======
+int zmii_attach(struct platform_device *ofdev, int input,
+		phy_interface_t *mode);
+>>>>>>> upstream/android-13
 void zmii_detach(struct platform_device *ofdev, int input);
 void zmii_get_mdio(struct platform_device *ofdev, int input);
 void zmii_put_mdio(struct platform_device *ofdev, int input);

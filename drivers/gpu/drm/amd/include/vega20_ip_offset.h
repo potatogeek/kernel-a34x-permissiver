@@ -33,7 +33,11 @@ struct IP_BASE_INSTANCE
 struct IP_BASE
 {
     struct IP_BASE_INSTANCE instance[MAX_INSTANCE];
+<<<<<<< HEAD
 };
+=======
+} __maybe_unused;
+>>>>>>> upstream/android-13
 
 
 static const struct IP_BASE ATHUB_BASE            ={ { { { 0x00000C20, 0, 0, 0, 0, 0 } },

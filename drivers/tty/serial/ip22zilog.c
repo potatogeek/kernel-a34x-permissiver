@@ -31,17 +31,24 @@
 #include <linux/spinlock.h>
 #include <linux/init.h>
 
+<<<<<<< HEAD
 #include <asm/io.h>
+=======
+#include <linux/io.h>
+>>>>>>> upstream/android-13
 #include <asm/irq.h>
 #include <asm/sgialib.h>
 #include <asm/sgi/ioc.h>
 #include <asm/sgi/hpc3.h>
 #include <asm/sgi/ip22.h>
 
+<<<<<<< HEAD
 #if defined(CONFIG_SERIAL_IP22_ZILOG_CONSOLE) && defined(CONFIG_MAGIC_SYSRQ)
 #define SUPPORT_SYSRQ
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #include <linux/serial_core.h>
 
 #include "ip22zilog.h"
@@ -1080,6 +1087,10 @@ static struct uart_driver ip22zilog_reg = {
 
 static void __init ip22zilog_prepare(void)
 {
+<<<<<<< HEAD
+=======
+	unsigned char sysrq_on = IS_ENABLED(CONFIG_SERIAL_IP22_ZILOG_CONSOLE);
+>>>>>>> upstream/android-13
 	struct uart_ip22zilog_port *up;
 	struct zilog_layout *rp;
 	int channel, chip;
@@ -1115,6 +1126,10 @@ static void __init ip22zilog_prepare(void)
 		up[(chip * 2) + 0].port.irq = zilog_irq;
 		up[(chip * 2) + 0].port.uartclk = ZS_CLOCK;
 		up[(chip * 2) + 0].port.fifosize = 1;
+<<<<<<< HEAD
+=======
+		up[(chip * 2) + 0].port.has_sysrq = sysrq_on;
+>>>>>>> upstream/android-13
 		up[(chip * 2) + 0].port.ops = &ip22zilog_pops;
 		up[(chip * 2) + 0].port.type = PORT_IP22ZILOG;
 		up[(chip * 2) + 0].port.flags = 0;
@@ -1126,6 +1141,10 @@ static void __init ip22zilog_prepare(void)
 		up[(chip * 2) + 1].port.irq = zilog_irq;
 		up[(chip * 2) + 1].port.uartclk = ZS_CLOCK;
 		up[(chip * 2) + 1].port.fifosize = 1;
+<<<<<<< HEAD
+=======
+		up[(chip * 2) + 1].port.has_sysrq = sysrq_on;
+>>>>>>> upstream/android-13
 		up[(chip * 2) + 1].port.ops = &ip22zilog_pops;
 		up[(chip * 2) + 1].port.type = PORT_IP22ZILOG;
 		up[(chip * 2) + 1].port.line = (chip * 2) + 1;

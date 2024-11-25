@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Low level x86 E820 memory map handling functions.
  *
@@ -9,12 +13,21 @@
  * allocation code routines via a platform independent interface (memblock, etc.).
  */
 #include <linux/crash_dump.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
 #include <linux/suspend.h>
 #include <linux/acpi.h>
 #include <linux/firmware-map.h>
 #include <linux/memblock.h>
 #include <linux/sort.h>
+=======
+#include <linux/memblock.h>
+#include <linux/suspend.h>
+#include <linux/acpi.h>
+#include <linux/firmware-map.h>
+#include <linux/sort.h>
+#include <linux/memory_hotplug.h>
+>>>>>>> upstream/android-13
 
 #include <asm/e820/api.h>
 #include <asm/setup.h>
@@ -30,8 +43,13 @@
  *       - inform the user about the firmware's notion of memory layout
  *         via /sys/firmware/memmap
  *
+<<<<<<< HEAD
  *       - the hibernation code uses it to generate a kernel-independent MD5
  *         fingerprint of the physical memory layout of a system.
+=======
+ *       - the hibernation code uses it to generate a kernel-independent CRC32
+ *         checksum of the physical memory layout of a system.
+>>>>>>> upstream/android-13
  *
  * - 'e820_table_kexec': a slightly modified (by the kernel) firmware version
  *   passed to us by the bootloader - the major difference between
@@ -73,20 +91,47 @@ EXPORT_SYMBOL(pci_mem_start);
  * This function checks if any part of the range <start,end> is mapped
  * with type.
  */
+<<<<<<< HEAD
 bool e820__mapped_any(u64 start, u64 end, enum e820_type type)
 {
 	int i;
 
 	for (i = 0; i < e820_table->nr_entries; i++) {
 		struct e820_entry *entry = &e820_table->entries[i];
+=======
+static bool _e820__mapped_any(struct e820_table *table,
+			      u64 start, u64 end, enum e820_type type)
+{
+	int i;
+
+	for (i = 0; i < table->nr_entries; i++) {
+		struct e820_entry *entry = &table->entries[i];
+>>>>>>> upstream/android-13
 
 		if (type && entry->type != type)
 			continue;
 		if (entry->addr >= end || entry->addr + entry->size <= start)
 			continue;
+<<<<<<< HEAD
 		return 1;
 	}
 	return 0;
+=======
+		return true;
+	}
+	return false;
+}
+
+bool e820__mapped_raw_any(u64 start, u64 end, enum e820_type type)
+{
+	return _e820__mapped_any(e820_table_firmware, start, end, type);
+}
+EXPORT_SYMBOL_GPL(e820__mapped_raw_any);
+
+bool e820__mapped_any(u64 start, u64 end, enum e820_type type)
+{
+	return _e820__mapped_any(e820_table, start, end, type);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(e820__mapped_any);
 
@@ -177,6 +222,10 @@ static void __init e820_print_type(enum e820_type type)
 	case E820_TYPE_RAM:		/* Fall through: */
 	case E820_TYPE_RESERVED_KERN:	pr_cont("usable");			break;
 	case E820_TYPE_RESERVED:	pr_cont("reserved");			break;
+<<<<<<< HEAD
+=======
+	case E820_TYPE_SOFT_RESERVED:	pr_cont("soft reserved");		break;
+>>>>>>> upstream/android-13
 	case E820_TYPE_ACPI:		pr_cont("ACPI data");			break;
 	case E820_TYPE_NVS:		pr_cont("ACPI NVS");			break;
 	case E820_TYPE_UNUSABLE:	pr_cont("unusable");			break;
@@ -291,6 +340,23 @@ static int __init cpcompare(const void *a, const void *b)
 	return (ap->addr != ap->entry->addr) - (bp->addr != bp->entry->addr);
 }
 
+<<<<<<< HEAD
+=======
+static bool e820_nomerge(enum e820_type type)
+{
+	/*
+	 * These types may indicate distinct platform ranges aligned to
+	 * numa node, protection domain, performance domain, or other
+	 * boundaries. Do not merge them.
+	 */
+	if (type == E820_TYPE_PRAM)
+		return true;
+	if (type == E820_TYPE_SOFT_RESERVED)
+		return true;
+	return false;
+}
+
+>>>>>>> upstream/android-13
 int __init e820__update_table(struct e820_table *table)
 {
 	struct e820_entry *entries = table->entries;
@@ -366,7 +432,11 @@ int __init e820__update_table(struct e820_table *table)
 		}
 
 		/* Continue building up new map based on this information: */
+<<<<<<< HEAD
 		if (current_type != last_type || current_type == E820_TYPE_PRAM) {
+=======
+		if (current_type != last_type || e820_nomerge(current_type)) {
+>>>>>>> upstream/android-13
 			if (last_type != 0)	 {
 				new_entries[new_nr_entries].size = change_point[chg_idx]->addr - last_addr;
 				/* Move forward only if the new size was non-zero: */
@@ -672,6 +742,7 @@ __init void e820__reallocate_tables(void)
 	int size;
 
 	size = offsetof(struct e820_table, entries) + sizeof(struct e820_entry)*e820_table->nr_entries;
+<<<<<<< HEAD
 	n = kmalloc(size, GFP_KERNEL);
 	BUG_ON(!n);
 	memcpy(n, e820_table, size);
@@ -687,6 +758,20 @@ __init void e820__reallocate_tables(void)
 	n = kmalloc(size, GFP_KERNEL);
 	BUG_ON(!n);
 	memcpy(n, e820_table_firmware, size);
+=======
+	n = kmemdup(e820_table, size, GFP_KERNEL);
+	BUG_ON(!n);
+	e820_table = n;
+
+	size = offsetof(struct e820_table, entries) + sizeof(struct e820_entry)*e820_table_kexec->nr_entries;
+	n = kmemdup(e820_table_kexec, size, GFP_KERNEL);
+	BUG_ON(!n);
+	e820_table_kexec = n;
+
+	size = offsetof(struct e820_table, entries) + sizeof(struct e820_entry)*e820_table_firmware->nr_entries;
+	n = kmemdup(e820_table_firmware, size, GFP_KERNEL);
+	BUG_ON(!n);
+>>>>>>> upstream/android-13
 	e820_table_firmware = n;
 }
 
@@ -768,7 +853,11 @@ core_initcall(e820__register_nvs_regions);
 #endif
 
 /*
+<<<<<<< HEAD
  * Allocate the requested number of bytes with the requsted alignment
+=======
+ * Allocate the requested number of bytes with the requested alignment
+>>>>>>> upstream/android-13
  * and return (the physical address) to the caller. Also register this
  * range in the 'kexec' E820 table as a reserved range.
  *
@@ -779,7 +868,11 @@ u64 __init e820__memblock_alloc_reserved(u64 size, u64 align)
 {
 	u64 addr;
 
+<<<<<<< HEAD
 	addr = __memblock_alloc_base(size, align, MEMBLOCK_ALLOC_ACCESSIBLE);
+=======
+	addr = memblock_phys_alloc(size, align);
+>>>>>>> upstream/android-13
 	if (addr) {
 		e820__range_update_kexec(addr, size, E820_TYPE_RAM, E820_TYPE_RESERVED);
 		pr_info("update e820_table_kexec for e820__memblock_alloc_reserved()\n");
@@ -882,6 +975,13 @@ static int __init parse_memopt(char *p)
 
 	e820__range_remove(mem_size, ULLONG_MAX - mem_size, E820_TYPE_RAM, 1);
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_MEMORY_HOTPLUG
+	max_mem_size = mem_size;
+#endif
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 early_param("mem", parse_memopt);
@@ -895,6 +995,7 @@ static int __init parse_memmap_one(char *p)
 		return -EINVAL;
 
 	if (!strncmp(p, "exactmap", 8)) {
+<<<<<<< HEAD
 #ifdef CONFIG_CRASH_DUMP
 		/*
 		 * If we are doing a crash dump, we still need to know
@@ -903,6 +1004,8 @@ static int __init parse_memmap_one(char *p)
 		 */
 		saved_max_pfn = e820__end_of_ram_pfn();
 #endif
+=======
+>>>>>>> upstream/android-13
 		e820_table->nr_entries = 0;
 		userdef = 1;
 		return 0;
@@ -974,8 +1077,15 @@ early_param("memmap", parse_memmap_opt);
  */
 void __init e820__reserve_setup_data(void)
 {
+<<<<<<< HEAD
 	struct setup_data *data;
 	u64 pa_data;
+=======
+	struct setup_indirect *indirect;
+	struct setup_data *data;
+	u64 pa_data, pa_next;
+	u32 len;
+>>>>>>> upstream/android-13
 
 	pa_data = boot_params.hdr.setup_data;
 	if (!pa_data)
@@ -983,10 +1093,53 @@ void __init e820__reserve_setup_data(void)
 
 	while (pa_data) {
 		data = early_memremap(pa_data, sizeof(*data));
+<<<<<<< HEAD
 		e820__range_update(pa_data, sizeof(*data)+data->len, E820_TYPE_RAM, E820_TYPE_RESERVED_KERN);
 		e820__range_update_kexec(pa_data, sizeof(*data)+data->len, E820_TYPE_RAM, E820_TYPE_RESERVED_KERN);
 		pa_data = data->next;
 		early_memunmap(data, sizeof(*data));
+=======
+		if (!data) {
+			pr_warn("e820: failed to memremap setup_data entry\n");
+			return;
+		}
+
+		len = sizeof(*data);
+		pa_next = data->next;
+
+		e820__range_update(pa_data, sizeof(*data)+data->len, E820_TYPE_RAM, E820_TYPE_RESERVED_KERN);
+
+		/*
+		 * SETUP_EFI is supplied by kexec and does not need to be
+		 * reserved.
+		 */
+		if (data->type != SETUP_EFI)
+			e820__range_update_kexec(pa_data,
+						 sizeof(*data) + data->len,
+						 E820_TYPE_RAM, E820_TYPE_RESERVED_KERN);
+
+		if (data->type == SETUP_INDIRECT) {
+			len += data->len;
+			early_memunmap(data, sizeof(*data));
+			data = early_memremap(pa_data, len);
+			if (!data) {
+				pr_warn("e820: failed to memremap indirect setup_data\n");
+				return;
+			}
+
+			indirect = (struct setup_indirect *)data->data;
+
+			if (indirect->type != SETUP_INDIRECT) {
+				e820__range_update(indirect->addr, indirect->len,
+						   E820_TYPE_RAM, E820_TYPE_RESERVED_KERN);
+				e820__range_update_kexec(indirect->addr, indirect->len,
+							 E820_TYPE_RAM, E820_TYPE_RESERVED_KERN);
+			}
+		}
+
+		pa_data = pa_next;
+		early_memunmap(data, len);
+>>>>>>> upstream/android-13
 	}
 
 	e820__update_table(e820_table);
@@ -1023,6 +1176,10 @@ static const char *__init e820_type_to_string(struct e820_entry *entry)
 	case E820_TYPE_PRAM:		return "Persistent Memory (legacy)";
 	case E820_TYPE_PMEM:		return "Persistent Memory";
 	case E820_TYPE_RESERVED:	return "Reserved";
+<<<<<<< HEAD
+=======
+	case E820_TYPE_SOFT_RESERVED:	return "Soft Reserved";
+>>>>>>> upstream/android-13
 	default:			return "Unknown E820 type";
 	}
 }
@@ -1038,6 +1195,10 @@ static unsigned long __init e820_type_to_iomem_type(struct e820_entry *entry)
 	case E820_TYPE_PRAM:		/* Fall-through: */
 	case E820_TYPE_PMEM:		/* Fall-through: */
 	case E820_TYPE_RESERVED:	/* Fall-through: */
+<<<<<<< HEAD
+=======
+	case E820_TYPE_SOFT_RESERVED:	/* Fall-through: */
+>>>>>>> upstream/android-13
 	default:			return IORESOURCE_MEM;
 	}
 }
@@ -1049,10 +1210,18 @@ static unsigned long __init e820_type_to_iores_desc(struct e820_entry *entry)
 	case E820_TYPE_NVS:		return IORES_DESC_ACPI_NV_STORAGE;
 	case E820_TYPE_PMEM:		return IORES_DESC_PERSISTENT_MEMORY;
 	case E820_TYPE_PRAM:		return IORES_DESC_PERSISTENT_MEMORY_LEGACY;
+<<<<<<< HEAD
 	case E820_TYPE_RESERVED_KERN:	/* Fall-through: */
 	case E820_TYPE_RAM:		/* Fall-through: */
 	case E820_TYPE_UNUSABLE:	/* Fall-through: */
 	case E820_TYPE_RESERVED:	/* Fall-through: */
+=======
+	case E820_TYPE_RESERVED:	return IORES_DESC_RESERVED;
+	case E820_TYPE_SOFT_RESERVED:	return IORES_DESC_SOFT_RESERVED;
+	case E820_TYPE_RESERVED_KERN:	/* Fall-through: */
+	case E820_TYPE_RAM:		/* Fall-through: */
+	case E820_TYPE_UNUSABLE:	/* Fall-through: */
+>>>>>>> upstream/android-13
 	default:			return IORES_DESC_NONE;
 	}
 }
@@ -1064,11 +1233,20 @@ static bool __init do_mark_busy(enum e820_type type, struct resource *res)
 		return true;
 
 	/*
+<<<<<<< HEAD
 	 * Treat persistent memory like device memory, i.e. reserve it
 	 * for exclusive use of a driver
 	 */
 	switch (type) {
 	case E820_TYPE_RESERVED:
+=======
+	 * Treat persistent memory and other special memory ranges like
+	 * device memory, i.e. reserve it for exclusive use of a driver
+	 */
+	switch (type) {
+	case E820_TYPE_RESERVED:
+	case E820_TYPE_SOFT_RESERVED:
+>>>>>>> upstream/android-13
 	case E820_TYPE_PRAM:
 	case E820_TYPE_PMEM:
 		return false;
@@ -1094,7 +1272,15 @@ void __init e820__reserve_resources(void)
 	struct resource *res;
 	u64 end;
 
+<<<<<<< HEAD
 	res = alloc_bootmem(sizeof(*res) * e820_table->nr_entries);
+=======
+	res = memblock_alloc(sizeof(*res) * e820_table->nr_entries,
+			     SMP_CACHE_BYTES);
+	if (!res)
+		panic("%s: Failed to allocate %zu bytes\n", __func__,
+		      sizeof(*res) * e820_table->nr_entries);
+>>>>>>> upstream/android-13
 	e820_res = res;
 
 	for (i = 0; i < e820_table->nr_entries; i++) {
@@ -1267,6 +1453,12 @@ void __init e820__memblock_setup(void)
 		if (end != (resource_size_t)end)
 			continue;
 
+<<<<<<< HEAD
+=======
+		if (entry->type == E820_TYPE_SOFT_RESERVED)
+			memblock_reserve(entry->addr, entry->size);
+
+>>>>>>> upstream/android-13
 		if (entry->type != E820_TYPE_RAM && entry->type != E820_TYPE_RESERVED_KERN)
 			continue;
 

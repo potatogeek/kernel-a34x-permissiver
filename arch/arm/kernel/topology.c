@@ -94,6 +94,7 @@ static void __init parse_dt_topology(void)
 	__cpu_capacity = kcalloc(nr_cpu_ids, sizeof(*__cpu_capacity),
 				 GFP_NOWAIT);
 
+<<<<<<< HEAD
 	cn = of_find_node_by_path("/cpus");
 	if (!cn) {
 		pr_err("No CPU information found in DT\n");
@@ -102,6 +103,10 @@ static void __init parse_dt_topology(void)
 
 	for_each_possible_cpu(cpu) {
 		const u32 *rate;
+=======
+	for_each_possible_cpu(cpu) {
+		const __be32 *rate;
+>>>>>>> upstream/android-13
 		int len;
 
 		/* too early to use cpu->of_node */
@@ -175,7 +180,11 @@ static void update_cpu_capacity(unsigned int cpu)
 	topology_set_cpu_scale(cpu, cpu_capacity(cpu) / middle_capacity);
 
 	pr_info("CPU%u: update cpu_capacity %lu\n",
+<<<<<<< HEAD
 		cpu, topology_get_cpu_scale(NULL, cpu));
+=======
+		cpu, topology_get_cpu_scale(cpu));
+>>>>>>> upstream/android-13
 }
 
 #else
@@ -183,6 +192,7 @@ static inline void parse_dt_topology(void) {}
 static inline void update_cpu_capacity(unsigned int cpuid) {}
 #endif
 
+<<<<<<< HEAD
  /*
  * cpu topology table
  */
@@ -229,6 +239,8 @@ static void update_siblings_masks(unsigned int cpuid)
 	smp_wmb();
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * store_cpu_topology is called at boot when only one cpu is running
  * and with the mutex cpu_hotplug.lock locked, when several cpus have booted,
@@ -236,12 +248,20 @@ static void update_siblings_masks(unsigned int cpuid)
  */
 void store_cpu_topology(unsigned int cpuid)
 {
+<<<<<<< HEAD
 	struct cputopo_arm *cpuid_topo = &cpu_topology[cpuid];
 	unsigned int mpidr;
 
 	/* If the cpu topology has been already set, just return */
 	if (cpuid_topo->core_id != -1)
 		return;
+=======
+	struct cpu_topology *cpuid_topo = &cpu_topology[cpuid];
+	unsigned int mpidr;
+
+	if (cpuid_topo->package_id != -1)
+		goto topology_populated;
+>>>>>>> upstream/android-13
 
 	mpidr = read_cpuid_mpidr();
 
@@ -256,12 +276,20 @@ void store_cpu_topology(unsigned int cpuid)
 			/* core performance interdependency */
 			cpuid_topo->thread_id = MPIDR_AFFINITY_LEVEL(mpidr, 0);
 			cpuid_topo->core_id = MPIDR_AFFINITY_LEVEL(mpidr, 1);
+<<<<<<< HEAD
 			cpuid_topo->socket_id = MPIDR_AFFINITY_LEVEL(mpidr, 2);
+=======
+			cpuid_topo->package_id = MPIDR_AFFINITY_LEVEL(mpidr, 2);
+>>>>>>> upstream/android-13
 		} else {
 			/* largely independent cores */
 			cpuid_topo->thread_id = -1;
 			cpuid_topo->core_id = MPIDR_AFFINITY_LEVEL(mpidr, 0);
+<<<<<<< HEAD
 			cpuid_topo->socket_id = MPIDR_AFFINITY_LEVEL(mpidr, 1);
+=======
+			cpuid_topo->package_id = MPIDR_AFFINITY_LEVEL(mpidr, 1);
+>>>>>>> upstream/android-13
 		}
 	} else {
 		/*
@@ -271,16 +299,23 @@ void store_cpu_topology(unsigned int cpuid)
 		 */
 		cpuid_topo->thread_id = -1;
 		cpuid_topo->core_id = 0;
+<<<<<<< HEAD
 		cpuid_topo->socket_id = -1;
 	}
 
 	update_siblings_masks(cpuid);
 
+=======
+		cpuid_topo->package_id = -1;
+	}
+
+>>>>>>> upstream/android-13
 	update_cpu_capacity(cpuid);
 
 	pr_info("CPU%u: thread %d, cpu %d, socket %d, mpidr %x\n",
 		cpuid, cpu_topology[cpuid].thread_id,
 		cpu_topology[cpuid].core_id,
+<<<<<<< HEAD
 		cpu_topology[cpuid].socket_id, mpidr);
 }
 
@@ -298,12 +333,21 @@ static struct sched_domain_topology_level arm_topology[] = {
 	{ NULL, },
 };
 
+=======
+		cpu_topology[cpuid].package_id, mpidr);
+
+topology_populated:
+	update_siblings_masks(cpuid);
+}
+
+>>>>>>> upstream/android-13
 /*
  * init_cpu_topology is called at boot when only one cpu is running
  * which prevent simultaneous write access to cpu_topology array
  */
 void __init init_cpu_topology(void)
 {
+<<<<<<< HEAD
 	unsigned int cpu;
 
 	/* init core mask and capacity */
@@ -340,3 +384,10 @@ int topology_nr_clusters(void)
 	return nr_clusters;
 }
 
+=======
+	reset_cpu_topology();
+	smp_wmb();
+
+	parse_dt_topology();
+}
+>>>>>>> upstream/android-13

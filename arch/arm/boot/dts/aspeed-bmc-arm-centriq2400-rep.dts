@@ -10,7 +10,11 @@
 
 	chosen {
 		stdout-path = &uart5;
+<<<<<<< HEAD
 		bootargs = "console=ttyS4,115200 earlyprintk";
+=======
+		bootargs = "console=ttyS4,115200 earlycon";
+>>>>>>> upstream/android-13
 	};
 
 	memory@80000000 {

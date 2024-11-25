@@ -603,6 +603,10 @@ struct mlx4_mfunc_master_ctx {
 	struct mlx4_slave_event_eq slave_eq;
 	struct mutex		gen_eqe_mutex[MLX4_MFUNC_MAX];
 	struct mlx4_qos_manager qos_ctl[MLX4_MAX_PORTS + 1];
+<<<<<<< HEAD
+=======
+	u32			next_slave; /* mlx4_master_comm_channel */
+>>>>>>> upstream/android-13
 };
 
 struct mlx4_mfunc {
@@ -1043,8 +1047,12 @@ int mlx4_catas_init(struct mlx4_dev *dev);
 void mlx4_catas_end(struct mlx4_dev *dev);
 int mlx4_crdump_init(struct mlx4_dev *dev);
 void mlx4_crdump_end(struct mlx4_dev *dev);
+<<<<<<< HEAD
 int mlx4_restart_one(struct pci_dev *pdev, bool reload,
 		     struct devlink *devlink);
+=======
+int mlx4_restart_one(struct pci_dev *pdev);
+>>>>>>> upstream/android-13
 int mlx4_register_device(struct mlx4_dev *dev);
 void mlx4_unregister_device(struct mlx4_dev *dev);
 void mlx4_dispatch_event(struct mlx4_dev *dev, enum mlx4_dev_event type,
@@ -1218,7 +1226,11 @@ void mlx4_cmd_use_polling(struct mlx4_dev *dev);
 int mlx4_comm_cmd(struct mlx4_dev *dev, u8 cmd, u16 param,
 		  u16 op, unsigned long timeout);
 
+<<<<<<< HEAD
 void mlx4_cq_tasklet_cb(unsigned long data);
+=======
+void mlx4_cq_tasklet_cb(struct tasklet_struct *t);
+>>>>>>> upstream/android-13
 void mlx4_cq_completion(struct mlx4_dev *dev, u32 cqn);
 void mlx4_cq_event(struct mlx4_dev *dev, u32 cqn, int event_type);
 

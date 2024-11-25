@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2016-2018, The Linux Foundation. All rights reserved.
  *
@@ -10,6 +11,11 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (c) 2016-2018, The Linux Foundation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #ifndef __DPU_RM_H__
@@ -20,6 +26,7 @@
 #include "msm_kms.h"
 #include "dpu_hw_top.h"
 
+<<<<<<< HEAD
 /**
  * enum dpu_rm_topology_name - HW resource use case in use by connector
  * @DPU_RM_TOPOLOGY_NONE:                 No topology in use currently
@@ -92,6 +99,29 @@ struct dpu_rm_hw_iter {
 	struct dpu_rm_hw_blk *blk;
 	uint32_t enc_id;
 	enum dpu_hw_blk_type type;
+=======
+struct dpu_global_state;
+
+/**
+ * struct dpu_rm - DPU dynamic hardware resource manager
+ * @pingpong_blks: array of pingpong hardware resources
+ * @mixer_blks: array of layer mixer hardware resources
+ * @ctl_blks: array of ctl hardware resources
+ * @intf_blks: array of intf hardware resources
+ * @dspp_blks: array of dspp hardware resources
+ * @lm_max_width: cached layer mixer maximum width
+ * @rm_lock: resource manager mutex
+ */
+struct dpu_rm {
+	struct dpu_hw_blk *pingpong_blks[PINGPONG_MAX - PINGPONG_0];
+	struct dpu_hw_blk *mixer_blks[LM_MAX - LM_0];
+	struct dpu_hw_blk *ctl_blks[CTL_MAX - CTL_0];
+	struct dpu_hw_blk *intf_blks[INTF_MAX - INTF_0];
+	struct dpu_hw_blk *dspp_blks[DSPP_MAX - DSPP_0];
+	struct dpu_hw_blk *merge_3d_blks[MERGE_3D_MAX - MERGE_3D_0];
+
+	uint32_t lm_max_width;
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -100,13 +130,20 @@ struct dpu_rm_hw_iter {
  * @rm: DPU Resource Manager handle
  * @cat: Pointer to hardware catalog
  * @mmio: mapped register io address of MDP
+<<<<<<< HEAD
  * @dev: device handle for event logging purposes
+=======
+>>>>>>> upstream/android-13
  * @Return: 0 on Success otherwise -ERROR
  */
 int dpu_rm_init(struct dpu_rm *rm,
 		struct dpu_mdss_cfg *cat,
+<<<<<<< HEAD
 		void __iomem *mmio,
 		struct drm_device *dev);
+=======
+		void __iomem *mmio);
+>>>>>>> upstream/android-13
 
 /**
  * dpu_rm_destroy - Free all memory allocated by dpu_rm_init
@@ -125,6 +162,7 @@ int dpu_rm_destroy(struct dpu_rm *rm);
  * @rm: DPU Resource Manager handle
  * @drm_enc: DRM Encoder handle
  * @crtc_state: Proposed Atomic DRM CRTC State handle
+<<<<<<< HEAD
  * @conn_state: Proposed Atomic DRM Connector State handle
  * @topology: Pointer to topology info for the display
  * @test_only: Atomic-Test phase, discard results (unless property overrides)
@@ -136,6 +174,16 @@ int dpu_rm_reserve(struct dpu_rm *rm,
 		struct drm_connector_state *conn_state,
 		struct msm_display_topology topology,
 		bool test_only);
+=======
+ * @topology: Pointer to topology info for the display
+ * @Return: 0 on Success otherwise -ERROR
+ */
+int dpu_rm_reserve(struct dpu_rm *rm,
+		struct dpu_global_state *global_state,
+		struct drm_encoder *drm_enc,
+		struct drm_crtc_state *crtc_state,
+		struct msm_display_topology topology);
+>>>>>>> upstream/android-13
 
 /**
  * dpu_rm_reserve - Given the encoder for the display chain, release any
@@ -144,6 +192,7 @@ int dpu_rm_reserve(struct dpu_rm *rm,
  * @enc: DRM Encoder handle
  * @Return: 0 on Success otherwise -ERROR
  */
+<<<<<<< HEAD
 void dpu_rm_release(struct dpu_rm *rm, struct drm_encoder *enc);
 
 /**
@@ -197,3 +246,16 @@ enum dpu_rm_topology_name
 dpu_rm_get_topology_name(struct msm_display_topology topology);
 
 #endif /* __DPU_RM_H__ */
+=======
+void dpu_rm_release(struct dpu_global_state *global_state,
+		struct drm_encoder *enc);
+
+/**
+ * Get hw resources of the given type that are assigned to this encoder.
+ */
+int dpu_rm_get_assigned_resources(struct dpu_rm *rm,
+	struct dpu_global_state *global_state, uint32_t enc_id,
+	enum dpu_hw_blk_type type, struct dpu_hw_blk **blks, int blks_size);
+#endif /* __DPU_RM_H__ */
+
+>>>>>>> upstream/android-13

@@ -1,17 +1,25 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2015 Free Electrons
  * Copyright (C) 2015 NextThing Co
  *
  * Maxime Ripard <maxime.ripard@free-electrons.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/component.h>
 #include <linux/kfifo.h>
+<<<<<<< HEAD
 #include <linux/of_graph.h>
 #include <linux/of_reserved_mem.h>
 
@@ -21,6 +29,22 @@
 #include <drm/drm_gem_cma_helper.h>
 #include <drm/drm_fb_helper.h>
 #include <drm/drm_of.h>
+=======
+#include <linux/module.h>
+#include <linux/of_graph.h>
+#include <linux/of_reserved_mem.h>
+#include <linux/platform_device.h>
+
+#include <drm/drm_aperture.h>
+#include <drm/drm_atomic_helper.h>
+#include <drm/drm_drv.h>
+#include <drm/drm_fb_cma_helper.h>
+#include <drm/drm_fb_helper.h>
+#include <drm/drm_gem_cma_helper.h>
+#include <drm/drm_of.h>
+#include <drm/drm_probe_helper.h>
+#include <drm/drm_vblank.h>
+>>>>>>> upstream/android-13
 
 #include "sun4i_drv.h"
 #include "sun4i_frontend.h"
@@ -28,6 +52,7 @@
 #include "sun4i_tcon.h"
 #include "sun8i_tcon_top.h"
 
+<<<<<<< HEAD
 DEFINE_DRM_GEM_CMA_FOPS(sun4i_drv_fops);
 
 static struct drm_driver sun4i_drv_driver = {
@@ -35,6 +60,24 @@ static struct drm_driver sun4i_drv_driver = {
 
 	/* Generic Operations */
 	.lastclose		= drm_fb_helper_lastclose,
+=======
+static int drm_sun4i_gem_dumb_create(struct drm_file *file_priv,
+				     struct drm_device *drm,
+				     struct drm_mode_create_dumb *args)
+{
+	/* The hardware only allows even pitches for YUV buffers. */
+	args->pitch = ALIGN(DIV_ROUND_UP(args->width * args->bpp, 8), 2);
+
+	return drm_gem_cma_dumb_create_internal(file_priv, drm, args);
+}
+
+DEFINE_DRM_GEM_CMA_FOPS(sun4i_drv_fops);
+
+static const struct drm_driver sun4i_drv_driver = {
+	.driver_features	= DRIVER_GEM | DRIVER_MODESET | DRIVER_ATOMIC,
+
+	/* Generic Operations */
+>>>>>>> upstream/android-13
 	.fops			= &sun4i_drv_fops,
 	.name			= "sun4i-drm",
 	.desc			= "Allwinner sun4i Display Engine",
@@ -43,6 +86,7 @@ static struct drm_driver sun4i_drv_driver = {
 	.minor			= 0,
 
 	/* GEM Operations */
+<<<<<<< HEAD
 	.dumb_create		= drm_gem_cma_dumb_create,
 	.gem_free_object_unlocked = drm_gem_cma_free_object,
 	.gem_vm_ops		= &drm_gem_cma_vm_ops,
@@ -77,6 +121,11 @@ static void sun4i_remove_framebuffers(void)
 	kfree(ap);
 }
 
+=======
+	DRM_GEM_CMA_DRIVER_OPS_VMAP_WITH_DUMB_CREATE(drm_sun4i_gem_dumb_create),
+};
+
+>>>>>>> upstream/android-13
 static int sun4i_drv_bind(struct device *dev)
 {
 	struct drm_device *drm;
@@ -118,6 +167,7 @@ static int sun4i_drv_bind(struct device *dev)
 	if (ret)
 		goto cleanup_mode_config;
 
+<<<<<<< HEAD
 	drm->irq_enabled = true;
 
 	/* Remove early framebuffers (ie. simplefb) */
@@ -129,6 +179,14 @@ static int sun4i_drv_bind(struct device *dev)
 		dev_err(drm->dev, "Couldn't create our framebuffer\n");
 		goto cleanup_mode_config;
 	}
+=======
+	/* Remove early framebuffers (ie. simplefb) */
+	ret = drm_aperture_remove_framebuffers(false, &sun4i_drv_driver);
+	if (ret)
+		goto cleanup_mode_config;
+
+	sun4i_framebuffer_init(drm);
+>>>>>>> upstream/android-13
 
 	/* Enable connectors polling */
 	drm_kms_helper_poll_init(drm);
@@ -137,11 +195,19 @@ static int sun4i_drv_bind(struct device *dev)
 	if (ret)
 		goto finish_poll;
 
+<<<<<<< HEAD
+=======
+	drm_fbdev_generic_setup(drm, 32);
+
+>>>>>>> upstream/android-13
 	return 0;
 
 finish_poll:
 	drm_kms_helper_poll_fini(drm);
+<<<<<<< HEAD
 	sun4i_framebuffer_free(drm);
+=======
+>>>>>>> upstream/android-13
 cleanup_mode_config:
 	drm_mode_config_cleanup(drm);
 	of_reserved_mem_device_release(dev);
@@ -156,7 +222,11 @@ static void sun4i_drv_unbind(struct device *dev)
 
 	drm_dev_unregister(drm);
 	drm_kms_helper_poll_fini(drm);
+<<<<<<< HEAD
 	sun4i_framebuffer_free(drm);
+=======
+	drm_atomic_helper_shutdown(drm);
+>>>>>>> upstream/android-13
 	drm_mode_config_cleanup(drm);
 
 	component_unbind_all(dev, NULL);
@@ -181,6 +251,10 @@ static bool sun4i_drv_node_is_frontend(struct device_node *node)
 		of_device_is_compatible(node, "allwinner,sun5i-a13-display-frontend") ||
 		of_device_is_compatible(node, "allwinner,sun6i-a31-display-frontend") ||
 		of_device_is_compatible(node, "allwinner,sun7i-a20-display-frontend") ||
+<<<<<<< HEAD
+=======
+		of_device_is_compatible(node, "allwinner,sun8i-a23-display-frontend") ||
+>>>>>>> upstream/android-13
 		of_device_is_compatible(node, "allwinner,sun8i-a33-display-frontend") ||
 		of_device_is_compatible(node, "allwinner,sun9i-a80-display-frontend");
 }
@@ -369,6 +443,30 @@ static int sun4i_drv_add_endpoints(struct device *dev,
 	return count;
 }
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_PM_SLEEP
+static int sun4i_drv_drm_sys_suspend(struct device *dev)
+{
+	struct drm_device *drm = dev_get_drvdata(dev);
+
+	return drm_mode_config_helper_suspend(drm);
+}
+
+static int sun4i_drv_drm_sys_resume(struct device *dev)
+{
+	struct drm_device *drm = dev_get_drvdata(dev);
+
+	return drm_mode_config_helper_resume(drm);
+}
+#endif
+
+static const struct dev_pm_ops sun4i_drv_drm_pm_ops = {
+	SET_SYSTEM_SLEEP_PM_OPS(sun4i_drv_drm_sys_suspend,
+				sun4i_drv_drm_sys_resume)
+};
+
+>>>>>>> upstream/android-13
 static int sun4i_drv_probe(struct platform_device *pdev)
 {
 	struct component_match *match = NULL;
@@ -422,11 +520,23 @@ static const struct of_device_id sun4i_drv_of_table[] = {
 	{ .compatible = "allwinner,sun6i-a31-display-engine" },
 	{ .compatible = "allwinner,sun6i-a31s-display-engine" },
 	{ .compatible = "allwinner,sun7i-a20-display-engine" },
+<<<<<<< HEAD
 	{ .compatible = "allwinner,sun8i-a33-display-engine" },
 	{ .compatible = "allwinner,sun8i-a83t-display-engine" },
 	{ .compatible = "allwinner,sun8i-h3-display-engine" },
 	{ .compatible = "allwinner,sun8i-v3s-display-engine" },
 	{ .compatible = "allwinner,sun9i-a80-display-engine" },
+=======
+	{ .compatible = "allwinner,sun8i-a23-display-engine" },
+	{ .compatible = "allwinner,sun8i-a33-display-engine" },
+	{ .compatible = "allwinner,sun8i-a83t-display-engine" },
+	{ .compatible = "allwinner,sun8i-h3-display-engine" },
+	{ .compatible = "allwinner,sun8i-r40-display-engine" },
+	{ .compatible = "allwinner,sun8i-v3s-display-engine" },
+	{ .compatible = "allwinner,sun9i-a80-display-engine" },
+	{ .compatible = "allwinner,sun50i-a64-display-engine" },
+	{ .compatible = "allwinner,sun50i-h6-display-engine" },
+>>>>>>> upstream/android-13
 	{ }
 };
 MODULE_DEVICE_TABLE(of, sun4i_drv_of_table);
@@ -437,6 +547,10 @@ static struct platform_driver sun4i_drv_platform_driver = {
 	.driver		= {
 		.name		= "sun4i-drm",
 		.of_match_table	= sun4i_drv_of_table,
+<<<<<<< HEAD
+=======
+		.pm = &sun4i_drv_drm_pm_ops,
+>>>>>>> upstream/android-13
 	},
 };
 module_platform_driver(sun4i_drv_platform_driver);

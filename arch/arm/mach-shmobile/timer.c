@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * SH-Mobile Timer
  *
  * Copyright (C) 2010  Magnus Damm
  * Copyright (C) 2002 - 2009  Paul Mundt
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,6 +17,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/platform_device.h>
 #include <linux/clocksource.h>
@@ -22,6 +29,7 @@
 
 void __init shmobile_init_delay(void)
 {
+<<<<<<< HEAD
 	struct device_node *np, *cpus;
 	u32 max_freq = 0;
 
@@ -30,14 +38,23 @@ void __init shmobile_init_delay(void)
 		return;
 
 	for_each_child_of_node(cpus, np) {
+=======
+	struct device_node *np;
+	u32 max_freq = 0;
+
+	for_each_of_cpu_node(np) {
+>>>>>>> upstream/android-13
 		u32 freq;
 
 		if (!of_property_read_u32(np, "clock-frequency", &freq))
 			max_freq = max(max_freq, freq);
 	}
 
+<<<<<<< HEAD
 	of_node_put(cpus);
 
+=======
+>>>>>>> upstream/android-13
 	if (!max_freq)
 		return;
 

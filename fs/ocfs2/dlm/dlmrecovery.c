@@ -1,11 +1,17 @@
+<<<<<<< HEAD
 /* -*- mode: c; c-basic-offset: 8; -*-
  * vim: noexpandtab sw=8 ts=8 sts=0:
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+>>>>>>> upstream/android-13
  * dlmrecovery.c
  *
  * recovery stuff
  *
  * Copyright (C) 2004 Oracle.  All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -22,6 +28,8 @@
  * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 021110-1307, USA.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 
@@ -41,16 +49,26 @@
 #include <linux/delay.h>
 
 
+<<<<<<< HEAD
 #include "cluster/heartbeat.h"
 #include "cluster/nodemanager.h"
 #include "cluster/tcp.h"
+=======
+#include "../cluster/heartbeat.h"
+#include "../cluster/nodemanager.h"
+#include "../cluster/tcp.h"
+>>>>>>> upstream/android-13
 
 #include "dlmapi.h"
 #include "dlmcommon.h"
 #include "dlmdomain.h"
 
 #define MLOG_MASK_PREFIX (ML_DLM|ML_DLM_RECOVERY)
+<<<<<<< HEAD
 #include "cluster/masklog.h"
+=======
+#include "../cluster/masklog.h"
+>>>>>>> upstream/android-13
 
 static void dlm_do_local_recovery_cleanup(struct dlm_ctxt *dlm, u8 dead_node);
 
@@ -141,6 +159,7 @@ static inline void __dlm_reset_recovery(struct dlm_ctxt *dlm)
 	dlm_set_reco_master(dlm, O2NM_INVALID_NODE_NUM);
 }
 
+<<<<<<< HEAD
 static inline void dlm_reset_recovery(struct dlm_ctxt *dlm)
 {
 	spin_lock(&dlm->spinlock);
@@ -148,6 +167,8 @@ static inline void dlm_reset_recovery(struct dlm_ctxt *dlm)
 	spin_unlock(&dlm->spinlock);
 }
 
+=======
+>>>>>>> upstream/android-13
 /* Worker function used during recovery. */
 void dlm_dispatch_work(struct work_struct *work)
 {
@@ -1124,7 +1145,11 @@ static int dlm_send_mig_lockres_msg(struct dlm_ctxt *dlm,
 {
 	u64 mig_cookie = be64_to_cpu(mres->mig_cookie);
 	int mres_total_locks = be32_to_cpu(mres->total_locks);
+<<<<<<< HEAD
 	int sz, ret = 0, status = 0;
+=======
+	int ret = 0, status = 0;
+>>>>>>> upstream/android-13
 	u8 orig_flags = mres->flags,
 	   orig_master = mres->master;
 
@@ -1132,9 +1157,12 @@ static int dlm_send_mig_lockres_msg(struct dlm_ctxt *dlm,
 	if (!mres->num_locks)
 		return 0;
 
+<<<<<<< HEAD
 	sz = sizeof(struct dlm_migratable_lockres) +
 		(mres->num_locks * sizeof(struct dlm_migratable_lock));
 
+=======
+>>>>>>> upstream/android-13
 	/* add an all-done flag if we reached the last lock */
 	orig_flags = mres->flags;
 	BUG_ON(total_locks > mres_total_locks);
@@ -1148,7 +1176,12 @@ static int dlm_send_mig_lockres_msg(struct dlm_ctxt *dlm,
 
 	/* send it */
 	ret = o2net_send_message(DLM_MIG_LOCKRES_MSG, dlm->key, mres,
+<<<<<<< HEAD
 				 sz, send_to, &status);
+=======
+				 struct_size(mres, ml, mres->num_locks),
+				 send_to, &status);
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		/* XXX: negative status is not handled.
 		 * this will end up killing this node. */
@@ -1685,7 +1718,11 @@ static int dlm_lockres_master_requery(struct dlm_ctxt *dlm,
 int dlm_do_master_requery(struct dlm_ctxt *dlm, struct dlm_lock_resource *res,
 			  u8 nodenum, u8 *real_master)
 {
+<<<<<<< HEAD
 	int ret = -EINVAL;
+=======
+	int ret;
+>>>>>>> upstream/android-13
 	struct dlm_master_requery req;
 	int status = DLM_LOCK_RES_OWNER_UNKNOWN;
 

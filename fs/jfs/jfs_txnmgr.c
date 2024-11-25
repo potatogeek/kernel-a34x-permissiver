@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *   Copyright (C) International Business Machines Corp., 2000-2005
  *   Portions Copyright (C) Christoph Hellwig, 2001-2002
@@ -15,6 +16,12 @@
  *   You should have received a copy of the GNU General Public License
  *   along with this program;  if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ *   Copyright (C) International Business Machines Corp., 2000-2005
+ *   Portions Copyright (C) Christoph Hellwig, 2001-2002
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -118,7 +125,11 @@ static DEFINE_SPINLOCK(jfsTxnLock);
 #define TXN_LOCK()		spin_lock(&jfsTxnLock)
 #define TXN_UNLOCK()		spin_unlock(&jfsTxnLock)
 
+<<<<<<< HEAD
 #define LAZY_LOCK_INIT()	spin_lock_init(&TxAnchor.LazyLock);
+=======
+#define LAZY_LOCK_INIT()	spin_lock_init(&TxAnchor.LazyLock)
+>>>>>>> upstream/android-13
 #define LAZY_LOCK(flags)	spin_lock_irqsave(&TxAnchor.LazyLock, flags)
 #define LAZY_UNLOCK(flags) spin_unlock_irqrestore(&TxAnchor.LazyLock, flags)
 
@@ -161,10 +172,17 @@ static struct {
 /*
  * forward references
  */
+<<<<<<< HEAD
 static int diLog(struct jfs_log * log, struct tblock * tblk, struct lrd * lrd,
 		struct tlock * tlck, struct commit * cd);
 static int dataLog(struct jfs_log * log, struct tblock * tblk, struct lrd * lrd,
 		struct tlock * tlck);
+=======
+static void diLog(struct jfs_log *log, struct tblock *tblk, struct lrd *lrd,
+		struct tlock *tlck, struct commit *cd);
+static void dataLog(struct jfs_log *log, struct tblock *tblk, struct lrd *lrd,
+		struct tlock *tlck);
+>>>>>>> upstream/android-13
 static void dtLog(struct jfs_log * log, struct tblock * tblk, struct lrd * lrd,
 		struct tlock * tlck);
 static void mapLog(struct jfs_log * log, struct tblock * tblk, struct lrd * lrd,
@@ -172,8 +190,13 @@ static void mapLog(struct jfs_log * log, struct tblock * tblk, struct lrd * lrd,
 static void txAllocPMap(struct inode *ip, struct maplock * maplock,
 		struct tblock * tblk);
 static void txForce(struct tblock * tblk);
+<<<<<<< HEAD
 static int txLog(struct jfs_log * log, struct tblock * tblk,
 		struct commit * cd);
+=======
+static void txLog(struct jfs_log *log, struct tblock *tblk,
+		struct commit *cd);
+>>>>>>> upstream/android-13
 static void txUpdateMap(struct tblock * tblk);
 static void txRelease(struct tblock * tblk);
 static void xtLog(struct jfs_log * log, struct tblock * tblk, struct lrd * lrd,
@@ -1269,8 +1292,12 @@ int txCommit(tid_t tid,		/* transaction identifier */
 	 *
 	 * txUpdateMap() resets XAD_NEW in XAD.
 	 */
+<<<<<<< HEAD
 	if ((rc = txLog(log, tblk, &cd)))
 		goto TheEnd;
+=======
+	txLog(log, tblk, &cd);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Ensure that inode isn't reused before
@@ -1378,9 +1405,14 @@ int txCommit(tid_t tid,		/* transaction identifier */
  *
  * RETURN :
  */
+<<<<<<< HEAD
 static int txLog(struct jfs_log * log, struct tblock * tblk, struct commit * cd)
 {
 	int rc = 0;
+=======
+static void txLog(struct jfs_log *log, struct tblock *tblk, struct commit *cd)
+{
+>>>>>>> upstream/android-13
 	struct inode *ip;
 	lid_t lid;
 	struct tlock *tlck;
@@ -1427,7 +1459,11 @@ static int txLog(struct jfs_log * log, struct tblock * tblk, struct commit * cd)
 		}
 	}
 
+<<<<<<< HEAD
 	return rc;
+=======
+	return;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1435,10 +1471,16 @@ static int txLog(struct jfs_log * log, struct tblock * tblk, struct commit * cd)
  *
  * function:	log inode tlock and format maplock to update bmap;
  */
+<<<<<<< HEAD
 static int diLog(struct jfs_log * log, struct tblock * tblk, struct lrd * lrd,
 		 struct tlock * tlck, struct commit * cd)
 {
 	int rc = 0;
+=======
+static void diLog(struct jfs_log *log, struct tblock *tblk, struct lrd *lrd,
+		 struct tlock *tlck, struct commit *cd)
+{
+>>>>>>> upstream/android-13
 	struct metapage *mp;
 	pxd_t *pxd;
 	struct pxd_lock *pxdlock;
@@ -1487,7 +1529,11 @@ static int diLog(struct jfs_log * log, struct tblock * tblk, struct lrd * lrd,
 		 * For the LOG_NOREDOINOEXT record, we need
 		 * to pass the IAG number and inode extent
 		 * index (within that IAG) from which the
+<<<<<<< HEAD
 		 * the extent being released.  These have been
+=======
+		 * extent is being released.  These have been
+>>>>>>> upstream/android-13
 		 * passed to us in the iplist[1] and iplist[2].
 		 */
 		lrd->log.noredoinoext.iagnum =
@@ -1540,7 +1586,11 @@ static int diLog(struct jfs_log * log, struct tblock * tblk, struct lrd * lrd,
 	}
 #endif				/* _JFS_WIP */
 
+<<<<<<< HEAD
 	return rc;
+=======
+	return;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1548,8 +1598,13 @@ static int diLog(struct jfs_log * log, struct tblock * tblk, struct lrd * lrd,
  *
  * function:	log data tlock
  */
+<<<<<<< HEAD
 static int dataLog(struct jfs_log * log, struct tblock * tblk, struct lrd * lrd,
 	    struct tlock * tlck)
+=======
+static void dataLog(struct jfs_log *log, struct tblock *tblk, struct lrd *lrd,
+	    struct tlock *tlck)
+>>>>>>> upstream/android-13
 {
 	struct metapage *mp;
 	pxd_t *pxd;
@@ -1575,7 +1630,11 @@ static int dataLog(struct jfs_log * log, struct tblock * tblk, struct lrd * lrd,
 		metapage_homeok(mp);
 		discard_metapage(mp);
 		tlck->mp = NULL;
+<<<<<<< HEAD
 		return 0;
+=======
+		return;
+>>>>>>> upstream/android-13
 	}
 
 	PXDaddress(pxd, mp->index);
@@ -1586,7 +1645,11 @@ static int dataLog(struct jfs_log * log, struct tblock * tblk, struct lrd * lrd,
 	/* mark page as homeward bound */
 	tlck->flag |= tlckWRITEPAGE;
 
+<<<<<<< HEAD
 	return 0;
+=======
+	return;
+>>>>>>> upstream/android-13
 }
 
 /*

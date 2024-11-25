@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * tcp_diag.c	Module for monitoring TCP transport protocols sockets.
  *
  * Authors:	Alexey Kuznetsov, <kuznet@ms2.inr.ac.ru>
+<<<<<<< HEAD
  *
  *	This program is free software; you can redistribute it and/or
  *      modify it under the terms of the GNU General Public License
  *      as published by the Free Software Foundation; either version
  *      2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -25,8 +32,13 @@ static void tcp_diag_get_info(struct sock *sk, struct inet_diag_msg *r,
 	struct tcp_info *info = _info;
 
 	if (inet_sk_state_load(sk) == TCP_LISTEN) {
+<<<<<<< HEAD
 		r->idiag_rqueue = sk->sk_ack_backlog;
 		r->idiag_wqueue = sk->sk_max_ack_backlog;
+=======
+		r->idiag_rqueue = READ_ONCE(sk->sk_ack_backlog);
+		r->idiag_wqueue = READ_ONCE(sk->sk_max_ack_backlog);
+>>>>>>> upstream/android-13
 	} else if (sk->sk_type == SOCK_STREAM) {
 		const struct tcp_sock *tp = tcp_sk(sk);
 
@@ -86,6 +98,7 @@ static int tcp_diag_put_md5sig(struct sk_buff *skb,
 }
 #endif
 
+<<<<<<< HEAD
 static int tcp_diag_get_aux(struct sock *sk, bool net_admin,
 			    struct sk_buff *skb)
 {
@@ -93,6 +106,44 @@ static int tcp_diag_get_aux(struct sock *sk, bool net_admin,
 	if (net_admin) {
 		struct tcp_md5sig_info *md5sig;
 		int err = 0;
+=======
+static int tcp_diag_put_ulp(struct sk_buff *skb, struct sock *sk,
+			    const struct tcp_ulp_ops *ulp_ops)
+{
+	struct nlattr *nest;
+	int err;
+
+	nest = nla_nest_start_noflag(skb, INET_DIAG_ULP_INFO);
+	if (!nest)
+		return -EMSGSIZE;
+
+	err = nla_put_string(skb, INET_ULP_INFO_NAME, ulp_ops->name);
+	if (err)
+		goto nla_failure;
+
+	if (ulp_ops->get_info)
+		err = ulp_ops->get_info(sk, skb);
+	if (err)
+		goto nla_failure;
+
+	nla_nest_end(skb, nest);
+	return 0;
+
+nla_failure:
+	nla_nest_cancel(skb, nest);
+	return err;
+}
+
+static int tcp_diag_get_aux(struct sock *sk, bool net_admin,
+			    struct sk_buff *skb)
+{
+	struct inet_connection_sock *icsk = inet_csk(sk);
+	int err = 0;
+
+#ifdef CONFIG_TCP_MD5SIG
+	if (net_admin) {
+		struct tcp_md5sig_info *md5sig;
+>>>>>>> upstream/android-13
 
 		rcu_read_lock();
 		md5sig = rcu_dereference(tcp_sk(sk)->md5sig_info);
@@ -104,11 +155,27 @@ static int tcp_diag_get_aux(struct sock *sk, bool net_admin,
 	}
 #endif
 
+<<<<<<< HEAD
+=======
+	if (net_admin) {
+		const struct tcp_ulp_ops *ulp_ops;
+
+		ulp_ops = icsk->icsk_ulp_ops;
+		if (ulp_ops)
+			err = tcp_diag_put_ulp(skb, sk, ulp_ops);
+		if (err)
+			return err;
+	}
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 static size_t tcp_diag_get_aux_size(struct sock *sk, bool net_admin)
 {
+<<<<<<< HEAD
+=======
+	struct inet_connection_sock *icsk = inet_csk(sk);
+>>>>>>> upstream/android-13
 	size_t size = 0;
 
 #ifdef CONFIG_TCP_MD5SIG
@@ -129,10 +196,25 @@ static size_t tcp_diag_get_aux_size(struct sock *sk, bool net_admin)
 	}
 #endif
 
+<<<<<<< HEAD
+=======
+	if (net_admin && sk_fullsock(sk)) {
+		const struct tcp_ulp_ops *ulp_ops;
+
+		ulp_ops = icsk->icsk_ulp_ops;
+		if (ulp_ops) {
+			size += nla_total_size(0) +
+				nla_total_size(TCP_ULP_NAME_MAX);
+			if (ulp_ops->get_info_size)
+				size += ulp_ops->get_info_size(sk);
+		}
+	}
+>>>>>>> upstream/android-13
 	return size;
 }
 
 static void tcp_diag_dump(struct sk_buff *skb, struct netlink_callback *cb,
+<<<<<<< HEAD
 			  const struct inet_diag_req_v2 *r, struct nlattr *bc)
 {
 	inet_diag_dump_icsk(&tcp_hashinfo, skb, cb, r, bc);
@@ -142,6 +224,17 @@ static int tcp_diag_dump_one(struct sk_buff *in_skb, const struct nlmsghdr *nlh,
 			     const struct inet_diag_req_v2 *req)
 {
 	return inet_diag_dump_one_icsk(&tcp_hashinfo, in_skb, nlh, req);
+=======
+			  const struct inet_diag_req_v2 *r)
+{
+	inet_diag_dump_icsk(&tcp_hashinfo, skb, cb, r);
+}
+
+static int tcp_diag_dump_one(struct netlink_callback *cb,
+			     const struct inet_diag_req_v2 *req)
+{
+	return inet_diag_dump_one_icsk(&tcp_hashinfo, cb, req);
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_INET_DIAG_DESTROY

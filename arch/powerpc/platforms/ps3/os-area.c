@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  PS3 flash memory os area.
  *
  *  Copyright (C) 2006 Sony Computer Entertainment Inc.
  *  Copyright 2006 Sony Corp.
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -16,6 +21,8 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -205,11 +212,19 @@ static const struct os_area_db_id os_area_db_id_rtc_diff = {
  *  3) The number of seconds from 1970 to 2000.
  */
 
+<<<<<<< HEAD
 struct saved_params {
 	unsigned int valid;
 	s64 rtc_diff;
 	unsigned int av_multi_out;
 } static saved_params;
+=======
+static struct saved_params {
+	unsigned int valid;
+	s64 rtc_diff;
+	unsigned int av_multi_out;
+} saved_params;
+>>>>>>> upstream/android-13
 
 static struct property property_rtc_diff = {
 	.name = "linux,rtc_diff",
@@ -625,10 +640,15 @@ static int update_flash_db(void)
 	/* Read in header and db from flash. */
 
 	header = kmalloc(buf_len, GFP_KERNEL);
+<<<<<<< HEAD
 	if (!header) {
 		pr_debug("%s: kmalloc failed\n", __func__);
 		return -ENOMEM;
 	}
+=======
+	if (!header)
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 
 	count = os_area_flash_read(header, buf_len, 0);
 	if (count < 0) {

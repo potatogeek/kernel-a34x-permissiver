@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Linux driver for SSFDC Flash Translation Layer (Read only)
  * © 2005 Eptar srl
  * Author: Claudio Lanconelli <lanconelli.claudio@eptar.com>
  *
  * Based on NTFL and MTDBLOCK_RO drivers
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *   Sound driver for Silicon Graphics O2 Workstations A/V board audio.
  *
@@ -5,6 +9,7 @@
  *   Copyright 2008 Thomas Bogendoerfer <tsbogend@alpha.franken.de>
  *   Mxier part taken from mace_audio.c:
  *   Copyright 2007 Thorben Jändling <tj.trevelyan@gmail.com>
+<<<<<<< HEAD
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -20,6 +25,8 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -46,7 +53,10 @@
 MODULE_AUTHOR("Vivien Chappelier <vivien.chappelier@linux-mips.org>");
 MODULE_DESCRIPTION("SGI O2 Audio");
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
 MODULE_SUPPORTED_DEVICE("{{Silicon Graphics, O2 Audio}}");
+=======
+>>>>>>> upstream/android-13
 
 static int index = SNDRV_DEFAULT_IDX1;  /* Index 0-MAX */
 static char *id = SNDRV_DEFAULT_STR1;   /* ID for this card */
@@ -591,6 +601,7 @@ static int snd_sgio2audio_pcm_close(struct snd_pcm_substream *substream)
 	return 0;
 }
 
+<<<<<<< HEAD
 
 /* hw_params callback */
 static int snd_sgio2audio_pcm_hw_params(struct snd_pcm_substream *substream,
@@ -606,6 +617,8 @@ static int snd_sgio2audio_pcm_hw_free(struct snd_pcm_substream *substream)
 	return snd_pcm_lib_free_vmalloc_buffer(substream);
 }
 
+=======
+>>>>>>> upstream/android-13
 /* prepare callback */
 static int snd_sgio2audio_pcm_prepare(struct snd_pcm_substream *substream)
 {
@@ -678,6 +691,7 @@ snd_sgio2audio_pcm_pointer(struct snd_pcm_substream *substream)
 static const struct snd_pcm_ops snd_sgio2audio_playback1_ops = {
 	.open =        snd_sgio2audio_playback1_open,
 	.close =       snd_sgio2audio_pcm_close,
+<<<<<<< HEAD
 	.ioctl =       snd_pcm_lib_ioctl,
 	.hw_params =   snd_sgio2audio_pcm_hw_params,
 	.hw_free =     snd_sgio2audio_pcm_hw_free,
@@ -685,11 +699,17 @@ static const struct snd_pcm_ops snd_sgio2audio_playback1_ops = {
 	.trigger =     snd_sgio2audio_pcm_trigger,
 	.pointer =     snd_sgio2audio_pcm_pointer,
 	.page =        snd_pcm_lib_get_vmalloc_page,
+=======
+	.prepare =     snd_sgio2audio_pcm_prepare,
+	.trigger =     snd_sgio2audio_pcm_trigger,
+	.pointer =     snd_sgio2audio_pcm_pointer,
+>>>>>>> upstream/android-13
 };
 
 static const struct snd_pcm_ops snd_sgio2audio_playback2_ops = {
 	.open =        snd_sgio2audio_playback2_open,
 	.close =       snd_sgio2audio_pcm_close,
+<<<<<<< HEAD
 	.ioctl =       snd_pcm_lib_ioctl,
 	.hw_params =   snd_sgio2audio_pcm_hw_params,
 	.hw_free =     snd_sgio2audio_pcm_hw_free,
@@ -697,11 +717,17 @@ static const struct snd_pcm_ops snd_sgio2audio_playback2_ops = {
 	.trigger =     snd_sgio2audio_pcm_trigger,
 	.pointer =     snd_sgio2audio_pcm_pointer,
 	.page =        snd_pcm_lib_get_vmalloc_page,
+=======
+	.prepare =     snd_sgio2audio_pcm_prepare,
+	.trigger =     snd_sgio2audio_pcm_trigger,
+	.pointer =     snd_sgio2audio_pcm_pointer,
+>>>>>>> upstream/android-13
 };
 
 static const struct snd_pcm_ops snd_sgio2audio_capture_ops = {
 	.open =        snd_sgio2audio_capture_open,
 	.close =       snd_sgio2audio_pcm_close,
+<<<<<<< HEAD
 	.ioctl =       snd_pcm_lib_ioctl,
 	.hw_params =   snd_sgio2audio_pcm_hw_params,
 	.hw_free =     snd_sgio2audio_pcm_hw_free,
@@ -709,6 +735,11 @@ static const struct snd_pcm_ops snd_sgio2audio_capture_ops = {
 	.trigger =     snd_sgio2audio_pcm_trigger,
 	.pointer =     snd_sgio2audio_pcm_pointer,
 	.page =        snd_pcm_lib_get_vmalloc_page,
+=======
+	.prepare =     snd_sgio2audio_pcm_prepare,
+	.trigger =     snd_sgio2audio_pcm_trigger,
+	.pointer =     snd_sgio2audio_pcm_pointer,
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -734,6 +765,10 @@ static int snd_sgio2audio_new_pcm(struct snd_sgio2audio *chip)
 			&snd_sgio2audio_playback1_ops);
 	snd_pcm_set_ops(pcm, SNDRV_PCM_STREAM_CAPTURE,
 			&snd_sgio2audio_capture_ops);
+<<<<<<< HEAD
+=======
+	snd_pcm_set_managed_buffer_all(pcm, SNDRV_DMA_TYPE_VMALLOC, NULL, 0, 0);
+>>>>>>> upstream/android-13
 
 	/* create second  pcm device with one outputs and no input */
 	err = snd_pcm_new(chip->card, "SGI O2 Audio", 1, 1, 0, &pcm);
@@ -746,6 +781,10 @@ static int snd_sgio2audio_new_pcm(struct snd_sgio2audio *chip)
 	/* set operators */
 	snd_pcm_set_ops(pcm, SNDRV_PCM_STREAM_PLAYBACK,
 			&snd_sgio2audio_playback2_ops);
+<<<<<<< HEAD
+=======
+	snd_pcm_set_managed_buffer_all(pcm, SNDRV_DMA_TYPE_VMALLOC, NULL, 0, 0);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -805,7 +844,11 @@ static int snd_sgio2audio_free(struct snd_sgio2audio *chip)
 		free_irq(snd_sgio2_isr_table[i].irq,
 			 &chip->channel[snd_sgio2_isr_table[i].idx]);
 
+<<<<<<< HEAD
 	dma_free_coherent(NULL, MACEISA_RINGBUFFERS_SIZE,
+=======
+	dma_free_coherent(chip->card->dev, MACEISA_RINGBUFFERS_SIZE,
+>>>>>>> upstream/android-13
 			  chip->ring_base, chip->ring_base_dma);
 
 	/* release card data */
@@ -820,7 +863,11 @@ static int snd_sgio2audio_dev_free(struct snd_device *device)
 	return snd_sgio2audio_free(chip);
 }
 
+<<<<<<< HEAD
 static struct snd_device_ops ops = {
+=======
+static const struct snd_device_ops ops = {
+>>>>>>> upstream/android-13
 	.dev_free = snd_sgio2audio_dev_free,
 };
 
@@ -843,8 +890,14 @@ static int snd_sgio2audio_create(struct snd_card *card,
 
 	chip->card = card;
 
+<<<<<<< HEAD
 	chip->ring_base = dma_alloc_coherent(NULL, MACEISA_RINGBUFFERS_SIZE,
 					     &chip->ring_base_dma, GFP_USER);
+=======
+	chip->ring_base = dma_alloc_coherent(card->dev,
+					     MACEISA_RINGBUFFERS_SIZE,
+					     &chip->ring_base_dma, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (chip->ring_base == NULL) {
 		printk(KERN_ERR
 		       "sgio2audio: could not allocate ring buffers\n");

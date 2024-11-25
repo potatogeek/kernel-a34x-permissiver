@@ -74,7 +74,11 @@ static const struct ani_ofdm_level_entry ofdm_level_table[] = {
  * Regardless of alignment in time, the antenna signals add constructively after
  * FFT and improve your reception. For more information:
  *
+<<<<<<< HEAD
  * http://en.wikipedia.org/wiki/Maximal-ratio_combining
+=======
+ * https://en.wikipedia.org/wiki/Maximal-ratio_combining
+>>>>>>> upstream/android-13
  */
 
 struct ani_cck_level_entry {

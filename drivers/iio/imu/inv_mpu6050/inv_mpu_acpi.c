@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * inv_mpu_acpi: ACPI processing for creating client devices
  * Copyright (c) 2015, Intel Corporation.
@@ -10,6 +11,12 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * inv_mpu_acpi: ACPI processing for creating client devices
+ * Copyright (c) 2015, Intel Corporation.
+>>>>>>> upstream/android-13
  */
 
 #ifdef CONFIG_ACPI
@@ -91,6 +98,7 @@ static int asus_acpi_get_sensor_info(struct acpi_device *adev,
 
 static int acpi_i2c_check_resource(struct acpi_resource *ares, void *data)
 {
+<<<<<<< HEAD
 	u32 *addr = data;
 
 	if (ares->type == ACPI_RESOURCE_TYPE_SERIAL_BUS) {
@@ -103,6 +111,16 @@ static int acpi_i2c_check_resource(struct acpi_resource *ares, void *data)
 			else
 				*addr = sb->slave_address;
 		}
+=======
+	struct acpi_resource_i2c_serialbus *sb;
+	u32 *addr = data;
+
+	if (i2c_acpi_get_i2c_resource(ares, &sb)) {
+		if (*addr)
+			*addr |= (sb->slave_address << 16);
+		else
+			*addr = sb->slave_address;
+>>>>>>> upstream/android-13
 	}
 
 	/* Tell the ACPI core that we already copied this address */
@@ -113,8 +131,13 @@ static int inv_mpu_process_acpi_config(struct i2c_client *client,
 				       unsigned short *primary_addr,
 				       unsigned short *secondary_addr)
 {
+<<<<<<< HEAD
 	const struct acpi_device_id *id;
 	struct acpi_device *adev;
+=======
+	struct acpi_device *adev = ACPI_COMPANION(&client->dev);
+	const struct acpi_device_id *id;
+>>>>>>> upstream/android-13
 	u32 i2c_addr = 0;
 	LIST_HEAD(resources);
 	int ret;
@@ -124,10 +147,13 @@ static int inv_mpu_process_acpi_config(struct i2c_client *client,
 	if (!id)
 		return -ENODEV;
 
+<<<<<<< HEAD
 	adev = ACPI_COMPANION(&client->dev);
 	if (!adev)
 		return -ENODEV;
 
+=======
+>>>>>>> upstream/android-13
 	ret = acpi_dev_get_resources(adev, &resources,
 				     acpi_i2c_check_resource, &i2c_addr);
 	if (ret < 0)
@@ -147,6 +173,10 @@ int inv_mpu_acpi_create_mux_client(struct i2c_client *client)
 	st->mux_client = NULL;
 	if (ACPI_HANDLE(&client->dev)) {
 		struct i2c_board_info info;
+<<<<<<< HEAD
+=======
+		struct i2c_client *mux_client;
+>>>>>>> upstream/android-13
 		struct acpi_device *adev;
 		int ret = -1;
 
@@ -184,9 +214,16 @@ int inv_mpu_acpi_create_mux_client(struct i2c_client *client)
 			} else
 				return 0; /* no secondary addr, which is OK */
 		}
+<<<<<<< HEAD
 		st->mux_client = i2c_new_device(st->muxc->adapter[0], &info);
 		if (!st->mux_client)
 			return -ENODEV;
+=======
+		mux_client = i2c_new_client_device(st->muxc->adapter[0], &info);
+		if (IS_ERR(mux_client))
+			return PTR_ERR(mux_client);
+		st->mux_client = mux_client;
+>>>>>>> upstream/android-13
 	}
 
 	return 0;

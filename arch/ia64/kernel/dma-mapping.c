@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: GPL-2.0
+<<<<<<< HEAD
 #include <linux/dma-mapping.h>
 #include <linux/swiotlb.h>
+=======
+#include <linux/dma-map-ops.h>
+>>>>>>> upstream/android-13
 #include <linux/export.h>
 
 /* Set this to 1 if there is a HW IOMMU in the system */
@@ -8,6 +12,7 @@ int iommu_detected __read_mostly;
 
 const struct dma_map_ops *dma_ops;
 EXPORT_SYMBOL(dma_ops);
+<<<<<<< HEAD
 
 const struct dma_map_ops *dma_get_ops(struct device *dev)
 {
@@ -22,3 +27,5 @@ void __init swiotlb_dma_init(void)
 	swiotlb_init(1);
 }
 #endif
+=======
+>>>>>>> upstream/android-13

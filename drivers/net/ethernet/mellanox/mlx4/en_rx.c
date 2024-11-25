@@ -31,7 +31,10 @@
  *
  */
 
+<<<<<<< HEAD
 #include <net/busy_poll.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/bpf.h>
 #include <linux/bpf_trace.h>
 #include <linux/mlx4/cq.h>
@@ -44,6 +47,10 @@
 #include <linux/vmalloc.h>
 #include <linux/irq.h>
 
+<<<<<<< HEAD
+=======
+#include <net/ip.h>
+>>>>>>> upstream/android-13
 #if IS_ENABLED(CONFIG_IPV6)
 #include <net/ip6_checksum.h>
 #endif
@@ -271,11 +278,16 @@ int mlx4_en_create_rx_ring(struct mlx4_en_priv *priv,
 
 	ring = kzalloc_node(sizeof(*ring), GFP_KERNEL, node);
 	if (!ring) {
+<<<<<<< HEAD
 		ring = kzalloc(sizeof(*ring), GFP_KERNEL);
 		if (!ring) {
 			en_err(priv, "Failed to allocate RX ring structure\n");
 			return -ENOMEM;
 		}
+=======
+		en_err(priv, "Failed to allocate RX ring structure\n");
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 	}
 
 	ring->prod = 0;
@@ -286,7 +298,11 @@ int mlx4_en_create_rx_ring(struct mlx4_en_priv *priv,
 	ring->log_stride = ffs(ring->stride) - 1;
 	ring->buf_size = ring->size * ring->stride + TXBB_SIZE;
 
+<<<<<<< HEAD
 	if (xdp_rxq_info_reg(&ring->xdp_rxq, priv->dev, queue_index) < 0)
+=======
+	if (xdp_rxq_info_reg(&ring->xdp_rxq, priv->dev, queue_index, 0) < 0)
+>>>>>>> upstream/android-13
 		goto err_ring;
 
 	tmp = size * roundup_pow_of_two(MLX4_EN_MAX_RX_FRAGS *
@@ -529,7 +545,11 @@ static int mlx4_en_complete_rx_desc(struct mlx4_en_priv *priv,
 fail:
 	while (nr > 0) {
 		nr--;
+<<<<<<< HEAD
 		__skb_frag_unref(skb_shinfo(skb)->frags + nr);
+=======
+		__skb_frag_unref(skb_shinfo(skb)->frags + nr, false);
+>>>>>>> upstream/android-13
 	}
 	return 0;
 }
@@ -682,11 +702,17 @@ int mlx4_en_process_rx_cq(struct net_device *dev, struct mlx4_en_cq *cq, int bud
 
 	ring = priv->rx_ring[cq_ring];
 
+<<<<<<< HEAD
 	/* Protect accesses to: ring->xdp_prog, priv->mac_hash list */
 	rcu_read_lock();
 	xdp_prog = rcu_dereference(ring->xdp_prog);
 	xdp.rxq = &ring->xdp_rxq;
 	doorbell_pending = 0;
+=======
+	xdp_prog = rcu_dereference_bh(ring->xdp_prog);
+	xdp_init_buff(&xdp, priv->frag_info[0].frag_stride, &ring->xdp_rxq);
+	doorbell_pending = false;
+>>>>>>> upstream/android-13
 
 	/* We assume a 1:1 mapping between CQEs and Rx descriptors, so Rx
 	 * descriptor offset can be deduced from the CQE index instead of
@@ -707,7 +733,11 @@ int mlx4_en_process_rx_cq(struct net_device *dev, struct mlx4_en_cq *cq, int bud
 
 		frags = ring->rx_info + (index << priv->log_rx_info);
 		va = page_address(frags[0].page) + frags[0].page_offset;
+<<<<<<< HEAD
 		prefetchw(va);
+=======
+		net_prefetchw(va);
+>>>>>>> upstream/android-13
 		/*
 		 * make sure we read the CQE after we read the ownership bit
 		 */
@@ -747,7 +777,11 @@ int mlx4_en_process_rx_cq(struct net_device *dev, struct mlx4_en_cq *cq, int bud
 				/* Drop the packet, since HW loopback-ed it */
 				mac_hash = ethh->h_source[MLX4_EN_MAC_HASH_IDX];
 				bucket = &priv->mac_hash[mac_hash];
+<<<<<<< HEAD
 				hlist_for_each_entry_rcu(entry, bucket, hlist) {
+=======
+				hlist_for_each_entry_rcu_bh(entry, bucket, hlist) {
+>>>>>>> upstream/android-13
 					if (ether_addr_equal_64bits(entry->mac,
 								    ethh->h_source))
 						goto next;
@@ -779,10 +813,15 @@ int mlx4_en_process_rx_cq(struct net_device *dev, struct mlx4_en_cq *cq, int bud
 						priv->frag_info[0].frag_size,
 						DMA_FROM_DEVICE);
 
+<<<<<<< HEAD
 			xdp.data_hard_start = va - frags[0].page_offset;
 			xdp.data = va;
 			xdp_set_data_meta_invalid(&xdp);
 			xdp.data_end = xdp.data + length;
+=======
+			xdp_prepare_buff(&xdp, va - frags[0].page_offset,
+					 frags[0].page_offset, length, false);
+>>>>>>> upstream/android-13
 			orig_data = xdp.data;
 
 			act = bpf_prog_run_xdp(xdp_prog, &xdp);
@@ -808,10 +847,17 @@ int mlx4_en_process_rx_cq(struct net_device *dev, struct mlx4_en_cq *cq, int bud
 				goto xdp_drop_no_cnt; /* Drop on xmit failure */
 			default:
 				bpf_warn_invalid_xdp_action(act);
+<<<<<<< HEAD
 				/* fall through */
 			case XDP_ABORTED:
 				trace_xdp_exception(dev, xdp_prog, act);
 				/* fall through */
+=======
+				fallthrough;
+			case XDP_ABORTED:
+				trace_xdp_exception(dev, xdp_prog, act);
+				fallthrough;
+>>>>>>> upstream/android-13
 			case XDP_DROP:
 				ring->xdp_drop++;
 xdp_drop_no_cnt:
@@ -893,7 +939,11 @@ csum_none:
 			skb->data_len = length;
 			napi_gro_frags(&cq->napi);
 		} else {
+<<<<<<< HEAD
 			skb->vlan_tci = 0;
+=======
+			__vlan_hwaccel_clear_tag(skb);
+>>>>>>> upstream/android-13
 			skb_clear_hash(skb);
 		}
 next:
@@ -904,8 +954,11 @@ next:
 			break;
 	}
 
+<<<<<<< HEAD
 	rcu_read_unlock();
 
+=======
+>>>>>>> upstream/android-13
 	if (likely(polled)) {
 		if (doorbell_pending) {
 			priv->tx_cq[TX_XDP][cq_ring]->xdp_busy = true;
@@ -916,7 +969,10 @@ next:
 		wmb(); /* ensure HW sees CQ consumer before we post new buffers */
 		ring->cons = cq->mcq.cons_index;
 	}
+<<<<<<< HEAD
 	AVG_PERF_COUNTER(priv->pstats.rx_coal_avg, polled);
+=======
+>>>>>>> upstream/android-13
 
 	mlx4_en_refill_rx_buffers(priv, ring);
 
@@ -952,7 +1008,11 @@ int mlx4_en_poll_rx_cq(struct napi_struct *napi, int budget)
 		xdp_tx_cq = priv->tx_cq[TX_XDP][cq->ring];
 		if (xdp_tx_cq->xdp_busy) {
 			clean_complete = mlx4_en_process_tx_cq(dev, xdp_tx_cq,
+<<<<<<< HEAD
 							       budget);
+=======
+							       budget) < budget;
+>>>>>>> upstream/android-13
 			xdp_tx_cq->xdp_busy = !clean_complete;
 		}
 	}
@@ -961,13 +1021,17 @@ int mlx4_en_poll_rx_cq(struct napi_struct *napi, int budget)
 
 	/* If we used up all the quota - we're probably not done yet... */
 	if (done == budget || !clean_complete) {
+<<<<<<< HEAD
 		const struct cpumask *aff;
 		struct irq_data *idata;
+=======
+>>>>>>> upstream/android-13
 		int cpu_curr;
 
 		/* in case we got here because of !clean_complete */
 		done = budget;
 
+<<<<<<< HEAD
 		INC_PERF_COUNTER(priv->pstats.napi_quota);
 
 		cpu_curr = smp_processor_id();
@@ -975,6 +1039,11 @@ int mlx4_en_poll_rx_cq(struct napi_struct *napi, int budget)
 		aff = irq_data_get_affinity_mask(idata);
 
 		if (likely(cpumask_test_cpu(cpu_curr, aff)))
+=======
+		cpu_curr = smp_processor_id();
+
+		if (likely(cpumask_test_cpu(cpu_curr, cq->aff_mask)))
+>>>>>>> upstream/android-13
 			return budget;
 
 		/* Current cpu is not according to smp_irq_affinity -
@@ -1007,7 +1076,11 @@ void mlx4_en_calc_rx_buf(struct net_device *dev)
 		 * expense of more costly truesize accounting
 		 */
 		priv->frag_info[0].frag_stride = PAGE_SIZE;
+<<<<<<< HEAD
 		priv->dma_dir = PCI_DMA_BIDIRECTIONAL;
+=======
+		priv->dma_dir = DMA_BIDIRECTIONAL;
+>>>>>>> upstream/android-13
 		priv->rx_headroom = XDP_PACKET_HEADROOM;
 		i = 1;
 	} else {
@@ -1037,7 +1110,11 @@ void mlx4_en_calc_rx_buf(struct net_device *dev)
 			buf_size += frag_size;
 			i++;
 		}
+<<<<<<< HEAD
 		priv->dma_dir = PCI_DMA_FROMDEVICE;
+=======
+		priv->dma_dir = DMA_FROM_DEVICE;
+>>>>>>> upstream/android-13
 		priv->rx_headroom = 0;
 	}
 

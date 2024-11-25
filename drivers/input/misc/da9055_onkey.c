@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * ON pin driver for Dialog DA9055 PMICs
  *
  * Copyright(c) 2012 Dialog Semiconductor Ltd.
  *
  * Author: David Dajun Chen <dchen@diasemi.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/input.h>
@@ -80,11 +87,16 @@ static int da9055_onkey_probe(struct platform_device *pdev)
 	int irq, err;
 
 	irq = platform_get_irq_byname(pdev, "ONKEY");
+<<<<<<< HEAD
 	if (irq < 0) {
 		dev_err(&pdev->dev,
 			"Failed to get an IRQ for input device, %d\n", irq);
 		return -EINVAL;
 	}
+=======
+	if (irq < 0)
+		return -EINVAL;
+>>>>>>> upstream/android-13
 
 	onkey = devm_kzalloc(&pdev->dev, sizeof(*onkey), GFP_KERNEL);
 	if (!onkey) {

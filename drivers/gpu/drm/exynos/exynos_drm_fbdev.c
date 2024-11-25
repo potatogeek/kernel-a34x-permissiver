@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* exynos_drm_fbdev.c
  *
  * Copyright (c) 2011 Samsung Electronics Co., Ltd.
@@ -5,6 +9,7 @@
  *	Inki Dae <inki.dae@samsung.com>
  *	Joonyoung Shim <jy0922.shim@samsung.com>
  *	Seung-Woo Kim <sw0312.kim@samsung.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
@@ -24,6 +29,23 @@
 #include "exynos_drm_fb.h"
 #include "exynos_drm_fbdev.h"
 #include "exynos_drm_iommu.h"
+=======
+ */
+
+#include <linux/console.h>
+#include <linux/dma-mapping.h>
+#include <linux/vmalloc.h>
+
+#include <drm/drm_crtc.h>
+#include <drm/drm_fb_helper.h>
+#include <drm/drm_fourcc.h>
+#include <drm/drm_probe_helper.h>
+#include <drm/exynos_drm.h>
+
+#include "exynos_drm_drv.h"
+#include "exynos_drm_fb.h"
+#include "exynos_drm_fbdev.h"
+>>>>>>> upstream/android-13
 
 #define MAX_CONNECTOR		4
 #define PREFERRED_BPP		32
@@ -56,14 +78,22 @@ static int exynos_drm_fb_mmap(struct fb_info *info,
 			     exynos_gem->dma_addr, exynos_gem->size,
 			     exynos_gem->dma_attrs);
 	if (ret < 0) {
+<<<<<<< HEAD
 		DRM_ERROR("failed to mmap.\n");
+=======
+		DRM_DEV_ERROR(to_dma_dev(helper->dev), "failed to mmap.\n");
+>>>>>>> upstream/android-13
 		return ret;
 	}
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct fb_ops exynos_drm_fb_ops = {
+=======
+static const struct fb_ops exynos_drm_fb_ops = {
+>>>>>>> upstream/android-13
 	.owner		= THIS_MODULE,
 	DRM_FB_HELPER_DEFAULT_OPS,
 	.fb_mmap        = exynos_drm_fb_mmap,
@@ -79,11 +109,15 @@ static int exynos_drm_fbdev_update(struct drm_fb_helper *helper,
 	struct fb_info *fbi;
 	struct drm_framebuffer *fb = helper->fb;
 	unsigned int size = fb->width * fb->height * fb->format->cpp[0];
+<<<<<<< HEAD
 	unsigned int nr_pages;
+=======
+>>>>>>> upstream/android-13
 	unsigned long offset;
 
 	fbi = drm_fb_helper_alloc_fbi(helper);
 	if (IS_ERR(fbi)) {
+<<<<<<< HEAD
 		DRM_ERROR("failed to allocate fb info.\n");
 		return PTR_ERR(fbi);
 	}
@@ -103,11 +137,25 @@ static int exynos_drm_fbdev_update(struct drm_fb_helper *helper,
 		DRM_ERROR("failed to map pages to kernel space.\n");
 		return -EIO;
 	}
+=======
+		DRM_DEV_ERROR(to_dma_dev(helper->dev),
+			      "failed to allocate fb info.\n");
+		return PTR_ERR(fbi);
+	}
+
+	fbi->fbops = &exynos_drm_fb_ops;
+
+	drm_fb_helper_fill_info(fbi, helper, sizes);
+>>>>>>> upstream/android-13
 
 	offset = fbi->var.xoffset * fb->format->cpp[0];
 	offset += fbi->var.yoffset * fb->pitches[0];
 
+<<<<<<< HEAD
 	fbi->screen_base = exynos_gem->kvaddr + offset;
+=======
+	fbi->screen_buffer = exynos_gem->kvaddr + offset;
+>>>>>>> upstream/android-13
 	fbi->screen_size = size;
 	fbi->fix.smem_len = size;
 
@@ -124,9 +172,16 @@ static int exynos_drm_fbdev_create(struct drm_fb_helper *helper,
 	unsigned long size;
 	int ret;
 
+<<<<<<< HEAD
 	DRM_DEBUG_KMS("surface width(%d), height(%d) and bpp(%d\n",
 			sizes->surface_width, sizes->surface_height,
 			sizes->surface_bpp);
+=======
+	DRM_DEV_DEBUG_KMS(dev->dev,
+			  "surface width(%d), height(%d) and bpp(%d\n",
+			  sizes->surface_width, sizes->surface_height,
+			  sizes->surface_bpp);
+>>>>>>> upstream/android-13
 
 	mode_cmd.width = sizes->surface_width;
 	mode_cmd.height = sizes->surface_height;
@@ -136,6 +191,7 @@ static int exynos_drm_fbdev_create(struct drm_fb_helper *helper,
 
 	size = mode_cmd.pitches[0] * mode_cmd.height;
 
+<<<<<<< HEAD
 	exynos_gem = exynos_drm_gem_create(dev, EXYNOS_BO_CONTIG, size);
 	/*
 	 * If physically contiguous memory allocation fails and if IOMMU is
@@ -148,6 +204,9 @@ static int exynos_drm_fbdev_create(struct drm_fb_helper *helper,
 						   size);
 	}
 
+=======
+	exynos_gem = exynos_drm_gem_create(dev, EXYNOS_BO_WC, size, true);
+>>>>>>> upstream/android-13
 	if (IS_ERR(exynos_gem))
 		return PTR_ERR(exynos_gem);
 
@@ -156,7 +215,11 @@ static int exynos_drm_fbdev_create(struct drm_fb_helper *helper,
 	helper->fb =
 		exynos_drm_framebuffer_init(dev, &mode_cmd, &exynos_gem, 1);
 	if (IS_ERR(helper->fb)) {
+<<<<<<< HEAD
 		DRM_ERROR("failed to create drm framebuffer.\n");
+=======
+		DRM_DEV_ERROR(dev->dev, "failed to create drm framebuffer.\n");
+>>>>>>> upstream/android-13
 		ret = PTR_ERR(helper->fb);
 		goto err_destroy_gem;
 	}
@@ -192,7 +255,11 @@ int exynos_drm_fbdev_init(struct drm_device *dev)
 	struct drm_fb_helper *helper;
 	int ret;
 
+<<<<<<< HEAD
 	if (!dev->mode_config.num_crtc || !dev->mode_config.num_connector)
+=======
+	if (!dev->mode_config.num_crtc)
+>>>>>>> upstream/android-13
 		return 0;
 
 	fbdev = kzalloc(sizeof(*fbdev), GFP_KERNEL);
@@ -203,6 +270,7 @@ int exynos_drm_fbdev_init(struct drm_device *dev)
 
 	drm_fb_helper_prepare(dev, helper, &exynos_drm_fb_helper_funcs);
 
+<<<<<<< HEAD
 	ret = drm_fb_helper_init(dev, helper, MAX_CONNECTOR);
 	if (ret < 0) {
 		DRM_ERROR("failed to initialize drm fb helper.\n");
@@ -219,6 +287,19 @@ int exynos_drm_fbdev_init(struct drm_device *dev)
 	ret = drm_fb_helper_initial_config(helper, PREFERRED_BPP);
 	if (ret < 0) {
 		DRM_ERROR("failed to set up hw configuration.\n");
+=======
+	ret = drm_fb_helper_init(dev, helper);
+	if (ret < 0) {
+		DRM_DEV_ERROR(dev->dev,
+			      "failed to initialize drm fb helper.\n");
+		goto err_init;
+	}
+
+	ret = drm_fb_helper_initial_config(helper, PREFERRED_BPP);
+	if (ret < 0) {
+		DRM_DEV_ERROR(dev->dev,
+			      "failed to set up hw configuration.\n");
+>>>>>>> upstream/android-13
 		goto err_setup;
 	}
 
@@ -237,12 +318,17 @@ err_init:
 static void exynos_drm_fbdev_destroy(struct drm_device *dev,
 				      struct drm_fb_helper *fb_helper)
 {
+<<<<<<< HEAD
 	struct exynos_drm_fbdev *exynos_fbd = to_exynos_fbdev(fb_helper);
 	struct exynos_drm_gem *exynos_gem = exynos_fbd->exynos_gem;
 	struct drm_framebuffer *fb;
 
 	vunmap(exynos_gem->kvaddr);
 
+=======
+	struct drm_framebuffer *fb;
+
+>>>>>>> upstream/android-13
 	/* release drm framebuffer and real buffer */
 	if (fb_helper->fb && fb_helper->fb->funcs) {
 		fb = fb_helper->fb;
@@ -270,6 +356,7 @@ void exynos_drm_fbdev_fini(struct drm_device *dev)
 	private->fb_helper = NULL;
 }
 
+<<<<<<< HEAD
 void exynos_drm_fbdev_suspend(struct drm_device *dev)
 {
 	struct exynos_drm_private *private = dev->dev_private;
@@ -287,3 +374,5 @@ void exynos_drm_fbdev_resume(struct drm_device *dev)
 	drm_fb_helper_set_suspend(private->fb_helper, 0);
 	console_unlock();
 }
+=======
+>>>>>>> upstream/android-13

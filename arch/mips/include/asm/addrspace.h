@@ -135,6 +135,7 @@
  */
 #define TO_PHYS_MASK	_CONST64_(0x07ffffffffffffff)	/* 2^^59 - 1 */
 
+<<<<<<< HEAD
 #ifndef CONFIG_CPU_R8000
 
 /*
@@ -147,6 +148,11 @@
 
 #endif
 
+=======
+#define COMPAT_K1BASE32		_CONST64_(0xffffffffa0000000)
+#define PHYS_TO_COMPATK1(x)	((x) | COMPAT_K1BASE32) /* 32-bit compat k1 */
+
+>>>>>>> upstream/android-13
 #define KDM_TO_PHYS(x)		(_ACAST64_ (x) & TO_PHYS_MASK)
 #define PHYS_TO_K0(x)		(_ACAST64_ (x) | CAC_BASE)
 

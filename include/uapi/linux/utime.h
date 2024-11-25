@@ -5,8 +5,13 @@
 #include <linux/types.h>
 
 struct utimbuf {
+<<<<<<< HEAD
 	__kernel_time_t actime;
 	__kernel_time_t modtime;
+=======
+	__kernel_old_time_t actime;
+	__kernel_old_time_t modtime;
+>>>>>>> upstream/android-13
 };
 
 #endif

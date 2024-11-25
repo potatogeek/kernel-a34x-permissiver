@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
    cx231xx_vbi.c - driver for Conexant Cx23100/101/102 USB video capture devices
 
    Copyright (C) 2008 <srinivasa.deevi at conexant dot com>
 	Based on cx88 driver
 
+<<<<<<< HEAD
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation; either version 2 of the License, or
@@ -17,6 +22,8 @@
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "cx231xx.h"
@@ -165,17 +172,26 @@ static inline int cx231xx_isoc_vbi_copy(struct cx231xx *dev, struct urb *urb)
 	Vbi buf operations
    ------------------------------------------------------------------*/
 
+<<<<<<< HEAD
 static int
 vbi_buffer_setup(struct videobuf_queue *vq, unsigned int *count,
 		 unsigned int *size)
 {
 	struct cx231xx_fh *fh = vq->priv_data;
 	struct cx231xx *dev = fh->dev;
+=======
+static int vbi_queue_setup(struct vb2_queue *vq,
+			   unsigned int *nbuffers, unsigned int *nplanes,
+			   unsigned int sizes[], struct device *alloc_devs[])
+{
+	struct cx231xx *dev = vb2_get_drv_priv(vq);
+>>>>>>> upstream/android-13
 	u32 height = 0;
 
 	height = ((dev->norm & V4L2_STD_625_50) ?
 		  PAL_VBI_LINES : NTSC_VBI_LINES);
 
+<<<<<<< HEAD
 	*size = (dev->width * height * 2 * 2);
 	if (0 == *count)
 		*count = CX231XX_DEF_VBI_BUF;
@@ -183,10 +199,15 @@ vbi_buffer_setup(struct videobuf_queue *vq, unsigned int *count,
 	if (*count < CX231XX_MIN_BUF)
 		*count = CX231XX_MIN_BUF;
 
+=======
+	*nplanes = 1;
+	sizes[0] = (dev->width * height * 2 * 2);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 /* This is called *without* dev->slock held; please keep it that way */
+<<<<<<< HEAD
 static void free_buffer(struct videobuf_queue *vq, struct cx231xx_buffer *buf)
 {
 	struct cx231xx_fh *fh = vq->priv_data;
@@ -290,6 +311,84 @@ const struct videobuf_queue_ops cx231xx_vbi_qops = {
 	.buf_prepare = vbi_buffer_prepare,
 	.buf_queue   = vbi_buffer_queue,
 	.buf_release = vbi_buffer_release,
+=======
+static int vbi_buf_prepare(struct vb2_buffer *vb)
+{
+	struct cx231xx *dev = vb2_get_drv_priv(vb->vb2_queue);
+	u32 height = 0;
+	u32 size;
+
+	height = ((dev->norm & V4L2_STD_625_50) ?
+		  PAL_VBI_LINES : NTSC_VBI_LINES);
+	size = ((dev->width << 1) * height * 2);
+
+	if (vb2_plane_size(vb, 0) < size)
+		return -EINVAL;
+	vb2_set_plane_payload(vb, 0, size);
+	return 0;
+}
+
+static void vbi_buf_queue(struct vb2_buffer *vb)
+{
+	struct cx231xx *dev = vb2_get_drv_priv(vb->vb2_queue);
+	struct cx231xx_buffer *buf =
+	    container_of(vb, struct cx231xx_buffer, vb.vb2_buf);
+	struct cx231xx_dmaqueue *vidq = &dev->vbi_mode.vidq;
+	unsigned long flags;
+
+	spin_lock_irqsave(&dev->vbi_mode.slock, flags);
+	list_add_tail(&buf->list, &vidq->active);
+	spin_unlock_irqrestore(&dev->vbi_mode.slock, flags);
+}
+
+static void return_all_buffers(struct cx231xx *dev,
+			       enum vb2_buffer_state state)
+{
+	struct cx231xx_dmaqueue *vidq = &dev->vbi_mode.vidq;
+	struct cx231xx_buffer *buf, *node;
+	unsigned long flags;
+
+	spin_lock_irqsave(&dev->vbi_mode.slock, flags);
+	dev->vbi_mode.bulk_ctl.buf = NULL;
+	list_for_each_entry_safe(buf, node, &vidq->active, list) {
+		list_del(&buf->list);
+		vb2_buffer_done(&buf->vb.vb2_buf, state);
+	}
+	spin_unlock_irqrestore(&dev->vbi_mode.slock, flags);
+}
+
+static int vbi_start_streaming(struct vb2_queue *vq, unsigned int count)
+{
+	struct cx231xx *dev = vb2_get_drv_priv(vq);
+	struct cx231xx_dmaqueue *vidq = &dev->vbi_mode.vidq;
+	int ret;
+
+	vidq->sequence = 0;
+	ret = cx231xx_init_vbi_isoc(dev, CX231XX_NUM_VBI_PACKETS,
+				    CX231XX_NUM_VBI_BUFS,
+				    dev->vbi_mode.alt_max_pkt_size[0],
+				    cx231xx_isoc_vbi_copy);
+	if (ret)
+		return_all_buffers(dev, VB2_BUF_STATE_QUEUED);
+	return ret;
+}
+
+static void vbi_stop_streaming(struct vb2_queue *vq)
+{
+	struct cx231xx *dev = vb2_get_drv_priv(vq);
+
+	return_all_buffers(dev, VB2_BUF_STATE_ERROR);
+}
+
+struct vb2_ops cx231xx_vbi_qops = {
+	.queue_setup = vbi_queue_setup,
+	.buf_prepare = vbi_buf_prepare,
+	.buf_queue = vbi_buf_queue,
+	.start_streaming = vbi_start_streaming,
+	.stop_streaming = vbi_stop_streaming,
+	.wait_prepare = vb2_ops_wait_prepare,
+	.wait_finish = vb2_ops_wait_finish,
+>>>>>>> upstream/android-13
 };
 
 /* ------------------------------------------------------------------
@@ -453,9 +552,14 @@ int cx231xx_init_vbi_isoc(struct cx231xx *dev, int max_packets,
 		    kzalloc(sb_size, GFP_KERNEL);
 		if (!dev->vbi_mode.bulk_ctl.transfer_buffer[i]) {
 			dev_err(dev->dev,
+<<<<<<< HEAD
 				"unable to allocate %i bytes for transfer buffer %i%s\n",
 				sb_size, i,
 				in_interrupt() ? " while in int" : "");
+=======
+				"unable to allocate %i bytes for transfer buffer %i\n",
+				sb_size, i);
+>>>>>>> upstream/android-13
 			cx231xx_uninit_vbi_isoc(dev);
 			return -ENOMEM;
 		}
@@ -524,6 +628,7 @@ static inline void vbi_buffer_filled(struct cx231xx *dev,
 				     struct cx231xx_buffer *buf)
 {
 	/* Advice that buffer was filled */
+<<<<<<< HEAD
 	/* dev_dbg(dev->dev, "[%p/%d] wakeup\n", buf, buf->vb.i); */
 
 	buf->vb.state = VIDEOBUF_DONE;
@@ -534,6 +639,17 @@ static inline void vbi_buffer_filled(struct cx231xx *dev,
 
 	list_del(&buf->vb.queue);
 	wake_up(&buf->vb.done);
+=======
+	/* dev_dbg(dev->dev, "[%p/%d] wakeup\n", buf, buf->vb.index); */
+
+	buf->vb.sequence = dma_q->sequence++;
+	buf->vb.vb2_buf.timestamp = ktime_get_ns();
+
+	dev->vbi_mode.bulk_ctl.buf = NULL;
+
+	list_del(&buf->list);
+	vb2_buffer_done(&buf->vb.vb2_buf, VB2_BUF_STATE_DONE);
+>>>>>>> upstream/android-13
 }
 
 u32 cx231xx_copy_vbi_line(struct cx231xx *dev, struct cx231xx_dmaqueue *dma_q,
@@ -623,11 +739,19 @@ static inline void get_next_vbi_buf(struct cx231xx_dmaqueue *dma_q,
 	}
 
 	/* Get the next buffer */
+<<<<<<< HEAD
 	*buf = list_entry(dma_q->active.next, struct cx231xx_buffer, vb.queue);
 
 	/* Cleans up buffer - Useful for testing for frame/URB loss */
 	outp = videobuf_to_vmalloc(&(*buf)->vb);
 	memset(outp, 0, (*buf)->vb.size);
+=======
+	*buf = list_entry(dma_q->active.next, struct cx231xx_buffer, list);
+
+	/* Cleans up buffer - Useful for testing for frame/URB loss */
+	outp = vb2_plane_vaddr(&(*buf)->vb.vb2_buf, 0);
+	memset(outp, 0, vb2_plane_size(&(*buf)->vb.vb2_buf, 0));
+>>>>>>> upstream/android-13
 
 	dev->vbi_mode.bulk_ctl.buf = *buf;
 
@@ -668,7 +792,11 @@ int cx231xx_do_vbi_copy(struct cx231xx *dev, struct cx231xx_dmaqueue *dma_q,
 	if (buf == NULL)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	p_out_buffer = videobuf_to_vmalloc(&buf->vb);
+=======
+	p_out_buffer = vb2_plane_vaddr(&buf->vb.vb2_buf, 0);
+>>>>>>> upstream/android-13
 
 	if (dma_q->bytes_left_in_line != _line_size) {
 		current_line_bytes_copied =

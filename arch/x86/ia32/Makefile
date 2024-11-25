@@ -1,8 +1,16 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #
 # Makefile for the ia32 kernel emulation subsystem.
 #
 
+<<<<<<< HEAD
 obj-$(CONFIG_IA32_EMULATION) := sys_ia32.o ia32_signal.o
+=======
+obj-$(CONFIG_IA32_EMULATION) := ia32_signal.o
+>>>>>>> upstream/android-13
 
 obj-$(CONFIG_IA32_AOUT) += ia32_aout.o
 

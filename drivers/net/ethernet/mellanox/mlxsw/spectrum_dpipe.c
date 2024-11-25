@@ -2,6 +2,10 @@
 /* Copyright (c) 2017-2018 Mellanox Technologies. All rights reserved */
 
 #include <linux/kernel.h>
+<<<<<<< HEAD
+=======
+#include <linux/mutex.h>
+>>>>>>> upstream/android-13
 #include <net/devlink.h>
 
 #include "spectrum.h"
@@ -210,7 +214,11 @@ mlxsw_sp_dpipe_table_erif_entries_dump(void *priv, bool counters_enabled,
 		return err;
 
 	rif_count = MLXSW_CORE_RES_GET(mlxsw_sp->core, MAX_RIFS);
+<<<<<<< HEAD
 	rtnl_lock();
+=======
+	mutex_lock(&mlxsw_sp->router->lock);
+>>>>>>> upstream/android-13
 	i = 0;
 start_again:
 	err = devlink_dpipe_entry_ctx_prepare(dump_ctx);
@@ -220,7 +228,11 @@ start_again:
 	for (; i < rif_count; i++) {
 		struct mlxsw_sp_rif *rif = mlxsw_sp_rif_by_index(mlxsw_sp, i);
 
+<<<<<<< HEAD
 		if (!rif)
+=======
+		if (!rif || !mlxsw_sp_rif_dev(rif))
+>>>>>>> upstream/android-13
 			continue;
 		err = mlxsw_sp_erif_entry_get(mlxsw_sp, &entry, rif,
 					      counters_enabled);
@@ -241,14 +253,22 @@ start_again:
 	devlink_dpipe_entry_ctx_close(dump_ctx);
 	if (i != rif_count)
 		goto start_again;
+<<<<<<< HEAD
 	rtnl_unlock();
+=======
+	mutex_unlock(&mlxsw_sp->router->lock);
+>>>>>>> upstream/android-13
 
 	devlink_dpipe_entry_clear(&entry);
 	return 0;
 err_entry_append:
 err_entry_get:
 err_ctx_prepare:
+<<<<<<< HEAD
 	rtnl_unlock();
+=======
+	mutex_unlock(&mlxsw_sp->router->lock);
+>>>>>>> upstream/android-13
 	devlink_dpipe_entry_clear(&entry);
 	return err;
 }
@@ -258,7 +278,11 @@ static int mlxsw_sp_dpipe_table_erif_counters_update(void *priv, bool enable)
 	struct mlxsw_sp *mlxsw_sp = priv;
 	int i;
 
+<<<<<<< HEAD
 	rtnl_lock();
+=======
+	mutex_lock(&mlxsw_sp->router->lock);
+>>>>>>> upstream/android-13
 	for (i = 0; i < MLXSW_CORE_RES_GET(mlxsw_sp->core, MAX_RIFS); i++) {
 		struct mlxsw_sp_rif *rif = mlxsw_sp_rif_by_index(mlxsw_sp, i);
 
@@ -271,7 +295,11 @@ static int mlxsw_sp_dpipe_table_erif_counters_update(void *priv, bool enable)
 			mlxsw_sp_rif_counter_free(mlxsw_sp, rif,
 						  MLXSW_SP_RIF_COUNTER_EGRESS);
 	}
+<<<<<<< HEAD
 	rtnl_unlock();
+=======
+	mutex_unlock(&mlxsw_sp->router->lock);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -546,7 +574,11 @@ mlxsw_sp_dpipe_table_host_entries_get(struct mlxsw_sp *mlxsw_sp,
 	int i, j;
 	int err;
 
+<<<<<<< HEAD
 	rtnl_lock();
+=======
+	mutex_lock(&mlxsw_sp->router->lock);
+>>>>>>> upstream/android-13
 	i = 0;
 	rif_count = MLXSW_CORE_RES_GET(mlxsw_sp->core, MAX_RIFS);
 start_again:
@@ -602,12 +634,20 @@ out:
 	if (i != rif_count)
 		goto start_again;
 
+<<<<<<< HEAD
 	rtnl_unlock();
+=======
+	mutex_unlock(&mlxsw_sp->router->lock);
+>>>>>>> upstream/android-13
 	return 0;
 
 err_ctx_prepare:
 err_entry_append:
+<<<<<<< HEAD
 	rtnl_unlock();
+=======
+	mutex_unlock(&mlxsw_sp->router->lock);
+>>>>>>> upstream/android-13
 	return err;
 }
 
@@ -662,7 +702,11 @@ mlxsw_sp_dpipe_table_host_counters_update(struct mlxsw_sp *mlxsw_sp,
 {
 	int i;
 
+<<<<<<< HEAD
 	rtnl_lock();
+=======
+	mutex_lock(&mlxsw_sp->router->lock);
+>>>>>>> upstream/android-13
 	for (i = 0; i < MLXSW_CORE_RES_GET(mlxsw_sp->core, MAX_RIFS); i++) {
 		struct mlxsw_sp_rif *rif = mlxsw_sp_rif_by_index(mlxsw_sp, i);
 		struct mlxsw_sp_neigh_entry *neigh_entry;
@@ -684,7 +728,11 @@ mlxsw_sp_dpipe_table_host_counters_update(struct mlxsw_sp *mlxsw_sp,
 							    enable);
 		}
 	}
+<<<<<<< HEAD
 	rtnl_unlock();
+=======
+	mutex_unlock(&mlxsw_sp->router->lock);
+>>>>>>> upstream/android-13
 }
 
 static int mlxsw_sp_dpipe_table_host4_counters_update(void *priv, bool enable)
@@ -701,7 +749,11 @@ mlxsw_sp_dpipe_table_host_size_get(struct mlxsw_sp *mlxsw_sp, int type)
 	u64 size = 0;
 	int i;
 
+<<<<<<< HEAD
 	rtnl_lock();
+=======
+	mutex_lock(&mlxsw_sp->router->lock);
+>>>>>>> upstream/android-13
 	for (i = 0; i < MLXSW_CORE_RES_GET(mlxsw_sp->core, MAX_RIFS); i++) {
 		struct mlxsw_sp_rif *rif = mlxsw_sp_rif_by_index(mlxsw_sp, i);
 		struct mlxsw_sp_neigh_entry *neigh_entry;
@@ -721,7 +773,11 @@ mlxsw_sp_dpipe_table_host_size_get(struct mlxsw_sp *mlxsw_sp, int type)
 			size++;
 		}
 	}
+<<<<<<< HEAD
 	rtnl_unlock();
+=======
+	mutex_unlock(&mlxsw_sp->router->lock);
+>>>>>>> upstream/android-13
 
 	return size;
 }
@@ -911,7 +967,11 @@ static u64 mlxsw_sp_dpipe_table_adj_size(struct mlxsw_sp *mlxsw_sp)
 	u64 size = 0;
 
 	mlxsw_sp_nexthop_for_each(nh, mlxsw_sp->router)
+<<<<<<< HEAD
 		if (mlxsw_sp_nexthop_offload(nh) &&
+=======
+		if (mlxsw_sp_nexthop_is_forward(nh) &&
+>>>>>>> upstream/android-13
 		    !mlxsw_sp_nexthop_group_has_ipip(nh))
 			size++;
 	return size;
@@ -1093,7 +1153,11 @@ mlxsw_sp_dpipe_table_adj_entries_get(struct mlxsw_sp *mlxsw_sp,
 	int j;
 	int err;
 
+<<<<<<< HEAD
 	rtnl_lock();
+=======
+	mutex_lock(&mlxsw_sp->router->lock);
+>>>>>>> upstream/android-13
 	nh_count_max = mlxsw_sp_dpipe_table_adj_size(mlxsw_sp);
 start_again:
 	err = devlink_dpipe_entry_ctx_prepare(dump_ctx);
@@ -1103,7 +1167,11 @@ start_again:
 	nh_skip = nh_count;
 	nh_count = 0;
 	mlxsw_sp_nexthop_for_each(nh, mlxsw_sp->router) {
+<<<<<<< HEAD
 		if (!mlxsw_sp_nexthop_offload(nh) ||
+=======
+		if (!mlxsw_sp_nexthop_is_forward(nh) ||
+>>>>>>> upstream/android-13
 		    mlxsw_sp_nexthop_group_has_ipip(nh))
 			continue;
 
@@ -1130,13 +1198,21 @@ skip:
 	devlink_dpipe_entry_ctx_close(dump_ctx);
 	if (nh_count != nh_count_max)
 		goto start_again;
+<<<<<<< HEAD
 	rtnl_unlock();
+=======
+	mutex_unlock(&mlxsw_sp->router->lock);
+>>>>>>> upstream/android-13
 
 	return 0;
 
 err_ctx_prepare:
 err_entry_append:
+<<<<<<< HEAD
 	rtnl_unlock();
+=======
+	mutex_unlock(&mlxsw_sp->router->lock);
+>>>>>>> upstream/android-13
 	return err;
 }
 
@@ -1177,6 +1253,10 @@ out:
 
 static int mlxsw_sp_dpipe_table_adj_counters_update(void *priv, bool enable)
 {
+<<<<<<< HEAD
+=======
+	char ratr_pl[MLXSW_REG_RATR_LEN];
+>>>>>>> upstream/android-13
 	struct mlxsw_sp *mlxsw_sp = priv;
 	struct mlxsw_sp_nexthop *nh;
 	u32 adj_hash_index = 0;
@@ -1184,7 +1264,11 @@ static int mlxsw_sp_dpipe_table_adj_counters_update(void *priv, bool enable)
 	u32 adj_size = 0;
 
 	mlxsw_sp_nexthop_for_each(nh, mlxsw_sp->router) {
+<<<<<<< HEAD
 		if (!mlxsw_sp_nexthop_offload(nh) ||
+=======
+		if (!mlxsw_sp_nexthop_is_forward(nh) ||
+>>>>>>> upstream/android-13
 		    mlxsw_sp_nexthop_group_has_ipip(nh))
 			continue;
 
@@ -1194,8 +1278,14 @@ static int mlxsw_sp_dpipe_table_adj_counters_update(void *priv, bool enable)
 			mlxsw_sp_nexthop_counter_alloc(mlxsw_sp, nh);
 		else
 			mlxsw_sp_nexthop_counter_free(mlxsw_sp, nh);
+<<<<<<< HEAD
 		mlxsw_sp_nexthop_update(mlxsw_sp,
 					adj_index + adj_hash_index, nh);
+=======
+		mlxsw_sp_nexthop_eth_update(mlxsw_sp,
+					    adj_index + adj_hash_index, nh,
+					    true, ratr_pl);
+>>>>>>> upstream/android-13
 	}
 	return 0;
 }
@@ -1206,9 +1296,15 @@ mlxsw_sp_dpipe_table_adj_size_get(void *priv)
 	struct mlxsw_sp *mlxsw_sp = priv;
 	u64 size;
 
+<<<<<<< HEAD
 	rtnl_lock();
 	size = mlxsw_sp_dpipe_table_adj_size(mlxsw_sp);
 	rtnl_unlock();
+=======
+	mutex_lock(&mlxsw_sp->router->lock);
+	size = mlxsw_sp_dpipe_table_adj_size(mlxsw_sp);
+	mutex_unlock(&mlxsw_sp->router->lock);
+>>>>>>> upstream/android-13
 
 	return size;
 }

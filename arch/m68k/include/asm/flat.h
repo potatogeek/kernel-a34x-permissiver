@@ -6,6 +6,7 @@
 #ifndef __M68KNOMMU_FLAT_H__
 #define __M68KNOMMU_FLAT_H__
 
+<<<<<<< HEAD
 #include <linux/uaccess.h>
 
 #define	flat_argvp_envp_on_stack()		1
@@ -35,6 +36,9 @@ static inline int flat_set_persistent(u32 relval, u32 *persistent)
 {
 	return 0;
 }
+=======
+#include <asm-generic/flat.h>
+>>>>>>> upstream/android-13
 
 #define FLAT_PLAT_INIT(regs) \
 	do { \

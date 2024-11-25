@@ -11,7 +11,10 @@
 
 #include "odm_EdcaTurboCheck.h"
 #include "odm_DIG.h"
+<<<<<<< HEAD
 #include "odm_PathDiv.h"
+=======
+>>>>>>> upstream/android-13
 #include "odm_DynamicBBPowerSaving.h"
 #include "odm_DynamicTxPower.h"
 #include "odm_CfoTracking.h"
@@ -82,13 +85,18 @@
 
 /* Remove DIG by yuchen */
 
+<<<<<<< HEAD
 typedef struct _Dynamic_Primary_CCA {
+=======
+struct dynamic_primary_CCA {
+>>>>>>> upstream/android-13
 	u8 PriCCA_flag;
 	u8 intf_flag;
 	u8 intf_type;
 	u8 DupRTS_flag;
 	u8 Monitor_flag;
 	u8 CH_offset;
+<<<<<<< HEAD
 	u8 	MF_state;
 } Pri_CCA_T, *pPri_CCA_T;
 
@@ -97,6 +105,16 @@ typedef struct _Rate_Adaptive_Table_ {
 } RA_T, *pRA_T;
 
 typedef struct _RX_High_Power_ {
+=======
+	u8 MF_state;
+};
+
+struct ra_t {
+	u8 firstconnect;
+};
+
+struct rxhp_t {
+>>>>>>> upstream/android-13
 	u8 RXHP_flag;
 	u8 PSD_func_trigger;
 	u8 PSD_bitmap_RXHP[80];
@@ -107,8 +125,13 @@ typedef struct _RX_High_Power_ {
 	bool First_time_enter;
 	bool RXHP_enable;
 	u8 TP_Mode;
+<<<<<<< HEAD
 	RT_TIMER PSDTimer;
 } RXHP_T, *pRXHP_T;
+=======
+	struct timer_list PSDTimer;
+};
+>>>>>>> upstream/android-13
 
 #define ASSOCIATE_ENTRY_NUM					32 /*  Max size of AsocEntry[]. */
 #define	ODM_ASSOCIATE_ENTRY_NUM				ASSOCIATE_ENTRY_NUM
@@ -126,7 +149,11 @@ typedef struct _RX_High_Power_ {
 #define	TRAFFIC_HIGH	1
 #define	TRAFFIC_UltraLOW	2
 
+<<<<<<< HEAD
 typedef struct _SW_Antenna_Switch_ {
+=======
+struct swat_t { /* _SW_Antenna_Switch_ */
+>>>>>>> upstream/android-13
 	u8 Double_chk_flag;
 	u8 try_flag;
 	s32 PreRSSI;
@@ -152,7 +179,10 @@ typedef struct _SW_Antenna_Switch_ {
 	bool ANTB_ON;	/* To indicate Ant B is on or not */
 	bool Pre_Aux_FailDetec;
 	bool RSSI_AntDect_bResult;
+<<<<<<< HEAD
 	u8 Ant5G;
+=======
+>>>>>>> upstream/android-13
 	u8 Ant2G;
 
 	s32 RSSI_sum_A;
@@ -169,16 +199,28 @@ typedef struct _SW_Antenna_Switch_ {
 	u8 TrafficLoad;
 	u8 Train_time;
 	u8 Train_time_flag;
+<<<<<<< HEAD
 	RT_TIMER SwAntennaSwitchTimer;
 	RT_TIMER SwAntennaSwitchTimer_8723B;
 	u32 PktCnt_SWAntDivByCtrlFrame;
 	bool bSWAntDivByCtrlFrame;
 } SWAT_T, *pSWAT_T;
+=======
+	struct timer_list SwAntennaSwitchTimer;
+	struct timer_list SwAntennaSwitchTimer_8723B;
+	u32 PktCnt_SWAntDivByCtrlFrame;
+	bool bSWAntDivByCtrlFrame;
+};
+>>>>>>> upstream/android-13
 
 /* Remove Edca by YuChen */
 
 
+<<<<<<< HEAD
 typedef struct _ODM_RATE_ADAPTIVE {
+=======
+struct odm_rate_adaptive {
+>>>>>>> upstream/android-13
 	u8 Type;				/*  DM_Type_ByFW/DM_Type_ByDriver */
 	u8 LdpcThres;			/*  if RSSI > LdpcThres => switch from LPDC to BCC */
 	bool bUseLdpc;
@@ -187,7 +229,11 @@ typedef struct _ODM_RATE_ADAPTIVE {
 	u8 LowRSSIThresh;		/*  if RSSI <= LowRSSIThresh	=> RATRState is DM_RATR_STA_LOW */
 	u8 RATRState;			/*  Current RSSI level, DM_RATR_STA_HIGH/DM_RATR_STA_MIDDLE/DM_RATR_STA_LOW */
 
+<<<<<<< HEAD
 } ODM_RATE_ADAPTIVE, *PODM_RATE_ADAPTIVE;
+=======
+};
+>>>>>>> upstream/android-13
 
 #define IQK_MAC_REG_NUM		4
 #define IQK_ADDA_REG_NUM		16
@@ -197,10 +243,14 @@ typedef struct _ODM_RATE_ADAPTIVE {
 
 #define AVG_THERMAL_NUM		8
 #define IQK_Matrix_REG_NUM	8
+<<<<<<< HEAD
 #define IQK_Matrix_Settings_NUM	(14 + 24 + 21) /*   Channels_2_4G_NUM
 						* + Channels_5G_20M_NUM
 						* + Channels_5G
 						*/
+=======
+#define IQK_Matrix_Settings_NUM	14 /* Channels_2_4G_NUM */
+>>>>>>> upstream/android-13
 
 #define		DM_Type_ByFW			0
 #define		DM_Type_ByDriver		1
@@ -261,7 +311,11 @@ struct odm_packet_info {
 	bool is_beacon;
 };
 
+<<<<<<< HEAD
 typedef struct _ODM_Phy_Dbg_Info_ {
+=======
+struct odm_phy_dbg_info {
+>>>>>>> upstream/android-13
 	/* ODM Write, debug info */
 	s8 RxSNRdB[4];
 	u32 NumQryPhyStatus;
@@ -271,6 +325,7 @@ typedef struct _ODM_Phy_Dbg_Info_ {
 	/* Others */
 	s32 RxEVM[4];
 
+<<<<<<< HEAD
 } ODM_PHY_DBG_INFO_T;
 
 typedef struct _ODM_Mac_Status_Info_ {
@@ -321,17 +376,29 @@ typedef struct _ODM_STA_INFO {
 	/*  ODM Write Wilson will handle this part(said by Luke.Lee) */
 	/* TX_RPT_T		pTxRpt;			Define in IC folder. Move lower layer. */
 } ODM_STA_INFO_T, *PODM_STA_INFO_T;
+=======
+};
+
+struct odm_mac_status_info {
+	u8 test;
+};
+>>>>>>> upstream/android-13
 
 /*  */
 /*  2011/10/20 MH Define Common info enum for all team. */
 /*  */
+<<<<<<< HEAD
 typedef enum _ODM_Common_Info_Definition {
+=======
+enum odm_cmninfo_e {
+>>>>>>> upstream/android-13
 	/*  Fixed value: */
 
 	/* HOOK BEFORE REG INIT----------- */
 	ODM_CMNINFO_PLATFORM = 0,
 	ODM_CMNINFO_ABILITY,					/*  ODM_ABILITY_E */
 	ODM_CMNINFO_INTERFACE,				/*  ODM_INTERFACE_E */
+<<<<<<< HEAD
 	ODM_CMNINFO_MP_TEST_CHIP,
 	ODM_CMNINFO_IC_TYPE,					/*  ODM_IC_TYPE_E */
 	ODM_CMNINFO_CUT_VER,					/*  ODM_CUT_VERSION_E */
@@ -344,6 +411,15 @@ typedef enum _ODM_Common_Info_Definition {
 	ODM_CMNINFO_5G_EXT_LNA,
 	ODM_CMNINFO_EXT_PA,
 	ODM_CMNINFO_5G_EXT_PA,
+=======
+	ODM_CMNINFO_IC_TYPE,					/*  ODM_IC_TYPE_E */
+	ODM_CMNINFO_CUT_VER,					/*  ODM_CUT_VERSION_E */
+	ODM_CMNINFO_FAB_VER,					/*  ODM_FAB_E */
+	ODM_CMNINFO_RFE_TYPE,
+	ODM_CMNINFO_PACKAGE_TYPE,
+	ODM_CMNINFO_EXT_LNA,					/*  true */
+	ODM_CMNINFO_EXT_PA,
+>>>>>>> upstream/android-13
 	ODM_CMNINFO_GPA,
 	ODM_CMNINFO_APA,
 	ODM_CMNINFO_GLNA,
@@ -361,7 +437,10 @@ typedef enum _ODM_Common_Info_Definition {
 	ODM_CMNINFO_TX_UNI,
 	ODM_CMNINFO_RX_UNI,
 	ODM_CMNINFO_WM_MODE,		/*  ODM_WIRELESS_MODE_E */
+<<<<<<< HEAD
 	ODM_CMNINFO_BAND,		/*  ODM_BAND_TYPE_E */
+=======
+>>>>>>> upstream/android-13
 	ODM_CMNINFO_SEC_CHNL_OFFSET,	/*  ODM_SEC_CHNL_OFFSET_E */
 	ODM_CMNINFO_SEC_MODE,		/*  ODM_SECURITY_E */
 	ODM_CMNINFO_BW,			/*  ODM_BW_E */
@@ -412,10 +491,17 @@ typedef enum _ODM_Common_Info_Definition {
 	ODM_CMNINFO_MAC_STATUS,
 
 	ODM_CMNINFO_MAX,
+<<<<<<< HEAD
 } ODM_CMNINFO_E;
 
 /*  2011/10/20 MH Define ODM support ability.  ODM_CMNINFO_ABILITY */
 typedef enum _ODM_Support_Ability_Definition {
+=======
+};
+
+/*  2011/10/20 MH Define ODM support ability.  ODM_CMNINFO_ABILITY */
+enum { /* _ODM_Support_Ability_Definition */
+>>>>>>> upstream/android-13
 	/*  */
 	/*  BB ODM section BIT 0-15 */
 	/*  */
@@ -443,6 +529,7 @@ typedef enum _ODM_Support_Ability_Definition {
 	ODM_RF_TX_PWR_TRACK		= BIT24,
 	ODM_RF_RX_GAIN_TRACK	= BIT25,
 	ODM_RF_CALIBRATION		= BIT26,
+<<<<<<< HEAD
 } ODM_ABILITY_E;
 
 /* 	ODM_CMNINFO_INTERFACE */
@@ -458,6 +545,23 @@ typedef enum tag_ODM_Support_IC_Type_Definition {
 
 /* ODM_CMNINFO_CUT_VER */
 typedef enum tag_ODM_Cut_Version_Definition {
+=======
+};
+
+/* 	ODM_CMNINFO_INTERFACE */
+enum { /* tag_ODM_Support_Interface_Definition */
+	ODM_ITRF_SDIO	=	0x4,
+	ODM_ITRF_ALL	=	0x7,
+};
+
+/*  ODM_CMNINFO_IC_TYPE */
+enum { /* tag_ODM_Support_IC_Type_Definition */
+	ODM_RTL8723B	=	BIT8,
+};
+
+/* ODM_CMNINFO_CUT_VER */
+enum { /* tag_ODM_Cut_Version_Definition */
+>>>>>>> upstream/android-13
 	ODM_CUT_A		=	0,
 	ODM_CUT_B		=	1,
 	ODM_CUT_C		=	2,
@@ -469,6 +573,7 @@ typedef enum tag_ODM_Cut_Version_Definition {
 	ODM_CUT_J		=	9,
 	ODM_CUT_K		=	10,
 	ODM_CUT_TEST	=	15,
+<<<<<<< HEAD
 } ODM_CUT_VERSION_E;
 
 /*  ODM_CMNINFO_FAB_VER */
@@ -493,6 +598,20 @@ typedef enum tag_ODM_RF_Path_Bit_Definition {
 } ODM_RF_PATH_E;
 
 typedef enum tag_ODM_RF_Type_Definition {
+=======
+};
+
+/*  ODM_CMNINFO_FAB_VER */
+enum { /* tag_ODM_Fab_Version_Definition */
+	ODM_TSMC	=	0,
+	ODM_UMC		=	1,
+};
+
+/*  */
+/*  For example 1T2R (A+AB = BIT0|BIT4|BIT5) */
+/*  */
+enum { /* tag_ODM_RF_Type_Definition */
+>>>>>>> upstream/android-13
 	ODM_1T1R	=	0,
 	ODM_1T2R	=	1,
 	ODM_2T2R	=	2,
@@ -501,12 +620,17 @@ typedef enum tag_ODM_RF_Type_Definition {
 	ODM_3T3R	=	5,
 	ODM_3T4R	=	6,
 	ODM_4T4R	=	7,
+<<<<<<< HEAD
 } ODM_RF_TYPE_E;
+=======
+};
+>>>>>>> upstream/android-13
 
 /*  */
 /*  ODM Dynamic common info value definition */
 /*  */
 
+<<<<<<< HEAD
 /* typedef enum _MACPHY_MODE_8192D{ */
 /* 	SINGLEMAC_SINGLEPHY, */
 /* 	DUALMAC_DUALPHY, */
@@ -620,17 +744,54 @@ typedef enum tag_ODM_TYPE_APA_Definition {
 } ODM_TYPE_APA_E;
 
 typedef enum tag_ODM_TYPE_GLNA_Definition {
+=======
+/*  ODM_CMNINFO_WM_MODE */
+enum { /* tag_Wireless_Mode_Definition */
+	ODM_WM_UNKNOWN    = 0x0,
+	ODM_WM_B          = BIT0,
+	ODM_WM_G          = BIT1,
+	ODM_WM_N24G       = BIT3,
+	ODM_WM_AUTO       = BIT5,
+};
+
+/*  ODM_CMNINFO_BW */
+enum { /* tag_Bandwidth_Definition */
+	ODM_BW20M		= 0,
+	ODM_BW40M		= 1,
+};
+
+/*  For AC-series IC, external PA & LNA can be individually added on 2.4G */
+
+enum odm_type_gpa_e { /* tag_ODM_TYPE_GPA_Definition */
+	TYPE_GPA0 = 0,
+	TYPE_GPA1 = BIT(1)|BIT(0)
+};
+
+enum odm_type_apa_e { /* tag_ODM_TYPE_APA_Definition */
+	TYPE_APA0 = 0,
+	TYPE_APA1 = BIT(1)|BIT(0)
+};
+
+enum odm_type_glna_e { /* tag_ODM_TYPE_GLNA_Definition */
+>>>>>>> upstream/android-13
 	TYPE_GLNA0 = 0,
 	TYPE_GLNA1 = BIT(2)|BIT(0),
 	TYPE_GLNA2 = BIT(3)|BIT(1),
 	TYPE_GLNA3 = BIT(3)|BIT(2)|BIT(1)|BIT(0)
+<<<<<<< HEAD
 } ODM_TYPE_GLNA_E;
 
 typedef enum tag_ODM_TYPE_ALNA_Definition {
+=======
+};
+
+enum odm_type_alna_e { /* tag_ODM_TYPE_ALNA_Definition */
+>>>>>>> upstream/android-13
 	TYPE_ALNA0 = 0,
 	TYPE_ALNA1 = BIT(2)|BIT(0),
 	TYPE_ALNA2 = BIT(3)|BIT(1),
 	TYPE_ALNA3 = BIT(3)|BIT(2)|BIT(1)|BIT(0)
+<<<<<<< HEAD
 } ODM_TYPE_ALNA_E;
 
 /*  ODM_CMNINFO_ONE_PATH_CCA */
@@ -681,6 +842,19 @@ typedef struct _IQK_MATRIX_REGS_SETTING {
 /* Remove PATHDIV_PARA struct to odm_PathDiv.h */
 
 typedef struct ODM_RF_Calibration_Structure {
+=======
+};
+
+struct iqk_matrix_regs_setting { /* _IQK_MATRIX_REGS_SETTING */
+	bool bIQKDone;
+	s32 Value[3][IQK_Matrix_REG_NUM];
+	bool bBWIqkResultSaved[3];
+};
+
+/* Remove PATHDIV_PARA struct to odm_PathDiv.h */
+
+struct odm_rf_cal_t { /* ODM_RF_Calibration_Structure */
+>>>>>>> upstream/android-13
 	/* for tx power tracking */
 
 	u32 RegA24; /*  for TempCCK */
@@ -694,7 +868,10 @@ typedef struct ODM_RF_Calibration_Structure {
 	bool bTXPowerTracking;
 	u8 TxPowerTrackControl; /* for mp mode, turn off txpwrtracking as default */
 	u8 TM_Trigger;
+<<<<<<< HEAD
 	u8 InternalPA5G[2];	/* pathA / pathB */
+=======
+>>>>>>> upstream/android-13
 
 	u8 ThermalMeter[2];    /*  ThermalMeter, index 0 for RFIC0, and 1 for RFIC1 */
 	u8 ThermalValue;
@@ -724,12 +901,20 @@ typedef struct ODM_RF_Calibration_Structure {
 
 	u8 ThermalValue_HP[HP_THERMAL_NUM];
 	u8 ThermalValue_HP_index;
+<<<<<<< HEAD
 	IQK_MATRIX_REGS_SETTING IQKMatrixRegSetting[IQK_Matrix_Settings_NUM];
+=======
+	struct iqk_matrix_regs_setting IQKMatrixRegSetting[IQK_Matrix_Settings_NUM];
+>>>>>>> upstream/android-13
 	bool bNeedIQK;
 	bool bIQKInProgress;
 	u8 Delta_IQK;
 	u8 Delta_LCK;
+<<<<<<< HEAD
 	s8 BBSwingDiff2G, BBSwingDiff5G; /*  Unit: dB */
+=======
+	s8 BBSwingDiff2G; /*  Unit: dB */
+>>>>>>> upstream/android-13
 	u8 DeltaSwingTableIdx_2GCCKA_P[DELTA_SWINGIDX_SIZE];
 	u8 DeltaSwingTableIdx_2GCCKA_N[DELTA_SWINGIDX_SIZE];
 	u8 DeltaSwingTableIdx_2GCCKB_P[DELTA_SWINGIDX_SIZE];
@@ -738,10 +923,13 @@ typedef struct ODM_RF_Calibration_Structure {
 	u8 DeltaSwingTableIdx_2GA_N[DELTA_SWINGIDX_SIZE];
 	u8 DeltaSwingTableIdx_2GB_P[DELTA_SWINGIDX_SIZE];
 	u8 DeltaSwingTableIdx_2GB_N[DELTA_SWINGIDX_SIZE];
+<<<<<<< HEAD
 	u8 DeltaSwingTableIdx_5GA_P[BAND_NUM][DELTA_SWINGIDX_SIZE];
 	u8 DeltaSwingTableIdx_5GA_N[BAND_NUM][DELTA_SWINGIDX_SIZE];
 	u8 DeltaSwingTableIdx_5GB_P[BAND_NUM][DELTA_SWINGIDX_SIZE];
 	u8 DeltaSwingTableIdx_5GB_N[BAND_NUM][DELTA_SWINGIDX_SIZE];
+=======
+>>>>>>> upstream/android-13
 	u8 DeltaSwingTableIdx_2GA_P_8188E[DELTA_SWINGIDX_SIZE];
 	u8 DeltaSwingTableIdx_2GA_N_8188E[DELTA_SWINGIDX_SIZE];
 
@@ -780,12 +968,20 @@ typedef struct ODM_RF_Calibration_Structure {
 
 	u32 TxLOK[2];
 
+<<<<<<< HEAD
 } ODM_RF_CAL_T, *PODM_RF_CAL_T;
+=======
+};
+>>>>>>> upstream/android-13
 /*  */
 /*  ODM Dynamic common info value definition */
 /*  */
 
+<<<<<<< HEAD
 typedef struct _FAST_ANTENNA_TRAINNING_ {
+=======
+struct fat_t { /* _FAST_ANTENNA_TRAINNING_ */
+>>>>>>> upstream/android-13
 	u8 Bssid[6];
 	u8 antsel_rx_keep_0;
 	u8 antsel_rx_keep_1;
@@ -807,8 +1003,11 @@ typedef struct _FAST_ANTENNA_TRAINNING_ {
 	bool	bBecomeLinked;
 	u32 MinMaxRSSI;
 	u8 idx_AntDiv_counter_2G;
+<<<<<<< HEAD
 	u8 idx_AntDiv_counter_5G;
 	u32 AntDiv_2G_5G;
+=======
+>>>>>>> upstream/android-13
 	u32 CCK_counter_main;
 	u32 CCK_counter_aux;
 	u32 OFDM_counter_main;
@@ -823,6 +1022,7 @@ typedef struct _FAST_ANTENNA_TRAINNING_ {
 	u32 MainAnt_CtrlFrame_Cnt;
 	u32 AuxAnt_CtrlFrame_Cnt;
 
+<<<<<<< HEAD
 } FAT_T, *pFAT_T;
 
 typedef enum _FAT_STATE {
@@ -831,6 +1031,11 @@ typedef enum _FAT_STATE {
 } FAT_STATE_E, *PFAT_STATE_E;
 
 typedef enum _ANT_DIV_TYPE {
+=======
+};
+
+enum {
+>>>>>>> upstream/android-13
 	NO_ANTDIV			= 0xFF,
 	CG_TRX_HW_ANTDIV		= 0x01,
 	CGCS_RX_HW_ANTDIV	= 0x02,
@@ -838,37 +1043,65 @@ typedef enum _ANT_DIV_TYPE {
 	CG_TRX_SMART_ANTDIV	= 0x04,
 	CGCS_RX_SW_ANTDIV	= 0x05,
 	S0S1_SW_ANTDIV          = 0x06 /* 8723B intrnal switch S0 S1 */
+<<<<<<< HEAD
 } ANT_DIV_TYPE_E, *PANT_DIV_TYPE_E;
 
 typedef struct _ODM_PATH_DIVERSITY_ {
+=======
+};
+
+struct pathdiv_t { /* _ODM_PATH_DIVERSITY_ */
+>>>>>>> upstream/android-13
 	u8 RespTxPath;
 	u8 PathSel[ODM_ASSOCIATE_ENTRY_NUM];
 	u32 PathA_Sum[ODM_ASSOCIATE_ENTRY_NUM];
 	u32 PathB_Sum[ODM_ASSOCIATE_ENTRY_NUM];
 	u32 PathA_Cnt[ODM_ASSOCIATE_ENTRY_NUM];
 	u32 PathB_Cnt[ODM_ASSOCIATE_ENTRY_NUM];
+<<<<<<< HEAD
 } PATHDIV_T, *pPATHDIV_T;
 
 typedef enum _BASEBAND_CONFIG_PHY_REG_PG_VALUE_TYPE{
 	PHY_REG_PG_RELATIVE_VALUE = 0,
 	PHY_REG_PG_EXACT_VALUE = 1
 } PHY_REG_PG_TYPE;
+=======
+};
+
+enum phy_reg_pg_type { /* _BASEBAND_CONFIG_PHY_REG_PG_VALUE_TYPE */
+	PHY_REG_PG_RELATIVE_VALUE = 0,
+	PHY_REG_PG_EXACT_VALUE = 1
+};
+>>>>>>> upstream/android-13
 
 /*  */
 /*  Antenna detection information from single tone mechanism, added by Roger, 2012.11.27. */
 /*  */
+<<<<<<< HEAD
 typedef struct _ANT_DETECTED_INFO {
+=======
+struct ant_detected_info {
+>>>>>>> upstream/android-13
 	bool bAntDetected;
 	u32 dBForAntA;
 	u32 dBForAntB;
 	u32 dBForAntO;
+<<<<<<< HEAD
 } ANT_DETECTED_INFO, *PANT_DETECTED_INFO;
+=======
+};
+>>>>>>> upstream/android-13
 
 /*  */
 /*  2011/09/22 MH Copy from SD4 defined structure. We use to support PHY DM integration. */
 /*  */
+<<<<<<< HEAD
 typedef  struct DM_Out_Source_Dynamic_Mechanism_Structure {
 	/* RT_TIMER	FastAntTrainingTimer; */
+=======
+struct dm_odm_t { /* DM_Out_Source_Dynamic_Mechanism_Structure */
+	/* struct timer_list	FastAntTrainingTimer; */
+>>>>>>> upstream/android-13
 	/*  */
 	/* 	Add for different team use temporarily */
 	/*  */
@@ -876,12 +1109,18 @@ typedef  struct DM_Out_Source_Dynamic_Mechanism_Structure {
 	/*  WHen you use Adapter or priv pointer, you must make sure the pointer is ready. */
 	bool odm_ready;
 
+<<<<<<< HEAD
 	PHY_REG_PG_TYPE PhyRegPgValueType;
 	u8 PhyRegPgVersion;
 
 	u64	DebugComponents;
 	u32 DebugLevel;
 
+=======
+	enum phy_reg_pg_type PhyRegPgValueType;
+	u8 PhyRegPgVersion;
+
+>>>>>>> upstream/android-13
 	u32 NumQryPhyStatusAll;	/* CCK + OFDM */
 	u32 LastNumQryPhyStatusAll;
 	u32 RxPWDBAve;
@@ -924,7 +1163,10 @@ typedef  struct DM_Out_Source_Dynamic_Mechanism_Structure {
 	/*  Fab Version TSMC/UMC = 0/1 */
 	u8 FabVersion;
 	/*  RF Type 4T4R/3T3R/2T2R/1T2R/1T1R/... */
+<<<<<<< HEAD
 	u8 RFType;
+=======
+>>>>>>> upstream/android-13
 	u8 RFEType;
 	/*  Board Type Normal/HighPower/MiniCard/SLIM/Combo/... = 0/1/2/3/4/... */
 	u8 BoardType;
@@ -935,10 +1177,15 @@ typedef  struct DM_Out_Source_Dynamic_Mechanism_Structure {
 	u8 TypeAPA;
 	/*  with external LNA  NO/Yes = 0/1 */
 	u8 ExtLNA;
+<<<<<<< HEAD
 	u8 ExtLNA5G;
 	/*  with external PA  NO/Yes = 0/1 */
 	u8 ExtPA;
 	u8 ExtPA5G;
+=======
+	/*  with external PA  NO/Yes = 0/1 */
+	u8 ExtPA;
+>>>>>>> upstream/android-13
 	/*  with external TRSW  NO/Yes = 0/1 */
 	u8 ExtTRSW;
 	u8 PatchID; /* Customer ID */
@@ -967,8 +1214,11 @@ typedef  struct DM_Out_Source_Dynamic_Mechanism_Structure {
 	u64 *pNumRxBytesUnicast;
 	/*  Wireless mode B/G/A/N = BIT0/BIT1/BIT2/BIT3 */
 	u8 *pwirelessmode; /* ODM_WIRELESS_MODE_E */
+<<<<<<< HEAD
 	/*  Frequence band 2.4G/5G = 0/1 */
 	u8 *pBandType;
+=======
+>>>>>>> upstream/android-13
 	/*  Secondary channel offset don't_care/below/above = 0/1/2 */
 	u8 *pSecChOffset;
 	/*  Security mode Open/WEP/AES/TKIP = 0/1/2/3 */
@@ -1010,7 +1260,10 @@ typedef  struct DM_Out_Source_Dynamic_Mechanism_Structure {
 	bool bsta_state;
 	u8 RSSI_Min;
 	u8 InterfaceIndex; /*  Add for 92D  dual MAC: 0--Mac0 1--Mac1 */
+<<<<<<< HEAD
 	bool bIsMPChip;
+=======
+>>>>>>> upstream/android-13
 	bool bOneEntryOnly;
 	/*  Common info for BTDM */
 	bool bBtEnabled;			/*  BT is disabled */
@@ -1076,7 +1329,11 @@ typedef  struct DM_Out_Source_Dynamic_Mechanism_Structure {
 	u8 Adaptivity_IGI_upper;
 	u8 NHM_cnt_0;
 
+<<<<<<< HEAD
 	ODM_NOISE_MONITOR noise_level;/* ODM_MAX_CHANNEL_NUM]; */
+=======
+	struct odm_noise_monitor noise_level;/* ODM_MAX_CHANNEL_NUM]; */
+>>>>>>> upstream/android-13
 	/*  */
 	/* 2 Define STA info. */
 	/*  _ODM_STA_INFO */
@@ -1092,11 +1349,19 @@ typedef  struct DM_Out_Source_Dynamic_Mechanism_Structure {
 	/*  Define ........... */
 
 	/*  Latest packet phy info (ODM write) */
+<<<<<<< HEAD
 	ODM_PHY_DBG_INFO_T PhyDbgInfo;
 	/* PHY_INFO_88E		PhyInfo; */
 
 	/*  Latest packet phy info (ODM write) */
 	ODM_MAC_INFO *pMacInfo;
+=======
+	struct odm_phy_dbg_info PhyDbgInfo;
+	/* PHY_INFO_88E		PhyInfo; */
+
+	/*  Latest packet phy info (ODM write) */
+	struct odm_mac_status_info *pMacInfo;
+>>>>>>> upstream/android-13
 	/* MAC_INFO_88E		MacInfo; */
 
 	/*  Different Team independt structure?? */
@@ -1109,6 +1374,7 @@ typedef  struct DM_Out_Source_Dynamic_Mechanism_Structure {
 	/*  */
 	/* ODM Structure */
 	/*  */
+<<<<<<< HEAD
 	FAT_T DM_FatTable;
 	DIG_T DM_DigTable;
 	PS_T DM_PSTable;
@@ -1124,6 +1390,23 @@ typedef  struct DM_Out_Source_Dynamic_Mechanism_Structure {
 	EDCA_T DM_EDCA_Table;
 	u32 WMMEDCA_BE;
 	PATHDIV_T DM_PathDiv;
+=======
+	struct fat_t DM_FatTable;
+	struct dig_t DM_DigTable;
+	struct ps_t DM_PSTable;
+	struct dynamic_primary_CCA DM_PriCCA;
+	struct rxhp_t dM_RXHP_Table;
+	struct ra_t DM_RA_Table;
+	struct false_ALARM_STATISTICS FalseAlmCnt;
+	struct false_ALARM_STATISTICS FlaseAlmCntBuddyAdapter;
+	struct swat_t DM_SWAT_Table;
+	bool RSSI_test;
+	struct cfo_tracking DM_CfoTrack;
+
+	struct edca_t DM_EDCA_Table;
+	u32 WMMEDCA_BE;
+	struct pathdiv_t DM_PathDiv;
+>>>>>>> upstream/android-13
 	/*  Copy from SD4 structure */
 	/*  */
 	/*  ================================================== */
@@ -1146,23 +1429,39 @@ typedef  struct DM_Out_Source_Dynamic_Mechanism_Structure {
 
 	/* PSD */
 	bool bUserAssignLevel;
+<<<<<<< HEAD
 	RT_TIMER PSDTimer;
+=======
+	struct timer_list PSDTimer;
+>>>>>>> upstream/android-13
 	u8 RSSI_BT;			/* come from BT */
 	bool bPSDinProcess;
 	bool bPSDactive;
 	bool bDMInitialGainEnable;
 
 	/* MPT DIG */
+<<<<<<< HEAD
 	RT_TIMER MPT_DIGTimer;
+=======
+	struct timer_list MPT_DIGTimer;
+>>>>>>> upstream/android-13
 
 	/* for rate adaptive, in fact,  88c/92c fw will handle this */
 	u8 bUseRAMask;
 
+<<<<<<< HEAD
 	ODM_RATE_ADAPTIVE RateAdaptive;
 
 	ANT_DETECTED_INFO AntDetectedInfo; /*  Antenna detected information for RSSI tool */
 
 	ODM_RF_CAL_T RFCalibrateInfo;
+=======
+	struct odm_rate_adaptive RateAdaptive;
+
+	struct ant_detected_info AntDetectedInfo; /*  Antenna detected information for RSSI tool */
+
+	struct odm_rf_cal_t RFCalibrateInfo;
+>>>>>>> upstream/android-13
 
 	/*  */
 	/*  TX power tracking */
@@ -1194,16 +1493,24 @@ typedef  struct DM_Out_Source_Dynamic_Mechanism_Structure {
 	/*  */
 
 	/*  ODM relative time. */
+<<<<<<< HEAD
 	RT_TIMER PathDivSwitchTimer;
 	/* 2011.09.27 add for Path Diversity */
 	RT_TIMER CCKPathDiversityTimer;
 	RT_TIMER FastAntTrainingTimer;
+=======
+	struct timer_list PathDivSwitchTimer;
+	/* 2011.09.27 add for Path Diversity */
+	struct timer_list CCKPathDiversityTimer;
+	struct timer_list FastAntTrainingTimer;
+>>>>>>> upstream/android-13
 
 	/*  ODM relative workitem. */
 
 	#if (BEAMFORMING_SUPPORT == 1)
 	RT_BEAMFORMING_INFO BeamformingInfo;
 	#endif
+<<<<<<< HEAD
 } DM_ODM_T, *PDM_ODM_T; /*  DM_Dynamic_Mechanism_Structure */
 
 #define ODM_RF_PATH_MAX 2
@@ -1227,10 +1534,16 @@ typedef enum _ODM_RF_RADIO_PATH {
 } ODM_RF_RADIO_PATH_E, *PODM_RF_RADIO_PATH_E;
 
  typedef enum _ODM_RF_CONTENT {
+=======
+};
+
+ enum odm_rf_content {
+>>>>>>> upstream/android-13
 	odm_radioa_txt = 0x1000,
 	odm_radiob_txt = 0x1001,
 	odm_radioc_txt = 0x1002,
 	odm_radiod_txt = 0x1003
+<<<<<<< HEAD
 } ODM_RF_CONTENT;
 
 typedef enum _ODM_BB_Config_Type {
@@ -1249,6 +1562,25 @@ typedef enum _ODM_RF_Config_Type {
 } ODM_RF_Config_Type, *PODM_RF_Config_Type;
 
 typedef enum _ODM_FW_Config_Type {
+=======
+};
+
+enum ODM_BB_Config_Type {
+	CONFIG_BB_PHY_REG,
+	CONFIG_BB_AGC_TAB,
+	CONFIG_BB_AGC_TAB_2G,
+	CONFIG_BB_PHY_REG_PG,
+	CONFIG_BB_PHY_REG_MP,
+	CONFIG_BB_AGC_TAB_DIFF,
+};
+
+enum ODM_RF_Config_Type {
+	CONFIG_RF_RADIO,
+	CONFIG_RF_TXPWR_LMT,
+};
+
+enum ODM_FW_Config_Type {
+>>>>>>> upstream/android-13
 	CONFIG_FW_NIC,
 	CONFIG_FW_NIC_2,
 	CONFIG_FW_AP,
@@ -1256,6 +1588,7 @@ typedef enum _ODM_FW_Config_Type {
 	CONFIG_FW_WoWLAN_2,
 	CONFIG_FW_AP_WoWLAN,
 	CONFIG_FW_BT,
+<<<<<<< HEAD
 } ODM_FW_Config_Type;
 
 /*  Status code */
@@ -1269,6 +1602,9 @@ typedef enum _RT_STATUS {
 	RT_STATUS_NOT_SUPPORT,
 	RT_STATUS_OS_API_FAILED,
 } RT_STATUS, *PRT_STATUS;
+=======
+};
+>>>>>>> upstream/android-13
 
 #ifdef REMOVE_PACK
 #pragma pack()
@@ -1316,6 +1652,7 @@ typedef enum _RT_STATUS {
 /* 3 BB Power Save */
 /* 3 =========================================================== */
 
+<<<<<<< HEAD
 typedef enum tag_1R_CCA_Type_Definition {
 	CCA_1R = 0,
 	CCA_2R = 1,
@@ -1336,6 +1673,19 @@ typedef enum tag_SW_Antenna_Switch_Definition {
 	Antenna_B = 2,
 	Antenna_MAX = 3,
 } DM_SWAS_E;
+=======
+enum { /* tag_1R_CCA_Type_Definition */
+	CCA_1R = 0,
+	CCA_2R = 1,
+	CCA_MAX = 2,
+};
+
+enum { /* tag_RF_Type_Definition */
+	RF_Save = 0,
+	RF_Normal = 1,
+	RF_MAX = 2,
+};
+>>>>>>> upstream/android-13
 
 /*  Maximal number of antenna detection mechanism needs to perform, added by Roger, 2011.12.28. */
 #define	MAX_ANTENNA_DETECTION_CNT	10
@@ -1365,6 +1715,7 @@ extern  u32 TxScalingTable_Jaguar[TXSCALE_TABLE_SIZE];
 #define SWAW_STEP_PEAK		0
 #define SWAW_STEP_DETERMINE	1
 
+<<<<<<< HEAD
 /* Remove DIG by yuchen */
 
 void ODM_SetAntenna(PDM_ODM_T pDM_Odm, u8 Antenna);
@@ -1376,6 +1727,15 @@ void ODM_TXPowerTrackingCheck(PDM_ODM_T pDM_Odm);
 
 bool ODM_RAStateCheck(
 	PDM_ODM_T pDM_Odm,
+=======
+/* Remove BB power saving by Yuchen */
+
+#define dm_CheckTXPowerTracking ODM_TXPowerTrackingCheck
+void ODM_TXPowerTrackingCheck(struct dm_odm_t *pDM_Odm);
+
+bool ODM_RAStateCheck(
+	struct dm_odm_t *pDM_Odm,
+>>>>>>> upstream/android-13
 	s32	RSSI,
 	bool bForceUpdate,
 	u8 *pRATRState
@@ -1383,13 +1743,21 @@ bool ODM_RAStateCheck(
 
 #define dm_SWAW_RSSI_Check	ODM_SwAntDivChkPerPktRssi
 void ODM_SwAntDivChkPerPktRssi(
+<<<<<<< HEAD
 	PDM_ODM_T pDM_Odm,
+=======
+	struct dm_odm_t *pDM_Odm,
+>>>>>>> upstream/android-13
 	u8 StationID,
 	struct odm_phy_info *pPhyInfo
 );
 
 u32 ODM_Get_Rate_Bitmap(
+<<<<<<< HEAD
 	PDM_ODM_T pDM_Odm,
+=======
+	struct dm_odm_t *pDM_Odm,
+>>>>>>> upstream/android-13
 	u32 macid,
 	u32 ra_mask,
 	u8 rssi_level
@@ -1399,6 +1767,7 @@ u32 ODM_Get_Rate_Bitmap(
 BEAMFORMING_CAP Beamforming_GetEntryBeamCapByMacId(PMGNT_INFO pMgntInfo, u8 MacId);
 #endif
 
+<<<<<<< HEAD
 void odm_TXPowerTrackingInit(PDM_ODM_T pDM_Odm);
 
 void ODM_DMInit(PDM_ODM_T pDM_Odm);
@@ -1412,10 +1781,26 @@ void ODM_CmnInfoHook(PDM_ODM_T pDM_Odm, ODM_CMNINFO_E CmnInfo, void *pValue);
 void ODM_CmnInfoPtrArrayHook(
 	PDM_ODM_T pDM_Odm,
 	ODM_CMNINFO_E CmnInfo,
+=======
+void odm_TXPowerTrackingInit(struct dm_odm_t *pDM_Odm);
+
+void ODM_DMInit(struct dm_odm_t *pDM_Odm);
+
+void ODM_DMWatchdog(struct dm_odm_t *pDM_Odm); /*  For common use in the future */
+
+void ODM_CmnInfoInit(struct dm_odm_t *pDM_Odm, enum odm_cmninfo_e CmnInfo, u32 Value);
+
+void ODM_CmnInfoHook(struct dm_odm_t *pDM_Odm, enum odm_cmninfo_e CmnInfo, void *pValue);
+
+void ODM_CmnInfoPtrArrayHook(
+	struct dm_odm_t *pDM_Odm,
+	enum odm_cmninfo_e CmnInfo,
+>>>>>>> upstream/android-13
 	u16 Index,
 	void *pValue
 );
 
+<<<<<<< HEAD
 void ODM_CmnInfoUpdate(PDM_ODM_T pDM_Odm, u32 CmnInfo, u64 Value);
 
 void ODM_InitAllTimers(PDM_ODM_T pDM_Odm);
@@ -1426,11 +1811,27 @@ void ODM_ReleaseAllTimers(PDM_ODM_T pDM_Odm);
 
 void ODM_AntselStatistics_88C(
 	PDM_ODM_T pDM_Odm,
+=======
+void ODM_CmnInfoUpdate(struct dm_odm_t *pDM_Odm, u32 CmnInfo, u64 Value);
+
+void ODM_InitAllTimers(struct dm_odm_t *pDM_Odm);
+
+void ODM_CancelAllTimers(struct dm_odm_t *pDM_Odm);
+
+void ODM_ReleaseAllTimers(struct dm_odm_t *pDM_Odm);
+
+void ODM_AntselStatistics_88C(
+	struct dm_odm_t *pDM_Odm,
+>>>>>>> upstream/android-13
 	u8 MacId,
 	u32 PWDBAll,
 	bool isCCKrate
 );
 
+<<<<<<< HEAD
 void ODM_DynamicARFBSelect(PDM_ODM_T pDM_Odm, u8 rate, bool Collision_State);
+=======
+void ODM_DynamicARFBSelect(struct dm_odm_t *pDM_Odm, u8 rate, bool Collision_State);
+>>>>>>> upstream/android-13
 
 #endif

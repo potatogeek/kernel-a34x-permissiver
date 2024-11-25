@@ -11,6 +11,7 @@
 #ifndef __XEN_DRM_FRONT_CONN_H_
 #define __XEN_DRM_FRONT_CONN_H_
 
+<<<<<<< HEAD
 #include <drm/drmP.h>
 #include <drm/drm_crtc.h>
 #include <drm/drm_encoder.h>
@@ -19,6 +20,14 @@
 
 struct xen_drm_front_drm_info;
 
+=======
+#include <linux/types.h>
+
+struct drm_connector;
+struct xen_drm_front_drm_info;
+
+
+>>>>>>> upstream/android-13
 int xen_drm_front_conn_init(struct xen_drm_front_drm_info *drm_info,
 			    struct drm_connector *connector);
 

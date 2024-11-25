@@ -54,13 +54,22 @@
  */
 
 #include <linux/linkage.h>
+<<<<<<< HEAD
 #include <variant/core.h>
 #include <asm/asmmacro.h>
+=======
+#include <asm/asmmacro.h>
+#include <asm/core.h>
+>>>>>>> upstream/android-13
 
 	.text
 ENTRY(__xtensa_copy_user)
 
+<<<<<<< HEAD
 	entry	sp, 16		# minimal stack frame
+=======
+	abi_entry_default
+>>>>>>> upstream/android-13
 	# a2/ dst, a3/ src, a4/ len
 	mov	a5, a2		# copy dst so that a2 is return value
 	mov	a11, a4		# preserve original len for error case
@@ -75,7 +84,11 @@ ENTRY(__xtensa_copy_user)
 	__ssa8	a3		# set shift amount from byte offset
 	bnez	a4, .Lsrcunaligned
 	movi	a2, 0		# return success for len==0
+<<<<<<< HEAD
 	retw
+=======
+	abi_ret_default
+>>>>>>> upstream/android-13
 
 /*
  * Destination is unaligned
@@ -127,7 +140,11 @@ EX(10f)	s8i	a6, a5, 0
 #endif /* !XCHAL_HAVE_LOOPS */
 .Lbytecopydone:
 	movi	a2, 0		# return success for len bytes copied
+<<<<<<< HEAD
 	retw
+=======
+	abi_ret_default
+>>>>>>> upstream/android-13
 
 /*
  * Destination and source are word-aligned.
@@ -187,7 +204,11 @@ EX(10f)	l8ui	a6, a3,  0
 EX(10f)	s8i	a6, a5,  0
 .L5:
 	movi	a2, 0		# return success for len bytes copied
+<<<<<<< HEAD
 	retw
+=======
+	abi_ret_default
+>>>>>>> upstream/android-13
 
 /*
  * Destination is aligned, Source is unaligned
@@ -264,7 +285,11 @@ EX(10f)	l8ui	a6, a3,  0
 EX(10f)	s8i	a6, a5,  0
 .L15:
 	movi	a2, 0		# return success for len bytes copied
+<<<<<<< HEAD
 	retw
+=======
+	abi_ret_default
+>>>>>>> upstream/android-13
 
 ENDPROC(__xtensa_copy_user)
 
@@ -281,4 +306,8 @@ ENDPROC(__xtensa_copy_user)
 10:
 	sub	a2, a5, a2	/* a2 <-- bytes copied */
 	sub	a2, a11, a2	/* a2 <-- bytes not copied */
+<<<<<<< HEAD
 	retw
+=======
+	abi_ret_default
+>>>>>>> upstream/android-13

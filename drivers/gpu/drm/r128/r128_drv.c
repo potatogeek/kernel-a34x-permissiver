@@ -30,12 +30,24 @@
  */
 
 #include <linux/module.h>
+<<<<<<< HEAD
 
 #include <drm/drmP.h>
 #include <drm/r128_drm.h>
 #include "r128_drv.h"
 
 #include <drm/drm_pciids.h>
+=======
+#include <linux/pci.h>
+
+#include <drm/drm_drv.h>
+#include <drm/drm_file.h>
+#include <drm/drm_pciids.h>
+#include <drm/drm_vblank.h>
+#include <drm/r128_drm.h>
+
+#include "r128_drv.h"
+>>>>>>> upstream/android-13
 
 static struct pci_device_id pciidlist[] = {
 	r128_PCI_IDS
@@ -57,7 +69,11 @@ static const struct file_operations r128_driver_fops = {
 static struct drm_driver driver = {
 	.driver_features =
 	    DRIVER_USE_AGP | DRIVER_PCI_DMA | DRIVER_SG | DRIVER_LEGACY |
+<<<<<<< HEAD
 	    DRIVER_HAVE_DMA | DRIVER_HAVE_IRQ | DRIVER_IRQ_SHARED,
+=======
+	    DRIVER_HAVE_DMA | DRIVER_HAVE_IRQ,
+>>>>>>> upstream/android-13
 	.dev_priv_size = sizeof(drm_r128_buf_priv_t),
 	.load = r128_driver_load,
 	.preclose = r128_driver_preclose,
@@ -82,7 +98,13 @@ static struct drm_driver driver = {
 
 int r128_driver_load(struct drm_device *dev, unsigned long flags)
 {
+<<<<<<< HEAD
 	pci_set_master(dev->pdev);
+=======
+	struct pci_dev *pdev = to_pci_dev(dev->dev);
+
+	pci_set_master(pdev);
+>>>>>>> upstream/android-13
 	return drm_vblank_init(dev, 1);
 }
 

@@ -1,7 +1,10 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
+<<<<<<< HEAD
  *  zcrypt 2.1.0
  *
+=======
+>>>>>>> upstream/android-13
  *  Copyright IBM Corp. 2001, 2012
  *  Author(s): Robert Burroughs
  *	       Eric Rossman (edrossma@us.ibm.com)
@@ -29,8 +32,12 @@
 #include "zcrypt_msgtype6.h"
 #include "zcrypt_cca_key.h"
 
+<<<<<<< HEAD
 #define PCIXCC_MIN_MOD_SIZE_OLD	 64	/*  512 bits	*/
 #define PCIXCC_MAX_ICA_RESPONSE_SIZE 0x77c /* max size type86 v2 reply	    */
+=======
+#define CEXXC_MAX_ICA_RESPONSE_SIZE 0x77c /* max size type86 v2 reply	    */
+>>>>>>> upstream/android-13
 
 #define CEIL4(x) ((((x)+3)/4)*4)
 
@@ -38,16 +45,26 @@ struct response_type {
 	struct completion work;
 	int type;
 };
+<<<<<<< HEAD
 #define PCIXCC_RESPONSE_TYPE_ICA  0
 #define PCIXCC_RESPONSE_TYPE_XCRB 1
 #define PCIXCC_RESPONSE_TYPE_EP11 2
+=======
+#define CEXXC_RESPONSE_TYPE_ICA  0
+#define CEXXC_RESPONSE_TYPE_XCRB 1
+#define CEXXC_RESPONSE_TYPE_EP11 2
+>>>>>>> upstream/android-13
 
 MODULE_AUTHOR("IBM Corporation");
 MODULE_DESCRIPTION("Cryptographic Coprocessor (message type 6), " \
 		   "Copyright IBM Corp. 2001, 2012");
 MODULE_LICENSE("GPL");
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * CPRB
  *	  Note that all shorts, ints and longs are little-endian.
  *	  All pointer fields are 32-bits long, and mean nothing
@@ -110,8 +127,13 @@ struct function_and_rules_block {
 	unsigned char only_rule[8];
 } __packed;
 
+<<<<<<< HEAD
 /**
  * The following is used to initialize the CPRBX passed to the PCIXCC/CEX2C
+=======
+/*
+ * The following is used to initialize the CPRBX passed to the CEXxC/CEXxP
+>>>>>>> upstream/android-13
  * card in a type6 message. The 3 fields that must be filled in at execution
  * time are  req_parml, rpl_parml and usage_domain.
  * Everything about this interface is ascii/big-endian, since the
@@ -239,7 +261,11 @@ int speed_idx_ep11(int req_type)
 }
 
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * Convert a ICAMEX message to a type6 MEX message.
  *
  * @zq: crypto device pointer
@@ -269,7 +295,11 @@ static int ICAMEX_msg_to_type6MEX_msgX(struct zcrypt_queue *zq,
 		struct function_and_rules_block fr;
 		unsigned short length;
 		char text[0];
+<<<<<<< HEAD
 	} __packed * msg = ap_msg->message;
+=======
+	} __packed * msg = ap_msg->msg;
+>>>>>>> upstream/android-13
 	int size;
 
 	/*
@@ -294,7 +324,11 @@ static int ICAMEX_msg_to_type6MEX_msgX(struct zcrypt_queue *zq,
 	/* message header, cprbx and f&r */
 	msg->hdr = static_type6_hdrX;
 	msg->hdr.ToCardLen1 = size - sizeof(msg->hdr);
+<<<<<<< HEAD
 	msg->hdr.FromCardLen1 = PCIXCC_MAX_ICA_RESPONSE_SIZE - sizeof(msg->hdr);
+=======
+	msg->hdr.FromCardLen1 = CEXXC_MAX_ICA_RESPONSE_SIZE - sizeof(msg->hdr);
+>>>>>>> upstream/android-13
 
 	msg->cprbx = static_cprbx;
 	msg->cprbx.domain = AP_QID_QUEUE(zq->queue->qid);
@@ -304,11 +338,19 @@ static int ICAMEX_msg_to_type6MEX_msgX(struct zcrypt_queue *zq,
 
 	msg->cprbx.req_parml = size - sizeof(msg->hdr) - sizeof(msg->cprbx);
 
+<<<<<<< HEAD
 	ap_msg->length = size;
 	return 0;
 }
 
 /**
+=======
+	ap_msg->len = size;
+	return 0;
+}
+
+/*
+>>>>>>> upstream/android-13
  * Convert a ICACRT message to a type6 CRT message.
  *
  * @zq: crypto device pointer
@@ -339,7 +381,11 @@ static int ICACRT_msg_to_type6CRT_msgX(struct zcrypt_queue *zq,
 		struct function_and_rules_block fr;
 		unsigned short length;
 		char text[0];
+<<<<<<< HEAD
 	} __packed * msg = ap_msg->message;
+=======
+	} __packed * msg = ap_msg->msg;
+>>>>>>> upstream/android-13
 	int size;
 
 	/*
@@ -364,7 +410,11 @@ static int ICACRT_msg_to_type6CRT_msgX(struct zcrypt_queue *zq,
 	/* message header, cprbx and f&r */
 	msg->hdr = static_type6_hdrX;
 	msg->hdr.ToCardLen1 = size -  sizeof(msg->hdr);
+<<<<<<< HEAD
 	msg->hdr.FromCardLen1 = PCIXCC_MAX_ICA_RESPONSE_SIZE - sizeof(msg->hdr);
+=======
+	msg->hdr.FromCardLen1 = CEXXC_MAX_ICA_RESPONSE_SIZE - sizeof(msg->hdr);
+>>>>>>> upstream/android-13
 
 	msg->cprbx = static_cprbx;
 	msg->cprbx.domain = AP_QID_QUEUE(zq->queue->qid);
@@ -373,11 +423,19 @@ static int ICACRT_msg_to_type6CRT_msgX(struct zcrypt_queue *zq,
 
 	msg->fr = static_pkd_fnr;
 
+<<<<<<< HEAD
 	ap_msg->length = size;
 	return 0;
 }
 
 /**
+=======
+	ap_msg->len = size;
+	return 0;
+}
+
+/*
+>>>>>>> upstream/android-13
  * Convert a XCRB message to a type6 CPRB message.
  *
  * @zq: crypto device pointer
@@ -391,7 +449,11 @@ struct type86_fmt2_msg {
 	struct type86_fmt2_ext fmt2;
 } __packed;
 
+<<<<<<< HEAD
 static int XCRB_msg_to_type6CPRB_msgX(struct ap_message *ap_msg,
+=======
+static int XCRB_msg_to_type6CPRB_msgX(bool userspace, struct ap_message *ap_msg,
+>>>>>>> upstream/android-13
 				      struct ica_xcRB *xcRB,
 				      unsigned int *fcode,
 				      unsigned short **dom)
@@ -403,11 +465,19 @@ static int XCRB_msg_to_type6CPRB_msgX(struct ap_message *ap_msg,
 	struct {
 		struct type6_hdr hdr;
 		struct CPRBX cprbx;
+<<<<<<< HEAD
 	} __packed * msg = ap_msg->message;
 
 	int rcblen = CEIL4(xcRB->request_control_blk_length);
 	int replylen, req_sumlen, resp_sumlen;
 	char *req_data = ap_msg->message + sizeof(struct type6_hdr) + rcblen;
+=======
+	} __packed * msg = ap_msg->msg;
+
+	int rcblen = CEIL4(xcRB->request_control_blk_length);
+	int req_sumlen, resp_sumlen;
+	char *req_data = ap_msg->msg + sizeof(struct type6_hdr) + rcblen;
+>>>>>>> upstream/android-13
 	char *function_code;
 
 	if (CEIL4(xcRB->request_control_blk_length) <
@@ -415,10 +485,17 @@ static int XCRB_msg_to_type6CPRB_msgX(struct ap_message *ap_msg,
 		return -EINVAL; /* overflow after alignment*/
 
 	/* length checks */
+<<<<<<< HEAD
 	ap_msg->length = sizeof(struct type6_hdr) +
 		CEIL4(xcRB->request_control_blk_length) +
 		xcRB->request_data_length;
 	if (ap_msg->length > MSGTYPE06_MAX_MSG_SIZE)
+=======
+	ap_msg->len = sizeof(struct type6_hdr) +
+		CEIL4(xcRB->request_control_blk_length) +
+		xcRB->request_data_length;
+	if (ap_msg->len > ap_msg->bufsize)
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	/*
@@ -438,12 +515,15 @@ static int XCRB_msg_to_type6CPRB_msgX(struct ap_message *ap_msg,
 			xcRB->reply_control_blk_length)
 		return -EINVAL; /* overflow after alignment*/
 
+<<<<<<< HEAD
 	replylen = sizeof(struct type86_fmt2_msg) +
 		CEIL4(xcRB->reply_control_blk_length) +
 		xcRB->reply_data_length;
 	if (replylen > MSGTYPE06_MAX_MSG_SIZE)
 		return -EINVAL;
 
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * Overflow check
 	 * sum must be greater (or equal) than the largest operand
@@ -468,8 +548,13 @@ static int XCRB_msg_to_type6CPRB_msgX(struct ap_message *ap_msg,
 	msg->hdr.FromCardLen2 = xcRB->reply_data_length;
 
 	/* prepare CPRB */
+<<<<<<< HEAD
 	if (copy_from_user(&(msg->cprbx), xcRB->request_control_blk_addr,
 		    xcRB->request_control_blk_length))
+=======
+	if (z_copy_from_user(userspace, &(msg->cprbx), xcRB->request_control_blk_addr,
+			     xcRB->request_control_blk_length))
+>>>>>>> upstream/android-13
 		return -EFAULT;
 	if (msg->cprbx.cprb_len + sizeof(msg->hdr.function_code) >
 	    xcRB->request_control_blk_length)
@@ -483,6 +568,7 @@ static int XCRB_msg_to_type6CPRB_msgX(struct ap_message *ap_msg,
 
 	if (memcmp(function_code, "US", 2) == 0
 	    || memcmp(function_code, "AU", 2) == 0)
+<<<<<<< HEAD
 		ap_msg->special = 1;
 	else
 		ap_msg->special = 0;
@@ -491,14 +577,33 @@ static int XCRB_msg_to_type6CPRB_msgX(struct ap_message *ap_msg,
 	if (xcRB->request_data_length &&
 	    copy_from_user(req_data, xcRB->request_data_address,
 		xcRB->request_data_length))
+=======
+		ap_msg->flags |= AP_MSG_FLAG_SPECIAL;
+
+#ifdef CONFIG_ZCRYPT_DEBUG
+	if (ap_msg->fi.flags & AP_FI_FLAG_TOGGLE_SPECIAL)
+		ap_msg->flags ^= AP_MSG_FLAG_SPECIAL;
+#endif
+
+	/* copy data block */
+	if (xcRB->request_data_length &&
+	    z_copy_from_user(userspace, req_data, xcRB->request_data_address,
+			     xcRB->request_data_length))
+>>>>>>> upstream/android-13
 		return -EFAULT;
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static int xcrb_msg_to_type6_ep11cprb_msgx(struct ap_message *ap_msg,
 				       struct ep11_urb *xcRB,
 				       unsigned int *fcode)
+=======
+static int xcrb_msg_to_type6_ep11cprb_msgx(bool userspace, struct ap_message *ap_msg,
+					   struct ep11_urb *xcRB,
+					   unsigned int *fcode)
+>>>>>>> upstream/android-13
 {
 	unsigned int lfmt;
 	static struct type6_hdr static_type6_ep11_hdr = {
@@ -515,7 +620,11 @@ static int xcrb_msg_to_type6_ep11cprb_msgx(struct ap_message *ap_msg,
 		struct ep11_cprb cprbx;
 		unsigned char	pld_tag;	/* fixed value 0x30 */
 		unsigned char	pld_lenfmt;	/* payload length format */
+<<<<<<< HEAD
 	} __packed * msg = ap_msg->message;
+=======
+	} __packed * msg = ap_msg->msg;
+>>>>>>> upstream/android-13
 
 	struct pld_hdr {
 		unsigned char	func_tag;	/* fixed value 0x4 */
@@ -530,26 +639,39 @@ static int xcrb_msg_to_type6_ep11cprb_msgx(struct ap_message *ap_msg,
 		return -EINVAL; /* overflow after alignment*/
 
 	/* length checks */
+<<<<<<< HEAD
 	ap_msg->length = sizeof(struct type6_hdr) + xcRB->req_len;
 	if (CEIL4(xcRB->req_len) > MSGTYPE06_MAX_MSG_SIZE -
 				   (sizeof(struct type6_hdr)))
+=======
+	ap_msg->len = sizeof(struct type6_hdr) + CEIL4(xcRB->req_len);
+	if (ap_msg->len > ap_msg->bufsize)
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	if (CEIL4(xcRB->resp_len) < xcRB->resp_len)
 		return -EINVAL; /* overflow after alignment*/
 
+<<<<<<< HEAD
 	if (CEIL4(xcRB->resp_len) > MSGTYPE06_MAX_MSG_SIZE -
 				    (sizeof(struct type86_fmt2_msg)))
 		return -EINVAL;
 
+=======
+>>>>>>> upstream/android-13
 	/* prepare type6 header */
 	msg->hdr = static_type6_ep11_hdr;
 	msg->hdr.ToCardLen1   = xcRB->req_len;
 	msg->hdr.FromCardLen1 = xcRB->resp_len;
 
 	/* Import CPRB data from the ioctl input parameter */
+<<<<<<< HEAD
 	if (copy_from_user(&(msg->cprbx.cprb_len),
 			   (char __force __user *)xcRB->req, xcRB->req_len)) {
+=======
+	if (z_copy_from_user(userspace, &(msg->cprbx.cprb_len),
+			     (char __force __user *)xcRB->req, xcRB->req_len)) {
+>>>>>>> upstream/android-13
 		return -EFAULT;
 	}
 
@@ -570,10 +692,26 @@ static int xcrb_msg_to_type6_ep11cprb_msgx(struct ap_message *ap_msg,
 	payload_hdr = (struct pld_hdr *)((&(msg->pld_lenfmt))+lfmt);
 	*fcode = payload_hdr->func_val & 0xFFFF;
 
+<<<<<<< HEAD
 	return 0;
 }
 
 /**
+=======
+	/* enable special processing based on the cprbs flags special bit */
+	if (msg->cprbx.flags & 0x20)
+		ap_msg->flags |= AP_MSG_FLAG_SPECIAL;
+
+#ifdef CONFIG_ZCRYPT_DEBUG
+	if (ap_msg->fi.flags & AP_FI_FLAG_TOGGLE_SPECIAL)
+		ap_msg->flags ^= AP_MSG_FLAG_SPECIAL;
+#endif
+
+	return 0;
+}
+
+/*
+>>>>>>> upstream/android-13
  * Copy results from a type 86 ICA reply message back to user space.
  *
  * @zq: crypto device pointer
@@ -589,7 +727,11 @@ struct type86x_reply {
 	struct CPRBX cprbx;
 	unsigned char pad[4];	/* 4 byte function code/rules block ? */
 	unsigned short length;
+<<<<<<< HEAD
 	char text[0];
+=======
+	char text[];
+>>>>>>> upstream/android-13
 } __packed;
 
 struct type86_ep11_reply {
@@ -638,7 +780,11 @@ static int convert_type86_ica(struct zcrypt_queue *zq,
 		0x35, 0x9D, 0xD3, 0xD3, 0xA7, 0x9D, 0x5D, 0x41,
 		0x6F, 0x65, 0x1B, 0xCF, 0xA9, 0x87, 0x91, 0x09
 	};
+<<<<<<< HEAD
 	struct type86x_reply *msg = reply->message;
+=======
+	struct type86x_reply *msg = reply->msg;
+>>>>>>> upstream/android-13
 	unsigned short service_rc, service_rs;
 	unsigned int reply_len, pad_len;
 	char *data;
@@ -651,6 +797,7 @@ static int convert_type86_ica(struct zcrypt_queue *zq,
 		    (service_rc == 8 && service_rs == 72) ||
 		    (service_rc == 8 && service_rs == 770) ||
 		    (service_rc == 12 && service_rs == 769)) {
+<<<<<<< HEAD
 			ZCRYPT_DBF(DBF_DEBUG,
 				   "device=%02x.%04x rc/rs=%d/%d => rc=EINVAL\n",
 				   AP_QID_CARD(zq->queue->qid),
@@ -678,6 +825,25 @@ static int convert_type86_ica(struct zcrypt_queue *zq,
 			   AP_QID_QUEUE(zq->queue->qid),
 			   (int) service_rc, (int) service_rs);
 		return -EAGAIN;	/* repeat the request on a different device. */
+=======
+			ZCRYPT_DBF_WARN("dev=%02x.%04x rc/rs=%d/%d => rc=EINVAL\n",
+					AP_QID_CARD(zq->queue->qid),
+					AP_QID_QUEUE(zq->queue->qid),
+					(int) service_rc, (int) service_rs);
+			return -EINVAL;
+		}
+		zq->online = 0;
+		pr_err("Crypto dev=%02x.%04x rc/rs=%d/%d online=0 rc=EAGAIN\n",
+		       AP_QID_CARD(zq->queue->qid),
+		       AP_QID_QUEUE(zq->queue->qid),
+		       (int) service_rc, (int) service_rs);
+		ZCRYPT_DBF_ERR("dev=%02x.%04x rc/rs=%d/%d => online=0 rc=EAGAIN\n",
+			       AP_QID_CARD(zq->queue->qid),
+			       AP_QID_QUEUE(zq->queue->qid),
+			       (int) service_rc, (int) service_rs);
+		ap_send_online_uevent(&zq->queue->ap_dev, zq->online);
+		return -EAGAIN;
+>>>>>>> upstream/android-13
 	}
 	data = msg->text;
 	reply_len = msg->length - 2;
@@ -697,7 +863,11 @@ static int convert_type86_ica(struct zcrypt_queue *zq,
 	if (pad_len > 0) {
 		if (pad_len < 10)
 			return -EINVAL;
+<<<<<<< HEAD
 		/* 'restore' padding left in the PCICC/PCIXCC card. */
+=======
+		/* 'restore' padding left in the CEXXC card. */
+>>>>>>> upstream/android-13
 		if (copy_to_user(outputdata, static_pad, pad_len - 1))
 			return -EFAULT;
 		if (put_user(0, outputdata + pad_len - 1))
@@ -709,7 +879,11 @@ static int convert_type86_ica(struct zcrypt_queue *zq,
 	return 0;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * Copy results from a type 86 XCRB reply message back to user space.
  *
  * @zq: crypto device pointer
@@ -718,6 +892,7 @@ static int convert_type86_ica(struct zcrypt_queue *zq,
  *
  * Returns 0 on success or -EINVAL, -EFAULT, -EAGAIN in case of an error.
  */
+<<<<<<< HEAD
 static int convert_type86_xcrb(struct zcrypt_queue *zq,
 			       struct ap_message *reply,
 			       struct ica_xcRB *xcRB)
@@ -728,19 +903,40 @@ static int convert_type86_xcrb(struct zcrypt_queue *zq,
 	/* Copy CPRB to user */
 	if (copy_to_user(xcRB->reply_control_blk_addr,
 		data + msg->fmt2.offset1, msg->fmt2.count1))
+=======
+static int convert_type86_xcrb(bool userspace, struct zcrypt_queue *zq,
+			       struct ap_message *reply,
+			       struct ica_xcRB *xcRB)
+{
+	struct type86_fmt2_msg *msg = reply->msg;
+	char *data = reply->msg;
+
+	/* Copy CPRB to user */
+	if (z_copy_to_user(userspace, xcRB->reply_control_blk_addr,
+			   data + msg->fmt2.offset1, msg->fmt2.count1))
+>>>>>>> upstream/android-13
 		return -EFAULT;
 	xcRB->reply_control_blk_length = msg->fmt2.count1;
 
 	/* Copy data buffer to user */
 	if (msg->fmt2.count2)
+<<<<<<< HEAD
 		if (copy_to_user(xcRB->reply_data_addr,
 			data + msg->fmt2.offset2, msg->fmt2.count2))
+=======
+		if (z_copy_to_user(userspace, xcRB->reply_data_addr,
+				   data + msg->fmt2.offset2, msg->fmt2.count2))
+>>>>>>> upstream/android-13
 			return -EFAULT;
 	xcRB->reply_data_length = msg->fmt2.count2;
 	return 0;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * Copy results from a type 86 EP11 XCRB reply message back to user space.
  *
  * @zq: crypto device pointer
@@ -749,19 +945,33 @@ static int convert_type86_xcrb(struct zcrypt_queue *zq,
  *
  * Returns 0 on success or -EINVAL, -EFAULT, -EAGAIN in case of an error.
  */
+<<<<<<< HEAD
 static int convert_type86_ep11_xcrb(struct zcrypt_queue *zq,
 				    struct ap_message *reply,
 				    struct ep11_urb *xcRB)
 {
 	struct type86_fmt2_msg *msg = reply->message;
 	char *data = reply->message;
+=======
+static int convert_type86_ep11_xcrb(bool userspace, struct zcrypt_queue *zq,
+				    struct ap_message *reply,
+				    struct ep11_urb *xcRB)
+{
+	struct type86_fmt2_msg *msg = reply->msg;
+	char *data = reply->msg;
+>>>>>>> upstream/android-13
 
 	if (xcRB->resp_len < msg->fmt2.count1)
 		return -EINVAL;
 
 	/* Copy response CPRB to user */
+<<<<<<< HEAD
 	if (copy_to_user((char __force __user *)xcRB->resp,
 			 data + msg->fmt2.offset1, msg->fmt2.count1))
+=======
+	if (z_copy_to_user(userspace, (char __force __user *)xcRB->resp,
+			   data + msg->fmt2.offset1, msg->fmt2.count1))
+>>>>>>> upstream/android-13
 		return -EFAULT;
 	xcRB->resp_len = msg->fmt2.count1;
 	return 0;
@@ -775,8 +985,13 @@ static int convert_type86_rng(struct zcrypt_queue *zq,
 		struct type86_hdr hdr;
 		struct type86_fmt2_ext fmt2;
 		struct CPRBX cprbx;
+<<<<<<< HEAD
 	} __packed * msg = reply->message;
 	char *data = reply->message;
+=======
+	} __packed * msg = reply->msg;
+	char *data = reply->msg;
+>>>>>>> upstream/android-13
 
 	if (msg->cprbx.ccp_rtcode != 0 || msg->cprbx.ccp_rscode != 0)
 		return -EINVAL;
@@ -789,7 +1004,11 @@ static int convert_response_ica(struct zcrypt_queue *zq,
 			    char __user *outputdata,
 			    unsigned int outputdatalength)
 {
+<<<<<<< HEAD
 	struct type86x_reply *msg = reply->message;
+=======
+	struct type86x_reply *msg = reply->msg;
+>>>>>>> upstream/android-13
 
 	switch (msg->hdr.type) {
 	case TYPE82_RSP_CODE:
@@ -810,6 +1029,7 @@ static int convert_response_ica(struct zcrypt_queue *zq,
 		if (msg->cprbx.cprb_ver_id == 0x02)
 			return convert_type86_ica(zq, reply,
 						  outputdata, outputdatalength);
+<<<<<<< HEAD
 		/*
 		 * Fall through, no break, incorrect cprb version is an unknown
 		 * response
@@ -833,6 +1053,30 @@ static int convert_response_xcrb(struct zcrypt_queue *zq,
 			    struct ica_xcRB *xcRB)
 {
 	struct type86x_reply *msg = reply->message;
+=======
+		fallthrough;	/* wrong cprb version is an unknown response */
+	default:
+		/* Unknown response type, this should NEVER EVER happen */
+		zq->online = 0;
+		pr_err("Crypto dev=%02x.%04x unknown response type 0x%02x => online=0 rc=EAGAIN\n",
+		       AP_QID_CARD(zq->queue->qid),
+		       AP_QID_QUEUE(zq->queue->qid),
+		       (int) msg->hdr.type);
+		ZCRYPT_DBF_ERR("dev=%02x.%04x unknown response type 0x%02x => online=0 rc=EAGAIN\n",
+			       AP_QID_CARD(zq->queue->qid),
+			       AP_QID_QUEUE(zq->queue->qid),
+			       (int) msg->hdr.type);
+		ap_send_online_uevent(&zq->queue->ap_dev, zq->online);
+		return -EAGAIN;
+	}
+}
+
+static int convert_response_xcrb(bool userspace, struct zcrypt_queue *zq,
+				 struct ap_message *reply,
+				 struct ica_xcRB *xcRB)
+{
+	struct type86x_reply *msg = reply->msg;
+>>>>>>> upstream/android-13
 
 	switch (msg->hdr.type) {
 	case TYPE82_RSP_CODE:
@@ -845,6 +1089,7 @@ static int convert_response_xcrb(struct zcrypt_queue *zq,
 			return convert_error(zq, reply);
 		}
 		if (msg->cprbx.cprb_ver_id == 0x02)
+<<<<<<< HEAD
 			return convert_type86_xcrb(zq, reply, xcRB);
 		/*
 		 * Fall through, no break, incorrect cprb version is an unknown
@@ -869,6 +1114,30 @@ static int convert_response_ep11_xcrb(struct zcrypt_queue *zq,
 	struct ap_message *reply, struct ep11_urb *xcRB)
 {
 	struct type86_ep11_reply *msg = reply->message;
+=======
+			return convert_type86_xcrb(userspace, zq, reply, xcRB);
+		fallthrough;	/* wrong cprb version is an unknown response */
+	default: /* Unknown response type, this should NEVER EVER happen */
+		xcRB->status = 0x0008044DL; /* HDD_InvalidParm */
+		zq->online = 0;
+		pr_err("Crypto dev=%02x.%04x unknown response type 0x%02x => online=0 rc=EAGAIN\n",
+		       AP_QID_CARD(zq->queue->qid),
+		       AP_QID_QUEUE(zq->queue->qid),
+		       (int) msg->hdr.type);
+		ZCRYPT_DBF_ERR("dev=%02x.%04x unknown response type 0x%02x => online=0 rc=EAGAIN\n",
+			       AP_QID_CARD(zq->queue->qid),
+			       AP_QID_QUEUE(zq->queue->qid),
+			       (int) msg->hdr.type);
+		ap_send_online_uevent(&zq->queue->ap_dev, zq->online);
+		return -EAGAIN;
+	}
+}
+
+static int convert_response_ep11_xcrb(bool userspace, struct zcrypt_queue *zq,
+				      struct ap_message *reply, struct ep11_urb *xcRB)
+{
+	struct type86_ep11_reply *msg = reply->msg;
+>>>>>>> upstream/android-13
 
 	switch (msg->hdr.type) {
 	case TYPE82_RSP_CODE:
@@ -878,6 +1147,7 @@ static int convert_response_ep11_xcrb(struct zcrypt_queue *zq,
 		if (msg->hdr.reply_code)
 			return convert_error(zq, reply);
 		if (msg->cprbx.cprb_ver_id == 0x04)
+<<<<<<< HEAD
 			return convert_type86_ep11_xcrb(zq, reply, xcRB);
 	/* Fall through, no break, incorrect cprb version is an unknown resp.*/
 	default: /* Unknown response type, this should NEVER EVER happen */
@@ -891,6 +1161,22 @@ static int convert_response_ep11_xcrb(struct zcrypt_queue *zq,
 			   AP_QID_QUEUE(zq->queue->qid),
 			   (int) msg->hdr.type);
 		return -EAGAIN; /* repeat the request on a different device. */
+=======
+			return convert_type86_ep11_xcrb(userspace, zq, reply, xcRB);
+		fallthrough;	/* wrong cprb version is an unknown resp */
+	default: /* Unknown response type, this should NEVER EVER happen */
+		zq->online = 0;
+		pr_err("Crypto dev=%02x.%04x unknown response type 0x%02x => online=0 rc=EAGAIN\n",
+		       AP_QID_CARD(zq->queue->qid),
+		       AP_QID_QUEUE(zq->queue->qid),
+		       (int) msg->hdr.type);
+		ZCRYPT_DBF_ERR("dev=%02x.%04x unknown response type 0x%02x => online=0 rc=EAGAIN\n",
+			       AP_QID_CARD(zq->queue->qid),
+			       AP_QID_QUEUE(zq->queue->qid),
+			       (int) msg->hdr.type);
+		ap_send_online_uevent(&zq->queue->ap_dev, zq->online);
+		return -EAGAIN;
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -898,7 +1184,11 @@ static int convert_response_rng(struct zcrypt_queue *zq,
 				 struct ap_message *reply,
 				 char *data)
 {
+<<<<<<< HEAD
 	struct type86x_reply *msg = reply->message;
+=======
+	struct type86x_reply *msg = reply->msg;
+>>>>>>> upstream/android-13
 
 	switch (msg->hdr.type) {
 	case TYPE82_RSP_CODE:
@@ -909,6 +1199,7 @@ static int convert_response_rng(struct zcrypt_queue *zq,
 			return -EINVAL;
 		if (msg->cprbx.cprb_ver_id == 0x02)
 			return convert_type86_rng(zq, reply, data);
+<<<<<<< HEAD
 		/*
 		 * Fall through, no break, incorrect cprb version is an unknown
 		 * response
@@ -928,6 +1219,25 @@ static int convert_response_rng(struct zcrypt_queue *zq,
 }
 
 /**
+=======
+		fallthrough;	/* wrong cprb version is an unknown response */
+	default: /* Unknown response type, this should NEVER EVER happen */
+		zq->online = 0;
+		pr_err("Crypto dev=%02x.%04x unknown response type 0x%02x => online=0 rc=EAGAIN\n",
+		       AP_QID_CARD(zq->queue->qid),
+		       AP_QID_QUEUE(zq->queue->qid),
+		       (int) msg->hdr.type);
+		ZCRYPT_DBF_ERR("dev=%02x.%04x unknown response type 0x%02x => online=0 rc=EAGAIN\n",
+			       AP_QID_CARD(zq->queue->qid),
+			       AP_QID_QUEUE(zq->queue->qid),
+			       (int) msg->hdr.type);
+		ap_send_online_uevent(&zq->queue->ap_dev, zq->online);
+		return -EAGAIN;
+	}
+}
+
+/*
+>>>>>>> upstream/android-13
  * This function is called from the AP bus code after a crypto request
  * "msg" has finished with the reply message "reply".
  * It is called from tasklet context.
@@ -946,11 +1256,16 @@ static void zcrypt_msgtype6_receive(struct ap_queue *aq,
 	struct response_type *resp_type =
 		(struct response_type *) msg->private;
 	struct type86x_reply *t86r;
+<<<<<<< HEAD
 	int length;
+=======
+	int len;
+>>>>>>> upstream/android-13
 
 	/* Copy the reply message to the request message buffer. */
 	if (!reply)
 		goto out;	/* ap_msg->rc indicates the error */
+<<<<<<< HEAD
 	t86r = reply->message;
 	if (t86r->hdr.type == TYPE86_RSP_CODE &&
 		 t86r->cprbx.cprb_ver_id == 0x02) {
@@ -972,11 +1287,44 @@ static void zcrypt_msgtype6_receive(struct ap_queue *aq,
 		}
 	} else
 		memcpy(msg->message, reply->message, sizeof(error_reply));
+=======
+	t86r = reply->msg;
+	if (t86r->hdr.type == TYPE86_RSP_CODE &&
+		 t86r->cprbx.cprb_ver_id == 0x02) {
+		switch (resp_type->type) {
+		case CEXXC_RESPONSE_TYPE_ICA:
+			len = sizeof(struct type86x_reply) + t86r->length - 2;
+			if (len > reply->bufsize || len > msg->bufsize) {
+				msg->rc = -EMSGSIZE;
+			} else {
+				memcpy(msg->msg, reply->msg, len);
+				msg->len = len;
+			}
+			break;
+		case CEXXC_RESPONSE_TYPE_XCRB:
+			len = t86r->fmt2.offset2 + t86r->fmt2.count2;
+			if (len > reply->bufsize || len > msg->bufsize) {
+				msg->rc = -EMSGSIZE;
+			} else {
+				memcpy(msg->msg, reply->msg, len);
+				msg->len = len;
+			}
+			break;
+		default:
+			memcpy(msg->msg, &error_reply, sizeof(error_reply));
+		}
+	} else
+		memcpy(msg->msg, reply->msg, sizeof(error_reply));
+>>>>>>> upstream/android-13
 out:
 	complete(&(resp_type->work));
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * This function is called from the AP bus code after a crypto request
  * "msg" has finished with the reply message "reply".
  * It is called from tasklet context.
@@ -995,11 +1343,16 @@ static void zcrypt_msgtype6_receive_ep11(struct ap_queue *aq,
 	struct response_type *resp_type =
 		(struct response_type *)msg->private;
 	struct type86_ep11_reply *t86r;
+<<<<<<< HEAD
 	int length;
+=======
+	int len;
+>>>>>>> upstream/android-13
 
 	/* Copy the reply message to the request message buffer. */
 	if (!reply)
 		goto out;	/* ap_msg->rc indicates the error */
+<<<<<<< HEAD
 	t86r = reply->message;
 	if (t86r->hdr.type == TYPE86_RSP_CODE &&
 	    t86r->cprbx.cprb_ver_id == 0x04) {
@@ -1014,6 +1367,26 @@ static void zcrypt_msgtype6_receive_ep11(struct ap_queue *aq,
 		}
 	} else {
 		memcpy(msg->message, reply->message, sizeof(error_reply));
+=======
+	t86r = reply->msg;
+	if (t86r->hdr.type == TYPE86_RSP_CODE &&
+	    t86r->cprbx.cprb_ver_id == 0x04) {
+		switch (resp_type->type) {
+		case CEXXC_RESPONSE_TYPE_EP11:
+			len = t86r->fmt2.offset1 + t86r->fmt2.count1;
+			if (len > reply->bufsize || len > msg->bufsize) {
+				msg->rc = -EMSGSIZE;
+			} else {
+				memcpy(msg->msg, reply->msg, len);
+				msg->len = len;
+			}
+			break;
+		default:
+			memcpy(msg->msg, &error_reply, sizeof(error_reply));
+		}
+	} else {
+		memcpy(msg->msg, reply->msg, sizeof(error_reply));
+>>>>>>> upstream/android-13
 	}
 out:
 	complete(&(resp_type->work));
@@ -1021,6 +1394,7 @@ out:
 
 static atomic_t zcrypt_step = ATOMIC_INIT(0);
 
+<<<<<<< HEAD
 /**
  * The request distributor calls this function if it picked the PCIXCC/CEX2C
  * device to handle a modexpo request.
@@ -1055,10 +1429,49 @@ static long zcrypt_msgtype6_modexpo(struct zcrypt_queue *zq,
 		rc = ap_msg.rc;
 		if (rc == 0)
 			rc = convert_response_ica(zq, &ap_msg,
+=======
+/*
+ * The request distributor calls this function if it picked the CEXxC
+ * device to handle a modexpo request.
+ * @zq: pointer to zcrypt_queue structure that identifies the
+ *	CEXxC device to the request distributor
+ * @mex: pointer to the modexpo request buffer
+ */
+static long zcrypt_msgtype6_modexpo(struct zcrypt_queue *zq,
+				    struct ica_rsa_modexpo *mex,
+				    struct ap_message *ap_msg)
+{
+	struct response_type resp_type = {
+		.type = CEXXC_RESPONSE_TYPE_ICA,
+	};
+	int rc;
+
+	ap_msg->msg = (void *) get_zeroed_page(GFP_KERNEL);
+	if (!ap_msg->msg)
+		return -ENOMEM;
+	ap_msg->bufsize = PAGE_SIZE;
+	ap_msg->receive = zcrypt_msgtype6_receive;
+	ap_msg->psmid = (((unsigned long long) current->pid) << 32) +
+		atomic_inc_return(&zcrypt_step);
+	ap_msg->private = &resp_type;
+	rc = ICAMEX_msg_to_type6MEX_msgX(zq, ap_msg, mex);
+	if (rc)
+		goto out_free;
+	init_completion(&resp_type.work);
+	rc = ap_queue_message(zq->queue, ap_msg);
+	if (rc)
+		goto out_free;
+	rc = wait_for_completion_interruptible(&resp_type.work);
+	if (rc == 0) {
+		rc = ap_msg->rc;
+		if (rc == 0)
+			rc = convert_response_ica(zq, ap_msg,
+>>>>>>> upstream/android-13
 						  mex->outputdata,
 						  mex->outputdatalength);
 	} else
 		/* Signal pending. */
+<<<<<<< HEAD
 		ap_cancel_message(zq->queue, &ap_msg);
 out_free:
 	free_page((unsigned long) ap_msg.message);
@@ -1099,10 +1512,57 @@ static long zcrypt_msgtype6_modexpo_crt(struct zcrypt_queue *zq,
 		rc = ap_msg.rc;
 		if (rc == 0)
 			rc = convert_response_ica(zq, &ap_msg,
+=======
+		ap_cancel_message(zq->queue, ap_msg);
+out_free:
+	free_page((unsigned long) ap_msg->msg);
+	ap_msg->private = NULL;
+	ap_msg->msg = NULL;
+	return rc;
+}
+
+/*
+ * The request distributor calls this function if it picked the CEXxC
+ * device to handle a modexpo_crt request.
+ * @zq: pointer to zcrypt_queue structure that identifies the
+ *	CEXxC device to the request distributor
+ * @crt: pointer to the modexpoc_crt request buffer
+ */
+static long zcrypt_msgtype6_modexpo_crt(struct zcrypt_queue *zq,
+					struct ica_rsa_modexpo_crt *crt,
+					struct ap_message *ap_msg)
+{
+	struct response_type resp_type = {
+		.type = CEXXC_RESPONSE_TYPE_ICA,
+	};
+	int rc;
+
+	ap_msg->msg = (void *) get_zeroed_page(GFP_KERNEL);
+	if (!ap_msg->msg)
+		return -ENOMEM;
+	ap_msg->bufsize = PAGE_SIZE;
+	ap_msg->receive = zcrypt_msgtype6_receive;
+	ap_msg->psmid = (((unsigned long long) current->pid) << 32) +
+		atomic_inc_return(&zcrypt_step);
+	ap_msg->private = &resp_type;
+	rc = ICACRT_msg_to_type6CRT_msgX(zq, ap_msg, crt);
+	if (rc)
+		goto out_free;
+	init_completion(&resp_type.work);
+	rc = ap_queue_message(zq->queue, ap_msg);
+	if (rc)
+		goto out_free;
+	rc = wait_for_completion_interruptible(&resp_type.work);
+	if (rc == 0) {
+		rc = ap_msg->rc;
+		if (rc == 0)
+			rc = convert_response_ica(zq, ap_msg,
+>>>>>>> upstream/android-13
 						  crt->outputdata,
 						  crt->outputdatalength);
 	} else {
 		/* Signal pending. */
+<<<<<<< HEAD
 		ap_cancel_message(zq->queue, &ap_msg);
 	}
 out_free:
@@ -1111,12 +1571,25 @@ out_free:
 }
 
 /**
+=======
+		ap_cancel_message(zq->queue, ap_msg);
+	}
+out_free:
+	free_page((unsigned long) ap_msg->msg);
+	ap_msg->private = NULL;
+	ap_msg->msg = NULL;
+	return rc;
+}
+
+/*
+>>>>>>> upstream/android-13
  * Fetch function code from cprb.
  * Extracting the fc requires to copy the cprb from userspace.
  * So this function allocates memory and needs an ap_msg prepared
  * by the caller with ap_init_message(). Also the caller has to
  * make sure ap_release_message() is always called even on failure.
  */
+<<<<<<< HEAD
 unsigned int get_cprb_fc(struct ica_xcRB *xcRB,
 				struct ap_message *ap_msg,
 				unsigned int *func_code, unsigned short **dom)
@@ -1127,10 +1600,24 @@ unsigned int get_cprb_fc(struct ica_xcRB *xcRB,
 
 	ap_msg->message = kmalloc(MSGTYPE06_MAX_MSG_SIZE, GFP_KERNEL);
 	if (!ap_msg->message)
+=======
+unsigned int get_cprb_fc(bool userspace, struct ica_xcRB *xcRB,
+			 struct ap_message *ap_msg,
+			 unsigned int *func_code, unsigned short **dom)
+{
+	struct response_type resp_type = {
+		.type = CEXXC_RESPONSE_TYPE_XCRB,
+	};
+
+	ap_msg->bufsize = atomic_read(&ap_max_msg_size);
+	ap_msg->msg = kmalloc(ap_msg->bufsize, GFP_KERNEL);
+	if (!ap_msg->msg)
+>>>>>>> upstream/android-13
 		return -ENOMEM;
 	ap_msg->receive = zcrypt_msgtype6_receive;
 	ap_msg->psmid = (((unsigned long long) current->pid) << 32) +
 				atomic_inc_return(&zcrypt_step);
+<<<<<<< HEAD
 	ap_msg->private = kmalloc(sizeof(resp_type), GFP_KERNEL);
 	if (!ap_msg->private)
 		return -ENOMEM;
@@ -1148,16 +1635,41 @@ unsigned int get_cprb_fc(struct ica_xcRB *xcRB,
 static long zcrypt_msgtype6_send_cprb(struct zcrypt_queue *zq,
 				    struct ica_xcRB *xcRB,
 				    struct ap_message *ap_msg)
+=======
+	ap_msg->private = kmemdup(&resp_type, sizeof(resp_type), GFP_KERNEL);
+	if (!ap_msg->private)
+		return -ENOMEM;
+	return XCRB_msg_to_type6CPRB_msgX(userspace, ap_msg, xcRB, func_code, dom);
+}
+
+/*
+ * The request distributor calls this function if it picked the CEXxC
+ * device to handle a send_cprb request.
+ * @zq: pointer to zcrypt_queue structure that identifies the
+ *	CEXxC device to the request distributor
+ * @xcRB: pointer to the send_cprb request buffer
+ */
+static long zcrypt_msgtype6_send_cprb(bool userspace, struct zcrypt_queue *zq,
+				      struct ica_xcRB *xcRB,
+				      struct ap_message *ap_msg)
+>>>>>>> upstream/android-13
 {
 	int rc;
 	struct response_type *rtype = (struct response_type *)(ap_msg->private);
 
 	init_completion(&rtype->work);
+<<<<<<< HEAD
 	ap_queue_message(zq->queue, ap_msg);
+=======
+	rc = ap_queue_message(zq->queue, ap_msg);
+	if (rc)
+		goto out;
+>>>>>>> upstream/android-13
 	rc = wait_for_completion_interruptible(&rtype->work);
 	if (rc == 0) {
 		rc = ap_msg->rc;
 		if (rc == 0)
+<<<<<<< HEAD
 			rc = convert_response_xcrb(zq, ap_msg, xcRB);
 	} else
 		/* Signal pending. */
@@ -1167,12 +1679,24 @@ static long zcrypt_msgtype6_send_cprb(struct zcrypt_queue *zq,
 }
 
 /**
+=======
+			rc = convert_response_xcrb(userspace, zq, ap_msg, xcRB);
+	} else
+		/* Signal pending. */
+		ap_cancel_message(zq->queue, ap_msg);
+out:
+	return rc;
+}
+
+/*
+>>>>>>> upstream/android-13
  * Fetch function code from ep11 cprb.
  * Extracting the fc requires to copy the ep11 cprb from userspace.
  * So this function allocates memory and needs an ap_msg prepared
  * by the caller with ap_init_message(). Also the caller has to
  * make sure ap_release_message() is always called even on failure.
  */
+<<<<<<< HEAD
 unsigned int get_ep11cprb_fc(struct ep11_urb *xcrb,
 				    struct ap_message *ap_msg,
 				    unsigned int *func_code)
@@ -1183,10 +1707,24 @@ unsigned int get_ep11cprb_fc(struct ep11_urb *xcrb,
 
 	ap_msg->message = kmalloc(MSGTYPE06_MAX_MSG_SIZE, GFP_KERNEL);
 	if (!ap_msg->message)
+=======
+unsigned int get_ep11cprb_fc(bool userspace, struct ep11_urb *xcrb,
+			     struct ap_message *ap_msg,
+			     unsigned int *func_code)
+{
+	struct response_type resp_type = {
+		.type = CEXXC_RESPONSE_TYPE_EP11,
+	};
+
+	ap_msg->bufsize = atomic_read(&ap_max_msg_size);
+	ap_msg->msg = kmalloc(ap_msg->bufsize, GFP_KERNEL);
+	if (!ap_msg->msg)
+>>>>>>> upstream/android-13
 		return -ENOMEM;
 	ap_msg->receive = zcrypt_msgtype6_receive_ep11;
 	ap_msg->psmid = (((unsigned long long) current->pid) << 32) +
 				atomic_inc_return(&zcrypt_step);
+<<<<<<< HEAD
 	ap_msg->private = kmalloc(sizeof(resp_type), GFP_KERNEL);
 	if (!ap_msg->private)
 		return -ENOMEM;
@@ -1195,13 +1733,26 @@ unsigned int get_ep11cprb_fc(struct ep11_urb *xcrb,
 }
 
 /**
+=======
+	ap_msg->private = kmemdup(&resp_type, sizeof(resp_type), GFP_KERNEL);
+	if (!ap_msg->private)
+		return -ENOMEM;
+	return xcrb_msg_to_type6_ep11cprb_msgx(userspace, ap_msg, xcrb, func_code);
+}
+
+/*
+>>>>>>> upstream/android-13
  * The request distributor calls this function if it picked the CEX4P
  * device to handle a send_ep11_cprb request.
  * @zq: pointer to zcrypt_queue structure that identifies the
  *	  CEX4P device to the request distributor
  * @xcRB: pointer to the ep11 user request block
  */
+<<<<<<< HEAD
 static long zcrypt_msgtype6_send_ep11_cprb(struct zcrypt_queue *zq,
+=======
+static long zcrypt_msgtype6_send_ep11_cprb(bool userspace, struct zcrypt_queue *zq,
+>>>>>>> upstream/android-13
 					   struct ep11_urb *xcrb,
 					   struct ap_message *ap_msg)
 {
@@ -1213,7 +1764,11 @@ static long zcrypt_msgtype6_send_ep11_cprb(struct zcrypt_queue *zq,
 		struct ep11_cprb cprbx;
 		unsigned char	pld_tag;	/* fixed value 0x30 */
 		unsigned char	pld_lenfmt;	/* payload length format */
+<<<<<<< HEAD
 	} __packed * msg = ap_msg->message;
+=======
+	} __packed * msg = ap_msg->msg;
+>>>>>>> upstream/android-13
 	struct pld_hdr {
 		unsigned char	func_tag;	/* fixed value 0x4 */
 		unsigned char	func_len;	/* fixed value 0x4 */
@@ -1224,7 +1779,11 @@ static long zcrypt_msgtype6_send_ep11_cprb(struct zcrypt_queue *zq,
 	} __packed * payload_hdr = NULL;
 
 
+<<<<<<< HEAD
 	/**
+=======
+	/*
+>>>>>>> upstream/android-13
 	 * The target domain field within the cprb body/payload block will be
 	 * replaced by the usage domain for non-management commands only.
 	 * Therefore we check the first bit of the 'flags' parameter for
@@ -1256,16 +1815,30 @@ static long zcrypt_msgtype6_send_ep11_cprb(struct zcrypt_queue *zq,
 	}
 
 	init_completion(&rtype->work);
+<<<<<<< HEAD
 	ap_queue_message(zq->queue, ap_msg);
+=======
+	rc = ap_queue_message(zq->queue, ap_msg);
+	if (rc)
+		goto out;
+>>>>>>> upstream/android-13
 	rc = wait_for_completion_interruptible(&rtype->work);
 	if (rc == 0) {
 		rc = ap_msg->rc;
 		if (rc == 0)
+<<<<<<< HEAD
 			rc = convert_response_ep11_xcrb(zq, ap_msg, xcrb);
 	} else
 		/* Signal pending. */
 		ap_cancel_message(zq->queue, ap_msg);
 
+=======
+			rc = convert_response_ep11_xcrb(userspace, zq, ap_msg, xcrb);
+	} else
+		/* Signal pending. */
+		ap_cancel_message(zq->queue, ap_msg);
+out:
+>>>>>>> upstream/android-13
 	return rc;
 }
 
@@ -1273,19 +1846,34 @@ unsigned int get_rng_fc(struct ap_message *ap_msg, int *func_code,
 						   unsigned int *domain)
 {
 	struct response_type resp_type = {
+<<<<<<< HEAD
 		.type = PCIXCC_RESPONSE_TYPE_XCRB,
 	};
 
 	ap_msg->message = kmalloc(MSGTYPE06_MAX_MSG_SIZE, GFP_KERNEL);
 	if (!ap_msg->message)
+=======
+		.type = CEXXC_RESPONSE_TYPE_XCRB,
+	};
+
+	ap_msg->bufsize = AP_DEFAULT_MAX_MSG_SIZE;
+	ap_msg->msg = kmalloc(ap_msg->bufsize, GFP_KERNEL);
+	if (!ap_msg->msg)
+>>>>>>> upstream/android-13
 		return -ENOMEM;
 	ap_msg->receive = zcrypt_msgtype6_receive;
 	ap_msg->psmid = (((unsigned long long) current->pid) << 32) +
 				atomic_inc_return(&zcrypt_step);
+<<<<<<< HEAD
 	ap_msg->private = kmalloc(sizeof(resp_type), GFP_KERNEL);
 	if (!ap_msg->private)
 		return -ENOMEM;
 	memcpy(ap_msg->private, &resp_type, sizeof(resp_type));
+=======
+	ap_msg->private = kmemdup(&resp_type, sizeof(resp_type), GFP_KERNEL);
+	if (!ap_msg->private)
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 
 	rng_type6CPRB_msgX(ap_msg, ZCRYPT_RNG_BUFFER_SIZE, domain);
 
@@ -1293,11 +1881,19 @@ unsigned int get_rng_fc(struct ap_message *ap_msg, int *func_code,
 	return 0;
 }
 
+<<<<<<< HEAD
 /**
  * The request distributor calls this function if it picked the PCIXCC/CEX2C
  * device to generate random data.
  * @zq: pointer to zcrypt_queue structure that identifies the
  *	  PCIXCC/CEX2C device to the request distributor
+=======
+/*
+ * The request distributor calls this function if it picked the CEXxC
+ * device to generate random data.
+ * @zq: pointer to zcrypt_queue structure that identifies the
+ *	CEXxC device to the request distributor
+>>>>>>> upstream/android-13
  * @buffer: pointer to a memory page to return random data
  */
 static long zcrypt_msgtype6_rng(struct zcrypt_queue *zq,
@@ -1311,14 +1907,24 @@ static long zcrypt_msgtype6_rng(struct zcrypt_queue *zq,
 		char rule[8];
 		short int verb_length;
 		short int key_length;
+<<<<<<< HEAD
 	} __packed * msg = ap_msg->message;
+=======
+	} __packed * msg = ap_msg->msg;
+>>>>>>> upstream/android-13
 	struct response_type *rtype = (struct response_type *)(ap_msg->private);
 	int rc;
 
 	msg->cprbx.domain = AP_QID_QUEUE(zq->queue->qid);
 
 	init_completion(&rtype->work);
+<<<<<<< HEAD
 	ap_queue_message(zq->queue, ap_msg);
+=======
+	rc = ap_queue_message(zq->queue, ap_msg);
+	if (rc)
+		goto out;
+>>>>>>> upstream/android-13
 	rc = wait_for_completion_interruptible(&rtype->work);
 	if (rc == 0) {
 		rc = ap_msg->rc;
@@ -1327,12 +1933,21 @@ static long zcrypt_msgtype6_rng(struct zcrypt_queue *zq,
 	} else
 		/* Signal pending. */
 		ap_cancel_message(zq->queue, ap_msg);
+<<<<<<< HEAD
 
 	return rc;
 }
 
 /**
  * The crypto operations for a PCIXCC/CEX2C card.
+=======
+out:
+	return rc;
+}
+
+/*
+ * The crypto operations for a CEXxC card.
+>>>>>>> upstream/android-13
  */
 static struct zcrypt_ops zcrypt_msgtype6_norng_ops = {
 	.owner = THIS_MODULE,

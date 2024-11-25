@@ -66,11 +66,22 @@ Description:
                 <channel> <type> [<bpst offset>]
 
                 to start (or stop) scanning on a channel.  <type> is one of:
+<<<<<<< HEAD
                     0 - scan
                     1 - scan outside BP
                     2 - scan while inactive
                     3 - scanning disabled
                     4 - scan (with start time of <bpst offset>)
+=======
+
+		   ==   =======================================
+                    0   scan
+                    1   scan outside BP
+                    2   scan while inactive
+                    3   scanning disabled
+                    4   scan (with start time of <bpst offset>)
+		   ==   =======================================
+>>>>>>> upstream/android-13
 
 What:           /sys/class/uwb_rc/uwbN/mac_address
 Date:           July 2008
@@ -125,12 +136,15 @@ Description:
                 The EUI-48 of this device in colon separated hex
                 octets.
 
+<<<<<<< HEAD
 What:           /sys/class/uwb_rc/uwbN/<EUI-48>/BPST
 Date:           July 2008
 KernelVersion:  2.6.27
 Contact:        linux-usb@vger.kernel.org
 Description:
 
+=======
+>>>>>>> upstream/android-13
 What:           /sys/class/uwb_rc/uwbN/<EUI-48>/IEs
 Date:           July 2008
 KernelVersion:  2.6.27

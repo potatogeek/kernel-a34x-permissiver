@@ -187,7 +187,11 @@ void bnx2fc_flush_active_ios(struct bnx2fc_rport *tgt)
 				/* Handle eh_abort timeout */
 				BNX2FC_IO_DBG(io_req, "eh_abort for IO "
 					      "cleaned up\n");
+<<<<<<< HEAD
 				complete(&io_req->tm_done);
+=======
+				complete(&io_req->abts_done);
+>>>>>>> upstream/android-13
 			}
 			kref_put(&io_req->refcount,
 				 bnx2fc_cmd_release); /* drop timer hold */
@@ -210,8 +214,13 @@ void bnx2fc_flush_active_ios(struct bnx2fc_rport *tgt)
 		list_del_init(&io_req->link);
 		io_req->on_tmf_queue = 0;
 		BNX2FC_IO_DBG(io_req, "tm_queue cleanup\n");
+<<<<<<< HEAD
 		if (io_req->wait_for_comp)
 			complete(&io_req->tm_done);
+=======
+		if (io_req->wait_for_abts_comp)
+			complete(&io_req->abts_done);
+>>>>>>> upstream/android-13
 	}
 
 	list_for_each_entry_safe(io_req, tmp, &tgt->els_queue, link) {
@@ -251,8 +260,13 @@ void bnx2fc_flush_active_ios(struct bnx2fc_rport *tgt)
 				/* Handle eh_abort timeout */
 				BNX2FC_IO_DBG(io_req, "eh_abort for IO "
 					      "in retire_q\n");
+<<<<<<< HEAD
 				if (io_req->wait_for_comp)
 					complete(&io_req->tm_done);
+=======
+				if (io_req->wait_for_abts_comp)
+					complete(&io_req->abts_done);
+>>>>>>> upstream/android-13
 			}
 			kref_put(&io_req->refcount, bnx2fc_cmd_release);
 		}
@@ -431,7 +445,11 @@ static int bnx2fc_init_tgt(struct bnx2fc_rport *tgt,
 	return 0;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * This event_callback is called after successful completion of libfc
  * initiated target login. bnx2fc can proceed with initiating the session
  * establishment.
@@ -656,9 +674,14 @@ static void bnx2fc_free_conn_id(struct bnx2fc_hba *hba, u32 conn_id)
 	spin_unlock_bh(&hba->hba_lock);
 }
 
+<<<<<<< HEAD
 /**
  *bnx2fc_alloc_session_resc - Allocate qp resources for the session
  *
+=======
+/*
+ * bnx2fc_alloc_session_resc - Allocate qp resources for the session
+>>>>>>> upstream/android-13
  */
 static int bnx2fc_alloc_session_resc(struct bnx2fc_hba *hba,
 					struct bnx2fc_rport *tgt)
@@ -672,8 +695,13 @@ static int bnx2fc_alloc_session_resc(struct bnx2fc_hba *hba,
 	tgt->sq_mem_size = (tgt->sq_mem_size + (CNIC_PAGE_SIZE - 1)) &
 			   CNIC_PAGE_MASK;
 
+<<<<<<< HEAD
 	tgt->sq = dma_zalloc_coherent(&hba->pcidev->dev, tgt->sq_mem_size,
 				      &tgt->sq_dma, GFP_KERNEL);
+=======
+	tgt->sq = dma_alloc_coherent(&hba->pcidev->dev, tgt->sq_mem_size,
+				     &tgt->sq_dma, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!tgt->sq) {
 		printk(KERN_ERR PFX "unable to allocate SQ memory %d\n",
 			tgt->sq_mem_size);
@@ -685,8 +713,13 @@ static int bnx2fc_alloc_session_resc(struct bnx2fc_hba *hba,
 	tgt->cq_mem_size = (tgt->cq_mem_size + (CNIC_PAGE_SIZE - 1)) &
 			   CNIC_PAGE_MASK;
 
+<<<<<<< HEAD
 	tgt->cq = dma_zalloc_coherent(&hba->pcidev->dev, tgt->cq_mem_size,
 				      &tgt->cq_dma, GFP_KERNEL);
+=======
+	tgt->cq = dma_alloc_coherent(&hba->pcidev->dev, tgt->cq_mem_size,
+				     &tgt->cq_dma, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!tgt->cq) {
 		printk(KERN_ERR PFX "unable to allocate CQ memory %d\n",
 			tgt->cq_mem_size);
@@ -698,8 +731,13 @@ static int bnx2fc_alloc_session_resc(struct bnx2fc_hba *hba,
 	tgt->rq_mem_size = (tgt->rq_mem_size + (CNIC_PAGE_SIZE - 1)) &
 			   CNIC_PAGE_MASK;
 
+<<<<<<< HEAD
 	tgt->rq = dma_zalloc_coherent(&hba->pcidev->dev, tgt->rq_mem_size,
 				      &tgt->rq_dma, GFP_KERNEL);
+=======
+	tgt->rq = dma_alloc_coherent(&hba->pcidev->dev, tgt->rq_mem_size,
+				     &tgt->rq_dma, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!tgt->rq) {
 		printk(KERN_ERR PFX "unable to allocate RQ memory %d\n",
 			tgt->rq_mem_size);
@@ -710,8 +748,13 @@ static int bnx2fc_alloc_session_resc(struct bnx2fc_hba *hba,
 	tgt->rq_pbl_size = (tgt->rq_pbl_size + (CNIC_PAGE_SIZE - 1)) &
 			   CNIC_PAGE_MASK;
 
+<<<<<<< HEAD
 	tgt->rq_pbl = dma_zalloc_coherent(&hba->pcidev->dev, tgt->rq_pbl_size,
 					  &tgt->rq_pbl_dma, GFP_KERNEL);
+=======
+	tgt->rq_pbl = dma_alloc_coherent(&hba->pcidev->dev, tgt->rq_pbl_size,
+					 &tgt->rq_pbl_dma, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!tgt->rq_pbl) {
 		printk(KERN_ERR PFX "unable to allocate RQ PBL %d\n",
 			tgt->rq_pbl_size);
@@ -735,9 +778,15 @@ static int bnx2fc_alloc_session_resc(struct bnx2fc_hba *hba,
 	tgt->xferq_mem_size = (tgt->xferq_mem_size + (CNIC_PAGE_SIZE - 1)) &
 			       CNIC_PAGE_MASK;
 
+<<<<<<< HEAD
 	tgt->xferq = dma_zalloc_coherent(&hba->pcidev->dev,
 					 tgt->xferq_mem_size, &tgt->xferq_dma,
 					 GFP_KERNEL);
+=======
+	tgt->xferq = dma_alloc_coherent(&hba->pcidev->dev,
+					tgt->xferq_mem_size, &tgt->xferq_dma,
+					GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!tgt->xferq) {
 		printk(KERN_ERR PFX "unable to allocate XFERQ %d\n",
 			tgt->xferq_mem_size);
@@ -749,9 +798,15 @@ static int bnx2fc_alloc_session_resc(struct bnx2fc_hba *hba,
 	tgt->confq_mem_size = (tgt->confq_mem_size + (CNIC_PAGE_SIZE - 1)) &
 			       CNIC_PAGE_MASK;
 
+<<<<<<< HEAD
 	tgt->confq = dma_zalloc_coherent(&hba->pcidev->dev,
 					 tgt->confq_mem_size, &tgt->confq_dma,
 					 GFP_KERNEL);
+=======
+	tgt->confq = dma_alloc_coherent(&hba->pcidev->dev,
+					tgt->confq_mem_size, &tgt->confq_dma,
+					GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!tgt->confq) {
 		printk(KERN_ERR PFX "unable to allocate CONFQ %d\n",
 			tgt->confq_mem_size);
@@ -763,9 +818,15 @@ static int bnx2fc_alloc_session_resc(struct bnx2fc_hba *hba,
 	tgt->confq_pbl_size =
 		(tgt->confq_pbl_size + (CNIC_PAGE_SIZE - 1)) & CNIC_PAGE_MASK;
 
+<<<<<<< HEAD
 	tgt->confq_pbl = dma_zalloc_coherent(&hba->pcidev->dev,
 					     tgt->confq_pbl_size,
 					     &tgt->confq_pbl_dma, GFP_KERNEL);
+=======
+	tgt->confq_pbl = dma_alloc_coherent(&hba->pcidev->dev,
+					    tgt->confq_pbl_size,
+					    &tgt->confq_pbl_dma, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!tgt->confq_pbl) {
 		printk(KERN_ERR PFX "unable to allocate CONFQ PBL %d\n",
 			tgt->confq_pbl_size);
@@ -787,9 +848,15 @@ static int bnx2fc_alloc_session_resc(struct bnx2fc_hba *hba,
 	/* Allocate and map ConnDB */
 	tgt->conn_db_mem_size = sizeof(struct fcoe_conn_db);
 
+<<<<<<< HEAD
 	tgt->conn_db = dma_zalloc_coherent(&hba->pcidev->dev,
 					   tgt->conn_db_mem_size,
 					   &tgt->conn_db_dma, GFP_KERNEL);
+=======
+	tgt->conn_db = dma_alloc_coherent(&hba->pcidev->dev,
+					  tgt->conn_db_mem_size,
+					  &tgt->conn_db_dma, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!tgt->conn_db) {
 		printk(KERN_ERR PFX "unable to allocate conn_db %d\n",
 						tgt->conn_db_mem_size);
@@ -802,8 +869,13 @@ static int bnx2fc_alloc_session_resc(struct bnx2fc_hba *hba,
 	tgt->lcq_mem_size = (tgt->lcq_mem_size + (CNIC_PAGE_SIZE - 1)) &
 			     CNIC_PAGE_MASK;
 
+<<<<<<< HEAD
 	tgt->lcq = dma_zalloc_coherent(&hba->pcidev->dev, tgt->lcq_mem_size,
 				       &tgt->lcq_dma, GFP_KERNEL);
+=======
+	tgt->lcq = dma_alloc_coherent(&hba->pcidev->dev, tgt->lcq_mem_size,
+				      &tgt->lcq_dma, GFP_KERNEL);
+>>>>>>> upstream/android-13
 
 	if (!tgt->lcq) {
 		printk(KERN_ERR PFX "unable to allocate lcq %d\n",
@@ -820,7 +892,11 @@ mem_alloc_failure:
 }
 
 /**
+<<<<<<< HEAD
  * bnx2i_free_session_resc - free qp resources for the session
+=======
+ * bnx2fc_free_session_resc - free qp resources for the session
+>>>>>>> upstream/android-13
  *
  * @hba:	adapter structure pointer
  * @tgt:	bnx2fc_rport structure pointer

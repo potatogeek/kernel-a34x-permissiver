@@ -4,10 +4,19 @@ KernelVersion:	3.5
 Contact:	Johan Hovold <jhovold@gmail.com>
 Description:
 		Set the ALS output channel to use as input in
+<<<<<<< HEAD
 		ALS-current-control mode (1, 2), where
 
 		1 - out_current1
 		2 - out_current2
+=======
+		ALS-current-control mode (1, 2), where:
+
+		==  ============
+		1   out_current1
+		2   out_current2
+		==  ============
+>>>>>>> upstream/android-13
 
 What:		/sys/class/leds/<led>/als_en
 Date:		May 2012
@@ -22,6 +31,7 @@ Date:		April 2012
 KernelVersion:	3.5
 Contact:	Johan Hovold <jhovold@gmail.com>
 Description:
+<<<<<<< HEAD
 		Set the pattern generator fall and rise times (0..7), where
 
 		0 - 2048 us
@@ -32,6 +42,20 @@ Description:
 		5 - 4.194 s
 		6 - 8.389 s
 		7 - 16.78 s
+=======
+		Set the pattern generator fall and rise times (0..7), where:
+
+		==  =======
+		0   2048 us
+		1   262 ms
+		2   524 ms
+		3   1.049 s
+		4   2.097 s
+		5   4.194 s
+		6   8.389 s
+		7   16.78 s
+		==  =======
+>>>>>>> upstream/android-13
 
 What:		/sys/class/leds/<led>/id
 Date:		April 2012
@@ -45,16 +69,26 @@ Date:		April 2012
 KernelVersion:	3.5
 Contact:	Johan Hovold <jhovold@gmail.com>
 Description:
+<<<<<<< HEAD
 		Set the brightness-mapping mode (0, 1), where
 
 		0 - exponential mode
 		1 - linear mode
+=======
+		Set the brightness-mapping mode (0, 1), where:
+
+		==  ================
+		0   exponential mode
+		1   linear mode
+		==  ================
+>>>>>>> upstream/android-13
 
 What:		/sys/class/leds/<led>/pwm
 Date:		April 2012
 KernelVersion:	3.5
 Contact:	Johan Hovold <jhovold@gmail.com>
 Description:
+<<<<<<< HEAD
 		Set the PWM-input control mask (5 bits), where
 
 		bit 5 - PWM-input enabled in Zone 4
@@ -63,3 +97,15 @@ Description:
 		bit 2 - PWM-input enabled in Zone 1
 		bit 1 - PWM-input enabled in Zone 0
 		bit 0 - PWM-input enabled
+=======
+		Set the PWM-input control mask (5 bits), where:
+
+		=====  ===========================
+		bit 5  PWM-input enabled in Zone 4
+		bit 4  PWM-input enabled in Zone 3
+		bit 3  PWM-input enabled in Zone 2
+		bit 2  PWM-input enabled in Zone 1
+		bit 1  PWM-input enabled in Zone 0
+		bit 0  PWM-input enabled
+		=====  ===========================
+>>>>>>> upstream/android-13

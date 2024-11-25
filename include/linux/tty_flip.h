@@ -2,8 +2,18 @@
 #ifndef _LINUX_TTY_FLIP_H
 #define _LINUX_TTY_FLIP_H
 
+<<<<<<< HEAD
 extern int tty_buffer_set_limit(struct tty_port *port, int limit);
 extern int tty_buffer_space_avail(struct tty_port *port);
+=======
+#include <linux/tty_buffer.h>
+#include <linux/tty_port.h>
+
+struct tty_ldisc;
+
+extern int tty_buffer_set_limit(struct tty_port *port, int limit);
+extern unsigned int tty_buffer_space_avail(struct tty_port *port);
+>>>>>>> upstream/android-13
 extern int tty_buffer_request_room(struct tty_port *port, size_t size);
 extern int tty_insert_flip_string_flags(struct tty_port *port,
 		const unsigned char *chars, const char *flags, size_t size);
@@ -37,6 +47,12 @@ static inline int tty_insert_flip_string(struct tty_port *port,
 	return tty_insert_flip_string_fixed_flag(port, chars, TTY_NORMAL, size);
 }
 
+<<<<<<< HEAD
+=======
+int tty_ldisc_receive_buf(struct tty_ldisc *ld, const unsigned char *p,
+		const char *f, int count);
+
+>>>>>>> upstream/android-13
 extern void tty_buffer_lock_exclusive(struct tty_port *port);
 extern void tty_buffer_unlock_exclusive(struct tty_port *port);
 

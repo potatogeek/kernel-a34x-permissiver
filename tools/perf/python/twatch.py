@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 #! /usr/bin/python
+=======
+#! /usr/bin/env python
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 # -*- python -*-
 # -*- coding: utf-8 -*-
 #   twatch - Experimental use of the perf python interface
 #   Copyright (C) 2011 Arnaldo Carvalho de Melo <acme@redhat.com>
 #
+<<<<<<< HEAD
 #   This application is free software; you can redistribute it and/or
 #   modify it under the terms of the GNU General Public License
 #   as published by the Free Software Foundation; version 2.
@@ -12,6 +18,8 @@
 #   but WITHOUT ANY WARRANTY; without even the implied warranty of
 #   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 #   General Public License for more details.
+=======
+>>>>>>> upstream/android-13
 
 import perf
 

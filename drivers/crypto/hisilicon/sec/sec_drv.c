@@ -1,8 +1,14 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
+<<<<<<< HEAD
  * Driver for the Hisilicon SEC units found on Hip06 Hip07
  *
  * Copyright (c) 2016-2017 Hisilicon Limited.
+=======
+ * Driver for the HiSilicon SEC units found on Hip06 Hip07
+ *
+ * Copyright (c) 2016-2017 HiSilicon Limited.
+>>>>>>> upstream/android-13
  */
 #include <linux/acpi.h>
 #include <linux/atomic.h>
@@ -233,7 +239,11 @@ static int sec_queue_map_io(struct sec_queue *queue)
 				    IORESOURCE_MEM,
 				    2 + queue->queue_id);
 	if (!res) {
+<<<<<<< HEAD
 		dev_err(dev, "Failed to get queue %d memory resource\n",
+=======
+		dev_err(dev, "Failed to get queue %u memory resource\n",
+>>>>>>> upstream/android-13
 			queue->queue_id);
 		return -ENOMEM;
 	}
@@ -653,12 +663,20 @@ static int sec_queue_free(struct sec_queue *queue)
 	struct sec_dev_info *info = queue->dev_info;
 
 	if (queue->queue_id >= SEC_Q_NUM) {
+<<<<<<< HEAD
 		dev_err(info->dev, "No queue %d\n", queue->queue_id);
+=======
+		dev_err(info->dev, "No queue %u\n", queue->queue_id);
+>>>>>>> upstream/android-13
 		return -ENODEV;
 	}
 
 	if (!queue->in_use) {
+<<<<<<< HEAD
 		dev_err(info->dev, "Queue %d is idle\n", queue->queue_id);
+=======
+		dev_err(info->dev, "Queue %u is idle\n", queue->queue_id);
+>>>>>>> upstream/android-13
 		return -ENODEV;
 	}
 
@@ -834,6 +852,10 @@ int sec_queue_stop_release(struct sec_queue *queue)
 
 /**
  * sec_queue_empty() - Is this hardware queue currently empty.
+<<<<<<< HEAD
+=======
+ * @queue: The queue to test
+>>>>>>> upstream/android-13
  *
  * We need to know if we have an empty queue for some of the chaining modes
  * as if it is not empty we may need to hold the message in a software queue
@@ -1082,9 +1104,14 @@ static int sec_queue_res_cfg(struct sec_queue *queue)
 	struct sec_queue_ring_db *ring_db = &queue->ring_db;
 	int ret;
 
+<<<<<<< HEAD
 	ring_cmd->vaddr = dma_zalloc_coherent(dev, SEC_Q_CMD_SIZE,
 					      &ring_cmd->paddr,
 					      GFP_KERNEL);
+=======
+	ring_cmd->vaddr = dma_alloc_coherent(dev, SEC_Q_CMD_SIZE,
+					     &ring_cmd->paddr, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!ring_cmd->vaddr)
 		return -ENOMEM;
 
@@ -1092,17 +1119,27 @@ static int sec_queue_res_cfg(struct sec_queue *queue)
 	mutex_init(&ring_cmd->lock);
 	ring_cmd->callback = sec_alg_callback;
 
+<<<<<<< HEAD
 	ring_cq->vaddr = dma_zalloc_coherent(dev, SEC_Q_CQ_SIZE,
 					     &ring_cq->paddr,
 					     GFP_KERNEL);
+=======
+	ring_cq->vaddr = dma_alloc_coherent(dev, SEC_Q_CQ_SIZE,
+					    &ring_cq->paddr, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!ring_cq->vaddr) {
 		ret = -ENOMEM;
 		goto err_free_ring_cmd;
 	}
 
+<<<<<<< HEAD
 	ring_db->vaddr = dma_zalloc_coherent(dev, SEC_Q_DB_SIZE,
 					     &ring_db->paddr,
 					     GFP_KERNEL);
+=======
+	ring_db->vaddr = dma_alloc_coherent(dev, SEC_Q_DB_SIZE,
+					    &ring_db->paddr, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!ring_db->vaddr) {
 		ret = -ENOMEM;
 		goto err_free_ring_cq;
@@ -1318,6 +1355,10 @@ static struct platform_driver sec_driver = {
 module_platform_driver(sec_driver);
 
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
 MODULE_DESCRIPTION("Hisilicon Security Accelerators");
+=======
+MODULE_DESCRIPTION("HiSilicon Security Accelerators");
+>>>>>>> upstream/android-13
 MODULE_AUTHOR("Zaibo Xu <xuzaibo@huawei.com");
 MODULE_AUTHOR("Jonathan Cameron <jonathan.cameron@huawei.com>");

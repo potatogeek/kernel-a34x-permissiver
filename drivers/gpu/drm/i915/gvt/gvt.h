@@ -33,6 +33,13 @@
 #ifndef _GVT_H_
 #define _GVT_H_
 
+<<<<<<< HEAD
+=======
+#include <uapi/linux/pci_regs.h>
+
+#include "i915_drv.h"
+
+>>>>>>> upstream/android-13
 #include "debug.h"
 #include "hypercall.h"
 #include "mmio.h"
@@ -52,6 +59,7 @@
 
 #define GVT_MAX_VGPU 8
 
+<<<<<<< HEAD
 enum {
 	INTEL_GVT_HYPERVISOR_XEN = 0,
 	INTEL_GVT_HYPERVISOR_KVM,
@@ -61,6 +69,13 @@ struct intel_gvt_host {
 	bool initialized;
 	int hypervisor_type;
 	struct intel_gvt_mpt *mpt;
+=======
+struct intel_gvt_host {
+	struct device *dev;
+	bool initialized;
+	int hypervisor_type;
+	const struct intel_gvt_mpt *mpt;
+>>>>>>> upstream/android-13
 };
 
 extern struct intel_gvt_host intel_gvt_host;
@@ -91,14 +106,21 @@ struct intel_vgpu_gm {
 
 /* Fences owned by a vGPU */
 struct intel_vgpu_fence {
+<<<<<<< HEAD
 	struct drm_i915_fence_reg *regs[INTEL_GVT_MAX_NUM_FENCES];
+=======
+	struct i915_fence_reg *regs[INTEL_GVT_MAX_NUM_FENCES];
+>>>>>>> upstream/android-13
 	u32 base;
 	u32 size;
 };
 
 struct intel_vgpu_mmio {
 	void *vreg;
+<<<<<<< HEAD
 	void *sreg;
+=======
+>>>>>>> upstream/android-13
 };
 
 #define INTEL_GVT_MAX_BAR_NUM 4
@@ -111,15 +133,25 @@ struct intel_vgpu_pci_bar {
 struct intel_vgpu_cfg_space {
 	unsigned char virtual_cfg_space[PCI_CFG_SPACE_EXP_SIZE];
 	struct intel_vgpu_pci_bar bar[INTEL_GVT_MAX_BAR_NUM];
+<<<<<<< HEAD
+=======
+	u32 pmcsr_off;
+>>>>>>> upstream/android-13
 };
 
 #define vgpu_cfg_space(vgpu) ((vgpu)->cfg_space.virtual_cfg_space)
 
+<<<<<<< HEAD
 #define INTEL_GVT_MAX_PIPE 4
 
 struct intel_vgpu_irq {
 	bool irq_warn_once[INTEL_GVT_EVENT_MAX];
 	DECLARE_BITMAP(flip_done_event[INTEL_GVT_MAX_PIPE],
+=======
+struct intel_vgpu_irq {
+	bool irq_warn_once[INTEL_GVT_EVENT_MAX];
+	DECLARE_BITMAP(flip_done_event[I915_MAX_PIPES],
+>>>>>>> upstream/android-13
 		       INTEL_GVT_EVENT_MAX);
 };
 
@@ -135,6 +167,10 @@ struct intel_vgpu_display {
 	struct intel_vgpu_i2c_edid i2c_edid;
 	struct intel_vgpu_port ports[I915_MAX_PORTS];
 	struct intel_vgpu_sbi sbi;
+<<<<<<< HEAD
+=======
+	enum port port_num;
+>>>>>>> upstream/android-13
 };
 
 struct vgpu_sched_ctl {
@@ -148,17 +184,33 @@ enum {
 
 struct intel_vgpu_submission_ops {
 	const char *name;
+<<<<<<< HEAD
 	int (*init)(struct intel_vgpu *vgpu, unsigned long engine_mask);
 	void (*clean)(struct intel_vgpu *vgpu, unsigned long engine_mask);
 	void (*reset)(struct intel_vgpu *vgpu, unsigned long engine_mask);
+=======
+	int (*init)(struct intel_vgpu *vgpu, intel_engine_mask_t engine_mask);
+	void (*clean)(struct intel_vgpu *vgpu, intel_engine_mask_t engine_mask);
+	void (*reset)(struct intel_vgpu *vgpu, intel_engine_mask_t engine_mask);
+>>>>>>> upstream/android-13
 };
 
 struct intel_vgpu_submission {
 	struct intel_vgpu_execlist execlist[I915_NUM_ENGINES];
 	struct list_head workload_q_head[I915_NUM_ENGINES];
+<<<<<<< HEAD
 	struct kmem_cache *workloads;
 	atomic_t running_workload_num;
 	struct i915_gem_context *shadow_ctx;
+=======
+	struct intel_context *shadow[I915_NUM_ENGINES];
+	struct kmem_cache *workloads;
+	atomic_t running_workload_num;
+	union {
+		u64 i915_context_pml4;
+		u64 i915_context_pdps[GEN8_3LVL_PDPES];
+	};
+>>>>>>> upstream/android-13
 	DECLARE_BITMAP(shadow_ctx_desc_updated, I915_NUM_ENGINES);
 	DECLARE_BITMAP(tlb_handle_pending, I915_NUM_ENGINES);
 	void *ring_scan_buffer[I915_NUM_ENGINES];
@@ -166,6 +218,14 @@ struct intel_vgpu_submission {
 	const struct intel_vgpu_submission_ops *ops;
 	int virtual_submission_interface;
 	bool active;
+<<<<<<< HEAD
+=======
+	struct {
+		u32 lrca;
+		bool valid;
+		u64 ring_context_gpa;
+	} last_ctx[I915_NUM_ENGINES];
+>>>>>>> upstream/android-13
 };
 
 struct intel_vgpu {
@@ -196,6 +256,7 @@ struct intel_vgpu {
 	struct intel_vgpu_submission submission;
 	struct radix_tree_root page_track_tree;
 	u32 hws_pga[I915_NUM_ENGINES];
+<<<<<<< HEAD
 
 	struct dentry *debugfs;
 
@@ -224,16 +285,37 @@ struct intel_vgpu {
 		struct vfio_device *vfio_device;
 	} vdev;
 #endif
+=======
+	/* Set on PCI_D3, reset on DMLR, not reflecting the actual PM state */
+	bool d3_entered;
+
+	struct dentry *debugfs;
+
+	/* Hypervisor-specific device state. */
+	void *vdev;
+>>>>>>> upstream/android-13
 
 	struct list_head dmabuf_obj_list_head;
 	struct mutex dmabuf_lock;
 	struct idr object_idr;
+<<<<<<< HEAD
 
 	struct completion vblank_done;
+=======
+	struct intel_vgpu_vblank_timer vblank_timer;
+>>>>>>> upstream/android-13
 
 	u32 scan_nonprivbb;
 };
 
+<<<<<<< HEAD
+=======
+static inline void *intel_vgpu_vdev(struct intel_vgpu *vgpu)
+{
+	return vgpu->vdev;
+}
+
+>>>>>>> upstream/android-13
 /* validating GM healthy status*/
 #define vgpu_is_vm_unhealthy(ret_val) \
 	(((ret_val) == -EBADRQC) || ((ret_val) == -EFAULT))
@@ -259,7 +341,11 @@ struct gvt_mmio_block {
 #define INTEL_GVT_MMIO_HASH_BITS 11
 
 struct intel_gvt_mmio {
+<<<<<<< HEAD
 	u8 *mmio_attribute;
+=======
+	u16 *mmio_attribute;
+>>>>>>> upstream/android-13
 /* Register contains RO bits */
 #define F_RO		(1 << 0)
 /* Register contains graphics address */
@@ -270,12 +356,25 @@ struct intel_gvt_mmio {
 #define F_CMD_ACCESS	(1 << 3)
 /* This reg has been accessed by a VM */
 #define F_ACCESSED	(1 << 4)
+<<<<<<< HEAD
 /* This reg has been accessed through GPU commands */
 #define F_CMD_ACCESSED	(1 << 5)
 /* This reg could be accessed by unaligned address */
 #define F_UNALIGN	(1 << 6)
 /* This reg is saved/restored in context */
 #define F_IN_CTX	(1 << 7)
+=======
+/* This reg requires save & restore during host PM suspend/resume */
+#define F_PM_SAVE	(1 << 5)
+/* This reg could be accessed by unaligned address */
+#define F_UNALIGN	(1 << 6)
+/* This reg is in GVT's mmio save-restor list and in hardware
+ * logical context image
+ */
+#define F_SR_IN_CTX	(1 << 7)
+/* Value of command write of this reg needs to be patched */
+#define F_CMD_WRITE_PATCH	(1 << 8)
+>>>>>>> upstream/android-13
 
 	struct gvt_mmio_block *mmio_block;
 	unsigned int num_mmio_block;
@@ -309,7 +408,11 @@ struct intel_gvt {
 	/* scheduler scope lock, protect gvt and vgpu schedule related data */
 	struct mutex sched_lock;
 
+<<<<<<< HEAD
 	struct drm_i915_private *dev_priv;
+=======
+	struct intel_gt *gt;
+>>>>>>> upstream/android-13
 	struct idr vgpu_idr;	/* vGPU IDR pool */
 
 	struct intel_gvt_device_info device_info;
@@ -337,7 +440,16 @@ struct intel_gvt {
 	struct {
 		struct engine_mmio *mmio;
 		int ctx_mmio_count[I915_NUM_ENGINES];
+<<<<<<< HEAD
 	} engine_mmio_list;
+=======
+		u32 *tlb_mmio_offset_list;
+		u32 tlb_mmio_offset_list_cnt;
+		u32 *mocs_mmio_offset_list;
+		u32 mocs_mmio_offset_list_cnt;
+	} engine_mmio_list;
+	bool is_reg_whitelist_updated;
+>>>>>>> upstream/android-13
 
 	struct dentry *debugfs_root;
 };
@@ -348,6 +460,7 @@ static inline struct intel_gvt *to_gvt(struct drm_i915_private *i915)
 }
 
 enum {
+<<<<<<< HEAD
 	INTEL_GVT_REQUEST_EMULATE_VBLANK = 0,
 
 	/* Scheduling trigger by timer */
@@ -355,6 +468,18 @@ enum {
 
 	/* Scheduling trigger by event */
 	INTEL_GVT_REQUEST_EVENT_SCHED = 2,
+=======
+	/* Scheduling trigger by timer */
+	INTEL_GVT_REQUEST_SCHED = 0,
+
+	/* Scheduling trigger by event */
+	INTEL_GVT_REQUEST_EVENT_SCHED = 1,
+
+	/* per-vGPU vblank emulation request */
+	INTEL_GVT_REQUEST_EMULATE_VBLANK = 2,
+	INTEL_GVT_REQUEST_EMULATE_VBLANK_MAX = INTEL_GVT_REQUEST_EMULATE_VBLANK
+		+ GVT_MAX_VGPU,
+>>>>>>> upstream/android-13
 };
 
 static inline void intel_gvt_request_service(struct intel_gvt *gvt,
@@ -375,6 +500,7 @@ int intel_gvt_load_firmware(struct intel_gvt *gvt);
 #define HOST_HIGH_GM_SIZE MB_TO_BYTES(384)
 #define HOST_FENCE 4
 
+<<<<<<< HEAD
 /* Aperture/GM space definitions for GVT device */
 #define gvt_aperture_sz(gvt)	  (gvt->dev_priv->ggtt.mappable_end)
 #define gvt_aperture_pa_base(gvt) (gvt->dev_priv->ggtt.gmadr.start)
@@ -383,6 +509,17 @@ int intel_gvt_load_firmware(struct intel_gvt *gvt);
 #define gvt_ggtt_sz(gvt) \
 	((gvt->dev_priv->ggtt.vm.total >> PAGE_SHIFT) << 3)
 #define gvt_hidden_sz(gvt)	  (gvt_ggtt_gm_sz(gvt) - gvt_aperture_sz(gvt))
+=======
+#define gvt_to_ggtt(gvt)	((gvt)->gt->ggtt)
+
+/* Aperture/GM space definitions for GVT device */
+#define gvt_aperture_sz(gvt)	  gvt_to_ggtt(gvt)->mappable_end
+#define gvt_aperture_pa_base(gvt) gvt_to_ggtt(gvt)->gmadr.start
+
+#define gvt_ggtt_gm_sz(gvt)	gvt_to_ggtt(gvt)->vm.total
+#define gvt_ggtt_sz(gvt)	(gvt_to_ggtt(gvt)->vm.total >> PAGE_SHIFT << 3)
+#define gvt_hidden_sz(gvt)	(gvt_ggtt_gm_sz(gvt) - gvt_aperture_sz(gvt))
+>>>>>>> upstream/android-13
 
 #define gvt_aperture_gmadr_base(gvt) (0)
 #define gvt_aperture_gmadr_end(gvt) (gvt_aperture_gmadr_base(gvt) \
@@ -393,7 +530,11 @@ int intel_gvt_load_firmware(struct intel_gvt *gvt);
 #define gvt_hidden_gmadr_end(gvt) (gvt_hidden_gmadr_base(gvt) \
 				   + gvt_hidden_sz(gvt) - 1)
 
+<<<<<<< HEAD
 #define gvt_fence_sz(gvt) (gvt->dev_priv->num_fence_regs)
+=======
+#define gvt_fence_sz(gvt) (gvt_to_ggtt(gvt)->num_fences)
+>>>>>>> upstream/android-13
 
 /* Aperture/GM space definitions for vGPU */
 #define vgpu_aperture_offset(vgpu)	((vgpu)->gm.low_gm_node.start)
@@ -420,6 +561,12 @@ int intel_gvt_load_firmware(struct intel_gvt *gvt);
 #define vgpu_fence_base(vgpu) (vgpu->fence.base)
 #define vgpu_fence_sz(vgpu) (vgpu->fence.size)
 
+<<<<<<< HEAD
+=======
+/* ring context size i.e. the first 0x50 dwords*/
+#define RING_CTX_SIZE 320
+
+>>>>>>> upstream/android-13
 struct intel_vgpu_creation_params {
 	__u64 handle;
 	__u64 low_gm_sz;  /* in MB */
@@ -449,10 +596,13 @@ void intel_vgpu_write_fence(struct intel_vgpu *vgpu,
 	(*(u64 *)(vgpu->mmio.vreg + i915_mmio_reg_offset(reg)))
 #define vgpu_vreg64(vgpu, offset) \
 	(*(u64 *)(vgpu->mmio.vreg + (offset)))
+<<<<<<< HEAD
 #define vgpu_sreg_t(vgpu, reg) \
 	(*(u32 *)(vgpu->mmio.sreg + i915_mmio_reg_offset(reg)))
 #define vgpu_sreg(vgpu, offset) \
 	(*(u32 *)(vgpu->mmio.sreg + (offset)))
+=======
+>>>>>>> upstream/android-13
 
 #define for_each_active_vgpu(gvt, vgpu, id) \
 	idr_for_each_entry((&(gvt)->vgpu_idr), (vgpu), (id)) \
@@ -488,7 +638,11 @@ struct intel_vgpu *intel_gvt_create_vgpu(struct intel_gvt *gvt,
 void intel_gvt_destroy_vgpu(struct intel_vgpu *vgpu);
 void intel_gvt_release_vgpu(struct intel_vgpu *vgpu);
 void intel_gvt_reset_vgpu_locked(struct intel_vgpu *vgpu, bool dmlr,
+<<<<<<< HEAD
 				 unsigned int engine_mask);
+=======
+				 intel_engine_mask_t engine_mask);
+>>>>>>> upstream/android-13
 void intel_gvt_reset_vgpu(struct intel_vgpu *vgpu);
 void intel_gvt_activate_vgpu(struct intel_vgpu *vgpu);
 void intel_gvt_deactivate_vgpu(struct intel_vgpu *vgpu);
@@ -536,6 +690,11 @@ int intel_vgpu_emulate_cfg_read(struct intel_vgpu *vgpu, unsigned int offset,
 int intel_vgpu_emulate_cfg_write(struct intel_vgpu *vgpu, unsigned int offset,
 		void *p_data, unsigned int bytes);
 
+<<<<<<< HEAD
+=======
+void intel_vgpu_emulate_hotplug(struct intel_vgpu *vgpu, bool connected);
+
+>>>>>>> upstream/android-13
 static inline u64 intel_vgpu_get_bar_gpa(struct intel_vgpu *vgpu, int bar)
 {
 	/* We are 64bit bar. */
@@ -569,14 +728,21 @@ struct intel_gvt_ops {
 	void (*vgpu_reset)(struct intel_vgpu *);
 	void (*vgpu_activate)(struct intel_vgpu *);
 	void (*vgpu_deactivate)(struct intel_vgpu *);
+<<<<<<< HEAD
 	struct intel_vgpu_type *(*gvt_find_vgpu_type)(struct intel_gvt *gvt,
 			const char *name);
 	bool (*get_gvt_attrs)(struct attribute ***type_attrs,
 			struct attribute_group ***intel_vgpu_type_groups);
+=======
+>>>>>>> upstream/android-13
 	int (*vgpu_query_plane)(struct intel_vgpu *vgpu, void *);
 	int (*vgpu_get_dmabuf)(struct intel_vgpu *vgpu, unsigned int);
 	int (*write_protect_handler)(struct intel_vgpu *, u64, void *,
 				     unsigned int);
+<<<<<<< HEAD
+=======
+	void (*emulate_hotplug)(struct intel_vgpu *vgpu, bool connected);
+>>>>>>> upstream/android-13
 };
 
 
@@ -586,6 +752,7 @@ enum {
 	GVT_FAILSAFE_GUEST_ERR,
 };
 
+<<<<<<< HEAD
 static inline void mmio_hw_access_pre(struct drm_i915_private *dev_priv)
 {
 	intel_runtime_pm_get(dev_priv);
@@ -594,6 +761,16 @@ static inline void mmio_hw_access_pre(struct drm_i915_private *dev_priv)
 static inline void mmio_hw_access_post(struct drm_i915_private *dev_priv)
 {
 	intel_runtime_pm_put(dev_priv);
+=======
+static inline void mmio_hw_access_pre(struct intel_gt *gt)
+{
+	intel_runtime_pm_get(gt->uncore->rpm);
+}
+
+static inline void mmio_hw_access_post(struct intel_gt *gt)
+{
+	intel_runtime_pm_put_unchecked(gt->uncore->rpm);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -609,15 +786,41 @@ static inline void intel_gvt_mmio_set_accessed(
 }
 
 /**
+<<<<<<< HEAD
  * intel_gvt_mmio_is_cmd_accessed - mark a MMIO could be accessed by command
+=======
+ * intel_gvt_mmio_is_cmd_accessible - if a MMIO could be accessed by command
+ * @gvt: a GVT device
+ * @offset: register offset
+ *
+ * Returns:
+ * True if an MMIO is able to be accessed by GPU commands
+ */
+static inline bool intel_gvt_mmio_is_cmd_accessible(
+			struct intel_gvt *gvt, unsigned int offset)
+{
+	return gvt->mmio.mmio_attribute[offset >> 2] & F_CMD_ACCESS;
+}
+
+/**
+ * intel_gvt_mmio_set_cmd_accessible -
+ *				mark a MMIO could be accessible by command
+>>>>>>> upstream/android-13
  * @gvt: a GVT device
  * @offset: register offset
  *
  */
+<<<<<<< HEAD
 static inline bool intel_gvt_mmio_is_cmd_access(
 			struct intel_gvt *gvt, unsigned int offset)
 {
 	return gvt->mmio.mmio_attribute[offset >> 2] & F_CMD_ACCESS;
+=======
+static inline void intel_gvt_mmio_set_cmd_accessible(
+			struct intel_gvt *gvt, unsigned int offset)
+{
+	gvt->mmio.mmio_attribute[offset >> 2] |= F_CMD_ACCESS;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -633,6 +836,7 @@ static inline bool intel_gvt_mmio_is_unalign(
 }
 
 /**
+<<<<<<< HEAD
  * intel_gvt_mmio_set_cmd_accessed - mark a MMIO has been accessed by command
  * @gvt: a GVT device
  * @offset: register offset
@@ -645,6 +849,8 @@ static inline void intel_gvt_mmio_set_cmd_accessed(
 }
 
 /**
+=======
+>>>>>>> upstream/android-13
  * intel_gvt_mmio_has_mode_mask - if a MMIO has a mode mask
  * @gvt: a GVT device
  * @offset: register offset
@@ -660,11 +866,17 @@ static inline bool intel_gvt_mmio_has_mode_mask(
 }
 
 /**
+<<<<<<< HEAD
  * intel_gvt_mmio_is_in_ctx - check if a MMIO has in-ctx mask
+=======
+ * intel_gvt_mmio_is_sr_in_ctx -
+ *		check if an MMIO has F_SR_IN_CTX mask
+>>>>>>> upstream/android-13
  * @gvt: a GVT device
  * @offset: register offset
  *
  * Returns:
+<<<<<<< HEAD
  * True if a MMIO has a in-context mask, false if it isn't.
  *
  */
@@ -676,10 +888,26 @@ static inline bool intel_gvt_mmio_is_in_ctx(
 
 /**
  * intel_gvt_mmio_set_in_ctx - mask a MMIO in logical context
+=======
+ * True if an MMIO has an F_SR_IN_CTX  mask, false if it isn't.
+ *
+ */
+static inline bool intel_gvt_mmio_is_sr_in_ctx(
+			struct intel_gvt *gvt, unsigned int offset)
+{
+	return gvt->mmio.mmio_attribute[offset >> 2] & F_SR_IN_CTX;
+}
+
+/**
+ * intel_gvt_mmio_set_sr_in_ctx -
+ *		mask an MMIO in GVT's mmio save-restore list and also
+ *		in hardware logical context image
+>>>>>>> upstream/android-13
  * @gvt: a GVT device
  * @offset: register offset
  *
  */
+<<<<<<< HEAD
 static inline void intel_gvt_mmio_set_in_ctx(
 			struct intel_gvt *gvt, unsigned int offset)
 {
@@ -691,6 +919,49 @@ void intel_gvt_debugfs_remove_vgpu(struct intel_vgpu *vgpu);
 int intel_gvt_debugfs_init(struct intel_gvt *gvt);
 void intel_gvt_debugfs_clean(struct intel_gvt *gvt);
 
+=======
+static inline void intel_gvt_mmio_set_sr_in_ctx(
+			struct intel_gvt *gvt, unsigned int offset)
+{
+	gvt->mmio.mmio_attribute[offset >> 2] |= F_SR_IN_CTX;
+}
+
+void intel_gvt_debugfs_add_vgpu(struct intel_vgpu *vgpu);
+/**
+ * intel_gvt_mmio_set_cmd_write_patch -
+ *				mark an MMIO if its cmd write needs to be
+ *				patched
+ * @gvt: a GVT device
+ * @offset: register offset
+ *
+ */
+static inline void intel_gvt_mmio_set_cmd_write_patch(
+			struct intel_gvt *gvt, unsigned int offset)
+{
+	gvt->mmio.mmio_attribute[offset >> 2] |= F_CMD_WRITE_PATCH;
+}
+
+/**
+ * intel_gvt_mmio_is_cmd_write_patch - check if an mmio's cmd access needs to
+ * be patched
+ * @gvt: a GVT device
+ * @offset: register offset
+ *
+ * Returns:
+ * True if GPU commmand write to an MMIO should be patched
+ */
+static inline bool intel_gvt_mmio_is_cmd_write_patch(
+			struct intel_gvt *gvt, unsigned int offset)
+{
+	return gvt->mmio.mmio_attribute[offset >> 2] & F_CMD_WRITE_PATCH;
+}
+
+void intel_gvt_debugfs_remove_vgpu(struct intel_vgpu *vgpu);
+void intel_gvt_debugfs_init(struct intel_gvt *gvt);
+void intel_gvt_debugfs_clean(struct intel_gvt *gvt);
+
+int intel_gvt_pm_resume(struct intel_gvt *gvt);
+>>>>>>> upstream/android-13
 
 #include "trace.h"
 #include "mpt.h"

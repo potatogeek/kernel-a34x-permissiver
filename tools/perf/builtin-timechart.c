@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * builtin-timechart.c - make an svg timechart of system activity
  *
@@ -5,15 +9,19 @@
  *
  * Authors:
  *     Arjan van de Ven <arjan@linux.intel.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; version 2
  * of the License.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <errno.h>
 #include <inttypes.h>
+<<<<<<< HEAD
 #include <traceevent/event-parse.h>
 
 #include "builtin.h"
@@ -24,16 +32,31 @@
 #include <linux/list.h>
 #include "util/cache.h"
 #include "util/evlist.h"
+=======
+
+#include "builtin.h"
+#include "util/color.h"
+#include <linux/list.h>
+#include "util/evlist.h" // for struct evsel_str_handler
+>>>>>>> upstream/android-13
 #include "util/evsel.h"
 #include <linux/kernel.h>
 #include <linux/rbtree.h>
 #include <linux/time64.h>
+<<<<<<< HEAD
+=======
+#include <linux/zalloc.h>
+>>>>>>> upstream/android-13
 #include "util/symbol.h"
 #include "util/thread.h"
 #include "util/callchain.h"
 
 #include "perf.h"
 #include "util/header.h"
+<<<<<<< HEAD
+=======
+#include <subcmd/pager.h>
+>>>>>>> upstream/android-13
 #include <subcmd/parse-options.h>
 #include "util/parse-events.h"
 #include "util/event.h"
@@ -42,6 +65,10 @@
 #include "util/tool.h"
 #include "util/data.h"
 #include "util/debug.h"
+<<<<<<< HEAD
+=======
+#include <linux/err.h>
+>>>>>>> upstream/android-13
 
 #ifdef LACKS_OPEN_MEMSTREAM_PROTOTYPE
 FILE *open_memstream(char **ptr, size_t *sizeloc);
@@ -134,7 +161,11 @@ struct sample_wrapper {
 	struct sample_wrapper *next;
 
 	u64		timestamp;
+<<<<<<< HEAD
 	unsigned char	data[0];
+=======
+	unsigned char	data[];
+>>>>>>> upstream/android-13
 };
 
 #define TYPE_NONE	0
@@ -551,19 +582,31 @@ exit:
 }
 
 typedef int (*tracepoint_handler)(struct timechart *tchart,
+<<<<<<< HEAD
 				  struct perf_evsel *evsel,
+=======
+				  struct evsel *evsel,
+>>>>>>> upstream/android-13
 				  struct perf_sample *sample,
 				  const char *backtrace);
 
 static int process_sample_event(struct perf_tool *tool,
 				union perf_event *event,
 				struct perf_sample *sample,
+<<<<<<< HEAD
 				struct perf_evsel *evsel,
+=======
+				struct evsel *evsel,
+>>>>>>> upstream/android-13
 				struct machine *machine)
 {
 	struct timechart *tchart = container_of(tool, struct timechart, tool);
 
+<<<<<<< HEAD
 	if (evsel->attr.sample_type & PERF_SAMPLE_TIME) {
+=======
+	if (evsel->core.attr.sample_type & PERF_SAMPLE_TIME) {
+>>>>>>> upstream/android-13
 		if (!tchart->first_time || tchart->first_time > sample->time)
 			tchart->first_time = sample->time;
 		if (tchart->last_time < sample->time)
@@ -581,12 +624,21 @@ static int process_sample_event(struct perf_tool *tool,
 
 static int
 process_sample_cpu_idle(struct timechart *tchart __maybe_unused,
+<<<<<<< HEAD
 			struct perf_evsel *evsel,
 			struct perf_sample *sample,
 			const char *backtrace __maybe_unused)
 {
 	u32 state = perf_evsel__intval(evsel, sample, "state");
 	u32 cpu_id = perf_evsel__intval(evsel, sample, "cpu_id");
+=======
+			struct evsel *evsel,
+			struct perf_sample *sample,
+			const char *backtrace __maybe_unused)
+{
+	u32 state  = evsel__intval(evsel, sample, "state");
+	u32 cpu_id = evsel__intval(evsel, sample, "cpu_id");
+>>>>>>> upstream/android-13
 
 	if (state == (u32)PWR_EVENT_EXIT)
 		c_state_end(tchart, cpu_id, sample->time);
@@ -597,12 +649,21 @@ process_sample_cpu_idle(struct timechart *tchart __maybe_unused,
 
 static int
 process_sample_cpu_frequency(struct timechart *tchart,
+<<<<<<< HEAD
 			     struct perf_evsel *evsel,
 			     struct perf_sample *sample,
 			     const char *backtrace __maybe_unused)
 {
 	u32 state = perf_evsel__intval(evsel, sample, "state");
 	u32 cpu_id = perf_evsel__intval(evsel, sample, "cpu_id");
+=======
+			     struct evsel *evsel,
+			     struct perf_sample *sample,
+			     const char *backtrace __maybe_unused)
+{
+	u32 state  = evsel__intval(evsel, sample, "state");
+	u32 cpu_id = evsel__intval(evsel, sample, "cpu_id");
+>>>>>>> upstream/android-13
 
 	p_state_change(tchart, cpu_id, sample->time, state);
 	return 0;
@@ -610,6 +671,7 @@ process_sample_cpu_frequency(struct timechart *tchart,
 
 static int
 process_sample_sched_wakeup(struct timechart *tchart,
+<<<<<<< HEAD
 			    struct perf_evsel *evsel,
 			    struct perf_sample *sample,
 			    const char *backtrace)
@@ -617,6 +679,15 @@ process_sample_sched_wakeup(struct timechart *tchart,
 	u8 flags = perf_evsel__intval(evsel, sample, "common_flags");
 	int waker = perf_evsel__intval(evsel, sample, "common_pid");
 	int wakee = perf_evsel__intval(evsel, sample, "pid");
+=======
+			    struct evsel *evsel,
+			    struct perf_sample *sample,
+			    const char *backtrace)
+{
+	u8 flags  = evsel__intval(evsel, sample, "common_flags");
+	int waker = evsel__intval(evsel, sample, "common_pid");
+	int wakee = evsel__intval(evsel, sample, "pid");
+>>>>>>> upstream/android-13
 
 	sched_wakeup(tchart, sample->cpu, sample->time, waker, wakee, flags, backtrace);
 	return 0;
@@ -624,6 +695,7 @@ process_sample_sched_wakeup(struct timechart *tchart,
 
 static int
 process_sample_sched_switch(struct timechart *tchart,
+<<<<<<< HEAD
 			    struct perf_evsel *evsel,
 			    struct perf_sample *sample,
 			    const char *backtrace)
@@ -631,6 +703,15 @@ process_sample_sched_switch(struct timechart *tchart,
 	int prev_pid = perf_evsel__intval(evsel, sample, "prev_pid");
 	int next_pid = perf_evsel__intval(evsel, sample, "next_pid");
 	u64 prev_state = perf_evsel__intval(evsel, sample, "prev_state");
+=======
+			    struct evsel *evsel,
+			    struct perf_sample *sample,
+			    const char *backtrace)
+{
+	int prev_pid   = evsel__intval(evsel, sample, "prev_pid");
+	int next_pid   = evsel__intval(evsel, sample, "next_pid");
+	u64 prev_state = evsel__intval(evsel, sample, "prev_state");
+>>>>>>> upstream/android-13
 
 	sched_switch(tchart, sample->cpu, sample->time, prev_pid, next_pid,
 		     prev_state, backtrace);
@@ -640,12 +721,21 @@ process_sample_sched_switch(struct timechart *tchart,
 #ifdef SUPPORT_OLD_POWER_EVENTS
 static int
 process_sample_power_start(struct timechart *tchart __maybe_unused,
+<<<<<<< HEAD
 			   struct perf_evsel *evsel,
 			   struct perf_sample *sample,
 			   const char *backtrace __maybe_unused)
 {
 	u64 cpu_id = perf_evsel__intval(evsel, sample, "cpu_id");
 	u64 value = perf_evsel__intval(evsel, sample, "value");
+=======
+			   struct evsel *evsel,
+			   struct perf_sample *sample,
+			   const char *backtrace __maybe_unused)
+{
+	u64 cpu_id = evsel__intval(evsel, sample, "cpu_id");
+	u64 value  = evsel__intval(evsel, sample, "value");
+>>>>>>> upstream/android-13
 
 	c_state_start(cpu_id, sample->time, value);
 	return 0;
@@ -653,7 +743,11 @@ process_sample_power_start(struct timechart *tchart __maybe_unused,
 
 static int
 process_sample_power_end(struct timechart *tchart,
+<<<<<<< HEAD
 			 struct perf_evsel *evsel __maybe_unused,
+=======
+			 struct evsel *evsel __maybe_unused,
+>>>>>>> upstream/android-13
 			 struct perf_sample *sample,
 			 const char *backtrace __maybe_unused)
 {
@@ -663,12 +757,21 @@ process_sample_power_end(struct timechart *tchart,
 
 static int
 process_sample_power_frequency(struct timechart *tchart,
+<<<<<<< HEAD
 			       struct perf_evsel *evsel,
 			       struct perf_sample *sample,
 			       const char *backtrace __maybe_unused)
 {
 	u64 cpu_id = perf_evsel__intval(evsel, sample, "cpu_id");
 	u64 value = perf_evsel__intval(evsel, sample, "value");
+=======
+			       struct evsel *evsel,
+			       struct perf_sample *sample,
+			       const char *backtrace __maybe_unused)
+{
+	u64 cpu_id = evsel__intval(evsel, sample, "cpu_id");
+	u64 value  = evsel__intval(evsel, sample, "value");
+>>>>>>> upstream/android-13
 
 	p_state_change(tchart, cpu_id, sample->time, value);
 	return 0;
@@ -846,120 +949,204 @@ static int pid_end_io_sample(struct timechart *tchart, int pid, int type,
 
 static int
 process_enter_read(struct timechart *tchart,
+<<<<<<< HEAD
 		   struct perf_evsel *evsel,
 		   struct perf_sample *sample)
 {
 	long fd = perf_evsel__intval(evsel, sample, "fd");
+=======
+		   struct evsel *evsel,
+		   struct perf_sample *sample)
+{
+	long fd = evsel__intval(evsel, sample, "fd");
+>>>>>>> upstream/android-13
 	return pid_begin_io_sample(tchart, sample->tid, IOTYPE_READ,
 				   sample->time, fd);
 }
 
 static int
 process_exit_read(struct timechart *tchart,
+<<<<<<< HEAD
 		  struct perf_evsel *evsel,
 		  struct perf_sample *sample)
 {
 	long ret = perf_evsel__intval(evsel, sample, "ret");
+=======
+		  struct evsel *evsel,
+		  struct perf_sample *sample)
+{
+	long ret = evsel__intval(evsel, sample, "ret");
+>>>>>>> upstream/android-13
 	return pid_end_io_sample(tchart, sample->tid, IOTYPE_READ,
 				 sample->time, ret);
 }
 
 static int
 process_enter_write(struct timechart *tchart,
+<<<<<<< HEAD
 		    struct perf_evsel *evsel,
 		    struct perf_sample *sample)
 {
 	long fd = perf_evsel__intval(evsel, sample, "fd");
+=======
+		    struct evsel *evsel,
+		    struct perf_sample *sample)
+{
+	long fd = evsel__intval(evsel, sample, "fd");
+>>>>>>> upstream/android-13
 	return pid_begin_io_sample(tchart, sample->tid, IOTYPE_WRITE,
 				   sample->time, fd);
 }
 
 static int
 process_exit_write(struct timechart *tchart,
+<<<<<<< HEAD
 		   struct perf_evsel *evsel,
 		   struct perf_sample *sample)
 {
 	long ret = perf_evsel__intval(evsel, sample, "ret");
+=======
+		   struct evsel *evsel,
+		   struct perf_sample *sample)
+{
+	long ret = evsel__intval(evsel, sample, "ret");
+>>>>>>> upstream/android-13
 	return pid_end_io_sample(tchart, sample->tid, IOTYPE_WRITE,
 				 sample->time, ret);
 }
 
 static int
 process_enter_sync(struct timechart *tchart,
+<<<<<<< HEAD
 		   struct perf_evsel *evsel,
 		   struct perf_sample *sample)
 {
 	long fd = perf_evsel__intval(evsel, sample, "fd");
+=======
+		   struct evsel *evsel,
+		   struct perf_sample *sample)
+{
+	long fd = evsel__intval(evsel, sample, "fd");
+>>>>>>> upstream/android-13
 	return pid_begin_io_sample(tchart, sample->tid, IOTYPE_SYNC,
 				   sample->time, fd);
 }
 
 static int
 process_exit_sync(struct timechart *tchart,
+<<<<<<< HEAD
 		  struct perf_evsel *evsel,
 		  struct perf_sample *sample)
 {
 	long ret = perf_evsel__intval(evsel, sample, "ret");
+=======
+		  struct evsel *evsel,
+		  struct perf_sample *sample)
+{
+	long ret = evsel__intval(evsel, sample, "ret");
+>>>>>>> upstream/android-13
 	return pid_end_io_sample(tchart, sample->tid, IOTYPE_SYNC,
 				 sample->time, ret);
 }
 
 static int
 process_enter_tx(struct timechart *tchart,
+<<<<<<< HEAD
 		 struct perf_evsel *evsel,
 		 struct perf_sample *sample)
 {
 	long fd = perf_evsel__intval(evsel, sample, "fd");
+=======
+		 struct evsel *evsel,
+		 struct perf_sample *sample)
+{
+	long fd = evsel__intval(evsel, sample, "fd");
+>>>>>>> upstream/android-13
 	return pid_begin_io_sample(tchart, sample->tid, IOTYPE_TX,
 				   sample->time, fd);
 }
 
 static int
 process_exit_tx(struct timechart *tchart,
+<<<<<<< HEAD
 		struct perf_evsel *evsel,
 		struct perf_sample *sample)
 {
 	long ret = perf_evsel__intval(evsel, sample, "ret");
+=======
+		struct evsel *evsel,
+		struct perf_sample *sample)
+{
+	long ret = evsel__intval(evsel, sample, "ret");
+>>>>>>> upstream/android-13
 	return pid_end_io_sample(tchart, sample->tid, IOTYPE_TX,
 				 sample->time, ret);
 }
 
 static int
 process_enter_rx(struct timechart *tchart,
+<<<<<<< HEAD
 		 struct perf_evsel *evsel,
 		 struct perf_sample *sample)
 {
 	long fd = perf_evsel__intval(evsel, sample, "fd");
+=======
+		 struct evsel *evsel,
+		 struct perf_sample *sample)
+{
+	long fd = evsel__intval(evsel, sample, "fd");
+>>>>>>> upstream/android-13
 	return pid_begin_io_sample(tchart, sample->tid, IOTYPE_RX,
 				   sample->time, fd);
 }
 
 static int
 process_exit_rx(struct timechart *tchart,
+<<<<<<< HEAD
 		struct perf_evsel *evsel,
 		struct perf_sample *sample)
 {
 	long ret = perf_evsel__intval(evsel, sample, "ret");
+=======
+		struct evsel *evsel,
+		struct perf_sample *sample)
+{
+	long ret = evsel__intval(evsel, sample, "ret");
+>>>>>>> upstream/android-13
 	return pid_end_io_sample(tchart, sample->tid, IOTYPE_RX,
 				 sample->time, ret);
 }
 
 static int
 process_enter_poll(struct timechart *tchart,
+<<<<<<< HEAD
 		   struct perf_evsel *evsel,
 		   struct perf_sample *sample)
 {
 	long fd = perf_evsel__intval(evsel, sample, "fd");
+=======
+		   struct evsel *evsel,
+		   struct perf_sample *sample)
+{
+	long fd = evsel__intval(evsel, sample, "fd");
+>>>>>>> upstream/android-13
 	return pid_begin_io_sample(tchart, sample->tid, IOTYPE_POLL,
 				   sample->time, fd);
 }
 
 static int
 process_exit_poll(struct timechart *tchart,
+<<<<<<< HEAD
 		  struct perf_evsel *evsel,
 		  struct perf_sample *sample)
 {
 	long ret = perf_evsel__intval(evsel, sample, "ret");
+=======
+		  struct evsel *evsel,
+		  struct perf_sample *sample)
+{
+	long ret = evsel__intval(evsel, sample, "ret");
+>>>>>>> upstream/android-13
 	return pid_end_io_sample(tchart, sample->tid, IOTYPE_POLL,
 				 sample->time, ret);
 }
@@ -1524,10 +1711,14 @@ static int process_header(struct perf_file_section *section __maybe_unused,
 		if (!tchart->topology)
 			break;
 
+<<<<<<< HEAD
 		if (svg_build_topology_map(ph->env.sibling_cores,
 					   ph->env.nr_sibling_cores,
 					   ph->env.sibling_threads,
 					   ph->env.nr_sibling_threads))
+=======
+		if (svg_build_topology_map(&ph->env))
+>>>>>>> upstream/android-13
 			fprintf(stderr, "problem building topology\n");
 		break;
 
@@ -1540,7 +1731,11 @@ static int process_header(struct perf_file_section *section __maybe_unused,
 
 static int __cmd_timechart(struct timechart *tchart, const char *output_name)
 {
+<<<<<<< HEAD
 	const struct perf_evsel_str_handler power_tracepoints[] = {
+=======
+	const struct evsel_str_handler power_tracepoints[] = {
+>>>>>>> upstream/android-13
 		{ "power:cpu_idle",		process_sample_cpu_idle },
 		{ "power:cpu_frequency",	process_sample_cpu_frequency },
 		{ "sched:sched_wakeup",		process_sample_sched_wakeup },
@@ -1602,6 +1797,7 @@ static int __cmd_timechart(struct timechart *tchart, const char *output_name)
 		{ "syscalls:sys_exit_select",		process_exit_poll },
 	};
 	struct perf_data data = {
+<<<<<<< HEAD
 		.file      = {
 			.path = input_name,
 		},
@@ -1615,6 +1811,18 @@ static int __cmd_timechart(struct timechart *tchart, const char *output_name)
 
 	if (session == NULL)
 		return -1;
+=======
+		.path  = input_name,
+		.mode  = PERF_DATA_MODE_READ,
+		.force = tchart->force,
+	};
+
+	struct perf_session *session = perf_session__new(&data, &tchart->tool);
+	int ret = -EINVAL;
+
+	if (IS_ERR(session))
+		return PTR_ERR(session);
+>>>>>>> upstream/android-13
 
 	symbol__init(&session->header.env);
 

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2014 MundoReader S.L.
  * Author: Heiko Stuebner <heiko@sntech.de>
@@ -11,6 +12,12 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (c) 2014 MundoReader S.L.
+ * Author: Heiko Stuebner <heiko@sntech.de>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/slab.h>
@@ -86,9 +93,15 @@ static const struct reset_control_ops rockchip_softrst_ops = {
 	.deassert	= rockchip_softrst_deassert,
 };
 
+<<<<<<< HEAD
 void __init rockchip_register_softrst(struct device_node *np,
 				      unsigned int num_regs,
 				      void __iomem *base, u8 flags)
+=======
+void rockchip_register_softrst(struct device_node *np,
+			       unsigned int num_regs,
+			       void __iomem *base, u8 flags)
+>>>>>>> upstream/android-13
 {
 	struct rockchip_softrst *softrst;
 	int ret;
@@ -116,3 +129,7 @@ void __init rockchip_register_softrst(struct device_node *np,
 		kfree(softrst);
 	}
 };
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(rockchip_register_softrst);
+>>>>>>> upstream/android-13

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * MFD core driver for the X-Powers' Power Management ICs
  *
@@ -10,6 +14,7 @@
  * Copyright (C) 2014 Carlo Caione
  *
  * Author: Carlo Caione <carlo@caione.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -30,6 +35,25 @@
 #include <linux/acpi.h>
 
 #define AXP20X_OFF	0x80
+=======
+ */
+
+#include <linux/acpi.h>
+#include <linux/bitops.h>
+#include <linux/delay.h>
+#include <linux/err.h>
+#include <linux/interrupt.h>
+#include <linux/kernel.h>
+#include <linux/mfd/axp20x.h>
+#include <linux/mfd/core.h>
+#include <linux/module.h>
+#include <linux/of_device.h>
+#include <linux/pm_runtime.h>
+#include <linux/regmap.h>
+#include <linux/regulator/consumer.h>
+
+#define AXP20X_OFF	BIT(7)
+>>>>>>> upstream/android-13
 
 #define AXP806_REG_ADDR_EXT_ADDR_MASTER_MODE	0
 #define AXP806_REG_ADDR_EXT_ADDR_SLAVE_MODE	BIT(4)
@@ -127,12 +151,20 @@ static const struct regmap_range axp288_writeable_ranges[] = {
 
 static const struct regmap_range axp288_volatile_ranges[] = {
 	regmap_reg_range(AXP20X_PWR_INPUT_STATUS, AXP288_POWER_REASON),
+<<<<<<< HEAD
+=======
+	regmap_reg_range(AXP22X_PWR_OUT_CTRL1, AXP22X_ALDO3_V_OUT),
+>>>>>>> upstream/android-13
 	regmap_reg_range(AXP288_BC_GLOBAL, AXP288_BC_GLOBAL),
 	regmap_reg_range(AXP288_BC_DET_STAT, AXP20X_VBUS_IPSOUT_MGMT),
 	regmap_reg_range(AXP20X_CHRG_BAK_CTRL, AXP20X_CHRG_BAK_CTRL),
 	regmap_reg_range(AXP20X_IRQ1_EN, AXP20X_IPSOUT_V_HIGH_L),
 	regmap_reg_range(AXP20X_TIMER_CTRL, AXP20X_TIMER_CTRL),
+<<<<<<< HEAD
 	regmap_reg_range(AXP22X_GPIO_STATE, AXP22X_GPIO_STATE),
+=======
+	regmap_reg_range(AXP20X_GPIO1_CTRL, AXP22X_GPIO_STATE),
+>>>>>>> upstream/android-13
 	regmap_reg_range(AXP288_RT_BATT_V_H, AXP288_RT_BATT_V_L),
 	regmap_reg_range(AXP20X_FG_RES, AXP288_FG_CC_CAP_REG),
 };
@@ -197,6 +229,15 @@ static const struct resource axp22x_usb_power_supply_resources[] = {
 	DEFINE_RES_IRQ_NAMED(AXP22X_IRQ_VBUS_REMOVAL, "VBUS_REMOVAL"),
 };
 
+<<<<<<< HEAD
+=======
+/* AXP803 and AXP813/AXP818 share the same interrupts */
+static const struct resource axp803_usb_power_supply_resources[] = {
+	DEFINE_RES_IRQ_NAMED(AXP803_IRQ_VBUS_PLUGIN, "VBUS_PLUGIN"),
+	DEFINE_RES_IRQ_NAMED(AXP803_IRQ_VBUS_REMOVAL, "VBUS_REMOVAL"),
+};
+
+>>>>>>> upstream/android-13
 static const struct resource axp22x_pek_resources[] = {
 	DEFINE_RES_IRQ_NAMED(AXP22X_IRQ_PEK_RIS_EDGE, "PEK_DBR"),
 	DEFINE_RES_IRQ_NAMED(AXP22X_IRQ_PEK_FAL_EDGE, "PEK_DBF"),
@@ -695,6 +736,21 @@ static const struct resource axp288_charger_resources[] = {
 	DEFINE_RES_IRQ(AXP288_IRQ_CBTO),
 };
 
+<<<<<<< HEAD
+=======
+static const char * const axp288_fuel_gauge_suppliers[] = { "axp288_charger" };
+
+static const struct property_entry axp288_fuel_gauge_properties[] = {
+	PROPERTY_ENTRY_STRING_ARRAY("supplied-from", axp288_fuel_gauge_suppliers),
+	{ }
+};
+
+static const struct software_node axp288_fuel_gauge_sw_node = {
+	.name = "axp288_fuel_gauge",
+	.properties = axp288_fuel_gauge_properties,
+};
+
+>>>>>>> upstream/android-13
 static const struct mfd_cell axp288_cells[] = {
 	{
 		.name		= "axp288_adc",
@@ -712,6 +768,10 @@ static const struct mfd_cell axp288_cells[] = {
 		.name		= "axp288_fuel_gauge",
 		.num_resources	= ARRAY_SIZE(axp288_fuel_gauge_resources),
 		.resources	= axp288_fuel_gauge_resources,
+<<<<<<< HEAD
+=======
+		.swnode		= &axp288_fuel_gauge_sw_node,
+>>>>>>> upstream/android-13
 	}, {
 		.name		= "axp221-pek",
 		.num_resources	= ARRAY_SIZE(axp288_power_button_resources),
@@ -740,6 +800,14 @@ static const struct mfd_cell axp803_cells[] = {
 		.of_compatible	= "x-powers,axp813-ac-power-supply",
 		.num_resources	= ARRAY_SIZE(axp20x_ac_power_supply_resources),
 		.resources	= axp20x_ac_power_supply_resources,
+<<<<<<< HEAD
+=======
+	}, {
+		.name		= "axp20x-usb-power-supply",
+		.num_resources	= ARRAY_SIZE(axp803_usb_power_supply_resources),
+		.resources	= axp803_usb_power_supply_resources,
+		.of_compatible	= "x-powers,axp813-usb-power-supply",
+>>>>>>> upstream/android-13
 	},
 	{	.name		= "axp20x-regulator" },
 };
@@ -792,6 +860,14 @@ static const struct mfd_cell axp813_cells[] = {
 		.of_compatible	= "x-powers,axp813-ac-power-supply",
 		.num_resources	= ARRAY_SIZE(axp20x_ac_power_supply_resources),
 		.resources	= axp20x_ac_power_supply_resources,
+<<<<<<< HEAD
+=======
+	}, {
+		.name		= "axp20x-usb-power-supply",
+		.num_resources	= ARRAY_SIZE(axp803_usb_power_supply_resources),
+		.resources	= axp803_usb_power_supply_resources,
+		.of_compatible	= "x-powers,axp813-usb-power-supply",
+>>>>>>> upstream/android-13
 	},
 };
 
@@ -870,8 +946,18 @@ int axp20x_match_device(struct axp20x_dev *axp20x)
 		axp20x->regmap_irq_chip = &axp803_regmap_irq_chip;
 		break;
 	case AXP806_ID:
+<<<<<<< HEAD
 		if (of_property_read_bool(axp20x->dev->of_node,
 					  "x-powers,self-working-mode")) {
+=======
+		/*
+		 * Don't register the power key part if in slave mode or
+		 * if there is no interrupt line.
+		 */
+		if (of_property_read_bool(axp20x->dev->of_node,
+					  "x-powers,self-working-mode") &&
+		    axp20x->irq > 0) {
+>>>>>>> upstream/android-13
 			axp20x->nr_cells = ARRAY_SIZE(axp806_self_working_cells);
 			axp20x->cells = axp806_self_working_cells;
 		} else {
@@ -945,12 +1031,26 @@ int axp20x_device_probe(struct axp20x_dev *axp20x)
 				     AXP806_REG_ADDR_EXT_ADDR_SLAVE_MODE);
 	}
 
+<<<<<<< HEAD
 	ret = regmap_add_irq_chip(axp20x->regmap, axp20x->irq,
 			  IRQF_ONESHOT | IRQF_SHARED | axp20x->irq_flags,
 			   -1, axp20x->regmap_irq_chip, &axp20x->regmap_irqc);
 	if (ret) {
 		dev_err(axp20x->dev, "failed to add irq chip: %d\n", ret);
 		return ret;
+=======
+	/* Only if there is an interrupt line connected towards the CPU. */
+	if (axp20x->irq > 0) {
+		ret = regmap_add_irq_chip(axp20x->regmap, axp20x->irq,
+				IRQF_ONESHOT | IRQF_SHARED | axp20x->irq_flags,
+				-1, axp20x->regmap_irq_chip,
+				&axp20x->regmap_irqc);
+		if (ret) {
+			dev_err(axp20x->dev, "failed to add irq chip: %d\n",
+				ret);
+			return ret;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	ret = mfd_add_devices(axp20x->dev, -1, axp20x->cells,
@@ -973,7 +1073,11 @@ int axp20x_device_probe(struct axp20x_dev *axp20x)
 }
 EXPORT_SYMBOL(axp20x_device_probe);
 
+<<<<<<< HEAD
 int axp20x_device_remove(struct axp20x_dev *axp20x)
+=======
+void axp20x_device_remove(struct axp20x_dev *axp20x)
+>>>>>>> upstream/android-13
 {
 	if (axp20x == axp20x_pm_power_off) {
 		axp20x_pm_power_off = NULL;
@@ -982,8 +1086,11 @@ int axp20x_device_remove(struct axp20x_dev *axp20x)
 
 	mfd_remove_devices(axp20x->dev);
 	regmap_del_irq_chip(axp20x->irq, axp20x->regmap_irqc);
+<<<<<<< HEAD
 
 	return 0;
+=======
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(axp20x_device_remove);
 

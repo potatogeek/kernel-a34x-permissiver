@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2014-2015 Hisilicon Limited.
  *
@@ -5,6 +6,11 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (c) 2014-2015 Hisilicon Limited.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/acpi.h>
@@ -39,7 +45,11 @@ struct hns_mdio_sc_reg {
 };
 
 struct hns_mdio_device {
+<<<<<<< HEAD
 	void *vbase;		/* mdio reg base address */
+=======
+	u8 __iomem *vbase;		/* mdio reg base address */
+>>>>>>> upstream/android-13
 	struct regmap *subctrl_vbase;
 	struct hns_mdio_sc_reg sc_reg;
 };
@@ -96,21 +106,33 @@ enum mdio_c45_op_seq {
 #define MDIO_SC_CLK_ST		0x531C
 #define MDIO_SC_RESET_ST	0x5A1C
 
+<<<<<<< HEAD
 static void mdio_write_reg(void *base, u32 reg, u32 value)
 {
 	u8 __iomem *reg_addr = (u8 __iomem *)base;
 
 	writel_relaxed(value, reg_addr + reg);
+=======
+static void mdio_write_reg(u8 __iomem *base, u32 reg, u32 value)
+{
+	writel_relaxed(value, base + reg);
+>>>>>>> upstream/android-13
 }
 
 #define MDIO_WRITE_REG(a, reg, value) \
 	mdio_write_reg((a)->vbase, (reg), (value))
 
+<<<<<<< HEAD
 static u32 mdio_read_reg(void *base, u32 reg)
 {
 	u8 __iomem *reg_addr = (u8 __iomem *)base;
 
 	return readl_relaxed(reg_addr + reg);
+=======
+static u32 mdio_read_reg(u8 __iomem *base, u32 reg)
+{
+	return readl_relaxed(base + reg);
+>>>>>>> upstream/android-13
 }
 
 #define mdio_set_field(origin, mask, shift, val) \
@@ -121,7 +143,11 @@ static u32 mdio_read_reg(void *base, u32 reg)
 
 #define mdio_get_field(origin, mask, shift) (((origin) >> (shift)) & (mask))
 
+<<<<<<< HEAD
 static void mdio_set_reg_field(void *base, u32 reg, u32 mask, u32 shift,
+=======
+static void mdio_set_reg_field(u8 __iomem *base, u32 reg, u32 mask, u32 shift,
+>>>>>>> upstream/android-13
 			       u32 val)
 {
 	u32 origin = mdio_read_reg(base, reg);
@@ -133,7 +159,11 @@ static void mdio_set_reg_field(void *base, u32 reg, u32 mask, u32 shift,
 #define MDIO_SET_REG_FIELD(dev, reg, mask, shift, val) \
 	mdio_set_reg_field((dev)->vbase, (reg), (mask), (shift), (val))
 
+<<<<<<< HEAD
 static u32 mdio_get_reg_field(void *base, u32 reg, u32 mask, u32 shift)
+=======
+static u32 mdio_get_reg_field(u8 __iomem *base, u32 reg, u32 mask, u32 shift)
+>>>>>>> upstream/android-13
 {
 	u32 origin;
 
@@ -218,7 +248,11 @@ static void hns_mdio_cmd_write(struct hns_mdio_device *mdio_dev,
  * @bus: mdio bus
  * @phy_id: phy id
  * @regnum: register num
+<<<<<<< HEAD
  * @value: register value
+=======
+ * @data: register value
+>>>>>>> upstream/android-13
  *
  * Return 0 on success, negative on failure
  */
@@ -281,14 +315,21 @@ static int hns_mdio_write(struct mii_bus *bus,
  * @bus: mdio bus
  * @phy_id: phy id
  * @regnum: register num
+<<<<<<< HEAD
  * @value: register value
+=======
+>>>>>>> upstream/android-13
  *
  * Return phy register value
  */
 static int hns_mdio_read(struct mii_bus *bus, int phy_id, int regnum)
 {
 	int ret;
+<<<<<<< HEAD
 	u16 reg_val = 0;
+=======
+	u16 reg_val;
+>>>>>>> upstream/android-13
 	u8 devad = ((regnum >> 16) & 0x1f);
 	u8 is_c45 = !!(regnum & MII_ADDR_C45);
 	u16 reg = (u16)(regnum & 0xffff);
@@ -363,7 +404,11 @@ static int hns_mdio_reset(struct mii_bus *bus)
 
 	if (dev_of_node(bus->parent)) {
 		if (!mdio_dev->subctrl_vbase) {
+<<<<<<< HEAD
 			dev_err(&bus->dev, "mdio sys ctl reg has not maped\n");
+=======
+			dev_err(&bus->dev, "mdio sys ctl reg has not mapped\n");
+>>>>>>> upstream/android-13
 			return -ENODEV;
 		}
 
@@ -429,8 +474,12 @@ static int hns_mdio_probe(struct platform_device *pdev)
 {
 	struct hns_mdio_device *mdio_dev;
 	struct mii_bus *new_bus;
+<<<<<<< HEAD
 	struct resource *res;
 	int ret = -ENODEV;
+=======
+	int ret;
+>>>>>>> upstream/android-13
 
 	if (!pdev) {
 		dev_err(NULL, "pdev is NULL!\r\n");
@@ -454,8 +503,12 @@ static int hns_mdio_probe(struct platform_device *pdev)
 	new_bus->priv = mdio_dev;
 	new_bus->parent = &pdev->dev;
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	mdio_dev->vbase = devm_ioremap_resource(&pdev->dev, res);
+=======
+	mdio_dev->vbase = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(mdio_dev->vbase)) {
 		ret = PTR_ERR(mdio_dev->vbase);
 		return ret;

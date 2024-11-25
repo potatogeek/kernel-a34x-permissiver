@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * echainiv: Encrypted Chain IV Generator
  *
@@ -10,12 +14,15 @@
  * is performed after encryption (i.e., authenc).
  *
  * Copyright (c) 2015 Herbert Xu <herbert@gondor.apana.org.au>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; either version 2 of the License, or (at your option)
  * any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <crypto/internal/geniv.h>
@@ -47,9 +54,15 @@ static int echainiv_encrypt(struct aead_request *req)
 	info = req->iv;
 
 	if (req->src != req->dst) {
+<<<<<<< HEAD
 		SKCIPHER_REQUEST_ON_STACK(nreq, ctx->sknull);
 
 		skcipher_request_set_tfm(nreq, ctx->sknull);
+=======
+		SYNC_SKCIPHER_REQUEST_ON_STACK(nreq, ctx->sknull);
+
+		skcipher_request_set_sync_tfm(nreq, ctx->sknull);
+>>>>>>> upstream/android-13
 		skcipher_request_set_callback(nreq, req->base.flags,
 					      NULL, NULL);
 		skcipher_request_set_crypt(nreq, req->src, req->dst,
@@ -120,7 +133,11 @@ static int echainiv_aead_create(struct crypto_template *tmpl,
 	struct aead_instance *inst;
 	int err;
 
+<<<<<<< HEAD
 	inst = aead_geniv_alloc(tmpl, tb, 0, 0);
+=======
+	inst = aead_geniv_alloc(tmpl, tb);
+>>>>>>> upstream/android-13
 
 	if (IS_ERR(inst))
 		return PTR_ERR(inst);
@@ -138,6 +155,7 @@ static int echainiv_aead_create(struct crypto_template *tmpl,
 	inst->alg.base.cra_ctxsize = sizeof(struct aead_geniv_ctx);
 	inst->alg.base.cra_ctxsize += inst->alg.ivsize;
 
+<<<<<<< HEAD
 	inst->free = aead_geniv_free;
 
 	err = aead_register_instance(tmpl, inst);
@@ -155,12 +173,23 @@ free_inst:
 static void echainiv_free(struct crypto_instance *inst)
 {
 	aead_geniv_free(aead_instance(inst));
+=======
+	err = aead_register_instance(tmpl, inst);
+	if (err) {
+free_inst:
+		inst->free(inst);
+	}
+	return err;
+>>>>>>> upstream/android-13
 }
 
 static struct crypto_template echainiv_tmpl = {
 	.name = "echainiv",
 	.create = echainiv_aead_create,
+<<<<<<< HEAD
 	.free = echainiv_free,
+=======
+>>>>>>> upstream/android-13
 	.module = THIS_MODULE,
 };
 
@@ -174,7 +203,11 @@ static void __exit echainiv_module_exit(void)
 	crypto_unregister_template(&echainiv_tmpl);
 }
 
+<<<<<<< HEAD
 module_init(echainiv_module_init);
+=======
+subsys_initcall(echainiv_module_init);
+>>>>>>> upstream/android-13
 module_exit(echainiv_module_exit);
 
 MODULE_LICENSE("GPL");

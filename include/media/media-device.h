@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Media device
  *
@@ -5,6 +9,7 @@
  *
  * Contacts: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
  *	     Sakari Ailus <sakari.ailus@iki.fi>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -14,6 +19,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _MEDIA_DEVICE_H
@@ -136,7 +143,11 @@ struct media_device_ops {
  *
  * Use-case: find tuner entity connected to the decoder
  * entity and check if it is available, and activate the
+<<<<<<< HEAD
  * the link between them from @enable_source and deactivate
+=======
+ * link between them from @enable_source and deactivate
+>>>>>>> upstream/android-13
  * from @disable_source.
  *
  * .. note::

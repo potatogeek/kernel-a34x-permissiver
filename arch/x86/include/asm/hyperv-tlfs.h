@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /* SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note */
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+>>>>>>> upstream/android-13
 
 /*
  * This file contains definitions from Hyper-V Hypervisor Top-Level Functional
@@ -10,7 +14,11 @@
 #define _ASM_X86_HYPERV_TLFS_H
 
 #include <linux/types.h>
+<<<<<<< HEAD
 
+=======
+#include <asm/page.h>
+>>>>>>> upstream/android-13
 /*
  * The below CPUID leaves are present if VersionAndFeatures.HypervisorPresent
  * is set by CPUID(HvCpuIdFunctionVersionAndFeatures).
@@ -21,13 +29,27 @@
 #define HYPERV_CPUID_FEATURES			0x40000003
 #define HYPERV_CPUID_ENLIGHTMENT_INFO		0x40000004
 #define HYPERV_CPUID_IMPLEMENT_LIMITS		0x40000005
+<<<<<<< HEAD
 #define HYPERV_CPUID_NESTED_FEATURES		0x4000000A
+=======
+#define HYPERV_CPUID_CPU_MANAGEMENT_FEATURES	0x40000007
+#define HYPERV_CPUID_NESTED_FEATURES		0x4000000A
+#define HYPERV_CPUID_ISOLATION_CONFIG		0x4000000C
+
+#define HYPERV_CPUID_VIRT_STACK_INTERFACE	0x40000081
+#define HYPERV_VS_INTERFACE_EAX_SIGNATURE	0x31235356  /* "VS#1" */
+
+#define HYPERV_CPUID_VIRT_STACK_PROPERTIES	0x40000082
+/* Support for the extended IOAPIC RTE format */
+#define HYPERV_VS_PROPERTIES_EAX_EXTENDED_IOAPIC_RTE	BIT(2)
+>>>>>>> upstream/android-13
 
 #define HYPERV_HYPERVISOR_PRESENT_BIT		0x80000000
 #define HYPERV_CPUID_MIN			0x40000005
 #define HYPERV_CPUID_MAX			0x4000ffff
 
 /*
+<<<<<<< HEAD
  * Feature identification. EAX indicates which features are available
  * to the partition based upon the current partition privileges.
  */
@@ -118,19 +140,52 @@
 #define HV_X64_PERF_MONITOR_AVAILABLE			(1 << 2)
 /* Support for physical CPU dynamic partitioning events is available*/
 #define HV_X64_CPU_DYNAMIC_PARTITIONING_AVAILABLE	(1 << 3)
+=======
+ * Group D Features.  The bit assignments are custom to each architecture.
+ * On x86/x64 these are HYPERV_CPUID_FEATURES.EDX bits.
+ */
+/* The MWAIT instruction is available (per section MONITOR / MWAIT) */
+#define HV_X64_MWAIT_AVAILABLE				BIT(0)
+/* Guest debugging support is available */
+#define HV_X64_GUEST_DEBUGGING_AVAILABLE		BIT(1)
+/* Performance Monitor support is available*/
+#define HV_X64_PERF_MONITOR_AVAILABLE			BIT(2)
+/* Support for physical CPU dynamic partitioning events is available*/
+#define HV_X64_CPU_DYNAMIC_PARTITIONING_AVAILABLE	BIT(3)
+>>>>>>> upstream/android-13
 /*
  * Support for passing hypercall input parameter block via XMM
  * registers is available
  */
+<<<<<<< HEAD
 #define HV_X64_HYPERCALL_PARAMS_XMM_AVAILABLE		(1 << 4)
 /* Support for a virtual guest idle state is available */
 #define HV_X64_GUEST_IDLE_STATE_AVAILABLE		(1 << 5)
 /* Guest crash data handler available */
 #define HV_X64_GUEST_CRASH_MSR_AVAILABLE		(1 << 10)
+=======
+#define HV_X64_HYPERCALL_XMM_INPUT_AVAILABLE		BIT(4)
+/* Support for a virtual guest idle state is available */
+#define HV_X64_GUEST_IDLE_STATE_AVAILABLE		BIT(5)
+/* Frequency MSRs available */
+#define HV_FEATURE_FREQUENCY_MSRS_AVAILABLE		BIT(8)
+/* Crash MSR available */
+#define HV_FEATURE_GUEST_CRASH_MSR_AVAILABLE		BIT(10)
+/* Support for debug MSRs available */
+#define HV_FEATURE_DEBUG_MSRS_AVAILABLE			BIT(11)
+/*
+ * Support for returning hypercall output block via XMM
+ * registers is available
+ */
+#define HV_X64_HYPERCALL_XMM_OUTPUT_AVAILABLE		BIT(15)
+/* stimer Direct Mode is available */
+#define HV_STIMER_DIRECT_MODE_AVAILABLE			BIT(19)
+>>>>>>> upstream/android-13
 
 /*
  * Implementation recommendations. Indicates which behaviors the hypervisor
  * recommends the OS implement for optimal performance.
+<<<<<<< HEAD
  */
  /*
   * Recommend using hypercall for address space switches rather
@@ -140,33 +195,64 @@
 /* Recommend using hypercall for local TLB flushes rather
  * than INVLPG or MOV to CR3 instructions */
 #define HV_X64_LOCAL_TLB_FLUSH_RECOMMENDED	(1 << 1)
+=======
+ * These are HYPERV_CPUID_ENLIGHTMENT_INFO.EAX bits.
+ */
+/*
+ * Recommend using hypercall for address space switches rather
+ * than MOV to CR3 instruction
+ */
+#define HV_X64_AS_SWITCH_RECOMMENDED			BIT(0)
+/* Recommend using hypercall for local TLB flushes rather
+ * than INVLPG or MOV to CR3 instructions */
+#define HV_X64_LOCAL_TLB_FLUSH_RECOMMENDED		BIT(1)
+>>>>>>> upstream/android-13
 /*
  * Recommend using hypercall for remote TLB flushes rather
  * than inter-processor interrupts
  */
+<<<<<<< HEAD
 #define HV_X64_REMOTE_TLB_FLUSH_RECOMMENDED	(1 << 2)
+=======
+#define HV_X64_REMOTE_TLB_FLUSH_RECOMMENDED		BIT(2)
+>>>>>>> upstream/android-13
 /*
  * Recommend using MSRs for accessing APIC registers
  * EOI, ICR and TPR rather than their memory-mapped counterparts
  */
+<<<<<<< HEAD
 #define HV_X64_APIC_ACCESS_RECOMMENDED		(1 << 3)
 /* Recommend using the hypervisor-provided MSR to initiate a system RESET */
 #define HV_X64_SYSTEM_RESET_RECOMMENDED		(1 << 4)
+=======
+#define HV_X64_APIC_ACCESS_RECOMMENDED			BIT(3)
+/* Recommend using the hypervisor-provided MSR to initiate a system RESET */
+#define HV_X64_SYSTEM_RESET_RECOMMENDED			BIT(4)
+>>>>>>> upstream/android-13
 /*
  * Recommend using relaxed timing for this partition. If used,
  * the VM should disable any watchdog timeouts that rely on the
  * timely delivery of external interrupts
  */
+<<<<<<< HEAD
 #define HV_X64_RELAXED_TIMING_RECOMMENDED	(1 << 5)
+=======
+#define HV_X64_RELAXED_TIMING_RECOMMENDED		BIT(5)
+>>>>>>> upstream/android-13
 
 /*
  * Recommend not using Auto End-Of-Interrupt feature
  */
+<<<<<<< HEAD
 #define HV_DEPRECATING_AEOI_RECOMMENDED		(1 << 9)
+=======
+#define HV_DEPRECATING_AEOI_RECOMMENDED			BIT(9)
+>>>>>>> upstream/android-13
 
 /*
  * Recommend using cluster IPI hypercalls.
  */
+<<<<<<< HEAD
 #define HV_X64_CLUSTER_IPI_RECOMMENDED         (1 << 10)
 
 /* Recommend using the newer ExProcessorMasks interface */
@@ -180,6 +266,61 @@
  */
 #define HV_CRASH_CTL_CRASH_NOTIFY_MSG	BIT_ULL(62)
 #define HV_CRASH_CTL_CRASH_NOTIFY	BIT_ULL(63)
+=======
+#define HV_X64_CLUSTER_IPI_RECOMMENDED			BIT(10)
+
+/* Recommend using the newer ExProcessorMasks interface */
+#define HV_X64_EX_PROCESSOR_MASKS_RECOMMENDED		BIT(11)
+
+/* Recommend using enlightened VMCS */
+#define HV_X64_ENLIGHTENED_VMCS_RECOMMENDED		BIT(14)
+
+/*
+ * CPU management features identification.
+ * These are HYPERV_CPUID_CPU_MANAGEMENT_FEATURES.EAX bits.
+ */
+#define HV_X64_START_LOGICAL_PROCESSOR			BIT(0)
+#define HV_X64_CREATE_ROOT_VIRTUAL_PROCESSOR		BIT(1)
+#define HV_X64_PERFORMANCE_COUNTER_SYNC			BIT(2)
+#define HV_X64_RESERVED_IDENTITY_BIT			BIT(31)
+
+/*
+ * Virtual processor will never share a physical core with another virtual
+ * processor, except for virtual processors that are reported as sibling SMT
+ * threads.
+ */
+#define HV_X64_NO_NONARCH_CORESHARING			BIT(18)
+
+/* Nested features. These are HYPERV_CPUID_NESTED_FEATURES.EAX bits. */
+#define HV_X64_NESTED_DIRECT_FLUSH			BIT(17)
+#define HV_X64_NESTED_GUEST_MAPPING_FLUSH		BIT(18)
+#define HV_X64_NESTED_MSR_BITMAP			BIT(19)
+
+/*
+ * This is specific to AMD and specifies that enlightened TLB flush is
+ * supported. If guest opts in to this feature, ASID invalidations only
+ * flushes gva -> hpa mapping entries. To flush the TLB entries derived
+ * from NPT, hypercalls should be used (HvFlushGuestPhysicalAddressSpace
+ * or HvFlushGuestPhysicalAddressList).
+ */
+#define HV_X64_NESTED_ENLIGHTENED_TLB			BIT(22)
+
+/* HYPERV_CPUID_ISOLATION_CONFIG.EAX bits. */
+#define HV_PARAVISOR_PRESENT				BIT(0)
+
+/* HYPERV_CPUID_ISOLATION_CONFIG.EBX bits. */
+#define HV_ISOLATION_TYPE				GENMASK(3, 0)
+#define HV_SHARED_GPA_BOUNDARY_ACTIVE			BIT(5)
+#define HV_SHARED_GPA_BOUNDARY_BITS			GENMASK(11, 6)
+
+enum hv_isolation_type {
+	HV_ISOLATION_TYPE_NONE	= 0,
+	HV_ISOLATION_TYPE_VBS	= 1,
+	HV_ISOLATION_TYPE_SNP	= 2
+};
+
+/* Hyper-V specific model specific registers (MSRs) */
+>>>>>>> upstream/android-13
 
 /* MSR used to identify the guest OS. */
 #define HV_X64_MSR_GUEST_OS_ID			0x40000000
@@ -188,7 +329,11 @@
 #define HV_X64_MSR_HYPERCALL			0x40000001
 
 /* MSR used to provide vcpu index */
+<<<<<<< HEAD
 #define HV_X64_MSR_VP_INDEX			0x40000002
+=======
+#define HV_REGISTER_VP_INDEX			0x40000002
+>>>>>>> upstream/android-13
 
 /* MSR used to reset the guest OS. */
 #define HV_X64_MSR_RESET			0x40000003
@@ -197,7 +342,14 @@
 #define HV_X64_MSR_VP_RUNTIME			0x40000010
 
 /* MSR used to read the per-partition time reference counter */
+<<<<<<< HEAD
 #define HV_X64_MSR_TIME_REF_COUNT		0x40000020
+=======
+#define HV_REGISTER_TIME_REF_COUNT		0x40000020
+
+/* A partition's reference time stamp counter (TSC) page */
+#define HV_REGISTER_REFERENCE_TSC		0x40000021
+>>>>>>> upstream/android-13
 
 /* MSR used to retrieve the TSC frequency */
 #define HV_X64_MSR_TSC_FREQUENCY		0x40000022
@@ -212,6 +364,7 @@
 #define HV_X64_MSR_VP_ASSIST_PAGE		0x40000073
 
 /* Define synthetic interrupt controller model specific registers. */
+<<<<<<< HEAD
 #define HV_X64_MSR_SCONTROL			0x40000080
 #define HV_X64_MSR_SVERSION			0x40000081
 #define HV_X64_MSR_SIEFP			0x40000082
@@ -233,10 +386,34 @@
 #define HV_X64_MSR_SINT13			0x4000009D
 #define HV_X64_MSR_SINT14			0x4000009E
 #define HV_X64_MSR_SINT15			0x4000009F
+=======
+#define HV_REGISTER_SCONTROL			0x40000080
+#define HV_REGISTER_SVERSION			0x40000081
+#define HV_REGISTER_SIEFP			0x40000082
+#define HV_REGISTER_SIMP			0x40000083
+#define HV_REGISTER_EOM				0x40000084
+#define HV_REGISTER_SINT0			0x40000090
+#define HV_REGISTER_SINT1			0x40000091
+#define HV_REGISTER_SINT2			0x40000092
+#define HV_REGISTER_SINT3			0x40000093
+#define HV_REGISTER_SINT4			0x40000094
+#define HV_REGISTER_SINT5			0x40000095
+#define HV_REGISTER_SINT6			0x40000096
+#define HV_REGISTER_SINT7			0x40000097
+#define HV_REGISTER_SINT8			0x40000098
+#define HV_REGISTER_SINT9			0x40000099
+#define HV_REGISTER_SINT10			0x4000009A
+#define HV_REGISTER_SINT11			0x4000009B
+#define HV_REGISTER_SINT12			0x4000009C
+#define HV_REGISTER_SINT13			0x4000009D
+#define HV_REGISTER_SINT14			0x4000009E
+#define HV_REGISTER_SINT15			0x4000009F
+>>>>>>> upstream/android-13
 
 /*
  * Synthetic Timer MSRs. Four timers per vcpu.
  */
+<<<<<<< HEAD
 #define HV_X64_MSR_STIMER0_CONFIG		0x400000B0
 #define HV_X64_MSR_STIMER0_COUNT		0x400000B1
 #define HV_X64_MSR_STIMER1_CONFIG		0x400000B2
@@ -256,6 +433,61 @@
 #define HV_X64_MSR_CRASH_CTL_NOTIFY		(1ULL << 63)
 #define HV_X64_MSR_CRASH_PARAMS		\
 		(1 + (HV_X64_MSR_CRASH_P4 - HV_X64_MSR_CRASH_P0))
+=======
+#define HV_REGISTER_STIMER0_CONFIG		0x400000B0
+#define HV_REGISTER_STIMER0_COUNT		0x400000B1
+#define HV_REGISTER_STIMER1_CONFIG		0x400000B2
+#define HV_REGISTER_STIMER1_COUNT		0x400000B3
+#define HV_REGISTER_STIMER2_CONFIG		0x400000B4
+#define HV_REGISTER_STIMER2_COUNT		0x400000B5
+#define HV_REGISTER_STIMER3_CONFIG		0x400000B6
+#define HV_REGISTER_STIMER3_COUNT		0x400000B7
+
+/* Hyper-V guest idle MSR */
+#define HV_X64_MSR_GUEST_IDLE			0x400000F0
+
+/* Hyper-V guest crash notification MSR's */
+#define HV_REGISTER_CRASH_P0			0x40000100
+#define HV_REGISTER_CRASH_P1			0x40000101
+#define HV_REGISTER_CRASH_P2			0x40000102
+#define HV_REGISTER_CRASH_P3			0x40000103
+#define HV_REGISTER_CRASH_P4			0x40000104
+#define HV_REGISTER_CRASH_CTL			0x40000105
+
+/* TSC emulation after migration */
+#define HV_X64_MSR_REENLIGHTENMENT_CONTROL	0x40000106
+#define HV_X64_MSR_TSC_EMULATION_CONTROL	0x40000107
+#define HV_X64_MSR_TSC_EMULATION_STATUS		0x40000108
+
+/* TSC invariant control */
+#define HV_X64_MSR_TSC_INVARIANT_CONTROL	0x40000118
+
+/* Register name aliases for temporary compatibility */
+#define HV_X64_MSR_STIMER0_COUNT	HV_REGISTER_STIMER0_COUNT
+#define HV_X64_MSR_STIMER0_CONFIG	HV_REGISTER_STIMER0_CONFIG
+#define HV_X64_MSR_STIMER1_COUNT	HV_REGISTER_STIMER1_COUNT
+#define HV_X64_MSR_STIMER1_CONFIG	HV_REGISTER_STIMER1_CONFIG
+#define HV_X64_MSR_STIMER2_COUNT	HV_REGISTER_STIMER2_COUNT
+#define HV_X64_MSR_STIMER2_CONFIG	HV_REGISTER_STIMER2_CONFIG
+#define HV_X64_MSR_STIMER3_COUNT	HV_REGISTER_STIMER3_COUNT
+#define HV_X64_MSR_STIMER3_CONFIG	HV_REGISTER_STIMER3_CONFIG
+#define HV_X64_MSR_SCONTROL		HV_REGISTER_SCONTROL
+#define HV_X64_MSR_SVERSION		HV_REGISTER_SVERSION
+#define HV_X64_MSR_SIMP			HV_REGISTER_SIMP
+#define HV_X64_MSR_SIEFP		HV_REGISTER_SIEFP
+#define HV_X64_MSR_VP_INDEX		HV_REGISTER_VP_INDEX
+#define HV_X64_MSR_EOM			HV_REGISTER_EOM
+#define HV_X64_MSR_SINT0		HV_REGISTER_SINT0
+#define HV_X64_MSR_SINT15		HV_REGISTER_SINT15
+#define HV_X64_MSR_CRASH_P0		HV_REGISTER_CRASH_P0
+#define HV_X64_MSR_CRASH_P1		HV_REGISTER_CRASH_P1
+#define HV_X64_MSR_CRASH_P2		HV_REGISTER_CRASH_P2
+#define HV_X64_MSR_CRASH_P3		HV_REGISTER_CRASH_P3
+#define HV_X64_MSR_CRASH_P4		HV_REGISTER_CRASH_P4
+#define HV_X64_MSR_CRASH_CTL		HV_REGISTER_CRASH_CTL
+#define HV_X64_MSR_TIME_REF_COUNT	HV_REGISTER_TIME_REF_COUNT
+#define HV_X64_MSR_REFERENCE_TSC	HV_REGISTER_REFERENCE_TSC
+>>>>>>> upstream/android-13
 
 /*
  * Declare the MSR used to setup pages used to communicate with the hypervisor.
@@ -266,6 +498,7 @@ union hv_x64_msr_hypercall_contents {
 		u64 enable:1;
 		u64 reserved:11;
 		u64 guest_physical_address:52;
+<<<<<<< HEAD
 	};
 };
 
@@ -313,32 +546,59 @@ struct ms_hyperv_tsc_page {
 #define HV_X64_NESTED_GUEST_MAPPING_FLUSH	BIT(18)
 #define HV_X64_NESTED_MSR_BITMAP		BIT(19)
 
+=======
+	} __packed;
+};
+
+union hv_vp_assist_msr_contents {
+	u64 as_uint64;
+	struct {
+		u64 enable:1;
+		u64 reserved:11;
+		u64 pfn:52;
+	} __packed;
+};
+
+>>>>>>> upstream/android-13
 struct hv_reenlightenment_control {
 	__u64 vector:8;
 	__u64 reserved1:8;
 	__u64 enabled:1;
 	__u64 reserved2:15;
 	__u64 target_vp:32;
+<<<<<<< HEAD
 };
 
 #define HV_X64_MSR_TSC_EMULATION_CONTROL	0x40000107
 #define HV_X64_MSR_TSC_EMULATION_STATUS		0x40000108
+=======
+}  __packed;
+>>>>>>> upstream/android-13
 
 struct hv_tsc_emulation_control {
 	__u64 enabled:1;
 	__u64 reserved:63;
+<<<<<<< HEAD
 };
+=======
+} __packed;
+>>>>>>> upstream/android-13
 
 struct hv_tsc_emulation_status {
 	__u64 inprogress:1;
 	__u64 reserved:63;
+<<<<<<< HEAD
 };
+=======
+} __packed;
+>>>>>>> upstream/android-13
 
 #define HV_X64_MSR_HYPERCALL_ENABLE		0x00000001
 #define HV_X64_MSR_HYPERCALL_PAGE_ADDRESS_SHIFT	12
 #define HV_X64_MSR_HYPERCALL_PAGE_ADDRESS_MASK	\
 		(~((1ull << HV_X64_MSR_HYPERCALL_PAGE_ADDRESS_SHIFT) - 1))
 
+<<<<<<< HEAD
 #define HV_IPI_LOW_VECTOR	0x10
 #define HV_IPI_HIGH_VECTOR	0xff
 
@@ -354,6 +614,14 @@ struct hv_tsc_emulation_status {
 #define HVCALL_SIGNAL_EVENT			0x005d
 #define HVCALL_FLUSH_GUEST_PHYSICAL_ADDRESS_SPACE 0x00af
 
+=======
+#define HV_X64_MSR_CRASH_PARAMS		\
+		(1 + (HV_X64_MSR_CRASH_P4 - HV_X64_MSR_CRASH_P0))
+
+#define HV_IPI_LOW_VECTOR	0x10
+#define HV_IPI_HIGH_VECTOR	0xff
+
+>>>>>>> upstream/android-13
 #define HV_X64_MSR_VP_ASSIST_PAGE_ENABLE	0x00000001
 #define HV_X64_MSR_VP_ASSIST_PAGE_ADDRESS_SHIFT	12
 #define HV_X64_MSR_VP_ASSIST_PAGE_ADDRESS_MASK	\
@@ -365,6 +633,7 @@ struct hv_tsc_emulation_status {
 #define HV_X64_MSR_TSC_REFERENCE_ENABLE		0x00000001
 #define HV_X64_MSR_TSC_REFERENCE_ADDRESS_SHIFT	12
 
+<<<<<<< HEAD
 #define HV_PROCESSOR_POWER_STATE_C0		0
 #define HV_PROCESSOR_POWER_STATE_C1		1
 #define HV_PROCESSOR_POWER_STATE_C2		2
@@ -505,16 +774,40 @@ struct hv_timer_message_payload {
 	__u64 expiration_time;	/* When the timer expired */
 	__u64 delivery_time;	/* When the message was delivered */
 };
+=======
+/* Number of XMM registers used in hypercall input/output */
+#define HV_HYPERCALL_MAX_XMM_REGISTERS		6
+
+struct hv_nested_enlightenments_control {
+	struct {
+		__u32 directhypercall:1;
+		__u32 reserved:31;
+	} features;
+	struct {
+		__u32 reserved;
+	} hypercallControls;
+} __packed;
+>>>>>>> upstream/android-13
 
 /* Define virtual processor assist page structure. */
 struct hv_vp_assist_page {
 	__u32 apic_assist;
+<<<<<<< HEAD
 	__u32 reserved;
 	__u64 vtl_control[2];
 	__u64 nested_enlightenments_control[2];
 	__u32 enlighten_vmentry;
 	__u64 current_nested_vmcs;
 };
+=======
+	__u32 reserved1;
+	__u64 vtl_control[3];
+	struct hv_nested_enlightenments_control nested_control;
+	__u8 enlighten_vmentry;
+	__u8 reserved2[7];
+	__u64 current_nested_vmcs;
+} __packed;
+>>>>>>> upstream/android-13
 
 struct hv_enlightened_vmcs {
 	u32 revision_id;
@@ -528,6 +821,11 @@ struct hv_enlightened_vmcs {
 	u16 host_gs_selector;
 	u16 host_tr_selector;
 
+<<<<<<< HEAD
+=======
+	u16 padding16_1;
+
+>>>>>>> upstream/android-13
 	u64 host_ia32_pat;
 	u64 host_ia32_efer;
 
@@ -646,7 +944,11 @@ struct hv_enlightened_vmcs {
 	u64 ept_pointer;
 
 	u16 virtual_processor_id;
+<<<<<<< HEAD
 	u16 padding16[3];
+=======
+	u16 padding16_2[3];
+>>>>>>> upstream/android-13
 
 	u64 padding64_2[5];
 	u64 guest_physical_address;
@@ -688,7 +990,11 @@ struct hv_enlightened_vmcs {
 		u32 nested_flush_hypercall:1;
 		u32 msr_bitmap:1;
 		u32 reserved:30;
+<<<<<<< HEAD
 	} hv_enlightenments_control;
+=======
+	}  __packed hv_enlightenments_control;
+>>>>>>> upstream/android-13
 	u32 hv_vp_id;
 
 	u64 hv_vm_id;
@@ -698,7 +1004,11 @@ struct hv_enlightened_vmcs {
 	u64 padding64_5[7];
 	u64 xss_exit_bitmap;
 	u64 padding64_6[7];
+<<<<<<< HEAD
 };
+=======
+} __packed;
+>>>>>>> upstream/android-13
 
 #define HV_VMX_ENLIGHTENED_CLEAN_FIELD_NONE			0
 #define HV_VMX_ENLIGHTENED_CLEAN_FIELD_IO_BITMAP		BIT(0)
@@ -720,6 +1030,7 @@ struct hv_enlightened_vmcs {
 
 #define HV_VMX_ENLIGHTENED_CLEAN_FIELD_ALL			0xFFFF
 
+<<<<<<< HEAD
 #define HV_STIMER_ENABLE		(1ULL << 0)
 #define HV_STIMER_PERIODIC		(1ULL << 1)
 #define HV_STIMER_LAZY			(1ULL << 2)
@@ -767,5 +1078,26 @@ struct hv_tlb_flush_ex {
 	struct hv_vpset hv_vp_set;
 	u64 gva_list[];
 };
+=======
+struct hv_partition_assist_pg {
+	u32 tlb_lock_count;
+};
+
+enum hv_interrupt_type {
+	HV_X64_INTERRUPT_TYPE_FIXED             = 0x0000,
+	HV_X64_INTERRUPT_TYPE_LOWESTPRIORITY    = 0x0001,
+	HV_X64_INTERRUPT_TYPE_SMI               = 0x0002,
+	HV_X64_INTERRUPT_TYPE_REMOTEREAD        = 0x0003,
+	HV_X64_INTERRUPT_TYPE_NMI               = 0x0004,
+	HV_X64_INTERRUPT_TYPE_INIT              = 0x0005,
+	HV_X64_INTERRUPT_TYPE_SIPI              = 0x0006,
+	HV_X64_INTERRUPT_TYPE_EXTINT            = 0x0007,
+	HV_X64_INTERRUPT_TYPE_LOCALINT0         = 0x0008,
+	HV_X64_INTERRUPT_TYPE_LOCALINT1         = 0x0009,
+	HV_X64_INTERRUPT_TYPE_MAXIMUM           = 0x000A,
+};
+
+#include <asm-generic/hyperv-tlfs.h>
+>>>>>>> upstream/android-13
 
 #endif

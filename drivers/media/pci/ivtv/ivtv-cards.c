@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
     Functions to query card hardware
     Copyright (C) 2003-2004  Kevin Thayer <nufan_wfk at yahoo.com>
     Copyright (C) 2005-2007  Hans Verkuil <hverkuil@xs4all.nl>
 
+<<<<<<< HEAD
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or
@@ -16,6 +21,8 @@
     You should have received a copy of the GNU General Public License
     along with this program; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "ivtv-driver.h"
@@ -65,7 +72,11 @@ static struct ivtv_card_tuner_i2c ivtv_i2c_tda8290 = {
 
 /********************** card configuration *******************************/
 
+<<<<<<< HEAD
 /* Please add new PCI IDs to: http://pci-ids.ucw.cz/
+=======
+/* Please add new PCI IDs to: https://pci-ids.ucw.cz/
+>>>>>>> upstream/android-13
    This keeps the PCI ID database up to date. Note that the entries
    must be added under vendor 0x4444 (Conexant) as subsystem IDs.
    New vendor IDs should still be added to the vendor ID list. */
@@ -1317,8 +1328,13 @@ int ivtv_get_input(struct ivtv *itv, u16 index, struct v4l2_input *input)
 	if (index >= itv->nof_inputs)
 		return -EINVAL;
 	input->index = index;
+<<<<<<< HEAD
 	strlcpy(input->name, input_strs[card_input->video_type - 1],
 			sizeof(input->name));
+=======
+	strscpy(input->name, input_strs[card_input->video_type - 1],
+		sizeof(input->name));
+>>>>>>> upstream/android-13
 	input->type = (card_input->video_type == IVTV_CARD_INPUT_VID_TUNER ?
 			V4L2_INPUT_TYPE_TUNER : V4L2_INPUT_TYPE_CAMERA);
 	input->audioset = (1 << itv->nof_audio_inputs) - 1;
@@ -1334,7 +1350,11 @@ int ivtv_get_output(struct ivtv *itv, u16 index, struct v4l2_output *output)
 	if (index >= itv->card->nof_outputs)
 		return -EINVAL;
 	output->index = index;
+<<<<<<< HEAD
 	strlcpy(output->name, card_output->name, sizeof(output->name));
+=======
+	strscpy(output->name, card_output->name, sizeof(output->name));
+>>>>>>> upstream/android-13
 	output->type = V4L2_OUTPUT_TYPE_ANALOG;
 	output->audioset = 1;
 	output->std = V4L2_STD_ALL;
@@ -1353,8 +1373,13 @@ int ivtv_get_audio_input(struct ivtv *itv, u16 index, struct v4l2_audio *audio)
 	memset(audio, 0, sizeof(*audio));
 	if (index >= itv->nof_audio_inputs)
 		return -EINVAL;
+<<<<<<< HEAD
 	strlcpy(audio->name, input_strs[aud_input->audio_type - 1],
 			sizeof(audio->name));
+=======
+	strscpy(audio->name, input_strs[aud_input->audio_type - 1],
+		sizeof(audio->name));
+>>>>>>> upstream/android-13
 	audio->index = index;
 	audio->capability = V4L2_AUDCAP_STEREO;
 	return 0;
@@ -1365,6 +1390,10 @@ int ivtv_get_audio_output(struct ivtv *itv, u16 index, struct v4l2_audioout *aud
 	memset(aud_output, 0, sizeof(*aud_output));
 	if (itv->card->video_outputs == NULL || index != 0)
 		return -EINVAL;
+<<<<<<< HEAD
 	strlcpy(aud_output->name, "A/V Audio Out", sizeof(aud_output->name));
+=======
+	strscpy(aud_output->name, "A/V Audio Out", sizeof(aud_output->name));
+>>>>>>> upstream/android-13
 	return 0;
 }

@@ -142,19 +142,26 @@ srmcons_write(struct tty_struct *tty,
 	return count;
 }
 
+<<<<<<< HEAD
 static int
+=======
+static unsigned int
+>>>>>>> upstream/android-13
 srmcons_write_room(struct tty_struct *tty)
 {
 	return 512;
 }
 
 static int
+<<<<<<< HEAD
 srmcons_chars_in_buffer(struct tty_struct *tty)
 {
 	return 0;
 }
 
 static int
+=======
+>>>>>>> upstream/android-13
 srmcons_open(struct tty_struct *tty, struct file *filp)
 {
 	struct srmcons_private *srmconsp = &srmcons_singleton;
@@ -200,7 +207,10 @@ static const struct tty_operations srmcons_ops = {
 	.close		= srmcons_close,
 	.write		= srmcons_write,
 	.write_room	= srmcons_write_room,
+<<<<<<< HEAD
 	.chars_in_buffer= srmcons_chars_in_buffer,
+=======
+>>>>>>> upstream/android-13
 };
 
 static int __init
@@ -211,9 +221,15 @@ srmcons_init(void)
 		struct tty_driver *driver;
 		int err;
 
+<<<<<<< HEAD
 		driver = alloc_tty_driver(MAX_SRM_CONSOLE_DEVICES);
 		if (!driver)
 			return -ENOMEM;
+=======
+		driver = tty_alloc_driver(MAX_SRM_CONSOLE_DEVICES, 0);
+		if (IS_ERR(driver))
+			return PTR_ERR(driver);
+>>>>>>> upstream/android-13
 
 		tty_port_init(&srmcons_singleton.port);
 
@@ -228,7 +244,11 @@ srmcons_init(void)
 		tty_port_link_device(&srmcons_singleton.port, driver, 0);
 		err = tty_register_driver(driver);
 		if (err) {
+<<<<<<< HEAD
 			put_tty_driver(driver);
+=======
+			tty_driver_kref_put(driver);
+>>>>>>> upstream/android-13
 			tty_port_destroy(&srmcons_singleton.port);
 			return err;
 		}

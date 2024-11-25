@@ -15,4 +15,10 @@
 #define CLK_MIXER1		7
 #define CLK_WB			8
 
+<<<<<<< HEAD
+=======
+#define CLK_BUS_ROT		9
+#define CLK_ROT			10
+
+>>>>>>> upstream/android-13
 #endif /* _DT_BINDINGS_CLOCK_SUN8I_DE2_H_ */

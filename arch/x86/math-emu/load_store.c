@@ -240,7 +240,11 @@ int FPU_load_store(u_char type, fpu_addr_modes addr_modes,
 		   fix-up operations. */
 		return 1;
 	case 022:		/* frstor m94/108byte */
+<<<<<<< HEAD
 		frstor(addr_modes, (u_char __user *) data_address);
+=======
+		FPU_frstor(addr_modes, (u_char __user *) data_address);
+>>>>>>> upstream/android-13
 		/* Ensure that the values just loaded are not changed by
 		   fix-up operations. */
 		return 1;
@@ -251,7 +255,11 @@ int FPU_load_store(u_char type, fpu_addr_modes addr_modes,
 		break;
 	case 024:		/* fldcw */
 		RE_ENTRANT_CHECK_OFF;
+<<<<<<< HEAD
 		FPU_access_ok(VERIFY_READ, data_address, 2);
+=======
+		FPU_access_ok(data_address, 2);
+>>>>>>> upstream/android-13
 		FPU_get_user(control_word,
 			     (unsigned short __user *)data_address);
 		RE_ENTRANT_CHECK_ON;
@@ -291,7 +299,11 @@ int FPU_load_store(u_char type, fpu_addr_modes addr_modes,
 		break;
 	case 034:		/* fstcw m16int */
 		RE_ENTRANT_CHECK_OFF;
+<<<<<<< HEAD
 		FPU_access_ok(VERIFY_WRITE, data_address, 2);
+=======
+		FPU_access_ok(data_address, 2);
+>>>>>>> upstream/android-13
 		FPU_put_user(control_word,
 			     (unsigned short __user *)data_address);
 		RE_ENTRANT_CHECK_ON;
@@ -305,7 +317,11 @@ int FPU_load_store(u_char type, fpu_addr_modes addr_modes,
 		break;
 	case 036:		/* fstsw m2byte */
 		RE_ENTRANT_CHECK_OFF;
+<<<<<<< HEAD
 		FPU_access_ok(VERIFY_WRITE, data_address, 2);
+=======
+		FPU_access_ok(data_address, 2);
+>>>>>>> upstream/android-13
 		FPU_put_user(status_word(),
 			     (unsigned short __user *)data_address);
 		RE_ENTRANT_CHECK_ON;

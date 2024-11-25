@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  Copyright (c) 2016 Masaki Ota <masaki.ota@jp.alps.com>
  *
@@ -5,6 +6,11 @@
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; either version 2 of the License, or (at your option)
  * any later version.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ *  Copyright (c) 2016 Masaki Ota <masaki.ota@jp.alps.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -78,7 +84,11 @@ enum dev_num {
 	UNKNOWN,
 };
 /**
+<<<<<<< HEAD
  * struct u1_data
+=======
+ * struct alps_dev
+>>>>>>> upstream/android-13
  *
  * @input: pointer to the kernel input device
  * @input2: pointer to the kernel input2 device
@@ -393,8 +403,12 @@ static int u1_raw_event(struct alps_dev *hdata, u8 *data, int size)
 				input_report_abs(hdata->input,
 					ABS_MT_PRESSURE, z);
 			} else {
+<<<<<<< HEAD
 				input_mt_report_slot_state(hdata->input,
 					MT_TOOL_FINGER, 0);
+=======
+				input_mt_report_slot_inactive(hdata->input);
+>>>>>>> upstream/android-13
 			}
 		}
 
@@ -531,7 +545,11 @@ static int u1_init(struct hid_device *hdev, struct alps_dev *pri_data)
 
 	ret = u1_read_write_register(hdev, ADDRESS_U1_NUM_SENS_Y,
 			&sen_line_num_y, 0, true);
+<<<<<<< HEAD
 		if (ret < 0) {
+=======
+	if (ret < 0) {
+>>>>>>> upstream/android-13
 		dev_err(&hdev->dev, "failed U1_NUM_SENS_Y (%d)\n", ret);
 		goto exit;
 	}

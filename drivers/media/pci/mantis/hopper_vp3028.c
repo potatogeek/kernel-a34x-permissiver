@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
 	Hopper VP-3028 driver
 
 	Copyright (C) Manu Abraham (abraham.manu@gmail.com)
 
+<<<<<<< HEAD
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation; either version 2 of the License, or
@@ -16,6 +21,8 @@
 	You should have received a copy of the GNU General Public License
 	along with this program; if not, write to the Free Software
 	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
 */
 
 #include <linux/signal.h>
@@ -45,7 +52,11 @@ static int vp3028_frontend_init(struct mantis_pci *mantis, struct dvb_frontend *
 {
 	struct i2c_adapter *adapter	= &mantis->adapter;
 	struct mantis_hwconfig *config	= mantis->hwconfig;
+<<<<<<< HEAD
 	int err = 0;
+=======
+	int err;
+>>>>>>> upstream/android-13
 
 	mantis_gpio_set_bits(mantis, config->reset, 0);
 	msleep(100);

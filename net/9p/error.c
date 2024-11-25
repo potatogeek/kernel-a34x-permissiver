@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * linux/fs/9p/error.c
  *
@@ -9,6 +13,7 @@
  *
  *  Copyright (C) 2004 by Eric Van Hensbergen <ericvh@gmail.com>
  *  Copyright (C) 2002 by Ron Minnich <rminnich@lanl.gov>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2
@@ -25,6 +30,8 @@
  *  51 Franklin Street, Fifth Floor
  *  Boston, MA  02111-1301  USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -212,7 +219,11 @@ int p9_error_init(void)
 EXPORT_SYMBOL(p9_error_init);
 
 /**
+<<<<<<< HEAD
  * errstr2errno - convert error string to error number
+=======
+ * p9_errstr2errno - convert error string to error number
+>>>>>>> upstream/android-13
  * @errstr: error string
  * @len: length of error string
  *

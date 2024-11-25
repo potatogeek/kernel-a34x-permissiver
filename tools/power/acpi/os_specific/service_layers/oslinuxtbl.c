@@ -3,7 +3,11 @@
  *
  * Module Name: oslinuxtbl - Linux OSL for obtaining ACPI tables
  *
+<<<<<<< HEAD
  * Copyright (C) 2000 - 2018, Intel Corp.
+=======
+ * Copyright (C) 2000 - 2021, Intel Corp.
+>>>>>>> upstream/android-13
  *
  *****************************************************************************/
 
@@ -19,7 +23,11 @@ ACPI_MODULE_NAME("oslinuxtbl")
 typedef struct osl_table_info {
 	struct osl_table_info *next;
 	u32 instance;
+<<<<<<< HEAD
 	char signature[ACPI_NAME_SIZE];
+=======
+	char signature[ACPI_NAMESEG_SIZE];
+>>>>>>> upstream/android-13
 
 } osl_table_info;
 
@@ -35,7 +43,11 @@ static acpi_status osl_add_table_to_list(char *signature, u32 instance);
 static acpi_status
 osl_read_table_from_file(char *filename,
 			 acpi_size file_offset,
+<<<<<<< HEAD
 			 char *signature, struct acpi_table_header **table);
+=======
+			 struct acpi_table_header **table);
+>>>>>>> upstream/android-13
 
 static acpi_status
 osl_map_table(acpi_size address,
@@ -110,7 +122,11 @@ u32 gbl_table_count = 0;
  *
  * RETURN:      Status; Converted from errno.
  *
+<<<<<<< HEAD
  * DESCRIPTION: Get last errno and conver it to acpi_status.
+=======
+ * DESCRIPTION: Get last errno and convert it to acpi_status.
+>>>>>>> upstream/android-13
  *
  *****************************************************************************/
 
@@ -286,14 +302,22 @@ static acpi_status osl_add_table_to_list(char *signature, u32 instance)
 		return (AE_NO_MEMORY);
 	}
 
+<<<<<<< HEAD
 	ACPI_MOVE_NAME(new_info->signature, signature);
+=======
+	ACPI_COPY_NAMESEG(new_info->signature, signature);
+>>>>>>> upstream/android-13
 
 	if (!gbl_table_list_head) {
 		gbl_table_list_head = new_info;
 	} else {
 		next = gbl_table_list_head;
 		while (1) {
+<<<<<<< HEAD
 			if (ACPI_COMPARE_NAME(next->signature, signature)) {
+=======
+			if (ACPI_COMPARE_NAMESEG(next->signature, signature)) {
+>>>>>>> upstream/android-13
 				if (next->instance == instance) {
 					found = TRUE;
 				}
@@ -782,11 +806,19 @@ osl_get_bios_table(char *signature,
 
 	/* Handle special tables whose addresses are not in RSDT/XSDT */
 
+<<<<<<< HEAD
 	if (ACPI_COMPARE_NAME(signature, ACPI_RSDP_NAME) ||
 	    ACPI_COMPARE_NAME(signature, ACPI_SIG_RSDT) ||
 	    ACPI_COMPARE_NAME(signature, ACPI_SIG_XSDT) ||
 	    ACPI_COMPARE_NAME(signature, ACPI_SIG_DSDT) ||
 	    ACPI_COMPARE_NAME(signature, ACPI_SIG_FACS)) {
+=======
+	if (ACPI_COMPARE_NAMESEG(signature, ACPI_RSDP_NAME) ||
+	    ACPI_COMPARE_NAMESEG(signature, ACPI_SIG_RSDT) ||
+	    ACPI_COMPARE_NAMESEG(signature, ACPI_SIG_XSDT) ||
+	    ACPI_COMPARE_NAMESEG(signature, ACPI_SIG_DSDT) ||
+	    ACPI_COMPARE_NAMESEG(signature, ACPI_SIG_FACS)) {
+>>>>>>> upstream/android-13
 
 find_next_instance:
 
@@ -797,7 +829,11 @@ find_next_instance:
 		 * careful about the FADT length and validate table addresses.
 		 * Note: The 64-bit addresses have priority.
 		 */
+<<<<<<< HEAD
 		if (ACPI_COMPARE_NAME(signature, ACPI_SIG_DSDT)) {
+=======
+		if (ACPI_COMPARE_NAMESEG(signature, ACPI_SIG_DSDT)) {
+>>>>>>> upstream/android-13
 			if (current_instance < 2) {
 				if ((gbl_fadt->header.length >=
 				     MIN_FADT_FOR_XDSDT) && gbl_fadt->Xdsdt
@@ -815,7 +851,11 @@ find_next_instance:
 					    dsdt;
 				}
 			}
+<<<<<<< HEAD
 		} else if (ACPI_COMPARE_NAME(signature, ACPI_SIG_FACS)) {
+=======
+		} else if (ACPI_COMPARE_NAMESEG(signature, ACPI_SIG_FACS)) {
+>>>>>>> upstream/android-13
 			if (current_instance < 2) {
 				if ((gbl_fadt->header.length >=
 				     MIN_FADT_FOR_XFACS) && gbl_fadt->Xfacs
@@ -833,7 +873,11 @@ find_next_instance:
 					    facs;
 				}
 			}
+<<<<<<< HEAD
 		} else if (ACPI_COMPARE_NAME(signature, ACPI_SIG_XSDT)) {
+=======
+		} else if (ACPI_COMPARE_NAMESEG(signature, ACPI_SIG_XSDT)) {
+>>>>>>> upstream/android-13
 			if (!gbl_revision) {
 				return (AE_BAD_SIGNATURE);
 			}
@@ -842,7 +886,11 @@ find_next_instance:
 				    (acpi_physical_address)gbl_rsdp.
 				    xsdt_physical_address;
 			}
+<<<<<<< HEAD
 		} else if (ACPI_COMPARE_NAME(signature, ACPI_SIG_RSDT)) {
+=======
+		} else if (ACPI_COMPARE_NAMESEG(signature, ACPI_SIG_RSDT)) {
+>>>>>>> upstream/android-13
 			if (current_instance == 0) {
 				table_address =
 				    (acpi_physical_address)gbl_rsdp.
@@ -931,7 +979,11 @@ find_next_instance:
 
 			/* Does this table match the requested signature? */
 
+<<<<<<< HEAD
 			if (!ACPI_COMPARE_NAME
+=======
+			if (!ACPI_COMPARE_NAMESEG
+>>>>>>> upstream/android-13
 			    (mapped_table->signature, signature)) {
 				osl_unmap_table(mapped_table);
 				mapped_table = NULL;
@@ -995,7 +1047,11 @@ static acpi_status osl_list_customized_tables(char *directory)
 {
 	void *table_dir;
 	u32 instance;
+<<<<<<< HEAD
 	char temp_name[ACPI_NAME_SIZE];
+=======
+	char temp_name[ACPI_NAMESEG_SIZE];
+>>>>>>> upstream/android-13
 	char *filename;
 	acpi_status status = AE_OK;
 
@@ -1086,8 +1142,13 @@ osl_map_table(acpi_size address,
 				return (AE_BAD_SIGNATURE);
 			}
 		} else
+<<<<<<< HEAD
 		    if (!ACPI_COMPARE_NAME(signature, mapped_table->signature))
 		{
+=======
+		    if (!ACPI_COMPARE_NAMESEG
+			(signature, mapped_table->signature)) {
+>>>>>>> upstream/android-13
 			acpi_os_unmap_memory(mapped_table,
 					     sizeof(struct acpi_table_header));
 			return (AE_BAD_SIGNATURE);
@@ -1158,15 +1219,25 @@ osl_table_name_from_file(char *filename, char *signature, u32 *instance)
 
 	/* Ignore meaningless files */
 
+<<<<<<< HEAD
 	if (strlen(filename) < ACPI_NAME_SIZE) {
+=======
+	if (strlen(filename) < ACPI_NAMESEG_SIZE) {
+>>>>>>> upstream/android-13
 		return (AE_BAD_SIGNATURE);
 	}
 
 	/* Extract instance number */
 
+<<<<<<< HEAD
 	if (isdigit((int)filename[ACPI_NAME_SIZE])) {
 		sscanf(&filename[ACPI_NAME_SIZE], "%u", instance);
 	} else if (strlen(filename) != ACPI_NAME_SIZE) {
+=======
+	if (isdigit((int)filename[ACPI_NAMESEG_SIZE])) {
+		sscanf(&filename[ACPI_NAMESEG_SIZE], "%u", instance);
+	} else if (strlen(filename) != ACPI_NAMESEG_SIZE) {
+>>>>>>> upstream/android-13
 		return (AE_BAD_SIGNATURE);
 	} else {
 		*instance = 0;
@@ -1174,7 +1245,11 @@ osl_table_name_from_file(char *filename, char *signature, u32 *instance)
 
 	/* Extract signature */
 
+<<<<<<< HEAD
 	ACPI_MOVE_NAME(signature, filename);
+=======
+	ACPI_COPY_NAMESEG(signature, filename);
+>>>>>>> upstream/android-13
 	return (AE_OK);
 }
 
@@ -1184,8 +1259,11 @@ osl_table_name_from_file(char *filename, char *signature, u32 *instance)
  *
  * PARAMETERS:  filename            - File that contains the desired table
  *              file_offset         - Offset of the table in file
+<<<<<<< HEAD
  *              signature           - Optional ACPI Signature for desired table.
  *                                    A null terminated 4-character string.
+=======
+>>>>>>> upstream/android-13
  *              table               - Where a pointer to the table is returned
  *
  * RETURN:      Status; Table buffer is returned if AE_OK.
@@ -1197,7 +1275,11 @@ osl_table_name_from_file(char *filename, char *signature, u32 *instance)
 static acpi_status
 osl_read_table_from_file(char *filename,
 			 acpi_size file_offset,
+<<<<<<< HEAD
 			 char *signature, struct acpi_table_header **table)
+=======
+			 struct acpi_table_header **table)
+>>>>>>> upstream/android-13
 {
 	FILE *table_file;
 	struct acpi_table_header header;
@@ -1225,6 +1307,11 @@ osl_read_table_from_file(char *filename,
 		goto exit;
 	}
 
+<<<<<<< HEAD
+=======
+#ifdef ACPI_OBSOLETE_FUNCTIONS
+
+>>>>>>> upstream/android-13
 	/* If signature is specified, it must match the table */
 
 	if (signature) {
@@ -1236,7 +1323,11 @@ osl_read_table_from_file(char *filename,
 				status = AE_BAD_SIGNATURE;
 				goto exit;
 			}
+<<<<<<< HEAD
 		} else if (!ACPI_COMPARE_NAME(signature, header.signature)) {
+=======
+		} else if (!ACPI_COMPARE_NAMESEG(signature, header.signature)) {
+>>>>>>> upstream/android-13
 			fprintf(stderr,
 				"Incorrect signature: Expecting %4.4s, found %4.4s\n",
 				signature, header.signature);
@@ -1244,6 +1335,10 @@ osl_read_table_from_file(char *filename,
 			goto exit;
 		}
 	}
+<<<<<<< HEAD
+=======
+#endif
+>>>>>>> upstream/android-13
 
 	table_length = ap_get_table_length(&header);
 	if (table_length == 0) {
@@ -1311,7 +1406,11 @@ osl_get_customized_table(char *pathname,
 {
 	void *table_dir;
 	u32 current_instance = 0;
+<<<<<<< HEAD
 	char temp_name[ACPI_NAME_SIZE];
+=======
+	char temp_name[ACPI_NAMESEG_SIZE];
+>>>>>>> upstream/android-13
 	char table_filename[PATH_MAX];
 	char *filename;
 	acpi_status status;
@@ -1329,7 +1428,11 @@ osl_get_customized_table(char *pathname,
 
 		/* Ignore meaningless files */
 
+<<<<<<< HEAD
 		if (!ACPI_COMPARE_NAME(filename, signature)) {
+=======
+		if (!ACPI_COMPARE_NAMESEG(filename, signature)) {
+>>>>>>> upstream/android-13
 			continue;
 		}
 
@@ -1366,7 +1469,11 @@ osl_get_customized_table(char *pathname,
 	/* There is no physical address saved for customized tables, use zero */
 
 	*address = 0;
+<<<<<<< HEAD
 	status = osl_read_table_from_file(table_filename, 0, NULL, table);
+=======
+	status = osl_read_table_from_file(table_filename, 0, table);
+>>>>>>> upstream/android-13
 
 	return (status);
 }

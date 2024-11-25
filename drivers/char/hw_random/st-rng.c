@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * ST Random Number Generator Driver ST's Platforms
  *
@@ -5,16 +9,23 @@
  *         Lee Jones <lee.jones@linaro.org>
  *
  * Copyright (C) 2015 STMicroelectronics (R&D) Limited
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
 #include <linux/delay.h>
 #include <linux/hw_random.h>
 #include <linux/io.h>
+<<<<<<< HEAD
+=======
+#include <linux/kernel.h>
+>>>>>>> upstream/android-13
 #include <linux/module.h>
 #include <linux/of.h>
 #include <linux/platform_device.h>
@@ -75,7 +86,10 @@ static int st_rng_read(struct hwrng *rng, void *data, size_t max, bool wait)
 static int st_rng_probe(struct platform_device *pdev)
 {
 	struct st_rng_data *ddata;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	struct clk *clk;
 	void __iomem *base;
 	int ret;
@@ -84,8 +98,12 @@ static int st_rng_probe(struct platform_device *pdev)
 	if (!ddata)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	base = devm_ioremap_resource(&pdev->dev, res);
+=======
+	base = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(base))
 		return PTR_ERR(base);
 
@@ -105,7 +123,11 @@ static int st_rng_probe(struct platform_device *pdev)
 
 	dev_set_drvdata(&pdev->dev, ddata);
 
+<<<<<<< HEAD
 	ret = hwrng_register(&ddata->ops);
+=======
+	ret = devm_hwrng_register(&pdev->dev, &ddata->ops);
+>>>>>>> upstream/android-13
 	if (ret) {
 		dev_err(&pdev->dev, "Failed to register HW RNG\n");
 		clk_disable_unprepare(clk);
@@ -121,14 +143,21 @@ static int st_rng_remove(struct platform_device *pdev)
 {
 	struct st_rng_data *ddata = dev_get_drvdata(&pdev->dev);
 
+<<<<<<< HEAD
 	hwrng_unregister(&ddata->ops);
 
+=======
+>>>>>>> upstream/android-13
 	clk_disable_unprepare(ddata->clk);
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static const struct of_device_id st_rng_match[] = {
+=======
+static const struct of_device_id st_rng_match[] __maybe_unused = {
+>>>>>>> upstream/android-13
 	{ .compatible = "st,rng" },
 	{},
 };

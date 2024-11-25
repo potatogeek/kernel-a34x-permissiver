@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #
 # Adaptec network device configuration
 #
@@ -6,7 +10,11 @@ config NET_VENDOR_ADAPTEC
 	bool "Adaptec devices"
 	default y
 	depends on PCI
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  If you have a network (Ethernet) card belonging to this class, say Y.
 
 	  Note that the answer to this question doesn't directly affect the
@@ -21,7 +29,11 @@ config ADAPTEC_STARFIRE
 	depends on PCI
 	select CRC32
 	select MII
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  Say Y here if you have an Adaptec Starfire (or DuraLAN) PCI network
 	  adapter. The DuraLAN chip is used on the 64 bit PCI boards from
 	  Adaptec e.g. the ANA-6922A. The older 32 bit boards use the tulip

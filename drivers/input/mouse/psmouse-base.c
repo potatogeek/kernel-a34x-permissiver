@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * PS/2 mouse driver
  *
@@ -5,11 +9,14 @@
  * Copyright (c) 2003-2004 Dmitry Torokhov
  */
 
+<<<<<<< HEAD
 /*
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
  * the Free Software Foundation.
  */
+=======
+>>>>>>> upstream/android-13
 
 #define pr_fmt(fmt)		KBUILD_MODNAME ": " fmt
 #define psmouse_fmt(fmt)	fmt
@@ -373,6 +380,11 @@ static irqreturn_t psmouse_interrupt(struct serio *serio,
 		if  (ps2_handle_response(&psmouse->ps2dev, data))
 			goto out;
 
+<<<<<<< HEAD
+=======
+	pm_wakeup_event(&serio->dev, 0);
+
+>>>>>>> upstream/android-13
 	if (psmouse->state <= PSMOUSE_RESYNCING)
 		goto out;
 

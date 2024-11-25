@@ -31,6 +31,7 @@ The counterparts to those functions are listed below.
 
 ::
 
+<<<<<<< HEAD
        int crypto_unregister_alg(struct crypto_alg *alg);
        int crypto_unregister_algs(struct crypto_alg *algs, int count);
 
@@ -53,11 +54,29 @@ follows:
 -  crypto_unregister_algs() tries to unregister all the given
    transformations, continuing on error. It logs errors and always
    returns zero.
+=======
+       void crypto_unregister_alg(struct crypto_alg *alg);
+       void crypto_unregister_algs(struct crypto_alg *algs, int count);
+
+
+The registration functions return 0 on success, or a negative errno
+value on failure.  crypto_register_algs() succeeds only if it
+successfully registered all the given algorithms; if it fails partway
+through, then any changes are rolled back.
+
+The unregistration functions always succeed, so they don't have a
+return value.  Don't try to unregister algorithms that aren't
+currently registered.
+>>>>>>> upstream/android-13
 
 Single-Block Symmetric Ciphers [CIPHER]
 ---------------------------------------
 
+<<<<<<< HEAD
 Example of transformations: aes, arc4, ...
+=======
+Example of transformations: aes, serpent, ...
+>>>>>>> upstream/android-13
 
 This section describes the simplest of all transformation
 implementations, that being the CIPHER type used for symmetric ciphers.
@@ -108,7 +127,11 @@ is also valid:
 Multi-Block Ciphers
 -------------------
 
+<<<<<<< HEAD
 Example of transformations: cbc(aes), ecb(arc4), ...
+=======
+Example of transformations: cbc(aes), chacha20, ...
+>>>>>>> upstream/android-13
 
 This section describes the multi-block cipher transformation
 implementations. The multi-block ciphers are used for transformations
@@ -128,6 +151,7 @@ process requests that are unaligned. This implies, however, additional
 overhead as the kernel crypto API needs to perform the realignment of
 the data which may imply moving of data.
 
+<<<<<<< HEAD
 Cipher Definition With struct blkcipher_alg and ablkcipher_alg
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -147,6 +171,22 @@ ScatterWalk in case the hardware needs to be fed separate chunks of the
 scatterlist which contains the plaintext and will contain the
 ciphertext. Please refer to the ScatterWalk interface offered by the
 Linux kernel scatter / gather list implementation.
+=======
+Cipher Definition With struct skcipher_alg
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Struct skcipher_alg defines a multi-block cipher, or more generally, a
+length-preserving symmetric cipher algorithm.
+
+Scatterlist handling
+~~~~~~~~~~~~~~~~~~~~
+
+Some drivers will want to use the Generic ScatterWalk in case the
+hardware needs to be fed separate chunks of the scatterlist which
+contains the plaintext and will contain the ciphertext. Please refer
+to the ScatterWalk interface offered by the Linux kernel scatter /
+gather list implementation.
+>>>>>>> upstream/android-13
 
 Hashing [HASH]
 --------------
@@ -174,10 +214,17 @@ are as follows:
 
 ::
 
+<<<<<<< HEAD
        int crypto_unregister_ahash(struct ahash_alg *alg);
 
        int crypto_unregister_shash(struct shash_alg *alg);
        int crypto_unregister_shashes(struct shash_alg *algs, int count);
+=======
+       void crypto_unregister_ahash(struct ahash_alg *alg);
+
+       void crypto_unregister_shash(struct shash_alg *alg);
+       void crypto_unregister_shashes(struct shash_alg *algs, int count);
+>>>>>>> upstream/android-13
 
 
 Cipher Definition With struct shash_alg and ahash_alg

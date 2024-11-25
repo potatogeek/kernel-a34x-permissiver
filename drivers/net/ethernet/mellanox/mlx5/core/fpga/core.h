@@ -35,11 +35,23 @@
 
 #ifdef CONFIG_MLX5_FPGA
 
+<<<<<<< HEAD
+=======
+#include <linux/mlx5/eq.h>
+
+#include "mlx5_core.h"
+#include "lib/eq.h"
+>>>>>>> upstream/android-13
 #include "fpga/cmd.h"
 
 /* Represents an Innova device */
 struct mlx5_fpga_device {
 	struct mlx5_core_dev *mdev;
+<<<<<<< HEAD
+=======
+	struct mlx5_nb fpga_err_nb;
+	struct mlx5_nb fpga_qp_err_nb;
+>>>>>>> upstream/android-13
 	spinlock_t state_lock; /* Protects state transitions */
 	enum mlx5_fpga_status state;
 	enum mlx5_fpga_image last_admin_image;
@@ -57,6 +69,7 @@ struct mlx5_fpga_device {
 };
 
 #define mlx5_fpga_dbg(__adev, format, ...) \
+<<<<<<< HEAD
 	dev_dbg(&(__adev)->mdev->pdev->dev, "FPGA: %s:%d:(pid %d): " format, \
 		 __func__, __LINE__, current->pid, ##__VA_ARGS__)
 
@@ -77,12 +90,37 @@ struct mlx5_fpga_device {
 
 #define mlx5_fpga_info(__adev, format, ...) \
 	dev_info(&(__adev)->mdev->pdev->dev, "FPGA: " format, ##__VA_ARGS__)
+=======
+	mlx5_core_dbg((__adev)->mdev, "FPGA: %s:%d:(pid %d): " format, \
+		       __func__, __LINE__, current->pid, ##__VA_ARGS__)
+
+#define mlx5_fpga_err(__adev, format, ...) \
+	mlx5_core_err((__adev)->mdev, "FPGA: %s:%d:(pid %d): " format, \
+		      __func__, __LINE__, current->pid, ##__VA_ARGS__)
+
+#define mlx5_fpga_warn(__adev, format, ...) \
+	mlx5_core_warn((__adev)->mdev, "FPGA: %s:%d:(pid %d): " format, \
+		       __func__, __LINE__, current->pid, ##__VA_ARGS__)
+
+#define mlx5_fpga_warn_ratelimited(__adev, format, ...) \
+	mlx5_core_err_rl((__adev)->mdev, "FPGA: %s:%d: " \
+			 format, __func__, __LINE__, ##__VA_ARGS__)
+
+#define mlx5_fpga_notice(__adev, format, ...) \
+	mlx5_core_info((__adev)->mdev, "FPGA: " format, ##__VA_ARGS__)
+
+#define mlx5_fpga_info(__adev, format, ...) \
+	mlx5_core_info((__adev)->mdev, "FPGA: " format, ##__VA_ARGS__)
+>>>>>>> upstream/android-13
 
 int mlx5_fpga_init(struct mlx5_core_dev *mdev);
 void mlx5_fpga_cleanup(struct mlx5_core_dev *mdev);
 int mlx5_fpga_device_start(struct mlx5_core_dev *mdev);
 void mlx5_fpga_device_stop(struct mlx5_core_dev *mdev);
+<<<<<<< HEAD
 void mlx5_fpga_event(struct mlx5_core_dev *mdev, u8 event, void *data);
+=======
+>>>>>>> upstream/android-13
 
 #else
 
@@ -104,11 +142,14 @@ static inline void mlx5_fpga_device_stop(struct mlx5_core_dev *mdev)
 {
 }
 
+<<<<<<< HEAD
 static inline void mlx5_fpga_event(struct mlx5_core_dev *mdev, u8 event,
 				   void *data)
 {
 }
 
+=======
+>>>>>>> upstream/android-13
 #endif
 
 #endif /* __MLX5_FPGA_CORE_H__ */

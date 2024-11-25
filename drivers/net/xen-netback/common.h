@@ -203,6 +203,10 @@ struct xenvif_queue { /* Per-queue data for xenvif */
 	unsigned int rx_queue_max;
 	unsigned int rx_queue_len;
 	unsigned long last_rx_time;
+<<<<<<< HEAD
+=======
+	unsigned int rx_slots_needed;
+>>>>>>> upstream/android-13
 	bool stalled;
 
 	struct xenvif_copy_state rx_copy;
@@ -262,6 +266,25 @@ struct xenvif_hash {
 	struct xenvif_hash_cache cache;
 };
 
+<<<<<<< HEAD
+=======
+struct backend_info {
+	struct xenbus_device *dev;
+	struct xenvif *vif;
+
+	/* This is the state that will be reflected in xenstore when any
+	 * active hotplug script completes.
+	 */
+	enum xenbus_state state;
+
+	enum xenbus_state frontend_state;
+	struct xenbus_watch hotplug_status_watch;
+	u8 have_hotplug_status_watch:1;
+
+	const char *hotplug_script;
+};
+
+>>>>>>> upstream/android-13
 struct xenvif {
 	/* Unique identifier for this interface. */
 	domid_t          domid;
@@ -279,6 +302,12 @@ struct xenvif {
 	u8 ipv6_csum:1;
 	u8 multicast_control:1;
 
+<<<<<<< HEAD
+=======
+	/* headroom requested by xen-netfront */
+	u16 xdp_headroom;
+
+>>>>>>> upstream/android-13
 	/* Is this interface disabled? True when backend discovers
 	 * frontend is rogue.
 	 */
@@ -297,6 +326,11 @@ struct xenvif {
 	struct xenbus_watch credit_watch;
 	struct xenbus_watch mcast_ctrl_watch;
 
+<<<<<<< HEAD
+=======
+	struct backend_info *be;
+
+>>>>>>> upstream/android-13
 	spinlock_t lock;
 
 #ifdef CONFIG_DEBUG_FS
@@ -378,7 +412,12 @@ void xenvif_rx_queue_tail(struct xenvif_queue *queue, struct sk_buff *skb);
 void xenvif_carrier_on(struct xenvif *vif);
 
 /* Callback from stack when TX packet can be released */
+<<<<<<< HEAD
 void xenvif_zerocopy_callback(struct ubuf_info *ubuf, bool zerocopy_success);
+=======
+void xenvif_zerocopy_callback(struct sk_buff *skb, struct ubuf_info *ubuf,
+			      bool zerocopy_success);
+>>>>>>> upstream/android-13
 
 /* Unmap a pending page and release it back to the guest */
 void xenvif_idx_unmap(struct xenvif_queue *queue, u16 pending_idx);
@@ -392,6 +431,10 @@ static inline pending_ring_idx_t nr_pending_reqs(struct xenvif_queue *queue)
 irqreturn_t xenvif_interrupt(int irq, void *dev_id);
 
 extern bool separate_tx_rx_irq;
+<<<<<<< HEAD
+=======
+extern bool provides_xdp_headroom;
+>>>>>>> upstream/android-13
 
 extern unsigned int rx_drain_timeout_msecs;
 extern unsigned int rx_stall_timeout_msecs;

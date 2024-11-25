@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Zynq pin controller
  *
  *  Copyright (C) 2014 Xilinx
  *
  *  Sören Brinkmann <soren.brinkmann@xilinx.com>
+<<<<<<< HEAD
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +22,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/io.h>
 #include <linux/mfd/syscon.h>
@@ -1028,7 +1035,11 @@ static int zynq_pinconf_cfg_get(struct pinctrl_dev *pctldev,
 	case PIN_CONFIG_SLEW_RATE:
 		arg = !!(reg & ZYNQ_PINCONF_SPEED);
 		break;
+<<<<<<< HEAD
 	case PIN_CONFIG_LOW_POWER_MODE:
+=======
+	case PIN_CONFIG_MODE_LOW_POWER:
+>>>>>>> upstream/android-13
 	{
 		enum zynq_io_standards iostd = zynq_pinconf_iostd_get(reg);
 
@@ -1040,6 +1051,10 @@ static int zynq_pinconf_cfg_get(struct pinctrl_dev *pctldev,
 		break;
 	}
 	case PIN_CONFIG_IOSTANDARD:
+<<<<<<< HEAD
+=======
+	case PIN_CONFIG_POWER_SOURCE:
+>>>>>>> upstream/android-13
 		arg = zynq_pinconf_iostd_get(reg);
 		break;
 	default:
@@ -1090,6 +1105,10 @@ static int zynq_pinconf_cfg_set(struct pinctrl_dev *pctldev,
 
 			break;
 		case PIN_CONFIG_IOSTANDARD:
+<<<<<<< HEAD
+=======
+		case PIN_CONFIG_POWER_SOURCE:
+>>>>>>> upstream/android-13
 			if (arg <= zynq_iostd_min || arg >= zynq_iostd_max) {
 				dev_warn(pctldev->dev,
 					 "unsupported IO standard '%u'\n",
@@ -1099,7 +1118,11 @@ static int zynq_pinconf_cfg_set(struct pinctrl_dev *pctldev,
 			reg &= ~ZYNQ_PINCONF_IOTYPE_MASK;
 			reg |= arg << ZYNQ_PINCONF_IOTYPE_SHIFT;
 			break;
+<<<<<<< HEAD
 		case PIN_CONFIG_LOW_POWER_MODE:
+=======
+		case PIN_CONFIG_MODE_LOW_POWER:
+>>>>>>> upstream/android-13
 			if (arg)
 				reg |= ZYNQ_PINCONF_DISABLE_RECVR;
 			else

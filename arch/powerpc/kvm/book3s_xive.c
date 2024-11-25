@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 /*
  * Copyright 2017 Benjamin Herrenschmidt, IBM Corporation.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright 2017 Benjamin Herrenschmidt, IBM Corporation.
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) "xive-kvm: " fmt
@@ -17,6 +23,10 @@
 #include <linux/percpu.h>
 #include <linux/cpumask.h>
 #include <linux/uaccess.h>
+<<<<<<< HEAD
+=======
+#include <linux/irqdomain.h>
+>>>>>>> upstream/android-13
 #include <asm/kvm_book3s.h>
 #include <asm/kvm_ppc.h>
 #include <asm/hvcall.h>
@@ -24,7 +34,10 @@
 #include <asm/xive.h>
 #include <asm/xive-regs.h>
 #include <asm/debug.h>
+<<<<<<< HEAD
 #include <asm/debugfs.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/time.h>
 #include <asm/opal.h>
 
@@ -61,6 +74,164 @@
  */
 #define XIVE_Q_GAP	2
 
+<<<<<<< HEAD
+=======
+static bool kvmppc_xive_vcpu_has_save_restore(struct kvm_vcpu *vcpu)
+{
+	struct kvmppc_xive_vcpu *xc = vcpu->arch.xive_vcpu;
+
+	/* Check enablement at VP level */
+	return xc->vp_cam & TM_QW1W2_HO;
+}
+
+bool kvmppc_xive_check_save_restore(struct kvm_vcpu *vcpu)
+{
+	struct kvmppc_xive_vcpu *xc = vcpu->arch.xive_vcpu;
+	struct kvmppc_xive *xive = xc->xive;
+
+	if (xive->flags & KVMPPC_XIVE_FLAG_SAVE_RESTORE)
+		return kvmppc_xive_vcpu_has_save_restore(vcpu);
+
+	return true;
+}
+
+/*
+ * Push a vcpu's context to the XIVE on guest entry.
+ * This assumes we are in virtual mode (MMU on)
+ */
+void kvmppc_xive_push_vcpu(struct kvm_vcpu *vcpu)
+{
+	void __iomem *tima = local_paca->kvm_hstate.xive_tima_virt;
+	u64 pq;
+
+	/*
+	 * Nothing to do if the platform doesn't have a XIVE
+	 * or this vCPU doesn't have its own XIVE context
+	 * (e.g. because it's not using an in-kernel interrupt controller).
+	 */
+	if (!tima || !vcpu->arch.xive_cam_word)
+		return;
+
+	eieio();
+	if (!kvmppc_xive_vcpu_has_save_restore(vcpu))
+		__raw_writeq(vcpu->arch.xive_saved_state.w01, tima + TM_QW1_OS);
+	__raw_writel(vcpu->arch.xive_cam_word, tima + TM_QW1_OS + TM_WORD2);
+	vcpu->arch.xive_pushed = 1;
+	eieio();
+
+	/*
+	 * We clear the irq_pending flag. There is a small chance of a
+	 * race vs. the escalation interrupt happening on another
+	 * processor setting it again, but the only consequence is to
+	 * cause a spurious wakeup on the next H_CEDE, which is not an
+	 * issue.
+	 */
+	vcpu->arch.irq_pending = 0;
+
+	/*
+	 * In single escalation mode, if the escalation interrupt is
+	 * on, we mask it.
+	 */
+	if (vcpu->arch.xive_esc_on) {
+		pq = __raw_readq((void __iomem *)(vcpu->arch.xive_esc_vaddr +
+						  XIVE_ESB_SET_PQ_01));
+		mb();
+
+		/*
+		 * We have a possible subtle race here: The escalation
+		 * interrupt might have fired and be on its way to the
+		 * host queue while we mask it, and if we unmask it
+		 * early enough (re-cede right away), there is a
+		 * theorical possibility that it fires again, thus
+		 * landing in the target queue more than once which is
+		 * a big no-no.
+		 *
+		 * Fortunately, solving this is rather easy. If the
+		 * above load setting PQ to 01 returns a previous
+		 * value where P is set, then we know the escalation
+		 * interrupt is somewhere on its way to the host. In
+		 * that case we simply don't clear the xive_esc_on
+		 * flag below. It will be eventually cleared by the
+		 * handler for the escalation interrupt.
+		 *
+		 * Then, when doing a cede, we check that flag again
+		 * before re-enabling the escalation interrupt, and if
+		 * set, we abort the cede.
+		 */
+		if (!(pq & XIVE_ESB_VAL_P))
+			/* Now P is 0, we can clear the flag */
+			vcpu->arch.xive_esc_on = 0;
+	}
+}
+EXPORT_SYMBOL_GPL(kvmppc_xive_push_vcpu);
+
+/*
+ * Pull a vcpu's context from the XIVE on guest exit.
+ * This assumes we are in virtual mode (MMU on)
+ */
+void kvmppc_xive_pull_vcpu(struct kvm_vcpu *vcpu)
+{
+	void __iomem *tima = local_paca->kvm_hstate.xive_tima_virt;
+
+	if (!vcpu->arch.xive_pushed)
+		return;
+
+	/*
+	 * Should not have been pushed if there is no tima
+	 */
+	if (WARN_ON(!tima))
+		return;
+
+	eieio();
+	/* First load to pull the context, we ignore the value */
+	__raw_readl(tima + TM_SPC_PULL_OS_CTX);
+	/* Second load to recover the context state (Words 0 and 1) */
+	if (!kvmppc_xive_vcpu_has_save_restore(vcpu))
+		vcpu->arch.xive_saved_state.w01 = __raw_readq(tima + TM_QW1_OS);
+
+	/* Fixup some of the state for the next load */
+	vcpu->arch.xive_saved_state.lsmfb = 0;
+	vcpu->arch.xive_saved_state.ack = 0xff;
+	vcpu->arch.xive_pushed = 0;
+	eieio();
+}
+EXPORT_SYMBOL_GPL(kvmppc_xive_pull_vcpu);
+
+void kvmppc_xive_rearm_escalation(struct kvm_vcpu *vcpu)
+{
+	void __iomem *esc_vaddr = (void __iomem *)vcpu->arch.xive_esc_vaddr;
+
+	if (!esc_vaddr)
+		return;
+
+	/* we are using XIVE with single escalation */
+
+	if (vcpu->arch.xive_esc_on) {
+		/*
+		 * If we still have a pending escalation, abort the cede,
+		 * and we must set PQ to 10 rather than 00 so that we don't
+		 * potentially end up with two entries for the escalation
+		 * interrupt in the XIVE interrupt queue.  In that case
+		 * we also don't want to set xive_esc_on to 1 here in
+		 * case we race with xive_esc_irq().
+		 */
+		vcpu->arch.ceded = 0;
+		/*
+		 * The escalation interrupts are special as we don't EOI them.
+		 * There is no need to use the load-after-store ordering offset
+		 * to set PQ to 10 as we won't use StoreEOI.
+		 */
+		__raw_readq(esc_vaddr + XIVE_ESB_SET_PQ_10);
+	} else {
+		vcpu->arch.xive_esc_on = true;
+		mb();
+		__raw_readq(esc_vaddr + XIVE_ESB_SET_PQ_00);
+	}
+	mb();
+}
+EXPORT_SYMBOL_GPL(kvmppc_xive_rearm_escalation);
+
+>>>>>>> upstream/android-13
 /*
  * This is a simple trigger for a generic XIVE IRQ. This must
  * only be called for interrupts that support a trigger page
@@ -100,10 +271,21 @@ static irqreturn_t xive_esc_irq(int irq, void *data)
 	 */
 	vcpu->arch.xive_esc_on = false;
 
+<<<<<<< HEAD
 	return IRQ_HANDLED;
 }
 
 static int xive_attach_escalation(struct kvm_vcpu *vcpu, u8 prio)
+=======
+	/* This orders xive_esc_on = false vs. subsequent stale_p = true */
+	smp_wmb();	/* goes with smp_mb() in cleanup_single_escalation */
+
+	return IRQ_HANDLED;
+}
+
+int kvmppc_xive_attach_escalation(struct kvm_vcpu *vcpu, u8 prio,
+				  bool single_escalation)
+>>>>>>> upstream/android-13
 {
 	struct kvmppc_xive_vcpu *xc = vcpu->arch.xive_vcpu;
 	struct xive_q *q = &xc->queues[prio];
@@ -122,7 +304,11 @@ static int xive_attach_escalation(struct kvm_vcpu *vcpu, u8 prio)
 		return -EIO;
 	}
 
+<<<<<<< HEAD
 	if (xc->xive->single_escalation)
+=======
+	if (single_escalation)
+>>>>>>> upstream/android-13
 		name = kasprintf(GFP_KERNEL, "kvm-%d-%d",
 				 vcpu->kvm->arch.lpid, xc->server_num);
 	else
@@ -149,19 +335,31 @@ static int xive_attach_escalation(struct kvm_vcpu *vcpu, u8 prio)
 	/* In single escalation mode, we grab the ESB MMIO of the
 	 * interrupt and mask it. Also populate the VCPU v/raddr
 	 * of the ESB page for use by asm entry/exit code. Finally
+<<<<<<< HEAD
 	 * set the XIVE_IRQ_NO_EOI flag which will prevent the
+=======
+	 * set the XIVE_IRQ_FLAG_NO_EOI flag which will prevent the
+>>>>>>> upstream/android-13
 	 * core code from performing an EOI on the escalation
 	 * interrupt, thus leaving it effectively masked after
 	 * it fires once.
 	 */
+<<<<<<< HEAD
 	if (xc->xive->single_escalation) {
+=======
+	if (single_escalation) {
+>>>>>>> upstream/android-13
 		struct irq_data *d = irq_get_irq_data(xc->esc_virq[prio]);
 		struct xive_irq_data *xd = irq_data_get_irq_handler_data(d);
 
 		xive_vm_esb_load(xd, XIVE_ESB_SET_PQ_01);
 		vcpu->arch.xive_esc_raddr = xd->eoi_page;
 		vcpu->arch.xive_esc_vaddr = (__force u64)xd->eoi_mmio;
+<<<<<<< HEAD
 		xd->flags |= XIVE_IRQ_NO_EOI;
+=======
+		xd->flags |= XIVE_IRQ_FLAG_NO_EOI;
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
@@ -207,14 +405,22 @@ static int xive_provision_queue(struct kvm_vcpu *vcpu, u8 prio)
 	return rc;
 }
 
+<<<<<<< HEAD
 /* Called with kvm_lock held */
+=======
+/* Called with xive->lock held */
+>>>>>>> upstream/android-13
 static int xive_check_provisioning(struct kvm *kvm, u8 prio)
 {
 	struct kvmppc_xive *xive = kvm->arch.xive;
 	struct kvm_vcpu *vcpu;
 	int i, rc;
 
+<<<<<<< HEAD
 	lockdep_assert_held(&kvm->lock);
+=======
+	lockdep_assert_held(&xive->lock);
+>>>>>>> upstream/android-13
 
 	/* Already provisioned ? */
 	if (xive->qmap & (1 << prio))
@@ -227,8 +433,14 @@ static int xive_check_provisioning(struct kvm *kvm, u8 prio)
 		if (!vcpu->arch.xive_vcpu)
 			continue;
 		rc = xive_provision_queue(vcpu, prio);
+<<<<<<< HEAD
 		if (rc == 0 && !xive->single_escalation)
 			xive_attach_escalation(vcpu, prio);
+=======
+		if (rc == 0 && !kvmppc_xive_has_single_escalation(xive))
+			kvmppc_xive_attach_escalation(vcpu, prio,
+						      kvmppc_xive_has_single_escalation(xive));
+>>>>>>> upstream/android-13
 		if (rc)
 			return rc;
 	}
@@ -279,7 +491,11 @@ static int xive_try_pick_queue(struct kvm_vcpu *vcpu, u8 prio)
 	return atomic_add_unless(&q->count, 1, max) ? 0 : -EBUSY;
 }
 
+<<<<<<< HEAD
 static int xive_select_target(struct kvm *kvm, u32 *server, u8 prio)
+=======
+int kvmppc_xive_select_target(struct kvm *kvm, u32 *server, u8 prio)
+>>>>>>> upstream/android-13
 {
 	struct kvm_vcpu *vcpu;
 	int i, rc;
@@ -317,11 +533,14 @@ static int xive_select_target(struct kvm *kvm, u32 *server, u8 prio)
 	return -EBUSY;
 }
 
+<<<<<<< HEAD
 static u32 xive_vp(struct kvmppc_xive *xive, u32 server)
 {
 	return xive->vp_base + kvmppc_pack_vcpu_id(xive->kvm, server);
 }
 
+=======
+>>>>>>> upstream/android-13
 static u8 xive_lock_and_mask(struct kvmppc_xive *xive,
 			     struct kvmppc_xive_src_block *sb,
 			     struct kvmppc_xive_irq_state *state)
@@ -353,6 +572,7 @@ static u8 xive_lock_and_mask(struct kvmppc_xive *xive,
 	/* Get the right irq */
 	kvmppc_xive_select_irq(state, &hw_num, &xd);
 
+<<<<<<< HEAD
 	/*
 	 * If the interrupt is marked as needing masking via
 	 * firmware, we do it here. Firmware masking however
@@ -384,6 +604,18 @@ static u8 xive_lock_and_mask(struct kvmppc_xive *xive,
 		 */
 		xive_native_sync_source(hw_num);
 	}
+=======
+	/* Set PQ to 10, return old P and old Q and remember them */
+	val = xive_vm_esb_load(xd, XIVE_ESB_SET_PQ_10);
+	state->old_p = !!(val & 2);
+	state->old_q = !!(val & 1);
+
+	/*
+	 * Synchronize hardware to sensure the queues are updated when
+	 * masking
+	 */
+	xive_native_sync_source(hw_num);
+>>>>>>> upstream/android-13
 
 	return old_prio;
 }
@@ -417,6 +649,7 @@ static void xive_finish_unmask(struct kvmppc_xive *xive,
 	/* Get the right irq */
 	kvmppc_xive_select_irq(state, &hw_num, &xd);
 
+<<<<<<< HEAD
 	/*
 	 * See command in xive_lock_and_mask() concerning masking
 	 * via firmware.
@@ -434,6 +667,8 @@ static void xive_finish_unmask(struct kvmppc_xive *xive,
 		goto bail;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	/* Old Q set, set PQ to 11 */
 	if (state->old_q)
 		xive_vm_esb_load(xd, XIVE_ESB_SET_PQ_11);
@@ -472,7 +707,11 @@ static int xive_target_interrupt(struct kvm *kvm,
 	 * priority. The count for that new target will have
 	 * already been incremented.
 	 */
+<<<<<<< HEAD
 	rc = xive_select_target(kvm, &server, prio);
+=======
+	rc = kvmppc_xive_select_target(kvm, &server, prio);
+>>>>>>> upstream/android-13
 
 	/*
 	 * We failed to find a target ? Not much we can do
@@ -500,7 +739,11 @@ static int xive_target_interrupt(struct kvm *kvm,
 	kvmppc_xive_select_irq(state, &hw_num, NULL);
 
 	return xive_native_configure_irq(hw_num,
+<<<<<<< HEAD
 					 xive_vp(xive, server),
+=======
+					 kvmppc_xive_vp(xive, server),
+>>>>>>> upstream/android-13
 					 prio, state->number);
 }
 
@@ -561,9 +804,18 @@ int kvmppc_xive_set_xive(struct kvm *kvm, u32 irq, u32 server,
 		 irq, server, priority);
 
 	/* First, check provisioning of queues */
+<<<<<<< HEAD
 	if (priority != MASKED)
 		rc = xive_check_provisioning(xive->kvm,
 			      xive_prio_from_guest(priority));
+=======
+	if (priority != MASKED) {
+		mutex_lock(&xive->lock);
+		rc = xive_check_provisioning(xive->kvm,
+			      xive_prio_from_guest(priority));
+		mutex_unlock(&xive->lock);
+	}
+>>>>>>> upstream/android-13
 	if (rc) {
 		pr_devel("  provisioning failure %d !\n", rc);
 		return rc;
@@ -786,7 +1038,12 @@ int kvmppc_xive_set_icp(struct kvm_vcpu *vcpu, u64 icpval)
 
 	/*
 	 * We can't update the state of a "pushed" VCPU, but that
+<<<<<<< HEAD
 	 * shouldn't happen.
+=======
+	 * shouldn't happen because the vcpu->mutex makes running a
+	 * vcpu mutually exclusive with doing one_reg get/set on it.
+>>>>>>> upstream/android-13
 	 */
 	if (WARN_ON(vcpu->arch.xive_pushed))
 		return -EIO;
@@ -824,13 +1081,22 @@ int kvmppc_xive_set_icp(struct kvm_vcpu *vcpu, u64 icpval)
 }
 
 int kvmppc_xive_set_mapped(struct kvm *kvm, unsigned long guest_irq,
+<<<<<<< HEAD
 			   struct irq_desc *host_desc)
+=======
+			   unsigned long host_irq)
+>>>>>>> upstream/android-13
 {
 	struct kvmppc_xive *xive = kvm->arch.xive;
 	struct kvmppc_xive_src_block *sb;
 	struct kvmppc_xive_irq_state *state;
+<<<<<<< HEAD
 	struct irq_data *host_data = irq_desc_get_irq_data(host_desc);
 	unsigned int host_irq = irq_desc_get_irq(host_desc);
+=======
+	struct irq_data *host_data =
+		irq_domain_get_irq_data(irq_get_default_host(), host_irq);
+>>>>>>> upstream/android-13
 	unsigned int hw_irq = (unsigned int)irqd_to_hwirq(host_data);
 	u16 idx;
 	u8 prio;
@@ -839,7 +1105,12 @@ int kvmppc_xive_set_mapped(struct kvm *kvm, unsigned long guest_irq,
 	if (!xive)
 		return -ENODEV;
 
+<<<<<<< HEAD
 	pr_devel("set_mapped girq 0x%lx host HW irq 0x%x...\n",guest_irq, hw_irq);
+=======
+	pr_debug("%s: GIRQ 0x%lx host IRQ %ld XIVE HW IRQ 0x%x\n",
+		 __func__, guest_irq, host_irq, hw_irq);
+>>>>>>> upstream/android-13
 
 	sb = kvmppc_xive_find_source(xive, guest_irq, &idx);
 	if (!sb)
@@ -861,7 +1132,11 @@ int kvmppc_xive_set_mapped(struct kvm *kvm, unsigned long guest_irq,
 	 */
 	rc = irq_set_vcpu_affinity(host_irq, state);
 	if (rc) {
+<<<<<<< HEAD
 		pr_err("Failed to set VCPU affinity for irq %d\n", host_irq);
+=======
+		pr_err("Failed to set VCPU affinity for host IRQ %ld\n", host_irq);
+>>>>>>> upstream/android-13
 		return rc;
 	}
 
@@ -877,6 +1152,16 @@ int kvmppc_xive_set_mapped(struct kvm *kvm, unsigned long guest_irq,
 	/* Turn the IPI hard off */
 	xive_vm_esb_load(&state->ipi_data, XIVE_ESB_SET_PQ_01);
 
+<<<<<<< HEAD
+=======
+	/*
+	 * Reset ESB guest mapping. Needed when ESB pages are exposed
+	 * to the guest in XIVE native mode
+	 */
+	if (xive->ops && xive->ops->reset_mapped)
+		xive->ops->reset_mapped(kvm, guest_irq);
+
+>>>>>>> upstream/android-13
 	/* Grab info about irq */
 	state->pt_number = hw_irq;
 	state->pt_data = irq_data_get_irq_handler_data(host_data);
@@ -888,7 +1173,11 @@ int kvmppc_xive_set_mapped(struct kvm *kvm, unsigned long guest_irq,
 	 * which is fine for a never started interrupt.
 	 */
 	xive_native_configure_irq(hw_irq,
+<<<<<<< HEAD
 				  xive_vp(xive, state->act_server),
+=======
+				  kvmppc_xive_vp(xive, state->act_server),
+>>>>>>> upstream/android-13
 				  state->act_priority, state->number);
 
 	/*
@@ -914,12 +1203,19 @@ int kvmppc_xive_set_mapped(struct kvm *kvm, unsigned long guest_irq,
 EXPORT_SYMBOL_GPL(kvmppc_xive_set_mapped);
 
 int kvmppc_xive_clr_mapped(struct kvm *kvm, unsigned long guest_irq,
+<<<<<<< HEAD
 			   struct irq_desc *host_desc)
+=======
+			   unsigned long host_irq)
+>>>>>>> upstream/android-13
 {
 	struct kvmppc_xive *xive = kvm->arch.xive;
 	struct kvmppc_xive_src_block *sb;
 	struct kvmppc_xive_irq_state *state;
+<<<<<<< HEAD
 	unsigned int host_irq = irq_desc_get_irq(host_desc);
+=======
+>>>>>>> upstream/android-13
 	u16 idx;
 	u8 prio;
 	int rc;
@@ -927,7 +1223,11 @@ int kvmppc_xive_clr_mapped(struct kvm *kvm, unsigned long guest_irq,
 	if (!xive)
 		return -ENODEV;
 
+<<<<<<< HEAD
 	pr_devel("clr_mapped girq 0x%lx...\n", guest_irq);
+=======
+	pr_debug("%s: GIRQ 0x%lx host IRQ %ld\n", __func__, guest_irq, host_irq);
+>>>>>>> upstream/android-13
 
 	sb = kvmppc_xive_find_source(xive, guest_irq, &idx);
 	if (!sb)
@@ -954,7 +1254,11 @@ int kvmppc_xive_clr_mapped(struct kvm *kvm, unsigned long guest_irq,
 	/* Release the passed-through interrupt to the host */
 	rc = irq_set_vcpu_affinity(host_irq, NULL);
 	if (rc) {
+<<<<<<< HEAD
 		pr_err("Failed to clr VCPU affinity for irq %d\n", host_irq);
+=======
+		pr_err("Failed to clr VCPU affinity for host IRQ %ld\n", host_irq);
+>>>>>>> upstream/android-13
 		return rc;
 	}
 
@@ -962,9 +1266,23 @@ int kvmppc_xive_clr_mapped(struct kvm *kvm, unsigned long guest_irq,
 	state->pt_number = 0;
 	state->pt_data = NULL;
 
+<<<<<<< HEAD
 	/* Reconfigure the IPI */
 	xive_native_configure_irq(state->ipi_number,
 				  xive_vp(xive, state->act_server),
+=======
+	/*
+	 * Reset ESB guest mapping. Needed when ESB pages are exposed
+	 * to the guest in XIVE native mode
+	 */
+	if (xive->ops && xive->ops->reset_mapped) {
+		xive->ops->reset_mapped(kvm, guest_irq);
+	}
+
+	/* Reconfigure the IPI */
+	xive_native_configure_irq(state->ipi_number,
+				  kvmppc_xive_vp(xive, state->act_server),
+>>>>>>> upstream/android-13
 				  state->act_priority, state->number);
 
 	/*
@@ -986,7 +1304,11 @@ int kvmppc_xive_clr_mapped(struct kvm *kvm, unsigned long guest_irq,
 }
 EXPORT_SYMBOL_GPL(kvmppc_xive_clr_mapped);
 
+<<<<<<< HEAD
 static void kvmppc_xive_disable_vcpu_interrupts(struct kvm_vcpu *vcpu)
+=======
+void kvmppc_xive_disable_vcpu_interrupts(struct kvm_vcpu *vcpu)
+>>>>>>> upstream/android-13
 {
 	struct kvmppc_xive_vcpu *xc = vcpu->arch.xive_vcpu;
 	struct kvm *kvm = vcpu->kvm;
@@ -1020,14 +1342,69 @@ static void kvmppc_xive_disable_vcpu_interrupts(struct kvm_vcpu *vcpu)
 			arch_spin_unlock(&sb->lock);
 		}
 	}
+<<<<<<< HEAD
+=======
+
+	/* Disable vcpu's escalation interrupt */
+	if (vcpu->arch.xive_esc_on) {
+		__raw_readq((void __iomem *)(vcpu->arch.xive_esc_vaddr +
+					     XIVE_ESB_SET_PQ_01));
+		vcpu->arch.xive_esc_on = false;
+	}
+
+	/*
+	 * Clear pointers to escalation interrupt ESB.
+	 * This is safe because the vcpu->mutex is held, preventing
+	 * any other CPU from concurrently executing a KVM_RUN ioctl.
+	 */
+	vcpu->arch.xive_esc_vaddr = 0;
+	vcpu->arch.xive_esc_raddr = 0;
+}
+
+/*
+ * In single escalation mode, the escalation interrupt is marked so
+ * that EOI doesn't re-enable it, but just sets the stale_p flag to
+ * indicate that the P bit has already been dealt with.  However, the
+ * assembly code that enters the guest sets PQ to 00 without clearing
+ * stale_p (because it has no easy way to address it).  Hence we have
+ * to adjust stale_p before shutting down the interrupt.
+ */
+void xive_cleanup_single_escalation(struct kvm_vcpu *vcpu,
+				    struct kvmppc_xive_vcpu *xc, int irq)
+{
+	struct irq_data *d = irq_get_irq_data(irq);
+	struct xive_irq_data *xd = irq_data_get_irq_handler_data(d);
+
+	/*
+	 * This slightly odd sequence gives the right result
+	 * (i.e. stale_p set if xive_esc_on is false) even if
+	 * we race with xive_esc_irq() and xive_irq_eoi().
+	 */
+	xd->stale_p = false;
+	smp_mb();		/* paired with smb_wmb in xive_esc_irq */
+	if (!vcpu->arch.xive_esc_on)
+		xd->stale_p = true;
+>>>>>>> upstream/android-13
 }
 
 void kvmppc_xive_cleanup_vcpu(struct kvm_vcpu *vcpu)
 {
 	struct kvmppc_xive_vcpu *xc = vcpu->arch.xive_vcpu;
+<<<<<<< HEAD
 	struct kvmppc_xive *xive = xc->xive;
 	int i;
 
+=======
+	struct kvmppc_xive *xive = vcpu->kvm->arch.xive;
+	int i;
+
+	if (!kvmppc_xics_enabled(vcpu))
+		return;
+
+	if (!xc)
+		return;
+
+>>>>>>> upstream/android-13
 	pr_devel("cleanup_vcpu(cpu=%d)\n", xc->server_num);
 
 	/* Ensure no interrupt is still routed to that VP */
@@ -1040,6 +1417,12 @@ void kvmppc_xive_cleanup_vcpu(struct kvm_vcpu *vcpu)
 	/* Free escalations */
 	for (i = 0; i < KVMPPC_XIVE_Q_COUNT; i++) {
 		if (xc->esc_virq[i]) {
+<<<<<<< HEAD
+=======
+			if (kvmppc_xive_has_single_escalation(xc->xive))
+				xive_cleanup_single_escalation(vcpu, xc,
+							xc->esc_virq[i]);
+>>>>>>> upstream/android-13
 			free_irq(xc->esc_virq[i], vcpu);
 			irq_dispose_mapping(xc->esc_virq[i]);
 			kfree(xc->esc_virq_names[i]);
@@ -1049,6 +1432,12 @@ void kvmppc_xive_cleanup_vcpu(struct kvm_vcpu *vcpu)
 	/* Disable the VP */
 	xive_native_disable_vp(xc->vp_id);
 
+<<<<<<< HEAD
+=======
+	/* Clear the cam word so guest entry won't try to push context */
+	vcpu->arch.xive_cam_word = 0;
+
+>>>>>>> upstream/android-13
 	/* Free the queues */
 	for (i = 0; i < KVMPPC_XIVE_Q_COUNT; i++) {
 		struct xive_q *q = &xc->queues[i];
@@ -1068,6 +1457,49 @@ void kvmppc_xive_cleanup_vcpu(struct kvm_vcpu *vcpu)
 	}
 	/* Free the VP */
 	kfree(xc);
+<<<<<<< HEAD
+=======
+
+	/* Cleanup the vcpu */
+	vcpu->arch.irq_type = KVMPPC_IRQ_DEFAULT;
+	vcpu->arch.xive_vcpu = NULL;
+}
+
+static bool kvmppc_xive_vcpu_id_valid(struct kvmppc_xive *xive, u32 cpu)
+{
+	/* We have a block of xive->nr_servers VPs. We just need to check
+	 * packed vCPU ids are below that.
+	 */
+	return kvmppc_pack_vcpu_id(xive->kvm, cpu) < xive->nr_servers;
+}
+
+int kvmppc_xive_compute_vp_id(struct kvmppc_xive *xive, u32 cpu, u32 *vp)
+{
+	u32 vp_id;
+
+	if (!kvmppc_xive_vcpu_id_valid(xive, cpu)) {
+		pr_devel("Out of bounds !\n");
+		return -EINVAL;
+	}
+
+	if (xive->vp_base == XIVE_INVALID_VP) {
+		xive->vp_base = xive_native_alloc_vp_block(xive->nr_servers);
+		pr_devel("VP_Base=%x nr_servers=%d\n", xive->vp_base, xive->nr_servers);
+
+		if (xive->vp_base == XIVE_INVALID_VP)
+			return -ENOSPC;
+	}
+
+	vp_id = kvmppc_xive_vp(xive, cpu);
+	if (kvmppc_xive_vp_in_use(xive->kvm, vp_id)) {
+		pr_devel("Duplicate !\n");
+		return -EEXIST;
+	}
+
+	*vp = vp_id;
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 int kvmppc_xive_connect_vcpu(struct kvm_device *dev,
@@ -1076,6 +1508,10 @@ int kvmppc_xive_connect_vcpu(struct kvm_device *dev,
 	struct kvmppc_xive *xive = dev->private;
 	struct kvmppc_xive_vcpu *xc;
 	int i, r = -EBUSY;
+<<<<<<< HEAD
+=======
+	u32 vp_id;
+>>>>>>> upstream/android-13
 
 	pr_devel("connect_vcpu(cpu=%d)\n", cpu);
 
@@ -1085,6 +1521,7 @@ int kvmppc_xive_connect_vcpu(struct kvm_device *dev,
 	}
 	if (xive->kvm != vcpu->kvm)
 		return -EPERM;
+<<<<<<< HEAD
 	if (vcpu->arch.irq_type)
 		return -EBUSY;
 	if (kvmppc_xive_find_server(vcpu->kvm, cpu)) {
@@ -1101,11 +1538,33 @@ int kvmppc_xive_connect_vcpu(struct kvm_device *dev,
 
 	/* We need to synchronize with queue provisioning */
 	mutex_lock(&vcpu->kvm->lock);
+=======
+	if (vcpu->arch.irq_type != KVMPPC_IRQ_DEFAULT)
+		return -EBUSY;
+
+	/* We need to synchronize with queue provisioning */
+	mutex_lock(&xive->lock);
+
+	r = kvmppc_xive_compute_vp_id(xive, cpu, &vp_id);
+	if (r)
+		goto bail;
+
+	xc = kzalloc(sizeof(*xc), GFP_KERNEL);
+	if (!xc) {
+		r = -ENOMEM;
+		goto bail;
+	}
+
+>>>>>>> upstream/android-13
 	vcpu->arch.xive_vcpu = xc;
 	xc->xive = xive;
 	xc->vcpu = vcpu;
 	xc->server_num = cpu;
+<<<<<<< HEAD
 	xc->vp_id = xive_vp(xive, cpu);
+=======
+	xc->vp_id = vp_id;
+>>>>>>> upstream/android-13
 	xc->mfrr = 0xff;
 	xc->valid = true;
 
@@ -1113,6 +1572,15 @@ int kvmppc_xive_connect_vcpu(struct kvm_device *dev,
 	if (r)
 		goto bail;
 
+<<<<<<< HEAD
+=======
+	if (!kvmppc_xive_check_save_restore(vcpu)) {
+		pr_err("inconsistent save-restore setup for VCPU %d\n", cpu);
+		r = -EIO;
+		goto bail;
+	}
+
+>>>>>>> upstream/android-13
 	/* Configure VCPU fields for use by assembly push/pull */
 	vcpu->arch.xive_saved_state.w01 = cpu_to_be64(0xff000000);
 	vcpu->arch.xive_cam_word = cpu_to_be32(xc->vp_cam | TM_QW1W2_VO);
@@ -1134,7 +1602,11 @@ int kvmppc_xive_connect_vcpu(struct kvm_device *dev,
 	 * Enable the VP first as the single escalation mode will
 	 * affect escalation interrupts numbering
 	 */
+<<<<<<< HEAD
 	r = xive_native_enable_vp(xc->vp_id, xive->single_escalation);
+=======
+	r = xive_native_enable_vp(xc->vp_id, kvmppc_xive_has_single_escalation(xive));
+>>>>>>> upstream/android-13
 	if (r) {
 		pr_err("Failed to enable VP in OPAL, err %d\n", r);
 		goto bail;
@@ -1151,14 +1623,24 @@ int kvmppc_xive_connect_vcpu(struct kvm_device *dev,
 		struct xive_q *q = &xc->queues[i];
 
 		/* Single escalation, no queue 7 */
+<<<<<<< HEAD
 		if (i == 7 && xive->single_escalation)
+=======
+		if (i == 7 && kvmppc_xive_has_single_escalation(xive))
+>>>>>>> upstream/android-13
 			break;
 
 		/* Is queue already enabled ? Provision it */
 		if (xive->qmap & (1 << i)) {
 			r = xive_provision_queue(vcpu, i);
+<<<<<<< HEAD
 			if (r == 0 && !xive->single_escalation)
 				xive_attach_escalation(vcpu, i);
+=======
+			if (r == 0 && !kvmppc_xive_has_single_escalation(xive))
+				kvmppc_xive_attach_escalation(
+					vcpu, i, kvmppc_xive_has_single_escalation(xive));
+>>>>>>> upstream/android-13
 			if (r)
 				goto bail;
 		} else {
@@ -1173,7 +1655,11 @@ int kvmppc_xive_connect_vcpu(struct kvm_device *dev,
 	}
 
 	/* If not done above, attach priority 0 escalation */
+<<<<<<< HEAD
 	r = xive_attach_escalation(vcpu, 0);
+=======
+	r = kvmppc_xive_attach_escalation(vcpu, 0, kvmppc_xive_has_single_escalation(xive));
+>>>>>>> upstream/android-13
 	if (r)
 		goto bail;
 
@@ -1183,7 +1669,11 @@ int kvmppc_xive_connect_vcpu(struct kvm_device *dev,
 		xive_vm_esb_load(&xc->vp_ipi_data, XIVE_ESB_SET_PQ_00);
 
 bail:
+<<<<<<< HEAD
 	mutex_unlock(&vcpu->kvm->lock);
+=======
+	mutex_unlock(&xive->lock);
+>>>>>>> upstream/android-13
 	if (r) {
 		kvmppc_xive_cleanup_vcpu(vcpu);
 		return r;
@@ -1424,16 +1914,26 @@ static int xive_get_source(struct kvmppc_xive *xive, long irq, u64 addr)
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct kvmppc_xive_src_block *xive_create_src_block(struct kvmppc_xive *xive,
 							   int irq)
 {
 	struct kvm *kvm = xive->kvm;
+=======
+struct kvmppc_xive_src_block *kvmppc_xive_create_src_block(
+	struct kvmppc_xive *xive, int irq)
+{
+>>>>>>> upstream/android-13
 	struct kvmppc_xive_src_block *sb;
 	int i, bid;
 
 	bid = irq >> KVMPPC_XICS_ICS_SHIFT;
 
+<<<<<<< HEAD
 	mutex_lock(&kvm->lock);
+=======
+	mutex_lock(&xive->lock);
+>>>>>>> upstream/android-13
 
 	/* block already exists - somebody else got here first */
 	if (xive->src_blocks[bid])
@@ -1448,6 +1948,10 @@ static struct kvmppc_xive_src_block *xive_create_src_block(struct kvmppc_xive *x
 
 	for (i = 0; i < KVMPPC_XICS_IRQ_PER_ICS; i++) {
 		sb->irq_state[i].number = (bid << KVMPPC_XICS_ICS_SHIFT) | i;
+<<<<<<< HEAD
+=======
+		sb->irq_state[i].eisn = 0;
+>>>>>>> upstream/android-13
 		sb->irq_state[i].guest_priority = MASKED;
 		sb->irq_state[i].saved_priority = MASKED;
 		sb->irq_state[i].act_priority = MASKED;
@@ -1459,7 +1963,11 @@ static struct kvmppc_xive_src_block *xive_create_src_block(struct kvmppc_xive *x
 		xive->max_sbid = bid;
 
 out:
+<<<<<<< HEAD
 	mutex_unlock(&kvm->lock);
+=======
+	mutex_unlock(&xive->lock);
+>>>>>>> upstream/android-13
 	return xive->src_blocks[bid];
 }
 
@@ -1504,7 +2012,11 @@ static int xive_set_source(struct kvmppc_xive *xive, long irq, u64 addr)
 	sb = kvmppc_xive_find_source(xive, irq, &idx);
 	if (!sb) {
 		pr_devel("No source, creating source block...\n");
+<<<<<<< HEAD
 		sb = xive_create_src_block(xive, irq);
+=======
+		sb = kvmppc_xive_create_src_block(xive, irq);
+>>>>>>> upstream/android-13
 		if (!sb) {
 			pr_devel("Failed to create block...\n");
 			return -ENOMEM;
@@ -1569,9 +2081,15 @@ static int xive_set_source(struct kvmppc_xive *xive, long irq, u64 addr)
 	/* If we have a priority target the interrupt */
 	if (act_prio != MASKED) {
 		/* First, check provisioning of queues */
+<<<<<<< HEAD
 		mutex_lock(&xive->kvm->lock);
 		rc = xive_check_provisioning(xive->kvm, act_prio);
 		mutex_unlock(&xive->kvm->lock);
+=======
+		mutex_lock(&xive->lock);
+		rc = xive_check_provisioning(xive->kvm, act_prio);
+		mutex_unlock(&xive->lock);
+>>>>>>> upstream/android-13
 
 		/* Target interrupt */
 		if (rc == 0)
@@ -1672,9 +2190,15 @@ int kvmppc_xive_set_irq(struct kvm *kvm, int irq_source_id, u32 irq, int level,
 		return -EINVAL;
 
 	if ((level == 1 && state->lsi) || level == KVM_INTERRUPT_SET_LEVEL)
+<<<<<<< HEAD
 		state->asserted = 1;
 	else if (level == 0 || level == KVM_INTERRUPT_UNSET) {
 		state->asserted = 0;
+=======
+		state->asserted = true;
+	else if (level == 0 || level == KVM_INTERRUPT_UNSET) {
+		state->asserted = false;
+>>>>>>> upstream/android-13
 		return 0;
 	}
 
@@ -1684,6 +2208,46 @@ int kvmppc_xive_set_irq(struct kvm *kvm, int irq_source_id, u32 irq, int level,
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+int kvmppc_xive_set_nr_servers(struct kvmppc_xive *xive, u64 addr)
+{
+	u32 __user *ubufp = (u32 __user *) addr;
+	u32 nr_servers;
+	int rc = 0;
+
+	if (get_user(nr_servers, ubufp))
+		return -EFAULT;
+
+	pr_devel("%s nr_servers=%u\n", __func__, nr_servers);
+
+	if (!nr_servers || nr_servers > KVM_MAX_VCPU_ID)
+		return -EINVAL;
+
+	mutex_lock(&xive->lock);
+	if (xive->vp_base != XIVE_INVALID_VP)
+		/* The VP block is allocated once and freed when the device
+		 * is released. Better not allow to change its size since its
+		 * used by connect_vcpu to validate vCPU ids are valid (eg,
+		 * setting it back to a higher value could allow connect_vcpu
+		 * to come up with a VP id that goes beyond the VP block, which
+		 * is likely to cause a crash in OPAL).
+		 */
+		rc = -EBUSY;
+	else if (nr_servers > KVM_MAX_VCPUS)
+		/* We don't need more servers. Higher vCPU ids get packed
+		 * down below KVM_MAX_VCPUS by kvmppc_pack_vcpu_id().
+		 */
+		xive->nr_servers = KVM_MAX_VCPUS;
+	else
+		xive->nr_servers = nr_servers;
+
+	mutex_unlock(&xive->lock);
+
+	return rc;
+}
+
+>>>>>>> upstream/android-13
 static int xive_set_attr(struct kvm_device *dev, struct kvm_device_attr *attr)
 {
 	struct kvmppc_xive *xive = dev->private;
@@ -1692,6 +2256,14 @@ static int xive_set_attr(struct kvm_device *dev, struct kvm_device_attr *attr)
 	switch (attr->group) {
 	case KVM_DEV_XICS_GRP_SOURCES:
 		return xive_set_source(xive, attr->attr, attr->addr);
+<<<<<<< HEAD
+=======
+	case KVM_DEV_XICS_GRP_CTRL:
+		switch (attr->attr) {
+		case KVM_DEV_XICS_NR_SERVERS:
+			return kvmppc_xive_set_nr_servers(xive, attr->addr);
+		}
+>>>>>>> upstream/android-13
 	}
 	return -ENXIO;
 }
@@ -1717,6 +2289,14 @@ static int xive_has_attr(struct kvm_device *dev, struct kvm_device_attr *attr)
 		    attr->attr < KVMPPC_XICS_NR_IRQS)
 			return 0;
 		break;
+<<<<<<< HEAD
+=======
+	case KVM_DEV_XICS_GRP_CTRL:
+		switch (attr->attr) {
+		case KVM_DEV_XICS_NR_SERVERS:
+			return 0;
+		}
+>>>>>>> upstream/android-13
 	}
 	return -ENXIO;
 }
@@ -1727,7 +2307,11 @@ static void kvmppc_xive_cleanup_irq(u32 hw_num, struct xive_irq_data *xd)
 	xive_native_configure_irq(hw_num, 0, MASKED, 0);
 }
 
+<<<<<<< HEAD
 static void kvmppc_xive_free_sources(struct kvmppc_xive_src_block *sb)
+=======
+void kvmppc_xive_free_sources(struct kvmppc_xive_src_block *sb)
+>>>>>>> upstream/android-13
 {
 	int i;
 
@@ -1749,6 +2333,7 @@ static void kvmppc_xive_free_sources(struct kvmppc_xive_src_block *sb)
 	}
 }
 
+<<<<<<< HEAD
 static void kvmppc_xive_free(struct kvm_device *dev)
 {
 	struct kvmppc_xive *xive = dev->private;
@@ -1759,6 +2344,55 @@ static void kvmppc_xive_free(struct kvm_device *dev)
 
 	if (kvm)
 		kvm->arch.xive = NULL;
+=======
+/*
+ * Called when device fd is closed.  kvm->lock is held.
+ */
+static void kvmppc_xive_release(struct kvm_device *dev)
+{
+	struct kvmppc_xive *xive = dev->private;
+	struct kvm *kvm = xive->kvm;
+	struct kvm_vcpu *vcpu;
+	int i;
+
+	pr_devel("Releasing xive device\n");
+
+	/*
+	 * Since this is the device release function, we know that
+	 * userspace does not have any open fd referring to the
+	 * device.  Therefore there can not be any of the device
+	 * attribute set/get functions being executed concurrently,
+	 * and similarly, the connect_vcpu and set/clr_mapped
+	 * functions also cannot be being executed.
+	 */
+
+	debugfs_remove(xive->dentry);
+
+	/*
+	 * We should clean up the vCPU interrupt presenters first.
+	 */
+	kvm_for_each_vcpu(i, vcpu, kvm) {
+		/*
+		 * Take vcpu->mutex to ensure that no one_reg get/set ioctl
+		 * (i.e. kvmppc_xive_[gs]et_icp) can be done concurrently.
+		 * Holding the vcpu->mutex also means that the vcpu cannot
+		 * be executing the KVM_RUN ioctl, and therefore it cannot
+		 * be executing the XIVE push or pull code or accessing
+		 * the XIVE MMIO regions.
+		 */
+		mutex_lock(&vcpu->mutex);
+		kvmppc_xive_cleanup_vcpu(vcpu);
+		mutex_unlock(&vcpu->mutex);
+	}
+
+	/*
+	 * Now that we have cleared vcpu->arch.xive_vcpu, vcpu->arch.irq_type
+	 * and vcpu->arch.xive_esc_[vr]addr on each vcpu, we are safe
+	 * against xive code getting called during vcpu execution or
+	 * set/get one_reg operations.
+	 */
+	kvm->arch.xive = NULL;
+>>>>>>> upstream/android-13
 
 	/* Mask and free interrupts */
 	for (i = 0; i <= xive->max_sbid; i++) {
@@ -1771,32 +2405,89 @@ static void kvmppc_xive_free(struct kvm_device *dev)
 	if (xive->vp_base != XIVE_INVALID_VP)
 		xive_native_free_vp_block(xive->vp_base);
 
+<<<<<<< HEAD
 
 	kfree(xive);
 	kfree(dev);
 }
 
+=======
+	/*
+	 * A reference of the kvmppc_xive pointer is now kept under
+	 * the xive_devices struct of the machine for reuse. It is
+	 * freed when the VM is destroyed for now until we fix all the
+	 * execution paths.
+	 */
+
+	kfree(dev);
+}
+
+/*
+ * When the guest chooses the interrupt mode (XICS legacy or XIVE
+ * native), the VM will switch of KVM device. The previous device will
+ * be "released" before the new one is created.
+ *
+ * Until we are sure all execution paths are well protected, provide a
+ * fail safe (transitional) method for device destruction, in which
+ * the XIVE device pointer is recycled and not directly freed.
+ */
+struct kvmppc_xive *kvmppc_xive_get_device(struct kvm *kvm, u32 type)
+{
+	struct kvmppc_xive **kvm_xive_device = type == KVM_DEV_TYPE_XIVE ?
+		&kvm->arch.xive_devices.native :
+		&kvm->arch.xive_devices.xics_on_xive;
+	struct kvmppc_xive *xive = *kvm_xive_device;
+
+	if (!xive) {
+		xive = kzalloc(sizeof(*xive), GFP_KERNEL);
+		*kvm_xive_device = xive;
+	} else {
+		memset(xive, 0, sizeof(*xive));
+	}
+
+	return xive;
+}
+
+/*
+ * Create a XICS device with XIVE backend.  kvm->lock is held.
+ */
+>>>>>>> upstream/android-13
 static int kvmppc_xive_create(struct kvm_device *dev, u32 type)
 {
 	struct kvmppc_xive *xive;
 	struct kvm *kvm = dev->kvm;
+<<<<<<< HEAD
 	int ret = 0;
 
 	pr_devel("Creating xive for partition\n");
 
 	xive = kzalloc(sizeof(*xive), GFP_KERNEL);
+=======
+
+	pr_devel("Creating xive for partition\n");
+
+	/* Already there ? */
+	if (kvm->arch.xive)
+		return -EEXIST;
+
+	xive = kvmppc_xive_get_device(kvm, type);
+>>>>>>> upstream/android-13
 	if (!xive)
 		return -ENOMEM;
 
 	dev->private = xive;
 	xive->dev = dev;
 	xive->kvm = kvm;
+<<<<<<< HEAD
 
 	/* Already there ? */
 	if (kvm->arch.xive)
 		ret = -EEXIST;
 	else
 		kvm->arch.xive = xive;
+=======
+	mutex_init(&xive->lock);
+>>>>>>> upstream/android-13
 
 	/* We use the default queue size set by the host */
 	xive->q_order = xive_native_default_eq_shift();
@@ -1805,6 +2496,7 @@ static int kvmppc_xive_create(struct kvm_device *dev, u32 type)
 	else
 		xive->q_page_order = xive->q_order - PAGE_SHIFT;
 
+<<<<<<< HEAD
 	/* Allocate a bunch of VPs */
 	xive->vp_base = xive_native_alloc_vp_block(KVM_MAX_VCPUS);
 	pr_devel("VP_Base=%x\n", xive->vp_base);
@@ -1822,6 +2514,129 @@ static int kvmppc_xive_create(struct kvm_device *dev, u32 type)
 	return 0;
 }
 
+=======
+	/* VP allocation is delayed to the first call to connect_vcpu */
+	xive->vp_base = XIVE_INVALID_VP;
+	/* KVM_MAX_VCPUS limits the number of VMs to roughly 64 per sockets
+	 * on a POWER9 system.
+	 */
+	xive->nr_servers = KVM_MAX_VCPUS;
+
+	if (xive_native_has_single_escalation())
+		xive->flags |= KVMPPC_XIVE_FLAG_SINGLE_ESCALATION;
+
+	if (xive_native_has_save_restore())
+		xive->flags |= KVMPPC_XIVE_FLAG_SAVE_RESTORE;
+
+	kvm->arch.xive = xive;
+	return 0;
+}
+
+int kvmppc_xive_xics_hcall(struct kvm_vcpu *vcpu, u32 req)
+{
+	struct kvmppc_vcore *vc = vcpu->arch.vcore;
+
+	/* The VM should have configured XICS mode before doing XICS hcalls. */
+	if (!kvmppc_xics_enabled(vcpu))
+		return H_TOO_HARD;
+
+	switch (req) {
+	case H_XIRR:
+		return xive_vm_h_xirr(vcpu);
+	case H_CPPR:
+		return xive_vm_h_cppr(vcpu, kvmppc_get_gpr(vcpu, 4));
+	case H_EOI:
+		return xive_vm_h_eoi(vcpu, kvmppc_get_gpr(vcpu, 4));
+	case H_IPI:
+		return xive_vm_h_ipi(vcpu, kvmppc_get_gpr(vcpu, 4),
+					  kvmppc_get_gpr(vcpu, 5));
+	case H_IPOLL:
+		return xive_vm_h_ipoll(vcpu, kvmppc_get_gpr(vcpu, 4));
+	case H_XIRR_X:
+		xive_vm_h_xirr(vcpu);
+		kvmppc_set_gpr(vcpu, 5, get_tb() + vc->tb_offset);
+		return H_SUCCESS;
+	}
+
+	return H_UNSUPPORTED;
+}
+EXPORT_SYMBOL_GPL(kvmppc_xive_xics_hcall);
+
+int kvmppc_xive_debug_show_queues(struct seq_file *m, struct kvm_vcpu *vcpu)
+{
+	struct kvmppc_xive_vcpu *xc = vcpu->arch.xive_vcpu;
+	unsigned int i;
+
+	for (i = 0; i < KVMPPC_XIVE_Q_COUNT; i++) {
+		struct xive_q *q = &xc->queues[i];
+		u32 i0, i1, idx;
+
+		if (!q->qpage && !xc->esc_virq[i])
+			continue;
+
+		if (q->qpage) {
+			seq_printf(m, "    q[%d]: ", i);
+			idx = q->idx;
+			i0 = be32_to_cpup(q->qpage + idx);
+			idx = (idx + 1) & q->msk;
+			i1 = be32_to_cpup(q->qpage + idx);
+			seq_printf(m, "T=%d %08x %08x...\n", q->toggle,
+				   i0, i1);
+		}
+		if (xc->esc_virq[i]) {
+			struct irq_data *d = irq_get_irq_data(xc->esc_virq[i]);
+			struct xive_irq_data *xd =
+				irq_data_get_irq_handler_data(d);
+			u64 pq = xive_vm_esb_load(xd, XIVE_ESB_GET);
+
+			seq_printf(m, "    ESC %d %c%c EOI @%llx",
+				   xc->esc_virq[i],
+				   (pq & XIVE_ESB_VAL_P) ? 'P' : '-',
+				   (pq & XIVE_ESB_VAL_Q) ? 'Q' : '-',
+				   xd->eoi_page);
+			seq_puts(m, "\n");
+		}
+	}
+	return 0;
+}
+
+void kvmppc_xive_debug_show_sources(struct seq_file *m,
+				    struct kvmppc_xive_src_block *sb)
+{
+	int i;
+
+	seq_puts(m, "    LISN      HW/CHIP   TYPE    PQ      EISN    CPU/PRIO\n");
+	for (i = 0; i < KVMPPC_XICS_IRQ_PER_ICS; i++) {
+		struct kvmppc_xive_irq_state *state = &sb->irq_state[i];
+		struct xive_irq_data *xd;
+		u64 pq;
+		u32 hw_num;
+
+		if (!state->valid)
+			continue;
+
+		kvmppc_xive_select_irq(state, &hw_num, &xd);
+
+		pq = xive_vm_esb_load(xd, XIVE_ESB_GET);
+
+		seq_printf(m, "%08x  %08x/%02x", state->number, hw_num,
+			   xd->src_chip);
+		if (state->lsi)
+			seq_printf(m, " %cLSI", state->asserted ? '^' : ' ');
+		else
+			seq_puts(m, "  MSI");
+
+		seq_printf(m, " %s  %c%c  %08x   % 4d/%d",
+			   state->ipi_number == hw_num ? "IPI" : " PT",
+			   pq & XIVE_ESB_VAL_P ? 'P' : '-',
+			   pq & XIVE_ESB_VAL_Q ? 'Q' : '-',
+			   state->eisn, state->act_server,
+			   state->act_priority);
+
+		seq_puts(m, "\n");
+	}
+}
+>>>>>>> upstream/android-13
 
 static int xive_debug_show(struct seq_file *m, void *private)
 {
@@ -1843,15 +2658,23 @@ static int xive_debug_show(struct seq_file *m, void *private)
 	if (!kvm)
 		return 0;
 
+<<<<<<< HEAD
 	seq_printf(m, "=========\nVCPU state\n=========\n");
 
 	kvm_for_each_vcpu(i, vcpu, kvm) {
 		struct kvmppc_xive_vcpu *xc = vcpu->arch.xive_vcpu;
 		unsigned int i;
+=======
+	seq_puts(m, "=========\nVCPU state\n=========\n");
+
+	kvm_for_each_vcpu(i, vcpu, kvm) {
+		struct kvmppc_xive_vcpu *xc = vcpu->arch.xive_vcpu;
+>>>>>>> upstream/android-13
 
 		if (!xc)
 			continue;
 
+<<<<<<< HEAD
 		seq_printf(m, "cpu server %#x CPPR:%#x HWCPPR:%#x"
 			   " MFRR:%#x PEND:%#x h_xirr: R=%lld V=%lld\n",
 			   xc->server_num, xc->cppr, xc->hw_cppr,
@@ -1884,6 +2707,16 @@ static int xive_debug_show(struct seq_file *m, void *private)
 				seq_printf(m, "\n");
 			}
 		}
+=======
+		seq_printf(m, "VCPU %d: VP:%#x/%02x\n"
+			 "    CPPR:%#x HWCPPR:%#x MFRR:%#x PEND:%#x h_xirr: R=%lld V=%lld\n",
+			 xc->server_num, xc->vp_id, xc->vp_chip_id,
+			 xc->cppr, xc->hw_cppr,
+			 xc->mfrr, xc->pending,
+			 xc->stat_rm_h_xirr, xc->stat_vm_h_xirr);
+
+		kvmppc_xive_debug_show_queues(m, vcpu);
+>>>>>>> upstream/android-13
 
 		t_rm_h_xirr += xc->stat_rm_h_xirr;
 		t_rm_h_ipoll += xc->stat_rm_h_ipoll;
@@ -1897,13 +2730,18 @@ static int xive_debug_show(struct seq_file *m, void *private)
 		t_vm_h_ipi += xc->stat_vm_h_ipi;
 	}
 
+<<<<<<< HEAD
 	seq_printf(m, "Hcalls totals\n");
+=======
+	seq_puts(m, "Hcalls totals\n");
+>>>>>>> upstream/android-13
 	seq_printf(m, " H_XIRR  R=%10lld V=%10lld\n", t_rm_h_xirr, t_vm_h_xirr);
 	seq_printf(m, " H_IPOLL R=%10lld V=%10lld\n", t_rm_h_ipoll, t_vm_h_ipoll);
 	seq_printf(m, " H_CPPR  R=%10lld V=%10lld\n", t_rm_h_cppr, t_vm_h_cppr);
 	seq_printf(m, " H_EOI   R=%10lld V=%10lld\n", t_rm_h_eoi, t_vm_h_eoi);
 	seq_printf(m, " H_IPI   R=%10lld V=%10lld\n", t_rm_h_ipi, t_vm_h_ipi);
 
+<<<<<<< HEAD
 	return 0;
 }
 
@@ -1918,6 +2756,24 @@ static const struct file_operations xive_debug_fops = {
 	.llseek = seq_lseek,
 	.release = single_release,
 };
+=======
+	seq_puts(m, "=========\nSources\n=========\n");
+
+	for (i = 0; i <= xive->max_sbid; i++) {
+		struct kvmppc_xive_src_block *sb = xive->src_blocks[i];
+
+		if (sb) {
+			arch_spin_lock(&sb->lock);
+			kvmppc_xive_debug_show_sources(m, sb);
+			arch_spin_unlock(&sb->lock);
+		}
+	}
+
+	return 0;
+}
+
+DEFINE_SHOW_ATTRIBUTE(xive_debug);
+>>>>>>> upstream/android-13
 
 static void xive_debugfs_init(struct kvmppc_xive *xive)
 {
@@ -1929,7 +2785,11 @@ static void xive_debugfs_init(struct kvmppc_xive *xive)
 		return;
 	}
 
+<<<<<<< HEAD
 	xive->dentry = debugfs_create_file(name, S_IRUGO, powerpc_debugfs_root,
+=======
+	xive->dentry = debugfs_create_file(name, S_IRUGO, arch_debugfs_dir,
+>>>>>>> upstream/android-13
 					   xive, &xive_debug_fops);
 
 	pr_debug("%s: created %s\n", __func__, name);
@@ -1948,11 +2808,16 @@ struct kvm_device_ops kvm_xive_ops = {
 	.name = "kvm-xive",
 	.create = kvmppc_xive_create,
 	.init = kvmppc_xive_init,
+<<<<<<< HEAD
 	.destroy = kvmppc_xive_free,
+=======
+	.release = kvmppc_xive_release,
+>>>>>>> upstream/android-13
 	.set_attr = xive_set_attr,
 	.get_attr = xive_get_attr,
 	.has_attr = xive_has_attr,
 };
+<<<<<<< HEAD
 
 void kvmppc_xive_init_module(void)
 {
@@ -1971,3 +2836,5 @@ void kvmppc_xive_exit_module(void)
 	__xive_vm_h_cppr = NULL;
 	__xive_vm_h_eoi = NULL;
 }
+=======
+>>>>>>> upstream/android-13

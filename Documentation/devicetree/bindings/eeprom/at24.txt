@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 EEPROMs (I2C)
 
 Required properties:
@@ -83,3 +84,6 @@ eeprom@52 {
 	pagesize = <32>;
 	wp-gpios = <&gpio1 3 0>;
 };
+=======
+This file has been moved to at24.yaml.
+>>>>>>> upstream/android-13

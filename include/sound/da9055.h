@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * DA9055 ALSA Soc codec driver
  *
@@ -6,11 +10,14 @@
  * Tested on (Samsung SMDK6410 board + DA9055 EVB) using I2S and I2C
  * Written by David Chen <david.chen@diasemi.com> and
  * Ashish Chavan <ashish.chavan@kpitcummins.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __SOUND_DA9055_H__

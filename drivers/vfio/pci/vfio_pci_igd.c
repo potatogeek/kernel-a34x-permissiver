@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * VFIO PCI Intel Graphics support
  *
  * Copyright (C) 2016 Red Hat, Inc.  All rights reserved.
  *	Author: Alex Williamson <alex.williamson@redhat.com>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * Register a device specific region through which to provide read-only
  * access to the Intel IGD opregion.  The register defining the opregion
  * address is also virtualized to prevent user modification.
@@ -18,14 +25,28 @@
 #include <linux/uaccess.h>
 #include <linux/vfio.h>
 
+<<<<<<< HEAD
 #include "vfio_pci_private.h"
+=======
+#include <linux/vfio_pci_core.h>
+>>>>>>> upstream/android-13
 
 #define OPREGION_SIGNATURE	"IntelGraphicsMem"
 #define OPREGION_SIZE		(8 * 1024)
 #define OPREGION_PCI_ADDR	0xfc
 
+<<<<<<< HEAD
 static size_t vfio_pci_igd_rw(struct vfio_pci_device *vdev, char __user *buf,
 			      size_t count, loff_t *ppos, bool iswrite)
+=======
+#define OPREGION_RVDA		0x3ba
+#define OPREGION_RVDS		0x3c2
+#define OPREGION_VERSION	0x16
+
+static ssize_t vfio_pci_igd_rw(struct vfio_pci_core_device *vdev,
+			       char __user *buf, size_t count, loff_t *ppos,
+			       bool iswrite)
+>>>>>>> upstream/android-13
 {
 	unsigned int i = VFIO_PCI_OFFSET_TO_INDEX(*ppos) - VFIO_PCI_NUM_REGIONS;
 	void *base = vdev->region[i].data;
@@ -44,7 +65,11 @@ static size_t vfio_pci_igd_rw(struct vfio_pci_device *vdev, char __user *buf,
 	return count;
 }
 
+<<<<<<< HEAD
 static void vfio_pci_igd_release(struct vfio_pci_device *vdev,
+=======
+static void vfio_pci_igd_release(struct vfio_pci_core_device *vdev,
+>>>>>>> upstream/android-13
 				 struct vfio_pci_region *region)
 {
 	memunmap(region->data);
@@ -55,12 +80,20 @@ static const struct vfio_pci_regops vfio_pci_igd_regops = {
 	.release	= vfio_pci_igd_release,
 };
 
+<<<<<<< HEAD
 static int vfio_pci_igd_opregion_init(struct vfio_pci_device *vdev)
+=======
+static int vfio_pci_igd_opregion_init(struct vfio_pci_core_device *vdev)
+>>>>>>> upstream/android-13
 {
 	__le32 *dwordp = (__le32 *)(vdev->vconfig + OPREGION_PCI_ADDR);
 	u32 addr, size;
 	void *base;
 	int ret;
+<<<<<<< HEAD
+=======
+	u16 version;
+>>>>>>> upstream/android-13
 
 	ret = pci_read_config_dword(vdev->pdev, OPREGION_PCI_ADDR, &addr);
 	if (ret)
@@ -86,6 +119,57 @@ static int vfio_pci_igd_opregion_init(struct vfio_pci_device *vdev)
 
 	size *= 1024; /* In KB */
 
+<<<<<<< HEAD
+=======
+	/*
+	 * Support opregion v2.1+
+	 * When VBT data exceeds 6KB size and cannot be within mailbox #4, then
+	 * the Extended VBT region next to opregion is used to hold the VBT data.
+	 * RVDA (Relative Address of VBT Data from Opregion Base) and RVDS
+	 * (Raw VBT Data Size) from opregion structure member are used to hold the
+	 * address from region base and size of VBT data. RVDA/RVDS are not
+	 * defined before opregion 2.0.
+	 *
+	 * opregion 2.1+: RVDA is unsigned, relative offset from
+	 * opregion base, and should point to the end of opregion.
+	 * otherwise, exposing to userspace to allow read access to everything between
+	 * the OpRegion and VBT is not safe.
+	 * RVDS is defined as size in bytes.
+	 *
+	 * opregion 2.0: rvda is the physical VBT address.
+	 * Since rvda is HPA it cannot be directly used in guest.
+	 * And it should not be practically available for end user,so it is not supported.
+	 */
+	version = le16_to_cpu(*(__le16 *)(base + OPREGION_VERSION));
+	if (version >= 0x0200) {
+		u64 rvda;
+		u32 rvds;
+
+		rvda = le64_to_cpu(*(__le64 *)(base + OPREGION_RVDA));
+		rvds = le32_to_cpu(*(__le32 *)(base + OPREGION_RVDS));
+		if (rvda && rvds) {
+			/* no support for opregion v2.0 with physical VBT address */
+			if (version == 0x0200) {
+				memunmap(base);
+				pci_err(vdev->pdev,
+					"IGD assignment does not support opregion v2.0 with an extended VBT region\n");
+				return -EINVAL;
+			}
+
+			if (rvda != size) {
+				memunmap(base);
+				pci_err(vdev->pdev,
+					"Extended VBT does not follow opregion on version 0x%04x\n",
+					version);
+				return -EINVAL;
+			}
+
+			/* region size for opregion v2.0+: opregion and VBT size. */
+			size += rvds;
+		}
+	}
+
+>>>>>>> upstream/android-13
 	if (size != OPREGION_SIZE) {
 		memunmap(base);
 		base = memremap(addr, size, MEMREMAP_WB);
@@ -110,9 +194,15 @@ static int vfio_pci_igd_opregion_init(struct vfio_pci_device *vdev)
 	return ret;
 }
 
+<<<<<<< HEAD
 static size_t vfio_pci_igd_cfg_rw(struct vfio_pci_device *vdev,
 				  char __user *buf, size_t count, loff_t *ppos,
 				  bool iswrite)
+=======
+static ssize_t vfio_pci_igd_cfg_rw(struct vfio_pci_core_device *vdev,
+				   char __user *buf, size_t count, loff_t *ppos,
+				   bool iswrite)
+>>>>>>> upstream/android-13
 {
 	unsigned int i = VFIO_PCI_OFFSET_TO_INDEX(*ppos) - VFIO_PCI_NUM_REGIONS;
 	struct pci_dev *pdev = vdev->region[i].data;
@@ -130,7 +220,11 @@ static size_t vfio_pci_igd_cfg_rw(struct vfio_pci_device *vdev,
 
 		ret = pci_user_read_config_byte(pdev, pos, &val);
 		if (ret)
+<<<<<<< HEAD
 			return pcibios_err_to_errno(ret);
+=======
+			return ret;
+>>>>>>> upstream/android-13
 
 		if (copy_to_user(buf + count - size, &val, 1))
 			return -EFAULT;
@@ -144,7 +238,11 @@ static size_t vfio_pci_igd_cfg_rw(struct vfio_pci_device *vdev,
 
 		ret = pci_user_read_config_word(pdev, pos, &val);
 		if (ret)
+<<<<<<< HEAD
 			return pcibios_err_to_errno(ret);
+=======
+			return ret;
+>>>>>>> upstream/android-13
 
 		val = cpu_to_le16(val);
 		if (copy_to_user(buf + count - size, &val, 2))
@@ -159,7 +257,11 @@ static size_t vfio_pci_igd_cfg_rw(struct vfio_pci_device *vdev,
 
 		ret = pci_user_read_config_dword(pdev, pos, &val);
 		if (ret)
+<<<<<<< HEAD
 			return pcibios_err_to_errno(ret);
+=======
+			return ret;
+>>>>>>> upstream/android-13
 
 		val = cpu_to_le32(val);
 		if (copy_to_user(buf + count - size, &val, 4))
@@ -174,7 +276,11 @@ static size_t vfio_pci_igd_cfg_rw(struct vfio_pci_device *vdev,
 
 		ret = pci_user_read_config_word(pdev, pos, &val);
 		if (ret)
+<<<<<<< HEAD
 			return pcibios_err_to_errno(ret);
+=======
+			return ret;
+>>>>>>> upstream/android-13
 
 		val = cpu_to_le16(val);
 		if (copy_to_user(buf + count - size, &val, 2))
@@ -189,7 +295,11 @@ static size_t vfio_pci_igd_cfg_rw(struct vfio_pci_device *vdev,
 
 		ret = pci_user_read_config_byte(pdev, pos, &val);
 		if (ret)
+<<<<<<< HEAD
 			return pcibios_err_to_errno(ret);
+=======
+			return ret;
+>>>>>>> upstream/android-13
 
 		if (copy_to_user(buf + count - size, &val, 1))
 			return -EFAULT;
@@ -203,7 +313,11 @@ static size_t vfio_pci_igd_cfg_rw(struct vfio_pci_device *vdev,
 	return count;
 }
 
+<<<<<<< HEAD
 static void vfio_pci_igd_cfg_release(struct vfio_pci_device *vdev,
+=======
+static void vfio_pci_igd_cfg_release(struct vfio_pci_core_device *vdev,
+>>>>>>> upstream/android-13
 				     struct vfio_pci_region *region)
 {
 	struct pci_dev *pdev = region->data;
@@ -216,7 +330,11 @@ static const struct vfio_pci_regops vfio_pci_igd_cfg_regops = {
 	.release	= vfio_pci_igd_cfg_release,
 };
 
+<<<<<<< HEAD
 static int vfio_pci_igd_cfg_init(struct vfio_pci_device *vdev)
+=======
+static int vfio_pci_igd_cfg_init(struct vfio_pci_core_device *vdev)
+>>>>>>> upstream/android-13
 {
 	struct pci_dev *host_bridge, *lpc_bridge;
 	int ret;
@@ -264,7 +382,11 @@ static int vfio_pci_igd_cfg_init(struct vfio_pci_device *vdev)
 	return 0;
 }
 
+<<<<<<< HEAD
 int vfio_pci_igd_init(struct vfio_pci_device *vdev)
+=======
+int vfio_pci_igd_init(struct vfio_pci_core_device *vdev)
+>>>>>>> upstream/android-13
 {
 	int ret;
 

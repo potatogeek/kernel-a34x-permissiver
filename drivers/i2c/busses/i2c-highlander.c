@@ -322,7 +322,11 @@ static int highlander_i2c_smbus_xfer(struct i2c_adapter *adap, u16 addr,
 		tmp |= (SMMR_MODE0 | SMMR_MODE1);
 		break;
 	default:
+<<<<<<< HEAD
 		dev_err(dev->dev, "unsupported xfer size %d\n", dev->buf_len);
+=======
+		dev_err(dev->dev, "unsupported xfer size %zu\n", dev->buf_len);
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -369,7 +373,11 @@ static int highlander_i2c_probe(struct platform_device *pdev)
 	if (unlikely(!dev))
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	dev->base = ioremap_nocache(res->start, resource_size(res));
+=======
+	dev->base = ioremap(res->start, resource_size(res));
+>>>>>>> upstream/android-13
 	if (unlikely(!dev->base)) {
 		ret = -ENXIO;
 		goto err;
@@ -379,7 +387,11 @@ static int highlander_i2c_probe(struct platform_device *pdev)
 	platform_set_drvdata(pdev, dev);
 
 	dev->irq = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (iic_force_poll)
+=======
+	if (dev->irq < 0 || iic_force_poll)
+>>>>>>> upstream/android-13
 		dev->irq = 0;
 
 	if (dev->irq) {

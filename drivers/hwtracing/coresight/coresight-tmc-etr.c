@@ -32,7 +32,10 @@ struct etr_flat_buf {
  * @etr_buf		- Actual buffer used by the ETR
  * @pid			- The PID this etr_perf_buffer belongs to.
  * @snaphost		- Perf session mode
+<<<<<<< HEAD
  * @head		- handle->head at the beginning of the session.
+=======
+>>>>>>> upstream/android-13
  * @nr_pages		- Number of pages in the ring buffer.
  * @pages		- Array of Pages in the ring buffer.
  */
@@ -41,7 +44,10 @@ struct etr_perf_buffer {
 	struct etr_buf		*etr_buf;
 	pid_t			pid;
 	bool			snapshot;
+<<<<<<< HEAD
 	unsigned long		head;
+=======
+>>>>>>> upstream/android-13
 	int			nr_pages;
 	void			**pages;
 };
@@ -162,10 +168,18 @@ static void tmc_pages_free(struct tmc_pages *tmc_pages,
 			   struct device *dev, enum dma_data_direction dir)
 {
 	int i;
+<<<<<<< HEAD
 
 	for (i = 0; i < tmc_pages->nr_pages; i++) {
 		if (tmc_pages->daddrs && tmc_pages->daddrs[i])
 			dma_unmap_page(dev, tmc_pages->daddrs[i],
+=======
+	struct device *real_dev = dev->parent;
+
+	for (i = 0; i < tmc_pages->nr_pages; i++) {
+		if (tmc_pages->daddrs && tmc_pages->daddrs[i])
+			dma_unmap_page(real_dev, tmc_pages->daddrs[i],
+>>>>>>> upstream/android-13
 					 PAGE_SIZE, dir);
 		if (tmc_pages->pages && tmc_pages->pages[i])
 			__free_page(tmc_pages->pages[i]);
@@ -193,6 +207,10 @@ static int tmc_pages_alloc(struct tmc_pages *tmc_pages,
 	int i, nr_pages;
 	dma_addr_t paddr;
 	struct page *page;
+<<<<<<< HEAD
+=======
+	struct device *real_dev = dev->parent;
+>>>>>>> upstream/android-13
 
 	nr_pages = tmc_pages->nr_pages;
 	tmc_pages->daddrs = kcalloc(nr_pages, sizeof(*tmc_pages->daddrs),
@@ -218,8 +236,13 @@ static int tmc_pages_alloc(struct tmc_pages *tmc_pages,
 			if (!page)
 				goto err;
 		}
+<<<<<<< HEAD
 		paddr = dma_map_page(dev, page, 0, PAGE_SIZE, dir);
 		if (dma_mapping_error(dev, paddr))
+=======
+		paddr = dma_map_page(real_dev, page, 0, PAGE_SIZE, dir);
+		if (dma_mapping_error(real_dev, paddr))
+>>>>>>> upstream/android-13
 			goto err;
 		tmc_pages->daddrs[i] = paddr;
 		tmc_pages->pages[i] = page;
@@ -255,6 +278,10 @@ void tmc_free_sg_table(struct tmc_sg_table *sg_table)
 	tmc_free_table_pages(sg_table);
 	tmc_free_data_pages(sg_table);
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(tmc_free_sg_table);
+>>>>>>> upstream/android-13
 
 /*
  * Alloc pages for the table. Since this will be used by the device,
@@ -306,7 +333,11 @@ static int tmc_alloc_data_pages(struct tmc_sg_table *sg_table, void **pages)
  * and data buffers. TMC writes to the data buffers and reads from the SG
  * Table pages.
  *
+<<<<<<< HEAD
  * @dev		- Device to which page should be DMA mapped.
+=======
+ * @dev		- Coresight device to which page should be DMA mapped.
+>>>>>>> upstream/android-13
  * @node	- Numa node for mem allocations
  * @nr_tpages	- Number of pages for the table entries.
  * @nr_dpages	- Number of pages for Data buffer.
@@ -340,6 +371,10 @@ struct tmc_sg_table *tmc_alloc_sg_table(struct device *dev,
 
 	return sg_table;
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(tmc_alloc_sg_table);
+>>>>>>> upstream/android-13
 
 /*
  * tmc_sg_table_sync_data_range: Sync the data buffer written
@@ -350,21 +385,34 @@ void tmc_sg_table_sync_data_range(struct tmc_sg_table *table,
 {
 	int i, index, start;
 	int npages = DIV_ROUND_UP(size, PAGE_SIZE);
+<<<<<<< HEAD
 	struct device *dev = table->dev;
+=======
+	struct device *real_dev = table->dev->parent;
+>>>>>>> upstream/android-13
 	struct tmc_pages *data = &table->data_pages;
 
 	start = offset >> PAGE_SHIFT;
 	for (i = start; i < (start + npages); i++) {
 		index = i % data->nr_pages;
+<<<<<<< HEAD
 		dma_sync_single_for_cpu(dev, data->daddrs[index],
 					PAGE_SIZE, DMA_FROM_DEVICE);
 	}
 }
+=======
+		dma_sync_single_for_cpu(real_dev, data->daddrs[index],
+					PAGE_SIZE, DMA_FROM_DEVICE);
+	}
+}
+EXPORT_SYMBOL_GPL(tmc_sg_table_sync_data_range);
+>>>>>>> upstream/android-13
 
 /* tmc_sg_sync_table: Sync the page table */
 void tmc_sg_table_sync_table(struct tmc_sg_table *sg_table)
 {
 	int i;
+<<<<<<< HEAD
 	struct device *dev = sg_table->dev;
 	struct tmc_pages *table_pages = &sg_table->table_pages;
 
@@ -372,6 +420,16 @@ void tmc_sg_table_sync_table(struct tmc_sg_table *sg_table)
 		dma_sync_single_for_device(dev, table_pages->daddrs[i],
 					   PAGE_SIZE, DMA_TO_DEVICE);
 }
+=======
+	struct device *real_dev = sg_table->dev->parent;
+	struct tmc_pages *table_pages = &sg_table->table_pages;
+
+	for (i = 0; i < table_pages->nr_pages; i++)
+		dma_sync_single_for_device(real_dev, table_pages->daddrs[i],
+					   PAGE_SIZE, DMA_TO_DEVICE);
+}
+EXPORT_SYMBOL_GPL(tmc_sg_table_sync_table);
+>>>>>>> upstream/android-13
 
 /*
  * tmc_sg_table_get_data: Get the buffer pointer for data @offset
@@ -401,6 +459,10 @@ ssize_t tmc_sg_table_get_data(struct tmc_sg_table *sg_table,
 		*bufpp = page_address(data_pages->pages[pg_idx]) + pg_offset;
 	return len;
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(tmc_sg_table_get_data);
+>>>>>>> upstream/android-13
 
 #ifdef ETR_SG_DEBUG
 /* Map a dma address to virtual address */
@@ -592,6 +654,10 @@ static int tmc_etr_alloc_flat_buf(struct tmc_drvdata *drvdata,
 				  void **pages)
 {
 	struct etr_flat_buf *flat_buf;
+<<<<<<< HEAD
+=======
+	struct device *real_dev = drvdata->csdev->dev.parent;
+>>>>>>> upstream/android-13
 
 	/* We cannot reuse existing pages for flat buf */
 	if (pages)
@@ -601,15 +667,25 @@ static int tmc_etr_alloc_flat_buf(struct tmc_drvdata *drvdata,
 	if (!flat_buf)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	flat_buf->vaddr = dma_alloc_coherent(drvdata->dev, etr_buf->size,
 					     &flat_buf->daddr, GFP_KERNEL);
+=======
+	flat_buf->vaddr = dma_alloc_noncoherent(real_dev, etr_buf->size,
+						&flat_buf->daddr,
+						DMA_FROM_DEVICE, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!flat_buf->vaddr) {
 		kfree(flat_buf);
 		return -ENOMEM;
 	}
 
 	flat_buf->size = etr_buf->size;
+<<<<<<< HEAD
 	flat_buf->dev = drvdata->dev;
+=======
+	flat_buf->dev = &drvdata->csdev->dev;
+>>>>>>> upstream/android-13
 	etr_buf->hwaddr = flat_buf->daddr;
 	etr_buf->mode = ETR_MODE_FLAT;
 	etr_buf->private = flat_buf;
@@ -620,14 +696,30 @@ static void tmc_etr_free_flat_buf(struct etr_buf *etr_buf)
 {
 	struct etr_flat_buf *flat_buf = etr_buf->private;
 
+<<<<<<< HEAD
 	if (flat_buf && flat_buf->daddr)
 		dma_free_coherent(flat_buf->dev, flat_buf->size,
 				  flat_buf->vaddr, flat_buf->daddr);
+=======
+	if (flat_buf && flat_buf->daddr) {
+		struct device *real_dev = flat_buf->dev->parent;
+
+		dma_free_noncoherent(real_dev, etr_buf->size,
+				     flat_buf->vaddr, flat_buf->daddr,
+				     DMA_FROM_DEVICE);
+	}
+>>>>>>> upstream/android-13
 	kfree(flat_buf);
 }
 
 static void tmc_etr_sync_flat_buf(struct etr_buf *etr_buf, u64 rrp, u64 rwp)
 {
+<<<<<<< HEAD
+=======
+	struct etr_flat_buf *flat_buf = etr_buf->private;
+	struct device *real_dev = flat_buf->dev->parent;
+
+>>>>>>> upstream/android-13
 	/*
 	 * Adjust the buffer to point to the beginning of the trace data
 	 * and update the available trace data.
@@ -637,6 +729,22 @@ static void tmc_etr_sync_flat_buf(struct etr_buf *etr_buf, u64 rrp, u64 rwp)
 		etr_buf->len = etr_buf->size;
 	else
 		etr_buf->len = rwp - rrp;
+<<<<<<< HEAD
+=======
+
+	/*
+	 * The driver always starts tracing at the beginning of the buffer,
+	 * the only reason why we would get a wrap around is when the buffer
+	 * is full.  Sync the entire buffer in one go for this case.
+	 */
+	if (etr_buf->offset + etr_buf->len > etr_buf->size)
+		dma_sync_single_for_cpu(real_dev, flat_buf->daddr,
+					etr_buf->size, DMA_FROM_DEVICE);
+	else
+		dma_sync_single_for_cpu(real_dev,
+					flat_buf->daddr + etr_buf->offset,
+					etr_buf->len, DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t tmc_etr_get_data_flat_buf(struct etr_buf *etr_buf,
@@ -668,8 +776,14 @@ static int tmc_etr_alloc_sg_buf(struct tmc_drvdata *drvdata,
 				void **pages)
 {
 	struct etr_sg_table *etr_table;
+<<<<<<< HEAD
 
 	etr_table = tmc_init_etr_sg_table(drvdata->dev, node,
+=======
+	struct device *dev = &drvdata->csdev->dev;
+
+	etr_table = tmc_init_etr_sg_table(dev, node,
+>>>>>>> upstream/android-13
 					  etr_buf->size, pages);
 	if (IS_ERR(etr_table))
 		return -ENOMEM;
@@ -753,14 +867,23 @@ tmc_etr_get_catu_device(struct tmc_drvdata *drvdata)
 	if (!IS_ENABLED(CONFIG_CORESIGHT_CATU))
 		return NULL;
 
+<<<<<<< HEAD
 	for (i = 0; i < etr->nr_outport; i++) {
 		tmp = etr->conns[i].child_dev;
+=======
+	for (i = 0; i < etr->pdata->nr_outport; i++) {
+		tmp = etr->pdata->conns[i].child_dev;
+>>>>>>> upstream/android-13
 		if (tmp && coresight_is_catu_device(tmp))
 			return tmp;
 	}
 
 	return NULL;
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(tmc_etr_get_catu_device);
+>>>>>>> upstream/android-13
 
 static inline int tmc_etr_enable_catu(struct tmc_drvdata *drvdata,
 				      struct etr_buf *etr_buf)
@@ -783,10 +906,28 @@ static inline void tmc_etr_disable_catu(struct tmc_drvdata *drvdata)
 static const struct etr_buf_operations *etr_buf_ops[] = {
 	[ETR_MODE_FLAT] = &etr_flat_buf_ops,
 	[ETR_MODE_ETR_SG] = &etr_sg_buf_ops,
+<<<<<<< HEAD
 	[ETR_MODE_CATU] = IS_ENABLED(CONFIG_CORESIGHT_CATU)
 						? &etr_catu_buf_ops : NULL,
 };
 
+=======
+	[ETR_MODE_CATU] = NULL,
+};
+
+void tmc_etr_set_catu_ops(const struct etr_buf_operations *catu)
+{
+	etr_buf_ops[ETR_MODE_CATU] = catu;
+}
+EXPORT_SYMBOL_GPL(tmc_etr_set_catu_ops);
+
+void tmc_etr_remove_catu_ops(void)
+{
+	etr_buf_ops[ETR_MODE_CATU] = NULL;
+}
+EXPORT_SYMBOL_GPL(tmc_etr_remove_catu_ops);
+
+>>>>>>> upstream/android-13
 static inline int tmc_etr_mode_alloc_buf(int mode,
 					 struct tmc_drvdata *drvdata,
 					 struct etr_buf *etr_buf, int node,
@@ -825,9 +966,16 @@ static struct etr_buf *tmc_alloc_etr_buf(struct tmc_drvdata *drvdata,
 	bool has_etr_sg, has_iommu;
 	bool has_sg, has_catu;
 	struct etr_buf *etr_buf;
+<<<<<<< HEAD
 
 	has_etr_sg = tmc_etr_has_cap(drvdata, TMC_ETR_SG);
 	has_iommu = iommu_get_domain_for_dev(drvdata->dev);
+=======
+	struct device *dev = &drvdata->csdev->dev;
+
+	has_etr_sg = tmc_etr_has_cap(drvdata, TMC_ETR_SG);
+	has_iommu = iommu_get_domain_for_dev(dev->parent);
+>>>>>>> upstream/android-13
 	has_catu = !!tmc_etr_get_catu_device(drvdata);
 
 	has_sg = has_catu || has_etr_sg;
@@ -866,7 +1014,11 @@ static struct etr_buf *tmc_alloc_etr_buf(struct tmc_drvdata *drvdata,
 	}
 
 	refcount_set(&etr_buf->refcount, 1);
+<<<<<<< HEAD
 	dev_dbg(drvdata->dev, "allocated buffer of size %ldKB in mode %d\n",
+=======
+	dev_dbg(dev, "allocated buffer of size %ldKB in mode %d\n",
+>>>>>>> upstream/android-13
 		(unsigned long)size >> 10, etr_buf->mode);
 	return etr_buf;
 }
@@ -931,11 +1083,19 @@ static void tmc_sync_etr_buf(struct tmc_drvdata *drvdata)
 		dev_dbg(&drvdata->csdev->dev,
 			"tmc memory error detected, truncating buffer\n");
 		etr_buf->len = 0;
+<<<<<<< HEAD
 		etr_buf->full = 0;
 		return;
 	}
 
 	etr_buf->full = status & TMC_STS_FULL;
+=======
+		etr_buf->full = false;
+		return;
+	}
+
+	etr_buf->full = !!(status & TMC_STS_FULL);
+>>>>>>> upstream/android-13
 
 	WARN_ON(!etr_buf->ops || !etr_buf->ops->sync);
 
@@ -957,7 +1117,12 @@ static void __tmc_etr_enable_hw(struct tmc_drvdata *drvdata)
 
 	axictl = readl_relaxed(drvdata->base + TMC_AXICTL);
 	axictl &= ~TMC_AXICTL_CLEAR_MASK;
+<<<<<<< HEAD
 	axictl |= (TMC_AXICTL_PROT_CTL_B1 | TMC_AXICTL_WR_BURST_16);
+=======
+	axictl |= TMC_AXICTL_PROT_CTL_B1;
+	axictl |= TMC_AXICTL_WR_BURST(drvdata->max_burst_size);
+>>>>>>> upstream/android-13
 	axictl |= TMC_AXICTL_AXCACHE_OS;
 
 	if (tmc_etr_has_cap(drvdata, TMC_ETR_AXI_ARCACHE)) {
@@ -1015,7 +1180,11 @@ static int tmc_etr_enable_hw(struct tmc_drvdata *drvdata,
 	rc = tmc_etr_enable_catu(drvdata, etr_buf);
 	if (rc)
 		return rc;
+<<<<<<< HEAD
 	rc = coresight_claim_device(drvdata->base);
+=======
+	rc = coresight_claim_device(drvdata->csdev);
+>>>>>>> upstream/android-13
 	if (!rc) {
 		drvdata->etr_buf = etr_buf;
 		__tmc_etr_enable_hw(drvdata);
@@ -1104,12 +1273,20 @@ static void __tmc_etr_disable_hw(struct tmc_drvdata *drvdata)
 
 }
 
+<<<<<<< HEAD
 static void tmc_etr_disable_hw(struct tmc_drvdata *drvdata)
+=======
+void tmc_etr_disable_hw(struct tmc_drvdata *drvdata)
+>>>>>>> upstream/android-13
 {
 	__tmc_etr_disable_hw(drvdata);
 	/* Disable CATU device if this ETR is connected to one */
 	tmc_etr_disable_catu(drvdata);
+<<<<<<< HEAD
 	coresight_disclaim_device(drvdata->base);
+=======
+	coresight_disclaim_device(drvdata->csdev);
+>>>>>>> upstream/android-13
 	/* Reset the ETR buf used by hardware */
 	drvdata->etr_buf = NULL;
 }
@@ -1181,7 +1358,11 @@ out:
 		tmc_etr_free_sysfs_buf(free_buf);
 
 	if (!ret)
+<<<<<<< HEAD
 		dev_dbg(drvdata->dev, "TMC-ETR enabled\n");
+=======
+		dev_dbg(&csdev->dev, "TMC-ETR enabled\n");
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -1362,7 +1543,11 @@ static void *tmc_alloc_etr_buffer(struct coresight_device *csdev,
 	etr_perf = tmc_etr_setup_perf_buf(drvdata, event,
 					  nr_pages, pages, snapshot);
 	if (IS_ERR(etr_perf)) {
+<<<<<<< HEAD
 		dev_dbg(drvdata->dev, "Unable to allocate ETR buffer\n");
+=======
+		dev_dbg(&csdev->dev, "Unable to allocate ETR buffer\n");
+>>>>>>> upstream/android-13
 		return NULL;
 	}
 
@@ -1412,16 +1597,27 @@ free_etr_perf_buffer:
  * buffer to the perf ring buffer.
  */
 static void tmc_etr_sync_perf_buffer(struct etr_perf_buffer *etr_perf,
+<<<<<<< HEAD
+=======
+				     unsigned long head,
+>>>>>>> upstream/android-13
 				     unsigned long src_offset,
 				     unsigned long to_copy)
 {
 	long bytes;
 	long pg_idx, pg_offset;
+<<<<<<< HEAD
 	unsigned long head = etr_perf->head;
 	char **dst_pages, *src_buf;
 	struct etr_buf *etr_buf = etr_perf->etr_buf;
 
 	head = etr_perf->head;
+=======
+	char **dst_pages, *src_buf;
+	struct etr_buf *etr_buf = etr_perf->etr_buf;
+
+	head = PERF_IDX2OFF(head, etr_perf);
+>>>>>>> upstream/android-13
 	pg_idx = head >> PAGE_SHIFT;
 	pg_offset = head & (PAGE_SIZE - 1);
 	dst_pages = (char **)etr_perf->pages;
@@ -1527,6 +1723,7 @@ tmc_update_etr_buffer(struct coresight_device *csdev,
 
 	/* Insert barrier packets at the beginning, if there was an overflow */
 	if (lost)
+<<<<<<< HEAD
 		tmc_etr_buf_insert_barrier_packet(etr_buf, etr_buf->offset);
 	tmc_etr_sync_perf_buffer(etr_perf, offset, size);
 
@@ -1538,6 +1735,26 @@ tmc_update_etr_buffer(struct coresight_device *csdev,
 	 */
 	if (etr_perf->snapshot)
 		handle->head += size;
+=======
+		tmc_etr_buf_insert_barrier_packet(etr_buf, offset);
+	tmc_etr_sync_perf_buffer(etr_perf, handle->head, offset, size);
+
+	/*
+	 * In snapshot mode we simply increment the head by the number of byte
+	 * that were written.  User space will figure out how many bytes to get
+	 * from the AUX buffer based on the position of the head.
+	 */
+	if (etr_perf->snapshot)
+		handle->head += size;
+
+	/*
+	 * Ensure that the AUX trace data is visible before the aux_head
+	 * is updated via perf_aux_output_end(), as expected by the
+	 * perf ring buffer.
+	 */
+	smp_wmb();
+
+>>>>>>> upstream/android-13
 out:
 	/*
 	 * Don't set the TRUNCATED flag in snapshot mode because 1) the
@@ -1580,8 +1797,11 @@ static int tmc_enable_etr_sink_perf(struct coresight_device *csdev, void *data)
 		goto unlock_out;
 	}
 
+<<<<<<< HEAD
 	etr_perf->head = PERF_IDX2OFF(handle->head, etr_perf);
 
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * No HW configuration is needed if the sink is already in
 	 * use for this session.
@@ -1647,7 +1867,11 @@ static int tmc_disable_etr_sink(struct coresight_device *csdev)
 
 	spin_unlock_irqrestore(&drvdata->spinlock, flags);
 
+<<<<<<< HEAD
 	dev_dbg(drvdata->dev, "TMC-ETR disabled\n");
+=======
+	dev_dbg(&csdev->dev, "TMC-ETR disabled\n");
+>>>>>>> upstream/android-13
 	return 0;
 }
 

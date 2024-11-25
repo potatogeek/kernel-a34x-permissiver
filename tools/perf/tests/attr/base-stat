@@ -5,7 +5,11 @@ group_fd=-1
 flags=0|8
 cpu=*
 type=0
+<<<<<<< HEAD
 size=112
+=======
+size=128
+>>>>>>> upstream/android-13
 config=0
 sample_period=0
 sample_type=65536

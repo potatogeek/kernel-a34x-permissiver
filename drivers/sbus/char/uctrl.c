@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* uctrl.c: TS102 Microcontroller interface on Tadpole Sparcbook 3
  *
  * Copyright 1999 Derrick J Brashear (shadow@dementia.org)
@@ -20,9 +24,12 @@
 #include <asm/oplib.h>
 #include <asm/irq.h>
 #include <asm/io.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
 
 #define UCTRL_MINOR	174
+=======
+>>>>>>> upstream/android-13
 
 #define DEBUG 1
 #ifdef DEBUG

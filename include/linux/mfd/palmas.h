@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * TI Palmas
  *
@@ -5,12 +9,15 @@
  *
  * Author: Graeme Gregory <gg@slimlogic.co.uk>
  * Author: Ian Lartey <ian@slimlogic.co.uk>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify it
  *  under  the terms of the GNU General  Public License as published by the
  *  Free Software Foundation;  either version 2 of the License, or (at your
  *  option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __LINUX_MFD_PALMAS_H
@@ -553,7 +560,10 @@ struct palmas_pmic {
 	struct palmas *palmas;
 	struct device *dev;
 	struct regulator_desc desc[PALMAS_NUM_REGS];
+<<<<<<< HEAD
 	struct regulator_dev *rdev[PALMAS_NUM_REGS];
+=======
+>>>>>>> upstream/android-13
 	struct mutex mutex;
 
 	int smps123;

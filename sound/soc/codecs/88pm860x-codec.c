@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * 88pm860x-codec.c -- 88PM860x ALSA SoC Audio Driver
  *
  * Copyright 2010 Marvell International Ltd.
  * Author: Haojian Zhuang <haojian.zhuang@marvell.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -277,10 +284,17 @@ static int snd_soc_get_volsw_2r_st(struct snd_kcontrol *kcontrol,
 	unsigned int reg2 = mc->rreg;
 	int val[2], val2[2], i;
 
+<<<<<<< HEAD
 	val[0] = snd_soc_component_read32(component, reg) & 0x3f;
 	val[1] = (snd_soc_component_read32(component, PM860X_SIDETONE_SHIFT) >> 4) & 0xf;
 	val2[0] = snd_soc_component_read32(component, reg2) & 0x3f;
 	val2[1] = (snd_soc_component_read32(component, PM860X_SIDETONE_SHIFT)) & 0xf;
+=======
+	val[0] = snd_soc_component_read(component, reg) & 0x3f;
+	val[1] = (snd_soc_component_read(component, PM860X_SIDETONE_SHIFT) >> 4) & 0xf;
+	val2[0] = snd_soc_component_read(component, reg2) & 0x3f;
+	val2[1] = (snd_soc_component_read(component, PM860X_SIDETONE_SHIFT)) & 0xf;
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < ARRAY_SIZE(st_table); i++) {
 		if ((st_table[i].m == val[0]) && (st_table[i].n == val[1]))
@@ -336,8 +350,13 @@ static int snd_soc_get_volsw_2r_out(struct snd_kcontrol *kcontrol,
 	int max = mc->max, val, val2;
 	unsigned int mask = (1 << fls(max)) - 1;
 
+<<<<<<< HEAD
 	val = snd_soc_component_read32(component, reg) >> shift;
 	val2 = snd_soc_component_read32(component, reg2) >> shift;
+=======
+	val = snd_soc_component_read(component, reg) >> shift;
+	val2 = snd_soc_component_read(component, reg2) >> shift;
+>>>>>>> upstream/android-13
 	ucontrol->value.integer.value[0] = (max - val) & mask;
 	ucontrol->value.integer.value[1] = (max - val2) & mask;
 
@@ -429,7 +448,11 @@ static int pm860x_dac_event(struct snd_soc_dapm_widget *w,
 			snd_soc_component_update_bits(component, PM860X_EAR_CTRL_2,
 					    RSYNC_CHANGE, RSYNC_CHANGE);
 			/* update dac */
+<<<<<<< HEAD
 			data = snd_soc_component_read32(component, PM860X_DAC_EN_2);
+=======
+			data = snd_soc_component_read(component, PM860X_DAC_EN_2);
+>>>>>>> upstream/android-13
 			data &= ~dac;
 			if (!(data & (DAC_LEFT | DAC_RIGHT)))
 				data &= ~MODULATOR;
@@ -532,10 +555,13 @@ static const struct snd_kcontrol_new pm860x_snd_controls[] = {
  * DAPM Controls
  */
 
+<<<<<<< HEAD
 /* PCM Switch / PCM Interface */
 static const struct snd_kcontrol_new pcm_switch_controls =
 	SOC_DAPM_SINGLE("Switch", PM860X_ADC_EN_2, 0, 1, 0);
 
+=======
+>>>>>>> upstream/android-13
 /* AUX1 Switch */
 static const struct snd_kcontrol_new aux1_switch_controls =
 	SOC_DAPM_SINGLE("Switch", PM860X_ANA_TO_ANA, 4, 1, 0);
@@ -552,6 +578,7 @@ static const struct snd_kcontrol_new lepa_switch_controls =
 static const struct snd_kcontrol_new repa_switch_controls =
 	SOC_DAPM_SINGLE("Switch", PM860X_DAC_EN_2, 1, 1, 0);
 
+<<<<<<< HEAD
 /* PCM Mux / Mux7 */
 static const char *aif1_text[] = {
 	"PCM L", "PCM R",
@@ -563,6 +590,8 @@ static SOC_ENUM_SINGLE_DECL(aif1_enum,
 static const struct snd_kcontrol_new aif1_mux =
 	SOC_DAPM_ENUM("PCM Mux", aif1_enum);
 
+=======
+>>>>>>> upstream/android-13
 /* I2S Mux / Mux9 */
 static const char *i2s_din_text[] = {
 	"DIN", "DIN1",
@@ -920,7 +949,11 @@ static const struct snd_soc_dapm_route pm860x_dapm_routes[] = {
  * Use MUTE_LEFT & MUTE_RIGHT to implement digital mute.
  * These bits can also be used to mute.
  */
+<<<<<<< HEAD
 static int pm860x_digital_mute(struct snd_soc_dai *codec_dai, int mute)
+=======
+static int pm860x_mute_stream(struct snd_soc_dai *codec_dai, int mute, int direction)
+>>>>>>> upstream/android-13
 {
 	struct snd_soc_component *component = codec_dai->component;
 	int data = 0, mask = MUTE_LEFT | MUTE_RIGHT;
@@ -1154,6 +1187,7 @@ static int pm860x_set_bias_level(struct snd_soc_component *component,
 }
 
 static const struct snd_soc_dai_ops pm860x_pcm_dai_ops = {
+<<<<<<< HEAD
 	.digital_mute	= pm860x_digital_mute,
 	.hw_params	= pm860x_pcm_hw_params,
 	.set_fmt	= pm860x_pcm_set_dai_fmt,
@@ -1165,6 +1199,21 @@ static const struct snd_soc_dai_ops pm860x_i2s_dai_ops = {
 	.hw_params	= pm860x_i2s_hw_params,
 	.set_fmt	= pm860x_i2s_set_dai_fmt,
 	.set_sysclk	= pm860x_set_dai_sysclk,
+=======
+	.mute_stream	= pm860x_mute_stream,
+	.hw_params	= pm860x_pcm_hw_params,
+	.set_fmt	= pm860x_pcm_set_dai_fmt,
+	.set_sysclk	= pm860x_set_dai_sysclk,
+	.no_capture_mute = 1,
+};
+
+static const struct snd_soc_dai_ops pm860x_i2s_dai_ops = {
+	.mute_stream	= pm860x_mute_stream,
+	.hw_params	= pm860x_i2s_hw_params,
+	.set_fmt	= pm860x_i2s_set_dai_fmt,
+	.set_sysclk	= pm860x_set_dai_sysclk,
+	.no_capture_mute = 1,
+>>>>>>> upstream/android-13
 };
 
 #define PM860X_RATES	(SNDRV_PCM_RATE_8000 | SNDRV_PCM_RATE_16000 |	\

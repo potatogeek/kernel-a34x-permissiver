@@ -31,6 +31,7 @@ DEFINE_MUTEX(pnp_lock);
 int pnp_platform_devices;
 EXPORT_SYMBOL(pnp_platform_devices);
 
+<<<<<<< HEAD
 void *pnp_alloc(long size)
 {
 	void *result;
@@ -43,6 +44,8 @@ void *pnp_alloc(long size)
 	return result;
 }
 
+=======
+>>>>>>> upstream/android-13
 static void pnp_remove_protocol(struct pnp_protocol *protocol)
 {
 	mutex_lock(&pnp_lock);
@@ -51,7 +54,11 @@ static void pnp_remove_protocol(struct pnp_protocol *protocol)
 }
 
 /**
+<<<<<<< HEAD
  * pnp_protocol_register - adds a pnp protocol to the pnp layer
+=======
+ * pnp_register_protocol - adds a pnp protocol to the pnp layer
+>>>>>>> upstream/android-13
  * @protocol: pointer to the corresponding pnp_protocol structure
  *
  *  Ex protocols: ISAPNP, PNPBIOS, etc
@@ -91,7 +98,11 @@ int pnp_register_protocol(struct pnp_protocol *protocol)
 }
 
 /**
+<<<<<<< HEAD
  * pnp_protocol_unregister - removes a pnp protocol from the pnp layer
+=======
+ * pnp_unregister_protocol - removes a pnp protocol from the pnp layer
+>>>>>>> upstream/android-13
  * @protocol: pointer to the corresponding pnp_protocol structure
  */
 void pnp_unregister_protocol(struct pnp_protocol *protocol)
@@ -227,9 +238,14 @@ int pnp_add_device(struct pnp_dev *dev)
 	for (id = dev->id; id; id = id->next)
 		len += scnprintf(buf + len, sizeof(buf) - len, " %s", id->id);
 
+<<<<<<< HEAD
 	dev_printk(KERN_DEBUG, &dev->dev, "%s device, IDs%s (%s)\n",
 		   dev->protocol->name, buf,
 		   dev->active ? "active" : "disabled");
+=======
+	dev_dbg(&dev->dev, "%s device, IDs%s (%s)\n", dev->protocol->name, buf,
+		dev->active ? "active" : "disabled");
+>>>>>>> upstream/android-13
 	return 0;
 }
 

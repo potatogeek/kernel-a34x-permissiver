@@ -49,7 +49,11 @@ enum iproc_msi_reg {
 struct iproc_msi;
 
 /**
+<<<<<<< HEAD
  * iProc MSI group
+=======
+ * struct iproc_msi_grp - iProc MSI group
+>>>>>>> upstream/android-13
  *
  * One MSI group is allocated per GIC interrupt, serviced by one iProc MSI
  * event queue.
@@ -65,7 +69,11 @@ struct iproc_msi_grp {
 };
 
 /**
+<<<<<<< HEAD
  * iProc event queue based MSI
+=======
+ * struct iproc_msi - iProc event queue based MSI
+>>>>>>> upstream/android-13
  *
  * Only meant to be used on platforms without MSI support integrated into the
  * GIC.
@@ -171,7 +179,11 @@ static struct irq_chip iproc_msi_irq_chip = {
 
 static struct msi_domain_info iproc_msi_domain_info = {
 	.flags = MSI_FLAG_USE_DEF_DOM_OPS | MSI_FLAG_USE_DEF_CHIP_OPS |
+<<<<<<< HEAD
 		MSI_FLAG_MULTI_PCI_MSI | MSI_FLAG_PCI_MSIX,
+=======
+		MSI_FLAG_PCI_MSIX,
+>>>>>>> upstream/android-13
 	.chip = &iproc_msi_irq_chip,
 };
 
@@ -250,6 +262,7 @@ static int iproc_msi_irq_domain_alloc(struct irq_domain *domain,
 	struct iproc_msi *msi = domain->host_data;
 	int hwirq, i;
 
+<<<<<<< HEAD
 	mutex_lock(&msi->bitmap_lock);
 
 	/* Allocate 'nr_cpus' number of MSI vectors each time */
@@ -264,6 +277,25 @@ static int iproc_msi_irq_domain_alloc(struct irq_domain *domain,
 
 	mutex_unlock(&msi->bitmap_lock);
 
+=======
+	if (msi->nr_cpus > 1 && nr_irqs > 1)
+		return -EINVAL;
+
+	mutex_lock(&msi->bitmap_lock);
+
+	/*
+	 * Allocate 'nr_irqs' multiplied by 'nr_cpus' number of MSI vectors
+	 * each time
+	 */
+	hwirq = bitmap_find_free_region(msi->bitmap, msi->nr_msi_vecs,
+					order_base_2(msi->nr_cpus * nr_irqs));
+
+	mutex_unlock(&msi->bitmap_lock);
+
+	if (hwirq < 0)
+		return -ENOSPC;
+
+>>>>>>> upstream/android-13
 	for (i = 0; i < nr_irqs; i++) {
 		irq_domain_set_info(domain, virq + i, hwirq + i,
 				    &iproc_msi_bottom_irq_chip,
@@ -284,7 +316,12 @@ static void iproc_msi_irq_domain_free(struct irq_domain *domain,
 	mutex_lock(&msi->bitmap_lock);
 
 	hwirq = hwirq_to_canonical_hwirq(msi, data->hwirq);
+<<<<<<< HEAD
 	bitmap_clear(msi->bitmap, hwirq, msi->nr_cpus);
+=======
+	bitmap_release_region(msi->bitmap, hwirq,
+			      order_base_2(msi->nr_cpus * nr_irqs));
+>>>>>>> upstream/android-13
 
 	mutex_unlock(&msi->bitmap_lock);
 
@@ -298,11 +335,20 @@ static const struct irq_domain_ops msi_domain_ops = {
 
 static inline u32 decode_msi_hwirq(struct iproc_msi *msi, u32 eq, u32 head)
 {
+<<<<<<< HEAD
 	u32 *msg, hwirq;
 	unsigned int offs;
 
 	offs = iproc_msi_eq_offset(msi, eq) + head * sizeof(u32);
 	msg = (u32 *)(msi->eq_cpu + offs);
+=======
+	u32 __iomem *msg;
+	u32 hwirq;
+	unsigned int offs;
+
+	offs = iproc_msi_eq_offset(msi, eq) + head * sizeof(u32);
+	msg = (u32 __iomem *)(msi->eq_cpu + offs);
+>>>>>>> upstream/android-13
 	hwirq = readl(msg);
 	hwirq = (hwirq >> 5) + (hwirq & 0x1f);
 
@@ -321,7 +367,10 @@ static void iproc_msi_handler(struct irq_desc *desc)
 	struct iproc_msi *msi;
 	u32 eq, head, tail, nr_events;
 	unsigned long hwirq;
+<<<<<<< HEAD
 	int virq;
+=======
+>>>>>>> upstream/android-13
 
 	chained_irq_enter(chip, desc);
 
@@ -357,8 +406,12 @@ static void iproc_msi_handler(struct irq_desc *desc)
 		/* process all outstanding events */
 		while (nr_events--) {
 			hwirq = decode_msi_hwirq(msi, eq, head);
+<<<<<<< HEAD
 			virq = irq_find_mapping(msi->inner_domain, hwirq);
 			generic_handle_irq(virq);
+=======
+			generic_handle_domain_irq(msi->inner_domain, hwirq);
+>>>>>>> upstream/android-13
 
 			head++;
 			head %= EQ_LEN;
@@ -372,7 +425,11 @@ static void iproc_msi_handler(struct irq_desc *desc)
 
 		/*
 		 * Now go read the tail pointer again to see if there are new
+<<<<<<< HEAD
 		 * oustanding events that came in during the above window.
+=======
+		 * outstanding events that came in during the above window.
+>>>>>>> upstream/android-13
 		 */
 	} while (true);
 
@@ -538,6 +595,12 @@ int iproc_msi_init(struct iproc_pcie *pcie, struct device_node *node)
 	mutex_init(&msi->bitmap_lock);
 	msi->nr_cpus = num_possible_cpus();
 
+<<<<<<< HEAD
+=======
+	if (msi->nr_cpus == 1)
+		iproc_msi_domain_info.flags |=  MSI_FLAG_MULTI_PCI_MSI;
+
+>>>>>>> upstream/android-13
 	msi->nr_irqs = of_irq_count(node);
 	if (!msi->nr_irqs) {
 		dev_err(pcie->dev, "found no MSI GIC interrupt\n");
@@ -607,9 +670,15 @@ int iproc_msi_init(struct iproc_pcie *pcie, struct device_node *node)
 	}
 
 	/* Reserve memory for event queue and make sure memories are zeroed */
+<<<<<<< HEAD
 	msi->eq_cpu = dma_zalloc_coherent(pcie->dev,
 					  msi->nr_eq_region * EQ_MEM_REGION_SIZE,
 					  &msi->eq_dma, GFP_KERNEL);
+=======
+	msi->eq_cpu = dma_alloc_coherent(pcie->dev,
+					 msi->nr_eq_region * EQ_MEM_REGION_SIZE,
+					 &msi->eq_dma, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!msi->eq_cpu) {
 		ret = -ENOMEM;
 		goto free_irqs;

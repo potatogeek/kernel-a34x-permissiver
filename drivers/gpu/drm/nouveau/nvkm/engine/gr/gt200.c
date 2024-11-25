@@ -43,7 +43,13 @@ gt200_gr = {
 };
 
 int
+<<<<<<< HEAD
 gt200_gr_new(struct nvkm_device *device, int index, struct nvkm_gr **pgr)
 {
 	return nv50_gr_new_(&gt200_gr, device, index, pgr);
+=======
+gt200_gr_new(struct nvkm_device *device, enum nvkm_subdev_type type, int inst, struct nvkm_gr **pgr)
+{
+	return nv50_gr_new_(&gt200_gr, device, type, inst, pgr);
+>>>>>>> upstream/android-13
 }

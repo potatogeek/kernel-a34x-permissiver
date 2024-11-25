@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *
  * Copyright (c) 2009, Microsoft Corporation.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
  * version 2, as published by the Free Software Foundation.
@@ -15,11 +20,16 @@
  * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
  * Place - Suite 330, Boston, MA 02111-1307 USA.
  *
+=======
+>>>>>>> upstream/android-13
  * Authors:
  *   Haiyang Zhang <haiyangz@microsoft.com>
  *   Hank Janssen  <hjanssen@microsoft.com>
  *   K. Y. Srinivasan <kys@microsoft.com>
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  */
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 
@@ -74,8 +84,15 @@ static void hv_signal_on_write(u32 old_write, struct vmbus_channel *channel)
 	 * This is the only case we need to signal when the
 	 * ring transitions from being empty to non-empty.
 	 */
+<<<<<<< HEAD
 	if (old_write == READ_ONCE(rbi->ring_buffer->read_index))
 		vmbus_setevent(channel);
+=======
+	if (old_write == READ_ONCE(rbi->ring_buffer->read_index)) {
+		++channel->intr_out_empty;
+		vmbus_setevent(channel);
+	}
+>>>>>>> upstream/android-13
 }
 
 /* Get the next write location for the specified ring buffer. */
@@ -95,6 +112,7 @@ hv_set_next_write_location(struct hv_ring_buffer_info *ring_info,
 	ring_info->ring_buffer->write_index = next_write_location;
 }
 
+<<<<<<< HEAD
 /* Set the next read location for the specified ring buffer. */
 static inline void
 hv_set_next_read_location(struct hv_ring_buffer_info *ring_info,
@@ -104,6 +122,8 @@ hv_set_next_read_location(struct hv_ring_buffer_info *ring_info,
 	ring_info->priv_read_index = next_read_location;
 }
 
+=======
+>>>>>>> upstream/android-13
 /* Get the size of the ring buffer. */
 static inline u32
 hv_get_ring_buffersize(const struct hv_ring_buffer_info *ring_info)
@@ -164,14 +184,27 @@ hv_get_ringbuffer_availbytes(const struct hv_ring_buffer_info *rbi,
 }
 
 /* Get various debug metrics for the specified ring buffer. */
+<<<<<<< HEAD
 int hv_ringbuffer_get_debuginfo(const struct hv_ring_buffer_info *ring_info,
+=======
+int hv_ringbuffer_get_debuginfo(struct hv_ring_buffer_info *ring_info,
+>>>>>>> upstream/android-13
 				struct hv_ring_buffer_debug_info *debug_info)
 {
 	u32 bytes_avail_towrite;
 	u32 bytes_avail_toread;
 
+<<<<<<< HEAD
 	if (!ring_info->ring_buffer)
 		return -EINVAL;
+=======
+	mutex_lock(&ring_info->ring_buffer_mutex);
+
+	if (!ring_info->ring_buffer) {
+		mutex_unlock(&ring_info->ring_buffer_mutex);
+		return -EINVAL;
+	}
+>>>>>>> upstream/android-13
 
 	hv_get_ringbuffer_availbytes(ring_info,
 				     &bytes_avail_toread,
@@ -182,21 +215,42 @@ int hv_ringbuffer_get_debuginfo(const struct hv_ring_buffer_info *ring_info,
 	debug_info->current_write_index = ring_info->ring_buffer->write_index;
 	debug_info->current_interrupt_mask
 		= ring_info->ring_buffer->interrupt_mask;
+<<<<<<< HEAD
+=======
+	mutex_unlock(&ring_info->ring_buffer_mutex);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 EXPORT_SYMBOL_GPL(hv_ringbuffer_get_debuginfo);
 
+<<<<<<< HEAD
 /* Initialize the ring buffer. */
 int hv_ringbuffer_init(struct hv_ring_buffer_info *ring_info,
 		       struct page *pages, u32 page_cnt)
+=======
+/* Initialize a channel's ring buffer info mutex locks */
+void hv_ringbuffer_pre_init(struct vmbus_channel *channel)
+{
+	mutex_init(&channel->inbound.ring_buffer_mutex);
+	mutex_init(&channel->outbound.ring_buffer_mutex);
+}
+
+/* Initialize the ring buffer. */
+int hv_ringbuffer_init(struct hv_ring_buffer_info *ring_info,
+		       struct page *pages, u32 page_cnt, u32 max_pkt_size)
+>>>>>>> upstream/android-13
 {
 	int i;
 	struct page **pages_wraparound;
 
 	BUILD_BUG_ON((sizeof(struct hv_ring_buffer) != PAGE_SIZE));
 
+<<<<<<< HEAD
 	memset(ring_info, 0, sizeof(struct hv_ring_buffer_info));
 
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * First page holds struct hv_ring_buffer, do wraparound mapping for
 	 * the rest.
@@ -230,6 +284,18 @@ int hv_ringbuffer_init(struct hv_ring_buffer_info *ring_info,
 		reciprocal_value(ring_info->ring_size / 10);
 	ring_info->ring_datasize = ring_info->ring_size -
 		sizeof(struct hv_ring_buffer);
+<<<<<<< HEAD
+=======
+	ring_info->priv_read_index = 0;
+
+	/* Initialize buffer that holds copies of incoming packets */
+	if (max_pkt_size) {
+		ring_info->pkt_buffer = kzalloc(max_pkt_size, GFP_KERNEL);
+		if (!ring_info->pkt_buffer)
+			return -ENOMEM;
+		ring_info->pkt_buffer_size = max_pkt_size;
+	}
+>>>>>>> upstream/android-13
 
 	spin_lock_init(&ring_info->ring_lock);
 
@@ -239,12 +305,28 @@ int hv_ringbuffer_init(struct hv_ring_buffer_info *ring_info,
 /* Cleanup the ring buffer. */
 void hv_ringbuffer_cleanup(struct hv_ring_buffer_info *ring_info)
 {
+<<<<<<< HEAD
 	vunmap(ring_info->ring_buffer);
+=======
+	mutex_lock(&ring_info->ring_buffer_mutex);
+	vunmap(ring_info->ring_buffer);
+	ring_info->ring_buffer = NULL;
+	mutex_unlock(&ring_info->ring_buffer_mutex);
+
+	kfree(ring_info->pkt_buffer);
+	ring_info->pkt_buffer = NULL;
+	ring_info->pkt_buffer_size = 0;
+>>>>>>> upstream/android-13
 }
 
 /* Write to the ring buffer. */
 int hv_ringbuffer_write(struct vmbus_channel *channel,
+<<<<<<< HEAD
 			const struct kvec *kv_list, u32 kv_count)
+=======
+			const struct kvec *kv_list, u32 kv_count,
+			u64 requestid)
+>>>>>>> upstream/android-13
 {
 	int i;
 	u32 bytes_avail_towrite;
@@ -254,6 +336,11 @@ int hv_ringbuffer_write(struct vmbus_channel *channel,
 	u64 prev_indices;
 	unsigned long flags;
 	struct hv_ring_buffer_info *outring_info = &channel->outbound;
+<<<<<<< HEAD
+=======
+	struct vmpacket_descriptor *desc = kv_list[0].iov_base;
+	u64 rqst_id = VMBUS_NO_RQSTOR;
+>>>>>>> upstream/android-13
 
 	if (channel->rescind)
 		return -ENODEV;
@@ -271,10 +358,25 @@ int hv_ringbuffer_write(struct vmbus_channel *channel,
 	 * is empty since the read index == write index.
 	 */
 	if (bytes_avail_towrite <= totalbytes_towrite) {
+<<<<<<< HEAD
+=======
+		++channel->out_full_total;
+
+		if (!channel->out_full_flag) {
+			++channel->out_full_first;
+			channel->out_full_flag = true;
+		}
+
+>>>>>>> upstream/android-13
 		spin_unlock_irqrestore(&outring_info->ring_lock, flags);
 		return -EAGAIN;
 	}
 
+<<<<<<< HEAD
+=======
+	channel->out_full_flag = false;
+
+>>>>>>> upstream/android-13
 	/* Write to the ring buffer */
 	next_write_location = hv_get_next_write_location(outring_info);
 
@@ -287,6 +389,27 @@ int hv_ringbuffer_write(struct vmbus_channel *channel,
 						     kv_list[i].iov_len);
 	}
 
+<<<<<<< HEAD
+=======
+	/*
+	 * Allocate the request ID after the data has been copied into the
+	 * ring buffer.  Once this request ID is allocated, the completion
+	 * path could find the data and free it.
+	 */
+
+	if (desc->flags == VMBUS_DATA_PACKET_FLAG_COMPLETION_REQUESTED) {
+		if (channel->next_request_id_callback != NULL) {
+			rqst_id = channel->next_request_id_callback(channel, requestid);
+			if (rqst_id == VMBUS_RQST_ERROR) {
+				spin_unlock_irqrestore(&outring_info->ring_lock, flags);
+				return -EAGAIN;
+			}
+		}
+	}
+	desc = hv_get_ring_buffer(outring_info) + old_write;
+	desc->trans_id = (rqst_id == VMBUS_NO_RQSTOR) ? requestid : rqst_id;
+
+>>>>>>> upstream/android-13
 	/* Set previous packet start */
 	prev_indices = hv_get_ring_bufferindices(outring_info);
 
@@ -306,8 +429,19 @@ int hv_ringbuffer_write(struct vmbus_channel *channel,
 
 	hv_signal_on_write(old_write, channel);
 
+<<<<<<< HEAD
 	if (channel->rescind)
 		return -ENODEV;
+=======
+	if (channel->rescind) {
+		if (rqst_id != VMBUS_NO_RQSTOR) {
+			/* Reclaim request ID to avoid leak of IDs */
+			if (channel->request_addr_callback != NULL)
+				channel->request_addr_callback(channel, rqst_id);
+		}
+		return -ENODEV;
+	}
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -347,7 +481,11 @@ int hv_ringbuffer_read(struct vmbus_channel *channel,
 	memcpy(buffer, (const char *)desc + offset, packetlen);
 
 	/* Advance ring index to next packet descriptor */
+<<<<<<< HEAD
 	__hv_pkt_iter_next(channel, desc);
+=======
+	__hv_pkt_iter_next(channel, desc, true);
+>>>>>>> upstream/android-13
 
 	/* Notify host of update */
 	hv_pkt_iter_close(channel);
@@ -365,7 +503,20 @@ int hv_ringbuffer_read(struct vmbus_channel *channel,
 static u32 hv_pkt_iter_avail(const struct hv_ring_buffer_info *rbi)
 {
 	u32 priv_read_loc = rbi->priv_read_index;
+<<<<<<< HEAD
 	u32 write_loc = READ_ONCE(rbi->ring_buffer->write_index);
+=======
+	u32 write_loc;
+
+	/*
+	 * The Hyper-V host writes the packet data, then uses
+	 * store_release() to update the write_index.  Use load_acquire()
+	 * here to prevent loads of the packet data from being re-ordered
+	 * before the read of the write_index and potentially getting
+	 * stale data.
+	 */
+	write_loc = virt_load_acquire(&rbi->ring_buffer->write_index);
+>>>>>>> upstream/android-13
 
 	if (write_loc >= priv_read_loc)
 		return write_loc - priv_read_loc;
@@ -374,6 +525,25 @@ static u32 hv_pkt_iter_avail(const struct hv_ring_buffer_info *rbi)
 }
 
 /*
+<<<<<<< HEAD
+=======
+ * Get first vmbus packet without copying it out of the ring buffer
+ */
+struct vmpacket_descriptor *hv_pkt_iter_first_raw(struct vmbus_channel *channel)
+{
+	struct hv_ring_buffer_info *rbi = &channel->inbound;
+
+	hv_debug_delay_test(channel, MESSAGE_DELAY);
+
+	if (hv_pkt_iter_avail(rbi) < sizeof(struct vmpacket_descriptor))
+		return NULL;
+
+	return (struct vmpacket_descriptor *)(hv_get_ring_buffer(rbi) + rbi->priv_read_index);
+}
+EXPORT_SYMBOL_GPL(hv_pkt_iter_first_raw);
+
+/*
+>>>>>>> upstream/android-13
  * Get first vmbus packet from ring buffer after read_index
  *
  * If ring buffer is empty, returns NULL and no other action needed.
@@ -381,6 +551,7 @@ static u32 hv_pkt_iter_avail(const struct hv_ring_buffer_info *rbi)
 struct vmpacket_descriptor *hv_pkt_iter_first(struct vmbus_channel *channel)
 {
 	struct hv_ring_buffer_info *rbi = &channel->inbound;
+<<<<<<< HEAD
 	struct vmpacket_descriptor *desc;
 
 	if (hv_pkt_iter_avail(rbi) < sizeof(struct vmpacket_descriptor))
@@ -391,6 +562,51 @@ struct vmpacket_descriptor *hv_pkt_iter_first(struct vmbus_channel *channel)
 		prefetch((char *)desc + (desc->len8 << 3));
 
 	return desc;
+=======
+	struct vmpacket_descriptor *desc, *desc_copy;
+	u32 bytes_avail, pkt_len, pkt_offset;
+
+	desc = hv_pkt_iter_first_raw(channel);
+	if (!desc)
+		return NULL;
+
+	bytes_avail = min(rbi->pkt_buffer_size, hv_pkt_iter_avail(rbi));
+
+	/*
+	 * Ensure the compiler does not use references to incoming Hyper-V values (which
+	 * could change at any moment) when reading local variables later in the code
+	 */
+	pkt_len = READ_ONCE(desc->len8) << 3;
+	pkt_offset = READ_ONCE(desc->offset8) << 3;
+
+	/*
+	 * If pkt_len is invalid, set it to the smaller of hv_pkt_iter_avail() and
+	 * rbi->pkt_buffer_size
+	 */
+	if (pkt_len < sizeof(struct vmpacket_descriptor) || pkt_len > bytes_avail)
+		pkt_len = bytes_avail;
+
+	/*
+	 * If pkt_offset is invalid, arbitrarily set it to
+	 * the size of vmpacket_descriptor
+	 */
+	if (pkt_offset < sizeof(struct vmpacket_descriptor) || pkt_offset > pkt_len)
+		pkt_offset = sizeof(struct vmpacket_descriptor);
+
+	/* Copy the Hyper-V packet out of the ring buffer */
+	desc_copy = (struct vmpacket_descriptor *)rbi->pkt_buffer;
+	memcpy(desc_copy, desc, pkt_len);
+
+	/*
+	 * Hyper-V could still change len8 and offset8 after the earlier read.
+	 * Ensure that desc_copy has legal values for len8 and offset8 that
+	 * are consistent with the copy we just made
+	 */
+	desc_copy->len8 = pkt_len >> 3;
+	desc_copy->offset8 = pkt_offset >> 3;
+
+	return desc_copy;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(hv_pkt_iter_first);
 
@@ -402,19 +618,32 @@ EXPORT_SYMBOL_GPL(hv_pkt_iter_first);
  */
 struct vmpacket_descriptor *
 __hv_pkt_iter_next(struct vmbus_channel *channel,
+<<<<<<< HEAD
 		   const struct vmpacket_descriptor *desc)
+=======
+		   const struct vmpacket_descriptor *desc,
+		   bool copy)
+>>>>>>> upstream/android-13
 {
 	struct hv_ring_buffer_info *rbi = &channel->inbound;
 	u32 packetlen = desc->len8 << 3;
 	u32 dsize = rbi->ring_datasize;
 
+<<<<<<< HEAD
+=======
+	hv_debug_delay_test(channel, MESSAGE_DELAY);
+>>>>>>> upstream/android-13
 	/* bump offset to next potential packet */
 	rbi->priv_read_index += packetlen + VMBUS_PKT_TRAILER;
 	if (rbi->priv_read_index >= dsize)
 		rbi->priv_read_index -= dsize;
 
 	/* more data? */
+<<<<<<< HEAD
 	return hv_pkt_iter_first(channel);
+=======
+	return copy ? hv_pkt_iter_first(channel) : hv_pkt_iter_first_raw(channel);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(__hv_pkt_iter_next);
 
@@ -529,6 +758,10 @@ void hv_pkt_iter_close(struct vmbus_channel *channel)
 	if (curr_write_sz <= pending_sz)
 		return;
 
+<<<<<<< HEAD
+=======
+	++channel->intr_in_full;
+>>>>>>> upstream/android-13
 	vmbus_setevent(channel);
 }
 EXPORT_SYMBOL_GPL(hv_pkt_iter_close);

@@ -582,7 +582,11 @@ retry:
 		if (!arg->layoutupdate_pages)
 			return -ENOMEM;
 
+<<<<<<< HEAD
 		start_p = __vmalloc(buffer_size, GFP_NOFS, PAGE_KERNEL);
+=======
+		start_p = __vmalloc(buffer_size, GFP_NOFS);
+>>>>>>> upstream/android-13
 		if (!start_p) {
 			kfree(arg->layoutupdate_pages);
 			return -ENOMEM;

@@ -3,14 +3,21 @@ config FB_OMAP2_DSS_INIT
 	bool
 
 config FB_OMAP2_DSS
+<<<<<<< HEAD
         tristate
+=======
+	tristate
+>>>>>>> upstream/android-13
 	select VIDEOMODE_HELPERS
 	select FB_OMAP2_DSS_INIT
 	select HDMI
 
 config FB_OMAP2_DSS_DEBUG
 	bool "Debug support"
+<<<<<<< HEAD
 	default n
+=======
+>>>>>>> upstream/android-13
 	help
 	  This enables printing of debug messages. Alternatively, debug messages
 	  can also be enabled by setting CONFIG_DYNAMIC_DEBUG and then setting
@@ -19,7 +26,10 @@ config FB_OMAP2_DSS_DEBUG
 config FB_OMAP2_DSS_DEBUGFS
 	bool "Debugfs filesystem support"
 	depends on DEBUG_FS
+<<<<<<< HEAD
 	default n
+=======
+>>>>>>> upstream/android-13
 	help
 	  This enables debugfs for OMAPDSS at <debugfs>/omapdss. This enables
 	  querying about clock configuration and register configuration of dss,
@@ -28,7 +38,10 @@ config FB_OMAP2_DSS_DEBUGFS
 config FB_OMAP2_DSS_COLLECT_IRQ_STATS
 	bool "Collect DSS IRQ statistics"
 	depends on FB_OMAP2_DSS_DEBUGFS
+<<<<<<< HEAD
 	default n
+=======
+>>>>>>> upstream/android-13
 	help
 	  Collect DSS IRQ statistics, printable via debugfs.
 
@@ -42,6 +55,7 @@ config FB_OMAP2_DSS_DPI
 	help
 	  DPI Interface. This is the Parallel Display Interface.
 
+<<<<<<< HEAD
 config FB_OMAP2_DSS_RFBI
 	bool "RFBI support"
 	depends on BROKEN
@@ -58,6 +72,11 @@ config FB_OMAP2_DSS_RFBI
 config FB_OMAP2_DSS_VENC
 	bool "VENC support"
         default y
+=======
+config FB_OMAP2_DSS_VENC
+	bool "VENC support"
+	default y
+>>>>>>> upstream/android-13
 	help
 	  OMAP Video Encoder support for S-Video and composite TV-out.
 
@@ -66,23 +85,37 @@ config FB_OMAP2_DSS_HDMI_COMMON
 
 config FB_OMAP4_DSS_HDMI
 	bool "HDMI support for OMAP4"
+<<<<<<< HEAD
         default y
+=======
+	default y
+>>>>>>> upstream/android-13
 	select FB_OMAP2_DSS_HDMI_COMMON
 	help
 	  HDMI support for OMAP4 based SoCs.
 
 config FB_OMAP5_DSS_HDMI
 	bool "HDMI support for OMAP5"
+<<<<<<< HEAD
 	default n
 	select FB_OMAP2_DSS_HDMI_COMMON
 	help
 	  HDMI Interface for OMAP5 and similar cores. This adds the High
 	  Definition Multimedia Interface. See http://www.hdmi.org/ for HDMI
+=======
+	select FB_OMAP2_DSS_HDMI_COMMON
+	help
+	  HDMI Interface for OMAP5 and similar cores. This adds the High
+	  Definition Multimedia Interface. See https://www.hdmi.org/ for HDMI
+>>>>>>> upstream/android-13
 	  specification.
 
 config FB_OMAP2_DSS_SDI
 	bool "SDI support"
+<<<<<<< HEAD
         default n
+=======
+>>>>>>> upstream/android-13
 	help
 	  SDI (Serial Display Interface) support.
 
@@ -91,14 +124,21 @@ config FB_OMAP2_DSS_SDI
 
 config FB_OMAP2_DSS_DSI
 	bool "DSI support"
+<<<<<<< HEAD
         default n
+=======
+>>>>>>> upstream/android-13
 	help
 	  MIPI DSI (Display Serial Interface) support.
 
 	  DSI is a high speed half-duplex serial interface between the host
 	  processor and a peripheral, such as a display or a framebuffer chip.
 
+<<<<<<< HEAD
 	  See http://www.mipi.org/ for DSI specifications.
+=======
+	  See https://www.mipi.org/ for DSI specifications.
+>>>>>>> upstream/android-13
 
 config FB_OMAP2_DSS_MIN_FCK_PER_PCK
 	int "Minimum FCK/PCK ratio (for scaling)"

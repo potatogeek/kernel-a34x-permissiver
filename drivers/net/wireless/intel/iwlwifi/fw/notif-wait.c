@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * This file is provided under a dual BSD/GPLv2 license.  When using or
@@ -62,6 +63,13 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *****************************************************************************/
+=======
+// SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause
+/*
+ * Copyright (C) 2005-2014, 2021 Intel Corporation
+ * Copyright (C) 2015-2017 Intel Deutschland GmbH
+ */
+>>>>>>> upstream/android-13
 #include <linux/sched.h>
 #include <linux/export.h>
 
@@ -85,7 +93,11 @@ bool iwl_notification_wait(struct iwl_notif_wait_data *notif_wait,
 	if (!list_empty(&notif_wait->notif_waits)) {
 		struct iwl_notification_wait *w;
 
+<<<<<<< HEAD
 		spin_lock(&notif_wait->notif_wait_lock);
+=======
+		spin_lock_bh(&notif_wait->notif_wait_lock);
+>>>>>>> upstream/android-13
 		list_for_each_entry(w, &notif_wait->notif_waits, list) {
 			int i;
 			bool found = false;
@@ -118,7 +130,11 @@ bool iwl_notification_wait(struct iwl_notif_wait_data *notif_wait,
 				triggered = true;
 			}
 		}
+<<<<<<< HEAD
 		spin_unlock(&notif_wait->notif_wait_lock);
+=======
+		spin_unlock_bh(&notif_wait->notif_wait_lock);
+>>>>>>> upstream/android-13
 	}
 
 	return triggered;
@@ -129,10 +145,17 @@ void iwl_abort_notification_waits(struct iwl_notif_wait_data *notif_wait)
 {
 	struct iwl_notification_wait *wait_entry;
 
+<<<<<<< HEAD
 	spin_lock(&notif_wait->notif_wait_lock);
 	list_for_each_entry(wait_entry, &notif_wait->notif_waits, list)
 		wait_entry->aborted = true;
 	spin_unlock(&notif_wait->notif_wait_lock);
+=======
+	spin_lock_bh(&notif_wait->notif_wait_lock);
+	list_for_each_entry(wait_entry, &notif_wait->notif_waits, list)
+		wait_entry->aborted = true;
+	spin_unlock_bh(&notif_wait->notif_wait_lock);
+>>>>>>> upstream/android-13
 
 	wake_up_all(&notif_wait->notif_waitq);
 }

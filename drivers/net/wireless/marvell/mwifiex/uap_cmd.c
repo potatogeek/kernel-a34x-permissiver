@@ -1,10 +1,19 @@
 /*
+<<<<<<< HEAD
  * Marvell Wireless LAN device driver: AP specific command handling
  *
  * Copyright (C) 2012-2014, Marvell International Ltd.
  *
  * This software file (the "File") is distributed by Marvell International
  * Ltd. under the terms of the GNU General Public License Version 2, June 1991
+=======
+ * NXP Wireless LAN device driver: AP specific command handling
+ *
+ * Copyright 2011-2020 NXP
+ *
+ * This software file (the "File") is distributed by NXP
+ * under the terms of the GNU General Public License Version 2, June 1991
+>>>>>>> upstream/android-13
  * (the "License").  You may use, redistribute and/or modify this File in
  * accordance with the terms and conditions of the License, a copy of which
  * is available by writing to the Free Software Foundation, Inc.,
@@ -108,6 +117,10 @@ int mwifiex_set_secure_params(struct mwifiex_private *priv,
 			if (params->crypto.wpa_versions & NL80211_WPA_VERSION_2)
 				bss_config->wpa_cfg.pairwise_cipher_wpa2 |=
 								CIPHER_AES_CCMP;
+<<<<<<< HEAD
+=======
+			break;
+>>>>>>> upstream/android-13
 		default:
 			break;
 		}

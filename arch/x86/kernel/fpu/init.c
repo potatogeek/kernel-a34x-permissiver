@@ -1,10 +1,17 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * x86 FPU boot time init code:
  */
 #include <asm/fpu/internal.h>
 #include <asm/tlbflush.h>
 #include <asm/setup.h>
+<<<<<<< HEAD
 #include <asm/cmdline.h>
+=======
+>>>>>>> upstream/android-13
 
 #include <linux/sched.h>
 #include <linux/sched/task.h>
@@ -89,7 +96,11 @@ static void fpu__init_system_early_generic(struct cpuinfo_x86 *c)
 /*
  * Boot time FPU feature detection code:
  */
+<<<<<<< HEAD
 unsigned int mxcsr_feature_mask __read_mostly = 0xffffffffu;
+=======
+unsigned int mxcsr_feature_mask __ro_after_init = 0xffffffffu;
+>>>>>>> upstream/android-13
 EXPORT_SYMBOL_GPL(mxcsr_feature_mask);
 
 static void __init fpu__init_system_mxcsr(void)
@@ -135,7 +146,11 @@ static void __init fpu__init_system_generic(void)
  * This is inherent to the XSAVE architecture which puts all state
  * components into a single, continuous memory block:
  */
+<<<<<<< HEAD
 unsigned int fpu_kernel_xstate_size;
+=======
+unsigned int fpu_kernel_xstate_size __ro_after_init;
+>>>>>>> upstream/android-13
 EXPORT_SYMBOL_GPL(fpu_kernel_xstate_size);
 
 /* Get alignment of the TYPE. */
@@ -203,12 +218,15 @@ static void __init fpu__init_system_xstate_size_legacy(void)
 	 */
 
 	if (!boot_cpu_has(X86_FEATURE_FPU)) {
+<<<<<<< HEAD
 		/*
 		 * Disable xsave as we do not support it if i387
 		 * emulation is enabled.
 		 */
 		setup_clear_cpu_cap(X86_FEATURE_XSAVE);
 		setup_clear_cpu_cap(X86_FEATURE_XSAVEOPT);
+=======
+>>>>>>> upstream/android-13
 		fpu_kernel_xstate_size = sizeof(struct swregs_state);
 	} else {
 		if (boot_cpu_has(X86_FEATURE_FXSR))
@@ -222,6 +240,7 @@ static void __init fpu__init_system_xstate_size_legacy(void)
 	fpu_user_xstate_size = fpu_kernel_xstate_size;
 }
 
+<<<<<<< HEAD
 /*
  * Find supported xfeatures based on cpu features and command-line input.
  * This must be called after fpu__init_parse_early_param() is called and
@@ -232,6 +251,8 @@ u64 __init fpu__get_supported_xfeatures_mask(void)
 	return XCNTXT_MASK;
 }
 
+=======
+>>>>>>> upstream/android-13
 /* Legacy code to initialize eager fpu mode. */
 static void __init fpu__init_system_ctx_switch(void)
 {
@@ -239,6 +260,7 @@ static void __init fpu__init_system_ctx_switch(void)
 
 	WARN_ON_FPU(!on_boot_cpu);
 	on_boot_cpu = 0;
+<<<<<<< HEAD
 
 	WARN_ON_FPU(current->thread.fpu.initialized);
 }
@@ -291,6 +313,8 @@ static void __init fpu__init_parse_early_param(void)
 		}
 	} while (res == 2);
 	pr_cont("\n");
+=======
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -299,7 +323,10 @@ static void __init fpu__init_parse_early_param(void)
  */
 void __init fpu__init_system(struct cpuinfo_x86 *c)
 {
+<<<<<<< HEAD
 	fpu__init_parse_early_param();
+=======
+>>>>>>> upstream/android-13
 	fpu__init_system_early_generic(c);
 
 	/*

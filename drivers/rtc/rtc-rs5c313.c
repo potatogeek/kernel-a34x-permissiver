@@ -366,6 +366,7 @@ static const struct rtc_class_ops rs5c313_rtc_ops = {
 
 static int rs5c313_rtc_probe(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	struct rtc_device *rtc = devm_rtc_device_register(&pdev->dev, "rs5c313",
 				&rs5c313_rtc_ops, THIS_MODULE);
 
@@ -375,6 +376,17 @@ static int rs5c313_rtc_probe(struct platform_device *pdev)
 	platform_set_drvdata(pdev, rtc);
 
 	return 0;
+=======
+	struct rtc_device *rtc;
+
+	rs5c313_init_port();
+	rs5c313_check_xstp_bit();
+
+	rtc = devm_rtc_device_register(&pdev->dev, "rs5c313", &rs5c313_rtc_ops,
+				       THIS_MODULE);
+
+	return PTR_ERR_OR_ZERO(rtc);
+>>>>>>> upstream/android-13
 }
 
 static struct platform_driver rs5c313_rtc_platform_driver = {
@@ -384,6 +396,7 @@ static struct platform_driver rs5c313_rtc_platform_driver = {
 	.probe	= rs5c313_rtc_probe,
 };
 
+<<<<<<< HEAD
 static int __init rs5c313_rtc_init(void)
 {
 	int err;
@@ -405,6 +418,9 @@ static void __exit rs5c313_rtc_exit(void)
 
 module_init(rs5c313_rtc_init);
 module_exit(rs5c313_rtc_exit);
+=======
+module_platform_driver(rs5c313_rtc_platform_driver);
+>>>>>>> upstream/android-13
 
 MODULE_AUTHOR("kogiidena , Nobuhiro Iwamatsu <iwamatsu@nigauri.org>");
 MODULE_DESCRIPTION("Ricoh RS5C313 RTC device driver");

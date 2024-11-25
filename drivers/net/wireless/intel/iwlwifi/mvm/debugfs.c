@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * This file is provided under a dual BSD/GPLv2 license.  When using or
@@ -67,6 +68,16 @@
  *
  *****************************************************************************/
 #include <linux/vmalloc.h>
+=======
+// SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause
+/*
+ * Copyright (C) 2012-2014, 2018-2021 Intel Corporation
+ * Copyright (C) 2013-2015 Intel Mobile Communications GmbH
+ * Copyright (C) 2016-2017 Intel Deutschland GmbH
+ */
+#include <linux/vmalloc.h>
+#include <linux/err.h>
+>>>>>>> upstream/android-13
 #include <linux/ieee80211.h>
 #include <linux/netdevice.h>
 
@@ -74,6 +85,10 @@
 #include "sta.h"
 #include "iwl-io.h"
 #include "debugfs.h"
+<<<<<<< HEAD
+=======
+#include "iwl-modparams.h"
+>>>>>>> upstream/android-13
 #include "fw/error-dump.h"
 
 static ssize_t iwl_dbgfs_ctdp_budget_read(struct file *file,
@@ -152,7 +167,12 @@ static ssize_t iwl_dbgfs_tx_flush_write(struct iwl_mvm *mvm, char *buf,
 				    "FLUSHING all tids queues on sta_id = %d\n",
 				    flush_arg);
 		mutex_lock(&mvm->mutex);
+<<<<<<< HEAD
 		ret = iwl_mvm_flush_sta_tids(mvm, flush_arg, 0xFF, 0) ? : count;
+=======
+		ret = iwl_mvm_flush_sta_tids(mvm, flush_arg, 0xFFFF)
+			? : count;
+>>>>>>> upstream/android-13
 		mutex_unlock(&mvm->mutex);
 		return ret;
 	}
@@ -161,7 +181,11 @@ static ssize_t iwl_dbgfs_tx_flush_write(struct iwl_mvm *mvm, char *buf,
 			    flush_arg);
 
 	mutex_lock(&mvm->mutex);
+<<<<<<< HEAD
 	ret =  iwl_mvm_flush_tx_path(mvm, flush_arg, 0) ? : count;
+=======
+	ret =  iwl_mvm_flush_tx_path(mvm, flush_arg) ? : count;
+>>>>>>> upstream/android-13
 	mutex_unlock(&mvm->mutex);
 
 	return ret;
@@ -179,7 +203,11 @@ static ssize_t iwl_dbgfs_sta_drain_write(struct iwl_mvm *mvm, char *buf,
 
 	if (sscanf(buf, "%d %d", &sta_id, &drain) != 2)
 		return -EINVAL;
+<<<<<<< HEAD
 	if (sta_id < 0 || sta_id >= IWL_MVM_STATION_COUNT)
+=======
+	if (sta_id < 0 || sta_id >= mvm->fw->ucode_capa.num_stations)
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	if (drain < 0 || drain > 1)
 		return -EINVAL;
@@ -365,7 +393,10 @@ static ssize_t iwl_dbgfs_sar_geo_profile_read(struct file *file,
 	int pos = 0;
 	int bufsz = sizeof(buf);
 	int tbl_idx;
+<<<<<<< HEAD
 	u8 *value;
+=======
+>>>>>>> upstream/android-13
 
 	if (!iwl_mvm_firmware_running(mvm))
 		return -EIO;
@@ -381,6 +412,7 @@ static ssize_t iwl_dbgfs_sar_geo_profile_read(struct file *file,
 		pos = scnprintf(buf, bufsz,
 				"SAR geographic profile disabled\n");
 	} else {
+<<<<<<< HEAD
 		value = &mvm->geo_profiles[tbl_idx - 1].values[0];
 
 		pos += scnprintf(buf + pos, bufsz - pos,
@@ -391,6 +423,20 @@ static ssize_t iwl_dbgfs_sar_geo_profile_read(struct file *file,
 		pos += scnprintf(buf + pos, bufsz - pos,
 				 "5.2GHz:\n\tChain A offset: %hhd dBm\n\tChain B offset: %hhd dBm\n\tmax tx power: %hhd dBm\n",
 				 value[4], value[5], value[3]);
+=======
+		pos += scnprintf(buf + pos, bufsz - pos,
+				 "Use geographic profile %d\n", tbl_idx);
+		pos += scnprintf(buf + pos, bufsz - pos,
+				 "2.4GHz:\n\tChain A offset: %hhu dBm\n\tChain B offset: %hhu dBm\n\tmax tx power: %hhu dBm\n",
+				 mvm->fwrt.geo_profiles[tbl_idx - 1].bands[0].chains[0],
+				 mvm->fwrt.geo_profiles[tbl_idx - 1].bands[0].chains[1],
+				 mvm->fwrt.geo_profiles[tbl_idx - 1].bands[0].max);
+		pos += scnprintf(buf + pos, bufsz - pos,
+				 "5.2GHz:\n\tChain A offset: %hhu dBm\n\tChain B offset: %hhu dBm\n\tmax tx power: %hhu dBm\n",
+				 mvm->fwrt.geo_profiles[tbl_idx - 1].bands[1].chains[0],
+				 mvm->fwrt.geo_profiles[tbl_idx - 1].bands[1].chains[1],
+				 mvm->fwrt.geo_profiles[tbl_idx - 1].bands[1].max);
+>>>>>>> upstream/android-13
 	}
 	mutex_unlock(&mvm->mutex);
 
@@ -408,7 +454,11 @@ static ssize_t iwl_dbgfs_stations_read(struct file *file, char __user *user_buf,
 
 	mutex_lock(&mvm->mutex);
 
+<<<<<<< HEAD
 	for (i = 0; i < ARRAY_SIZE(mvm->fw_id_to_mac_id); i++) {
+=======
+	for (i = 0; i < mvm->fw->ucode_capa.num_stations; i++) {
+>>>>>>> upstream/android-13
 		pos += scnprintf(buf + pos, bufsz - pos, "%.2d: ", i);
 		sta = rcu_dereference_protected(mvm->fw_id_to_mac_id[i],
 						lockdep_is_held(&mvm->mutex));
@@ -464,6 +514,11 @@ static ssize_t iwl_dbgfs_rs_data_read(struct file *file, char __user *user_buf,
 
 	desc += rs_pretty_print_rate(buff + desc, bufsz - desc,
 				     lq_sta->last_rate_n_flags);
+<<<<<<< HEAD
+=======
+	if (desc < bufsz - 1)
+		buff[desc++] = '\n';
+>>>>>>> upstream/android-13
 	mutex_unlock(&mvm->mutex);
 
 	ret = simple_read_from_buffer(user_buf, count, ppos, buff, desc);
@@ -471,6 +526,54 @@ static ssize_t iwl_dbgfs_rs_data_read(struct file *file, char __user *user_buf,
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+static ssize_t iwl_dbgfs_amsdu_len_write(struct ieee80211_sta *sta,
+					 char *buf, size_t count,
+					 loff_t *ppos)
+{
+	struct iwl_mvm_sta *mvmsta = iwl_mvm_sta_from_mac80211(sta);
+	int i;
+	u16 amsdu_len;
+
+	if (kstrtou16(buf, 0, &amsdu_len))
+		return -EINVAL;
+
+	/* only change from debug set <-> debug unset */
+	if ((amsdu_len && mvmsta->orig_amsdu_len) ||
+	    (!!amsdu_len && mvmsta->orig_amsdu_len))
+		return -EBUSY;
+
+	if (amsdu_len) {
+		mvmsta->orig_amsdu_len = sta->max_amsdu_len;
+		sta->max_amsdu_len = amsdu_len;
+		for (i = 0; i < ARRAY_SIZE(sta->max_tid_amsdu_len); i++)
+			sta->max_tid_amsdu_len[i] = amsdu_len;
+	} else {
+		sta->max_amsdu_len = mvmsta->orig_amsdu_len;
+		mvmsta->orig_amsdu_len = 0;
+	}
+	return count;
+}
+
+static ssize_t iwl_dbgfs_amsdu_len_read(struct file *file,
+					char __user *user_buf,
+					size_t count, loff_t *ppos)
+{
+	struct ieee80211_sta *sta = file->private_data;
+	struct iwl_mvm_sta *mvmsta = iwl_mvm_sta_from_mac80211(sta);
+
+	char buf[32];
+	int pos;
+
+	pos = scnprintf(buf, sizeof(buf), "current %d ", sta->max_amsdu_len);
+	pos += scnprintf(buf + pos, sizeof(buf) - pos, "stored %d\n",
+			 mvmsta->orig_amsdu_len);
+
+	return simple_read_from_buffer(user_buf, count, ppos, buf, pos);
+}
+
+>>>>>>> upstream/android-13
 static ssize_t iwl_dbgfs_disable_power_off_read(struct file *file,
 						char __user *user_buf,
 						size_t count, loff_t *ppos)
@@ -671,6 +774,7 @@ iwl_dbgfs_bt_force_ant_write(struct iwl_mvm *mvm, char *buf,
 	};
 	int ret, bt_force_ant_mode;
 
+<<<<<<< HEAD
 	for (bt_force_ant_mode = 0;
 	     bt_force_ant_mode < ARRAY_SIZE(modes_str);
 	     bt_force_ant_mode++) {
@@ -681,6 +785,13 @@ iwl_dbgfs_bt_force_ant_write(struct iwl_mvm *mvm, char *buf,
 	if (bt_force_ant_mode >= ARRAY_SIZE(modes_str))
 		return -EINVAL;
 
+=======
+	ret = match_string(modes_str, ARRAY_SIZE(modes_str), buf);
+	if (ret < 0)
+		return ret;
+
+	bt_force_ant_mode = ret;
+>>>>>>> upstream/android-13
 	ret = 0;
 	mutex_lock(&mvm->mutex);
 	if (mvm->bt_force_ant_mode == bt_force_ant_mode)
@@ -720,7 +831,11 @@ static ssize_t iwl_dbgfs_fw_ver_read(struct file *file, char __user *user_buf,
 	pos += scnprintf(pos, endpos - pos, "FW: %s\n",
 			 mvm->fwrt.fw->human_readable);
 	pos += scnprintf(pos, endpos - pos, "Device: %s\n",
+<<<<<<< HEAD
 			 mvm->fwrt.trans->cfg->name);
+=======
+			 mvm->fwrt.trans->name);
+>>>>>>> upstream/android-13
 	pos += scnprintf(pos, endpos - pos, "Bus: %s\n",
 			 mvm->fwrt.dev->bus->name);
 
@@ -730,6 +845,33 @@ static ssize_t iwl_dbgfs_fw_ver_read(struct file *file, char __user *user_buf,
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+static ssize_t iwl_dbgfs_phy_integration_ver_read(struct file *file,
+						  char __user *user_buf,
+						  size_t count, loff_t *ppos)
+{
+	struct iwl_mvm *mvm = file->private_data;
+	char *buf;
+	size_t bufsz;
+	int pos;
+	ssize_t ret;
+
+	bufsz = mvm->fw->phy_integration_ver_len + 2;
+	buf = kmalloc(bufsz, GFP_KERNEL);
+	if (!buf)
+		return -ENOMEM;
+
+	pos = scnprintf(buf, bufsz, "%.*s\n", mvm->fw->phy_integration_ver_len,
+			mvm->fw->phy_integration_ver);
+
+	ret = simple_read_from_buffer(user_buf, count, ppos, buf, pos);
+
+	kfree(buf);
+	return ret;
+}
+
+>>>>>>> upstream/android-13
 #define PRINT_STATS_LE32(_struct, _memb)				\
 			 pos += scnprintf(buf + pos, bufsz - pos,	\
 					  fmt_table, #_memb,		\
@@ -981,6 +1123,11 @@ static ssize_t iwl_dbgfs_frame_stats_read(struct iwl_mvm *mvm,
 				 (int)(ARRAY_SIZE(stats->last_rates) - i));
 		pos += rs_pretty_print_rate(pos, endpos - pos,
 					    stats->last_rates[idx]);
+<<<<<<< HEAD
+=======
+		if (pos < endpos - 1)
+			*pos++ = '\n';
+>>>>>>> upstream/android-13
 	}
 	spin_unlock_bh(&mvm->drv_stats_lock);
 
@@ -1015,7 +1162,13 @@ static ssize_t iwl_dbgfs_fw_restart_write(struct iwl_mvm *mvm, char *buf,
 		mvm->fw_restart++;
 
 	/* take the return value to make compiler happy - it will fail anyway */
+<<<<<<< HEAD
 	ret = iwl_mvm_send_cmd_pdu(mvm, REPLY_ERROR, 0, 0, NULL);
+=======
+	ret = iwl_mvm_send_cmd_pdu(mvm,
+				   WIDE_ID(LONG_GROUP, REPLY_ERROR),
+				   0, 0, NULL);
+>>>>>>> upstream/android-13
 
 	mutex_unlock(&mvm->mutex);
 
@@ -1025,6 +1178,7 @@ static ssize_t iwl_dbgfs_fw_restart_write(struct iwl_mvm *mvm, char *buf,
 static ssize_t iwl_dbgfs_fw_nmi_write(struct iwl_mvm *mvm, char *buf,
 				      size_t count, loff_t *ppos)
 {
+<<<<<<< HEAD
 	int ret;
 
 	if (!iwl_mvm_firmware_running(mvm))
@@ -1038,6 +1192,13 @@ static ssize_t iwl_dbgfs_fw_nmi_write(struct iwl_mvm *mvm, char *buf,
 
 	iwl_mvm_unref(mvm, IWL_MVM_REF_NMI);
 
+=======
+	if (!iwl_mvm_firmware_running(mvm))
+		return -EIO;
+
+	iwl_force_nmi(mvm->trans);
+
+>>>>>>> upstream/android-13
 	return count;
 }
 
@@ -1141,12 +1302,19 @@ static ssize_t iwl_dbgfs_inject_packet_write(struct iwl_mvm *mvm,
 					     char *buf, size_t count,
 					     loff_t *ppos)
 {
+<<<<<<< HEAD
+=======
+	struct iwl_op_mode *opmode = container_of((void *)mvm,
+						  struct iwl_op_mode,
+						  op_mode_specific);
+>>>>>>> upstream/android-13
 	struct iwl_rx_cmd_buffer rxb = {
 		._rx_page_order = 0,
 		.truesize = 0, /* not used */
 		._offset = 0,
 	};
 	struct iwl_rx_packet *pkt;
+<<<<<<< HEAD
 	struct iwl_rx_mpdu_desc *desc;
 	int bin_len = count / 2;
 	int ret = -EINVAL;
@@ -1154,12 +1322,21 @@ static ssize_t iwl_dbgfs_inject_packet_write(struct iwl_mvm *mvm,
 		(mvm->trans->cfg->device_family >= IWL_DEVICE_FAMILY_22560) ?
 		sizeof(struct iwl_rx_mpdu_desc) :
 		IWL_RX_DESC_SIZE_V1;
+=======
+	int bin_len = count / 2;
+	int ret = -EINVAL;
+>>>>>>> upstream/android-13
 
 	if (!iwl_mvm_firmware_running(mvm))
 		return -EIO;
 
+<<<<<<< HEAD
 	/* supporting only 9000 descriptor */
 	if (!mvm->trans->cfg->mq_rx_supported)
+=======
+	/* supporting only MQ RX */
+	if (!mvm->trans->trans_cfg->mq_rx_supported)
+>>>>>>> upstream/android-13
 		return -ENOTSUPP;
 
 	rxb._page = alloc_pages(GFP_ATOMIC, 0);
@@ -1171,6 +1348,7 @@ static ssize_t iwl_dbgfs_inject_packet_write(struct iwl_mvm *mvm,
 	if (ret)
 		goto out;
 
+<<<<<<< HEAD
 	/* avoid invalid memory access */
 	if (bin_len < sizeof(*pkt) + mpdu_cmd_hdr_size)
 		goto out;
@@ -1188,6 +1366,15 @@ static ssize_t iwl_dbgfs_inject_packet_write(struct iwl_mvm *mvm,
 
 	local_bh_disable();
 	iwl_mvm_rx_mpdu_mq(mvm, NULL, &rxb, 0);
+=======
+	/* avoid invalid memory access and malformed packet */
+	if (bin_len < sizeof(*pkt) ||
+	    bin_len != sizeof(*pkt) + iwl_rx_packet_payload_len(pkt))
+		goto out;
+
+	local_bh_disable();
+	iwl_mvm_rx_mq(opmode, NULL, &rxb);
+>>>>>>> upstream/android-13
 	local_bh_enable();
 	ret = 0;
 
@@ -1197,6 +1384,112 @@ out:
 	return ret ?: count;
 }
 
+<<<<<<< HEAD
+=======
+static int _iwl_dbgfs_inject_beacon_ie(struct iwl_mvm *mvm, char *bin, int len)
+{
+	struct ieee80211_vif *vif;
+	struct iwl_mvm_vif *mvmvif;
+	struct sk_buff *beacon;
+	struct ieee80211_tx_info *info;
+	struct iwl_mac_beacon_cmd beacon_cmd = {};
+	u8 rate;
+	u16 flags;
+	int i;
+
+	len /= 2;
+
+	/* Element len should be represented by u8 */
+	if (len >= U8_MAX)
+		return -EINVAL;
+
+	if (!iwl_mvm_firmware_running(mvm))
+		return -EIO;
+
+	if (!iwl_mvm_has_new_tx_api(mvm) &&
+	    !fw_has_api(&mvm->fw->ucode_capa,
+			IWL_UCODE_TLV_API_NEW_BEACON_TEMPLATE))
+		return -EINVAL;
+
+	mutex_lock(&mvm->mutex);
+
+	for (i = 0; i < NUM_MAC_INDEX_DRIVER; i++) {
+		vif = iwl_mvm_rcu_dereference_vif_id(mvm, i, false);
+		if (!vif)
+			continue;
+
+		if (vif->type == NL80211_IFTYPE_AP)
+			break;
+	}
+
+	if (i == NUM_MAC_INDEX_DRIVER || !vif)
+		goto out_err;
+
+	mvm->hw->extra_beacon_tailroom = len;
+
+	beacon = ieee80211_beacon_get_template(mvm->hw, vif, NULL);
+	if (!beacon)
+		goto out_err;
+
+	if (len && hex2bin(skb_put_zero(beacon, len), bin, len)) {
+		dev_kfree_skb(beacon);
+		goto out_err;
+	}
+
+	mvm->beacon_inject_active = true;
+
+	mvmvif = iwl_mvm_vif_from_mac80211(vif);
+	info = IEEE80211_SKB_CB(beacon);
+	rate = iwl_mvm_mac_ctxt_get_lowest_rate(info, vif);
+	flags = iwl_mvm_mac80211_idx_to_hwrate(rate);
+
+	if (rate == IWL_FIRST_CCK_RATE)
+		flags |= IWL_MAC_BEACON_CCK;
+
+	beacon_cmd.flags = cpu_to_le16(flags);
+	beacon_cmd.byte_cnt = cpu_to_le16((u16)beacon->len);
+	beacon_cmd.template_id = cpu_to_le32((u32)mvmvif->id);
+
+	iwl_mvm_mac_ctxt_set_tim(mvm, &beacon_cmd.tim_idx,
+				 &beacon_cmd.tim_size,
+				 beacon->data, beacon->len);
+
+	iwl_mvm_mac_ctxt_send_beacon_cmd(mvm, beacon, &beacon_cmd,
+					 sizeof(beacon_cmd));
+	mutex_unlock(&mvm->mutex);
+
+	dev_kfree_skb(beacon);
+
+	return 0;
+
+out_err:
+	mutex_unlock(&mvm->mutex);
+	return -EINVAL;
+}
+
+static ssize_t iwl_dbgfs_inject_beacon_ie_write(struct iwl_mvm *mvm,
+						char *buf, size_t count,
+						loff_t *ppos)
+{
+	int ret = _iwl_dbgfs_inject_beacon_ie(mvm, buf, count);
+
+	mvm->hw->extra_beacon_tailroom = 0;
+	return ret ?: count;
+}
+
+static ssize_t iwl_dbgfs_inject_beacon_ie_restore_write(struct iwl_mvm *mvm,
+							char *buf,
+							size_t count,
+							loff_t *ppos)
+{
+	int ret = _iwl_dbgfs_inject_beacon_ie(mvm, NULL, 0);
+
+	mvm->hw->extra_beacon_tailroom = 0;
+	mvm->beacon_inject_active = false;
+	return ret ?: count;
+}
+
+>>>>>>> upstream/android-13
 static ssize_t iwl_dbgfs_fw_dbg_conf_read(struct file *file,
 					  char __user *user_buf,
 					  size_t count, loff_t *ppos)
@@ -1216,6 +1509,7 @@ static ssize_t iwl_dbgfs_fw_dbg_conf_read(struct file *file,
 	return simple_read_from_buffer(user_buf, count, ppos, buf, pos);
 }
 
+<<<<<<< HEAD
 /*
  * Enable / Disable continuous recording.
  * Cause the FW to start continuous recording, by sending the relevant hcmd.
@@ -1257,6 +1551,8 @@ static ssize_t iwl_dbgfs_cont_recording_write(struct iwl_mvm *mvm,
 	return ret ?: count;
 }
 
+=======
+>>>>>>> upstream/android-13
 static ssize_t iwl_dbgfs_fw_dbg_conf_write(struct iwl_mvm *mvm,
 					   char *buf, size_t count,
 					   loff_t *ppos)
@@ -1285,6 +1581,7 @@ static ssize_t iwl_dbgfs_fw_dbg_collect_write(struct iwl_mvm *mvm,
 					      char *buf, size_t count,
 					      loff_t *ppos)
 {
+<<<<<<< HEAD
 	int ret;
 
 	ret = iwl_mvm_ref_sync(mvm, IWL_MVM_REF_PRPH_WRITE);
@@ -1315,6 +1612,34 @@ static ssize_t iwl_dbgfs_max_amsdu_len_write(struct iwl_mvm *mvm,
 	if (max_amsdu_len > IEEE80211_MAX_MPDU_LEN_VHT_11454)
 		return -EINVAL;
 	mvm->max_amsdu_len = max_amsdu_len;
+=======
+	if (count == 0)
+		return 0;
+
+	iwl_dbg_tlv_time_point(&mvm->fwrt, IWL_FW_INI_TIME_POINT_USER_TRIGGER,
+			       NULL);
+
+	iwl_fw_dbg_collect(&mvm->fwrt, FW_DBG_TRIGGER_USER, buf,
+			   (count - 1), NULL);
+
+	return count;
+}
+
+static ssize_t iwl_dbgfs_dbg_time_point_write(struct iwl_mvm *mvm,
+					      char *buf, size_t count,
+					      loff_t *ppos)
+{
+	u32 timepoint;
+
+	if (kstrtou32(buf, 0, &timepoint))
+		return -EINVAL;
+
+	if (timepoint == IWL_FW_INI_TIME_POINT_INVALID ||
+	    timepoint >= IWL_FW_INI_TIME_POINT_NUM)
+		return -EINVAL;
+
+	iwl_dbg_tlv_time_point(&mvm->fwrt, timepoint, NULL);
+>>>>>>> upstream/android-13
 
 	return count;
 }
@@ -1502,6 +1827,7 @@ static ssize_t iwl_dbgfs_bcast_filters_macs_write(struct iwl_mvm *mvm,
 }
 #endif
 
+<<<<<<< HEAD
 #ifdef CONFIG_PM_SLEEP
 static ssize_t iwl_dbgfs_d3_sram_write(struct iwl_mvm *mvm, char *buf,
 				       size_t count, loff_t *ppos)
@@ -1636,14 +1962,21 @@ static ssize_t iwl_dbgfs_d0i3_refs_write(struct iwl_mvm *mvm, char *buf,
 	return count;
 }
 
+=======
+>>>>>>> upstream/android-13
 #define MVM_DEBUGFS_WRITE_FILE_OPS(name, bufsz) \
 	_MVM_DEBUGFS_WRITE_FILE_OPS(name, bufsz, struct iwl_mvm)
 #define MVM_DEBUGFS_READ_WRITE_FILE_OPS(name, bufsz) \
 	_MVM_DEBUGFS_READ_WRITE_FILE_OPS(name, bufsz, struct iwl_mvm)
 #define MVM_DEBUGFS_ADD_FILE_ALIAS(alias, name, parent, mode) do {	\
+<<<<<<< HEAD
 		if (!debugfs_create_file(alias, mode, parent, mvm,	\
 					 &iwl_dbgfs_##name##_ops))	\
 			goto err;					\
+=======
+		debugfs_create_file(alias, mode, parent, mvm,		\
+				    &iwl_dbgfs_##name##_ops);		\
+>>>>>>> upstream/android-13
 	} while (0)
 #define MVM_DEBUGFS_ADD_FILE(name, parent, mode) \
 	MVM_DEBUGFS_ADD_FILE_ALIAS(#name, name, parent, mode)
@@ -1654,9 +1987,14 @@ static ssize_t iwl_dbgfs_d0i3_refs_write(struct iwl_mvm *mvm, char *buf,
 	_MVM_DEBUGFS_READ_WRITE_FILE_OPS(name, bufsz, struct ieee80211_sta)
 
 #define MVM_DEBUGFS_ADD_STA_FILE_ALIAS(alias, name, parent, mode) do {	\
+<<<<<<< HEAD
 		if (!debugfs_create_file(alias, mode, parent, sta,	\
 					 &iwl_dbgfs_##name##_ops))	\
 			goto err;					\
+=======
+		debugfs_create_file(alias, mode, parent, sta,		\
+				    &iwl_dbgfs_##name##_ops);		\
+>>>>>>> upstream/android-13
 	} while (0)
 #define MVM_DEBUGFS_ADD_STA_FILE(name, parent, mode) \
 	MVM_DEBUGFS_ADD_STA_FILE_ALIAS(#name, name, parent, mode)
@@ -1670,21 +2008,30 @@ iwl_dbgfs_prph_reg_read(struct file *file,
 	int pos = 0;
 	char buf[32];
 	const size_t bufsz = sizeof(buf);
+<<<<<<< HEAD
 	int ret;
+=======
+>>>>>>> upstream/android-13
 
 	if (!mvm->dbgfs_prph_reg_addr)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	ret = iwl_mvm_ref_sync(mvm, IWL_MVM_REF_PRPH_READ);
 	if (ret)
 		return ret;
 
+=======
+>>>>>>> upstream/android-13
 	pos += scnprintf(buf + pos, bufsz - pos, "Reg 0x%x: (0x%x)\n",
 		mvm->dbgfs_prph_reg_addr,
 		iwl_read_prph(mvm->trans, mvm->dbgfs_prph_reg_addr));
 
+<<<<<<< HEAD
 	iwl_mvm_unref(mvm, IWL_MVM_REF_PRPH_READ);
 
+=======
+>>>>>>> upstream/android-13
 	return simple_read_from_buffer(user_buf, count, ppos, buf, pos);
 }
 
@@ -1694,7 +2041,10 @@ iwl_dbgfs_prph_reg_write(struct iwl_mvm *mvm, char *buf,
 {
 	u8 args;
 	u32 value;
+<<<<<<< HEAD
 	int ret;
+=======
+>>>>>>> upstream/android-13
 
 	args = sscanf(buf, "%i %i", &mvm->dbgfs_prph_reg_addr, &value);
 	/* if we only want to set the reg address - nothing more to do */
@@ -1705,6 +2055,7 @@ iwl_dbgfs_prph_reg_write(struct iwl_mvm *mvm, char *buf,
 	if (args != 2)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	ret = iwl_mvm_ref_sync(mvm, IWL_MVM_REF_PRPH_WRITE);
 	if (ret)
 		return ret;
@@ -1712,6 +2063,10 @@ iwl_dbgfs_prph_reg_write(struct iwl_mvm *mvm, char *buf,
 	iwl_write_prph(mvm->trans, mvm->dbgfs_prph_reg_addr, value);
 
 	iwl_mvm_unref(mvm, IWL_MVM_REF_PRPH_WRITE);
+=======
+	iwl_write_prph(mvm->trans, mvm->dbgfs_prph_reg_addr, value);
+
+>>>>>>> upstream/android-13
 out:
 	return count;
 }
@@ -1732,6 +2087,101 @@ iwl_dbgfs_send_echo_cmd_write(struct iwl_mvm *mvm, char *buf,
 	return ret ?: count;
 }
 
+<<<<<<< HEAD
+=======
+struct iwl_mvm_sniffer_apply {
+	struct iwl_mvm *mvm;
+	u8 *bssid;
+	u16 aid;
+};
+
+static bool iwl_mvm_sniffer_apply(struct iwl_notif_wait_data *notif_data,
+				  struct iwl_rx_packet *pkt, void *data)
+{
+	struct iwl_mvm_sniffer_apply *apply = data;
+
+	apply->mvm->cur_aid = cpu_to_le16(apply->aid);
+	memcpy(apply->mvm->cur_bssid, apply->bssid,
+	       sizeof(apply->mvm->cur_bssid));
+
+	return true;
+}
+
+static ssize_t
+iwl_dbgfs_he_sniffer_params_write(struct iwl_mvm *mvm, char *buf,
+				  size_t count, loff_t *ppos)
+{
+	struct iwl_notification_wait wait;
+	struct iwl_he_monitor_cmd he_mon_cmd = {};
+	struct iwl_mvm_sniffer_apply apply = {
+		.mvm = mvm,
+	};
+	u16 wait_cmds[] = {
+		iwl_cmd_id(HE_AIR_SNIFFER_CONFIG_CMD, DATA_PATH_GROUP, 0),
+	};
+	u32 aid;
+	int ret;
+
+	if (!iwl_mvm_firmware_running(mvm))
+		return -EIO;
+
+	ret = sscanf(buf, "%x %2hhx:%2hhx:%2hhx:%2hhx:%2hhx:%2hhx", &aid,
+		     &he_mon_cmd.bssid[0], &he_mon_cmd.bssid[1],
+		     &he_mon_cmd.bssid[2], &he_mon_cmd.bssid[3],
+		     &he_mon_cmd.bssid[4], &he_mon_cmd.bssid[5]);
+	if (ret != 7)
+		return -EINVAL;
+
+	he_mon_cmd.aid = cpu_to_le16(aid);
+
+	apply.aid = aid;
+	apply.bssid = (void *)he_mon_cmd.bssid;
+
+	mutex_lock(&mvm->mutex);
+
+	/*
+	 * Use the notification waiter to get our function triggered
+	 * in sequence with other RX. This ensures that frames we get
+	 * on the RX queue _before_ the new configuration is applied
+	 * still have mvm->cur_aid pointing to the old AID, and that
+	 * frames on the RX queue _after_ the firmware processed the
+	 * new configuration (and sent the response, synchronously)
+	 * get mvm->cur_aid correctly set to the new AID.
+	 */
+	iwl_init_notification_wait(&mvm->notif_wait, &wait,
+				   wait_cmds, ARRAY_SIZE(wait_cmds),
+				   iwl_mvm_sniffer_apply, &apply);
+
+	ret = iwl_mvm_send_cmd_pdu(mvm, iwl_cmd_id(HE_AIR_SNIFFER_CONFIG_CMD,
+						   DATA_PATH_GROUP, 0), 0,
+				   sizeof(he_mon_cmd), &he_mon_cmd);
+
+	/* no need to really wait, we already did anyway */
+	iwl_remove_notification(&mvm->notif_wait, &wait);
+
+	mutex_unlock(&mvm->mutex);
+
+	return ret ?: count;
+}
+
+static ssize_t
+iwl_dbgfs_he_sniffer_params_read(struct file *file, char __user *user_buf,
+				 size_t count, loff_t *ppos)
+{
+	struct iwl_mvm *mvm = file->private_data;
+	u8 buf[32];
+	int len;
+
+	len = scnprintf(buf, sizeof(buf),
+			"%d %02hhx:%02hhx:%02hhx:%02hhx:%02hhx:%02hhx\n",
+			le16_to_cpu(mvm->cur_aid), mvm->cur_bssid[0],
+			mvm->cur_bssid[1], mvm->cur_bssid[2], mvm->cur_bssid[3],
+			mvm->cur_bssid[4], mvm->cur_bssid[5]);
+
+	return simple_read_from_buffer(user_buf, count, ppos, buf, len);
+}
+
+>>>>>>> upstream/android-13
 static ssize_t
 iwl_dbgfs_uapsd_noagg_bssids_read(struct file *file, char __user *user_buf,
 				  size_t count, loff_t *ppos)
@@ -1753,6 +2203,107 @@ iwl_dbgfs_uapsd_noagg_bssids_read(struct file *file, char __user *user_buf,
 	return simple_read_from_buffer(user_buf, count, ppos, buf, pos);
 }
 
+<<<<<<< HEAD
+=======
+static ssize_t
+iwl_dbgfs_ltr_config_write(struct iwl_mvm *mvm,
+			   char *buf, size_t count, loff_t *ppos)
+{
+	int ret;
+	struct iwl_ltr_config_cmd ltr_config = {0};
+
+	if (!iwl_mvm_firmware_running(mvm))
+		return -EIO;
+
+	if (sscanf(buf, "%x,%x,%x,%x,%x,%x,%x",
+		   &ltr_config.flags,
+		   &ltr_config.static_long,
+		   &ltr_config.static_short,
+		   &ltr_config.ltr_cfg_values[0],
+		   &ltr_config.ltr_cfg_values[1],
+		   &ltr_config.ltr_cfg_values[2],
+		   &ltr_config.ltr_cfg_values[3]) != 7) {
+		return -EINVAL;
+	}
+
+	mutex_lock(&mvm->mutex);
+	ret = iwl_mvm_send_cmd_pdu(mvm, LTR_CONFIG, 0, sizeof(ltr_config),
+				   &ltr_config);
+	mutex_unlock(&mvm->mutex);
+
+	if (ret)
+		IWL_ERR(mvm, "failed to send ltr configuration cmd\n");
+
+	return ret ?: count;
+}
+
+static ssize_t iwl_dbgfs_rfi_freq_table_write(struct iwl_mvm *mvm, char *buf,
+					      size_t count, loff_t *ppos)
+{
+	int ret = 0;
+	u16 op_id;
+
+	if (kstrtou16(buf, 10, &op_id))
+		return -EINVAL;
+
+	/* value zero triggers re-sending the default table to the device */
+	if (!op_id) {
+		mutex_lock(&mvm->mutex);
+		ret = iwl_rfi_send_config_cmd(mvm, NULL);
+		mutex_unlock(&mvm->mutex);
+	} else {
+		ret = -EOPNOTSUPP; /* in the future a new table will be added */
+	}
+
+	return ret ?: count;
+}
+
+/* The size computation is as follows:
+ * each number needs at most 3 characters, number of rows is the size of
+ * the table; So, need 5 chars for the "freq: " part and each tuple afterwards
+ * needs 6 characters for numbers and 5 for the punctuation around.
+ */
+#define IWL_RFI_BUF_SIZE (IWL_RFI_LUT_INSTALLED_SIZE *\
+				(5 + IWL_RFI_LUT_ENTRY_CHANNELS_NUM * (6 + 5)))
+
+static ssize_t iwl_dbgfs_rfi_freq_table_read(struct file *file,
+					     char __user *user_buf,
+					     size_t count, loff_t *ppos)
+{
+	struct iwl_mvm *mvm = file->private_data;
+	struct iwl_rfi_freq_table_resp_cmd *resp;
+	u32 status;
+	char buf[IWL_RFI_BUF_SIZE];
+	int i, j, pos = 0;
+
+	resp = iwl_rfi_get_freq_table(mvm);
+	if (IS_ERR(resp))
+		return PTR_ERR(resp);
+
+	status = le32_to_cpu(resp->status);
+	if (status != RFI_FREQ_TABLE_OK) {
+		scnprintf(buf, IWL_RFI_BUF_SIZE, "status = %d\n", status);
+		goto out;
+	}
+
+	for (i = 0; i < ARRAY_SIZE(resp->table); i++) {
+		pos += scnprintf(buf + pos, IWL_RFI_BUF_SIZE - pos, "%d: ",
+				 resp->table[i].freq);
+
+		for (j = 0; j < ARRAY_SIZE(resp->table[i].channels); j++)
+			pos += scnprintf(buf + pos, IWL_RFI_BUF_SIZE - pos,
+					 "(%d, %d) ",
+					 resp->table[i].channels[j],
+					 resp->table[i].bands[j]);
+		pos += scnprintf(buf + pos, IWL_RFI_BUF_SIZE - pos, "\n");
+	}
+
+out:
+	kfree(resp);
+	return simple_read_from_buffer(user_buf, count, ppos, buf, pos);
+}
+
+>>>>>>> upstream/android-13
 MVM_DEBUGFS_READ_WRITE_FILE_OPS(prph_reg, 64);
 
 /* Device wide debugfs entries */
@@ -1773,11 +2324,16 @@ MVM_DEBUGFS_READ_WRITE_FILE_OPS(disable_power_off, 64);
 MVM_DEBUGFS_READ_FILE_OPS(fw_rx_stats);
 MVM_DEBUGFS_READ_FILE_OPS(drv_rx_stats);
 MVM_DEBUGFS_READ_FILE_OPS(fw_ver);
+<<<<<<< HEAD
+=======
+MVM_DEBUGFS_READ_FILE_OPS(phy_integration_ver);
+>>>>>>> upstream/android-13
 MVM_DEBUGFS_WRITE_FILE_OPS(fw_restart, 10);
 MVM_DEBUGFS_WRITE_FILE_OPS(fw_nmi, 10);
 MVM_DEBUGFS_WRITE_FILE_OPS(bt_tx_prio, 10);
 MVM_DEBUGFS_WRITE_FILE_OPS(bt_force_ant, 10);
 MVM_DEBUGFS_READ_WRITE_FILE_OPS(scan_ant_rxchain, 8);
+<<<<<<< HEAD
 MVM_DEBUGFS_READ_WRITE_FILE_OPS(d0i3_refs, 8);
 MVM_DEBUGFS_READ_WRITE_FILE_OPS(fw_dbg_conf, 8);
 MVM_DEBUGFS_WRITE_FILE_OPS(fw_dbg_collect, 64);
@@ -1786,6 +2342,16 @@ MVM_DEBUGFS_WRITE_FILE_OPS(max_amsdu_len, 8);
 MVM_DEBUGFS_WRITE_FILE_OPS(indirection_tbl,
 			   (IWL_RSS_INDIRECTION_TABLE_SIZE * 2));
 MVM_DEBUGFS_WRITE_FILE_OPS(inject_packet, 512);
+=======
+MVM_DEBUGFS_READ_WRITE_FILE_OPS(fw_dbg_conf, 8);
+MVM_DEBUGFS_WRITE_FILE_OPS(fw_dbg_collect, 64);
+MVM_DEBUGFS_WRITE_FILE_OPS(dbg_time_point, 64);
+MVM_DEBUGFS_WRITE_FILE_OPS(indirection_tbl,
+			   (IWL_RSS_INDIRECTION_TABLE_SIZE * 2));
+MVM_DEBUGFS_WRITE_FILE_OPS(inject_packet, 512);
+MVM_DEBUGFS_WRITE_FILE_OPS(inject_beacon_ie, 512);
+MVM_DEBUGFS_WRITE_FILE_OPS(inject_beacon_ie_restore, 512);
+>>>>>>> upstream/android-13
 
 MVM_DEBUGFS_READ_FILE_OPS(uapsd_noagg_bssids);
 
@@ -1794,13 +2360,26 @@ MVM_DEBUGFS_READ_WRITE_FILE_OPS(bcast_filters, 256);
 MVM_DEBUGFS_READ_WRITE_FILE_OPS(bcast_filters_macs, 256);
 #endif
 
+<<<<<<< HEAD
 #ifdef CONFIG_PM_SLEEP
 MVM_DEBUGFS_READ_WRITE_FILE_OPS(d3_sram, 8);
 #endif
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_ACPI
 MVM_DEBUGFS_READ_FILE_OPS(sar_geo_profile);
 #endif
 
+<<<<<<< HEAD
+=======
+MVM_DEBUGFS_READ_WRITE_STA_FILE_OPS(amsdu_len, 16);
+
+MVM_DEBUGFS_READ_WRITE_FILE_OPS(he_sniffer_params, 32);
+
+MVM_DEBUGFS_WRITE_FILE_OPS(ltr_config, 512);
+MVM_DEBUGFS_READ_WRITE_FILE_OPS(rfi_freq_table, 16);
+
+>>>>>>> upstream/android-13
 static ssize_t iwl_dbgfs_mem_read(struct file *file, char __user *user_buf,
 				  size_t count, loff_t *ppos)
 {
@@ -1940,6 +2519,7 @@ void iwl_mvm_sta_add_debugfs(struct ieee80211_hw *hw,
 {
 	struct iwl_mvm *mvm = IWL_MAC80211_GET_MVM(hw);
 
+<<<<<<< HEAD
 	if (iwl_mvm_has_tlc_offload(mvm))
 		MVM_DEBUGFS_ADD_STA_FILE(rs_data, dir, 0400);
 
@@ -1957,10 +2537,25 @@ int iwl_mvm_dbgfs_register(struct iwl_mvm *mvm, struct dentry *dbgfs_dir)
 
 	mvm->debugfs_dir = dbgfs_dir;
 
+=======
+	if (iwl_mvm_has_tlc_offload(mvm)) {
+		MVM_DEBUGFS_ADD_STA_FILE(rs_data, dir, 0400);
+	}
+	MVM_DEBUGFS_ADD_STA_FILE(amsdu_len, dir, 0600);
+}
+
+void iwl_mvm_dbgfs_register(struct iwl_mvm *mvm)
+{
+	struct dentry *bcast_dir __maybe_unused;
+
+	spin_lock_init(&mvm->drv_stats_lock);
+
+>>>>>>> upstream/android-13
 	MVM_DEBUGFS_ADD_FILE(tx_flush, mvm->debugfs_dir, 0200);
 	MVM_DEBUGFS_ADD_FILE(sta_drain, mvm->debugfs_dir, 0200);
 	MVM_DEBUGFS_ADD_FILE(sram, mvm->debugfs_dir, 0600);
 	MVM_DEBUGFS_ADD_FILE(set_nic_temperature, mvm->debugfs_dir, 0600);
+<<<<<<< HEAD
 	MVM_DEBUGFS_ADD_FILE(nic_temp, dbgfs_dir, 0400);
 	MVM_DEBUGFS_ADD_FILE(ctdp_budget, dbgfs_dir, 0400);
 	MVM_DEBUGFS_ADD_FILE(stop_ctdp, dbgfs_dir, 0200);
@@ -1968,6 +2563,15 @@ int iwl_mvm_dbgfs_register(struct iwl_mvm *mvm, struct dentry *dbgfs_dir)
 	MVM_DEBUGFS_ADD_FILE(stations, dbgfs_dir, 0400);
 	MVM_DEBUGFS_ADD_FILE(bt_notif, dbgfs_dir, 0400);
 	MVM_DEBUGFS_ADD_FILE(bt_cmd, dbgfs_dir, 0400);
+=======
+	MVM_DEBUGFS_ADD_FILE(nic_temp, mvm->debugfs_dir, 0400);
+	MVM_DEBUGFS_ADD_FILE(ctdp_budget, mvm->debugfs_dir, 0400);
+	MVM_DEBUGFS_ADD_FILE(stop_ctdp, mvm->debugfs_dir, 0200);
+	MVM_DEBUGFS_ADD_FILE(force_ctkill, mvm->debugfs_dir, 0200);
+	MVM_DEBUGFS_ADD_FILE(stations, mvm->debugfs_dir, 0400);
+	MVM_DEBUGFS_ADD_FILE(bt_notif, mvm->debugfs_dir, 0400);
+	MVM_DEBUGFS_ADD_FILE(bt_cmd, mvm->debugfs_dir, 0400);
+>>>>>>> upstream/android-13
 	MVM_DEBUGFS_ADD_FILE(disable_power_off, mvm->debugfs_dir, 0600);
 	MVM_DEBUGFS_ADD_FILE(fw_ver, mvm->debugfs_dir, 0400);
 	MVM_DEBUGFS_ADD_FILE(fw_rx_stats, mvm->debugfs_dir, 0400);
@@ -1978,6 +2582,7 @@ int iwl_mvm_dbgfs_register(struct iwl_mvm *mvm, struct dentry *dbgfs_dir)
 	MVM_DEBUGFS_ADD_FILE(bt_force_ant, mvm->debugfs_dir, 0200);
 	MVM_DEBUGFS_ADD_FILE(scan_ant_rxchain, mvm->debugfs_dir, 0600);
 	MVM_DEBUGFS_ADD_FILE(prph_reg, mvm->debugfs_dir, 0600);
+<<<<<<< HEAD
 	MVM_DEBUGFS_ADD_FILE(d0i3_refs, mvm->debugfs_dir, 0600);
 	MVM_DEBUGFS_ADD_FILE(fw_dbg_conf, mvm->debugfs_dir, 0600);
 	MVM_DEBUGFS_ADD_FILE(fw_dbg_collect, mvm->debugfs_dir, 0200);
@@ -1998,6 +2603,31 @@ int iwl_mvm_dbgfs_register(struct iwl_mvm *mvm, struct dentry *dbgfs_dir)
 	if (!debugfs_create_bool("drop_bcn_ap_mode", 0600,
 				 mvm->debugfs_dir, &mvm->drop_bcn_ap_mode))
 		goto err;
+=======
+	MVM_DEBUGFS_ADD_FILE(fw_dbg_conf, mvm->debugfs_dir, 0600);
+	MVM_DEBUGFS_ADD_FILE(fw_dbg_collect, mvm->debugfs_dir, 0200);
+	MVM_DEBUGFS_ADD_FILE(send_echo_cmd, mvm->debugfs_dir, 0200);
+	MVM_DEBUGFS_ADD_FILE(indirection_tbl, mvm->debugfs_dir, 0200);
+	MVM_DEBUGFS_ADD_FILE(inject_packet, mvm->debugfs_dir, 0200);
+	MVM_DEBUGFS_ADD_FILE(inject_beacon_ie, mvm->debugfs_dir, 0200);
+	MVM_DEBUGFS_ADD_FILE(inject_beacon_ie_restore, mvm->debugfs_dir, 0200);
+	MVM_DEBUGFS_ADD_FILE(rfi_freq_table, mvm->debugfs_dir, 0600);
+
+	if (mvm->fw->phy_integration_ver)
+		MVM_DEBUGFS_ADD_FILE(phy_integration_ver, mvm->debugfs_dir, 0400);
+#ifdef CONFIG_ACPI
+	MVM_DEBUGFS_ADD_FILE(sar_geo_profile, mvm->debugfs_dir, 0400);
+#endif
+	MVM_DEBUGFS_ADD_FILE(he_sniffer_params, mvm->debugfs_dir, 0600);
+
+	if (fw_has_capa(&mvm->fw->ucode_capa, IWL_UCODE_TLV_CAPA_SET_LTR_GEN2))
+		MVM_DEBUGFS_ADD_FILE(ltr_config, mvm->debugfs_dir, 0200);
+
+	debugfs_create_bool("enable_scan_iteration_notif", 0600,
+			    mvm->debugfs_dir, &mvm->scan_iter_notif_enabled);
+	debugfs_create_bool("drop_bcn_ap_mode", 0600, mvm->debugfs_dir,
+			    &mvm->drop_bcn_ap_mode);
+>>>>>>> upstream/android-13
 
 	MVM_DEBUGFS_ADD_FILE(uapsd_noagg_bssids, mvm->debugfs_dir, S_IRUSR);
 
@@ -2005,6 +2635,7 @@ int iwl_mvm_dbgfs_register(struct iwl_mvm *mvm, struct dentry *dbgfs_dir)
 	if (mvm->fw->ucode_capa.flags & IWL_UCODE_TLV_FLAGS_BCAST_FILTERING) {
 		bcast_dir = debugfs_create_dir("bcast_filtering",
 					       mvm->debugfs_dir);
+<<<<<<< HEAD
 		if (!bcast_dir)
 			goto err;
 
@@ -2012,6 +2643,11 @@ int iwl_mvm_dbgfs_register(struct iwl_mvm *mvm, struct dentry *dbgfs_dir)
 					 bcast_dir,
 					 &mvm->dbgfs_bcast_filtering.override))
 			goto err;
+=======
+
+		debugfs_create_bool("override", 0600, bcast_dir,
+				    &mvm->dbgfs_bcast_filtering.override);
+>>>>>>> upstream/android-13
 
 		MVM_DEBUGFS_ADD_FILE_ALIAS("filters", bcast_filters,
 					   bcast_dir, 0600);
@@ -2021,6 +2657,7 @@ int iwl_mvm_dbgfs_register(struct iwl_mvm *mvm, struct dentry *dbgfs_dir)
 #endif
 
 #ifdef CONFIG_PM_SLEEP
+<<<<<<< HEAD
 	MVM_DEBUGFS_ADD_FILE(d3_sram, mvm->debugfs_dir, 0600);
 	MVM_DEBUGFS_ADD_FILE(d3_test, mvm->debugfs_dir, 0400);
 	if (!debugfs_create_bool("d3_wake_sysassert", 0600,
@@ -2051,11 +2688,38 @@ int iwl_mvm_dbgfs_register(struct iwl_mvm *mvm, struct dentry *dbgfs_dir)
 		goto err;
 
 	debugfs_create_file("mem", 0600, dbgfs_dir, mvm, &iwl_dbgfs_mem_ops);
+=======
+	MVM_DEBUGFS_ADD_FILE(d3_test, mvm->debugfs_dir, 0400);
+	debugfs_create_bool("d3_wake_sysassert", 0600, mvm->debugfs_dir,
+			    &mvm->d3_wake_sysassert);
+	debugfs_create_u32("last_netdetect_scans", 0400, mvm->debugfs_dir,
+			   &mvm->last_netdetect_scans);
+#endif
+
+	debugfs_create_u8("ps_disabled", 0400, mvm->debugfs_dir,
+			  &mvm->ps_disabled);
+	debugfs_create_blob("nvm_hw", 0400, mvm->debugfs_dir,
+			    &mvm->nvm_hw_blob);
+	debugfs_create_blob("nvm_sw", 0400, mvm->debugfs_dir,
+			    &mvm->nvm_sw_blob);
+	debugfs_create_blob("nvm_calib", 0400, mvm->debugfs_dir,
+			    &mvm->nvm_calib_blob);
+	debugfs_create_blob("nvm_prod", 0400, mvm->debugfs_dir,
+			    &mvm->nvm_prod_blob);
+	debugfs_create_blob("nvm_phy_sku", 0400, mvm->debugfs_dir,
+			    &mvm->nvm_phy_sku_blob);
+	debugfs_create_blob("nvm_reg", S_IRUSR,
+			    mvm->debugfs_dir, &mvm->nvm_reg_blob);
+
+	debugfs_create_file("mem", 0600, mvm->debugfs_dir, mvm,
+			    &iwl_dbgfs_mem_ops);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Create a symlink with mac80211. It will be removed when mac80211
 	 * exists (before the opmode exists which removes the target.)
 	 */
+<<<<<<< HEAD
 	snprintf(buf, 100, "../../%pd2", dbgfs_dir->d_parent);
 	if (!debugfs_create_symlink("iwlwifi", mvm->hw->wiphy->debugfsdir, buf))
 		goto err;
@@ -2064,4 +2728,13 @@ int iwl_mvm_dbgfs_register(struct iwl_mvm *mvm, struct dentry *dbgfs_dir)
 err:
 	IWL_ERR(mvm, "Can't create the mvm debugfs directory\n");
 	return -ENOMEM;
+=======
+	if (!IS_ERR(mvm->debugfs_dir)) {
+		char buf[100];
+
+		snprintf(buf, 100, "../../%pd2", mvm->debugfs_dir->d_parent);
+		debugfs_create_symlink("iwlwifi", mvm->hw->wiphy->debugfsdir,
+				       buf);
+	}
+>>>>>>> upstream/android-13
 }

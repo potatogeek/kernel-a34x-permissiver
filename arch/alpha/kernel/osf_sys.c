@@ -529,7 +529,10 @@ SYSCALL_DEFINE4(osf_mount, unsigned long, typenr, const char __user *, path,
 
 SYSCALL_DEFINE1(osf_utsname, char __user *, name)
 {
+<<<<<<< HEAD
 	int error;
+=======
+>>>>>>> upstream/android-13
 	char tmp[5 * 32];
 
 	down_read(&uts_sem);
@@ -560,7 +563,11 @@ SYSCALL_DEFINE0(getdtablesize)
  */
 SYSCALL_DEFINE2(osf_getdomainname, char __user *, name, int, namelen)
 {
+<<<<<<< HEAD
 	int len, err = 0;
+=======
+	int len;
+>>>>>>> upstream/android-13
 	char *kname;
 	char tmp[32];
 
@@ -678,7 +685,11 @@ SYSCALL_DEFINE2(osf_proplist_syscall, enum pl_code, code,
 	default:
 		error = -EOPNOTSUPP;
 		break;
+<<<<<<< HEAD
 	};
+=======
+	}
+>>>>>>> upstream/android-13
 	return error;
 }
 
@@ -835,7 +846,11 @@ SYSCALL_DEFINE5(osf_setsysinfo, unsigned long, op, void __user *, buffer,
 			return -EFAULT;
 		state = &current_thread_info()->ieee_state;
 
+<<<<<<< HEAD
 		/* Update softare trap enable bits.  */
+=======
+		/* Update software trap enable bits.  */
+>>>>>>> upstream/android-13
 		*state = (*state & ~IEEE_SW_MASK) | (swcr & IEEE_SW_MASK);
 
 		/* Update the real fpcr.  */
@@ -855,7 +870,11 @@ SYSCALL_DEFINE5(osf_setsysinfo, unsigned long, op, void __user *, buffer,
 		state = &current_thread_info()->ieee_state;
 		exc &= IEEE_STATUS_MASK;
 
+<<<<<<< HEAD
 		/* Update softare trap enable bits.  */
+=======
+		/* Update software trap enable bits.  */
+>>>>>>> upstream/android-13
  		swcr = (*state & IEEE_SW_MASK) | exc;
 		*state |= exc;
 
@@ -877,7 +896,11 @@ SYSCALL_DEFINE5(osf_setsysinfo, unsigned long, op, void __user *, buffer,
 			if (fex & IEEE_TRAP_ENABLE_DZE) si_code = FPE_FLTDIV;
 			if (fex & IEEE_TRAP_ENABLE_INV) si_code = FPE_FLTINV;
 
+<<<<<<< HEAD
 			send_sig_fault(SIGFPE, si_code,
+=======
+			send_sig_fault_trapno(SIGFPE, si_code,
+>>>>>>> upstream/android-13
 				       (void __user *)NULL,  /* FIXME */
 				       0, current);
  		}
@@ -964,7 +987,11 @@ put_tv32(struct timeval32 __user *o, struct timespec64 *i)
 }
 
 static inline long
+<<<<<<< HEAD
 put_tv_to_tv32(struct timeval32 __user *o, struct timeval *i)
+=======
+put_tv_to_tv32(struct timeval32 __user *o, struct __kernel_old_timeval *i)
+>>>>>>> upstream/android-13
 {
 	return copy_to_user(o, &(struct timeval32){
 				.tv_sec = i->tv_sec,
@@ -972,6 +999,7 @@ put_tv_to_tv32(struct timeval32 __user *o, struct timeval *i)
 			    sizeof(struct timeval32));
 }
 
+<<<<<<< HEAD
 static inline long
 get_it32(struct itimerval *o, struct itimerval32 __user *i)
 {
@@ -996,6 +1024,8 @@ put_it32(struct itimerval32 __user *o, struct itimerval *i)
 			    sizeof(struct itimerval32));
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline void
 jiffies_to_timeval32(unsigned long jiffies, struct timeval32 *value)
 {
@@ -1040,6 +1070,7 @@ SYSCALL_DEFINE2(osf_settimeofday, struct timeval32 __user *, tv,
 
 asmlinkage long sys_ni_posix_timers(void);
 
+<<<<<<< HEAD
 SYSCALL_DEFINE2(osf_getitimer, int, which, struct itimerval32 __user *, it)
 {
 	struct itimerval kit;
@@ -1081,6 +1112,8 @@ SYSCALL_DEFINE3(osf_setitimer, int, which, struct itimerval32 __user *, in,
 
 }
 
+=======
+>>>>>>> upstream/android-13
 SYSCALL_DEFINE2(osf_utimes, const char __user *, filename,
 		struct timeval32 __user *, tvs)
 {
@@ -1254,7 +1287,11 @@ struct timex32 {
 
 SYSCALL_DEFINE1(old_adjtimex, struct timex32 __user *, txc_p)
 {
+<<<<<<< HEAD
         struct timex txc;
+=======
+	struct __kernel_timex txc;
+>>>>>>> upstream/android-13
 	int ret;
 
 	/* copy relevant bits of struct timex. */
@@ -1271,7 +1308,12 @@ SYSCALL_DEFINE1(old_adjtimex, struct timex32 __user *, txc_p)
 	if (copy_to_user(txc_p, &txc, offsetof(struct timex32, time)) ||
 	    (copy_to_user(&txc_p->tick, &txc.tick, sizeof(struct timex32) - 
 			  offsetof(struct timex32, tick))) ||
+<<<<<<< HEAD
 	    (put_tv_to_tv32(&txc_p->time, &txc.time)))
+=======
+	    (put_user(txc.time.tv_sec, &txc_p->time.tv_sec)) ||
+	    (put_user(txc.time.tv_usec, &txc_p->time.tv_usec)))
+>>>>>>> upstream/android-13
 	  return -EFAULT;
 
 	return ret;
@@ -1343,7 +1385,10 @@ arch_get_unmapped_area(struct file *filp, unsigned long addr,
 }
 
 #ifdef CONFIG_OSF4_COMPAT
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 /* Clear top 32 bits of iov_len in the user's buffer for
    compatibility with old versions of OSF/1 where iov_len
    was defined as int. */
@@ -1360,19 +1405,33 @@ osf_fix_iov_len(const struct iovec __user *iov, unsigned long count)
 	}
 	return 0;
 }
+<<<<<<< HEAD
+=======
+#endif
+>>>>>>> upstream/android-13
 
 SYSCALL_DEFINE3(osf_readv, unsigned long, fd,
 		const struct iovec __user *, vector, unsigned long, count)
 {
+<<<<<<< HEAD
 	if (unlikely(personality(current->personality) == PER_OSF4))
 		if (osf_fix_iov_len(vector, count))
 			return -EFAULT;
+=======
+#ifdef CONFIG_OSF4_COMPAT
+	if (unlikely(personality(current->personality) == PER_OSF4))
+		if (osf_fix_iov_len(vector, count))
+			return -EFAULT;
+#endif
+
+>>>>>>> upstream/android-13
 	return sys_readv(fd, vector, count);
 }
 
 SYSCALL_DEFINE3(osf_writev, unsigned long, fd,
 		const struct iovec __user *, vector, unsigned long, count)
 {
+<<<<<<< HEAD
 	if (unlikely(personality(current->personality) == PER_OSF4))
 		if (osf_fix_iov_len(vector, count))
 			return -EFAULT;
@@ -1381,6 +1440,16 @@ SYSCALL_DEFINE3(osf_writev, unsigned long, fd,
 
 #endif
 
+=======
+#ifdef CONFIG_OSF4_COMPAT
+	if (unlikely(personality(current->personality) == PER_OSF4))
+		if (osf_fix_iov_len(vector, count))
+			return -EFAULT;
+#endif
+	return sys_writev(fd, vector, count);
+}
+
+>>>>>>> upstream/android-13
 SYSCALL_DEFINE2(osf_getpriority, int, which, int, who)
 {
 	int prio = sys_getpriority(which, who);

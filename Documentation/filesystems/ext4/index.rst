@@ -1,5 +1,6 @@
 .. SPDX-License-Identifier: GPL-2.0
 
+<<<<<<< HEAD
 ===============
 ext4 Filesystem
 ===============
@@ -15,3 +16,17 @@ the ext4 community.
 
    ext4
    ondisk/index
+=======
+===================================
+ext4 Data Structures and Algorithms
+===================================
+
+.. toctree::
+   :maxdepth: 6
+   :numbered:
+
+   about
+   overview
+   globals
+   dynamic
+>>>>>>> upstream/android-13

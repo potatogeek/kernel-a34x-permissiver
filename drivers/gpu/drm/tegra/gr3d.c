@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2013 Avionic Design GmbH
  * Copyright (C) 2013 NVIDIA Corporation
@@ -5,6 +6,12 @@
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2013 Avionic Design GmbH
+ * Copyright (C) 2013 NVIDIA Corporation
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
@@ -26,7 +33,10 @@ struct gr3d_soc {
 };
 
 struct gr3d {
+<<<<<<< HEAD
 	struct iommu_group *group;
+=======
+>>>>>>> upstream/android-13
 	struct tegra_drm_client client;
 	struct host1x_channel *channel;
 	struct clk *clk_secondary;
@@ -47,12 +57,20 @@ static inline struct gr3d *to_gr3d(struct tegra_drm_client *client)
 static int gr3d_init(struct host1x_client *client)
 {
 	struct tegra_drm_client *drm = host1x_to_drm_client(client);
+<<<<<<< HEAD
 	struct drm_device *dev = dev_get_drvdata(client->parent);
+=======
+	struct drm_device *dev = dev_get_drvdata(client->host);
+>>>>>>> upstream/android-13
 	unsigned long flags = HOST1X_SYNCPT_HAS_BASE;
 	struct gr3d *gr3d = to_gr3d(drm);
 	int err;
 
+<<<<<<< HEAD
 	gr3d->channel = host1x_channel_request(client->dev);
+=======
+	gr3d->channel = host1x_channel_request(client);
+>>>>>>> upstream/android-13
 	if (!gr3d->channel)
 		return -ENOMEM;
 
@@ -63,9 +81,14 @@ static int gr3d_init(struct host1x_client *client)
 		goto put;
 	}
 
+<<<<<<< HEAD
 	gr3d->group = host1x_client_iommu_attach(client, false);
 	if (IS_ERR(gr3d->group)) {
 		err = PTR_ERR(gr3d->group);
+=======
+	err = host1x_client_iommu_attach(client);
+	if (err < 0) {
+>>>>>>> upstream/android-13
 		dev_err(client->dev, "failed to attach to domain: %d\n", err);
 		goto free;
 	}
@@ -79,9 +102,15 @@ static int gr3d_init(struct host1x_client *client)
 	return 0;
 
 detach:
+<<<<<<< HEAD
 	host1x_client_iommu_detach(client, gr3d->group);
 free:
 	host1x_syncpt_free(client->syncpts[0]);
+=======
+	host1x_client_iommu_detach(client);
+free:
+	host1x_syncpt_put(client->syncpts[0]);
+>>>>>>> upstream/android-13
 put:
 	host1x_channel_put(gr3d->channel);
 	return err;
@@ -90,7 +119,11 @@ put:
 static int gr3d_exit(struct host1x_client *client)
 {
 	struct tegra_drm_client *drm = host1x_to_drm_client(client);
+<<<<<<< HEAD
 	struct drm_device *dev = dev_get_drvdata(client->parent);
+=======
+	struct drm_device *dev = dev_get_drvdata(client->host);
+>>>>>>> upstream/android-13
 	struct gr3d *gr3d = to_gr3d(drm);
 	int err;
 
@@ -98,8 +131,13 @@ static int gr3d_exit(struct host1x_client *client)
 	if (err < 0)
 		return err;
 
+<<<<<<< HEAD
 	host1x_client_iommu_detach(client, gr3d->group);
 	host1x_syncpt_free(client->syncpts[0]);
+=======
+	host1x_client_iommu_detach(client);
+	host1x_syncpt_put(client->syncpts[0]);
+>>>>>>> upstream/android-13
 	host1x_channel_put(gr3d->channel);
 
 	return 0;
@@ -386,10 +424,18 @@ static int gr3d_remove(struct platform_device *pdev)
 	}
 
 	if (gr3d->clk_secondary) {
+<<<<<<< HEAD
+=======
+		reset_control_assert(gr3d->rst_secondary);
+>>>>>>> upstream/android-13
 		tegra_powergate_power_off(TEGRA_POWERGATE_3D1);
 		clk_disable_unprepare(gr3d->clk_secondary);
 	}
 
+<<<<<<< HEAD
+=======
+	reset_control_assert(gr3d->rst);
+>>>>>>> upstream/android-13
 	tegra_powergate_power_off(TEGRA_POWERGATE_3D);
 	clk_disable_unprepare(gr3d->clk);
 

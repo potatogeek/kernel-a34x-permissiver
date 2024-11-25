@@ -8,7 +8,12 @@
 #include <linux/sched/task_stack.h>	/* task_stack_*(), ...		*/
 #include <linux/kdebug.h>		/* oops_begin/end, ...		*/
 #include <linux/extable.h>		/* search_exception_tables	*/
+<<<<<<< HEAD
 #include <linux/bootmem.h>		/* max_low_pfn			*/
+=======
+#include <linux/memblock.h>		/* max_low_pfn			*/
+#include <linux/kfence.h>		/* kfence_handle_page_fault	*/
+>>>>>>> upstream/android-13
 #include <linux/kprobes.h>		/* NOKPROBE_SYMBOL, ...		*/
 #include <linux/mmiotrace.h>		/* kmmio_handler, ...		*/
 #include <linux/perf_event.h>		/* perf_sw_event		*/
@@ -16,15 +21,32 @@
 #include <linux/prefetch.h>		/* prefetchw			*/
 #include <linux/context_tracking.h>	/* exception_enter(), ...	*/
 #include <linux/uaccess.h>		/* faulthandler_disabled()	*/
+<<<<<<< HEAD
+=======
+#include <linux/efi.h>			/* efi_crash_gracefully_on_page_fault()*/
+>>>>>>> upstream/android-13
 #include <linux/mm_types.h>
 
 #include <asm/cpufeature.h>		/* boot_cpu_has, ...		*/
 #include <asm/traps.h>			/* dotraplinkage, ...		*/
+<<<<<<< HEAD
 #include <asm/pgalloc.h>		/* pgd_*(), ...			*/
+=======
+>>>>>>> upstream/android-13
 #include <asm/fixmap.h>			/* VSYSCALL_ADDR		*/
 #include <asm/vsyscall.h>		/* emulate_vsyscall		*/
 #include <asm/vm86.h>			/* struct vm86			*/
 #include <asm/mmu_context.h>		/* vma_pkey()			*/
+<<<<<<< HEAD
+=======
+#include <asm/efi.h>			/* efi_crash_gracefully_on_page_fault()*/
+#include <asm/desc.h>			/* store_idt(), ...		*/
+#include <asm/cpu_entry_area.h>		/* exception stack		*/
+#include <asm/pgtable_areas.h>		/* VMALLOC_START, ...		*/
+#include <asm/kvm_para.h>		/* kvm_handle_async_pf		*/
+#include <asm/vdso.h>			/* fixup_vdso_exception()	*/
+#include <asm/irq_stack.h>
+>>>>>>> upstream/android-13
 
 #define CREATE_TRACE_POINTS
 #include <asm/trace/exceptions.h>
@@ -42,6 +64,7 @@ kmmio_fault(struct pt_regs *regs, unsigned long addr)
 	return 0;
 }
 
+<<<<<<< HEAD
 static nokprobe_inline int kprobes_fault(struct pt_regs *regs)
 {
 	int ret = 0;
@@ -57,13 +80,19 @@ static nokprobe_inline int kprobes_fault(struct pt_regs *regs)
 	return ret;
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Prefetch quirks:
  *
  * 32-bit mode:
  *
  *   Sometimes AMD Athlon/Opteron CPUs report invalid exceptions on prefetch.
+<<<<<<< HEAD
  *   Check that here and ignore it.
+=======
+ *   Check that here and ignore it.  This is AMD erratum #91.
+>>>>>>> upstream/android-13
  *
  * 64-bit mode:
  *
@@ -92,11 +121,15 @@ check_prefetch_opcode(struct pt_regs *regs, unsigned char *instr,
 #ifdef CONFIG_X86_64
 	case 0x40:
 		/*
+<<<<<<< HEAD
 		 * In AMD64 long mode 0x40..0x4F are valid REX prefixes
 		 * Need to figure out under what instruction mode the
 		 * instruction was issued. Could check the LDT for lm,
 		 * but for now it's good enough to assume that long
 		 * mode only uses well known segments or kernel.
+=======
+		 * In 64-bit mode 0x40..0x4F are valid REX prefixes
+>>>>>>> upstream/android-13
 		 */
 		return (!user_mode(regs) || user_64bit_mode(regs));
 #endif
@@ -108,7 +141,11 @@ check_prefetch_opcode(struct pt_regs *regs, unsigned char *instr,
 		return !instr_lo || (instr_lo>>1) == 1;
 	case 0x00:
 		/* Prefetch instruction is 0x0F0D or 0x0F18 */
+<<<<<<< HEAD
 		if (probe_kernel_address(instr, opcode))
+=======
+		if (get_kernel_nofault(opcode, instr))
+>>>>>>> upstream/android-13
 			return 0;
 
 		*prefetch = (instr_lo == 0xF) &&
@@ -119,6 +156,18 @@ check_prefetch_opcode(struct pt_regs *regs, unsigned char *instr,
 	}
 }
 
+<<<<<<< HEAD
+=======
+static bool is_amd_k8_pre_npt(void)
+{
+	struct cpuinfo_x86 *c = &boot_cpu_data;
+
+	return unlikely(IS_ENABLED(CONFIG_CPU_SUP_AMD) &&
+			c->x86_vendor == X86_VENDOR_AMD &&
+			c->x86 == 0xf && c->x86_model < 0x40);
+}
+
+>>>>>>> upstream/android-13
 static int
 is_prefetch(struct pt_regs *regs, unsigned long error_code, unsigned long addr)
 {
@@ -126,6 +175,13 @@ is_prefetch(struct pt_regs *regs, unsigned long error_code, unsigned long addr)
 	unsigned char *instr;
 	int prefetch = 0;
 
+<<<<<<< HEAD
+=======
+	/* Erratum #91 affects AMD K8, pre-NPT CPUs */
+	if (!is_amd_k8_pre_npt())
+		return 0;
+
+>>>>>>> upstream/android-13
 	/*
 	 * If it was a exec (instruction fetch) fault on NX page, then
 	 * do not ignore the fault:
@@ -136,20 +192,40 @@ is_prefetch(struct pt_regs *regs, unsigned long error_code, unsigned long addr)
 	instr = (void *)convert_ip_to_linear(current, regs);
 	max_instr = instr + 15;
 
+<<<<<<< HEAD
 	if (user_mode(regs) && instr >= (unsigned char *)TASK_SIZE_MAX)
 		return 0;
+=======
+	/*
+	 * This code has historically always bailed out if IP points to a
+	 * not-present page (e.g. due to a race).  No one has ever
+	 * complained about this.
+	 */
+	pagefault_disable();
+>>>>>>> upstream/android-13
 
 	while (instr < max_instr) {
 		unsigned char opcode;
 
+<<<<<<< HEAD
 		if (probe_kernel_address(instr, opcode))
 			break;
+=======
+		if (user_mode(regs)) {
+			if (get_user(opcode, instr))
+				break;
+		} else {
+			if (get_kernel_nofault(opcode, instr))
+				break;
+		}
+>>>>>>> upstream/android-13
 
 		instr++;
 
 		if (!check_prefetch_opcode(regs, instr, opcode, &prefetch))
 			break;
 	}
+<<<<<<< HEAD
 	return prefetch;
 }
 
@@ -226,6 +302,13 @@ force_sig_info_fault(int si_signo, int si_code, unsigned long address,
 	force_sig_info(si_signo, &info, tsk);
 }
 
+=======
+
+	pagefault_enable();
+	return prefetch;
+}
+
+>>>>>>> upstream/android-13
 DEFINE_SPINLOCK(pgd_lock);
 LIST_HEAD(pgd_list);
 
@@ -273,6 +356,7 @@ static inline pmd_t *vmalloc_sync_one(pgd_t *pgd, unsigned long address)
 	return pmd_k;
 }
 
+<<<<<<< HEAD
 static void vmalloc_sync(void)
 {
 	unsigned long address;
@@ -314,6 +398,21 @@ void vmalloc_sync_unmappings(void)
  * 32-bit:
  *
  *   Handle a fault on the vmalloc or module mapping area
+=======
+/*
+ *   Handle a fault on the vmalloc or module mapping area
+ *
+ *   This is needed because there is a race condition between the time
+ *   when the vmalloc mapping code updates the PMD to the point in time
+ *   where it synchronizes this update with the other page-tables in the
+ *   system.
+ *
+ *   In this race window another thread/CPU can map an area on the same
+ *   PMD, finds it already present and does not synchronize it with the
+ *   rest of the system yet. As a result v[mz]alloc might return areas
+ *   which are not mapped in every page-table in the system, causing an
+ *   unhandled page-fault when they are accessed.
+>>>>>>> upstream/android-13
  */
 static noinline int vmalloc_fault(unsigned long address)
 {
@@ -348,6 +447,7 @@ static noinline int vmalloc_fault(unsigned long address)
 }
 NOKPROBE_SYMBOL(vmalloc_fault);
 
+<<<<<<< HEAD
 /*
  * Did it hit the DOS screen memory VA from vm86 mode?
  */
@@ -365,6 +465,30 @@ check_v8086_mode(struct pt_regs *regs, unsigned long address,
 	if (bit < 32)
 		tsk->thread.vm86->screen_bitmap |= 1 << bit;
 #endif
+=======
+void arch_sync_kernel_mappings(unsigned long start, unsigned long end)
+{
+	unsigned long addr;
+
+	for (addr = start & PMD_MASK;
+	     addr >= TASK_SIZE_MAX && addr < VMALLOC_END;
+	     addr += PMD_SIZE) {
+		struct page *page;
+
+		spin_lock(&pgd_lock);
+		list_for_each_entry(page, &pgd_list, lru) {
+			spinlock_t *pgt_lock;
+
+			/* the pgt_lock only for Xen */
+			pgt_lock = &pgd_page_get_mm(page)->page_table_lock;
+
+			spin_lock(pgt_lock);
+			vmalloc_sync_one(page_address(page), addr);
+			spin_unlock(pgt_lock);
+		}
+		spin_unlock(&pgd_lock);
+	}
+>>>>>>> upstream/android-13
 }
 
 static bool low_pfn(unsigned long pfn)
@@ -412,6 +536,7 @@ out:
 
 #else /* CONFIG_X86_64: */
 
+<<<<<<< HEAD
 void vmalloc_sync_mappings(void)
 {
 	/*
@@ -502,6 +627,8 @@ static noinline int vmalloc_fault(unsigned long address)
 }
 NOKPROBE_SYMBOL(vmalloc_fault);
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_CPU_SUP_AMD
 static const char errata93_warning[] =
 KERN_ERR 
@@ -511,6 +638,7 @@ KERN_ERR
 "******* Disabling USB legacy in the BIOS may also help.\n";
 #endif
 
+<<<<<<< HEAD
 /*
  * No vm86 mode in 64-bit mode:
  */
@@ -520,11 +648,17 @@ check_v8086_mode(struct pt_regs *regs, unsigned long address,
 {
 }
 
+=======
+>>>>>>> upstream/android-13
 static int bad_address(void *p)
 {
 	unsigned long dummy;
 
+<<<<<<< HEAD
 	return probe_kernel_address((unsigned long *)p, dummy);
+=======
+	return get_kernel_nofault(dummy, (unsigned long *)p);
+>>>>>>> upstream/android-13
 }
 
 static void dump_pagetable(unsigned long address)
@@ -603,6 +737,12 @@ static int is_errata93(struct pt_regs *regs, unsigned long address)
 	    || boot_cpu_data.x86 != 0xf)
 		return 0;
 
+<<<<<<< HEAD
+=======
+	if (user_mode(regs))
+		return 0;
+
+>>>>>>> upstream/android-13
 	if (address != regs->ip)
 		return 0;
 
@@ -637,6 +777,7 @@ static int is_errata100(struct pt_regs *regs, unsigned long address)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int is_f00f_bug(struct pt_regs *regs, unsigned long address)
 {
 #ifdef CONFIG_X86_F00F_BUG
@@ -652,14 +793,61 @@ static int is_f00f_bug(struct pt_regs *regs, unsigned long address)
 			do_invalid_op(regs, 0);
 			return 1;
 		}
+=======
+/* Pentium F0 0F C7 C8 bug workaround: */
+static int is_f00f_bug(struct pt_regs *regs, unsigned long error_code,
+		       unsigned long address)
+{
+#ifdef CONFIG_X86_F00F_BUG
+	if (boot_cpu_has_bug(X86_BUG_F00F) && !(error_code & X86_PF_USER) &&
+	    idt_is_f00f_address(address)) {
+		handle_invalid_op(regs);
+		return 1;
+>>>>>>> upstream/android-13
 	}
 #endif
 	return 0;
 }
 
+<<<<<<< HEAD
 static void
 show_fault_oops(struct pt_regs *regs, unsigned long error_code,
 		unsigned long address)
+=======
+static void show_ldttss(const struct desc_ptr *gdt, const char *name, u16 index)
+{
+	u32 offset = (index >> 3) * sizeof(struct desc_struct);
+	unsigned long addr;
+	struct ldttss_desc desc;
+
+	if (index == 0) {
+		pr_alert("%s: NULL\n", name);
+		return;
+	}
+
+	if (offset + sizeof(struct ldttss_desc) >= gdt->size) {
+		pr_alert("%s: 0x%hx -- out of bounds\n", name, index);
+		return;
+	}
+
+	if (copy_from_kernel_nofault(&desc, (void *)(gdt->address + offset),
+			      sizeof(struct ldttss_desc))) {
+		pr_alert("%s: 0x%hx -- GDT entry is not readable\n",
+			 name, index);
+		return;
+	}
+
+	addr = desc.base0 | (desc.base1 << 16) | ((unsigned long)desc.base2 << 24);
+#ifdef CONFIG_X86_64
+	addr |= ((u64)desc.base3 << 32);
+#endif
+	pr_alert("%s: 0x%hx -- base=0x%lx limit=0x%x\n",
+		 name, index, addr, (desc.limit0 | (desc.limit1 << 16)));
+}
+
+static void
+show_fault_oops(struct pt_regs *regs, unsigned long error_code, unsigned long address)
+>>>>>>> upstream/android-13
 {
 	if (!oops_may_print())
 		return;
@@ -684,9 +872,59 @@ show_fault_oops(struct pt_regs *regs, unsigned long error_code,
 				from_kuid(&init_user_ns, current_uid()));
 	}
 
+<<<<<<< HEAD
 	pr_alert("BUG: unable to handle kernel %s at %px\n",
 		 address < PAGE_SIZE ? "NULL pointer dereference" : "paging request",
 		 (void *)address);
+=======
+	if (address < PAGE_SIZE && !user_mode(regs))
+		pr_alert("BUG: kernel NULL pointer dereference, address: %px\n",
+			(void *)address);
+	else
+		pr_alert("BUG: unable to handle page fault for address: %px\n",
+			(void *)address);
+
+	pr_alert("#PF: %s %s in %s mode\n",
+		 (error_code & X86_PF_USER)  ? "user" : "supervisor",
+		 (error_code & X86_PF_INSTR) ? "instruction fetch" :
+		 (error_code & X86_PF_WRITE) ? "write access" :
+					       "read access",
+			     user_mode(regs) ? "user" : "kernel");
+	pr_alert("#PF: error_code(0x%04lx) - %s\n", error_code,
+		 !(error_code & X86_PF_PROT) ? "not-present page" :
+		 (error_code & X86_PF_RSVD)  ? "reserved bit violation" :
+		 (error_code & X86_PF_PK)    ? "protection keys violation" :
+					       "permissions violation");
+
+	if (!(error_code & X86_PF_USER) && user_mode(regs)) {
+		struct desc_ptr idt, gdt;
+		u16 ldtr, tr;
+
+		/*
+		 * This can happen for quite a few reasons.  The more obvious
+		 * ones are faults accessing the GDT, or LDT.  Perhaps
+		 * surprisingly, if the CPU tries to deliver a benign or
+		 * contributory exception from user code and gets a page fault
+		 * during delivery, the page fault can be delivered as though
+		 * it originated directly from user code.  This could happen
+		 * due to wrong permissions on the IDT, GDT, LDT, TSS, or
+		 * kernel or IST stack.
+		 */
+		store_idt(&idt);
+
+		/* Usable even on Xen PV -- it's just slow. */
+		native_store_gdt(&gdt);
+
+		pr_alert("IDT: 0x%lx (limit=0x%hx) GDT: 0x%lx (limit=0x%hx)\n",
+			 idt.address, idt.size, gdt.address, gdt.size);
+
+		store_ldt(ldtr);
+		show_ldttss(&gdt, "LDTR", ldtr);
+
+		store_tr(tr);
+		show_ldttss(&gdt, "TR", tr);
+	}
+>>>>>>> upstream/android-13
 
 	dump_pagetable(address);
 }
@@ -707,16 +945,20 @@ pgtable_bad(struct pt_regs *regs, unsigned long error_code,
 	       tsk->comm, address);
 	dump_pagetable(address);
 
+<<<<<<< HEAD
 	tsk->thread.cr2		= address;
 	tsk->thread.trap_nr	= X86_TRAP_PF;
 	tsk->thread.error_code	= error_code;
 
+=======
+>>>>>>> upstream/android-13
 	if (__die("Bad pagetable", regs, error_code))
 		sig = 0;
 
 	oops_end(flags, regs, sig);
 }
 
+<<<<<<< HEAD
 static noinline void
 no_context(struct pt_regs *regs, unsigned long error_code,
 	   unsigned long address, int signal, int si_code)
@@ -727,6 +969,123 @@ no_context(struct pt_regs *regs, unsigned long error_code,
 
 	/* Are we prepared to handle this kernel fault? */
 	if (fixup_exception(regs, X86_TRAP_PF)) {
+=======
+static void sanitize_error_code(unsigned long address,
+				unsigned long *error_code)
+{
+	/*
+	 * To avoid leaking information about the kernel page
+	 * table layout, pretend that user-mode accesses to
+	 * kernel addresses are always protection faults.
+	 *
+	 * NB: This means that failed vsyscalls with vsyscall=none
+	 * will have the PROT bit.  This doesn't leak any
+	 * information and does not appear to cause any problems.
+	 */
+	if (address >= TASK_SIZE_MAX)
+		*error_code |= X86_PF_PROT;
+}
+
+static void set_signal_archinfo(unsigned long address,
+				unsigned long error_code)
+{
+	struct task_struct *tsk = current;
+
+	tsk->thread.trap_nr = X86_TRAP_PF;
+	tsk->thread.error_code = error_code | X86_PF_USER;
+	tsk->thread.cr2 = address;
+}
+
+static noinline void
+page_fault_oops(struct pt_regs *regs, unsigned long error_code,
+		unsigned long address)
+{
+#ifdef CONFIG_VMAP_STACK
+	struct stack_info info;
+#endif
+	unsigned long flags;
+	int sig;
+
+	if (user_mode(regs)) {
+		/*
+		 * Implicit kernel access from user mode?  Skip the stack
+		 * overflow and EFI special cases.
+		 */
+		goto oops;
+	}
+
+#ifdef CONFIG_VMAP_STACK
+	/*
+	 * Stack overflow?  During boot, we can fault near the initial
+	 * stack in the direct map, but that's not an overflow -- check
+	 * that we're in vmalloc space to avoid this.
+	 */
+	if (is_vmalloc_addr((void *)address) &&
+	    get_stack_guard_info((void *)address, &info)) {
+		/*
+		 * We're likely to be running with very little stack space
+		 * left.  It's plausible that we'd hit this condition but
+		 * double-fault even before we get this far, in which case
+		 * we're fine: the double-fault handler will deal with it.
+		 *
+		 * We don't want to make it all the way into the oops code
+		 * and then double-fault, though, because we're likely to
+		 * break the console driver and lose most of the stack dump.
+		 */
+		call_on_stack(__this_cpu_ist_top_va(DF) - sizeof(void*),
+			      handle_stack_overflow,
+			      ASM_CALL_ARG3,
+			      , [arg1] "r" (regs), [arg2] "r" (address), [arg3] "r" (&info));
+
+		unreachable();
+	}
+#endif
+
+	/*
+	 * Buggy firmware could access regions which might page fault.  If
+	 * this happens, EFI has a special OOPS path that will try to
+	 * avoid hanging the system.
+	 */
+	if (IS_ENABLED(CONFIG_EFI))
+		efi_crash_gracefully_on_page_fault(address);
+
+	/* Only not-present faults should be handled by KFENCE. */
+	if (!(error_code & X86_PF_PROT) &&
+	    kfence_handle_page_fault(address, error_code & X86_PF_WRITE, regs))
+		return;
+
+oops:
+	/*
+	 * Oops. The kernel tried to access some bad page. We'll have to
+	 * terminate things with extreme prejudice:
+	 */
+	flags = oops_begin();
+
+	show_fault_oops(regs, error_code, address);
+
+	if (task_stack_end_corrupted(current))
+		printk(KERN_EMERG "Thread overran stack, or stack corrupted\n");
+
+	sig = SIGKILL;
+	if (__die("Oops", regs, error_code))
+		sig = 0;
+
+	/* Executive summary in case the body of the oops scrolled away */
+	printk(KERN_DEFAULT "CR2: %016lx\n", address);
+
+	oops_end(flags, regs, sig);
+}
+
+static noinline void
+kernelmode_fixup_or_oops(struct pt_regs *regs, unsigned long error_code,
+			 unsigned long address, int signal, int si_code,
+			 u32 pkey)
+{
+	WARN_ON_ONCE(user_mode(regs));
+
+	/* Are we prepared to handle this kernel fault? */
+	if (fixup_exception(regs, X86_TRAP_PF, error_code, address)) {
+>>>>>>> upstream/android-13
 		/*
 		 * Any interrupt that takes a fault gets the fixup. This makes
 		 * the below recursive fault logic only apply to a faults from
@@ -742,6 +1101,7 @@ no_context(struct pt_regs *regs, unsigned long error_code,
 		 * faulting through the emulate_vsyscall() logic.
 		 */
 		if (current->thread.sig_on_uaccess_err && signal) {
+<<<<<<< HEAD
 			tsk->thread.trap_nr = X86_TRAP_PF;
 			tsk->thread.error_code = error_code | X86_PF_USER;
 			tsk->thread.cr2 = address;
@@ -749,6 +1109,18 @@ no_context(struct pt_regs *regs, unsigned long error_code,
 			/* XXX: hwpoison faults will set the wrong code. */
 			force_sig_info_fault(signal, si_code, address,
 					     tsk, NULL, 0);
+=======
+			sanitize_error_code(address, &error_code);
+
+			set_signal_archinfo(address, error_code);
+
+			if (si_code == SEGV_PKUERR) {
+				force_sig_pkuerr((void __user *)address, pkey);
+			} else {
+				/* XXX: hwpoison faults will set the wrong code. */
+				force_sig_fault(signal, si_code, (void __user *)address);
+			}
+>>>>>>> upstream/android-13
 		}
 
 		/*
@@ -757,6 +1129,7 @@ no_context(struct pt_regs *regs, unsigned long error_code,
 		return;
 	}
 
+<<<<<<< HEAD
 #ifdef CONFIG_VMAP_STACK
 	/*
 	 * Stack overflow?  During boot, we can fault near the initial
@@ -798,10 +1171,16 @@ no_context(struct pt_regs *regs, unsigned long error_code,
 	 * 64-bit:
 	 *
 	 *   Hall of shame of CPU/BIOS bugs.
+=======
+	/*
+	 * AMD erratum #91 manifests as a spurious page fault on a PREFETCH
+	 * instruction.
+>>>>>>> upstream/android-13
 	 */
 	if (is_prefetch(regs, error_code, address))
 		return;
 
+<<<<<<< HEAD
 	if (is_errata93(regs, address))
 		return;
 
@@ -828,6 +1207,9 @@ no_context(struct pt_regs *regs, unsigned long error_code,
 	printk(KERN_DEFAULT "CR2: %016lx\n", address);
 
 	oops_end(flags, regs, sig);
+=======
+	page_fault_oops(regs, error_code, address);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -857,6 +1239,7 @@ show_signal_msg(struct pt_regs *regs, unsigned long error_code,
 	show_opcodes(regs, loglvl);
 }
 
+<<<<<<< HEAD
 static void
 __bad_area_nosemaphore(struct pt_regs *regs, unsigned long error_code,
 		       unsigned long address, u32 *pkey, int si_code)
@@ -916,17 +1299,85 @@ __bad_area_nosemaphore(struct pt_regs *regs, unsigned long error_code,
 		return;
 
 	no_context(regs, error_code, address, SIGSEGV, si_code);
+=======
+/*
+ * The (legacy) vsyscall page is the long page in the kernel portion
+ * of the address space that has user-accessible permissions.
+ */
+static bool is_vsyscall_vaddr(unsigned long vaddr)
+{
+	return unlikely((vaddr & PAGE_MASK) == VSYSCALL_ADDR);
+}
+
+static void
+__bad_area_nosemaphore(struct pt_regs *regs, unsigned long error_code,
+		       unsigned long address, u32 pkey, int si_code)
+{
+	struct task_struct *tsk = current;
+
+	if (!user_mode(regs)) {
+		kernelmode_fixup_or_oops(regs, error_code, address,
+					 SIGSEGV, si_code, pkey);
+		return;
+	}
+
+	if (!(error_code & X86_PF_USER)) {
+		/* Implicit user access to kernel memory -- just oops */
+		page_fault_oops(regs, error_code, address);
+		return;
+	}
+
+	/*
+	 * User mode accesses just cause a SIGSEGV.
+	 * It's possible to have interrupts off here:
+	 */
+	local_irq_enable();
+
+	/*
+	 * Valid to do another page fault here because this one came
+	 * from user space:
+	 */
+	if (is_prefetch(regs, error_code, address))
+		return;
+
+	if (is_errata100(regs, address))
+		return;
+
+	sanitize_error_code(address, &error_code);
+
+	if (fixup_vdso_exception(regs, X86_TRAP_PF, error_code, address))
+		return;
+
+	if (likely(show_unhandled_signals))
+		show_signal_msg(regs, error_code, address, tsk);
+
+	set_signal_archinfo(address, error_code);
+
+	if (si_code == SEGV_PKUERR)
+		force_sig_pkuerr((void __user *)address, pkey);
+	else
+		force_sig_fault(SIGSEGV, si_code, (void __user *)address);
+
+	local_irq_disable();
+>>>>>>> upstream/android-13
 }
 
 static noinline void
 bad_area_nosemaphore(struct pt_regs *regs, unsigned long error_code,
+<<<<<<< HEAD
 		     unsigned long address, u32 *pkey)
 {
 	__bad_area_nosemaphore(regs, error_code, address, pkey, SEGV_MAPERR);
+=======
+		     unsigned long address)
+{
+	__bad_area_nosemaphore(regs, error_code, address, 0, SEGV_MAPERR);
+>>>>>>> upstream/android-13
 }
 
 static void
 __bad_area(struct pt_regs *regs, unsigned long error_code,
+<<<<<<< HEAD
 	   unsigned long address,  struct vm_area_struct *vma, int si_code)
 {
 	struct mm_struct *mm = current->mm;
@@ -935,20 +1386,35 @@ __bad_area(struct pt_regs *regs, unsigned long error_code,
 	if (vma)
 		pkey = vma_pkey(vma);
 
+=======
+	   unsigned long address, u32 pkey, int si_code)
+{
+	struct mm_struct *mm = current->mm;
+>>>>>>> upstream/android-13
 	/*
 	 * Something tried to access memory that isn't in our memory map..
 	 * Fix it, but check if it's kernel or user first..
 	 */
+<<<<<<< HEAD
 	up_read(&mm->mmap_sem);
 
 	__bad_area_nosemaphore(regs, error_code, address,
 			       (vma) ? &pkey : NULL, si_code);
+=======
+	mmap_read_unlock(mm);
+
+	__bad_area_nosemaphore(regs, error_code, address, pkey, si_code);
+>>>>>>> upstream/android-13
 }
 
 static noinline void
 bad_area(struct pt_regs *regs, unsigned long error_code, unsigned long address)
 {
+<<<<<<< HEAD
 	__bad_area(regs, error_code, address, NULL, SEGV_MAPERR);
+=======
+	__bad_area(regs, error_code, address, 0, SEGV_MAPERR);
+>>>>>>> upstream/android-13
 }
 
 static inline bool bad_area_access_from_pkeys(unsigned long error_code,
@@ -957,7 +1423,11 @@ static inline bool bad_area_access_from_pkeys(unsigned long error_code,
 	/* This code is always called on the current mm */
 	bool foreign = false;
 
+<<<<<<< HEAD
 	if (!boot_cpu_has(X86_FEATURE_OSPKE))
+=======
+	if (!cpu_feature_enabled(X86_FEATURE_OSPKE))
+>>>>>>> upstream/android-13
 		return false;
 	if (error_code & X86_PF_PK)
 		return true;
@@ -977,14 +1447,45 @@ bad_area_access_error(struct pt_regs *regs, unsigned long error_code,
 	 * But, doing it this way allows compiler optimizations
 	 * if pkeys are compiled out.
 	 */
+<<<<<<< HEAD
 	if (bad_area_access_from_pkeys(error_code, vma))
 		__bad_area(regs, error_code, address, vma, SEGV_PKUERR);
 	else
 		__bad_area(regs, error_code, address, vma, SEGV_ACCERR);
+=======
+	if (bad_area_access_from_pkeys(error_code, vma)) {
+		/*
+		 * A protection key fault means that the PKRU value did not allow
+		 * access to some PTE.  Userspace can figure out what PKRU was
+		 * from the XSAVE state.  This function captures the pkey from
+		 * the vma and passes it to userspace so userspace can discover
+		 * which protection key was set on the PTE.
+		 *
+		 * If we get here, we know that the hardware signaled a X86_PF_PK
+		 * fault and that there was a VMA once we got in the fault
+		 * handler.  It does *not* guarantee that the VMA we find here
+		 * was the one that we faulted on.
+		 *
+		 * 1. T1   : mprotect_key(foo, PAGE_SIZE, pkey=4);
+		 * 2. T1   : set PKRU to deny access to pkey=4, touches page
+		 * 3. T1   : faults...
+		 * 4.    T2: mprotect_key(foo, PAGE_SIZE, pkey=5);
+		 * 5. T1   : enters fault handler, takes mmap_lock, etc...
+		 * 6. T1   : reaches here, sees vma_pkey(vma)=5, when we really
+		 *	     faulted on a pte with its pkey=4.
+		 */
+		u32 pkey = vma_pkey(vma);
+
+		__bad_area(regs, error_code, address, pkey, SEGV_PKUERR);
+	} else {
+		__bad_area(regs, error_code, address, 0, SEGV_ACCERR);
+	}
+>>>>>>> upstream/android-13
 }
 
 static void
 do_sigbus(struct pt_regs *regs, unsigned long error_code, unsigned long address,
+<<<<<<< HEAD
 	  u32 *pkey, unsigned int fault)
 {
 	struct task_struct *tsk = current;
@@ -993,6 +1494,14 @@ do_sigbus(struct pt_regs *regs, unsigned long error_code, unsigned long address,
 	/* Kernel mode? Handle exceptions or die: */
 	if (!(error_code & X86_PF_USER)) {
 		no_context(regs, error_code, address, SIGBUS, BUS_ADRERR);
+=======
+	  vm_fault_t fault)
+{
+	/* Kernel mode? Handle exceptions or die: */
+	if (!user_mode(regs)) {
+		kernelmode_fixup_or_oops(regs, error_code, address,
+					 SIGBUS, BUS_ADRERR, ARCH_DEFAULT_PKEY);
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -1000,6 +1509,7 @@ do_sigbus(struct pt_regs *regs, unsigned long error_code, unsigned long address,
 	if (is_prefetch(regs, error_code, address))
 		return;
 
+<<<<<<< HEAD
 	tsk->thread.cr2		= address;
 	tsk->thread.error_code	= error_code;
 	tsk->thread.trap_nr	= X86_TRAP_PF;
@@ -1050,18 +1560,50 @@ mm_fault_error(struct pt_regs *regs, unsigned long error_code,
 }
 
 static int spurious_fault_check(unsigned long error_code, pte_t *pte)
+=======
+	sanitize_error_code(address, &error_code);
+
+	if (fixup_vdso_exception(regs, X86_TRAP_PF, error_code, address))
+		return;
+
+	set_signal_archinfo(address, error_code);
+
+#ifdef CONFIG_MEMORY_FAILURE
+	if (fault & (VM_FAULT_HWPOISON|VM_FAULT_HWPOISON_LARGE)) {
+		struct task_struct *tsk = current;
+		unsigned lsb = 0;
+
+		pr_err(
+	"MCE: Killing %s:%d due to hardware memory corruption fault at %lx\n",
+			tsk->comm, tsk->pid, address);
+		if (fault & VM_FAULT_HWPOISON_LARGE)
+			lsb = hstate_index_to_shift(VM_FAULT_GET_HINDEX(fault));
+		if (fault & VM_FAULT_HWPOISON)
+			lsb = PAGE_SHIFT;
+		force_sig_mceerr(BUS_MCEERR_AR, (void __user *)address, lsb);
+		return;
+	}
+#endif
+	force_sig_fault(SIGBUS, BUS_ADRERR, (void __user *)address);
+}
+
+static int spurious_kernel_fault_check(unsigned long error_code, pte_t *pte)
+>>>>>>> upstream/android-13
 {
 	if ((error_code & X86_PF_WRITE) && !pte_write(*pte))
 		return 0;
 
 	if ((error_code & X86_PF_INSTR) && !pte_exec(*pte))
 		return 0;
+<<<<<<< HEAD
 	/*
 	 * Note: We do not do lazy flushing on protection key
 	 * changes, so no spurious fault will ever set X86_PF_PK.
 	 */
 	if ((error_code & X86_PF_PK))
 		return 1;
+=======
+>>>>>>> upstream/android-13
 
 	return 1;
 }
@@ -1088,7 +1630,11 @@ static int spurious_fault_check(unsigned long error_code, pte_t *pte)
  * (Optional Invalidation).
  */
 static noinline int
+<<<<<<< HEAD
 spurious_fault(unsigned long error_code, unsigned long address)
+=======
+spurious_kernel_fault(unsigned long error_code, unsigned long address)
+>>>>>>> upstream/android-13
 {
 	pgd_t *pgd;
 	p4d_t *p4d;
@@ -1119,27 +1665,43 @@ spurious_fault(unsigned long error_code, unsigned long address)
 		return 0;
 
 	if (p4d_large(*p4d))
+<<<<<<< HEAD
 		return spurious_fault_check(error_code, (pte_t *) p4d);
+=======
+		return spurious_kernel_fault_check(error_code, (pte_t *) p4d);
+>>>>>>> upstream/android-13
 
 	pud = pud_offset(p4d, address);
 	if (!pud_present(*pud))
 		return 0;
 
 	if (pud_large(*pud))
+<<<<<<< HEAD
 		return spurious_fault_check(error_code, (pte_t *) pud);
+=======
+		return spurious_kernel_fault_check(error_code, (pte_t *) pud);
+>>>>>>> upstream/android-13
 
 	pmd = pmd_offset(pud, address);
 	if (!pmd_present(*pmd))
 		return 0;
 
 	if (pmd_large(*pmd))
+<<<<<<< HEAD
 		return spurious_fault_check(error_code, (pte_t *) pmd);
+=======
+		return spurious_kernel_fault_check(error_code, (pte_t *) pmd);
+>>>>>>> upstream/android-13
 
 	pte = pte_offset_kernel(pmd, address);
 	if (!pte_present(*pte))
 		return 0;
 
+<<<<<<< HEAD
 	ret = spurious_fault_check(error_code, pte);
+=======
+	ret = spurious_kernel_fault_check(error_code, pte);
+>>>>>>> upstream/android-13
 	if (!ret)
 		return 0;
 
@@ -1147,12 +1709,20 @@ spurious_fault(unsigned long error_code, unsigned long address)
 	 * Make sure we have permissions in PMD.
 	 * If not, then there's a bug in the page tables:
 	 */
+<<<<<<< HEAD
 	ret = spurious_fault_check(error_code, (pte_t *) pmd);
+=======
+	ret = spurious_kernel_fault_check(error_code, (pte_t *) pmd);
+>>>>>>> upstream/android-13
 	WARN_ONCE(!ret, "PMD has incorrect permission bits\n");
 
 	return ret;
 }
+<<<<<<< HEAD
 NOKPROBE_SYMBOL(spurious_fault);
+=======
+NOKPROBE_SYMBOL(spurious_kernel_fault);
+>>>>>>> upstream/android-13
 
 int show_unhandled_signals = 1;
 
@@ -1171,6 +1741,21 @@ access_error(unsigned long error_code, struct vm_area_struct *vma)
 		return 1;
 
 	/*
+<<<<<<< HEAD
+=======
+	 * SGX hardware blocked the access.  This usually happens
+	 * when the enclave memory contents have been destroyed, like
+	 * after a suspend/resume cycle. In any case, the kernel can't
+	 * fix the cause of the fault.  Handle the fault as an access
+	 * error even in cases where no actual access violation
+	 * occurred.  This allows userspace to rebuild the enclave in
+	 * response to the signal.
+	 */
+	if (unlikely(error_code & X86_PF_SGX))
+		return 1;
+
+	/*
+>>>>>>> upstream/android-13
 	 * Make sure to check the VMA so that we do not perform
 	 * faults just to hit a X86_PF_PK as soon as we fill in a
 	 * page.
@@ -1191,12 +1776,17 @@ access_error(unsigned long error_code, struct vm_area_struct *vma)
 		return 1;
 
 	/* read, not present: */
+<<<<<<< HEAD
 	if (unlikely(!(vma->vm_flags & (VM_READ | VM_EXEC | VM_WRITE))))
+=======
+	if (unlikely(!vma_is_accessible(vma)))
+>>>>>>> upstream/android-13
 		return 1;
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static int fault_in_kernel_space(unsigned long address)
 {
 	return address >= TASK_SIZE_MAX;
@@ -1245,6 +1835,40 @@ __do_page_fault(struct pt_regs *regs, unsigned long error_code,
 
 	/*
 	 * We fault-in kernel-space virtual memory on-demand. The
+=======
+bool fault_in_kernel_space(unsigned long address)
+{
+	/*
+	 * On 64-bit systems, the vsyscall page is at an address above
+	 * TASK_SIZE_MAX, but is not considered part of the kernel
+	 * address space.
+	 */
+	if (IS_ENABLED(CONFIG_X86_64) && is_vsyscall_vaddr(address))
+		return false;
+
+	return address >= TASK_SIZE_MAX;
+}
+
+/*
+ * Called for all faults where 'address' is part of the kernel address
+ * space.  Might get called for faults that originate from *code* that
+ * ran in userspace or the kernel.
+ */
+static void
+do_kern_addr_fault(struct pt_regs *regs, unsigned long hw_error_code,
+		   unsigned long address)
+{
+	/*
+	 * Protection keys exceptions only happen on user pages.  We
+	 * have no user pages in the kernel portion of the address
+	 * space, so do not expect them here.
+	 */
+	WARN_ON_ONCE(hw_error_code & X86_PF_PK);
+
+#ifdef CONFIG_X86_32
+	/*
+	 * We can fault-in kernel-space virtual memory on-demand. The
+>>>>>>> upstream/android-13
 	 * 'reference' page table is init_mm.pgd.
 	 *
 	 * NOTE! We MUST NOT take any locks for this case. We may
@@ -1252,6 +1876,7 @@ __do_page_fault(struct pt_regs *regs, unsigned long error_code,
 	 * only copy the information from the master page table,
 	 * nothing more.
 	 *
+<<<<<<< HEAD
 	 * This verifies that the fault happens in kernel space
 	 * (error_code & 4) == 0, and that the fault was not a
 	 * protection error (error_code & 9) == 0.
@@ -1275,10 +1900,94 @@ __do_page_fault(struct pt_regs *regs, unsigned long error_code,
 		 */
 		bad_area_nosemaphore(regs, error_code, address, NULL);
 
+=======
+	 * Before doing this on-demand faulting, ensure that the
+	 * fault is not any of the following:
+	 * 1. A fault on a PTE with a reserved bit set.
+	 * 2. A fault caused by a user-mode access.  (Do not demand-
+	 *    fault kernel memory due to user-mode accesses).
+	 * 3. A fault caused by a page-level protection violation.
+	 *    (A demand fault would be on a non-present page which
+	 *     would have X86_PF_PROT==0).
+	 *
+	 * This is only needed to close a race condition on x86-32 in
+	 * the vmalloc mapping/unmapping code. See the comment above
+	 * vmalloc_fault() for details. On x86-64 the race does not
+	 * exist as the vmalloc mappings don't need to be synchronized
+	 * there.
+	 */
+	if (!(hw_error_code & (X86_PF_RSVD | X86_PF_USER | X86_PF_PROT))) {
+		if (vmalloc_fault(address) >= 0)
+			return;
+	}
+#endif
+
+	if (is_f00f_bug(regs, hw_error_code, address))
+		return;
+
+	/* Was the fault spurious, caused by lazy TLB invalidation? */
+	if (spurious_kernel_fault(hw_error_code, address))
+		return;
+
+	/* kprobes don't want to hook the spurious faults: */
+	if (WARN_ON_ONCE(kprobe_page_fault(regs, X86_TRAP_PF)))
+		return;
+
+	/*
+	 * Note, despite being a "bad area", there are quite a few
+	 * acceptable reasons to get here, such as erratum fixups
+	 * and handling kernel code that can fault, like get_user().
+	 *
+	 * Don't take the mm semaphore here. If we fixup a prefetch
+	 * fault we could otherwise deadlock:
+	 */
+	bad_area_nosemaphore(regs, hw_error_code, address);
+}
+NOKPROBE_SYMBOL(do_kern_addr_fault);
+
+/*
+ * Handle faults in the user portion of the address space.  Nothing in here
+ * should check X86_PF_USER without a specific justification: for almost
+ * all purposes, we should treat a normal kernel access to user memory
+ * (e.g. get_user(), put_user(), etc.) the same as the WRUSS instruction.
+ * The one exception is AC flag handling, which is, per the x86
+ * architecture, special for WRUSS.
+ */
+static inline
+void do_user_addr_fault(struct pt_regs *regs,
+			unsigned long error_code,
+			unsigned long address)
+{
+	struct vm_area_struct *vma;
+	struct task_struct *tsk;
+	struct mm_struct *mm;
+	vm_fault_t fault;
+	unsigned int flags = FAULT_FLAG_DEFAULT;
+#ifdef CONFIG_SPECULATIVE_PAGE_FAULT
+	unsigned long seq;
+#endif
+
+	tsk = current;
+	mm = tsk->mm;
+
+	if (unlikely((error_code & (X86_PF_USER | X86_PF_INSTR)) == X86_PF_INSTR)) {
+		/*
+		 * Whoops, this is kernel mode code trying to execute from
+		 * user memory.  Unless this is AMD erratum #93, which
+		 * corrupts RIP such that it looks like a user address,
+		 * this is unrecoverable.  Don't even try to look up the
+		 * VMA or look for extable entries.
+		 */
+		if (is_errata93(regs, address))
+			return;
+
+		page_fault_oops(regs, error_code, address);
+>>>>>>> upstream/android-13
 		return;
 	}
 
 	/* kprobes don't want to hook the spurious faults: */
+<<<<<<< HEAD
 	if (unlikely(kprobes_fault(regs)))
 		return;
 
@@ -1287,6 +1996,33 @@ __do_page_fault(struct pt_regs *regs, unsigned long error_code,
 
 	if (unlikely(smap_violation(error_code, regs))) {
 		bad_area_nosemaphore(regs, error_code, address, NULL);
+=======
+	if (WARN_ON_ONCE(kprobe_page_fault(regs, X86_TRAP_PF)))
+		return;
+
+	/*
+	 * Reserved bits are never expected to be set on
+	 * entries in the user portion of the page tables.
+	 */
+	if (unlikely(error_code & X86_PF_RSVD))
+		pgtable_bad(regs, error_code, address);
+
+	/*
+	 * If SMAP is on, check for invalid kernel (supervisor) access to user
+	 * pages in the user address space.  The odd case here is WRUSS,
+	 * which, according to the preliminary documentation, does not respect
+	 * SMAP and will have the USER bit set so, in all cases, SMAP
+	 * enforcement appears to be consistent with the USER bit.
+	 */
+	if (unlikely(cpu_feature_enabled(X86_FEATURE_SMAP) &&
+		     !(error_code & X86_PF_USER) &&
+		     !(regs->flags & X86_EFLAGS_AC))) {
+		/*
+		 * No extable entry here.  This was a kernel access to an
+		 * invalid pointer.  get_kernel_nofault() will not get here.
+		 */
+		page_fault_oops(regs, error_code, address);
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -1295,7 +2031,11 @@ __do_page_fault(struct pt_regs *regs, unsigned long error_code,
 	 * in a region with pagefaults disabled then we must not take the fault
 	 */
 	if (unlikely(faulthandler_disabled() || !mm)) {
+<<<<<<< HEAD
 		bad_area_nosemaphore(regs, error_code, address, NULL);
+=======
+		bad_area_nosemaphore(regs, error_code, address);
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -1308,7 +2048,10 @@ __do_page_fault(struct pt_regs *regs, unsigned long error_code,
 	 */
 	if (user_mode(regs)) {
 		local_irq_enable();
+<<<<<<< HEAD
 		error_code |= X86_PF_USER;
+=======
+>>>>>>> upstream/android-13
 		flags |= FAULT_FLAG_USER;
 	} else {
 		if (regs->flags & X86_EFLAGS_IF)
@@ -1322,6 +2065,7 @@ __do_page_fault(struct pt_regs *regs, unsigned long error_code,
 	if (error_code & X86_PF_INSTR)
 		flags |= FAULT_FLAG_INSTRUCTION;
 
+<<<<<<< HEAD
 	/*
 	 * When running in the kernel we expect faults to occur only to
 	 * addresses in user space.  All other faults represent errors in
@@ -1346,6 +2090,106 @@ __do_page_fault(struct pt_regs *regs, unsigned long error_code,
 		}
 retry:
 		down_read(&mm->mmap_sem);
+=======
+#ifdef CONFIG_X86_64
+	/*
+	 * Faults in the vsyscall page might need emulation.  The
+	 * vsyscall page is at a high address (>PAGE_OFFSET), but is
+	 * considered to be part of the user address space.
+	 *
+	 * The vsyscall page does not have a "real" VMA, so do this
+	 * emulation before we go searching for VMAs.
+	 *
+	 * PKRU never rejects instruction fetches, so we don't need
+	 * to consider the PF_PK bit.
+	 */
+	if (is_vsyscall_vaddr(address)) {
+		if (emulate_vsyscall(error_code, regs, address))
+			return;
+	}
+#endif
+
+#ifdef CONFIG_SPECULATIVE_PAGE_FAULT
+	/*
+	 * No need to try speculative faults for kernel or
+	 * single threaded user space.
+	 */
+	if (!(flags & FAULT_FLAG_USER) || atomic_read(&mm->mm_users) == 1)
+		goto no_spf;
+
+	count_vm_event(SPF_ATTEMPT);
+	seq = mmap_seq_read_start(mm);
+	if (seq & 1) {
+		count_vm_spf_event(SPF_ABORT_ODD);
+		goto spf_abort;
+	}
+	vma = get_vma(mm, address);
+	if (!vma) {
+		count_vm_spf_event(SPF_ABORT_UNMAPPED);
+		goto spf_abort;
+	}
+
+	if (!vma_can_speculate(vma, flags)) {
+		put_vma(vma);
+		count_vm_spf_event(SPF_ABORT_NO_SPECULATE);
+		goto spf_abort;
+	}
+
+	if (!mmap_seq_read_check(mm, seq, SPF_ABORT_VMA_COPY)) {
+		put_vma(vma);
+		goto spf_abort;
+	}
+	if (unlikely(access_error(error_code, vma))) {
+		put_vma(vma);
+		count_vm_spf_event(SPF_ABORT_ACCESS_ERROR);
+		goto spf_abort;
+	}
+	fault = do_handle_mm_fault(vma, address,
+			flags | FAULT_FLAG_SPECULATIVE, seq, regs);
+	put_vma(vma);
+
+	if (!(fault & VM_FAULT_RETRY))
+		goto done;
+
+	/* Quick path to respond to signals */
+	if (fault_signal_pending(fault, regs)) {
+		if (!user_mode(regs))
+			kernelmode_fixup_or_oops(regs, error_code, address,
+						 SIGBUS, BUS_ADRERR,
+						 ARCH_DEFAULT_PKEY);
+		return;
+	}
+
+spf_abort:
+	count_vm_event(SPF_ABORT);
+no_spf:
+
+#endif	/* CONFIG_SPECULATIVE_PAGE_FAULT */
+
+	/*
+	 * Kernel-mode access to the user address space should only occur
+	 * on well-defined single instructions listed in the exception
+	 * tables.  But, an erroneous kernel fault occurring outside one of
+	 * those areas which also holds mmap_lock might deadlock attempting
+	 * to validate the fault against the address space.
+	 *
+	 * Only do the expensive exception table search when we might be at
+	 * risk of a deadlock.  This happens if we
+	 * 1. Failed to acquire mmap_lock, and
+	 * 2. The access did not originate in userspace.
+	 */
+	if (unlikely(!mmap_read_trylock(mm))) {
+		if (!user_mode(regs) && !search_exception_tables(regs->ip)) {
+			/*
+			 * Fault from code in kernel from
+			 * which we do not expect faults.
+			 */
+			bad_area_nosemaphore(regs, error_code, address);
+			return;
+		}
+retry:
+		mmap_read_lock(mm);
+>>>>>>> upstream/android-13
 	} else {
 		/*
 		 * The above down_read_trylock() might have succeeded in
@@ -1366,6 +2210,7 @@ retry:
 		bad_area(regs, error_code, address);
 		return;
 	}
+<<<<<<< HEAD
 	if (error_code & X86_PF_USER) {
 		/*
 		 * Accessing the stack below %sp is always a bug.
@@ -1378,6 +2223,8 @@ retry:
 			return;
 		}
 	}
+=======
+>>>>>>> upstream/android-13
 	if (unlikely(expand_stack(vma, address))) {
 		bad_area(regs, error_code, address);
 		return;
@@ -1397,14 +2244,21 @@ good_area:
 	 * If for any reason at all we couldn't handle the fault,
 	 * make sure we exit gracefully rather than endlessly redo
 	 * the fault.  Since we never set FAULT_FLAG_RETRY_NOWAIT, if
+<<<<<<< HEAD
 	 * we get VM_FAULT_RETRY back, the mmap_sem has been unlocked.
 	 *
 	 * Note that handle_userfault() may also release and reacquire mmap_sem
+=======
+	 * we get VM_FAULT_RETRY back, the mmap_lock has been unlocked.
+	 *
+	 * Note that handle_userfault() may also release and reacquire mmap_lock
+>>>>>>> upstream/android-13
 	 * (and not return with VM_FAULT_RETRY), when returning to userland to
 	 * repeat the page fault later with a VM_FAULT_NOPAGE retval
 	 * (potentially after handling any pending signal during the return to
 	 * userland). The return to userland is identified whenever
 	 * FAULT_FLAG_USER|FAULT_FLAG_KILLABLE are both set in flags.
+<<<<<<< HEAD
 	 * Thus we have to be careful about not touching vma after handling the
 	 * fault, so we read the pkey beforehand.
 	 */
@@ -1461,12 +2315,88 @@ static nokprobe_inline void
 trace_page_fault_entries(unsigned long address, struct pt_regs *regs,
 			 unsigned long error_code)
 {
+=======
+	 */
+	fault = handle_mm_fault(vma, address, flags, regs);
+
+	if (fault_signal_pending(fault, regs)) {
+		/*
+		 * Quick path to respond to signals.  The core mm code
+		 * has unlocked the mm for us if we get here.
+		 */
+		if (!user_mode(regs))
+			kernelmode_fixup_or_oops(regs, error_code, address,
+						 SIGBUS, BUS_ADRERR,
+						 ARCH_DEFAULT_PKEY);
+		return;
+	}
+
+	/*
+	 * If we need to retry the mmap_lock has already been released,
+	 * and if there is a fatal signal pending there is no guarantee
+	 * that we made any progress. Handle this case first.
+	 */
+	if (unlikely((fault & VM_FAULT_RETRY) &&
+		     (flags & FAULT_FLAG_ALLOW_RETRY))) {
+		flags |= FAULT_FLAG_TRIED;
+		goto retry;
+	}
+
+	mmap_read_unlock(mm);
+#ifdef CONFIG_SPECULATIVE_PAGE_FAULT
+done:
+#endif
+	if (likely(!(fault & VM_FAULT_ERROR)))
+		return;
+
+	if (fatal_signal_pending(current) && !user_mode(regs)) {
+		kernelmode_fixup_or_oops(regs, error_code, address,
+					 0, 0, ARCH_DEFAULT_PKEY);
+		return;
+	}
+
+	if (fault & VM_FAULT_OOM) {
+		/* Kernel mode? Handle exceptions or die: */
+		if (!user_mode(regs)) {
+			kernelmode_fixup_or_oops(regs, error_code, address,
+						 SIGSEGV, SEGV_MAPERR,
+						 ARCH_DEFAULT_PKEY);
+			return;
+		}
+
+		/*
+		 * We ran out of memory, call the OOM killer, and return the
+		 * userspace (which will retry the fault, or kill us if we got
+		 * oom-killed):
+		 */
+		pagefault_out_of_memory();
+	} else {
+		if (fault & (VM_FAULT_SIGBUS|VM_FAULT_HWPOISON|
+			     VM_FAULT_HWPOISON_LARGE))
+			do_sigbus(regs, error_code, address, fault);
+		else if (fault & VM_FAULT_SIGSEGV)
+			bad_area_nosemaphore(regs, error_code, address);
+		else
+			BUG();
+	}
+}
+NOKPROBE_SYMBOL(do_user_addr_fault);
+
+static __always_inline void
+trace_page_fault_entries(struct pt_regs *regs, unsigned long error_code,
+			 unsigned long address)
+{
+	if (!trace_pagefault_enabled())
+		return;
+
+>>>>>>> upstream/android-13
 	if (user_mode(regs))
 		trace_page_fault_user(address, regs, error_code);
 	else
 		trace_page_fault_kernel(address, regs, error_code);
 }
 
+<<<<<<< HEAD
 /*
  * We must have this function blacklisted from kprobes, tagged with notrace
  * and call read_cr2() before calling anything else. To avoid calling any
@@ -1488,3 +2418,79 @@ do_page_fault(struct pt_regs *regs, unsigned long error_code)
 	exception_exit(prev_state);
 }
 NOKPROBE_SYMBOL(do_page_fault);
+=======
+static __always_inline void
+handle_page_fault(struct pt_regs *regs, unsigned long error_code,
+			      unsigned long address)
+{
+	trace_page_fault_entries(regs, error_code, address);
+
+	if (unlikely(kmmio_fault(regs, address)))
+		return;
+
+	/* Was the fault on kernel-controlled part of the address space? */
+	if (unlikely(fault_in_kernel_space(address))) {
+		do_kern_addr_fault(regs, error_code, address);
+	} else {
+		do_user_addr_fault(regs, error_code, address);
+		/*
+		 * User address page fault handling might have reenabled
+		 * interrupts. Fixing up all potential exit points of
+		 * do_user_addr_fault() and its leaf functions is just not
+		 * doable w/o creating an unholy mess or turning the code
+		 * upside down.
+		 */
+		local_irq_disable();
+	}
+}
+
+DEFINE_IDTENTRY_RAW_ERRORCODE(exc_page_fault)
+{
+	unsigned long address = read_cr2();
+	irqentry_state_t state;
+
+	prefetchw(&current->mm->mmap_lock);
+
+	/*
+	 * KVM uses #PF vector to deliver 'page not present' events to guests
+	 * (asynchronous page fault mechanism). The event happens when a
+	 * userspace task is trying to access some valid (from guest's point of
+	 * view) memory which is not currently mapped by the host (e.g. the
+	 * memory is swapped out). Note, the corresponding "page ready" event
+	 * which is injected when the memory becomes available, is delivered via
+	 * an interrupt mechanism and not a #PF exception
+	 * (see arch/x86/kernel/kvm.c: sysvec_kvm_asyncpf_interrupt()).
+	 *
+	 * We are relying on the interrupted context being sane (valid RSP,
+	 * relevant locks not held, etc.), which is fine as long as the
+	 * interrupted context had IF=1.  We are also relying on the KVM
+	 * async pf type field and CR2 being read consistently instead of
+	 * getting values from real and async page faults mixed up.
+	 *
+	 * Fingers crossed.
+	 *
+	 * The async #PF handling code takes care of idtentry handling
+	 * itself.
+	 */
+	if (kvm_handle_async_pf(regs, (u32)address))
+		return;
+
+	/*
+	 * Entry handling for valid #PF from kernel mode is slightly
+	 * different: RCU is already watching and rcu_irq_enter() must not
+	 * be invoked because a kernel fault on a user space address might
+	 * sleep.
+	 *
+	 * In case the fault hit a RCU idle region the conditional entry
+	 * code reenabled RCU to avoid subsequent wreckage which helps
+	 * debuggability.
+	 */
+	state = irqentry_enter(regs);
+
+	instrumentation_begin();
+	handle_page_fault(regs, error_code, address);
+	instrumentation_end();
+
+	irqentry_exit(regs, state);
+}
+>>>>>>> upstream/android-13

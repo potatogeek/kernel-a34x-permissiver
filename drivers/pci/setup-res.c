@@ -73,7 +73,12 @@ static void pci_std_update_resource(struct pci_dev *dev, int resno)
 		/*
 		 * Apparently some Matrox devices have ROM BARs that read
 		 * as zero when disabled, so don't update ROM BARs unless
+<<<<<<< HEAD
 		 * they're enabled.  See https://lkml.org/lkml/2005/8/30/138.
+=======
+		 * they're enabled.  See
+		 * https://lore.kernel.org/r/43147B3D.1030309@vc.cvut.cz/
+>>>>>>> upstream/android-13
 		 */
 		if (!(res->flags & IORESOURCE_ROM_ENABLE))
 			return;
@@ -409,10 +414,22 @@ EXPORT_SYMBOL(pci_release_resource);
 int pci_resize_resource(struct pci_dev *dev, int resno, int size)
 {
 	struct resource *res = dev->resource + resno;
+<<<<<<< HEAD
+=======
+	struct pci_host_bridge *host;
+>>>>>>> upstream/android-13
 	int old, ret;
 	u32 sizes;
 	u16 cmd;
 
+<<<<<<< HEAD
+=======
+	/* Check if we must preserve the firmware's resource assignment */
+	host = pci_find_host_bridge(dev->bus);
+	if (host->preserve_config)
+		return -ENOTSUPP;
+
+>>>>>>> upstream/android-13
 	/* Make sure the resource isn't assigned before resizing it. */
 	if (!(res->flags & IORESOURCE_UNSET))
 		return -EBUSY;

@@ -17,7 +17,11 @@
 
 #include "hvc_console.h"
 
+<<<<<<< HEAD
 struct hvc_struct *hvc_udbg_dev;
+=======
+static struct hvc_struct *hvc_udbg_dev;
+>>>>>>> upstream/android-13
 
 static int hvc_udbg_put(uint32_t vtermno, const char *buf, int count)
 {

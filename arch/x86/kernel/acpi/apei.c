@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Arch-specific APEI-related functions.
  *
@@ -10,6 +11,11 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Arch-specific APEI-related functions.
+>>>>>>> upstream/android-13
  */
 
 #include <acpi/apei.h>
@@ -52,3 +58,11 @@ void arch_apei_report_mem_error(int sev, struct cper_sec_mem_err *mem_err)
 	apei_mce_report_mem_error(sev, mem_err);
 #endif
 }
+<<<<<<< HEAD
+=======
+
+int arch_apei_report_x86_error(struct cper_ia_proc_ctx *ctx_info, u64 lapic_id)
+{
+	return apei_smca_report_x86_error(ctx_info, lapic_id);
+}
+>>>>>>> upstream/android-13

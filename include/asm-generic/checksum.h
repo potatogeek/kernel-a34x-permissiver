@@ -16,6 +16,7 @@
  */
 extern __wsum csum_partial(const void *buff, int len, __wsum sum);
 
+<<<<<<< HEAD
 /*
  * the same as csum_partial, but copies from src while it
  * checksums
@@ -39,6 +40,8 @@ extern __wsum csum_partial_copy_from_user(const void __user *src, void *dst,
 	csum_partial_copy((src), (dst), (len), (sum))
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #ifndef ip_fast_csum
 /*
  * This is a version of ip_compute_csum() optimized for IP headers,

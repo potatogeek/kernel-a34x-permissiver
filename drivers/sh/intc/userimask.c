@@ -14,7 +14,11 @@
 #include <linux/init.h>
 #include <linux/io.h>
 #include <linux/stat.h>
+<<<<<<< HEAD
 #include <asm/sizes.h>
+=======
+#include <linux/sizes.h>
+>>>>>>> upstream/android-13
 #include "internals.h"
 
 static void __iomem *uimask;
@@ -73,7 +77,11 @@ int register_intc_userimask(unsigned long addr)
 	if (unlikely(uimask))
 		return -EBUSY;
 
+<<<<<<< HEAD
 	uimask = ioremap_nocache(addr, SZ_4K);
+=======
+	uimask = ioremap(addr, SZ_4K);
+>>>>>>> upstream/android-13
 	if (unlikely(!uimask))
 		return -ENOMEM;
 

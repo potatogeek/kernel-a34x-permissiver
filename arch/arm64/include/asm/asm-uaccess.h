@@ -2,7 +2,11 @@
 #ifndef __ASM_ASM_UACCESS_H
 #define __ASM_ASM_UACCESS_H
 
+<<<<<<< HEAD
 #include <asm/alternative.h>
+=======
+#include <asm/alternative-macros.h>
+>>>>>>> upstream/android-13
 #include <asm/kernel-pgtable.h>
 #include <asm/mmu.h>
 #include <asm/sysreg.h>
@@ -15,16 +19,27 @@
 	.macro	__uaccess_ttbr0_disable, tmp1
 	mrs	\tmp1, ttbr1_el1			// swapper_pg_dir
 	bic	\tmp1, \tmp1, #TTBR_ASID_MASK
+<<<<<<< HEAD
 	sub	\tmp1, \tmp1, #RESERVED_TTBR0_SIZE	// reserved_ttbr0 just before swapper_pg_dir
 	msr	ttbr0_el1, \tmp1			// set reserved TTBR0_EL1
 	isb
 	add	\tmp1, \tmp1, #RESERVED_TTBR0_SIZE
+=======
+	sub	\tmp1, \tmp1, #RESERVED_SWAPPER_OFFSET	// reserved_pg_dir
+	msr	ttbr0_el1, \tmp1			// set reserved TTBR0_EL1
+	isb
+	add	\tmp1, \tmp1, #RESERVED_SWAPPER_OFFSET
+>>>>>>> upstream/android-13
 	msr	ttbr1_el1, \tmp1		// set reserved ASID
 	isb
 	.endm
 
 	.macro	__uaccess_ttbr0_enable, tmp1, tmp2
+<<<<<<< HEAD
 	get_thread_info \tmp1
+=======
+	get_current_task \tmp1
+>>>>>>> upstream/android-13
 	ldr	\tmp1, [\tmp1, #TSK_TI_TTBR0]	// load saved TTBR0_EL1
 	mrs	\tmp2, ttbr1_el1
 	extr    \tmp2, \tmp2, \tmp1, #48
@@ -59,6 +74,7 @@ alternative_else_nop_endif
 #endif
 
 /*
+<<<<<<< HEAD
  * These macros are no-ops when UAO is present.
  */
 	.macro	uaccess_disable_not_uao, tmp1, tmp2
@@ -83,4 +99,34 @@ alternative_else_nop_endif
 	and	\dst, \dst, \addr
 	.endm
 
+=======
+ * Generate the assembly for LDTR/STTR with exception table entries.
+ * This is complicated as there is no post-increment or pair versions of the
+ * unprivileged instructions, and USER() only works for single instructions.
+ */
+	.macro user_ldp l, reg1, reg2, addr, post_inc
+8888:		ldtr	\reg1, [\addr];
+8889:		ldtr	\reg2, [\addr, #8];
+		add	\addr, \addr, \post_inc;
+
+		_asm_extable	8888b,\l;
+		_asm_extable	8889b,\l;
+	.endm
+
+	.macro user_stp l, reg1, reg2, addr, post_inc
+8888:		sttr	\reg1, [\addr];
+8889:		sttr	\reg2, [\addr, #8];
+		add	\addr, \addr, \post_inc;
+
+		_asm_extable	8888b,\l;
+		_asm_extable	8889b,\l;
+	.endm
+
+	.macro user_ldst l, inst, reg, addr, post_inc
+8888:		\inst		\reg, [\addr];
+		add		\addr, \addr, \post_inc;
+
+		_asm_extable	8888b,\l;
+	.endm
+>>>>>>> upstream/android-13
 #endif

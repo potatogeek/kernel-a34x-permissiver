@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0+
+>>>>>>> upstream/android-13
 /*
  * Linux GPIOlib driver for the VIA VX855 integrated southbridge GPIO
  *
@@ -5,6 +9,7 @@
  * Copyright (C) 2010 One Laptop per Child
  * Author: Harald Welte <HaraldWelte@viatech.com>
  * All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,6 +31,12 @@
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/gpio.h>
+=======
+ */
+#include <linux/kernel.h>
+#include <linux/module.h>
+#include <linux/gpio/driver.h>
+>>>>>>> upstream/android-13
 #include <linux/slab.h>
 #include <linux/device.h>
 #include <linux/platform_device.h>
@@ -87,7 +98,11 @@ static inline u_int32_t gpio_o_bit(int i)
 		return 1 << (i + 13);
 }
 
+<<<<<<< HEAD
 /* Mapping betwee numeric GPIO ID and the actual GPIO hardware numbering:
+=======
+/* Mapping between numeric GPIO ID and the actual GPIO hardware numbering:
+>>>>>>> upstream/android-13
  * 0..13	GPI 0..13
  * 14..26	GPO 0..12
  * 27..41	GPIO 0..14
@@ -232,7 +247,11 @@ static void vx855gpio_gpio_setup(struct vx855_gpio *vg)
 	c->direction_output = vx855gpio_direction_output;
 	c->get = vx855gpio_get;
 	c->set = vx855gpio_set;
+<<<<<<< HEAD
 	c->set_config = vx855gpio_set_config,
+=======
+	c->set_config = vx855gpio_set_config;
+>>>>>>> upstream/android-13
 	c->dbg_show = NULL;
 	c->base = 0;
 	c->ngpio = NR_VX855_GP;

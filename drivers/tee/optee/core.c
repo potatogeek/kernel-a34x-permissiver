@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2015, Linaro Limited
  *
@@ -10,11 +11,20 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2015, Linaro Limited
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 
 #include <linux/arm-smccc.h>
+<<<<<<< HEAD
+=======
+#include <linux/crash_dump.h>
+>>>>>>> upstream/android-13
 #include <linux/errno.h>
 #include <linux/io.h>
 #include <linux/module.h>
@@ -26,6 +36,10 @@
 #include <linux/tee_drv.h>
 #include <linux/types.h>
 #include <linux/uaccess.h>
+<<<<<<< HEAD
+=======
+#include <linux/workqueue.h>
+>>>>>>> upstream/android-13
 #include "optee_private.h"
 #include "optee_smc.h"
 #include "shm_pool.h"
@@ -214,9 +228,22 @@ static void optee_get_version(struct tee_device *teedev,
 
 	if (optee->sec_caps & OPTEE_SMC_SEC_CAP_DYNAMIC_SHM)
 		v.gen_caps |= TEE_GEN_CAP_REG_MEM;
+<<<<<<< HEAD
 	*vers = v;
 }
 
+=======
+	if (optee->sec_caps & OPTEE_SMC_SEC_CAP_MEMREF_NULL)
+		v.gen_caps |= TEE_GEN_CAP_MEMREF_NULL;
+	*vers = v;
+}
+
+static void optee_bus_scan(struct work_struct *work)
+{
+	WARN_ON(optee_enumerate_devices(PTA_CMD_GET_DEVICES_SUPP));
+}
+
+>>>>>>> upstream/android-13
 static int optee_open(struct tee_context *ctx)
 {
 	struct optee_context_data *ctxdata;
@@ -240,11 +267,34 @@ static int optee_open(struct tee_context *ctx)
 			kfree(ctxdata);
 			return -EBUSY;
 		}
+<<<<<<< HEAD
 	}
 
 	mutex_init(&ctxdata->mutex);
 	INIT_LIST_HEAD(&ctxdata->sess_list);
 
+=======
+
+		if (!optee->scan_bus_done) {
+			INIT_WORK(&optee->scan_bus_work, optee_bus_scan);
+			optee->scan_bus_wq = create_workqueue("optee_bus_scan");
+			if (!optee->scan_bus_wq) {
+				kfree(ctxdata);
+				return -ECHILD;
+			}
+			queue_work(optee->scan_bus_wq, &optee->scan_bus_work);
+			optee->scan_bus_done = true;
+		}
+	}
+	mutex_init(&ctxdata->mutex);
+	INIT_LIST_HEAD(&ctxdata->sess_list);
+
+	if (optee->sec_caps & OPTEE_SMC_SEC_CAP_MEMREF_NULL)
+		ctx->cap_memref_null  = true;
+	else
+		ctx->cap_memref_null = false;
+
+>>>>>>> upstream/android-13
 	ctx->data = ctxdata;
 	return 0;
 }
@@ -263,7 +313,12 @@ static void optee_release(struct tee_context *ctx)
 	if (!ctxdata)
 		return;
 
+<<<<<<< HEAD
 	shm = tee_shm_alloc(ctx, sizeof(struct optee_msg_arg), TEE_SHM_MAPPED);
+=======
+	shm = tee_shm_alloc(ctx, sizeof(struct optee_msg_arg),
+			    TEE_SHM_MAPPED | TEE_SHM_PRIV);
+>>>>>>> upstream/android-13
 	if (!IS_ERR(shm)) {
 		arg = tee_shm_get_va(shm, 0);
 		/*
@@ -295,8 +350,18 @@ static void optee_release(struct tee_context *ctx)
 
 	ctx->data = NULL;
 
+<<<<<<< HEAD
 	if (teedev == optee->supp_teedev)
 		optee_supp_release(&optee->supp);
+=======
+	if (teedev == optee->supp_teedev) {
+		if (optee->scan_bus_wq) {
+			destroy_workqueue(optee->scan_bus_wq);
+			optee->scan_bus_wq = NULL;
+		}
+		optee_supp_release(&optee->supp);
+	}
+>>>>>>> upstream/android-13
 }
 
 static const struct tee_driver_ops optee_ops = {
@@ -409,9 +474,41 @@ static bool optee_msg_exchange_capabilities(optee_invoke_fn *invoke_fn,
 	return true;
 }
 
+<<<<<<< HEAD
 static struct tee_shm_pool *
 optee_config_shm_memremap(optee_invoke_fn *invoke_fn, void **memremaped_shm,
 			  u32 sec_caps)
+=======
+static struct tee_shm_pool *optee_config_dyn_shm(void)
+{
+	struct tee_shm_pool_mgr *priv_mgr;
+	struct tee_shm_pool_mgr *dmabuf_mgr;
+	void *rc;
+
+	rc = optee_shm_pool_alloc_pages();
+	if (IS_ERR(rc))
+		return rc;
+	priv_mgr = rc;
+
+	rc = optee_shm_pool_alloc_pages();
+	if (IS_ERR(rc)) {
+		tee_shm_pool_mgr_destroy(priv_mgr);
+		return rc;
+	}
+	dmabuf_mgr = rc;
+
+	rc = tee_shm_pool_alloc(priv_mgr, dmabuf_mgr);
+	if (IS_ERR(rc)) {
+		tee_shm_pool_mgr_destroy(priv_mgr);
+		tee_shm_pool_mgr_destroy(dmabuf_mgr);
+	}
+
+	return rc;
+}
+
+static struct tee_shm_pool *
+optee_config_shm_memremap(optee_invoke_fn *invoke_fn, void **memremaped_shm)
+>>>>>>> upstream/android-13
 {
 	union {
 		struct arm_smccc_res smccc;
@@ -426,10 +523,18 @@ optee_config_shm_memremap(optee_invoke_fn *invoke_fn, void **memremaped_shm,
 	struct tee_shm_pool_mgr *priv_mgr;
 	struct tee_shm_pool_mgr *dmabuf_mgr;
 	void *rc;
+<<<<<<< HEAD
 
 	invoke_fn(OPTEE_SMC_GET_SHM_CONFIG, 0, 0, 0, 0, 0, 0, 0, &res.smccc);
 	if (res.result.status != OPTEE_SMC_RETURN_OK) {
 		pr_info("shm service not available\n");
+=======
+	const int sz = OPTEE_SHM_NUM_PRIV_PAGES * PAGE_SIZE;
+
+	invoke_fn(OPTEE_SMC_GET_SHM_CONFIG, 0, 0, 0, 0, 0, 0, 0, &res.smccc);
+	if (res.result.status != OPTEE_SMC_RETURN_OK) {
+		pr_err("static shm service not available\n");
+>>>>>>> upstream/android-13
 		return ERR_PTR(-ENOENT);
 	}
 
@@ -455,6 +560,7 @@ optee_config_shm_memremap(optee_invoke_fn *invoke_fn, void **memremaped_shm,
 	}
 	vaddr = (unsigned long)va;
 
+<<<<<<< HEAD
 	/*
 	 * If OP-TEE can work with unregistered SHM, we will use own pool
 	 * for private shm
@@ -477,6 +583,17 @@ optee_config_shm_memremap(optee_invoke_fn *invoke_fn, void **memremaped_shm,
 		paddr += sz;
 		size -= sz;
 	}
+=======
+	rc = tee_shm_pool_mgr_alloc_res_mem(vaddr, paddr, sz,
+					    3 /* 8 bytes aligned */);
+	if (IS_ERR(rc))
+		goto err_memunmap;
+	priv_mgr = rc;
+
+	vaddr += sz;
+	paddr += sz;
+	size -= sz;
+>>>>>>> upstream/android-13
 
 	rc = tee_shm_pool_mgr_alloc_res_mem(vaddr, paddr, size, PAGE_SHIFT);
 	if (IS_ERR(rc))
@@ -519,6 +636,7 @@ static void optee_smccc_hvc(unsigned long a0, unsigned long a1,
 	arm_smccc_hvc(a0, a1, a2, a3, a4, a5, a6, a7, res);
 }
 
+<<<<<<< HEAD
 static optee_invoke_fn *get_invoke_func(struct device_node *np)
 {
 	const char *method;
@@ -526,6 +644,15 @@ static optee_invoke_fn *get_invoke_func(struct device_node *np)
 	pr_info("probing for conduit method from DT.\n");
 
 	if (of_property_read_string(np, "method", &method)) {
+=======
+static optee_invoke_fn *get_invoke_func(struct device *dev)
+{
+	const char *method;
+
+	pr_info("probing for conduit method.\n");
+
+	if (device_property_read_string(dev, "method", &method)) {
+>>>>>>> upstream/android-13
 		pr_warn("missing \"method\" property\n");
 		return ERR_PTR(-ENXIO);
 	}
@@ -539,6 +666,7 @@ static optee_invoke_fn *get_invoke_func(struct device_node *np)
 	return ERR_PTR(-EINVAL);
 }
 
+<<<<<<< HEAD
 static struct optee *optee_probe(struct device_node *np)
 {
 	optee_invoke_fn *invoke_fn;
@@ -556,17 +684,105 @@ static struct optee *optee_probe(struct device_node *np)
 	if (!optee_msg_api_uid_is_optee_api(invoke_fn)) {
 		pr_warn("api uid mismatch\n");
 		return ERR_PTR(-EINVAL);
+=======
+/* optee_remove - Device Removal Routine
+ * @pdev: platform device information struct
+ *
+ * optee_remove is called by platform subsystem to alert the driver
+ * that it should release the device
+ */
+
+static int optee_remove(struct platform_device *pdev)
+{
+	struct optee *optee = platform_get_drvdata(pdev);
+
+	/* Unregister OP-TEE specific client devices on TEE bus */
+	optee_unregister_devices();
+
+	teedev_close_context(optee->ctx);
+	/*
+	 * Ask OP-TEE to free all cached shared memory objects to decrease
+	 * reference counters and also avoid wild pointers in secure world
+	 * into the old shared memory range.
+	 */
+	optee_disable_shm_cache(optee);
+
+	/*
+	 * The two devices have to be unregistered before we can free the
+	 * other resources.
+	 */
+	tee_device_unregister(optee->supp_teedev);
+	tee_device_unregister(optee->teedev);
+
+	tee_shm_pool_free(optee->pool);
+	if (optee->memremaped_shm)
+		memunmap(optee->memremaped_shm);
+	optee_wait_queue_exit(&optee->wait_queue);
+	optee_supp_uninit(&optee->supp);
+	mutex_destroy(&optee->call_queue.mutex);
+
+	kfree(optee);
+
+	return 0;
+}
+
+/* optee_shutdown - Device Removal Routine
+ * @pdev: platform device information struct
+ *
+ * platform_shutdown is called by the platform subsystem to alert
+ * the driver that a shutdown, reboot, or kexec is happening and
+ * device must be disabled.
+ */
+static void optee_shutdown(struct platform_device *pdev)
+{
+	optee_disable_shm_cache(platform_get_drvdata(pdev));
+}
+
+static int optee_probe(struct platform_device *pdev)
+{
+	optee_invoke_fn *invoke_fn;
+	struct tee_shm_pool *pool = ERR_PTR(-EINVAL);
+	struct optee *optee = NULL;
+	void *memremaped_shm = NULL;
+	struct tee_device *teedev;
+	struct tee_context *ctx;
+	u32 sec_caps;
+	int rc;
+
+	/*
+	 * The kernel may have crashed at the same time that all available
+	 * secure world threads were suspended and we cannot reschedule the
+	 * suspended threads without access to the crashed kernel's wait_queue.
+	 * Therefore, we cannot reliably initialize the OP-TEE driver in the
+	 * kdump kernel.
+	 */
+	if (is_kdump_kernel())
+		return -ENODEV;
+
+	invoke_fn = get_invoke_func(&pdev->dev);
+	if (IS_ERR(invoke_fn))
+		return PTR_ERR(invoke_fn);
+
+	if (!optee_msg_api_uid_is_optee_api(invoke_fn)) {
+		pr_warn("api uid mismatch\n");
+		return -EINVAL;
+>>>>>>> upstream/android-13
 	}
 
 	optee_msg_get_os_revision(invoke_fn);
 
 	if (!optee_msg_api_revision_is_compatible(invoke_fn)) {
 		pr_warn("api revision mismatch\n");
+<<<<<<< HEAD
 		return ERR_PTR(-EINVAL);
+=======
+		return -EINVAL;
+>>>>>>> upstream/android-13
 	}
 
 	if (!optee_msg_exchange_capabilities(invoke_fn, &sec_caps)) {
 		pr_warn("capabilities mismatch\n");
+<<<<<<< HEAD
 		return ERR_PTR(-EINVAL);
 	}
 
@@ -580,6 +796,25 @@ static struct optee *optee_probe(struct device_node *np)
 	pool = optee_config_shm_memremap(invoke_fn, &memremaped_shm, sec_caps);
 	if (IS_ERR(pool))
 		return (void *)pool;
+=======
+		return -EINVAL;
+	}
+
+	/*
+	 * Try to use dynamic shared memory if possible
+	 */
+	if (sec_caps & OPTEE_SMC_SEC_CAP_DYNAMIC_SHM)
+		pool = optee_config_dyn_shm();
+
+	/*
+	 * If dynamic shared memory is not available or failed - try static one
+	 */
+	if (IS_ERR(pool) && (sec_caps & OPTEE_SMC_SEC_CAP_HAVE_RESERVED_SHM))
+		pool = optee_config_shm_memremap(invoke_fn, &memremaped_shm);
+
+	if (IS_ERR(pool))
+		return PTR_ERR(pool);
+>>>>>>> upstream/android-13
 
 	optee = kzalloc(sizeof(*optee), GFP_KERNEL);
 	if (!optee) {
@@ -618,11 +853,45 @@ static struct optee *optee_probe(struct device_node *np)
 	optee_supp_init(&optee->supp);
 	optee->memremaped_shm = memremaped_shm;
 	optee->pool = pool;
+<<<<<<< HEAD
 
 	optee_enable_shm_cache(optee);
 
 	pr_info("initialized driver\n");
 	return optee;
+=======
+	ctx = teedev_open(optee->teedev);
+	if (IS_ERR(ctx)) {
+		rc = PTR_ERR(ctx);
+		goto err;
+	}
+	optee->ctx = ctx;
+
+	/*
+	 * Ensure that there are no pre-existing shm objects before enabling
+	 * the shm cache so that there's no chance of receiving an invalid
+	 * address during shutdown. This could occur, for example, if we're
+	 * kexec booting from an older kernel that did not properly cleanup the
+	 * shm cache.
+	 */
+	optee_disable_unmapped_shm_cache(optee);
+
+	optee_enable_shm_cache(optee);
+
+	if (optee->sec_caps & OPTEE_SMC_SEC_CAP_DYNAMIC_SHM)
+		pr_info("dynamic shared memory is enabled\n");
+
+	platform_set_drvdata(pdev, optee);
+
+	rc = optee_enumerate_devices(PTA_CMD_GET_DEVICES);
+	if (rc) {
+		optee_remove(pdev);
+		return rc;
+	}
+
+	pr_info("initialized driver\n");
+	return 0;
+>>>>>>> upstream/android-13
 err:
 	if (optee) {
 		/*
@@ -638,6 +907,7 @@ err:
 		tee_shm_pool_free(pool);
 	if (memremaped_shm)
 		memunmap(memremaped_shm);
+<<<<<<< HEAD
 	return ERR_PTR(rc);
 }
 
@@ -718,3 +988,30 @@ MODULE_DESCRIPTION("OP-TEE driver");
 MODULE_SUPPORTED_DEVICE("");
 MODULE_VERSION("1.0");
 MODULE_LICENSE("GPL v2");
+=======
+	return rc;
+}
+
+static const struct of_device_id optee_dt_match[] = {
+	{ .compatible = "linaro,optee-tz" },
+	{},
+};
+MODULE_DEVICE_TABLE(of, optee_dt_match);
+
+static struct platform_driver optee_driver = {
+	.probe  = optee_probe,
+	.remove = optee_remove,
+	.shutdown = optee_shutdown,
+	.driver = {
+		.name = "optee",
+		.of_match_table = optee_dt_match,
+	},
+};
+module_platform_driver(optee_driver);
+
+MODULE_AUTHOR("Linaro");
+MODULE_DESCRIPTION("OP-TEE driver");
+MODULE_VERSION("1.0");
+MODULE_LICENSE("GPL v2");
+MODULE_ALIAS("platform:optee");
+>>>>>>> upstream/android-13

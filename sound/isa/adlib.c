@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * AdLib FM card driver.
  */
@@ -42,23 +46,31 @@ static int snd_adlib_match(struct device *dev, unsigned int n)
 	return 1;
 }
 
+<<<<<<< HEAD
 static void snd_adlib_free(struct snd_card *card)
 {
 	release_and_free_resource(card->private_data);
 }
 
+=======
+>>>>>>> upstream/android-13
 static int snd_adlib_probe(struct device *dev, unsigned int n)
 {
 	struct snd_card *card;
 	struct snd_opl3 *opl3;
 	int error;
 
+<<<<<<< HEAD
 	error = snd_card_new(dev, index[n], id[n], THIS_MODULE, 0, &card);
+=======
+	error = snd_devm_card_new(dev, index[n], id[n], THIS_MODULE, 0, &card);
+>>>>>>> upstream/android-13
 	if (error < 0) {
 		dev_err(dev, "could not create card\n");
 		return error;
 	}
 
+<<<<<<< HEAD
 	card->private_data = request_region(port[n], 4, CRD_NAME);
 	if (!card->private_data) {
 		dev_err(dev, "could not grab ports\n");
@@ -66,6 +78,13 @@ static int snd_adlib_probe(struct device *dev, unsigned int n)
 		goto out;
 	}
 	card->private_free = snd_adlib_free;
+=======
+	card->private_data = devm_request_region(dev, port[n], 4, CRD_NAME);
+	if (!card->private_data) {
+		dev_err(dev, "could not grab ports\n");
+		return -EBUSY;
+	}
+>>>>>>> upstream/android-13
 
 	strcpy(card->driver, DEV_NAME);
 	strcpy(card->shortname, CRD_NAME);
@@ -74,23 +93,36 @@ static int snd_adlib_probe(struct device *dev, unsigned int n)
 	error = snd_opl3_create(card, port[n], port[n] + 2, OPL3_HW_AUTO, 1, &opl3);
 	if (error < 0) {
 		dev_err(dev, "could not create OPL\n");
+<<<<<<< HEAD
 		goto out;
+=======
+		return error;
+>>>>>>> upstream/android-13
 	}
 
 	error = snd_opl3_hwdep_new(opl3, 0, 0, NULL);
 	if (error < 0) {
 		dev_err(dev, "could not create FM\n");
+<<<<<<< HEAD
 		goto out;
+=======
+		return error;
+>>>>>>> upstream/android-13
 	}
 
 	error = snd_card_register(card);
 	if (error < 0) {
 		dev_err(dev, "could not register card\n");
+<<<<<<< HEAD
 		goto out;
+=======
+		return error;
+>>>>>>> upstream/android-13
 	}
 
 	dev_set_drvdata(dev, card);
 	return 0;
+<<<<<<< HEAD
 
 out:	snd_card_free(card);
 	return error;
@@ -100,12 +132,17 @@ static int snd_adlib_remove(struct device *dev, unsigned int n)
 {
 	snd_card_free(dev_get_drvdata(dev));
 	return 0;
+=======
+>>>>>>> upstream/android-13
 }
 
 static struct isa_driver snd_adlib_driver = {
 	.match		= snd_adlib_match,
 	.probe		= snd_adlib_probe,
+<<<<<<< HEAD
 	.remove		= snd_adlib_remove,
+=======
+>>>>>>> upstream/android-13
 
 	.driver		= {
 		.name	= DEV_NAME

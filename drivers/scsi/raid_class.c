@@ -1,10 +1,17 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * raid_class.c - implementation of a simple raid visualisation class
  *
  * Copyright (c) 2005 - James Bottomley <James.Bottomley@steeleye.com>
  *
+<<<<<<< HEAD
  * This file is licensed under GPLv2
  *
+=======
+>>>>>>> upstream/android-13
  * This class is designed to allow raid attributes to be visualised and
  * manipulated in a form independent of the underlying raid.  Ultimately this
  * should work for both hardware and software raids.

@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  Dummy soundcard for virtual rawmidi devices
  *
  *  Copyright (c) 2000 by Takashi Iwai <tiwai@suse.de>
+<<<<<<< HEAD
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -17,6 +22,8 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -57,7 +64,10 @@
 MODULE_AUTHOR("Takashi Iwai <tiwai@suse.de>");
 MODULE_DESCRIPTION("Dummy soundcard for virtual rawmidi devices");
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
 MODULE_SUPPORTED_DEVICE("{{ALSA,Virtual rawmidi device}}");
+=======
+>>>>>>> upstream/android-13
 
 #define MAX_MIDI_DEVICES	4
 
@@ -90,8 +100,13 @@ static int snd_virmidi_probe(struct platform_device *devptr)
 	int idx, err;
 	int dev = devptr->id;
 
+<<<<<<< HEAD
 	err = snd_card_new(&devptr->dev, index[dev], id[dev], THIS_MODULE,
 			   sizeof(struct snd_card_virmidi), &card);
+=======
+	err = snd_devm_card_new(&devptr->dev, index[dev], id[dev], THIS_MODULE,
+				sizeof(struct snd_card_virmidi), &card);
+>>>>>>> upstream/android-13
 	if (err < 0)
 		return err;
 	vmidi = card->private_data;
@@ -109,7 +124,11 @@ static int snd_virmidi_probe(struct platform_device *devptr)
 
 		err = snd_virmidi_new(card, idx, &rmidi);
 		if (err < 0)
+<<<<<<< HEAD
 			goto __nodev;
+=======
+			return err;
+>>>>>>> upstream/android-13
 		rdev = rmidi->private_data;
 		vmidi->midi[idx] = rmidi;
 		strcpy(rmidi->name, "Virtual Raw MIDI");
@@ -121,6 +140,7 @@ static int snd_virmidi_probe(struct platform_device *devptr)
 	sprintf(card->longname, "Virtual MIDI Card %i", dev + 1);
 
 	err = snd_card_register(card);
+<<<<<<< HEAD
 	if (!err) {
 		platform_set_drvdata(devptr, card);
 		return 0;
@@ -133,6 +153,12 @@ __nodev:
 static int snd_virmidi_remove(struct platform_device *devptr)
 {
 	snd_card_free(platform_get_drvdata(devptr));
+=======
+	if (err)
+		return err;
+
+	platform_set_drvdata(devptr, card);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -140,7 +166,10 @@ static int snd_virmidi_remove(struct platform_device *devptr)
 
 static struct platform_driver snd_virmidi_driver = {
 	.probe		= snd_virmidi_probe,
+<<<<<<< HEAD
 	.remove		= snd_virmidi_remove,
+=======
+>>>>>>> upstream/android-13
 	.driver		= {
 		.name	= SND_VIRMIDI_DRIVER,
 	},

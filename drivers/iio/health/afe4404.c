@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * AFE4404 Heart Rate Monitors and Low-Cost Pulse Oximeters
  *
@@ -12,6 +13,14 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * AFE4404 Heart Rate Monitors and Low-Cost Pulse Oximeters
+ *
+ * Copyright (C) 2015-2016 Texas Instruments Incorporated - https://www.ti.com/
+ *	Andrew F. Davis <afd@ti.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/device.h>
@@ -527,7 +536,10 @@ static int afe4404_probe(struct i2c_client *client,
 	}
 
 	indio_dev->modes = INDIO_DIRECT_MODE;
+<<<<<<< HEAD
 	indio_dev->dev.parent = afe->dev;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->channels = afe4404_channels;
 	indio_dev->num_channels = ARRAY_SIZE(afe4404_channels);
 	indio_dev->name = AFE4404_DRIVER_NAME;
@@ -537,7 +549,11 @@ static int afe4404_probe(struct i2c_client *client,
 		afe->trig = devm_iio_trigger_alloc(afe->dev,
 						   "%s-dev%d",
 						   indio_dev->name,
+<<<<<<< HEAD
 						   indio_dev->id);
+=======
+						   iio_device_id(indio_dev));
+>>>>>>> upstream/android-13
 		if (!afe->trig) {
 			dev_err(afe->dev, "Unable to allocate IIO trigger\n");
 			ret = -ENOMEM;
@@ -547,7 +563,10 @@ static int afe4404_probe(struct i2c_client *client,
 		iio_trigger_set_drvdata(afe->trig, indio_dev);
 
 		afe->trig->ops = &afe4404_trigger_ops;
+<<<<<<< HEAD
 		afe->trig->dev.parent = afe->dev;
+=======
+>>>>>>> upstream/android-13
 
 		ret = iio_trigger_register(afe->trig);
 		if (ret) {

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * include/linux/fsl_devices.h
  *
@@ -7,11 +11,14 @@
  * Maintainer: Kumar Gala <galak@kernel.crashing.org>
  *
  * Copyright 2004,2012 Freescale Semiconductor, Inc
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _FSL_DEVICE_H_
@@ -98,10 +105,19 @@ struct fsl_usb2_platform_data {
 
 	unsigned	suspended:1;
 	unsigned	already_suspended:1;
+<<<<<<< HEAD
 	unsigned        has_fsl_erratum_a007792:1;
 	unsigned        has_fsl_erratum_a005275:1;
 	unsigned	has_fsl_erratum_a005697:1;
 	unsigned        check_phy_clk_valid:1;
+=======
+	unsigned	has_fsl_erratum_a007792:1;
+	unsigned	has_fsl_erratum_14:1;
+	unsigned	has_fsl_erratum_a005275:1;
+	unsigned	has_fsl_erratum_a005697:1;
+	unsigned        has_fsl_erratum_a006918:1;
+	unsigned	check_phy_clk_valid:1;
+>>>>>>> upstream/android-13
 
 	/* register save area for suspend/resume */
 	u32		pm_command;

@@ -1779,7 +1779,11 @@ static long aw_cali_misc_unlocked_ioctl(struct file *file,
 	struct aw_device *aw_dev = NULL;
 
 	if (((_IOC_TYPE(cmd)) != (AW_IOCTL_MAGIC))) {
+<<<<<<< HEAD
 		aw_dev_err(aw_dev->dev, " cmd magic err");
+=======
+		aw_pr_err(" cmd magic err");
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 	aw_dev = (struct aw_device *)file->private_data;
@@ -1798,7 +1802,11 @@ static long aw_cali_misc_compat_ioctl(struct file *file,
 	struct aw_device *aw_dev = NULL;
 
 	if (((_IOC_TYPE(cmd)) != (AW_IOCTL_MAGIC))) {
+<<<<<<< HEAD
 		aw_dev_err(aw_dev->dev, "cmd magic err");
+=======
+		aw_pr_err("cmd magic err");
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 	aw_dev = (struct aw_device *)file->private_data;

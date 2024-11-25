@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2003 Broadcom Corporation
  *
@@ -14,6 +15,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (C) 2003 Broadcom Corporation
+>>>>>>> upstream/android-13
  */
 #include <linux/cache.h>
 #include <linux/sched.h>
@@ -73,7 +79,11 @@ asmlinkage void sysn32_rt_sigreturn(void)
 
 	regs = current_pt_regs();
 	frame = (struct rt_sigframe_n32 __user *)regs->regs[29];
+<<<<<<< HEAD
 	if (!access_ok(VERIFY_READ, frame, sizeof(*frame)))
+=======
+	if (!access_ok(frame, sizeof(*frame)))
+>>>>>>> upstream/android-13
 		goto badframe;
 	if (__copy_conv_sigset_from_user(&set, &frame->rs_uc.uc_sigmask))
 		goto badframe;
@@ -84,7 +94,11 @@ asmlinkage void sysn32_rt_sigreturn(void)
 	if (sig < 0)
 		goto badframe;
 	else if (sig)
+<<<<<<< HEAD
 		force_sig(sig, current);
+=======
+		force_sig(sig);
+>>>>>>> upstream/android-13
 
 	if (compat_restore_altstack(&frame->rs_uc.uc_stack))
 		goto badframe;
@@ -100,7 +114,11 @@ asmlinkage void sysn32_rt_sigreturn(void)
 	/* Unreached */
 
 badframe:
+<<<<<<< HEAD
 	force_sig(SIGSEGV, current);
+=======
+	force_sig(SIGSEGV);
+>>>>>>> upstream/android-13
 }
 
 static int setup_rt_frame_n32(void *sig_return, struct ksignal *ksig,
@@ -110,7 +128,11 @@ static int setup_rt_frame_n32(void *sig_return, struct ksignal *ksig,
 	int err = 0;
 
 	frame = get_sigframe(ksig, regs, sizeof(*frame));
+<<<<<<< HEAD
 	if (!access_ok(VERIFY_WRITE, frame, sizeof (*frame)))
+=======
+	if (!access_ok(frame, sizeof (*frame)))
+>>>>>>> upstream/android-13
 		return -EFAULT;
 
 	/* Create siginfo.  */

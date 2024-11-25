@@ -5,6 +5,7 @@
 #include <linux/types.h>
 #include <asm/termios.h>
 
+<<<<<<< HEAD
 #define NFF	5
 
 struct termiox
@@ -20,4 +21,6 @@ struct termiox
 #define	DTRXOFF		0x0004		/* DTR flow control on input */
 #define DSRXON		0x0008		/* DCD flow control on output */
 
+=======
+>>>>>>> upstream/android-13
 #endif

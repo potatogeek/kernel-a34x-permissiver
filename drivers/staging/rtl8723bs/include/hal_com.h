@@ -45,6 +45,7 @@
 #define DESC_RATEMCS5				0x11
 #define DESC_RATEMCS6				0x12
 #define DESC_RATEMCS7				0x13
+<<<<<<< HEAD
 #define DESC_RATEMCS8				0x14
 #define DESC_RATEMCS9				0x15
 #define DESC_RATEMCS10				0x16
@@ -160,11 +161,36 @@
 (rate ==DESC_RATEVHTSS2MCS8)?"VHTSS2MCS8":\
 (rate ==DESC_RATEVHTSS2MCS9)?"VHTSS2MCS9":"UNKNOW"
 
+=======
+
+#define HDATA_RATE(rate)\
+(rate == DESC_RATE1M) ? "CCK_1M" : \
+(rate == DESC_RATE2M) ? "CCK_2M" : \
+(rate == DESC_RATE5_5M) ? "CCK5_5M" : \
+(rate == DESC_RATE11M) ? "CCK_11M" : \
+(rate == DESC_RATE6M) ? "OFDM_6M" : \
+(rate == DESC_RATE9M) ? "OFDM_9M" : \
+(rate == DESC_RATE12M) ? "OFDM_12M" : \
+(rate == DESC_RATE18M) ? "OFDM_18M" : \
+(rate == DESC_RATE24M) ? "OFDM_24M" : \
+(rate == DESC_RATE36M) ? "OFDM_36M" : \
+(rate == DESC_RATE48M) ? "OFDM_48M" : \
+(rate == DESC_RATE54M) ? "OFDM_54M" : \
+(rate == DESC_RATEMCS0) ? "MCS0" : \
+(rate == DESC_RATEMCS1) ? "MCS1" : \
+(rate == DESC_RATEMCS2) ? "MCS2" : \
+(rate == DESC_RATEMCS3) ? "MCS3" : \
+(rate == DESC_RATEMCS4) ? "MCS4" : \
+(rate == DESC_RATEMCS5) ? "MCS5" : \
+(rate == DESC_RATEMCS6) ? "MCS6" : \
+(rate == DESC_RATEMCS7) ? "MCS7" : "UNKNOWN"
+>>>>>>> upstream/android-13
 
 enum{
 	UP_LINK,
 	DOWN_LINK,
 };
+<<<<<<< HEAD
 typedef enum _RT_MEDIA_STATUS {
 	RT_MEDIA_DISCONNECT = 0,
 	RT_MEDIA_CONNECT       = 1
@@ -175,6 +201,14 @@ enum FIRMWARE_SOURCE {
 	FW_SOURCE_IMG_FILE = 0,
 	FW_SOURCE_HEADER_FILE = 1,		/* from header file */
 };
+=======
+enum rt_media_status {
+	RT_MEDIA_DISCONNECT = 0,
+	RT_MEDIA_CONNECT       = 1
+};
+
+#define MAX_DLFW_PAGE_SIZE			4096	/*  @ page : 4k bytes */
+>>>>>>> upstream/android-13
 
 /*  BK, BE, VI, VO, HCCA, MANAGEMENT, COMMAND, HIGH, BEACON. */
 /* define MAX_TX_QUEUE		9 */
@@ -184,16 +218,24 @@ enum FIRMWARE_SOURCE {
 #define TX_SELE_NQ			BIT(2)		/*  Normal Queue */
 #define TX_SELE_EQ			BIT(3)		/*  Extern Queue */
 
+<<<<<<< HEAD
 #define PageNum_128(_Len)		(u32)(((_Len)>>7) + ((_Len)&0x7F ? 1:0))
 #define PageNum_256(_Len)		(u32)(((_Len)>>8) + ((_Len)&0xFF ? 1:0))
 #define PageNum_512(_Len)		(u32)(((_Len)>>9) + ((_Len)&0x1FF ? 1:0))
 #define PageNum(_Len, _Size)		(u32)(((_Len)/(_Size)) + ((_Len)&((_Size) - 1) ? 1:0))
 
+=======
+#define PageNum_128(_Len)		((u32)(((_Len) >> 7) + ((_Len) & 0x7F ? 1 : 0)))
+>>>>>>> upstream/android-13
 
 u8 rtw_hal_data_init(struct adapter *padapter);
 void rtw_hal_data_deinit(struct adapter *padapter);
 
+<<<<<<< HEAD
 void dump_chip_info(HAL_VERSION	ChipVersion);
+=======
+void dump_chip_info(struct hal_version	ChipVersion);
+>>>>>>> upstream/android-13
 
 u8 /* return the final channel plan decision */
 hal_com_config_channel_plan(
@@ -215,9 +257,15 @@ u8 MRateToHwRate(u8 rate);
 u8 HwRateToMRate(u8 rate);
 
 void HalSetBrateCfg(
+<<<<<<< HEAD
 	struct adapter *	Adapter,
 	u8 	*mBratesOS,
 	u16 		*pBrateCfg);
+=======
+	struct adapter *Adapter,
+	u8 *mBratesOS,
+	u16	*pBrateCfg);
+>>>>>>> upstream/android-13
 
 bool
 Hal_MappingOutPipe(
@@ -227,24 +275,41 @@ u8 NumOutPipe
 
 void hal_init_macaddr(struct adapter *adapter);
 
+<<<<<<< HEAD
 void rtw_init_hal_com_default_value(struct adapter * Adapter);
+=======
+void rtw_init_hal_com_default_value(struct adapter *Adapter);
+>>>>>>> upstream/android-13
 
 void c2h_evt_clear(struct adapter *adapter);
 s32 c2h_evt_read_88xx(struct adapter *adapter, u8 *buf);
 
+<<<<<<< HEAD
 u8  rtw_hal_networktype_to_raid(struct adapter *adapter, struct sta_info *psta);
 u8 rtw_get_mgntframe_raid(struct adapter *adapter, unsigned char network_type);
 void rtw_hal_update_sta_rate_mask(struct adapter *padapter, struct sta_info *psta);
 
 void hw_var_port_switch (struct adapter *adapter);
+=======
+u8 rtw_get_mgntframe_raid(struct adapter *adapter, unsigned char network_type);
+void rtw_hal_update_sta_rate_mask(struct adapter *padapter, struct sta_info *psta);
+
+void hw_var_port_switch(struct adapter *adapter);
+>>>>>>> upstream/android-13
 
 void SetHwReg(struct adapter *padapter, u8 variable, u8 *val);
 void GetHwReg(struct adapter *padapter, u8 variable, u8 *val);
 void rtw_hal_check_rxfifo_full(struct adapter *adapter);
 
+<<<<<<< HEAD
 u8 SetHalDefVar(struct adapter *adapter, enum HAL_DEF_VARIABLE variable,
 		void *value);
 u8 GetHalDefVar(struct adapter *adapter, enum HAL_DEF_VARIABLE variable,
+=======
+u8 SetHalDefVar(struct adapter *adapter, enum hal_def_variable variable,
+		void *value);
+u8 GetHalDefVar(struct adapter *adapter, enum hal_def_variable variable,
+>>>>>>> upstream/android-13
 		void *value);
 
 bool eqNByte(u8 *str1, u8 *str2, u32 num);
@@ -279,6 +344,7 @@ void rtw_dump_raw_rssi_info(struct adapter *padapter);
 void rtw_bb_rf_gain_offset(struct adapter *padapter);
 
 void GetHalODMVar(struct adapter *Adapter,
+<<<<<<< HEAD
 	enum HAL_ODM_VARIABLE		eVariable,
 	void *				pValue1,
 	void *				pValue2);
@@ -298,4 +364,14 @@ struct noise_info
 };
 #endif
 
+=======
+	enum hal_odm_variable		eVariable,
+	void *pValue1,
+	void *pValue2);
+void SetHalODMVar(
+	struct adapter *Adapter,
+	enum hal_odm_variable		eVariable,
+	void *pValue1,
+	bool					bSet);
+>>>>>>> upstream/android-13
 #endif /* __HAL_COMMON_H__ */

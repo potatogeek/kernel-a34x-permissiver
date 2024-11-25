@@ -127,7 +127,10 @@ static const int multicast_filter_limit = 32;
 #include "typhoon.h"
 
 MODULE_AUTHOR("David Dillow <dave@thedillows.org>");
+<<<<<<< HEAD
 MODULE_VERSION("1.0");
+=======
+>>>>>>> upstream/android-13
 MODULE_LICENSE("GPL");
 MODULE_FIRMWARE(FIRMWARE_NAME);
 MODULE_DESCRIPTION("3Com Typhoon Family (3C990, 3CR990, and variants)");
@@ -311,7 +314,11 @@ enum state_values {
  * cannot pass a read, so this forces current writes to post.
  */
 #define typhoon_post_pci_writes(x) \
+<<<<<<< HEAD
 	do { if(likely(use_mmio)) ioread32(x+TYPHOON_REG_HEARTBEAT); } while(0)
+=======
+	do { if (likely(use_mmio)) ioread32(x+TYPHOON_REG_HEARTBEAT); } while (0)
+>>>>>>> upstream/android-13
 
 /* We'll wait up to six seconds for a reset, and half a second normally.
  */
@@ -381,7 +388,11 @@ typhoon_reset(void __iomem *ioaddr, int wait_type)
 	int i, err = 0;
 	int timeout;
 
+<<<<<<< HEAD
 	if(wait_type == WaitNoSleep)
+=======
+	if (wait_type == WaitNoSleep)
+>>>>>>> upstream/android-13
 		timeout = TYPHOON_RESET_TIMEOUT_NOSLEEP;
 	else
 		timeout = TYPHOON_RESET_TIMEOUT_SLEEP;
@@ -394,6 +405,7 @@ typhoon_reset(void __iomem *ioaddr, int wait_type)
 	udelay(1);
 	iowrite32(TYPHOON_RESET_NONE, ioaddr + TYPHOON_REG_SOFT_RESET);
 
+<<<<<<< HEAD
 	if(wait_type != NoWait) {
 		for(i = 0; i < timeout; i++) {
 			if(ioread32(ioaddr + TYPHOON_REG_STATUS) ==
@@ -401,6 +413,15 @@ typhoon_reset(void __iomem *ioaddr, int wait_type)
 				goto out;
 
 			if(wait_type == WaitSleep)
+=======
+	if (wait_type != NoWait) {
+		for (i = 0; i < timeout; i++) {
+			if (ioread32(ioaddr + TYPHOON_REG_STATUS) ==
+			   TYPHOON_STATUS_WAITING_FOR_HOST)
+				goto out;
+
+			if (wait_type == WaitSleep)
+>>>>>>> upstream/android-13
 				schedule_timeout_uninterruptible(1);
 			else
 				udelay(TYPHOON_UDELAY);
@@ -423,7 +444,11 @@ out:
 	 * which should be enough (I've see it work well at 100us, but still
 	 * saw occasional problems.)
 	 */
+<<<<<<< HEAD
 	if(wait_type == WaitSleep)
+=======
+	if (wait_type == WaitSleep)
+>>>>>>> upstream/android-13
 		msleep(5);
 	else
 		udelay(500);
@@ -435,8 +460,13 @@ typhoon_wait_status(void __iomem *ioaddr, u32 wait_value)
 {
 	int i, err = 0;
 
+<<<<<<< HEAD
 	for(i = 0; i < TYPHOON_WAIT_TIMEOUT; i++) {
 		if(ioread32(ioaddr + TYPHOON_REG_STATUS) == wait_value)
+=======
+	for (i = 0; i < TYPHOON_WAIT_TIMEOUT; i++) {
+		if (ioread32(ioaddr + TYPHOON_REG_STATUS) == wait_value)
+>>>>>>> upstream/android-13
 			goto out;
 		udelay(TYPHOON_UDELAY);
 	}
@@ -450,7 +480,11 @@ out:
 static inline void
 typhoon_media_status(struct net_device *dev, struct resp_desc *resp)
 {
+<<<<<<< HEAD
 	if(resp->parm1 & TYPHOON_MEDIA_STAT_NO_LINK)
+=======
+	if (resp->parm1 & TYPHOON_MEDIA_STAT_NO_LINK)
+>>>>>>> upstream/android-13
 		netif_carrier_off(dev);
 	else
 		netif_carrier_on(dev);
@@ -466,7 +500,11 @@ typhoon_hello(struct typhoon *tp)
 	 * card in a long while. If the lock is held, then we're in the
 	 * process of issuing a command, so we don't need to respond.
 	 */
+<<<<<<< HEAD
 	if(spin_trylock(&tp->command_lock)) {
+=======
+	if (spin_trylock(&tp->command_lock)) {
+>>>>>>> upstream/android-13
 		cmd = (struct cmd_desc *)(ring->ringBase + ring->lastWrite);
 		typhoon_inc_cmd_index(&ring->lastWrite, 1);
 
@@ -490,32 +528,54 @@ typhoon_process_response(struct typhoon *tp, int resp_size,
 
 	cleared = le32_to_cpu(indexes->respCleared);
 	ready = le32_to_cpu(indexes->respReady);
+<<<<<<< HEAD
 	while(cleared != ready) {
 		resp = (struct resp_desc *)(base + cleared);
 		count = resp->numDesc + 1;
 		if(resp_save && resp->seqNo) {
 			if(count > resp_size) {
+=======
+	while (cleared != ready) {
+		resp = (struct resp_desc *)(base + cleared);
+		count = resp->numDesc + 1;
+		if (resp_save && resp->seqNo) {
+			if (count > resp_size) {
+>>>>>>> upstream/android-13
 				resp_save->flags = TYPHOON_RESP_ERROR;
 				goto cleanup;
 			}
 
 			wrap_len = 0;
 			len = count * sizeof(*resp);
+<<<<<<< HEAD
 			if(unlikely(cleared + len > RESPONSE_RING_SIZE)) {
+=======
+			if (unlikely(cleared + len > RESPONSE_RING_SIZE)) {
+>>>>>>> upstream/android-13
 				wrap_len = cleared + len - RESPONSE_RING_SIZE;
 				len = RESPONSE_RING_SIZE - cleared;
 			}
 
 			memcpy(resp_save, resp, len);
+<<<<<<< HEAD
 			if(unlikely(wrap_len)) {
+=======
+			if (unlikely(wrap_len)) {
+>>>>>>> upstream/android-13
 				resp_save += len / sizeof(*resp);
 				memcpy(resp_save, base, wrap_len);
 			}
 
 			resp_save = NULL;
+<<<<<<< HEAD
 		} else if(resp->cmd == TYPHOON_CMD_READ_MEDIA_STATUS) {
 			typhoon_media_status(tp->dev, resp);
 		} else if(resp->cmd == TYPHOON_CMD_HELLO_RESP) {
+=======
+		} else if (resp->cmd == TYPHOON_CMD_READ_MEDIA_STATUS) {
+			typhoon_media_status(tp->dev, resp);
+		} else if (resp->cmd == TYPHOON_CMD_HELLO_RESP) {
+>>>>>>> upstream/android-13
 			typhoon_hello(tp);
 		} else {
 			netdev_err(tp->dev,
@@ -589,19 +649,31 @@ typhoon_issue_command(struct typhoon *tp, int num_cmd, struct cmd_desc *cmd,
 	freeCmd = typhoon_num_free_cmd(tp);
 	freeResp = typhoon_num_free_resp(tp);
 
+<<<<<<< HEAD
 	if(freeCmd < num_cmd || freeResp < num_resp) {
+=======
+	if (freeCmd < num_cmd || freeResp < num_resp) {
+>>>>>>> upstream/android-13
 		netdev_err(tp->dev, "no descs for cmd, had (needed) %d (%d) cmd, %d (%d) resp\n",
 			   freeCmd, num_cmd, freeResp, num_resp);
 		err = -ENOMEM;
 		goto out;
 	}
 
+<<<<<<< HEAD
 	if(cmd->flags & TYPHOON_CMD_RESPOND) {
+=======
+	if (cmd->flags & TYPHOON_CMD_RESPOND) {
+>>>>>>> upstream/android-13
 		/* If we're expecting a response, but the caller hasn't given
 		 * us a place to put it, we'll provide one.
 		 */
 		tp->awaiting_resp = 1;
+<<<<<<< HEAD
 		if(resp == NULL) {
+=======
+		if (resp == NULL) {
+>>>>>>> upstream/android-13
 			resp = &local_resp;
 			num_resp = 1;
 		}
@@ -609,13 +681,21 @@ typhoon_issue_command(struct typhoon *tp, int num_cmd, struct cmd_desc *cmd,
 
 	wrap_len = 0;
 	len = num_cmd * sizeof(*cmd);
+<<<<<<< HEAD
 	if(unlikely(ring->lastWrite + len > COMMAND_RING_SIZE)) {
+=======
+	if (unlikely(ring->lastWrite + len > COMMAND_RING_SIZE)) {
+>>>>>>> upstream/android-13
 		wrap_len = ring->lastWrite + len - COMMAND_RING_SIZE;
 		len = COMMAND_RING_SIZE - ring->lastWrite;
 	}
 
 	memcpy(ring->ringBase + ring->lastWrite, cmd, len);
+<<<<<<< HEAD
 	if(unlikely(wrap_len)) {
+=======
+	if (unlikely(wrap_len)) {
+>>>>>>> upstream/android-13
 		struct cmd_desc *wrap_ptr = cmd;
 		wrap_ptr += len / sizeof(*cmd);
 		memcpy(ring->ringBase, wrap_ptr, wrap_len);
@@ -629,7 +709,11 @@ typhoon_issue_command(struct typhoon *tp, int num_cmd, struct cmd_desc *cmd,
 	iowrite32(ring->lastWrite, tp->ioaddr + TYPHOON_REG_CMD_READY);
 	typhoon_post_pci_writes(tp->ioaddr);
 
+<<<<<<< HEAD
 	if((cmd->flags & TYPHOON_CMD_RESPOND) == 0)
+=======
+	if ((cmd->flags & TYPHOON_CMD_RESPOND) == 0)
+>>>>>>> upstream/android-13
 		goto out;
 
 	/* Ugh. We'll be here about 8ms, spinning our thumbs, unable to
@@ -649,14 +733,23 @@ typhoon_issue_command(struct typhoon *tp, int num_cmd, struct cmd_desc *cmd,
 	 * wait here.
 	 */
 	got_resp = 0;
+<<<<<<< HEAD
 	for(i = 0; i < TYPHOON_WAIT_TIMEOUT && !got_resp; i++) {
 		if(indexes->respCleared != indexes->respReady)
+=======
+	for (i = 0; i < TYPHOON_WAIT_TIMEOUT && !got_resp; i++) {
+		if (indexes->respCleared != indexes->respReady)
+>>>>>>> upstream/android-13
 			got_resp = typhoon_process_response(tp, num_resp,
 								resp);
 		udelay(TYPHOON_UDELAY);
 	}
 
+<<<<<<< HEAD
 	if(!got_resp) {
+=======
+	if (!got_resp) {
+>>>>>>> upstream/android-13
 		err = -ETIMEDOUT;
 		goto out;
 	}
@@ -664,11 +757,19 @@ typhoon_issue_command(struct typhoon *tp, int num_cmd, struct cmd_desc *cmd,
 	/* Collect the error response even if we don't care about the
 	 * rest of the response
 	 */
+<<<<<<< HEAD
 	if(resp->flags & TYPHOON_RESP_ERROR)
 		err = -EIO;
 
 out:
 	if(tp->awaiting_resp) {
+=======
+	if (resp->flags & TYPHOON_RESP_ERROR)
+		err = -EIO;
+
+out:
+	if (tp->awaiting_resp) {
+>>>>>>> upstream/android-13
 		tp->awaiting_resp = 0;
 		smp_wmb();
 
@@ -679,7 +780,11 @@ out:
 		 * time. So, check for it, and interrupt ourselves if this
 		 * is the case.
 		 */
+<<<<<<< HEAD
 		if(indexes->respCleared != indexes->respReady)
+=======
+		if (indexes->respCleared != indexes->respReady)
+>>>>>>> upstream/android-13
 			iowrite32(1, tp->ioaddr + TYPHOON_REG_SELF_INTERRUPT);
 	}
 
@@ -749,7 +854,11 @@ typhoon_start_tx(struct sk_buff *skb, struct net_device *dev)
 	 * between marking the queue awake and updating the cleared index.
 	 * Just loop and it will appear. This comes from the acenic driver.
 	 */
+<<<<<<< HEAD
 	while(unlikely(typhoon_num_free_tx(txRing) < (numDesc + 2)))
+=======
+	while (unlikely(typhoon_num_free_tx(txRing) < (numDesc + 2)))
+>>>>>>> upstream/android-13
 		smp_rmb();
 
 	first_txd = (struct tx_desc *) (txRing->ringBase + txRing->lastWrite);
@@ -761,7 +870,11 @@ typhoon_start_tx(struct sk_buff *skb, struct net_device *dev)
 	first_txd->tx_addr = (u64)((unsigned long) skb);
 	first_txd->processFlags = 0;
 
+<<<<<<< HEAD
 	if(skb->ip_summed == CHECKSUM_PARTIAL) {
+=======
+	if (skb->ip_summed == CHECKSUM_PARTIAL) {
+>>>>>>> upstream/android-13
 		/* The 3XP will figure out if this is UDP/TCP */
 		first_txd->processFlags |= TYPHOON_TX_PF_TCP_CHKSUM;
 		first_txd->processFlags |= TYPHOON_TX_PF_UDP_CHKSUM;
@@ -789,9 +902,15 @@ typhoon_start_tx(struct sk_buff *skb, struct net_device *dev)
 	/* No need to worry about padding packet -- the firmware pads
 	 * it with zeros to ETH_ZLEN for us.
 	 */
+<<<<<<< HEAD
 	if(skb_shinfo(skb)->nr_frags == 0) {
 		skb_dma = pci_map_single(tp->tx_pdev, skb->data, skb->len,
 				       PCI_DMA_TODEVICE);
+=======
+	if (skb_shinfo(skb)->nr_frags == 0) {
+		skb_dma = dma_map_single(&tp->tx_pdev->dev, skb->data,
+					 skb->len, DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 		txd->flags = TYPHOON_FRAG_DESC | TYPHOON_DESC_VALID;
 		txd->len = cpu_to_le16(skb->len);
 		txd->frag.addr = cpu_to_le32(skb_dma);
@@ -801,8 +920,13 @@ typhoon_start_tx(struct sk_buff *skb, struct net_device *dev)
 		int i, len;
 
 		len = skb_headlen(skb);
+<<<<<<< HEAD
 		skb_dma = pci_map_single(tp->tx_pdev, skb->data, len,
 				         PCI_DMA_TODEVICE);
+=======
+		skb_dma = dma_map_single(&tp->tx_pdev->dev, skb->data, len,
+					 DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 		txd->flags = TYPHOON_FRAG_DESC | TYPHOON_DESC_VALID;
 		txd->len = cpu_to_le16(len);
 		txd->frag.addr = cpu_to_le32(skb_dma);
@@ -819,8 +943,13 @@ typhoon_start_tx(struct sk_buff *skb, struct net_device *dev)
 
 			len = skb_frag_size(frag);
 			frag_addr = skb_frag_address(frag);
+<<<<<<< HEAD
 			skb_dma = pci_map_single(tp->tx_pdev, frag_addr, len,
 					 PCI_DMA_TODEVICE);
+=======
+			skb_dma = dma_map_single(&tp->tx_pdev->dev, frag_addr,
+						 len, DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 			txd->flags = TYPHOON_FRAG_DESC | TYPHOON_DESC_VALID;
 			txd->len = cpu_to_le16(len);
 			txd->frag.addr = cpu_to_le32(skb_dma);
@@ -841,14 +970,22 @@ typhoon_start_tx(struct sk_buff *skb, struct net_device *dev)
 	 */
 	numDesc = MAX_SKB_FRAGS + TSO_NUM_DESCRIPTORS + 1;
 
+<<<<<<< HEAD
 	if(typhoon_num_free_tx(txRing) < (numDesc + 2)) {
+=======
+	if (typhoon_num_free_tx(txRing) < (numDesc + 2)) {
+>>>>>>> upstream/android-13
 		netif_stop_queue(dev);
 
 		/* A Tx complete IRQ could have gotten between, making
 		 * the ring free again. Only need to recheck here, since
 		 * Tx is serialized.
 		 */
+<<<<<<< HEAD
 		if(typhoon_num_free_tx(txRing) >= (numDesc + 2))
+=======
+		if (typhoon_num_free_tx(txRing) >= (numDesc + 2))
+>>>>>>> upstream/android-13
 			netif_wake_queue(dev);
 	}
 
@@ -864,7 +1001,11 @@ typhoon_set_rx_mode(struct net_device *dev)
 	__le16 filter;
 
 	filter = TYPHOON_RX_FILTER_DIRECTED | TYPHOON_RX_FILTER_BROADCAST;
+<<<<<<< HEAD
 	if(dev->flags & IFF_PROMISC) {
+=======
+	if (dev->flags & IFF_PROMISC) {
+>>>>>>> upstream/android-13
 		filter |= TYPHOON_RX_FILTER_PROMISCOUS;
 	} else if ((netdev_mc_count(dev) > multicast_filter_limit) ||
 		  (dev->flags & IFF_ALLMULTI)) {
@@ -906,7 +1047,11 @@ typhoon_do_get_stats(struct typhoon *tp)
 
 	INIT_COMMAND_WITH_RESPONSE(&xp_cmd, TYPHOON_CMD_READ_STATS);
 	err = typhoon_issue_command(tp, 1, &xp_cmd, 7, xp_resp);
+<<<<<<< HEAD
 	if(err < 0)
+=======
+	if (err < 0)
+>>>>>>> upstream/android-13
 		return err;
 
 	/* 3Com's Linux driver uses txMultipleCollisions as it's
@@ -954,10 +1099,17 @@ typhoon_get_stats(struct net_device *dev)
 	struct net_device_stats *saved = &tp->stats_saved;
 
 	smp_rmb();
+<<<<<<< HEAD
 	if(tp->card_state == Sleeping)
 		return saved;
 
 	if(typhoon_do_get_stats(tp) < 0) {
+=======
+	if (tp->card_state == Sleeping)
+		return saved;
+
+	if (typhoon_do_get_stats(tp) < 0) {
+>>>>>>> upstream/android-13
 		netdev_err(dev, "error getting stats\n");
 		return saved;
 	}
@@ -974,12 +1126,20 @@ typhoon_get_drvinfo(struct net_device *dev, struct ethtool_drvinfo *info)
 	struct resp_desc xp_resp[3];
 
 	smp_rmb();
+<<<<<<< HEAD
 	if(tp->card_state == Sleeping) {
+=======
+	if (tp->card_state == Sleeping) {
+>>>>>>> upstream/android-13
 		strlcpy(info->fw_version, "Sleep image",
 			sizeof(info->fw_version));
 	} else {
 		INIT_COMMAND_WITH_RESPONSE(&xp_cmd, TYPHOON_CMD_READ_VERSIONS);
+<<<<<<< HEAD
 		if(typhoon_issue_command(tp, 1, &xp_cmd, 3, xp_resp) < 0) {
+=======
+		if (typhoon_issue_command(tp, 1, &xp_cmd, 3, xp_resp) < 0) {
+>>>>>>> upstream/android-13
 			strlcpy(info->fw_version, "Unknown runtime",
 				sizeof(info->fw_version));
 		} else {
@@ -1026,7 +1186,11 @@ typhoon_get_link_ksettings(struct net_device *dev,
 		break;
 	}
 
+<<<<<<< HEAD
 	if(tp->capabilities & TYPHOON_FIBER) {
+=======
+	if (tp->capabilities & TYPHOON_FIBER) {
+>>>>>>> upstream/android-13
 		supported |= SUPPORTED_FIBRE;
 		advertising |= ADVERTISED_FIBRE;
 		cmd->base.port = PORT_FIBRE;
@@ -1043,7 +1207,11 @@ typhoon_get_link_ksettings(struct net_device *dev,
 	cmd->base.speed = tp->speed;
 	cmd->base.duplex = tp->duplex;
 	cmd->base.phy_address = 0;
+<<<<<<< HEAD
 	if(tp->xcvr_select == TYPHOON_XCVR_AUTONEG)
+=======
+	if (tp->xcvr_select == TYPHOON_XCVR_AUTONEG)
+>>>>>>> upstream/android-13
 		cmd->base.autoneg = AUTONEG_ENABLE;
 	else
 		cmd->base.autoneg = AUTONEG_DISABLE;
@@ -1091,7 +1259,11 @@ typhoon_set_link_ksettings(struct net_device *dev,
 	INIT_COMMAND_NO_RESPONSE(&xp_cmd, TYPHOON_CMD_XCVR_SELECT);
 	xp_cmd.parm1 = xcvr;
 	err = typhoon_issue_command(tp, 1, &xp_cmd, 0, NULL);
+<<<<<<< HEAD
 	if(err < 0)
+=======
+	if (err < 0)
+>>>>>>> upstream/android-13
 		goto out;
 
 	tp->xcvr_select = xcvr;
@@ -1114,9 +1286,15 @@ typhoon_get_wol(struct net_device *dev, struct ethtool_wolinfo *wol)
 
 	wol->supported = WAKE_PHY | WAKE_MAGIC;
 	wol->wolopts = 0;
+<<<<<<< HEAD
 	if(tp->wol_events & TYPHOON_WAKE_LINK_EVENT)
 		wol->wolopts |= WAKE_PHY;
 	if(tp->wol_events & TYPHOON_WAKE_MAGIC_PKT)
+=======
+	if (tp->wol_events & TYPHOON_WAKE_LINK_EVENT)
+		wol->wolopts |= WAKE_PHY;
+	if (tp->wol_events & TYPHOON_WAKE_MAGIC_PKT)
+>>>>>>> upstream/android-13
 		wol->wolopts |= WAKE_MAGIC;
 	memset(&wol->sopass, 0, sizeof(wol->sopass));
 }
@@ -1126,6 +1304,7 @@ typhoon_set_wol(struct net_device *dev, struct ethtool_wolinfo *wol)
 {
 	struct typhoon *tp = netdev_priv(dev);
 
+<<<<<<< HEAD
 	if(wol->wolopts & ~(WAKE_PHY | WAKE_MAGIC))
 		return -EINVAL;
 
@@ -1133,6 +1312,15 @@ typhoon_set_wol(struct net_device *dev, struct ethtool_wolinfo *wol)
 	if(wol->wolopts & WAKE_PHY)
 		tp->wol_events |= TYPHOON_WAKE_LINK_EVENT;
 	if(wol->wolopts & WAKE_MAGIC)
+=======
+	if (wol->wolopts & ~(WAKE_PHY | WAKE_MAGIC))
+		return -EINVAL;
+
+	tp->wol_events = 0;
+	if (wol->wolopts & WAKE_PHY)
+		tp->wol_events |= TYPHOON_WAKE_LINK_EVENT;
+	if (wol->wolopts & WAKE_MAGIC)
+>>>>>>> upstream/android-13
 		tp->wol_events |= TYPHOON_WAKE_MAGIC_PKT;
 
 	return 0;
@@ -1163,8 +1351,13 @@ typhoon_wait_interrupt(void __iomem *ioaddr)
 {
 	int i, err = 0;
 
+<<<<<<< HEAD
 	for(i = 0; i < TYPHOON_WAIT_TIMEOUT; i++) {
 		if(ioread32(ioaddr + TYPHOON_REG_INTR_STATUS) &
+=======
+	for (i = 0; i < TYPHOON_WAIT_TIMEOUT; i++) {
+		if (ioread32(ioaddr + TYPHOON_REG_INTR_STATUS) &
+>>>>>>> upstream/android-13
 		   TYPHOON_INTR_BOOTCMD)
 			goto out;
 		udelay(TYPHOON_UDELAY);
@@ -1350,6 +1543,7 @@ typhoon_download_firmware(struct typhoon *tp)
 	image_data = typhoon_fw->data;
 	fHdr = (struct typhoon_file_header *) image_data;
 
+<<<<<<< HEAD
 	/* Cannot just map the firmware image using pci_map_single() as
 	 * the firmware is vmalloc()'d and may not be physically contiguous,
 	 * so we allocate some consistent memory to copy the sections into.
@@ -1357,6 +1551,15 @@ typhoon_download_firmware(struct typhoon *tp)
 	err = -ENOMEM;
 	dpage = pci_alloc_consistent(pdev, PAGE_SIZE, &dpage_dma);
 	if(!dpage) {
+=======
+	/* Cannot just map the firmware image using dma_map_single() as
+	 * the firmware is vmalloc()'d and may not be physically contiguous,
+	 * so we allocate some coherent memory to copy the sections into.
+	 */
+	err = -ENOMEM;
+	dpage = dma_alloc_coherent(&pdev->dev, PAGE_SIZE, &dpage_dma, GFP_ATOMIC);
+	if (!dpage) {
+>>>>>>> upstream/android-13
 		netdev_err(tp->dev, "no DMA mem for firmware\n");
 		goto err_out;
 	}
@@ -1369,7 +1572,11 @@ typhoon_download_firmware(struct typhoon *tp)
 	       ioaddr + TYPHOON_REG_INTR_MASK);
 
 	err = -ETIMEDOUT;
+<<<<<<< HEAD
 	if(typhoon_wait_status(ioaddr, TYPHOON_STATUS_WAITING_FOR_HOST) < 0) {
+=======
+	if (typhoon_wait_status(ioaddr, TYPHOON_STATUS_WAITING_FOR_HOST) < 0) {
+>>>>>>> upstream/android-13
 		netdev_err(tp->dev, "card ready timeout\n");
 		goto err_out_irq;
 	}
@@ -1398,16 +1605,27 @@ typhoon_download_firmware(struct typhoon *tp)
 	 * last write to the command register to post, so
 	 * we don't need a typhoon_post_pci_writes() after it.
 	 */
+<<<<<<< HEAD
 	for(i = 0; i < numSections; i++) {
+=======
+	for (i = 0; i < numSections; i++) {
+>>>>>>> upstream/android-13
 		sHdr = (struct typhoon_section_header *) image_data;
 		image_data += sizeof(struct typhoon_section_header);
 		load_addr = le32_to_cpu(sHdr->startAddr);
 		section_len = le32_to_cpu(sHdr->len);
 
+<<<<<<< HEAD
 		while(section_len) {
 			len = min_t(u32, section_len, PAGE_SIZE);
 
 			if(typhoon_wait_interrupt(ioaddr) < 0 ||
+=======
+		while (section_len) {
+			len = min_t(u32, section_len, PAGE_SIZE);
+
+			if (typhoon_wait_interrupt(ioaddr) < 0 ||
+>>>>>>> upstream/android-13
 			   ioread32(ioaddr + TYPHOON_REG_STATUS) !=
 			   TYPHOON_STATUS_WAITING_FOR_SEGMENT) {
 				netdev_err(tp->dev, "segment ready timeout\n");
@@ -1420,8 +1638,12 @@ typhoon_download_firmware(struct typhoon *tp)
 			 * the checksum, we can do this once, at the end.
 			 */
 			csum = csum_fold(csum_partial_copy_nocheck(image_data,
+<<<<<<< HEAD
 								   dpage, len,
 								   0));
+=======
+								   dpage, len));
+>>>>>>> upstream/android-13
 
 			iowrite32(len, ioaddr + TYPHOON_REG_BOOT_LENGTH);
 			iowrite32(le16_to_cpu((__force __le16)csum),
@@ -1440,7 +1662,11 @@ typhoon_download_firmware(struct typhoon *tp)
 		}
 	}
 
+<<<<<<< HEAD
 	if(typhoon_wait_interrupt(ioaddr) < 0 ||
+=======
+	if (typhoon_wait_interrupt(ioaddr) < 0 ||
+>>>>>>> upstream/android-13
 	   ioread32(ioaddr + TYPHOON_REG_STATUS) !=
 	   TYPHOON_STATUS_WAITING_FOR_SEGMENT) {
 		netdev_err(tp->dev, "final segment ready timeout\n");
@@ -1449,7 +1675,11 @@ typhoon_download_firmware(struct typhoon *tp)
 
 	iowrite32(TYPHOON_BOOTCMD_DNLD_COMPLETE, ioaddr + TYPHOON_REG_COMMAND);
 
+<<<<<<< HEAD
 	if(typhoon_wait_status(ioaddr, TYPHOON_STATUS_WAITING_FOR_BOOT) < 0) {
+=======
+	if (typhoon_wait_status(ioaddr, TYPHOON_STATUS_WAITING_FOR_BOOT) < 0) {
+>>>>>>> upstream/android-13
 		netdev_err(tp->dev, "boot ready timeout, status 0x%0x\n",
 			   ioread32(ioaddr + TYPHOON_REG_STATUS));
 		goto err_out_irq;
@@ -1461,7 +1691,11 @@ err_out_irq:
 	iowrite32(irqMasked, ioaddr + TYPHOON_REG_INTR_MASK);
 	iowrite32(irqEnabled, ioaddr + TYPHOON_REG_INTR_ENABLE);
 
+<<<<<<< HEAD
 	pci_free_consistent(pdev, PAGE_SIZE, dpage, dpage_dma);
+=======
+	dma_free_coherent(&pdev->dev, PAGE_SIZE, dpage, dpage_dma);
+>>>>>>> upstream/android-13
 
 err_out:
 	return err;
@@ -1472,7 +1706,11 @@ typhoon_boot_3XP(struct typhoon *tp, u32 initial_status)
 {
 	void __iomem *ioaddr = tp->ioaddr;
 
+<<<<<<< HEAD
 	if(typhoon_wait_status(ioaddr, initial_status) < 0) {
+=======
+	if (typhoon_wait_status(ioaddr, initial_status) < 0) {
+>>>>>>> upstream/android-13
 		netdev_err(tp->dev, "boot ready timeout\n");
 		goto out_timeout;
 	}
@@ -1483,7 +1721,11 @@ typhoon_boot_3XP(struct typhoon *tp, u32 initial_status)
 	iowrite32(TYPHOON_BOOTCMD_REG_BOOT_RECORD,
 				ioaddr + TYPHOON_REG_COMMAND);
 
+<<<<<<< HEAD
 	if(typhoon_wait_status(ioaddr, TYPHOON_STATUS_RUNNING) < 0) {
+=======
+	if (typhoon_wait_status(ioaddr, TYPHOON_STATUS_RUNNING) < 0) {
+>>>>>>> upstream/android-13
 		netdev_err(tp->dev, "boot finish timeout (status 0x%x)\n",
 			   ioread32(ioaddr + TYPHOON_REG_STATUS));
 		goto out_timeout;
@@ -1513,23 +1755,40 @@ typhoon_clean_tx(struct typhoon *tp, struct transmit_ring *txRing,
 	int dma_len;
 	int type;
 
+<<<<<<< HEAD
 	while(lastRead != le32_to_cpu(*index)) {
 		tx = (struct tx_desc *) (txRing->ringBase + lastRead);
 		type = tx->flags & TYPHOON_TYPE_MASK;
 
 		if(type == TYPHOON_TX_DESC) {
+=======
+	while (lastRead != le32_to_cpu(*index)) {
+		tx = (struct tx_desc *) (txRing->ringBase + lastRead);
+		type = tx->flags & TYPHOON_TYPE_MASK;
+
+		if (type == TYPHOON_TX_DESC) {
+>>>>>>> upstream/android-13
 			/* This tx_desc describes a packet.
 			 */
 			unsigned long ptr = tx->tx_addr;
 			struct sk_buff *skb = (struct sk_buff *) ptr;
 			dev_kfree_skb_irq(skb);
+<<<<<<< HEAD
 		} else if(type == TYPHOON_FRAG_DESC) {
+=======
+		} else if (type == TYPHOON_FRAG_DESC) {
+>>>>>>> upstream/android-13
 			/* This tx_desc describes a memory mapping. Free it.
 			 */
 			skb_dma = (dma_addr_t) le32_to_cpu(tx->frag.addr);
 			dma_len = le16_to_cpu(tx->len);
+<<<<<<< HEAD
 			pci_unmap_single(tp->pdev, skb_dma, dma_len,
 				       PCI_DMA_TODEVICE);
+=======
+			dma_unmap_single(&tp->pdev->dev, skb_dma, dma_len,
+					 DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 		}
 
 		tx->flags = 0;
@@ -1548,7 +1807,11 @@ typhoon_tx_complete(struct typhoon *tp, struct transmit_ring *txRing,
 
 	/* This will need changing if we start to use the Hi Tx ring. */
 	lastRead = typhoon_clean_tx(tp, txRing, index);
+<<<<<<< HEAD
 	if(netif_queue_stopped(tp->dev) && typhoon_num_free(txRing->lastWrite,
+=======
+	if (netif_queue_stopped(tp->dev) && typhoon_num_free(txRing->lastWrite,
+>>>>>>> upstream/android-13
 				lastRead, TXLO_ENTRIES) > (numDesc + 2))
 		netif_wake_queue(tp->dev);
 
@@ -1564,7 +1827,11 @@ typhoon_recycle_rx_skb(struct typhoon *tp, u32 idx)
 	struct basic_ring *ring = &tp->rxBuffRing;
 	struct rx_free *r;
 
+<<<<<<< HEAD
 	if((ring->lastWrite + sizeof(*r)) % (RXFREE_ENTRIES * sizeof(*r)) ==
+=======
+	if ((ring->lastWrite + sizeof(*r)) % (RXFREE_ENTRIES * sizeof(*r)) ==
+>>>>>>> upstream/android-13
 				le32_to_cpu(indexes->rxBuffCleared)) {
 		/* no room in ring, just drop the skb
 		 */
@@ -1595,12 +1862,20 @@ typhoon_alloc_rx_skb(struct typhoon *tp, u32 idx)
 
 	rxb->skb = NULL;
 
+<<<<<<< HEAD
 	if((ring->lastWrite + sizeof(*r)) % (RXFREE_ENTRIES * sizeof(*r)) ==
+=======
+	if ((ring->lastWrite + sizeof(*r)) % (RXFREE_ENTRIES * sizeof(*r)) ==
+>>>>>>> upstream/android-13
 				le32_to_cpu(indexes->rxBuffCleared))
 		return -ENOMEM;
 
 	skb = netdev_alloc_skb(tp->dev, PKT_BUF_SZ);
+<<<<<<< HEAD
 	if(!skb)
+=======
+	if (!skb)
+>>>>>>> upstream/android-13
 		return -ENOMEM;
 
 #if 0
@@ -1610,8 +1885,13 @@ typhoon_alloc_rx_skb(struct typhoon *tp, u32 idx)
 	skb_reserve(skb, 2);
 #endif
 
+<<<<<<< HEAD
 	dma_addr = pci_map_single(tp->pdev, skb->data,
 				  PKT_BUF_SZ, PCI_DMA_FROMDEVICE);
+=======
+	dma_addr = dma_map_single(&tp->pdev->dev, skb->data, PKT_BUF_SZ,
+				  DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 
 	/* Since no card does 64 bit DAC, the high bits will never
 	 * change from zero.
@@ -1647,7 +1927,11 @@ typhoon_rx(struct typhoon *tp, struct basic_ring *rxRing, volatile __le32 * read
 	received = 0;
 	local_ready = le32_to_cpu(*ready);
 	rxaddr = le32_to_cpu(*cleared);
+<<<<<<< HEAD
 	while(rxaddr != local_ready && budget > 0) {
+=======
+	while (rxaddr != local_ready && budget > 0) {
+>>>>>>> upstream/android-13
 		rx = (struct rx_desc *) (rxRing->ringBase + rxaddr);
 		idx = rx->addr;
 		rxb = &tp->rxbuffers[idx];
@@ -1656,13 +1940,18 @@ typhoon_rx(struct typhoon *tp, struct basic_ring *rxRing, volatile __le32 * read
 
 		typhoon_inc_rx_index(&rxaddr, 1);
 
+<<<<<<< HEAD
 		if(rx->flags & TYPHOON_RX_ERROR) {
+=======
+		if (rx->flags & TYPHOON_RX_ERROR) {
+>>>>>>> upstream/android-13
 			typhoon_recycle_rx_skb(tp, idx);
 			continue;
 		}
 
 		pkt_len = le16_to_cpu(rx->frameLen);
 
+<<<<<<< HEAD
 		if(pkt_len < rx_copybreak &&
 		   (new_skb = netdev_alloc_skb(tp->dev, pkt_len + 2)) != NULL) {
 			skb_reserve(new_skb, 2);
@@ -1673,19 +1962,39 @@ typhoon_rx(struct typhoon *tp, struct basic_ring *rxRing, volatile __le32 * read
 			pci_dma_sync_single_for_device(tp->pdev, dma_addr,
 						       PKT_BUF_SZ,
 						       PCI_DMA_FROMDEVICE);
+=======
+		if (pkt_len < rx_copybreak &&
+		   (new_skb = netdev_alloc_skb(tp->dev, pkt_len + 2)) != NULL) {
+			skb_reserve(new_skb, 2);
+			dma_sync_single_for_cpu(&tp->pdev->dev, dma_addr,
+						PKT_BUF_SZ, DMA_FROM_DEVICE);
+			skb_copy_to_linear_data(new_skb, skb->data, pkt_len);
+			dma_sync_single_for_device(&tp->pdev->dev, dma_addr,
+						   PKT_BUF_SZ,
+						   DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 			skb_put(new_skb, pkt_len);
 			typhoon_recycle_rx_skb(tp, idx);
 		} else {
 			new_skb = skb;
 			skb_put(new_skb, pkt_len);
+<<<<<<< HEAD
 			pci_unmap_single(tp->pdev, dma_addr, PKT_BUF_SZ,
 				       PCI_DMA_FROMDEVICE);
+=======
+			dma_unmap_single(&tp->pdev->dev, dma_addr, PKT_BUF_SZ,
+					 DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 			typhoon_alloc_rx_skb(tp, idx);
 		}
 		new_skb->protocol = eth_type_trans(new_skb, tp->dev);
 		csum_bits = rx->rxStatus & (TYPHOON_RX_IP_CHK_GOOD |
 			TYPHOON_RX_UDP_CHK_GOOD | TYPHOON_RX_TCP_CHK_GOOD);
+<<<<<<< HEAD
 		if(csum_bits ==
+=======
+		if (csum_bits ==
+>>>>>>> upstream/android-13
 		   (TYPHOON_RX_IP_CHK_GOOD | TYPHOON_RX_TCP_CHK_GOOD) ||
 		   csum_bits ==
 		   (TYPHOON_RX_IP_CHK_GOOD | TYPHOON_RX_UDP_CHK_GOOD)) {
@@ -1711,11 +2020,19 @@ typhoon_fill_free_ring(struct typhoon *tp)
 {
 	u32 i;
 
+<<<<<<< HEAD
 	for(i = 0; i < RXENT_ENTRIES; i++) {
 		struct rxbuff_ent *rxb = &tp->rxbuffers[i];
 		if(rxb->skb)
 			continue;
 		if(typhoon_alloc_rx_skb(tp, i) < 0)
+=======
+	for (i = 0; i < RXENT_ENTRIES; i++) {
+		struct rxbuff_ent *rxb = &tp->rxbuffers[i];
+		if (rxb->skb)
+			continue;
+		if (typhoon_alloc_rx_skb(tp, i) < 0)
+>>>>>>> upstream/android-13
 			break;
 	}
 }
@@ -1728,25 +2045,44 @@ typhoon_poll(struct napi_struct *napi, int budget)
 	int work_done;
 
 	rmb();
+<<<<<<< HEAD
 	if(!tp->awaiting_resp && indexes->respReady != indexes->respCleared)
 			typhoon_process_response(tp, 0, NULL);
 
 	if(le32_to_cpu(indexes->txLoCleared) != tp->txLoRing.lastRead)
+=======
+	if (!tp->awaiting_resp && indexes->respReady != indexes->respCleared)
+			typhoon_process_response(tp, 0, NULL);
+
+	if (le32_to_cpu(indexes->txLoCleared) != tp->txLoRing.lastRead)
+>>>>>>> upstream/android-13
 		typhoon_tx_complete(tp, &tp->txLoRing, &indexes->txLoCleared);
 
 	work_done = 0;
 
+<<<<<<< HEAD
 	if(indexes->rxHiCleared != indexes->rxHiReady) {
+=======
+	if (indexes->rxHiCleared != indexes->rxHiReady) {
+>>>>>>> upstream/android-13
 		work_done += typhoon_rx(tp, &tp->rxHiRing, &indexes->rxHiReady,
 			   		&indexes->rxHiCleared, budget);
 	}
 
+<<<<<<< HEAD
 	if(indexes->rxLoCleared != indexes->rxLoReady) {
+=======
+	if (indexes->rxLoCleared != indexes->rxLoReady) {
+>>>>>>> upstream/android-13
 		work_done += typhoon_rx(tp, &tp->rxLoRing, &indexes->rxLoReady,
 					&indexes->rxLoCleared, budget - work_done);
 	}
 
+<<<<<<< HEAD
 	if(le32_to_cpu(indexes->rxBuffCleared) == tp->rxBuffRing.lastWrite) {
+=======
+	if (le32_to_cpu(indexes->rxBuffCleared) == tp->rxBuffRing.lastWrite) {
+>>>>>>> upstream/android-13
 		/* rxBuff ring is empty, try to fill it. */
 		typhoon_fill_free_ring(tp);
 	}
@@ -1770,7 +2106,11 @@ typhoon_interrupt(int irq, void *dev_instance)
 	u32 intr_status;
 
 	intr_status = ioread32(ioaddr + TYPHOON_REG_INTR_STATUS);
+<<<<<<< HEAD
 	if(!(intr_status & TYPHOON_INTR_HOST_INT))
+=======
+	if (!(intr_status & TYPHOON_INTR_HOST_INT))
+>>>>>>> upstream/android-13
 		return IRQ_NONE;
 
 	iowrite32(intr_status, ioaddr + TYPHOON_REG_INTR_STATUS);
@@ -1790,11 +2130,19 @@ typhoon_free_rx_rings(struct typhoon *tp)
 {
 	u32 i;
 
+<<<<<<< HEAD
 	for(i = 0; i < RXENT_ENTRIES; i++) {
 		struct rxbuff_ent *rxb = &tp->rxbuffers[i];
 		if(rxb->skb) {
 			pci_unmap_single(tp->pdev, rxb->dma_addr, PKT_BUF_SZ,
 				       PCI_DMA_FROMDEVICE);
+=======
+	for (i = 0; i < RXENT_ENTRIES; i++) {
+		struct rxbuff_ent *rxb = &tp->rxbuffers[i];
+		if (rxb->skb) {
+			dma_unmap_single(&tp->pdev->dev, rxb->dma_addr,
+					 PKT_BUF_SZ, DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 			dev_kfree_skb(rxb->skb);
 			rxb->skb = NULL;
 		}
@@ -1802,9 +2150,14 @@ typhoon_free_rx_rings(struct typhoon *tp)
 }
 
 static int
+<<<<<<< HEAD
 typhoon_sleep(struct typhoon *tp, pci_power_t state, __le16 events)
 {
 	struct pci_dev *pdev = tp->pdev;
+=======
+typhoon_sleep_early(struct typhoon *tp, __le16 events)
+{
+>>>>>>> upstream/android-13
 	void __iomem *ioaddr = tp->ioaddr;
 	struct cmd_desc xp_cmd;
 	int err;
@@ -1812,7 +2165,11 @@ typhoon_sleep(struct typhoon *tp, pci_power_t state, __le16 events)
 	INIT_COMMAND_WITH_RESPONSE(&xp_cmd, TYPHOON_CMD_ENABLE_WAKE_EVENTS);
 	xp_cmd.parm1 = events;
 	err = typhoon_issue_command(tp, 1, &xp_cmd, 0, NULL);
+<<<<<<< HEAD
 	if(err < 0) {
+=======
+	if (err < 0) {
+>>>>>>> upstream/android-13
 		netdev_err(tp->dev, "typhoon_sleep(): wake events cmd err %d\n",
 			   err);
 		return err;
@@ -1820,12 +2177,20 @@ typhoon_sleep(struct typhoon *tp, pci_power_t state, __le16 events)
 
 	INIT_COMMAND_NO_RESPONSE(&xp_cmd, TYPHOON_CMD_GOTO_SLEEP);
 	err = typhoon_issue_command(tp, 1, &xp_cmd, 0, NULL);
+<<<<<<< HEAD
 	if(err < 0) {
+=======
+	if (err < 0) {
+>>>>>>> upstream/android-13
 		netdev_err(tp->dev, "typhoon_sleep(): sleep cmd err %d\n", err);
 		return err;
 	}
 
+<<<<<<< HEAD
 	if(typhoon_wait_status(ioaddr, TYPHOON_STATUS_SLEEPING) < 0)
+=======
+	if (typhoon_wait_status(ioaddr, TYPHOON_STATUS_SLEEPING) < 0)
+>>>>>>> upstream/android-13
 		return -ETIMEDOUT;
 
 	/* Since we cannot monitor the status of the link while sleeping,
@@ -1833,26 +2198,54 @@ typhoon_sleep(struct typhoon *tp, pci_power_t state, __le16 events)
 	 */
 	netif_carrier_off(tp->dev);
 
+<<<<<<< HEAD
 	pci_enable_wake(tp->pdev, state, 1);
 	pci_disable_device(pdev);
 	return pci_set_power_state(pdev, state);
+=======
+	return 0;
+}
+
+static int
+typhoon_sleep(struct typhoon *tp, pci_power_t state, __le16 events)
+{
+	int err;
+
+	err = typhoon_sleep_early(tp, events);
+
+	if (err)
+		return err;
+
+	pci_enable_wake(tp->pdev, state, 1);
+	pci_disable_device(tp->pdev);
+	return pci_set_power_state(tp->pdev, state);
+>>>>>>> upstream/android-13
 }
 
 static int
 typhoon_wakeup(struct typhoon *tp, int wait_type)
 {
+<<<<<<< HEAD
 	struct pci_dev *pdev = tp->pdev;
 	void __iomem *ioaddr = tp->ioaddr;
 
 	pci_set_power_state(pdev, PCI_D0);
 	pci_restore_state(pdev);
 
+=======
+	void __iomem *ioaddr = tp->ioaddr;
+
+>>>>>>> upstream/android-13
 	/* Post 2.x.x versions of the Sleep Image require a reset before
 	 * we can download the Runtime Image. But let's not make users of
 	 * the old firmware pay for the reset.
 	 */
 	iowrite32(TYPHOON_BOOTCMD_WAKEUP, ioaddr + TYPHOON_REG_COMMAND);
+<<<<<<< HEAD
 	if(typhoon_wait_status(ioaddr, TYPHOON_STATUS_WAITING_FOR_HOST) < 0 ||
+=======
+	if (typhoon_wait_status(ioaddr, TYPHOON_STATUS_WAITING_FOR_HOST) < 0 ||
+>>>>>>> upstream/android-13
 			(tp->capabilities & TYPHOON_WAKEUP_NEEDS_RESET))
 		return typhoon_reset(ioaddr, wait_type);
 
@@ -1871,12 +2264,20 @@ typhoon_start_runtime(struct typhoon *tp)
 	typhoon_fill_free_ring(tp);
 
 	err = typhoon_download_firmware(tp);
+<<<<<<< HEAD
 	if(err < 0) {
+=======
+	if (err < 0) {
+>>>>>>> upstream/android-13
 		netdev_err(tp->dev, "cannot load runtime on 3XP\n");
 		goto error_out;
 	}
 
+<<<<<<< HEAD
 	if(typhoon_boot_3XP(tp, TYPHOON_STATUS_WAITING_FOR_BOOT) < 0) {
+=======
+	if (typhoon_boot_3XP(tp, TYPHOON_STATUS_WAITING_FOR_BOOT) < 0) {
+>>>>>>> upstream/android-13
 		netdev_err(tp->dev, "cannot boot 3XP\n");
 		err = -EIO;
 		goto error_out;
@@ -1885,14 +2286,22 @@ typhoon_start_runtime(struct typhoon *tp)
 	INIT_COMMAND_NO_RESPONSE(&xp_cmd, TYPHOON_CMD_SET_MAX_PKT_SIZE);
 	xp_cmd.parm1 = cpu_to_le16(PKT_BUF_SZ);
 	err = typhoon_issue_command(tp, 1, &xp_cmd, 0, NULL);
+<<<<<<< HEAD
 	if(err < 0)
+=======
+	if (err < 0)
+>>>>>>> upstream/android-13
 		goto error_out;
 
 	INIT_COMMAND_NO_RESPONSE(&xp_cmd, TYPHOON_CMD_SET_MAC_ADDRESS);
 	xp_cmd.parm1 = cpu_to_le16(ntohs(*(__be16 *)&dev->dev_addr[0]));
 	xp_cmd.parm2 = cpu_to_le32(ntohl(*(__be32 *)&dev->dev_addr[2]));
 	err = typhoon_issue_command(tp, 1, &xp_cmd, 0, NULL);
+<<<<<<< HEAD
 	if(err < 0)
+=======
+	if (err < 0)
+>>>>>>> upstream/android-13
 		goto error_out;
 
 	/* Disable IRQ coalescing -- we can reenable it when 3Com gives
@@ -1901,38 +2310,62 @@ typhoon_start_runtime(struct typhoon *tp)
 	INIT_COMMAND_WITH_RESPONSE(&xp_cmd, TYPHOON_CMD_IRQ_COALESCE_CTRL);
 	xp_cmd.parm1 = 0;
 	err = typhoon_issue_command(tp, 1, &xp_cmd, 0, NULL);
+<<<<<<< HEAD
 	if(err < 0)
+=======
+	if (err < 0)
+>>>>>>> upstream/android-13
 		goto error_out;
 
 	INIT_COMMAND_NO_RESPONSE(&xp_cmd, TYPHOON_CMD_XCVR_SELECT);
 	xp_cmd.parm1 = tp->xcvr_select;
 	err = typhoon_issue_command(tp, 1, &xp_cmd, 0, NULL);
+<<<<<<< HEAD
 	if(err < 0)
+=======
+	if (err < 0)
+>>>>>>> upstream/android-13
 		goto error_out;
 
 	INIT_COMMAND_NO_RESPONSE(&xp_cmd, TYPHOON_CMD_VLAN_TYPE_WRITE);
 	xp_cmd.parm1 = cpu_to_le16(ETH_P_8021Q);
 	err = typhoon_issue_command(tp, 1, &xp_cmd, 0, NULL);
+<<<<<<< HEAD
 	if(err < 0)
+=======
+	if (err < 0)
+>>>>>>> upstream/android-13
 		goto error_out;
 
 	INIT_COMMAND_NO_RESPONSE(&xp_cmd, TYPHOON_CMD_SET_OFFLOAD_TASKS);
 	xp_cmd.parm2 = tp->offload;
 	xp_cmd.parm3 = tp->offload;
 	err = typhoon_issue_command(tp, 1, &xp_cmd, 0, NULL);
+<<<<<<< HEAD
 	if(err < 0)
+=======
+	if (err < 0)
+>>>>>>> upstream/android-13
 		goto error_out;
 
 	typhoon_set_rx_mode(dev);
 
 	INIT_COMMAND_NO_RESPONSE(&xp_cmd, TYPHOON_CMD_TX_ENABLE);
 	err = typhoon_issue_command(tp, 1, &xp_cmd, 0, NULL);
+<<<<<<< HEAD
 	if(err < 0)
+=======
+	if (err < 0)
+>>>>>>> upstream/android-13
 		goto error_out;
 
 	INIT_COMMAND_WITH_RESPONSE(&xp_cmd, TYPHOON_CMD_RX_ENABLE);
 	err = typhoon_issue_command(tp, 1, &xp_cmd, 0, NULL);
+<<<<<<< HEAD
 	if(err < 0)
+=======
+	if (err < 0)
+>>>>>>> upstream/android-13
 		goto error_out;
 
 	tp->card_state = Running;
@@ -1972,13 +2405,22 @@ typhoon_stop_runtime(struct typhoon *tp, int wait_type)
 	/* Wait 1/2 sec for any outstanding transmits to occur
 	 * We'll cleanup after the reset if this times out.
 	 */
+<<<<<<< HEAD
 	for(i = 0; i < TYPHOON_WAIT_TIMEOUT; i++) {
 		if(indexes->txLoCleared == cpu_to_le32(txLo->lastWrite))
+=======
+	for (i = 0; i < TYPHOON_WAIT_TIMEOUT; i++) {
+		if (indexes->txLoCleared == cpu_to_le32(txLo->lastWrite))
+>>>>>>> upstream/android-13
 			break;
 		udelay(TYPHOON_UDELAY);
 	}
 
+<<<<<<< HEAD
 	if(i == TYPHOON_WAIT_TIMEOUT)
+=======
+	if (i == TYPHOON_WAIT_TIMEOUT)
+>>>>>>> upstream/android-13
 		netdev_err(tp->dev, "halt timed out waiting for Tx to complete\n");
 
 	INIT_COMMAND_NO_RESPONSE(&xp_cmd, TYPHOON_CMD_TX_DISABLE);
@@ -1995,16 +2437,27 @@ typhoon_stop_runtime(struct typhoon *tp, int wait_type)
 	INIT_COMMAND_NO_RESPONSE(&xp_cmd, TYPHOON_CMD_HALT);
 	typhoon_issue_command(tp, 1, &xp_cmd, 0, NULL);
 
+<<<<<<< HEAD
 	if(typhoon_wait_status(ioaddr, TYPHOON_STATUS_HALTED) < 0)
 		netdev_err(tp->dev, "timed out waiting for 3XP to halt\n");
 
 	if(typhoon_reset(ioaddr, wait_type) < 0) {
+=======
+	if (typhoon_wait_status(ioaddr, TYPHOON_STATUS_HALTED) < 0)
+		netdev_err(tp->dev, "timed out waiting for 3XP to halt\n");
+
+	if (typhoon_reset(ioaddr, wait_type) < 0) {
+>>>>>>> upstream/android-13
 		netdev_err(tp->dev, "unable to reset 3XP\n");
 		return -ETIMEDOUT;
 	}
 
 	/* cleanup any outstanding Tx packets */
+<<<<<<< HEAD
 	if(indexes->txLoCleared != cpu_to_le32(txLo->lastWrite)) {
+=======
+	if (indexes->txLoCleared != cpu_to_le32(txLo->lastWrite)) {
+>>>>>>> upstream/android-13
 		indexes->txLoCleared = cpu_to_le32(txLo->lastWrite);
 		typhoon_clean_tx(tp, &tp->txLoRing, &indexes->txLoCleared);
 	}
@@ -2013,11 +2466,19 @@ typhoon_stop_runtime(struct typhoon *tp, int wait_type)
 }
 
 static void
+<<<<<<< HEAD
 typhoon_tx_timeout(struct net_device *dev)
 {
 	struct typhoon *tp = netdev_priv(dev);
 
 	if(typhoon_reset(tp->ioaddr, WaitNoSleep) < 0) {
+=======
+typhoon_tx_timeout(struct net_device *dev, unsigned int txqueue)
+{
+	struct typhoon *tp = netdev_priv(dev);
+
+	if (typhoon_reset(tp->ioaddr, WaitNoSleep) < 0) {
+>>>>>>> upstream/android-13
 		netdev_warn(dev, "could not reset in tx timeout\n");
 		goto truly_dead;
 	}
@@ -2026,7 +2487,11 @@ typhoon_tx_timeout(struct net_device *dev)
 	typhoon_clean_tx(tp, &tp->txLoRing, &tp->indexes->txLoCleared);
 	typhoon_free_rx_rings(tp);
 
+<<<<<<< HEAD
 	if(typhoon_start_runtime(tp) < 0) {
+=======
+	if (typhoon_start_runtime(tp) < 0) {
+>>>>>>> upstream/android-13
 		netdev_err(dev, "could not start runtime in tx timeout\n");
 		goto truly_dead;
         }
@@ -2050,21 +2515,37 @@ typhoon_open(struct net_device *dev)
 	if (err)
 		goto out;
 
+<<<<<<< HEAD
 	err = typhoon_wakeup(tp, WaitSleep);
 	if(err < 0) {
+=======
+	pci_set_power_state(tp->pdev, PCI_D0);
+	pci_restore_state(tp->pdev);
+
+	err = typhoon_wakeup(tp, WaitSleep);
+	if (err < 0) {
+>>>>>>> upstream/android-13
 		netdev_err(dev, "unable to wakeup device\n");
 		goto out_sleep;
 	}
 
 	err = request_irq(dev->irq, typhoon_interrupt, IRQF_SHARED,
 				dev->name, dev);
+<<<<<<< HEAD
 	if(err < 0)
+=======
+	if (err < 0)
+>>>>>>> upstream/android-13
 		goto out_sleep;
 
 	napi_enable(&tp->napi);
 
 	err = typhoon_start_runtime(tp);
+<<<<<<< HEAD
 	if(err < 0) {
+=======
+	if (err < 0) {
+>>>>>>> upstream/android-13
 		napi_disable(&tp->napi);
 		goto out_irq;
 	}
@@ -2076,13 +2557,21 @@ out_irq:
 	free_irq(dev->irq, dev);
 
 out_sleep:
+<<<<<<< HEAD
 	if(typhoon_boot_3XP(tp, TYPHOON_STATUS_WAITING_FOR_HOST) < 0) {
+=======
+	if (typhoon_boot_3XP(tp, TYPHOON_STATUS_WAITING_FOR_HOST) < 0) {
+>>>>>>> upstream/android-13
 		netdev_err(dev, "unable to reboot into sleep img\n");
 		typhoon_reset(tp->ioaddr, NoWait);
 		goto out;
 	}
 
+<<<<<<< HEAD
 	if(typhoon_sleep(tp, PCI_D3hot, 0) < 0)
+=======
+	if (typhoon_sleep(tp, PCI_D3hot, 0) < 0)
+>>>>>>> upstream/android-13
 		netdev_err(dev, "unable to go back to sleep\n");
 
 out:
@@ -2097,7 +2586,11 @@ typhoon_close(struct net_device *dev)
 	netif_stop_queue(dev);
 	napi_disable(&tp->napi);
 
+<<<<<<< HEAD
 	if(typhoon_stop_runtime(tp, WaitSleep) < 0)
+=======
+	if (typhoon_stop_runtime(tp, WaitSleep) < 0)
+>>>>>>> upstream/android-13
 		netdev_err(dev, "unable to stop runtime\n");
 
 	/* Make sure there is no irq handler running on a different CPU. */
@@ -2106,33 +2599,58 @@ typhoon_close(struct net_device *dev)
 	typhoon_free_rx_rings(tp);
 	typhoon_init_rings(tp);
 
+<<<<<<< HEAD
 	if(typhoon_boot_3XP(tp, TYPHOON_STATUS_WAITING_FOR_HOST) < 0)
 		netdev_err(dev, "unable to boot sleep image\n");
 
 	if(typhoon_sleep(tp, PCI_D3hot, 0) < 0)
+=======
+	if (typhoon_boot_3XP(tp, TYPHOON_STATUS_WAITING_FOR_HOST) < 0)
+		netdev_err(dev, "unable to boot sleep image\n");
+
+	if (typhoon_sleep(tp, PCI_D3hot, 0) < 0)
+>>>>>>> upstream/android-13
 		netdev_err(dev, "unable to put card to sleep\n");
 
 	return 0;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_PM
 static int
 typhoon_resume(struct pci_dev *pdev)
 {
 	struct net_device *dev = pci_get_drvdata(pdev);
+=======
+static int __maybe_unused
+typhoon_resume(struct device *dev_d)
+{
+	struct net_device *dev = dev_get_drvdata(dev_d);
+>>>>>>> upstream/android-13
 	struct typhoon *tp = netdev_priv(dev);
 
 	/* If we're down, resume when we are upped.
 	 */
+<<<<<<< HEAD
 	if(!netif_running(dev))
 		return 0;
 
 	if(typhoon_wakeup(tp, WaitNoSleep) < 0) {
+=======
+	if (!netif_running(dev))
+		return 0;
+
+	if (typhoon_wakeup(tp, WaitNoSleep) < 0) {
+>>>>>>> upstream/android-13
 		netdev_err(dev, "critical: could not wake up in resume\n");
 		goto reset;
 	}
 
+<<<<<<< HEAD
 	if(typhoon_start_runtime(tp) < 0) {
+=======
+	if (typhoon_start_runtime(tp) < 0) {
+>>>>>>> upstream/android-13
 		netdev_err(dev, "critical: could not start runtime in resume\n");
 		goto reset;
 	}
@@ -2145,25 +2663,44 @@ reset:
 	return -EBUSY;
 }
 
+<<<<<<< HEAD
 static int
 typhoon_suspend(struct pci_dev *pdev, pm_message_t state)
 {
+=======
+static int __maybe_unused
+typhoon_suspend(struct device *dev_d)
+{
+	struct pci_dev *pdev = to_pci_dev(dev_d);
+>>>>>>> upstream/android-13
 	struct net_device *dev = pci_get_drvdata(pdev);
 	struct typhoon *tp = netdev_priv(dev);
 	struct cmd_desc xp_cmd;
 
 	/* If we're down, we're already suspended.
 	 */
+<<<<<<< HEAD
 	if(!netif_running(dev))
 		return 0;
 
 	/* TYPHOON_OFFLOAD_VLAN is always on now, so this doesn't work */
 	if(tp->wol_events & TYPHOON_WAKE_MAGIC_PKT)
+=======
+	if (!netif_running(dev))
+		return 0;
+
+	/* TYPHOON_OFFLOAD_VLAN is always on now, so this doesn't work */
+	if (tp->wol_events & TYPHOON_WAKE_MAGIC_PKT)
+>>>>>>> upstream/android-13
 		netdev_warn(dev, "cannot do WAKE_MAGIC with VLAN offloading\n");
 
 	netif_device_detach(dev);
 
+<<<<<<< HEAD
 	if(typhoon_stop_runtime(tp, WaitNoSleep) < 0) {
+=======
+	if (typhoon_stop_runtime(tp, WaitNoSleep) < 0) {
+>>>>>>> upstream/android-13
 		netdev_err(dev, "unable to stop runtime\n");
 		goto need_resume;
 	}
@@ -2171,7 +2708,11 @@ typhoon_suspend(struct pci_dev *pdev, pm_message_t state)
 	typhoon_free_rx_rings(tp);
 	typhoon_init_rings(tp);
 
+<<<<<<< HEAD
 	if(typhoon_boot_3XP(tp, TYPHOON_STATUS_WAITING_FOR_HOST) < 0) {
+=======
+	if (typhoon_boot_3XP(tp, TYPHOON_STATUS_WAITING_FOR_HOST) < 0) {
+>>>>>>> upstream/android-13
 		netdev_err(dev, "unable to boot sleep image\n");
 		goto need_resume;
 	}
@@ -2179,23 +2720,36 @@ typhoon_suspend(struct pci_dev *pdev, pm_message_t state)
 	INIT_COMMAND_NO_RESPONSE(&xp_cmd, TYPHOON_CMD_SET_MAC_ADDRESS);
 	xp_cmd.parm1 = cpu_to_le16(ntohs(*(__be16 *)&dev->dev_addr[0]));
 	xp_cmd.parm2 = cpu_to_le32(ntohl(*(__be32 *)&dev->dev_addr[2]));
+<<<<<<< HEAD
 	if(typhoon_issue_command(tp, 1, &xp_cmd, 0, NULL) < 0) {
+=======
+	if (typhoon_issue_command(tp, 1, &xp_cmd, 0, NULL) < 0) {
+>>>>>>> upstream/android-13
 		netdev_err(dev, "unable to set mac address in suspend\n");
 		goto need_resume;
 	}
 
 	INIT_COMMAND_NO_RESPONSE(&xp_cmd, TYPHOON_CMD_SET_RX_FILTER);
 	xp_cmd.parm1 = TYPHOON_RX_FILTER_DIRECTED | TYPHOON_RX_FILTER_BROADCAST;
+<<<<<<< HEAD
 	if(typhoon_issue_command(tp, 1, &xp_cmd, 0, NULL) < 0) {
+=======
+	if (typhoon_issue_command(tp, 1, &xp_cmd, 0, NULL) < 0) {
+>>>>>>> upstream/android-13
 		netdev_err(dev, "unable to set rx filter in suspend\n");
 		goto need_resume;
 	}
 
+<<<<<<< HEAD
 	if(typhoon_sleep(tp, pci_choose_state(pdev, state), tp->wol_events) < 0) {
+=======
+	if (typhoon_sleep_early(tp, tp->wol_events) < 0) {
+>>>>>>> upstream/android-13
 		netdev_err(dev, "unable to put card to sleep\n");
 		goto need_resume;
 	}
 
+<<<<<<< HEAD
 	return 0;
 
 need_resume:
@@ -2203,6 +2757,16 @@ need_resume:
 	return -EBUSY;
 }
 #endif
+=======
+	device_wakeup_enable(dev_d);
+
+	return 0;
+
+need_resume:
+	typhoon_resume(dev_d);
+	return -EBUSY;
+}
+>>>>>>> upstream/android-13
 
 static int
 typhoon_test_mmio(struct pci_dev *pdev)
@@ -2211,10 +2775,17 @@ typhoon_test_mmio(struct pci_dev *pdev)
 	int mode = 0;
 	u32 val;
 
+<<<<<<< HEAD
 	if(!ioaddr)
 		goto out;
 
 	if(ioread32(ioaddr + TYPHOON_REG_STATUS) !=
+=======
+	if (!ioaddr)
+		goto out;
+
+	if (ioread32(ioaddr + TYPHOON_REG_STATUS) !=
+>>>>>>> upstream/android-13
 				TYPHOON_STATUS_WAITING_FOR_HOST)
 		goto out_unmap;
 
@@ -2227,12 +2798,20 @@ typhoon_test_mmio(struct pci_dev *pdev)
 	 * The 50usec delay is arbitrary -- it could probably be smaller.
 	 */
 	val = ioread32(ioaddr + TYPHOON_REG_INTR_STATUS);
+<<<<<<< HEAD
 	if((val & TYPHOON_INTR_SELF) == 0) {
+=======
+	if ((val & TYPHOON_INTR_SELF) == 0) {
+>>>>>>> upstream/android-13
 		iowrite32(1, ioaddr + TYPHOON_REG_SELF_INTERRUPT);
 		ioread32(ioaddr + TYPHOON_REG_INTR_STATUS);
 		udelay(50);
 		val = ioread32(ioaddr + TYPHOON_REG_INTR_STATUS);
+<<<<<<< HEAD
 		if(val & TYPHOON_INTR_SELF)
+=======
+		if (val & TYPHOON_INTR_SELF)
+>>>>>>> upstream/android-13
 			mode = 1;
 	}
 
@@ -2245,7 +2824,11 @@ out_unmap:
 	pci_iounmap(pdev, ioaddr);
 
 out:
+<<<<<<< HEAD
 	if(!mode)
+=======
+	if (!mode)
+>>>>>>> upstream/android-13
 		pr_info("%s: falling back to port IO\n", pci_name(pdev));
 	return mode;
 }
@@ -2276,7 +2859,11 @@ typhoon_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
 	const char *err_msg;
 
 	dev = alloc_etherdev(sizeof(*tp));
+<<<<<<< HEAD
 	if(dev == NULL) {
+=======
+	if (dev == NULL) {
+>>>>>>> upstream/android-13
 		err_msg = "unable to alloc new net device";
 		err = -ENOMEM;
 		goto error_out;
@@ -2284,55 +2871,92 @@ typhoon_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
 	SET_NETDEV_DEV(dev, &pdev->dev);
 
 	err = pci_enable_device(pdev);
+<<<<<<< HEAD
 	if(err < 0) {
+=======
+	if (err < 0) {
+>>>>>>> upstream/android-13
 		err_msg = "unable to enable device";
 		goto error_out_dev;
 	}
 
 	err = pci_set_mwi(pdev);
+<<<<<<< HEAD
 	if(err < 0) {
+=======
+	if (err < 0) {
+>>>>>>> upstream/android-13
 		err_msg = "unable to set MWI";
 		goto error_out_disable;
 	}
 
+<<<<<<< HEAD
 	err = pci_set_dma_mask(pdev, DMA_BIT_MASK(32));
 	if(err < 0) {
+=======
+	err = dma_set_mask(&pdev->dev, DMA_BIT_MASK(32));
+	if (err < 0) {
+>>>>>>> upstream/android-13
 		err_msg = "No usable DMA configuration";
 		goto error_out_mwi;
 	}
 
 	/* sanity checks on IO and MMIO BARs
 	 */
+<<<<<<< HEAD
 	if(!(pci_resource_flags(pdev, 0) & IORESOURCE_IO)) {
+=======
+	if (!(pci_resource_flags(pdev, 0) & IORESOURCE_IO)) {
+>>>>>>> upstream/android-13
 		err_msg = "region #1 not a PCI IO resource, aborting";
 		err = -ENODEV;
 		goto error_out_mwi;
 	}
+<<<<<<< HEAD
 	if(pci_resource_len(pdev, 0) < 128) {
+=======
+	if (pci_resource_len(pdev, 0) < 128) {
+>>>>>>> upstream/android-13
 		err_msg = "Invalid PCI IO region size, aborting";
 		err = -ENODEV;
 		goto error_out_mwi;
 	}
+<<<<<<< HEAD
 	if(!(pci_resource_flags(pdev, 1) & IORESOURCE_MEM)) {
+=======
+	if (!(pci_resource_flags(pdev, 1) & IORESOURCE_MEM)) {
+>>>>>>> upstream/android-13
 		err_msg = "region #1 not a PCI MMIO resource, aborting";
 		err = -ENODEV;
 		goto error_out_mwi;
 	}
+<<<<<<< HEAD
 	if(pci_resource_len(pdev, 1) < 128) {
+=======
+	if (pci_resource_len(pdev, 1) < 128) {
+>>>>>>> upstream/android-13
 		err_msg = "Invalid PCI MMIO region size, aborting";
 		err = -ENODEV;
 		goto error_out_mwi;
 	}
 
 	err = pci_request_regions(pdev, KBUILD_MODNAME);
+<<<<<<< HEAD
 	if(err < 0) {
+=======
+	if (err < 0) {
+>>>>>>> upstream/android-13
 		err_msg = "could not request regions";
 		goto error_out_mwi;
 	}
 
 	/* map our registers
 	 */
+<<<<<<< HEAD
 	if(use_mmio != 0 && use_mmio != 1)
+=======
+	if (use_mmio != 0 && use_mmio != 1)
+>>>>>>> upstream/android-13
 		use_mmio = typhoon_test_mmio(pdev);
 
 	ioaddr = pci_iomap(pdev, use_mmio, 128);
@@ -2344,9 +2968,15 @@ typhoon_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
 
 	/* allocate pci dma space for rx and tx descriptor rings
 	 */
+<<<<<<< HEAD
 	shared = pci_alloc_consistent(pdev, sizeof(struct typhoon_shared),
 				      &shared_dma);
 	if(!shared) {
+=======
+	shared = dma_alloc_coherent(&pdev->dev, sizeof(struct typhoon_shared),
+				    &shared_dma, GFP_KERNEL);
+	if (!shared) {
+>>>>>>> upstream/android-13
 		err_msg = "could not allocate DMA memory";
 		err = -ENOMEM;
 		goto error_out_remap;
@@ -2426,7 +3056,11 @@ typhoon_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
 	 * seem to need a little extra help to get started. Since we don't
 	 * know how to nudge it along, just kick it.
 	 */
+<<<<<<< HEAD
 	if(xp_resp[0].numDesc != 0)
+=======
+	if (xp_resp[0].numDesc != 0)
+>>>>>>> upstream/android-13
 		tp->capabilities |= TYPHOON_WAKEUP_NEEDS_RESET;
 
 	err = typhoon_sleep(tp, PCI_D3hot, 0);
@@ -2471,14 +3105,22 @@ typhoon_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
 	/* xp_resp still contains the response to the READ_VERSIONS command.
 	 * For debugging, let the user know what version he has.
 	 */
+<<<<<<< HEAD
 	if(xp_resp[0].numDesc == 0) {
+=======
+	if (xp_resp[0].numDesc == 0) {
+>>>>>>> upstream/android-13
 		/* This is the Typhoon 1.0 type Sleep Image, last 16 bits
 		 * of version is Month/Day of build.
 		 */
 		u16 monthday = le32_to_cpu(xp_resp[0].parm2) & 0xffff;
 		netdev_info(dev, "Typhoon 1.0 Sleep Image built %02u/%02u/2000\n",
 			    monthday >> 8, monthday & 0xff);
+<<<<<<< HEAD
 	} else if(xp_resp[0].numDesc == 2) {
+=======
+	} else if (xp_resp[0].numDesc == 2) {
+>>>>>>> upstream/android-13
 		/* This is the Typhoon 1.1+ type Sleep Image
 		 */
 		u32 sleep_ver = le32_to_cpu(xp_resp[0].parm2);
@@ -2498,8 +3140,13 @@ error_out_reset:
 	typhoon_reset(ioaddr, NoWait);
 
 error_out_dma:
+<<<<<<< HEAD
 	pci_free_consistent(pdev, sizeof(struct typhoon_shared),
 			    shared, shared_dma);
+=======
+	dma_free_coherent(&pdev->dev, sizeof(struct typhoon_shared), shared,
+			  shared_dma);
+>>>>>>> upstream/android-13
 error_out_remap:
 	pci_iounmap(pdev, ioaddr);
 error_out_regions:
@@ -2526,23 +3173,37 @@ typhoon_remove_one(struct pci_dev *pdev)
 	pci_restore_state(pdev);
 	typhoon_reset(tp->ioaddr, NoWait);
 	pci_iounmap(pdev, tp->ioaddr);
+<<<<<<< HEAD
 	pci_free_consistent(pdev, sizeof(struct typhoon_shared),
 			    tp->shared, tp->shared_dma);
+=======
+	dma_free_coherent(&pdev->dev, sizeof(struct typhoon_shared),
+			  tp->shared, tp->shared_dma);
+>>>>>>> upstream/android-13
 	pci_release_regions(pdev);
 	pci_clear_mwi(pdev);
 	pci_disable_device(pdev);
 	free_netdev(dev);
 }
 
+<<<<<<< HEAD
+=======
+static SIMPLE_DEV_PM_OPS(typhoon_pm_ops, typhoon_suspend, typhoon_resume);
+
+>>>>>>> upstream/android-13
 static struct pci_driver typhoon_driver = {
 	.name		= KBUILD_MODNAME,
 	.id_table	= typhoon_pci_tbl,
 	.probe		= typhoon_init_one,
 	.remove		= typhoon_remove_one,
+<<<<<<< HEAD
 #ifdef CONFIG_PM
 	.suspend	= typhoon_suspend,
 	.resume		= typhoon_resume,
 #endif
+=======
+	.driver.pm	= &typhoon_pm_ops,
+>>>>>>> upstream/android-13
 };
 
 static int __init

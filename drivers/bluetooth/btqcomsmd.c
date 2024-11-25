@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2016, Linaro Ltd.
  * Copyright (c) 2015, Sony Mobile Communications Inc.
@@ -10,6 +11,12 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2016, Linaro Ltd.
+ * Copyright (c) 2015, Sony Mobile Communications Inc.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -28,7 +35,10 @@
 struct btqcomsmd {
 	struct hci_dev *hdev;
 
+<<<<<<< HEAD
 	bdaddr_t bdaddr;
+=======
+>>>>>>> upstream/android-13
 	struct rpmsg_endpoint *acl_channel;
 	struct rpmsg_endpoint *cmd_channel;
 };
@@ -116,15 +126,20 @@ static int btqcomsmd_close(struct hci_dev *hdev)
 
 static int btqcomsmd_setup(struct hci_dev *hdev)
 {
+<<<<<<< HEAD
 	struct btqcomsmd *btq = hci_get_drvdata(hdev);
 	struct sk_buff *skb;
 	int err;
+=======
+	struct sk_buff *skb;
+>>>>>>> upstream/android-13
 
 	skb = __hci_cmd_sync(hdev, HCI_OP_RESET, 0, NULL, HCI_INIT_TIMEOUT);
 	if (IS_ERR(skb))
 		return PTR_ERR(skb);
 	kfree_skb(skb);
 
+<<<<<<< HEAD
 	/* Devices do not have persistent storage for BD address. If no
 	 * BD address has been retrieved during probe, mark the device
 	 * as having an invalid BD address.
@@ -142,6 +157,12 @@ static int btqcomsmd_setup(struct hci_dev *hdev)
 		set_bit(HCI_QUIRK_INVALID_BDADDR, &hdev->quirks);
 		return 0;
 	}
+=======
+	/* Devices do not have persistent storage for BD address. Retrieve
+	 * it from the firmware node property.
+	 */
+	set_bit(HCI_QUIRK_USE_BDADDR_PROPERTY, &hdev->quirks);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -171,6 +192,7 @@ static int btqcomsmd_probe(struct platform_device *pdev)
 		goto destroy_acl_channel;
 	}
 
+<<<<<<< HEAD
 	/* The local-bd-address property is usually injected by the
 	 * bootloader which has access to the allocated BD address.
 	 */
@@ -180,6 +202,8 @@ static int btqcomsmd_probe(struct platform_device *pdev)
 			 &btq->bdaddr);
 	}
 
+=======
+>>>>>>> upstream/android-13
 	hdev = hci_alloc_dev();
 	if (!hdev) {
 		ret = -ENOMEM;

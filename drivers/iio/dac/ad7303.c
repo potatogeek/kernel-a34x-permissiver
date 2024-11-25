@@ -1,25 +1,42 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * AD7303 Digital to analog converters driver
  *
  * Copyright 2013 Analog Devices Inc.
+<<<<<<< HEAD
  *
  * Licensed under the GPL-2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/err.h>
 #include <linux/module.h>
+<<<<<<< HEAD
+=======
+#include <linux/mod_devicetable.h>
+>>>>>>> upstream/android-13
 #include <linux/kernel.h>
 #include <linux/spi/spi.h>
 #include <linux/slab.h>
 #include <linux/sysfs.h>
 #include <linux/regulator/consumer.h>
+<<<<<<< HEAD
 #include <linux/of.h>
+=======
+>>>>>>> upstream/android-13
 
 #include <linux/iio/iio.h>
 #include <linux/iio/sysfs.h>
 
+<<<<<<< HEAD
 #include <linux/platform_data/ad7303.h>
 
+=======
+>>>>>>> upstream/android-13
 #define AD7303_CFG_EXTERNAL_VREF BIT(15)
 #define AD7303_CFG_POWER_DOWN(ch) BIT(11 + (ch))
 #define AD7303_CFG_ADDR_OFFSET	10
@@ -31,6 +48,12 @@
  * @spi:		the device for this driver instance
  * @config:		cached config register value
  * @dac_cache:		current DAC raw value (chip does not support readback)
+<<<<<<< HEAD
+=======
+ * @vdd_reg:		reference to VDD regulator
+ * @vref_reg:		reference to VREF regulator
+ * @lock:		protect writes and cache updates
+>>>>>>> upstream/android-13
  * @data:		spi transfer buffer
  */
 
@@ -42,6 +65,10 @@ struct ad7303_state {
 	struct regulator *vdd_reg;
 	struct regulator *vref_reg;
 
+<<<<<<< HEAD
+=======
+	struct mutex lock;
+>>>>>>> upstream/android-13
 	/*
 	 * DMA (thus cache coherency maintenance) requires the
 	 * transfer buffers to live in their own cache lines.
@@ -64,7 +91,11 @@ static ssize_t ad7303_read_dac_powerdown(struct iio_dev *indio_dev,
 {
 	struct ad7303_state *st = iio_priv(indio_dev);
 
+<<<<<<< HEAD
 	return sprintf(buf, "%d\n", (bool)(st->config &
+=======
+	return sysfs_emit(buf, "%d\n", (bool)(st->config &
+>>>>>>> upstream/android-13
 		AD7303_CFG_POWER_DOWN(chan->channel)));
 }
 
@@ -80,7 +111,11 @@ static ssize_t ad7303_write_dac_powerdown(struct iio_dev *indio_dev,
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	mutex_lock(&indio_dev->mlock);
+=======
+	mutex_lock(&st->lock);
+>>>>>>> upstream/android-13
 
 	if (pwr_down)
 		st->config |= AD7303_CFG_POWER_DOWN(chan->channel);
@@ -91,7 +126,11 @@ static ssize_t ad7303_write_dac_powerdown(struct iio_dev *indio_dev,
 	 * mode, so just write one of the DAC channels again */
 	ad7303_write(st, chan->channel, st->dac_cache[chan->channel]);
 
+<<<<<<< HEAD
 	mutex_unlock(&indio_dev->mlock);
+=======
+	mutex_unlock(&st->lock);
+>>>>>>> upstream/android-13
 	return len;
 }
 
@@ -117,7 +156,13 @@ static int ad7303_read_raw(struct iio_dev *indio_dev,
 
 	switch (info) {
 	case IIO_CHAN_INFO_RAW:
+<<<<<<< HEAD
 		*val = st->dac_cache[chan->channel];
+=======
+		mutex_lock(&st->lock);
+		*val = st->dac_cache[chan->channel];
+		mutex_unlock(&st->lock);
+>>>>>>> upstream/android-13
 		return IIO_VAL_INT;
 	case IIO_CHAN_INFO_SCALE:
 		vref_uv = ad7303_get_vref(st, chan);
@@ -145,11 +190,19 @@ static int ad7303_write_raw(struct iio_dev *indio_dev,
 		if (val >= (1 << chan->scan_type.realbits) || val < 0)
 			return -EINVAL;
 
+<<<<<<< HEAD
 		mutex_lock(&indio_dev->mlock);
 		ret = ad7303_write(st, chan->address, val);
 		if (ret == 0)
 			st->dac_cache[chan->channel] = val;
 		mutex_unlock(&indio_dev->mlock);
+=======
+		mutex_lock(&st->lock);
+		ret = ad7303_write(st, chan->address, val);
+		if (ret == 0)
+			st->dac_cache[chan->channel] = val;
+		mutex_unlock(&st->lock);
+>>>>>>> upstream/android-13
 		break;
 	default:
 		ret = -EINVAL;
@@ -200,7 +253,10 @@ static int ad7303_probe(struct spi_device *spi)
 	const struct spi_device_id *id = spi_get_device_id(spi);
 	struct iio_dev *indio_dev;
 	struct ad7303_state *st;
+<<<<<<< HEAD
 	bool ext_ref;
+=======
+>>>>>>> upstream/android-13
 	int ret;
 
 	indio_dev = devm_iio_device_alloc(&spi->dev, sizeof(*st));
@@ -212,6 +268,11 @@ static int ad7303_probe(struct spi_device *spi)
 
 	st->spi = spi;
 
+<<<<<<< HEAD
+=======
+	mutex_init(&st->lock);
+
+>>>>>>> upstream/android-13
 	st->vdd_reg = devm_regulator_get(&spi->dev, "Vdd");
 	if (IS_ERR(st->vdd_reg))
 		return PTR_ERR(st->vdd_reg);
@@ -220,6 +281,7 @@ static int ad7303_probe(struct spi_device *spi)
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	if (spi->dev.of_node) {
 		ext_ref = of_property_read_bool(spi->dev.of_node,
 				"REF-supply");
@@ -238,6 +300,17 @@ static int ad7303_probe(struct spi_device *spi)
 			goto err_disable_vdd_reg;
 		}
 
+=======
+	st->vref_reg = devm_regulator_get_optional(&spi->dev, "REF");
+	if (IS_ERR(st->vref_reg)) {
+		ret = PTR_ERR(st->vref_reg);
+		if (ret != -ENODEV)
+			goto err_disable_vdd_reg;
+		st->vref_reg = NULL;
+	}
+
+	if (st->vref_reg) {
+>>>>>>> upstream/android-13
 		ret = regulator_enable(st->vref_reg);
 		if (ret)
 			goto err_disable_vdd_reg;
@@ -245,7 +318,10 @@ static int ad7303_probe(struct spi_device *spi)
 		st->config |= AD7303_CFG_EXTERNAL_VREF;
 	}
 
+<<<<<<< HEAD
 	indio_dev->dev.parent = &spi->dev;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->name = id->name;
 	indio_dev->info = &ad7303_info;
 	indio_dev->modes = INDIO_DIRECT_MODE;
@@ -295,7 +371,11 @@ MODULE_DEVICE_TABLE(spi, ad7303_spi_ids);
 static struct spi_driver ad7303_driver = {
 	.driver = {
 		.name = "ad7303",
+<<<<<<< HEAD
 		.of_match_table = of_match_ptr(ad7303_spi_of_match),
+=======
+		.of_match_table = ad7303_spi_of_match,
+>>>>>>> upstream/android-13
 	},
 	.probe = ad7303_probe,
 	.remove = ad7303_remove,

@@ -665,6 +665,7 @@ static int qp_grp_id_from_flow(struct usnic_ib_qp_grp_flow *qp_flow,
 	return 0;
 }
 
+<<<<<<< HEAD
 struct usnic_ib_qp_grp *
 usnic_ib_qp_grp_create(struct usnic_fwd_dev *ufdev, struct usnic_ib_vf *vf,
 			struct usnic_ib_pd *pd,
@@ -672,6 +673,14 @@ usnic_ib_qp_grp_create(struct usnic_fwd_dev *ufdev, struct usnic_ib_vf *vf,
 			struct usnic_transport_spec *transport_spec)
 {
 	struct usnic_ib_qp_grp *qp_grp;
+=======
+int usnic_ib_qp_grp_create(struct usnic_ib_qp_grp *qp_grp,
+			   struct usnic_fwd_dev *ufdev, struct usnic_ib_vf *vf,
+			   struct usnic_ib_pd *pd,
+			   struct usnic_vnic_res_spec *res_spec,
+			   struct usnic_transport_spec *transport_spec)
+{
+>>>>>>> upstream/android-13
 	int err;
 	enum usnic_transport_type transport = transport_spec->trans_type;
 	struct usnic_ib_qp_grp_flow *qp_flow;
@@ -681,6 +690,7 @@ usnic_ib_qp_grp_create(struct usnic_fwd_dev *ufdev, struct usnic_ib_vf *vf,
 	err = usnic_vnic_res_spec_satisfied(&min_transport_spec[transport],
 						res_spec);
 	if (err) {
+<<<<<<< HEAD
 		usnic_err("Spec does not meet miniumum req for transport %d\n",
 				transport);
 		log_spec(res_spec);
@@ -698,6 +708,20 @@ usnic_ib_qp_grp_create(struct usnic_fwd_dev *ufdev, struct usnic_ib_vf *vf,
 				PTR_ERR(qp_grp->res_chunk_list) : -ENOMEM;
 		goto out_free_qp_grp;
 	}
+=======
+		usnic_err("Spec does not meet minimum req for transport %d\n",
+				transport);
+		log_spec(res_spec);
+		return err;
+	}
+
+	qp_grp->res_chunk_list = alloc_res_chunk_list(vf->vnic, res_spec,
+							qp_grp);
+	if (IS_ERR_OR_NULL(qp_grp->res_chunk_list))
+		return qp_grp->res_chunk_list ?
+				     PTR_ERR(qp_grp->res_chunk_list) :
+				     -ENOMEM;
+>>>>>>> upstream/android-13
 
 	err = qp_grp_and_vf_bind(vf, pd, qp_grp);
 	if (err)
@@ -724,7 +748,11 @@ usnic_ib_qp_grp_create(struct usnic_fwd_dev *ufdev, struct usnic_ib_vf *vf,
 
 	usnic_ib_sysfs_qpn_add(qp_grp);
 
+<<<<<<< HEAD
 	return qp_grp;
+=======
+	return 0;
+>>>>>>> upstream/android-13
 
 out_release_flow:
 	release_and_remove_flow(qp_flow);
@@ -732,10 +760,14 @@ out_qp_grp_vf_unbind:
 	qp_grp_and_vf_unbind(qp_grp);
 out_free_res:
 	free_qp_grp_res(qp_grp->res_chunk_list);
+<<<<<<< HEAD
 out_free_qp_grp:
 	kfree(qp_grp);
 
 	return ERR_PTR(err);
+=======
+	return err;
+>>>>>>> upstream/android-13
 }
 
 void usnic_ib_qp_grp_destroy(struct usnic_ib_qp_grp *qp_grp)
@@ -748,7 +780,10 @@ void usnic_ib_qp_grp_destroy(struct usnic_ib_qp_grp *qp_grp)
 	usnic_ib_sysfs_qpn_remove(qp_grp);
 	qp_grp_and_vf_unbind(qp_grp);
 	free_qp_grp_res(qp_grp->res_chunk_list);
+<<<<<<< HEAD
 	kfree(qp_grp);
+=======
+>>>>>>> upstream/android-13
 }
 
 struct usnic_vnic_res_chunk*

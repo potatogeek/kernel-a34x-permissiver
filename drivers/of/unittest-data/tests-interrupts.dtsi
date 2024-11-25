@@ -62,6 +62,7 @@
 			interrupts = <1>;
 		};
 
+<<<<<<< HEAD
 		testcase-device2 {
 			compatible = "testcase-device";
 			interrupt-parent = <&test_intc2>;
@@ -69,4 +70,12 @@
 		};
 	};
 
+=======
+		/*
+		 * testcase data that intentionally results in an error is
+		 * located in testcases.dts instead of in this file so that the
+		 * static overlay apply tests will not include the error.
+		 */
+	};
+>>>>>>> upstream/android-13
 };

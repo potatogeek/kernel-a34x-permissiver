@@ -62,6 +62,7 @@ nv44_mmu = {
 };
 
 int
+<<<<<<< HEAD
 nv44_mmu_new(struct nvkm_device *device, int index, struct nvkm_mmu **pmmu)
 {
 	if (device->type == NVKM_DEVICE_AGP ||
@@ -69,4 +70,14 @@ nv44_mmu_new(struct nvkm_device *device, int index, struct nvkm_mmu **pmmu)
 		return nv04_mmu_new(device, index, pmmu);
 
 	return nvkm_mmu_new_(&nv44_mmu, device, index, pmmu);
+=======
+nv44_mmu_new(struct nvkm_device *device, enum nvkm_subdev_type type, int inst,
+	     struct nvkm_mmu **pmmu)
+{
+	if (device->type == NVKM_DEVICE_AGP ||
+	    !nvkm_boolopt(device->cfgopt, "NvPCIE", true))
+		return nv04_mmu_new(device, type, inst, pmmu);
+
+	return nvkm_mmu_new_(&nv44_mmu, device, type, inst, pmmu);
+>>>>>>> upstream/android-13
 }

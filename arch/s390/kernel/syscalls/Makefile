@@ -24,6 +24,7 @@ uapi:	$(uapi-hdrs-y)
 _dummy := $(shell [ -d '$(uapi)' ] || mkdir -p '$(uapi)') \
 	  $(shell [ -d '$(kapi)' ] || mkdir -p '$(kapi)')
 
+<<<<<<< HEAD
 define filechk_syshdr
 	$(CONFIG_SHELL) '$(systbl)' -H -a $(syshdr_abi_$(basetarget)) -f "$2" < $<
 endef
@@ -35,6 +36,13 @@ endef
 define filechk_syscalls
 	$(CONFIG_SHELL) '$(systbl)' -S < $<
 endef
+=======
+filechk_syshdr = $(CONFIG_SHELL) '$(systbl)' -H -a $(syshdr_abi_$(basetarget)) -f "$2" < $<
+
+filechk_sysnr = $(CONFIG_SHELL) '$(systbl)' -N -a $(sysnr_abi_$(basetarget)) < $<
+
+filechk_syscalls = $(CONFIG_SHELL) '$(systbl)' -S < $<
+>>>>>>> upstream/android-13
 
 syshdr_abi_unistd_32 := common,32
 $(uapi)/unistd_32.h: $(syscall) FORCE

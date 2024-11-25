@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2016, Prodys S.L.
  *
@@ -6,6 +7,12 @@
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (c) 2016, Prodys S.L.
+ *
+>>>>>>> upstream/android-13
  * This adds support for sbs-charger compilant chips as defined here:
  * http://sbs-forum.org/specs/sbc110.pdf
  *
@@ -20,10 +27,16 @@
 #include <linux/i2c.h>
 #include <linux/slab.h>
 #include <linux/interrupt.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
 #include <linux/regmap.h>
 #include <linux/of_gpio.h>
 #include <linux/bitops.h>
+=======
+#include <linux/regmap.h>
+#include <linux/bitops.h>
+#include <linux/devm-helpers.h>
+>>>>>>> upstream/android-13
 
 #define SBS_CHARGER_REG_SPEC_INFO		0x11
 #define SBS_CHARGER_REG_STATUS			0x13
@@ -193,6 +206,7 @@ static int sbs_probe(struct i2c_client *client,
 	 * to the battery.
 	 */
 	ret = regmap_read(chip->regmap, SBS_CHARGER_REG_STATUS, &val);
+<<<<<<< HEAD
 	if (ret) {
 		dev_err(&client->dev, "Failed to get device status\n");
 		return ret;
@@ -205,6 +219,16 @@ static int sbs_probe(struct i2c_client *client,
 		dev_err(&client->dev, "Failed to register power supply\n");
 		return PTR_ERR(chip->power_supply);
 	}
+=======
+	if (ret)
+		return dev_err_probe(&client->dev, ret, "Failed to get device status\n");
+	chip->last_state = val;
+
+	chip->power_supply = devm_power_supply_register(&client->dev, &sbs_desc, &psy_cfg);
+	if (IS_ERR(chip->power_supply))
+		return dev_err_probe(&client->dev, PTR_ERR(chip->power_supply),
+				     "Failed to register power supply\n");
+>>>>>>> upstream/android-13
 
 	/*
 	 * The sbs-charger spec doesn't impose the use of an interrupt. So in
@@ -216,12 +240,24 @@ static int sbs_probe(struct i2c_client *client,
 					NULL, sbs_irq_thread,
 					IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
 					dev_name(&client->dev), chip);
+<<<<<<< HEAD
 		if (ret) {
 			dev_err(&client->dev, "Failed to request irq, %d\n", ret);
 			return ret;
 		}
 	} else {
 		INIT_DELAYED_WORK(&chip->work, sbs_delayed_work);
+=======
+		if (ret)
+			return dev_err_probe(&client->dev, ret, "Failed to request irq\n");
+	} else {
+		ret = devm_delayed_work_autocancel(&client->dev, &chip->work,
+						   sbs_delayed_work);
+		if (ret)
+			return dev_err_probe(&client->dev, ret,
+					     "Failed to init work for polling\n");
+
+>>>>>>> upstream/android-13
 		schedule_delayed_work(&chip->work,
 				      msecs_to_jiffies(SBS_CHARGER_POLL_TIME));
 	}
@@ -232,6 +268,7 @@ static int sbs_probe(struct i2c_client *client,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int sbs_remove(struct i2c_client *client)
 {
 	struct sbs_info *chip = i2c_get_clientdata(client);
@@ -241,6 +278,8 @@ static int sbs_remove(struct i2c_client *client)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_OF
 static const struct of_device_id sbs_dt_ids[] = {
 	{ .compatible = "sbs,sbs-charger" },
@@ -257,7 +296,10 @@ MODULE_DEVICE_TABLE(i2c, sbs_id);
 
 static struct i2c_driver sbs_driver = {
 	.probe		= sbs_probe,
+<<<<<<< HEAD
 	.remove		= sbs_remove,
+=======
+>>>>>>> upstream/android-13
 	.id_table	= sbs_id,
 	.driver = {
 		.name	= "sbs-charger",

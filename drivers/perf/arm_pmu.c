@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #undef DEBUG
 
 /*
@@ -25,8 +29,89 @@
 
 #include <asm/irq_regs.h>
 
+<<<<<<< HEAD
 static DEFINE_PER_CPU(struct arm_pmu *, cpu_armpmu);
 static DEFINE_PER_CPU(int, cpu_irq);
+=======
+static int armpmu_count_irq_users(const int irq);
+
+struct pmu_irq_ops {
+	void (*enable_pmuirq)(unsigned int irq);
+	void (*disable_pmuirq)(unsigned int irq);
+	void (*free_pmuirq)(unsigned int irq, int cpu, void __percpu *devid);
+};
+
+static void armpmu_free_pmuirq(unsigned int irq, int cpu, void __percpu *devid)
+{
+	free_irq(irq, per_cpu_ptr(devid, cpu));
+}
+
+static const struct pmu_irq_ops pmuirq_ops = {
+	.enable_pmuirq = enable_irq,
+	.disable_pmuirq = disable_irq_nosync,
+	.free_pmuirq = armpmu_free_pmuirq
+};
+
+static void armpmu_free_pmunmi(unsigned int irq, int cpu, void __percpu *devid)
+{
+	free_nmi(irq, per_cpu_ptr(devid, cpu));
+}
+
+static const struct pmu_irq_ops pmunmi_ops = {
+	.enable_pmuirq = enable_nmi,
+	.disable_pmuirq = disable_nmi_nosync,
+	.free_pmuirq = armpmu_free_pmunmi
+};
+
+static void armpmu_enable_percpu_pmuirq(unsigned int irq)
+{
+	enable_percpu_irq(irq, IRQ_TYPE_NONE);
+}
+
+static void armpmu_free_percpu_pmuirq(unsigned int irq, int cpu,
+				   void __percpu *devid)
+{
+	if (armpmu_count_irq_users(irq) == 1)
+		free_percpu_irq(irq, devid);
+}
+
+static const struct pmu_irq_ops percpu_pmuirq_ops = {
+	.enable_pmuirq = armpmu_enable_percpu_pmuirq,
+	.disable_pmuirq = disable_percpu_irq,
+	.free_pmuirq = armpmu_free_percpu_pmuirq
+};
+
+static void armpmu_enable_percpu_pmunmi(unsigned int irq)
+{
+	if (!prepare_percpu_nmi(irq))
+		enable_percpu_nmi(irq, IRQ_TYPE_NONE);
+}
+
+static void armpmu_disable_percpu_pmunmi(unsigned int irq)
+{
+	disable_percpu_nmi(irq);
+	teardown_percpu_nmi(irq);
+}
+
+static void armpmu_free_percpu_pmunmi(unsigned int irq, int cpu,
+				      void __percpu *devid)
+{
+	if (armpmu_count_irq_users(irq) == 1)
+		free_percpu_nmi(irq, devid);
+}
+
+static const struct pmu_irq_ops percpu_pmunmi_ops = {
+	.enable_pmuirq = armpmu_enable_percpu_pmunmi,
+	.disable_pmuirq = armpmu_disable_percpu_pmunmi,
+	.free_pmuirq = armpmu_free_percpu_pmunmi
+};
+
+static DEFINE_PER_CPU(struct arm_pmu *, cpu_armpmu);
+static DEFINE_PER_CPU(int, cpu_irq);
+static DEFINE_PER_CPU(const struct pmu_irq_ops *, cpu_irq_ops);
+
+static bool has_nmi;
+>>>>>>> upstream/android-13
 
 static inline u64 arm_pmu_event_max_period(struct perf_event *event)
 {
@@ -321,6 +406,12 @@ validate_group(struct perf_event *event)
 	if (!validate_event(event->pmu, &fake_pmu, leader))
 		return -EINVAL;
 
+<<<<<<< HEAD
+=======
+	if (event == leader)
+		return 0;
+
+>>>>>>> upstream/android-13
 	for_each_sibling_event(sibling, leader) {
 		if (!validate_event(event->pmu, &fake_pmu, sibling))
 			return -EINVAL;
@@ -357,6 +448,7 @@ static irqreturn_t armpmu_dispatch_irq(int irq, void *dev)
 }
 
 static int
+<<<<<<< HEAD
 event_requires_mode_exclusion(struct perf_event_attr *attr)
 {
 	return attr->exclude_idle || attr->exclude_user ||
@@ -364,6 +456,8 @@ event_requires_mode_exclusion(struct perf_event_attr *attr)
 }
 
 static int
+=======
+>>>>>>> upstream/android-13
 __hw_perf_event_init(struct perf_event *event)
 {
 	struct arm_pmu *armpmu = to_arm_pmu(event->pmu);
@@ -393,9 +487,14 @@ __hw_perf_event_init(struct perf_event *event)
 	/*
 	 * Check whether we need to exclude the counter from certain modes.
 	 */
+<<<<<<< HEAD
 	if ((!armpmu->set_event_filter ||
 	     armpmu->set_event_filter(hwc, &event->attr)) &&
 	     event_requires_mode_exclusion(&event->attr)) {
+=======
+	if (armpmu->set_event_filter &&
+	    armpmu->set_event_filter(hwc, &event->attr)) {
+>>>>>>> upstream/android-13
 		pr_debug("ARM performance counters do not support "
 			 "mode exclusion\n");
 		return -EOPNOTSUPP;
@@ -418,12 +517,16 @@ __hw_perf_event_init(struct perf_event *event)
 		local64_set(&hwc->period_left, hwc->sample_period);
 	}
 
+<<<<<<< HEAD
 	if (event->group_leader != event) {
 		if (validate_group(event) != 0)
 			return -EINVAL;
 	}
 
 	return 0;
+=======
+	return validate_group(event);
+>>>>>>> upstream/android-13
 }
 
 static int armpmu_event_init(struct perf_event *event)
@@ -494,20 +597,30 @@ static int armpmu_filter_match(struct perf_event *event)
 	return ret;
 }
 
+<<<<<<< HEAD
 static ssize_t armpmu_cpumask_show(struct device *dev,
 				   struct device_attribute *attr, char *buf)
+=======
+static ssize_t cpus_show(struct device *dev,
+			 struct device_attribute *attr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct arm_pmu *armpmu = to_arm_pmu(dev_get_drvdata(dev));
 	return cpumap_print_to_pagebuf(true, buf, &armpmu->supported_cpus);
 }
 
+<<<<<<< HEAD
 static DEVICE_ATTR(cpus, S_IRUGO, armpmu_cpumask_show, NULL);
+=======
+static DEVICE_ATTR_RO(cpus);
+>>>>>>> upstream/android-13
 
 static struct attribute *armpmu_common_attrs[] = {
 	&dev_attr_cpus.attr,
 	NULL,
 };
 
+<<<<<<< HEAD
 static struct attribute_group armpmu_common_attr_group = {
 	.attrs = armpmu_common_attrs,
 };
@@ -539,6 +652,12 @@ int perf_num_counters(void)
 }
 EXPORT_SYMBOL_GPL(perf_num_counters);
 
+=======
+static const struct attribute_group armpmu_common_attr_group = {
+	.attrs = armpmu_common_attrs,
+};
+
+>>>>>>> upstream/android-13
 static int armpmu_count_irq_users(const int irq)
 {
 	int cpu, count = 0;
@@ -551,6 +670,26 @@ static int armpmu_count_irq_users(const int irq)
 	return count;
 }
 
+<<<<<<< HEAD
+=======
+static const struct pmu_irq_ops *armpmu_find_irq_ops(int irq)
+{
+	const struct pmu_irq_ops *ops = NULL;
+	int cpu;
+
+	for_each_possible_cpu(cpu) {
+		if (per_cpu(cpu_irq, cpu) != irq)
+			continue;
+
+		ops = per_cpu(cpu_irq_ops, cpu);
+		if (ops)
+			break;
+	}
+
+	return ops;
+}
+
+>>>>>>> upstream/android-13
 void armpmu_free_irq(int irq, int cpu)
 {
 	if (per_cpu(cpu_irq, cpu) == 0)
@@ -558,18 +697,30 @@ void armpmu_free_irq(int irq, int cpu)
 	if (WARN_ON(irq != per_cpu(cpu_irq, cpu)))
 		return;
 
+<<<<<<< HEAD
 	if (!irq_is_percpu_devid(irq))
 		free_irq(irq, per_cpu_ptr(&cpu_armpmu, cpu));
 	else if (armpmu_count_irq_users(irq) == 1)
 		free_percpu_irq(irq, &cpu_armpmu);
 
 	per_cpu(cpu_irq, cpu) = 0;
+=======
+	per_cpu(cpu_irq_ops, cpu)->free_pmuirq(irq, cpu, &cpu_armpmu);
+
+	per_cpu(cpu_irq, cpu) = 0;
+	per_cpu(cpu_irq_ops, cpu) = NULL;
+>>>>>>> upstream/android-13
 }
 
 int armpmu_request_irq(int irq, int cpu)
 {
 	int err = 0;
 	const irq_handler_t handler = armpmu_dispatch_irq;
+<<<<<<< HEAD
+=======
+	const struct pmu_irq_ops *irq_ops;
+
+>>>>>>> upstream/android-13
 	if (!irq)
 		return 0;
 
@@ -585,6 +736,7 @@ int armpmu_request_irq(int irq, int cpu)
 		}
 
 		irq_flags = IRQF_PERCPU |
+<<<<<<< HEAD
 			    IRQF_NOBALANCING |
 			    IRQF_NO_THREAD;
 
@@ -594,12 +746,51 @@ int armpmu_request_irq(int irq, int cpu)
 	} else if (armpmu_count_irq_users(irq) == 0) {
 		err = request_percpu_irq(irq, handler, "arm-pmu",
 					 &cpu_armpmu);
+=======
+			    IRQF_NOBALANCING | IRQF_NO_AUTOEN |
+			    IRQF_NO_THREAD;
+
+		err = request_nmi(irq, handler, irq_flags, "arm-pmu",
+				  per_cpu_ptr(&cpu_armpmu, cpu));
+
+		/* If cannot get an NMI, get a normal interrupt */
+		if (err) {
+			err = request_irq(irq, handler, irq_flags, "arm-pmu",
+					  per_cpu_ptr(&cpu_armpmu, cpu));
+			irq_ops = &pmuirq_ops;
+		} else {
+			has_nmi = true;
+			irq_ops = &pmunmi_ops;
+		}
+	} else if (armpmu_count_irq_users(irq) == 0) {
+		err = request_percpu_nmi(irq, handler, "arm-pmu", &cpu_armpmu);
+
+		/* If cannot get an NMI, get a normal interrupt */
+		if (err) {
+			err = request_percpu_irq(irq, handler, "arm-pmu",
+						 &cpu_armpmu);
+			irq_ops = &percpu_pmuirq_ops;
+		} else {
+			has_nmi = true;
+			irq_ops = &percpu_pmunmi_ops;
+		}
+	} else {
+		/* Per cpudevid irq was already requested by another CPU */
+		irq_ops = armpmu_find_irq_ops(irq);
+
+		if (WARN_ON(!irq_ops))
+			err = -EINVAL;
+>>>>>>> upstream/android-13
 	}
 
 	if (err)
 		goto err_out;
 
 	per_cpu(cpu_irq, cpu) = irq;
+<<<<<<< HEAD
+=======
+	per_cpu(cpu_irq_ops, cpu) = irq_ops;
+>>>>>>> upstream/android-13
 	return 0;
 
 err_out:
@@ -632,12 +823,17 @@ static int arm_perf_starting_cpu(unsigned int cpu, struct hlist_node *node)
 	per_cpu(cpu_armpmu, cpu) = pmu;
 
 	irq = armpmu_get_cpu_irq(pmu, cpu);
+<<<<<<< HEAD
 	if (irq) {
 		if (irq_is_percpu_devid(irq))
 			enable_percpu_irq(irq, IRQ_TYPE_NONE);
 		else
 			enable_irq(irq);
 	}
+=======
+	if (irq)
+		per_cpu(cpu_irq_ops, cpu)->enable_pmuirq(irq);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -651,12 +847,17 @@ static int arm_perf_teardown_cpu(unsigned int cpu, struct hlist_node *node)
 		return 0;
 
 	irq = armpmu_get_cpu_irq(pmu, cpu);
+<<<<<<< HEAD
 	if (irq) {
 		if (irq_is_percpu_devid(irq))
 			disable_percpu_irq(irq);
 		else
 			disable_irq_nosync(irq);
 	}
+=======
+	if (irq)
+		per_cpu(cpu_irq_ops, cpu)->disable_pmuirq(irq);
+>>>>>>> upstream/android-13
 
 	per_cpu(cpu_armpmu, cpu) = NULL;
 
@@ -791,10 +992,15 @@ static struct arm_pmu *__armpmu_alloc(gfp_t flags)
 	int cpu;
 
 	pmu = kzalloc(sizeof(*pmu), flags);
+<<<<<<< HEAD
 	if (!pmu) {
 		pr_info("failed to allocate PMU device!\n");
 		goto out;
 	}
+=======
+	if (!pmu)
+		goto out;
+>>>>>>> upstream/android-13
 
 	pmu->hw_events = alloc_percpu_gfp(struct pmu_hw_events, flags);
 	if (!pmu->hw_events) {
@@ -867,15 +1073,29 @@ int armpmu_register(struct arm_pmu *pmu)
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
+=======
+	if (!pmu->set_event_filter)
+		pmu->pmu.capabilities |= PERF_PMU_CAP_NO_EXCLUDE;
+
+>>>>>>> upstream/android-13
 	ret = perf_pmu_register(&pmu->pmu, pmu->name, -1);
 	if (ret)
 		goto out_destroy;
 
+<<<<<<< HEAD
 	if (!__oprofile_cpu_pmu)
 		__oprofile_cpu_pmu = pmu;
 
 	pr_info("enabled with %s PMU driver, %d counters available\n",
 		pmu->name, pmu->num_events);
+=======
+	pr_info("enabled with %s PMU driver, %d counters available%s\n",
+		pmu->name, pmu->num_events,
+		has_nmi ? ", using NMIs" : "");
+
+	kvm_host_pmu_init(pmu);
+>>>>>>> upstream/android-13
 
 	return 0;
 

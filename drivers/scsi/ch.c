@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * SCSI Media Changer device driver for Linux 2.6
  *
@@ -43,7 +47,10 @@ MODULE_LICENSE("GPL");
 MODULE_ALIAS_CHARDEV_MAJOR(SCSI_CHANGER_MAJOR);
 MODULE_ALIAS_SCSI_DEVICE(TYPE_MEDIUM_CHANGER);
 
+<<<<<<< HEAD
 static DEFINE_MUTEX(ch_mutex);
+=======
+>>>>>>> upstream/android-13
 static int init = 1;
 module_param(init, int, 0444);
 MODULE_PARM_DESC(init, \
@@ -198,8 +205,14 @@ ch_do_scsi(scsi_changer *ch, unsigned char *cmd, int cmd_len,
 	result = scsi_execute_req(ch->device, cmd, direction, buffer,
 				  buflength, &sshdr, timeout * HZ,
 				  MAX_RETRIES, NULL);
+<<<<<<< HEAD
 
 	if (driver_byte(result) == DRIVER_SENSE) {
+=======
+	if (result < 0)
+		return result;
+	if (scsi_sense_valid(&sshdr)) {
+>>>>>>> upstream/android-13
 		if (debug)
 			scsi_print_sense_hdr(ch->device, ch->name, &sshdr);
 		errno = ch_find_errno(&sshdr);
@@ -568,6 +581,10 @@ static void ch_destroy(struct kref *ref)
 {
 	scsi_changer *ch = container_of(ref, scsi_changer, ref);
 
+<<<<<<< HEAD
+=======
+	ch->device = NULL;
+>>>>>>> upstream/android-13
 	kfree(ch->dt);
 	kfree(ch);
 }
@@ -589,6 +606,7 @@ ch_open(struct inode *inode, struct file *file)
 	scsi_changer *ch;
 	int minor = iminor(inode);
 
+<<<<<<< HEAD
 	mutex_lock(&ch_mutex);
 	spin_lock(&ch_index_lock);
 	ch = idr_find(&ch_index_idr, minor);
@@ -603,6 +621,24 @@ ch_open(struct inode *inode, struct file *file)
 
 	file->private_data = ch;
 	mutex_unlock(&ch_mutex);
+=======
+	spin_lock(&ch_index_lock);
+	ch = idr_find(&ch_index_idr, minor);
+
+	if (ch == NULL || !kref_get_unless_zero(&ch->ref)) {
+		spin_unlock(&ch_index_lock);
+		return -ENXIO;
+	}
+	spin_unlock(&ch_index_lock);
+	if (scsi_device_get(ch->device)) {
+		kref_put(&ch->ref, ch_destroy);
+		return -ENXIO;
+	}
+	/* Synchronize with ch_probe() */
+	mutex_lock(&ch->lock);
+	file->private_data = ch;
+	mutex_unlock(&ch->lock);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -614,6 +650,15 @@ ch_checkrange(scsi_changer *ch, unsigned int type, unsigned int unit)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+struct changer_element_status32 {
+	int		ces_type;
+	compat_uptr_t	ces_data;
+};
+#define CHIOGSTATUS32  _IOW('c', 8, struct changer_element_status32)
+
+>>>>>>> upstream/android-13
 static long ch_ioctl(struct file *file,
 		    unsigned int cmd, unsigned long arg)
 {
@@ -744,7 +789,24 @@ static long ch_ioctl(struct file *file,
 
 		return ch_gstatus(ch, ces.ces_type, ces.ces_data);
 	}
+<<<<<<< HEAD
 
+=======
+#ifdef CONFIG_COMPAT
+	case CHIOGSTATUS32:
+	{
+		struct changer_element_status32 ces32;
+
+		if (copy_from_user(&ces32, argp, sizeof(ces32)))
+			return -EFAULT;
+		if (ces32.ces_type < 0 || ces32.ces_type >= CH_TYPES)
+			return -EINVAL;
+
+		return ch_gstatus(ch, ces32.ces_type,
+				  compat_ptr(ces32.ces_data));
+	}
+#endif
+>>>>>>> upstream/android-13
 	case CHIOGELEM:
 	{
 		struct changer_get_element cge;
@@ -854,11 +916,16 @@ static long ch_ioctl(struct file *file,
 	}
 
 	default:
+<<<<<<< HEAD
 		return scsi_ioctl(ch->device, cmd, argp);
+=======
+		return scsi_ioctl(ch->device, NULL, file->f_mode, cmd, argp);
+>>>>>>> upstream/android-13
 
 	}
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_COMPAT
 
 struct changer_element_status32 {
@@ -904,6 +971,8 @@ static long ch_ioctl_compat(struct file * file,
 }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 /* ------------------------------------------------------------------------ */
 
 static int ch_probe(struct device *dev)
@@ -934,7 +1003,20 @@ static int ch_probe(struct device *dev)
 
 	ch->minor = ret;
 	sprintf(ch->name,"ch%d",ch->minor);
+<<<<<<< HEAD
 
+=======
+	ret = scsi_device_get(sd);
+	if (ret) {
+		sdev_printk(KERN_WARNING, sd, "ch%d: failed to get device\n",
+			    ch->minor);
+		goto remove_idr;
+	}
+
+	mutex_init(&ch->lock);
+	kref_init(&ch->ref);
+	ch->device = sd;
+>>>>>>> upstream/android-13
 	class_dev = device_create(ch_sysfs_class, dev,
 				  MKDEV(SCSI_CHANGER_MAJOR, ch->minor), ch,
 				  "s%s", ch->name);
@@ -942,6 +1024,7 @@ static int ch_probe(struct device *dev)
 		sdev_printk(KERN_WARNING, sd, "ch%d: device_create failed\n",
 			    ch->minor);
 		ret = PTR_ERR(class_dev);
+<<<<<<< HEAD
 		goto remove_idr;
 	}
 
@@ -954,12 +1037,32 @@ static int ch_probe(struct device *dev)
 	if (init)
 		ch_init_elem(ch);
 
+=======
+		goto put_device;
+	}
+
+	mutex_lock(&ch->lock);
+	ret = ch_readconfig(ch);
+	if (ret) {
+		mutex_unlock(&ch->lock);
+		goto destroy_dev;
+	}
+	if (init)
+		ch_init_elem(ch);
+
+	mutex_unlock(&ch->lock);
+>>>>>>> upstream/android-13
 	dev_set_drvdata(dev, ch);
 	sdev_printk(KERN_INFO, sd, "Attached scsi changer %s\n", ch->name);
 
 	return 0;
 destroy_dev:
 	device_destroy(ch_sysfs_class, MKDEV(SCSI_CHANGER_MAJOR, ch->minor));
+<<<<<<< HEAD
+=======
+put_device:
+	scsi_device_put(sd);
+>>>>>>> upstream/android-13
 remove_idr:
 	idr_remove(&ch_index_idr, ch->minor);
 free_ch:
@@ -973,9 +1076,17 @@ static int ch_remove(struct device *dev)
 
 	spin_lock(&ch_index_lock);
 	idr_remove(&ch_index_idr, ch->minor);
+<<<<<<< HEAD
 	spin_unlock(&ch_index_lock);
 
 	device_destroy(ch_sysfs_class, MKDEV(SCSI_CHANGER_MAJOR,ch->minor));
+=======
+	dev_set_drvdata(dev, NULL);
+	spin_unlock(&ch_index_lock);
+
+	device_destroy(ch_sysfs_class, MKDEV(SCSI_CHANGER_MAJOR,ch->minor));
+	scsi_device_put(ch->device);
+>>>>>>> upstream/android-13
 	kref_put(&ch->ref, ch_destroy);
 	return 0;
 }
@@ -994,9 +1105,13 @@ static const struct file_operations changer_fops = {
 	.open		= ch_open,
 	.release	= ch_release,
 	.unlocked_ioctl	= ch_ioctl,
+<<<<<<< HEAD
 #ifdef CONFIG_COMPAT
 	.compat_ioctl	= ch_ioctl_compat,
 #endif
+=======
+	.compat_ioctl	= compat_ptr_ioctl,
+>>>>>>> upstream/android-13
 	.llseek		= noop_llseek,
 };
 
@@ -1038,9 +1153,12 @@ static void __exit exit_ch_module(void)
 
 module_init(init_ch_module);
 module_exit(exit_ch_module);
+<<<<<<< HEAD
 
 /*
  * Local variables:
  * c-basic-offset: 8
  * End:
  */
+=======
+>>>>>>> upstream/android-13

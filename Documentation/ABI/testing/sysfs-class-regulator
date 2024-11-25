@@ -35,6 +35,7 @@ Description:
 
 		This will be one of the following strings:
 
+<<<<<<< HEAD
 			off
 			on
 			error
@@ -42,6 +43,15 @@ Description:
 			normal
 			idle
 			standby
+=======
+			- off
+			- on
+			- error
+			- fast
+			- normal
+			- idle
+			- standby
+>>>>>>> upstream/android-13
 
 		"off" means the regulator is not supplying power to the
 		system.
@@ -74,9 +84,15 @@ Description:
 
 		This will be one of the following strings:
 
+<<<<<<< HEAD
 		'voltage'
 		'current'
 		'unknown'
+=======
+		- 'voltage'
+		- 'current'
+		- 'unknown'
+>>>>>>> upstream/android-13
 
 		'voltage' means the regulator output voltage can be controlled
 		by software.
@@ -129,11 +145,19 @@ Description:
 
 		The opmode value can be one of the following strings:
 
+<<<<<<< HEAD
 		'fast'
 		'normal'
 		'idle'
 		'standby'
 		'unknown'
+=======
+		- 'fast'
+		- 'normal'
+		- 'idle'
+		- 'standby'
+		- 'unknown'
+>>>>>>> upstream/android-13
 
 		The modes are described in include/linux/regulator/consumer.h
 
@@ -360,9 +384,15 @@ Description:
 
 		This will be one of the following strings:
 
+<<<<<<< HEAD
 		'enabled'
 		'disabled'
 		'unknown'
+=======
+		- 'enabled'
+		- 'disabled'
+		- 'unknown'
+>>>>>>> upstream/android-13
 
 		'enabled' means the regulator is in bypass mode.
 

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * HID Sensors Driver
  * Copyright (c) 2012, Intel Corporation.
@@ -15,6 +16,12 @@
  * this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * HID Sensors Driver
+ * Copyright (c) 2012, Intel Corporation.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/device.h>
@@ -31,7 +38,10 @@
 
 /**
  * struct sensor_hub_data - Hold a instance data for a HID hub device
+<<<<<<< HEAD
  * @hsdev:		Stored hid instance for current hub device.
+=======
+>>>>>>> upstream/android-13
  * @mutex:		Mutex to serialize synchronous request.
  * @lock:		Spin lock to protect pending request structure.
  * @dyn_callback_list:	Holds callback function
@@ -47,7 +57,10 @@ struct sensor_hub_data {
 	spinlock_t dyn_callback_lock;
 	struct mfd_cell *hid_sensor_hub_client_devs;
 	int hid_sensor_client_cnt;
+<<<<<<< HEAD
 	unsigned long quirks;
+=======
+>>>>>>> upstream/android-13
 	int ref_cnt;
 };
 
@@ -55,6 +68,10 @@ struct sensor_hub_data {
  * struct hid_sensor_hub_callbacks_list - Stores callback list
  * @list:		list head.
  * @usage_id:		usage id for a physical device.
+<<<<<<< HEAD
+=======
+ * @hsdev:		Stored hid instance for current hub device.
+>>>>>>> upstream/android-13
  * @usage_callback:	Stores registered callback functions.
  * @priv:		Private data for a physical device.
  */
@@ -223,16 +240,31 @@ int sensor_hub_set_feature(struct hid_sensor_hub_device *hsdev, u32 report_id,
 	buffer_size = buffer_size / sizeof(__s32);
 	if (buffer_size) {
 		for (i = 0; i < buffer_size; ++i) {
+<<<<<<< HEAD
 			hid_set_field(report->field[field_index], i,
 				      (__force __s32)cpu_to_le32(*buf32));
+=======
+			ret = hid_set_field(report->field[field_index], i,
+					    (__force __s32)cpu_to_le32(*buf32));
+			if (ret)
+				goto done_proc;
+
+>>>>>>> upstream/android-13
 			++buf32;
 		}
 	}
 	if (remaining_bytes) {
 		value = 0;
 		memcpy(&value, (u8 *)buf32, remaining_bytes);
+<<<<<<< HEAD
 		hid_set_field(report->field[field_index], i,
 			      (__force __s32)cpu_to_le32(value));
+=======
+		ret = hid_set_field(report->field[field_index], i,
+				    (__force __s32)cpu_to_le32(value));
+		if (ret)
+			goto done_proc;
+>>>>>>> upstream/android-13
 	}
 	hid_hw_request(hsdev->hdev, report, HID_REQ_SET_REPORT);
 	hid_hw_wait(hsdev->hdev);
@@ -628,7 +660,10 @@ static int sensor_hub_probe(struct hid_device *hdev,
 	}
 
 	hid_set_drvdata(hdev, sd);
+<<<<<<< HEAD
 	sd->quirks = id->driver_data;
+=======
+>>>>>>> upstream/android-13
 
 	spin_lock_init(&sd->lock);
 	spin_lock_init(&sd->dyn_callback_lock);
@@ -756,7 +791,10 @@ static void sensor_hub_remove(struct hid_device *hdev)
 	}
 	spin_unlock_irqrestore(&data->lock, flags);
 	mfd_remove_devices(&hdev->dev);
+<<<<<<< HEAD
 	hid_set_drvdata(hdev, NULL);
+=======
+>>>>>>> upstream/android-13
 	mutex_destroy(&data->mutex);
 }
 

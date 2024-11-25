@@ -23,7 +23,11 @@ static inline int trace_valid_entry(struct trace_entry *entry)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int trace_test_buffer_cpu(struct trace_buffer *buf, int cpu)
+=======
+static int trace_test_buffer_cpu(struct array_buffer *buf, int cpu)
+>>>>>>> upstream/android-13
 {
 	struct ring_buffer_event *event;
 	struct trace_entry *entry;
@@ -60,7 +64,11 @@ static int trace_test_buffer_cpu(struct trace_buffer *buf, int cpu)
  * Test the trace buffer to see if all the elements
  * are still sane.
  */
+<<<<<<< HEAD
 static int __maybe_unused trace_test_buffer(struct trace_buffer *buf, unsigned long *count)
+=======
+static int __maybe_unused trace_test_buffer(struct array_buffer *buf, unsigned long *count)
+>>>>>>> upstream/android-13
 {
 	unsigned long flags, cnt = 0;
 	int cpu, ret = 0;
@@ -107,7 +115,11 @@ static int trace_selftest_test_probe1_cnt;
 static void trace_selftest_test_probe1_func(unsigned long ip,
 					    unsigned long pip,
 					    struct ftrace_ops *op,
+<<<<<<< HEAD
 					    struct pt_regs *pt_regs)
+=======
+					    struct ftrace_regs *fregs)
+>>>>>>> upstream/android-13
 {
 	trace_selftest_test_probe1_cnt++;
 }
@@ -116,7 +128,11 @@ static int trace_selftest_test_probe2_cnt;
 static void trace_selftest_test_probe2_func(unsigned long ip,
 					    unsigned long pip,
 					    struct ftrace_ops *op,
+<<<<<<< HEAD
 					    struct pt_regs *pt_regs)
+=======
+					    struct ftrace_regs *fregs)
+>>>>>>> upstream/android-13
 {
 	trace_selftest_test_probe2_cnt++;
 }
@@ -125,7 +141,11 @@ static int trace_selftest_test_probe3_cnt;
 static void trace_selftest_test_probe3_func(unsigned long ip,
 					    unsigned long pip,
 					    struct ftrace_ops *op,
+<<<<<<< HEAD
 					    struct pt_regs *pt_regs)
+=======
+					    struct ftrace_regs *fregs)
+>>>>>>> upstream/android-13
 {
 	trace_selftest_test_probe3_cnt++;
 }
@@ -134,7 +154,11 @@ static int trace_selftest_test_global_cnt;
 static void trace_selftest_test_global_func(unsigned long ip,
 					    unsigned long pip,
 					    struct ftrace_ops *op,
+<<<<<<< HEAD
 					    struct pt_regs *pt_regs)
+=======
+					    struct ftrace_regs *fregs)
+>>>>>>> upstream/android-13
 {
 	trace_selftest_test_global_cnt++;
 }
@@ -143,24 +167,37 @@ static int trace_selftest_test_dyn_cnt;
 static void trace_selftest_test_dyn_func(unsigned long ip,
 					 unsigned long pip,
 					 struct ftrace_ops *op,
+<<<<<<< HEAD
 					 struct pt_regs *pt_regs)
+=======
+					 struct ftrace_regs *fregs)
+>>>>>>> upstream/android-13
 {
 	trace_selftest_test_dyn_cnt++;
 }
 
 static struct ftrace_ops test_probe1 = {
 	.func			= trace_selftest_test_probe1_func,
+<<<<<<< HEAD
 	.flags			= FTRACE_OPS_FL_RECURSION_SAFE,
+=======
+>>>>>>> upstream/android-13
 };
 
 static struct ftrace_ops test_probe2 = {
 	.func			= trace_selftest_test_probe2_func,
+<<<<<<< HEAD
 	.flags			= FTRACE_OPS_FL_RECURSION_SAFE,
+=======
+>>>>>>> upstream/android-13
 };
 
 static struct ftrace_ops test_probe3 = {
 	.func			= trace_selftest_test_probe3_func,
+<<<<<<< HEAD
 	.flags			= FTRACE_OPS_FL_RECURSION_SAFE,
+=======
+>>>>>>> upstream/android-13
 };
 
 static void print_counts(void)
@@ -362,7 +399,11 @@ static int trace_selftest_startup_dynamic_tracing(struct tracer *trace,
 	msleep(100);
 
 	/* we should have nothing in the buffer */
+<<<<<<< HEAD
 	ret = trace_test_buffer(&tr->trace_buffer, &count);
+=======
+	ret = trace_test_buffer(&tr->array_buffer, &count);
+>>>>>>> upstream/android-13
 	if (ret)
 		goto out;
 
@@ -383,7 +424,11 @@ static int trace_selftest_startup_dynamic_tracing(struct tracer *trace,
 	ftrace_enabled = 0;
 
 	/* check the trace buffer */
+<<<<<<< HEAD
 	ret = trace_test_buffer(&tr->trace_buffer, &count);
+=======
+	ret = trace_test_buffer(&tr->array_buffer, &count);
+>>>>>>> upstream/android-13
 
 	ftrace_enabled = 1;
 	tracing_start();
@@ -417,7 +462,11 @@ static int trace_selftest_recursion_cnt;
 static void trace_selftest_test_recursion_func(unsigned long ip,
 					       unsigned long pip,
 					       struct ftrace_ops *op,
+<<<<<<< HEAD
 					       struct pt_regs *pt_regs)
+=======
+					       struct ftrace_regs *fregs)
+>>>>>>> upstream/android-13
 {
 	/*
 	 * This function is registered without the recursion safe flag.
@@ -432,7 +481,11 @@ static void trace_selftest_test_recursion_func(unsigned long ip,
 static void trace_selftest_test_recursion_safe_func(unsigned long ip,
 						    unsigned long pip,
 						    struct ftrace_ops *op,
+<<<<<<< HEAD
 						    struct pt_regs *pt_regs)
+=======
+						    struct ftrace_regs *fregs)
+>>>>>>> upstream/android-13
 {
 	/*
 	 * We said we would provide our own recursion. By calling
@@ -448,11 +501,18 @@ static void trace_selftest_test_recursion_safe_func(unsigned long ip,
 
 static struct ftrace_ops test_rec_probe = {
 	.func			= trace_selftest_test_recursion_func,
+<<<<<<< HEAD
+=======
+	.flags			= FTRACE_OPS_FL_RECURSION,
+>>>>>>> upstream/android-13
 };
 
 static struct ftrace_ops test_recsafe_probe = {
 	.func			= trace_selftest_test_recursion_safe_func,
+<<<<<<< HEAD
 	.flags			= FTRACE_OPS_FL_RECURSION_SAFE,
+=======
+>>>>>>> upstream/android-13
 };
 
 static int
@@ -551,9 +611,17 @@ static enum {
 static void trace_selftest_test_regs_func(unsigned long ip,
 					  unsigned long pip,
 					  struct ftrace_ops *op,
+<<<<<<< HEAD
 					  struct pt_regs *pt_regs)
 {
 	if (pt_regs)
+=======
+					  struct ftrace_regs *fregs)
+{
+	struct pt_regs *regs = ftrace_get_regs(fregs);
+
+	if (regs)
+>>>>>>> upstream/android-13
 		trace_selftest_regs_stat = TRACE_SELFTEST_REGS_FOUND;
 	else
 		trace_selftest_regs_stat = TRACE_SELFTEST_REGS_NOT_FOUND;
@@ -561,7 +629,11 @@ static void trace_selftest_test_regs_func(unsigned long ip,
 
 static struct ftrace_ops test_regs_probe = {
 	.func		= trace_selftest_test_regs_func,
+<<<<<<< HEAD
 	.flags		= FTRACE_OPS_FL_RECURSION_SAFE | FTRACE_OPS_FL_SAVE_REGS,
+=======
+	.flags		= FTRACE_OPS_FL_SAVE_REGS,
+>>>>>>> upstream/android-13
 };
 
 static int
@@ -687,7 +759,11 @@ trace_selftest_startup_function(struct tracer *trace, struct trace_array *tr)
 	ftrace_enabled = 0;
 
 	/* check the trace buffer */
+<<<<<<< HEAD
 	ret = trace_test_buffer(&tr->trace_buffer, &count);
+=======
+	ret = trace_test_buffer(&tr->array_buffer, &count);
+>>>>>>> upstream/android-13
 
 	ftrace_enabled = 1;
 	trace->reset(tr);
@@ -746,6 +822,14 @@ static int trace_graph_entry_watchdog(struct ftrace_graph_ent *trace)
 	return trace_graph_entry(trace);
 }
 
+<<<<<<< HEAD
+=======
+static struct fgraph_ops fgraph_ops __initdata  = {
+	.entryfunc		= &trace_graph_entry_watchdog,
+	.retfunc		= &trace_graph_return,
+};
+
+>>>>>>> upstream/android-13
 /*
  * Pretty much the same than for the function tracer from which the selftest
  * has been borrowed.
@@ -768,10 +852,16 @@ trace_selftest_startup_function_graph(struct tracer *trace,
 	 * Simulate the init() callback but we attach a watchdog callback
 	 * to detect and recover from possible hangs
 	 */
+<<<<<<< HEAD
 	tracing_reset_online_cpus(&tr->trace_buffer);
 	set_graph_array(tr);
 	ret = register_ftrace_graph(&trace_graph_return,
 				    &trace_graph_entry_watchdog);
+=======
+	tracing_reset_online_cpus(&tr->array_buffer);
+	set_graph_array(tr);
+	ret = register_ftrace_graph(&fgraph_ops);
+>>>>>>> upstream/android-13
 	if (ret) {
 		warn_failed_init_tracer(trace, ret);
 		goto out;
@@ -783,7 +873,11 @@ trace_selftest_startup_function_graph(struct tracer *trace,
 
 	/* Have we just recovered from a hang? */
 	if (graph_hang_thresh > GRAPH_MAX_FUNC_TEST) {
+<<<<<<< HEAD
 		tracing_selftest_disabled = true;
+=======
+		disable_tracing_selftest("recovering from a hang");
+>>>>>>> upstream/android-13
 		ret = -1;
 		goto out;
 	}
@@ -791,9 +885,18 @@ trace_selftest_startup_function_graph(struct tracer *trace,
 	tracing_stop();
 
 	/* check the trace buffer */
+<<<<<<< HEAD
 	ret = trace_test_buffer(&tr->trace_buffer, &count);
 
 	trace->reset(tr);
+=======
+	ret = trace_test_buffer(&tr->array_buffer, &count);
+
+	/* Need to also simulate the tr->reset to remove this fgraph_ops */
+	tracing_stop_cmdline_record();
+	unregister_ftrace_graph(&fgraph_ops);
+
+>>>>>>> upstream/android-13
 	tracing_start();
 
 	if (!ret && !count) {
@@ -846,7 +949,11 @@ trace_selftest_startup_irqsoff(struct tracer *trace, struct trace_array *tr)
 	/* stop the tracing. */
 	tracing_stop();
 	/* check both trace buffers */
+<<<<<<< HEAD
 	ret = trace_test_buffer(&tr->trace_buffer, NULL);
+=======
+	ret = trace_test_buffer(&tr->array_buffer, NULL);
+>>>>>>> upstream/android-13
 	if (!ret)
 		ret = trace_test_buffer(&tr->max_buffer, &count);
 	trace->reset(tr);
@@ -872,7 +979,11 @@ trace_selftest_startup_preemptoff(struct tracer *trace, struct trace_array *tr)
 	int ret;
 
 	/*
+<<<<<<< HEAD
 	 * Now that the big kernel lock is no longer preemptable,
+=======
+	 * Now that the big kernel lock is no longer preemptible,
+>>>>>>> upstream/android-13
 	 * and this is called with the BKL held, it will always
 	 * fail. If preemption is already disabled, simply
 	 * pass the test. When the BKL is removed, or becomes
@@ -908,7 +1019,11 @@ trace_selftest_startup_preemptoff(struct tracer *trace, struct trace_array *tr)
 	/* stop the tracing. */
 	tracing_stop();
 	/* check both trace buffers */
+<<<<<<< HEAD
 	ret = trace_test_buffer(&tr->trace_buffer, NULL);
+=======
+	ret = trace_test_buffer(&tr->array_buffer, NULL);
+>>>>>>> upstream/android-13
 	if (!ret)
 		ret = trace_test_buffer(&tr->max_buffer, &count);
 	trace->reset(tr);
@@ -934,7 +1049,11 @@ trace_selftest_startup_preemptirqsoff(struct tracer *trace, struct trace_array *
 	int ret;
 
 	/*
+<<<<<<< HEAD
 	 * Now that the big kernel lock is no longer preemptable,
+=======
+	 * Now that the big kernel lock is no longer preemptible,
+>>>>>>> upstream/android-13
 	 * and this is called with the BKL held, it will always
 	 * fail. If preemption is already disabled, simply
 	 * pass the test. When the BKL is removed, or becomes
@@ -974,7 +1093,11 @@ trace_selftest_startup_preemptirqsoff(struct tracer *trace, struct trace_array *
 	/* stop the tracing. */
 	tracing_stop();
 	/* check both trace buffers */
+<<<<<<< HEAD
 	ret = trace_test_buffer(&tr->trace_buffer, NULL);
+=======
+	ret = trace_test_buffer(&tr->array_buffer, NULL);
+>>>>>>> upstream/android-13
 	if (ret)
 		goto out;
 
@@ -1004,7 +1127,11 @@ trace_selftest_startup_preemptirqsoff(struct tracer *trace, struct trace_array *
 	/* stop the tracing. */
 	tracing_stop();
 	/* check both trace buffers */
+<<<<<<< HEAD
 	ret = trace_test_buffer(&tr->trace_buffer, NULL);
+=======
+	ret = trace_test_buffer(&tr->array_buffer, NULL);
+>>>>>>> upstream/android-13
 	if (ret)
 		goto out;
 
@@ -1134,7 +1261,11 @@ trace_selftest_startup_wakeup(struct tracer *trace, struct trace_array *tr)
 	/* stop the tracing. */
 	tracing_stop();
 	/* check both trace buffers */
+<<<<<<< HEAD
 	ret = trace_test_buffer(&tr->trace_buffer, NULL);
+=======
+	ret = trace_test_buffer(&tr->array_buffer, NULL);
+>>>>>>> upstream/android-13
 	if (!ret)
 		ret = trace_test_buffer(&tr->max_buffer, &count);
 
@@ -1175,7 +1306,11 @@ trace_selftest_startup_branch(struct tracer *trace, struct trace_array *tr)
 	/* stop the tracing. */
 	tracing_stop();
 	/* check the trace buffer */
+<<<<<<< HEAD
 	ret = trace_test_buffer(&tr->trace_buffer, &count);
+=======
+	ret = trace_test_buffer(&tr->array_buffer, &count);
+>>>>>>> upstream/android-13
 	trace->reset(tr);
 	tracing_start();
 

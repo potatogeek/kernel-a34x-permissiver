@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2012 Linaro Limited.
  *
@@ -14,6 +15,11 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright (c) 2012 Linaro Limited.
+>>>>>>> upstream/android-13
  */
 
 #ifndef VIRT_H
@@ -52,8 +58,11 @@ static inline void sync_boot_mode(void)
 	sync_cache_r(&__boot_cpu_mode);
 }
 
+<<<<<<< HEAD
 void __hyp_set_vectors(unsigned long phys_vector_base);
 void __hyp_reset_vectors(void);
+=======
+>>>>>>> upstream/android-13
 #else
 #define __boot_cpu_mode	(SVC_MODE)
 #define sync_boot_mode()
@@ -80,6 +89,7 @@ static inline bool is_kernel_in_hyp_mode(void)
 	return false;
 }
 
+<<<<<<< HEAD
 static inline bool has_vhe(void)
 {
 	return false;
@@ -92,6 +102,8 @@ extern char __hyp_idmap_text_end[];
 /* The section containing the hypervisor text */
 extern char __hyp_text_start[];
 extern char __hyp_text_end[];
+=======
+>>>>>>> upstream/android-13
 #endif
 
 #else
@@ -100,9 +112,12 @@ extern char __hyp_text_end[];
 
 #define HVC_SET_VECTORS 0
 #define HVC_SOFT_RESTART 1
+<<<<<<< HEAD
 #define HVC_RESET_VECTORS 2
 
 #define HVC_STUB_HCALL_NR 3
+=======
+>>>>>>> upstream/android-13
 
 #endif /* __ASSEMBLY__ */
 

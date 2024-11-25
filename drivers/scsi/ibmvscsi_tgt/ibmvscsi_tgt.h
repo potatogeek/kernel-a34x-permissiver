@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*******************************************************************************
  * IBM Virtual SCSI Target Driver
  * Copyright (C) 2003-2005 Dave Boutcher (boutcher@us.ibm.com) IBM Corp.
@@ -11,6 +15,7 @@
  * Authors: Bryant G. Ly <bryantly@linux.vnet.ibm.com>
  * Authors: Michael Cyr <mikecyr@linux.vnet.ibm.com>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -21,6 +26,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  ****************************************************************************/
 
 #ifndef __H_IBMVSCSI_TGT

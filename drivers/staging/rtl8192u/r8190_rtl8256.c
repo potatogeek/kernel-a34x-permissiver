@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 /*
  * This is part of the rtl8192 driver
  * released under the GPL (See file COPYING for details).
+=======
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * This is part of the rtl8192 driver
+>>>>>>> upstream/android-13
  *
  * This files contains programming code for the rtl8256
  * radio frontend.
@@ -14,6 +20,14 @@
 #include "r819xU_phy.h"
 #include "r8190_rtl8256.h"
 
+<<<<<<< HEAD
+=======
+/*
+ * Forward declaration of local functions
+ */
+static void phy_rf8256_config_para_file(struct net_device *dev);
+
+>>>>>>> upstream/android-13
 /*--------------------------------------------------------------------------
  * Overview:	set RF band width (20M or 40M)
  * Input:       struct net_device*	dev
@@ -23,7 +37,11 @@
  * Note:	8226 support both 20M  and 40 MHz
  *--------------------------------------------------------------------------
  */
+<<<<<<< HEAD
 void PHY_SetRF8256Bandwidth(struct net_device *dev, enum ht_channel_width Bandwidth)
+=======
+void phy_set_rf8256_bandwidth(struct net_device *dev, enum ht_channel_width Bandwidth)
+>>>>>>> upstream/android-13
 {
 	u8	eRFPath;
 	struct r8192_priv *priv = ieee80211_priv(dev);
@@ -37,9 +55,15 @@ void PHY_SetRF8256Bandwidth(struct net_device *dev, enum ht_channel_width Bandwi
 
 		switch (Bandwidth) {
 		case HT_CHANNEL_WIDTH_20:
+<<<<<<< HEAD
 				if (priv->card_8192_version == VERSION_819xU_A
 					|| priv->card_8192_version
 					== VERSION_819xU_B) { /* 8256 D-cut, E-cut, xiong: consider it later! */
+=======
+				if (priv->card_8192_version == VERSION_819XU_A ||
+				    priv->card_8192_version == VERSION_819XU_B) {
+					/* 8256 D-cut, E-cut, xiong: consider it later! */
+>>>>>>> upstream/android-13
 					rtl8192_phy_SetRFReg(dev,
 						(enum rf90_radio_path_e)eRFPath,
 						0x0b, bMask12Bits, 0x100); /* phy para:1ba */
@@ -53,11 +77,19 @@ void PHY_SetRF8256Bandwidth(struct net_device *dev, enum ht_channel_width Bandwi
 						(enum rf90_radio_path_e)eRFPath,
 						0x14, bMask12Bits, 0x5ab);
 				} else {
+<<<<<<< HEAD
 					RT_TRACE(COMP_ERR, "PHY_SetRF8256Bandwidth(): unknown hardware version\n");
 					}
 				break;
 		case HT_CHANNEL_WIDTH_20_40:
 				if (priv->card_8192_version == VERSION_819xU_A || priv->card_8192_version == VERSION_819xU_B) { /* 8256 D-cut, E-cut, xiong: consider it later! */
+=======
+					RT_TRACE(COMP_ERR, "%s(): unknown hardware version\n", __func__);
+					}
+				break;
+		case HT_CHANNEL_WIDTH_20_40:
+				if (priv->card_8192_version == VERSION_819XU_A || priv->card_8192_version == VERSION_819XU_B) { /* 8256 D-cut, E-cut, xiong: consider it later! */
+>>>>>>> upstream/android-13
 					rtl8192_phy_SetRFReg(dev, (enum rf90_radio_path_e)eRFPath, 0x0b, bMask12Bits, 0x300); /* phy para:3ba */
 					rtl8192_phy_SetRFReg(dev, (enum rf90_radio_path_e)eRFPath, 0x2c, bMask12Bits, 0x3df);
 					rtl8192_phy_SetRFReg(dev, (enum rf90_radio_path_e)eRFPath, 0x0e, bMask12Bits, 0x0a1);
@@ -68,6 +100,7 @@ void PHY_SetRF8256Bandwidth(struct net_device *dev, enum ht_channel_width Bandwi
 					else
 						rtl8192_phy_SetRFReg(dev, (enum rf90_radio_path_e)eRFPath, 0x14, bMask12Bits, 0x5ab);
 				} else {
+<<<<<<< HEAD
 					RT_TRACE(COMP_ERR, "PHY_SetRF8256Bandwidth(): unknown hardware version\n");
 					}
 				break;
@@ -78,6 +111,18 @@ void PHY_SetRF8256Bandwidth(struct net_device *dev, enum ht_channel_width Bandwi
 		}
 	}
 }
+=======
+					RT_TRACE(COMP_ERR, "%s(): unknown hardware version\n", __func__);
+					}
+				break;
+		default:
+				RT_TRACE(COMP_ERR, "%s(): unknown Bandwidth: %#X\n", __func__, Bandwidth);
+				break;
+		}
+	}
+}
+
+>>>>>>> upstream/android-13
 /*--------------------------------------------------------------------------
  * Overview:    Interface to config 8256
  * Input:       struct net_device*	dev
@@ -85,7 +130,11 @@ void PHY_SetRF8256Bandwidth(struct net_device *dev, enum ht_channel_width Bandwi
  * Return:      NONE
  *--------------------------------------------------------------------------
  */
+<<<<<<< HEAD
 void PHY_RF8256_Config(struct net_device *dev)
+=======
+void phy_rf8256_config(struct net_device *dev)
+>>>>>>> upstream/android-13
 {
 	struct r8192_priv *priv = ieee80211_priv(dev);
 	/* Initialize general global value
@@ -94,8 +143,14 @@ void PHY_RF8256_Config(struct net_device *dev)
 	 */
 	priv->NumTotalRFPath = RTL819X_TOTAL_RF_PATH;
 	/* Config BB and RF */
+<<<<<<< HEAD
 	phy_RF8256_Config_ParaFile(dev);
 }
+=======
+	phy_rf8256_config_para_file(dev);
+}
+
+>>>>>>> upstream/android-13
 /*--------------------------------------------------------------------------
  * Overview:    Interface to config 8256
  * Input:       struct net_device*	dev
@@ -103,7 +158,11 @@ void PHY_RF8256_Config(struct net_device *dev)
  * Return:      NONE
  *--------------------------------------------------------------------------
  */
+<<<<<<< HEAD
 void phy_RF8256_Config_ParaFile(struct net_device *dev)
+=======
+static void phy_rf8256_config_para_file(struct net_device *dev)
+>>>>>>> upstream/android-13
 {
 	u32	u4RegValue = 0;
 	u8	eRFPath;
@@ -132,12 +191,20 @@ void phy_RF8256_Config_ParaFile(struct net_device *dev)
 			break;
 		case RF90_PATH_B:
 		case RF90_PATH_D:
+<<<<<<< HEAD
 			u4RegValue = rtl8192_QueryBBReg(dev, pPhyReg->rfintfs, bRFSI_RFENV<<16);
+=======
+			u4RegValue = rtl8192_QueryBBReg(dev, pPhyReg->rfintfs, bRFSI_RFENV << 16);
+>>>>>>> upstream/android-13
 			break;
 		}
 
 		/*----Set RF_ENV enable----*/
+<<<<<<< HEAD
 		rtl8192_setBBreg(dev, pPhyReg->rfintfe, bRFSI_RFENV<<16, 0x1);
+=======
+		rtl8192_setBBreg(dev, pPhyReg->rfintfe, bRFSI_RFENV << 16, 0x1);
+>>>>>>> upstream/android-13
 
 		/*----Set RF_ENV output high----*/
 		rtl8192_setBBreg(dev, pPhyReg->rfintfo, bRFSI_RFENV, 0x1);
@@ -146,13 +213,21 @@ void phy_RF8256_Config_ParaFile(struct net_device *dev)
 		rtl8192_setBBreg(dev, pPhyReg->rfHSSIPara2, b3WireAddressLength, 0x0);	/* Set 0 to 4 bits for Z-serial and set 1 to 6 bits for 8258 */
 		rtl8192_setBBreg(dev, pPhyReg->rfHSSIPara2, b3WireDataLength, 0x0);	/* Set 0 to 12 bits for Z-serial and 8258, and set 1 to 14 bits for ??? */
 
+<<<<<<< HEAD
 		rtl8192_phy_SetRFReg(dev, (enum rf90_radio_path_e) eRFPath, 0x0, bMask12Bits, 0xbf);
+=======
+		rtl8192_phy_SetRFReg(dev, (enum rf90_radio_path_e)eRFPath, 0x0, bMask12Bits, 0xbf);
+>>>>>>> upstream/android-13
 
 		/* Check RF block (for FPGA platform only)----
 		 * TODO: this function should be removed on ASIC , Emily 2007.2.2
 		 */
 		if (rtl8192_phy_checkBBAndRF(dev, HW90_BLOCK_RF, (enum rf90_radio_path_e)eRFPath)) {
+<<<<<<< HEAD
 			RT_TRACE(COMP_ERR, "PHY_RF8256_Config():Check Radio[%d] Fail!!\n", eRFPath);
+=======
+			RT_TRACE(COMP_ERR, "phy_rf8256_config():Check Radio[%d] Fail!!\n", eRFPath);
+>>>>>>> upstream/android-13
 			goto phy_RF8256_Config_ParaFile_Fail;
 		}
 
@@ -202,15 +277,25 @@ void phy_RF8256_Config_ParaFile(struct net_device *dev)
 			break;
 		case RF90_PATH_B:
 		case RF90_PATH_D:
+<<<<<<< HEAD
 			rtl8192_setBBreg(dev, pPhyReg->rfintfs, bRFSI_RFENV<<16, u4RegValue);
+=======
+			rtl8192_setBBreg(dev, pPhyReg->rfintfs, bRFSI_RFENV << 16, u4RegValue);
+>>>>>>> upstream/android-13
 			break;
 		}
 
 		if (ret) {
+<<<<<<< HEAD
 			RT_TRACE(COMP_ERR, "phy_RF8256_Config_ParaFile():Radio[%d] Fail!!", eRFPath);
 			goto phy_RF8256_Config_ParaFile_Fail;
 		}
 
+=======
+			RT_TRACE(COMP_ERR, "%s():Radio[%d] Fail!!", __func__, eRFPath);
+			goto phy_RF8256_Config_ParaFile_Fail;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	RT_TRACE(COMP_PHY, "PHY Initialization Success\n");
@@ -220,11 +305,19 @@ phy_RF8256_Config_ParaFile_Fail:
 	RT_TRACE(COMP_ERR, "PHY Initialization failed\n");
 }
 
+<<<<<<< HEAD
 
 void PHY_SetRF8256CCKTxPower(struct net_device *dev, u8 powerlevel)
 {
 	u32	TxAGC = 0;
 	struct r8192_priv *priv = ieee80211_priv(dev);
+=======
+void phy_set_rf8256_cck_tx_power(struct net_device *dev, u8 powerlevel)
+{
+	u32	TxAGC = 0;
+	struct r8192_priv *priv = ieee80211_priv(dev);
+
+>>>>>>> upstream/android-13
 	TxAGC = powerlevel;
 
 	if (priv->bDynamicTxLowPower) {
@@ -239,8 +332,12 @@ void PHY_SetRF8256CCKTxPower(struct net_device *dev, u8 powerlevel)
 	rtl8192_setBBreg(dev, rTxAGC_CCK_Mcs32, bTxAGCRateCCK, TxAGC);
 }
 
+<<<<<<< HEAD
 
 void PHY_SetRF8256OFDMTxPower(struct net_device *dev, u8 powerlevel)
+=======
+void phy_set_rf8256_ofdm_tx_power(struct net_device *dev, u8 powerlevel)
+>>>>>>> upstream/android-13
 {
 	struct r8192_priv *priv = ieee80211_priv(dev);
 	/* Joseph TxPower for 8192 testing */
@@ -250,6 +347,7 @@ void PHY_SetRF8256OFDMTxPower(struct net_device *dev, u8 powerlevel)
 	u8 byte0, byte1, byte2, byte3;
 
 	powerBase0 = powerlevel + priv->TxPowerDiff;	/* OFDM rates */
+<<<<<<< HEAD
 	powerBase0 = (powerBase0<<24) | (powerBase0<<16) | (powerBase0<<8) | powerBase0;
 	powerBase1 = powerlevel;							/* MCS rates */
 	powerBase1 = (powerBase1<<24) | (powerBase1<<16) | (powerBase1<<8) | powerBase1;
@@ -260,6 +358,18 @@ void PHY_SetRF8256OFDMTxPower(struct net_device *dev, u8 powerlevel)
 		byte1 = (u8)((writeVal & 0x7f00)>>8);
 		byte2 = (u8)((writeVal & 0x7f0000)>>16);
 		byte3 = (u8)((writeVal & 0x7f000000)>>24);
+=======
+	powerBase0 = (powerBase0 << 24) | (powerBase0 << 16) | (powerBase0 << 8) | powerBase0;
+	powerBase1 = powerlevel;							/* MCS rates */
+	powerBase1 = (powerBase1 << 24) | (powerBase1 << 16) | (powerBase1 << 8) | powerBase1;
+
+	for (index = 0; index < 6; index++) {
+		writeVal = priv->MCSTxPowerLevelOriginalOffset[index] + ((index < 2) ? powerBase0 : powerBase1);
+		byte0 = (u8)(writeVal & 0x7f);
+		byte1 = (u8)((writeVal & 0x7f00) >> 8);
+		byte2 = (u8)((writeVal & 0x7f0000) >> 16);
+		byte3 = (u8)((writeVal & 0x7f000000) >> 24);
+>>>>>>> upstream/android-13
 
 		if (byte0 > 0x24)
 			/* Max power index = 0x24 */
@@ -273,7 +383,11 @@ void PHY_SetRF8256OFDMTxPower(struct net_device *dev, u8 powerlevel)
 
 		/* for tx power track */
 		if (index == 3) {
+<<<<<<< HEAD
 			writeVal_tmp = (byte3<<24) | (byte2<<16) | (byte1<<8) | byte0;
+=======
+			writeVal_tmp = (byte3 << 24) | (byte2 << 16) | (byte1 << 8) | byte0;
+>>>>>>> upstream/android-13
 			priv->Pwr_Track = writeVal_tmp;
 		}
 
@@ -283,10 +397,17 @@ void PHY_SetRF8256OFDMTxPower(struct net_device *dev, u8 powerlevel)
 			 */
 			writeVal = 0x03030303;
 		} else {
+<<<<<<< HEAD
 			writeVal = (byte3<<24) | (byte2<<16) | (byte1<<8) | byte0;
 			}
 			rtl8192_setBBreg(dev, RegOffset[index], 0x7f7f7f7f, writeVal);
 	}
 	return;
 
+=======
+			writeVal = (byte3 << 24) | (byte2 << 16) | (byte1 << 8) | byte0;
+		}
+		rtl8192_setBBreg(dev, RegOffset[index], 0x7f7f7f7f, writeVal);
+	}
+>>>>>>> upstream/android-13
 }

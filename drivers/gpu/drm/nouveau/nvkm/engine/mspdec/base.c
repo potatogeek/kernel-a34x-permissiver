@@ -24,9 +24,16 @@
 #include "priv.h"
 
 int
+<<<<<<< HEAD
 nvkm_mspdec_new_(const struct nvkm_falcon_func *func,
 		 struct nvkm_device *device, int index,
 		 struct nvkm_engine **pengine)
 {
 	return nvkm_falcon_new_(func, device, index, true, 0x085000, pengine);
+=======
+nvkm_mspdec_new_(const struct nvkm_falcon_func *func, struct nvkm_device *device,
+		 enum nvkm_subdev_type type, int inst, struct nvkm_engine **pengine)
+{
+	return nvkm_falcon_new_(func, device, type, inst, true, 0x085000, pengine);
+>>>>>>> upstream/android-13
 }

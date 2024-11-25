@@ -28,6 +28,10 @@
 #define CPACF_KMCTR		0xb92d		/* MSA4 */
 #define CPACF_PRNO		0xb93c		/* MSA5 */
 #define CPACF_KMA		0xb929		/* MSA8 */
+<<<<<<< HEAD
+=======
+#define CPACF_KDSA		0xb93a		/* MSA9 */
+>>>>>>> upstream/android-13
 
 /*
  * En/decryption modifier bits
@@ -92,6 +96,13 @@
 #define CPACF_KIMD_SHA_1	0x01
 #define CPACF_KIMD_SHA_256	0x02
 #define CPACF_KIMD_SHA_512	0x03
+<<<<<<< HEAD
+=======
+#define CPACF_KIMD_SHA3_224	0x20
+#define CPACF_KIMD_SHA3_256	0x21
+#define CPACF_KIMD_SHA3_384	0x22
+#define CPACF_KIMD_SHA3_512	0x23
+>>>>>>> upstream/android-13
 #define CPACF_KIMD_GHASH	0x41
 
 /*
@@ -102,6 +113,13 @@
 #define CPACF_KLMD_SHA_1	0x01
 #define CPACF_KLMD_SHA_256	0x02
 #define CPACF_KLMD_SHA_512	0x03
+<<<<<<< HEAD
+=======
+#define CPACF_KLMD_SHA3_224	0x20
+#define CPACF_KLMD_SHA3_256	0x21
+#define CPACF_KLMD_SHA3_384	0x22
+#define CPACF_KLMD_SHA3_512	0x23
+>>>>>>> upstream/android-13
 
 /*
  * function codes for the KMAC (COMPUTE MESSAGE AUTHENTICATION CODE)
@@ -162,6 +180,7 @@ typedef struct { unsigned char bytes[16]; } cpacf_mask_t;
  *
  * Returns 1 if @func is available for @opcode, 0 otherwise
  */
+<<<<<<< HEAD
 static inline void __cpacf_query(unsigned int opcode, cpacf_mask_t *mask)
 {
 	register unsigned long r0 asm("0") = 0;	/* query function */
@@ -169,15 +188,31 @@ static inline void __cpacf_query(unsigned int opcode, cpacf_mask_t *mask)
 
 	asm volatile(
 		"	spm 0\n" /* pckmo doesn't change the cc */
+=======
+static __always_inline void __cpacf_query(unsigned int opcode, cpacf_mask_t *mask)
+{
+	asm volatile(
+		"	lghi	0,0\n" /* query function */
+		"	lgr	1,%[mask]\n"
+		"	spm	0\n" /* pckmo doesn't change the cc */
+>>>>>>> upstream/android-13
 		/* Parameter regs are ignored, but must be nonzero and unique */
 		"0:	.insn	rrf,%[opc] << 16,2,4,6,0\n"
 		"	brc	1,0b\n"	/* handle partial completion */
 		: "=m" (*mask)
+<<<<<<< HEAD
 		: [fc] "d" (r0), [pba] "a" (r1), [opc] "i" (opcode)
 		: "cc");
 }
 
 static inline int __cpacf_check_opcode(unsigned int opcode)
+=======
+		: [mask] "d" ((unsigned long)mask), [opc] "i" (opcode)
+		: "cc", "0", "1");
+}
+
+static __always_inline int __cpacf_check_opcode(unsigned int opcode)
+>>>>>>> upstream/android-13
 {
 	switch (opcode) {
 	case CPACF_KMAC:
@@ -202,7 +237,11 @@ static inline int __cpacf_check_opcode(unsigned int opcode)
 	}
 }
 
+<<<<<<< HEAD
 static inline int cpacf_query(unsigned int opcode, cpacf_mask_t *mask)
+=======
+static __always_inline int cpacf_query(unsigned int opcode, cpacf_mask_t *mask)
+>>>>>>> upstream/android-13
 {
 	if (__cpacf_check_opcode(opcode)) {
 		__cpacf_query(opcode, mask);
@@ -217,7 +256,11 @@ static inline int cpacf_test_func(cpacf_mask_t *mask, unsigned int func)
 	return (mask->bytes[func >> 3] & (0x80 >> (func & 7))) != 0;
 }
 
+<<<<<<< HEAD
 static inline int cpacf_query_func(unsigned int opcode, unsigned int func)
+=======
+static __always_inline int cpacf_query_func(unsigned int opcode, unsigned int func)
+>>>>>>> upstream/android-13
 {
 	cpacf_mask_t mask;
 
@@ -240,6 +283,7 @@ static inline int cpacf_query_func(unsigned int opcode, unsigned int func)
 static inline int cpacf_km(unsigned long func, void *param,
 			   u8 *dest, const u8 *src, long src_len)
 {
+<<<<<<< HEAD
 	register unsigned long r0 asm("0") = (unsigned long) func;
 	register unsigned long r1 asm("1") = (unsigned long) param;
 	register unsigned long r2 asm("2") = (unsigned long) src;
@@ -254,6 +298,24 @@ static inline int cpacf_km(unsigned long func, void *param,
 		: "cc", "memory");
 
 	return src_len - r3;
+=======
+	union register_pair d, s;
+
+	d.even = (unsigned long)dest;
+	s.even = (unsigned long)src;
+	s.odd  = (unsigned long)src_len;
+	asm volatile(
+		"	lgr	0,%[fc]\n"
+		"	lgr	1,%[pba]\n"
+		"0:	.insn	rre,%[opc] << 16,%[dst],%[src]\n"
+		"	brc	1,0b\n" /* handle partial completion */
+		: [src] "+&d" (s.pair), [dst] "+&d" (d.pair)
+		: [fc] "d" (func), [pba] "d" ((unsigned long)param),
+		  [opc] "i" (CPACF_KM)
+		: "cc", "memory", "0", "1");
+
+	return src_len - s.odd;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -270,6 +332,7 @@ static inline int cpacf_km(unsigned long func, void *param,
 static inline int cpacf_kmc(unsigned long func, void *param,
 			    u8 *dest, const u8 *src, long src_len)
 {
+<<<<<<< HEAD
 	register unsigned long r0 asm("0") = (unsigned long) func;
 	register unsigned long r1 asm("1") = (unsigned long) param;
 	register unsigned long r2 asm("2") = (unsigned long) src;
@@ -284,6 +347,24 @@ static inline int cpacf_kmc(unsigned long func, void *param,
 		: "cc", "memory");
 
 	return src_len - r3;
+=======
+	union register_pair d, s;
+
+	d.even = (unsigned long)dest;
+	s.even = (unsigned long)src;
+	s.odd  = (unsigned long)src_len;
+	asm volatile(
+		"	lgr	0,%[fc]\n"
+		"	lgr	1,%[pba]\n"
+		"0:	.insn	rre,%[opc] << 16,%[dst],%[src]\n"
+		"	brc	1,0b\n" /* handle partial completion */
+		: [src] "+&d" (s.pair), [dst] "+&d" (d.pair)
+		: [fc] "d" (func), [pba] "d" ((unsigned long)param),
+		  [opc] "i" (CPACF_KMC)
+		: "cc", "memory", "0", "1");
+
+	return src_len - s.odd;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -297,6 +378,7 @@ static inline int cpacf_kmc(unsigned long func, void *param,
 static inline void cpacf_kimd(unsigned long func, void *param,
 			      const u8 *src, long src_len)
 {
+<<<<<<< HEAD
 	register unsigned long r0 asm("0") = (unsigned long) func;
 	register unsigned long r1 asm("1") = (unsigned long) param;
 	register unsigned long r2 asm("2") = (unsigned long) src;
@@ -308,6 +390,21 @@ static inline void cpacf_kimd(unsigned long func, void *param,
 		: [src] "+a" (r2), [len] "+d" (r3)
 		: [fc] "d" (r0), [pba] "a" (r1), [opc] "i" (CPACF_KIMD)
 		: "cc", "memory");
+=======
+	union register_pair s;
+
+	s.even = (unsigned long)src;
+	s.odd  = (unsigned long)src_len;
+	asm volatile(
+		"	lgr	0,%[fc]\n"
+		"	lgr	1,%[pba]\n"
+		"0:	.insn	rre,%[opc] << 16,0,%[src]\n"
+		"	brc	1,0b\n" /* handle partial completion */
+		: [src] "+&d" (s.pair)
+		: [fc] "d" (func), [pba] "d" ((unsigned long)(param)),
+		  [opc] "i" (CPACF_KIMD)
+		: "cc", "memory", "0", "1");
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -320,6 +417,7 @@ static inline void cpacf_kimd(unsigned long func, void *param,
 static inline void cpacf_klmd(unsigned long func, void *param,
 			      const u8 *src, long src_len)
 {
+<<<<<<< HEAD
 	register unsigned long r0 asm("0") = (unsigned long) func;
 	register unsigned long r1 asm("1") = (unsigned long) param;
 	register unsigned long r2 asm("2") = (unsigned long) src;
@@ -331,6 +429,21 @@ static inline void cpacf_klmd(unsigned long func, void *param,
 		: [src] "+a" (r2), [len] "+d" (r3)
 		: [fc] "d" (r0), [pba] "a" (r1), [opc] "i" (CPACF_KLMD)
 		: "cc", "memory");
+=======
+	union register_pair s;
+
+	s.even = (unsigned long)src;
+	s.odd  = (unsigned long)src_len;
+	asm volatile(
+		"	lgr	0,%[fc]\n"
+		"	lgr	1,%[pba]\n"
+		"0:	.insn	rre,%[opc] << 16,0,%[src]\n"
+		"	brc	1,0b\n" /* handle partial completion */
+		: [src] "+&d" (s.pair)
+		: [fc] "d" (func), [pba] "d" ((unsigned long)param),
+		  [opc] "i" (CPACF_KLMD)
+		: "cc", "memory", "0", "1");
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -346,6 +459,7 @@ static inline void cpacf_klmd(unsigned long func, void *param,
 static inline int cpacf_kmac(unsigned long func, void *param,
 			     const u8 *src, long src_len)
 {
+<<<<<<< HEAD
 	register unsigned long r0 asm("0") = (unsigned long) func;
 	register unsigned long r1 asm("1") = (unsigned long) param;
 	register unsigned long r2 asm("2") = (unsigned long) src;
@@ -359,6 +473,23 @@ static inline int cpacf_kmac(unsigned long func, void *param,
 		: "cc", "memory");
 
 	return src_len - r3;
+=======
+	union register_pair s;
+
+	s.even = (unsigned long)src;
+	s.odd  = (unsigned long)src_len;
+	asm volatile(
+		"	lgr	0,%[fc]\n"
+		"	lgr	1,%[pba]\n"
+		"0:	.insn	rre,%[opc] << 16,0,%[src]\n"
+		"	brc	1,0b\n" /* handle partial completion */
+		: [src] "+&d" (s.pair)
+		: [fc] "d" (func), [pba] "d" ((unsigned long)param),
+		  [opc] "i" (CPACF_KMAC)
+		: "cc", "memory", "0", "1");
+
+	return src_len - s.odd;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -376,6 +507,7 @@ static inline int cpacf_kmac(unsigned long func, void *param,
 static inline int cpacf_kmctr(unsigned long func, void *param, u8 *dest,
 			      const u8 *src, long src_len, u8 *counter)
 {
+<<<<<<< HEAD
 	register unsigned long r0 asm("0") = (unsigned long) func;
 	register unsigned long r1 asm("1") = (unsigned long) param;
 	register unsigned long r2 asm("2") = (unsigned long) src;
@@ -392,6 +524,26 @@ static inline int cpacf_kmctr(unsigned long func, void *param, u8 *dest,
 		: "cc", "memory");
 
 	return src_len - r3;
+=======
+	union register_pair d, s, c;
+
+	d.even = (unsigned long)dest;
+	s.even = (unsigned long)src;
+	s.odd  = (unsigned long)src_len;
+	c.even = (unsigned long)counter;
+	asm volatile(
+		"	lgr	0,%[fc]\n"
+		"	lgr	1,%[pba]\n"
+		"0:	.insn	rrf,%[opc] << 16,%[dst],%[src],%[ctr],0\n"
+		"	brc	1,0b\n" /* handle partial completion */
+		: [src] "+&d" (s.pair), [dst] "+&d" (d.pair),
+		  [ctr] "+&d" (c.pair)
+		: [fc] "d" (func), [pba] "d" ((unsigned long)param),
+		  [opc] "i" (CPACF_KMCTR)
+		: "cc", "memory", "0", "1");
+
+	return src_len - s.odd;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -408,6 +560,7 @@ static inline void cpacf_prno(unsigned long func, void *param,
 			      u8 *dest, unsigned long dest_len,
 			      const u8 *seed, unsigned long seed_len)
 {
+<<<<<<< HEAD
 	register unsigned long r0 asm("0") = (unsigned long) func;
 	register unsigned long r1 asm("1") = (unsigned long) param;
 	register unsigned long r2 asm("2") = (unsigned long) dest;
@@ -422,6 +575,23 @@ static inline void cpacf_prno(unsigned long func, void *param,
 		: [fc] "d" (r0), [pba] "a" (r1),
 		  [seed] "a" (r4), [slen] "d" (r5), [opc] "i" (CPACF_PRNO)
 		: "cc", "memory");
+=======
+	union register_pair d, s;
+
+	d.even = (unsigned long)dest;
+	d.odd  = (unsigned long)dest_len;
+	s.even = (unsigned long)seed;
+	s.odd  = (unsigned long)seed_len;
+	asm volatile (
+		"	lgr	0,%[fc]\n"
+		"	lgr	1,%[pba]\n"
+		"0:	.insn	rre,%[opc] << 16,%[dst],%[seed]\n"
+		"	brc	1,0b\n"	  /* handle partial completion */
+		: [dst] "+&d" (d.pair)
+		: [fc] "d" (func), [pba] "d" ((unsigned long)param),
+		  [seed] "d" (s.pair), [opc] "i" (CPACF_PRNO)
+		: "cc", "memory", "0", "1");
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -434,6 +604,7 @@ static inline void cpacf_prno(unsigned long func, void *param,
 static inline void cpacf_trng(u8 *ucbuf, unsigned long ucbuf_len,
 			      u8 *cbuf, unsigned long cbuf_len)
 {
+<<<<<<< HEAD
 	register unsigned long r0 asm("0") = (unsigned long) CPACF_PRNO_TRNG;
 	register unsigned long r2 asm("2") = (unsigned long) ucbuf;
 	register unsigned long r3 asm("3") = (unsigned long) ucbuf_len;
@@ -447,6 +618,21 @@ static inline void cpacf_trng(u8 *ucbuf, unsigned long ucbuf_len,
 		  [cbuf] "+a" (r4), [cbuflen] "+d" (r5)
 		: [fc] "d" (r0), [opc] "i" (CPACF_PRNO)
 		: "cc", "memory");
+=======
+	union register_pair u, c;
+
+	u.even = (unsigned long)ucbuf;
+	u.odd  = (unsigned long)ucbuf_len;
+	c.even = (unsigned long)cbuf;
+	c.odd  = (unsigned long)cbuf_len;
+	asm volatile (
+		"	lghi	0,%[fc]\n"
+		"0:	.insn	rre,%[opc] << 16,%[ucbuf],%[cbuf]\n"
+		"	brc	1,0b\n"	  /* handle partial completion */
+		: [ucbuf] "+&d" (u.pair), [cbuf] "+&d" (c.pair)
+		: [fc] "K" (CPACF_PRNO_TRNG), [opc] "i" (CPACF_PRNO)
+		: "cc", "memory", "0");
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -457,6 +643,7 @@ static inline void cpacf_trng(u8 *ucbuf, unsigned long ucbuf_len,
  */
 static inline void cpacf_pcc(unsigned long func, void *param)
 {
+<<<<<<< HEAD
 	register unsigned long r0 asm("0") = (unsigned long) func;
 	register unsigned long r1 asm("1") = (unsigned long) param;
 
@@ -466,6 +653,17 @@ static inline void cpacf_pcc(unsigned long func, void *param)
 		:
 		: [fc] "d" (r0), [pba] "a" (r1), [opc] "i" (CPACF_PCC)
 		: "cc", "memory");
+=======
+	asm volatile(
+		"	lgr	0,%[fc]\n"
+		"	lgr	1,%[pba]\n"
+		"0:	.insn	rre,%[opc] << 16,0,0\n" /* PCC opcode */
+		"	brc	1,0b\n" /* handle partial completion */
+		:
+		: [fc] "d" (func), [pba] "d" ((unsigned long)param),
+		  [opc] "i" (CPACF_PCC)
+		: "cc", "memory", "0", "1");
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -478,6 +676,7 @@ static inline void cpacf_pcc(unsigned long func, void *param)
  */
 static inline void cpacf_pckmo(long func, void *param)
 {
+<<<<<<< HEAD
 	register unsigned long r0 asm("0") = (unsigned long) func;
 	register unsigned long r1 asm("1") = (unsigned long) param;
 
@@ -486,6 +685,16 @@ static inline void cpacf_pckmo(long func, void *param)
 		:
 		: [fc] "d" (r0), [pba] "a" (r1), [opc] "i" (CPACF_PCKMO)
 		: "cc", "memory");
+=======
+	asm volatile(
+		"	lgr	0,%[fc]\n"
+		"	lgr	1,%[pba]\n"
+		"       .insn   rre,%[opc] << 16,0,0\n" /* PCKMO opcode */
+		:
+		: [fc] "d" (func), [pba] "d" ((unsigned long)param),
+		  [opc] "i" (CPACF_PCKMO)
+		: "cc", "memory", "0", "1");
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -503,6 +712,7 @@ static inline void cpacf_kma(unsigned long func, void *param, u8 *dest,
 			     const u8 *src, unsigned long src_len,
 			     const u8 *aad, unsigned long aad_len)
 {
+<<<<<<< HEAD
 	register unsigned long r0 asm("0") = (unsigned long) func;
 	register unsigned long r1 asm("1") = (unsigned long) param;
 	register unsigned long r2 asm("2") = (unsigned long) src;
@@ -518,6 +728,25 @@ static inline void cpacf_kma(unsigned long func, void *param, u8 *dest,
 		  [aad] "+a" (r4), [alen] "+d" (r5)
 		: [fc] "d" (r0), [pba] "a" (r1), [opc] "i" (CPACF_KMA)
 		: "cc", "memory");
+=======
+	union register_pair d, s, a;
+
+	d.even = (unsigned long)dest;
+	s.even = (unsigned long)src;
+	s.odd  = (unsigned long)src_len;
+	a.even = (unsigned long)aad;
+	a.odd  = (unsigned long)aad_len;
+	asm volatile(
+		"	lgr	0,%[fc]\n"
+		"	lgr	1,%[pba]\n"
+		"0:	.insn	rrf,%[opc] << 16,%[dst],%[src],%[aad],0\n"
+		"	brc	1,0b\n"	/* handle partial completion */
+		: [dst] "+&d" (d.pair), [src] "+&d" (s.pair),
+		  [aad] "+&d" (a.pair)
+		: [fc] "d" (func), [pba] "d" ((unsigned long)param),
+		  [opc] "i" (CPACF_KMA)
+		: "cc", "memory", "0", "1");
+>>>>>>> upstream/android-13
 }
 
 #endif	/* _ASM_S390_CPACF_H */

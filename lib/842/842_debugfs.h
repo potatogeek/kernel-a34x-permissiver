@@ -22,8 +22,11 @@ static int __init sw842_debugfs_create(void)
 		return -ENODEV;
 
 	sw842_debugfs_root = debugfs_create_dir(MODULE_NAME, NULL);
+<<<<<<< HEAD
 	if (IS_ERR(sw842_debugfs_root))
 		return PTR_ERR(sw842_debugfs_root);
+=======
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < ARRAY_SIZE(template_count); i++) {
 		char name[32];
@@ -46,8 +49,12 @@ static int __init sw842_debugfs_create(void)
 
 static void __exit sw842_debugfs_remove(void)
 {
+<<<<<<< HEAD
 	if (sw842_debugfs_root && !IS_ERR(sw842_debugfs_root))
 		debugfs_remove_recursive(sw842_debugfs_root);
+=======
+	debugfs_remove_recursive(sw842_debugfs_root);
+>>>>>>> upstream/android-13
 }
 
 #endif

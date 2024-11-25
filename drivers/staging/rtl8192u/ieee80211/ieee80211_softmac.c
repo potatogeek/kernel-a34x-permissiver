@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /* IEEE 802.11 SoftMAC layer
  * Copyright (c) 2005 Andrea Merello <andrea.merello@gmail.com>
  *
@@ -9,8 +13,11 @@
  *
  * WPA code stolen from the ipw2200 driver.
  * Copyright who own it's copyright.
+<<<<<<< HEAD
  *
  * released under the GPL
+=======
+>>>>>>> upstream/android-13
  */
 #include "ieee80211.h"
 
@@ -34,9 +41,15 @@ short ieee80211_is_shortslot(const struct ieee80211_network *net)
 }
 EXPORT_SYMBOL(ieee80211_is_shortslot);
 
+<<<<<<< HEAD
 /* returns the total length needed for pleacing the RATE MFIE
  * tag and the EXTENDED RATE MFIE tag if needed.
  * It encludes two bytes per tag for the tag itself and its len
+=======
+/* returns the total length needed for placing the RATE MFIE
+ * tag and the EXTENDED RATE MFIE tag if needed.
+ * It includes two bytes per tag for the tag itself and its len
+>>>>>>> upstream/android-13
  */
 static unsigned int ieee80211_MFIE_rate_len(struct ieee80211_device *ieee)
 {
@@ -51,7 +64,11 @@ static unsigned int ieee80211_MFIE_rate_len(struct ieee80211_device *ieee)
 	return rate_len;
 }
 
+<<<<<<< HEAD
 /* pleace the MFIE rate, tag to the memory (double) poined.
+=======
+/* place the MFIE rate, tag to the memory (double) pointer.
+>>>>>>> upstream/android-13
  * Then it updates the pointer so that
  * it points after the new MFIE tag added.
  */
@@ -132,7 +149,11 @@ static void ieee80211_TURBO_Info(struct ieee80211_device *ieee, u8 **tag_p)
 	*tag++ = 0x00;
 
 	*tag_p = tag;
+<<<<<<< HEAD
 	printk(KERN_ALERT "This is enable turbo mode IE process\n");
+=======
+	netdev_alert(ieee->dev, "This is enable turbo mode IE process\n");
+>>>>>>> upstream/android-13
 }
 #endif
 
@@ -437,7 +458,11 @@ void ieee80211_softmac_scan_syncro(struct ieee80211_device *ieee)
 		 *    So we switch to IEEE80211_LINKED_SCANNING to remember
 		 *    that we are still logically linked (not interested in
 		 *    new network events, despite for updating the net list,
+<<<<<<< HEAD
 		 *    but we are temporarly 'unlinked' as the driver shall
+=======
+		 *    but we are temporarily 'unlinked' as the driver shall
+>>>>>>> upstream/android-13
 		 *    not filter RX frames and the channel is changing.
 		 * So the only situation in witch are interested is to check
 		 * if the state become LINKED because of the #1 situation
@@ -464,7 +489,11 @@ out:
 	} else {
 		ieee->sync_scan_hurryup = 0;
 		if (IS_DOT11D_ENABLE(ieee))
+<<<<<<< HEAD
 			DOT11D_ScanComplete(ieee);
+=======
+			dot11d_scan_complete(ieee);
+>>>>>>> upstream/android-13
 		mutex_unlock(&ieee->scan_mutex);
 	}
 }
@@ -504,7 +533,11 @@ static void ieee80211_softmac_scan_wq(struct work_struct *work)
 	return;
 out:
 	if (IS_DOT11D_ENABLE(ieee))
+<<<<<<< HEAD
 		DOT11D_ScanComplete(ieee);
+=======
+		dot11d_scan_complete(ieee);
+>>>>>>> upstream/android-13
 	ieee->actscanning = false;
 	watchdog = 0;
 	ieee->scanning = 0;
@@ -744,7 +777,10 @@ static struct sk_buff *ieee80211_probe_resp(struct ieee80211_device *ieee, u8 *d
 	if (ieee->short_slot && (ieee->current_network.capability & WLAN_CAPABILITY_SHORT_SLOT))
 		beacon_buf->capability |= cpu_to_le16(WLAN_CAPABILITY_SHORT_SLOT);
 
+<<<<<<< HEAD
 	crypt = ieee->crypt[ieee->tx_keyidx];
+=======
+>>>>>>> upstream/android-13
 	if (encrypt)
 		beacon_buf->capability |= cpu_to_le16(WLAN_CAPABILITY_PRIVACY);
 
@@ -1164,7 +1200,11 @@ void ieee80211_associate_abort(struct ieee80211_device *ieee)
 
 	ieee->associate_seq++;
 
+<<<<<<< HEAD
 	/* don't scan, and avoid to have the RX path possibily
+=======
+	/* don't scan, and avoid having the RX path possibly
+>>>>>>> upstream/android-13
 	 * try again to associate. Even do not react to AUTH or
 	 * ASSOC response. Just wait for the retry wq to be scheduled.
 	 * Here we will check if there are good nets to associate
@@ -1272,6 +1312,7 @@ static void ieee80211_associate_step2(struct ieee80211_device *ieee)
 static void ieee80211_associate_complete_wq(struct work_struct *work)
 {
 	struct ieee80211_device *ieee = container_of(work, struct ieee80211_device, associate_complete_wq);
+<<<<<<< HEAD
 	printk(KERN_INFO "Associated successfully\n");
 	if (ieee80211_is_54g(&ieee->current_network) &&
 	    (ieee->modulation & IEEE80211_OFDM_MODULATION)) {
@@ -1280,6 +1321,17 @@ static void ieee80211_associate_complete_wq(struct work_struct *work)
 	} else {
 		ieee->rate = 22;
 		printk(KERN_INFO"Using B rates:%d\n", ieee->rate);
+=======
+
+	netdev_info(ieee->dev, "Associated successfully\n");
+	if (ieee80211_is_54g(&ieee->current_network) &&
+	    (ieee->modulation & IEEE80211_OFDM_MODULATION)) {
+		ieee->rate = 108;
+		netdev_info(ieee->dev, "Using G rates:%d\n", ieee->rate);
+	} else {
+		ieee->rate = 22;
+		netdev_info(ieee->dev, "Using B rates:%d\n", ieee->rate);
+>>>>>>> upstream/android-13
 	}
 	if (ieee->pHTInfo->bCurrentHTSupport && ieee->pHTInfo->bEnableHT) {
 		printk("Successfully associated, ht enabled\n");
@@ -1374,7 +1426,11 @@ inline void ieee80211_softmac_new_net(struct ieee80211_device *ieee, struct ieee
 		/* if the user set the AP check if match.
 		 * if the network does not broadcast essid we check the user supplyed ANY essid
 		 * if the network does broadcast and the user does not set essid it is OK
+<<<<<<< HEAD
 		 * if the network does broadcast and the user did set essid chech if essid match
+=======
+		 * if the network does broadcast and the user did set essid check if essid match
+>>>>>>> upstream/android-13
 		 */
 		if ((apset && apmatch &&
 		     ((ssidset && ssidbroad && ssidmatch) || (ssidbroad && !ssidset) || (!ssidbroad && ssidset))) ||
@@ -1393,12 +1449,22 @@ inline void ieee80211_softmac_new_net(struct ieee80211_device *ieee, struct ieee
 
 			strncpy(ieee->current_network.ssid, tmp_ssid, IW_ESSID_MAX_SIZE);
 			ieee->current_network.ssid_len = tmp_ssid_len;
+<<<<<<< HEAD
 			printk(KERN_INFO"Linking with %s,channel:%d, qos:%d, myHT:%d, networkHT:%d\n",
 			       ieee->current_network.ssid,
 			       ieee->current_network.channel,
 			       ieee->current_network.qos_data.supported,
 			       ieee->pHTInfo->bEnableHT,
 			       ieee->current_network.bssht.bdSupportHT);
+=======
+			netdev_info(ieee->dev,
+				    "Linking with %s,channel:%d, qos:%d, myHT:%d, networkHT:%d\n",
+				    ieee->current_network.ssid,
+				    ieee->current_network.channel,
+				    ieee->current_network.qos_data.supported,
+				    ieee->pHTInfo->bEnableHT,
+				    ieee->current_network.bssht.bdSupportHT);
+>>>>>>> upstream/android-13
 
 			//ieee->pHTInfo->IOTAction = 0;
 			HTResetIOTSetting(ieee->pHTInfo);
@@ -1423,11 +1489,21 @@ inline void ieee80211_softmac_new_net(struct ieee80211_device *ieee, struct ieee
 				    (ieee->modulation & IEEE80211_OFDM_MODULATION)) {
 					ieee->rate = 108;
 					ieee->SetWirelessMode(ieee->dev, IEEE_G);
+<<<<<<< HEAD
 					printk(KERN_INFO"Using G rates\n");
 				} else {
 					ieee->rate = 22;
 					ieee->SetWirelessMode(ieee->dev, IEEE_B);
 					printk(KERN_INFO"Using B rates\n");
+=======
+					netdev_info(ieee->dev,
+						    "Using G rates\n");
+				} else {
+					ieee->rate = 22;
+					ieee->SetWirelessMode(ieee->dev, IEEE_B);
+					netdev_info(ieee->dev,
+						    "Using B rates\n");
+>>>>>>> upstream/android-13
 				}
 				memset(ieee->dot11HTOperationalRateSet, 0, 16);
 				//HTSetConnectBwMode(ieee, HT_CHANNEL_WIDTH_20, HT_EXTCHNL_OFFSET_NO_EXT);
@@ -1624,7 +1700,11 @@ ieee80211_rx_assoc_rq(struct ieee80211_device *ieee, struct sk_buff *skb)
 	if (assoc_rq_parse(skb, dest) != -1)
 		ieee80211_resp_to_assoc_rq(ieee, dest);
 
+<<<<<<< HEAD
 	printk(KERN_INFO"New client associated: %pM\n", dest);
+=======
+	netdev_info(ieee->dev, "New client associated: %pM\n", dest);
+>>>>>>> upstream/android-13
 	//FIXME
 }
 
@@ -1685,8 +1765,14 @@ static short ieee80211_sta_ps_sleep(struct ieee80211_device *ieee, u32 *time_h,
 	return 1;
 }
 
+<<<<<<< HEAD
 static inline void ieee80211_sta_ps(struct ieee80211_device *ieee)
 {
+=======
+static inline void ieee80211_sta_ps(struct tasklet_struct *t)
+{
+	struct ieee80211_device *ieee = from_tasklet(ieee, t, ps_task);
+>>>>>>> upstream/android-13
 	u32 th, tl;
 	short sleep;
 
@@ -1797,7 +1883,11 @@ static void ieee80211_process_action(struct ieee80211_device *ieee,
 	u8 *act = ieee80211_get_payload(header);
 	u8 tmp = 0;
 //	IEEE80211_DEBUG_DATA(IEEE80211_DL_DATA|IEEE80211_DL_BA, skb->data, skb->len);
+<<<<<<< HEAD
 	if (act == NULL) {
+=======
+	if (!act) {
+>>>>>>> upstream/android-13
 		IEEE80211_DEBUG(IEEE80211_DL_ERR, "error to get payload of action frame\n");
 		return;
 	}
@@ -1908,8 +1998,16 @@ ieee80211_rx_frame_softmac(struct ieee80211_device *ieee, struct sk_buff *skb,
 		if ((ieee->softmac_features & IEEE_SOFTMAC_ASSOCIATE) &&
 		    ieee->state == IEEE80211_ASSOCIATING_AUTHENTICATED &&
 		    ieee->iw_mode == IW_MODE_INFRA) {
+<<<<<<< HEAD
 			struct ieee80211_network network_resp;
 			struct ieee80211_network *network = &network_resp;
+=======
+			struct ieee80211_network *network;
+
+			network = kzalloc(sizeof(*network), GFP_KERNEL);
+			if (!network)
+				return -ENOMEM;
+>>>>>>> upstream/android-13
 
 			errcode = assoc_parse(ieee, skb, &aid);
 			if (!errcode) {
@@ -1920,7 +2018,10 @@ ieee80211_rx_frame_softmac(struct ieee80211_device *ieee, struct sk_buff *skb,
 				/* Let the register setting defaultly with Legacy station */
 				if (ieee->qos_support) {
 					assoc_resp = (struct ieee80211_assoc_response_frame *)skb->data;
+<<<<<<< HEAD
 					memset(network, 0, sizeof(*network));
+=======
+>>>>>>> upstream/android-13
 					if (ieee80211_parse_info_param(ieee, assoc_resp->info_element,\
 								       rx_stats->len - sizeof(*assoc_resp), \
 								       network, rx_stats)) {
@@ -1930,7 +2031,11 @@ ieee80211_rx_frame_softmac(struct ieee80211_device *ieee, struct sk_buff *skb,
 						memcpy(ieee->pHTInfo->PeerHTCapBuf, network->bssht.bdHTCapBuf, network->bssht.bdHTCapLen);
 						memcpy(ieee->pHTInfo->PeerHTInfoBuf, network->bssht.bdHTInfoBuf, network->bssht.bdHTInfoLen);
 					}
+<<<<<<< HEAD
 					if (ieee->handle_assoc_response != NULL)
+=======
+					if (ieee->handle_assoc_response)
+>>>>>>> upstream/android-13
 						ieee->handle_assoc_response(ieee->dev, (struct ieee80211_assoc_response_frame *)header, network);
 				}
 				ieee80211_associate_complete(ieee);
@@ -1946,6 +2051,10 @@ ieee80211_rx_frame_softmac(struct ieee80211_device *ieee, struct sk_buff *skb,
 				else
 					ieee80211_associate_abort(ieee);
 			}
+<<<<<<< HEAD
+=======
+			kfree(network);
+>>>>>>> upstream/android-13
 		}
 		break;
 
@@ -2049,7 +2158,11 @@ void ieee80211_softmac_xmit(struct ieee80211_txb *txb, struct ieee80211_device *
 #else
 		if ((skb_queue_len(&ieee->skb_waitQ[queue_index]) != 0) ||
 #endif
+<<<<<<< HEAD
 		    (!ieee->check_nic_enough_desc(ieee->dev, queue_index)) || \
+=======
+		    (!ieee->check_nic_enough_desc(ieee->dev, queue_index)) ||
+>>>>>>> upstream/android-13
 		    (ieee->queue_stop)) {
 			/* insert the skb packet to the wait queue */
 			/* as for the completion function, it does not need
@@ -2220,7 +2333,12 @@ static void ieee80211_start_ibss_wq(struct work_struct *work)
 	mutex_lock(&ieee->wx_mutex);
 
 	if (ieee->current_network.ssid_len == 0) {
+<<<<<<< HEAD
 		strcpy(ieee->current_network.ssid, IEEE80211_DEFAULT_TX_ESSID);
+=======
+		strscpy(ieee->current_network.ssid, IEEE80211_DEFAULT_TX_ESSID,
+			sizeof(ieee->current_network.ssid));
+>>>>>>> upstream/android-13
 		ieee->current_network.ssid_len = strlen(IEEE80211_DEFAULT_TX_ESSID);
 		ieee->ssid_set = 1;
 	}
@@ -2237,9 +2355,15 @@ static void ieee80211_start_ibss_wq(struct work_struct *work)
 	 * time to scan all the chans..) or we have just run up the iface
 	 * after setting ad-hoc mode. So we have to give another try..
 	 * Here, in ibss mode, should be safe to do this without extra care
+<<<<<<< HEAD
 	 * (in bss mode we had to make sure no-one tryed to associate when
 	 * we had just checked the ieee->state and we was going to start the
 	 * scan) beacause in ibss mode the ieee80211_new_net function, when
+=======
+	 * (in bss mode we had to make sure no-one tried to associate when
+	 * we had just checked the ieee->state and we was going to start the
+	 * scan) because in ibss mode the ieee80211_new_net function, when
+>>>>>>> upstream/android-13
 	 * finds a good net, just set the ieee->state to IEEE80211_LINKED,
 	 * so, at worst, we waste a bit of time to initiate an unneeded syncro
 	 * scan, that will stop at the first round because it sees the state
@@ -2333,7 +2457,11 @@ void ieee80211_start_bss(struct ieee80211_device *ieee)
 
 	/* ensure no-one start an associating process (thus setting
 	 * the ieee->state to ieee80211_ASSOCIATING) while we
+<<<<<<< HEAD
 	 * have just cheked it and we are going to enable scan.
+=======
+	 * have just checked it and we are going to enable scan.
+>>>>>>> upstream/android-13
 	 * The ieee80211_new_net function is always called with
 	 * lock held (from both ieee80211_softmac_check_all_nets and
 	 * the rx path), so we cannot be in the middle of such function
@@ -2357,7 +2485,11 @@ void ieee80211_disassociate(struct ieee80211_device *ieee)
 	if (ieee->data_hard_stop)
 		ieee->data_hard_stop(ieee->dev);
 	if (IS_DOT11D_ENABLE(ieee))
+<<<<<<< HEAD
 		Dot11d_Reset(ieee);
+=======
+		dot11d_reset(ieee);
+>>>>>>> upstream/android-13
 	ieee->state = IEEE80211_NOLINK;
 	ieee->is_set_key = false;
 	ieee->link_change(ieee->dev);
@@ -2542,8 +2674,13 @@ void ieee80211_softmac_init(struct ieee80211_device *ieee)
 	for (i = 0; i < 5; i++)
 		ieee->seq_ctrl[i] = 0;
 
+<<<<<<< HEAD
 	ieee->pDot11dInfo = kzalloc(sizeof(struct rt_dot11d_info), GFP_KERNEL);
 	if (!ieee->pDot11dInfo)
+=======
+	ieee->dot11d_info = kzalloc(sizeof(struct rt_dot11d_info), GFP_KERNEL);
+	if (!ieee->dot11d_info)
+>>>>>>> upstream/android-13
 		IEEE80211_DEBUG(IEEE80211_DL_ERR, "can't alloc memory for DOT11D\n");
 	//added for  AP roaming
 	ieee->LinkDetectInfo.SlotNum = 2;
@@ -2595,16 +2732,25 @@ void ieee80211_softmac_init(struct ieee80211_device *ieee)
 	spin_lock_init(&ieee->mgmt_tx_lock);
 	spin_lock_init(&ieee->beacon_lock);
 
+<<<<<<< HEAD
 	tasklet_init(&ieee->ps_task,
 		     (void(*)(unsigned long)) ieee80211_sta_ps,
 		     (unsigned long)ieee);
+=======
+	tasklet_setup(&ieee->ps_task, ieee80211_sta_ps);
+>>>>>>> upstream/android-13
 }
 
 void ieee80211_softmac_free(struct ieee80211_device *ieee)
 {
 	mutex_lock(&ieee->wx_mutex);
+<<<<<<< HEAD
 	kfree(ieee->pDot11dInfo);
 	ieee->pDot11dInfo = NULL;
+=======
+	kfree(ieee->dot11d_info);
+	ieee->dot11d_info = NULL;
+>>>>>>> upstream/android-13
 	del_timer_sync(&ieee->associate_timer);
 
 	cancel_delayed_work(&ieee->associate_retry_wq);
@@ -2660,14 +2806,22 @@ static int ieee80211_wpa_set_wpa_ie(struct ieee80211_device *ieee,
 {
 	u8 *buf;
 
+<<<<<<< HEAD
 	if (param->u.wpa_ie.len > MAX_WPA_IE_LEN ||
 	    (param->u.wpa_ie.len && param->u.wpa_ie.data == NULL))
+=======
+	if (param->u.wpa_ie.len > MAX_WPA_IE_LEN)
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	if (param->u.wpa_ie.len) {
 		buf = kmemdup(param->u.wpa_ie.data, param->u.wpa_ie.len,
 			      GFP_KERNEL);
+<<<<<<< HEAD
 		if (buf == NULL)
+=======
+		if (!buf)
+>>>>>>> upstream/android-13
 			return -ENOMEM;
 
 		kfree(ieee->wpa_ie);
@@ -2857,7 +3011,11 @@ static int ieee80211_wpa_set_encryption(struct ieee80211_device *ieee,
 		goto done;
 	}
 
+<<<<<<< HEAD
 	if (*crypt == NULL || (*crypt)->ops != ops) {
+=======
+	if (!*crypt || (*crypt)->ops != ops) {
+>>>>>>> upstream/android-13
 		struct ieee80211_crypt_data *new_crypt;
 
 		ieee80211_crypt_delayed_deinit(ieee, crypt);
@@ -2872,7 +3030,11 @@ static int ieee80211_wpa_set_encryption(struct ieee80211_device *ieee,
 			new_crypt->priv =
 				new_crypt->ops->init(param->u.crypt.idx);
 
+<<<<<<< HEAD
 		if (new_crypt->priv == NULL) {
+=======
+		if (!new_crypt->priv) {
+>>>>>>> upstream/android-13
 			kfree(new_crypt);
 			param->u.crypt.err = IEEE_CRYPT_ERR_CRYPT_INIT_FAILED;
 			ret = -EINVAL;

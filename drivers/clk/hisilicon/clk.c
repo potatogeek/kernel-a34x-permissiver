@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Hisilicon clock driver
  *
@@ -6,6 +10,7 @@
  *
  * Author: Haojian Zhuang <haojian.zhuang@linaro.org>
  *	   Xin Li <li.xin@linaro.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +26,8 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -176,7 +183,11 @@ int hisi_clk_register_mux(const struct hisi_mux_clock *clks,
 					clks[i].num_parents, clks[i].flags,
 					base + clks[i].offset, clks[i].shift,
 					mask, clks[i].mux_flags,
+<<<<<<< HEAD
 					clks[i].table, &hisi_clk_lock);
+=======
+					(u32 *)clks[i].table, &hisi_clk_lock);
+>>>>>>> upstream/android-13
 		if (IS_ERR(clk)) {
 			pr_err("%s: failed to register clock %s\n",
 			       __func__, clks[i].name);

@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Driver for the Texas Instruments WL1273 FM radio.
  *
  * Copyright (C) 2011 Nokia Corporation
  * Author: Matti J. Aaltonen <matti.j.aaltonen@nokia.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -12,6 +17,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/delay.h>
@@ -1285,6 +1292,7 @@ static int wl1273_fm_vidioc_querycap(struct file *file, void *priv,
 
 	dev_dbg(radio->dev, "%s\n", __func__);
 
+<<<<<<< HEAD
 	strlcpy(capability->driver, WL1273_FM_DRIVER_NAME,
 		sizeof(capability->driver));
 	strlcpy(capability->card, "Texas Instruments Wl1273 FM Radio",
@@ -1299,6 +1307,14 @@ static int wl1273_fm_vidioc_querycap(struct file *file, void *priv,
 	capability->capabilities = capability->device_caps |
 		V4L2_CAP_DEVICE_CAPS;
 
+=======
+	strscpy(capability->driver, WL1273_FM_DRIVER_NAME,
+		sizeof(capability->driver));
+	strscpy(capability->card, "TI Wl1273 FM Radio",
+		sizeof(capability->card));
+	strscpy(capability->bus_info, radio->bus_type,
+		sizeof(capability->bus_info));
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1487,7 +1503,11 @@ static int wl1273_fm_vidioc_g_audio(struct file *file, void *priv,
 	if (audio->index > 1)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	strlcpy(audio->name, "Radio", sizeof(audio->name));
+=======
+	strscpy(audio->name, "Radio", sizeof(audio->name));
+>>>>>>> upstream/android-13
 	audio->capability = V4L2_AUDCAP_STEREO;
 
 	return 0;
@@ -1522,7 +1542,11 @@ static int wl1273_fm_vidioc_g_tuner(struct file *file, void *priv,
 	if (tuner->index > 0)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	strlcpy(tuner->name, WL1273_FM_DRIVER_NAME, sizeof(tuner->name));
+=======
+	strscpy(tuner->name, WL1273_FM_DRIVER_NAME, sizeof(tuner->name));
+>>>>>>> upstream/android-13
 	tuner->type = V4L2_TUNER_RADIO;
 
 	tuner->rangelow	= WL1273_FREQ(WL1273_BAND_JAPAN_LOW);
@@ -1780,7 +1804,11 @@ static int wl1273_fm_vidioc_g_modulator(struct file *file, void *priv,
 
 	dev_dbg(radio->dev, "%s\n", __func__);
 
+<<<<<<< HEAD
 	strlcpy(modulator->name, WL1273_FM_DRIVER_NAME,
+=======
+	strscpy(modulator->name, WL1273_FM_DRIVER_NAME,
+>>>>>>> upstream/android-13
 		sizeof(modulator->name));
 
 	modulator->rangelow = WL1273_FREQ(WL1273_BAND_JAPAN_LOW);
@@ -1987,6 +2015,13 @@ static const struct video_device wl1273_viddev_template = {
 	.name			= WL1273_FM_DRIVER_NAME,
 	.release		= wl1273_vdev_release,
 	.vfl_dir		= VFL_DIR_TX,
+<<<<<<< HEAD
+=======
+	.device_caps		= V4L2_CAP_HW_FREQ_SEEK | V4L2_CAP_TUNER |
+				  V4L2_CAP_RADIO | V4L2_CAP_AUDIO |
+				  V4L2_CAP_RDS_CAPTURE | V4L2_CAP_MODULATOR |
+				  V4L2_CAP_RDS_OUTPUT,
+>>>>>>> upstream/android-13
 };
 
 static int wl1273_fm_radio_remove(struct platform_device *pdev)

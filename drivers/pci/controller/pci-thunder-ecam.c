@@ -345,8 +345,12 @@ static int thunder_ecam_config_write(struct pci_bus *bus, unsigned int devfn,
 	return pci_generic_config_write(bus, devfn, where, size, val);
 }
 
+<<<<<<< HEAD
 struct pci_ecam_ops pci_thunder_ecam_ops = {
 	.bus_shift	= 20,
+=======
+const struct pci_ecam_ops pci_thunder_ecam_ops = {
+>>>>>>> upstream/android-13
 	.pci_ops	= {
 		.map_bus        = pci_ecam_map_bus,
 		.read           = thunder_ecam_config_read,
@@ -357,6 +361,7 @@ struct pci_ecam_ops pci_thunder_ecam_ops = {
 #ifdef CONFIG_PCI_HOST_THUNDER_ECAM
 
 static const struct of_device_id thunder_ecam_of_match[] = {
+<<<<<<< HEAD
 	{ .compatible = "cavium,pci-host-thunder-ecam" },
 	{ },
 };
@@ -366,13 +371,26 @@ static int thunder_ecam_probe(struct platform_device *pdev)
 	return pci_host_common_probe(pdev, &pci_thunder_ecam_ops);
 }
 
+=======
+	{
+		.compatible = "cavium,pci-host-thunder-ecam",
+		.data = &pci_thunder_ecam_ops,
+	},
+	{ },
+};
+
+>>>>>>> upstream/android-13
 static struct platform_driver thunder_ecam_driver = {
 	.driver = {
 		.name = KBUILD_MODNAME,
 		.of_match_table = thunder_ecam_of_match,
 		.suppress_bind_attrs = true,
 	},
+<<<<<<< HEAD
 	.probe = thunder_ecam_probe,
+=======
+	.probe = pci_host_common_probe,
+>>>>>>> upstream/android-13
 };
 builtin_platform_driver(thunder_ecam_driver);
 

@@ -23,7 +23,11 @@
 			label = "BTNESC";
 			linux,code = <1>; /* ESC button */
 			gpios = <&pioA 10 GPIO_ACTIVE_LOW>;
+<<<<<<< HEAD
 			gpio-key,wakeup = <1>;
+=======
+			wakeup-source;
+>>>>>>> upstream/android-13
 		};
 
 		irqbtn@31 {
@@ -31,7 +35,11 @@
 			label = "IRQBTN";
 			linux,code = <99>; /* SysReq button */
 			gpios = <&pioE 31 GPIO_ACTIVE_LOW>;
+<<<<<<< HEAD
 			gpio-key,wakeup = <1>;
+=======
+			wakeup-source;
+>>>>>>> upstream/android-13
 		};
 	};
 

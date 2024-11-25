@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * This file is provided under a dual BSD/GPLv2 license.  When using or
@@ -63,6 +64,13 @@
  *
  *****************************************************************************/
 
+=======
+// SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause
+/*
+ * Copyright (C) 2012-2014, 2020 Intel Corporation
+ * Copyright (C) 2016 Intel Deutschland GmbH
+ */
+>>>>>>> upstream/android-13
 #include <net/mac80211.h>
 #include "fw-api.h"
 #include "mvm.h"
@@ -91,11 +99,16 @@ static int iwl_mvm_binding_cmd(struct iwl_mvm *mvm, u32 action,
 	if (fw_has_capa(&mvm->fw->ucode_capa,
 			IWL_UCODE_TLV_CAPA_BINDING_CDB_SUPPORT)) {
 		size = sizeof(cmd);
+<<<<<<< HEAD
 		if (phyctxt->channel->band == NL80211_BAND_2GHZ ||
 		    !iwl_mvm_is_cdb_supported(mvm))
 			cmd.lmac_id = cpu_to_le32(IWL_LMAC_24G_INDEX);
 		else
 			cmd.lmac_id = cpu_to_le32(IWL_LMAC_5G_INDEX);
+=======
+		cmd.lmac_id = cpu_to_le32(iwl_mvm_get_lmac_id(mvm->fw,
+							      phyctxt->channel->band));
+>>>>>>> upstream/android-13
 	} else {
 		size = IWL_BINDING_CMD_SIZE_V1;
 	}

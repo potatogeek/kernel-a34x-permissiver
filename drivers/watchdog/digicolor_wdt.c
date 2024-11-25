@@ -116,17 +116,26 @@ static struct watchdog_device dc_wdt_wdd = {
 
 static int dc_wdt_probe(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	struct resource *res;
 	struct device *dev = &pdev->dev;
 	struct dc_wdt *wdt;
 	int ret;
+=======
+	struct device *dev = &pdev->dev;
+	struct dc_wdt *wdt;
+>>>>>>> upstream/android-13
 
 	wdt = devm_kzalloc(dev, sizeof(struct dc_wdt), GFP_KERNEL);
 	if (!wdt)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	wdt->base = devm_ioremap_resource(dev, res);
+=======
+	wdt->base = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(wdt->base))
 		return PTR_ERR(wdt->base);
 
@@ -143,6 +152,7 @@ static int dc_wdt_probe(struct platform_device *pdev)
 	watchdog_set_restart_priority(&dc_wdt_wdd, 128);
 	watchdog_init_timeout(&dc_wdt_wdd, timeout, dev);
 	watchdog_stop_on_reboot(&dc_wdt_wdd);
+<<<<<<< HEAD
 	ret = devm_watchdog_register_device(dev, &dc_wdt_wdd);
 	if (ret) {
 		dev_err(dev, "Failed to register watchdog device");
@@ -150,6 +160,9 @@ static int dc_wdt_probe(struct platform_device *pdev)
 	}
 
 	return 0;
+=======
+	return devm_watchdog_register_device(dev, &dc_wdt_wdd);
+>>>>>>> upstream/android-13
 }
 
 static const struct of_device_id dc_wdt_of_match[] = {

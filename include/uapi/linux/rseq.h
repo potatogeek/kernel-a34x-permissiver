@@ -105,6 +105,7 @@ struct rseq {
 	 * Read and set by the kernel. Set by user-space with single-copy
 	 * atomicity semantics. This field should only be updated by the
 	 * thread which registered this data structure. Aligned on 64-bit.
+<<<<<<< HEAD
 	 */
 	union {
 		__u64 ptr64;
@@ -122,6 +123,13 @@ struct rseq {
 		} ptr;
 #endif
 	} rseq_cs;
+=======
+	 *
+	 * 32-bit architectures should update the low order bits of the
+	 * rseq_cs field, leaving the high order bits initialized to 0.
+	 */
+	__u64 rseq_cs;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Restartable sequences flags field.

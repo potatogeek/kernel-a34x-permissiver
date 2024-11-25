@@ -21,6 +21,10 @@ _GLOBAL(load_vr_state)
 	REST_32VRS(0,r4,r3)
 	blr
 EXPORT_SYMBOL(load_vr_state)
+<<<<<<< HEAD
+=======
+_ASM_NOKPROBE_SYMBOL(load_vr_state); /* used by restore_math */
+>>>>>>> upstream/android-13
 
 /*
  * Store VMX state into memory, including VSCR.
@@ -64,13 +68,18 @@ _GLOBAL(load_up_altivec)
 1:
 	/* enable use of VMX after return */
 #ifdef CONFIG_PPC32
+<<<<<<< HEAD
 	mfspr	r5,SPRN_SPRG_THREAD		/* current task's THREAD (phys) */
+=======
+	addi	r5,r2,THREAD
+>>>>>>> upstream/android-13
 	oris	r9,r9,MSR_VEC@h
 #else
 	ld	r4,PACACURRENT(r13)
 	addi	r5,r4,THREAD		/* Get THREAD */
 	oris	r12,r12,MSR_VEC@h
 	std	r12,_MSR(r1)
+<<<<<<< HEAD
 #endif
 	/* Don't care if r4 overflows, this is desired behaviour */
 	lbz	r4,THREAD_LOAD_VEC(r5)
@@ -78,6 +87,16 @@ _GLOBAL(load_up_altivec)
 	stb	r4,THREAD_LOAD_VEC(r5)
 	addi	r6,r5,THREAD_VRSTATE
 	li	r4,1
+=======
+#ifdef CONFIG_PPC_BOOK3S_64
+	li	r4,0
+	stb	r4,PACASRR_VALID(r13)
+#endif
+#endif
+	li	r4,1
+	stb	r4,THREAD_LOAD_VEC(r5)
+	addi	r6,r5,THREAD_VRSTATE
+>>>>>>> upstream/android-13
 	li	r10,VRSTATE_VSCR
 	stw	r4,THREAD_USED_VR(r5)
 	lvx	v0,r10,r6
@@ -85,6 +104,10 @@ _GLOBAL(load_up_altivec)
 	REST_32VRS(0,r4,r6)
 	/* restore registers and return */
 	blr
+<<<<<<< HEAD
+=======
+_ASM_NOKPROBE_SYMBOL(load_up_altivec)
+>>>>>>> upstream/android-13
 
 /*
  * save_altivec(tsk)
@@ -130,7 +153,13 @@ _GLOBAL(load_up_vsx)
 	/* enable use of VSX after return */
 	oris	r12,r12,MSR_VSX@h
 	std	r12,_MSR(r1)
+<<<<<<< HEAD
 	b	fast_exception_return
+=======
+	li	r4,0
+	stb	r4,PACASRR_VALID(r13)
+	b	fast_interrupt_return_srr
+>>>>>>> upstream/android-13
 
 #endif /* CONFIG_VSX */
 

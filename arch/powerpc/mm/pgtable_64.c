@@ -1,5 +1,11 @@
+<<<<<<< HEAD
 /*
  *  This file contains ioremap and related functions for 64-bit machines.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ *  This file contains pgtable related functions for 64-bit machines.
+>>>>>>> upstream/android-13
  *
  *  Derived from arch/ppc64/mm/init.c
  *    Copyright (C) 1995-1996 Gary Thomas (gdt@linuxppc.org)
@@ -13,12 +19,15 @@
  *
  *  Dave Engebretsen <engebret@us.ibm.com>
  *      Rework for PPC64 port.
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation; either version
  *  2 of the License, or (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/signal.h>
@@ -36,12 +45,18 @@
 #include <linux/slab.h>
 #include <linux/hugetlb.h>
 
+<<<<<<< HEAD
 #include <asm/pgalloc.h>
 #include <asm/page.h>
 #include <asm/prom.h>
 #include <asm/io.h>
 #include <asm/mmu_context.h>
 #include <asm/pgtable.h>
+=======
+#include <asm/page.h>
+#include <asm/prom.h>
+#include <asm/mmu_context.h>
+>>>>>>> upstream/android-13
 #include <asm/mmu.h>
 #include <asm/smp.h>
 #include <asm/machdep.h>
@@ -52,7 +67,11 @@
 #include <asm/firmware.h>
 #include <asm/dma.h>
 
+<<<<<<< HEAD
 #include "mmu_decl.h"
+=======
+#include <mm/mmu_decl.h>
+>>>>>>> upstream/android-13
 
 
 #ifdef CONFIG_PPC_BOOK3S_64
@@ -90,20 +109,28 @@ unsigned long __pgd_val_bits;
 EXPORT_SYMBOL(__pgd_val_bits);
 unsigned long __kernel_virt_start;
 EXPORT_SYMBOL(__kernel_virt_start);
+<<<<<<< HEAD
 unsigned long __kernel_virt_size;
 EXPORT_SYMBOL(__kernel_virt_size);
+=======
+>>>>>>> upstream/android-13
 unsigned long __vmalloc_start;
 EXPORT_SYMBOL(__vmalloc_start);
 unsigned long __vmalloc_end;
 EXPORT_SYMBOL(__vmalloc_end);
 unsigned long __kernel_io_start;
 EXPORT_SYMBOL(__kernel_io_start);
+<<<<<<< HEAD
+=======
+unsigned long __kernel_io_end;
+>>>>>>> upstream/android-13
 struct page *vmemmap;
 EXPORT_SYMBOL(vmemmap);
 unsigned long __pte_frag_nr;
 EXPORT_SYMBOL(__pte_frag_nr);
 unsigned long __pte_frag_size_shift;
 EXPORT_SYMBOL(__pte_frag_size_shift);
+<<<<<<< HEAD
 unsigned long ioremap_bot;
 #else /* !CONFIG_PPC_BOOK3S_64 */
 unsigned long ioremap_bot = IOREMAP_BASE;
@@ -290,14 +317,37 @@ struct page *pgd_page(pgd_t pgd)
 	if (pgd_huge(pgd))
 		return pte_page(pgd_pte(pgd));
 	return virt_to_page(pgd_page_vaddr(pgd));
+=======
+#endif
+
+#ifndef __PAGETABLE_PUD_FOLDED
+/* 4 level page table */
+struct page *p4d_page(p4d_t p4d)
+{
+	if (p4d_is_leaf(p4d)) {
+		if (!IS_ENABLED(CONFIG_HAVE_ARCH_HUGE_VMAP))
+			VM_WARN_ON(!p4d_huge(p4d));
+		return pte_page(p4d_pte(p4d));
+	}
+	return virt_to_page(p4d_pgtable(p4d));
+>>>>>>> upstream/android-13
 }
 #endif
 
 struct page *pud_page(pud_t pud)
 {
+<<<<<<< HEAD
 	if (pud_huge(pud))
 		return pte_page(pud_pte(pud));
 	return virt_to_page(pud_page_vaddr(pud));
+=======
+	if (pud_is_leaf(pud)) {
+		if (!IS_ENABLED(CONFIG_HAVE_ARCH_HUGE_VMAP))
+			VM_WARN_ON(!pud_huge(pud));
+		return pte_page(pud_pte(pud));
+	}
+	return virt_to_page(pud_pgtable(pud));
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -306,8 +356,21 @@ struct page *pud_page(pud_t pud)
  */
 struct page *pmd_page(pmd_t pmd)
 {
+<<<<<<< HEAD
 	if (pmd_trans_huge(pmd) || pmd_huge(pmd) || pmd_devmap(pmd))
 		return pte_page(pmd_pte(pmd));
+=======
+	if (pmd_is_leaf(pmd)) {
+		/*
+		 * vmalloc_to_page may be called on any vmap address (not only
+		 * vmalloc), and it uses pmd_page() etc., when huge vmap is
+		 * enabled so these checks can't be used.
+		 */
+		if (!IS_ENABLED(CONFIG_HAVE_ARCH_HUGE_VMAP))
+			VM_WARN_ON(!(pmd_large(pmd) || pmd_huge(pmd)));
+		return pte_page(pmd_pte(pmd));
+	}
+>>>>>>> upstream/android-13
 	return virt_to_page(pmd_page_vaddr(pmd));
 }
 
@@ -323,6 +386,12 @@ void mark_rodata_ro(void)
 		radix__mark_rodata_ro();
 	else
 		hash__mark_rodata_ro();
+<<<<<<< HEAD
+=======
+
+	// mark_initmem_nx() should have already run by now
+	ptdump_check_wx();
+>>>>>>> upstream/android-13
 }
 
 void mark_initmem_nx(void)

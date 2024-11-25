@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* QLogic qed NIC Driver
  * Copyright (c) 2015-2017  QLogic Corporation
  *
@@ -28,6 +29,12 @@
  * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
+=======
+// SPDX-License-Identifier: (GPL-2.0-only OR BSD-3-Clause)
+/* QLogic qed NIC Driver
+ * Copyright (c) 2015-2017  QLogic Corporation
+ * Copyright (c) 2019-2020 Marvell International Ltd.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/types.h>
@@ -392,11 +399,21 @@ u32 qed_vfid_to_concrete(struct qed_hwfn *p_hwfn, u8 vfid)
 }
 
 /* DMAE */
+<<<<<<< HEAD
+=======
+#define QED_DMAE_FLAGS_IS_SET(params, flag) \
+	((params) != NULL && GET_FIELD((params)->flags, QED_DMAE_PARAMS_##flag))
+
+>>>>>>> upstream/android-13
 static void qed_dmae_opcode(struct qed_hwfn *p_hwfn,
 			    const u8 is_src_type_grc,
 			    const u8 is_dst_type_grc,
 			    struct qed_dmae_params *p_params)
 {
+<<<<<<< HEAD
+=======
+	u8 src_pfid, dst_pfid, port_id;
+>>>>>>> upstream/android-13
 	u16 opcode_b = 0;
 	u32 opcode = 0;
 
@@ -404,6 +421,7 @@ static void qed_dmae_opcode(struct qed_hwfn *p_hwfn,
 	 * 0- The source is the PCIe
 	 * 1- The source is the GRC.
 	 */
+<<<<<<< HEAD
 	opcode |= (is_src_type_grc ? DMAE_CMD_SRC_MASK_GRC
 				   : DMAE_CMD_SRC_MASK_PCIE) <<
 		   DMAE_CMD_SRC_SHIFT;
@@ -416,11 +434,27 @@ static void qed_dmae_opcode(struct qed_hwfn *p_hwfn,
 		   DMAE_CMD_DST_SHIFT;
 	opcode |= ((p_hwfn->rel_pf_id & DMAE_CMD_DST_PF_ID_MASK) <<
 		   DMAE_CMD_DST_PF_ID_SHIFT);
+=======
+	SET_FIELD(opcode, DMAE_CMD_SRC,
+		  (is_src_type_grc ? dmae_cmd_src_grc : dmae_cmd_src_pcie));
+	src_pfid = QED_DMAE_FLAGS_IS_SET(p_params, SRC_PF_VALID) ?
+	    p_params->src_pfid : p_hwfn->rel_pf_id;
+	SET_FIELD(opcode, DMAE_CMD_SRC_PF_ID, src_pfid);
+
+	/* The destination of the DMA can be: 0-None 1-PCIe 2-GRC 3-None */
+	SET_FIELD(opcode, DMAE_CMD_DST,
+		  (is_dst_type_grc ? dmae_cmd_dst_grc : dmae_cmd_dst_pcie));
+	dst_pfid = QED_DMAE_FLAGS_IS_SET(p_params, DST_PF_VALID) ?
+	    p_params->dst_pfid : p_hwfn->rel_pf_id;
+	SET_FIELD(opcode, DMAE_CMD_DST_PF_ID, dst_pfid);
+
+>>>>>>> upstream/android-13
 
 	/* Whether to write a completion word to the completion destination:
 	 * 0-Do not write a completion word
 	 * 1-Write the completion word
 	 */
+<<<<<<< HEAD
 	opcode |= (DMAE_CMD_COMP_WORD_EN_MASK << DMAE_CMD_COMP_WORD_EN_SHIFT);
 	opcode |= (DMAE_CMD_SRC_ADDR_RESET_MASK <<
 		   DMAE_CMD_SRC_ADDR_RESET_SHIFT);
@@ -454,6 +488,39 @@ static void qed_dmae_opcode(struct qed_hwfn *p_hwfn,
 		opcode_b |= p_params->dst_vfid << DMAE_CMD_DST_VF_ID_SHIFT;
 	} else {
 		opcode_b |= DMAE_CMD_DST_VF_ID_MASK << DMAE_CMD_DST_VF_ID_SHIFT;
+=======
+	SET_FIELD(opcode, DMAE_CMD_COMP_WORD_EN, 1);
+	SET_FIELD(opcode, DMAE_CMD_SRC_ADDR_RESET, 1);
+
+	if (QED_DMAE_FLAGS_IS_SET(p_params, COMPLETION_DST))
+		SET_FIELD(opcode, DMAE_CMD_COMP_FUNC, 1);
+
+	/* swapping mode 3 - big endian */
+	SET_FIELD(opcode, DMAE_CMD_ENDIANITY_MODE, DMAE_CMD_ENDIANITY);
+
+	port_id = (QED_DMAE_FLAGS_IS_SET(p_params, PORT_VALID)) ?
+	    p_params->port_id : p_hwfn->port_id;
+	SET_FIELD(opcode, DMAE_CMD_PORT_ID, port_id);
+
+	/* reset source address in next go */
+	SET_FIELD(opcode, DMAE_CMD_SRC_ADDR_RESET, 1);
+
+	/* reset dest address in next go */
+	SET_FIELD(opcode, DMAE_CMD_DST_ADDR_RESET, 1);
+
+	/* SRC/DST VFID: all 1's - pf, otherwise VF id */
+	if (QED_DMAE_FLAGS_IS_SET(p_params, SRC_VF_VALID)) {
+		SET_FIELD(opcode, DMAE_CMD_SRC_VF_ID_VALID, 1);
+		SET_FIELD(opcode_b, DMAE_CMD_SRC_VF_ID, p_params->src_vfid);
+	} else {
+		SET_FIELD(opcode_b, DMAE_CMD_SRC_VF_ID, 0xFF);
+	}
+	if (QED_DMAE_FLAGS_IS_SET(p_params, DST_VF_VALID)) {
+		SET_FIELD(opcode, DMAE_CMD_DST_VF_ID_VALID, 1);
+		SET_FIELD(opcode_b, DMAE_CMD_DST_VF_ID, p_params->dst_vfid);
+	} else {
+		SET_FIELD(opcode_b, DMAE_CMD_DST_VF_ID, 0xFF);
+>>>>>>> upstream/android-13
 	}
 
 	p_hwfn->dmae_info.p_dmae_cmd->opcode = cpu_to_le32(opcode);
@@ -703,6 +770,20 @@ static int qed_dmae_execute_command(struct qed_hwfn *p_hwfn,
 	int qed_status = 0;
 	u32 offset = 0;
 
+<<<<<<< HEAD
+=======
+	if (p_hwfn->cdev->recov_in_prog) {
+		DP_VERBOSE(p_hwfn,
+			   NETIF_MSG_HW,
+			   "Recovery is in progress. Avoid DMAE transaction [{src: addr 0x%llx, type %d}, {dst: addr 0x%llx, type %d}, size %d].\n",
+			   src_addr, src_type, dst_addr, dst_type,
+			   size_in_dwords);
+
+		/* Let the flow complete w/o any error handling */
+		return 0;
+	}
+
+>>>>>>> upstream/android-13
 	qed_dmae_opcode(p_hwfn,
 			(src_type == QED_DMAE_ADDRESS_GRC),
 			(dst_type == QED_DMAE_ADDRESS_GRC),
@@ -722,7 +803,11 @@ static int qed_dmae_execute_command(struct qed_hwfn *p_hwfn,
 	for (i = 0; i <= cnt_split; i++) {
 		offset = length_limit * i;
 
+<<<<<<< HEAD
 		if (!(p_params->flags & QED_DMAE_FLAG_RW_REPL_SRC)) {
+=======
+		if (!QED_DMAE_FLAGS_IS_SET(p_params, RW_REPL_SRC)) {
+>>>>>>> upstream/android-13
 			if (src_type == QED_DMAE_ADDRESS_GRC)
 				src_addr_split = src_addr + offset;
 			else
@@ -748,9 +833,16 @@ static int qed_dmae_execute_command(struct qed_hwfn *p_hwfn,
 							    dst_type,
 							    length_cur);
 		if (qed_status) {
+<<<<<<< HEAD
 			DP_NOTICE(p_hwfn,
 				  "qed_dmae_execute_sub_operation Failed with error 0x%x. source_addr 0x%llx, destination addr 0x%llx, size_in_dwords 0x%x\n",
 				  qed_status, src_addr, dst_addr, length_cur);
+=======
+			qed_hw_err_notify(p_hwfn, p_ptt, QED_HW_ERR_DMAE_FAIL,
+					  "qed_dmae_execute_sub_operation Failed with error 0x%x. source_addr 0x%llx, destination addr 0x%llx, size_in_dwords 0x%x\n",
+					  qed_status, src_addr,
+					  dst_addr, length_cur);
+>>>>>>> upstream/android-13
 			break;
 		}
 	}
@@ -760,6 +852,7 @@ static int qed_dmae_execute_command(struct qed_hwfn *p_hwfn,
 
 int qed_dmae_host2grc(struct qed_hwfn *p_hwfn,
 		      struct qed_ptt *p_ptt,
+<<<<<<< HEAD
 		  u64 source_addr, u32 grc_addr, u32 size_in_dwords, u32 flags)
 {
 	u32 grc_addr_in_dw = grc_addr / sizeof(u32);
@@ -768,6 +861,14 @@ int qed_dmae_host2grc(struct qed_hwfn *p_hwfn,
 
 	memset(&params, 0, sizeof(struct qed_dmae_params));
 	params.flags = flags;
+=======
+		      u64 source_addr, u32 grc_addr, u32 size_in_dwords,
+		      struct qed_dmae_params *p_params)
+{
+	u32 grc_addr_in_dw = grc_addr / sizeof(u32);
+	int rc;
+
+>>>>>>> upstream/android-13
 
 	mutex_lock(&p_hwfn->dmae_info.mutex);
 
@@ -775,7 +876,11 @@ int qed_dmae_host2grc(struct qed_hwfn *p_hwfn,
 				      grc_addr_in_dw,
 				      QED_DMAE_ADDRESS_HOST_VIRT,
 				      QED_DMAE_ADDRESS_GRC,
+<<<<<<< HEAD
 				      size_in_dwords, &params);
+=======
+				      size_in_dwords, p_params);
+>>>>>>> upstream/android-13
 
 	mutex_unlock(&p_hwfn->dmae_info.mutex);
 
@@ -785,6 +890,7 @@ int qed_dmae_host2grc(struct qed_hwfn *p_hwfn,
 int qed_dmae_grc2host(struct qed_hwfn *p_hwfn,
 		      struct qed_ptt *p_ptt,
 		      u32 grc_addr,
+<<<<<<< HEAD
 		      dma_addr_t dest_addr, u32 size_in_dwords, u32 flags)
 {
 	u32 grc_addr_in_dw = grc_addr / sizeof(u32);
@@ -793,13 +899,25 @@ int qed_dmae_grc2host(struct qed_hwfn *p_hwfn,
 
 	memset(&params, 0, sizeof(struct qed_dmae_params));
 	params.flags = flags;
+=======
+		      dma_addr_t dest_addr, u32 size_in_dwords,
+		      struct qed_dmae_params *p_params)
+{
+	u32 grc_addr_in_dw = grc_addr / sizeof(u32);
+	int rc;
+
+>>>>>>> upstream/android-13
 
 	mutex_lock(&p_hwfn->dmae_info.mutex);
 
 	rc = qed_dmae_execute_command(p_hwfn, p_ptt, grc_addr_in_dw,
 				      dest_addr, QED_DMAE_ADDRESS_GRC,
 				      QED_DMAE_ADDRESS_HOST_VIRT,
+<<<<<<< HEAD
 				      size_in_dwords, &params);
+=======
+				      size_in_dwords, p_params);
+>>>>>>> upstream/android-13
 
 	mutex_unlock(&p_hwfn->dmae_info.mutex);
 
@@ -827,11 +945,51 @@ int qed_dmae_host2host(struct qed_hwfn *p_hwfn,
 	return rc;
 }
 
+<<<<<<< HEAD
+=======
+void qed_hw_err_notify(struct qed_hwfn *p_hwfn, struct qed_ptt *p_ptt,
+		       enum qed_hw_err_type err_type, const char *fmt, ...)
+{
+	char buf[QED_HW_ERR_MAX_STR_SIZE];
+	va_list vl;
+	int len;
+
+	if (fmt) {
+		va_start(vl, fmt);
+		len = vsnprintf(buf, QED_HW_ERR_MAX_STR_SIZE, fmt, vl);
+		va_end(vl);
+
+		if (len > QED_HW_ERR_MAX_STR_SIZE - 1)
+			len = QED_HW_ERR_MAX_STR_SIZE - 1;
+
+		DP_NOTICE(p_hwfn, "%s", buf);
+	}
+
+	/* Fan failure cannot be masked by handling of another HW error */
+	if (p_hwfn->cdev->recov_in_prog &&
+	    err_type != QED_HW_ERR_FAN_FAIL) {
+		DP_VERBOSE(p_hwfn,
+			   NETIF_MSG_DRV,
+			   "Recovery is in progress. Avoid notifying about HW error %d.\n",
+			   err_type);
+		return;
+	}
+
+	qed_hw_error_occurred(p_hwfn, err_type);
+
+	if (fmt)
+		qed_mcp_send_raw_debug_data(p_hwfn, p_ptt, buf, len);
+}
+
+>>>>>>> upstream/android-13
 int qed_dmae_sanity(struct qed_hwfn *p_hwfn,
 		    struct qed_ptt *p_ptt, const char *phase)
 {
 	u32 size = PAGE_SIZE / 2, val;
+<<<<<<< HEAD
 	struct qed_dmae_params params;
+=======
+>>>>>>> upstream/android-13
 	int rc = 0;
 	dma_addr_t p_phys;
 	void *p_virt;
@@ -864,9 +1022,14 @@ int qed_dmae_sanity(struct qed_hwfn *p_hwfn,
 		   (u64)p_phys,
 		   p_virt, (u64)(p_phys + size), (u8 *)p_virt + size, size);
 
+<<<<<<< HEAD
 	memset(&params, 0, sizeof(params));
 	rc = qed_dmae_host2host(p_hwfn, p_ptt, p_phys, p_phys + size,
 				size / 4 /* size_in_dwords */, &params);
+=======
+	rc = qed_dmae_host2host(p_hwfn, p_ptt, p_phys, p_phys + size,
+				size / 4, NULL);
+>>>>>>> upstream/android-13
 	if (rc) {
 		DP_NOTICE(p_hwfn,
 			  "DMAE sanity [%s]: qed_dmae_host2host() failed. rc = %d.\n",

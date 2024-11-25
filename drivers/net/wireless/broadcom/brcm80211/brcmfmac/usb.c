@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2011 Broadcom Corporation
  *
@@ -12,6 +13,11 @@
  * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION
  * OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+=======
+// SPDX-License-Identifier: ISC
+/*
+ * Copyright (c) 2011 Broadcom Corporation
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -175,7 +181,10 @@ struct brcmf_usbdev_info {
 
 	struct urb *bulk_urb; /* used for FW download */
 
+<<<<<<< HEAD
 	bool wowl_enabled;
+=======
+>>>>>>> upstream/android-13
 	struct brcmf_mp_device *settings;
 };
 
@@ -323,6 +332,7 @@ static int brcmf_usb_tx_ctlpkt(struct device *dev, u8 *buf, u32 len)
 	int err = 0;
 	int timeout = 0;
 	struct brcmf_usbdev_info *devinfo = brcmf_usb_get_businfo(dev);
+<<<<<<< HEAD
 
 	brcmf_dbg(USB, "Enter\n");
 	if (devinfo->bus_pub.state != BRCMFMAC_USB_STATE_UP)
@@ -330,12 +340,32 @@ static int brcmf_usb_tx_ctlpkt(struct device *dev, u8 *buf, u32 len)
 
 	if (test_and_set_bit(0, &devinfo->ctl_op))
 		return -EIO;
+=======
+	struct usb_interface *intf = to_usb_interface(dev);
+
+	brcmf_dbg(USB, "Enter\n");
+
+	err = usb_autopm_get_interface(intf);
+	if (err)
+		goto out;
+
+	if (devinfo->bus_pub.state != BRCMFMAC_USB_STATE_UP) {
+		err = -EIO;
+		goto fail;
+	}
+
+	if (test_and_set_bit(0, &devinfo->ctl_op)) {
+		err = -EIO;
+		goto fail;
+	}
+>>>>>>> upstream/android-13
 
 	devinfo->ctl_completed = false;
 	err = brcmf_usb_send_ctl(devinfo, buf, len);
 	if (err) {
 		brcmf_err("fail %d bytes: %d\n", err, len);
 		clear_bit(0, &devinfo->ctl_op);
+<<<<<<< HEAD
 		return err;
 	}
 	timeout = brcmf_usb_ioctl_resp_wait(devinfo);
@@ -344,6 +374,22 @@ static int brcmf_usb_tx_ctlpkt(struct device *dev, u8 *buf, u32 len)
 		brcmf_err("Txctl wait timed out\n");
 		err = -EIO;
 	}
+=======
+		goto fail;
+	}
+	timeout = brcmf_usb_ioctl_resp_wait(devinfo);
+	if (!timeout) {
+		brcmf_err("Txctl wait timed out\n");
+		usb_kill_urb(devinfo->ctl_urb);
+		err = -EIO;
+		goto fail;
+	}
+	clear_bit(0, &devinfo->ctl_op);
+
+fail:
+	usb_autopm_put_interface(intf);
+out:
+>>>>>>> upstream/android-13
 	return err;
 }
 
@@ -352,6 +398,7 @@ static int brcmf_usb_rx_ctlpkt(struct device *dev, u8 *buf, u32 len)
 	int err = 0;
 	int timeout = 0;
 	struct brcmf_usbdev_info *devinfo = brcmf_usb_get_businfo(dev);
+<<<<<<< HEAD
 
 	brcmf_dbg(USB, "Enter\n");
 	if (devinfo->bus_pub.state != BRCMFMAC_USB_STATE_UP)
@@ -359,12 +406,32 @@ static int brcmf_usb_rx_ctlpkt(struct device *dev, u8 *buf, u32 len)
 
 	if (test_and_set_bit(0, &devinfo->ctl_op))
 		return -EIO;
+=======
+	struct usb_interface *intf = to_usb_interface(dev);
+
+	brcmf_dbg(USB, "Enter\n");
+
+	err = usb_autopm_get_interface(intf);
+	if (err)
+		goto out;
+
+	if (devinfo->bus_pub.state != BRCMFMAC_USB_STATE_UP) {
+		err = -EIO;
+		goto fail;
+	}
+
+	if (test_and_set_bit(0, &devinfo->ctl_op)) {
+		err = -EIO;
+		goto fail;
+	}
+>>>>>>> upstream/android-13
 
 	devinfo->ctl_completed = false;
 	err = brcmf_usb_recv_ctl(devinfo, buf, len);
 	if (err) {
 		brcmf_err("fail %d bytes: %d\n", err, len);
 		clear_bit(0, &devinfo->ctl_op);
+<<<<<<< HEAD
 		return err;
 	}
 	timeout = brcmf_usb_ioctl_resp_wait(devinfo);
@@ -378,6 +445,25 @@ static int brcmf_usb_rx_ctlpkt(struct device *dev, u8 *buf, u32 len)
 		return devinfo->ctl_urb_actual_length;
 	else
 		return err;
+=======
+		goto fail;
+	}
+	timeout = brcmf_usb_ioctl_resp_wait(devinfo);
+	err = devinfo->ctl_urb_status;
+	if (!timeout) {
+		brcmf_err("rxctl wait timed out\n");
+		usb_kill_urb(devinfo->ctl_urb);
+		err = -EIO;
+		goto fail;
+	}
+	clear_bit(0, &devinfo->ctl_op);
+fail:
+	usb_autopm_put_interface(intf);
+	if (!err)
+		return devinfo->ctl_urb_actual_length;
+out:
+	return err;
+>>>>>>> upstream/android-13
 }
 
 static struct brcmf_usbreq *brcmf_usb_deq(struct brcmf_usbdev_info *devinfo,
@@ -446,15 +532,23 @@ fail:
 
 }
 
+<<<<<<< HEAD
 static void brcmf_usb_free_q(struct list_head *q, bool pending)
 {
 	struct brcmf_usbreq *req, *next;
 	int i = 0;
+=======
+static void brcmf_usb_free_q(struct list_head *q)
+{
+	struct brcmf_usbreq *req, *next;
+
+>>>>>>> upstream/android-13
 	list_for_each_entry_safe(req, next, q, list) {
 		if (!req->urb) {
 			brcmf_err("bad req\n");
 			break;
 		}
+<<<<<<< HEAD
 		i++;
 		if (pending) {
 			usb_kill_urb(req->urb);
@@ -462,6 +556,10 @@ static void brcmf_usb_free_q(struct list_head *q, bool pending)
 			usb_free_urb(req->urb);
 			list_del_init(&req->list);
 		}
+=======
+		usb_free_urb(req->urb);
+		list_del_init(&req->list);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -509,17 +607,30 @@ static void brcmf_usb_rx_complete(struct urb *urb)
 	skb = req->skb;
 	req->skb = NULL;
 
+<<<<<<< HEAD
 	/* zero lenght packets indicate usb "failure". Do not refill */
+=======
+	/* zero length packets indicate usb "failure". Do not refill */
+>>>>>>> upstream/android-13
 	if (urb->status != 0 || !urb->actual_length) {
 		brcmu_pkt_buf_free_skb(skb);
 		brcmf_usb_enq(devinfo, &devinfo->rx_freeq, req, NULL);
 		return;
 	}
 
+<<<<<<< HEAD
 	if (devinfo->bus_pub.state == BRCMFMAC_USB_STATE_UP) {
 		skb_put(skb, urb->actual_length);
 		brcmf_rx_frame(devinfo->dev, skb, true);
 		brcmf_usb_rx_refill(devinfo, req);
+=======
+	if (devinfo->bus_pub.state == BRCMFMAC_USB_STATE_UP ||
+	    devinfo->bus_pub.state == BRCMFMAC_USB_STATE_SLEEP) {
+		skb_put(skb, urb->actual_length);
+		brcmf_rx_frame(devinfo->dev, skb, true, true);
+		brcmf_usb_rx_refill(devinfo, req);
+		usb_mark_last_busy(urb->dev);
+>>>>>>> upstream/android-13
 	} else {
 		brcmu_pkt_buf_free_skb(skb);
 		brcmf_usb_enq(devinfo, &devinfo->rx_freeq, req, NULL);
@@ -576,7 +687,10 @@ static void
 brcmf_usb_state_change(struct brcmf_usbdev_info *devinfo, int state)
 {
 	struct brcmf_bus *bcmf_bus = devinfo->bus_pub.bus;
+<<<<<<< HEAD
 	int old_state;
+=======
+>>>>>>> upstream/android-13
 
 	brcmf_dbg(USB, "Enter, current state=%d, new state=%d\n",
 		  devinfo->bus_pub.state, state);
@@ -584,7 +698,10 @@ brcmf_usb_state_change(struct brcmf_usbdev_info *devinfo, int state)
 	if (devinfo->bus_pub.state == state)
 		return;
 
+<<<<<<< HEAD
 	old_state = devinfo->bus_pub.state;
+=======
+>>>>>>> upstream/android-13
 	devinfo->bus_pub.state = state;
 
 	/* update state of upper layer */
@@ -605,6 +722,14 @@ static int brcmf_usb_tx(struct device *dev, struct sk_buff *skb)
 	struct brcmf_usbreq  *req;
 	int ret;
 	unsigned long flags;
+<<<<<<< HEAD
+=======
+	struct usb_interface *intf = to_usb_interface(dev);
+
+	ret = usb_autopm_get_interface(intf);
+	if (ret)
+		goto out;
+>>>>>>> upstream/android-13
 
 	brcmf_dbg(USB, "Enter, skb=%p\n", skb);
 	if (devinfo->bus_pub.state != BRCMFMAC_USB_STATE_UP) {
@@ -643,9 +768,16 @@ static int brcmf_usb_tx(struct device *dev, struct sk_buff *skb)
 		devinfo->tx_flowblock = true;
 	}
 	spin_unlock_irqrestore(&devinfo->tx_flowblock_lock, flags);
+<<<<<<< HEAD
 	return 0;
 
 fail:
+=======
+
+fail:
+	usb_autopm_put_interface(intf);
+out:
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -1009,6 +1141,7 @@ static int
 brcmf_usb_fw_download(struct brcmf_usbdev_info *devinfo)
 {
 	int err;
+<<<<<<< HEAD
 
 	brcmf_dbg(USB, "Enter\n");
 	if (devinfo == NULL)
@@ -1019,10 +1152,37 @@ brcmf_usb_fw_download(struct brcmf_usbdev_info *devinfo)
 		return -ENOENT;
 	}
 
+=======
+	struct usb_interface *intf;
+
+	brcmf_dbg(USB, "Enter\n");
+	if (!devinfo) {
+		err = -ENODEV;
+		goto out;
+	}
+
+	if (!devinfo->image) {
+		brcmf_err("No firmware!\n");
+		err = -ENOENT;
+		goto out;
+	}
+
+	intf = to_usb_interface(devinfo->dev);
+	err = usb_autopm_get_interface(intf);
+	if (err)
+		goto out;
+
+>>>>>>> upstream/android-13
 	err = brcmf_usb_dlstart(devinfo,
 		(u8 *)devinfo->image, devinfo->image_len);
 	if (err == 0)
 		err = brcmf_usb_dlrun(devinfo);
+<<<<<<< HEAD
+=======
+
+	usb_autopm_put_interface(intf);
+out:
+>>>>>>> upstream/android-13
 	return err;
 }
 
@@ -1032,8 +1192,13 @@ static void brcmf_usb_detach(struct brcmf_usbdev_info *devinfo)
 	brcmf_dbg(USB, "Enter, devinfo %p\n", devinfo);
 
 	/* free the URBS */
+<<<<<<< HEAD
 	brcmf_usb_free_q(&devinfo->rx_freeq, false);
 	brcmf_usb_free_q(&devinfo->tx_freeq, false);
+=======
+	brcmf_usb_free_q(&devinfo->rx_freeq);
+	brcmf_usb_free_q(&devinfo->tx_freeq);
+>>>>>>> upstream/android-13
 
 	usb_free_urb(devinfo->ctl_urb);
 	usb_free_urb(devinfo->bulk_urb);
@@ -1123,6 +1288,7 @@ error:
 	return NULL;
 }
 
+<<<<<<< HEAD
 static void brcmf_usb_wowl_config(struct device *dev, bool enabled)
 {
 	struct brcmf_usbdev_info *devinfo = brcmf_usb_get_businfo(dev);
@@ -1135,6 +1301,8 @@ static void brcmf_usb_wowl_config(struct device *dev, bool enabled)
 		device_set_wakeup_enable(devinfo->dev, false);
 }
 
+=======
+>>>>>>> upstream/android-13
 static
 int brcmf_usb_get_fwname(struct device *dev, const char *ext, u8 *fw_name)
 {
@@ -1161,7 +1329,10 @@ static const struct brcmf_bus_ops brcmf_usb_bus_ops = {
 	.txdata = brcmf_usb_tx,
 	.txctl = brcmf_usb_tx_ctlpkt,
 	.rxctl = brcmf_usb_rx_ctlpkt,
+<<<<<<< HEAD
 	.wowl_config = brcmf_usb_wowl_config,
+=======
+>>>>>>> upstream/android-13
 	.get_fwname = brcmf_usb_get_fwname,
 };
 
@@ -1197,8 +1368,17 @@ static void brcmf_usb_probe_phase2(struct device *dev, int ret,
 	if (ret)
 		goto error;
 
+<<<<<<< HEAD
 	/* Attach to the common driver interface */
 	ret = brcmf_attach(devinfo->dev, devinfo->settings);
+=======
+	ret = brcmf_alloc(devinfo->dev, devinfo->settings);
+	if (ret)
+		goto error;
+
+	/* Attach to the common driver interface */
+	ret = brcmf_attach(devinfo->dev);
+>>>>>>> upstream/android-13
 	if (ret)
 		goto error;
 
@@ -1270,7 +1450,14 @@ static int brcmf_usb_probe_cb(struct brcmf_usbdev_info *devinfo)
 	}
 
 	if (!brcmf_usb_dlneeded(devinfo)) {
+<<<<<<< HEAD
 		ret = brcmf_attach(devinfo->dev, devinfo->settings);
+=======
+		ret = brcmf_alloc(devinfo->dev, devinfo->settings);
+		if (ret)
+			goto fail;
+		ret = brcmf_attach(devinfo->dev);
+>>>>>>> upstream/android-13
 		if (ret)
 			goto fail;
 		/* we are done */
@@ -1298,6 +1485,10 @@ static int brcmf_usb_probe_cb(struct brcmf_usbdev_info *devinfo)
 
 fail:
 	/* Release resources in reverse order */
+<<<<<<< HEAD
+=======
+	brcmf_free(devinfo->dev);
+>>>>>>> upstream/android-13
 	kfree(bus);
 	brcmf_usb_detach(devinfo);
 	return ret;
@@ -1311,6 +1502,10 @@ brcmf_usb_disconnect_cb(struct brcmf_usbdev_info *devinfo)
 	brcmf_dbg(USB, "Enter, bus_pub %p\n", devinfo);
 
 	brcmf_detach(devinfo->dev);
+<<<<<<< HEAD
+=======
+	brcmf_free(devinfo->dev);
+>>>>>>> upstream/android-13
 	kfree(devinfo->bus_pub.bus);
 	brcmf_usb_detach(devinfo);
 }
@@ -1341,6 +1536,11 @@ brcmf_usb_probe(struct usb_interface *intf, const struct usb_device_id *id)
 
 	usb_set_intfdata(intf, devinfo);
 
+<<<<<<< HEAD
+=======
+	intf->needs_remote_wakeup = 1;
+
+>>>>>>> upstream/android-13
 	/* Check that the device supports only one configuration */
 	if (usb->descriptor.bNumConfigurations != 1) {
 		brcmf_err("Number of configurations: %d not supported\n",
@@ -1454,10 +1654,15 @@ static int brcmf_usb_suspend(struct usb_interface *intf, pm_message_t state)
 
 	brcmf_dbg(USB, "Enter\n");
 	devinfo->bus_pub.state = BRCMFMAC_USB_STATE_SLEEP;
+<<<<<<< HEAD
 	if (devinfo->wowl_enabled)
 		brcmf_cancel_all_urbs(devinfo);
 	else
 		brcmf_detach(&usb->dev);
+=======
+	brcmf_cancel_all_urbs(devinfo);
+	device_set_wakeup_enable(devinfo->dev, true);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1470,11 +1675,18 @@ static int brcmf_usb_resume(struct usb_interface *intf)
 	struct brcmf_usbdev_info *devinfo = brcmf_usb_get_businfo(&usb->dev);
 
 	brcmf_dbg(USB, "Enter\n");
+<<<<<<< HEAD
 	if (!devinfo->wowl_enabled)
 		return brcmf_attach(devinfo->dev, devinfo->settings);
 
 	devinfo->bus_pub.state = BRCMFMAC_USB_STATE_UP;
 	brcmf_usb_rx_fill_all(devinfo);
+=======
+
+	devinfo->bus_pub.state = BRCMFMAC_USB_STATE_UP;
+	brcmf_usb_rx_fill_all(devinfo);
+	device_set_wakeup_enable(devinfo->dev, false);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1531,6 +1743,10 @@ static struct usb_driver brcmf_usbdrvr = {
 	.suspend = brcmf_usb_suspend,
 	.resume = brcmf_usb_resume,
 	.reset_resume = brcmf_usb_reset_resume,
+<<<<<<< HEAD
+=======
+	.supports_autosuspend = true,
+>>>>>>> upstream/android-13
 	.disable_hub_initiated_lpm = 1,
 };
 
@@ -1551,6 +1767,7 @@ void brcmf_usb_exit(void)
 	brcmf_dbg(USB, "Enter\n");
 	ret = driver_for_each_device(drv, NULL, NULL,
 				     brcmf_usb_reset_device);
+<<<<<<< HEAD
 	usb_deregister(&brcmf_usbdrvr);
 }
 
@@ -1558,4 +1775,16 @@ void brcmf_usb_register(void)
 {
 	brcmf_dbg(USB, "Enter\n");
 	usb_register(&brcmf_usbdrvr);
+=======
+	if (ret)
+		brcmf_err("failed to reset all usb devices %d\n", ret);
+
+	usb_deregister(&brcmf_usbdrvr);
+}
+
+int brcmf_usb_register(void)
+{
+	brcmf_dbg(USB, "Enter\n");
+	return usb_register(&brcmf_usbdrvr);
+>>>>>>> upstream/android-13
 }

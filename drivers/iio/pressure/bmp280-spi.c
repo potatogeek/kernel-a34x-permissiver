@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * SPI interface for the BMP280 driver
  *
@@ -85,11 +89,14 @@ static int bmp280_spi_probe(struct spi_device *spi)
 				   spi->irq);
 }
 
+<<<<<<< HEAD
 static int bmp280_spi_remove(struct spi_device *spi)
 {
 	return bmp280_common_remove(&spi->dev);
 }
 
+=======
+>>>>>>> upstream/android-13
 static const struct of_device_id bmp280_of_spi_match[] = {
 	{ .compatible = "bosch,bmp085", },
 	{ .compatible = "bosch,bmp180", },
@@ -117,7 +124,10 @@ static struct spi_driver bmp280_spi_driver = {
 	},
 	.id_table = bmp280_spi_id,
 	.probe = bmp280_spi_probe,
+<<<<<<< HEAD
 	.remove = bmp280_spi_remove,
+=======
+>>>>>>> upstream/android-13
 };
 module_spi_driver(bmp280_spi_driver);
 

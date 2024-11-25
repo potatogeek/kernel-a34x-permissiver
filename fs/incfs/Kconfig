@@ -3,7 +3,10 @@ config INCREMENTAL_FS
 	depends on BLOCK
 	select DECOMPRESS_LZ4
 	select DECOMPRESS_ZSTD
+<<<<<<< HEAD
 	select CRYPTO_ZSTD
+=======
+>>>>>>> upstream/android-13
 	select CRYPTO_SHA256
 	help
 	  Incremental FS is a read-only virtual file system that facilitates execution

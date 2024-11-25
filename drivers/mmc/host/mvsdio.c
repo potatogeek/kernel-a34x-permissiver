@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Marvell MMC/SD/SDIO driver
  *
  * Authors: Maen Suleiman, Nicolas Pitre
  * Copyright (C) 2008-2009 Marvell Ltd.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -24,7 +31,11 @@
 #include <linux/mmc/host.h>
 #include <linux/mmc/slot-gpio.h>
 
+<<<<<<< HEAD
 #include <asm/sizes.h>
+=======
+#include <linux/sizes.h>
+>>>>>>> upstream/android-13
 #include <asm/unaligned.h>
 
 #include "mvsdio.h"
@@ -699,16 +710,24 @@ static int mvsd_probe(struct platform_device *pdev)
 	struct mmc_host *mmc = NULL;
 	struct mvsd_host *host = NULL;
 	const struct mbus_dram_target_info *dram;
+<<<<<<< HEAD
 	struct resource *r;
+=======
+>>>>>>> upstream/android-13
 	int ret, irq;
 
 	if (!np) {
 		dev_err(&pdev->dev, "no DT node\n");
 		return -ENODEV;
 	}
+<<<<<<< HEAD
 	r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	irq = platform_get_irq(pdev, 0);
 	if (!r || irq < 0)
+=======
+	irq = platform_get_irq(pdev, 0);
+	if (irq < 0)
+>>>>>>> upstream/android-13
 		return -ENXIO;
 
 	mmc = mmc_alloc_host(sizeof(struct mvsd_host), &pdev->dev);
@@ -757,11 +776,17 @@ static int mvsd_probe(struct platform_device *pdev)
 	if (maxfreq)
 		mmc->f_max = maxfreq;
 
+<<<<<<< HEAD
 	mmc->caps |= MMC_CAP_ERASE;
 
 	spin_lock_init(&host->lock);
 
 	host->base = devm_ioremap_resource(&pdev->dev, r);
+=======
+	spin_lock_init(&host->lock);
+
+	host->base = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(host->base)) {
 		ret = PTR_ERR(host->base);
 		goto out;
@@ -831,6 +856,10 @@ static struct platform_driver mvsd_driver = {
 	.remove		= mvsd_remove,
 	.driver		= {
 		.name	= DRIVER_NAME,
+<<<<<<< HEAD
+=======
+		.probe_type = PROBE_PREFER_ASYNCHRONOUS,
+>>>>>>> upstream/android-13
 		.of_match_table = mvsdio_dt_ids,
 	},
 };

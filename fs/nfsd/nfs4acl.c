@@ -781,12 +781,21 @@ nfsd4_set_nfs4_acl(struct svc_rqst *rqstp, struct svc_fh *fhp,
 
 	fh_lock(fhp);
 
+<<<<<<< HEAD
 	host_error = set_posix_acl(inode, ACL_TYPE_ACCESS, pacl);
+=======
+	host_error = set_posix_acl(&init_user_ns, inode, ACL_TYPE_ACCESS, pacl);
+>>>>>>> upstream/android-13
 	if (host_error < 0)
 		goto out_drop_lock;
 
 	if (S_ISDIR(inode->i_mode)) {
+<<<<<<< HEAD
 		host_error = set_posix_acl(inode, ACL_TYPE_DEFAULT, dpacl);
+=======
+		host_error = set_posix_acl(&init_user_ns, inode,
+					   ACL_TYPE_DEFAULT, dpacl);
+>>>>>>> upstream/android-13
 	}
 
 out_drop_lock:

@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 #ifndef __SOUND_INITVAL_H
 #define __SOUND_INITVAL_H
 
 /*
  *  Init values for soundcard modules
  *  Copyright (c) by Jaroslav Kysela <perex@perex.cz>
+<<<<<<< HEAD
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -19,6 +24,8 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #define SNDRV_AUTO_PORT		1
@@ -51,7 +58,11 @@
 #define SNDRV_DEFAULT_PTR	SNDRV_DEFAULT_STR
 
 #ifdef SNDRV_LEGACY_FIND_FREE_IOPORT
+<<<<<<< HEAD
 static long snd_legacy_find_free_ioport(long *port_table, long size)
+=======
+static long snd_legacy_find_free_ioport(const long *port_table, long size)
+>>>>>>> upstream/android-13
 {
 	while (*port_table != -1) {
 		if (request_region(*port_table, size, "ALSA test")) {
@@ -72,7 +83,11 @@ static irqreturn_t snd_legacy_empty_irq_handler(int irq, void *dev_id)
 	return IRQ_HANDLED;
 }
 
+<<<<<<< HEAD
 static int snd_legacy_find_free_irq(int *irq_table)
+=======
+static int snd_legacy_find_free_irq(const int *irq_table)
+>>>>>>> upstream/android-13
 {
 	while (*irq_table != -1) {
 		if (!request_irq(*irq_table, snd_legacy_empty_irq_handler,
@@ -88,7 +103,11 @@ static int snd_legacy_find_free_irq(int *irq_table)
 #endif
 
 #ifdef SNDRV_LEGACY_FIND_FREE_DMA
+<<<<<<< HEAD
 static int snd_legacy_find_free_dma(int *dma_table)
+=======
+static int snd_legacy_find_free_dma(const int *dma_table)
+>>>>>>> upstream/android-13
 {
 	while (*dma_table != -1) {
 		if (!request_dma(*dma_table, "ALSA Test DMA")) {

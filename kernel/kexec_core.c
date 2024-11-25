@@ -1,9 +1,16 @@
+<<<<<<< HEAD
 /*
  * kexec.c - kexec system call core code.
  * Copyright (C) 2002-2004 Eric Biederman  <ebiederm@xmission.com>
  *
  * This source code is licensed under the GNU General Public License,
  * Version 2.  See the file COPYING for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * kexec.c - kexec system call core code.
+ * Copyright (C) 2002-2004 Eric Biederman  <ebiederm@xmission.com>
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -28,6 +35,10 @@
 #include <linux/suspend.h>
 #include <linux/device.h>
 #include <linux/freezer.h>
+<<<<<<< HEAD
+=======
+#include <linux/panic_notifier.h>
+>>>>>>> upstream/android-13
 #include <linux/pm.h>
 #include <linux/cpu.h>
 #include <linux/uaccess.h>
@@ -38,13 +49,21 @@
 #include <linux/syscore_ops.h>
 #include <linux/compiler.h>
 #include <linux/hugetlb.h>
+<<<<<<< HEAD
 #include <linux/frame.h>
+=======
+#include <linux/objtool.h>
+#include <linux/kmsg_dump.h>
+>>>>>>> upstream/android-13
 
 #include <asm/page.h>
 #include <asm/sections.h>
 
 #include <crypto/hash.h>
+<<<<<<< HEAD
 #include <crypto/sha.h>
+=======
+>>>>>>> upstream/android-13
 #include "kexec_internal.h"
 
 DEFINE_MUTEX(kexec_mutex);
@@ -111,7 +130,11 @@ EXPORT_SYMBOL_GPL(kexec_crash_loaded);
  * defined more restrictively in <asm/kexec.h>.
  *
  * The code for the transition from the current kernel to the
+<<<<<<< HEAD
  * the new kernel is placed in the control_code_buffer, whose size
+=======
+ * new kernel is placed in the control_code_buffer, whose size
+>>>>>>> upstream/android-13
  * is given by KEXEC_CONTROL_PAGE_SIZE.  In the best case only a single
  * page of memory is necessary, but some architectures require more.
  * Because this memory must be identity mapped in the transition from
@@ -152,6 +175,10 @@ int sanity_check_segment_list(struct kimage *image)
 	int i;
 	unsigned long nr_segments = image->nr_segments;
 	unsigned long total_pages = 0;
+<<<<<<< HEAD
+=======
+	unsigned long nr_pages = totalram_pages();
+>>>>>>> upstream/android-13
 
 	/*
 	 * Verify we have good destination addresses.  The caller is
@@ -217,13 +244,21 @@ int sanity_check_segment_list(struct kimage *image)
 	 * wasted allocating pages, which can cause a soft lockup.
 	 */
 	for (i = 0; i < nr_segments; i++) {
+<<<<<<< HEAD
 		if (PAGE_COUNT(image->segment[i].memsz) > totalram_pages / 2)
+=======
+		if (PAGE_COUNT(image->segment[i].memsz) > nr_pages / 2)
+>>>>>>> upstream/android-13
 			return -EINVAL;
 
 		total_pages += PAGE_COUNT(image->segment[i].memsz);
 	}
 
+<<<<<<< HEAD
 	if (total_pages > totalram_pages / 2)
+=======
+	if (total_pages > nr_pages / 2)
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	/*
@@ -590,6 +625,15 @@ static void kimage_free_extra_pages(struct kimage *image)
 	kimage_free_page_list(&image->unusable_pages);
 
 }
+<<<<<<< HEAD
+=======
+
+int __weak machine_kexec_post_load(struct kimage *image)
+{
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 void kimage_terminate(struct kimage *image)
 {
 	if (*image->entry != 0)
@@ -973,7 +1017,10 @@ void crash_kexec(struct pt_regs *regs)
 	old_cpu = atomic_cmpxchg(&panic_cpu, PANIC_CPU_INVALID, this_cpu);
 	if (old_cpu == PANIC_CPU_INVALID) {
 		/* This is the 1st CPU which comes here, so go ahead. */
+<<<<<<< HEAD
 		printk_safe_flush_on_panic();
+=======
+>>>>>>> upstream/android-13
 		__crash_kexec(regs);
 
 		/*
@@ -1072,7 +1119,11 @@ void crash_save_cpu(struct pt_regs *regs, int cpu)
 	if (!buf)
 		return;
 	memset(&prstatus, 0, sizeof(prstatus));
+<<<<<<< HEAD
 	prstatus.pr_pid = current->pid;
+=======
+	prstatus.common.pr_pid = current->pid;
+>>>>>>> upstream/android-13
 	elf_core_copy_kernel_regs(&prstatus.pr_reg, regs);
 	buf = append_elf_note(buf, KEXEC_CORE_NOTE_NAME, NT_PRSTATUS,
 			      &prstatus, sizeof(prstatus));
@@ -1150,7 +1201,11 @@ int kernel_kexec(void)
 		error = dpm_suspend_end(PMSG_FREEZE);
 		if (error)
 			goto Resume_devices;
+<<<<<<< HEAD
 		error = disable_nonboot_cpus();
+=======
+		error = suspend_disable_secondary_cpus();
+>>>>>>> upstream/android-13
 		if (error)
 			goto Enable_cpus;
 		local_irq_disable();
@@ -1161,7 +1216,11 @@ int kernel_kexec(void)
 #endif
 	{
 		kexec_in_progress = true;
+<<<<<<< HEAD
 		kernel_restart_prepare(NULL);
+=======
+		kernel_restart_prepare("kexec reboot");
+>>>>>>> upstream/android-13
 		migrate_to_reboot_cpu();
 
 		/*
@@ -1171,10 +1230,18 @@ int kernel_kexec(void)
 		 * CPU hotplug again; so re-enable it here.
 		 */
 		cpu_hotplug_enable();
+<<<<<<< HEAD
 		pr_emerg("Starting new kernel\n");
 		machine_shutdown();
 	}
 
+=======
+		pr_notice("Starting new kernel\n");
+		machine_shutdown();
+	}
+
+	kmsg_dump(KMSG_DUMP_SHUTDOWN);
+>>>>>>> upstream/android-13
 	machine_kexec(kexec_image);
 
 #ifdef CONFIG_KEXEC_JUMP
@@ -1183,7 +1250,11 @@ int kernel_kexec(void)
  Enable_irqs:
 		local_irq_enable();
  Enable_cpus:
+<<<<<<< HEAD
 		enable_nonboot_cpus();
+=======
+		suspend_enable_secondary_cpus();
+>>>>>>> upstream/android-13
 		dpm_resume_start(PMSG_RESTORE);
  Resume_devices:
 		dpm_resume_end(PMSG_RESTORE);

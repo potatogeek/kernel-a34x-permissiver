@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #
 # IP netfilter configuration
 #
@@ -23,6 +27,7 @@ config NF_TABLES_IPV6
 
 if NF_TABLES_IPV6
 
+<<<<<<< HEAD
 config NFT_CHAIN_ROUTE_IPV6
 	tristate "IPv6 nf_tables route chain support"
 	help
@@ -59,6 +64,8 @@ config NFT_REDIR_IPV6
 
 endif # NF_NAT_IPV6
 
+=======
+>>>>>>> upstream/android-13
 config NFT_REJECT_IPV6
 	select NF_REJECT_IPV6
 	default NFT_REJECT
@@ -104,6 +111,7 @@ config NF_REJECT_IPV6
 config NF_LOG_IPV6
 	tristate "IPv6 packet logging"
 	default m if NETFILTER_ADVANCED=n
+<<<<<<< HEAD
 	select NF_LOG_COMMON
 
 config NF_NAT_IPV6
@@ -122,6 +130,12 @@ config NF_NAT_MASQUERADE_IPV6
 	bool
 
 endif # NF_NAT_IPV6
+=======
+	select NF_LOG_SYSLOG
+	help
+	  This is a backwards-compat option for the user's convenience
+	  (e.g. when running oldconfig). It selects CONFIG_NF_LOG_SYSLOG.
+>>>>>>> upstream/android-13
 
 config IP6_NF_IPTABLES
 	tristate "IP6 tables support (required for filtering)"
@@ -179,10 +193,17 @@ config IP6_NF_MATCH_HL
 	tristate '"hl" hoplimit match support'
 	depends on NETFILTER_ADVANCED
 	select NETFILTER_XT_MATCH_HL
+<<<<<<< HEAD
 	---help---
 	This is a backwards-compat option for the user's convenience
 	(e.g. when running oldconfig). It selects
 	CONFIG_NETFILTER_XT_MATCH_HL.
+=======
+	help
+	  This is a backwards-compat option for the user's convenience
+	  (e.g. when running oldconfig). It selects
+	  CONFIG_NETFILTER_XT_MATCH_HL.
+>>>>>>> upstream/android-13
 
 config IP6_NF_MATCH_IPV6HEADER
 	tristate '"ipv6header" IPv6 Extension Headers Match'
@@ -205,7 +226,11 @@ config IP6_NF_MATCH_RPFILTER
 	tristate '"rpfilter" reverse path filter match support'
 	depends on NETFILTER_ADVANCED
 	depends on IP6_NF_MANGLE || IP6_NF_RAW
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  This option allows you to match packets whose replies would
 	  go out via the interface the packet came in.
 
@@ -222,6 +247,7 @@ config IP6_NF_MATCH_RT
 	  To compile it as a module, choose M here.  If unsure, say N.
 
 config IP6_NF_MATCH_SRH
+<<<<<<< HEAD
         tristate '"srh" Segment Routing header match support'
         depends on NETFILTER_ADVANCED
         help
@@ -229,16 +255,32 @@ config IP6_NF_MATCH_SRH
 	  routing header of the packet.
 
           To compile it as a module, choose M here.  If unsure, say N.
+=======
+	tristate '"srh" Segment Routing header match support'
+	depends on NETFILTER_ADVANCED
+	help
+	  srh matching allows you to match packets based on the segment
+	  routing header of the packet.
+
+	  To compile it as a module, choose M here.  If unsure, say N.
+>>>>>>> upstream/android-13
 
 # The targets
 config IP6_NF_TARGET_HL
 	tristate '"HL" hoplimit target support'
 	depends on NETFILTER_ADVANCED && IP6_NF_MANGLE
 	select NETFILTER_XT_TARGET_HL
+<<<<<<< HEAD
 	---help---
 	This is a backwards-compatible option for the user's convenience
 	(e.g. when running oldconfig). It selects
 	CONFIG_NETFILTER_XT_TARGET_HL.
+=======
+	help
+	  This is a backwards-compatible option for the user's convenience
+	  (e.g. when running oldconfig). It selects
+	  CONFIG_NETFILTER_XT_TARGET_HL.
+>>>>>>> upstream/android-13
 
 config IP6_NF_FILTER
 	tristate "Packet filtering"
@@ -293,6 +335,7 @@ config IP6_NF_RAW
 	  and OUTPUT chains.
 
 	  If you want to compile it as a module, say M here and read
+<<<<<<< HEAD
 	  <file:Documentation/kbuild/modules.txt>.  If unsure, say `N'.
 
 # security table for MAC policy
@@ -305,13 +348,30 @@ config IP6_NF_SECURITY
          with Mandatory Access Control (MAC) policy.
 
          If unsure, say N.
+=======
+	  <file:Documentation/kbuild/modules.rst>.  If unsure, say `N'.
+
+# security table for MAC policy
+config IP6_NF_SECURITY
+	tristate "Security table"
+	depends on SECURITY
+	depends on NETFILTER_ADVANCED
+	help
+	  This option adds a `security' table to iptables, for use
+	  with Mandatory Access Control (MAC) policy.
+
+	  If unsure, say N.
+>>>>>>> upstream/android-13
 
 config IP6_NF_NAT
 	tristate "ip6tables NAT support"
 	depends on NF_CONNTRACK
 	depends on NETFILTER_ADVANCED
 	select NF_NAT
+<<<<<<< HEAD
 	select NF_NAT_IPV6
+=======
+>>>>>>> upstream/android-13
 	select NETFILTER_XT_NAT
 	help
 	  This enables the `nat' table in ip6tables. This allows masquerading,
@@ -324,6 +384,7 @@ if IP6_NF_NAT
 
 config IP6_NF_TARGET_MASQUERADE
 	tristate "MASQUERADE target support"
+<<<<<<< HEAD
 	select NF_NAT_MASQUERADE_IPV6
 	help
 	  Masquerading is a special case of NAT: all outgoing connections are
@@ -333,6 +394,12 @@ config IP6_NF_TARGET_MASQUERADE
 	  address will be different on next dialup).
 
 	  To compile it as a module, choose M here.  If unsure, say N.
+=======
+	select NETFILTER_XT_TARGET_MASQUERADE
+	help
+	  This is a backwards-compat option for the user's convenience
+	  (e.g. when running oldconfig). It selects NETFILTER_XT_TARGET_MASQUERADE.
+>>>>>>> upstream/android-13
 
 config IP6_NF_TARGET_NPT
 	tristate "NPT (Network Prefix translation) target support"

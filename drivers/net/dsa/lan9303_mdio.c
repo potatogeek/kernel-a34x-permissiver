@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2017 Pengutronix, Juergen Borleis <kernel@pengutronix.de>
  *
  * Partially based on a patch from
  * Copyright (c) 2014 Stefan Roese <sr@denx.de>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -13,6 +18,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/kernel.h>
 #include <linux/module.h>
@@ -147,6 +154,23 @@ static void lan9303_mdio_remove(struct mdio_device *mdiodev)
 		return;
 
 	lan9303_remove(&sw_dev->chip);
+<<<<<<< HEAD
+=======
+
+	dev_set_drvdata(&mdiodev->dev, NULL);
+}
+
+static void lan9303_mdio_shutdown(struct mdio_device *mdiodev)
+{
+	struct lan9303_mdio *sw_dev = dev_get_drvdata(&mdiodev->dev);
+
+	if (!sw_dev)
+		return;
+
+	lan9303_shutdown(&sw_dev->chip);
+
+	dev_set_drvdata(&mdiodev->dev, NULL);
+>>>>>>> upstream/android-13
 }
 
 /*-------------------------------------------------------------------------*/
@@ -164,6 +188,10 @@ static struct mdio_driver lan9303_mdio_driver = {
 	},
 	.probe  = lan9303_mdio_probe,
 	.remove = lan9303_mdio_remove,
+<<<<<<< HEAD
+=======
+	.shutdown = lan9303_mdio_shutdown,
+>>>>>>> upstream/android-13
 };
 mdio_module_driver(lan9303_mdio_driver);
 

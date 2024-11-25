@@ -11,7 +11,14 @@
 #include <linux/acpi_pmtmr.h>
 #include <linux/kernel.h>
 #include <linux/reboot.h>
+<<<<<<< HEAD
 #include <asm/apic.h>
+=======
+#include <linux/serial_8250.h>
+#include <asm/apic.h>
+#include <asm/io_apic.h>
+#include <asm/acpi.h>
+>>>>>>> upstream/android-13
 #include <asm/cpu.h>
 #include <asm/hypervisor.h>
 #include <asm/i8259.h>
@@ -19,10 +26,33 @@
 #include <asm/pci_x86.h>
 #include <asm/reboot.h>
 #include <asm/setup.h>
+<<<<<<< HEAD
 
 static __initdata struct jailhouse_setup_data setup_data;
 static unsigned int precalibrated_tsc_khz;
 
+=======
+#include <asm/jailhouse_para.h>
+
+static struct jailhouse_setup_data setup_data;
+#define SETUP_DATA_V1_LEN	(sizeof(setup_data.hdr) + sizeof(setup_data.v1))
+#define SETUP_DATA_V2_LEN	(SETUP_DATA_V1_LEN + sizeof(setup_data.v2))
+
+static unsigned int precalibrated_tsc_khz;
+
+static void jailhouse_setup_irq(unsigned int irq)
+{
+	struct mpc_intsrc mp_irq = {
+		.type		= MP_INTSRC,
+		.irqtype	= mp_INT,
+		.irqflag	= MP_IRQPOL_ACTIVE_HIGH | MP_IRQTRIG_EDGE,
+		.srcbusirq	= irq,
+		.dstirq		= irq,
+	};
+	mp_save_irq(&mp_irq);
+}
+
+>>>>>>> upstream/android-13
 static uint32_t jailhouse_cpuid_base(void)
 {
 	if (boot_cpu_data.cpuid_level < 0 ||
@@ -44,7 +74,11 @@ static void jailhouse_get_wallclock(struct timespec64 *now)
 
 static void __init jailhouse_timer_init(void)
 {
+<<<<<<< HEAD
 	lapic_timer_frequency = setup_data.apic_khz * (1000 / HZ);
+=======
+	lapic_timer_period = setup_data.v1.apic_khz * (1000 / HZ);
+>>>>>>> upstream/android-13
 }
 
 static unsigned long jailhouse_get_tsc(void)
@@ -76,24 +110,33 @@ static void __init jailhouse_get_smp_config(unsigned int early)
 		.type = IOAPIC_DOMAIN_STRICT,
 		.ops = &mp_ioapic_irqdomain_ops,
 	};
+<<<<<<< HEAD
 	struct mpc_intsrc mp_irq = {
 		.type = MP_INTSRC,
 		.irqtype = mp_INT,
 		.irqflag = MP_IRQPOL_ACTIVE_HIGH | MP_IRQTRIG_EDGE,
 	};
+=======
+>>>>>>> upstream/android-13
 	unsigned int cpu;
 
 	jailhouse_x2apic_init();
 
 	register_lapic_address(0xfee00000);
 
+<<<<<<< HEAD
 	for (cpu = 0; cpu < setup_data.num_cpus; cpu++) {
 		generic_processor_info(setup_data.cpu_ids[cpu],
+=======
+	for (cpu = 0; cpu < setup_data.v1.num_cpus; cpu++) {
+		generic_processor_info(setup_data.v1.cpu_ids[cpu],
+>>>>>>> upstream/android-13
 				       boot_cpu_apic_version);
 	}
 
 	smp_found_config = 1;
 
+<<<<<<< HEAD
 	if (setup_data.standard_ioapic) {
 		mp_register_ioapic(0, 0xfec00000, gsi_top, &ioapic_cfg);
 
@@ -103,6 +146,17 @@ static void __init jailhouse_get_smp_config(unsigned int early)
 
 		mp_irq.srcbusirq = mp_irq.dstirq = 4;
 		mp_save_irq(&mp_irq);
+=======
+	if (setup_data.v1.standard_ioapic) {
+		mp_register_ioapic(0, 0xfec00000, gsi_top, &ioapic_cfg);
+
+		if (IS_ENABLED(CONFIG_SERIAL_8250) &&
+		    setup_data.hdr.version < 2) {
+			/* Register 1:1 mapping for legacy UART IRQs 3 and 4 */
+			jailhouse_setup_irq(3);
+			jailhouse_setup_irq(4);
+		}
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -125,9 +179,15 @@ static int __init jailhouse_pci_arch_init(void)
 		pcibios_last_bus = 0xff;
 
 #ifdef CONFIG_PCI_MMCONFIG
+<<<<<<< HEAD
 	if (setup_data.pci_mmconfig_base) {
 		pci_mmconfig_add(0, 0, pcibios_last_bus,
 				 setup_data.pci_mmconfig_base);
+=======
+	if (setup_data.v1.pci_mmconfig_base) {
+		pci_mmconfig_add(0, 0, pcibios_last_bus,
+				 setup_data.v1.pci_mmconfig_base);
+>>>>>>> upstream/android-13
 		pci_mmcfg_arch_init();
 	}
 #endif
@@ -135,9 +195,63 @@ static int __init jailhouse_pci_arch_init(void)
 	return 0;
 }
 
+<<<<<<< HEAD
 static void __init jailhouse_init_platform(void)
 {
 	u64 pa_data = boot_params.hdr.setup_data;
+=======
+#ifdef CONFIG_SERIAL_8250
+static inline bool jailhouse_uart_enabled(unsigned int uart_nr)
+{
+	return setup_data.v2.flags & BIT(uart_nr);
+}
+
+static void jailhouse_serial_fixup(int port, struct uart_port *up,
+				   u32 *capabilities)
+{
+	static const u16 pcuart_base[] = {0x3f8, 0x2f8, 0x3e8, 0x2e8};
+	unsigned int n;
+
+	for (n = 0; n < ARRAY_SIZE(pcuart_base); n++) {
+		if (pcuart_base[n] != up->iobase)
+			continue;
+
+		if (jailhouse_uart_enabled(n)) {
+			pr_info("Enabling UART%u (port 0x%lx)\n", n,
+				up->iobase);
+			jailhouse_setup_irq(up->irq);
+		} else {
+			/* Deactivate UART if access isn't allowed */
+			up->iobase = 0;
+		}
+		break;
+	}
+}
+
+static void __init jailhouse_serial_workaround(void)
+{
+	/*
+	 * There are flags inside setup_data that indicate availability of
+	 * platform UARTs since setup data version 2.
+	 *
+	 * In case of version 1, we don't know which UARTs belong Linux. In
+	 * this case, unconditionally register 1:1 mapping for legacy UART IRQs
+	 * 3 and 4.
+	 */
+	if (setup_data.hdr.version > 1)
+		serial8250_set_isa_configurator(jailhouse_serial_fixup);
+}
+#else /* !CONFIG_SERIAL_8250 */
+static inline void jailhouse_serial_workaround(void)
+{
+}
+#endif /* CONFIG_SERIAL_8250 */
+
+static void __init jailhouse_init_platform(void)
+{
+	u64 pa_data = boot_params.hdr.setup_data;
+	unsigned long setup_data_len;
+>>>>>>> upstream/android-13
 	struct setup_data header;
 	void *mapping;
 
@@ -162,6 +276,7 @@ static void __init jailhouse_init_platform(void)
 		memcpy(&header, mapping, sizeof(header));
 		early_memunmap(mapping, sizeof(header));
 
+<<<<<<< HEAD
 		if (header.type == SETUP_JAILHOUSE &&
 		    header.len >= sizeof(setup_data)) {
 			pa_data += offsetof(struct setup_data, data);
@@ -172,6 +287,10 @@ static void __init jailhouse_init_platform(void)
 
 			break;
 		}
+=======
+		if (header.type == SETUP_JAILHOUSE)
+			break;
+>>>>>>> upstream/android-13
 
 		pa_data = header.next;
 	}
@@ -179,6 +298,7 @@ static void __init jailhouse_init_platform(void)
 	if (!pa_data)
 		panic("Jailhouse: No valid setup data found");
 
+<<<<<<< HEAD
 	if (setup_data.compatible_version > JAILHOUSE_SETUP_REQUIRED_VERSION)
 		panic("Jailhouse: Unsupported setup data structure");
 
@@ -186,6 +306,30 @@ static void __init jailhouse_init_platform(void)
 	pr_debug("Jailhouse: PM-Timer IO Port: %#x\n", pmtmr_ioport);
 
 	precalibrated_tsc_khz = setup_data.tsc_khz;
+=======
+	/* setup data must at least contain the header */
+	if (header.len < sizeof(setup_data.hdr))
+		goto unsupported;
+
+	pa_data += offsetof(struct setup_data, data);
+	setup_data_len = min_t(unsigned long, sizeof(setup_data),
+			       (unsigned long)header.len);
+	mapping = early_memremap(pa_data, setup_data_len);
+	memcpy(&setup_data, mapping, setup_data_len);
+	early_memunmap(mapping, setup_data_len);
+
+	if (setup_data.hdr.version == 0 ||
+	    setup_data.hdr.compatible_version !=
+		JAILHOUSE_SETUP_REQUIRED_VERSION ||
+	    (setup_data.hdr.version == 1 && header.len < SETUP_DATA_V1_LEN) ||
+	    (setup_data.hdr.version >= 2 && header.len < SETUP_DATA_V2_LEN))
+		goto unsupported;
+
+	pmtmr_ioport = setup_data.v1.pm_timer_address;
+	pr_debug("Jailhouse: PM-Timer IO Port: %#x\n", pmtmr_ioport);
+
+	precalibrated_tsc_khz = setup_data.v1.tsc_khz;
+>>>>>>> upstream/android-13
 	setup_force_cpu_cap(X86_FEATURE_TSC_KNOWN_FREQ);
 
 	pci_probe = 0;
@@ -195,6 +339,15 @@ static void __init jailhouse_init_platform(void)
 	 * are none in a non-root cell.
 	 */
 	disable_acpi();
+<<<<<<< HEAD
+=======
+
+	jailhouse_serial_workaround();
+	return;
+
+unsupported:
+	panic("Jailhouse: Unsupported setup data structure");
+>>>>>>> upstream/android-13
 }
 
 bool jailhouse_paravirt(void)
@@ -202,7 +355,11 @@ bool jailhouse_paravirt(void)
 	return jailhouse_cpuid_base() != 0;
 }
 
+<<<<<<< HEAD
 static bool jailhouse_x2apic_available(void)
+=======
+static bool __init jailhouse_x2apic_available(void)
+>>>>>>> upstream/android-13
 {
 	/*
 	 * The x2APIC is only available if the root cell enabled it. Jailhouse
@@ -216,4 +373,8 @@ const struct hypervisor_x86 x86_hyper_jailhouse __refconst = {
 	.detect			= jailhouse_detect,
 	.init.init_platform	= jailhouse_init_platform,
 	.init.x2apic_available	= jailhouse_x2apic_available,
+<<<<<<< HEAD
+=======
+	.ignore_nopv		= true,
+>>>>>>> upstream/android-13
 };

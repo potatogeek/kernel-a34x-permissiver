@@ -53,6 +53,7 @@ extern const struct blk_integrity_profile t10_pi_type1_ip;
 extern const struct blk_integrity_profile t10_pi_type3_crc;
 extern const struct blk_integrity_profile t10_pi_type3_ip;
 
+<<<<<<< HEAD
 #ifdef CONFIG_BLK_DEV_INTEGRITY
 extern void t10_pi_prepare(struct request *rq, u8 protection_type);
 extern void t10_pi_complete(struct request *rq, u8 protection_type,
@@ -67,4 +68,6 @@ static inline void t10_pi_prepare(struct request *rq, u8 protection_type)
 }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #endif

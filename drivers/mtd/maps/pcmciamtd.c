@@ -294,16 +294,26 @@ static void pcmcia_copy_to(struct map_info *map, unsigned long to, const void *f
 }
 
 
+<<<<<<< HEAD
 static DEFINE_SPINLOCK(pcmcia_vpp_lock);
+=======
+static DEFINE_MUTEX(pcmcia_vpp_lock);
+>>>>>>> upstream/android-13
 static int pcmcia_vpp_refcnt;
 static void pcmciamtd_set_vpp(struct map_info *map, int on)
 {
 	struct pcmciamtd_dev *dev = (struct pcmciamtd_dev *)map->map_priv_1;
 	struct pcmcia_device *link = dev->p_dev;
+<<<<<<< HEAD
 	unsigned long flags;
 
 	pr_debug("dev = %p on = %d vpp = %d\n\n", dev, on, dev->vpp);
 	spin_lock_irqsave(&pcmcia_vpp_lock, flags);
+=======
+
+	pr_debug("dev = %p on = %d vpp = %d\n\n", dev, on, dev->vpp);
+	mutex_lock(&pcmcia_vpp_lock);
+>>>>>>> upstream/android-13
 	if (on) {
 		if (++pcmcia_vpp_refcnt == 1)   /* first nested 'on' */
 			pcmcia_fixup_vpp(link, dev->vpp);
@@ -311,7 +321,11 @@ static void pcmciamtd_set_vpp(struct map_info *map, int on)
 		if (--pcmcia_vpp_refcnt == 0)   /* last nested 'off' */
 			pcmcia_fixup_vpp(link, 0);
 	}
+<<<<<<< HEAD
 	spin_unlock_irqrestore(&pcmcia_vpp_lock, flags);
+=======
+	mutex_unlock(&pcmcia_vpp_lock);
+>>>>>>> upstream/android-13
 }
 
 

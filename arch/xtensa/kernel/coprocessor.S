@@ -14,6 +14,7 @@
 
 #include <linux/linkage.h>
 #include <asm/asm-offsets.h>
+<<<<<<< HEAD
 #include <asm/processor.h>
 #include <asm/coprocessor.h>
 #include <asm/thread_info.h>
@@ -25,6 +26,12 @@
 #include <asm/page.h>
 #include <asm/signal.h>
 #include <asm/tlbflush.h>
+=======
+#include <asm/asmmacro.h>
+#include <asm/coprocessor.h>
+#include <asm/current.h>
+#include <asm/regs.h>
+>>>>>>> upstream/android-13
 
 #if XTENSA_HAVE_COPROCESSORS
 
@@ -33,6 +40,7 @@
  */
 
 #define SAVE_CP_REGS(x)							\
+<<<<<<< HEAD
 	.align 4;							\
 	.Lsave_cp_regs_cp##x:						\
 	.if XTENSA_HAVE_COPROCESSOR(x);					\
@@ -43,6 +51,18 @@
 #define SAVE_CP_REGS_TAB(x)						\
 	.if XTENSA_HAVE_COPROCESSOR(x);					\
 		.long .Lsave_cp_regs_cp##x - .Lsave_cp_regs_jump_table;	\
+=======
+	.if XTENSA_HAVE_COPROCESSOR(x);					\
+		.align 4;						\
+	.Lsave_cp_regs_cp##x:						\
+		xchal_cp##x##_store a2 a3 a4 a5 a6;			\
+		jx	a0;						\
+	.endif
+
+#define SAVE_CP_REGS_TAB(x)						\
+	.if XTENSA_HAVE_COPROCESSOR(x);					\
+		.long .Lsave_cp_regs_cp##x;				\
+>>>>>>> upstream/android-13
 	.else;								\
 		.long 0;						\
 	.endif;								\
@@ -50,6 +70,7 @@
 
 
 #define LOAD_CP_REGS(x)							\
+<<<<<<< HEAD
 	.align 4;							\
 	.Lload_cp_regs_cp##x:						\
 	.if XTENSA_HAVE_COPROCESSOR(x);					\
@@ -60,11 +81,28 @@
 #define LOAD_CP_REGS_TAB(x)						\
 	.if XTENSA_HAVE_COPROCESSOR(x);					\
 		.long .Lload_cp_regs_cp##x - .Lload_cp_regs_jump_table; \
+=======
+	.if XTENSA_HAVE_COPROCESSOR(x);					\
+		.align 4;						\
+	.Lload_cp_regs_cp##x:						\
+		xchal_cp##x##_load a2 a3 a4 a5 a6;			\
+		jx	a0;						\
+	.endif
+
+#define LOAD_CP_REGS_TAB(x)						\
+	.if XTENSA_HAVE_COPROCESSOR(x);					\
+		.long .Lload_cp_regs_cp##x;				\
+>>>>>>> upstream/android-13
 	.else;								\
 		.long 0;						\
 	.endif;								\
 	.long THREAD_XTREGS_CP##x
 
+<<<<<<< HEAD
+=======
+	__XTENSA_HANDLER
+
+>>>>>>> upstream/android-13
 	SAVE_CP_REGS(0)
 	SAVE_CP_REGS(1)
 	SAVE_CP_REGS(2)
@@ -105,6 +143,7 @@
 	LOAD_CP_REGS_TAB(7)
 
 /*
+<<<<<<< HEAD
  * coprocessor_save(buffer, index) 
  *                    a2      a3
  * coprocessor_load(buffer, index)
@@ -196,6 +235,8 @@ ENTRY(coprocessor_restore)
 ENDPROC(coprocessor_restore)
 
 /*
+=======
+>>>>>>> upstream/android-13
  * Entry condition:
  *
  *   a0:	trashed, original value saved on stack (PT_AREG0)
@@ -209,6 +250,7 @@ ENDPROC(coprocessor_restore)
  *	     <  VALID_DOUBLE_EXCEPTION_ADDRESS: regular exception
  */
 
+<<<<<<< HEAD
 ENTRY(fast_coprocessor_double)
 
 	wsr	a0, excsave1
@@ -216,6 +258,8 @@ ENTRY(fast_coprocessor_double)
 
 ENDPROC(fast_coprocessor_double)
 
+=======
+>>>>>>> upstream/android-13
 ENTRY(fast_coprocessor)
 
 	/* Save remaining registers a1-a3 and SAR */
@@ -274,10 +318,16 @@ ENTRY(fast_coprocessor)
 	movi	a0, 2f			# a0: 'return' address
 	addx8	a3, a3, a5		# a3: coprocessor number
 	l32i	a2, a3, 4		# a2: xtregs offset
+<<<<<<< HEAD
 	l32i	a3, a3, 0		# a3: jump offset
 	add	a2, a2, a4
 	add	a4, a3, a5		# a4: address of save routine
 	jx	a4
+=======
+	l32i	a3, a3, 0		# a3: jump address
+	add	a2, a2, a4
+	jx	a3
+>>>>>>> upstream/android-13
 
 	/* Note that only a0 and a1 were preserved. */
 
@@ -297,10 +347,16 @@ ENTRY(fast_coprocessor)
 	movi	a0, 1f
 	addx8	a3, a3, a5
 	l32i	a2, a3, 4		# a2: xtregs offset
+<<<<<<< HEAD
 	l32i	a3, a3, 0		# a3: jump offset
 	add	a2, a2, a4
 	add	a4, a3, a5
 	jx	a4
+=======
+	l32i	a3, a3, 0		# a3: jump address
+	add	a2, a2, a4
+	jx	a3
+>>>>>>> upstream/android-13
 
 	/* Restore all registers and return from exception handler. */
 
@@ -319,6 +375,42 @@ ENTRY(fast_coprocessor)
 
 ENDPROC(fast_coprocessor)
 
+<<<<<<< HEAD
+=======
+	.text
+
+/*
+ * coprocessor_flush(struct thread_info*, index)
+ *                             a2        a3
+ *
+ * Save coprocessor registers for coprocessor 'index'.
+ * The register values are saved to or loaded from the coprocessor area
+ * inside the task_info structure.
+ *
+ * Note that this function doesn't update the coprocessor_owner information!
+ *
+ */
+
+ENTRY(coprocessor_flush)
+
+	/* reserve 4 bytes on stack to save a0 */
+	abi_entry(4)
+
+	s32i	a0, a1, 0
+	movi	a0, .Lsave_cp_regs_jump_table
+	addx8	a3, a3, a0
+	l32i	a4, a3, 4
+	l32i	a3, a3, 0
+	add	a2, a2, a4
+	beqz	a3, 1f
+	callx0	a3
+1:	l32i	a0, a1, 0
+
+	abi_ret(4)
+
+ENDPROC(coprocessor_flush)
+
+>>>>>>> upstream/android-13
 	.data
 
 ENTRY(coprocessor_owner)

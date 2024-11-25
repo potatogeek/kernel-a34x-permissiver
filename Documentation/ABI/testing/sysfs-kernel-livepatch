@@ -33,6 +33,7 @@ Description:
 		An attribute which indicates whether the patch is currently in
 		transition.
 
+<<<<<<< HEAD
 What:		/sys/kernel/livepatch/<patch>/signal
 Date:		Nov 2017
 KernelVersion:	4.15.0
@@ -45,6 +46,8 @@ Description:
 		signal pending structures). Tasks are interrupted or woken up,
 		and forced to change their patched state.
 
+=======
+>>>>>>> upstream/android-13
 What:		/sys/kernel/livepatch/<patch>/force
 Date:		Nov 2017
 KernelVersion:	4.15.0
@@ -57,7 +60,11 @@ Description:
 		use this feature without a clearance from a patch
 		distributor. Removal (rmmod) of patch modules is permanently
 		disabled when the feature is used. See
+<<<<<<< HEAD
 		Documentation/livepatch/livepatch.txt for more information.
+=======
+		Documentation/livepatch/livepatch.rst for more information.
+>>>>>>> upstream/android-13
 
 What:		/sys/kernel/livepatch/<patch>/<object>
 Date:		Nov 2014

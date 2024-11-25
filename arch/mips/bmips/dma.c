@@ -10,7 +10,11 @@
 
 #include <linux/device.h>
 #include <linux/dma-direction.h>
+<<<<<<< HEAD
 #include <linux/dma-mapping.h>
+=======
+#include <linux/dma-direct.h>
+>>>>>>> upstream/android-13
 #include <linux/init.h>
 #include <linux/io.h>
 #include <linux/of.h>
@@ -40,7 +44,11 @@ static struct bmips_dma_range *bmips_dma_ranges;
 
 #define FLUSH_RAC		0x100
 
+<<<<<<< HEAD
 dma_addr_t __phys_to_dma(struct device *dev, phys_addr_t pa)
+=======
+dma_addr_t phys_to_dma(struct device *dev, phys_addr_t pa)
+>>>>>>> upstream/android-13
 {
 	struct bmips_dma_range *r;
 
@@ -52,7 +60,11 @@ dma_addr_t __phys_to_dma(struct device *dev, phys_addr_t pa)
 	return pa;
 }
 
+<<<<<<< HEAD
 phys_addr_t __dma_to_phys(struct device *dev, dma_addr_t dma_addr)
+=======
+phys_addr_t dma_to_phys(struct device *dev, dma_addr_t dma_addr)
+>>>>>>> upstream/android-13
 {
 	struct bmips_dma_range *r;
 
@@ -64,7 +76,11 @@ phys_addr_t __dma_to_phys(struct device *dev, dma_addr_t dma_addr)
 	return dma_addr;
 }
 
+<<<<<<< HEAD
 void arch_sync_dma_for_cpu_all(struct device *dev)
+=======
+void arch_sync_dma_for_cpu_all(void)
+>>>>>>> upstream/android-13
 {
 	void __iomem *cbr = BMIPS_GET_CBR();
 	u32 cfg;

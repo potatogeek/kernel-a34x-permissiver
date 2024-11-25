@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2016 Google, Inc.
  *
@@ -10,6 +11,11 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2016 Google, Inc.
+>>>>>>> upstream/android-13
  */
 
 #define _GNU_SOURCE
@@ -56,7 +62,11 @@ void child(int cpu)
 	_exit(0);
 }
 
+<<<<<<< HEAD
 bool run_test(int cpu)
+=======
+int run_test(int cpu)
+>>>>>>> upstream/android-13
 {
 	int status;
 	pid_t pid = fork();
@@ -64,7 +74,11 @@ bool run_test(int cpu)
 
 	if (pid < 0) {
 		ksft_print_msg("fork() failed: %s\n", strerror(errno));
+<<<<<<< HEAD
 		return false;
+=======
+		return KSFT_FAIL;
+>>>>>>> upstream/android-13
 	}
 	if (pid == 0)
 		child(cpu);
@@ -72,20 +86,33 @@ bool run_test(int cpu)
 	wpid = waitpid(pid, &status, __WALL);
 	if (wpid != pid) {
 		ksft_print_msg("waitpid() failed: %s\n", strerror(errno));
+<<<<<<< HEAD
 		return false;
 	}
 	if (!WIFSTOPPED(status)) {
 		ksft_print_msg("child did not stop: %s\n", strerror(errno));
 		return false;
+=======
+		return KSFT_FAIL;
+	}
+	if (!WIFSTOPPED(status)) {
+		ksft_print_msg("child did not stop: %s\n", strerror(errno));
+		return KSFT_FAIL;
+>>>>>>> upstream/android-13
 	}
 	if (WSTOPSIG(status) != SIGSTOP) {
 		ksft_print_msg("child did not stop with SIGSTOP: %s\n",
 			strerror(errno));
+<<<<<<< HEAD
 		return false;
+=======
+		return KSFT_FAIL;
+>>>>>>> upstream/android-13
 	}
 
 	if (ptrace(PTRACE_SINGLESTEP, pid, NULL, NULL) < 0) {
 		if (errno == EIO) {
+<<<<<<< HEAD
 			ksft_exit_skip(
 				"ptrace(PTRACE_SINGLESTEP) not supported on this architecture: %s\n",
 				strerror(errno));
@@ -93,46 +120,87 @@ bool run_test(int cpu)
 		ksft_print_msg("ptrace(PTRACE_SINGLESTEP) failed: %s\n",
 			strerror(errno));
 		return false;
+=======
+			ksft_print_msg(
+				"ptrace(PTRACE_SINGLESTEP) not supported on this architecture: %s\n",
+				strerror(errno));
+			return KSFT_SKIP;
+		}
+		ksft_print_msg("ptrace(PTRACE_SINGLESTEP) failed: %s\n",
+			strerror(errno));
+		return KSFT_FAIL;
+>>>>>>> upstream/android-13
 	}
 
 	wpid = waitpid(pid, &status, __WALL);
 	if (wpid != pid) {
 		ksft_print_msg("waitpid() failed: $s\n", strerror(errno));
+<<<<<<< HEAD
 		return false;
+=======
+		return KSFT_FAIL;
+>>>>>>> upstream/android-13
 	}
 	if (WIFEXITED(status)) {
 		ksft_print_msg("child did not single-step: %s\n",
 			strerror(errno));
+<<<<<<< HEAD
 		return false;
 	}
 	if (!WIFSTOPPED(status)) {
 		ksft_print_msg("child did not stop: %s\n", strerror(errno));
 		return false;
+=======
+		return KSFT_FAIL;
+	}
+	if (!WIFSTOPPED(status)) {
+		ksft_print_msg("child did not stop: %s\n", strerror(errno));
+		return KSFT_FAIL;
+>>>>>>> upstream/android-13
 	}
 	if (WSTOPSIG(status) != SIGTRAP) {
 		ksft_print_msg("child did not stop with SIGTRAP: %s\n",
 			strerror(errno));
+<<<<<<< HEAD
 		return false;
+=======
+		return KSFT_FAIL;
+>>>>>>> upstream/android-13
 	}
 
 	if (ptrace(PTRACE_CONT, pid, NULL, NULL) < 0) {
 		ksft_print_msg("ptrace(PTRACE_CONT) failed: %s\n",
 			strerror(errno));
+<<<<<<< HEAD
 		return false;
+=======
+		return KSFT_FAIL;
+>>>>>>> upstream/android-13
 	}
 
 	wpid = waitpid(pid, &status, __WALL);
 	if (wpid != pid) {
 		ksft_print_msg("waitpid() failed: %s\n", strerror(errno));
+<<<<<<< HEAD
 		return false;
+=======
+		return KSFT_FAIL;
+>>>>>>> upstream/android-13
 	}
 	if (!WIFEXITED(status)) {
 		ksft_print_msg("child did not exit after PTRACE_CONT: %s\n",
 			strerror(errno));
+<<<<<<< HEAD
 		return false;
 	}
 
 	return true;
+=======
+		return KSFT_FAIL;
+	}
+
+	return KSFT_PASS;
+>>>>>>> upstream/android-13
 }
 
 void suspend(void)
@@ -173,6 +241,10 @@ int main(int argc, char **argv)
 	int opt;
 	bool do_suspend = true;
 	bool succeeded = true;
+<<<<<<< HEAD
+=======
+	unsigned int tests = 0;
+>>>>>>> upstream/android-13
 	cpu_set_t available_cpus;
 	int err;
 	int cpu;
@@ -191,25 +263,56 @@ int main(int argc, char **argv)
 		}
 	}
 
+<<<<<<< HEAD
 	if (do_suspend)
 		suspend();
 
+=======
+>>>>>>> upstream/android-13
 	err = sched_getaffinity(0, sizeof(available_cpus), &available_cpus);
 	if (err < 0)
 		ksft_exit_fail_msg("sched_getaffinity() failed\n");
 
 	for (cpu = 0; cpu < CPU_SETSIZE; cpu++) {
+<<<<<<< HEAD
 		bool test_success;
+=======
+		if (!CPU_ISSET(cpu, &available_cpus))
+			continue;
+		tests++;
+	}
+
+	if (do_suspend)
+		suspend();
+
+	ksft_set_plan(tests);
+	for (cpu = 0; cpu < CPU_SETSIZE; cpu++) {
+		int test_success;
+>>>>>>> upstream/android-13
 
 		if (!CPU_ISSET(cpu, &available_cpus))
 			continue;
 
 		test_success = run_test(cpu);
+<<<<<<< HEAD
 		if (test_success) {
 			ksft_test_result_pass("CPU %d\n", cpu);
 		} else {
 			ksft_test_result_fail("CPU %d\n", cpu);
 			succeeded = false;
+=======
+		switch (test_success) {
+		case KSFT_PASS:
+			ksft_test_result_pass("CPU %d\n", cpu);
+			break;
+		case KSFT_SKIP:
+			ksft_test_result_skip("CPU %d\n", cpu);
+			break;
+		case KSFT_FAIL:
+			ksft_test_result_fail("CPU %d\n", cpu);
+			succeeded = false;
+			break;
+>>>>>>> upstream/android-13
 		}
 	}
 

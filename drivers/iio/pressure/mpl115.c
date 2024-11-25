@@ -1,14 +1,22 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * mpl115.c - Support for Freescale MPL115A pressure/temperature sensor
  *
  * Copyright (c) 2014 Peter Meerwald <pmeerw@pmeerw.net>
  *
+<<<<<<< HEAD
  * This file is subject to the terms and conditions of version 2 of
  * the GNU General Public License.  See the file COPYING in the main
  * directory of this archive for more details.
  *
  * TODO: shutdown pin
  *
+=======
+ * TODO: shutdown pin
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -164,7 +172,10 @@ int mpl115_probe(struct device *dev, const char *name,
 
 	indio_dev->info = &mpl115_info;
 	indio_dev->name = name;
+<<<<<<< HEAD
 	indio_dev->dev.parent = dev;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->modes = INDIO_DIRECT_MODE;
 	indio_dev->channels = mpl115_channels;
 	indio_dev->num_channels = ARRAY_SIZE(mpl115_channels);

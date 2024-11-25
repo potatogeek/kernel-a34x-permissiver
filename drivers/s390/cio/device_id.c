@@ -91,7 +91,11 @@ static int diag210_to_senseid(struct senseid *senseid, struct diag210 *diag)
 }
 
 /**
+<<<<<<< HEAD
  * diag_get_dev_info - retrieve device information via diag 0x210
+=======
+ * diag210_get_dev_info - retrieve device information via diag 0x210
+>>>>>>> upstream/android-13
  * @cdev: ccw device
  *
  * Returns zero on success, non-zero otherwise.
@@ -99,7 +103,11 @@ static int diag210_to_senseid(struct senseid *senseid, struct diag210 *diag)
 static int diag210_get_dev_info(struct ccw_device *cdev)
 {
 	struct ccw_dev_id *dev_id = &cdev->private->dev_id;
+<<<<<<< HEAD
 	struct senseid *senseid = &cdev->private->senseid;
+=======
+	struct senseid *senseid = &cdev->private->dma_area->senseid;
+>>>>>>> upstream/android-13
 	struct diag210 diag_data;
 	int rc;
 
@@ -134,8 +142,15 @@ err_failed:
 static void snsid_init(struct ccw_device *cdev)
 {
 	cdev->private->flags.esid = 0;
+<<<<<<< HEAD
 	memset(&cdev->private->senseid, 0, sizeof(cdev->private->senseid));
 	cdev->private->senseid.cu_type = 0xffff;
+=======
+
+	memset(&cdev->private->dma_area->senseid, 0,
+	       sizeof(cdev->private->dma_area->senseid));
+	cdev->private->dma_area->senseid.cu_type = 0xffff;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -143,16 +158,27 @@ static void snsid_init(struct ccw_device *cdev)
  */
 static int snsid_check(struct ccw_device *cdev, void *data)
 {
+<<<<<<< HEAD
 	struct cmd_scsw *scsw = &cdev->private->irb.scsw.cmd;
+=======
+	struct cmd_scsw *scsw = &cdev->private->dma_area->irb.scsw.cmd;
+>>>>>>> upstream/android-13
 	int len = sizeof(struct senseid) - scsw->count;
 
 	/* Check for incomplete SENSE ID data. */
 	if (len < SENSE_ID_MIN_LEN)
 		goto out_restart;
+<<<<<<< HEAD
 	if (cdev->private->senseid.cu_type == 0xffff)
 		goto out_restart;
 	/* Check for incompatible SENSE ID data. */
 	if (cdev->private->senseid.reserved != 0xff)
+=======
+	if (cdev->private->dma_area->senseid.cu_type == 0xffff)
+		goto out_restart;
+	/* Check for incompatible SENSE ID data. */
+	if (cdev->private->dma_area->senseid.reserved != 0xff)
+>>>>>>> upstream/android-13
 		return -EOPNOTSUPP;
 	/* Check for extended-identification information. */
 	if (len > SENSE_ID_BASIC_LEN)
@@ -170,7 +196,11 @@ out_restart:
 static void snsid_callback(struct ccw_device *cdev, void *data, int rc)
 {
 	struct ccw_dev_id *id = &cdev->private->dev_id;
+<<<<<<< HEAD
 	struct senseid *senseid = &cdev->private->senseid;
+=======
+	struct senseid *senseid = &cdev->private->dma_area->senseid;
+>>>>>>> upstream/android-13
 	int vm = 0;
 
 	if (rc && MACHINE_IS_VM) {
@@ -200,7 +230,11 @@ void ccw_device_sense_id_start(struct ccw_device *cdev)
 {
 	struct subchannel *sch = to_subchannel(cdev->dev.parent);
 	struct ccw_request *req = &cdev->private->req;
+<<<<<<< HEAD
 	struct ccw1 *cp = cdev->private->iccws;
+=======
+	struct ccw1 *cp = cdev->private->dma_area->iccws;
+>>>>>>> upstream/android-13
 
 	CIO_TRACE_EVENT(4, "snsid");
 	CIO_HEX_EVENT(4, &cdev->private->dev_id, sizeof(cdev->private->dev_id));
@@ -208,7 +242,11 @@ void ccw_device_sense_id_start(struct ccw_device *cdev)
 	snsid_init(cdev);
 	/* Channel program setup. */
 	cp->cmd_code	= CCW_CMD_SENSE_ID;
+<<<<<<< HEAD
 	cp->cda		= (u32) (addr_t) &cdev->private->senseid;
+=======
+	cp->cda		= (u32) (addr_t) &cdev->private->dma_area->senseid;
+>>>>>>> upstream/android-13
 	cp->count	= sizeof(struct senseid);
 	cp->flags	= CCW_FLAG_SLI;
 	/* Request setup. */

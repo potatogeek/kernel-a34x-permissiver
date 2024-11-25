@@ -14,6 +14,10 @@ struct mtk_clk_mux {
 	struct regmap *regmap;
 	const struct mtk_mux *data;
 	spinlock_t *lock;
+<<<<<<< HEAD
+=======
+	bool reparent;
+>>>>>>> upstream/android-13
 };
 
 struct mtk_mux {
@@ -29,6 +33,7 @@ struct mtk_mux {
 
 	u8 mux_shift;
 	u8 mux_width;
+<<<<<<< HEAD
 	s8 gate_shift;
 	s8 upd_shift;
 
@@ -42,6 +47,15 @@ extern const struct clk_ops mtk_mux_clr_set_upd_ops;
 extern const struct clk_ops mtk_mux_gate_ops;
 extern const struct clk_ops mtk_mux_gate_clr_set_upd_ops;
 
+=======
+	u8 gate_shift;
+	s8 upd_shift;
+
+	const struct clk_ops *ops;
+	signed char num_parents;
+};
+
+>>>>>>> upstream/android-13
 #define GATE_CLR_SET_UPD_FLAGS(_id, _name, _parents, _mux_ofs,		\
 			_mux_set_ofs, _mux_clr_ofs, _shift, _width,	\
 			_gate, _upd_ofs, _upd, _flags, _ops) {		\
@@ -61,6 +75,12 @@ extern const struct clk_ops mtk_mux_gate_clr_set_upd_ops;
 		.ops = &_ops,						\
 	}
 
+<<<<<<< HEAD
+=======
+extern const struct clk_ops mtk_mux_clr_set_upd_ops;
+extern const struct clk_ops mtk_mux_gate_clr_set_upd_ops;
+
+>>>>>>> upstream/android-13
 #define MUX_GATE_CLR_SET_UPD_FLAGS(_id, _name, _parents, _mux_ofs,	\
 			_mux_set_ofs, _mux_clr_ofs, _shift, _width,	\
 			_gate, _upd_ofs, _upd, _flags)			\
@@ -77,6 +97,7 @@ extern const struct clk_ops mtk_mux_gate_clr_set_upd_ops;
 			_width, _gate, _upd_ofs, _upd,			\
 			CLK_SET_RATE_PARENT)
 
+<<<<<<< HEAD
 #define MUX_CLR_SET_UPD_FLAGS(_id, _name, _parents, _mux_ofs,		\
 			_mux_set_ofs, _mux_clr_ofs, _shift, _width,	\
 			_upd_ofs, _upd, _flags)				\
@@ -91,6 +112,15 @@ extern const struct clk_ops mtk_mux_gate_clr_set_upd_ops;
 		MUX_CLR_SET_UPD_FLAGS(_id, _name, _parents,		\
 			_mux_ofs, _mux_set_ofs, _mux_clr_ofs, _shift,	\
 			_width, _upd_ofs, _upd, CLK_SET_RATE_PARENT)
+=======
+#define MUX_CLR_SET_UPD(_id, _name, _parents, _mux_ofs,			\
+			_mux_set_ofs, _mux_clr_ofs, _shift, _width,	\
+			_upd_ofs, _upd)					\
+		GATE_CLR_SET_UPD_FLAGS(_id, _name, _parents, _mux_ofs,	\
+			_mux_set_ofs, _mux_clr_ofs, _shift, _width,	\
+			0, _upd_ofs, _upd, CLK_SET_RATE_PARENT,		\
+			mtk_mux_clr_set_upd_ops)
+>>>>>>> upstream/android-13
 
 int mtk_clk_register_muxes(const struct mtk_mux *muxes,
 			   int num, struct device_node *node,

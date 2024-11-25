@@ -628,10 +628,17 @@ nvkm_perfmon_dtor(struct nvkm_object *object)
 {
 	struct nvkm_perfmon *perfmon = nvkm_perfmon(object);
 	struct nvkm_pm *pm = perfmon->pm;
+<<<<<<< HEAD
 	mutex_lock(&pm->engine.subdev.mutex);
 	if (pm->perfmon == &perfmon->object)
 		pm->perfmon = NULL;
 	mutex_unlock(&pm->engine.subdev.mutex);
+=======
+	spin_lock(&pm->client.lock);
+	if (pm->client.object == &perfmon->object)
+		pm->client.object = NULL;
+	spin_unlock(&pm->client.lock);
+>>>>>>> upstream/android-13
 	return perfmon;
 }
 
@@ -671,11 +678,19 @@ nvkm_pm_oclass_new(struct nvkm_device *device, const struct nvkm_oclass *oclass,
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	mutex_lock(&pm->engine.subdev.mutex);
 	if (pm->perfmon == NULL)
 		pm->perfmon = *pobject;
 	ret = (pm->perfmon == *pobject) ? 0 : -EBUSY;
 	mutex_unlock(&pm->engine.subdev.mutex);
+=======
+	spin_lock(&pm->client.lock);
+	if (pm->client.object == NULL)
+		pm->client.object = *pobject;
+	ret = (pm->client.object == *pobject) ? 0 : -EBUSY;
+	spin_unlock(&pm->client.lock);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -858,10 +873,19 @@ nvkm_pm = {
 
 int
 nvkm_pm_ctor(const struct nvkm_pm_func *func, struct nvkm_device *device,
+<<<<<<< HEAD
 	     int index, struct nvkm_pm *pm)
+=======
+	     enum nvkm_subdev_type type, int inst, struct nvkm_pm *pm)
+>>>>>>> upstream/android-13
 {
 	pm->func = func;
 	INIT_LIST_HEAD(&pm->domains);
 	INIT_LIST_HEAD(&pm->sources);
+<<<<<<< HEAD
 	return nvkm_engine_ctor(&nvkm_pm, device, index, true, &pm->engine);
+=======
+	spin_lock_init(&pm->client.lock);
+	return nvkm_engine_ctor(&nvkm_pm, device, type, inst, true, &pm->engine);
+>>>>>>> upstream/android-13
 }

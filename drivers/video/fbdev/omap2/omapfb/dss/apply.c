@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2011 Texas Instruments
  * Author: Tomi Valkeinen <tomi.valkeinen@ti.com>
@@ -13,6 +14,12 @@
  *
  * You should have received a copy of the GNU General Public License along with
  * this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2011 Texas Instruments
+ * Author: Tomi Valkeinen <tomi.valkeinen@ti.com>
+>>>>>>> upstream/android-13
  */
 
 #define DSS_SUBSYS_NAME "APPLY"
@@ -119,7 +126,11 @@ static struct {
 } dss_data;
 
 /* protects dss_data */
+<<<<<<< HEAD
 static spinlock_t data_lock;
+=======
+static DEFINE_SPINLOCK(data_lock);
+>>>>>>> upstream/android-13
 /* lock for blocking functions */
 static DEFINE_MUTEX(apply_lock);
 static DECLARE_COMPLETION(extra_updated_completion);
@@ -142,8 +153,11 @@ static void apply_init_priv(void)
 	struct mgr_priv_data *mp;
 	int i;
 
+<<<<<<< HEAD
 	spin_lock_init(&data_lock);
 
+=======
+>>>>>>> upstream/android-13
 	for (i = 0; i < num_ovls; ++i) {
 		struct ovl_priv_data *op;
 

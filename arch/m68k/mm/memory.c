@@ -15,13 +15,18 @@
 #include <linux/gfp.h>
 
 #include <asm/setup.h>
+<<<<<<< HEAD
 #include <asm/segment.h>
 #include <asm/page.h>
 #include <asm/pgalloc.h>
+=======
+#include <asm/page.h>
+>>>>>>> upstream/android-13
 #include <asm/traps.h>
 #include <asm/machdep.h>
 
 
+<<<<<<< HEAD
 /* ++andreas: {get,free}_pointer_table rewritten to use unused fields from
    struct page instead of separately kmalloced struct.  Stolen from
    arch/sparc/mm/srmmu.c ... */
@@ -125,6 +130,8 @@ int free_pointer_table (pmd_t *ptable)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 /* invalidate page in both caches */
 static inline void clear040(unsigned long paddr)
 {

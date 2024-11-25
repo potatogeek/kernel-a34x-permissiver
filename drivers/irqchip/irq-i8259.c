@@ -225,6 +225,7 @@ static struct syscore_ops i8259_syscore_ops = {
 	.shutdown = i8259A_shutdown,
 };
 
+<<<<<<< HEAD
 static int __init i8259A_init_sysfs(void)
 {
 	register_syscore_ops(&i8259_syscore_ops);
@@ -233,6 +234,8 @@ static int __init i8259A_init_sysfs(void)
 
 device_initcall(i8259A_init_sysfs);
 
+=======
+>>>>>>> upstream/android-13
 static void init_8259A(int auto_eoi)
 {
 	unsigned long flags;
@@ -276,6 +279,7 @@ static void init_8259A(int auto_eoi)
 	raw_spin_unlock_irqrestore(&i8259A_lock, flags);
 }
 
+<<<<<<< HEAD
 /*
  * IRQ2 is cascade interrupt to second interrupt controller
  */
@@ -285,6 +289,8 @@ static struct irqaction irq2 = {
 	.flags = IRQF_NO_THREAD,
 };
 
+=======
+>>>>>>> upstream/android-13
 static struct resource pic1_io_resource = {
 	.name = "pic1",
 	.start = PIC_MASTER_CMD,
@@ -319,6 +325,13 @@ static const struct irq_domain_ops i8259A_ops = {
  */
 struct irq_domain * __init __init_i8259_irqs(struct device_node *node)
 {
+<<<<<<< HEAD
+=======
+	/*
+	 * PIC_CASCADE_IR is cascade interrupt to second interrupt controller
+	 */
+	int irq = I8259A_IRQ_BASE + PIC_CASCADE_IR;
+>>>>>>> upstream/android-13
 	struct irq_domain *domain;
 
 	insert_resource(&ioport_resource, &pic1_io_resource);
@@ -331,7 +344,13 @@ struct irq_domain * __init __init_i8259_irqs(struct device_node *node)
 	if (!domain)
 		panic("Failed to add i8259 IRQ domain");
 
+<<<<<<< HEAD
 	setup_irq(I8259A_IRQ_BASE + PIC_CASCADE_IR, &irq2);
+=======
+	if (request_irq(irq, no_action, IRQF_NO_THREAD, "cascade", NULL))
+		pr_err("Failed to register cascade interrupt\n");
+	register_syscore_ops(&i8259_syscore_ops);
+>>>>>>> upstream/android-13
 	return domain;
 }
 
@@ -344,13 +363,20 @@ static void i8259_irq_dispatch(struct irq_desc *desc)
 {
 	struct irq_domain *domain = irq_desc_get_handler_data(desc);
 	int hwirq = i8259_poll();
+<<<<<<< HEAD
 	unsigned int irq;
+=======
+>>>>>>> upstream/android-13
 
 	if (hwirq < 0)
 		return;
 
+<<<<<<< HEAD
 	irq = irq_linear_revmap(domain, hwirq);
 	generic_handle_irq(irq);
+=======
+	generic_handle_domain_irq(domain, hwirq);
+>>>>>>> upstream/android-13
 }
 
 int __init i8259_of_init(struct device_node *node, struct device_node *parent)

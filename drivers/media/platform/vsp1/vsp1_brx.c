@@ -65,7 +65,11 @@ static const struct v4l2_ctrl_ops brx_ctrl_ops = {
  */
 
 static int brx_enum_mbus_code(struct v4l2_subdev *subdev,
+<<<<<<< HEAD
 			      struct v4l2_subdev_pad_config *cfg,
+=======
+			      struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 			      struct v4l2_subdev_mbus_code_enum *code)
 {
 	static const unsigned int codes[] = {
@@ -73,12 +77,20 @@ static int brx_enum_mbus_code(struct v4l2_subdev *subdev,
 		MEDIA_BUS_FMT_AYUV8_1X32,
 	};
 
+<<<<<<< HEAD
 	return vsp1_subdev_enum_mbus_code(subdev, cfg, code, codes,
+=======
+	return vsp1_subdev_enum_mbus_code(subdev, sd_state, code, codes,
+>>>>>>> upstream/android-13
 					  ARRAY_SIZE(codes));
 }
 
 static int brx_enum_frame_size(struct v4l2_subdev *subdev,
+<<<<<<< HEAD
 			       struct v4l2_subdev_pad_config *cfg,
+=======
+			       struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 			       struct v4l2_subdev_frame_size_enum *fse)
 {
 	if (fse->index)
@@ -97,6 +109,7 @@ static int brx_enum_frame_size(struct v4l2_subdev *subdev,
 }
 
 static struct v4l2_rect *brx_get_compose(struct vsp1_brx *brx,
+<<<<<<< HEAD
 					 struct v4l2_subdev_pad_config *cfg,
 					 unsigned int pad)
 {
@@ -105,6 +118,16 @@ static struct v4l2_rect *brx_get_compose(struct vsp1_brx *brx,
 
 static void brx_try_format(struct vsp1_brx *brx,
 			   struct v4l2_subdev_pad_config *config,
+=======
+					 struct v4l2_subdev_state *sd_state,
+					 unsigned int pad)
+{
+	return v4l2_subdev_get_try_compose(&brx->entity.subdev, sd_state, pad);
+}
+
+static void brx_try_format(struct vsp1_brx *brx,
+			   struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 			   unsigned int pad, struct v4l2_mbus_framefmt *fmt)
 {
 	struct v4l2_mbus_framefmt *format;
@@ -119,7 +142,11 @@ static void brx_try_format(struct vsp1_brx *brx,
 
 	default:
 		/* The BRx can't perform format conversion. */
+<<<<<<< HEAD
 		format = vsp1_entity_get_pad_format(&brx->entity, config,
+=======
+		format = vsp1_entity_get_pad_format(&brx->entity, sd_state,
+>>>>>>> upstream/android-13
 						    BRX_PAD_SINK(0));
 		fmt->code = format->code;
 		break;
@@ -132,17 +159,30 @@ static void brx_try_format(struct vsp1_brx *brx,
 }
 
 static int brx_set_format(struct v4l2_subdev *subdev,
+<<<<<<< HEAD
 			  struct v4l2_subdev_pad_config *cfg,
 			  struct v4l2_subdev_format *fmt)
 {
 	struct vsp1_brx *brx = to_brx(subdev);
 	struct v4l2_subdev_pad_config *config;
+=======
+			  struct v4l2_subdev_state *sd_state,
+			  struct v4l2_subdev_format *fmt)
+{
+	struct vsp1_brx *brx = to_brx(subdev);
+	struct v4l2_subdev_state *config;
+>>>>>>> upstream/android-13
 	struct v4l2_mbus_framefmt *format;
 	int ret = 0;
 
 	mutex_lock(&brx->entity.lock);
 
+<<<<<<< HEAD
 	config = vsp1_entity_get_pad_config(&brx->entity, cfg, fmt->which);
+=======
+	config = vsp1_entity_get_pad_config(&brx->entity, sd_state,
+					    fmt->which);
+>>>>>>> upstream/android-13
 	if (!config) {
 		ret = -EINVAL;
 		goto done;
@@ -153,7 +193,11 @@ static int brx_set_format(struct v4l2_subdev *subdev,
 	format = vsp1_entity_get_pad_format(&brx->entity, config, fmt->pad);
 	*format = fmt->format;
 
+<<<<<<< HEAD
 	/* Reset the compose rectangle */
+=======
+	/* Reset the compose rectangle. */
+>>>>>>> upstream/android-13
 	if (fmt->pad != brx->entity.source_pad) {
 		struct v4l2_rect *compose;
 
@@ -164,7 +208,11 @@ static int brx_set_format(struct v4l2_subdev *subdev,
 		compose->height = format->height;
 	}
 
+<<<<<<< HEAD
 	/* Propagate the format code to all pads */
+=======
+	/* Propagate the format code to all pads. */
+>>>>>>> upstream/android-13
 	if (fmt->pad == BRX_PAD_SINK(0)) {
 		unsigned int i;
 
@@ -181,11 +229,19 @@ done:
 }
 
 static int brx_get_selection(struct v4l2_subdev *subdev,
+<<<<<<< HEAD
 			     struct v4l2_subdev_pad_config *cfg,
 			     struct v4l2_subdev_selection *sel)
 {
 	struct vsp1_brx *brx = to_brx(subdev);
 	struct v4l2_subdev_pad_config *config;
+=======
+			     struct v4l2_subdev_state *sd_state,
+			     struct v4l2_subdev_selection *sel)
+{
+	struct vsp1_brx *brx = to_brx(subdev);
+	struct v4l2_subdev_state *config;
+>>>>>>> upstream/android-13
 
 	if (sel->pad == brx->entity.source_pad)
 		return -EINVAL;
@@ -199,7 +255,11 @@ static int brx_get_selection(struct v4l2_subdev *subdev,
 		return 0;
 
 	case V4L2_SEL_TGT_COMPOSE:
+<<<<<<< HEAD
 		config = vsp1_entity_get_pad_config(&brx->entity, cfg,
+=======
+		config = vsp1_entity_get_pad_config(&brx->entity, sd_state,
+>>>>>>> upstream/android-13
 						    sel->which);
 		if (!config)
 			return -EINVAL;
@@ -215,11 +275,19 @@ static int brx_get_selection(struct v4l2_subdev *subdev,
 }
 
 static int brx_set_selection(struct v4l2_subdev *subdev,
+<<<<<<< HEAD
 			     struct v4l2_subdev_pad_config *cfg,
 			     struct v4l2_subdev_selection *sel)
 {
 	struct vsp1_brx *brx = to_brx(subdev);
 	struct v4l2_subdev_pad_config *config;
+=======
+			     struct v4l2_subdev_state *sd_state,
+			     struct v4l2_subdev_selection *sel)
+{
+	struct vsp1_brx *brx = to_brx(subdev);
+	struct v4l2_subdev_state *config;
+>>>>>>> upstream/android-13
 	struct v4l2_mbus_framefmt *format;
 	struct v4l2_rect *compose;
 	int ret = 0;
@@ -232,7 +300,12 @@ static int brx_set_selection(struct v4l2_subdev *subdev,
 
 	mutex_lock(&brx->entity.lock);
 
+<<<<<<< HEAD
 	config = vsp1_entity_get_pad_config(&brx->entity, cfg, sel->which);
+=======
+	config = vsp1_entity_get_pad_config(&brx->entity, sd_state,
+					    sel->which);
+>>>>>>> upstream/android-13
 	if (!config) {
 		ret = -EINVAL;
 		goto done;
@@ -283,6 +356,10 @@ static const struct v4l2_subdev_ops brx_ops = {
 
 static void brx_configure_stream(struct vsp1_entity *entity,
 				 struct vsp1_pipeline *pipe,
+<<<<<<< HEAD
+=======
+				 struct vsp1_dl_list *dl,
+>>>>>>> upstream/android-13
 				 struct vsp1_dl_body *dlb)
 {
 	struct vsp1_brx *brx = to_brx(&entity->subdev);
@@ -296,7 +373,11 @@ static void brx_configure_stream(struct vsp1_entity *entity,
 	/*
 	 * The hardware is extremely flexible but we have no userspace API to
 	 * expose all the parameters, nor is it clear whether we would have use
+<<<<<<< HEAD
 	 * cases for all the supported modes. Let's just harcode the parameters
+=======
+	 * cases for all the supported modes. Let's just hardcode the parameters
+>>>>>>> upstream/android-13
 	 * to sane default values for now.
 	 */
 
@@ -373,7 +454,11 @@ static void brx_configure_stream(struct vsp1_entity *entity,
 		vsp1_brx_write(brx, dlb, VI6_BRU_CTRL(i), ctrl);
 
 		/*
+<<<<<<< HEAD
 		 * Harcode the blending formula to
+=======
+		 * Hardcode the blending formula to
+>>>>>>> upstream/android-13
 		 *
 		 *	DSTc = DSTc * (1 - SRCa) + SRCc * SRCa
 		 *	DSTa = DSTa * (1 - SRCa) + SRCa

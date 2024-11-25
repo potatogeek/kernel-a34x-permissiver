@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  sata_via.c - VIA Serial ATA controllers
  *
@@ -8,6 +12,7 @@
  *  Copyright 2003-2004 Red Hat, Inc.  All rights reserved.
  *  Copyright 2003-2004 Jeff Garzik
  *
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -24,13 +29,18 @@
  *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  *
+=======
+>>>>>>> upstream/android-13
  *  libata documentation is available via 'make {ps|pdf}docs',
  *  as Documentation/driver-api/libata.rst
  *
  *  Hardware documentation available under NDA.
+<<<<<<< HEAD
  *
  *
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -523,6 +533,7 @@ static int vt6421_prepare_host(struct pci_dev *pdev, struct ata_host **r_host)
 	for (i = 0; i < host->n_ports; i++)
 		vt6421_init_addrs(host->ports[i]);
 
+<<<<<<< HEAD
 	rc = dma_set_mask(&pdev->dev, ATA_DMA_MASK);
 	if (rc)
 		return rc;
@@ -531,6 +542,9 @@ static int vt6421_prepare_host(struct pci_dev *pdev, struct ata_host **r_host)
 		return rc;
 
 	return 0;
+=======
+	return dma_set_mask_and_coherent(&pdev->dev, ATA_DMA_MASK);
+>>>>>>> upstream/android-13
 }
 
 static int vt8251_prepare_host(struct pci_dev *pdev, struct ata_host **r_host)

@@ -20,6 +20,7 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
+<<<<<<< HEAD
 #include <linux/module.h>
 #include <linux/sched.h>
 #include <linux/moduleparam.h>
@@ -122,6 +123,14 @@ void kgd2kfd_exit(void)
 }
 
 static int __init kfd_module_init(void)
+=======
+#include <linux/sched.h>
+#include <linux/device.h>
+#include "kfd_priv.h"
+#include "amdgpu_amdkfd.h"
+
+static int kfd_init(void)
+>>>>>>> upstream/android-13
 {
 	int err;
 
@@ -129,7 +138,11 @@ static int __init kfd_module_init(void)
 	if ((sched_policy < KFD_SCHED_POLICY_HWS) ||
 		(sched_policy > KFD_SCHED_POLICY_NO_HWS)) {
 		pr_err("sched_policy has invalid value\n");
+<<<<<<< HEAD
 		return -1;
+=======
+		return -EINVAL;
+>>>>>>> upstream/android-13
 	}
 
 	/* Verify module parameters */
@@ -137,7 +150,11 @@ static int __init kfd_module_init(void)
 		(max_num_of_queues_per_device >
 			KFD_MAX_NUM_OF_QUEUES_PER_DEVICE)) {
 		pr_err("max_num_of_queues_per_device must be between 1 to KFD_MAX_NUM_OF_QUEUES_PER_DEVICE\n");
+<<<<<<< HEAD
 		return -1;
+=======
+		return -EINVAL;
+>>>>>>> upstream/android-13
 	}
 
 	err = kfd_chardev_init();
@@ -152,12 +169,22 @@ static int __init kfd_module_init(void)
 	if (err < 0)
 		goto err_create_wq;
 
+<<<<<<< HEAD
 	kfd_debugfs_init();
 
 	amdkfd_init_completed = 1;
 
 	dev_info(kfd_device, "Initialized module\n");
 
+=======
+	/* Ignore the return value, so that we can continue
+	 * to init the KFD, even if procfs isn't craated
+	 */
+	kfd_procfs_init();
+
+	kfd_debugfs_init();
+
+>>>>>>> upstream/android-13
 	return 0;
 
 err_create_wq:
@@ -165,6 +192,7 @@ err_create_wq:
 err_topology:
 	kfd_chardev_exit();
 err_ioctl:
+<<<<<<< HEAD
 	return err;
 }
 
@@ -188,3 +216,27 @@ MODULE_LICENSE("GPL and additional rights");
 MODULE_VERSION(__stringify(KFD_DRIVER_MAJOR) "."
 	       __stringify(KFD_DRIVER_MINOR) "."
 	       __stringify(KFD_DRIVER_PATCHLEVEL));
+=======
+	pr_err("KFD is disabled due to module initialization failure\n");
+	return err;
+}
+
+static void kfd_exit(void)
+{
+	kfd_debugfs_fini();
+	kfd_process_destroy_wq();
+	kfd_procfs_shutdown();
+	kfd_topology_shutdown();
+	kfd_chardev_exit();
+}
+
+int kgd2kfd_init(void)
+{
+	return kfd_init();
+}
+
+void kgd2kfd_exit(void)
+{
+	kfd_exit();
+}
+>>>>>>> upstream/android-13

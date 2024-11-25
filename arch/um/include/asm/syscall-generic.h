@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Access to user system call parameters and results
  *
  * See asm-generic/syscall.h for function descriptions.
  *
  * Copyright (C) 2015 Mickaël Salaün <mic@digikod.net>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __UM_SYSCALL_GENERIC_H
@@ -53,11 +60,15 @@ static inline void syscall_set_return_value(struct task_struct *task,
 
 static inline void syscall_get_arguments(struct task_struct *task,
 					 struct pt_regs *regs,
+<<<<<<< HEAD
 					 unsigned int i, unsigned int n,
+=======
+>>>>>>> upstream/android-13
 					 unsigned long *args)
 {
 	const struct uml_pt_regs *r = &regs->regs;
 
+<<<<<<< HEAD
 	switch (i) {
 	case 0:
 		if (!n--)
@@ -90,15 +101,27 @@ static inline void syscall_get_arguments(struct task_struct *task,
 		BUG();
 		break;
 	}
+=======
+	*args++ = UPT_SYSCALL_ARG1(r);
+	*args++ = UPT_SYSCALL_ARG2(r);
+	*args++ = UPT_SYSCALL_ARG3(r);
+	*args++ = UPT_SYSCALL_ARG4(r);
+	*args++ = UPT_SYSCALL_ARG5(r);
+	*args   = UPT_SYSCALL_ARG6(r);
+>>>>>>> upstream/android-13
 }
 
 static inline void syscall_set_arguments(struct task_struct *task,
 					 struct pt_regs *regs,
+<<<<<<< HEAD
 					 unsigned int i, unsigned int n,
+=======
+>>>>>>> upstream/android-13
 					 const unsigned long *args)
 {
 	struct uml_pt_regs *r = &regs->regs;
 
+<<<<<<< HEAD
 	switch (i) {
 	case 0:
 		if (!n--)
@@ -131,6 +154,14 @@ static inline void syscall_set_arguments(struct task_struct *task,
 		BUG();
 		break;
 	}
+=======
+	UPT_SYSCALL_ARG1(r) = *args++;
+	UPT_SYSCALL_ARG2(r) = *args++;
+	UPT_SYSCALL_ARG3(r) = *args++;
+	UPT_SYSCALL_ARG4(r) = *args++;
+	UPT_SYSCALL_ARG5(r) = *args++;
+	UPT_SYSCALL_ARG6(r) = *args;
+>>>>>>> upstream/android-13
 }
 
 /* See arch/x86/um/asm/syscall.h for syscall_get_arch() definition. */

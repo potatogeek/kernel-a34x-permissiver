@@ -5,6 +5,10 @@
 
 zfcp-objs := zfcp_aux.o zfcp_ccw.o zfcp_dbf.o zfcp_erp.o \
 	     zfcp_fc.o zfcp_fsf.o zfcp_qdio.o zfcp_scsi.o zfcp_sysfs.o \
+<<<<<<< HEAD
 	     zfcp_unit.o
+=======
+	     zfcp_unit.o zfcp_diag.o
+>>>>>>> upstream/android-13
 
 obj-$(CONFIG_ZFCP) += zfcp.o

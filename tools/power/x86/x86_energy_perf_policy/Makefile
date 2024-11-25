@@ -9,12 +9,22 @@ ifeq ("$(origin O)", "command line")
 endif
 
 x86_energy_perf_policy : x86_energy_perf_policy.c
+<<<<<<< HEAD
 CFLAGS +=	-Wall -I../../../include
 CFLAGS +=	-DMSRHEADER='"../../../../arch/x86/include/asm/msr-index.h"'
 
 %: %.c
 	@mkdir -p $(BUILD_OUTPUT)
 	$(CC) $(CFLAGS) $< -o $(BUILD_OUTPUT)/$@
+=======
+override CFLAGS +=	-O2 -Wall -I../../../include
+override CFLAGS +=	-DMSRHEADER='"../../../../arch/x86/include/asm/msr-index.h"'
+override CFLAGS +=	-D_FORTIFY_SOURCE=2
+
+%: %.c
+	@mkdir -p $(BUILD_OUTPUT)
+	$(CC) $(CFLAGS) $< -o $(BUILD_OUTPUT)/$@ $(LDFLAGS)
+>>>>>>> upstream/android-13
 
 .PHONY : clean
 clean :

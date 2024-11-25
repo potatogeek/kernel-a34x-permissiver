@@ -12,7 +12,11 @@
 #include <linux/module.h>
 #include <linux/kernel.h>
 #include <linux/init.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
+=======
+#include <linux/gpio/consumer.h>
+>>>>>>> upstream/android-13
 #include <linux/spi/spi.h>
 #include <linux/delay.h>
 
@@ -94,7 +98,11 @@ static int write_vmem(struct fbtft_par *par, size_t offset, size_t len)
 		/* The display is 102x68 but the LCD is 84x48.
 		 * Set the write pointer at the start of each row.
 		 */
+<<<<<<< HEAD
 		gpio_set_value(par->gpio.dc, 0);
+=======
+		gpiod_set_value(par->gpio.dc, 0);
+>>>>>>> upstream/android-13
 		write_reg(par, 0x80 | 0);
 		write_reg(par, 0x40 | y);
 
@@ -109,7 +117,11 @@ static int write_vmem(struct fbtft_par *par, size_t offset, size_t len)
 			*buf++ = ch;
 		}
 		/* Write the row */
+<<<<<<< HEAD
 		gpio_set_value(par->gpio.dc, 1);
+=======
+		gpiod_set_value(par->gpio.dc, 1);
+>>>>>>> upstream/android-13
 		ret = par->fbtftops.write(par, par->txbuf.buf, WIDTH);
 		if (ret < 0) {
 			dev_err(par->info->device,

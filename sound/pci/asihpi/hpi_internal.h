@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /******************************************************************************
 
     AudioScience HPI driver
     Copyright (C) 1997-2012  AudioScience Inc. <support@audioscience.com>
 
+<<<<<<< HEAD
     This program is free software; you can redistribute it and/or modify
     it under the terms of version 2 of the GNU General Public License as
     published by the Free Software Foundation;
@@ -15,6 +20,8 @@
     You should have received a copy of the GNU General Public License
     along with this program; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+>>>>>>> upstream/android-13
 
 HPI internal definitions
 
@@ -64,7 +71,11 @@ If handle is invalid *pPhysicalAddr is set to zero and return 1
 u16 hpios_locked_mem_get_phys_addr(struct consistent_dma_area
 	*locked_mem_handle, u32 *p_physical_addr);
 
+<<<<<<< HEAD
 /** Get the CPU address of of memory represented by LockedMemHandle.
+=======
+/** Get the CPU address of memory represented by LockedMemHandle.
+>>>>>>> upstream/android-13
 
 If handle is NULL *ppvVirtualAddr is set to NULL and return 1
 */

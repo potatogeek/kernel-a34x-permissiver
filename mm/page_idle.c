@@ -1,9 +1,17 @@
 // SPDX-License-Identifier: GPL-2.0
 #include <linux/init.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
 #include <linux/fs.h>
 #include <linux/sysfs.h>
 #include <linux/kobject.h>
+=======
+#include <linux/memblock.h>
+#include <linux/fs.h>
+#include <linux/sysfs.h>
+#include <linux/kobject.h>
+#include <linux/memory_hotplug.h>
+>>>>>>> upstream/android-13
 #include <linux/mm.h>
 #include <linux/mmzone.h>
 #include <linux/pagemap.h>
@@ -30,6 +38,7 @@
  */
 static struct page *page_idle_get_page(unsigned long pfn)
 {
+<<<<<<< HEAD
 	struct page *page;
 	struct zone *zone;
 
@@ -37,17 +46,27 @@ static struct page *page_idle_get_page(unsigned long pfn)
 		return NULL;
 
 	page = pfn_to_page(pfn);
+=======
+	struct page *page = pfn_to_online_page(pfn);
+
+>>>>>>> upstream/android-13
 	if (!page || !PageLRU(page) ||
 	    !get_page_unless_zero(page))
 		return NULL;
 
+<<<<<<< HEAD
 	zone = page_zone(page);
 	spin_lock_irq(zone_lru_lock(zone));
+=======
+>>>>>>> upstream/android-13
 	if (unlikely(!PageLRU(page))) {
 		put_page(page);
 		page = NULL;
 	}
+<<<<<<< HEAD
 	spin_unlock_irq(zone_lru_lock(zone));
+=======
+>>>>>>> upstream/android-13
 	return page;
 }
 
@@ -214,6 +233,7 @@ static const struct attribute_group page_idle_attr_group = {
 	.name = "page_idle",
 };
 
+<<<<<<< HEAD
 #ifndef CONFIG_64BIT
 static bool need_page_idle(void)
 {
@@ -224,6 +244,8 @@ struct page_ext_operations page_idle_ops = {
 };
 #endif
 
+=======
+>>>>>>> upstream/android-13
 static int __init page_idle_init(void)
 {
 	int err;

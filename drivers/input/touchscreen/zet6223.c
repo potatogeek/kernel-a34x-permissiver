@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2016, Jelle van der Waa <jelle@vdwaa.nl>
  *
@@ -10,6 +11,11 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (C) 2016, Jelle van der Waa <jelle@vdwaa.nl>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/delay.h>

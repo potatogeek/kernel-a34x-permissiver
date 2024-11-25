@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  *  Driver for the NXP SAA7164 PCIe bridge
  *
  *  Copyright (c) 2010-2015 Steven Toth <stoth@kernellabs.com>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -13,11 +18,17 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *
  *  GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 /* TODO: Cleanup and shorten the namespace */
 
+<<<<<<< HEAD
 /* Some structues are passed directly to/from the firmware and
+=======
+/* Some structures are passed directly to/from the firmware and
+>>>>>>> upstream/android-13
  * have strict alignment requirements. This is one of them.
  */
 struct tmComResHWDescr {
@@ -38,7 +49,11 @@ struct tmComResHWDescr {
 /* This is DWORD aligned on windows but I can't find the right
  * gcc syntax to match the binary data from the device.
  * I've manually padded with Reserved[3] bytes to match the hardware,
+<<<<<<< HEAD
  * but this could break if GCC decies to pack in a different way.
+=======
+ * but this could break if GCC decides to pack in a different way.
+>>>>>>> upstream/android-13
  */
 struct tmComResInterfaceDescr {
 	u8	bLength;

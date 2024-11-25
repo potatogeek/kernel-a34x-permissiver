@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*-*-linux-c-*-*/
 
 /*
@@ -7,6 +11,7 @@
 
   Copyright (C) 2006 Lennart Poettering <mzxreary (at) 0pointer (dot) de>
 
+<<<<<<< HEAD
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation; either version 2 of the License, or
@@ -21,6 +26,8 @@
   along with this program; if not, write to the Free Software
   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
   02110-1301, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -239,7 +246,11 @@ static const unsigned char pwm_lookup_table[256] = {
 /* General access */
 static u8 ec_read_u8(u8 addr)
 {
+<<<<<<< HEAD
 	u8 value;
+=======
+	u8 value = 0;
+>>>>>>> upstream/android-13
 	ec_read(addr, &value);
 	return value;
 }

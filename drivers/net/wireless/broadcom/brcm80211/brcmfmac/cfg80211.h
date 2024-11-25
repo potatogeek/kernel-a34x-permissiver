@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2010 Broadcom Corporation
  *
@@ -12,6 +13,11 @@
  * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION
  * OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+=======
+// SPDX-License-Identifier: ISC
+/*
+ * Copyright (c) 2010 Broadcom Corporation
+>>>>>>> upstream/android-13
  */
 
 #ifndef BRCMFMAC_CFG80211_H
@@ -34,6 +40,26 @@
 #define WL_ROAM_TRIGGER_LEVEL		-75
 #define WL_ROAM_DELTA			20
 
+<<<<<<< HEAD
+=======
+/* WME Access Category Indices (ACIs) */
+#define AC_BE			0	/* Best Effort */
+#define AC_BK			1	/* Background */
+#define AC_VI			2	/* Video */
+#define AC_VO			3	/* Voice */
+#define EDCF_AC_COUNT		4
+#define MAX_8021D_PRIO		8
+
+#define EDCF_ACI_MASK			0x60
+#define EDCF_ACI_SHIFT			5
+#define EDCF_ACM_MASK                  0x10
+#define EDCF_ECWMIN_MASK		0x0f
+#define EDCF_ECWMAX_SHIFT		4
+#define EDCF_AIFSN_MASK			0x0f
+#define EDCF_AIFSN_MAX			15
+#define EDCF_ECWMAX_MASK		0xf0
+
+>>>>>>> upstream/android-13
 /* Keep BRCMF_ESCAN_BUF_SIZE below 64K (65536). Allocing over 64K can be
  * problematic on some systems and should be avoided.
  */
@@ -118,7 +144,25 @@ struct brcmf_cfg80211_security {
 enum brcmf_profile_fwsup {
 	BRCMF_PROFILE_FWSUP_NONE,
 	BRCMF_PROFILE_FWSUP_PSK,
+<<<<<<< HEAD
 	BRCMF_PROFILE_FWSUP_1X
+=======
+	BRCMF_PROFILE_FWSUP_1X,
+	BRCMF_PROFILE_FWSUP_SAE
+};
+
+/**
+ * enum brcmf_profile_fwauth - firmware authenticator profile
+ *
+ * @BRCMF_PROFILE_FWAUTH_NONE: no firmware authenticator
+ * @BRCMF_PROFILE_FWAUTH_PSK: authenticator for WPA/WPA2-PSK
+ * @BRCMF_PROFILE_FWAUTH_SAE: authenticator for SAE
+ */
+enum brcmf_profile_fwauth {
+	BRCMF_PROFILE_FWAUTH_NONE,
+	BRCMF_PROFILE_FWAUTH_PSK,
+	BRCMF_PROFILE_FWAUTH_SAE
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -133,6 +177,11 @@ struct brcmf_cfg80211_profile {
 	struct brcmf_cfg80211_security sec;
 	struct brcmf_wsec_key key[BRCMF_MAX_DEFAULT_KEYS];
 	enum brcmf_profile_fwsup use_fwsup;
+<<<<<<< HEAD
+=======
+	u16 use_fwauth;
+	bool is_ft;
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -162,19 +211,35 @@ enum brcmf_vif_status {
  * @probe_req_ie: IE info for probe request.
  * @probe_res_ie: IE info for probe response.
  * @beacon_ie: IE info for beacon frame.
+<<<<<<< HEAD
  * @probe_req_ie_len: IE info length for probe request.
  * @probe_res_ie_len: IE info length for probe response.
  * @beacon_ie_len: IE info length for beacon frame.
+=======
+ * @assoc_res_ie: IE info for association response frame.
+ * @probe_req_ie_len: IE info length for probe request.
+ * @probe_res_ie_len: IE info length for probe response.
+ * @beacon_ie_len: IE info length for beacon frame.
+ * @assoc_res_ie_len: IE info length for association response frame.
+>>>>>>> upstream/android-13
  */
 struct vif_saved_ie {
 	u8  probe_req_ie[IE_MAX_LEN];
 	u8  probe_res_ie[IE_MAX_LEN];
 	u8  beacon_ie[IE_MAX_LEN];
 	u8  assoc_req_ie[IE_MAX_LEN];
+<<<<<<< HEAD
+=======
+	u8  assoc_res_ie[IE_MAX_LEN];
+>>>>>>> upstream/android-13
 	u32 probe_req_ie_len;
 	u32 probe_res_ie_len;
 	u32 beacon_ie_len;
 	u32 assoc_req_ie_len;
+<<<<<<< HEAD
+=======
+	u32 assoc_res_ie_len;
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -187,6 +252,12 @@ struct vif_saved_ie {
  * @list: linked list.
  * @mgmt_rx_reg: registered rx mgmt frame types.
  * @mbss: Multiple BSS type, set if not first AP (not relevant for P2P).
+<<<<<<< HEAD
+=======
+ * @cqm_rssi_low: Lower RSSI limit for CQM monitoring
+ * @cqm_rssi_high: Upper RSSI limit for CQM monitoring
+ * @cqm_rssi_last: Last RSSI reading for CQM monitoring
+>>>>>>> upstream/android-13
  */
 struct brcmf_cfg80211_vif {
 	struct brcmf_if *ifp;
@@ -198,6 +269,12 @@ struct brcmf_cfg80211_vif {
 	u16 mgmt_rx_reg;
 	bool mbss;
 	int is_11d;
+<<<<<<< HEAD
+=======
+	s32 cqm_rssi_low;
+	s32 cqm_rssi_high;
+	s32 cqm_rssi_last;
+>>>>>>> upstream/android-13
 };
 
 /* association inform */
@@ -214,6 +291,15 @@ struct brcmf_cfg80211_assoc_ielen_le {
 	__le32 resp_len;
 };
 
+<<<<<<< HEAD
+=======
+struct brcmf_cfg80211_edcf_acparam {
+	u8 ACI;
+	u8 ECW;
+	u16 TXOP;        /* stored in network order (ls octet first) */
+};
+
+>>>>>>> upstream/android-13
 /* dongle escan state */
 enum wl_escan_state {
 	WL_ESCAN_STATE_IDLE,
@@ -303,7 +389,10 @@ struct brcmf_cfg80211_wowl {
  */
 struct brcmf_cfg80211_info {
 	struct wiphy *wiphy;
+<<<<<<< HEAD
 	struct cfg80211_ops *ops;
+=======
+>>>>>>> upstream/android-13
 	struct brcmf_cfg80211_conf *conf;
 	struct brcmf_p2p_info p2p;
 	struct brcmf_btcoex_info *btcoex;
@@ -333,6 +422,10 @@ struct brcmf_cfg80211_info {
 	struct brcmf_assoclist_le assoclist;
 	struct brcmf_cfg80211_wowl wowl;
 	struct brcmf_pno_info *pno;
+<<<<<<< HEAD
+=======
+	u8 ac_priority[MAX_8021D_PRIO];
+>>>>>>> upstream/android-13
 };
 
 /**

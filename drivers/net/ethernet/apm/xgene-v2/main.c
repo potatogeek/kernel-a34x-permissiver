@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Applied Micro X-Gene SoC Ethernet v2 Driver
  *
  * Copyright (c) 2017, Applied Micro Circuits Corporation
  * Author(s): Iyappan Subramanian <isubramanian@apm.com>
  *	      Keyur Chudgar <kchudgar@apm.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
@@ -17,6 +22,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "main.h"
@@ -66,10 +73,15 @@ static int xge_get_resources(struct xge_pdata *pdata)
 	}
 
 	ret = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (ret < 0) {
 		dev_err(dev, "Unable to get irq\n");
 		return ret;
 	}
+=======
+	if (ret < 0)
+		return ret;
+>>>>>>> upstream/android-13
 	pdata->resources.irq = ret;
 
 	return 0;
@@ -206,8 +218,13 @@ static netdev_tx_t xge_start_xmit(struct sk_buff *skb, struct net_device *ndev)
 	}
 
 	/* Packet buffers should be 64B aligned */
+<<<<<<< HEAD
 	pkt_buf = dma_zalloc_coherent(dev, XGENE_ENET_STD_MTU, &dma_addr,
 				      GFP_ATOMIC);
+=======
+	pkt_buf = dma_alloc_coherent(dev, XGENE_ENET_STD_MTU, &dma_addr,
+				     GFP_ATOMIC);
+>>>>>>> upstream/android-13
 	if (unlikely(!pkt_buf)) {
 		dev_kfree_skb_any(skb);
 		return NETDEV_TX_OK;
@@ -428,8 +445,13 @@ static struct xge_desc_ring *xge_create_desc_ring(struct net_device *ndev)
 	ring->ndev = ndev;
 
 	size = XGENE_ENET_DESC_SIZE * XGENE_ENET_NUM_DESC;
+<<<<<<< HEAD
 	ring->desc_addr = dma_zalloc_coherent(dev, size, &ring->dma_addr,
 					      GFP_KERNEL);
+=======
+	ring->desc_addr = dma_alloc_coherent(dev, size, &ring->dma_addr,
+					     GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!ring->desc_addr)
 		goto err;
 
@@ -589,7 +611,11 @@ static void xge_free_pending_skb(struct net_device *ndev)
 	}
 }
 
+<<<<<<< HEAD
 static void xge_timeout(struct net_device *ndev)
+=======
+static void xge_timeout(struct net_device *ndev, unsigned int txqueue)
+>>>>>>> upstream/android-13
 {
 	struct xge_pdata *pdata = netdev_priv(ndev);
 
@@ -691,11 +717,20 @@ static int xge_probe(struct platform_device *pdev)
 	ret = register_netdev(ndev);
 	if (ret) {
 		netdev_err(ndev, "Failed to register netdev\n");
+<<<<<<< HEAD
 		goto err;
+=======
+		goto err_mdio_remove;
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
 
+<<<<<<< HEAD
+=======
+err_mdio_remove:
+	xge_mdio_remove(ndev);
+>>>>>>> upstream/android-13
 err:
 	free_netdev(ndev);
 
@@ -755,5 +790,8 @@ module_platform_driver(xge_driver);
 
 MODULE_DESCRIPTION("APM X-Gene SoC Ethernet v2 driver");
 MODULE_AUTHOR("Iyappan Subramanian <isubramanian@apm.com>");
+<<<<<<< HEAD
 MODULE_VERSION(XGENE_ENET_V2_VERSION);
+=======
+>>>>>>> upstream/android-13
 MODULE_LICENSE("GPL");

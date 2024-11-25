@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* Copyright 2011-2014 Autronica Fire and Security AS
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -7,6 +8,15 @@
  *
  * Author(s):
  *	2011-2014 Arvid Brodin, arvid.brodin@alten.se
+=======
+// SPDX-License-Identifier: GPL-2.0
+/* Copyright 2011-2014 Autronica Fire and Security AS
+ *
+ * Author(s):
+ *	2011-2014 Arvid Brodin, arvid.brodin@alten.se
+ *
+ * Frame router for HSR and PRP.
+>>>>>>> upstream/android-13
  */
 
 #include "hsr_forward.h"
@@ -17,6 +27,7 @@
 #include "hsr_main.h"
 #include "hsr_framereg.h"
 
+<<<<<<< HEAD
 
 struct hsr_node;
 
@@ -33,6 +44,10 @@ struct hsr_frame_info {
 };
 
 
+=======
+struct hsr_node;
+
+>>>>>>> upstream/android-13
 /* The uses I can see for these HSR supervision frames are:
  * 1) Use the frames that are sent after node initialization ("HSR_TLV.Type =
  *    22") to reset any sequence_nr counters belonging to that node. Useful if
@@ -50,6 +65,7 @@ struct hsr_frame_info {
  */
 static bool is_supervision_frame(struct hsr_priv *hsr, struct sk_buff *skb)
 {
+<<<<<<< HEAD
 	struct ethhdr *ethHdr;
 	struct hsr_sup_tag *hsrSupTag;
 	struct hsrv1_ethhdr_sp *hsrV1Hdr;
@@ -59,10 +75,22 @@ static bool is_supervision_frame(struct hsr_priv *hsr, struct sk_buff *skb)
 
 	/* Correct addr? */
 	if (!ether_addr_equal(ethHdr->h_dest,
+=======
+	struct ethhdr *eth_hdr;
+	struct hsr_sup_tag *hsr_sup_tag;
+	struct hsrv1_ethhdr_sp *hsr_V1_hdr;
+
+	WARN_ON_ONCE(!skb_mac_header_was_set(skb));
+	eth_hdr = (struct ethhdr *)skb_mac_header(skb);
+
+	/* Correct addr? */
+	if (!ether_addr_equal(eth_hdr->h_dest,
+>>>>>>> upstream/android-13
 			      hsr->sup_multicast_addr))
 		return false;
 
 	/* Correct ether type?. */
+<<<<<<< HEAD
 	if (!(ethHdr->h_proto == htons(ETH_P_PRP)
 			|| ethHdr->h_proto == htons(ETH_P_HSR)))
 		return false;
@@ -84,14 +112,44 @@ static bool is_supervision_frame(struct hsr_priv *hsr, struct sk_buff *skb)
 	if ((hsrSupTag->HSR_TLV_Length != 12) &&
 			(hsrSupTag->HSR_TLV_Length !=
 					sizeof(struct hsr_sup_payload)))
+=======
+	if (!(eth_hdr->h_proto == htons(ETH_P_PRP) ||
+	      eth_hdr->h_proto == htons(ETH_P_HSR)))
+		return false;
+
+	/* Get the supervision header from correct location. */
+	if (eth_hdr->h_proto == htons(ETH_P_HSR)) { /* Okay HSRv1. */
+		hsr_V1_hdr = (struct hsrv1_ethhdr_sp *)skb_mac_header(skb);
+		if (hsr_V1_hdr->hsr.encap_proto != htons(ETH_P_PRP))
+			return false;
+
+		hsr_sup_tag = &hsr_V1_hdr->hsr_sup;
+	} else {
+		hsr_sup_tag =
+		     &((struct hsrv0_ethhdr_sp *)skb_mac_header(skb))->hsr_sup;
+	}
+
+	if (hsr_sup_tag->HSR_TLV_type != HSR_TLV_ANNOUNCE &&
+	    hsr_sup_tag->HSR_TLV_type != HSR_TLV_LIFE_CHECK &&
+	    hsr_sup_tag->HSR_TLV_type != PRP_TLV_LIFE_CHECK_DD &&
+	    hsr_sup_tag->HSR_TLV_type != PRP_TLV_LIFE_CHECK_DA)
+		return false;
+	if (hsr_sup_tag->HSR_TLV_length != 12 &&
+	    hsr_sup_tag->HSR_TLV_length != sizeof(struct hsr_sup_payload))
+>>>>>>> upstream/android-13
 		return false;
 
 	return true;
 }
 
+<<<<<<< HEAD
 
 static struct sk_buff *create_stripped_skb(struct sk_buff *skb_in,
 					   struct hsr_frame_info *frame)
+=======
+static struct sk_buff *create_stripped_skb_hsr(struct sk_buff *skb_in,
+					       struct hsr_frame_info *frame)
+>>>>>>> upstream/android-13
 {
 	struct sk_buff *skb;
 	int copylen;
@@ -100,7 +158,11 @@ static struct sk_buff *create_stripped_skb(struct sk_buff *skb_in,
 	skb_pull(skb_in, HSR_HLEN);
 	skb = __pskb_copy(skb_in, skb_headroom(skb_in) - HSR_HLEN, GFP_ATOMIC);
 	skb_push(skb_in, HSR_HLEN);
+<<<<<<< HEAD
 	if (skb == NULL)
+=======
+	if (!skb)
+>>>>>>> upstream/android-13
 		return NULL;
 
 	skb_reset_mac_header(skb);
@@ -108,7 +170,11 @@ static struct sk_buff *create_stripped_skb(struct sk_buff *skb_in,
 	if (skb->ip_summed == CHECKSUM_PARTIAL)
 		skb->csum_start -= HSR_HLEN;
 
+<<<<<<< HEAD
 	copylen = 2*ETH_ALEN;
+=======
+	copylen = 2 * ETH_ALEN;
+>>>>>>> upstream/android-13
 	if (frame->is_vlan)
 		copylen += VLAN_HLEN;
 	src = skb_mac_header(skb_in);
@@ -119,6 +185,7 @@ static struct sk_buff *create_stripped_skb(struct sk_buff *skb_in,
 	return skb;
 }
 
+<<<<<<< HEAD
 static struct sk_buff *frame_get_stripped_skb(struct hsr_frame_info *frame,
 					      struct hsr_port *port)
 {
@@ -134,16 +201,127 @@ static void hsr_fill_tag(struct sk_buff *skb, struct hsr_frame_info *frame,
 	struct hsr_ethhdr *hsr_ethhdr;
 	int lane_id;
 	int lsdu_size;
+=======
+struct sk_buff *hsr_get_untagged_frame(struct hsr_frame_info *frame,
+				       struct hsr_port *port)
+{
+	if (!frame->skb_std) {
+		if (frame->skb_hsr) {
+			frame->skb_std =
+				create_stripped_skb_hsr(frame->skb_hsr, frame);
+		} else {
+			/* Unexpected */
+			WARN_ONCE(1, "%s:%d: Unexpected frame received (port_src %s)\n",
+				  __FILE__, __LINE__, port->dev->name);
+			return NULL;
+		}
+	}
+
+	return skb_clone(frame->skb_std, GFP_ATOMIC);
+}
+
+struct sk_buff *prp_get_untagged_frame(struct hsr_frame_info *frame,
+				       struct hsr_port *port)
+{
+	if (!frame->skb_std) {
+		if (frame->skb_prp) {
+			/* trim the skb by len - HSR_HLEN to exclude RCT */
+			skb_trim(frame->skb_prp,
+				 frame->skb_prp->len - HSR_HLEN);
+			frame->skb_std =
+				__pskb_copy(frame->skb_prp,
+					    skb_headroom(frame->skb_prp),
+					    GFP_ATOMIC);
+		} else {
+			/* Unexpected */
+			WARN_ONCE(1, "%s:%d: Unexpected frame received (port_src %s)\n",
+				  __FILE__, __LINE__, port->dev->name);
+			return NULL;
+		}
+	}
+
+	return skb_clone(frame->skb_std, GFP_ATOMIC);
+}
+
+static void prp_set_lan_id(struct prp_rct *trailer,
+			   struct hsr_port *port)
+{
+	int lane_id;
+>>>>>>> upstream/android-13
 
 	if (port->type == HSR_PT_SLAVE_A)
 		lane_id = 0;
 	else
 		lane_id = 1;
 
+<<<<<<< HEAD
+=======
+	/* Add net_id in the upper 3 bits of lane_id */
+	lane_id |= port->hsr->net_id;
+	set_prp_lan_id(trailer, lane_id);
+}
+
+/* Tailroom for PRP rct should have been created before calling this */
+static struct sk_buff *prp_fill_rct(struct sk_buff *skb,
+				    struct hsr_frame_info *frame,
+				    struct hsr_port *port)
+{
+	struct prp_rct *trailer;
+	int min_size = ETH_ZLEN;
+	int lsdu_size;
+
+	if (!skb)
+		return skb;
+
+	if (frame->is_vlan)
+		min_size = VLAN_ETH_ZLEN;
+
+	if (skb_put_padto(skb, min_size))
+		return NULL;
+
+	trailer = (struct prp_rct *)skb_put(skb, HSR_HLEN);
+	lsdu_size = skb->len - 14;
+	if (frame->is_vlan)
+		lsdu_size -= 4;
+	prp_set_lan_id(trailer, port);
+	set_prp_LSDU_size(trailer, lsdu_size);
+	trailer->sequence_nr = htons(frame->sequence_nr);
+	trailer->PRP_suffix = htons(ETH_P_PRP);
+	skb->protocol = eth_hdr(skb)->h_proto;
+
+	return skb;
+}
+
+static void hsr_set_path_id(struct hsr_ethhdr *hsr_ethhdr,
+			    struct hsr_port *port)
+{
+	int path_id;
+
+	if (port->type == HSR_PT_SLAVE_A)
+		path_id = 0;
+	else
+		path_id = 1;
+
+	set_hsr_tag_path(&hsr_ethhdr->hsr_tag, path_id);
+}
+
+static struct sk_buff *hsr_fill_tag(struct sk_buff *skb,
+				    struct hsr_frame_info *frame,
+				    struct hsr_port *port, u8 proto_version)
+{
+	struct hsr_ethhdr *hsr_ethhdr;
+	int lsdu_size;
+
+	/* pad to minimum packet size which is 60 + 6 (HSR tag) */
+	if (skb_put_padto(skb, ETH_ZLEN + HSR_HLEN))
+		return NULL;
+
+>>>>>>> upstream/android-13
 	lsdu_size = skb->len - 14;
 	if (frame->is_vlan)
 		lsdu_size -= 4;
 
+<<<<<<< HEAD
 	hsr_ethhdr = (struct hsr_ethhdr *) skb_mac_header(skb);
 
 	set_hsr_tag_path(&hsr_ethhdr->hsr_tag, lane_id);
@@ -165,6 +343,46 @@ static struct sk_buff *create_tagged_skb(struct sk_buff *skb_o,
 	/* Create the new skb with enough headroom to fit the HSR tag */
 	skb = __pskb_copy(skb_o, skb_headroom(skb_o) + HSR_HLEN, GFP_ATOMIC);
 	if (skb == NULL)
+=======
+	hsr_ethhdr = (struct hsr_ethhdr *)skb_mac_header(skb);
+
+	hsr_set_path_id(hsr_ethhdr, port);
+	set_hsr_tag_LSDU_size(&hsr_ethhdr->hsr_tag, lsdu_size);
+	hsr_ethhdr->hsr_tag.sequence_nr = htons(frame->sequence_nr);
+	hsr_ethhdr->hsr_tag.encap_proto = hsr_ethhdr->ethhdr.h_proto;
+	hsr_ethhdr->ethhdr.h_proto = htons(proto_version ?
+			ETH_P_HSR : ETH_P_PRP);
+	skb->protocol = hsr_ethhdr->ethhdr.h_proto;
+
+	return skb;
+}
+
+/* If the original frame was an HSR tagged frame, just clone it to be sent
+ * unchanged. Otherwise, create a private frame especially tagged for 'port'.
+ */
+struct sk_buff *hsr_create_tagged_frame(struct hsr_frame_info *frame,
+					struct hsr_port *port)
+{
+	unsigned char *dst, *src;
+	struct sk_buff *skb;
+	int movelen;
+
+	if (frame->skb_hsr) {
+		struct hsr_ethhdr *hsr_ethhdr =
+			(struct hsr_ethhdr *)skb_mac_header(frame->skb_hsr);
+
+		/* set the lane id properly */
+		hsr_set_path_id(hsr_ethhdr, port);
+		return skb_clone(frame->skb_hsr, GFP_ATOMIC);
+	} else if (port->dev->features & NETIF_F_HW_HSR_TAG_INS) {
+		return skb_clone(frame->skb_std, GFP_ATOMIC);
+	}
+
+	/* Create the new skb with enough headroom to fit the HSR tag */
+	skb = __pskb_copy(frame->skb_std,
+			  skb_headroom(frame->skb_std) + HSR_HLEN, GFP_ATOMIC);
+	if (!skb)
+>>>>>>> upstream/android-13
 		return NULL;
 	skb_reset_mac_header(skb);
 
@@ -180,11 +398,44 @@ static struct sk_buff *create_tagged_skb(struct sk_buff *skb_o,
 	memmove(dst, src, movelen);
 	skb_reset_mac_header(skb);
 
+<<<<<<< HEAD
 	hsr_fill_tag(skb, frame, port, port->hsr->protVersion);
+=======
+	/* skb_put_padto free skb on error and hsr_fill_tag returns NULL in
+	 * that case
+	 */
+	return hsr_fill_tag(skb, frame, port, port->hsr->prot_version);
+}
+
+struct sk_buff *prp_create_tagged_frame(struct hsr_frame_info *frame,
+					struct hsr_port *port)
+{
+	struct sk_buff *skb;
+
+	if (frame->skb_prp) {
+		struct prp_rct *trailer = skb_get_PRP_rct(frame->skb_prp);
+
+		if (trailer) {
+			prp_set_lan_id(trailer, port);
+		} else {
+			WARN_ONCE(!trailer, "errored PRP skb");
+			return NULL;
+		}
+		return skb_clone(frame->skb_prp, GFP_ATOMIC);
+	} else if (port->dev->features & NETIF_F_HW_HSR_TAG_INS) {
+		return skb_clone(frame->skb_std, GFP_ATOMIC);
+	}
+
+	skb = skb_copy_expand(frame->skb_std, 0,
+			      skb_tailroom(frame->skb_std) + HSR_HLEN,
+			      GFP_ATOMIC);
+	prp_fill_rct(skb, frame, port);
+>>>>>>> upstream/android-13
 
 	return skb;
 }
 
+<<<<<<< HEAD
 /* If the original frame was an HSR tagged frame, just clone it to be sent
  * unchanged. Otherwise, create a private frame especially tagged for 'port'.
  */
@@ -203,6 +454,8 @@ static struct sk_buff *frame_get_tagged_skb(struct hsr_frame_info *frame,
 }
 
 
+=======
+>>>>>>> upstream/android-13
 static void hsr_deliver_master(struct sk_buff *skb, struct net_device *dev,
 			       struct hsr_node *node_src)
 {
@@ -237,10 +490,32 @@ static int hsr_xmit(struct sk_buff *skb, struct hsr_port *port,
 	return dev_queue_xmit(skb);
 }
 
+<<<<<<< HEAD
+=======
+bool prp_drop_frame(struct hsr_frame_info *frame, struct hsr_port *port)
+{
+	return ((frame->port_rcv->type == HSR_PT_SLAVE_A &&
+		 port->type ==  HSR_PT_SLAVE_B) ||
+		(frame->port_rcv->type == HSR_PT_SLAVE_B &&
+		 port->type ==  HSR_PT_SLAVE_A));
+}
+
+bool hsr_drop_frame(struct hsr_frame_info *frame, struct hsr_port *port)
+{
+	if (port->dev->features & NETIF_F_HW_HSR_FWD)
+		return prp_drop_frame(frame, port);
+
+	return false;
+}
+>>>>>>> upstream/android-13
 
 /* Forward the frame through all devices except:
  * - Back through the receiving device
  * - If it's a HSR frame: through a device where it has passed before
+<<<<<<< HEAD
+=======
+ * - if it's a PRP frame: through another PRP slave device (no bridge)
+>>>>>>> upstream/android-13
  * - To the local HSR master only if the frame is directly addressed to it, or
  *   a non-supervision multicast or broadcast frame.
  *
@@ -253,13 +528,21 @@ static void hsr_forward_do(struct hsr_frame_info *frame)
 {
 	struct hsr_port *port;
 	struct sk_buff *skb;
+<<<<<<< HEAD
 
 	hsr_for_each_port(frame->port_rcv->hsr, port) {
+=======
+	bool sent = false;
+
+	hsr_for_each_port(frame->port_rcv->hsr, port) {
+		struct hsr_priv *hsr = port->hsr;
+>>>>>>> upstream/android-13
 		/* Don't send frame back the way it came */
 		if (port == frame->port_rcv)
 			continue;
 
 		/* Don't deliver locally unless we should */
+<<<<<<< HEAD
 		if ((port->type == HSR_PT_MASTER) && !frame->is_local_dest)
 			continue;
 
@@ -285,10 +568,53 @@ static void hsr_forward_do(struct hsr_frame_info *frame)
 			skb = frame_get_stripped_skb(frame, port);
 		if (skb == NULL) {
 			/* FIXME: Record the dropped frame? */
+=======
+		if (port->type == HSR_PT_MASTER && !frame->is_local_dest)
+			continue;
+
+		/* Deliver frames directly addressed to us to master only */
+		if (port->type != HSR_PT_MASTER && frame->is_local_exclusive)
+			continue;
+
+		/* If hardware duplicate generation is enabled, only send out
+		 * one port.
+		 */
+		if ((port->dev->features & NETIF_F_HW_HSR_DUP) && sent)
+			continue;
+
+		/* Don't send frame over port where it has been sent before.
+		 * Also fro SAN, this shouldn't be done.
+		 */
+		if (!frame->is_from_san &&
+		    hsr_register_frame_out(port, frame->node_src,
+					   frame->sequence_nr))
+			continue;
+
+		if (frame->is_supervision && port->type == HSR_PT_MASTER) {
+			hsr_handle_sup_frame(frame);
+			continue;
+		}
+
+		/* Check if frame is to be dropped. Eg. for PRP no forward
+		 * between ports.
+		 */
+		if (hsr->proto_ops->drop_frame &&
+		    hsr->proto_ops->drop_frame(frame, port))
+			continue;
+
+		if (port->type != HSR_PT_MASTER)
+			skb = hsr->proto_ops->create_tagged_frame(frame, port);
+		else
+			skb = hsr->proto_ops->get_untagged_frame(frame, port);
+
+		if (!skb) {
+			frame->port_rcv->dev->stats.rx_dropped++;
+>>>>>>> upstream/android-13
 			continue;
 		}
 
 		skb->dev = port->dev;
+<<<<<<< HEAD
 		if (port->type == HSR_PT_MASTER)
 			hsr_deliver_master(skb, port->dev, frame->node_src);
 		else
@@ -297,6 +623,17 @@ static void hsr_forward_do(struct hsr_frame_info *frame)
 }
 
 
+=======
+		if (port->type == HSR_PT_MASTER) {
+			hsr_deliver_master(skb, port->dev, frame->node_src);
+		} else {
+			if (!hsr_xmit(skb, port, frame))
+				sent = true;
+		}
+	}
+}
+
+>>>>>>> upstream/android-13
 static void check_local_dest(struct hsr_priv *hsr, struct sk_buff *skb,
 			     struct hsr_frame_info *frame)
 {
@@ -307,15 +644,22 @@ static void check_local_dest(struct hsr_priv *hsr, struct sk_buff *skb,
 		frame->is_local_exclusive = false;
 	}
 
+<<<<<<< HEAD
 	if ((skb->pkt_type == PACKET_HOST) ||
 	    (skb->pkt_type == PACKET_MULTICAST) ||
 	    (skb->pkt_type == PACKET_BROADCAST)) {
+=======
+	if (skb->pkt_type == PACKET_HOST ||
+	    skb->pkt_type == PACKET_MULTICAST ||
+	    skb->pkt_type == PACKET_BROADCAST) {
+>>>>>>> upstream/android-13
 		frame->is_local_dest = true;
 	} else {
 		frame->is_local_dest = false;
 	}
 }
 
+<<<<<<< HEAD
 
 static int hsr_fill_frame_info(struct hsr_frame_info *frame,
 			       struct sk_buff *skb, struct hsr_port *port)
@@ -351,6 +695,117 @@ static int hsr_fill_frame_info(struct hsr_frame_info *frame,
 	}
 
 	frame->port_rcv = port;
+=======
+static void handle_std_frame(struct sk_buff *skb,
+			     struct hsr_frame_info *frame)
+{
+	struct hsr_port *port = frame->port_rcv;
+	struct hsr_priv *hsr = port->hsr;
+	unsigned long irqflags;
+
+	frame->skb_hsr = NULL;
+	frame->skb_prp = NULL;
+	frame->skb_std = skb;
+
+	if (port->type != HSR_PT_MASTER) {
+		frame->is_from_san = true;
+	} else {
+		/* Sequence nr for the master node */
+		spin_lock_irqsave(&hsr->seqnr_lock, irqflags);
+		frame->sequence_nr = hsr->sequence_nr;
+		hsr->sequence_nr++;
+		spin_unlock_irqrestore(&hsr->seqnr_lock, irqflags);
+	}
+}
+
+int hsr_fill_frame_info(__be16 proto, struct sk_buff *skb,
+			struct hsr_frame_info *frame)
+{
+	struct hsr_port *port = frame->port_rcv;
+	struct hsr_priv *hsr = port->hsr;
+
+	/* HSRv0 supervisory frames double as a tag so treat them as tagged. */
+	if ((!hsr->prot_version && proto == htons(ETH_P_PRP)) ||
+	    proto == htons(ETH_P_HSR)) {
+		/* Check if skb contains hsr_ethhdr */
+		if (skb->mac_len < sizeof(struct hsr_ethhdr))
+			return -EINVAL;
+
+		/* HSR tagged frame :- Data or Supervision */
+		frame->skb_std = NULL;
+		frame->skb_prp = NULL;
+		frame->skb_hsr = skb;
+		frame->sequence_nr = hsr_get_skb_sequence_nr(skb);
+		return 0;
+	}
+
+	/* Standard frame or PRP from master port */
+	handle_std_frame(skb, frame);
+
+	return 0;
+}
+
+int prp_fill_frame_info(__be16 proto, struct sk_buff *skb,
+			struct hsr_frame_info *frame)
+{
+	/* Supervision frame */
+	struct prp_rct *rct = skb_get_PRP_rct(skb);
+
+	if (rct &&
+	    prp_check_lsdu_size(skb, rct, frame->is_supervision)) {
+		frame->skb_hsr = NULL;
+		frame->skb_std = NULL;
+		frame->skb_prp = skb;
+		frame->sequence_nr = prp_get_skb_sequence_nr(rct);
+		return 0;
+	}
+	handle_std_frame(skb, frame);
+
+	return 0;
+}
+
+static int fill_frame_info(struct hsr_frame_info *frame,
+			   struct sk_buff *skb, struct hsr_port *port)
+{
+	struct hsr_priv *hsr = port->hsr;
+	struct hsr_vlan_ethhdr *vlan_hdr;
+	struct ethhdr *ethhdr;
+	__be16 proto;
+	int ret;
+
+	/* Check if skb contains ethhdr */
+	if (skb->mac_len < sizeof(struct ethhdr))
+		return -EINVAL;
+
+	memset(frame, 0, sizeof(*frame));
+	frame->is_supervision = is_supervision_frame(port->hsr, skb);
+	frame->node_src = hsr_get_node(port, &hsr->node_db, skb,
+				       frame->is_supervision,
+				       port->type);
+	if (!frame->node_src)
+		return -1; /* Unknown node and !is_supervision, or no mem */
+
+	ethhdr = (struct ethhdr *)skb_mac_header(skb);
+	frame->is_vlan = false;
+	proto = ethhdr->h_proto;
+
+	if (proto == htons(ETH_P_8021Q))
+		frame->is_vlan = true;
+
+	if (frame->is_vlan) {
+		vlan_hdr = (struct hsr_vlan_ethhdr *)ethhdr;
+		proto = vlan_hdr->vlanhdr.h_vlan_encapsulated_proto;
+		/* FIXME: */
+		netdev_warn_once(skb->dev, "VLAN not yet supported");
+	}
+
+	frame->is_from_san = false;
+	frame->port_rcv = port;
+	ret = hsr->proto_ops->fill_frame_info(proto, skb, frame);
+	if (ret)
+		return ret;
+
+>>>>>>> upstream/android-13
 	check_local_dest(port->hsr, skb, frame);
 
 	return 0;
@@ -361,6 +816,7 @@ void hsr_forward_skb(struct sk_buff *skb, struct hsr_port *port)
 {
 	struct hsr_frame_info frame;
 
+<<<<<<< HEAD
 	if (skb_mac_header(skb) != skb->data) {
 		WARN_ONCE(1, "%s:%d: Malformed frame (port_src %s)\n",
 			  __FILE__, __LINE__, port->dev->name);
@@ -376,6 +832,24 @@ void hsr_forward_skb(struct sk_buff *skb, struct hsr_port *port)
 		kfree_skb(frame.skb_hsr);
 	if (frame.skb_std != NULL)
 		kfree_skb(frame.skb_std);
+=======
+	if (fill_frame_info(&frame, skb, port) < 0)
+		goto out_drop;
+
+	hsr_register_frame_in(frame.node_src, port, frame.sequence_nr);
+	hsr_forward_do(&frame);
+	/* Gets called for ingress frames as well as egress from master port.
+	 * So check and increment stats for master port only here.
+	 */
+	if (port->type == HSR_PT_MASTER) {
+		port->dev->stats.tx_packets++;
+		port->dev->stats.tx_bytes += skb->len;
+	}
+
+	kfree_skb(frame.skb_hsr);
+	kfree_skb(frame.skb_prp);
+	kfree_skb(frame.skb_std);
+>>>>>>> upstream/android-13
 	return;
 
 out_drop:

@@ -69,7 +69,11 @@ struct usbdevfs_urb32 {
 	compat_int_t error_count;
 	compat_uint_t signr;
 	compat_caddr_t usercontext; /* unused */
+<<<<<<< HEAD
 	struct usbdevfs_iso_packet_desc iso_frame_desc[0];
+=======
+	struct usbdevfs_iso_packet_desc iso_frame_desc[];
+>>>>>>> upstream/android-13
 };
 
 struct usbdevfs_ioctl32 {

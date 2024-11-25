@@ -116,7 +116,11 @@ static void mac_init_asc( void )
 			 *   support 16-bit stereo output, but only mono input."
 			 *
 			 *   Technical Information Library (TIL) article number 16405. 
+<<<<<<< HEAD
 			 *   http://support.apple.com/kb/TA32601 
+=======
+			 *   https://support.apple.com/kb/TA32601
+>>>>>>> upstream/android-13
 			 *
 			 * --David Kilzer
 			 */

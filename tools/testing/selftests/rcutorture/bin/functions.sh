@@ -1,4 +1,5 @@
 #!/bin/bash
+<<<<<<< HEAD
 #
 # Shell functions for the rest of the scripts.
 #
@@ -19,13 +20,26 @@
 # Copyright (C) IBM Corporation, 2013
 #
 # Authors: Paul E. McKenney <paulmck@linux.vnet.ibm.com>
+=======
+# SPDX-License-Identifier: GPL-2.0+
+#
+# Shell functions for the rest of the scripts.
+#
+# Copyright (C) IBM Corporation, 2013
+#
+# Authors: Paul E. McKenney <paulmck@linux.ibm.com>
+>>>>>>> upstream/android-13
 
 # bootparam_hotplug_cpu bootparam-string
 #
 # Returns 1 if the specified boot-parameter string tells rcutorture to
 # test CPU-hotplug operations.
 bootparam_hotplug_cpu () {
+<<<<<<< HEAD
 	echo "$1" | grep -q "rcutorture\.onoff_"
+=======
+	echo "$1" | grep -q "torture\.onoff_"
+>>>>>>> upstream/android-13
 }
 
 # checkarg --argname argtype $# arg mustmatch cannotmatch
@@ -121,6 +135,42 @@ configfrag_hotplug_cpu () {
 	grep -q '^CONFIG_HOTPLUG_CPU=y$' "$1"
 }
 
+<<<<<<< HEAD
+=======
+# get_starttime
+#
+# Returns a cookie identifying the current time.
+get_starttime () {
+	awk 'BEGIN { print systime() }' < /dev/null
+}
+
+# get_starttime_duration starttime
+#
+# Given the return value from get_starttime, compute a human-readable
+# string denoting the time since get_starttime.
+get_starttime_duration () {
+	awk -v starttime=$1 '
+	BEGIN {
+		ts = systime() - starttime; 
+		tm = int(ts / 60);
+		th = int(ts / 3600);
+		td = int(ts / 86400);
+		d = td;
+		h = th - td * 24;
+		m = tm - th * 60;
+		s = ts - tm * 60;
+		if (d >= 1)
+			printf "%dd %d:%02d:%02d\n", d, h, m, s
+		else if (h >= 1)
+			printf "%d:%02d:%02d\n", h, m, s
+		else if (m >= 1)
+			printf "%d:%02d.0\n", m, s
+		else
+			print s " seconds"
+	}' < /dev/null
+}
+
+>>>>>>> upstream/android-13
 # identify_boot_image qemu-cmd
 #
 # Returns the relative path to the kernel build image.  This will be
@@ -182,10 +232,19 @@ identify_qemu () {
 # Output arguments for the qemu "-append" string based on CPU type
 # and the TORTURE_QEMU_INTERACTIVE environment variable.
 identify_qemu_append () {
+<<<<<<< HEAD
 	local console=ttyS0
 	case "$1" in
 	qemu-system-x86_64|qemu-system-i386)
 		echo noapic selinux=0 initcall_debug debug
+=======
+	echo debug_boot_weak_hash
+	echo panic=-1
+	local console=ttyS0
+	case "$1" in
+	qemu-system-x86_64|qemu-system-i386)
+		echo selinux=0 initcall_debug debug
+>>>>>>> upstream/android-13
 		;;
 	qemu-system-aarch64)
 		console=ttyAMA0
@@ -204,8 +263,24 @@ identify_qemu_append () {
 # Output arguments for qemu arguments based on the TORTURE_QEMU_MAC
 # and TORTURE_QEMU_INTERACTIVE environment variables.
 identify_qemu_args () {
+<<<<<<< HEAD
 	case "$1" in
 	qemu-system-x86_64|qemu-system-i386)
+=======
+	local KVM_CPU=""
+	case "$1" in
+	qemu-system-x86_64)
+		KVM_CPU=kvm64
+		;;
+	qemu-system-i386)
+		KVM_CPU=kvm32
+		;;
+	esac
+	case "$1" in
+	qemu-system-x86_64|qemu-system-i386)
+		echo -machine q35,accel=kvm
+		echo -cpu ${KVM_CPU}
+>>>>>>> upstream/android-13
 		;;
 	qemu-system-aarch64)
 		echo -machine virt,gic-version=host -cpu host
@@ -217,9 +292,12 @@ identify_qemu_args () {
 		then
 			echo -device spapr-vlan,netdev=net0,mac=$TORTURE_QEMU_MAC
 			echo -netdev bridge,br=br0,id=net0
+<<<<<<< HEAD
 		elif test -n "$TORTURE_QEMU_INTERACTIVE"
 		then
 			echo -net nic -net user
+=======
+>>>>>>> upstream/android-13
 		fi
 		;;
 	esac
@@ -236,7 +314,11 @@ identify_qemu_args () {
 # Returns the number of virtual CPUs available to the aggregate of the
 # guest OSes.
 identify_qemu_vcpus () {
+<<<<<<< HEAD
 	lscpu | grep '^CPU(s):' | sed -e 's/CPU(s)://'
+=======
+	getconf _NPROCESSORS_ONLN
+>>>>>>> upstream/android-13
 }
 
 # print_bug
@@ -277,3 +359,24 @@ specify_qemu_cpus () {
 		esac
 	fi
 }
+<<<<<<< HEAD
+=======
+
+# specify_qemu_net qemu-args
+#
+# Appends a string containing "-net none" to qemu-args, unless the incoming
+# qemu-args already contains "-smp" or unless the TORTURE_QEMU_INTERACTIVE
+# environment variable is set, in which case the string that is be added is
+# instead "-net nic -net user".
+specify_qemu_net () {
+	if echo $1 | grep -q -e -net
+	then
+		echo $1
+	elif test -n "$TORTURE_QEMU_INTERACTIVE"
+	then
+		echo $1 -net nic -net user
+	else
+		echo $1 -net none
+	fi
+}
+>>>>>>> upstream/android-13

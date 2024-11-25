@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * itmt.c: Support Intel Turbo Boost Max Technology 3.0
  *
  * (C) Copyright 2016 Intel Corporation
  * Author: Tim Chen <tim.c.chen@linux.intel.com>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; version 2
  * of the License.
  *
+=======
+>>>>>>> upstream/android-13
  * On platforms supporting Intel Turbo Boost Max Technology 3.0, (ITMT),
  * the maximum turbo frequencies of some cores in a CPU package may be
  * higher than for the other cores in the same package.  In that case,
@@ -43,8 +50,12 @@ static bool __read_mostly sched_itmt_capable;
 unsigned int __read_mostly sysctl_sched_itmt_enabled;
 
 static int sched_itmt_update_handler(struct ctl_table *table, int write,
+<<<<<<< HEAD
 				     void __user *buffer, size_t *lenp,
 				     loff_t *ppos)
+=======
+				     void *buffer, size_t *lenp, loff_t *ppos)
+>>>>>>> upstream/android-13
 {
 	unsigned int old_sysctl;
 	int ret;
@@ -69,8 +80,11 @@ static int sched_itmt_update_handler(struct ctl_table *table, int write,
 	return ret;
 }
 
+<<<<<<< HEAD
 static unsigned int zero;
 static unsigned int one = 1;
+=======
+>>>>>>> upstream/android-13
 static struct ctl_table itmt_kern_table[] = {
 	{
 		.procname	= "sched_itmt_enabled",
@@ -78,8 +92,13 @@ static struct ctl_table itmt_kern_table[] = {
 		.maxlen		= sizeof(unsigned int),
 		.mode		= 0644,
 		.proc_handler	= sched_itmt_update_handler,
+<<<<<<< HEAD
 		.extra1		= &zero,
 		.extra2		= &one,
+=======
+		.extra1		= SYSCTL_ZERO,
+		.extra2		= SYSCTL_ONE,
+>>>>>>> upstream/android-13
 	},
 	{}
 };

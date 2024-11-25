@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2012 Red Hat, Inc.
  * Copyright (C) 2012 Jeremy Kerr <jeremy.kerr@canonical.com>
@@ -5,11 +6,21 @@
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2012 Red Hat, Inc.
+ * Copyright (C) 2012 Jeremy Kerr <jeremy.kerr@canonical.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/ctype.h>
 #include <linux/efi.h>
 #include <linux/fs.h>
+<<<<<<< HEAD
+=======
+#include <linux/fs_context.h>
+>>>>>>> upstream/android-13
 #include <linux/module.h>
 #include <linux/pagemap.h>
 #include <linux/ucs2_string.h>
@@ -31,8 +42,11 @@ static const struct super_operations efivarfs_ops = {
 	.evict_inode = efivarfs_evict_inode,
 };
 
+<<<<<<< HEAD
 static struct super_block *efivarfs_sb;
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Compare two efivarfs file names.
  *
@@ -194,14 +208,21 @@ static int efivarfs_destroy(struct efivar_entry *entry, void *data)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int efivarfs_fill_super(struct super_block *sb, void *data, int silent)
+=======
+static int efivarfs_fill_super(struct super_block *sb, struct fs_context *fc)
+>>>>>>> upstream/android-13
 {
 	struct inode *inode = NULL;
 	struct dentry *root;
 	int err;
 
+<<<<<<< HEAD
 	efivarfs_sb = sb;
 
+=======
+>>>>>>> upstream/android-13
 	sb->s_maxbytes          = MAX_LFS_FILESIZE;
 	sb->s_blocksize         = PAGE_SIZE;
 	sb->s_blocksize_bits    = PAGE_SHIFT;
@@ -210,6 +231,12 @@ static int efivarfs_fill_super(struct super_block *sb, void *data, int silent)
 	sb->s_d_op		= &efivarfs_d_ops;
 	sb->s_time_gran         = 1;
 
+<<<<<<< HEAD
+=======
+	if (!efivar_supports_writes())
+		sb->s_flags |= SB_RDONLY;
+
+>>>>>>> upstream/android-13
 	inode = efivarfs_get_inode(sb, NULL, S_IFDIR | 0755, 0, true);
 	if (!inode)
 		return -ENOMEM;
@@ -229,16 +256,35 @@ static int efivarfs_fill_super(struct super_block *sb, void *data, int silent)
 	return err;
 }
 
+<<<<<<< HEAD
 static struct dentry *efivarfs_mount(struct file_system_type *fs_type,
 				    int flags, const char *dev_name, void *data)
 {
 	return mount_single(fs_type, flags, data, efivarfs_fill_super);
+=======
+static int efivarfs_get_tree(struct fs_context *fc)
+{
+	return get_tree_single(fc, efivarfs_fill_super);
+}
+
+static const struct fs_context_operations efivarfs_context_ops = {
+	.get_tree	= efivarfs_get_tree,
+};
+
+static int efivarfs_init_fs_context(struct fs_context *fc)
+{
+	fc->ops = &efivarfs_context_ops;
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static void efivarfs_kill_sb(struct super_block *sb)
 {
 	kill_litter_super(sb);
+<<<<<<< HEAD
 	efivarfs_sb = NULL;
+=======
+>>>>>>> upstream/android-13
 
 	/* Remove all entries and destroy */
 	__efivar_entry_iter(efivarfs_destroy, &efivarfs_list, NULL, NULL);
@@ -247,15 +293,22 @@ static void efivarfs_kill_sb(struct super_block *sb)
 static struct file_system_type efivarfs_type = {
 	.owner   = THIS_MODULE,
 	.name    = "efivarfs",
+<<<<<<< HEAD
 	.mount   = efivarfs_mount,
+=======
+	.init_fs_context = efivarfs_init_fs_context,
+>>>>>>> upstream/android-13
 	.kill_sb = efivarfs_kill_sb,
 };
 
 static __init int efivarfs_init(void)
 {
+<<<<<<< HEAD
 	if (!efi_enabled(EFI_RUNTIME_SERVICES))
 		return -ENODEV;
 
+=======
+>>>>>>> upstream/android-13
 	if (!efivars_kobject())
 		return -ENODEV;
 
@@ -270,6 +323,10 @@ static __exit void efivarfs_exit(void)
 MODULE_AUTHOR("Matthew Garrett, Jeremy Kerr");
 MODULE_DESCRIPTION("EFI Variable Filesystem");
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
+=======
+MODULE_IMPORT_NS(ANDROID_GKI_VFS_EXPORT_ONLY);
+>>>>>>> upstream/android-13
 MODULE_ALIAS_FS("efivarfs");
 
 module_init(efivarfs_init);

@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * dmic.c  --  SoC audio for Generic Digital MICs
  *
  * Author: Liam Girdwood <lrg@slimlogic.co.uk>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -17,6 +22,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/delay.h>
@@ -30,9 +37,45 @@
 #include <sound/soc.h>
 #include <sound/soc-dapm.h>
 
+<<<<<<< HEAD
 struct dmic {
 	struct gpio_desc *gpio_en;
 	int wakeup_delay;
+=======
+#define MAX_MODESWITCH_DELAY 70
+static int modeswitch_delay;
+module_param(modeswitch_delay, uint, 0644);
+
+static int wakeup_delay;
+module_param(wakeup_delay, uint, 0644);
+
+struct dmic {
+	struct gpio_desc *gpio_en;
+	int wakeup_delay;
+	/* Delay after DMIC mode switch */
+	int modeswitch_delay;
+};
+
+static int dmic_daiops_trigger(struct snd_pcm_substream *substream,
+			       int cmd, struct snd_soc_dai *dai)
+{
+	struct snd_soc_component *component = dai->component;
+	struct dmic *dmic = snd_soc_component_get_drvdata(component);
+
+	switch (cmd) {
+	case SNDRV_PCM_TRIGGER_STOP:
+		if (dmic->modeswitch_delay)
+			mdelay(dmic->modeswitch_delay);
+
+		break;
+	}
+
+	return 0;
+}
+
+static const struct snd_soc_dai_ops dmic_dai_ops = {
+	.trigger	= dmic_daiops_trigger,
+>>>>>>> upstream/android-13
 };
 
 static int dmic_aif_event(struct snd_soc_dapm_widget *w,
@@ -43,14 +86,22 @@ static int dmic_aif_event(struct snd_soc_dapm_widget *w,
 	switch (event) {
 	case SND_SOC_DAPM_POST_PMU:
 		if (dmic->gpio_en)
+<<<<<<< HEAD
 			gpiod_set_value(dmic->gpio_en, 1);
+=======
+			gpiod_set_value_cansleep(dmic->gpio_en, 1);
+>>>>>>> upstream/android-13
 
 		if (dmic->wakeup_delay)
 			msleep(dmic->wakeup_delay);
 		break;
 	case SND_SOC_DAPM_POST_PMD:
 		if (dmic->gpio_en)
+<<<<<<< HEAD
 			gpiod_set_value(dmic->gpio_en, 0);
+=======
+			gpiod_set_value_cansleep(dmic->gpio_en, 0);
+>>>>>>> upstream/android-13
 		break;
 	}
 
@@ -68,6 +119,10 @@ static struct snd_soc_dai_driver dmic_dai = {
 			| SNDRV_PCM_FMTBIT_S24_LE
 			| SNDRV_PCM_FMTBIT_S16_LE,
 	},
+<<<<<<< HEAD
+=======
+	.ops    = &dmic_dai_ops,
+>>>>>>> upstream/android-13
 };
 
 static int dmic_component_probe(struct snd_soc_component *component)
@@ -85,6 +140,18 @@ static int dmic_component_probe(struct snd_soc_component *component)
 
 	device_property_read_u32(component->dev, "wakeup-delay-ms",
 				 &dmic->wakeup_delay);
+<<<<<<< HEAD
+=======
+	device_property_read_u32(component->dev, "modeswitch-delay-ms",
+				 &dmic->modeswitch_delay);
+	if (wakeup_delay)
+		dmic->wakeup_delay  = wakeup_delay;
+	if (modeswitch_delay)
+		dmic->modeswitch_delay  = modeswitch_delay;
+
+	if (dmic->modeswitch_delay > MAX_MODESWITCH_DELAY)
+		dmic->modeswitch_delay = MAX_MODESWITCH_DELAY;
+>>>>>>> upstream/android-13
 
 	snd_soc_component_set_drvdata(component, dmic);
 
@@ -148,6 +215,10 @@ static const struct of_device_id dmic_dev_match[] = {
 	{.compatible = "dmic-codec"},
 	{}
 };
+<<<<<<< HEAD
+=======
+MODULE_DEVICE_TABLE(of, dmic_dev_match);
+>>>>>>> upstream/android-13
 
 static struct platform_driver dmic_driver = {
 	.driver = {

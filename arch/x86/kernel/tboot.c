@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * tboot.c: main implementation of helper functions used by kernel for
  *          runtime support of Intel(R) Trusted Execution Technology
  *
  * Copyright (c) 2006-2009, Intel Corporation
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -20,6 +25,11 @@
  */
 
 #include <linux/dma_remapping.h>
+=======
+ */
+
+#include <linux/intel-iommu.h>
+>>>>>>> upstream/android-13
 #include <linux/init_task.h>
 #include <linux/spinlock.h>
 #include <linux/export.h>
@@ -36,7 +46,10 @@
 #include <asm/realmode.h>
 #include <asm/processor.h>
 #include <asm/bootparam.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/pgalloc.h>
 #include <asm/swiotlb.h>
 #include <asm/fixmap.h>
@@ -48,8 +61,12 @@
 #include "../realmode/rm/wakeup.h"
 
 /* Global pointer to shared data; NULL means no measured launch. */
+<<<<<<< HEAD
 struct tboot *tboot __read_mostly;
 EXPORT_SYMBOL(tboot);
+=======
+static struct tboot *tboot __read_mostly;
+>>>>>>> upstream/android-13
 
 /* timeout for APs (in secs) to enter wait-for-SIPI state during shutdown */
 #define AP_WAIT_TIMEOUT		1
@@ -59,6 +76,38 @@ EXPORT_SYMBOL(tboot);
 
 static u8 tboot_uuid[16] __initdata = TBOOT_UUID;
 
+<<<<<<< HEAD
+=======
+bool tboot_enabled(void)
+{
+	return tboot != NULL;
+}
+
+/* noinline to prevent gcc from warning about dereferencing constant fixaddr */
+static noinline __init bool check_tboot_version(void)
+{
+	if (memcmp(&tboot_uuid, &tboot->uuid, sizeof(tboot->uuid))) {
+		pr_warn("tboot at 0x%llx is invalid\n", boot_params.tboot_addr);
+		return false;
+	}
+
+	if (tboot->version < 5) {
+		pr_warn("tboot version is invalid: %u\n", tboot->version);
+		return false;
+	}
+
+	pr_info("found shared page at phys addr 0x%llx:\n",
+		boot_params.tboot_addr);
+	pr_debug("version: %d\n", tboot->version);
+	pr_debug("log_addr: 0x%08x\n", tboot->log_addr);
+	pr_debug("shutdown_entry: 0x%x\n", tboot->shutdown_entry);
+	pr_debug("tboot_base: 0x%08x\n", tboot->tboot_base);
+	pr_debug("tboot_size: 0x%x\n", tboot->tboot_size);
+
+	return true;
+}
+
+>>>>>>> upstream/android-13
 void __init tboot_probe(void)
 {
 	/* Look for valid page-aligned address for shared page. */
@@ -70,12 +119,17 @@ void __init tboot_probe(void)
 	 */
 	if (!e820__mapped_any(boot_params.tboot_addr,
 			     boot_params.tboot_addr, E820_TYPE_RESERVED)) {
+<<<<<<< HEAD
 		pr_warning("non-0 tboot_addr but it is not of type E820_TYPE_RESERVED\n");
+=======
+		pr_warn("non-0 tboot_addr but it is not of type E820_TYPE_RESERVED\n");
+>>>>>>> upstream/android-13
 		return;
 	}
 
 	/* Map and check for tboot UUID. */
 	set_fixmap(FIX_TBOOT_BASE, boot_params.tboot_addr);
+<<<<<<< HEAD
 	tboot = (struct tboot *)fix_to_virt(FIX_TBOOT_BASE);
 	if (memcmp(&tboot_uuid, &tboot->uuid, sizeof(tboot->uuid))) {
 		pr_warning("tboot at 0x%llx is invalid\n",
@@ -96,6 +150,11 @@ void __init tboot_probe(void)
 	pr_debug("shutdown_entry: 0x%x\n", tboot->shutdown_entry);
 	pr_debug("tboot_base: 0x%08x\n", tboot->tboot_base);
 	pr_debug("tboot_size: 0x%x\n", tboot->tboot_size);
+=======
+	tboot = (void *)fix_to_virt(FIX_TBOOT_BASE);
+	if (!check_tboot_version())
+		tboot = NULL;
+>>>>>>> upstream/android-13
 }
 
 static pgd_t *tboot_pg_dir;
@@ -104,7 +163,12 @@ static struct mm_struct tboot_mm = {
 	.pgd            = swapper_pg_dir,
 	.mm_users       = ATOMIC_INIT(2),
 	.mm_count       = ATOMIC_INIT(1),
+<<<<<<< HEAD
 	.mmap_sem       = __RWSEM_INITIALIZER(init_mm.mmap_sem),
+=======
+	.write_protect_seq = SEQCNT_ZERO(tboot_mm.write_protect_seq),
+	MMAP_LOCK_INITIALIZER(init_mm)
+>>>>>>> upstream/android-13
 	.page_table_lock =  __SPIN_LOCK_UNLOCKED(init_mm.page_table_lock),
 	.mmlist         = LIST_HEAD_INIT(init_mm.mmlist),
 };
@@ -302,7 +366,11 @@ static int tboot_sleep(u8 sleep_state, u32 pm1a_control, u32 pm1b_control)
 
 	if (sleep_state >= ACPI_S_STATE_COUNT ||
 	    acpi_shutdown_map[sleep_state] == -1) {
+<<<<<<< HEAD
 		pr_warning("unsupported sleep state 0x%x\n", sleep_state);
+=======
+		pr_warn("unsupported sleep state 0x%x\n", sleep_state);
+>>>>>>> upstream/android-13
 		return -1;
 	}
 
@@ -315,7 +383,11 @@ static int tboot_extended_sleep(u8 sleep_state, u32 val_a, u32 val_b)
 	if (!tboot_enabled())
 		return 0;
 
+<<<<<<< HEAD
 	pr_warning("tboot is not able to suspend on platforms with reduced hardware sleep (ACPIv5)");
+=======
+	pr_warn("tboot is not able to suspend on platforms with reduced hardware sleep (ACPIv5)");
+>>>>>>> upstream/android-13
 	return -ENODEV;
 }
 
@@ -333,7 +405,11 @@ static int tboot_wait_for_aps(int num_aps)
 	}
 
 	if (timeout)
+<<<<<<< HEAD
 		pr_warning("tboot wait for APs timeout\n");
+=======
+		pr_warn("tboot wait for APs timeout\n");
+>>>>>>> upstream/android-13
 
 	return !(atomic_read((atomic_t *)&tboot->num_in_wfs) == num_aps);
 }
@@ -368,7 +444,11 @@ static ssize_t tboot_log_read(struct file *file, char __user *user_buf, size_t c
 	void *kbuf;
 	int ret = -EFAULT;
 
+<<<<<<< HEAD
 	log_base = ioremap_nocache(TBOOT_SERIAL_LOG_ADDR, TBOOT_SERIAL_LOG_SIZE);
+=======
+	log_base = ioremap(TBOOT_SERIAL_LOG_ADDR, TBOOT_SERIAL_LOG_SIZE);
+>>>>>>> upstream/android-13
 	if (!log_base)
 		return ret;
 
@@ -525,6 +605,7 @@ int tboot_force_iommu(void)
 	if (!tboot_enabled())
 		return 0;
 
+<<<<<<< HEAD
 	if (intel_iommu_tboot_noforce)
 		return 1;
 
@@ -535,6 +616,12 @@ int tboot_force_iommu(void)
 #ifdef CONFIG_SWIOTLB
 	swiotlb = 0;
 #endif
+=======
+	if (no_iommu || dmar_disabled)
+		pr_warn("Forcing Intel-IOMMU to enabled\n");
+
+	dmar_disabled = 0;
+>>>>>>> upstream/android-13
 	no_iommu = 0;
 
 	return 1;

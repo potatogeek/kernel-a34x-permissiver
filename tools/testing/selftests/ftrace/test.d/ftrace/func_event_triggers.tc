@@ -3,11 +3,18 @@
 # description: ftrace - test for function event triggers
 # flags: instance
 #
+<<<<<<< HEAD
+=======
+# The triggers are set within the set_ftrace_filter file
+# requires: set_ftrace_filter
+#
+>>>>>>> upstream/android-13
 # Ftrace allows to add triggers to functions, such as enabling or disabling
 # tracing, enabling or disabling trace events, or recording a stack trace
 # within the ring buffer.
 #
 # This test is designed to test event triggers
+<<<<<<< HEAD
 #
 
 # The triggers are set within the set_ftrace_filter file
@@ -15,6 +22,8 @@ if [ ! -f set_ftrace_filter ]; then
     echo "set_ftrace_filter not found? Is dynamic ftrace not set?"
     exit_unsupported
 fi
+=======
+>>>>>>> upstream/android-13
 
 do_reset() {
     reset_ftrace_filter
@@ -25,15 +34,21 @@ do_reset() {
 }
 
 fail() { # mesg
+<<<<<<< HEAD
     do_reset
+=======
+>>>>>>> upstream/android-13
     echo $1
     exit_fail
 }
 
 SLEEP_TIME=".1"
 
+<<<<<<< HEAD
 do_reset
 
+=======
+>>>>>>> upstream/android-13
 echo "Testing function probes with events:"
 
 EVENT="sched:sched_switch"

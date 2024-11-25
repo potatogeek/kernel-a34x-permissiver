@@ -26,6 +26,7 @@
  *
  **************************************************************************/
 
+<<<<<<< HEAD
 #include <linux/export.h>
 
 #include <drm/drmP.h>
@@ -34,6 +35,16 @@
 
 #include <drm/ttm/ttm_placement.h>
 
+=======
+#include <linux/pci.h>
+
+#include <drm/drm_fourcc.h>
+#include <drm/ttm/ttm_placement.h>
+
+#include "vmwgfx_drv.h"
+#include "vmwgfx_kms.h"
+
+>>>>>>> upstream/android-13
 #define VMW_DIRTY_DELAY (HZ / 30)
 
 struct vmw_fb_par {
@@ -195,7 +206,10 @@ static void vmw_fb_dirty_flush(struct work_struct *work)
 	if (!cur_fb)
 		goto out_unlock;
 
+<<<<<<< HEAD
 	(void) ttm_read_lock(&vmw_priv->reservation_sem, false);
+=======
+>>>>>>> upstream/android-13
 	(void) ttm_bo_reserve(&vbo->base, false, false, NULL);
 	virtual = vmw_bo_map_and_cache(vbo);
 	if (!virtual)
@@ -254,11 +268,18 @@ static void vmw_fb_dirty_flush(struct work_struct *work)
 
 out_unreserve:
 	ttm_bo_unreserve(&vbo->base);
+<<<<<<< HEAD
 	ttm_read_unlock(&vmw_priv->reservation_sem);
 	if (w && h) {
 		WARN_ON_ONCE(par->set_fb->funcs->dirty(cur_fb, NULL, 0, 0,
 						       &clip, 1));
 		vmw_fifo_flush(vmw_priv, false);
+=======
+	if (w && h) {
+		WARN_ON_ONCE(par->set_fb->funcs->dirty(cur_fb, NULL, 0, 0,
+						       &clip, 1));
+		vmw_cmd_flush(vmw_priv, false);
+>>>>>>> upstream/android-13
 	}
 out_unlock:
 	mutex_unlock(&par->bo_mutex);
@@ -396,8 +417,11 @@ static int vmw_fb_create_bo(struct vmw_private *vmw_priv,
 	struct vmw_buffer_object *vmw_bo;
 	int ret;
 
+<<<<<<< HEAD
 	(void) ttm_write_lock(&vmw_priv->reservation_sem, false);
 
+=======
+>>>>>>> upstream/android-13
 	vmw_bo = kmalloc(sizeof(*vmw_bo), GFP_KERNEL);
 	if (!vmw_bo) {
 		ret = -ENOMEM;
@@ -406,18 +430,27 @@ static int vmw_fb_create_bo(struct vmw_private *vmw_priv,
 
 	ret = vmw_bo_init(vmw_priv, vmw_bo, size,
 			      &vmw_sys_placement,
+<<<<<<< HEAD
 			      false,
+=======
+			      false, false,
+>>>>>>> upstream/android-13
 			      &vmw_bo_bo_free);
 	if (unlikely(ret != 0))
 		goto err_unlock; /* init frees the buffer on failure */
 
 	*out = vmw_bo;
+<<<<<<< HEAD
 	ttm_write_unlock(&vmw_priv->reservation_sem);
 
 	return 0;
 
 err_unlock:
 	ttm_write_unlock(&vmw_priv->reservation_sem);
+=======
+
+err_unlock:
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -481,7 +514,11 @@ static int vmw_fb_kms_detach(struct vmw_fb_par *par,
 			DRM_ERROR("Could not unset a mode.\n");
 			return ret;
 		}
+<<<<<<< HEAD
 		drm_mode_destroy(par->vmw_priv->dev, par->set_mode);
+=======
+		drm_mode_destroy(&par->vmw_priv->drm, par->set_mode);
+>>>>>>> upstream/android-13
 		par->set_mode = NULL;
 	}
 
@@ -498,7 +535,11 @@ static int vmw_fb_kms_detach(struct vmw_fb_par *par,
 
 static int vmw_fb_kms_framebuffer(struct fb_info *info)
 {
+<<<<<<< HEAD
 	struct drm_mode_fb_cmd2 mode_cmd;
+=======
+	struct drm_mode_fb_cmd2 mode_cmd = {0};
+>>>>>>> upstream/android-13
 	struct vmw_fb_par *par = info->par;
 	struct fb_var_screeninfo *var = &info->var;
 	struct drm_framebuffer *cur_fb;
@@ -567,7 +608,11 @@ static int vmw_fb_set_par(struct fb_info *info)
 	struct drm_display_mode *mode;
 	int ret;
 
+<<<<<<< HEAD
 	mode = drm_mode_duplicate(vmw_priv->dev, &new_mode);
+=======
+	mode = drm_mode_duplicate(&vmw_priv->drm, &new_mode);
+>>>>>>> upstream/android-13
 	if (!mode) {
 		DRM_ERROR("Could not create new fb mode.\n");
 		return -ENOMEM;
@@ -581,7 +626,11 @@ static int vmw_fb_set_par(struct fb_info *info)
 					mode->hdisplay *
 					DIV_ROUND_UP(var->bits_per_pixel, 8),
 					mode->vdisplay)) {
+<<<<<<< HEAD
 		drm_mode_destroy(vmw_priv->dev, mode);
+=======
+		drm_mode_destroy(&vmw_priv->drm, mode);
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -615,7 +664,11 @@ static int vmw_fb_set_par(struct fb_info *info)
 
 out_unlock:
 	if (par->set_mode)
+<<<<<<< HEAD
 		drm_mode_destroy(vmw_priv->dev, par->set_mode);
+=======
+		drm_mode_destroy(&vmw_priv->drm, par->set_mode);
+>>>>>>> upstream/android-13
 	par->set_mode = mode;
 
 	mutex_unlock(&par->bo_mutex);
@@ -624,7 +677,11 @@ out_unlock:
 }
 
 
+<<<<<<< HEAD
 static struct fb_ops vmw_fb_ops = {
+=======
+static const struct fb_ops vmw_fb_ops = {
+>>>>>>> upstream/android-13
 	.owner = THIS_MODULE,
 	.fb_check_var = vmw_fb_check_var,
 	.fb_set_par = vmw_fb_set_par,
@@ -638,16 +695,27 @@ static struct fb_ops vmw_fb_ops = {
 
 int vmw_fb_init(struct vmw_private *vmw_priv)
 {
+<<<<<<< HEAD
 	struct device *device = &vmw_priv->dev->pdev->dev;
 	struct vmw_fb_par *par;
 	struct fb_info *info;
 	unsigned fb_width, fb_height;
 	unsigned fb_bpp, fb_depth, fb_offset, fb_pitch, fb_size;
+=======
+	struct device *device = vmw_priv->drm.dev;
+	struct vmw_fb_par *par;
+	struct fb_info *info;
+	unsigned fb_width, fb_height;
+	unsigned int fb_bpp, fb_pitch, fb_size;
+>>>>>>> upstream/android-13
 	struct drm_display_mode *init_mode;
 	int ret;
 
 	fb_bpp = 32;
+<<<<<<< HEAD
 	fb_depth = 24;
+=======
+>>>>>>> upstream/android-13
 
 	/* XXX As shouldn't these be as well. */
 	fb_width = min(vmw_priv->fb_max_width, (unsigned)2048);
@@ -655,7 +723,10 @@ int vmw_fb_init(struct vmw_private *vmw_priv)
 
 	fb_pitch = fb_width * fb_bpp / 8;
 	fb_size = fb_pitch * fb_height;
+<<<<<<< HEAD
 	fb_offset = vmw_read(vmw_priv, SVGA_REG_FB_OFFSET);
+=======
+>>>>>>> upstream/android-13
 
 	info = framebuffer_alloc(sizeof(*par), device);
 	if (!info)

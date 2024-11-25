@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2016 Mellanox Technologies Ltd. All rights reserved.
  * Copyright (c) 2015 System Fabric Works, Inc. All rights reserved.
@@ -29,6 +30,12 @@
  * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
+=======
+// SPDX-License-Identifier: GPL-2.0 OR Linux-OpenIB
+/*
+ * Copyright (c) 2016 Mellanox Technologies Ltd. All rights reserved.
+ * Copyright (c) 2015 System Fabric Works, Inc. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/skbuff.h>
@@ -72,6 +79,7 @@ static void req_retry(struct rxe_qp *qp)
 	unsigned int mask;
 	int npsn;
 	int first = 1;
+<<<<<<< HEAD
 
 	qp->req.wqe_index	= consumer_index(qp->sq.queue);
 	qp->req.psn		= qp->comp.psn;
@@ -80,6 +88,26 @@ static void req_retry(struct rxe_qp *qp)
 	for (wqe_index = consumer_index(qp->sq.queue);
 		wqe_index != producer_index(qp->sq.queue);
 		wqe_index = next_index(qp->sq.queue, wqe_index)) {
+=======
+	struct rxe_queue *q = qp->sq.queue;
+	unsigned int cons;
+	unsigned int prod;
+
+	if (qp->is_user) {
+		cons = consumer_index(q, QUEUE_TYPE_FROM_USER);
+		prod = producer_index(q, QUEUE_TYPE_FROM_USER);
+	} else {
+		cons = consumer_index(q, QUEUE_TYPE_KERNEL);
+		prod = producer_index(q, QUEUE_TYPE_KERNEL);
+	}
+
+	qp->req.wqe_index	= cons;
+	qp->req.psn		= qp->comp.psn;
+	qp->req.opcode		= -1;
+
+	for (wqe_index = cons; wqe_index != prod;
+			wqe_index = next_index(q, wqe_index)) {
+>>>>>>> upstream/android-13
 		wqe = addr_from_index(qp->sq.queue, wqe_index);
 		mask = wr_opcode_mask(wqe->wr.opcode, qp);
 
@@ -131,8 +159,27 @@ void rnr_nak_timer(struct timer_list *t)
 
 static struct rxe_send_wqe *req_next_wqe(struct rxe_qp *qp)
 {
+<<<<<<< HEAD
 	struct rxe_send_wqe *wqe = queue_head(qp->sq.queue);
 	unsigned long flags;
+=======
+	struct rxe_send_wqe *wqe;
+	unsigned long flags;
+	struct rxe_queue *q = qp->sq.queue;
+	unsigned int index = qp->req.wqe_index;
+	unsigned int cons;
+	unsigned int prod;
+
+	if (qp->is_user) {
+		wqe = queue_head(q, QUEUE_TYPE_FROM_USER);
+		cons = consumer_index(q, QUEUE_TYPE_FROM_USER);
+		prod = producer_index(q, QUEUE_TYPE_FROM_USER);
+	} else {
+		wqe = queue_head(q, QUEUE_TYPE_KERNEL);
+		cons = consumer_index(q, QUEUE_TYPE_KERNEL);
+		prod = producer_index(q, QUEUE_TYPE_KERNEL);
+	}
+>>>>>>> upstream/android-13
 
 	if (unlikely(qp->req.state == QP_STATE_DRAIN)) {
 		/* check to see if we are drained;
@@ -147,8 +194,12 @@ static struct rxe_send_wqe *req_next_wqe(struct rxe_qp *qp)
 				break;
 			}
 
+<<<<<<< HEAD
 			if (wqe && ((qp->req.wqe_index !=
 				consumer_index(qp->sq.queue)) ||
+=======
+			if (wqe && ((index != cons) ||
+>>>>>>> upstream/android-13
 				(wqe->state != wqe_state_posted))) {
 				/* comp not done yet */
 				spin_unlock_irqrestore(&qp->state_lock,
@@ -171,10 +222,17 @@ static struct rxe_send_wqe *req_next_wqe(struct rxe_qp *qp)
 		} while (0);
 	}
 
+<<<<<<< HEAD
 	if (qp->req.wqe_index == producer_index(qp->sq.queue))
 		return NULL;
 
 	wqe = addr_from_index(qp->sq.queue, qp->req.wqe_index);
+=======
+	if (index == prod)
+		return NULL;
+
+	wqe = addr_from_index(q, index);
+>>>>>>> upstream/android-13
 
 	if (unlikely((qp->req.state == QP_STATE_DRAIN ||
 		      qp->req.state == QP_STATE_DRAINED) &&
@@ -182,7 +240,11 @@ static struct rxe_send_wqe *req_next_wqe(struct rxe_qp *qp)
 		return NULL;
 
 	if (unlikely((wqe->wr.send_flags & IB_SEND_FENCE) &&
+<<<<<<< HEAD
 		     (qp->req.wqe_index != consumer_index(qp->sq.queue)))) {
+=======
+						     (index != cons))) {
+>>>>>>> upstream/android-13
 		qp->req.wait_fence = 1;
 		return NULL;
 	}
@@ -381,7 +443,10 @@ static struct sk_buff *init_req_packet(struct rxe_qp *qp,
 				       struct rxe_pkt_info *pkt)
 {
 	struct rxe_dev		*rxe = to_rdev(qp->ibqp.device);
+<<<<<<< HEAD
 	struct rxe_port		*port = &rxe->port;
+=======
+>>>>>>> upstream/android-13
 	struct sk_buff		*skb;
 	struct rxe_send_wr	*ibwr = &wqe->wr;
 	struct rxe_av		*av;
@@ -403,7 +468,10 @@ static struct sk_buff *init_req_packet(struct rxe_qp *qp,
 	pkt->psn	= qp->req.psn;
 	pkt->mask	= rxe_opcode[opcode].mask;
 	pkt->paylen	= paylen;
+<<<<<<< HEAD
 	pkt->offset	= 0;
+=======
+>>>>>>> upstream/android-13
 	pkt->wqe	= wqe;
 
 	/* init skb */
@@ -419,9 +487,13 @@ static struct sk_buff *init_req_packet(struct rxe_qp *qp,
 			(pkt->mask & (RXE_WRITE_MASK | RXE_IMMDT_MASK)) ==
 			(RXE_WRITE_MASK | RXE_IMMDT_MASK));
 
+<<<<<<< HEAD
 	pkey = (qp_type(qp) == IB_QPT_GSI) ?
 		 port->pkey_tbl[ibwr->wr.ud.pkey_index] :
 		 port->pkey_tbl[qp->attr.pkey_index];
+=======
+	pkey = IB_DEFAULT_PKEY_FULL;
+>>>>>>> upstream/android-13
 
 	qp_num = (pkt->mask & RXE_DETH_MASK) ? ibwr->wr.ud.remote_qpn :
 					 qp->attr.dest_qp_num;
@@ -470,6 +542,7 @@ static struct sk_buff *init_req_packet(struct rxe_qp *qp,
 	return skb;
 }
 
+<<<<<<< HEAD
 static int fill_packet(struct rxe_qp *qp, struct rxe_send_wqe *wqe,
 		       struct rxe_pkt_info *pkt, struct sk_buff *skb,
 		       int paylen)
@@ -480,6 +553,15 @@ static int fill_packet(struct rxe_qp *qp, struct rxe_send_wqe *wqe,
 	int err;
 
 	err = rxe_prepare(rxe, pkt, skb, &crc);
+=======
+static int finish_packet(struct rxe_qp *qp, struct rxe_send_wqe *wqe,
+		       struct rxe_pkt_info *pkt, struct sk_buff *skb,
+		       int paylen)
+{
+	int err;
+
+	err = rxe_prepare(pkt, skb);
+>>>>>>> upstream/android-13
 	if (err)
 		return err;
 
@@ -487,7 +569,10 @@ static int fill_packet(struct rxe_qp *qp, struct rxe_send_wqe *wqe,
 		if (wqe->wr.send_flags & IB_SEND_INLINE) {
 			u8 *tmp = &wqe->dma.inline_data[wqe->dma.sge_offset];
 
+<<<<<<< HEAD
 			crc = rxe_crc32(rxe, crc, tmp, paylen);
+=======
+>>>>>>> upstream/android-13
 			memcpy(payload_addr(pkt), tmp, paylen);
 
 			wqe->dma.resid -= paylen;
@@ -495,8 +580,12 @@ static int fill_packet(struct rxe_qp *qp, struct rxe_send_wqe *wqe,
 		} else {
 			err = copy_data(qp->pd, 0, &wqe->dma,
 					payload_addr(pkt), paylen,
+<<<<<<< HEAD
 					from_mem_obj,
 					&crc);
+=======
+					RXE_FROM_MR_OBJ);
+>>>>>>> upstream/android-13
 			if (err)
 				return err;
 		}
@@ -504,12 +593,17 @@ static int fill_packet(struct rxe_qp *qp, struct rxe_send_wqe *wqe,
 			u8 *pad = payload_addr(pkt) + paylen;
 
 			memset(pad, 0, bth_pad(pkt));
+<<<<<<< HEAD
 			crc = rxe_crc32(rxe, crc, pad, bth_pad(pkt));
 		}
 	}
 	p = payload_addr(pkt) + paylen + bth_pad(pkt);
 
 	*p = ~crc;
+=======
+		}
+	}
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -586,6 +680,59 @@ static void update_state(struct rxe_qp *qp, struct rxe_send_wqe *wqe,
 			  jiffies + qp->qp_timeout_jiffies);
 }
 
+<<<<<<< HEAD
+=======
+static int rxe_do_local_ops(struct rxe_qp *qp, struct rxe_send_wqe *wqe)
+{
+	u8 opcode = wqe->wr.opcode;
+	u32 rkey;
+	int ret;
+
+	switch (opcode) {
+	case IB_WR_LOCAL_INV:
+		rkey = wqe->wr.ex.invalidate_rkey;
+		if (rkey_is_mw(rkey))
+			ret = rxe_invalidate_mw(qp, rkey);
+		else
+			ret = rxe_invalidate_mr(qp, rkey);
+
+		if (unlikely(ret)) {
+			wqe->status = IB_WC_LOC_QP_OP_ERR;
+			return ret;
+		}
+		break;
+	case IB_WR_REG_MR:
+		ret = rxe_reg_fast_mr(qp, wqe);
+		if (unlikely(ret)) {
+			wqe->status = IB_WC_LOC_QP_OP_ERR;
+			return ret;
+		}
+		break;
+	case IB_WR_BIND_MW:
+		ret = rxe_bind_mw(qp, wqe);
+		if (unlikely(ret)) {
+			wqe->status = IB_WC_MW_BIND_ERR;
+			return ret;
+		}
+		break;
+	default:
+		pr_err("Unexpected send wqe opcode %d\n", opcode);
+		wqe->status = IB_WC_LOC_QP_OP_ERR;
+		return -EINVAL;
+	}
+
+	wqe->state = wqe_state_done;
+	wqe->status = IB_WC_SUCCESS;
+	qp->req.wqe_index = next_index(qp->sq.queue, qp->req.wqe_index);
+
+	if ((wqe->wr.send_flags & IB_SEND_SIGNALED) ||
+	    qp->sq_sig_type == IB_SIGNAL_ALL_WR)
+		rxe_run_task(&qp->comp.task, 1);
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 int rxe_requester(void *arg)
 {
 	struct rxe_qp *qp = (struct rxe_qp *)arg;
@@ -599,6 +746,10 @@ int rxe_requester(void *arg)
 	int ret;
 	struct rxe_send_wqe rollback_wqe;
 	u32 rollback_psn;
+<<<<<<< HEAD
+=======
+	struct rxe_queue *q = qp->sq.queue;
+>>>>>>> upstream/android-13
 
 	rxe_add_ref(qp);
 
@@ -607,7 +758,11 @@ next_wqe:
 		goto exit;
 
 	if (unlikely(qp->req.state == QP_STATE_RESET)) {
+<<<<<<< HEAD
 		qp->req.wqe_index = consumer_index(qp->sq.queue);
+=======
+		qp->req.wqe_index = consumer_index(q, q->type);
+>>>>>>> upstream/android-13
 		qp->req.opcode = -1;
 		qp->req.need_rd_atomic = 0;
 		qp->req.wait_psn = 0;
@@ -624,6 +779,7 @@ next_wqe:
 	if (unlikely(!wqe))
 		goto exit;
 
+<<<<<<< HEAD
 	if (wqe->mask & WR_REG_MASK) {
 		if (wqe->wr.opcode == IB_WR_LOCAL_INV) {
 			struct rxe_dev *rxe = to_rdev(qp->ibqp.device);
@@ -661,6 +817,14 @@ next_wqe:
 		qp->req.wqe_index = next_index(qp->sq.queue,
 						qp->req.wqe_index);
 		goto next_wqe;
+=======
+	if (wqe->mask & WR_LOCAL_OP_MASK) {
+		ret = rxe_do_local_ops(qp, wqe);
+		if (unlikely(ret))
+			goto err;
+		else
+			goto next_wqe;
+>>>>>>> upstream/android-13
 	}
 
 	if (unlikely(qp_type(qp) == IB_QPT_RC &&
@@ -718,11 +882,25 @@ next_wqe:
 	skb = init_req_packet(qp, wqe, opcode, payload, &pkt);
 	if (unlikely(!skb)) {
 		pr_err("qp#%d Failed allocating skb\n", qp_num(qp));
+<<<<<<< HEAD
 		goto err;
 	}
 
 	if (fill_packet(qp, wqe, &pkt, skb, payload)) {
 		pr_debug("qp#%d Error during fill packet\n", qp_num(qp));
+=======
+		wqe->status = IB_WC_LOC_QP_OP_ERR;
+		goto err;
+	}
+
+	ret = finish_packet(qp, wqe, &pkt, skb, payload);
+	if (unlikely(ret)) {
+		pr_debug("qp#%d Error during finish packet\n", qp_num(qp));
+		if (ret == -EFAULT)
+			wqe->status = IB_WC_LOC_PROT_ERR;
+		else
+			wqe->status = IB_WC_LOC_QP_OP_ERR;
+>>>>>>> upstream/android-13
 		kfree_skb(skb);
 		goto err;
 	}
@@ -736,7 +914,11 @@ next_wqe:
 	save_state(wqe, qp, &rollback_wqe, &rollback_psn);
 	update_wqe_state(qp, wqe, &pkt);
 	update_wqe_psn(qp, wqe, &pkt, payload);
+<<<<<<< HEAD
 	ret = rxe_xmit_packet(to_rdev(qp->ibqp.device), qp, &pkt, skb);
+=======
+	ret = rxe_xmit_packet(qp, &pkt, skb);
+>>>>>>> upstream/android-13
 	if (ret) {
 		qp->need_req_skb = 1;
 
@@ -747,6 +929,10 @@ next_wqe:
 			goto exit;
 		}
 
+<<<<<<< HEAD
+=======
+		wqe->status = IB_WC_LOC_QP_OP_ERR;
+>>>>>>> upstream/android-13
 		goto err;
 	}
 
@@ -755,7 +941,10 @@ next_wqe:
 	goto next_wqe;
 
 err:
+<<<<<<< HEAD
 	wqe->status = IB_WC_LOC_PROT_ERR;
+=======
+>>>>>>> upstream/android-13
 	wqe->state = wqe_state_error;
 	__rxe_do_task(&qp->comp.task);
 

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *	X.25 Packet Layer release 002
  *
@@ -7,12 +11,15 @@
  *
  *	This code REQUIRES 2.1.15 or higher
  *
+<<<<<<< HEAD
  *	This module:
  *		This module is free software; you can redistribute it and/or
  *		modify it under the terms of the GNU General Public License
  *		as published by the Free Software Foundation; either version
  *		2 of the License, or (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  *	History
  *	X.25 001	Jonathan Naylor	Started coding.
  *	X.25 002	Jonathan Naylor	Centralised disconnect handling.
@@ -205,6 +212,7 @@ static void x25_remove_socket(struct sock *sk)
 }
 
 /*
+<<<<<<< HEAD
  *	Kill all bound sockets on a dropped device.
  */
 static void x25_kill_by_device(struct net_device *dev)
@@ -221,6 +229,8 @@ static void x25_kill_by_device(struct net_device *dev)
 }
 
 /*
+=======
+>>>>>>> upstream/android-13
  *	Handle device status changes.
  */
 static int x25_device_event(struct notifier_block *this, unsigned long event,
@@ -232,6 +242,7 @@ static int x25_device_event(struct notifier_block *this, unsigned long event,
 	if (!net_eq(dev_net(dev), &init_net))
 		return NOTIFY_DONE;
 
+<<<<<<< HEAD
 	if (dev->type == ARPHRD_X25
 #if IS_ENABLED(CONFIG_LLC)
 	 || dev->type == ARPHRD_ETHER
@@ -253,6 +264,35 @@ static int x25_device_event(struct notifier_block *this, unsigned long event,
 			x25_route_device_down(dev);
 			x25_link_device_down(dev);
 			break;
+=======
+	if (dev->type == ARPHRD_X25) {
+		switch (event) {
+		case NETDEV_REGISTER:
+		case NETDEV_POST_TYPE_CHANGE:
+			x25_link_device_up(dev);
+			break;
+		case NETDEV_DOWN:
+			nb = x25_get_neigh(dev);
+			if (nb) {
+				x25_link_terminated(nb);
+				x25_neigh_put(nb);
+			}
+			x25_route_device_down(dev);
+			break;
+		case NETDEV_PRE_TYPE_CHANGE:
+		case NETDEV_UNREGISTER:
+			x25_link_device_down(dev);
+			break;
+		case NETDEV_CHANGE:
+			if (!netif_carrier_ok(dev)) {
+				nb = x25_get_neigh(dev);
+				if (nb) {
+					x25_link_terminated(nb);
+					x25_neigh_put(nb);
+				}
+			}
+			break;
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -381,7 +421,11 @@ static void x25_destroy_timer(struct timer_list *t)
 
 /*
  *	This is called from user mode and the timers. Thus it protects itself
+<<<<<<< HEAD
  *	against interrupt users but doesn't worry about being called during
+=======
+ *	against interrupting users but doesn't worry about being called during
+>>>>>>> upstream/android-13
  *	work. Once it is removed from the queue no interrupt or bottom half
  *	will touch it and we are (fairly 8-) ) safe.
  *	Not static as it's used by the timer
@@ -436,7 +480,11 @@ void x25_destroy_socket_from_timer(struct sock *sk)
  */
 
 static int x25_setsockopt(struct socket *sock, int level, int optname,
+<<<<<<< HEAD
 			  char __user *optval, unsigned int optlen)
+=======
+			  sockptr_t optval, unsigned int optlen)
+>>>>>>> upstream/android-13
 {
 	int opt;
 	struct sock *sk = sock->sk;
@@ -450,7 +498,11 @@ static int x25_setsockopt(struct socket *sock, int level, int optname,
 		goto out;
 
 	rc = -EFAULT;
+<<<<<<< HEAD
 	if (get_user(opt, (int __user *)optval))
+=======
+	if (copy_from_sockptr(&opt, optval, sizeof(int)))
+>>>>>>> upstream/android-13
 		goto out;
 
 	if (opt)
@@ -551,7 +603,11 @@ static int x25_create(struct net *net, struct socket *sock, int protocol,
 	if (protocol)
 		goto out;
 
+<<<<<<< HEAD
 	rc = -ENOBUFS;
+=======
+	rc = -ENOMEM;
+>>>>>>> upstream/android-13
 	if ((sk = x25_alloc_socket(net, kern)) == NULL)
 		goto out;
 
@@ -664,6 +720,15 @@ static int x25_release(struct socket *sock)
 			sock_set_flag(sk, SOCK_DEAD);
 			sock_set_flag(sk, SOCK_DESTROY);
 			break;
+<<<<<<< HEAD
+=======
+
+		case X25_STATE_5:
+			x25_write_internal(sk, X25_CLEAR_REQUEST);
+			x25_disconnect(sk, 0, 0, 0);
+			__x25_destroy_socket(sk);
+			goto out;
+>>>>>>> upstream/android-13
 	}
 
 	sock_orphan(sk);
@@ -902,7 +967,11 @@ static int x25_accept(struct socket *sock, struct socket *newsock, int flags,
 	/* Now attach up the new socket */
 	skb->sk = NULL;
 	kfree_skb(skb);
+<<<<<<< HEAD
 	sk->sk_ack_backlog--;
+=======
+	sk_acceptq_removed(sk);
+>>>>>>> upstream/android-13
 	newsock->state = SS_CONNECTED;
 	rc = 0;
 out2:
@@ -1027,7 +1096,11 @@ int x25_rx_call_request(struct sk_buff *skb, struct x25_neigh *nb,
 
 	/*
 	 * current neighbour/link might impose additional limits
+<<<<<<< HEAD
 	 * on certain facilties
+=======
+	 * on certain facilities
+>>>>>>> upstream/android-13
 	 */
 
 	x25_limit_facilities(&facilities, nb);
@@ -1066,6 +1139,11 @@ int x25_rx_call_request(struct sk_buff *skb, struct x25_neigh *nb,
 	if (test_bit(X25_ACCPT_APPRV_FLAG, &makex25->flags)) {
 		x25_write_internal(make, X25_CALL_ACCEPTED);
 		makex25->state = X25_STATE_3;
+<<<<<<< HEAD
+=======
+	} else {
+		makex25->state = X25_STATE_5;
+>>>>>>> upstream/android-13
 	}
 
 	/*
@@ -1074,7 +1152,11 @@ int x25_rx_call_request(struct sk_buff *skb, struct x25_neigh *nb,
 	skb_copy_from_linear_data(skb, makex25->calluserdata.cuddata, skb->len);
 	makex25->calluserdata.cudlength = skb->len;
 
+<<<<<<< HEAD
 	sk->sk_ack_backlog++;
+=======
+	sk_acceptq_added(sk);
+>>>>>>> upstream/android-13
 
 	x25_insert_socket(make);
 
@@ -1405,6 +1487,7 @@ static int x25_ioctl(struct socket *sock, unsigned int cmd, unsigned long arg)
 		break;
 	}
 
+<<<<<<< HEAD
 	case SIOCGSTAMP:
 		rc = -EINVAL;
 		if (sk)
@@ -1417,6 +1500,8 @@ static int x25_ioctl(struct socket *sock, unsigned int cmd, unsigned long arg)
 			rc = sock_get_timestampns(sk,
 					(struct timespec __user *)argp);
 		break;
+=======
+>>>>>>> upstream/android-13
 	case SIOCGIFADDR:
 	case SIOCSIFADDR:
 	case SIOCGIFDSTADDR:
@@ -1688,8 +1773,11 @@ static int compat_x25_ioctl(struct socket *sock, unsigned int cmd,
 				unsigned long arg)
 {
 	void __user *argp = compat_ptr(arg);
+<<<<<<< HEAD
 	struct sock *sk = sock->sk;
 
+=======
+>>>>>>> upstream/android-13
 	int rc = -ENOIOCTLCMD;
 
 	switch(cmd) {
@@ -1697,6 +1785,7 @@ static int compat_x25_ioctl(struct socket *sock, unsigned int cmd,
 	case TIOCINQ:
 		rc = x25_ioctl(sock, cmd, (unsigned long)argp);
 		break;
+<<<<<<< HEAD
 	case SIOCGSTAMP:
 		rc = -EINVAL;
 		if (sk)
@@ -1709,6 +1798,8 @@ static int compat_x25_ioctl(struct socket *sock, unsigned int cmd,
 			rc = compat_sock_get_timestampns(sk,
 					(struct timespec __user*)argp);
 		break;
+=======
+>>>>>>> upstream/android-13
 	case SIOCGIFADDR:
 	case SIOCSIFADDR:
 	case SIOCGIFDSTADDR:
@@ -1772,6 +1863,10 @@ static const struct proto_ops x25_proto_ops = {
 #ifdef CONFIG_COMPAT
 	.compat_ioctl = compat_x25_ioctl,
 #endif
+<<<<<<< HEAD
+=======
+	.gettstamp =	sock_gettstamp,
+>>>>>>> upstream/android-13
 	.listen =	x25_listen,
 	.shutdown =	sock_no_shutdown,
 	.setsockopt =	x25_setsockopt,
@@ -1797,10 +1892,22 @@ void x25_kill_by_neigh(struct x25_neigh *nb)
 
 	write_lock_bh(&x25_list_lock);
 
+<<<<<<< HEAD
 	sk_for_each(s, &x25_list)
 		if (x25_sk(s)->neighbour == nb)
 			x25_disconnect(s, ENETUNREACH, 0, 0);
 
+=======
+	sk_for_each(s, &x25_list) {
+		if (x25_sk(s)->neighbour == nb) {
+			write_unlock_bh(&x25_list_lock);
+			lock_sock(s);
+			x25_disconnect(s, ENETUNREACH, 0, 0);
+			release_sock(s);
+			write_lock_bh(&x25_list_lock);
+		}
+	}
+>>>>>>> upstream/android-13
 	write_unlock_bh(&x25_list_lock);
 
 	/* Remove any related forwards */

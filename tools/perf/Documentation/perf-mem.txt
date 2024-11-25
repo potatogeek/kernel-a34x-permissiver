@@ -63,6 +63,12 @@ OPTIONS
 --phys-data::
 	Record/Report sample physical addresses
 
+<<<<<<< HEAD
+=======
+--data-page-size::
+	Record/Report sample data address page size
+
+>>>>>>> upstream/android-13
 RECORD OPTIONS
 --------------
 -e::
@@ -82,7 +88,11 @@ RECORD OPTIONS
 	Be more verbose (show counter open errors, etc)
 
 --ldlat <n>::
+<<<<<<< HEAD
 	Specify desired latency for loads event.
+=======
+	Specify desired latency for loads event. (x86 only)
+>>>>>>> upstream/android-13
 
 In addition, for report all perf report options are valid, and for record
 all perf record options.

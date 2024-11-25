@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # SPDX-License-Identifier: GPL-2.0
+=======
+# SPDX-License-Identifier: ISC
+>>>>>>> upstream/android-13
 ath9k-y +=	beacon.o \
 		gpio.o \
 		init.o \
@@ -77,3 +81,8 @@ ath9k_htc-y +=	htc_hst.o \
 ath9k_htc-$(CONFIG_ATH9K_HTC_DEBUGFS) += htc_drv_debug.o
 
 obj-$(CONFIG_ATH9K_HTC) += ath9k_htc.o
+<<<<<<< HEAD
+=======
+
+obj-$(CONFIG_ATH9K_PCI_NO_EEPROM) += ath9k_pci_owl_loader.o
+>>>>>>> upstream/android-13

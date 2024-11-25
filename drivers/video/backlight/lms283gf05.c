@@ -1,27 +1,45 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * lms283gf05.c -- support for Samsung LMS283GF05 LCD
  *
  * Copyright (c) 2009 Marek Vasut <marek.vasut@gmail.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/device.h>
 #include <linux/kernel.h>
 #include <linux/delay.h>
 #include <linux/slab.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
 #include <linux/lcd.h>
 
 #include <linux/spi/spi.h>
 #include <linux/spi/lms283gf05.h>
+=======
+#include <linux/gpio/consumer.h>
+#include <linux/lcd.h>
+
+#include <linux/spi/spi.h>
+>>>>>>> upstream/android-13
 #include <linux/module.h>
 
 struct lms283gf05_state {
 	struct spi_device	*spi;
 	struct lcd_device	*ld;
+<<<<<<< HEAD
+=======
+	struct gpio_desc	*reset;
+>>>>>>> upstream/android-13
 };
 
 struct lms283gf05_seq {
@@ -93,6 +111,7 @@ static const struct lms283gf05_seq disp_pdwnseq[] = {
 };
 
 
+<<<<<<< HEAD
 static void lms283gf05_reset(unsigned long gpio, bool inverted)
 {
 	gpio_set_value(gpio, !inverted);
@@ -100,6 +119,15 @@ static void lms283gf05_reset(unsigned long gpio, bool inverted)
 	gpio_set_value(gpio, inverted);
 	mdelay(20);
 	gpio_set_value(gpio, !inverted);
+=======
+static void lms283gf05_reset(struct gpio_desc *gpiod)
+{
+	gpiod_set_value(gpiod, 0); /* De-asserted */
+	mdelay(100);
+	gpiod_set_value(gpiod, 1); /* Asserted */
+	mdelay(20);
+	gpiod_set_value(gpiod, 0); /* De-asserted */
+>>>>>>> upstream/android-13
 	mdelay(20);
 }
 
@@ -128,6 +156,7 @@ static int lms283gf05_power_set(struct lcd_device *ld, int power)
 {
 	struct lms283gf05_state *st = lcd_get_data(ld);
 	struct spi_device *spi = st->spi;
+<<<<<<< HEAD
 	struct lms283gf05_pdata *pdata = dev_get_platdata(&spi->dev);
 
 	if (power <= FB_BLANK_NORMAL) {
@@ -140,6 +169,17 @@ static int lms283gf05_power_set(struct lcd_device *ld, int power)
 		if (pdata)
 			gpio_set_value(pdata->reset_gpio,
 					pdata->reset_inverted);
+=======
+
+	if (power <= FB_BLANK_NORMAL) {
+		if (st->reset)
+			lms283gf05_reset(st->reset);
+		lms283gf05_toggle(spi, disp_initseq, ARRAY_SIZE(disp_initseq));
+	} else {
+		lms283gf05_toggle(spi, disp_pdwnseq, ARRAY_SIZE(disp_pdwnseq));
+		if (st->reset)
+			gpiod_set_value(st->reset, 1); /* Asserted */
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
@@ -153,6 +193,7 @@ static struct lcd_ops lms_ops = {
 static int lms283gf05_probe(struct spi_device *spi)
 {
 	struct lms283gf05_state *st;
+<<<<<<< HEAD
 	struct lms283gf05_pdata *pdata = dev_get_platdata(&spi->dev);
 	struct lcd_device *ld;
 	int ret = 0;
@@ -165,12 +206,23 @@ static int lms283gf05_probe(struct spi_device *spi)
 		if (ret)
 			return ret;
 	}
+=======
+	struct lcd_device *ld;
+>>>>>>> upstream/android-13
 
 	st = devm_kzalloc(&spi->dev, sizeof(struct lms283gf05_state),
 				GFP_KERNEL);
 	if (st == NULL)
 		return -ENOMEM;
 
+<<<<<<< HEAD
+=======
+	st->reset = gpiod_get_optional(&spi->dev, "reset", GPIOD_OUT_LOW);
+	if (IS_ERR(st->reset))
+		return PTR_ERR(st->reset);
+	gpiod_set_consumer_name(st->reset, "LMS283GF05 RESET");
+
+>>>>>>> upstream/android-13
 	ld = devm_lcd_device_register(&spi->dev, "lms283gf05", &spi->dev, st,
 					&lms_ops);
 	if (IS_ERR(ld))
@@ -182,8 +234,13 @@ static int lms283gf05_probe(struct spi_device *spi)
 	spi_set_drvdata(spi, st);
 
 	/* kick in the LCD */
+<<<<<<< HEAD
 	if (pdata)
 		lms283gf05_reset(pdata->reset_gpio, pdata->reset_inverted);
+=======
+	if (st->reset)
+		lms283gf05_reset(st->reset);
+>>>>>>> upstream/android-13
 	lms283gf05_toggle(spi, disp_initseq, ARRAY_SIZE(disp_initseq));
 
 	return 0;

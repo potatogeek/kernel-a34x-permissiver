@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *   ALSA sequencer Timing queue handling
  *   Copyright (c) 1998-1999 by Frank van de Pol <fvdpol@coil.demon.nl>
  *
+<<<<<<< HEAD
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
  *   the Free Software Foundation; either version 2 of the License, or
@@ -16,6 +21,8 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+>>>>>>> upstream/android-13
  * MAJOR CHANGES
  *   Nov. 13, 1999	Takashi Iwai <iwai@ww.uni-erlangen.de>
  *     - Queues are allocated dynamically via ioctl.
@@ -235,7 +242,12 @@ struct snd_seq_queue *snd_seq_queue_find_name(char *name)
 	struct snd_seq_queue *q;
 
 	for (i = 0; i < SNDRV_SEQ_MAX_QUEUES; i++) {
+<<<<<<< HEAD
 		if ((q = queueptr(i)) != NULL) {
+=======
+		q = queueptr(i);
+		if (q) {
+>>>>>>> upstream/android-13
 			if (strncmp(q->name, name, sizeof(q->name)) == 0)
 				return q;
 			queuefree(q);
@@ -247,12 +259,21 @@ struct snd_seq_queue *snd_seq_queue_find_name(char *name)
 
 /* -------------------------------------------------------- */
 
+<<<<<<< HEAD
+=======
+#define MAX_CELL_PROCESSES_IN_QUEUE	1000
+
+>>>>>>> upstream/android-13
 void snd_seq_check_queue(struct snd_seq_queue *q, int atomic, int hop)
 {
 	unsigned long flags;
 	struct snd_seq_event_cell *cell;
 	snd_seq_tick_time_t cur_tick;
 	snd_seq_real_time_t cur_time;
+<<<<<<< HEAD
+=======
+	int processed = 0;
+>>>>>>> upstream/android-13
 
 	if (q == NULL)
 		return;
@@ -275,6 +296,11 @@ void snd_seq_check_queue(struct snd_seq_queue *q, int atomic, int hop)
 		if (!cell)
 			break;
 		snd_seq_dispatch_event(cell, atomic, hop);
+<<<<<<< HEAD
+=======
+		if (++processed >= MAX_CELL_PROCESSES_IN_QUEUE)
+			goto out; /* the rest processed at the next batch */
+>>>>>>> upstream/android-13
 	}
 
 	/* Process time queue... */
@@ -284,14 +310,29 @@ void snd_seq_check_queue(struct snd_seq_queue *q, int atomic, int hop)
 		if (!cell)
 			break;
 		snd_seq_dispatch_event(cell, atomic, hop);
+<<<<<<< HEAD
 	}
 
+=======
+		if (++processed >= MAX_CELL_PROCESSES_IN_QUEUE)
+			goto out; /* the rest processed at the next batch */
+	}
+
+ out:
+>>>>>>> upstream/android-13
 	/* free lock */
 	spin_lock_irqsave(&q->check_lock, flags);
 	if (q->check_again) {
 		q->check_again = 0;
+<<<<<<< HEAD
 		spin_unlock_irqrestore(&q->check_lock, flags);
 		goto __again;
+=======
+		if (processed < MAX_CELL_PROCESSES_IN_QUEUE) {
+			spin_unlock_irqrestore(&q->check_lock, flags);
+			goto __again;
+		}
+>>>>>>> upstream/android-13
 	}
 	q->check_blocked = 0;
 	spin_unlock_irqrestore(&q->check_lock, flags);
@@ -445,7 +486,12 @@ int snd_seq_queue_timer_open(int queueid)
 	if (queue == NULL)
 		return -EINVAL;
 	tmr = queue->timer;
+<<<<<<< HEAD
 	if ((result = snd_seq_timer_open(queue)) < 0) {
+=======
+	result = snd_seq_timer_open(queue);
+	if (result < 0) {
+>>>>>>> upstream/android-13
 		snd_seq_timer_defaults(tmr);
 		result = snd_seq_timer_open(queue);
 	}
@@ -550,6 +596,7 @@ int snd_seq_queue_is_used(int queueid, int client)
 
 /*----------------------------------------------------------------*/
 
+<<<<<<< HEAD
 /* notification that client has left the system -
  * stop the timer on all queues owned by this client
  */
@@ -577,6 +624,8 @@ void snd_seq_queue_client_termination(int client)
 	}
 }
 
+=======
+>>>>>>> upstream/android-13
 /* final stage notification -
  * remove cells for no longer exist client (for non-owned queue)
  * or delete this queue (for owned queue)
@@ -588,7 +637,12 @@ void snd_seq_queue_client_leave(int client)
 
 	/* delete own queues from queue list */
 	for (i = 0; i < SNDRV_SEQ_MAX_QUEUES; i++) {
+<<<<<<< HEAD
 		if ((q = queue_list_remove(i, client)) != NULL)
+=======
+		q = queue_list_remove(i, client);
+		if (q)
+>>>>>>> upstream/android-13
 			queue_delete(q);
 	}
 
@@ -596,7 +650,12 @@ void snd_seq_queue_client_leave(int client)
 	 * they are not owned by this client
 	 */
 	for (i = 0; i < SNDRV_SEQ_MAX_QUEUES; i++) {
+<<<<<<< HEAD
 		if ((q = queueptr(i)) == NULL)
+=======
+		q = queueptr(i);
+		if (!q)
+>>>>>>> upstream/android-13
 			continue;
 		if (test_bit(client, q->clients_bitmap)) {
 			snd_seq_prioq_leave(q->tickq, client, 0);
@@ -618,7 +677,12 @@ void snd_seq_queue_client_leave_cells(int client)
 	struct snd_seq_queue *q;
 
 	for (i = 0; i < SNDRV_SEQ_MAX_QUEUES; i++) {
+<<<<<<< HEAD
 		if ((q = queueptr(i)) == NULL)
+=======
+		q = queueptr(i);
+		if (!q)
+>>>>>>> upstream/android-13
 			continue;
 		snd_seq_prioq_leave(q->tickq, client, 0);
 		snd_seq_prioq_leave(q->timeq, client, 0);
@@ -633,7 +697,12 @@ void snd_seq_queue_remove_cells(int client, struct snd_seq_remove_events *info)
 	struct snd_seq_queue *q;
 
 	for (i = 0; i < SNDRV_SEQ_MAX_QUEUES; i++) {
+<<<<<<< HEAD
 		if ((q = queueptr(i)) == NULL)
+=======
+		q = queueptr(i);
+		if (!q)
+>>>>>>> upstream/android-13
 			continue;
 		if (test_bit(client, q->clients_bitmap) &&
 		    (! (info->remove_mode & SNDRV_SEQ_REMOVE_DEST) ||
@@ -764,7 +833,12 @@ void snd_seq_info_queues_read(struct snd_info_entry *entry,
 	int owner;
 
 	for (i = 0; i < SNDRV_SEQ_MAX_QUEUES; i++) {
+<<<<<<< HEAD
 		if ((q = queueptr(i)) == NULL)
+=======
+		q = queueptr(i);
+		if (!q)
+>>>>>>> upstream/android-13
 			continue;
 
 		tmr = q->timer;

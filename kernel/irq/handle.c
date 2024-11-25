@@ -145,11 +145,25 @@ irqreturn_t __handle_irq_event_percpu(struct irq_desc *desc, unsigned int *flags
 	for_each_action_of_desc(desc, action) {
 		irqreturn_t res;
 
+<<<<<<< HEAD
+=======
+		/*
+		 * If this IRQ would be threaded under force_irqthreads, mark it so.
+		 */
+		if (irq_settings_can_thread(desc) &&
+		    !(action->flags & (IRQF_NO_THREAD | IRQF_PERCPU | IRQF_ONESHOT)))
+			lockdep_hardirq_threaded();
+
+>>>>>>> upstream/android-13
 		trace_irq_handler_entry(irq, action);
 		res = action->handler(irq, action->dev_id);
 		trace_irq_handler_exit(irq, action, res);
 
+<<<<<<< HEAD
 		if (WARN_ONCE(!irqs_disabled(),"irq %u handler %pF enabled interrupts\n",
+=======
+		if (WARN_ONCE(!irqs_disabled(),"irq %u handler %pS enabled interrupts\n",
+>>>>>>> upstream/android-13
 			      irq, action->handler))
 			local_irq_disable();
 
@@ -166,7 +180,11 @@ irqreturn_t __handle_irq_event_percpu(struct irq_desc *desc, unsigned int *flags
 
 			__irq_wake_thread(desc, action);
 
+<<<<<<< HEAD
 			/* Fall through to add to randomness */
+=======
+			fallthrough;	/* to add to randomness */
+>>>>>>> upstream/android-13
 		case IRQ_HANDLED:
 			*flags |= action->flags;
 			break;
@@ -190,7 +208,11 @@ irqreturn_t handle_irq_event_percpu(struct irq_desc *desc)
 
 	add_interrupt_randomness(desc->irq_data.irq, flags);
 
+<<<<<<< HEAD
 	if (!noirqdebug)
+=======
+	if (!irq_settings_no_debug(desc))
+>>>>>>> upstream/android-13
 		note_interrupt(desc, retval);
 	return retval;
 }

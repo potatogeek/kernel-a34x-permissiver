@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Driver for keys on TCA6416 I2C IO expander
  *
  * Copyright (C) 2010 Texas Instruments
  *
  * Author : Sriramakrishnan.A.G. <srk@ti.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/types.h>
@@ -36,7 +43,11 @@ MODULE_DEVICE_TABLE(i2c, tca6416_id);
 
 struct tca6416_drv_data {
 	struct input_dev *input;
+<<<<<<< HEAD
 	struct tca6416_button data[0];
+=======
+	struct tca6416_button data[];
+>>>>>>> upstream/android-13
 };
 
 struct tca6416_keypad_chip {
@@ -51,7 +62,11 @@ struct tca6416_keypad_chip {
 	int irqnum;
 	u16 pinmask;
 	bool use_polling;
+<<<<<<< HEAD
 	struct tca6416_button buttons[0];
+=======
+	struct tca6416_button buttons[];
+>>>>>>> upstream/android-13
 };
 
 static int tca6416_write_reg(struct tca6416_keypad_chip *chip, int reg, u16 val)
@@ -219,9 +234,13 @@ static int tca6416_keypad_probe(struct i2c_client *client,
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	chip = kzalloc(sizeof(struct tca6416_keypad_chip) +
 		       pdata->nbuttons * sizeof(struct tca6416_button),
 		       GFP_KERNEL);
+=======
+	chip = kzalloc(struct_size(chip, buttons, pdata->nbuttons), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	input = input_allocate_device();
 	if (!chip || !input) {
 		error = -ENOMEM;
@@ -279,7 +298,11 @@ static int tca6416_keypad_probe(struct i2c_client *client,
 		error = request_threaded_irq(chip->irqnum, NULL,
 					     tca6416_keys_isr,
 					     IRQF_TRIGGER_FALLING |
+<<<<<<< HEAD
 						IRQF_ONESHOT,
+=======
+					     IRQF_ONESHOT | IRQF_NO_AUTOEN,
+>>>>>>> upstream/android-13
 					     "tca6416-keypad", chip);
 		if (error) {
 			dev_dbg(&client->dev,
@@ -287,7 +310,10 @@ static int tca6416_keypad_probe(struct i2c_client *client,
 				chip->irqnum, error);
 			goto fail1;
 		}
+<<<<<<< HEAD
 		disable_irq(chip->irqnum);
+=======
+>>>>>>> upstream/android-13
 	}
 
 	error = input_register_device(input);
@@ -379,5 +405,9 @@ static void __exit tca6416_keypad_exit(void)
 module_exit(tca6416_keypad_exit);
 
 MODULE_AUTHOR("Sriramakrishnan <srk@ti.com>");
+<<<<<<< HEAD
 MODULE_DESCRIPTION("Keypad driver over tca6146 IO expander");
+=======
+MODULE_DESCRIPTION("Keypad driver over tca6416 IO expander");
+>>>>>>> upstream/android-13
 MODULE_LICENSE("GPL");

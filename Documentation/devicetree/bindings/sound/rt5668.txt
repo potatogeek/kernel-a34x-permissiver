@@ -41,7 +41,11 @@ rt5668 {
 	compatible = "realtek,rt5668b";
 	reg = <0x1a>;
 	interrupt-parent = <&gpio>;
+<<<<<<< HEAD
 	interrupts = <TEGRA_GPIO(U, 6) GPIO_ACTIVE_HIGH>;
+=======
+	interrupts = <TEGRA_GPIO(U, 6) IRQ_TYPE_LEVEL_HIGH>;
+>>>>>>> upstream/android-13
 	realtek,ldo1-en-gpios =
 		<&gpio TEGRA_GPIO(R, 2) GPIO_ACTIVE_HIGH>;
 	realtek,dmic1-data-pin = <1>;

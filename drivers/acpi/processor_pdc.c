@@ -16,9 +16,12 @@
 
 #include "internal.h"
 
+<<<<<<< HEAD
 #define _COMPONENT              ACPI_PROCESSOR_COMPONENT
 ACPI_MODULE_NAME("processor_pdc");
 
+=======
+>>>>>>> upstream/android-13
 static bool __init processor_physically_present(acpi_handle handle)
 {
 	int cpuid, type;
@@ -132,8 +135,13 @@ acpi_processor_eval_pdc(acpi_handle handle, struct acpi_object_list *pdc_in)
 	status = acpi_evaluate_object(handle, "_PDC", pdc_in, NULL);
 
 	if (ACPI_FAILURE(status))
+<<<<<<< HEAD
 		ACPI_DEBUG_PRINT((ACPI_DB_INFO,
 		    "Could not evaluate _PDC, using legacy perf. control.\n"));
+=======
+		acpi_handle_debug(handle,
+		    "Could not evaluate _PDC, using legacy perf control\n");
+>>>>>>> upstream/android-13
 
 	return status;
 }

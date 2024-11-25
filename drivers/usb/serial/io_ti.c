@@ -60,14 +60,22 @@
 #define EDGE_READ_URB_STOPPING	1
 #define EDGE_READ_URB_STOPPED	2
 
+<<<<<<< HEAD
 #define EDGE_CLOSING_WAIT	4000	/* in .01 sec */
 
+=======
+>>>>>>> upstream/android-13
 
 /* Product information read from the Edgeport */
 struct product_info {
 	int	TiMode;			/* Current TI Mode  */
+<<<<<<< HEAD
 	__u8	hardware_type;		/* Type of hardware */
 } __attribute__((packed));
+=======
+	u8	hardware_type;		/* Type of hardware */
+} __packed;
+>>>>>>> upstream/android-13
 
 /*
  * Edgeport firmware header
@@ -89,6 +97,7 @@ struct edgeport_fw_hdr {
 } __packed;
 
 struct edgeport_port {
+<<<<<<< HEAD
 	__u16 uart_base;
 	__u16 dma_address;
 	__u8 shadow_msr;
@@ -96,6 +105,15 @@ struct edgeport_port {
 	__u8 shadow_lsr;
 	__u8 lsr_mask;
 	__u32 ump_read_timeout;		/*
+=======
+	u16 uart_base;
+	u16 dma_address;
+	u8 shadow_msr;
+	u8 shadow_mcr;
+	u8 shadow_lsr;
+	u8 lsr_mask;
+	u32 ump_read_timeout;		/*
+>>>>>>> upstream/android-13
 					 * Number of milliseconds the UMP will
 					 * wait without data before completing
 					 * a read short
@@ -106,7 +124,11 @@ struct edgeport_port {
 
 	struct edgeport_serial	*edge_serial;
 	struct usb_serial_port	*port;
+<<<<<<< HEAD
 	__u8 bUartMode;		/* Port type, 0: RS232, etc. */
+=======
+	u8 bUartMode;		/* Port type, 0: RS232, etc. */
+>>>>>>> upstream/android-13
 	spinlock_t ep_lock;
 	int ep_read_urb_state;
 	int ep_write_urb_in_use;
@@ -211,7 +233,10 @@ static const struct usb_device_id id_table_combined[] = {
 
 MODULE_DEVICE_TABLE(usb, id_table_combined);
 
+<<<<<<< HEAD
 static int closing_wait = EDGE_CLOSING_WAIT;
+=======
+>>>>>>> upstream/android-13
 static bool ignore_cpu_rev;
 static int default_uart_mode;		/* RS232 */
 
@@ -255,8 +280,13 @@ static int edge_remove_sysfs_attrs(struct usb_serial_port *port);
 #define TI_VSEND_TIMEOUT_DEFAULT 1000
 #define TI_VSEND_TIMEOUT_FW_DOWNLOAD 10000
 
+<<<<<<< HEAD
 static int ti_vread_sync(struct usb_device *dev, __u8 request,
 				__u16 value, __u16 index, u8 *data, int size)
+=======
+static int ti_vread_sync(struct usb_device *dev, u8 request, u16 value,
+		u16 index, void *data, int size)
+>>>>>>> upstream/android-13
 {
 	int status;
 
@@ -266,7 +296,11 @@ static int ti_vread_sync(struct usb_device *dev, __u8 request,
 	if (status < 0)
 		return status;
 	if (status != size) {
+<<<<<<< HEAD
 		dev_dbg(&dev->dev, "%s - wanted to write %d, but only wrote %d\n",
+=======
+		dev_dbg(&dev->dev, "%s - wanted to read %d, but only read %d\n",
+>>>>>>> upstream/android-13
 			__func__, size, status);
 		return -ECOMM;
 	}
@@ -274,7 +308,11 @@ static int ti_vread_sync(struct usb_device *dev, __u8 request,
 }
 
 static int ti_vsend_sync(struct usb_device *dev, u8 request, u16 value,
+<<<<<<< HEAD
 		u16 index, u8 *data, int size, int timeout)
+=======
+		u16 index, void *data, int size, int timeout)
+>>>>>>> upstream/android-13
 {
 	int status;
 
@@ -283,6 +321,7 @@ static int ti_vsend_sync(struct usb_device *dev, u8 request, u16 value,
 			value, index, data, size, timeout);
 	if (status < 0)
 		return status;
+<<<<<<< HEAD
 	if (status != size) {
 		dev_dbg(&dev->dev, "%s - wanted to write %d, but only wrote %d\n",
 			__func__, size, status);
@@ -301,17 +340,45 @@ static int send_cmd(struct usb_device *dev, __u8 command,
 
 /* clear tx/rx buffers and fifo in TI UMP */
 static int purge_port(struct usb_serial_port *port, __u16 mask)
+=======
+
+	return 0;
+}
+
+static int read_port_cmd(struct usb_serial_port *port, u8 command, u16 value,
+		void *data, int size)
+{
+	return ti_vread_sync(port->serial->dev, command, value,
+			UMPM_UART1_PORT + port->port_number,
+			data, size);
+}
+
+static int send_port_cmd(struct usb_serial_port *port, u8 command, u16 value,
+		void *data, int size)
+{
+	return ti_vsend_sync(port->serial->dev, command, value,
+			UMPM_UART1_PORT + port->port_number,
+			data, size, TI_VSEND_TIMEOUT_DEFAULT);
+}
+
+/* clear tx/rx buffers and fifo in TI UMP */
+static int purge_port(struct usb_serial_port *port, u16 mask)
+>>>>>>> upstream/android-13
 {
 	int port_number = port->port_number;
 
 	dev_dbg(&port->dev, "%s - port %d, mask %x\n", __func__, port_number, mask);
 
+<<<<<<< HEAD
 	return send_cmd(port->serial->dev,
 					UMPC_PURGE_PORT,
 					(__u8)(UMPM_UART1_PORT + port_number),
 					mask,
 					NULL,
 					0);
+=======
+	return send_port_cmd(port, UMPC_PURGE_PORT, mask, NULL, 0);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -323,10 +390,17 @@ static int purge_port(struct usb_serial_port *port, __u16 mask)
  * @buffer: pointer to input data buffer
  */
 static int read_download_mem(struct usb_device *dev, int start_address,
+<<<<<<< HEAD
 				int length, __u8 address_type, __u8 *buffer)
 {
 	int status = 0;
 	__u8 read_length;
+=======
+				int length, u8 address_type, u8 *buffer)
+{
+	int status = 0;
+	u8 read_length;
+>>>>>>> upstream/android-13
 	u16 be_start_address;
 
 	dev_dbg(&dev->dev, "%s - @ %x for %d\n", __func__, start_address, length);
@@ -339,7 +413,11 @@ static int read_download_mem(struct usb_device *dev, int start_address,
 		if (length > 64)
 			read_length = 64;
 		else
+<<<<<<< HEAD
 			read_length = (__u8)length;
+=======
+			read_length = (u8)length;
+>>>>>>> upstream/android-13
 
 		if (read_length > 1) {
 			dev_dbg(&dev->dev, "%s - @ %x for %d\n", __func__, start_address, read_length);
@@ -350,7 +428,11 @@ static int read_download_mem(struct usb_device *dev, int start_address,
 		 */
 		be_start_address = swab16((u16)start_address);
 		status = ti_vread_sync(dev, UMPC_MEMORY_READ,
+<<<<<<< HEAD
 					(__u16)address_type,
+=======
+					(u16)address_type,
+>>>>>>> upstream/android-13
 					be_start_address,
 					buffer, read_length);
 
@@ -372,7 +454,11 @@ static int read_download_mem(struct usb_device *dev, int start_address,
 }
 
 static int read_ram(struct usb_device *dev, int start_address,
+<<<<<<< HEAD
 						int length, __u8 *buffer)
+=======
+						int length, u8 *buffer)
+>>>>>>> upstream/android-13
 {
 	return read_download_mem(dev, start_address, length,
 					DTK_ADDR_SPACE_XDATA, buffer);
@@ -380,7 +466,11 @@ static int read_ram(struct usb_device *dev, int start_address,
 
 /* Read edgeport memory to a given block */
 static int read_boot_mem(struct edgeport_serial *serial,
+<<<<<<< HEAD
 				int start_address, int length, __u8 *buffer)
+=======
+				int start_address, int length, u8 *buffer)
+>>>>>>> upstream/android-13
 {
 	int status = 0;
 	int i;
@@ -388,7 +478,11 @@ static int read_boot_mem(struct edgeport_serial *serial,
 	for (i = 0; i < length; i++) {
 		status = ti_vread_sync(serial->serial->dev,
 				UMPC_MEMORY_READ, serial->TI_I2C_Type,
+<<<<<<< HEAD
 				(__u16)(start_address+i), &buffer[i], 0x01);
+=======
+				(u16)(start_address+i), &buffer[i], 0x01);
+>>>>>>> upstream/android-13
 		if (status) {
 			dev_dbg(&serial->serial->dev->dev, "%s - ERROR %x\n", __func__, status);
 			return status;
@@ -406,7 +500,11 @@ static int read_boot_mem(struct edgeport_serial *serial,
 
 /* Write given block to TI EPROM memory */
 static int write_boot_mem(struct edgeport_serial *serial,
+<<<<<<< HEAD
 				int start_address, int length, __u8 *buffer)
+=======
+				int start_address, int length, u8 *buffer)
+>>>>>>> upstream/android-13
 {
 	int status = 0;
 	int i;
@@ -440,7 +538,11 @@ static int write_boot_mem(struct edgeport_serial *serial,
 
 /* Write edgeport I2C memory to TI chip	*/
 static int write_i2c_mem(struct edgeport_serial *serial,
+<<<<<<< HEAD
 		int start_address, int length, __u8 address_type, __u8 *buffer)
+=======
+		int start_address, int length, u8 address_type, u8 *buffer)
+>>>>>>> upstream/android-13
 {
 	struct device *dev = &serial->serial->dev->dev;
 	int status = 0;
@@ -526,7 +628,11 @@ static int tx_active(struct edgeport_port *port)
 {
 	int status;
 	struct out_endpoint_desc_block *oedb;
+<<<<<<< HEAD
 	__u8 *lsr;
+=======
+	u8 *lsr;
+>>>>>>> upstream/android-13
 	int bytes_left = 0;
 
 	oedb = kmalloc(sizeof(*oedb), GFP_KERNEL);
@@ -597,7 +703,11 @@ static int choose_config(struct usb_device *dev)
 }
 
 static int read_rom(struct edgeport_serial *serial,
+<<<<<<< HEAD
 				int start_address, int length, __u8 *buffer)
+=======
+				int start_address, int length, u8 *buffer)
+>>>>>>> upstream/android-13
 {
 	int status;
 
@@ -615,7 +725,11 @@ static int read_rom(struct edgeport_serial *serial,
 }
 
 static int write_rom(struct edgeport_serial *serial, int start_address,
+<<<<<<< HEAD
 						int length, __u8 *buffer)
+=======
+						int length, u8 *buffer)
+>>>>>>> upstream/android-13
 {
 	if (serial->product_info.TiMode == TI_MODE_BOOT)
 		return write_boot_mem(serial, start_address, length,
@@ -640,7 +754,11 @@ static int get_descriptor_addr(struct edgeport_serial *serial,
 		status = read_rom(serial,
 				   start_address,
 				   sizeof(struct ti_i2c_desc),
+<<<<<<< HEAD
 				   (__u8 *)rom_desc);
+=======
+				   (u8 *)rom_desc);
+>>>>>>> upstream/android-13
 		if (status)
 			return 0;
 
@@ -656,6 +774,7 @@ static int get_descriptor_addr(struct edgeport_serial *serial,
 }
 
 /* Validate descriptor checksum */
+<<<<<<< HEAD
 static int valid_csum(struct ti_i2c_desc *rom_desc, __u8 *buffer)
 {
 	__u16 i;
@@ -663,6 +782,15 @@ static int valid_csum(struct ti_i2c_desc *rom_desc, __u8 *buffer)
 
 	for (i = 0; i < le16_to_cpu(rom_desc->Size); i++)
 		cs = (__u8)(cs + buffer[i]);
+=======
+static int valid_csum(struct ti_i2c_desc *rom_desc, u8 *buffer)
+{
+	u16 i;
+	u8 cs = 0;
+
+	for (i = 0; i < le16_to_cpu(rom_desc->Size); i++)
+		cs = (u8)(cs + buffer[i]);
+>>>>>>> upstream/android-13
 
 	if (cs != rom_desc->CheckSum) {
 		pr_debug("%s - Mismatch %x - %x", __func__, rom_desc->CheckSum, cs);
@@ -678,8 +806,13 @@ static int check_i2c_image(struct edgeport_serial *serial)
 	int status = 0;
 	struct ti_i2c_desc *rom_desc;
 	int start_address = 2;
+<<<<<<< HEAD
 	__u8 *buffer;
 	__u16 ttype;
+=======
+	u8 *buffer;
+	u16 ttype;
+>>>>>>> upstream/android-13
 
 	rom_desc = kmalloc(sizeof(*rom_desc), GFP_KERNEL);
 	if (!rom_desc)
@@ -707,7 +840,11 @@ static int check_i2c_image(struct edgeport_serial *serial)
 		status = read_rom(serial,
 				start_address,
 				sizeof(struct ti_i2c_desc),
+<<<<<<< HEAD
 				(__u8 *)rom_desc);
+=======
+				(u8 *)rom_desc);
+>>>>>>> upstream/android-13
 		if (status)
 			break;
 
@@ -752,7 +889,11 @@ out:
 	return status;
 }
 
+<<<<<<< HEAD
 static int get_manuf_info(struct edgeport_serial *serial, __u8 *buffer)
+=======
+static int get_manuf_info(struct edgeport_serial *serial, u8 *buffer)
+>>>>>>> upstream/android-13
 {
 	int status;
 	int start_address;
@@ -797,10 +938,17 @@ exit:
 /* Build firmware header used for firmware update */
 static int build_i2c_fw_hdr(u8 *header, const struct firmware *fw)
 {
+<<<<<<< HEAD
 	__u8 *buffer;
 	int buffer_size;
 	int i;
 	__u8 cs = 0;
+=======
+	u8 *buffer;
+	int buffer_size;
+	int i;
+	u8 cs = 0;
+>>>>>>> upstream/android-13
 	struct ti_i2c_desc *i2c_header;
 	struct ti_i2c_image_header *img_header;
 	struct ti_i2c_firmware_rec *firmware_rec;
@@ -844,7 +992,11 @@ static int build_i2c_fw_hdr(u8 *header, const struct firmware *fw)
 		le16_to_cpu(img_header->Length));
 
 	for (i=0; i < buffer_size; i++) {
+<<<<<<< HEAD
 		cs = (__u8)(cs + buffer[i]);
+=======
+		cs = (u8)(cs + buffer[i]);
+>>>>>>> upstream/android-13
 	}
 
 	kfree(buffer);
@@ -920,7 +1072,11 @@ static int bulk_xfer(struct usb_serial *serial, void *buffer,
 }
 
 /* Download given firmware image to the device (IN BOOT MODE) */
+<<<<<<< HEAD
 static int download_code(struct edgeport_serial *serial, __u8 *image,
+=======
+static int download_code(struct edgeport_serial *serial, u8 *image,
+>>>>>>> upstream/android-13
 							int image_length)
 {
 	int status = 0;
@@ -1094,7 +1250,11 @@ static int do_download_mode(struct edgeport_serial *serial,
 	if (!ti_manuf_desc)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	status = get_manuf_info(serial, (__u8 *)ti_manuf_desc);
+=======
+	status = get_manuf_info(serial, (u8 *)ti_manuf_desc);
+>>>>>>> upstream/android-13
 	if (status) {
 		kfree(ti_manuf_desc);
 		return status;
@@ -1139,7 +1299,11 @@ static int do_download_mode(struct edgeport_serial *serial,
 		status = read_rom(serial, start_address +
 				sizeof(struct ti_i2c_desc),
 				sizeof(struct ti_i2c_firmware_rec),
+<<<<<<< HEAD
 				(__u8 *)firmware_version);
+=======
+				(u8 *)firmware_version);
+>>>>>>> upstream/android-13
 		if (status) {
 			kfree(firmware_version);
 			kfree(rom_desc);
@@ -1265,8 +1429,13 @@ static int do_download_mode(struct edgeport_serial *serial,
 		if (start_address != 0) {
 #define HEADER_SIZE	(sizeof(struct ti_i2c_desc) + \
 				sizeof(struct ti_i2c_firmware_rec))
+<<<<<<< HEAD
 			__u8 *header;
 			__u8 *vheader;
+=======
+			u8 *header;
+			u8 *vheader;
+>>>>>>> upstream/android-13
 
 			header = kmalloc(HEADER_SIZE, GFP_KERNEL);
 			if (!header) {
@@ -1412,8 +1581,13 @@ static int do_boot_mode(struct edgeport_serial *serial,
 	if (!check_i2c_image(serial)) {
 		struct ti_i2c_image_header *header;
 		int i;
+<<<<<<< HEAD
 		__u8 cs = 0;
 		__u8 *buffer;
+=======
+		u8 cs = 0;
+		u8 *buffer;
+>>>>>>> upstream/android-13
 		int buffer_size;
 
 		/*
@@ -1424,7 +1598,11 @@ static int do_boot_mode(struct edgeport_serial *serial,
 		if (!ti_manuf_desc)
 			return -ENOMEM;
 
+<<<<<<< HEAD
 		status = get_manuf_info(serial, (__u8 *)ti_manuf_desc);
+=======
+		status = get_manuf_info(serial, (u8 *)ti_manuf_desc);
+>>>>>>> upstream/android-13
 		if (status) {
 			kfree(ti_manuf_desc);
 			goto stayinbootmode;
@@ -1467,13 +1645,21 @@ static int do_boot_mode(struct edgeport_serial *serial,
 
 		for (i = sizeof(struct ti_i2c_image_header);
 				i < buffer_size; i++) {
+<<<<<<< HEAD
 			cs = (__u8)(cs + buffer[i]);
+=======
+			cs = (u8)(cs + buffer[i]);
+>>>>>>> upstream/android-13
 		}
 
 		header = (struct ti_i2c_image_header *)buffer;
 
 		/* update length and checksum after padding */
+<<<<<<< HEAD
 		header->Length 	 = cpu_to_le16((__u16)(buffer_size -
+=======
+		header->Length = cpu_to_le16((u16)(buffer_size -
+>>>>>>> upstream/android-13
 					sizeof(struct ti_i2c_image_header)));
 		header->CheckSum = cs;
 
@@ -1508,6 +1694,7 @@ stayinbootmode:
 
 static int ti_do_config(struct edgeport_port *port, int feature, int on)
 {
+<<<<<<< HEAD
 	int port_number = port->port->port_number;
 
 	on = !!on;	/* 1 or 0 not bitmask */
@@ -1517,6 +1704,14 @@ static int ti_do_config(struct edgeport_port *port, int feature, int on)
 }
 
 static int restore_mcr(struct edgeport_port *port, __u8 mcr)
+=======
+	on = !!on;	/* 1 or 0 not bitmask */
+
+	return send_port_cmd(port->port, feature, on, NULL, 0);
+}
+
+static int restore_mcr(struct edgeport_port *port, u8 mcr)
+>>>>>>> upstream/android-13
 {
 	int status = 0;
 
@@ -1532,9 +1727,15 @@ static int restore_mcr(struct edgeport_port *port, __u8 mcr)
 }
 
 /* Convert TI LSR to standard UART flags */
+<<<<<<< HEAD
 static __u8 map_line_status(__u8 ti_lsr)
 {
 	__u8 lsr = 0;
+=======
+static u8 map_line_status(u8 ti_lsr)
+{
+	u8 lsr = 0;
+>>>>>>> upstream/android-13
 
 #define MAP_FLAG(flagUmp, flagUart)    \
 	if (ti_lsr & flagUmp) \
@@ -1552,7 +1753,11 @@ static __u8 map_line_status(__u8 ti_lsr)
 	return lsr;
 }
 
+<<<<<<< HEAD
 static void handle_new_msr(struct edgeport_port *edge_port, __u8 msr)
+=======
+static void handle_new_msr(struct edgeport_port *edge_port, u8 msr)
+>>>>>>> upstream/android-13
 {
 	struct async_icount *icount;
 	struct tty_struct *tty;
@@ -1588,10 +1793,17 @@ static void handle_new_msr(struct edgeport_port *edge_port, __u8 msr)
 }
 
 static void handle_new_lsr(struct edgeport_port *edge_port, int lsr_data,
+<<<<<<< HEAD
 							__u8 lsr, __u8 data)
 {
 	struct async_icount *icount;
 	__u8 new_lsr = (__u8)(lsr & (__u8)(LSR_OVER_ERR | LSR_PAR_ERR |
+=======
+							u8 lsr, u8 data)
+{
+	struct async_icount *icount;
+	u8 new_lsr = (u8)(lsr & (u8)(LSR_OVER_ERR | LSR_PAR_ERR |
+>>>>>>> upstream/android-13
 						LSR_FRM_ERR | LSR_BREAK));
 
 	dev_dbg(&edge_port->port->dev, "%s - %02x\n", __func__, new_lsr);
@@ -1603,7 +1815,11 @@ static void handle_new_lsr(struct edgeport_port *edge_port, int lsr_data,
 		 * Parity and Framing errors only count if they
 		 * occur exclusive of a break being received.
 		 */
+<<<<<<< HEAD
 		new_lsr &= (__u8)(LSR_OVER_ERR | LSR_BREAK);
+=======
+		new_lsr &= (u8)(LSR_OVER_ERR | LSR_BREAK);
+>>>>>>> upstream/android-13
 
 	/* Place LSR data byte into Rx buffer */
 	if (lsr_data)
@@ -1632,8 +1848,13 @@ static void edge_interrupt_callback(struct urb *urb)
 	int port_number;
 	int function;
 	int retval;
+<<<<<<< HEAD
 	__u8 lsr;
 	__u8 msr;
+=======
+	u8 lsr;
+	u8 msr;
+>>>>>>> upstream/android-13
 	int status = urb->status;
 
 	switch (status) {
@@ -1841,7 +2062,10 @@ static int edge_open(struct tty_struct *tty, struct usb_serial_port *port)
 	struct edgeport_serial *edge_serial;
 	struct usb_device *dev;
 	struct urb *urb;
+<<<<<<< HEAD
 	int port_number;
+=======
+>>>>>>> upstream/android-13
 	int status;
 	u16 open_settings;
 	u8 transaction_timeout;
@@ -1849,8 +2073,11 @@ static int edge_open(struct tty_struct *tty, struct usb_serial_port *port)
 	if (edge_port == NULL)
 		return -ENODEV;
 
+<<<<<<< HEAD
 	port_number = port->port_number;
 
+=======
+>>>>>>> upstream/android-13
 	dev = port->serial->dev;
 
 	/* turn off loopback */
@@ -1882,8 +2109,12 @@ static int edge_open(struct tty_struct *tty, struct usb_serial_port *port)
 	dev_dbg(&port->dev, "%s - Sending UMPC_OPEN_PORT\n", __func__);
 
 	/* Tell TI to open and start the port */
+<<<<<<< HEAD
 	status = send_cmd(dev, UMPC_OPEN_PORT,
 		(u8)(UMPM_UART1_PORT + port_number), open_settings, NULL, 0);
+=======
+	status = send_port_cmd(port, UMPC_OPEN_PORT, open_settings, NULL, 0);
+>>>>>>> upstream/android-13
 	if (status) {
 		dev_err(&port->dev, "%s - cannot send open command, %d\n",
 							__func__, status);
@@ -1891,8 +2122,12 @@ static int edge_open(struct tty_struct *tty, struct usb_serial_port *port)
 	}
 
 	/* Start the DMA? */
+<<<<<<< HEAD
 	status = send_cmd(dev, UMPC_START_PORT,
 		(u8)(UMPM_UART1_PORT + port_number), 0, NULL, 0);
+=======
+	status = send_port_cmd(port, UMPC_START_PORT, 0, NULL, 0);
+>>>>>>> upstream/android-13
 	if (status) {
 		dev_err(&port->dev, "%s - cannot send start DMA command, %d\n",
 							__func__, status);
@@ -1909,9 +2144,13 @@ static int edge_open(struct tty_struct *tty, struct usb_serial_port *port)
 	}
 
 	/* Read Initial MSR */
+<<<<<<< HEAD
 	status = ti_vread_sync(dev, UMPC_READ_MSR, 0,
 				(__u16)(UMPM_UART1_PORT + port_number),
 				&edge_port->shadow_msr, 1);
+=======
+	status = read_port_cmd(port, UMPC_READ_MSR, 0, &edge_port->shadow_msr, 1);
+>>>>>>> upstream/android-13
 	if (status) {
 		dev_err(&port->dev, "%s - cannot send read MSR command, %d\n",
 							__func__, status);
@@ -1975,9 +2214,13 @@ static void edge_close(struct usb_serial_port *port)
 {
 	struct edgeport_serial *edge_serial;
 	struct edgeport_port *edge_port;
+<<<<<<< HEAD
 	struct usb_serial *serial = port->serial;
 	unsigned long flags;
 	int port_number;
+=======
+	unsigned long flags;
+>>>>>>> upstream/android-13
 
 	edge_serial = usb_get_serial_data(port->serial);
 	edge_port = usb_get_serial_port_data(port);
@@ -1998,9 +2241,13 @@ static void edge_close(struct usb_serial_port *port)
 	spin_unlock_irqrestore(&edge_port->ep_lock, flags);
 
 	dev_dbg(&port->dev, "%s - send umpc_close_port\n", __func__);
+<<<<<<< HEAD
 	port_number = port->port_number;
 	send_cmd(serial->dev, UMPC_CLOSE_PORT,
 		     (__u8)(UMPM_UART1_PORT + port_number), 0, NULL, 0);
+=======
+	send_port_cmd(port, UMPC_CLOSE_PORT, 0, NULL, 0);
+>>>>>>> upstream/android-13
 
 	mutex_lock(&edge_serial->es_lock);
 	--edge_port->edge_serial->num_ports_open;
@@ -2085,11 +2332,19 @@ static void edge_send(struct usb_serial_port *port, struct tty_struct *tty)
 		tty_wakeup(tty);
 }
 
+<<<<<<< HEAD
 static int edge_write_room(struct tty_struct *tty)
 {
 	struct usb_serial_port *port = tty->driver_data;
 	struct edgeport_port *edge_port = usb_get_serial_port_data(port);
 	int room = 0;
+=======
+static unsigned int edge_write_room(struct tty_struct *tty)
+{
+	struct usb_serial_port *port = tty->driver_data;
+	struct edgeport_port *edge_port = usb_get_serial_port_data(port);
+	unsigned int room;
+>>>>>>> upstream/android-13
 	unsigned long flags;
 
 	if (edge_port == NULL)
@@ -2101,6 +2356,7 @@ static int edge_write_room(struct tty_struct *tty)
 	room = kfifo_avail(&port->write_fifo);
 	spin_unlock_irqrestore(&edge_port->ep_lock, flags);
 
+<<<<<<< HEAD
 	dev_dbg(&port->dev, "%s - returns %d\n", __func__, room);
 	return room;
 }
@@ -2110,6 +2366,17 @@ static int edge_chars_in_buffer(struct tty_struct *tty)
 	struct usb_serial_port *port = tty->driver_data;
 	struct edgeport_port *edge_port = usb_get_serial_port_data(port);
 	int chars = 0;
+=======
+	dev_dbg(&port->dev, "%s - returns %u\n", __func__, room);
+	return room;
+}
+
+static unsigned int edge_chars_in_buffer(struct tty_struct *tty)
+{
+	struct usb_serial_port *port = tty->driver_data;
+	struct edgeport_port *edge_port = usb_get_serial_port_data(port);
+	unsigned int chars;
+>>>>>>> upstream/android-13
 	unsigned long flags;
 	if (edge_port == NULL)
 		return 0;
@@ -2118,7 +2385,11 @@ static int edge_chars_in_buffer(struct tty_struct *tty)
 	chars = kfifo_len(&port->write_fifo);
 	spin_unlock_irqrestore(&edge_port->ep_lock, flags);
 
+<<<<<<< HEAD
 	dev_dbg(&port->dev, "%s - returns %d\n", __func__, chars);
+=======
+	dev_dbg(&port->dev, "%s - returns %u\n", __func__, chars);
+>>>>>>> upstream/android-13
 	return chars;
 }
 
@@ -2233,7 +2504,10 @@ static void change_port_settings(struct tty_struct *tty,
 	int baud;
 	unsigned cflag;
 	int status;
+<<<<<<< HEAD
 	int port_number = edge_port->port->port_number;
+=======
+>>>>>>> upstream/android-13
 
 	config = kmalloc (sizeof (*config), GFP_KERNEL);
 	if (!config) {
@@ -2248,7 +2522,11 @@ static void change_port_settings(struct tty_struct *tty,
 	/* These flags must be set */
 	config->wFlags |= UMP_MASK_UART_FLAGS_RECEIVE_MS_INT;
 	config->wFlags |= UMP_MASK_UART_FLAGS_AUTO_START_ON_ERR;
+<<<<<<< HEAD
 	config->bUartMode = (__u8)(edge_port->bUartMode);
+=======
+	config->bUartMode = (u8)(edge_port->bUartMode);
+>>>>>>> upstream/android-13
 
 	switch (cflag & CSIZE) {
 	case CS5:
@@ -2340,7 +2618,11 @@ static void change_port_settings(struct tty_struct *tty,
 	}
 
 	edge_port->baud_rate = baud;
+<<<<<<< HEAD
 	config->wBaudRate = (__u16)((461550L + baud/2) / baud);
+=======
+	config->wBaudRate = (u16)((461550L + baud/2) / baud);
+>>>>>>> upstream/android-13
 
 	/* FIXME: Recompute actual baud from divisor here */
 
@@ -2359,9 +2641,14 @@ static void change_port_settings(struct tty_struct *tty,
 	cpu_to_be16s(&config->wFlags);
 	cpu_to_be16s(&config->wBaudRate);
 
+<<<<<<< HEAD
 	status = send_cmd(edge_port->port->serial->dev, UMPC_SET_CONFIG,
 				(__u8)(UMPM_UART1_PORT + port_number),
 				0, (__u8 *)config, sizeof(*config));
+=======
+	status = send_port_cmd(edge_port->port, UMPC_SET_CONFIG, 0, config,
+			sizeof(*config));
+>>>>>>> upstream/android-13
 	if (status)
 		dev_dbg(dev, "%s - error %d when trying to write config to device\n",
 			__func__, status);
@@ -2437,6 +2724,7 @@ static int edge_tiocmget(struct tty_struct *tty)
 	return result;
 }
 
+<<<<<<< HEAD
 static int get_serial_info(struct edgeport_port *edge_port,
 				struct serial_struct __user *retinfo)
 {
@@ -2478,6 +2766,8 @@ static int edge_ioctl(struct tty_struct *tty,
 	return -ENOIOCTLCMD;
 }
 
+=======
+>>>>>>> upstream/android-13
 static void edge_break(struct tty_struct *tty, int break_state)
 {
 	struct usb_serial_port *port = tty->driver_data;
@@ -2638,7 +2928,14 @@ static int edge_port_probe(struct usb_serial_port *port)
 	if (ret)
 		goto err;
 
+<<<<<<< HEAD
 	port->port.closing_wait = msecs_to_jiffies(closing_wait * 10);
+=======
+	/*
+	 * The LSR does not tell when the transmitter shift register has
+	 * emptied so add a one-character drain delay.
+	 */
+>>>>>>> upstream/android-13
 	port->port.drain_delay = 1;
 
 	return 0;
@@ -2648,15 +2945,22 @@ err:
 	return ret;
 }
 
+<<<<<<< HEAD
 static int edge_port_remove(struct usb_serial_port *port)
+=======
+static void edge_port_remove(struct usb_serial_port *port)
+>>>>>>> upstream/android-13
 {
 	struct edgeport_port *edge_port;
 
 	edge_port = usb_get_serial_port_data(port);
 	edge_remove_sysfs_attrs(port);
 	kfree(edge_port);
+<<<<<<< HEAD
 
 	return 0;
+=======
+>>>>>>> upstream/android-13
 }
 
 /* Sysfs Attributes */
@@ -2738,7 +3042,10 @@ static struct usb_serial_driver edgeport_1port_device = {
 	.release		= edge_release,
 	.port_probe		= edge_port_probe,
 	.port_remove		= edge_port_remove,
+<<<<<<< HEAD
 	.ioctl			= edge_ioctl,
+=======
+>>>>>>> upstream/android-13
 	.set_termios		= edge_set_termios,
 	.tiocmget		= edge_tiocmget,
 	.tiocmset		= edge_tiocmset,
@@ -2777,7 +3084,10 @@ static struct usb_serial_driver edgeport_2port_device = {
 	.release		= edge_release,
 	.port_probe		= edge_port_probe,
 	.port_remove		= edge_port_remove,
+<<<<<<< HEAD
 	.ioctl			= edge_ioctl,
+=======
+>>>>>>> upstream/android-13
 	.set_termios		= edge_set_termios,
 	.tiocmget		= edge_tiocmget,
 	.tiocmset		= edge_tiocmset,
@@ -2808,6 +3118,7 @@ MODULE_DESCRIPTION(DRIVER_DESC);
 MODULE_LICENSE("GPL");
 MODULE_FIRMWARE("edgeport/down3.bin");
 
+<<<<<<< HEAD
 module_param(closing_wait, int, S_IRUGO | S_IWUSR);
 MODULE_PARM_DESC(closing_wait, "Maximum wait for data to drain, in .01 secs");
 
@@ -2816,4 +3127,11 @@ MODULE_PARM_DESC(ignore_cpu_rev,
 			"Ignore the cpu revision when connecting to a device");
 
 module_param(default_uart_mode, int, S_IRUGO | S_IWUSR);
+=======
+module_param(ignore_cpu_rev, bool, 0644);
+MODULE_PARM_DESC(ignore_cpu_rev,
+			"Ignore the cpu revision when connecting to a device");
+
+module_param(default_uart_mode, int, 0644);
+>>>>>>> upstream/android-13
 MODULE_PARM_DESC(default_uart_mode, "Default uart_mode, 0=RS232, ...");

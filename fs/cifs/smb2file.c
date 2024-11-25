@@ -1,10 +1,16 @@
+<<<<<<< HEAD
 /*
  *   fs/cifs/smb2file.c
+=======
+// SPDX-License-Identifier: LGPL-2.1
+/*
+>>>>>>> upstream/android-13
  *
  *   Copyright (C) International Business Machines  Corp., 2002, 2011
  *   Author(s): Steve French (sfrench@us.ibm.com),
  *              Pavel Shilovsky ((pshilovsky@samba.org) 2012
  *
+<<<<<<< HEAD
  *   This library is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU Lesser General Public License as published
  *   by the Free Software Foundation; either version 2.1 of the License, or
@@ -18,6 +24,8 @@
  *   You should have received a copy of the GNU Lesser General Public License
  *   along with this library; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/fs.h>
 #include <linux/stat.h>
@@ -62,19 +70,33 @@ smb2_open_file(const unsigned int xid, struct cifs_open_parms *oparms,
 	smb2_oplock = SMB2_OPLOCK_LEVEL_BATCH;
 
 	rc = SMB2_open(xid, oparms, smb2_path, &smb2_oplock, smb2_data, NULL,
+<<<<<<< HEAD
 		       NULL);
+=======
+		       NULL, NULL);
+>>>>>>> upstream/android-13
 	if (rc)
 		goto out;
 
 
 	if (oparms->tcon->use_resilient) {
+<<<<<<< HEAD
 		nr_ioctl_req.Timeout = 0; /* use server default (120 seconds) */
+=======
+		/* default timeout is 0, servers pick default (120 seconds) */
+		nr_ioctl_req.Timeout =
+			cpu_to_le32(oparms->tcon->handle_timeout);
+>>>>>>> upstream/android-13
 		nr_ioctl_req.Reserved = 0;
 		rc = SMB2_ioctl(xid, oparms->tcon, fid->persistent_fid,
 			fid->volatile_fid, FSCTL_LMR_REQUEST_RESILIENCY,
 			true /* is_fsctl */,
 			(char *)&nr_ioctl_req, sizeof(nr_ioctl_req),
+<<<<<<< HEAD
 			NULL, NULL /* no return info */);
+=======
+			CIFSMaxBufSize, NULL, NULL /* no return info */);
+>>>>>>> upstream/android-13
 		if (rc == -EOPNOTSUPP) {
 			cifs_dbg(VFS,
 			     "resiliency not supported by server, disabling\n");
@@ -86,6 +108,7 @@ smb2_open_file(const unsigned int xid, struct cifs_open_parms *oparms,
 	}
 
 	if (buf) {
+<<<<<<< HEAD
 		/* open response does not have IndexNumber field - get it */
 		rc = SMB2_get_srv_num(xid, oparms->tcon, fid->persistent_fid,
 				      fid->volatile_fid,
@@ -94,6 +117,22 @@ smb2_open_file(const unsigned int xid, struct cifs_open_parms *oparms,
 			/* let get_inode_info disable server inode numbers */
 			smb2_data->IndexNumber = 0;
 			rc = 0;
+=======
+		/* if open response does not have IndexNumber field - get it */
+		if (smb2_data->IndexNumber == 0) {
+			rc = SMB2_get_srv_num(xid, oparms->tcon,
+				      fid->persistent_fid,
+				      fid->volatile_fid,
+				      &smb2_data->IndexNumber);
+			if (rc) {
+				/*
+				 * let get_inode_info disable server inode
+				 * numbers
+				 */
+				smb2_data->IndexNumber = 0;
+				rc = 0;
+			}
+>>>>>>> upstream/android-13
 		}
 		move_smb2_info_to_cifs(buf, smb2_data);
 	}
@@ -144,7 +183,16 @@ smb2_unlock_range(struct cifsFileInfo *cfile, struct file_lock *flock,
 		    (li->offset + li->length))
 			continue;
 		if (current->tgid != li->pid)
+<<<<<<< HEAD
 			continue;
+=======
+			/*
+			 * flock and OFD lock are associated with an open
+			 * file description, not the process.
+			 */
+			if (!(flock->fl_flags & (FL_FLOCK | FL_OFDLCK)))
+				continue;
+>>>>>>> upstream/android-13
 		if (cinode->can_cache_brlcks) {
 			/*
 			 * We can cache brlock requests - simply remove a lock

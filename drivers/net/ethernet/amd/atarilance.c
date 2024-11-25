@@ -156,7 +156,11 @@ struct lance_memory {
 	struct lance_init_block	init;
 	struct lance_tx_head	tx_head[TX_RING_SIZE];
 	struct lance_rx_head	rx_head[RX_RING_SIZE];
+<<<<<<< HEAD
 	char					packet_area[0];	/* packet data follow after the
+=======
+	char					packet_area[];	/* packet data follow after the
+>>>>>>> upstream/android-13
 											 * init block and the ring
 											 * descriptors and are located
 											 * at runtime */
@@ -346,7 +350,11 @@ static int lance_rx( struct net_device *dev );
 static int lance_close( struct net_device *dev );
 static void set_multicast_list( struct net_device *dev );
 static int lance_set_mac_address( struct net_device *dev, void *addr );
+<<<<<<< HEAD
 static void lance_tx_timeout (struct net_device *dev);
+=======
+static void lance_tx_timeout (struct net_device *dev, unsigned int txqueue);
+>>>>>>> upstream/android-13
 
 /************************* End of Prototypes **************************/
 
@@ -367,7 +375,11 @@ static void *slow_memcpy( void *dst, const void *src, size_t len )
 }
 
 
+<<<<<<< HEAD
 struct net_device * __init atarilance_probe(int unit)
+=======
+struct net_device * __init atarilance_probe(void)
+>>>>>>> upstream/android-13
 {
 	int i;
 	static int found;
@@ -382,10 +394,13 @@ struct net_device * __init atarilance_probe(int unit)
 	dev = alloc_etherdev(sizeof(struct lance_private));
 	if (!dev)
 		return ERR_PTR(-ENOMEM);
+<<<<<<< HEAD
 	if (unit >= 0) {
 		sprintf(dev->name, "eth%d", unit);
 		netdev_boot_setup_check(dev);
 	}
+=======
+>>>>>>> upstream/android-13
 
 	for( i = 0; i < N_LANCE_ADDR; ++i ) {
 		if (lance_probe1( dev, &lance_addr_list[i] )) {
@@ -706,7 +721,11 @@ static void lance_init_ring( struct net_device *dev )
 		CHECK_OFFSET(offset);
 		MEM->tx_head[i].base = offset;
 		MEM->tx_head[i].flag = TMD1_OWN_HOST;
+<<<<<<< HEAD
  		MEM->tx_head[i].base_hi = 0;
+=======
+		MEM->tx_head[i].base_hi = 0;
+>>>>>>> upstream/android-13
 		MEM->tx_head[i].length = 0;
 		MEM->tx_head[i].misc = 0;
 		offset += PKT_BUF_SZ;
@@ -727,7 +746,11 @@ static void lance_init_ring( struct net_device *dev )
 /* XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX */
 
 
+<<<<<<< HEAD
 static void lance_tx_timeout (struct net_device *dev)
+=======
+static void lance_tx_timeout (struct net_device *dev, unsigned int txqueue)
+>>>>>>> upstream/android-13
 {
 	struct lance_private *lp = netdev_priv(dev);
 	struct lance_ioreg	 *IO = lp->iobase;
@@ -1137,13 +1160,20 @@ static int lance_set_mac_address( struct net_device *dev, void *addr )
 	return 0;
 }
 
+<<<<<<< HEAD
 
 #ifdef MODULE
+=======
+>>>>>>> upstream/android-13
 static struct net_device *atarilance_dev;
 
 static int __init atarilance_module_init(void)
 {
+<<<<<<< HEAD
 	atarilance_dev = atarilance_probe(-1);
+=======
+	atarilance_dev = atarilance_probe();
+>>>>>>> upstream/android-13
 	return PTR_ERR_OR_ZERO(atarilance_dev);
 }
 
@@ -1155,6 +1185,7 @@ static void __exit atarilance_module_exit(void)
 }
 module_init(atarilance_module_init);
 module_exit(atarilance_module_exit);
+<<<<<<< HEAD
 #endif /* MODULE */
 
 
@@ -1164,3 +1195,5 @@ module_exit(atarilance_module_exit);
  *  tab-width: 4
  * End:
  */
+=======
+>>>>>>> upstream/android-13

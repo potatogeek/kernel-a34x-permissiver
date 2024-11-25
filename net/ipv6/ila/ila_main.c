@@ -16,29 +16,51 @@ static const struct nla_policy ila_nl_policy[ILA_ATTR_MAX + 1] = {
 static const struct genl_ops ila_nl_ops[] = {
 	{
 		.cmd = ILA_CMD_ADD,
+<<<<<<< HEAD
 		.doit = ila_xlat_nl_cmd_add_mapping,
 		.policy = ila_nl_policy,
+=======
+		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+		.doit = ila_xlat_nl_cmd_add_mapping,
+>>>>>>> upstream/android-13
 		.flags = GENL_ADMIN_PERM,
 	},
 	{
 		.cmd = ILA_CMD_DEL,
+<<<<<<< HEAD
 		.doit = ila_xlat_nl_cmd_del_mapping,
 		.policy = ila_nl_policy,
+=======
+		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+		.doit = ila_xlat_nl_cmd_del_mapping,
+>>>>>>> upstream/android-13
 		.flags = GENL_ADMIN_PERM,
 	},
 	{
 		.cmd = ILA_CMD_FLUSH,
+<<<<<<< HEAD
 		.doit = ila_xlat_nl_cmd_flush,
 		.policy = ila_nl_policy,
+=======
+		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+		.doit = ila_xlat_nl_cmd_flush,
+>>>>>>> upstream/android-13
 		.flags = GENL_ADMIN_PERM,
 	},
 	{
 		.cmd = ILA_CMD_GET,
+<<<<<<< HEAD
+=======
+		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+>>>>>>> upstream/android-13
 		.doit = ila_xlat_nl_cmd_get_mapping,
 		.start = ila_xlat_nl_dump_start,
 		.dumpit = ila_xlat_nl_dump,
 		.done = ila_xlat_nl_dump_done,
+<<<<<<< HEAD
 		.policy = ila_nl_policy,
+=======
+>>>>>>> upstream/android-13
 	},
 };
 
@@ -49,6 +71,10 @@ struct genl_family ila_nl_family __ro_after_init = {
 	.name		= ILA_GENL_NAME,
 	.version	= ILA_GENL_VERSION,
 	.maxattr	= ILA_ATTR_MAX,
+<<<<<<< HEAD
+=======
+	.policy = ila_nl_policy,
+>>>>>>> upstream/android-13
 	.netnsok	= true,
 	.parallel_ops	= true,
 	.module		= THIS_MODULE,
@@ -119,3 +145,7 @@ module_init(ila_init);
 module_exit(ila_fini);
 MODULE_AUTHOR("Tom Herbert <tom@herbertland.com>");
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
+=======
+MODULE_DESCRIPTION("IPv6: Identifier Locator Addressing (ILA)");
+>>>>>>> upstream/android-13

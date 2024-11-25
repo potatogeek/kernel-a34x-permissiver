@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
 
   Broadcom B43legacy wireless driver
@@ -12,6 +16,7 @@
   Some parts of the code in this file are derived from the ipw2200
   driver  Copyright(c) 2003 - 2004 Intel Corporation.
 
+<<<<<<< HEAD
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation; either version 2 of the License, or
@@ -26,6 +31,8 @@
   along with this program; see the file COPYING.  If not, write to
   the Free Software Foundation, Inc., 51 Franklin Steet, Fifth Floor,
   Boston, MA 02110-1301, USA.
+=======
+>>>>>>> upstream/android-13
 
 */
 
@@ -95,7 +102,10 @@ void b43legacy_radio_lock(struct b43legacy_wldev *dev)
 	B43legacy_WARN_ON(status & B43legacy_MACCTL_RADIOLOCK);
 	status |= B43legacy_MACCTL_RADIOLOCK;
 	b43legacy_write32(dev, B43legacy_MMIO_MACCTL, status);
+<<<<<<< HEAD
 	mmiowb();
+=======
+>>>>>>> upstream/android-13
 	udelay(10);
 }
 
@@ -108,7 +118,10 @@ void b43legacy_radio_unlock(struct b43legacy_wldev *dev)
 	B43legacy_WARN_ON(!(status & B43legacy_MACCTL_RADIOLOCK));
 	status &= ~B43legacy_MACCTL_RADIOLOCK;
 	b43legacy_write32(dev, B43legacy_MMIO_MACCTL, status);
+<<<<<<< HEAD
 	mmiowb();
+=======
+>>>>>>> upstream/android-13
 }
 
 u16 b43legacy_radio_read16(struct b43legacy_wldev *dev, u16 offset)
@@ -141,7 +154,10 @@ u16 b43legacy_radio_read16(struct b43legacy_wldev *dev, u16 offset)
 void b43legacy_radio_write16(struct b43legacy_wldev *dev, u16 offset, u16 val)
 {
 	b43legacy_write16(dev, B43legacy_MMIO_RADIO_CONTROL, offset);
+<<<<<<< HEAD
 	mmiowb();
+=======
+>>>>>>> upstream/android-13
 	b43legacy_write16(dev, B43legacy_MMIO_RADIO_DATA_LOW, val);
 }
 
@@ -299,7 +315,11 @@ u8 b43legacy_radio_aci_scan(struct b43legacy_wldev *dev)
 			    & 0x7FFF);
 	b43legacy_set_all_gains(dev, 3, 8, 1);
 
+<<<<<<< HEAD
 	start = (channel - 5 > 0) ? channel - 5 : 1;
+=======
+	start = (channel > 5) ? channel - 5 : 1;
+>>>>>>> upstream/android-13
 	end = (channel + 5 < 14) ? channel + 5 : 13;
 
 	for (i = start; i <= end; i++) {
@@ -329,6 +349,7 @@ u8 b43legacy_radio_aci_scan(struct b43legacy_wldev *dev)
 	return ret[channel - 1];
 }
 
+<<<<<<< HEAD
 /* http://bcm-specs.sipsolutions.net/NRSSILookupTable */
 void b43legacy_nrssi_hw_write(struct b43legacy_wldev *dev, u16 offset, s16 val)
 {
@@ -338,6 +359,16 @@ void b43legacy_nrssi_hw_write(struct b43legacy_wldev *dev, u16 offset, s16 val)
 }
 
 /* http://bcm-specs.sipsolutions.net/NRSSILookupTable */
+=======
+/* https://bcm-specs.sipsolutions.net/NRSSILookupTable */
+void b43legacy_nrssi_hw_write(struct b43legacy_wldev *dev, u16 offset, s16 val)
+{
+	b43legacy_phy_write(dev, B43legacy_PHY_NRSSILT_CTRL, offset);
+	b43legacy_phy_write(dev, B43legacy_PHY_NRSSILT_DATA, (u16)val);
+}
+
+/* https://bcm-specs.sipsolutions.net/NRSSILookupTable */
+>>>>>>> upstream/android-13
 s16 b43legacy_nrssi_hw_read(struct b43legacy_wldev *dev, u16 offset)
 {
 	u16 val;
@@ -348,7 +379,11 @@ s16 b43legacy_nrssi_hw_read(struct b43legacy_wldev *dev, u16 offset)
 	return (s16)val;
 }
 
+<<<<<<< HEAD
 /* http://bcm-specs.sipsolutions.net/NRSSILookupTable */
+=======
+/* https://bcm-specs.sipsolutions.net/NRSSILookupTable */
+>>>>>>> upstream/android-13
 void b43legacy_nrssi_hw_update(struct b43legacy_wldev *dev, u16 val)
 {
 	u16 i;
@@ -362,7 +397,11 @@ void b43legacy_nrssi_hw_update(struct b43legacy_wldev *dev, u16 val)
 	}
 }
 
+<<<<<<< HEAD
 /* http://bcm-specs.sipsolutions.net/NRSSILookupTable */
+=======
+/* https://bcm-specs.sipsolutions.net/NRSSILookupTable */
+>>>>>>> upstream/android-13
 void b43legacy_nrssi_mem_update(struct b43legacy_wldev *dev)
 {
 	struct b43legacy_phy *phy = &dev->phy;

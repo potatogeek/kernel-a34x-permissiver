@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  acpi_fan.c - ACPI Fan Driver ($Revision: 29 $)
  *
  *  Copyright (C) 2001, 2002 Andy Grover <andrew.grover@intel.com>
  *  Copyright (C) 2001, 2002 Paul Diefenbaugh <paul.s.diefenbaugh@intel.com>
+<<<<<<< HEAD
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  *
@@ -17,6 +22,8 @@
  *  General Public License for more details.
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -29,6 +36,11 @@
 #include <linux/platform_device.h>
 #include <linux/sort.h>
 
+<<<<<<< HEAD
+=======
+#include "fan.h"
+
+>>>>>>> upstream/android-13
 MODULE_AUTHOR("Paul Diefenbaugh");
 MODULE_DESCRIPTION("ACPI Fan Driver");
 MODULE_LICENSE("GPL");
@@ -37,8 +49,12 @@ static int acpi_fan_probe(struct platform_device *pdev);
 static int acpi_fan_remove(struct platform_device *pdev);
 
 static const struct acpi_device_id fan_device_ids[] = {
+<<<<<<< HEAD
 	{"PNP0C0B", 0},
 	{"INT3404", 0},
+=======
+	ACPI_FAN_DEVICE_IDS,
+>>>>>>> upstream/android-13
 	{"", 0},
 };
 MODULE_DEVICE_TABLE(acpi, fan_device_ids);
@@ -57,12 +73,22 @@ static const struct dev_pm_ops acpi_fan_pm = {
 #define FAN_PM_OPS_PTR NULL
 #endif
 
+<<<<<<< HEAD
+=======
+#define ACPI_FPS_NAME_LEN	20
+
+>>>>>>> upstream/android-13
 struct acpi_fan_fps {
 	u64 control;
 	u64 trip_point;
 	u64 speed;
 	u64 noise_level;
 	u64 power;
+<<<<<<< HEAD
+=======
+	char name[ACPI_FPS_NAME_LEN];
+	struct device_attribute dev_attr;
+>>>>>>> upstream/android-13
 };
 
 struct acpi_fan_fif {
@@ -278,6 +304,42 @@ static int acpi_fan_speed_cmp(const void *a, const void *b)
 	return fps1->speed - fps2->speed;
 }
 
+<<<<<<< HEAD
+=======
+static ssize_t show_state(struct device *dev, struct device_attribute *attr, char *buf)
+{
+	struct acpi_fan_fps *fps = container_of(attr, struct acpi_fan_fps, dev_attr);
+	int count;
+
+	if (fps->control == 0xFFFFFFFF || fps->control > 100)
+		count = scnprintf(buf, PAGE_SIZE, "not-defined:");
+	else
+		count = scnprintf(buf, PAGE_SIZE, "%lld:", fps->control);
+
+	if (fps->trip_point == 0xFFFFFFFF || fps->trip_point > 9)
+		count += scnprintf(&buf[count], PAGE_SIZE - count, "not-defined:");
+	else
+		count += scnprintf(&buf[count], PAGE_SIZE - count, "%lld:", fps->trip_point);
+
+	if (fps->speed == 0xFFFFFFFF)
+		count += scnprintf(&buf[count], PAGE_SIZE - count, "not-defined:");
+	else
+		count += scnprintf(&buf[count], PAGE_SIZE - count, "%lld:", fps->speed);
+
+	if (fps->noise_level == 0xFFFFFFFF)
+		count += scnprintf(&buf[count], PAGE_SIZE - count, "not-defined:");
+	else
+		count += scnprintf(&buf[count], PAGE_SIZE - count, "%lld:", fps->noise_level * 100);
+
+	if (fps->power == 0xFFFFFFFF)
+		count += scnprintf(&buf[count], PAGE_SIZE - count, "not-defined\n");
+	else
+		count += scnprintf(&buf[count], PAGE_SIZE - count, "%lld\n", fps->power);
+
+	return count;
+}
+
+>>>>>>> upstream/android-13
 static int acpi_fan_get_fps(struct acpi_device *device)
 {
 	struct acpi_fan *fan = acpi_driver_data(device);
@@ -308,12 +370,21 @@ static int acpi_fan_get_fps(struct acpi_device *device)
 	}
 	for (i = 0; i < fan->fps_count; i++) {
 		struct acpi_buffer format = { sizeof("NNNNN"), "NNNNN" };
+<<<<<<< HEAD
 		struct acpi_buffer fps = { sizeof(fan->fps[i]), &fan->fps[i] };
+=======
+		struct acpi_buffer fps = { offsetof(struct acpi_fan_fps, name),
+						&fan->fps[i] };
+>>>>>>> upstream/android-13
 		status = acpi_extract_package(&obj->package.elements[i + 1],
 					      &format, &fps);
 		if (ACPI_FAILURE(status)) {
 			dev_err(&device->dev, "Invalid _FPS element\n");
+<<<<<<< HEAD
 			break;
+=======
+			goto err;
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -321,6 +392,28 @@ static int acpi_fan_get_fps(struct acpi_device *device)
 	sort(fan->fps, fan->fps_count, sizeof(*fan->fps),
 	     acpi_fan_speed_cmp, NULL);
 
+<<<<<<< HEAD
+=======
+	for (i = 0; i < fan->fps_count; ++i) {
+		struct acpi_fan_fps *fps = &fan->fps[i];
+
+		snprintf(fps->name, ACPI_FPS_NAME_LEN, "state%d", i);
+		sysfs_attr_init(&fps->dev_attr.attr);
+		fps->dev_attr.show = show_state;
+		fps->dev_attr.store = NULL;
+		fps->dev_attr.attr.name = fps->name;
+		fps->dev_attr.attr.mode = 0444;
+		status = sysfs_create_file(&device->dev.kobj, &fps->dev_attr.attr);
+		if (status) {
+			int j;
+
+			for (j = 0; j < i; ++j)
+				sysfs_remove_file(&device->dev.kobj, &fan->fps[j].dev_attr.attr);
+			break;
+		}
+	}
+
+>>>>>>> upstream/android-13
 err:
 	kfree(obj);
 	return status;
@@ -343,14 +436,29 @@ static int acpi_fan_probe(struct platform_device *pdev)
 	platform_set_drvdata(pdev, fan);
 
 	if (acpi_fan_is_acpi4(device)) {
+<<<<<<< HEAD
 		if (acpi_fan_get_fif(device) || acpi_fan_get_fps(device))
 			goto end;
+=======
+		result = acpi_fan_get_fif(device);
+		if (result)
+			return result;
+
+		result = acpi_fan_get_fps(device);
+		if (result)
+			return result;
+
+>>>>>>> upstream/android-13
 		fan->acpi4 = true;
 	} else {
 		result = acpi_device_update_power(device, NULL);
 		if (result) {
 			dev_err(&device->dev, "Failed to set initial power state\n");
+<<<<<<< HEAD
 			goto end;
+=======
+			goto err_end;
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -363,7 +471,11 @@ static int acpi_fan_probe(struct platform_device *pdev)
 						&fan_cooling_ops);
 	if (IS_ERR(cdev)) {
 		result = PTR_ERR(cdev);
+<<<<<<< HEAD
 		goto end;
+=======
+		goto err_end;
+>>>>>>> upstream/android-13
 	}
 
 	dev_dbg(&pdev->dev, "registered as cooling_device%d\n", cdev->id);
@@ -378,10 +490,28 @@ static int acpi_fan_probe(struct platform_device *pdev)
 	result = sysfs_create_link(&cdev->device.kobj,
 				   &pdev->dev.kobj,
 				   "device");
+<<<<<<< HEAD
 	if (result)
 		dev_err(&pdev->dev, "Failed to create sysfs link 'device'\n");
 
 end:
+=======
+	if (result) {
+		dev_err(&pdev->dev, "Failed to create sysfs link 'device'\n");
+		goto err_end;
+	}
+
+	return 0;
+
+err_end:
+	if (fan->acpi4) {
+		int i;
+
+		for (i = 0; i < fan->fps_count; ++i)
+			sysfs_remove_file(&device->dev.kobj, &fan->fps[i].dev_attr.attr);
+	}
+
+>>>>>>> upstream/android-13
 	return result;
 }
 
@@ -389,6 +519,16 @@ static int acpi_fan_remove(struct platform_device *pdev)
 {
 	struct acpi_fan *fan = platform_get_drvdata(pdev);
 
+<<<<<<< HEAD
+=======
+	if (fan->acpi4) {
+		struct acpi_device *device = ACPI_COMPANION(&pdev->dev);
+		int i;
+
+		for (i = 0; i < fan->fps_count; ++i)
+			sysfs_remove_file(&device->dev.kobj, &fan->fps[i].dev_attr.attr);
+	}
+>>>>>>> upstream/android-13
 	sysfs_remove_link(&pdev->dev.kobj, "thermal_cooling");
 	sysfs_remove_link(&fan->cdev->device.kobj, "device");
 	thermal_cooling_device_unregister(fan->cdev);

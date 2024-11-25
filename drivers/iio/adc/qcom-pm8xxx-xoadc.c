@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Qualcomm PM8xxx PMIC XOADC driver
  *
@@ -9,6 +13,10 @@
  * Author: Linus Walleij <linus.walleij@linaro.org>
  */
 
+<<<<<<< HEAD
+=======
+#include <linux/iio/adc/qcom-vadc-common.h>
+>>>>>>> upstream/android-13
 #include <linux/iio/iio.h>
 #include <linux/iio/sysfs.h>
 #include <linux/module.h>
@@ -20,8 +28,11 @@
 #include <linux/interrupt.h>
 #include <linux/regulator/consumer.h>
 
+<<<<<<< HEAD
 #include "qcom-vadc-common.h"
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Definitions for the "user processor" registers lifted from the v3.4
  * Qualcomm tree. Their kernel has two out-of-tree drivers for the ADC:
@@ -119,7 +130,11 @@
 #define ADC_ARB_USRP_DATA0			0x19D
 #define ADC_ARB_USRP_DATA1			0x19C
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * Physical channels which MUST exist on all PM variants in order to provide
  * proper reference points for calibration.
  *
@@ -387,6 +402,10 @@ struct pm8xxx_chan_info {
  * struct pm8xxx_xoadc - state container for the XOADC
  * @dev: pointer to device
  * @map: regmap to access registers
+<<<<<<< HEAD
+=======
+ * @variant: XOADC variant characteristics
+>>>>>>> upstream/android-13
  * @vref: reference voltage regulator
  * characteristics of the channels, and sensible default settings
  * @nchans: number of channels, configured by the device tree
@@ -704,8 +723,13 @@ static int pm8xxx_of_xlate(struct iio_dev *indio_dev,
 	 * mux.
 	 */
 	if (iiospec->args_count != 2) {
+<<<<<<< HEAD
 		dev_err(&indio_dev->dev, "wrong number of arguments for %s need 2 got %d\n",
 			iiospec->np->name,
+=======
+		dev_err(&indio_dev->dev, "wrong number of arguments for %pOFn need 2 got %d\n",
+			iiospec->np,
+>>>>>>> upstream/android-13
 			iiospec->args_count);
 		return -EINVAL;
 	}
@@ -932,8 +956,11 @@ static int pm8xxx_xoadc_probe(struct platform_device *pdev)
 		goto out_disable_vref;
 	}
 
+<<<<<<< HEAD
 	indio_dev->dev.parent = dev;
 	indio_dev->dev.of_node = np;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->name = variant->name;
 	indio_dev->modes = INDIO_DIRECT_MODE;
 	indio_dev->info = &pm8xxx_xoadc_info;

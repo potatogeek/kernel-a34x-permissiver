@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Driver for the Analog Devices digital potentiometers (SPI bus)
  *
  * Copyright (C) 2010-2011 Michael Hennerich, Analog Devices Inc.
+<<<<<<< HEAD
  *
  * Licensed under the GPL-2 or later.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/spi/spi.h>
@@ -140,7 +147,11 @@ static struct spi_driver ad_dpot_spi_driver = {
 
 module_spi_driver(ad_dpot_spi_driver);
 
+<<<<<<< HEAD
 MODULE_AUTHOR("Michael Hennerich <hennerich@blackfin.uclinux.org>");
+=======
+MODULE_AUTHOR("Michael Hennerich <michael.hennerich@analog.com>");
+>>>>>>> upstream/android-13
 MODULE_DESCRIPTION("digital potentiometer SPI bus driver");
 MODULE_LICENSE("GPL");
 MODULE_ALIAS("spi:ad_dpot");

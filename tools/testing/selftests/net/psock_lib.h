@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Copyright 2013 Google Inc.
  * Author: Willem de Bruijn <willemb@google.com>
  *         Daniel Borkmann <dborkman@redhat.com>
+<<<<<<< HEAD
  *
  * License (GPLv2):
  *
@@ -17,6 +22,8 @@
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef PSOCK_LIB_H

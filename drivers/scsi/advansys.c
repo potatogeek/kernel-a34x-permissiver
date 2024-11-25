@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * advansys.c - Linux Host Driver for AdvanSys SCSI Adapters
  *
@@ -6,11 +10,14 @@
  * Copyright (c) 2007 Matthew Wilcox <matthew@wil.cx>
  * Copyright (c) 2014 Hannes Reinecke <hare@suse.de>
  * All Rights Reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -88,8 +95,11 @@ typedef unsigned char uchar;
 
 #define ASC_CS_TYPE  unsigned short
 
+<<<<<<< HEAD
 #define ASC_IS_ISA          (0x0001)
 #define ASC_IS_ISAPNP       (0x0081)
+=======
+>>>>>>> upstream/android-13
 #define ASC_IS_EISA         (0x0002)
 #define ASC_IS_PCI          (0x0004)
 #define ASC_IS_PCI_ULTRA    (0x0104)
@@ -105,11 +115,14 @@ typedef unsigned char uchar;
 #define ASC_CHIP_MIN_VER_PCI     (0x09)
 #define ASC_CHIP_MAX_VER_PCI     (0x0F)
 #define ASC_CHIP_VER_PCI_BIT     (0x08)
+<<<<<<< HEAD
 #define ASC_CHIP_MIN_VER_ISA     (0x11)
 #define ASC_CHIP_MIN_VER_ISA_PNP (0x21)
 #define ASC_CHIP_MAX_VER_ISA     (0x27)
 #define ASC_CHIP_VER_ISA_BIT     (0x30)
 #define ASC_CHIP_VER_ISAPNP_BIT  (0x20)
+=======
+>>>>>>> upstream/android-13
 #define ASC_CHIP_VER_ASYN_BUG    (0x21)
 #define ASC_CHIP_VER_PCI             0x08
 #define ASC_CHIP_VER_PCI_ULTRA_3150  (ASC_CHIP_VER_PCI | 0x02)
@@ -120,7 +133,10 @@ typedef unsigned char uchar;
 #define ASC_CHIP_LATEST_VER_EISA   ((ASC_CHIP_MIN_VER_EISA - 1) + 3)
 #define ASC_MAX_VL_DMA_COUNT    (0x07FFFFFFL)
 #define ASC_MAX_PCI_DMA_COUNT   (0xFFFFFFFFL)
+<<<<<<< HEAD
 #define ASC_MAX_ISA_DMA_COUNT   (0x00FFFFFFL)
+=======
+>>>>>>> upstream/android-13
 
 #define ASC_SCSI_ID_BITS  3
 #define ASC_SCSI_TIX_TYPE     uchar
@@ -198,7 +214,10 @@ typedef unsigned char uchar;
 #define ASC_FLAG_SRB_LINEAR_ADDR  0x08
 #define ASC_FLAG_WIN16            0x10
 #define ASC_FLAG_WIN32            0x20
+<<<<<<< HEAD
 #define ASC_FLAG_ISA_OVER_16MB    0x40
+=======
+>>>>>>> upstream/android-13
 #define ASC_FLAG_DOS_VM_CALLBACK  0x80
 #define ASC_TAG_FLAG_EXTRA_BYTES               0x10
 #define ASC_TAG_FLAG_DISABLE_DISCONNECT        0x04
@@ -320,7 +339,11 @@ typedef struct asc_sg_head {
 	ushort queue_cnt;
 	ushort entry_to_copy;
 	ushort res;
+<<<<<<< HEAD
 	ASC_SG_LIST sg_list[0];
+=======
+	ASC_SG_LIST sg_list[];
+>>>>>>> upstream/android-13
 } ASC_SG_HEAD;
 
 typedef struct asc_scsi_q {
@@ -468,8 +491,11 @@ typedef struct asc_dvc_cfg {
 	ASC_SCSI_BIT_ID_TYPE disc_enable;
 	ASC_SCSI_BIT_ID_TYPE sdtr_enable;
 	uchar chip_scsi_id;
+<<<<<<< HEAD
 	uchar isa_dma_speed;
 	uchar isa_dma_channel;
+=======
+>>>>>>> upstream/android-13
 	uchar chip_version;
 	ushort mcode_date;
 	ushort mcode_version;
@@ -576,10 +602,15 @@ typedef struct asc_cap_info_array {
 #define ASC_EEP_MAX_RETRY        20
 
 /*
+<<<<<<< HEAD
  * These macros keep the chip SCSI id and ISA DMA speed
  * bitfields in board order. C bitfields aren't portable
  * between big and little-endian platforms so they are
  * not used.
+=======
+ * These macros keep the chip SCSI id  bitfields in board order. C bitfields
+ * aren't portable between big and little-endian platforms so they are not used.
+>>>>>>> upstream/android-13
  */
 
 #define ASC_EEP_GET_CHIP_ID(cfg)    ((cfg)->id_speed & 0x0f)
@@ -1816,7 +1847,11 @@ typedef struct adv_req {
  * Field naming convention:
  *
  *  *_able indicates both whether a feature should be enabled or disabled
+<<<<<<< HEAD
  *  and whether a device isi capable of the feature. At initialization
+=======
+ *  and whether a device is capable of the feature. At initialization
+>>>>>>> upstream/android-13
  *  this field may be set, but later if a device is found to be incapable
  *  of the feature, the field is cleared.
  */
@@ -2089,12 +2124,15 @@ do { \
 #define ASC_BUSY        0
 #define ASC_ERROR       (-1)
 
+<<<<<<< HEAD
 /* struct scsi_cmnd function return codes */
 #define STATUS_BYTE(byte)   (byte)
 #define MSG_BYTE(byte)      ((byte) << 8)
 #define HOST_BYTE(byte)     ((byte) << 16)
 #define DRIVER_BYTE(byte)   ((byte) << 24)
 
+=======
+>>>>>>> upstream/android-13
 #define ASC_STATS(shost, counter) ASC_STATS_ADD(shost, counter, 1)
 #ifndef ADVANSYS_STATS
 #define ASC_STATS_ADD(shost, counter, count)
@@ -2350,9 +2388,14 @@ static void asc_prt_asc_dvc_cfg(ASC_DVC_CFG *h)
 	printk(" disc_enable 0x%x, sdtr_enable 0x%x,\n",
 	       h->disc_enable, h->sdtr_enable);
 
+<<<<<<< HEAD
 	printk(" chip_scsi_id %d, isa_dma_speed %d, isa_dma_channel %d, "
 		"chip_version %d,\n", h->chip_scsi_id, h->isa_dma_speed,
 		h->isa_dma_channel, h->chip_version);
+=======
+	printk(" chip_scsi_id %d, chip_version %d,\n",
+	       h->chip_scsi_id, h->chip_version);
+>>>>>>> upstream/android-13
 
 	printk(" mcode_date 0x%x, mcode_version %d\n",
 		h->mcode_date, h->mcode_version);
@@ -2425,8 +2468,13 @@ static void asc_prt_scsi_host(struct Scsi_Host *s)
 	printk(" dma_channel %d, this_id %d, can_queue %d,\n",
 	       s->dma_channel, s->this_id, s->can_queue);
 
+<<<<<<< HEAD
 	printk(" cmd_per_lun %d, sg_tablesize %d, unchecked_isa_dma %d\n",
 	       s->cmd_per_lun, s->sg_tablesize, s->unchecked_isa_dma);
+=======
+	printk(" cmd_per_lun %d, sg_tablesize %d\n",
+	       s->cmd_per_lun, s->sg_tablesize);
+>>>>>>> upstream/android-13
 
 	if (ASC_NARROW_BOARD(boardp)) {
 		asc_prt_asc_dvc_var(&boardp->dvc_var.asc_dvc_var);
@@ -2642,6 +2690,7 @@ static const char *advansys_info(struct Scsi_Host *shost)
 	if (ASC_NARROW_BOARD(boardp)) {
 		asc_dvc_varp = &boardp->dvc_var.asc_dvc_var;
 		ASC_DBG(1, "begin\n");
+<<<<<<< HEAD
 		if (asc_dvc_varp->bus_type & ASC_IS_ISA) {
 			if ((asc_dvc_varp->bus_type & ASC_IS_ISAPNP) ==
 			    ASC_IS_ISAPNP) {
@@ -2678,6 +2727,30 @@ static const char *advansys_info(struct Scsi_Host *shost)
 				(ulong)shost->io_port + ASC_IOADR_GAP - 1,
 				boardp->irq);
 		}
+=======
+
+		if (asc_dvc_varp->bus_type & ASC_IS_VL) {
+			busname = "VL";
+		} else if (asc_dvc_varp->bus_type & ASC_IS_EISA) {
+			busname = "EISA";
+		} else if (asc_dvc_varp->bus_type & ASC_IS_PCI) {
+			if ((asc_dvc_varp->bus_type & ASC_IS_PCI_ULTRA)
+			    == ASC_IS_PCI_ULTRA) {
+				busname = "PCI Ultra";
+			} else {
+				busname = "PCI";
+			}
+		} else {
+			busname = "?";
+			shost_printk(KERN_ERR, shost, "unknown bus "
+				"type %d\n", asc_dvc_varp->bus_type);
+		}
+		sprintf(info,
+			"AdvanSys SCSI %s: %s: IO 0x%lX-0x%lX, IRQ 0x%X",
+			ASC_VERSION, busname, (ulong)shost->io_port,
+			(ulong)shost->io_port + ASC_IOADR_GAP - 1,
+			boardp->irq);
+>>>>>>> upstream/android-13
 	} else {
 		/*
 		 * Wide Adapter Information
@@ -2880,6 +2953,7 @@ static int asc_get_eeprom_string(ushort *serialnum, uchar *cp)
 static void asc_prt_asc_board_eeprom(struct seq_file *m, struct Scsi_Host *shost)
 {
 	struct asc_board *boardp = shost_priv(shost);
+<<<<<<< HEAD
 	ASC_DVC_VAR *asc_dvc_varp;
 	ASCEEP_CONFIG *ep;
 	int i;
@@ -2889,6 +2963,12 @@ static void asc_prt_asc_board_eeprom(struct seq_file *m, struct Scsi_Host *shost
 	uchar serialstr[13];
 
 	asc_dvc_varp = &boardp->dvc_var.asc_dvc_var;
+=======
+	ASCEEP_CONFIG *ep;
+	int i;
+	uchar serialstr[13];
+
+>>>>>>> upstream/android-13
 	ep = &boardp->eep_config.asc_eep;
 
 	seq_printf(m,
@@ -2936,6 +3016,7 @@ static void asc_prt_asc_board_eeprom(struct seq_file *m, struct Scsi_Host *shost
 		seq_printf(m, " %c",
 			   (ep->init_sdtr & ADV_TID_TO_TIDMASK(i)) ? 'Y' : 'N');
 	seq_putc(m, '\n');
+<<<<<<< HEAD
 
 #ifdef CONFIG_ISA
 	if (asc_dvc_varp->bus_type & ASC_IS_ISA) {
@@ -2944,6 +3025,8 @@ static void asc_prt_asc_board_eeprom(struct seq_file *m, struct Scsi_Host *shost
 			   isa_dma_speed[ASC_EEP_GET_DMA_SPD(ep)]);
 	}
 #endif /* CONFIG_ISA */
+=======
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -3175,7 +3258,10 @@ static void asc_prt_adv_board_eeprom(struct seq_file *m, struct Scsi_Host *shost
 static void asc_prt_driver_conf(struct seq_file *m, struct Scsi_Host *shost)
 {
 	struct asc_board *boardp = shost_priv(shost);
+<<<<<<< HEAD
 	int chip_scsi_id;
+=======
+>>>>>>> upstream/android-13
 
 	seq_printf(m,
 		"\nLinux Driver Configuration and Information for AdvanSys SCSI Host %d:\n",
@@ -3192,21 +3278,27 @@ static void asc_prt_driver_conf(struct seq_file *m, struct Scsi_Host *shost)
 		   shost->sg_tablesize, shost->cmd_per_lun);
 
 	seq_printf(m,
+<<<<<<< HEAD
 		   " unchecked_isa_dma %d, use_clustering %d\n",
 		   shost->unchecked_isa_dma, shost->use_clustering);
 
 	seq_printf(m,
+=======
+>>>>>>> upstream/android-13
 		   " flags 0x%x, last_reset 0x%lx, jiffies 0x%lx, asc_n_io_port 0x%x\n",
 		   boardp->flags, shost->last_reset, jiffies,
 		   boardp->asc_n_io_port);
 
 	seq_printf(m, " io_port 0x%lx\n", shost->io_port);
+<<<<<<< HEAD
 
 	if (ASC_NARROW_BOARD(boardp)) {
 		chip_scsi_id = boardp->dvc_cfg.asc_dvc_cfg.chip_scsi_id;
 	} else {
 		chip_scsi_id = boardp->dvc_var.adv_dvc_var.chip_scsi_id;
 	}
+=======
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -3370,8 +3462,13 @@ static void asc_prt_adv_board_info(struct seq_file *m, struct Scsi_Host *shost)
 		   shost->host_no);
 
 	seq_printf(m,
+<<<<<<< HEAD
 		   " iop_base 0x%lx, cable_detect: %X, err_code %u\n",
 		   (unsigned long)v->iop_base,
+=======
+		   " iop_base 0x%p, cable_detect: %X, err_code %u\n",
+		   v->iop_base,
+>>>>>>> upstream/android-13
 		   AdvReadWordRegister(iop_base,IOPW_SCSI_CFG1) & CABLE_DETECT,
 		   v->err_code);
 
@@ -5949,7 +6046,10 @@ static void adv_async_callback(ADV_DVC_VAR *adv_dvc_varp, uchar code)
 static void adv_isr_callback(ADV_DVC_VAR *adv_dvc_varp, ADV_SCSI_REQ_Q *scsiqp)
 {
 	struct asc_board *boardp = adv_dvc_varp->drv_ptr;
+<<<<<<< HEAD
 	u32 srb_tag;
+=======
+>>>>>>> upstream/android-13
 	adv_req_t *reqp;
 	adv_sgblk_t *sgblkp;
 	struct scsi_cmnd *scp;
@@ -5965,7 +6065,10 @@ static void adv_isr_callback(ADV_DVC_VAR *adv_dvc_varp, ADV_SCSI_REQ_Q *scsiqp)
 	 * completed. The adv_req_t structure actually contains the
 	 * completed ADV_SCSI_REQ_Q structure.
 	 */
+<<<<<<< HEAD
 	srb_tag = le32_to_cpu(scsiqp->srb_tag);
+=======
+>>>>>>> upstream/android-13
 	scp = scsi_host_find_tag(boardp->shost, scsiqp->srb_tag);
 
 	ASC_DBG(1, "scp 0x%p\n", scp);
@@ -5999,10 +6102,17 @@ static void adv_isr_callback(ADV_DVC_VAR *adv_dvc_varp, ADV_SCSI_REQ_Q *scsiqp)
 	/*
 	 * 'done_status' contains the command's ending status.
 	 */
+<<<<<<< HEAD
 	switch (scsiqp->done_status) {
 	case QD_NO_ERROR:
 		ASC_DBG(2, "QD_NO_ERROR\n");
 		scp->result = 0;
+=======
+	scp->result = 0;
+	switch (scsiqp->done_status) {
+	case QD_NO_ERROR:
+		ASC_DBG(2, "QD_NO_ERROR\n");
+>>>>>>> upstream/android-13
 
 		/*
 		 * Check for an underrun condition.
@@ -6023,10 +6133,15 @@ static void adv_isr_callback(ADV_DVC_VAR *adv_dvc_varp, ADV_SCSI_REQ_Q *scsiqp)
 		ASC_DBG(2, "QD_WITH_ERROR\n");
 		switch (scsiqp->host_status) {
 		case QHSTA_NO_ERROR:
+<<<<<<< HEAD
+=======
+			set_status_byte(scp, scsiqp->scsi_status);
+>>>>>>> upstream/android-13
 			if (scsiqp->scsi_status == SAM_STAT_CHECK_CONDITION) {
 				ASC_DBG(2, "SAM_STAT_CHECK_CONDITION\n");
 				ASC_DBG_PRT_SENSE(2, scp->sense_buffer,
 						  SCSI_SENSE_BUFFERSIZE);
+<<<<<<< HEAD
 				/*
 				 * Note: The 'status_byte()' macro used by
 				 * target drivers defined in scsi.h shifts the
@@ -6043,27 +6158,43 @@ static void adv_isr_callback(ADV_DVC_VAR *adv_dvc_varp, ADV_SCSI_REQ_Q *scsiqp)
 				    STATUS_BYTE(scsiqp->scsi_status);
 			} else {
 				scp->result = STATUS_BYTE(scsiqp->scsi_status);
+=======
+>>>>>>> upstream/android-13
 			}
 			break;
 
 		default:
 			/* Some other QHSTA error occurred. */
 			ASC_DBG(1, "host_status 0x%x\n", scsiqp->host_status);
+<<<<<<< HEAD
 			scp->result = HOST_BYTE(DID_BAD_TARGET);
+=======
+			set_host_byte(scp, DID_BAD_TARGET);
+>>>>>>> upstream/android-13
 			break;
 		}
 		break;
 
 	case QD_ABORTED_BY_HOST:
 		ASC_DBG(1, "QD_ABORTED_BY_HOST\n");
+<<<<<<< HEAD
 		scp->result =
 		    HOST_BYTE(DID_ABORT) | STATUS_BYTE(scsiqp->scsi_status);
+=======
+		set_status_byte(scp, scsiqp->scsi_status);
+		set_host_byte(scp, DID_ABORT);
+>>>>>>> upstream/android-13
 		break;
 
 	default:
 		ASC_DBG(1, "done_status 0x%x\n", scsiqp->done_status);
+<<<<<<< HEAD
 		scp->result =
 		    HOST_BYTE(DID_ERROR) | STATUS_BYTE(scsiqp->scsi_status);
+=======
+		set_status_byte(scp, scsiqp->scsi_status);
+		set_host_byte(scp, DID_ERROR);
+>>>>>>> upstream/android-13
 		break;
 	}
 
@@ -6117,7 +6248,10 @@ static int AdvISR(ADV_DVC_VAR *asc_dvc)
 {
 	AdvPortAddr iop_base;
 	uchar int_stat;
+<<<<<<< HEAD
 	ushort target_bit;
+=======
+>>>>>>> upstream/android-13
 	ADV_CARR_T *free_carrp;
 	__le32 irq_next_vpa;
 	ADV_SCSI_REQ_Q *scsiq;
@@ -6204,8 +6338,11 @@ static int AdvISR(ADV_DVC_VAR *asc_dvc)
 		asc_dvc->carr_freelist = free_carrp;
 		asc_dvc->carr_pending_cnt--;
 
+<<<<<<< HEAD
 		target_bit = ADV_TID_TO_TIDMASK(scsiq->target_id);
 
+=======
+>>>>>>> upstream/android-13
 		/*
 		 * Clear request microcode control flag.
 		 */
@@ -6448,7 +6585,11 @@ static void AscIsrChipHalted(ASC_DVC_VAR *asc_dvc)
 				sdtr_data =
 				    AscCalSDTRData(asc_dvc, ext_msg.xfer_period,
 						   ext_msg.req_ack_offset);
+<<<<<<< HEAD
 				if ((sdtr_data == 0xFF)) {
+=======
+				if (sdtr_data == 0xFF) {
+>>>>>>> upstream/android-13
 
 					q_cntl |= QC_MSG_OUT;
 					asc_dvc->init_sdtr &= ~target_id;
@@ -6768,10 +6909,17 @@ static void asc_isr_callback(ASC_DVC_VAR *asc_dvc_varp, ASC_QDONE_INFO *qdonep)
 	/*
 	 * 'qdonep' contains the command's ending status.
 	 */
+<<<<<<< HEAD
 	switch (qdonep->d3.done_stat) {
 	case QD_NO_ERROR:
 		ASC_DBG(2, "QD_NO_ERROR\n");
 		scp->result = 0;
+=======
+	scp->result = 0;
+	switch (qdonep->d3.done_stat) {
+	case QD_NO_ERROR:
+		ASC_DBG(2, "QD_NO_ERROR\n");
+>>>>>>> upstream/android-13
 
 		/*
 		 * Check for an underrun condition.
@@ -6791,10 +6939,15 @@ static void asc_isr_callback(ASC_DVC_VAR *asc_dvc_varp, ASC_QDONE_INFO *qdonep)
 		ASC_DBG(2, "QD_WITH_ERROR\n");
 		switch (qdonep->d3.host_stat) {
 		case QHSTA_NO_ERROR:
+<<<<<<< HEAD
+=======
+			set_status_byte(scp, qdonep->d3.scsi_stat);
+>>>>>>> upstream/android-13
 			if (qdonep->d3.scsi_stat == SAM_STAT_CHECK_CONDITION) {
 				ASC_DBG(2, "SAM_STAT_CHECK_CONDITION\n");
 				ASC_DBG_PRT_SENSE(2, scp->sense_buffer,
 						  SCSI_SENSE_BUFFERSIZE);
+<<<<<<< HEAD
 				/*
 				 * Note: The 'status_byte()' macro used by
 				 * target drivers defined in scsi.h shifts the
@@ -6811,31 +6964,47 @@ static void asc_isr_callback(ASC_DVC_VAR *asc_dvc_varp, ASC_QDONE_INFO *qdonep)
 				    STATUS_BYTE(qdonep->d3.scsi_stat);
 			} else {
 				scp->result = STATUS_BYTE(qdonep->d3.scsi_stat);
+=======
+>>>>>>> upstream/android-13
 			}
 			break;
 
 		default:
 			/* QHSTA error occurred */
 			ASC_DBG(1, "host_stat 0x%x\n", qdonep->d3.host_stat);
+<<<<<<< HEAD
 			scp->result = HOST_BYTE(DID_BAD_TARGET);
+=======
+			set_host_byte(scp, DID_BAD_TARGET);
+>>>>>>> upstream/android-13
 			break;
 		}
 		break;
 
 	case QD_ABORTED_BY_HOST:
 		ASC_DBG(1, "QD_ABORTED_BY_HOST\n");
+<<<<<<< HEAD
 		scp->result =
 		    HOST_BYTE(DID_ABORT) | MSG_BYTE(qdonep->d3.
 						    scsi_msg) |
 		    STATUS_BYTE(qdonep->d3.scsi_stat);
+=======
+		set_status_byte(scp, qdonep->d3.scsi_stat);
+		set_host_byte(scp, DID_ABORT);
+>>>>>>> upstream/android-13
 		break;
 
 	default:
 		ASC_DBG(1, "done_stat 0x%x\n", qdonep->d3.done_stat);
+<<<<<<< HEAD
 		scp->result =
 		    HOST_BYTE(DID_ERROR) | MSG_BYTE(qdonep->d3.
 						    scsi_msg) |
 		    STATUS_BYTE(qdonep->d3.scsi_stat);
+=======
+		set_status_byte(scp, qdonep->d3.scsi_stat);
+		set_host_byte(scp, DID_ERROR);
+>>>>>>> upstream/android-13
 		break;
 	}
 
@@ -7524,7 +7693,11 @@ static int asc_build_req(struct asc_board *boardp, struct scsi_cmnd *scp,
 	 * Set the srb_tag to the command tag + 1, as
 	 * srb_tag '0' is used internally by the chip.
 	 */
+<<<<<<< HEAD
 	srb_tag = scp->request->tag + 1;
+=======
+	srb_tag = scsi_cmd_to_rq(scp)->tag + 1;
+>>>>>>> upstream/android-13
 	asc_scsi_q->q2.srb_tag = srb_tag;
 
 	/*
@@ -7574,7 +7747,11 @@ static int asc_build_req(struct asc_board *boardp, struct scsi_cmnd *scp,
 				"sg_tablesize %d\n", use_sg,
 				scp->device->host->sg_tablesize);
 			scsi_dma_unmap(scp);
+<<<<<<< HEAD
 			scp->result = HOST_BYTE(DID_ERROR);
+=======
+			set_host_byte(scp, DID_ERROR);
+>>>>>>> upstream/android-13
 			return ASC_ERROR;
 		}
 
@@ -7582,7 +7759,11 @@ static int asc_build_req(struct asc_board *boardp, struct scsi_cmnd *scp,
 			use_sg * sizeof(struct asc_sg_list), GFP_ATOMIC);
 		if (!asc_sg_head) {
 			scsi_dma_unmap(scp);
+<<<<<<< HEAD
 			scp->result = HOST_BYTE(DID_SOFT_ERROR);
+=======
+			set_host_byte(scp, DID_SOFT_ERROR);
+>>>>>>> upstream/android-13
 			return ASC_ERROR;
 		}
 
@@ -7716,7 +7897,11 @@ adv_get_sglist(struct asc_board *boardp, adv_req_t *reqp,
 				sg_block->sg_ptr = 0L; /* Last ADV_SG_BLOCK in list. */
 				return ADV_SUCCESS;
 			}
+<<<<<<< HEAD
 			slp++;
+=======
+			slp = sg_next(slp);
+>>>>>>> upstream/android-13
 		}
 		sg_block->sg_cnt = NO_OF_SG_PER_BLOCK;
 		prev_sg_block = sg_block;
@@ -7738,7 +7923,11 @@ static int
 adv_build_req(struct asc_board *boardp, struct scsi_cmnd *scp,
 	      adv_req_t **adv_reqpp)
 {
+<<<<<<< HEAD
 	u32 srb_tag = scp->request->tag;
+=======
+	u32 srb_tag = scsi_cmd_to_rq(scp)->tag;
+>>>>>>> upstream/android-13
 	adv_req_t *reqp;
 	ADV_SCSI_REQ_Q *scsiqp;
 	int ret;
@@ -7825,7 +8014,11 @@ adv_build_req(struct asc_board *boardp, struct scsi_cmnd *scp,
 				   "ADV_MAX_SG_LIST %d\n", use_sg,
 				   scp->device->host->sg_tablesize);
 			scsi_dma_unmap(scp);
+<<<<<<< HEAD
 			scp->result = HOST_BYTE(DID_ERROR);
+=======
+			set_host_byte(scp, DID_ERROR);
+>>>>>>> upstream/android-13
 			reqp->cmndp = NULL;
 			scp->host_scribble = NULL;
 
@@ -7837,7 +8030,11 @@ adv_build_req(struct asc_board *boardp, struct scsi_cmnd *scp,
 		ret = adv_get_sglist(boardp, reqp, scsiqp, scp, use_sg);
 		if (ret != ADV_SUCCESS) {
 			scsi_dma_unmap(scp);
+<<<<<<< HEAD
 			scp->result = HOST_BYTE(DID_ERROR);
+=======
+			set_host_byte(scp, DID_ERROR);
+>>>>>>> upstream/android-13
 			reqp->cmndp = NULL;
 			scp->host_scribble = NULL;
 
@@ -8534,13 +8731,21 @@ static int asc_execute_scsi_cmnd(struct scsi_cmnd *scp)
 		scmd_printk(KERN_ERR, scp, "ExeScsiQueue() ASC_ERROR, "
 			"err_code 0x%x\n", err_code);
 		ASC_STATS(scp->device->host, exe_error);
+<<<<<<< HEAD
 		scp->result = HOST_BYTE(DID_ERROR);
+=======
+		set_host_byte(scp, DID_ERROR);
+>>>>>>> upstream/android-13
 		break;
 	default:
 		scmd_printk(KERN_ERR, scp, "ExeScsiQueue() unknown, "
 			"err_code 0x%x\n", err_code);
 		ASC_STATS(scp->device->host, exe_unknown);
+<<<<<<< HEAD
 		scp->result = HOST_BYTE(DID_ERROR);
+=======
+		set_host_byte(scp, DID_ERROR);
+>>>>>>> upstream/android-13
 		break;
 	}
 
@@ -8615,12 +8820,15 @@ static unsigned short AscGetChipBiosAddress(PortAddr iop_base,
 	}
 
 	cfg_lsw = AscGetChipCfgLsw(iop_base);
+<<<<<<< HEAD
 
 	/*
 	 *  ISA PnP uses the top bit as the 32K BIOS flag
 	 */
 	if (bus_type == ASC_IS_ISAPNP)
 		cfg_lsw &= 0x7FFF;
+=======
+>>>>>>> upstream/android-13
 	bios_addr = ASC_BIOS_MIN_ADDR + (cfg_lsw >> 12) * ASC_BIOS_BANK_SIZE;
 	return bios_addr;
 }
@@ -8663,6 +8871,7 @@ static unsigned char AscGetChipVersion(PortAddr iop_base,
 	return AscGetChipVerNo(iop_base);
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_ISA
 static void AscEnableIsaDma(uchar dma_channel)
 {
@@ -8676,6 +8885,8 @@ static void AscEnableIsaDma(uchar dma_channel)
 }
 #endif /* CONFIG_ISA */
 
+=======
+>>>>>>> upstream/android-13
 static int AscStopQueueExe(PortAddr iop_base)
 {
 	int count = 0;
@@ -8696,13 +8907,18 @@ static int AscStopQueueExe(PortAddr iop_base)
 
 static unsigned int AscGetMaxDmaCount(ushort bus_type)
 {
+<<<<<<< HEAD
 	if (bus_type & ASC_IS_ISA)
 		return ASC_MAX_ISA_DMA_COUNT;
 	else if (bus_type & (ASC_IS_EISA | ASC_IS_VL))
+=======
+	if (bus_type & (ASC_IS_EISA | ASC_IS_VL))
+>>>>>>> upstream/android-13
 		return ASC_MAX_VL_DMA_COUNT;
 	return ASC_MAX_PCI_DMA_COUNT;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_ISA
 static ushort AscGetIsaDmaChannel(PortAddr iop_base)
 {
@@ -8755,6 +8971,8 @@ static uchar AscSetIsaDmaSpeed(PortAddr iop_base, uchar speed_value)
 }
 #endif /* CONFIG_ISA */
 
+=======
+>>>>>>> upstream/android-13
 static void AscInitAscDvcVar(ASC_DVC_VAR *asc_dvc)
 {
 	int i;
@@ -8764,7 +8982,11 @@ static void AscInitAscDvcVar(ASC_DVC_VAR *asc_dvc)
 	iop_base = asc_dvc->iop_base;
 	asc_dvc->err_code = 0;
 	if ((asc_dvc->bus_type &
+<<<<<<< HEAD
 	     (ASC_IS_ISA | ASC_IS_PCI | ASC_IS_EISA | ASC_IS_VL)) == 0) {
+=======
+	     (ASC_IS_PCI | ASC_IS_EISA | ASC_IS_VL)) == 0) {
+>>>>>>> upstream/android-13
 		asc_dvc->err_code |= ASC_IERR_NO_BUS_TYPE;
 	}
 	AscSetChipControl(iop_base, CC_HALT);
@@ -8819,6 +9041,7 @@ static void AscInitAscDvcVar(ASC_DVC_VAR *asc_dvc)
 				   (SEC_ACTIVE_NEGATE | SEC_SLEW_RATE));
 	}
 
+<<<<<<< HEAD
 	asc_dvc->cfg->isa_dma_speed = ASC_DEF_ISA_DMA_SPEED;
 #ifdef CONFIG_ISA
 	if ((asc_dvc->bus_type & ASC_IS_ISA) != 0) {
@@ -8830,6 +9053,8 @@ static void AscInitAscDvcVar(ASC_DVC_VAR *asc_dvc)
 		    (uchar)AscGetIsaDmaChannel(iop_base);
 	}
 #endif /* CONFIG_ISA */
+=======
+>>>>>>> upstream/android-13
 	for (i = 0; i <= ASC_MAX_TID; i++) {
 		asc_dvc->cur_dvc_qng[i] = 0;
 		asc_dvc->max_dvc_qng[i] = ASC_MAX_SCSI1_QNG;
@@ -9193,7 +9418,10 @@ static int AscInitFromEEP(ASC_DVC_VAR *asc_dvc)
 	asc_dvc->cfg->sdtr_enable = eep_config->init_sdtr;
 	asc_dvc->cfg->disc_enable = eep_config->disc_enable;
 	asc_dvc->cfg->cmd_qng_enabled = eep_config->use_cmd_qng;
+<<<<<<< HEAD
 	asc_dvc->cfg->isa_dma_speed = ASC_EEP_GET_DMA_SPD(eep_config);
+=======
+>>>>>>> upstream/android-13
 	asc_dvc->start_motor = eep_config->start_motor;
 	asc_dvc->dvc_cntl = eep_config->cntl;
 	asc_dvc->no_scam = eep_config->no_scam;
@@ -9366,22 +9594,28 @@ static int AscInitSetConfig(struct pci_dev *pdev, struct Scsi_Host *shost)
 		}
 	} else
 #endif /* CONFIG_PCI */
+<<<<<<< HEAD
 	if (asc_dvc->bus_type == ASC_IS_ISAPNP) {
 		if (AscGetChipVersion(iop_base, asc_dvc->bus_type)
 		    == ASC_CHIP_VER_ASYN_BUG) {
 			asc_dvc->bug_fix_cntl |= ASC_BUG_FIX_ASYN_USE_SYN;
 		}
 	}
+=======
+>>>>>>> upstream/android-13
 	if (AscSetChipScsiID(iop_base, asc_dvc->cfg->chip_scsi_id) !=
 	    asc_dvc->cfg->chip_scsi_id) {
 		asc_dvc->err_code |= ASC_IERR_SET_SCSI_ID;
 	}
+<<<<<<< HEAD
 #ifdef CONFIG_ISA
 	if (asc_dvc->bus_type & ASC_IS_ISA) {
 		AscSetIsaDmaChannel(iop_base, asc_dvc->cfg->isa_dma_channel);
 		AscSetIsaDmaSpeed(iop_base, asc_dvc->cfg->isa_dma_speed);
 	}
 #endif /* CONFIG_ISA */
+=======
+>>>>>>> upstream/android-13
 
 	asc_dvc->init_state |= ASC_INIT_STATE_END_SET_CFG;
 
@@ -10804,6 +11038,7 @@ static struct scsi_host_template advansys_template = {
 	.eh_host_reset_handler = advansys_reset,
 	.bios_param = advansys_biosparam,
 	.slave_configure = advansys_slave_configure,
+<<<<<<< HEAD
 	/*
 	 * Because the driver may control an ISA adapter 'unchecked_isa_dma'
 	 * must be set. The flag will be cleared in advansys_board_found
@@ -10818,6 +11053,8 @@ static struct scsi_host_template advansys_template = {
 	 * by enabling clustering, I/O throughput increases as well.
 	 */
 	.use_clustering = ENABLE_CLUSTERING,
+=======
+>>>>>>> upstream/android-13
 };
 
 static int advansys_wide_init_chip(struct Scsi_Host *shost)
@@ -10983,6 +11220,7 @@ static int advansys_board_found(struct Scsi_Host *shost, unsigned int iop,
 		 */
 		switch (asc_dvc_varp->bus_type) {
 #ifdef CONFIG_ISA
+<<<<<<< HEAD
 		case ASC_IS_ISA:
 			shost->unchecked_isa_dma = true;
 			share_irq = 0;
@@ -10993,19 +11231,31 @@ static int advansys_board_found(struct Scsi_Host *shost, unsigned int iop,
 			break;
 		case ASC_IS_EISA:
 			shost->unchecked_isa_dma = false;
+=======
+		case ASC_IS_VL:
+			share_irq = 0;
+			break;
+		case ASC_IS_EISA:
+>>>>>>> upstream/android-13
 			share_irq = IRQF_SHARED;
 			break;
 #endif /* CONFIG_ISA */
 #ifdef CONFIG_PCI
 		case ASC_IS_PCI:
+<<<<<<< HEAD
 			shost->unchecked_isa_dma = false;
+=======
+>>>>>>> upstream/android-13
 			share_irq = IRQF_SHARED;
 			break;
 #endif /* CONFIG_PCI */
 		default:
 			shost_printk(KERN_ERR, shost, "unknown adapter type: "
 					"%d\n", asc_dvc_varp->bus_type);
+<<<<<<< HEAD
 			shost->unchecked_isa_dma = false;
+=======
+>>>>>>> upstream/android-13
 			share_irq = 0;
 			break;
 		}
@@ -11024,7 +11274,10 @@ static int advansys_board_found(struct Scsi_Host *shost, unsigned int iop,
 		 * For Wide boards set PCI information before calling
 		 * AdvInitGetConfig().
 		 */
+<<<<<<< HEAD
 		shost->unchecked_isa_dma = false;
+=======
+>>>>>>> upstream/android-13
 		share_irq = IRQF_SHARED;
 		ASC_DBG(2, "AdvInitGetConfig()\n");
 
@@ -11060,7 +11313,11 @@ static int advansys_board_found(struct Scsi_Host *shost, unsigned int iop,
 		ep->init_sdtr = asc_dvc_varp->cfg->sdtr_enable;
 		ep->disc_enable = asc_dvc_varp->cfg->disc_enable;
 		ep->use_cmd_qng = asc_dvc_varp->cfg->cmd_qng_enabled;
+<<<<<<< HEAD
 		ASC_EEP_SET_DMA_SPD(ep, asc_dvc_varp->cfg->isa_dma_speed);
+=======
+		ASC_EEP_SET_DMA_SPD(ep, ASC_DEF_ISA_DMA_SPEED);
+>>>>>>> upstream/android-13
 		ep->start_motor = asc_dvc_varp->start_motor;
 		ep->cntl = asc_dvc_varp->dvc_cntl;
 		ep->no_scam = asc_dvc_varp->no_scam;
@@ -11288,6 +11545,7 @@ static int advansys_board_found(struct Scsi_Host *shost, unsigned int iop,
 
 	/* Register DMA Channel for Narrow boards. */
 	shost->dma_channel = NO_ISA_DMA;	/* Default to no ISA DMA. */
+<<<<<<< HEAD
 #ifdef CONFIG_ISA
 	if (ASC_NARROW_BOARD(boardp)) {
 		/* Register DMA channel for ISA bus. */
@@ -11304,6 +11562,8 @@ static int advansys_board_found(struct Scsi_Host *shost, unsigned int iop,
 		}
 	}
 #endif /* CONFIG_ISA */
+=======
+>>>>>>> upstream/android-13
 
 	/* Register IRQ Number. */
 	ASC_DBG(2, "request_irq(%d, %p)\n", boardp->irq, shost);
@@ -11322,7 +11582,11 @@ static int advansys_board_found(struct Scsi_Host *shost, unsigned int iop,
 			shost_printk(KERN_ERR, shost, "request_irq(): IRQ 0x%x "
 					"failed with %d\n", boardp->irq, ret);
 		}
+<<<<<<< HEAD
 		goto err_free_dma;
+=======
+		goto err_unmap;
+>>>>>>> upstream/android-13
 	}
 
 	/*
@@ -11374,11 +11638,14 @@ static int advansys_board_found(struct Scsi_Host *shost, unsigned int iop,
 		advansys_wide_free_mem(boardp);
  err_free_irq:
 	free_irq(boardp->irq, shost);
+<<<<<<< HEAD
  err_free_dma:
 #ifdef CONFIG_ISA
 	if (shost->dma_channel != NO_ISA_DMA)
 		free_dma(shost->dma_channel);
 #endif
+=======
+>>>>>>> upstream/android-13
  err_unmap:
 	if (boardp->ioremap_addr)
 		iounmap(boardp->ioremap_addr);
@@ -11399,12 +11666,16 @@ static int advansys_release(struct Scsi_Host *shost)
 	ASC_DBG(1, "begin\n");
 	scsi_remove_host(shost);
 	free_irq(board->irq, shost);
+<<<<<<< HEAD
 #ifdef CONFIG_ISA
 	if (shost->dma_channel != NO_ISA_DMA) {
 		ASC_DBG(1, "free_dma()\n");
 		free_dma(shost->dma_channel);
 	}
 #endif
+=======
+
+>>>>>>> upstream/android-13
 	if (ASC_NARROW_BOARD(board)) {
 		dma_unmap_single(board->dev,
 					board->dvc_var.asc_dvc_var.overrun_dma,
@@ -11426,6 +11697,7 @@ static PortAddr _asc_def_iop_base[ASC_IOADR_TABLE_MAX_IX] = {
 	0x0210, 0x0230, 0x0250, 0x0330
 };
 
+<<<<<<< HEAD
 /*
  * The ISA IRQ number is found in bits 2 and 3 of the CfgLsw.  It decodes as:
  * 00: 10
@@ -11484,10 +11756,14 @@ static int advansys_isa_probe(struct device *dev, unsigned int id)
 }
 
 static int advansys_isa_remove(struct device *dev, unsigned int id)
+=======
+static void advansys_vlb_remove(struct device *dev, unsigned int id)
+>>>>>>> upstream/android-13
 {
 	int ioport = _asc_def_iop_base[id];
 	advansys_release(dev_get_drvdata(dev));
 	release_region(ioport, ASC_IOADR_GAP);
+<<<<<<< HEAD
 	return 0;
 }
 
@@ -11500,6 +11776,10 @@ static struct isa_driver advansys_isa_driver = {
 	},
 };
 
+=======
+}
+
+>>>>>>> upstream/android-13
 /*
  * The VLB IRQ number is found in bits 2 to 4 of the CfgLsw.  It decodes as:
  * 000: invalid
@@ -11568,7 +11848,11 @@ static int advansys_vlb_probe(struct device *dev, unsigned int id)
 
 static struct isa_driver advansys_vlb_driver = {
 	.probe		= advansys_vlb_probe,
+<<<<<<< HEAD
 	.remove		= advansys_isa_remove,
+=======
+	.remove		= advansys_vlb_remove,
+>>>>>>> upstream/android-13
 	.driver = {
 		.owner	= THIS_MODULE,
 		.name	= "advansys_vlb",
@@ -11818,6 +12102,7 @@ static int __init advansys_init(void)
 {
 	int error;
 
+<<<<<<< HEAD
 	error = isa_register_driver(&advansys_isa_driver,
 				    ASC_IOADR_TABLE_MAX_IX);
 	if (error)
@@ -11827,6 +12112,12 @@ static int __init advansys_init(void)
 				    ASC_IOADR_TABLE_MAX_IX);
 	if (error)
 		goto unregister_isa;
+=======
+	error = isa_register_driver(&advansys_vlb_driver,
+				    ASC_IOADR_TABLE_MAX_IX);
+	if (error)
+		goto fail;
+>>>>>>> upstream/android-13
 
 	error = eisa_driver_register(&advansys_eisa_driver);
 	if (error)
@@ -11842,8 +12133,11 @@ static int __init advansys_init(void)
 	eisa_driver_unregister(&advansys_eisa_driver);
  unregister_vlb:
 	isa_unregister_driver(&advansys_vlb_driver);
+<<<<<<< HEAD
  unregister_isa:
 	isa_unregister_driver(&advansys_isa_driver);
+=======
+>>>>>>> upstream/android-13
  fail:
 	return error;
 }
@@ -11853,7 +12147,10 @@ static void __exit advansys_exit(void)
 	pci_unregister_driver(&advansys_pci_driver);
 	eisa_driver_unregister(&advansys_eisa_driver);
 	isa_unregister_driver(&advansys_vlb_driver);
+<<<<<<< HEAD
 	isa_unregister_driver(&advansys_isa_driver);
+=======
+>>>>>>> upstream/android-13
 }
 
 module_init(advansys_init);

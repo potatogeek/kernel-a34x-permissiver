@@ -5,7 +5,11 @@
  *		    Carsten Otte <Cotte@de.ibm.com>
  *		    Martin Schwidefsky <schwidefsky@de.ibm.com>
  * Bugreports.to..: <Linux390@de.ibm.com>
+<<<<<<< HEAD
  * Coypright IBM Corp. 1999, 2002
+=======
+ * Copyright IBM Corp. 1999, 2002
+>>>>>>> upstream/android-13
  *
  * /proc interface for the dasd driver.
  *
@@ -320,6 +324,7 @@ out_error:
 #endif				/* CONFIG_DASD_PROFILE */
 }
 
+<<<<<<< HEAD
 static const struct file_operations dasd_stats_proc_fops = {
 	.owner		= THIS_MODULE,
 	.open		= dasd_stats_proc_open,
@@ -327,6 +332,14 @@ static const struct file_operations dasd_stats_proc_fops = {
 	.llseek		= seq_lseek,
 	.release	= single_release,
 	.write		= dasd_stats_proc_write,
+=======
+static const struct proc_ops dasd_stats_proc_ops = {
+	.proc_open	= dasd_stats_proc_open,
+	.proc_read	= seq_read,
+	.proc_lseek	= seq_lseek,
+	.proc_release	= single_release,
+	.proc_write	= dasd_stats_proc_write,
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -339,8 +352,12 @@ dasd_proc_init(void)
 	dasd_proc_root_entry = proc_mkdir("dasd", NULL);
 	if (!dasd_proc_root_entry)
 		goto out_nodasd;
+<<<<<<< HEAD
 	dasd_devices_entry = proc_create_seq("devices",
 					 S_IFREG | S_IRUGO | S_IWUSR,
+=======
+	dasd_devices_entry = proc_create_seq("devices", 0444,
+>>>>>>> upstream/android-13
 					 dasd_proc_root_entry,
 					 &dasd_devices_seq_ops);
 	if (!dasd_devices_entry)
@@ -348,7 +365,11 @@ dasd_proc_init(void)
 	dasd_statistics_entry = proc_create("statistics",
 					    S_IFREG | S_IRUGO | S_IWUSR,
 					    dasd_proc_root_entry,
+<<<<<<< HEAD
 					    &dasd_stats_proc_fops);
+=======
+					    &dasd_stats_proc_ops);
+>>>>>>> upstream/android-13
 	if (!dasd_statistics_entry)
 		goto out_nostatistics;
 	return 0;

@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * VMware VMCI Driver
  *
  * Copyright (C) 2012 VMware, Inc. All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -11,11 +16,16 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/vmw_vmci_defs.h>
 #include <linux/vmw_vmci_api.h>
+<<<<<<< HEAD
 #include <linux/moduleparam.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/miscdevice.h>
 #include <linux/interrupt.h>
 #include <linux/highmem.h>
@@ -117,6 +127,14 @@ bool vmci_host_code_active(void)
 	     atomic_read(&vmci_host_active_users) > 0);
 }
 
+<<<<<<< HEAD
+=======
+int vmci_host_users(void)
+{
+	return atomic_read(&vmci_host_active_users);
+}
+
+>>>>>>> upstream/android-13
 /*
  * Called on open of /dev/vmci.
  */
@@ -237,13 +255,20 @@ static int vmci_host_setup_notify(struct vmci_ctx *context,
 	 * about the size.
 	 */
 	BUILD_BUG_ON(sizeof(bool) != sizeof(u8));
+<<<<<<< HEAD
 	if (!access_ok(VERIFY_WRITE, (void __user *)uva, sizeof(u8)))
 		return VMCI_ERROR_GENERIC;
+=======
+>>>>>>> upstream/android-13
 
 	/*
 	 * Lock physical page backing a given user VA.
 	 */
+<<<<<<< HEAD
 	retval = get_user_pages_fast(uva, 1, 1, &context->notify_page);
+=======
+	retval = get_user_pages_fast(uva, 1, FOLL_WRITE, &context->notify_page);
+>>>>>>> upstream/android-13
 	if (retval != 1) {
 		context->notify_page = NULL;
 		return VMCI_ERROR_GENERIC;
@@ -347,6 +372,11 @@ static int vmci_host_do_init_context(struct vmci_host_dev *vmci_host_dev,
 	vmci_host_dev->ct_type = VMCIOBJ_CONTEXT;
 	atomic_inc(&vmci_host_active_users);
 
+<<<<<<< HEAD
+=======
+	vmci_call_vsock_callback(true);
+
+>>>>>>> upstream/android-13
 	retval = 0;
 
 out:
@@ -448,15 +478,21 @@ static int vmci_host_do_alloc_queuepair(struct vmci_host_dev *vmci_host_dev,
 	struct vmci_handle handle;
 	int vmci_status;
 	int __user *retptr;
+<<<<<<< HEAD
 	u32 cid;
+=======
+>>>>>>> upstream/android-13
 
 	if (vmci_host_dev->ct_type != VMCIOBJ_CONTEXT) {
 		vmci_ioctl_err("only valid for contexts\n");
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	cid = vmci_ctx_get_id(vmci_host_dev->context);
 
+=======
+>>>>>>> upstream/android-13
 	if (vmci_host_dev->user_version < VMCI_VERSION_NOVMVM) {
 		struct vmci_qp_alloc_info_vmvm alloc_info;
 		struct vmci_qp_alloc_info_vmvm __user *info = uptr;
@@ -754,6 +790,7 @@ static int vmci_host_do_ctx_set_cpt_state(struct vmci_host_dev *vmci_host_dev,
 	if (copy_from_user(&set_info, uptr, sizeof(set_info)))
 		return -EFAULT;
 
+<<<<<<< HEAD
 	cpt_buf = kmalloc(set_info.buf_size, GFP_KERNEL);
 	if (!cpt_buf) {
 		vmci_ioctl_err(
@@ -767,6 +804,12 @@ static int vmci_host_do_ctx_set_cpt_state(struct vmci_host_dev *vmci_host_dev,
 		retval = -EFAULT;
 		goto out;
 	}
+=======
+	cpt_buf = memdup_user((void __user *)(uintptr_t)set_info.cpt_buf,
+				set_info.buf_size);
+	if (IS_ERR(cpt_buf))
+		return PTR_ERR(cpt_buf);
+>>>>>>> upstream/android-13
 
 	cid = vmci_ctx_get_id(vmci_host_dev->context);
 	set_info.result = vmci_ctx_set_chkpt_state(cid, set_info.cpt_type,
@@ -774,7 +817,10 @@ static int vmci_host_do_ctx_set_cpt_state(struct vmci_host_dev *vmci_host_dev,
 
 	retval = copy_to_user(uptr, &set_info, sizeof(set_info)) ? -EFAULT : 0;
 
+<<<<<<< HEAD
 out:
+=======
+>>>>>>> upstream/android-13
 	kfree(cpt_buf);
 	return retval;
 }
@@ -925,7 +971,11 @@ static long vmci_host_unlocked_ioctl(struct file *filp,
 				     unsigned int iocmd, unsigned long ioarg)
 {
 #define VMCI_DO_IOCTL(ioctl_name, ioctl_fn) do {			\
+<<<<<<< HEAD
 		char *name = __stringify(IOCTL_VMCI_ ## ioctl_name);	\
+=======
+		char *name = "IOCTL_VMCI_" # ioctl_name;		\
+>>>>>>> upstream/android-13
 		return vmci_host_do_ ## ioctl_fn(			\
 			vmci_host_dev, name, uptr);			\
 	} while (0)
@@ -983,7 +1033,11 @@ static const struct file_operations vmuser_fops = {
 	.release	= vmci_host_close,
 	.poll		= vmci_host_poll,
 	.unlocked_ioctl	= vmci_host_unlocked_ioctl,
+<<<<<<< HEAD
 	.compat_ioctl	= vmci_host_unlocked_ioctl,
+=======
+	.compat_ioctl	= compat_ptr_ioctl,
+>>>>>>> upstream/android-13
 };
 
 static struct miscdevice vmci_host_miscdev = {

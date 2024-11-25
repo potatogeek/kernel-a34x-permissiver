@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /******************************************************************************
  * os_intfs.c
  *
  * Copyright(c) 2007 - 2010 Realtek Corporation. All rights reserved.
  * Linux device driver for RTL8192SU
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
  * published by the Free Software Foundation.
@@ -13,6 +18,8 @@
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
  *
+=======
+>>>>>>> upstream/android-13
  * Modifications for inclusion into the Linux staging tree are
  * Copyright(c) 2010 Larry Finger. All rights reserved.
  *
@@ -211,7 +218,11 @@ struct net_device *r8712_init_netdev(void)
 	if (!pnetdev)
 		return NULL;
 	if (dev_alloc_name(pnetdev, ifname) < 0) {
+<<<<<<< HEAD
 		strcpy(ifname, "wlan%d");
+=======
+		strscpy(ifname, "wlan%d", sizeof(ifname));
+>>>>>>> upstream/android-13
 		dev_alloc_name(pnetdev, ifname);
 	}
 	padapter = netdev_priv(pnetdev);
@@ -229,9 +240,15 @@ struct net_device *r8712_init_netdev(void)
 
 static u32 start_drv_threads(struct _adapter *padapter)
 {
+<<<<<<< HEAD
 	padapter->cmdThread = kthread_run(r8712_cmd_thread, padapter, "%s",
 					  padapter->pnetdev->name);
 	if (IS_ERR(padapter->cmdThread))
+=======
+	padapter->cmd_thread = kthread_run(r8712_cmd_thread, padapter, "%s",
+					  padapter->pnetdev->name);
+	if (IS_ERR(padapter->cmd_thread))
+>>>>>>> upstream/android-13
 		return _FAIL;
 	return _SUCCESS;
 }
@@ -243,7 +260,11 @@ void r8712_stop_drv_threads(struct _adapter *padapter)
 
 	/*Below is to terminate r8712_cmd_thread & event_thread...*/
 	complete(&padapter->cmdpriv.cmd_queue_comp);
+<<<<<<< HEAD
 	if (padapter->cmdThread)
+=======
+	if (padapter->cmd_thread)
+>>>>>>> upstream/android-13
 		wait_for_completion_interruptible(completion);
 	padapter->cmdpriv.cmd_seq = 1;
 }
@@ -266,7 +287,11 @@ void r8712_stop_drv_timers(struct _adapter *padapter)
 	del_timer_sync(&padapter->mlmepriv.sitesurveyctrl.sitesurvey_ctrl_timer);
 }
 
+<<<<<<< HEAD
 static u8 init_default_value(struct _adapter *padapter)
+=======
+static void init_default_value(struct _adapter *padapter)
+>>>>>>> upstream/android-13
 {
 	struct registry_priv *pregistrypriv = &padapter->registrypriv;
 	struct xmit_priv *pxmitpriv = &padapter->xmitpriv;
@@ -300,6 +325,7 @@ static u8 init_default_value(struct _adapter *padapter)
 	r8712_init_registrypriv_dev_network(padapter);
 	r8712_update_registrypriv_dev_network(padapter);
 	/*misc.*/
+<<<<<<< HEAD
 	return _SUCCESS;
 }
 
@@ -312,17 +338,42 @@ u8 r8712_init_drv_sw(struct _adapter *padapter)
 		return _FAIL;
 	if (r8712_init_mlme_priv(padapter) == _FAIL)
 		return _FAIL;
+=======
+}
+
+int r8712_init_drv_sw(struct _adapter *padapter)
+{
+	int ret;
+
+	ret = r8712_init_cmd_priv(&padapter->cmdpriv);
+	if (ret)
+		return ret;
+	padapter->cmdpriv.padapter = padapter;
+	ret = r8712_init_evt_priv(&padapter->evtpriv);
+	if (ret)
+		return ret;
+	ret = r8712_init_mlme_priv(padapter);
+	if (ret)
+		return ret;
+>>>>>>> upstream/android-13
 	_r8712_init_xmit_priv(&padapter->xmitpriv, padapter);
 	_r8712_init_recv_priv(&padapter->recvpriv, padapter);
 	memset((unsigned char *)&padapter->securitypriv, 0,
 	       sizeof(struct security_priv));
 	timer_setup(&padapter->securitypriv.tkip_timer,
 		    r8712_use_tkipkey_handler, 0);
+<<<<<<< HEAD
 	_r8712_init_sta_priv(&padapter->stapriv);
+=======
+	ret = _r8712_init_sta_priv(&padapter->stapriv);
+	if (ret)
+		return ret;
+>>>>>>> upstream/android-13
 	padapter->stapriv.padapter = padapter;
 	r8712_init_bcmc_stainfo(padapter);
 	r8712_init_pwrctrl_priv(padapter);
 	mp871xinit(padapter);
+<<<<<<< HEAD
 	if (init_default_value(padapter) != _SUCCESS)
 		return _FAIL;
 	r8712_InitSwLeds(padapter);
@@ -333,6 +384,15 @@ u8 r8712_free_drv_sw(struct _adapter *padapter)
 {
 	struct net_device *pnetdev = padapter->pnetdev;
 
+=======
+	init_default_value(padapter);
+	r8712_InitSwLeds(padapter);
+	return ret;
+}
+
+void r8712_free_drv_sw(struct _adapter *padapter)
+{
+>>>>>>> upstream/android-13
 	r8712_free_cmd_priv(&padapter->cmdpriv);
 	r8712_free_evt_priv(&padapter->evtpriv);
 	r8712_DeInitSwLeds(padapter);
@@ -342,9 +402,12 @@ u8 r8712_free_drv_sw(struct _adapter *padapter)
 	_r8712_free_sta_priv(&padapter->stapriv);
 	_r8712_free_recv_priv(&padapter->recvpriv);
 	mp871xdeinit(padapter);
+<<<<<<< HEAD
 	if (pnetdev)
 		free_netdev(pnetdev);
 	return _SUCCESS;
+=======
+>>>>>>> upstream/android-13
 }
 
 static void enable_video_mode(struct _adapter *padapter, int cbw40_value)
@@ -370,7 +433,11 @@ static void enable_video_mode(struct _adapter *padapter, int cbw40_value)
 	r8712_fw_cmd(padapter, intcmd);
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  *
  * This function intends to handle the activation of an interface
  * i.e. when it is brought Up/Active from a Down state.
@@ -382,8 +449,13 @@ static int netdev_open(struct net_device *pnetdev)
 
 	mutex_lock(&padapter->mutex_start);
 	if (!padapter->bup) {
+<<<<<<< HEAD
 		padapter->bDriverStopped = false;
 		padapter->bSurpriseRemoved = false;
+=======
+		padapter->driver_stopped = false;
+		padapter->surprise_removed = false;
+>>>>>>> upstream/android-13
 		padapter->bup = true;
 		if (rtl871x_hal_init(padapter) != _SUCCESS)
 			goto netdev_open_error;
@@ -438,7 +510,11 @@ netdev_open_error:
 	return -1;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  *
  * This function intends to handle the shutdown of an interface
  * i.e. when it is brought Down from an Up/Active state.

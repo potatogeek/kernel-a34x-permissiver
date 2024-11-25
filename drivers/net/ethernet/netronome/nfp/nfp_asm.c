@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2016-2017 Netronome Systems, Inc.
  *
@@ -30,6 +31,10 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+=======
+// SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+/* Copyright (C) 2016-2018 Netronome Systems, Inc. */
+>>>>>>> upstream/android-13
 
 #include <linux/bitops.h>
 #include <linux/errno.h>
@@ -167,7 +172,11 @@ static u16 nfp_swreg_to_unreg(swreg reg, bool is_dst)
 				val;
 		case NN_LM_MOD_DEC:
 			lm_dec = true;
+<<<<<<< HEAD
 			/* fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case NN_LM_MOD_INC:
 			if (val) {
 				pr_err("LM offset in inc/dev mode\n");
@@ -226,7 +235,11 @@ int swreg_to_unrestricted(swreg dst, swreg lreg, swreg rreg,
 	}
 
 	reg->dst_lmextn = swreg_lmextn(dst);
+<<<<<<< HEAD
 	reg->src_lmextn = swreg_lmextn(lreg) | swreg_lmextn(rreg);
+=======
+	reg->src_lmextn = swreg_lmextn(lreg) || swreg_lmextn(rreg);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -307,7 +320,11 @@ int swreg_to_restricted(swreg dst, swreg lreg, swreg rreg,
 	}
 
 	reg->dst_lmextn = swreg_lmextn(dst);
+<<<<<<< HEAD
 	reg->src_lmextn = swreg_lmextn(lreg) | swreg_lmextn(rreg);
+=======
+	reg->src_lmextn = swreg_lmextn(lreg) || swreg_lmextn(rreg);
+>>>>>>> upstream/android-13
 
 	return 0;
 }

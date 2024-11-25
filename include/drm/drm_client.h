@@ -1,10 +1,25 @@
+<<<<<<< HEAD
 /* SPDX-License-Identifier: GPL-2.0 */
+=======
+/* SPDX-License-Identifier: GPL-2.0 or MIT */
+>>>>>>> upstream/android-13
 
 #ifndef _DRM_CLIENT_H_
 #define _DRM_CLIENT_H_
 
+<<<<<<< HEAD
 #include <linux/types.h>
 
+=======
+#include <linux/dma-buf-map.h>
+#include <linux/lockdep.h>
+#include <linux/mutex.h>
+#include <linux/types.h>
+
+#include <drm/drm_connector.h>
+#include <drm/drm_crtc.h>
+
+>>>>>>> upstream/android-13
 struct drm_client_dev;
 struct drm_device;
 struct drm_file;
@@ -26,7 +41,11 @@ struct drm_client_funcs {
 	 * @unregister:
 	 *
 	 * Called when &drm_device is unregistered. The client should respond by
+<<<<<<< HEAD
 	 * releasing it's resources using drm_client_release().
+=======
+	 * releasing its resources using drm_client_release().
+>>>>>>> upstream/android-13
 	 *
 	 * This callback is optional.
 	 */
@@ -39,6 +58,14 @@ struct drm_client_funcs {
 	 * returns zero gets the privilege to restore and no more clients are
 	 * called. This callback is not called after @unregister has been called.
 	 *
+<<<<<<< HEAD
+=======
+	 * Note that the core does not guarantee exclusion against concurrent
+	 * drm_open(). Clients need to ensure this themselves, for example by
+	 * using drm_master_internal_acquire() and
+	 * drm_master_internal_release().
+	 *
+>>>>>>> upstream/android-13
 	 * This callback is optional.
 	 */
 	int (*restore)(struct drm_client_dev *client);
@@ -85,12 +112,29 @@ struct drm_client_dev {
 	 * @file: DRM file
 	 */
 	struct drm_file *file;
+<<<<<<< HEAD
+=======
+
+	/**
+	 * @modeset_mutex: Protects @modesets.
+	 */
+	struct mutex modeset_mutex;
+
+	/**
+	 * @modesets: CRTC configurations
+	 */
+	struct drm_mode_set *modesets;
+>>>>>>> upstream/android-13
 };
 
 int drm_client_init(struct drm_device *dev, struct drm_client_dev *client,
 		    const char *name, const struct drm_client_funcs *funcs);
 void drm_client_release(struct drm_client_dev *client);
+<<<<<<< HEAD
 void drm_client_add(struct drm_client_dev *client);
+=======
+void drm_client_register(struct drm_client_dev *client);
+>>>>>>> upstream/android-13
 
 void drm_client_dev_unregister(struct drm_device *dev);
 void drm_client_dev_hotplug(struct drm_device *dev);
@@ -121,9 +165,15 @@ struct drm_client_buffer {
 	struct drm_gem_object *gem;
 
 	/**
+<<<<<<< HEAD
 	 * @vaddr: Virtual address for the buffer
 	 */
 	void *vaddr;
+=======
+	 * @map: Virtual address for the buffer
+	 */
+	struct dma_buf_map map;
+>>>>>>> upstream/android-13
 
 	/**
 	 * @fb: DRM framebuffer
@@ -134,7 +184,47 @@ struct drm_client_buffer {
 struct drm_client_buffer *
 drm_client_framebuffer_create(struct drm_client_dev *client, u32 width, u32 height, u32 format);
 void drm_client_framebuffer_delete(struct drm_client_buffer *buffer);
+<<<<<<< HEAD
 
 int drm_client_debugfs_init(struct drm_minor *minor);
+=======
+int drm_client_framebuffer_flush(struct drm_client_buffer *buffer, struct drm_rect *rect);
+int drm_client_buffer_vmap(struct drm_client_buffer *buffer, struct dma_buf_map *map);
+void drm_client_buffer_vunmap(struct drm_client_buffer *buffer);
+
+int drm_client_modeset_create(struct drm_client_dev *client);
+void drm_client_modeset_free(struct drm_client_dev *client);
+int drm_client_modeset_probe(struct drm_client_dev *client, unsigned int width, unsigned int height);
+bool drm_client_rotation(struct drm_mode_set *modeset, unsigned int *rotation);
+int drm_client_modeset_check(struct drm_client_dev *client);
+int drm_client_modeset_commit_locked(struct drm_client_dev *client);
+int drm_client_modeset_commit(struct drm_client_dev *client);
+int drm_client_modeset_dpms(struct drm_client_dev *client, int mode);
+
+/**
+ * drm_client_for_each_modeset() - Iterate over client modesets
+ * @modeset: &drm_mode_set loop cursor
+ * @client: DRM client
+ */
+#define drm_client_for_each_modeset(modeset, client) \
+	for (({ lockdep_assert_held(&(client)->modeset_mutex); }), \
+	     modeset = (client)->modesets; modeset->crtc; modeset++)
+
+/**
+ * drm_client_for_each_connector_iter - connector_list iterator macro
+ * @connector: &struct drm_connector pointer used as cursor
+ * @iter: &struct drm_connector_list_iter
+ *
+ * This iterates the connectors that are useable for internal clients (excludes
+ * writeback connectors).
+ *
+ * For more info see drm_for_each_connector_iter().
+ */
+#define drm_client_for_each_connector_iter(connector, iter) \
+	drm_for_each_connector_iter(connector, iter) \
+		if (connector->connector_type != DRM_MODE_CONNECTOR_WRITEBACK)
+
+void drm_client_debugfs_init(struct drm_minor *minor);
+>>>>>>> upstream/android-13
 
 #endif

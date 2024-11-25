@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2015, NVIDIA Corporation.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2015, NVIDIA Corporation.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/platform_device.h>
@@ -61,6 +67,7 @@ static int falcon_copy_chunk(struct falcon *falcon,
 static void falcon_copy_firmware_image(struct falcon *falcon,
 				       const struct firmware *firmware)
 {
+<<<<<<< HEAD
 	u32 *firmware_vaddr = falcon->firmware.vaddr;
 	dma_addr_t daddr;
 	size_t i;
@@ -82,15 +89,31 @@ static void falcon_copy_firmware_image(struct falcon *falcon,
 				   falcon->firmware.size, DMA_TO_DEVICE);
 	dma_unmap_single(falcon->dev, daddr, falcon->firmware.size,
 			 DMA_TO_DEVICE);
+=======
+	u32 *virt = falcon->firmware.virt;
+	size_t i;
+
+	/* copy the whole thing taking into account endianness */
+	for (i = 0; i < firmware->size / sizeof(u32); i++)
+		virt[i] = le32_to_cpu(((u32 *)firmware->data)[i]);
+>>>>>>> upstream/android-13
 }
 
 static int falcon_parse_firmware_image(struct falcon *falcon)
 {
+<<<<<<< HEAD
 	struct falcon_fw_bin_header_v1 *bin = (void *)falcon->firmware.vaddr;
 	struct falcon_fw_os_header_v1 *os;
 
 	/* endian problems would show up right here */
 	if (bin->magic != PCI_VENDOR_ID_NVIDIA) {
+=======
+	struct falcon_fw_bin_header_v1 *bin = (void *)falcon->firmware.virt;
+	struct falcon_fw_os_header_v1 *os;
+
+	/* endian problems would show up right here */
+	if (bin->magic != PCI_VENDOR_ID_NVIDIA && bin->magic != 0x10fe) {
+>>>>>>> upstream/android-13
 		dev_err(falcon->dev, "incorrect firmware magic\n");
 		return -EINVAL;
 	}
@@ -107,7 +130,11 @@ static int falcon_parse_firmware_image(struct falcon *falcon)
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	os = falcon->firmware.vaddr + bin->os_header_offset;
+=======
+	os = falcon->firmware.virt + bin->os_header_offset;
+>>>>>>> upstream/android-13
 
 	falcon->firmware.bin_data.size = bin->os_size;
 	falcon->firmware.bin_data.offset = bin->os_data_offset;
@@ -128,6 +155,11 @@ int falcon_read_firmware(struct falcon *falcon, const char *name)
 	if (err < 0)
 		return err;
 
+<<<<<<< HEAD
+=======
+	falcon->firmware.size = falcon->firmware.firmware->size;
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -136,6 +168,7 @@ int falcon_load_firmware(struct falcon *falcon)
 	const struct firmware *firmware = falcon->firmware.firmware;
 	int err;
 
+<<<<<<< HEAD
 	falcon->firmware.size = firmware->size;
 
 	/* allocate iova space for the firmware */
@@ -146,6 +179,8 @@ int falcon_load_firmware(struct falcon *falcon)
 		return -ENOMEM;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	/* copy firmware image into local area. this also ensures endianness */
 	falcon_copy_firmware_image(falcon, firmware);
 
@@ -153,34 +188,46 @@ int falcon_load_firmware(struct falcon *falcon)
 	err = falcon_parse_firmware_image(falcon);
 	if (err < 0) {
 		dev_err(falcon->dev, "failed to parse firmware image\n");
+<<<<<<< HEAD
 		goto err_setup_firmware_image;
+=======
+		return err;
+>>>>>>> upstream/android-13
 	}
 
 	release_firmware(firmware);
 	falcon->firmware.firmware = NULL;
 
 	return 0;
+<<<<<<< HEAD
 
 err_setup_firmware_image:
 	falcon->ops->free(falcon, falcon->firmware.size,
 			  falcon->firmware.paddr, falcon->firmware.vaddr);
 
 	return err;
+=======
+>>>>>>> upstream/android-13
 }
 
 int falcon_init(struct falcon *falcon)
 {
+<<<<<<< HEAD
 	/* check mandatory ops */
 	if (!falcon->ops || !falcon->ops->alloc || !falcon->ops->free)
 		return -EINVAL;
 
 	falcon->firmware.vaddr = NULL;
+=======
+	falcon->firmware.virt = NULL;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
 void falcon_exit(struct falcon *falcon)
 {
+<<<<<<< HEAD
 	if (falcon->firmware.firmware) {
 		release_firmware(falcon->firmware.firmware);
 		falcon->firmware.firmware = NULL;
@@ -192,11 +239,16 @@ void falcon_exit(struct falcon *falcon)
 				  falcon->firmware.vaddr);
 		falcon->firmware.vaddr = NULL;
 	}
+=======
+	if (falcon->firmware.firmware)
+		release_firmware(falcon->firmware.firmware);
+>>>>>>> upstream/android-13
 }
 
 int falcon_boot(struct falcon *falcon)
 {
 	unsigned long offset;
+<<<<<<< HEAD
 	int err;
 
 	if (!falcon->firmware.vaddr)
@@ -206,6 +258,25 @@ int falcon_boot(struct falcon *falcon)
 
 	/* setup the address of the binary data so Falcon can access it later */
 	falcon_writel(falcon, (falcon->firmware.paddr +
+=======
+	u32 value;
+	int err;
+
+	if (!falcon->firmware.virt)
+		return -EINVAL;
+
+	err = readl_poll_timeout(falcon->regs + FALCON_DMACTL, value,
+				 (value & (FALCON_DMACTL_IMEM_SCRUBBING |
+					   FALCON_DMACTL_DMEM_SCRUBBING)) == 0,
+				 10, 10000);
+	if (err < 0)
+		return err;
+
+	falcon_writel(falcon, 0, FALCON_DMACTL);
+
+	/* setup the address of the binary data so Falcon can access it later */
+	falcon_writel(falcon, (falcon->firmware.iova +
+>>>>>>> upstream/android-13
 			       falcon->firmware.bin_data.offset) >> 8,
 		      FALCON_DMATRFBASE);
 
@@ -215,9 +286,16 @@ int falcon_boot(struct falcon *falcon)
 				  falcon->firmware.data.offset + offset,
 				  offset, FALCON_MEMORY_DATA);
 
+<<<<<<< HEAD
 	/* copy the first code segment into Falcon internal memory */
 	falcon_copy_chunk(falcon, falcon->firmware.code.offset,
 			  0, FALCON_MEMORY_IMEM);
+=======
+	/* copy the code segment into Falcon internal memory */
+	for (offset = 0; offset < falcon->firmware.code.size; offset += 256)
+		falcon_copy_chunk(falcon, falcon->firmware.code.offset + offset,
+				  offset, FALCON_MEMORY_IMEM);
+>>>>>>> upstream/android-13
 
 	/* setup falcon interrupts */
 	falcon_writel(falcon, FALCON_IRQMSET_EXT(0xff) |

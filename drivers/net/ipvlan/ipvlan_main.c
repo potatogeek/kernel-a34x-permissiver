@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* Copyright (c) 2014 Mahesh Bandewar <maheshb@google.com>
  *
  * This program is free software; you can redistribute it and/or
@@ -75,6 +76,20 @@ static int ipvlan_set_port_mode(struct ipvl_port *port, u16 nval)
 {
 	struct ipvl_dev *ipvlan;
 	struct net_device *mdev = port->dev;
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/* Copyright (c) 2014 Mahesh Bandewar <maheshb@google.com>
+ */
+
+#include <linux/ethtool.h>
+
+#include "ipvlan.h"
+
+static int ipvlan_set_port_mode(struct ipvl_port *port, u16 nval,
+				struct netlink_ext_ack *extack)
+{
+	struct ipvl_dev *ipvlan;
+>>>>>>> upstream/android-13
 	unsigned int flags;
 	int err;
 
@@ -84,16 +99,26 @@ static int ipvlan_set_port_mode(struct ipvl_port *port, u16 nval)
 			flags = ipvlan->dev->flags;
 			if (nval == IPVLAN_MODE_L3 || nval == IPVLAN_MODE_L3S) {
 				err = dev_change_flags(ipvlan->dev,
+<<<<<<< HEAD
 						       flags | IFF_NOARP);
 			} else {
 				err = dev_change_flags(ipvlan->dev,
 						       flags & ~IFF_NOARP);
+=======
+						       flags | IFF_NOARP,
+						       extack);
+			} else {
+				err = dev_change_flags(ipvlan->dev,
+						       flags & ~IFF_NOARP,
+						       extack);
+>>>>>>> upstream/android-13
 			}
 			if (unlikely(err))
 				goto fail;
 		}
 		if (nval == IPVLAN_MODE_L3S) {
 			/* New mode is L3S */
+<<<<<<< HEAD
 			err = ipvlan_register_nf_hook(read_pnet(&port->pnet));
 			if (!err) {
 				mdev->l3mdev_ops = &ipvl_l3mdev_ops;
@@ -105,6 +130,14 @@ static int ipvlan_set_port_mode(struct ipvl_port *port, u16 nval)
 			mdev->priv_flags &= ~IFF_L3MDEV_RX_HANDLER;
 			ipvlan_unregister_nf_hook(read_pnet(&port->pnet));
 			mdev->l3mdev_ops = NULL;
+=======
+			err = ipvlan_l3s_register(port);
+			if (err)
+				goto fail;
+		} else if (port->mode == IPVLAN_MODE_L3S) {
+			/* Old mode was L3S */
+			ipvlan_l3s_unregister(port);
+>>>>>>> upstream/android-13
 		}
 		port->mode = nval;
 	}
@@ -116,9 +149,17 @@ fail:
 		flags = ipvlan->dev->flags;
 		if (port->mode == IPVLAN_MODE_L3 ||
 		    port->mode == IPVLAN_MODE_L3S)
+<<<<<<< HEAD
 			dev_change_flags(ipvlan->dev, flags | IFF_NOARP);
 		else
 			dev_change_flags(ipvlan->dev, flags & ~IFF_NOARP);
+=======
+			dev_change_flags(ipvlan->dev, flags | IFF_NOARP,
+					 NULL);
+		else
+			dev_change_flags(ipvlan->dev, flags & ~IFF_NOARP,
+					 NULL);
+>>>>>>> upstream/android-13
 	}
 
 	return err;
@@ -161,11 +202,16 @@ static void ipvlan_port_destroy(struct net_device *dev)
 	struct ipvl_port *port = ipvlan_port_get_rtnl(dev);
 	struct sk_buff *skb;
 
+<<<<<<< HEAD
 	if (port->mode == IPVLAN_MODE_L3S) {
 		dev->priv_flags &= ~IFF_L3MDEV_RX_HANDLER;
 		ipvlan_unregister_nf_hook(dev_net(dev));
 		dev->l3mdev_ops = NULL;
 	}
+=======
+	if (port->mode == IPVLAN_MODE_L3S)
+		ipvlan_l3s_unregister(port);
+>>>>>>> upstream/android-13
 	netdev_rx_handler_unregister(dev);
 	cancel_work_sync(&port->wq);
 	while ((skb = __skb_dequeue(&port->backlog)) != NULL) {
@@ -186,8 +232,13 @@ static void ipvlan_port_destroy(struct net_device *dev)
 
 #define IPVLAN_FEATURES \
 	(NETIF_F_SG | NETIF_F_HW_CSUM | NETIF_F_HIGHDMA | NETIF_F_FRAGLIST | \
+<<<<<<< HEAD
 	 NETIF_F_GSO | NETIF_F_TSO | NETIF_F_GSO_ROBUST | \
 	 NETIF_F_TSO_ECN | NETIF_F_TSO6 | NETIF_F_GRO | NETIF_F_RXCSUM | \
+=======
+	 NETIF_F_GSO | NETIF_F_ALL_TSO | NETIF_F_GSO_ROBUST | \
+	 NETIF_F_GRO | NETIF_F_RXCSUM | \
+>>>>>>> upstream/android-13
 	 NETIF_F_HW_VLAN_CTAG_FILTER | NETIF_F_HW_VLAN_STAG_FILTER)
 
 	/* NETIF_F_GSO_ENCAP_ALL NETIF_F_GSO_SOFTWARE Newly added */
@@ -208,6 +259,10 @@ static int ipvlan_init(struct net_device *dev)
 	dev->features |= IPVLAN_ALWAYS_ON;
 	dev->vlan_features = phy_dev->vlan_features & IPVLAN_FEATURES;
 	dev->vlan_features |= IPVLAN_ALWAYS_ON_OFLOADS;
+<<<<<<< HEAD
+=======
+	dev->hw_enc_features |= dev->features;
+>>>>>>> upstream/android-13
 	dev->gso_max_size = phy_dev->gso_max_size;
 	dev->gso_max_segs = phy_dev->gso_max_segs;
 	dev->hard_header_len = phy_dev->hard_header_len;
@@ -456,6 +511,14 @@ static const struct header_ops ipvlan_header_ops = {
 	.cache_update	= eth_header_cache_update,
 };
 
+<<<<<<< HEAD
+=======
+static void ipvlan_adjust_mtu(struct ipvl_dev *ipvlan, struct net_device *dev)
+{
+	ipvlan->dev->mtu = dev->mtu;
+}
+
+>>>>>>> upstream/android-13
 static bool netif_is_ipvlan(const struct net_device *dev)
 {
 	/* both ipvlan and ipvtap devices use the same netdev_ops */
@@ -515,7 +578,11 @@ static int ipvlan_nl_changelink(struct net_device *dev,
 	if (data[IFLA_IPVLAN_MODE]) {
 		u16 nmode = nla_get_u16(data[IFLA_IPVLAN_MODE]);
 
+<<<<<<< HEAD
 		err = ipvlan_set_port_mode(port, nmode);
+=======
+		err = ipvlan_set_port_mode(port, nmode, extack);
+>>>>>>> upstream/android-13
 	}
 
 	if (!err && data[IFLA_IPVLAN_FLAGS]) {
@@ -552,7 +619,11 @@ static int ipvlan_nl_validate(struct nlattr *tb[], struct nlattr *data[],
 	if (data[IFLA_IPVLAN_MODE]) {
 		u16 mode = nla_get_u16(data[IFLA_IPVLAN_MODE]);
 
+<<<<<<< HEAD
 		if (mode < IPVLAN_MODE_L2 || mode >= IPVLAN_MODE_MAX)
+=======
+		if (mode >= IPVLAN_MODE_MAX)
+>>>>>>> upstream/android-13
 			return -EINVAL;
 	}
 	if (data[IFLA_IPVLAN_FLAGS]) {
@@ -691,7 +762,11 @@ int ipvlan_link_new(struct net *src_net, struct net_device *dev,
 	if (data && data[IFLA_IPVLAN_MODE])
 		mode = nla_get_u16(data[IFLA_IPVLAN_MODE]);
 
+<<<<<<< HEAD
 	err = ipvlan_set_port_mode(port, mode);
+=======
+	err = ipvlan_set_port_mode(port, mode, extack);
+>>>>>>> upstream/android-13
 	if (err)
 		goto unlink_netdev;
 
@@ -749,6 +824,16 @@ static const struct nla_policy ipvlan_nl_policy[IFLA_IPVLAN_MAX + 1] =
 	[IFLA_IPVLAN_FLAGS] = { .type = NLA_U16 },
 };
 
+<<<<<<< HEAD
+=======
+static struct net *ipvlan_get_link_net(const struct net_device *dev)
+{
+	struct ipvl_dev *ipvlan = netdev_priv(dev);
+
+	return dev_net(ipvlan->phy_dev);
+}
+
+>>>>>>> upstream/android-13
 static struct rtnl_link_ops ipvlan_link_ops = {
 	.kind		= "ipvlan",
 	.priv_size	= sizeof(struct ipvl_dev),
@@ -756,6 +841,10 @@ static struct rtnl_link_ops ipvlan_link_ops = {
 	.setup		= ipvlan_link_setup,
 	.newlink	= ipvlan_link_new,
 	.dellink	= ipvlan_link_delete,
+<<<<<<< HEAD
+=======
+	.get_link_net   = ipvlan_get_link_net,
+>>>>>>> upstream/android-13
 };
 
 int ipvlan_link_register(struct rtnl_link_ops *ops)
@@ -773,10 +862,19 @@ EXPORT_SYMBOL_GPL(ipvlan_link_register);
 static int ipvlan_device_event(struct notifier_block *unused,
 			       unsigned long event, void *ptr)
 {
+<<<<<<< HEAD
+=======
+	struct netlink_ext_ack *extack = netdev_notifier_info_to_extack(ptr);
+	struct netdev_notifier_pre_changeaddr_info *prechaddr_info;
+>>>>>>> upstream/android-13
 	struct net_device *dev = netdev_notifier_info_to_dev(ptr);
 	struct ipvl_dev *ipvlan, *next;
 	struct ipvl_port *port;
 	LIST_HEAD(lst_kill);
+<<<<<<< HEAD
+=======
+	int err;
+>>>>>>> upstream/android-13
 
 	if (!netif_is_ipvlan_port(dev))
 		return NOTIFY_DONE;
@@ -784,6 +882,10 @@ static int ipvlan_device_event(struct notifier_block *unused,
 	port = ipvlan_port_get_rtnl(dev);
 
 	switch (event) {
+<<<<<<< HEAD
+=======
+	case NETDEV_UP:
+>>>>>>> upstream/android-13
 	case NETDEV_CHANGE:
 		list_for_each_entry(ipvlan, &port->ipvlans, pnode)
 			netif_stacked_transfer_operstate(ipvlan->phy_dev,
@@ -792,7 +894,10 @@ static int ipvlan_device_event(struct notifier_block *unused,
 
 	case NETDEV_REGISTER: {
 		struct net *oldnet, *newnet = dev_net(dev);
+<<<<<<< HEAD
 		struct ipvlan_netns *old_vnet;
+=======
+>>>>>>> upstream/android-13
 
 		oldnet = read_pnet(&port->pnet);
 		if (net_eq(newnet, oldnet))
@@ -800,12 +905,16 @@ static int ipvlan_device_event(struct notifier_block *unused,
 
 		write_pnet(&port->pnet, newnet);
 
+<<<<<<< HEAD
 		old_vnet = net_generic(oldnet, ipvlan_netid);
 		if (!old_vnet->ipvl_nf_hook_refcnt)
 			break;
 
 		ipvlan_register_nf_hook(newnet);
 		ipvlan_unregister_nf_hook(oldnet);
+=======
+		ipvlan_migrate_l3s_hook(oldnet, newnet);
+>>>>>>> upstream/android-13
 		break;
 	}
 	case NETDEV_UNREGISTER:
@@ -831,6 +940,20 @@ static int ipvlan_device_event(struct notifier_block *unused,
 			ipvlan_adjust_mtu(ipvlan, dev);
 		break;
 
+<<<<<<< HEAD
+=======
+	case NETDEV_PRE_CHANGEADDR:
+		prechaddr_info = ptr;
+		list_for_each_entry(ipvlan, &port->ipvlans, pnode) {
+			err = dev_pre_changeaddr_notify(ipvlan->dev,
+						    prechaddr_info->dev_addr,
+						    extack);
+			if (err)
+				return notifier_from_errno(err);
+		}
+		break;
+
+>>>>>>> upstream/android-13
 	case NETDEV_CHANGEADDR:
 		list_for_each_entry(ipvlan, &port->ipvlans, pnode) {
 			ether_addr_copy(ipvlan->dev->dev_addr, dev->dev_addr);
@@ -1067,6 +1190,7 @@ static struct notifier_block ipvlan_addr6_vtor_notifier_block __read_mostly = {
 };
 #endif
 
+<<<<<<< HEAD
 static void ipvlan_ns_exit(struct net *net)
 {
 	struct ipvlan_netns *vnet = net_generic(net, ipvlan_netid);
@@ -1084,6 +1208,8 @@ static struct pernet_operations ipvlan_net_ops = {
 	.exit = ipvlan_ns_exit,
 };
 
+=======
+>>>>>>> upstream/android-13
 static int __init ipvlan_init_module(void)
 {
 	int err;
@@ -1098,13 +1224,21 @@ static int __init ipvlan_init_module(void)
 	register_inetaddr_notifier(&ipvlan_addr4_notifier_block);
 	register_inetaddr_validator_notifier(&ipvlan_addr4_vtor_notifier_block);
 
+<<<<<<< HEAD
 	err = register_pernet_subsys(&ipvlan_net_ops);
+=======
+	err = ipvlan_l3s_init();
+>>>>>>> upstream/android-13
 	if (err < 0)
 		goto error;
 
 	err = ipvlan_link_register(&ipvlan_link_ops);
 	if (err < 0) {
+<<<<<<< HEAD
 		unregister_pernet_subsys(&ipvlan_net_ops);
+=======
+		ipvlan_l3s_cleanup();
+>>>>>>> upstream/android-13
 		goto error;
 	}
 
@@ -1125,7 +1259,11 @@ error:
 static void __exit ipvlan_cleanup_module(void)
 {
 	rtnl_link_unregister(&ipvlan_link_ops);
+<<<<<<< HEAD
 	unregister_pernet_subsys(&ipvlan_net_ops);
+=======
+	ipvlan_l3s_cleanup();
+>>>>>>> upstream/android-13
 	unregister_netdevice_notifier(&ipvlan_notifier_block);
 	unregister_inetaddr_notifier(&ipvlan_addr4_notifier_block);
 	unregister_inetaddr_validator_notifier(

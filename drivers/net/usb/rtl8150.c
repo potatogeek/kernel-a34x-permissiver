@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 /*
  *  Copyright (c) 2002 Petko Manolov (petkan@users.sourceforge.net)
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * version 2 as published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ *  Copyright (c) 2002 Petko Manolov (petkan@users.sourceforge.net)
+>>>>>>> upstream/android-13
  */
 
 #include <linux/signal.h>
@@ -155,6 +161,7 @@ static const char driver_name [] = "rtl8150";
 */
 static int get_registers(rtl8150_t * dev, u16 indx, u16 size, void *data)
 {
+<<<<<<< HEAD
 	void *buf;
 	int ret;
 
@@ -169,10 +176,16 @@ static int get_registers(rtl8150_t * dev, u16 indx, u16 size, void *data)
 		memcpy(data, buf, ret);
 	kfree(buf);
 	return ret;
+=======
+	return usb_control_msg_recv(dev->udev, 0, RTL8150_REQ_GET_REGS,
+				    RTL8150_REQT_READ, indx, 0, data, size,
+				    1000, GFP_NOIO);
+>>>>>>> upstream/android-13
 }
 
 static int set_registers(rtl8150_t * dev, u16 indx, u16 size, const void *data)
 {
+<<<<<<< HEAD
 	void *buf;
 	int ret;
 
@@ -185,6 +198,11 @@ static int set_registers(rtl8150_t * dev, u16 indx, u16 size, const void *data)
 			      indx, 0, buf, size, 500);
 	kfree(buf);
 	return ret;
+=======
+	return usb_control_msg_send(dev->udev, 0, RTL8150_REQ_SET_REGS,
+				    RTL8150_REQT_WRITE, indx, 0, data, size,
+				    1000, GFP_NOIO);
+>>>>>>> upstream/android-13
 }
 
 static void async_set_reg_cb(struct urb *urb)
@@ -284,7 +302,11 @@ static void set_ethernet_addr(rtl8150_t *dev)
 
 	ret = get_registers(dev, IDR, sizeof(node_id), node_id);
 
+<<<<<<< HEAD
 	if (ret == sizeof(node_id)) {
+=======
+	if (!ret) {
+>>>>>>> upstream/android-13
 		ether_addr_copy(dev->netdev->dev_addr, node_id);
 	} else {
 		eth_hw_addr_random(dev->netdev);
@@ -396,7 +418,10 @@ static void read_bulk_callback(struct urb *urb)
 	unsigned pkt_len, res;
 	struct sk_buff *skb;
 	struct net_device *netdev;
+<<<<<<< HEAD
 	u16 rx_stat;
+=======
+>>>>>>> upstream/android-13
 	int status = urb->status;
 	int result;
 	unsigned long flags;
@@ -432,7 +457,10 @@ static void read_bulk_callback(struct urb *urb)
 		goto goon;
 
 	res = urb->actual_length;
+<<<<<<< HEAD
 	rx_stat = le16_to_cpu(*(__le16 *)(urb->transfer_buffer + res - 4));
+=======
+>>>>>>> upstream/android-13
 	pkt_len = res - 4;
 
 	skb_put(dev->rx_skb, pkt_len);
@@ -599,6 +627,7 @@ static void free_skb_pool(rtl8150_t *dev)
 	int i;
 
 	for (i = 0; i < RX_SKB_POOL_SIZE; i++)
+<<<<<<< HEAD
 		if (dev->rx_skb_pool[i])
 			dev_kfree_skb(dev->rx_skb_pool[i]);
 }
@@ -606,6 +635,14 @@ static void free_skb_pool(rtl8150_t *dev)
 static void rx_fixup(unsigned long data)
 {
 	struct rtl8150 *dev = (struct rtl8150 *)data;
+=======
+		dev_kfree_skb(dev->rx_skb_pool[i]);
+}
+
+static void rx_fixup(struct tasklet_struct *t)
+{
+	struct rtl8150 *dev = from_tasklet(dev, t, tl);
+>>>>>>> upstream/android-13
 	struct sk_buff *skb;
 	int status;
 
@@ -669,7 +706,11 @@ static void disable_net_traffic(rtl8150_t * dev)
 	set_registers(dev, CR, 1, &cr);
 }
 
+<<<<<<< HEAD
 static void rtl8150_tx_timeout(struct net_device *netdev)
+=======
+static void rtl8150_tx_timeout(struct net_device *netdev, unsigned int txqueue)
+>>>>>>> upstream/android-13
 {
 	rtl8150_t *dev = netdev_priv(netdev);
 	dev_warn(&netdev->dev, "Tx timeout.\n");
@@ -848,7 +889,12 @@ static const struct ethtool_ops ops = {
 	.get_link_ksettings = rtl8150_get_link_ksettings,
 };
 
+<<<<<<< HEAD
 static int rtl8150_ioctl(struct net_device *netdev, struct ifreq *rq, int cmd)
+=======
+static int rtl8150_siocdevprivate(struct net_device *netdev, struct ifreq *rq,
+				  void __user *udata, int cmd)
+>>>>>>> upstream/android-13
 {
 	rtl8150_t *dev = netdev_priv(netdev);
 	u16 *data = (u16 *) & rq->ifr_ifru;
@@ -857,6 +903,10 @@ static int rtl8150_ioctl(struct net_device *netdev, struct ifreq *rq, int cmd)
 	switch (cmd) {
 	case SIOCDEVPRIVATE:
 		data[0] = dev->phy;
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case SIOCDEVPRIVATE + 1:
 		read_mii_word(dev, dev->phy, (data[1] & 0x1f), &data[3]);
 		break;
@@ -875,7 +925,11 @@ static int rtl8150_ioctl(struct net_device *netdev, struct ifreq *rq, int cmd)
 static const struct net_device_ops rtl8150_netdev_ops = {
 	.ndo_open		= rtl8150_open,
 	.ndo_stop		= rtl8150_close,
+<<<<<<< HEAD
 	.ndo_do_ioctl		= rtl8150_ioctl,
+=======
+	.ndo_siocdevprivate	= rtl8150_siocdevprivate,
+>>>>>>> upstream/android-13
 	.ndo_start_xmit		= rtl8150_start_xmit,
 	.ndo_tx_timeout		= rtl8150_tx_timeout,
 	.ndo_set_rx_mode	= rtl8150_set_multicast,
@@ -903,7 +957,11 @@ static int rtl8150_probe(struct usb_interface *intf,
 		return -ENOMEM;
 	}
 
+<<<<<<< HEAD
 	tasklet_init(&dev->tl, rx_fixup, (unsigned long)dev);
+=======
+	tasklet_setup(&dev->tl, rx_fixup);
+>>>>>>> upstream/android-13
 	spin_lock_init(&dev->rx_pool_lock);
 
 	dev->udev = udev;
@@ -958,8 +1016,12 @@ static void rtl8150_disconnect(struct usb_interface *intf)
 		unlink_all_urbs(dev);
 		free_all_urbs(dev);
 		free_skb_pool(dev);
+<<<<<<< HEAD
 		if (dev->rx_skb)
 			dev_kfree_skb(dev->rx_skb);
+=======
+		dev_kfree_skb(dev->rx_skb);
+>>>>>>> upstream/android-13
 		kfree(dev->intr_buff);
 		free_netdev(dev->netdev);
 	}

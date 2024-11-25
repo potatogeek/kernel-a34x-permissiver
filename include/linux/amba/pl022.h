@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * include/linux/amba/pl022.h
  *
@@ -10,6 +14,7 @@
  *	linux-2.6.17-rc3-mm1/drivers/spi/pxa2xx_spi.c
  * Initial adoption to PL022 by:
  *      Sachin Verma <sachin.verma@st.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +25,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _SSP_PL022_H
@@ -232,10 +239,13 @@ struct dma_chan;
 /**
  * struct pl022_ssp_master - device.platform_data for SPI controller devices.
  * @bus_id: identifier for this bus
+<<<<<<< HEAD
  * @num_chipselect: chipselects are used to distinguish individual
  *     SPI slaves, and are numbered from zero to num_chipselects - 1.
  *     each slave has a chipselect signal, but it's common that not
  *     every chipselect is connected to a slave.
+=======
+>>>>>>> upstream/android-13
  * @enable_dma: if true enables DMA driven transfers.
  * @dma_rx_param: parameter to locate an RX DMA channel.
  * @dma_tx_param: parameter to locate a TX DMA channel.
@@ -244,18 +254,27 @@ struct dma_chan;
  *     indicates no delay and the device will be suspended immediately.
  * @rt: indicates the controller should run the message pump with realtime
  *     priority to minimise the transfer latency on the bus.
+<<<<<<< HEAD
  * @chipselects: list of <num_chipselects> chip select gpios
  */
 struct pl022_ssp_controller {
 	u16 bus_id;
 	u8 num_chipselect;
+=======
+ */
+struct pl022_ssp_controller {
+	u16 bus_id;
+>>>>>>> upstream/android-13
 	u8 enable_dma:1;
 	bool (*dma_filter)(struct dma_chan *chan, void *filter_param);
 	void *dma_rx_param;
 	void *dma_tx_param;
 	int autosuspend_delay;
 	bool rt;
+<<<<<<< HEAD
 	int *chipselects;
+=======
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -274,8 +293,11 @@ struct pl022_ssp_controller {
  * @duplex: Microwire interface: Full/Half duplex
  * @clkdelay: on the PL023 variant, the delay in feeback clock cycles
  * before sampling the incoming line
+<<<<<<< HEAD
  * @cs_control: function pointer to board-specific function to
  * assert/deassert I/O port to control HW generation of devices chip-select.
+=======
+>>>>>>> upstream/android-13
  */
 struct pl022_config_chip {
 	enum ssp_interface iface;
@@ -289,7 +311,10 @@ struct pl022_config_chip {
 	enum ssp_microwire_wait_state wait_state;
 	enum ssp_duplex duplex;
 	enum ssp_clkdelay clkdelay;
+<<<<<<< HEAD
 	void (*cs_control) (u32 control);
+=======
+>>>>>>> upstream/android-13
 };
 
 #endif /* _SSP_PL022_H */

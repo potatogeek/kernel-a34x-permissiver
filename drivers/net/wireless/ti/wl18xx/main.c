@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * This file is part of wl18xx
  *
  * Copyright (C) 2011 Texas Instruments
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -17,6 +22,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -1861,6 +1868,7 @@ static const struct ieee80211_iface_limit wl18xx_iface_ap_limits[] = {
 	},
 };
 
+<<<<<<< HEAD
 static const struct ieee80211_iface_limit wl18xx_iface_ap_cl_limits[] = {
 	{
 		.max = 1,
@@ -1899,6 +1907,8 @@ static const struct ieee80211_iface_limit wl18xx_iface_ap_go_limits[] = {
 	},
 };
 
+=======
+>>>>>>> upstream/android-13
 static const struct ieee80211_iface_combination
 wl18xx_iface_combinations[] = {
 	{

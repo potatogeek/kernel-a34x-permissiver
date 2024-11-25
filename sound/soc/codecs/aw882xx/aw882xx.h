@@ -13,7 +13,12 @@
 #define AW882XX_I2C_READ_MSG_NUM		2
 #define AW882XX_DC_DELAY_TIME	(1000)
 #define AW882XX_LOAD_FW_DELAY_TIME	(0)
+<<<<<<< HEAD
 #define AW_START_RETRIES	(5)
+=======
+#define AW_START_RETRIES	(5)  /* 500 times : 64 sec */
+#define AW_ALGO_SKT_BIN		"aw_skt.bin"
+>>>>>>> upstream/android-13
 
 #define AW_PID_2055_VERSION_DIFF_REG	(0x23)
 
@@ -163,6 +168,10 @@ struct aw882xx {
 	struct delayed_work interrupt_work;
 	struct delayed_work dc_work;
 	struct delayed_work fw_work;
+<<<<<<< HEAD
+=======
+	struct delayed_work abox_work;
+>>>>>>> upstream/android-13
 
 	struct mutex lock;
 };
@@ -179,9 +188,12 @@ int aw882xx_i2c_write_bits(struct aw882xx *aw882xx,
 int aw882xx_init(struct aw882xx *aw882xx, int index);
 int aw882xx_hw_reset(struct aw882xx *aw882xx);
 
+<<<<<<< HEAD
 int aw882xx_i2c_probe(struct i2c_client *i2c,
 	const struct i2c_device_id *id);
 int aw882xx_i2c_remove(struct i2c_client *i2c);
+=======
+>>>>>>> upstream/android-13
 
 #endif
 

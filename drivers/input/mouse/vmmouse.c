@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Driver for Virtual PS/2 Mouse on VMware and QEMU hypervisors.
  *
  * Copyright (C) 2014, VMware, Inc. All Rights Reserved.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
  * the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * Twin device code is hugely inspired by the ALPS driver.
  * Authors:
  *   Dmitry Torokhov <dmitry.torokhov@gmail.com>
@@ -19,12 +26,19 @@
 #include <linux/slab.h>
 #include <linux/module.h>
 #include <asm/hypervisor.h>
+<<<<<<< HEAD
+=======
+#include <asm/vmware.h>
+>>>>>>> upstream/android-13
 
 #include "psmouse.h"
 #include "vmmouse.h"
 
 #define VMMOUSE_PROTO_MAGIC			0x564D5868U
+<<<<<<< HEAD
 #define VMMOUSE_PROTO_PORT			0x5658
+=======
+>>>>>>> upstream/android-13
 
 /*
  * Main commands supported by the vmmouse hypervisor port.
@@ -79,7 +93,11 @@ struct vmmouse_data {
 	char dev_name[128];
 };
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * Hypervisor-specific bi-directional communication channel
  * implementing the vmmouse protocol. Should never execute on
  * bare metal hardware.
@@ -87,7 +105,11 @@ struct vmmouse_data {
 #define VMMOUSE_CMD(cmd, in1, out1, out2, out3, out4)	\
 ({							\
 	unsigned long __dummy1, __dummy2;		\
+<<<<<<< HEAD
 	__asm__ __volatile__ ("inl %%dx" :		\
+=======
+	__asm__ __volatile__ (VMWARE_HYPERCALL :	\
+>>>>>>> upstream/android-13
 		"=a"(out1),				\
 		"=b"(out2),				\
 		"=c"(out3),				\
@@ -97,7 +119,11 @@ struct vmmouse_data {
 		"a"(VMMOUSE_PROTO_MAGIC),		\
 		"b"(in1),				\
 		"c"(VMMOUSE_PROTO_CMD_##cmd),		\
+<<<<<<< HEAD
 		"d"(VMMOUSE_PROTO_PORT) :		\
+=======
+		"d"(0) :			        \
+>>>>>>> upstream/android-13
 		"memory");		                \
 })
 

@@ -23,6 +23,7 @@
  * Authors: Dave Airlie
  *          Alex Deucher
  */
+<<<<<<< HEAD
 #include <drm/drmP.h>
 #include <drm/drm_crtc_helper.h>
 #include <drm/drm_fb_helper.h>
@@ -30,6 +31,18 @@
 #include <drm/drm_fixed.h>
 #include "radeon.h"
 #include "atom.h"
+=======
+
+#include <drm/drm_crtc_helper.h>
+#include <drm/drm_fb_helper.h>
+#include <drm/drm_fixed.h>
+#include <drm/drm_fourcc.h>
+#include <drm/drm_vblank.h>
+#include <drm/radeon_drm.h>
+
+#include "atom.h"
+#include "radeon.h"
+>>>>>>> upstream/android-13
 
 static void radeon_overscan_setup(struct drm_crtc *crtc,
 				  struct drm_display_mode *mode)
@@ -1108,7 +1121,12 @@ static const struct drm_crtc_helper_funcs legacy_helper_funcs = {
 	.mode_set_base_atomic = radeon_crtc_set_base_atomic,
 	.prepare = radeon_crtc_prepare,
 	.commit = radeon_crtc_commit,
+<<<<<<< HEAD
 	.disable = radeon_crtc_disable
+=======
+	.disable = radeon_crtc_disable,
+	.get_scanout_position = radeon_get_crtc_scanout_position,
+>>>>>>> upstream/android-13
 };
 
 

@@ -53,16 +53,24 @@ static void system_flush_invalidate_dcache_range(unsigned long start,
 #define IPI_IRQ	0
 
 static irqreturn_t ipi_interrupt(int irq, void *dev_id);
+<<<<<<< HEAD
 static struct irqaction ipi_irqaction = {
 	.handler =	ipi_interrupt,
 	.flags =	IRQF_PERCPU,
 	.name =		"ipi",
 };
+=======
+>>>>>>> upstream/android-13
 
 void ipi_init(void)
 {
 	unsigned irq = irq_create_mapping(NULL, IPI_IRQ);
+<<<<<<< HEAD
 	setup_irq(irq, &ipi_irqaction);
+=======
+	if (request_irq(irq, ipi_interrupt, IRQF_PERCPU, "ipi", NULL))
+		pr_err("Failed to request irq %u (ipi)\n", irq);
+>>>>>>> upstream/android-13
 }
 
 static inline unsigned int get_core_count(void)
@@ -126,7 +134,11 @@ void secondary_start_kernel(void)
 
 	init_mmu();
 
+<<<<<<< HEAD
 #ifdef CONFIG_DEBUG_KERNEL
+=======
+#ifdef CONFIG_DEBUG_MISC
+>>>>>>> upstream/android-13
 	if (boot_secondary_processors == 0) {
 		pr_debug("%s: boot_secondary_processors:%d; Hanging cpu:%d\n",
 			__func__, boot_secondary_processors, cpu);
@@ -149,7 +161,10 @@ void secondary_start_kernel(void)
 	cpumask_set_cpu(cpu, mm_cpumask(mm));
 	enter_lazy_tlb(mm, current);
 
+<<<<<<< HEAD
 	preempt_disable();
+=======
+>>>>>>> upstream/android-13
 	trace_hardirqs_off();
 
 	calibrate_delay();
@@ -372,8 +387,12 @@ static void send_ipi_message(const struct cpumask *callmask,
 	unsigned long mask = 0;
 
 	for_each_cpu(index, callmask)
+<<<<<<< HEAD
 		if (index != smp_processor_id())
 			mask |= 1 << index;
+=======
+		mask |= 1 << index;
+>>>>>>> upstream/android-13
 
 	set_er(mask, MIPISET(msg_id));
 }
@@ -412,6 +431,7 @@ irqreturn_t ipi_interrupt(int irq, void *dev_id)
 {
 	unsigned int cpu = smp_processor_id();
 	struct ipi_data *ipi = &per_cpu(ipi_data, cpu);
+<<<<<<< HEAD
 	unsigned int msg;
 	unsigned i;
 
@@ -428,6 +448,33 @@ irqreturn_t ipi_interrupt(int irq, void *dev_id)
 		generic_smp_call_function_interrupt();
 	if (msg & (1 << IPI_CPU_STOP))
 		ipi_cpu_stop(cpu);
+=======
+
+	for (;;) {
+		unsigned int msg;
+
+		msg = get_er(MIPICAUSE(cpu));
+		set_er(msg, MIPICAUSE(cpu));
+
+		if (!msg)
+			break;
+
+		if (msg & (1 << IPI_CALL_FUNC)) {
+			++ipi->ipi_count[IPI_CALL_FUNC];
+			generic_smp_call_function_interrupt();
+		}
+
+		if (msg & (1 << IPI_RESCHEDULE)) {
+			++ipi->ipi_count[IPI_RESCHEDULE];
+			scheduler_ipi();
+		}
+
+		if (msg & (1 << IPI_CPU_STOP)) {
+			++ipi->ipi_count[IPI_CPU_STOP];
+			ipi_cpu_stop(cpu);
+		}
+	}
+>>>>>>> upstream/android-13
 
 	return IRQ_HANDLED;
 }

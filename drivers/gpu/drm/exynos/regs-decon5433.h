@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2014 Samsung Electronics Co.Ltd
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundationr
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) 2014 Samsung Electronics Co.Ltd
+>>>>>>> upstream/android-13
  */
 
 #ifndef EXYNOS_REGS_DECON5433_H
@@ -104,6 +110,10 @@
 #define WINCONx_BURSTLEN_16WORD		(0x0 << 10)
 #define WINCONx_BURSTLEN_8WORD		(0x1 << 10)
 #define WINCONx_BURSTLEN_4WORD		(0x2 << 10)
+<<<<<<< HEAD
+=======
+#define WINCONx_ALPHA_MUL_F		(1 << 7)
+>>>>>>> upstream/android-13
 #define WINCONx_BLD_PIX_F		(1 << 6)
 #define WINCONx_BPPMODE_MASK		(0xf << 2)
 #define WINCONx_BPPMODE_16BPP_565	(0x5 << 2)
@@ -116,11 +126,21 @@
 #define WINCONx_BPPMODE_16BPP_A4444	(0xe << 2)
 #define WINCONx_ALPHA_SEL_F		(1 << 1)
 #define WINCONx_ENWIN_F			(1 << 0)
+<<<<<<< HEAD
+=======
+#define WINCONx_BLEND_MODE_MASK		(0xc2)
+>>>>>>> upstream/android-13
 
 /* SHADOWCON */
 #define SHADOWCON_PROTECT_MASK		GENMASK(14, 10)
 #define SHADOWCON_Wx_PROTECT(n)		(1 << (10 + (n)))
 
+<<<<<<< HEAD
+=======
+/* VIDOSDxC */
+#define VIDOSDxC_ALPHA0_RGB_MASK	(0xffffff)
+
+>>>>>>> upstream/android-13
 /* VIDOSDxD */
 #define VIDOSD_Wx_ALPHA_R_F(n)		(((n) & 0xff) << 16)
 #define VIDOSD_Wx_ALPHA_G_F(n)		(((n) & 0xff) << 8)
@@ -206,4 +226,24 @@
 #define CRCCTRL_CRCEN			(0x1 << 0)
 #define CRCCTRL_MASK			(0x7)
 
+<<<<<<< HEAD
+=======
+/* BLENDCON */
+#define BLEND_NEW			(1 << 0)
+
+/* BLENDERQx */
+#define BLENDERQ_ZERO			0x0
+#define BLENDERQ_ONE			0x1
+#define BLENDERQ_ALPHA_A		0x2
+#define BLENDERQ_ONE_MINUS_ALPHA_A	0x3
+#define BLENDERQ_ALPHA0			0x6
+#define BLENDERQ_Q_FUNC_F(n)		(n << 18)
+#define BLENDERQ_P_FUNC_F(n)		(n << 12)
+#define BLENDERQ_B_FUNC_F(n)		(n << 6)
+#define BLENDERQ_A_FUNC_F(n)		(n << 0)
+
+/* BLENDCON */
+#define BLEND_NEW			(1 << 0)
+
+>>>>>>> upstream/android-13
 #endif /* EXYNOS_REGS_DECON5433_H */

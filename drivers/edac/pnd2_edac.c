@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Driver for Pondicherry2 memory controller.
  *
  * Copyright (c) 2016, Intel Corporation.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
  * version 2, as published by the Free Software Foundation.
@@ -12,6 +17,8 @@
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
  *
+=======
+>>>>>>> upstream/android-13
  * [Derived from sb_edac.c]
  *
  * Translation of system physical addresses to DIMM addresses
@@ -206,7 +213,11 @@ static int apl_rd_reg(int port, int off, int op, void *data, size_t sz, char *na
 	switch (sz) {
 	case 8:
 		ret = _apl_rd_reg(port, off + 4, op, (u32 *)(data + 4));
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 4:
 		ret |= _apl_rd_reg(port, off, op, (u32 *)data);
 		pnd2_printk(KERN_DEBUG, "%s=%x%08x ret=%d\n", name,
@@ -1163,7 +1174,11 @@ static void pnd2_mce_output_error(struct mem_ctl_info *mci, const struct mce *m,
 	u32 optypenum = GET_BITFIELD(m->status, 4, 6);
 	int rc;
 
+<<<<<<< HEAD
 	tp_event = uc_err ? (ripv ? HW_EVENT_ERR_FATAL : HW_EVENT_ERR_UNCORRECTED) :
+=======
+	tp_event = uc_err ? (ripv ? HW_EVENT_ERR_UNCORRECTED : HW_EVENT_ERR_FATAL) :
+>>>>>>> upstream/android-13
 						 HW_EVENT_ERR_CORRECTED;
 
 	/*
@@ -1239,7 +1254,11 @@ static void apl_get_dimm_config(struct mem_ctl_info *mci)
 		if (!(chan_mask & BIT(i)))
 			continue;
 
+<<<<<<< HEAD
 		dimm = EDAC_DIMM_PTR(mci->layers, mci->dimms, mci->n_layers, i, 0, 0);
+=======
+		dimm = edac_get_dimm(mci, i, 0, 0);
+>>>>>>> upstream/android-13
 		if (!dimm) {
 			edac_dbg(0, "No allocated DIMM for channel %d\n", i);
 			continue;
@@ -1319,7 +1338,11 @@ static void dnv_get_dimm_config(struct mem_ctl_info *mci)
 			if (!ranks_of_dimm[j])
 				continue;
 
+<<<<<<< HEAD
 			dimm = EDAC_DIMM_PTR(mci->layers, mci->dimms, mci->n_layers, i, j, 0);
+=======
+			dimm = edac_get_dimm(mci, i, j, 0);
+>>>>>>> upstream/android-13
 			if (!dimm) {
 				edac_dbg(0, "No allocated DIMM for channel %d DIMM %d\n", i, j);
 				continue;
@@ -1404,11 +1427,16 @@ static int pnd2_mce_check_error(struct notifier_block *nb, unsigned long val, vo
 	struct dram_addr daddr;
 	char *type;
 
+<<<<<<< HEAD
 	if (edac_get_report_status() == EDAC_REPORTING_DISABLED)
 		return NOTIFY_DONE;
 
 	mci = pnd2_mci;
 	if (!mci)
+=======
+	mci = pnd2_mci;
+	if (!mci || (mce->kflags & MCE_HANDLED_CEC))
+>>>>>>> upstream/android-13
 		return NOTIFY_DONE;
 
 	/*
@@ -1437,11 +1465,20 @@ static int pnd2_mce_check_error(struct notifier_block *nb, unsigned long val, vo
 	pnd2_mce_output_error(mci, mce, &daddr);
 
 	/* Advice mcelog that the error were handled */
+<<<<<<< HEAD
 	return NOTIFY_STOP;
+=======
+	mce->kflags |= MCE_HANDLED_EDAC;
+	return NOTIFY_OK;
+>>>>>>> upstream/android-13
 }
 
 static struct notifier_block pnd2_mce_dec = {
 	.notifier_call	= pnd2_mce_check_error,
+<<<<<<< HEAD
+=======
+	.priority	= MCE_PRIO_EDAC,
+>>>>>>> upstream/android-13
 };
 
 #ifdef CONFIG_EDAC_DEBUG
@@ -1545,8 +1582,13 @@ static struct dunit_ops dnv_ops = {
 };
 
 static const struct x86_cpu_id pnd2_cpuids[] = {
+<<<<<<< HEAD
 	{ X86_VENDOR_INTEL, 6, INTEL_FAM6_ATOM_GOLDMONT, 0, (kernel_ulong_t)&apl_ops },
 	{ X86_VENDOR_INTEL, 6, INTEL_FAM6_ATOM_GOLDMONT_X, 0, (kernel_ulong_t)&dnv_ops },
+=======
+	X86_MATCH_INTEL_FAM6_MODEL(ATOM_GOLDMONT,	&apl_ops),
+	X86_MATCH_INTEL_FAM6_MODEL(ATOM_GOLDMONT_D,	&dnv_ops),
+>>>>>>> upstream/android-13
 	{ }
 };
 MODULE_DEVICE_TABLE(x86cpu, pnd2_cpuids);
@@ -1563,6 +1605,12 @@ static int __init pnd2_init(void)
 	if (owner && strncmp(owner, EDAC_MOD_STR, sizeof(EDAC_MOD_STR)))
 		return -EBUSY;
 
+<<<<<<< HEAD
+=======
+	if (cpu_feature_enabled(X86_FEATURE_HYPERVISOR))
+		return -ENODEV;
+
+>>>>>>> upstream/android-13
 	id = x86_match_cpu(pnd2_cpuids);
 	if (!id)
 		return -ENODEV;

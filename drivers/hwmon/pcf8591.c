@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2001-2004 Aurelien Jarno <aurelien@aurel32.net>
  * Ported to Linux 2.6 by Aurelien Jarno <aurelien@aurel32.net> with
  * the help of Jean Delvare <jdelvare@suse.de>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +21,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -192,8 +199,12 @@ static const struct attribute_group pcf8591_attr_group_opt = {
  * Real code
  */
 
+<<<<<<< HEAD
 static int pcf8591_probe(struct i2c_client *client,
 			 const struct i2c_device_id *id)
+=======
+static int pcf8591_probe(struct i2c_client *client)
+>>>>>>> upstream/android-13
 {
 	struct pcf8591_data *data;
 	int err;
@@ -308,7 +319,11 @@ static struct i2c_driver pcf8591_driver = {
 	.driver = {
 		.name	= "pcf8591",
 	},
+<<<<<<< HEAD
 	.probe		= pcf8591_probe,
+=======
+	.probe_new	= pcf8591_probe,
+>>>>>>> upstream/android-13
 	.remove		= pcf8591_remove,
 	.id_table	= pcf8591_id,
 };

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * linux/drivers/video/mmp/hw/mmp_spi.c
  * using the spi in LCD controler for commands send
@@ -6,6 +10,7 @@
  * Authors:  Guoqing Li <ligq@marvell.com>
  *          Lisa Du <cldu@marvell.com>
  *          Zhou Zhu <zzhu3@marvell.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -20,6 +25,8 @@
  * You should have received a copy of the GNU General Public License along with
  * this program.  If not, see <http://www.gnu.org/licenses/>.
  *
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/errno.h>
 #include <linux/delay.h>
@@ -30,8 +37,13 @@
 
 /**
  * spi_write - write command to the SPI port
+<<<<<<< HEAD
  * @data: can be 8/16/32-bit, MSB justified data to write.
  * @len:  data length.
+=======
+ * @spi:  the SPI device.
+ * @data: can be 8/16/32-bit, MSB justified data to write.
+>>>>>>> upstream/android-13
  *
  * Wait bus transfer complete IRQ.
  * The caller is expected to perform the necessary locking.
@@ -44,7 +56,11 @@ static inline int lcd_spi_write(struct spi_device *spi, u32 data)
 {
 	int timeout = 100000, isr, ret = 0;
 	u32 tmp;
+<<<<<<< HEAD
 	void *reg_base =
+=======
+	void __iomem *reg_base = (void __iomem *)
+>>>>>>> upstream/android-13
 		*(void **)spi_master_get_devdata(spi->master);
 
 	/* clear ISR */
@@ -93,7 +109,11 @@ static inline int lcd_spi_write(struct spi_device *spi, u32 data)
 
 static int lcd_spi_setup(struct spi_device *spi)
 {
+<<<<<<< HEAD
 	void *reg_base =
+=======
+	void __iomem *reg_base = (void __iomem *)
+>>>>>>> upstream/android-13
 		*(void **)spi_master_get_devdata(spi->master);
 	u32 tmp;
 
@@ -159,7 +179,11 @@ int lcd_spi_register(struct mmphw_ctrl *ctrl)
 		return -ENOMEM;
 	}
 	p_regbase = spi_master_get_devdata(master);
+<<<<<<< HEAD
 	*p_regbase = ctrl->reg_base;
+=======
+	*p_regbase = (void __force *)ctrl->reg_base;
+>>>>>>> upstream/android-13
 
 	/* set bus num to 5 to avoid conflict with other spi hosts */
 	master->bus_num = 5;

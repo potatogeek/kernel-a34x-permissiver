@@ -4,11 +4,14 @@
 
 #include <linux/types.h>
 
+<<<<<<< HEAD
 static inline phys_addr_t fixup_bigphys_addr(phys_addr_t phys_addr, phys_addr_t size)
 {
 	return phys_addr;
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline int is_bmips_internal_registers(phys_addr_t offset)
 {
 	if (offset >= 0xfff80000)

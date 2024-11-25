@@ -44,12 +44,35 @@ struct smc_wr_tx_pend {	/* control data for a pending send request */
 	struct smc_link		*link;
 	u32			idx;
 	struct smc_wr_tx_pend_priv priv;
+<<<<<<< HEAD
+=======
+	u8			compl_requested;
+>>>>>>> upstream/android-13
 };
 
 /******************************** send queue *********************************/
 
 /*------------------------------- completion --------------------------------*/
 
+<<<<<<< HEAD
+=======
+/* returns true if at least one tx work request is pending on the given link */
+static inline bool smc_wr_is_tx_pend(struct smc_link *link)
+{
+	if (find_first_bit(link->wr_tx_mask, link->wr_tx_cnt) !=
+							link->wr_tx_cnt) {
+		return true;
+	}
+	return false;
+}
+
+/* wait till all pending tx work requests on the given link are completed */
+void smc_wr_tx_wait_no_pending_sends(struct smc_link *link)
+{
+	wait_event(link->wr_tx_wait, !smc_wr_is_tx_pend(link));
+}
+
+>>>>>>> upstream/android-13
 static inline int smc_wr_tx_find_pending_index(struct smc_link *link, u64 wr_id)
 {
 	u32 i;
@@ -66,7 +89,10 @@ static inline void smc_wr_tx_process_cqe(struct ib_wc *wc)
 	struct smc_wr_tx_pend pnd_snd;
 	struct smc_link *link;
 	u32 pnd_snd_idx;
+<<<<<<< HEAD
 	int i;
+=======
+>>>>>>> upstream/android-13
 
 	link = wc->qp->qp_context;
 
@@ -75,7 +101,11 @@ static inline void smc_wr_tx_process_cqe(struct ib_wc *wc)
 			link->wr_reg_state = FAILED;
 		else
 			link->wr_reg_state = CONFIRMED;
+<<<<<<< HEAD
 		wake_up(&link->wr_reg_wait);
+=======
+		smc_wr_wakeup_reg_wait(link);
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -83,6 +113,11 @@ static inline void smc_wr_tx_process_cqe(struct ib_wc *wc)
 	if (pnd_snd_idx == link->wr_tx_cnt)
 		return;
 	link->wr_tx_pends[pnd_snd_idx].wc_status = wc->status;
+<<<<<<< HEAD
+=======
+	if (link->wr_tx_pends[pnd_snd_idx].compl_requested)
+		complete(&link->wr_tx_compl[pnd_snd_idx]);
+>>>>>>> upstream/android-13
 	memcpy(&pnd_snd, &link->wr_tx_pends[pnd_snd_idx], sizeof(pnd_snd));
 	/* clear the full struct smc_wr_tx_pend including .priv */
 	memset(&link->wr_tx_pends[pnd_snd_idx], 0,
@@ -92,6 +127,7 @@ static inline void smc_wr_tx_process_cqe(struct ib_wc *wc)
 	if (!test_and_clear_bit(pnd_snd_idx, link->wr_tx_mask))
 		return;
 	if (wc->status) {
+<<<<<<< HEAD
 		for_each_set_bit(i, link->wr_tx_mask, link->wr_tx_cnt) {
 			/* clear full struct smc_wr_tx_pend including .priv */
 			memset(&link->wr_tx_pends[i], 0,
@@ -102,15 +138,25 @@ static inline void smc_wr_tx_process_cqe(struct ib_wc *wc)
 		}
 		/* terminate connections of this link group abnormally */
 		smc_lgr_terminate(smc_get_lgr(link));
+=======
+		/* terminate link */
+		smcr_link_down_cond_sched(link);
+>>>>>>> upstream/android-13
 	}
 	if (pnd_snd.handler)
 		pnd_snd.handler(&pnd_snd.priv, link, wc->status);
 	wake_up(&link->wr_tx_wait);
 }
 
+<<<<<<< HEAD
 static void smc_wr_tx_tasklet_fn(unsigned long data)
 {
 	struct smc_ib_device *dev = (struct smc_ib_device *)data;
+=======
+static void smc_wr_tx_tasklet_fn(struct tasklet_struct *t)
+{
+	struct smc_ib_device *dev = from_tasklet(dev, t, send_tasklet);
+>>>>>>> upstream/android-13
 	struct ib_wc wc[SMC_WR_MAX_POLL_CQE];
 	int i = 0, rc;
 	int polled = 0;
@@ -146,6 +192,11 @@ void smc_wr_tx_cq_handler(struct ib_cq *ib_cq, void *cq_context)
 static inline int smc_wr_tx_get_free_slot_index(struct smc_link *link, u32 *idx)
 {
 	*idx = link->wr_tx_cnt;
+<<<<<<< HEAD
+=======
+	if (!smc_link_sendable(link))
+		return -ENOLINK;
+>>>>>>> upstream/android-13
 	for_each_clear_bit(*idx, link->wr_tx_mask, link->wr_tx_cnt) {
 		if (!test_and_set_bit(*idx, link->wr_tx_mask))
 			return 0;
@@ -160,6 +211,10 @@ static inline int smc_wr_tx_get_free_slot_index(struct smc_link *link, u32 *idx)
  * @link:		Pointer to smc_link used to later send the message.
  * @handler:		Send completion handler function pointer.
  * @wr_buf:		Out value returns pointer to message buffer.
+<<<<<<< HEAD
+=======
+ * @wr_rdma_buf:	Out value returns pointer to rdma work request.
+>>>>>>> upstream/android-13
  * @wr_pend_priv:	Out value returns pointer serving as handler context.
  *
  * Return: 0 on success, or -errno on error.
@@ -167,8 +222,15 @@ static inline int smc_wr_tx_get_free_slot_index(struct smc_link *link, u32 *idx)
 int smc_wr_tx_get_free_slot(struct smc_link *link,
 			    smc_wr_tx_handler handler,
 			    struct smc_wr_buf **wr_buf,
+<<<<<<< HEAD
 			    struct smc_wr_tx_pend_priv **wr_pend_priv)
 {
+=======
+			    struct smc_rdma_wr **wr_rdma_buf,
+			    struct smc_wr_tx_pend_priv **wr_pend_priv)
+{
+	struct smc_link_group *lgr = smc_get_lgr(link);
+>>>>>>> upstream/android-13
 	struct smc_wr_tx_pend *wr_pend;
 	u32 idx = link->wr_tx_cnt;
 	struct ib_send_wr *wr_ib;
@@ -177,11 +239,16 @@ int smc_wr_tx_get_free_slot(struct smc_link *link,
 
 	*wr_buf = NULL;
 	*wr_pend_priv = NULL;
+<<<<<<< HEAD
 	if (in_softirq()) {
+=======
+	if (in_softirq() || lgr->terminating) {
+>>>>>>> upstream/android-13
 		rc = smc_wr_tx_get_free_slot_index(link, &idx);
 		if (rc)
 			return rc;
 	} else {
+<<<<<<< HEAD
 		rc = wait_event_timeout(
 			link->wr_tx_wait,
 			link->state == SMC_LNK_INACTIVE ||
@@ -190,6 +257,17 @@ int smc_wr_tx_get_free_slot(struct smc_link *link,
 		if (!rc) {
 			/* timeout - terminate connections */
 			smc_lgr_terminate(smc_get_lgr(link));
+=======
+		rc = wait_event_interruptible_timeout(
+			link->wr_tx_wait,
+			!smc_link_sendable(link) ||
+			lgr->terminating ||
+			(smc_wr_tx_get_free_slot_index(link, &idx) != -EBUSY),
+			SMC_WR_TX_WAIT_FREE_SLOT_TIME);
+		if (!rc) {
+			/* timeout - terminate link */
+			smcr_link_down_cond_sched(link);
+>>>>>>> upstream/android-13
 			return -EPIPE;
 		}
 		if (idx == link->wr_tx_cnt)
@@ -204,6 +282,11 @@ int smc_wr_tx_get_free_slot(struct smc_link *link,
 	wr_ib = &link->wr_tx_ibs[idx];
 	wr_ib->wr_id = wr_id;
 	*wr_buf = &link->wr_tx_bufs[idx];
+<<<<<<< HEAD
+=======
+	if (wr_rdma_buf)
+		*wr_rdma_buf = &link->wr_tx_rdmas[idx];
+>>>>>>> upstream/android-13
 	*wr_pend_priv = &wr_pend->priv;
 	return 0;
 }
@@ -218,11 +301,20 @@ int smc_wr_tx_put_slot(struct smc_link *link,
 		u32 idx = pend->idx;
 
 		/* clear the full struct smc_wr_tx_pend including .priv */
+<<<<<<< HEAD
 		memset(&link->wr_tx_pends[pend->idx], 0,
 		       sizeof(link->wr_tx_pends[pend->idx]));
 		memset(&link->wr_tx_bufs[pend->idx], 0,
 		       sizeof(link->wr_tx_bufs[pend->idx]));
 		test_and_clear_bit(idx, link->wr_tx_mask);
+=======
+		memset(&link->wr_tx_pends[idx], 0,
+		       sizeof(link->wr_tx_pends[idx]));
+		memset(&link->wr_tx_bufs[idx], 0,
+		       sizeof(link->wr_tx_bufs[idx]));
+		test_and_clear_bit(idx, link->wr_tx_mask);
+		wake_up(&link->wr_tx_wait);
+>>>>>>> upstream/android-13
 		return 1;
 	}
 
@@ -243,11 +335,47 @@ int smc_wr_tx_send(struct smc_link *link, struct smc_wr_tx_pend_priv *priv)
 	rc = ib_post_send(link->roce_qp, &link->wr_tx_ibs[pend->idx], NULL);
 	if (rc) {
 		smc_wr_tx_put_slot(link, priv);
+<<<<<<< HEAD
 		smc_lgr_terminate(smc_get_lgr(link));
+=======
+		smcr_link_down_cond_sched(link);
+>>>>>>> upstream/android-13
 	}
 	return rc;
 }
 
+<<<<<<< HEAD
+=======
+/* Send prepared WR slot via ib_post_send and wait for send completion
+ * notification.
+ * @priv: pointer to smc_wr_tx_pend_priv identifying prepared message buffer
+ */
+int smc_wr_tx_send_wait(struct smc_link *link, struct smc_wr_tx_pend_priv *priv,
+			unsigned long timeout)
+{
+	struct smc_wr_tx_pend *pend;
+	u32 pnd_idx;
+	int rc;
+
+	pend = container_of(priv, struct smc_wr_tx_pend, priv);
+	pend->compl_requested = 1;
+	pnd_idx = pend->idx;
+	init_completion(&link->wr_tx_compl[pnd_idx]);
+
+	rc = smc_wr_tx_send(link, priv);
+	if (rc)
+		return rc;
+	/* wait for completion by smc_wr_tx_process_cqe() */
+	rc = wait_for_completion_interruptible_timeout(
+					&link->wr_tx_compl[pnd_idx], timeout);
+	if (rc <= 0)
+		rc = -ENODATA;
+	if (rc > 0)
+		rc = 0;
+	return rc;
+}
+
+>>>>>>> upstream/android-13
 /* Register a memory region and wait for result. */
 int smc_wr_reg_send(struct smc_link *link, struct ib_mr *mr)
 {
@@ -263,12 +391,24 @@ int smc_wr_reg_send(struct smc_link *link, struct ib_mr *mr)
 	if (rc)
 		return rc;
 
+<<<<<<< HEAD
 	rc = wait_event_interruptible_timeout(link->wr_reg_wait,
 					      (link->wr_reg_state != POSTED),
 					      SMC_WR_REG_MR_WAIT_TIME);
 	if (!rc) {
 		/* timeout - terminate connections */
 		smc_lgr_terminate(smc_get_lgr(link));
+=======
+	atomic_inc(&link->wr_reg_refcnt);
+	rc = wait_event_interruptible_timeout(link->wr_reg_wait,
+					      (link->wr_reg_state != POSTED),
+					      SMC_WR_REG_MR_WAIT_TIME);
+	if (atomic_dec_and_test(&link->wr_reg_refcnt))
+		wake_up_all(&link->wr_reg_wait);
+	if (!rc) {
+		/* timeout - terminate link */
+		smcr_link_down_cond_sched(link);
+>>>>>>> upstream/android-13
 		return -EPIPE;
 	}
 	if (rc == -ERESTARTSYS)
@@ -287,6 +427,7 @@ int smc_wr_reg_send(struct smc_link *link, struct ib_mr *mr)
 	return rc;
 }
 
+<<<<<<< HEAD
 void smc_wr_tx_dismiss_slots(struct smc_link *link, u8 wr_tx_hdr_type,
 			     smc_wr_tx_filter filter,
 			     smc_wr_tx_dismisser dismisser,
@@ -306,6 +447,8 @@ void smc_wr_tx_dismiss_slots(struct smc_link *link, u8 wr_tx_hdr_type,
 	}
 }
 
+=======
+>>>>>>> upstream/android-13
 /****************************** receive queue ********************************/
 
 int smc_wr_rx_register_handler(struct smc_wr_rx_handler *handler)
@@ -366,10 +509,14 @@ static inline void smc_wr_rx_process_cqes(struct ib_wc wc[], int num)
 			case IB_WC_RETRY_EXC_ERR:
 			case IB_WC_RNR_RETRY_EXC_ERR:
 			case IB_WC_WR_FLUSH_ERR:
+<<<<<<< HEAD
 				/* terminate connections of this link group
 				 * abnormally
 				 */
 				smc_lgr_terminate(smc_get_lgr(link));
+=======
+				smcr_link_down_cond_sched(link);
+>>>>>>> upstream/android-13
 				break;
 			default:
 				smc_wr_rx_post(link); /* refill WR RX */
@@ -379,9 +526,15 @@ static inline void smc_wr_rx_process_cqes(struct ib_wc wc[], int num)
 	}
 }
 
+<<<<<<< HEAD
 static void smc_wr_rx_tasklet_fn(unsigned long data)
 {
 	struct smc_ib_device *dev = (struct smc_ib_device *)data;
+=======
+static void smc_wr_rx_tasklet_fn(struct tasklet_struct *t)
+{
+	struct smc_ib_device *dev = from_tasklet(dev, t, recv_tasklet);
+>>>>>>> upstream/android-13
 	struct ib_wc wc[SMC_WR_MAX_POLL_CQE];
 	int polled = 0;
 	int rc;
@@ -465,12 +618,32 @@ static void smc_wr_init_sge(struct smc_link *lnk)
 			lnk->wr_tx_dma_addr + i * SMC_WR_BUF_SIZE;
 		lnk->wr_tx_sges[i].length = SMC_WR_TX_SIZE;
 		lnk->wr_tx_sges[i].lkey = lnk->roce_pd->local_dma_lkey;
+<<<<<<< HEAD
+=======
+		lnk->wr_tx_rdma_sges[i].tx_rdma_sge[0].wr_tx_rdma_sge[0].lkey =
+			lnk->roce_pd->local_dma_lkey;
+		lnk->wr_tx_rdma_sges[i].tx_rdma_sge[0].wr_tx_rdma_sge[1].lkey =
+			lnk->roce_pd->local_dma_lkey;
+		lnk->wr_tx_rdma_sges[i].tx_rdma_sge[1].wr_tx_rdma_sge[0].lkey =
+			lnk->roce_pd->local_dma_lkey;
+		lnk->wr_tx_rdma_sges[i].tx_rdma_sge[1].wr_tx_rdma_sge[1].lkey =
+			lnk->roce_pd->local_dma_lkey;
+>>>>>>> upstream/android-13
 		lnk->wr_tx_ibs[i].next = NULL;
 		lnk->wr_tx_ibs[i].sg_list = &lnk->wr_tx_sges[i];
 		lnk->wr_tx_ibs[i].num_sge = 1;
 		lnk->wr_tx_ibs[i].opcode = IB_WR_SEND;
 		lnk->wr_tx_ibs[i].send_flags =
 			IB_SEND_SIGNALED | IB_SEND_SOLICITED;
+<<<<<<< HEAD
+=======
+		lnk->wr_tx_rdmas[i].wr_tx_rdma[0].wr.opcode = IB_WR_RDMA_WRITE;
+		lnk->wr_tx_rdmas[i].wr_tx_rdma[1].wr.opcode = IB_WR_RDMA_WRITE;
+		lnk->wr_tx_rdmas[i].wr_tx_rdma[0].wr.sg_list =
+			lnk->wr_tx_rdma_sges[i].tx_rdma_sge[0].wr_tx_rdma_sge;
+		lnk->wr_tx_rdmas[i].wr_tx_rdma[1].wr.sg_list =
+			lnk->wr_tx_rdma_sges[i].tx_rdma_sge[1].wr_tx_rdma_sge;
+>>>>>>> upstream/android-13
 	}
 	for (i = 0; i < lnk->wr_rx_cnt; i++) {
 		lnk->wr_rx_sges[i].addr =
@@ -492,13 +665,26 @@ void smc_wr_free_link(struct smc_link *lnk)
 {
 	struct ib_device *ibdev;
 
+<<<<<<< HEAD
 	memset(lnk->wr_tx_mask, 0,
 	       BITS_TO_LONGS(SMC_WR_BUF_CNT) * sizeof(*lnk->wr_tx_mask));
 
+=======
+>>>>>>> upstream/android-13
 	if (!lnk->smcibdev)
 		return;
 	ibdev = lnk->smcibdev->ibdev;
 
+<<<<<<< HEAD
+=======
+	smc_wr_wakeup_reg_wait(lnk);
+	smc_wr_wakeup_tx_wait(lnk);
+
+	smc_wr_tx_wait_no_pending_sends(lnk);
+	wait_event(lnk->wr_reg_wait, (!atomic_read(&lnk->wr_reg_refcnt)));
+	wait_event(lnk->wr_tx_wait, (!atomic_read(&lnk->wr_tx_refcnt)));
+
+>>>>>>> upstream/android-13
 	if (lnk->wr_rx_dma_addr) {
 		ib_dma_unmap_single(ibdev, lnk->wr_rx_dma_addr,
 				    SMC_WR_BUF_SIZE * lnk->wr_rx_cnt,
@@ -515,14 +701,28 @@ void smc_wr_free_link(struct smc_link *lnk)
 
 void smc_wr_free_link_mem(struct smc_link *lnk)
 {
+<<<<<<< HEAD
+=======
+	kfree(lnk->wr_tx_compl);
+	lnk->wr_tx_compl = NULL;
+>>>>>>> upstream/android-13
 	kfree(lnk->wr_tx_pends);
 	lnk->wr_tx_pends = NULL;
 	kfree(lnk->wr_tx_mask);
 	lnk->wr_tx_mask = NULL;
 	kfree(lnk->wr_tx_sges);
 	lnk->wr_tx_sges = NULL;
+<<<<<<< HEAD
 	kfree(lnk->wr_rx_sges);
 	lnk->wr_rx_sges = NULL;
+=======
+	kfree(lnk->wr_tx_rdma_sges);
+	lnk->wr_tx_rdma_sges = NULL;
+	kfree(lnk->wr_rx_sges);
+	lnk->wr_rx_sges = NULL;
+	kfree(lnk->wr_tx_rdmas);
+	lnk->wr_tx_rdmas = NULL;
+>>>>>>> upstream/android-13
 	kfree(lnk->wr_rx_ibs);
 	lnk->wr_rx_ibs = NULL;
 	kfree(lnk->wr_tx_ibs);
@@ -552,10 +752,27 @@ int smc_wr_alloc_link_mem(struct smc_link *link)
 				  GFP_KERNEL);
 	if (!link->wr_rx_ibs)
 		goto no_mem_wr_tx_ibs;
+<<<<<<< HEAD
 	link->wr_tx_sges = kcalloc(SMC_WR_BUF_CNT, sizeof(link->wr_tx_sges[0]),
 				   GFP_KERNEL);
 	if (!link->wr_tx_sges)
 		goto no_mem_wr_rx_ibs;
+=======
+	link->wr_tx_rdmas = kcalloc(SMC_WR_BUF_CNT,
+				    sizeof(link->wr_tx_rdmas[0]),
+				    GFP_KERNEL);
+	if (!link->wr_tx_rdmas)
+		goto no_mem_wr_rx_ibs;
+	link->wr_tx_rdma_sges = kcalloc(SMC_WR_BUF_CNT,
+					sizeof(link->wr_tx_rdma_sges[0]),
+					GFP_KERNEL);
+	if (!link->wr_tx_rdma_sges)
+		goto no_mem_wr_tx_rdmas;
+	link->wr_tx_sges = kcalloc(SMC_WR_BUF_CNT, sizeof(link->wr_tx_sges[0]),
+				   GFP_KERNEL);
+	if (!link->wr_tx_sges)
+		goto no_mem_wr_tx_rdma_sges;
+>>>>>>> upstream/android-13
 	link->wr_rx_sges = kcalloc(SMC_WR_BUF_CNT * 3,
 				   sizeof(link->wr_rx_sges[0]),
 				   GFP_KERNEL);
@@ -571,14 +788,33 @@ int smc_wr_alloc_link_mem(struct smc_link *link)
 				    GFP_KERNEL);
 	if (!link->wr_tx_pends)
 		goto no_mem_wr_tx_mask;
+<<<<<<< HEAD
 	return 0;
 
+=======
+	link->wr_tx_compl = kcalloc(SMC_WR_BUF_CNT,
+				    sizeof(link->wr_tx_compl[0]),
+				    GFP_KERNEL);
+	if (!link->wr_tx_compl)
+		goto no_mem_wr_tx_pends;
+	return 0;
+
+no_mem_wr_tx_pends:
+	kfree(link->wr_tx_pends);
+>>>>>>> upstream/android-13
 no_mem_wr_tx_mask:
 	kfree(link->wr_tx_mask);
 no_mem_wr_rx_sges:
 	kfree(link->wr_rx_sges);
 no_mem_wr_tx_sges:
 	kfree(link->wr_tx_sges);
+<<<<<<< HEAD
+=======
+no_mem_wr_tx_rdma_sges:
+	kfree(link->wr_tx_rdma_sges);
+no_mem_wr_tx_rdmas:
+	kfree(link->wr_tx_rdmas);
+>>>>>>> upstream/android-13
 no_mem_wr_rx_ibs:
 	kfree(link->wr_rx_ibs);
 no_mem_wr_tx_ibs:
@@ -599,10 +835,15 @@ void smc_wr_remove_dev(struct smc_ib_device *smcibdev)
 
 void smc_wr_add_dev(struct smc_ib_device *smcibdev)
 {
+<<<<<<< HEAD
 	tasklet_init(&smcibdev->recv_tasklet, smc_wr_rx_tasklet_fn,
 		     (unsigned long)smcibdev);
 	tasklet_init(&smcibdev->send_tasklet, smc_wr_tx_tasklet_fn,
 		     (unsigned long)smcibdev);
+=======
+	tasklet_setup(&smcibdev->recv_tasklet, smc_wr_rx_tasklet_fn);
+	tasklet_setup(&smcibdev->send_tasklet, smc_wr_tx_tasklet_fn);
+>>>>>>> upstream/android-13
 }
 
 int smc_wr_create_link(struct smc_link *lnk)
@@ -631,7 +872,13 @@ int smc_wr_create_link(struct smc_link *lnk)
 	memset(lnk->wr_tx_mask, 0,
 	       BITS_TO_LONGS(SMC_WR_BUF_CNT) * sizeof(*lnk->wr_tx_mask));
 	init_waitqueue_head(&lnk->wr_tx_wait);
+<<<<<<< HEAD
 	init_waitqueue_head(&lnk->wr_reg_wait);
+=======
+	atomic_set(&lnk->wr_tx_refcnt, 0);
+	init_waitqueue_head(&lnk->wr_reg_wait);
+	atomic_set(&lnk->wr_reg_refcnt, 0);
+>>>>>>> upstream/android-13
 	return rc;
 
 dma_unmap:

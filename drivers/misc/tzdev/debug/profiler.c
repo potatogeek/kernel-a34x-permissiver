@@ -1,5 +1,9 @@
 /*
+<<<<<<< HEAD
  * Copyright (C) 2012-2019, Samsung Electronics Co., Ltd.
+=======
+ * Copyright (c) 2016 Samsung Electronics Co., Ltd All Rights Reserved
+>>>>>>> upstream/android-13
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -24,6 +28,10 @@
 #include <linux/vmalloc.h>
 
 #include "lib/circ_buf.h"
+<<<<<<< HEAD
+=======
+#include <linux/printk.h>
+>>>>>>> upstream/android-13
 
 #include "tzdev_internal.h"
 #include "core/cdev.h"
@@ -434,6 +442,11 @@ static ssize_t tzprofiler_read(struct file *filp, char __user *buf, size_t count
 	 * as the end of all data. */
 	while (1) {
 		if ((atomic_read(&sk_is_active_count) == 0) && (atomic_read(&tzprofiler_last_passing) == 0)) {
+<<<<<<< HEAD
+=======
+			if (filp->f_flags & O_NONBLOCK)
+				return 0;
+>>>>>>> upstream/android-13
 			/* Wait until a thread switches to SWd, a signal is received or 5 seconds expire.
 			* It is implemented to avoid continuous looping while there are no threads in SWd. */
 			ret = wait_event_interruptible_timeout(sk_wait,
@@ -462,16 +475,27 @@ static ssize_t tzprofiler_read(struct file *filp, char __user *buf, size_t count
 			return saved_count;
 		}
 
+<<<<<<< HEAD
 		/* The following code (to the end of the loop) is executed only if no data has been read */
 		wake_up(&tzprofiler_data_writing);
 		if (atomic_read(&tzprofiler_last_passing) > 0)
 			atomic_dec(&tzprofiler_last_passing);
 
+=======
+>>>>>>> upstream/android-13
 		/* Swap lists' roles */
 		if (current_full_pool == TZPROFILER_LIST1_NEED_CLEAN)
 			current_full_pool = TZPROFILER_LIST2_NEED_CLEAN;
 		else
 			current_full_pool = TZPROFILER_LIST1_NEED_CLEAN;
+<<<<<<< HEAD
+=======
+
+		/* The following code (to the end of the loop) is executed only if no data has been read */
+		wake_up(&tzprofiler_data_writing);
+		if (atomic_read(&tzprofiler_last_passing) > 0)
+			atomic_dec(&tzprofiler_last_passing);
+>>>>>>> upstream/android-13
 	}
 
 	return 0;

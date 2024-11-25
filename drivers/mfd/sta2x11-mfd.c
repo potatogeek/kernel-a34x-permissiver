@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2009-2011 Wind River Systems, Inc.
  * Copyright (c) 2011 ST Microelectronics (Alessandro Rubini, Davide Ciminaghi)
@@ -19,6 +20,19 @@
 
 #include <linux/kernel.h>
 #include <linux/module.h>
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * STA2x11 mfd for GPIO, SCTL and APBREG
+ *
+ * Copyright (c) 2009-2011 Wind River Systems, Inc.
+ * Copyright (c) 2011 ST Microelectronics (Alessandro Rubini, Davide Ciminaghi)
+ */
+
+#include <linux/kernel.h>
+#include <linux/init.h>
+#include <linux/export.h>
+>>>>>>> upstream/android-13
 #include <linux/spinlock.h>
 #include <linux/errno.h>
 #include <linux/device.h>
@@ -653,8 +667,11 @@ static int __init sta2x11_mfd_init(void)
  */
 subsys_initcall(sta2x11_drivers_init);
 rootfs_initcall(sta2x11_mfd_init);
+<<<<<<< HEAD
 
 MODULE_LICENSE("GPL v2");
 MODULE_AUTHOR("Wind River");
 MODULE_DESCRIPTION("STA2x11 mfd for GPIO, SCTL and APBREG");
 MODULE_DEVICE_TABLE(pci, sta2x11_mfd_tbl);
+=======
+>>>>>>> upstream/android-13

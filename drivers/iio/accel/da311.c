@@ -1,12 +1,20 @@
+<<<<<<< HEAD
 /**
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+>>>>>>> upstream/android-13
  * IIO driver for the MiraMEMS DA311 3-axis accelerometer
  *
  * Copyright (c) 2016 Hans de Goede <hdegoede@redhat.com>
  * Copyright (c) 2011-2013 MiraMEMS Sensing Technology Co., Ltd.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
  * version 2, as published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -215,6 +223,14 @@ static const struct iio_info da311_info = {
 	.read_raw	= da311_read_raw,
 };
 
+<<<<<<< HEAD
+=======
+static void da311_disable(void *client)
+{
+	da311_enable(client, false);
+}
+
+>>>>>>> upstream/android-13
 static int da311_probe(struct i2c_client *client,
 			const struct i2c_device_id *id)
 {
@@ -232,9 +248,13 @@ static int da311_probe(struct i2c_client *client,
 
 	data = iio_priv(indio_dev);
 	data->client = client;
+<<<<<<< HEAD
 	i2c_set_clientdata(client, indio_dev);
 
 	indio_dev->dev.parent = &client->dev;
+=======
+
+>>>>>>> upstream/android-13
 	indio_dev->info = &da311_info;
 	indio_dev->name = "da311";
 	indio_dev->modes = INDIO_DIRECT_MODE;
@@ -249,6 +269,7 @@ static int da311_probe(struct i2c_client *client,
 	if (ret < 0)
 		return ret;
 
+<<<<<<< HEAD
 	ret = iio_device_register(indio_dev);
 	if (ret < 0) {
 		dev_err(&client->dev, "device_register failed\n");
@@ -265,6 +286,13 @@ static int da311_remove(struct i2c_client *client)
 	iio_device_unregister(indio_dev);
 
 	return da311_enable(client, false);
+=======
+	ret = devm_add_action_or_reset(&client->dev, da311_disable, client);
+	if (ret)
+		return ret;
+
+	return devm_iio_device_register(&client->dev, indio_dev);
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_PM_SLEEP
@@ -293,7 +321,10 @@ static struct i2c_driver da311_driver = {
 		.pm = &da311_pm_ops,
 	},
 	.probe		= da311_probe,
+<<<<<<< HEAD
 	.remove		= da311_remove,
+=======
+>>>>>>> upstream/android-13
 	.id_table	= da311_i2c_id,
 };
 

@@ -20,8 +20,12 @@
 #include <linux/dma-mapping.h>
 #include <linux/sched.h>
 #include <linux/kthread.h>
+<<<<<<< HEAD
 
 #include "most/core.h"
+=======
+#include <linux/most.h>
+>>>>>>> upstream/android-13
 #include "hal.h"
 #include "errors.h"
 #include "sysfs.h"
@@ -47,12 +51,23 @@ MODULE_PARM_DESC(fcnt, "Num of frames per sub-buffer for sync channels as a powe
 static DEFINE_SPINLOCK(dim_lock);
 
 static void dim2_tasklet_fn(unsigned long data);
+<<<<<<< HEAD
 static DECLARE_TASKLET(dim2_tasklet, dim2_tasklet_fn, 0);
 
 /**
  * struct hdm_channel - private structure to keep channel specific data
  * @is_initialized: identifier to know whether the channel is initialized
  * @ch: HAL specific channel data
+=======
+static DECLARE_TASKLET_OLD(dim2_tasklet, dim2_tasklet_fn);
+
+/**
+ * struct hdm_channel - private structure to keep channel specific data
+ * @name: channel name
+ * @is_initialized: identifier to know whether the channel is initialized
+ * @ch: HAL specific channel data
+ * @reset_dbr_size: reset DBR data buffer size
+>>>>>>> upstream/android-13
  * @pending_list: list to keep MBO's before starting transfer
  * @started_list: list to keep MBO's after starting transfer
  * @direction: channel direction (TX or RX)
@@ -69,7 +84,11 @@ struct hdm_channel {
 	enum most_channel_data_type data_type;
 };
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * struct dim2_hdm - private structure to keep interface specific data
  * @hch: an array of channel specific data
  * @most_iface: most interface structure
@@ -101,12 +120,21 @@ struct dim2_hdm {
 	struct medialb_bus bus;
 	void (*on_netinfo)(struct most_interface *most_iface,
 			   unsigned char link_state, unsigned char *addrs);
+<<<<<<< HEAD
 	void (*disable_platform)(struct platform_device *);
 };
 
 struct dim2_platform_data {
 	int (*enable)(struct platform_device *);
 	void (*disable)(struct platform_device *);
+=======
+	void (*disable_platform)(struct platform_device *pdev);
+};
+
+struct dim2_platform_data {
+	int (*enable)(struct platform_device *pdev);
+	void (*disable)(struct platform_device *pdev);
+>>>>>>> upstream/android-13
 };
 
 #define iface_to_hdm(iface) container_of(iface, struct dim2_hdm, most_iface)
@@ -116,7 +144,12 @@ struct dim2_platform_data {
 	(((p)[1] == 0x18) && ((p)[2] == 0x05) && ((p)[3] == 0x0C) && \
 	 ((p)[13] == 0x3C) && ((p)[14] == 0x00) && ((p)[15] == 0x0A))
 
+<<<<<<< HEAD
 bool dim2_sysfs_get_state_cb(void)
+=======
+static ssize_t state_show(struct device *dev, struct device_attribute *attr,
+			  char *buf)
+>>>>>>> upstream/android-13
 {
 	bool state;
 	unsigned long flags;
@@ -125,6 +158,7 @@ bool dim2_sysfs_get_state_cb(void)
 	state = dim_get_lock_state();
 	spin_unlock_irqrestore(&dim_lock, flags);
 
+<<<<<<< HEAD
 	return state;
 }
 
@@ -146,6 +180,19 @@ void dimcb_io_write(u32 __iomem *ptr32, u32 value)
 {
 	writel(value, ptr32);
 }
+=======
+	return sysfs_emit(buf, "%s\n", state ? "locked" : "");
+}
+
+static DEVICE_ATTR_RO(state);
+
+static struct attribute *dim2_attrs[] = {
+	&dev_attr_state.attr,
+	NULL,
+};
+
+ATTRIBUTE_GROUPS(dim2);
+>>>>>>> upstream/android-13
 
 /**
  * dimcb_on_error - callback from HAL to report miscommunication between
@@ -448,9 +495,15 @@ static void complete_all_mbos(struct list_head *head)
 
 /**
  * configure_channel - initialize a channel
+<<<<<<< HEAD
  * @iface: interface the channel belongs to
  * @channel: channel to be configured
  * @channel_config: structure that holds the configuration information
+=======
+ * @most_iface: interface the channel belongs to
+ * @ch_idx: channel index to be configured
+ * @ccfg: structure that holds the configuration information
+>>>>>>> upstream/android-13
  *
  * Receives configuration information from mostcore and initialize
  * the corresponding channel. Return 0 on success, negative on failure.
@@ -566,8 +619,13 @@ static int configure_channel(struct most_interface *most_iface, int ch_idx,
 
 /**
  * enqueue - enqueue a buffer for data transfer
+<<<<<<< HEAD
  * @iface: intended interface
  * @channel: ID of the channel the buffer is intended for
+=======
+ * @most_iface: intended interface
+ * @ch_idx: ID of the channel the buffer is intended for
+>>>>>>> upstream/android-13
  * @mbo: pointer to the buffer object
  *
  * Push the buffer into pending_list and try to transfer one buffer from
@@ -599,8 +657,14 @@ static int enqueue(struct most_interface *most_iface, int ch_idx,
 
 /**
  * request_netinfo - triggers retrieving of network info
+<<<<<<< HEAD
  * @iface: pointer to the interface
  * @channel_id: corresponding channel ID
+=======
+ * @most_iface: pointer to the interface
+ * @ch_idx: corresponding channel ID
+ * @on_netinfo: call-back used to deliver network status to mostcore
+>>>>>>> upstream/android-13
  *
  * Send a command to INIC which triggers retrieving of network info by means of
  * "Message exchange over MDP/MEP". Return 0 on success, negative on failure.
@@ -641,8 +705,13 @@ static void request_netinfo(struct most_interface *most_iface, int ch_idx,
 
 /**
  * poison_channel - poison buffers of a channel
+<<<<<<< HEAD
  * @iface: pointer to the interface the channel to be poisoned belongs to
  * @channel_id: corresponding channel ID
+=======
+ * @most_iface: pointer to the interface the channel to be poisoned belongs to
+ * @ch_idx: corresponding channel ID
+>>>>>>> upstream/android-13
  *
  * Destroy a channel and complete all the buffers in both started_list &
  * pending_list. Return 0 on success, negative on failure.
@@ -733,6 +802,26 @@ static int get_dim2_clk_speed(const char *clock_speed, u8 *val)
 	return -EINVAL;
 }
 
+<<<<<<< HEAD
+=======
+static void dim2_release(struct device *d)
+{
+	struct dim2_hdm *dev = container_of(d, struct dim2_hdm, dev);
+	unsigned long flags;
+
+	kthread_stop(dev->netinfo_task);
+
+	spin_lock_irqsave(&dim_lock, flags);
+	dim_shutdown();
+	spin_unlock_irqrestore(&dim_lock, flags);
+
+	if (dev->disable_platform)
+		dev->disable_platform(to_platform_device(d->parent));
+
+	kfree(dev);
+}
+
+>>>>>>> upstream/android-13
 /*
  * dim2_probe - dim2 probe handler
  * @pdev: platform device structure
@@ -753,7 +842,11 @@ static int dim2_probe(struct platform_device *pdev)
 
 	enum { MLB_INT_IDX, AHB0_INT_IDX };
 
+<<<<<<< HEAD
 	dev = devm_kzalloc(&pdev->dev, sizeof(*dev), GFP_KERNEL);
+=======
+	dev = kzalloc(sizeof(*dev), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!dev)
 		return -ENOMEM;
 
@@ -765,25 +858,44 @@ static int dim2_probe(struct platform_device *pdev)
 				      "microchip,clock-speed", &clock_speed);
 	if (ret) {
 		dev_err(&pdev->dev, "missing dt property clock-speed\n");
+<<<<<<< HEAD
 		return ret;
+=======
+		goto err_free_dev;
+>>>>>>> upstream/android-13
 	}
 
 	ret = get_dim2_clk_speed(clock_speed, &dev->clk_speed);
 	if (ret) {
 		dev_err(&pdev->dev, "bad dt property clock-speed\n");
+<<<<<<< HEAD
 		return ret;
+=======
+		goto err_free_dev;
+>>>>>>> upstream/android-13
 	}
 
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	dev->io_base = devm_ioremap_resource(&pdev->dev, res);
+<<<<<<< HEAD
 	if (IS_ERR(dev->io_base))
 		return PTR_ERR(dev->io_base);
+=======
+	if (IS_ERR(dev->io_base)) {
+		ret = PTR_ERR(dev->io_base);
+		goto err_free_dev;
+	}
+>>>>>>> upstream/android-13
 
 	of_id = of_match_node(dim2_of_match, pdev->dev.of_node);
 	pdata = of_id->data;
 	ret = pdata && pdata->enable ? pdata->enable(pdev) : 0;
 	if (ret)
+<<<<<<< HEAD
 		return ret;
+=======
+		goto err_free_dev;
+>>>>>>> upstream/android-13
 
 	dev->disable_platform = pdata ? pdata->disable : NULL;
 
@@ -797,7 +909,10 @@ static int dim2_probe(struct platform_device *pdev)
 
 	irq = platform_get_irq(pdev, AHB0_INT_IDX);
 	if (irq < 0) {
+<<<<<<< HEAD
 		dev_err(&pdev->dev, "failed to get ahb0_int irq: %d\n", irq);
+=======
+>>>>>>> upstream/android-13
 		ret = irq;
 		goto err_shutdown_dim;
 	}
@@ -811,7 +926,10 @@ static int dim2_probe(struct platform_device *pdev)
 
 	irq = platform_get_irq(pdev, MLB_INT_IDX);
 	if (irq < 0) {
+<<<<<<< HEAD
 		dev_err(&pdev->dev, "failed to get mlb_int irq: %d\n", irq);
+=======
+>>>>>>> upstream/android-13
 		ret = irq;
 		goto err_shutdown_dim;
 	}
@@ -875,6 +993,7 @@ static int dim2_probe(struct platform_device *pdev)
 	dev->most_iface.poison_channel = poison_channel;
 	dev->most_iface.request_netinfo = request_netinfo;
 	dev->most_iface.driver_dev = &pdev->dev;
+<<<<<<< HEAD
 	dev->dev.init_name = "dim2_state";
 	dev->dev.parent = &dev->most_iface.dev;
 
@@ -896,11 +1015,25 @@ err_unreg_iface:
 	most_deregister_interface(&dev->most_iface);
 err_stop_thread:
 	kthread_stop(dev->netinfo_task);
+=======
+	dev->most_iface.dev = &dev->dev;
+	dev->dev.init_name = dev->name;
+	dev->dev.parent = &pdev->dev;
+	dev->dev.release = dim2_release;
+
+	return most_register_interface(&dev->most_iface);
+
+>>>>>>> upstream/android-13
 err_shutdown_dim:
 	dim_shutdown();
 err_disable_platform:
 	if (dev->disable_platform)
 		dev->disable_platform(pdev);
+<<<<<<< HEAD
+=======
+err_free_dev:
+	kfree(dev);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -914,6 +1047,7 @@ err_disable_platform:
 static int dim2_remove(struct platform_device *pdev)
 {
 	struct dim2_hdm *dev = platform_get_drvdata(pdev);
+<<<<<<< HEAD
 	unsigned long flags;
 
 	dim2_sysfs_destroy(&dev->dev);
@@ -926,6 +1060,10 @@ static int dim2_remove(struct platform_device *pdev)
 
 	if (dev->disable_platform)
 		dev->disable_platform(pdev);
+=======
+
+	most_deregister_interface(&dev->most_iface);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -1100,6 +1238,10 @@ static struct platform_driver dim2_driver = {
 	.driver = {
 		.name = "hdm_dim2",
 		.of_match_table = dim2_of_match,
+<<<<<<< HEAD
+=======
+		.dev_groups = dim2_groups,
+>>>>>>> upstream/android-13
 	},
 };
 

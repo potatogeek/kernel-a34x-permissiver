@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  WonderMedia WM8505 Frame Buffer device driver
  *
  *  Copyright (C) 2010 Ed Spiridonov <edo.rus@gmail.com>
  *    Based on vt8500lcdfb.c
+<<<<<<< HEAD
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -12,6 +17,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/delay.h>
@@ -184,6 +191,15 @@ static ssize_t contrast_store(struct device *dev,
 
 static DEVICE_ATTR_RW(contrast);
 
+<<<<<<< HEAD
+=======
+static struct attribute *wm8505fb_attrs[] = {
+	&dev_attr_contrast.attr,
+	NULL,
+};
+ATTRIBUTE_GROUPS(wm8505fb);
+
+>>>>>>> upstream/android-13
 static inline u_int chan_to_field(u_int chan, struct fb_bitfield *bf)
 {
 	chan &= 0xffff;
@@ -248,7 +264,11 @@ static int wm8505fb_blank(int blank, struct fb_info *info)
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct fb_ops wm8505fb_ops = {
+=======
+static const struct fb_ops wm8505fb_ops = {
+>>>>>>> upstream/android-13
 	.owner		= THIS_MODULE,
 	.fb_set_par	= wm8505fb_set_par,
 	.fb_setcolreg	= wm8505fb_setcolreg,
@@ -341,7 +361,11 @@ static int wm8505fb_probe(struct platform_device *pdev)
 
 	fbi->fb.fix.smem_start		= fb_mem_phys;
 	fbi->fb.fix.smem_len		= fb_mem_len;
+<<<<<<< HEAD
 	fbi->fb.screen_base		= fb_mem_virt;
+=======
+	fbi->fb.screen_buffer		= fb_mem_virt;
+>>>>>>> upstream/android-13
 	fbi->fb.screen_size		= fb_mem_len;
 
 	fbi->contrast = 0x10;
@@ -369,10 +393,13 @@ static int wm8505fb_probe(struct platform_device *pdev)
 		return ret;
 	}
 
+<<<<<<< HEAD
 	ret = device_create_file(&pdev->dev, &dev_attr_contrast);
 	if (ret < 0)
 		fb_warn(&fbi->fb, "failed to register attributes (%d)\n", ret);
 
+=======
+>>>>>>> upstream/android-13
 	fb_info(&fbi->fb, "%s frame buffer at 0x%lx-0x%lx\n",
 		fbi->fb.fix.id, fbi->fb.fix.smem_start,
 		fbi->fb.fix.smem_start + fbi->fb.fix.smem_len - 1);
@@ -384,8 +411,11 @@ static int wm8505fb_remove(struct platform_device *pdev)
 {
 	struct wm8505fb_info *fbi = platform_get_drvdata(pdev);
 
+<<<<<<< HEAD
 	device_remove_file(&pdev->dev, &dev_attr_contrast);
 
+=======
+>>>>>>> upstream/android-13
 	unregister_framebuffer(&fbi->fb);
 
 	writel(0, fbi->regbase);
@@ -407,6 +437,10 @@ static struct platform_driver wm8505fb_driver = {
 	.driver		= {
 		.name	= DRIVER_NAME,
 		.of_match_table = wmt_dt_ids,
+<<<<<<< HEAD
+=======
+		.dev_groups	= wm8505fb_groups,
+>>>>>>> upstream/android-13
 	},
 };
 

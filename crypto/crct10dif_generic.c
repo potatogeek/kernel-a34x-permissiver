@@ -35,7 +35,11 @@ struct chksum_desc_ctx {
 };
 
 /*
+<<<<<<< HEAD
  * Steps through buffer one byte at at time, calculates reflected
+=======
+ * Steps through buffer one byte at a time, calculates reflected
+>>>>>>> upstream/android-13
  * crc using table.
  */
 
@@ -112,7 +116,11 @@ static void __exit crct10dif_mod_fini(void)
 	crypto_unregister_shash(&alg);
 }
 
+<<<<<<< HEAD
 module_init(crct10dif_mod_init);
+=======
+subsys_initcall(crct10dif_mod_init);
+>>>>>>> upstream/android-13
 module_exit(crct10dif_mod_fini);
 
 MODULE_AUTHOR("Tim Chen <tim.c.chen@linux.intel.com>");

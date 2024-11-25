@@ -1,21 +1,36 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * x64 SIMD accelerated ChaCha and XChaCha stream ciphers,
  * including ChaCha20 (RFC7539)
  *
  * Copyright (C) 2015 Martin Willi
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <crypto/algapi.h>
 #include <crypto/internal/chacha.h>
+<<<<<<< HEAD
 #include <crypto/internal/skcipher.h>
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <asm/fpu/api.h>
+=======
+#include <crypto/internal/simd.h>
+#include <crypto/internal/skcipher.h>
+#include <linux/kernel.h>
+#include <linux/module.h>
+#include <linux/sizes.h>
+>>>>>>> upstream/android-13
 #include <asm/simd.h>
 
 asmlinkage void chacha_block_xor_ssse3(u32 *state, u8 *dst, const u8 *src,
@@ -81,8 +96,12 @@ static void chacha_dosimd(u32 *state, u8 *dst, const u8 *src,
 		}
 	}
 
+<<<<<<< HEAD
 	if (IS_ENABLED(CONFIG_AS_AVX2) &&
 	    static_branch_likely(&chacha_use_avx2)) {
+=======
+	if (static_branch_likely(&chacha_use_avx2)) {
+>>>>>>> upstream/android-13
 		while (bytes >= CHACHA_BLOCK_SIZE * 8) {
 			chacha_8block_xor_avx2(state, dst, src, bytes, nrounds);
 			bytes -= CHACHA_BLOCK_SIZE * 8;
@@ -127,7 +146,11 @@ static void chacha_dosimd(u32 *state, u8 *dst, const u8 *src,
 
 void hchacha_block_arch(const u32 *state, u32 *stream, int nrounds)
 {
+<<<<<<< HEAD
 	if (!static_branch_likely(&chacha_use_simd) || !may_use_simd()) {
+=======
+	if (!static_branch_likely(&chacha_use_simd) || !crypto_simd_usable()) {
+>>>>>>> upstream/android-13
 		hchacha_block_generic(state, stream, nrounds);
 	} else {
 		kernel_fpu_begin();
@@ -146,7 +169,11 @@ EXPORT_SYMBOL(chacha_init_arch);
 void chacha_crypt_arch(u32 *state, u8 *dst, const u8 *src, unsigned int bytes,
 		       int nrounds)
 {
+<<<<<<< HEAD
 	if (!static_branch_likely(&chacha_use_simd) || !may_use_simd() ||
+=======
+	if (!static_branch_likely(&chacha_use_simd) || !crypto_simd_usable() ||
+>>>>>>> upstream/android-13
 	    bytes <= CHACHA_BLOCK_SIZE)
 		return chacha_crypt_generic(state, dst, src, bytes, nrounds);
 
@@ -182,7 +209,11 @@ static int chacha_simd_stream_xor(struct skcipher_request *req,
 			nbytes = round_down(nbytes, walk.stride);
 
 		if (!static_branch_likely(&chacha_use_simd) ||
+<<<<<<< HEAD
 		    !may_use_simd()) {
+=======
+		    !crypto_simd_usable()) {
+>>>>>>> upstream/android-13
 			chacha_crypt_generic(state, walk.dst.virt.addr,
 					     walk.src.virt.addr, nbytes,
 					     ctx->nrounds);
@@ -217,7 +248,11 @@ static int xchacha_simd(struct skcipher_request *req)
 
 	chacha_init_generic(state, ctx->key, req->iv);
 
+<<<<<<< HEAD
 	if (req->cryptlen > CHACHA_BLOCK_SIZE && irq_fpu_usable()) {
+=======
+	if (req->cryptlen > CHACHA_BLOCK_SIZE && crypto_simd_usable()) {
+>>>>>>> upstream/android-13
 		kernel_fpu_begin();
 		hchacha_block_ssse3(state, subctx.key, ctx->nrounds);
 		kernel_fpu_end();
@@ -287,8 +322,12 @@ static int __init chacha_simd_mod_init(void)
 
 	static_branch_enable(&chacha_use_simd);
 
+<<<<<<< HEAD
 	if (IS_ENABLED(CONFIG_AS_AVX2) &&
 	    boot_cpu_has(X86_FEATURE_AVX) &&
+=======
+	if (boot_cpu_has(X86_FEATURE_AVX) &&
+>>>>>>> upstream/android-13
 	    boot_cpu_has(X86_FEATURE_AVX2) &&
 	    cpu_has_xfeatures(XFEATURE_MASK_SSE | XFEATURE_MASK_YMM, NULL)) {
 		static_branch_enable(&chacha_use_avx2);
@@ -298,13 +337,21 @@ static int __init chacha_simd_mod_init(void)
 		    boot_cpu_has(X86_FEATURE_AVX512BW)) /* kmovq */
 			static_branch_enable(&chacha_use_avx512vl);
 	}
+<<<<<<< HEAD
 	return IS_REACHABLE(CONFIG_CRYPTO_BLKCIPHER) ?
+=======
+	return IS_REACHABLE(CONFIG_CRYPTO_SKCIPHER) ?
+>>>>>>> upstream/android-13
 		crypto_register_skciphers(algs, ARRAY_SIZE(algs)) : 0;
 }
 
 static void __exit chacha_simd_mod_fini(void)
 {
+<<<<<<< HEAD
 	if (IS_REACHABLE(CONFIG_CRYPTO_BLKCIPHER) && boot_cpu_has(X86_FEATURE_SSSE3))
+=======
+	if (IS_REACHABLE(CONFIG_CRYPTO_SKCIPHER) && boot_cpu_has(X86_FEATURE_SSSE3))
+>>>>>>> upstream/android-13
 		crypto_unregister_skciphers(algs, ARRAY_SIZE(algs));
 }
 

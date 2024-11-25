@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * at91sam9g20.dtsi - Device Tree Include file for AT91SAM9G20 family SoC
  *
  *  Copyright (C) 2012 Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+<<<<<<< HEAD
  *
  * Licensed under GPLv2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "at91sam9260.dtsi"
@@ -12,7 +19,11 @@
 	model = "Atmel AT91SAM9G20 family SoC";
 	compatible = "atmel,at91sam9g20";
 
+<<<<<<< HEAD
 	memory {
+=======
+	memory@20000000 {
+>>>>>>> upstream/android-13
 		reg = <0x20000000 0x08000000>;
 	};
 
@@ -23,6 +34,12 @@
 	sram1: sram@2fc000 {
 		compatible = "mmio-sram";
 		reg = <0x002fc000 0x8000>;
+<<<<<<< HEAD
+=======
+		#address-cells = <1>;
+		#size-cells = <1>;
+		ranges = <0 0x002fc000 0x8000>;
+>>>>>>> upstream/android-13
 	};
 
 	ahb {
@@ -40,6 +57,7 @@
 			};
 
 			pmc: pmc@fffffc00 {
+<<<<<<< HEAD
 				plla: pllack {
 					atmel,clk-input-range = <2000000 32000000>;
 					atmel,pll-clk-output-ranges = <745000000 800000000 0 0>,
@@ -62,6 +80,9 @@
 					atmel,clk-output-range = <0 133000000>;
 					atmel,clk-divisors = <1 2 4 6>;
 				};
+=======
+				compatible = "atmel,at91sam9g20-pmc", "atmel,at91sam9260-pmc", "syscon";
+>>>>>>> upstream/android-13
 			};
 		};
 	};

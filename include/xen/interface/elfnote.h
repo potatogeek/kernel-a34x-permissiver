@@ -208,6 +208,7 @@
 #define XEN_ELFNOTE_MAX XEN_ELFNOTE_PHYS32_ENTRY
 
 #endif /* __XEN_PUBLIC_ELFNOTE_H__ */
+<<<<<<< HEAD
 
 /*
  * Local variables:
@@ -218,3 +219,5 @@
  * indent-tabs-mode: nil
  * End:
  */
+=======
+>>>>>>> upstream/android-13

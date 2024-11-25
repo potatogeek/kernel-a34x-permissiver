@@ -103,7 +103,11 @@ static int prism2sta_open(struct wlandevice *wlandev);
 static int prism2sta_close(struct wlandevice *wlandev);
 static void prism2sta_reset(struct wlandevice *wlandev);
 static int prism2sta_txframe(struct wlandevice *wlandev, struct sk_buff *skb,
+<<<<<<< HEAD
 			     union p80211_hdr *p80211_hdr,
+=======
+			     struct p80211_hdr *p80211_hdr,
+>>>>>>> upstream/android-13
 			     struct p80211_metawep *p80211_wep);
 static int prism2sta_mlmerequest(struct wlandevice *wlandev,
 				 struct p80211msg *msg);
@@ -242,7 +246,11 @@ static void prism2sta_reset(struct wlandevice *wlandev)
  *	process thread
  */
 static int prism2sta_txframe(struct wlandevice *wlandev, struct sk_buff *skb,
+<<<<<<< HEAD
 			     union p80211_hdr *p80211_hdr,
+=======
+			     struct p80211_hdr *p80211_hdr,
+>>>>>>> upstream/android-13
 			     struct p80211_metawep *p80211_wep)
 {
 	struct hfa384x *hw = wlandev->priv;
@@ -250,7 +258,11 @@ static int prism2sta_txframe(struct wlandevice *wlandev, struct sk_buff *skb,
 	/* If necessary, set the 802.11 WEP bit */
 	if ((wlandev->hostwep & (HOSTWEP_PRIVACYINVOKED | HOSTWEP_ENCRYPT)) ==
 	    HOSTWEP_PRIVACYINVOKED) {
+<<<<<<< HEAD
 		p80211_hdr->a3.fc |= cpu_to_le16(WLAN_SET_FC_ISWEP(1));
+=======
+		p80211_hdr->frame_control |= cpu_to_le16(WLAN_SET_FC_ISWEP(1));
+>>>>>>> upstream/android-13
 	}
 
 	return hfa384x_drvr_txframe(hw, skb, p80211_hdr, p80211_wep);
@@ -288,6 +300,7 @@ static int prism2sta_mlmerequest(struct wlandevice *wlandev,
 	int result = 0;
 
 	switch (msg->msgcode) {
+<<<<<<< HEAD
 	case DIDmsg_dot11req_mibget:
 		pr_debug("Received mibget request\n");
 		result = prism2mgmt_mibset_mibget(wlandev, msg);
@@ -305,12 +318,32 @@ static int prism2sta_mlmerequest(struct wlandevice *wlandev,
 		result = prism2mgmt_scan_results(wlandev, msg);
 		break;
 	case DIDmsg_dot11req_start:
+=======
+	case DIDMSG_DOT11REQ_MIBGET:
+		pr_debug("Received mibget request\n");
+		result = prism2mgmt_mibset_mibget(wlandev, msg);
+		break;
+	case DIDMSG_DOT11REQ_MIBSET:
+		pr_debug("Received mibset request\n");
+		result = prism2mgmt_mibset_mibget(wlandev, msg);
+		break;
+	case DIDMSG_DOT11REQ_SCAN:
+		pr_debug("Received scan request\n");
+		result = prism2mgmt_scan(wlandev, msg);
+		break;
+	case DIDMSG_DOT11REQ_SCAN_RESULTS:
+		pr_debug("Received scan_results request\n");
+		result = prism2mgmt_scan_results(wlandev, msg);
+		break;
+	case DIDMSG_DOT11REQ_START:
+>>>>>>> upstream/android-13
 		pr_debug("Received mlme start request\n");
 		result = prism2mgmt_start(wlandev, msg);
 		break;
 		/*
 		 * Prism2 specific messages
 		 */
+<<<<<<< HEAD
 	case DIDmsg_p2req_readpda:
 		pr_debug("Received mlme readpda request\n");
 		result = prism2mgmt_readpda(wlandev, msg);
@@ -328,12 +361,32 @@ static int prism2sta_mlmerequest(struct wlandevice *wlandev,
 		result = prism2mgmt_flashdl_state(wlandev, msg);
 		break;
 	case DIDmsg_p2req_flashdl_write:
+=======
+	case DIDMSG_P2REQ_READPDA:
+		pr_debug("Received mlme readpda request\n");
+		result = prism2mgmt_readpda(wlandev, msg);
+		break;
+	case DIDMSG_P2REQ_RAMDL_STATE:
+		pr_debug("Received mlme ramdl_state request\n");
+		result = prism2mgmt_ramdl_state(wlandev, msg);
+		break;
+	case DIDMSG_P2REQ_RAMDL_WRITE:
+		pr_debug("Received mlme ramdl_write request\n");
+		result = prism2mgmt_ramdl_write(wlandev, msg);
+		break;
+	case DIDMSG_P2REQ_FLASHDL_STATE:
+		pr_debug("Received mlme flashdl_state request\n");
+		result = prism2mgmt_flashdl_state(wlandev, msg);
+		break;
+	case DIDMSG_P2REQ_FLASHDL_WRITE:
+>>>>>>> upstream/android-13
 		pr_debug("Received mlme flashdl_write request\n");
 		result = prism2mgmt_flashdl_write(wlandev, msg);
 		break;
 		/*
 		 * Linux specific messages
 		 */
+<<<<<<< HEAD
 	case DIDmsg_lnxreq_hostwep:
 		break;		/* ignore me. */
 	case DIDmsg_lnxreq_ifstate:
@@ -381,6 +434,49 @@ static int prism2sta_mlmerequest(struct wlandevice *wlandev,
 
 			break;
 		}
+=======
+	case DIDMSG_LNXREQ_HOSTWEP:
+		break;		/* ignore me. */
+	case DIDMSG_LNXREQ_IFSTATE: {
+		struct p80211msg_lnxreq_ifstate *ifstatemsg;
+
+		pr_debug("Received mlme ifstate request\n");
+		ifstatemsg = (struct p80211msg_lnxreq_ifstate *)msg;
+		result = prism2sta_ifstate(wlandev,
+					   ifstatemsg->ifstate.data);
+		ifstatemsg->resultcode.status =
+			P80211ENUM_msgitem_status_data_ok;
+		ifstatemsg->resultcode.data = result;
+		result = 0;
+		break;
+	}
+	case DIDMSG_LNXREQ_WLANSNIFF:
+		pr_debug("Received mlme wlansniff request\n");
+		result = prism2mgmt_wlansniff(wlandev, msg);
+		break;
+	case DIDMSG_LNXREQ_AUTOJOIN:
+		pr_debug("Received mlme autojoin request\n");
+		result = prism2mgmt_autojoin(wlandev, msg);
+		break;
+	case DIDMSG_LNXREQ_COMMSQUALITY: {
+		struct p80211msg_lnxreq_commsquality *qualmsg;
+
+		pr_debug("Received commsquality request\n");
+
+		qualmsg = (struct p80211msg_lnxreq_commsquality *)msg;
+
+		qualmsg->link.status = P80211ENUM_msgitem_status_data_ok;
+		qualmsg->level.status = P80211ENUM_msgitem_status_data_ok;
+		qualmsg->noise.status = P80211ENUM_msgitem_status_data_ok;
+
+		qualmsg->link.data = le16_to_cpu(hw->qual.cq_curr_bss);
+		qualmsg->level.data = le16_to_cpu(hw->qual.asl_curr_bss);
+		qualmsg->noise.data = le16_to_cpu(hw->qual.anl_curr_fc);
+		qualmsg->txrate.data = hw->txrate;
+
+		break;
+	}
+>>>>>>> upstream/android-13
 	default:
 		netdev_warn(wlandev->netdev,
 			    "Unknown mgmt request message 0x%08x",
@@ -467,7 +563,11 @@ u32 prism2sta_ifstate(struct wlandevice *wlandev, u32 ifstate)
 		case WLAN_MSD_FWLOAD:
 			wlandev->msdstate = WLAN_MSD_RUNNING_PENDING;
 			/* Initialize the device+driver for full
+<<<<<<< HEAD
 			 * operation. Note that this might me an FWLOAD to
+=======
+			 * operation. Note that this might me an FWLOAD
+>>>>>>> upstream/android-13
 			 * to RUNNING transition so we must not do a chip
 			 * or board level reset.  Note that on failure,
 			 * the MSD state is set to HWPRESENT because we
@@ -852,7 +952,11 @@ static int prism2sta_getcardinfo(struct wlandevice *wlandev)
 	result = hfa384x_drvr_getconfig(hw, HFA384x_RID_NICSERIALNUMBER,
 					snum, HFA384x_RID_NICSERIALNUMBER_LEN);
 	if (!result) {
+<<<<<<< HEAD
 		netdev_info(wlandev->netdev, "Prism2 card SN: %*pEhp\n",
+=======
+		netdev_info(wlandev->netdev, "Prism2 card SN: %*pE\n",
+>>>>>>> upstream/android-13
 			    HFA384x_RID_NICSERIALNUMBER_LEN, snum);
 	} else {
 		netdev_err(wlandev->netdev, "Failed to retrieve Prism2 Card SN\n");
@@ -1358,7 +1462,11 @@ void prism2sta_processing_defer(struct work_struct *data)
 		 * we get back in range.  We should block transmits and
 		 * receives in this state.  Do we need an indication here?
 		 * Probably not since a polling user-mode element would
+<<<<<<< HEAD
 		 * get this status from from p2PortStatus(FD40). What about
+=======
+		 * get this status from p2PortStatus(FD40). What about
+>>>>>>> upstream/android-13
 		 * p80211?
 		 * Response:
 		 * Block Transmits, Ignore receives of data frames
@@ -1949,8 +2057,13 @@ void prism2sta_commsqual_defer(struct work_struct *data)
 	}
 
 	/* Get the signal rate */
+<<<<<<< HEAD
 	msg.msgcode = DIDmsg_dot11req_mibget;
 	mibitem->did = DIDmib_p2_p2MAC_p2CurrentTxRate;
+=======
+	msg.msgcode = DIDMSG_DOT11REQ_MIBGET;
+	mibitem->did = DIDMIB_P2_MAC_CURRENTTXRATE;
+>>>>>>> upstream/android-13
 	result = p80211req_dorequest(wlandev, (u8 *)&msg);
 
 	if (result) {

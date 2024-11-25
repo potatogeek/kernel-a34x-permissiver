@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Copyright 2008 Freescale Semiconductor, Inc. All Rights Reserved.
  *
@@ -9,12 +13,15 @@
  *           York Sun <yorksun@freescale.com>
  *
  *   Based on imxfb.c Copyright (C) 2004 S.Hauer, Pengutronix
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -1292,6 +1299,10 @@ static int fsl_diu_ioctl(struct fb_info *info, unsigned int cmd,
 		dev_warn(info->dev,
 			 "MFB_SET_PIXFMT value of 0x%08x is deprecated.\n",
 			 MFB_SET_PIXFMT_OLD);
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case MFB_SET_PIXFMT:
 		if (copy_from_user(&pix_fmt, buf, sizeof(pix_fmt)))
 			return -EFAULT;
@@ -1301,6 +1312,10 @@ static int fsl_diu_ioctl(struct fb_info *info, unsigned int cmd,
 		dev_warn(info->dev,
 			 "MFB_GET_PIXFMT value of 0x%08x is deprecated.\n",
 			 MFB_GET_PIXFMT_OLD);
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case MFB_GET_PIXFMT:
 		pix_fmt = ad->pix_fmt;
 		if (copy_to_user(buf, &pix_fmt, sizeof(pix_fmt)))
@@ -1428,7 +1443,10 @@ static int fsl_diu_open(struct fb_info *info, int user)
 static int fsl_diu_release(struct fb_info *info, int user)
 {
 	struct mfb_info *mfbi = info->par;
+<<<<<<< HEAD
 	int res = 0;
+=======
+>>>>>>> upstream/android-13
 
 	spin_lock(&diu_lock);
 	mfbi->count--;
@@ -1450,10 +1468,17 @@ static int fsl_diu_release(struct fb_info *info, int user)
 	}
 
 	spin_unlock(&diu_lock);
+<<<<<<< HEAD
 	return res;
 }
 
 static struct fb_ops fsl_diu_ops = {
+=======
+	return 0;
+}
+
+static const struct fb_ops fsl_diu_ops = {
+>>>>>>> upstream/android-13
 	.owner = THIS_MODULE,
 	.fb_check_var = fsl_diu_check_var,
 	.fb_set_par = fsl_diu_set_par,
@@ -1575,8 +1600,12 @@ static void uninstall_fb(struct fb_info *info)
 
 	unregister_framebuffer(info);
 	unmap_video_memory(info);
+<<<<<<< HEAD
 	if (&info->cmap)
 		fb_dealloc_cmap(&info->cmap);
+=======
+	fb_dealloc_cmap(&info->cmap);
+>>>>>>> upstream/android-13
 
 	mfbi->registered = 0;
 }
@@ -1925,7 +1954,11 @@ static int __init fsl_diu_init(void)
 	pr_info("Freescale Display Interface Unit (DIU) framebuffer driver\n");
 
 #ifdef CONFIG_NOT_COHERENT_CACHE
+<<<<<<< HEAD
 	np = of_find_node_by_type(NULL, "cpu");
+=======
+	np = of_get_cpu_node(0, NULL);
+>>>>>>> upstream/android-13
 	if (!np) {
 		pr_err("fsl-diu-fb: can't find 'cpu' device node\n");
 		return -ENODEV;

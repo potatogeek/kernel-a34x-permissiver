@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * PCM179X ASoC SPI driver
  *
  * Copyright (c) Amarula Solutions B.V. 2013
  *
  *     Michael Trimarchi <michael@amarulasolutions.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -14,6 +19,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -45,6 +52,10 @@ static const struct of_device_id pcm179x_of_match[] = {
 MODULE_DEVICE_TABLE(of, pcm179x_of_match);
 
 static const struct spi_device_id pcm179x_spi_ids[] = {
+<<<<<<< HEAD
+=======
+	{ "pcm1792a", 0 },
+>>>>>>> upstream/android-13
 	{ "pcm179x", 0 },
 	{ },
 };

@@ -26,6 +26,7 @@ void xchk_btree_xref_set_corrupt(struct xfs_scrub *sc,
 
 struct xchk_btree;
 typedef int (*xchk_btree_rec_fn)(
+<<<<<<< HEAD
 	struct xchk_btree	*bs,
 	union xfs_btree_rec	*rec);
 
@@ -46,6 +47,28 @@ struct xchk_btree {
 };
 int xchk_btree(struct xfs_scrub *sc, struct xfs_btree_cur *cur,
 		xchk_btree_rec_fn scrub_fn, struct xfs_owner_info *oinfo,
+=======
+	struct xchk_btree		*bs,
+	const union xfs_btree_rec	*rec);
+
+struct xchk_btree {
+	/* caller-provided scrub state */
+	struct xfs_scrub		*sc;
+	struct xfs_btree_cur		*cur;
+	xchk_btree_rec_fn		scrub_rec;
+	const struct xfs_owner_info	*oinfo;
+	void				*private;
+
+	/* internal scrub state */
+	union xfs_btree_rec		lastrec;
+	bool				firstrec;
+	union xfs_btree_key		lastkey[XFS_BTREE_MAXLEVELS];
+	bool				firstkey[XFS_BTREE_MAXLEVELS];
+	struct list_head		to_check;
+};
+int xchk_btree(struct xfs_scrub *sc, struct xfs_btree_cur *cur,
+		xchk_btree_rec_fn scrub_fn, const struct xfs_owner_info *oinfo,
+>>>>>>> upstream/android-13
 		void *private);
 
 #endif /* __XFS_SCRUB_BTREE_H__ */

@@ -16,10 +16,15 @@
 #include <asm/barrier.h>
 #include <asm/compiler.h>
 #include <asm/errno.h>
+<<<<<<< HEAD
+=======
+#include <asm/sync.h>
+>>>>>>> upstream/android-13
 #include <asm/war.h>
 
 #define __futex_atomic_op(insn, ret, oldval, uaddr, oparg)		\
 {									\
+<<<<<<< HEAD
 	if (cpu_has_llsc && R10000_LLSC_WAR) {				\
 		__asm__ __volatile__(					\
 		"	.set	push				\n"	\
@@ -27,15 +32,32 @@
 		"	.set	arch=r4000			\n"	\
 		"1:	ll	%1, %4	# __futex_atomic_op	\n"	\
 		"	.set	mips0				\n"	\
+=======
+	if (cpu_has_llsc && IS_ENABLED(CONFIG_WAR_R10000_LLSC)) {	\
+		__asm__ __volatile__(					\
+		"	.set	push				\n"	\
+		"	.set	noat				\n"	\
+		"	.set	push				\n"	\
+		"	.set	arch=r4000			\n"	\
+		"1:	ll	%1, %4	# __futex_atomic_op	\n"	\
+		"	.set	pop				\n"	\
+>>>>>>> upstream/android-13
 		"	" insn	"				\n"	\
 		"	.set	arch=r4000			\n"	\
 		"2:	sc	$1, %2				\n"	\
 		"	beqzl	$1, 1b				\n"	\
+<<<<<<< HEAD
 		__WEAK_LLSC_MB						\
 		"3:						\n"	\
 		"	.insn					\n"	\
 		"	.set	pop				\n"	\
 		"	.set	mips0				\n"	\
+=======
+		__stringify(__WEAK_LLSC_MB) "			\n"	\
+		"3:						\n"	\
+		"	.insn					\n"	\
+		"	.set	pop				\n"	\
+>>>>>>> upstream/android-13
 		"	.section .fixup,\"ax\"			\n"	\
 		"4:	li	%0, %6				\n"	\
 		"	j	3b				\n"	\
@@ -53,18 +75,33 @@
 		__asm__ __volatile__(					\
 		"	.set	push				\n"	\
 		"	.set	noat				\n"	\
+<<<<<<< HEAD
 		"	.set	"MIPS_ISA_ARCH_LEVEL"		\n"	\
 		"1:	"user_ll("%1", "%4")" # __futex_atomic_op\n"	\
 		"	.set	mips0				\n"	\
+=======
+		"	.set	push				\n"	\
+		"	.set	"MIPS_ISA_ARCH_LEVEL"		\n"	\
+		"	" __SYNC(full, loongson3_war) "		\n"	\
+		"1:	"user_ll("%1", "%4")" # __futex_atomic_op\n"	\
+		"	.set	pop				\n"	\
+>>>>>>> upstream/android-13
 		"	" insn	"				\n"	\
 		"	.set	"MIPS_ISA_ARCH_LEVEL"		\n"	\
 		"2:	"user_sc("$1", "%2")"			\n"	\
 		"	beqz	$1, 1b				\n"	\
+<<<<<<< HEAD
 		__WEAK_LLSC_MB						\
 		"3:						\n"	\
 		"	.insn					\n"	\
 		"	.set	pop				\n"	\
 		"	.set	mips0				\n"	\
+=======
+		__stringify(__WEAK_LLSC_MB) "			\n"	\
+		"3:						\n"	\
+		"	.insn					\n"	\
+		"	.set	pop				\n"	\
+>>>>>>> upstream/android-13
 		"	.section .fixup,\"ax\"			\n"	\
 		"4:	li	%0, %6				\n"	\
 		"	j	3b				\n"	\
@@ -87,7 +124,12 @@ arch_futex_atomic_op_inuser(int op, int oparg, int *oval, u32 __user *uaddr)
 {
 	int oldval = 0, ret;
 
+<<<<<<< HEAD
 	pagefault_disable();
+=======
+	if (!access_ok(uaddr, sizeof(u32)))
+		return -EFAULT;
+>>>>>>> upstream/android-13
 
 	switch (op) {
 	case FUTEX_OP_SET:
@@ -114,8 +156,11 @@ arch_futex_atomic_op_inuser(int op, int oparg, int *oval, u32 __user *uaddr)
 		ret = -ENOSYS;
 	}
 
+<<<<<<< HEAD
 	pagefault_enable();
 
+=======
+>>>>>>> upstream/android-13
 	if (!ret)
 		*oval = oldval;
 
@@ -129,23 +174,42 @@ futex_atomic_cmpxchg_inatomic(u32 *uval, u32 __user *uaddr,
 	int ret = 0;
 	u32 val;
 
+<<<<<<< HEAD
 	if (!access_ok(VERIFY_WRITE, uaddr, sizeof(u32)))
 		return -EFAULT;
 
 	if (cpu_has_llsc && R10000_LLSC_WAR) {
+=======
+	if (!access_ok(uaddr, sizeof(u32)))
+		return -EFAULT;
+
+	if (cpu_has_llsc && IS_ENABLED(CONFIG_WAR_R10000_LLSC)) {
+>>>>>>> upstream/android-13
 		__asm__ __volatile__(
 		"# futex_atomic_cmpxchg_inatomic			\n"
 		"	.set	push					\n"
 		"	.set	noat					\n"
+<<<<<<< HEAD
 		"	.set	arch=r4000				\n"
 		"1:	ll	%1, %3					\n"
 		"	bne	%1, %z4, 3f				\n"
 		"	.set	mips0					\n"
+=======
+		"	.set	push					\n"
+		"	.set	arch=r4000				\n"
+		"1:	ll	%1, %3					\n"
+		"	bne	%1, %z4, 3f				\n"
+		"	.set	pop					\n"
+>>>>>>> upstream/android-13
 		"	move	$1, %z5					\n"
 		"	.set	arch=r4000				\n"
 		"2:	sc	$1, %2					\n"
 		"	beqzl	$1, 1b					\n"
+<<<<<<< HEAD
 		__WEAK_LLSC_MB
+=======
+		__stringify(__WEAK_LLSC_MB) "				\n"
+>>>>>>> upstream/android-13
 		"3:							\n"
 		"	.insn						\n"
 		"	.set	pop					\n"
@@ -166,16 +230,29 @@ futex_atomic_cmpxchg_inatomic(u32 *uval, u32 __user *uaddr,
 		"# futex_atomic_cmpxchg_inatomic			\n"
 		"	.set	push					\n"
 		"	.set	noat					\n"
+<<<<<<< HEAD
 		"	.set	"MIPS_ISA_ARCH_LEVEL"			\n"
 		"1:	"user_ll("%1", "%3")"				\n"
 		"	bne	%1, %z4, 3f				\n"
 		"	.set	mips0					\n"
+=======
+		"	.set	push					\n"
+		"	.set	"MIPS_ISA_ARCH_LEVEL"			\n"
+		"	" __SYNC(full, loongson3_war) "			\n"
+		"1:	"user_ll("%1", "%3")"				\n"
+		"	bne	%1, %z4, 3f				\n"
+		"	.set	pop					\n"
+>>>>>>> upstream/android-13
 		"	move	$1, %z5					\n"
 		"	.set	"MIPS_ISA_ARCH_LEVEL"			\n"
 		"2:	"user_sc("$1", "%2")"				\n"
 		"	beqz	$1, 1b					\n"
+<<<<<<< HEAD
 		__WEAK_LLSC_MB
 		"3:							\n"
+=======
+		"3:	" __SYNC_ELSE(full, loongson3_war, __WEAK_LLSC_MB) "\n"
+>>>>>>> upstream/android-13
 		"	.insn						\n"
 		"	.set	pop					\n"
 		"	.section .fixup,\"ax\"				\n"

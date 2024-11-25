@@ -3,7 +3,11 @@
  *
  * Name: acinterp.h - Interpreter subcomponent prototypes and defines
  *
+<<<<<<< HEAD
  * Copyright (C) 2000 - 2018, Intel Corp.
+=======
+ * Copyright (C) 2000 - 2021, Intel Corp.
+>>>>>>> upstream/android-13
  *
  *****************************************************************************/
 
@@ -124,6 +128,12 @@ acpi_ex_trace_point(acpi_trace_event_type type,
  * exfield - ACPI AML (p-code) execution - field manipulation
  */
 acpi_status
+<<<<<<< HEAD
+=======
+acpi_ex_get_protocol_buffer_length(u32 protocol_id, u32 *return_length);
+
+acpi_status
+>>>>>>> upstream/android-13
 acpi_ex_common_buffer_setup(union acpi_operand_object *obj_desc,
 			    u32 buffer_length, u32 * datum_count);
 
@@ -268,6 +278,29 @@ acpi_ex_prep_common_field_object(union acpi_operand_object *obj_desc,
 acpi_status acpi_ex_prep_field_value(struct acpi_create_field_info *info);
 
 /*
+<<<<<<< HEAD
+=======
+ * exserial - field_unit support for serial address spaces
+ */
+acpi_status
+acpi_ex_read_serial_bus(union acpi_operand_object *obj_desc,
+			union acpi_operand_object **return_buffer);
+
+acpi_status
+acpi_ex_write_serial_bus(union acpi_operand_object *source_desc,
+			 union acpi_operand_object *obj_desc,
+			 union acpi_operand_object **return_buffer);
+
+acpi_status
+acpi_ex_read_gpio(union acpi_operand_object *obj_desc, void *buffer);
+
+acpi_status
+acpi_ex_write_gpio(union acpi_operand_object *source_desc,
+		   union acpi_operand_object *obj_desc,
+		   union acpi_operand_object **return_buffer);
+
+/*
+>>>>>>> upstream/android-13
  * exsystem - Interface to OS services
  */
 acpi_status

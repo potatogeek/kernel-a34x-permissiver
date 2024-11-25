@@ -3,7 +3,10 @@
  * Copyright (c) 1996, 2003 VIA Networking Technologies, Inc.
  * All rights reserved.
  *
+<<<<<<< HEAD
  * File: card.c
+=======
+>>>>>>> upstream/android-13
  * Purpose: Provide functions to setup NIC operation mode
  * Functions:
  *      s_vSafeResetTx - Rest Tx
@@ -11,19 +14,29 @@
  *      CARDvUpdateBasicTopRate - Update BasicTopRate
  *      CARDbAddBasicRate - Add to BasicRateSet
  *      CARDbIsOFDMinBasicRate - Check if any OFDM rate is in BasicRateSet
+<<<<<<< HEAD
  *      CARDvSetLoopbackMode - Set Loopback mode
  *      CARDbSoftwareReset - Sortware reset NIC
+=======
+>>>>>>> upstream/android-13
  *      CARDqGetTSFOffset - Calculate TSFOffset
  *      CARDbGetCurrentTSF - Read Current NIC TSF counter
  *      CARDqGetNextTBTT - Calculate Next Beacon TSF counter
  *      CARDvSetFirstNextTBTT - Set NIC Beacon time
  *      CARDvUpdateNextTBTT - Sync. NIC Beacon time
  *      CARDbRadioPowerOff - Turn Off NIC Radio Power
+<<<<<<< HEAD
  *      CARDbRadioPowerOn - Turn On NIC Radio Power
  *
  * Revision History:
  *      06-10-2003 Bryan YC Fan:  Re-write codes to support VT3253 spec.
  *      08-26-2003 Kyle Hsu:      Modify the defination type of iobase.
+=======
+ *
+ * Revision History:
+ *      06-10-2003 Bryan YC Fan:  Re-write codes to support VT3253 spec.
+ *      08-26-2003 Kyle Hsu:      Modify the definition type of iobase.
+>>>>>>> upstream/android-13
  *      09-01-2003 Bryan YC Fan:  Add vUpdateIFS().
  *
  */
@@ -60,6 +73,7 @@ static const unsigned short cwRXBCNTSFOff[MAX_RATE] = {
 
 /*---------------------  Static Functions  --------------------------*/
 
+<<<<<<< HEAD
 static
 void
 s_vCalculateOFDMRParameter(
@@ -68,6 +82,11 @@ s_vCalculateOFDMRParameter(
 	unsigned char *pbyTxRate,
 	unsigned char *pbyRsvTime
 );
+=======
+static void s_vCalculateOFDMRParameter(unsigned char byRate, u8 bb_type,
+				       unsigned char *pbyTxRate,
+				       unsigned char *pbyRsvTime);
+>>>>>>> upstream/android-13
 
 /*---------------------  Export Functions  --------------------------*/
 
@@ -84,6 +103,7 @@ s_vCalculateOFDMRParameter(
  *
  * Return Value: none
  */
+<<<<<<< HEAD
 static
 void
 s_vCalculateOFDMRParameter(
@@ -92,6 +112,12 @@ s_vCalculateOFDMRParameter(
 	unsigned char *pbyTxRate,
 	unsigned char *pbyRsvTime
 )
+=======
+static void s_vCalculateOFDMRParameter(unsigned char byRate,
+				       u8 bb_type,
+				       unsigned char *pbyTxRate,
+				       unsigned char *pbyRsvTime)
+>>>>>>> upstream/android-13
 {
 	switch (byRate) {
 	case RATE_6M:
@@ -207,22 +233,39 @@ bool CARDbSetPhyParameter(struct vnt_private *priv, u8 bb_type)
 			priv->abyBBVGA[0] = 0x20;
 			priv->abyBBVGA[2] = 0x10;
 			priv->abyBBVGA[3] = 0x10;
+<<<<<<< HEAD
 			BBbReadEmbedded(priv, 0xE7, &byData);
 			if (byData == 0x1C)
 				BBbWriteEmbedded(priv, 0xE7, priv->abyBBVGA[0]);
+=======
+			bb_read_embedded(priv, 0xE7, &byData);
+			if (byData == 0x1C)
+				bb_write_embedded(priv, 0xE7, priv->abyBBVGA[0]);
+>>>>>>> upstream/android-13
 
 		} else if (priv->byRFType == RF_UW2452) {
 			MACvSetBBType(priv->PortOffset, BB_TYPE_11A);
 			priv->abyBBVGA[0] = 0x18;
+<<<<<<< HEAD
 			BBbReadEmbedded(priv, 0xE7, &byData);
 			if (byData == 0x14) {
 				BBbWriteEmbedded(priv, 0xE7, priv->abyBBVGA[0]);
 				BBbWriteEmbedded(priv, 0xE1, 0x57);
+=======
+			bb_read_embedded(priv, 0xE7, &byData);
+			if (byData == 0x14) {
+				bb_write_embedded(priv, 0xE7, priv->abyBBVGA[0]);
+				bb_write_embedded(priv, 0xE1, 0x57);
+>>>>>>> upstream/android-13
 			}
 		} else {
 			MACvSetBBType(priv->PortOffset, BB_TYPE_11A);
 		}
+<<<<<<< HEAD
 		BBbWriteEmbedded(priv, 0x88, 0x03);
+=======
+		bb_write_embedded(priv, 0x88, 0x03);
+>>>>>>> upstream/android-13
 		bySlot = C_SLOT_SHORT;
 		bySIFS = C_SIFS_A;
 		byDIFS = C_SIFS_A + 2 * C_SLOT_SHORT;
@@ -233,6 +276,7 @@ bool CARDbSetPhyParameter(struct vnt_private *priv, u8 bb_type)
 			priv->abyBBVGA[0] = 0x1C;
 			priv->abyBBVGA[2] = 0x00;
 			priv->abyBBVGA[3] = 0x00;
+<<<<<<< HEAD
 			BBbReadEmbedded(priv, 0xE7, &byData);
 			if (byData == 0x20)
 				BBbWriteEmbedded(priv, 0xE7, priv->abyBBVGA[0]);
@@ -246,6 +290,21 @@ bool CARDbSetPhyParameter(struct vnt_private *priv, u8 bb_type)
 			}
 		}
 		BBbWriteEmbedded(priv, 0x88, 0x02);
+=======
+			bb_read_embedded(priv, 0xE7, &byData);
+			if (byData == 0x20)
+				bb_write_embedded(priv, 0xE7, priv->abyBBVGA[0]);
+
+		} else if (priv->byRFType == RF_UW2452) {
+			priv->abyBBVGA[0] = 0x14;
+			bb_read_embedded(priv, 0xE7, &byData);
+			if (byData == 0x18) {
+				bb_write_embedded(priv, 0xE7, priv->abyBBVGA[0]);
+				bb_write_embedded(priv, 0xE1, 0xD3);
+			}
+		}
+		bb_write_embedded(priv, 0x88, 0x02);
+>>>>>>> upstream/android-13
 		bySlot = C_SLOT_LONG;
 		bySIFS = C_SIFS_BG;
 		byDIFS = C_SIFS_BG + 2 * C_SLOT_LONG;
@@ -256,6 +315,7 @@ bool CARDbSetPhyParameter(struct vnt_private *priv, u8 bb_type)
 			priv->abyBBVGA[0] = 0x1C;
 			priv->abyBBVGA[2] = 0x00;
 			priv->abyBBVGA[3] = 0x00;
+<<<<<<< HEAD
 			BBbReadEmbedded(priv, 0xE7, &byData);
 			if (byData == 0x20)
 				BBbWriteEmbedded(priv, 0xE7, priv->abyBBVGA[0]);
@@ -269,6 +329,21 @@ bool CARDbSetPhyParameter(struct vnt_private *priv, u8 bb_type)
 			}
 		}
 		BBbWriteEmbedded(priv, 0x88, 0x08);
+=======
+			bb_read_embedded(priv, 0xE7, &byData);
+			if (byData == 0x20)
+				bb_write_embedded(priv, 0xE7, priv->abyBBVGA[0]);
+
+		} else if (priv->byRFType == RF_UW2452) {
+			priv->abyBBVGA[0] = 0x14;
+			bb_read_embedded(priv, 0xE7, &byData);
+			if (byData == 0x18) {
+				bb_write_embedded(priv, 0xE7, priv->abyBBVGA[0]);
+				bb_write_embedded(priv, 0xE1, 0xD3);
+			}
+		}
+		bb_write_embedded(priv, 0x88, 0x08);
+>>>>>>> upstream/android-13
 		bySIFS = C_SIFS_BG;
 
 		if (priv->bShortSlotTime) {
@@ -319,7 +394,11 @@ bool CARDbSetPhyParameter(struct vnt_private *priv, u8 bb_type)
 		priv->bySlot = bySlot;
 		VNSvOutPortB(priv->PortOffset + MAC_REG_SLOT, priv->bySlot);
 
+<<<<<<< HEAD
 		BBvSetShortSlotTime(priv);
+=======
+		bb_set_short_slot_time(priv);
+>>>>>>> upstream/android-13
 	}
 	if (priv->byCWMaxMin != byCWMaxMin) {
 		priv->byCWMaxMin = byCWMaxMin;
@@ -414,6 +493,7 @@ bool CARDbSetBeaconPeriod(struct vnt_private *priv,
  *  Out:
  *      none
  *
+<<<<<<< HEAD
  * Return Value: true if success; otherwise false
  */
 bool CARDbRadioPowerOff(struct vnt_private *priv)
@@ -422,6 +502,13 @@ bool CARDbRadioPowerOff(struct vnt_private *priv)
 
 	if (priv->bRadioOff)
 		return true;
+=======
+ */
+void CARDbRadioPowerOff(struct vnt_private *priv)
+{
+	if (priv->bRadioOff)
+		return;
+>>>>>>> upstream/android-13
 
 	switch (priv->byRFType) {
 	case RF_RFMD2959:
@@ -443,12 +530,17 @@ bool CARDbRadioPowerOff(struct vnt_private *priv)
 
 	MACvRegBitsOff(priv->PortOffset, MAC_REG_HOSTCR, HOSTCR_RXON);
 
+<<<<<<< HEAD
 	BBvSetDeepSleep(priv, priv->byLocalID);
+=======
+	bb_set_deep_sleep(priv, priv->byLocalID);
+>>>>>>> upstream/android-13
 
 	priv->bRadioOff = true;
 	pr_debug("chester power off\n");
 	MACvRegBitsOn(priv->PortOffset, MAC_REG_GPIOCTL0,
 		      LED_ACTSET);  /* LED issue */
+<<<<<<< HEAD
 	return bResult;
 }
 
@@ -510,6 +602,11 @@ void
 CARDvSafeResetTx(
 	struct vnt_private *priv
 )
+=======
+}
+
+void CARDvSafeResetTx(struct vnt_private *priv)
+>>>>>>> upstream/android-13
 {
 	unsigned int uu;
 	struct vnt_tx_desc *pCurrTD;
@@ -748,8 +845,12 @@ void CARDvSetRSPINF(struct vnt_private *priv, u8 bb_type)
 	VNSvOutPortW(priv->PortOffset + MAC_REG_RSPINF_A_24,
 		     MAKEWORD(byTxRate, byRsvTime));
 	/* RSPINF_a_36 */
+<<<<<<< HEAD
 	s_vCalculateOFDMRParameter(CARDwGetOFDMControlRate(
 							   (void *)priv,
+=======
+	s_vCalculateOFDMRParameter(CARDwGetOFDMControlRate((void *)priv,
+>>>>>>> upstream/android-13
 							   RATE_36M),
 				   bb_type,
 				   &byTxRate,
@@ -757,8 +858,12 @@ void CARDvSetRSPINF(struct vnt_private *priv, u8 bb_type)
 	VNSvOutPortW(priv->PortOffset + MAC_REG_RSPINF_A_36,
 		     MAKEWORD(byTxRate, byRsvTime));
 	/* RSPINF_a_48 */
+<<<<<<< HEAD
 	s_vCalculateOFDMRParameter(CARDwGetOFDMControlRate(
 							   (void *)priv,
+=======
+	s_vCalculateOFDMRParameter(CARDwGetOFDMControlRate((void *)priv,
+>>>>>>> upstream/android-13
 							   RATE_48M),
 				   bb_type,
 				   &byTxRate,
@@ -766,8 +871,12 @@ void CARDvSetRSPINF(struct vnt_private *priv, u8 bb_type)
 	VNSvOutPortW(priv->PortOffset + MAC_REG_RSPINF_A_48,
 		     MAKEWORD(byTxRate, byRsvTime));
 	/* RSPINF_a_54 */
+<<<<<<< HEAD
 	s_vCalculateOFDMRParameter(CARDwGetOFDMControlRate(
 							   (void *)priv,
+=======
+	s_vCalculateOFDMRParameter(CARDwGetOFDMControlRate((void *)priv,
+>>>>>>> upstream/android-13
 							   RATE_54M),
 				   bb_type,
 				   &byTxRate,
@@ -775,8 +884,12 @@ void CARDvSetRSPINF(struct vnt_private *priv, u8 bb_type)
 	VNSvOutPortW(priv->PortOffset + MAC_REG_RSPINF_A_54,
 		     MAKEWORD(byTxRate, byRsvTime));
 	/* RSPINF_a_72 */
+<<<<<<< HEAD
 	s_vCalculateOFDMRParameter(CARDwGetOFDMControlRate(
 							   (void *)priv,
+=======
+	s_vCalculateOFDMRParameter(CARDwGetOFDMControlRate((void *)priv,
+>>>>>>> upstream/android-13
 							   RATE_54M),
 				   bb_type,
 				   &byTxRate,
@@ -836,6 +949,7 @@ unsigned char CARDbyGetPktType(struct vnt_private *priv)
 }
 
 /*
+<<<<<<< HEAD
  * Description: Set NIC Loopback mode
  *
  * Parameters:
@@ -884,6 +998,8 @@ bool CARDbSoftwareReset(struct vnt_private *priv)
 }
 
 /*
+=======
+>>>>>>> upstream/android-13
  * Description: Calculate TSF offset of two TSF input
  *              Get TSF Offset from RxBCN's TSF and local TSF
  *

@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 2013 Samsung Electronics Co., Ltd.
  * Copyright (c) 2013 Linaro Ltd.
  * Author: Thomas Abraham <thomas.ab@samsung.com>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * Common Clock Framework support for all Exynos4 SoCs.
 */
 
@@ -14,9 +21,15 @@
 #include <linux/slab.h>
 #include <linux/clk.h>
 #include <linux/clk-provider.h>
+<<<<<<< HEAD
 #include <linux/of.h>
 #include <linux/of_address.h>
 #include <linux/syscore_ops.h>
+=======
+#include <linux/io.h>
+#include <linux/of.h>
+#include <linux/of_address.h>
+>>>>>>> upstream/android-13
 
 #include "clk.h"
 #include "clk-cpu.h"
@@ -123,10 +136,13 @@
 #define CLKOUT_CMU_CPU		0x14a00
 #define PWR_CTRL1		0x15020
 #define E4X12_PWR_CTRL2		0x15024
+<<<<<<< HEAD
 #define E4X12_DIV_ISP0		0x18300
 #define E4X12_DIV_ISP1		0x18304
 #define E4X12_GATE_ISP0		0x18800
 #define E4X12_GATE_ISP1		0x18804
+=======
+>>>>>>> upstream/android-13
 
 /* Below definitions are used for PWR_CTRL settings */
 #define PWR_CTRL1_CORE2_DOWN_RATIO(x)		(((x) & 0x7) << 28)
@@ -158,6 +174,7 @@ static void __iomem *reg_base;
 static enum exynos4_soc exynos4_soc;
 
 /*
+<<<<<<< HEAD
  * Support for CMU save/restore across system suspends
  */
 #ifdef CONFIG_PM_SLEEP
@@ -166,6 +183,8 @@ static struct samsung_clk_reg_dump *exynos4_save_soc;
 static struct samsung_clk_reg_dump *exynos4_save_pll;
 
 /*
+=======
+>>>>>>> upstream/android-13
  * list of controller registers to be saved and restored during a
  * suspend/resume cycle.
  */
@@ -192,7 +211,11 @@ static const unsigned long exynos4x12_clk_save[] __initconst = {
 	E4X12_PWR_CTRL2,
 };
 
+<<<<<<< HEAD
 static const unsigned long exynos4_clk_pll_regs[] __initconst = {
+=======
+static const unsigned long exynos4_clk_regs[] __initconst = {
+>>>>>>> upstream/android-13
 	EPLL_LOCK,
 	VPLL_LOCK,
 	EPLL_CON0,
@@ -201,9 +224,12 @@ static const unsigned long exynos4_clk_pll_regs[] __initconst = {
 	VPLL_CON0,
 	VPLL_CON1,
 	VPLL_CON2,
+<<<<<<< HEAD
 };
 
 static const unsigned long exynos4_clk_regs[] __initconst = {
+=======
+>>>>>>> upstream/android-13
 	SRC_LEFTBUS,
 	DIV_LEFTBUS,
 	GATE_IP_LEFTBUS,
@@ -276,6 +302,11 @@ static const unsigned long exynos4_clk_regs[] __initconst = {
 };
 
 static const struct samsung_clk_reg_dump src_mask_suspend[] = {
+<<<<<<< HEAD
+=======
+	{ .offset = VPLL_CON0,			.value = 0x80600302, },
+	{ .offset = EPLL_CON0,			.value = 0x806F0302, },
+>>>>>>> upstream/android-13
 	{ .offset = SRC_MASK_TOP,		.value = 0x00000001, },
 	{ .offset = SRC_MASK_CAM,		.value = 0x11111111, },
 	{ .offset = SRC_MASK_TV,		.value = 0x00000111, },
@@ -291,6 +322,7 @@ static const struct samsung_clk_reg_dump src_mask_suspend_e4210[] = {
 	{ .offset = E4210_SRC_MASK_LCD1,	.value = 0x00001111, },
 };
 
+<<<<<<< HEAD
 #define PLL_ENABLED	(1 << 31)
 #define PLL_LOCKED	(1 << 29)
 
@@ -408,6 +440,8 @@ err_warn:
 static void __init exynos4_clk_sleep_init(void) {}
 #endif
 
+=======
+>>>>>>> upstream/android-13
 /* list of all parent clock list */
 PNAME(mout_apll_p)	= { "fin_pll", "fout_apll", };
 PNAME(mout_mpll_p)	= { "fin_pll", "fout_mpll", };
@@ -841,6 +875,7 @@ static const struct samsung_div_clock exynos4x12_div_clks[] __initconst = {
 	DIV(0, "div_c2c_aclk", "div_c2c", DIV_DMC1, 12, 3),
 };
 
+<<<<<<< HEAD
 static struct samsung_div_clock exynos4x12_isp_div_clks[] = {
 	DIV_F(CLK_DIV_ISP0, "div_isp0", "aclk200", E4X12_DIV_ISP0, 0, 3,
 						CLK_GET_RATE_NOCACHE, 0),
@@ -853,6 +888,8 @@ static struct samsung_div_clock exynos4x12_isp_div_clks[] = {
 						8, 3, CLK_GET_RATE_NOCACHE, 0),
 };
 
+=======
+>>>>>>> upstream/android-13
 /* list of gate clocks supported in all exynos4 soc's */
 static const struct samsung_gate_clock exynos4_gate_clks[] __initconst = {
 	GATE(CLK_PPMULEFT, "ppmuleft", "aclk200", GATE_IP_LEFTBUS, 1, 0, 0),
@@ -1103,6 +1140,10 @@ static const struct samsung_gate_clock exynos4210_gate_clks[] __initconst = {
 
 /* list of gate clocks supported in exynos4x12 soc */
 static const struct samsung_gate_clock exynos4x12_gate_clks[] __initconst = {
+<<<<<<< HEAD
+=======
+	GATE(CLK_ASYNC_G3D, "async_g3d", "aclk200", GATE_IP_LEFTBUS, 6, 0, 0),
+>>>>>>> upstream/android-13
 	GATE(CLK_AUDSS, "audss", "sclk_epll", E4X12_GATE_IP_MAUDIO, 0, 0, 0),
 	GATE(CLK_MDNIE0, "mdnie0", "aclk160", GATE_IP_LCD0, 2, 0, 0),
 	GATE(CLK_ROTATOR, "rotator", "aclk200", E4X12_GATE_IP_IMAGE, 1, 0, 0),
@@ -1150,6 +1191,7 @@ static const struct samsung_gate_clock exynos4x12_gate_clks[] __initconst = {
 		0),
 };
 
+<<<<<<< HEAD
 static struct samsung_gate_clock exynos4x12_isp_gate_clks[] = {
 	GATE(CLK_FIMC_ISP, "isp", "aclk200", E4X12_GATE_ISP0, 0,
 			CLK_IGNORE_UNUSED | CLK_GET_RATE_NOCACHE, 0),
@@ -1205,6 +1247,8 @@ static struct samsung_gate_clock exynos4x12_isp_gate_clks[] = {
 			CLK_IGNORE_UNUSED | CLK_GET_RATE_NOCACHE, 0),
 };
 
+=======
+>>>>>>> upstream/android-13
 /*
  * The parent of the fin_pll clock is selected by the XOM[0] bit. This bit
  * resides in chipid register space, outside of the clock controller memory
@@ -1432,6 +1476,11 @@ static void __init exynos4_clk_init(struct device_node *np,
 				    enum exynos4_soc soc)
 {
 	struct samsung_clk_provider *ctx;
+<<<<<<< HEAD
+=======
+	struct clk_hw **hws;
+
+>>>>>>> upstream/android-13
 	exynos4_soc = soc;
 
 	reg_base = of_iomap(np, 0);
@@ -1439,6 +1488,10 @@ static void __init exynos4_clk_init(struct device_node *np,
 		panic("%s: failed to map registers\n", __func__);
 
 	ctx = samsung_clk_init(np, reg_base, CLK_NR_CLKS);
+<<<<<<< HEAD
+=======
+	hws = ctx->clk_data.hws;
+>>>>>>> upstream/android-13
 
 	samsung_clk_of_register_fixed_ext(ctx, exynos4_fixed_rate_ext_clks,
 			ARRAY_SIZE(exynos4_fixed_rate_ext_clks),
@@ -1501,12 +1554,19 @@ static void __init exynos4_clk_init(struct device_node *np,
 			exynos4210_fixed_factor_clks,
 			ARRAY_SIZE(exynos4210_fixed_factor_clks));
 		exynos_register_cpu_clock(ctx, CLK_ARM_CLK, "armclk",
+<<<<<<< HEAD
 			mout_core_p4210[0], mout_core_p4210[1], 0x14200,
 			e4210_armclk_d, ARRAY_SIZE(e4210_armclk_d),
 			CLK_CPU_NEEDS_DEBUG_ALT_DIV | CLK_CPU_HAS_DIV1);
 	} else {
 		struct resource res;
 
+=======
+			hws[CLK_MOUT_APLL], hws[CLK_SCLK_MPLL], 0x14200,
+			e4210_armclk_d, ARRAY_SIZE(e4210_armclk_d),
+			CLK_CPU_NEEDS_DEBUG_ALT_DIV | CLK_CPU_HAS_DIV1);
+	} else {
+>>>>>>> upstream/android-13
 		samsung_clk_register_mux(ctx, exynos4x12_mux_clks,
 			ARRAY_SIZE(exynos4x12_mux_clks));
 		samsung_clk_register_div(ctx, exynos4x12_div_clks,
@@ -1517,6 +1577,7 @@ static void __init exynos4_clk_init(struct device_node *np,
 			exynos4x12_fixed_factor_clks,
 			ARRAY_SIZE(exynos4x12_fixed_factor_clks));
 
+<<<<<<< HEAD
 		of_address_to_resource(np, 0, &res);
 		if (resource_size(&res) > 0x18000) {
 			samsung_clk_register_div(ctx, exynos4x12_isp_div_clks,
@@ -1527,13 +1588,31 @@ static void __init exynos4_clk_init(struct device_node *np,
 
 		exynos_register_cpu_clock(ctx, CLK_ARM_CLK, "armclk",
 			mout_core_p4x12[0], mout_core_p4x12[1], 0x14200,
+=======
+		exynos_register_cpu_clock(ctx, CLK_ARM_CLK, "armclk",
+			hws[CLK_MOUT_APLL], hws[CLK_MOUT_MPLL_USER_C], 0x14200,
+>>>>>>> upstream/android-13
 			e4412_armclk_d, ARRAY_SIZE(e4412_armclk_d),
 			CLK_CPU_NEEDS_DEBUG_ALT_DIV | CLK_CPU_HAS_DIV1);
 	}
 
 	if (soc == EXYNOS4X12)
 		exynos4x12_core_down_clock();
+<<<<<<< HEAD
 	exynos4_clk_sleep_init();
+=======
+
+	samsung_clk_extended_sleep_init(reg_base,
+			exynos4_clk_regs, ARRAY_SIZE(exynos4_clk_regs),
+			src_mask_suspend, ARRAY_SIZE(src_mask_suspend));
+	if (exynos4_soc == EXYNOS4210)
+		samsung_clk_extended_sleep_init(reg_base,
+		    exynos4210_clk_save, ARRAY_SIZE(exynos4210_clk_save),
+		    src_mask_suspend_e4210, ARRAY_SIZE(src_mask_suspend_e4210));
+	else
+		samsung_clk_sleep_init(reg_base, exynos4x12_clk_save,
+				       ARRAY_SIZE(exynos4x12_clk_save));
+>>>>>>> upstream/android-13
 
 	samsung_clk_of_add_provider(np, ctx);
 

@@ -17,6 +17,7 @@
 #include <linux/etherdevice.h>
 #include <linux/ethtool.h>
 #include <linux/if_vlan.h>
+<<<<<<< HEAD
 #include <net/sch_generic.h>
 #include <linux/ip.h>
 #include <linux/ktime.h>
@@ -27,6 +28,13 @@
 #ifdef CONFIG_MEDIATEK_SOLUTION
 #include "usb_boost.h"
 #endif
+=======
+#include <linux/etherdevice.h>
+#include <linux/hrtimer.h>
+
+#include "u_ether.h"
+
+>>>>>>> upstream/android-13
 
 /*
  * This component encapsulates the Ethernet link glue needed to provide
@@ -58,20 +66,75 @@
 #define GETHER_MAX_ETH_FRAME_LEN (GETHER_MAX_MTU_SIZE + ETH_HLEN)
 
 static struct workqueue_struct	*uether_wq;
+<<<<<<< HEAD
 static struct workqueue_struct	*uether_wq1;
 static struct workqueue_struct  *uether_rps_wq;
+=======
+
+struct eth_dev {
+	/* lock is held while accessing port_usb
+	 */
+	spinlock_t		lock;
+	struct gether		*port_usb;
+
+	struct net_device	*net;
+	struct usb_gadget	*gadget;
+
+	spinlock_t		req_lock;	/* guard {rx,tx}_reqs */
+	struct list_head	tx_reqs, rx_reqs;
+	atomic_t		tx_qlen;
+/* Minimum number of TX USB request queued to UDC */
+#define TX_REQ_THRESHOLD	1
+	int			no_tx_req_used;
+	int			tx_skb_hold_count;
+	size_t			tx_req_bufsize;
+	struct hrtimer		tx_timer;
+	bool en_timer;
+#define MAX_TX_TIMEOUT_NSECS	6000000
+#define MIN_TX_TIMEOUT_NSECS	500000
+
+	struct sk_buff_head	rx_frames;
+
+	unsigned		qmult;
+
+	unsigned		header_len;
+	u32			ul_max_pkts_per_xfer;
+	u32			dl_max_pkts_per_xfer;
+	struct sk_buff		*(*wrap)(struct gether *, struct sk_buff *skb);
+	int			(*unwrap)(struct gether *,
+						struct sk_buff *skb,
+						struct sk_buff_head *list);
+
+	struct work_struct	work;
+	struct work_struct	rx_work;
+
+	unsigned long		todo;
+#define	WORK_RX_MEMORY		0
+
+	bool			zlp;
+	bool			no_skb_reserve;
+	bool			ifname_set;
+	u8			host_mac[ETH_ALEN];
+	u8			dev_mac[ETH_ALEN];
+
+	bool			occurred_timeout;
+};
+>>>>>>> upstream/android-13
 
 /*-------------------------------------------------------------------------*/
 
 #define RX_EXTRA	20	/* bytes guarding against rx overflows */
 
 #define DEFAULT_QLEN	2	/* double buffering by default */
+<<<<<<< HEAD
 static unsigned int tx_wakeup_threshold = 55;
 module_param(tx_wakeup_threshold, uint, 0644);
 MODULE_PARM_DESC(tx_wakeup_threshold, "tx wakeup threshold value");
 #define U_ETHER_RX_PENDING_TSHOLD 0
 static unsigned int u_ether_rx_pending_thld = U_ETHER_RX_PENDING_TSHOLD;
 module_param(u_ether_rx_pending_thld, uint, 0644);
+=======
+>>>>>>> upstream/android-13
 
 /* for dual-speed hardware, use deeper queues at high/super speed */
 static inline int qlen(struct usb_gadget *gadget, unsigned qmult)
@@ -119,6 +182,7 @@ static inline int qlen(struct usb_gadget *gadget, unsigned qmult)
 	xprintk(dev , KERN_INFO , fmt , ## args)
 
 /*-------------------------------------------------------------------------*/
+<<<<<<< HEAD
 unsigned int rndis_test_last_resp_id;
 unsigned int rndis_test_last_msg_id;
 EXPORT_SYMBOL_GPL(rndis_test_last_msg_id);
@@ -155,6 +219,10 @@ static int ueth_change_mtu(struct net_device *net, int new_mtu)
 	U_ETHER_DBG("mtu to %d, status is %d\n", new_mtu, status);
 	return status;
 }
+=======
+
+/* NETWORK DRIVER HOOKUP (to the layer above this driver) */
+>>>>>>> upstream/android-13
 
 static void eth_get_drvinfo(struct net_device *net, struct ethtool_drvinfo *p)
 {
@@ -188,11 +256,18 @@ static void defer_kevent(struct eth_dev *dev, int flag)
 }
 
 static void rx_complete(struct usb_ep *ep, struct usb_request *req);
+<<<<<<< HEAD
 static void tx_complete(struct usb_ep *ep, struct usb_request *req);
+=======
+>>>>>>> upstream/android-13
 
 static int
 rx_submit(struct eth_dev *dev, struct usb_request *req, gfp_t gfp_flags)
 {
+<<<<<<< HEAD
+=======
+	struct usb_gadget *g = dev->gadget;
+>>>>>>> upstream/android-13
 	struct sk_buff	*skb;
 	int		retval = -ENOMEM;
 	size_t		size = 0;
@@ -226,8 +301,15 @@ rx_submit(struct eth_dev *dev, struct usb_request *req, gfp_t gfp_flags)
 	size += sizeof(struct ethhdr) + dev->net->mtu + RX_EXTRA;
 	size += dev->port_usb->header_len;
 
+<<<<<<< HEAD
 		size += out->maxpacket - 1;
 		size -= size % out->maxpacket;
+=======
+	if (g->quirk_ep_out_aligned_size) {
+		size += out->maxpacket - 1;
+		size -= size % out->maxpacket;
+	}
+>>>>>>> upstream/android-13
 
 	if (dev->ul_max_pkts_per_xfer)
 		size *= dev->ul_max_pkts_per_xfer;
@@ -236,10 +318,17 @@ rx_submit(struct eth_dev *dev, struct usb_request *req, gfp_t gfp_flags)
 		size = max_t(size_t, size, dev->port_usb->fixed_out_len);
 	spin_unlock_irqrestore(&dev->lock, flags);
 
+<<<<<<< HEAD
 	skb = alloc_skb(size + NET_IP_ALIGN, gfp_flags);
 	if (skb == NULL) {
 		U_ETHER_DBG("no rx skb\n");
 		rndis_test_rx_nomem++;
+=======
+	DBG(dev, "%s: size: %zd\n", __func__, size);
+	skb = __netdev_alloc_skb(dev->net, size + NET_IP_ALIGN, gfp_flags);
+	if (skb == NULL) {
+		DBG(dev, "no rx skb\n");
+>>>>>>> upstream/android-13
 		goto enomem;
 	}
 
@@ -247,10 +336,18 @@ rx_submit(struct eth_dev *dev, struct usb_request *req, gfp_t gfp_flags)
 	 * but on at least one, checksumming fails otherwise.  Note:
 	 * RNDIS headers involve variable numbers of LE32 values.
 	 */
+<<<<<<< HEAD
 		skb_reserve(skb, NET_IP_ALIGN);
 
 	req->buf = skb->data;
 	req->length = size;
+=======
+	skb_reserve(skb, NET_IP_ALIGN);
+
+	req->buf = skb->data;
+	req->length = size;
+	req->complete = rx_complete;
+>>>>>>> upstream/android-13
 	req->context = skb;
 
 	retval = usb_ep_queue(out, req, gfp_flags);
@@ -276,7 +373,10 @@ static void rx_complete(struct usb_ep *ep, struct usb_request *req)
 
 	/* normal completion */
 	case 0:
+<<<<<<< HEAD
 	U_ETHER_DBG("len(%d)\n", req->actual);
+=======
+>>>>>>> upstream/android-13
 		skb_put(skb, req->actual);
 
 		if (dev->unwrap) {
@@ -299,6 +399,7 @@ static void rx_complete(struct usb_ep *ep, struct usb_request *req)
 		} else {
 			skb_queue_tail(&dev->rx_frames, skb);
 		}
+<<<<<<< HEAD
 
 		if (!status)
 			queue = 1;
@@ -306,6 +407,10 @@ static void rx_complete(struct usb_ep *ep, struct usb_request *req)
 			 * use skb buffers.
 			 */
 	rndis_test_rx_usb_in++;
+=======
+		if (!status)
+			queue = 1;
+>>>>>>> upstream/android-13
 		break;
 
 	/* software-driven interface shutdown */
@@ -336,6 +441,7 @@ quiesce:
 	}
 
 clean:
+<<<<<<< HEAD
 	if (queue && dev->rx_frames.qlen <= u_ether_rx_pending_thld) {
 		if (rx_submit(dev, req, GFP_ATOMIC) < 0) {
 			spin_lock(&dev->reqrx_lock);
@@ -352,13 +458,24 @@ clean:
 		queue_work(uether_wq, &dev->rx_work);
 		queue_work(uether_wq1, &dev->rx_work1);
 	}
+=======
+		spin_lock(&dev->req_lock);
+		list_add(&req->list, &dev->rx_reqs);
+		spin_unlock(&dev->req_lock);
+
+	if (queue)
+		queue_work_on((nr_cpu_ids - 1), uether_wq, &dev->rx_work);
+>>>>>>> upstream/android-13
 }
 
 static int prealloc(struct list_head *list, struct usb_ep *ep, unsigned n)
 {
 	unsigned		i;
 	struct usb_request	*req;
+<<<<<<< HEAD
 	bool			usb_in;
+=======
+>>>>>>> upstream/android-13
 
 	if (!n)
 		return -ENOMEM;
@@ -369,18 +486,24 @@ static int prealloc(struct list_head *list, struct usb_ep *ep, unsigned n)
 		if (i-- == 0)
 			goto extra;
 	}
+<<<<<<< HEAD
 	if (ep->desc->bEndpointAddress & USB_DIR_IN)
 		usb_in = true;
 	else
 		usb_in = false;
+=======
+>>>>>>> upstream/android-13
 	while (i--) {
 		req = usb_ep_alloc_request(ep, GFP_ATOMIC);
 		if (!req)
 			return list_empty(list) ? -ENOMEM : 0;
+<<<<<<< HEAD
 		if (usb_in)
 			req->complete = tx_complete;
 		else
 			req->complete = rx_complete;
+=======
+>>>>>>> upstream/android-13
 		list_add(&req->list, list);
 	}
 	return 0;
@@ -402,6 +525,7 @@ extra:
 	return 0;
 }
 
+<<<<<<< HEAD
 #define MAX_ROW 8192
 static int chksum_table[MAX_ROW];
 static int chksum_windex;
@@ -419,12 +543,15 @@ static long max_diff_ns;
 module_param(max_diff_ns, long, 0400);
 static long total_diff_ns;
 module_param(total_diff_ns, long, 0400);
+=======
+>>>>>>> upstream/android-13
 static int alloc_requests(struct eth_dev *dev, struct gether *link, unsigned n)
 {
 	int	status;
 
 	spin_lock(&dev->req_lock);
 	status = prealloc(&dev->tx_reqs, link->in_ep, n);
+<<<<<<< HEAD
 	if (status < 0) {
 		spin_unlock(&dev->req_lock);
 		U_ETHER_DBG("can't alloc tx requests\n");
@@ -467,10 +594,42 @@ void rx_fill(struct eth_dev *dev, gfp_t gfp_flags)
 			spin_lock_irqsave(&dev->reqrx_lock, flags);
 			list_add(&req->list, &dev->rx_reqs);
 			spin_unlock_irqrestore(&dev->reqrx_lock, flags);
+=======
+	if (status < 0)
+		goto fail;
+	status = prealloc(&dev->rx_reqs, link->out_ep, n);
+	if (status < 0)
+		goto fail;
+	goto done;
+fail:
+	DBG(dev, "can't alloc requests\n");
+done:
+	spin_unlock(&dev->req_lock);
+	return status;
+}
+
+static void rx_fill(struct eth_dev *dev, gfp_t gfp_flags)
+{
+	struct usb_request	*req;
+	unsigned long		flags;
+
+	/* fill unused rxq slots with some skb */
+	spin_lock_irqsave(&dev->req_lock, flags);
+	while (!list_empty(&dev->rx_reqs)) {
+		req = list_first_entry(&dev->rx_reqs, struct usb_request, list);
+		list_del_init(&req->list);
+		spin_unlock_irqrestore(&dev->req_lock, flags);
+
+		if (rx_submit(dev, req, gfp_flags) < 0) {
+			spin_lock_irqsave(&dev->req_lock, flags);
+			list_add(&req->list, &dev->rx_reqs);
+			spin_unlock_irqrestore(&dev->req_lock, flags);
+>>>>>>> upstream/android-13
 			defer_kevent(dev, WORK_RX_MEMORY);
 			return;
 		}
 
+<<<<<<< HEAD
 		spin_lock_irqsave(&dev->reqrx_lock, flags);
 	}
 	spin_unlock_irqrestore(&dev->reqrx_lock, flags);
@@ -483,13 +642,32 @@ static void process_rx_w(struct work_struct *work)
 
 	if (!dev->port_usb)
 		return;
+=======
+		spin_lock_irqsave(&dev->req_lock, flags);
+	}
+	spin_unlock_irqrestore(&dev->req_lock, flags);
+}
+
+static void process_rx_w(struct work_struct *work)
+{
+	struct eth_dev  *dev = container_of(work, struct eth_dev, rx_work);
+	struct sk_buff  *skb;
+	int             status = 0;
+
+	if (!dev->port_usb)
+		return;
+
+>>>>>>> upstream/android-13
 	while ((skb = skb_dequeue(&dev->rx_frames))) {
 		if (status < 0
 				|| ETH_HLEN > skb->len
 				|| skb->len > ETH_FRAME_LEN) {
 			dev->net->stats.rx_errors++;
 			dev->net->stats.rx_length_errors++;
+<<<<<<< HEAD
 			rndis_test_rx_error++;
+=======
+>>>>>>> upstream/android-13
 			DBG(dev, "rx length %d\n", skb->len);
 			dev_kfree_skb_any(skb);
 			continue;
@@ -497,12 +675,21 @@ static void process_rx_w(struct work_struct *work)
 		skb->protocol = eth_type_trans(skb, dev->net);
 		dev->net->stats.rx_packets++;
 		dev->net->stats.rx_bytes += skb->len;
+<<<<<<< HEAD
 #if defined(NETDEV_TRACE) && defined(NETDEV_UL_TRACE)
 		skb->dbg_flag = 0x4;
 #endif
 		rndis_test_rx_net_out++;
 		status = netif_rx_ni(skb);
 	}
+=======
+
+		status = netif_rx_ni(skb);
+	}
+
+	if (netif_running(dev->net))
+		rx_fill(dev, GFP_KERNEL);
+>>>>>>> upstream/android-13
 }
 
 static void eth_work(struct work_struct *work)
@@ -518,6 +705,7 @@ static void eth_work(struct work_struct *work)
 		DBG(dev, "work done, flags = 0x%lx\n", dev->todo);
 }
 
+<<<<<<< HEAD
 static void process_rx_w1(struct work_struct *work)
 {
 	struct eth_dev	*dev = container_of(work, struct eth_dev, rx_work1);
@@ -560,6 +748,13 @@ static void tx_complete(struct usb_ep *ep, struct usb_request *req)
 		usb_ep_free_request(ep, req);
 		return;
 	}
+=======
+static void tx_complete(struct usb_ep *ep, struct usb_request *req)
+{
+	struct sk_buff	*skb = req->context;
+	struct eth_dev	*dev = ep->driver_data;
+
+>>>>>>> upstream/android-13
 	switch (req->status) {
 	default:
 		dev->net->stats.tx_errors++;
@@ -567,6 +762,7 @@ static void tx_complete(struct usb_ep *ep, struct usb_request *req)
 		/* FALLTHROUGH */
 	case -ECONNRESET:		/* unlink */
 	case -ESHUTDOWN:		/* disconnect etc */
+<<<<<<< HEAD
 		break;
 	case 0:
 		if (!req->zero)
@@ -656,13 +852,39 @@ static void tx_complete(struct usb_ep *ep, struct usb_request *req)
 			netif_wake_queue(dev->net);
 		spin_unlock(&dev->req_lock);
 	}
+=======
+		dev_kfree_skb_any(skb);
+		break;
+	case 0:
+		if (!req->zero && !dev->zlp)
+			dev->net->stats.tx_bytes += req->length-1;
+		else
+			dev->net->stats.tx_bytes += req->length;
+
+		dev_consume_skb_any(skb);
+	}
+	dev->net->stats.tx_packets++;
+
+	spin_lock(&dev->req_lock);
+	list_add_tail(&req->list, &dev->tx_reqs);
+	if (dev->port_usb->multi_pkt_xfer)
+		req->length = 0;
+	spin_unlock(&dev->req_lock);
+	if (netif_carrier_ok(dev->net))
+		netif_wake_queue(dev->net);
+>>>>>>> upstream/android-13
 }
 
 static inline int is_promisc(u16 cdc_filter)
 {
 	return cdc_filter & USB_CDC_PACKET_TYPE_PROMISCUOUS;
 }
+<<<<<<< HEAD
 static int alloc_tx_buffer(struct eth_dev *dev)
+=======
+
+static void alloc_tx_buffer(struct eth_dev *dev)
+>>>>>>> upstream/android-13
 {
 	struct list_head	*act;
 	struct usb_request	*req;
@@ -670,6 +892,7 @@ static int alloc_tx_buffer(struct eth_dev *dev)
 	dev->tx_req_bufsize = (dev->dl_max_pkts_per_xfer *
 				(dev->net->mtu
 				+ sizeof(struct ethhdr)
+<<<<<<< HEAD
 				+ 44
 				+ 22));
 	list_for_each(act, &dev->tx_reqs) {
@@ -701,12 +924,125 @@ free_buf:
 
 static netdev_tx_t eth_start_xmit(struct sk_buff *skb,
 					struct net_device *net)
+=======
+				/* size of rndis_packet_msg_type */
+				+ 44
+				+ 22));
+
+	list_for_each(act, &dev->tx_reqs) {
+		req = container_of(act, struct usb_request, list);
+		if (!req->buf)
+			req->buf = kmalloc(dev->tx_req_bufsize,
+						GFP_ATOMIC);
+	}
+}
+
+static int tx_task(struct eth_dev *dev, struct usb_request *req)
+{
+	struct usb_ep *in = dev->port_usb->in_ep;
+	int length = req->length;
+	int retval;
+
+	req->complete = tx_complete;
+
+	/* NCM requires no zlp if transfer is dwNtbInMaxSize */
+	if (dev->port_usb->is_fixed && length == dev->port_usb->fixed_in_len &&
+		(length % in->maxpacket) == 0)
+		req->zero = 0;
+	else
+		req->zero = 1;
+
+	/* use zlp framing on tx for strict CDC-Ether conformance,
+	 * though any robust network rx path ignores extra padding.
+	 * and some hardware doesn't like to write zlps.
+	 */
+	if (req->zero && !dev->zlp && (length % in->maxpacket) == 0) {
+		req->zero = 0;
+		length++;
+	}
+	req->length = length;
+
+	/* throttle highspeed IRQ rate back slightly */
+	if (gadget_is_dualspeed(dev->gadget) &&
+		(dev->gadget->speed == USB_SPEED_HIGH)) {
+		atomic_inc(&dev->tx_qlen);
+		if (atomic_read(&dev->tx_qlen) == (dev->qmult/2)) {
+			req->no_interrupt = 0;
+			atomic_set(&dev->tx_qlen, 0);
+		} else {
+			req->no_interrupt = 1;
+		}
+	} else {
+		req->no_interrupt = 0;
+	}
+	retval = usb_ep_queue(in, req, GFP_ATOMIC);
+
+	return retval;
+}
+
+static enum hrtimer_restart tx_timeout(struct hrtimer *data)
+{
+	struct eth_dev *dev = container_of(data, struct eth_dev, tx_timer);
+	struct usb_request *req = NULL;
+
+	int retval;
+	unsigned long flags;
+
+	spin_lock_irqsave(&dev->req_lock, flags);
+
+	/*
+	 * this freelist can be empty if an interrupt triggered disconnect()
+	 * and reconfigured the gadget (shutting down this queue) after the
+	 * network stack decided to xmit but before we got the spinlock.
+	 */
+
+	if (list_empty(&dev->tx_reqs)) {
+		spin_unlock_irqrestore(&dev->req_lock, flags);
+		pr_info("\n\n%s: TX REQS list empty!\n\n", __func__);
+		return HRTIMER_NORESTART;
+	}
+
+	req = container_of(dev->tx_reqs.next, struct usb_request, list);
+
+	list_del(&req->list);
+
+	/* temporarily stop TX queue when the freelist empties */
+	if (list_empty(&dev->tx_reqs))
+		netif_stop_queue(dev->net);
+
+	spin_unlock_irqrestore(&dev->req_lock, flags);
+
+	dev->occurred_timeout = 1;
+	retval = tx_task(dev, req);
+	switch (retval) {
+	default:
+		DBG(dev, "tx queue err %d\n", retval);
+		break;
+	}
+
+	if (retval) {
+		req->length = 0;
+		dev->net->stats.tx_dropped++;
+		spin_lock_irqsave(&dev->req_lock, flags);
+		if (list_empty(&dev->tx_reqs))
+			netif_start_queue(dev->net);
+		list_add(&req->list, &dev->tx_reqs);
+		spin_unlock_irqrestore(&dev->req_lock, flags);
+	}
+
+	return HRTIMER_NORESTART;
+}
+
+static netdev_tx_t eth_start_xmit(struct sk_buff *skb,
+		struct net_device *net)
+>>>>>>> upstream/android-13
 {
 	struct eth_dev		*dev = netdev_priv(net);
 	int			length = 0;
 	int			retval;
 	struct usb_request	*req = NULL;
 	unsigned long		flags;
+<<<<<<< HEAD
 	struct usb_ep		*in = NULL;
 	u16			cdc_filter = 0;
 	bool			multi_pkt_xfer = false;
@@ -726,11 +1062,22 @@ static netdev_tx_t eth_start_xmit(struct sk_buff *skb,
 		return -EINVAL;
 
 	pinfo = skb_shinfo(skb);
+=======
+	struct usb_ep		*in;
+	u16			cdc_filter;
+	unsigned long	tx_timeout;
+
+	if (dev->en_timer) {
+		hrtimer_cancel(&dev->tx_timer);
+		dev->en_timer = 0;
+	}
+>>>>>>> upstream/android-13
 
 	spin_lock_irqsave(&dev->lock, flags);
 	if (dev->port_usb) {
 		in = dev->port_usb->in_ep;
 		cdc_filter = dev->port_usb->cdc_filter;
+<<<<<<< HEAD
 		multi_pkt_xfer = dev->port_usb->multi_pkt_xfer;
 		max_size = dev->dl_max_xfer_size;
 	}
@@ -741,6 +1088,24 @@ static netdev_tx_t eth_start_xmit(struct sk_buff *skb,
 		return NETDEV_TX_OK;
 	}
 
+=======
+	} else {
+		in = NULL;
+		cdc_filter = 0;
+	}
+	spin_unlock_irqrestore(&dev->lock, flags);
+
+	if (!in) {
+		if (skb)
+			dev_kfree_skb_any(skb);
+		return NETDEV_TX_OK;
+	}
+
+	/* Allocate memory for tx_reqs to support multi packet transfer */
+	if (dev->port_usb->multi_pkt_xfer && !dev->tx_req_bufsize)
+		alloc_tx_buffer(dev);
+
+>>>>>>> upstream/android-13
 	/* apply outgoing CDC or RNDIS filters */
 	if (skb && !is_promisc(cdc_filter)) {
 		u8		*dest = skb->data;
@@ -763,6 +1128,7 @@ static netdev_tx_t eth_start_xmit(struct sk_buff *skb,
 		/* ignores USB_CDC_PACKET_TYPE_DIRECTED */
 	}
 
+<<<<<<< HEAD
 	spin_lock_irqsave(&dev->lock, flags);
 	if (dev->wrap && dev->port_usb)
 		skb = dev->wrap(dev->port_usb, skb);
@@ -795,12 +1161,16 @@ static netdev_tx_t eth_start_xmit(struct sk_buff *skb,
 			rndis_test_tx_stop, rndis_test_tx_complete);
 	}
 	rndis_test_tx_net_in++;
+=======
+	spin_lock_irqsave(&dev->req_lock, flags);
+>>>>>>> upstream/android-13
 	/*
 	 * this freelist can be empty if an interrupt triggered disconnect()
 	 * and reconfigured the gadget (shutting down this queue) after the
 	 * network stack decided to xmit but before we got the spinlock.
 	 */
 	if (list_empty(&dev->tx_reqs)) {
+<<<<<<< HEAD
 		busyCnt++;
 		if (__ratelimit(&ratelimit2))
 			U_ETHER_DBG("okCnt: %lu, busyCnt: %lu, tx_busy: %lu\n",
@@ -903,10 +1273,77 @@ static netdev_tx_t eth_start_xmit(struct sk_buff *skb,
 
 	} else {
 		length = skb->len;
+=======
+		spin_unlock_irqrestore(&dev->req_lock, flags);
+		return NETDEV_TX_BUSY;
+	}
+
+	req = list_first_entry(&dev->tx_reqs, struct usb_request, list);
+	list_del(&req->list);
+
+	/* temporarily stop TX queue when the freelist empties */
+	if (list_empty(&dev->tx_reqs))
+		netif_stop_queue(net);
+	spin_unlock_irqrestore(&dev->req_lock, flags);
+
+	/* no buffer copies needed, unless the network stack did it
+	 * or the hardware can't use skb buffers.
+	 * or there's not enough space for extra headers we need
+	 */
+	if (dev->wrap) {
+		unsigned long	flags;
+
+		spin_lock_irqsave(&dev->lock, flags);
+		if (dev->port_usb)
+			skb = dev->wrap(dev->port_usb, skb);
+		spin_unlock_irqrestore(&dev->lock, flags);
+		if (!skb) {
+			/* Multi frame CDC protocols may store the frame for
+			 * later which is not a dropped frame.
+			 */
+			if (dev->port_usb->supports_multi_frame)
+				goto multiframe;
+			goto drop;
+		}
+	}
+
+	spin_lock_irqsave(&dev->req_lock, flags);
+	dev->tx_skb_hold_count++;
+	spin_unlock_irqrestore(&dev->req_lock, flags);
+
+	if (dev->port_usb->multi_pkt_xfer) {
+		memcpy(req->buf + req->length, skb->data, skb->len);
+		req->length = req->length + skb->len;
+		length = req->length;
+		dev_kfree_skb_any(skb);
+
+		spin_lock_irqsave(&dev->req_lock, flags);
+		if (dev->tx_skb_hold_count < dev->dl_max_pkts_per_xfer) {
+			list_add(&req->list, &dev->tx_reqs);
+			spin_unlock_irqrestore(&dev->req_lock, flags);
+
+			tx_timeout = dev->occurred_timeout ?
+				MIN_TX_TIMEOUT_NSECS : MAX_TX_TIMEOUT_NSECS;
+			dev->occurred_timeout = 0;
+			hrtimer_start(&dev->tx_timer, ktime_set(0, tx_timeout),
+					HRTIMER_MODE_REL);
+			dev->en_timer = 1;
+			goto success;
+		}
+
+		spin_unlock_irqrestore(&dev->req_lock, flags);
+
+		spin_lock_irqsave(&dev->lock, flags);
+		dev->tx_skb_hold_count = 0;
+		spin_unlock_irqrestore(&dev->lock, flags);
+	} else {
+		req->length = skb->len;
+>>>>>>> upstream/android-13
 		req->buf = skb->data;
 		req->context = skb;
 	}
 
+<<<<<<< HEAD
 
 	/* NCM requires no zlp if transfer is dwNtbInMaxSize */
 	if (dev->port_usb->is_fixed &&
@@ -958,6 +1395,25 @@ static netdev_tx_t eth_start_xmit(struct sk_buff *skb,
 		if (list_empty(&dev->tx_reqs))
 			netif_start_queue(net);
 		list_add_tail(&req->list, &dev->tx_reqs);
+=======
+	retval = tx_task(dev, req);
+	switch (retval) {
+		default:
+			DBG(dev, "tx queue err %d\n", retval);
+			break;
+	}
+
+	if (retval) {
+		if (!dev->port_usb->multi_pkt_xfer)
+			dev_kfree_skb_any(skb);
+drop:
+		dev->net->stats.tx_dropped++;
+multiframe:
+		spin_lock_irqsave(&dev->req_lock, flags);
+		if (list_empty(&dev->tx_reqs))
+			netif_start_queue(net);
+		list_add(&req->list, &dev->tx_reqs);
+>>>>>>> upstream/android-13
 		spin_unlock_irqrestore(&dev->req_lock, flags);
 	}
 success:
@@ -968,14 +1424,22 @@ success:
 
 static void eth_start(struct eth_dev *dev, gfp_t gfp_flags)
 {
+<<<<<<< HEAD
 	U_ETHER_DBG("\n");
 	pr_info("%s - queue_work set_rps_map\n", __func__);
 	queue_work(uether_rps_wq, &dev->rps_map_work);
+=======
+	DBG(dev, "%s\n", __func__);
+>>>>>>> upstream/android-13
 
 	/* fill the rx queue */
 	rx_fill(dev, gfp_flags);
 
 	/* and open the tx floodgates */
+<<<<<<< HEAD
+=======
+	dev->occurred_timeout = 1;
+>>>>>>> upstream/android-13
 	atomic_set(&dev->tx_qlen, 0);
 	netif_wake_queue(dev->net);
 }
@@ -985,7 +1449,11 @@ static int eth_open(struct net_device *net)
 	struct eth_dev	*dev = netdev_priv(net);
 	struct gether	*link;
 
+<<<<<<< HEAD
 	U_ETHER_DBG("\n");
+=======
+	DBG(dev, "%s\n", __func__);
+>>>>>>> upstream/android-13
 	if (netif_carrier_ok(dev->net))
 		eth_start(dev, GFP_KERNEL);
 
@@ -1003,8 +1471,12 @@ static int eth_stop(struct net_device *net)
 	struct eth_dev	*dev = netdev_priv(net);
 	unsigned long	flags;
 
+<<<<<<< HEAD
 	U_ETHER_DBG("\n");
 	pr_info("%s, START !!!!\n", __func__);
+=======
+	VDBG(dev, "%s\n", __func__);
+>>>>>>> upstream/android-13
 	netif_stop_queue(net);
 
 	DBG(dev, "stop stats: rx/tx %ld/%ld, errs %ld/%ld\n",
@@ -1044,7 +1516,10 @@ static int eth_stop(struct net_device *net)
 		}
 	}
 	spin_unlock_irqrestore(&dev->lock, flags);
+<<<<<<< HEAD
 	pr_info("%s, END !!!!\n", __func__);
+=======
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -1085,7 +1560,10 @@ static const struct net_device_ops eth_netdev_ops = {
 	.ndo_open		= eth_open,
 	.ndo_stop		= eth_stop,
 	.ndo_start_xmit		= eth_start_xmit,
+<<<<<<< HEAD
 	.ndo_change_mtu		= ueth_change_mtu,
+=======
+>>>>>>> upstream/android-13
 	.ndo_set_mac_address 	= eth_mac_addr,
 	.ndo_validate_addr	= eth_validate_addr,
 };
@@ -1094,7 +1572,11 @@ static struct device_type gadget_type = {
 	.name	= "gadget",
 };
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * gether_setup_name - initialize one ethernet-over-usb link
  * @g: gadget to associated with these links
  * @ethaddr: NULL, or a buffer in which the ethernet address of the
@@ -1115,7 +1597,10 @@ struct eth_dev *gether_setup_name(struct usb_gadget *g,
 	struct eth_dev		*dev;
 	struct net_device	*net;
 	int			status;
+<<<<<<< HEAD
 	static unsigned char a[6] = {0x06, 0x16, 0x26, 0x36, 0x46, 0x56};
+=======
+>>>>>>> upstream/android-13
 
 	net = alloc_etherdev(sizeof *dev);
 	if (!net)
@@ -1124,11 +1609,16 @@ struct eth_dev *gether_setup_name(struct usb_gadget *g,
 	dev = netdev_priv(net);
 	spin_lock_init(&dev->lock);
 	spin_lock_init(&dev->req_lock);
+<<<<<<< HEAD
 	spin_lock_init(&dev->reqrx_lock);
 	INIT_WORK(&dev->work, eth_work);
 	INIT_WORK(&dev->rx_work, process_rx_w);
 	INIT_WORK(&dev->rx_work1, process_rx_w1);
 	INIT_WORK(&dev->rps_map_work, set_rps_map_work);
+=======
+	INIT_WORK(&dev->work, eth_work);
+	INIT_WORK(&dev->rx_work, process_rx_w);
+>>>>>>> upstream/android-13
 	INIT_LIST_HEAD(&dev->tx_reqs);
 	INIT_LIST_HEAD(&dev->rx_reqs);
 
@@ -1142,12 +1632,18 @@ struct eth_dev *gether_setup_name(struct usb_gadget *g,
 	if (get_ether_addr(dev_addr, net->dev_addr))
 		dev_warn(&g->dev,
 			"using random %s ethernet address\n", "self");
+<<<<<<< HEAD
 
 	ether_addr_copy(dev->host_mac, a);
 	pr_debug("%s, rndis: %x:%x:%x:%x:%x:%x\n", __func__,
 		   dev->host_mac[0], dev->host_mac[1],
 		   dev->host_mac[2], dev->host_mac[3],
 		   dev->host_mac[4], dev->host_mac[5]);
+=======
+	if (get_ether_addr(host_addr, dev->host_mac))
+		dev_warn(&g->dev,
+			"using random %s ethernet address\n", "host");
+>>>>>>> upstream/android-13
 
 	if (ethaddr)
 		memcpy(ethaddr, dev->host_mac, ETH_ALEN);
@@ -1189,7 +1685,11 @@ struct net_device *gether_setup_name_default(const char *netname)
 {
 	struct net_device	*net;
 	struct eth_dev		*dev;
+<<<<<<< HEAD
 
+=======
+	pr_info("%s: rndis multi-packet support!\n", __func__);
+>>>>>>> upstream/android-13
 	net = alloc_etherdev(sizeof(*dev));
 	if (!net)
 		return ERR_PTR(-ENOMEM);
@@ -1197,6 +1697,7 @@ struct net_device *gether_setup_name_default(const char *netname)
 	dev = netdev_priv(net);
 	spin_lock_init(&dev->lock);
 	spin_lock_init(&dev->req_lock);
+<<<<<<< HEAD
 	spin_lock_init(&dev->reqrx_lock);
 	INIT_WORK(&dev->work, eth_work);
 	INIT_WORK(&dev->rx_work, process_rx_w);
@@ -1210,6 +1711,18 @@ struct net_device *gether_setup_name_default(const char *netname)
 	/* network device setup */
 	net->features |= NETIF_F_GSO | NETIF_F_SG;
 	net->hw_features |= NETIF_F_GSO | NETIF_F_SG;
+=======
+	INIT_WORK(&dev->work, eth_work);
+	INIT_WORK(&dev->rx_work, process_rx_w);
+	INIT_LIST_HEAD(&dev->tx_reqs);
+	INIT_LIST_HEAD(&dev->rx_reqs);
+
+	hrtimer_init(&dev->tx_timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
+	dev->tx_timer.function = tx_timeout;
+	skb_queue_head_init(&dev->rx_frames);
+
+	/* network device setup */
+>>>>>>> upstream/android-13
 	dev->net = net;
 	dev->qmult = QMULT_DEFAULT;
 	snprintf(net->name, sizeof(net->name), "%s%%d", netname);
@@ -1236,19 +1749,33 @@ int gether_register_netdev(struct net_device *net)
 {
 	struct eth_dev *dev;
 	struct usb_gadget *g;
+<<<<<<< HEAD
 	struct sockaddr sa;
+=======
+>>>>>>> upstream/android-13
 	int status;
 
 	if (!net->dev.parent)
 		return -EINVAL;
 	dev = netdev_priv(net);
 	g = dev->gadget;
+<<<<<<< HEAD
+=======
+
+	net->addr_assign_type = NET_ADDR_RANDOM;
+	eth_hw_addr_set(net, dev->dev_mac);
+
+>>>>>>> upstream/android-13
 	status = register_netdev(net);
 	if (status < 0) {
 		dev_dbg(&g->dev, "register_netdev failed, %d\n", status);
 		return status;
 	} else {
 		INFO(dev, "HOST MAC %pM\n", dev->host_mac);
+<<<<<<< HEAD
+=======
+		INFO(dev, "MAC %pM\n", dev->dev_mac);
+>>>>>>> upstream/android-13
 
 		/* two kinds of host-initiated state changes:
 		 *  - iff DATA transfer is active, carrier is "on"
@@ -1256,6 +1783,7 @@ int gether_register_netdev(struct net_device *net)
 		 */
 		netif_carrier_off(net);
 	}
+<<<<<<< HEAD
 	sa.sa_family = net->type;
 	memcpy(sa.sa_data, dev->dev_mac, ETH_ALEN);
 	rtnl_lock();
@@ -1265,6 +1793,8 @@ int gether_register_netdev(struct net_device *net)
 		pr_warn("cannot set self ethernet address: %d\n", status);
 	else
 		INFO(dev, "MAC %pM\n", dev->dev_mac);
+=======
+>>>>>>> upstream/android-13
 
 	return status;
 }
@@ -1296,10 +1826,23 @@ EXPORT_SYMBOL_GPL(gether_set_dev_addr);
 int gether_get_dev_addr(struct net_device *net, char *dev_addr, int len)
 {
 	struct eth_dev *dev;
+<<<<<<< HEAD
 
 	dev = netdev_priv(net);
 	return get_ether_addr_str(dev->dev_mac, dev_addr, len);
 
+=======
+	int ret;
+
+	dev = netdev_priv(net);
+	ret = get_ether_addr_str(dev->dev_mac, dev_addr, len);
+	if (ret + 1 < len) {
+		dev_addr[ret++] = '\n';
+		dev_addr[ret] = '\0';
+	}
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(gether_get_dev_addr);
 
@@ -1319,10 +1862,23 @@ EXPORT_SYMBOL_GPL(gether_set_host_addr);
 int gether_get_host_addr(struct net_device *net, char *host_addr, int len)
 {
 	struct eth_dev *dev;
+<<<<<<< HEAD
 
 	dev = netdev_priv(net);
 	return get_ether_addr_str(dev->host_mac, host_addr, len);
 
+=======
+	int ret;
+
+	dev = netdev_priv(net);
+	ret = get_ether_addr_str(dev->host_mac, host_addr, len);
+	if (ret + 1 < len) {
+		host_addr[ret++] = '\n';
+		host_addr[ret] = '\0';
+	}
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(gether_get_host_addr);
 
@@ -1369,6 +1925,7 @@ EXPORT_SYMBOL_GPL(gether_get_qmult);
 
 int gether_get_ifname(struct net_device *net, char *name, int len)
 {
+<<<<<<< HEAD
 
 	rtnl_lock();
 	strlcpy(name, netdev_name(net), len);
@@ -1388,6 +1945,48 @@ void gether_update_dl_max_xfer_size(struct gether *link, uint32_t s)
 EXPORT_SYMBOL_GPL(gether_update_dl_max_xfer_size);
 
 /**
+=======
+	struct eth_dev *dev = netdev_priv(net);
+	int ret;
+
+	rtnl_lock();
+	ret = scnprintf(name, len, "%s\n",
+			dev->ifname_set ? net->name : netdev_name(net));
+	rtnl_unlock();
+	return ret;
+}
+EXPORT_SYMBOL_GPL(gether_get_ifname);
+
+int gether_set_ifname(struct net_device *net, const char *name, int len)
+{
+	struct eth_dev *dev = netdev_priv(net);
+	char tmp[IFNAMSIZ];
+	const char *p;
+
+	if (name[len - 1] == '\n')
+		len--;
+
+	if (len >= sizeof(tmp))
+		return -E2BIG;
+
+	strscpy(tmp, name, len + 1);
+	if (!dev_valid_name(tmp))
+		return -EINVAL;
+
+	/* Require exactly one %d, so binding will not fail with EEXIST. */
+	p = strchr(name, '%');
+	if (!p || p[1] != 'd' || strchr(p + 2, '%'))
+		return -EINVAL;
+
+	strncpy(net->name, tmp, sizeof(net->name));
+	dev->ifname_set = true;
+
+	return 0;
+}
+EXPORT_SYMBOL_GPL(gether_set_ifname);
+
+/*
+>>>>>>> upstream/android-13
  * gether_cleanup - remove Ethernet-over-USB device
  * Context: may sleep
  *
@@ -1427,6 +2026,7 @@ struct net_device *gether_connect(struct gether *link)
 
 	if (!dev)
 		return ERR_PTR(-EINVAL);
+<<<<<<< HEAD
 	link->header = kzalloc(sizeof(struct rndis_packet_msg_type),
 			GFP_ATOMIC);
 	if (!link->header) {
@@ -1435,6 +2035,9 @@ struct net_device *gether_connect(struct gether *link)
 	}
 
 	U_ETHER_DBG("\n");
+=======
+
+>>>>>>> upstream/android-13
 	link->in_ep->driver_data = dev;
 	result = usb_ep_enable(link->in_ep);
 	if (result != 0) {
@@ -1457,6 +2060,10 @@ struct net_device *gether_connect(struct gether *link)
 
 	if (result == 0) {
 		dev->zlp = link->is_zlp_ok;
+<<<<<<< HEAD
+=======
+		dev->no_skb_reserve = gadget_avoids_skb_reserve(dev->gadget);
+>>>>>>> upstream/android-13
 		DBG(dev, "qlen %d\n", qlen(dev->gadget, dev->qmult));
 
 		dev->header_len = link->header_len;
@@ -1464,7 +2071,10 @@ struct net_device *gether_connect(struct gether *link)
 		dev->wrap = link->wrap;
 		dev->ul_max_pkts_per_xfer = link->ul_max_pkts_per_xfer;
 		dev->dl_max_pkts_per_xfer = link->dl_max_pkts_per_xfer;
+<<<<<<< HEAD
 		dev->dl_max_xfer_size = link->dl_max_transfer_len;
+=======
+>>>>>>> upstream/android-13
 
 		spin_lock(&dev->lock);
 		dev->tx_skb_hold_count = 0;
@@ -1490,12 +2100,19 @@ struct net_device *gether_connect(struct gether *link)
 fail1:
 		(void) usb_ep_disable(link->in_ep);
 	}
+<<<<<<< HEAD
 	if (result < 0) {
 fail0:
 		kfree(link->header);
 fail:
 		return ERR_PTR(result);
 	}
+=======
+fail0:
+	/* caller is responsible for cleanup on error */
+	if (result < 0)
+		return ERR_PTR(result);
+>>>>>>> upstream/android-13
 	return dev->net;
 }
 EXPORT_SYMBOL_GPL(gether_connect);
@@ -1522,6 +2139,7 @@ void gether_disconnect(struct gether *link)
 	if (!dev)
 		return;
 
+<<<<<<< HEAD
 	U_ETHER_DBG("\n");
 	rndis_test_rx_usb_in = 0;
 	rndis_test_rx_net_out = 0;
@@ -1533,6 +2151,9 @@ void gether_disconnect(struct gether *link)
 	rndis_test_tx_nomem = 0;
 	rndis_test_tx_usb_out = 0;
 	rndis_test_tx_complete = 0;
+=======
+	DBG(dev, "%s\n", __func__);
+>>>>>>> upstream/android-13
 
 	netif_stop_queue(dev->net);
 	netif_carrier_off(dev->net);
@@ -1544,6 +2165,7 @@ void gether_disconnect(struct gether *link)
 	usb_ep_disable(link->in_ep);
 	spin_lock(&dev->req_lock);
 	while (!list_empty(&dev->tx_reqs)) {
+<<<<<<< HEAD
 		req = container_of(dev->tx_reqs.next,
 					struct usb_request, list);
 		list_del(&req->list);
@@ -1558,10 +2180,22 @@ void gether_disconnect(struct gether *link)
 	}
 	kfree(link->header);
 	link->header = NULL;
+=======
+		req = list_first_entry(&dev->tx_reqs, struct usb_request, list);
+		list_del(&req->list);
+
+		spin_unlock(&dev->req_lock);
+		if (link->multi_pkt_xfer)
+			kfree(req->buf);
+		usb_ep_free_request(link->in_ep, req);
+		spin_lock(&dev->req_lock);
+	}
+>>>>>>> upstream/android-13
 	spin_unlock(&dev->req_lock);
 	link->in_ep->desc = NULL;
 
 	usb_ep_disable(link->out_ep);
+<<<<<<< HEAD
 	spin_lock(&dev->reqrx_lock);
 	while (!list_empty(&dev->rx_reqs)) {
 		req = container_of(dev->rx_reqs.next,
@@ -1573,10 +2207,26 @@ void gether_disconnect(struct gether *link)
 		spin_lock(&dev->reqrx_lock);
 	}
 	spin_unlock(&dev->reqrx_lock);
+=======
+	spin_lock(&dev->req_lock);
+	while (!list_empty(&dev->rx_reqs)) {
+		req = list_first_entry(&dev->rx_reqs, struct usb_request, list);
+		list_del(&req->list);
+
+		spin_unlock(&dev->req_lock);
+		usb_ep_free_request(link->out_ep, req);
+		spin_lock(&dev->req_lock);
+	}
+	spin_unlock(&dev->req_lock);
+>>>>>>> upstream/android-13
 	spin_lock(&dev->rx_frames.lock);
 	while ((skb = __skb_dequeue(&dev->rx_frames)))
 		dev_kfree_skb_any(skb);
 	spin_unlock(&dev->rx_frames.lock);
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	link->out_ep->desc = NULL;
 
 	/* finish forgetting about this USB link episode */
@@ -1587,11 +2237,20 @@ void gether_disconnect(struct gether *link)
 	spin_lock(&dev->lock);
 	dev->port_usb = NULL;
 	spin_unlock(&dev->lock);
+<<<<<<< HEAD
+=======
+
+	if (dev->en_timer) {
+		hrtimer_cancel(&dev->tx_timer);
+		dev->en_timer = 0;
+	}
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(gether_disconnect);
 
 static int __init gether_init(void)
 {
+<<<<<<< HEAD
 	uether_wq  = create_singlethread_workqueue("uether");
 	if (!uether_wq) {
 		pr_info("%s: create workqueue fail: uether\n", __func__);
@@ -1606,6 +2265,13 @@ static int __init gether_init(void)
 	uether_rps_wq  = create_singlethread_workqueue("uether_rps");
 	if (!uether_rps_wq)
 		pr_info("%s: create workqueue fail: uether_rps\n", __func__);
+=======
+	uether_wq  = create_workqueue("uether");
+	if (!uether_wq) {
+		pr_err("%s: Unable to create workqueue: uether\n", __func__);
+		return -ENOMEM;
+	}
+>>>>>>> upstream/android-13
 	return 0;
 }
 module_init(gether_init);
@@ -1613,6 +2279,7 @@ module_init(gether_init);
 static void __exit gether_exit(void)
 {
 	destroy_workqueue(uether_wq);
+<<<<<<< HEAD
 	destroy_workqueue(uether_wq1);
 	destroy_workqueue(uether_rps_wq);
 }
@@ -1620,3 +2287,9 @@ module_exit(gether_exit);
 MODULE_AUTHOR("David Brownell");
 MODULE_DESCRIPTION("ethernet over USB driver");
 MODULE_LICENSE("GPL v2");
+=======
+}
+module_exit(gether_exit);
+MODULE_LICENSE("GPL");
+MODULE_AUTHOR("David Brownell");
+>>>>>>> upstream/android-13

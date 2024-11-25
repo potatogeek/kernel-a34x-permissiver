@@ -1,6 +1,14 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0
 /*
  * Copyright (c) 2019 MediaTek Inc.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2016 MediaTek Inc.
+ * Author: Ming Hsiu Tsai <minghsiu.tsai@mediatek.com>
+ *         Rick Chang <rick.chang@mediatek.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -10,7 +18,10 @@
 
 #define TEM	0x01
 #define SOF0	0xc0
+<<<<<<< HEAD
 #define DHT     0xc4
+=======
+>>>>>>> upstream/android-13
 #define RST	0xd0
 #define SOI	0xd8
 #define EOI	0xd9
@@ -57,14 +68,22 @@ static bool mtk_jpeg_do_parse(struct mtk_jpeg_dec_param *param, u8 *src_addr_va,
 			      u32 src_size)
 {
 	bool notfound = true;
+<<<<<<< HEAD
 	bool fileend = false;
+=======
+>>>>>>> upstream/android-13
 	struct mtk_jpeg_stream stream;
 
 	stream.addr = src_addr_va;
 	stream.size = src_size;
 	stream.curr = 0;
+<<<<<<< HEAD
 	/* need check huffman for hardware enhance */
 	while (!fileend && (!param->huffman_exist || notfound)) {
+=======
+
+	while (notfound) {
+>>>>>>> upstream/android-13
 		int i, length, byte;
 		u32 word;
 
@@ -125,6 +144,7 @@ static bool mtk_jpeg_do_parse(struct mtk_jpeg_dec_param *param, u8 *src_addr_va,
 			break;
 		case RST ... RST + 7:
 		case SOI:
+<<<<<<< HEAD
 		case TEM:
 			break;
 		case EOI:
@@ -132,6 +152,10 @@ static bool mtk_jpeg_do_parse(struct mtk_jpeg_dec_param *param, u8 *src_addr_va,
 			break;
 		case DHT:
 			param->huffman_exist = 1;
+=======
+		case EOI:
+		case TEM:
+>>>>>>> upstream/android-13
 			break;
 		default:
 			if (read_word_be(&stream, &word))
@@ -148,8 +172,11 @@ static bool mtk_jpeg_do_parse(struct mtk_jpeg_dec_param *param, u8 *src_addr_va,
 bool mtk_jpeg_parse(struct mtk_jpeg_dec_param *param, u8 *src_addr_va,
 		    u32 src_size)
 {
+<<<<<<< HEAD
 	if (src_addr_va == NULL)
 		return false;
+=======
+>>>>>>> upstream/android-13
 	if (!mtk_jpeg_do_parse(param, src_addr_va, src_size))
 		return false;
 	if (mtk_jpeg_dec_fill_param(param))

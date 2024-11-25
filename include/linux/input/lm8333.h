@@ -1,6 +1,10 @@
 /*
  * public include for LM8333 keypad driver - same license as driver
+<<<<<<< HEAD
  * Copyright (C) 2012 Wolfram Sang, Pengutronix <w.sang@pengutronix.de>
+=======
+ * Copyright (C) 2012 Wolfram Sang, Pengutronix <kernel@pengutronix.de>
+>>>>>>> upstream/android-13
  */
 
 #ifndef _LM8333_H

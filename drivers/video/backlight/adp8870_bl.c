@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Backlight driver for Analog Devices ADP8870 Backlight Devices
  *
  * Copyright 2009-2011 Analog Devices Inc.
+<<<<<<< HEAD
  *
  * Licensed under the GPL-2 or later.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -400,6 +407,7 @@ static int adp8870_bl_set(struct backlight_device *bl, int brightness)
 
 static int adp8870_bl_update_status(struct backlight_device *bl)
 {
+<<<<<<< HEAD
 	int brightness = bl->props.brightness;
 
 	if (bl->props.power != FB_BLANK_UNBLANK)
@@ -409,6 +417,9 @@ static int adp8870_bl_update_status(struct backlight_device *bl)
 		brightness = 0;
 
 	return adp8870_bl_set(bl, brightness);
+=======
+	return adp8870_bl_set(bl, backlight_get_brightness(bl));
+>>>>>>> upstream/android-13
 }
 
 static int adp8870_bl_get_brightness(struct backlight_device *bl)
@@ -992,5 +1003,9 @@ static struct i2c_driver adp8870_driver = {
 module_i2c_driver(adp8870_driver);
 
 MODULE_LICENSE("GPL v2");
+<<<<<<< HEAD
 MODULE_AUTHOR("Michael Hennerich <hennerich@blackfin.uclinux.org>");
+=======
+MODULE_AUTHOR("Michael Hennerich <michael.hennerich@analog.com>");
+>>>>>>> upstream/android-13
 MODULE_DESCRIPTION("ADP8870 Backlight driver");

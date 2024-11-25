@@ -1,10 +1,19 @@
 // SPDX-License-Identifier: GPL-2.0
 #include <linux/kmod.h>
 #include <linux/netdevice.h>
+<<<<<<< HEAD
+=======
+#include <linux/inetdevice.h>
+>>>>>>> upstream/android-13
 #include <linux/etherdevice.h>
 #include <linux/rtnetlink.h>
 #include <linux/net_tstamp.h>
 #include <linux/wireless.h>
+<<<<<<< HEAD
+=======
+#include <linux/if_bridge.h>
+#include <net/dsa.h>
+>>>>>>> upstream/android-13
 #include <net/wext.h>
 
 /*
@@ -24,6 +33,7 @@ static int dev_ifname(struct net *net, struct ifreq *ifr)
 	return netdev_get_name(net, ifr->ifr_name, ifr->ifr_ifindex);
 }
 
+<<<<<<< HEAD
 static gifconf_func_t *gifconf_list[NPROTO];
 
 /**
@@ -44,11 +54,14 @@ int register_gifconf(unsigned int family, gifconf_func_t *gifconf)
 }
 EXPORT_SYMBOL(register_gifconf);
 
+=======
+>>>>>>> upstream/android-13
 /*
  *	Perform a SIOCGIFCONF call. This structure will change
  *	size eventually, and there is nothing I can do about it.
  *	Thus we will need a 'compatibility mode'.
  */
+<<<<<<< HEAD
 
 int dev_ifconf(struct net *net, struct ifconf *ifc, int size)
 {
@@ -97,6 +110,105 @@ int dev_ifconf(struct net *net, struct ifconf *ifc, int size)
 	return 0;
 }
 
+=======
+int dev_ifconf(struct net *net, struct ifconf __user *uifc)
+{
+	struct net_device *dev;
+	void __user *pos;
+	size_t size;
+	int len, total = 0, done;
+
+	/* both the ifconf and the ifreq structures are slightly different */
+	if (in_compat_syscall()) {
+		struct compat_ifconf ifc32;
+
+		if (copy_from_user(&ifc32, uifc, sizeof(struct compat_ifconf)))
+			return -EFAULT;
+
+		pos = compat_ptr(ifc32.ifcbuf);
+		len = ifc32.ifc_len;
+		size = sizeof(struct compat_ifreq);
+	} else {
+		struct ifconf ifc;
+
+		if (copy_from_user(&ifc, uifc, sizeof(struct ifconf)))
+			return -EFAULT;
+
+		pos = ifc.ifc_buf;
+		len = ifc.ifc_len;
+		size = sizeof(struct ifreq);
+	}
+
+	/* Loop over the interfaces, and write an info block for each. */
+	rtnl_lock();
+	for_each_netdev(net, dev) {
+		if (!pos)
+			done = inet_gifconf(dev, NULL, 0, size);
+		else
+			done = inet_gifconf(dev, pos + total,
+					    len - total, size);
+		if (done < 0) {
+			rtnl_unlock();
+			return -EFAULT;
+		}
+		total += done;
+	}
+	rtnl_unlock();
+
+	return put_user(total, &uifc->ifc_len);
+}
+
+static int dev_getifmap(struct net_device *dev, struct ifreq *ifr)
+{
+	struct ifmap *ifmap = &ifr->ifr_map;
+
+	if (in_compat_syscall()) {
+		struct compat_ifmap *cifmap = (struct compat_ifmap *)ifmap;
+
+		cifmap->mem_start = dev->mem_start;
+		cifmap->mem_end   = dev->mem_end;
+		cifmap->base_addr = dev->base_addr;
+		cifmap->irq       = dev->irq;
+		cifmap->dma       = dev->dma;
+		cifmap->port      = dev->if_port;
+
+		return 0;
+	}
+
+	ifmap->mem_start  = dev->mem_start;
+	ifmap->mem_end    = dev->mem_end;
+	ifmap->base_addr  = dev->base_addr;
+	ifmap->irq        = dev->irq;
+	ifmap->dma        = dev->dma;
+	ifmap->port       = dev->if_port;
+
+	return 0;
+}
+
+static int dev_setifmap(struct net_device *dev, struct ifreq *ifr)
+{
+	struct compat_ifmap *cifmap = (struct compat_ifmap *)&ifr->ifr_map;
+
+	if (!dev->netdev_ops->ndo_set_config)
+		return -EOPNOTSUPP;
+
+	if (in_compat_syscall()) {
+		struct ifmap ifmap = {
+			.mem_start  = cifmap->mem_start,
+			.mem_end    = cifmap->mem_end,
+			.base_addr  = cifmap->base_addr,
+			.irq        = cifmap->irq,
+			.dma        = cifmap->dma,
+			.port       = cifmap->port,
+		};
+
+		return dev->netdev_ops->ndo_set_config(dev, &ifmap);
+	}
+
+	return dev->netdev_ops->ndo_set_config(dev, &ifr->ifr_map);
+}
+
+>>>>>>> upstream/android-13
 /*
  *	Perform the SIOCxIFxxx calls, inside rcu_read_lock()
  */
@@ -122,6 +234,7 @@ static int dev_ifsioc_locked(struct net *net, struct ifreq *ifr, unsigned int cm
 		ifr->ifr_mtu = dev->mtu;
 		return 0;
 
+<<<<<<< HEAD
 	case SIOCGIFHWADDR:
 		if (!dev->addr_len)
 			memset(ifr->ifr_hwaddr.sa_data, 0,
@@ -133,11 +246,14 @@ static int dev_ifsioc_locked(struct net *net, struct ifreq *ifr, unsigned int cm
 		ifr->ifr_hwaddr.sa_family = dev->type;
 		return 0;
 
+=======
+>>>>>>> upstream/android-13
 	case SIOCGIFSLAVE:
 		err = -EINVAL;
 		break;
 
 	case SIOCGIFMAP:
+<<<<<<< HEAD
 		ifr->ifr_map.mem_start = dev->mem_start;
 		ifr->ifr_map.mem_end   = dev->mem_end;
 		ifr->ifr_map.base_addr = dev->base_addr;
@@ -145,6 +261,9 @@ static int dev_ifsioc_locked(struct net *net, struct ifreq *ifr, unsigned int cm
 		ifr->ifr_map.dma       = dev->dma;
 		ifr->ifr_map.port      = dev->if_port;
 		return 0;
+=======
+		return dev_getifmap(dev, ifr);
+>>>>>>> upstream/android-13
 
 	case SIOCGIFINDEX:
 		ifr->ifr_ifindex = dev->ifindex;
@@ -187,8 +306,17 @@ static int net_hwtstamp_validate(struct ifreq *ifr)
 	case HWTSTAMP_TX_OFF:
 	case HWTSTAMP_TX_ON:
 	case HWTSTAMP_TX_ONESTEP_SYNC:
+<<<<<<< HEAD
 		tx_type_valid = 1;
 		break;
+=======
+	case HWTSTAMP_TX_ONESTEP_P2P:
+		tx_type_valid = 1;
+		break;
+	case __HWTSTAMP_TX_CNT:
+		/* not a real value */
+		break;
+>>>>>>> upstream/android-13
 	}
 
 	switch (rx_filter) {
@@ -210,6 +338,12 @@ static int net_hwtstamp_validate(struct ifreq *ifr)
 	case HWTSTAMP_FILTER_NTP_ALL:
 		rx_filter_valid = 1;
 		break;
+<<<<<<< HEAD
+=======
+	case __HWTSTAMP_FILTER_CNT:
+		/* not a real value */
+		break;
+>>>>>>> upstream/android-13
 	}
 
 	if (!tx_type_valid || !rx_filter_valid)
@@ -218,10 +352,82 @@ static int net_hwtstamp_validate(struct ifreq *ifr)
 	return 0;
 }
 
+<<<<<<< HEAD
 /*
  *	Perform the SIOCxIFxxx calls, inside rtnl_lock()
  */
 static int dev_ifsioc(struct net *net, struct ifreq *ifr, unsigned int cmd)
+=======
+static int dev_eth_ioctl(struct net_device *dev,
+			 struct ifreq *ifr, unsigned int cmd)
+{
+	const struct net_device_ops *ops = dev->netdev_ops;
+	int err;
+
+	err = dsa_ndo_eth_ioctl(dev, ifr, cmd);
+	if (err == 0 || err != -EOPNOTSUPP)
+		return err;
+
+	if (ops->ndo_eth_ioctl) {
+		if (netif_device_present(dev))
+			err = ops->ndo_eth_ioctl(dev, ifr, cmd);
+		else
+			err = -ENODEV;
+	}
+
+	return err;
+}
+
+static int dev_siocbond(struct net_device *dev,
+			struct ifreq *ifr, unsigned int cmd)
+{
+	const struct net_device_ops *ops = dev->netdev_ops;
+
+	if (ops->ndo_siocbond) {
+		if (netif_device_present(dev))
+			return ops->ndo_siocbond(dev, ifr, cmd);
+		else
+			return -ENODEV;
+	}
+
+	return -EOPNOTSUPP;
+}
+
+static int dev_siocdevprivate(struct net_device *dev, struct ifreq *ifr,
+			      void __user *data, unsigned int cmd)
+{
+	const struct net_device_ops *ops = dev->netdev_ops;
+
+	if (ops->ndo_siocdevprivate) {
+		if (netif_device_present(dev))
+			return ops->ndo_siocdevprivate(dev, ifr, data, cmd);
+		else
+			return -ENODEV;
+	}
+
+	return -EOPNOTSUPP;
+}
+
+static int dev_siocwandev(struct net_device *dev, struct if_settings *ifs)
+{
+	const struct net_device_ops *ops = dev->netdev_ops;
+
+	if (ops->ndo_siocwandev) {
+		if (netif_device_present(dev))
+			return ops->ndo_siocwandev(dev, ifs);
+		else
+			return -ENODEV;
+	}
+
+	return -EOPNOTSUPP;
+}
+
+/*
+ *	Perform the SIOCxIFxxx calls, inside rtnl_lock()
+ */
+static int dev_ifsioc(struct net *net, struct ifreq *ifr, void __user *data,
+		      unsigned int cmd)
+>>>>>>> upstream/android-13
 {
 	int err;
 	struct net_device *dev = __dev_get_by_name(net, ifr->ifr_name);
@@ -234,7 +440,11 @@ static int dev_ifsioc(struct net *net, struct ifreq *ifr, unsigned int cmd)
 
 	switch (cmd) {
 	case SIOCSIFFLAGS:	/* Set interface flags */
+<<<<<<< HEAD
 		return dev_change_flags(dev, ifr->ifr_flags);
+=======
+		return dev_change_flags(dev, ifr->ifr_flags, NULL);
+>>>>>>> upstream/android-13
 
 	case SIOCSIFMETRIC:	/* Set the metric on the interface
 				   (currently unused) */
@@ -246,7 +456,11 @@ static int dev_ifsioc(struct net *net, struct ifreq *ifr, unsigned int cmd)
 	case SIOCSIFHWADDR:
 		if (dev->addr_len > sizeof(struct sockaddr))
 			return -EINVAL;
+<<<<<<< HEAD
 		return dev_set_mac_address(dev, &ifr->ifr_hwaddr);
+=======
+		return dev_set_mac_address_user(dev, &ifr->ifr_hwaddr, NULL);
+>>>>>>> upstream/android-13
 
 	case SIOCSIFHWBROADCAST:
 		if (ifr->ifr_hwaddr.sa_family != dev->type)
@@ -258,12 +472,16 @@ static int dev_ifsioc(struct net *net, struct ifreq *ifr, unsigned int cmd)
 		return 0;
 
 	case SIOCSIFMAP:
+<<<<<<< HEAD
 		if (ops->ndo_set_config) {
 			if (!netif_device_present(dev))
 				return -ENODEV;
 			return ops->ndo_set_config(dev, &ifr->ifr_map);
 		}
 		return -EOPNOTSUPP;
+=======
+		return dev_setifmap(dev, ifr);
+>>>>>>> upstream/android-13
 
 	case SIOCADDMULTI:
 		if (!ops->ndo_set_rx_mode ||
@@ -290,23 +508,61 @@ static int dev_ifsioc(struct net *net, struct ifreq *ifr, unsigned int cmd)
 		ifr->ifr_newname[IFNAMSIZ-1] = '\0';
 		return dev_change_name(dev, ifr->ifr_newname);
 
+<<<<<<< HEAD
+=======
+	case SIOCWANDEV:
+		return dev_siocwandev(dev, &ifr->ifr_settings);
+
+	case SIOCBRADDIF:
+	case SIOCBRDELIF:
+		if (!netif_device_present(dev))
+			return -ENODEV;
+		if (!netif_is_bridge_master(dev))
+			return -EOPNOTSUPP;
+		dev_hold(dev);
+		rtnl_unlock();
+		err = br_ioctl_call(net, netdev_priv(dev), cmd, ifr, NULL);
+		dev_put(dev);
+		rtnl_lock();
+		return err;
+
+>>>>>>> upstream/android-13
 	case SIOCSHWTSTAMP:
 		err = net_hwtstamp_validate(ifr);
 		if (err)
 			return err;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 
 	/*
 	 *	Unknown or private ioctl
 	 */
 	default:
+<<<<<<< HEAD
 		if ((cmd >= SIOCDEVPRIVATE &&
 		    cmd <= SIOCDEVPRIVATE + 15) ||
 		    cmd == SIOCBONDENSLAVE ||
+=======
+		if (cmd >= SIOCDEVPRIVATE &&
+		    cmd <= SIOCDEVPRIVATE + 15)
+			return dev_siocdevprivate(dev, ifr, data, cmd);
+
+		if (cmd == SIOCGMIIPHY ||
+		    cmd == SIOCGMIIREG ||
+		    cmd == SIOCSMIIREG ||
+		    cmd == SIOCSHWTSTAMP ||
+		    cmd == SIOCGHWTSTAMP) {
+			err = dev_eth_ioctl(dev, ifr, cmd);
+		} else if (cmd == SIOCBONDENSLAVE ||
+>>>>>>> upstream/android-13
 		    cmd == SIOCBONDRELEASE ||
 		    cmd == SIOCBONDSETHWADDR ||
 		    cmd == SIOCBONDSLAVEINFOQUERY ||
 		    cmd == SIOCBONDINFOQUERY ||
+<<<<<<< HEAD
 		    cmd == SIOCBONDCHANGEACTIVE ||
 		    cmd == SIOCGMIIPHY ||
 		    cmd == SIOCGMIIREG ||
@@ -323,6 +579,10 @@ static int dev_ifsioc(struct net *net, struct ifreq *ifr, unsigned int cmd)
 				else
 					err = -ENODEV;
 			}
+=======
+		    cmd == SIOCBONDCHANGEACTIVE) {
+			err = dev_siocbond(dev, ifr, cmd);
+>>>>>>> upstream/android-13
 		} else
 			err = -EINVAL;
 
@@ -366,7 +626,12 @@ EXPORT_SYMBOL(dev_load);
  *	dev_ioctl	-	network device ioctl
  *	@net: the applicable net namespace
  *	@cmd: command to issue
+<<<<<<< HEAD
  *	@arg: pointer to a struct ifreq in user space
+=======
+ *	@ifr: pointer to a struct ifreq in user space
+ *	@need_copyout: whether or not copy_to_user() should be called
+>>>>>>> upstream/android-13
  *
  *	Issue ioctl functions to devices. This is normally called by the
  *	user space syscall interfaces but can sometimes be useful for
@@ -374,7 +639,12 @@ EXPORT_SYMBOL(dev_load);
  *	positive or a negative errno code on error.
  */
 
+<<<<<<< HEAD
 int dev_ioctl(struct net *net, unsigned int cmd, struct ifreq *ifr, bool *need_copyout)
+=======
+int dev_ioctl(struct net *net, unsigned int cmd, struct ifreq *ifr,
+	      void __user *data, bool *need_copyout)
+>>>>>>> upstream/android-13
 {
 	int ret;
 	char *colon;
@@ -395,6 +665,15 @@ int dev_ioctl(struct net *net, unsigned int cmd, struct ifreq *ifr, bool *need_c
 	 */
 
 	switch (cmd) {
+<<<<<<< HEAD
+=======
+	case SIOCGIFHWADDR:
+		dev_load(net, ifr->ifr_name);
+		ret = dev_get_mac_address(&ifr->ifr_hwaddr, net, ifr->ifr_name);
+		if (colon)
+			*colon = ':';
+		return ret;
+>>>>>>> upstream/android-13
 	/*
 	 *	These ioctl calls:
 	 *	- can be done by all.
@@ -404,7 +683,10 @@ int dev_ioctl(struct net *net, unsigned int cmd, struct ifreq *ifr, bool *need_c
 	case SIOCGIFFLAGS:
 	case SIOCGIFMETRIC:
 	case SIOCGIFMTU:
+<<<<<<< HEAD
 	case SIOCGIFHWADDR:
+=======
+>>>>>>> upstream/android-13
 	case SIOCGIFSLAVE:
 	case SIOCGIFMAP:
 	case SIOCGIFINDEX:
@@ -420,7 +702,11 @@ int dev_ioctl(struct net *net, unsigned int cmd, struct ifreq *ifr, bool *need_c
 	case SIOCETHTOOL:
 		dev_load(net, ifr->ifr_name);
 		rtnl_lock();
+<<<<<<< HEAD
 		ret = dev_ethtool(net, ifr);
+=======
+		ret = dev_ethtool(net, ifr, data);
+>>>>>>> upstream/android-13
 		rtnl_unlock();
 		if (colon)
 			*colon = ':';
@@ -439,7 +725,11 @@ int dev_ioctl(struct net *net, unsigned int cmd, struct ifreq *ifr, bool *need_c
 		if (!ns_capable(net->user_ns, CAP_NET_ADMIN))
 			return -EPERM;
 		rtnl_lock();
+<<<<<<< HEAD
 		ret = dev_ifsioc(net, ifr, cmd);
+=======
+		ret = dev_ifsioc(net, ifr, data, cmd);
+>>>>>>> upstream/android-13
 		rtnl_unlock();
 		if (colon)
 			*colon = ':';
@@ -455,7 +745,11 @@ int dev_ioctl(struct net *net, unsigned int cmd, struct ifreq *ifr, bool *need_c
 	case SIOCSIFTXQLEN:
 		if (!capable(CAP_NET_ADMIN))
 			return -EPERM;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	/*
 	 *	These ioctl calls:
 	 *	- require local superuser power.
@@ -480,12 +774,20 @@ int dev_ioctl(struct net *net, unsigned int cmd, struct ifreq *ifr, bool *need_c
 	case SIOCSHWTSTAMP:
 		if (!ns_capable(net->user_ns, CAP_NET_ADMIN))
 			return -EPERM;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case SIOCBONDSLAVEINFOQUERY:
 	case SIOCBONDINFOQUERY:
 		dev_load(net, ifr->ifr_name);
 		rtnl_lock();
+<<<<<<< HEAD
 		ret = dev_ifsioc(net, ifr, cmd);
+=======
+		ret = dev_ifsioc(net, ifr, data, cmd);
+>>>>>>> upstream/android-13
 		rtnl_unlock();
 		if (need_copyout)
 			*need_copyout = false;
@@ -510,7 +812,11 @@ int dev_ioctl(struct net *net, unsigned int cmd, struct ifreq *ifr, bool *need_c
 		     cmd <= SIOCDEVPRIVATE + 15)) {
 			dev_load(net, ifr->ifr_name);
 			rtnl_lock();
+<<<<<<< HEAD
 			ret = dev_ifsioc(net, ifr, cmd);
+=======
+			ret = dev_ifsioc(net, ifr, data, cmd);
+>>>>>>> upstream/android-13
 			rtnl_unlock();
 			return ret;
 		}

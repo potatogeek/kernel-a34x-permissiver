@@ -170,6 +170,13 @@
 #define LINKRATE_60			(0x04 << 8)
 #define LINKRATE_120			(0x08 << 8)
 
+<<<<<<< HEAD
+=======
+/*phy_stop*/
+#define PHY_STOP_SUCCESS		0x00
+#define PHY_STOP_ERR_DEVICE_ATTACHED	0x1046
+
+>>>>>>> upstream/android-13
 /* phy_profile */
 #define SAS_PHY_ANALOG_SETTINGS_PAGE	0x04
 #define PHY_DWORD_LENGTH		0xC
@@ -216,8 +223,14 @@
 #define SAS_DOPNRJT_RTRY_TMO            128
 #define SAS_COPNRJT_RTRY_TMO            128
 
+<<<<<<< HEAD
 /* for phy state */
 #define PHY_STATE_LINK_UP_SPCV		0x2
+=======
+#define SPCV_DOORBELL_CLEAR_TIMEOUT	(30 * 50) /* 30 sec */
+#define SPC_DOORBELL_CLEAR_TIMEOUT	(15 * 50) /* 15 sec */
+
+>>>>>>> upstream/android-13
 /*
   Making ORR bigger than IT NEXUS LOSS which is 2000000us = 2 second.
   Assuming a bigger value 3 second, 3000000/128 = 23437.5 where 128
@@ -1267,6 +1280,10 @@ typedef struct SASProtocolTimerConfig SASProtocolTimerConfig_t;
 #define IO_OPEN_CNX_ERROR_IT_NEXUS_LOSS_OPEN_COLLIDE	0x47
 #define IO_OPEN_CNX_ERROR_IT_NEXUS_LOSS_PATHWAY_BLOCKED	0x48
 #define IO_DS_INVALID					0x49
+<<<<<<< HEAD
+=======
+#define IO_FATAL_ERROR					0x51
+>>>>>>> upstream/android-13
 /* WARNING: the value is not contiguous from here */
 #define IO_XFER_ERR_LAST_PIO_DATAIN_CRC_ERR	0x52
 #define IO_XFER_DMA_ACTIVATE_TIMEOUT		0x53
@@ -1363,6 +1380,22 @@ typedef struct SASProtocolTimerConfig SASProtocolTimerConfig_t;
 #define MSGU_HOST_SCRATCH_PAD_6			0x6C
 #define MSGU_HOST_SCRATCH_PAD_7			0x70
 
+<<<<<<< HEAD
+=======
+#define MSGU_SCRATCHPAD1_RAAE_STATE_ERR(x) ((x & 0x3) == 0x2)
+#define MSGU_SCRATCHPAD1_ILA_STATE_ERR(x) (((x >> 2) & 0x3) == 0x2)
+#define MSGU_SCRATCHPAD1_BOOTLDR_STATE_ERR(x) ((((x >> 4) & 0x7) == 0x7) || \
+						(((x >> 4) & 0x7) == 0x4))
+#define MSGU_SCRATCHPAD1_IOP0_STATE_ERR(x) (((x >> 10) & 0x3) == 0x2)
+#define MSGU_SCRATCHPAD1_IOP1_STATE_ERR(x) (((x >> 12) & 0x3) == 0x2)
+#define MSGU_SCRATCHPAD1_STATE_FATAL_ERROR(x)  \
+			(MSGU_SCRATCHPAD1_RAAE_STATE_ERR(x) ||      \
+			 MSGU_SCRATCHPAD1_ILA_STATE_ERR(x) ||       \
+			 MSGU_SCRATCHPAD1_BOOTLDR_STATE_ERR(x) ||   \
+			 MSGU_SCRATCHPAD1_IOP0_STATE_ERR(x) ||      \
+			 MSGU_SCRATCHPAD1_IOP1_STATE_ERR(x))
+
+>>>>>>> upstream/android-13
 /* bit definition for ODMR register */
 #define ODMR_MASK_ALL			0xFFFFFFFF/* mask all
 					interrupt vector */
@@ -1386,8 +1419,17 @@ typedef struct SASProtocolTimerConfig SASProtocolTimerConfig_t;
 #define SCRATCH_PAD_BOOT_LOAD_SUCCESS	0x0
 #define SCRATCH_PAD_IOP0_READY		0xC00
 #define SCRATCH_PAD_IOP1_READY		0x3000
+<<<<<<< HEAD
 #define SCRATCH_PAD_MIPSALL_READY	(SCRATCH_PAD_IOP1_READY | \
 					SCRATCH_PAD_IOP0_READY | \
+=======
+#define SCRATCH_PAD_MIPSALL_READY_16PORT	(SCRATCH_PAD_IOP1_READY | \
+					SCRATCH_PAD_IOP0_READY | \
+					SCRATCH_PAD_ILA_READY | \
+					SCRATCH_PAD_RAAE_READY)
+#define SCRATCH_PAD_MIPSALL_READY_8PORT	(SCRATCH_PAD_IOP0_READY | \
+					SCRATCH_PAD_ILA_READY | \
+>>>>>>> upstream/android-13
 					SCRATCH_PAD_RAAE_READY)
 
 /* boot loader state */
@@ -1634,3 +1676,12 @@ typedef struct SASProtocolTimerConfig SASProtocolTimerConfig_t;
 
 #define MEMBASE_II_SHIFT_REGISTER       0x1010
 #endif
+<<<<<<< HEAD
+=======
+
+/**
+ * As we know sleep (1~20) ms may result in sleep longer than ~20 ms, hence we
+ * choose 20 ms interval.
+ */
+#define FW_READY_INTERVAL	20
+>>>>>>> upstream/android-13

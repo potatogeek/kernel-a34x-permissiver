@@ -39,6 +39,11 @@ void vsmp_init(void);
 static inline void vsmp_init(void) { }
 #endif
 
+<<<<<<< HEAD
+=======
+struct pt_regs;
+
+>>>>>>> upstream/android-13
 void setup_bios_corruption_check(void);
 void early_platform_quirks(void);
 
@@ -46,6 +51,14 @@ extern unsigned long saved_video_mode;
 
 extern void reserve_standard_io_resources(void);
 extern void i386_reserve_resources(void);
+<<<<<<< HEAD
+=======
+extern unsigned long __startup_64(unsigned long physaddr, struct boot_params *bp);
+extern unsigned long __startup_secondary_64(void);
+extern void startup_64_setup_env(unsigned long physbase);
+extern void early_setup_idt(void);
+extern void __init do_early_exception(struct pt_regs *regs, int trapnr);
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_X86_INTEL_MID
 extern void x86_intel_mid_early_setup(void);
@@ -72,7 +85,21 @@ extern char _text[];
 
 static inline bool kaslr_enabled(void)
 {
+<<<<<<< HEAD
 	return !!(boot_params.hdr.loadflags & KASLR_FLAG);
+=======
+	return IS_ENABLED(CONFIG_RANDOMIZE_MEMORY) &&
+		!!(boot_params.hdr.loadflags & KASLR_FLAG);
+}
+
+/*
+ * Apply no randomization if KASLR was disabled at boot or if KASAN
+ * is enabled. KASAN shadow mappings rely on regions being PGD aligned.
+ */
+static inline bool kaslr_memory_enabled(void)
+{
+	return kaslr_enabled() && !IS_ENABLED(CONFIG_KASAN);
+>>>>>>> upstream/android-13
 }
 
 static inline unsigned long kaslr_offset(void)
@@ -102,7 +129,11 @@ void *extend_brk(size_t size, size_t align);
  * executable.)
  */
 #define RESERVE_BRK(name,sz)						\
+<<<<<<< HEAD
 	static void __section(.discard.text) __used notrace		\
+=======
+	static void __section(".discard.text") __used notrace		\
+>>>>>>> upstream/android-13
 	__brk_reservation_fn_##name##__(void) {				\
 		asm volatile (						\
 			".pushsection .brk_reservation,\"aw\",@nobits;" \
@@ -113,11 +144,14 @@ void *extend_brk(size_t size, size_t align);
 			: : "i" (sz));					\
 	}
 
+<<<<<<< HEAD
 /* Helper for reserving space for arrays of things */
 #define RESERVE_BRK_ARRAY(type, name, entries)		\
 	type *name;					\
 	RESERVE_BRK(name, sizeof(type) * entries)
 
+=======
+>>>>>>> upstream/android-13
 extern void probe_roms(void);
 #ifdef __i386__
 

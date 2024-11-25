@@ -25,6 +25,10 @@
 #include "octeon_main.h"
 #include "cn66xx_regs.h"
 #include "cn66xx_device.h"
+<<<<<<< HEAD
+=======
+#include "cn68xx_device.h"
+>>>>>>> upstream/android-13
 #include "cn68xx_regs.h"
 
 static void lio_cn68xx_set_dpi_regs(struct octeon_device *oct)

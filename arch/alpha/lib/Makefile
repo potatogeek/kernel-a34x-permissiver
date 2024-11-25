@@ -14,6 +14,10 @@ ev6-$(CONFIG_ALPHA_EV6) := ev6-
 ev67-$(CONFIG_ALPHA_EV67) := ev67-
 
 lib-y =	__divqu.o __remqu.o __divlu.o __remlu.o \
+<<<<<<< HEAD
+=======
+	udiv-qrnnd.o \
+>>>>>>> upstream/android-13
 	udelay.o \
 	$(ev6-y)memset.o \
 	$(ev6-y)memcpy.o \

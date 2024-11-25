@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * TI TPS6586x GPIO driver
  *
@@ -7,6 +11,7 @@
  * Based on tps6586x.c
  * Copyright (c) 2010 CompuLab Ltd.
  * Mike Rapoport <mike@compulab.co.il>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -23,6 +28,12 @@
 
 #include <linux/errno.h>
 #include <linux/gpio.h>
+=======
+ */
+
+#include <linux/errno.h>
+#include <linux/gpio/driver.h>
+>>>>>>> upstream/android-13
 #include <linux/kernel.h>
 #include <linux/init.h>
 #include <linux/mfd/tps6586x.h>
@@ -87,7 +98,10 @@ static int tps6586x_gpio_probe(struct platform_device *pdev)
 {
 	struct tps6586x_platform_data *pdata;
 	struct tps6586x_gpio *tps6586x_gpio;
+<<<<<<< HEAD
 	int ret;
+=======
+>>>>>>> upstream/android-13
 
 	pdata = dev_get_platdata(pdev->dev.parent);
 	tps6586x_gpio = devm_kzalloc(&pdev->dev,
@@ -117,6 +131,7 @@ static int tps6586x_gpio_probe(struct platform_device *pdev)
 	else
 		tps6586x_gpio->gpio_chip.base = -1;
 
+<<<<<<< HEAD
 	ret = devm_gpiochip_add_data(&pdev->dev, &tps6586x_gpio->gpio_chip,
 				     tps6586x_gpio);
 	if (ret < 0) {
@@ -127,6 +142,10 @@ static int tps6586x_gpio_probe(struct platform_device *pdev)
 	platform_set_drvdata(pdev, tps6586x_gpio);
 
 	return ret;
+=======
+	return devm_gpiochip_add_data(&pdev->dev, &tps6586x_gpio->gpio_chip,
+				      tps6586x_gpio);
+>>>>>>> upstream/android-13
 }
 
 static struct platform_driver tps6586x_gpio_driver = {

@@ -688,9 +688,15 @@ static void xgbe_an73_isr(struct xgbe_prv_data *pdata)
 	}
 }
 
+<<<<<<< HEAD
 static void xgbe_an_isr_task(unsigned long data)
 {
 	struct xgbe_prv_data *pdata = (struct xgbe_prv_data *)data;
+=======
+static void xgbe_an_isr_task(struct tasklet_struct *t)
+{
+	struct xgbe_prv_data *pdata = from_tasklet(pdata, t, tasklet_an);
+>>>>>>> upstream/android-13
 
 	netif_dbg(pdata, intr, pdata->netdev, "AN interrupt received\n");
 
@@ -715,14 +721,22 @@ static irqreturn_t xgbe_an_isr(int irq, void *data)
 	if (pdata->isr_as_tasklet)
 		tasklet_schedule(&pdata->tasklet_an);
 	else
+<<<<<<< HEAD
 		xgbe_an_isr_task((unsigned long)pdata);
+=======
+		xgbe_an_isr_task(&pdata->tasklet_an);
+>>>>>>> upstream/android-13
 
 	return IRQ_HANDLED;
 }
 
 static irqreturn_t xgbe_an_combined_isr(struct xgbe_prv_data *pdata)
 {
+<<<<<<< HEAD
 	xgbe_an_isr_task((unsigned long)pdata);
+=======
+	xgbe_an_isr_task(&pdata->tasklet_an);
+>>>>>>> upstream/android-13
 
 	return IRQ_HANDLED;
 }
@@ -1413,8 +1427,12 @@ static int xgbe_phy_start(struct xgbe_prv_data *pdata)
 
 	/* If we have a separate AN irq, enable it */
 	if (pdata->dev_irq != pdata->an_irq) {
+<<<<<<< HEAD
 		tasklet_init(&pdata->tasklet_an, xgbe_an_isr_task,
 			     (unsigned long)pdata);
+=======
+		tasklet_setup(&pdata->tasklet_an, xgbe_an_isr_task);
+>>>>>>> upstream/android-13
 
 		ret = devm_request_irq(pdata->dev, pdata->an_irq,
 				       xgbe_an_isr, 0, pdata->an_name,

@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * lm3533-bl.c -- LM3533 Backlight driver
  *
  * Copyright (C) 2011-2012 Texas Instruments
  *
  * Author: Johan Hovold <jhovold@gmail.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under  the terms of the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the License, or (at your
  * option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -43,6 +50,7 @@ static inline int lm3533_bl_get_ctrlbank_id(struct lm3533_bl *bl)
 static int lm3533_bl_update_status(struct backlight_device *bd)
 {
 	struct lm3533_bl *bl = bl_get_data(bd);
+<<<<<<< HEAD
 	int brightness = bd->props.brightness;
 
 	if (bd->props.power != FB_BLANK_UNBLANK)
@@ -51,6 +59,10 @@ static int lm3533_bl_update_status(struct backlight_device *bd)
 		brightness = 0;
 
 	return lm3533_ctrlbank_set_brightness(&bl->cb, (u8)brightness);
+=======
+
+	return lm3533_ctrlbank_set_brightness(&bl->cb, backlight_get_brightness(bd));
+>>>>>>> upstream/android-13
 }
 
 static int lm3533_bl_get_brightness(struct backlight_device *bd)
@@ -239,7 +251,11 @@ static struct attribute *lm3533_bl_attributes[] = {
 static umode_t lm3533_bl_attr_is_visible(struct kobject *kobj,
 					     struct attribute *attr, int n)
 {
+<<<<<<< HEAD
 	struct device *dev = container_of(kobj, struct device, kobj);
+=======
+	struct device *dev = kobj_to_dev(kobj);
+>>>>>>> upstream/android-13
 	struct lm3533_bl *bl = dev_get_drvdata(dev);
 	umode_t mode = attr->mode;
 

@@ -43,7 +43,10 @@ struct platform_device *regulator_register_always_on(int id, const char *name,
 	}
 
 	data->cfg.microvolts = uv;
+<<<<<<< HEAD
 	data->cfg.gpio = -EINVAL;
+=======
+>>>>>>> upstream/android-13
 	data->cfg.enabled_at_boot = 1;
 	data->cfg.init_data = &data->init_data;
 

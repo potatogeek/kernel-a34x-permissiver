@@ -6,6 +6,7 @@
 #ifndef __XFS_RMAP_H__
 #define __XFS_RMAP_H__
 
+<<<<<<< HEAD
 static inline void
 xfs_rmap_ag_owner(
 	struct xfs_owner_info	*oi,
@@ -15,6 +16,9 @@ xfs_rmap_ag_owner(
 	oi->oi_offset = 0;
 	oi->oi_flags = 0;
 }
+=======
+struct xfs_perag;
+>>>>>>> upstream/android-13
 
 static inline void
 xfs_rmap_ino_bmbt_owner(
@@ -43,6 +47,7 @@ xfs_rmap_ino_owner(
 		oi->oi_flags |= XFS_OWNER_INFO_ATTR_FORK;
 }
 
+<<<<<<< HEAD
 static inline void
 xfs_rmap_skip_owner_update(
 	struct xfs_owner_info	*oi)
@@ -53,10 +58,16 @@ xfs_rmap_skip_owner_update(
 static inline bool
 xfs_rmap_should_skip_owner_update(
 	struct xfs_owner_info	*oi)
+=======
+static inline bool
+xfs_rmap_should_skip_owner_update(
+	const struct xfs_owner_info	*oi)
+>>>>>>> upstream/android-13
 {
 	return oi->oi_owner == XFS_RMAP_OWN_NULL;
 }
 
+<<<<<<< HEAD
 static inline void
 xfs_rmap_any_owner_update(
 	struct xfs_owner_info	*oi)
@@ -64,6 +75,8 @@ xfs_rmap_any_owner_update(
 	xfs_rmap_ag_owner(oi, XFS_RMAP_OWN_UNKNOWN);
 }
 
+=======
+>>>>>>> upstream/android-13
 /* Reverse mapping functions. */
 
 struct xfs_buf;
@@ -92,6 +105,10 @@ xfs_rmap_irec_offset_unpack(
 	if (offset & ~(XFS_RMAP_OFF_MASK | XFS_RMAP_OFF_FLAGS))
 		return -EFSCORRUPTED;
 	irec->rm_offset = XFS_RMAP_OFF(offset);
+<<<<<<< HEAD
+=======
+	irec->rm_flags = 0;
+>>>>>>> upstream/android-13
 	if (offset & XFS_RMAP_OFF_ATTR_FORK)
 		irec->rm_flags |= XFS_RMAP_ATTR_FORK;
 	if (offset & XFS_RMAP_OFF_BMBT_BLOCK)
@@ -103,12 +120,21 @@ xfs_rmap_irec_offset_unpack(
 
 static inline void
 xfs_owner_info_unpack(
+<<<<<<< HEAD
 	struct xfs_owner_info	*oinfo,
 	uint64_t		*owner,
 	uint64_t		*offset,
 	unsigned int		*flags)
 {
 	unsigned int		r = 0;
+=======
+	const struct xfs_owner_info	*oinfo,
+	uint64_t			*owner,
+	uint64_t			*offset,
+	unsigned int			*flags)
+{
+	unsigned int			r = 0;
+>>>>>>> upstream/android-13
 
 	*owner = oinfo->oi_owner;
 	*offset = oinfo->oi_offset;
@@ -136,11 +162,19 @@ xfs_owner_info_pack(
 }
 
 int xfs_rmap_alloc(struct xfs_trans *tp, struct xfs_buf *agbp,
+<<<<<<< HEAD
 		   xfs_agnumber_t agno, xfs_agblock_t bno, xfs_extlen_t len,
 		   struct xfs_owner_info *oinfo);
 int xfs_rmap_free(struct xfs_trans *tp, struct xfs_buf *agbp,
 		  xfs_agnumber_t agno, xfs_agblock_t bno, xfs_extlen_t len,
 		  struct xfs_owner_info *oinfo);
+=======
+		   struct xfs_perag *pag, xfs_agblock_t bno, xfs_extlen_t len,
+		   const struct xfs_owner_info *oinfo);
+int xfs_rmap_free(struct xfs_trans *tp, struct xfs_buf *agbp,
+		  struct xfs_perag *pag, xfs_agblock_t bno, xfs_extlen_t len,
+		  const struct xfs_owner_info *oinfo);
+>>>>>>> upstream/android-13
 
 int xfs_rmap_lookup_le(struct xfs_btree_cur *cur, xfs_agblock_t bno,
 		xfs_extlen_t len, uint64_t owner, uint64_t offset,
@@ -155,12 +189,22 @@ int xfs_rmap_get_rec(struct xfs_btree_cur *cur, struct xfs_rmap_irec *irec,
 		int *stat);
 
 typedef int (*xfs_rmap_query_range_fn)(
+<<<<<<< HEAD
 	struct xfs_btree_cur	*cur,
 	struct xfs_rmap_irec	*rec,
 	void			*priv);
 
 int xfs_rmap_query_range(struct xfs_btree_cur *cur,
 		struct xfs_rmap_irec *low_rec, struct xfs_rmap_irec *high_rec,
+=======
+	struct xfs_btree_cur		*cur,
+	const struct xfs_rmap_irec	*rec,
+	void				*priv);
+
+int xfs_rmap_query_range(struct xfs_btree_cur *cur,
+		const struct xfs_rmap_irec *low_rec,
+		const struct xfs_rmap_irec *high_rec,
+>>>>>>> upstream/android-13
 		xfs_rmap_query_range_fn fn, void *priv);
 int xfs_rmap_query_all(struct xfs_btree_cur *cur, xfs_rmap_query_range_fn fn,
 		void *priv);
@@ -185,6 +229,7 @@ struct xfs_rmap_intent {
 };
 
 /* functions for updating the rmapbt based on bmbt map/unmap operations */
+<<<<<<< HEAD
 int xfs_rmap_map_extent(struct xfs_trans *tp, struct xfs_inode *ip,
 		int whichfork, struct xfs_bmbt_irec *imap);
 int xfs_rmap_unmap_extent(struct xfs_trans *tp, struct xfs_inode *ip,
@@ -195,6 +240,18 @@ int xfs_rmap_convert_extent(struct xfs_mount *mp, struct xfs_trans *tp,
 int xfs_rmap_alloc_extent(struct xfs_trans *tp, xfs_agnumber_t agno,
 		xfs_agblock_t bno, xfs_extlen_t len, uint64_t owner);
 int xfs_rmap_free_extent(struct xfs_trans *tp, xfs_agnumber_t agno,
+=======
+void xfs_rmap_map_extent(struct xfs_trans *tp, struct xfs_inode *ip,
+		int whichfork, struct xfs_bmbt_irec *imap);
+void xfs_rmap_unmap_extent(struct xfs_trans *tp, struct xfs_inode *ip,
+		int whichfork, struct xfs_bmbt_irec *imap);
+void xfs_rmap_convert_extent(struct xfs_mount *mp, struct xfs_trans *tp,
+		struct xfs_inode *ip, int whichfork,
+		struct xfs_bmbt_irec *imap);
+void xfs_rmap_alloc_extent(struct xfs_trans *tp, xfs_agnumber_t agno,
+		xfs_agblock_t bno, xfs_extlen_t len, uint64_t owner);
+void xfs_rmap_free_extent(struct xfs_trans *tp, xfs_agnumber_t agno,
+>>>>>>> upstream/android-13
 		xfs_agblock_t bno, xfs_extlen_t len, uint64_t owner);
 
 void xfs_rmap_finish_one_cleanup(struct xfs_trans *tp,
@@ -213,11 +270,16 @@ int xfs_rmap_lookup_le_range(struct xfs_btree_cur *cur, xfs_agblock_t bno,
 int xfs_rmap_compare(const struct xfs_rmap_irec *a,
 		const struct xfs_rmap_irec *b);
 union xfs_btree_rec;
+<<<<<<< HEAD
 int xfs_rmap_btrec_to_irec(union xfs_btree_rec *rec,
+=======
+int xfs_rmap_btrec_to_irec(const union xfs_btree_rec *rec,
+>>>>>>> upstream/android-13
 		struct xfs_rmap_irec *irec);
 int xfs_rmap_has_record(struct xfs_btree_cur *cur, xfs_agblock_t bno,
 		xfs_extlen_t len, bool *exists);
 int xfs_rmap_record_exists(struct xfs_btree_cur *cur, xfs_agblock_t bno,
+<<<<<<< HEAD
 		xfs_extlen_t len, struct xfs_owner_info *oinfo,
 		bool *has_rmap);
 int xfs_rmap_has_other_keys(struct xfs_btree_cur *cur, xfs_agblock_t bno,
@@ -225,4 +287,23 @@ int xfs_rmap_has_other_keys(struct xfs_btree_cur *cur, xfs_agblock_t bno,
 		bool *has_rmap);
 int xfs_rmap_map_raw(struct xfs_btree_cur *cur, struct xfs_rmap_irec *rmap);
 
+=======
+		xfs_extlen_t len, const struct xfs_owner_info *oinfo,
+		bool *has_rmap);
+int xfs_rmap_has_other_keys(struct xfs_btree_cur *cur, xfs_agblock_t bno,
+		xfs_extlen_t len, const struct xfs_owner_info *oinfo,
+		bool *has_rmap);
+int xfs_rmap_map_raw(struct xfs_btree_cur *cur, struct xfs_rmap_irec *rmap);
+
+extern const struct xfs_owner_info XFS_RMAP_OINFO_SKIP_UPDATE;
+extern const struct xfs_owner_info XFS_RMAP_OINFO_ANY_OWNER;
+extern const struct xfs_owner_info XFS_RMAP_OINFO_FS;
+extern const struct xfs_owner_info XFS_RMAP_OINFO_LOG;
+extern const struct xfs_owner_info XFS_RMAP_OINFO_AG;
+extern const struct xfs_owner_info XFS_RMAP_OINFO_INOBT;
+extern const struct xfs_owner_info XFS_RMAP_OINFO_INODES;
+extern const struct xfs_owner_info XFS_RMAP_OINFO_REFC;
+extern const struct xfs_owner_info XFS_RMAP_OINFO_COW;
+
+>>>>>>> upstream/android-13
 #endif	/* __XFS_RMAP_H__ */

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2014 Freescale Semiconductor, Inc.
  *
@@ -6,6 +7,14 @@
  * published by the Free Software Foundation.
  */
 
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2014 Freescale Semiconductor, Inc.
+ */
+
+#include <linux/clk/imx.h>
+>>>>>>> upstream/android-13
 #include <linux/cpuidle.h>
 #include <linux/module.h>
 #include <asm/cpuidle.h>

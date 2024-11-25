@@ -88,7 +88,11 @@ struct soc_pcmcia_socket {
 
 struct skt_dev_info {
 	int nskt;
+<<<<<<< HEAD
 	struct soc_pcmcia_socket skt[0];
+=======
+	struct soc_pcmcia_socket skt[];
+>>>>>>> upstream/android-13
 };
 
 struct pcmcia_state {

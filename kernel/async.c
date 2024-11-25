@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * async.c: Asynchronous function calls for boot performance
  *
  * (C) Copyright 2009 Intel Corporation
  * Author: Arjan van de Ven <arjan@linux.intel.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; version 2
  * of the License.
+=======
+>>>>>>> upstream/android-13
  */
 
 
@@ -82,6 +89,15 @@ static DECLARE_WAIT_QUEUE_HEAD(async_done);
 
 static atomic_t entry_count;
 
+<<<<<<< HEAD
+=======
+static long long microseconds_since(ktime_t start)
+{
+	ktime_t now = ktime_get();
+	return ktime_to_ns(ktime_sub(now, start)) >> 10;
+}
+
+>>>>>>> upstream/android-13
 static async_cookie_t lowest_in_progress(struct async_domain *domain)
 {
 	struct async_entry *first = NULL;
@@ -115,6 +131,7 @@ static void async_run_entry_fn(struct work_struct *work)
 	struct async_entry *entry =
 		container_of(work, struct async_entry, work);
 	unsigned long flags;
+<<<<<<< HEAD
 	ktime_t uninitialized_var(calltime), delta, rettime;
 
 	/* 1) run (and print duration) */
@@ -133,6 +150,20 @@ static void async_run_entry_fn(struct work_struct *work)
 			entry->func,
 			(long long)ktime_to_ns(delta) >> 10);
 	}
+=======
+	ktime_t calltime;
+
+	/* 1) run (and print duration) */
+	pr_debug("calling  %lli_%pS @ %i\n", (long long)entry->cookie,
+		 entry->func, task_pid_nr(current));
+	calltime = ktime_get();
+
+	entry->func(entry->data, entry->cookie);
+
+	pr_debug("initcall %lli_%pS returned after %lld usecs\n",
+		 (long long)entry->cookie, entry->func,
+		 microseconds_since(calltime));
+>>>>>>> upstream/android-13
 
 	/* 2) remove self from the pending queues */
 	spin_lock_irqsave(&async_lock, flags);
@@ -149,7 +180,29 @@ static void async_run_entry_fn(struct work_struct *work)
 	wake_up(&async_done);
 }
 
+<<<<<<< HEAD
 static async_cookie_t __async_schedule(async_func_t func, void *data, struct async_domain *domain)
+=======
+/**
+ * async_schedule_node_domain - NUMA specific version of async_schedule_domain
+ * @func: function to execute asynchronously
+ * @data: data pointer to pass to the function
+ * @node: NUMA node that we want to schedule this on or close to
+ * @domain: the domain
+ *
+ * Returns an async_cookie_t that may be used for checkpointing later.
+ * @domain may be used in the async_synchronize_*_domain() functions to
+ * wait within a certain synchronization domain rather than globally.
+ *
+ * Note: This function may be called from atomic or non-atomic contexts.
+ *
+ * The node requested will be honored on a best effort basis. If the node
+ * has no CPUs associated with it then the work is distributed among all
+ * available CPUs.
+ */
+async_cookie_t async_schedule_node_domain(async_func_t func, void *data,
+					  int node, struct async_domain *domain)
+>>>>>>> upstream/android-13
 {
 	struct async_entry *entry;
 	unsigned long flags;
@@ -191,6 +244,7 @@ static async_cookie_t __async_schedule(async_func_t func, void *data, struct asy
 	atomic_inc(&entry_count);
 	spin_unlock_irqrestore(&async_lock, flags);
 
+<<<<<<< HEAD
 	/* mark that this task has queued an async job, used by module init */
 	current->flags |= PF_USED_ASYNC;
 
@@ -232,6 +286,33 @@ async_cookie_t async_schedule_domain(async_func_t func, void *data,
 	return __async_schedule(func, data, domain);
 }
 EXPORT_SYMBOL_GPL(async_schedule_domain);
+=======
+	/* schedule for execution */
+	queue_work_node(node, system_unbound_wq, &entry->work);
+
+	return newcookie;
+}
+EXPORT_SYMBOL_GPL(async_schedule_node_domain);
+
+/**
+ * async_schedule_node - NUMA specific version of async_schedule
+ * @func: function to execute asynchronously
+ * @data: data pointer to pass to the function
+ * @node: NUMA node that we want to schedule this on or close to
+ *
+ * Returns an async_cookie_t that may be used for checkpointing later.
+ * Note: This function may be called from atomic or non-atomic contexts.
+ *
+ * The node requested will be honored on a best effort basis. If the node
+ * has no CPUs associated with it then the work is distributed among all
+ * available CPUs.
+ */
+async_cookie_t async_schedule_node(async_func_t func, void *data, int node)
+{
+	return async_schedule_node_domain(func, data, node, &async_dfl_domain);
+}
+EXPORT_SYMBOL_GPL(async_schedule_node);
+>>>>>>> upstream/android-13
 
 /**
  * async_synchronize_full - synchronize all asynchronous function calls
@@ -245,6 +326,7 @@ void async_synchronize_full(void)
 EXPORT_SYMBOL_GPL(async_synchronize_full);
 
 /**
+<<<<<<< HEAD
  * async_unregister_domain - ensure no more anonymous waiters on this domain
  * @domain: idle domain to flush out of any async_synchronize_full instances
  *
@@ -263,6 +345,8 @@ void async_unregister_domain(struct async_domain *domain)
 EXPORT_SYMBOL_GPL(async_unregister_domain);
 
 /**
+=======
+>>>>>>> upstream/android-13
  * async_synchronize_full_domain - synchronize all asynchronous function within a certain domain
  * @domain: the domain to synchronize
  *
@@ -286,6 +370,7 @@ EXPORT_SYMBOL_GPL(async_synchronize_full_domain);
  */
 void async_synchronize_cookie_domain(async_cookie_t cookie, struct async_domain *domain)
 {
+<<<<<<< HEAD
 	ktime_t uninitialized_var(starttime), delta, endtime;
 
 	if (initcall_debug && system_state < SYSTEM_RUNNING) {
@@ -303,6 +388,17 @@ void async_synchronize_cookie_domain(async_cookie_t cookie, struct async_domain 
 			task_pid_nr(current),
 			(long long)ktime_to_ns(delta) >> 10);
 	}
+=======
+	ktime_t starttime;
+
+	pr_debug("async_waiting @ %i\n", task_pid_nr(current));
+	starttime = ktime_get();
+
+	wait_event(async_done, lowest_in_progress(domain) >= cookie);
+
+	pr_debug("async_continuing @ %i after %lli usec\n", task_pid_nr(current),
+		 microseconds_since(starttime));
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(async_synchronize_cookie_domain);
 

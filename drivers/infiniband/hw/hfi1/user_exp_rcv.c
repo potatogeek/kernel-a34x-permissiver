@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright(c) 2015-2018 Intel Corporation.
  *
@@ -43,6 +44,12 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0 or BSD-3-Clause
+/*
+ * Copyright(c) 2020 Cornelis Networks, Inc.
+ * Copyright(c) 2015-2018 Intel Corporation.
+>>>>>>> upstream/android-13
  */
 #include <asm/page.h>
 #include <linux/string.h>
@@ -59,11 +66,19 @@ static int set_rcvarray_entry(struct hfi1_filedata *fd,
 			      struct tid_user_buf *tbuf,
 			      u32 rcventry, struct tid_group *grp,
 			      u16 pageidx, unsigned int npages);
+<<<<<<< HEAD
 static int tid_rb_insert(void *arg, struct mmu_rb_node *node);
 static void cacheless_tid_rb_remove(struct hfi1_filedata *fdata,
 				    struct tid_rb_node *tnode);
 static void tid_rb_remove(void *arg, struct mmu_rb_node *node);
 static int tid_rb_invalidate(void *arg, struct mmu_rb_node *mnode);
+=======
+static void cacheless_tid_rb_remove(struct hfi1_filedata *fdata,
+				    struct tid_rb_node *tnode);
+static bool tid_rb_invalidate(struct mmu_interval_notifier *mni,
+			      const struct mmu_notifier_range *range,
+			      unsigned long cur_seq);
+>>>>>>> upstream/android-13
 static int program_rcvarray(struct hfi1_filedata *fd, struct tid_user_buf *,
 			    struct tid_group *grp,
 			    unsigned int start, u16 count,
@@ -73,10 +88,15 @@ static int unprogram_rcvarray(struct hfi1_filedata *fd, u32 tidinfo,
 			      struct tid_group **grp);
 static void clear_tid_node(struct hfi1_filedata *fd, struct tid_rb_node *node);
 
+<<<<<<< HEAD
 static struct mmu_rb_ops tid_rb_ops = {
 	.insert = tid_rb_insert,
 	.remove = tid_rb_remove,
 	.invalidate = tid_rb_invalidate
+=======
+static const struct mmu_interval_notifier_ops tid_mn_ops = {
+	.invalidate = tid_rb_invalidate,
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -87,7 +107,10 @@ static struct mmu_rb_ops tid_rb_ops = {
 int hfi1_user_exp_rcv_init(struct hfi1_filedata *fd,
 			   struct hfi1_ctxtdata *uctxt)
 {
+<<<<<<< HEAD
 	struct hfi1_devdata *dd = uctxt->dd;
+=======
+>>>>>>> upstream/android-13
 	int ret = 0;
 
 	fd->entry_to_rb = kcalloc(uctxt->expected_count,
@@ -106,6 +129,7 @@ int hfi1_user_exp_rcv_init(struct hfi1_filedata *fd,
 			fd->entry_to_rb = NULL;
 			return -ENOMEM;
 		}
+<<<<<<< HEAD
 
 		/*
 		 * Register MMU notifier callbacks. If the registration
@@ -120,6 +144,9 @@ int hfi1_user_exp_rcv_init(struct hfi1_filedata *fd,
 				    ret);
 			ret = 0;
 		}
+=======
+		fd->use_mn = true;
+>>>>>>> upstream/android-13
 	}
 
 	/*
@@ -136,7 +163,11 @@ int hfi1_user_exp_rcv_init(struct hfi1_filedata *fd,
 	 * init.
 	 */
 	spin_lock(&fd->tid_lock);
+<<<<<<< HEAD
 	if (uctxt->subctxt_cnt && fd->handler) {
+=======
+	if (uctxt->subctxt_cnt && fd->use_mn) {
+>>>>>>> upstream/android-13
 		u16 remainder;
 
 		fd->tid_limit = uctxt->expected_count / uctxt->subctxt_cnt;
@@ -155,6 +186,7 @@ void hfi1_user_exp_rcv_free(struct hfi1_filedata *fd)
 {
 	struct hfi1_ctxtdata *uctxt = fd->uctxt;
 
+<<<<<<< HEAD
 	/*
 	 * The notifier would have been removed when the process'es mm
 	 * was freed.
@@ -169,6 +201,14 @@ void hfi1_user_exp_rcv_free(struct hfi1_filedata *fd)
 			unlock_exp_tids(uctxt, &uctxt->tid_used_list, fd);
 		mutex_unlock(&uctxt->exp_mutex);
 	}
+=======
+	mutex_lock(&uctxt->exp_mutex);
+	if (!EXP_TID_SET_EMPTY(uctxt->tid_full_list))
+		unlock_exp_tids(uctxt, &uctxt->tid_full_list, fd);
+	if (!EXP_TID_SET_EMPTY(uctxt->tid_used_list))
+		unlock_exp_tids(uctxt, &uctxt->tid_used_list, fd);
+	mutex_unlock(&uctxt->exp_mutex);
+>>>>>>> upstream/android-13
 
 	kfree(fd->invalid_tids);
 	fd->invalid_tids = NULL;
@@ -177,12 +217,21 @@ void hfi1_user_exp_rcv_free(struct hfi1_filedata *fd)
 	fd->entry_to_rb = NULL;
 }
 
+<<<<<<< HEAD
 /**
  * Release pinned receive buffer pages.
  *
  * @mapped - true if the pages have been DMA mapped. false otherwise.
  * @idx - Index of the first page to unpin.
  * @npages - No of pages to unpin.
+=======
+/*
+ * Release pinned receive buffer pages.
+ *
+ * @mapped: true if the pages have been DMA mapped. false otherwise.
+ * @idx: Index of the first page to unpin.
+ * @npages: No of pages to unpin.
+>>>>>>> upstream/android-13
  *
  * If the pages have been DMA mapped (indicated by mapped parameter), their
  * info will be passed via a struct tid_rb_node. If they haven't been mapped,
@@ -197,6 +246,7 @@ static void unpin_rcv_pages(struct hfi1_filedata *fd,
 {
 	struct page **pages;
 	struct hfi1_devdata *dd = fd->uctxt->dd;
+<<<<<<< HEAD
 
 	if (mapped) {
 		pci_unmap_single(dd->pcidev, node->dma_addr,
@@ -210,6 +260,24 @@ static void unpin_rcv_pages(struct hfi1_filedata *fd,
 }
 
 /**
+=======
+	struct mm_struct *mm;
+
+	if (mapped) {
+		dma_unmap_single(&dd->pcidev->dev, node->dma_addr,
+				 node->npages * PAGE_SIZE, DMA_FROM_DEVICE);
+		pages = &node->pages[idx];
+		mm = mm_from_tid_node(node);
+	} else {
+		pages = &tidbuf->pages[idx];
+		mm = current->mm;
+	}
+	hfi1_release_user_pages(mm, pages, npages, mapped);
+	fd->tid_n_pinned -= npages;
+}
+
+/*
+>>>>>>> upstream/android-13
  * Pin receive buffer pages.
  */
 static int pin_rcv_pages(struct hfi1_filedata *fd, struct tid_user_buf *tidbuf)
@@ -230,6 +298,7 @@ static int pin_rcv_pages(struct hfi1_filedata *fd, struct tid_user_buf *tidbuf)
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	/* Verify that access is OK for the user buffer */
 	if (!access_ok(VERIFY_WRITE, (void __user *)vaddr,
 		       npages * PAGE_SIZE)) {
@@ -237,6 +306,8 @@ static int pin_rcv_pages(struct hfi1_filedata *fd, struct tid_user_buf *tidbuf)
 			   (void *)vaddr, npages);
 		return -EFAULT;
 	}
+=======
+>>>>>>> upstream/android-13
 	/* Allocate the array of struct page pointers needed for pinning */
 	pages = kcalloc(npages, sizeof(*pages), GFP_KERNEL);
 	if (!pages)
@@ -247,12 +318,20 @@ static int pin_rcv_pages(struct hfi1_filedata *fd, struct tid_user_buf *tidbuf)
 	 * pages, accept the amount pinned so far and program only that.
 	 * User space knows how to deal with partially programmed buffers.
 	 */
+<<<<<<< HEAD
 	if (!hfi1_can_pin_pages(dd, fd->mm, fd->tid_n_pinned, npages)) {
+=======
+	if (!hfi1_can_pin_pages(dd, current->mm, fd->tid_n_pinned, npages)) {
+>>>>>>> upstream/android-13
 		kfree(pages);
 		return -ENOMEM;
 	}
 
+<<<<<<< HEAD
 	pinned = hfi1_acquire_user_pages(fd->mm, vaddr, npages, true, pages);
+=======
+	pinned = hfi1_acquire_user_pages(current->mm, vaddr, npages, true, pages);
+>>>>>>> upstream/android-13
 	if (pinned <= 0) {
 		kfree(pages);
 		return pinned;
@@ -766,9 +845,14 @@ static int set_rcvarray_entry(struct hfi1_filedata *fd,
 	if (!node)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	phys = pci_map_single(dd->pcidev,
 			      __va(page_to_phys(pages[0])),
 			      npages * PAGE_SIZE, PCI_DMA_FROMDEVICE);
+=======
+	phys = dma_map_single(&dd->pcidev->dev, __va(page_to_phys(pages[0])),
+			      npages * PAGE_SIZE, DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 	if (dma_mapping_error(&dd->pcidev->dev, phys)) {
 		dd_dev_err(dd, "Failed to DMA map Exp Rcv pages 0x%llx\n",
 			   phys);
@@ -776,8 +860,12 @@ static int set_rcvarray_entry(struct hfi1_filedata *fd,
 		return -EFAULT;
 	}
 
+<<<<<<< HEAD
 	node->mmu.addr = tbuf->vaddr + (pageidx * PAGE_SIZE);
 	node->mmu.len = npages * PAGE_SIZE;
+=======
+	node->fdata = fd;
+>>>>>>> upstream/android-13
 	node->phys = page_to_phys(pages[0]);
 	node->npages = npages;
 	node->rcventry = rcventry;
@@ -786,6 +874,7 @@ static int set_rcvarray_entry(struct hfi1_filedata *fd,
 	node->freed = false;
 	memcpy(node->pages, pages, sizeof(struct page *) * npages);
 
+<<<<<<< HEAD
 	if (!fd->handler)
 		ret = tid_rb_insert(fd, &node->mmu);
 	else
@@ -803,6 +892,37 @@ static int set_rcvarray_entry(struct hfi1_filedata *fd,
 	trace_hfi1_exp_tid_reg(uctxt->ctxt, fd->subctxt, rcventry, npages,
 			       node->mmu.addr, node->phys, phys);
 	return 0;
+=======
+	if (fd->use_mn) {
+		ret = mmu_interval_notifier_insert(
+			&node->notifier, current->mm,
+			tbuf->vaddr + (pageidx * PAGE_SIZE), npages * PAGE_SIZE,
+			&tid_mn_ops);
+		if (ret)
+			goto out_unmap;
+		/*
+		 * FIXME: This is in the wrong order, the notifier should be
+		 * established before the pages are pinned by pin_rcv_pages.
+		 */
+		mmu_interval_read_begin(&node->notifier);
+	}
+	fd->entry_to_rb[node->rcventry - uctxt->expected_base] = node;
+
+	hfi1_put_tid(dd, rcventry, PT_EXPECTED, phys, ilog2(npages) + 1);
+	trace_hfi1_exp_tid_reg(uctxt->ctxt, fd->subctxt, rcventry, npages,
+			       node->notifier.interval_tree.start, node->phys,
+			       phys);
+	return 0;
+
+out_unmap:
+	hfi1_cdbg(TID, "Failed to insert RB node %u 0x%lx, 0x%lx %d",
+		  node->rcventry, node->notifier.interval_tree.start,
+		  node->phys, ret);
+	dma_unmap_single(&dd->pcidev->dev, phys, npages * PAGE_SIZE,
+			 DMA_FROM_DEVICE);
+	kfree(node);
+	return -EFAULT;
+>>>>>>> upstream/android-13
 }
 
 static int unprogram_rcvarray(struct hfi1_filedata *fd, u32 tidinfo,
@@ -832,10 +952,16 @@ static int unprogram_rcvarray(struct hfi1_filedata *fd, u32 tidinfo,
 	if (grp)
 		*grp = node->grp;
 
+<<<<<<< HEAD
 	if (!fd->handler)
 		cacheless_tid_rb_remove(fd, node);
 	else
 		hfi1_mmu_rb_remove(fd->handler, &node->mmu);
+=======
+	if (fd->use_mn)
+		mmu_interval_notifier_remove(&node->notifier);
+	cacheless_tid_rb_remove(fd, node);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -846,7 +972,12 @@ static void clear_tid_node(struct hfi1_filedata *fd, struct tid_rb_node *node)
 	struct hfi1_devdata *dd = uctxt->dd;
 
 	trace_hfi1_exp_tid_unreg(uctxt->ctxt, fd->subctxt, node->rcventry,
+<<<<<<< HEAD
 				 node->npages, node->mmu.addr, node->phys,
+=======
+				 node->npages,
+				 node->notifier.interval_tree.start, node->phys,
+>>>>>>> upstream/android-13
 				 node->dma_addr);
 
 	/*
@@ -893,12 +1024,19 @@ static void unlock_exp_tids(struct hfi1_ctxtdata *uctxt,
 				if (!node || node->rcventry != rcventry)
 					continue;
 
+<<<<<<< HEAD
+=======
+				if (fd->use_mn)
+					mmu_interval_notifier_remove(
+						&node->notifier);
+>>>>>>> upstream/android-13
 				cacheless_tid_rb_remove(fd, node);
 			}
 		}
 	}
 }
 
+<<<<<<< HEAD
 /*
  * Always return 0 from this function.  A non-zero return indicates that the
  * remove operation will be called and that memory should be unpinned.
@@ -917,6 +1055,22 @@ static int tid_rb_invalidate(void *arg, struct mmu_rb_node *mnode)
 		return 0;
 
 	trace_hfi1_exp_tid_inval(uctxt->ctxt, fdata->subctxt, node->mmu.addr,
+=======
+static bool tid_rb_invalidate(struct mmu_interval_notifier *mni,
+			      const struct mmu_notifier_range *range,
+			      unsigned long cur_seq)
+{
+	struct tid_rb_node *node =
+		container_of(mni, struct tid_rb_node, notifier);
+	struct hfi1_filedata *fdata = node->fdata;
+	struct hfi1_ctxtdata *uctxt = fdata->uctxt;
+
+	if (node->freed)
+		return true;
+
+	trace_hfi1_exp_tid_inval(uctxt->ctxt, fdata->subctxt,
+				 node->notifier.interval_tree.start,
+>>>>>>> upstream/android-13
 				 node->rcventry, node->npages, node->dma_addr);
 	node->freed = true;
 
@@ -945,6 +1099,7 @@ static int tid_rb_invalidate(void *arg, struct mmu_rb_node *mnode)
 		fdata->invalid_tid_idx++;
 	}
 	spin_unlock(&fdata->invalid_lock);
+<<<<<<< HEAD
 	return 0;
 }
 
@@ -957,6 +1112,9 @@ static int tid_rb_insert(void *arg, struct mmu_rb_node *node)
 
 	fdata->entry_to_rb[tnode->rcventry - base] = tnode;
 	return 0;
+=======
+	return true;
+>>>>>>> upstream/android-13
 }
 
 static void cacheless_tid_rb_remove(struct hfi1_filedata *fdata,
@@ -967,6 +1125,7 @@ static void cacheless_tid_rb_remove(struct hfi1_filedata *fdata,
 	fdata->entry_to_rb[tnode->rcventry - base] = NULL;
 	clear_tid_node(fdata, tnode);
 }
+<<<<<<< HEAD
 
 static void tid_rb_remove(void *arg, struct mmu_rb_node *node)
 {
@@ -976,3 +1135,5 @@ static void tid_rb_remove(void *arg, struct mmu_rb_node *node)
 
 	cacheless_tid_rb_remove(fdata, tnode);
 }
+=======
+>>>>>>> upstream/android-13

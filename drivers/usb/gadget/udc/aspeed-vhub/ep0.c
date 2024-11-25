@@ -5,11 +5,14 @@
  * ep0.c - Endpoint 0 handling
  *
  * Copyright 2017 IBM Corporation
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -105,6 +108,7 @@ void ast_vhub_ep0_handle_setup(struct ast_vhub_ep *ep)
 	       (crq.bRequestType & USB_DIR_IN) ? "in" : "out",
 	       ep->ep0.state);
 
+<<<<<<< HEAD
 	/* Check our state, cancel pending requests if needed */
 	if (ep->ep0.state != ep0_state_token) {
 		EPDBG(ep, "wrong state\n");
@@ -117,6 +121,22 @@ void ast_vhub_ep0_handle_setup(struct ast_vhub_ep *ep)
 		 */
 		ast_vhub_nuke(ep, 0);
 		goto stall;
+=======
+	/*
+	 * Check our state, cancel pending requests if needed
+	 *
+	 * Note: Under some circumstances, we can get a new setup
+	 * packet while waiting for the stall ack, just accept it.
+	 *
+	 * In any case, a SETUP packet in wrong state should have
+	 * reset the HW state machine, so let's just log, nuke
+	 * requests, move on.
+	 */
+	if (ep->ep0.state != ep0_state_token &&
+	    ep->ep0.state != ep0_state_stall) {
+		EPDBG(ep, "wrong state\n");
+		ast_vhub_nuke(ep, -EIO);
+>>>>>>> upstream/android-13
 	}
 
 	/* Calculate next state for EP0 */
@@ -165,7 +185,11 @@ void ast_vhub_ep0_handle_setup(struct ast_vhub_ep *ep)
  stall:
 	EPDBG(ep, "stalling\n");
 	writel(VHUB_EP0_CTRL_STALL, ep->ep0.ctlstat);
+<<<<<<< HEAD
 	ep->ep0.state = ep0_state_status;
+=======
+	ep->ep0.state = ep0_state_stall;
+>>>>>>> upstream/android-13
 	ep->ep0.dir_in = false;
 	return;
 
@@ -299,8 +323,13 @@ void ast_vhub_ep0_handle_ack(struct ast_vhub_ep *ep, bool in_ack)
 		if ((ep->ep0.dir_in && (stat & VHUB_EP0_TX_BUFF_RDY)) ||
 		    (!ep->ep0.dir_in && (stat & VHUB_EP0_RX_BUFF_RDY)) ||
 		    (ep->ep0.dir_in != in_ack)) {
+<<<<<<< HEAD
 			dev_warn(dev, "irq state mismatch");
 			stall = true;
+=======
+			/* In that case, ignore interrupt */
+			dev_warn(dev, "irq state mismatch");
+>>>>>>> upstream/android-13
 			break;
 		}
 		/*
@@ -335,12 +364,31 @@ void ast_vhub_ep0_handle_ack(struct ast_vhub_ep *ep, bool in_ack)
 			dev_warn(dev, "status direction mismatch\n");
 			stall = true;
 		}
+<<<<<<< HEAD
 	}
 
 	/* Reset to token state */
 	ep->ep0.state = ep0_state_token;
 	if (stall)
 		writel(VHUB_EP0_CTRL_STALL, ep->ep0.ctlstat);
+=======
+		break;
+	case ep0_state_stall:
+		/*
+		 * There shouldn't be any request left, but nuke just in case
+		 * otherwise the stale request will block subsequent ones
+		 */
+		ast_vhub_nuke(ep, -EIO);
+		break;
+	}
+
+	/* Reset to token state or stall */
+	if (stall) {
+		writel(VHUB_EP0_CTRL_STALL, ep->ep0.ctlstat);
+		ep->ep0.state = ep0_state_stall;
+	} else
+		ep->ep0.state = ep0_state_token;
+>>>>>>> upstream/android-13
 }
 
 static int ast_vhub_ep0_queue(struct usb_ep* u_ep, struct usb_request *u_req,
@@ -367,7 +415,11 @@ static int ast_vhub_ep0_queue(struct usb_ep* u_ep, struct usb_request *u_req,
 		return -EINVAL;
 
 	/* Disabled device */
+<<<<<<< HEAD
 	if (ep->dev && (!ep->dev->enabled || ep->dev->suspended))
+=======
+	if (ep->dev && !ep->dev->enabled)
+>>>>>>> upstream/android-13
 		return -ESHUTDOWN;
 
 	/* Data, no buffer and not internal ? */
@@ -390,8 +442,17 @@ static int ast_vhub_ep0_queue(struct usb_ep* u_ep, struct usb_request *u_req,
 	spin_lock_irqsave(&vhub->lock, flags);
 
 	/* EP0 can only support a single request at a time */
+<<<<<<< HEAD
 	if (!list_empty(&ep->queue) || ep->ep0.state == ep0_state_token) {
 		dev_warn(dev, "EP0: Request in wrong state\n");
+=======
+	if (!list_empty(&ep->queue) ||
+	    ep->ep0.state == ep0_state_token ||
+	    ep->ep0.state == ep0_state_stall) {
+		dev_warn(dev, "EP0: Request in wrong state\n");
+	        EPVDBG(ep, "EP0: list_empty=%d state=%d\n",
+		       list_empty(&ep->queue), ep->ep0.state);
+>>>>>>> upstream/android-13
 		spin_unlock_irqrestore(&vhub->lock, flags);
 		return -EBUSY;
 	}
@@ -459,6 +520,18 @@ static const struct usb_ep_ops ast_vhub_ep0_ops = {
 	.free_request	= ast_vhub_free_request,
 };
 
+<<<<<<< HEAD
+=======
+void ast_vhub_reset_ep0(struct ast_vhub_dev *dev)
+{
+	struct ast_vhub_ep *ep = &dev->ep0;
+
+	ast_vhub_nuke(ep, -EIO);
+	ep->ep0.state = ep0_state_token;
+}
+
+
+>>>>>>> upstream/android-13
 void ast_vhub_init_ep0(struct ast_vhub *vhub, struct ast_vhub_ep *ep,
 		       struct ast_vhub_dev *dev)
 {

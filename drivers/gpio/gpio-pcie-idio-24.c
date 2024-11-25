@@ -146,6 +146,7 @@ static int idio_24_gpio_get_direction(struct gpio_chip *chip,
 
 	/* FET Outputs */
 	if (offset < 24)
+<<<<<<< HEAD
 		return 0;
 
 	/* Isolated Inputs */
@@ -155,6 +156,20 @@ static int idio_24_gpio_get_direction(struct gpio_chip *chip,
 	/* TTL/CMOS I/O */
 	/* OUT MODE = 1 when TTL/CMOS Output Mode is set */
 	return !(ioread8(&idio24gpio->reg->ctl) & out_mode_mask);
+=======
+		return GPIO_LINE_DIRECTION_OUT;
+
+	/* Isolated Inputs */
+	if (offset < 48)
+		return GPIO_LINE_DIRECTION_IN;
+
+	/* TTL/CMOS I/O */
+	/* OUT MODE = 1 when TTL/CMOS Output Mode is set */
+	if (ioread8(&idio24gpio->reg->ctl) & out_mode_mask)
+		return GPIO_LINE_DIRECTION_OUT;
+
+	return GPIO_LINE_DIRECTION_IN;
+>>>>>>> upstream/android-13
 }
 
 static int idio_24_gpio_direction_input(struct gpio_chip *chip,
@@ -240,6 +255,7 @@ static int idio_24_gpio_get_multiple(struct gpio_chip *chip,
 	unsigned long *mask, unsigned long *bits)
 {
 	struct idio_24_gpio *const idio24gpio = gpiochip_get_data(chip);
+<<<<<<< HEAD
 	size_t i;
 	const unsigned int gpio_reg_size = 8;
 	unsigned int bits_offset;
@@ -248,16 +264,26 @@ static int idio_24_gpio_get_multiple(struct gpio_chip *chip,
 	unsigned long word_mask;
 	const unsigned long port_mask = GENMASK(gpio_reg_size - 1, 0);
 	unsigned long port_state;
+=======
+	unsigned long offset;
+	unsigned long gpio_mask;
+>>>>>>> upstream/android-13
 	void __iomem *ports[] = {
 		&idio24gpio->reg->out0_7, &idio24gpio->reg->out8_15,
 		&idio24gpio->reg->out16_23, &idio24gpio->reg->in0_7,
 		&idio24gpio->reg->in8_15, &idio24gpio->reg->in16_23,
 	};
+<<<<<<< HEAD
+=======
+	size_t index;
+	unsigned long port_state;
+>>>>>>> upstream/android-13
 	const unsigned long out_mode_mask = BIT(1);
 
 	/* clear bits array to a clean slate */
 	bitmap_zero(bits, chip->ngpio);
 
+<<<<<<< HEAD
 	/* get bits are evaluated a gpio port register at a time */
 	for (i = 0; i < ARRAY_SIZE(ports) + 1; i++) {
 		/* gpio offset in bits array */
@@ -279,13 +305,27 @@ static int idio_24_gpio_get_multiple(struct gpio_chip *chip,
 		/* read bits from current gpio port (port 6 is TTL GPIO) */
 		if (i < 6)
 			port_state = ioread8(ports[i]);
+=======
+	for_each_set_clump8(offset, gpio_mask, mask, ARRAY_SIZE(ports) * 8) {
+		index = offset / 8;
+
+		/* read bits from current gpio port (port 6 is TTL GPIO) */
+		if (index < 6)
+			port_state = ioread8(ports[index]);
+>>>>>>> upstream/android-13
 		else if (ioread8(&idio24gpio->reg->ctl) & out_mode_mask)
 			port_state = ioread8(&idio24gpio->reg->ttl_out0_7);
 		else
 			port_state = ioread8(&idio24gpio->reg->ttl_in0_7);
 
+<<<<<<< HEAD
 		/* store acquired bits at respective bits array offset */
 		bits[word_index] |= port_state << word_offset;
+=======
+		port_state &= gpio_mask;
+
+		bitmap_set_value8(bits, port_state, offset);
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
@@ -336,6 +376,7 @@ static void idio_24_gpio_set_multiple(struct gpio_chip *chip,
 	unsigned long *mask, unsigned long *bits)
 {
 	struct idio_24_gpio *const idio24gpio = gpiochip_get_data(chip);
+<<<<<<< HEAD
 	size_t i;
 	unsigned long bits_offset;
 	unsigned long gpio_mask;
@@ -343,10 +384,15 @@ static void idio_24_gpio_set_multiple(struct gpio_chip *chip,
 	const unsigned long port_mask = GENMASK(gpio_reg_size, 0);
 	unsigned long flags;
 	unsigned int out_state;
+=======
+	unsigned long offset;
+	unsigned long gpio_mask;
+>>>>>>> upstream/android-13
 	void __iomem *ports[] = {
 		&idio24gpio->reg->out0_7, &idio24gpio->reg->out8_15,
 		&idio24gpio->reg->out16_23
 	};
+<<<<<<< HEAD
 	const unsigned long out_mode_mask = BIT(1);
 	const unsigned int ttl_offset = 48;
 	const size_t ttl_i = BIT_WORD(ttl_offset);
@@ -389,6 +435,44 @@ static void idio_24_gpio_set_multiple(struct gpio_chip *chip,
 	iowrite8(out_state, &idio24gpio->reg->ttl_out0_7);
 
 	raw_spin_unlock_irqrestore(&idio24gpio->lock, flags);
+=======
+	size_t index;
+	unsigned long bitmask;
+	unsigned long flags;
+	unsigned long out_state;
+	const unsigned long out_mode_mask = BIT(1);
+
+	for_each_set_clump8(offset, gpio_mask, mask, ARRAY_SIZE(ports) * 8) {
+		index = offset / 8;
+
+		bitmask = bitmap_get_value8(bits, offset) & gpio_mask;
+
+		raw_spin_lock_irqsave(&idio24gpio->lock, flags);
+
+		/* read bits from current gpio port (port 6 is TTL GPIO) */
+		if (index < 6) {
+			out_state = ioread8(ports[index]);
+		} else if (ioread8(&idio24gpio->reg->ctl) & out_mode_mask) {
+			out_state = ioread8(&idio24gpio->reg->ttl_out0_7);
+		} else {
+			/* skip TTL GPIO if set for input */
+			raw_spin_unlock_irqrestore(&idio24gpio->lock, flags);
+			continue;
+		}
+
+		/* set requested bit states */
+		out_state &= ~gpio_mask;
+		out_state |= bitmask;
+
+		/* write bits for current gpio port (port 6 is TTL GPIO) */
+		if (index < 6)
+			iowrite8(out_state, ports[index]);
+		else
+			iowrite8(out_state, &idio24gpio->reg->ttl_out0_7);
+
+		raw_spin_unlock_irqrestore(&idio24gpio->lock, flags);
+	}
+>>>>>>> upstream/android-13
 }
 
 static void idio_24_irq_ack(struct irq_data *data)
@@ -494,8 +578,12 @@ static irqreturn_t idio_24_irq_handler(int irq, void *dev_id)
 	irq_mask = idio24gpio->irq_mask & irq_status;
 
 	for_each_set_bit(gpio, &irq_mask, chip->ngpio - 24)
+<<<<<<< HEAD
 		generic_handle_irq(irq_find_mapping(chip->irq.domain,
 			gpio + 24));
+=======
+		generic_handle_domain_irq(chip->irq.domain, gpio + 24);
+>>>>>>> upstream/android-13
 
 	raw_spin_lock(&idio24gpio->lock);
 
@@ -526,6 +614,10 @@ static int idio_24_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 	const size_t pci_plx_bar_index = 1;
 	const size_t pci_bar_index = 2;
 	const char *const name = pci_name(pdev);
+<<<<<<< HEAD
+=======
+	struct gpio_irq_chip *girq;
+>>>>>>> upstream/android-13
 
 	idio24gpio = devm_kzalloc(dev, sizeof(*idio24gpio), GFP_KERNEL);
 	if (!idio24gpio)
@@ -560,6 +652,18 @@ static int idio_24_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 	idio24gpio->chip.set = idio_24_gpio_set;
 	idio24gpio->chip.set_multiple = idio_24_gpio_set_multiple;
 
+<<<<<<< HEAD
+=======
+	girq = &idio24gpio->chip.irq;
+	girq->chip = &idio_24_irqchip;
+	/* This will let us handle the parent IRQ in the driver */
+	girq->parent_handler = NULL;
+	girq->num_parents = 0;
+	girq->parents = NULL;
+	girq->default_type = IRQ_TYPE_NONE;
+	girq->handler = handle_edge_irq;
+
+>>>>>>> upstream/android-13
 	raw_spin_lock_init(&idio24gpio->lock);
 
 	/* Software board reset */
@@ -577,6 +681,7 @@ static int idio_24_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 		return err;
 	}
 
+<<<<<<< HEAD
 	err = gpiochip_irqchip_add(&idio24gpio->chip, &idio_24_irqchip, 0,
 		handle_edge_irq, IRQ_TYPE_NONE);
 	if (err) {
@@ -584,6 +689,8 @@ static int idio_24_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 		return err;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	err = devm_request_irq(dev, pdev->irq, idio_24_irq_handler, IRQF_SHARED,
 		name, idio24gpio);
 	if (err) {

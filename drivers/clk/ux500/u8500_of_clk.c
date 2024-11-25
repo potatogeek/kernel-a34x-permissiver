@@ -1,10 +1,17 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Clock definitions for u8500 platform.
  *
  * Copyright (C) 2012 ST-Ericsson SA
  * Author: Ulf Hansson <ulf.hansson@linaro.org>
+<<<<<<< HEAD
  *
  * License terms: GNU General Public License (GPL) version 2
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/of.h>
@@ -100,8 +107,16 @@ static void u8500_clk_init(struct device_node *np)
 	if (fw_version != NULL) {
 		switch (fw_version->project) {
 		case PRCMU_FW_PROJECT_U8500_C2:
+<<<<<<< HEAD
 		case PRCMU_FW_PROJECT_U8520:
 		case PRCMU_FW_PROJECT_U8420:
+=======
+		case PRCMU_FW_PROJECT_U8500_SSG1:
+		case PRCMU_FW_PROJECT_U8520:
+		case PRCMU_FW_PROJECT_U8420:
+		case PRCMU_FW_PROJECT_U8420_SYSCLK:
+		case PRCMU_FW_PROJECT_U8500_SSG2:
+>>>>>>> upstream/android-13
 			sgaclk_parent = "soc0_pll";
 			break;
 		default:
@@ -545,11 +560,16 @@ static void u8500_clk_init(struct device_node *np)
 	for_each_child_of_node(np, child) {
 		static struct clk_onecell_data clk_data;
 
+<<<<<<< HEAD
 		if (!of_node_cmp(child->name, "prcmu-clock")) {
+=======
+		if (of_node_name_eq(child, "prcmu-clock")) {
+>>>>>>> upstream/android-13
 			clk_data.clks = prcmu_clk;
 			clk_data.clk_num = ARRAY_SIZE(prcmu_clk);
 			of_clk_add_provider(child, of_clk_src_onecell_get, &clk_data);
 		}
+<<<<<<< HEAD
 		if (!of_node_cmp(child->name, "prcc-periph-clock"))
 			of_clk_add_provider(child, ux500_twocell_get, prcc_pclk);
 
@@ -560,6 +580,18 @@ static void u8500_clk_init(struct device_node *np)
 			of_clk_add_provider(child, of_clk_src_simple_get, rtc_clk);
 
 		if (!of_node_cmp(child->name, "smp-twd-clock"))
+=======
+		if (of_node_name_eq(child, "prcc-periph-clock"))
+			of_clk_add_provider(child, ux500_twocell_get, prcc_pclk);
+
+		if (of_node_name_eq(child, "prcc-kernel-clock"))
+			of_clk_add_provider(child, ux500_twocell_get, prcc_kclk);
+
+		if (of_node_name_eq(child, "rtc32k-clock"))
+			of_clk_add_provider(child, of_clk_src_simple_get, rtc_clk);
+
+		if (of_node_name_eq(child, "smp-twd-clock"))
+>>>>>>> upstream/android-13
 			of_clk_add_provider(child, of_clk_src_simple_get, twd_clk);
 	}
 }

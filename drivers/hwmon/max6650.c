@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * max6650.c - Part of lm_sensors, Linux kernel modules for hardware
  *             monitoring.
@@ -15,6 +19,7 @@
  * The datasheet was last seen at:
  *
  *        http://pdfserv.maxim-ic.com/en/ds/MAX6650-MAX6651.pdf
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,6 +34,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -40,6 +47,10 @@
 #include <linux/hwmon-sysfs.h>
 #include <linux/err.h>
 #include <linux/of_device.h>
+<<<<<<< HEAD
+=======
+#include <linux/thermal.h>
+>>>>>>> upstream/android-13
 
 /*
  * Insmod parameters
@@ -52,9 +63,15 @@ static int prescaler;
 /* clock: The clock frequency of the chip (max6651 can be clocked externally) */
 static int clock = 254000;
 
+<<<<<<< HEAD
 module_param(fan_voltage, int, S_IRUGO);
 module_param(prescaler, int, S_IRUGO);
 module_param(clock, int, S_IRUGO);
+=======
+module_param(fan_voltage, int, 0444);
+module_param(prescaler, int, 0444);
+module_param(clock, int, 0444);
+>>>>>>> upstream/android-13
 
 /*
  * MAX 6650/6651 registers
@@ -104,7 +121,12 @@ module_param(clock, int, S_IRUGO);
 #define FAN_RPM_MIN 240
 #define FAN_RPM_MAX 30000
 
+<<<<<<< HEAD
 #define DIV_FROM_REG(reg) (1 << (reg & 7))
+=======
+#define DIV_FROM_REG(reg)	(1 << ((reg) & 7))
+#define DAC_LIMIT(v12)		((v12) ? 180 : 76)
+>>>>>>> upstream/android-13
 
 /*
  * Client data (each client gets its own)
@@ -112,10 +134,16 @@ module_param(clock, int, S_IRUGO);
 
 struct max6650_data {
 	struct i2c_client *client;
+<<<<<<< HEAD
 	const struct attribute_group *groups[3];
 	struct mutex update_lock;
 	int nr_fans;
 	char valid; /* zero until following fields are valid */
+=======
+	struct mutex update_lock; /* protect alarm register updates */
+	int nr_fans;
+	bool valid; /* false until following fields are valid */
+>>>>>>> upstream/android-13
 	unsigned long last_updated; /* in jiffies */
 
 	/* register values */
@@ -125,6 +153,11 @@ struct max6650_data {
 	u8 count;
 	u8 dac;
 	u8 alarm;
+<<<<<<< HEAD
+=======
+	u8 alarm_en;
+	unsigned long cooling_dev_state;
+>>>>>>> upstream/android-13
 };
 
 static const u8 tach_reg[] = {
@@ -134,7 +167,11 @@ static const u8 tach_reg[] = {
 	MAX6650_REG_TACH3,
 };
 
+<<<<<<< HEAD
 static const struct of_device_id max6650_dt_match[] = {
+=======
+static const struct of_device_id __maybe_unused max6650_dt_match[] = {
+>>>>>>> upstream/android-13
 	{
 		.compatible = "maxim,max6650",
 		.data = (void *)1
@@ -147,15 +184,39 @@ static const struct of_device_id max6650_dt_match[] = {
 };
 MODULE_DEVICE_TABLE(of, max6650_dt_match);
 
+<<<<<<< HEAD
+=======
+static int dac_to_pwm(int dac, bool v12)
+{
+	/*
+	 * Useful range for dac is 0-180 for 12V fans and 0-76 for 5V fans.
+	 * Lower DAC values mean higher speeds.
+	 */
+	return clamp_val(255 - (255 * dac) / DAC_LIMIT(v12), 0, 255);
+}
+
+static u8 pwm_to_dac(unsigned int pwm, bool v12)
+{
+	int limit = DAC_LIMIT(v12);
+
+	return limit - (limit * pwm) / 255;
+}
+
+>>>>>>> upstream/android-13
 static struct max6650_data *max6650_update_device(struct device *dev)
 {
 	struct max6650_data *data = dev_get_drvdata(dev);
 	struct i2c_client *client = data->client;
+<<<<<<< HEAD
+=======
+	int reg, err = 0;
+>>>>>>> upstream/android-13
 	int i;
 
 	mutex_lock(&data->update_lock);
 
 	if (time_after(jiffies, data->last_updated + HZ) || !data->valid) {
+<<<<<<< HEAD
 		data->speed = i2c_smbus_read_byte_data(client,
 						       MAX6650_REG_SPEED);
 		data->config = i2c_smbus_read_byte_data(client,
@@ -167,12 +228,23 @@ static struct max6650_data *max6650_update_device(struct device *dev)
 		data->count = i2c_smbus_read_byte_data(client,
 							MAX6650_REG_COUNT);
 		data->dac = i2c_smbus_read_byte_data(client, MAX6650_REG_DAC);
+=======
+		for (i = 0; i < data->nr_fans; i++) {
+			reg = i2c_smbus_read_byte_data(client, tach_reg[i]);
+			if (reg < 0) {
+				err = reg;
+				goto error;
+			}
+			data->tach[i] = reg;
+		}
+>>>>>>> upstream/android-13
 
 		/*
 		 * Alarms are cleared on read in case the condition that
 		 * caused the alarm is removed. Keep the value latched here
 		 * for providing the register through different alarm files.
 		 */
+<<<<<<< HEAD
 		data->alarm |= i2c_smbus_read_byte_data(client,
 							MAX6650_REG_ALARM);
 
@@ -182,6 +254,22 @@ static struct max6650_data *max6650_update_device(struct device *dev)
 
 	mutex_unlock(&data->update_lock);
 
+=======
+		reg = i2c_smbus_read_byte_data(client, MAX6650_REG_ALARM);
+		if (reg < 0) {
+			err = reg;
+			goto error;
+		}
+		data->alarm |= reg;
+		data->last_updated = jiffies;
+		data->valid = true;
+	}
+
+error:
+	mutex_unlock(&data->update_lock);
+	if (err)
+		data = ERR_PTR(err);
+>>>>>>> upstream/android-13
 	return data;
 }
 
@@ -209,6 +297,7 @@ static int max6650_set_operating_mode(struct max6650_data *data, u8 mode)
 	return 0;
 }
 
+<<<<<<< HEAD
 static ssize_t get_fan(struct device *dev, struct device_attribute *devattr,
 		       char *buf)
 {
@@ -229,6 +318,8 @@ static ssize_t get_fan(struct device *dev, struct device_attribute *devattr,
 	return sprintf(buf, "%d\n", rpm);
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Set the fan speed to the specified RPM (or read back the RPM setting).
  * This works in closed loop mode only. Use pwm1 for open loop speed setting.
@@ -270,6 +361,7 @@ static ssize_t get_fan(struct device *dev, struct device_attribute *devattr,
  * controlled.
  */
 
+<<<<<<< HEAD
 static ssize_t fan1_target_show(struct device *dev,
 				struct device_attribute *devattr, char *buf)
 {
@@ -290,6 +382,8 @@ static ssize_t fan1_target_show(struct device *dev,
 	return sprintf(buf, "%d\n", rpm);
 }
 
+=======
+>>>>>>> upstream/android-13
 static int max6650_set_target(struct max6650_data *data, unsigned long rpm)
 {
 	int kscale, ktach;
@@ -318,6 +412,7 @@ static int max6650_set_target(struct max6650_data *data, unsigned long rpm)
 					 data->speed);
 }
 
+<<<<<<< HEAD
 static ssize_t fan1_target_store(struct device *dev,
 				 struct device_attribute *devattr,
 				 const char *buf, size_t count)
@@ -509,11 +604,16 @@ static ssize_t fan1_div_store(struct device *dev,
 
 /*
  * Get alarm stati:
+=======
+/*
+ * Get gpio alarm status:
+>>>>>>> upstream/android-13
  * Possible values:
  * 0 = no alarm
  * 1 = alarm
  */
 
+<<<<<<< HEAD
 static ssize_t get_alarm(struct device *dev, struct device_attribute *devattr,
 			 char *buf)
 {
@@ -528,12 +628,30 @@ static ssize_t get_alarm(struct device *dev, struct device_attribute *devattr,
 		data->alarm &= ~attr->index;
 		data->alarm |= i2c_smbus_read_byte_data(client,
 							MAX6650_REG_ALARM);
+=======
+static ssize_t alarm_show(struct device *dev,
+			  struct device_attribute *devattr, char *buf)
+{
+	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
+	struct max6650_data *data = max6650_update_device(dev);
+	bool alarm;
+
+	if (IS_ERR(data))
+		return PTR_ERR(data);
+
+	alarm = data->alarm & attr->index;
+	if (alarm) {
+		mutex_lock(&data->update_lock);
+		data->alarm &= ~attr->index;
+		data->valid = false;
+>>>>>>> upstream/android-13
 		mutex_unlock(&data->update_lock);
 	}
 
 	return sprintf(buf, "%d\n", alarm);
 }
 
+<<<<<<< HEAD
 static SENSOR_DEVICE_ATTR(fan1_input, S_IRUGO, get_fan, NULL, 0);
 static SENSOR_DEVICE_ATTR(fan2_input, S_IRUGO, get_fan, NULL, 1);
 static SENSOR_DEVICE_ATTR(fan3_input, S_IRUGO, get_fan, NULL, 2);
@@ -560,6 +678,16 @@ static umode_t max6650_attrs_visible(struct kobject *kobj, struct attribute *a,
 	struct max6650_data *data = dev_get_drvdata(dev);
 	struct i2c_client *client = data->client;
 	u8 alarm_en = i2c_smbus_read_byte_data(client, MAX6650_REG_ALARM_EN);
+=======
+static SENSOR_DEVICE_ATTR_RO(gpio1_alarm, alarm, MAX6650_ALRM_GPIO1);
+static SENSOR_DEVICE_ATTR_RO(gpio2_alarm, alarm, MAX6650_ALRM_GPIO2);
+
+static umode_t max6650_attrs_visible(struct kobject *kobj, struct attribute *a,
+				     int n)
+{
+	struct device *dev = kobj_to_dev(kobj);
+	struct max6650_data *data = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 	struct device_attribute *devattr;
 
 	/*
@@ -567,12 +695,18 @@ static umode_t max6650_attrs_visible(struct kobject *kobj, struct attribute *a,
 	 */
 
 	devattr = container_of(a, struct device_attribute, attr);
+<<<<<<< HEAD
 	if (devattr == &sensor_dev_attr_fan1_max_alarm.dev_attr
 	 || devattr == &sensor_dev_attr_fan1_min_alarm.dev_attr
 	 || devattr == &sensor_dev_attr_fan1_fault.dev_attr
 	 || devattr == &sensor_dev_attr_gpio1_alarm.dev_attr
 	 || devattr == &sensor_dev_attr_gpio2_alarm.dev_attr) {
 		if (!(alarm_en & to_sensor_dev_attr(devattr)->index))
+=======
+	if (devattr == &sensor_dev_attr_gpio1_alarm.dev_attr ||
+	    devattr == &sensor_dev_attr_gpio2_alarm.dev_attr) {
+		if (!(data->alarm_en & to_sensor_dev_attr(devattr)->index))
+>>>>>>> upstream/android-13
 			return 0;
 	}
 
@@ -580,6 +714,7 @@ static umode_t max6650_attrs_visible(struct kobject *kobj, struct attribute *a,
 }
 
 static struct attribute *max6650_attrs[] = {
+<<<<<<< HEAD
 	&sensor_dev_attr_fan1_input.dev_attr.attr,
 	&dev_attr_fan1_target.attr,
 	&dev_attr_fan1_div.attr,
@@ -588,6 +723,8 @@ static struct attribute *max6650_attrs[] = {
 	&sensor_dev_attr_fan1_max_alarm.dev_attr.attr,
 	&sensor_dev_attr_fan1_min_alarm.dev_attr.attr,
 	&sensor_dev_attr_fan1_fault.dev_attr.attr,
+=======
+>>>>>>> upstream/android-13
 	&sensor_dev_attr_gpio1_alarm.dev_attr.attr,
 	&sensor_dev_attr_gpio2_alarm.dev_attr.attr,
 	NULL
@@ -598,6 +735,7 @@ static const struct attribute_group max6650_group = {
 	.is_visible = max6650_attrs_visible,
 };
 
+<<<<<<< HEAD
 static struct attribute *max6651_attrs[] = {
 	&sensor_dev_attr_fan2_input.dev_attr.attr,
 	&sensor_dev_attr_fan3_input.dev_attr.attr,
@@ -613,12 +751,24 @@ static const struct attribute_group max6651_group = {
  * Real code
  */
 
+=======
+static const struct attribute_group *max6650_groups[] = {
+	&max6650_group,
+	NULL
+};
+
+>>>>>>> upstream/android-13
 static int max6650_init_client(struct max6650_data *data,
 			       struct i2c_client *client)
 {
 	struct device *dev = &client->dev;
+<<<<<<< HEAD
 	int config;
 	int err = -EIO;
+=======
+	int reg;
+	int err;
+>>>>>>> upstream/android-13
 	u32 voltage;
 	u32 prescale;
 	u32 target_rpm;
@@ -632,21 +782,35 @@ static int max6650_init_client(struct max6650_data *data,
 				 &prescale))
 		prescale = prescaler;
 
+<<<<<<< HEAD
 	config = i2c_smbus_read_byte_data(client, MAX6650_REG_CONFIG);
 
 	if (config < 0) {
 		dev_err(dev, "Error reading config, aborting.\n");
 		return err;
+=======
+	reg = i2c_smbus_read_byte_data(client, MAX6650_REG_CONFIG);
+	if (reg < 0) {
+		dev_err(dev, "Error reading config register, aborting.\n");
+		return reg;
+>>>>>>> upstream/android-13
 	}
 
 	switch (voltage) {
 	case 0:
 		break;
 	case 5:
+<<<<<<< HEAD
 		config &= ~MAX6650_CFG_V12;
 		break;
 	case 12:
 		config |= MAX6650_CFG_V12;
+=======
+		reg &= ~MAX6650_CFG_V12;
+		break;
+	case 12:
+		reg |= MAX6650_CFG_V12;
+>>>>>>> upstream/android-13
 		break;
 	default:
 		dev_err(dev, "illegal value for fan_voltage (%d)\n", voltage);
@@ -656,6 +820,7 @@ static int max6650_init_client(struct max6650_data *data,
 	case 0:
 		break;
 	case 1:
+<<<<<<< HEAD
 		config &= ~MAX6650_CFG_PRESCALER_MASK;
 		break;
 	case 2:
@@ -672,6 +837,24 @@ static int max6650_init_client(struct max6650_data *data,
 		break;
 	case 16:
 		config = (config & ~MAX6650_CFG_PRESCALER_MASK)
+=======
+		reg &= ~MAX6650_CFG_PRESCALER_MASK;
+		break;
+	case 2:
+		reg = (reg & ~MAX6650_CFG_PRESCALER_MASK)
+			 | MAX6650_CFG_PRESCALER_2;
+		break;
+	case  4:
+		reg = (reg & ~MAX6650_CFG_PRESCALER_MASK)
+			 | MAX6650_CFG_PRESCALER_4;
+		break;
+	case  8:
+		reg = (reg & ~MAX6650_CFG_PRESCALER_MASK)
+			 | MAX6650_CFG_PRESCALER_8;
+		break;
+	case 16:
+		reg = (reg & ~MAX6650_CFG_PRESCALER_MASK)
+>>>>>>> upstream/android-13
 			 | MAX6650_CFG_PRESCALER_16;
 		break;
 	default:
@@ -679,6 +862,7 @@ static int max6650_init_client(struct max6650_data *data,
 	}
 
 	dev_info(dev, "Fan voltage: %dV, prescaler: %d.\n",
+<<<<<<< HEAD
 		 (config & MAX6650_CFG_V12) ? 12 : 5,
 		 1 << (config & MAX6650_CFG_PRESCALER_MASK));
 
@@ -689,6 +873,45 @@ static int max6650_init_client(struct max6650_data *data,
 
 	data->config = config;
 	data->count = i2c_smbus_read_byte_data(client, MAX6650_REG_COUNT);
+=======
+		 (reg & MAX6650_CFG_V12) ? 12 : 5,
+		 1 << (reg & MAX6650_CFG_PRESCALER_MASK));
+
+	err = i2c_smbus_write_byte_data(client, MAX6650_REG_CONFIG, reg);
+	if (err) {
+		dev_err(dev, "Config write error, aborting.\n");
+		return err;
+	}
+	data->config = reg;
+
+	reg = i2c_smbus_read_byte_data(client, MAX6650_REG_SPEED);
+	if (reg < 0) {
+		dev_err(dev, "Failed to read speed register, aborting.\n");
+		return reg;
+	}
+	data->speed = reg;
+
+	reg = i2c_smbus_read_byte_data(client, MAX6650_REG_DAC);
+	if (reg < 0) {
+		dev_err(dev, "Failed to read DAC register, aborting.\n");
+		return reg;
+	}
+	data->dac = reg;
+
+	reg = i2c_smbus_read_byte_data(client, MAX6650_REG_COUNT);
+	if (reg < 0) {
+		dev_err(dev, "Failed to read count register, aborting.\n");
+		return reg;
+	}
+	data->count = reg;
+
+	reg = i2c_smbus_read_byte_data(client, MAX6650_REG_ALARM_EN);
+	if (reg < 0) {
+		dev_err(dev, "Failed to read alarm configuration, aborting.\n");
+		return reg;
+	}
+	data->alarm_en = reg;
+>>>>>>> upstream/android-13
 
 	if (!of_property_read_u32(client->dev.of_node, "maxim,fan-target-rpm",
 				  &target_rpm)) {
@@ -699,9 +922,307 @@ static int max6650_init_client(struct max6650_data *data,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int max6650_probe(struct i2c_client *client,
 			 const struct i2c_device_id *id)
 {
+=======
+static int max6650_get_max_state(struct thermal_cooling_device *cdev,
+				 unsigned long *state)
+{
+	*state = 255;
+
+	return 0;
+}
+
+static int max6650_get_cur_state(struct thermal_cooling_device *cdev,
+				 unsigned long *state)
+{
+	struct max6650_data *data = cdev->devdata;
+
+	*state = data->cooling_dev_state;
+
+	return 0;
+}
+
+static int max6650_set_cur_state(struct thermal_cooling_device *cdev,
+				 unsigned long state)
+{
+	struct max6650_data *data = cdev->devdata;
+	struct i2c_client *client = data->client;
+	int err;
+
+	state = clamp_val(state, 0, 255);
+
+	mutex_lock(&data->update_lock);
+
+	data->dac = pwm_to_dac(state, data->config & MAX6650_CFG_V12);
+	err = i2c_smbus_write_byte_data(client, MAX6650_REG_DAC, data->dac);
+	if (!err) {
+		max6650_set_operating_mode(data, state ?
+					   MAX6650_CFG_MODE_OPEN_LOOP :
+					   MAX6650_CFG_MODE_OFF);
+		data->cooling_dev_state = state;
+	}
+
+	mutex_unlock(&data->update_lock);
+
+	return err;
+}
+
+static const struct thermal_cooling_device_ops max6650_cooling_ops = {
+	.get_max_state = max6650_get_max_state,
+	.get_cur_state = max6650_get_cur_state,
+	.set_cur_state = max6650_set_cur_state,
+};
+
+static int max6650_read(struct device *dev, enum hwmon_sensor_types type,
+			u32 attr, int channel, long *val)
+{
+	struct max6650_data *data = max6650_update_device(dev);
+	int mode;
+
+	if (IS_ERR(data))
+		return PTR_ERR(data);
+
+	switch (type) {
+	case hwmon_pwm:
+		switch (attr) {
+		case hwmon_pwm_input:
+			*val = dac_to_pwm(data->dac,
+					  data->config & MAX6650_CFG_V12);
+			break;
+		case hwmon_pwm_enable:
+			/*
+			 * Possible values:
+			 * 0 = Fan always on
+			 * 1 = Open loop, Voltage is set according to speed,
+			 *     not regulated.
+			 * 2 = Closed loop, RPM for all fans regulated by fan1
+			 *     tachometer
+			 * 3 = Fan off
+			 */
+			mode = (data->config & MAX6650_CFG_MODE_MASK) >> 4;
+			*val = (4 - mode) & 3; /* {0 1 2 3} -> {0 3 2 1} */
+			break;
+		default:
+			return -EOPNOTSUPP;
+		}
+		break;
+	case hwmon_fan:
+		switch (attr) {
+		case hwmon_fan_input:
+			/*
+			 * Calculation details:
+			 *
+			 * Each tachometer counts over an interval given by the
+			 * "count" register (0.25, 0.5, 1 or 2 seconds).
+			 * The driver assumes that the fans produce two pulses
+			 * per revolution (this seems to be the most common).
+			 */
+			*val = DIV_ROUND_CLOSEST(data->tach[channel] * 120,
+						 DIV_FROM_REG(data->count));
+			break;
+		case hwmon_fan_div:
+			*val = DIV_FROM_REG(data->count);
+			break;
+		case hwmon_fan_target:
+			/*
+			 * Use the datasheet equation:
+			 *    FanSpeed = KSCALE x fCLK / [256 x (KTACH + 1)]
+			 * then multiply by 60 to give rpm.
+			 */
+			*val = 60 * DIV_FROM_REG(data->config) * clock /
+				(256 * (data->speed + 1));
+			break;
+		case hwmon_fan_min_alarm:
+			*val = !!(data->alarm & MAX6650_ALRM_MIN);
+			data->alarm &= ~MAX6650_ALRM_MIN;
+			data->valid = false;
+			break;
+		case hwmon_fan_max_alarm:
+			*val = !!(data->alarm & MAX6650_ALRM_MAX);
+			data->alarm &= ~MAX6650_ALRM_MAX;
+			data->valid = false;
+			break;
+		case hwmon_fan_fault:
+			*val = !!(data->alarm & MAX6650_ALRM_TACH);
+			data->alarm &= ~MAX6650_ALRM_TACH;
+			data->valid = false;
+			break;
+		default:
+			return -EOPNOTSUPP;
+		}
+		break;
+	default:
+		return -EOPNOTSUPP;
+	}
+	return 0;
+}
+
+static const u8 max6650_pwm_modes[] = {
+	MAX6650_CFG_MODE_ON,
+	MAX6650_CFG_MODE_OPEN_LOOP,
+	MAX6650_CFG_MODE_CLOSED_LOOP,
+	MAX6650_CFG_MODE_OFF,
+};
+
+static int max6650_write(struct device *dev, enum hwmon_sensor_types type,
+			 u32 attr, int channel, long val)
+{
+	struct max6650_data *data = dev_get_drvdata(dev);
+	int ret = 0;
+	u8 reg;
+
+	mutex_lock(&data->update_lock);
+
+	switch (type) {
+	case hwmon_pwm:
+		switch (attr) {
+		case hwmon_pwm_input:
+			reg = pwm_to_dac(clamp_val(val, 0, 255),
+					 data->config & MAX6650_CFG_V12);
+			ret = i2c_smbus_write_byte_data(data->client,
+							MAX6650_REG_DAC, reg);
+			if (ret)
+				break;
+			data->dac = reg;
+			break;
+		case hwmon_pwm_enable:
+			if (val < 0 || val >= ARRAY_SIZE(max6650_pwm_modes)) {
+				ret = -EINVAL;
+				break;
+			}
+			ret = max6650_set_operating_mode(data,
+						max6650_pwm_modes[val]);
+			break;
+		default:
+			ret = -EOPNOTSUPP;
+			break;
+		}
+		break;
+	case hwmon_fan:
+		switch (attr) {
+		case hwmon_fan_div:
+			switch (val) {
+			case 1:
+				reg = 0;
+				break;
+			case 2:
+				reg = 1;
+				break;
+			case 4:
+				reg = 2;
+				break;
+			case 8:
+				reg = 3;
+				break;
+			default:
+				ret = -EINVAL;
+				goto error;
+			}
+			ret = i2c_smbus_write_byte_data(data->client,
+							MAX6650_REG_COUNT, reg);
+			if (ret)
+				break;
+			data->count = reg;
+			break;
+		case hwmon_fan_target:
+			if (val < 0) {
+				ret = -EINVAL;
+				break;
+			}
+			ret = max6650_set_target(data, val);
+			break;
+		default:
+			ret = -EOPNOTSUPP;
+			break;
+		}
+		break;
+	default:
+		ret = -EOPNOTSUPP;
+		break;
+	}
+
+error:
+	mutex_unlock(&data->update_lock);
+	return ret;
+}
+
+static umode_t max6650_is_visible(const void *_data,
+				  enum hwmon_sensor_types type, u32 attr,
+				  int channel)
+{
+	const struct max6650_data *data = _data;
+
+	if (channel && (channel >= data->nr_fans || type != hwmon_fan))
+		return 0;
+
+	switch (type) {
+	case hwmon_fan:
+		switch (attr) {
+		case hwmon_fan_input:
+			return 0444;
+		case hwmon_fan_target:
+		case hwmon_fan_div:
+			return 0644;
+		case hwmon_fan_min_alarm:
+			if (data->alarm_en & MAX6650_ALRM_MIN)
+				return 0444;
+			break;
+		case hwmon_fan_max_alarm:
+			if (data->alarm_en & MAX6650_ALRM_MAX)
+				return 0444;
+			break;
+		case hwmon_fan_fault:
+			if (data->alarm_en & MAX6650_ALRM_TACH)
+				return 0444;
+			break;
+		default:
+			break;
+		}
+		break;
+	case hwmon_pwm:
+		switch (attr) {
+		case hwmon_pwm_input:
+		case hwmon_pwm_enable:
+			return 0644;
+		default:
+			break;
+		}
+		break;
+	default:
+		break;
+	}
+	return 0;
+}
+
+static const struct hwmon_channel_info *max6650_info[] = {
+	HWMON_CHANNEL_INFO(fan, HWMON_F_INPUT | HWMON_F_TARGET | HWMON_F_DIV |
+			   HWMON_F_MIN_ALARM | HWMON_F_MAX_ALARM |
+			   HWMON_F_FAULT,
+			   HWMON_F_INPUT, HWMON_F_INPUT, HWMON_F_INPUT),
+	HWMON_CHANNEL_INFO(pwm, HWMON_PWM_INPUT | HWMON_PWM_ENABLE),
+	NULL
+};
+
+static const struct hwmon_ops max6650_hwmon_ops = {
+	.read = max6650_read,
+	.write = max6650_write,
+	.is_visible = max6650_is_visible,
+};
+
+static const struct hwmon_chip_info max6650_chip_info = {
+	.ops = &max6650_hwmon_ops,
+	.info = max6650_info,
+};
+
+static const struct i2c_device_id max6650_id[];
+
+static int max6650_probe(struct i2c_client *client)
+{
+	struct thermal_cooling_device *cooling_dev;
+>>>>>>> upstream/android-13
 	struct device *dev = &client->dev;
 	const struct of_device_id *of_id =
 		of_match_device(of_match_ptr(max6650_dt_match), dev);
@@ -714,8 +1235,15 @@ static int max6650_probe(struct i2c_client *client,
 		return -ENOMEM;
 
 	data->client = client;
+<<<<<<< HEAD
 	mutex_init(&data->update_lock);
 	data->nr_fans = of_id ? (int)(uintptr_t)of_id->data : id->driver_data;
+=======
+	i2c_set_clientdata(client, data);
+	mutex_init(&data->update_lock);
+	data->nr_fans = of_id ? (int)(uintptr_t)of_id->data :
+				i2c_match_id(max6650_id, client)->driver_data;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Initialize the max6650 chip
@@ -724,6 +1252,7 @@ static int max6650_probe(struct i2c_client *client,
 	if (err)
 		return err;
 
+<<<<<<< HEAD
 	data->groups[0] = &max6650_group;
 	/* 3 additional fan inputs for the MAX6651 */
 	if (data->nr_fans == 4)
@@ -733,6 +1262,27 @@ static int max6650_probe(struct i2c_client *client,
 							   client->name, data,
 							   data->groups);
 	return PTR_ERR_OR_ZERO(hwmon_dev);
+=======
+	hwmon_dev = devm_hwmon_device_register_with_info(dev,
+							 client->name, data,
+							 &max6650_chip_info,
+							 max6650_groups);
+	err = PTR_ERR_OR_ZERO(hwmon_dev);
+	if (err)
+		return err;
+
+	if (IS_ENABLED(CONFIG_THERMAL)) {
+		cooling_dev = devm_thermal_of_cooling_device_register(dev,
+						dev->of_node, client->name,
+						data, &max6650_cooling_ops);
+		if (IS_ERR(cooling_dev)) {
+			dev_warn(dev, "thermal cooling device register failed: %ld\n",
+				 PTR_ERR(cooling_dev));
+		}
+	}
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static const struct i2c_device_id max6650_id[] = {
@@ -747,7 +1297,11 @@ static struct i2c_driver max6650_driver = {
 		.name	= "max6650",
 		.of_match_table = of_match_ptr(max6650_dt_match),
 	},
+<<<<<<< HEAD
 	.probe		= max6650_probe,
+=======
+	.probe_new	= max6650_probe,
+>>>>>>> upstream/android-13
 	.id_table	= max6650_id,
 };
 

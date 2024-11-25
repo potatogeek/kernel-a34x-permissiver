@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+>>>>>>> upstream/android-13
 // Copyright (C) 2017 Arm Ltd.
 #ifndef __ASM_SDEI_H
 #define __ASM_SDEI_H
@@ -37,13 +41,25 @@ struct sdei_registered_event;
 asmlinkage unsigned long __sdei_handler(struct pt_regs *regs,
 					struct sdei_registered_event *arg);
 
+<<<<<<< HEAD
+=======
+unsigned long do_sdei_event(struct pt_regs *regs,
+			    struct sdei_registered_event *arg);
+
+>>>>>>> upstream/android-13
 unsigned long sdei_arch_get_entry_point(int conduit);
 #define sdei_arch_get_entry_point(x)	sdei_arch_get_entry_point(x)
 
 struct stack_info;
 
+<<<<<<< HEAD
 bool _on_sdei_stack(unsigned long sp, struct stack_info *info);
 static inline bool on_sdei_stack(unsigned long sp,
+=======
+bool _on_sdei_stack(unsigned long sp, unsigned long size,
+		    struct stack_info *info);
+static inline bool on_sdei_stack(unsigned long sp, unsigned long size,
+>>>>>>> upstream/android-13
 				struct stack_info *info)
 {
 	if (!IS_ENABLED(CONFIG_VMAP_STACK))
@@ -51,7 +67,11 @@ static inline bool on_sdei_stack(unsigned long sp,
 	if (!IS_ENABLED(CONFIG_ARM_SDE_INTERFACE))
 		return false;
 	if (in_nmi())
+<<<<<<< HEAD
 		return _on_sdei_stack(sp, info);
+=======
+		return _on_sdei_stack(sp, size, info);
+>>>>>>> upstream/android-13
 
 	return false;
 }

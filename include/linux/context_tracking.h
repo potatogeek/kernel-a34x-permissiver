@@ -5,6 +5,11 @@
 #include <linux/sched.h>
 #include <linux/vtime.h>
 #include <linux/context_tracking_state.h>
+<<<<<<< HEAD
+=======
+#include <linux/instrumentation.h>
+
+>>>>>>> upstream/android-13
 #include <asm/ptrace.h>
 
 
@@ -22,17 +27,26 @@ extern void context_tracking_user_exit(void);
 
 static inline void user_enter(void)
 {
+<<<<<<< HEAD
 	if (context_tracking_is_enabled())
+=======
+	if (context_tracking_enabled())
+>>>>>>> upstream/android-13
 		context_tracking_enter(CONTEXT_USER);
 
 }
 static inline void user_exit(void)
 {
+<<<<<<< HEAD
 	if (context_tracking_is_enabled())
+=======
+	if (context_tracking_enabled())
+>>>>>>> upstream/android-13
 		context_tracking_exit(CONTEXT_USER);
 }
 
 /* Called with interrupts disabled.  */
+<<<<<<< HEAD
 static inline void user_enter_irqoff(void)
 {
 	if (context_tracking_is_enabled())
@@ -42,6 +56,17 @@ static inline void user_enter_irqoff(void)
 static inline void user_exit_irqoff(void)
 {
 	if (context_tracking_is_enabled())
+=======
+static __always_inline void user_enter_irqoff(void)
+{
+	if (context_tracking_enabled())
+		__context_tracking_enter(CONTEXT_USER);
+
+}
+static __always_inline void user_exit_irqoff(void)
+{
+	if (context_tracking_enabled())
+>>>>>>> upstream/android-13
 		__context_tracking_exit(CONTEXT_USER);
 }
 
@@ -49,7 +74,12 @@ static inline enum ctx_state exception_enter(void)
 {
 	enum ctx_state prev_ctx;
 
+<<<<<<< HEAD
 	if (!context_tracking_is_enabled())
+=======
+	if (IS_ENABLED(CONFIG_HAVE_CONTEXT_TRACKING_OFFSTACK) ||
+	    !context_tracking_enabled())
+>>>>>>> upstream/android-13
 		return 0;
 
 	prev_ctx = this_cpu_read(context_tracking.state);
@@ -61,12 +91,33 @@ static inline enum ctx_state exception_enter(void)
 
 static inline void exception_exit(enum ctx_state prev_ctx)
 {
+<<<<<<< HEAD
 	if (context_tracking_is_enabled()) {
+=======
+	if (!IS_ENABLED(CONFIG_HAVE_CONTEXT_TRACKING_OFFSTACK) &&
+	    context_tracking_enabled()) {
+>>>>>>> upstream/android-13
 		if (prev_ctx != CONTEXT_KERNEL)
 			context_tracking_enter(prev_ctx);
 	}
 }
 
+<<<<<<< HEAD
+=======
+static __always_inline bool context_tracking_guest_enter(void)
+{
+	if (context_tracking_enabled())
+		__context_tracking_enter(CONTEXT_GUEST);
+
+	return context_tracking_enabled_this_cpu();
+}
+
+static __always_inline void context_tracking_guest_exit(void)
+{
+	if (context_tracking_enabled())
+		__context_tracking_exit(CONTEXT_GUEST);
+}
+>>>>>>> upstream/android-13
 
 /**
  * ct_state() - return the current context tracking state if known
@@ -75,9 +126,15 @@ static inline void exception_exit(enum ctx_state prev_ctx)
  * is enabled.  If context tracking is disabled, returns
  * CONTEXT_DISABLED.  This should be used primarily for debugging.
  */
+<<<<<<< HEAD
 static inline enum ctx_state ct_state(void)
 {
 	return context_tracking_is_enabled() ?
+=======
+static __always_inline enum ctx_state ct_state(void)
+{
+	return context_tracking_enabled() ?
+>>>>>>> upstream/android-13
 		this_cpu_read(context_tracking.state) : CONTEXT_DISABLED;
 }
 #else
@@ -88,9 +145,18 @@ static inline void user_exit_irqoff(void) { }
 static inline enum ctx_state exception_enter(void) { return 0; }
 static inline void exception_exit(enum ctx_state prev_ctx) { }
 static inline enum ctx_state ct_state(void) { return CONTEXT_DISABLED; }
+<<<<<<< HEAD
 #endif /* !CONFIG_CONTEXT_TRACKING */
 
 #define CT_WARN_ON(cond) WARN_ON(context_tracking_is_enabled() && (cond))
+=======
+static inline bool context_tracking_guest_enter(void) { return false; }
+static inline void context_tracking_guest_exit(void) { }
+
+#endif /* !CONFIG_CONTEXT_TRACKING */
+
+#define CT_WARN_ON(cond) WARN_ON(context_tracking_enabled() && (cond))
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_CONTEXT_TRACKING_FORCE
 extern void context_tracking_init(void);
@@ -98,6 +164,7 @@ extern void context_tracking_init(void);
 static inline void context_tracking_init(void) { }
 #endif /* CONFIG_CONTEXT_TRACKING_FORCE */
 
+<<<<<<< HEAD
 
 #ifdef CONFIG_VIRT_CPU_ACCOUNTING_GEN
 /* must be called with irqs disabled */
@@ -172,4 +239,6 @@ static inline void guest_exit(void)
 	local_irq_restore(flags);
 }
 
+=======
+>>>>>>> upstream/android-13
 #endif

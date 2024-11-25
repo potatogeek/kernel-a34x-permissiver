@@ -20,8 +20,12 @@
 #ifndef __LINUX_FIVE_CACHE_H
 #define __LINUX_FIVE_CACHE_H
 
+<<<<<<< HEAD
 //#include "security/integrity/integrity.h"
 #include "../../integrity/integrity.h"
+=======
+#include "security/integrity/integrity.h"
+>>>>>>> upstream/android-13
 
 enum five_file_integrity five_get_cache_status(
 		const struct integrity_iint_cache *iint);

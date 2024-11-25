@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * max77693_charger.c - Battery charger driver for the Maxim 77693
  *
@@ -14,6 +15,14 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
+=======
+// SPDX-License-Identifier: GPL-2.0+
+//
+// max77693_charger.c - Battery charger driver for the Maxim 77693
+//
+// Copyright (C) 2014 Samsung Electronics
+// Krzysztof Kozlowski <krzk@kernel.org>
+>>>>>>> upstream/android-13
 
 #include <linux/module.h>
 #include <linux/platform_device.h>

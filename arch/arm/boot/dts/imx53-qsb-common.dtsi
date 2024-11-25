@@ -18,6 +18,7 @@
 
 	display0: disp0 {
 		compatible = "fsl,imx-parallel-display";
+<<<<<<< HEAD
 		interface-pix-fmt = "rgb565";
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinctrl_ipu_disp0>;
@@ -44,6 +45,28 @@
 		port {
 			display0_in: endpoint {
 				remote-endpoint = <&ipu_di0_disp0>;
+=======
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_ipu_disp0>;
+
+		#address-cells = <1>;
+		#size-cells = <0>;
+		status = "disabled";
+
+		port@0 {
+			reg = <0>;
+
+			display0_in: endpoint {
+				remote-endpoint = <&ipu_di0_disp0>;
+			};
+		};
+
+		port@1 {
+			reg = <1>;
+
+			display_out: endpoint {
+				remote-endpoint = <&panel_in>;
+>>>>>>> upstream/android-13
 			};
 		};
 	};
@@ -84,6 +107,19 @@
 		};
 	};
 
+<<<<<<< HEAD
+=======
+	panel {
+		compatible = "sii,43wvf1g";
+
+		port {
+			panel_in: endpoint {
+				remote-endpoint = <&display_out>;
+			};
+		};
+	};
+
+>>>>>>> upstream/android-13
 	regulators {
 		compatible = "simple-bus";
 		#address-cells = <1>;
@@ -138,6 +174,10 @@
 &esdhc1 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_esdhc1>;
+<<<<<<< HEAD
+=======
+	cd-gpios = <&gpio3 13 GPIO_ACTIVE_LOW>;
+>>>>>>> upstream/android-13
 	status = "okay";
 };
 
@@ -205,6 +245,10 @@
 				MX53_PAD_SD1_DATA3__ESDHC1_DAT3		0x1d5
 				MX53_PAD_SD1_CMD__ESDHC1_CMD		0x1d5
 				MX53_PAD_SD1_CLK__ESDHC1_CLK		0x1d5
+<<<<<<< HEAD
+=======
+				MX53_PAD_EIM_DA13__GPIO3_13		0xe4
+>>>>>>> upstream/android-13
 			>;
 		};
 

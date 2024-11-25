@@ -4,7 +4,10 @@
  * Copyright(c) 2007 - 2012 Realtek Corporation. All rights reserved.
  *
  ******************************************************************************/
+<<<<<<< HEAD
 #define _RTL8723B_CMD_C_
+=======
+>>>>>>> upstream/android-13
 
 #include <drv_types.h>
 #include <rtw_debug.h>
@@ -24,17 +27,23 @@ static u8 _is_fw_read_cmd_down(struct adapter *padapter, u8 msgbox_num)
 
 	u8 valid;
 
+<<<<<<< HEAD
 	/* DBG_8192C(" _is_fw_read_cmd_down , reg_1cc(%x), msg_box(%d)...\n", rtw_read8(padapter, REG_HMETFR), msgbox_num); */
 
+=======
+>>>>>>> upstream/android-13
 	do {
 		valid = rtw_read8(padapter, REG_HMETFR) & BIT(msgbox_num);
 		if (0 == valid) {
 			read_down = true;
 		}
+<<<<<<< HEAD
 #ifdef CONFIG_WOWLAN
 		else
 			msleep(1);
 #endif
+=======
+>>>>>>> upstream/android-13
 	} while ((!read_down) && (retry_cnts--));
 
 	return read_down;
@@ -73,19 +82,28 @@ s32 FillH2CCmd8723B(struct adapter *padapter, u8 ElementID, u32 CmdLen, u8 *pCmd
 		goto exit;
 	}
 
+<<<<<<< HEAD
 	if (padapter->bSurpriseRemoved == true)
+=======
+	if (padapter->bSurpriseRemoved)
+>>>>>>> upstream/android-13
 		goto exit;
 
 	/* pay attention to if  race condition happened in  H2C cmd setting. */
 	do {
 		h2c_box_num = pHalData->LastHMEBoxNum;
 
+<<<<<<< HEAD
 		if (!_is_fw_read_cmd_down(padapter, h2c_box_num)) {
 			DBG_8192C(" fw read cmd failed...\n");
 			/* DBG_8192C(" 0x1c0: 0x%8x\n", rtw_read32(padapter, 0x1c0)); */
 			/* DBG_8192C(" 0x1c4: 0x%8x\n", rtw_read32(padapter, 0x1c4)); */
 			goto exit;
 		}
+=======
+		if (!_is_fw_read_cmd_down(padapter, h2c_box_num))
+			goto exit;
+>>>>>>> upstream/android-13
 
 		if (CmdLen <= 3)
 			memcpy((u8 *)(&h2c_cmd)+1, pCmdBuffer, CmdLen);
@@ -104,9 +122,12 @@ s32 FillH2CCmd8723B(struct adapter *padapter, u8 ElementID, u32 CmdLen, u8 *pCmd
 		msgbox_addr = REG_HMEBOX_0 + (h2c_box_num*MESSAGE_BOX_SIZE);
 		rtw_write32(padapter, msgbox_addr, h2c_cmd);
 
+<<<<<<< HEAD
 		/* DBG_8192C("MSG_BOX:%d, CmdLen(%d), CmdID(0x%x), reg:0x%x =>h2c_cmd:0x%.8x, reg:0x%x =>h2c_cmd_ex:0x%.8x\n" */
 		/* 	, pHalData->LastHMEBoxNum , CmdLen, ElementID, msgbox_addr, h2c_cmd, msgbox_ex_addr, h2c_cmd_ex); */
 
+=======
+>>>>>>> upstream/android-13
 		pHalData->LastHMEBoxNum = (h2c_box_num+1) % MAX_H2C_BOX_NUMS;
 
 	} while (0);
@@ -127,17 +148,24 @@ static void ConstructBeacon(struct adapter *padapter, u8 *pframe, u32 *pLength)
 	struct mlme_ext_priv *pmlmeext = &(padapter->mlmeextpriv);
 	struct mlme_ext_info *pmlmeinfo = &(pmlmeext->mlmext_info);
 	struct wlan_bssid_ex *cur_network = &(pmlmeinfo->network);
+<<<<<<< HEAD
 	u8 bc_addr[] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
 
 
 	/* DBG_871X("%s\n", __func__); */
+=======
+>>>>>>> upstream/android-13
 
 	pwlanhdr = (struct ieee80211_hdr *)pframe;
 
 	fctrl = &(pwlanhdr->frame_control);
 	*(fctrl) = 0;
 
+<<<<<<< HEAD
 	memcpy(pwlanhdr->addr1, bc_addr, ETH_ALEN);
+=======
+	eth_broadcast_addr(pwlanhdr->addr1);
+>>>>>>> upstream/android-13
 	memcpy(pwlanhdr->addr2, myid(&(padapter->eeprompriv)), ETH_ALEN);
 	memcpy(pwlanhdr->addr3, get_my_bssid(cur_network), ETH_ALEN);
 
@@ -146,28 +174,45 @@ static void ConstructBeacon(struct adapter *padapter, u8 *pframe, u32 *pLength)
 	SetFrameSubType(pframe, WIFI_BEACON);
 
 	pframe += sizeof(struct ieee80211_hdr_3addr);
+<<<<<<< HEAD
 	pktlen = sizeof (struct ieee80211_hdr_3addr);
+=======
+	pktlen = sizeof(struct ieee80211_hdr_3addr);
+>>>>>>> upstream/android-13
 
 	/* timestamp will be inserted by hardware */
 	pframe += 8;
 	pktlen += 8;
 
 	/*  beacon interval: 2 bytes */
+<<<<<<< HEAD
 	memcpy(pframe, (unsigned char *)(rtw_get_beacon_interval_from_ie(cur_network->IEs)), 2);
+=======
+	memcpy(pframe, (unsigned char *)(rtw_get_beacon_interval_from_ie(cur_network->ies)), 2);
+>>>>>>> upstream/android-13
 
 	pframe += 2;
 	pktlen += 2;
 
 	/*  capability info: 2 bytes */
+<<<<<<< HEAD
 	memcpy(pframe, (unsigned char *)(rtw_get_capability_from_ie(cur_network->IEs)), 2);
+=======
+	memcpy(pframe, (unsigned char *)(rtw_get_capability_from_ie(cur_network->ies)), 2);
+>>>>>>> upstream/android-13
 
 	pframe += 2;
 	pktlen += 2;
 
 	if ((pmlmeinfo->state&0x03) == WIFI_FW_AP_STATE) {
+<<<<<<< HEAD
 		/* DBG_871X("ie len =%d\n", cur_network->IELength); */
 		pktlen += cur_network->IELength - sizeof(struct ndis_802_11_fix_ie);
 		memcpy(pframe, cur_network->IEs+sizeof(struct ndis_802_11_fix_ie), pktlen);
+=======
+		pktlen += cur_network->ie_length - sizeof(struct ndis_802_11_fix_ie);
+		memcpy(pframe, cur_network->ies+sizeof(struct ndis_802_11_fix_ie), pktlen);
+>>>>>>> upstream/android-13
 
 		goto _ConstructBeacon;
 	}
@@ -175,6 +220,7 @@ static void ConstructBeacon(struct adapter *padapter, u8 *pframe, u32 *pLength)
 	/* below for ad-hoc mode */
 
 	/*  SSID */
+<<<<<<< HEAD
 	pframe = rtw_set_ie(pframe, _SSID_IE_, cur_network->Ssid.SsidLength, cur_network->Ssid.Ssid, &pktlen);
 
 	/*  supported rates... */
@@ -183,13 +229,29 @@ static void ConstructBeacon(struct adapter *padapter, u8 *pframe, u32 *pLength)
 
 	/*  DS parameter set */
 	pframe = rtw_set_ie(pframe, _DSSET_IE_, 1, (unsigned char *)&(cur_network->Configuration.DSConfig), &pktlen);
+=======
+	pframe = rtw_set_ie(pframe, WLAN_EID_SSID, cur_network->ssid.ssid_length, cur_network->ssid.ssid, &pktlen);
+
+	/*  supported rates... */
+	rate_len = rtw_get_rateset_len(cur_network->supported_rates);
+	pframe = rtw_set_ie(pframe, WLAN_EID_SUPP_RATES, ((rate_len > 8) ? 8 : rate_len), cur_network->supported_rates, &pktlen);
+
+	/*  DS parameter set */
+	pframe = rtw_set_ie(pframe, WLAN_EID_DS_PARAMS, 1, (unsigned char *)&(cur_network->configuration.ds_config), &pktlen);
+>>>>>>> upstream/android-13
 
 	if ((pmlmeinfo->state&0x03) == WIFI_FW_ADHOC_STATE) {
 		u32 ATIMWindow;
 		/*  IBSS Parameter Set... */
+<<<<<<< HEAD
 		/* ATIMWindow = cur->Configuration.ATIMWindow; */
 		ATIMWindow = 0;
 		pframe = rtw_set_ie(pframe, _IBSS_PARA_IE_, 2, (unsigned char *)(&ATIMWindow), &pktlen);
+=======
+		/* ATIMWindow = cur->configuration.ATIMWindow; */
+		ATIMWindow = 0;
+		pframe = rtw_set_ie(pframe, WLAN_EID_IBSS_PARAMS, 2, (unsigned char *)(&ATIMWindow), &pktlen);
+>>>>>>> upstream/android-13
 	}
 
 
@@ -198,13 +260,18 @@ static void ConstructBeacon(struct adapter *padapter, u8 *pframe, u32 *pLength)
 
 	/*  EXTERNDED SUPPORTED RATE */
 	if (rate_len > 8)
+<<<<<<< HEAD
 		pframe = rtw_set_ie(pframe, _EXT_SUPPORTEDRATES_IE_, (rate_len - 8), (cur_network->SupportedRates + 8), &pktlen);
+=======
+		pframe = rtw_set_ie(pframe, WLAN_EID_EXT_SUPP_RATES, (rate_len - 8), (cur_network->supported_rates + 8), &pktlen);
+>>>>>>> upstream/android-13
 
 
 	/* todo:HT for adhoc */
 
 _ConstructBeacon:
 
+<<<<<<< HEAD
 	if ((pktlen + TXDESC_SIZE) > 512) {
 		DBG_871X("beacon frame too large\n");
 		return;
@@ -214,6 +281,13 @@ _ConstructBeacon:
 
 	/* DBG_871X("%s bcn_sz =%d\n", __func__, pktlen); */
 
+=======
+	if ((pktlen + TXDESC_SIZE) > 512)
+		return;
+
+	*pLength = pktlen;
+
+>>>>>>> upstream/android-13
 }
 
 static void ConstructPSPoll(struct adapter *padapter, u8 *pframe, u32 *pLength)
@@ -223,8 +297,11 @@ static void ConstructPSPoll(struct adapter *padapter, u8 *pframe, u32 *pLength)
 	struct mlme_ext_priv *pmlmeext = &(padapter->mlmeextpriv);
 	struct mlme_ext_info *pmlmeinfo = &(pmlmeext->mlmext_info);
 
+<<<<<<< HEAD
 	/* DBG_871X("%s\n", __func__); */
 
+=======
+>>>>>>> upstream/android-13
 	pwlanhdr = (struct ieee80211_hdr *)pframe;
 
 	/*  Frame control. */
@@ -264,9 +341,12 @@ static void ConstructNullFunctionData(
 	struct mlme_ext_priv *pmlmeext = &(padapter->mlmeextpriv);
 	struct mlme_ext_info *pmlmeinfo = &(pmlmeext->mlmext_info);
 
+<<<<<<< HEAD
 
 	/* DBG_871X("%s:%d\n", __func__, bForcePowerSave); */
 
+=======
+>>>>>>> upstream/android-13
 	pwlanhdr = (struct ieee80211_hdr *)pframe;
 
 	fctrl = &pwlanhdr->frame_control;
@@ -274,7 +354,11 @@ static void ConstructNullFunctionData(
 	if (bForcePowerSave)
 		SetPwrMgt(fctrl);
 
+<<<<<<< HEAD
 	switch (cur_network->network.InfrastructureMode) {
+=======
+	switch (cur_network->network.infrastructure_mode) {
+>>>>>>> upstream/android-13
 	case Ndis802_11Infrastructure:
 		SetToDs(fctrl);
 		memcpy(pwlanhdr->addr1, get_my_bssid(&(pmlmeinfo->network)), ETH_ALEN);
@@ -297,7 +381,11 @@ static void ConstructNullFunctionData(
 
 	SetSeqNum(pwlanhdr, 0);
 
+<<<<<<< HEAD
 	if (bQoS == true) {
+=======
+	if (bQoS) {
+>>>>>>> upstream/android-13
 		struct ieee80211_qos_hdr *pwlanqoshdr;
 
 		SetFrameSubType(pframe, WIFI_QOS_DATA_NULL);
@@ -316,6 +404,7 @@ static void ConstructNullFunctionData(
 	*pLength = pktlen;
 }
 
+<<<<<<< HEAD
 
 #ifdef CONFIG_WOWLAN
 /*  */
@@ -829,10 +918,18 @@ static void ConstructProbeRsp(struct adapter *padapter, u8 *pframe, u32 *pLength
 
 /*  To check if reserved page content is destroyed by beacon beacuse beacon is too large. */
 /*  2010.06.23. Added by tynli. */
+=======
+/*
+ * To check if reserved page content is destroyed by beacon because beacon
+ * is too large.
+ */
+/* 2010.06.23. Added by tynli. */
+>>>>>>> upstream/android-13
 void CheckFwRsvdPageContent(struct adapter *Adapter)
 {
 }
 
+<<<<<<< HEAD
 static void rtl8723b_set_FwRsvdPage_cmd(struct adapter *padapter, PRSVDPAGE_LOC rsvdpageloc)
 {
 	u8 u1H2CRsvdPageParm[H2C_RSVDPAGE_LOC_LEN] = {0};
@@ -842,12 +939,19 @@ static void rtl8723b_set_FwRsvdPage_cmd(struct adapter *padapter, PRSVDPAGE_LOC 
 		rsvdpageloc->LocNullData, rsvdpageloc->LocQosNull,
 		rsvdpageloc->LocBTQosNull);
 
+=======
+static void rtl8723b_set_FwRsvdPage_cmd(struct adapter *padapter, struct rsvdpage_loc *rsvdpageloc)
+{
+	u8 u1H2CRsvdPageParm[H2C_RSVDPAGE_LOC_LEN] = {0};
+
+>>>>>>> upstream/android-13
 	SET_8723B_H2CCMD_RSVDPAGE_LOC_PROBE_RSP(u1H2CRsvdPageParm, rsvdpageloc->LocProbeRsp);
 	SET_8723B_H2CCMD_RSVDPAGE_LOC_PSPOLL(u1H2CRsvdPageParm, rsvdpageloc->LocPsPoll);
 	SET_8723B_H2CCMD_RSVDPAGE_LOC_NULL_DATA(u1H2CRsvdPageParm, rsvdpageloc->LocNullData);
 	SET_8723B_H2CCMD_RSVDPAGE_LOC_QOS_NULL_DATA(u1H2CRsvdPageParm, rsvdpageloc->LocQosNull);
 	SET_8723B_H2CCMD_RSVDPAGE_LOC_BT_QOS_NULL_DATA(u1H2CRsvdPageParm, rsvdpageloc->LocBTQosNull);
 
+<<<<<<< HEAD
 	RT_PRINT_DATA(_module_hal_init_c_, _drv_always_, "u1H2CRsvdPageParm:", u1H2CRsvdPageParm, H2C_RSVDPAGE_LOC_LEN);
 	FillH2CCmd8723B(padapter, H2C_8723B_RSVD_PAGE, H2C_RSVDPAGE_LOC_LEN, u1H2CRsvdPageParm);
 }
@@ -926,18 +1030,31 @@ static void rtl8723b_set_ap_wow_rsvdpage_cmd(
 }
 #endif /* CONFIG_AP_WOWLAN */
 
+=======
+	FillH2CCmd8723B(padapter, H2C_8723B_RSVD_PAGE, H2C_RSVDPAGE_LOC_LEN, u1H2CRsvdPageParm);
+}
+
+static void rtl8723b_set_FwAoacRsvdPage_cmd(struct adapter *padapter, struct rsvdpage_loc *rsvdpageloc)
+{
+}
+
+>>>>>>> upstream/android-13
 void rtl8723b_set_FwMediaStatusRpt_cmd(struct adapter *padapter, u8 mstatus, u8 macid)
 {
 	u8 u1H2CMediaStatusRptParm[H2C_MEDIA_STATUS_RPT_LEN] = {0};
 	u8 macid_end = 0;
 
+<<<<<<< HEAD
 	DBG_871X("%s(): mstatus = %d macid =%d\n", __func__, mstatus, macid);
 
+=======
+>>>>>>> upstream/android-13
 	SET_8723B_H2CCMD_MSRRPT_PARM_OPMODE(u1H2CMediaStatusRptParm, mstatus);
 	SET_8723B_H2CCMD_MSRRPT_PARM_MACID_IND(u1H2CMediaStatusRptParm, 0);
 	SET_8723B_H2CCMD_MSRRPT_PARM_MACID(u1H2CMediaStatusRptParm, macid);
 	SET_8723B_H2CCMD_MSRRPT_PARM_MACID_END(u1H2CMediaStatusRptParm, macid_end);
 
+<<<<<<< HEAD
 	RT_PRINT_DATA(_module_hal_init_c_, _drv_always_, "u1H2CMediaStatusRptParm:", u1H2CMediaStatusRptParm, H2C_MEDIA_STATUS_RPT_LEN);
 	FillH2CCmd8723B(padapter, H2C_8723B_MEDIA_STATUS_RPT, H2C_MEDIA_STATUS_RPT_LEN, u1H2CMediaStatusRptParm);
 }
@@ -976,12 +1093,20 @@ static void rtl8723b_set_FwDisconDecision_cmd(struct adapter *padapter, u8 benab
 }
 #endif /*  CONFIG_WOWLAN */
 
+=======
+	FillH2CCmd8723B(padapter, H2C_8723B_MEDIA_STATUS_RPT, H2C_MEDIA_STATUS_RPT_LEN, u1H2CMediaStatusRptParm);
+}
+
+>>>>>>> upstream/android-13
 void rtl8723b_set_FwMacIdConfig_cmd(struct adapter *padapter, u8 mac_id, u8 raid, u8 bw, u8 sgi, u32 mask)
 {
 	u8 u1H2CMacIdConfigParm[H2C_MACID_CFG_LEN] = {0};
 
+<<<<<<< HEAD
 	DBG_871X("%s(): mac_id =%d raid = 0x%x bw =%d mask = 0x%x\n", __func__, mac_id, raid, bw, mask);
 
+=======
+>>>>>>> upstream/android-13
 	SET_8723B_H2CCMD_MACID_CFG_MACID(u1H2CMacIdConfigParm, mac_id);
 	SET_8723B_H2CCMD_MACID_CFG_RAID(u1H2CMacIdConfigParm, raid);
 	SET_8723B_H2CCMD_MACID_CFG_SGI_EN(u1H2CMacIdConfigParm, sgi ? 1 : 0);
@@ -991,25 +1116,38 @@ void rtl8723b_set_FwMacIdConfig_cmd(struct adapter *padapter, u8 mac_id, u8 raid
 	SET_8723B_H2CCMD_MACID_CFG_RATE_MASK2(u1H2CMacIdConfigParm, (u8)((mask & 0x00ff0000) >> 16));
 	SET_8723B_H2CCMD_MACID_CFG_RATE_MASK3(u1H2CMacIdConfigParm, (u8)((mask & 0xff000000) >> 24));
 
+<<<<<<< HEAD
 	RT_PRINT_DATA(_module_hal_init_c_, _drv_always_, "u1H2CMacIdConfigParm:", u1H2CMacIdConfigParm, H2C_MACID_CFG_LEN);
 	FillH2CCmd8723B(padapter, H2C_8723B_MACID_CFG, H2C_MACID_CFG_LEN, u1H2CMacIdConfigParm);
 }
 
 static void rtl8723b_set_FwRssiSetting_cmd(struct adapter *padapter, u8 *param)
+=======
+	FillH2CCmd8723B(padapter, H2C_8723B_MACID_CFG, H2C_MACID_CFG_LEN, u1H2CMacIdConfigParm);
+}
+
+void rtl8723b_set_rssi_cmd(struct adapter *padapter, u8 *param)
+>>>>>>> upstream/android-13
 {
 	u8 u1H2CRssiSettingParm[H2C_RSSI_SETTING_LEN] = {0};
 	u8 mac_id = *param;
 	u8 rssi = *(param+2);
 	u8 uldl_state = 0;
 
+<<<<<<< HEAD
 	/* DBG_871X("%s(): param =%.2x-%.2x-%.2x\n", __func__, *param, *(param+1), *(param+2)); */
 	/* DBG_871X("%s(): mac_id =%d rssi =%d\n", __func__, mac_id, rssi); */
 
+=======
+>>>>>>> upstream/android-13
 	SET_8723B_H2CCMD_RSSI_SETTING_MACID(u1H2CRssiSettingParm, mac_id);
 	SET_8723B_H2CCMD_RSSI_SETTING_RSSI(u1H2CRssiSettingParm, rssi);
 	SET_8723B_H2CCMD_RSSI_SETTING_ULDL_STATE(u1H2CRssiSettingParm, uldl_state);
 
+<<<<<<< HEAD
 	RT_PRINT_DATA(_module_hal_init_c_, _drv_notice_, "u1H2CRssiSettingParm:", u1H2CRssiSettingParm, H2C_RSSI_SETTING_LEN);
+=======
+>>>>>>> upstream/android-13
 	FillH2CCmd8723B(padapter, H2C_8723B_RSSI_SETTING, H2C_RSSI_SETTING_LEN, u1H2CRssiSettingParm);
 }
 
@@ -1021,6 +1159,7 @@ void rtl8723b_set_FwPwrMode_cmd(struct adapter *padapter, u8 psmode)
 	u8 u1H2CPwrModeParm[H2C_PWRMODE_LEN] = {0};
 	u8 PowerState = 0, awake_intvl = 1, byte5 = 0, rlbm = 0;
 
+<<<<<<< HEAD
 	if (pwrpriv->dtim > 0)
 		DBG_871X("%s(): FW LPS mode = %d, SmartPS =%d, dtim =%d\n", __func__, psmode, pwrpriv->smart_ps, pwrpriv->dtim);
 	else
@@ -1041,6 +1180,14 @@ void rtl8723b_set_FwPwrMode_cmd(struct adapter *padapter, u8 psmode)
 		rlbm = 2;
 	}
 
+=======
+	if (pwrpriv->dtim > 0 && pwrpriv->dtim < 16)
+		awake_intvl = pwrpriv->dtim+1;/* DTIM = (awake_intvl - 1) */
+	else
+		awake_intvl = 3;/* DTIM =2 */
+
+	rlbm = 2;
+>>>>>>> upstream/android-13
 
 	if (padapter->registrypriv.wifi_spec == 1) {
 		awake_intvl = 2;
@@ -1048,9 +1195,15 @@ void rtl8723b_set_FwPwrMode_cmd(struct adapter *padapter, u8 psmode)
 	}
 
 	if (psmode > 0) {
+<<<<<<< HEAD
 		if (rtw_btcoex_IsBtControlLps(padapter) == true) {
 			PowerState = rtw_btcoex_RpwmVal(padapter);
 			byte5 = rtw_btcoex_LpsVal(padapter);
+=======
+		if (hal_btcoex_IsBtControlLps(padapter) == true) {
+			PowerState = hal_btcoex_RpwmVal(padapter);
+			byte5 = hal_btcoex_LpsVal(padapter);
+>>>>>>> upstream/android-13
 
 			if ((rlbm == 2) && (byte5 & BIT(4))) {
 				/*  Keep awake interval to 1 to prevent from */
@@ -1075,7 +1228,11 @@ void rtl8723b_set_FwPwrMode_cmd(struct adapter *padapter, u8 psmode)
 	SET_8723B_H2CCMD_PWRMODE_PARM_PWR_STATE(u1H2CPwrModeParm, PowerState);
 	SET_8723B_H2CCMD_PWRMODE_PARM_BYTE5(u1H2CPwrModeParm, byte5);
 	if (psmode != PS_MODE_ACTIVE) {
+<<<<<<< HEAD
 		if (pmlmeext->adaptive_tsf_done == false && pmlmeext->bcn_cnt > 0) {
+=======
+		if (!pmlmeext->adaptive_tsf_done && pmlmeext->bcn_cnt > 0) {
+>>>>>>> upstream/android-13
 			u8 ratio_20_delay, ratio_80_delay;
 
 			/* byte 6 for adaptive_early_32k */
@@ -1086,6 +1243,7 @@ void rtl8723b_set_FwPwrMode_cmd(struct adapter *padapter, u8 psmode)
 			pmlmeext->DrvBcnEarly = 0xff;
 			pmlmeext->DrvBcnTimeOut = 0xff;
 
+<<<<<<< HEAD
 			DBG_871X("%s(): bcn_cnt = %d\n", __func__, pmlmeext->bcn_cnt);
 
 			for (i = 0; i < 9; i++) {
@@ -1112,6 +1270,19 @@ void rtl8723b_set_FwPwrMode_cmd(struct adapter *padapter, u8 psmode)
 					pmlmeext->DrvBcnTimeOut = i;
 					DBG_871X("%s(): DrvBcnTimeOut = %d\n", __func__, pmlmeext->DrvBcnTimeOut);
 				}
+=======
+			for (i = 0; i < 9; i++) {
+				pmlmeext->bcn_delay_ratio[i] = (pmlmeext->bcn_delay_cnt[i]*100)/pmlmeext->bcn_cnt;
+
+				ratio_20_delay += pmlmeext->bcn_delay_ratio[i];
+				ratio_80_delay += pmlmeext->bcn_delay_ratio[i];
+
+				if (ratio_20_delay > 20 && pmlmeext->DrvBcnEarly == 0xff)
+					pmlmeext->DrvBcnEarly = i;
+
+				if (ratio_80_delay > 80 && pmlmeext->DrvBcnTimeOut == 0xff)
+					pmlmeext->DrvBcnTimeOut = i;
+>>>>>>> upstream/android-13
 
 				/* reset adaptive_early_32k cnt */
 				pmlmeext->bcn_delay_cnt[i] = 0;
@@ -1122,9 +1293,12 @@ void rtl8723b_set_FwPwrMode_cmd(struct adapter *padapter, u8 psmode)
 			pmlmeext->bcn_cnt = 0;
 			pmlmeext->adaptive_tsf_done = true;
 
+<<<<<<< HEAD
 		} else {
 			DBG_871X("%s(): DrvBcnEarly = %d\n", __func__, pmlmeext->DrvBcnEarly);
 			DBG_871X("%s(): DrvBcnTimeOut = %d\n", __func__, pmlmeext->DrvBcnTimeOut);
+=======
+>>>>>>> upstream/android-13
 		}
 
 /* offload to FW if fw version > v15.10
@@ -1137,9 +1311,13 @@ void rtl8723b_set_FwPwrMode_cmd(struct adapter *padapter, u8 psmode)
 
 	}
 
+<<<<<<< HEAD
 	rtw_btcoex_RecordPwrMode(padapter, u1H2CPwrModeParm, H2C_PWRMODE_LEN);
 
 	RT_PRINT_DATA(_module_hal_init_c_, _drv_always_, "u1H2CPwrModeParm:", u1H2CPwrModeParm, H2C_PWRMODE_LEN);
+=======
+	hal_btcoex_RecordPwrMode(padapter, u1H2CPwrModeParm, H2C_PWRMODE_LEN);
+>>>>>>> upstream/android-13
 
 	FillH2CCmd8723B(padapter, H2C_8723B_SET_PWR_MODE, H2C_PWRMODE_LEN, u1H2CPwrModeParm);
 }
@@ -1152,28 +1330,38 @@ void rtl8723b_set_FwPsTuneParam_cmd(struct adapter *padapter)
 	u8 ps_timeout = 20;  /* ms Keep awake when tx */
 	u8 dtim_period = 3;
 
+<<<<<<< HEAD
 	/* DBG_871X("%s(): FW LPS mode = %d\n", __func__, psmode); */
 
+=======
+>>>>>>> upstream/android-13
 	SET_8723B_H2CCMD_PSTUNE_PARM_BCN_TO_LIMIT(u1H2CPsTuneParm, bcn_to_limit);
 	SET_8723B_H2CCMD_PSTUNE_PARM_DTIM_TIMEOUT(u1H2CPsTuneParm, dtim_timeout);
 	SET_8723B_H2CCMD_PSTUNE_PARM_PS_TIMEOUT(u1H2CPsTuneParm, ps_timeout);
 	SET_8723B_H2CCMD_PSTUNE_PARM_ADOPT(u1H2CPsTuneParm, 1);
 	SET_8723B_H2CCMD_PSTUNE_PARM_DTIM_PERIOD(u1H2CPsTuneParm, dtim_period);
 
+<<<<<<< HEAD
 	RT_PRINT_DATA(_module_hal_init_c_, _drv_always_, "u1H2CPsTuneParm:", u1H2CPsTuneParm, H2C_PSTUNEPARAM_LEN);
 
+=======
+>>>>>>> upstream/android-13
 	FillH2CCmd8723B(padapter, H2C_8723B_PS_TUNING_PARA, H2C_PSTUNEPARAM_LEN, u1H2CPsTuneParm);
 }
 
 void rtl8723b_set_FwPwrModeInIPS_cmd(struct adapter *padapter, u8 cmd_param)
 {
+<<<<<<< HEAD
 	/* BIT0:enable, BIT1:NoConnect32k */
 
 	DBG_871X("%s()\n", __func__);
+=======
+>>>>>>> upstream/android-13
 
 	FillH2CCmd8723B(padapter, H2C_8723B_FWLPS_IN_IPS_, 1, &cmd_param);
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_WOWLAN
 static void rtl8723b_set_FwWoWlanCtrl_Cmd(struct adapter *padapter, u8 bFuncEn)
 {
@@ -1436,17 +1624,39 @@ void rtl8723b_set_ap_wowlan_cmd(struct adapter *padapter, u8 enable)
 /* 			      true: At the second time, we should send the first packet (default:beacon) */
 /* 						to Hw again and set the lengh in descriptor to the real beacon lengh. */
 /*  2009.10.15 by tynli. */
+=======
+/*
+ * Description: Fill the reserved packets that FW will use to RSVD page.
+ * Now we just send 4 types packet to rsvd page.
+ * (1)Beacon, (2)Ps-poll, (3)Null data, (4)ProbeRsp.
+ *
+ * Input:
+ *
+ * bDLFinished - false: At the first time we will send all the packets as
+ * a large packet to Hw, so we need to set the packet length to total length.
+ *
+ * true: At the second time, we should send the first packet (default:beacon)
+ * to Hw again and set the length in descriptor to the real beacon length.
+ */
+/* 2009.10.15 by tynli. */
+>>>>>>> upstream/android-13
 static void rtl8723b_set_FwRsvdPagePkt(
 	struct adapter *padapter, bool bDLFinished
 )
 {
+<<<<<<< HEAD
 	struct hal_com_data *pHalData;
+=======
+>>>>>>> upstream/android-13
 	struct xmit_frame *pcmdframe;
 	struct pkt_attrib *pattrib;
 	struct xmit_priv *pxmitpriv;
 	struct mlme_ext_priv *pmlmeext;
 	struct mlme_ext_info *pmlmeinfo;
+<<<<<<< HEAD
 	struct pwrctrl_priv *pwrctl;
+=======
+>>>>>>> upstream/android-13
 	struct mlme_priv *pmlmepriv = &padapter->mlmepriv;
 	u32 BeaconLength = 0, PSPollLength = 0;
 	u32 NullDataLength = 0, QosNullLength = 0, BTQosNullLength = 0;
@@ -1455,6 +1665,7 @@ static void rtl8723b_set_FwRsvdPagePkt(
 	u8 TotalPageNum = 0, CurtPktPageNum = 0, RsvdPageNum = 0;
 	u16 BufIndex, PageSize = 128;
 	u32 TotalPacketLen, MaxRsvdPageBufSize = 0;
+<<<<<<< HEAD
 	RSVDPAGE_LOC RsvdPageLoc;
 #ifdef CONFIG_WOWLAN
 	u32 ARPLegnth = 0, GTKLegnth = 0;
@@ -1475,11 +1686,20 @@ static void rtl8723b_set_FwRsvdPagePkt(
 	pmlmeext = &padapter->mlmeextpriv;
 	pmlmeinfo = &pmlmeext->mlmext_info;
 	pwrctl = adapter_to_pwrctl(padapter);
+=======
+
+	struct rsvdpage_loc RsvdPageLoc;
+
+	pxmitpriv = &padapter->xmitpriv;
+	pmlmeext = &padapter->mlmeextpriv;
+	pmlmeinfo = &pmlmeext->mlmext_info;
+>>>>>>> upstream/android-13
 
 	RsvdPageNum = BCNQ_PAGE_NUM_8723B + WOWLAN_PAGE_NUM_8723B;
 	MaxRsvdPageBufSize = RsvdPageNum*PageSize;
 
 	pcmdframe = rtw_alloc_cmdxmitframe(pxmitpriv);
+<<<<<<< HEAD
 	if (pcmdframe == NULL) {
 		DBG_871X("%s: alloc ReservedPagePacket fail!\n", __func__);
 		return;
@@ -1487,6 +1707,13 @@ static void rtl8723b_set_FwRsvdPagePkt(
 
 	ReservedPagePacket = pcmdframe->buf_addr;
 	memset(&RsvdPageLoc, 0, sizeof(RSVDPAGE_LOC));
+=======
+	if (!pcmdframe)
+		return;
+
+	ReservedPagePacket = pcmdframe->buf_addr;
+	memset(&RsvdPageLoc, 0, sizeof(struct rsvdpage_loc));
+>>>>>>> upstream/android-13
 
 	/* 3 (1) beacon */
 	BufIndex = TxDescOffset;
@@ -1508,9 +1735,12 @@ static void rtl8723b_set_FwRsvdPagePkt(
 	ConstructPSPoll(padapter, &ReservedPagePacket[BufIndex], &PSPollLength);
 	rtl8723b_fill_fake_txdesc(padapter, &ReservedPagePacket[BufIndex-TxDescLen], PSPollLength, true, false, false);
 
+<<<<<<< HEAD
 	/* DBG_871X("%s(): HW_VAR_SET_TX_CMD: PS-POLL %p %d\n", */
 	/* 	__func__, &ReservedPagePacket[BufIndex-TxDescLen], (PSPollLength+TxDescLen)); */
 
+=======
+>>>>>>> upstream/android-13
 	CurtPktPageNum = (u8)PageNum_128(TxDescLen + PSPollLength);
 
 	TotalPageNum += CurtPktPageNum;
@@ -1528,9 +1758,12 @@ static void rtl8723b_set_FwRsvdPagePkt(
 	);
 	rtl8723b_fill_fake_txdesc(padapter, &ReservedPagePacket[BufIndex-TxDescLen], NullDataLength, false, false, false);
 
+<<<<<<< HEAD
 	/* DBG_871X("%s(): HW_VAR_SET_TX_CMD: NULL DATA %p %d\n", */
 	/* 	__func__, &ReservedPagePacket[BufIndex-TxDescLen], (NullDataLength+TxDescLen)); */
 
+=======
+>>>>>>> upstream/android-13
 	CurtPktPageNum = (u8)PageNum_128(TxDescLen + NullDataLength);
 
 	TotalPageNum += CurtPktPageNum;
@@ -1548,9 +1781,12 @@ static void rtl8723b_set_FwRsvdPagePkt(
 	);
 	rtl8723b_fill_fake_txdesc(padapter, &ReservedPagePacket[BufIndex-TxDescLen], QosNullLength, false, false, false);
 
+<<<<<<< HEAD
 	/* DBG_871X("%s(): HW_VAR_SET_TX_CMD: QOS NULL DATA %p %d\n", */
 	/* 	__func__, &ReservedPagePacket[BufIndex-TxDescLen], (QosNullLength+TxDescLen)); */
 
+=======
+>>>>>>> upstream/android-13
 	CurtPktPageNum = (u8)PageNum_128(TxDescLen + QosNullLength);
 
 	TotalPageNum += CurtPktPageNum;
@@ -1568,15 +1804,19 @@ static void rtl8723b_set_FwRsvdPagePkt(
 	);
 	rtl8723b_fill_fake_txdesc(padapter, &ReservedPagePacket[BufIndex-TxDescLen], BTQosNullLength, false, true, false);
 
+<<<<<<< HEAD
 	/* DBG_871X("%s(): HW_VAR_SET_TX_CMD: BT QOS NULL DATA %p %d\n", */
 	/* 	__func__, &ReservedPagePacket[BufIndex-TxDescLen], (BTQosNullLength+TxDescLen)); */
 
+=======
+>>>>>>> upstream/android-13
 	CurtPktPageNum = (u8)PageNum_128(TxDescLen + BTQosNullLength);
 
 	TotalPageNum += CurtPktPageNum;
 
 	BufIndex += (CurtPktPageNum*PageSize);
 
+<<<<<<< HEAD
 #ifdef CONFIG_WOWLAN
 	if (check_fwstate(pmlmepriv, _FW_LINKED)) {
 	/* if (pwrctl->wowlan_mode == true) { */
@@ -1777,6 +2017,11 @@ static void rtl8723b_set_FwRsvdPagePkt(
 	if (TotalPacketLen > MaxRsvdPageBufSize) {
 		DBG_871X("%s(): ERROR: The rsvd page size is not enough!!TotalPacketLen %d, MaxRsvdPageBufSize %d\n", __func__,
 			TotalPacketLen, MaxRsvdPageBufSize);
+=======
+	TotalPacketLen = BufIndex + BTQosNullLength;
+
+	if (TotalPacketLen > MaxRsvdPageBufSize) {
+>>>>>>> upstream/android-13
 		goto error;
 	} else {
 		/*  update attribute */
@@ -1787,12 +2032,16 @@ static void rtl8723b_set_FwRsvdPagePkt(
 		dump_mgntframe_and_wait(padapter, pcmdframe, 100);
 	}
 
+<<<<<<< HEAD
 	DBG_871X("%s: Set RSVD page location to Fw , TotalPacketLen(%d), TotalPageNum(%d)\n", __func__, TotalPacketLen, TotalPageNum);
+=======
+>>>>>>> upstream/android-13
 	if (check_fwstate(pmlmepriv, _FW_LINKED)) {
 		rtl8723b_set_FwRsvdPage_cmd(padapter, &RsvdPageLoc);
 		rtl8723b_set_FwAoacRsvdPage_cmd(padapter, &RsvdPageLoc);
 	} else {
 		rtl8723b_set_FwAoacRsvdPage_cmd(padapter, &RsvdPageLoc);
+<<<<<<< HEAD
 #ifdef CONFIG_PNO_SUPPORT
 		if (pwrctl->pno_in_resume)
 			rtl8723b_set_FwScanOffloadInfo_cmd(padapter,
@@ -1801,6 +2050,8 @@ static void rtl8723b_set_FwRsvdPagePkt(
 			rtl8723b_set_FwScanOffloadInfo_cmd(padapter,
 					&RsvdPageLoc, 1);
 #endif
+=======
+>>>>>>> upstream/android-13
 	}
 	return;
 
@@ -1809,6 +2060,7 @@ error:
 	rtw_free_xmitframe(pxmitpriv, pcmdframe);
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_AP_WOWLAN
 /*  */
 /* Description: Fill the reserved packets that FW will use to RSVD page. */
@@ -1936,6 +2188,11 @@ void rtl8723b_download_rsvd_page(struct adapter *padapter, u8 mstatus)
 #ifdef CONFIG_AP_WOWLAN
 	struct pwrctrl_priv *pwrpriv = adapter_to_pwrctl(padapter);
 #endif
+=======
+void rtl8723b_download_rsvd_page(struct adapter *padapter, u8 mstatus)
+{
+	struct hal_com_data	*pHalData = GET_HAL_DATA(padapter);
+>>>>>>> upstream/android-13
 	struct mlme_ext_priv *pmlmeext = &(padapter->mlmeextpriv);
 	struct mlme_ext_info *pmlmeinfo = &(pmlmeext->mlmext_info);
 	bool bcn_valid = false;
@@ -1943,9 +2200,12 @@ void rtl8723b_download_rsvd_page(struct adapter *padapter, u8 mstatus)
 	u32 poll = 0;
 	u8 val8;
 
+<<<<<<< HEAD
 	DBG_8192C("+" FUNC_ADPT_FMT ": iface_type =%d mstatus(%x)\n",
 		FUNC_ADPT_ARG(padapter), get_iface_type(padapter), mstatus);
 
+=======
+>>>>>>> upstream/android-13
 	if (mstatus == RT_MEDIA_CONNECT) {
 		bool bRecover = false;
 		u8 v8;
@@ -1982,6 +2242,7 @@ void rtl8723b_download_rsvd_page(struct adapter *padapter, u8 mstatus)
 		DLBcnCount = 0;
 		poll = 0;
 		do {
+<<<<<<< HEAD
 #ifdef CONFIG_AP_WOWLAN
 			if (pwrpriv->wowlan_ap_mode)
 				rtl8723b_set_AP_FwRsvdPagePkt(padapter, 0);
@@ -1991,6 +2252,10 @@ void rtl8723b_download_rsvd_page(struct adapter *padapter, u8 mstatus)
 			/*  download rsvd page. */
 			rtl8723b_set_FwRsvdPagePkt(padapter, 0);
 #endif
+=======
+			/*  download rsvd page. */
+			rtl8723b_set_FwRsvdPagePkt(padapter, 0);
+>>>>>>> upstream/android-13
 			DLBcnCount++;
 			do {
 				yield();
@@ -2003,6 +2268,7 @@ void rtl8723b_download_rsvd_page(struct adapter *padapter, u8 mstatus)
 		} while (!bcn_valid && DLBcnCount <= 100 && !padapter->bSurpriseRemoved && !padapter->bDriverStopped);
 
 		if (padapter->bSurpriseRemoved || padapter->bDriverStopped) {
+<<<<<<< HEAD
 		} else if (!bcn_valid)
 			DBG_871X(ADPT_FMT": 1 DL RSVD page failed! DLBcnCount:%u, poll:%u\n",
 				ADPT_ARG(padapter), DLBcnCount, poll);
@@ -2011,6 +2277,11 @@ void rtl8723b_download_rsvd_page(struct adapter *padapter, u8 mstatus)
 			pwrctl->fw_psmode_iface_id = padapter->iface_id;
 			DBG_871X(ADPT_FMT": 1 DL RSVD page success! DLBcnCount:%u, poll:%u\n",
 				ADPT_ARG(padapter), DLBcnCount, poll);
+=======
+		} else {
+			struct pwrctrl_priv *pwrctl = adapter_to_pwrctl(padapter);
+			pwrctl->fw_psmode_iface_id = padapter->iface_id;
+>>>>>>> upstream/android-13
 		}
 
 		/*  2010.05.11. Added by tynli. */
@@ -2036,11 +2307,14 @@ void rtl8723b_download_rsvd_page(struct adapter *padapter, u8 mstatus)
 	}
 }
 
+<<<<<<< HEAD
 void rtl8723b_set_rssi_cmd(struct adapter *padapter, u8 *param)
 {
 	rtl8723b_set_FwRssiSetting_cmd(padapter, param);
 }
 
+=======
+>>>>>>> upstream/android-13
 void rtl8723b_set_FwJoinBssRpt_cmd(struct adapter *padapter, u8 mstatus)
 {
 	if (mstatus == 1)
@@ -2069,7 +2343,11 @@ void rtl8723b_Add_RateATid(
 	u32 mask = bitmap&0x0FFFFFFF;
 
 	psta = pmlmeinfo->FW_sta_info[mac_id].psta;
+<<<<<<< HEAD
 	if (psta == NULL)
+=======
+	if (!psta)
+>>>>>>> upstream/android-13
 		return;
 
 	bw = psta->bw_mode;
@@ -2077,7 +2355,10 @@ void rtl8723b_Add_RateATid(
 	if (rssi_level != DM_RATR_STA_INIT)
 		mask = ODM_Get_Rate_Bitmap(&pHalData->odmpriv, mac_id, mask, rssi_level);
 
+<<<<<<< HEAD
 	DBG_871X("%s(): mac_id =%d raid = 0x%x bw =%d mask = 0x%x\n", __func__, mac_id, raid, bw, mask);
+=======
+>>>>>>> upstream/android-13
 	rtl8723b_set_FwMacIdConfig_cmd(padapter, mac_id, raid, bw, shortGI, mask);
 }
 
@@ -2095,6 +2376,7 @@ static void ConstructBtNullFunctionData(
 	struct ieee80211_hdr *pwlanhdr;
 	__le16 *fctrl;
 	u32 pktlen;
+<<<<<<< HEAD
 	struct mlme_ext_priv *pmlmeext;
 	struct mlme_ext_info *pmlmeinfo;
 	u8 bssid[ETH_ALEN];
@@ -2108,6 +2390,13 @@ static void ConstructBtNullFunctionData(
 	pmlmeinfo = &pmlmeext->mlmext_info;
 
 	if (NULL == StaAddr) {
+=======
+	u8 bssid[ETH_ALEN];
+
+	pwlanhdr = (struct ieee80211_hdr *)pframe;
+
+	if (!StaAddr) {
+>>>>>>> upstream/android-13
 		memcpy(bssid, myid(&padapter->eeprompriv), ETH_ALEN);
 		StaAddr = bssid;
 	}
@@ -2125,7 +2414,11 @@ static void ConstructBtNullFunctionData(
 	SetDuration(pwlanhdr, 0);
 	SetSeqNum(pwlanhdr, 0);
 
+<<<<<<< HEAD
 	if (bQoS == true) {
+=======
+	if (bQoS) {
+>>>>>>> upstream/android-13
 		struct ieee80211_qos_hdr *pwlanqoshdr;
 
 		SetFrameSubType(pframe, WIFI_QOS_DATA_NULL);
@@ -2146,12 +2439,18 @@ static void ConstructBtNullFunctionData(
 
 static void SetFwRsvdPagePkt_BTCoex(struct adapter *padapter)
 {
+<<<<<<< HEAD
 	struct hal_com_data *pHalData;
 	struct xmit_frame *pcmdframe;
 	struct pkt_attrib *pattrib;
 	struct xmit_priv *pxmitpriv;
 	struct mlme_ext_priv *pmlmeext;
 	struct mlme_ext_info *pmlmeinfo;
+=======
+	struct xmit_frame *pcmdframe;
+	struct pkt_attrib *pattrib;
+	struct xmit_priv *pxmitpriv;
+>>>>>>> upstream/android-13
 	u32 BeaconLength = 0;
 	u32 BTQosNullLength = 0;
 	u8 *ReservedPagePacket;
@@ -2159,6 +2458,7 @@ static void SetFwRsvdPagePkt_BTCoex(struct adapter *padapter)
 	u8 TotalPageNum = 0, CurtPktPageNum = 0, RsvdPageNum = 0;
 	u16 BufIndex, PageSize;
 	u32 TotalPacketLen, MaxRsvdPageBufSize = 0;
+<<<<<<< HEAD
 	RSVDPAGE_LOC RsvdPageLoc;
 
 
@@ -2168,6 +2468,11 @@ static void SetFwRsvdPagePkt_BTCoex(struct adapter *padapter)
 	pxmitpriv = &padapter->xmitpriv;
 	pmlmeext = &padapter->mlmeextpriv;
 	pmlmeinfo = &pmlmeext->mlmext_info;
+=======
+	struct rsvdpage_loc RsvdPageLoc;
+
+	pxmitpriv = &padapter->xmitpriv;
+>>>>>>> upstream/android-13
 	TxDescLen = TXDESC_SIZE;
 	TxDescOffset = TXDESC_OFFSET;
 	PageSize = PAGE_SIZE_TX_8723B;
@@ -2176,6 +2481,7 @@ static void SetFwRsvdPagePkt_BTCoex(struct adapter *padapter)
 	MaxRsvdPageBufSize = RsvdPageNum*PageSize;
 
 	pcmdframe = rtw_alloc_cmdxmitframe(pxmitpriv);
+<<<<<<< HEAD
 	if (pcmdframe == NULL) {
 		DBG_8192C("%s: alloc ReservedPagePacket fail!\n", __func__);
 		return;
@@ -2183,6 +2489,13 @@ static void SetFwRsvdPagePkt_BTCoex(struct adapter *padapter)
 
 	ReservedPagePacket = pcmdframe->buf_addr;
 	memset(&RsvdPageLoc, 0, sizeof(RSVDPAGE_LOC));
+=======
+	if (!pcmdframe)
+		return;
+
+	ReservedPagePacket = pcmdframe->buf_addr;
+	memset(&RsvdPageLoc, 0, sizeof(struct rsvdpage_loc));
+>>>>>>> upstream/android-13
 
 	/* 3 (1) beacon */
 	BufIndex = TxDescOffset;
@@ -2220,11 +2533,16 @@ static void SetFwRsvdPagePkt_BTCoex(struct adapter *padapter)
 	TotalPageNum += CurtPktPageNum;
 
 	TotalPacketLen = BufIndex + BTQosNullLength;
+<<<<<<< HEAD
 	if (TotalPacketLen > MaxRsvdPageBufSize) {
 		DBG_8192C(FUNC_ADPT_FMT ": ERROR: The rsvd page size is not enough!!TotalPacketLen %d, MaxRsvdPageBufSize %d\n",
 			FUNC_ADPT_ARG(padapter), TotalPacketLen, MaxRsvdPageBufSize);
 		goto error;
 	}
+=======
+	if (TotalPacketLen > MaxRsvdPageBufSize)
+		goto error;
+>>>>>>> upstream/android-13
 
 	/*  update attribute */
 	pattrib = &pcmdframe->attrib;
@@ -2233,8 +2551,11 @@ static void SetFwRsvdPagePkt_BTCoex(struct adapter *padapter)
 	pattrib->pktlen = pattrib->last_txcmdsz = TotalPacketLen - TxDescOffset;
 	dump_mgntframe_and_wait(padapter, pcmdframe, 100);
 
+<<<<<<< HEAD
 /* 	DBG_8192C(FUNC_ADPT_FMT ": Set RSVD page location to Fw, TotalPacketLen(%d), TotalPageNum(%d)\n", */
 /* 		FUNC_ADPT_ARG(padapter), TotalPacketLen, TotalPageNum); */
+=======
+>>>>>>> upstream/android-13
 	rtl8723b_set_FwRsvdPage_cmd(padapter, &RsvdPageLoc);
 	rtl8723b_set_FwAoacRsvdPage_cmd(padapter, &RsvdPageLoc);
 
@@ -2255,6 +2576,7 @@ void rtl8723b_download_BTCoex_AP_mode_rsvd_page(struct adapter *padapter)
 	u32 poll = 0;
 	u8 val8;
 
+<<<<<<< HEAD
 
 	DBG_8192C("+" FUNC_ADPT_FMT ": iface_type =%d fw_state = 0x%08X\n",
 		FUNC_ADPT_ARG(padapter), get_iface_type(padapter), get_fwstate(&padapter->mlmepriv));
@@ -2266,6 +2588,8 @@ void rtl8723b_download_BTCoex_AP_mode_rsvd_page(struct adapter *padapter)
 	}
 #endif /*  DEBUG */
 
+=======
+>>>>>>> upstream/android-13
 	pHalData = GET_HAL_DATA(padapter);
 	pmlmeext = &padapter->mlmeextpriv;
 	pmlmeinfo = &pmlmeext->mlmext_info;
@@ -2313,6 +2637,7 @@ void rtl8723b_download_BTCoex_AP_mode_rsvd_page(struct adapter *padapter)
 		} while (!bcn_valid && (poll%10) != 0 && !padapter->bSurpriseRemoved && !padapter->bDriverStopped);
 	} while (!bcn_valid && (DLBcnCount <= 100) && !padapter->bSurpriseRemoved && !padapter->bDriverStopped);
 
+<<<<<<< HEAD
 	if (true == bcn_valid) {
 		struct pwrctrl_priv *pwrctl = adapter_to_pwrctl(padapter);
 		pwrctl->fw_psmode_iface_id = padapter->iface_id;
@@ -2325,6 +2650,11 @@ void rtl8723b_download_BTCoex_AP_mode_rsvd_page(struct adapter *padapter)
 			ADPT_ARG(padapter), padapter->bSurpriseRemoved);
 		DBG_8192C(ADPT_FMT": DL RSVD page fail! bDriverStopped =%d\n",
 			ADPT_ARG(padapter), padapter->bDriverStopped);
+=======
+	if (bcn_valid) {
+		struct pwrctrl_priv *pwrctl = adapter_to_pwrctl(padapter);
+		pwrctl->fw_psmode_iface_id = padapter->iface_id;
+>>>>>>> upstream/android-13
 	}
 
 	/*  2010.05.11. Added by tynli. */

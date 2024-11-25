@@ -86,6 +86,10 @@
  * usage: CREATE_SMC_CMD(SMC_STD_CALL, SMC_AARCH_64, SMC_TOS0_SECVICE_MASK, fid)
  */
 #define CREATE_SMC_CMD(type, arch, range, fid) \
+<<<<<<< HEAD
 	(((unsigned int)(type) << 31)|((arch) << 30) | (range)|(fid))
+=======
+	(((unsigned long)(type) << 31)|((arch) << 30) | (range)|(fid))
+>>>>>>> upstream/android-13
 
 #endif /*__TZDEV_SMC_H__*/

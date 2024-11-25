@@ -76,7 +76,11 @@ struct xfer_desc {
 	u32 addr_l; /* bus address of target data buffer */
 	u32 addr_h;
 	u32 size;
+<<<<<<< HEAD
 	u32 next_l; /* bus adddress of the next xfer_desc */
+=======
+	u32 next_l; /* bus address of the next xfer_desc */
+>>>>>>> upstream/android-13
 	u32 next_h;
 };
 

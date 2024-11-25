@@ -16,6 +16,11 @@
 #include <sound/asoc.h>
 
 struct device;
+<<<<<<< HEAD
+=======
+struct snd_soc_pcm_runtime;
+struct soc_enum;
+>>>>>>> upstream/android-13
 
 /* widget has no PM register bit */
 #define SND_SOC_NOPM	-1
@@ -214,6 +219,7 @@ struct device;
 	.event_flags = SND_SOC_DAPM_POST_PMU | SND_SOC_DAPM_POST_PMD}
 
 /* stream domain */
+<<<<<<< HEAD
 #define SND_SOC_DAPM_AIF_IN(wname, stname, wslot, wreg, wshift, winvert) \
 {	.id = snd_soc_dapm_aif_in, .name = wname, .sname = stname, \
 	SND_SOC_DAPM_INIT_REG_VAL(wreg, wshift, winvert), }
@@ -229,6 +235,23 @@ struct device;
 			     wevent, wflags)				\
 {	.id = snd_soc_dapm_aif_out, .name = wname, .sname = stname, \
 	SND_SOC_DAPM_INIT_REG_VAL(wreg, wshift, winvert), \
+=======
+#define SND_SOC_DAPM_AIF_IN(wname, stname, wchan, wreg, wshift, winvert) \
+{	.id = snd_soc_dapm_aif_in, .name = wname, .sname = stname, \
+	.channel = wchan, SND_SOC_DAPM_INIT_REG_VAL(wreg, wshift, winvert), }
+#define SND_SOC_DAPM_AIF_IN_E(wname, stname, wchan, wreg, wshift, winvert, \
+			      wevent, wflags)				\
+{	.id = snd_soc_dapm_aif_in, .name = wname, .sname = stname, \
+	.channel = wchan, SND_SOC_DAPM_INIT_REG_VAL(wreg, wshift, winvert), \
+	.event = wevent, .event_flags = wflags }
+#define SND_SOC_DAPM_AIF_OUT(wname, stname, wchan, wreg, wshift, winvert) \
+{	.id = snd_soc_dapm_aif_out, .name = wname, .sname = stname, \
+	.channel = wchan, SND_SOC_DAPM_INIT_REG_VAL(wreg, wshift, winvert), }
+#define SND_SOC_DAPM_AIF_OUT_E(wname, stname, wchan, wreg, wshift, winvert, \
+			     wevent, wflags)				\
+{	.id = snd_soc_dapm_aif_out, .name = wname, .sname = stname, \
+	.channel = wchan, SND_SOC_DAPM_INIT_REG_VAL(wreg, wshift, winvert), \
+>>>>>>> upstream/android-13
 	.event = wevent, .event_flags = wflags }
 #define SND_SOC_DAPM_DAC(wname, stname, wreg, wshift, winvert) \
 {	.id = snd_soc_dapm_dac, .name = wname, .sname = stname, \
@@ -376,6 +399,27 @@ struct snd_soc_dapm_widget_list;
 struct snd_soc_dapm_update;
 enum snd_soc_dapm_direction;
 
+<<<<<<< HEAD
+=======
+/*
+ * Bias levels
+ *
+ * @ON:      Bias is fully on for audio playback and capture operations.
+ * @PREPARE: Prepare for audio operations. Called before DAPM switching for
+ *           stream start and stop operations.
+ * @STANDBY: Low power standby state when no playback/capture operations are
+ *           in progress. NOTE: The transition time between STANDBY and ON
+ *           should be as fast as possible and no longer than 10ms.
+ * @OFF:     Power Off. No restrictions on transition times.
+ */
+enum snd_soc_bias_level {
+	SND_SOC_BIAS_OFF = 0,
+	SND_SOC_BIAS_STANDBY = 1,
+	SND_SOC_BIAS_PREPARE = 2,
+	SND_SOC_BIAS_ON = 3,
+};
+
+>>>>>>> upstream/android-13
 int dapm_regulator_event(struct snd_soc_dapm_widget *w,
 			 struct snd_kcontrol *kcontrol, int event);
 int dapm_clock_event(struct snd_soc_dapm_widget *w,
@@ -404,20 +448,39 @@ int snd_soc_dapm_new_controls(struct snd_soc_dapm_context *dapm,
 struct snd_soc_dapm_widget *snd_soc_dapm_new_control(
 		struct snd_soc_dapm_context *dapm,
 		const struct snd_soc_dapm_widget *widget);
+<<<<<<< HEAD
+=======
+struct snd_soc_dapm_widget *snd_soc_dapm_new_control_unlocked(
+		struct snd_soc_dapm_context *dapm,
+		const struct snd_soc_dapm_widget *widget);
+>>>>>>> upstream/android-13
 int snd_soc_dapm_new_dai_widgets(struct snd_soc_dapm_context *dapm,
 				 struct snd_soc_dai *dai);
 int snd_soc_dapm_link_dai_widgets(struct snd_soc_card *card);
 void snd_soc_dapm_connect_dai_link_widgets(struct snd_soc_card *card);
+<<<<<<< HEAD
 int snd_soc_dapm_new_pcm(struct snd_soc_card *card,
 			 struct snd_soc_pcm_runtime *rtd,
 			 const struct snd_soc_pcm_stream *params,
 			 unsigned int num_params,
 			 struct snd_soc_dapm_widget *source,
 			 struct snd_soc_dapm_widget *sink);
+=======
+
+int snd_soc_dapm_update_dai(struct snd_pcm_substream *substream,
+			    struct snd_pcm_hw_params *params,
+			    struct snd_soc_dai *dai);
+>>>>>>> upstream/android-13
 
 /* dapm path setup */
 int snd_soc_dapm_new_widgets(struct snd_soc_card *card);
 void snd_soc_dapm_free(struct snd_soc_dapm_context *dapm);
+<<<<<<< HEAD
+=======
+void snd_soc_dapm_init(struct snd_soc_dapm_context *dapm,
+		       struct snd_soc_card *card,
+		       struct snd_soc_component *component);
+>>>>>>> upstream/android-13
 int snd_soc_dapm_add_routes(struct snd_soc_dapm_context *dapm,
 			    const struct snd_soc_dapm_route *route, int num);
 int snd_soc_dapm_del_routes(struct snd_soc_dapm_context *dapm,
@@ -430,6 +493,10 @@ void snd_soc_dapm_reset_cache(struct snd_soc_dapm_context *dapm);
 /* dapm events */
 void snd_soc_dapm_stream_event(struct snd_soc_pcm_runtime *rtd, int stream,
 	int event);
+<<<<<<< HEAD
+=======
+void snd_soc_dapm_stream_stop(struct snd_soc_pcm_runtime *rtd, int stream);
+>>>>>>> upstream/android-13
 void snd_soc_dapm_shutdown(struct snd_soc_card *card);
 
 /* external DAPM widget events */
@@ -477,6 +544,10 @@ int snd_soc_dapm_dai_get_connected_widgets(struct snd_soc_dai *dai, int stream,
 	struct snd_soc_dapm_widget_list **list,
 	bool (*custom_stop_condition)(struct snd_soc_dapm_widget *,
 				      enum snd_soc_dapm_direction));
+<<<<<<< HEAD
+=======
+void snd_soc_dapm_dai_free_widgets(struct snd_soc_dapm_widget_list **list);
+>>>>>>> upstream/android-13
 
 struct snd_soc_dapm_context *snd_soc_dapm_kcontrol_dapm(
 	struct snd_kcontrol *kcontrol);
@@ -527,6 +598,12 @@ enum snd_soc_dapm_type {
 	snd_soc_dapm_asrc,		/* DSP/CODEC ASRC component */
 	snd_soc_dapm_encoder,		/* FW/SW audio encoder component */
 	snd_soc_dapm_decoder,		/* FW/SW audio decoder component */
+<<<<<<< HEAD
+=======
+
+	/* Don't edit below this line */
+	SND_SOC_DAPM_TYPE_COUNT
+>>>>>>> upstream/android-13
 };
 
 enum snd_soc_dapm_subclass {
@@ -548,6 +625,11 @@ struct snd_soc_dapm_route {
 	/* Note: currently only supported for links where source is a supply */
 	int (*connected)(struct snd_soc_dapm_widget *source,
 			 struct snd_soc_dapm_widget *sink);
+<<<<<<< HEAD
+=======
+
+	struct snd_soc_dobj dobj;
+>>>>>>> upstream/android-13
 };
 
 /* dapm audio path between two widgets */
@@ -592,9 +674,12 @@ struct snd_soc_dapm_widget {
 	void *priv;				/* widget specific data */
 	struct regulator *regulator;		/* attached regulator */
 	struct pinctrl *pinctrl;		/* attached pinctrl */
+<<<<<<< HEAD
 	const struct snd_soc_pcm_stream *params; /* params for dai links */
 	unsigned int num_params; /* number of params for dai links */
 	unsigned int params_select; /* currently selected param for dai link */
+=======
+>>>>>>> upstream/android-13
 
 	/* dapm control */
 	int reg;				/* negative reg = no direct dapm */
@@ -636,6 +721,11 @@ struct snd_soc_dapm_widget {
 	int endpoints[2];
 
 	struct clk *clk;
+<<<<<<< HEAD
+=======
+
+	int channel;
+>>>>>>> upstream/android-13
 };
 
 struct snd_soc_dapm_update {
@@ -659,8 +749,11 @@ struct snd_soc_dapm_context {
 	unsigned int idle_bias_off:1; /* Use BIAS_OFF instead of STANDBY */
 	/* Go to BIAS_OFF in suspend if the DAPM context is idle */
 	unsigned int suspend_bias_off:1;
+<<<<<<< HEAD
 	void (*seq_notifier)(struct snd_soc_dapm_context *,
 			     enum snd_soc_dapm_type, int);
+=======
+>>>>>>> upstream/android-13
 
 	struct device *dev; /* from parent - for debug */
 	struct snd_soc_component *component; /* parent component */
@@ -670,10 +763,13 @@ struct snd_soc_dapm_context {
 	enum snd_soc_bias_level target_bias_level;
 	struct list_head list;
 
+<<<<<<< HEAD
 	int (*stream_event)(struct snd_soc_dapm_context *dapm, int event);
 	int (*set_bias_level)(struct snd_soc_dapm_context *dapm,
 			      enum snd_soc_bias_level level);
 
+=======
+>>>>>>> upstream/android-13
 	struct snd_soc_dapm_wcache path_sink_cache;
 	struct snd_soc_dapm_wcache path_source_cache;
 
@@ -685,9 +781,20 @@ struct snd_soc_dapm_context {
 /* A list of widgets associated with an object, typically a snd_kcontrol */
 struct snd_soc_dapm_widget_list {
 	int num_widgets;
+<<<<<<< HEAD
 	struct snd_soc_dapm_widget *widgets[0];
 };
 
+=======
+	struct snd_soc_dapm_widget *widgets[];
+};
+
+#define for_each_dapm_widgets(list, i, widget)				\
+	for ((i) = 0;							\
+	     (i) < list->num_widgets && (widget = list->widgets[i]);	\
+	     (i)++)
+
+>>>>>>> upstream/android-13
 struct snd_soc_dapm_stats {
 	int power_checks;
 	int path_checks;

@@ -26,6 +26,12 @@
 #ifndef __DAL_COMMAND_TABLE_HELPER_H__
 #define __DAL_COMMAND_TABLE_HELPER_H__
 
+<<<<<<< HEAD
+=======
+#if defined(CONFIG_DRM_AMD_DC_SI)
+#include "dce60/command_table_helper_dce60.h"
+#endif
+>>>>>>> upstream/android-13
 #include "dce80/command_table_helper_dce80.h"
 #include "dce110/command_table_helper_dce110.h"
 #include "dce112/command_table_helper_dce112.h"

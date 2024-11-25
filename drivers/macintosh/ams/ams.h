@@ -1,6 +1,10 @@
 /* SPDX-License-Identifier: GPL-2.0 */
 #include <linux/i2c.h>
+<<<<<<< HEAD
 #include <linux/input-polldev.h>
+=======
+#include <linux/input.h>
+>>>>>>> upstream/android-13
 #include <linux/kthread.h>
 #include <linux/mutex.h>
 #include <linux/spinlock.h>
@@ -51,7 +55,11 @@ struct ams {
 #endif
 
 	/* Joystick emulation */
+<<<<<<< HEAD
 	struct input_polled_dev *idev;
+=======
+	struct input_dev *idev;
+>>>>>>> upstream/android-13
 	__u16 bustype;
 
 	/* calibrated null values */

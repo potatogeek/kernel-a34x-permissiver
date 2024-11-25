@@ -90,11 +90,16 @@ On-line docs
       :Date: 2008
       :Keywords: patches, review process, types of submissions, basic rules, case studies
       :Description: This paper gives several experience values on what types of patches
+<<<<<<< HEAD
         there are and how likley they get merged.
+=======
+        there are and how likely they get merged.
+>>>>>>> upstream/android-13
       :Abstract:
         [...]. This paper examines some common problems for
         submitting larger changes and some strategies to avoid problems.
 
+<<<<<<< HEAD
     * Title: **Overview of the Virtual File System**
 
       :Author: Richard Gooch.
@@ -111,6 +116,12 @@ On-line docs
 
       :Author: Jonathan Corbet, Alessandro Rubini, Greg Kroah-Hartman
       :URL: http://lwn.net/Kernel/LDD3/
+=======
+    * Title: **Linux Device Drivers, Third Edition**
+
+      :Author: Jonathan Corbet, Alessandro Rubini, Greg Kroah-Hartman
+      :URL: https://lwn.net/Kernel/LDD3/
+>>>>>>> upstream/android-13
       :Date: 2005
       :Description: A 600-page book covering the (2.6.10) driver
         programming API and kernel hacking in general.  Available under the
@@ -138,6 +149,7 @@ On-line docs
         describes how to write user-mode utilities for communicating with
         Card Services.
 
+<<<<<<< HEAD
     * Title: **Linux Kernel Module Programming Guide**
 
       :Author: Ori Pomerantz.
@@ -147,6 +159,19 @@ On-line docs
         interrupt handlers .
       :Description: Very nice 92 pages GPL book on the topic of modules
         programming. Lots of examples.
+=======
+    * Title: **The Linux Kernel Module Programming Guide**
+
+      :Author: Peter Jay Salzman, Michael Burian, Ori Pomerantz, Bob Mottram,
+        Jim Huang.
+      :URL: https://sysprog21.github.io/lkmpg/
+      :Date: 2021
+      :Keywords: modules, GPL book, /proc, ioctls, system calls,
+        interrupt handlers .
+      :Description: A very nice GPL book on the topic of modules
+        programming. Lots of examples. Currently the new version is being
+        actively maintained at https://github.com/sysprog21/lkmpg.
+>>>>>>> upstream/android-13
 
     * Title: **Global spinlock list and usage**
 
@@ -256,7 +281,11 @@ On-line docs
     * Title: **I/O Event Handling Under Linux**
 
       :Author: Richard Gooch.
+<<<<<<< HEAD
       :URL: http://web.mit.edu/~yandros/doc/io-events.html
+=======
+      :URL: https://web.mit.edu/~yandros/doc/io-events.html
+>>>>>>> upstream/android-13
       :Date: 1999
       :Keywords: IO, I/O, select(2), poll(2), FDs, aio_read(2), readiness
         event queues.
@@ -307,7 +336,11 @@ On-line docs
     * Title: **Design and Implementation of the Second Extended Filesystem**
 
       :Author: Rémy Card, Theodore Ts'o, Stephen Tweedie.
+<<<<<<< HEAD
       :URL: http://web.mit.edu/tytso/www/linux/ext2intro.html
+=======
+      :URL: https://web.mit.edu/tytso/www/linux/ext2intro.html
+>>>>>>> upstream/android-13
       :Date: 1998
       :Keywords: ext2, linux fs history, inode, directory, link, devices,
         VFS, physical structure, performance, benchmarks, ext2fs library,
@@ -325,7 +358,11 @@ On-line docs
       :URL: http://www.linuxjournal.com/article.php?sid=2391
       :Date: 1997
       :Keywords: RAID, MD driver.
+<<<<<<< HEAD
       :Description: Linux Journal Kernel Korner article. Here is its
+=======
+      :Description: Linux Journal Kernel Korner article.
+>>>>>>> upstream/android-13
       :Abstract: *A description of the implementation of the RAID-1,
         RAID-4 and RAID-5 personalities of the MD device driver in the
         Linux kernel, providing users with high performance and reliable,
@@ -334,13 +371,21 @@ On-line docs
     * Title: **Linux Kernel Hackers' Guide**
 
       :Author: Michael K. Johnson.
+<<<<<<< HEAD
       :URL: http://www.tldp.org/LDP/khg/HyperNews/get/khg.html
+=======
+      :URL: https://www.tldp.org/LDP/khg/HyperNews/get/khg.html
+>>>>>>> upstream/android-13
       :Date: 1997
       :Keywords: device drivers, files, VFS, kernel interface, character vs
         block devices, hardware interrupts, scsi, DMA, access to user memory,
         memory allocation, timers.
       :Description: A guide designed to help you get up to speed on the
+<<<<<<< HEAD
         concepts that are not intuitevly obvious, and to document the internal
+=======
+        concepts that are not intuitively obvious, and to document the internal
+>>>>>>> upstream/android-13
         structures of Linux.
 
     * Title: **Dynamic Kernels: Modularized Device Drivers**
@@ -350,7 +395,11 @@ On-line docs
       :Date: 1996
       :Keywords: device driver, module, loading/unloading modules,
         allocating resources.
+<<<<<<< HEAD
       :Description: Linux Journal Kernel Korner article. Here is its
+=======
+      :Description: Linux Journal Kernel Korner article.
+>>>>>>> upstream/android-13
       :Abstract: *This is the first of a series of four articles
         co-authored by Alessandro Rubini and Georg Zezchwitz which present
         a practical approach to writing Linux device drivers as kernel
@@ -366,7 +415,11 @@ On-line docs
       :Keywords: character driver, init_module, clean_up module,
         autodetection, mayor number, minor number, file operations,
         open(), close().
+<<<<<<< HEAD
       :Description: Linux Journal Kernel Korner article. Here is its
+=======
+      :Description: Linux Journal Kernel Korner article.
+>>>>>>> upstream/android-13
       :Abstract: *This article, the second of four, introduces part of
         the actual code to create custom module implementing a character
         device driver. It describes the code for module initialization and
@@ -379,7 +432,11 @@ On-line docs
       :Date: 1996
       :Keywords: read(), write(), select(), ioctl(), blocking/non
         blocking mode, interrupt handler.
+<<<<<<< HEAD
       :Description: Linux Journal Kernel Korner article. Here is its
+=======
+      :Description: Linux Journal Kernel Korner article.
+>>>>>>> upstream/android-13
       :Abstract: *This article, the third of four on writing character
         device drivers, introduces concepts of reading, writing, and using
         ioctl-calls*.
@@ -387,10 +444,17 @@ On-line docs
     * Title: **Dissecting Interrupts and Browsing DMA**
 
       :Author: Alessandro Rubini and Georg v. Zezschwitz.
+<<<<<<< HEAD
       :URL: http://www.linuxjournal.com/article.php?sid=1222
       :Date: 1996
       :Keywords: interrupts, irqs, DMA, bottom halves, task queues.
       :Description: Linux Journal Kernel Korner article. Here is its
+=======
+      :URL: https://www.linuxjournal.com/article.php?sid=1222
+      :Date: 1996
+      :Keywords: interrupts, irqs, DMA, bottom halves, task queues.
+      :Description: Linux Journal Kernel Korner article.
+>>>>>>> upstream/android-13
       :Abstract: *This is the fourth in a series of articles about
         writing character device drivers as loadable kernel modules. This
         month, we further investigate the field of interrupt handling.
@@ -403,7 +467,11 @@ On-line docs
     * Title: **Device Drivers Concluded**
 
       :Author: Georg v. Zezschwitz.
+<<<<<<< HEAD
       :URL: http://www.linuxjournal.com/article.php?sid=1287
+=======
+      :URL: https://www.linuxjournal.com/article.php?sid=1287
+>>>>>>> upstream/android-13
       :Date: 1996
       :Keywords: address spaces, pages, pagination, page management,
         demand loading, swapping, memory protection, memory mapping, mmap,
@@ -417,7 +485,11 @@ On-line docs
     * Title: **Network Buffers And Memory Management**
 
       :Author: Alan Cox.
+<<<<<<< HEAD
       :URL: http://www.linuxjournal.com/article.php?sid=1312
+=======
+      :URL: https://www.linuxjournal.com/article.php?sid=1312
+>>>>>>> upstream/android-13
       :Date: 1996
       :Keywords: sk_buffs, network devices, protocol/link layer
         variables, network devices flags, transmit, receive,
@@ -430,7 +502,11 @@ On-line docs
     * Title: **Analysis of the Ext2fs structure**
 
       :Author: Louis-Dominique Dubeau.
+<<<<<<< HEAD
       :URL: http://teaching.csse.uwa.edu.au/units/CITS2002/fs-ext2/
+=======
+      :URL: https://teaching.csse.uwa.edu.au/units/CITS2002/fs-ext2/
+>>>>>>> upstream/android-13
       :Date: 1994
       :Keywords: ext2, filesystem, ext2fs.
       :Description: Description of ext2's blocks, directories, inodes,
@@ -492,7 +568,11 @@ Published books
       :ISBN: 0-596-00590-3
       :Notes: Further information in
         http://www.oreilly.com/catalog/linuxdrive3/
+<<<<<<< HEAD
         PDF format, URL: http://lwn.net/Kernel/LDD3/
+=======
+        PDF format, URL: https://lwn.net/Kernel/LDD3/
+>>>>>>> upstream/android-13
 
     * Title: **Linux Kernel Internals**
 
@@ -565,7 +645,11 @@ Miscellaneous
 
     * Name: **Cross-Referencing Linux**
 
+<<<<<<< HEAD
       :URL: http://lxr.free-electrons.com/
+=======
+      :URL: https://elixir.bootlin.com/
+>>>>>>> upstream/android-13
       :Keywords: Browsing source code.
       :Description: Another web-based Linux kernel source code browser.
         Lots of cross references to variables and functions. You can see
@@ -573,7 +657,11 @@ Miscellaneous
 
     * Name: **Linux Weekly News**
 
+<<<<<<< HEAD
       :URL: http://lwn.net
+=======
+      :URL: https://lwn.net
+>>>>>>> upstream/android-13
       :Keywords: latest kernel news.
       :Description: The title says it all. There's a fixed kernel section
         summarizing developers' work, bug fixes, new features and versions
@@ -582,7 +670,11 @@ Miscellaneous
     * Name: **The home page of Linux-MM**
 
       :Author: The Linux-MM team.
+<<<<<<< HEAD
       :URL: http://linux-mm.org/
+=======
+      :URL: https://linux-mm.org/
+>>>>>>> upstream/android-13
       :Keywords: memory management, Linux-MM, mm patches, TODO, docs,
         mailing list.
       :Description: Site devoted to Linux Memory Management development.
@@ -591,7 +683,11 @@ Miscellaneous
 
     * Name: **Kernel Newbies IRC Channel and Website**
 
+<<<<<<< HEAD
       :URL: http://www.kernelnewbies.org
+=======
+      :URL: https://www.kernelnewbies.org
+>>>>>>> upstream/android-13
       :Keywords: IRC, newbies, channel, asking doubts.
       :Description: #kernelnewbies on irc.oftc.net.
         #kernelnewbies is an IRC network dedicated to the 'newbie'
@@ -617,4 +713,8 @@ Miscellaneous
 Document last updated on Tue 2016-Sep-20
 
 This document is based on:
+<<<<<<< HEAD
  http://www.dit.upm.es/~jmseyas/linux/kernel/hackers-docs.html
+=======
+ https://www.dit.upm.es/~jmseyas/linux/kernel/hackers-docs.html
+>>>>>>> upstream/android-13

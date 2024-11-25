@@ -121,9 +121,17 @@ static s32 ixgbevf_reset_hw_vf(struct ixgbe_hw *hw)
 }
 
 /**
+<<<<<<< HEAD
  * Hyper-V variant; the VF/PF communication is through the PCI
  * config space.
  * @hw: pointer to private hardware struct
+=======
+ * ixgbevf_hv_reset_hw_vf - reset via Hyper-V
+ * @hw: pointer to private hardware struct
+ *
+ * Hyper-V variant; the VF/PF communication is through the PCI
+ * config space.
+>>>>>>> upstream/android-13
  */
 static s32 ixgbevf_hv_reset_hw_vf(struct ixgbe_hw *hw)
 {
@@ -309,11 +317,19 @@ int ixgbevf_get_reta_locked(struct ixgbe_hw *hw, u32 *reta, int num_rx_queues)
 	 * is not supported for this device type.
 	 */
 	switch (hw->api_version) {
+<<<<<<< HEAD
+=======
+	case ixgbe_mbox_api_14:
+>>>>>>> upstream/android-13
 	case ixgbe_mbox_api_13:
 	case ixgbe_mbox_api_12:
 		if (hw->mac.type < ixgbe_mac_X550_vf)
 			break;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		return -EOPNOTSUPP;
 	}
@@ -376,11 +392,19 @@ int ixgbevf_get_rss_key_locked(struct ixgbe_hw *hw, u8 *rss_key)
 	 * or if the operation is not supported for this device type.
 	 */
 	switch (hw->api_version) {
+<<<<<<< HEAD
+=======
+	case ixgbe_mbox_api_14:
+>>>>>>> upstream/android-13
 	case ixgbe_mbox_api_13:
 	case ixgbe_mbox_api_12:
 		if (hw->mac.type < ixgbe_mac_X550_vf)
 			break;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		return -EOPNOTSUPP;
 	}
@@ -506,6 +530,7 @@ static s32 ixgbevf_update_mc_addr_list_vf(struct ixgbe_hw *hw,
 		vector_list[i++] = ixgbevf_mta_vector(hw, ha->addr);
 	}
 
+<<<<<<< HEAD
 	ixgbevf_write_msg_read_ack(hw, msgbuf, msgbuf, IXGBE_VFMAILBOX_SIZE);
 
 	return 0;
@@ -515,6 +540,18 @@ static s32 ixgbevf_update_mc_addr_list_vf(struct ixgbe_hw *hw,
  * Hyper-V variant - just a stub.
  * @hw: unused
  * @netdev: unused
+=======
+	return ixgbevf_write_msg_read_ack(hw, msgbuf, msgbuf,
+			IXGBE_VFMAILBOX_SIZE);
+}
+
+/**
+ * ixgbevf_hv_update_mc_addr_list_vf - stub
+ * @hw: unused
+ * @netdev: unused
+ *
+ * Hyper-V variant - just a stub.
+>>>>>>> upstream/android-13
  */
 static s32 ixgbevf_hv_update_mc_addr_list_vf(struct ixgbe_hw *hw,
 					     struct net_device *netdev)
@@ -539,7 +576,12 @@ static s32 ixgbevf_update_xcast_mode(struct ixgbe_hw *hw, int xcast_mode)
 		/* promisc introduced in 1.3 version */
 		if (xcast_mode == IXGBEVF_XCAST_MODE_PROMISC)
 			return -EOPNOTSUPP;
+<<<<<<< HEAD
 		/* Fall threw */
+=======
+		fallthrough;
+	case ixgbe_mbox_api_14:
+>>>>>>> upstream/android-13
 	case ixgbe_mbox_api_13:
 		break;
 	default:
@@ -562,9 +604,17 @@ static s32 ixgbevf_update_xcast_mode(struct ixgbe_hw *hw, int xcast_mode)
 }
 
 /**
+<<<<<<< HEAD
  * Hyper-V variant - just a stub.
  * @hw: unused
  * @xcast_mode: unused
+=======
+ * ixgbevf_hv_update_xcast_mode - stub
+ * @hw: unused
+ * @xcast_mode: unused
+ *
+ * Hyper-V variant - just a stub.
+>>>>>>> upstream/android-13
  */
 static s32 ixgbevf_hv_update_xcast_mode(struct ixgbe_hw *hw, int xcast_mode)
 {
@@ -606,7 +656,11 @@ mbx_err:
 }
 
 /**
+<<<<<<< HEAD
  * Hyper-V variant - just a stub.
+=======
+ * ixgbevf_hv_set_vfta_vf - * Hyper-V variant - just a stub.
+>>>>>>> upstream/android-13
  * @hw: unused
  * @vlan: unused
  * @vind: unused
@@ -724,11 +778,20 @@ out:
 }
 
 /**
+<<<<<<< HEAD
  * Hyper-V variant; there is no mailbox communication.
+=======
+ * ixgbevf_hv_check_mac_link_vf - check link
+>>>>>>> upstream/android-13
  * @hw: pointer to private hardware struct
  * @speed: pointer to link speed
  * @link_up: true is link is up, false otherwise
  * @autoneg_wait_to_complete: unused
+<<<<<<< HEAD
+=======
+ *
+ * Hyper-V variant; there is no mailbox communication.
+>>>>>>> upstream/android-13
  */
 static s32 ixgbevf_hv_check_mac_link_vf(struct ixgbe_hw *hw,
 					ixgbe_link_speed *speed,
@@ -890,6 +953,10 @@ int ixgbevf_get_queues(struct ixgbe_hw *hw, unsigned int *num_tcs,
 	case ixgbe_mbox_api_11:
 	case ixgbe_mbox_api_12:
 	case ixgbe_mbox_api_13:
+<<<<<<< HEAD
+=======
+	case ixgbe_mbox_api_14:
+>>>>>>> upstream/android-13
 		break;
 	default:
 		return 0;

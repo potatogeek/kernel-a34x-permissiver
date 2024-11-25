@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Regulator driver for Ricoh RN5T618 PMIC
  *
  * Copyright (C) 2014 Beniamino Galvani <b.galvani@gmail.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -9,6 +14,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/mfd/rn5t618.h>
@@ -46,7 +53,11 @@ static const struct regulator_ops rn5t618_reg_ops = {
 		.vsel_mask	= (vmask),				\
 	}
 
+<<<<<<< HEAD
 static struct regulator_desc rn5t567_regulators[] = {
+=======
+static const struct regulator_desc rn5t567_regulators[] = {
+>>>>>>> upstream/android-13
 	/* DCDC */
 	REG(DCDC1, DC1CTL, BIT(0), DC1DAC, 0xff, 600000, 3500000, 12500),
 	REG(DCDC2, DC2CTL, BIT(0), DC2DAC, 0xff, 600000, 3500000, 12500),
@@ -63,7 +74,11 @@ static struct regulator_desc rn5t567_regulators[] = {
 	REG(LDORTC2, LDOEN2, BIT(5), LDORTC2DAC, 0x7f, 900000, 3500000, 25000),
 };
 
+<<<<<<< HEAD
 static struct regulator_desc rn5t618_regulators[] = {
+=======
+static const struct regulator_desc rn5t618_regulators[] = {
+>>>>>>> upstream/android-13
 	/* DCDC */
 	REG(DCDC1, DC1CTL, BIT(0), DC1DAC, 0xff, 600000, 3500000, 12500),
 	REG(DCDC2, DC2CTL, BIT(0), DC2DAC, 0xff, 600000, 3500000, 12500),
@@ -79,7 +94,11 @@ static struct regulator_desc rn5t618_regulators[] = {
 	REG(LDORTC2, LDOEN2, BIT(5), LDORTC2DAC, 0x7f, 900000, 3500000, 25000),
 };
 
+<<<<<<< HEAD
 static struct regulator_desc rc5t619_regulators[] = {
+=======
+static const struct regulator_desc rc5t619_regulators[] = {
+>>>>>>> upstream/android-13
 	/* DCDC */
 	REG(DCDC1, DC1CTL, BIT(0), DC1DAC, 0xff, 600000, 3500000, 12500),
 	REG(DCDC2, DC2CTL, BIT(0), DC2DAC, 0xff, 600000, 3500000, 12500),
@@ -96,7 +115,11 @@ static struct regulator_desc rc5t619_regulators[] = {
 	REG(LDO7, LDOEN1, BIT(6), LDO7DAC, 0x7f, 900000, 3500000, 25000),
 	REG(LDO8, LDOEN1, BIT(7), LDO8DAC, 0x7f, 900000, 3500000, 25000),
 	REG(LDO9, LDOEN2, BIT(0), LDO9DAC, 0x7f, 900000, 3500000, 25000),
+<<<<<<< HEAD
 	REG(LDO10, LDOEN2, BIT(0), LDO10DAC, 0x7f, 900000, 3500000, 25000),
+=======
+	REG(LDO10, LDOEN2, BIT(1), LDO10DAC, 0x7f, 900000, 3500000, 25000),
+>>>>>>> upstream/android-13
 	/* LDO RTC */
 	REG(LDORTC1, LDOEN2, BIT(4), LDORTCDAC, 0x7f, 1700000, 3500000, 25000),
 	REG(LDORTC2, LDOEN2, BIT(5), LDORTC2DAC, 0x7f, 900000, 3500000, 25000),
@@ -107,7 +130,11 @@ static int rn5t618_regulator_probe(struct platform_device *pdev)
 	struct rn5t618 *rn5t618 = dev_get_drvdata(pdev->dev.parent);
 	struct regulator_config config = { };
 	struct regulator_dev *rdev;
+<<<<<<< HEAD
 	struct regulator_desc *regulators;
+=======
+	const struct regulator_desc *regulators;
+>>>>>>> upstream/android-13
 	int i;
 	int num_regulators = 0;
 

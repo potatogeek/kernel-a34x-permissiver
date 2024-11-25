@@ -1,8 +1,15 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2012-2013, Analog Devices Inc.
  * Author: Lars-Peter Clausen <lars@metafoo.de>
  *
  * Licensed under the GPL-2.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2012-2013, Analog Devices Inc.
+ * Author: Lars-Peter Clausen <lars@metafoo.de>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
@@ -43,6 +50,12 @@ struct axi_i2s {
 	struct clk *clk;
 	struct clk *clk_ref;
 
+<<<<<<< HEAD
+=======
+	bool   has_capture;
+	bool   has_playback;
+
+>>>>>>> upstream/android-13
 	struct snd_soc_dai_driver dai_driver;
 
 	struct snd_dmaengine_dai_dma_data capture_dma_data;
@@ -136,8 +149,15 @@ static int axi_i2s_dai_probe(struct snd_soc_dai *dai)
 {
 	struct axi_i2s *i2s = snd_soc_dai_get_drvdata(dai);
 
+<<<<<<< HEAD
 	snd_soc_dai_init_dma_data(dai, &i2s->playback_dma_data,
 		&i2s->capture_dma_data);
+=======
+	snd_soc_dai_init_dma_data(
+		dai,
+		i2s->has_playback ? &i2s->playback_dma_data : NULL,
+		i2s->has_capture  ? &i2s->capture_dma_data  : NULL);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -151,6 +171,7 @@ static const struct snd_soc_dai_ops axi_i2s_dai_ops = {
 
 static struct snd_soc_dai_driver axi_i2s_dai = {
 	.probe = axi_i2s_dai_probe,
+<<<<<<< HEAD
 	.playback = {
 		.channels_min = 2,
 		.channels_max = 2,
@@ -165,6 +186,10 @@ static struct snd_soc_dai_driver axi_i2s_dai = {
 	},
 	.ops = &axi_i2s_dai_ops,
 	.symmetric_rates = 1,
+=======
+	.ops = &axi_i2s_dai_ops,
+	.symmetric_rate = 1,
+>>>>>>> upstream/android-13
 };
 
 static const struct snd_soc_component_driver axi_i2s_component = {
@@ -178,6 +203,22 @@ static const struct regmap_config axi_i2s_regmap_config = {
 	.max_register = AXI_I2S_REG_STATUS,
 };
 
+<<<<<<< HEAD
+=======
+static void axi_i2s_parse_of(struct axi_i2s *i2s, const struct device_node *np)
+{
+	struct property *dma_names;
+	const char *dma_name;
+
+	of_property_for_each_string(np, "dma-names", dma_names, dma_name) {
+		if (strcmp(dma_name, "rx") == 0)
+			i2s->has_capture = true;
+		if (strcmp(dma_name, "tx") == 0)
+			i2s->has_playback = true;
+	}
+}
+
+>>>>>>> upstream/android-13
 static int axi_i2s_probe(struct platform_device *pdev)
 {
 	struct resource *res;
@@ -191,8 +232,14 @@ static int axi_i2s_probe(struct platform_device *pdev)
 
 	platform_set_drvdata(pdev, i2s);
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	base = devm_ioremap_resource(&pdev->dev, res);
+=======
+	axi_i2s_parse_of(i2s, pdev->dev.of_node);
+
+	base = devm_platform_get_and_ioremap_resource(pdev, 0, &res);
+>>>>>>> upstream/android-13
 	if (IS_ERR(base))
 		return PTR_ERR(base);
 
@@ -213,6 +260,7 @@ static int axi_i2s_probe(struct platform_device *pdev)
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	i2s->playback_dma_data.addr = res->start + AXI_I2S_REG_TX_FIFO;
 	i2s->playback_dma_data.addr_width = 4;
 	i2s->playback_dma_data.maxburst = 1;
@@ -220,6 +268,31 @@ static int axi_i2s_probe(struct platform_device *pdev)
 	i2s->capture_dma_data.addr = res->start + AXI_I2S_REG_RX_FIFO;
 	i2s->capture_dma_data.addr_width = 4;
 	i2s->capture_dma_data.maxburst = 1;
+=======
+	if (i2s->has_playback) {
+		axi_i2s_dai.playback.channels_min = 2;
+		axi_i2s_dai.playback.channels_max = 2;
+		axi_i2s_dai.playback.rates = SNDRV_PCM_RATE_KNOT;
+		axi_i2s_dai.playback.formats =
+			SNDRV_PCM_FMTBIT_S32_LE | SNDRV_PCM_FMTBIT_U32_LE;
+
+		i2s->playback_dma_data.addr = res->start + AXI_I2S_REG_TX_FIFO;
+		i2s->playback_dma_data.addr_width = 4;
+		i2s->playback_dma_data.maxburst = 1;
+	}
+
+	if (i2s->has_capture) {
+		axi_i2s_dai.capture.channels_min = 2;
+		axi_i2s_dai.capture.channels_max = 2;
+		axi_i2s_dai.capture.rates = SNDRV_PCM_RATE_KNOT;
+		axi_i2s_dai.capture.formats =
+			SNDRV_PCM_FMTBIT_S32_LE | SNDRV_PCM_FMTBIT_U32_LE;
+
+		i2s->capture_dma_data.addr = res->start + AXI_I2S_REG_RX_FIFO;
+		i2s->capture_dma_data.addr_width = 4;
+		i2s->capture_dma_data.maxburst = 1;
+	}
+>>>>>>> upstream/android-13
 
 	i2s->ratnum.num = clk_get_rate(i2s->clk_ref) / 2 / AXI_I2S_BITS_PER_FRAME;
 	i2s->ratnum.den_step = 1;
@@ -240,6 +313,13 @@ static int axi_i2s_probe(struct platform_device *pdev)
 	if (ret)
 		goto err_clk_disable;
 
+<<<<<<< HEAD
+=======
+	dev_info(&pdev->dev, "probed, capture %s, playback %s\n",
+		 i2s->has_capture ? "enabled" : "disabled",
+		 i2s->has_playback ? "enabled" : "disabled");
+
+>>>>>>> upstream/android-13
 	return 0;
 
 err_clk_disable:

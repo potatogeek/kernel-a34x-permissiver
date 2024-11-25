@@ -35,7 +35,10 @@
 #include <linux/platform_device.h>
 #include <drm/drm_legacy.h>
 
+<<<<<<< HEAD
 #include <drm/ati_pcigart.h>
+=======
+>>>>>>> upstream/android-13
 #include "radeon_family.h"
 
 /* General customization:
@@ -119,4 +122,14 @@
 long radeon_drm_ioctl(struct file *filp,
 		      unsigned int cmd, unsigned long arg);
 
+<<<<<<< HEAD
+=======
+int radeon_driver_load_kms(struct drm_device *dev, unsigned long flags);
+void radeon_driver_unload_kms(struct drm_device *dev);
+void radeon_driver_lastclose_kms(struct drm_device *dev);
+int radeon_driver_open_kms(struct drm_device *dev, struct drm_file *file_priv);
+void radeon_driver_postclose_kms(struct drm_device *dev,
+				 struct drm_file *file_priv);
+
+>>>>>>> upstream/android-13
 #endif				/* __RADEON_DRV_H__ */

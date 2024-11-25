@@ -130,7 +130,11 @@ DECLARE_EVENT_CLASS(v4l2_event_class,
 		__entry->bytesused = buf->bytesused;
 		__entry->flags = buf->flags;
 		__entry->field = buf->field;
+<<<<<<< HEAD
 		__entry->timestamp = timeval_to_ns(&buf->timestamp);
+=======
+		__entry->timestamp = v4l2_buffer_get_timestamp(buf);
+>>>>>>> upstream/android-13
 		__entry->timecode_type = buf->timecode.type;
 		__entry->timecode_flags = buf->timecode.flags;
 		__entry->timecode_frames = buf->timecode.frames;

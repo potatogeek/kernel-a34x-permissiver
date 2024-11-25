@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * Performance events core code:
  *
@@ -5,8 +9,11 @@
  *  Copyright (C) 2008-2011 Red Hat, Inc., Ingo Molnar
  *  Copyright (C) 2008-2011 Red Hat, Inc., Peter Zijlstra
  *  Copyright  ©  2009 Paul Mackerras, IBM Corp. <paulus@au1.ibm.com>
+<<<<<<< HEAD
  *
  * For licensing details see kernel-base/COPYING
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/fs.h>
@@ -29,6 +36,10 @@
 #include <linux/export.h>
 #include <linux/vmalloc.h>
 #include <linux/hardirq.h>
+<<<<<<< HEAD
+=======
+#include <linux/hugetlb.h>
+>>>>>>> upstream/android-13
 #include <linux/rculist.h>
 #include <linux/uaccess.h>
 #include <linux/syscalls.h>
@@ -50,6 +61,13 @@
 #include <linux/sched/mm.h>
 #include <linux/proc_ns.h>
 #include <linux/mount.h>
+<<<<<<< HEAD
+=======
+#include <linux/min_heap.h>
+#include <linux/highmem.h>
+#include <linux/pgtable.h>
+#include <linux/buildid.h>
+>>>>>>> upstream/android-13
 
 #include "internal.h"
 
@@ -128,6 +146,10 @@ task_function_call(struct task_struct *p, remote_function_f func, void *info)
 
 /**
  * cpu_function_call - call a function on the cpu
+<<<<<<< HEAD
+=======
+ * @cpu:	target cpu to queue this function
+>>>>>>> upstream/android-13
  * @func:	the function to be called
  * @info:	the function call argument
  *
@@ -265,7 +287,11 @@ static void event_function_call(struct perf_event *event, event_f func, void *da
 	if (!event->parent) {
 		/*
 		 * If this is a !child event, we must hold ctx::mutex to
+<<<<<<< HEAD
 		 * stabilize the the event->ctx relation. See
+=======
+		 * stabilize the event->ctx relation. See
+>>>>>>> upstream/android-13
 		 * perf_event_ctx_lock().
 		 */
 		lockdep_assert_held(&ctx->mutex);
@@ -391,11 +417,23 @@ static atomic_t nr_namespaces_events __read_mostly;
 static atomic_t nr_task_events __read_mostly;
 static atomic_t nr_freq_events __read_mostly;
 static atomic_t nr_switch_events __read_mostly;
+<<<<<<< HEAD
+=======
+static atomic_t nr_ksymbol_events __read_mostly;
+static atomic_t nr_bpf_events __read_mostly;
+static atomic_t nr_cgroup_events __read_mostly;
+static atomic_t nr_text_poke_events __read_mostly;
+static atomic_t nr_build_id_events __read_mostly;
+>>>>>>> upstream/android-13
 
 static LIST_HEAD(pmus);
 static DEFINE_MUTEX(pmus_lock);
 static struct srcu_struct pmus_srcu;
 static cpumask_var_t perf_online_mask;
+<<<<<<< HEAD
+=======
+static struct kmem_cache *perf_event_cache;
+>>>>>>> upstream/android-13
 
 /*
  * perf event paranoia level:
@@ -439,8 +477,12 @@ static void update_perf_cpu_limits(void)
 static bool perf_rotate_context(struct perf_cpu_context *cpuctx);
 
 int perf_proc_update_handler(struct ctl_table *table, int write,
+<<<<<<< HEAD
 		void __user *buffer, size_t *lenp,
 		loff_t *ppos)
+=======
+		void *buffer, size_t *lenp, loff_t *ppos)
+>>>>>>> upstream/android-13
 {
 	int ret;
 	int perf_cpu = sysctl_perf_cpu_time_max_percent;
@@ -464,8 +506,12 @@ int perf_proc_update_handler(struct ctl_table *table, int write,
 int sysctl_perf_cpu_time_max_percent __read_mostly = DEFAULT_CPU_TIME_MAX_PERCENT;
 
 int perf_cpu_time_max_percent_handler(struct ctl_table *table, int write,
+<<<<<<< HEAD
 				void __user *buffer, size_t *lenp,
 				loff_t *ppos)
+=======
+		void *buffer, size_t *lenp, loff_t *ppos)
+>>>>>>> upstream/android-13
 {
 	int ret = proc_dointvec_minmax(table, write, buffer, lenp, ppos);
 
@@ -573,11 +619,14 @@ static u64 perf_event_time(struct perf_event *event);
 
 void __weak perf_event_print_debug(void)	{ }
 
+<<<<<<< HEAD
 extern __weak const char *perf_pmu_name(void)
 {
 	return "pmu";
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline u64 perf_clock(void)
 {
 	return local_clock();
@@ -670,6 +719,26 @@ perf_event_set_state(struct perf_event *event, enum perf_event_state state)
 	WRITE_ONCE(event->state, state);
 }
 
+<<<<<<< HEAD
+=======
+/*
+ * UP store-release, load-acquire
+ */
+
+#define __store_release(ptr, val)					\
+do {									\
+	barrier();							\
+	WRITE_ONCE(*(ptr), (val));					\
+} while (0)
+
+#define __load_acquire(ptr)						\
+({									\
+	__unqual_scalar_typeof(*(ptr)) ___p = READ_ONCE(*(ptr));	\
+	barrier();							\
+	___p;								\
+})
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_CGROUP_PERF
 
 static inline bool
@@ -715,6 +784,7 @@ static inline u64 perf_cgroup_event_time(struct perf_event *event)
 	return t->time;
 }
 
+<<<<<<< HEAD
 static inline void __update_cgrp_time(struct perf_cgroup *cgrp)
 {
 	struct perf_cgroup_info *info;
@@ -737,12 +807,56 @@ static inline void update_cgrp_time_from_cpuctx(struct perf_cpu_context *cpuctx)
 		for (css = &cgrp->css; css; css = css->parent) {
 			cgrp = container_of(css, struct perf_cgroup, css);
 			__update_cgrp_time(cgrp);
+=======
+static inline u64 perf_cgroup_event_time_now(struct perf_event *event, u64 now)
+{
+	struct perf_cgroup_info *t;
+
+	t = per_cpu_ptr(event->cgrp->info, event->cpu);
+	if (!__load_acquire(&t->active))
+		return t->time;
+	now += READ_ONCE(t->timeoffset);
+	return now;
+}
+
+static inline void __update_cgrp_time(struct perf_cgroup_info *info, u64 now, bool adv)
+{
+	if (adv)
+		info->time += now - info->timestamp;
+	info->timestamp = now;
+	/*
+	 * see update_context_time()
+	 */
+	WRITE_ONCE(info->timeoffset, info->time - info->timestamp);
+}
+
+static inline void update_cgrp_time_from_cpuctx(struct perf_cpu_context *cpuctx, bool final)
+{
+	struct perf_cgroup *cgrp = cpuctx->cgrp;
+	struct cgroup_subsys_state *css;
+	struct perf_cgroup_info *info;
+
+	if (cgrp) {
+		u64 now = perf_clock();
+
+		for (css = &cgrp->css; css; css = css->parent) {
+			cgrp = container_of(css, struct perf_cgroup, css);
+			info = this_cpu_ptr(cgrp->info);
+
+			__update_cgrp_time(info, now, true);
+			if (final)
+				__store_release(&info->active, 0);
+>>>>>>> upstream/android-13
 		}
 	}
 }
 
 static inline void update_cgrp_time_from_event(struct perf_event *event)
 {
+<<<<<<< HEAD
+=======
+	struct perf_cgroup_info *info;
+>>>>>>> upstream/android-13
 	struct perf_cgroup *cgrp;
 
 	/*
@@ -756,8 +870,15 @@ static inline void update_cgrp_time_from_event(struct perf_event *event)
 	/*
 	 * Do not update time when cgroup is not active
 	 */
+<<<<<<< HEAD
        if (cgroup_is_descendant(cgrp->css.cgroup, event->cgrp->css.cgroup))
 		__update_cgrp_time(event->cgrp);
+=======
+	if (cgroup_is_descendant(cgrp->css.cgroup, event->cgrp->css.cgroup)) {
+		info = this_cpu_ptr(event->cgrp->info);
+		__update_cgrp_time(info, perf_clock(), true);
+	}
+>>>>>>> upstream/android-13
 }
 
 static inline void
@@ -781,7 +902,12 @@ perf_cgroup_set_timestamp(struct task_struct *task,
 	for (css = &cgrp->css; css; css = css->parent) {
 		cgrp = container_of(css, struct perf_cgroup, css);
 		info = this_cpu_ptr(cgrp->info);
+<<<<<<< HEAD
 		info->timestamp = ctx->timestamp;
+=======
+		__update_cgrp_time(info, ctx->timestamp, false);
+		__store_release(&info->active, 1);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -798,7 +924,11 @@ static DEFINE_PER_CPU(struct list_head, cgrp_cpuctx_list);
  */
 static void perf_cgroup_switch(struct task_struct *task, int mode)
 {
+<<<<<<< HEAD
 	struct perf_cpu_context *cpuctx;
+=======
+	struct perf_cpu_context *cpuctx, *tmp;
+>>>>>>> upstream/android-13
 	struct list_head *list;
 	unsigned long flags;
 
@@ -809,7 +939,11 @@ static void perf_cgroup_switch(struct task_struct *task, int mode)
 	local_irq_save(flags);
 
 	list = this_cpu_ptr(&cgrp_cpuctx_list);
+<<<<<<< HEAD
 	list_for_each_entry(cpuctx, list, cgrp_cpuctx_entry) {
+=======
+	list_for_each_entry_safe(cpuctx, tmp, list, cgrp_cpuctx_entry) {
+>>>>>>> upstream/android-13
 		WARN_ON_ONCE(cpuctx->ctx.nr_cgroups == 0);
 
 		perf_ctx_lock(cpuctx, cpuctx->task_ctx);
@@ -896,6 +1030,50 @@ static inline void perf_cgroup_sched_in(struct task_struct *prev,
 	rcu_read_unlock();
 }
 
+<<<<<<< HEAD
+=======
+static int perf_cgroup_ensure_storage(struct perf_event *event,
+				struct cgroup_subsys_state *css)
+{
+	struct perf_cpu_context *cpuctx;
+	struct perf_event **storage;
+	int cpu, heap_size, ret = 0;
+
+	/*
+	 * Allow storage to have sufficent space for an iterator for each
+	 * possibly nested cgroup plus an iterator for events with no cgroup.
+	 */
+	for (heap_size = 1; css; css = css->parent)
+		heap_size++;
+
+	for_each_possible_cpu(cpu) {
+		cpuctx = per_cpu_ptr(event->pmu->pmu_cpu_context, cpu);
+		if (heap_size <= cpuctx->heap_size)
+			continue;
+
+		storage = kmalloc_node(heap_size * sizeof(struct perf_event *),
+				       GFP_KERNEL, cpu_to_node(cpu));
+		if (!storage) {
+			ret = -ENOMEM;
+			break;
+		}
+
+		raw_spin_lock_irq(&cpuctx->ctx.lock);
+		if (cpuctx->heap_size < heap_size) {
+			swap(cpuctx->heap, storage);
+			if (storage == cpuctx->heap_default)
+				storage = NULL;
+			cpuctx->heap_size = heap_size;
+		}
+		raw_spin_unlock_irq(&cpuctx->ctx.lock);
+
+		kfree(storage);
+	}
+
+	return ret;
+}
+
+>>>>>>> upstream/android-13
 static inline int perf_cgroup_connect(int fd, struct perf_event *event,
 				      struct perf_event_attr *attr,
 				      struct perf_event *group_leader)
@@ -915,6 +1093,13 @@ static inline int perf_cgroup_connect(int fd, struct perf_event *event,
 		goto out;
 	}
 
+<<<<<<< HEAD
+=======
+	ret = perf_cgroup_ensure_storage(event, css);
+	if (ret)
+		goto out;
+
+>>>>>>> upstream/android-13
 	cgrp = container_of(css, struct perf_cgroup, css);
 	event->cgrp = cgrp;
 
@@ -933,6 +1118,7 @@ out:
 }
 
 static inline void
+<<<<<<< HEAD
 perf_cgroup_set_shadow_time(struct perf_event *event, u64 now)
 {
 	struct perf_cgroup_info *t;
@@ -950,15 +1136,26 @@ list_update_cgroup_event(struct perf_event *event,
 {
 	struct perf_cpu_context *cpuctx;
 	struct list_head *cpuctx_entry;
+=======
+perf_cgroup_event_enable(struct perf_event *event, struct perf_event_context *ctx)
+{
+	struct perf_cpu_context *cpuctx;
+>>>>>>> upstream/android-13
 
 	if (!is_cgroup_event(event))
 		return;
 
 	/*
 	 * Because cgroup events are always per-cpu events,
+<<<<<<< HEAD
 	 * this will always be called from the right CPU.
 	 */
 	cpuctx = __get_cpu_context(ctx);
+=======
+	 * @ctx == &cpuctx->ctx.
+	 */
+	cpuctx = container_of(ctx, struct perf_cpu_context, ctx);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Since setting cpuctx->cgrp is conditional on the current @cgrp
@@ -966,13 +1163,18 @@ list_update_cgroup_event(struct perf_event *event,
 	 * because if the first would mismatch, the second would not try again
 	 * and we would leave cpuctx->cgrp unset.
 	 */
+<<<<<<< HEAD
 	if (add && !cpuctx->cgrp) {
+=======
+	if (ctx->is_active && !cpuctx->cgrp) {
+>>>>>>> upstream/android-13
 		struct perf_cgroup *cgrp = perf_cgroup_from_task(current, ctx);
 
 		if (cgroup_is_descendant(cgrp->css.cgroup, event->cgrp->css.cgroup))
 			cpuctx->cgrp = cgrp;
 	}
 
+<<<<<<< HEAD
 	if (add && ctx->nr_cgroups++)
 		return;
 	else if (!add && --ctx->nr_cgroups)
@@ -987,6 +1189,36 @@ list_update_cgroup_event(struct perf_event *event,
 		list_add(cpuctx_entry, this_cpu_ptr(&cgrp_cpuctx_list));
 	else
 		list_del(cpuctx_entry);
+=======
+	if (ctx->nr_cgroups++)
+		return;
+
+	list_add(&cpuctx->cgrp_cpuctx_entry,
+			per_cpu_ptr(&cgrp_cpuctx_list, event->cpu));
+}
+
+static inline void
+perf_cgroup_event_disable(struct perf_event *event, struct perf_event_context *ctx)
+{
+	struct perf_cpu_context *cpuctx;
+
+	if (!is_cgroup_event(event))
+		return;
+
+	/*
+	 * Because cgroup events are always per-cpu events,
+	 * @ctx == &cpuctx->ctx.
+	 */
+	cpuctx = container_of(ctx, struct perf_cpu_context, ctx);
+
+	if (--ctx->nr_cgroups)
+		return;
+
+	if (ctx->is_active && cpuctx->cgrp)
+		cpuctx->cgrp = NULL;
+
+	list_del(&cpuctx->cgrp_cpuctx_entry);
+>>>>>>> upstream/android-13
 }
 
 #else /* !CONFIG_CGROUP_PERF */
@@ -1009,7 +1241,12 @@ static inline void update_cgrp_time_from_event(struct perf_event *event)
 {
 }
 
+<<<<<<< HEAD
 static inline void update_cgrp_time_from_cpuctx(struct perf_cpu_context *cpuctx)
+=======
+static inline void update_cgrp_time_from_cpuctx(struct perf_cpu_context *cpuctx,
+						bool final)
+>>>>>>> upstream/android-13
 {
 }
 
@@ -1036,6 +1273,7 @@ perf_cgroup_set_timestamp(struct task_struct *task,
 {
 }
 
+<<<<<<< HEAD
 void
 perf_cgroup_switch(struct task_struct *task, struct task_struct *next)
 {
@@ -1043,6 +1281,10 @@ perf_cgroup_switch(struct task_struct *task, struct task_struct *next)
 
 static inline void
 perf_cgroup_set_shadow_time(struct perf_event *event, u64 now)
+=======
+static inline void
+perf_cgroup_switch(struct task_struct *task, struct task_struct *next)
+>>>>>>> upstream/android-13
 {
 }
 
@@ -1051,12 +1293,29 @@ static inline u64 perf_cgroup_event_time(struct perf_event *event)
 	return 0;
 }
 
+<<<<<<< HEAD
 static inline void
 list_update_cgroup_event(struct perf_event *event,
 			 struct perf_event_context *ctx, bool add)
 {
 }
 
+=======
+static inline u64 perf_cgroup_event_time_now(struct perf_event *event, u64 now)
+{
+	return 0;
+}
+
+static inline void
+perf_cgroup_event_enable(struct perf_event *event, struct perf_event_context *ctx)
+{
+}
+
+static inline void
+perf_cgroup_event_disable(struct perf_event *event, struct perf_event_context *ctx)
+{
+}
+>>>>>>> upstream/android-13
 #endif
 
 /*
@@ -1108,7 +1367,11 @@ static void __perf_mux_hrtimer_init(struct perf_cpu_context *cpuctx, int cpu)
 	cpuctx->hrtimer_interval = ns_to_ktime(NSEC_PER_MSEC * interval);
 
 	raw_spin_lock_init(&cpuctx->hrtimer_lock);
+<<<<<<< HEAD
 	hrtimer_init(timer, CLOCK_MONOTONIC, HRTIMER_MODE_ABS_PINNED);
+=======
+	hrtimer_init(timer, CLOCK_MONOTONIC, HRTIMER_MODE_ABS_PINNED_HARD);
+>>>>>>> upstream/android-13
 	timer->function = perf_mux_hrtimer_handler;
 }
 
@@ -1126,7 +1389,11 @@ static int perf_mux_hrtimer_restart(struct perf_cpu_context *cpuctx)
 	if (!cpuctx->hrtimer_active) {
 		cpuctx->hrtimer_active = 1;
 		hrtimer_forward_now(timer, cpuctx->hrtimer_interval);
+<<<<<<< HEAD
 		hrtimer_start_expires(timer, HRTIMER_MODE_ABS_PINNED);
+=======
+		hrtimer_start_expires(timer, HRTIMER_MODE_ABS_PINNED_HARD);
+>>>>>>> upstream/android-13
 	}
 	raw_spin_unlock_irqrestore(&cpuctx->hrtimer_lock, flags);
 
@@ -1177,7 +1444,25 @@ static void perf_event_ctx_deactivate(struct perf_event_context *ctx)
 
 static void get_ctx(struct perf_event_context *ctx)
 {
+<<<<<<< HEAD
 	WARN_ON(!atomic_inc_not_zero(&ctx->refcount));
+=======
+	refcount_inc(&ctx->refcount);
+}
+
+static void *alloc_task_ctx_data(struct pmu *pmu)
+{
+	if (pmu->task_ctx_cache)
+		return kmem_cache_zalloc(pmu->task_ctx_cache, GFP_KERNEL);
+
+	return NULL;
+}
+
+static void free_task_ctx_data(struct pmu *pmu, void *task_ctx_data)
+{
+	if (pmu->task_ctx_cache && task_ctx_data)
+		kmem_cache_free(pmu->task_ctx_cache, task_ctx_data);
+>>>>>>> upstream/android-13
 }
 
 static void free_ctx(struct rcu_head *head)
@@ -1185,13 +1470,21 @@ static void free_ctx(struct rcu_head *head)
 	struct perf_event_context *ctx;
 
 	ctx = container_of(head, struct perf_event_context, rcu_head);
+<<<<<<< HEAD
 	kfree(ctx->task_ctx_data);
+=======
+	free_task_ctx_data(ctx->pmu, ctx->task_ctx_data);
+>>>>>>> upstream/android-13
 	kfree(ctx);
 }
 
 static void put_ctx(struct perf_event_context *ctx)
 {
+<<<<<<< HEAD
 	if (atomic_dec_and_test(&ctx->refcount)) {
+=======
+	if (refcount_dec_and_test(&ctx->refcount)) {
+>>>>>>> upstream/android-13
 		if (ctx->parent_ctx)
 			put_ctx(ctx->parent_ctx);
 		if (ctx->task && ctx->task != TASK_TOMBSTONE)
@@ -1227,7 +1520,11 @@ static void put_ctx(struct perf_event_context *ctx)
  * life-time rules separate them. That is an exiting task cannot fork, and a
  * spawning task cannot (yet) exit.
  *
+<<<<<<< HEAD
  * But remember that that these are parent<->child context relations, and
+=======
+ * But remember that these are parent<->child context relations, and
+>>>>>>> upstream/android-13
  * migration does not affect children, therefore these two orderings should not
  * interact.
  *
@@ -1253,13 +1550,21 @@ static void put_ctx(struct perf_event_context *ctx)
  * function.
  *
  * Lock order:
+<<<<<<< HEAD
  *    cred_guard_mutex
+=======
+ *    exec_update_lock
+>>>>>>> upstream/android-13
  *	task_struct::perf_event_mutex
  *	  perf_event_context::mutex
  *	    perf_event::child_mutex;
  *	      perf_event_context::lock
  *	    perf_event::mmap_mutex
+<<<<<<< HEAD
  *	    mmap_sem
+=======
+ *	    mmap_lock
+>>>>>>> upstream/android-13
  *	      perf_addr_filters_head::lock
  *
  *    cpu_hotplug_lock
@@ -1274,7 +1579,11 @@ perf_event_ctx_lock_nested(struct perf_event *event, int nesting)
 again:
 	rcu_read_lock();
 	ctx = READ_ONCE(event->ctx);
+<<<<<<< HEAD
 	if (!atomic_inc_not_zero(&ctx->refcount)) {
+=======
+	if (!refcount_inc_not_zero(&ctx->refcount)) {
+>>>>>>> upstream/android-13
 		rcu_read_unlock();
 		goto again;
 	}
@@ -1366,7 +1675,11 @@ static u64 primary_event_id(struct perf_event *event)
 /*
  * Get the perf_event_context for a task and lock it.
  *
+<<<<<<< HEAD
  * This has to cope with with the fact that until it is locked,
+=======
+ * This has to cope with the fact that until it is locked,
+>>>>>>> upstream/android-13
  * the context could get moved to another task.
  */
 static struct perf_event_context *
@@ -1407,7 +1720,11 @@ retry:
 		}
 
 		if (ctx->task == TASK_TOMBSTONE ||
+<<<<<<< HEAD
 		    !atomic_inc_not_zero(&ctx->refcount)) {
+=======
+		    !refcount_inc_not_zero(&ctx->refcount)) {
+>>>>>>> upstream/android-13
 			raw_spin_unlock(&ctx->lock);
 			ctx = NULL;
 		} else {
@@ -1451,22 +1768,75 @@ static void perf_unpin_context(struct perf_event_context *ctx)
 /*
  * Update the record of the current time in a context.
  */
+<<<<<<< HEAD
 static void update_context_time(struct perf_event_context *ctx)
 {
 	u64 now = perf_clock();
 
 	ctx->time += now - ctx->timestamp;
 	ctx->timestamp = now;
+=======
+static void __update_context_time(struct perf_event_context *ctx, bool adv)
+{
+	u64 now = perf_clock();
+
+	if (adv)
+		ctx->time += now - ctx->timestamp;
+	ctx->timestamp = now;
+
+	/*
+	 * The above: time' = time + (now - timestamp), can be re-arranged
+	 * into: time` = now + (time - timestamp), which gives a single value
+	 * offset to compute future time without locks on.
+	 *
+	 * See perf_event_time_now(), which can be used from NMI context where
+	 * it's (obviously) not possible to acquire ctx->lock in order to read
+	 * both the above values in a consistent manner.
+	 */
+	WRITE_ONCE(ctx->timeoffset, ctx->time - ctx->timestamp);
+}
+
+static void update_context_time(struct perf_event_context *ctx)
+{
+	__update_context_time(ctx, true);
+>>>>>>> upstream/android-13
 }
 
 static u64 perf_event_time(struct perf_event *event)
 {
 	struct perf_event_context *ctx = event->ctx;
 
+<<<<<<< HEAD
 	if (is_cgroup_event(event))
 		return perf_cgroup_event_time(event);
 
 	return ctx ? ctx->time : 0;
+=======
+	if (unlikely(!ctx))
+		return 0;
+
+	if (is_cgroup_event(event))
+		return perf_cgroup_event_time(event);
+
+	return ctx->time;
+}
+
+static u64 perf_event_time_now(struct perf_event *event, u64 now)
+{
+	struct perf_event_context *ctx = event->ctx;
+
+	if (unlikely(!ctx))
+		return 0;
+
+	if (is_cgroup_event(event))
+		return perf_cgroup_event_time_now(event, now);
+
+	if (!(__load_acquire(&ctx->is_active) & EVENT_TIME))
+		return ctx->time;
+
+	now += READ_ONCE(ctx->timeoffset);
+	return now;
+>>>>>>> upstream/android-13
 }
 
 static enum event_type_t get_event_type(struct perf_event *event)
@@ -1521,12 +1891,28 @@ static void perf_event_groups_init(struct perf_event_groups *groups)
 	groups->index = 0;
 }
 
+<<<<<<< HEAD
+=======
+static inline struct cgroup *event_cgroup(const struct perf_event *event)
+{
+	struct cgroup *cgroup = NULL;
+
+#ifdef CONFIG_CGROUP_PERF
+	if (event->cgrp)
+		cgroup = event->cgrp->css.cgroup;
+#endif
+
+	return cgroup;
+}
+
+>>>>>>> upstream/android-13
 /*
  * Compare function for event groups;
  *
  * Implements complex key that first sorts by CPU and then by virtual index
  * which provides ordering when rotating groups for the same CPU.
  */
+<<<<<<< HEAD
 static bool
 perf_event_groups_less(struct perf_event *left, struct perf_event *right)
 {
@@ -1541,6 +1927,75 @@ perf_event_groups_less(struct perf_event *left, struct perf_event *right)
 		return false;
 
 	return false;
+=======
+static __always_inline int
+perf_event_groups_cmp(const int left_cpu, const struct cgroup *left_cgroup,
+		      const u64 left_group_index, const struct perf_event *right)
+{
+	if (left_cpu < right->cpu)
+		return -1;
+	if (left_cpu > right->cpu)
+		return 1;
+
+#ifdef CONFIG_CGROUP_PERF
+	{
+		const struct cgroup *right_cgroup = event_cgroup(right);
+
+		if (left_cgroup != right_cgroup) {
+			if (!left_cgroup) {
+				/*
+				 * Left has no cgroup but right does, no
+				 * cgroups come first.
+				 */
+				return -1;
+			}
+			if (!right_cgroup) {
+				/*
+				 * Right has no cgroup but left does, no
+				 * cgroups come first.
+				 */
+				return 1;
+			}
+			/* Two dissimilar cgroups, order by id. */
+			if (cgroup_id(left_cgroup) < cgroup_id(right_cgroup))
+				return -1;
+
+			return 1;
+		}
+	}
+#endif
+
+	if (left_group_index < right->group_index)
+		return -1;
+	if (left_group_index > right->group_index)
+		return 1;
+
+	return 0;
+}
+
+#define __node_2_pe(node) \
+	rb_entry((node), struct perf_event, group_node)
+
+static inline bool __group_less(struct rb_node *a, const struct rb_node *b)
+{
+	struct perf_event *e = __node_2_pe(a);
+	return perf_event_groups_cmp(e->cpu, event_cgroup(e), e->group_index,
+				     __node_2_pe(b)) < 0;
+}
+
+struct __group_key {
+	int cpu;
+	struct cgroup *cgroup;
+};
+
+static inline int __group_cmp(const void *key, const struct rb_node *node)
+{
+	const struct __group_key *a = key;
+	const struct perf_event *b = __node_2_pe(node);
+
+	/* partial/subtree match: @cpu, @cgroup; ignore: @group_index */
+	return perf_event_groups_cmp(a->cpu, a->cgroup, b->group_index, b);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1552,6 +2007,7 @@ static void
 perf_event_groups_insert(struct perf_event_groups *groups,
 			 struct perf_event *event)
 {
+<<<<<<< HEAD
 	struct perf_event *node_event;
 	struct rb_node *parent;
 	struct rb_node **node;
@@ -1573,6 +2029,11 @@ perf_event_groups_insert(struct perf_event_groups *groups,
 
 	rb_link_node(&event->group_node, parent, node);
 	rb_insert_color(&event->group_node, &groups->tree);
+=======
+	event->group_index = ++groups->index;
+
+	rb_add(&event->group_node, &groups->tree, __group_less);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1614,6 +2075,7 @@ del_event_from_groups(struct perf_event *event, struct perf_event_context *ctx)
 }
 
 /*
+<<<<<<< HEAD
  * Get the leftmost event in the @cpu subtree.
  */
 static struct perf_event *
@@ -1636,6 +2098,25 @@ perf_event_groups_first(struct perf_event_groups *groups, int cpu)
 	}
 
 	return match;
+=======
+ * Get the leftmost event in the cpu/cgroup subtree.
+ */
+static struct perf_event *
+perf_event_groups_first(struct perf_event_groups *groups, int cpu,
+			struct cgroup *cgrp)
+{
+	struct __group_key key = {
+		.cpu = cpu,
+		.cgroup = cgrp,
+	};
+	struct rb_node *node;
+
+	node = rb_find_first(&key, &groups->tree, __group_cmp);
+	if (node)
+		return __node_2_pe(node);
+
+	return NULL;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1644,11 +2125,23 @@ perf_event_groups_first(struct perf_event_groups *groups, int cpu)
 static struct perf_event *
 perf_event_groups_next(struct perf_event *event)
 {
+<<<<<<< HEAD
 	struct perf_event *next;
 
 	next = rb_entry_safe(rb_next(&event->group_node), typeof(*event), group_node);
 	if (next && next->cpu == event->cpu)
 		return next;
+=======
+	struct __group_key key = {
+		.cpu = event->cpu,
+		.cgroup = event_cgroup(event),
+	};
+	struct rb_node *next;
+
+	next = rb_next_match(&key, &event->group_node, __group_cmp);
+	if (next)
+		return __node_2_pe(next);
+>>>>>>> upstream/android-13
 
 	return NULL;
 }
@@ -1686,13 +2179,22 @@ list_add_event(struct perf_event *event, struct perf_event_context *ctx)
 		add_event_to_groups(event, ctx);
 	}
 
+<<<<<<< HEAD
 	list_update_cgroup_event(event, ctx, true);
 
+=======
+>>>>>>> upstream/android-13
 	list_add_rcu(&event->event_entry, &ctx->event_list);
 	ctx->nr_events++;
 	if (event->attr.inherit_stat)
 		ctx->nr_stat++;
 
+<<<<<<< HEAD
+=======
+	if (event->state > PERF_EVENT_STATE_OFF)
+		perf_cgroup_event_enable(event, ctx);
+
+>>>>>>> upstream/android-13
 	ctx->generation++;
 }
 
@@ -1743,8 +2245,13 @@ static void __perf_event_header_size(struct perf_event *event, u64 sample_type)
 	if (sample_type & PERF_SAMPLE_PERIOD)
 		size += sizeof(data->period);
 
+<<<<<<< HEAD
 	if (sample_type & PERF_SAMPLE_WEIGHT)
 		size += sizeof(data->weight);
+=======
+	if (sample_type & PERF_SAMPLE_WEIGHT_TYPE)
+		size += sizeof(data->weight.full);
+>>>>>>> upstream/android-13
 
 	if (sample_type & PERF_SAMPLE_READ)
 		size += event->read_size;
@@ -1758,6 +2265,18 @@ static void __perf_event_header_size(struct perf_event *event, u64 sample_type)
 	if (sample_type & PERF_SAMPLE_PHYS_ADDR)
 		size += sizeof(data->phys_addr);
 
+<<<<<<< HEAD
+=======
+	if (sample_type & PERF_SAMPLE_CGROUP)
+		size += sizeof(data->cgroup);
+
+	if (sample_type & PERF_SAMPLE_DATA_PAGE_SIZE)
+		size += sizeof(data->data_page_size);
+
+	if (sample_type & PERF_SAMPLE_CODE_PAGE_SIZE)
+		size += sizeof(data->code_page_size);
+
+>>>>>>> upstream/android-13
 	event->header_size = size;
 }
 
@@ -1868,8 +2387,11 @@ list_del_event(struct perf_event *event, struct perf_event_context *ctx)
 
 	event->attach_state &= ~PERF_ATTACH_CONTEXT;
 
+<<<<<<< HEAD
 	list_update_cgroup_event(event, ctx, false);
 
+=======
+>>>>>>> upstream/android-13
 	ctx->nr_events--;
 	if (event->attr.inherit_stat)
 		ctx->nr_stat--;
@@ -1886,14 +2408,146 @@ list_del_event(struct perf_event *event, struct perf_event_context *ctx)
 	 * of error state is by explicit re-enabling
 	 * of the event
 	 */
+<<<<<<< HEAD
 	if (event->state > PERF_EVENT_STATE_OFF)
 		perf_event_set_state(event, PERF_EVENT_STATE_OFF);
+=======
+	if (event->state > PERF_EVENT_STATE_OFF) {
+		perf_cgroup_event_disable(event, ctx);
+		perf_event_set_state(event, PERF_EVENT_STATE_OFF);
+	}
+>>>>>>> upstream/android-13
 
 	ctx->generation++;
 }
 
+<<<<<<< HEAD
 static void perf_group_detach(struct perf_event *event)
 {
+=======
+static int
+perf_aux_output_match(struct perf_event *event, struct perf_event *aux_event)
+{
+	if (!has_aux(aux_event))
+		return 0;
+
+	if (!event->pmu->aux_output_match)
+		return 0;
+
+	return event->pmu->aux_output_match(aux_event);
+}
+
+static void put_event(struct perf_event *event);
+static void event_sched_out(struct perf_event *event,
+			    struct perf_cpu_context *cpuctx,
+			    struct perf_event_context *ctx);
+
+static void perf_put_aux_event(struct perf_event *event)
+{
+	struct perf_event_context *ctx = event->ctx;
+	struct perf_cpu_context *cpuctx = __get_cpu_context(ctx);
+	struct perf_event *iter;
+
+	/*
+	 * If event uses aux_event tear down the link
+	 */
+	if (event->aux_event) {
+		iter = event->aux_event;
+		event->aux_event = NULL;
+		put_event(iter);
+		return;
+	}
+
+	/*
+	 * If the event is an aux_event, tear down all links to
+	 * it from other events.
+	 */
+	for_each_sibling_event(iter, event->group_leader) {
+		if (iter->aux_event != event)
+			continue;
+
+		iter->aux_event = NULL;
+		put_event(event);
+
+		/*
+		 * If it's ACTIVE, schedule it out and put it into ERROR
+		 * state so that we don't try to schedule it again. Note
+		 * that perf_event_enable() will clear the ERROR status.
+		 */
+		event_sched_out(iter, cpuctx, ctx);
+		perf_event_set_state(event, PERF_EVENT_STATE_ERROR);
+	}
+}
+
+static bool perf_need_aux_event(struct perf_event *event)
+{
+	return !!event->attr.aux_output || !!event->attr.aux_sample_size;
+}
+
+static int perf_get_aux_event(struct perf_event *event,
+			      struct perf_event *group_leader)
+{
+	/*
+	 * Our group leader must be an aux event if we want to be
+	 * an aux_output. This way, the aux event will precede its
+	 * aux_output events in the group, and therefore will always
+	 * schedule first.
+	 */
+	if (!group_leader)
+		return 0;
+
+	/*
+	 * aux_output and aux_sample_size are mutually exclusive.
+	 */
+	if (event->attr.aux_output && event->attr.aux_sample_size)
+		return 0;
+
+	if (event->attr.aux_output &&
+	    !perf_aux_output_match(event, group_leader))
+		return 0;
+
+	if (event->attr.aux_sample_size && !group_leader->pmu->snapshot_aux)
+		return 0;
+
+	if (!atomic_long_inc_not_zero(&group_leader->refcount))
+		return 0;
+
+	/*
+	 * Link aux_outputs to their aux event; this is undone in
+	 * perf_group_detach() by perf_put_aux_event(). When the
+	 * group in torn down, the aux_output events loose their
+	 * link to the aux_event and can't schedule any more.
+	 */
+	event->aux_event = group_leader;
+
+	return 1;
+}
+
+static inline struct list_head *get_event_list(struct perf_event *event)
+{
+	struct perf_event_context *ctx = event->ctx;
+	return event->attr.pinned ? &ctx->pinned_active : &ctx->flexible_active;
+}
+
+/*
+ * Events that have PERF_EV_CAP_SIBLING require being part of a group and
+ * cannot exist on their own, schedule them out and move them into the ERROR
+ * state. Also see _perf_event_enable(), it will not be able to recover
+ * this ERROR state.
+ */
+static inline void perf_remove_sibling_event(struct perf_event *event)
+{
+	struct perf_event_context *ctx = event->ctx;
+	struct perf_cpu_context *cpuctx = __get_cpu_context(ctx);
+
+	event_sched_out(event, cpuctx, ctx);
+	perf_event_set_state(event, PERF_EVENT_STATE_ERROR);
+}
+
+static void perf_group_detach(struct perf_event *event)
+{
+	struct perf_event *leader = event->group_leader;
+>>>>>>> upstream/android-13
 	struct perf_event *sibling, *tmp;
 	struct perf_event_context *ctx = event->ctx;
 
@@ -1907,10 +2561,19 @@ static void perf_group_detach(struct perf_event *event)
 
 	event->attach_state &= ~PERF_ATTACH_GROUP;
 
+<<<<<<< HEAD
 	/*
 	 * If this is a sibling, remove it from its group.
 	 */
 	if (event->group_leader != event) {
+=======
+	perf_put_aux_event(event);
+
+	/*
+	 * If this is a sibling, remove it from its group.
+	 */
+	if (leader != event) {
+>>>>>>> upstream/android-13
 		list_del_init(&event->sibling_list);
 		event->group_leader->nr_siblings--;
 		goto out;
@@ -1923,6 +2586,12 @@ static void perf_group_detach(struct perf_event *event)
 	 */
 	list_for_each_entry_safe(sibling, tmp, &event->sibling_list, sibling_list) {
 
+<<<<<<< HEAD
+=======
+		if (sibling->event_caps & PERF_EV_CAP_SIBLING)
+			perf_remove_sibling_event(sibling);
+
+>>>>>>> upstream/android-13
 		sibling->group_leader = sibling;
 		list_del_init(&sibling->sibling_list);
 
@@ -1932,22 +2601,54 @@ static void perf_group_detach(struct perf_event *event)
 		if (!RB_EMPTY_NODE(&event->group_node)) {
 			add_event_to_groups(sibling, event->ctx);
 
+<<<<<<< HEAD
 			if (sibling->state == PERF_EVENT_STATE_ACTIVE) {
 				struct list_head *list = sibling->attr.pinned ?
 					&ctx->pinned_active : &ctx->flexible_active;
 
 				list_add_tail(&sibling->active_list, list);
 			}
+=======
+			if (sibling->state == PERF_EVENT_STATE_ACTIVE)
+				list_add_tail(&sibling->active_list, get_event_list(sibling));
+>>>>>>> upstream/android-13
 		}
 
 		WARN_ON_ONCE(sibling->ctx != event->ctx);
 	}
 
 out:
+<<<<<<< HEAD
 	perf_event__header_size(event->group_leader);
 
 	for_each_sibling_event(tmp, event->group_leader)
 		perf_event__header_size(tmp);
+=======
+	for_each_sibling_event(tmp, leader)
+		perf_event__header_size(tmp);
+
+	perf_event__header_size(leader);
+}
+
+static void sync_child_event(struct perf_event *child_event);
+
+static void perf_child_detach(struct perf_event *event)
+{
+	struct perf_event *parent_event = event->parent;
+
+	if (!(event->attach_state & PERF_ATTACH_CHILD))
+		return;
+
+	event->attach_state &= ~PERF_ATTACH_CHILD;
+
+	if (WARN_ON_ONCE(!parent_event))
+		return;
+
+	lockdep_assert_held(&parent_event->child_mutex);
+
+	sync_child_event(event);
+	list_del_init(&event->child_list);
+>>>>>>> upstream/android-13
 }
 
 static bool is_orphaned_event(struct perf_event *event)
@@ -2016,6 +2717,10 @@ event_sched_out(struct perf_event *event,
 
 	if (READ_ONCE(event->pending_disable) >= 0) {
 		WRITE_ONCE(event->pending_disable, -1);
+<<<<<<< HEAD
+=======
+		perf_cgroup_event_disable(event, ctx);
+>>>>>>> upstream/android-13
 		state = PERF_EVENT_STATE_OFF;
 	}
 	perf_event_set_state(event, state);
@@ -2053,12 +2758,19 @@ group_sched_out(struct perf_event *group_event,
 		event_sched_out(event, cpuctx, ctx);
 
 	perf_pmu_enable(ctx->pmu);
+<<<<<<< HEAD
 
 	if (group_event->attr.exclusive)
 		cpuctx->exclusive = 0;
 }
 
 #define DETACH_GROUP	0x01UL
+=======
+}
+
+#define DETACH_GROUP	0x01UL
+#define DETACH_CHILD	0x02UL
+>>>>>>> upstream/android-13
 
 /*
  * Cross CPU call to remove a performance event
@@ -2076,16 +2788,33 @@ __perf_remove_from_context(struct perf_event *event,
 
 	if (ctx->is_active & EVENT_TIME) {
 		update_context_time(ctx);
+<<<<<<< HEAD
 		update_cgrp_time_from_cpuctx(cpuctx);
+=======
+		update_cgrp_time_from_cpuctx(cpuctx, false);
+>>>>>>> upstream/android-13
 	}
 
 	event_sched_out(event, cpuctx, ctx);
 	if (flags & DETACH_GROUP)
 		perf_group_detach(event);
+<<<<<<< HEAD
 	list_del_event(event, ctx);
 
 	if (!ctx->nr_events && ctx->is_active) {
 		ctx->is_active = 0;
+=======
+	if (flags & DETACH_CHILD)
+		perf_child_detach(event);
+	list_del_event(event, ctx);
+
+	if (!ctx->nr_events && ctx->is_active) {
+		if (ctx == &cpuctx->ctx)
+			update_cgrp_time_from_cpuctx(cpuctx, true);
+
+		ctx->is_active = 0;
+		ctx->rotate_necessary = 0;
+>>>>>>> upstream/android-13
 		if (ctx->task) {
 			WARN_ON_ONCE(cpuctx->task_ctx != ctx);
 			cpuctx->task_ctx = NULL;
@@ -2109,6 +2838,7 @@ static void perf_remove_from_context(struct perf_event *event, unsigned long fla
 
 	lockdep_assert_held(&ctx->mutex);
 
+<<<<<<< HEAD
 	event_function_call(event, __perf_remove_from_context, (void *)flags);
 
 	/*
@@ -2128,6 +2858,27 @@ static void perf_remove_from_context(struct perf_event *event, unsigned long fla
 		perf_group_detach(event);
 		raw_spin_unlock_irq(&ctx->lock);
 	}
+=======
+	/*
+	 * Because of perf_event_exit_task(), perf_remove_from_context() ought
+	 * to work in the face of TASK_TOMBSTONE, unlike every other
+	 * event_function_call() user.
+	 */
+	raw_spin_lock_irq(&ctx->lock);
+	/*
+	 * Cgroup events are per-cpu events, and must IPI because of
+	 * cgrp_cpuctx_list.
+	 */
+	if (!ctx->is_active && !is_cgroup_event(event)) {
+		__perf_remove_from_context(event, __get_cpu_context(ctx),
+					   ctx, (void *)flags);
+		raw_spin_unlock_irq(&ctx->lock);
+		return;
+	}
+	raw_spin_unlock_irq(&ctx->lock);
+
+	event_function_call(event, __perf_remove_from_context, (void *)flags);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -2152,6 +2903,10 @@ static void __perf_event_disable(struct perf_event *event,
 		event_sched_out(event, cpuctx, ctx);
 
 	perf_event_set_state(event, PERF_EVENT_STATE_OFF);
+<<<<<<< HEAD
+=======
+	perf_cgroup_event_disable(event, ctx);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -2159,7 +2914,11 @@ static void __perf_event_disable(struct perf_event *event,
  *
  * If event->ctx is a cloned context, callers must make sure that
  * every task struct that event->ctx->task could possibly point to
+<<<<<<< HEAD
  * remains valid.  This condition is satisifed when called through
+=======
+ * remains valid.  This condition is satisfied when called through
+>>>>>>> upstream/android-13
  * perf_event_for_each_child or perf_event_for_each because they
  * hold the top-level event's child_mutex, so any descendant that
  * goes to exit will block in perf_event_exit_event().
@@ -2208,6 +2967,7 @@ void perf_event_disable_inatomic(struct perf_event *event)
 	irq_work_queue(&event->pending);
 }
 
+<<<<<<< HEAD
 static void perf_set_shadow_time(struct perf_event *event,
 				 struct perf_event_context *ctx)
 {
@@ -2242,6 +3002,8 @@ static void perf_set_shadow_time(struct perf_event *event,
 		event->shadow_ctx_time = event->tstamp - ctx->timestamp;
 }
 
+=======
+>>>>>>> upstream/android-13
 #define MAX_INTERRUPTS (~0ULL)
 
 static void perf_log_throttle(struct perf_event *event, int enable);
@@ -2254,6 +3016,11 @@ event_sched_in(struct perf_event *event,
 {
 	int ret = 0;
 
+<<<<<<< HEAD
+=======
+	WARN_ON_ONCE(event->ctx != ctx);
+
+>>>>>>> upstream/android-13
 	lockdep_assert_held(&ctx->lock);
 
 	if (event->state <= PERF_EVENT_STATE_OFF)
@@ -2280,8 +3047,11 @@ event_sched_in(struct perf_event *event,
 
 	perf_pmu_disable(event->pmu);
 
+<<<<<<< HEAD
 	perf_set_shadow_time(event, ctx);
 
+=======
+>>>>>>> upstream/android-13
 	perf_log_itrace_start(event);
 
 	if (event->pmu->add(event, PERF_EF_START)) {
@@ -2320,11 +3090,16 @@ group_sched_in(struct perf_event *group_event,
 
 	pmu->start_txn(pmu, PERF_PMU_TXN_ADD);
 
+<<<<<<< HEAD
 	if (event_sched_in(group_event, cpuctx, ctx)) {
 		pmu->cancel_txn(pmu);
 		perf_mux_hrtimer_restart(cpuctx);
 		return -EAGAIN;
 	}
+=======
+	if (event_sched_in(group_event, cpuctx, ctx))
+		goto error;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Schedule in siblings as one group (if any):
@@ -2353,10 +3128,15 @@ group_error:
 	}
 	event_sched_out(group_event, cpuctx, ctx);
 
+<<<<<<< HEAD
 	pmu->cancel_txn(pmu);
 
 	perf_mux_hrtimer_restart(cpuctx);
 
+=======
+error:
+	pmu->cancel_txn(pmu);
+>>>>>>> upstream/android-13
 	return -EAGAIN;
 }
 
@@ -2382,7 +3162,11 @@ static int group_can_go_on(struct perf_event *event,
 	 * If this group is exclusive and there are already
 	 * events on the CPU, it can't go on.
 	 */
+<<<<<<< HEAD
 	if (event->attr.exclusive && cpuctx->active_oncpu)
+=======
+	if (event->attr.exclusive && !list_empty(get_event_list(event)))
+>>>>>>> upstream/android-13
 		return 0;
 	/*
 	 * Otherwise, try to add it if all previous groups were able
@@ -2483,6 +3267,19 @@ static void ctx_resched(struct perf_cpu_context *cpuctx,
 	perf_pmu_enable(cpuctx->ctx.pmu);
 }
 
+<<<<<<< HEAD
+=======
+void perf_pmu_resched(struct pmu *pmu)
+{
+	struct perf_cpu_context *cpuctx = this_cpu_ptr(pmu->pmu_cpu_context);
+	struct perf_event_context *task_ctx = cpuctx->task_ctx;
+
+	perf_ctx_lock(cpuctx, task_ctx);
+	ctx_resched(cpuctx, task_ctx, EVENT_ALL|EVENT_CPU);
+	perf_ctx_unlock(cpuctx, task_ctx);
+}
+
+>>>>>>> upstream/android-13
 /*
  * Cross CPU call to install and enable a performance event
  *
@@ -2523,7 +3320,11 @@ static int  __perf_install_in_context(void *info)
 	}
 
 #ifdef CONFIG_CGROUP_PERF
+<<<<<<< HEAD
 	if (is_cgroup_event(event)) {
+=======
+	if (event->state > PERF_EVENT_STATE_OFF && is_cgroup_event(event)) {
+>>>>>>> upstream/android-13
 		/*
 		 * If the current cgroup doesn't match the event's
 		 * cgroup, we should not try to schedule it.
@@ -2576,6 +3377,31 @@ perf_install_in_context(struct perf_event_context *ctx,
 	 */
 	smp_store_release(&event->ctx, ctx);
 
+<<<<<<< HEAD
+=======
+	/*
+	 * perf_event_attr::disabled events will not run and can be initialized
+	 * without IPI. Except when this is the first event for the context, in
+	 * that case we need the magic of the IPI to set ctx->is_active.
+	 * Similarly, cgroup events for the context also needs the IPI to
+	 * manipulate the cgrp_cpuctx_list.
+	 *
+	 * The IOC_ENABLE that is sure to follow the creation of a disabled
+	 * event will issue the IPI and reprogram the hardware.
+	 */
+	if (__perf_effective_state(event) == PERF_EVENT_STATE_OFF &&
+	    ctx->nr_events && !is_cgroup_event(event)) {
+		raw_spin_lock_irq(&ctx->lock);
+		if (ctx->task == TASK_TOMBSTONE) {
+			raw_spin_unlock_irq(&ctx->lock);
+			return;
+		}
+		add_event_to_ctx(event, ctx);
+		raw_spin_unlock_irq(&ctx->lock);
+		return;
+	}
+
+>>>>>>> upstream/android-13
 	if (!task) {
 		cpu_function_call(cpu, __perf_install_in_context, event);
 		return;
@@ -2664,6 +3490,10 @@ static void __perf_event_enable(struct perf_event *event,
 		ctx_sched_out(ctx, cpuctx, EVENT_TIME);
 
 	perf_event_set_state(event, PERF_EVENT_STATE_INACTIVE);
+<<<<<<< HEAD
+=======
+	perf_cgroup_event_enable(event, ctx);
+>>>>>>> upstream/android-13
 
 	if (!ctx->is_active)
 		return;
@@ -2705,6 +3535,10 @@ static void _perf_event_enable(struct perf_event *event)
 	raw_spin_lock_irq(&ctx->lock);
 	if (event->state >= PERF_EVENT_STATE_INACTIVE ||
 	    event->state <  PERF_EVENT_STATE_ERROR) {
+<<<<<<< HEAD
+=======
+out:
+>>>>>>> upstream/android-13
 		raw_spin_unlock_irq(&ctx->lock);
 		return;
 	}
@@ -2716,8 +3550,21 @@ static void _perf_event_enable(struct perf_event *event)
 	 * has gone back into error state, as distinct from the task having
 	 * been scheduled away before the cross-call arrived.
 	 */
+<<<<<<< HEAD
 	if (event->state == PERF_EVENT_STATE_ERROR)
 		event->state = PERF_EVENT_STATE_OFF;
+=======
+	if (event->state == PERF_EVENT_STATE_ERROR) {
+		/*
+		 * Detached SIBLING events cannot leave ERROR state.
+		 */
+		if (event->event_caps & PERF_EV_CAP_SIBLING &&
+		    event->group_leader == event)
+			goto out;
+
+		event->state = PERF_EVENT_STATE_OFF;
+	}
+>>>>>>> upstream/android-13
 	raw_spin_unlock_irq(&ctx->lock);
 
 	event_function_call(event, __perf_event_enable, NULL);
@@ -2821,7 +3668,11 @@ static int perf_event_stop(struct perf_event *event, int restart)
  *     pre-existing mappings, called once when new filters arrive via SET_FILTER
  *     ioctl;
  * (2) perf_addr_filters_adjust(): adjusting filters' offsets based on newly
+<<<<<<< HEAD
  *     registered mapping, called for every new mmap(), with mm::mmap_sem down
+=======
+ *     registered mapping, called for every new mmap(), with mm::mmap_lock down
+>>>>>>> upstream/android-13
  *     for reading;
  * (3) perf_event_addr_filters_exec(): clearing filters' offsets in the process
  *     of exec.
@@ -2887,19 +3738,68 @@ static int perf_event_modify_breakpoint(struct perf_event *bp,
 	return err;
 }
 
+<<<<<<< HEAD
 static int perf_event_modify_attr(struct perf_event *event,
 				  struct perf_event_attr *attr)
 {
+=======
+/*
+ * Copy event-type-independent attributes that may be modified.
+ */
+static void perf_event_modify_copy_attr(struct perf_event_attr *to,
+					const struct perf_event_attr *from)
+{
+	to->sig_data = from->sig_data;
+}
+
+static int perf_event_modify_attr(struct perf_event *event,
+				  struct perf_event_attr *attr)
+{
+	int (*func)(struct perf_event *, struct perf_event_attr *);
+	struct perf_event *child;
+	int err;
+
+>>>>>>> upstream/android-13
 	if (event->attr.type != attr->type)
 		return -EINVAL;
 
 	switch (event->attr.type) {
 	case PERF_TYPE_BREAKPOINT:
+<<<<<<< HEAD
 		return perf_event_modify_breakpoint(event, attr);
+=======
+		func = perf_event_modify_breakpoint;
+		break;
+>>>>>>> upstream/android-13
 	default:
 		/* Place holder for future additions. */
 		return -EOPNOTSUPP;
 	}
+<<<<<<< HEAD
+=======
+
+	WARN_ON_ONCE(event->ctx->parent_ctx);
+
+	mutex_lock(&event->child_mutex);
+	/*
+	 * Event-type-independent attributes must be copied before event-type
+	 * modification, which will validate that final attributes match the
+	 * source attributes after all relevant attributes have been copied.
+	 */
+	perf_event_modify_copy_attr(&event->attr, attr);
+	err = func(event, attr);
+	if (err)
+		goto out;
+	list_for_each_entry(child, &event->child_list, child_list) {
+		perf_event_modify_copy_attr(&child->attr, attr);
+		err = func(child, attr);
+		if (err)
+			goto out;
+	}
+out:
+	mutex_unlock(&event->child_mutex);
+	return err;
+>>>>>>> upstream/android-13
 }
 
 static void ctx_sched_out(struct perf_event_context *ctx,
@@ -2921,6 +3821,7 @@ static void ctx_sched_out(struct perf_event_context *ctx,
 		return;
 	}
 
+<<<<<<< HEAD
 	ctx->is_active &= ~event_type;
 	if (!(ctx->is_active & EVENT_ALL))
 		ctx->is_active = 0;
@@ -2931,6 +3832,8 @@ static void ctx_sched_out(struct perf_event_context *ctx,
 			cpuctx->task_ctx = NULL;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * Always update time if it was set; not only when it changes.
 	 * Otherwise we can 'forget' to update time for any but the last
@@ -2944,7 +3847,26 @@ static void ctx_sched_out(struct perf_event_context *ctx,
 	if (is_active & EVENT_TIME) {
 		/* update (and stop) ctx time */
 		update_context_time(ctx);
+<<<<<<< HEAD
 		update_cgrp_time_from_cpuctx(cpuctx);
+=======
+		update_cgrp_time_from_cpuctx(cpuctx, ctx == &cpuctx->ctx);
+		/*
+		 * CPU-release for the below ->is_active store,
+		 * see __load_acquire() in perf_event_time_now()
+		 */
+		barrier();
+	}
+
+	ctx->is_active &= ~event_type;
+	if (!(ctx->is_active & EVENT_ALL))
+		ctx->is_active = 0;
+
+	if (ctx->task) {
+		WARN_ON_ONCE(cpuctx->task_ctx != ctx);
+		if (!ctx->is_active)
+			cpuctx->task_ctx = NULL;
+>>>>>>> upstream/android-13
 	}
 
 	is_active ^= ctx->is_active; /* changed bits */
@@ -2961,6 +3883,16 @@ static void ctx_sched_out(struct perf_event_context *ctx,
 	if (is_active & EVENT_FLEXIBLE) {
 		list_for_each_entry_safe(event, tmp, &ctx->flexible_active, active_list)
 			group_sched_out(event, cpuctx, ctx);
+<<<<<<< HEAD
+=======
+
+		/*
+		 * Since we cleared EVENT_FLEXIBLE, also clear
+		 * rotate_necessary, is will be reset by
+		 * ctx_flexible_sched_in() when needed.
+		 */
+		ctx->rotate_necessary = 0;
+>>>>>>> upstream/android-13
 	}
 	perf_pmu_enable(ctx->pmu);
 }
@@ -3075,10 +4007,18 @@ static void perf_event_context_sched_out(struct task_struct *task, int ctxn,
 	struct perf_event_context *parent, *next_parent;
 	struct perf_cpu_context *cpuctx;
 	int do_switch = 1;
+<<<<<<< HEAD
+=======
+	struct pmu *pmu;
+>>>>>>> upstream/android-13
 
 	if (likely(!ctx))
 		return;
 
+<<<<<<< HEAD
+=======
+	pmu = ctx->pmu;
+>>>>>>> upstream/android-13
 	cpuctx = __get_cpu_context(ctx);
 	if (!cpuctx->task_ctx)
 		return;
@@ -3108,10 +4048,34 @@ static void perf_event_context_sched_out(struct task_struct *task, int ctxn,
 		raw_spin_lock(&ctx->lock);
 		raw_spin_lock_nested(&next_ctx->lock, SINGLE_DEPTH_NESTING);
 		if (context_equiv(ctx, next_ctx)) {
+<<<<<<< HEAD
 			WRITE_ONCE(ctx->task, next);
 			WRITE_ONCE(next_ctx->task, task);
 
 			swap(ctx->task_ctx_data, next_ctx->task_ctx_data);
+=======
+
+			WRITE_ONCE(ctx->task, next);
+			WRITE_ONCE(next_ctx->task, task);
+
+			perf_pmu_disable(pmu);
+
+			if (cpuctx->sched_cb_usage && pmu->sched_task)
+				pmu->sched_task(ctx, false);
+
+			/*
+			 * PMU specific parts of task perf context can require
+			 * additional synchronization. As an example of such
+			 * synchronization see implementation details of Intel
+			 * LBR call stack data profiling;
+			 */
+			if (pmu->swap_task_ctx)
+				pmu->swap_task_ctx(ctx, next_ctx);
+			else
+				swap(ctx->task_ctx_data, next_ctx->task_ctx_data);
+
+			perf_pmu_enable(pmu);
+>>>>>>> upstream/android-13
 
 			/*
 			 * RCU_INIT_POINTER here is safe because we've not
@@ -3135,7 +4099,17 @@ unlock:
 
 	if (do_switch) {
 		raw_spin_lock(&ctx->lock);
+<<<<<<< HEAD
 		task_ctx_sched_out(cpuctx, ctx, EVENT_ALL);
+=======
+		perf_pmu_disable(pmu);
+
+		if (cpuctx->sched_cb_usage && pmu->sched_task)
+			pmu->sched_task(ctx, false);
+		task_ctx_sched_out(cpuctx, ctx, EVENT_ALL);
+
+		perf_pmu_enable(pmu);
+>>>>>>> upstream/android-13
 		raw_spin_unlock(&ctx->lock);
 	}
 }
@@ -3171,17 +4145,42 @@ void perf_sched_cb_inc(struct pmu *pmu)
  * PEBS requires this to provide PID/TID information. This requires we flush
  * all queued PEBS records before we context switch to a new task.
  */
+<<<<<<< HEAD
+=======
+static void __perf_pmu_sched_task(struct perf_cpu_context *cpuctx, bool sched_in)
+{
+	struct pmu *pmu;
+
+	pmu = cpuctx->ctx.pmu; /* software PMUs will not have sched_task */
+
+	if (WARN_ON_ONCE(!pmu->sched_task))
+		return;
+
+	perf_ctx_lock(cpuctx, cpuctx->task_ctx);
+	perf_pmu_disable(pmu);
+
+	pmu->sched_task(cpuctx->task_ctx, sched_in);
+
+	perf_pmu_enable(pmu);
+	perf_ctx_unlock(cpuctx, cpuctx->task_ctx);
+}
+
+>>>>>>> upstream/android-13
 static void perf_pmu_sched_task(struct task_struct *prev,
 				struct task_struct *next,
 				bool sched_in)
 {
 	struct perf_cpu_context *cpuctx;
+<<<<<<< HEAD
 	struct pmu *pmu;
+=======
+>>>>>>> upstream/android-13
 
 	if (prev == next)
 		return;
 
 	list_for_each_entry(cpuctx, this_cpu_ptr(&sched_cb_list), sched_cb_entry) {
+<<<<<<< HEAD
 		pmu = cpuctx->ctx.pmu; /* software PMUs will not have sched_task */
 
 		if (WARN_ON_ONCE(!pmu->sched_task))
@@ -3194,6 +4193,13 @@ static void perf_pmu_sched_task(struct task_struct *prev,
 
 		perf_pmu_enable(pmu);
 		perf_ctx_unlock(cpuctx, cpuctx->task_ctx);
+=======
+		/* will be handled in perf_event_context_sched_in/out */
+		if (cpuctx->task_ctx)
+			continue;
+
+		__perf_pmu_sched_task(cpuctx, sched_in);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -3246,6 +4252,7 @@ static void cpu_ctx_sched_out(struct perf_cpu_context *cpuctx,
 	ctx_sched_out(&cpuctx->ctx, cpuctx, event_type);
 }
 
+<<<<<<< HEAD
 static int visit_groups_merge(struct perf_event_groups *groups, int cpu,
 			      int (*func)(struct perf_event *, void *), void *data)
 {
@@ -3267,11 +4274,93 @@ static int visit_groups_merge(struct perf_event_groups *groups, int cpu,
 			evt = &evt2;
 		}
 
+=======
+static bool perf_less_group_idx(const void *l, const void *r)
+{
+	const struct perf_event *le = *(const struct perf_event **)l;
+	const struct perf_event *re = *(const struct perf_event **)r;
+
+	return le->group_index < re->group_index;
+}
+
+static void swap_ptr(void *l, void *r)
+{
+	void **lp = l, **rp = r;
+
+	swap(*lp, *rp);
+}
+
+static const struct min_heap_callbacks perf_min_heap = {
+	.elem_size = sizeof(struct perf_event *),
+	.less = perf_less_group_idx,
+	.swp = swap_ptr,
+};
+
+static void __heap_add(struct min_heap *heap, struct perf_event *event)
+{
+	struct perf_event **itrs = heap->data;
+
+	if (event) {
+		itrs[heap->nr] = event;
+		heap->nr++;
+	}
+}
+
+static noinline int visit_groups_merge(struct perf_cpu_context *cpuctx,
+				struct perf_event_groups *groups, int cpu,
+				int (*func)(struct perf_event *, void *),
+				void *data)
+{
+#ifdef CONFIG_CGROUP_PERF
+	struct cgroup_subsys_state *css = NULL;
+#endif
+	/* Space for per CPU and/or any CPU event iterators. */
+	struct perf_event *itrs[2];
+	struct min_heap event_heap;
+	struct perf_event **evt;
+	int ret;
+
+	if (cpuctx) {
+		event_heap = (struct min_heap){
+			.data = cpuctx->heap,
+			.nr = 0,
+			.size = cpuctx->heap_size,
+		};
+
+		lockdep_assert_held(&cpuctx->ctx.lock);
+
+#ifdef CONFIG_CGROUP_PERF
+		if (cpuctx->cgrp)
+			css = &cpuctx->cgrp->css;
+#endif
+	} else {
+		event_heap = (struct min_heap){
+			.data = itrs,
+			.nr = 0,
+			.size = ARRAY_SIZE(itrs),
+		};
+		/* Events not within a CPU context may be on any CPU. */
+		__heap_add(&event_heap, perf_event_groups_first(groups, -1, NULL));
+	}
+	evt = event_heap.data;
+
+	__heap_add(&event_heap, perf_event_groups_first(groups, cpu, NULL));
+
+#ifdef CONFIG_CGROUP_PERF
+	for (; css; css = css->parent)
+		__heap_add(&event_heap, perf_event_groups_first(groups, cpu, css->cgroup));
+#endif
+
+	min_heapify_all(&event_heap, &perf_min_heap);
+
+	while (event_heap.nr) {
+>>>>>>> upstream/android-13
 		ret = func(*evt, data);
 		if (ret)
 			return ret;
 
 		*evt = perf_event_groups_next(*evt);
+<<<<<<< HEAD
 	}
 
 	return 0;
@@ -3323,6 +4412,73 @@ static int flexible_sched_in(struct perf_event *event, void *data)
 			list_add_tail(&event->active_list, &sid->ctx->flexible_active);
 		else
 			sid->can_add_hw = 0;
+=======
+		if (*evt)
+			min_heapify(&event_heap, 0, &perf_min_heap);
+		else
+			min_heap_pop(&event_heap, &perf_min_heap);
+	}
+
+	return 0;
+}
+
+/*
+ * Because the userpage is strictly per-event (there is no concept of context,
+ * so there cannot be a context indirection), every userpage must be updated
+ * when context time starts :-(
+ *
+ * IOW, we must not miss EVENT_TIME edges.
+ */
+static inline bool event_update_userpage(struct perf_event *event)
+{
+	if (likely(!atomic_read(&event->mmap_count)))
+		return false;
+
+	perf_event_update_time(event);
+	perf_event_update_userpage(event);
+
+	return true;
+}
+
+static inline void group_update_userpage(struct perf_event *group_event)
+{
+	struct perf_event *event;
+
+	if (!event_update_userpage(group_event))
+		return;
+
+	for_each_sibling_event(event, group_event)
+		event_update_userpage(event);
+}
+
+static int merge_sched_in(struct perf_event *event, void *data)
+{
+	struct perf_event_context *ctx = event->ctx;
+	struct perf_cpu_context *cpuctx = __get_cpu_context(ctx);
+	int *can_add_hw = data;
+
+	if (event->state <= PERF_EVENT_STATE_OFF)
+		return 0;
+
+	if (!event_filter_match(event))
+		return 0;
+
+	if (group_can_go_on(event, cpuctx, *can_add_hw)) {
+		if (!group_sched_in(event, cpuctx, ctx))
+			list_add_tail(&event->active_list, get_event_list(event));
+	}
+
+	if (event->state == PERF_EVENT_STATE_INACTIVE) {
+		*can_add_hw = 0;
+		if (event->attr.pinned) {
+			perf_cgroup_event_disable(event, ctx);
+			perf_event_set_state(event, PERF_EVENT_STATE_ERROR);
+		} else {
+			ctx->rotate_necessary = 1;
+			perf_mux_hrtimer_restart(cpuctx);
+			group_update_userpage(event);
+		}
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
@@ -3332,6 +4488,7 @@ static void
 ctx_pinned_sched_in(struct perf_event_context *ctx,
 		    struct perf_cpu_context *cpuctx)
 {
+<<<<<<< HEAD
 	struct sched_in_data sid = {
 		.ctx = ctx,
 		.cpuctx = cpuctx,
@@ -3341,12 +4498,23 @@ ctx_pinned_sched_in(struct perf_event_context *ctx,
 	visit_groups_merge(&ctx->pinned_groups,
 			   smp_processor_id(),
 			   pinned_sched_in, &sid);
+=======
+	int can_add_hw = 1;
+
+	if (ctx != &cpuctx->ctx)
+		cpuctx = NULL;
+
+	visit_groups_merge(cpuctx, &ctx->pinned_groups,
+			   smp_processor_id(),
+			   merge_sched_in, &can_add_hw);
+>>>>>>> upstream/android-13
 }
 
 static void
 ctx_flexible_sched_in(struct perf_event_context *ctx,
 		      struct perf_cpu_context *cpuctx)
 {
+<<<<<<< HEAD
 	struct sched_in_data sid = {
 		.ctx = ctx,
 		.cpuctx = cpuctx,
@@ -3356,6 +4524,16 @@ ctx_flexible_sched_in(struct perf_event_context *ctx,
 	visit_groups_merge(&ctx->flexible_groups,
 			   smp_processor_id(),
 			   flexible_sched_in, &sid);
+=======
+	int can_add_hw = 1;
+
+	if (ctx != &cpuctx->ctx)
+		cpuctx = NULL;
+
+	visit_groups_merge(cpuctx, &ctx->flexible_groups,
+			   smp_processor_id(),
+			   merge_sched_in, &can_add_hw);
+>>>>>>> upstream/android-13
 }
 
 static void
@@ -3365,13 +4543,30 @@ ctx_sched_in(struct perf_event_context *ctx,
 	     struct task_struct *task)
 {
 	int is_active = ctx->is_active;
+<<<<<<< HEAD
 	u64 now;
+=======
+>>>>>>> upstream/android-13
 
 	lockdep_assert_held(&ctx->lock);
 
 	if (likely(!ctx->nr_events))
 		return;
 
+<<<<<<< HEAD
+=======
+	if (is_active ^ EVENT_TIME) {
+		/* start ctx time */
+		__update_context_time(ctx, false);
+		perf_cgroup_set_timestamp(task, ctx);
+		/*
+		 * CPU-release for the below ->is_active store,
+		 * see __load_acquire() in perf_event_time_now()
+		 */
+		barrier();
+	}
+
+>>>>>>> upstream/android-13
 	ctx->is_active |= (event_type | EVENT_TIME);
 	if (ctx->task) {
 		if (!is_active)
@@ -3382,6 +4577,7 @@ ctx_sched_in(struct perf_event_context *ctx,
 
 	is_active ^= ctx->is_active; /* changed bits */
 
+<<<<<<< HEAD
 	if (is_active & EVENT_TIME) {
 		/* start ctx time */
 		now = perf_clock();
@@ -3389,6 +4585,8 @@ ctx_sched_in(struct perf_event_context *ctx,
 		perf_cgroup_set_timestamp(task, ctx);
 	}
 
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * First go through the list and put on any pinned groups
 	 * in order to give them the best chance of going on.
@@ -3414,10 +4612,28 @@ static void perf_event_context_sched_in(struct perf_event_context *ctx,
 					struct task_struct *task)
 {
 	struct perf_cpu_context *cpuctx;
+<<<<<<< HEAD
 
 	cpuctx = __get_cpu_context(ctx);
 	if (cpuctx->task_ctx == ctx)
 		return;
+=======
+	struct pmu *pmu;
+
+	cpuctx = __get_cpu_context(ctx);
+
+	/*
+	 * HACK: for HETEROGENEOUS the task context might have switched to a
+	 * different PMU, force (re)set the context,
+	 */
+	pmu = ctx->pmu = cpuctx->ctx.pmu;
+
+	if (cpuctx->task_ctx == ctx) {
+		if (cpuctx->sched_cb_usage)
+			__perf_pmu_sched_task(cpuctx, true);
+		return;
+	}
+>>>>>>> upstream/android-13
 
 	perf_ctx_lock(cpuctx, ctx);
 	/*
@@ -3427,7 +4643,11 @@ static void perf_event_context_sched_in(struct perf_event_context *ctx,
 	if (!ctx->nr_events)
 		goto unlock;
 
+<<<<<<< HEAD
 	perf_pmu_disable(ctx->pmu);
+=======
+	perf_pmu_disable(pmu);
+>>>>>>> upstream/android-13
 	/*
 	 * We want to keep the following priority order:
 	 * cpu pinned (that don't need to move), task pinned,
@@ -3439,7 +4659,15 @@ static void perf_event_context_sched_in(struct perf_event_context *ctx,
 	if (!RB_EMPTY_ROOT(&ctx->pinned_groups.tree))
 		cpu_ctx_sched_out(cpuctx, EVENT_FLEXIBLE);
 	perf_event_sched_in(cpuctx, ctx, task);
+<<<<<<< HEAD
 	perf_pmu_enable(ctx->pmu);
+=======
+
+	if (cpuctx->sched_cb_usage && pmu->sched_task)
+		pmu->sched_task(cpuctx->task_ctx, true);
+
+	perf_pmu_enable(pmu);
+>>>>>>> upstream/android-13
 
 unlock:
 	perf_ctx_unlock(cpuctx, ctx);
@@ -3680,24 +4908,56 @@ static void rotate_ctx(struct perf_event_context *ctx, struct perf_event *event)
 	perf_event_groups_insert(&ctx->flexible_groups, event);
 }
 
+<<<<<<< HEAD
 static inline struct perf_event *
 ctx_first_active(struct perf_event_context *ctx)
 {
 	return list_first_entry_or_null(&ctx->flexible_active,
 					struct perf_event, active_list);
+=======
+/* pick an event from the flexible_groups to rotate */
+static inline struct perf_event *
+ctx_event_to_rotate(struct perf_event_context *ctx)
+{
+	struct perf_event *event;
+
+	/* pick the first active flexible event */
+	event = list_first_entry_or_null(&ctx->flexible_active,
+					 struct perf_event, active_list);
+
+	/* if no active flexible event, pick the first event */
+	if (!event) {
+		event = rb_entry_safe(rb_first(&ctx->flexible_groups.tree),
+				      typeof(*event), group_node);
+	}
+
+	/*
+	 * Unconditionally clear rotate_necessary; if ctx_flexible_sched_in()
+	 * finds there are unschedulable events, it will set it again.
+	 */
+	ctx->rotate_necessary = 0;
+
+	return event;
+>>>>>>> upstream/android-13
 }
 
 static bool perf_rotate_context(struct perf_cpu_context *cpuctx)
 {
 	struct perf_event *cpu_event = NULL, *task_event = NULL;
+<<<<<<< HEAD
 	bool cpu_rotate = false, task_rotate = false;
 	struct perf_event_context *ctx = NULL;
+=======
+	struct perf_event_context *task_ctx = NULL;
+	int cpu_rotate, task_rotate;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Since we run this from IRQ context, nobody can install new
 	 * events, thus the event count values are stable.
 	 */
 
+<<<<<<< HEAD
 	if (cpuctx->ctx.nr_events) {
 		if (cpuctx->ctx.nr_events != cpuctx->ctx.nr_active)
 			cpu_rotate = true;
@@ -3708,6 +4968,11 @@ static bool perf_rotate_context(struct perf_cpu_context *cpuctx)
 		if (ctx->nr_events != ctx->nr_active)
 			task_rotate = true;
 	}
+=======
+	cpu_rotate = cpuctx->ctx.rotate_necessary;
+	task_ctx = cpuctx->task_ctx;
+	task_rotate = task_ctx ? task_ctx->rotate_necessary : 0;
+>>>>>>> upstream/android-13
 
 	if (!(cpu_rotate || task_rotate))
 		return false;
@@ -3716,25 +4981,44 @@ static bool perf_rotate_context(struct perf_cpu_context *cpuctx)
 	perf_pmu_disable(cpuctx->ctx.pmu);
 
 	if (task_rotate)
+<<<<<<< HEAD
 		task_event = ctx_first_active(ctx);
 	if (cpu_rotate)
 		cpu_event = ctx_first_active(&cpuctx->ctx);
+=======
+		task_event = ctx_event_to_rotate(task_ctx);
+	if (cpu_rotate)
+		cpu_event = ctx_event_to_rotate(&cpuctx->ctx);
+>>>>>>> upstream/android-13
 
 	/*
 	 * As per the order given at ctx_resched() first 'pop' task flexible
 	 * and then, if needed CPU flexible.
 	 */
+<<<<<<< HEAD
 	if (task_event || (ctx && cpu_event))
 		ctx_sched_out(ctx, cpuctx, EVENT_FLEXIBLE);
+=======
+	if (task_event || (task_ctx && cpu_event))
+		ctx_sched_out(task_ctx, cpuctx, EVENT_FLEXIBLE);
+>>>>>>> upstream/android-13
 	if (cpu_event)
 		cpu_ctx_sched_out(cpuctx, EVENT_FLEXIBLE);
 
 	if (task_event)
+<<<<<<< HEAD
 		rotate_ctx(ctx, task_event);
 	if (cpu_event)
 		rotate_ctx(&cpuctx->ctx, cpu_event);
 
 	perf_event_sched_in(cpuctx, ctx, current);
+=======
+		rotate_ctx(task_ctx, task_event);
+	if (cpu_event)
+		rotate_ctx(&cpuctx->ctx, cpu_event);
+
+	perf_event_sched_in(cpuctx, task_ctx, current);
+>>>>>>> upstream/android-13
 
 	perf_pmu_enable(cpuctx->ctx.pmu);
 	perf_ctx_unlock(cpuctx, cpuctx->task_ctx);
@@ -3817,6 +5101,60 @@ out:
 		put_ctx(clone_ctx);
 }
 
+<<<<<<< HEAD
+=======
+static void perf_remove_from_owner(struct perf_event *event);
+static void perf_event_exit_event(struct perf_event *event,
+				  struct perf_event_context *ctx);
+
+/*
+ * Removes all events from the current task that have been marked
+ * remove-on-exec, and feeds their values back to parent events.
+ */
+static void perf_event_remove_on_exec(int ctxn)
+{
+	struct perf_event_context *ctx, *clone_ctx = NULL;
+	struct perf_event *event, *next;
+	LIST_HEAD(free_list);
+	unsigned long flags;
+	bool modified = false;
+
+	ctx = perf_pin_task_context(current, ctxn);
+	if (!ctx)
+		return;
+
+	mutex_lock(&ctx->mutex);
+
+	if (WARN_ON_ONCE(ctx->task != current))
+		goto unlock;
+
+	list_for_each_entry_safe(event, next, &ctx->event_list, event_entry) {
+		if (!event->attr.remove_on_exec)
+			continue;
+
+		if (!is_kernel_event(event))
+			perf_remove_from_owner(event);
+
+		modified = true;
+
+		perf_event_exit_event(event, ctx);
+	}
+
+	raw_spin_lock_irqsave(&ctx->lock, flags);
+	if (modified)
+		clone_ctx = unclone_ctx(ctx);
+	--ctx->pin_count;
+	raw_spin_unlock_irqrestore(&ctx->lock, flags);
+
+unlock:
+	mutex_unlock(&ctx->mutex);
+
+	put_ctx(ctx);
+	if (clone_ctx)
+		put_ctx(clone_ctx);
+}
+
+>>>>>>> upstream/android-13
 struct perf_read_data {
 	struct perf_event *event;
 	bool group;
@@ -3905,6 +5243,21 @@ static inline u64 perf_event_count(struct perf_event *event)
 	return local64_read(&event->count) + atomic64_read(&event->child_count);
 }
 
+<<<<<<< HEAD
+=======
+static void calc_timer_values(struct perf_event *event,
+				u64 *now,
+				u64 *enabled,
+				u64 *running)
+{
+	u64 ctx_time;
+
+	*now = perf_clock();
+	ctx_time = perf_event_time_now(event, *now);
+	__perf_update_times(event, ctx_time, enabled, running);
+}
+
+>>>>>>> upstream/android-13
 /*
  * NMI-safe method to read a local event, that is an event that
  * is:
@@ -3964,10 +5317,16 @@ int perf_event_read_local(struct perf_event *event, u64 *value,
 
 	*value = local64_read(&event->count);
 	if (enabled || running) {
+<<<<<<< HEAD
 		u64 now = event->shadow_ctx_time + perf_clock();
 		u64 __enabled, __running;
 
 		__perf_update_times(event, now, &__enabled, &__running);
+=======
+		u64 __enabled, __running, __now;;
+
+		calc_timer_values(event, &__now, &__enabled, &__running);
+>>>>>>> upstream/android-13
 		if (enabled)
 			*enabled = __enabled;
 		if (running)
@@ -3978,6 +5337,10 @@ out:
 
 	return ret;
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(perf_event_read_local);
+>>>>>>> upstream/android-13
 
 static int perf_event_read(struct perf_event *event, bool group)
 {
@@ -4069,7 +5432,11 @@ static void __perf_event_init_context(struct perf_event_context *ctx)
 	INIT_LIST_HEAD(&ctx->event_list);
 	INIT_LIST_HEAD(&ctx->pinned_active);
 	INIT_LIST_HEAD(&ctx->flexible_active);
+<<<<<<< HEAD
 	atomic_set(&ctx->refcount, 1);
+=======
+	refcount_set(&ctx->refcount, 1);
+>>>>>>> upstream/android-13
 }
 
 static struct perf_event_context *
@@ -4082,10 +5449,15 @@ alloc_perf_context(struct pmu *pmu, struct task_struct *task)
 		return NULL;
 
 	__perf_event_init_context(ctx);
+<<<<<<< HEAD
 	if (task) {
 		ctx->task = task;
 		get_task_struct(task);
 	}
+=======
+	if (task)
+		ctx->task = get_task_struct(task);
+>>>>>>> upstream/android-13
 	ctx->pmu = pmu;
 
 	return ctx;
@@ -4134,7 +5506,13 @@ find_get_context(struct pmu *pmu, struct task_struct *task,
 		cpuctx = per_cpu_ptr(pmu->pmu_cpu_context, cpu);
 		ctx = &cpuctx->ctx;
 		get_ctx(ctx);
+<<<<<<< HEAD
 		++ctx->pin_count;
+=======
+		raw_spin_lock_irqsave(&ctx->lock, flags);
+		++ctx->pin_count;
+		raw_spin_unlock_irqrestore(&ctx->lock, flags);
+>>>>>>> upstream/android-13
 
 		return ctx;
 	}
@@ -4145,7 +5523,11 @@ find_get_context(struct pmu *pmu, struct task_struct *task,
 		goto errout;
 
 	if (event->attach_state & PERF_ATTACH_TASK_DATA) {
+<<<<<<< HEAD
 		task_ctx_data = kzalloc(pmu->task_ctx_size, GFP_KERNEL);
+=======
+		task_ctx_data = alloc_task_ctx_data(pmu);
+>>>>>>> upstream/android-13
 		if (!task_ctx_data) {
 			err = -ENOMEM;
 			goto errout;
@@ -4203,16 +5585,27 @@ retry:
 		}
 	}
 
+<<<<<<< HEAD
 	kfree(task_ctx_data);
 	return ctx;
 
 errout:
 	kfree(task_ctx_data);
+=======
+	free_task_ctx_data(pmu, task_ctx_data);
+	return ctx;
+
+errout:
+	free_task_ctx_data(pmu, task_ctx_data);
+>>>>>>> upstream/android-13
 	return ERR_PTR(err);
 }
 
 static void perf_event_free_filter(struct perf_event *event);
+<<<<<<< HEAD
 static void perf_event_free_bpf_prog(struct perf_event *event);
+=======
+>>>>>>> upstream/android-13
 
 static void free_event_rcu(struct rcu_head *head)
 {
@@ -4222,11 +5615,19 @@ static void free_event_rcu(struct rcu_head *head)
 	if (event->ns)
 		put_pid_ns(event->ns);
 	perf_event_free_filter(event);
+<<<<<<< HEAD
 	kfree(event);
 }
 
 static void ring_buffer_attach(struct perf_event *event,
 			       struct ring_buffer *rb);
+=======
+	kmem_cache_free(perf_event_cache, event);
+}
+
+static void ring_buffer_attach(struct perf_event *event,
+			       struct perf_buffer *rb);
+>>>>>>> upstream/android-13
 
 static void detach_sb_event(struct perf_event *event)
 {
@@ -4249,8 +5650,14 @@ static bool is_sb_event(struct perf_event *event)
 
 	if (attr->mmap || attr->mmap_data || attr->mmap2 ||
 	    attr->comm || attr->comm_exec ||
+<<<<<<< HEAD
 	    attr->task ||
 	    attr->context_switch)
+=======
+	    attr->task || attr->ksymbol ||
+	    attr->context_switch || attr->text_poke ||
+	    attr->bpf_event)
+>>>>>>> upstream/android-13
 		return true;
 	return false;
 }
@@ -4299,14 +5706,28 @@ static void unaccount_event(struct perf_event *event)
 	if (event->parent)
 		return;
 
+<<<<<<< HEAD
 	if (event->attach_state & PERF_ATTACH_TASK)
 		dec = true;
 	if (event->attr.mmap || event->attr.mmap_data)
 		atomic_dec(&nr_mmap_events);
+=======
+	if (event->attach_state & (PERF_ATTACH_TASK | PERF_ATTACH_SCHED_CB))
+		dec = true;
+	if (event->attr.mmap || event->attr.mmap_data)
+		atomic_dec(&nr_mmap_events);
+	if (event->attr.build_id)
+		atomic_dec(&nr_build_id_events);
+>>>>>>> upstream/android-13
 	if (event->attr.comm)
 		atomic_dec(&nr_comm_events);
 	if (event->attr.namespaces)
 		atomic_dec(&nr_namespaces_events);
+<<<<<<< HEAD
+=======
+	if (event->attr.cgroup)
+		atomic_dec(&nr_cgroup_events);
+>>>>>>> upstream/android-13
 	if (event->attr.task)
 		atomic_dec(&nr_task_events);
 	if (event->attr.freq)
@@ -4319,6 +5740,15 @@ static void unaccount_event(struct perf_event *event)
 		dec = true;
 	if (has_branch_stack(event))
 		dec = true;
+<<<<<<< HEAD
+=======
+	if (event->attr.ksymbol)
+		atomic_dec(&nr_ksymbol_events);
+	if (event->attr.bpf_event)
+		atomic_dec(&nr_bpf_events);
+	if (event->attr.text_poke)
+		atomic_dec(&nr_text_poke_events);
+>>>>>>> upstream/android-13
 
 	if (dec) {
 		if (!atomic_add_unless(&perf_sched_count, -1, 1))
@@ -4902,7 +6332,11 @@ perf_read(struct file *file, char __user *buf, size_t count, loff_t *ppos)
 static __poll_t perf_poll(struct file *file, poll_table *wait)
 {
 	struct perf_event *event = file->private_data;
+<<<<<<< HEAD
 	struct ring_buffer *rb;
+=======
+	struct perf_buffer *rb;
+>>>>>>> upstream/android-13
 	__poll_t events = EPOLLHUP;
 
 	poll_wait(file, &event->waitq, wait);
@@ -4929,6 +6363,27 @@ static void _perf_event_reset(struct perf_event *event)
 	perf_event_update_userpage(event);
 }
 
+<<<<<<< HEAD
+=======
+/* Assume it's not an event with inherit set. */
+u64 perf_event_pause(struct perf_event *event, bool reset)
+{
+	struct perf_event_context *ctx;
+	u64 count;
+
+	ctx = perf_event_ctx_lock(event);
+	WARN_ON_ONCE(event->attr.inherit);
+	_perf_event_disable(event);
+	count = local64_read(&event->count);
+	if (reset)
+		local64_set(&event->count, 0);
+	perf_event_ctx_unlock(event, ctx);
+
+	return count;
+}
+EXPORT_SYMBOL_GPL(perf_event_pause);
+
+>>>>>>> upstream/android-13
 /*
  * Holding the top-level event's child_mutex means that any
  * descendant process that has inherited this event will block
@@ -5006,6 +6461,7 @@ static int perf_event_check_period(struct perf_event *event, u64 value)
 	return event->pmu->check_period(event, value);
 }
 
+<<<<<<< HEAD
 static int perf_event_period(struct perf_event *event, u64 __user *arg)
 {
 	u64 value;
@@ -5016,6 +6472,13 @@ static int perf_event_period(struct perf_event *event, u64 __user *arg)
 	if (copy_from_user(&value, arg, sizeof(value)))
 		return -EFAULT;
 
+=======
+static int _perf_event_period(struct perf_event *event, u64 value)
+{
+	if (!is_sampling_event(event))
+		return -EINVAL;
+
+>>>>>>> upstream/android-13
 	if (!value)
 		return -EINVAL;
 
@@ -5033,6 +6496,22 @@ static int perf_event_period(struct perf_event *event, u64 __user *arg)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+int perf_event_period(struct perf_event *event, u64 value)
+{
+	struct perf_event_context *ctx;
+	int ret;
+
+	ctx = perf_event_ctx_lock(event);
+	ret = _perf_event_period(event, value);
+	perf_event_ctx_unlock(event, ctx);
+
+	return ret;
+}
+EXPORT_SYMBOL_GPL(perf_event_period);
+
+>>>>>>> upstream/android-13
 static const struct file_operations perf_fops;
 
 static inline int perf_fget_light(int fd, struct fd *p)
@@ -5052,7 +6531,10 @@ static inline int perf_fget_light(int fd, struct fd *p)
 static int perf_event_set_output(struct perf_event *event,
 				 struct perf_event *output_event);
 static int perf_event_set_filter(struct perf_event *event, void __user *arg);
+<<<<<<< HEAD
 static int perf_event_set_bpf_prog(struct perf_event *event, u32 prog_fd);
+=======
+>>>>>>> upstream/android-13
 static int perf_copy_attr(struct perf_event_attr __user *uattr,
 			  struct perf_event_attr *attr);
 
@@ -5076,8 +6558,19 @@ static long _perf_ioctl(struct perf_event *event, unsigned int cmd, unsigned lon
 		return _perf_event_refresh(event, arg);
 
 	case PERF_EVENT_IOC_PERIOD:
+<<<<<<< HEAD
 		return perf_event_period(event, (u64 __user *)arg);
 
+=======
+	{
+		u64 value;
+
+		if (copy_from_user(&value, (u64 __user *)arg, sizeof(value)))
+			return -EFAULT;
+
+		return _perf_event_period(event, value);
+	}
+>>>>>>> upstream/android-13
 	case PERF_EVENT_IOC_ID:
 	{
 		u64 id = primary_event_id(event);
@@ -5109,10 +6602,32 @@ static long _perf_ioctl(struct perf_event *event, unsigned int cmd, unsigned lon
 		return perf_event_set_filter(event, (void __user *)arg);
 
 	case PERF_EVENT_IOC_SET_BPF:
+<<<<<<< HEAD
 		return perf_event_set_bpf_prog(event, arg);
 
 	case PERF_EVENT_IOC_PAUSE_OUTPUT: {
 		struct ring_buffer *rb;
+=======
+	{
+		struct bpf_prog *prog;
+		int err;
+
+		prog = bpf_prog_get(arg);
+		if (IS_ERR(prog))
+			return PTR_ERR(prog);
+
+		err = perf_event_set_bpf_prog(event, prog, 0);
+		if (err) {
+			bpf_prog_put(prog);
+			return err;
+		}
+
+		return 0;
+	}
+
+	case PERF_EVENT_IOC_PAUSE_OUTPUT: {
+		struct perf_buffer *rb;
+>>>>>>> upstream/android-13
 
 		rcu_read_lock();
 		rb = rcu_dereference(event->rb);
@@ -5233,6 +6748,7 @@ static int perf_event_index(struct perf_event *event)
 	return event->pmu->event_idx(event);
 }
 
+<<<<<<< HEAD
 static void calc_timer_values(struct perf_event *event,
 				u64 *now,
 				u64 *enabled,
@@ -5249,6 +6765,12 @@ static void perf_event_init_userpage(struct perf_event *event)
 {
 	struct perf_event_mmap_page *userpg;
 	struct ring_buffer *rb;
+=======
+static void perf_event_init_userpage(struct perf_event *event)
+{
+	struct perf_event_mmap_page *userpg;
+	struct perf_buffer *rb;
+>>>>>>> upstream/android-13
 
 	rcu_read_lock();
 	rb = rcu_dereference(event->rb);
@@ -5280,7 +6802,11 @@ void __weak arch_perf_update_userpage(
 void perf_event_update_userpage(struct perf_event *event)
 {
 	struct perf_event_mmap_page *userpg;
+<<<<<<< HEAD
 	struct ring_buffer *rb;
+=======
+	struct perf_buffer *rb;
+>>>>>>> upstream/android-13
 	u64 enabled, running, now;
 
 	rcu_read_lock();
@@ -5331,7 +6857,11 @@ EXPORT_SYMBOL_GPL(perf_event_update_userpage);
 static vm_fault_t perf_mmap_fault(struct vm_fault *vmf)
 {
 	struct perf_event *event = vmf->vma->vm_file->private_data;
+<<<<<<< HEAD
 	struct ring_buffer *rb;
+=======
+	struct perf_buffer *rb;
+>>>>>>> upstream/android-13
 	vm_fault_t ret = VM_FAULT_SIGBUS;
 
 	if (vmf->flags & FAULT_FLAG_MKWRITE) {
@@ -5364,11 +6894,21 @@ unlock:
 }
 
 static void ring_buffer_attach(struct perf_event *event,
+<<<<<<< HEAD
 			       struct ring_buffer *rb)
 {
 	struct ring_buffer *old_rb = NULL;
 	unsigned long flags;
 
+=======
+			       struct perf_buffer *rb)
+{
+	struct perf_buffer *old_rb = NULL;
+	unsigned long flags;
+
+	WARN_ON_ONCE(event->parent);
+
+>>>>>>> upstream/android-13
 	if (event->rb) {
 		/*
 		 * Should be impossible, we set this when removing
@@ -5424,7 +6964,14 @@ static void ring_buffer_attach(struct perf_event *event,
 
 static void ring_buffer_wakeup(struct perf_event *event)
 {
+<<<<<<< HEAD
 	struct ring_buffer *rb;
+=======
+	struct perf_buffer *rb;
+
+	if (event->parent)
+		event = event->parent;
+>>>>>>> upstream/android-13
 
 	rcu_read_lock();
 	rb = rcu_dereference(event->rb);
@@ -5435,14 +6982,27 @@ static void ring_buffer_wakeup(struct perf_event *event)
 	rcu_read_unlock();
 }
 
+<<<<<<< HEAD
 struct ring_buffer *ring_buffer_get(struct perf_event *event)
 {
 	struct ring_buffer *rb;
+=======
+struct perf_buffer *ring_buffer_get(struct perf_event *event)
+{
+	struct perf_buffer *rb;
+
+	if (event->parent)
+		event = event->parent;
+>>>>>>> upstream/android-13
 
 	rcu_read_lock();
 	rb = rcu_dereference(event->rb);
 	if (rb) {
+<<<<<<< HEAD
 		if (!atomic_inc_not_zero(&rb->refcount))
+=======
+		if (!refcount_inc_not_zero(&rb->refcount))
+>>>>>>> upstream/android-13
 			rb = NULL;
 	}
 	rcu_read_unlock();
@@ -5450,9 +7010,15 @@ struct ring_buffer *ring_buffer_get(struct perf_event *event)
 	return rb;
 }
 
+<<<<<<< HEAD
 void ring_buffer_put(struct ring_buffer *rb)
 {
 	if (!atomic_dec_and_test(&rb->refcount))
+=======
+void ring_buffer_put(struct perf_buffer *rb)
+{
+	if (!refcount_dec_and_test(&rb->refcount))
+>>>>>>> upstream/android-13
 		return;
 
 	WARN_ON_ONCE(!list_empty(&rb->event_list));
@@ -5487,7 +7053,11 @@ static void perf_pmu_output_stop(struct perf_event *event);
 static void perf_mmap_close(struct vm_area_struct *vma)
 {
 	struct perf_event *event = vma->vm_file->private_data;
+<<<<<<< HEAD
 	struct ring_buffer *rb = ring_buffer_get(event);
+=======
+	struct perf_buffer *rb = ring_buffer_get(event);
+>>>>>>> upstream/android-13
 	struct user_struct *mmap_user = rb->mmap_user;
 	int mmap_locked = rb->mmap_locked;
 	unsigned long size = perf_data_size(rb);
@@ -5512,12 +7082,21 @@ static void perf_mmap_close(struct vm_area_struct *vma)
 		perf_pmu_output_stop(event);
 
 		/* now it's safe to free the pages */
+<<<<<<< HEAD
 		atomic_long_sub(rb->aux_nr_pages, &mmap_user->locked_vm);
 		vma->vm_mm->pinned_vm -= rb->aux_mmap_locked;
 
 		/* this has to be the last one */
 		rb_free_aux(rb);
 		WARN_ON_ONCE(atomic_read(&rb->aux_refcount));
+=======
+		atomic_long_sub(rb->aux_nr_pages - rb->aux_mmap_locked, &mmap_user->locked_vm);
+		atomic64_sub(rb->aux_mmap_locked, &vma->vm_mm->pinned_vm);
+
+		/* this has to be the last one */
+		rb_free_aux(rb);
+		WARN_ON_ONCE(refcount_read(&rb->aux_refcount));
+>>>>>>> upstream/android-13
 
 		mutex_unlock(&event->mmap_mutex);
 	}
@@ -5586,8 +7165,14 @@ again:
 	 * undo the VM accounting.
 	 */
 
+<<<<<<< HEAD
 	atomic_long_sub((size >> PAGE_SHIFT) + 1, &mmap_user->locked_vm);
 	vma->vm_mm->pinned_vm -= mmap_locked;
+=======
+	atomic_long_sub((size >> PAGE_SHIFT) + 1 - mmap_locked,
+			&mmap_user->locked_vm);
+	atomic64_sub(mmap_locked, &vma->vm_mm->pinned_vm);
+>>>>>>> upstream/android-13
 	free_uid(mmap_user);
 
 out_put:
@@ -5596,7 +7181,11 @@ out_put:
 
 static const struct vm_operations_struct perf_mmap_vmops = {
 	.open		= perf_mmap_open,
+<<<<<<< HEAD
 	.close		= perf_mmap_close, /* non mergable */
+=======
+	.close		= perf_mmap_close, /* non mergeable */
+>>>>>>> upstream/android-13
 	.fault		= perf_mmap_fault,
 	.page_mkwrite	= perf_mmap_fault,
 };
@@ -5606,8 +7195,13 @@ static int perf_mmap(struct file *file, struct vm_area_struct *vma)
 	struct perf_event *event = file->private_data;
 	unsigned long user_locked, user_lock_limit;
 	struct user_struct *user = current_user();
+<<<<<<< HEAD
 	unsigned long locked, lock_limit;
 	struct ring_buffer *rb = NULL;
+=======
+	struct perf_buffer *rb = NULL;
+	unsigned long locked, lock_limit;
+>>>>>>> upstream/android-13
 	unsigned long vma_size;
 	unsigned long nr_pages;
 	long user_extra = 0, extra = 0;
@@ -5704,7 +7298,11 @@ static int perf_mmap(struct file *file, struct vm_area_struct *vma)
 again:
 	mutex_lock(&event->mmap_mutex);
 	if (event->rb) {
+<<<<<<< HEAD
 		if (event->rb->nr_pages != nr_pages) {
+=======
+		if (data_page_nr(event->rb) != nr_pages) {
+>>>>>>> upstream/android-13
 			ret = -EINVAL;
 			goto unlock;
 		}
@@ -5742,12 +7340,27 @@ accounting:
 		user_locked = user_lock_limit;
 	user_locked += user_extra;
 
+<<<<<<< HEAD
 	if (user_locked > user_lock_limit)
 		extra = user_locked - user_lock_limit;
 
 	lock_limit = rlimit(RLIMIT_MEMLOCK);
 	lock_limit >>= PAGE_SHIFT;
 	locked = vma->vm_mm->pinned_vm + extra;
+=======
+	if (user_locked > user_lock_limit) {
+		/*
+		 * charge locked_vm until it hits user_lock_limit;
+		 * charge the rest from pinned_vm
+		 */
+		extra = user_locked - user_lock_limit;
+		user_extra -= extra;
+	}
+
+	lock_limit = rlimit(RLIMIT_MEMLOCK);
+	lock_limit >>= PAGE_SHIFT;
+	locked = atomic64_read(&vma->vm_mm->pinned_vm) + extra;
+>>>>>>> upstream/android-13
 
 	if ((locked > lock_limit) && perf_is_paranoid() &&
 		!capable(CAP_IPC_LOCK)) {
@@ -5776,6 +7389,10 @@ accounting:
 
 		ring_buffer_attach(event, rb);
 
+<<<<<<< HEAD
+=======
+		perf_event_update_time(event);
+>>>>>>> upstream/android-13
 		perf_event_init_userpage(event);
 		perf_event_update_userpage(event);
 	} else {
@@ -5788,7 +7405,11 @@ accounting:
 unlock:
 	if (!ret) {
 		atomic_long_add(user_extra, &user->locked_vm);
+<<<<<<< HEAD
 		vma->vm_mm->pinned_vm += extra;
+=======
+		atomic64_add(extra, &vma->vm_mm->pinned_vm);
+>>>>>>> upstream/android-13
 
 		atomic_inc(&event->mmap_count);
 	} else if (rb) {
@@ -5862,6 +7483,29 @@ void perf_event_wakeup(struct perf_event *event)
 	}
 }
 
+<<<<<<< HEAD
+=======
+static void perf_sigtrap(struct perf_event *event)
+{
+	/*
+	 * We'd expect this to only occur if the irq_work is delayed and either
+	 * ctx->task or current has changed in the meantime. This can be the
+	 * case on architectures that do not implement arch_irq_work_raise().
+	 */
+	if (WARN_ON_ONCE(event->ctx->task != current))
+		return;
+
+	/*
+	 * perf_pending_event() can race with the task exiting.
+	 */
+	if (current->flags & PF_EXITING)
+		return;
+
+	force_sig_perf((void __user *)event->pending_addr,
+		       event->attr.type, event->attr.sig_data);
+}
+
+>>>>>>> upstream/android-13
 static void perf_pending_event_disable(struct perf_event *event)
 {
 	int cpu = READ_ONCE(event->pending_disable);
@@ -5871,6 +7515,16 @@ static void perf_pending_event_disable(struct perf_event *event)
 
 	if (cpu == smp_processor_id()) {
 		WRITE_ONCE(event->pending_disable, -1);
+<<<<<<< HEAD
+=======
+
+		if (event->attr.sigtrap) {
+			perf_sigtrap(event);
+			atomic_set_release(&event->event_limit, 1); /* rearm event */
+			return;
+		}
+
+>>>>>>> upstream/android-13
 		perf_event_disable_local(event);
 		return;
 	}
@@ -5925,18 +7579,37 @@ static void perf_pending_event(struct irq_work *entry)
  * Later on, we might change it to a list if there is
  * another virtualization implementation supporting the callbacks.
  */
+<<<<<<< HEAD
 struct perf_guest_info_callbacks *perf_guest_cbs;
 
 int perf_register_guest_info_callbacks(struct perf_guest_info_callbacks *cbs)
 {
 	perf_guest_cbs = cbs;
+=======
+struct perf_guest_info_callbacks __rcu *perf_guest_cbs;
+
+int perf_register_guest_info_callbacks(struct perf_guest_info_callbacks *cbs)
+{
+	if (WARN_ON_ONCE(rcu_access_pointer(perf_guest_cbs)))
+		return -EBUSY;
+
+	rcu_assign_pointer(perf_guest_cbs, cbs);
+>>>>>>> upstream/android-13
 	return 0;
 }
 EXPORT_SYMBOL_GPL(perf_register_guest_info_callbacks);
 
 int perf_unregister_guest_info_callbacks(struct perf_guest_info_callbacks *cbs)
 {
+<<<<<<< HEAD
 	perf_guest_cbs = NULL;
+=======
+	if (WARN_ON_ONCE(rcu_access_pointer(perf_guest_cbs) != cbs))
+		return -EINVAL;
+
+	rcu_assign_pointer(perf_guest_cbs, NULL);
+	synchronize_rcu();
+>>>>>>> upstream/android-13
 	return 0;
 }
 EXPORT_SYMBOL_GPL(perf_unregister_guest_info_callbacks);
@@ -5958,14 +7631,22 @@ perf_output_sample_regs(struct perf_output_handle *handle,
 }
 
 static void perf_sample_regs_user(struct perf_regs *regs_user,
+<<<<<<< HEAD
 				  struct pt_regs *regs,
 				  struct pt_regs *regs_user_copy)
+=======
+				  struct pt_regs *regs)
+>>>>>>> upstream/android-13
 {
 	if (user_mode(regs)) {
 		regs_user->abi = perf_reg_abi(current);
 		regs_user->regs = regs;
 	} else if (!(current->flags & PF_KTHREAD)) {
+<<<<<<< HEAD
 		perf_get_regs_user(regs_user, regs, regs_user_copy);
+=======
+		perf_get_regs_user(regs_user, regs);
+>>>>>>> upstream/android-13
 	} else {
 		regs_user->abi = PERF_SAMPLE_REGS_ABI_NONE;
 		regs_user->regs = NULL;
@@ -5984,7 +7665,11 @@ static void perf_sample_regs_intr(struct perf_regs *regs_intr,
  * Get remaining task size from user stack pointer.
  *
  * It'd be better to take stack vma map and limit this more
+<<<<<<< HEAD
  * precisly, but there's no way to get it safely under interrupt,
+=======
+ * precisely, but there's no way to get it safely under interrupt,
+>>>>>>> upstream/android-13
  * so using TASK_SIZE as limit.
  */
 static u64 perf_ustack_task_size(struct pt_regs *regs)
@@ -6066,10 +7751,16 @@ perf_output_sample_ustack(struct perf_output_handle *handle, u64 dump_size,
 
 		/* Data. */
 		sp = perf_user_stack_pointer(regs);
+<<<<<<< HEAD
 		fs = get_fs();
 		set_fs(USER_DS);
 		rem = __output_copy_user(handle, (void *) sp, dump_size);
 		set_fs(fs);
+=======
+		fs = force_uaccess_begin();
+		rem = __output_copy_user(handle, (void *) sp, dump_size);
+		force_uaccess_end(fs);
+>>>>>>> upstream/android-13
 		dyn_size = dump_size - rem;
 
 		perf_output_skip(handle, rem);
@@ -6079,6 +7770,125 @@ perf_output_sample_ustack(struct perf_output_handle *handle, u64 dump_size,
 	}
 }
 
+<<<<<<< HEAD
+=======
+static unsigned long perf_prepare_sample_aux(struct perf_event *event,
+					  struct perf_sample_data *data,
+					  size_t size)
+{
+	struct perf_event *sampler = event->aux_event;
+	struct perf_buffer *rb;
+
+	data->aux_size = 0;
+
+	if (!sampler)
+		goto out;
+
+	if (WARN_ON_ONCE(READ_ONCE(sampler->state) != PERF_EVENT_STATE_ACTIVE))
+		goto out;
+
+	if (WARN_ON_ONCE(READ_ONCE(sampler->oncpu) != smp_processor_id()))
+		goto out;
+
+	rb = ring_buffer_get(sampler);
+	if (!rb)
+		goto out;
+
+	/*
+	 * If this is an NMI hit inside sampling code, don't take
+	 * the sample. See also perf_aux_sample_output().
+	 */
+	if (READ_ONCE(rb->aux_in_sampling)) {
+		data->aux_size = 0;
+	} else {
+		size = min_t(size_t, size, perf_aux_size(rb));
+		data->aux_size = ALIGN(size, sizeof(u64));
+	}
+	ring_buffer_put(rb);
+
+out:
+	return data->aux_size;
+}
+
+static long perf_pmu_snapshot_aux(struct perf_buffer *rb,
+                                 struct perf_event *event,
+                                 struct perf_output_handle *handle,
+                                 unsigned long size)
+{
+	unsigned long flags;
+	long ret;
+
+	/*
+	 * Normal ->start()/->stop() callbacks run in IRQ mode in scheduler
+	 * paths. If we start calling them in NMI context, they may race with
+	 * the IRQ ones, that is, for example, re-starting an event that's just
+	 * been stopped, which is why we're using a separate callback that
+	 * doesn't change the event state.
+	 *
+	 * IRQs need to be disabled to prevent IPIs from racing with us.
+	 */
+	local_irq_save(flags);
+	/*
+	 * Guard against NMI hits inside the critical section;
+	 * see also perf_prepare_sample_aux().
+	 */
+	WRITE_ONCE(rb->aux_in_sampling, 1);
+	barrier();
+
+	ret = event->pmu->snapshot_aux(event, handle, size);
+
+	barrier();
+	WRITE_ONCE(rb->aux_in_sampling, 0);
+	local_irq_restore(flags);
+
+	return ret;
+}
+
+static void perf_aux_sample_output(struct perf_event *event,
+				   struct perf_output_handle *handle,
+				   struct perf_sample_data *data)
+{
+	struct perf_event *sampler = event->aux_event;
+	struct perf_buffer *rb;
+	unsigned long pad;
+	long size;
+
+	if (WARN_ON_ONCE(!sampler || !data->aux_size))
+		return;
+
+	rb = ring_buffer_get(sampler);
+	if (!rb)
+		return;
+
+	size = perf_pmu_snapshot_aux(rb, sampler, handle, data->aux_size);
+
+	/*
+	 * An error here means that perf_output_copy() failed (returned a
+	 * non-zero surplus that it didn't copy), which in its current
+	 * enlightened implementation is not possible. If that changes, we'd
+	 * like to know.
+	 */
+	if (WARN_ON_ONCE(size < 0))
+		goto out_put;
+
+	/*
+	 * The pad comes from ALIGN()ing data->aux_size up to u64 in
+	 * perf_prepare_sample_aux(), so should not be more than that.
+	 */
+	pad = data->aux_size - size;
+	if (WARN_ON_ONCE(pad >= sizeof(u64)))
+		pad = 8;
+
+	if (pad) {
+		u64 zero = 0;
+		perf_output_copy(handle, &zero, pad);
+	}
+
+out_put:
+	ring_buffer_put(rb);
+}
+
+>>>>>>> upstream/android-13
 static void __perf_event_header__init_id(struct perf_event_header *header,
 					 struct perf_sample_data *data,
 					 struct perf_event *event)
@@ -6248,6 +8058,14 @@ static void perf_output_read(struct perf_output_handle *handle,
 		perf_output_read_one(handle, event, enabled, running);
 }
 
+<<<<<<< HEAD
+=======
+static inline bool perf_sample_save_hw_index(struct perf_event *event)
+{
+	return event->attr.branch_sample_type & PERF_SAMPLE_BRANCH_HW_INDEX;
+}
+
+>>>>>>> upstream/android-13
 void perf_output_sample(struct perf_output_handle *handle,
 			struct perf_event_header *header,
 			struct perf_sample_data *data,
@@ -6336,6 +8154,11 @@ void perf_output_sample(struct perf_output_handle *handle,
 			     * sizeof(struct perf_branch_entry);
 
 			perf_output_put(handle, data->br_stack->nr);
+<<<<<<< HEAD
+=======
+			if (perf_sample_save_hw_index(event))
+				perf_output_put(handle, data->br_stack->hw_idx);
+>>>>>>> upstream/android-13
 			perf_output_copy(handle, data->br_stack->entries, size);
 		} else {
 			/*
@@ -6369,8 +8192,13 @@ void perf_output_sample(struct perf_output_handle *handle,
 					  data->regs_user.regs);
 	}
 
+<<<<<<< HEAD
 	if (sample_type & PERF_SAMPLE_WEIGHT)
 		perf_output_put(handle, data->weight);
+=======
+	if (sample_type & PERF_SAMPLE_WEIGHT_TYPE)
+		perf_output_put(handle, data->weight.full);
+>>>>>>> upstream/android-13
 
 	if (sample_type & PERF_SAMPLE_DATA_SRC)
 		perf_output_put(handle, data->data_src.val);
@@ -6398,11 +8226,34 @@ void perf_output_sample(struct perf_output_handle *handle,
 	if (sample_type & PERF_SAMPLE_PHYS_ADDR)
 		perf_output_put(handle, data->phys_addr);
 
+<<<<<<< HEAD
+=======
+	if (sample_type & PERF_SAMPLE_CGROUP)
+		perf_output_put(handle, data->cgroup);
+
+	if (sample_type & PERF_SAMPLE_DATA_PAGE_SIZE)
+		perf_output_put(handle, data->data_page_size);
+
+	if (sample_type & PERF_SAMPLE_CODE_PAGE_SIZE)
+		perf_output_put(handle, data->code_page_size);
+
+	if (sample_type & PERF_SAMPLE_AUX) {
+		perf_output_put(handle, data->aux_size);
+
+		if (data->aux_size)
+			perf_aux_sample_output(event, handle, data);
+	}
+
+>>>>>>> upstream/android-13
 	if (!event->attr.watermark) {
 		int wakeup_events = event->attr.wakeup_events;
 
 		if (wakeup_events) {
+<<<<<<< HEAD
 			struct ring_buffer *rb = handle->rb;
+=======
+			struct perf_buffer *rb = handle->rb;
+>>>>>>> upstream/android-13
 			int events = local_inc_return(&rb->events);
 
 			if (events >= wakeup_events) {
@@ -6416,7 +8267,10 @@ void perf_output_sample(struct perf_output_handle *handle,
 static u64 perf_virt_to_phys(u64 virt)
 {
 	u64 phys_addr = 0;
+<<<<<<< HEAD
 	struct page *p = NULL;
+=======
+>>>>>>> upstream/android-13
 
 	if (!virt)
 		return 0;
@@ -6431,6 +8285,7 @@ static u64 perf_virt_to_phys(u64 virt)
 		 * Walking the pages tables for user address.
 		 * Interrupts are disabled, so it prevents any tear down
 		 * of the page tables.
+<<<<<<< HEAD
 		 * Try IRQ-safe __get_user_pages_fast first.
 		 * If failed, leave phys_addr as 0.
 		 */
@@ -6443,11 +8298,116 @@ static u64 perf_virt_to_phys(u64 virt)
 
 		if (p)
 			put_page(p);
+=======
+		 * Try IRQ-safe get_user_page_fast_only first.
+		 * If failed, leave phys_addr as 0.
+		 */
+		if (current->mm != NULL) {
+			struct page *p;
+
+			pagefault_disable();
+			if (get_user_page_fast_only(virt, 0, &p)) {
+				phys_addr = page_to_phys(p) + virt % PAGE_SIZE;
+				put_page(p);
+			}
+			pagefault_enable();
+		}
+>>>>>>> upstream/android-13
 	}
 
 	return phys_addr;
 }
 
+<<<<<<< HEAD
+=======
+/*
+ * Return the pagetable size of a given virtual address.
+ */
+static u64 perf_get_pgtable_size(struct mm_struct *mm, unsigned long addr)
+{
+	u64 size = 0;
+
+#ifdef CONFIG_HAVE_FAST_GUP
+	pgd_t *pgdp, pgd;
+	p4d_t *p4dp, p4d;
+	pud_t *pudp, pud;
+	pmd_t *pmdp, pmd;
+	pte_t *ptep, pte;
+
+	pgdp = pgd_offset(mm, addr);
+	pgd = READ_ONCE(*pgdp);
+	if (pgd_none(pgd))
+		return 0;
+
+	if (pgd_leaf(pgd))
+		return pgd_leaf_size(pgd);
+
+	p4dp = p4d_offset_lockless(pgdp, pgd, addr);
+	p4d = READ_ONCE(*p4dp);
+	if (!p4d_present(p4d))
+		return 0;
+
+	if (p4d_leaf(p4d))
+		return p4d_leaf_size(p4d);
+
+	pudp = pud_offset_lockless(p4dp, p4d, addr);
+	pud = READ_ONCE(*pudp);
+	if (!pud_present(pud))
+		return 0;
+
+	if (pud_leaf(pud))
+		return pud_leaf_size(pud);
+
+	pmdp = pmd_offset_lockless(pudp, pud, addr);
+	pmd = READ_ONCE(*pmdp);
+	if (!pmd_present(pmd))
+		return 0;
+
+	if (pmd_leaf(pmd))
+		return pmd_leaf_size(pmd);
+
+	ptep = pte_offset_map(&pmd, addr);
+	pte = ptep_get_lockless(ptep);
+	if (pte_present(pte))
+		size = pte_leaf_size(pte);
+	pte_unmap(ptep);
+#endif /* CONFIG_HAVE_FAST_GUP */
+
+	return size;
+}
+
+static u64 perf_get_page_size(unsigned long addr)
+{
+	struct mm_struct *mm;
+	unsigned long flags;
+	u64 size;
+
+	if (!addr)
+		return 0;
+
+	/*
+	 * Software page-table walkers must disable IRQs,
+	 * which prevents any tear down of the page tables.
+	 */
+	local_irq_save(flags);
+
+	mm = current->mm;
+	if (!mm) {
+		/*
+		 * For kernel threads and the like, use init_mm so that
+		 * we can find kernel memory.
+		 */
+		mm = &init_mm;
+	}
+
+	size = perf_get_pgtable_size(mm, addr);
+
+	local_irq_restore(flags);
+
+	return size;
+}
+
+>>>>>>> upstream/android-13
 static struct perf_callchain_entry __empty_callchain = { .nr = 0, };
 
 struct perf_callchain_entry *
@@ -6483,7 +8443,11 @@ void perf_prepare_sample(struct perf_event_header *header,
 
 	__perf_event_header__init_id(header, data, event);
 
+<<<<<<< HEAD
 	if (sample_type & PERF_SAMPLE_IP)
+=======
+	if (sample_type & (PERF_SAMPLE_IP | PERF_SAMPLE_CODE_PAGE_SIZE))
+>>>>>>> upstream/android-13
 		data->ip = perf_instruction_pointer(regs);
 
 	if (sample_type & PERF_SAMPLE_CALLCHAIN) {
@@ -6525,6 +8489,12 @@ void perf_prepare_sample(struct perf_event_header *header,
 	if (sample_type & PERF_SAMPLE_BRANCH_STACK) {
 		int size = sizeof(u64); /* nr */
 		if (data->br_stack) {
+<<<<<<< HEAD
+=======
+			if (perf_sample_save_hw_index(event))
+				size += sizeof(u64);
+
+>>>>>>> upstream/android-13
 			size += data->br_stack->nr
 			      * sizeof(struct perf_branch_entry);
 		}
@@ -6532,8 +8502,12 @@ void perf_prepare_sample(struct perf_event_header *header,
 	}
 
 	if (sample_type & (PERF_SAMPLE_REGS_USER | PERF_SAMPLE_STACK_USER))
+<<<<<<< HEAD
 		perf_sample_regs_user(&data->regs_user, regs,
 				      &data->regs_user_copy);
+=======
+		perf_sample_regs_user(&data->regs_user, regs);
+>>>>>>> upstream/android-13
 
 	if (sample_type & PERF_SAMPLE_REGS_USER) {
 		/* regs dump ABI info */
@@ -6549,7 +8523,11 @@ void perf_prepare_sample(struct perf_event_header *header,
 
 	if (sample_type & PERF_SAMPLE_STACK_USER) {
 		/*
+<<<<<<< HEAD
 		 * Either we need PERF_SAMPLE_STACK_USER bit to be allways
+=======
+		 * Either we need PERF_SAMPLE_STACK_USER bit to be always
+>>>>>>> upstream/android-13
 		 * processed as the last one or have additional check added
 		 * in case new sample type is added, because we could eat
 		 * up the rest of the sample size.
@@ -6589,25 +8567,94 @@ void perf_prepare_sample(struct perf_event_header *header,
 
 	if (sample_type & PERF_SAMPLE_PHYS_ADDR)
 		data->phys_addr = perf_virt_to_phys(data->addr);
+<<<<<<< HEAD
 }
 
 static __always_inline void
+=======
+
+#ifdef CONFIG_CGROUP_PERF
+	if (sample_type & PERF_SAMPLE_CGROUP) {
+		struct cgroup *cgrp;
+
+		/* protected by RCU */
+		cgrp = task_css_check(current, perf_event_cgrp_id, 1)->cgroup;
+		data->cgroup = cgroup_id(cgrp);
+	}
+#endif
+
+	/*
+	 * PERF_DATA_PAGE_SIZE requires PERF_SAMPLE_ADDR. If the user doesn't
+	 * require PERF_SAMPLE_ADDR, kernel implicitly retrieve the data->addr,
+	 * but the value will not dump to the userspace.
+	 */
+	if (sample_type & PERF_SAMPLE_DATA_PAGE_SIZE)
+		data->data_page_size = perf_get_page_size(data->addr);
+
+	if (sample_type & PERF_SAMPLE_CODE_PAGE_SIZE)
+		data->code_page_size = perf_get_page_size(data->ip);
+
+	if (sample_type & PERF_SAMPLE_AUX) {
+		u64 size;
+
+		header->size += sizeof(u64); /* size */
+
+		/*
+		 * Given the 16bit nature of header::size, an AUX sample can
+		 * easily overflow it, what with all the preceding sample bits.
+		 * Make sure this doesn't happen by using up to U16_MAX bytes
+		 * per sample in total (rounded down to 8 byte boundary).
+		 */
+		size = min_t(size_t, U16_MAX - header->size,
+			     event->attr.aux_sample_size);
+		size = rounddown(size, 8);
+		size = perf_prepare_sample_aux(event, data, size);
+
+		WARN_ON_ONCE(size + header->size > U16_MAX);
+		header->size += size;
+	}
+	/*
+	 * If you're adding more sample types here, you likely need to do
+	 * something about the overflowing header::size, like repurpose the
+	 * lowest 3 bits of size, which should be always zero at the moment.
+	 * This raises a more important question, do we really need 512k sized
+	 * samples and why, so good argumentation is in order for whatever you
+	 * do here next.
+	 */
+	WARN_ON_ONCE(header->size & 7);
+}
+
+static __always_inline int
+>>>>>>> upstream/android-13
 __perf_event_output(struct perf_event *event,
 		    struct perf_sample_data *data,
 		    struct pt_regs *regs,
 		    int (*output_begin)(struct perf_output_handle *,
+<<<<<<< HEAD
+=======
+					struct perf_sample_data *,
+>>>>>>> upstream/android-13
 					struct perf_event *,
 					unsigned int))
 {
 	struct perf_output_handle handle;
 	struct perf_event_header header;
+<<<<<<< HEAD
+=======
+	int err;
+>>>>>>> upstream/android-13
 
 	/* protect the callchain buffers */
 	rcu_read_lock();
 
 	perf_prepare_sample(&header, data, event, regs);
 
+<<<<<<< HEAD
 	if (output_begin(&handle, event, header.size))
+=======
+	err = output_begin(&handle, data, event, header.size);
+	if (err)
+>>>>>>> upstream/android-13
 		goto exit;
 
 	perf_output_sample(&handle, &header, data, event);
@@ -6616,6 +8663,10 @@ __perf_event_output(struct perf_event *event,
 
 exit:
 	rcu_read_unlock();
+<<<<<<< HEAD
+=======
+	return err;
+>>>>>>> upstream/android-13
 }
 
 void
@@ -6634,12 +8685,20 @@ perf_event_output_backward(struct perf_event *event,
 	__perf_event_output(event, data, regs, perf_output_begin_backward);
 }
 
+<<<<<<< HEAD
 void
+=======
+int
+>>>>>>> upstream/android-13
 perf_event_output(struct perf_event *event,
 		  struct perf_sample_data *data,
 		  struct pt_regs *regs)
 {
+<<<<<<< HEAD
 	__perf_event_output(event, data, regs, perf_output_begin);
+=======
+	return __perf_event_output(event, data, regs, perf_output_begin);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -6671,7 +8730,11 @@ perf_event_read_event(struct perf_event *event,
 	int ret;
 
 	perf_event_header__init_id(&read_event.header, &sample, event);
+<<<<<<< HEAD
 	ret = perf_output_begin(&handle, event, read_event.header.size);
+=======
+	ret = perf_output_begin(&handle, &sample, event, read_event.header.size);
+>>>>>>> upstream/android-13
 	if (ret)
 		return;
 
@@ -6801,6 +8864,7 @@ void perf_event_exec(void)
 	struct perf_event_context *ctx;
 	int ctxn;
 
+<<<<<<< HEAD
 	rcu_read_lock();
 	for_each_task_context_nr(ctxn) {
 		ctx = current->perf_event_ctxp[ctxn];
@@ -6817,6 +8881,24 @@ void perf_event_exec(void)
 
 struct remote_output {
 	struct ring_buffer	*rb;
+=======
+	for_each_task_context_nr(ctxn) {
+		perf_event_enable_on_exec(ctxn);
+		perf_event_remove_on_exec(ctxn);
+
+		rcu_read_lock();
+		ctx = rcu_dereference(current->perf_event_ctxp[ctxn]);
+		if (ctx) {
+			perf_iterate_ctx(ctx, perf_event_addr_filters_exec,
+					 NULL, true);
+		}
+		rcu_read_unlock();
+	}
+}
+
+struct remote_output {
+	struct perf_buffer	*rb;
+>>>>>>> upstream/android-13
 	int			err;
 };
 
@@ -6824,7 +8906,11 @@ static void __perf_event_output_stop(struct perf_event *event, void *data)
 {
 	struct perf_event *parent = event->parent;
 	struct remote_output *ro = data;
+<<<<<<< HEAD
 	struct ring_buffer *rb = ro->rb;
+=======
+	struct perf_buffer *rb = ro->rb;
+>>>>>>> upstream/android-13
 	struct stop_event_data sd = {
 		.event	= event,
 	};
@@ -6940,7 +9026,11 @@ static void perf_event_task_output(struct perf_event *event,
 
 	perf_event_header__init_id(&task_event->event_id.header, &sample, event);
 
+<<<<<<< HEAD
 	ret = perf_output_begin(&handle, event,
+=======
+	ret = perf_output_begin(&handle, &sample, event,
+>>>>>>> upstream/android-13
 				task_event->event_id.header.size);
 	if (ret)
 		goto out;
@@ -7043,7 +9133,11 @@ static void perf_event_comm_output(struct perf_event *event,
 		return;
 
 	perf_event_header__init_id(&comm_event->event_id.header, &sample, event);
+<<<<<<< HEAD
 	ret = perf_output_begin(&handle, event,
+=======
+	ret = perf_output_begin(&handle, &sample, event,
+>>>>>>> upstream/android-13
 				comm_event->event_id.header.size);
 
 	if (ret)
@@ -7143,7 +9237,11 @@ static void perf_event_namespaces_output(struct perf_event *event,
 
 	perf_event_header__init_id(&namespaces_event->event_id.header,
 				   &sample, event);
+<<<<<<< HEAD
 	ret = perf_output_begin(&handle, event,
+=======
+	ret = perf_output_begin(&handle, &sample, event,
+>>>>>>> upstream/android-13
 				namespaces_event->event_id.header.size);
 	if (ret)
 		goto out;
@@ -7168,7 +9266,11 @@ static void perf_fill_ns_link_info(struct perf_ns_link_info *ns_link_info,
 {
 	struct path ns_path;
 	struct inode *ns_inode;
+<<<<<<< HEAD
 	void *error;
+=======
+	int error;
+>>>>>>> upstream/android-13
 
 	error = ns_get_path(&ns_path, task, ns_ops);
 	if (!error) {
@@ -7238,6 +9340,108 @@ void perf_event_namespaces(struct task_struct *task)
 }
 
 /*
+<<<<<<< HEAD
+=======
+ * cgroup tracking
+ */
+#ifdef CONFIG_CGROUP_PERF
+
+struct perf_cgroup_event {
+	char				*path;
+	int				path_size;
+	struct {
+		struct perf_event_header	header;
+		u64				id;
+		char				path[];
+	} event_id;
+};
+
+static int perf_event_cgroup_match(struct perf_event *event)
+{
+	return event->attr.cgroup;
+}
+
+static void perf_event_cgroup_output(struct perf_event *event, void *data)
+{
+	struct perf_cgroup_event *cgroup_event = data;
+	struct perf_output_handle handle;
+	struct perf_sample_data sample;
+	u16 header_size = cgroup_event->event_id.header.size;
+	int ret;
+
+	if (!perf_event_cgroup_match(event))
+		return;
+
+	perf_event_header__init_id(&cgroup_event->event_id.header,
+				   &sample, event);
+	ret = perf_output_begin(&handle, &sample, event,
+				cgroup_event->event_id.header.size);
+	if (ret)
+		goto out;
+
+	perf_output_put(&handle, cgroup_event->event_id);
+	__output_copy(&handle, cgroup_event->path, cgroup_event->path_size);
+
+	perf_event__output_id_sample(event, &handle, &sample);
+
+	perf_output_end(&handle);
+out:
+	cgroup_event->event_id.header.size = header_size;
+}
+
+static void perf_event_cgroup(struct cgroup *cgrp)
+{
+	struct perf_cgroup_event cgroup_event;
+	char path_enomem[16] = "//enomem";
+	char *pathname;
+	size_t size;
+
+	if (!atomic_read(&nr_cgroup_events))
+		return;
+
+	cgroup_event = (struct perf_cgroup_event){
+		.event_id  = {
+			.header = {
+				.type = PERF_RECORD_CGROUP,
+				.misc = 0,
+				.size = sizeof(cgroup_event.event_id),
+			},
+			.id = cgroup_id(cgrp),
+		},
+	};
+
+	pathname = kmalloc(PATH_MAX, GFP_KERNEL);
+	if (pathname == NULL) {
+		cgroup_event.path = path_enomem;
+	} else {
+		/* just to be sure to have enough space for alignment */
+		cgroup_path(cgrp, pathname, PATH_MAX - sizeof(u64));
+		cgroup_event.path = pathname;
+	}
+
+	/*
+	 * Since our buffer works in 8 byte units we need to align our string
+	 * size to a multiple of 8. However, we must guarantee the tail end is
+	 * zero'd out to avoid leaking random bits to userspace.
+	 */
+	size = strlen(cgroup_event.path) + 1;
+	while (!IS_ALIGNED(size, sizeof(u64)))
+		cgroup_event.path[size++] = '\0';
+
+	cgroup_event.event_id.header.size += size;
+	cgroup_event.path_size = size;
+
+	perf_iterate_sb(perf_event_cgroup_output,
+			&cgroup_event,
+			NULL);
+
+	kfree(pathname);
+}
+
+#endif
+
+/*
+>>>>>>> upstream/android-13
  * mmap tracking
  */
 
@@ -7250,6 +9454,11 @@ struct perf_mmap_event {
 	u64			ino;
 	u64			ino_generation;
 	u32			prot, flags;
+<<<<<<< HEAD
+=======
+	u8			build_id[BUILD_ID_SIZE_MAX];
+	u32			build_id_size;
+>>>>>>> upstream/android-13
 
 	struct {
 		struct perf_event_header	header;
@@ -7281,6 +9490,10 @@ static void perf_event_mmap_output(struct perf_event *event,
 	struct perf_sample_data sample;
 	int size = mmap_event->event_id.header.size;
 	u32 type = mmap_event->event_id.header.type;
+<<<<<<< HEAD
+=======
+	bool use_build_id;
+>>>>>>> upstream/android-13
 	int ret;
 
 	if (!perf_event_mmap_match(event, data))
@@ -7297,7 +9510,11 @@ static void perf_event_mmap_output(struct perf_event *event,
 	}
 
 	perf_event_header__init_id(&mmap_event->event_id.header, &sample, event);
+<<<<<<< HEAD
 	ret = perf_output_begin(&handle, event,
+=======
+	ret = perf_output_begin(&handle, &sample, event,
+>>>>>>> upstream/android-13
 				mmap_event->event_id.header.size);
 	if (ret)
 		goto out;
@@ -7305,6 +9522,7 @@ static void perf_event_mmap_output(struct perf_event *event,
 	mmap_event->event_id.pid = perf_event_pid(event, current);
 	mmap_event->event_id.tid = perf_event_tid(event, current);
 
+<<<<<<< HEAD
 	perf_output_put(&handle, mmap_event->event_id);
 
 	if (event->attr.mmap2) {
@@ -7312,6 +9530,27 @@ static void perf_event_mmap_output(struct perf_event *event,
 		perf_output_put(&handle, mmap_event->min);
 		perf_output_put(&handle, mmap_event->ino);
 		perf_output_put(&handle, mmap_event->ino_generation);
+=======
+	use_build_id = event->attr.build_id && mmap_event->build_id_size;
+
+	if (event->attr.mmap2 && use_build_id)
+		mmap_event->event_id.header.misc |= PERF_RECORD_MISC_MMAP_BUILD_ID;
+
+	perf_output_put(&handle, mmap_event->event_id);
+
+	if (event->attr.mmap2) {
+		if (use_build_id) {
+			u8 size[4] = { (u8) mmap_event->build_id_size, 0, 0, 0 };
+
+			__output_copy(&handle, size, 4);
+			__output_copy(&handle, mmap_event->build_id, BUILD_ID_SIZE_MAX);
+		} else {
+			perf_output_put(&handle, mmap_event->maj);
+			perf_output_put(&handle, mmap_event->min);
+			perf_output_put(&handle, mmap_event->ino);
+			perf_output_put(&handle, mmap_event->ino_generation);
+		}
+>>>>>>> upstream/android-13
 		perf_output_put(&handle, mmap_event->prot);
 		perf_output_put(&handle, mmap_event->flags);
 	}
@@ -7351,6 +9590,7 @@ static void perf_event_mmap_event(struct perf_mmap_event *mmap_event)
 	else
 		flags = MAP_PRIVATE;
 
+<<<<<<< HEAD
 	if (vma->vm_flags & VM_DENYWRITE)
 		flags |= MAP_DENYWRITE;
 	if (vma->vm_flags & VM_MAYEXEC)
@@ -7358,6 +9598,11 @@ static void perf_event_mmap_event(struct perf_mmap_event *mmap_event)
 	if (vma->vm_flags & VM_LOCKED)
 		flags |= MAP_LOCKED;
 	if (vma->vm_flags & VM_HUGETLB)
+=======
+	if (vma->vm_flags & VM_LOCKED)
+		flags |= MAP_LOCKED;
+	if (is_vm_hugetlb_page(vma))
+>>>>>>> upstream/android-13
 		flags |= MAP_HUGETLB;
 
 	if (file) {
@@ -7440,6 +9685,12 @@ got_name:
 
 	mmap_event->event_id.header.size = sizeof(mmap_event->event_id) + size;
 
+<<<<<<< HEAD
+=======
+	if (atomic_read(&nr_build_id_events))
+		build_id_parse(vma, mmap_event->build_id, &mmap_event->build_id_size);
+
+>>>>>>> upstream/android-13
 	perf_iterate_sb(perf_event_mmap_output,
 		       mmap_event,
 		       NULL);
@@ -7607,7 +9858,11 @@ void perf_event_aux_event(struct perf_event *event, unsigned long head,
 	int ret;
 
 	perf_event_header__init_id(&rec.header, &sample, event);
+<<<<<<< HEAD
 	ret = perf_output_begin(&handle, event, rec.header.size);
+=======
+	ret = perf_output_begin(&handle, &sample, event, rec.header.size);
+>>>>>>> upstream/android-13
 
 	if (ret)
 		return;
@@ -7641,7 +9896,11 @@ void perf_log_lost_samples(struct perf_event *event, u64 lost)
 
 	perf_event_header__init_id(&lost_samples_event.header, &sample, event);
 
+<<<<<<< HEAD
 	ret = perf_output_begin(&handle, event,
+=======
+	ret = perf_output_begin(&handle, &sample, event,
+>>>>>>> upstream/android-13
 				lost_samples_event.header.size);
 	if (ret)
 		return;
@@ -7696,7 +9955,11 @@ static void perf_event_switch_output(struct perf_event *event, void *data)
 
 	perf_event_header__init_id(&se->event_id.header, &sample, event);
 
+<<<<<<< HEAD
 	ret = perf_output_begin(&handle, event, se->event_id.header.size);
+=======
+	ret = perf_output_begin(&handle, &sample, event, se->event_id.header.size);
+>>>>>>> upstream/android-13
 	if (ret)
 		return;
 
@@ -7731,6 +9994,7 @@ static void perf_event_switch(struct task_struct *task,
 		},
 	};
 
+<<<<<<< HEAD
 	if (!sched_in && task->state == TASK_RUNNING)
 		switch_event.event_id.header.misc |=
 				PERF_RECORD_MISC_SWITCH_OUT_PREEMPT;
@@ -7738,6 +10002,14 @@ static void perf_event_switch(struct task_struct *task,
 	perf_iterate_sb(perf_event_switch_output,
 		       &switch_event,
 		       NULL);
+=======
+	if (!sched_in && task->on_rq) {
+		switch_event.event_id.header.misc |=
+				PERF_RECORD_MISC_SWITCH_OUT_PREEMPT;
+	}
+
+	perf_iterate_sb(perf_event_switch_output, &switch_event, NULL);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -7771,7 +10043,11 @@ static void perf_log_throttle(struct perf_event *event, int enable)
 
 	perf_event_header__init_id(&throttle_event.header, &sample, event);
 
+<<<<<<< HEAD
 	ret = perf_output_begin(&handle, event,
+=======
+	ret = perf_output_begin(&handle, &sample, event,
+>>>>>>> upstream/android-13
 				throttle_event.header.size);
 	if (ret)
 		return;
@@ -7781,6 +10057,293 @@ static void perf_log_throttle(struct perf_event *event, int enable)
 	perf_output_end(&handle);
 }
 
+<<<<<<< HEAD
+=======
+/*
+ * ksymbol register/unregister tracking
+ */
+
+struct perf_ksymbol_event {
+	const char	*name;
+	int		name_len;
+	struct {
+		struct perf_event_header        header;
+		u64				addr;
+		u32				len;
+		u16				ksym_type;
+		u16				flags;
+	} event_id;
+};
+
+static int perf_event_ksymbol_match(struct perf_event *event)
+{
+	return event->attr.ksymbol;
+}
+
+static void perf_event_ksymbol_output(struct perf_event *event, void *data)
+{
+	struct perf_ksymbol_event *ksymbol_event = data;
+	struct perf_output_handle handle;
+	struct perf_sample_data sample;
+	int ret;
+
+	if (!perf_event_ksymbol_match(event))
+		return;
+
+	perf_event_header__init_id(&ksymbol_event->event_id.header,
+				   &sample, event);
+	ret = perf_output_begin(&handle, &sample, event,
+				ksymbol_event->event_id.header.size);
+	if (ret)
+		return;
+
+	perf_output_put(&handle, ksymbol_event->event_id);
+	__output_copy(&handle, ksymbol_event->name, ksymbol_event->name_len);
+	perf_event__output_id_sample(event, &handle, &sample);
+
+	perf_output_end(&handle);
+}
+
+void perf_event_ksymbol(u16 ksym_type, u64 addr, u32 len, bool unregister,
+			const char *sym)
+{
+	struct perf_ksymbol_event ksymbol_event;
+	char name[KSYM_NAME_LEN];
+	u16 flags = 0;
+	int name_len;
+
+	if (!atomic_read(&nr_ksymbol_events))
+		return;
+
+	if (ksym_type >= PERF_RECORD_KSYMBOL_TYPE_MAX ||
+	    ksym_type == PERF_RECORD_KSYMBOL_TYPE_UNKNOWN)
+		goto err;
+
+	strlcpy(name, sym, KSYM_NAME_LEN);
+	name_len = strlen(name) + 1;
+	while (!IS_ALIGNED(name_len, sizeof(u64)))
+		name[name_len++] = '\0';
+	BUILD_BUG_ON(KSYM_NAME_LEN % sizeof(u64));
+
+	if (unregister)
+		flags |= PERF_RECORD_KSYMBOL_FLAGS_UNREGISTER;
+
+	ksymbol_event = (struct perf_ksymbol_event){
+		.name = name,
+		.name_len = name_len,
+		.event_id = {
+			.header = {
+				.type = PERF_RECORD_KSYMBOL,
+				.size = sizeof(ksymbol_event.event_id) +
+					name_len,
+			},
+			.addr = addr,
+			.len = len,
+			.ksym_type = ksym_type,
+			.flags = flags,
+		},
+	};
+
+	perf_iterate_sb(perf_event_ksymbol_output, &ksymbol_event, NULL);
+	return;
+err:
+	WARN_ONCE(1, "%s: Invalid KSYMBOL type 0x%x\n", __func__, ksym_type);
+}
+
+/*
+ * bpf program load/unload tracking
+ */
+
+struct perf_bpf_event {
+	struct bpf_prog	*prog;
+	struct {
+		struct perf_event_header        header;
+		u16				type;
+		u16				flags;
+		u32				id;
+		u8				tag[BPF_TAG_SIZE];
+	} event_id;
+};
+
+static int perf_event_bpf_match(struct perf_event *event)
+{
+	return event->attr.bpf_event;
+}
+
+static void perf_event_bpf_output(struct perf_event *event, void *data)
+{
+	struct perf_bpf_event *bpf_event = data;
+	struct perf_output_handle handle;
+	struct perf_sample_data sample;
+	int ret;
+
+	if (!perf_event_bpf_match(event))
+		return;
+
+	perf_event_header__init_id(&bpf_event->event_id.header,
+				   &sample, event);
+	ret = perf_output_begin(&handle, data, event,
+				bpf_event->event_id.header.size);
+	if (ret)
+		return;
+
+	perf_output_put(&handle, bpf_event->event_id);
+	perf_event__output_id_sample(event, &handle, &sample);
+
+	perf_output_end(&handle);
+}
+
+static void perf_event_bpf_emit_ksymbols(struct bpf_prog *prog,
+					 enum perf_bpf_event_type type)
+{
+	bool unregister = type == PERF_BPF_EVENT_PROG_UNLOAD;
+	int i;
+
+	if (prog->aux->func_cnt == 0) {
+		perf_event_ksymbol(PERF_RECORD_KSYMBOL_TYPE_BPF,
+				   (u64)(unsigned long)prog->bpf_func,
+				   prog->jited_len, unregister,
+				   prog->aux->ksym.name);
+	} else {
+		for (i = 0; i < prog->aux->func_cnt; i++) {
+			struct bpf_prog *subprog = prog->aux->func[i];
+
+			perf_event_ksymbol(
+				PERF_RECORD_KSYMBOL_TYPE_BPF,
+				(u64)(unsigned long)subprog->bpf_func,
+				subprog->jited_len, unregister,
+				prog->aux->ksym.name);
+		}
+	}
+}
+
+void perf_event_bpf_event(struct bpf_prog *prog,
+			  enum perf_bpf_event_type type,
+			  u16 flags)
+{
+	struct perf_bpf_event bpf_event;
+
+	if (type <= PERF_BPF_EVENT_UNKNOWN ||
+	    type >= PERF_BPF_EVENT_MAX)
+		return;
+
+	switch (type) {
+	case PERF_BPF_EVENT_PROG_LOAD:
+	case PERF_BPF_EVENT_PROG_UNLOAD:
+		if (atomic_read(&nr_ksymbol_events))
+			perf_event_bpf_emit_ksymbols(prog, type);
+		break;
+	default:
+		break;
+	}
+
+	if (!atomic_read(&nr_bpf_events))
+		return;
+
+	bpf_event = (struct perf_bpf_event){
+		.prog = prog,
+		.event_id = {
+			.header = {
+				.type = PERF_RECORD_BPF_EVENT,
+				.size = sizeof(bpf_event.event_id),
+			},
+			.type = type,
+			.flags = flags,
+			.id = prog->aux->id,
+		},
+	};
+
+	BUILD_BUG_ON(BPF_TAG_SIZE % sizeof(u64));
+
+	memcpy(bpf_event.event_id.tag, prog->tag, BPF_TAG_SIZE);
+	perf_iterate_sb(perf_event_bpf_output, &bpf_event, NULL);
+}
+
+struct perf_text_poke_event {
+	const void		*old_bytes;
+	const void		*new_bytes;
+	size_t			pad;
+	u16			old_len;
+	u16			new_len;
+
+	struct {
+		struct perf_event_header	header;
+
+		u64				addr;
+	} event_id;
+};
+
+static int perf_event_text_poke_match(struct perf_event *event)
+{
+	return event->attr.text_poke;
+}
+
+static void perf_event_text_poke_output(struct perf_event *event, void *data)
+{
+	struct perf_text_poke_event *text_poke_event = data;
+	struct perf_output_handle handle;
+	struct perf_sample_data sample;
+	u64 padding = 0;
+	int ret;
+
+	if (!perf_event_text_poke_match(event))
+		return;
+
+	perf_event_header__init_id(&text_poke_event->event_id.header, &sample, event);
+
+	ret = perf_output_begin(&handle, &sample, event,
+				text_poke_event->event_id.header.size);
+	if (ret)
+		return;
+
+	perf_output_put(&handle, text_poke_event->event_id);
+	perf_output_put(&handle, text_poke_event->old_len);
+	perf_output_put(&handle, text_poke_event->new_len);
+
+	__output_copy(&handle, text_poke_event->old_bytes, text_poke_event->old_len);
+	__output_copy(&handle, text_poke_event->new_bytes, text_poke_event->new_len);
+
+	if (text_poke_event->pad)
+		__output_copy(&handle, &padding, text_poke_event->pad);
+
+	perf_event__output_id_sample(event, &handle, &sample);
+
+	perf_output_end(&handle);
+}
+
+void perf_event_text_poke(const void *addr, const void *old_bytes,
+			  size_t old_len, const void *new_bytes, size_t new_len)
+{
+	struct perf_text_poke_event text_poke_event;
+	size_t tot, pad;
+
+	if (!atomic_read(&nr_text_poke_events))
+		return;
+
+	tot  = sizeof(text_poke_event.old_len) + old_len;
+	tot += sizeof(text_poke_event.new_len) + new_len;
+	pad  = ALIGN(tot, sizeof(u64)) - tot;
+
+	text_poke_event = (struct perf_text_poke_event){
+		.old_bytes    = old_bytes,
+		.new_bytes    = new_bytes,
+		.pad          = pad,
+		.old_len      = old_len,
+		.new_len      = new_len,
+		.event_id  = {
+			.header = {
+				.type = PERF_RECORD_TEXT_POKE,
+				.misc = PERF_RECORD_MISC_KERNEL,
+				.size = sizeof(text_poke_event.event_id) + tot + pad,
+			},
+			.addr = (unsigned long)addr,
+		},
+	};
+
+	perf_iterate_sb(perf_event_text_poke_output, &text_poke_event, NULL);
+}
+
+>>>>>>> upstream/android-13
 void perf_event_itrace_started(struct perf_event *event)
 {
 	event->attach_state |= PERF_ATTACH_ITRACE;
@@ -7811,7 +10374,11 @@ static void perf_log_itrace_start(struct perf_event *event)
 	rec.tid	= perf_event_tid(event, current);
 
 	perf_event_header__init_id(&rec.header, &sample, event);
+<<<<<<< HEAD
 	ret = perf_output_begin(&handle, event, rec.header.size);
+=======
+	ret = perf_output_begin(&handle, &sample, event, rec.header.size);
+>>>>>>> upstream/android-13
 
 	if (ret)
 		return;
@@ -7892,6 +10459,10 @@ static int __perf_event_overflow(struct perf_event *event,
 	if (events && atomic_dec_and_test(&event->event_limit)) {
 		ret = 1;
 		event->pending_kill = POLL_HUP;
+<<<<<<< HEAD
+=======
+		event->pending_addr = data->addr;
+>>>>>>> upstream/android-13
 
 		perf_event_disable_inatomic(event);
 	}
@@ -8379,9 +10950,15 @@ static int perf_tp_event_match(struct perf_event *event,
 	if (event->hw.state & PERF_HES_STOPPED)
 		return 0;
 	/*
+<<<<<<< HEAD
 	 * All tracepoints are from kernel-space.
 	 */
 	if (event->attr.exclude_kernel)
+=======
+	 * If exclude_kernel, only trace user-space tracepoints (uprobes)
+	 */
+	if (event->attr.exclude_kernel && !user_mode(regs))
+>>>>>>> upstream/android-13
 		return 0;
 
 	if (!perf_tp_filter_match(event, data))
@@ -8451,6 +11028,12 @@ void perf_tp_event(u16 event_type, u64 count, void *record, int entry_size,
 				continue;
 			if (event->attr.config != entry->type)
 				continue;
+<<<<<<< HEAD
+=======
+			/* Cannot deliver synchronous signal to other task. */
+			if (event->attr.sigtrap)
+				continue;
+>>>>>>> upstream/android-13
 			if (perf_tp_event_match(event, &data, regs))
 				perf_swevent_event(event, count, &data, regs);
 		}
@@ -8507,6 +11090,7 @@ static struct pmu perf_tracepoint = {
  *
  * PERF_PROBE_CONFIG_IS_RETPROBE if set, create kretprobe/uretprobe
  *                               if not set, create kprobe/uprobe
+<<<<<<< HEAD
  */
 enum perf_probe_config {
 	PERF_PROBE_CONFIG_IS_RETPROBE = 1U << 0,  /* [k,u]retprobe */
@@ -8515,10 +11099,32 @@ enum perf_probe_config {
 PMU_FORMAT_ATTR(retprobe, "config:0");
 
 static struct attribute *probe_attrs[] = {
+=======
+ *
+ * The following values specify a reference counter (or semaphore in the
+ * terminology of tools like dtrace, systemtap, etc.) Userspace Statically
+ * Defined Tracepoints (USDT). Currently, we use 40 bit for the offset.
+ *
+ * PERF_UPROBE_REF_CTR_OFFSET_BITS	# of bits in config as th offset
+ * PERF_UPROBE_REF_CTR_OFFSET_SHIFT	# of bits to shift left
+ */
+enum perf_probe_config {
+	PERF_PROBE_CONFIG_IS_RETPROBE = 1U << 0,  /* [k,u]retprobe */
+	PERF_UPROBE_REF_CTR_OFFSET_BITS = 32,
+	PERF_UPROBE_REF_CTR_OFFSET_SHIFT = 64 - PERF_UPROBE_REF_CTR_OFFSET_BITS,
+};
+
+PMU_FORMAT_ATTR(retprobe, "config:0");
+#endif
+
+#ifdef CONFIG_KPROBE_EVENTS
+static struct attribute *kprobe_attrs[] = {
+>>>>>>> upstream/android-13
 	&format_attr_retprobe.attr,
 	NULL,
 };
 
+<<<<<<< HEAD
 static struct attribute_group probe_format_group = {
 	.name = "format",
 	.attrs = probe_attrs,
@@ -8531,6 +11137,18 @@ static const struct attribute_group *probe_attr_groups[] = {
 #endif
 
 #ifdef CONFIG_KPROBE_EVENTS
+=======
+static struct attribute_group kprobe_format_group = {
+	.name = "format",
+	.attrs = kprobe_attrs,
+};
+
+static const struct attribute_group *kprobe_attr_groups[] = {
+	&kprobe_format_group,
+	NULL,
+};
+
+>>>>>>> upstream/android-13
 static int perf_kprobe_event_init(struct perf_event *event);
 static struct pmu perf_kprobe = {
 	.task_ctx_nr	= perf_sw_context,
@@ -8540,7 +11158,11 @@ static struct pmu perf_kprobe = {
 	.start		= perf_swevent_start,
 	.stop		= perf_swevent_stop,
 	.read		= perf_swevent_read,
+<<<<<<< HEAD
 	.attr_groups	= probe_attr_groups,
+=======
+	.attr_groups	= kprobe_attr_groups,
+>>>>>>> upstream/android-13
 };
 
 static int perf_kprobe_event_init(struct perf_event *event)
@@ -8551,7 +11173,11 @@ static int perf_kprobe_event_init(struct perf_event *event)
 	if (event->attr.type != perf_kprobe.type)
 		return -ENOENT;
 
+<<<<<<< HEAD
 	if (!capable(CAP_SYS_ADMIN))
+=======
+	if (!perfmon_capable())
+>>>>>>> upstream/android-13
 		return -EACCES;
 
 	/*
@@ -8572,6 +11198,27 @@ static int perf_kprobe_event_init(struct perf_event *event)
 #endif /* CONFIG_KPROBE_EVENTS */
 
 #ifdef CONFIG_UPROBE_EVENTS
+<<<<<<< HEAD
+=======
+PMU_FORMAT_ATTR(ref_ctr_offset, "config:32-63");
+
+static struct attribute *uprobe_attrs[] = {
+	&format_attr_retprobe.attr,
+	&format_attr_ref_ctr_offset.attr,
+	NULL,
+};
+
+static struct attribute_group uprobe_format_group = {
+	.name = "format",
+	.attrs = uprobe_attrs,
+};
+
+static const struct attribute_group *uprobe_attr_groups[] = {
+	&uprobe_format_group,
+	NULL,
+};
+
+>>>>>>> upstream/android-13
 static int perf_uprobe_event_init(struct perf_event *event);
 static struct pmu perf_uprobe = {
 	.task_ctx_nr	= perf_sw_context,
@@ -8581,18 +11228,30 @@ static struct pmu perf_uprobe = {
 	.start		= perf_swevent_start,
 	.stop		= perf_swevent_stop,
 	.read		= perf_swevent_read,
+<<<<<<< HEAD
 	.attr_groups	= probe_attr_groups,
+=======
+	.attr_groups	= uprobe_attr_groups,
+>>>>>>> upstream/android-13
 };
 
 static int perf_uprobe_event_init(struct perf_event *event)
 {
 	int err;
+<<<<<<< HEAD
+=======
+	unsigned long ref_ctr_offset;
+>>>>>>> upstream/android-13
 	bool is_retprobe;
 
 	if (event->attr.type != perf_uprobe.type)
 		return -ENOENT;
 
+<<<<<<< HEAD
 	if (!capable(CAP_SYS_ADMIN))
+=======
+	if (!perfmon_capable())
+>>>>>>> upstream/android-13
 		return -EACCES;
 
 	/*
@@ -8602,7 +11261,12 @@ static int perf_uprobe_event_init(struct perf_event *event)
 		return -EOPNOTSUPP;
 
 	is_retprobe = event->attr.config & PERF_PROBE_CONFIG_IS_RETPROBE;
+<<<<<<< HEAD
 	err = perf_uprobe_init(event, is_retprobe);
+=======
+	ref_ctr_offset = event->attr.config >> PERF_UPROBE_REF_CTR_OFFSET_SHIFT;
+	err = perf_uprobe_init(event, ref_ctr_offset, is_retprobe);
+>>>>>>> upstream/android-13
 	if (err)
 		return err;
 
@@ -8637,6 +11301,7 @@ static void bpf_overflow_handler(struct perf_event *event,
 		.data = data,
 		.event = event,
 	};
+<<<<<<< HEAD
 	int ret = 0;
 
 	ctx.regs = perf_arch_bpf_user_pt_regs(regs);
@@ -8649,16 +11314,38 @@ static void bpf_overflow_handler(struct perf_event *event,
 out:
 	__this_cpu_dec(bpf_prog_active);
 	preempt_enable();
+=======
+	struct bpf_prog *prog;
+	int ret = 0;
+
+	ctx.regs = perf_arch_bpf_user_pt_regs(regs);
+	if (unlikely(__this_cpu_inc_return(bpf_prog_active) != 1))
+		goto out;
+	rcu_read_lock();
+	prog = READ_ONCE(event->prog);
+	if (prog)
+		ret = bpf_prog_run(prog, &ctx);
+	rcu_read_unlock();
+out:
+	__this_cpu_dec(bpf_prog_active);
+>>>>>>> upstream/android-13
 	if (!ret)
 		return;
 
 	event->orig_overflow_handler(event, data, regs);
 }
 
+<<<<<<< HEAD
 static int perf_event_set_bpf_handler(struct perf_event *event, u32 prog_fd)
 {
 	struct bpf_prog *prog;
 
+=======
+static int perf_event_set_bpf_handler(struct perf_event *event,
+				      struct bpf_prog *prog,
+				      u64 bpf_cookie)
+{
+>>>>>>> upstream/android-13
 	if (event->overflow_handler_context)
 		/* hw breakpoint or kernel counter */
 		return -EINVAL;
@@ -8666,11 +11353,36 @@ static int perf_event_set_bpf_handler(struct perf_event *event, u32 prog_fd)
 	if (event->prog)
 		return -EEXIST;
 
+<<<<<<< HEAD
 	prog = bpf_prog_get_type(prog_fd, BPF_PROG_TYPE_PERF_EVENT);
 	if (IS_ERR(prog))
 		return PTR_ERR(prog);
 
 	event->prog = prog;
+=======
+	if (prog->type != BPF_PROG_TYPE_PERF_EVENT)
+		return -EINVAL;
+
+	if (event->attr.precise_ip &&
+	    prog->call_get_stack &&
+	    (!(event->attr.sample_type & __PERF_SAMPLE_CALLCHAIN_EARLY) ||
+	     event->attr.exclude_callchain_kernel ||
+	     event->attr.exclude_callchain_user)) {
+		/*
+		 * On perf_event with precise_ip, calling bpf_get_stack()
+		 * may trigger unwinder warnings and occasional crashes.
+		 * bpf_get_[stack|stackid] works around this issue by using
+		 * callchain attached to perf_sample_data. If the
+		 * perf_event does not full (kernel and user) callchain
+		 * attached to perf_sample_data, do not allow attaching BPF
+		 * program that calls bpf_get_[stack|stackid].
+		 */
+		return -EPROTO;
+	}
+
+	event->prog = prog;
+	event->bpf_cookie = bpf_cookie;
+>>>>>>> upstream/android-13
 	event->orig_overflow_handler = READ_ONCE(event->overflow_handler);
 	WRITE_ONCE(event->overflow_handler, bpf_overflow_handler);
 	return 0;
@@ -8688,7 +11400,13 @@ static void perf_event_free_bpf_handler(struct perf_event *event)
 	bpf_prog_put(prog);
 }
 #else
+<<<<<<< HEAD
 static int perf_event_set_bpf_handler(struct perf_event *event, u32 prog_fd)
+=======
+static int perf_event_set_bpf_handler(struct perf_event *event,
+				      struct bpf_prog *prog,
+				      u64 bpf_cookie)
+>>>>>>> upstream/android-13
 {
 	return -EOPNOTSUPP;
 }
@@ -8716,6 +11434,7 @@ static inline bool perf_event_is_tracing(struct perf_event *event)
 	return false;
 }
 
+<<<<<<< HEAD
 static int perf_event_set_bpf_prog(struct perf_event *event, u32 prog_fd)
 {
 	bool is_kprobe, is_tracepoint, is_syscall_tp;
@@ -8724,6 +11443,15 @@ static int perf_event_set_bpf_prog(struct perf_event *event, u32 prog_fd)
 
 	if (!perf_event_is_tracing(event))
 		return perf_event_set_bpf_handler(event, prog_fd);
+=======
+int perf_event_set_bpf_prog(struct perf_event *event, struct bpf_prog *prog,
+			    u64 bpf_cookie)
+{
+	bool is_kprobe, is_tracepoint, is_syscall_tp;
+
+	if (!perf_event_is_tracing(event))
+		return perf_event_set_bpf_handler(event, prog, bpf_cookie);
+>>>>>>> upstream/android-13
 
 	is_kprobe = event->tp_event->flags & TRACE_EVENT_FL_UKPROBE;
 	is_tracepoint = event->tp_event->flags & TRACE_EVENT_FL_TRACEPOINT;
@@ -8732,6 +11460,7 @@ static int perf_event_set_bpf_prog(struct perf_event *event, u32 prog_fd)
 		/* bpf programs can only be attached to u/kprobe or tracepoint */
 		return -EINVAL;
 
+<<<<<<< HEAD
 	prog = bpf_prog_get(prog_fd);
 	if (IS_ERR(prog))
 		return PTR_ERR(prog);
@@ -8750,10 +11479,22 @@ static int perf_event_set_bpf_prog(struct perf_event *event, u32 prog_fd)
 		bpf_prog_put(prog);
 		return -EINVAL;
 	}
+=======
+	if ((is_kprobe && prog->type != BPF_PROG_TYPE_KPROBE) ||
+	    (is_tracepoint && prog->type != BPF_PROG_TYPE_TRACEPOINT) ||
+	    (is_syscall_tp && prog->type != BPF_PROG_TYPE_TRACEPOINT))
+		return -EINVAL;
+
+	/* Kprobe override only works for kprobes, not uprobes. */
+	if (prog->kprobe_override &&
+	    !(event->tp_event->flags & TRACE_EVENT_FL_KPROBE))
+		return -EINVAL;
+>>>>>>> upstream/android-13
 
 	if (is_tracepoint || is_syscall_tp) {
 		int off = trace_event_get_offsets(event->tp_event);
 
+<<<<<<< HEAD
 		if (prog->aux->max_ctx_offset > off) {
 			bpf_prog_put(prog);
 			return -EACCES;
@@ -8767,6 +11508,16 @@ static int perf_event_set_bpf_prog(struct perf_event *event, u32 prog_fd)
 }
 
 static void perf_event_free_bpf_prog(struct perf_event *event)
+=======
+		if (prog->aux->max_ctx_offset > off)
+			return -EACCES;
+	}
+
+	return perf_event_attach_bpf_prog(event, prog, bpf_cookie);
+}
+
+void perf_event_free_bpf_prog(struct perf_event *event)
+>>>>>>> upstream/android-13
 {
 	if (!perf_event_is_tracing(event)) {
 		perf_event_free_bpf_handler(event);
@@ -8785,12 +11536,21 @@ static void perf_event_free_filter(struct perf_event *event)
 {
 }
 
+<<<<<<< HEAD
 static int perf_event_set_bpf_prog(struct perf_event *event, u32 prog_fd)
+=======
+int perf_event_set_bpf_prog(struct perf_event *event, struct bpf_prog *prog,
+			    u64 bpf_cookie)
+>>>>>>> upstream/android-13
 {
 	return -ENOENT;
 }
 
+<<<<<<< HEAD
 static void perf_event_free_bpf_prog(struct perf_event *event)
+=======
+void perf_event_free_bpf_prog(struct perf_event *event)
+>>>>>>> upstream/android-13
 {
 }
 #endif /* CONFIG_EVENT_TRACING */
@@ -8868,7 +11628,11 @@ static void perf_addr_filters_splice(struct perf_event *event,
 /*
  * Scan through mm's vmas and see if one of them matches the
  * @filter; if so, adjust filter's address range.
+<<<<<<< HEAD
  * Called with mm::mmap_sem down for reading.
+=======
+ * Called with mm::mmap_lock down for reading.
+>>>>>>> upstream/android-13
  */
 static void perf_addr_filter_apply(struct perf_addr_filter *filter,
 				   struct mm_struct *mm,
@@ -8906,11 +11670,19 @@ static void perf_event_addr_filters_apply(struct perf_event *event)
 		return;
 
 	if (ifh->nr_file_filters) {
+<<<<<<< HEAD
 		mm = get_task_mm(event->ctx->task);
 		if (!mm)
 			goto restart;
 
 		down_read(&mm->mmap_sem);
+=======
+		mm = get_task_mm(task);
+		if (!mm)
+			goto restart;
+
+		mmap_read_lock(mm);
+>>>>>>> upstream/android-13
 	}
 
 	raw_spin_lock_irqsave(&ifh->lock, flags);
@@ -8936,7 +11708,11 @@ static void perf_event_addr_filters_apply(struct perf_event *event)
 	raw_spin_unlock_irqrestore(&ifh->lock, flags);
 
 	if (ifh->nr_file_filters) {
+<<<<<<< HEAD
 		up_read(&mm->mmap_sem);
+=======
+		mmap_read_unlock(mm);
+>>>>>>> upstream/android-13
 
 		mmput(mm);
 	}
@@ -9043,6 +11819,10 @@ perf_event_parse_addr_filter(struct perf_event *event, char *fstr,
 		case IF_SRC_KERNELADDR:
 		case IF_SRC_KERNEL:
 			kernel = 1;
+<<<<<<< HEAD
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 
 		case IF_SRC_FILEADDR:
 		case IF_SRC_FILE:
@@ -9129,8 +11909,16 @@ perf_event_parse_addr_filter(struct perf_event *event, char *fstr,
 			}
 
 			/* ready to consume more filters */
+<<<<<<< HEAD
 			state = IF_STATE_ACTION;
 			filter = NULL;
+=======
+			kfree(filename);
+			filename = NULL;
+			state = IF_STATE_ACTION;
+			filter = NULL;
+			kernel = 0;
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -9278,7 +12066,11 @@ static void perf_swevent_start_hrtimer(struct perf_event *event)
 		period = max_t(u64, 10000, hwc->sample_period);
 	}
 	hrtimer_start(&hwc->hrtimer, ns_to_ktime(period),
+<<<<<<< HEAD
 		      HRTIMER_MODE_REL_PINNED);
+=======
+		      HRTIMER_MODE_REL_PINNED_HARD);
+>>>>>>> upstream/android-13
 }
 
 static void perf_swevent_cancel_hrtimer(struct perf_event *event)
@@ -9300,7 +12092,11 @@ static void perf_swevent_init_hrtimer(struct perf_event *event)
 	if (!is_sampling_event(event))
 		return;
 
+<<<<<<< HEAD
 	hrtimer_init(&hwc->hrtimer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
+=======
+	hrtimer_init(&hwc->hrtimer, CLOCK_MONOTONIC, HRTIMER_MODE_REL_HARD);
+>>>>>>> upstream/android-13
 	hwc->hrtimer.function = perf_swevent_hrtimer;
 
 	/*
@@ -9689,6 +12485,15 @@ static int pmu_dev_alloc(struct pmu *pmu)
 	if (ret)
 		goto del_dev;
 
+<<<<<<< HEAD
+=======
+	if (pmu->attr_update)
+		ret = sysfs_update_groups(&pmu->dev->kobj, pmu->attr_update);
+
+	if (ret)
+		goto del_dev;
+
+>>>>>>> upstream/android-13
 out:
 	return ret;
 
@@ -9705,7 +12510,11 @@ static struct lock_class_key cpuctx_lock;
 
 int perf_pmu_register(struct pmu *pmu, const char *name, int type)
 {
+<<<<<<< HEAD
 	int cpu, ret;
+=======
+	int cpu, ret, max = PERF_TYPE_MAX;
+>>>>>>> upstream/android-13
 
 	mutex_lock(&pmus_lock);
 	ret = -ENOMEM;
@@ -9718,12 +12527,26 @@ int perf_pmu_register(struct pmu *pmu, const char *name, int type)
 		goto skip_type;
 	pmu->name = name;
 
+<<<<<<< HEAD
 	if (type < 0) {
 		type = idr_alloc(&pmu_idr, pmu, PERF_TYPE_MAX, 0, GFP_KERNEL);
 		if (type < 0) {
 			ret = type;
 			goto free_pdc;
 		}
+=======
+	if (type != PERF_TYPE_SOFTWARE) {
+		if (type >= 0)
+			max = type;
+
+		ret = idr_alloc(&pmu_idr, pmu, max, 0, GFP_KERNEL);
+		if (ret < 0)
+			goto free_pdc;
+
+		WARN_ON(type >= 0 && ret != type);
+
+		type = ret;
+>>>>>>> upstream/android-13
 	}
 	pmu->type = type;
 
@@ -9769,6 +12592,12 @@ skip_type:
 		cpuctx->online = cpumask_test_cpu(cpu, perf_online_mask);
 
 		__perf_mux_hrtimer_init(cpuctx, cpu);
+<<<<<<< HEAD
+=======
+
+		cpuctx->heap_size = ARRAY_SIZE(cpuctx->heap_default);
+		cpuctx->heap = cpuctx->heap_default;
+>>>>>>> upstream/android-13
 	}
 
 got_cpu_context:
@@ -9800,7 +12629,20 @@ got_cpu_context:
 	if (!pmu->event_idx)
 		pmu->event_idx = perf_event_idx_default;
 
+<<<<<<< HEAD
 	list_add_rcu(&pmu->entry, &pmus);
+=======
+	/*
+	 * Ensure the TYPE_SOFTWARE PMUs are at the head of the list,
+	 * since these cannot be in the IDR. This way the linear search
+	 * is fast, provided a valid software event is provided.
+	 */
+	if (type == PERF_TYPE_SOFTWARE || !name)
+		list_add_rcu(&pmu->entry, &pmus);
+	else
+		list_add_tail_rcu(&pmu->entry, &pmus);
+
+>>>>>>> upstream/android-13
 	atomic_set(&pmu->exclusive_cnt, 0);
 	ret = 0;
 unlock:
@@ -9813,7 +12655,11 @@ free_dev:
 	put_device(pmu->dev);
 
 free_idr:
+<<<<<<< HEAD
 	if (pmu->type >= PERF_TYPE_MAX)
+=======
+	if (pmu->type != PERF_TYPE_SOFTWARE)
+>>>>>>> upstream/android-13
 		idr_remove(&pmu_idr, pmu->type);
 
 free_pdc:
@@ -9835,7 +12681,11 @@ void perf_pmu_unregister(struct pmu *pmu)
 	synchronize_rcu();
 
 	free_percpu(pmu->pmu_disable_count);
+<<<<<<< HEAD
 	if (pmu->type >= PERF_TYPE_MAX)
+=======
+	if (pmu->type != PERF_TYPE_SOFTWARE)
+>>>>>>> upstream/android-13
 		idr_remove(&pmu_idr, pmu->type);
 	if (pmu_bus_running) {
 		if (pmu->nr_addr_filters)
@@ -9848,6 +12698,15 @@ void perf_pmu_unregister(struct pmu *pmu)
 }
 EXPORT_SYMBOL_GPL(perf_pmu_unregister);
 
+<<<<<<< HEAD
+=======
+static inline bool has_extended_regs(struct perf_event *event)
+{
+	return (event->attr.sample_regs_user & PERF_REG_EXTENDED_MASK) ||
+	       (event->attr.sample_regs_intr & PERF_REG_EXTENDED_MASK);
+}
+
+>>>>>>> upstream/android-13
 static int perf_try_init_event(struct pmu *pmu, struct perf_event *event)
 {
 	struct perf_event_context *ctx = NULL;
@@ -9878,6 +12737,22 @@ static int perf_try_init_event(struct pmu *pmu, struct perf_event *event)
 	if (ctx)
 		perf_event_ctx_unlock(event->group_leader, ctx);
 
+<<<<<<< HEAD
+=======
+	if (!ret) {
+		if (!(pmu->capabilities & PERF_PMU_CAP_EXTENDED_REGS) &&
+		    has_extended_regs(event))
+			ret = -EOPNOTSUPP;
+
+		if (pmu->capabilities & PERF_PMU_CAP_NO_EXCLUDE &&
+		    event_has_any_exclude_flag(event))
+			ret = -EINVAL;
+
+		if (ret && event->destroy)
+			event->destroy(event);
+	}
+
+>>>>>>> upstream/android-13
 	if (ret)
 		module_put(pmu->module);
 
@@ -9886,9 +12761,15 @@ static int perf_try_init_event(struct pmu *pmu, struct perf_event *event)
 
 static struct pmu *perf_init_event(struct perf_event *event)
 {
+<<<<<<< HEAD
 	struct pmu *pmu;
 	int idx;
 	int ret;
+=======
+	bool extended_type = false;
+	int idx, type, ret;
+	struct pmu *pmu;
+>>>>>>> upstream/android-13
 
 	idx = srcu_read_lock(&pmus_srcu);
 
@@ -9900,6 +12781,7 @@ static struct pmu *perf_init_event(struct perf_event *event)
 			goto unlock;
 	}
 
+<<<<<<< HEAD
 	rcu_read_lock();
 	pmu = idr_find(&pmu_idr, event->attr.type);
 	rcu_read_unlock();
@@ -9911,6 +12793,45 @@ static struct pmu *perf_init_event(struct perf_event *event)
 	}
 
 	list_for_each_entry_rcu(pmu, &pmus, entry) {
+=======
+	/*
+	 * PERF_TYPE_HARDWARE and PERF_TYPE_HW_CACHE
+	 * are often aliases for PERF_TYPE_RAW.
+	 */
+	type = event->attr.type;
+	if (type == PERF_TYPE_HARDWARE || type == PERF_TYPE_HW_CACHE) {
+		type = event->attr.config >> PERF_PMU_TYPE_SHIFT;
+		if (!type) {
+			type = PERF_TYPE_RAW;
+		} else {
+			extended_type = true;
+			event->attr.config &= PERF_HW_EVENT_MASK;
+		}
+	}
+
+again:
+	rcu_read_lock();
+	pmu = idr_find(&pmu_idr, type);
+	rcu_read_unlock();
+	if (pmu) {
+		if (event->attr.type != type && type != PERF_TYPE_RAW &&
+		    !(pmu->capabilities & PERF_PMU_CAP_EXTENDED_HW_TYPE))
+			goto fail;
+
+		ret = perf_try_init_event(pmu, event);
+		if (ret == -ENOENT && event->attr.type != type && !extended_type) {
+			type = event->attr.type;
+			goto again;
+		}
+
+		if (ret)
+			pmu = ERR_PTR(ret);
+
+		goto unlock;
+	}
+
+	list_for_each_entry_rcu(pmu, &pmus, entry, lockdep_is_held(&pmus_srcu)) {
+>>>>>>> upstream/android-13
 		ret = perf_try_init_event(pmu, event);
 		if (!ret)
 			goto unlock;
@@ -9920,6 +12841,10 @@ static struct pmu *perf_init_event(struct perf_event *event)
 			goto unlock;
 		}
 	}
+<<<<<<< HEAD
+=======
+fail:
+>>>>>>> upstream/android-13
 	pmu = ERR_PTR(-ENOENT);
 unlock:
 	srcu_read_unlock(&pmus_srcu, idx);
@@ -9986,14 +12911,28 @@ static void account_event(struct perf_event *event)
 	if (event->parent)
 		return;
 
+<<<<<<< HEAD
 	if (event->attach_state & PERF_ATTACH_TASK)
 		inc = true;
 	if (event->attr.mmap || event->attr.mmap_data)
 		atomic_inc(&nr_mmap_events);
+=======
+	if (event->attach_state & (PERF_ATTACH_TASK | PERF_ATTACH_SCHED_CB))
+		inc = true;
+	if (event->attr.mmap || event->attr.mmap_data)
+		atomic_inc(&nr_mmap_events);
+	if (event->attr.build_id)
+		atomic_inc(&nr_build_id_events);
+>>>>>>> upstream/android-13
 	if (event->attr.comm)
 		atomic_inc(&nr_comm_events);
 	if (event->attr.namespaces)
 		atomic_inc(&nr_namespaces_events);
+<<<<<<< HEAD
+=======
+	if (event->attr.cgroup)
+		atomic_inc(&nr_cgroup_events);
+>>>>>>> upstream/android-13
 	if (event->attr.task)
 		atomic_inc(&nr_task_events);
 	if (event->attr.freq)
@@ -10006,6 +12945,15 @@ static void account_event(struct perf_event *event)
 		inc = true;
 	if (is_cgroup_event(event))
 		inc = true;
+<<<<<<< HEAD
+=======
+	if (event->attr.ksymbol)
+		atomic_inc(&nr_ksymbol_events);
+	if (event->attr.bpf_event)
+		atomic_inc(&nr_bpf_events);
+	if (event->attr.text_poke)
+		atomic_inc(&nr_text_poke_events);
+>>>>>>> upstream/android-13
 
 	if (inc) {
 		/*
@@ -10024,7 +12972,11 @@ static void account_event(struct perf_event *event)
 			 * call the perf scheduling hooks before proceeding to
 			 * install events that need them.
 			 */
+<<<<<<< HEAD
 			synchronize_sched();
+=======
+			synchronize_rcu();
+>>>>>>> upstream/android-13
 		}
 		/*
 		 * Now that we have waited for the sync_sched(), allow further
@@ -10055,13 +13007,28 @@ perf_event_alloc(struct perf_event_attr *attr, int cpu,
 	struct perf_event *event;
 	struct hw_perf_event *hwc;
 	long err = -EINVAL;
+<<<<<<< HEAD
+=======
+	int node;
+>>>>>>> upstream/android-13
 
 	if ((unsigned)cpu >= nr_cpu_ids) {
 		if (!task || cpu != -1)
 			return ERR_PTR(-EINVAL);
 	}
+<<<<<<< HEAD
 
 	event = kzalloc(sizeof(*event), GFP_KERNEL);
+=======
+	if (attr->sigtrap && !task) {
+		/* Requires a task: avoid signalling random tasks. */
+		return ERR_PTR(-EINVAL);
+	}
+
+	node = (cpu >= 0) ? cpu_to_node(cpu) : -1;
+	event = kmem_cache_alloc_node(perf_event_cache, GFP_KERNEL | __GFP_ZERO,
+				      node);
+>>>>>>> upstream/android-13
 	if (!event)
 		return ERR_PTR(-ENOMEM);
 
@@ -10106,6 +13073,15 @@ perf_event_alloc(struct perf_event_attr *attr, int cpu,
 
 	event->state		= PERF_EVENT_STATE_INACTIVE;
 
+<<<<<<< HEAD
+=======
+	if (parent_event)
+		event->event_caps = parent_event->event_caps;
+
+	if (event->attr.sigtrap)
+		atomic_set(&event->event_limit, 1);
+
+>>>>>>> upstream/android-13
 	if (task) {
 		event->attach_state = PERF_ATTACH_TASK;
 		/*
@@ -10113,8 +13089,12 @@ perf_event_alloc(struct perf_event_attr *attr, int cpu,
 		 * and we cannot use the ctx information because we need the
 		 * pmu before we get a ctx.
 		 */
+<<<<<<< HEAD
 		get_task_struct(task);
 		event->hw.target = task;
+=======
+		event->hw.target = get_task_struct(task);
+>>>>>>> upstream/android-13
 	}
 
 	event->clock = &local_clock;
@@ -10126,12 +13106,18 @@ perf_event_alloc(struct perf_event_attr *attr, int cpu,
 		context = parent_event->overflow_handler_context;
 #if defined(CONFIG_BPF_SYSCALL) && defined(CONFIG_EVENT_TRACING)
 		if (overflow_handler == bpf_overflow_handler) {
+<<<<<<< HEAD
 			struct bpf_prog *prog = bpf_prog_inc(parent_event->prog);
 
 			if (IS_ERR(prog)) {
 				err = PTR_ERR(prog);
 				goto err_ns;
 			}
+=======
+			struct bpf_prog *prog = parent_event->prog;
+
+			bpf_prog_inc(prog);
+>>>>>>> upstream/android-13
 			event->prog = prog;
 			event->orig_overflow_handler =
 				parent_event->orig_overflow_handler;
@@ -10172,18 +13158,45 @@ perf_event_alloc(struct perf_event_attr *attr, int cpu,
 	if (!has_branch_stack(event))
 		event->attr.branch_sample_type = 0;
 
+<<<<<<< HEAD
 	if (cgroup_fd != -1) {
 		err = perf_cgroup_connect(cgroup_fd, event, attr, group_leader);
 		if (err)
 			goto err_ns;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	pmu = perf_init_event(event);
 	if (IS_ERR(pmu)) {
 		err = PTR_ERR(pmu);
 		goto err_ns;
 	}
 
+<<<<<<< HEAD
+=======
+	/*
+	 * Disallow uncore-cgroup events, they don't make sense as the cgroup will
+	 * be different on other CPUs in the uncore mask.
+	 */
+	if (pmu->task_ctx_nr == perf_invalid_context && cgroup_fd != -1) {
+		err = -EINVAL;
+		goto err_pmu;
+	}
+
+	if (event->attr.aux_output &&
+	    !(pmu->capabilities & PERF_PMU_CAP_AUX_OUTPUT)) {
+		err = -EOPNOTSUPP;
+		goto err_pmu;
+	}
+
+	if (cgroup_fd != -1) {
+		err = perf_cgroup_connect(cgroup_fd, event, attr, group_leader);
+		if (err)
+			goto err_pmu;
+	}
+
+>>>>>>> upstream/android-13
 	err = exclusive_event_init(event);
 	if (err)
 		goto err_pmu;
@@ -10244,17 +13257,29 @@ err_per_task:
 	exclusive_event_destroy(event);
 
 err_pmu:
+<<<<<<< HEAD
+=======
+	if (is_cgroup_event(event))
+		perf_detach_cgroup(event);
+>>>>>>> upstream/android-13
 	if (event->destroy)
 		event->destroy(event);
 	module_put(pmu->module);
 err_ns:
+<<<<<<< HEAD
 	if (is_cgroup_event(event))
 		perf_detach_cgroup(event);
+=======
+>>>>>>> upstream/android-13
 	if (event->ns)
 		put_pid_ns(event->ns);
 	if (event->hw.target)
 		put_task_struct(event->hw.target);
+<<<<<<< HEAD
 	kfree(event);
+=======
+	kmem_cache_free(perf_event_cache, event);
+>>>>>>> upstream/android-13
 
 	return ERR_PTR(err);
 }
@@ -10265,18 +13290,23 @@ static int perf_copy_attr(struct perf_event_attr __user *uattr,
 	u32 size;
 	int ret;
 
+<<<<<<< HEAD
 	if (!access_ok(VERIFY_WRITE, uattr, PERF_ATTR_SIZE_VER0))
 		return -EFAULT;
 
 	/*
 	 * zero the full structure, so that a short copy will be nice.
 	 */
+=======
+	/* Zero the full structure, so that a short copy will be nice. */
+>>>>>>> upstream/android-13
 	memset(attr, 0, sizeof(*attr));
 
 	ret = get_user(size, &uattr->size);
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	if (size > PAGE_SIZE)	/* silly large */
 		goto err_size;
 
@@ -10317,6 +13347,24 @@ static int perf_copy_attr(struct perf_event_attr __user *uattr,
 	attr->size = size;
 
 	if (attr->__reserved_1)
+=======
+	/* ABI compatibility quirk: */
+	if (!size)
+		size = PERF_ATTR_SIZE_VER0;
+	if (size < PERF_ATTR_SIZE_VER0 || size > PAGE_SIZE)
+		goto err_size;
+
+	ret = copy_struct_from_user(attr, sizeof(*attr), uattr, size);
+	if (ret) {
+		if (ret == -E2BIG)
+			goto err_size;
+		return ret;
+	}
+
+	attr->size = size;
+
+	if (attr->__reserved_1 || attr->__reserved_2 || attr->__reserved_3)
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	if (attr->sample_type & ~(PERF_SAMPLE_MAX-1))
@@ -10387,6 +13435,27 @@ static int perf_copy_attr(struct perf_event_attr __user *uattr,
 
 	if (attr->sample_type & PERF_SAMPLE_REGS_INTR)
 		ret = perf_reg_validate(attr->sample_regs_intr);
+<<<<<<< HEAD
+=======
+
+#ifndef CONFIG_CGROUP_PERF
+	if (attr->sample_type & PERF_SAMPLE_CGROUP)
+		return -EINVAL;
+#endif
+	if ((attr->sample_type & PERF_SAMPLE_WEIGHT) &&
+	    (attr->sample_type & PERF_SAMPLE_WEIGHT_STRUCT))
+		return -EINVAL;
+
+	if (!attr->inherit && attr->inherit_thread)
+		return -EINVAL;
+
+	if (attr->remove_on_exec && attr->enable_on_exec)
+		return -EINVAL;
+
+	if (attr->sigtrap && !attr->remove_on_exec)
+		return -EINVAL;
+
+>>>>>>> upstream/android-13
 out:
 	return ret;
 
@@ -10399,7 +13468,11 @@ err_size:
 static int
 perf_event_set_output(struct perf_event *event, struct perf_event *output_event)
 {
+<<<<<<< HEAD
 	struct ring_buffer *rb = NULL;
+=======
+	struct perf_buffer *rb = NULL;
+>>>>>>> upstream/android-13
 	int ret = -EINVAL;
 
 	if (!output_event)
@@ -10493,11 +13566,19 @@ static int perf_event_set_clock(struct perf_event *event, clockid_t clk_id)
 		break;
 
 	case CLOCK_BOOTTIME:
+<<<<<<< HEAD
 		event->clock = &ktime_get_boot_ns;
 		break;
 
 	case CLOCK_TAI:
 		event->clock = &ktime_get_tai_ns;
+=======
+		event->clock = &ktime_get_boottime_ns;
+		break;
+
+	case CLOCK_TAI:
+		event->clock = &ktime_get_clocktai_ns;
+>>>>>>> upstream/android-13
 		break;
 
 	default:
@@ -10523,7 +13604,11 @@ __perf_event_ctx_lock_double(struct perf_event *group_leader,
 again:
 	rcu_read_lock();
 	gctx = READ_ONCE(group_leader->ctx);
+<<<<<<< HEAD
 	if (!atomic_inc_not_zero(&gctx->refcount)) {
+=======
+	if (!refcount_inc_not_zero(&gctx->refcount)) {
+>>>>>>> upstream/android-13
 		rcu_read_unlock();
 		goto again;
 	}
@@ -10541,6 +13626,40 @@ again:
 	return gctx;
 }
 
+<<<<<<< HEAD
+=======
+static bool
+perf_check_permission(struct perf_event_attr *attr, struct task_struct *task)
+{
+	unsigned int ptrace_mode = PTRACE_MODE_READ_REALCREDS;
+	bool is_capable = perfmon_capable();
+
+	if (attr->sigtrap) {
+		/*
+		 * perf_event_attr::sigtrap sends signals to the other task.
+		 * Require the current task to also have CAP_KILL.
+		 */
+		rcu_read_lock();
+		is_capable &= ns_capable(__task_cred(task)->user_ns, CAP_KILL);
+		rcu_read_unlock();
+
+		/*
+		 * If the required capabilities aren't available, checks for
+		 * ptrace permissions: upgrade to ATTACH, since sending signals
+		 * can effectively change the target task.
+		 */
+		ptrace_mode = PTRACE_MODE_ATTACH_REALCREDS;
+	}
+
+	/*
+	 * Preserve ptrace permission check for backwards compatibility. The
+	 * ptrace check also includes checks that the current task and other
+	 * task have matching uids, and is therefore not done here explicitly.
+	 */
+	return is_capable || ptrace_may_access(task, ptrace_mode);
+}
+
+>>>>>>> upstream/android-13
 /**
  * sys_perf_event_open - open a performance event, associate it to a task/cpu
  *
@@ -10548,6 +13667,10 @@ again:
  * @pid:		target pid
  * @cpu:		target cpu
  * @group_fd:		group leader event fd
+<<<<<<< HEAD
+=======
+ * @flags:		perf event open flags
+>>>>>>> upstream/android-13
  */
 SYSCALL_DEFINE5(perf_event_open,
 		struct perf_event_attr __user *, attr_uptr,
@@ -10556,7 +13679,11 @@ SYSCALL_DEFINE5(perf_event_open,
 	struct perf_event *group_leader = NULL, *output_event = NULL;
 	struct perf_event *event, *sibling;
 	struct perf_event_attr attr;
+<<<<<<< HEAD
 	struct perf_event_context *ctx, *uninitialized_var(gctx);
+=======
+	struct perf_event_context *ctx, *gctx;
+>>>>>>> upstream/android-13
 	struct file *event_file = NULL;
 	struct fd group = {NULL, 0};
 	struct task_struct *task = NULL;
@@ -10587,7 +13714,11 @@ SYSCALL_DEFINE5(perf_event_open,
 	}
 
 	if (attr.namespaces) {
+<<<<<<< HEAD
 		if (!capable(CAP_SYS_ADMIN))
+=======
+		if (!perfmon_capable())
+>>>>>>> upstream/android-13
 			return -EACCES;
 	}
 
@@ -10606,6 +13737,16 @@ SYSCALL_DEFINE5(perf_event_open,
 			return err;
 	}
 
+<<<<<<< HEAD
+=======
+	/* REGS_INTR can leak data, lockdown must prevent this */
+	if (attr.sample_type & PERF_SAMPLE_REGS_INTR) {
+		err = security_locked_down(LOCKDOWN_PERF);
+		if (err)
+			return err;
+	}
+
+>>>>>>> upstream/android-13
 	/*
 	 * In cgroup mode, the pid argument is used to pass the fd
 	 * opened to the cgroup directory in cgroupfs. The cpu argument
@@ -10647,6 +13788,7 @@ SYSCALL_DEFINE5(perf_event_open,
 		goto err_task;
 	}
 
+<<<<<<< HEAD
 	if (task) {
 		err = mutex_lock_interruptible(&task->signal->cred_guard_mutex);
 		if (err)
@@ -10665,6 +13807,8 @@ SYSCALL_DEFINE5(perf_event_open,
 			goto err_cred;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	if (flags & PERF_FLAG_PID_CGROUP)
 		cgroup_fd = pid;
 
@@ -10672,7 +13816,11 @@ SYSCALL_DEFINE5(perf_event_open,
 				 NULL, NULL, cgroup_fd);
 	if (IS_ERR(event)) {
 		err = PTR_ERR(event);
+<<<<<<< HEAD
 		goto err_cred;
+=======
+		goto err_task;
+>>>>>>> upstream/android-13
 	}
 
 	if (is_sampling_event(event)) {
@@ -10791,6 +13939,25 @@ SYSCALL_DEFINE5(perf_event_open,
 		goto err_context;
 	}
 
+<<<<<<< HEAD
+=======
+	if (task) {
+		err = down_read_interruptible(&task->signal->exec_update_lock);
+		if (err)
+			goto err_file;
+
+		/*
+		 * We must hold exec_update_lock across this and any potential
+		 * perf_install_in_context() call for this new event to
+		 * serialize against exec() altering our credentials (and the
+		 * perf_event_exit_task() that could imply).
+		 */
+		err = -EACCES;
+		if (!perf_check_permission(&attr, task))
+			goto err_cred;
+	}
+
+>>>>>>> upstream/android-13
 	if (move_group) {
 		gctx = __perf_event_ctx_lock_double(group_leader, ctx);
 
@@ -10859,6 +14026,13 @@ SYSCALL_DEFINE5(perf_event_open,
 		}
 	}
 
+<<<<<<< HEAD
+=======
+	if (perf_need_aux_event(event) && !perf_get_aux_event(event, group_leader)) {
+		err = -EINVAL;
+		goto err_locked;
+	}
+>>>>>>> upstream/android-13
 
 	/*
 	 * Must be under the same ctx::mutex as perf_install_in_context(),
@@ -10940,7 +14114,11 @@ SYSCALL_DEFINE5(perf_event_open,
 	mutex_unlock(&ctx->mutex);
 
 	if (task) {
+<<<<<<< HEAD
 		mutex_unlock(&task->signal->cred_guard_mutex);
+=======
+		up_read(&task->signal->exec_update_lock);
+>>>>>>> upstream/android-13
 		put_task_struct(task);
 	}
 
@@ -10962,7 +14140,14 @@ err_locked:
 	if (move_group)
 		perf_event_ctx_unlock(group_leader, gctx);
 	mutex_unlock(&ctx->mutex);
+<<<<<<< HEAD
 /* err_file: */
+=======
+err_cred:
+	if (task)
+		up_read(&task->signal->exec_update_lock);
+err_file:
+>>>>>>> upstream/android-13
 	fput(event_file);
 err_context:
 	perf_unpin_context(ctx);
@@ -10974,9 +14159,12 @@ err_alloc:
 	 */
 	if (!event_file)
 		free_event(event);
+<<<<<<< HEAD
 err_cred:
 	if (task)
 		mutex_unlock(&task->signal->cred_guard_mutex);
+=======
+>>>>>>> upstream/android-13
 err_task:
 	if (task)
 		put_task_struct(task);
@@ -10993,6 +14181,11 @@ err_fd:
  * @attr: attributes of the counter to create
  * @cpu: cpu in which the counter is bound
  * @task: task to profile (NULL for percpu)
+<<<<<<< HEAD
+=======
+ * @overflow_handler: callback to trigger when we hit the event
+ * @context: context data could be used in overflow_handler callback
+>>>>>>> upstream/android-13
  */
 struct perf_event *
 perf_event_create_kernel_counter(struct perf_event_attr *attr, int cpu,
@@ -11005,8 +14198,16 @@ perf_event_create_kernel_counter(struct perf_event_attr *attr, int cpu,
 	int err;
 
 	/*
+<<<<<<< HEAD
 	 * Get the target context (task or percpu):
 	 */
+=======
+	 * Grouping is not supported for kernel events, neither is 'AUX',
+	 * make sure the caller's intentions are adjusted.
+	 */
+	if (attr->aux_output)
+		return ERR_PTR(-EINVAL);
+>>>>>>> upstream/android-13
 
 	event = perf_event_alloc(attr, cpu, task, NULL, NULL,
 				 overflow_handler, context, -1);
@@ -11018,6 +14219,12 @@ perf_event_create_kernel_counter(struct perf_event_attr *attr, int cpu,
 	/* Mark owner so we could distinguish it from user events. */
 	event->owner = TASK_TOMBSTONE;
 
+<<<<<<< HEAD
+=======
+	/*
+	 * Get the target context (task or percpu):
+	 */
+>>>>>>> upstream/android-13
 	ctx = find_get_context(event->pmu, task, event);
 	if (IS_ERR(ctx)) {
 		err = PTR_ERR(ctx);
@@ -11133,14 +14340,27 @@ void perf_pmu_migrate_context(struct pmu *pmu, int src_cpu, int dst_cpu)
 }
 EXPORT_SYMBOL_GPL(perf_pmu_migrate_context);
 
+<<<<<<< HEAD
 static void sync_child_event(struct perf_event *child_event,
 			       struct task_struct *child)
+=======
+static void sync_child_event(struct perf_event *child_event)
+>>>>>>> upstream/android-13
 {
 	struct perf_event *parent_event = child_event->parent;
 	u64 child_val;
 
+<<<<<<< HEAD
 	if (child_event->attr.inherit_stat)
 		perf_event_read_event(child_event, child);
+=======
+	if (child_event->attr.inherit_stat) {
+		struct task_struct *task = child_event->ctx->task;
+
+		if (task && task != TASK_TOMBSTONE)
+			perf_event_read_event(child_event, task);
+	}
+>>>>>>> upstream/android-13
 
 	child_val = perf_event_count(child_event);
 
@@ -11155,6 +14375,7 @@ static void sync_child_event(struct perf_event *child_event,
 }
 
 static void
+<<<<<<< HEAD
 perf_event_exit_event(struct perf_event *child_event,
 		      struct perf_event_context *child_ctx,
 		      struct task_struct *child)
@@ -11181,10 +14402,55 @@ perf_event_exit_event(struct perf_event *child_event,
 	list_del_event(child_event, child_ctx);
 	perf_event_set_state(child_event, PERF_EVENT_STATE_EXIT); /* is_event_hup() */
 	raw_spin_unlock_irq(&child_ctx->lock);
+=======
+perf_event_exit_event(struct perf_event *event, struct perf_event_context *ctx)
+{
+	struct perf_event *parent_event = event->parent;
+	unsigned long detach_flags = 0;
+
+	if (parent_event) {
+		/*
+		 * Do not destroy the 'original' grouping; because of the
+		 * context switch optimization the original events could've
+		 * ended up in a random child task.
+		 *
+		 * If we were to destroy the original group, all group related
+		 * operations would cease to function properly after this
+		 * random child dies.
+		 *
+		 * Do destroy all inherited groups, we don't care about those
+		 * and being thorough is better.
+		 */
+		detach_flags = DETACH_GROUP | DETACH_CHILD;
+		mutex_lock(&parent_event->child_mutex);
+	}
+
+	perf_remove_from_context(event, detach_flags);
+
+	raw_spin_lock_irq(&ctx->lock);
+	if (event->state > PERF_EVENT_STATE_EXIT)
+		perf_event_set_state(event, PERF_EVENT_STATE_EXIT);
+	raw_spin_unlock_irq(&ctx->lock);
+
+	/*
+	 * Child events can be freed.
+	 */
+	if (parent_event) {
+		mutex_unlock(&parent_event->child_mutex);
+		/*
+		 * Kick perf_poll() for is_event_hup();
+		 */
+		perf_event_wakeup(parent_event);
+		free_event(event);
+		put_event(parent_event);
+		return;
+	}
+>>>>>>> upstream/android-13
 
 	/*
 	 * Parent events are governed by their filedesc, retain them.
 	 */
+<<<<<<< HEAD
 	if (!parent_event) {
 		perf_event_wakeup(child_event);
 		return;
@@ -11209,6 +14475,9 @@ perf_event_exit_event(struct perf_event *child_event,
 	perf_event_wakeup(parent_event);
 	free_event(child_event);
 	put_event(parent_event);
+=======
+	perf_event_wakeup(event);
+>>>>>>> upstream/android-13
 }
 
 static void perf_event_exit_task_context(struct task_struct *child, int ctxn)
@@ -11265,7 +14534,11 @@ static void perf_event_exit_task_context(struct task_struct *child, int ctxn)
 	perf_event_task(child, child_ctx, 0);
 
 	list_for_each_entry_safe(child_event, next, &child_ctx->event_list, event_entry)
+<<<<<<< HEAD
 		perf_event_exit_event(child_event, child_ctx, child);
+=======
+		perf_event_exit_event(child_event, child_ctx);
+>>>>>>> upstream/android-13
 
 	mutex_unlock(&child_ctx->mutex);
 
@@ -11275,8 +14548,13 @@ static void perf_event_exit_task_context(struct task_struct *child, int ctxn)
 /*
  * When a child task exits, feed back event values to parent events.
  *
+<<<<<<< HEAD
  * Can be called with cred_guard_mutex held when called from
  * install_exec_creds().
+=======
+ * Can be called with exec_update_lock held when called from
+ * setup_new_exec().
+>>>>>>> upstream/android-13
  */
 void perf_event_exit_task(struct task_struct *child)
 {
@@ -11380,7 +14658,11 @@ void perf_event_free_task(struct task_struct *task)
 		 *
 		 * Wait for all events to drop their context reference.
 		 */
+<<<<<<< HEAD
 		wait_var_event(&ctx->refcount, atomic_read(&ctx->refcount) == 1);
+=======
+		wait_var_event(&ctx->refcount, refcount_read(&ctx->refcount) == 1);
+>>>>>>> upstream/android-13
 		put_ctx(ctx); /* must be last */
 	}
 }
@@ -11395,9 +14677,13 @@ void perf_event_delayed_put(struct task_struct *task)
 
 struct file *perf_event_get(unsigned int fd)
 {
+<<<<<<< HEAD
 	struct file *file;
 
 	file = fget_raw(fd);
+=======
+	struct file *file = fget(fd);
+>>>>>>> upstream/android-13
 	if (!file)
 		return ERR_PTR(-EBADF);
 
@@ -11467,8 +14753,12 @@ inherit_event(struct perf_event *parent_event,
 	    !child_ctx->task_ctx_data) {
 		struct pmu *pmu = child_event->pmu;
 
+<<<<<<< HEAD
 		child_ctx->task_ctx_data = kzalloc(pmu->task_ctx_size,
 						   GFP_KERNEL);
+=======
+		child_ctx->task_ctx_data = alloc_task_ctx_data(pmu);
+>>>>>>> upstream/android-13
 		if (!child_ctx->task_ctx_data) {
 			free_event(child_event);
 			return ERR_PTR(-ENOMEM);
@@ -11528,6 +14818,10 @@ inherit_event(struct perf_event *parent_event,
 	 */
 	raw_spin_lock_irqsave(&child_ctx->lock, flags);
 	add_event_to_ctx(child_event, child_ctx);
+<<<<<<< HEAD
+=======
+	child_event->attach_state |= PERF_ATTACH_CHILD;
+>>>>>>> upstream/android-13
 	raw_spin_unlock_irqrestore(&child_ctx->lock, flags);
 
 	/*
@@ -11573,6 +14867,13 @@ static int inherit_group(struct perf_event *parent_event,
 					    child, leader, child_ctx);
 		if (IS_ERR(child_ctr))
 			return PTR_ERR(child_ctr);
+<<<<<<< HEAD
+=======
+
+		if (sub->aux_event == parent_event && child_ctr &&
+		    !perf_get_aux_event(child_ctr, leader))
+			return -EINVAL;
+>>>>>>> upstream/android-13
 	}
 	return 0;
 }
@@ -11592,12 +14893,23 @@ static int
 inherit_task_group(struct perf_event *event, struct task_struct *parent,
 		   struct perf_event_context *parent_ctx,
 		   struct task_struct *child, int ctxn,
+<<<<<<< HEAD
 		   int *inherited_all)
+=======
+		   u64 clone_flags, int *inherited_all)
+>>>>>>> upstream/android-13
 {
 	int ret;
 	struct perf_event_context *child_ctx;
 
+<<<<<<< HEAD
 	if (!event->attr.inherit) {
+=======
+	if (!event->attr.inherit ||
+	    (event->attr.inherit_thread && !(clone_flags & CLONE_THREAD)) ||
+	    /* Do not inherit if sigtrap and signal handlers were cleared. */
+	    (event->attr.sigtrap && (clone_flags & CLONE_CLEAR_SIGHAND))) {
+>>>>>>> upstream/android-13
 		*inherited_all = 0;
 		return 0;
 	}
@@ -11629,7 +14941,12 @@ inherit_task_group(struct perf_event *event, struct task_struct *parent,
 /*
  * Initialize the perf_event context in task_struct
  */
+<<<<<<< HEAD
 static int perf_event_init_context(struct task_struct *child, int ctxn)
+=======
+static int perf_event_init_context(struct task_struct *child, int ctxn,
+				   u64 clone_flags)
+>>>>>>> upstream/android-13
 {
 	struct perf_event_context *child_ctx, *parent_ctx;
 	struct perf_event_context *cloned_ctx;
@@ -11669,7 +14986,12 @@ static int perf_event_init_context(struct task_struct *child, int ctxn)
 	 */
 	perf_event_groups_for_each(event, &parent_ctx->pinned_groups) {
 		ret = inherit_task_group(event, parent, parent_ctx,
+<<<<<<< HEAD
 					 child, ctxn, &inherited_all);
+=======
+					 child, ctxn, clone_flags,
+					 &inherited_all);
+>>>>>>> upstream/android-13
 		if (ret)
 			goto out_unlock;
 	}
@@ -11685,7 +15007,12 @@ static int perf_event_init_context(struct task_struct *child, int ctxn)
 
 	perf_event_groups_for_each(event, &parent_ctx->flexible_groups) {
 		ret = inherit_task_group(event, parent, parent_ctx,
+<<<<<<< HEAD
 					 child, ctxn, &inherited_all);
+=======
+					 child, ctxn, clone_flags,
+					 &inherited_all);
+>>>>>>> upstream/android-13
 		if (ret)
 			goto out_unlock;
 	}
@@ -11727,7 +15054,11 @@ out_unlock:
 /*
  * Initialize the perf_event context in task_struct
  */
+<<<<<<< HEAD
 int perf_event_init_task(struct task_struct *child)
+=======
+int perf_event_init_task(struct task_struct *child, u64 clone_flags)
+>>>>>>> upstream/android-13
 {
 	int ctxn, ret;
 
@@ -11736,7 +15067,11 @@ int perf_event_init_task(struct task_struct *child)
 	INIT_LIST_HEAD(&child->perf_event_list);
 
 	for_each_task_context_nr(ctxn) {
+<<<<<<< HEAD
 		ret = perf_event_init_context(child, ctxn);
+=======
+		ret = perf_event_init_context(child, ctxn, clone_flags);
+>>>>>>> upstream/android-13
 		if (ret) {
 			perf_event_free_task(child);
 			return ret;
@@ -11768,7 +15103,11 @@ static void __init perf_event_init_all_cpus(void)
 	}
 }
 
+<<<<<<< HEAD
 void perf_swevent_init_cpu(unsigned int cpu)
+=======
+static void perf_swevent_init_cpu(unsigned int cpu)
+>>>>>>> upstream/android-13
 {
 	struct swevent_htable *swhash = &per_cpu(swevent_htable, cpu);
 
@@ -11889,6 +15228,11 @@ void __init perf_event_init(void)
 	ret = init_hw_breakpoint();
 	WARN(ret, "hw_breakpoint initialization failed with: %d", ret);
 
+<<<<<<< HEAD
+=======
+	perf_event_cache = KMEM_CACHE(perf_event, SLAB_PANIC);
+
+>>>>>>> upstream/android-13
 	/*
 	 * Build time assertion that we keep the data_head at the intended
 	 * location.  IOW, validation we got the __reserved[] size right.
@@ -11965,6 +15309,15 @@ static void perf_cgroup_css_free(struct cgroup_subsys_state *css)
 	kfree(jc);
 }
 
+<<<<<<< HEAD
+=======
+static int perf_cgroup_css_online(struct cgroup_subsys_state *css)
+{
+	perf_event_cgroup(css->cgroup);
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static int __perf_cgroup_move(void *info)
 {
 	struct task_struct *task = info;
@@ -11986,6 +15339,10 @@ static void perf_cgroup_attach(struct cgroup_taskset *tset)
 struct cgroup_subsys perf_event_cgrp_subsys = {
 	.css_alloc	= perf_cgroup_css_alloc,
 	.css_free	= perf_cgroup_css_free,
+<<<<<<< HEAD
+=======
+	.css_online	= perf_cgroup_css_online,
+>>>>>>> upstream/android-13
 	.attach		= perf_cgroup_attach,
 	/*
 	 * Implicitly enable on dfl hierarchy so that perf events can

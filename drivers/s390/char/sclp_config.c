@@ -50,12 +50,20 @@ static void sclp_cpu_capability_notify(struct work_struct *work)
 
 	s390_update_cpu_mhz();
 	pr_info("CPU capability may have changed\n");
+<<<<<<< HEAD
 	get_online_cpus();
+=======
+	cpus_read_lock();
+>>>>>>> upstream/android-13
 	for_each_online_cpu(cpu) {
 		dev = get_cpu_device(cpu);
 		kobject_uevent(&dev->kobj, KOBJ_CHANGE);
 	}
+<<<<<<< HEAD
 	put_online_cpus();
+=======
+	cpus_read_unlock();
+>>>>>>> upstream/android-13
 }
 
 static void __ref sclp_cpu_change_notify(struct work_struct *work)

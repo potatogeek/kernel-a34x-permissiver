@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2012 Freescale Semiconductor, Inc.
  * Copyright 2012 Linaro Ltd.
@@ -8,6 +9,12 @@
  *
  * http://www.opensource.org/licenses/gpl-license.html
  * http://www.gnu.org/copyleft/gpl.html
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright 2012 Freescale Semiconductor, Inc.
+ * Copyright 2012 Linaro Ltd.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk-provider.h>
@@ -18,7 +25,11 @@
 
 /**
  * struct clk_pfd - IMX PFD clock
+<<<<<<< HEAD
  * @clk_hw:	clock source
+=======
+ * @hw:		clock source
+>>>>>>> upstream/android-13
  * @reg:	PFD register address
  * @idx:	the index of PFD encoded in the register
  *
@@ -127,12 +138,22 @@ static const struct clk_ops clk_pfd_ops = {
 	.is_enabled     = clk_pfd_is_enabled,
 };
 
+<<<<<<< HEAD
 struct clk *imx_clk_pfd(const char *name, const char *parent_name,
 			void __iomem *reg, u8 idx)
 {
 	struct clk_pfd *pfd;
 	struct clk *clk;
 	struct clk_init_data init = {};
+=======
+struct clk_hw *imx_clk_hw_pfd(const char *name, const char *parent_name,
+			void __iomem *reg, u8 idx)
+{
+	struct clk_pfd *pfd;
+	struct clk_hw *hw;
+	struct clk_init_data init;
+	int ret;
+>>>>>>> upstream/android-13
 
 	pfd = kzalloc(sizeof(*pfd), GFP_KERNEL);
 	if (!pfd)
@@ -148,10 +169,22 @@ struct clk *imx_clk_pfd(const char *name, const char *parent_name,
 	init.num_parents = 1;
 
 	pfd->hw.init = &init;
+<<<<<<< HEAD
 
 	clk = clk_register(NULL, &pfd->hw);
 	if (IS_ERR(clk))
 		kfree(pfd);
 
 	return clk;
+=======
+	hw = &pfd->hw;
+
+	ret = clk_hw_register(NULL, hw);
+	if (ret) {
+		kfree(pfd);
+		return ERR_PTR(ret);
+	}
+
+	return hw;
+>>>>>>> upstream/android-13
 }

@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * ISHTP-HID glue driver's definitions.
  *
  * Copyright (c) 2014-2016, Intel Corporation.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -11,6 +16,8 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
  * more details.
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef ISHTP_HID__H
 #define	ISHTP_HID__H
@@ -24,6 +31,7 @@
 #define	IS_RESPONSE	0x80
 
 /* Used to dump to Linux trace buffer, if enabled */
+<<<<<<< HEAD
 #define hid_ishtp_trace(client, ...)	\
 	client->cl_device->ishtp_dev->print_log(\
 		client->cl_device->ishtp_dev, __VA_ARGS__)
@@ -32,6 +40,11 @@
 static const uuid_le hid_ishtp_guid = UUID_LE(0x33AECD58, 0xB679, 0x4E54,
 					      0x9B, 0xD9, 0xA0, 0x4D, 0x34,
 					      0xF0, 0xC2, 0x26);
+=======
+extern ishtp_print_log ishtp_hid_print_trace;
+#define hid_ishtp_trace(client, ...) \
+	(ishtp_hid_print_trace)(NULL, __VA_ARGS__)
+>>>>>>> upstream/android-13
 
 /* ISH HID message structure */
 struct hostif_msg_hdr {
@@ -148,6 +161,10 @@ struct ishtp_cl_data {
 	int multi_packet_cnt;
 
 	struct work_struct work;
+<<<<<<< HEAD
+=======
+	struct work_struct resume_work;
+>>>>>>> upstream/android-13
 	struct ishtp_cl_device *cl_device;
 };
 
@@ -159,6 +176,12 @@ struct ishtp_cl_data {
  * @client_data:	Link to the client instance
  * @hid_wait:		Completion waitq
  *
+<<<<<<< HEAD
+=======
+ * @raw_get_req:	Flag indicating raw get request ongoing
+ * @raw_buf:		raw request buffer filled on receiving get report
+ * @raw_buf_size:	raw request buffer size
+>>>>>>> upstream/android-13
  * Used to tie hid hid->driver data to driver client instance
  */
 struct ishtp_hid_data {
@@ -166,6 +189,14 @@ struct ishtp_hid_data {
 	bool request_done;
 	struct ishtp_cl_data *client_data;
 	wait_queue_head_t hid_wait;
+<<<<<<< HEAD
+=======
+
+	/* raw request */
+	bool raw_get_req;
+	u8 *raw_buf;
+	size_t raw_buf_size;
+>>>>>>> upstream/android-13
 };
 
 /* Interface functions between HID LL driver and ISH TP client */

@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * Kernel probes (kprobes) for SuperH
  *
  * Copyright (C) 2007 Chris Smith <chris.smith@st.com>
  * Copyright (C) 2006 Lineo Solutions, Inc.
+<<<<<<< HEAD
  *
  * This file is subject to the terms and conditions of the GNU General Public
  * License.  See the file "COPYING" in the main directory of this archive
  * for more details.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/kprobes.h>
 #include <linux/extable.h>
@@ -207,6 +214,10 @@ void __kprobes arch_prepare_kretprobe(struct kretprobe_instance *ri,
 				      struct pt_regs *regs)
 {
 	ri->ret_addr = (kprobe_opcode_t *) regs->pr;
+<<<<<<< HEAD
+=======
+	ri->fp = NULL;
+>>>>>>> upstream/android-13
 
 	/* Replace the return addr with trampoline addr */
 	regs->pr = (unsigned long)kretprobe_trampoline;
@@ -305,6 +316,7 @@ static void __used kretprobe_trampoline_holder(void)
  */
 int __kprobes trampoline_probe_handler(struct kprobe *p, struct pt_regs *regs)
 {
+<<<<<<< HEAD
 	struct kretprobe_instance *ri = NULL;
 	struct hlist_head *head, empty_rp;
 	struct hlist_node *tmp;
@@ -361,6 +373,11 @@ int __kprobes trampoline_probe_handler(struct kprobe *p, struct pt_regs *regs)
 	}
 
 	return orig_ret_address;
+=======
+	regs->pc = __kretprobe_trampoline_handler(regs, &kretprobe_trampoline, NULL);
+
+	return 1;
+>>>>>>> upstream/android-13
 }
 
 static int __kprobes post_kprobe_handler(struct pt_regs *regs)
@@ -438,6 +455,7 @@ int __kprobes kprobe_fault_handler(struct pt_regs *regs, int trapnr)
 	case KPROBE_HIT_ACTIVE:
 	case KPROBE_HIT_SSDONE:
 		/*
+<<<<<<< HEAD
 		 * We increment the nmissed count for accounting,
 		 * we can also use npre/npostfault count for accounting
 		 * these specific fault cases.
@@ -455,6 +473,8 @@ int __kprobes kprobe_fault_handler(struct pt_regs *regs, int trapnr)
 			return 1;
 
 		/*
+=======
+>>>>>>> upstream/android-13
 		 * In case the user-specified fault handler returned
 		 * zero, try to fix up.
 		 */
@@ -488,7 +508,12 @@ int __kprobes kprobe_exceptions_notify(struct notifier_block *self,
 	struct kprobe_ctlblk *kcb = get_kprobe_ctlblk();
 
 	addr = (kprobe_opcode_t *) (args->regs->pc);
+<<<<<<< HEAD
 	if (val == DIE_TRAP) {
+=======
+	if (val == DIE_TRAP &&
+	    args->trapnr == (BREAKPOINT_INSTRUCTION & 0xff)) {
+>>>>>>> upstream/android-13
 		if (!kprobe_running()) {
 			if (kprobe_handler(args->regs)) {
 				ret = NOTIFY_STOP;

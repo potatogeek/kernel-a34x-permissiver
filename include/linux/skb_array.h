@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  *	Definitions for the 'struct skb_array' datastructure.
  *
@@ -6,11 +10,14 @@
  *
  *	Copyright (C) 2016 Red Hat, Inc.
  *
+<<<<<<< HEAD
  *	This program is free software; you can redistribute it and/or modify it
  *	under the terms of the GNU General Public License as published by the
  *	Free Software Foundation; either version 2 of the License, or (at your
  *	option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  *	Limited-size FIFO of skbs. Can be used more or less whenever
  *	sk_buff_head can be used, except you need to know the queue size in
  *	advance.

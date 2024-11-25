@@ -1,10 +1,16 @@
+<<<<<<< HEAD
 /*
  *   fs/cifs/cifsglob.h
+=======
+/* SPDX-License-Identifier: LGPL-2.1 */
+/*
+>>>>>>> upstream/android-13
  *
  *   Copyright (C) International Business Machines  Corp., 2002,2008
  *   Author(s): Steve French (sfrench@us.ibm.com)
  *              Jeremy Allison (jra@samba.org)
  *
+<<<<<<< HEAD
  *   This library is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU Lesser General Public License as published
  *   by the Free Software Foundation; either version 2.1 of the License, or
@@ -15,12 +21,18 @@
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See
  *   the GNU Lesser General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef _CIFS_GLOB_H
 #define _CIFS_GLOB_H
 
 #include <linux/in.h>
 #include <linux/in6.h>
+<<<<<<< HEAD
+=======
+#include <linux/inet.h>
+>>>>>>> upstream/android-13
 #include <linux/slab.h>
 #include <linux/mempool.h>
 #include <linux/workqueue.h>
@@ -33,6 +45,10 @@
 
 #define CIFS_MAGIC_NUMBER 0xFF534D42      /* the first four bytes of SMB PDUs */
 
+<<<<<<< HEAD
+=======
+#define SMB_PATH_MAX 260
+>>>>>>> upstream/android-13
 #define CIFS_PORT 445
 #define RFC1001_PORT 139
 
@@ -59,6 +75,15 @@
 #define CIFS_MAX_ACTIMEO (1 << 30)
 
 /*
+<<<<<<< HEAD
+=======
+ * Max persistent and resilient handle timeout (milliseconds).
+ * Windows durable max was 960000 (16 minutes)
+ */
+#define SMB3_MAX_HANDLE_TIMEOUT 960000
+
+/*
+>>>>>>> upstream/android-13
  * MAX_REQ is the maximum number of requests that WE will send
  * on one socket concurrently.
  */
@@ -76,6 +101,13 @@
 #define SMB_ECHO_INTERVAL_MAX 600
 #define SMB_ECHO_INTERVAL_DEFAULT 60
 
+<<<<<<< HEAD
+=======
+/* dns resolution intervals in seconds */
+#define SMB_DNS_RESOLVE_INTERVAL_MIN     120
+#define SMB_DNS_RESOLVE_INTERVAL_DEFAULT 600
+
+>>>>>>> upstream/android-13
 /* maximum number of PDUs in one compound */
 #define MAX_COMPOUND 5
 
@@ -112,8 +144,11 @@ enum statusEnum {
 
 enum securityEnum {
 	Unspecified = 0,	/* not specified */
+<<<<<<< HEAD
 	LANMAN,			/* Legacy LANMAN auth */
 	NTLM,			/* Legacy NTLM012 auth with NTLM hash */
+=======
+>>>>>>> upstream/android-13
 	NTLMv2,			/* Legacy NTLM auth with NTLMv2 hash */
 	RawNTLMSSP,		/* NTLMSSP without SPNEGO, NTLMv2 hash */
 	Kerberos,		/* Kerberos via SPNEGO */
@@ -188,6 +223,7 @@ struct smb_rqst {
 	unsigned int	rq_tailsz;	/* length of last page */
 };
 
+<<<<<<< HEAD
 enum smb_version {
 	Smb_1 = 1,
 	Smb_20,
@@ -200,6 +236,8 @@ enum smb_version {
 	Smb_version_err
 };
 
+=======
+>>>>>>> upstream/android-13
 struct mid_q_entry;
 struct TCP_Server_Info;
 struct cifsFileInfo;
@@ -207,7 +245,11 @@ struct cifs_ses;
 struct cifs_tcon;
 struct dfs_info3_param;
 struct cifs_fattr;
+<<<<<<< HEAD
 struct smb_vol;
+=======
+struct smb3_fs_context;
+>>>>>>> upstream/android-13
 struct cifs_fid;
 struct cifs_readdata;
 struct cifs_writedata;
@@ -215,6 +257,10 @@ struct cifs_io_parms;
 struct cifs_search_info;
 struct cifsInodeInfo;
 struct cifs_open_parms;
+<<<<<<< HEAD
+=======
+struct cifs_credits;
+>>>>>>> upstream/android-13
 
 struct smb_version_operations {
 	int (*send_cancel)(struct TCP_Server_Info *, struct smb_rqst *,
@@ -222,15 +268,26 @@ struct smb_version_operations {
 	bool (*compare_fids)(struct cifsFileInfo *, struct cifsFileInfo *);
 	/* setup request: allocate mid, sign message */
 	struct mid_q_entry *(*setup_request)(struct cifs_ses *,
+<<<<<<< HEAD
 						struct smb_rqst *);
+=======
+					     struct TCP_Server_Info *,
+					     struct smb_rqst *);
+>>>>>>> upstream/android-13
 	/* setup async request: allocate mid, sign message */
 	struct mid_q_entry *(*setup_async_request)(struct TCP_Server_Info *,
 						struct smb_rqst *);
 	/* check response: verify signature, map error */
 	int (*check_receive)(struct mid_q_entry *, struct TCP_Server_Info *,
 			     bool);
+<<<<<<< HEAD
 	void (*add_credits)(struct TCP_Server_Info *, const unsigned int,
 			    const int);
+=======
+	void (*add_credits)(struct TCP_Server_Info *server,
+			    const struct cifs_credits *credits,
+			    const int optype);
+>>>>>>> upstream/android-13
 	void (*set_credits)(struct TCP_Server_Info *, const int);
 	int * (*get_credits_field)(struct TCP_Server_Info *, const int);
 	unsigned int (*get_credits)(struct mid_q_entry *);
@@ -258,7 +315,11 @@ struct smb_version_operations {
 	/* verify the message */
 	int (*check_message)(char *, unsigned int, struct TCP_Server_Info *);
 	bool (*is_oplock_break)(char *, struct TCP_Server_Info *);
+<<<<<<< HEAD
 	int (*handle_cancelled_mid)(char *, struct TCP_Server_Info *);
+=======
+	int (*handle_cancelled_mid)(struct mid_q_entry *, struct TCP_Server_Info *);
+>>>>>>> upstream/android-13
 	void (*downgrade_oplock)(struct TCP_Server_Info *server,
 				 struct cifsInodeInfo *cinode, __u32 oplock,
 				 unsigned int epoch, bool *purge_cache);
@@ -270,9 +331,15 @@ struct smb_version_operations {
 	/* negotiate to the server */
 	int (*negotiate)(const unsigned int, struct cifs_ses *);
 	/* set negotiated write size */
+<<<<<<< HEAD
 	unsigned int (*negotiate_wsize)(struct cifs_tcon *, struct smb_vol *);
 	/* set negotiated read size */
 	unsigned int (*negotiate_rsize)(struct cifs_tcon *, struct smb_vol *);
+=======
+	unsigned int (*negotiate_wsize)(struct cifs_tcon *tcon, struct smb3_fs_context *ctx);
+	/* set negotiated read size */
+	unsigned int (*negotiate_rsize)(struct cifs_tcon *tcon, struct smb3_fs_context *ctx);
+>>>>>>> upstream/android-13
 	/* setup smb sessionn */
 	int (*sess_setup)(const unsigned int, struct cifs_ses *,
 			  const struct nls_table *);
@@ -288,7 +355,12 @@ struct smb_version_operations {
 			     const char *, struct dfs_info3_param **,
 			     unsigned int *, const struct nls_table *, int);
 	/* informational QFS call */
+<<<<<<< HEAD
 	void (*qfs_tcon)(const unsigned int, struct cifs_tcon *);
+=======
+	void (*qfs_tcon)(const unsigned int, struct cifs_tcon *,
+			 struct cifs_sb_info *);
+>>>>>>> upstream/android-13
 	/* check if a path is accessible or not */
 	int (*is_path_accessible)(const unsigned int, struct cifs_tcon *,
 				  struct cifs_sb_info *, const char *);
@@ -299,6 +371,13 @@ struct smb_version_operations {
 	/* query file data from the server */
 	int (*query_file_info)(const unsigned int, struct cifs_tcon *,
 			       struct cifs_fid *, FILE_ALL_INFO *);
+<<<<<<< HEAD
+=======
+	/* query reparse tag from srv to determine which type of special file */
+	int (*query_reparse_tag)(const unsigned int xid, struct cifs_tcon *tcon,
+				struct cifs_sb_info *cifs_sb, const char *path,
+				__u32 *reparse_tag);
+>>>>>>> upstream/android-13
 	/* get server index number */
 	int (*get_srv_inum)(const unsigned int, struct cifs_tcon *,
 			    struct cifs_sb_info *, const char *,
@@ -323,8 +402,14 @@ struct smb_version_operations {
 			umode_t mode, struct cifs_tcon *tcon,
 			const char *full_path,
 			struct cifs_sb_info *cifs_sb);
+<<<<<<< HEAD
 	int (*mkdir)(const unsigned int, struct cifs_tcon *, const char *,
 		     struct cifs_sb_info *);
+=======
+	int (*mkdir)(const unsigned int xid, struct inode *inode, umode_t mode,
+		     struct cifs_tcon *tcon, const char *name,
+		     struct cifs_sb_info *sb);
+>>>>>>> upstream/android-13
 	/* set info on created directory */
 	void (*mkdir_setinfo)(struct inode *, const char *,
 			      struct cifs_sb_info *, struct cifs_tcon *,
@@ -347,7 +432,12 @@ struct smb_version_operations {
 			       struct cifs_sb_info *);
 	/* query symlink target */
 	int (*query_symlink)(const unsigned int, struct cifs_tcon *,
+<<<<<<< HEAD
 			     const char *, char **, struct cifs_sb_info *);
+=======
+			     struct cifs_sb_info *, const char *,
+			     char **, bool);
+>>>>>>> upstream/android-13
 	/* open a file for non-posix mounts */
 	int (*open)(const unsigned int, struct cifs_open_parms *,
 		    __u32 *, FILE_ALL_INFO *);
@@ -356,6 +446,12 @@ struct smb_version_operations {
 	/* close a file */
 	void (*close)(const unsigned int, struct cifs_tcon *,
 		      struct cifs_fid *);
+<<<<<<< HEAD
+=======
+	/* close a file, returning file attributes and timestamps */
+	void (*close_getattr)(const unsigned int xid, struct cifs_tcon *tcon,
+		      struct cifsFileInfo *pfile_info);
+>>>>>>> upstream/android-13
 	/* send a flush request to the server */
 	int (*flush)(const unsigned int, struct cifs_tcon *, struct cifs_fid *);
 	/* async read from the server */
@@ -385,8 +481,13 @@ struct smb_version_operations {
 			 struct cifs_fid *);
 	/* calculate a size of SMB message */
 	unsigned int (*calc_smb_size)(void *buf, struct TCP_Server_Info *ptcpi);
+<<<<<<< HEAD
 	/* check for STATUS_PENDING and process it in a positive case */
 	bool (*is_status_pending)(char *, struct TCP_Server_Info *, int);
+=======
+	/* check for STATUS_PENDING and process the response if yes */
+	bool (*is_status_pending)(char *buf, struct TCP_Server_Info *server);
+>>>>>>> upstream/android-13
 	/* check for STATUS_NETWORK_SESSION_EXPIRED */
 	bool (*is_session_expired)(char *);
 	/* send oplock break response */
@@ -394,7 +495,11 @@ struct smb_version_operations {
 			       struct cifsInodeInfo *);
 	/* query remote filesystem */
 	int (*queryfs)(const unsigned int, struct cifs_tcon *,
+<<<<<<< HEAD
 		       struct kstatfs *);
+=======
+		       struct cifs_sb_info *, struct kstatfs *);
+>>>>>>> upstream/android-13
 	/* send mandatory brlock to the server */
 	int (*mand_lock)(const unsigned int, struct cifsFileInfo *, __u64,
 			 __u64, __u32, int, int, bool);
@@ -410,11 +515,21 @@ struct smb_version_operations {
 	/* generate new lease key */
 	void (*new_lease_key)(struct cifs_fid *);
 	int (*generate_signingkey)(struct cifs_ses *);
+<<<<<<< HEAD
 	int (*calc_signature)(struct smb_rqst *, struct TCP_Server_Info *);
+=======
+	int (*calc_signature)(struct smb_rqst *, struct TCP_Server_Info *,
+				bool allocate_crypto);
+>>>>>>> upstream/android-13
 	int (*set_integrity)(const unsigned int, struct cifs_tcon *tcon,
 			     struct cifsFileInfo *src_file);
 	int (*enum_snapshots)(const unsigned int xid, struct cifs_tcon *tcon,
 			     struct cifsFileInfo *src_file, void __user *);
+<<<<<<< HEAD
+=======
+	int (*notify)(const unsigned int xid, struct file *pfile,
+			     void __user *pbuf);
+>>>>>>> upstream/android-13
 	int (*query_mf_symlink)(unsigned int, struct cifs_tcon *,
 				struct cifs_sb_info *, const unsigned char *,
 				char *, unsigned int *);
@@ -445,16 +560,30 @@ struct smb_version_operations {
 			const char *, const void *, const __u16,
 			const struct nls_table *, struct cifs_sb_info *);
 	struct cifs_ntsd * (*get_acl)(struct cifs_sb_info *, struct inode *,
+<<<<<<< HEAD
 			const char *, u32 *);
 	struct cifs_ntsd * (*get_acl_by_fid)(struct cifs_sb_info *,
 			const struct cifs_fid *, u32 *);
+=======
+			const char *, u32 *, u32);
+	struct cifs_ntsd * (*get_acl_by_fid)(struct cifs_sb_info *,
+			const struct cifs_fid *, u32 *, u32);
+>>>>>>> upstream/android-13
 	int (*set_acl)(struct cifs_ntsd *, __u32, struct inode *, const char *,
 			int);
 	/* writepages retry size */
 	unsigned int (*wp_retry_size)(struct inode *);
 	/* get mtu credits */
 	int (*wait_mtu_credits)(struct TCP_Server_Info *, unsigned int,
+<<<<<<< HEAD
 				unsigned int *, unsigned int *);
+=======
+				unsigned int *, struct cifs_credits *);
+	/* adjust previously taken mtu credits to request size */
+	int (*adjust_credits)(struct TCP_Server_Info *server,
+			      struct cifs_credits *credits,
+			      const unsigned int payload_size);
+>>>>>>> upstream/android-13
 	/* check if we need to issue closedir */
 	bool (*dir_needs_close)(struct cifsFileInfo *);
 	long (*fallocate)(struct file *, struct cifs_tcon *, int, loff_t,
@@ -468,6 +597,32 @@ struct smb_version_operations {
 	enum securityEnum (*select_sectype)(struct TCP_Server_Info *,
 			    enum securityEnum);
 	int (*next_header)(char *);
+<<<<<<< HEAD
+=======
+	/* ioctl passthrough for query_info */
+	int (*ioctl_query_info)(const unsigned int xid,
+				struct cifs_tcon *tcon,
+				struct cifs_sb_info *cifs_sb,
+				__le16 *path, int is_dir,
+				unsigned long p);
+	/* make unix special files (block, char, fifo, socket) */
+	int (*make_node)(unsigned int xid,
+			 struct inode *inode,
+			 struct dentry *dentry,
+			 struct cifs_tcon *tcon,
+			 const char *full_path,
+			 umode_t mode,
+			 dev_t device_number);
+	/* version specific fiemap implementation */
+	int (*fiemap)(struct cifs_tcon *tcon, struct cifsFileInfo *,
+		      struct fiemap_extent_info *, u64, u64);
+	/* version specific llseek implementation */
+	loff_t (*llseek)(struct file *, struct cifs_tcon *, loff_t, int);
+	/* Check for STATUS_IO_TIMEOUT */
+	bool (*is_status_io_timeout)(char *buf);
+	/* Check for STATUS_NETWORK_NAME_DELETED */
+	void (*is_network_name_deleted)(char *buf, struct TCP_Server_Info *srv);
+>>>>>>> upstream/android-13
 };
 
 struct smb_version_values {
@@ -494,6 +649,7 @@ struct smb_version_values {
 #define HEADER_SIZE(server) (server->vals->header_size)
 #define MAX_HEADER_SIZE(server) (server->vals->max_header_size)
 
+<<<<<<< HEAD
 struct smb_vol {
 	char *username;
 	char *password;
@@ -570,6 +726,12 @@ struct smb_vol {
 	unsigned int max_credits; /* smb3 max_credits 10 < credits < 60000 */
 };
 
+=======
+/**
+ * CIFS superblock mount flags (mnt_cifs_flags) to consider when
+ * trying to reuse existing superblock for a new mount
+ */
+>>>>>>> upstream/android-13
 #define CIFS_MOUNT_MASK (CIFS_MOUNT_NO_PERM | CIFS_MOUNT_SET_UID | \
 			 CIFS_MOUNT_SERVER_INUM | CIFS_MOUNT_DIRECT_IO | \
 			 CIFS_MOUNT_NO_XATTR | CIFS_MOUNT_MAP_SPECIAL_CHR | \
@@ -580,14 +742,30 @@ struct smb_vol {
 			 CIFS_MOUNT_NOPOSIXBRL | CIFS_MOUNT_NOSSYNC | \
 			 CIFS_MOUNT_FSCACHE | CIFS_MOUNT_MF_SYMLINKS | \
 			 CIFS_MOUNT_MULTIUSER | CIFS_MOUNT_STRICT_IO | \
+<<<<<<< HEAD
 			 CIFS_MOUNT_CIFS_BACKUPUID | CIFS_MOUNT_CIFS_BACKUPGID)
 
+=======
+			 CIFS_MOUNT_CIFS_BACKUPUID | CIFS_MOUNT_CIFS_BACKUPGID | \
+			 CIFS_MOUNT_UID_FROM_ACL | CIFS_MOUNT_NO_HANDLE_CACHE | \
+			 CIFS_MOUNT_NO_DFS | CIFS_MOUNT_MODE_FROM_SID | \
+			 CIFS_MOUNT_RO_CACHE | CIFS_MOUNT_RW_CACHE)
+
+/**
+ * Generic VFS superblock mount flags (s_flags) to consider when
+ * trying to reuse existing superblock for a new mount
+ */
+>>>>>>> upstream/android-13
 #define CIFS_MS_MASK (SB_RDONLY | SB_MANDLOCK | SB_NOEXEC | SB_NOSUID | \
 		      SB_NODEV | SB_SYNCHRONOUS)
 
 struct cifs_mnt_data {
 	struct cifs_sb_info *cifs_sb;
+<<<<<<< HEAD
 	struct smb_vol *vol;
+=======
+	struct smb3_fs_context *ctx;
+>>>>>>> upstream/android-13
 	int flags;
 };
 
@@ -606,11 +784,19 @@ inc_rfc1001_len(void *buf, int count)
 struct TCP_Server_Info {
 	struct list_head tcp_ses_list;
 	struct list_head smb_ses_list;
+<<<<<<< HEAD
+=======
+	__u64 conn_id; /* connection identifier (useful for debugging) */
+>>>>>>> upstream/android-13
 	int srv_count; /* reference counter */
 	/* 15 character server name + 0x20 16th byte indicating type = srv */
 	char server_RFC1001_name[RFC1001_NAME_LEN_WITH_NULL];
 	struct smb_version_operations	*ops;
 	struct smb_version_values	*vals;
+<<<<<<< HEAD
+=======
+	/* updates to tcpStatus protected by GlobalMid_Lock */
+>>>>>>> upstream/android-13
 	enum statusEnum tcpStatus; /* what we think the status is */
 	char *hostname; /* hostname portion of UNC string */
 	struct socket *ssocket;
@@ -624,16 +810,28 @@ struct TCP_Server_Info {
 	struct list_head pending_mid_q;
 	bool noblocksnd;		/* use blocking sendmsg */
 	bool noautotune;		/* do not autotune send buf sizes */
+<<<<<<< HEAD
+=======
+	bool nosharesock;
+>>>>>>> upstream/android-13
 	bool tcp_nodelay;
 	unsigned int credits;  /* send no more requests at once */
 	unsigned int max_credits; /* can override large 32000 default at mnt */
 	unsigned int in_flight;  /* number of requests on the wire to server */
+<<<<<<< HEAD
+=======
+	unsigned int max_in_flight; /* max number of requests that were on wire */
+>>>>>>> upstream/android-13
 	spinlock_t req_lock;  /* protect the two values above */
 	struct mutex srv_mutex;
 	struct task_struct *tsk;
 	char server_GUID[16];
 	__u16 sec_mode;
 	bool sign; /* is signing enabled on this connection? */
+<<<<<<< HEAD
+=======
+	bool ignore_signature:1; /* skip validation of signatures in SMB2/3 rsp */
+>>>>>>> upstream/android-13
 	bool session_estab; /* mark when very first sess is established */
 	int echo_credits;  /* echo reserved slots */
 	int oplock_credits;  /* oplock break reserved slots */
@@ -653,15 +851,26 @@ struct TCP_Server_Info {
 	/* SMB_COM_WRITE_RAW or SMB_COM_READ_RAW. */
 	unsigned int capabilities; /* selective disabling of caps by smb sess */
 	int timeAdj;  /* Adjust for difference in server time zone in sec */
+<<<<<<< HEAD
 	__u64 CurrentMid;         /* multiplex id - rotating counter */
+=======
+	__u64 CurrentMid;         /* multiplex id - rotating counter, protected by GlobalMid_Lock */
+>>>>>>> upstream/android-13
 	char cryptkey[CIFS_CRYPTO_KEY_SIZE]; /* used by ntlm, ntlmv2 etc */
 	/* 16th byte of RFC1001 workstation name is always null */
 	char workstation_RFC1001_name[RFC1001_NAME_LEN_WITH_NULL];
 	__u32 sequence_number; /* for signing, protected by srv_mutex */
+<<<<<<< HEAD
 	struct session_key session_key;
 	unsigned long lstrp; /* when we got last response from this server */
 	struct cifs_secmech secmech; /* crypto sec mech functs, descriptors */
 #define	CIFS_NEGFLAVOR_LANMAN	0	/* wct == 13, LANMAN */
+=======
+	__u32 reconnect_instance; /* incremented on each reconnect */
+	struct session_key session_key;
+	unsigned long lstrp; /* when we got last response from this server */
+	struct cifs_secmech secmech; /* crypto sec mech functs, descriptors */
+>>>>>>> upstream/android-13
 #define	CIFS_NEGFLAVOR_UNENCAP	1	/* wct == 17, but no ext_sec */
 #define	CIFS_NEGFLAVOR_EXTENDED	2	/* wct == 17, ext_sec bit set */
 	char	negflavor;	/* NEGOTIATE response flavor */
@@ -676,15 +885,25 @@ struct TCP_Server_Info {
 	/* point to the SMBD connection if RDMA is used instead of socket */
 	struct smbd_connection *smbd_conn;
 	struct delayed_work	echo; /* echo ping workqueue job */
+<<<<<<< HEAD
+=======
+	struct delayed_work	resolve; /* dns resolution workqueue job */
+>>>>>>> upstream/android-13
 	char	*smallbuf;	/* pointer to current "small" buffer */
 	char	*bigbuf;	/* pointer to current "big" buffer */
 	/* Total size of this PDU. Only valid from cifs_demultiplex_thread */
 	unsigned int pdu_size;
 	unsigned int total_read; /* total amount of data read in this pass */
+<<<<<<< HEAD
+=======
+	atomic_t in_send; /* requests trying to send */
+	atomic_t num_waiters;   /* blocked waiting to get in sendrecv */
+>>>>>>> upstream/android-13
 #ifdef CONFIG_CIFS_FSCACHE
 	struct fscache_cookie   *fscache; /* client index cache cookie */
 #endif
 #ifdef CONFIG_CIFS_STATS2
+<<<<<<< HEAD
 	atomic_t in_send; /* requests trying to send */
 	atomic_t num_waiters;   /* blocked waiting to get in sendrecv */
 	atomic_t smb2slowcmd[NUMBER_OF_SMB2_COMMANDS]; /* count resps > 1 sec */
@@ -694,10 +913,51 @@ struct TCP_Server_Info {
 	__le16	cipher_type;
 	 /* save initital negprot hash */
 	__u8	preauth_sha_hash[SMB2_PREAUTH_HASH_SIZE];
+=======
+	atomic_t num_cmds[NUMBER_OF_SMB2_COMMANDS]; /* total requests by cmd */
+	atomic_t smb2slowcmd[NUMBER_OF_SMB2_COMMANDS]; /* count resps > 1 sec */
+	__u64 time_per_cmd[NUMBER_OF_SMB2_COMMANDS]; /* total time per cmd */
+	__u32 slowest_cmd[NUMBER_OF_SMB2_COMMANDS];
+	__u32 fastest_cmd[NUMBER_OF_SMB2_COMMANDS];
+#endif /* STATS2 */
+	unsigned int	max_read;
+	unsigned int	max_write;
+	unsigned int	min_offload;
+	__le16	compress_algorithm;
+	__u16	signing_algorithm;
+	__le16	cipher_type;
+	 /* save initital negprot hash */
+	__u8	preauth_sha_hash[SMB2_PREAUTH_HASH_SIZE];
+	bool	signing_negotiated; /* true if valid signing context rcvd from server */
+>>>>>>> upstream/android-13
 	bool	posix_ext_supported;
 	struct delayed_work reconnect; /* reconnect workqueue job */
 	struct mutex reconnect_mutex; /* prevent simultaneous reconnects */
 	unsigned long echo_interval;
+<<<<<<< HEAD
+=======
+
+	/*
+	 * Number of targets available for reconnect. The more targets
+	 * the more tasks have to wait to let the demultiplex thread
+	 * reconnect.
+	 */
+	int nr_targets;
+	bool noblockcnt; /* use non-blocking connect() */
+	bool is_channel; /* if a session channel */
+#ifdef CONFIG_CIFS_SWN_UPCALL
+	bool use_swn_dstaddr;
+	struct sockaddr_storage swn_dstaddr;
+#endif
+#ifdef CONFIG_CIFS_DFS_UPCALL
+	bool is_dfs_conn; /* if a dfs connection */
+#endif
+};
+
+struct cifs_credits {
+	unsigned int value;
+	unsigned int instance;
+>>>>>>> upstream/android-13
 };
 
 static inline unsigned int
@@ -711,12 +971,17 @@ in_flight(struct TCP_Server_Info *server)
 }
 
 static inline bool
+<<<<<<< HEAD
 has_credits(struct TCP_Server_Info *server, int *credits)
+=======
+has_credits(struct TCP_Server_Info *server, int *credits, int num_credits)
+>>>>>>> upstream/android-13
 {
 	int num;
 	spin_lock(&server->req_lock);
 	num = *credits;
 	spin_unlock(&server->req_lock);
+<<<<<<< HEAD
 	return num > 0;
 }
 
@@ -733,6 +998,24 @@ add_credits_and_wake_if(struct TCP_Server_Info *server, const unsigned int add,
 {
 	if (add) {
 		server->ops->add_credits(server, add, optype);
+=======
+	return num >= num_credits;
+}
+
+static inline void
+add_credits(struct TCP_Server_Info *server, const struct cifs_credits *credits,
+	    const int optype)
+{
+	server->ops->add_credits(server, credits, optype);
+}
+
+static inline void
+add_credits_and_wake_if(struct TCP_Server_Info *server,
+			const struct cifs_credits *credits, const int optype)
+{
+	if (credits->value) {
+		server->ops->add_credits(server, credits, optype);
+>>>>>>> upstream/android-13
 		wake_up(&server->request_q);
 	}
 }
@@ -743,6 +1026,17 @@ set_credits(struct TCP_Server_Info *server, const int val)
 	server->ops->set_credits(server, val);
 }
 
+<<<<<<< HEAD
+=======
+static inline int
+adjust_credits(struct TCP_Server_Info *server, struct cifs_credits *credits,
+	       const unsigned int payload_size)
+{
+	return server->ops->adjust_credits ?
+		server->ops->adjust_credits(server, credits, payload_size) : 0;
+}
+
+>>>>>>> upstream/android-13
 static inline __le64
 get_next_mid64(struct TCP_Server_Info *server)
 {
@@ -818,6 +1112,10 @@ compare_mid(__u16 mid, const struct smb_hdr *smb)
  * a single wsize request with a single call.
  */
 #define CIFS_DEFAULT_IOSIZE (1024 * 1024)
+<<<<<<< HEAD
+=======
+#define SMB3_DEFAULT_IOSIZE (4 * 1024 * 1024)
+>>>>>>> upstream/android-13
 
 /*
  * Windows only supports a max of 60kb reads and 65535 byte writes. Default to
@@ -828,7 +1126,11 @@ compare_mid(__u16 mid, const struct smb_hdr *smb)
  *
  * Citation:
  *
+<<<<<<< HEAD
  * http://blogs.msdn.com/b/openspecification/archive/2009/04/10/smb-maximum-transmit-buffer-size-and-performance-tuning.aspx
+=======
+ * https://blogs.msdn.com/b/openspecification/archive/2009/04/10/smb-maximum-transmit-buffer-size-and-performance-tuning.aspx
+>>>>>>> upstream/android-13
  */
 #define CIFS_DEFAULT_NON_POSIX_RSIZE (60 * 1024)
 #define CIFS_DEFAULT_NON_POSIX_WSIZE (65536)
@@ -870,6 +1172,14 @@ struct cifs_server_iface {
 	struct sockaddr_storage sockaddr;
 };
 
+<<<<<<< HEAD
+=======
+struct cifs_chan {
+	struct TCP_Server_Info *server;
+	__u8 signkey[SMB3_SIGN_KEY_SIZE];
+};
+
+>>>>>>> upstream/android-13
 /*
  * Session structure.  One of these for each uid session with a particular host
  */
@@ -880,7 +1190,11 @@ struct cifs_ses {
 	struct mutex session_mutex;
 	struct TCP_Server_Info *server;	/* pointer to server info */
 	int ses_count;		/* reference counter */
+<<<<<<< HEAD
 	enum statusEnum status;
+=======
+	enum statusEnum status;  /* updates protected by GlobalMid_Lock */
+>>>>>>> upstream/android-13
 	unsigned overrideSecFlg;  /* if non-zero override global sec flags */
 	char *serverOS;		/* name of operating system underlying server */
 	char *serverNOS;	/* name of network operating system of server */
@@ -889,7 +1203,11 @@ struct cifs_ses {
 	kuid_t linux_uid;	/* overriding owner of files on the mount */
 	kuid_t cred_uid;	/* owner of credentials */
 	unsigned int capabilities;
+<<<<<<< HEAD
 	char serverName[SERVER_NAME_LEN_WITH_NULL];
+=======
+	char ip_addr[INET6_ADDRSTRLEN + 1]; /* Max ipv6 (or v4) addr string len */
+>>>>>>> upstream/android-13
 	char *user_name;	/* must not be null except during init of sess
 				   and after mount option parsing we fill it */
 	char *domainName;
@@ -900,12 +1218,24 @@ struct cifs_ses {
 	bool sign;		/* is signing required? */
 	bool need_reconnect:1; /* connection reset, uid now invalid */
 	bool domainAuto:1;
+<<<<<<< HEAD
 	__u16 session_flags;
 	__u8 smb3signingkey[SMB3_SIGN_KEY_SIZE];
 	__u8 smb3encryptionkey[SMB3_SIGN_KEY_SIZE];
 	__u8 smb3decryptionkey[SMB3_SIGN_KEY_SIZE];
 	__u8 preauth_sha_hash[SMB2_PREAUTH_HASH_SIZE];
 
+=======
+	bool binding:1; /* are we binding the session? */
+	__u16 session_flags;
+	__u8 smb3signingkey[SMB3_SIGN_KEY_SIZE];
+	__u8 smb3encryptionkey[SMB3_ENC_DEC_KEY_SIZE];
+	__u8 smb3decryptionkey[SMB3_ENC_DEC_KEY_SIZE];
+	__u8 preauth_sha_hash[SMB2_PREAUTH_HASH_SIZE];
+
+	__u8 binding_preauth_sha_hash[SMB2_PREAUTH_HASH_SIZE];
+
+>>>>>>> upstream/android-13
 	/*
 	 * Network interfaces available on the server this session is
 	 * connected to.
@@ -916,11 +1246,62 @@ struct cifs_ses {
 	 * iface_lock should be taken when accessing any of these fields
 	 */
 	spinlock_t iface_lock;
+<<<<<<< HEAD
 	struct cifs_server_iface *iface_list;
 	size_t iface_count;
 	unsigned long iface_last_update; /* jiffies */
 };
 
+=======
+	/* ========= begin: protected by iface_lock ======== */
+	struct cifs_server_iface *iface_list;
+	size_t iface_count;
+	unsigned long iface_last_update; /* jiffies */
+	/* ========= end: protected by iface_lock ======== */
+
+	spinlock_t chan_lock;
+	/* ========= begin: protected by chan_lock ======== */
+#define CIFS_MAX_CHANNELS 16
+	struct cifs_chan chans[CIFS_MAX_CHANNELS];
+	struct cifs_chan *binding_chan;
+	size_t chan_count;
+	size_t chan_max;
+	atomic_t chan_seq; /* round robin state */
+	/* ========= end: protected by chan_lock ======== */
+};
+
+/*
+ * When binding a new channel, we need to access the channel which isn't fully
+ * established yet.
+ */
+
+static inline
+struct cifs_chan *cifs_ses_binding_channel(struct cifs_ses *ses)
+{
+	if (ses->binding)
+		return ses->binding_chan;
+	else
+		return NULL;
+}
+
+/*
+ * Returns the server pointer of the session. When binding a new
+ * channel this returns the last channel which isn't fully established
+ * yet.
+ *
+ * This function should be use for negprot/sess.setup codepaths. For
+ * the other requests see cifs_pick_channel().
+ */
+static inline
+struct TCP_Server_Info *cifs_ses_server(struct cifs_ses *ses)
+{
+	if (ses->binding)
+		return ses->binding_chan->server;
+	else
+		return ses->server;
+}
+
+>>>>>>> upstream/android-13
 static inline bool
 cap_unix(struct cifs_ses *ses)
 {
@@ -929,11 +1310,23 @@ cap_unix(struct cifs_ses *ses)
 
 struct cached_fid {
 	bool is_valid:1;	/* Do we have a useable root fid */
+<<<<<<< HEAD
+=======
+	bool file_all_info_is_valid:1;
+	bool has_lease:1;
+	unsigned long time; /* jiffies of when lease was taken */
+>>>>>>> upstream/android-13
 	struct kref refcount;
 	struct cifs_fid *fid;
 	struct mutex fid_mutex;
 	struct cifs_tcon *tcon;
+<<<<<<< HEAD
 	struct work_struct lease_break;
+=======
+	struct dentry *dentry;
+	struct work_struct lease_break;
+	struct smb2_file_all_info file_all_info;
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -944,6 +1337,11 @@ struct cifs_tcon {
 	struct list_head tcon_list;
 	int tc_count;
 	struct list_head rlist; /* reconnect list */
+<<<<<<< HEAD
+=======
+	atomic_t num_local_opens;  /* num of all opens including disconnected */
+	atomic_t num_remote_opens; /* num of all network opens on server */
+>>>>>>> upstream/android-13
 	struct list_head openFileList;
 	spinlock_t open_file_lock; /* protects list above */
 	struct cifs_ses *ses;	/* pointer to session associated with */
@@ -995,6 +1393,10 @@ struct cifs_tcon {
 	bool retry:1;
 	bool nocase:1;
 	bool nohandlecache:1; /* if strange server resource prob can turn off */
+<<<<<<< HEAD
+=======
+	bool nodelete:1;
+>>>>>>> upstream/android-13
 	bool seal:1;      /* transport encryption for this mounted share */
 	bool unix_ext:1;  /* if false disable Linux extensions to CIFS protocol
 				for this mount even if server would support */
@@ -1007,12 +1409,20 @@ struct cifs_tcon {
 	bool use_resilient:1; /* use resilient instead of durable handles */
 	bool use_persistent:1; /* use persistent instead of durable handles */
 	bool no_lease:1;    /* Do not request leases on files or directories */
+<<<<<<< HEAD
+=======
+	bool use_witness:1; /* use witness protocol */
+>>>>>>> upstream/android-13
 	__le32 capabilities;
 	__u32 share_flags;
 	__u32 maximal_access;
 	__u32 vol_serial_number;
 	__le64 vol_create_time;
 	__u64 snapshot_time; /* for timewarp tokens - timestamp of snapshot */
+<<<<<<< HEAD
+=======
+	__u32 handle_timeout; /* persistent and durable handle timeout in ms */
+>>>>>>> upstream/android-13
 	__u32 ss_flags;		/* sector size flags */
 	__u32 perf_sector_size; /* best sector size for perf */
 	__u32 max_chunks;
@@ -1025,6 +1435,13 @@ struct cifs_tcon {
 	struct list_head pending_opens;	/* list of incomplete opens */
 	struct cached_fid crfid; /* Cached root fid */
 	/* BB add field for back pointer to sb struct(s)? */
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_CIFS_DFS_UPCALL
+	char *dfs_path; /* canonical DFS path */
+	struct list_head ulist; /* cache update list */
+#endif
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -1082,6 +1499,17 @@ struct cifs_pending_open {
 	__u32 oplock;
 };
 
+<<<<<<< HEAD
+=======
+struct cifs_deferred_close {
+	struct list_head dlist;
+	struct tcon_link *tlink;
+	__u16  netfid;
+	__u64  persistent_fid;
+	__u64  volatile_fid;
+};
+
+>>>>>>> upstream/android-13
 /*
  * This info hangs off the cifsFileInfo structure, pointed to by llist.
  * This is used to track byte stream locks on the file
@@ -1093,7 +1521,12 @@ struct cifsLockInfo {
 	__u64 offset;
 	__u64 length;
 	__u32 pid;
+<<<<<<< HEAD
 	__u32 type;
+=======
+	__u16 type;
+	__u16 flags;
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -1115,6 +1548,10 @@ struct cifs_search_info {
 	bool smallBuf:1; /* so we know which buf_release function to call */
 };
 
+<<<<<<< HEAD
+=======
+#define ACL_NO_MODE	((umode_t)(-1))
+>>>>>>> upstream/android-13
 struct cifs_open_parms {
 	struct cifs_tcon *tcon;
 	struct cifs_sb_info *cifs_sb;
@@ -1133,8 +1570,17 @@ struct cifs_fid {
 	__u64 volatile_fid;	/* volatile file id for smb2 */
 	__u8 lease_key[SMB2_LEASE_KEY_SIZE];	/* lease key for smb2 */
 	__u8 create_guid[16];
+<<<<<<< HEAD
 	struct cifs_pending_open *pending_open;
 	unsigned int epoch;
+=======
+	__u32 access;
+	struct cifs_pending_open *pending_open;
+	unsigned int epoch;
+#ifdef CONFIG_CIFS_DEBUG2
+	__u64 mid;
+#endif /* CIFS_DEBUG2 */
+>>>>>>> upstream/android-13
 	bool purge_cache;
 };
 
@@ -1160,6 +1606,10 @@ struct cifsFileInfo {
 	struct tcon_link *tlink;
 	unsigned int f_flags;
 	bool invalidHandle:1;	/* file closed via session abend */
+<<<<<<< HEAD
+=======
+	bool swapfile:1;
+>>>>>>> upstream/android-13
 	bool oplock_break_cancelled:1;
 	unsigned int oplock_epoch; /* epoch from the lease break */
 	__u32 oplock_level; /* oplock/lease level from the lease break */
@@ -1168,6 +1618,12 @@ struct cifsFileInfo {
 	struct mutex fh_mutex; /* prevents reopen race after dead ses*/
 	struct cifs_search_info srch_inf;
 	struct work_struct oplock_break; /* work for oplock breaks */
+<<<<<<< HEAD
+=======
+	struct work_struct put; /* work for the final part of _put */
+	struct delayed_work deferred;
+	bool deferred_close_scheduled; /* Flag to indicate close is scheduled */
+>>>>>>> upstream/android-13
 };
 
 struct cifs_io_parms {
@@ -1178,6 +1634,10 @@ struct cifs_io_parms {
 	__u64 offset;
 	unsigned int length;
 	struct cifs_tcon *tcon;
+<<<<<<< HEAD
+=======
+	struct TCP_Server_Info *server;
+>>>>>>> upstream/android-13
 };
 
 struct cifs_aio_ctx {
@@ -1195,10 +1655,20 @@ struct cifs_aio_ctx {
 	unsigned int		len;
 	unsigned int		total_len;
 	bool			should_dirty;
+<<<<<<< HEAD
 };
 
 struct cifs_readdata;
 
+=======
+	/*
+	 * Indicates if this aio_ctx is for direct_io,
+	 * If yes, iter is a copy of the user passed iov_iter
+	 */
+	bool			direct_io;
+};
+
+>>>>>>> upstream/android-13
 /* asynchronous read support */
 struct cifs_readdata {
 	struct kref			refcount;
@@ -1220,19 +1690,30 @@ struct cifs_readdata {
 				struct cifs_readdata *rdata,
 				struct iov_iter *iter);
 	struct kvec			iov[2];
+<<<<<<< HEAD
+=======
+	struct TCP_Server_Info		*server;
+>>>>>>> upstream/android-13
 #ifdef CONFIG_CIFS_SMB_DIRECT
 	struct smbd_mr			*mr;
 #endif
 	unsigned int			pagesz;
 	unsigned int			page_offset;
 	unsigned int			tailsz;
+<<<<<<< HEAD
 	unsigned int			credits;
+=======
+	struct cifs_credits		credits;
+>>>>>>> upstream/android-13
 	unsigned int			nr_pages;
 	struct page			**pages;
 };
 
+<<<<<<< HEAD
 struct cifs_writedata;
 
+=======
+>>>>>>> upstream/android-13
 /* asynchronous write support */
 struct cifs_writedata {
 	struct kref			refcount;
@@ -1246,13 +1727,21 @@ struct cifs_writedata {
 	pid_t				pid;
 	unsigned int			bytes;
 	int				result;
+<<<<<<< HEAD
+=======
+	struct TCP_Server_Info		*server;
+>>>>>>> upstream/android-13
 #ifdef CONFIG_CIFS_SMB_DIRECT
 	struct smbd_mr			*mr;
 #endif
 	unsigned int			pagesz;
 	unsigned int			page_offset;
 	unsigned int			tailsz;
+<<<<<<< HEAD
 	unsigned int			credits;
+=======
+	struct cifs_credits		credits;
+>>>>>>> upstream/android-13
 	unsigned int			nr_pages;
 	struct page			**pages;
 };
@@ -1268,7 +1757,12 @@ cifsFileInfo_get_locked(struct cifsFileInfo *cifs_file)
 }
 
 struct cifsFileInfo *cifsFileInfo_get(struct cifsFileInfo *cifs_file);
+<<<<<<< HEAD
 void _cifsFileInfo_put(struct cifsFileInfo *cifs_file, bool wait_oplock_hdlr);
+=======
+void _cifsFileInfo_put(struct cifsFileInfo *cifs_file, bool wait_oplock_hdlr,
+		       bool offload);
+>>>>>>> upstream/android-13
 void cifsFileInfo_put(struct cifsFileInfo *cifs_file);
 
 #define CIFS_CACHE_READ_FLG	1
@@ -1278,9 +1772,15 @@ void cifsFileInfo_put(struct cifsFileInfo *cifs_file);
 #define CIFS_CACHE_RW_FLG	(CIFS_CACHE_READ_FLG | CIFS_CACHE_WRITE_FLG)
 #define CIFS_CACHE_RHW_FLG	(CIFS_CACHE_RW_FLG | CIFS_CACHE_HANDLE_FLG)
 
+<<<<<<< HEAD
 #define CIFS_CACHE_READ(cinode) (cinode->oplock & CIFS_CACHE_READ_FLG)
 #define CIFS_CACHE_HANDLE(cinode) (cinode->oplock & CIFS_CACHE_HANDLE_FLG)
 #define CIFS_CACHE_WRITE(cinode) (cinode->oplock & CIFS_CACHE_WRITE_FLG)
+=======
+#define CIFS_CACHE_READ(cinode) ((cinode->oplock & CIFS_CACHE_READ_FLG) || (CIFS_SB(cinode->vfs_inode.i_sb)->mnt_cifs_flags & CIFS_MOUNT_RO_CACHE))
+#define CIFS_CACHE_HANDLE(cinode) (cinode->oplock & CIFS_CACHE_HANDLE_FLG)
+#define CIFS_CACHE_WRITE(cinode) ((cinode->oplock & CIFS_CACHE_WRITE_FLG) || (CIFS_SB(cinode->vfs_inode.i_sb)->mnt_cifs_flags & CIFS_MOUNT_RW_CACHE))
+>>>>>>> upstream/android-13
 
 /*
  * One of these for each file inode
@@ -1291,7 +1791,11 @@ struct cifsInodeInfo {
 	struct list_head llist;	/* locks helb by this inode */
 	/*
 	 * NOTE: Some code paths call down_read(lock_sem) twice, so
+<<<<<<< HEAD
 	 * we must always use use cifs_down_write() instead of down_write()
+=======
+	 * we must always use cifs_down_write() instead of down_write()
+>>>>>>> upstream/android-13
 	 * for this semaphore to avoid deadlocks.
 	 */
 	struct rw_semaphore lock_sem;	/* protect the fields above */
@@ -1307,6 +1811,11 @@ struct cifsInodeInfo {
 #define CIFS_INO_DELETE_PENDING		  (3) /* delete pending on server */
 #define CIFS_INO_INVALID_MAPPING	  (4) /* pagecache is invalid */
 #define CIFS_INO_LOCK			  (5) /* lock bit for synchronization */
+<<<<<<< HEAD
+=======
+#define CIFS_INO_MODIFIED_ATTR            (6) /* Indicate change in mtime/ctime */
+#define CIFS_INO_CLOSE_ON_LOCK            (7) /* Not to defer the close when lock is set */
+>>>>>>> upstream/android-13
 	unsigned long flags;
 	spinlock_t writers_lock;
 	unsigned int writers;		/* Number of writers on this inode */
@@ -1319,6 +1828,12 @@ struct cifsInodeInfo {
 	struct fscache_cookie *fscache;
 #endif
 	struct inode vfs_inode;
+<<<<<<< HEAD
+=======
+	struct list_head deferred_closes; /* list of deferred closes */
+	spinlock_t deferred_lock; /* protection on deferred list */
+	bool lease_granted; /* Flag to indicate whether lease or oplock is granted. */
+>>>>>>> upstream/android-13
 };
 
 static inline struct cifsInodeInfo *
@@ -1422,6 +1937,10 @@ struct mid_q_entry {
 	struct TCP_Server_Info *server;	/* server corresponding to this mid */
 	__u64 mid;		/* multiplex id */
 	__u16 credits;		/* number of credits consumed by this mid */
+<<<<<<< HEAD
+=======
+	__u16 credits_received;	/* number of credits from the response */
+>>>>>>> upstream/android-13
 	__u32 pid;		/* process id */
 	__u32 sequence_number;  /* for CIFS signing */
 	unsigned long when_alloc;  /* when mid was created */
@@ -1433,11 +1952,19 @@ struct mid_q_entry {
 	mid_callback_t *callback; /* call completion callback */
 	mid_handle_t *handle; /* call handle mid callback */
 	void *callback_data;	  /* general purpose pointer for callback */
+<<<<<<< HEAD
+=======
+	struct task_struct *creator;
+>>>>>>> upstream/android-13
 	void *resp_buf;		/* pointer to received SMB header */
 	unsigned int resp_buf_size;
 	int mid_state;	/* wish this were enum but can not pass to wait_event */
 	unsigned int mid_flags;
 	__le16 command;		/* smb command code */
+<<<<<<< HEAD
+=======
+	unsigned int optype;	/* operation type */
+>>>>>>> upstream/android-13
 	bool large_buf:1;	/* if valid response, is pointer to large buf */
 	bool multiRsp:1;	/* multiple trans2 responses for one request  */
 	bool multiEnd:1;	/* both received */
@@ -1448,12 +1975,20 @@ struct close_cancelled_open {
 	struct cifs_fid         fid;
 	struct cifs_tcon        *tcon;
 	struct work_struct      work;
+<<<<<<< HEAD
+=======
+	__u64 mid;
+	__u16 cmd;
+>>>>>>> upstream/android-13
 };
 
 /*	Make code in transport.c a little cleaner by moving
 	update of optional stats into function below */
+<<<<<<< HEAD
 #ifdef CONFIG_CIFS_STATS2
 
+=======
+>>>>>>> upstream/android-13
 static inline void cifs_in_send_inc(struct TCP_Server_Info *server)
 {
 	atomic_inc(&server->in_send);
@@ -1474,11 +2009,16 @@ static inline void cifs_num_waiters_dec(struct TCP_Server_Info *server)
 	atomic_dec(&server->num_waiters);
 }
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_CIFS_STATS2
+>>>>>>> upstream/android-13
 static inline void cifs_save_when_sent(struct mid_q_entry *mid)
 {
 	mid->when_sent = jiffies;
 }
 #else
+<<<<<<< HEAD
 static inline void cifs_in_send_inc(struct TCP_Server_Info *server)
 {
 }
@@ -1494,6 +2034,8 @@ static inline void cifs_num_waiters_dec(struct TCP_Server_Info *server)
 {
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline void cifs_save_when_sent(struct mid_q_entry *mid)
 {
 }
@@ -1520,6 +2062,15 @@ struct dfs_info3_param {
 	int ref_flag;
 	char *path_name;
 	char *node_name;
+<<<<<<< HEAD
+=======
+	int ttl;
+};
+
+struct file_list {
+	struct list_head list;
+	struct cifsFileInfo *cfile;
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -1550,6 +2101,10 @@ struct cifs_fattr {
 	struct timespec64 cf_atime;
 	struct timespec64 cf_mtime;
 	struct timespec64 cf_ctime;
+<<<<<<< HEAD
+=======
+	u32             cf_cifstag;
+>>>>>>> upstream/android-13
 };
 
 static inline void free_dfs_info_param(struct dfs_info3_param *param)
@@ -1557,7 +2112,10 @@ static inline void free_dfs_info_param(struct dfs_info3_param *param)
 	if (param) {
 		kfree(param->path_name);
 		kfree(param->node_name);
+<<<<<<< HEAD
 		kfree(param);
+=======
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -1593,6 +2151,15 @@ static inline bool is_retryable_error(int error)
 	return false;
 }
 
+<<<<<<< HEAD
+=======
+
+/* cifs_get_writable_file() flags */
+#define FIND_WR_ANY         0
+#define FIND_WR_FSUID_ONLY  1
+#define FIND_WR_WITH_DELETE 2
+
+>>>>>>> upstream/android-13
 #define   MID_FREE 0
 #define   MID_REQUEST_ALLOCATED 1
 #define   MID_REQUEST_SUBMITTED 2
@@ -1613,6 +2180,7 @@ static inline bool is_retryable_error(int error)
 
 /* Type of Request to SendReceive2 */
 #define   CIFS_BLOCKING_OP      1    /* operation can block */
+<<<<<<< HEAD
 #define   CIFS_ASYNC_OP         2    /* do not wait for response */
 #define   CIFS_TIMEOUT_MASK 0x003    /* only one of above set in req */
 #define   CIFS_LOG_ERROR    0x010    /* log NT STATUS if non-zero */
@@ -1640,6 +2208,31 @@ static inline bool is_retryable_error(int error)
 #define   CIFSSEC_MAY_LANMAN    0
 #define   CIFSSEC_MAY_PLNTXT    0
 #endif /* weak passwords */
+=======
+#define   CIFS_NON_BLOCKING     2    /* do not block waiting for credits */
+#define   CIFS_TIMEOUT_MASK 0x003    /* only one of above set in req */
+#define   CIFS_LOG_ERROR    0x010    /* log NT STATUS if non-zero */
+#define   CIFS_LARGE_BUF_OP 0x020    /* large request buffer */
+#define   CIFS_NO_RSP_BUF   0x040    /* no response buffer required */
+
+/* Type of request operation */
+#define   CIFS_ECHO_OP            0x080  /* echo request */
+#define   CIFS_OBREAK_OP          0x0100 /* oplock break request */
+#define   CIFS_NEG_OP             0x0200 /* negotiate request */
+#define   CIFS_CP_CREATE_CLOSE_OP 0x0400 /* compound create+close request */
+/* Lower bitmask values are reserved by others below. */
+#define   CIFS_SESS_OP            0x2000 /* session setup request */
+#define   CIFS_OP_MASK            0x2780 /* mask request type */
+
+#define   CIFS_HAS_CREDITS        0x0400 /* already has credits */
+#define   CIFS_TRANSFORM_REQ      0x0800 /* transform request before sending */
+#define   CIFS_NO_SRV_RSP         0x1000 /* there is no server response */
+
+/* Security Flags: indicate type of session setup needed */
+#define   CIFSSEC_MAY_SIGN	0x00001
+#define   CIFSSEC_MAY_NTLMV2	0x00004
+#define   CIFSSEC_MAY_KRB5	0x00008
+>>>>>>> upstream/android-13
 #define   CIFSSEC_MAY_SEAL	0x00040 /* not supported yet */
 #define   CIFSSEC_MAY_NTLMSSP	0x00080 /* raw ntlmssp with ntlmv2 */
 
@@ -1647,6 +2240,7 @@ static inline bool is_retryable_error(int error)
 /* note that only one of the following can be set so the
 result of setting MUST flags more than once will be to
 require use of the stronger protocol */
+<<<<<<< HEAD
 #define   CIFSSEC_MUST_NTLM	0x02002
 #define   CIFSSEC_MUST_NTLMV2	0x04004
 #define   CIFSSEC_MUST_KRB5	0x08008
@@ -1661,18 +2255,30 @@ require use of the stronger protocol */
 #else /* do not allow weak pw hash */
 #define   CIFSSEC_MUST_LANMAN	0
 #define   CIFSSEC_MUST_PLNTXT	0
+=======
+#define   CIFSSEC_MUST_NTLMV2	0x04004
+#define   CIFSSEC_MUST_KRB5	0x08008
+>>>>>>> upstream/android-13
 #ifdef CONFIG_CIFS_UPCALL
 #define   CIFSSEC_MASK          0x8F08F /* flags supported if no weak allowed */
 #else
 #define	  CIFSSEC_MASK          0x87087 /* flags supported if no weak allowed */
 #endif /* UPCALL */
+<<<<<<< HEAD
 #endif /* WEAK_PW_HASH */
+=======
+>>>>>>> upstream/android-13
 #define   CIFSSEC_MUST_SEAL	0x40040 /* not supported yet */
 #define   CIFSSEC_MUST_NTLMSSP	0x80080 /* raw ntlmssp with ntlmv2 */
 
 #define   CIFSSEC_DEF (CIFSSEC_MAY_SIGN | CIFSSEC_MAY_NTLMV2 | CIFSSEC_MAY_NTLMSSP)
+<<<<<<< HEAD
 #define   CIFSSEC_MAX (CIFSSEC_MUST_SIGN | CIFSSEC_MUST_NTLMV2)
 #define   CIFSSEC_AUTH_MASK (CIFSSEC_MAY_NTLM | CIFSSEC_MAY_NTLMV2 | CIFSSEC_MAY_LANMAN | CIFSSEC_MAY_PLNTXT | CIFSSEC_MAY_KRB5 | CIFSSEC_MAY_NTLMSSP)
+=======
+#define   CIFSSEC_MAX (CIFSSEC_MUST_NTLMV2)
+#define   CIFSSEC_AUTH_MASK (CIFSSEC_MAY_NTLMV2 | CIFSSEC_MAY_KRB5 | CIFSSEC_MAY_NTLMSSP)
+>>>>>>> upstream/android-13
 /*
  *****************************************************************
  * All constants go here
@@ -1695,6 +2301,12 @@ require use of the stronger protocol */
  *  GlobalMid_Lock protects:
  *	list operations on pending_mid_q and oplockQ
  *      updates to XID counters, multiplex id  and SMB sequence numbers
+<<<<<<< HEAD
+=======
+ *      list operations on global DnotifyReqList
+ *      updates to ses->status and TCP_Server_Info->tcpStatus
+ *      updates to server->CurrentMid
+>>>>>>> upstream/android-13
  *  tcp_ses_lock protects:
  *	list operations on tcp and SMB session lists
  *  tcon->open_file_lock protects the list of open files hanging off the tcon
@@ -1708,9 +2320,14 @@ require use of the stronger protocol */
  *
  *  Semaphores
  *  ----------
+<<<<<<< HEAD
  *  sesSem     operations on smb session
  *  tconSem    operations on tree connection
  *  fh_sem      file handle reconnection operations
+=======
+ *  cifsInodeInfo->lock_sem protects:
+ *	the list of locks held by the inode
+>>>>>>> upstream/android-13
  *
  ****************************************************************************/
 
@@ -1732,7 +2349,12 @@ GLOBAL_EXTERN struct list_head		cifs_tcp_ses_list;
 /*
  * This lock protects the cifs_tcp_ses_list, the list of smb sessions per
  * tcp session, and the list of tcon's per smb session. It also protects
+<<<<<<< HEAD
  * the reference counters for the server, smb session, and tcon. Finally,
+=======
+ * the reference counters for the server, smb session, and tcon. It also
+ * protects some fields in the TCP_Server_Info struct such as dstaddr. Finally,
+>>>>>>> upstream/android-13
  * changes to the tcon->tidStatus should be done while holding this lock.
  * generally the locks should be taken in order tcp_ses_lock before
  * tcon->open_file_lock and that before file->file_info_lock since the
@@ -1740,6 +2362,7 @@ GLOBAL_EXTERN struct list_head		cifs_tcp_ses_list;
  */
 GLOBAL_EXTERN spinlock_t		cifs_tcp_ses_lock;
 
+<<<<<<< HEAD
 #ifdef CONFIG_CIFS_DNOTIFY_EXPERIMENTAL /* unused temporarily */
 /* Outstanding dir notify requests */
 GLOBAL_EXTERN struct list_head GlobalDnotifyReqList;
@@ -1747,6 +2370,8 @@ GLOBAL_EXTERN struct list_head GlobalDnotifyReqList;
 GLOBAL_EXTERN struct list_head GlobalDnotifyRsp_Q;
 #endif /* was needed for dnotify, and will be needed for inotify when VFS fix */
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Global transaction id (XID) information
  */
@@ -1760,6 +2385,10 @@ GLOBAL_EXTERN spinlock_t GlobalMid_Lock;  /* protects above & list operations */
  */
 GLOBAL_EXTERN atomic_t sesInfoAllocCount;
 GLOBAL_EXTERN atomic_t tconInfoAllocCount;
+<<<<<<< HEAD
+=======
+GLOBAL_EXTERN atomic_t tcpSesNextId;
+>>>>>>> upstream/android-13
 GLOBAL_EXTERN atomic_t tcpSesAllocCount;
 GLOBAL_EXTERN atomic_t tcpSesReconnectCount;
 GLOBAL_EXTERN atomic_t tconInfoReconnectCount;
@@ -1769,6 +2398,10 @@ GLOBAL_EXTERN atomic_t bufAllocCount;    /* current number allocated  */
 #ifdef CONFIG_CIFS_STATS2
 GLOBAL_EXTERN atomic_t totBufAllocCount; /* total allocated over all time */
 GLOBAL_EXTERN atomic_t totSmBufAllocCount;
+<<<<<<< HEAD
+=======
+extern unsigned int slow_rsp_threshold; /* number of secs before logging */
+>>>>>>> upstream/android-13
 #endif
 GLOBAL_EXTERN atomic_t smBufAllocCount;
 GLOBAL_EXTERN atomic_t midCount;
@@ -1779,6 +2412,12 @@ extern bool lookupCacheEnabled;
 extern unsigned int global_secflags;	/* if on, session setup sent
 				with more secure ntlmssp2 challenge/resp */
 extern unsigned int sign_CIFS_PDUs;  /* enable smb packet signing */
+<<<<<<< HEAD
+=======
+extern bool enable_gcm_256; /* allow optional negotiate of strongest signing (aes-gcm-256) */
+extern bool require_gcm_256; /* require use of strongest signing (aes-gcm-256) */
+extern bool enable_negotiate_signing; /* request use of faster (GMAC) signing if available */
+>>>>>>> upstream/android-13
 extern bool linuxExtEnabled;/*enable Linux/Unix CIFS extensions*/
 extern unsigned int CIFSMaxBufSize;  /* max size not including hdr */
 extern unsigned int cifs_min_rcv;    /* min size of big ntwrk buf pool */
@@ -1786,6 +2425,7 @@ extern unsigned int cifs_min_small;  /* min size of small buf pool */
 extern unsigned int cifs_max_pending; /* MAX requests at once to server*/
 extern bool disable_legacy_dialects;  /* forbid vers=1.0 and vers=2.0 mounts */
 
+<<<<<<< HEAD
 #ifdef CONFIG_CIFS_ACL
 GLOBAL_EXTERN struct rb_root uidtree;
 GLOBAL_EXTERN struct rb_root gidtree;
@@ -1803,6 +2443,18 @@ void cifs_queue_oplock_break(struct cifsFileInfo *cfile);
 extern const struct slow_work_ops cifs_oplock_break_ops;
 extern struct workqueue_struct *cifsiod_wq;
 extern struct workqueue_struct *cifsoplockd_wq;
+=======
+void cifs_oplock_break(struct work_struct *work);
+void cifs_queue_oplock_break(struct cifsFileInfo *cfile);
+void smb2_deferred_work_close(struct work_struct *work);
+
+extern const struct slow_work_ops cifs_oplock_break_ops;
+extern struct workqueue_struct *cifsiod_wq;
+extern struct workqueue_struct *decrypt_wq;
+extern struct workqueue_struct *fileinfo_put_wq;
+extern struct workqueue_struct *cifsoplockd_wq;
+extern struct workqueue_struct *deferredclose_wq;
+>>>>>>> upstream/android-13
 extern __u32 cifs_lock_secret;
 
 extern mempool_t *cifs_mid_poolp;
@@ -1825,10 +2477,52 @@ extern struct smb_version_values smb3any_values;
 extern struct smb_version_operations smb30_operations;
 extern struct smb_version_values smb30_values;
 #define SMB302_VERSION_STRING	"3.02"
+<<<<<<< HEAD
+=======
+#define ALT_SMB302_VERSION_STRING "3.0.2"
+>>>>>>> upstream/android-13
 /*extern struct smb_version_operations smb302_operations;*/ /* not needed yet */
 extern struct smb_version_values smb302_values;
 #define SMB311_VERSION_STRING	"3.1.1"
 #define ALT_SMB311_VERSION_STRING "3.11"
 extern struct smb_version_operations smb311_operations;
 extern struct smb_version_values smb311_values;
+<<<<<<< HEAD
+=======
+
+static inline char *get_security_type_str(enum securityEnum sectype)
+{
+	switch (sectype) {
+	case RawNTLMSSP:
+		return "RawNTLMSSP";
+	case Kerberos:
+		return "Kerberos";
+	case NTLMv2:
+		return "NTLMv2";
+	default:
+		return "Unknown";
+	}
+}
+
+static inline bool is_smb1_server(struct TCP_Server_Info *server)
+{
+	return strcmp(server->vals->version_string, SMB1_VERSION_STRING) == 0;
+}
+
+static inline bool is_tcon_dfs(struct cifs_tcon *tcon)
+{
+	/*
+	 * For SMB1, see MS-CIFS 2.4.55 SMB_COM_TREE_CONNECT_ANDX (0x75) and MS-CIFS 3.3.4.4 DFS
+	 * Subsystem Notifies That a Share Is a DFS Share.
+	 *
+	 * For SMB2+, see MS-SMB2 2.2.10 SMB2 TREE_CONNECT Response and MS-SMB2 3.3.4.14 Server
+	 * Application Updates a Share.
+	 */
+	if (!tcon || !tcon->ses || !tcon->ses->server)
+		return false;
+	return is_smb1_server(tcon->ses->server) ? tcon->Flags & SMB_SHARE_IS_IN_DFS :
+		tcon->share_flags & (SHI1005_FLAGS_DFS | SHI1005_FLAGS_DFS_ROOT);
+}
+
+>>>>>>> upstream/android-13
 #endif	/* _CIFS_GLOB_H */

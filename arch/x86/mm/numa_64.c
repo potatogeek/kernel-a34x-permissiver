@@ -3,7 +3,11 @@
  * Generic VM initialization for x86-64 NUMA setups.
  * Copyright 2002,2003 Andi Kleen, SuSE Labs.
  */
+<<<<<<< HEAD
 #include <linux/bootmem.h>
+=======
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 
 #include "numa_internal.h"
 

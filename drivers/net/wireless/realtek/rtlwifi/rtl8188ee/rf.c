@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * Copyright(c) 2009-2013  Realtek Corporation.
@@ -22,6 +23,10 @@
  * Larry Finger <Larry.Finger@lwfinger.net>
  *
  *****************************************************************************/
+=======
+// SPDX-License-Identifier: GPL-2.0
+/* Copyright(c) 2009-2013  Realtek Corporation.*/
+>>>>>>> upstream/android-13
 
 #include "../wifi.h"
 #include "reg.h"
@@ -73,7 +78,11 @@ void rtl88e_phy_rf6052_set_cck_txpower(struct ieee80211_hw *hw,
 	if (rtlefuse->eeprom_regulatory != 0)
 		turbo_scanoff = true;
 
+<<<<<<< HEAD
 	if (mac->act_scanning == true) {
+=======
+	if (mac->act_scanning) {
+>>>>>>> upstream/android-13
 		tx_agc[RF90_PATH_A] = 0x3f3f3f3f;
 		tx_agc[RF90_PATH_B] = 0x3f3f3f3f;
 
@@ -495,14 +504,24 @@ static bool _rtl88e_phy_rf6052_config_parafile(struct ieee80211_hw *hw)
 			break;
 		}
 
+<<<<<<< HEAD
 		if (rtstatus != true) {
 			RT_TRACE(rtlpriv, COMP_INIT, DBG_TRACE,
 				 "Radio[%d] Fail!!\n", rfpath);
+=======
+		if (!rtstatus) {
+			rtl_dbg(rtlpriv, COMP_INIT, DBG_TRACE,
+				"Radio[%d] Fail!!\n", rfpath);
+>>>>>>> upstream/android-13
 			return false;
 		}
 
 	}
 
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_INIT, DBG_TRACE, "\n");
+=======
+	rtl_dbg(rtlpriv, COMP_INIT, DBG_TRACE, "\n");
+>>>>>>> upstream/android-13
 	return rtstatus;
 }

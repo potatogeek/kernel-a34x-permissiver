@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Driver for Pixcir I2C touchscreen controllers.
  *
  * Copyright (C) 2010-2011 Pixcir, Inc.
+<<<<<<< HEAD
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -17,10 +22,18 @@
 #include <linux/module.h>
 #include <linux/interrupt.h>
 #include <linux/slab.h>
+=======
+ */
+
+#include <asm/unaligned.h>
+#include <linux/delay.h>
+#include <linux/gpio/consumer.h>
+>>>>>>> upstream/android-13
 #include <linux/i2c.h>
 #include <linux/input.h>
 #include <linux/input/mt.h>
 #include <linux/input/touchscreen.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
 #include <linux/gpio/consumer.h>
 #include <linux/of_device.h>
@@ -29,6 +42,68 @@
 
 #define PIXCIR_MAX_SLOTS       5 /* Max fingers supported by driver */
 
+=======
+#include <linux/interrupt.h>
+#include <linux/of_device.h>
+#include <linux/module.h>
+#include <linux/slab.h>
+
+#define PIXCIR_MAX_SLOTS       5 /* Max fingers supported by driver */
+
+/*
+ * Register map
+ */
+#define PIXCIR_REG_POWER_MODE	51
+#define PIXCIR_REG_INT_MODE	52
+
+/*
+ * Power modes:
+ * active: max scan speed
+ * idle: lower scan speed with automatic transition to active on touch
+ * halt: datasheet says sleep but this is more like halt as the chip
+ *       clocks are cut and it can only be brought out of this mode
+ *	 using the RESET pin.
+ */
+enum pixcir_power_mode {
+	PIXCIR_POWER_ACTIVE,
+	PIXCIR_POWER_IDLE,
+	PIXCIR_POWER_HALT,
+};
+
+#define PIXCIR_POWER_MODE_MASK	0x03
+#define PIXCIR_POWER_ALLOW_IDLE (1UL << 2)
+
+/*
+ * Interrupt modes:
+ * periodical: interrupt is asserted periodicaly
+ * diff coordinates: interrupt is asserted when coordinates change
+ * level on touch: interrupt level asserted during touch
+ * pulse on touch: interrupt pulse asserted during touch
+ *
+ */
+enum pixcir_int_mode {
+	PIXCIR_INT_PERIODICAL,
+	PIXCIR_INT_DIFF_COORD,
+	PIXCIR_INT_LEVEL_TOUCH,
+	PIXCIR_INT_PULSE_TOUCH,
+};
+
+#define PIXCIR_INT_MODE_MASK	0x03
+#define PIXCIR_INT_ENABLE	(1UL << 3)
+#define PIXCIR_INT_POL_HIGH	(1UL << 2)
+
+/**
+ * struct pixcir_i2c_chip_data - chip related data
+ * @max_fingers:	Max number of fingers reported simultaneously by h/w
+ * @has_hw_ids:		Hardware supports finger tracking IDs
+ *
+ */
+struct pixcir_i2c_chip_data {
+	u8 max_fingers;
+	bool has_hw_ids;
+};
+
+>>>>>>> upstream/android-13
 struct pixcir_i2c_ts_data {
 	struct i2c_client *client;
 	struct input_dev *input;
@@ -38,7 +113,10 @@ struct pixcir_i2c_ts_data {
 	struct gpio_desc *gpio_wake;
 	const struct pixcir_i2c_chip_data *chip;
 	struct touchscreen_properties prop;
+<<<<<<< HEAD
 	int max_fingers;	/* Max fingers supported in this instance */
+=======
+>>>>>>> upstream/android-13
 	bool running;
 };
 
@@ -62,7 +140,11 @@ static void pixcir_ts_parse(struct pixcir_i2c_ts_data *tsdata,
 	memset(report, 0, sizeof(struct pixcir_report_data));
 
 	i = chip->has_hw_ids ? 1 : 0;
+<<<<<<< HEAD
 	readsize = 2 + tsdata->max_fingers * (4 + i);
+=======
+	readsize = 2 + tsdata->chip->max_fingers * (4 + i);
+>>>>>>> upstream/android-13
 	if (readsize > sizeof(rdbuf))
 		readsize = sizeof(rdbuf);
 
@@ -83,8 +165,13 @@ static void pixcir_ts_parse(struct pixcir_i2c_ts_data *tsdata,
 	}
 
 	touch = rdbuf[0] & 0x7;
+<<<<<<< HEAD
 	if (touch > tsdata->max_fingers)
 		touch = tsdata->max_fingers;
+=======
+	if (touch > tsdata->chip->max_fingers)
+		touch = tsdata->chip->max_fingers;
+>>>>>>> upstream/android-13
 
 	report->num_touches = touch;
 	bufptr = &rdbuf[2];
@@ -200,7 +287,11 @@ static int pixcir_set_power_mode(struct pixcir_i2c_ts_data *ts,
 
 	ret = i2c_smbus_read_byte_data(ts->client, PIXCIR_REG_POWER_MODE);
 	if (ret < 0) {
+<<<<<<< HEAD
 		dev_err(dev, "%s: can't read reg 0x%x : %d\n",
+=======
+		dev_err(dev, "%s: can't read reg %d : %d\n",
+>>>>>>> upstream/android-13
 			__func__, PIXCIR_REG_POWER_MODE, ret);
 		return ret;
 	}
@@ -213,7 +304,11 @@ static int pixcir_set_power_mode(struct pixcir_i2c_ts_data *ts,
 
 	ret = i2c_smbus_write_byte_data(ts->client, PIXCIR_REG_POWER_MODE, ret);
 	if (ret < 0) {
+<<<<<<< HEAD
 		dev_err(dev, "%s: can't write reg 0x%x : %d\n",
+=======
+		dev_err(dev, "%s: can't write reg %d : %d\n",
+>>>>>>> upstream/android-13
 			__func__, PIXCIR_REG_POWER_MODE, ret);
 		return ret;
 	}
@@ -239,7 +334,11 @@ static int pixcir_set_int_mode(struct pixcir_i2c_ts_data *ts,
 
 	ret = i2c_smbus_read_byte_data(ts->client, PIXCIR_REG_INT_MODE);
 	if (ret < 0) {
+<<<<<<< HEAD
 		dev_err(dev, "%s: can't read reg 0x%x : %d\n",
+=======
+		dev_err(dev, "%s: can't read reg %d : %d\n",
+>>>>>>> upstream/android-13
 			__func__, PIXCIR_REG_INT_MODE, ret);
 		return ret;
 	}
@@ -254,7 +353,11 @@ static int pixcir_set_int_mode(struct pixcir_i2c_ts_data *ts,
 
 	ret = i2c_smbus_write_byte_data(ts->client, PIXCIR_REG_INT_MODE, ret);
 	if (ret < 0) {
+<<<<<<< HEAD
 		dev_err(dev, "%s: can't write reg 0x%x : %d\n",
+=======
+		dev_err(dev, "%s: can't write reg %d : %d\n",
+>>>>>>> upstream/android-13
 			__func__, PIXCIR_REG_INT_MODE, ret);
 		return ret;
 	}
@@ -272,7 +375,11 @@ static int pixcir_int_enable(struct pixcir_i2c_ts_data *ts, bool enable)
 
 	ret = i2c_smbus_read_byte_data(ts->client, PIXCIR_REG_INT_MODE);
 	if (ret < 0) {
+<<<<<<< HEAD
 		dev_err(dev, "%s: can't read reg 0x%x : %d\n",
+=======
+		dev_err(dev, "%s: can't read reg %d : %d\n",
+>>>>>>> upstream/android-13
 			__func__, PIXCIR_REG_INT_MODE, ret);
 		return ret;
 	}
@@ -284,7 +391,11 @@ static int pixcir_int_enable(struct pixcir_i2c_ts_data *ts, bool enable)
 
 	ret = i2c_smbus_write_byte_data(ts->client, PIXCIR_REG_INT_MODE, ret);
 	if (ret < 0) {
+<<<<<<< HEAD
 		dev_err(dev, "%s: can't write reg 0x%x : %d\n",
+=======
+		dev_err(dev, "%s: can't write reg %d : %d\n",
+>>>>>>> upstream/android-13
 			__func__, PIXCIR_REG_INT_MODE, ret);
 		return ret;
 	}
@@ -373,14 +484,22 @@ static int __maybe_unused pixcir_i2c_ts_suspend(struct device *dev)
 	mutex_lock(&input->mutex);
 
 	if (device_may_wakeup(&client->dev)) {
+<<<<<<< HEAD
 		if (!input->users) {
+=======
+		if (!input_device_enabled(input)) {
+>>>>>>> upstream/android-13
 			ret = pixcir_start(ts);
 			if (ret) {
 				dev_err(dev, "Failed to start\n");
 				goto unlock;
 			}
 		}
+<<<<<<< HEAD
 	} else if (input->users) {
+=======
+	} else if (input_device_enabled(input)) {
+>>>>>>> upstream/android-13
 		ret = pixcir_stop(ts);
 	}
 
@@ -400,14 +519,22 @@ static int __maybe_unused pixcir_i2c_ts_resume(struct device *dev)
 	mutex_lock(&input->mutex);
 
 	if (device_may_wakeup(&client->dev)) {
+<<<<<<< HEAD
 		if (!input->users) {
+=======
+		if (!input_device_enabled(input)) {
+>>>>>>> upstream/android-13
 			ret = pixcir_stop(ts);
 			if (ret) {
 				dev_err(dev, "Failed to stop\n");
 				goto unlock;
 			}
 		}
+<<<<<<< HEAD
 	} else if (input->users) {
+=======
+	} else if (input_device_enabled(input)) {
+>>>>>>> upstream/android-13
 		ret = pixcir_start(ts);
 	}
 
@@ -420,6 +547,7 @@ unlock:
 static SIMPLE_DEV_PM_OPS(pixcir_dev_pm_ops,
 			 pixcir_i2c_ts_suspend, pixcir_i2c_ts_resume);
 
+<<<<<<< HEAD
 #ifdef CONFIG_OF
 static const struct of_device_id pixcir_of_match[];
 
@@ -445,6 +573,11 @@ static int pixcir_i2c_ts_probe(struct i2c_client *client,
 {
 	const struct pixcir_ts_platform_data *pdata =
 			dev_get_platdata(&client->dev);
+=======
+static int pixcir_i2c_ts_probe(struct i2c_client *client,
+			       const struct i2c_device_id *id)
+{
+>>>>>>> upstream/android-13
 	struct device *dev = &client->dev;
 	struct pixcir_i2c_ts_data *tsdata;
 	struct input_dev *input;
@@ -454,6 +587,7 @@ static int pixcir_i2c_ts_probe(struct i2c_client *client,
 	if (!tsdata)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	if (pdata) {
 		tsdata->chip = &pdata->chip;
 	} else if (dev->of_node) {
@@ -467,6 +601,13 @@ static int pixcir_i2c_ts_probe(struct i2c_client *client,
 
 	if (!tsdata->chip->max_fingers) {
 		dev_err(dev, "Invalid max_fingers in chip data\n");
+=======
+	tsdata->chip = device_get_match_data(dev);
+	if (!tsdata->chip && id)
+		tsdata->chip = (const void *)id->driver_data;
+	if (!tsdata->chip) {
+		dev_err(dev, "can't locate chip data\n");
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -483,6 +624,7 @@ static int pixcir_i2c_ts_probe(struct i2c_client *client,
 	input->id.bustype = BUS_I2C;
 	input->open = pixcir_input_open;
 	input->close = pixcir_input_close;
+<<<<<<< HEAD
 	input->dev.parent = dev;
 
 	if (pdata) {
@@ -507,6 +649,19 @@ static int pixcir_i2c_ts_probe(struct i2c_client *client,
 	}
 
 	error = input_mt_init_slots(input, tsdata->max_fingers,
+=======
+
+	input_set_capability(input, EV_ABS, ABS_MT_POSITION_X);
+	input_set_capability(input, EV_ABS, ABS_MT_POSITION_Y);
+	touchscreen_parse_properties(input, true, &tsdata->prop);
+	if (!input_abs_get_max(input, ABS_MT_POSITION_X) ||
+	    !input_abs_get_max(input, ABS_MT_POSITION_Y)) {
+		dev_err(dev, "Touchscreen size is not specified\n");
+		return -EINVAL;
+	}
+
+	error = input_mt_init_slots(input, tsdata->chip->max_fingers,
+>>>>>>> upstream/android-13
 				    INPUT_MT_DIRECT | INPUT_MT_DROP_UNUSED);
 	if (error) {
 		dev_err(dev, "Error initializing Multi-Touch slots\n");
@@ -518,7 +673,13 @@ static int pixcir_i2c_ts_probe(struct i2c_client *client,
 	tsdata->gpio_attb = devm_gpiod_get(dev, "attb", GPIOD_IN);
 	if (IS_ERR(tsdata->gpio_attb)) {
 		error = PTR_ERR(tsdata->gpio_attb);
+<<<<<<< HEAD
 		dev_err(dev, "Failed to request ATTB gpio: %d\n", error);
+=======
+		if (error != -EPROBE_DEFER)
+			dev_err(dev, "Failed to request ATTB gpio: %d\n",
+				error);
+>>>>>>> upstream/android-13
 		return error;
 	}
 
@@ -526,7 +687,13 @@ static int pixcir_i2c_ts_probe(struct i2c_client *client,
 						     GPIOD_OUT_LOW);
 	if (IS_ERR(tsdata->gpio_reset)) {
 		error = PTR_ERR(tsdata->gpio_reset);
+<<<<<<< HEAD
 		dev_err(dev, "Failed to request RESET gpio: %d\n", error);
+=======
+		if (error != -EPROBE_DEFER)
+			dev_err(dev, "Failed to request RESET gpio: %d\n",
+				error);
+>>>>>>> upstream/android-13
 		return error;
 	}
 
@@ -582,6 +749,7 @@ static int pixcir_i2c_ts_probe(struct i2c_client *client,
 	return 0;
 }
 
+<<<<<<< HEAD
 static const struct i2c_device_id pixcir_i2c_ts_id[] = {
 	{ "pixcir_ts", 0 },
 	{ "pixcir_tangoc", 0 },
@@ -590,6 +758,8 @@ static const struct i2c_device_id pixcir_i2c_ts_id[] = {
 MODULE_DEVICE_TABLE(i2c, pixcir_i2c_ts_id);
 
 #ifdef CONFIG_OF
+=======
+>>>>>>> upstream/android-13
 static const struct pixcir_i2c_chip_data pixcir_ts_data = {
 	.max_fingers = 2,
 	/* no hw id support */
@@ -600,6 +770,17 @@ static const struct pixcir_i2c_chip_data pixcir_tangoc_data = {
 	.has_hw_ids = true,
 };
 
+<<<<<<< HEAD
+=======
+static const struct i2c_device_id pixcir_i2c_ts_id[] = {
+	{ "pixcir_ts", (unsigned long) &pixcir_ts_data },
+	{ "pixcir_tangoc", (unsigned long) &pixcir_tangoc_data },
+	{ }
+};
+MODULE_DEVICE_TABLE(i2c, pixcir_i2c_ts_id);
+
+#ifdef CONFIG_OF
+>>>>>>> upstream/android-13
 static const struct of_device_id pixcir_of_match[] = {
 	{ .compatible = "pixcir,pixcir_ts", .data = &pixcir_ts_data },
 	{ .compatible = "pixcir,pixcir_tangoc", .data = &pixcir_tangoc_data },

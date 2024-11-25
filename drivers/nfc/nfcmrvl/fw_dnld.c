@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Marvell NFC driver: Firmware downloader
  *
  * Copyright (C) 2015, Marvell International Ltd.
+<<<<<<< HEAD
  *
  * This software file (the "File") is distributed by Marvell International
  * Ltd. under the terms of the GNU General Public License Version 2, June 1991
@@ -14,6 +19,8 @@
  * IMPLIED WARRANTIES OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE
  * ARE EXPRESSLY DISCLAIMED.  The License provides additional details about
  * this warranty disclaimer.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -50,8 +57,13 @@ enum {
 };
 
 /*
+<<<<<<< HEAD
 ** Patterns for responses
 */
+=======
+ * Patterns for responses
+ */
+>>>>>>> upstream/android-13
 
 static const uint8_t nci_pattern_core_reset_ntf[] = {
 	0x60, 0x00, 0x02, 0xA0, 0x01
@@ -140,7 +152,11 @@ static void fw_dnld_timeout(struct timer_list *t)
 }
 
 static int process_state_reset(struct nfcmrvl_private *priv,
+<<<<<<< HEAD
 			       struct sk_buff *skb)
+=======
+			       const struct sk_buff *skb)
+>>>>>>> upstream/android-13
 {
 	if (sizeof(nci_pattern_core_reset_ntf) != skb->len ||
 	    memcmp(skb->data, nci_pattern_core_reset_ntf,
@@ -156,7 +172,12 @@ static int process_state_reset(struct nfcmrvl_private *priv,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int process_state_init(struct nfcmrvl_private *priv, struct sk_buff *skb)
+=======
+static int process_state_init(struct nfcmrvl_private *priv,
+			      const struct sk_buff *skb)
+>>>>>>> upstream/android-13
 {
 	struct nci_core_set_config_cmd cmd;
 
@@ -186,7 +207,11 @@ static void create_lc(struct nfcmrvl_private *priv)
 }
 
 static int process_state_set_ref_clock(struct nfcmrvl_private *priv,
+<<<<<<< HEAD
 				       struct sk_buff *skb)
+=======
+				       const struct sk_buff *skb)
+>>>>>>> upstream/android-13
 {
 	struct nci_core_set_config_cmd cmd;
 
@@ -232,7 +257,11 @@ static int process_state_set_ref_clock(struct nfcmrvl_private *priv,
 }
 
 static int process_state_set_hi_config(struct nfcmrvl_private *priv,
+<<<<<<< HEAD
 				       struct sk_buff *skb)
+=======
+				       const struct sk_buff *skb)
+>>>>>>> upstream/android-13
 {
 	if (sizeof(nci_pattern_core_set_config_rsp) != skb->len ||
 	    memcmp(skb->data, nci_pattern_core_set_config_rsp, skb->len))
@@ -243,7 +272,11 @@ static int process_state_set_hi_config(struct nfcmrvl_private *priv,
 }
 
 static int process_state_open_lc(struct nfcmrvl_private *priv,
+<<<<<<< HEAD
 				 struct sk_buff *skb)
+=======
+				 const struct sk_buff *skb)
+>>>>>>> upstream/android-13
 {
 	if (sizeof(nci_pattern_core_conn_create_rsp) >= skb->len ||
 	    memcmp(skb->data, nci_pattern_core_conn_create_rsp,
@@ -358,7 +391,11 @@ static int process_state_fw_dnld(struct nfcmrvl_private *priv,
 }
 
 static int process_state_close_lc(struct nfcmrvl_private *priv,
+<<<<<<< HEAD
 				  struct sk_buff *skb)
+=======
+				  const struct sk_buff *skb)
+>>>>>>> upstream/android-13
 {
 	if (sizeof(nci_pattern_core_conn_close_rsp) != skb->len ||
 	    memcmp(skb->data, nci_pattern_core_conn_close_rsp, skb->len))
@@ -369,7 +406,12 @@ static int process_state_close_lc(struct nfcmrvl_private *priv,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int process_state_boot(struct nfcmrvl_private *priv, struct sk_buff *skb)
+=======
+static int process_state_boot(struct nfcmrvl_private *priv,
+			      const struct sk_buff *skb)
+>>>>>>> upstream/android-13
 {
 	if (sizeof(nci_pattern_proprietary_boot_rsp) != skb->len ||
 	    memcmp(skb->data, nci_pattern_proprietary_boot_rsp, skb->len))
@@ -451,7 +493,11 @@ static void fw_dnld_rx_work(struct work_struct *work)
 	}
 }
 
+<<<<<<< HEAD
 int	nfcmrvl_fw_dnld_init(struct nfcmrvl_private *priv)
+=======
+int nfcmrvl_fw_dnld_init(struct nfcmrvl_private *priv)
+>>>>>>> upstream/android-13
 {
 	char name[32];
 
@@ -465,13 +511,22 @@ int	nfcmrvl_fw_dnld_init(struct nfcmrvl_private *priv)
 	return 0;
 }
 
+<<<<<<< HEAD
 void	nfcmrvl_fw_dnld_deinit(struct nfcmrvl_private *priv)
+=======
+void nfcmrvl_fw_dnld_deinit(struct nfcmrvl_private *priv)
+>>>>>>> upstream/android-13
 {
 	destroy_workqueue(priv->fw_dnld.rx_wq);
 }
 
+<<<<<<< HEAD
 void	nfcmrvl_fw_dnld_recv_frame(struct nfcmrvl_private *priv,
 				   struct sk_buff *skb)
+=======
+void nfcmrvl_fw_dnld_recv_frame(struct nfcmrvl_private *priv,
+				struct sk_buff *skb)
+>>>>>>> upstream/android-13
 {
 	/* Discard command timer */
 	if (timer_pending(&priv->ndev->cmd_timer))

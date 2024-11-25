@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * bcm2835 sdhost driver.
  *
@@ -25,6 +29,7 @@
  *  sdhci-bcm2708.c by Broadcom
  *  sdhci-bcm2835.c by Stephen Warren and Oleksandr Tymoshenko
  *  sdhci.c and sdhci-pci.c by Pierre Ossman
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -37,6 +42,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/clk.h>
 #include <linux/delay.h>
@@ -159,7 +166,10 @@ struct bcm2835_host {
 	void __iomem		*ioaddr;
 	u32			phys_addr;
 
+<<<<<<< HEAD
 	struct mmc_host		*mmc;
+=======
+>>>>>>> upstream/android-13
 	struct platform_device	*pdev;
 
 	int			clock;		/* Current clock speed */
@@ -464,7 +474,11 @@ static void bcm2835_transfer_pio(struct bcm2835_host *host)
 static
 void bcm2835_prepare_dma(struct bcm2835_host *host, struct mmc_data *data)
 {
+<<<<<<< HEAD
 	int len, dir_data, dir_slave;
+=======
+	int sg_len, dir_data, dir_slave;
+>>>>>>> upstream/android-13
 	struct dma_async_tx_descriptor *desc = NULL;
 	struct dma_chan *dma_chan;
 
@@ -510,6 +524,7 @@ void bcm2835_prepare_dma(struct bcm2835_host *host, struct mmc_data *data)
 				     &host->dma_cfg_rx :
 				     &host->dma_cfg_tx);
 
+<<<<<<< HEAD
 	len = dma_map_sg(dma_chan->device->dev, data->sg, data->sg_len,
 			 dir_data);
 
@@ -527,6 +542,26 @@ void bcm2835_prepare_dma(struct bcm2835_host *host, struct mmc_data *data)
 		host->dma_chan = dma_chan;
 		host->dma_dir = dir_data;
 	}
+=======
+	sg_len = dma_map_sg(dma_chan->device->dev, data->sg, data->sg_len,
+			    dir_data);
+	if (!sg_len)
+		return;
+
+	desc = dmaengine_prep_slave_sg(dma_chan, data->sg, sg_len, dir_slave,
+				       DMA_PREP_INTERRUPT | DMA_CTRL_ACK);
+
+	if (!desc) {
+		dma_unmap_sg(dma_chan->device->dev, data->sg, sg_len, dir_data);
+		return;
+	}
+
+	desc->callback = bcm2835_dma_complete;
+	desc->callback_param = host;
+	host->dma_desc = desc;
+	host->dma_chan = dma_chan;
+	host->dma_dir = dir_data;
+>>>>>>> upstream/android-13
 }
 
 static void bcm2835_start_dma(struct bcm2835_host *host)
@@ -628,7 +663,11 @@ static void bcm2835_finish_request(struct bcm2835_host *host)
 				"failed to terminate DMA (%d)\n", err);
 	}
 
+<<<<<<< HEAD
 	mmc_request_done(host->mmc, mrq);
+=======
+	mmc_request_done(mmc_from_priv(host), mrq);
+>>>>>>> upstream/android-13
 }
 
 static
@@ -847,7 +886,11 @@ static void bcm2835_timeout(struct work_struct *work)
 		dev_err(dev, "timeout waiting for hardware interrupt.\n");
 		bcm2835_dumpregs(host);
 
+<<<<<<< HEAD
 		bcm2835_reset(host->mmc);
+=======
+		bcm2835_reset(mmc_from_priv(host));
+>>>>>>> upstream/android-13
 
 		if (host->data) {
 			host->data->error = -ETIMEDOUT;
@@ -1064,10 +1107,19 @@ static void bcm2835_dma_complete_work(struct work_struct *work)
 {
 	struct bcm2835_host *host =
 		container_of(work, struct bcm2835_host, dma_work);
+<<<<<<< HEAD
 	struct mmc_data *data = host->data;
 
 	mutex_lock(&host->mutex);
 
+=======
+	struct mmc_data *data;
+
+	mutex_lock(&host->mutex);
+
+	data = host->data;
+
+>>>>>>> upstream/android-13
 	if (host->dma_chan) {
 		dma_unmap_sg(host->dma_chan->device->dev,
 			     data->sg, data->sg_len,
@@ -1108,6 +1160,10 @@ static void bcm2835_dma_complete_work(struct work_struct *work)
 
 static void bcm2835_set_clock(struct bcm2835_host *host, unsigned int clock)
 {
+<<<<<<< HEAD
+=======
+	struct mmc_host *mmc = mmc_from_priv(host);
+>>>>>>> upstream/android-13
 	int div;
 
 	/* The SDCDIV register has 11 bits, and holds (div - 2).  But
@@ -1151,18 +1207,30 @@ static void bcm2835_set_clock(struct bcm2835_host *host, unsigned int clock)
 		div = SDCDIV_MAX_CDIV;
 
 	clock = host->max_clk / (div + 2);
+<<<<<<< HEAD
 	host->mmc->actual_clock = clock;
+=======
+	mmc->actual_clock = clock;
+>>>>>>> upstream/android-13
 
 	/* Calibrate some delays */
 
 	host->ns_per_fifo_word = (1000000000 / clock) *
+<<<<<<< HEAD
 		((host->mmc->caps & MMC_CAP_4_BIT_DATA) ? 8 : 32);
+=======
+		((mmc->caps & MMC_CAP_4_BIT_DATA) ? 8 : 32);
+>>>>>>> upstream/android-13
 
 	host->cdiv = div;
 	writel(host->cdiv, host->ioaddr + SDCDIV);
 
 	/* Set the timeout to 500ms */
+<<<<<<< HEAD
 	writel(host->mmc->actual_clock / 2, host->ioaddr + SDTOUT);
+=======
+	writel(mmc->actual_clock / 2, host->ioaddr + SDTOUT);
+>>>>>>> upstream/android-13
 }
 
 static void bcm2835_request(struct mmc_host *mmc, struct mmc_request *mrq)
@@ -1192,9 +1260,12 @@ static void bcm2835_request(struct mmc_host *mmc, struct mmc_request *mrq)
 		return;
 	}
 
+<<<<<<< HEAD
 	if (host->use_dma && mrq->data && (mrq->data->blocks > PIO_THRESHOLD))
 		bcm2835_prepare_dma(host, mrq->data);
 
+=======
+>>>>>>> upstream/android-13
 	mutex_lock(&host->mutex);
 
 	WARN_ON(host->mrq);
@@ -1218,6 +1289,12 @@ static void bcm2835_request(struct mmc_host *mmc, struct mmc_request *mrq)
 		return;
 	}
 
+<<<<<<< HEAD
+=======
+	if (host->use_dma && mrq->data && (mrq->data->blocks > PIO_THRESHOLD))
+		bcm2835_prepare_dma(host, mrq->data);
+
+>>>>>>> upstream/android-13
 	host->use_sbc = !!mrq->sbc && host->mrq->data &&
 			(host->mrq->data->flags & MMC_DATA_READ);
 	if (host->use_sbc) {
@@ -1272,7 +1349,11 @@ static const struct mmc_host_ops bcm2835_ops = {
 
 static int bcm2835_add_host(struct bcm2835_host *host)
 {
+<<<<<<< HEAD
 	struct mmc_host *mmc = host->mmc;
+=======
+	struct mmc_host *mmc = mmc_from_priv(host);
+>>>>>>> upstream/android-13
 	struct device *dev = &host->pdev->dev;
 	char pio_limit_string[20];
 	int ret;
@@ -1288,13 +1369,21 @@ static int bcm2835_add_host(struct bcm2835_host *host)
 
 	/* host controller capabilities */
 	mmc->caps |= MMC_CAP_SD_HIGHSPEED | MMC_CAP_MMC_HIGHSPEED |
+<<<<<<< HEAD
 		     MMC_CAP_NEEDS_POLL | MMC_CAP_HW_RESET | MMC_CAP_ERASE |
 		     MMC_CAP_CMD23;
+=======
+		     MMC_CAP_NEEDS_POLL | MMC_CAP_HW_RESET | MMC_CAP_CMD23;
+>>>>>>> upstream/android-13
 
 	spin_lock_init(&host->lock);
 	mutex_init(&host->mutex);
 
+<<<<<<< HEAD
 	if (IS_ERR_OR_NULL(host->dma_chan_rxtx)) {
+=======
+	if (!host->dma_chan_rxtx) {
+>>>>>>> upstream/android-13
 		dev_warn(dev, "unable to initialise DMA channel. Falling back to PIO\n");
 		host->use_dma = false;
 	} else {
@@ -1322,7 +1411,11 @@ static int bcm2835_add_host(struct bcm2835_host *host)
 	}
 
 	mmc->max_segs = 128;
+<<<<<<< HEAD
 	mmc->max_req_size = 524288;
+=======
+	mmc->max_req_size = min_t(size_t, 524288, dma_max_mapping_size(dev));
+>>>>>>> upstream/android-13
 	mmc->max_seg_size = mmc->max_req_size;
 	mmc->max_blk_size = 1024;
 	mmc->max_blk_count =  65535;
@@ -1365,7 +1458,10 @@ static int bcm2835_probe(struct platform_device *pdev)
 {
 	struct device *dev = &pdev->dev;
 	struct clk *clk;
+<<<<<<< HEAD
 	struct resource *iomem;
+=======
+>>>>>>> upstream/android-13
 	struct bcm2835_host *host;
 	struct mmc_host *mmc;
 	const __be32 *regaddr_p;
@@ -1378,12 +1474,19 @@ static int bcm2835_probe(struct platform_device *pdev)
 
 	mmc->ops = &bcm2835_ops;
 	host = mmc_priv(mmc);
+<<<<<<< HEAD
 	host->mmc = mmc;
 	host->pdev = pdev;
 	spin_lock_init(&host->lock);
 
 	iomem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	host->ioaddr = devm_ioremap_resource(dev, iomem);
+=======
+	host->pdev = pdev;
+	spin_lock_init(&host->lock);
+
+	host->ioaddr = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(host->ioaddr)) {
 		ret = PTR_ERR(host->ioaddr);
 		goto err;
@@ -1404,6 +1507,7 @@ static int bcm2835_probe(struct platform_device *pdev)
 	host->dma_chan = NULL;
 	host->dma_desc = NULL;
 
+<<<<<<< HEAD
 	host->dma_chan_rxtx = dma_request_slave_channel(dev, "rx-tx");
 
 	clk = devm_clk_get(dev, NULL);
@@ -1411,6 +1515,23 @@ static int bcm2835_probe(struct platform_device *pdev)
 		ret = PTR_ERR(clk);
 		if (ret != -EPROBE_DEFER)
 			dev_err(dev, "could not get clk: %d\n", ret);
+=======
+	host->dma_chan_rxtx = dma_request_chan(dev, "rx-tx");
+	if (IS_ERR(host->dma_chan_rxtx)) {
+		ret = PTR_ERR(host->dma_chan_rxtx);
+		host->dma_chan_rxtx = NULL;
+
+		if (ret == -EPROBE_DEFER)
+			goto err;
+
+		/* Ignore errors to fall back to PIO mode */
+	}
+
+
+	clk = devm_clk_get(dev, NULL);
+	if (IS_ERR(clk)) {
+		ret = dev_err_probe(dev, PTR_ERR(clk), "could not get clk\n");
+>>>>>>> upstream/android-13
 		goto err;
 	}
 
@@ -1418,7 +1539,10 @@ static int bcm2835_probe(struct platform_device *pdev)
 
 	host->irq = platform_get_irq(pdev, 0);
 	if (host->irq <= 0) {
+<<<<<<< HEAD
 		dev_err(dev, "get IRQ failed\n");
+=======
+>>>>>>> upstream/android-13
 		ret = -EINVAL;
 		goto err;
 	}
@@ -1449,8 +1573,14 @@ err:
 static int bcm2835_remove(struct platform_device *pdev)
 {
 	struct bcm2835_host *host = platform_get_drvdata(pdev);
+<<<<<<< HEAD
 
 	mmc_remove_host(host->mmc);
+=======
+	struct mmc_host *mmc = mmc_from_priv(host);
+
+	mmc_remove_host(mmc);
+>>>>>>> upstream/android-13
 
 	writel(SDVDD_POWER_OFF, host->ioaddr + SDVDD);
 
@@ -1459,8 +1589,15 @@ static int bcm2835_remove(struct platform_device *pdev)
 	cancel_work_sync(&host->dma_work);
 	cancel_delayed_work_sync(&host->timeout_work);
 
+<<<<<<< HEAD
 	mmc_free_host(host->mmc);
 	platform_set_drvdata(pdev, NULL);
+=======
+	if (host->dma_chan_rxtx)
+		dma_release_channel(host->dma_chan_rxtx);
+
+	mmc_free_host(mmc);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -1476,6 +1613,10 @@ static struct platform_driver bcm2835_driver = {
 	.remove     = bcm2835_remove,
 	.driver     = {
 		.name		= "sdhost-bcm2835",
+<<<<<<< HEAD
+=======
+		.probe_type	= PROBE_PREFER_ASYNCHRONOUS,
+>>>>>>> upstream/android-13
 		.of_match_table	= bcm2835_match,
 	},
 };

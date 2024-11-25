@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * linux/sound/soc/m8m/hi6210_i2s.c - I2S IP driver
  *
  * Copyright (C) 2015 Linaro, Ltd
  * Author: Andy Green <andy.green@linaro.org>
  *
+<<<<<<< HEAD
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, version 2 of the License.
@@ -13,6 +18,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  * This driver only deals with S2 interface (BT)
  */
 
@@ -110,18 +117,27 @@ static int hi6210_i2s_startup(struct snd_pcm_substream *substream,
 
 	for (n = 0; n < i2s->clocks; n++) {
 		ret = clk_prepare_enable(i2s->clk[n]);
+<<<<<<< HEAD
 		if (ret) {
 			while (n--)
 				clk_disable_unprepare(i2s->clk[n]);
 			return ret;
 		}
+=======
+		if (ret)
+			goto err_unprepare_clk;
+>>>>>>> upstream/android-13
 	}
 
 	ret = clk_set_rate(i2s->clk[CLK_I2S_BASE], 49152000);
 	if (ret) {
 		dev_err(i2s->dev, "%s: setting 49.152MHz base rate failed %d\n",
 			__func__, ret);
+<<<<<<< HEAD
 		return ret;
+=======
+		goto err_unprepare_clk;
+>>>>>>> upstream/android-13
 	}
 
 	/* enable clock before frequency division */
@@ -173,6 +189,14 @@ static int hi6210_i2s_startup(struct snd_pcm_substream *substream,
 	hi6210_write_reg(i2s, HII2S_SW_RST_N, val);
 
 	return 0;
+<<<<<<< HEAD
+=======
+
+err_unprepare_clk:
+	while (n--)
+		clk_disable_unprepare(i2s->clk[n]);
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static void hi6210_i2s_shutdown(struct snd_pcm_substream *substream,
@@ -269,13 +293,21 @@ static int hi6210_i2s_hw_params(struct snd_pcm_substream *substream,
 	switch (params_format(params)) {
 	case SNDRV_PCM_FORMAT_U16_LE:
 		signed_data = HII2S_I2S_CFG__S2_CODEC_DATA_FORMAT;
+<<<<<<< HEAD
 		/* fallthru */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case SNDRV_PCM_FORMAT_S16_LE:
 		bits = HII2S_BITS_16;
 		break;
 	case SNDRV_PCM_FORMAT_U24_LE:
 		signed_data = HII2S_I2S_CFG__S2_CODEC_DATA_FORMAT;
+<<<<<<< HEAD
 		/* fallthru */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case SNDRV_PCM_FORMAT_S24_LE:
 		bits = HII2S_BITS_24;
 		break;
@@ -555,28 +587,41 @@ static int hi6210_i2s_probe(struct platform_device *pdev)
 	struct resource *res;
 	int ret;
 
+<<<<<<< HEAD
 	i2s = devm_kzalloc(&pdev->dev, sizeof(*i2s), GFP_KERNEL);
+=======
+	i2s = devm_kzalloc(dev, sizeof(*i2s), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!i2s)
 		return -ENOMEM;
 
 	i2s->dev = dev;
 	spin_lock_init(&i2s->lock);
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	i2s->base = devm_ioremap_resource(dev, res);
+=======
+	i2s->base = devm_platform_get_and_ioremap_resource(pdev, 0, &res);
+>>>>>>> upstream/android-13
 	if (IS_ERR(i2s->base))
 		return PTR_ERR(i2s->base);
 
 	i2s->base_phys = (phys_addr_t)res->start;
 	i2s->dai = hi6210_i2s_dai_init;
 
+<<<<<<< HEAD
 	dev_set_drvdata(&pdev->dev, i2s);
+=======
+	dev_set_drvdata(dev, i2s);
+>>>>>>> upstream/android-13
 
 	i2s->sysctrl = syscon_regmap_lookup_by_phandle(node,
 						"hisilicon,sysctrl-syscon");
 	if (IS_ERR(i2s->sysctrl))
 		return PTR_ERR(i2s->sysctrl);
 
+<<<<<<< HEAD
 	i2s->clk[CLK_DACODEC] = devm_clk_get(&pdev->dev, "dacodec");
 	if (IS_ERR_OR_NULL(i2s->clk[CLK_DACODEC]))
 		return PTR_ERR(i2s->clk[CLK_DACODEC]);
@@ -592,6 +637,23 @@ static int hi6210_i2s_probe(struct platform_device *pdev)
 		return ret;
 
 	ret = devm_snd_soc_register_component(&pdev->dev, &hi6210_i2s_i2s_comp,
+=======
+	i2s->clk[CLK_DACODEC] = devm_clk_get(dev, "dacodec");
+	if (IS_ERR(i2s->clk[CLK_DACODEC]))
+		return PTR_ERR(i2s->clk[CLK_DACODEC]);
+	i2s->clocks++;
+
+	i2s->clk[CLK_I2S_BASE] = devm_clk_get(dev, "i2s-base");
+	if (IS_ERR(i2s->clk[CLK_I2S_BASE]))
+		return PTR_ERR(i2s->clk[CLK_I2S_BASE]);
+	i2s->clocks++;
+
+	ret = devm_snd_dmaengine_pcm_register(dev, NULL, 0);
+	if (ret)
+		return ret;
+
+	ret = devm_snd_soc_register_component(dev, &hi6210_i2s_i2s_comp,
+>>>>>>> upstream/android-13
 					 &i2s->dai, 1);
 	return ret;
 }

@@ -74,9 +74,16 @@ g98_sec = {
 };
 
 int
+<<<<<<< HEAD
 g98_sec_new(struct nvkm_device *device, int index,
 	    struct nvkm_engine **pengine)
 {
 	return nvkm_falcon_new_(&g98_sec, device, index,
 				true, 0x087000, pengine);
+=======
+g98_sec_new(struct nvkm_device *device, enum nvkm_subdev_type type, int inst,
+	    struct nvkm_engine **pengine)
+{
+	return nvkm_falcon_new_(&g98_sec, device, type, inst, true, 0x087000, pengine);
+>>>>>>> upstream/android-13
 }

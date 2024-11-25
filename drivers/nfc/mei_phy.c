@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * MEI Library for mei bus nfc device access
  *
@@ -16,6 +17,14 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
+=======
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright (c) 2013, Intel Corporation.
+ *
+ * MEI Library for mei bus nfc device access
+ */
+>>>>>>> upstream/android-13
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 
 #include <linux/module.h>
@@ -110,8 +119,11 @@ static int mei_nfc_if_version(struct nfc_mei_phy *phy)
 	size_t if_version_length;
 	int bytes_recv, r;
 
+<<<<<<< HEAD
 	pr_info("%s\n", __func__);
 
+=======
+>>>>>>> upstream/android-13
 	memset(&cmd, 0, sizeof(struct mei_nfc_cmd));
 	cmd.hdr.cmd = MEI_NFC_CMD_MAINTENANCE;
 	cmd.hdr.data_size = 1;
@@ -158,8 +170,11 @@ static int mei_nfc_connect(struct nfc_mei_phy *phy)
 	size_t connect_length, connect_resp_length;
 	int bytes_recv, r;
 
+<<<<<<< HEAD
 	pr_info("%s\n", __func__);
 
+=======
+>>>>>>> upstream/android-13
 	connect_length = sizeof(struct mei_nfc_cmd) +
 			sizeof(struct mei_nfc_connect);
 
@@ -218,7 +233,11 @@ err:
 	return r;
 }
 
+<<<<<<< HEAD
 static int mei_nfc_send(struct nfc_mei_phy *phy, u8 *buf, size_t length)
+=======
+static int mei_nfc_send(struct nfc_mei_phy *phy, const u8 *buf, size_t length)
+>>>>>>> upstream/android-13
 {
 	struct mei_nfc_hdr *hdr;
 	u8 *mei_buf;
@@ -332,8 +351,11 @@ static int nfc_mei_phy_enable(void *phy_id)
 	int r;
 	struct nfc_mei_phy *phy = phy_id;
 
+<<<<<<< HEAD
 	pr_info("%s\n", __func__);
 
+=======
+>>>>>>> upstream/android-13
 	if (phy->powered == 1)
 		return 0;
 
@@ -375,14 +397,21 @@ static void nfc_mei_phy_disable(void *phy_id)
 {
 	struct nfc_mei_phy *phy = phy_id;
 
+<<<<<<< HEAD
 	pr_info("%s\n", __func__);
 
+=======
+>>>>>>> upstream/android-13
 	mei_cldev_disable(phy->cldev);
 
 	phy->powered = 0;
 }
 
+<<<<<<< HEAD
 struct nfc_phy_ops mei_phy_ops = {
+=======
+const struct nfc_phy_ops mei_phy_ops = {
+>>>>>>> upstream/android-13
 	.write = nfc_mei_phy_write,
 	.enable = nfc_mei_phy_enable,
 	.disable = nfc_mei_phy_disable,

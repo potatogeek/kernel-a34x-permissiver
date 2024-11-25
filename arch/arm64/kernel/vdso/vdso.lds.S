@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * GNU linker script for the VDSO library.
 *
  * Copyright (C) 2012 ARM Limited
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
@@ -15,6 +20,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
+=======
+>>>>>>> upstream/android-13
  * Author: Will Deacon <will.deacon@arm.com>
  * Heavily based on the vDSO linker scripts for other archs.
  */
@@ -28,7 +35,14 @@ OUTPUT_ARCH(aarch64)
 
 SECTIONS
 {
+<<<<<<< HEAD
 	PROVIDE(_vdso_data = . - PAGE_SIZE);
+=======
+	PROVIDE(_vdso_data = . - __VVAR_PAGES * PAGE_SIZE);
+#ifdef CONFIG_TIME_NS
+	PROVIDE(_timens_data = _vdso_data + PAGE_SIZE);
+#endif
+>>>>>>> upstream/android-13
 	. = VDSO_LBASE + SIZEOF_HEADERS;
 
 	.hash		: { *(.hash) }			:text
@@ -55,9 +69,12 @@ SECTIONS
 	PROVIDE (_etext = .);
 	PROVIDE (etext = .);
 
+<<<<<<< HEAD
 	.eh_frame_hdr	: { *(.eh_frame_hdr) }		:text	:eh_frame_hdr
 	.eh_frame	: { KEEP (*(.eh_frame)) }	:text
 
+=======
+>>>>>>> upstream/android-13
 	.dynamic	: { *(.dynamic) }		:text	:dynamic
 
 	.rodata		: { *(.rodata*) }		:text
@@ -68,6 +85,10 @@ SECTIONS
 	/DISCARD/	: {
 		*(.data .data.* .gnu.linkonce.d.* .sdata*)
 		*(.bss .sbss .dynbss .dynsbss)
+<<<<<<< HEAD
+=======
+		*(.eh_frame .eh_frame_hdr)
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -80,7 +101,10 @@ PHDRS
 	text		PT_LOAD		FLAGS(5) FILEHDR PHDRS; /* PF_R|PF_X */
 	dynamic		PT_DYNAMIC	FLAGS(4);		/* PF_R */
 	note		PT_NOTE		FLAGS(4);		/* PF_R */
+<<<<<<< HEAD
 	eh_frame_hdr	PT_GNU_EH_FRAME;
+=======
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -94,7 +118,10 @@ VERSION
 		__kernel_gettimeofday;
 		__kernel_clock_gettime;
 		__kernel_clock_getres;
+<<<<<<< HEAD
 		__kernel_time;
+=======
+>>>>>>> upstream/android-13
 	local: *;
 	};
 }

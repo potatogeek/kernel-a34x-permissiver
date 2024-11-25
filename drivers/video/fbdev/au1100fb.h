@@ -110,6 +110,10 @@ struct au1100fb_device {
 	dma_addr_t    		fb_phys;
 	int			panel_idx;
 	struct clk		*lcdclk;
+<<<<<<< HEAD
+=======
+	struct device		*dev;
+>>>>>>> upstream/android-13
 };
 
 /********************************************************************/

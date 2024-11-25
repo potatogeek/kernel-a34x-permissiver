@@ -49,6 +49,10 @@ struct prefix_info {
 	struct in6_addr		prefix;
 };
 
+<<<<<<< HEAD
+=======
+#include <linux/ipv6.h>
+>>>>>>> upstream/android-13
 #include <linux/netdevice.h>
 #include <net/if_inet6.h>
 #include <net/ipv6.h>
@@ -89,12 +93,24 @@ int ipv6_chk_addr_and_flags(struct net *net, const struct in6_addr *addr,
 int ipv6_chk_home_addr(struct net *net, const struct in6_addr *addr);
 #endif
 
+<<<<<<< HEAD
+=======
+int ipv6_chk_rpl_srh_loop(struct net *net, const struct in6_addr *segs,
+			  unsigned char nsegs);
+
+>>>>>>> upstream/android-13
 bool ipv6_chk_custom_prefix(const struct in6_addr *addr,
 				   const unsigned int prefix_len,
 				   struct net_device *dev);
 
 int ipv6_chk_prefix(const struct in6_addr *addr, struct net_device *dev);
 
+<<<<<<< HEAD
+=======
+struct net_device *ipv6_dev_find(struct net *net, const struct in6_addr *addr,
+				 struct net_device *dev);
+
+>>>>>>> upstream/android-13
 struct inet6_ifaddr *ipv6_get_ifaddr(struct net *net,
 				     const struct in6_addr *addr,
 				     struct net_device *dev, int strict);
@@ -102,8 +118,11 @@ struct inet6_ifaddr *ipv6_get_ifaddr(struct net *net,
 int ipv6_dev_get_saddr(struct net *net, const struct net_device *dev,
 		       const struct in6_addr *daddr, unsigned int srcprefs,
 		       struct in6_addr *saddr);
+<<<<<<< HEAD
 int __ipv6_get_lladdr(struct inet6_dev *idev, struct in6_addr *addr,
 		      u32 banned_flags);
+=======
+>>>>>>> upstream/android-13
 int ipv6_get_lladdr(struct net_device *dev, struct in6_addr *addr,
 		    u32 banned_flags);
 bool inet_rcv_saddr_equal(const struct sock *sk, const struct sock *sk2,
@@ -201,6 +220,18 @@ u32 ipv6_addr_label(struct net *net, const struct in6_addr *addr,
 /*
  *	multicast prototypes (mcast.c)
  */
+<<<<<<< HEAD
+=======
+static inline bool ipv6_mc_may_pull(struct sk_buff *skb,
+				    unsigned int len)
+{
+	if (skb_transport_offset(skb) + ipv6_transport_len(skb) < len)
+		return false;
+
+	return pskb_may_pull(skb, len);
+}
+
+>>>>>>> upstream/android-13
 int ipv6_sock_mc_join(struct sock *sk, int ifindex,
 		      const struct in6_addr *addr);
 int ipv6_sock_mc_drop(struct sock *sk, int ifindex,
@@ -219,7 +250,11 @@ void ipv6_mc_unmap(struct inet6_dev *idev);
 void ipv6_mc_remap(struct inet6_dev *idev);
 void ipv6_mc_init_dev(struct inet6_dev *idev);
 void ipv6_mc_destroy_dev(struct inet6_dev *idev);
+<<<<<<< HEAD
 int ipv6_mc_check_mld(struct sk_buff *skb, struct sk_buff **skb_trimmed);
+=======
+int ipv6_mc_check_mld(struct sk_buff *skb);
+>>>>>>> upstream/android-13
 void addrconf_dad_failure(struct sk_buff *skb, struct inet6_ifaddr *ifp);
 
 bool ipv6_chk_mcast_addr(struct net_device *dev, const struct in6_addr *group,
@@ -227,6 +262,7 @@ bool ipv6_chk_mcast_addr(struct net_device *dev, const struct in6_addr *group,
 
 void ipv6_mc_dad_complete(struct inet6_dev *idev);
 
+<<<<<<< HEAD
 /* A stub used by vxlan module. This is ugly, ideally these
  * symbols should be built into the core kernel.
  */
@@ -270,6 +306,8 @@ struct ipv6_bpf_stub {
 };
 extern const struct ipv6_bpf_stub *ipv6_bpf_stub __read_mostly;
 
+=======
+>>>>>>> upstream/android-13
 /*
  * identify MLD packets for MLD filter exceptions
  */
@@ -327,6 +365,11 @@ bool ipv6_chk_acast_addr(struct net *net, struct net_device *dev,
 			 const struct in6_addr *addr);
 bool ipv6_chk_acast_addr_src(struct net *net, struct net_device *dev,
 			     const struct in6_addr *addr);
+<<<<<<< HEAD
+=======
+int ipv6_anycast_init(void);
+void ipv6_anycast_cleanup(void);
+>>>>>>> upstream/android-13
 
 /* Device notifier */
 int register_inet6addr_notifier(struct notifier_block *nb);
@@ -353,6 +396,25 @@ static inline struct inet6_dev *__in6_dev_get(const struct net_device *dev)
 }
 
 /**
+<<<<<<< HEAD
+=======
+ * __in6_dev_stats_get - get inet6_dev pointer for stats
+ * @dev: network device
+ * @skb: skb for original incoming interface if neeeded
+ *
+ * Caller must hold rcu_read_lock or RTNL, because this function
+ * does not take a reference on the inet6_dev.
+ */
+static inline struct inet6_dev *__in6_dev_stats_get(const struct net_device *dev,
+						    const struct sk_buff *skb)
+{
+	if (netif_is_l3_master(dev))
+		dev = dev_get_by_index_rcu(dev_net(dev), inet6_iif(skb));
+	return __in6_dev_get(dev);
+}
+
+/**
+>>>>>>> upstream/android-13
  * __in6_dev_get_safely - get inet6_dev pointer from netdevice
  * @dev: network device
  *
@@ -421,6 +483,17 @@ static inline void in6_dev_hold(struct inet6_dev *idev)
 	refcount_inc(&idev->refcnt);
 }
 
+<<<<<<< HEAD
+=======
+/* called with rcu_read_lock held */
+static inline bool ip6_ignore_linkdown(const struct net_device *dev)
+{
+	const struct inet6_dev *idev = __in6_dev_get(dev);
+
+	return !!idev->cnf.ignore_routes_with_linkdown;
+}
+
+>>>>>>> upstream/android-13
 void inet6_ifa_finish_destroy(struct inet6_ifaddr *ifp);
 
 static inline void in6_ifa_put(struct inet6_ifaddr *ifp)
@@ -456,7 +529,11 @@ static inline void addrconf_addr_solict_mult(const struct in6_addr *addr,
 static inline bool ipv6_addr_is_ll_all_nodes(const struct in6_addr *addr)
 {
 #if defined(CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS) && BITS_PER_LONG == 64
+<<<<<<< HEAD
 	__be64 *p = (__be64 *)addr;
+=======
+	__be64 *p = (__force __be64 *)addr;
+>>>>>>> upstream/android-13
 	return ((p[0] ^ cpu_to_be64(0xff02000000000000UL)) | (p[1] ^ cpu_to_be64(1))) == 0UL;
 #else
 	return ((addr->s6_addr32[0] ^ htonl(0xff020000)) |
@@ -468,7 +545,11 @@ static inline bool ipv6_addr_is_ll_all_nodes(const struct in6_addr *addr)
 static inline bool ipv6_addr_is_ll_all_routers(const struct in6_addr *addr)
 {
 #if defined(CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS) && BITS_PER_LONG == 64
+<<<<<<< HEAD
 	__be64 *p = (__be64 *)addr;
+=======
+	__be64 *p = (__force __be64 *)addr;
+>>>>>>> upstream/android-13
 	return ((p[0] ^ cpu_to_be64(0xff02000000000000UL)) | (p[1] ^ cpu_to_be64(2))) == 0UL;
 #else
 	return ((addr->s6_addr32[0] ^ htonl(0xff020000)) |
@@ -485,7 +566,11 @@ static inline bool ipv6_addr_is_isatap(const struct in6_addr *addr)
 static inline bool ipv6_addr_is_solict_mult(const struct in6_addr *addr)
 {
 #if defined(CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS) && BITS_PER_LONG == 64
+<<<<<<< HEAD
 	__be64 *p = (__be64 *)addr;
+=======
+	__be64 *p = (__force __be64 *)addr;
+>>>>>>> upstream/android-13
 	return ((p[0] ^ cpu_to_be64(0xff02000000000000UL)) |
 		((p[1] ^ cpu_to_be64(0x00000001ff000000UL)) &
 		 cpu_to_be64(0xffffffffff000000UL))) == 0UL;
@@ -497,6 +582,23 @@ static inline bool ipv6_addr_is_solict_mult(const struct in6_addr *addr)
 #endif
 }
 
+<<<<<<< HEAD
+=======
+static inline bool ipv6_addr_is_all_snoopers(const struct in6_addr *addr)
+{
+#if defined(CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS) && BITS_PER_LONG == 64
+	__be64 *p = (__force __be64 *)addr;
+
+	return ((p[0] ^ cpu_to_be64(0xff02000000000000UL)) |
+		(p[1] ^ cpu_to_be64(0x6a))) == 0UL;
+#else
+	return ((addr->s6_addr32[0] ^ htonl(0xff020000)) |
+		addr->s6_addr32[1] | addr->s6_addr32[2] |
+		(addr->s6_addr32[3] ^ htonl(0x0000006a))) == 0;
+#endif
+}
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PROC_FS
 int if6_proc_init(void);
 void if6_proc_exit(void);

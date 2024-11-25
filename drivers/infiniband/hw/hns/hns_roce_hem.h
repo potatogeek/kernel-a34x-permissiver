@@ -34,9 +34,13 @@
 #ifndef _HNS_ROCE_HEM_H
 #define _HNS_ROCE_HEM_H
 
+<<<<<<< HEAD
 #define HW_SYNC_TIMEOUT_MSECS		500
 #define HW_SYNC_SLEEP_TIME_INTERVAL	20
 #define BT_CMD_SYNC_SHIFT		31
+=======
+#define HEM_HOP_STEP_DIRECT 0xff
+>>>>>>> upstream/android-13
 
 enum {
 	/* MAP HEM(Hardware Entry Memory) */
@@ -44,10 +48,22 @@ enum {
 	HEM_TYPE_MTPT,
 	HEM_TYPE_CQC,
 	HEM_TYPE_SRQC,
+<<<<<<< HEAD
+=======
+	HEM_TYPE_SCCC,
+	HEM_TYPE_QPC_TIMER,
+	HEM_TYPE_CQC_TIMER,
+	HEM_TYPE_GMV,
+>>>>>>> upstream/android-13
 
 	 /* UNMAP HEM */
 	HEM_TYPE_MTT,
 	HEM_TYPE_CQE,
+<<<<<<< HEAD
+=======
+	HEM_TYPE_SRQWQE,
+	HEM_TYPE_IDX,
+>>>>>>> upstream/android-13
 	HEM_TYPE_IRRL,
 	HEM_TYPE_TRRL,
 };
@@ -68,11 +84,14 @@ enum {
 	(type >= HEM_TYPE_MTT && hop_num == 1) || \
 	(type >= HEM_TYPE_MTT && hop_num == HNS_ROCE_HOP_NUM_0))
 
+<<<<<<< HEAD
 enum {
 	 HNS_ROCE_HEM_PAGE_SHIFT = 12,
 	 HNS_ROCE_HEM_PAGE_SIZE  = 1 << HNS_ROCE_HEM_PAGE_SHIFT,
 };
 
+=======
+>>>>>>> upstream/android-13
 struct hns_roce_hem_chunk {
 	struct list_head	 list;
 	int			 npages;
@@ -82,8 +101,13 @@ struct hns_roce_hem_chunk {
 };
 
 struct hns_roce_hem {
+<<<<<<< HEAD
 	struct list_head	 chunk_list;
 	int			 refcount;
+=======
+	struct list_head chunk_list;
+	refcount_t refcount;
+>>>>>>> upstream/android-13
 };
 
 struct hns_roce_hem_iter {
@@ -97,9 +121,15 @@ struct hns_roce_hem_mhop {
 	u32	buf_chunk_size;
 	u32	bt_chunk_size;
 	u32	ba_l0_num;
+<<<<<<< HEAD
 	u32	l0_idx;/* level 0 base address table index */
 	u32	l1_idx;/* level 1 base address table index */
 	u32	l2_idx;/* level 2 base address table index */
+=======
+	u32	l0_idx; /* level 0 base address table index */
+	u32	l1_idx; /* level 1 base address table index */
+	u32	l2_idx; /* level 2 base address table index */
+>>>>>>> upstream/android-13
 };
 
 void hns_roce_free_hem(struct hns_roce_dev *hr_dev, struct hns_roce_hem *hem);
@@ -110,12 +140,15 @@ void hns_roce_table_put(struct hns_roce_dev *hr_dev,
 void *hns_roce_table_find(struct hns_roce_dev *hr_dev,
 			  struct hns_roce_hem_table *table, unsigned long obj,
 			  dma_addr_t *dma_handle);
+<<<<<<< HEAD
 int hns_roce_table_get_range(struct hns_roce_dev *hr_dev,
 			     struct hns_roce_hem_table *table,
 			     unsigned long start, unsigned long end);
 void hns_roce_table_put_range(struct hns_roce_dev *hr_dev,
 			      struct hns_roce_hem_table *table,
 			      unsigned long start, unsigned long end);
+=======
+>>>>>>> upstream/android-13
 int hns_roce_init_hem_table(struct hns_roce_dev *hr_dev,
 			    struct hns_roce_hem_table *table, u32 type,
 			    unsigned long obj_size, unsigned long nobj,
@@ -128,6 +161,22 @@ int hns_roce_calc_hem_mhop(struct hns_roce_dev *hr_dev,
 			   struct hns_roce_hem_mhop *mhop);
 bool hns_roce_check_whether_mhop(struct hns_roce_dev *hr_dev, u32 type);
 
+<<<<<<< HEAD
+=======
+void hns_roce_hem_list_init(struct hns_roce_hem_list *hem_list);
+int hns_roce_hem_list_calc_root_ba(const struct hns_roce_buf_region *regions,
+				   int region_cnt, int unit);
+int hns_roce_hem_list_request(struct hns_roce_dev *hr_dev,
+			      struct hns_roce_hem_list *hem_list,
+			      const struct hns_roce_buf_region *regions,
+			      int region_cnt, unsigned int bt_pg_shift);
+void hns_roce_hem_list_release(struct hns_roce_dev *hr_dev,
+			       struct hns_roce_hem_list *hem_list);
+void *hns_roce_hem_list_find_mtt(struct hns_roce_dev *hr_dev,
+				 struct hns_roce_hem_list *hem_list,
+				 int offset, int *mtt_cnt, u64 *phy_addr);
+
+>>>>>>> upstream/android-13
 static inline void hns_roce_hem_first(struct hns_roce_hem *hem,
 				      struct hns_roce_hem_iter *iter)
 {
@@ -162,4 +211,8 @@ static inline dma_addr_t hns_roce_hem_addr(struct hns_roce_hem_iter *iter)
 	return sg_dma_address(&iter->chunk->mem[iter->page_idx]);
 }
 
+<<<<<<< HEAD
 #endif /*_HNS_ROCE_HEM_H*/
+=======
+#endif /* _HNS_ROCE_HEM_H */
+>>>>>>> upstream/android-13

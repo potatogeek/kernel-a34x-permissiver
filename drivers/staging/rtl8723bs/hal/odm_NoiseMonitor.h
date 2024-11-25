@@ -24,10 +24,17 @@ struct noise_level {
 };
 
 
+<<<<<<< HEAD
 typedef struct _ODM_NOISE_MONITOR_ {
 	s8 noise[MAX_RF_PATH];
 	s16 noise_all;
 } ODM_NOISE_MONITOR;
+=======
+struct odm_noise_monitor {
+	s8 noise[MAX_RF_PATH];
+	s16 noise_all;
+};
+>>>>>>> upstream/android-13
 
 s16 ODM_InbandNoise_Monitor(
 	void *pDM_VOID,

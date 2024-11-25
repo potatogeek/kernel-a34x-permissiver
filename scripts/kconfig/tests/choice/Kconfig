@@ -1,6 +1,14 @@
+<<<<<<< HEAD
 config MODULES
 	bool "Enable loadable module support"
 	option modules
+=======
+# SPDX-License-Identifier: GPL-2.0
+
+config MODULES
+	bool "Enable loadable module support"
+	modules
+>>>>>>> upstream/android-13
 	default y
 
 choice

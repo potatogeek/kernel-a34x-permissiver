@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Rockchip RK805 PMIC Power Key driver
  *
  * Copyright (c) 2017, Fuzhou Rockchip Electronics Co., Ltd
  *
  * Author: Joseph Chen <chenjh@rock-chips.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under  the terms of the GNU General  Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/errno.h>
@@ -57,6 +64,7 @@ static int rk805_pwrkey_probe(struct platform_device *pdev)
 	input_set_capability(pwr, EV_KEY, KEY_POWER);
 
 	fall_irq = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (fall_irq < 0) {
 		dev_err(&pdev->dev, "Can't get fall irq: %d\n", fall_irq);
 		return fall_irq;
@@ -67,6 +75,14 @@ static int rk805_pwrkey_probe(struct platform_device *pdev)
 		dev_err(&pdev->dev, "Can't get rise irq: %d\n", rise_irq);
 		return rise_irq;
 	}
+=======
+	if (fall_irq < 0)
+		return fall_irq;
+
+	rise_irq = platform_get_irq(pdev, 1);
+	if (rise_irq < 0)
+		return rise_irq;
+>>>>>>> upstream/android-13
 
 	err = devm_request_any_context_irq(&pwr->dev, fall_irq,
 					   pwrkey_fall_irq,

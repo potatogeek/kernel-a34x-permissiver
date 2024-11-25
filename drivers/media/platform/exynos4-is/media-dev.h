@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2011 - 2012 Samsung Electronics Co., Ltd.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) 2011 - 2012 Samsung Electronics Co., Ltd.
+>>>>>>> upstream/android-13
  */
 
 #ifndef FIMC_MDEVICE_H_
@@ -30,8 +36,11 @@
 #define FIMC_IS_OF_NODE_NAME	"fimc-is"
 #define CSIS_OF_NODE_NAME	"csis"
 
+<<<<<<< HEAD
 #define PINCTRL_STATE_IDLE	"idle"
 
+=======
+>>>>>>> upstream/android-13
 #define FIMC_MAX_SENSORS	4
 #define FIMC_MAX_CAMCLKS	2
 #define DEFAULT_SENSOR_CLK_FREQ	24000000U
@@ -79,7 +88,11 @@ struct fimc_camclk_info {
 
 /**
  * struct fimc_sensor_info - image data source subdev information
+<<<<<<< HEAD
  * @pdata: sensor's atrributes passed as media device's platform data
+=======
+ * @pdata: sensor's attributes passed as media device's platform data
+>>>>>>> upstream/android-13
  * @asd: asynchronous subdev registration data structure
  * @subdev: image sensor v4l2 subdev
  * @host: fimc device the sensor is currently linked to
@@ -88,7 +101,11 @@ struct fimc_camclk_info {
  */
 struct fimc_sensor_info {
 	struct fimc_source_info pdata;
+<<<<<<< HEAD
 	struct v4l2_async_subdev asd;
+=======
+	struct v4l2_async_subdev *asd;
+>>>>>>> upstream/android-13
 	struct v4l2_subdev *subdev;
 	struct fimc_dev *host;
 };
@@ -105,6 +122,11 @@ struct cam_clk {
  * @sensor: array of registered sensor subdevs
  * @num_sensors: actual number of registered sensors
  * @camclk: external sensor clock information
+<<<<<<< HEAD
+=======
+ * @wbclk: external writeback clock information
+ * @fimc_lite: array of registered fimc-lite devices
+>>>>>>> upstream/android-13
  * @fimc: array of registered fimc devices
  * @fimc_is: fimc-is data structure
  * @use_isp: set to true when FIMC-IS subsystem is used
@@ -112,12 +134,21 @@ struct cam_clk {
  * @media_dev: top level media device
  * @v4l2_dev: top level v4l2_device holding up the subdevs
  * @pdev: platform device this media device is hooked up into
+<<<<<<< HEAD
  * @pinctrl: camera port pinctrl handle
  * @state_default: pinctrl default state handle
  * @state_idle: pinctrl idle state handle
  * @cam_clk_provider: CAMCLK clock provider structure
  * @user_subdev_api: true if subdevs are not configured by the host driver
  * @slock: spinlock protecting @sensor array
+=======
+ * @clk_provider: CAMCLK clock provider structure
+ * @subdev_notifier: notifier for the subdevs
+ * @user_subdev_api: true if subdevs are not configured by the host driver
+ * @slock: spinlock protecting @sensor array
+ * @pipelines: list of pipelines
+ * @link_setup_graph: graph iterator
+>>>>>>> upstream/android-13
  */
 struct fimc_md {
 	struct fimc_csis_info csis[CSIS_MAX_ENTITIES];
@@ -134,12 +165,15 @@ struct fimc_md {
 	struct v4l2_device v4l2_dev;
 	struct platform_device *pdev;
 
+<<<<<<< HEAD
 	struct fimc_pinctrl {
 		struct pinctrl *pinctrl;
 		struct pinctrl_state *state_default;
 		struct pinctrl_state *state_idle;
 	} pinctl;
 
+=======
+>>>>>>> upstream/android-13
 	struct cam_clk_provider {
 		struct clk *clks[FIMC_MAX_CAMCLKS];
 		struct clk_onecell_data clk_data;
@@ -149,7 +183,10 @@ struct fimc_md {
 	} clk_provider;
 
 	struct v4l2_async_notifier subdev_notifier;
+<<<<<<< HEAD
 	struct v4l2_async_subdev *async_subdevs[FIMC_MAX_SENSORS];
+=======
+>>>>>>> upstream/android-13
 
 	bool user_subdev_api;
 	spinlock_t slock;

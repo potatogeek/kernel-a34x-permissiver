@@ -5,6 +5,7 @@
 
 #include <uapi/linux/arm_sdei.h>
 
+<<<<<<< HEAD
 enum sdei_conduit_types {
 	CONDUIT_INVALID = 0,
 	CONDUIT_SMC,
@@ -12,6 +13,13 @@ enum sdei_conduit_types {
 };
 
 #include <asm/sdei.h>
+=======
+#include <acpi/ghes.h>
+
+#ifdef CONFIG_ARM_SDE_INTERFACE
+#include <asm/sdei.h>
+#endif
+>>>>>>> upstream/android-13
 
 /* Arch code should override this to set the entry point from firmware... */
 #ifndef sdei_arch_get_entry_point
@@ -39,6 +47,14 @@ int sdei_event_unregister(u32 event_num);
 int sdei_event_enable(u32 event_num);
 int sdei_event_disable(u32 event_num);
 
+<<<<<<< HEAD
+=======
+/* GHES register/unregister helpers */
+int sdei_register_ghes(struct ghes *ghes, sdei_event_callback *normal_cb,
+		       sdei_event_callback *critical_cb);
+int sdei_unregister_ghes(struct ghes *ghes);
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_ARM_SDE_INTERFACE
 /* For use by arch code when CPU hotplug notifiers are not appropriate. */
 int sdei_mask_local_cpu(void);

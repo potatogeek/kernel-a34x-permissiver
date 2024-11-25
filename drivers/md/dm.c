@@ -8,6 +8,10 @@
 #include "dm-core.h"
 #include "dm-rq.h"
 #include "dm-uevent.h"
+<<<<<<< HEAD
+=======
+#include "dm-ima.h"
+>>>>>>> upstream/android-13
 
 #include <linux/init.h>
 #include <linux/module.h>
@@ -26,6 +30,10 @@
 #include <linux/wait.h>
 #include <linux/pr.h>
 #include <linux/refcount.h>
+<<<<<<< HEAD
+=======
+#include <linux/part_stat.h>
+>>>>>>> upstream/android-13
 #include <linux/blk-crypto.h>
 #include <linux/keyslot-manager.h>
 
@@ -73,6 +81,7 @@ struct clone_info {
 	unsigned sector_count;
 };
 
+<<<<<<< HEAD
 /*
  * One of these is allocated per clone bio.
  */
@@ -104,13 +113,23 @@ struct dm_io {
 	/* last member of dm_target_io is 'struct bio' */
 	struct dm_target_io tio;
 };
+=======
+#define DM_TARGET_IO_BIO_OFFSET (offsetof(struct dm_target_io, clone))
+#define DM_IO_BIO_OFFSET \
+	(offsetof(struct dm_target_io, clone) + offsetof(struct dm_io, tio))
+>>>>>>> upstream/android-13
 
 void *dm_per_bio_data(struct bio *bio, size_t data_size)
 {
 	struct dm_target_io *tio = container_of(bio, struct dm_target_io, clone);
 	if (!tio->inside_dm_io)
+<<<<<<< HEAD
 		return (char *)bio - offsetof(struct dm_target_io, clone) - data_size;
 	return (char *)bio - offsetof(struct dm_target_io, clone) - offsetof(struct dm_io, tio) - data_size;
+=======
+		return (char *)bio - DM_TARGET_IO_BIO_OFFSET - data_size;
+	return (char *)bio - DM_IO_BIO_OFFSET - data_size;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(dm_per_bio_data);
 
@@ -118,9 +137,15 @@ struct bio *dm_bio_from_per_bio_data(void *data, size_t data_size)
 {
 	struct dm_io *io = (struct dm_io *)((char *)data + data_size);
 	if (io->magic == DM_IO_MAGIC)
+<<<<<<< HEAD
 		return (struct bio *)((char *)io + offsetof(struct dm_io, tio) + offsetof(struct dm_target_io, clone));
 	BUG_ON(io->magic != DM_TIO_MAGIC);
 	return (struct bio *)((char *)io + offsetof(struct dm_target_io, clone));
+=======
+		return (struct bio *)((char *)io + DM_IO_BIO_OFFSET);
+	BUG_ON(io->magic != DM_TIO_MAGIC);
+	return (struct bio *)((char *)io + DM_TARGET_IO_BIO_OFFSET);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(dm_bio_from_per_bio_data);
 
@@ -132,6 +157,7 @@ EXPORT_SYMBOL_GPL(dm_bio_get_target_bio_nr);
 
 #define MINOR_ALLOCED ((void *)-1)
 
+<<<<<<< HEAD
 /*
  * Bits for the md->flags field.
  */
@@ -148,6 +174,21 @@ EXPORT_SYMBOL_GPL(dm_bio_get_target_bio_nr);
 #define DM_NUMA_NODE NUMA_NO_NODE
 static int dm_numa_node = DM_NUMA_NODE;
 
+=======
+#define DM_NUMA_NODE NUMA_NO_NODE
+static int dm_numa_node = DM_NUMA_NODE;
+
+#define DEFAULT_SWAP_BIOS	(8 * 1048576 / PAGE_SIZE)
+static int swap_bios = DEFAULT_SWAP_BIOS;
+static int get_swap_bios(void)
+{
+	int latch = READ_ONCE(swap_bios);
+	if (unlikely(latch <= 0))
+		latch = DEFAULT_SWAP_BIOS;
+	return latch;
+}
+
+>>>>>>> upstream/android-13
 /*
  * For mempools pre-allocation at the table loading time.
  */
@@ -162,9 +203,12 @@ struct table_device {
 	struct dm_dev dm_dev;
 };
 
+<<<<<<< HEAD
 static struct kmem_cache *_rq_tio_cache;
 static struct kmem_cache *_rq_cache;
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Bio-based DM's mempools' reserved IOs set by the user.
  */
@@ -226,6 +270,7 @@ static unsigned dm_get_numa_node(void)
 
 static int __init local_init(void)
 {
+<<<<<<< HEAD
 	int r = -ENOMEM;
 
 	_rq_tio_cache = KMEM_CACHE(dm_rq_target_io, 0);
@@ -240,6 +285,13 @@ static int __init local_init(void)
 	r = dm_uevent_init();
 	if (r)
 		goto out_free_rq_cache;
+=======
+	int r;
+
+	r = dm_uevent_init();
+	if (r)
+		return r;
+>>>>>>> upstream/android-13
 
 	deferred_remove_workqueue = alloc_workqueue("kdmremove", WQ_UNBOUND, 1);
 	if (!deferred_remove_workqueue) {
@@ -261,10 +313,13 @@ out_free_workqueue:
 	destroy_workqueue(deferred_remove_workqueue);
 out_uevent_exit:
 	dm_uevent_exit();
+<<<<<<< HEAD
 out_free_rq_cache:
 	kmem_cache_destroy(_rq_cache);
 out_free_rq_tio_cache:
 	kmem_cache_destroy(_rq_tio_cache);
+=======
+>>>>>>> upstream/android-13
 
 	return r;
 }
@@ -274,8 +329,11 @@ static void local_exit(void)
 	flush_scheduled_work();
 	destroy_workqueue(deferred_remove_workqueue);
 
+<<<<<<< HEAD
 	kmem_cache_destroy(_rq_cache);
 	kmem_cache_destroy(_rq_tio_cache);
+=======
+>>>>>>> upstream/android-13
 	unregister_blkdev(_major, _name);
 	dm_uevent_exit();
 
@@ -309,9 +367,19 @@ static void (*_exits[])(void) = {
 static int __init dm_init(void)
 {
 	const int count = ARRAY_SIZE(_inits);
+<<<<<<< HEAD
 
 	int r, i;
 
+=======
+	int r, i;
+
+#if (IS_ENABLED(CONFIG_IMA) && !IS_ENABLED(CONFIG_IMA_DISABLE_HTABLE))
+	DMWARN("CONFIG_IMA_DISABLE_HTABLE is disabled."
+	       " Duplicate IMA measurements will not be recorded in the IMA log.");
+#endif
+
+>>>>>>> upstream/android-13
 	for (i = 0; i < count; i++) {
 		r = _inits[i]();
 		if (r)
@@ -319,8 +387,12 @@ static int __init dm_init(void)
 	}
 
 	return 0;
+<<<<<<< HEAD
 
       bad:
+=======
+bad:
+>>>>>>> upstream/android-13
 	while (i--)
 		_exits[i]();
 
@@ -440,6 +512,7 @@ static void do_deferred_remove(struct work_struct *w)
 	dm_deferred_remove();
 }
 
+<<<<<<< HEAD
 sector_t dm_get_size(struct mapped_device *md)
 {
 	return get_capacity(md->disk);
@@ -455,6 +528,8 @@ struct dm_stats *dm_get_stats(struct mapped_device *md)
 	return &md->stats;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int dm_blk_getgeo(struct block_device *bdev, struct hd_geometry *geo)
 {
 	struct mapped_device *md = bdev->bd_disk->private_data;
@@ -525,13 +600,75 @@ static int dm_blk_ioctl(struct block_device *bdev, fmode_t mode,
 		}
 	}
 
+<<<<<<< HEAD
 	r =  __blkdev_driver_ioctl(bdev, mode, cmd, arg);
+=======
+	if (!bdev->bd_disk->fops->ioctl)
+		r = -ENOTTY;
+	else
+		r = bdev->bd_disk->fops->ioctl(bdev, mode, cmd, arg);
+>>>>>>> upstream/android-13
 out:
 	dm_unprepare_ioctl(md, srcu_idx);
 	return r;
 }
 
+<<<<<<< HEAD
 static void start_io_acct(struct dm_io *io);
+=======
+u64 dm_start_time_ns_from_clone(struct bio *bio)
+{
+	struct dm_target_io *tio = container_of(bio, struct dm_target_io, clone);
+	struct dm_io *io = tio->io;
+
+	return jiffies_to_nsecs(io->start_time);
+}
+EXPORT_SYMBOL_GPL(dm_start_time_ns_from_clone);
+
+static bool bio_is_flush_with_data(struct bio *bio)
+{
+	return ((bio->bi_opf & REQ_PREFLUSH) && bio->bi_iter.bi_size);
+}
+
+static void dm_io_acct(bool end, struct mapped_device *md, struct bio *bio,
+		       unsigned long start_time, struct dm_stats_aux *stats_aux)
+{
+	bool is_flush_with_data;
+	unsigned int bi_size;
+
+	/* If REQ_PREFLUSH set save any payload but do not account it */
+	is_flush_with_data = bio_is_flush_with_data(bio);
+	if (is_flush_with_data) {
+		bi_size = bio->bi_iter.bi_size;
+		bio->bi_iter.bi_size = 0;
+	}
+
+	if (!end)
+		bio_start_io_acct_time(bio, start_time);
+	else
+		bio_end_io_acct(bio, start_time);
+
+	if (unlikely(dm_stats_used(&md->stats)))
+		dm_stats_account_io(&md->stats, bio_data_dir(bio),
+				    bio->bi_iter.bi_sector, bio_sectors(bio),
+				    end, start_time, stats_aux);
+
+	/* Restore bio's payload so it does get accounted upon requeue */
+	if (is_flush_with_data)
+		bio->bi_iter.bi_size = bi_size;
+}
+
+static void start_io_acct(struct dm_io *io)
+{
+	dm_io_acct(false, io->md, io->orig_bio, io->start_time, &io->stats_aux);
+}
+
+static void end_io_acct(struct mapped_device *md, struct bio *bio,
+			unsigned long start_time, struct dm_stats_aux *stats_aux)
+{
+	dm_io_acct(true, md, bio, start_time, stats_aux);
+}
+>>>>>>> upstream/android-13
 
 static struct dm_io *alloc_io(struct mapped_device *md, struct bio *bio)
 {
@@ -551,11 +688,21 @@ static struct dm_io *alloc_io(struct mapped_device *md, struct bio *bio)
 	io->magic = DM_IO_MAGIC;
 	io->status = 0;
 	atomic_set(&io->io_count, 1);
+<<<<<<< HEAD
+=======
+	this_cpu_inc(*md->pending_io);
+>>>>>>> upstream/android-13
 	io->orig_bio = bio;
 	io->md = md;
 	spin_lock_init(&io->endio_lock);
 
+<<<<<<< HEAD
 	start_io_acct(io);
+=======
+	io->start_time = jiffies;
+
+	dm_stats_record_start(&md->stats, &io->stats_aux);
+>>>>>>> upstream/android-13
 
 	return io;
 }
@@ -597,6 +744,7 @@ static void free_tio(struct dm_target_io *tio)
 	bio_put(&tio->clone);
 }
 
+<<<<<<< HEAD
 int md_in_flight(struct mapped_device *md)
 {
 	return atomic_read(&md->pending[READ]) +
@@ -652,6 +800,8 @@ static void end_io_acct(struct dm_io *io)
 		wake_up(&md->wait);
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Add the bio to the list of deferred io.
  */
@@ -728,7 +878,11 @@ static int open_table_device(struct table_device *td, dev_t dev,
 	}
 
 	td->dm_dev.bdev = bdev;
+<<<<<<< HEAD
 	td->dm_dev.dax_dev = dax_get_by_host(bdev->bd_disk->disk_name);
+=======
+	td->dm_dev.dax_dev = fs_dax_get_by_bdev(bdev);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -748,7 +902,12 @@ static void close_table_device(struct table_device *td, struct mapped_device *md
 }
 
 static struct table_device *find_table_device(struct list_head *l, dev_t dev,
+<<<<<<< HEAD
 					      fmode_t mode) {
+=======
+					      fmode_t mode)
+{
+>>>>>>> upstream/android-13
 	struct table_device *td;
 
 	list_for_each_entry(td, l, list)
@@ -759,7 +918,12 @@ static struct table_device *find_table_device(struct list_head *l, dev_t dev,
 }
 
 int dm_get_table_device(struct mapped_device *md, dev_t dev, fmode_t mode,
+<<<<<<< HEAD
 			struct dm_dev **result) {
+=======
+			struct dm_dev **result)
+{
+>>>>>>> upstream/android-13
 	int r;
 	struct table_device *td;
 
@@ -793,7 +957,10 @@ int dm_get_table_device(struct mapped_device *md, dev_t dev, fmode_t mode,
 	*result = &td->dm_dev;
 	return 0;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(dm_get_table_device);
+=======
+>>>>>>> upstream/android-13
 
 void dm_put_table_device(struct mapped_device *md, struct dm_dev *d)
 {
@@ -807,7 +974,10 @@ void dm_put_table_device(struct mapped_device *md, struct dm_dev *d)
 	}
 	mutex_unlock(&md->table_devices_lock);
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(dm_put_table_device);
+=======
+>>>>>>> upstream/android-13
 
 static void free_table_devices(struct list_head *devices)
 {
@@ -858,12 +1028,21 @@ static int __noflush_suspending(struct mapped_device *md)
  * Decrements the number of outstanding ios that a bio has been
  * cloned into, completing the original io if necc.
  */
+<<<<<<< HEAD
 static void dec_pending(struct dm_io *io, blk_status_t error)
+=======
+void dm_io_dec_pending(struct dm_io *io, blk_status_t error)
+>>>>>>> upstream/android-13
 {
 	unsigned long flags;
 	blk_status_t io_error;
 	struct bio *bio;
 	struct mapped_device *md = io->md;
+<<<<<<< HEAD
+=======
+	unsigned long start_time = 0;
+	struct dm_stats_aux stats_aux;
+>>>>>>> upstream/android-13
 
 	/* Push-back supersedes any I/O errors */
 	if (unlikely(error)) {
@@ -874,29 +1053,64 @@ static void dec_pending(struct dm_io *io, blk_status_t error)
 	}
 
 	if (atomic_dec_and_test(&io->io_count)) {
+<<<<<<< HEAD
+=======
+		bio = io->orig_bio;
+>>>>>>> upstream/android-13
 		if (io->status == BLK_STS_DM_REQUEUE) {
 			/*
 			 * Target requested pushing back the I/O.
 			 */
 			spin_lock_irqsave(&md->deferred_lock, flags);
+<<<<<<< HEAD
 			if (__noflush_suspending(md))
 				/* NOTE early return due to BLK_STS_DM_REQUEUE below */
 				bio_list_add_head(&md->deferred, io->orig_bio);
 			else
 				/* noflush suspend was interrupted. */
 				io->status = BLK_STS_IOERR;
+=======
+			if (__noflush_suspending(md) &&
+			    !WARN_ON_ONCE(dm_is_zone_write(md, bio))) {
+				/* NOTE early return due to BLK_STS_DM_REQUEUE below */
+				bio_list_add_head(&md->deferred, bio);
+			} else {
+				/*
+				 * noflush suspend was interrupted or this is
+				 * a write to a zoned target.
+				 */
+				io->status = BLK_STS_IOERR;
+			}
+>>>>>>> upstream/android-13
 			spin_unlock_irqrestore(&md->deferred_lock, flags);
 		}
 
 		io_error = io->status;
+<<<<<<< HEAD
 		bio = io->orig_bio;
 		end_io_acct(io);
 		free_io(md, io);
+=======
+		start_time = io->start_time;
+		stats_aux = io->stats_aux;
+		free_io(md, io);
+		end_io_acct(md, bio, start_time, &stats_aux);
+		smp_wmb();
+		this_cpu_dec(*md->pending_io);
+
+		/* nudge anyone waiting on suspend queue */
+		if (unlikely(wq_has_sleeper(&md->wait)))
+			wake_up(&md->wait);
+>>>>>>> upstream/android-13
 
 		if (io_error == BLK_STS_DM_REQUEUE)
 			return;
 
+<<<<<<< HEAD
 		if ((bio->bi_opf & REQ_PREFLUSH) && bio->bi_iter.bi_size) {
+=======
+		if (bio_is_flush_with_data(bio)) {
+>>>>>>> upstream/android-13
 			/*
 			 * Preflush done for flush with data, reissue
 			 * without REQ_PREFLUSH.
@@ -937,6 +1151,14 @@ void disable_write_zeroes(struct mapped_device *md)
 	limits->max_write_zeroes_sectors = 0;
 }
 
+<<<<<<< HEAD
+=======
+static bool swap_bios_limit(struct dm_target *ti, struct bio *bio)
+{
+	return unlikely((bio->bi_opf & REQ_SWAP) != 0) && unlikely(ti->limit_swap_bios);
+}
+
+>>>>>>> upstream/android-13
 static void clone_endio(struct bio *bio)
 {
 	blk_status_t error = bio->bi_status;
@@ -944,6 +1166,7 @@ static void clone_endio(struct bio *bio)
 	struct dm_io *io = tio->io;
 	struct mapped_device *md = tio->io->md;
 	dm_endio_fn endio = tio->ti->type->end_io;
+<<<<<<< HEAD
 
 	if (unlikely(error == BLK_STS_TARGET) && md->type != DM_TYPE_NVME_BIO_BASED) {
 		if (bio_op(bio) == REQ_OP_DISCARD &&
@@ -957,12 +1180,44 @@ static void clone_endio(struct bio *bio)
 			disable_write_zeroes(md);
 	}
 
+=======
+	struct request_queue *q = bio->bi_bdev->bd_disk->queue;
+
+	if (unlikely(error == BLK_STS_TARGET)) {
+		if (bio_op(bio) == REQ_OP_DISCARD &&
+		    !q->limits.max_discard_sectors)
+			disable_discard(md);
+		else if (bio_op(bio) == REQ_OP_WRITE_SAME &&
+			 !q->limits.max_write_same_sectors)
+			disable_write_same(md);
+		else if (bio_op(bio) == REQ_OP_WRITE_ZEROES &&
+			 !q->limits.max_write_zeroes_sectors)
+			disable_write_zeroes(md);
+	}
+
+	if (blk_queue_is_zoned(q))
+		dm_zone_endio(io, bio);
+
+>>>>>>> upstream/android-13
 	if (endio) {
 		int r = endio(tio->ti, bio, &error);
 		switch (r) {
 		case DM_ENDIO_REQUEUE:
+<<<<<<< HEAD
 			error = BLK_STS_DM_REQUEUE;
 			/*FALLTHRU*/
+=======
+			/*
+			 * Requeuing writes to a sequential zone of a zoned
+			 * target will break the sequential write pattern:
+			 * fail such IO.
+			 */
+			if (WARN_ON_ONCE(dm_is_zone_write(md, bio)))
+				error = BLK_STS_IOERR;
+			else
+				error = BLK_STS_DM_REQUEUE;
+			fallthrough;
+>>>>>>> upstream/android-13
 		case DM_ENDIO_DONE:
 			break;
 		case DM_ENDIO_INCOMPLETE:
@@ -974,14 +1229,25 @@ static void clone_endio(struct bio *bio)
 		}
 	}
 
+<<<<<<< HEAD
 	free_tio(tio);
 	dec_pending(io, error);
+=======
+	if (unlikely(swap_bios_limit(tio->ti, bio))) {
+		struct mapped_device *md = io->md;
+		up(&md->swap_bios_semaphore);
+	}
+
+	free_tio(tio);
+	dm_io_dec_pending(io, error);
+>>>>>>> upstream/android-13
 }
 
 /*
  * Return maximum size of I/O possible at the supplied sector up to the current
  * target boundary.
  */
+<<<<<<< HEAD
 static sector_t max_io_len_target_boundary(sector_t sector, struct dm_target *ti)
 {
 	sector_t target_offset = dm_target_offset(ti, sector);
@@ -1005,6 +1271,30 @@ static sector_t max_io_len(sector_t sector, struct dm_target *ti)
 			max_len = offset & (ti->max_io_len - 1);
 		max_len = ti->max_io_len - max_len;
 
+=======
+static inline sector_t max_io_len_target_boundary(struct dm_target *ti,
+						  sector_t target_offset)
+{
+	return ti->len - target_offset;
+}
+
+static sector_t max_io_len(struct dm_target *ti, sector_t sector)
+{
+	sector_t target_offset = dm_target_offset(ti, sector);
+	sector_t len = max_io_len_target_boundary(ti, target_offset);
+	sector_t max_len;
+
+	/*
+	 * Does the target need to split IO even further?
+	 * - varied (per target) IO splitting is a tenet of DM; this
+	 *   explains why stacked chunk_sectors based splitting via
+	 *   blk_max_size_offset() isn't possible here. So pass in
+	 *   ti->max_io_len to override stacked chunk_sectors.
+	 */
+	if (ti->max_io_len) {
+		max_len = blk_max_size_offset(ti->table->md->queue,
+					      target_offset, ti->max_io_len);
+>>>>>>> upstream/android-13
 		if (len > max_len)
 			len = max_len;
 	}
@@ -1039,7 +1329,11 @@ static struct dm_target *dm_dax_get_live_target(struct mapped_device *md,
 		return NULL;
 
 	ti = dm_table_find_target(map, sector);
+<<<<<<< HEAD
 	if (!dm_target_is_valid(ti))
+=======
+	if (!ti)
+>>>>>>> upstream/android-13
 		return NULL;
 
 	return ti;
@@ -1060,7 +1354,11 @@ static long dm_dax_direct_access(struct dax_device *dax_dev, pgoff_t pgoff,
 		goto out;
 	if (!ti->type->direct_access)
 		goto out;
+<<<<<<< HEAD
 	len = max_io_len(sector, ti) / PAGE_SECTORS;
+=======
+	len = max_io_len(ti, sector) / PAGE_SECTORS;
+>>>>>>> upstream/android-13
 	if (len < 1)
 		goto out;
 	nr_pages = min(len, nr_pages);
@@ -1072,6 +1370,29 @@ static long dm_dax_direct_access(struct dax_device *dax_dev, pgoff_t pgoff,
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+static bool dm_dax_supported(struct dax_device *dax_dev, struct block_device *bdev,
+		int blocksize, sector_t start, sector_t len)
+{
+	struct mapped_device *md = dax_get_private(dax_dev);
+	struct dm_table *map;
+	bool ret = false;
+	int srcu_idx;
+
+	map = dm_get_live_table(md, &srcu_idx);
+	if (!map)
+		goto out;
+
+	ret = dm_table_supports_dax(map, device_not_dax_capable, &blocksize);
+
+out:
+	dm_put_live_table(md, srcu_idx);
+
+	return ret;
+}
+
+>>>>>>> upstream/android-13
 static size_t dm_dax_copy_from_iter(struct dax_device *dax_dev, pgoff_t pgoff,
 				    void *addr, size_t bytes, struct iov_iter *i)
 {
@@ -1120,9 +1441,43 @@ static size_t dm_dax_copy_to_iter(struct dax_device *dax_dev, pgoff_t pgoff,
 	return ret;
 }
 
+<<<<<<< HEAD
 /*
  * A target may call dm_accept_partial_bio only from the map routine.  It is
  * allowed for all bio types except REQ_PREFLUSH and REQ_OP_ZONE_RESET.
+=======
+static int dm_dax_zero_page_range(struct dax_device *dax_dev, pgoff_t pgoff,
+				  size_t nr_pages)
+{
+	struct mapped_device *md = dax_get_private(dax_dev);
+	sector_t sector = pgoff * PAGE_SECTORS;
+	struct dm_target *ti;
+	int ret = -EIO;
+	int srcu_idx;
+
+	ti = dm_dax_get_live_target(md, sector, &srcu_idx);
+
+	if (!ti)
+		goto out;
+	if (WARN_ON(!ti->type->dax_zero_page_range)) {
+		/*
+		 * ->zero_page_range() is mandatory dax operation. If we are
+		 *  here, something is wrong.
+		 */
+		goto out;
+	}
+	ret = ti->type->dax_zero_page_range(ti, pgoff, nr_pages);
+ out:
+	dm_put_live_table(md, srcu_idx);
+
+	return ret;
+}
+
+/*
+ * A target may call dm_accept_partial_bio only from the map routine.  It is
+ * allowed for all bio types except REQ_PREFLUSH, REQ_OP_ZONE_* zone management
+ * operations and REQ_OP_ZONE_APPEND (zone append writes).
+>>>>>>> upstream/android-13
  *
  * dm_accept_partial_bio informs the dm that the target only wants to process
  * additional n_sectors sectors of the bio and the rest of the data should be
@@ -1152,14 +1507,25 @@ void dm_accept_partial_bio(struct bio *bio, unsigned n_sectors)
 {
 	struct dm_target_io *tio = container_of(bio, struct dm_target_io, clone);
 	unsigned bi_size = bio->bi_iter.bi_size >> SECTOR_SHIFT;
+<<<<<<< HEAD
 	BUG_ON(bio->bi_opf & REQ_PREFLUSH);
 	BUG_ON(bi_size > *tio->len_ptr);
 	BUG_ON(n_sectors > bi_size);
+=======
+
+	BUG_ON(bio->bi_opf & REQ_PREFLUSH);
+	BUG_ON(op_is_zone_mgmt(bio_op(bio)));
+	BUG_ON(bio_op(bio) == REQ_OP_ZONE_APPEND);
+	BUG_ON(bi_size > *tio->len_ptr);
+	BUG_ON(n_sectors > bi_size);
+
+>>>>>>> upstream/android-13
 	*tio->len_ptr -= bi_size - n_sectors;
 	bio->bi_iter.bi_size = n_sectors << SECTOR_SHIFT;
 }
 EXPORT_SYMBOL_GPL(dm_accept_partial_bio);
 
+<<<<<<< HEAD
 /*
  * The zone descriptors obtained with a zone report indicate zone positions
  * within the target backing device, regardless of that device is a partition
@@ -1251,6 +1617,23 @@ void dm_remap_zone_report(struct dm_target *ti, struct bio *bio, sector_t start)
 #endif
 }
 EXPORT_SYMBOL_GPL(dm_remap_zone_report);
+=======
+static noinline void __set_swap_bios_limit(struct mapped_device *md, int latch)
+{
+	mutex_lock(&md->swap_bios_lock);
+	while (latch < md->swap_bios) {
+		cond_resched();
+		down(&md->swap_bios_semaphore);
+		md->swap_bios--;
+	}
+	while (latch > md->swap_bios) {
+		cond_resched();
+		up(&md->swap_bios_semaphore);
+		md->swap_bios++;
+	}
+	mutex_unlock(&md->swap_bios_lock);
+}
+>>>>>>> upstream/android-13
 
 static blk_qc_t __map_bio(struct dm_target_io *tio)
 {
@@ -1258,7 +1641,10 @@ static blk_qc_t __map_bio(struct dm_target_io *tio)
 	sector_t sector;
 	struct bio *clone = &tio->clone;
 	struct dm_io *io = tio->io;
+<<<<<<< HEAD
 	struct mapped_device *md = io->md;
+=======
+>>>>>>> upstream/android-13
 	struct dm_target *ti = tio->ti;
 	blk_qc_t ret = BLK_QC_T_NONE;
 
@@ -1269,15 +1655,40 @@ static blk_qc_t __map_bio(struct dm_target_io *tio)
 	 * anything, the target has assumed ownership of
 	 * this io.
 	 */
+<<<<<<< HEAD
 	atomic_inc(&io->io_count);
 	sector = clone->bi_iter.bi_sector;
 
 	r = ti->type->map(ti, clone);
+=======
+	dm_io_inc_pending(io);
+	sector = clone->bi_iter.bi_sector;
+
+	if (unlikely(swap_bios_limit(ti, clone))) {
+		struct mapped_device *md = io->md;
+		int latch = get_swap_bios();
+		if (unlikely(latch != md->swap_bios))
+			__set_swap_bios_limit(md, latch);
+		down(&md->swap_bios_semaphore);
+	}
+
+	/*
+	 * Check if the IO needs a special mapping due to zone append emulation
+	 * on zoned target. In this case, dm_zone_map_bio() calls the target
+	 * map operation.
+	 */
+	if (dm_emulate_zone_append(io->md))
+		r = dm_zone_map_bio(tio);
+	else
+		r = ti->type->map(ti, clone);
+
+>>>>>>> upstream/android-13
 	switch (r) {
 	case DM_MAPIO_SUBMITTED:
 		break;
 	case DM_MAPIO_REMAPPED:
 		/* the bio has been remapped so dispatch it */
+<<<<<<< HEAD
 		trace_block_bio_remap(clone->bi_disk->queue, clone,
 				      bio_dev(io->orig_bio), sector);
 		if (md->type == DM_TYPE_NVME_BIO_BASED)
@@ -1292,6 +1703,26 @@ static blk_qc_t __map_bio(struct dm_target_io *tio)
 	case DM_MAPIO_REQUEUE:
 		free_tio(tio);
 		dec_pending(io, BLK_STS_DM_REQUEUE);
+=======
+		trace_block_bio_remap(clone, bio_dev(io->orig_bio), sector);
+		ret = submit_bio_noacct(clone);
+		break;
+	case DM_MAPIO_KILL:
+		if (unlikely(swap_bios_limit(ti, clone))) {
+			struct mapped_device *md = io->md;
+			up(&md->swap_bios_semaphore);
+		}
+		free_tio(tio);
+		dm_io_dec_pending(io, BLK_STS_IOERR);
+		break;
+	case DM_MAPIO_REQUEUE:
+		if (unlikely(swap_bios_limit(ti, clone))) {
+			struct mapped_device *md = io->md;
+			up(&md->swap_bios_semaphore);
+		}
+		free_tio(tio);
+		dm_io_dec_pending(io, BLK_STS_DM_REQUEUE);
+>>>>>>> upstream/android-13
 		break;
 	default:
 		DMWARN("unimplemented target map return value: %d", r);
@@ -1314,6 +1745,7 @@ static int clone_bio(struct dm_target_io *tio, struct bio *bio,
 		     sector_t sector, unsigned len)
 {
 	struct bio *clone = &tio->clone;
+<<<<<<< HEAD
 
 	__bio_clone_fast(clone, bio);
 
@@ -1321,6 +1753,17 @@ static int clone_bio(struct dm_target_io *tio, struct bio *bio,
 
 	if (unlikely(bio_integrity(bio) != NULL)) {
 		int r;
+=======
+	int r;
+
+	__bio_clone_fast(clone, bio);
+
+	r = bio_crypt_clone(clone, bio, GFP_NOIO);
+	if (r < 0)
+		return r;
+
+	if (bio_integrity(bio)) {
+>>>>>>> upstream/android-13
 		if (unlikely(!dm_target_has_integrity(tio->ti->type) &&
 			     !dm_target_passes_integrity(tio->ti->type))) {
 			DMWARN("%s: the target %s doesn't support integrity data.",
@@ -1334,11 +1777,18 @@ static int clone_bio(struct dm_target_io *tio, struct bio *bio,
 			return r;
 	}
 
+<<<<<<< HEAD
 	if (bio_op(bio) != REQ_OP_ZONE_REPORT)
 		bio_advance(clone, to_bytes(sector - clone->bi_iter.bi_sector));
 	clone->bi_iter.bi_size = to_bytes(len);
 
 	if (unlikely(bio_integrity(bio) != NULL))
+=======
+	bio_advance(clone, to_bytes(sector - clone->bi_iter.bi_sector));
+	clone->bi_iter.bi_size = to_bytes(len);
+
+	if (bio_integrity(bio))
+>>>>>>> upstream/android-13
 		bio_integrity_trim(clone);
 
 	return 0;
@@ -1417,11 +1867,31 @@ static int __send_empty_flush(struct clone_info *ci)
 {
 	unsigned target_nr = 0;
 	struct dm_target *ti;
+<<<<<<< HEAD
+=======
+	struct bio flush_bio;
+
+	/*
+	 * Use an on-stack bio for this, it's safe since we don't
+	 * need to reference it after submit. It's just used as
+	 * the basis for the clone(s).
+	 */
+	bio_init(&flush_bio, NULL, 0);
+	flush_bio.bi_opf = REQ_OP_WRITE | REQ_PREFLUSH | REQ_SYNC;
+	bio_set_dev(&flush_bio, ci->io->md->disk->part0);
+
+	ci->bio = &flush_bio;
+	ci->sector_count = 0;
+>>>>>>> upstream/android-13
 
 	BUG_ON(bio_has_data(ci->bio));
 	while ((ti = dm_table_get_target(ci->map, target_nr++)))
 		__send_duplicate_bios(ci, ti, ti->num_flush_bios, NULL);
 
+<<<<<<< HEAD
+=======
+	bio_uninit(ci->bio);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1444,6 +1914,7 @@ static int __clone_and_map_data_bio(struct clone_info *ci, struct dm_target *ti,
 	return 0;
 }
 
+<<<<<<< HEAD
 typedef unsigned (*get_num_bios_fn)(struct dm_target *ti);
 
 static unsigned get_num_discard_bios(struct dm_target *ti)
@@ -1479,6 +1950,12 @@ static int __send_changing_extent_only(struct clone_info *ci, struct dm_target *
 {
 	unsigned len;
 	unsigned num_bios;
+=======
+static int __send_changing_extent_only(struct clone_info *ci, struct dm_target *ti,
+				       unsigned num_bios)
+{
+	unsigned len;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Even though the device advertised support for this type of
@@ -1486,6 +1963,7 @@ static int __send_changing_extent_only(struct clone_info *ci, struct dm_target *
 	 * reconfiguration might also have changed that since the
 	 * check was performed.
 	 */
+<<<<<<< HEAD
 	num_bios = get_num_bios ? get_num_bios(ti) : 0;
 	if (!num_bios)
 		return -EOPNOTSUPP;
@@ -1494,6 +1972,13 @@ static int __send_changing_extent_only(struct clone_info *ci, struct dm_target *
 		len = min((sector_t)ci->sector_count, max_io_len_target_boundary(ci->sector, ti));
 	else
 		len = min((sector_t)ci->sector_count, max_io_len(ci->sector, ti));
+=======
+	if (!num_bios)
+		return -EOPNOTSUPP;
+
+	len = min_t(sector_t, ci->sector_count,
+		    max_io_len_target_boundary(ti, dm_target_offset(ti, ci->sector)));
+>>>>>>> upstream/android-13
 
 	__send_duplicate_bios(ci, ti, num_bios, &len);
 
@@ -1503,6 +1988,7 @@ static int __send_changing_extent_only(struct clone_info *ci, struct dm_target *
 	return 0;
 }
 
+<<<<<<< HEAD
 static int __send_discard(struct clone_info *ci, struct dm_target *ti)
 {
 	return __send_changing_extent_only(ci, ti, get_num_discard_bios,
@@ -1522,12 +2008,29 @@ static int __send_write_same(struct clone_info *ci, struct dm_target *ti)
 static int __send_write_zeroes(struct clone_info *ci, struct dm_target *ti)
 {
 	return __send_changing_extent_only(ci, ti, get_num_write_zeroes_bios, NULL);
+=======
+static bool is_abnormal_io(struct bio *bio)
+{
+	bool r = false;
+
+	switch (bio_op(bio)) {
+	case REQ_OP_DISCARD:
+	case REQ_OP_SECURE_ERASE:
+	case REQ_OP_WRITE_SAME:
+	case REQ_OP_WRITE_ZEROES:
+		r = true;
+		break;
+	}
+
+	return r;
+>>>>>>> upstream/android-13
 }
 
 static bool __process_abnormal_io(struct clone_info *ci, struct dm_target *ti,
 				  int *result)
 {
 	struct bio *bio = ci->bio;
+<<<<<<< HEAD
 
 	if (bio_op(bio) == REQ_OP_DISCARD)
 		*result = __send_discard(ci, ti);
@@ -1540,6 +2043,28 @@ static bool __process_abnormal_io(struct clone_info *ci, struct dm_target *ti,
 	else
 		return false;
 
+=======
+	unsigned num_bios = 0;
+
+	switch (bio_op(bio)) {
+	case REQ_OP_DISCARD:
+		num_bios = ti->num_discard_bios;
+		break;
+	case REQ_OP_SECURE_ERASE:
+		num_bios = ti->num_secure_erase_bios;
+		break;
+	case REQ_OP_WRITE_SAME:
+		num_bios = ti->num_write_same_bios;
+		break;
+	case REQ_OP_WRITE_ZEROES:
+		num_bios = ti->num_write_zeroes_bios;
+		break;
+	default:
+		return false;
+	}
+
+	*result = __send_changing_extent_only(ci, ti, num_bios);
+>>>>>>> upstream/android-13
 	return true;
 }
 
@@ -1548,12 +2073,16 @@ static bool __process_abnormal_io(struct clone_info *ci, struct dm_target *ti,
  */
 static int __split_and_process_non_flush(struct clone_info *ci)
 {
+<<<<<<< HEAD
 	struct bio *bio = ci->bio;
+=======
+>>>>>>> upstream/android-13
 	struct dm_target *ti;
 	unsigned len;
 	int r;
 
 	ti = dm_table_find_target(ci->map, ci->sector);
+<<<<<<< HEAD
 	if (!dm_target_is_valid(ti))
 		return -EIO;
 
@@ -1565,6 +2094,15 @@ static int __split_and_process_non_flush(struct clone_info *ci)
 	else
 		len = min_t(sector_t, max_io_len(ci->sector, ti),
 			    ci->sector_count);
+=======
+	if (!ti)
+		return -EIO;
+
+	if (__process_abnormal_io(ci, ti, &r))
+		return r;
+
+	len = min_t(sector_t, max_io_len(ti, ci->sector), ci->sector_count);
+>>>>>>> upstream/android-13
 
 	r = __clone_and_map_data_bio(ci, ti, ci->sector, &len);
 	if (r < 0)
@@ -1594,6 +2132,7 @@ static blk_qc_t __split_and_process_bio(struct mapped_device *md,
 	blk_qc_t ret = BLK_QC_T_NONE;
 	int error = 0;
 
+<<<<<<< HEAD
 	if (unlikely(!map)) {
 		bio_io_error(bio);
 		return ret;
@@ -1609,12 +2148,21 @@ static blk_qc_t __split_and_process_bio(struct mapped_device *md,
 		error = __send_empty_flush(&ci);
 		/* dec_pending submits any data associated with flush */
 	} else if (bio_op(bio) == REQ_OP_ZONE_RESET) {
+=======
+	init_clone_info(&ci, md, map, bio);
+
+	if (bio->bi_opf & REQ_PREFLUSH) {
+		error = __send_empty_flush(&ci);
+		/* dm_io_dec_pending submits any data associated with flush */
+	} else if (op_is_zone_mgmt(bio_op(bio))) {
+>>>>>>> upstream/android-13
 		ci.bio = bio;
 		ci.sector_count = 0;
 		error = __split_and_process_non_flush(&ci);
 	} else {
 		ci.bio = bio;
 		ci.sector_count = bio_sectors(bio);
+<<<<<<< HEAD
 		while (ci.sector_count && !error) {
 			error = __split_and_process_non_flush(&ci);
 			if (current->bio_list && ci.sector_count && !error) {
@@ -1700,12 +2248,44 @@ static blk_qc_t __dm_make_request(struct request_queue *q, struct bio *bio,
 				  process_bio_fn process_bio)
 {
 	struct mapped_device *md = q->queuedata;
+=======
+		error = __split_and_process_non_flush(&ci);
+		if (ci.sector_count && !error) {
+			/*
+			 * Remainder must be passed to submit_bio_noacct()
+			 * so that it gets handled *after* bios already submitted
+			 * have been completely processed.
+			 * We take a clone of the original to store in
+			 * ci.io->orig_bio to be used by end_io_acct() and
+			 * for dec_pending to use for completion handling.
+			 */
+			struct bio *b = bio_split(bio, bio_sectors(bio) - ci.sector_count,
+						  GFP_NOIO, &md->queue->bio_split);
+			ci.io->orig_bio = b;
+
+			bio_chain(b, bio);
+			trace_block_split(b, bio->bi_iter.bi_sector);
+			ret = submit_bio_noacct(bio);
+		}
+	}
+	start_io_acct(ci.io);
+
+	/* drop the extra reference count */
+	dm_io_dec_pending(ci.io, errno_to_blk_status(error));
+	return ret;
+}
+
+static blk_qc_t dm_submit_bio(struct bio *bio)
+{
+	struct mapped_device *md = bio->bi_bdev->bd_disk->private_data;
+>>>>>>> upstream/android-13
 	blk_qc_t ret = BLK_QC_T_NONE;
 	int srcu_idx;
 	struct dm_table *map;
 
 	map = dm_get_live_table(md, &srcu_idx);
 
+<<<<<<< HEAD
 	/* if we're suspended, we have to queue this io for later */
 	if (unlikely(test_bit(DMF_BLOCK_IO_FOR_SUSPEND, &md->flags))) {
 		dm_put_live_table(md, srcu_idx);
@@ -1719,10 +2299,34 @@ static blk_qc_t __dm_make_request(struct request_queue *q, struct bio *bio,
 
 	ret = process_bio(md, map, bio);
 
+=======
+	/* If suspended, or map not yet available, queue this IO for later */
+	if (unlikely(test_bit(DMF_BLOCK_IO_FOR_SUSPEND, &md->flags)) ||
+	    unlikely(!map)) {
+		if (bio->bi_opf & REQ_NOWAIT)
+			bio_wouldblock_error(bio);
+		else if (bio->bi_opf & REQ_RAHEAD)
+			bio_io_error(bio);
+		else
+			queue_io(md, bio);
+		goto out;
+	}
+
+	/*
+	 * Use blk_queue_split() for abnormal IO (e.g. discard, writesame, etc)
+	 * otherwise associated queue_limits won't be imposed.
+	 */
+	if (is_abnormal_io(bio))
+		blk_queue_split(&bio);
+
+	ret = __split_and_process_bio(md, map, bio);
+out:
+>>>>>>> upstream/android-13
 	dm_put_live_table(md, srcu_idx);
 	return ret;
 }
 
+<<<<<<< HEAD
 /*
  * The request function that remaps the bio to one target and
  * splits off any remainder.
@@ -1761,6 +2365,8 @@ static int dm_any_congested(void *congested_data, int bdi_bits)
 	return r;
 }
 
+=======
+>>>>>>> upstream/android-13
 /*-----------------------------------------------------------------
  * An IDR is used to keep track of allocated minor numbers.
  *---------------------------------------------------------------*/
@@ -1811,10 +2417,15 @@ static int next_free_minor(int *minor)
 }
 
 static const struct block_device_operations dm_blk_dops;
+<<<<<<< HEAD
+=======
+static const struct block_device_operations dm_rq_blk_dops;
+>>>>>>> upstream/android-13
 static const struct dax_operations dm_dax_ops;
 
 static void dm_wq_work(struct work_struct *work);
 
+<<<<<<< HEAD
 static void dm_init_normal_md_queue(struct mapped_device *md)
 {
 	md->use_blk_mq = false;
@@ -1827,13 +2438,30 @@ static void dm_init_normal_md_queue(struct mapped_device *md)
 }
 
 static void dm_destroy_inline_encryption(struct request_queue *q);
+=======
+#ifdef CONFIG_BLK_INLINE_ENCRYPTION
+static void dm_queue_destroy_keyslot_manager(struct request_queue *q)
+{
+	dm_destroy_keyslot_manager(q->ksm);
+}
+
+#else /* CONFIG_BLK_INLINE_ENCRYPTION */
+
+static inline void dm_queue_destroy_keyslot_manager(struct request_queue *q)
+{
+}
+#endif /* !CONFIG_BLK_INLINE_ENCRYPTION */
+>>>>>>> upstream/android-13
 
 static void cleanup_mapped_device(struct mapped_device *md)
 {
 	if (md->wq)
 		destroy_workqueue(md->wq);
+<<<<<<< HEAD
 	if (md->kworker_task)
 		kthread_stop(md->kworker_task);
+=======
+>>>>>>> upstream/android-13
 	bioset_exit(&md->bs);
 	bioset_exit(&md->io_bs);
 
@@ -1843,10 +2471,15 @@ static void cleanup_mapped_device(struct mapped_device *md)
 		md->dax_dev = NULL;
 	}
 
+<<<<<<< HEAD
+=======
+	dm_cleanup_zoned_dev(md);
+>>>>>>> upstream/android-13
 	if (md->disk) {
 		spin_lock(&_minor_lock);
 		md->disk->private_data = NULL;
 		spin_unlock(&_minor_lock);
+<<<<<<< HEAD
 		del_gendisk(md->disk);
 		put_disk(md->disk);
 	}
@@ -1854,10 +2487,24 @@ static void cleanup_mapped_device(struct mapped_device *md)
 	if (md->queue) {
 		dm_destroy_inline_encryption(md->queue);
 		blk_cleanup_queue(md->queue);
+=======
+		if (dm_get_md_type(md) != DM_TYPE_NONE) {
+			dm_sysfs_exit(md);
+			del_gendisk(md->disk);
+		}
+		dm_queue_destroy_keyslot_manager(md->queue);
+		blk_cleanup_disk(md->disk);
+	}
+
+	if (md->pending_io) {
+		free_percpu(md->pending_io);
+		md->pending_io = NULL;
+>>>>>>> upstream/android-13
 	}
 
 	cleanup_srcu_struct(&md->io_barrier);
 
+<<<<<<< HEAD
 	if (md->bdev) {
 		bdput(md->bdev);
 		md->bdev = NULL;
@@ -1866,6 +2513,12 @@ static void cleanup_mapped_device(struct mapped_device *md)
 	mutex_destroy(&md->suspend_lock);
 	mutex_destroy(&md->type_lock);
 	mutex_destroy(&md->table_devices_lock);
+=======
+	mutex_destroy(&md->suspend_lock);
+	mutex_destroy(&md->type_lock);
+	mutex_destroy(&md->table_devices_lock);
+	mutex_destroy(&md->swap_bios_lock);
+>>>>>>> upstream/android-13
 
 	dm_mq_cleanup_mapped_device(md);
 }
@@ -1876,7 +2529,10 @@ static void cleanup_mapped_device(struct mapped_device *md)
 static struct mapped_device *alloc_dev(int minor)
 {
 	int r, numa_node_id = dm_get_numa_node();
+<<<<<<< HEAD
 	struct dax_device *dax_dev = NULL;
+=======
+>>>>>>> upstream/android-13
 	struct mapped_device *md;
 	void *old_md;
 
@@ -1902,7 +2558,10 @@ static struct mapped_device *alloc_dev(int minor)
 		goto bad_io_barrier;
 
 	md->numa_node_id = numa_node_id;
+<<<<<<< HEAD
 	md->use_blk_mq = dm_use_blk_mq_default();
+=======
+>>>>>>> upstream/android-13
 	md->init_tio_pdu = false;
 	md->type = DM_TYPE_NONE;
 	mutex_init(&md->suspend_lock);
@@ -1917,6 +2576,7 @@ static struct mapped_device *alloc_dev(int minor)
 	INIT_LIST_HEAD(&md->table_devices);
 	spin_lock_init(&md->uevent_lock);
 
+<<<<<<< HEAD
 	md->queue = blk_alloc_queue_node(GFP_KERNEL, numa_node_id, NULL);
 	if (!md->queue)
 		goto bad;
@@ -1934,20 +2594,44 @@ static struct mapped_device *alloc_dev(int minor)
 
 	atomic_set(&md->pending[0], 0);
 	atomic_set(&md->pending[1], 0);
+=======
+	/*
+	 * default to bio-based until DM table is loaded and md->type
+	 * established. If request-based table is loaded: blk-mq will
+	 * override accordingly.
+	 */
+	md->disk = blk_alloc_disk(md->numa_node_id);
+	if (!md->disk)
+		goto bad;
+	md->queue = md->disk->queue;
+
+>>>>>>> upstream/android-13
 	init_waitqueue_head(&md->wait);
 	INIT_WORK(&md->work, dm_wq_work);
 	init_waitqueue_head(&md->eventq);
 	init_completion(&md->kobj_holder.completion);
+<<<<<<< HEAD
 	md->kworker_task = NULL;
 
 	md->disk->major = _major;
 	md->disk->first_minor = minor;
+=======
+
+	md->swap_bios = get_swap_bios();
+	sema_init(&md->swap_bios_semaphore, md->swap_bios);
+	mutex_init(&md->swap_bios_lock);
+
+	md->disk->major = _major;
+	md->disk->first_minor = minor;
+	md->disk->minors = 1;
+>>>>>>> upstream/android-13
 	md->disk->fops = &dm_blk_dops;
 	md->disk->queue = md->queue;
 	md->disk->private_data = md;
 	sprintf(md->disk->disk_name, "dm-%d", minor);
 
 	if (IS_ENABLED(CONFIG_DAX_DRIVER)) {
+<<<<<<< HEAD
 		dax_dev = alloc_dax(md, md->disk->disk_name, &dm_dax_ops);
 		if (!dax_dev)
 			goto bad;
@@ -1955,12 +2639,23 @@ static struct mapped_device *alloc_dev(int minor)
 	md->dax_dev = dax_dev;
 
 	add_disk_no_queue_reg(md->disk);
+=======
+		md->dax_dev = alloc_dax(md, md->disk->disk_name,
+					&dm_dax_ops, 0);
+		if (IS_ERR(md->dax_dev)) {
+			md->dax_dev = NULL;
+			goto bad;
+		}
+	}
+
+>>>>>>> upstream/android-13
 	format_dev_t(md->name, MKDEV(_major, minor));
 
 	md->wq = alloc_workqueue("kdmflush", WQ_MEM_RECLAIM, 0);
 	if (!md->wq)
 		goto bad;
 
+<<<<<<< HEAD
 	md->bdev = bdget_disk(md->disk, 0);
 	if (!md->bdev)
 		goto bad;
@@ -1969,6 +2664,12 @@ static struct mapped_device *alloc_dev(int minor)
 	bio_set_dev(&md->flush_bio, md->bdev);
 	md->flush_bio.bi_opf = REQ_OP_WRITE | REQ_PREFLUSH | REQ_SYNC;
 
+=======
+	md->pending_io = alloc_percpu(unsigned long);
+	if (!md->pending_io)
+		goto bad;
+
+>>>>>>> upstream/android-13
 	dm_stats_init(&md->stats);
 
 	/* Populate the mapping, nobody knows we exist yet */
@@ -2072,6 +2773,7 @@ static void event_callback(void *context)
 }
 
 /*
+<<<<<<< HEAD
  * Protected by md->suspend_lock obtained by dm_swap_table().
  */
 static void __set_size(struct mapped_device *md, sector_t size)
@@ -2084,6 +2786,8 @@ static void __set_size(struct mapped_device *md, sector_t size)
 }
 
 /*
+=======
+>>>>>>> upstream/android-13
  * Returns old map, which caller must destroy.
  */
 static struct dm_table *__bind(struct mapped_device *md, struct dm_table *t,
@@ -2105,7 +2809,14 @@ static struct dm_table *__bind(struct mapped_device *md, struct dm_table *t,
 	if (size != dm_get_size(md))
 		memset(&md->geometry, 0, sizeof(md->geometry));
 
+<<<<<<< HEAD
 	__set_size(md, size);
+=======
+	if (!get_capacity(md->disk))
+		set_capacity(md->disk, size);
+	else
+		set_capacity_and_notify(md->disk, size);
+>>>>>>> upstream/android-13
 
 	dm_table_event_callback(t, event_callback, md);
 
@@ -2119,12 +2830,19 @@ static struct dm_table *__bind(struct mapped_device *md, struct dm_table *t,
 	if (request_based)
 		dm_stop_queue(q);
 
+<<<<<<< HEAD
 	if (request_based || md->type == DM_TYPE_NVME_BIO_BASED) {
 		/*
 		 * Leverage the fact that request-based DM targets and
 		 * NVMe bio based targets are immutable singletons
 		 * - used to optimize both dm_request_fn and dm_mq_queue_rq;
 		 *   and __process_bio.
+=======
+	if (request_based) {
+		/*
+		 * Leverage the fact that request-based DM targets are
+		 * immutable singletons - used to optimize dm_mq_queue_rq.
+>>>>>>> upstream/android-13
 		 */
 		md->immutable_target = dm_table_get_immutable_target(t);
 	}
@@ -2135,11 +2853,23 @@ static struct dm_table *__bind(struct mapped_device *md, struct dm_table *t,
 		goto out;
 	}
 
+<<<<<<< HEAD
+=======
+	ret = dm_table_set_restrictions(t, q, limits);
+	if (ret) {
+		old_map = ERR_PTR(ret);
+		goto out;
+	}
+
+>>>>>>> upstream/android-13
 	old_map = rcu_dereference_protected(md->map, lockdep_is_held(&md->suspend_lock));
 	rcu_assign_pointer(md->map, (void *)t);
 	md->immutable_target_type = dm_table_get_immutable_target_type(t);
 
+<<<<<<< HEAD
 	dm_table_set_restrictions(t, q, limits);
+=======
+>>>>>>> upstream/android-13
 	if (old_map)
 		dm_sync_table(md);
 
@@ -2169,18 +2899,25 @@ static struct dm_table *__unbind(struct mapped_device *md)
  */
 int dm_create(int minor, struct mapped_device **result)
 {
+<<<<<<< HEAD
 	int r;
+=======
+>>>>>>> upstream/android-13
 	struct mapped_device *md;
 
 	md = alloc_dev(minor);
 	if (!md)
 		return -ENXIO;
 
+<<<<<<< HEAD
 	r = dm_sysfs_init(md);
 	if (r) {
 		free_dev(md);
 		return r;
 	}
+=======
+	dm_ima_reset_data(md);
+>>>>>>> upstream/android-13
 
 	*result = md;
 	return 0;
@@ -2227,6 +2964,7 @@ struct queue_limits *dm_get_queue_limits(struct mapped_device *md)
 }
 EXPORT_SYMBOL_GPL(dm_get_queue_limits);
 
+<<<<<<< HEAD
 #ifdef CONFIG_BLK_INLINE_ENCRYPTION
 struct dm_keyslot_evict_args {
 	const struct blk_crypto_key *key;
@@ -2395,11 +3133,14 @@ static inline void dm_destroy_inline_encryption(struct request_queue *q)
 }
 #endif /* !CONFIG_BLK_INLINE_ENCRYPTION */
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Setup the DM device's queue based on md's type
  */
 int dm_setup_md_queue(struct mapped_device *md, struct dm_table *t)
 {
+<<<<<<< HEAD
 	int r;
 	struct queue_limits limits;
 	enum dm_queue_mode type = dm_get_md_type(md);
@@ -2417,16 +3158,31 @@ int dm_setup_md_queue(struct mapped_device *md, struct dm_table *t)
 		r = dm_mq_init_request_queue(md, t);
 		if (r) {
 			DMERR("Cannot initialize queue for request-based dm-mq mapped device");
+=======
+	enum dm_queue_mode type = dm_table_get_type(t);
+	struct queue_limits limits;
+	int r;
+
+	switch (type) {
+	case DM_TYPE_REQUEST_BASED:
+		md->disk->fops = &dm_rq_blk_dops;
+		r = dm_mq_init_request_queue(md, t);
+		if (r) {
+			DMERR("Cannot initialize queue for request-based dm mapped device");
+>>>>>>> upstream/android-13
 			return r;
 		}
 		break;
 	case DM_TYPE_BIO_BASED:
 	case DM_TYPE_DAX_BIO_BASED:
+<<<<<<< HEAD
 		dm_init_normal_md_queue(md);
 		break;
 	case DM_TYPE_NVME_BIO_BASED:
 		dm_init_normal_md_queue(md);
 		blk_queue_make_request(md->queue, dm_make_request_nvme);
+=======
+>>>>>>> upstream/android-13
 		break;
 	case DM_TYPE_NONE:
 		WARN_ON_ONCE(true);
@@ -2438,6 +3194,7 @@ int dm_setup_md_queue(struct mapped_device *md, struct dm_table *t)
 		DMERR("Cannot calculate initial queue limits");
 		return r;
 	}
+<<<<<<< HEAD
 
 	r = dm_init_inline_encryption(md);
 	if (r) {
@@ -2448,6 +3205,20 @@ int dm_setup_md_queue(struct mapped_device *md, struct dm_table *t)
 	dm_table_set_restrictions(t, md->queue, &limits);
 	blk_register_queue(md->disk);
 
+=======
+	r = dm_table_set_restrictions(t, md->queue, &limits);
+	if (r)
+		return r;
+
+	add_disk(md->disk);
+
+	r = dm_sysfs_init(md);
+	if (r) {
+		del_gendisk(md->disk);
+		return r;
+	}
+	md->type = type;
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -2522,10 +3293,14 @@ static void __dm_destroy(struct mapped_device *md, bool wait)
 	set_bit(DMF_FREEING, &md->flags);
 	spin_unlock(&_minor_lock);
 
+<<<<<<< HEAD
 	blk_set_queue_dying(md->queue);
 
 	if (dm_request_based(md) && md->kworker_task)
 		kthread_flush_worker(&md->kworker);
+=======
+	blk_mark_disk_dead(md->disk);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Take suspend_lock so that presuspend and postsuspend methods
@@ -2556,7 +3331,10 @@ static void __dm_destroy(struct mapped_device *md, bool wait)
 		DMWARN("%s: Forcibly removing mapped_device still in use! (%d users)",
 		       dm_device_name(md), atomic_read(&md->holders));
 
+<<<<<<< HEAD
 	dm_sysfs_exit(md);
+=======
+>>>>>>> upstream/android-13
 	dm_table_destroy(__unbind(md));
 	free_dev(md);
 }
@@ -2577,15 +3355,37 @@ void dm_put(struct mapped_device *md)
 }
 EXPORT_SYMBOL_GPL(dm_put);
 
+<<<<<<< HEAD
 static int dm_wait_for_completion(struct mapped_device *md, long task_state)
+=======
+static bool dm_in_flight_bios(struct mapped_device *md)
+{
+	int cpu;
+	unsigned long sum = 0;
+
+	for_each_possible_cpu(cpu)
+		sum += *per_cpu_ptr(md->pending_io, cpu);
+
+	return sum != 0;
+}
+
+static int dm_wait_for_bios_completion(struct mapped_device *md, unsigned int task_state)
+>>>>>>> upstream/android-13
 {
 	int r = 0;
 	DEFINE_WAIT(wait);
 
+<<<<<<< HEAD
 	while (1) {
 		prepare_to_wait(&md->wait, &wait, task_state);
 
 		if (!md_in_flight(md))
+=======
+	while (true) {
+		prepare_to_wait(&md->wait, &wait, task_state);
+
+		if (!dm_in_flight_bios(md))
+>>>>>>> upstream/android-13
 			break;
 
 		if (signal_pending_state(task_state, current)) {
@@ -2597,6 +3397,33 @@ static int dm_wait_for_completion(struct mapped_device *md, long task_state)
 	}
 	finish_wait(&md->wait, &wait);
 
+<<<<<<< HEAD
+=======
+	smp_rmb();
+
+	return r;
+}
+
+static int dm_wait_for_completion(struct mapped_device *md, unsigned int task_state)
+{
+	int r = 0;
+
+	if (!queue_is_mq(md->queue))
+		return dm_wait_for_bios_completion(md, task_state);
+
+	while (true) {
+		if (!blk_mq_queue_inflight(md->queue))
+			break;
+
+		if (signal_pending_state(task_state, current)) {
+			r = -EINTR;
+			break;
+		}
+
+		msleep(5);
+	}
+
+>>>>>>> upstream/android-13
 	return r;
 }
 
@@ -2605,6 +3432,7 @@ static int dm_wait_for_completion(struct mapped_device *md, long task_state)
  */
 static void dm_wq_work(struct work_struct *work)
 {
+<<<<<<< HEAD
 	struct mapped_device *md = container_of(work, struct mapped_device,
 						work);
 	struct bio *c;
@@ -2628,6 +3456,21 @@ static void dm_wq_work(struct work_struct *work)
 	}
 
 	dm_put_live_table(md, srcu_idx);
+=======
+	struct mapped_device *md = container_of(work, struct mapped_device, work);
+	struct bio *bio;
+
+	while (!test_bit(DMF_BLOCK_IO_FOR_SUSPEND, &md->flags)) {
+		spin_lock_irq(&md->deferred_lock);
+		bio = bio_list_pop(&md->deferred);
+		spin_unlock_irq(&md->deferred_lock);
+
+		if (!bio)
+			break;
+
+		submit_bio_noacct(bio);
+	}
+>>>>>>> upstream/android-13
 }
 
 static void dm_queue_flush(struct mapped_device *md)
@@ -2689,6 +3532,7 @@ static int lock_fs(struct mapped_device *md)
 {
 	int r;
 
+<<<<<<< HEAD
 	WARN_ON(md->frozen_sb);
 
 	md->frozen_sb = freeze_bdev(md->bdev);
@@ -2701,15 +3545,27 @@ static int lock_fs(struct mapped_device *md)
 	set_bit(DMF_FROZEN, &md->flags);
 
 	return 0;
+=======
+	WARN_ON(test_bit(DMF_FROZEN, &md->flags));
+
+	r = freeze_bdev(md->disk->part0);
+	if (!r)
+		set_bit(DMF_FROZEN, &md->flags);
+	return r;
+>>>>>>> upstream/android-13
 }
 
 static void unlock_fs(struct mapped_device *md)
 {
 	if (!test_bit(DMF_FROZEN, &md->flags))
 		return;
+<<<<<<< HEAD
 
 	thaw_bdev(md->bdev, md->frozen_sb);
 	md->frozen_sb = NULL;
+=======
+	thaw_bdev(md->disk->part0);
+>>>>>>> upstream/android-13
 	clear_bit(DMF_FROZEN, &md->flags);
 }
 
@@ -2723,7 +3579,11 @@ static void unlock_fs(struct mapped_device *md)
  * are being added to md->deferred list.
  */
 static int __dm_suspend(struct mapped_device *md, struct dm_table *map,
+<<<<<<< HEAD
 			unsigned suspend_flags, long task_state,
+=======
+			unsigned suspend_flags, unsigned int task_state,
+>>>>>>> upstream/android-13
 			int dmf_suspended_flag)
 {
 	bool do_lockfs = suspend_flags & DM_SUSPEND_LOCKFS_FLAG;
@@ -2739,7 +3599,11 @@ static int __dm_suspend(struct mapped_device *md, struct dm_table *map,
 	if (noflush)
 		set_bit(DMF_NOFLUSH_SUSPENDING, &md->flags);
 	else
+<<<<<<< HEAD
 		pr_debug("%s: suspending with flush\n", dm_device_name(md));
+=======
+		DMDEBUG("%s: suspending with flush", dm_device_name(md));
+>>>>>>> upstream/android-13
 
 	/*
 	 * This gets reverted if there's an error later and the targets
@@ -2764,6 +3628,7 @@ static int __dm_suspend(struct mapped_device *md, struct dm_table *map,
 	/*
 	 * Here we must make sure that no processes are submitting requests
 	 * to target drivers i.e. no one may be executing
+<<<<<<< HEAD
 	 * __split_and_process_bio. This is called from dm_request and
 	 * dm_wq_work.
 	 *
@@ -2771,6 +3636,14 @@ static int __dm_suspend(struct mapped_device *md, struct dm_table *map,
 	 * we take the write lock. To prevent any process from reentering
 	 * __split_and_process_bio from dm_request and quiesce the thread
 	 * (dm_wq_work), we set BMF_BLOCK_IO_FOR_SUSPEND and call
+=======
+	 * __split_and_process_bio from dm_submit_bio.
+	 *
+	 * To get all processes out of __split_and_process_bio in dm_submit_bio,
+	 * we take the write lock. To prevent any process from reentering
+	 * __split_and_process_bio from dm_submit_bio and quiesce the thread
+	 * (dm_wq_work), we set DMF_BLOCK_IO_FOR_SUSPEND and call
+>>>>>>> upstream/android-13
 	 * flush_workqueue(md->wq).
 	 */
 	set_bit(DMF_BLOCK_IO_FOR_SUSPEND, &md->flags);
@@ -2781,11 +3654,16 @@ static int __dm_suspend(struct mapped_device *md, struct dm_table *map,
 	 * Stop md->queue before flushing md->wq in case request-based
 	 * dm defers requests to md->wq from md->queue.
 	 */
+<<<<<<< HEAD
 	if (dm_request_based(md)) {
 		dm_stop_queue(md->queue);
 		if (md->kworker_task)
 			kthread_flush_worker(&md->kworker);
 	}
+=======
+	if (dm_request_based(md))
+		dm_stop_queue(md->queue);
+>>>>>>> upstream/android-13
 
 	flush_workqueue(md->wq);
 
@@ -3141,19 +4019,31 @@ int dm_test_deferred_remove_flag(struct mapped_device *md)
 
 int dm_suspended(struct dm_target *ti)
 {
+<<<<<<< HEAD
 	return dm_suspended_md(dm_table_get_md(ti->table));
+=======
+	return dm_suspended_md(ti->table->md);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(dm_suspended);
 
 int dm_post_suspending(struct dm_target *ti)
 {
+<<<<<<< HEAD
 	return dm_post_suspending_md(dm_table_get_md(ti->table));
+=======
+	return dm_post_suspending_md(ti->table->md);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(dm_post_suspending);
 
 int dm_noflush_suspending(struct dm_target *ti)
 {
+<<<<<<< HEAD
 	return __noflush_suspending(dm_table_get_md(ti->table));
+=======
+	return __noflush_suspending(ti->table->md);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(dm_noflush_suspending);
 
@@ -3172,10 +4062,16 @@ struct dm_md_mempools *dm_alloc_md_mempools(struct mapped_device *md, enum dm_qu
 	switch (type) {
 	case DM_TYPE_BIO_BASED:
 	case DM_TYPE_DAX_BIO_BASED:
+<<<<<<< HEAD
 	case DM_TYPE_NVME_BIO_BASED:
 		pool_size = max(dm_get_reserved_bio_based_ios(), min_pool_size);
 		front_pad = roundup(per_io_data_size, __alignof__(struct dm_target_io)) + offsetof(struct dm_target_io, clone);
 		io_front_pad = roundup(front_pad,  __alignof__(struct dm_io)) + offsetof(struct dm_io, tio);
+=======
+		pool_size = max(dm_get_reserved_bio_based_ios(), min_pool_size);
+		front_pad = roundup(per_io_data_size, __alignof__(struct dm_target_io)) + DM_TARGET_IO_BIO_OFFSET;
+		io_front_pad = roundup(per_io_data_size,  __alignof__(struct dm_io)) + DM_IO_BIO_OFFSET;
+>>>>>>> upstream/android-13
 		ret = bioset_init(&pools->io_bs, pool_size, io_front_pad, 0);
 		if (ret)
 			goto out;
@@ -3183,7 +4079,10 @@ struct dm_md_mempools *dm_alloc_md_mempools(struct mapped_device *md, enum dm_qu
 			goto out;
 		break;
 	case DM_TYPE_REQUEST_BASED:
+<<<<<<< HEAD
 	case DM_TYPE_MQ_REQUEST_BASED:
+=======
+>>>>>>> upstream/android-13
 		pool_size = max(dm_get_reserved_rq_based_ios(), min_pool_size);
 		front_pad = offsetof(struct dm_rq_clone_bio_info, clone);
 		/* per_io_data_size is used for blk-mq pdu at queue allocation */
@@ -3381,6 +4280,20 @@ static const struct pr_ops dm_pr_ops = {
 };
 
 static const struct block_device_operations dm_blk_dops = {
+<<<<<<< HEAD
+=======
+	.submit_bio = dm_submit_bio,
+	.open = dm_blk_open,
+	.release = dm_blk_close,
+	.ioctl = dm_blk_ioctl,
+	.getgeo = dm_blk_getgeo,
+	.report_zones = dm_blk_report_zones,
+	.pr_ops = &dm_pr_ops,
+	.owner = THIS_MODULE
+};
+
+static const struct block_device_operations dm_rq_blk_dops = {
+>>>>>>> upstream/android-13
 	.open = dm_blk_open,
 	.release = dm_blk_close,
 	.ioctl = dm_blk_ioctl,
@@ -3391,8 +4304,15 @@ static const struct block_device_operations dm_blk_dops = {
 
 static const struct dax_operations dm_dax_ops = {
 	.direct_access = dm_dax_direct_access,
+<<<<<<< HEAD
 	.copy_from_iter = dm_dax_copy_from_iter,
 	.copy_to_iter = dm_dax_copy_to_iter,
+=======
+	.dax_supported = dm_dax_supported,
+	.copy_from_iter = dm_dax_copy_from_iter,
+	.copy_to_iter = dm_dax_copy_to_iter,
+	.zero_page_range = dm_dax_zero_page_range,
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -3410,6 +4330,12 @@ MODULE_PARM_DESC(reserved_bio_based_ios, "Reserved IOs in bio-based mempools");
 module_param(dm_numa_node, int, S_IRUGO | S_IWUSR);
 MODULE_PARM_DESC(dm_numa_node, "NUMA node for DM device memory allocations");
 
+<<<<<<< HEAD
+=======
+module_param(swap_bios, int, S_IRUGO | S_IWUSR);
+MODULE_PARM_DESC(swap_bios, "Maximum allowed inflight swap IOs");
+
+>>>>>>> upstream/android-13
 MODULE_DESCRIPTION(DM_NAME " driver");
 MODULE_AUTHOR("Joe Thornber <dm-devel@redhat.com>");
 MODULE_LICENSE("GPL");

@@ -5,6 +5,10 @@
 #define _DRM_AUDIO_COMPONENT_H_
 
 struct drm_audio_component;
+<<<<<<< HEAD
+=======
+struct device;
+>>>>>>> upstream/android-13
 
 /**
  * struct drm_audio_component_ops - Ops implemented by DRM driver, called by hda driver
@@ -18,14 +22,26 @@ struct drm_audio_component_ops {
 	 * @get_power: get the POWER_DOMAIN_AUDIO power well
 	 *
 	 * Request the power well to be turned on.
+<<<<<<< HEAD
 	 */
 	void (*get_power)(struct device *);
+=======
+	 *
+	 * Returns a wakeref cookie to be passed back to the corresponding
+	 * call to @put_power.
+	 */
+	unsigned long (*get_power)(struct device *);
+>>>>>>> upstream/android-13
 	/**
 	 * @put_power: put the POWER_DOMAIN_AUDIO power well
 	 *
 	 * Allow the power well to be turned off.
 	 */
+<<<<<<< HEAD
 	void (*put_power)(struct device *);
+=======
+	void (*put_power)(struct device *, unsigned long);
+>>>>>>> upstream/android-13
 	/**
 	 * @codec_wake_override: Enable/disable codec wake signal
 	 */
@@ -113,6 +129,13 @@ struct drm_audio_component {
 	 * @audio_ops: Ops implemented by hda driver, called by DRM driver
 	 */
 	const struct drm_audio_component_audio_ops *audio_ops;
+<<<<<<< HEAD
+=======
+	/**
+	 * @master_bind_complete: completion held during component master binding
+	 */
+	struct completion master_bind_complete;
+>>>>>>> upstream/android-13
 };
 
 #endif /* _DRM_AUDIO_COMPONENT_H_ */

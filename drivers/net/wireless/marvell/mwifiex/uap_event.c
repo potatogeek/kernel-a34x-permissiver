@@ -1,10 +1,19 @@
 /*
+<<<<<<< HEAD
  * Marvell Wireless LAN device driver: AP event handling
  *
  * Copyright (C) 2012-2014, Marvell International Ltd.
  *
  * This software file (the "File") is distributed by Marvell International
  * Ltd. under the terms of the GNU General Public License Version 2, June 1991
+=======
+ * NXP Wireless LAN device driver: AP event handling
+ *
+ * Copyright 2011-2020 NXP
+ *
+ * This software file (the "File") is distributed by NXP
+ * under the terms of the GNU General Public License Version 2, June 1991
+>>>>>>> upstream/android-13
  * (the "License").  You may use, redistribute and/or modify this File in
  * accordance with the terms and conditions of the License, a copy of which
  * is available by writing to the Free Software Foundation, Inc.,
@@ -23,8 +32,13 @@
 
 #define MWIFIEX_BSS_START_EVT_FIX_SIZE    12
 
+<<<<<<< HEAD
 static int mwifiex_check_uap_capabilties(struct mwifiex_private *priv,
 					 struct sk_buff *event)
+=======
+static int mwifiex_check_uap_capabilities(struct mwifiex_private *priv,
+					  struct sk_buff *event)
+>>>>>>> upstream/android-13
 {
 	int evt_len;
 	u8 *curr;
@@ -38,7 +52,11 @@ static int mwifiex_check_uap_capabilties(struct mwifiex_private *priv,
 	evt_len = event->len;
 	curr = event->data;
 
+<<<<<<< HEAD
 	mwifiex_dbg_dump(priv->adapter, EVT_D, "uap capabilties:",
+=======
+	mwifiex_dbg_dump(priv->adapter, EVT_D, "uap capabilities:",
+>>>>>>> upstream/android-13
 			 event->data, event->len);
 
 	skb_push(event, MWIFIEX_BSS_START_EVT_FIX_SIZE);
@@ -201,7 +219,11 @@ int mwifiex_process_uap_event(struct mwifiex_private *priv)
 		       ETH_ALEN);
 		if (priv->hist_data)
 			mwifiex_hist_data_reset(priv);
+<<<<<<< HEAD
 		mwifiex_check_uap_capabilties(priv, adapter->event_skb);
+=======
+		mwifiex_check_uap_capabilities(priv, adapter->event_skb);
+>>>>>>> upstream/android-13
 		break;
 	case EVENT_UAP_MIC_COUNTERMEASURES:
 		/* For future development */
@@ -300,7 +322,11 @@ int mwifiex_process_uap_event(struct mwifiex_private *priv)
 		mwifiex_11h_handle_radar_detected(priv, adapter->event_skb);
 		break;
 	case EVENT_BT_COEX_WLAN_PARA_CHANGE:
+<<<<<<< HEAD
 		dev_err(adapter->dev, "EVENT: BT coex wlan param update\n");
+=======
+		mwifiex_dbg(adapter, EVENT, "event: BT coex wlan param update\n");
+>>>>>>> upstream/android-13
 		mwifiex_bt_coex_wlan_param_update_event(priv,
 							adapter->event_skb);
 		break;

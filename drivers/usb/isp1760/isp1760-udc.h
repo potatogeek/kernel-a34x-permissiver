@@ -1,11 +1,23 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0
 /*
  * Driver for the NXP ISP1761 device controller
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+/*
+ * Driver for the NXP ISP1761 device controller
+ *
+ * Copyright 2021 Linaro, Rui Miguel Silva
+>>>>>>> upstream/android-13
  * Copyright 2014 Ideas on Board Oy
  *
  * Contacts:
  *	Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+<<<<<<< HEAD
+=======
+ *	Rui Miguel Silva <rui.silva@linaro.org>
+>>>>>>> upstream/android-13
  */
 
 #ifndef _ISP1760_UDC_H_
@@ -17,6 +29,11 @@
 #include <linux/timer.h>
 #include <linux/usb/gadget.h>
 
+<<<<<<< HEAD
+=======
+#include "isp1760-regs.h"
+
+>>>>>>> upstream/android-13
 struct isp1760_device;
 struct isp1760_udc;
 
@@ -48,7 +65,11 @@ struct isp1760_ep {
  * struct isp1760_udc - UDC state information
  * irq: IRQ number
  * irqname: IRQ name (as passed to request_irq)
+<<<<<<< HEAD
  * regs: Base address of the UDC registers
+=======
+ * regs: regmap for UDC registers
+>>>>>>> upstream/android-13
  * driver: Gadget driver
  * gadget: Gadget device
  * lock: Protects driver, vbus_timer, ep, ep0_*, DC_EPINDEX register
@@ -59,12 +80,21 @@ struct isp1760_ep {
  * connected: Tracks gadget driver bus connection state
  */
 struct isp1760_udc {
+<<<<<<< HEAD
 #ifdef CONFIG_USB_ISP1761_UDC
+=======
+>>>>>>> upstream/android-13
 	struct isp1760_device *isp;
 
 	int irq;
 	char *irqname;
+<<<<<<< HEAD
 	void __iomem *regs;
+=======
+
+	struct regmap *regs;
+	struct regmap_field *fields[DC_FIELD_MAX];
+>>>>>>> upstream/android-13
 
 	struct usb_gadget_driver *driver;
 	struct usb_gadget gadget;
@@ -79,9 +109,15 @@ struct isp1760_udc {
 	u16 ep0_length;
 
 	bool connected;
+<<<<<<< HEAD
 
 	unsigned int devstatus;
 #endif
+=======
+	bool is_isp1763;
+
+	unsigned int devstatus;
+>>>>>>> upstream/android-13
 };
 
 #ifdef CONFIG_USB_ISP1761_UDC

@@ -16,7 +16,11 @@
 
 #include <linux/kernel.h>
 #include <linux/wait.h>
+<<<<<<< HEAD
 #include <linux/spinlock_types.h>
+=======
+#include <linux/mutex.h>
+>>>>>>> upstream/android-13
 #include <linux/device.h>
 #include <linux/cdev.h>
 #include <linux/init.h>
@@ -27,8 +31,11 @@
 #include <linux/interrupt.h>
 #include <linux/param.h>
 #include <linux/fs.h>
+<<<<<<< HEAD
 #include <linux/device.h>
 #include <linux/cdev.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/types.h>
 #include <linux/uaccess.h>
 #include <linux/jiffies.h>
@@ -127,7 +134,10 @@ MODULE_PARM_DESC(write_timeout, "ms to wait before blocking write() timing out; 
 
 struct axis_fifo {
 	int irq; /* interrupt */
+<<<<<<< HEAD
 	struct resource *mem; /* physical memory */
+=======
+>>>>>>> upstream/android-13
 	void __iomem *base_addr; /* kernel space memory */
 
 	unsigned int rx_fifo_depth; /* max words in the receive fifo */
@@ -136,9 +146,15 @@ struct axis_fifo {
 	int has_tx_fifo; /* whether the IP has the tx fifo enabled */
 
 	wait_queue_head_t read_queue; /* wait queue for asynchronos read */
+<<<<<<< HEAD
 	spinlock_t read_queue_lock; /* lock for reading waitqueue */
 	wait_queue_head_t write_queue; /* wait queue for asynchronos write */
 	spinlock_t write_queue_lock; /* lock for writing waitqueue */
+=======
+	struct mutex read_lock; /* lock for reading */
+	wait_queue_head_t write_queue; /* wait queue for asynchronos write */
+	struct mutex write_lock; /* lock for writing */
+>>>>>>> upstream/android-13
 	unsigned int write_flags; /* write file flags */
 	unsigned int read_flags; /* read file flags */
 
@@ -339,7 +355,25 @@ static void reset_ip_core(struct axis_fifo *fifo)
 	iowrite32(XLLF_INT_ALL_MASK, fifo->base_addr + XLLF_ISR_OFFSET);
 }
 
+<<<<<<< HEAD
 /* reads a single packet from the fifo as dictated by the tlast signal */
+=======
+/**
+ * axis_fifo_read() - Read a packet from AXIS-FIFO character device.
+ * @f: Open file.
+ * @buf: User space buffer to read to.
+ * @len: User space buffer length.
+ * @off: Buffer offset.
+ *
+ * As defined by the device's documentation, we need to check the device's
+ * occupancy before reading the length register and then the data. All these
+ * operations must be executed atomically, in order and one after the other
+ * without missing any.
+ *
+ * Returns the number of bytes read from the device or negative error code
+ *	on failure.
+ */
+>>>>>>> upstream/android-13
 static ssize_t axis_fifo_read(struct file *f, char __user *buf,
 			      size_t len, loff_t *off)
 {
@@ -353,16 +387,31 @@ static ssize_t axis_fifo_read(struct file *f, char __user *buf,
 	u32 tmp_buf[READ_BUF_SIZE];
 
 	if (fifo->read_flags & O_NONBLOCK) {
+<<<<<<< HEAD
 		/* opened in non-blocking mode
 		 * return if there are no packets available
 		 */
 		if (!ioread32(fifo->base_addr + XLLF_RDFO_OFFSET))
 			return -EAGAIN;
+=======
+		/*
+		 * Device opened in non-blocking mode. Try to lock it and then
+		 * check if any packet is available.
+		 */
+		if (!mutex_trylock(&fifo->read_lock))
+			return -EAGAIN;
+
+		if (!ioread32(fifo->base_addr + XLLF_RDFO_OFFSET)) {
+			ret = -EAGAIN;
+			goto end_unlock;
+		}
+>>>>>>> upstream/android-13
 	} else {
 		/* opened in blocking mode
 		 * wait for a packet available interrupt (or timeout)
 		 * if nothing is currently available
 		 */
+<<<<<<< HEAD
 		spin_lock_irq(&fifo->read_queue_lock);
 		ret = wait_event_interruptible_lock_irq_timeout(
 			fifo->read_queue,
@@ -383,6 +432,24 @@ static ssize_t axis_fifo_read(struct file *f, char __user *buf,
 			dev_err(fifo->dt_device, "wait_event_interruptible_timeout() error in read (ret=%i)\n",
 				ret);
 			return ret;
+=======
+		mutex_lock(&fifo->read_lock);
+		ret = wait_event_interruptible_timeout(fifo->read_queue,
+			ioread32(fifo->base_addr + XLLF_RDFO_OFFSET),
+				 (read_timeout >= 0) ?
+				  msecs_to_jiffies(read_timeout) :
+				  MAX_SCHEDULE_TIMEOUT);
+
+		if (ret <= 0) {
+			if (ret == 0) {
+				ret = -EAGAIN;
+			} else if (ret != -ERESTARTSYS) {
+				dev_err(fifo->dt_device, "wait_event_interruptible_timeout() error in read (ret=%i)\n",
+					ret);
+			}
+
+			goto end_unlock;
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -390,14 +457,24 @@ static ssize_t axis_fifo_read(struct file *f, char __user *buf,
 	if (!bytes_available) {
 		dev_err(fifo->dt_device, "received a packet of length 0 - fifo core will be reset\n");
 		reset_ip_core(fifo);
+<<<<<<< HEAD
 		return -EIO;
+=======
+		ret = -EIO;
+		goto end_unlock;
+>>>>>>> upstream/android-13
 	}
 
 	if (bytes_available > len) {
 		dev_err(fifo->dt_device, "user read buffer too small (available bytes=%zu user buffer bytes=%zu) - fifo core will be reset\n",
 			bytes_available, len);
 		reset_ip_core(fifo);
+<<<<<<< HEAD
 		return -EINVAL;
+=======
+		ret = -EINVAL;
+		goto end_unlock;
+>>>>>>> upstream/android-13
 	}
 
 	if (bytes_available % sizeof(u32)) {
@@ -406,7 +483,12 @@ static ssize_t axis_fifo_read(struct file *f, char __user *buf,
 		 */
 		dev_err(fifo->dt_device, "received a packet that isn't word-aligned - fifo core will be reset\n");
 		reset_ip_core(fifo);
+<<<<<<< HEAD
 		return -EIO;
+=======
+		ret = -EIO;
+		goto end_unlock;
+>>>>>>> upstream/android-13
 	}
 
 	words_available = bytes_available / sizeof(u32);
@@ -426,16 +508,47 @@ static ssize_t axis_fifo_read(struct file *f, char __user *buf,
 		if (copy_to_user(buf + copied * sizeof(u32), tmp_buf,
 				 copy * sizeof(u32))) {
 			reset_ip_core(fifo);
+<<<<<<< HEAD
 			return -EFAULT;
+=======
+			ret = -EFAULT;
+			goto end_unlock;
+>>>>>>> upstream/android-13
 		}
 
 		copied += copy;
 		words_available -= copy;
 	}
 
+<<<<<<< HEAD
 	return bytes_available;
 }
 
+=======
+	ret = bytes_available;
+
+end_unlock:
+	mutex_unlock(&fifo->read_lock);
+
+	return ret;
+}
+
+/**
+ * axis_fifo_write() - Write buffer to AXIS-FIFO character device.
+ * @f: Open file.
+ * @buf: User space buffer to write to the device.
+ * @len: User space buffer length.
+ * @off: Buffer offset.
+ *
+ * As defined by the device's documentation, we need to write to the device's
+ * data buffer then to the device's packet length register atomically. Also,
+ * we need to lock before checking if the device has available space to avoid
+ * any concurrency issue.
+ *
+ * Returns the number of bytes written to the device or negative error code
+ *	on failure.
+ */
+>>>>>>> upstream/android-13
 static ssize_t axis_fifo_write(struct file *f, const char __user *buf,
 			       size_t len, loff_t *off)
 {
@@ -468,12 +581,26 @@ static ssize_t axis_fifo_write(struct file *f, const char __user *buf,
 	}
 
 	if (fifo->write_flags & O_NONBLOCK) {
+<<<<<<< HEAD
 		/* opened in non-blocking mode
 		 * return if there is not enough room available in the fifo
 		 */
 		if (words_to_write > ioread32(fifo->base_addr +
 					      XLLF_TDFV_OFFSET)) {
 			return -EAGAIN;
+=======
+		/*
+		 * Device opened in non-blocking mode. Try to lock it and then
+		 * check if there is any room to write the given buffer.
+		 */
+		if (!mutex_trylock(&fifo->write_lock))
+			return -EAGAIN;
+
+		if (words_to_write > ioread32(fifo->base_addr +
+					      XLLF_TDFV_OFFSET)) {
+			ret = -EAGAIN;
+			goto end_unlock;
+>>>>>>> upstream/android-13
 		}
 	} else {
 		/* opened in blocking mode */
@@ -481,6 +608,7 @@ static ssize_t axis_fifo_write(struct file *f, const char __user *buf,
 		/* wait for an interrupt (or timeout) if there isn't
 		 * currently enough room in the fifo
 		 */
+<<<<<<< HEAD
 		spin_lock_irq(&fifo->write_queue_lock);
 		ret = wait_event_interruptible_lock_irq_timeout(
 			fifo->write_queue,
@@ -504,6 +632,25 @@ static ssize_t axis_fifo_write(struct file *f, const char __user *buf,
 				"wait_event_interruptible_timeout() error in write (ret=%i)\n",
 				ret);
 			return ret;
+=======
+		mutex_lock(&fifo->write_lock);
+		ret = wait_event_interruptible_timeout(fifo->write_queue,
+			ioread32(fifo->base_addr + XLLF_TDFV_OFFSET)
+				 >= words_to_write,
+				 (write_timeout >= 0) ?
+				  msecs_to_jiffies(write_timeout) :
+				  MAX_SCHEDULE_TIMEOUT);
+
+		if (ret <= 0) {
+			if (ret == 0) {
+				ret = -EAGAIN;
+			} else if (ret != -ERESTARTSYS) {
+				dev_err(fifo->dt_device, "wait_event_interruptible_timeout() error in write (ret=%i)\n",
+					ret);
+			}
+
+			goto end_unlock;
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -517,7 +664,12 @@ static ssize_t axis_fifo_write(struct file *f, const char __user *buf,
 		if (copy_from_user(tmp_buf, buf + copied * sizeof(u32),
 				   copy * sizeof(u32))) {
 			reset_ip_core(fifo);
+<<<<<<< HEAD
 			return -EFAULT;
+=======
+			ret = -EFAULT;
+			goto end_unlock;
+>>>>>>> upstream/android-13
 		}
 
 		for (i = 0; i < copy; i++)
@@ -528,10 +680,22 @@ static ssize_t axis_fifo_write(struct file *f, const char __user *buf,
 		words_to_write -= copy;
 	}
 
+<<<<<<< HEAD
 	/* write packet size to fifo */
 	iowrite32(copied * sizeof(u32), fifo->base_addr + XLLF_TLR_OFFSET);
 
 	return (ssize_t)copied * sizeof(u32);
+=======
+	ret = copied * sizeof(u32);
+
+	/* write packet size to fifo */
+	iowrite32(ret, fifo->base_addr + XLLF_TLR_OFFSET);
+
+end_unlock:
+	mutex_unlock(&fifo->write_lock);
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static irqreturn_t axis_fifo_irq(int irq, void *dw)
@@ -702,6 +866,71 @@ static int get_dts_property(struct axis_fifo *fifo,
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static int axis_fifo_parse_dt(struct axis_fifo *fifo)
+{
+	int ret;
+	unsigned int value;
+
+	ret = get_dts_property(fifo, "xlnx,axi-str-rxd-tdata-width", &value);
+	if (ret) {
+		dev_err(fifo->dt_device, "missing xlnx,axi-str-rxd-tdata-width property\n");
+		goto end;
+	} else if (value != 32) {
+		dev_err(fifo->dt_device, "xlnx,axi-str-rxd-tdata-width only supports 32 bits\n");
+		ret = -EIO;
+		goto end;
+	}
+
+	ret = get_dts_property(fifo, "xlnx,axi-str-txd-tdata-width", &value);
+	if (ret) {
+		dev_err(fifo->dt_device, "missing xlnx,axi-str-txd-tdata-width property\n");
+		goto end;
+	} else if (value != 32) {
+		dev_err(fifo->dt_device, "xlnx,axi-str-txd-tdata-width only supports 32 bits\n");
+		ret = -EIO;
+		goto end;
+	}
+
+	ret = get_dts_property(fifo, "xlnx,rx-fifo-depth",
+			       &fifo->rx_fifo_depth);
+	if (ret) {
+		dev_err(fifo->dt_device, "missing xlnx,rx-fifo-depth property\n");
+		ret = -EIO;
+		goto end;
+	}
+
+	ret = get_dts_property(fifo, "xlnx,tx-fifo-depth",
+			       &fifo->tx_fifo_depth);
+	if (ret) {
+		dev_err(fifo->dt_device, "missing xlnx,tx-fifo-depth property\n");
+		ret = -EIO;
+		goto end;
+	}
+
+	/* IP sets TDFV to fifo depth - 4 so we will do the same */
+	fifo->tx_fifo_depth -= 4;
+
+	ret = get_dts_property(fifo, "xlnx,use-rx-data", &fifo->has_rx_fifo);
+	if (ret) {
+		dev_err(fifo->dt_device, "missing xlnx,use-rx-data property\n");
+		ret = -EIO;
+		goto end;
+	}
+
+	ret = get_dts_property(fifo, "xlnx,use-tx-data", &fifo->has_tx_fifo);
+	if (ret) {
+		dev_err(fifo->dt_device, "missing xlnx,use-tx-data property\n");
+		ret = -EIO;
+		goto end;
+	}
+
+end:
+	return ret;
+}
+
+>>>>>>> upstream/android-13
 static int axis_fifo_probe(struct platform_device *pdev)
 {
 	struct resource *r_irq; /* interrupt resources */
@@ -713,6 +942,7 @@ static int axis_fifo_probe(struct platform_device *pdev)
 
 	int rc = 0; /* error return value */
 
+<<<<<<< HEAD
 	/* IP properties from device tree */
 	unsigned int rxd_tdata_width;
 	unsigned int txc_tdata_width;
@@ -741,6 +971,8 @@ static int axis_fifo_probe(struct platform_device *pdev)
 	unsigned int use_tx_cut_through;
 	unsigned int use_tx_data;
 
+=======
+>>>>>>> upstream/android-13
 	/* ----------------------------
 	 *     init wrapper device
 	 * ----------------------------
@@ -757,8 +989,13 @@ static int axis_fifo_probe(struct platform_device *pdev)
 	init_waitqueue_head(&fifo->read_queue);
 	init_waitqueue_head(&fifo->write_queue);
 
+<<<<<<< HEAD
 	spin_lock_init(&fifo->read_queue_lock);
 	spin_lock_init(&fifo->write_queue_lock);
+=======
+	mutex_init(&fifo->read_lock);
+	mutex_init(&fifo->write_lock);
+>>>>>>> upstream/android-13
 
 	/* ----------------------------
 	 *   init device memory space
@@ -773,6 +1010,7 @@ static int axis_fifo_probe(struct platform_device *pdev)
 		goto err_initial;
 	}
 
+<<<<<<< HEAD
 	fifo->mem = r_mem;
 
 	/* request physical memory */
@@ -794,11 +1032,24 @@ static int axis_fifo_probe(struct platform_device *pdev)
 		rc = -ENOMEM;
 		goto err_mem;
 	}
+=======
+	/* request physical memory */
+	fifo->base_addr = devm_ioremap_resource(fifo->dt_device, r_mem);
+	if (IS_ERR(fifo->base_addr)) {
+		rc = PTR_ERR(fifo->base_addr);
+		goto err_initial;
+	}
+
+>>>>>>> upstream/android-13
 	dev_dbg(fifo->dt_device, "remapped memory to 0x%p\n", fifo->base_addr);
 
 	/* create unique device name */
 	snprintf(device_name, sizeof(device_name), "%s_%pa",
+<<<<<<< HEAD
 		 DRIVER_NAME, &fifo->mem->start);
+=======
+		 DRIVER_NAME, &r_mem->start);
+>>>>>>> upstream/android-13
 
 	dev_dbg(fifo->dt_device, "device name [%s]\n", device_name);
 
@@ -807,6 +1058,7 @@ static int axis_fifo_probe(struct platform_device *pdev)
 	 * ----------------------------
 	 */
 
+<<<<<<< HEAD
 	/* retrieve device tree properties */
 	rc = get_dts_property(fifo, "xlnx,axi-str-rxd-tdata-width",
 			      &rxd_tdata_width);
@@ -965,6 +1217,11 @@ static int axis_fifo_probe(struct platform_device *pdev)
 	fifo->tx_fifo_depth = tx_fifo_depth - 4;
 	fifo->has_rx_fifo = use_rx_data;
 	fifo->has_tx_fifo = use_tx_data;
+=======
+	rc = axis_fifo_parse_dt(fifo);
+	if (rc)
+		goto err_initial;
+>>>>>>> upstream/android-13
 
 	reset_ip_core(fifo);
 
@@ -977,18 +1234,33 @@ static int axis_fifo_probe(struct platform_device *pdev)
 	r_irq = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
 	if (!r_irq) {
 		dev_err(fifo->dt_device, "no IRQ found for 0x%pa\n",
+<<<<<<< HEAD
 			&fifo->mem->start);
 		rc = -EIO;
 		goto err_unmap;
+=======
+			&r_mem->start);
+		rc = -EIO;
+		goto err_initial;
+>>>>>>> upstream/android-13
 	}
 
 	/* request IRQ */
 	fifo->irq = r_irq->start;
+<<<<<<< HEAD
 	rc = request_irq(fifo->irq, &axis_fifo_irq, 0, DRIVER_NAME, fifo);
 	if (rc) {
 		dev_err(fifo->dt_device, "couldn't allocate interrupt %i\n",
 			fifo->irq);
 		goto err_unmap;
+=======
+	rc = devm_request_irq(fifo->dt_device, fifo->irq, &axis_fifo_irq, 0,
+			      DRIVER_NAME, fifo);
+	if (rc) {
+		dev_err(fifo->dt_device, "couldn't allocate interrupt %i\n",
+			fifo->irq);
+		goto err_initial;
+>>>>>>> upstream/android-13
 	}
 
 	/* ----------------------------
@@ -999,7 +1271,11 @@ static int axis_fifo_probe(struct platform_device *pdev)
 	/* allocate device number */
 	rc = alloc_chrdev_region(&fifo->devt, 0, 1, DRIVER_NAME);
 	if (rc < 0)
+<<<<<<< HEAD
 		goto err_irq;
+=======
+		goto err_initial;
+>>>>>>> upstream/android-13
 	dev_dbg(fifo->dt_device, "allocated device number major %i minor %i\n",
 		MAJOR(fifo->devt), MINOR(fifo->devt));
 
@@ -1023,14 +1299,22 @@ static int axis_fifo_probe(struct platform_device *pdev)
 	}
 
 	/* create sysfs entries */
+<<<<<<< HEAD
 	rc = sysfs_create_group(&fifo->device->kobj, &axis_fifo_attrs_group);
+=======
+	rc = devm_device_add_group(fifo->device, &axis_fifo_attrs_group);
+>>>>>>> upstream/android-13
 	if (rc < 0) {
 		dev_err(fifo->dt_device, "couldn't register sysfs group\n");
 		goto err_cdev;
 	}
 
 	dev_info(fifo->dt_device, "axis-fifo created at %pa mapped to 0x%pa, irq=%i, major=%i, minor=%i\n",
+<<<<<<< HEAD
 		 &fifo->mem->start, &fifo->base_addr, fifo->irq,
+=======
+		 &r_mem->start, &fifo->base_addr, fifo->irq,
+>>>>>>> upstream/android-13
 		 MAJOR(fifo->devt), MINOR(fifo->devt));
 
 	return 0;
@@ -1041,12 +1325,15 @@ err_dev:
 	device_destroy(axis_fifo_driver_class, fifo->devt);
 err_chrdev_region:
 	unregister_chrdev_region(fifo->devt, 1);
+<<<<<<< HEAD
 err_irq:
 	free_irq(fifo->irq, fifo);
 err_unmap:
 	iounmap(fifo->base_addr);
 err_mem:
 	release_mem_region(fifo->mem->start, resource_size(fifo->mem));
+=======
+>>>>>>> upstream/android-13
 err_initial:
 	dev_set_drvdata(dev, NULL);
 	return rc;
@@ -1057,15 +1344,23 @@ static int axis_fifo_remove(struct platform_device *pdev)
 	struct device *dev = &pdev->dev;
 	struct axis_fifo *fifo = dev_get_drvdata(dev);
 
+<<<<<<< HEAD
 	sysfs_remove_group(&fifo->device->kobj, &axis_fifo_attrs_group);
+=======
+>>>>>>> upstream/android-13
 	cdev_del(&fifo->char_device);
 	dev_set_drvdata(fifo->device, NULL);
 	device_destroy(axis_fifo_driver_class, fifo->devt);
 	unregister_chrdev_region(fifo->devt, 1);
+<<<<<<< HEAD
 	free_irq(fifo->irq, fifo);
 	iounmap(fifo->base_addr);
 	release_mem_region(fifo->mem->start, resource_size(fifo->mem));
 	dev_set_drvdata(dev, NULL);
+=======
+	dev_set_drvdata(dev, NULL);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1089,6 +1384,11 @@ static int __init axis_fifo_init(void)
 	pr_info("axis-fifo driver loaded with parameters read_timeout = %i, write_timeout = %i\n",
 		read_timeout, write_timeout);
 	axis_fifo_driver_class = class_create(THIS_MODULE, DRIVER_NAME);
+<<<<<<< HEAD
+=======
+	if (IS_ERR(axis_fifo_driver_class))
+		return PTR_ERR(axis_fifo_driver_class);
+>>>>>>> upstream/android-13
 	return platform_driver_register(&axis_fifo_driver);
 }
 

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *
  * Intel Management Engine Interface (Intel MEI) Linux driver
@@ -12,6 +13,12 @@
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+/*
+ * Copyright (c) 2003-2019, Intel Corporation. All rights reserved.
+ * Intel Management Engine Interface (Intel MEI) Linux driver
+>>>>>>> upstream/android-13
  */
 
 #ifndef _MEI_DEV_H_
@@ -67,6 +74,10 @@ enum mei_dev_state {
 	MEI_DEV_ENABLED,
 	MEI_DEV_RESETTING,
 	MEI_DEV_DISABLED,
+<<<<<<< HEAD
+=======
+	MEI_DEV_POWERING_DOWN,
+>>>>>>> upstream/android-13
 	MEI_DEV_POWER_DOWN,
 	MEI_DEV_POWER_UP
 };
@@ -88,6 +99,11 @@ enum mei_file_transaction_states {
  * @MEI_FOP_DISCONNECT_RSP: disconnect response
  * @MEI_FOP_NOTIFY_START:   start notification
  * @MEI_FOP_NOTIFY_STOP:    stop notification
+<<<<<<< HEAD
+=======
+ * @MEI_FOP_DMA_MAP:   request client dma map
+ * @MEI_FOP_DMA_UNMAP: request client dma unmap
+>>>>>>> upstream/android-13
  */
 enum mei_cb_file_ops {
 	MEI_FOP_READ = 0,
@@ -97,6 +113,11 @@ enum mei_cb_file_ops {
 	MEI_FOP_DISCONNECT_RSP,
 	MEI_FOP_NOTIFY_START,
 	MEI_FOP_NOTIFY_STOP,
+<<<<<<< HEAD
+=======
+	MEI_FOP_DMA_MAP,
+	MEI_FOP_DMA_UNMAP,
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -122,6 +143,29 @@ struct mei_msg_data {
 	unsigned char *data;
 };
 
+<<<<<<< HEAD
+=======
+struct mei_dma_data {
+	u8 buffer_id;
+	void *vaddr;
+	dma_addr_t daddr;
+	size_t size;
+};
+
+/**
+ * struct mei_dma_dscr - dma address descriptor
+ *
+ * @vaddr: dma buffer virtual address
+ * @daddr: dma buffer physical address
+ * @size : dma buffer size
+ */
+struct mei_dma_dscr {
+	void *vaddr;
+	dma_addr_t daddr;
+	size_t size;
+};
+
+>>>>>>> upstream/android-13
 /* Maximum number of processed FW status registers */
 #define MEI_FW_STATUS_MAX 6
 /* Minimal  buffer for FW status string (8 bytes in dw + space or '\0') */
@@ -171,6 +215,10 @@ struct mei_cl;
  * @fop_type: file operation type
  * @buf: buffer for data associated with the callback
  * @buf_idx: last read index
+<<<<<<< HEAD
+=======
+ * @vtag: virtual tag
+>>>>>>> upstream/android-13
  * @fp: pointer to file structure
  * @status: io status of the cb
  * @internal: communication between driver and FW flag
@@ -182,6 +230,10 @@ struct mei_cl_cb {
 	enum mei_cb_file_ops fop_type;
 	struct mei_msg_data buf;
 	size_t buf_idx;
+<<<<<<< HEAD
+=======
+	u8 vtag;
+>>>>>>> upstream/android-13
 	const struct file *fp;
 	int status;
 	u32 internal:1;
@@ -189,6 +241,24 @@ struct mei_cl_cb {
 };
 
 /**
+<<<<<<< HEAD
+=======
+ * struct mei_cl_vtag - file pointer to vtag mapping structure
+ *
+ * @list: link in map queue
+ * @fp: file pointer
+ * @vtag: corresponding vtag
+ * @pending_read: the read is pending on this file
+ */
+struct mei_cl_vtag {
+	struct list_head list;
+	const struct file *fp;
+	u8 vtag;
+	u8 pending_read:1;
+};
+
+/**
+>>>>>>> upstream/android-13
  * struct mei_cl - me client host representation
  *    carried in file->private_data
  *
@@ -204,6 +274,10 @@ struct mei_cl_cb {
  * @me_cl: fw client connected
  * @fp: file associated with client
  * @host_client_id: host id
+<<<<<<< HEAD
+=======
+ * @vtag_map: vtag map
+>>>>>>> upstream/android-13
  * @tx_flow_ctrl_creds: transmit flow credentials
  * @rx_flow_ctrl_creds: receive flow credentials
  * @timer_count:  watchdog timer for operation completion
@@ -212,7 +286,14 @@ struct mei_cl_cb {
  * @tx_cb_queued: number of tx callbacks in queue
  * @writing_state: state of the tx
  * @rd_pending: pending read credits
+<<<<<<< HEAD
  * @rd_completed: completed read
+=======
+ * @rd_completed_lock: protects rd_completed queue
+ * @rd_completed: completed read
+ * @dma: dma settings
+ * @dma_mapped: dma buffer is currently mapped.
+>>>>>>> upstream/android-13
  *
  * @cldev: device on the mei client bus
  */
@@ -229,6 +310,10 @@ struct mei_cl {
 	struct mei_me_client *me_cl;
 	const struct file *fp;
 	u8 host_client_id;
+<<<<<<< HEAD
+=======
+	struct list_head vtag_map;
+>>>>>>> upstream/android-13
 	u8 tx_flow_ctrl_creds;
 	u8 rx_flow_ctrl_creds;
 	u8 timer_count;
@@ -237,7 +322,14 @@ struct mei_cl {
 	u8 tx_cb_queued;
 	enum mei_file_transaction_states writing_state;
 	struct list_head rd_pending;
+<<<<<<< HEAD
 	struct list_head rd_completed;
+=======
+	spinlock_t rd_completed_lock; /* protects rd_completed queue */
+	struct list_head rd_completed;
+	struct mei_dma_data dma;
+	u8 dma_mapped;
+>>>>>>> upstream/android-13
 
 	struct mei_cl_device *cldev;
 };
@@ -257,6 +349,10 @@ struct mei_cl {
  * @hw_config        : configure hw
  *
  * @fw_status        : get fw status registers
+<<<<<<< HEAD
+=======
+ * @trc_status       : get trc status register
+>>>>>>> upstream/android-13
  * @pg_state         : power gating state of the device
  * @pg_in_transition : is device now in pg transition
  * @pg_is_enabled    : is power gating enabled
@@ -284,9 +380,17 @@ struct mei_hw_ops {
 	bool (*hw_is_ready)(struct mei_device *dev);
 	int (*hw_reset)(struct mei_device *dev, bool enable);
 	int (*hw_start)(struct mei_device *dev);
+<<<<<<< HEAD
 	void (*hw_config)(struct mei_device *dev);
 
 	int (*fw_status)(struct mei_device *dev, struct mei_fw_status *fw_sts);
+=======
+	int (*hw_config)(struct mei_device *dev);
+
+	int (*fw_status)(struct mei_device *dev, struct mei_fw_status *fw_sts);
+	int (*trc_status)(struct mei_device *dev, u32 *trc);
+
+>>>>>>> upstream/android-13
 	enum mei_pg_state (*pg_state)(struct mei_device *dev);
 	bool (*pg_in_transition)(struct mei_device *dev);
 	bool (*pg_is_enabled)(struct mei_device *dev);
@@ -313,9 +417,15 @@ struct mei_hw_ops {
 /* MEI bus API*/
 void mei_cl_bus_rescan_work(struct work_struct *work);
 void mei_cl_bus_dev_fixup(struct mei_cl_device *dev);
+<<<<<<< HEAD
 ssize_t __mei_cl_send(struct mei_cl *cl, u8 *buf, size_t length,
 		      unsigned int mode);
 ssize_t __mei_cl_recv(struct mei_cl *cl, u8 *buf, size_t length,
+=======
+ssize_t __mei_cl_send(struct mei_cl *cl, const u8 *buf, size_t length, u8 vtag,
+		      unsigned int mode);
+ssize_t __mei_cl_recv(struct mei_cl *cl, u8 *buf, size_t length, u8 *vtag,
+>>>>>>> upstream/android-13
 		      unsigned int mode, unsigned long timeout);
 bool mei_cl_bus_rx_event(struct mei_cl *cl);
 bool mei_cl_bus_notify_event(struct mei_cl *cl);
@@ -407,8 +517,15 @@ struct mei_fw_version {
  *
  * @rd_msg_buf  : control messages buffer
  * @rd_msg_hdr  : read message header storage
+<<<<<<< HEAD
  *
  * @hbuf_is_ready : query if the host host/write buffer is ready
+=======
+ * @rd_msg_hdr_count : how many dwords were already read from header
+ *
+ * @hbuf_is_ready : query if the host host/write buffer is ready
+ * @dr_dscr: DMA ring descriptors: TX, RX, and CTRL
+>>>>>>> upstream/android-13
  *
  * @version     : HBM protocol version in use
  * @hbm_f_pg_supported  : hbm feature pgi protocol
@@ -419,6 +536,12 @@ struct mei_fw_version {
  * @hbm_f_ie_supported  : hbm feature immediate reply to enum request
  * @hbm_f_os_supported  : hbm feature support OS ver message
  * @hbm_f_dr_supported  : hbm feature dma ring supported
+<<<<<<< HEAD
+=======
+ * @hbm_f_vt_supported  : hbm feature vtag supported
+ * @hbm_f_cap_supported : hbm feature capabilities message supported
+ * @hbm_f_cd_supported  : hbm feature client dma supported
+>>>>>>> upstream/android-13
  *
  * @fw_ver : FW versions
  *
@@ -438,6 +561,11 @@ struct mei_fw_version {
  * @device_list : mei client bus list
  * @cl_bus_lock : client bus list lock
  *
+<<<<<<< HEAD
+=======
+ * @kind        : kind of mei device
+ *
+>>>>>>> upstream/android-13
  * @dbgfs_dir   : debugfs mei root directory
  *
  * @ops:        : hw specific operations
@@ -485,11 +613,21 @@ struct mei_device {
 #endif /* CONFIG_PM */
 
 	unsigned char rd_msg_buf[MEI_RD_MSG_BUF_SIZE];
+<<<<<<< HEAD
 	u32 rd_msg_hdr;
+=======
+	u32 rd_msg_hdr[MEI_RD_MSG_BUF_SIZE];
+	int rd_msg_hdr_count;
+>>>>>>> upstream/android-13
 
 	/* write buffer */
 	bool hbuf_is_ready;
 
+<<<<<<< HEAD
+=======
+	struct mei_dma_dscr dr_dscr[DMA_DSCR_NUM];
+
+>>>>>>> upstream/android-13
 	struct hbm_version version;
 	unsigned int hbm_f_pg_supported:1;
 	unsigned int hbm_f_dc_supported:1;
@@ -499,6 +637,12 @@ struct mei_device {
 	unsigned int hbm_f_ie_supported:1;
 	unsigned int hbm_f_os_supported:1;
 	unsigned int hbm_f_dr_supported:1;
+<<<<<<< HEAD
+=======
+	unsigned int hbm_f_vt_supported:1;
+	unsigned int hbm_f_cap_supported:1;
+	unsigned int hbm_f_cd_supported:1;
+>>>>>>> upstream/android-13
 
 	struct mei_fw_version fw_ver[MEI_MAX_FW_VER_BLOCKS];
 
@@ -519,13 +663,23 @@ struct mei_device {
 	struct list_head device_list;
 	struct mutex cl_bus_lock;
 
+<<<<<<< HEAD
+=======
+	const char *kind;
+
+>>>>>>> upstream/android-13
 #if IS_ENABLED(CONFIG_DEBUG_FS)
 	struct dentry *dbgfs_dir;
 #endif /* CONFIG_DEBUG_FS */
 
+<<<<<<< HEAD
 
 	const struct mei_hw_ops *ops;
 	char hw[0] __aligned(sizeof(void *));
+=======
+	const struct mei_hw_ops *ops;
+	char hw[] __aligned(sizeof(void *));
+>>>>>>> upstream/android-13
 };
 
 static inline unsigned long mei_secs_to_jiffies(unsigned long sec)
@@ -582,6 +736,19 @@ int mei_restart(struct mei_device *dev);
 void mei_stop(struct mei_device *dev);
 void mei_cancel_work(struct mei_device *dev);
 
+<<<<<<< HEAD
+=======
+void mei_set_devstate(struct mei_device *dev, enum mei_dev_state state);
+
+int mei_dmam_ring_alloc(struct mei_device *dev);
+void mei_dmam_ring_free(struct mei_device *dev);
+bool mei_dma_ring_is_allocated(struct mei_device *dev);
+void mei_dma_ring_reset(struct mei_device *dev);
+void mei_dma_ring_read(struct mei_device *dev, unsigned char *buf, u32 len);
+void mei_dma_ring_write(struct mei_device *dev, unsigned char *buf, u32 len);
+u32 mei_dma_ring_empty_slots(struct mei_device *dev);
+
+>>>>>>> upstream/android-13
 /*
  *  MEI interrupt functions prototype
  */
@@ -599,9 +766,15 @@ void mei_irq_compl_handler(struct mei_device *dev, struct list_head *cmpl_list);
  */
 
 
+<<<<<<< HEAD
 static inline void mei_hw_config(struct mei_device *dev)
 {
 	dev->ops->hw_config(dev);
+=======
+static inline int mei_hw_config(struct mei_device *dev)
+{
+	return dev->ops->hw_config(dev);
+>>>>>>> upstream/android-13
 }
 
 static inline enum mei_pg_state mei_pg_state(struct mei_device *dev)
@@ -696,6 +869,16 @@ static inline int mei_count_full_read_slots(struct mei_device *dev)
 	return dev->ops->rdbuf_full_slots(dev);
 }
 
+<<<<<<< HEAD
+=======
+static inline int mei_trc_status(struct mei_device *dev, u32 *trc)
+{
+	if (dev->ops->trc_status)
+		return dev->ops->trc_status(dev, trc);
+	return -EOPNOTSUPP;
+}
+
+>>>>>>> upstream/android-13
 static inline int mei_fw_status(struct mei_device *dev,
 				struct mei_fw_status *fw_status)
 {
@@ -707,6 +890,7 @@ bool mei_hbuf_acquire(struct mei_device *dev);
 bool mei_write_is_idle(struct mei_device *dev);
 
 #if IS_ENABLED(CONFIG_DEBUG_FS)
+<<<<<<< HEAD
 int mei_dbgfs_register(struct mei_device *dev, const char *name);
 void mei_dbgfs_deregister(struct mei_device *dev);
 #else
@@ -714,16 +898,30 @@ static inline int mei_dbgfs_register(struct mei_device *dev, const char *name)
 {
 	return 0;
 }
+=======
+void mei_dbgfs_register(struct mei_device *dev, const char *name);
+void mei_dbgfs_deregister(struct mei_device *dev);
+#else
+static inline void mei_dbgfs_register(struct mei_device *dev, const char *name) {}
+>>>>>>> upstream/android-13
 static inline void mei_dbgfs_deregister(struct mei_device *dev) {}
 #endif /* CONFIG_DEBUG_FS */
 
 int mei_register(struct mei_device *dev, struct device *parent);
 void mei_deregister(struct mei_device *dev);
 
+<<<<<<< HEAD
 #define MEI_HDR_FMT "hdr:host=%02d me=%02d len=%d dma=%1d internal=%1d comp=%1d"
 #define MEI_HDR_PRM(hdr)                  \
 	(hdr)->host_addr, (hdr)->me_addr, \
 	(hdr)->length, (hdr)->dma_ring, (hdr)->internal, (hdr)->msg_complete
+=======
+#define MEI_HDR_FMT "hdr:host=%02d me=%02d len=%d dma=%1d ext=%1d internal=%1d comp=%1d"
+#define MEI_HDR_PRM(hdr)                  \
+	(hdr)->host_addr, (hdr)->me_addr, \
+	(hdr)->length, (hdr)->dma_ring, (hdr)->extended, \
+	(hdr)->internal, (hdr)->msg_complete
+>>>>>>> upstream/android-13
 
 ssize_t mei_fw_status2str(struct mei_fw_status *fw_sts, char *buf, size_t len);
 /**

@@ -304,7 +304,11 @@ static int ssi_set_fmt(struct snd_soc_dai *dai, unsigned int fmt)
 		ssicr |= CR_SWS_MASTER | CR_SCK_MASTER;
 		break;
 	default:
+<<<<<<< HEAD
 		pr_debug("ssi: invalid master/slave configuration\n");
+=======
+		pr_debug("ssi: invalid master/secondary configuration\n");
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 

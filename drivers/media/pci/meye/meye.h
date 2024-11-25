@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * Motion Eye video4linux driver for Sony Vaio PictureBook
  *
@@ -11,6 +15,7 @@
  *
  * Some parts borrowed from various video4linux drivers, especially
  * bttv-driver.c and zoran.c, see original files for credits.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +26,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _MEYE_PRIV_H_
@@ -277,11 +284,19 @@
 struct meye_grab_buffer {
 	int state;			/* state of buffer */
 	unsigned long size;		/* size of jpg frame */
+<<<<<<< HEAD
 	struct timeval timestamp;	/* timestamp */
 	unsigned long sequence;		/* sequence number */
 };
 
 /* size of kfifos containings buffer indices */
+=======
+	u64 ts;				/* timestamp */
+	unsigned long sequence;		/* sequence number */
+};
+
+/* size of kfifos containing buffer indices */
+>>>>>>> upstream/android-13
 #define MEYE_QUEUE_SIZE	MEYE_MAX_BUFNBRS
 
 /* Motion Eye device structure */
@@ -314,9 +329,13 @@ struct meye {
 	u16 colour;
 	struct meye_params params;	/* additional parameters */
 	unsigned long in_use;		/* set to 1 if the device is in use */
+<<<<<<< HEAD
 #ifdef CONFIG_PM
 	u8 pm_mchip_mode;		/* old mchip mode */
 #endif
+=======
+	u8 pm_mchip_mode;		/* old mchip mode */
+>>>>>>> upstream/android-13
 };
 
 #endif

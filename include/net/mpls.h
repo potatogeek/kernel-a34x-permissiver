@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2014 Nicira, Inc.
  *
@@ -9,6 +10,11 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (c) 2014 Nicira, Inc.
+>>>>>>> upstream/android-13
  */
 
 #ifndef _NET_MPLS_H
@@ -16,6 +22,10 @@
 
 #include <linux/if_ether.h>
 #include <linux/netdevice.h>
+<<<<<<< HEAD
+=======
+#include <linux/mpls.h>
+>>>>>>> upstream/android-13
 
 #define MPLS_HLEN 4
 
@@ -33,4 +43,23 @@ static inline struct mpls_shim_hdr *mpls_hdr(const struct sk_buff *skb)
 {
 	return (struct mpls_shim_hdr *)skb_network_header(skb);
 }
+<<<<<<< HEAD
+=======
+
+static inline struct mpls_shim_hdr mpls_entry_encode(u32 label,
+						     unsigned int ttl,
+						     unsigned int tc,
+						     bool bos)
+{
+	struct mpls_shim_hdr result;
+
+	result.label_stack_entry =
+		cpu_to_be32((label << MPLS_LS_LABEL_SHIFT) |
+			    (tc << MPLS_LS_TC_SHIFT) |
+			    (bos ? (1 << MPLS_LS_S_SHIFT) : 0) |
+			    (ttl << MPLS_LS_TTL_SHIFT));
+	return result;
+}
+
+>>>>>>> upstream/android-13
 #endif

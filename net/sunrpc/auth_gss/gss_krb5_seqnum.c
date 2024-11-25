@@ -39,6 +39,7 @@
 # define RPCDBG_FACILITY        RPCDBG_AUTH
 #endif
 
+<<<<<<< HEAD
 static s32
 krb5_make_rc4_seq_num(struct krb5_ctx *kctx, int direction, s32 seqnum,
 		      unsigned char *cksum, unsigned char *buf)
@@ -79,6 +80,11 @@ out:
 s32
 krb5_make_seq_num(struct krb5_ctx *kctx,
 		struct crypto_skcipher *key,
+=======
+s32
+krb5_make_seq_num(struct krb5_ctx *kctx,
+		struct crypto_sync_skcipher *key,
+>>>>>>> upstream/android-13
 		int direction,
 		u32 seqnum,
 		unsigned char *cksum, unsigned char *buf)
@@ -86,10 +92,13 @@ krb5_make_seq_num(struct krb5_ctx *kctx,
 	unsigned char *plain;
 	s32 code;
 
+<<<<<<< HEAD
 	if (kctx->enctype == ENCTYPE_ARCFOUR_HMAC)
 		return krb5_make_rc4_seq_num(kctx, direction, seqnum,
 					     cksum, buf);
 
+=======
+>>>>>>> upstream/android-13
 	plain = kmalloc(8, GFP_NOFS);
 	if (!plain)
 		return -ENOMEM;
@@ -109,6 +118,7 @@ krb5_make_seq_num(struct krb5_ctx *kctx,
 	return code;
 }
 
+<<<<<<< HEAD
 static s32
 krb5_get_rc4_seq_num(struct krb5_ctx *kctx, unsigned char *cksum,
 		     unsigned char *buf, int *direction, s32 *seqnum)
@@ -154,6 +164,8 @@ out:
 	return code;
 }
 
+=======
+>>>>>>> upstream/android-13
 s32
 krb5_get_seq_num(struct krb5_ctx *kctx,
 	       unsigned char *cksum,
@@ -161,6 +173,7 @@ krb5_get_seq_num(struct krb5_ctx *kctx,
 	       int *direction, u32 *seqnum)
 {
 	s32 code;
+<<<<<<< HEAD
 	struct crypto_skcipher *key = kctx->seq;
 	unsigned char *plain;
 
@@ -169,6 +182,13 @@ krb5_get_seq_num(struct krb5_ctx *kctx,
 	if (kctx->enctype == ENCTYPE_ARCFOUR_HMAC)
 		return krb5_get_rc4_seq_num(kctx, cksum, buf,
 					    direction, seqnum);
+=======
+	unsigned char *plain;
+	struct crypto_sync_skcipher *key = kctx->seq;
+
+	dprintk("RPC:       krb5_get_seq_num:\n");
+
+>>>>>>> upstream/android-13
 	plain = kmalloc(8, GFP_NOFS);
 	if (!plain)
 		return -ENOMEM;

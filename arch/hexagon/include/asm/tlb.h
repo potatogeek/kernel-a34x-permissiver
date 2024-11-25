@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2010-2011, The Linux Foundation. All rights reserved.
  *
@@ -14,6 +15,11 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (c) 2010-2011, The Linux Foundation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #ifndef _ASM_TLB_H
@@ -22,6 +28,7 @@
 #include <linux/pagemap.h>
 #include <asm/tlbflush.h>
 
+<<<<<<< HEAD
 /*
  * We don't need any special per-pte or per-vma handling...
  */
@@ -34,6 +41,8 @@
  */
 #define tlb_flush(tlb)		flush_tlb_mm((tlb)->mm)
 
+=======
+>>>>>>> upstream/android-13
 #include <asm-generic/tlb.h>
 
 #endif

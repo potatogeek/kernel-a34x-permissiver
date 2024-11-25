@@ -29,7 +29,11 @@ OPTIONS
 	Show just the sample frequency used for each event.
 
 -v::
+<<<<<<< HEAD
 --verbose=::
+=======
+--verbose::
+>>>>>>> upstream/android-13
 	Show all fields.
 
 -g::

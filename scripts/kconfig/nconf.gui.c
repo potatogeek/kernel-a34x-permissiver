@@ -1,13 +1,22 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2008 Nir Tzachar <nir.tzachar@gmail.com?
  * Released under the terms of the GNU GPL v2.0.
  *
  * Derived from menuconfig.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright (C) 2008 Nir Tzachar <nir.tzachar@gmail.com>
+ *
+ * Derived from menuconfig.
+>>>>>>> upstream/android-13
  */
 #include "nconf.h"
 #include "lkc.h"
 
+<<<<<<< HEAD
 /* a list of all the different widgets we use */
 attributes_t attributes[ATTR_MAX+1] = {0};
 
@@ -171,6 +180,122 @@ void print_in_middle(WINDOW *win,
 	(void) wattrset(win, color);
 	mvwprintw(win, y, x, "%s", string);
 	refresh();
+=======
+int attr_normal;
+int attr_main_heading;
+int attr_main_menu_box;
+int attr_main_menu_fore;
+int attr_main_menu_back;
+int attr_main_menu_grey;
+int attr_main_menu_heading;
+int attr_scrollwin_text;
+int attr_scrollwin_heading;
+int attr_scrollwin_box;
+int attr_dialog_text;
+int attr_dialog_menu_fore;
+int attr_dialog_menu_back;
+int attr_dialog_box;
+int attr_input_box;
+int attr_input_heading;
+int attr_input_text;
+int attr_input_field;
+int attr_function_text;
+int attr_function_highlight;
+
+#define COLOR_ATTR(_at, _fg, _bg, _hl) \
+	{ .attr = &(_at), .has_color = true, .color_fg = _fg, .color_bg = _bg, .highlight = _hl }
+#define NO_COLOR_ATTR(_at, _hl) \
+	{ .attr = &(_at), .has_color = false, .highlight = _hl }
+#define COLOR_DEFAULT		-1
+
+struct nconf_attr_param {
+	int *attr;
+	bool has_color;
+	int color_fg;
+	int color_bg;
+	int highlight;
+};
+
+static const struct nconf_attr_param color_theme_params[] = {
+	COLOR_ATTR(attr_normal,			COLOR_DEFAULT,	COLOR_DEFAULT,	A_NORMAL),
+	COLOR_ATTR(attr_main_heading,		COLOR_MAGENTA,	COLOR_DEFAULT,	A_BOLD | A_UNDERLINE),
+	COLOR_ATTR(attr_main_menu_box,		COLOR_YELLOW,	COLOR_DEFAULT,	A_NORMAL),
+	COLOR_ATTR(attr_main_menu_fore,		COLOR_DEFAULT,	COLOR_DEFAULT,	A_REVERSE),
+	COLOR_ATTR(attr_main_menu_back,		COLOR_DEFAULT,	COLOR_DEFAULT,	A_NORMAL),
+	COLOR_ATTR(attr_main_menu_grey,		COLOR_DEFAULT,	COLOR_DEFAULT,	A_NORMAL),
+	COLOR_ATTR(attr_main_menu_heading,	COLOR_GREEN,	COLOR_DEFAULT,	A_BOLD),
+	COLOR_ATTR(attr_scrollwin_text,		COLOR_DEFAULT,	COLOR_DEFAULT,	A_NORMAL),
+	COLOR_ATTR(attr_scrollwin_heading,	COLOR_GREEN,	COLOR_DEFAULT,	A_BOLD),
+	COLOR_ATTR(attr_scrollwin_box,		COLOR_YELLOW,	COLOR_DEFAULT,	A_BOLD),
+	COLOR_ATTR(attr_dialog_text,		COLOR_DEFAULT,	COLOR_DEFAULT,	A_BOLD),
+	COLOR_ATTR(attr_dialog_menu_fore,	COLOR_RED,	COLOR_DEFAULT,	A_STANDOUT),
+	COLOR_ATTR(attr_dialog_menu_back,	COLOR_YELLOW,	COLOR_DEFAULT,	A_NORMAL),
+	COLOR_ATTR(attr_dialog_box,		COLOR_YELLOW,	COLOR_DEFAULT,	A_BOLD),
+	COLOR_ATTR(attr_input_box,		COLOR_YELLOW,	COLOR_DEFAULT,	A_NORMAL),
+	COLOR_ATTR(attr_input_heading,		COLOR_GREEN,	COLOR_DEFAULT,	A_BOLD),
+	COLOR_ATTR(attr_input_text,		COLOR_DEFAULT,	COLOR_DEFAULT,	A_NORMAL),
+	COLOR_ATTR(attr_input_field,		COLOR_DEFAULT,	COLOR_DEFAULT,	A_UNDERLINE),
+	COLOR_ATTR(attr_function_text,		COLOR_YELLOW,	COLOR_DEFAULT,	A_REVERSE),
+	COLOR_ATTR(attr_function_highlight,	COLOR_DEFAULT,	COLOR_DEFAULT,	A_BOLD),
+	{ /* sentinel */ }
+};
+
+static const struct nconf_attr_param no_color_theme_params[] = {
+	NO_COLOR_ATTR(attr_normal,		A_NORMAL),
+	NO_COLOR_ATTR(attr_main_heading,	A_BOLD | A_UNDERLINE),
+	NO_COLOR_ATTR(attr_main_menu_box,	A_NORMAL),
+	NO_COLOR_ATTR(attr_main_menu_fore,	A_STANDOUT),
+	NO_COLOR_ATTR(attr_main_menu_back,	A_NORMAL),
+	NO_COLOR_ATTR(attr_main_menu_grey,	A_NORMAL),
+	NO_COLOR_ATTR(attr_main_menu_heading,	A_BOLD),
+	NO_COLOR_ATTR(attr_scrollwin_text,	A_NORMAL),
+	NO_COLOR_ATTR(attr_scrollwin_heading,	A_BOLD),
+	NO_COLOR_ATTR(attr_scrollwin_box,	A_BOLD),
+	NO_COLOR_ATTR(attr_dialog_text,		A_NORMAL),
+	NO_COLOR_ATTR(attr_dialog_menu_fore,	A_STANDOUT),
+	NO_COLOR_ATTR(attr_dialog_menu_back,	A_NORMAL),
+	NO_COLOR_ATTR(attr_dialog_box,		A_BOLD),
+	NO_COLOR_ATTR(attr_input_box,		A_BOLD),
+	NO_COLOR_ATTR(attr_input_heading,	A_BOLD),
+	NO_COLOR_ATTR(attr_input_text,		A_NORMAL),
+	NO_COLOR_ATTR(attr_input_field,		A_UNDERLINE),
+	NO_COLOR_ATTR(attr_function_text,	A_REVERSE),
+	NO_COLOR_ATTR(attr_function_highlight,	A_BOLD),
+	{ /* sentinel */ }
+};
+
+void set_colors(void)
+{
+	const struct nconf_attr_param *p;
+	int pair = 0;
+
+	if (has_colors()) {
+		start_color();
+		use_default_colors();
+		p = color_theme_params;
+	} else {
+		p = no_color_theme_params;
+	}
+
+	for (; p->attr; p++) {
+		int attr = p->highlight;
+
+		if (p->has_color) {
+			pair++;
+			init_pair(pair, p->color_fg, p->color_bg);
+			attr |= COLOR_PAIR(pair);
+		}
+
+		*p->attr = attr;
+	}
+}
+
+/* this changes the windows attributes !!! */
+void print_in_middle(WINDOW *win, int y, int width, const char *str, int attrs)
+{
+	wattrset(win, attrs);
+	mvwprintw(win, y, (width - strlen(str)) / 2, "%s", str);
+>>>>>>> upstream/android-13
 }
 
 int get_line_no(const char *text)
@@ -295,6 +420,7 @@ int btn_dialog(WINDOW *main_window, const char *msg, int btn_num, ...)
 	msg_win = derwin(win, win_rows-2, msg_width, 1,
 			1+(total_width+2-msg_width)/2);
 
+<<<<<<< HEAD
 	set_menu_fore(menu, attributes[DIALOG_MENU_FORE]);
 	set_menu_back(menu, attributes[DIALOG_MENU_BACK]);
 
@@ -303,6 +429,16 @@ int btn_dialog(WINDOW *main_window, const char *msg, int btn_num, ...)
 
 	/* print message */
 	(void) wattrset(msg_win, attributes[DIALOG_TEXT]);
+=======
+	set_menu_fore(menu, attr_dialog_menu_fore);
+	set_menu_back(menu, attr_dialog_menu_back);
+
+	wattrset(win, attr_dialog_box);
+	box(win, 0, 0);
+
+	/* print message */
+	wattrset(msg_win, attr_dialog_text);
+>>>>>>> upstream/android-13
 	fill_window(msg_win, msg);
 
 	set_menu_win(menu, win);
@@ -406,16 +542,28 @@ int dialog_inputbox(WINDOW *main_window,
 	form_win = derwin(win, 1, prompt_width, prompt_lines+3, 2);
 	keypad(form_win, TRUE);
 
+<<<<<<< HEAD
 	(void) wattrset(form_win, attributes[INPUT_FIELD]);
 
 	(void) wattrset(win, attributes[INPUT_BOX]);
 	box(win, 0, 0);
 	(void) wattrset(win, attributes[INPUT_HEADING]);
+=======
+	wattrset(form_win, attr_input_field);
+
+	wattrset(win, attr_input_box);
+	box(win, 0, 0);
+	wattrset(win, attr_input_heading);
+>>>>>>> upstream/android-13
 	if (title)
 		mvwprintw(win, 0, 3, "%s", title);
 
 	/* print message */
+<<<<<<< HEAD
 	(void) wattrset(prompt_win, attributes[INPUT_TEXT]);
+=======
+	wattrset(prompt_win, attr_input_text);
+>>>>>>> upstream/android-13
 	fill_window(prompt_win, prompt);
 
 	mvwprintw(form_win, 0, 0, "%*s", prompt_width, " ");
@@ -577,7 +725,11 @@ void show_scroll_win(WINDOW *main_window,
 
 	/* create the pad */
 	pad = newpad(total_lines+10, total_cols+10);
+<<<<<<< HEAD
 	(void) wattrset(pad, attributes[SCROLLWIN_TEXT]);
+=======
+	wattrset(pad, attr_scrollwin_text);
+>>>>>>> upstream/android-13
 	fill_window(pad, text);
 
 	win_lines = min(total_lines+4, lines-2);
@@ -592,9 +744,15 @@ void show_scroll_win(WINDOW *main_window,
 	win = newwin(win_lines, win_cols, y, x);
 	keypad(win, TRUE);
 	/* show the help in the help window, and show the help panel */
+<<<<<<< HEAD
 	(void) wattrset(win, attributes[SCROLLWIN_BOX]);
 	box(win, 0, 0);
 	(void) wattrset(win, attributes[SCROLLWIN_HEADING]);
+=======
+	wattrset(win, attr_scrollwin_box);
+	box(win, 0, 0);
+	wattrset(win, attr_scrollwin_heading);
+>>>>>>> upstream/android-13
 	mvwprintw(win, 0, 3, " %s ", title);
 	panel = new_panel(win);
 
@@ -605,10 +763,16 @@ void show_scroll_win(WINDOW *main_window,
 				text_cols, 0);
 		print_in_middle(win,
 				text_lines+2,
+<<<<<<< HEAD
 				0,
 				text_cols,
 				"<OK>",
 				attributes[DIALOG_MENU_FORE]);
+=======
+				text_cols,
+				"<OK>",
+				attr_dialog_menu_fore);
+>>>>>>> upstream/android-13
 		wrefresh(win);
 
 		res = wgetch(win);

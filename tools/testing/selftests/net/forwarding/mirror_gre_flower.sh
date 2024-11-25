@@ -81,6 +81,11 @@ full_test_span_gre_dir_acl()
 	local match_dip=$1; shift
 	local what=$1; shift
 
+<<<<<<< HEAD
+=======
+	RET=0
+
+>>>>>>> upstream/android-13
 	mirror_install $swp1 $direction $tundev \
 		       "protocol ip flower $tcflags dst_ip $match_dip"
 	fail_test_span_gre_dir $tundev $direction
@@ -108,8 +113,11 @@ test_ip6gretap()
 
 test_all()
 {
+<<<<<<< HEAD
 	RET=0
 
+=======
+>>>>>>> upstream/android-13
 	slow_path_trap_install $swp1 ingress
 	slow_path_trap_install $swp1 egress
 

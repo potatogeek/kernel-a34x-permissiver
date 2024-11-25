@@ -1,11 +1,17 @@
+<<<<<<< HEAD
 /*
  *   fs/cifs/rfc1002pdu.h
+=======
+/* SPDX-License-Identifier: LGPL-2.1 */
+/*
+>>>>>>> upstream/android-13
  *
  *   Protocol Data Unit definitions for RFC 1001/1002 support
  *
  *   Copyright (c) International Business Machines  Corp., 2004
  *   Author(s): Steve French (sfrench@us.ibm.com)
  *
+<<<<<<< HEAD
  *   This library is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU Lesser General Public License as published
  *   by the Free Software Foundation; either version 2.1 of the License, or
@@ -19,6 +25,8 @@
  *   You should have received a copy of the GNU Lesser General Public License
  *   along with this library; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 /* NB: unlike smb/cifs packets, the RFC1002 structures are big endian */

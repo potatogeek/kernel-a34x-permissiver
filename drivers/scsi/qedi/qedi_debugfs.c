@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * QLogic iSCSI Offload Driver
  * Copyright (c) 2016 Cavium Inc.
@@ -5,6 +6,12 @@
  * This software is available under the terms of the GNU General Public License
  * (GPL) Version 2, available from the file COPYING in the main directory of
  * this source tree.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * QLogic iSCSI Offload Driver
+ * Copyright (c) 2016 Cavium Inc.
+>>>>>>> upstream/android-13
  */
 
 #include "qedi.h"
@@ -23,17 +30,24 @@ qedi_dbg_host_init(struct qedi_dbg_ctx *qedi,
 		   const struct file_operations *fops)
 {
 	char host_dirname[32];
+<<<<<<< HEAD
 	struct dentry *file_dentry = NULL;
 
 	sprintf(host_dirname, "host%u", qedi->host_no);
 	qedi->bdf_dentry = debugfs_create_dir(host_dirname, qedi_dbg_root);
 	if (!qedi->bdf_dentry)
 		return;
+=======
+
+	sprintf(host_dirname, "host%u", qedi->host_no);
+	qedi->bdf_dentry = debugfs_create_dir(host_dirname, qedi_dbg_root);
+>>>>>>> upstream/android-13
 
 	while (dops) {
 		if (!(dops->name))
 			break;
 
+<<<<<<< HEAD
 		file_dentry = debugfs_create_file(dops->name, 0600,
 						  qedi->bdf_dentry, qedi,
 						  fops);
@@ -44,6 +58,10 @@ qedi_dbg_host_init(struct qedi_dbg_ctx *qedi,
 			debugfs_remove_recursive(qedi->bdf_dentry);
 			return;
 		}
+=======
+		debugfs_create_file(dops->name, 0600, qedi->bdf_dentry, qedi,
+				    fops);
+>>>>>>> upstream/android-13
 		dops++;
 		fops++;
 	}
@@ -60,8 +78,11 @@ void
 qedi_dbg_init(char *drv_name)
 {
 	qedi_dbg_root = debugfs_create_dir(drv_name, NULL);
+<<<<<<< HEAD
 	if (!qedi_dbg_root)
 		QEDI_INFO(NULL, QEDI_LOG_DEBUGFS, "Init of debugfs failed\n");
+=======
+>>>>>>> upstream/android-13
 }
 
 void

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Net1080 based USB host-to-host cables
  * Copyright (C) 2000-2005 by David Brownell
@@ -14,6 +15,12 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Net1080 based USB host-to-host cables
+ * Copyright (C) 2000-2005 by David Brownell
+>>>>>>> upstream/android-13
  */
 
 // #define	DEBUG			// error path messages, extra info
@@ -125,7 +132,10 @@ nc_register_read(struct usbnet *dev, u8 regnum, u16 *retval_ptr)
 	return nc_vendor_read(dev, REQUEST_REGISTER, regnum, retval_ptr);
 }
 
+<<<<<<< HEAD
 // no retval ... can become async, usable in_interrupt()
+=======
+>>>>>>> upstream/android-13
 static void
 nc_vendor_write(struct usbnet *dev, u8 req, u8 regnum, u16 value)
 {

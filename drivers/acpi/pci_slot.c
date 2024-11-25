@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  pci_slot.c - ACPI PCI Slot Driver
  *
@@ -11,6 +15,7 @@
  *
  *  Copyright (C) 2013 Huawei Tech. Co., Ltd.
  *	Jiang Liu <jiang.liu@huawei.com>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify it
  *  under the terms and conditions of the GNU General Public License,
@@ -20,6 +25,8 @@
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -36,9 +43,12 @@
 
 static int check_sta_before_sun;
 
+<<<<<<< HEAD
 #define _COMPONENT		ACPI_PCI_COMPONENT
 ACPI_MODULE_NAME("pci_slot");
 
+=======
+>>>>>>> upstream/android-13
 #define SLOT_NAME_SIZE 21		/* Inspired by #define in acpiphp.h */
 
 struct acpi_pci_slot {

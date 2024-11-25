@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * STV0680 USB Camera Driver
  *
@@ -10,6 +14,7 @@
  * Thanks to STMicroelectronics for information on the usb commands, and
  * to Steve Miller at STM for his help and encouragement while I was
  * writing this driver.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +26,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -45,7 +52,11 @@ struct sd {
 static int stv_sndctrl(struct gspca_dev *gspca_dev, int set, u8 req, u16 val,
 		       int size)
 {
+<<<<<<< HEAD
 	int ret = -1;
+=======
+	int ret;
+>>>>>>> upstream/android-13
 	u8 req_type = 0;
 	unsigned int pipe = 0;
 

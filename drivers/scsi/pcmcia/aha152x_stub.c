@@ -220,6 +220,7 @@ static struct pcmcia_driver aha152x_cs_driver = {
 	.id_table       = aha152x_ids,
 	.resume		= aha152x_resume,
 };
+<<<<<<< HEAD
 
 static int __init init_aha152x_cs(void)
 {
@@ -233,3 +234,6 @@ static void __exit exit_aha152x_cs(void)
 
 module_init(init_aha152x_cs);
 module_exit(exit_aha152x_cs);
+=======
+module_pcmcia_driver(aha152x_cs_driver);
+>>>>>>> upstream/android-13

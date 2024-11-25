@@ -1,7 +1,11 @@
 /*
  * Linux driver for VMware's vmxnet3 ethernet NIC.
  *
+<<<<<<< HEAD
  * Copyright (C) 2008-2016, VMware, Inc. All Rights Reserved.
+=======
+ * Copyright (C) 2008-2021, VMware, Inc. All Rights Reserved.
+>>>>>>> upstream/android-13
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -82,6 +86,10 @@ enum {
 	VMXNET3_CMD_RESERVED3,
 	VMXNET3_CMD_SET_COALESCE,
 	VMXNET3_CMD_REGISTER_MEMREGS,
+<<<<<<< HEAD
+=======
+	VMXNET3_CMD_SET_RSS_FIELDS,
+>>>>>>> upstream/android-13
 
 	VMXNET3_CMD_FIRST_GET = 0xF00D0000,
 	VMXNET3_CMD_GET_QUEUE_STATUS = VMXNET3_CMD_FIRST_GET,
@@ -96,19 +104,34 @@ enum {
 	VMXNET3_CMD_GET_RESERVED1,
 	VMXNET3_CMD_GET_TXDATA_DESC_SIZE,
 	VMXNET3_CMD_GET_COALESCE,
+<<<<<<< HEAD
+=======
+	VMXNET3_CMD_GET_RSS_FIELDS,
+	VMXNET3_CMD_GET_RESERVED2,
+	VMXNET3_CMD_GET_RESERVED3,
+	VMXNET3_CMD_GET_MAX_QUEUES_CONF,
+>>>>>>> upstream/android-13
 };
 
 /*
  *	Little Endian layout of bitfields -
  *	Byte 0 :	7.....len.....0
+<<<<<<< HEAD
  *	Byte 1 :	rsvd gen 13.len.8
+=======
+ *	Byte 1 :	oco gen 13.len.8
+>>>>>>> upstream/android-13
  *	Byte 2 : 	5.msscof.0 ext1  dtype
  *	Byte 3 : 	13...msscof...6
  *
  *	Big Endian layout of bitfields -
  *	Byte 0:		13...msscof...6
  *	Byte 1 : 	5.msscof.0 ext1  dtype
+<<<<<<< HEAD
  *	Byte 2 :	rsvd gen 13.len.8
+=======
+ *	Byte 2 :	oco gen 13.len.8
+>>>>>>> upstream/android-13
  *	Byte 3 :	7.....len.....0
  *
  *	Thus, le32_to_cpu on the dword will allow the big endian driver to read
@@ -123,13 +146,21 @@ struct Vmxnet3_TxDesc {
 	u32 msscof:14;  /* MSS, checksum offset, flags */
 	u32 ext1:1;
 	u32 dtype:1;    /* descriptor type */
+<<<<<<< HEAD
 	u32 rsvd:1;
+=======
+	u32 oco:1;
+>>>>>>> upstream/android-13
 	u32 gen:1;      /* generation bit */
 	u32 len:14;
 #else
 	u32 len:14;
 	u32 gen:1;      /* generation bit */
+<<<<<<< HEAD
 	u32 rsvd:1;
+=======
+	u32 oco:1;
+>>>>>>> upstream/android-13
 	u32 dtype:1;    /* descriptor type */
 	u32 ext1:1;
 	u32 msscof:14;  /* MSS, checksum offset, flags */
@@ -155,9 +186,16 @@ struct Vmxnet3_TxDesc {
 };
 
 /* TxDesc.OM values */
+<<<<<<< HEAD
 #define VMXNET3_OM_NONE		0
 #define VMXNET3_OM_CSUM		2
 #define VMXNET3_OM_TSO		3
+=======
+#define VMXNET3_OM_NONE         0
+#define VMXNET3_OM_ENCAP        1
+#define VMXNET3_OM_CSUM         2
+#define VMXNET3_OM_TSO          3
+>>>>>>> upstream/android-13
 
 /* fields in TxDesc we access w/o using bit fields */
 #define VMXNET3_TXD_EOP_SHIFT	12
@@ -224,6 +262,11 @@ struct Vmxnet3_RxDesc {
 #define VMXNET3_RXD_BTYPE_SHIFT  14
 #define VMXNET3_RXD_GEN_SHIFT    31
 
+<<<<<<< HEAD
+=======
+#define VMXNET3_RCD_HDR_INNER_SHIFT  13
+
+>>>>>>> upstream/android-13
 struct Vmxnet3_RxCompDesc {
 #ifdef __BIG_ENDIAN_BITFIELD
 	u32		ext2:1;
@@ -336,6 +379,7 @@ struct Vmxnet3_RxCompDescExt {
 #define VMXNET3_TXD_EOP_SIZE 1
 
 /* value of RxCompDesc.rssType */
+<<<<<<< HEAD
 enum {
 	VMXNET3_RCD_RSS_TYPE_NONE     = 0,
 	VMXNET3_RCD_RSS_TYPE_IPV4     = 1,
@@ -343,6 +387,17 @@ enum {
 	VMXNET3_RCD_RSS_TYPE_IPV6     = 3,
 	VMXNET3_RCD_RSS_TYPE_TCPIPV6  = 4,
 };
+=======
+#define VMXNET3_RCD_RSS_TYPE_NONE     0
+#define VMXNET3_RCD_RSS_TYPE_IPV4     1
+#define VMXNET3_RCD_RSS_TYPE_TCPIPV4  2
+#define VMXNET3_RCD_RSS_TYPE_IPV6     3
+#define VMXNET3_RCD_RSS_TYPE_TCPIPV6  4
+#define VMXNET3_RCD_RSS_TYPE_UDPIPV4  5
+#define VMXNET3_RCD_RSS_TYPE_UDPIPV6  6
+#define VMXNET3_RCD_RSS_TYPE_ESPIPV4  7
+#define VMXNET3_RCD_RSS_TYPE_ESPIPV6  8
+>>>>>>> upstream/android-13
 
 
 /* a union for accessing all cmd/completion descriptors */
@@ -528,6 +583,16 @@ enum vmxnet3_intr_type {
 /* addition 1 for events */
 #define VMXNET3_MAX_INTRS      25
 
+<<<<<<< HEAD
+=======
+/* Version 6 and later will use below macros */
+#define VMXNET3_EXT_MAX_TX_QUEUES  32
+#define VMXNET3_EXT_MAX_RX_QUEUES  32
+/* addition 1 for events */
+#define VMXNET3_EXT_MAX_INTRS      65
+#define VMXNET3_FIRST_SET_INTRS    64
+
+>>>>>>> upstream/android-13
 /* value of intrCtrl */
 #define VMXNET3_IC_DISABLE_ALL  0x1   /* bit 0 */
 
@@ -542,6 +607,22 @@ struct Vmxnet3_IntrConf {
 	__le32		reserved[2];
 };
 
+<<<<<<< HEAD
+=======
+struct Vmxnet3_IntrConfExt {
+	u8              autoMask;
+	u8              numIntrs;      /* # of interrupts */
+	u8              eventIntrIdx;
+	u8              reserved;
+	__le32          intrCtrl;
+	__le32          reserved1;
+	u8              modLevels[VMXNET3_EXT_MAX_INTRS]; /* moderation level for
+							   * each intr
+							   */
+	u8              reserved2[3];
+};
+
+>>>>>>> upstream/android-13
 /* one bit per VLAN ID, the size is in the units of u32	*/
 #define VMXNET3_VFT_SIZE  (4096 / (sizeof(u32) * 8))
 
@@ -685,12 +766,28 @@ struct Vmxnet3_MemRegs {
 	struct Vmxnet3_MemoryRegion		memRegs[1];
 };
 
+<<<<<<< HEAD
+=======
+enum Vmxnet3_RSSField {
+	VMXNET3_RSS_FIELDS_TCPIP4 = 0x0001,
+	VMXNET3_RSS_FIELDS_TCPIP6 = 0x0002,
+	VMXNET3_RSS_FIELDS_UDPIP4 = 0x0004,
+	VMXNET3_RSS_FIELDS_UDPIP6 = 0x0008,
+	VMXNET3_RSS_FIELDS_ESPIP4 = 0x0010,
+	VMXNET3_RSS_FIELDS_ESPIP6 = 0x0020,
+};
+
+>>>>>>> upstream/android-13
 /* If the command data <= 16 bytes, use the shared memory directly.
  * otherwise, use variable length configuration descriptor.
  */
 union Vmxnet3_CmdInfo {
 	struct Vmxnet3_VariableLenConfDesc	varConf;
 	struct Vmxnet3_SetPolling		setPolling;
+<<<<<<< HEAD
+=======
+	enum   Vmxnet3_RSSField                 setRssFields;
+>>>>>>> upstream/android-13
 	__le64					data[2];
 };
 
@@ -704,11 +801,23 @@ struct Vmxnet3_DSDevRead {
 	struct Vmxnet3_VariableLenConfDesc	pluginConfDesc;
 };
 
+<<<<<<< HEAD
+=======
+struct Vmxnet3_DSDevReadExt {
+	/* read-only region for device, read by dev in response to a SET cmd */
+	struct Vmxnet3_IntrConfExt              intrConfExt;
+};
+
+>>>>>>> upstream/android-13
 /* All structures in DriverShared are padded to multiples of 8 bytes */
 struct Vmxnet3_DriverShared {
 	__le32				magic;
 	/* make devRead start at 64bit boundaries */
+<<<<<<< HEAD
 	__le32				pad;
+=======
+	__le32                          size; /* size of DriverShared */
+>>>>>>> upstream/android-13
 	struct Vmxnet3_DSDevRead	devRead;
 	__le32				ecr;
 	__le32				reserved;
@@ -719,6 +828,10 @@ struct Vmxnet3_DriverShared {
 						  * command
 						  */
 	} cu;
+<<<<<<< HEAD
+=======
+	struct Vmxnet3_DSDevReadExt     devReadExt;
+>>>>>>> upstream/android-13
 };
 
 
@@ -749,6 +862,10 @@ struct Vmxnet3_DriverShared {
 	((vfTable[vid >> 5] & (1 << (vid & 31))) != 0)
 
 #define VMXNET3_MAX_MTU     9000
+<<<<<<< HEAD
+=======
+#define VMXNET3_V6_MAX_MTU  9190
+>>>>>>> upstream/android-13
 #define VMXNET3_MIN_MTU     60
 
 #define VMXNET3_LINK_UP         (10000 << 16 | 1)    /* 10 Gbps, up */

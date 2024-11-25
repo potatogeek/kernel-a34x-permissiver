@@ -4,6 +4,10 @@
 // Author: Marek Szyprowski <m.szyprowski@samsung.com>
 // Common Clock Framework support for Exynos5 power-domain dependent clocks
 
+<<<<<<< HEAD
+=======
+#include <linux/io.h>
+>>>>>>> upstream/android-13
 #include <linux/of_platform.h>
 #include <linux/platform_device.h>
 #include <linux/pm_domain.h>
@@ -13,7 +17,11 @@
 #include "clk-exynos5-subcmu.h"
 
 static struct samsung_clk_provider *ctx;
+<<<<<<< HEAD
 static const struct exynos5_subcmu_info *cmu;
+=======
+static const struct exynos5_subcmu_info **cmu;
+>>>>>>> upstream/android-13
 static int nr_cmus;
 
 static void exynos5_subcmu_clk_save(void __iomem *base,
@@ -55,17 +63,28 @@ static void exynos5_subcmu_defer_gate(struct samsung_clk_provider *ctx,
  * when OF-core populates all device-tree nodes.
  */
 void exynos5_subcmus_init(struct samsung_clk_provider *_ctx, int _nr_cmus,
+<<<<<<< HEAD
 			  const struct exynos5_subcmu_info *_cmu)
+=======
+			  const struct exynos5_subcmu_info **_cmu)
+>>>>>>> upstream/android-13
 {
 	ctx = _ctx;
 	cmu = _cmu;
 	nr_cmus = _nr_cmus;
 
 	for (; _nr_cmus--; _cmu++) {
+<<<<<<< HEAD
 		exynos5_subcmu_defer_gate(ctx, _cmu->gate_clks,
 					  _cmu->nr_gate_clks);
 		exynos5_subcmu_clk_save(ctx->reg_base, _cmu->suspend_regs,
 					_cmu->nr_suspend_regs);
+=======
+		exynos5_subcmu_defer_gate(ctx, (*_cmu)->gate_clks,
+					  (*_cmu)->nr_gate_clks);
+		exynos5_subcmu_clk_save(ctx->reg_base, (*_cmu)->suspend_regs,
+					(*_cmu)->nr_suspend_regs);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -162,9 +181,15 @@ static int __init exynos5_clk_probe(struct platform_device *pdev)
 		if (of_property_read_string(np, "label", &name) < 0)
 			continue;
 		for (i = 0; i < nr_cmus; i++)
+<<<<<<< HEAD
 			if (strcmp(cmu[i].pd_name, name) == 0)
 				exynos5_clk_register_subcmu(&pdev->dev,
 							    &cmu[i], np);
+=======
+			if (strcmp(cmu[i]->pd_name, name) == 0)
+				exynos5_clk_register_subcmu(&pdev->dev,
+							    cmu[i], np);
+>>>>>>> upstream/android-13
 	}
 	return 0;
 }

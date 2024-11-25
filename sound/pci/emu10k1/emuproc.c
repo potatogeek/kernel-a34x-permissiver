@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  Copyright (c) by Jaroslav Kysela <perex@perex.cz>
  *                   Creative Labs, Inc.
@@ -11,6 +15,7 @@
  *
  *  TODO:
  *    --
+<<<<<<< HEAD
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -26,6 +31,8 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/slab.h>
@@ -40,10 +47,17 @@ static void snd_emu10k1_proc_spdif_status(struct snd_emu10k1 * emu,
 					  int status_reg,
 					  int rate_reg)
 {
+<<<<<<< HEAD
 	static char *clkaccy[4] = { "1000ppm", "50ppm", "variable", "unknown" };
 	static int samplerate[16] = { 44100, 1, 48000, 32000, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
 	static char *channel[16] = { "unspec", "left", "right", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15" };
 	static char *emphasis[8] = { "none", "50/15 usec 2 channel", "2", "3", "4", "5", "6", "7" };
+=======
+	static const char * const clkaccy[4] = { "1000ppm", "50ppm", "variable", "unknown" };
+	static const int samplerate[16] = { 44100, 1, 48000, 32000, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+	static const char * const channel[16] = { "unspec", "left", "right", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15" };
+	static const char * const emphasis[8] = { "none", "50/15 usec 2 channel", "2", "3", "4", "5", "6", "7" };
+>>>>>>> upstream/android-13
 	unsigned int status, rate = 0;
 	
 	status = snd_emu10k1_ptr_read(emu, status_reg, 0);
@@ -81,7 +95,11 @@ static void snd_emu10k1_proc_read(struct snd_info_entry *entry,
 				  struct snd_info_buffer *buffer)
 {
 	/* FIXME - output names are in emufx.c too */
+<<<<<<< HEAD
 	static char *creative_outs[32] = {
+=======
+	static const char * const creative_outs[32] = {
+>>>>>>> upstream/android-13
 		/* 00 */ "AC97 Left",
 		/* 01 */ "AC97 Right",
 		/* 02 */ "Optical IEC958 Left",
@@ -116,7 +134,11 @@ static void snd_emu10k1_proc_read(struct snd_info_entry *entry,
 		/* 31 */ "???"
 	};
 
+<<<<<<< HEAD
 	static char *audigy_outs[64] = {
+=======
+	static const char * const audigy_outs[64] = {
+>>>>>>> upstream/android-13
 		/* 00 */ "Digital Front Left",
 		/* 01 */ "Digital Front Right",
 		/* 02 */ "Digital Center",
@@ -186,7 +208,11 @@ static void snd_emu10k1_proc_read(struct snd_info_entry *entry,
 	struct snd_emu10k1 *emu = entry->private_data;
 	unsigned int val, val1;
 	int nefx = emu->audigy ? 64 : 32;
+<<<<<<< HEAD
 	char **outputs = emu->audigy ? audigy_outs : creative_outs;
+=======
+	const char * const *outputs = emu->audigy ? audigy_outs : creative_outs;
+>>>>>>> upstream/android-13
 	int idx;
 	
 	snd_iprintf(buffer, "EMU10K1\n\n");
@@ -276,7 +302,11 @@ static void snd_emu10k1_proc_spdif_read(struct snd_info_entry *entry,
 static void snd_emu10k1_proc_rates_read(struct snd_info_entry *entry, 
 				  struct snd_info_buffer *buffer)
 {
+<<<<<<< HEAD
 	static int samplerate[8] = { 44100, 48000, 96000, 192000, 4, 5, 6, 7 };
+=======
+	static const int samplerate[8] = { 44100, 48000, 96000, 192000, 4, 5, 6, 7 };
+>>>>>>> upstream/android-13
 	struct snd_emu10k1 *emu = entry->private_data;
 	unsigned int val, tmp, n;
 	val = snd_emu10k1_ptr20_read(emu, CAPTURE_RATE_STATUS, 0);
@@ -559,7 +589,11 @@ static void snd_emu_proc_ptr_reg_read20c(struct snd_info_entry *entry,
 }
 #endif
 
+<<<<<<< HEAD
 static struct snd_info_entry_ops snd_emu10k1_proc_ops_fx8010 = {
+=======
+static const struct snd_info_entry_ops snd_emu10k1_proc_ops_fx8010 = {
+>>>>>>> upstream/android-13
 	.read = snd_emu10k1_fx8010_read,
 };
 
@@ -568,6 +602,7 @@ int snd_emu10k1_proc_init(struct snd_emu10k1 *emu)
 	struct snd_info_entry *entry;
 #ifdef CONFIG_SND_DEBUG
 	if (emu->card_capabilities->emu_model) {
+<<<<<<< HEAD
 		if (! snd_card_proc_new(emu->card, "emu1010_regs", &entry)) 
 			snd_info_set_text_ops(entry, emu, snd_emu_proc_emu1010_reg_read);
 	}
@@ -617,6 +652,42 @@ int snd_emu10k1_proc_init(struct snd_emu10k1 *emu)
 
 	if (! snd_card_proc_new(emu->card, "voices", &entry))
 		snd_info_set_text_ops(entry, emu, snd_emu10k1_proc_voices_read);
+=======
+		snd_card_ro_proc_new(emu->card, "emu1010_regs",
+				     emu, snd_emu_proc_emu1010_reg_read);
+	}
+	snd_card_rw_proc_new(emu->card, "io_regs", emu,
+			     snd_emu_proc_io_reg_read,
+			     snd_emu_proc_io_reg_write);
+	snd_card_rw_proc_new(emu->card, "ptr_regs00a", emu,
+			     snd_emu_proc_ptr_reg_read00a,
+			     snd_emu_proc_ptr_reg_write00);
+	snd_card_rw_proc_new(emu->card, "ptr_regs00b", emu,
+			     snd_emu_proc_ptr_reg_read00b,
+			     snd_emu_proc_ptr_reg_write00);
+	snd_card_rw_proc_new(emu->card, "ptr_regs20a", emu,
+			     snd_emu_proc_ptr_reg_read20a,
+			     snd_emu_proc_ptr_reg_write20);
+	snd_card_rw_proc_new(emu->card, "ptr_regs20b", emu,
+			     snd_emu_proc_ptr_reg_read20b,
+			     snd_emu_proc_ptr_reg_write20);
+	snd_card_rw_proc_new(emu->card, "ptr_regs20c", emu,
+			     snd_emu_proc_ptr_reg_read20c,
+			     snd_emu_proc_ptr_reg_write20);
+#endif
+	
+	snd_card_ro_proc_new(emu->card, "emu10k1", emu, snd_emu10k1_proc_read);
+
+	if (emu->card_capabilities->emu10k2_chip)
+		snd_card_ro_proc_new(emu->card, "spdif-in", emu,
+				     snd_emu10k1_proc_spdif_read);
+	if (emu->card_capabilities->ca0151_chip)
+		snd_card_ro_proc_new(emu->card, "capture-rates", emu,
+				     snd_emu10k1_proc_rates_read);
+
+	snd_card_ro_proc_new(emu->card, "voices", emu,
+			     snd_emu10k1_proc_voices_read);
+>>>>>>> upstream/android-13
 
 	if (! snd_card_proc_new(emu->card, "fx8010_gpr", &entry)) {
 		entry->content = SNDRV_INFO_CONTENT_DATA;
@@ -646,11 +717,16 @@ int snd_emu10k1_proc_init(struct snd_emu10k1 *emu)
 		entry->size = emu->audigy ? A_TOTAL_SIZE_CODE : TOTAL_SIZE_CODE;
 		entry->c.ops = &snd_emu10k1_proc_ops_fx8010;
 	}
+<<<<<<< HEAD
 	if (! snd_card_proc_new(emu->card, "fx8010_acode", &entry)) {
 		entry->content = SNDRV_INFO_CONTENT_TEXT;
 		entry->private_data = emu;
 		entry->mode = S_IFREG | 0444 /*| S_IWUSR*/;
 		entry->c.text.read = snd_emu10k1_proc_acode_read;
 	}
+=======
+	snd_card_ro_proc_new(emu->card, "fx8010_acode", emu,
+			     snd_emu10k1_proc_acode_read);
+>>>>>>> upstream/android-13
 	return 0;
 }

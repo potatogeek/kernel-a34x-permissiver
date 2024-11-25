@@ -26,8 +26,11 @@
 #ifndef __DISPLAY_RQ_DLG_CALC_H__
 #define __DISPLAY_RQ_DLG_CALC_H__
 
+<<<<<<< HEAD
 #include "dml_common_defs.h"
 
+=======
+>>>>>>> upstream/android-13
 struct display_mode_lib;
 
 #include "display_rq_dlg_helpers.h"

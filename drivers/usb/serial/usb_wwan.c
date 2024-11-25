@@ -132,6 +132,7 @@ int usb_wwan_tiocmset(struct tty_struct *tty,
 }
 EXPORT_SYMBOL(usb_wwan_tiocmset);
 
+<<<<<<< HEAD
 static int get_serial_info(struct usb_serial_port *port,
 			   struct serial_struct __user *retinfo)
 {
@@ -206,6 +207,8 @@ int usb_wwan_ioctl(struct tty_struct *tty,
 }
 EXPORT_SYMBOL(usb_wwan_ioctl);
 
+=======
+>>>>>>> upstream/android-13
 int usb_wwan_write(struct tty_struct *tty, struct usb_serial_port *port,
 		   const unsigned char *buf, int count)
 {
@@ -352,12 +355,20 @@ static void usb_wwan_outdat_callback(struct urb *urb)
 	}
 }
 
+<<<<<<< HEAD
 int usb_wwan_write_room(struct tty_struct *tty)
+=======
+unsigned int usb_wwan_write_room(struct tty_struct *tty)
+>>>>>>> upstream/android-13
 {
 	struct usb_serial_port *port = tty->driver_data;
 	struct usb_wwan_port_private *portdata;
 	int i;
+<<<<<<< HEAD
 	int data_len = 0;
+=======
+	unsigned int data_len = 0;
+>>>>>>> upstream/android-13
 	struct urb *this_urb;
 
 	portdata = usb_get_serial_port_data(port);
@@ -368,17 +379,29 @@ int usb_wwan_write_room(struct tty_struct *tty)
 			data_len += OUT_BUFLEN;
 	}
 
+<<<<<<< HEAD
 	dev_dbg(&port->dev, "%s: %d\n", __func__, data_len);
+=======
+	dev_dbg(&port->dev, "%s: %u\n", __func__, data_len);
+>>>>>>> upstream/android-13
 	return data_len;
 }
 EXPORT_SYMBOL(usb_wwan_write_room);
 
+<<<<<<< HEAD
 int usb_wwan_chars_in_buffer(struct tty_struct *tty)
+=======
+unsigned int usb_wwan_chars_in_buffer(struct tty_struct *tty)
+>>>>>>> upstream/android-13
 {
 	struct usb_serial_port *port = tty->driver_data;
 	struct usb_wwan_port_private *portdata;
 	int i;
+<<<<<<< HEAD
 	int data_len = 0;
+=======
+	unsigned int data_len = 0;
+>>>>>>> upstream/android-13
 	struct urb *this_urb;
 
 	portdata = usb_get_serial_port_data(port);
@@ -390,7 +413,11 @@ int usb_wwan_chars_in_buffer(struct tty_struct *tty)
 		if (this_urb && test_bit(i, &portdata->out_busy))
 			data_len += this_urb->transfer_buffer_length;
 	}
+<<<<<<< HEAD
 	dev_dbg(&port->dev, "%s: %d\n", __func__, data_len);
+=======
+	dev_dbg(&port->dev, "%s: %u\n", __func__, data_len);
+>>>>>>> upstream/android-13
 	return data_len;
 }
 EXPORT_SYMBOL(usb_wwan_chars_in_buffer);
@@ -573,7 +600,11 @@ bail_out_error:
 }
 EXPORT_SYMBOL_GPL(usb_wwan_port_probe);
 
+<<<<<<< HEAD
 int usb_wwan_port_remove(struct usb_serial_port *port)
+=======
+void usb_wwan_port_remove(struct usb_serial_port *port)
+>>>>>>> upstream/android-13
 {
 	int i;
 	struct usb_wwan_port_private *portdata;
@@ -591,8 +622,11 @@ int usb_wwan_port_remove(struct usb_serial_port *port)
 	}
 
 	kfree(portdata);
+<<<<<<< HEAD
 
 	return 0;
+=======
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(usb_wwan_port_remove);
 

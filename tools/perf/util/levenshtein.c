@@ -30,7 +30,11 @@
  *
  * It does so by calculating the costs of the path ending in characters
  * i (in string1) and j (in string2), respectively, given that the last
+<<<<<<< HEAD
  * operation is a substition, a swap, a deletion, or an insertion.
+=======
+ * operation is a substitution, a swap, a deletion, or an insertion.
+>>>>>>> upstream/android-13
  *
  * This implementation allows the costs to be weighted:
  *

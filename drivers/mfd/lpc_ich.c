@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  lpc_ich.c - LPC interface for Intel ICH
  *
@@ -11,6 +15,7 @@
  *  Copyright (c) 2011 Extreme Engineering Solution, Inc.
  *  Author: Aaron Sierra <asierra@xes-inc.com>
  *
+<<<<<<< HEAD
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License 2 as published
  *  by the Free Software Foundation.
@@ -20,6 +25,8 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  *  This driver supports the following I/O Controller hubs:
  *	(See the intel documentation on http://developer.intel.com.)
  *	document number 290655-003, 290677-014: 82801AA (ICH), 82801AB (ICHO)
@@ -497,6 +504,10 @@ static struct lpc_ich_info lpc_chipset_info[] = {
 	[LPC_DH89XXCC] = {
 		.name = "DH89xxCC",
 		.iTCO_version = 2,
+<<<<<<< HEAD
+=======
+		.gpio_version = ICH_V5_GPIO,
+>>>>>>> upstream/android-13
 	},
 	[LPC_PPT] = {
 		.name = "Panther Point",

@@ -11,4 +11,8 @@ iwldvm-objs		+= rxon.o devices.o
 iwldvm-$(CONFIG_IWLWIFI_LEDS) += led.o
 iwldvm-$(CONFIG_IWLWIFI_DEBUGFS) += debugfs.o
 
+<<<<<<< HEAD
 ccflags-y += -I$(src)/../
+=======
+ccflags-y += -I $(srctree)/$(src)/../
+>>>>>>> upstream/android-13

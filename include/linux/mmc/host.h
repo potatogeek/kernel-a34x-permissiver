@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  linux/include/linux/mmc/host.h
  *
@@ -5,6 +6,12 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ *  linux/include/linux/mmc/host.h
+ *
+>>>>>>> upstream/android-13
  *  Host driver specific definitions.
  */
 #ifndef LINUX_MMC_HOST_H
@@ -18,6 +25,13 @@
 #include <linux/mmc/card.h>
 #include <linux/mmc/pm.h>
 #include <linux/dma-direction.h>
+<<<<<<< HEAD
+=======
+#include <linux/keyslot-manager.h>
+#include <linux/android_kabi.h>
+
+#include <linux/android_vendor.h>
+>>>>>>> upstream/android-13
 
 struct mmc_ios {
 	unsigned int	clock;			/* clock rate */
@@ -63,6 +77,11 @@ struct mmc_ios {
 #define MMC_TIMING_MMC_DDR52	8
 #define MMC_TIMING_MMC_HS200	9
 #define MMC_TIMING_MMC_HS400	10
+<<<<<<< HEAD
+=======
+#define MMC_TIMING_SD_EXP	11
+#define MMC_TIMING_SD_EXP_1_2V	12
+>>>>>>> upstream/android-13
 
 	unsigned char	signal_voltage;		/* signalling voltage (1.8V or 3.3V) */
 
@@ -80,8 +99,43 @@ struct mmc_ios {
 	bool enhanced_strobe;			/* hs400es selection */
 };
 
+<<<<<<< HEAD
 struct mmc_host;
 
+=======
+struct mmc_clk_phase {
+	bool valid;
+	u16 in_deg;
+	u16 out_deg;
+};
+
+#define MMC_NUM_CLK_PHASES (MMC_TIMING_MMC_HS400 + 1)
+struct mmc_clk_phase_map {
+	struct mmc_clk_phase phase[MMC_NUM_CLK_PHASES];
+};
+
+struct mmc_host;
+
+enum mmc_err_stat {
+	MMC_ERR_CMD_TIMEOUT,
+	MMC_ERR_CMD_CRC,
+	MMC_ERR_DAT_TIMEOUT,
+	MMC_ERR_DAT_CRC,
+	MMC_ERR_AUTO_CMD,
+	MMC_ERR_ADMA,
+	MMC_ERR_TUNING,
+	MMC_ERR_CMDQ_RED,
+	MMC_ERR_CMDQ_GCE,
+	MMC_ERR_CMDQ_ICCE,
+	MMC_ERR_REQ_TIMEOUT,
+	MMC_ERR_CMDQ_REQ_TIMEOUT,
+	MMC_ERR_ICE_CFG,
+	MMC_ERR_CTRL_TIMEOUT,
+	MMC_ERR_UNEXPECTED_IRQ,
+	MMC_ERR_MAX,
+};
+
+>>>>>>> upstream/android-13
 struct mmc_host_ops {
 	/*
 	 * It is optional for the host to implement pre_req and post_req in
@@ -95,6 +149,12 @@ struct mmc_host_ops {
 			    int err);
 	void	(*pre_req)(struct mmc_host *host, struct mmc_request *req);
 	void	(*request)(struct mmc_host *host, struct mmc_request *req);
+<<<<<<< HEAD
+=======
+	/* Submit one request to host in atomic context. */
+	int	(*request_atomic)(struct mmc_host *host,
+				  struct mmc_request *req);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Avoid calling the next three functions too often or in a "fast
@@ -131,6 +191,10 @@ struct mmc_host_ops {
 	int	(*get_cd)(struct mmc_host *host);
 
 	void	(*enable_sdio_irq)(struct mmc_host *host, int enable);
+<<<<<<< HEAD
+=======
+	/* Mandatory callback when using MMC_CAP2_SDIO_IRQ_NOTHREAD. */
+>>>>>>> upstream/android-13
 	void	(*ack_sdio_irq)(struct mmc_host *host);
 
 	/* optional callback for HC quirks */
@@ -138,7 +202,11 @@ struct mmc_host_ops {
 
 	int	(*start_signal_voltage_switch)(struct mmc_host *host, struct mmc_ios *ios);
 
+<<<<<<< HEAD
 	/* Check if the card is pulling dat[0:3] low */
+=======
+	/* Check if the card is pulling dat[0] low */
+>>>>>>> upstream/android-13
 	int	(*card_busy)(struct mmc_host *host);
 
 	/* The tuning command opcode value is different for SD and eMMC cards */
@@ -148,7 +216,14 @@ struct mmc_host_ops {
 	int	(*prepare_hs400_tuning)(struct mmc_host *host, struct mmc_ios *ios);
 
 	/* Execute HS400 tuning depending host driver */
+<<<<<<< HEAD
 	int (*execute_hs400_tuning)(struct mmc_host *host, struct mmc_card *card);
+=======
+	int	(*execute_hs400_tuning)(struct mmc_host *host, struct mmc_card *card);
+
+	/* Prepare switch to DDR during the HS400 init sequence */
+	int	(*hs400_prepare_ddr)(struct mmc_host *host);
+>>>>>>> upstream/android-13
 
 	/* Prepare for switching from HS400 to HS200 */
 	void	(*hs400_downgrade)(struct mmc_host *host);
@@ -162,6 +237,10 @@ struct mmc_host_ops {
 	int	(*select_drive_strength)(struct mmc_card *card,
 					 unsigned int max_dtr, int host_drv,
 					 int card_drv, int *drv_type);
+<<<<<<< HEAD
+=======
+	/* Reset the eMMC card via RST_n */
+>>>>>>> upstream/android-13
 	void	(*hw_reset)(struct mmc_host *host);
 	void	(*card_event)(struct mmc_host *host);
 
@@ -171,6 +250,15 @@ struct mmc_host_ops {
 	 */
 	int	(*multi_io_quirk)(struct mmc_card *card,
 				  unsigned int direction, int blk_size);
+<<<<<<< HEAD
+=======
+
+	/* Initialize an SD express card, mandatory for MMC_CAP2_SD_EXP. */
+	int	(*init_sd_express)(struct mmc_host *host, struct mmc_ios *ios);
+
+	ANDROID_KABI_RESERVE(1);
+	ANDROID_KABI_RESERVE(2);
+>>>>>>> upstream/android-13
 };
 
 struct mmc_cqe_ops {
@@ -215,6 +303,7 @@ struct mmc_cqe_ops {
 	 * will have zero data bytes transferred.
 	 */
 	void	(*cqe_recovery_finish)(struct mmc_host *host);
+<<<<<<< HEAD
 };
 
 struct keyslot_mgmt_ll_ops;
@@ -226,14 +315,22 @@ struct mmc_crypto_variant_ops {
 	void (*host_program_key)(struct mmc_host *host,
 			u32 *key, u32 *tkey, u32 config);
 	int (*complete_mqr_crypto)(struct mmc_host *host);
+=======
+
+	ANDROID_KABI_RESERVE(1);
+	ANDROID_KABI_RESERVE(2);
+>>>>>>> upstream/android-13
 };
 
 struct mmc_async_req {
 	/* active mmc request */
 	struct mmc_request	*mrq;
+<<<<<<< HEAD
 #ifdef CONFIG_MTK_EMMC_CQ_SUPPORT
 	struct mmc_request	*mrq_que;
 #endif
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * Check error status of completed mmc request.
 	 * Returns 0 if success otherwise non zero.
@@ -256,6 +353,10 @@ struct mmc_slot {
 	int cd_irq;
 	bool cd_wake_enabled;
 	void *handler_priv;
+<<<<<<< HEAD
+=======
+	ANDROID_OEM_DATA(1);
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -272,10 +373,13 @@ struct mmc_context_info {
 	wait_queue_head_t	wait;
 };
 
+<<<<<<< HEAD
 #ifdef CONFIG_MTK_EMMC_CQ_SUPPORT
 #define EMMC_MAX_QUEUE_DEPTH		(32)
 #define EMMC_MIN_RT_CLASS_TAG_COUNT	(4)
 #endif
+=======
+>>>>>>> upstream/android-13
 struct regulator;
 struct mmc_pwrseq;
 
@@ -288,6 +392,7 @@ struct mmc_ctx {
 	struct task_struct *task;
 };
 
+<<<<<<< HEAD
 /* CCAP - Crypto Capability 100h */
 union swcqhci_crypto_capabilities {
 	__le32 reg_val;
@@ -352,6 +457,12 @@ struct mmc_host {
 	struct device		class_dev;
 	int index;
 	int host_function;	/* define host function */
+=======
+struct mmc_host {
+	struct device		*parent;
+	struct device		class_dev;
+	int			index;
+>>>>>>> upstream/android-13
 	const struct mmc_host_ops *ops;
 	struct mmc_pwrseq	*pwrseq;
 	unsigned int		f_min;
@@ -361,9 +472,13 @@ struct mmc_host {
 	u32			ocr_avail_sdio;	/* SDIO-specific OCR */
 	u32			ocr_avail_sd;	/* SD-specific OCR */
 	u32			ocr_avail_mmc;	/* MMC-specific OCR */
+<<<<<<< HEAD
 #ifdef CONFIG_PM_SLEEP
 	struct notifier_block	pm_notify;
 #endif
+=======
+	struct wakeup_source	*ws;		/* Enable consume of uevents */
+>>>>>>> upstream/android-13
 	u32			max_current_330;
 	u32			max_current_300;
 	u32			max_current_180;
@@ -386,12 +501,15 @@ struct mmc_host {
 #define MMC_VDD_34_35		0x00400000	/* VDD voltage 3.4 ~ 3.5 */
 #define MMC_VDD_35_36		0x00800000	/* VDD voltage 3.5 ~ 3.6 */
 
+<<<<<<< HEAD
 #define MMC_VDD_EMMC		(MMC_VDD_165_195 |MMC_VDD_20_21| \
 	MMC_VDD_21_22|MMC_VDD_22_23|MMC_VDD_23_24|MMC_VDD_24_25| \
 	MMC_VDD_25_26|MMC_VDD_26_27|MMC_VDD_27_28| \
 	MMC_VDD_28_29 | MMC_VDD_29_30)
 #define MMC_VDD_SD		(MMC_VDD_28_29 | MMC_VDD_29_30)
 
+=======
+>>>>>>> upstream/android-13
 	u32			caps;		/* Host capabilities */
 
 #define MMC_CAP_4_BIT_DATA	(1 << 0)	/* Can the host do 4 bit transfers */
@@ -404,10 +522,18 @@ struct mmc_host {
 #define MMC_CAP_AGGRESSIVE_PM	(1 << 7)	/* Suspend (e)MMC/SD at idle  */
 #define MMC_CAP_NONREMOVABLE	(1 << 8)	/* Nonremovable e.g. eMMC */
 #define MMC_CAP_WAIT_WHILE_BUSY	(1 << 9)	/* Waits while card is busy */
+<<<<<<< HEAD
 #define MMC_CAP_ERASE		(1 << 10)	/* Allow erase/trim commands */
 #define MMC_CAP_3_3V_DDR	(1 << 11)	/* Host supports eMMC DDR 3.3V */
 #define MMC_CAP_1_8V_DDR	(1 << 12)	/* Host supports eMMC DDR 1.8V */
 #define MMC_CAP_1_2V_DDR	(1 << 13)	/* Host supports eMMC DDR 1.2V */
+=======
+#define MMC_CAP_3_3V_DDR	(1 << 11)	/* Host supports eMMC DDR 3.3V */
+#define MMC_CAP_1_8V_DDR	(1 << 12)	/* Host supports eMMC DDR 1.8V */
+#define MMC_CAP_1_2V_DDR	(1 << 13)	/* Host supports eMMC DDR 1.2V */
+#define MMC_CAP_DDR		(MMC_CAP_3_3V_DDR | MMC_CAP_1_8V_DDR | \
+				 MMC_CAP_1_2V_DDR)
+>>>>>>> upstream/android-13
 #define MMC_CAP_POWER_OFF_CARD	(1 << 14)	/* Can power off after boot */
 #define MMC_CAP_BUS_WIDTH_TEST	(1 << 15)	/* CMD14/CMD19 bus width ok */
 #define MMC_CAP_UHS_SDR12	(1 << 16)	/* Host supports UHS SDR12 mode */
@@ -418,7 +544,11 @@ struct mmc_host {
 #define MMC_CAP_UHS		(MMC_CAP_UHS_SDR12 | MMC_CAP_UHS_SDR25 | \
 				 MMC_CAP_UHS_SDR50 | MMC_CAP_UHS_SDR104 | \
 				 MMC_CAP_UHS_DDR50)
+<<<<<<< HEAD
 /* (1 << 21) is free for reuse */
+=======
+#define MMC_CAP_SYNC_RUNTIME_PM	(1 << 21)	/* Synced runtime PM suspends. */
+>>>>>>> upstream/android-13
 #define MMC_CAP_NEED_RSP_BUSY	(1 << 22)	/* Commands with R1B can't use R1. */
 #define MMC_CAP_DRIVER_TYPE_A	(1 << 23)	/* Host supports Driver Type A */
 #define MMC_CAP_DRIVER_TYPE_C	(1 << 24)	/* Host supports Driver Type C */
@@ -427,16 +557,29 @@ struct mmc_host {
 #define MMC_CAP_CD_WAKE		(1 << 28)	/* Enable card detect wake */
 #define MMC_CAP_CMD_DURING_TFR	(1 << 29)	/* Commands during data transfer */
 #define MMC_CAP_CMD23		(1 << 30)	/* CMD23 supported. */
+<<<<<<< HEAD
 #define MMC_CAP_HW_RESET	(1 << 31)	/* Hardware reset */
+=======
+#define MMC_CAP_HW_RESET	(1 << 31)	/* Reset the eMMC card via RST_n */
+>>>>>>> upstream/android-13
 
 	u32			caps2;		/* More host capabilities */
 
 #define MMC_CAP2_BOOTPART_NOACC	(1 << 0)	/* Boot partition no access */
 #define MMC_CAP2_FULL_PWR_CYCLE	(1 << 2)	/* Can do full power cycle */
+<<<<<<< HEAD
+=======
+#define MMC_CAP2_FULL_PWR_CYCLE_IN_SUSPEND (1 << 3) /* Can do full power cycle in suspend */
+>>>>>>> upstream/android-13
 #define MMC_CAP2_HS200_1_8V_SDR	(1 << 5)        /* can support */
 #define MMC_CAP2_HS200_1_2V_SDR	(1 << 6)        /* can support */
 #define MMC_CAP2_HS200		(MMC_CAP2_HS200_1_8V_SDR | \
 				 MMC_CAP2_HS200_1_2V_SDR)
+<<<<<<< HEAD
+=======
+#define MMC_CAP2_SD_EXP		(1 << 7)	/* SD express via PCIe */
+#define MMC_CAP2_SD_EXP_1_2V	(1 << 8)	/* SD express 1.2V */
+>>>>>>> upstream/android-13
 #define MMC_CAP2_CD_ACTIVE_HIGH	(1 << 10)	/* Card-detect signal active high */
 #define MMC_CAP2_RO_ACTIVE_HIGH	(1 << 11)	/* Write-protect signal active high */
 #define MMC_CAP2_NO_PRESCAN_POWERUP (1 << 14)	/* Don't power up before scan */
@@ -455,8 +598,18 @@ struct mmc_host {
 #define MMC_CAP2_CQE		(1 << 23)	/* Has eMMC command queue engine */
 #define MMC_CAP2_CQE_DCMD	(1 << 24)	/* CQE can issue a direct command */
 #define MMC_CAP2_AVOID_3_3V	(1 << 25)	/* Host must negotiate down from 3.3V */
+<<<<<<< HEAD
 #define MMC_CAP2_CRYPTO		(1 << 27)	/* Host supports inline encryption */
 #define MMC_CAP2_SWCQ		(1 << 30)	/* CAP_SW_CMDQ */
+=======
+#define MMC_CAP2_MERGE_CAPABLE	(1 << 26)	/* Host can merge a segment over the segment size */
+#ifdef CONFIG_MMC_CRYPTO
+#define MMC_CAP2_CRYPTO		(1 << 27)	/* Host supports inline encryption */
+#else
+#define MMC_CAP2_CRYPTO		0
+#endif
+#define MMC_CAP2_ALT_GPT_TEGRA	(1 << 28)	/* Host with eMMC that has GPT entry at a non-standard location */
+>>>>>>> upstream/android-13
 
 	int			fixed_drv_type;	/* fixed driver type for non-removable media */
 
@@ -479,13 +632,22 @@ struct mmc_host {
 	/* group bitfields together to minimize padding */
 	unsigned int		use_spi_crc:1;
 	unsigned int		claimed:1;	/* host exclusively claimed */
+<<<<<<< HEAD
 	unsigned int		bus_dead:1;	/* bus has been released */
+=======
+	unsigned int		doing_init_tune:1; /* initial tuning in progress */
+>>>>>>> upstream/android-13
 	unsigned int		can_retune:1;	/* re-tuning can be used */
 	unsigned int		doing_retune:1;	/* re-tuning in progress */
 	unsigned int		retune_now:1;	/* do re-tuning at next req */
 	unsigned int		retune_paused:1; /* re-tuning is temporarily disabled */
+<<<<<<< HEAD
 	unsigned int		use_blk_mq:1;	/* use blk-mq */
 	unsigned int		retune_crc_disable:1; /* don't trigger retune upon crc */
+=======
+	unsigned int		retune_crc_disable:1; /* don't trigger retune upon crc */
+	unsigned int		can_dma_map_merge:1; /* merging can be used */
+>>>>>>> upstream/android-13
 
 	int			rescan_disable;	/* disable card detection */
 	int			rescan_entered;	/* used with nonremovable devices */
@@ -509,7 +671,10 @@ struct mmc_host {
 	struct mmc_slot		slot;
 
 	const struct mmc_bus_ops *bus_ops;	/* current bus driver */
+<<<<<<< HEAD
 	unsigned int		bus_refs;	/* reference counter */
+=======
+>>>>>>> upstream/android-13
 
 	unsigned int		sdio_irqs;
 	struct task_struct	*sdio_irq_thread;
@@ -530,6 +695,7 @@ struct mmc_host {
 
 	/* Ongoing data transfer that allows commands during transfer */
 	struct mmc_request	*ongoing_mrq;
+<<<<<<< HEAD
 #ifdef CONFIG_MTK_EMMC_CQ_SUPPORT
 	struct mmc_async_req	*areq_que[EMMC_MAX_QUEUE_DEPTH];
 	struct mmc_async_req	*areq_cur;
@@ -572,6 +738,9 @@ struct mmc_host {
 	int			align_size;
 	bool		swcq_enabled;
 #endif
+=======
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_FAIL_MMC_REQUEST
 	struct fault_attr	fail_mmc_request;
 #endif
@@ -589,6 +758,7 @@ struct mmc_host {
 	int			cqe_qdepth;
 	bool			cqe_enabled;
 	bool			cqe_on;
+<<<<<<< HEAD
 #ifdef CONFIG_MMC_CRYPTO
 	/* crypto */
 	const struct mmc_crypto_variant_ops *crypto_vops;
@@ -601,6 +771,25 @@ struct mmc_host {
     unsigned int        card_detect_cnt;
 	int (*sdcard_uevent)(struct mmc_card *card);
 	unsigned long		private[0] ____cacheline_aligned;
+=======
+	bool			cqe_recovery_reset_always;
+
+	/* Inline encryption support */
+#ifdef CONFIG_MMC_CRYPTO
+	struct blk_keyslot_manager ksm;
+#endif
+
+	/* Host Software Queue support */
+	bool			hsq_enabled;
+
+	u32			err_stats[MMC_ERR_MAX];
+
+	ANDROID_KABI_RESERVE(1);
+	ANDROID_KABI_RESERVE(2);
+	ANDROID_OEM_DATA(1);
+
+	unsigned long		private[] ____cacheline_aligned;
+>>>>>>> upstream/android-13
 };
 
 struct device_node;
@@ -609,14 +798,29 @@ struct mmc_host *mmc_alloc_host(int extra, struct device *);
 int mmc_add_host(struct mmc_host *);
 void mmc_remove_host(struct mmc_host *);
 void mmc_free_host(struct mmc_host *);
+<<<<<<< HEAD
 int mmc_of_parse(struct mmc_host *host);
 int mmc_of_parse_voltage(struct device_node *np, u32 *mask);
+=======
+void mmc_of_parse_clk_phase(struct mmc_host *host,
+			    struct mmc_clk_phase_map *map);
+int mmc_of_parse(struct mmc_host *host);
+int mmc_of_parse_voltage(struct mmc_host *host, u32 *mask);
+>>>>>>> upstream/android-13
 
 static inline void *mmc_priv(struct mmc_host *host)
 {
 	return (void *)host->private;
 }
 
+<<<<<<< HEAD
+=======
+static inline struct mmc_host *mmc_from_priv(void *priv)
+{
+	return container_of(priv, struct mmc_host, private);
+}
+
+>>>>>>> upstream/android-13
 #define mmc_host_is_spi(host)	((host)->caps & MMC_CAP_SPI)
 
 #define mmc_dev(x)	((x)->parent)
@@ -628,6 +832,7 @@ void mmc_request_done(struct mmc_host *, struct mmc_request *);
 void mmc_command_done(struct mmc_host *host, struct mmc_request *mrq);
 
 void mmc_cqe_request_done(struct mmc_host *host, struct mmc_request *mrq);
+<<<<<<< HEAD
 #ifdef CONFIG_MTK_EMMC_CQ_SUPPORT
 int mmc_blk_end_queued_req(struct mmc_host *host,
 	struct mmc_async_req *areq_active, int index);
@@ -635,6 +840,9 @@ int mmc_blk_end_queued_req(struct mmc_host *host,
 extern int current_mmc_part_type;
 extern int emmc_resetting_when_cmdq;
 #endif
+=======
+
+>>>>>>> upstream/android-13
 /*
  * May be called from host driver's system/runtime suspend/resume callbacks,
  * to know if SDIO IRQs has been claimed.
@@ -652,21 +860,30 @@ static inline void mmc_signal_sdio_irq(struct mmc_host *host)
 		wake_up_process(host->sdio_irq_thread);
 }
 
+<<<<<<< HEAD
 void sdio_run_irqs(struct mmc_host *host);
 void sdio_signal_irq(struct mmc_host *host);
 
 #ifdef CONFIG_REGULATOR
 int mmc_regulator_get_ocrmask(struct regulator *supply);
+=======
+void sdio_signal_irq(struct mmc_host *host);
+
+#ifdef CONFIG_REGULATOR
+>>>>>>> upstream/android-13
 int mmc_regulator_set_ocr(struct mmc_host *mmc,
 			struct regulator *supply,
 			unsigned short vdd_bit);
 int mmc_regulator_set_vqmmc(struct mmc_host *mmc, struct mmc_ios *ios);
 #else
+<<<<<<< HEAD
 static inline int mmc_regulator_get_ocrmask(struct regulator *supply)
 {
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline int mmc_regulator_set_ocr(struct mmc_host *mmc,
 				 struct regulator *supply,
 				 unsigned short vdd_bit)
@@ -681,7 +898,10 @@ static inline int mmc_regulator_set_vqmmc(struct mmc_host *mmc,
 }
 #endif
 
+<<<<<<< HEAD
 u32 mmc_vddrange_to_ocrmask(int vdd_min, int vdd_max);
+=======
+>>>>>>> upstream/android-13
 int mmc_regulator_get_supply(struct mmc_host *mmc);
 
 static inline int mmc_card_is_removable(struct mmc_host *host)
@@ -726,13 +946,37 @@ static inline bool mmc_can_retune(struct mmc_host *host)
 	return host->can_retune == 1;
 }
 
+<<<<<<< HEAD
+=======
+static inline bool mmc_doing_retune(struct mmc_host *host)
+{
+	return host->doing_retune == 1;
+}
+
+static inline bool mmc_doing_tune(struct mmc_host *host)
+{
+	return host->doing_retune == 1 || host->doing_init_tune == 1;
+}
+
+>>>>>>> upstream/android-13
 static inline enum dma_data_direction mmc_get_dma_dir(struct mmc_data *data)
 {
 	return data->flags & MMC_DATA_WRITE ? DMA_TO_DEVICE : DMA_FROM_DEVICE;
 }
 
+<<<<<<< HEAD
 int mmc_send_tuning(struct mmc_host *host, u32 opcode, int *cmd_error);
 int mmc_abort_tuning(struct mmc_host *host, u32 opcode);
+=======
+static inline void mmc_debugfs_err_stats_inc(struct mmc_host *host,
+					     enum mmc_err_stat stat)
+{
+	host->err_stats[stat] += 1;
+}
+
+int mmc_send_tuning(struct mmc_host *host, u32 opcode, int *cmd_error);
+int mmc_send_abort_tuning(struct mmc_host *host, u32 opcode);
+>>>>>>> upstream/android-13
 int mmc_get_ext_csd(struct mmc_card *card, u8 **new_ext_csd);
 
 #endif /* LINUX_MMC_HOST_H */

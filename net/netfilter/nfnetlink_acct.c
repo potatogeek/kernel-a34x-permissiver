@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * (C) 2011 Pablo Neira Ayuso <pablo@netfilter.org>
  * (C) 2011 Intra2net AG <http://www.intra2net.com>
@@ -5,6 +6,12 @@
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation (or any later at your option).
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * (C) 2011 Pablo Neira Ayuso <pablo@netfilter.org>
+ * (C) 2011 Intra2net AG <https://www.intra2net.com>
+>>>>>>> upstream/android-13
  */
 #include <linux/init.h>
 #include <linux/module.h>
@@ -19,6 +26,10 @@
 #include <linux/errno.h>
 #include <net/netlink.h>
 #include <net/sock.h>
+<<<<<<< HEAD
+=======
+#include <net/netns/generic.h>
+>>>>>>> upstream/android-13
 
 #include <linux/netfilter.h>
 #include <linux/netfilter/nfnetlink.h>
@@ -36,7 +47,11 @@ struct nf_acct {
 	refcount_t		refcnt;
 	char			name[NFACCT_NAME_MAX];
 	struct rcu_head		rcu_head;
+<<<<<<< HEAD
 	char			data[0];
+=======
+	char			data[];
+>>>>>>> upstream/android-13
 };
 
 struct nfacct_filter {
@@ -44,6 +59,7 @@ struct nfacct_filter {
 	u32 mask;
 };
 
+<<<<<<< HEAD
 #define NFACCT_F_QUOTA (NFACCT_F_QUOTA_PKTS | NFACCT_F_QUOTA_BYTES)
 #define NFACCT_OVERQUOTA_BIT	2	/* NFACCT_F_OVERQUOTA */
 
@@ -55,6 +71,29 @@ static int nfnl_acct_new(struct net *net, struct sock *nfnl,
 	struct nf_acct *nfacct, *matching = NULL;
 	char *acct_name;
 	unsigned int size = 0;
+=======
+struct nfnl_acct_net {
+	struct list_head        nfnl_acct_list;
+};
+
+static unsigned int nfnl_acct_net_id __read_mostly;
+
+static inline struct nfnl_acct_net *nfnl_acct_pernet(struct net *net)
+{
+	return net_generic(net, nfnl_acct_net_id);
+}
+
+#define NFACCT_F_QUOTA (NFACCT_F_QUOTA_PKTS | NFACCT_F_QUOTA_BYTES)
+#define NFACCT_OVERQUOTA_BIT	2	/* NFACCT_F_OVERQUOTA */
+
+static int nfnl_acct_new(struct sk_buff *skb, const struct nfnl_info *info,
+			 const struct nlattr * const tb[])
+{
+	struct nfnl_acct_net *nfnl_acct_net = nfnl_acct_pernet(info->net);
+	struct nf_acct *nfacct, *matching = NULL;
+	unsigned int size = 0;
+	char *acct_name;
+>>>>>>> upstream/android-13
 	u32 flags = 0;
 
 	if (!tb[NFACCT_NAME])
@@ -64,11 +103,19 @@ static int nfnl_acct_new(struct net *net, struct sock *nfnl,
 	if (strlen(acct_name) == 0)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	list_for_each_entry(nfacct, &net->nfnl_acct_list, head) {
 		if (strncmp(nfacct->name, acct_name, NFACCT_NAME_MAX) != 0)
 			continue;
 
                 if (nlh->nlmsg_flags & NLM_F_EXCL)
+=======
+	list_for_each_entry(nfacct, &nfnl_acct_net->nfnl_acct_list, head) {
+		if (strncmp(nfacct->name, acct_name, NFACCT_NAME_MAX) != 0)
+			continue;
+
+                if (info->nlh->nlmsg_flags & NLM_F_EXCL)
+>>>>>>> upstream/android-13
 			return -EEXIST;
 
 		matching = nfacct;
@@ -76,7 +123,11 @@ static int nfnl_acct_new(struct net *net, struct sock *nfnl,
         }
 
 	if (matching) {
+<<<<<<< HEAD
 		if (nlh->nlmsg_flags & NLM_F_REPLACE) {
+=======
+		if (info->nlh->nlmsg_flags & NLM_F_REPLACE) {
+>>>>>>> upstream/android-13
 			/* reset counters if you request a replacement. */
 			atomic64_set(&matching->pkts, 0);
 			atomic64_set(&matching->bytes, 0);
@@ -115,7 +166,11 @@ static int nfnl_acct_new(struct net *net, struct sock *nfnl,
 		nfacct->flags = flags;
 	}
 
+<<<<<<< HEAD
 	nla_strlcpy(nfacct->name, tb[NFACCT_NAME], NFACCT_NAME_MAX);
+=======
+	nla_strscpy(nfacct->name, tb[NFACCT_NAME], NFACCT_NAME_MAX);
+>>>>>>> upstream/android-13
 
 	if (tb[NFACCT_BYTES]) {
 		atomic64_set(&nfacct->bytes,
@@ -126,7 +181,11 @@ static int nfnl_acct_new(struct net *net, struct sock *nfnl,
 			     be64_to_cpu(nla_get_be64(tb[NFACCT_PKTS])));
 	}
 	refcount_set(&nfacct->refcnt, 1);
+<<<<<<< HEAD
 	list_add_tail_rcu(&nfacct->head, &net->nfnl_acct_list);
+=======
+	list_add_tail_rcu(&nfacct->head, &nfnl_acct_net->nfnl_acct_list);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -135,12 +194,16 @@ nfnl_acct_fill_info(struct sk_buff *skb, u32 portid, u32 seq, u32 type,
 		   int event, struct nf_acct *acct)
 {
 	struct nlmsghdr *nlh;
+<<<<<<< HEAD
 	struct nfgenmsg *nfmsg;
+=======
+>>>>>>> upstream/android-13
 	unsigned int flags = portid ? NLM_F_MULTI : 0;
 	u64 pkts, bytes;
 	u32 old_flags;
 
 	event = nfnl_msg_type(NFNL_SUBSYS_ACCT, event);
+<<<<<<< HEAD
 	nlh = nlmsg_put(skb, portid, seq, event, sizeof(*nfmsg), flags);
 	if (nlh == NULL)
 		goto nlmsg_failure;
@@ -150,6 +213,13 @@ nfnl_acct_fill_info(struct sk_buff *skb, u32 portid, u32 seq, u32 type,
 	nfmsg->version = NFNETLINK_V0;
 	nfmsg->res_id = 0;
 
+=======
+	nlh = nfnl_msg_put(skb, portid, seq, event, flags, AF_UNSPEC,
+			   NFNETLINK_V0, 0);
+	if (!nlh)
+		goto nlmsg_failure;
+
+>>>>>>> upstream/android-13
 	if (nla_put_string(skb, NFACCT_NAME, acct->name))
 		goto nla_put_failure;
 
@@ -191,6 +261,10 @@ static int
 nfnl_acct_dump(struct sk_buff *skb, struct netlink_callback *cb)
 {
 	struct net *net = sock_net(skb->sk);
+<<<<<<< HEAD
+=======
+	struct nfnl_acct_net *nfnl_acct_net = nfnl_acct_pernet(net);
+>>>>>>> upstream/android-13
 	struct nf_acct *cur, *last;
 	const struct nfacct_filter *filter = cb->data;
 
@@ -202,7 +276,11 @@ nfnl_acct_dump(struct sk_buff *skb, struct netlink_callback *cb)
 		cb->args[1] = 0;
 
 	rcu_read_lock();
+<<<<<<< HEAD
 	list_for_each_entry_rcu(cur, &net->nfnl_acct_list, head) {
+=======
+	list_for_each_entry_rcu(cur, &nfnl_acct_net->nfnl_acct_list, head) {
+>>>>>>> upstream/android-13
 		if (last) {
 			if (cur != last)
 				continue;
@@ -248,8 +326,13 @@ static int nfnl_acct_start(struct netlink_callback *cb)
 	if (!attr)
 		return 0;
 
+<<<<<<< HEAD
 	err = nla_parse_nested(tb, NFACCT_FILTER_MAX, attr, filter_policy,
 			       NULL);
+=======
+	err = nla_parse_nested_deprecated(tb, NFACCT_FILTER_MAX, attr,
+					  filter_policy, NULL);
+>>>>>>> upstream/android-13
 	if (err < 0)
 		return err;
 
@@ -267,16 +350,27 @@ static int nfnl_acct_start(struct netlink_callback *cb)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int nfnl_acct_get(struct net *net, struct sock *nfnl,
 			 struct sk_buff *skb, const struct nlmsghdr *nlh,
 			 const struct nlattr * const tb[],
 			 struct netlink_ext_ack *extack)
 {
+=======
+static int nfnl_acct_get(struct sk_buff *skb, const struct nfnl_info *info,
+			 const struct nlattr * const tb[])
+{
+	struct nfnl_acct_net *nfnl_acct_net = nfnl_acct_pernet(info->net);
+>>>>>>> upstream/android-13
 	int ret = -ENOENT;
 	struct nf_acct *cur;
 	char *acct_name;
 
+<<<<<<< HEAD
 	if (nlh->nlmsg_flags & NLM_F_DUMP) {
+=======
+	if (info->nlh->nlmsg_flags & NLM_F_DUMP) {
+>>>>>>> upstream/android-13
 		struct netlink_dump_control c = {
 			.dump = nfnl_acct_dump,
 			.start = nfnl_acct_start,
@@ -284,14 +378,22 @@ static int nfnl_acct_get(struct net *net, struct sock *nfnl,
 			.data = (void *)tb[NFACCT_FILTER],
 		};
 
+<<<<<<< HEAD
 		return netlink_dump_start(nfnl, skb, nlh, &c);
+=======
+		return netlink_dump_start(info->sk, skb, info->nlh, &c);
+>>>>>>> upstream/android-13
 	}
 
 	if (!tb[NFACCT_NAME])
 		return -EINVAL;
 	acct_name = nla_data(tb[NFACCT_NAME]);
 
+<<<<<<< HEAD
 	list_for_each_entry(cur, &net->nfnl_acct_list, head) {
+=======
+	list_for_each_entry(cur, &nfnl_acct_net->nfnl_acct_list, head) {
+>>>>>>> upstream/android-13
 		struct sk_buff *skb2;
 
 		if (strncmp(cur->name, acct_name, NFACCT_NAME_MAX)!= 0)
@@ -304,13 +406,20 @@ static int nfnl_acct_get(struct net *net, struct sock *nfnl,
 		}
 
 		ret = nfnl_acct_fill_info(skb2, NETLINK_CB(skb).portid,
+<<<<<<< HEAD
 					 nlh->nlmsg_seq,
 					 NFNL_MSG_TYPE(nlh->nlmsg_type),
 					 NFNL_MSG_ACCT_NEW, cur);
+=======
+					  info->nlh->nlmsg_seq,
+					  NFNL_MSG_TYPE(info->nlh->nlmsg_type),
+					  NFNL_MSG_ACCT_NEW, cur);
+>>>>>>> upstream/android-13
 		if (ret <= 0) {
 			kfree_skb(skb2);
 			break;
 		}
+<<<<<<< HEAD
 		ret = netlink_unicast(nfnl, skb2, NETLINK_CB(skb).portid,
 					MSG_DONTWAIT);
 		if (ret > 0)
@@ -319,6 +428,13 @@ static int nfnl_acct_get(struct net *net, struct sock *nfnl,
 		/* this avoids a loop in nfnetlink. */
 		return ret == -EAGAIN ? -ENOBUFS : ret;
 	}
+=======
+
+		ret = nfnetlink_unicast(skb2, info->net, NETLINK_CB(skb).portid);
+		break;
+	}
+
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -340,24 +456,39 @@ static int nfnl_acct_try_del(struct nf_acct *cur)
 	return ret;
 }
 
+<<<<<<< HEAD
 static int nfnl_acct_del(struct net *net, struct sock *nfnl,
 			 struct sk_buff *skb, const struct nlmsghdr *nlh,
 			 const struct nlattr * const tb[],
 			 struct netlink_ext_ack *extack)
 {
+=======
+static int nfnl_acct_del(struct sk_buff *skb, const struct nfnl_info *info,
+			 const struct nlattr * const tb[])
+{
+	struct nfnl_acct_net *nfnl_acct_net = nfnl_acct_pernet(info->net);
+>>>>>>> upstream/android-13
 	struct nf_acct *cur, *tmp;
 	int ret = -ENOENT;
 	char *acct_name;
 
 	if (!tb[NFACCT_NAME]) {
+<<<<<<< HEAD
 		list_for_each_entry_safe(cur, tmp, &net->nfnl_acct_list, head)
+=======
+		list_for_each_entry_safe(cur, tmp, &nfnl_acct_net->nfnl_acct_list, head)
+>>>>>>> upstream/android-13
 			nfnl_acct_try_del(cur);
 
 		return 0;
 	}
 	acct_name = nla_data(tb[NFACCT_NAME]);
 
+<<<<<<< HEAD
 	list_for_each_entry(cur, &net->nfnl_acct_list, head) {
+=======
+	list_for_each_entry(cur, &nfnl_acct_net->nfnl_acct_list, head) {
+>>>>>>> upstream/android-13
 		if (strncmp(cur->name, acct_name, NFACCT_NAME_MAX) != 0)
 			continue;
 
@@ -380,6 +511,7 @@ static const struct nla_policy nfnl_acct_policy[NFACCT_MAX+1] = {
 };
 
 static const struct nfnl_callback nfnl_acct_cb[NFNL_MSG_ACCT_MAX] = {
+<<<<<<< HEAD
 	[NFNL_MSG_ACCT_NEW]		= { .call = nfnl_acct_new,
 					    .attr_count = NFACCT_MAX,
 					    .policy = nfnl_acct_policy },
@@ -392,6 +524,32 @@ static const struct nfnl_callback nfnl_acct_cb[NFNL_MSG_ACCT_MAX] = {
 	[NFNL_MSG_ACCT_DEL]		= { .call = nfnl_acct_del,
 					    .attr_count = NFACCT_MAX,
 					    .policy = nfnl_acct_policy },
+=======
+	[NFNL_MSG_ACCT_NEW] = {
+		.call		= nfnl_acct_new,
+		.type		= NFNL_CB_MUTEX,
+		.attr_count	= NFACCT_MAX,
+		.policy		= nfnl_acct_policy
+	},
+	[NFNL_MSG_ACCT_GET] = {
+		.call		= nfnl_acct_get,
+		.type		= NFNL_CB_MUTEX,
+		.attr_count	= NFACCT_MAX,
+		.policy		= nfnl_acct_policy
+	},
+	[NFNL_MSG_ACCT_GET_CTRZERO] = {
+		.call		= nfnl_acct_get,
+		.type		= NFNL_CB_MUTEX,
+		.attr_count	= NFACCT_MAX,
+		.policy		= nfnl_acct_policy
+	},
+	[NFNL_MSG_ACCT_DEL] = {
+		.call		= nfnl_acct_del,
+		.type		= NFNL_CB_MUTEX,
+		.attr_count	= NFACCT_MAX,
+		.policy		= nfnl_acct_policy
+	},
+>>>>>>> upstream/android-13
 };
 
 static const struct nfnetlink_subsystem nfnl_acct_subsys = {
@@ -405,10 +563,18 @@ MODULE_ALIAS_NFNL_SUBSYS(NFNL_SUBSYS_ACCT);
 
 struct nf_acct *nfnl_acct_find_get(struct net *net, const char *acct_name)
 {
+<<<<<<< HEAD
 	struct nf_acct *cur, *acct = NULL;
 
 	rcu_read_lock();
 	list_for_each_entry_rcu(cur, &net->nfnl_acct_list, head) {
+=======
+	struct nfnl_acct_net *nfnl_acct_net = nfnl_acct_pernet(net);
+	struct nf_acct *cur, *acct = NULL;
+
+	rcu_read_lock();
+	list_for_each_entry_rcu(cur, &nfnl_acct_net->nfnl_acct_list, head) {
+>>>>>>> upstream/android-13
 		if (strncmp(cur->name, acct_name, NFACCT_NAME_MAX)!= 0)
 			continue;
 
@@ -460,8 +626,12 @@ static void nfnl_overquota_report(struct net *net, struct nf_acct *nfacct)
 		kfree_skb(skb);
 		return;
 	}
+<<<<<<< HEAD
 	netlink_broadcast(net->nfnl, skb, 0, NFNLGRP_ACCT_QUOTA,
 			  GFP_ATOMIC);
+=======
+	nfnetlink_broadcast(net, skb, 0, NFNLGRP_ACCT_QUOTA, GFP_ATOMIC);
+>>>>>>> upstream/android-13
 }
 
 int nfnl_acct_overquota(struct net *net, struct nf_acct *nfacct)
@@ -491,16 +661,27 @@ EXPORT_SYMBOL_GPL(nfnl_acct_overquota);
 
 static int __net_init nfnl_acct_net_init(struct net *net)
 {
+<<<<<<< HEAD
 	INIT_LIST_HEAD(&net->nfnl_acct_list);
+=======
+	INIT_LIST_HEAD(&nfnl_acct_pernet(net)->nfnl_acct_list);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
 static void __net_exit nfnl_acct_net_exit(struct net *net)
 {
+<<<<<<< HEAD
 	struct nf_acct *cur, *tmp;
 
 	list_for_each_entry_safe(cur, tmp, &net->nfnl_acct_list, head) {
+=======
+	struct nfnl_acct_net *nfnl_acct_net = nfnl_acct_pernet(net);
+	struct nf_acct *cur, *tmp;
+
+	list_for_each_entry_safe(cur, tmp, &nfnl_acct_net->nfnl_acct_list, head) {
+>>>>>>> upstream/android-13
 		list_del_rcu(&cur->head);
 
 		if (refcount_dec_and_test(&cur->refcnt))
@@ -511,6 +692,11 @@ static void __net_exit nfnl_acct_net_exit(struct net *net)
 static struct pernet_operations nfnl_acct_ops = {
         .init   = nfnl_acct_net_init,
         .exit   = nfnl_acct_net_exit,
+<<<<<<< HEAD
+=======
+        .id     = &nfnl_acct_net_id,
+        .size   = sizeof(struct nfnl_acct_net),
+>>>>>>> upstream/android-13
 };
 
 static int __init nfnl_acct_init(void)

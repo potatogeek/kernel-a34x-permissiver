@@ -85,6 +85,11 @@
 #define SCLK_EMMC_DIV50		83
 #define SCLK_DDRCLK		84
 #define SCLK_UART1_SRC		85
+<<<<<<< HEAD
+=======
+#define SCLK_SDMMC_DIV		86
+#define SCLK_SDMMC_DIV50	87
+>>>>>>> upstream/android-13
 
 /* dclk gates */
 #define DCLK_VOPB		150

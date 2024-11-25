@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * LP55XX Common Driver Header
  *
@@ -5,16 +9,24 @@
  *
  * Author: Milo(Woogyom) Kim <milo.kim@ti.com>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * version 2 as published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * Derived from leds-lp5521.c, leds-lp5523.c
  */
 
 #ifndef _LEDS_LP55XX_COMMON_H
 #define _LEDS_LP55XX_COMMON_H
 
+<<<<<<< HEAD
+=======
+#include <linux/led-class-multicolor.h>
+
+>>>>>>> upstream/android-13
 enum lp55xx_engine_index {
 	LP55XX_ENGINE_INVALID,
 	LP55XX_ENGINE_1,
@@ -96,6 +108,10 @@ struct lp55xx_reg {
  * @max_channel        : Maximum number of channels
  * @post_init_device   : Chip specific initialization code
  * @brightness_fn      : Brightness function
+<<<<<<< HEAD
+=======
+ * @multicolor_brightness_fn : Multicolor brightness function
+>>>>>>> upstream/android-13
  * @set_led_current    : LED current set function
  * @firmware_cb        : Call function when the firmware is loaded
  * @run_engine         : Run internal engine for pattern
@@ -109,9 +125,18 @@ struct lp55xx_device_config {
 	/* define if the device has specific initialization process */
 	int (*post_init_device) (struct lp55xx_chip *chip);
 
+<<<<<<< HEAD
 	/* access brightness register */
 	int (*brightness_fn)(struct lp55xx_led *led);
 
+=======
+	/* set LED brightness */
+	int (*brightness_fn)(struct lp55xx_led *led);
+
+	/* set multicolor LED brightness */
+	int (*multicolor_brightness_fn)(struct lp55xx_led *led);
+
+>>>>>>> upstream/android-13
 	/* current setting function */
 	void (*set_led_current) (struct lp55xx_led *led, u8 led_current);
 
@@ -162,6 +187,11 @@ struct lp55xx_chip {
  * struct lp55xx_led
  * @chan_nr         : Channel number
  * @cdev            : LED class device
+<<<<<<< HEAD
+=======
+ * @mc_cdev         : Multi color class device
+ * @color_components: Multi color LED map information
+>>>>>>> upstream/android-13
  * @led_current     : Current setting at each led channel
  * @max_current     : Maximun current at each led channel
  * @brightness      : Brightness value
@@ -170,6 +200,10 @@ struct lp55xx_chip {
 struct lp55xx_led {
 	int chan_nr;
 	struct led_classdev cdev;
+<<<<<<< HEAD
+=======
+	struct led_classdev_mc mc_cdev;
+>>>>>>> upstream/android-13
 	u8 led_current;
 	u8 max_current;
 	u8 brightness;
@@ -192,8 +226,11 @@ extern void lp55xx_deinit_device(struct lp55xx_chip *chip);
 /* common LED class device functions */
 extern int lp55xx_register_leds(struct lp55xx_led *led,
 				struct lp55xx_chip *chip);
+<<<<<<< HEAD
 extern void lp55xx_unregister_leds(struct lp55xx_led *led,
 				struct lp55xx_chip *chip);
+=======
+>>>>>>> upstream/android-13
 
 /* common device attributes functions */
 extern int lp55xx_register_sysfs(struct lp55xx_chip *chip);
@@ -201,6 +238,11 @@ extern void lp55xx_unregister_sysfs(struct lp55xx_chip *chip);
 
 /* common device tree population function */
 extern struct lp55xx_platform_data
+<<<<<<< HEAD
 *lp55xx_of_populate_pdata(struct device *dev, struct device_node *np);
+=======
+*lp55xx_of_populate_pdata(struct device *dev, struct device_node *np,
+			  struct lp55xx_chip *chip);
+>>>>>>> upstream/android-13
 
 #endif /* _LEDS_LP55XX_COMMON_H */

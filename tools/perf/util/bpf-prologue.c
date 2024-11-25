@@ -8,12 +8,19 @@
  */
 
 #include <bpf/libbpf.h>
+<<<<<<< HEAD
 #include "perf.h"
+=======
+>>>>>>> upstream/android-13
 #include "debug.h"
 #include "bpf-loader.h"
 #include "bpf-prologue.h"
 #include "probe-finder.h"
 #include <errno.h>
+<<<<<<< HEAD
+=======
+#include <stdlib.h>
+>>>>>>> upstream/android-13
 #include <dwarf-regs.h>
 #include <linux/filter.h>
 
@@ -142,7 +149,12 @@ static int
 gen_read_mem(struct bpf_insn_pos *pos,
 	     int src_base_addr_reg,
 	     int dst_addr_reg,
+<<<<<<< HEAD
 	     long offset)
+=======
+	     long offset,
+	     int probeid)
+>>>>>>> upstream/android-13
 {
 	/* mov arg3, src_base_addr_reg */
 	if (src_base_addr_reg != BPF_REG_ARG3)
@@ -159,7 +171,11 @@ gen_read_mem(struct bpf_insn_pos *pos,
 		ins(BPF_MOV64_REG(BPF_REG_ARG1, dst_addr_reg), pos);
 
 	/* Call probe_read  */
+<<<<<<< HEAD
 	ins(BPF_EMIT_CALL(BPF_FUNC_probe_read), pos);
+=======
+	ins(BPF_EMIT_CALL(probeid), pos);
+>>>>>>> upstream/android-13
 	/*
 	 * Error processing: if read fail, goto error code,
 	 * will be relocated. Target should be the start of
@@ -241,7 +257,11 @@ static int
 gen_prologue_slowpath(struct bpf_insn_pos *pos,
 		      struct probe_trace_arg *args, int nargs)
 {
+<<<<<<< HEAD
 	int err, i;
+=======
+	int err, i, probeid;
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < nargs; i++) {
 		struct probe_trace_arg *arg = &args[i];
@@ -276,11 +296,24 @@ gen_prologue_slowpath(struct bpf_insn_pos *pos,
 				stack_offset), pos);
 
 		ref = arg->ref;
+<<<<<<< HEAD
 		while (ref) {
 			pr_debug("prologue: arg %d: offset %ld\n",
 				 i, ref->offset);
 			err = gen_read_mem(pos, BPF_REG_3, BPF_REG_7,
 					   ref->offset);
+=======
+		probeid = BPF_FUNC_probe_read_kernel;
+		while (ref) {
+			pr_debug("prologue: arg %d: offset %ld\n",
+				 i, ref->offset);
+
+			if (ref->user_access)
+				probeid = BPF_FUNC_probe_read_user;
+
+			err = gen_read_mem(pos, BPF_REG_3, BPF_REG_7,
+					   ref->offset, probeid);
+>>>>>>> upstream/android-13
 			if (err) {
 				pr_err("prologue: failed to generate probe_read function call\n");
 				goto errout;

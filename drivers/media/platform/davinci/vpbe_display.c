@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2010 Texas Instruments Incorporated - http://www.ti.com/
  *
@@ -9,6 +10,11 @@
  * kind, whether express or implied; without even the implied warranty
  * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2010 Texas Instruments Incorporated - https://www.ti.com/
+>>>>>>> upstream/android-13
  */
 #include <linux/kernel.h>
 #include <linux/init.h>
@@ -25,11 +31,14 @@
 #include <linux/videodev2.h>
 #include <linux/slab.h>
 
+<<<<<<< HEAD
 #include <asm/pgtable.h>
 
 #ifdef CONFIG_ARCH_DAVINCI
 #include <mach/cputype.h>
 #endif
+=======
+>>>>>>> upstream/android-13
 
 #include <media/v4l2-dev.h>
 #include <media/v4l2-common.h>
@@ -60,7 +69,11 @@ static int venc_is_second_field(struct vpbe_display *disp_dev)
 
 	ret = v4l2_subdev_call(vpbe_dev->venc,
 			       core,
+<<<<<<< HEAD
 			       ioctl,
+=======
+			       command,
+>>>>>>> upstream/android-13
 			       VENC_GET_FLD,
 			       &val);
 	if (ret < 0) {
@@ -641,13 +654,20 @@ static int vpbe_display_querycap(struct file *file, void  *priv,
 	struct vpbe_layer *layer = video_drvdata(file);
 	struct vpbe_device *vpbe_dev = layer->disp_dev->vpbe_dev;
 
+<<<<<<< HEAD
 	cap->device_caps = V4L2_CAP_VIDEO_OUTPUT | V4L2_CAP_STREAMING;
 	cap->capabilities = cap->device_caps | V4L2_CAP_DEVICE_CAPS;
+=======
+>>>>>>> upstream/android-13
 	snprintf(cap->driver, sizeof(cap->driver), "%s",
 		dev_name(vpbe_dev->pdev));
 	snprintf(cap->bus_info, sizeof(cap->bus_info), "platform:%s",
 		 dev_name(vpbe_dev->pdev));
+<<<<<<< HEAD
 	strlcpy(cap->card, vpbe_dev->cfg->module_name, sizeof(cap->card));
+=======
+	strscpy(cap->card, vpbe_dev->cfg->module_name, sizeof(cap->card));
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -759,18 +779,30 @@ static int vpbe_display_g_selection(struct file *file, void *priv,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int vpbe_display_cropcap(struct file *file, void *priv,
 			      struct v4l2_cropcap *cropcap)
+=======
+static int vpbe_display_g_pixelaspect(struct file *file, void *priv,
+				      int type, struct v4l2_fract *f)
+>>>>>>> upstream/android-13
 {
 	struct vpbe_layer *layer = video_drvdata(file);
 	struct vpbe_device *vpbe_dev = layer->disp_dev->vpbe_dev;
 
 	v4l2_dbg(1, debug, &vpbe_dev->v4l2_dev, "VIDIOC_CROPCAP ioctl\n");
 
+<<<<<<< HEAD
 	if (cropcap->type != V4L2_BUF_TYPE_VIDEO_OUTPUT)
 		return -EINVAL;
 
 	cropcap->pixelaspect = vpbe_dev->current_timings.aspect;
+=======
+	if (type != V4L2_BUF_TYPE_VIDEO_OUTPUT)
+		return -EINVAL;
+
+	*f = vpbe_dev->current_timings.aspect;
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -800,7 +832,10 @@ static int vpbe_display_enum_fmt(struct file *file, void  *priv,
 {
 	struct vpbe_layer *layer = video_drvdata(file);
 	struct vpbe_device *vpbe_dev = layer->disp_dev->vpbe_dev;
+<<<<<<< HEAD
 	unsigned int index = 0;
+=======
+>>>>>>> upstream/android-13
 
 	v4l2_dbg(1, debug, &vpbe_dev->v4l2_dev,
 				"VIDIOC_ENUM_FMT, layer id = %d\n",
@@ -811,6 +846,7 @@ static int vpbe_display_enum_fmt(struct file *file, void  *priv,
 	}
 
 	/* Fill in the information about format */
+<<<<<<< HEAD
 	index = fmt->index;
 	memset(fmt, 0, sizeof(*fmt));
 	fmt->index = index;
@@ -822,6 +858,12 @@ static int vpbe_display_enum_fmt(struct file *file, void  *priv,
 		strcpy(fmt->description, "Y/CbCr 4:2:0");
 		fmt->pixelformat = V4L2_PIX_FMT_NV12;
 	}
+=======
+	if (fmt->index == 0)
+		fmt->pixelformat = V4L2_PIX_FMT_UYVY;
+	else
+		fmt->pixelformat = V4L2_PIX_FMT_NV12;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -1261,7 +1303,11 @@ static const struct v4l2_ioctl_ops vpbe_ioctl_ops = {
 	.vidioc_streamoff	 = vb2_ioctl_streamoff,
 	.vidioc_expbuf		 = vb2_ioctl_expbuf,
 
+<<<<<<< HEAD
 	.vidioc_cropcap		 = vpbe_display_cropcap,
+=======
+	.vidioc_g_pixelaspect	 = vpbe_display_g_pixelaspect,
+>>>>>>> upstream/android-13
 	.vidioc_g_selection	 = vpbe_display_g_selection,
 	.vidioc_s_selection	 = vpbe_display_s_selection,
 
@@ -1325,6 +1371,10 @@ static int init_vpbe_layer(int i, struct vpbe_display *disp_dev,
 	vbd->v4l2_dev   = &disp_dev->vpbe_dev->v4l2_dev;
 	vbd->lock	= &vpbe_display_layer->opslock;
 	vbd->vfl_dir	= VFL_DIR_TX;
+<<<<<<< HEAD
+=======
+	vbd->device_caps = V4L2_CAP_VIDEO_OUTPUT | V4L2_CAP_STREAMING;
+>>>>>>> upstream/android-13
 
 	if (disp_dev->vpbe_dev->current_timings.timings_type &
 			VPBE_ENC_STD)
@@ -1360,7 +1410,11 @@ static int register_device(struct vpbe_layer *vpbe_display_layer,
 
 	vpbe_display_layer->video_dev.queue = &vpbe_display_layer->buffer_queue;
 	err = video_register_device(&vpbe_display_layer->video_dev,
+<<<<<<< HEAD
 				    VFL_TYPE_GRABBER,
+=======
+				    VFL_TYPE_VIDEO,
+>>>>>>> upstream/android-13
 				    -1);
 	if (err)
 		return -ENODEV;

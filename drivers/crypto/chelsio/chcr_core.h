@@ -37,17 +37,29 @@
 #define __CHCR_CORE_H__
 
 #include <crypto/algapi.h>
+<<<<<<< HEAD
+=======
+#include <net/tls.h>
+>>>>>>> upstream/android-13
 #include "t4_hw.h"
 #include "cxgb4.h"
 #include "t4_msg.h"
 #include "cxgb4_uld.h"
 
 #define DRV_MODULE_NAME "chcr"
+<<<<<<< HEAD
 #define DRV_VERSION "1.0.0.0"
 
 #define MAX_PENDING_REQ_TO_HW 20
 #define CHCR_TEST_RESPONSE_TIMEOUT 1000
 
+=======
+#define DRV_DESC "Chelsio T6 Crypto Co-processor Driver"
+
+#define MAX_PENDING_REQ_TO_HW 20
+#define CHCR_TEST_RESPONSE_TIMEOUT 1000
+#define WQ_DETACH_TM	(msecs_to_jiffies(50))
+>>>>>>> upstream/android-13
 #define PAD_ERROR_BIT		1
 #define CHK_PAD_ERR_BIT(x)	(((x) >> PAD_ERROR_BIT) & 1)
 
@@ -61,15 +73,19 @@
 #define HASH_WR_MIN_LEN (sizeof(struct chcr_wr) + \
 			DUMMY_BYTES + \
 		    sizeof(struct ulptx_sgl))
+<<<<<<< HEAD
 
 #define padap(dev) pci_get_drvdata(dev->u_ctx->lldi.pdev)
 
+=======
+>>>>>>> upstream/android-13
 struct uld_ctx;
 
 struct _key_ctx {
 	__be32 ctx_hdr;
 	u8 salt[MAX_SALT];
 	__be64 iv_to_auth;
+<<<<<<< HEAD
 	unsigned char key[0];
 };
 
@@ -121,6 +137,25 @@ struct _key_ctx {
 #define KEYCTX_TX_WR_AUTHIN_G(x) \
 	(((x) >> KEYCTX_TX_WR_AUTHIN_S) & KEYCTX_TX_WR_AUTHIN_M)
 
+=======
+	unsigned char key[];
+};
+
+#define WQ_RETRY	5
+struct chcr_driver_data {
+	struct list_head act_dev;
+	struct list_head inact_dev;
+	atomic_t dev_count;
+	struct mutex drv_mutex;
+	struct uld_ctx *last_dev;
+};
+
+enum chcr_state {
+	CHCR_INIT = 0,
+	CHCR_ATTACH,
+	CHCR_DETACH,
+};
+>>>>>>> upstream/android-13
 struct chcr_wr {
 	struct fw_crypto_lookaside_wr wreq;
 	struct ulp_txpkt ulptx;
@@ -131,14 +166,23 @@ struct chcr_wr {
 
 struct chcr_dev {
 	spinlock_t lock_chcr_dev;
+<<<<<<< HEAD
 	struct uld_ctx *u_ctx;
 	unsigned char tx_channel_id;
 	unsigned char rx_channel_id;
+=======
+	enum chcr_state state;
+	atomic_t inflight;
+	int wqretry;
+	struct delayed_work detach_work;
+	struct completion detach_comp;
+>>>>>>> upstream/android-13
 };
 
 struct uld_ctx {
 	struct list_head entry;
 	struct cxgb4_lld_info lldi;
+<<<<<<< HEAD
 	struct chcr_dev *dev;
 };
 
@@ -167,6 +211,9 @@ struct ipsec_sa_entry {
 	__be32 key_ctx_hdr;
 	char salt[MAX_SALT];
 	char key[2 * AES_MAX_KEY_SIZE];
+=======
+	struct chcr_dev dev;
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -181,6 +228,16 @@ static inline unsigned int sgl_len(unsigned int n)
 	return (3 * n) / 2 + (n & 1) + 2;
 }
 
+<<<<<<< HEAD
+=======
+static inline void *padap(struct chcr_dev *dev)
+{
+	struct uld_ctx *u_ctx = container_of(dev, struct uld_ctx, dev);
+
+	return pci_get_drvdata(u_ctx->lldi.pdev);
+}
+
+>>>>>>> upstream/android-13
 struct uld_ctx *assign_chcr_device(void);
 int chcr_send_wr(struct sk_buff *skb);
 int start_crypto(void);
@@ -190,6 +247,9 @@ int chcr_uld_rx_handler(void *handle, const __be64 *rsp,
 int chcr_uld_tx_handler(struct sk_buff *skb, struct net_device *dev);
 int chcr_handle_resp(struct crypto_async_request *req, unsigned char *input,
 		     int err);
+<<<<<<< HEAD
 int chcr_ipsec_xmit(struct sk_buff *skb, struct net_device *dev);
 void chcr_add_xfrmops(const struct cxgb4_lld_info *lld);
+=======
+>>>>>>> upstream/android-13
 #endif /* __CHCR_CORE_H__ */

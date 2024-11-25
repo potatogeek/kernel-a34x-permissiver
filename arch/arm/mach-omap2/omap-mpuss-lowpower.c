@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * OMAP MPUSS low power code
  *
@@ -30,11 +34,14 @@
  *
  * Note: CPU0 is the master core and it is the last CPU to go down
  * and first to wake-up when MPUSS low power states are excercised
+<<<<<<< HEAD
  *
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -46,7 +53,10 @@
 #include <asm/cacheflush.h>
 #include <asm/tlbflush.h>
 #include <asm/smp_scu.h>
+<<<<<<< HEAD
 #include <asm/pgalloc.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/suspend.h>
 #include <asm/virt.h>
 #include <asm/hardware/cache-l2x0.h>
@@ -231,7 +241,10 @@ int omap4_enter_lowpower(unsigned int cpu, unsigned int power_state)
 {
 	struct omap4_cpu_pm_info *pm_info = &per_cpu(omap4_pm_info, cpu);
 	unsigned int save_state = 0, cpu_logic_state = PWRDM_POWER_RET;
+<<<<<<< HEAD
 	unsigned int wakeup_cpu;
+=======
+>>>>>>> upstream/android-13
 
 	if (omap_rev() == OMAP4430_REV_ES1_0)
 		return -ENXIO;
@@ -296,7 +309,10 @@ int omap4_enter_lowpower(unsigned int cpu, unsigned int power_state)
 	 * secure devices, CPUx does WFI which can result in
 	 * domain transition
 	 */
+<<<<<<< HEAD
 	wakeup_cpu = smp_processor_id();
+=======
+>>>>>>> upstream/android-13
 	pwrdm_set_next_pwrst(pm_info->pwrdm, PWRDM_POWER_ON);
 
 	pwrdm_post_transition(NULL);

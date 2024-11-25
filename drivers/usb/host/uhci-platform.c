@@ -41,7 +41,11 @@ static const struct hc_driver uhci_platform_hc_driver = {
 
 	/* Generic hardware linkage */
 	.irq =			uhci_irq,
+<<<<<<< HEAD
 	.flags =		HCD_MEMORY | HCD_USB11,
+=======
+	.flags =		HCD_MEMORY | HCD_DMA | HCD_USB11,
+>>>>>>> upstream/android-13
 
 	/* Basic lifecycle operations */
 	.reset =		uhci_platform_init,
@@ -113,7 +117,12 @@ static int uhci_hcd_platform_probe(struct platform_device *pdev)
 				num_ports);
 		}
 		if (of_device_is_compatible(np, "aspeed,ast2400-uhci") ||
+<<<<<<< HEAD
 		    of_device_is_compatible(np, "aspeed,ast2500-uhci")) {
+=======
+		    of_device_is_compatible(np, "aspeed,ast2500-uhci") ||
+		    of_device_is_compatible(np, "aspeed,ast2600-uhci")) {
+>>>>>>> upstream/android-13
 			uhci->is_aspeed = 1;
 			dev_info(&pdev->dev,
 				 "Enabled Aspeed implementation workarounds\n");

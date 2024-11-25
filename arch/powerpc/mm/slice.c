@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * address space "slices" (meta-segments) support
  *
@@ -6,6 +10,7 @@
  * Based on hugetlb implementation
  *
  * Copyright (C) 2003 David Gibson, IBM Corporation.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +25,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #undef DEBUG
@@ -31,6 +38,10 @@
 #include <linux/spinlock.h>
 #include <linux/export.h>
 #include <linux/hugetlb.h>
+<<<<<<< HEAD
+=======
+#include <linux/sched/mm.h>
+>>>>>>> upstream/android-13
 #include <linux/security.h>
 #include <asm/mman.h>
 #include <asm/mmu.h>
@@ -62,7 +73,11 @@ static void slice_print_mask(const char *label, const struct slice_mask *mask) {
 
 #endif
 
+<<<<<<< HEAD
 static inline bool slice_addr_is_low(unsigned long addr)
+=======
+static inline notrace bool slice_addr_is_low(unsigned long addr)
+>>>>>>> upstream/android-13
 {
 	u64 tmp = (u64)addr;
 
@@ -100,7 +115,11 @@ static int slice_area_is_free(struct mm_struct *mm, unsigned long addr,
 {
 	struct vm_area_struct *vma;
 
+<<<<<<< HEAD
 	if ((mm->context.slb_addr_limit - len) < addr)
+=======
+	if ((mm_ctx_slb_addr_limit(&mm->context) - len) < addr)
+>>>>>>> upstream/android-13
 		return 0;
 	vma = find_vma(mm, addr);
 	return (!vma || (addr + len) <= vm_start_gap(vma));
@@ -117,13 +136,20 @@ static int slice_high_has_vma(struct mm_struct *mm, unsigned long slice)
 	unsigned long start = slice << SLICE_HIGH_SHIFT;
 	unsigned long end = start + (1ul << SLICE_HIGH_SHIFT);
 
+<<<<<<< HEAD
 #ifdef CONFIG_PPC64
+=======
+>>>>>>> upstream/android-13
 	/* Hack, so that each addresses is controlled by exactly one
 	 * of the high or low area bitmaps, the first high area starts
 	 * at 4GB, not 0 */
 	if (start == 0)
+<<<<<<< HEAD
 		start = SLICE_LOW_TOP;
 #endif
+=======
+		start = (unsigned long)SLICE_LOW_TOP;
+>>>>>>> upstream/android-13
 
 	return !slice_area_is_free(mm, start, end - start);
 }
@@ -149,6 +175,7 @@ static void slice_mask_for_free(struct mm_struct *mm, struct slice_mask *ret,
 			__set_bit(i, ret->high_slices);
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_PPC_BOOK3S_64
 static struct slice_mask *slice_mask_for_size(struct mm_struct *mm, int psize)
 {
@@ -183,6 +210,8 @@ static struct slice_mask *slice_mask_for_size(struct mm_struct *mm, int psize)
 #error "Must define the slice masks for page sizes supported by the platform"
 #endif
 
+=======
+>>>>>>> upstream/android-13
 static bool slice_check_range_fits(struct mm_struct *mm,
 			   const struct slice_mask *available,
 			   unsigned long start, unsigned long len)
@@ -227,7 +256,11 @@ static void slice_flush_segments(void *parm)
 	copy_mm_to_paca(current->active_mm);
 
 	local_irq_save(flags);
+<<<<<<< HEAD
 	slb_flush_and_rebolt();
+=======
+	slb_flush_and_restore_bolted();
+>>>>>>> upstream/android-13
 	local_irq_restore(flags);
 #endif
 }
@@ -245,14 +278,22 @@ static void slice_convert(struct mm_struct *mm,
 	slice_dbg("slice_convert(mm=%p, psize=%d)\n", mm, psize);
 	slice_print_mask(" mask", mask);
 
+<<<<<<< HEAD
 	psize_mask = slice_mask_for_size(mm, psize);
+=======
+	psize_mask = slice_mask_for_size(&mm->context, psize);
+>>>>>>> upstream/android-13
 
 	/* We need to use a spinlock here to protect against
 	 * concurrent 64k -> 4k demotion ...
 	 */
 	spin_lock_irqsave(&slice_convert_lock, flags);
 
+<<<<<<< HEAD
 	lpsizes = mm->context.low_slices_psize;
+=======
+	lpsizes = mm_ctx_low_slices(&mm->context);
+>>>>>>> upstream/android-13
 	for (i = 0; i < SLICE_NUM_LOW; i++) {
 		if (!(mask->low_slices & (1u << i)))
 			continue;
@@ -262,7 +303,11 @@ static void slice_convert(struct mm_struct *mm,
 
 		/* Update the slice_mask */
 		old_psize = (lpsizes[index] >> (mask_index * 4)) & 0xf;
+<<<<<<< HEAD
 		old_mask = slice_mask_for_size(mm, old_psize);
+=======
+		old_mask = slice_mask_for_size(&mm->context, old_psize);
+>>>>>>> upstream/android-13
 		old_mask->low_slices &= ~(1u << i);
 		psize_mask->low_slices |= 1u << i;
 
@@ -271,8 +316,13 @@ static void slice_convert(struct mm_struct *mm,
 				(((unsigned long)psize) << (mask_index * 4));
 	}
 
+<<<<<<< HEAD
 	hpsizes = mm->context.high_slices_psize;
 	for (i = 0; i < GET_HIGH_SLICE_INDEX(mm->context.slb_addr_limit); i++) {
+=======
+	hpsizes = mm_ctx_high_slices(&mm->context);
+	for (i = 0; i < GET_HIGH_SLICE_INDEX(mm_ctx_slb_addr_limit(&mm->context)); i++) {
+>>>>>>> upstream/android-13
 		if (!test_bit(i, mask->high_slices))
 			continue;
 
@@ -281,7 +331,11 @@ static void slice_convert(struct mm_struct *mm,
 
 		/* Update the slice_mask */
 		old_psize = (hpsizes[index] >> (mask_index * 4)) & 0xf;
+<<<<<<< HEAD
 		old_mask = slice_mask_for_size(mm, old_psize);
+=======
+		old_mask = slice_mask_for_size(&mm->context, old_psize);
+>>>>>>> upstream/android-13
 		__clear_bit(i, old_mask->high_slices);
 		__set_bit(i, psize_mask->high_slices);
 
@@ -291,8 +345,13 @@ static void slice_convert(struct mm_struct *mm,
 	}
 
 	slice_dbg(" lsps=%lx, hsps=%lx\n",
+<<<<<<< HEAD
 		  (unsigned long)mm->context.low_slices_psize,
 		  (unsigned long)mm->context.high_slices_psize);
+=======
+		  (unsigned long)mm_ctx_low_slices(&mm->context),
+		  (unsigned long)mm_ctx_high_slices(&mm->context));
+>>>>>>> upstream/android-13
 
 	spin_unlock_irqrestore(&slice_convert_lock, flags);
 
@@ -392,7 +451,11 @@ static unsigned long slice_find_area_topdown(struct mm_struct *mm,
 	 * DEFAULT_MAP_WINDOW we should apply this.
 	 */
 	if (high_limit > DEFAULT_MAP_WINDOW)
+<<<<<<< HEAD
 		addr += mm->context.slb_addr_limit - DEFAULT_MAP_WINDOW;
+=======
+		addr += mm_ctx_slb_addr_limit(&mm->context) - DEFAULT_MAP_WINDOW;
+>>>>>>> upstream/android-13
 
 	while (addr > min_addr) {
 		info.high_limit = addr;
@@ -504,20 +567,32 @@ unsigned long slice_get_unmapped_area(unsigned long addr, unsigned long len,
 			return -ENOMEM;
 	}
 
+<<<<<<< HEAD
 	if (high_limit > mm->context.slb_addr_limit) {
+=======
+	if (high_limit > mm_ctx_slb_addr_limit(&mm->context)) {
+>>>>>>> upstream/android-13
 		/*
 		 * Increasing the slb_addr_limit does not require
 		 * slice mask cache to be recalculated because it should
 		 * be already initialised beyond the old address limit.
 		 */
+<<<<<<< HEAD
 		mm->context.slb_addr_limit = high_limit;
+=======
+		mm_ctx_set_slb_addr_limit(&mm->context, high_limit);
+>>>>>>> upstream/android-13
 
 		on_each_cpu(slice_flush_segments, mm, 1);
 	}
 
 	/* Sanity checks */
 	BUG_ON(mm->task_size == 0);
+<<<<<<< HEAD
 	BUG_ON(mm->context.slb_addr_limit == 0);
+=======
+	BUG_ON(mm_ctx_slb_addr_limit(&mm->context) == 0);
+>>>>>>> upstream/android-13
 	VM_BUG_ON(radix_enabled());
 
 	slice_dbg("slice_get_unmapped_area(mm=%p, psize=%d...\n", mm, psize);
@@ -526,7 +601,11 @@ unsigned long slice_get_unmapped_area(unsigned long addr, unsigned long len,
 
 	/* If hint, make sure it matches our alignment restrictions */
 	if (!fixed && addr) {
+<<<<<<< HEAD
 		addr = _ALIGN_UP(addr, page_size);
+=======
+		addr = ALIGN(addr, page_size);
+>>>>>>> upstream/android-13
 		slice_dbg(" aligned addr=%lx\n", addr);
 		/* Ignore hint if it's too large or overlaps a VMA */
 		if (addr > high_limit - len || addr < mmap_min_addr ||
@@ -537,7 +616,11 @@ unsigned long slice_get_unmapped_area(unsigned long addr, unsigned long len,
 	/* First make up a "good" mask of slices that have the right size
 	 * already
 	 */
+<<<<<<< HEAD
 	maskp = slice_mask_for_size(mm, psize);
+=======
+	maskp = slice_mask_for_size(&mm->context, psize);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Here "good" means slices that are already the right page size,
@@ -564,7 +647,11 @@ unsigned long slice_get_unmapped_area(unsigned long addr, unsigned long len,
 	 * a pointer to good mask for the next code to use.
 	 */
 	if (IS_ENABLED(CONFIG_PPC_64K_PAGES) && psize == MMU_PAGE_64K) {
+<<<<<<< HEAD
 		compat_maskp = slice_mask_for_size(mm, MMU_PAGE_4K);
+=======
+		compat_maskp = slice_mask_for_size(&mm->context, MMU_PAGE_4K);
+>>>>>>> upstream/android-13
 		if (fixed)
 			slice_or_mask(&good_mask, maskp, compat_maskp);
 		else
@@ -641,14 +728,22 @@ unsigned long slice_get_unmapped_area(unsigned long addr, unsigned long len,
 	newaddr = slice_find_area(mm, len, &potential_mask,
 				  psize, topdown, high_limit);
 
+<<<<<<< HEAD
 #ifdef CONFIG_PPC_64K_PAGES
 	if (newaddr == -ENOMEM && psize == MMU_PAGE_64K) {
+=======
+	if (IS_ENABLED(CONFIG_PPC_64K_PAGES) && newaddr == -ENOMEM &&
+	    psize == MMU_PAGE_64K) {
+>>>>>>> upstream/android-13
 		/* retry the search with 4k-page slices included */
 		slice_or_mask(&potential_mask, &potential_mask, compat_maskp);
 		newaddr = slice_find_area(mm, len, &potential_mask,
 					  psize, topdown, high_limit);
 	}
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 
 	if (newaddr == -ENOMEM)
 		return -ENOMEM;
@@ -695,7 +790,11 @@ unsigned long arch_get_unmapped_area(struct file *filp,
 				     unsigned long flags)
 {
 	return slice_get_unmapped_area(addr, len, flags,
+<<<<<<< HEAD
 				       current->mm->context.user_psize, 0);
+=======
+				       mm_ctx_user_psize(&current->mm->context), 0);
+>>>>>>> upstream/android-13
 }
 
 unsigned long arch_get_unmapped_area_topdown(struct file *filp,
@@ -705,10 +804,17 @@ unsigned long arch_get_unmapped_area_topdown(struct file *filp,
 					     const unsigned long flags)
 {
 	return slice_get_unmapped_area(addr0, len, flags,
+<<<<<<< HEAD
 				       current->mm->context.user_psize, 1);
 }
 
 unsigned int get_slice_psize(struct mm_struct *mm, unsigned long addr)
+=======
+				       mm_ctx_user_psize(&current->mm->context), 1);
+}
+
+unsigned int notrace get_slice_psize(struct mm_struct *mm, unsigned long addr)
+>>>>>>> upstream/android-13
 {
 	unsigned char *psizes;
 	int index, mask_index;
@@ -716,10 +822,17 @@ unsigned int get_slice_psize(struct mm_struct *mm, unsigned long addr)
 	VM_BUG_ON(radix_enabled());
 
 	if (slice_addr_is_low(addr)) {
+<<<<<<< HEAD
 		psizes = mm->context.low_slices_psize;
 		index = GET_LOW_SLICE_INDEX(addr);
 	} else {
 		psizes = mm->context.high_slices_psize;
+=======
+		psizes = mm_ctx_low_slices(&mm->context);
+		index = GET_LOW_SLICE_INDEX(addr);
+	} else {
+		psizes = mm_ctx_high_slices(&mm->context);
+>>>>>>> upstream/android-13
 		index = GET_HIGH_SLICE_INDEX(addr);
 	}
 	mask_index = index & 0x1;
@@ -740,6 +853,7 @@ void slice_init_new_context_exec(struct mm_struct *mm)
 	 * case of fork it is just inherited from the mm being
 	 * duplicated.
 	 */
+<<<<<<< HEAD
 #ifdef CONFIG_PPC64
 	mm->context.slb_addr_limit = DEFAULT_MAP_WINDOW_USER64;
 #else
@@ -747,25 +861,57 @@ void slice_init_new_context_exec(struct mm_struct *mm)
 #endif
 
 	mm->context.user_psize = psize;
+=======
+	mm_ctx_set_slb_addr_limit(&mm->context, SLB_ADDR_LIMIT_DEFAULT);
+	mm_ctx_set_user_psize(&mm->context, psize);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Set all slice psizes to the default.
 	 */
+<<<<<<< HEAD
 	lpsizes = mm->context.low_slices_psize;
 	memset(lpsizes, (psize << 4) | psize, SLICE_NUM_LOW >> 1);
 
 	hpsizes = mm->context.high_slices_psize;
+=======
+	lpsizes = mm_ctx_low_slices(&mm->context);
+	memset(lpsizes, (psize << 4) | psize, SLICE_NUM_LOW >> 1);
+
+	hpsizes = mm_ctx_high_slices(&mm->context);
+>>>>>>> upstream/android-13
 	memset(hpsizes, (psize << 4) | psize, SLICE_NUM_HIGH >> 1);
 
 	/*
 	 * Slice mask cache starts zeroed, fill the default size cache.
 	 */
+<<<<<<< HEAD
 	mask = slice_mask_for_size(mm, psize);
+=======
+	mask = slice_mask_for_size(&mm->context, psize);
+>>>>>>> upstream/android-13
 	mask->low_slices = ~0UL;
 	if (SLICE_NUM_HIGH)
 		bitmap_fill(mask->high_slices, SLICE_NUM_HIGH);
 }
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_PPC_BOOK3S_64
+void slice_setup_new_exec(void)
+{
+	struct mm_struct *mm = current->mm;
+
+	slice_dbg("slice_setup_new_exec(mm=%p)\n", mm);
+
+	if (!is_32bit_task())
+		return;
+
+	mm_ctx_set_slb_addr_limit(&mm->context, DEFAULT_MAP_WINDOW);
+}
+#endif
+
+>>>>>>> upstream/android-13
 void slice_set_range_psize(struct mm_struct *mm, unsigned long start,
 			   unsigned long len, unsigned int psize)
 {
@@ -801,6 +947,7 @@ int slice_is_hugepage_only_range(struct mm_struct *mm, unsigned long addr,
 			   unsigned long len)
 {
 	const struct slice_mask *maskp;
+<<<<<<< HEAD
 	unsigned int psize = mm->context.user_psize;
 
 	VM_BUG_ON(radix_enabled());
@@ -817,6 +964,23 @@ int slice_is_hugepage_only_range(struct mm_struct *mm, unsigned long addr,
 		return !slice_check_range_fits(mm, &available, addr, len);
 	}
 #endif
+=======
+	unsigned int psize = mm_ctx_user_psize(&mm->context);
+
+	VM_BUG_ON(radix_enabled());
+
+	maskp = slice_mask_for_size(&mm->context, psize);
+
+	/* We need to account for 4k slices too */
+	if (IS_ENABLED(CONFIG_PPC_64K_PAGES) && psize == MMU_PAGE_64K) {
+		const struct slice_mask *compat_maskp;
+		struct slice_mask available;
+
+		compat_maskp = slice_mask_for_size(&mm->context, MMU_PAGE_4K);
+		slice_or_mask(&available, maskp, compat_maskp);
+		return !slice_check_range_fits(mm, &available, addr, len);
+	}
+>>>>>>> upstream/android-13
 
 	return !slice_check_range_fits(mm, maskp, addr, len);
 }

@@ -18,7 +18,11 @@
 #include "vsp1_pipe.h"
 
 /**
+<<<<<<< HEAD
  * vsp1_drm_pipeline - State for the API exposed to the DRM driver
+=======
+ * struct vsp1_drm_pipeline - State for the API exposed to the DRM driver
+>>>>>>> upstream/android-13
  * @pipe: the VSP1 pipeline used for display
  * @width: output display width
  * @height: output display height
@@ -42,12 +46,20 @@ struct vsp1_drm_pipeline {
 	struct vsp1_du_crc_config crc;
 
 	/* Frame synchronisation */
+<<<<<<< HEAD
 	void (*du_complete)(void *data, bool completed, u32 crc);
+=======
+	void (*du_complete)(void *data, unsigned int status, u32 crc);
+>>>>>>> upstream/android-13
 	void *du_private;
 };
 
 /**
+<<<<<<< HEAD
  * vsp1_drm - State for the API exposed to the DRM driver
+=======
+ * struct vsp1_drm - State for the API exposed to the DRM driver
+>>>>>>> upstream/android-13
  * @pipe: the VSP1 DRM pipeline used for display
  * @lock: protects the BRU and BRS allocation
  * @inputs: source crop rectangle, destination compose rectangle and z-order

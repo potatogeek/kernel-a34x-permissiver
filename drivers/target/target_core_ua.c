@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*******************************************************************************
  * Filename: target_core_ua.c
  *
@@ -7,6 +11,7 @@
  *
  * Nicholas A. Bellinger <nab@kernel.org>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -21,6 +26,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  *
+=======
+>>>>>>> upstream/android-13
  ******************************************************************************/
 
 #include <linux/slab.h>
@@ -212,6 +219,11 @@ bool core_scsi3_ua_for_check_condition(struct se_cmd *cmd, u8 *key, u8 *asc,
 	struct se_node_acl *nacl;
 	struct se_ua *ua = NULL, *ua_p;
 	int head = 1;
+<<<<<<< HEAD
+=======
+	bool dev_ua_intlck_clear = (dev->dev_attrib.emulate_ua_intlck_ctrl
+						== TARGET_UA_INTLCK_CTRL_CLEAR);
+>>>>>>> upstream/android-13
 
 	if (WARN_ON_ONCE(!sess))
 		return false;
@@ -242,7 +254,11 @@ bool core_scsi3_ua_for_check_condition(struct se_cmd *cmd, u8 *key, u8 *asc,
 		 * highest priority UNIT_ATTENTION and ASC/ASCQ without
 		 * clearing it.
 		 */
+<<<<<<< HEAD
 		if (dev->dev_attrib.emulate_ua_intlck_ctrl != 0) {
+=======
+		if (!dev_ua_intlck_clear) {
+>>>>>>> upstream/android-13
 			*asc = ua->ua_asc;
 			*ascq = ua->ua_ascq;
 			break;
@@ -266,9 +282,15 @@ bool core_scsi3_ua_for_check_condition(struct se_cmd *cmd, u8 *key, u8 *asc,
 	pr_debug("[%s]: %s UNIT ATTENTION condition with"
 		" INTLCK_CTRL: %d, mapped LUN: %llu, got CDB: 0x%02x"
 		" reported ASC: 0x%02x, ASCQ: 0x%02x\n",
+<<<<<<< HEAD
 		nacl->se_tpg->se_tpg_tfo->get_fabric_name(),
 		(dev->dev_attrib.emulate_ua_intlck_ctrl != 0) ? "Reporting" :
 		"Releasing", dev->dev_attrib.emulate_ua_intlck_ctrl,
+=======
+		nacl->se_tpg->se_tpg_tfo->fabric_name,
+		dev_ua_intlck_clear ? "Releasing" : "Reporting",
+		dev->dev_attrib.emulate_ua_intlck_ctrl,
+>>>>>>> upstream/android-13
 		cmd->orig_fe_lun, cmd->t_task_cdb[0], *asc, *ascq);
 
 	return head == 0;
@@ -327,7 +349,11 @@ int core_scsi3_ua_clear_for_request_sense(
 
 	pr_debug("[%s]: Released UNIT ATTENTION condition, mapped"
 		" LUN: %llu, got REQUEST_SENSE reported ASC: 0x%02x,"
+<<<<<<< HEAD
 		" ASCQ: 0x%02x\n", nacl->se_tpg->se_tpg_tfo->get_fabric_name(),
+=======
+		" ASCQ: 0x%02x\n", nacl->se_tpg->se_tpg_tfo->fabric_name,
+>>>>>>> upstream/android-13
 		cmd->orig_fe_lun, *asc, *ascq);
 
 	return (head) ? -EPERM : 0;

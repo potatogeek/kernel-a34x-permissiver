@@ -10,6 +10,11 @@
 #include <linux/platform_device.h>
 #include <linux/pm_runtime.h>
 #include <linux/spi/spi.h>
+<<<<<<< HEAD
+=======
+#include <linux/of.h>
+
+>>>>>>> upstream/android-13
 
 #define SPIS_IRQ_EN_REG		0x0
 #define SPIS_IRQ_CLR_REG	0x4
@@ -61,8 +66,11 @@
 #define SPIS_DMA_ADDR_EN	BIT(1)
 #define SPIS_SOFT_RST		BIT(0)
 
+<<<<<<< HEAD
 #define MTK_SPI_SLAVE_MAX_FIFO_SIZE 512U
 
+=======
+>>>>>>> upstream/android-13
 struct mtk_spi_slave {
 	struct device *dev;
 	void __iomem *base;
@@ -70,10 +78,34 @@ struct mtk_spi_slave {
 	struct completion xfer_done;
 	struct spi_transfer *cur_transfer;
 	bool slave_aborted;
+<<<<<<< HEAD
 };
 
 static const struct of_device_id mtk_spi_slave_of_match[] = {
 	{ .compatible = "mediatek,mt2712-spi-slave", },
+=======
+	const struct mtk_spi_compatible *dev_comp;
+};
+
+struct mtk_spi_compatible {
+	const u32 max_fifo_size;
+	bool must_rx;
+};
+
+static const struct mtk_spi_compatible mt2712_compat = {
+	.max_fifo_size = 512,
+};
+static const struct mtk_spi_compatible mt8195_compat = {
+	.max_fifo_size = 128,
+	.must_rx = true,
+};
+
+static const struct of_device_id mtk_spi_slave_of_match[] = {
+	{ .compatible = "mediatek,mt2712-spi-slave",
+	  .data = (void *)&mt2712_compat,},
+	{ .compatible = "mediatek,mt8195-spi-slave",
+	  .data = (void *)&mt8195_compat,},
+>>>>>>> upstream/android-13
 	{}
 };
 MODULE_DEVICE_TABLE(of, mtk_spi_slave_of_match);
@@ -272,7 +304,11 @@ static int mtk_spi_slave_transfer_one(struct spi_controller *ctlr,
 	mdata->slave_aborted = false;
 	mdata->cur_transfer = xfer;
 
+<<<<<<< HEAD
 	if (xfer->len > MTK_SPI_SLAVE_MAX_FIFO_SIZE)
+=======
+	if (xfer->len > mdata->dev_comp->max_fifo_size)
+>>>>>>> upstream/android-13
 		return mtk_spi_slave_dma_transfer(ctlr, spi, xfer);
 	else
 		return mtk_spi_slave_fifo_transfer(ctlr, spi, xfer);
@@ -368,8 +404,13 @@ static int mtk_spi_slave_probe(struct platform_device *pdev)
 {
 	struct spi_controller *ctlr;
 	struct mtk_spi_slave *mdata;
+<<<<<<< HEAD
 	struct resource *res;
 	int irq, ret;
+=======
+	int irq, ret;
+	const struct of_device_id *of_id;
+>>>>>>> upstream/android-13
 
 	ctlr = spi_alloc_slave(&pdev->dev, sizeof(*mdata));
 	if (!ctlr) {
@@ -387,11 +428,26 @@ static int mtk_spi_slave_probe(struct platform_device *pdev)
 	ctlr->setup = mtk_spi_slave_setup;
 	ctlr->slave_abort = mtk_slave_abort;
 
+<<<<<<< HEAD
 	mdata = spi_controller_get_devdata(ctlr);
+=======
+	of_id = of_match_node(mtk_spi_slave_of_match, pdev->dev.of_node);
+	if (!of_id) {
+		dev_err(&pdev->dev, "failed to probe of_node\n");
+		ret = -EINVAL;
+		goto err_put_ctlr;
+	}
+	mdata = spi_controller_get_devdata(ctlr);
+	mdata->dev_comp = of_id->data;
+
+	if (mdata->dev_comp->must_rx)
+		ctlr->flags = SPI_MASTER_MUST_RX;
+>>>>>>> upstream/android-13
 
 	platform_set_drvdata(pdev, ctlr);
 
 	init_completion(&mdata->xfer_done);
+<<<<<<< HEAD
 
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	if (!res) {
@@ -403,6 +459,10 @@ static int mtk_spi_slave_probe(struct platform_device *pdev)
 	mdata->dev = &pdev->dev;
 
 	mdata->base = devm_ioremap_resource(&pdev->dev, res);
+=======
+	mdata->dev = &pdev->dev;
+	mdata->base = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(mdata->base)) {
 		ret = PTR_ERR(mdata->base);
 		goto err_put_ctlr;
@@ -410,7 +470,10 @@ static int mtk_spi_slave_probe(struct platform_device *pdev)
 
 	irq = platform_get_irq(pdev, 0);
 	if (irq < 0) {
+<<<<<<< HEAD
 		dev_err(&pdev->dev, "failed to get irq (%d)\n", irq);
+=======
+>>>>>>> upstream/android-13
 		ret = irq;
 		goto err_put_ctlr;
 	}

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  PowerPC version
  *    Copyright (C) 1995-1996 Gary Thomas (gdt@linuxppc.org)
@@ -9,12 +13,15 @@
  *
  *  Derived from "arch/i386/mm/init.c"
  *    Copyright (C) 1991, 1992, 1993, 1994  Linus Torvalds
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation; either version
  *  2 of the License, or (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -34,10 +41,15 @@
 #include <linux/slab.h>
 #include <linux/hugetlb.h>
 
+<<<<<<< HEAD
 #include <asm/pgalloc.h>
 #include <asm/prom.h>
 #include <asm/io.h>
 #include <asm/pgtable.h>
+=======
+#include <asm/prom.h>
+#include <asm/io.h>
+>>>>>>> upstream/android-13
 #include <asm/mmu.h>
 #include <asm/smp.h>
 #include <asm/machdep.h>
@@ -45,8 +57,15 @@
 #include <asm/tlb.h>
 #include <asm/sections.h>
 #include <asm/hugetlb.h>
+<<<<<<< HEAD
 
 #include "mmu_decl.h"
+=======
+#include <asm/kup.h>
+#include <asm/kasan.h>
+
+#include <mm/mmu_decl.h>
+>>>>>>> upstream/android-13
 
 #if defined(CONFIG_KERNEL_START_BOOL) || defined(CONFIG_LOWMEM_SIZE_BOOL)
 /* The amount of lowmem must be within 0xF0000000 - KERNELBASE. */
@@ -59,11 +78,14 @@
 phys_addr_t total_memory;
 phys_addr_t total_lowmem;
 
+<<<<<<< HEAD
 phys_addr_t memstart_addr = (phys_addr_t)~0ull;
 EXPORT_SYMBOL(memstart_addr);
 phys_addr_t kernstart_addr;
 EXPORT_SYMBOL(kernstart_addr);
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_RELOCATABLE
 /* Used in __va()/__pa() */
 long long virt_phys_offset;
@@ -104,6 +126,7 @@ static void __init MMU_setup(void)
 	if (strstr(boot_command_line, "noltlbs")) {
 		__map_without_ltlbs = 1;
 	}
+<<<<<<< HEAD
 	if (debug_pagealloc_enabled()) {
 		__map_without_bats = 1;
 		__map_without_ltlbs = 1;
@@ -114,6 +137,19 @@ static void __init MMU_setup(void)
 		__map_without_ltlbs = 1;
 	}
 #endif
+=======
+	if (IS_ENABLED(CONFIG_PPC_8xx))
+		return;
+
+	if (IS_ENABLED(CONFIG_KFENCE))
+		__map_without_ltlbs = 1;
+
+	if (debug_pagealloc_enabled())
+		__map_without_ltlbs = 1;
+
+	if (strict_kernel_rwx_enabled())
+		__map_without_ltlbs = 1;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -182,6 +218,13 @@ void __init MMU_init(void)
 	btext_unmap();
 #endif
 
+<<<<<<< HEAD
+=======
+	kasan_mmu_init();
+
+	setup_kup();
+
+>>>>>>> upstream/android-13
 	/* Shortly after that, the entire linear mapping will be available */
 	memblock_set_current_limit(lowmem_end_addr);
 }

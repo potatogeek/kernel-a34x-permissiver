@@ -14,9 +14,12 @@ struct s3c_adc_bat_pdata {
 	void (*enable_charger)(void);
 	void (*disable_charger)(void);
 
+<<<<<<< HEAD
 	int gpio_charge_finished;
 	int gpio_inverted;
 
+=======
+>>>>>>> upstream/android-13
 	const struct s3c_adc_bat_thresh *lut_noac;
 	unsigned int lut_noac_cnt;
 	const struct s3c_adc_bat_thresh *lut_acin;

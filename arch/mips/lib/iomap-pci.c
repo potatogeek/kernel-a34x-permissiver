@@ -32,7 +32,11 @@ void __iomem *__pci_ioport_map(struct pci_dev *dev,
 		sprintf(name, "%04x:%02x", pci_domain_nr(bus), bus->number);
 		printk(KERN_WARNING "io_map_base of root PCI bus %s unset.  "
 		       "Trying to continue but you better\nfix this issue or "
+<<<<<<< HEAD
 		       "report it to linux-mips@linux-mips.org or your "
+=======
+		       "report it to linux-mips@vger.kernel.org or your "
+>>>>>>> upstream/android-13
 		       "vendor.\n", name);
 #ifdef CONFIG_PCI_DOMAINS
 		panic("To avoid data corruption io_map_base MUST be set with "
@@ -44,6 +48,7 @@ void __iomem *__pci_ioport_map(struct pci_dev *dev,
 }
 
 #endif /* CONFIG_PCI_DRIVERS_LEGACY */
+<<<<<<< HEAD
 
 void pci_iounmap(struct pci_dev *dev, void __iomem * addr)
 {
@@ -51,3 +56,5 @@ void pci_iounmap(struct pci_dev *dev, void __iomem * addr)
 }
 
 EXPORT_SYMBOL(pci_iounmap);
+=======
+>>>>>>> upstream/android-13

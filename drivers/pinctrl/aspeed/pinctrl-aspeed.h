@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2016 IBM Corp.
  *
@@ -5,6 +6,11 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright (C) 2016 IBM Corp.
+>>>>>>> upstream/android-13
  */
 
 #ifndef PINCTRL_ASPEED
@@ -16,6 +22,7 @@
 #include <linux/pinctrl/pinconf-generic.h>
 #include <linux/regmap.h>
 
+<<<<<<< HEAD
 /*
  * The ASPEED SoCs provide typically more than 200 pins for GPIO and other
  * functions. The SoC function enabled on a pin is determined on a priority
@@ -514,6 +521,9 @@ struct aspeed_pin_desc {
 #define GPIO_PIN_DECL(pin, gpio) \
 	SIG_EXPR_LIST_DECL_SINGLE(gpio, gpio); \
 	MS_PIN_DECL_(pin, SIG_EXPR_LIST_PTR(gpio))
+=======
+#include "pinmux-aspeed.h"
+>>>>>>> upstream/android-13
 
 /**
  * @param The pinconf parameter type
@@ -525,6 +535,7 @@ struct aspeed_pin_config {
 	enum pin_config_param param;
 	unsigned int pins[2];
 	unsigned int reg;
+<<<<<<< HEAD
 	u8 bit;
 	u8 value;
 };
@@ -543,6 +554,9 @@ struct aspeed_pinctrl_data {
 
 	const struct aspeed_pin_config *configs;
 	const unsigned int nconfigs;
+=======
+	u32 mask;
+>>>>>>> upstream/android-13
 };
 
 #define ASPEED_PINCTRL_PIN(name_) \
@@ -552,6 +566,7 @@ struct aspeed_pinctrl_data {
 		.drv_data = (void *) &(PIN_SYM(name_)) \
 	}
 
+<<<<<<< HEAD
 struct aspeed_pin_group {
 	const char *name;
 	const unsigned int *pins;
@@ -576,6 +591,56 @@ struct aspeed_pin_function {
 	.ngroups = ARRAY_SIZE(FUNC_GROUP_SYM(name_)), \
 }
 
+=======
+#define ASPEED_SB_PINCONF(param_, pin0_, pin1_, reg_, bit_) { \
+	.param = param_, \
+	.pins = {pin0_, pin1_}, \
+	.reg = reg_, \
+	.mask = BIT_MASK(bit_) \
+}
+
+#define ASPEED_PULL_DOWN_PINCONF(pin_, reg_, bit_) \
+	ASPEED_SB_PINCONF(PIN_CONFIG_BIAS_PULL_DOWN, pin_, pin_, reg_, bit_), \
+	ASPEED_SB_PINCONF(PIN_CONFIG_BIAS_DISABLE,   pin_, pin_, reg_, bit_)
+
+#define ASPEED_PULL_UP_PINCONF(pin_, reg_, bit_) \
+	ASPEED_SB_PINCONF(PIN_CONFIG_BIAS_PULL_UP, pin_, pin_, reg_, bit_), \
+	ASPEED_SB_PINCONF(PIN_CONFIG_BIAS_DISABLE, pin_, pin_, reg_, bit_)
+/*
+ * Aspeed pin configuration description.
+ *
+ * @param: pinconf configuration parameter
+ * @arg: The supported argument for @param, or -1 if any value is supported
+ * @val: The register value to write to configure @arg for @param
+ * @mask: The bitfield mask for @val
+ *
+ * The map is to be used in conjunction with the configuration array supplied
+ * by the driver implementation.
+ */
+struct aspeed_pin_config_map {
+	enum pin_config_param param;
+	s32 arg;
+	u32 val;
+	u32 mask;
+};
+
+struct aspeed_pinctrl_data {
+	struct regmap *scu;
+
+	const struct pinctrl_pin_desc *pins;
+	const unsigned int npins;
+
+	const struct aspeed_pin_config *configs;
+	const unsigned int nconfigs;
+
+	struct aspeed_pinmux_data pinmux;
+
+	const struct aspeed_pin_config_map *confmaps;
+	const unsigned int nconfmaps;
+};
+
+/* Aspeed pinctrl helpers */
+>>>>>>> upstream/android-13
 int aspeed_pinctrl_get_groups_count(struct pinctrl_dev *pctldev);
 const char *aspeed_pinctrl_get_group_name(struct pinctrl_dev *pctldev,
 		unsigned int group);

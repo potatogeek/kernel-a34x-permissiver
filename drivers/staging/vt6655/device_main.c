@@ -3,8 +3,11 @@
  * Copyright (c) 1996, 2003 VIA Networking Technologies, Inc.
  * All rights reserved.
  *
+<<<<<<< HEAD
  * File: device_main.c
  *
+=======
+>>>>>>> upstream/android-13
  * Purpose: driver entry for initial, open, close, tx and rx.
  *
  * Author: Lyndon Chen
@@ -21,6 +24,7 @@
  *   device_alloc_rx_buf - rx buffer pre-allocated function
  *   device_free_rx_buf - free rx buffer function
  *   device_free_tx_buf - free tx buffer function
+<<<<<<< HEAD
  *   device_init_rd0_ring- initial rd dma0 ring
  *   device_init_rd1_ring- initial rd dma1 ring
  *   device_init_td0_ring- initial tx dma0 ring buffer
@@ -33,6 +37,19 @@
  * Revision History:
  */
 #undef __NO_VERSION__
+=======
+ *   device_init_rd0_ring - initial rd dma0 ring
+ *   device_init_rd1_ring - initial rd dma1 ring
+ *   device_init_td0_ring - initial tx dma0 ring buffer
+ *   device_init_td1_ring - initial tx dma1 ring buffer
+ *   device_init_registers - initial MAC & BBP & RF internal registers.
+ *   device_init_rings - initial tx/rx ring buffer
+ *   device_free_rings - free all allocated ring buffer
+ *   device_tx_srv - tx interrupt service function
+ *
+ * Revision History:
+ */
+>>>>>>> upstream/android-13
 
 #include <linux/file.h>
 #include "device.h"
@@ -133,7 +150,12 @@ static int device_init_td1_ring(struct vnt_private *priv);
 static int  device_rx_srv(struct vnt_private *priv, unsigned int idx);
 static int  device_tx_srv(struct vnt_private *priv, unsigned int idx);
 static bool device_alloc_rx_buf(struct vnt_private *, struct vnt_rx_desc *);
+<<<<<<< HEAD
 static void device_free_rx_buf(struct vnt_private *priv, struct vnt_rx_desc *rd);
+=======
+static void device_free_rx_buf(struct vnt_private *priv,
+			       struct vnt_rx_desc *rd);
+>>>>>>> upstream/android-13
 static void device_init_registers(struct vnt_private *priv);
 static void device_free_tx_buf(struct vnt_private *, struct vnt_tx_desc *);
 static void device_free_td0_ring(struct vnt_private *priv);
@@ -201,7 +223,11 @@ static void device_init_registers(struct vnt_private *priv)
 	unsigned char byOFDMPwrdBm = 0;
 
 	MACbShutdown(priv);
+<<<<<<< HEAD
 	BBvSoftwareReset(priv);
+=======
+	bb_software_reset(priv);
+>>>>>>> upstream/android-13
 
 	/* Do MACbSoftwareReset in MACvInitialize */
 	MACbSoftwareReset(priv);
@@ -278,8 +304,13 @@ static void device_init_registers(struct vnt_private *priv)
 	}
 
 	/* Set initial antenna mode */
+<<<<<<< HEAD
 	BBvSetTxAntennaMode(priv, priv->byTxAntennaMode);
 	BBvSetRxAntennaMode(priv, priv->byRxAntennaMode);
+=======
+	bb_set_tx_antenna_mode(priv, priv->byTxAntennaMode);
+	bb_set_rx_antenna_mode(priv, priv->byRxAntennaMode);
+>>>>>>> upstream/android-13
 
 	/* zonetype initial */
 	priv->byOriginalZonetype = priv->abyEEPROM[EEP_OFS_ZONETYPE];
@@ -295,7 +326,12 @@ static void device_init_registers(struct vnt_private *priv)
 	/* Get Desire Power Value */
 	priv->byCurPwr = 0xFF;
 	priv->byCCKPwr = SROMbyReadEmbedded(priv->PortOffset, EEP_OFS_PWR_CCK);
+<<<<<<< HEAD
 	priv->byOFDMPwrG = SROMbyReadEmbedded(priv->PortOffset, EEP_OFS_PWR_OFDMG);
+=======
+	priv->byOFDMPwrG = SROMbyReadEmbedded(priv->PortOffset,
+					      EEP_OFS_PWR_OFDMG);
+>>>>>>> upstream/android-13
 
 	/* Load power Table */
 	for (ii = 0; ii < CB_MAX_CHANNEL_24G; ii++) {
@@ -355,16 +391,28 @@ static void device_init_registers(struct vnt_private *priv)
 	VNSvOutPortB(priv->PortOffset + MAC_REG_TFTCTL, TFTCTL_TSFCNTREN);
 
 	/* initialize BBP registers */
+<<<<<<< HEAD
 	BBbVT3253Init(priv);
+=======
+	bb_vt3253_init(priv);
+>>>>>>> upstream/android-13
 
 	if (priv->bUpdateBBVGA) {
 		priv->byBBVGACurrent = priv->abyBBVGA[0];
 		priv->byBBVGANew = priv->byBBVGACurrent;
+<<<<<<< HEAD
 		BBvSetVGAGainOffset(priv, priv->abyBBVGA[0]);
 	}
 
 	BBvSetRxAntennaMode(priv, priv->byRxAntennaMode);
 	BBvSetTxAntennaMode(priv, priv->byTxAntennaMode);
+=======
+		bb_set_vga_gain_offset(priv, priv->abyBBVGA[0]);
+	}
+
+	bb_set_rx_antenna_mode(priv, priv->byRxAntennaMode);
+	bb_set_tx_antenna_mode(priv, priv->byTxAntennaMode);
+>>>>>>> upstream/android-13
 
 	/* Set BB and packet type at the same time. */
 	/* Set Short Slot Time, xIFS, and RSPINF. */
@@ -373,7 +421,11 @@ static void device_init_registers(struct vnt_private *priv)
 	priv->bRadioOff = false;
 
 	priv->byRadioCtl = SROMbyReadEmbedded(priv->PortOffset,
+<<<<<<< HEAD
 						 EEP_OFS_RADIOCTL);
+=======
+					      EEP_OFS_RADIOCTL);
+>>>>>>> upstream/android-13
 	priv->bHWRadioOff = false;
 
 	if (priv->byRadioCtl & EEP_RADIOCTL_ENABLE) {
@@ -440,12 +492,21 @@ static bool device_init_rings(struct vnt_private *priv)
 	void *vir_pool;
 
 	/*allocate all RD/TD rings a single pool*/
+<<<<<<< HEAD
 	vir_pool = dma_zalloc_coherent(&priv->pcid->dev,
 				       priv->opts.rx_descs0 * sizeof(struct vnt_rx_desc) +
 				       priv->opts.rx_descs1 * sizeof(struct vnt_rx_desc) +
 				       priv->opts.tx_descs[0] * sizeof(struct vnt_tx_desc) +
 				       priv->opts.tx_descs[1] * sizeof(struct vnt_tx_desc),
 				       &priv->pool_dma, GFP_ATOMIC);
+=======
+	vir_pool = dma_alloc_coherent(&priv->pcid->dev,
+				      priv->opts.rx_descs0 * sizeof(struct vnt_rx_desc) +
+				      priv->opts.rx_descs1 * sizeof(struct vnt_rx_desc) +
+				      priv->opts.tx_descs[0] * sizeof(struct vnt_tx_desc) +
+				      priv->opts.tx_descs[1] * sizeof(struct vnt_tx_desc),
+				      &priv->pool_dma, GFP_ATOMIC);
+>>>>>>> upstream/android-13
 	if (!vir_pool) {
 		dev_err(&priv->pcid->dev, "allocate desc dma memory failed\n");
 		return false;
@@ -459,6 +520,7 @@ static bool device_init_rings(struct vnt_private *priv)
 	priv->rd1_pool_dma = priv->rd0_pool_dma +
 		priv->opts.rx_descs0 * sizeof(struct vnt_rx_desc);
 
+<<<<<<< HEAD
 	priv->tx0_bufs = dma_zalloc_coherent(&priv->pcid->dev,
 					     priv->opts.tx_descs[0] * PKT_BUF_SZ +
 					     priv->opts.tx_descs[1] * PKT_BUF_SZ +
@@ -466,6 +528,14 @@ static bool device_init_rings(struct vnt_private *priv)
 					     CB_MAX_BUF_SIZE,
 					     &priv->tx_bufs_dma0,
 					     GFP_ATOMIC);
+=======
+	priv->tx0_bufs = dma_alloc_coherent(&priv->pcid->dev,
+					    priv->opts.tx_descs[0] * PKT_BUF_SZ +
+					    priv->opts.tx_descs[1] * PKT_BUF_SZ +
+					    CB_BEACON_BUF_SIZE +
+					    CB_MAX_BUF_SIZE,
+					    &priv->tx_bufs_dma0, GFP_ATOMIC);
+>>>>>>> upstream/android-13
 	if (!priv->tx0_bufs) {
 		dev_err(&priv->pcid->dev, "allocate buf dma memory failed\n");
 
@@ -558,7 +628,11 @@ static int device_init_rd0_ring(struct vnt_private *priv)
 	}
 
 	if (i > 0)
+<<<<<<< HEAD
 		priv->aRD0Ring[i-1].next_desc = cpu_to_le32(priv->rd0_pool_dma);
+=======
+		priv->aRD0Ring[i - 1].next_desc = cpu_to_le32(priv->rd0_pool_dma);
+>>>>>>> upstream/android-13
 	priv->pCurrRD[0] = &priv->aRD0Ring[0];
 
 	return 0;
@@ -599,12 +673,20 @@ static int device_init_rd1_ring(struct vnt_private *priv)
 			goto err_free_rd;
 		}
 
+<<<<<<< HEAD
 		desc->next = &priv->aRD1Ring[(i+1) % priv->opts.rx_descs1];
+=======
+		desc->next = &priv->aRD1Ring[(i + 1) % priv->opts.rx_descs1];
+>>>>>>> upstream/android-13
 		desc->next_desc = cpu_to_le32(curr + sizeof(struct vnt_rx_desc));
 	}
 
 	if (i > 0)
+<<<<<<< HEAD
 		priv->aRD1Ring[i-1].next_desc = cpu_to_le32(priv->rd1_pool_dma);
+=======
+		priv->aRD1Ring[i - 1].next_desc = cpu_to_le32(priv->rd1_pool_dma);
+>>>>>>> upstream/android-13
 	priv->pCurrRD[1] = &priv->aRD1Ring[0];
 
 	return 0;
@@ -666,12 +748,22 @@ static int device_init_td0_ring(struct vnt_private *priv)
 		desc->td_info->buf = priv->tx0_bufs + i * PKT_BUF_SZ;
 		desc->td_info->buf_dma = priv->tx_bufs_dma0 + i * PKT_BUF_SZ;
 
+<<<<<<< HEAD
 		desc->next = &(priv->apTD0Rings[(i+1) % priv->opts.tx_descs[0]]);
 		desc->next_desc = cpu_to_le32(curr + sizeof(struct vnt_tx_desc));
 	}
 
 	if (i > 0)
 		priv->apTD0Rings[i-1].next_desc = cpu_to_le32(priv->td0_pool_dma);
+=======
+		desc->next = &(priv->apTD0Rings[(i + 1) % priv->opts.tx_descs[0]]);
+		desc->next_desc = cpu_to_le32(curr +
+					      sizeof(struct vnt_tx_desc));
+	}
+
+	if (i > 0)
+		priv->apTD0Rings[i - 1].next_desc = cpu_to_le32(priv->td0_pool_dma);
+>>>>>>> upstream/android-13
 	priv->apTailTD[0] = priv->apCurrTD[0] = &priv->apTD0Rings[0];
 
 	return 0;
@@ -711,7 +803,11 @@ static int device_init_td1_ring(struct vnt_private *priv)
 	}
 
 	if (i > 0)
+<<<<<<< HEAD
 		priv->apTD1Rings[i-1].next_desc = cpu_to_le32(priv->td1_pool_dma);
+=======
+		priv->apTD1Rings[i - 1].next_desc = cpu_to_le32(priv->td1_pool_dma);
+>>>>>>> upstream/android-13
 	priv->apTailTD[1] = priv->apCurrTD[1] = &priv->apTD1Rings[0];
 
 	return 0;
@@ -812,12 +908,20 @@ static bool device_alloc_rx_buf(struct vnt_private *priv,
 }
 
 static void device_free_rx_buf(struct vnt_private *priv,
+<<<<<<< HEAD
 				struct vnt_rx_desc *rd)
+=======
+			       struct vnt_rx_desc *rd)
+>>>>>>> upstream/android-13
 {
 	struct vnt_rd_info *rd_info = rd->rd_info;
 
 	dma_unmap_single(&priv->pcid->dev, rd_info->skb_dma,
+<<<<<<< HEAD
 			priv->rx_buf_sz, DMA_FROM_DEVICE);
+=======
+			 priv->rx_buf_sz, DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 	dev_kfree_skb(rd_info->skb);
 }
 
@@ -1002,7 +1106,11 @@ static void vnt_check_bb_vga(struct vnt_private *priv)
 
 	if (priv->uBBVGADiffCount == 1) {
 		/* first VGA diff gain */
+<<<<<<< HEAD
 		BBvSetVGAGainOffset(priv, priv->byBBVGANew);
+=======
+		bb_set_vga_gain_offset(priv, priv->byBBVGANew);
+>>>>>>> upstream/android-13
 
 		dev_dbg(&priv->pcid->dev,
 			"First RSSI[%d] NewGain[%d] OldGain[%d] Count[%d]\n",
@@ -1018,7 +1126,11 @@ static void vnt_check_bb_vga(struct vnt_private *priv)
 			priv->byBBVGACurrent,
 			(int)priv->uBBVGADiffCount);
 
+<<<<<<< HEAD
 		BBvSetVGAGainOffset(priv, priv->byBBVGANew);
+=======
+		bb_set_vga_gain_offset(priv, priv->byBBVGANew);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -1077,10 +1189,17 @@ static void vnt_interrupt_process(struct vnt_private *priv)
 
 			if ((priv->op_mode == NL80211_IFTYPE_AP ||
 			    priv->op_mode == NL80211_IFTYPE_ADHOC) &&
+<<<<<<< HEAD
 			    priv->vif->bss_conf.enable_beacon) {
 				MACvOneShotTimer1MicroSec(priv,
 							  (priv->vif->bss_conf.beacon_int - MAKE_BEACON_RESERVED) << 10);
 			}
+=======
+			    priv->vif->bss_conf.enable_beacon)
+				MACvOneShotTimer1MicroSec(priv,
+							  (priv->vif->bss_conf.beacon_int -
+							   MAKE_BEACON_RESERVED) << 10);
+>>>>>>> upstream/android-13
 
 			/* TODO: adhoc PS mode */
 		}
@@ -1446,7 +1565,11 @@ static void vnt_bss_info_changed(struct ieee80211_hw *hw,
 			priv->bShortSlotTime = false;
 
 		CARDbSetPhyParameter(priv, priv->byBBType);
+<<<<<<< HEAD
 		BBvSetVGAGainOffset(priv, priv->abyBBVGA[0]);
+=======
+		bb_set_vga_gain_offset(priv, priv->abyBBVGA[0]);
+>>>>>>> upstream/android-13
 	}
 
 	if (changed & BSS_CHANGED_TXPOWER)
@@ -1581,6 +1704,10 @@ static int vnt_set_key(struct ieee80211_hw *hw, enum set_key_cmd cmd,
 	case DISABLE_KEY:
 		if (test_bit(key->hw_key_idx, &priv->key_entry_inuse))
 			clear_bit(key->hw_key_idx, &priv->key_entry_inuse);
+<<<<<<< HEAD
+=======
+		break;
+>>>>>>> upstream/android-13
 	default:
 		break;
 	}
@@ -1768,14 +1895,21 @@ vt6655_probe(struct pci_dev *pcid, const struct pci_device_id *ent)
 
 /*------------------------------------------------------------------*/
 
+<<<<<<< HEAD
 #ifdef CONFIG_PM
 static int vt6655_suspend(struct pci_dev *pcid, pm_message_t state)
 {
 	struct vnt_private *priv = pci_get_drvdata(pcid);
+=======
+static int __maybe_unused vt6655_suspend(struct device *dev_d)
+{
+	struct vnt_private *priv = dev_get_drvdata(dev_d);
+>>>>>>> upstream/android-13
 	unsigned long flags;
 
 	spin_lock_irqsave(&priv->lock, flags);
 
+<<<<<<< HEAD
 	pci_save_state(pcid);
 
 	MACbShutdown(priv);
@@ -1801,15 +1935,39 @@ static int vt6655_resume(struct pci_dev *pcid)
 
 MODULE_DEVICE_TABLE(pci, vt6655_pci_id_table);
 
+=======
+	MACbShutdown(priv);
+
+	spin_unlock_irqrestore(&priv->lock, flags);
+
+	return 0;
+}
+
+static int __maybe_unused vt6655_resume(struct device *dev_d)
+{
+	device_wakeup_disable(dev_d);
+
+	return 0;
+}
+
+MODULE_DEVICE_TABLE(pci, vt6655_pci_id_table);
+
+static SIMPLE_DEV_PM_OPS(vt6655_pm_ops, vt6655_suspend, vt6655_resume);
+
+>>>>>>> upstream/android-13
 static struct pci_driver device_driver = {
 	.name = DEVICE_NAME,
 	.id_table = vt6655_pci_id_table,
 	.probe = vt6655_probe,
 	.remove = vt6655_remove,
+<<<<<<< HEAD
 #ifdef CONFIG_PM
 	.suspend = vt6655_suspend,
 	.resume = vt6655_resume,
 #endif
+=======
+	.driver.pm = &vt6655_pm_ops,
+>>>>>>> upstream/android-13
 };
 
 module_pci_driver(device_driver);

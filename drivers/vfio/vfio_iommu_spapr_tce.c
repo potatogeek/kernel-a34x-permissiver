@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * VFIO: IOMMU DMA mapping support for TCE on POWER
  *
  * Copyright (C) 2013 IBM Corp.  All rights reserved.
  *     Author: Alexey Kardashevskiy <aik@ozlabs.ru>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * Derived from original vfio_iommu_type1.c:
  * Copyright (C) 2012 Red Hat, Inc.  All rights reserved.
  *     Author: Alex Williamson <alex.williamson@redhat.com>
@@ -22,6 +29,10 @@
 #include <linux/vmalloc.h>
 #include <linux/sched/mm.h>
 #include <linux/sched/signal.h>
+<<<<<<< HEAD
+=======
+#include <linux/mm.h>
+>>>>>>> upstream/android-13
 
 #include <asm/iommu.h>
 #include <asm/tce.h>
@@ -34,6 +45,7 @@
 static void tce_iommu_detach_group(void *iommu_data,
 		struct iommu_group *iommu_group);
 
+<<<<<<< HEAD
 static long try_increment_locked_vm(struct mm_struct *mm, long npages)
 {
 	long ret = 0, locked, lock_limit;
@@ -79,6 +91,8 @@ static void decrement_locked_vm(struct mm_struct *mm, long npages)
 	up_write(&mm->mmap_sem);
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * VFIO IOMMU fd for SPAPR_TCE IOMMU implementation
  *
@@ -126,7 +140,11 @@ static long tce_iommu_mm_set(struct tce_container *container)
 	}
 	BUG_ON(!current->mm);
 	container->mm = current->mm;
+<<<<<<< HEAD
 	atomic_inc(&container->mm->mm_count);
+=======
+	mmgrab(container->mm);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -152,11 +170,19 @@ static long tce_iommu_unregister_pages(struct tce_container *container,
 	struct mm_iommu_table_group_mem_t *mem;
 	struct tce_iommu_prereg *tcemem;
 	bool found = false;
+<<<<<<< HEAD
+=======
+	long ret;
+>>>>>>> upstream/android-13
 
 	if ((vaddr & ~PAGE_MASK) || (size & ~PAGE_MASK))
 		return -EINVAL;
 
+<<<<<<< HEAD
 	mem = mm_iommu_find(container->mm, vaddr, size >> PAGE_SHIFT);
+=======
+	mem = mm_iommu_get(container->mm, vaddr, size >> PAGE_SHIFT);
+>>>>>>> upstream/android-13
 	if (!mem)
 		return -ENOENT;
 
@@ -168,9 +194,19 @@ static long tce_iommu_unregister_pages(struct tce_container *container,
 	}
 
 	if (!found)
+<<<<<<< HEAD
 		return -ENOENT;
 
 	return tce_iommu_prereg_free(container, tcemem);
+=======
+		ret = -ENOENT;
+	else
+		ret = tce_iommu_prereg_free(container, tcemem);
+
+	mm_iommu_put(container->mm, mem);
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static long tce_iommu_register_pages(struct tce_container *container,
@@ -185,6 +221,7 @@ static long tce_iommu_register_pages(struct tce_container *container,
 			((vaddr + size) < vaddr))
 		return -EINVAL;
 
+<<<<<<< HEAD
 	mem = mm_iommu_find(container->mm, vaddr, entries);
 	if (mem) {
 		list_for_each_entry(tcemem, &container->prereg_list, next) {
@@ -201,6 +238,26 @@ static long tce_iommu_register_pages(struct tce_container *container,
 	if (!tcemem) {
 		mm_iommu_put(container->mm, mem);
 		return -ENOMEM;
+=======
+	mem = mm_iommu_get(container->mm, vaddr, entries);
+	if (mem) {
+		list_for_each_entry(tcemem, &container->prereg_list, next) {
+			if (tcemem->mem == mem) {
+				ret = -EBUSY;
+				goto put_exit;
+			}
+		}
+	} else {
+		ret = mm_iommu_new(container->mm, vaddr, entries, &mem);
+		if (ret)
+			return ret;
+	}
+
+	tcemem = kzalloc(sizeof(*tcemem), GFP_KERNEL);
+	if (!tcemem) {
+		ret = -ENOMEM;
+		goto put_exit;
+>>>>>>> upstream/android-13
 	}
 
 	tcemem->mem = mem;
@@ -209,16 +266,39 @@ static long tce_iommu_register_pages(struct tce_container *container,
 	container->enabled = true;
 
 	return 0;
+<<<<<<< HEAD
 }
 
 static bool tce_page_is_contained(struct page *page, unsigned page_shift)
 {
+=======
+
+put_exit:
+	mm_iommu_put(container->mm, mem);
+	return ret;
+}
+
+static bool tce_page_is_contained(struct mm_struct *mm, unsigned long hpa,
+		unsigned int it_page_shift)
+{
+	struct page *page;
+	unsigned long size = 0;
+
+	if (mm_iommu_is_devmem(mm, hpa, it_page_shift, &size))
+		return size == (1UL << it_page_shift);
+
+	page = pfn_to_page(hpa >> PAGE_SHIFT);
+>>>>>>> upstream/android-13
 	/*
 	 * Check that the TCE table granularity is not bigger than the size of
 	 * a page we just found. Otherwise the hardware can get access to
 	 * a bigger memory chunk that it should.
 	 */
+<<<<<<< HEAD
 	return (PAGE_SHIFT + compound_order(compound_head(page))) >= page_shift;
+=======
+	return page_shift(compound_head(page)) >= it_page_shift;
+>>>>>>> upstream/android-13
 }
 
 static inline bool tce_groups_attached(struct tce_container *container)
@@ -317,7 +397,11 @@ static int tce_iommu_enable(struct tce_container *container)
 		return ret;
 
 	locked = table_group->tce32_size >> PAGE_SHIFT;
+<<<<<<< HEAD
 	ret = try_increment_locked_vm(container->mm, locked);
+=======
+	ret = account_locked_vm(container->mm, locked, true);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 
@@ -336,7 +420,11 @@ static void tce_iommu_disable(struct tce_container *container)
 	container->enabled = false;
 
 	BUG_ON(!container->mm);
+<<<<<<< HEAD
 	decrement_locked_vm(container->mm, container->locked_pages);
+=======
+	account_locked_vm(container->mm, container->locked_pages, false);
+>>>>>>> upstream/android-13
 }
 
 static void *tce_iommu_open(unsigned long arg)
@@ -411,7 +499,11 @@ static void tce_iommu_unuse_page(struct tce_container *container,
 	struct page *page;
 
 	page = pfn_to_page(hpa >> PAGE_SHIFT);
+<<<<<<< HEAD
 	put_page(page);
+=======
+	unpin_user_page(page);
+>>>>>>> upstream/android-13
 }
 
 static int tce_iommu_prereg_ua_to_hpa(struct tce_container *container,
@@ -440,7 +532,11 @@ static void tce_iommu_unuse_page_v2(struct tce_container *container,
 	struct mm_iommu_table_group_mem_t *mem = NULL;
 	int ret;
 	unsigned long hpa = 0;
+<<<<<<< HEAD
 	__be64 *pua = IOMMU_TABLE_USERSPACE_ENTRY(tbl, entry);
+=======
+	__be64 *pua = IOMMU_TABLE_USERSPACE_ENTRY_RO(tbl, entry);
+>>>>>>> upstream/android-13
 
 	if (!pua)
 		return;
@@ -463,13 +559,42 @@ static int tce_iommu_clear(struct tce_container *container,
 	unsigned long oldhpa;
 	long ret;
 	enum dma_data_direction direction;
+<<<<<<< HEAD
 
 	for ( ; pages; --pages, ++entry) {
+=======
+	unsigned long lastentry = entry + pages, firstentry = entry;
+
+	for ( ; entry < lastentry; ++entry) {
+		if (tbl->it_indirect_levels && tbl->it_userspace) {
+			/*
+			 * For multilevel tables, we can take a shortcut here
+			 * and skip some TCEs as we know that the userspace
+			 * addresses cache is a mirror of the real TCE table
+			 * and if it is missing some indirect levels, then
+			 * the hardware table does not have them allocated
+			 * either and therefore does not require updating.
+			 */
+			__be64 *pua = IOMMU_TABLE_USERSPACE_ENTRY_RO(tbl,
+					entry);
+			if (!pua) {
+				/* align to level_size which is power of two */
+				entry |= tbl->it_level_size - 1;
+				continue;
+			}
+		}
+
+>>>>>>> upstream/android-13
 		cond_resched();
 
 		direction = DMA_NONE;
 		oldhpa = 0;
+<<<<<<< HEAD
 		ret = iommu_tce_xchg(tbl, entry, &oldhpa, &direction);
+=======
+		ret = iommu_tce_xchg_no_kill(container->mm, tbl, entry, &oldhpa,
+				&direction);
+>>>>>>> upstream/android-13
 		if (ret)
 			continue;
 
@@ -484,6 +609,11 @@ static int tce_iommu_clear(struct tce_container *container,
 		tce_iommu_unuse_page(container, oldhpa);
 	}
 
+<<<<<<< HEAD
+=======
+	iommu_tce_kill(tbl, firstentry, pages);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -492,8 +622,14 @@ static int tce_iommu_use_page(unsigned long tce, unsigned long *hpa)
 	struct page *page = NULL;
 	enum dma_data_direction direction = iommu_tce_direction(tce);
 
+<<<<<<< HEAD
 	if (get_user_pages_fast(tce & PAGE_MASK, 1,
 			direction != DMA_TO_DEVICE, &page) != 1)
+=======
+	if (pin_user_pages_fast(tce & PAGE_MASK, 1,
+			direction != DMA_TO_DEVICE ? FOLL_WRITE : 0,
+			&page) != 1)
+>>>>>>> upstream/android-13
 		return -EFAULT;
 
 	*hpa = __pa((unsigned long) page_address(page));
@@ -507,7 +643,10 @@ static long tce_iommu_build(struct tce_container *container,
 		enum dma_data_direction direction)
 {
 	long i, ret = 0;
+<<<<<<< HEAD
 	struct page *page;
+=======
+>>>>>>> upstream/android-13
 	unsigned long hpa;
 	enum dma_data_direction dirtmp;
 
@@ -518,15 +657,25 @@ static long tce_iommu_build(struct tce_container *container,
 		if (ret)
 			break;
 
+<<<<<<< HEAD
 		page = pfn_to_page(hpa >> PAGE_SHIFT);
 		if (!tce_page_is_contained(page, tbl->it_page_shift)) {
+=======
+		if (!tce_page_is_contained(container->mm, hpa,
+				tbl->it_page_shift)) {
+>>>>>>> upstream/android-13
 			ret = -EPERM;
 			break;
 		}
 
 		hpa |= offset;
 		dirtmp = direction;
+<<<<<<< HEAD
 		ret = iommu_tce_xchg(tbl, entry + i, &hpa, &dirtmp);
+=======
+		ret = iommu_tce_xchg_no_kill(container->mm, tbl, entry + i,
+				&hpa, &dirtmp);
+>>>>>>> upstream/android-13
 		if (ret) {
 			tce_iommu_unuse_page(container, hpa);
 			pr_err("iommu_tce: %s failed ioba=%lx, tce=%lx, ret=%ld\n",
@@ -543,6 +692,11 @@ static long tce_iommu_build(struct tce_container *container,
 
 	if (ret)
 		tce_iommu_clear(container, tbl, entry, i);
+<<<<<<< HEAD
+=======
+	else
+		iommu_tce_kill(tbl, entry, pages);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -553,7 +707,10 @@ static long tce_iommu_build_v2(struct tce_container *container,
 		enum dma_data_direction direction)
 {
 	long i, ret = 0;
+<<<<<<< HEAD
 	struct page *page;
+=======
+>>>>>>> upstream/android-13
 	unsigned long hpa;
 	enum dma_data_direction dirtmp;
 
@@ -566,8 +723,13 @@ static long tce_iommu_build_v2(struct tce_container *container,
 		if (ret)
 			break;
 
+<<<<<<< HEAD
 		page = pfn_to_page(hpa >> PAGE_SHIFT);
 		if (!tce_page_is_contained(page, tbl->it_page_shift)) {
+=======
+		if (!tce_page_is_contained(container->mm, hpa,
+				tbl->it_page_shift)) {
+>>>>>>> upstream/android-13
 			ret = -EPERM;
 			break;
 		}
@@ -580,7 +742,12 @@ static long tce_iommu_build_v2(struct tce_container *container,
 		if (mm_iommu_mapped_inc(mem))
 			break;
 
+<<<<<<< HEAD
 		ret = iommu_tce_xchg(tbl, entry + i, &hpa, &dirtmp);
+=======
+		ret = iommu_tce_xchg_no_kill(container->mm, tbl, entry + i,
+				&hpa, &dirtmp);
+>>>>>>> upstream/android-13
 		if (ret) {
 			/* dirtmp cannot be DMA_NONE here */
 			tce_iommu_unuse_page_v2(container, tbl, entry + i);
@@ -600,6 +767,11 @@ static long tce_iommu_build_v2(struct tce_container *container,
 
 	if (ret)
 		tce_iommu_clear(container, tbl, entry, i);
+<<<<<<< HEAD
+=======
+	else
+		iommu_tce_kill(tbl, entry, pages);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -619,7 +791,11 @@ static long tce_iommu_create_table(struct tce_container *container,
 	if (!table_size)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	ret = try_increment_locked_vm(container->mm, table_size >> PAGE_SHIFT);
+=======
+	ret = account_locked_vm(container->mm, table_size >> PAGE_SHIFT, true);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 
@@ -638,7 +814,11 @@ static void tce_iommu_free_table(struct tce_container *container,
 	unsigned long pages = tbl->it_allocated_size >> PAGE_SHIFT;
 
 	iommu_tce_table_put(tbl);
+<<<<<<< HEAD
 	decrement_locked_vm(container->mm, pages);
+=======
+	account_locked_vm(container->mm, pages, false);
+>>>>>>> upstream/android-13
 }
 
 static long tce_iommu_create_window(struct tce_container *container,
@@ -1196,7 +1376,12 @@ static void tce_iommu_release_ownership_ddw(struct tce_container *container,
 	}
 
 	for (i = 0; i < IOMMU_TABLE_GROUP_MAX_TABLES; ++i)
+<<<<<<< HEAD
 		table_group->ops->unset_window(table_group, i);
+=======
+		if (container->tables[i])
+			table_group->ops->unset_window(table_group, i);
+>>>>>>> upstream/android-13
 
 	table_group->ops->release_ownership(table_group);
 }
@@ -1240,7 +1425,11 @@ release_exit:
 static int tce_iommu_attach_group(void *iommu_data,
 		struct iommu_group *iommu_group)
 {
+<<<<<<< HEAD
 	int ret;
+=======
+	int ret = 0;
+>>>>>>> upstream/android-13
 	struct tce_container *container = iommu_data;
 	struct iommu_table_group *table_group;
 	struct tce_iommu_group *tcegrp = NULL;
@@ -1293,13 +1482,21 @@ static int tce_iommu_attach_group(void *iommu_data,
 			!table_group->ops->release_ownership) {
 		if (container->v2) {
 			ret = -EPERM;
+<<<<<<< HEAD
 			goto unlock_exit;
+=======
+			goto free_exit;
+>>>>>>> upstream/android-13
 		}
 		ret = tce_iommu_take_ownership(container, table_group);
 	} else {
 		if (!container->v2) {
 			ret = -EPERM;
+<<<<<<< HEAD
 			goto unlock_exit;
+=======
+			goto free_exit;
+>>>>>>> upstream/android-13
 		}
 		ret = tce_iommu_take_ownership_ddw(container, table_group);
 		if (!tce_groups_attached(container) && !container->tables[0])
@@ -1311,10 +1508,18 @@ static int tce_iommu_attach_group(void *iommu_data,
 		list_add(&tcegrp->next, &container->group_list);
 	}
 
+<<<<<<< HEAD
 unlock_exit:
 	if (ret && tcegrp)
 		kfree(tcegrp);
 
+=======
+free_exit:
+	if (ret && tcegrp)
+		kfree(tcegrp);
+
+unlock_exit:
+>>>>>>> upstream/android-13
 	mutex_unlock(&container->lock);
 
 	return ret;
@@ -1358,7 +1563,11 @@ unlock_exit:
 	mutex_unlock(&container->lock);
 }
 
+<<<<<<< HEAD
 const struct vfio_iommu_driver_ops tce_iommu_driver_ops = {
+=======
+static const struct vfio_iommu_driver_ops tce_iommu_driver_ops = {
+>>>>>>> upstream/android-13
 	.name		= "iommu-vfio-powerpc",
 	.owner		= THIS_MODULE,
 	.open		= tce_iommu_open,

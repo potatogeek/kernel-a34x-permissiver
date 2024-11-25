@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * x_tables core - Backend for {ip,ip6,arp}_tables
  *
@@ -7,11 +11,14 @@
  * Based on existing ip_tables code which is
  *   Copyright (C) 1999 Paul `Rusty' Russell & Michael J. Neuling
  *   Copyright (C) 2000-2005 Netfilter Core Team <coreteam@netfilter.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  */
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 #include <linux/kernel.h>
@@ -28,6 +35,10 @@
 #include <linux/audit.h>
 #include <linux/user_namespace.h>
 #include <net/net_namespace.h>
+<<<<<<< HEAD
+=======
+#include <net/netns/generic.h>
+>>>>>>> upstream/android-13
 
 #include <linux/netfilter/x_tables.h>
 #include <linux/netfilter_arp.h>
@@ -42,6 +53,27 @@ MODULE_DESCRIPTION("{ip,ip6,arp,eb}_tables backend module");
 #define XT_PCPU_BLOCK_SIZE 4096
 #define XT_MAX_TABLE_SIZE	(512 * 1024 * 1024)
 
+<<<<<<< HEAD
+=======
+struct xt_template {
+	struct list_head list;
+
+	/* called when table is needed in the given netns */
+	int (*table_init)(struct net *net);
+
+	struct module *me;
+
+	/* A unique name... */
+	char name[XT_TABLE_MAXNAMELEN];
+};
+
+static struct list_head xt_templates[NFPROTO_NUMPROTO];
+
+struct xt_pernet {
+	struct list_head tables[NFPROTO_NUMPROTO];
+};
+
+>>>>>>> upstream/android-13
 struct compat_delta {
 	unsigned int offset; /* offset in kernel */
 	int delta; /* delta in 32bit user land */
@@ -51,7 +83,11 @@ struct xt_af {
 	struct mutex mutex;
 	struct list_head match;
 	struct list_head target;
+<<<<<<< HEAD
 #ifdef CONFIG_COMPAT
+=======
+#ifdef CONFIG_NETFILTER_XTABLES_COMPAT
+>>>>>>> upstream/android-13
 	struct mutex compat_mutex;
 	struct compat_delta *compat_tab;
 	unsigned int number; /* number of slots in compat_tab[] */
@@ -59,7 +95,12 @@ struct xt_af {
 #endif
 };
 
+<<<<<<< HEAD
 static struct xt_af *xt;
+=======
+static unsigned int xt_pernet_id __read_mostly;
+static struct xt_af *xt __read_mostly;
+>>>>>>> upstream/android-13
 
 static const char *const xt_prefix[NFPROTO_NUMPROTO] = {
 	[NFPROTO_UNSPEC] = "x",
@@ -227,7 +268,11 @@ xt_request_find_match(uint8_t nfproto, const char *name, uint8_t revision)
 EXPORT_SYMBOL_GPL(xt_request_find_match);
 
 /* Find target, grabs ref.  Returns ERR_PTR() on error. */
+<<<<<<< HEAD
 struct xt_target *xt_find_target(u8 af, const char *name, u8 revision)
+=======
+static struct xt_target *xt_find_target(u8 af, const char *name, u8 revision)
+>>>>>>> upstream/android-13
 {
 	struct xt_target *t;
 	int err = -ENOENT;
@@ -255,7 +300,10 @@ struct xt_target *xt_find_target(u8 af, const char *name, u8 revision)
 
 	return ERR_PTR(err);
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(xt_find_target);
+=======
+>>>>>>> upstream/android-13
 
 struct xt_target *xt_request_find_target(u8 af, const char *name, u8 revision)
 {
@@ -463,7 +511,11 @@ int xt_check_proc_name(const char *name, unsigned int size)
 EXPORT_SYMBOL(xt_check_proc_name);
 
 int xt_check_match(struct xt_mtchk_param *par,
+<<<<<<< HEAD
 		   unsigned int size, u_int8_t proto, bool inv_proto)
+=======
+		   unsigned int size, u16 proto, bool inv_proto)
+>>>>>>> upstream/android-13
 {
 	int ret;
 
@@ -646,7 +698,11 @@ static bool error_tg_ok(unsigned int usersize, unsigned int kernsize,
 	return usersize == kernsize && strnlen(msg, msglen) < msglen;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_COMPAT
+=======
+#ifdef CONFIG_NETFILTER_XTABLES_COMPAT
+>>>>>>> upstream/android-13
 int xt_compat_add_offset(u_int8_t af, unsigned int offset, int delta)
 {
 	struct xt_af *xp = &xt[af];
@@ -849,7 +905,11 @@ int xt_compat_check_entry_offsets(const void *base, const char *elems,
 				    __alignof__(struct compat_xt_entry_match));
 }
 EXPORT_SYMBOL(xt_compat_check_entry_offsets);
+<<<<<<< HEAD
 #endif /* CONFIG_COMPAT */
+=======
+#endif /* CONFIG_NETFILTER_XTABLES_COMPAT */
+>>>>>>> upstream/android-13
 
 /**
  * xt_check_entry_offsets - validate arp/ip/ip6t_entry
@@ -867,7 +927,11 @@ EXPORT_SYMBOL(xt_compat_check_entry_offsets);
  * match structures are aligned, and that the last structure ends where
  * the target structure begins.
  *
+<<<<<<< HEAD
  * Also see xt_compat_check_entry_offsets for CONFIG_COMPAT version.
+=======
+ * Also see xt_compat_check_entry_offsets for CONFIG_NETFILTER_XTABLES_COMPAT version.
+>>>>>>> upstream/android-13
  *
  * The arp/ip/ip6t_entry structure @base must have passed following tests:
  * - it must point to a valid memory location
@@ -943,14 +1007,22 @@ EXPORT_SYMBOL(xt_check_entry_offsets);
  *
  * @size: number of entries
  *
+<<<<<<< HEAD
  * Return: NULL or kmalloc'd or vmalloc'd array
+=======
+ * Return: NULL or zeroed kmalloc'd or vmalloc'd array
+>>>>>>> upstream/android-13
  */
 unsigned int *xt_alloc_entry_offsets(unsigned int size)
 {
 	if (size > XT_MAX_TABLE_SIZE / sizeof(unsigned int))
 		return NULL;
 
+<<<<<<< HEAD
 	return kvmalloc_array(size, sizeof(unsigned int), GFP_KERNEL | __GFP_ZERO);
+=======
+	return kvcalloc(size, sizeof(unsigned int), GFP_KERNEL);
+>>>>>>> upstream/android-13
 
 }
 EXPORT_SYMBOL(xt_alloc_entry_offsets);
@@ -983,7 +1055,11 @@ bool xt_find_jump_offset(const unsigned int *offsets,
 EXPORT_SYMBOL(xt_find_jump_offset);
 
 int xt_check_target(struct xt_tgchk_param *par,
+<<<<<<< HEAD
 		    unsigned int size, u_int8_t proto, bool inv_proto)
+=======
+		    unsigned int size, u16 proto, bool inv_proto)
+>>>>>>> upstream/android-13
 {
 	int ret;
 
@@ -1032,26 +1108,40 @@ int xt_check_target(struct xt_tgchk_param *par,
 EXPORT_SYMBOL_GPL(xt_check_target);
 
 /**
+<<<<<<< HEAD
  * xt_copy_counters_from_user - copy counters and metadata from userspace
  *
  * @user: src pointer to userspace memory
  * @len: alleged size of userspace memory
  * @info: where to store the xt_counters_info metadata
  * @compat: true if we setsockopt call is done by 32bit task on 64bit kernel
+=======
+ * xt_copy_counters - copy counters and metadata from a sockptr_t
+ *
+ * @arg: src sockptr
+ * @len: alleged size of userspace memory
+ * @info: where to store the xt_counters_info metadata
+>>>>>>> upstream/android-13
  *
  * Copies counter meta data from @user and stores it in @info.
  *
  * vmallocs memory to hold the counters, then copies the counter data
  * from @user to the new memory and returns a pointer to it.
  *
+<<<<<<< HEAD
  * If @compat is true, @info gets converted automatically to the 64bit
  * representation.
+=======
+ * If called from a compat syscall, @info gets converted automatically to the
+ * 64bit representation.
+>>>>>>> upstream/android-13
  *
  * The metadata associated with the counters is stored in @info.
  *
  * Return: returns pointer that caller has to test via IS_ERR().
  * If IS_ERR is false, caller has to vfree the pointer.
  */
+<<<<<<< HEAD
 void *xt_copy_counters_from_user(const void __user *user, unsigned int len,
 				 struct xt_counters_info *info, bool compat)
 {
@@ -1060,6 +1150,17 @@ void *xt_copy_counters_from_user(const void __user *user, unsigned int len,
 
 #ifdef CONFIG_COMPAT
 	if (compat) {
+=======
+void *xt_copy_counters(sockptr_t arg, unsigned int len,
+		       struct xt_counters_info *info)
+{
+	size_t offset;
+	void *mem;
+	u64 size;
+
+#ifdef CONFIG_NETFILTER_XTABLES_COMPAT
+	if (in_compat_syscall()) {
+>>>>>>> upstream/android-13
 		/* structures only differ in size due to alignment */
 		struct compat_xt_counters_info compat_tmp;
 
@@ -1067,12 +1168,20 @@ void *xt_copy_counters_from_user(const void __user *user, unsigned int len,
 			return ERR_PTR(-EINVAL);
 
 		len -= sizeof(compat_tmp);
+<<<<<<< HEAD
 		if (copy_from_user(&compat_tmp, user, sizeof(compat_tmp)) != 0)
+=======
+		if (copy_from_sockptr(&compat_tmp, arg, sizeof(compat_tmp)) != 0)
+>>>>>>> upstream/android-13
 			return ERR_PTR(-EFAULT);
 
 		memcpy(info->name, compat_tmp.name, sizeof(info->name) - 1);
 		info->num_counters = compat_tmp.num_counters;
+<<<<<<< HEAD
 		user += sizeof(compat_tmp);
+=======
+		offset = sizeof(compat_tmp);
+>>>>>>> upstream/android-13
 	} else
 #endif
 	{
@@ -1080,10 +1189,17 @@ void *xt_copy_counters_from_user(const void __user *user, unsigned int len,
 			return ERR_PTR(-EINVAL);
 
 		len -= sizeof(*info);
+<<<<<<< HEAD
 		if (copy_from_user(info, user, sizeof(*info)) != 0)
 			return ERR_PTR(-EFAULT);
 
 		user += sizeof(*info);
+=======
+		if (copy_from_sockptr(info, arg, sizeof(*info)) != 0)
+			return ERR_PTR(-EFAULT);
+
+		offset = sizeof(*info);
+>>>>>>> upstream/android-13
 	}
 	info->name[sizeof(info->name) - 1] = '\0';
 
@@ -1097,15 +1213,25 @@ void *xt_copy_counters_from_user(const void __user *user, unsigned int len,
 	if (!mem)
 		return ERR_PTR(-ENOMEM);
 
+<<<<<<< HEAD
 	if (copy_from_user(mem, user, len) == 0)
+=======
+	if (copy_from_sockptr_offset(mem, arg, offset, len) == 0)
+>>>>>>> upstream/android-13
 		return mem;
 
 	vfree(mem);
 	return ERR_PTR(-EFAULT);
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(xt_copy_counters_from_user);
 
 #ifdef CONFIG_COMPAT
+=======
+EXPORT_SYMBOL_GPL(xt_copy_counters);
+
+#ifdef CONFIG_NETFILTER_XTABLES_COMPAT
+>>>>>>> upstream/android-13
 int xt_compat_target_offset(const struct xt_target *target)
 {
 	u_int16_t csize = target->compatsize ? : target->targetsize;
@@ -1198,10 +1324,31 @@ void xt_free_table_info(struct xt_table_info *info)
 }
 EXPORT_SYMBOL(xt_free_table_info);
 
+<<<<<<< HEAD
+=======
+struct xt_table *xt_find_table(struct net *net, u8 af, const char *name)
+{
+	struct xt_pernet *xt_net = net_generic(net, xt_pernet_id);
+	struct xt_table *t;
+
+	mutex_lock(&xt[af].mutex);
+	list_for_each_entry(t, &xt_net->tables[af], list) {
+		if (strcmp(t->name, name) == 0) {
+			mutex_unlock(&xt[af].mutex);
+			return t;
+		}
+	}
+	mutex_unlock(&xt[af].mutex);
+	return NULL;
+}
+EXPORT_SYMBOL(xt_find_table);
+
+>>>>>>> upstream/android-13
 /* Find table by name, grabs mutex & ref.  Returns ERR_PTR on error. */
 struct xt_table *xt_find_table_lock(struct net *net, u_int8_t af,
 				    const char *name)
 {
+<<<<<<< HEAD
 	struct xt_table *t, *found = NULL;
 
 	mutex_lock(&xt[af].mutex);
@@ -1229,10 +1376,41 @@ struct xt_table *xt_find_table_lock(struct net *net, u_int8_t af,
 
 		found = t;
 
+=======
+	struct xt_pernet *xt_net = net_generic(net, xt_pernet_id);
+	struct module *owner = NULL;
+	struct xt_template *tmpl;
+	struct xt_table *t;
+
+	mutex_lock(&xt[af].mutex);
+	list_for_each_entry(t, &xt_net->tables[af], list)
+		if (strcmp(t->name, name) == 0 && try_module_get(t->me))
+			return t;
+
+	/* Table doesn't exist in this netns, check larval list */
+	list_for_each_entry(tmpl, &xt_templates[af], list) {
+		int err;
+
+		if (strcmp(tmpl->name, name))
+			continue;
+		if (!try_module_get(tmpl->me))
+			goto out;
+
+		owner = tmpl->me;
+
+		mutex_unlock(&xt[af].mutex);
+		err = tmpl->table_init(net);
+		if (err < 0) {
+			module_put(owner);
+			return ERR_PTR(err);
+		}
+
+>>>>>>> upstream/android-13
 		mutex_lock(&xt[af].mutex);
 		break;
 	}
 
+<<<<<<< HEAD
 	if (!found)
 		goto out;
 
@@ -1242,6 +1420,14 @@ struct xt_table *xt_find_table_lock(struct net *net, u_int8_t af,
 			return t;
 
 	module_put(found->me);
+=======
+	/* and once again: */
+	list_for_each_entry(t, &xt_net->tables[af], list)
+		if (strcmp(t->name, name) == 0)
+			return t;
+
+	module_put(owner);
+>>>>>>> upstream/android-13
  out:
 	mutex_unlock(&xt[af].mutex);
 	return ERR_PTR(-ENOENT);
@@ -1272,7 +1458,11 @@ void xt_table_unlock(struct xt_table *table)
 }
 EXPORT_SYMBOL_GPL(xt_table_unlock);
 
+<<<<<<< HEAD
 #ifdef CONFIG_COMPAT
+=======
+#ifdef CONFIG_NETFILTER_XTABLES_COMPAT
+>>>>>>> upstream/android-13
 void xt_compat_lock(u_int8_t af)
 {
 	mutex_lock(&xt[af].compat_mutex);
@@ -1409,6 +1599,7 @@ xt_replace_table(struct xt_table *table,
 		}
 	}
 
+<<<<<<< HEAD
 #ifdef CONFIG_AUDIT
 	if (audit_enabled) {
 		audit_log(audit_context(), GFP_KERNEL,
@@ -1418,6 +1609,12 @@ xt_replace_table(struct xt_table *table,
 	}
 #endif
 
+=======
+	audit_log_nfcfg(table->name, table->af, private->number,
+			!private->number ? AUDIT_XT_OP_REGISTER :
+					   AUDIT_XT_OP_REPLACE,
+			GFP_KERNEL);
+>>>>>>> upstream/android-13
 	return private;
 }
 EXPORT_SYMBOL_GPL(xt_replace_table);
@@ -1427,9 +1624,16 @@ struct xt_table *xt_register_table(struct net *net,
 				   struct xt_table_info *bootstrap,
 				   struct xt_table_info *newinfo)
 {
+<<<<<<< HEAD
 	int ret;
 	struct xt_table_info *private;
 	struct xt_table *t, *table;
+=======
+	struct xt_pernet *xt_net = net_generic(net, xt_pernet_id);
+	struct xt_table_info *private;
+	struct xt_table *t, *table;
+	int ret;
+>>>>>>> upstream/android-13
 
 	/* Don't add one object to multiple lists. */
 	table = kmemdup(input_table, sizeof(struct xt_table), GFP_KERNEL);
@@ -1440,7 +1644,11 @@ struct xt_table *xt_register_table(struct net *net,
 
 	mutex_lock(&xt[table->af].mutex);
 	/* Don't autoload: we'd eat our tail... */
+<<<<<<< HEAD
 	list_for_each_entry(t, &net->xt.tables[table->af], list) {
+=======
+	list_for_each_entry(t, &xt_net->tables[table->af], list) {
+>>>>>>> upstream/android-13
 		if (strcmp(t->name, table->name) == 0) {
 			ret = -EEXIST;
 			goto unlock;
@@ -1459,7 +1667,11 @@ struct xt_table *xt_register_table(struct net *net,
 	/* save number of initial entries */
 	private->initial_entries = private->number;
 
+<<<<<<< HEAD
 	list_add(&table->list, &net->xt.tables[table->af]);
+=======
+	list_add(&table->list, &xt_net->tables[table->af]);
+>>>>>>> upstream/android-13
 	mutex_unlock(&xt[table->af].mutex);
 	return table;
 
@@ -1479,6 +1691,12 @@ void *xt_unregister_table(struct xt_table *table)
 	private = table->private;
 	list_del(&table->list);
 	mutex_unlock(&xt[table->af].mutex);
+<<<<<<< HEAD
+=======
+	audit_log_nfcfg(table->name, table->af, private->number,
+			AUDIT_XT_OP_UNREGISTER, GFP_KERNEL);
+	kfree(table->ops);
+>>>>>>> upstream/android-13
 	kfree(table);
 
 	return private;
@@ -1488,19 +1706,40 @@ EXPORT_SYMBOL_GPL(xt_unregister_table);
 #ifdef CONFIG_PROC_FS
 static void *xt_table_seq_start(struct seq_file *seq, loff_t *pos)
 {
+<<<<<<< HEAD
 	struct net *net = seq_file_net(seq);
 	u_int8_t af = (unsigned long)PDE_DATA(file_inode(seq->file));
 
 	mutex_lock(&xt[af].mutex);
 	return seq_list_start(&net->xt.tables[af], *pos);
+=======
+	u8 af = (unsigned long)PDE_DATA(file_inode(seq->file));
+	struct net *net = seq_file_net(seq);
+	struct xt_pernet *xt_net;
+
+	xt_net = net_generic(net, xt_pernet_id);
+
+	mutex_lock(&xt[af].mutex);
+	return seq_list_start(&xt_net->tables[af], *pos);
+>>>>>>> upstream/android-13
 }
 
 static void *xt_table_seq_next(struct seq_file *seq, void *v, loff_t *pos)
 {
+<<<<<<< HEAD
 	struct net *net = seq_file_net(seq);
 	u_int8_t af = (unsigned long)PDE_DATA(file_inode(seq->file));
 
 	return seq_list_next(v, &net->xt.tables[af], pos);
+=======
+	u8 af = (unsigned long)PDE_DATA(file_inode(seq->file));
+	struct net *net = seq_file_net(seq);
+	struct xt_pernet *xt_net;
+
+	xt_net = net_generic(net, xt_pernet_id);
+
+	return seq_list_next(v, &xt_net->tables[af], pos);
+>>>>>>> upstream/android-13
 }
 
 static void xt_table_seq_stop(struct seq_file *seq, void *v)
@@ -1576,7 +1815,11 @@ static void *xt_mttg_seq_next(struct seq_file *seq, void *v, loff_t *ppos,
 		trav->curr = trav->curr->next;
 		if (trav->curr != trav->head)
 			break;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		return NULL;
 	}
@@ -1723,6 +1966,61 @@ xt_hook_ops_alloc(const struct xt_table *table, nf_hookfn *fn)
 }
 EXPORT_SYMBOL_GPL(xt_hook_ops_alloc);
 
+<<<<<<< HEAD
+=======
+int xt_register_template(const struct xt_table *table,
+			 int (*table_init)(struct net *net))
+{
+	int ret = -EEXIST, af = table->af;
+	struct xt_template *t;
+
+	mutex_lock(&xt[af].mutex);
+
+	list_for_each_entry(t, &xt_templates[af], list) {
+		if (WARN_ON_ONCE(strcmp(table->name, t->name) == 0))
+			goto out_unlock;
+	}
+
+	ret = -ENOMEM;
+	t = kzalloc(sizeof(*t), GFP_KERNEL);
+	if (!t)
+		goto out_unlock;
+
+	BUILD_BUG_ON(sizeof(t->name) != sizeof(table->name));
+
+	strscpy(t->name, table->name, sizeof(t->name));
+	t->table_init = table_init;
+	t->me = table->me;
+	list_add(&t->list, &xt_templates[af]);
+	ret = 0;
+out_unlock:
+	mutex_unlock(&xt[af].mutex);
+	return ret;
+}
+EXPORT_SYMBOL_GPL(xt_register_template);
+
+void xt_unregister_template(const struct xt_table *table)
+{
+	struct xt_template *t;
+	int af = table->af;
+
+	mutex_lock(&xt[af].mutex);
+	list_for_each_entry(t, &xt_templates[af], list) {
+		if (strcmp(table->name, t->name))
+			continue;
+
+		list_del(&t->list);
+		mutex_unlock(&xt[af].mutex);
+		kfree(t);
+		return;
+	}
+
+	mutex_unlock(&xt[af].mutex);
+	WARN_ON_ONCE(1);
+}
+EXPORT_SYMBOL_GPL(xt_unregister_template);
+
+>>>>>>> upstream/android-13
 int xt_proto_init(struct net *net, u_int8_t af)
 {
 #ifdef CONFIG_PROC_FS
@@ -1866,24 +2164,45 @@ EXPORT_SYMBOL_GPL(xt_percpu_counter_free);
 
 static int __net_init xt_net_init(struct net *net)
 {
+<<<<<<< HEAD
 	int i;
 
 	for (i = 0; i < NFPROTO_NUMPROTO; i++)
 		INIT_LIST_HEAD(&net->xt.tables[i]);
+=======
+	struct xt_pernet *xt_net = net_generic(net, xt_pernet_id);
+	int i;
+
+	for (i = 0; i < NFPROTO_NUMPROTO; i++)
+		INIT_LIST_HEAD(&xt_net->tables[i]);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 static void __net_exit xt_net_exit(struct net *net)
 {
+<<<<<<< HEAD
 	int i;
 
 	for (i = 0; i < NFPROTO_NUMPROTO; i++)
 		WARN_ON_ONCE(!list_empty(&net->xt.tables[i]));
+=======
+	struct xt_pernet *xt_net = net_generic(net, xt_pernet_id);
+	int i;
+
+	for (i = 0; i < NFPROTO_NUMPROTO; i++)
+		WARN_ON_ONCE(!list_empty(&xt_net->tables[i]));
+>>>>>>> upstream/android-13
 }
 
 static struct pernet_operations xt_net_ops = {
 	.init = xt_net_init,
 	.exit = xt_net_exit,
+<<<<<<< HEAD
+=======
+	.id   = &xt_pernet_id,
+	.size = sizeof(struct xt_pernet),
+>>>>>>> upstream/android-13
 };
 
 static int __init xt_init(void)
@@ -1901,12 +2220,20 @@ static int __init xt_init(void)
 
 	for (i = 0; i < NFPROTO_NUMPROTO; i++) {
 		mutex_init(&xt[i].mutex);
+<<<<<<< HEAD
 #ifdef CONFIG_COMPAT
+=======
+#ifdef CONFIG_NETFILTER_XTABLES_COMPAT
+>>>>>>> upstream/android-13
 		mutex_init(&xt[i].compat_mutex);
 		xt[i].compat_tab = NULL;
 #endif
 		INIT_LIST_HEAD(&xt[i].target);
 		INIT_LIST_HEAD(&xt[i].match);
+<<<<<<< HEAD
+=======
+		INIT_LIST_HEAD(&xt_templates[i]);
+>>>>>>> upstream/android-13
 	}
 	rv = register_pernet_subsys(&xt_net_ops);
 	if (rv < 0)

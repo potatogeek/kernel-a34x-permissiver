@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  linux/arch/arm/mach-pxa/idp.c
  *
@@ -5,6 +6,12 @@
  *  it under the terms of the GNU General Public License version 2 as
  *  published by the Free Software Foundation.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ *  linux/arch/arm/mach-pxa/idp.c
+ *
+>>>>>>> upstream/android-13
  *  Copyright (c) 2001 Cliff Brake, Accelent Systems Inc.
  *
  *  2001-09-13: Cliff Brake <cbrake@accelent.com>
@@ -13,7 +20,10 @@
  *  2005-02-15: Cliff Brake <cliff.brake@gmail.com>
  *  		<http://www.vibren.com> <http://bec-systems.com>
  *              Updated for 2.6 kernel
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -160,9 +170,12 @@ static struct pxafb_mach_info sharp_lm8v31 = {
 
 static struct pxamci_platform_data idp_mci_platform_data = {
 	.ocr_mask		= MMC_VDD_32_33|MMC_VDD_33_34,
+<<<<<<< HEAD
 	.gpio_card_detect	= -1,
 	.gpio_card_ro		= -1,
 	.gpio_power		= -1,
+=======
+>>>>>>> upstream/android-13
 };
 
 static void __init idp_init(void)

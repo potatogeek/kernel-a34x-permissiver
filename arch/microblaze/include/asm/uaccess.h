@@ -1,22 +1,36 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2008-2009 Michal Simek <monstr@monstr.eu>
  * Copyright (C) 2008-2009 PetaLogix
  * Copyright (C) 2006 Atmark Techno, Inc.
+<<<<<<< HEAD
  *
  * This file is subject to the terms and conditions of the GNU General Public
  * License. See the file "COPYING" in the main directory of this archive
  * for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _ASM_MICROBLAZE_UACCESS_H
 #define _ASM_MICROBLAZE_UACCESS_H
 
 #include <linux/kernel.h>
+<<<<<<< HEAD
 #include <linux/mm.h>
 
 #include <asm/mmu.h>
 #include <asm/page.h>
 #include <asm/pgtable.h>
+=======
+
+#include <asm/mmu.h>
+#include <asm/page.h>
+#include <linux/pgtable.h>
+>>>>>>> upstream/android-13
 #include <asm/extable.h>
 #include <linux/string.h>
 
@@ -34,6 +48,7 @@
  */
 # define MAKE_MM_SEG(s)       ((mm_segment_t) { (s) })
 
+<<<<<<< HEAD
 #  ifndef CONFIG_MMU
 #  define KERNEL_DS	MAKE_MM_SEG(0)
 #  define USER_DS	KERNEL_DS
@@ -92,6 +107,27 @@ ok:
 # define __FIXUP_SECTION	".section .discard,\"ax\"\n"
 # define __EX_TABLE_SECTION	".section .discard,\"ax\"\n"
 #endif
+=======
+#  define KERNEL_DS	MAKE_MM_SEG(0xFFFFFFFF)
+#  define USER_DS	MAKE_MM_SEG(TASK_SIZE - 1)
+
+# define get_fs()	(current_thread_info()->addr_limit)
+# define set_fs(val)	(current_thread_info()->addr_limit = (val))
+# define user_addr_max() get_fs().seg
+
+# define uaccess_kernel()	(get_fs().seg == KERNEL_DS.seg)
+
+static inline int __access_ok(unsigned long addr, unsigned long size)
+{
+	unsigned long limit = user_addr_max();
+
+	return (size <= limit) && (addr <= (limit - size));
+}
+#define access_ok(addr, size) __access_ok((unsigned long)addr, size)
+
+# define __FIXUP_SECTION	".section .fixup,\"ax\"\n"
+# define __EX_TABLE_SECTION	".section __ex_table,\"a\"\n"
+>>>>>>> upstream/android-13
 
 extern unsigned long __copy_tofrom_user(void __user *to,
 		const void __user *from, unsigned long size);
@@ -120,7 +156,11 @@ static inline unsigned long __must_check clear_user(void __user *to,
 							unsigned long n)
 {
 	might_fault();
+<<<<<<< HEAD
 	if (unlikely(!access_ok(VERIFY_WRITE, to, n)))
+=======
+	if (unlikely(!access_ok(to, n)))
+>>>>>>> upstream/android-13
 		return n;
 
 	return __clear_user(to, n);
@@ -165,6 +205,7 @@ extern long __user_bad(void);
  * Returns zero on success, or -EFAULT on error.
  * On error, the variable @x is set to zero.
  */
+<<<<<<< HEAD
 #define get_user(x, ptr)						\
 	__get_user_check((x), (ptr), sizeof(*(ptr)))
 
@@ -197,10 +238,17 @@ extern long __user_bad(void);
 	}								\
 	x = (__force typeof(*(ptr)))__gu_val;				\
 	__gu_err;							\
+=======
+#define get_user(x, ptr) ({				\
+	const typeof(*(ptr)) __user *__gu_ptr = (ptr);	\
+	access_ok(__gu_ptr, sizeof(*__gu_ptr)) ?	\
+		__get_user(x, __gu_ptr) : -EFAULT;	\
+>>>>>>> upstream/android-13
 })
 
 #define __get_user(x, ptr)						\
 ({									\
+<<<<<<< HEAD
 	unsigned long __gu_val = 0;					\
 	/*unsigned long __gu_ptr = (unsigned long)(ptr);*/		\
 	long __gu_err;							\
@@ -218,6 +266,29 @@ extern long __user_bad(void);
 		/* __gu_val = 0; __gu_err = -EINVAL;*/ __gu_err = __user_bad();\
 	}								\
 	x = (__force __typeof__(*(ptr))) __gu_val;			\
+=======
+	long __gu_err;							\
+	switch (sizeof(*(ptr))) {					\
+	case 1:								\
+		__get_user_asm("lbu", (ptr), x, __gu_err);		\
+		break;							\
+	case 2:								\
+		__get_user_asm("lhu", (ptr), x, __gu_err);		\
+		break;							\
+	case 4:								\
+		__get_user_asm("lw", (ptr), x, __gu_err);		\
+		break;							\
+	case 8: {							\
+		__u64 __x = 0;						\
+		__gu_err = raw_copy_from_user(&__x, ptr, 8) ?		\
+							-EFAULT : 0;	\
+		(x) = (typeof(x))(typeof((x) - (x)))__x;		\
+		break;							\
+	}								\
+	default:							\
+		/* __gu_val = 0; __gu_err = -EINVAL;*/ __gu_err = __user_bad();\
+	}								\
+>>>>>>> upstream/android-13
 	__gu_err;							\
 })
 
@@ -286,7 +357,11 @@ extern long __user_bad(void);
 	typeof(*(ptr)) __user *__pu_addr = (ptr);			\
 	int __pu_err = 0;						\
 									\
+<<<<<<< HEAD
 	if (access_ok(VERIFY_WRITE, __pu_addr, size)) {			\
+=======
+	if (access_ok(__pu_addr, size)) {			\
+>>>>>>> upstream/android-13
 		switch (size) {						\
 		case 1:							\
 			__put_user_asm("sb", __pu_addr, __pu_val,	\
@@ -353,6 +428,7 @@ raw_copy_to_user(void __user *to, const void *from, unsigned long n)
 /*
  * Copy a null terminated string from userspace.
  */
+<<<<<<< HEAD
 extern int __strncpy_user(char *to, const char __user *from, int len);
 
 static inline long
@@ -362,12 +438,17 @@ strncpy_from_user(char *dst, const char __user *src, long count)
 		return -EFAULT;
 	return __strncpy_user(dst, src, count);
 }
+=======
+__must_check long strncpy_from_user(char *dst, const char __user *src,
+				    long count);
+>>>>>>> upstream/android-13
 
 /*
  * Return the size of a string (including the ending 0)
  *
  * Return 0 on exception, a value greater than N if too long
  */
+<<<<<<< HEAD
 extern int __strnlen_user(const char __user *sstr, int len);
 
 static inline long strnlen_user(const char __user *src, long n)
@@ -376,5 +457,8 @@ static inline long strnlen_user(const char __user *src, long n)
 		return 0;
 	return __strnlen_user(src, n);
 }
+=======
+__must_check long strnlen_user(const char __user *sstr, long len);
+>>>>>>> upstream/android-13
 
 #endif /* _ASM_MICROBLAZE_UACCESS_H */

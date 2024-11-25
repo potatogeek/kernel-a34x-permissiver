@@ -202,6 +202,10 @@ static void ftdi_elan_delete(struct kref *kref)
 	mutex_unlock(&ftdi_module_lock);
 	kfree(ftdi->bulk_in_buffer);
 	ftdi->bulk_in_buffer = NULL;
+<<<<<<< HEAD
+=======
+	kfree(ftdi);
+>>>>>>> upstream/android-13
 }
 
 static void ftdi_elan_put_kref(struct usb_ftdi *ftdi)
@@ -333,7 +337,12 @@ static void ftdi_elan_abandon_completions(struct usb_ftdi *ftdi)
 		*respond->result = -ESHUTDOWN;
 		*respond->value = 0;
 		complete(&respond->wait_completion);
+<<<<<<< HEAD
 	} mutex_unlock(&ftdi->u132_lock);
+=======
+	}
+	mutex_unlock(&ftdi->u132_lock);
+>>>>>>> upstream/android-13
 }
 
 static void ftdi_elan_abandon_targets(struct usb_ftdi *ftdi)
@@ -763,7 +772,12 @@ static int ftdi_elan_total_command_size(struct usb_ftdi *ftdi, int command_size)
 		struct u132_command *command = &ftdi->command[COMMAND_MASK &
 							      i++];
 		total_size += 5 + command->follows;
+<<<<<<< HEAD
 	} return total_size;
+=======
+	}
+	return total_size;
+>>>>>>> upstream/android-13
 }
 
 static int ftdi_elan_command_engine(struct usb_ftdi *ftdi)
@@ -915,7 +929,10 @@ static int ftdi_elan_respond_engine(struct usb_ftdi *ftdi)
 	int bytes_read = 0;
 	int retry_on_empty = 1;
 	int retry_on_timeout = 3;
+<<<<<<< HEAD
 	int empty_packets = 0;
+=======
+>>>>>>> upstream/android-13
 read:{
 		int packet_bytes = 0;
 		int retval = usb_bulk_msg(ftdi->udev,
@@ -960,6 +977,7 @@ read:{
 			dev_err(&ftdi->udev->dev, "error = %d with packet_bytes = %d with total %d bytes%s\n",
 				retval, packet_bytes, bytes_read, diag);
 			return retval;
+<<<<<<< HEAD
 		} else if (packet_bytes == 2) {
 			unsigned char s0 = ftdi->bulk_in_buffer[0];
 			unsigned char s1 = ftdi->bulk_in_buffer[1];
@@ -985,6 +1003,8 @@ read:{
 				goto more;
 			} else
 				return 0;
+=======
+>>>>>>> upstream/android-13
 		} else {
 			if (retry_on_empty-- > 0) {
 				goto more;
@@ -2049,6 +2069,7 @@ static int ftdi_elan_synchronize(struct usb_ftdi *ftdi)
 						goto read;
 					} else
 						goto reset;
+<<<<<<< HEAD
 				} else if (s1 == 0x31 && s2 == 0x60) {
 					if (read_stop-- > 0) {
 						goto read;
@@ -2056,6 +2077,8 @@ static int ftdi_elan_synchronize(struct usb_ftdi *ftdi)
 						dev_err(&ftdi->udev->dev, "retry limit reached\n");
 						continue;
 					}
+=======
+>>>>>>> upstream/android-13
 				} else {
 					if (read_stop-- > 0) {
 						goto read;
@@ -2129,7 +2152,10 @@ more:{
 				} else
 					d += sprintf(d, " ..");
 				bytes_read += 1;
+<<<<<<< HEAD
 				continue;
+=======
+>>>>>>> upstream/android-13
 			}
 			goto more;
 		} else if (packet_bytes > 1) {

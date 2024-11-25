@@ -20,12 +20,16 @@ static ssize_t qeth_dev_state_show(struct device *dev,
 				struct device_attribute *attr, char *buf)
 {
 	struct qeth_card *card = dev_get_drvdata(dev);
+<<<<<<< HEAD
 	if (!card)
 		return -EINVAL;
+=======
+>>>>>>> upstream/android-13
 
 	switch (card->state) {
 	case CARD_STATE_DOWN:
 		return sprintf(buf, "DOWN\n");
+<<<<<<< HEAD
 	case CARD_STATE_HARDSETUP:
 		return sprintf(buf, "HARDSETUP\n");
 	case CARD_STATE_SOFTSETUP:
@@ -37,6 +41,14 @@ static ssize_t qeth_dev_state_show(struct device *dev,
 			return sprintf(buf, "UP (LAN OFFLINE)\n");
 	case CARD_STATE_RECOVER:
 		return sprintf(buf, "RECOVER\n");
+=======
+	case CARD_STATE_SOFTSETUP:
+		if (card->dev->flags & IFF_UP)
+			return sprintf(buf, "UP (LAN %s)\n",
+				       netif_carrier_ok(card->dev) ? "ONLINE" :
+								     "OFFLINE");
+		return sprintf(buf, "SOFTSETUP\n");
+>>>>>>> upstream/android-13
 	default:
 		return sprintf(buf, "UNKNOWN\n");
 	}
@@ -48,8 +60,11 @@ static ssize_t qeth_dev_chpid_show(struct device *dev,
 				struct device_attribute *attr, char *buf)
 {
 	struct qeth_card *card = dev_get_drvdata(dev);
+<<<<<<< HEAD
 	if (!card)
 		return -EINVAL;
+=======
+>>>>>>> upstream/android-13
 
 	return sprintf(buf, "%02X\n", card->info.chpid);
 }
@@ -60,9 +75,14 @@ static ssize_t qeth_dev_if_name_show(struct device *dev,
 				struct device_attribute *attr, char *buf)
 {
 	struct qeth_card *card = dev_get_drvdata(dev);
+<<<<<<< HEAD
 	if (!card)
 		return -EINVAL;
 	return sprintf(buf, "%s\n", QETH_CARD_IFNAME(card));
+=======
+
+	return sprintf(buf, "%s\n", netdev_name(card->dev));
+>>>>>>> upstream/android-13
 }
 
 static DEVICE_ATTR(if_name, 0444, qeth_dev_if_name_show, NULL);
@@ -71,8 +91,11 @@ static ssize_t qeth_dev_card_type_show(struct device *dev,
 				struct device_attribute *attr, char *buf)
 {
 	struct qeth_card *card = dev_get_drvdata(dev);
+<<<<<<< HEAD
 	if (!card)
 		return -EINVAL;
+=======
+>>>>>>> upstream/android-13
 
 	return sprintf(buf, "%s\n", qeth_get_cardname_short(card));
 }
@@ -97,8 +120,11 @@ static ssize_t qeth_dev_inbuf_size_show(struct device *dev,
 				struct device_attribute *attr, char *buf)
 {
 	struct qeth_card *card = dev_get_drvdata(dev);
+<<<<<<< HEAD
 	if (!card)
 		return -EINVAL;
+=======
+>>>>>>> upstream/android-13
 
 	return sprintf(buf, "%s\n", qeth_get_bufsize_str(card));
 }
@@ -109,8 +135,11 @@ static ssize_t qeth_dev_portno_show(struct device *dev,
 			struct device_attribute *attr, char *buf)
 {
 	struct qeth_card *card = dev_get_drvdata(dev);
+<<<<<<< HEAD
 	if (!card)
 		return -EINVAL;
+=======
+>>>>>>> upstream/android-13
 
 	return sprintf(buf, "%i\n", card->dev->dev_port);
 }
@@ -119,6 +148,7 @@ static ssize_t qeth_dev_portno_store(struct device *dev,
 		struct device_attribute *attr, const char *buf, size_t count)
 {
 	struct qeth_card *card = dev_get_drvdata(dev);
+<<<<<<< HEAD
 	char *tmp;
 	unsigned int portno, limit;
 	int rc = 0;
@@ -129,15 +159,31 @@ static ssize_t qeth_dev_portno_store(struct device *dev,
 	mutex_lock(&card->conf_mutex);
 	if ((card->state != CARD_STATE_DOWN) &&
 	    (card->state != CARD_STATE_RECOVER)) {
+=======
+	unsigned int portno, limit;
+	int rc = 0;
+
+	rc = kstrtouint(buf, 16, &portno);
+	if (rc)
+		return rc;
+	if (portno > QETH_MAX_PORTNO)
+		return -EINVAL;
+
+	mutex_lock(&card->conf_mutex);
+	if (card->state != CARD_STATE_DOWN) {
+>>>>>>> upstream/android-13
 		rc = -EPERM;
 		goto out;
 	}
 
+<<<<<<< HEAD
 	portno = simple_strtoul(buf, &tmp, 16);
 	if (portno > QETH_MAX_PORTNO) {
 		rc = -EINVAL;
 		goto out;
 	}
+=======
+>>>>>>> upstream/android-13
 	limit = (card->ssqd.pcnt ? card->ssqd.pcnt - 1 : card->ssqd.pcnt);
 	if (portno > limit) {
 		rc = -EINVAL;
@@ -175,9 +221,12 @@ static ssize_t qeth_dev_prioqing_show(struct device *dev,
 {
 	struct qeth_card *card = dev_get_drvdata(dev);
 
+<<<<<<< HEAD
 	if (!card)
 		return -EINVAL;
 
+=======
+>>>>>>> upstream/android-13
 	switch (card->qdio.do_prio_queueing) {
 	case QETH_PRIO_Q_ING_PREC:
 		return sprintf(buf, "%s\n", "by precedence");
@@ -187,9 +236,17 @@ static ssize_t qeth_dev_prioqing_show(struct device *dev,
 		return sprintf(buf, "%s\n", "by skb-priority");
 	case QETH_PRIO_Q_ING_VLAN:
 		return sprintf(buf, "%s\n", "by VLAN headers");
+<<<<<<< HEAD
 	default:
 		return sprintf(buf, "always queue %i\n",
 			       card->qdio.default_out_queue);
+=======
+	case QETH_PRIO_Q_ING_FIXED:
+		return sprintf(buf, "always queue %i\n",
+			       card->qdio.default_out_queue);
+	default:
+		return sprintf(buf, "disabled\n");
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -199,12 +256,20 @@ static ssize_t qeth_dev_prioqing_store(struct device *dev,
 	struct qeth_card *card = dev_get_drvdata(dev);
 	int rc = 0;
 
+<<<<<<< HEAD
 	if (!card)
 		return -EINVAL;
 
 	mutex_lock(&card->conf_mutex);
 	if ((card->state != CARD_STATE_DOWN) &&
 	    (card->state != CARD_STATE_RECOVER)) {
+=======
+	if (IS_IQD(card) || IS_VM_NIC(card))
+		return -EOPNOTSUPP;
+
+	mutex_lock(&card->conf_mutex);
+	if (card->state != CARD_STATE_DOWN) {
+>>>>>>> upstream/android-13
 		rc = -EPERM;
 		goto out;
 	}
@@ -228,13 +293,19 @@ static ssize_t qeth_dev_prioqing_store(struct device *dev,
 		card->qdio.do_prio_queueing = QETH_PRIO_Q_ING_TOS;
 		card->qdio.default_out_queue = QETH_DEFAULT_QUEUE;
 	} else if (sysfs_streq(buf, "prio_queueing_vlan")) {
+<<<<<<< HEAD
 		if (!card->options.layer2) {
 			rc = -ENOTSUPP;
+=======
+		if (IS_LAYER3(card)) {
+			rc = -EOPNOTSUPP;
+>>>>>>> upstream/android-13
 			goto out;
 		}
 		card->qdio.do_prio_queueing = QETH_PRIO_Q_ING_VLAN;
 		card->qdio.default_out_queue = QETH_DEFAULT_QUEUE;
 	} else if (sysfs_streq(buf, "no_prio_queueing:0")) {
+<<<<<<< HEAD
 		card->qdio.do_prio_queueing = QETH_NO_PRIO_QUEUEING;
 		card->qdio.default_out_queue = 0;
 	} else if (sysfs_streq(buf, "no_prio_queueing:1")) {
@@ -249,6 +320,18 @@ static ssize_t qeth_dev_prioqing_store(struct device *dev,
 			goto out;
 		}
 		card->qdio.do_prio_queueing = QETH_NO_PRIO_QUEUEING;
+=======
+		card->qdio.do_prio_queueing = QETH_PRIO_Q_ING_FIXED;
+		card->qdio.default_out_queue = 0;
+	} else if (sysfs_streq(buf, "no_prio_queueing:1")) {
+		card->qdio.do_prio_queueing = QETH_PRIO_Q_ING_FIXED;
+		card->qdio.default_out_queue = 1;
+	} else if (sysfs_streq(buf, "no_prio_queueing:2")) {
+		card->qdio.do_prio_queueing = QETH_PRIO_Q_ING_FIXED;
+		card->qdio.default_out_queue = 2;
+	} else if (sysfs_streq(buf, "no_prio_queueing:3")) {
+		card->qdio.do_prio_queueing = QETH_PRIO_Q_ING_FIXED;
+>>>>>>> upstream/android-13
 		card->qdio.default_out_queue = 3;
 	} else if (sysfs_streq(buf, "no_prio_queueing")) {
 		card->qdio.do_prio_queueing = QETH_NO_PRIO_QUEUEING;
@@ -268,9 +351,12 @@ static ssize_t qeth_dev_bufcnt_show(struct device *dev,
 {
 	struct qeth_card *card = dev_get_drvdata(dev);
 
+<<<<<<< HEAD
 	if (!card)
 		return -EINVAL;
 
+=======
+>>>>>>> upstream/android-13
 	return sprintf(buf, "%i\n", card->qdio.in_buf_pool.buf_count);
 }
 
@@ -278,6 +364,7 @@ static ssize_t qeth_dev_bufcnt_store(struct device *dev,
 		struct device_attribute *attr, const char *buf, size_t count)
 {
 	struct qeth_card *card = dev_get_drvdata(dev);
+<<<<<<< HEAD
 	char *tmp;
 	int cnt, old_cnt;
 	int rc = 0;
@@ -288,10 +375,22 @@ static ssize_t qeth_dev_bufcnt_store(struct device *dev,
 	mutex_lock(&card->conf_mutex);
 	if ((card->state != CARD_STATE_DOWN) &&
 	    (card->state != CARD_STATE_RECOVER)) {
+=======
+	unsigned int cnt;
+	int rc = 0;
+
+	rc = kstrtouint(buf, 10, &cnt);
+	if (rc)
+		return rc;
+
+	mutex_lock(&card->conf_mutex);
+	if (card->state != CARD_STATE_DOWN) {
+>>>>>>> upstream/android-13
 		rc = -EPERM;
 		goto out;
 	}
 
+<<<<<<< HEAD
 	old_cnt = card->qdio.in_buf_pool.buf_count;
 	cnt = simple_strtoul(buf, &tmp, 10);
 	cnt = (cnt < QETH_IN_BUF_COUNT_MIN) ? QETH_IN_BUF_COUNT_MIN :
@@ -299,6 +398,11 @@ static ssize_t qeth_dev_bufcnt_store(struct device *dev,
 	if (old_cnt != cnt) {
 		rc = qeth_realloc_buffer_pool(card, cnt);
 	}
+=======
+	cnt = clamp(cnt, QETH_IN_BUF_COUNT_MIN, QETH_IN_BUF_COUNT_MAX);
+	rc = qeth_resize_buffer_pool(card, cnt);
+
+>>>>>>> upstream/android-13
 out:
 	mutex_unlock(&card->conf_mutex);
 	return rc ? rc : count;
@@ -311,6 +415,7 @@ static ssize_t qeth_dev_recover_store(struct device *dev,
 		struct device_attribute *attr, const char *buf, size_t count)
 {
 	struct qeth_card *card = dev_get_drvdata(dev);
+<<<<<<< HEAD
 	char *tmp;
 	int i;
 
@@ -325,6 +430,22 @@ static ssize_t qeth_dev_recover_store(struct device *dev,
 		qeth_schedule_recovery(card);
 
 	return count;
+=======
+	bool reset;
+	int rc;
+
+	rc = kstrtobool(buf, &reset);
+	if (rc)
+		return rc;
+
+	if (!qeth_card_hw_is_reachable(card))
+		return -EPERM;
+
+	if (reset)
+		rc = qeth_schedule_recovery(card);
+
+	return rc ? rc : count;
+>>>>>>> upstream/android-13
 }
 
 static DEVICE_ATTR(recover, 0200, NULL, qeth_dev_recover_store);
@@ -332,18 +453,23 @@ static DEVICE_ATTR(recover, 0200, NULL, qeth_dev_recover_store);
 static ssize_t qeth_dev_performance_stats_show(struct device *dev,
 				struct device_attribute *attr, char *buf)
 {
+<<<<<<< HEAD
 	struct qeth_card *card = dev_get_drvdata(dev);
 
 	if (!card)
 		return -EINVAL;
 
 	return sprintf(buf, "%i\n", card->options.performance_stats ? 1:0);
+=======
+	return sprintf(buf, "1\n");
+>>>>>>> upstream/android-13
 }
 
 static ssize_t qeth_dev_performance_stats_store(struct device *dev,
 		struct device_attribute *attr, const char *buf, size_t count)
 {
 	struct qeth_card *card = dev_get_drvdata(dev);
+<<<<<<< HEAD
 	char *tmp;
 	int i, rc = 0;
 
@@ -366,6 +492,28 @@ static ssize_t qeth_dev_performance_stats_store(struct device *dev,
 out:
 	mutex_unlock(&card->conf_mutex);
 	return rc ? rc : count;
+=======
+	struct qeth_qdio_out_q *queue;
+	unsigned int i;
+	bool reset;
+	int rc;
+
+	rc = kstrtobool(buf, &reset);
+	if (rc)
+		return rc;
+
+	if (reset) {
+		memset(&card->stats, 0, sizeof(card->stats));
+		for (i = 0; i < card->qdio.no_out_queues; i++) {
+			queue = card->qdio.out_qs[i];
+			if (!queue)
+				break;
+			memset(&queue->stats, 0, sizeof(queue->stats));
+		}
+	}
+
+	return count;
+>>>>>>> upstream/android-13
 }
 
 static DEVICE_ATTR(performance_stats, 0644, qeth_dev_performance_stats_show,
@@ -376,10 +524,14 @@ static ssize_t qeth_dev_layer2_show(struct device *dev,
 {
 	struct qeth_card *card = dev_get_drvdata(dev);
 
+<<<<<<< HEAD
 	if (!card)
 		return -EINVAL;
 
 	return sprintf(buf, "%i\n", card->options.layer2);
+=======
+	return sprintf(buf, "%i\n", card->options.layer);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t qeth_dev_layer2_store(struct device *dev,
@@ -387,6 +539,7 @@ static ssize_t qeth_dev_layer2_store(struct device *dev,
 {
 	struct qeth_card *card = dev_get_drvdata(dev);
 	struct net_device *ndev;
+<<<<<<< HEAD
 	char *tmp;
 	int i, rc = 0;
 	enum qeth_discipline_id newdis;
@@ -402,6 +555,17 @@ static ssize_t qeth_dev_layer2_store(struct device *dev,
 
 	i = simple_strtoul(buf, &tmp, 16);
 	switch (i) {
+=======
+	enum qeth_discipline_id newdis;
+	unsigned int input;
+	int rc;
+
+	rc = kstrtouint(buf, 16, &input);
+	if (rc)
+		return rc;
+
+	switch (input) {
+>>>>>>> upstream/android-13
 	case 0:
 		newdis = QETH_DISCIPLINE_LAYER3;
 		break;
@@ -409,11 +573,24 @@ static ssize_t qeth_dev_layer2_store(struct device *dev,
 		newdis = QETH_DISCIPLINE_LAYER2;
 		break;
 	default:
+<<<<<<< HEAD
 		rc = -EINVAL;
 		goto out;
 	}
 
 	if (card->options.layer2 == newdis)
+=======
+		return -EINVAL;
+	}
+
+	mutex_lock(&card->discipline_mutex);
+	if (card->state != CARD_STATE_DOWN) {
+		rc = -EPERM;
+		goto out;
+	}
+
+	if (card->options.layer == newdis)
+>>>>>>> upstream/android-13
 		goto out;
 	if (card->info.layer_enforced) {
 		/* fixed layer, can't switch */
@@ -421,7 +598,10 @@ static ssize_t qeth_dev_layer2_store(struct device *dev,
 		goto out;
 	}
 
+<<<<<<< HEAD
 	card->info.mac_bits = 0;
+=======
+>>>>>>> upstream/android-13
 	if (card->discipline) {
 		/* start with a new, pristine netdevice: */
 		ndev = qeth_clone_netdev(card->dev);
@@ -430,14 +610,19 @@ static ssize_t qeth_dev_layer2_store(struct device *dev,
 			goto out;
 		}
 
+<<<<<<< HEAD
 		card->discipline->remove(card->gdev);
 		qeth_core_free_discipline(card);
 		card->options.layer2 = -1;
 
+=======
+		qeth_remove_discipline(card);
+>>>>>>> upstream/android-13
 		free_netdev(card->dev);
 		card->dev = ndev;
 	}
 
+<<<<<<< HEAD
 	rc = qeth_core_load_discipline(card, newdis);
 	if (rc)
 		goto out;
@@ -445,6 +630,10 @@ static ssize_t qeth_dev_layer2_store(struct device *dev,
 	rc = card->discipline->setup(card->gdev);
 	if (rc)
 		qeth_core_free_discipline(card);
+=======
+	rc = qeth_setup_discipline(card, newdis);
+
+>>>>>>> upstream/android-13
 out:
 	mutex_unlock(&card->discipline_mutex);
 	return rc ? rc : count;
@@ -462,9 +651,12 @@ static ssize_t qeth_dev_isolation_show(struct device *dev,
 {
 	struct qeth_card *card = dev_get_drvdata(dev);
 
+<<<<<<< HEAD
 	if (!card)
 		return -EINVAL;
 
+=======
+>>>>>>> upstream/android-13
 	switch (card->options.isolation) {
 	case ISOLATION_MODE_NONE:
 		return snprintf(buf, 6, "%s\n", ATTR_QETH_ISOLATION_NONE);
@@ -484,12 +676,17 @@ static ssize_t qeth_dev_isolation_store(struct device *dev,
 	enum qeth_ipa_isolation_modes isolation;
 	int rc = 0;
 
+<<<<<<< HEAD
 	if (!card)
 		return -EINVAL;
 
 	mutex_lock(&card->conf_mutex);
 	if (card->info.type != QETH_CARD_TYPE_OSD &&
 	    card->info.type != QETH_CARD_TYPE_OSX) {
+=======
+	mutex_lock(&card->conf_mutex);
+	if (!IS_OSD(card) && !IS_OSX(card)) {
+>>>>>>> upstream/android-13
 		rc = -EOPNOTSUPP;
 		dev_err(&card->gdev->dev, "Adapter does not "
 			"support QDIO data connection isolation\n");
@@ -507,6 +704,7 @@ static ssize_t qeth_dev_isolation_store(struct device *dev,
 		rc = -EINVAL;
 		goto out;
 	}
+<<<<<<< HEAD
 	rc = count;
 
 	/* defer IP assist if device is offline (until discipline->set_online)*/
@@ -520,6 +718,19 @@ static ssize_t qeth_dev_isolation_store(struct device *dev,
 out:
 	mutex_unlock(&card->conf_mutex);
 	return rc;
+=======
+
+	if (qeth_card_hw_is_reachable(card))
+		rc = qeth_setadpparms_set_access_ctrl(card, isolation);
+
+	if (!rc)
+		WRITE_ONCE(card->options.isolation, isolation);
+
+out:
+	mutex_unlock(&card->conf_mutex);
+
+	return rc ? rc : count;
+>>>>>>> upstream/android-13
 }
 
 static DEVICE_ATTR(isolation, 0644, qeth_dev_isolation_show,
@@ -532,9 +743,12 @@ static ssize_t qeth_dev_switch_attrs_show(struct device *dev,
 	struct qeth_switch_info sw_info;
 	int	rc = 0;
 
+<<<<<<< HEAD
 	if (!card)
 		return -EINVAL;
 
+=======
+>>>>>>> upstream/android-13
 	if (!qeth_card_hw_is_reachable(card))
 		return sprintf(buf, "n/a\n");
 
@@ -565,8 +779,11 @@ static ssize_t qeth_hw_trap_show(struct device *dev,
 {
 	struct qeth_card *card = dev_get_drvdata(dev);
 
+<<<<<<< HEAD
 	if (!card)
 		return -EINVAL;
+=======
+>>>>>>> upstream/android-13
 	if (card->info.hwtrap)
 		return snprintf(buf, 5, "arm\n");
 	else
@@ -580,9 +797,12 @@ static ssize_t qeth_hw_trap_store(struct device *dev,
 	int rc = 0;
 	int state = 0;
 
+<<<<<<< HEAD
 	if (!card)
 		return -EINVAL;
 
+=======
+>>>>>>> upstream/android-13
 	mutex_lock(&card->conf_mutex);
 	if (qeth_card_hw_is_reachable(card))
 		state = 1;
@@ -617,6 +837,7 @@ static ssize_t qeth_hw_trap_store(struct device *dev,
 static DEVICE_ATTR(hw_trap, 0644, qeth_hw_trap_show,
 		   qeth_hw_trap_store);
 
+<<<<<<< HEAD
 static ssize_t qeth_dev_blkt_show(char *buf, struct qeth_card *card, int value)
 {
 
@@ -647,6 +868,26 @@ static ssize_t qeth_dev_blkt_store(struct qeth_card *card,
 	else
 		rc = -EINVAL;
 out:
+=======
+static ssize_t qeth_dev_blkt_store(struct qeth_card *card,
+		const char *buf, size_t count, int *value, int max_value)
+{
+	unsigned int input;
+	int rc;
+
+	rc = kstrtouint(buf, 10, &input);
+	if (rc)
+		return rc;
+
+	if (input > max_value)
+		return -EINVAL;
+
+	mutex_lock(&card->conf_mutex);
+	if (card->state != CARD_STATE_DOWN)
+		rc = -EPERM;
+	else
+		*value = input;
+>>>>>>> upstream/android-13
 	mutex_unlock(&card->conf_mutex);
 	return rc ? rc : count;
 }
@@ -656,7 +897,11 @@ static ssize_t qeth_dev_blkt_total_show(struct device *dev,
 {
 	struct qeth_card *card = dev_get_drvdata(dev);
 
+<<<<<<< HEAD
 	return qeth_dev_blkt_show(buf, card, card->info.blkt.time_total);
+=======
+	return sprintf(buf, "%i\n", card->info.blkt.time_total);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t qeth_dev_blkt_total_store(struct device *dev,
@@ -668,8 +913,11 @@ static ssize_t qeth_dev_blkt_total_store(struct device *dev,
 				   &card->info.blkt.time_total, 5000);
 }
 
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> upstream/android-13
 static DEVICE_ATTR(total, 0644, qeth_dev_blkt_total_show,
 		   qeth_dev_blkt_total_store);
 
@@ -678,7 +926,11 @@ static ssize_t qeth_dev_blkt_inter_show(struct device *dev,
 {
 	struct qeth_card *card = dev_get_drvdata(dev);
 
+<<<<<<< HEAD
 	return qeth_dev_blkt_show(buf, card, card->info.blkt.inter_packet);
+=======
+	return sprintf(buf, "%i\n", card->info.blkt.inter_packet);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t qeth_dev_blkt_inter_store(struct device *dev,
@@ -698,8 +950,12 @@ static ssize_t qeth_dev_blkt_inter_jumbo_show(struct device *dev,
 {
 	struct qeth_card *card = dev_get_drvdata(dev);
 
+<<<<<<< HEAD
 	return qeth_dev_blkt_show(buf, card,
 				  card->info.blkt.inter_packet_jumbo);
+=======
+	return sprintf(buf, "%i\n", card->info.blkt.inter_packet_jumbo);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t qeth_dev_blkt_inter_jumbo_store(struct device *dev,
@@ -720,6 +976,7 @@ static struct attribute *qeth_blkt_device_attrs[] = {
 	&dev_attr_inter_jumbo.attr,
 	NULL,
 };
+<<<<<<< HEAD
 const struct attribute_group qeth_device_blkt_group = {
 	.name = "blkt",
 	.attrs = qeth_blkt_device_attrs,
@@ -731,12 +988,24 @@ static struct attribute *qeth_device_attrs[] = {
 	&dev_attr_chpid.attr,
 	&dev_attr_if_name.attr,
 	&dev_attr_card_type.attr,
+=======
+
+static const struct attribute_group qeth_dev_blkt_group = {
+	.name = "blkt",
+	.attrs = qeth_blkt_device_attrs,
+};
+
+static struct attribute *qeth_dev_extended_attrs[] = {
+>>>>>>> upstream/android-13
 	&dev_attr_inbuf_size.attr,
 	&dev_attr_portno.attr,
 	&dev_attr_portname.attr,
 	&dev_attr_priority_queueing.attr,
+<<<<<<< HEAD
 	&dev_attr_buffer_count.attr,
 	&dev_attr_recover.attr,
+=======
+>>>>>>> upstream/android-13
 	&dev_attr_performance_stats.attr,
 	&dev_attr_layer2.attr,
 	&dev_attr_isolation.attr,
@@ -744,6 +1013,7 @@ static struct attribute *qeth_device_attrs[] = {
 	&dev_attr_switch_attrs.attr,
 	NULL,
 };
+<<<<<<< HEAD
 const struct attribute_group qeth_device_attr_group = {
 	.attrs = qeth_device_attrs,
 };
@@ -756,6 +1026,14 @@ const struct attribute_group *qeth_generic_attr_groups[] = {
 };
 
 static struct attribute *qeth_osn_device_attrs[] = {
+=======
+
+static const struct attribute_group qeth_dev_extended_group = {
+	.attrs = qeth_dev_extended_attrs,
+};
+
+static struct attribute *qeth_dev_attrs[] = {
+>>>>>>> upstream/android-13
 	&dev_attr_state.attr,
 	&dev_attr_chpid.attr,
 	&dev_attr_if_name.attr,
@@ -764,10 +1042,22 @@ static struct attribute *qeth_osn_device_attrs[] = {
 	&dev_attr_recover.attr,
 	NULL,
 };
+<<<<<<< HEAD
 static struct attribute_group qeth_osn_device_attr_group = {
 	.attrs = qeth_osn_device_attrs,
 };
 const struct attribute_group *qeth_osn_attr_groups[] = {
 	&qeth_osn_device_attr_group,
+=======
+
+static const struct attribute_group qeth_dev_group = {
+	.attrs = qeth_dev_attrs,
+};
+
+const struct attribute_group *qeth_dev_groups[] = {
+	&qeth_dev_group,
+	&qeth_dev_extended_group,
+	&qeth_dev_blkt_group,
+>>>>>>> upstream/android-13
 	NULL,
 };

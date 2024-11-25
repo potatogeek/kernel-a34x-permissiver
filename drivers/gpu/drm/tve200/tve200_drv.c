@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2017 Linus Walleij <linus.walleij@linaro.org>
  * Parts of this file were based on sources as follows:
@@ -7,11 +11,14 @@
  * Copyright (C) 2007 Dave Airlie <airlied@linux.ie>
  * Copyright (C) 2011 Texas Instruments
  * Copyright (C) 2017 Eric Anholt
+<<<<<<< HEAD
  *
  * This program is free software and is provided to you under the terms of the
  * GNU General Public License version 2 as published by the Free Software
  * Foundation, and any use by you of this program is subject to the terms of
  * such GNU licence.
+=======
+>>>>>>> upstream/android-13
  */
 
 /**
@@ -39,6 +46,7 @@
 #include <linux/platform_device.h>
 #include <linux/shmem_fs.h>
 #include <linux/slab.h>
+<<<<<<< HEAD
 #include <linux/version.h>
 
 #include <drm/drmP.h>
@@ -51,6 +59,20 @@
 #include <drm/drm_panel.h>
 #include <drm/drm_of.h>
 #include <drm/drm_bridge.h>
+=======
+
+#include <drm/drm_atomic_helper.h>
+#include <drm/drm_bridge.h>
+#include <drm/drm_drv.h>
+#include <drm/drm_fb_cma_helper.h>
+#include <drm/drm_fb_helper.h>
+#include <drm/drm_gem_cma_helper.h>
+#include <drm/drm_gem_framebuffer_helper.h>
+#include <drm/drm_of.h>
+#include <drm/drm_panel.h>
+#include <drm/drm_probe_helper.h>
+#include <drm/drm_vblank.h>
+>>>>>>> upstream/android-13
 
 #include "tve200_drm.h"
 
@@ -83,8 +105,13 @@ static int tve200_modeset_init(struct drm_device *dev)
 	if (ret && ret != -ENODEV)
 		return ret;
 	if (panel) {
+<<<<<<< HEAD
 		bridge = drm_panel_bridge_add(panel,
 					      DRM_MODE_CONNECTOR_Unknown);
+=======
+		bridge = drm_panel_bridge_add_typed(panel,
+						    DRM_MODE_CONNECTOR_Unknown);
+>>>>>>> upstream/android-13
 		if (IS_ERR(bridge)) {
 			ret = PTR_ERR(bridge);
 			goto out_bridge;
@@ -113,7 +140,11 @@ static int tve200_modeset_init(struct drm_device *dev)
 	}
 
 	priv->panel = panel;
+<<<<<<< HEAD
 	priv->connector = panel->connector;
+=======
+	priv->connector = drm_panel_bridge_connector(bridge);
+>>>>>>> upstream/android-13
 	priv->bridge = bridge;
 
 	dev_info(dev->dev, "attached to panel %s\n",
@@ -126,12 +157,15 @@ static int tve200_modeset_init(struct drm_device *dev)
 	}
 
 	drm_mode_config_reset(dev);
+<<<<<<< HEAD
 
 	/*
 	 * Passing in 16 here will make the RGB656 mode the default
 	 * Passing in 32 will use XRGB8888 mode
 	 */
 	drm_fb_cma_fbdev_init(dev, 16, 0);
+=======
+>>>>>>> upstream/android-13
 	drm_kms_helper_poll_init(dev);
 
 	goto finish;
@@ -146,10 +180,15 @@ finish:
 
 DEFINE_DRM_GEM_CMA_FOPS(drm_fops);
 
+<<<<<<< HEAD
 static struct drm_driver tve200_drm_driver = {
 	.driver_features =
 		DRIVER_MODESET | DRIVER_GEM | DRIVER_PRIME | DRIVER_ATOMIC,
 	.lastclose = drm_fb_helper_lastclose,
+=======
+static const struct drm_driver tve200_drm_driver = {
+	.driver_features = DRIVER_MODESET | DRIVER_GEM | DRIVER_ATOMIC,
+>>>>>>> upstream/android-13
 	.ioctls = NULL,
 	.fops = &drm_fops,
 	.name = "tve200",
@@ -158,6 +197,7 @@ static struct drm_driver tve200_drm_driver = {
 	.major = 1,
 	.minor = 0,
 	.patchlevel = 0,
+<<<<<<< HEAD
 	.dumb_create = drm_gem_cma_dumb_create,
 	.gem_free_object_unlocked = drm_gem_cma_free_object,
 	.gem_vm_ops = &drm_gem_cma_vm_ops,
@@ -171,6 +211,9 @@ static struct drm_driver tve200_drm_driver = {
 	.gem_prime_vmap = drm_gem_cma_prime_vmap,
 	.gem_prime_vunmap = drm_gem_cma_prime_vunmap,
 	.gem_prime_mmap = drm_gem_cma_prime_mmap,
+=======
+	DRM_GEM_CMA_DRIVER_OPS,
+>>>>>>> upstream/android-13
 };
 
 static int tve200_probe(struct platform_device *pdev)
@@ -245,12 +288,25 @@ static int tve200_probe(struct platform_device *pdev)
 	if (ret < 0)
 		goto clk_disable;
 
+<<<<<<< HEAD
+=======
+	/*
+	 * Passing in 16 here will make the RGB565 mode the default
+	 * Passing in 32 will use XRGB8888 mode
+	 */
+	drm_fbdev_generic_setup(drm, 16);
+
+>>>>>>> upstream/android-13
 	return 0;
 
 clk_disable:
 	clk_disable_unprepare(priv->pclk);
 dev_unref:
+<<<<<<< HEAD
 	drm_dev_unref(drm);
+=======
+	drm_dev_put(drm);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -260,12 +316,19 @@ static int tve200_remove(struct platform_device *pdev)
 	struct tve200_drm_dev_private *priv = drm->dev_private;
 
 	drm_dev_unregister(drm);
+<<<<<<< HEAD
 	drm_fb_cma_fbdev_fini(drm);
+=======
+>>>>>>> upstream/android-13
 	if (priv->panel)
 		drm_panel_bridge_remove(priv->bridge);
 	drm_mode_config_cleanup(drm);
 	clk_disable_unprepare(priv->pclk);
+<<<<<<< HEAD
 	drm_dev_unref(drm);
+=======
+	drm_dev_put(drm);
+>>>>>>> upstream/android-13
 
 	return 0;
 }

@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0
+<<<<<<< HEAD
 #include "util/cache.h"
 #include "util/debug.h"
+=======
+>>>>>>> upstream/android-13
 #include "ui/browser.h"
 #include "ui/keysyms.h"
 #include "ui/ui.h"
@@ -35,7 +38,11 @@ static int list_menu__run(struct ui_browser *menu)
 {
 	int key;
 	unsigned long offset;
+<<<<<<< HEAD
 	const char help[] =
+=======
+	static const char help[] =
+>>>>>>> upstream/android-13
 	"h/?/F1        Show this window\n"
 	"UP/DOWN/PGUP\n"
 	"PGDN/SPACE\n"

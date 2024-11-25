@@ -1,5 +1,9 @@
 /*
+<<<<<<< HEAD
  * Copyright (c) 2006 Oracle.  All rights reserved.
+=======
+ * Copyright (c) 2006, 2020 Oracle and/or its affiliates.
+>>>>>>> upstream/android-13
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -162,12 +166,20 @@ static void rds_message_purge(struct rds_message *rm)
 	if (rm->rdma.op_active)
 		rds_rdma_free_op(&rm->rdma);
 	if (rm->rdma.op_rdma_mr)
+<<<<<<< HEAD
 		rds_mr_put(rm->rdma.op_rdma_mr);
+=======
+		kref_put(&rm->rdma.op_rdma_mr->r_kref, __rds_put_mr_final);
+>>>>>>> upstream/android-13
 
 	if (rm->atomic.op_active)
 		rds_atomic_free_op(&rm->atomic);
 	if (rm->atomic.op_rdma_mr)
+<<<<<<< HEAD
 		rds_mr_put(rm->atomic.op_rdma_mr);
+=======
+		kref_put(&rm->atomic.op_rdma_mr->r_kref, __rds_put_mr_final);
+>>>>>>> upstream/android-13
 }
 
 void rds_message_put(struct rds_message *rm)
@@ -313,11 +325,24 @@ struct scatterlist *rds_message_alloc_sgs(struct rds_message *rm, int nents)
 	struct scatterlist *sg_first = (struct scatterlist *) &rm[1];
 	struct scatterlist *sg_ret;
 
+<<<<<<< HEAD
 	WARN_ON(rm->m_used_sgs + nents > rm->m_total_sgs);
 	WARN_ON(!nents);
 
 	if (rm->m_used_sgs + nents > rm->m_total_sgs)
 		return NULL;
+=======
+	if (nents <= 0) {
+		pr_warn("rds: alloc sgs failed! nents <= 0\n");
+		return ERR_PTR(-EINVAL);
+	}
+
+	if (rm->m_used_sgs + nents > rm->m_total_sgs) {
+		pr_warn("rds: alloc sgs failed! total %d used %d nents %d\n",
+			rm->m_total_sgs, rm->m_used_sgs, nents);
+		return ERR_PTR(-ENOMEM);
+	}
+>>>>>>> upstream/android-13
 
 	sg_ret = &sg_first[rm->m_used_sgs];
 	sg_init_table(sg_ret, nents);
@@ -330,7 +355,11 @@ struct rds_message *rds_message_map_pages(unsigned long *page_addrs, unsigned in
 {
 	struct rds_message *rm;
 	unsigned int i;
+<<<<<<< HEAD
 	int num_sgs = ceil(total_len, PAGE_SIZE);
+=======
+	int num_sgs = DIV_ROUND_UP(total_len, PAGE_SIZE);
+>>>>>>> upstream/android-13
 	int extra_bytes = num_sgs * sizeof(struct scatterlist);
 
 	rm = rds_message_alloc(extra_bytes, GFP_NOWAIT);
@@ -339,11 +368,20 @@ struct rds_message *rds_message_map_pages(unsigned long *page_addrs, unsigned in
 
 	set_bit(RDS_MSG_PAGEVEC, &rm->m_flags);
 	rm->m_inc.i_hdr.h_len = cpu_to_be32(total_len);
+<<<<<<< HEAD
 	rm->data.op_nents = ceil(total_len, PAGE_SIZE);
 	rm->data.op_sg = rds_message_alloc_sgs(rm, num_sgs);
 	if (!rm->data.op_sg) {
 		rds_message_put(rm);
 		return ERR_PTR(-ENOMEM);
+=======
+	rm->data.op_nents = DIV_ROUND_UP(total_len, PAGE_SIZE);
+	rm->data.op_sg = rds_message_alloc_sgs(rm, num_sgs);
+	if (IS_ERR(rm->data.op_sg)) {
+		void *err = ERR_CAST(rm->data.op_sg);
+		rds_message_put(rm);
+		return err;
+>>>>>>> upstream/android-13
 	}
 
 	for (i = 0; i < rm->data.op_nents; ++i) {

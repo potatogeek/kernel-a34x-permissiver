@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only WITH Linux-syscall-note */
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2012 ARM Ltd.
  * Copyright (C) 2017 SiFive, Inc.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
@@ -18,6 +23,12 @@
  */
 #ifndef _UAPI__ASM_UCONTEXT_H
 #define _UAPI__ASM_UCONTEXT_H
+=======
+ * This file was copied from arch/arm64/include/uapi/asm/ucontext.h
+ */
+#ifndef _UAPI_ASM_RISCV_UCONTEXT_H
+#define _UAPI_ASM_RISCV_UCONTEXT_H
+>>>>>>> upstream/android-13
 
 #include <linux/types.h>
 
@@ -42,4 +53,8 @@ struct ucontext {
 	struct sigcontext uc_mcontext;
 };
 
+<<<<<<< HEAD
 #endif /* _UAPI__ASM_UCONTEXT_H */
+=======
+#endif /* _UAPI_ASM_RISCV_UCONTEXT_H */
+>>>>>>> upstream/android-13

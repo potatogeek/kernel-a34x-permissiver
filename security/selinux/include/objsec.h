@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  *  NSA Security-Enhanced Linux (SELinux) security module
  *
@@ -11,10 +15,13 @@
  *  Copyright (C) 2001,2002 Networks Associates Technology, Inc.
  *  Copyright (C) 2003 Red Hat, Inc., James Morris <jmorris@redhat.com>
  *  Copyright (C) 2016 Mellanox Technologies
+<<<<<<< HEAD
  *
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License version 2,
  *	as published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef _SELINUX_OBJSEC_H_
 #define _SELINUX_OBJSEC_H_
@@ -25,6 +32,11 @@
 #include <linux/binfmts.h>
 #include <linux/in.h>
 #include <linux/spinlock.h>
+<<<<<<< HEAD
+=======
+#include <linux/lsm_hooks.h>
+#include <linux/msg.h>
+>>>>>>> upstream/android-13
 #include <net/net_namespace.h>
 #include "flask.h"
 #include "avc.h"
@@ -36,6 +48,7 @@ struct task_security_struct {
 	u32 create_sid;		/* fscreate SID */
 	u32 keycreate_sid;	/* keycreate SID */
 	u32 sockcreate_sid;	/* fscreate SID */
+<<<<<<< HEAD
 #ifdef CONFIG_KDP_CRED
 	void *bp_cred;
 #endif
@@ -50,6 +63,9 @@ static inline u32 current_sid(void)
 
 	return tsec->sid;
 }
+=======
+} __randomize_layout;
+>>>>>>> upstream/android-13
 
 enum label_initialized {
 	LABEL_INVALID,		/* invalid or not initialized */
@@ -59,10 +75,14 @@ enum label_initialized {
 
 struct inode_security_struct {
 	struct inode *inode;	/* back pointer to inode object */
+<<<<<<< HEAD
 	union {
 		struct list_head list;	/* list of inode_security_struct */
 		struct rcu_head rcu;	/* for freeing the inode_security_struct */
 	};
+=======
+	struct list_head list;	/* list of inode_security_struct */
+>>>>>>> upstream/android-13
 	u32 task_sid;		/* SID of creating task */
 	u32 sid;		/* SID of this object */
 	u16 sclass;		/* security class of this object */
@@ -78,7 +98,10 @@ struct file_security_struct {
 };
 
 struct superblock_security_struct {
+<<<<<<< HEAD
 	struct super_block *sb;		/* back pointer to sb object */
+=======
+>>>>>>> upstream/android-13
 	u32 sid;			/* SID of file system superblock */
 	u32 def_sid;			/* default SID for labeling */
 	u32 mntpoint_sid;		/* SECURITY_FS_USE_MNTPOINT context for files */
@@ -165,4 +188,54 @@ struct perf_event_security_struct {
 	u32 sid;  /* SID of perf_event obj creator */
 };
 
+<<<<<<< HEAD
+=======
+extern struct lsm_blob_sizes selinux_blob_sizes;
+static inline struct task_security_struct *selinux_cred(const struct cred *cred)
+{
+	return cred->security + selinux_blob_sizes.lbs_cred;
+}
+
+static inline struct file_security_struct *selinux_file(const struct file *file)
+{
+	return file->f_security + selinux_blob_sizes.lbs_file;
+}
+
+static inline struct inode_security_struct *selinux_inode(
+						const struct inode *inode)
+{
+	if (unlikely(!inode->i_security))
+		return NULL;
+	return inode->i_security + selinux_blob_sizes.lbs_inode;
+}
+
+static inline struct msg_security_struct *selinux_msg_msg(
+						const struct msg_msg *msg_msg)
+{
+	return msg_msg->security + selinux_blob_sizes.lbs_msg_msg;
+}
+
+static inline struct ipc_security_struct *selinux_ipc(
+						const struct kern_ipc_perm *ipc)
+{
+	return ipc->security + selinux_blob_sizes.lbs_ipc;
+}
+
+/*
+ * get the subjective security ID of the current task
+ */
+static inline u32 current_sid(void)
+{
+	const struct task_security_struct *tsec = selinux_cred(current_cred());
+
+	return tsec->sid;
+}
+
+static inline struct superblock_security_struct *selinux_superblock(
+					const struct super_block *superblock)
+{
+	return superblock->s_security + selinux_blob_sizes.lbs_superblock;
+}
+
+>>>>>>> upstream/android-13
 #endif /* _SELINUX_OBJSEC_H_ */

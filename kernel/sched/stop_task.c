@@ -11,11 +11,24 @@
 
 #ifdef CONFIG_SMP
 static int
+<<<<<<< HEAD
 select_task_rq_stop(struct task_struct *p, int cpu, int sd_flag, int flags,
 		    int sibling_count_hint)
 {
 	return task_cpu(p); /* stop tasks as never migrate */
 }
+=======
+select_task_rq_stop(struct task_struct *p, int cpu, int flags)
+{
+	return task_cpu(p); /* stop tasks as never migrate */
+}
+
+static int
+balance_stop(struct rq *rq, struct task_struct *prev, struct rq_flags *rf)
+{
+	return sched_stop_runnable(rq);
+}
+>>>>>>> upstream/android-13
 #endif /* CONFIG_SMP */
 
 static void
@@ -24,6 +37,7 @@ check_preempt_curr_stop(struct rq *rq, struct task_struct *p, int flags)
 	/* we're never preempted */
 }
 
+<<<<<<< HEAD
 static struct task_struct *
 pick_next_task_stop(struct rq *rq, struct task_struct *prev, struct rq_flags *rf)
 {
@@ -37,6 +51,29 @@ pick_next_task_stop(struct rq *rq, struct task_struct *prev, struct rq_flags *rf
 	stop->se.exec_start = rq_clock_task(rq);
 
 	return stop;
+=======
+static void set_next_task_stop(struct rq *rq, struct task_struct *stop, bool first)
+{
+	stop->se.exec_start = rq_clock_task(rq);
+}
+
+static struct task_struct *pick_task_stop(struct rq *rq)
+{
+	if (!sched_stop_runnable(rq))
+		return NULL;
+
+	return rq->stop;
+}
+
+static struct task_struct *pick_next_task_stop(struct rq *rq)
+{
+	struct task_struct *p = pick_task_stop(rq);
+
+	if (p)
+		set_next_task_stop(rq, p, true);
+
+	return p;
+>>>>>>> upstream/android-13
 }
 
 static void
@@ -87,6 +124,7 @@ static void task_tick_stop(struct rq *rq, struct task_struct *curr, int queued)
 {
 }
 
+<<<<<<< HEAD
 static void set_curr_task_stop(struct rq *rq)
 {
 	struct task_struct *stop = rq->stop;
@@ -94,6 +132,8 @@ static void set_curr_task_stop(struct rq *rq)
 	stop->se.exec_start = rq_clock_task(rq);
 }
 
+=======
+>>>>>>> upstream/android-13
 static void switched_to_stop(struct rq *rq, struct task_struct *p)
 {
 	BUG(); /* its impossible to change to this class */
@@ -105,12 +145,15 @@ prio_changed_stop(struct rq *rq, struct task_struct *p, int oldprio)
 	BUG(); /* how!?, what priority? */
 }
 
+<<<<<<< HEAD
 static unsigned int
 get_rr_interval_stop(struct rq *rq, struct task_struct *task)
 {
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static void update_curr_stop(struct rq *rq)
 {
 }
@@ -118,8 +161,12 @@ static void update_curr_stop(struct rq *rq)
 /*
  * Simple, special scheduling class for the per-CPU stop tasks:
  */
+<<<<<<< HEAD
 const struct sched_class stop_sched_class = {
 	.next			= &dl_sched_class,
+=======
+DEFINE_SCHED_CLASS(stop) = {
+>>>>>>> upstream/android-13
 
 	.enqueue_task		= enqueue_task_stop,
 	.dequeue_task		= dequeue_task_stop,
@@ -129,17 +176,30 @@ const struct sched_class stop_sched_class = {
 
 	.pick_next_task		= pick_next_task_stop,
 	.put_prev_task		= put_prev_task_stop,
+<<<<<<< HEAD
 
 #ifdef CONFIG_SMP
+=======
+	.set_next_task          = set_next_task_stop,
+
+#ifdef CONFIG_SMP
+	.balance		= balance_stop,
+	.pick_task		= pick_task_stop,
+>>>>>>> upstream/android-13
 	.select_task_rq		= select_task_rq_stop,
 	.set_cpus_allowed	= set_cpus_allowed_common,
 #endif
 
+<<<<<<< HEAD
 	.set_curr_task          = set_curr_task_stop,
 	.task_tick		= task_tick_stop,
 
 	.get_rr_interval	= get_rr_interval_stop,
 
+=======
+	.task_tick		= task_tick_stop,
+
+>>>>>>> upstream/android-13
 	.prio_changed		= prio_changed_stop,
 	.switched_to		= switched_to_stop,
 	.update_curr		= update_curr_stop,

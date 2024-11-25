@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Samsung EXYNOS SoC series Display Port PHY driver
  *
@@ -7,6 +8,14 @@
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Samsung Exynos SoC series Display Port PHY driver
+ *
+ * Copyright (C) 2013 Samsung Electronics Co., Ltd.
+ * Author: Jingoo Han <jg1.han@samsung.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/err.h>
@@ -112,10 +121,18 @@ static struct platform_driver exynos_dp_video_phy_driver = {
 	.driver = {
 		.name	= "exynos-dp-video-phy",
 		.of_match_table	= exynos_dp_video_phy_of_match,
+<<<<<<< HEAD
+=======
+		.suppress_bind_attrs = true,
+>>>>>>> upstream/android-13
 	}
 };
 module_platform_driver(exynos_dp_video_phy_driver);
 
 MODULE_AUTHOR("Jingoo Han <jg1.han@samsung.com>");
+<<<<<<< HEAD
 MODULE_DESCRIPTION("Samsung EXYNOS SoC DP PHY driver");
+=======
+MODULE_DESCRIPTION("Samsung Exynos SoC DP PHY driver");
+>>>>>>> upstream/android-13
 MODULE_LICENSE("GPL v2");

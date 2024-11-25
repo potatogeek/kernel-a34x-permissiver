@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2010 SUSE Linux Products GmbH. All rights reserved.
  *
  * Authors:
  *     Alexander Graf <agraf@suse.de>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -16,6 +21,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kvm_host.h>
@@ -365,10 +372,14 @@ void kvmppc_mmu_destroy_pr(struct kvm_vcpu *vcpu)
 	preempt_enable();
 }
 
+<<<<<<< HEAD
 /* From mm/mmu_context_hash32.c */
 #define CTX_TO_VSID(c, id)	((((c) * (897 * 16)) + (id * 0x111)) & 0xffffff)
 
 int kvmppc_mmu_init(struct kvm_vcpu *vcpu)
+=======
+int kvmppc_mmu_init_pr(struct kvm_vcpu *vcpu)
+>>>>>>> upstream/android-13
 {
 	struct kvmppc_vcpu_book3s *vcpu3s = to_book3s(vcpu);
 	int err;

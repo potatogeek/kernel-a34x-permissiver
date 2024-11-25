@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Synopsys DesignWare Multimedia Card Interface driver
  *  (Based on NXP driver for lpc 31xx)
@@ -36,6 +40,7 @@
 #include <linux/mmc/sdio.h>
 #include <linux/bitops.h>
 #include <linux/regulator/consumer.h>
+<<<<<<< HEAD
 #include <linux/of.h>
 #include <linux/of_gpio.h>
 #include <linux/mmc/slot-gpio.h>
@@ -45,6 +50,26 @@
 /* Common flag combinations */
 #define DW_MCI_DATA_ERROR_FLAGS	(SDMMC_INT_DRTO | SDMMC_INT_DCRC | \
 				 SDMMC_INT_HTO | SDMMC_INT_SBE  | \
+=======
+#include <linux/workqueue.h>
+#include <linux/of.h>
+#include <linux/of_gpio.h>
+#include <linux/mmc/slot-gpio.h>
+#include <linux/smc.h>
+
+#include <soc/samsung/exynos-pmu-if.h>
+//#include <soc/samsung/exynos-powermode.h>
+#include <soc/samsung/exynos-cpupm.h>
+#include <soc/samsung/exynos/debug-snapshot.h>
+
+#include "dw_mmc.h"
+#include "dw_mmc-exynos.h"
+#include "../core/queue.h"
+
+/* Common flag combinations */
+#define DW_MCI_DATA_ERROR_FLAGS	(SDMMC_INT_DRTO | SDMMC_INT_DCRC | \
+				 SDMMC_INT_SBE  | \
+>>>>>>> upstream/android-13
 				 SDMMC_INT_EBE | SDMMC_INT_HLE)
 #define DW_MCI_CMD_ERROR_FLAGS	(SDMMC_INT_RTO | SDMMC_INT_RCRC | \
 				 SDMMC_INT_RESP_ERR | SDMMC_INT_HLE)
@@ -55,6 +80,7 @@
 #define DW_MCI_DMA_THRESHOLD	16
 
 #define DW_MCI_FREQ_MAX	200000000	/* unit: HZ */
+<<<<<<< HEAD
 #define DW_MCI_FREQ_MIN	100000		/* unit: HZ */
 
 #define IDMAC_INT_CLR		(SDMMC_IDMAC_INT_AI | SDMMC_IDMAC_INT_NI | \
@@ -103,10 +129,276 @@ struct idmac_desc {
 
 	__le32		des3;	/* buffer 2 physical address */
 };
+=======
+#define DW_MCI_FREQ_MIN	300000	/* unit: HZ */
+>>>>>>> upstream/android-13
 
 /* Each descriptor can transfer up to 4KB of data in chained mode */
 #define DW_MCI_DESC_DATA_LENGTH	0x1000
 
+<<<<<<< HEAD
+=======
+#define DESC_RING_BUF_SZ	PAGE_SIZE
+
+static bool dw_mci_reset(struct dw_mci *host);
+
+static int dw_mci_card_busy(struct mmc_host *mmc);
+bool dw_mci_fifo_reset(struct device *dev, struct dw_mci *host);
+void dw_mci_ciu_reset(struct device *dev, struct dw_mci *host);
+static bool dw_mci_ctrl_reset(struct dw_mci *host, u32 reset);
+static void dw_mci_request_end(struct dw_mci *host, struct mmc_request *mrq);
+static struct workqueue_struct *pm_workqueue;
+#if IS_ENABLED(CONFIG_MMC_DW_DEBUG)
+static struct dw_mci_debug_data dw_mci_debug __cacheline_aligned;
+
+/* Add sysfs for read cmd_logs */
+static ssize_t dw_mci_debug_log_show(struct device *dev, struct device_attribute *attr, char *buf)
+{
+	ssize_t total_len = 0;
+	int j = 0, k = 0;
+	struct dw_mci_cmd_log *cmd_log;
+	unsigned int offset;
+	struct mmc_host *mmc = container_of(dev, struct mmc_host, class_dev);
+	struct dw_mci *host = dw_mci_debug.host[mmc->index];
+	/*
+	 * print cmd_log from prev. 14 to last
+	 */
+	if (host->debug_info->en_logging & DW_MCI_DEBUG_ON_CMD) {
+		offset = atomic_read(&host->debug_info->cmd_log_count) - 13;
+		offset &= DWMCI_LOG_MAX - 1;
+		total_len += snprintf(buf, PAGE_SIZE, "HOST%1d\n", mmc->index);
+		buf += (sizeof(char) * 6);
+		cmd_log = host->debug_info->cmd_log;
+		for (j = 0; j < 14; j++) {
+			total_len += snprintf(buf + (sizeof(char) * 71 * j) +
+					      (sizeof(char) * (2 * k + 6 * (k + 1))), PAGE_SIZE,
+					      "%04d:%2d,0x%08x,%04d,%016llu,%016llu,%02x,%04x,%03d.\n",
+					      offset,
+					      cmd_log[offset].cmd, cmd_log[offset].arg,
+					      cmd_log[offset].data_size, cmd_log[offset].send_time,
+					      cmd_log[offset].done_time, cmd_log[offset].seq_status,
+					      cmd_log[offset].rint_sts,
+					      cmd_log[offset].status_count);
+			offset++;
+		}
+		total_len += snprintf(buf + (sizeof(char) * 2), PAGE_SIZE, "\n\n");
+		k++;
+	}
+
+	return total_len;
+}
+
+static ssize_t dw_mci_debug_log_control(struct device *dev,
+					struct device_attribute *attr, const char *buf, size_t len)
+{
+	int enable = 0;
+	int ret = 0;
+	struct mmc_host *mmc = container_of(dev, struct mmc_host, class_dev);
+	struct dw_mci *host = dw_mci_debug.host[mmc->index];
+
+	ret = kstrtoint(buf, 0, &enable);
+	if (ret)
+		goto out;
+	host->debug_info->en_logging = enable;
+	printk("%s: en_logging is %d.\n",
+	       mmc_hostname(host->slot->mmc), host->debug_info->en_logging);
+ out:
+	return len;
+}
+
+static DEVICE_ATTR(dwmci_debug, 0644, dw_mci_debug_log_show, dw_mci_debug_log_control);
+
+/*
+ * new_cmd : has to be true Only send_command.(except CMD13)
+ * flags :
+ * 0x1 : send_cmd : start_command(all)
+ * 0x2 : resp(CD) : set done_time without data case
+ * 0x4 : data_done(DTO) : set done_time with data case
+ * 0x8 : error interrupt occurs : set rint_sts read from RINTSTS
+ */
+static void dw_mci_debug_cmd_log(struct mmc_command *cmd, struct dw_mci *host,
+				 bool new_cmd, u8 flags, u32 rintsts)
+{
+	int cpu = raw_smp_processor_id();
+	unsigned int count;
+	struct dw_mci_cmd_log *cmd_log;
+	if (!host->debug_info || !(host->debug_info->en_logging & DW_MCI_DEBUG_ON_CMD))
+		return;
+
+	cmd_log = host->debug_info->cmd_log;
+
+	if (!new_cmd) {
+		count = atomic_read(&host->debug_info->cmd_log_count) & (DWMCI_LOG_MAX - 1);
+		if (flags & DW_MCI_FLAG_SEND_CMD)	/* CMD13 */
+			cmd_log[count].status_count++;
+		if (flags & DW_MCI_FLAG_CD) {
+			cmd_log[count].seq_status |= DW_MCI_FLAG_CD;
+			cmd_log[count].done_time = cpu_clock(cpu);
+		}
+		if (flags & DW_MCI_FLAG_DTO) {
+			cmd_log[count].seq_status |= DW_MCI_FLAG_DTO;
+			cmd_log[count].done_time = cpu_clock(cpu);
+		}
+		if (flags & DW_MCI_FLAG_ERROR) {
+			cmd_log[count].seq_status |= DW_MCI_FLAG_ERROR;
+			cmd_log[count].rint_sts |= (rintsts & 0xFFFF);
+		}
+	} else {
+		count = atomic_inc_return(&host->debug_info->cmd_log_count) & (DWMCI_LOG_MAX - 1);
+		cmd_log[count].cmd = cmd->opcode;
+		cmd_log[count].arg = cmd->arg;
+		if (cmd->data)
+			cmd_log[count].data_size = cmd->data->blocks;
+		else
+			cmd_log[count].data_size = 0;
+
+		cmd_log[count].send_time = cpu_clock(cpu);
+
+		cmd_log[count].done_time = 0x0;
+		cmd_log[count].seq_status = DW_MCI_FLAG_SEND_CMD;
+		if (!(flags & DW_MCI_FLAG_SEND_CMD))
+			cmd_log[count].seq_status |= DW_MCI_FLAG_NEW_CMD_ERR;
+
+		cmd_log[count].rint_sts = 0x0;
+		cmd_log[count].status_count = 0;
+	}
+}
+
+static void dw_mci_debug_req_log(struct dw_mci *host, struct mmc_request *mrq,
+				 enum dw_mci_req_log_state log_state, enum dw_mci_state state)
+{
+	int cpu = raw_smp_processor_id();
+	unsigned int count;
+	struct dw_mci_req_log *req_log;
+
+	if (!host->debug_info || !(host->debug_info->en_logging & DW_MCI_DEBUG_ON_REQ))
+		return;
+
+	req_log = host->debug_info->req_log;
+
+	count = atomic_inc_return(&host->debug_info->req_log_count)
+	    & (DWMCI_REQ_LOG_MAX - 1);
+	if (log_state == STATE_REQ_START) {
+		req_log[count].info0 = mrq->cmd->opcode;
+		req_log[count].info1 = mrq->cmd->arg;
+		if (mrq->data) {
+			req_log[count].info2 = (u32) mrq->data->blksz;
+			req_log[count].info3 = (u32) mrq->data->blocks;
+		} else {
+			req_log[count].info2 = 0;
+			req_log[count].info3 = 0;
+		}
+	} else {
+		req_log[count].info0 = host->cmd_status;
+		req_log[count].info1 = host->data_status;
+		req_log[count].info2 = 0;
+		req_log[count].info3 = 0;
+	}
+	req_log[count].log_state = log_state;
+	req_log[count].pending_events = host->pending_events;
+	req_log[count].completed_events = host->completed_events;
+	req_log[count].timestamp = cpu_clock(cpu);
+	req_log[count].state = state;
+}
+
+static void dw_mci_debug_init(struct dw_mci *host)
+{
+	unsigned int host_index;
+	unsigned int info_index;
+
+	host_index = dw_mci_debug.host_count++;
+	if (host_index < DWMCI_DBG_NUM_HOST) {
+		dw_mci_debug.host[host_index] = host;
+		if (DWMCI_DBG_MASK_INFO & DWMCI_DBG_BIT_HOST(host_index)) {
+			static atomic_t temp_cmd_log_count = ATOMIC_INIT(-1);
+			static atomic_t temp_req_log_count = ATOMIC_INIT(-1);
+			int sysfs_err = 0;
+
+			info_index = dw_mci_debug.info_count++;
+			dw_mci_debug.info_index[host_index] = info_index;
+			host->debug_info = &dw_mci_debug.debug_info[info_index];
+			host->debug_info->en_logging = DW_MCI_DEBUG_ON_CMD | DW_MCI_DEBUG_ON_REQ;
+			host->debug_info->cmd_log_count = temp_cmd_log_count;
+			host->debug_info->req_log_count = temp_req_log_count;
+
+			sysfs_err = sysfs_create_file(&(host->slot->mmc->class_dev.kobj),
+						      &(dev_attr_dwmci_debug.attr));
+			pr_info("%s: create debug_log sysfs : %s.....\n", __func__,
+				sysfs_err ? "failed" : "successed");
+			dev_info(host->dev, "host %d debug On\n", host_index);
+		} else {
+			dw_mci_debug.info_index[host_index] = 0xFF;
+		}
+	}
+}
+#else
+static inline int dw_mci_debug_cmd_log(struct mmc_command *cmd,
+				       struct dw_mci *host, bool new_cmd, u8 flags, u32 rintsts)
+{
+	return 0;
+}
+
+static inline int dw_mci_debug_req_log(struct dw_mci *host,
+				       struct mmc_request *mrq, enum dw_mci_req_log_state log_state,
+				       enum dw_mci_state state)
+{
+	return 0;
+}
+
+static inline int dw_mci_debug_init(struct dw_mci *host)
+{
+	return 0;
+}
+#endif				/* defined (CONFIG_MMC_DW_DEBUG) */
+
+static void dw_mci_qos_work(struct work_struct *work)
+{
+#if IS_ENABLED(CONFIG_EXYNOS_PM_QOS) || IS_ENABLED(CONFIG_EXYNOS_PM_QOS_MODULE)
+	struct dw_mci *host = container_of(work, struct dw_mci, qos_work.work);
+	exynos_pm_qos_update_request(&host->pm_qos_lock, 0);
+#endif
+}
+
+static void dw_mci_qos_get(struct dw_mci *host)
+{
+	if (delayed_work_pending(&host->qos_work))
+		cancel_delayed_work_sync(&host->qos_work);
+#if IS_ENABLED(CONFIG_EXYNOS_PM_QOS) || IS_ENABLED(CONFIG_EXYNOS_PM_QOS_MODULE)
+	exynos_pm_qos_update_request(&host->pm_qos_lock, host->pdata->qos_dvfs_level);
+#endif
+}
+
+static void dw_mci_qos_put(struct dw_mci *host)
+{
+	queue_delayed_work(pm_workqueue, &host->qos_work, msecs_to_jiffies(5));
+}
+
+/* Add sysfs for argos */
+static ssize_t dw_mci_transferred_cnt_show(struct device *dev,
+					   struct device_attribute *attr, char *buf)
+{
+	struct mmc_host *mmc = container_of(dev, struct mmc_host, class_dev);
+	struct dw_mci_slot *slot = mmc_priv(mmc);
+	struct dw_mci *host = slot->host;
+
+	return sprintf(buf, "%u\n", host->transferred_cnt);
+}
+
+DEVICE_ATTR(trans_count, 0444, dw_mci_transferred_cnt_show, NULL);
+
+static void dw_mci_transferred_cnt_init(struct dw_mci *host, struct mmc_host *mmc)
+{
+	int sysfs_err = 0;
+	sysfs_err = sysfs_create_file(&(mmc->class_dev.kobj), &(dev_attr_trans_count.attr));
+	pr_info("%s: trans_count: %s.....\n", __func__, sysfs_err ? "failed" : "successed");
+}
+
+bool dw_mci_fifo_reset(struct device *dev, struct dw_mci *host);
+void dw_mci_ciu_reset(struct device *dev, struct dw_mci *host);
+static bool dw_mci_ctrl_reset(struct dw_mci *host, u32 reset);
+static int dw_mci_get_cd(struct mmc_host *mmc);
+
+>>>>>>> upstream/android-13
 #if defined(CONFIG_DEBUG_FS)
 static int dw_mci_req_show(struct seq_file *s, void *v)
 {
@@ -173,12 +465,16 @@ static void dw_mci_init_debugfs(struct dw_mci_slot *slot)
 	struct mmc_host	*mmc = slot->mmc;
 	struct dw_mci *host = slot->host;
 	struct dentry *root;
+<<<<<<< HEAD
 	struct dentry *node;
+=======
+>>>>>>> upstream/android-13
 
 	root = mmc->debugfs_root;
 	if (!root)
 		return;
 
+<<<<<<< HEAD
 	node = debugfs_create_file("regs", S_IRUSR, root, host,
 				   &dw_mci_regs_fops);
 	if (!node)
@@ -211,10 +507,74 @@ err:
 #endif /* defined(CONFIG_DEBUG_FS) */
 
 static bool dw_mci_ctrl_reset(struct dw_mci *host, u32 reset)
+=======
+	debugfs_create_file("regs", S_IRUSR, root, host, &dw_mci_regs_fops);
+	debugfs_create_file("req", S_IRUSR, root, slot, &dw_mci_req_fops);
+	debugfs_create_u32("state", S_IRUSR, root, &host->state);
+	debugfs_create_xul("pending_events", S_IRUSR, root, &host->pending_events);
+	debugfs_create_xul("completed_events", S_IRUSR, root, &host->completed_events);
+}
+#endif /* defined(CONFIG_DEBUG_FS) */
+
+static int dw_mci_ciu_clk_en(struct dw_mci *host)
+{
+	int ret = 0;
+
+	if (!host->ciu_gate) {
+		dev_err(host->dev, "no available CIU gating clock\n");
+		return 1;
+	}
+
+	if (!atomic_cmpxchg(&host->ciu_clk_cnt, 0, 1)) {
+		ret = clk_prepare_enable(host->ciu_gate);
+		if (ret)
+			dev_err(host->dev, "failed to enable ciu clock\n");
+	}
+
+	return ret;
+}
+
+static void dw_mci_ciu_clk_dis(struct dw_mci *host)
+{
+	if (host->req_state == DW_MMC_REQ_BUSY)
+		return;
+
+	if (IS_ERR(host->ciu_clk)) {
+		dev_err(host->dev, "no available CIU gate clk\n");
+		return;
+	}
+
+	if (atomic_cmpxchg(&host->ciu_clk_cnt, 1, 0)) {
+		clk_disable_unprepare(host->ciu_gate);
+	}
+}
+
+#ifdef CONFIG_CPU_IDLE
+static void dw_mci_sicd_control(struct dw_mci *host, bool enter)
+{
+	if (enter) {
+		/* SICD enter */
+		if (atomic_read(&host->sicd_active))
+			return;
+
+		if (atomic_cmpxchg(&host->sicd_cnt, 1, 0))
+			exynos_update_ip_idle_status(host->idle_ip_index, 1);
+	} else {
+		/* driver busy */
+		if (!atomic_cmpxchg(&host->sicd_cnt, 0, 1))
+			exynos_update_ip_idle_status(host->idle_ip_index, 0);
+	}
+	return;
+}
+#endif
+
+u32 dw_mci_disable_interrupt(struct dw_mci * host, unsigned int *int_mask)
+>>>>>>> upstream/android-13
 {
 	u32 ctrl;
 
 	ctrl = mci_readl(host, CTRL);
+<<<<<<< HEAD
 	ctrl |= reset;
 	mci_writel(host, CTRL, ctrl);
 
@@ -229,6 +589,64 @@ static bool dw_mci_ctrl_reset(struct dw_mci *host, u32 reset)
 	}
 
 	return true;
+=======
+	ctrl &= ~(SDMMC_CTRL_INT_ENABLE);
+	mci_writel(host, CTRL, ctrl);
+
+	*int_mask = mci_readl(host, INTMASK);
+
+	mci_writel(host, INTMASK, 0);
+
+	return ctrl;
+}
+
+void dw_mci_enable_interrupt(struct dw_mci *host, unsigned int int_mask)
+{
+	unsigned int ctrl;
+	mci_writel(host, INTMASK, int_mask);
+
+	ctrl = mci_readl(host, CTRL);
+	mci_writel(host, CTRL, ctrl | SDMMC_CTRL_INT_ENABLE);
+}
+
+static bool dw_mci_ctrl_reset(struct dw_mci *host, u32 reset)
+{
+	u32 ctrl;
+	unsigned int int_mask = 0;
+	u32 clksel_saved = 0x0;
+	bool ret = false;
+
+	/* Interrupt disable */
+	ctrl = dw_mci_disable_interrupt(host, &int_mask);
+
+	/* set Rx timing to 0 */
+	clksel_saved = mci_readl(host, CLKSEL);
+	mci_writel(host, CLKSEL, clksel_saved & ~(0x3 << 6 | 0x7));
+
+	/* Reset */
+	ctrl |= reset;
+	mci_writel(host, CTRL, ctrl);
+
+	/* All interrupt clear */
+	mci_writel(host, RINTSTS, 0xFFFFFFFF);
+
+	/* Interrupt enable */
+	dw_mci_enable_interrupt(host, int_mask);
+
+	/* wait till resets clear */
+	if (!readl_poll_timeout_atomic(host->regs + SDMMC_CTRL, ctrl,
+				       !(ctrl & reset), 1, 500 * USEC_PER_MSEC)) {
+		ret = true;
+	}
+
+	if (!ret)
+		dev_err(host->dev, "Timeout resetting block (ctrl %#x)\n", ctrl);
+
+	/* restore Rx timing */
+	mci_writel(host, CLKSEL, clksel_saved);
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static void dw_mci_wait_while_busy(struct dw_mci *host, u32 cmd_flags)
@@ -243,8 +661,12 @@ static void dw_mci_wait_while_busy(struct dw_mci *host, u32 cmd_flags)
 	 * ...also allow sending for SDMMC_CMD_VOLT_SWITCH where busy is
 	 * expected.
 	 */
+<<<<<<< HEAD
 	if ((cmd_flags & SDMMC_CMD_PRV_DAT_WAIT) &&
 	    !(cmd_flags & SDMMC_CMD_VOLT_SWITCH)) {
+=======
+	if ((cmd_flags & SDMMC_CMD_PRV_DAT_WAIT) && !(cmd_flags & SDMMC_CMD_VOLT_SWITCH)) {
+>>>>>>> upstream/android-13
 		if (readl_poll_timeout_atomic(host->regs + SDMMC_STATUS,
 					      status,
 					      !(status & SDMMC_STATUS_BUSY),
@@ -257,6 +679,7 @@ static void mci_send_cmd(struct dw_mci_slot *slot, u32 cmd, u32 arg)
 {
 	struct dw_mci *host = slot->host;
 	unsigned int cmd_status = 0;
+<<<<<<< HEAD
 
 	mci_writel(host, CMDARG, arg);
 	wmb(); /* drain writebuffer */
@@ -269,6 +692,120 @@ static void mci_send_cmd(struct dw_mci_slot *slot, u32 cmd, u32 arg)
 		dev_err(&slot->mmc->class_dev,
 			"Timeout sending command (cmd %#x arg %#x status %#x)\n",
 			cmd, arg, cmd_status);
+=======
+	int try = 50;
+
+	mci_writel(host, CMDARG, arg);
+	wmb();			/* drain writebuffer */
+	mci_writel(host, CMD, SDMMC_CMD_START | cmd);
+
+	do {
+		if (!readl_poll_timeout_atomic(host->regs + SDMMC_CMD, cmd_status,
+					       !(cmd_status & SDMMC_CMD_START),
+					       1, 10 * USEC_PER_MSEC))
+			return;
+
+		dw_mci_ctrl_reset(host, SDMMC_CTRL_RESET);
+		mci_writel(host, CMD, SDMMC_CMD_START | cmd);
+	} while (--try);
+
+	dev_err(&slot->mmc->class_dev,
+		"Timeout sending command (cmd %#x arg %#x status %#x)\n", cmd, arg, cmd_status);
+}
+
+static bool dw_mci_wait_data_busy(struct dw_mci *host, struct mmc_request *mrq)
+{
+	u32 status;
+	struct dw_mci_slot *slot = host->slot;
+	int try = 6;
+	u32 clkena;
+	bool ret = false;
+
+	do {
+		if (!readl_poll_timeout(host->regs + SDMMC_STATUS, status,
+					!(status & SDMMC_STATUS_BUSY),
+					10, 100 * USEC_PER_MSEC)) {
+			ret = true;
+			goto out;
+		}
+
+		/* card is checked every 1s by CMD13 at least */
+		if (mrq->cmd->opcode == MMC_SEND_STATUS)
+			return true;
+
+		dw_mci_ctrl_reset(host, SDMMC_CTRL_FIFO_RESET);
+		dw_mci_ctrl_reset(host, SDMMC_CTRL_RESET);
+		/* After CTRL Reset, Should be needed clk val to CIU */
+		if (host->slot) {
+			/* Disable low power mode */
+			clkena = mci_readl(host, CLKENA);
+			clkena &= ~((SDMMC_CLKEN_LOW_PWR) << slot->id);
+			mci_writel(host, CLKENA, clkena);
+
+			mci_send_cmd(host->slot, SDMMC_CMD_UPD_CLK | SDMMC_CMD_PRV_DAT_WAIT, 0);
+		}
+	} while (--try);
+ out:
+	if (host->slot) {
+		if (ret == false)
+			dev_err(host->dev, "Data[0]: data is busy\n");
+
+		/* enable clock */
+		mci_writel(host, CLKENA, ((SDMMC_CLKEN_ENABLE | SDMMC_CLKEN_LOW_PWR) << slot->id));
+
+		/* inform CIU */
+		mci_send_cmd(slot, SDMMC_CMD_UPD_CLK | SDMMC_CMD_PRV_DAT_WAIT, 0);
+	}
+
+	return ret;
+}
+
+static void dw_mci_update_clock(struct dw_mci_slot *slot)
+{
+	struct dw_mci *host = slot->host;
+	int retry = 10;
+	unsigned int int_mask = 0;
+	unsigned int cmd_status = 0;
+
+	dw_mci_disable_interrupt(host, &int_mask);
+
+	do {
+		wmb();
+		mci_writel(host, CMD, SDMMC_CMD_START | SDMMC_CMD_UPD_CLK);
+
+		if (!readl_poll_timeout_atomic(host->regs + SDMMC_CMD, cmd_status,
+					       !(cmd_status & SDMMC_CMD_START),
+					       1, 1 * USEC_PER_MSEC)) {
+			goto out;
+		} else {
+			/* reset controller because a command is stuecked */
+			if (mci_readl(host, RINTSTS) & SDMMC_INT_HLE) {
+				mci_writel(host, RINTSTS, SDMMC_INT_HLE);
+				break;
+			}
+		}
+
+		dw_mci_ctrl_reset(host, SDMMC_CTRL_RESET);
+	} while (--retry);
+
+	dev_err(&slot->mmc->class_dev, "Timeout updating command (status %#x)\n", cmd_status);
+ out:
+	/* recover interrupt mask after updating clock */
+	dw_mci_enable_interrupt(host, int_mask);
+}
+
+static inline bool dw_mci_stop_abort_cmd(struct mmc_command *cmd)
+{
+	u32 op = cmd->opcode;
+
+	if ((op == MMC_STOP_TRANSMISSION) ||
+	    (op == MMC_GO_IDLE_STATE) ||
+	    (op == MMC_GO_INACTIVE_STATE) ||
+	    ((op == SD_IO_RW_DIRECT) && (cmd->arg & 0x80000000) &&
+	     ((cmd->arg >> 9) & 0x1FFFF) == SDIO_CCCR_ABORT))
+		return true;
+	return false;
+>>>>>>> upstream/android-13
 }
 
 static u32 dw_mci_prepare_command(struct mmc_host *mmc, struct mmc_command *cmd)
@@ -283,8 +820,12 @@ static u32 dw_mci_prepare_command(struct mmc_host *mmc, struct mmc_command *cmd)
 	if (cmd->opcode == MMC_STOP_TRANSMISSION ||
 	    cmd->opcode == MMC_GO_IDLE_STATE ||
 	    cmd->opcode == MMC_GO_INACTIVE_STATE ||
+<<<<<<< HEAD
 	    (cmd->opcode == SD_IO_RW_DIRECT &&
 	     ((cmd->arg >> 9) & 0x1FFFF) == SDIO_CCCR_ABORT))
+=======
+	    (cmd->opcode == SD_IO_RW_DIRECT && ((cmd->arg >> 9) & 0x1FFFF) == SDIO_CCCR_ABORT))
+>>>>>>> upstream/android-13
 		cmdr |= SDMMC_CMD_STOP;
 	else if (cmd->opcode != MMC_SEND_STATUS && cmd->data)
 		cmdr |= SDMMC_CMD_PRV_DAT_WAIT;
@@ -313,8 +854,12 @@ static u32 dw_mci_prepare_command(struct mmc_host *mmc, struct mmc_command *cmd)
 		clk_en_a = mci_readl(host, CLKENA);
 		clk_en_a &= ~(SDMMC_CLKEN_LOW_PWR << slot->id);
 		mci_writel(host, CLKENA, clk_en_a);
+<<<<<<< HEAD
 		mci_send_cmd(slot, SDMMC_CMD_UPD_CLK |
 			     SDMMC_CMD_PRV_DAT_WAIT, 0);
+=======
+		mci_send_cmd(slot, SDMMC_CMD_UPD_CLK | SDMMC_CMD_PRV_DAT_WAIT, 0);
+>>>>>>> upstream/android-13
 	}
 
 	if (cmd->flags & MMC_RSP_PRESENT) {
@@ -355,8 +900,12 @@ static u32 dw_mci_prep_stop_abort(struct dw_mci *host, struct mmc_command *cmd)
 	    cmdr == MMC_READ_MULTIPLE_BLOCK ||
 	    cmdr == MMC_WRITE_BLOCK ||
 	    cmdr == MMC_WRITE_MULTIPLE_BLOCK ||
+<<<<<<< HEAD
 	    cmdr == MMC_SEND_TUNING_BLOCK ||
 	    cmdr == MMC_SEND_TUNING_BLOCK_HS200) {
+=======
+	    cmdr == MMC_SEND_TUNING_BLOCK || cmdr == MMC_SEND_TUNING_BLOCK_HS200) {
+>>>>>>> upstream/android-13
 		stop->opcode = MMC_STOP_TRANSMISSION;
 		stop->arg = 0;
 		stop->flags = MMC_RSP_R1B | MMC_CMD_AC;
@@ -369,8 +918,12 @@ static u32 dw_mci_prep_stop_abort(struct dw_mci *host, struct mmc_command *cmd)
 		return 0;
 	}
 
+<<<<<<< HEAD
 	cmdr = stop->opcode | SDMMC_CMD_STOP |
 		SDMMC_CMD_RESP_CRC | SDMMC_CMD_RESP_EXP;
+=======
+	cmdr = stop->opcode | SDMMC_CMD_STOP | SDMMC_CMD_RESP_CRC | SDMMC_CMD_RESP_EXP;
+>>>>>>> upstream/android-13
 
 	if (!test_bit(DW_MMC_CARD_NO_USE_HOLD, &host->slot->flags))
 		cmdr |= SDMMC_CMD_USE_HOLD_REG;
@@ -411,6 +964,7 @@ static inline void dw_mci_set_cto(struct dw_mci *host)
 	 */
 	spin_lock_irqsave(&host->irq_lock, irqflags);
 	if (!test_bit(EVENT_CMD_COMPLETE, &host->pending_events))
+<<<<<<< HEAD
 		mod_timer(&host->cto_timer,
 			jiffies + msecs_to_jiffies(cto_ms) + 1);
 	spin_unlock_irqrestore(&host->irq_lock, irqflags);
@@ -423,11 +977,35 @@ static void dw_mci_start_command(struct dw_mci *host,
 	dev_vdbg(host->dev,
 		 "start command: ARGR=0x%08x CMDR=0x%08x\n",
 		 cmd->arg, cmd_flags);
+=======
+		mod_timer(&host->cto_timer, jiffies + msecs_to_jiffies(cto_ms) + 1);
+	spin_unlock_irqrestore(&host->irq_lock, irqflags);
+}
+
+static void dw_mci_start_command(struct dw_mci *host, struct mmc_command *cmd, u32 cmd_flags)
+{
+	host->cmd = cmd;
+	dev_vdbg(host->dev, "start command: ARGR=0x%08x CMDR=0x%08x\n", cmd->arg, cmd_flags);
+>>>>>>> upstream/android-13
 
 	mci_writel(host, CMDARG, cmd->arg);
 	wmb(); /* drain writebuffer */
 	dw_mci_wait_while_busy(host, cmd_flags);
 
+<<<<<<< HEAD
+=======
+	/* needed to
+	 * add get node parse_dt for check to enable logging
+	 * if defined(CMD_LOGGING)
+	 * set en_logging to true
+	 * init cmd_log_count
+	 */
+	if (cmd->opcode == MMC_SEND_STATUS)
+		dw_mci_debug_cmd_log(cmd, host, false, DW_MCI_FLAG_SEND_CMD, 0);
+	else
+		dw_mci_debug_cmd_log(cmd, host, true, DW_MCI_FLAG_SEND_CMD, 0);
+
+>>>>>>> upstream/android-13
 	mci_writel(host, CMD, cmd_flags | SDMMC_CMD_START);
 
 	/* response expected command only */
@@ -448,6 +1026,10 @@ static void dw_mci_stop_dma(struct dw_mci *host)
 	if (host->using_dma) {
 		host->dma_ops->stop(host);
 		host->dma_ops->cleanup(host);
+<<<<<<< HEAD
+=======
+		host->dma_ops->reset(host);
+>>>>>>> upstream/android-13
 	}
 
 	/* Data transfer was stopped by the interrupt handler */
@@ -459,12 +1041,19 @@ static void dw_mci_dma_cleanup(struct dw_mci *host)
 	struct mmc_data *data = host->data;
 
 	if (data && data->host_cookie == COOKIE_MAPPED) {
+<<<<<<< HEAD
 		dma_unmap_sg(host->dev,
 			     data->sg,
 			     data->sg_len,
 			     mmc_get_dma_dir(data));
 		data->host_cookie = COOKIE_UNMAPPED;
 	}
+=======
+		dma_unmap_sg(host->dev, data->sg, data->sg_len, mmc_get_dma_dir(data));
+		data->host_cookie = COOKIE_UNMAPPED;
+	}
+	memset(host->sg_cpu, 0, DESC_RING_BUF_SZ);
+>>>>>>> upstream/android-13
 }
 
 static void dw_mci_idmac_reset(struct dw_mci *host)
@@ -482,9 +1071,17 @@ static void dw_mci_idmac_stop_dma(struct dw_mci *host)
 	/* Disable and reset the IDMAC interface */
 	temp = mci_readl(host, CTRL);
 	temp &= ~SDMMC_CTRL_USE_IDMAC;
+<<<<<<< HEAD
 	temp |= SDMMC_CTRL_DMA_RESET;
 	mci_writel(host, CTRL, temp);
 
+=======
+	mci_writel(host, CTRL, temp);
+
+	/* reset the IDMAC interface */
+	dw_mci_ctrl_reset(host, SDMMC_CTRL_DMA_RESET);
+
+>>>>>>> upstream/android-13
 	/* Stop the IDMAC running */
 	temp = mci_readl(host, BMOD);
 	temp &= ~(SDMMC_IDMAC_ENABLE | SDMMC_IDMAC_FB);
@@ -499,6 +1096,7 @@ static void dw_mci_dmac_complete_dma(void *arg)
 
 	dev_vdbg(host->dev, "DMA complete\n");
 
+<<<<<<< HEAD
 	if ((host->use_dma == TRANS_MODE_EDMAC) &&
 	    data && (data->flags & MMC_DATA_READ))
 		/* Invalidate cache after read */
@@ -506,6 +1104,12 @@ static void dw_mci_dmac_complete_dma(void *arg)
 				    data->sg,
 				    data->sg_len,
 				    DMA_FROM_DEVICE);
+=======
+	if ((host->use_dma == TRANS_MODE_EDMAC) && data && (data->flags & MMC_DATA_READ))
+		/* Invalidate cache after read */
+		dma_sync_sg_for_cpu(mmc_dev(host->slot->mmc),
+				    data->sg, data->sg_len, DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 
 	host->dma_ops->cleanup(host);
 
@@ -526,6 +1130,7 @@ static int dw_mci_idmac_init(struct dw_mci *host)
 	if (host->dma_64bit_address == 1) {
 		struct idmac_desc_64addr *p;
 		/* Number of descriptors in the ring buffer */
+<<<<<<< HEAD
 		host->ring_size =
 			DESC_RING_BUF_SZ / sizeof(struct idmac_desc_64addr);
 
@@ -541,6 +1146,20 @@ static int dw_mci_idmac_init(struct dw_mci *host)
 							(i + 1))) >> 32;
 			/* Initialize reserved and buffer size fields to "0" */
 			p->des0 = 0;
+=======
+		host->ring_size = host->desc_sz * DESC_RING_BUF_SZ /
+		    sizeof(struct idmac_desc_64addr);
+
+		/* Forward link the descriptor list */
+		for (i = 0, p = host->sg_cpu; i < host->ring_size * MMC_DW_IDMAC_MULTIPLIER - 1;
+		     i++, p++) {
+			p->des6 = (host->sg_dma +
+				   (sizeof(struct idmac_desc_64addr) * (i + 1))) & 0xffffffff;
+
+			p->des7 = (u64) (host->sg_dma +
+					 (sizeof(struct idmac_desc_64addr) * (i + 1))) >> 32;
+			/* Initialize reserved and buffer size fields to "0" */
+>>>>>>> upstream/android-13
 			p->des1 = 0;
 			p->des2 = 0;
 			p->des3 = 0;
@@ -548,12 +1167,17 @@ static int dw_mci_idmac_init(struct dw_mci *host)
 
 		/* Set the last descriptor as the end-of-ring descriptor */
 		p->des6 = host->sg_dma & 0xffffffff;
+<<<<<<< HEAD
 		p->des7 = (u64)host->sg_dma >> 32;
+=======
+		p->des7 = (u64) host->sg_dma >> 32;
+>>>>>>> upstream/android-13
 		p->des0 = IDMAC_DES0_ER;
 
 	} else {
 		struct idmac_desc *p;
 		/* Number of descriptors in the ring buffer */
+<<<<<<< HEAD
 		host->ring_size =
 			DESC_RING_BUF_SZ / sizeof(struct idmac_desc);
 
@@ -564,6 +1188,13 @@ static int dw_mci_idmac_init(struct dw_mci *host)
 			p->des3 = cpu_to_le32(host->sg_dma +
 					(sizeof(struct idmac_desc) * (i + 1)));
 			p->des0 = 0;
+=======
+		host->ring_size = host->desc_sz * DESC_RING_BUF_SZ / sizeof(struct idmac_desc);
+
+		/* Forward link the descriptor list */
+		for (i = 0, p = host->sg_cpu; i < host->ring_size - 1; i++, p++) {
+			p->des3 = cpu_to_le32(host->sg_dma + (sizeof(struct idmac_desc) * (i + 1)));
+>>>>>>> upstream/android-13
 			p->des1 = 0;
 		}
 
@@ -598,8 +1229,12 @@ static int dw_mci_idmac_init(struct dw_mci *host)
 }
 
 static inline int dw_mci_prepare_desc64(struct dw_mci *host,
+<<<<<<< HEAD
 					 struct mmc_data *data,
 					 unsigned int sg_len)
+=======
+					struct mmc_data *data, unsigned int sg_len)
+>>>>>>> upstream/android-13
 {
 	unsigned int desc_len;
 	struct idmac_desc_64addr *desc_first, *desc_last, *desc;
@@ -634,8 +1269,12 @@ static inline int dw_mci_prepare_desc64(struct dw_mci *host,
 			 * Set the OWN bit and disable interrupts
 			 * for this descriptor
 			 */
+<<<<<<< HEAD
 			desc->des0 = IDMAC_DES0_OWN | IDMAC_DES0_DIC |
 						IDMAC_DES0_CH;
+=======
+			desc->des0 = IDMAC_DES0_OWN | IDMAC_DES0_DIC | IDMAC_DES0_CH;
+>>>>>>> upstream/android-13
 
 			/* Buffer length */
 			IDMAC_64ADDR_SET_BUFFER1_SIZE(desc, desc_len);
@@ -668,10 +1307,15 @@ err_own_bit:
 	return -EINVAL;
 }
 
+<<<<<<< HEAD
 
 static inline int dw_mci_prepare_desc32(struct dw_mci *host,
 					 struct mmc_data *data,
 					 unsigned int sg_len)
+=======
+static inline int dw_mci_prepare_desc32(struct dw_mci *host,
+					struct mmc_data *data, unsigned int sg_len)
+>>>>>>> upstream/android-13
 {
 	unsigned int desc_len;
 	struct idmac_desc *desc_first, *desc_last, *desc;
@@ -699,17 +1343,25 @@ static inline int dw_mci_prepare_desc32(struct dw_mci *host,
 			 */
 			if (readl_poll_timeout_atomic(&desc->des0, val,
 						      IDMAC_OWN_CLR64(val),
+<<<<<<< HEAD
 						      10,
 						      100 * USEC_PER_MSEC))
+=======
+						      10, 100 * USEC_PER_MSEC))
+>>>>>>> upstream/android-13
 				goto err_own_bit;
 
 			/*
 			 * Set the OWN bit and disable interrupts
 			 * for this descriptor
 			 */
+<<<<<<< HEAD
 			desc->des0 = cpu_to_le32(IDMAC_DES0_OWN |
 						 IDMAC_DES0_DIC |
 						 IDMAC_DES0_CH);
+=======
+			desc->des0 = cpu_to_le32(IDMAC_DES0_OWN | IDMAC_DES0_DIC | IDMAC_DES0_CH);
+>>>>>>> upstream/android-13
 
 			/* Buffer length */
 			IDMAC_SET_BUFFER1_SIZE(desc, desc_len);
@@ -729,8 +1381,12 @@ static inline int dw_mci_prepare_desc32(struct dw_mci *host,
 	desc_first->des0 |= cpu_to_le32(IDMAC_DES0_FD);
 
 	/* Set last descriptor */
+<<<<<<< HEAD
 	desc_last->des0 &= cpu_to_le32(~(IDMAC_DES0_CH |
 				       IDMAC_DES0_DIC));
+=======
+	desc_last->des0 &= cpu_to_le32(~(IDMAC_DES0_CH | IDMAC_DES0_DIC));
+>>>>>>> upstream/android-13
 	desc_last->des0 |= cpu_to_le32(IDMAC_DES0_LD);
 
 	return 0;
@@ -785,6 +1441,10 @@ out:
 static const struct dw_mci_dma_ops dw_mci_idmac_ops = {
 	.init = dw_mci_idmac_init,
 	.start = dw_mci_idmac_start_dma,
+<<<<<<< HEAD
+=======
+	.reset = dw_mci_idmac_reset,
+>>>>>>> upstream/android-13
 	.stop = dw_mci_idmac_stop_dma,
 	.complete = dw_mci_dmac_complete_dma,
 	.cleanup = dw_mci_dma_cleanup,
@@ -795,8 +1455,12 @@ static void dw_mci_edmac_stop_dma(struct dw_mci *host)
 	dmaengine_terminate_async(host->dms->ch);
 }
 
+<<<<<<< HEAD
 static int dw_mci_edmac_start_dma(struct dw_mci *host,
 					    unsigned int sg_len)
+=======
+static int dw_mci_edmac_start_dma(struct dw_mci *host, unsigned int sg_len)
+>>>>>>> upstream/android-13
 {
 	struct dma_slave_config cfg;
 	struct dma_async_tx_descriptor *desc = NULL;
@@ -830,8 +1494,12 @@ static int dw_mci_edmac_start_dma(struct dw_mci *host,
 	}
 
 	desc = dmaengine_prep_slave_sg(host->dms->ch, sgl,
+<<<<<<< HEAD
 				       sg_len, cfg.direction,
 				       DMA_PREP_INTERRUPT | DMA_CTRL_ACK);
+=======
+				       sg_len, cfg.direction, DMA_PREP_INTERRUPT | DMA_CTRL_ACK);
+>>>>>>> upstream/android-13
 	if (!desc) {
 		dev_err(host->dev, "Can't prepare slave sg.\n");
 		return -EBUSY;
@@ -844,8 +1512,12 @@ static int dw_mci_edmac_start_dma(struct dw_mci *host,
 
 	/* Flush cache before write */
 	if (host->data->flags & MMC_DATA_WRITE)
+<<<<<<< HEAD
 		dma_sync_sg_for_device(mmc_dev(host->slot->mmc), sgl,
 				       sg_elems, DMA_TO_DEVICE);
+=======
+		dma_sync_sg_for_device(mmc_dev(host->slot->mmc), sgl, sg_elems, DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 
 	dma_async_issue_pending(host->dms->ch);
 
@@ -891,12 +1563,22 @@ static const struct dw_mci_dma_ops dw_mci_edmac_ops = {
 	.cleanup = dw_mci_dma_cleanup,
 };
 
+<<<<<<< HEAD
 static int dw_mci_pre_dma_transfer(struct dw_mci *host,
 				   struct mmc_data *data,
 				   int cookie)
 {
 	struct scatterlist *sg;
 	unsigned int i, sg_len;
+=======
+static int dw_mci_pre_dma_transfer(struct dw_mci *host, struct mmc_data *data, int cookie)
+{
+	struct scatterlist *sg;
+	struct dw_mci_slot *slot = host->slot;
+	struct mmc_card *card = slot->mmc->card;
+	unsigned int i, sg_len;
+	unsigned int align_mask = ((host->data_shift == 3) ? 8 : 4) - 1;
+>>>>>>> upstream/android-13
 
 	if (data->host_cookie == COOKIE_PRE_MAPPED)
 		return data->sg_len;
@@ -909,6 +1591,7 @@ static int dw_mci_pre_dma_transfer(struct dw_mci *host,
 	if (data->blocks * data->blksz < DW_MCI_DMA_THRESHOLD)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	if (data->blksz & 3)
 		return -EINVAL;
 
@@ -921,6 +1604,44 @@ static int dw_mci_pre_dma_transfer(struct dw_mci *host,
 			    data->sg,
 			    data->sg_len,
 			    mmc_get_dma_dir(data));
+=======
+	if (data->blksz & align_mask)
+		return -EINVAL;
+
+	for_each_sg(data->sg, sg, data->sg_len, i) {
+		if (sg->offset & align_mask || sg->length & align_mask)
+			return -EINVAL;
+	}
+
+	if (card && mmc_card_sdio(card)) {
+		unsigned int rxwmark_val = 0, txwmark_val = 0, msize_val = 0;
+
+		if (data->blksz >= (4 * (1 << host->data_shift))) {
+			msize_val = 1;
+			rxwmark_val = 3;
+			txwmark_val = 4;
+		} else {
+			msize_val = 0;
+			rxwmark_val = 1;
+			txwmark_val = host->fifo_depth / 2;
+		}
+
+		host->fifoth_val = ((msize_val << 28) | (rxwmark_val << 16) | (txwmark_val << 0));
+		dev_dbg(host->dev,
+			"data->blksz: %d data->blocks %d Transfer Size %d  "
+			"msize_val : %d, rxwmark_val : %d host->fifoth_val: 0x%08x\n",
+			data->blksz, data->blocks, (data->blksz * data->blocks),
+			msize_val, rxwmark_val, host->fifoth_val);
+
+		mci_writel(host, FIFOTH, host->fifoth_val);
+
+		if (mmc_card_uhs(card)
+		    && card->host->caps & MMC_CAP_UHS_SDR104 && data->flags & MMC_DATA_READ)
+			mci_writel(host, CDTHRCTL, data->blksz << 16 | 1);
+	}
+
+	sg_len = dma_map_sg(host->dev, data->sg, data->sg_len, mmc_get_dma_dir(data));
+>>>>>>> upstream/android-13
 	if (sg_len == 0)
 		return -EINVAL;
 
@@ -929,8 +1650,12 @@ static int dw_mci_pre_dma_transfer(struct dw_mci *host,
 	return sg_len;
 }
 
+<<<<<<< HEAD
 static void dw_mci_pre_req(struct mmc_host *mmc,
 			   struct mmc_request *mrq)
+=======
+static void dw_mci_pre_req(struct mmc_host *mmc, struct mmc_request *mrq)
+>>>>>>> upstream/android-13
 {
 	struct dw_mci_slot *slot = mmc_priv(mmc);
 	struct mmc_data *data = mrq->data;
@@ -941,6 +1666,7 @@ static void dw_mci_pre_req(struct mmc_host *mmc,
 	/* This data might be unmapped at this time */
 	data->host_cookie = COOKIE_UNMAPPED;
 
+<<<<<<< HEAD
 	if (dw_mci_pre_dma_transfer(slot->host, mrq->data,
 				COOKIE_PRE_MAPPED) < 0)
 		data->host_cookie = COOKIE_UNMAPPED;
@@ -949,6 +1675,13 @@ static void dw_mci_pre_req(struct mmc_host *mmc,
 static void dw_mci_post_req(struct mmc_host *mmc,
 			    struct mmc_request *mrq,
 			    int err)
+=======
+	if (dw_mci_pre_dma_transfer(slot->host, mrq->data, COOKIE_PRE_MAPPED) < 0)
+		data->host_cookie = COOKIE_UNMAPPED;
+}
+
+static void dw_mci_post_req(struct mmc_host *mmc, struct mmc_request *mrq, int err)
+>>>>>>> upstream/android-13
 {
 	struct dw_mci_slot *slot = mmc_priv(mmc);
 	struct mmc_data *data = mrq->data;
@@ -957,19 +1690,31 @@ static void dw_mci_post_req(struct mmc_host *mmc,
 		return;
 
 	if (data->host_cookie != COOKIE_UNMAPPED)
+<<<<<<< HEAD
 		dma_unmap_sg(slot->host->dev,
 			     data->sg,
 			     data->sg_len,
 			     mmc_get_dma_dir(data));
+=======
+		dma_unmap_sg(slot->host->dev, data->sg, data->sg_len, mmc_get_dma_dir(data));
+>>>>>>> upstream/android-13
 	data->host_cookie = COOKIE_UNMAPPED;
 }
 
 static int dw_mci_get_cd(struct mmc_host *mmc)
 {
 	int present;
+<<<<<<< HEAD
 	struct dw_mci_slot *slot = mmc_priv(mmc);
 	struct dw_mci *host = slot->host;
 	int gpio_cd = mmc_gpio_get_cd(mmc);
+=======
+	int temp;
+	struct dw_mci_slot *slot = mmc_priv(mmc);
+	struct dw_mci *host = slot->host;
+	int gpio_cd = mmc_gpio_get_cd(mmc);
+	const struct dw_mci_drv_data *drv_data = host->drv_data;
+>>>>>>> upstream/android-13
 
 	/* Use platform get_cd function, else try onboard card detect */
 	if (((mmc->caps & MMC_CAP_NEEDS_POLL)
@@ -978,11 +1723,17 @@ static int dw_mci_get_cd(struct mmc_host *mmc)
 
 		if (!test_bit(DW_MMC_CARD_PRESENT, &slot->flags)) {
 			if (mmc->caps & MMC_CAP_NEEDS_POLL) {
+<<<<<<< HEAD
 				dev_info(&mmc->class_dev,
 					"card is polling.\n");
 			} else {
 				dev_info(&mmc->class_dev,
 					"card is non-removable.\n");
+=======
+				dev_info(&mmc->class_dev, "card is polling.\n");
+			} else {
+				dev_info(&mmc->class_dev, "card is non-removable.\n");
+>>>>>>> upstream/android-13
 			}
 			set_bit(DW_MMC_CARD_PRESENT, &slot->flags);
 		}
@@ -992,19 +1743,36 @@ static int dw_mci_get_cd(struct mmc_host *mmc)
 		present = gpio_cd;
 	else
 		present = (mci_readl(slot->host, CDETECT) & (1 << slot->id))
+<<<<<<< HEAD
 			== 0 ? 1 : 0;
+=======
+		    == 0 ? 1 : 0;
+	if (drv_data && drv_data->misc_control) {
+		temp = drv_data->misc_control(host, CTRL_CHECK_CD, NULL);
+		if (temp != -1)
+			present = temp;
+	}
+>>>>>>> upstream/android-13
 
 	spin_lock_bh(&host->lock);
 	if (present && !test_and_set_bit(DW_MMC_CARD_PRESENT, &slot->flags))
 		dev_dbg(&mmc->class_dev, "card is present\n");
+<<<<<<< HEAD
 	else if (!present &&
 			!test_and_clear_bit(DW_MMC_CARD_PRESENT, &slot->flags))
+=======
+	else if (!present && !test_and_clear_bit(DW_MMC_CARD_PRESENT, &slot->flags))
+>>>>>>> upstream/android-13
 		dev_dbg(&mmc->class_dev, "card is not present\n");
 	spin_unlock_bh(&host->lock);
 
 	return present;
 }
 
+<<<<<<< HEAD
+=======
+#if 0
+>>>>>>> upstream/android-13
 static void dw_mci_adjust_fifoth(struct dw_mci *host, struct mmc_data *data)
 {
 	unsigned int blksz = data->blksz;
@@ -1029,8 +1797,12 @@ static void dw_mci_adjust_fifoth(struct dw_mci *host, struct mmc_data *data)
 		goto done;
 
 	do {
+<<<<<<< HEAD
 		if (!((blksz_depth % mszs[idx]) ||
 		     (tx_wmark_invers % mszs[idx]))) {
+=======
+		if (!((blksz_depth % mszs[idx]) || (tx_wmark_invers % mszs[idx]))) {
+>>>>>>> upstream/android-13
 			msize = idx;
 			rx_wmark = mszs[idx] - 1;
 			break;
@@ -1044,6 +1816,10 @@ done:
 	fifoth_val = SDMMC_SET_FIFOTH(msize, rx_wmark, tx_wmark);
 	mci_writel(host, FIFOTH, fifoth_val);
 }
+<<<<<<< HEAD
+=======
+#endif
+>>>>>>> upstream/android-13
 
 static void dw_mci_ctrl_thld(struct dw_mci *host, struct mmc_data *data)
 {
@@ -1064,9 +1840,14 @@ static void dw_mci_ctrl_thld(struct dw_mci *host, struct mmc_data *data)
 	 * Card write Threshold is introduced since 2.80a
 	 * It's used when HS400 mode is enabled.
 	 */
+<<<<<<< HEAD
 	if (data->flags & MMC_DATA_WRITE &&
 		host->timing != MMC_TIMING_MMC_HS400)
 		goto disable;
+=======
+	if (data->flags & MMC_DATA_WRITE && !(host->timing != MMC_TIMING_MMC_HS400))
+		return;
+>>>>>>> upstream/android-13
 
 	if (data->flags & MMC_DATA_WRITE)
 		enable = SDMMC_CARD_WR_THR_EN;
@@ -1074,8 +1855,12 @@ static void dw_mci_ctrl_thld(struct dw_mci *host, struct mmc_data *data)
 		enable = SDMMC_CARD_RD_THR_EN;
 
 	if (host->timing != MMC_TIMING_MMC_HS200 &&
+<<<<<<< HEAD
 	    host->timing != MMC_TIMING_UHS_SDR104 &&
 	    host->timing != MMC_TIMING_MMC_HS400)
+=======
+	    host->timing != MMC_TIMING_MMC_HS400 && host->timing != MMC_TIMING_UHS_SDR104)
+>>>>>>> upstream/android-13
 		goto disable;
 
 	blksz_depth = blksz / (1 << host->data_shift);
@@ -1097,6 +1882,59 @@ disable:
 	mci_writel(host, CDTHRCTL, 0);
 }
 
+<<<<<<< HEAD
+=======
+inline u32 dw_mci_calc_hto_timeout(struct dw_mci * host)
+{
+	struct dw_mci_slot *slot = host->slot;
+	u32 target_timeout, count;
+	u32 max_time, max_ext_time;
+	u32 host_clock = host->cclk_in;
+	u32 tmout_value;
+	int ext_cnt = 0;
+
+	if (!host->pdata->hto_timeout)
+		return 0xFFFFFFFF;	/* timeout maximum */
+
+	target_timeout = host->pdata->data_timeout;
+
+	if (host->timing == MMC_TIMING_MMC_HS400) {
+		if (host->pdata->quirks & DW_MCI_QUIRK_ENABLE_ULP)
+			host_clock *= 2;
+	}
+
+	max_time = SDMMC_DATA_TMOUT_MAX_CNT * SDMMC_DATA_TMOUT_CRT / (host_clock / 1000);
+
+	if (target_timeout < max_time) {
+		tmout_value = mci_readl(host, TMOUT);
+		goto pass;
+	} else {
+		max_ext_time = SDMMC_DATA_TMOUT_MAX_EXT_CNT / (host_clock / 1000);
+		ext_cnt = target_timeout / max_ext_time;
+	}
+
+	target_timeout = host->pdata->hto_timeout;
+
+	/* use clkout for sysnopsys divider */
+	if (host->timing == MMC_TIMING_MMC_HS400 ||
+	    (host->timing == MMC_TIMING_MMC_DDR52 && slot->ctype == SDMMC_CTYPE_8BIT))
+		host_clock /= 2;
+
+	/* Calculating Timeout value */
+	count = target_timeout * (host_clock / 1000);
+
+	if (count > 0xFFFFFF)
+		count = 0xFFFFFF;
+
+	tmout_value = (count << SDMMC_HTO_TMOUT_SHIFT) | SDMMC_RESP_TMOUT;
+	tmout_value &= ~(0x7 << SDMMC_DATA_TMOUT_EXT_SHIFT);
+	tmout_value |= ((ext_cnt + 1) << SDMMC_DATA_TMOUT_EXT_SHIFT);
+ pass:
+	/* Set return value */
+	return tmout_value;
+}
+
+>>>>>>> upstream/android-13
 static int dw_mci_submit_data_dma(struct dw_mci *host, struct mmc_data *data)
 {
 	unsigned long irqflags;
@@ -1109,9 +1947,21 @@ static int dw_mci_submit_data_dma(struct dw_mci *host, struct mmc_data *data)
 	if (!host->use_dma)
 		return -ENODEV;
 
+<<<<<<< HEAD
 	sg_len = dw_mci_pre_dma_transfer(host, data, COOKIE_MAPPED);
 	if (sg_len < 0) {
 		host->dma_ops->stop(host);
+=======
+	if (host->use_dma && host->dma_ops->init && host->dma_ops->reset) {
+		host->dma_ops->init(host);
+		host->dma_ops->reset(host);
+	}
+
+	sg_len = dw_mci_pre_dma_transfer(host, data, COOKIE_MAPPED);
+	if (sg_len < 0) {
+		host->dma_ops->stop(host);
+		dw_mci_set_timeout(host, dw_mci_calc_hto_timeout(host));
+>>>>>>> upstream/android-13
 		return sg_len;
 	}
 
@@ -1120,6 +1970,7 @@ static int dw_mci_submit_data_dma(struct dw_mci *host, struct mmc_data *data)
 	if (host->use_dma == TRANS_MODE_IDMAC)
 		dev_vdbg(host->dev,
 			 "sd sg_cpu: %#lx sg_dma: %#lx sg_len: %d\n",
+<<<<<<< HEAD
 			 (unsigned long)host->sg_cpu,
 			 (unsigned long)host->sg_dma,
 			 sg_len);
@@ -1131,6 +1982,9 @@ static int dw_mci_submit_data_dma(struct dw_mci *host, struct mmc_data *data)
 	 */
 	if (host->prev_blksz != data->blksz)
 		dw_mci_adjust_fifoth(host, data);
+=======
+			 (unsigned long)host->sg_cpu, (unsigned long)host->sg_dma, sg_len);
+>>>>>>> upstream/android-13
 
 	/* Enable the DMA interface */
 	temp = mci_readl(host, CTRL);
@@ -1139,6 +1993,10 @@ static int dw_mci_submit_data_dma(struct dw_mci *host, struct mmc_data *data)
 
 	/* Disable RX/TX IRQs, let DMA handle it */
 	spin_lock_irqsave(&host->irq_lock, irqflags);
+<<<<<<< HEAD
+=======
+	mci_writel(host, RINTSTS, SDMMC_INT_TXDR | SDMMC_INT_RXDR);
+>>>>>>> upstream/android-13
 	temp = mci_readl(host, INTMASK);
 	temp  &= ~(SDMMC_INT_RXDR | SDMMC_INT_TXDR);
 	mci_writel(host, INTMASK, temp);
@@ -1147,9 +2005,13 @@ static int dw_mci_submit_data_dma(struct dw_mci *host, struct mmc_data *data)
 	if (host->dma_ops->start(host, sg_len)) {
 		host->dma_ops->stop(host);
 		/* We can't do DMA, try PIO for this one */
+<<<<<<< HEAD
 		dev_dbg(host->dev,
 			"%s: fall back to PIO mode for current transfer\n",
 			__func__);
+=======
+		dev_dbg(host->dev, "%s: fall back to PIO mode for current transfer\n", __func__);
+>>>>>>> upstream/android-13
 		return -ENODEV;
 	}
 
@@ -1176,6 +2038,12 @@ static void dw_mci_submit_data(struct dw_mci *host, struct mmc_data *data)
 	dw_mci_ctrl_thld(host, data);
 
 	if (dw_mci_submit_data_dma(host, data)) {
+<<<<<<< HEAD
+=======
+		if (SDMMC_GET_FCNT(mci_readl(host, STATUS)))
+			dw_mci_ctrl_reset(host, SDMMC_CTRL_FIFO_RESET);
+
+>>>>>>> upstream/android-13
 		if (host->data->flags & MMC_DATA_READ)
 			flags |= SG_MITER_TO_SG;
 		else
@@ -1204,10 +2072,14 @@ static void dw_mci_submit_data(struct dw_mci *host, struct mmc_data *data)
 		 * If next issued data may be transfered by DMA mode,
 		 * prev_blksz should be invalidated.
 		 */
+<<<<<<< HEAD
 		if (host->wm_aligned)
 			dw_mci_adjust_fifoth(host, data);
 		else
 			mci_writel(host, FIFOTH, host->fifoth_val);
+=======
+		mci_writel(host, FIFOTH, host->fifoth_val);
+>>>>>>> upstream/android-13
 		host->prev_blksz = 0;
 	} else {
 		/*
@@ -1223,6 +2095,10 @@ static void dw_mci_setup_bus(struct dw_mci_slot *slot, bool force_clkinit)
 {
 	struct dw_mci *host = slot->host;
 	unsigned int clock = slot->clock;
+<<<<<<< HEAD
+=======
+	const struct dw_mci_drv_data *drv_data = host->drv_data;
+>>>>>>> upstream/android-13
 	u32 div;
 	u32 clk_en_a;
 	u32 sdmmc_cmd_bits = SDMMC_CMD_UPD_CLK | SDMMC_CMD_PRV_DAT_WAIT;
@@ -1248,22 +2124,34 @@ static void dw_mci_setup_bus(struct dw_mci_slot *slot, bool force_clkinit)
 		div = (host->bus_hz != clock) ? DIV_ROUND_UP(div, 2) : 0;
 
 		if ((clock != slot->__clk_old &&
+<<<<<<< HEAD
 			!test_bit(DW_MMC_CARD_NEEDS_POLL, &slot->flags)) ||
 			force_clkinit) {
+=======
+		     !test_bit(DW_MMC_CARD_NEEDS_POLL, &slot->flags)) || force_clkinit) {
+>>>>>>> upstream/android-13
 			/* Silent the verbose log if calling from PM context */
 			if (!force_clkinit)
 				dev_info(&slot->mmc->class_dev,
 					 "Bus speed (slot %d) = %dHz (slot req %dHz, actual %dHZ div = %d)\n",
 					 slot->id, host->bus_hz, clock,
+<<<<<<< HEAD
 					 div ? ((host->bus_hz / div) >> 1) :
 					 host->bus_hz, div);
+=======
+					 div ? ((host->bus_hz / div) >> 1) : host->bus_hz, div);
+>>>>>>> upstream/android-13
 
 			/*
 			 * If card is polling, display the message only
 			 * one time at boot time.
 			 */
+<<<<<<< HEAD
 			if (slot->mmc->caps & MMC_CAP_NEEDS_POLL &&
 					slot->mmc->f_min == clock)
+=======
+			if (slot->mmc->caps & MMC_CAP_NEEDS_POLL && slot->mmc->f_min == clock)
+>>>>>>> upstream/android-13
 				set_bit(DW_MMC_CARD_NEEDS_POLL, &slot->flags);
 		}
 
@@ -1272,22 +2160,39 @@ static void dw_mci_setup_bus(struct dw_mci_slot *slot, bool force_clkinit)
 		mci_writel(host, CLKSRC, 0);
 
 		/* inform CIU */
+<<<<<<< HEAD
 		mci_send_cmd(slot, sdmmc_cmd_bits, 0);
+=======
+		dw_mci_update_clock(slot);
+>>>>>>> upstream/android-13
 
 		/* set clock to desired speed */
 		mci_writel(host, CLKDIV, div);
 
 		/* inform CIU */
+<<<<<<< HEAD
 		mci_send_cmd(slot, sdmmc_cmd_bits, 0);
+=======
+		dw_mci_update_clock(slot);
+>>>>>>> upstream/android-13
 
 		/* enable clock; only low power if no SDIO */
 		clk_en_a = SDMMC_CLKEN_ENABLE << slot->id;
 		if (!test_bit(DW_MMC_CARD_NO_LOW_PWR, &slot->flags))
 			clk_en_a |= SDMMC_CLKEN_LOW_PWR << slot->id;
+<<<<<<< HEAD
 		mci_writel(host, CLKENA, clk_en_a);
 
 		/* inform CIU */
 		mci_send_cmd(slot, sdmmc_cmd_bits, 0);
+=======
+		if (host->current_speed <= 400 * 1000)
+			clk_en_a &= ~(SDMMC_CLKEN_LOW_PWR << slot->id);
+		mci_writel(host, CLKENA, clk_en_a);
+
+		/* inform CIU */
+		dw_mci_update_clock(slot);
+>>>>>>> upstream/android-13
 
 		/* keep the last clock value that was requested from core */
 		slot->__clk_old = clock;
@@ -1299,11 +2204,62 @@ static void dw_mci_setup_bus(struct dw_mci_slot *slot, bool force_clkinit)
 
 	/* Set the current slot bus width */
 	mci_writel(host, CTYPE, (slot->ctype << slot->id));
+<<<<<<< HEAD
 }
 
 static void __dw_mci_start_request(struct dw_mci *host,
 				   struct dw_mci_slot *slot,
 				   struct mmc_command *cmd)
+=======
+
+	/* Hwacg control for init */
+	if (host->pdata->quirks & DW_MCI_QUIRK_HWACG_CTRL) {
+		if (drv_data && drv_data->hwacg_control) {
+			if (host->current_speed > 400 * 1000)
+				drv_data->hwacg_control(host, HWACG_Q_ACTIVE_EN);
+			else
+				drv_data->hwacg_control(host, HWACG_Q_ACTIVE_DIS);
+		}
+	}
+}
+
+inline u32 dw_mci_calc_timeout(struct dw_mci *host)
+{
+	u32 target_timeout;
+	u32 count;
+	u32 max_time;
+	u32 max_ext_time;
+	int ext_cnt = 0;
+	u32 host_clock = host->cclk_in;
+
+	if (!host->pdata->data_timeout)
+		return 0xFFFFFFFF;	/* timeout maximum */
+
+	target_timeout = host->pdata->data_timeout;
+
+	if (host->timing == MMC_TIMING_MMC_HS400) {
+		if (host->pdata->quirks & DW_MCI_QUIRK_ENABLE_ULP)
+			host_clock *= 2;
+	}
+
+	max_time = SDMMC_DATA_TMOUT_MAX_CNT * SDMMC_DATA_TMOUT_CRT / (host_clock / 1000);
+
+	if (target_timeout > max_time) {
+		max_ext_time = SDMMC_DATA_TMOUT_MAX_EXT_CNT / (host_clock / 1000);
+		ext_cnt = target_timeout / max_ext_time;
+		target_timeout -= (max_ext_time * ext_cnt);
+	}
+	count = (target_timeout * (host_clock / 1000)) / SDMMC_DATA_TMOUT_CRT;
+
+	/* Set return value */
+	return ((count << SDMMC_DATA_TMOUT_SHIFT)
+		| ((ext_cnt + SDMMC_DATA_TMOUT_EXT) << SDMMC_DATA_TMOUT_EXT_SHIFT)
+		| SDMMC_RESP_TMOUT);
+}
+
+static void __dw_mci_start_request(struct dw_mci *host,
+				   struct dw_mci_slot *slot, struct mmc_command *cmd)
+>>>>>>> upstream/android-13
 {
 	struct mmc_request *mrq;
 	struct mmc_data	*data;
@@ -1311,6 +2267,19 @@ static void __dw_mci_start_request(struct dw_mci *host,
 
 	mrq = slot->mrq;
 
+<<<<<<< HEAD
+=======
+	if (mrq->cmd->opcode == MMC_SEND_TUNING_BLOCK ||
+	    mrq->cmd->opcode == MMC_SEND_TUNING_BLOCK_HS200 ||
+		mrq->cmd->opcode == SD_APP_SEND_SCR)
+		mod_timer(&host->sto_timer, jiffies + msecs_to_jiffies(500));
+	else if (host->pdata->sw_timeout)
+		mod_timer(&host->sto_timer, jiffies + msecs_to_jiffies(host->pdata->sw_timeout));
+	else
+		mod_timer(&host->sto_timer, jiffies + msecs_to_jiffies(10000));
+
+	host->slot = slot;
+>>>>>>> upstream/android-13
 	host->mrq = mrq;
 
 	host->pending_events = 0;
@@ -1321,9 +2290,16 @@ static void __dw_mci_start_request(struct dw_mci *host,
 
 	data = cmd->data;
 	if (data) {
+<<<<<<< HEAD
 		mci_writel(host, TMOUT, 0xFFFFFFFF);
 		mci_writel(host, BYTCNT, data->blksz*data->blocks);
 		mci_writel(host, BLKSIZ, data->blksz);
+=======
+		dw_mci_set_timeout(host, dw_mci_calc_timeout(host));
+		mci_writel(host, BYTCNT, data->blksz * data->blocks);
+		mci_writel(host, BLKSIZ, data->blksz);
+		host->transferred_cnt += data->blksz * data->blocks;
+>>>>>>> upstream/android-13
 	}
 
 	cmdflags = dw_mci_prepare_command(slot->mmc, cmd);
@@ -1336,7 +2312,11 @@ static void __dw_mci_start_request(struct dw_mci *host,
 		dw_mci_submit_data(host, data);
 		wmb(); /* drain writebuffer */
 	}
+<<<<<<< HEAD
 
+=======
+	dw_mci_debug_req_log(host, mrq, STATE_REQ_START, 0);
+>>>>>>> upstream/android-13
 	dw_mci_start_command(host, cmd, cmdflags);
 
 	if (cmd->opcode == SD_SWITCH_VOLTAGE) {
@@ -1354,6 +2334,7 @@ static void __dw_mci_start_request(struct dw_mci *host,
 		 */
 		spin_lock_irqsave(&host->irq_lock, irqflags);
 		if (!test_bit(EVENT_CMD_COMPLETE, &host->pending_events))
+<<<<<<< HEAD
 			mod_timer(&host->cmd11_timer,
 				jiffies + msecs_to_jiffies(500) + 1);
 		spin_unlock_irqrestore(&host->irq_lock, irqflags);
@@ -1364,10 +2345,28 @@ static void __dw_mci_start_request(struct dw_mci *host,
 
 static void dw_mci_start_request(struct dw_mci *host,
 				 struct dw_mci_slot *slot)
+=======
+			mod_timer(&host->cmd11_timer, jiffies + msecs_to_jiffies(500) + 1);
+		spin_unlock_irqrestore(&host->irq_lock, irqflags);
+	}
+
+	if (mrq->stop)
+		host->stop_cmdr = dw_mci_prepare_command(slot->mmc, mrq->stop);
+	else
+		host->stop_cmdr = dw_mci_prep_stop_abort(host, cmd);
+}
+
+static void dw_mci_start_request(struct dw_mci *host, struct dw_mci_slot *slot)
+>>>>>>> upstream/android-13
 {
 	struct mmc_request *mrq = slot->mrq;
 	struct mmc_command *cmd;
 
+<<<<<<< HEAD
+=======
+	host->req_state = DW_MMC_REQ_BUSY;
+
+>>>>>>> upstream/android-13
 	cmd = mrq->sbc ? mrq->sbc : mrq->cmd;
 	__dw_mci_start_request(host, slot, cmd);
 }
@@ -1376,14 +2375,22 @@ static void dw_mci_start_request(struct dw_mci *host,
 static void dw_mci_queue_request(struct dw_mci *host, struct dw_mci_slot *slot,
 				 struct mmc_request *mrq)
 {
+<<<<<<< HEAD
 	dev_vdbg(&slot->mmc->class_dev, "queue request: state=%d\n",
 		 host->state);
+=======
+	dev_vdbg(&slot->mmc->class_dev, "queue request: state=%d\n", host->state);
+>>>>>>> upstream/android-13
 
 	slot->mrq = mrq;
 
 	if (host->state == STATE_WAITING_CMD11_DONE) {
+<<<<<<< HEAD
 		dev_warn(&slot->mmc->class_dev,
 			 "Voltage change didn't complete\n");
+=======
+		dev_warn(&slot->mmc->class_dev, "Voltage change didn't complete\n");
+>>>>>>> upstream/android-13
 		/*
 		 * this case isn't expected to happen, so we can
 		 * either crash here or just try to continue on
@@ -1413,14 +2420,40 @@ static void dw_mci_request(struct mmc_host *mmc, struct mmc_request *mrq)
 	 * request wouldn't fail until another card was inserted.
 	 */
 
+<<<<<<< HEAD
+=======
+	if (!dw_mci_stop_abort_cmd(mrq->cmd)) {
+		if (!dw_mci_wait_data_busy(host, mrq)) {
+			mrq->cmd->error = -ENOTRECOVERABLE;
+			mmc_request_done(mmc, mrq);
+			return;
+		}
+	}
+
+#if !defined(CONFIG_MMC_DW_SD_BROKEN_DETECT)
+>>>>>>> upstream/android-13
 	if (!dw_mci_get_cd(mmc)) {
 		mrq->cmd->error = -ENOMEDIUM;
 		mmc_request_done(mmc, mrq);
 		return;
 	}
+<<<<<<< HEAD
 
 	spin_lock_bh(&host->lock);
 
+=======
+#endif
+	if (host->qos_cntrl == true)
+		dw_mci_qos_get(host);
+
+	spin_lock_bh(&host->lock);
+
+	/* IDLE IP for SICD */
+#ifdef CONFIG_CPU_IDLE
+	atomic_inc_return(&host->sicd_active);
+	dw_mci_sicd_control(host, false);
+#endif
+>>>>>>> upstream/android-13
 	dw_mci_queue_request(host, slot, mrq);
 
 	spin_unlock_bh(&host->lock);
@@ -1430,6 +2463,10 @@ static void dw_mci_set_ios(struct mmc_host *mmc, struct mmc_ios *ios)
 {
 	struct dw_mci_slot *slot = mmc_priv(mmc);
 	const struct dw_mci_drv_data *drv_data = slot->host->drv_data;
+<<<<<<< HEAD
+=======
+	struct dw_mci *host = slot->host;
+>>>>>>> upstream/android-13
 	u32 regs;
 	int ret;
 
@@ -1455,6 +2492,14 @@ static void dw_mci_set_ios(struct mmc_host *mmc, struct mmc_ios *ios)
 	else
 		regs &= ~((0x1 << slot->id) << 16);
 
+<<<<<<< HEAD
+=======
+	if (slot->host->pdata->caps &
+	    (MMC_CAP_UHS_SDR12 | MMC_CAP_UHS_SDR25 |
+	     MMC_CAP_UHS_SDR50 | MMC_CAP_UHS_SDR104 | MMC_CAP_UHS_DDR50))
+		regs |= (0x1 << slot->id);
+
+>>>>>>> upstream/android-13
 	mci_writel(slot->host, UHS_REG, regs);
 	slot->host->timing = ios->timing;
 
@@ -1469,6 +2514,7 @@ static void dw_mci_set_ios(struct mmc_host *mmc, struct mmc_ios *ios)
 
 	switch (ios->power_mode) {
 	case MMC_POWER_UP:
+<<<<<<< HEAD
 		if (!IS_ERR(mmc->supply.vmmc)) {
 			ret = mmc_regulator_set_ocr(mmc, mmc->supply.vmmc,
 					ios->vdd);
@@ -1477,6 +2523,24 @@ static void dw_mci_set_ios(struct mmc_host *mmc, struct mmc_ios *ios)
 					"failed to enable vmmc regulator\n");
 				/*return, if failed turn on vmmc*/
 				return;
+=======
+		if (!IS_ERR(host->ciu_clk)) {
+			ret = dw_mci_ciu_clk_en(host);
+			if (ret)
+				dev_err(host->dev, "failed to enable ciu clock\n");
+
+		}
+
+		if (!(slot->host->quirks & DW_MMC_QUIRK_FIXED_VOLTAGE)) {
+			if (!IS_ERR(mmc->supply.vmmc)) {
+				ret = mmc_regulator_set_ocr(mmc, mmc->supply.vmmc, ios->vdd);
+				if (ret) {
+					dev_err(slot->host->dev,
+						"failed to enable vmmc regulator\n");
+					/*return, if failed turn on vmmc */
+					return;
+				}
+>>>>>>> upstream/android-13
 			}
 		}
 		set_bit(DW_MMC_CARD_NEED_INIT, &slot->flags);
@@ -1485,6 +2549,7 @@ static void dw_mci_set_ios(struct mmc_host *mmc, struct mmc_ios *ios)
 		mci_writel(slot->host, PWREN, regs);
 		break;
 	case MMC_POWER_ON:
+<<<<<<< HEAD
 		if (!slot->host->vqmmc_enabled) {
 			if (!IS_ERR(mmc->supply.vqmmc)) {
 				ret = regulator_enable(mmc->supply.vqmmc);
@@ -1504,11 +2569,37 @@ static void dw_mci_set_ios(struct mmc_host *mmc, struct mmc_ios *ios)
 					  SDMMC_CTRL_ALL_RESET_FLAGS);
 		}
 
+=======
+		if (!(slot->host->quirks & DW_MMC_QUIRK_FIXED_VOLTAGE)) {
+			if (!slot->host->vqmmc_enabled) {
+				if (drv_data && drv_data->pins_control)
+					drv_data->pins_control(host, PINS_FUNC);
+
+				if (!IS_ERR(mmc->supply.vqmmc)) {
+					ret = regulator_enable(mmc->supply.vqmmc);
+					if (ret < 0)
+						dev_err(slot->host->dev,
+							"failed to enable vqmmc\n");
+					else
+						slot->host->vqmmc_enabled = true;
+				} else {
+					/* Keep track so we don't reset again */
+					slot->host->vqmmc_enabled = true;
+				}
+				/* Reset our state machine after powering on */
+				dw_mci_ctrl_reset(slot->host, SDMMC_CTRL_ALL_RESET_FLAGS);
+			}
+		}
+>>>>>>> upstream/android-13
 		/* Adjust clock / bus width after power is up */
 		dw_mci_setup_bus(slot, false);
 
 		break;
 	case MMC_POWER_OFF:
+<<<<<<< HEAD
+=======
+		if (!(slot->host->quirks & DW_MMC_QUIRK_FIXED_VOLTAGE)) {
+>>>>>>> upstream/android-13
 		/* Turn clock off before power goes down */
 		dw_mci_setup_bus(slot, false);
 
@@ -1519,9 +2610,27 @@ static void dw_mci_set_ios(struct mmc_host *mmc, struct mmc_ios *ios)
 			regulator_disable(mmc->supply.vqmmc);
 		slot->host->vqmmc_enabled = false;
 
+<<<<<<< HEAD
 		regs = mci_readl(slot->host, PWREN);
 		regs &= ~(1 << slot->id);
 		mci_writel(slot->host, PWREN, regs);
+=======
+		if (drv_data && drv_data->pins_control)
+			drv_data->pins_control(host, PINS_PDN);
+
+		regs = mci_readl(slot->host, PWREN);
+		regs &= ~(1 << slot->id);
+		mci_writel(slot->host, PWREN, regs);
+			if (host->quirks & DW_MCI_QUIRK_HWACG_CTRL) {
+				if (drv_data && drv_data->hwacg_control)
+					drv_data->hwacg_control(host, HWACG_Q_ACTIVE_EN);
+			}
+		}
+
+		if (!IS_ERR(host->ciu_clk))
+			dw_mci_ciu_clk_dis(host);
+
+>>>>>>> upstream/android-13
 		break;
 	default:
 		break;
@@ -1552,7 +2661,12 @@ static int dw_mci_switch_voltage(struct mmc_host *mmc, struct mmc_ios *ios)
 	const struct dw_mci_drv_data *drv_data = host->drv_data;
 	u32 uhs;
 	u32 v18 = SDMMC_UHS_18V << slot->id;
+<<<<<<< HEAD
 	int ret;
+=======
+	int min_uv, max_uv;
+	int ret = 0;
+>>>>>>> upstream/android-13
 
 	if (drv_data && drv_data->switch_voltage)
 		return drv_data->switch_voltage(mmc, ios);
@@ -1563,6 +2677,7 @@ static int dw_mci_switch_voltage(struct mmc_host *mmc, struct mmc_ios *ios)
 	 * does no harm but you need to set the regulator directly.  Try both.
 	 */
 	uhs = mci_readl(host, UHS_REG);
+<<<<<<< HEAD
 	if (ios->signal_voltage == MMC_SIGNAL_VOLTAGE_330)
 		uhs &= ~v18;
 	else
@@ -1579,6 +2694,33 @@ static int dw_mci_switch_voltage(struct mmc_host *mmc, struct mmc_ios *ios)
 		}
 	}
 	mci_writel(host, UHS_REG, uhs);
+=======
+	if (ios->signal_voltage == MMC_SIGNAL_VOLTAGE_330) {
+		min_uv = 2800000;
+		max_uv = 2800000;
+		uhs &= ~v18;
+	} else {
+		min_uv = 1800000;
+		max_uv = 1800000;
+		uhs |= v18;
+	}
+
+	if (!(host->quirks & DW_MMC_QUIRK_FIXED_VOLTAGE)) {
+		if (!IS_ERR(mmc->supply.vqmmc)) {
+			ret = mmc_regulator_set_vqmmc(mmc, ios);
+
+			if (ret < 0) {
+				dev_err(&mmc->class_dev,
+						"Regulator set error %d - %s V\n",
+						ret, uhs & v18 ? "1.8" : "3.3");
+				return ret;
+			}
+		}
+	}
+
+	mci_writel(host, UHS_REG, uhs);
+	del_timer(&host->cmd11_timer);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -1590,6 +2732,7 @@ static int dw_mci_get_ro(struct mmc_host *mmc)
 	int gpio_ro = mmc_gpio_get_ro(mmc);
 
 	/* Use platform get_ro function, else try on board write protect */
+<<<<<<< HEAD
 	if (gpio_ro >= 0)
 		read_only = gpio_ro;
 	else
@@ -1598,6 +2741,16 @@ static int dw_mci_get_ro(struct mmc_host *mmc)
 
 	dev_dbg(&mmc->class_dev, "card is %s\n",
 		read_only ? "read-only" : "read-write");
+=======
+	if (slot->mmc->caps2 & MMC_CAP2_NO_WRITE_PROTECT)
+		read_only = 0;
+	else if (gpio_ro >= 0)
+		read_only = gpio_ro;
+	else
+		read_only = mci_readl(slot->host, WRTPRT) & (1 << slot->id) ? 1 : 0;
+
+	dev_dbg(&mmc->class_dev, "card is %s\n", read_only ? "read-only" : "read-write");
+>>>>>>> upstream/android-13
 
 	return read_only;
 }
@@ -1611,8 +2764,12 @@ static void dw_mci_hw_reset(struct mmc_host *mmc)
 	if (host->use_dma == TRANS_MODE_IDMAC)
 		dw_mci_idmac_reset(host);
 
+<<<<<<< HEAD
 	if (!dw_mci_ctrl_reset(host, SDMMC_CTRL_DMA_RESET |
 				     SDMMC_CTRL_FIFO_RESET))
+=======
+	if (!dw_mci_ctrl_reset(host, SDMMC_CTRL_DMA_RESET | SDMMC_CTRL_FIFO_RESET))
+>>>>>>> upstream/android-13
 		return;
 
 	/*
@@ -1647,8 +2804,12 @@ static void dw_mci_init_card(struct mmc_host *mmc, struct mmc_card *card)
 
 		clk_en_a_old = mci_readl(host, CLKENA);
 
+<<<<<<< HEAD
 		if (card->type == MMC_TYPE_SDIO ||
 		    card->type == MMC_TYPE_SD_COMBO) {
+=======
+		if (card->type == MMC_TYPE_SDIO || card->type == MMC_TYPE_SD_COMBO) {
+>>>>>>> upstream/android-13
 			set_bit(DW_MMC_CARD_NO_LOW_PWR, &slot->flags);
 			clk_en_a = clk_en_a_old & ~clken_low_pwr;
 		} else {
@@ -1658,8 +2819,12 @@ static void dw_mci_init_card(struct mmc_host *mmc, struct mmc_card *card)
 
 		if (clk_en_a != clk_en_a_old) {
 			mci_writel(host, CLKENA, clk_en_a);
+<<<<<<< HEAD
 			mci_send_cmd(slot, SDMMC_CMD_UPD_CLK |
 				     SDMMC_CMD_PRV_DAT_WAIT, 0);
+=======
+			mci_send_cmd(slot, SDMMC_CMD_UPD_CLK | SDMMC_CMD_PRV_DAT_WAIT, 0);
+>>>>>>> upstream/android-13
 		}
 	}
 }
@@ -1709,6 +2874,7 @@ static int dw_mci_execute_tuning(struct mmc_host *mmc, u32 opcode)
 	struct dw_mci_slot *slot = mmc_priv(mmc);
 	struct dw_mci *host = slot->host;
 	const struct dw_mci_drv_data *drv_data = host->drv_data;
+<<<<<<< HEAD
 	int err = -EINVAL;
 
 	if (drv_data && drv_data->execute_tuning)
@@ -1718,6 +2884,65 @@ static int dw_mci_execute_tuning(struct mmc_host *mmc, u32 opcode)
 
 static int dw_mci_prepare_hs400_tuning(struct mmc_host *mmc,
 				       struct mmc_ios *ios)
+=======
+	struct dw_mci_tuning_data tuning_data;
+	int err = -ENOSYS;
+
+	const u8 tuning_blk_pattern_4[] = {
+	0xff, 0x0f, 0xff, 0x00, 0xff, 0xcc, 0xc3, 0xcc,
+	0xc3, 0x3c, 0xcc, 0xff, 0xfe, 0xff, 0xfe, 0xef,
+	0xff, 0xdf, 0xff, 0xdd, 0xff, 0xfb, 0xff, 0xfb,
+	0xbf, 0xff, 0x7f, 0xff, 0x77, 0xf7, 0xbd, 0xef,
+	0xff, 0xf0, 0xff, 0xf0, 0x0f, 0xfc, 0xcc, 0x3c,
+	0xcc, 0x33, 0xcc, 0xcf, 0xff, 0xef, 0xff, 0xee,
+	0xff, 0xfd, 0xff, 0xfd, 0xdf, 0xff, 0xbf, 0xff,
+	0xbb, 0xff, 0xf7, 0xff, 0xf7, 0x7f, 0x7b, 0xde,
+};
+
+	const u8 tuning_blk_pattern_8[] = {
+	0xff, 0xff, 0x00, 0xff, 0xff, 0xff, 0x00, 0x00,
+	0xff, 0xff, 0xcc, 0xcc, 0xcc, 0x33, 0xcc, 0xcc,
+	0xcc, 0x33, 0x33, 0xcc, 0xcc, 0xcc, 0xff, 0xff,
+	0xff, 0xee, 0xff, 0xff, 0xff, 0xee, 0xee, 0xff,
+	0xff, 0xff, 0xdd, 0xff, 0xff, 0xff, 0xdd, 0xdd,
+	0xff, 0xff, 0xff, 0xbb, 0xff, 0xff, 0xff, 0xbb,
+	0xbb, 0xff, 0xff, 0xff, 0x77, 0xff, 0xff, 0xff,
+	0x77, 0x77, 0xff, 0x77, 0xbb, 0xdd, 0xee, 0xff,
+	0xff, 0xff, 0xff, 0x00, 0xff, 0xff, 0xff, 0x00,
+	0x00, 0xff, 0xff, 0xcc, 0xcc, 0xcc, 0x33, 0xcc,
+	0xcc, 0xcc, 0x33, 0x33, 0xcc, 0xcc, 0xcc, 0xff,
+	0xff, 0xff, 0xee, 0xff, 0xff, 0xff, 0xee, 0xee,
+	0xff, 0xff, 0xff, 0xdd, 0xff, 0xff, 0xff, 0xdd,
+	0xdd, 0xff, 0xff, 0xff, 0xbb, 0xff, 0xff, 0xff,
+	0xbb, 0xbb, 0xff, 0xff, 0xff, 0x77, 0xff, 0xff,
+	0xff, 0x77, 0x77, 0xff, 0x77, 0xbb, 0xdd, 0xee,
+};
+
+	if (opcode == MMC_SEND_TUNING_BLOCK_HS200) {
+		if (mmc->ios.bus_width == MMC_BUS_WIDTH_8) {
+			tuning_data.blk_pattern = tuning_blk_pattern_8;
+			tuning_data.blksz = sizeof(tuning_blk_pattern_8);
+		} else if (mmc->ios.bus_width == MMC_BUS_WIDTH_4) {
+			tuning_data.blk_pattern = tuning_blk_pattern_4;
+			tuning_data.blksz = sizeof(tuning_blk_pattern_4);
+		} else {
+			return -EINVAL;
+		}
+	} else if (opcode == MMC_SEND_TUNING_BLOCK) {
+		tuning_data.blk_pattern = tuning_blk_pattern_4;
+		tuning_data.blksz = sizeof(tuning_blk_pattern_4);
+	} else {
+		dev_err(host->dev, "Undefined command(%d) for tuning\n", opcode);
+		return -EINVAL;
+	}
+
+	if (drv_data && drv_data->execute_tuning)
+		err = drv_data->execute_tuning(slot, opcode, &tuning_data);
+	return err;
+}
+
+static int dw_mci_prepare_hs400_tuning(struct mmc_host *mmc, struct mmc_ios *ios)
+>>>>>>> upstream/android-13
 {
 	struct dw_mci_slot *slot = mmc_priv(mmc);
 	struct dw_mci *host = slot->host;
@@ -1733,7 +2958,10 @@ static bool dw_mci_reset(struct dw_mci *host)
 {
 	u32 flags = SDMMC_CTRL_RESET | SDMMC_CTRL_FIFO_RESET;
 	bool ret = false;
+<<<<<<< HEAD
 	u32 status = 0;
+=======
+>>>>>>> upstream/android-13
 
 	/*
 	 * Resetting generates a block interrupt, hence setting
@@ -1754,6 +2982,7 @@ static bool dw_mci_reset(struct dw_mci *host)
 		 */
 		mci_writel(host, RINTSTS, 0xFFFFFFFF);
 
+<<<<<<< HEAD
 		if (!host->use_dma) {
 			ret = true;
 			goto ciu_out;
@@ -1773,6 +3002,26 @@ static bool dw_mci_reset(struct dw_mci *host)
 		/* when using DMA next we reset the fifo again */
 		if (!dw_mci_ctrl_reset(host, SDMMC_CTRL_FIFO_RESET))
 			goto ciu_out;
+=======
+		/* if using dma we wait for dma_req to clear */
+		if (host->use_dma) {
+			u32 status;
+
+			if (readl_poll_timeout_atomic(host->regs + SDMMC_STATUS,
+						      status,
+						      !(status & SDMMC_STATUS_DMA_REQ),
+						      1, 500 * USEC_PER_MSEC)) {
+				dev_err(host->dev,
+					"%s: Timeout waiting for dma_req to clear during reset\n",
+					__func__);
+				goto ciu_out;
+			}
+
+			/* when using DMA next we reset the fifo again */
+			if (!dw_mci_ctrl_reset(host, SDMMC_CTRL_FIFO_RESET))
+				goto ciu_out;
+		}
+>>>>>>> upstream/android-13
 	} else {
 		/* if the controller reset bit did clear, then set clock regs */
 		if (!(mci_readl(host, CTRL) & SDMMC_CTRL_RESET)) {
@@ -1796,6 +3045,52 @@ ciu_out:
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+#if 0
+static void dw_mci_restore_host(struct mmc_host *mmc)
+{
+	struct dw_mci_slot *slot = mmc_priv(mmc);
+	struct dw_mci *host = slot->host;
+	const struct dw_mci_drv_data *drv_data = host->drv_data;
+	int ret;
+
+	if (!dw_mci_ctrl_reset(host, SDMMC_CTRL_ALL_RESET_FLAGS)) {
+		dw_mci_ciu_clk_dis(host);
+		ret = -ENODEV;
+	}
+
+	if (host->use_dma && host->dma_ops->init)
+		host->dma_ops->init(host);
+
+	if (host->quirks & DW_MCI_QUIRK_HWACG_CTRL) {
+		if (drv_data && drv_data->hwacg_control)
+			drv_data->hwacg_control(host, HWACG_Q_ACTIVE_EN);
+	} else {
+		if (drv_data && drv_data->hwacg_control)
+			drv_data->hwacg_control(host, HWACG_Q_ACTIVE_DIS);
+	}
+
+	/*
+	 * Restore the initial value at FIFOTH register
+	 * And Invalidate the prev_blksz with zero
+	 */
+	 mci_writel(host, FIFOTH, host->fifoth_val);
+	 host->prev_blksz = 0;
+
+	/* Put in max timeout */
+	mci_writel(host, TMOUT, 0xFFFFFFFF);
+
+	mci_writel(host, RINTSTS, 0xFFFFFFFF);
+	mci_writel(host, INTMASK, SDMMC_INT_CMD_DONE | SDMMC_INT_DATA_OVER |
+		   SDMMC_INT_TXDR | SDMMC_INT_RXDR | DW_MCI_ERROR_FLAGS |
+		   SDMMC_INT_VOLT_SWITCH);
+	mci_writel(host, CTRL, SDMMC_CTRL_INT_ENABLE);
+
+}
+#endif
+
+>>>>>>> upstream/android-13
 static const struct mmc_host_ops dw_mci_ops = {
 	.request		= dw_mci_request,
 	.pre_req		= dw_mci_pre_req,
@@ -1809,6 +3104,7 @@ static const struct mmc_host_ops dw_mci_ops = {
 	.execute_tuning		= dw_mci_execute_tuning,
 	.card_busy		= dw_mci_card_busy,
 	.start_signal_voltage_switch = dw_mci_switch_voltage,
+<<<<<<< HEAD
 	.init_card		= dw_mci_init_card,
 	.prepare_hs400_tuning	= dw_mci_prepare_hs400_tuning,
 };
@@ -1830,6 +3126,30 @@ static void dw_mci_request_end(struct dw_mci *host, struct mmc_request *mrq)
 		list_del(&slot->queue_node);
 		dev_vdbg(host->dev, "list not empty: %s is next\n",
 			 mmc_hostname(slot->mmc));
+=======
+	.init_card 		= dw_mci_init_card,
+	.prepare_hs400_tuning 	= dw_mci_prepare_hs400_tuning,
+};
+
+static void dw_mci_request_end(struct dw_mci *host, struct mmc_request *mrq)
+__releases(&host->lock) __acquires(&host->lock)
+{
+	struct dw_mci_slot *slot;
+	struct mmc_host	*prev_mmc = host->slot->mmc;
+	const struct dw_mci_drv_data *drv_data = host->drv_data;
+
+	WARN_ON(host->cmd || host->data);
+
+	del_timer(&host->sto_timer);
+	host->req_state = DW_MMC_REQ_IDLE;
+	dw_mci_debug_req_log(host, mrq, STATE_REQ_END, 0);
+	host->slot->mrq = NULL;
+	host->mrq = NULL;
+	if (!list_empty(&host->queue)) {
+		slot = list_entry(host->queue.next, struct dw_mci_slot, queue_node);
+		list_del(&slot->queue_node);
+		dev_vdbg(host->dev, "list not empty: %s is next\n", mmc_hostname(slot->mmc));
+>>>>>>> upstream/android-13
 		host->state = STATE_SENDING_CMD;
 		dw_mci_start_request(host, slot);
 	} else {
@@ -1842,8 +3162,24 @@ static void dw_mci_request_end(struct dw_mci *host, struct mmc_request *mrq)
 	}
 
 	spin_unlock(&host->lock);
+<<<<<<< HEAD
 	mmc_request_done(prev_mmc, mrq);
 	spin_lock(&host->lock);
+=======
+	if (host->qos_cntrl == true)
+		dw_mci_qos_put(host);
+
+	if (drv_data->check_request_error)
+		drv_data->check_request_error(host, mrq);
+
+	mmc_request_done(prev_mmc, mrq);
+	spin_lock(&host->lock);
+
+#ifdef CONFIG_CPU_IDLE
+	atomic_dec_return(&host->sicd_active);
+	dw_mci_sicd_control(host, true);
+#endif
+>>>>>>> upstream/android-13
 }
 
 static int dw_mci_command_complete(struct dw_mci *host, struct mmc_command *cmd)
@@ -1889,8 +3225,12 @@ static int dw_mci_data_complete(struct dw_mci *host, struct mmc_data *data)
 		} else if (status & SDMMC_INT_DCRC) {
 			data->error = -EILSEQ;
 		} else if (status & SDMMC_INT_EBE) {
+<<<<<<< HEAD
 			if (host->dir_status ==
 				DW_MCI_SEND_STATUS) {
+=======
+			if (host->dir_status == DW_MCI_SEND_STATUS) {
+>>>>>>> upstream/android-13
 				/*
 				 * No data CRC status was returned.
 				 * The number of bytes transferred
@@ -1898,8 +3238,12 @@ static int dw_mci_data_complete(struct dw_mci *host, struct mmc_data *data)
 				 */
 				data->bytes_xfered = 0;
 				data->error = -ETIMEDOUT;
+<<<<<<< HEAD
 			} else if (host->dir_status ==
 					DW_MCI_RECV_STATUS) {
+=======
+			} else if (host->dir_status == DW_MCI_RECV_STATUS) {
+>>>>>>> upstream/android-13
 				data->error = -EILSEQ;
 			}
 		} else {
@@ -1907,13 +3251,24 @@ static int dw_mci_data_complete(struct dw_mci *host, struct mmc_data *data)
 			data->error = -EILSEQ;
 		}
 
+<<<<<<< HEAD
 		dev_dbg(host->dev, "data error, status 0x%08x\n", status);
+=======
+		dev_err(host->dev, "data error, status 0x%08x %d\n", status, host->dir_status);
+>>>>>>> upstream/android-13
 
 		/*
 		 * After an error, there may be data lingering
 		 * in the FIFO
 		 */
+<<<<<<< HEAD
 		dw_mci_reset(host);
+=======
+		sg_miter_stop(&host->sg_miter);
+		host->sg = NULL;
+		dw_mci_fifo_reset(host->dev, host);
+		dw_mci_ciu_reset(host->dev, host);
+>>>>>>> upstream/android-13
 	} else {
 		data->bytes_xfered = data->blocks * data->blksz;
 		data->error = 0;
@@ -1959,8 +3314,17 @@ static bool dw_mci_clear_pending_cmd_complete(struct dw_mci *host)
 	 * running concurrently so that the del_timer() in the interrupt
 	 * handler couldn't run.
 	 */
+<<<<<<< HEAD
 	WARN_ON(del_timer_sync(&host->cto_timer));
 	clear_bit(EVENT_CMD_COMPLETE, &host->pending_events);
+=======
+	if (del_timer_sync(&host->cto_timer)) {
+		dw_mci_debug_req_log(host, host->mrq, STATE_REQ_CMD_COMPLETE_TASKLET, host->state);
+		BUG();
+	}
+	clear_bit(EVENT_CMD_COMPLETE, &host->pending_events);
+	dw_mci_debug_req_log(host, host->mrq, STATE_REQ_CMD_COMPLETE_TASKLET, host->state);
+>>>>>>> upstream/android-13
 
 	return true;
 }
@@ -1971,7 +3335,12 @@ static bool dw_mci_clear_pending_data_complete(struct dw_mci *host)
 		return false;
 
 	/* Extra paranoia just like dw_mci_clear_pending_cmd_complete() */
+<<<<<<< HEAD
 	WARN_ON(del_timer_sync(&host->dto_timer));
+=======
+	if (host->pdata->sw_drto)
+		WARN_ON(del_timer_sync(&host->dto_timer));
+>>>>>>> upstream/android-13
 	clear_bit(EVENT_DATA_COMPLETE, &host->pending_events);
 
 	return true;
@@ -1989,6 +3358,12 @@ static void dw_mci_tasklet_func(unsigned long priv)
 
 	spin_lock(&host->lock);
 
+<<<<<<< HEAD
+=======
+	if (host->sw_timeout_chk == true)
+		goto unlock;
+
+>>>>>>> upstream/android-13
 	state = host->state;
 	data = host->data;
 	mrq = host->mrq;
@@ -2038,23 +3413,46 @@ static void dw_mci_tasklet_func(unsigned long priv)
 				 * delayed. Allowing the transfer to take place
 				 * avoids races and keeps things simple.
 				 */
+<<<<<<< HEAD
 				if (err != -ETIMEDOUT) {
+=======
+				if ((err != -ETIMEDOUT) &&
+						(cmd->opcode == MMC_SEND_TUNING_BLOCK)) {
+>>>>>>> upstream/android-13
 					state = STATE_SENDING_DATA;
 					continue;
 				}
 
+<<<<<<< HEAD
 				dw_mci_stop_dma(host);
 				send_stop_abort(host, data);
 				state = STATE_SENDING_STOP;
+=======
+				dw_mci_fifo_reset(host->dev, host);
+				dw_mci_stop_dma(host);
+				send_stop_abort(host, data);
+				state = STATE_SENDING_STOP;
+				dw_mci_debug_req_log(host, host->mrq, STATE_REQ_CMD_PROCESS, state);
+>>>>>>> upstream/android-13
 				break;
 			}
 
 			if (!cmd->data || err) {
+<<<<<<< HEAD
 				dw_mci_request_end(host, mrq);
+=======
+				if (host->sw_timeout_chk != true)
+					dw_mci_request_end(host, mrq);
+>>>>>>> upstream/android-13
 				goto unlock;
 			}
 
 			prev_state = state = STATE_SENDING_DATA;
+<<<<<<< HEAD
+=======
+			dw_mci_debug_req_log(host, host->mrq, STATE_REQ_CMD_PROCESS, state);
+
+>>>>>>> upstream/android-13
 			/* fall through */
 
 		case STATE_SENDING_DATA:
@@ -2066,6 +3464,7 @@ static void dw_mci_tasklet_func(unsigned long priv)
 			 * transfer complete; stopping the DMA and sending an
 			 * abort won't hurt.
 			 */
+<<<<<<< HEAD
 			if (test_and_clear_bit(EVENT_DATA_ERROR,
 					       &host->pending_events)) {
 				dw_mci_stop_dma(host);
@@ -2078,11 +3477,30 @@ static void dw_mci_tasklet_func(unsigned long priv)
 
 			if (!test_and_clear_bit(EVENT_XFER_COMPLETE,
 						&host->pending_events)) {
+=======
+			if (test_and_clear_bit(EVENT_DATA_ERROR, &host->pending_events)) {
+				dw_mci_fifo_reset(host->dev, host);
+				dw_mci_stop_dma(host);
+				if (!(host->data_status & (SDMMC_INT_DRTO | SDMMC_INT_EBE)))
+					send_stop_abort(host, data);
+				state = STATE_DATA_ERROR;
+				dw_mci_debug_req_log(host,
+						     host->mrq, STATE_REQ_DATA_PROCESS, state);
+				break;
+			}
+
+			if (!test_and_clear_bit(EVENT_XFER_COMPLETE, &host->pending_events)) {
+>>>>>>> upstream/android-13
 				/*
 				 * If all data-related interrupts don't come
 				 * within the given time in reading data state.
 				 */
+<<<<<<< HEAD
 				if (host->dir_status == DW_MCI_RECV_STATUS)
+=======
+				if ((host->pdata->sw_drto) &&
+						(host->dir_status == DW_MCI_RECV_STATUS))
+>>>>>>> upstream/android-13
 					dw_mci_set_drto(host);
 				break;
 			}
@@ -2102,6 +3520,7 @@ static void dw_mci_tasklet_func(unsigned long priv)
 			 *
 			 * This has the advantage of sending the stop command.
 			 */
+<<<<<<< HEAD
 			if (test_and_clear_bit(EVENT_DATA_ERROR,
 					       &host->pending_events)) {
 				dw_mci_stop_dma(host);
@@ -2109,10 +3528,25 @@ static void dw_mci_tasklet_func(unsigned long priv)
 							   SDMMC_INT_EBE)))
 					send_stop_abort(host, data);
 				state = STATE_DATA_ERROR;
+=======
+			if (test_and_clear_bit(EVENT_DATA_ERROR, &host->pending_events)) {
+				dw_mci_fifo_reset(host->dev, host);
+				dw_mci_stop_dma(host);
+				if (!(host->data_status & (SDMMC_INT_DRTO | SDMMC_INT_EBE)))
+					send_stop_abort(host, data);
+				state = STATE_DATA_ERROR;
+				dw_mci_debug_req_log(host, host->mrq,
+						     STATE_REQ_DATA_PROCESS, state);
+>>>>>>> upstream/android-13
 				break;
 			}
 			prev_state = state = STATE_DATA_BUSY;
 
+<<<<<<< HEAD
+=======
+			dw_mci_debug_req_log(host, host->mrq, STATE_REQ_DATA_PROCESS, state);
+
+>>>>>>> upstream/android-13
 			/* fall through */
 
 		case STATE_DATA_BUSY:
@@ -2122,20 +3556,39 @@ static void dw_mci_tasklet_func(unsigned long priv)
 				 * interrupt doesn't come within the given time.
 				 * in reading data state.
 				 */
+<<<<<<< HEAD
 				if (host->dir_status == DW_MCI_RECV_STATUS)
+=======
+				if ((host->pdata->sw_drto) &&
+						(host->dir_status == DW_MCI_RECV_STATUS))
+>>>>>>> upstream/android-13
 					dw_mci_set_drto(host);
 				break;
 			}
 
+<<<<<<< HEAD
 			host->data = NULL;
 			set_bit(EVENT_DATA_COMPLETE, &host->completed_events);
 			err = dw_mci_data_complete(host, data);
 
+=======
+			set_bit(EVENT_DATA_COMPLETE, &host->completed_events);
+			err = dw_mci_data_complete(host, data);
+
+			host->data = NULL;
+
+>>>>>>> upstream/android-13
 			if (!err) {
 				if (!data->stop || mrq->sbc) {
 					if (mrq->sbc && data->stop)
 						data->stop->error = 0;
+<<<<<<< HEAD
 					dw_mci_request_end(host, mrq);
+=======
+
+					if (host->sw_timeout_chk != true)
+						dw_mci_request_end(host, mrq);
+>>>>>>> upstream/android-13
 					goto unlock;
 				}
 
@@ -2152,10 +3605,18 @@ static void dw_mci_tasklet_func(unsigned long priv)
 				 * through to the SENDING_STOP command and
 				 * everything will be peachy keen.
 				 */
+<<<<<<< HEAD
 				if (!test_bit(EVENT_CMD_COMPLETE,
 					      &host->pending_events)) {
 					host->cmd = NULL;
 					dw_mci_request_end(host, mrq);
+=======
+				if (!test_bit(EVENT_CMD_COMPLETE, &host->pending_events)) {
+					host->cmd = NULL;
+
+					if (host->sw_timeout_chk != true)
+						dw_mci_request_end(host, mrq);
+>>>>>>> upstream/android-13
 					goto unlock;
 				}
 			}
@@ -2165,6 +3626,10 @@ static void dw_mci_tasklet_func(unsigned long priv)
 			 * stop-abort command has been already issued.
 			 */
 			prev_state = state = STATE_SENDING_STOP;
+<<<<<<< HEAD
+=======
+			dw_mci_debug_req_log(host, host->mrq, STATE_REQ_DATA_PROCESS, state);
+>>>>>>> upstream/android-13
 
 			/* fall through */
 
@@ -2173,8 +3638,17 @@ static void dw_mci_tasklet_func(unsigned long priv)
 				break;
 
 			/* CMD error in data command */
+<<<<<<< HEAD
 			if (mrq->cmd->error && mrq->data)
 				dw_mci_reset(host);
+=======
+			if (mrq->cmd->error && mrq->data) {
+				dw_mci_stop_dma(host);
+				sg_miter_stop(&host->sg_miter);
+				host->sg = NULL;
+				dw_mci_fifo_reset(host->dev, host);
+			}
+>>>>>>> upstream/android-13
 
 			host->cmd = NULL;
 			host->data = NULL;
@@ -2184,6 +3658,7 @@ static void dw_mci_tasklet_func(unsigned long priv)
 			else
 				host->cmd_status = 0;
 
+<<<<<<< HEAD
 			dw_mci_request_end(host, mrq);
 			goto unlock;
 
@@ -2193,6 +3668,24 @@ static void dw_mci_tasklet_func(unsigned long priv)
 				break;
 
 			state = STATE_DATA_BUSY;
+=======
+			if (host->sw_timeout_chk != true)
+				dw_mci_request_end(host, mrq);
+			goto unlock;
+
+		case STATE_DATA_ERROR:
+			if (!test_and_clear_bit(EVENT_XFER_COMPLETE, &host->pending_events))
+				break;
+
+			set_bit(EVENT_XFER_COMPLETE, &host->completed_events);
+			set_bit(EVENT_CMD_COMPLETE, &host->pending_events);
+			dw_mci_debug_req_log(host, host->mrq, STATE_REQ_CMD_COMPLETE_TASKLET, state);
+			set_bit(EVENT_DATA_COMPLETE, &host->pending_events);
+
+			state = STATE_DATA_BUSY;
+			dw_mci_debug_req_log(host, host->mrq, STATE_REQ_DATA_PROCESS, state);
+
+>>>>>>> upstream/android-13
 			break;
 		}
 	} while (state != prev_state);
@@ -2224,8 +3717,12 @@ static int dw_mci_pull_part_bytes(struct dw_mci *host, void *buf, int cnt)
 {
 	cnt = min_t(int, cnt, host->part_buf_count);
 	if (cnt) {
+<<<<<<< HEAD
 		memcpy(buf, (void *)&host->part_buf + host->part_buf_start,
 		       cnt);
+=======
+		memcpy(buf, (void *)&host->part_buf + host->part_buf_start, cnt);
+>>>>>>> upstream/android-13
 		host->part_buf_count -= cnt;
 		host->part_buf_start += cnt;
 	}
@@ -2283,9 +3780,14 @@ static void dw_mci_push_data16(struct dw_mci *host, void *buf, int cnt)
 	/* put anything remaining in the part_buf */
 	if (cnt) {
 		dw_mci_set_part_bytes(host, buf, cnt);
+<<<<<<< HEAD
 		 /* Push data if we have reached the expected data length */
 		if ((data->bytes_xfered + init_cnt) ==
 		    (data->blksz * data->blocks))
+=======
+		/* Push data if we have reached the expected data length */
+		if ((data->bytes_xfered + init_cnt) == (data->blksz * data->blocks))
+>>>>>>> upstream/android-13
 			mci_fifo_writew(host->fifo_reg, host->part_buf16);
 	}
 }
@@ -2366,9 +3868,14 @@ static void dw_mci_push_data32(struct dw_mci *host, void *buf, int cnt)
 	/* put anything remaining in the part_buf */
 	if (cnt) {
 		dw_mci_set_part_bytes(host, buf, cnt);
+<<<<<<< HEAD
 		 /* Push data if we have reached the expected data length */
 		if ((data->bytes_xfered + init_cnt) ==
 		    (data->blksz * data->blocks))
+=======
+		/* Push data if we have reached the expected data length */
+		if ((data->bytes_xfered + init_cnt) == (data->blksz * data->blocks))
+>>>>>>> upstream/android-13
 			mci_fifo_writel(host->fifo_reg, host->part_buf32);
 	}
 }
@@ -2451,8 +3958,12 @@ static void dw_mci_push_data64(struct dw_mci *host, void *buf, int cnt)
 	if (cnt) {
 		dw_mci_set_part_bytes(host, buf, cnt);
 		/* Push data if we have reached the expected data length */
+<<<<<<< HEAD
 		if ((data->bytes_xfered + init_cnt) ==
 		    (data->blksz * data->blocks))
+=======
+		if ((data->bytes_xfered + init_cnt) == (data->blksz * data->blocks))
+>>>>>>> upstream/android-13
 			mci_fifo_writeq(host->fifo_reg, host->part_buf);
 	}
 }
@@ -2542,8 +4053,12 @@ static void dw_mci_read_data_pio(struct dw_mci *host, bool dto)
 		status = mci_readl(host, MINTSTS);
 		mci_writel(host, RINTSTS, SDMMC_INT_RXDR);
 	/* if the RXDR is ready read again */
+<<<<<<< HEAD
 	} while ((status & SDMMC_INT_RXDR) ||
 		 (dto && SDMMC_GET_FCNT(mci_readl(host, STATUS))));
+=======
+	} while ((status & SDMMC_INT_RXDR) || (dto && SDMMC_GET_FCNT(mci_readl(host, STATUS))));
+>>>>>>> upstream/android-13
 
 	if (!remain) {
 		if (!sg_miter_next(sg_miter))
@@ -2582,9 +4097,14 @@ static void dw_mci_write_data_pio(struct dw_mci *host)
 		offset = 0;
 
 		do {
+<<<<<<< HEAD
 			fcnt = ((fifo_depth -
 				 SDMMC_GET_FCNT(mci_readl(host, STATUS)))
 					<< shift) - host->part_buf_count;
+=======
+			fcnt = ((fifo_depth - SDMMC_GET_FCNT(mci_readl(host, STATUS)))
+				<< shift) - host->part_buf_count;
+>>>>>>> upstream/android-13
 			len = min(remain, fcnt);
 			if (!len)
 				break;
@@ -2624,22 +4144,37 @@ static void dw_mci_cmd_interrupt(struct dw_mci *host, u32 status)
 	smp_wmb(); /* drain writebuffer */
 
 	set_bit(EVENT_CMD_COMPLETE, &host->pending_events);
+<<<<<<< HEAD
 	tasklet_schedule(&host->tasklet);
 }
 
+=======
+	dw_mci_debug_req_log(host, host->mrq, STATE_REQ_CMD_COMPLETE_ISR, host->state);
+	tasklet_schedule(&host->tasklet);
+}
+
+#if 0
+>>>>>>> upstream/android-13
 static void dw_mci_handle_cd(struct dw_mci *host)
 {
 	struct dw_mci_slot *slot = host->slot;
 
 	if (slot->mmc->ops->card_event)
 		slot->mmc->ops->card_event(slot->mmc);
+<<<<<<< HEAD
 	mmc_detect_change(slot->mmc,
 		msecs_to_jiffies(host->pdata->detect_delay_ms));
 }
+=======
+	mmc_detect_change(slot->mmc, msecs_to_jiffies(host->pdata->detect_delay_ms));
+}
+#endif
+>>>>>>> upstream/android-13
 
 static irqreturn_t dw_mci_interrupt(int irq, void *dev_id)
 {
 	struct dw_mci *host = dev_id;
+<<<<<<< HEAD
 	u32 pending;
 	struct dw_mci_slot *slot = host->slot;
 	unsigned long irqflags;
@@ -2650,6 +4185,27 @@ static irqreturn_t dw_mci_interrupt(int irq, void *dev_id)
 		/* Check volt switch first, since it can look like an error */
 		if ((host->state == STATE_SENDING_CMD11) &&
 		    (pending & SDMMC_INT_VOLT_SWITCH)) {
+=======
+	u32 status, pending;
+	struct dw_mci_slot *slot = host->slot;
+	unsigned long irqflags;
+
+	status = mci_readl(host, RINTSTS);
+	pending = mci_readl(host, MINTSTS); /* read-only mask reg */
+
+	if (pending) {
+		if (pending & SDMMC_INT_HLE) {
+			dev_err(host->dev, "hardware locked write error\n");
+			host->drv_data->dump_reg(host);
+			mci_writel(host, RINTSTS, SDMMC_INT_HLE);
+			dw_mci_debug_cmd_log(host->cmd, host, false, DW_MCI_FLAG_ERROR, status);
+			host->cmd_status = pending;
+			tasklet_schedule(&host->tasklet);
+		}
+
+		/* Check volt switch first, since it can look like an error */
+		if ((host->state == STATE_SENDING_CMD11) && (pending & SDMMC_INT_VOLT_SWITCH)) {
+>>>>>>> upstream/android-13
 			mci_writel(host, RINTSTS, SDMMC_INT_VOLT_SWITCH);
 			pending &= ~SDMMC_INT_VOLT_SWITCH;
 
@@ -2670,15 +4226,36 @@ static irqreturn_t dw_mci_interrupt(int irq, void *dev_id)
 			del_timer(&host->cto_timer);
 			mci_writel(host, RINTSTS, DW_MCI_CMD_ERROR_FLAGS);
 			host->cmd_status = pending;
+<<<<<<< HEAD
 			smp_wmb(); /* drain writebuffer */
 			set_bit(EVENT_CMD_COMPLETE, &host->pending_events);
+=======
+			dw_mci_debug_cmd_log(host->cmd, host, false, DW_MCI_FLAG_ERROR, status);
+
+			smp_wmb();	/* drain writebuffer */
+			set_bit(EVENT_CMD_COMPLETE, &host->pending_events);
+			dw_mci_debug_req_log(host, host->mrq, STATE_REQ_CMD_COMPLETE_ISR, host->state);
+>>>>>>> upstream/android-13
 
 			spin_unlock_irqrestore(&host->irq_lock, irqflags);
 		}
 
 		if (pending & DW_MCI_DATA_ERROR_FLAGS) {
+<<<<<<< HEAD
 			/* if there is an error report DATA_ERROR */
 			mci_writel(host, RINTSTS, DW_MCI_DATA_ERROR_FLAGS);
+=======
+			if (mci_readl(host, RINTSTS) & SDMMC_INT_HTO) {
+				host->drv_data->dump_reg(host);
+				mci_writel(host, RINTSTS, DW_MCI_DATA_ERROR_FLAGS | SDMMC_INT_HTO);
+#if !IS_ENABLED(CONFIG_SAMSUNG_PRODUCT_SHIP)
+				dbg_snapshot_expire_watchdog();
+#endif
+			} else
+				/* if there is an error report DATA_ERROR */
+				mci_writel(host, RINTSTS, DW_MCI_DATA_ERROR_FLAGS);
+			dw_mci_debug_cmd_log(host->cmd, host, false, DW_MCI_FLAG_ERROR, status);
+>>>>>>> upstream/android-13
 			host->data_status = pending;
 			smp_wmb(); /* drain writebuffer */
 			set_bit(EVENT_DATA_ERROR, &host->pending_events);
@@ -2688,9 +4265,17 @@ static irqreturn_t dw_mci_interrupt(int irq, void *dev_id)
 		if (pending & SDMMC_INT_DATA_OVER) {
 			spin_lock_irqsave(&host->irq_lock, irqflags);
 
+<<<<<<< HEAD
 			del_timer(&host->dto_timer);
 
 			mci_writel(host, RINTSTS, SDMMC_INT_DATA_OVER);
+=======
+			if (host->pdata->sw_drto)
+				del_timer(&host->dto_timer);
+
+			mci_writel(host, RINTSTS, SDMMC_INT_DATA_OVER);
+			dw_mci_debug_cmd_log(host->cmd, host, false, DW_MCI_FLAG_DTO, 0);
+>>>>>>> upstream/android-13
 			if (!host->data_status)
 				host->data_status = pending;
 			smp_wmb(); /* drain writebuffer */
@@ -2720,6 +4305,10 @@ static irqreturn_t dw_mci_interrupt(int irq, void *dev_id)
 			spin_lock_irqsave(&host->irq_lock, irqflags);
 
 			mci_writel(host, RINTSTS, SDMMC_INT_CMD_DONE);
+<<<<<<< HEAD
+=======
+			dw_mci_debug_cmd_log(host->cmd, host, false, DW_MCI_FLAG_CD, 0);
+>>>>>>> upstream/android-13
 			dw_mci_cmd_interrupt(host, pending);
 
 			spin_unlock_irqrestore(&host->irq_lock, irqflags);
@@ -2727,12 +4316,24 @@ static irqreturn_t dw_mci_interrupt(int irq, void *dev_id)
 
 		if (pending & SDMMC_INT_CD) {
 			mci_writel(host, RINTSTS, SDMMC_INT_CD);
+<<<<<<< HEAD
 			dw_mci_handle_cd(host);
 		}
 
 		if (pending & SDMMC_INT_SDIO(slot->sdio_id)) {
 			mci_writel(host, RINTSTS,
 				   SDMMC_INT_SDIO(slot->sdio_id));
+=======
+#if 0
+			dw_mci_handle_cd(host);
+#else
+			queue_work(host->card_workqueue, &host->card_work);
+#endif
+		}
+
+		if (pending & SDMMC_INT_SDIO(slot->sdio_id)) {
+			mci_writel(host, RINTSTS, SDMMC_INT_SDIO(slot->sdio_id));
+>>>>>>> upstream/android-13
 			__dw_mci_enable_sdio_irq(slot, 0);
 			sdio_signal_irq(slot->mmc);
 		}
@@ -2746,8 +4347,12 @@ static irqreturn_t dw_mci_interrupt(int irq, void *dev_id)
 	if (host->dma_64bit_address == 1) {
 		pending = mci_readl(host, IDSTS64);
 		if (pending & (SDMMC_IDMAC_INT_TI | SDMMC_IDMAC_INT_RI)) {
+<<<<<<< HEAD
 			mci_writel(host, IDSTS64, SDMMC_IDMAC_INT_TI |
 							SDMMC_IDMAC_INT_RI);
+=======
+			mci_writel(host, IDSTS64, SDMMC_IDMAC_INT_TI | SDMMC_IDMAC_INT_RI);
+>>>>>>> upstream/android-13
 			mci_writel(host, IDSTS64, SDMMC_IDMAC_INT_NI);
 			if (!test_bit(EVENT_DATA_ERROR, &host->pending_events))
 				host->dma_ops->complete((void *)host);
@@ -2755,8 +4360,12 @@ static irqreturn_t dw_mci_interrupt(int irq, void *dev_id)
 	} else {
 		pending = mci_readl(host, IDSTS);
 		if (pending & (SDMMC_IDMAC_INT_TI | SDMMC_IDMAC_INT_RI)) {
+<<<<<<< HEAD
 			mci_writel(host, IDSTS, SDMMC_IDMAC_INT_TI |
 							SDMMC_IDMAC_INT_RI);
+=======
+			mci_writel(host, IDSTS, SDMMC_IDMAC_INT_TI | SDMMC_IDMAC_INT_RI);
+>>>>>>> upstream/android-13
 			mci_writel(host, IDSTS, SDMMC_IDMAC_INT_NI);
 			if (!test_bit(EVENT_DATA_ERROR, &host->pending_events))
 				host->dma_ops->complete((void *)host);
@@ -2766,6 +4375,93 @@ static irqreturn_t dw_mci_interrupt(int irq, void *dev_id)
 	return IRQ_HANDLED;
 }
 
+<<<<<<< HEAD
+=======
+static void dw_mci_timeout_timer(struct timer_list *t)
+{
+	struct dw_mci *host = from_timer(host, t, sto_timer);
+	struct mmc_request *mrq;
+	unsigned int int_mask;
+
+	if (host && host->mrq) {
+		host->sw_timeout_chk = true;
+		mrq = host->mrq;
+
+		if (!(mrq->cmd->opcode == MMC_SEND_TUNING_BLOCK ||
+		      mrq->cmd->opcode == MMC_SEND_TUNING_BLOCK_HS200)) {
+			dev_err(host->dev,
+				"Timeout waiting for hardware interrupt."
+				" state = %d\n", host->state);
+			host->drv_data->dump_reg(host);
+		}
+		spin_lock(&host->lock);
+
+		host->sg = NULL;
+		host->data = NULL;
+		host->cmd = NULL;
+
+		switch (host->state) {
+		case STATE_IDLE:
+		case STATE_WAITING_CMD11_DONE:
+			break;
+		case STATE_SENDING_CMD11:
+		case STATE_SENDING_CMD:
+			mrq->cmd->error = -ENOMEDIUM;
+			if (!mrq->data)
+				break;
+			/* fall through */
+		case STATE_SENDING_DATA:
+			mrq->data->error = -ENOMEDIUM;
+			dw_mci_stop_dma(host);
+			break;
+		case STATE_DATA_BUSY:
+		case STATE_DATA_ERROR:
+			if (mrq->data->error == -EINPROGRESS)
+				mrq->data->error = -ENOMEDIUM;
+			/* fall through */
+		case STATE_SENDING_STOP:
+			if (mrq->stop)
+				mrq->stop->error = -ENOMEDIUM;
+			break;
+		}
+
+		spin_unlock(&host->lock);
+
+		dw_mci_ciu_reset(host->dev, host);
+		dw_mci_fifo_reset(host->dev, host);
+		int_mask = mci_readl(host, INTMASK);
+		if (~int_mask & (SDMMC_INT_CMD_DONE | SDMMC_INT_DATA_OVER | DW_MCI_ERROR_FLAGS)) {
+			if (host->use_dma)
+				int_mask |= (SDMMC_INT_CMD_DONE | SDMMC_INT_DATA_OVER |
+						DW_MCI_ERROR_FLAGS);
+			else
+				int_mask |= (SDMMC_INT_CMD_DONE | SDMMC_INT_DATA_OVER |
+						SDMMC_INT_TXDR | SDMMC_INT_RXDR |
+						DW_MCI_ERROR_FLAGS);
+			mci_writel(host, INTMASK, int_mask);
+		}
+
+		spin_lock(&host->lock);
+		dw_mci_request_end(host, mrq);
+		host->state = STATE_IDLE;
+		spin_unlock(&host->lock);
+		host->sw_timeout_chk = false;
+	}
+}
+
+static irqreturn_t dw_mci_detect_interrupt(int irq, void *dev_id)
+{
+	struct dw_mci *host = dev_id;
+	const struct dw_mci_drv_data *drv_data = host->drv_data;
+
+	if (drv_data->detect_interrupt)
+		drv_data->detect_interrupt(host);
+
+	queue_work(host->card_workqueue, &host->card_work);
+
+	return IRQ_HANDLED;
+}
+>>>>>>> upstream/android-13
 static int dw_mci_init_slot_caps(struct dw_mci_slot *slot)
 {
 	struct dw_mci *host = slot->host;
@@ -2774,6 +4470,7 @@ static int dw_mci_init_slot_caps(struct dw_mci_slot *slot)
 	int ctrl_id;
 
 	if (host->pdata->caps)
+<<<<<<< HEAD
 		mmc->caps = host->pdata->caps;
 
 	/*
@@ -2784,6 +4481,12 @@ static int dw_mci_init_slot_caps(struct dw_mci_slot *slot)
 
 	if (host->pdata->pm_caps)
 		mmc->pm_caps = host->pdata->pm_caps;
+=======
+		mmc->caps |= host->pdata->caps;
+
+	if (host->pdata->pm_caps)
+		mmc->pm_caps |= host->pdata->pm_caps;
+>>>>>>> upstream/android-13
 
 	if (host->dev->of_node) {
 		ctrl_id = of_alias_get_id(host->dev->of_node, "mshc");
@@ -2792,6 +4495,7 @@ static int dw_mci_init_slot_caps(struct dw_mci_slot *slot)
 	} else {
 		ctrl_id = to_platform_device(host->dev)->id;
 	}
+<<<<<<< HEAD
 
 	if (drv_data && drv_data->caps) {
 		if (ctrl_id >= drv_data->num_caps) {
@@ -2804,6 +4508,15 @@ static int dw_mci_init_slot_caps(struct dw_mci_slot *slot)
 
 	if (host->pdata->caps2)
 		mmc->caps2 = host->pdata->caps2;
+=======
+	host->ch_id = ctrl_id;
+
+	if (drv_data && drv_data->caps)
+		mmc->caps |= drv_data->caps[ctrl_id];
+
+	if (host->pdata->caps2)
+		mmc->caps2 |= host->pdata->caps2;
+>>>>>>> upstream/android-13
 
 	mmc->f_min = DW_MCI_FREQ_MIN;
 	if (!mmc->f_max)
@@ -2820,26 +4533,51 @@ static int dw_mci_init_slot(struct dw_mci *host)
 {
 	struct mmc_host *mmc;
 	struct dw_mci_slot *slot;
+<<<<<<< HEAD
+=======
+	struct dw_mci_sfr_ram_dump *dump;
+>>>>>>> upstream/android-13
 	int ret;
 
 	mmc = mmc_alloc_host(sizeof(struct dw_mci_slot), host->dev);
 	if (!mmc)
 		return -ENOMEM;
+<<<<<<< HEAD
 
+=======
+	dump = devm_kzalloc(host->dev, sizeof(*dump), GFP_KERNEL);
+	if (!dump) {
+		dev_err(host->dev, "sfr dump memory alloc faile!\n");
+		return -ENOMEM;
+	}
+	host->sfr_dump = dump;
+>>>>>>> upstream/android-13
 	slot = mmc_priv(mmc);
 	slot->id = 0;
 	slot->sdio_id = host->sdio_id0 + slot->id;
 	slot->mmc = mmc;
 	slot->host = host;
 	host->slot = slot;
+<<<<<<< HEAD
+=======
+	mmc->trigger_card_event = true;
+>>>>>>> upstream/android-13
 
 	mmc->ops = &dw_mci_ops;
 
 	/*if there are external regulators, get them*/
+<<<<<<< HEAD
 	ret = mmc_regulator_get_supply(mmc);
 	if (ret)
 		goto err_host_allocated;
 
+=======
+	if (!(host->quirks & DW_MMC_QUIRK_FIXED_VOLTAGE)) {
+	ret = mmc_regulator_get_supply(mmc);
+	if (ret)
+		goto err_host_allocated;
+	}
+>>>>>>> upstream/android-13
 	if (!mmc->ocr_avail)
 		mmc->ocr_avail = MMC_VDD_32_33 | MMC_VDD_33_34;
 
@@ -2862,16 +4600,24 @@ static int dw_mci_init_slot(struct dw_mci *host)
 		mmc->max_segs = 64;
 		mmc->max_blk_size = 65535;
 		mmc->max_blk_count = 65535;
+<<<<<<< HEAD
 		mmc->max_req_size =
 				mmc->max_blk_size * mmc->max_blk_count;
+=======
+		mmc->max_req_size = mmc->max_blk_size * mmc->max_blk_count;
+>>>>>>> upstream/android-13
 		mmc->max_seg_size = mmc->max_req_size;
 	} else {
 		/* TRANS_MODE_PIO */
 		mmc->max_segs = 64;
 		mmc->max_blk_size = 65535; /* BLKSIZ is 16 bits */
 		mmc->max_blk_count = 512;
+<<<<<<< HEAD
 		mmc->max_req_size = mmc->max_blk_size *
 				    mmc->max_blk_count;
+=======
+		mmc->max_req_size = mmc->max_blk_size * mmc->max_blk_count;
+>>>>>>> upstream/android-13
 		mmc->max_seg_size = mmc->max_req_size;
 	}
 
@@ -2884,6 +4630,14 @@ static int dw_mci_init_slot(struct dw_mci *host)
 #if defined(CONFIG_DEBUG_FS)
 	dw_mci_init_debugfs(slot);
 #endif
+<<<<<<< HEAD
+=======
+	/* For argos */
+	dw_mci_transferred_cnt_init(host, mmc);
+
+	/* Card initially undetected */
+	slot->last_detect_state = 0;
+>>>>>>> upstream/android-13
 
 	return 0;
 
@@ -2919,8 +4673,12 @@ static void dw_mci_init_dma(struct dw_mci *host)
 	host->use_dma = SDMMC_GET_TRANS_MODE(mci_readl(host, HCON));
 	if (host->use_dma == DMA_INTERFACE_IDMA) {
 		host->use_dma = TRANS_MODE_IDMAC;
+<<<<<<< HEAD
 	} else if (host->use_dma == DMA_INTERFACE_DWDMA ||
 		   host->use_dma == DMA_INTERFACE_GDMA) {
+=======
+	} else if (host->use_dma == DMA_INTERFACE_DWDMA || host->use_dma == DMA_INTERFACE_GDMA) {
+>>>>>>> upstream/android-13
 		host->use_dma = TRANS_MODE_EDMAC;
 	} else {
 		goto no_dma;
@@ -2937,6 +4695,7 @@ static void dw_mci_init_dma(struct dw_mci *host)
 		if (addr_config == 1) {
 			/* host supports IDMAC in 64-bit address mode */
 			host->dma_64bit_address = 1;
+<<<<<<< HEAD
 			dev_info(host->dev,
 				 "IDMAC supports 64-bit address mode.\n");
 			if (!dma_set_mask(host->dev, DMA_BIT_MASK(64)))
@@ -2957,6 +4716,30 @@ static void dw_mci_init_dma(struct dw_mci *host)
 			dev_err(host->dev,
 				"%s: could not alloc DMA memory\n",
 				__func__);
+=======
+			dev_info(host->dev, "IDMAC supports 64-bit address mode.\n");
+			if (!dma_set_mask(host->dev, DMA_BIT_MASK(64)))
+				dma_set_coherent_mask(host->dev, DMA_BIT_MASK(64));
+		} else {
+			/* host supports IDMAC in 32-bit address mode */
+			host->dma_64bit_address = 0;
+			dev_info(host->dev, "IDMAC supports 32-bit address mode.\n");
+		}
+
+		if (host->pdata->desc_sz)
+			host->desc_sz = host->pdata->desc_sz;
+		else
+			host->desc_sz = 1;
+
+		/* Alloc memory for sg translation */
+		host->sg_cpu = dmam_alloc_coherent(host->dev,
+						   host->desc_sz * PAGE_SIZE *
+						   MMC_DW_IDMAC_MULTIPLIER, &host->sg_dma,
+						   GFP_KERNEL);
+
+		if (!host->sg_cpu) {
+			dev_err(host->dev, "%s: could not alloc DMA memory\n", __func__);
+>>>>>>> upstream/android-13
 			goto no_dma;
 		}
 
@@ -2976,8 +4759,12 @@ static void dw_mci_init_dma(struct dw_mci *host)
 	if (host->dma_ops->init && host->dma_ops->start &&
 	    host->dma_ops->stop && host->dma_ops->cleanup) {
 		if (host->dma_ops->init(host)) {
+<<<<<<< HEAD
 			dev_err(host->dev, "%s: Unable to initialize DMA Controller.\n",
 				__func__);
+=======
+			dev_err(host->dev, "%s: Unable to initialize DMA Controller.\n", __func__);
+>>>>>>> upstream/android-13
 			goto no_dma;
 		}
 	} else {
@@ -2992,6 +4779,64 @@ no_dma:
 	host->use_dma = TRANS_MODE_PIO;
 }
 
+<<<<<<< HEAD
+=======
+void dw_mci_ciu_reset(struct device *dev, struct dw_mci *host)
+{
+	struct dw_mci_slot *slot = host->slot;
+	int retry = 10;
+	u32 status;
+	if (slot) {
+		dw_mci_ctrl_reset(host, SDMMC_CTRL_RESET);
+		/* Check For DATA busy */
+		do {
+			if (!readl_poll_timeout_atomic(host->regs + SDMMC_STATUS, status,
+						       !(status & SDMMC_STATUS_BUSY),
+						       1, 10 * USEC_PER_MSEC)) {
+				goto out;
+			}
+			dw_mci_ctrl_reset(host, SDMMC_CTRL_RESET);
+		} while (--retry);
+ out:
+
+		/* After a CTRL reset we need to have CIU set clock registers  */
+		dw_mci_update_clock(slot);
+	}
+}
+
+bool dw_mci_fifo_reset(struct device *dev, struct dw_mci *host)
+{
+	unsigned int ctrl, loop_count = 3;
+	bool result;
+
+	do {
+		result = dw_mci_ctrl_reset(host, SDMMC_CTRL_FIFO_RESET);
+		if (!result)
+			break;
+
+		ctrl = mci_readl(host, STATUS);
+		if (!(ctrl & SDMMC_STATUS_DMA_REQ)) {
+			result = dw_mci_ctrl_reset(host, SDMMC_CTRL_FIFO_RESET);
+			if (result) {
+				/* clear exception raw interrupts can not be handled
+				   ex) fifo full => RXDR interrupt rising */
+				ctrl = mci_readl(host, RINTSTS);
+				ctrl = ctrl & ~(mci_readl(host, MINTSTS));
+				if (ctrl)
+					mci_writel(host, RINTSTS, ctrl);
+
+				return true;
+			}
+		}
+	} while (loop_count--);
+
+	dev_err(dev, "%s: Timeout while resetting host controller after err\n", __func__);
+
+	return false;
+}
+
+
+>>>>>>> upstream/android-13
 static void dw_mci_cmd11_timer(struct timer_list *t)
 {
 	struct dw_mci *host = from_timer(host, t, cmd11_timer);
@@ -3003,6 +4848,10 @@ static void dw_mci_cmd11_timer(struct timer_list *t)
 
 	host->cmd_status = SDMMC_INT_RTO;
 	set_bit(EVENT_CMD_COMPLETE, &host->pending_events);
+<<<<<<< HEAD
+=======
+	dw_mci_debug_req_log(host, host->mrq, STATE_REQ_CMD_COMPLETE_CMD11, host->state);
+>>>>>>> upstream/android-13
 	tasklet_schedule(&host->tasklet);
 }
 
@@ -3049,11 +4898,19 @@ static void dw_mci_cto_timer(struct timer_list *t)
 		 */
 		host->cmd_status = SDMMC_INT_RTO;
 		set_bit(EVENT_CMD_COMPLETE, &host->pending_events);
+<<<<<<< HEAD
 		tasklet_schedule(&host->tasklet);
 		break;
 	default:
 		dev_warn(host->dev, "Unexpected command timeout, state %d\n",
 			 host->state);
+=======
+		dw_mci_debug_req_log(host, host->mrq, STATE_REQ_CMD_COMPLETE_CTO, host->state);
+		tasklet_schedule(&host->tasklet);
+		break;
+	default:
+		dev_warn(host->dev, "Unexpected command timeout, state %d\n", host->state);
+>>>>>>> upstream/android-13
 		break;
 	}
 
@@ -3112,11 +4969,108 @@ exit:
 	spin_unlock_irqrestore(&host->irq_lock, irqflags);
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_OF
+=======
+static void dw_mci_work_routine_card(struct work_struct *work)
+{
+	struct dw_mci *host = container_of(work, struct dw_mci, card_work);
+	struct dw_mci_slot *slot = host->slot;
+	struct mmc_host *mmc = slot->mmc;
+	struct mmc_request *mrq;
+	int present;
+
+	present = dw_mci_get_cd(mmc);
+	while (present != slot->last_detect_state) {
+		dev_info(&slot->mmc->class_dev, "card %s\n", present ? "inserted" : "removed");
+
+		spin_lock_bh(&host->lock);
+
+		/* Card change detected */
+		slot->last_detect_state = present;
+
+		/* Clean up queue if present */
+		mrq = slot->mrq;
+		if (mrq) {
+			if (mrq == host->mrq) {
+				host->data = NULL;
+				host->cmd = NULL;
+
+				switch (host->state) {
+				case STATE_IDLE:
+				case STATE_WAITING_CMD11_DONE:
+					break;
+				case STATE_SENDING_CMD11:
+				case STATE_SENDING_CMD:
+					mrq->cmd->error = -ENOMEDIUM;
+					if (!mrq->data)
+						break;
+					/* fall through */
+				case STATE_SENDING_DATA:
+					mrq->data->error = -ENOMEDIUM;
+					dw_mci_stop_dma(host);
+					break;
+				case STATE_DATA_BUSY:
+				case STATE_DATA_ERROR:
+					if (mrq->data->error == -EINPROGRESS)
+						mrq->data->error = -ENOMEDIUM;
+					/* fall through */
+				case STATE_SENDING_STOP:
+					if (mrq->stop)
+						mrq->stop->error = -ENOMEDIUM;
+					break;
+				}
+
+				dw_mci_request_end(host, mrq);
+			} else {
+				list_del(&slot->queue_node);
+				mrq->cmd->error = -ENOMEDIUM;
+				if (mrq->data)
+					mrq->data->error = -ENOMEDIUM;
+				if (mrq->stop)
+					mrq->stop->error = -ENOMEDIUM;
+
+				spin_unlock(&host->lock);
+				mmc_request_done(slot->mmc, mrq);
+				spin_lock(&host->lock);
+			}
+		}
+
+		/* Power down slot */
+		if (present == 0) {
+			dw_mci_reset(host);
+
+			if (host->pdata->only_once_tune)
+				host->pdata->tuned = false;
+		}
+		spin_unlock_bh(&host->lock);
+	}
+#ifdef CONFIG_SEC_FACTORY
+	if (present)
+		mmc_detect_change(slot->mmc, msecs_to_jiffies(50));
+	else
+		mmc_detect_change(slot->mmc, 0);
+#else
+	mmc_detect_change(slot->mmc, msecs_to_jiffies(host->pdata->detect_delay_ms));
+#endif
+}
+
+#ifdef CONFIG_OF
+static struct dw_mci_of_quirks {
+	char *quirk;
+	int id;
+} of_quirks[] = {
+	{
+	.quirk = "fixed_voltage",.id = DW_MMC_QUIRK_FIXED_VOLTAGE,}, {
+	.quirk = "card-init-hwacg-ctrl",.id = DW_MCI_QUIRK_HWACG_CTRL,}, {
+.quirk = "enable-ulp-mode",.id = DW_MCI_QUIRK_ENABLE_ULP,},};
+
+>>>>>>> upstream/android-13
 static struct dw_mci_board *dw_mci_parse_dt(struct dw_mci *host)
 {
 	struct dw_mci_board *pdata;
 	struct device *dev = host->dev;
+<<<<<<< HEAD
 	const struct dw_mci_drv_data *drv_data = host->drv_data;
 	int ret;
 	u32 clock_frequency;
@@ -3124,6 +5078,18 @@ static struct dw_mci_board *dw_mci_parse_dt(struct dw_mci *host)
 	pdata = devm_kzalloc(dev, sizeof(*pdata), GFP_KERNEL);
 	if (!pdata)
 		return ERR_PTR(-ENOMEM);
+=======
+	struct device_node *np = dev->of_node;
+	const struct dw_mci_drv_data *drv_data = host->drv_data;
+	int idx, ret;
+	u32 clock_frequency;
+
+	pdata = devm_kzalloc(dev, sizeof(*pdata), GFP_KERNEL);
+	if (!pdata) {
+		dev_err(dev, "could not allocate memory for pdata\n");
+		return ERR_PTR(-ENOMEM);
+	}
+>>>>>>> upstream/android-13
 
 	/* find reset controller when exist */
 	pdata->rstc = devm_reset_control_get_optional_exclusive(dev, "reset");
@@ -3132,12 +5098,36 @@ static struct dw_mci_board *dw_mci_parse_dt(struct dw_mci *host)
 			return ERR_PTR(-EPROBE_DEFER);
 	}
 
+<<<<<<< HEAD
+=======
+	/* get quirks */
+	for (idx = 0; idx < ARRAY_SIZE(of_quirks); idx++)
+		if (of_get_property(np, of_quirks[idx].quirk, NULL))
+			pdata->quirks |= of_quirks[idx].id;
+>>>>>>> upstream/android-13
 	if (device_property_read_u32(dev, "fifo-depth", &pdata->fifo_depth))
 		dev_info(dev,
 			 "fifo-depth property not found, using value of FIFOTH register as default\n");
 
+<<<<<<< HEAD
 	device_property_read_u32(dev, "card-detect-delay",
 				 &pdata->detect_delay_ms);
+=======
+	device_property_read_u32(dev, "card-detect-delay", &pdata->detect_delay_ms);
+	if (of_property_read_u32(np, "qos-dvfs-level", &pdata->qos_dvfs_level))
+		host->qos_cntrl = false;
+	else
+		host->qos_cntrl = true;
+
+	if (!of_property_read_u32(np, "ssc-rate-mrr", &pdata->ssc_rate_mrr) &&
+		!of_property_read_u32(np, "ssc-rate-mfr", &pdata->ssc_rate_mfr)) {
+		pdata->quirks |= DW_MCI_QUIRK_USE_SSC;
+	}
+
+	of_property_read_u32(np, "data-timeout", &pdata->data_timeout);
+	of_property_read_u32(np, "hto-timeout", &pdata->hto_timeout);
+	of_property_read_u32(np, "desc-size", &pdata->desc_sz);
+>>>>>>> upstream/android-13
 
 	device_property_read_u32(dev, "data-addr", &host->data_addr_override);
 
@@ -3147,12 +5137,44 @@ static struct dw_mci_board *dw_mci_parse_dt(struct dw_mci *host)
 	if (!device_property_read_u32(dev, "clock-frequency", &clock_frequency))
 		pdata->bus_hz = clock_frequency;
 
+<<<<<<< HEAD
+=======
+	if (of_find_property(np, "only_once_tune", NULL))
+		pdata->only_once_tune = true;
+
+>>>>>>> upstream/android-13
 	if (drv_data && drv_data->parse_dt) {
 		ret = drv_data->parse_dt(host);
 		if (ret)
 			return ERR_PTR(ret);
 	}
 
+<<<<<<< HEAD
+=======
+	if (of_find_property(np, "clock-gate", NULL))
+		pdata->use_gate_clock = true;
+
+	if (of_find_property(np, "card-detect-invert", NULL))
+		pdata->use_gpio_invert = true;
+
+	/* caps */
+
+
+	if (of_find_property(np, "supports-cmd23", NULL))
+		pdata->caps |= MMC_CAP_CMD23;
+
+//	if (of_find_property(np, "pm-skip-mmc-resume-init", NULL))
+//		pdata->pm_caps |= MMC_PM_SKIP_MMC_RESUME_INIT;
+	if (of_find_property(np, "card-detect-invert-gpio", NULL))
+		pdata->caps2 |= MMC_CAP2_CD_ACTIVE_HIGH;
+	if (of_find_property(np, "card-detect-gpio", NULL)) {
+		pdata->cd_type = DW_MCI_CD_GPIO;
+		pdata->caps2 |= MMC_CAP2_NO_PRESCAN_POWERUP;
+	}
+	if (of_find_property(np, "broken-drto", NULL))
+		pdata->sw_drto = true;
+
+>>>>>>> upstream/android-13
 	return pdata;
 }
 
@@ -3188,7 +5210,11 @@ int dw_mci_probe(struct dw_mci *host)
 {
 	const struct dw_mci_drv_data *drv_data = host->drv_data;
 	int width, i, ret = 0;
+<<<<<<< HEAD
 	u32 fifo_size;
+=======
+	u32 fifo_size, msize, tx_wmark, rx_wmark;
+>>>>>>> upstream/android-13
 
 	if (!host->pdata) {
 		host->pdata = dw_mci_parse_dt(host);
@@ -3211,12 +5237,23 @@ int dw_mci_probe(struct dw_mci *host)
 		}
 	}
 
+<<<<<<< HEAD
+=======
+	host->ciu_gate = devm_clk_get(host->dev, "ciu_gate");
+	if (IS_ERR(host->ciu_gate))
+		dev_dbg(host->dev, "not used ciu gate clock or not available\n");
+
+>>>>>>> upstream/android-13
 	host->ciu_clk = devm_clk_get(host->dev, "ciu");
 	if (IS_ERR(host->ciu_clk)) {
 		dev_dbg(host->dev, "ciu clock not available\n");
 		host->bus_hz = host->pdata->bus_hz;
 	} else {
+<<<<<<< HEAD
 		ret = clk_prepare_enable(host->ciu_clk);
+=======
+		ret = dw_mci_ciu_clk_en(host);
+>>>>>>> upstream/android-13
 		if (ret) {
 			dev_err(host->dev, "failed to enable ciu clock\n");
 			goto err_clk_biu;
@@ -3226,15 +5263,23 @@ int dw_mci_probe(struct dw_mci *host)
 			ret = clk_set_rate(host->ciu_clk, host->pdata->bus_hz);
 			if (ret)
 				dev_warn(host->dev,
+<<<<<<< HEAD
 					 "Unable to set bus rate to %uHz\n",
 					 host->pdata->bus_hz);
+=======
+					 "Unable to set bus rate to %uHz\n", host->pdata->bus_hz);
+>>>>>>> upstream/android-13
 		}
 		host->bus_hz = clk_get_rate(host->ciu_clk);
 	}
 
 	if (!host->bus_hz) {
+<<<<<<< HEAD
 		dev_err(host->dev,
 			"Platform data must supply bus speed\n");
+=======
+		dev_err(host->dev, "Platform data must supply bus speed\n");
+>>>>>>> upstream/android-13
 		ret = -ENODEV;
 		goto err_clk_ciu;
 	}
@@ -3248,15 +5293,50 @@ int dw_mci_probe(struct dw_mci *host)
 	if (drv_data && drv_data->init) {
 		ret = drv_data->init(host);
 		if (ret) {
+<<<<<<< HEAD
 			dev_err(host->dev,
 				"implementation specific init failed\n");
+=======
+			dev_err(host->dev, "implementation specific init failed\n");
+>>>>>>> upstream/android-13
 			goto err_clk_ciu;
 		}
 	}
 
+<<<<<<< HEAD
 	timer_setup(&host->cmd11_timer, dw_mci_cmd11_timer, 0);
 	timer_setup(&host->cto_timer, dw_mci_cto_timer, 0);
 	timer_setup(&host->dto_timer, dw_mci_dto_timer, 0);
+=======
+	host->quirks = host->pdata->quirks;
+
+#ifdef CONFIG_CPU_IDLE
+	host->idle_ip_index = exynos_get_idle_ip_index(dev_name(host->dev), 1);
+	dw_mci_sicd_control(host, false);
+#endif
+	if (host->quirks & DW_MCI_QUIRK_HWACG_CTRL) {
+		if (drv_data && drv_data->hwacg_control)
+			drv_data->hwacg_control(host, HWACG_Q_ACTIVE_EN);
+	} else {
+		if (drv_data && drv_data->hwacg_control)
+			drv_data->hwacg_control(host, HWACG_Q_ACTIVE_DIS);
+	}
+
+	if (drv_data && drv_data->crypto_sec_cfg) {
+		ret = drv_data->crypto_sec_cfg(host, true);
+		if (ret)
+			dev_err(host->dev, "%s: Fail to initialize access control.(%d)\n",
+				__func__, ret);
+	}
+
+	timer_setup(&host->cmd11_timer, dw_mci_cmd11_timer, 0);
+	timer_setup(&host->cto_timer, dw_mci_cto_timer, 0);
+	if (host->pdata->sw_drto)
+		timer_setup(&host->dto_timer, dw_mci_dto_timer, 0);
+	timer_setup(&host->sto_timer, dw_mci_timeout_timer, 0);
+
+	host->sw_timeout_chk = false;
+>>>>>>> upstream/android-13
 
 	spin_lock_init(&host->lock);
 	spin_lock_init(&host->irq_lock);
@@ -3280,8 +5360,12 @@ int dw_mci_probe(struct dw_mci *host)
 	} else {
 		/* Check for a reserved value, and warn if it is */
 		WARN((i != 1),
+<<<<<<< HEAD
 		     "HCON reports a reserved host data width!\n"
 		     "Defaulting to 32-bit access.\n");
+=======
+		     "HCON reports a reserved host data width!\n" "Defaulting to 32-bit access.\n");
+>>>>>>> upstream/android-13
 		host->push_data = dw_mci_push_data32;
 		host->pull_data = dw_mci_pull_data32;
 		width = 32;
@@ -3321,9 +5405,50 @@ int dw_mci_probe(struct dw_mci *host)
 		fifo_size = host->pdata->fifo_depth;
 	}
 	host->fifo_depth = fifo_size;
+<<<<<<< HEAD
 	host->fifoth_val =
 		SDMMC_SET_FIFOTH(0x2, fifo_size / 2 - 1, fifo_size / 2);
 	mci_writel(host, FIFOTH, host->fifoth_val);
+=======
+
+	WARN_ON(fifo_size < 8);
+
+	/*
+	 *      HCON[9:7] -> H_DATA_WIDTH
+	 *      000 16 bits
+	 *      001 32 bits
+	 *      010 64 bits
+	 *
+	 *      FIFOTH[30:28] -> DW_DMA_Mutiple_Transaction_Size
+	 *      msize:
+	 *      000  1 transfers
+	 *      001  4
+	 *      010  8
+	 *      011  16
+	 *      100  32
+	 *      101  64
+	 *      110  128
+	 *      111  256
+	 *
+	 *      AHB Master can support 1/4/8/16 burst in DMA.
+	 *      So, Max support burst spec is 16 burst.
+	 *
+	 *      msize <= 011(16 burst)
+	 *      Transaction_Size = msize * H_DATA_WIDTH;
+	 *      rx_wmark = Transaction_Size - 1;
+	 *      tx_wmark = fifo_size - Transaction_Size;
+	 */
+	msize = host->data_shift;
+	msize &= 7;
+	rx_wmark = ((1 << (msize + 1)) - 1) & 0xfff;
+	tx_wmark = (fifo_size - (1 << (msize + 1))) & 0xfff;
+
+	host->fifoth_val = msize << SDMMC_FIFOTH_DMA_MULTI_TRANS_SIZE;
+	host->fifoth_val |= (rx_wmark << SDMMC_FIFOTH_RX_WMARK) | tx_wmark;
+
+	mci_writel(host, FIFOTH, host->fifoth_val);
+	dev_info(host->dev, "FIFOTH: 0x %08x", mci_readl(host, FIFOTH));
+>>>>>>> upstream/android-13
 
 	/* disable clock to CIU */
 	mci_writel(host, CLKENA, 0);
@@ -3344,18 +5469,51 @@ int dw_mci_probe(struct dw_mci *host)
 		host->fifo_reg = host->regs + DATA_240A_OFFSET;
 
 	tasklet_init(&host->tasklet, dw_mci_tasklet_func, (unsigned long)host);
+<<<<<<< HEAD
 	ret = devm_request_irq(host->dev, host->irq, dw_mci_interrupt,
 			       host->irq_flags, "dw-mci", host);
 	if (ret)
 		goto err_dmaunmap;
+=======
+
+	host->card_workqueue = alloc_workqueue("dw-mci-card", WQ_MEM_RECLAIM, 1);
+	if (!host->card_workqueue) {
+		ret = -ENOMEM;
+		goto err_dmaunmap;
+	}
+	INIT_WORK(&host->card_work, dw_mci_work_routine_card);
+
+	/* INT min lock */
+	pm_workqueue = create_freezable_workqueue("dw_mci_clk_ctrl");
+	if (!pm_workqueue)
+		return -ENOMEM;
+
+	INIT_DELAYED_WORK(&host->qos_work, dw_mci_qos_work);
+#if IS_ENABLED(CONFIG_EXYNOS_PM_QOS) || IS_ENABLED(CONFIG_EXYNOS_PM_QOS_MODULE)
+	exynos_pm_qos_add_request(&host->pm_qos_lock, PM_QOS_DEVICE_THROUGHPUT, 0);
+#endif
+
+	ret = devm_request_irq(host->dev, host->irq, dw_mci_interrupt,
+			       host->irq_flags, "dw-mci", host);
+
+	if (ret)
+		goto err_workqueue;
+
+	host->pdata->tuned = false;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Enable interrupts for command done, data over, data empty,
 	 * receive ready and error such as transmit, receive timeout, crc error
 	 */
 	mci_writel(host, INTMASK, SDMMC_INT_CMD_DONE | SDMMC_INT_DATA_OVER |
+<<<<<<< HEAD
 		   SDMMC_INT_TXDR | SDMMC_INT_RXDR |
 		   DW_MCI_ERROR_FLAGS);
+=======
+		   SDMMC_INT_TXDR | SDMMC_INT_RXDR | DW_MCI_ERROR_FLAGS |
+		   SDMMC_INT_VOLT_SWITCH);
+>>>>>>> upstream/android-13
 	/* Enable mci interrupt */
 	mci_writel(host, CTRL, SDMMC_CTRL_INT_ENABLE);
 
@@ -3370,11 +5528,38 @@ int dw_mci_probe(struct dw_mci *host)
 		goto err_dmaunmap;
 	}
 
+<<<<<<< HEAD
+=======
+	dw_mci_debug_init(host);
+
+	if (drv_data && drv_data->misc_control) {
+		if (host->pdata->cd_type == DW_MCI_CD_GPIO)
+			drv_data->misc_control(host, CTRL_REQUEST_EXT_IRQ, dw_mci_detect_interrupt);
+	}
+
+	if (host->pdata->cd_type == DW_MCI_CD_INTERNAL) {
+		/* Now that slots are all setup, we can enable card detect */
+		dw_mci_enable_cd(host);
+	}
+#ifdef CONFIG_CPU_IDLE
+	dw_mci_sicd_control(host, true);
+#endif
+>>>>>>> upstream/android-13
 	/* Now that slots are all setup, we can enable card detect */
 	dw_mci_enable_cd(host);
 
 	return 0;
 
+<<<<<<< HEAD
+=======
+ err_workqueue:
+	destroy_workqueue(host->card_workqueue);
+	destroy_workqueue(pm_workqueue);
+#if IS_ENABLED(CONFIG_EXYNOS_PM_QOS) || IS_ENABLED(CONFIG_EXYNOS_PM_QOS_MODULE)
+	exynos_pm_qos_remove_request(&host->pm_qos_lock);
+#endif
+
+>>>>>>> upstream/android-13
 err_dmaunmap:
 	if (host->use_dma && host->dma_ops->exit)
 		host->dma_ops->exit(host);
@@ -3383,11 +5568,24 @@ err_dmaunmap:
 		reset_control_assert(host->pdata->rstc);
 
 err_clk_ciu:
+<<<<<<< HEAD
 	clk_disable_unprepare(host->ciu_clk);
 
 err_clk_biu:
 	clk_disable_unprepare(host->biu_clk);
 
+=======
+	ret = dw_mci_ciu_clk_en(host);
+
+	if (ret)
+		dev_err(host->dev, "failed to enable ciu clock\n");
+err_clk_biu:
+	clk_disable_unprepare(host->biu_clk);
+
+#ifdef CONFIG_CPU_IDLE
+	dw_mci_sicd_control(host, true);
+#endif
+>>>>>>> upstream/android-13
 	return ret;
 }
 EXPORT_SYMBOL(dw_mci_probe);
@@ -3405,13 +5603,26 @@ void dw_mci_remove(struct dw_mci *host)
 	mci_writel(host, CLKENA, 0);
 	mci_writel(host, CLKSRC, 0);
 
+<<<<<<< HEAD
+=======
+	del_timer_sync(&host->sto_timer);
+	destroy_workqueue(host->card_workqueue);
+	destroy_workqueue(pm_workqueue);
+#if IS_ENABLED(CONFIG_EXYNOS_PM_QOS) || IS_ENABLED(CONFIG_EXYNOS_PM_QOS_MODULE)
+	exynos_pm_qos_remove_request(&host->pm_qos_lock);
+#endif
+>>>>>>> upstream/android-13
 	if (host->use_dma && host->dma_ops->exit)
 		host->dma_ops->exit(host);
 
 	if (!IS_ERR(host->pdata->rstc))
 		reset_control_assert(host->pdata->rstc);
 
+<<<<<<< HEAD
 	clk_disable_unprepare(host->ciu_clk);
+=======
+	dw_mci_ciu_clk_dis(host);
+>>>>>>> upstream/android-13
 	clk_disable_unprepare(host->biu_clk);
 }
 EXPORT_SYMBOL(dw_mci_remove);
@@ -3426,11 +5637,18 @@ int dw_mci_runtime_suspend(struct device *dev)
 	if (host->use_dma && host->dma_ops->exit)
 		host->dma_ops->exit(host);
 
+<<<<<<< HEAD
 	clk_disable_unprepare(host->ciu_clk);
 
 	if (host->slot &&
 	    (mmc_can_gpio_cd(host->slot->mmc) ||
 	     !mmc_card_is_removable(host->slot->mmc)))
+=======
+	dw_mci_ciu_clk_dis(host);
+
+	if (host->slot &&
+	    (mmc_can_gpio_cd(host->slot->mmc) || !mmc_card_is_removable(host->slot->mmc)))
+>>>>>>> upstream/android-13
 		clk_disable_unprepare(host->biu_clk);
 
 	return 0;
@@ -3441,21 +5659,36 @@ int dw_mci_runtime_resume(struct device *dev)
 {
 	int ret = 0;
 	struct dw_mci *host = dev_get_drvdata(dev);
+<<<<<<< HEAD
 
 	if (host->slot &&
 	    (mmc_can_gpio_cd(host->slot->mmc) ||
 	     !mmc_card_is_removable(host->slot->mmc))) {
+=======
+	const struct dw_mci_drv_data *drv_data = host->drv_data;
+
+	if (host->slot &&
+	    (mmc_can_gpio_cd(host->slot->mmc) || !mmc_card_is_removable(host->slot->mmc))) {
+>>>>>>> upstream/android-13
 		ret = clk_prepare_enable(host->biu_clk);
 		if (ret)
 			return ret;
 	}
 
+<<<<<<< HEAD
 	ret = clk_prepare_enable(host->ciu_clk);
+=======
+	ret = dw_mci_ciu_clk_en(host);
+>>>>>>> upstream/android-13
 	if (ret)
 		goto err;
 
 	if (!dw_mci_ctrl_reset(host, SDMMC_CTRL_ALL_RESET_FLAGS)) {
+<<<<<<< HEAD
 		clk_disable_unprepare(host->ciu_clk);
+=======
+		dw_mci_ciu_clk_dis(host);
+>>>>>>> upstream/android-13
 		ret = -ENODEV;
 		goto err;
 	}
@@ -3463,6 +5696,24 @@ int dw_mci_runtime_resume(struct device *dev)
 	if (host->use_dma && host->dma_ops->init)
 		host->dma_ops->init(host);
 
+<<<<<<< HEAD
+=======
+	if (host->quirks & DW_MCI_QUIRK_HWACG_CTRL) {
+		if (drv_data && drv_data->hwacg_control)
+			drv_data->hwacg_control(host, HWACG_Q_ACTIVE_EN);
+	} else {
+		if (drv_data && drv_data->hwacg_control)
+			drv_data->hwacg_control(host, HWACG_Q_ACTIVE_DIS);
+	}
+
+	if (drv_data && drv_data->crypto_sec_cfg) {
+		ret = drv_data->crypto_sec_cfg(host, false);
+		if (ret)
+			dev_err(host->dev, "%s: Fail to control security config.(%x)\n",
+				__func__, ret);
+	}
+
+>>>>>>> upstream/android-13
 	/*
 	 * Restore the initial value at FIFOTH register
 	 * And Invalidate the prev_blksz with zero
@@ -3475,6 +5726,7 @@ int dw_mci_runtime_resume(struct device *dev)
 
 	mci_writel(host, RINTSTS, 0xFFFFFFFF);
 	mci_writel(host, INTMASK, SDMMC_INT_CMD_DONE | SDMMC_INT_DATA_OVER |
+<<<<<<< HEAD
 		   SDMMC_INT_TXDR | SDMMC_INT_RXDR |
 		   DW_MCI_ERROR_FLAGS);
 	mci_writel(host, CTRL, SDMMC_CTRL_INT_ENABLE);
@@ -3492,13 +5744,36 @@ int dw_mci_runtime_resume(struct device *dev)
 
 	/* Now that slots are all setup, we can enable card detect */
 	dw_mci_enable_cd(host);
+=======
+		   SDMMC_INT_TXDR | SDMMC_INT_RXDR | DW_MCI_ERROR_FLAGS |
+		   SDMMC_INT_VOLT_SWITCH);
+	mci_writel(host, CTRL, SDMMC_CTRL_INT_ENABLE);
+
+	if (host->slot &&
+		((host->slot->mmc->pm_flags & MMC_PM_KEEP_POWER))) {
+//		 host->slot->mmc->pm_caps & MMC_PM_SKIP_MMC_RESUME_INIT)) {
+			dw_mci_set_ios(host->slot->mmc, &host->slot->mmc->ios);
+
+		/* Force setup bus to guarantee available clock output */
+		dw_mci_setup_bus(host->slot, true);
+	}
+
+	if (host->pdata->cd_type == DW_MCI_CD_INTERNAL) {
+		/* Now that slots are all setup, we can enable card detect */
+		dw_mci_enable_cd(host);
+	}
+>>>>>>> upstream/android-13
 
 	return 0;
 
 err:
 	if (host->slot &&
+<<<<<<< HEAD
 	    (mmc_can_gpio_cd(host->slot->mmc) ||
 	     !mmc_card_is_removable(host->slot->mmc)))
+=======
+	    (mmc_can_gpio_cd(host->slot->mmc) || !mmc_card_is_removable(host->slot->mmc)))
+>>>>>>> upstream/android-13
 		clk_disable_unprepare(host->biu_clk);
 
 	return ret;

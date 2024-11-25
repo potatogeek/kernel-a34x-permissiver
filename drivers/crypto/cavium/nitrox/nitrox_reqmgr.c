@@ -3,6 +3,10 @@
 #include <linux/workqueue.h>
 #include <crypto/internal/skcipher.h>
 
+<<<<<<< HEAD
+=======
+#include "nitrox_common.h"
+>>>>>>> upstream/android-13
 #include "nitrox_dev.h"
 #include "nitrox_req.h"
 #include "nitrox_csr.h"
@@ -13,13 +17,20 @@
 #define FDATA_SIZE 32
 /* Base destination port for the solicited requests */
 #define SOLICIT_BASE_DPORT 256
+<<<<<<< HEAD
 #define PENDING_SIG	0xFFFFFFFFFFFFFFFFUL
+=======
+>>>>>>> upstream/android-13
 
 #define REQ_NOT_POSTED 1
 #define REQ_BACKLOG    2
 #define REQ_POSTED     3
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * Response codes from SE microcode
  * 0x00 - Success
  *   Completion with no error
@@ -52,15 +63,19 @@ static inline int incr_index(int index, int count, int max)
 	return index;
 }
 
+<<<<<<< HEAD
 /**
  * dma_free_sglist - unmap and free the sg lists.
  * @ndev: N5 device
  * @sgtbl: SG table
  */
+=======
+>>>>>>> upstream/android-13
 static void softreq_unmap_sgbufs(struct nitrox_softreq *sr)
 {
 	struct nitrox_device *ndev = sr->ndev;
 	struct device *dev = DEV(ndev);
+<<<<<<< HEAD
 	struct nitrox_sglist *sglist;
 
 	/* unmap in sgbuf */
@@ -104,6 +119,25 @@ out_unmap:
 	sr->out.sglist = NULL;
 	sr->out.buf = NULL;
 	sr->out.map_bufs_cnt = 0;
+=======
+
+
+	dma_unmap_sg(dev, sr->in.sg, sg_nents(sr->in.sg),
+		     DMA_BIDIRECTIONAL);
+	dma_unmap_single(dev, sr->in.sgcomp_dma, sr->in.sgcomp_len,
+			 DMA_TO_DEVICE);
+	kfree(sr->in.sgcomp);
+	sr->in.sg = NULL;
+	sr->in.sgmap_cnt = 0;
+
+	dma_unmap_sg(dev, sr->out.sg, sg_nents(sr->out.sg),
+		     DMA_BIDIRECTIONAL);
+	dma_unmap_single(dev, sr->out.sgcomp_dma, sr->out.sgcomp_len,
+			 DMA_TO_DEVICE);
+	kfree(sr->out.sgcomp);
+	sr->out.sg = NULL;
+	sr->out.sgmap_cnt = 0;
+>>>>>>> upstream/android-13
 }
 
 static void softreq_destroy(struct nitrox_softreq *sr)
@@ -116,7 +150,11 @@ static void softreq_destroy(struct nitrox_softreq *sr)
  * create_sg_component - create SG componets for N5 device.
  * @sr: Request structure
  * @sgtbl: SG table
+<<<<<<< HEAD
  * @nr_comp: total number of components required
+=======
+ * @map_nents: number of dma mapped entries
+>>>>>>> upstream/android-13
  *
  * Component structure
  *
@@ -140,7 +178,11 @@ static int create_sg_component(struct nitrox_softreq *sr,
 {
 	struct nitrox_device *ndev = sr->ndev;
 	struct nitrox_sgcomp *sgcomp;
+<<<<<<< HEAD
 	struct nitrox_sglist *sglist;
+=======
+	struct scatterlist *sg;
+>>>>>>> upstream/android-13
 	dma_addr_t dma;
 	size_t sz_comp;
 	int i, j, nr_sgcomp;
@@ -154,6 +196,7 @@ static int create_sg_component(struct nitrox_softreq *sr,
 		return -ENOMEM;
 
 	sgtbl->sgcomp = sgcomp;
+<<<<<<< HEAD
 	sgtbl->nr_sgcomp = nr_sgcomp;
 
 	sglist = sgtbl->sglist;
@@ -165,6 +208,17 @@ static int create_sg_component(struct nitrox_softreq *sr,
 			sglist++;
 		}
 		sgcomp++;
+=======
+
+	sg = sgtbl->sg;
+	/* populate device sg component */
+	for (i = 0; i < nr_sgcomp; i++) {
+		for (j = 0; j < 4 && sg; j++) {
+			sgcomp[i].len[j] = cpu_to_be16(sg_dma_len(sg));
+			sgcomp[i].dma[j] = cpu_to_be64(sg_dma_address(sg));
+			sg = sg_next(sg);
+		}
+>>>>>>> upstream/android-13
 	}
 	/* map the device sg component */
 	dma = dma_map_single(DEV(ndev), sgtbl->sgcomp, sz_comp, DMA_TO_DEVICE);
@@ -174,8 +228,13 @@ static int create_sg_component(struct nitrox_softreq *sr,
 		return -ENOMEM;
 	}
 
+<<<<<<< HEAD
 	sgtbl->dma = dma;
 	sgtbl->len = sz_comp;
+=======
+	sgtbl->sgcomp_dma = dma;
+	sgtbl->sgcomp_len = sz_comp;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -192,6 +251,7 @@ static int dma_map_inbufs(struct nitrox_softreq *sr,
 			  struct se_crypto_request *req)
 {
 	struct device *dev = DEV(sr->ndev);
+<<<<<<< HEAD
 	struct scatterlist *sg = req->src;
 	struct nitrox_sglist *glist;
 	int i, nents, ret = 0;
@@ -240,12 +300,29 @@ static int dma_map_inbufs(struct nitrox_softreq *sr,
 
 	/* create NITROX gather component */
 	ret = create_sg_component(sr, &sr->in, sr->in.map_bufs_cnt);
+=======
+	struct scatterlist *sg;
+	int i, nents, ret = 0;
+
+	nents = dma_map_sg(dev, req->src, sg_nents(req->src),
+			   DMA_BIDIRECTIONAL);
+	if (!nents)
+		return -EINVAL;
+
+	for_each_sg(req->src, sg, nents, i)
+		sr->in.total_bytes += sg_dma_len(sg);
+
+	sr->in.sg = req->src;
+	sr->in.sgmap_cnt = nents;
+	ret = create_sg_component(sr, &sr->in, sr->in.sgmap_cnt);
+>>>>>>> upstream/android-13
 	if (ret)
 		goto incomp_err;
 
 	return 0;
 
 incomp_err:
+<<<<<<< HEAD
 	dma_unmap_sg(dev, req->src, nents, sr->in.dir);
 	sr->in.map_bufs_cnt = 0;
 src_map_err:
@@ -253,6 +330,10 @@ src_map_err:
 iv_map_err:
 	kfree(sr->in.sglist);
 	sr->in.sglist = NULL;
+=======
+	dma_unmap_sg(dev, req->src, sg_nents(req->src), DMA_BIDIRECTIONAL);
+	sr->in.sgmap_cnt = 0;
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -260,6 +341,7 @@ static int dma_map_outbufs(struct nitrox_softreq *sr,
 			   struct se_crypto_request *req)
 {
 	struct device *dev = DEV(sr->ndev);
+<<<<<<< HEAD
 	struct nitrox_sglist *glist = sr->in.sglist;
 	struct nitrox_sglist *slist;
 	struct scatterlist *sg;
@@ -339,12 +421,25 @@ static int dma_map_outbufs(struct nitrox_softreq *sr,
 	sr->out.map_bufs_cnt = (3 + nents);
 
 	ret = create_sg_component(sr, &sr->out, sr->out.map_bufs_cnt);
+=======
+	int nents, ret = 0;
+
+	nents = dma_map_sg(dev, req->dst, sg_nents(req->dst),
+			   DMA_BIDIRECTIONAL);
+	if (!nents)
+		return -EINVAL;
+
+	sr->out.sg = req->dst;
+	sr->out.sgmap_cnt = nents;
+	ret = create_sg_component(sr, &sr->out, sr->out.sgmap_cnt);
+>>>>>>> upstream/android-13
 	if (ret)
 		goto outcomp_map_err;
 
 	return 0;
 
 outcomp_map_err:
+<<<<<<< HEAD
 	if (!sr->inplace)
 		dma_unmap_sg(dev, req->dst, nents, sr->out.dir);
 	sr->out.map_bufs_cnt = 0;
@@ -358,6 +453,11 @@ compl_map_err:
 orh_map_err:
 	kfree(sr->out.sglist);
 	sr->out.sglist = NULL;
+=======
+	dma_unmap_sg(dev, req->dst, sg_nents(req->dst), DMA_BIDIRECTIONAL);
+	sr->out.sgmap_cnt = 0;
+	sr->out.sg = NULL;
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -382,11 +482,19 @@ static inline void backlog_list_add(struct nitrox_softreq *sr,
 {
 	INIT_LIST_HEAD(&sr->backlog);
 
+<<<<<<< HEAD
 	spin_lock_bh(&cmdq->backlog_lock);
 	list_add_tail(&sr->backlog, &cmdq->backlog_head);
 	atomic_inc(&cmdq->backlog_count);
 	atomic_set(&sr->status, REQ_BACKLOG);
 	spin_unlock_bh(&cmdq->backlog_lock);
+=======
+	spin_lock_bh(&cmdq->backlog_qlock);
+	list_add_tail(&sr->backlog, &cmdq->backlog_head);
+	atomic_inc(&cmdq->backlog_count);
+	atomic_set(&sr->status, REQ_BACKLOG);
+	spin_unlock_bh(&cmdq->backlog_qlock);
+>>>>>>> upstream/android-13
 }
 
 static inline void response_list_add(struct nitrox_softreq *sr,
@@ -394,17 +502,29 @@ static inline void response_list_add(struct nitrox_softreq *sr,
 {
 	INIT_LIST_HEAD(&sr->response);
 
+<<<<<<< HEAD
 	spin_lock_bh(&cmdq->response_lock);
 	list_add_tail(&sr->response, &cmdq->response_head);
 	spin_unlock_bh(&cmdq->response_lock);
+=======
+	spin_lock_bh(&cmdq->resp_qlock);
+	list_add_tail(&sr->response, &cmdq->response_head);
+	spin_unlock_bh(&cmdq->resp_qlock);
+>>>>>>> upstream/android-13
 }
 
 static inline void response_list_del(struct nitrox_softreq *sr,
 				     struct nitrox_cmdq *cmdq)
 {
+<<<<<<< HEAD
 	spin_lock_bh(&cmdq->response_lock);
 	list_del(&sr->response);
 	spin_unlock_bh(&cmdq->response_lock);
+=======
+	spin_lock_bh(&cmdq->resp_qlock);
+	list_del(&sr->response);
+	spin_unlock_bh(&cmdq->resp_qlock);
+>>>>>>> upstream/android-13
 }
 
 static struct nitrox_softreq *
@@ -422,12 +542,21 @@ static inline bool cmdq_full(struct nitrox_cmdq *cmdq, int qlen)
 		smp_mb__after_atomic();
 		return true;
 	}
+<<<<<<< HEAD
+=======
+	/* sync with other cpus */
+	smp_mb__after_atomic();
+>>>>>>> upstream/android-13
 	return false;
 }
 
 /**
  * post_se_instr - Post SE instruction to Packet Input ring
  * @sr: Request structure
+<<<<<<< HEAD
+=======
+ * @cmdq: Command queue structure
+>>>>>>> upstream/android-13
  *
  * Returns 0 if successful or a negative error code,
  * if no space in ring.
@@ -439,11 +568,19 @@ static void post_se_instr(struct nitrox_softreq *sr,
 	int idx;
 	u8 *ent;
 
+<<<<<<< HEAD
 	spin_lock_bh(&cmdq->cmdq_lock);
 
 	idx = cmdq->write_idx;
 	/* copy the instruction */
 	ent = cmdq->head + (idx * cmdq->instr_size);
+=======
+	spin_lock_bh(&cmdq->cmd_qlock);
+
+	idx = cmdq->write_idx;
+	/* copy the instruction */
+	ent = cmdq->base + (idx * cmdq->instr_size);
+>>>>>>> upstream/android-13
 	memcpy(ent, &sr->instr, cmdq->instr_size);
 
 	atomic_set(&sr->status, REQ_POSTED);
@@ -454,12 +591,22 @@ static void post_se_instr(struct nitrox_softreq *sr,
 
 	/* Ring doorbell with count 1 */
 	writeq(1, cmdq->dbell_csr_addr);
+<<<<<<< HEAD
 	/* orders the doorbell rings */
 	mmiowb();
 
 	cmdq->write_idx = incr_index(idx, 1, ndev->qlen);
 
 	spin_unlock_bh(&cmdq->cmdq_lock);
+=======
+
+	cmdq->write_idx = incr_index(idx, 1, ndev->qlen);
+
+	spin_unlock_bh(&cmdq->cmd_qlock);
+
+	/* increment the posted command count */
+	atomic64_inc(&ndev->stats.posted);
+>>>>>>> upstream/android-13
 }
 
 static int post_backlog_cmds(struct nitrox_cmdq *cmdq)
@@ -471,11 +618,17 @@ static int post_backlog_cmds(struct nitrox_cmdq *cmdq)
 	if (!atomic_read(&cmdq->backlog_count))
 		return 0;
 
+<<<<<<< HEAD
 	spin_lock_bh(&cmdq->backlog_lock);
 
 	list_for_each_entry_safe(sr, tmp, &cmdq->backlog_head, backlog) {
 		struct skcipher_request *skreq;
 
+=======
+	spin_lock_bh(&cmdq->backlog_qlock);
+
+	list_for_each_entry_safe(sr, tmp, &cmdq->backlog_head, backlog) {
+>>>>>>> upstream/android-13
 		/* submit until space available */
 		if (unlikely(cmdq_full(cmdq, ndev->qlen))) {
 			ret = -ENOSPC;
@@ -487,6 +640,7 @@ static int post_backlog_cmds(struct nitrox_cmdq *cmdq)
 		/* sync with other cpus */
 		smp_mb__after_atomic();
 
+<<<<<<< HEAD
 		skreq = sr->skreq;
 		/* post the command */
 		post_se_instr(sr, cmdq);
@@ -495,6 +649,12 @@ static int post_backlog_cmds(struct nitrox_cmdq *cmdq)
 		skcipher_request_complete(skreq, -EINPROGRESS);
 	}
 	spin_unlock_bh(&cmdq->backlog_lock);
+=======
+		/* post the command */
+		post_se_instr(sr, cmdq);
+	}
+	spin_unlock_bh(&cmdq->backlog_qlock);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -508,11 +668,22 @@ static int nitrox_enqueue_request(struct nitrox_softreq *sr)
 	post_backlog_cmds(cmdq);
 
 	if (unlikely(cmdq_full(cmdq, ndev->qlen))) {
+<<<<<<< HEAD
 		if (!(sr->flags & CRYPTO_TFM_REQ_MAY_BACKLOG))
 			return -ENOSPC;
 		/* add to backlog list */
 		backlog_list_add(sr, cmdq);
 		return -EBUSY;
+=======
+		if (!(sr->flags & CRYPTO_TFM_REQ_MAY_BACKLOG)) {
+			/* increment drop count */
+			atomic64_inc(&ndev->stats.dropped);
+			return -ENOSPC;
+		}
+		/* add to backlog list */
+		backlog_list_add(sr, cmdq);
+		return -EINPROGRESS;
+>>>>>>> upstream/android-13
 	}
 	post_se_instr(sr, cmdq);
 
@@ -520,16 +691,28 @@ static int nitrox_enqueue_request(struct nitrox_softreq *sr)
 }
 
 /**
+<<<<<<< HEAD
  * nitrox_se_request - Send request to SE core
  * @ndev: NITROX device
  * @req: Crypto request
+=======
+ * nitrox_process_se_request - Send request to SE core
+ * @ndev: NITROX device
+ * @req: Crypto request
+ * @callback: Completion callback
+ * @cb_arg: Completion callback arguments
+>>>>>>> upstream/android-13
  *
  * Returns 0 on success, or a negative error code.
  */
 int nitrox_process_se_request(struct nitrox_device *ndev,
 			      struct se_crypto_request *req,
 			      completion_t callback,
+<<<<<<< HEAD
 			      struct skcipher_request *skreq)
+=======
+			      void *cb_arg)
+>>>>>>> upstream/android-13
 {
 	struct nitrox_softreq *sr;
 	dma_addr_t ctx_handle = 0;
@@ -546,12 +729,21 @@ int nitrox_process_se_request(struct nitrox_device *ndev,
 	sr->flags = req->flags;
 	sr->gfp = req->gfp;
 	sr->callback = callback;
+<<<<<<< HEAD
 	sr->skreq = skreq;
 
 	atomic_set(&sr->status, REQ_NOT_POSTED);
 
 	WRITE_ONCE(sr->resp.orh, PENDING_SIG);
 	WRITE_ONCE(sr->resp.completion, PENDING_SIG);
+=======
+	sr->cb_arg = cb_arg;
+
+	atomic_set(&sr->status, REQ_NOT_POSTED);
+
+	sr->resp.orh = req->orh;
+	sr->resp.completion = req->comp;
+>>>>>>> upstream/android-13
 
 	ret = softreq_map_iobuf(sr, req);
 	if (ret) {
@@ -572,7 +764,11 @@ int nitrox_process_se_request(struct nitrox_device *ndev,
 	/* select the queue */
 	qno = smp_processor_id() % ndev->nr_queues;
 
+<<<<<<< HEAD
 	sr->cmdq = &ndev->pkt_cmdqs[qno];
+=======
+	sr->cmdq = &ndev->pkt_inq[qno];
+>>>>>>> upstream/android-13
 
 	/*
 	 * 64-Byte Instruction Format
@@ -592,16 +788,28 @@ int nitrox_process_se_request(struct nitrox_device *ndev,
 
 	/* fill the packet instruction */
 	/* word 0 */
+<<<<<<< HEAD
 	sr->instr.dptr0 = cpu_to_be64(sr->in.dma);
+=======
+	sr->instr.dptr0 = cpu_to_be64(sr->in.sgcomp_dma);
+>>>>>>> upstream/android-13
 
 	/* word 1 */
 	sr->instr.ih.value = 0;
 	sr->instr.ih.s.g = 1;
+<<<<<<< HEAD
 	sr->instr.ih.s.gsz = sr->in.map_bufs_cnt;
 	sr->instr.ih.s.ssz = sr->out.map_bufs_cnt;
 	sr->instr.ih.s.fsz = FDATA_SIZE + sizeof(struct gphdr);
 	sr->instr.ih.s.tlen = sr->instr.ih.s.fsz + sr->in.total_bytes;
 	sr->instr.ih.value = cpu_to_be64(sr->instr.ih.value);
+=======
+	sr->instr.ih.s.gsz = sr->in.sgmap_cnt;
+	sr->instr.ih.s.ssz = sr->out.sgmap_cnt;
+	sr->instr.ih.s.fsz = FDATA_SIZE + sizeof(struct gphdr);
+	sr->instr.ih.s.tlen = sr->instr.ih.s.fsz + sr->in.total_bytes;
+	sr->instr.ih.bev = cpu_to_be64(sr->instr.ih.value);
+>>>>>>> upstream/android-13
 
 	/* word 2 */
 	sr->instr.irh.value[0] = 0;
@@ -613,18 +821,30 @@ int nitrox_process_se_request(struct nitrox_device *ndev,
 	sr->instr.irh.s.ctxc = req->ctrl.s.ctxc;
 	sr->instr.irh.s.arg = req->ctrl.s.arg;
 	sr->instr.irh.s.opcode = req->opcode;
+<<<<<<< HEAD
 	sr->instr.irh.value[0] = cpu_to_be64(sr->instr.irh.value[0]);
+=======
+	sr->instr.irh.bev[0] = cpu_to_be64(sr->instr.irh.value[0]);
+>>>>>>> upstream/android-13
 
 	/* word 3 */
 	sr->instr.irh.s.ctxp = cpu_to_be64(ctx_handle);
 
 	/* word 4 */
 	sr->instr.slc.value[0] = 0;
+<<<<<<< HEAD
 	sr->instr.slc.s.ssz = sr->out.map_bufs_cnt;
 	sr->instr.slc.value[0] = cpu_to_be64(sr->instr.slc.value[0]);
 
 	/* word 5 */
 	sr->instr.slc.s.rptr = cpu_to_be64(sr->out.dma);
+=======
+	sr->instr.slc.s.ssz = sr->out.sgmap_cnt;
+	sr->instr.slc.bev[0] = cpu_to_be64(sr->instr.slc.value[0]);
+
+	/* word 5 */
+	sr->instr.slc.s.rptr = cpu_to_be64(sr->out.sgcomp_dma);
+>>>>>>> upstream/android-13
 
 	/*
 	 * No conversion for front data,
@@ -658,10 +878,34 @@ void backlog_qflush_work(struct work_struct *work)
 	post_backlog_cmds(cmdq);
 }
 
+<<<<<<< HEAD
 /**
  * process_request_list - process completed requests
  * @ndev: N5 device
  * @qno: queue to operate
+=======
+static bool sr_completed(struct nitrox_softreq *sr)
+{
+	u64 orh = READ_ONCE(*sr->resp.orh);
+	unsigned long timeout = jiffies + msecs_to_jiffies(1);
+
+	if ((orh != PENDING_SIG) && (orh & 0xff))
+		return true;
+
+	while (READ_ONCE(*sr->resp.completion) == PENDING_SIG) {
+		if (time_after(jiffies, timeout)) {
+			pr_err("comp not done\n");
+			return false;
+		}
+	}
+
+	return true;
+}
+
+/**
+ * process_response_list - process completed requests
+ * @cmdq: Command queue structure
+>>>>>>> upstream/android-13
  *
  * Returns the number of responses processed.
  */
@@ -669,9 +913,15 @@ static void process_response_list(struct nitrox_cmdq *cmdq)
 {
 	struct nitrox_device *ndev = cmdq->ndev;
 	struct nitrox_softreq *sr;
+<<<<<<< HEAD
 	struct skcipher_request *skreq;
 	completion_t callback;
 	int req_completed = 0, err = 0, budget;
+=======
+	int req_completed = 0, err = 0, budget;
+	completion_t callback;
+	void *cb_arg;
+>>>>>>> upstream/android-13
 
 	/* check all pending requests */
 	budget = atomic_read(&cmdq->pending_count);
@@ -685,19 +935,31 @@ static void process_response_list(struct nitrox_cmdq *cmdq)
 			break;
 
 		/* check orh and completion bytes updates */
+<<<<<<< HEAD
 		if (READ_ONCE(sr->resp.orh) == READ_ONCE(sr->resp.completion)) {
+=======
+		if (!sr_completed(sr)) {
+>>>>>>> upstream/android-13
 			/* request not completed, check for timeout */
 			if (!cmd_timeout(sr->tstamp, ndev->timeout))
 				break;
 			dev_err_ratelimited(DEV(ndev),
 					    "Request timeout, orh 0x%016llx\n",
+<<<<<<< HEAD
 					    READ_ONCE(sr->resp.orh));
 		}
 		atomic_dec(&cmdq->pending_count);
+=======
+					    READ_ONCE(*sr->resp.orh));
+		}
+		atomic_dec(&cmdq->pending_count);
+		atomic64_inc(&ndev->stats.completed);
+>>>>>>> upstream/android-13
 		/* sync with other cpus */
 		smp_mb__after_atomic();
 		/* remove from response list */
 		response_list_del(sr, cmdq);
+<<<<<<< HEAD
 
 		callback = sr->callback;
 		skreq = sr->skreq;
@@ -708,11 +970,21 @@ static void process_response_list(struct nitrox_cmdq *cmdq)
 
 		if (callback)
 			callback(skreq, err);
+=======
+		/* ORH error code */
+		err = READ_ONCE(*sr->resp.orh) & 0xff;
+		callback = sr->callback;
+		cb_arg = sr->cb_arg;
+		softreq_destroy(sr);
+		if (callback)
+			callback(cb_arg, err);
+>>>>>>> upstream/android-13
 
 		req_completed++;
 	}
 }
 
+<<<<<<< HEAD
 /**
  * pkt_slc_resp_handler - post processing of SE responses
  */
@@ -726,6 +998,21 @@ void pkt_slc_resp_handler(unsigned long data)
 	pkt_slc_cnts.value = readq(bh->completion_cnt_csr_addr);
 	/* resend the interrupt if more work to do */
 	pkt_slc_cnts.s.resend = 1;
+=======
+/*
+ * pkt_slc_resp_tasklet - post processing of SE responses
+ */
+void pkt_slc_resp_tasklet(unsigned long data)
+{
+	struct nitrox_q_vector *qvec = (void *)(uintptr_t)(data);
+	struct nitrox_cmdq *cmdq = qvec->cmdq;
+	union nps_pkt_slc_cnts slc_cnts;
+
+	/* read completion count */
+	slc_cnts.value = readq(cmdq->compl_cnt_csr_addr);
+	/* resend the interrupt if more work to do */
+	slc_cnts.s.resend = 1;
+>>>>>>> upstream/android-13
 
 	process_response_list(cmdq);
 
@@ -733,9 +1020,13 @@ void pkt_slc_resp_handler(unsigned long data)
 	 * clear the interrupt with resend bit enabled,
 	 * MSI-X interrupt generates if Completion count > Threshold
 	 */
+<<<<<<< HEAD
 	writeq(pkt_slc_cnts.value, bh->completion_cnt_csr_addr);
 	/* order the writes */
 	mmiowb();
+=======
+	writeq(slc_cnts.value, cmdq->compl_cnt_csr_addr);
+>>>>>>> upstream/android-13
 
 	if (atomic_read(&cmdq->backlog_count))
 		schedule_work(&cmdq->backlog_qflush);

@@ -1,4 +1,5 @@
 # SPDX-License-Identifier: GPL-2.0
+<<<<<<< HEAD
 generic-y += barrier.h
 generic-y += bug.h
 generic-y += bugs.h
@@ -36,3 +37,9 @@ generic-y += unaligned.h
 generic-y += vga.h
 generic-y += word-at-a-time.h
 generic-y += xor.h
+=======
+generic-y += extable.h
+generic-y += iomap.h
+generic-y += kvm_para.h
+generic-y += mcs_spinlock.h
+>>>>>>> upstream/android-13

@@ -27,6 +27,7 @@
 #define PR_ABS_MAX 8388607 /* 24 bit 2'compl */
 #define PR_ABS_MIN -8388608
 
+<<<<<<< HEAD
 #if defined(CONFIG_SHUB_KUNIT)
 #include <kunit/mock.h>
 #define __mockable __weak
@@ -36,6 +37,8 @@
 #define __visible_for_testing static
 #endif
 
+=======
+>>>>>>> upstream/android-13
 /*************************************************************************/
 /* factory Sysfs                                                         */
 /*************************************************************************/
@@ -81,7 +84,11 @@ static ssize_t sea_level_pressure_store(struct device *dev, struct device_attrib
 	return size;
 }
 
+<<<<<<< HEAD
 static ssize_t pressure_calibration_show(struct device *dev, struct device_attribute *attr, char *buf)
+=======
+static ssize_t pressure_cabratioin_show(struct device *dev, struct device_attribute *attr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct shub_sensor *sensor = get_sensor(SENSOR_TYPE_PRESSURE);
 	struct pressure_event *sensor_value = (struct pressure_event *)(sensor->event_buffer.value);
@@ -91,7 +98,11 @@ static ssize_t pressure_calibration_show(struct device *dev, struct device_attri
 	return sprintf(buf, "%d\n", sensor_value->pressure_cal);
 }
 
+<<<<<<< HEAD
 static ssize_t pressure_calibration_store(struct device *dev, struct device_attribute *attr, const char *buf,
+=======
+static ssize_t pressure_cabratioin_store(struct device *dev, struct device_attribute *attr, const char *buf,
+>>>>>>> upstream/android-13
 					 size_t size)
 {
 	int pressure_cal = 0;
@@ -126,7 +137,11 @@ static ssize_t pressure_selftest_show(struct device *dev, struct device_attribut
 		goto exit;
 	}
 
+<<<<<<< HEAD
 	shub_infof("%d", *buffer);
+=======
+	shub_infof("%u", *buffer);
+>>>>>>> upstream/android-13
 	ret = snprintf(buf, PAGE_SIZE, "%d", *buffer);
 
 exit:
@@ -168,12 +183,20 @@ static ssize_t pressure_sw_offset_store(struct device *dev, struct device_attrib
 
 static DEVICE_ATTR(name, S_IRUGO, name_show, NULL);
 static DEVICE_ATTR(vendor, S_IRUGO, vendor_show, NULL);
+<<<<<<< HEAD
 static DEVICE_ATTR(calibration, S_IRUGO | S_IWUSR | S_IWGRP, pressure_calibration_show, pressure_calibration_store);
+=======
+static DEVICE_ATTR(calibration, S_IRUGO | S_IWUSR | S_IWGRP, pressure_cabratioin_show, pressure_cabratioin_store);
+>>>>>>> upstream/android-13
 static DEVICE_ATTR(sea_level_pressure, S_IWUSR | S_IWGRP, NULL, sea_level_pressure_store);
 static DEVICE_ATTR(selftest, S_IRUGO, pressure_selftest_show, NULL);
 static DEVICE_ATTR(sw_offset, S_IRUGO | S_IWUSR | S_IWGRP, pressure_sw_offset_show, pressure_sw_offset_store);
 
+<<<<<<< HEAD
 __visible_for_testing struct device_attribute *pressure_attrs[] = {
+=======
+static struct device_attribute *pressure_attrs[] = {
+>>>>>>> upstream/android-13
 	&dev_attr_name,
 	&dev_attr_vendor,
 	&dev_attr_calibration,
@@ -186,7 +209,10 @@ __visible_for_testing struct device_attribute *pressure_attrs[] = {
 typedef struct device_attribute** (*get_chipset_dev_attrs)(char *);
 get_chipset_dev_attrs get_pressure_chipset_dev_attrs[] = {
 	get_pressure_lps22hh_dev_attrs,
+<<<<<<< HEAD
 	get_pressure_lps22df_dev_attrs,
+=======
+>>>>>>> upstream/android-13
 	get_pressure_lps25h_dev_attrs,
 	get_pressure_bmp580_dev_attrs,
 };
@@ -214,7 +240,11 @@ void initialize_pressure_sysfs(void)
 		if (chipset_attrs) {
 			ret = add_sensor_device_attr(pressure_sysfs_device, chipset_attrs);
 			if (ret < 0) {
+<<<<<<< HEAD
 				shub_errf("fail to add sysfs chipset device attr(%d)", (int)i);
+=======
+				shub_errf("fail to add sysfs chipset device attr(%d)", i);
+>>>>>>> upstream/android-13
 				return;
 			}
 			break;

@@ -84,7 +84,11 @@
 	{0x1a4, "H_CREATE_RPT"},				\
 	{0x1a8, "H_REMOVE_RPT"},				\
 	{0x1ac, "H_REGISTER_RPAGES"},				\
+<<<<<<< HEAD
 	{0x1b0, "H_DISABLE_AND_GETC"},				\
+=======
+	{0x1b0, "H_DISABLE_AND_GET"},				\
+>>>>>>> upstream/android-13
 	{0x1b4, "H_ERROR_DATA"},				\
 	{0x1b8, "H_GET_HCA_INFO"},				\
 	{0x1bc, "H_GET_PERF_COUNT"},				\

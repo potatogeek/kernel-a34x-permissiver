@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2015-2018 The Linux Foundation. All rights reserved.
  *
@@ -10,6 +11,11 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (c) 2015-2018 The Linux Foundation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #ifndef __DPU_ENCODER_PHYS_H__
@@ -22,8 +28,13 @@
 #include "dpu_hw_pingpong.h"
 #include "dpu_hw_ctl.h"
 #include "dpu_hw_top.h"
+<<<<<<< HEAD
 #include "dpu_hw_cdm.h"
 #include "dpu_encoder.h"
+=======
+#include "dpu_encoder.h"
+#include "dpu_crtc.h"
+>>>>>>> upstream/android-13
 
 #define DPU_ENCODER_NAME_MAX	16
 
@@ -114,10 +125,13 @@ struct dpu_encoder_virt_ops {
  * @handle_post_kickoff:	Do any work necessary post-kickoff work
  * @trigger_start:		Process start event on physical encoder
  * @needs_single_flush:		Whether encoder slaves need to be flushed
+<<<<<<< HEAD
  * @setup_misr:		Sets up MISR, enable and disables based on sysfs
  * @collect_misr:		Collects MISR data on frame update
  * @hw_reset:			Issue HW recovery such as CTL reset and clear
  *				DPU_ENC_ERR_NEEDS_HW_RESET state
+=======
+>>>>>>> upstream/android-13
  * @irq_control:		Handler to enable/disable all the encoder IRQs
  * @prepare_idle_pc:		phys encoder can update the vsync_enable status
  *                              on idle power collapse prepare
@@ -143,12 +157,17 @@ struct dpu_encoder_phys_ops {
 			    struct drm_connector_state *conn_state);
 	void (*destroy)(struct dpu_encoder_phys *encoder);
 	void (*get_hw_resources)(struct dpu_encoder_phys *encoder,
+<<<<<<< HEAD
 			struct dpu_encoder_hw_resources *hw_res,
 			struct drm_connector_state *conn_state);
+=======
+				 struct dpu_encoder_hw_resources *hw_res);
+>>>>>>> upstream/android-13
 	int (*control_vblank_irq)(struct dpu_encoder_phys *enc, bool enable);
 	int (*wait_for_commit_done)(struct dpu_encoder_phys *phys_enc);
 	int (*wait_for_tx_complete)(struct dpu_encoder_phys *phys_enc);
 	int (*wait_for_vblank)(struct dpu_encoder_phys *phys_enc);
+<<<<<<< HEAD
 	void (*prepare_for_kickoff)(struct dpu_encoder_phys *phys_enc,
 			struct dpu_encoder_kickoff_params *params);
 	void (*handle_post_kickoff)(struct dpu_encoder_phys *phys_enc);
@@ -159,10 +178,20 @@ struct dpu_encoder_phys_ops {
 				bool enable, u32 frame_count);
 	u32 (*collect_misr)(struct dpu_encoder_phys *phys_enc);
 	void (*hw_reset)(struct dpu_encoder_phys *phys_enc);
+=======
+	void (*prepare_for_kickoff)(struct dpu_encoder_phys *phys_enc);
+	void (*handle_post_kickoff)(struct dpu_encoder_phys *phys_enc);
+	void (*trigger_start)(struct dpu_encoder_phys *phys_enc);
+	bool (*needs_single_flush)(struct dpu_encoder_phys *phys_enc);
+>>>>>>> upstream/android-13
 	void (*irq_control)(struct dpu_encoder_phys *phys, bool enable);
 	void (*prepare_idle_pc)(struct dpu_encoder_phys *phys_enc);
 	void (*restore)(struct dpu_encoder_phys *phys);
 	int (*get_line_count)(struct dpu_encoder_phys *phys);
+<<<<<<< HEAD
+=======
+	int (*get_frame_count)(struct dpu_encoder_phys *phys);
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -184,18 +213,26 @@ enum dpu_intr_idx {
 /**
  * dpu_encoder_irq - tracking structure for interrupts
  * @name:		string name of interrupt
+<<<<<<< HEAD
  * @intr_type:		Encoder interrupt type
  * @intr_idx:		Encoder interrupt enumeration
  * @hw_idx:		HW Block ID
+=======
+ * @intr_idx:		Encoder interrupt enumeration
+>>>>>>> upstream/android-13
  * @irq_idx:		IRQ interface lookup index from DPU IRQ framework
  *			will be -EINVAL if IRQ is not registered
  * @irq_cb:		interrupt callback
  */
 struct dpu_encoder_irq {
 	const char *name;
+<<<<<<< HEAD
 	enum dpu_intr_type intr_type;
 	enum dpu_intr_idx intr_idx;
 	int hw_idx;
+=======
+	enum dpu_intr_idx intr_idx;
+>>>>>>> upstream/android-13
 	int irq_idx;
 	struct dpu_irq_callback cb;
 };
@@ -210,16 +247,24 @@ struct dpu_encoder_irq {
  * @parent_ops:		Callbacks exposed by the parent to the phys_enc
  * @hw_mdptop:		Hardware interface to the top registers
  * @hw_ctl:		Hardware interface to the ctl registers
+<<<<<<< HEAD
  * @hw_cdm:		Hardware interface to the cdm registers
  * @cdm_cfg:		Chroma-down hardware configuration
  * @hw_pp:		Hardware interface to the ping pong registers
+=======
+ * @hw_pp:		Hardware interface to the ping pong registers
+ * @hw_intf:		Hardware interface to the intf registers
+>>>>>>> upstream/android-13
  * @dpu_kms:		Pointer to the dpu_kms top level
  * @cached_mode:	DRM mode cached at mode_set time, acted on in enable
  * @enabled:		Whether the encoder has enabled and running a mode
  * @split_role:		Role to play in a split-panel configuration
  * @intf_mode:		Interface mode
  * @intf_idx:		Interface index on dpu hardware
+<<<<<<< HEAD
  * @topology_name:	topology selected for the display
+=======
+>>>>>>> upstream/android-13
  * @enc_spinlock:	Virtual-Encoder-Wide Spin Lock for IRQ purposes
  * @enable_state:	Enable state tracking
  * @vblank_refcount:	Reference count of vblank request
@@ -241,15 +286,23 @@ struct dpu_encoder_phys {
 	const struct dpu_encoder_virt_ops *parent_ops;
 	struct dpu_hw_mdp *hw_mdptop;
 	struct dpu_hw_ctl *hw_ctl;
+<<<<<<< HEAD
 	struct dpu_hw_cdm *hw_cdm;
 	struct dpu_hw_cdm_cfg cdm_cfg;
 	struct dpu_hw_pingpong *hw_pp;
+=======
+	struct dpu_hw_pingpong *hw_pp;
+	struct dpu_hw_intf *hw_intf;
+>>>>>>> upstream/android-13
 	struct dpu_kms *dpu_kms;
 	struct drm_display_mode cached_mode;
 	enum dpu_enc_split_role split_role;
 	enum dpu_intf_mode intf_mode;
 	enum dpu_intf intf_idx;
+<<<<<<< HEAD
 	enum dpu_rm_topology_name topology_name;
+=======
+>>>>>>> upstream/android-13
 	spinlock_t *enc_spinlock;
 	enum dpu_enc_enable_state enable_state;
 	atomic_t vblank_refcount;
@@ -268,6 +321,7 @@ static inline int dpu_encoder_phys_inc_pending(struct dpu_encoder_phys *phys)
 }
 
 /**
+<<<<<<< HEAD
  * struct dpu_encoder_phys_vid - sub-class of dpu_encoder_phys to handle video
  *	mode specific operations
  * @base:	Baseclass physical encoder structure
@@ -281,6 +335,8 @@ struct dpu_encoder_phys_vid {
 };
 
 /**
+=======
+>>>>>>> upstream/android-13
  * struct dpu_encoder_phys_cmd - sub-class of dpu_encoder_phys to handle command
  *	mode specific operations
  * @base:	Baseclass physical encoder structure
@@ -355,6 +411,7 @@ struct dpu_encoder_phys *dpu_encoder_phys_cmd_init(
  */
 void dpu_encoder_helper_trigger_start(struct dpu_encoder_phys *phys_enc);
 
+<<<<<<< HEAD
 /**
  * dpu_encoder_helper_hw_reset - issue ctl hw reset
  *	This helper function may be optionally specified by physical
@@ -372,6 +429,20 @@ static inline enum dpu_3d_blend_mode dpu_encoder_helper_get_3d_blend_mode(
 
 	if (phys_enc->split_role == ENC_ROLE_SOLO &&
 	    phys_enc->topology_name == DPU_RM_TOPOLOGY_DUALPIPE_3DMERGE)
+=======
+static inline enum dpu_3d_blend_mode dpu_encoder_helper_get_3d_blend_mode(
+		struct dpu_encoder_phys *phys_enc)
+{
+	struct dpu_crtc_state *dpu_cstate;
+
+	if (!phys_enc || phys_enc->enable_state == DPU_ENC_DISABLING)
+		return BLEND_3D_NONE;
+
+	dpu_cstate = to_dpu_crtc_state(phys_enc->parent->crtc->state);
+
+	if (phys_enc->split_role == ENC_ROLE_SOLO &&
+	    dpu_cstate->num_mixers == CRTC_DUAL_MIXERS)
+>>>>>>> upstream/android-13
 		return BLEND_3D_H_ROW_INT;
 
 	return BLEND_3D_NONE;

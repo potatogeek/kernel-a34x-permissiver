@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
  /* Algorithms supported by virtio crypto device
   *
   * Authors: Gonglei <arei.gonglei@huawei.com>
   *
   * Copyright 2016 HUAWEI TECHNOLOGIES CO., LTD.
+<<<<<<< HEAD
   *
   * This program is free software; you can redistribute it and/or modify
   * it under the terms of the GNU General Public License as published by
@@ -16,10 +21,16 @@
   *
   * You should have received a copy of the GNU General Public License
   * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
   */
 
 #include <linux/scatterlist.h>
 #include <crypto/algapi.h>
+<<<<<<< HEAD
+=======
+#include <crypto/internal/skcipher.h>
+>>>>>>> upstream/android-13
 #include <linux/err.h>
 #include <crypto/scatterwalk.h>
 #include <linux/atomic.h>
@@ -28,10 +39,17 @@
 #include "virtio_crypto_common.h"
 
 
+<<<<<<< HEAD
 struct virtio_crypto_ablkcipher_ctx {
 	struct crypto_engine_ctx enginectx;
 	struct virtio_crypto *vcrypto;
 	struct crypto_tfm *tfm;
+=======
+struct virtio_crypto_skcipher_ctx {
+	struct crypto_engine_ctx enginectx;
+	struct virtio_crypto *vcrypto;
+	struct crypto_skcipher *tfm;
+>>>>>>> upstream/android-13
 
 	struct virtio_crypto_sym_session_info enc_sess_info;
 	struct virtio_crypto_sym_session_info dec_sess_info;
@@ -42,8 +60,13 @@ struct virtio_crypto_sym_request {
 
 	/* Cipher or aead */
 	uint32_t type;
+<<<<<<< HEAD
 	struct virtio_crypto_ablkcipher_ctx *ablkcipher_ctx;
 	struct ablkcipher_request *ablkcipher_req;
+=======
+	struct virtio_crypto_skcipher_ctx *skcipher_ctx;
+	struct skcipher_request *skcipher_req;
+>>>>>>> upstream/android-13
 	uint8_t *iv;
 	/* Encryption? */
 	bool encrypt;
@@ -53,7 +76,11 @@ struct virtio_crypto_algo {
 	uint32_t algonum;
 	uint32_t service;
 	unsigned int active_devs;
+<<<<<<< HEAD
 	struct crypto_alg algo;
+=======
+	struct skcipher_alg algo;
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -61,9 +88,15 @@ struct virtio_crypto_algo {
  * and crypto algorithms registion.
  */
 static DEFINE_MUTEX(algs_lock);
+<<<<<<< HEAD
 static void virtio_crypto_ablkcipher_finalize_req(
 	struct virtio_crypto_sym_request *vc_sym_req,
 	struct ablkcipher_request *req,
+=======
+static void virtio_crypto_skcipher_finalize_req(
+	struct virtio_crypto_sym_request *vc_sym_req,
+	struct skcipher_request *req,
+>>>>>>> upstream/android-13
 	int err);
 
 static void virtio_crypto_dataq_sym_callback
@@ -71,7 +104,11 @@ static void virtio_crypto_dataq_sym_callback
 {
 	struct virtio_crypto_sym_request *vc_sym_req =
 		container_of(vc_req, struct virtio_crypto_sym_request, base);
+<<<<<<< HEAD
 	struct ablkcipher_request *ablk_req;
+=======
+	struct skcipher_request *ablk_req;
+>>>>>>> upstream/android-13
 	int error;
 
 	/* Finish the encrypt or decrypt process */
@@ -91,8 +128,13 @@ static void virtio_crypto_dataq_sym_callback
 			error = -EIO;
 			break;
 		}
+<<<<<<< HEAD
 		ablk_req = vc_sym_req->ablkcipher_req;
 		virtio_crypto_ablkcipher_finalize_req(vc_sym_req,
+=======
+		ablk_req = vc_sym_req->skcipher_req;
+		virtio_crypto_skcipher_finalize_req(vc_sym_req,
+>>>>>>> upstream/android-13
 							ablk_req, error);
 	}
 }
@@ -122,8 +164,13 @@ virtio_crypto_alg_validate_key(int key_len, uint32_t *alg)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int virtio_crypto_alg_ablkcipher_init_session(
 		struct virtio_crypto_ablkcipher_ctx *ctx,
+=======
+static int virtio_crypto_alg_skcipher_init_session(
+		struct virtio_crypto_skcipher_ctx *ctx,
+>>>>>>> upstream/android-13
 		uint32_t alg, const uint8_t *key,
 		unsigned int keylen,
 		int encrypt)
@@ -139,13 +186,20 @@ static int virtio_crypto_alg_ablkcipher_init_session(
 	 * Avoid to do DMA from the stack, switch to using
 	 * dynamically-allocated for the key
 	 */
+<<<<<<< HEAD
 	uint8_t *cipher_key = kmalloc(keylen, GFP_ATOMIC);
+=======
+	uint8_t *cipher_key = kmemdup(key, keylen, GFP_ATOMIC);
+>>>>>>> upstream/android-13
 
 	if (!cipher_key)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	memcpy(cipher_key, key, keylen);
 
+=======
+>>>>>>> upstream/android-13
 	spin_lock(&vcrypto->ctrl_lock);
 	/* Pad ctrl header */
 	vcrypto->ctrl.header.opcode =
@@ -180,7 +234,11 @@ static int virtio_crypto_alg_ablkcipher_init_session(
 				num_in, vcrypto, GFP_ATOMIC);
 	if (err < 0) {
 		spin_unlock(&vcrypto->ctrl_lock);
+<<<<<<< HEAD
 		kzfree(cipher_key);
+=======
+		kfree_sensitive(cipher_key);
+>>>>>>> upstream/android-13
 		return err;
 	}
 	virtqueue_kick(vcrypto->ctrl_vq);
@@ -197,7 +255,11 @@ static int virtio_crypto_alg_ablkcipher_init_session(
 		spin_unlock(&vcrypto->ctrl_lock);
 		pr_err("virtio_crypto: Create session failed status: %u\n",
 			le32_to_cpu(vcrypto->input.status));
+<<<<<<< HEAD
 		kzfree(cipher_key);
+=======
+		kfree_sensitive(cipher_key);
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -210,12 +272,21 @@ static int virtio_crypto_alg_ablkcipher_init_session(
 
 	spin_unlock(&vcrypto->ctrl_lock);
 
+<<<<<<< HEAD
 	kzfree(cipher_key);
 	return 0;
 }
 
 static int virtio_crypto_alg_ablkcipher_close_session(
 		struct virtio_crypto_ablkcipher_ctx *ctx,
+=======
+	kfree_sensitive(cipher_key);
+	return 0;
+}
+
+static int virtio_crypto_alg_skcipher_close_session(
+		struct virtio_crypto_skcipher_ctx *ctx,
+>>>>>>> upstream/android-13
 		int encrypt)
 {
 	struct scatterlist outhdr, status_sg, *sgs[2];
@@ -275,8 +346,13 @@ static int virtio_crypto_alg_ablkcipher_close_session(
 	return 0;
 }
 
+<<<<<<< HEAD
 static int virtio_crypto_alg_ablkcipher_init_sessions(
 		struct virtio_crypto_ablkcipher_ctx *ctx,
+=======
+static int virtio_crypto_alg_skcipher_init_sessions(
+		struct virtio_crypto_skcipher_ctx *ctx,
+>>>>>>> upstream/android-13
 		const uint8_t *key, unsigned int keylen)
 {
 	uint32_t alg;
@@ -285,6 +361,7 @@ static int virtio_crypto_alg_ablkcipher_init_sessions(
 
 	if (keylen > vcrypto->max_cipher_key_len) {
 		pr_err("virtio_crypto: the key is too long\n");
+<<<<<<< HEAD
 		goto bad_key;
 	}
 
@@ -293,10 +370,21 @@ static int virtio_crypto_alg_ablkcipher_init_sessions(
 
 	/* Create encryption session */
 	ret = virtio_crypto_alg_ablkcipher_init_session(ctx,
+=======
+		return -EINVAL;
+	}
+
+	if (virtio_crypto_alg_validate_key(keylen, &alg))
+		return -EINVAL;
+
+	/* Create encryption session */
+	ret = virtio_crypto_alg_skcipher_init_session(ctx,
+>>>>>>> upstream/android-13
 			alg, key, keylen, 1);
 	if (ret)
 		return ret;
 	/* Create decryption session */
+<<<<<<< HEAD
 	ret = virtio_crypto_alg_ablkcipher_init_session(ctx,
 			alg, key, keylen, 0);
 	if (ret) {
@@ -316,6 +404,23 @@ static int virtio_crypto_ablkcipher_setkey(struct crypto_ablkcipher *tfm,
 					 unsigned int keylen)
 {
 	struct virtio_crypto_ablkcipher_ctx *ctx = crypto_ablkcipher_ctx(tfm);
+=======
+	ret = virtio_crypto_alg_skcipher_init_session(ctx,
+			alg, key, keylen, 0);
+	if (ret) {
+		virtio_crypto_alg_skcipher_close_session(ctx, 1);
+		return ret;
+	}
+	return 0;
+}
+
+/* Note: kernel crypto API realization */
+static int virtio_crypto_skcipher_setkey(struct crypto_skcipher *tfm,
+					 const uint8_t *key,
+					 unsigned int keylen)
+{
+	struct virtio_crypto_skcipher_ctx *ctx = crypto_skcipher_ctx(tfm);
+>>>>>>> upstream/android-13
 	uint32_t alg;
 	int ret;
 
@@ -337,11 +442,19 @@ static int virtio_crypto_ablkcipher_setkey(struct crypto_ablkcipher *tfm,
 		ctx->vcrypto = vcrypto;
 	} else {
 		/* Rekeying, we should close the created sessions previously */
+<<<<<<< HEAD
 		virtio_crypto_alg_ablkcipher_close_session(ctx, 1);
 		virtio_crypto_alg_ablkcipher_close_session(ctx, 0);
 	}
 
 	ret = virtio_crypto_alg_ablkcipher_init_sessions(ctx, key, keylen);
+=======
+		virtio_crypto_alg_skcipher_close_session(ctx, 1);
+		virtio_crypto_alg_skcipher_close_session(ctx, 0);
+	}
+
+	ret = virtio_crypto_alg_skcipher_init_sessions(ctx, key, keylen);
+>>>>>>> upstream/android-13
 	if (ret) {
 		virtcrypto_dev_put(ctx->vcrypto);
 		ctx->vcrypto = NULL;
@@ -353,6 +466,7 @@ static int virtio_crypto_ablkcipher_setkey(struct crypto_ablkcipher *tfm,
 }
 
 static int
+<<<<<<< HEAD
 __virtio_crypto_ablkcipher_do_req(struct virtio_crypto_sym_request *vc_sym_req,
 		struct ablkcipher_request *req,
 		struct data_queue *data_vq)
@@ -361,6 +475,16 @@ __virtio_crypto_ablkcipher_do_req(struct virtio_crypto_sym_request *vc_sym_req,
 	struct virtio_crypto_ablkcipher_ctx *ctx = vc_sym_req->ablkcipher_ctx;
 	struct virtio_crypto_request *vc_req = &vc_sym_req->base;
 	unsigned int ivsize = crypto_ablkcipher_ivsize(tfm);
+=======
+__virtio_crypto_skcipher_do_req(struct virtio_crypto_sym_request *vc_sym_req,
+		struct skcipher_request *req,
+		struct data_queue *data_vq)
+{
+	struct crypto_skcipher *tfm = crypto_skcipher_reqtfm(req);
+	struct virtio_crypto_skcipher_ctx *ctx = vc_sym_req->skcipher_ctx;
+	struct virtio_crypto_request *vc_req = &vc_sym_req->base;
+	unsigned int ivsize = crypto_skcipher_ivsize(tfm);
+>>>>>>> upstream/android-13
 	struct virtio_crypto *vcrypto = ctx->vcrypto;
 	struct virtio_crypto_op_data_req *req_data;
 	int src_nents, dst_nents;
@@ -373,7 +497,11 @@ __virtio_crypto_ablkcipher_do_req(struct virtio_crypto_sym_request *vc_sym_req,
 	uint8_t *iv;
 	struct scatterlist *sg;
 
+<<<<<<< HEAD
 	src_nents = sg_nents_for_len(req->src, req->nbytes);
+=======
+	src_nents = sg_nents_for_len(req->src, req->cryptlen);
+>>>>>>> upstream/android-13
 	if (src_nents < 0) {
 		pr_err("Invalid number of src SG.\n");
 		return src_nents;
@@ -409,13 +537,21 @@ __virtio_crypto_ablkcipher_do_req(struct virtio_crypto_sym_request *vc_sym_req,
 	} else {
 		req_data->header.session_id =
 			cpu_to_le64(ctx->dec_sess_info.session_id);
+<<<<<<< HEAD
 	    req_data->header.opcode =
+=======
+		req_data->header.opcode =
+>>>>>>> upstream/android-13
 			cpu_to_le32(VIRTIO_CRYPTO_CIPHER_DECRYPT);
 	}
 	req_data->u.sym_req.op_type = cpu_to_le32(VIRTIO_CRYPTO_SYM_OP_CIPHER);
 	req_data->u.sym_req.u.cipher.para.iv_len = cpu_to_le32(ivsize);
 	req_data->u.sym_req.u.cipher.para.src_data_len =
+<<<<<<< HEAD
 			cpu_to_le32(req->nbytes);
+=======
+			cpu_to_le32(req->cryptlen);
+>>>>>>> upstream/android-13
 
 	dst_len = virtio_crypto_alg_sg_nents_length(req->dst);
 	if (unlikely(dst_len > U32_MAX)) {
@@ -424,11 +560,19 @@ __virtio_crypto_ablkcipher_do_req(struct virtio_crypto_sym_request *vc_sym_req,
 		goto free;
 	}
 
+<<<<<<< HEAD
 	dst_len = min_t(unsigned int, req->nbytes, dst_len);
 	pr_debug("virtio_crypto: src_len: %u, dst_len: %llu\n",
 			req->nbytes, dst_len);
 
 	if (unlikely(req->nbytes + dst_len + ivsize +
+=======
+	dst_len = min_t(unsigned int, req->cryptlen, dst_len);
+	pr_debug("virtio_crypto: src_len: %u, dst_len: %llu\n",
+			req->cryptlen, dst_len);
+
+	if (unlikely(req->cryptlen + dst_len + ivsize +
+>>>>>>> upstream/android-13
 		sizeof(vc_req->status) > vcrypto->max_size)) {
 		pr_err("virtio_crypto: The length is too big\n");
 		err = -EINVAL;
@@ -454,10 +598,17 @@ __virtio_crypto_ablkcipher_do_req(struct virtio_crypto_sym_request *vc_sym_req,
 		err = -ENOMEM;
 		goto free;
 	}
+<<<<<<< HEAD
 	memcpy(iv, req->info, ivsize);
 	if (!vc_sym_req->encrypt)
 		scatterwalk_map_and_copy(req->info, req->src,
 					 req->nbytes - AES_BLOCK_SIZE,
+=======
+	memcpy(iv, req->iv, ivsize);
+	if (!vc_sym_req->encrypt)
+		scatterwalk_map_and_copy(req->iv, req->src,
+					 req->cryptlen - AES_BLOCK_SIZE,
+>>>>>>> upstream/android-13
 					 AES_BLOCK_SIZE, 0);
 
 	sg_init_one(&iv_sg, iv, ivsize);
@@ -489,31 +640,53 @@ __virtio_crypto_ablkcipher_do_req(struct virtio_crypto_sym_request *vc_sym_req,
 	return 0;
 
 free_iv:
+<<<<<<< HEAD
 	kzfree(iv);
 free:
 	kzfree(req_data);
+=======
+	kfree_sensitive(iv);
+free:
+	kfree_sensitive(req_data);
+>>>>>>> upstream/android-13
 	kfree(sgs);
 	return err;
 }
 
+<<<<<<< HEAD
 static int virtio_crypto_ablkcipher_encrypt(struct ablkcipher_request *req)
 {
 	struct crypto_ablkcipher *atfm = crypto_ablkcipher_reqtfm(req);
 	struct virtio_crypto_ablkcipher_ctx *ctx = crypto_ablkcipher_ctx(atfm);
 	struct virtio_crypto_sym_request *vc_sym_req =
 				ablkcipher_request_ctx(req);
+=======
+static int virtio_crypto_skcipher_encrypt(struct skcipher_request *req)
+{
+	struct crypto_skcipher *atfm = crypto_skcipher_reqtfm(req);
+	struct virtio_crypto_skcipher_ctx *ctx = crypto_skcipher_ctx(atfm);
+	struct virtio_crypto_sym_request *vc_sym_req =
+				skcipher_request_ctx(req);
+>>>>>>> upstream/android-13
 	struct virtio_crypto_request *vc_req = &vc_sym_req->base;
 	struct virtio_crypto *vcrypto = ctx->vcrypto;
 	/* Use the first data virtqueue as default */
 	struct data_queue *data_vq = &vcrypto->data_vq[0];
 
+<<<<<<< HEAD
 	if (!req->nbytes)
 		return 0;
 	if (req->nbytes % AES_BLOCK_SIZE)
+=======
+	if (!req->cryptlen)
+		return 0;
+	if (req->cryptlen % AES_BLOCK_SIZE)
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	vc_req->dataq = data_vq;
 	vc_req->alg_cb = virtio_crypto_dataq_sym_callback;
+<<<<<<< HEAD
 	vc_sym_req->ablkcipher_ctx = ctx;
 	vc_sym_req->ablkcipher_req = req;
 	vc_sym_req->encrypt = true;
@@ -527,18 +700,40 @@ static int virtio_crypto_ablkcipher_decrypt(struct ablkcipher_request *req)
 	struct virtio_crypto_ablkcipher_ctx *ctx = crypto_ablkcipher_ctx(atfm);
 	struct virtio_crypto_sym_request *vc_sym_req =
 				ablkcipher_request_ctx(req);
+=======
+	vc_sym_req->skcipher_ctx = ctx;
+	vc_sym_req->skcipher_req = req;
+	vc_sym_req->encrypt = true;
+
+	return crypto_transfer_skcipher_request_to_engine(data_vq->engine, req);
+}
+
+static int virtio_crypto_skcipher_decrypt(struct skcipher_request *req)
+{
+	struct crypto_skcipher *atfm = crypto_skcipher_reqtfm(req);
+	struct virtio_crypto_skcipher_ctx *ctx = crypto_skcipher_ctx(atfm);
+	struct virtio_crypto_sym_request *vc_sym_req =
+				skcipher_request_ctx(req);
+>>>>>>> upstream/android-13
 	struct virtio_crypto_request *vc_req = &vc_sym_req->base;
 	struct virtio_crypto *vcrypto = ctx->vcrypto;
 	/* Use the first data virtqueue as default */
 	struct data_queue *data_vq = &vcrypto->data_vq[0];
 
+<<<<<<< HEAD
 	if (!req->nbytes)
 		return 0;
 	if (req->nbytes % AES_BLOCK_SIZE)
+=======
+	if (!req->cryptlen)
+		return 0;
+	if (req->cryptlen % AES_BLOCK_SIZE)
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	vc_req->dataq = data_vq;
 	vc_req->alg_cb = virtio_crypto_dataq_sym_callback;
+<<<<<<< HEAD
 	vc_sym_req->ablkcipher_ctx = ctx;
 	vc_sym_req->ablkcipher_req = req;
 	vc_sym_req->encrypt = false;
@@ -554,35 +749,76 @@ static int virtio_crypto_ablkcipher_init(struct crypto_tfm *tfm)
 	ctx->tfm = tfm;
 
 	ctx->enginectx.op.do_one_request = virtio_crypto_ablkcipher_crypt_req;
+=======
+	vc_sym_req->skcipher_ctx = ctx;
+	vc_sym_req->skcipher_req = req;
+	vc_sym_req->encrypt = false;
+
+	return crypto_transfer_skcipher_request_to_engine(data_vq->engine, req);
+}
+
+static int virtio_crypto_skcipher_init(struct crypto_skcipher *tfm)
+{
+	struct virtio_crypto_skcipher_ctx *ctx = crypto_skcipher_ctx(tfm);
+
+	crypto_skcipher_set_reqsize(tfm, sizeof(struct virtio_crypto_sym_request));
+	ctx->tfm = tfm;
+
+	ctx->enginectx.op.do_one_request = virtio_crypto_skcipher_crypt_req;
+>>>>>>> upstream/android-13
 	ctx->enginectx.op.prepare_request = NULL;
 	ctx->enginectx.op.unprepare_request = NULL;
 	return 0;
 }
 
+<<<<<<< HEAD
 static void virtio_crypto_ablkcipher_exit(struct crypto_tfm *tfm)
 {
 	struct virtio_crypto_ablkcipher_ctx *ctx = crypto_tfm_ctx(tfm);
+=======
+static void virtio_crypto_skcipher_exit(struct crypto_skcipher *tfm)
+{
+	struct virtio_crypto_skcipher_ctx *ctx = crypto_skcipher_ctx(tfm);
+>>>>>>> upstream/android-13
 
 	if (!ctx->vcrypto)
 		return;
 
+<<<<<<< HEAD
 	virtio_crypto_alg_ablkcipher_close_session(ctx, 1);
 	virtio_crypto_alg_ablkcipher_close_session(ctx, 0);
+=======
+	virtio_crypto_alg_skcipher_close_session(ctx, 1);
+	virtio_crypto_alg_skcipher_close_session(ctx, 0);
+>>>>>>> upstream/android-13
 	virtcrypto_dev_put(ctx->vcrypto);
 	ctx->vcrypto = NULL;
 }
 
+<<<<<<< HEAD
 int virtio_crypto_ablkcipher_crypt_req(
 	struct crypto_engine *engine, void *vreq)
 {
 	struct ablkcipher_request *req = container_of(vreq, struct ablkcipher_request, base);
 	struct virtio_crypto_sym_request *vc_sym_req =
 				ablkcipher_request_ctx(req);
+=======
+int virtio_crypto_skcipher_crypt_req(
+	struct crypto_engine *engine, void *vreq)
+{
+	struct skcipher_request *req = container_of(vreq, struct skcipher_request, base);
+	struct virtio_crypto_sym_request *vc_sym_req =
+				skcipher_request_ctx(req);
+>>>>>>> upstream/android-13
 	struct virtio_crypto_request *vc_req = &vc_sym_req->base;
 	struct data_queue *data_vq = vc_req->dataq;
 	int ret;
 
+<<<<<<< HEAD
 	ret = __virtio_crypto_ablkcipher_do_req(vc_sym_req, req, data_vq);
+=======
+	ret = __virtio_crypto_skcipher_do_req(vc_sym_req, req, data_vq);
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		return ret;
 
@@ -591,6 +827,7 @@ int virtio_crypto_ablkcipher_crypt_req(
 	return 0;
 }
 
+<<<<<<< HEAD
 static void virtio_crypto_ablkcipher_finalize_req(
 	struct virtio_crypto_sym_request *vc_sym_req,
 	struct ablkcipher_request *req,
@@ -604,6 +841,21 @@ static void virtio_crypto_ablkcipher_finalize_req(
 	virtcrypto_clear_request(&vc_sym_req->base);
 
 	crypto_finalize_ablkcipher_request(vc_sym_req->base.dataq->engine,
+=======
+static void virtio_crypto_skcipher_finalize_req(
+	struct virtio_crypto_sym_request *vc_sym_req,
+	struct skcipher_request *req,
+	int err)
+{
+	if (vc_sym_req->encrypt)
+		scatterwalk_map_and_copy(req->iv, req->dst,
+					 req->cryptlen - AES_BLOCK_SIZE,
+					 AES_BLOCK_SIZE, 0);
+	kfree_sensitive(vc_sym_req->iv);
+	virtcrypto_clear_request(&vc_sym_req->base);
+
+	crypto_finalize_skcipher_request(vc_sym_req->base.dataq->engine,
+>>>>>>> upstream/android-13
 					   req, err);
 }
 
@@ -611,6 +863,7 @@ static struct virtio_crypto_algo virtio_crypto_algs[] = { {
 	.algonum = VIRTIO_CRYPTO_CIPHER_AES_CBC,
 	.service = VIRTIO_CRYPTO_SERVICE_CIPHER,
 	.algo = {
+<<<<<<< HEAD
 		.cra_name = "cbc(aes)",
 		.cra_driver_name = "virtio_crypto_aes_cbc",
 		.cra_priority = 150,
@@ -632,6 +885,24 @@ static struct virtio_crypto_algo virtio_crypto_algs[] = { {
 				.ivsize = AES_BLOCK_SIZE,
 			},
 		},
+=======
+		.base.cra_name		= "cbc(aes)",
+		.base.cra_driver_name	= "virtio_crypto_aes_cbc",
+		.base.cra_priority	= 150,
+		.base.cra_flags		= CRYPTO_ALG_ASYNC |
+					  CRYPTO_ALG_ALLOCATES_MEMORY,
+		.base.cra_blocksize	= AES_BLOCK_SIZE,
+		.base.cra_ctxsize	= sizeof(struct virtio_crypto_skcipher_ctx),
+		.base.cra_module	= THIS_MODULE,
+		.init			= virtio_crypto_skcipher_init,
+		.exit			= virtio_crypto_skcipher_exit,
+		.setkey			= virtio_crypto_skcipher_setkey,
+		.decrypt		= virtio_crypto_skcipher_decrypt,
+		.encrypt		= virtio_crypto_skcipher_encrypt,
+		.min_keysize		= AES_MIN_KEY_SIZE,
+		.max_keysize		= AES_MAX_KEY_SIZE,
+		.ivsize			= AES_BLOCK_SIZE,
+>>>>>>> upstream/android-13
 	},
 } };
 
@@ -651,14 +922,22 @@ int virtio_crypto_algs_register(struct virtio_crypto *vcrypto)
 			continue;
 
 		if (virtio_crypto_algs[i].active_devs == 0) {
+<<<<<<< HEAD
 			ret = crypto_register_alg(&virtio_crypto_algs[i].algo);
+=======
+			ret = crypto_register_skcipher(&virtio_crypto_algs[i].algo);
+>>>>>>> upstream/android-13
 			if (ret)
 				goto unlock;
 		}
 
 		virtio_crypto_algs[i].active_devs++;
 		dev_info(&vcrypto->vdev->dev, "Registered algo %s\n",
+<<<<<<< HEAD
 			 virtio_crypto_algs[i].algo.cra_name);
+=======
+			 virtio_crypto_algs[i].algo.base.cra_name);
+>>>>>>> upstream/android-13
 	}
 
 unlock:
@@ -682,7 +961,11 @@ void virtio_crypto_algs_unregister(struct virtio_crypto *vcrypto)
 			continue;
 
 		if (virtio_crypto_algs[i].active_devs == 1)
+<<<<<<< HEAD
 			crypto_unregister_alg(&virtio_crypto_algs[i].algo);
+=======
+			crypto_unregister_skcipher(&virtio_crypto_algs[i].algo);
+>>>>>>> upstream/android-13
 
 		virtio_crypto_algs[i].active_devs--;
 	}

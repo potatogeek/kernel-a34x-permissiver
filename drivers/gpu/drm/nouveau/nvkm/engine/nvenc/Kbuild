@@ -1,1 +1,7 @@
+<<<<<<< HEAD
 #nvkm-y += nvkm/engine/nvenc/base.o
+=======
+# SPDX-License-Identifier: MIT
+nvkm-y += nvkm/engine/nvenc/base.o
+nvkm-y += nvkm/engine/nvenc/gm107.o
+>>>>>>> upstream/android-13

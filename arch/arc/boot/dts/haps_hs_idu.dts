@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2016-2014 Synopsys, Inc. (www.synopsys.com)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2016-2014 Synopsys, Inc. (www.synopsys.com)
+>>>>>>> upstream/android-13
  */
 /dts-v1/;
 
@@ -57,7 +63,10 @@
 		};
 
 		uart0: serial@f0000000 {
+<<<<<<< HEAD
 			/* compatible = "ns8250"; Doesn't use FIFOs */
+=======
+>>>>>>> upstream/android-13
 			compatible = "ns16550a";
 			reg = <0xf0000000 0x2000>;
 			interrupt-parent = <&idu_intc>;

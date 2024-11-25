@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Linux-DVB Driver for DiBcom's DiB8000 chip (ISDB-T).
  *
  * Copyright (C) 2009 DiBcom (http://www.dibcom.fr/)
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License as
  *  published by the Free Software Foundation, version 2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -564,7 +571,11 @@ static int dib8000_set_adc_state(struct dib8000_state *state, enum dibx000_adc_s
 			dib8000_write_word(state, 1925, reg |
 					(1<<4) | (1<<2));
 
+<<<<<<< HEAD
 			/* read acces to make it works... strange ... */
+=======
+			/* read access to make it works... strange ... */
+>>>>>>> upstream/android-13
 			reg = dib8000_read_word(state, 1925);
 			msleep(20);
 			/* en_slowAdc = 1 & reset_sladc = 0 */
@@ -1091,7 +1102,11 @@ static int dib8000_reset(struct dvb_frontend *fe)
 
 	if ((state->revision != 0x8090) &&
 			(dib8000_set_output_mode(fe, OUTMODE_HIGH_Z) != 0))
+<<<<<<< HEAD
 		dprintk("OUTPUT_MODE could not be resetted.\n");
+=======
+		dprintk("OUTPUT_MODE could not be reset.\n");
+>>>>>>> upstream/android-13
 
 	state->current_agc = NULL;
 
@@ -1867,7 +1882,11 @@ static int dib8096p_tuner_xfer(struct i2c_adapter *i2c_adap,
 			}
 	}
 
+<<<<<<< HEAD
 	if (apb_address != 0) /* R/W acces via APB */
+=======
+	if (apb_address != 0) /* R/W access via APB */
+>>>>>>> upstream/android-13
 		return dib8096p_rw_on_apb(i2c_adap, msg, num, apb_address);
 	else  /* R/W access via SERPAR  */
 		return dib8096p_tuner_rw_serpar(i2c_adap, msg, num);
@@ -2110,6 +2129,7 @@ static void dib8000_load_ana_fe_coefs(struct dib8000_state *state, const s16 *an
 			dib8000_write_word(state, 117 + mode, ana_fe[mode]);
 }
 
+<<<<<<< HEAD
 static const u16 lut_prbs_2k[14] = {
 	0, 0x423, 0x009, 0x5C7, 0x7A6, 0x3D8, 0x527, 0x7FF, 0x79B, 0x3D6, 0x3A2, 0x53B, 0x2F4, 0x213
 };
@@ -2118,11 +2138,36 @@ static const u16 lut_prbs_4k[14] = {
 };
 static const u16 lut_prbs_8k[14] = {
 	0, 0x740, 0x069, 0x7DD, 0x208, 0x7B9, 0x5C7, 0x7FF, 0x53B, 0x029, 0x48E, 0x4C4, 0x367, 0x684
+=======
+static const u16 lut_prbs_2k[13] = {
+	0x423, 0x009, 0x5C7,
+	0x7A6, 0x3D8, 0x527,
+	0x7FF, 0x79B, 0x3D6,
+	0x3A2, 0x53B, 0x2F4,
+	0x213
+};
+
+static const u16 lut_prbs_4k[13] = {
+	0x208, 0x0C3, 0x7B9,
+	0x423, 0x5C7, 0x3D8,
+	0x7FF, 0x3D6, 0x53B,
+	0x213, 0x029, 0x0D0,
+	0x48E
+};
+
+static const u16 lut_prbs_8k[13] = {
+	0x740, 0x069, 0x7DD,
+	0x208, 0x7B9, 0x5C7,
+	0x7FF, 0x53B, 0x029,
+	0x48E, 0x4C4, 0x367,
+	0x684
+>>>>>>> upstream/android-13
 };
 
 static u16 dib8000_get_init_prbs(struct dib8000_state *state, u16 subchannel)
 {
 	int sub_channel_prbs_group = 0;
+<<<<<<< HEAD
 
 	sub_channel_prbs_group = (subchannel / 3) + 1;
 	dprintk("sub_channel_prbs_group = %d , subchannel =%d prbs = 0x%04x\n", sub_channel_prbs_group, subchannel, lut_prbs_8k[sub_channel_prbs_group]);
@@ -2136,6 +2181,30 @@ static u16 dib8000_get_init_prbs(struct dib8000_state *state, u16 subchannel)
 	case TRANSMISSION_MODE_8K:
 			return lut_prbs_8k[sub_channel_prbs_group];
 	}
+=======
+	int prbs_group;
+
+	sub_channel_prbs_group = subchannel / 3;
+	if (sub_channel_prbs_group >= ARRAY_SIZE(lut_prbs_2k))
+		return 0;
+
+	switch (state->fe[0]->dtv_property_cache.transmission_mode) {
+	case TRANSMISSION_MODE_2K:
+		prbs_group = lut_prbs_2k[sub_channel_prbs_group];
+		break;
+	case TRANSMISSION_MODE_4K:
+		prbs_group =  lut_prbs_4k[sub_channel_prbs_group];
+		break;
+	default:
+	case TRANSMISSION_MODE_8K:
+		prbs_group = lut_prbs_8k[sub_channel_prbs_group];
+	}
+
+	dprintk("sub_channel_prbs_group = %d , subchannel =%d prbs = 0x%04x\n",
+		sub_channel_prbs_group, subchannel, prbs_group);
+
+	return prbs_group;
+>>>>>>> upstream/android-13
 }
 
 static void dib8000_set_13seg_channel(struct dib8000_state *state)
@@ -2412,10 +2481,15 @@ static void dib8000_set_isdbt_common_channel(struct dib8000_state *state, u8 seq
 	/* TSB or ISDBT ? apply it now */
 	if (c->isdbt_sb_mode) {
 		dib8000_set_sb_channel(state);
+<<<<<<< HEAD
 		if (c->isdbt_sb_subchannel < 14)
 			init_prbs = dib8000_get_init_prbs(state, c->isdbt_sb_subchannel);
 		else
 			init_prbs = 0;
+=======
+		init_prbs = dib8000_get_init_prbs(state,
+						  c->isdbt_sb_subchannel);
+>>>>>>> upstream/android-13
 	} else {
 		dib8000_set_13seg_channel(state);
 		init_prbs = 0xfff;
@@ -3007,6 +3081,10 @@ static int dib8000_tune(struct dvb_frontend *fe)
 
 	unsigned long *timeout = &state->timeout;
 	unsigned long now = jiffies;
+<<<<<<< HEAD
+=======
+	u16 init_prbs;
+>>>>>>> upstream/android-13
 #ifdef DIB8000_AGC_FREEZE
 	u16 agc1, agc2;
 #endif
@@ -3082,7 +3160,11 @@ static int dib8000_tune(struct dvb_frontend *fe)
 			state->autosearch_state = AS_DONE;
 			*tune_state = CT_DEMOD_STOP; /* else we are done here */
 			break;
+<<<<<<< HEAD
 		case 2: /* Succes */
+=======
+		case 2: /* Success */
+>>>>>>> upstream/android-13
 			state->status = FE_STATUS_FFT_SUCCESS; /* signal to the upper layer, that there was a channel found and the parameters can be read */
 			*tune_state = CT_DEMOD_STEP_3;
 			if (state->autosearch_state == AS_SEARCHING_GUARD)
@@ -3193,10 +3275,17 @@ static int dib8000_tune(struct dvb_frontend *fe)
 
 	case CT_DEMOD_STEP_6: /* (36)  if there is an input (diversity) */
 		if ((state->fe[1] != NULL) && (state->output_mode != OUTMODE_DIVERSITY)) {
+<<<<<<< HEAD
 			/* if there is a diversity fe in input and this fe is has not already failled : wait here until this this fe has succedeed or failled */
 			if (dib8000_get_status(state->fe[1]) <= FE_STATUS_STD_SUCCESS) /* Something is locked on the input fe */
 				*tune_state = CT_DEMOD_STEP_8; /* go for mpeg */
 			else if (dib8000_get_status(state->fe[1]) >= FE_STATUS_TUNE_TIME_TOO_SHORT) { /* fe in input failled also, break the current one */
+=======
+			/* if there is a diversity fe in input and this fe is has not already failed : wait here until this this fe has succedeed or failed */
+			if (dib8000_get_status(state->fe[1]) <= FE_STATUS_STD_SUCCESS) /* Something is locked on the input fe */
+				*tune_state = CT_DEMOD_STEP_8; /* go for mpeg */
+			else if (dib8000_get_status(state->fe[1]) >= FE_STATUS_TUNE_TIME_TOO_SHORT) { /* fe in input failed also, break the current one */
+>>>>>>> upstream/android-13
 				*tune_state = CT_DEMOD_STOP; /* else we are done here ; step 8 will close the loops and exit */
 				dib8000_viterbi_state(state, 1); /* start viterbi chandec */
 				dib8000_set_isdbt_loop_params(state, LOOP_TUNE_2);
@@ -3305,8 +3394,15 @@ static int dib8000_tune(struct dvb_frontend *fe)
 		break;
 
 	case CT_DEMOD_STEP_11:  /* 41 : init prbs autosearch */
+<<<<<<< HEAD
 		if (state->subchannel <= 41) {
 			dib8000_set_subchannel_prbs(state, dib8000_get_init_prbs(state, state->subchannel));
+=======
+		init_prbs = dib8000_get_init_prbs(state, state->subchannel);
+
+		if (init_prbs) {
+			dib8000_set_subchannel_prbs(state, init_prbs);
+>>>>>>> upstream/android-13
 			*tune_state = CT_DEMOD_STEP_9;
 		} else {
 			*tune_state = CT_DEMOD_STOP;
@@ -4452,14 +4548,26 @@ static struct dvb_frontend *dib8000_init(struct i2c_adapter *i2c_adap, u8 i2c_ad
 
 	state->timf_default = cfg->pll->timf;
 
+<<<<<<< HEAD
 	if (dib8000_identify(&state->i2c) == 0)
 		goto error;
+=======
+	if (dib8000_identify(&state->i2c) == 0) {
+		kfree(fe);
+		goto error;
+	}
+>>>>>>> upstream/android-13
 
 	dibx000_init_i2c_master(&state->i2c_master, DIB8000, state->i2c.adap, state->i2c.addr);
 
 	/* init 8096p tuner adapter */
+<<<<<<< HEAD
 	strncpy(state->dib8096p_tuner_adap.name, "DiB8096P tuner interface",
 			sizeof(state->dib8096p_tuner_adap.name));
+=======
+	strscpy(state->dib8096p_tuner_adap.name, "DiB8096P tuner interface",
+		sizeof(state->dib8096p_tuner_adap.name));
+>>>>>>> upstream/android-13
 	state->dib8096p_tuner_adap.algo = &dib8096p_tuner_xfer_algo;
 	state->dib8096p_tuner_adap.algo_data = NULL;
 	state->dib8096p_tuner_adap.dev.parent = state->i2c.adap->dev.parent;

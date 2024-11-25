@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2001,2002,2003,2004 Broadcom Corporation
  * Copyright (c) 2006, 2007  Maciej W. Rozycki
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
@@ -16,6 +21,8 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
  *
+=======
+>>>>>>> upstream/android-13
  * This driver is designed for the Broadcom SiByte SOC built-in
  * Ethernet controllers. Written by Mitch Lichtenberg at Broadcom Corp.
  *
@@ -156,7 +163,11 @@ enum sbmac_state {
 			  (d)->sbdma_dscrtable : (d)->f+1)
 
 
+<<<<<<< HEAD
 #define NUMCACHEBLKS(x) (((x)+SMP_CACHE_BYTES-1)/SMP_CACHE_BYTES)
+=======
+#define NUMCACHEBLKS(x) DIV_ROUND_UP(x, SMP_CACHE_BYTES)
+>>>>>>> upstream/android-13
 
 #define SBMAC_MAX_TXDESCR	256
 #define SBMAC_MAX_RXDESCR	256
@@ -307,7 +318,11 @@ static int sbmac_set_duplex(struct sbmac_softc *s, enum sbmac_duplex duplex,
 			    enum sbmac_fc fc);
 
 static int sbmac_open(struct net_device *dev);
+<<<<<<< HEAD
 static void sbmac_tx_timeout (struct net_device *dev);
+=======
+static void sbmac_tx_timeout (struct net_device *dev, unsigned int txqueue);
+>>>>>>> upstream/android-13
 static void sbmac_set_rx_mode(struct net_device *dev);
 static int sbmac_mii_ioctl(struct net_device *dev, struct ifreq *rq, int cmd);
 static int sbmac_close(struct net_device *dev);
@@ -1288,7 +1303,11 @@ static void sbdma_tx_process(struct sbmac_softc *sc, struct sbmacdma *d,
 		 * for transmits, we just free buffers.
 		 */
 
+<<<<<<< HEAD
 		dev_kfree_skb_irq(sb);
+=======
+		dev_consume_skb_irq(sb);
+>>>>>>> upstream/android-13
 
 		/*
 		 * .. and advance to the next buffer.
@@ -2149,7 +2168,11 @@ static const struct net_device_ops sbmac_netdev_ops = {
 	.ndo_start_xmit		= sbmac_start_tx,
 	.ndo_set_rx_mode	= sbmac_set_rx_mode,
 	.ndo_tx_timeout		= sbmac_tx_timeout,
+<<<<<<< HEAD
 	.ndo_do_ioctl		= sbmac_mii_ioctl,
+=======
+	.ndo_eth_ioctl		= sbmac_mii_ioctl,
+>>>>>>> upstream/android-13
 	.ndo_validate_addr	= eth_validate_addr,
 	.ndo_set_mac_address	= eth_mac_addr,
 #ifdef CONFIG_NET_POLL_CONTROLLER
@@ -2357,6 +2380,7 @@ static int sbmac_mii_probe(struct net_device *dev)
 	}
 
 	/* Remove any features not supported by the controller */
+<<<<<<< HEAD
 	phy_dev->supported &= SUPPORTED_10baseT_Half |
 			      SUPPORTED_10baseT_Full |
 			      SUPPORTED_100baseT_Half |
@@ -2372,6 +2396,13 @@ static int sbmac_mii_probe(struct net_device *dev)
 
 	phy_dev->advertising = phy_dev->supported;
 
+=======
+	phy_set_max_speed(phy_dev, SPEED_1000);
+	phy_support_asym_pause(phy_dev);
+
+	phy_attached_info(phy_dev);
+
+>>>>>>> upstream/android-13
 	sc->phy_dev = phy_dev;
 
 	return 0;
@@ -2442,7 +2473,11 @@ static void sbmac_mii_poll(struct net_device *dev)
 }
 
 
+<<<<<<< HEAD
 static void sbmac_tx_timeout (struct net_device *dev)
+=======
+static void sbmac_tx_timeout (struct net_device *dev, unsigned int txqueue)
+>>>>>>> upstream/android-13
 {
 	struct sbmac_softc *sc = netdev_priv(dev);
 	unsigned long flags;
@@ -2560,7 +2595,11 @@ static int sbmac_probe(struct platform_device *pldev)
 
 	res = platform_get_resource(pldev, IORESOURCE_MEM, 0);
 	BUG_ON(!res);
+<<<<<<< HEAD
 	sbm_base = ioremap_nocache(res->start, resource_size(res));
+=======
+	sbm_base = ioremap(res->start, resource_size(res));
+>>>>>>> upstream/android-13
 	if (!sbm_base) {
 		printk(KERN_ERR "%s: unable to map device registers\n",
 		       dev_name(&pldev->dev));

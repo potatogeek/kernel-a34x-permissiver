@@ -35,6 +35,7 @@ static void report_event_step_counter(void)
 void print_step_counter_debug(void)
 {
 	struct shub_sensor *sensor = get_sensor(SENSOR_TYPE_STEP_COUNTER);
+<<<<<<< HEAD
 	struct sensor_event *event = &(sensor->last_event_buffer);
 	struct step_counter_event *sensor_value = (struct step_counter_event *)(event->value);
 
@@ -52,12 +53,25 @@ static struct sensor_funcs step_cnt_sensor_funcs = {
 int init_step_counter(bool en)
 {
 	int ret = 0;
+=======
+	struct sensor_event *event = &(sensor->event_buffer);
+	struct step_counter_event *sensor_value = (struct step_counter_event *)(event->value);
+
+	shub_info("%s(%u) : %u (%lld) (%ums, %dms)", sensor->name, SENSOR_TYPE_STEP_COUNTER,
+		  sensor_value->step_diff, event->timestamp,
+		  sensor->sampling_period, sensor->max_report_latency);
+}
+
+int init_step_counter(bool en)
+{
+>>>>>>> upstream/android-13
 	struct shub_sensor *sensor = get_sensor(SENSOR_TYPE_STEP_COUNTER);
 
 	if (!sensor)
 		return 0;
 
 	if (en) {
+<<<<<<< HEAD
 		ret = init_default_func(sensor, "step_cnt_sensor", 4, 12, sizeof(struct step_counter_event));
 		sensor->funcs = &step_cnt_sensor_funcs;
 	} else {
@@ -65,17 +79,53 @@ int init_step_counter(bool en)
 	}
 
 	return ret;
+=======
+		strcpy(sensor->name, "step_cnt_sensor");
+		sensor->receive_event_size = 4;
+		sensor->report_event_size = 12;
+		sensor->event_buffer.value = kzalloc(sizeof(struct step_counter_event), GFP_KERNEL);
+		if (!sensor->event_buffer.value)
+			goto err_no_mem;
+
+		sensor->funcs = kzalloc(sizeof(struct sensor_funcs), GFP_KERNEL);
+		if (!sensor->funcs)
+			goto err_no_mem;
+
+		sensor->funcs->report_event = report_event_step_counter;
+		sensor->funcs->print_debug = print_step_counter_debug;
+	} else {
+		kfree(sensor->event_buffer.value);
+		sensor->event_buffer.value = NULL;
+
+		kfree(sensor->funcs);
+		sensor->funcs = NULL;
+	}
+	return 0;
+
+err_no_mem:
+	kfree(sensor->event_buffer.value);
+	sensor->event_buffer.value = NULL;
+
+	kfree(sensor->funcs);
+	sensor->funcs = NULL;
+
+	return -ENOMEM;
+>>>>>>> upstream/android-13
 }
 
 int init_step_detector(bool en)
 {
+<<<<<<< HEAD
 	int ret = 0;
+=======
+>>>>>>> upstream/android-13
 	struct shub_sensor *sensor = get_sensor(SENSOR_TYPE_STEP_DETECTOR);
 
 	if (!sensor)
 		return 0;
 
 	if (en) {
+<<<<<<< HEAD
 		ret = init_default_func(sensor, "step_det_sensor", 1, 1, 1);
 	} else {
 		destroy_default_func(sensor);
@@ -100,3 +150,23 @@ int init_sequential_step(bool en)
 
 	return ret;
 }
+=======
+		strcpy(sensor->name, "step_det_sensor");
+		sensor->receive_event_size = 1;
+		sensor->report_event_size = 1;
+		sensor->event_buffer.value = kzalloc(sensor->receive_event_size, GFP_KERNEL);
+		if (!sensor->event_buffer.value)
+			goto err_no_mem;
+	} else {
+		kfree(sensor->event_buffer.value);
+		sensor->event_buffer.value = NULL;
+	}
+	return 0;
+
+err_no_mem:
+	kfree(sensor->event_buffer.value);
+	sensor->event_buffer.value = NULL;
+
+	return -ENOMEM;
+}
+>>>>>>> upstream/android-13

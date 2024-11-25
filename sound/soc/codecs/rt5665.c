@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * rt5665.c  --  RT5665/RT5658 ALSA SoC audio codec driver
  *
  * Copyright 2016 Realtek Semiconductor Corp.
  * Author: Bard Liao <bardliao@realtek.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -1003,7 +1010,11 @@ static int rt5665_hp_vol_put(struct snd_kcontrol *kcontrol,
 	struct snd_soc_component *component = snd_soc_kcontrol_component(kcontrol);
 	int ret = snd_soc_put_volsw(kcontrol, ucontrol);
 
+<<<<<<< HEAD
 	if (snd_soc_component_read32(component, RT5665_STO_NG2_CTRL_1) & RT5665_NG2_EN) {
+=======
+	if (snd_soc_component_read(component, RT5665_STO_NG2_CTRL_1) & RT5665_NG2_EN) {
+>>>>>>> upstream/android-13
 		snd_soc_component_update_bits(component, RT5665_STO_NG2_CTRL_1,
 			RT5665_NG2_EN_MASK, RT5665_NG2_DIS);
 		snd_soc_component_update_bits(component, RT5665_STO_NG2_CTRL_1,
@@ -1019,7 +1030,11 @@ static int rt5665_mono_vol_put(struct snd_kcontrol *kcontrol,
 	struct snd_soc_component *component = snd_soc_kcontrol_component(kcontrol);
 	int ret = snd_soc_put_volsw(kcontrol, ucontrol);
 
+<<<<<<< HEAD
 	if (snd_soc_component_read32(component, RT5665_MONO_NG2_CTRL_1) & RT5665_NG2_EN) {
+=======
+	if (snd_soc_component_read(component, RT5665_MONO_NG2_CTRL_1) & RT5665_NG2_EN) {
+>>>>>>> upstream/android-13
 		snd_soc_component_update_bits(component, RT5665_MONO_NG2_CTRL_1,
 			RT5665_NG2_EN_MASK, RT5665_NG2_DIS);
 		snd_soc_component_update_bits(component, RT5665_MONO_NG2_CTRL_1,
@@ -1129,7 +1144,11 @@ static int rt5665_button_detect(struct snd_soc_component *component)
 {
 	int btn_type, val;
 
+<<<<<<< HEAD
 	val = snd_soc_component_read32(component, RT5665_4BTN_IL_CMD_1);
+=======
+	val = snd_soc_component_read(component, RT5665_4BTN_IL_CMD_1);
+>>>>>>> upstream/android-13
 	btn_type = val & 0xfff0;
 	snd_soc_component_write(component, RT5665_4BTN_IL_CMD_1, val);
 
@@ -1201,7 +1220,11 @@ static int rt5665_headset_detect(struct snd_soc_component *component, int jack_i
 
 		usleep_range(10000, 15000);
 
+<<<<<<< HEAD
 		rt5665->sar_adc_value = snd_soc_component_read32(rt5665->component,
+=======
+		rt5665->sar_adc_value = snd_soc_component_read(rt5665->component,
+>>>>>>> upstream/android-13
 			RT5665_SAR_IL_CMD_4) & 0x7ff;
 
 		sar_hs_type = rt5665->pdata.sar_hs_type ?
@@ -1248,7 +1271,11 @@ static void rt5665_jd_check_handler(struct work_struct *work)
 	struct rt5665_priv *rt5665 = container_of(work, struct rt5665_priv,
 		jd_check_work.work);
 
+<<<<<<< HEAD
 	if (snd_soc_component_read32(rt5665->component, RT5665_AJD1_CTRL) & 0x0010) {
+=======
+	if (snd_soc_component_read(rt5665->component, RT5665_AJD1_CTRL) & 0x0010) {
+>>>>>>> upstream/android-13
 		/* jack out */
 		rt5665->jack_type = rt5665_headset_detect(rt5665->component, 0);
 
@@ -1313,7 +1340,11 @@ static void rt5665_jack_detect_handler(struct work_struct *work)
 
 	mutex_lock(&rt5665->calibrate_mutex);
 
+<<<<<<< HEAD
 	val = snd_soc_component_read32(rt5665->component, RT5665_AJD1_CTRL) & 0x0010;
+=======
+	val = snd_soc_component_read(rt5665->component, RT5665_AJD1_CTRL) & 0x0010;
+>>>>>>> upstream/android-13
 	if (!val) {
 		/* jack in */
 		if (rt5665->jack_type == 0) {
@@ -1481,7 +1512,11 @@ static int set_dmic_clk(struct snd_soc_dapm_widget *w,
 {
 	struct snd_soc_component *component = snd_soc_dapm_to_component(w->dapm);
 	struct rt5665_priv *rt5665 = snd_soc_component_get_drvdata(component);
+<<<<<<< HEAD
 	int pd, idx = -EINVAL;
+=======
+	int pd, idx;
+>>>>>>> upstream/android-13
 
 	pd = rl6231_get_pre_div(rt5665->regmap,
 		RT5665_ADDA_CLK_1, RT5665_I2S_PD1_SFT);
@@ -1525,7 +1560,11 @@ static int is_sys_clk_from_pll(struct snd_soc_dapm_widget *w,
 	unsigned int val;
 	struct snd_soc_component *component = snd_soc_dapm_to_component(w->dapm);
 
+<<<<<<< HEAD
 	val = snd_soc_component_read32(component, RT5665_GLB_CLK);
+=======
+	val = snd_soc_component_read(component, RT5665_GLB_CLK);
+>>>>>>> upstream/android-13
 	val &= RT5665_SCLK_SRC_MASK;
 	if (val == RT5665_SCLK_SRC_PLL1)
 		return 1;
@@ -1576,7 +1615,11 @@ static int is_using_asrc(struct snd_soc_dapm_widget *w,
 		return 0;
 	}
 
+<<<<<<< HEAD
 	val = (snd_soc_component_read32(component, reg) >> shift) & 0xf;
+=======
+	val = (snd_soc_component_read(component, reg) >> shift) & 0xf;
+>>>>>>> upstream/android-13
 	switch (val) {
 	case RT5665_CLK_SEL_I2S1_ASRC:
 	case RT5665_CLK_SEL_I2S2_ASRC:
@@ -2569,7 +2612,11 @@ static int set_dmic_power(struct snd_soc_dapm_widget *w,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int rt5655_set_verf(struct snd_soc_dapm_widget *w,
+=======
+static int rt5665_set_verf(struct snd_soc_dapm_widget *w,
+>>>>>>> upstream/android-13
 	struct snd_kcontrol *kcontrol, int event)
 {
 	struct snd_soc_component *component = snd_soc_dapm_to_component(w->dapm);
@@ -2689,11 +2736,19 @@ static const struct snd_soc_dapm_widget rt5665_dapm_widgets[] = {
 	SND_SOC_DAPM_SUPPLY("Mic Det Power", RT5665_PWR_VOL,
 		RT5665_PWR_MIC_DET_BIT, 0, NULL, 0),
 	SND_SOC_DAPM_SUPPLY("Vref1", RT5665_PWR_ANLG_1, RT5665_PWR_VREF1_BIT, 0,
+<<<<<<< HEAD
 		rt5655_set_verf, SND_SOC_DAPM_PRE_PMU | SND_SOC_DAPM_POST_PMU),
 	SND_SOC_DAPM_SUPPLY("Vref2", RT5665_PWR_ANLG_1, RT5665_PWR_VREF2_BIT, 0,
 		rt5655_set_verf, SND_SOC_DAPM_PRE_PMU | SND_SOC_DAPM_POST_PMU),
 	SND_SOC_DAPM_SUPPLY("Vref3", RT5665_PWR_ANLG_1, RT5665_PWR_VREF3_BIT, 0,
 		rt5655_set_verf, SND_SOC_DAPM_PRE_PMU | SND_SOC_DAPM_POST_PMU),
+=======
+		rt5665_set_verf, SND_SOC_DAPM_PRE_PMU | SND_SOC_DAPM_POST_PMU),
+	SND_SOC_DAPM_SUPPLY("Vref2", RT5665_PWR_ANLG_1, RT5665_PWR_VREF2_BIT, 0,
+		rt5665_set_verf, SND_SOC_DAPM_PRE_PMU | SND_SOC_DAPM_POST_PMU),
+	SND_SOC_DAPM_SUPPLY("Vref3", RT5665_PWR_ANLG_1, RT5665_PWR_VREF3_BIT, 0,
+		rt5665_set_verf, SND_SOC_DAPM_PRE_PMU | SND_SOC_DAPM_POST_PMU),
+>>>>>>> upstream/android-13
 
 	/* ASRC */
 	SND_SOC_DAPM_SUPPLY_S("I2S1 ASRC", 1, RT5665_ASRC_1,
@@ -4388,8 +4443,13 @@ static int rt5665_set_component_pll(struct snd_soc_component *component, int pll
 	snd_soc_component_write(component, RT5665_PLL_CTRL_1,
 		pll_code.n_code << RT5665_PLL_N_SFT | pll_code.k_code);
 	snd_soc_component_write(component, RT5665_PLL_CTRL_2,
+<<<<<<< HEAD
 		(pll_code.m_bp ? 0 : pll_code.m_code) << RT5665_PLL_M_SFT |
 		pll_code.m_bp << RT5665_PLL_M_BP_SFT);
+=======
+		((pll_code.m_bp ? 0 : pll_code.m_code) << RT5665_PLL_M_SFT) |
+		(pll_code.m_bp << RT5665_PLL_M_BP_SFT));
+>>>>>>> upstream/android-13
 
 	rt5665->pll_in = freq_in;
 	rt5665->pll_out = freq_out;
@@ -4633,7 +4693,12 @@ static const struct regmap_config rt5665_regmap = {
 	.cache_type = REGCACHE_RBTREE,
 	.reg_defaults = rt5665_reg,
 	.num_reg_defaults = ARRAY_SIZE(rt5665_reg),
+<<<<<<< HEAD
 	.use_single_rw = true,
+=======
+	.use_single_read = true,
+	.use_single_write = true,
+>>>>>>> upstream/android-13
 };
 
 static const struct i2c_device_id rt5665_i2c_id[] = {

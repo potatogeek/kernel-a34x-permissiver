@@ -161,6 +161,7 @@ static irqreturn_t timer_interrupt(int irq, void *dev_id)
 	return IRQ_HANDLED;
 }
 
+<<<<<<< HEAD
 static struct irqaction timer_irqaction = {
 	.handler = timer_interrupt,
 	.flags = IRQF_TIMER,
@@ -168,6 +169,8 @@ static struct irqaction timer_irqaction = {
 	.dev_id = &clockevent_xilinx_timer,
 };
 
+=======
+>>>>>>> upstream/android-13
 static __init int xilinx_clockevent_init(void)
 {
 	clockevent_xilinx_timer.mult =
@@ -309,7 +312,12 @@ static int __init xilinx_timer_init(struct device_node *timer)
 
 	freq_div_hz = timer_clock_freq / HZ;
 
+<<<<<<< HEAD
 	ret = setup_irq(irq, &timer_irqaction);
+=======
+	ret = request_irq(irq, timer_interrupt, IRQF_TIMER, "timer",
+			  &clockevent_xilinx_timer);
+>>>>>>> upstream/android-13
 	if (ret) {
 		pr_err("Failed to setup IRQ");
 		return ret;

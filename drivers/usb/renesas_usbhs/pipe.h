@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-1.0+
+=======
+/* SPDX-License-Identifier: GPL-1.0+ */
+>>>>>>> upstream/android-13
 /*
  * Renesas USB driver
  *

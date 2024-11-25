@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * MTD map driver for BIOS Flash on Intel SCB2 boards
  * Copyright (C) 2002 Sun Microsystems, Inc.
@@ -151,7 +155,11 @@ static int scb2_flash_probe(struct pci_dev *dev,
 	}
 
 	/* remap the IO window (w/o caching) */
+<<<<<<< HEAD
 	scb2_ioaddr = ioremap_nocache(SCB2_ADDR, SCB2_WINDOW);
+=======
+	scb2_ioaddr = ioremap(SCB2_ADDR, SCB2_WINDOW);
+>>>>>>> upstream/android-13
 	if (!scb2_ioaddr) {
 		printk(KERN_ERR MODNAME ": Failed to ioremap window!\n");
 		if (!region_fail)

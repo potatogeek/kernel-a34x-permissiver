@@ -51,6 +51,11 @@ static acpi_adr_space_type acpi_gbl_space_id_list[] = {
 	ACPI_ADR_SPACE_IPMI,
 	ACPI_ADR_SPACE_GPIO,
 	ACPI_ADR_SPACE_GSBUS,
+<<<<<<< HEAD
+=======
+	ACPI_ADR_SPACE_PLATFORM_COMM,
+	ACPI_ADR_SPACE_PLATFORM_RT,
+>>>>>>> upstream/android-13
 	ACPI_ADR_SPACE_DATA_TABLE,
 	ACPI_ADR_SPACE_FIXED_HARDWARE
 };
@@ -237,7 +242,11 @@ void acpi_db_decode_and_display_object(char *target, char *output_type)
 
 		default:
 
+<<<<<<< HEAD
 			/* Is not a recognizeable object */
+=======
+			/* Is not a recognizable object */
+>>>>>>> upstream/android-13
 
 			acpi_os_printf
 			    ("Not a known ACPI internal object, descriptor type %2.2X\n",
@@ -513,7 +522,10 @@ void acpi_db_display_results(void)
 		return;
 	}
 
+<<<<<<< HEAD
 	obj_desc = walk_state->method_desc;
+=======
+>>>>>>> upstream/android-13
 	node = walk_state->method_node;
 
 	if (walk_state->results) {
@@ -565,7 +577,10 @@ void acpi_db_display_calling_tree(void)
 		return;
 	}
 
+<<<<<<< HEAD
 	node = walk_state->method_node;
+=======
+>>>>>>> upstream/android-13
 	acpi_os_printf("Current Control Method Call Tree\n");
 
 	while (walk_state) {
@@ -647,7 +662,11 @@ void acpi_db_display_object_type(char *object_arg)
  *
  * DESCRIPTION: Display the result of an AML opcode
  *
+<<<<<<< HEAD
  * Note: Curently only displays the result object if we are single stepping.
+=======
+ * Note: Currently only displays the result object if we are single stepping.
+>>>>>>> upstream/android-13
  * However, this output may be useful in other contexts and could be enabled
  * to do so if needed.
  *

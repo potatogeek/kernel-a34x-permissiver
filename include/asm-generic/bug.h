@@ -3,6 +3,11 @@
 #define _ASM_GENERIC_BUG_H
 
 #include <linux/compiler.h>
+<<<<<<< HEAD
+=======
+#include <linux/instrumentation.h>
+#include <linux/once_lite.h>
+>>>>>>> upstream/android-13
 
 #define CUT_HERE		"------------[ cut here ]------------\n"
 
@@ -10,12 +15,21 @@
 #define BUGFLAG_WARNING		(1 << 0)
 #define BUGFLAG_ONCE		(1 << 1)
 #define BUGFLAG_DONE		(1 << 2)
+<<<<<<< HEAD
+=======
+#define BUGFLAG_NO_CUT_HERE	(1 << 3)	/* CUT_HERE already sent */
+>>>>>>> upstream/android-13
 #define BUGFLAG_TAINT(taint)	((taint) << 8)
 #define BUG_GET_TAINT(bug)	((bug)->flags >> 8)
 #endif
 
 #ifndef __ASSEMBLY__
+<<<<<<< HEAD
 #include <linux/kernel.h>
+=======
+#include <linux/panic.h>
+#include <linux/printk.h>
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_BUG
 
@@ -61,6 +75,7 @@ struct bug_entry {
 #define BUG_ON(condition) do { if (unlikely(condition)) BUG(); } while (0)
 #endif
 
+<<<<<<< HEAD
 #ifdef __WARN_FLAGS
 #define __WARN_TAINT(taint)		__WARN_FLAGS(BUGFLAG_TAINT(taint))
 #define __WARN_ONCE_TAINT(taint)	__WARN_FLAGS(BUGFLAG_ONCE|BUGFLAG_TAINT(taint))
@@ -73,6 +88,8 @@ struct bug_entry {
 })
 #endif
 
+=======
+>>>>>>> upstream/android-13
 /*
  * WARN(), WARN_ON(), WARN_ON_ONCE, and so on can be used to report
  * significant kernel issues that need prompt attention if they should ever
@@ -89,6 +106,7 @@ struct bug_entry {
  *
  * Use the versions with printk format strings to provide better diagnostics.
  */
+<<<<<<< HEAD
 #ifndef __WARN_TAINT
 extern __printf(3, 4)
 void warn_slowpath_fmt(const char *file, const int line,
@@ -110,6 +128,34 @@ extern __printf(1, 2) void __warn_printk(const char *fmt, ...);
 #define __WARN_printf(arg...)	__WARN_printf_taint(TAINT_WARN, arg)
 #define __WARN_printf_taint(taint, arg...)				\
 	do { __warn_printk(arg); __WARN_TAINT(taint); } while (0)
+=======
+#ifndef __WARN_FLAGS
+extern __printf(4, 5)
+void warn_slowpath_fmt(const char *file, const int line, unsigned taint,
+		       const char *fmt, ...);
+#define __WARN()		__WARN_printf(TAINT_WARN, NULL)
+#define __WARN_printf(taint, arg...) do {				\
+		instrumentation_begin();				\
+		warn_slowpath_fmt(__FILE__, __LINE__, taint, arg);	\
+		instrumentation_end();					\
+	} while (0)
+#else
+extern __printf(1, 2) void __warn_printk(const char *fmt, ...);
+#define __WARN()		__WARN_FLAGS(BUGFLAG_TAINT(TAINT_WARN))
+#define __WARN_printf(taint, arg...) do {				\
+		instrumentation_begin();				\
+		__warn_printk(arg);					\
+		__WARN_FLAGS(BUGFLAG_NO_CUT_HERE | BUGFLAG_TAINT(taint));\
+		instrumentation_end();					\
+	} while (0)
+#define WARN_ON_ONCE(condition) ({				\
+	int __ret_warn_on = !!(condition);			\
+	if (unlikely(__ret_warn_on))				\
+		__WARN_FLAGS(BUGFLAG_ONCE |			\
+			     BUGFLAG_TAINT(TAINT_WARN));	\
+	unlikely(__ret_warn_on);				\
+})
+>>>>>>> upstream/android-13
 #endif
 
 /* used internally by panic.c */
@@ -132,7 +178,11 @@ void __warn(const char *file, int line, void *caller, unsigned taint,
 #define WARN(condition, format...) ({					\
 	int __ret_warn_on = !!(condition);				\
 	if (unlikely(__ret_warn_on))					\
+<<<<<<< HEAD
 		__WARN_printf(format);					\
+=======
+		__WARN_printf(TAINT_WARN, format);			\
+>>>>>>> upstream/android-13
 	unlikely(__ret_warn_on);					\
 })
 #endif
@@ -140,11 +190,16 @@ void __warn(const char *file, int line, void *caller, unsigned taint,
 #define WARN_TAINT(condition, taint, format...) ({			\
 	int __ret_warn_on = !!(condition);				\
 	if (unlikely(__ret_warn_on))					\
+<<<<<<< HEAD
 		__WARN_printf_taint(taint, format);			\
+=======
+		__WARN_printf(taint, format);				\
+>>>>>>> upstream/android-13
 	unlikely(__ret_warn_on);					\
 })
 
 #ifndef WARN_ON_ONCE
+<<<<<<< HEAD
 #define WARN_ON_ONCE(condition)	({				\
 	static bool __section(.data.once) __warned;		\
 	int __ret_warn_once = !!(condition);			\
@@ -178,6 +233,17 @@ void __warn(const char *file, int line, void *caller, unsigned taint,
 	}							\
 	unlikely(__ret_warn_once);				\
 })
+=======
+#define WARN_ON_ONCE(condition)					\
+	DO_ONCE_LITE_IF(condition, WARN_ON, 1)
+#endif
+
+#define WARN_ONCE(condition, format...)				\
+	DO_ONCE_LITE_IF(condition, WARN, 1, format)
+
+#define WARN_TAINT_ONCE(condition, taint, format...)		\
+	DO_ONCE_LITE_IF(condition, WARN_TAINT, 1, taint, format)
+>>>>>>> upstream/android-13
 
 #else /* !CONFIG_BUG */
 #ifndef HAVE_ARCH_BUG
@@ -185,7 +251,11 @@ void __warn(const char *file, int line, void *caller, unsigned taint,
 #endif
 
 #ifndef HAVE_ARCH_BUG_ON
+<<<<<<< HEAD
 #define BUG_ON(condition) do { if (condition) BUG(); } while (0)
+=======
+#define BUG_ON(condition) do { if (unlikely(condition)) BUG(); } while (0)
+>>>>>>> upstream/android-13
 #endif
 
 #ifndef HAVE_ARCH_WARN_ON
@@ -213,9 +283,12 @@ void __warn(const char *file, int line, void *caller, unsigned taint,
 /*
  * WARN_ON_SMP() is for cases that the warning is either
  * meaningless for !SMP or may even cause failures.
+<<<<<<< HEAD
  * This is usually used for cases that we have
  * WARN_ON(!spin_is_locked(&lock)) checks, as spin_is_locked()
  * returns 0 for uniprocessor settings.
+=======
+>>>>>>> upstream/android-13
  * It can also be used with values that are only defined
  * on SMP:
  *
@@ -249,6 +322,25 @@ void __warn(const char *file, int line, void *caller, unsigned taint,
 # define WARN_ON_SMP(x)			({0;})
 #endif
 
+<<<<<<< HEAD
+=======
+/*
+ * WARN_ON_FUNCTION_MISMATCH() warns if a value doesn't match a
+ * function address, and can be useful for catching issues with
+ * callback functions, for example.
+ *
+ * With CONFIG_CFI_CLANG, the warning is disabled because the
+ * compiler replaces function addresses taken in C code with
+ * local jump table addresses, which breaks cross-module function
+ * address equality.
+ */
+#if defined(CONFIG_CFI_CLANG) && defined(CONFIG_MODULES)
+# define WARN_ON_FUNCTION_MISMATCH(x, fn) ({ 0; })
+#else
+# define WARN_ON_FUNCTION_MISMATCH(x, fn) WARN_ON_ONCE((x) != (fn))
+#endif
+
+>>>>>>> upstream/android-13
 #endif /* __ASSEMBLY__ */
 
 #endif

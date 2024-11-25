@@ -2,12 +2,15 @@
 #ifndef _MLX4_STATS_
 #define _MLX4_STATS_
 
+<<<<<<< HEAD
 #ifdef MLX4_EN_PERF_STAT
 #define NUM_PERF_STATS			NUM_PERF_COUNTERS
 #else
 #define NUM_PERF_STATS			0
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #define NUM_PRIORITIES	9
 #define NUM_PRIORITY_STATS 2
 
@@ -46,6 +49,7 @@ struct mlx4_en_port_stats {
 #define NUM_PORT_STATS		10
 };
 
+<<<<<<< HEAD
 struct mlx4_en_perf_stats {
 	u32 tx_poll;
 	u64 tx_pktsz_avg;
@@ -56,6 +60,8 @@ struct mlx4_en_perf_stats {
 #define NUM_PERF_COUNTERS		6
 };
 
+=======
+>>>>>>> upstream/android-13
 struct mlx4_en_xdp_stats {
 	unsigned long rx_xdp_drop;
 	unsigned long rx_xdp_tx;
@@ -84,6 +90,14 @@ struct mlx4_en_flow_stats_rx {
 					 MLX4_NUM_PRIORITIES)
 };
 
+<<<<<<< HEAD
+=======
+#define FLOW_PRIORITY_STATS_IDX_RX_FRAMES	(NUM_MAIN_STATS +	\
+						 NUM_PORT_STATS +	\
+						 NUM_PF_STATS +		\
+						 NUM_FLOW_PRIORITY_STATS_RX)
+
+>>>>>>> upstream/android-13
 struct mlx4_en_flow_stats_tx {
 	u64 tx_pause;
 	u64 tx_pause_duration;
@@ -93,6 +107,16 @@ struct mlx4_en_flow_stats_tx {
 					 MLX4_NUM_PRIORITIES)
 };
 
+<<<<<<< HEAD
+=======
+#define FLOW_PRIORITY_STATS_IDX_TX_FRAMES	(NUM_MAIN_STATS +	\
+						 NUM_PORT_STATS +	\
+						 NUM_PF_STATS +		\
+						 NUM_FLOW_PRIORITY_STATS_RX + \
+						 NUM_FLOW_STATS_RX +	\
+						 NUM_FLOW_PRIORITY_STATS_TX)
+
+>>>>>>> upstream/android-13
 #define NUM_FLOW_STATS (NUM_FLOW_STATS_RX + NUM_FLOW_STATS_TX + \
 			NUM_FLOW_PRIORITY_STATS_TX + \
 			NUM_FLOW_PRIORITY_STATS_RX)
@@ -123,7 +147,11 @@ enum {
 };
 
 #define NUM_ALL_STATS	(NUM_MAIN_STATS + NUM_PORT_STATS + NUM_PKT_STATS + \
+<<<<<<< HEAD
 			 NUM_FLOW_STATS + NUM_PERF_STATS + NUM_PF_STATS + \
+=======
+			 NUM_FLOW_STATS + NUM_PF_STATS + \
+>>>>>>> upstream/android-13
 			 NUM_XDP_STATS + NUM_PHY_STATS)
 
 #define MLX4_FIND_NETDEV_STAT(n) (offsetof(struct net_device_stats, n) / \

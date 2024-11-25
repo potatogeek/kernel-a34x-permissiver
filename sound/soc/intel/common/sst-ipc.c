@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Intel SST generic IPC Support
  *
  * Copyright (C) 2015, Intel Corporation. All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version
@@ -12,6 +17,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/types.h>
@@ -52,7 +59,11 @@ static struct ipc_message *msg_get_empty(struct sst_generic_ipc *ipc)
 }
 
 static int tx_wait_done(struct sst_generic_ipc *ipc,
+<<<<<<< HEAD
 	struct ipc_message *msg, void *rx_data)
+=======
+	struct ipc_message *msg, struct sst_ipc_message *reply)
+>>>>>>> upstream/android-13
 {
 	unsigned long flags;
 	int ret;
@@ -71,8 +82,16 @@ static int tx_wait_done(struct sst_generic_ipc *ipc,
 	} else {
 
 		/* copy the data returned from DSP */
+<<<<<<< HEAD
 		if (msg->rx_size)
 			memcpy(rx_data, msg->rx_data, msg->rx_size);
+=======
+		if (reply) {
+			reply->header = msg->rx.header;
+			if (reply->data)
+				memcpy(reply->data, msg->rx.data, msg->rx.size);
+		}
+>>>>>>> upstream/android-13
 		ret = msg->errno;
 	}
 
@@ -81,9 +100,15 @@ static int tx_wait_done(struct sst_generic_ipc *ipc,
 	return ret;
 }
 
+<<<<<<< HEAD
 static int ipc_tx_message(struct sst_generic_ipc *ipc, u64 header,
 	void *tx_data, size_t tx_bytes, void *rx_data,
 	size_t rx_bytes, int wait)
+=======
+static int ipc_tx_message(struct sst_generic_ipc *ipc,
+	struct sst_ipc_message request,
+	struct sst_ipc_message *reply, int wait)
+>>>>>>> upstream/android-13
 {
 	struct ipc_message *msg;
 	unsigned long flags;
@@ -96,23 +121,39 @@ static int ipc_tx_message(struct sst_generic_ipc *ipc, u64 header,
 		return -EBUSY;
 	}
 
+<<<<<<< HEAD
 	msg->header = header;
 	msg->tx_size = tx_bytes;
 	msg->rx_size = rx_bytes;
+=======
+	msg->tx.header = request.header;
+	msg->tx.size = request.size;
+	msg->rx.header = 0;
+	msg->rx.size = reply ? reply->size : 0;
+>>>>>>> upstream/android-13
 	msg->wait = wait;
 	msg->errno = 0;
 	msg->pending = false;
 	msg->complete = false;
 
+<<<<<<< HEAD
 	if ((tx_bytes) && (ipc->ops.tx_data_copy != NULL))
 		ipc->ops.tx_data_copy(msg, tx_data, tx_bytes);
+=======
+	if ((request.size) && (ipc->ops.tx_data_copy != NULL))
+		ipc->ops.tx_data_copy(msg, request.data, request.size);
+>>>>>>> upstream/android-13
 
 	list_add_tail(&msg->list, &ipc->tx_list);
 	schedule_work(&ipc->kwork);
 	spin_unlock_irqrestore(&ipc->dsp->spinlock, flags);
 
 	if (wait)
+<<<<<<< HEAD
 		return tx_wait_done(ipc, msg, rx_data);
+=======
+		return tx_wait_done(ipc, msg, reply);
+>>>>>>> upstream/android-13
 	else
 		return 0;
 }
@@ -127,6 +168,7 @@ static int msg_empty_list_init(struct sst_generic_ipc *ipc)
 		return -ENOMEM;
 
 	for (i = 0; i < IPC_EMPTY_LIST_SIZE; i++) {
+<<<<<<< HEAD
 		ipc->msg[i].tx_data = kzalloc(ipc->tx_data_max_size, GFP_KERNEL);
 		if (ipc->msg[i].tx_data == NULL)
 			goto free_mem;
@@ -134,6 +176,15 @@ static int msg_empty_list_init(struct sst_generic_ipc *ipc)
 		ipc->msg[i].rx_data = kzalloc(ipc->rx_data_max_size, GFP_KERNEL);
 		if (ipc->msg[i].rx_data == NULL) {
 			kfree(ipc->msg[i].tx_data);
+=======
+		ipc->msg[i].tx.data = kzalloc(ipc->tx_data_max_size, GFP_KERNEL);
+		if (ipc->msg[i].tx.data == NULL)
+			goto free_mem;
+
+		ipc->msg[i].rx.data = kzalloc(ipc->rx_data_max_size, GFP_KERNEL);
+		if (ipc->msg[i].rx.data == NULL) {
+			kfree(ipc->msg[i].tx.data);
+>>>>>>> upstream/android-13
 			goto free_mem;
 		}
 
@@ -145,8 +196,13 @@ static int msg_empty_list_init(struct sst_generic_ipc *ipc)
 
 free_mem:
 	while (i > 0) {
+<<<<<<< HEAD
 		kfree(ipc->msg[i-1].tx_data);
 		kfree(ipc->msg[i-1].rx_data);
+=======
+		kfree(ipc->msg[i-1].tx.data);
+		kfree(ipc->msg[i-1].rx.data);
+>>>>>>> upstream/android-13
 		--i;
 	}
 	kfree(ipc->msg);
@@ -182,8 +238,13 @@ static void ipc_tx_msgs(struct work_struct *work)
 	spin_unlock_irq(&ipc->dsp->spinlock);
 }
 
+<<<<<<< HEAD
 int sst_ipc_tx_message_wait(struct sst_generic_ipc *ipc, u64 header,
 	void *tx_data, size_t tx_bytes, void *rx_data, size_t rx_bytes)
+=======
+int sst_ipc_tx_message_wait(struct sst_generic_ipc *ipc,
+	struct sst_ipc_message request, struct sst_ipc_message *reply)
+>>>>>>> upstream/android-13
 {
 	int ret;
 
@@ -196,8 +257,12 @@ int sst_ipc_tx_message_wait(struct sst_generic_ipc *ipc, u64 header,
 		if (ipc->ops.check_dsp_lp_on(ipc->dsp, true))
 			return -EIO;
 
+<<<<<<< HEAD
 	ret = ipc_tx_message(ipc, header, tx_data, tx_bytes,
 		rx_data, rx_bytes, 1);
+=======
+	ret = ipc_tx_message(ipc, request, reply, 1);
+>>>>>>> upstream/android-13
 
 	if (ipc->ops.check_dsp_lp_on)
 		if (ipc->ops.check_dsp_lp_on(ipc->dsp, false))
@@ -207,6 +272,7 @@ int sst_ipc_tx_message_wait(struct sst_generic_ipc *ipc, u64 header,
 }
 EXPORT_SYMBOL_GPL(sst_ipc_tx_message_wait);
 
+<<<<<<< HEAD
 int sst_ipc_tx_message_nowait(struct sst_generic_ipc *ipc, u64 header,
 	void *tx_data, size_t tx_bytes)
 {
@@ -220,6 +286,19 @@ int sst_ipc_tx_message_nopm(struct sst_generic_ipc *ipc, u64 header,
 {
 	return ipc_tx_message(ipc, header, tx_data, tx_bytes,
 		rx_data, rx_bytes, 1);
+=======
+int sst_ipc_tx_message_nowait(struct sst_generic_ipc *ipc,
+	struct sst_ipc_message request)
+{
+	return ipc_tx_message(ipc, request, NULL, 0);
+}
+EXPORT_SYMBOL_GPL(sst_ipc_tx_message_nowait);
+
+int sst_ipc_tx_message_nopm(struct sst_generic_ipc *ipc,
+	struct sst_ipc_message request, struct sst_ipc_message *reply)
+{
+	return ipc_tx_message(ipc, request, reply, 1);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(sst_ipc_tx_message_nopm);
 
@@ -241,7 +320,11 @@ struct ipc_message *sst_ipc_reply_find_msg(struct sst_generic_ipc *ipc,
 	}
 
 	list_for_each_entry(msg, &ipc->rx_list, list) {
+<<<<<<< HEAD
 		if ((msg->header & mask) == header)
+=======
+		if ((msg->tx.header & mask) == header)
+>>>>>>> upstream/android-13
 			return msg;
 	}
 
@@ -262,6 +345,7 @@ void sst_ipc_tx_msg_reply_complete(struct sst_generic_ipc *ipc,
 }
 EXPORT_SYMBOL_GPL(sst_ipc_tx_msg_reply_complete);
 
+<<<<<<< HEAD
 void sst_ipc_drop_all(struct sst_generic_ipc *ipc)
 {
 	struct ipc_message *msg, *tmp;
@@ -289,6 +373,8 @@ void sst_ipc_drop_all(struct sst_generic_ipc *ipc)
 }
 EXPORT_SYMBOL_GPL(sst_ipc_drop_all);
 
+=======
+>>>>>>> upstream/android-13
 int sst_ipc_init(struct sst_generic_ipc *ipc)
 {
 	int ret;
@@ -315,8 +401,13 @@ void sst_ipc_fini(struct sst_generic_ipc *ipc)
 
 	if (ipc->msg) {
 		for (i = 0; i < IPC_EMPTY_LIST_SIZE; i++) {
+<<<<<<< HEAD
 			kfree(ipc->msg[i].tx_data);
 			kfree(ipc->msg[i].rx_data);
+=======
+			kfree(ipc->msg[i].tx.data);
+			kfree(ipc->msg[i].rx.data);
+>>>>>>> upstream/android-13
 		}
 		kfree(ipc->msg);
 	}

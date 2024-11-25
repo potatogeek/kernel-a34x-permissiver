@@ -81,7 +81,11 @@ static const char mlx4_ib_version[] =
 
 static void do_slave_init(struct mlx4_ib_dev *ibdev, int slave, int do_init);
 static enum rdma_link_layer mlx4_ib_port_link_layer(struct ib_device *device,
+<<<<<<< HEAD
 						    u8 port_num);
+=======
+						    u32 port_num);
+>>>>>>> upstream/android-13
 
 static struct workqueue_struct *wq;
 
@@ -129,7 +133,12 @@ static int num_ib_ports(struct mlx4_dev *dev)
 	return ib_ports;
 }
 
+<<<<<<< HEAD
 static struct net_device *mlx4_ib_get_netdev(struct ib_device *device, u8 port_num)
+=======
+static struct net_device *mlx4_ib_get_netdev(struct ib_device *device,
+					     u32 port_num)
+>>>>>>> upstream/android-13
 {
 	struct mlx4_ib_dev *ibdev = to_mdev(device);
 	struct net_device *dev;
@@ -160,7 +169,11 @@ static struct net_device *mlx4_ib_get_netdev(struct ib_device *device, u8 port_n
 
 static int mlx4_ib_update_gids_v1(struct gid_entry *gids,
 				  struct mlx4_ib_dev *ibdev,
+<<<<<<< HEAD
 				  u8 port_num)
+=======
+				  u32 port_num)
+>>>>>>> upstream/android-13
 {
 	struct mlx4_cmd_mailbox *mailbox;
 	int err;
@@ -193,7 +206,11 @@ static int mlx4_ib_update_gids_v1(struct gid_entry *gids,
 
 static int mlx4_ib_update_gids_v1_v2(struct gid_entry *gids,
 				     struct mlx4_ib_dev *ibdev,
+<<<<<<< HEAD
 				     u8 port_num)
+=======
+				     u32 port_num)
+>>>>>>> upstream/android-13
 {
 	struct mlx4_cmd_mailbox *mailbox;
 	int err;
@@ -238,7 +255,11 @@ static int mlx4_ib_update_gids_v1_v2(struct gid_entry *gids,
 
 static int mlx4_ib_update_gids(struct gid_entry *gids,
 			       struct mlx4_ib_dev *ibdev,
+<<<<<<< HEAD
 			       u8 port_num)
+=======
+			       u32 port_num)
+>>>>>>> upstream/android-13
 {
 	if (ibdev->dev->caps.flags2 & MLX4_DEV_CAP_FLAG2_ROCE_V1_V2)
 		return mlx4_ib_update_gids_v1_v2(gids, ibdev, port_num);
@@ -263,6 +284,11 @@ static int mlx4_ib_add_gid(const struct ib_gid_attr *attr, void **context)
 	int hw_update = 0;
 	int i;
 	struct gid_entry *gids = NULL;
+<<<<<<< HEAD
+=======
+	u16 vlan_id = 0xffff;
+	u8 mac[ETH_ALEN];
+>>>>>>> upstream/android-13
 
 	if (!rdma_cap_roce_gid_table(attr->device, attr->port_num))
 		return -EINVAL;
@@ -273,12 +299,23 @@ static int mlx4_ib_add_gid(const struct ib_gid_attr *attr, void **context)
 	if (!context)
 		return -EINVAL;
 
+<<<<<<< HEAD
+=======
+	ret = rdma_read_gid_l2_fields(attr, &vlan_id, &mac[0]);
+	if (ret)
+		return ret;
+>>>>>>> upstream/android-13
 	port_gid_table = &iboe->gids[attr->port_num - 1];
 	spin_lock_bh(&iboe->lock);
 	for (i = 0; i < MLX4_MAX_PORT_GIDS; ++i) {
 		if (!memcmp(&port_gid_table->gids[i].gid,
 			    &attr->gid, sizeof(attr->gid)) &&
+<<<<<<< HEAD
 		    port_gid_table->gids[i].gid_type == attr->gid_type)  {
+=======
+		    port_gid_table->gids[i].gid_type == attr->gid_type &&
+		    port_gid_table->gids[i].vlan_id == vlan_id)  {
+>>>>>>> upstream/android-13
 			found = i;
 			break;
 		}
@@ -298,6 +335,10 @@ static int mlx4_ib_add_gid(const struct ib_gid_attr *attr, void **context)
 				memcpy(&port_gid_table->gids[free].gid,
 				       &attr->gid, sizeof(attr->gid));
 				port_gid_table->gids[free].gid_type = attr->gid_type;
+<<<<<<< HEAD
+=======
+				port_gid_table->gids[free].vlan_id = vlan_id;
+>>>>>>> upstream/android-13
 				port_gid_table->gids[free].ctx->real_index = free;
 				port_gid_table->gids[free].ctx->refcount = 1;
 				hw_update = 1;
@@ -400,7 +441,11 @@ int mlx4_ib_gid_index_to_real_index(struct mlx4_ib_dev *ibdev,
 	int real_index = -EINVAL;
 	int i;
 	unsigned long flags;
+<<<<<<< HEAD
 	u8 port_num = attr->port_num;
+=======
+	u32 port_num = attr->port_num;
+>>>>>>> upstream/android-13
 
 	if (port_num > MLX4_MAX_PORTS)
 		return -EINVAL;
@@ -427,9 +472,12 @@ int mlx4_ib_gid_index_to_real_index(struct mlx4_ib_dev *ibdev,
 	return real_index;
 }
 
+<<<<<<< HEAD
 #define field_avail(type, fld, sz) (offsetof(type, fld) + \
 				    sizeof(((type *)0)->fld) <= (sz))
 
+=======
+>>>>>>> upstream/android-13
 static int mlx4_ib_query_device(struct ib_device *ibdev,
 				struct ib_device_attr *props,
 				struct ib_udata *uhw)
@@ -440,7 +488,11 @@ static int mlx4_ib_query_device(struct ib_device *ibdev,
 	int err;
 	int have_ib_ports;
 	struct mlx4_uverbs_ex_query_device cmd;
+<<<<<<< HEAD
 	struct mlx4_uverbs_ex_query_device_resp resp = {.comp_mask = 0};
+=======
+	struct mlx4_uverbs_ex_query_device_resp resp = {};
+>>>>>>> upstream/android-13
 	struct mlx4_clock_params clock_params;
 
 	if (uhw->inlen) {
@@ -554,7 +606,10 @@ static int mlx4_ib_query_device(struct ib_device *ibdev,
 	props->max_mcast_qp_attach = dev->dev->caps.num_qp_per_mgm;
 	props->max_total_mcast_qp_attach = props->max_mcast_qp_attach *
 					   props->max_mcast_grp;
+<<<<<<< HEAD
 	props->max_map_per_fmr = dev->dev->caps.max_fmr_maps;
+=======
+>>>>>>> upstream/android-13
 	props->hca_core_clock = dev->dev->caps.hca_core_clock * 1000UL;
 	props->timestamp_mask = 0xFFFFFFFFFFFFULL;
 	props->max_ah = INT_MAX;
@@ -577,12 +632,18 @@ static int mlx4_ib_query_device(struct ib_device *ibdev,
 	props->cq_caps.max_cq_moderation_count = MLX4_MAX_CQ_COUNT;
 	props->cq_caps.max_cq_moderation_period = MLX4_MAX_CQ_PERIOD;
 
+<<<<<<< HEAD
 	if (!mlx4_is_slave(dev->dev))
 		err = mlx4_get_internal_clock_params(dev->dev, &clock_params);
 
 	if (uhw->outlen >= resp.response_length + sizeof(resp.hca_core_clock_offset)) {
 		resp.response_length += sizeof(resp.hca_core_clock_offset);
 		if (!err && !mlx4_is_slave(dev->dev)) {
+=======
+	if (uhw->outlen >= resp.response_length + sizeof(resp.hca_core_clock_offset)) {
+		resp.response_length += sizeof(resp.hca_core_clock_offset);
+		if (!mlx4_get_internal_clock_params(dev->dev, &clock_params)) {
+>>>>>>> upstream/android-13
 			resp.comp_mask |= MLX4_IB_QUERY_DEV_RESP_MASK_CORE_CLOCK_OFFSET;
 			resp.hca_core_clock_offset = clock_params.offset % PAGE_SIZE;
 		}
@@ -595,7 +656,11 @@ static int mlx4_ib_query_device(struct ib_device *ibdev,
 			sizeof(struct mlx4_wqe_data_seg);
 	}
 
+<<<<<<< HEAD
 	if (field_avail(typeof(resp), rss_caps, uhw->outlen)) {
+=======
+	if (offsetofend(typeof(resp), rss_caps) <= uhw->outlen) {
+>>>>>>> upstream/android-13
 		if (props->rss_caps.supported_qpts) {
 			resp.rss_caps.rx_hash_function =
 				MLX4_IB_RX_HASH_FUNC_TOEPLITZ;
@@ -619,7 +684,11 @@ static int mlx4_ib_query_device(struct ib_device *ibdev,
 				       sizeof(resp.rss_caps);
 	}
 
+<<<<<<< HEAD
 	if (field_avail(typeof(resp), tso_caps, uhw->outlen)) {
+=======
+	if (offsetofend(typeof(resp), tso_caps) <= uhw->outlen) {
+>>>>>>> upstream/android-13
 		if (dev->dev->caps.max_gso_sz &&
 		    ((mlx4_ib_port_link_layer(ibdev, 1) ==
 		    IB_LINK_LAYER_ETHERNET) ||
@@ -646,7 +715,11 @@ out:
 }
 
 static enum rdma_link_layer
+<<<<<<< HEAD
 mlx4_ib_port_link_layer(struct ib_device *device, u8 port_num)
+=======
+mlx4_ib_port_link_layer(struct ib_device *device, u32 port_num)
+>>>>>>> upstream/android-13
 {
 	struct mlx4_dev *dev = to_mdev(device)->dev;
 
@@ -654,7 +727,11 @@ mlx4_ib_port_link_layer(struct ib_device *device, u8 port_num)
 		IB_LINK_LAYER_INFINIBAND : IB_LINK_LAYER_ETHERNET;
 }
 
+<<<<<<< HEAD
 static int ib_link_query_port(struct ib_device *ibdev, u8 port,
+=======
+static int ib_link_query_port(struct ib_device *ibdev, u32 port,
+>>>>>>> upstream/android-13
 			      struct ib_port_attr *props, int netw_view)
 {
 	struct ib_smp *in_mad  = NULL;
@@ -746,10 +823,18 @@ out:
 
 static u8 state_to_phys_state(enum ib_port_state state)
 {
+<<<<<<< HEAD
 	return state == IB_PORT_ACTIVE ? 5 : 3;
 }
 
 static int eth_link_query_port(struct ib_device *ibdev, u8 port,
+=======
+	return state == IB_PORT_ACTIVE ?
+		IB_PORT_PHYS_STATE_LINK_UP : IB_PORT_PHYS_STATE_DISABLED;
+}
+
+static int eth_link_query_port(struct ib_device *ibdev, u32 port,
+>>>>>>> upstream/android-13
 			       struct ib_port_attr *props)
 {
 
@@ -780,7 +865,12 @@ static int eth_link_query_port(struct ib_device *ibdev, u8 port,
 	props->ip_gids = true;
 	props->gid_tbl_len	= mdev->dev->caps.gid_table_len[port];
 	props->max_msg_sz	= mdev->dev->caps.max_msg_sz;
+<<<<<<< HEAD
 	props->pkey_tbl_len	= 1;
+=======
+	if (mdev->dev->caps.pkey_table_len[port])
+		props->pkey_tbl_len = 1;
+>>>>>>> upstream/android-13
 	props->max_mtu		= IB_MTU_4096;
 	props->max_vl_num	= 2;
 	props->state		= IB_PORT_DOWN;
@@ -809,7 +899,11 @@ out:
 	return err;
 }
 
+<<<<<<< HEAD
 int __mlx4_ib_query_port(struct ib_device *ibdev, u8 port,
+=======
+int __mlx4_ib_query_port(struct ib_device *ibdev, u32 port,
+>>>>>>> upstream/android-13
 			 struct ib_port_attr *props, int netw_view)
 {
 	int err;
@@ -823,14 +917,22 @@ int __mlx4_ib_query_port(struct ib_device *ibdev, u8 port,
 	return err;
 }
 
+<<<<<<< HEAD
 static int mlx4_ib_query_port(struct ib_device *ibdev, u8 port,
+=======
+static int mlx4_ib_query_port(struct ib_device *ibdev, u32 port,
+>>>>>>> upstream/android-13
 			      struct ib_port_attr *props)
 {
 	/* returns host view */
 	return __mlx4_ib_query_port(ibdev, port, props, 0);
 }
 
+<<<<<<< HEAD
 int __mlx4_ib_query_gid(struct ib_device *ibdev, u8 port, int index,
+=======
+int __mlx4_ib_query_gid(struct ib_device *ibdev, u32 port, int index,
+>>>>>>> upstream/android-13
 			union ib_gid *gid, int netw_view)
 {
 	struct ib_smp *in_mad  = NULL;
@@ -886,7 +988,11 @@ out:
 	return err;
 }
 
+<<<<<<< HEAD
 static int mlx4_ib_query_gid(struct ib_device *ibdev, u8 port, int index,
+=======
+static int mlx4_ib_query_gid(struct ib_device *ibdev, u32 port, int index,
+>>>>>>> upstream/android-13
 			     union ib_gid *gid)
 {
 	if (rdma_protocol_ib(ibdev, port))
@@ -894,7 +1000,12 @@ static int mlx4_ib_query_gid(struct ib_device *ibdev, u8 port, int index,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int mlx4_ib_query_sl2vl(struct ib_device *ibdev, u8 port, u64 *sl2vl_tbl)
+=======
+static int mlx4_ib_query_sl2vl(struct ib_device *ibdev, u32 port,
+			       u64 *sl2vl_tbl)
+>>>>>>> upstream/android-13
 {
 	union sl2vl_tbl_to_u64 sl2vl64;
 	struct ib_smp *in_mad  = NULL;
@@ -954,7 +1065,11 @@ static void mlx4_init_sl2vl_tbl(struct mlx4_ib_dev *mdev)
 	}
 }
 
+<<<<<<< HEAD
 int __mlx4_ib_query_pkey(struct ib_device *ibdev, u8 port, u16 index,
+=======
+int __mlx4_ib_query_pkey(struct ib_device *ibdev, u32 port, u16 index,
+>>>>>>> upstream/android-13
 			 u16 *pkey, int netw_view)
 {
 	struct ib_smp *in_mad  = NULL;
@@ -987,7 +1102,12 @@ out:
 	return err;
 }
 
+<<<<<<< HEAD
 static int mlx4_ib_query_pkey(struct ib_device *ibdev, u8 port, u16 index, u16 *pkey)
+=======
+static int mlx4_ib_query_pkey(struct ib_device *ibdev, u32 port, u16 index,
+			      u16 *pkey)
+>>>>>>> upstream/android-13
 {
 	return __mlx4_ib_query_pkey(ibdev, port, index, pkey, 0);
 }
@@ -1028,8 +1148,13 @@ static int mlx4_ib_modify_device(struct ib_device *ibdev, int mask,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int mlx4_ib_SET_PORT(struct mlx4_ib_dev *dev, u8 port, int reset_qkey_viols,
 			    u32 cap_mask)
+=======
+static int mlx4_ib_SET_PORT(struct mlx4_ib_dev *dev, u32 port,
+			    int reset_qkey_viols, u32 cap_mask)
+>>>>>>> upstream/android-13
 {
 	struct mlx4_cmd_mailbox *mailbox;
 	int err;
@@ -1054,7 +1179,11 @@ static int mlx4_ib_SET_PORT(struct mlx4_ib_dev *dev, u8 port, int reset_qkey_vio
 	return err;
 }
 
+<<<<<<< HEAD
 static int mlx4_ib_modify_port(struct ib_device *ibdev, u8 port, int mask,
+=======
+static int mlx4_ib_modify_port(struct ib_device *ibdev, u32 port, int mask,
+>>>>>>> upstream/android-13
 			       struct ib_port_modify *props)
 {
 	struct mlx4_ib_dev *mdev = to_mdev(ibdev);
@@ -1088,19 +1217,35 @@ out:
 	return err;
 }
 
+<<<<<<< HEAD
 static struct ib_ucontext *mlx4_ib_alloc_ucontext(struct ib_device *ibdev,
 						  struct ib_udata *udata)
 {
 	struct mlx4_ib_dev *dev = to_mdev(ibdev);
 	struct mlx4_ib_ucontext *context;
+=======
+static int mlx4_ib_alloc_ucontext(struct ib_ucontext *uctx,
+				  struct ib_udata *udata)
+{
+	struct ib_device *ibdev = uctx->device;
+	struct mlx4_ib_dev *dev = to_mdev(ibdev);
+	struct mlx4_ib_ucontext *context = to_mucontext(uctx);
+>>>>>>> upstream/android-13
 	struct mlx4_ib_alloc_ucontext_resp_v3 resp_v3;
 	struct mlx4_ib_alloc_ucontext_resp resp;
 	int err;
 
 	if (!dev->ib_active)
+<<<<<<< HEAD
 		return ERR_PTR(-EAGAIN);
 
 	if (ibdev->uverbs_abi_ver == MLX4_IB_UVERBS_NO_DEV_CAPS_ABI_VERSION) {
+=======
+		return -EAGAIN;
+
+	if (ibdev->ops.uverbs_abi_ver ==
+	    MLX4_IB_UVERBS_NO_DEV_CAPS_ABI_VERSION) {
+>>>>>>> upstream/android-13
 		resp_v3.qp_tab_size      = dev->dev->caps.num_qps;
 		resp_v3.bf_reg_size      = dev->dev->caps.bf_reg_size;
 		resp_v3.bf_regs_per_page = dev->dev->caps.bf_regs_per_page;
@@ -1112,6 +1257,7 @@ static struct ib_ucontext *mlx4_ib_alloc_ucontext(struct ib_device *ibdev,
 		resp.cqe_size	      = dev->dev->caps.cqe_size;
 	}
 
+<<<<<<< HEAD
 	context = kzalloc(sizeof(*context), GFP_KERNEL);
 	if (!context)
 		return ERR_PTR(-ENOMEM);
@@ -1121,6 +1267,11 @@ static struct ib_ucontext *mlx4_ib_alloc_ucontext(struct ib_device *ibdev,
 		kfree(context);
 		return ERR_PTR(err);
 	}
+=======
+	err = mlx4_uar_alloc(to_mdev(ibdev)->dev, &context->uar);
+	if (err)
+		return err;
+>>>>>>> upstream/android-13
 
 	INIT_LIST_HEAD(&context->db_page_list);
 	mutex_init(&context->db_page_mutex);
@@ -1128,13 +1279,18 @@ static struct ib_ucontext *mlx4_ib_alloc_ucontext(struct ib_device *ibdev,
 	INIT_LIST_HEAD(&context->wqn_ranges_list);
 	mutex_init(&context->wqn_ranges_mutex);
 
+<<<<<<< HEAD
 	if (ibdev->uverbs_abi_ver == MLX4_IB_UVERBS_NO_DEV_CAPS_ABI_VERSION)
+=======
+	if (ibdev->ops.uverbs_abi_ver == MLX4_IB_UVERBS_NO_DEV_CAPS_ABI_VERSION)
+>>>>>>> upstream/android-13
 		err = ib_copy_to_udata(udata, &resp_v3, sizeof(resp_v3));
 	else
 		err = ib_copy_to_udata(udata, &resp, sizeof(resp));
 
 	if (err) {
 		mlx4_uar_free(to_mdev(ibdev)->dev, &context->uar);
+<<<<<<< HEAD
 		kfree(context);
 		return ERR_PTR(-EFAULT);
 	}
@@ -1143,10 +1299,20 @@ static struct ib_ucontext *mlx4_ib_alloc_ucontext(struct ib_device *ibdev,
 }
 
 static int mlx4_ib_dealloc_ucontext(struct ib_ucontext *ibcontext)
+=======
+		return -EFAULT;
+	}
+
+	return err;
+}
+
+static void mlx4_ib_dealloc_ucontext(struct ib_ucontext *ibcontext)
+>>>>>>> upstream/android-13
 {
 	struct mlx4_ib_ucontext *context = to_mucontext(ibcontext);
 
 	mlx4_uar_free(to_mdev(ibcontext->device)->dev, &context->uar);
+<<<<<<< HEAD
 	kfree(context);
 
 	return 0;
@@ -1222,11 +1388,18 @@ static void mlx4_ib_set_vma_data(struct vm_area_struct *vma,
 	vma_private_data->vma = vma;
 	vma->vm_private_data = vma_private_data;
 	vma->vm_ops =  &mlx4_ib_vm_ops;
+=======
+}
+
+static void mlx4_ib_disassociate_ucontext(struct ib_ucontext *ibcontext)
+{
+>>>>>>> upstream/android-13
 }
 
 static int mlx4_ib_mmap(struct ib_ucontext *context, struct vm_area_struct *vma)
 {
 	struct mlx4_ib_dev *dev = to_mdev(context->device);
+<<<<<<< HEAD
 	struct mlx4_ib_ucontext *mucontext = to_mucontext(context);
 
 	if (vma->vm_end - vma->vm_start != PAGE_SIZE)
@@ -1346,23 +1519,114 @@ static struct ib_xrcd *mlx4_ib_alloc_xrcd(struct ib_device *ibdev,
 		goto err1;
 
 	xrcd->pd = ib_alloc_pd(ibdev, 0);
+=======
+
+	switch (vma->vm_pgoff) {
+	case 0:
+		return rdma_user_mmap_io(context, vma,
+					 to_mucontext(context)->uar.pfn,
+					 PAGE_SIZE,
+					 pgprot_noncached(vma->vm_page_prot),
+					 NULL);
+
+	case 1:
+		if (dev->dev->caps.bf_reg_size == 0)
+			return -EINVAL;
+		return rdma_user_mmap_io(
+			context, vma,
+			to_mucontext(context)->uar.pfn +
+				dev->dev->caps.num_uars,
+			PAGE_SIZE, pgprot_writecombine(vma->vm_page_prot),
+			NULL);
+
+	case 3: {
+		struct mlx4_clock_params params;
+		int ret;
+
+		ret = mlx4_get_internal_clock_params(dev->dev, &params);
+		if (ret)
+			return ret;
+
+		return rdma_user_mmap_io(
+			context, vma,
+			(pci_resource_start(dev->dev->persist->pdev,
+					    params.bar) +
+			 params.offset) >>
+				PAGE_SHIFT,
+			PAGE_SIZE, pgprot_noncached(vma->vm_page_prot),
+			NULL);
+	}
+
+	default:
+		return -EINVAL;
+	}
+}
+
+static int mlx4_ib_alloc_pd(struct ib_pd *ibpd, struct ib_udata *udata)
+{
+	struct mlx4_ib_pd *pd = to_mpd(ibpd);
+	struct ib_device *ibdev = ibpd->device;
+	int err;
+
+	err = mlx4_pd_alloc(to_mdev(ibdev)->dev, &pd->pdn);
+	if (err)
+		return err;
+
+	if (udata && ib_copy_to_udata(udata, &pd->pdn, sizeof(__u32))) {
+		mlx4_pd_free(to_mdev(ibdev)->dev, pd->pdn);
+		return -EFAULT;
+	}
+	return 0;
+}
+
+static int mlx4_ib_dealloc_pd(struct ib_pd *pd, struct ib_udata *udata)
+{
+	mlx4_pd_free(to_mdev(pd->device)->dev, to_mpd(pd)->pdn);
+	return 0;
+}
+
+static int mlx4_ib_alloc_xrcd(struct ib_xrcd *ibxrcd, struct ib_udata *udata)
+{
+	struct mlx4_ib_dev *dev = to_mdev(ibxrcd->device);
+	struct mlx4_ib_xrcd *xrcd = to_mxrcd(ibxrcd);
+	struct ib_cq_init_attr cq_attr = {};
+	int err;
+
+	if (!(dev->dev->caps.flags & MLX4_DEV_CAP_FLAG_XRC))
+		return -EOPNOTSUPP;
+
+	err = mlx4_xrcd_alloc(dev->dev, &xrcd->xrcdn);
+	if (err)
+		return err;
+
+	xrcd->pd = ib_alloc_pd(ibxrcd->device, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(xrcd->pd)) {
 		err = PTR_ERR(xrcd->pd);
 		goto err2;
 	}
 
 	cq_attr.cqe = 1;
+<<<<<<< HEAD
 	xrcd->cq = ib_create_cq(ibdev, NULL, NULL, xrcd, &cq_attr);
+=======
+	xrcd->cq = ib_create_cq(ibxrcd->device, NULL, NULL, xrcd, &cq_attr);
+>>>>>>> upstream/android-13
 	if (IS_ERR(xrcd->cq)) {
 		err = PTR_ERR(xrcd->cq);
 		goto err3;
 	}
 
+<<<<<<< HEAD
 	return &xrcd->ibxrcd;
+=======
+	return 0;
+>>>>>>> upstream/android-13
 
 err3:
 	ib_dealloc_pd(xrcd->pd);
 err2:
+<<<<<<< HEAD
 	mlx4_xrcd_free(to_mdev(ibdev)->dev, xrcd->xrcdn);
 err1:
 	kfree(xrcd);
@@ -1370,12 +1634,22 @@ err1:
 }
 
 static int mlx4_ib_dealloc_xrcd(struct ib_xrcd *xrcd)
+=======
+	mlx4_xrcd_free(dev->dev, xrcd->xrcdn);
+	return err;
+}
+
+static int mlx4_ib_dealloc_xrcd(struct ib_xrcd *xrcd, struct ib_udata *udata)
+>>>>>>> upstream/android-13
 {
 	ib_destroy_cq(to_mxrcd(xrcd)->cq);
 	ib_dealloc_pd(to_mxrcd(xrcd)->pd);
 	mlx4_xrcd_free(to_mdev(xrcd->device)->dev, to_mxrcd(xrcd)->xrcdn);
+<<<<<<< HEAD
 	kfree(xrcd);
 
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1649,6 +1923,7 @@ static int __mlx4_ib_create_flow(struct ib_qp *qp, struct ib_flow_attr *flow_att
 	struct mlx4_net_trans_rule_hw_ctrl *ctrl;
 	int default_flow;
 
+<<<<<<< HEAD
 	static const u16 __mlx4_domain[] = {
 		[IB_FLOW_DOMAIN_USER] = MLX4_DOMAIN_UVERBS,
 		[IB_FLOW_DOMAIN_ETHTOOL] = MLX4_DOMAIN_ETHTOOL,
@@ -1656,16 +1931,21 @@ static int __mlx4_ib_create_flow(struct ib_qp *qp, struct ib_flow_attr *flow_att
 		[IB_FLOW_DOMAIN_NIC] = MLX4_DOMAIN_NIC,
 	};
 
+=======
+>>>>>>> upstream/android-13
 	if (flow_attr->priority > MLX4_IB_FLOW_MAX_PRIO) {
 		pr_err("Invalid priority value %d\n", flow_attr->priority);
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	if (domain >= IB_FLOW_DOMAIN_NUM) {
 		pr_err("Invalid domain value %d\n", domain);
 		return -EINVAL;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	if (mlx4_map_sw_to_hw_steering_mode(mdev->dev, flow_type) < 0)
 		return -EINVAL;
 
@@ -1674,8 +1954,12 @@ static int __mlx4_ib_create_flow(struct ib_qp *qp, struct ib_flow_attr *flow_att
 		return PTR_ERR(mailbox);
 	ctrl = mailbox->buf;
 
+<<<<<<< HEAD
 	ctrl->prio = cpu_to_be16(__mlx4_domain[domain] |
 				 flow_attr->priority);
+=======
+	ctrl->prio = cpu_to_be16(domain | flow_attr->priority);
+>>>>>>> upstream/android-13
 	ctrl->type = mlx4_map_sw_to_hw_steering_mode(mdev->dev, flow_type);
 	ctrl->port = flow_attr->port;
 	ctrl->qpn = cpu_to_be32(qp->qp_num);
@@ -1817,8 +2101,13 @@ static int mlx4_ib_add_dont_trap_rule(struct mlx4_dev *dev,
 }
 
 static struct ib_flow *mlx4_ib_create_flow(struct ib_qp *qp,
+<<<<<<< HEAD
 				    struct ib_flow_attr *flow_attr,
 				    int domain, struct ib_udata *udata)
+=======
+					   struct ib_flow_attr *flow_attr,
+					   struct ib_udata *udata)
+>>>>>>> upstream/android-13
 {
 	int err = 0, i = 0, j = 0;
 	struct mlx4_ib_flow *mflow;
@@ -1826,9 +2115,12 @@ static struct ib_flow *mlx4_ib_create_flow(struct ib_qp *qp,
 	struct mlx4_dev *dev = (to_mdev(qp->device))->dev;
 	int is_bonded = mlx4_is_bonded(dev);
 
+<<<<<<< HEAD
 	if (flow_attr->port < 1 || flow_attr->port > qp->device->phys_port_cnt)
 		return ERR_PTR(-EINVAL);
 
+=======
+>>>>>>> upstream/android-13
 	if (flow_attr->flags & ~IB_FLOW_ATTR_FLAGS_DONT_TRAP)
 		return ERR_PTR(-EOPNOTSUPP);
 
@@ -1884,8 +2176,13 @@ static struct ib_flow *mlx4_ib_create_flow(struct ib_qp *qp,
 	}
 
 	while (i < ARRAY_SIZE(type) && type[i]) {
+<<<<<<< HEAD
 		err = __mlx4_ib_create_flow(qp, flow_attr, domain, type[i],
 					    &mflow->reg_id[i].id);
+=======
+		err = __mlx4_ib_create_flow(qp, flow_attr, MLX4_DOMAIN_UVERBS,
+					    type[i], &mflow->reg_id[i].id);
+>>>>>>> upstream/android-13
 		if (err)
 			goto err_create_flow;
 		if (is_bonded) {
@@ -1894,7 +2191,11 @@ static struct ib_flow *mlx4_ib_create_flow(struct ib_qp *qp,
 			 */
 			flow_attr->port = 2;
 			err = __mlx4_ib_create_flow(qp, flow_attr,
+<<<<<<< HEAD
 						    domain, type[j],
+=======
+						    MLX4_DOMAIN_UVERBS, type[j],
+>>>>>>> upstream/android-13
 						    &mflow->reg_id[j].mirror);
 			flow_attr->port = 1;
 			if (err)
@@ -2146,6 +2447,7 @@ out:
 	return err;
 }
 
+<<<<<<< HEAD
 static ssize_t show_hca(struct device *device, struct device_attribute *attr,
 			char *buf)
 {
@@ -2179,6 +2481,47 @@ static struct device_attribute *mlx4_class_attributes[] = {
 	&dev_attr_hw_rev,
 	&dev_attr_hca_type,
 	&dev_attr_board_id
+=======
+static ssize_t hca_type_show(struct device *device,
+			     struct device_attribute *attr, char *buf)
+{
+	struct mlx4_ib_dev *dev =
+		rdma_device_to_drv_device(device, struct mlx4_ib_dev, ib_dev);
+
+	return sysfs_emit(buf, "MT%d\n", dev->dev->persist->pdev->device);
+}
+static DEVICE_ATTR_RO(hca_type);
+
+static ssize_t hw_rev_show(struct device *device,
+			   struct device_attribute *attr, char *buf)
+{
+	struct mlx4_ib_dev *dev =
+		rdma_device_to_drv_device(device, struct mlx4_ib_dev, ib_dev);
+
+	return sysfs_emit(buf, "%x\n", dev->dev->rev_id);
+}
+static DEVICE_ATTR_RO(hw_rev);
+
+static ssize_t board_id_show(struct device *device,
+			     struct device_attribute *attr, char *buf)
+{
+	struct mlx4_ib_dev *dev =
+		rdma_device_to_drv_device(device, struct mlx4_ib_dev, ib_dev);
+
+	return sysfs_emit(buf, "%.*s\n", MLX4_BOARD_ID_LEN, dev->dev->board_id);
+}
+static DEVICE_ATTR_RO(board_id);
+
+static struct attribute *mlx4_class_attributes[] = {
+	&dev_attr_hw_rev.attr,
+	&dev_attr_hca_type.attr,
+	&dev_attr_board_id.attr,
+	NULL
+};
+
+static const struct attribute_group mlx4_attr_group = {
+	.attrs = mlx4_class_attributes,
+>>>>>>> upstream/android-13
 };
 
 struct diag_counter {
@@ -2223,23 +2566,52 @@ static const struct diag_counter diag_device_only[] = {
 	DIAG_COUNTER(rq_num_udsdprd, 0x118),
 };
 
+<<<<<<< HEAD
 static struct rdma_hw_stats *mlx4_ib_alloc_hw_stats(struct ib_device *ibdev,
 						    u8 port_num)
+=======
+static struct rdma_hw_stats *
+mlx4_ib_alloc_hw_device_stats(struct ib_device *ibdev)
+>>>>>>> upstream/android-13
 {
 	struct mlx4_ib_dev *dev = to_mdev(ibdev);
 	struct mlx4_ib_diag_counters *diag = dev->diag_counters;
 
+<<<<<<< HEAD
 	if (!diag[!!port_num].name)
 		return NULL;
 
 	return rdma_alloc_hw_stats_struct(diag[!!port_num].name,
 					  diag[!!port_num].num_counters,
+=======
+	if (!diag[0].name)
+		return NULL;
+
+	return rdma_alloc_hw_stats_struct(diag[0].name, diag[0].num_counters,
+					  RDMA_HW_STATS_DEFAULT_LIFESPAN);
+}
+
+static struct rdma_hw_stats *
+mlx4_ib_alloc_hw_port_stats(struct ib_device *ibdev, u32 port_num)
+{
+	struct mlx4_ib_dev *dev = to_mdev(ibdev);
+	struct mlx4_ib_diag_counters *diag = dev->diag_counters;
+
+	if (!diag[1].name)
+		return NULL;
+
+	return rdma_alloc_hw_stats_struct(diag[1].name, diag[1].num_counters,
+>>>>>>> upstream/android-13
 					  RDMA_HW_STATS_DEFAULT_LIFESPAN);
 }
 
 static int mlx4_ib_get_hw_stats(struct ib_device *ibdev,
 				struct rdma_hw_stats *stats,
+<<<<<<< HEAD
 				u8 port, int index)
+=======
+				u32 port, int index)
+>>>>>>> upstream/android-13
 {
 	struct mlx4_ib_dev *dev = to_mdev(ibdev);
 	struct mlx4_ib_diag_counters *diag = dev->diag_counters;
@@ -2323,6 +2695,20 @@ static void mlx4_ib_fill_diag_counters(struct mlx4_ib_dev *ibdev,
 	}
 }
 
+<<<<<<< HEAD
+=======
+static const struct ib_device_ops mlx4_ib_hw_stats_ops = {
+	.alloc_hw_device_stats = mlx4_ib_alloc_hw_device_stats,
+	.alloc_hw_port_stats = mlx4_ib_alloc_hw_port_stats,
+	.get_hw_stats = mlx4_ib_get_hw_stats,
+};
+
+static const struct ib_device_ops mlx4_ib_hw_stats_ops1 = {
+	.alloc_hw_device_stats = mlx4_ib_alloc_hw_device_stats,
+	.get_hw_stats = mlx4_ib_get_hw_stats,
+};
+
+>>>>>>> upstream/android-13
 static int mlx4_ib_alloc_diag_counters(struct mlx4_ib_dev *ibdev)
 {
 	struct mlx4_ib_diag_counters *diag = ibdev->diag_counters;
@@ -2335,9 +2721,22 @@ static int mlx4_ib_alloc_diag_counters(struct mlx4_ib_dev *ibdev)
 		return 0;
 
 	for (i = 0; i < MLX4_DIAG_COUNTERS_TYPES; i++) {
+<<<<<<< HEAD
 		/* i == 1 means we are building port counters */
 		if (i && !per_port)
 			continue;
+=======
+		/*
+		 * i == 1 means we are building port counters, set a different
+		 * stats ops without port stats callback.
+		 */
+		if (i && !per_port) {
+			ib_set_device_ops(&ibdev->ib_dev,
+					  &mlx4_ib_hw_stats_ops1);
+
+			return 0;
+		}
+>>>>>>> upstream/android-13
 
 		ret = __mlx4_ib_alloc_diag_counters(ibdev, &diag[i].name,
 						    &diag[i].offset,
@@ -2349,8 +2748,12 @@ static int mlx4_ib_alloc_diag_counters(struct mlx4_ib_dev *ibdev)
 					   diag[i].offset, i);
 	}
 
+<<<<<<< HEAD
 	ibdev->ib_dev.get_hw_stats	= mlx4_ib_get_hw_stats;
 	ibdev->ib_dev.alloc_hw_stats	= mlx4_ib_alloc_hw_stats;
+=======
+	ib_set_device_ops(&ibdev->ib_dev, &mlx4_ib_hw_stats_ops);
+>>>>>>> upstream/android-13
 
 	return 0;
 
@@ -2382,10 +2785,14 @@ static void mlx4_ib_update_qps(struct mlx4_ib_dev *ibdev,
 	u64 release_mac = MLX4_IB_INVALID_MAC;
 	struct mlx4_ib_qp *qp;
 
+<<<<<<< HEAD
 	read_lock(&dev_base_lock);
 	new_smac = mlx4_mac_to_u64(dev->dev_addr);
 	read_unlock(&dev_base_lock);
 
+=======
+	new_smac = mlx4_mac_to_u64(dev->dev_addr);
+>>>>>>> upstream/android-13
 	atomic64_set(&ibdev->iboe.mac[port - 1], new_smac);
 
 	/* no need for update QP1 and mac registration in non-SRIOV */
@@ -2455,6 +2862,35 @@ static void mlx4_ib_scan_netdevs(struct mlx4_ib_dev *ibdev,
 		     event == NETDEV_UP || event == NETDEV_CHANGE))
 			update_qps_port = port;
 
+<<<<<<< HEAD
+=======
+		if (dev == iboe->netdevs[port - 1] &&
+		    (event == NETDEV_UP || event == NETDEV_DOWN)) {
+			enum ib_port_state port_state;
+			struct ib_event ibev = { };
+
+			if (ib_get_cached_port_state(&ibdev->ib_dev, port,
+						     &port_state))
+				continue;
+
+			if (event == NETDEV_UP &&
+			    (port_state != IB_PORT_ACTIVE ||
+			     iboe->last_port_state[port - 1] != IB_PORT_DOWN))
+				continue;
+			if (event == NETDEV_DOWN &&
+			    (port_state != IB_PORT_DOWN ||
+			     iboe->last_port_state[port - 1] != IB_PORT_ACTIVE))
+				continue;
+			iboe->last_port_state[port - 1] = port_state;
+
+			ibev.device = &ibdev->ib_dev;
+			ibev.element.port_num = port;
+			ibev.event = event == NETDEV_UP ? IB_EVENT_PORT_ACTIVE :
+							  IB_EVENT_PORT_ERR;
+			ib_dispatch_event(&ibev);
+		}
+
+>>>>>>> upstream/android-13
 	}
 	spin_unlock_bh(&iboe->lock);
 
@@ -2560,7 +2996,11 @@ static void mlx4_ib_free_eqs(struct mlx4_dev *dev, struct mlx4_ib_dev *ibdev)
 	ibdev->eq_table = NULL;
 }
 
+<<<<<<< HEAD
 static int mlx4_port_immutable(struct ib_device *ibdev, u8 port_num,
+=======
+static int mlx4_port_immutable(struct ib_device *ibdev, u32 port_num,
+>>>>>>> upstream/android-13
 			       struct ib_port_immutable *immutable)
 {
 	struct ib_port_attr attr;
@@ -2602,6 +3042,103 @@ static void get_fw_ver_str(struct ib_device *device, char *str)
 		 (int) dev->dev->caps.fw_ver & 0xffff);
 }
 
+<<<<<<< HEAD
+=======
+static const struct ib_device_ops mlx4_ib_dev_ops = {
+	.owner = THIS_MODULE,
+	.driver_id = RDMA_DRIVER_MLX4,
+	.uverbs_abi_ver = MLX4_IB_UVERBS_ABI_VERSION,
+
+	.add_gid = mlx4_ib_add_gid,
+	.alloc_mr = mlx4_ib_alloc_mr,
+	.alloc_pd = mlx4_ib_alloc_pd,
+	.alloc_ucontext = mlx4_ib_alloc_ucontext,
+	.attach_mcast = mlx4_ib_mcg_attach,
+	.create_ah = mlx4_ib_create_ah,
+	.create_cq = mlx4_ib_create_cq,
+	.create_qp = mlx4_ib_create_qp,
+	.create_srq = mlx4_ib_create_srq,
+	.dealloc_pd = mlx4_ib_dealloc_pd,
+	.dealloc_ucontext = mlx4_ib_dealloc_ucontext,
+	.del_gid = mlx4_ib_del_gid,
+	.dereg_mr = mlx4_ib_dereg_mr,
+	.destroy_ah = mlx4_ib_destroy_ah,
+	.destroy_cq = mlx4_ib_destroy_cq,
+	.destroy_qp = mlx4_ib_destroy_qp,
+	.destroy_srq = mlx4_ib_destroy_srq,
+	.detach_mcast = mlx4_ib_mcg_detach,
+	.device_group = &mlx4_attr_group,
+	.disassociate_ucontext = mlx4_ib_disassociate_ucontext,
+	.drain_rq = mlx4_ib_drain_rq,
+	.drain_sq = mlx4_ib_drain_sq,
+	.get_dev_fw_str = get_fw_ver_str,
+	.get_dma_mr = mlx4_ib_get_dma_mr,
+	.get_link_layer = mlx4_ib_port_link_layer,
+	.get_netdev = mlx4_ib_get_netdev,
+	.get_port_immutable = mlx4_port_immutable,
+	.map_mr_sg = mlx4_ib_map_mr_sg,
+	.mmap = mlx4_ib_mmap,
+	.modify_cq = mlx4_ib_modify_cq,
+	.modify_device = mlx4_ib_modify_device,
+	.modify_port = mlx4_ib_modify_port,
+	.modify_qp = mlx4_ib_modify_qp,
+	.modify_srq = mlx4_ib_modify_srq,
+	.poll_cq = mlx4_ib_poll_cq,
+	.post_recv = mlx4_ib_post_recv,
+	.post_send = mlx4_ib_post_send,
+	.post_srq_recv = mlx4_ib_post_srq_recv,
+	.process_mad = mlx4_ib_process_mad,
+	.query_ah = mlx4_ib_query_ah,
+	.query_device = mlx4_ib_query_device,
+	.query_gid = mlx4_ib_query_gid,
+	.query_pkey = mlx4_ib_query_pkey,
+	.query_port = mlx4_ib_query_port,
+	.query_qp = mlx4_ib_query_qp,
+	.query_srq = mlx4_ib_query_srq,
+	.reg_user_mr = mlx4_ib_reg_user_mr,
+	.req_notify_cq = mlx4_ib_arm_cq,
+	.rereg_user_mr = mlx4_ib_rereg_user_mr,
+	.resize_cq = mlx4_ib_resize_cq,
+
+	INIT_RDMA_OBJ_SIZE(ib_ah, mlx4_ib_ah, ibah),
+	INIT_RDMA_OBJ_SIZE(ib_cq, mlx4_ib_cq, ibcq),
+	INIT_RDMA_OBJ_SIZE(ib_pd, mlx4_ib_pd, ibpd),
+	INIT_RDMA_OBJ_SIZE(ib_qp, mlx4_ib_qp, ibqp),
+	INIT_RDMA_OBJ_SIZE(ib_srq, mlx4_ib_srq, ibsrq),
+	INIT_RDMA_OBJ_SIZE(ib_ucontext, mlx4_ib_ucontext, ibucontext),
+};
+
+static const struct ib_device_ops mlx4_ib_dev_wq_ops = {
+	.create_rwq_ind_table = mlx4_ib_create_rwq_ind_table,
+	.create_wq = mlx4_ib_create_wq,
+	.destroy_rwq_ind_table = mlx4_ib_destroy_rwq_ind_table,
+	.destroy_wq = mlx4_ib_destroy_wq,
+	.modify_wq = mlx4_ib_modify_wq,
+
+	INIT_RDMA_OBJ_SIZE(ib_rwq_ind_table, mlx4_ib_rwq_ind_table,
+			   ib_rwq_ind_tbl),
+};
+
+static const struct ib_device_ops mlx4_ib_dev_mw_ops = {
+	.alloc_mw = mlx4_ib_alloc_mw,
+	.dealloc_mw = mlx4_ib_dealloc_mw,
+
+	INIT_RDMA_OBJ_SIZE(ib_mw, mlx4_ib_mw, ibmw),
+};
+
+static const struct ib_device_ops mlx4_ib_dev_xrc_ops = {
+	.alloc_xrcd = mlx4_ib_alloc_xrcd,
+	.dealloc_xrcd = mlx4_ib_dealloc_xrcd,
+
+	INIT_RDMA_OBJ_SIZE(ib_xrcd, mlx4_ib_xrcd, ibxrcd),
+};
+
+static const struct ib_device_ops mlx4_ib_dev_fs_ops = {
+	.create_flow = mlx4_ib_create_flow,
+	.destroy_flow = mlx4_ib_destroy_flow,
+};
+
+>>>>>>> upstream/android-13
 static void *mlx4_ib_add(struct mlx4_dev *dev)
 {
 	struct mlx4_ib_dev *ibdev;
@@ -2625,7 +3162,11 @@ static void *mlx4_ib_add(struct mlx4_dev *dev)
 	if (num_ports == 0)
 		return NULL;
 
+<<<<<<< HEAD
 	ibdev = (struct mlx4_ib_dev *) ib_alloc_device(sizeof *ibdev);
+=======
+	ibdev = ib_alloc_device(mlx4_ib_dev, ib_dev);
+>>>>>>> upstream/android-13
 	if (!ibdev) {
 		dev_err(&dev->persist->pdev->dev,
 			"Device struct alloc failed\n");
@@ -2649,8 +3190,11 @@ static void *mlx4_ib_add(struct mlx4_dev *dev)
 	ibdev->dev = dev;
 	ibdev->bond_next_port	= 0;
 
+<<<<<<< HEAD
 	strlcpy(ibdev->ib_dev.name, "mlx4_%d", IB_DEVICE_NAME_MAX);
 	ibdev->ib_dev.owner		= THIS_MODULE;
+=======
+>>>>>>> upstream/android-13
 	ibdev->ib_dev.node_type		= RDMA_NODE_IB_CA;
 	ibdev->ib_dev.local_dma_lkey	= dev->caps.reserved_lkey;
 	ibdev->num_ports		= num_ports;
@@ -2658,6 +3202,7 @@ static void *mlx4_ib_add(struct mlx4_dev *dev)
 						1 : ibdev->num_ports;
 	ibdev->ib_dev.num_comp_vectors	= dev->caps.num_comp_vectors;
 	ibdev->ib_dev.dev.parent	= &dev->persist->pdev->dev;
+<<<<<<< HEAD
 	ibdev->ib_dev.get_netdev	= mlx4_ib_get_netdev;
 	ibdev->ib_dev.add_gid		= mlx4_ib_add_gid;
 	ibdev->ib_dev.del_gid		= mlx4_ib_del_gid;
@@ -2742,11 +3287,16 @@ static void *mlx4_ib_add(struct mlx4_dev *dev)
 
 	ibdev->ib_dev.uverbs_ex_cmd_mask |=
 		(1ull << IB_USER_VERBS_EX_CMD_MODIFY_CQ);
+=======
+
+	ib_set_device_ops(&ibdev->ib_dev, &mlx4_ib_dev_ops);
+>>>>>>> upstream/android-13
 
 	if ((dev->caps.flags2 & MLX4_DEV_CAP_FLAG2_RSS) &&
 	    ((mlx4_ib_port_link_layer(&ibdev->ib_dev, 1) ==
 	    IB_LINK_LAYER_ETHERNET) ||
 	    (mlx4_ib_port_link_layer(&ibdev->ib_dev, 2) ==
+<<<<<<< HEAD
 	    IB_LINK_LAYER_ETHERNET))) {
 		ibdev->ib_dev.create_wq		= mlx4_ib_create_wq;
 		ibdev->ib_dev.modify_wq		= mlx4_ib_modify_wq;
@@ -2786,10 +3336,22 @@ static void *mlx4_ib_add(struct mlx4_dev *dev)
 		ibdev->ib_dev.uverbs_cmd_mask |=
 			(1ull << IB_USER_VERBS_CMD_OPEN_XRCD) |
 			(1ull << IB_USER_VERBS_CMD_CLOSE_XRCD);
+=======
+	    IB_LINK_LAYER_ETHERNET)))
+		ib_set_device_ops(&ibdev->ib_dev, &mlx4_ib_dev_wq_ops);
+
+	if (dev->caps.flags & MLX4_DEV_CAP_FLAG_MEM_WINDOW ||
+	    dev->caps.bmme_flags & MLX4_BMME_FLAG_TYPE_2_WIN)
+		ib_set_device_ops(&ibdev->ib_dev, &mlx4_ib_dev_mw_ops);
+
+	if (dev->caps.flags & MLX4_DEV_CAP_FLAG_XRC) {
+		ib_set_device_ops(&ibdev->ib_dev, &mlx4_ib_dev_xrc_ops);
+>>>>>>> upstream/android-13
 	}
 
 	if (check_flow_steering_support(dev)) {
 		ibdev->steering_support = MLX4_STEERING_MODE_DEVICE_MANAGED;
+<<<<<<< HEAD
 		ibdev->ib_dev.create_flow	= mlx4_ib_create_flow;
 		ibdev->ib_dev.destroy_flow	= mlx4_ib_destroy_flow;
 
@@ -2802,6 +3364,14 @@ static void *mlx4_ib_add(struct mlx4_dev *dev)
 		(1ull << IB_USER_VERBS_EX_CMD_QUERY_DEVICE) |
 		(1ull << IB_USER_VERBS_EX_CMD_CREATE_CQ) |
 		(1ull << IB_USER_VERBS_EX_CMD_CREATE_QP);
+=======
+		ib_set_device_ops(&ibdev->ib_dev, &mlx4_ib_dev_fs_ops);
+	}
+
+	if (!dev->caps.userspace_caps)
+		ibdev->ib_dev.ops.uverbs_abi_ver =
+			MLX4_IB_UVERBS_NO_DEV_CAPS_ABI_VERSION;
+>>>>>>> upstream/android-13
 
 	mlx4_ib_alloc_eqs(dev, ibdev);
 
@@ -2814,6 +3384,10 @@ static void *mlx4_ib_add(struct mlx4_dev *dev)
 	for (i = 0; i < ibdev->num_ports; ++i) {
 		mutex_init(&ibdev->counters_table[i].mutex);
 		INIT_LIST_HEAD(&ibdev->counters_table[i].counters_list);
+<<<<<<< HEAD
+=======
+		iboe->last_port_state[i] = IB_PORT_DOWN;
+>>>>>>> upstream/android-13
 	}
 
 	num_req_counters = mlx4_is_bonded(dev) ? 1 : ibdev->num_ports;
@@ -2911,8 +3485,13 @@ static void *mlx4_ib_add(struct mlx4_dev *dev)
 	if (mlx4_ib_alloc_diag_counters(ibdev))
 		goto err_steer_free_bitmap;
 
+<<<<<<< HEAD
 	ibdev->ib_dev.driver_id = RDMA_DRIVER_MLX4;
 	if (ib_register_device(&ibdev->ib_dev, NULL))
+=======
+	if (ib_register_device(&ibdev->ib_dev, "mlx4_%d",
+			       &dev->persist->pdev->dev))
+>>>>>>> upstream/android-13
 		goto err_diag_counters;
 
 	if (mlx4_ib_mad_init(ibdev))
@@ -2935,12 +3514,15 @@ static void *mlx4_ib_add(struct mlx4_dev *dev)
 			goto err_notif;
 	}
 
+<<<<<<< HEAD
 	for (j = 0; j < ARRAY_SIZE(mlx4_class_attributes); ++j) {
 		if (device_create_file(&ibdev->ib_dev.dev,
 				       mlx4_class_attributes[j]))
 			goto err_notif;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	ibdev->ib_active = true;
 	mlx4_foreach_port(i, dev, MLX4_PORT_TYPE_IB)
 		devlink_port_type_ib_set(mlx4_get_devlink_port(dev, i),
@@ -3060,10 +3642,15 @@ int mlx4_ib_steer_qp_reg(struct mlx4_ib_dev *mdev, struct mlx4_ib_qp *mqp,
 		/* Add an empty rule for IB L2 */
 		memset(&ib_spec->mask, 0, sizeof(ib_spec->mask));
 
+<<<<<<< HEAD
 		err = __mlx4_ib_create_flow(&mqp->ibqp, flow,
 					    IB_FLOW_DOMAIN_NIC,
 					    MLX4_FS_REGULAR,
 					    &mqp->reg_id);
+=======
+		err = __mlx4_ib_create_flow(&mqp->ibqp, flow, MLX4_DOMAIN_NIC,
+					    MLX4_FS_REGULAR, &mqp->reg_id);
+>>>>>>> upstream/android-13
 	} else {
 		err = __mlx4_ib_destroy_flow(mdev->dev, mqp->reg_id);
 	}
@@ -3354,7 +3941,11 @@ static void mlx4_ib_event(struct mlx4_dev *dev, void *ibdev_ptr,
 	case MLX4_DEV_EVENT_PORT_MGMT_CHANGE:
 		ew = kmalloc(sizeof *ew, GFP_ATOMIC);
 		if (!ew)
+<<<<<<< HEAD
 			break;
+=======
+			return;
+>>>>>>> upstream/android-13
 
 		INIT_WORK(&ew->work, handle_port_mgmt_change_event);
 		memcpy(&ew->ib_eqe, eqe, sizeof *eqe);

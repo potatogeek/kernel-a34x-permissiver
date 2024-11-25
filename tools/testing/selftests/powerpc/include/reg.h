@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 /*
  * Copyright 2014, Michael Ellerman, IBM Corp.
  * Licensed under GPLv2.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright 2014, Michael Ellerman, IBM Corp.
+>>>>>>> upstream/android-13
  */
 
 #ifndef _SELFTESTS_POWERPC_REG_H
@@ -17,6 +23,10 @@
 				    : "memory")
 
 #define mb()		asm volatile("sync" : : : "memory");
+<<<<<<< HEAD
+=======
+#define barrier()	asm volatile("" : : : "memory");
+>>>>>>> upstream/android-13
 
 #define SPRN_MMCR2     769
 #define SPRN_MMCRA     770
@@ -56,6 +66,15 @@
 #define SPRN_PPR       896	/* Program Priority Register */
 #define SPRN_AMR       13	/* Authority Mask Register - problem state */
 
+<<<<<<< HEAD
+=======
+#define set_amr(v)	asm volatile("isync;" \
+				     "mtspr " __stringify(SPRN_AMR) ",%0;" \
+				     "isync" : \
+				    : "r" ((unsigned long)(v)) \
+				    : "memory")
+
+>>>>>>> upstream/android-13
 /* TEXASR register bits */
 #define TEXASR_FC	0xFE00000000000000
 #define TEXASR_FP	0x0100000000000000
@@ -76,6 +95,19 @@
 #define TEXASR_TE	0x0000000004000000
 #define TEXASR_ROT	0x0000000002000000
 
+<<<<<<< HEAD
+=======
+/* MSR register bits */
+#define MSR_TS_S_LG     33              /* Trans Mem state: Suspended */
+#define MSR_TS_T_LG	34              /* Trans Mem state: Active */
+
+#define __MASK(X)       (1UL<<(X))
+
+/* macro to check TM MSR bits */
+#define MSR_TS_S        __MASK(MSR_TS_S_LG)   /* Transaction Suspended */
+#define MSR_TS_T	__MASK(MSR_TS_T_LG)   /* Transaction Transactional */
+
+>>>>>>> upstream/android-13
 /* Vector Instructions */
 #define VSX_XX1(xs, ra, rb)	(((xs) & 0x1f) << 21 | ((ra) << 16) |  \
 				 ((rb) << 11) | (((xs) >> 5)))

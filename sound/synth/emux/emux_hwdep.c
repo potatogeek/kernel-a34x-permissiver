@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  Interface for hwdep device
  *
  *  Copyright (C) 2004 Takashi Iwai <tiwai@suse.de>
+<<<<<<< HEAD
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -17,6 +22,8 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <sound/core.h>
@@ -39,6 +46,14 @@ snd_emux_hwdep_load_patch(struct snd_emux *emu, void __user *arg)
 	if (copy_from_user(&patch, arg, sizeof(patch)))
 		return -EFAULT;
 
+<<<<<<< HEAD
+=======
+	if (patch.key == GUS_PATCH)
+		return snd_soundfont_load_guspatch(emu->sflist, arg,
+						   patch.len + sizeof(patch),
+						   TMP_CLIENT_ID);
+
+>>>>>>> upstream/android-13
 	if (patch.type >= SNDRV_SFNT_LOAD_INFO &&
 	    patch.type <= SNDRV_SFNT_PROBE_DATA) {
 		err = snd_soundfont_load(emu->sflist, arg, patch.len + sizeof(patch), TMP_CLIENT_ID);
@@ -125,7 +140,12 @@ snd_emux_init_hwdep(struct snd_emux *emu)
 	struct snd_hwdep *hw;
 	int err;
 
+<<<<<<< HEAD
 	if ((err = snd_hwdep_new(emu->card, SNDRV_EMUX_HWDEP_NAME, emu->hwdep_idx, &hw)) < 0)
+=======
+	err = snd_hwdep_new(emu->card, SNDRV_EMUX_HWDEP_NAME, emu->hwdep_idx, &hw);
+	if (err < 0)
+>>>>>>> upstream/android-13
 		return err;
 	emu->hwdep = hw;
 	strcpy(hw->name, SNDRV_EMUX_HWDEP_NAME);
@@ -136,7 +156,12 @@ snd_emux_init_hwdep(struct snd_emux *emu)
 	hw->ops.ioctl_compat = snd_emux_hwdep_ioctl;
 	hw->exclusive = 1;
 	hw->private_data = emu;
+<<<<<<< HEAD
 	if ((err = snd_card_register(emu->card)) < 0)
+=======
+	err = snd_card_register(emu->card);
+	if (err < 0)
+>>>>>>> upstream/android-13
 		return err;
 
 	return 0;

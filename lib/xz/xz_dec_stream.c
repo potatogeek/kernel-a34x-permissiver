@@ -402,12 +402,21 @@ static enum xz_ret dec_stream_header(struct xz_dec *s)
 	 * we will accept other check types too, but then the check won't
 	 * be verified and a warning (XZ_UNSUPPORTED_CHECK) will be given.
 	 */
+<<<<<<< HEAD
 	s->check_type = s->temp.buf[HEADER_MAGIC_SIZE + 1];
 
 #ifdef XZ_DEC_ANY_CHECK
 	if (s->check_type > XZ_CHECK_MAX)
 		return XZ_OPTIONS_ERROR;
 
+=======
+	if (s->temp.buf[HEADER_MAGIC_SIZE + 1] > XZ_CHECK_MAX)
+		return XZ_OPTIONS_ERROR;
+
+	s->check_type = s->temp.buf[HEADER_MAGIC_SIZE + 1];
+
+#ifdef XZ_DEC_ANY_CHECK
+>>>>>>> upstream/android-13
 	if (s->check_type > XZ_CHECK_CRC32)
 		return XZ_UNSUPPORTED_CHECK;
 #else
@@ -583,7 +592,11 @@ static enum xz_ret dec_main(struct xz_dec *s, struct xz_buf *b)
 			if (ret != XZ_OK)
 				return ret;
 
+<<<<<<< HEAD
 		/* Fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 
 		case SEQ_BLOCK_START:
 			/* We need one byte of input to continue. */
@@ -608,7 +621,11 @@ static enum xz_ret dec_main(struct xz_dec *s, struct xz_buf *b)
 			s->temp.pos = 0;
 			s->sequence = SEQ_BLOCK_HEADER;
 
+<<<<<<< HEAD
 		/* Fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 
 		case SEQ_BLOCK_HEADER:
 			if (!fill_temp(s, b))
@@ -620,7 +637,11 @@ static enum xz_ret dec_main(struct xz_dec *s, struct xz_buf *b)
 
 			s->sequence = SEQ_BLOCK_UNCOMPRESS;
 
+<<<<<<< HEAD
 		/* Fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 
 		case SEQ_BLOCK_UNCOMPRESS:
 			ret = dec_block(s, b);
@@ -629,7 +650,11 @@ static enum xz_ret dec_main(struct xz_dec *s, struct xz_buf *b)
 
 			s->sequence = SEQ_BLOCK_PADDING;
 
+<<<<<<< HEAD
 		/* Fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 
 		case SEQ_BLOCK_PADDING:
 			/*
@@ -651,7 +676,11 @@ static enum xz_ret dec_main(struct xz_dec *s, struct xz_buf *b)
 
 			s->sequence = SEQ_BLOCK_CHECK;
 
+<<<<<<< HEAD
 		/* Fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 
 		case SEQ_BLOCK_CHECK:
 			if (s->check_type == XZ_CHECK_CRC32) {
@@ -675,7 +704,11 @@ static enum xz_ret dec_main(struct xz_dec *s, struct xz_buf *b)
 
 			s->sequence = SEQ_INDEX_PADDING;
 
+<<<<<<< HEAD
 		/* Fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 
 		case SEQ_INDEX_PADDING:
 			while ((s->index.size + (b->in_pos - s->in_start))
@@ -699,7 +732,11 @@ static enum xz_ret dec_main(struct xz_dec *s, struct xz_buf *b)
 
 			s->sequence = SEQ_INDEX_CRC32;
 
+<<<<<<< HEAD
 		/* Fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 
 		case SEQ_INDEX_CRC32:
 			ret = crc32_validate(s, b);
@@ -709,7 +746,11 @@ static enum xz_ret dec_main(struct xz_dec *s, struct xz_buf *b)
 			s->temp.size = STREAM_HEADER_SIZE;
 			s->sequence = SEQ_STREAM_FOOTER;
 
+<<<<<<< HEAD
 		/* Fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 
 		case SEQ_STREAM_FOOTER:
 			if (!fill_temp(s, b))

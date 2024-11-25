@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
   This file is provided under a dual BSD/GPLv2 license.  When using or
   redistributing this file, you may do so under either license.
@@ -44,6 +45,10 @@
   (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+=======
+// SPDX-License-Identifier: (BSD-3-Clause OR GPL-2.0-only)
+/* Copyright(c) 2014 - 2020 Intel Corporation */
+>>>>>>> upstream/android-13
 #include <linux/mutex.h>
 #include <linux/list.h>
 #include "adf_cfg.h"
@@ -52,7 +57,11 @@
 static LIST_HEAD(accel_table);
 static LIST_HEAD(vfs_table);
 static DEFINE_MUTEX(table_lock);
+<<<<<<< HEAD
 static uint32_t num_devices;
+=======
+static u32 num_devices;
+>>>>>>> upstream/android-13
 static u8 id_map[ADF_MAX_DEVICES];
 
 struct vf_id_map {
@@ -195,8 +204,13 @@ int adf_devmgr_add_dev(struct adf_accel_dev *accel_dev,
 	mutex_lock(&table_lock);
 	atomic_set(&accel_dev->ref_count, 0);
 
+<<<<<<< HEAD
 	/* PF on host or VF on guest */
 	if (!accel_dev->is_vf || (accel_dev->is_vf && !pf)) {
+=======
+	/* PF on host or VF on guest - optimized to remove redundant is_vf */
+	if (!accel_dev->is_vf || !pf) {
+>>>>>>> upstream/android-13
 		struct vf_id_map *map;
 
 		list_for_each(itr, &accel_table) {
@@ -292,7 +306,12 @@ void adf_devmgr_rm_dev(struct adf_accel_dev *accel_dev,
 		       struct adf_accel_dev *pf)
 {
 	mutex_lock(&table_lock);
+<<<<<<< HEAD
 	if (!accel_dev->is_vf || (accel_dev->is_vf && !pf)) {
+=======
+	/* PF on host or VF on guest - optimized to remove redundant is_vf */
+	if (!accel_dev->is_vf || !pf) {
+>>>>>>> upstream/android-13
 		id_map[accel_dev->accel_id] = 0;
 		num_devices--;
 	} else if (accel_dev->is_vf && pf) {
@@ -329,9 +348,15 @@ struct adf_accel_dev *adf_devmgr_get_first(void)
 
 /**
  * adf_devmgr_pci_to_accel_dev() - Get accel_dev associated with the pci_dev.
+<<<<<<< HEAD
  * @accel_dev:  Pointer to pci device.
  *
  * Function returns acceleration device associated with the given pci device.
+=======
+ * @pci_dev:  Pointer to PCI device.
+ *
+ * Function returns acceleration device associated with the given PCI device.
+>>>>>>> upstream/android-13
  * To be used by QAT device specific drivers.
  *
  * Return: pointer to accel_dev or NULL if not found.
@@ -355,7 +380,11 @@ struct adf_accel_dev *adf_devmgr_pci_to_accel_dev(struct pci_dev *pci_dev)
 }
 EXPORT_SYMBOL_GPL(adf_devmgr_pci_to_accel_dev);
 
+<<<<<<< HEAD
 struct adf_accel_dev *adf_devmgr_get_dev_by_id(uint32_t id)
+=======
+struct adf_accel_dev *adf_devmgr_get_dev_by_id(u32 id)
+>>>>>>> upstream/android-13
 {
 	struct list_head *itr;
 	int real_id;
@@ -380,7 +409,11 @@ unlock:
 	return NULL;
 }
 
+<<<<<<< HEAD
 int adf_devmgr_verify_id(uint32_t id)
+=======
+int adf_devmgr_verify_id(u32 id)
+>>>>>>> upstream/android-13
 {
 	if (id == ADF_CFG_ALL_DEVICES)
 		return 0;
@@ -407,7 +440,11 @@ static int adf_get_num_dettached_vfs(void)
 	return vfs;
 }
 
+<<<<<<< HEAD
 void adf_devmgr_get_num_dev(uint32_t *num)
+=======
+void adf_devmgr_get_num_dev(u32 *num)
+>>>>>>> upstream/android-13
 {
 	*num = num_devices - adf_get_num_dettached_vfs();
 }

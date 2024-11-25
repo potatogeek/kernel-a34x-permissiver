@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: GPL-2.0
 /* Support for MMIO probes.
+<<<<<<< HEAD
  * Benfit many code from kprobes
+=======
+ * Benefit many code from kprobes
+>>>>>>> upstream/android-13
  * (C) 2002 Louis Zhuang <louis.zhuang@intel.com>.
  *     2007 Alexander Eichner
  *     2008 Pekka Paalanen <pq@iki.fi>
@@ -130,7 +134,11 @@ static void clear_pmd_presence(pmd_t *pmd, bool clear, pmdval_t *old)
 	pmdval_t v = pmd_val(*pmd);
 	if (clear) {
 		*old = v;
+<<<<<<< HEAD
 		new_pmd = pmd_mknotpresent(*pmd);
+=======
+		new_pmd = pmd_mkinvalid(*pmd);
+>>>>>>> upstream/android-13
 	} else {
 		/* Presume this has been called with clear==true previously */
 		new_pmd = __pmd(*old);
@@ -173,7 +181,11 @@ static int clear_page_presence(struct kmmio_fault_page *f, bool clear)
 		return -1;
 	}
 
+<<<<<<< HEAD
 	__flush_tlb_one_kernel(f->addr);
+=======
+	flush_tlb_one_kernel(f->addr);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -193,8 +205,13 @@ static int arm_kmmio_fault_page(struct kmmio_fault_page *f)
 	int ret;
 	WARN_ONCE(f->armed, KERN_ERR pr_fmt("kmmio page already armed.\n"));
 	if (f->armed) {
+<<<<<<< HEAD
 		pr_warning("double-arm: addr 0x%08lx, ref %d, old %d\n",
 			   f->addr, f->count, !!f->old_presence);
+=======
+		pr_warn("double-arm: addr 0x%08lx, ref %d, old %d\n",
+			f->addr, f->count, !!f->old_presence);
+>>>>>>> upstream/android-13
 	}
 	ret = clear_page_presence(f, true);
 	WARN_ONCE(ret < 0, KERN_ERR pr_fmt("arming at 0x%08lx failed.\n"),
@@ -260,7 +277,11 @@ int kmmio_handler(struct pt_regs *regs, unsigned long addr)
 		goto no_kmmio;
 	}
 
+<<<<<<< HEAD
 	ctx = &get_cpu_var(kmmio_ctx);
+=======
+	ctx = this_cpu_ptr(&kmmio_ctx);
+>>>>>>> upstream/android-13
 	if (ctx->active) {
 		if (page_base == ctx->addr) {
 			/*
@@ -285,7 +306,11 @@ int kmmio_handler(struct pt_regs *regs, unsigned long addr)
 			pr_emerg("previous hit was at 0x%08lx.\n", ctx->addr);
 			disarm_kmmio_fault_page(faultpage);
 		}
+<<<<<<< HEAD
 		goto no_kmmio_ctx;
+=======
+		goto no_kmmio;
+>>>>>>> upstream/android-13
 	}
 	ctx->active++;
 
@@ -314,11 +339,16 @@ int kmmio_handler(struct pt_regs *regs, unsigned long addr)
 	 * the user should drop to single cpu before tracing.
 	 */
 
+<<<<<<< HEAD
 	put_cpu_var(kmmio_ctx);
 	return 1; /* fault handled */
 
 no_kmmio_ctx:
 	put_cpu_var(kmmio_ctx);
+=======
+	return 1; /* fault handled */
+
+>>>>>>> upstream/android-13
 no_kmmio:
 	rcu_read_unlock();
 	preempt_enable_no_resched();
@@ -333,7 +363,11 @@ no_kmmio:
 static int post_kmmio_handler(unsigned long condition, struct pt_regs *regs)
 {
 	int ret = 0;
+<<<<<<< HEAD
 	struct kmmio_context *ctx = &get_cpu_var(kmmio_ctx);
+=======
+	struct kmmio_context *ctx = this_cpu_ptr(&kmmio_ctx);
+>>>>>>> upstream/android-13
 
 	if (!ctx->active) {
 		/*
@@ -341,8 +375,12 @@ static int post_kmmio_handler(unsigned long condition, struct pt_regs *regs)
 		 * something external causing them (f.e. using a debugger while
 		 * mmio tracing enabled), or erroneous behaviour
 		 */
+<<<<<<< HEAD
 		pr_warning("unexpected debug trap on CPU %d.\n",
 			   smp_processor_id());
+=======
+		pr_warn("unexpected debug trap on CPU %d.\n", smp_processor_id());
+>>>>>>> upstream/android-13
 		goto out;
 	}
 
@@ -372,7 +410,10 @@ static int post_kmmio_handler(unsigned long condition, struct pt_regs *regs)
 	if (!(regs->flags & X86_EFLAGS_TF))
 		ret = 1;
 out:
+<<<<<<< HEAD
 	put_cpu_var(kmmio_ctx);
+=======
+>>>>>>> upstream/android-13
 	return ret;
 }
 

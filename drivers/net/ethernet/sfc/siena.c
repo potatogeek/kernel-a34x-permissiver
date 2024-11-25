@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /****************************************************************************
  * Driver for Solarflare network controllers and boards
  * Copyright 2005-2006 Fen Systems Ltd.
  * Copyright 2006-2013 Solarflare Communications Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published
  * by the Free Software Foundation, incorporated herein by reference.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/bitops.h>
@@ -17,12 +24,21 @@
 #include "net_driver.h"
 #include "bitfield.h"
 #include "efx.h"
+<<<<<<< HEAD
+=======
+#include "efx_common.h"
+>>>>>>> upstream/android-13
 #include "nic.h"
 #include "farch_regs.h"
 #include "io.h"
 #include "workarounds.h"
 #include "mcdi.h"
 #include "mcdi_pcol.h"
+<<<<<<< HEAD
+=======
+#include "mcdi_port.h"
+#include "mcdi_port_common.h"
+>>>>>>> upstream/android-13
 #include "selftest.h"
 #include "siena_sriov.h"
 
@@ -277,7 +293,13 @@ static int siena_probe_nic(struct efx_nic *efx)
 	}
 
 	efx->max_channels = EFX_MAX_CHANNELS;
+<<<<<<< HEAD
 	efx->max_tx_channels = EFX_MAX_CHANNELS;
+=======
+	efx->max_vis = EFX_MAX_CHANNELS;
+	efx->max_tx_channels = EFX_MAX_CHANNELS;
+	efx->tx_queues_per_channel = 4;
+>>>>>>> upstream/android-13
 
 	efx_reado(efx, &reg, FR_AZ_CS_DEBUG);
 	efx->port_num = EFX_OWORD_FIELD(reg, FRF_CZ_CS_PORT_NUM) - 1;
@@ -632,7 +654,11 @@ static size_t siena_update_nic_stats(struct efx_nic *efx, u64 *full_stats,
 	return SIENA_STAT_COUNT;
 }
 
+<<<<<<< HEAD
 static int siena_mac_reconfigure(struct efx_nic *efx)
+=======
+static int siena_mac_reconfigure(struct efx_nic *efx, bool mtu_only __always_unused)
+>>>>>>> upstream/android-13
 {
 	MCDI_DECLARE_BUF(inbuf, MC_CMD_SET_MCAST_HASH_IN_LEN);
 	int rc;
@@ -949,6 +975,16 @@ fail:
 
 #endif /* CONFIG_SFC_MTD */
 
+<<<<<<< HEAD
+=======
+static unsigned int siena_check_caps(const struct efx_nic *efx,
+				     u8 flag, u32 offset)
+{
+	/* Siena did not support MC_CMD_GET_CAPABILITIES */
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 /**************************************************************************
  *
  * Revision-dependent attributes used by efx.c and nic.c
@@ -985,7 +1021,10 @@ const struct efx_nic_type siena_a0_nic_type = {
 	.start_stats = efx_mcdi_mac_start_stats,
 	.pull_stats = efx_mcdi_mac_pull_stats,
 	.stop_stats = efx_mcdi_mac_stop_stats,
+<<<<<<< HEAD
 	.set_id_led = efx_mcdi_set_id_led,
+=======
+>>>>>>> upstream/android-13
 	.push_irq_moderation = siena_push_irq_moderation,
 	.reconfigure_mac = siena_mac_reconfigure,
 	.check_mac_fault = efx_mcdi_mac_check_fault,
@@ -1009,6 +1048,10 @@ const struct efx_nic_type siena_a0_nic_type = {
 	.tx_remove = efx_farch_tx_remove,
 	.tx_write = efx_farch_tx_write,
 	.tx_limit_len = efx_farch_tx_limit_len,
+<<<<<<< HEAD
+=======
+	.tx_enqueue = __efx_enqueue_skb,
+>>>>>>> upstream/android-13
 	.rx_push_rss_config = siena_rx_push_rss_config,
 	.rx_pull_rss_config = siena_rx_pull_rss_config,
 	.rx_probe = efx_farch_rx_probe,
@@ -1016,6 +1059,10 @@ const struct efx_nic_type siena_a0_nic_type = {
 	.rx_remove = efx_farch_rx_remove,
 	.rx_write = efx_farch_rx_write,
 	.rx_defer_refill = efx_farch_rx_defer_refill,
+<<<<<<< HEAD
+=======
+	.rx_packet = __efx_rx_packet,
+>>>>>>> upstream/android-13
 	.ev_probe = efx_farch_ev_probe,
 	.ev_init = efx_farch_ev_init,
 	.ev_fini = efx_farch_ev_fini,
@@ -1077,7 +1124,10 @@ const struct efx_nic_type siena_a0_nic_type = {
 	.can_rx_scatter = true,
 	.option_descriptors = false,
 	.min_interrupt_mode = EFX_INT_MODE_LEGACY,
+<<<<<<< HEAD
 	.max_interrupt_mode = EFX_INT_MODE_MSIX,
+=======
+>>>>>>> upstream/android-13
 	.timer_period_max = 1 << FRF_CZ_TC_TIMER_VAL_WIDTH,
 	.offload_features = (NETIF_F_IP_CSUM | NETIF_F_IPV6_CSUM |
 			     NETIF_F_RXHASH | NETIF_F_NTUPLE),
@@ -1087,4 +1137,9 @@ const struct efx_nic_type siena_a0_nic_type = {
 			     1 << HWTSTAMP_FILTER_PTP_V1_L4_EVENT |
 			     1 << HWTSTAMP_FILTER_PTP_V2_L4_EVENT),
 	.rx_hash_key_size = 16,
+<<<<<<< HEAD
+=======
+	.check_caps = siena_check_caps,
+	.sensor_event = efx_mcdi_sensor_event,
+>>>>>>> upstream/android-13
 };

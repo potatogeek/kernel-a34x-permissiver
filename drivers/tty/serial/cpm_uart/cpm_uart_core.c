@@ -24,14 +24,22 @@
 #include <linux/console.h>
 #include <linux/sysrq.h>
 #include <linux/device.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
+=======
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 #include <linux/dma-mapping.h>
 #include <linux/fs_uart_pd.h>
 #include <linux/of_address.h>
 #include <linux/of_irq.h>
 #include <linux/of_platform.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
 #include <linux/of_gpio.h>
+=======
+#include <linux/gpio/consumer.h>
+>>>>>>> upstream/android-13
 #include <linux/clk.h>
 
 #include <asm/io.h>
@@ -40,10 +48,13 @@
 #include <asm/fs_pd.h>
 #include <asm/udbg.h>
 
+<<<<<<< HEAD
 #if defined(CONFIG_SERIAL_CPM_CONSOLE) && defined(CONFIG_MAGIC_SYSRQ)
 #define SUPPORT_SYSRQ
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #include <linux/serial_core.h>
 #include <linux/kernel.h>
 
@@ -92,11 +103,19 @@ static void cpm_uart_set_mctrl(struct uart_port *port, unsigned int mctrl)
 	struct uart_cpm_port *pinfo =
 		container_of(port, struct uart_cpm_port, port);
 
+<<<<<<< HEAD
 	if (pinfo->gpios[GPIO_RTS] >= 0)
 		gpio_set_value(pinfo->gpios[GPIO_RTS], !(mctrl & TIOCM_RTS));
 
 	if (pinfo->gpios[GPIO_DTR] >= 0)
 		gpio_set_value(pinfo->gpios[GPIO_DTR], !(mctrl & TIOCM_DTR));
+=======
+	if (pinfo->gpios[GPIO_RTS])
+		gpiod_set_value(pinfo->gpios[GPIO_RTS], !(mctrl & TIOCM_RTS));
+
+	if (pinfo->gpios[GPIO_DTR])
+		gpiod_set_value(pinfo->gpios[GPIO_DTR], !(mctrl & TIOCM_DTR));
+>>>>>>> upstream/android-13
 }
 
 static unsigned int cpm_uart_get_mctrl(struct uart_port *port)
@@ -105,6 +124,7 @@ static unsigned int cpm_uart_get_mctrl(struct uart_port *port)
 		container_of(port, struct uart_cpm_port, port);
 	unsigned int mctrl = TIOCM_CTS | TIOCM_DSR | TIOCM_CAR;
 
+<<<<<<< HEAD
 	if (pinfo->gpios[GPIO_CTS] >= 0) {
 		if (gpio_get_value(pinfo->gpios[GPIO_CTS]))
 			mctrl &= ~TIOCM_CTS;
@@ -122,6 +142,25 @@ static unsigned int cpm_uart_get_mctrl(struct uart_port *port)
 
 	if (pinfo->gpios[GPIO_RI] >= 0) {
 		if (!gpio_get_value(pinfo->gpios[GPIO_RI]))
+=======
+	if (pinfo->gpios[GPIO_CTS]) {
+		if (gpiod_get_value(pinfo->gpios[GPIO_CTS]))
+			mctrl &= ~TIOCM_CTS;
+	}
+
+	if (pinfo->gpios[GPIO_DSR]) {
+		if (gpiod_get_value(pinfo->gpios[GPIO_DSR]))
+			mctrl &= ~TIOCM_DSR;
+	}
+
+	if (pinfo->gpios[GPIO_DCD]) {
+		if (gpiod_get_value(pinfo->gpios[GPIO_DCD]))
+			mctrl &= ~TIOCM_CAR;
+	}
+
+	if (pinfo->gpios[GPIO_RI]) {
+		if (!gpiod_get_value(pinfo->gpios[GPIO_RI]))
+>>>>>>> upstream/android-13
 			mctrl |= TIOCM_RNG;
 	}
 
@@ -347,9 +386,13 @@ static void cpm_uart_int_rx(struct uart_port *port)
 		/* ASSUMPTION: it contains nothing valid */
 		i = 0;
 	}
+<<<<<<< HEAD
 #ifdef SUPPORT_SYSRQ
 	port->sysrq = 0;
 #endif
+=======
+	port->sysrq = 0;
+>>>>>>> upstream/android-13
 	goto error_return;
 }
 
@@ -506,8 +549,12 @@ static void cpm_uart_set_termios(struct uart_port *port,
 	pr_debug("CPM uart[%d]:set_termios\n", port->line);
 
 	baud = uart_get_baud_rate(port, termios, old, 0, port->uartclk / 16);
+<<<<<<< HEAD
 	if (baud < HW_BUF_SPD_THRESHOLD ||
 	    (pinfo->port.state && pinfo->port.state->port.low_latency))
+=======
+	if (baud < HW_BUF_SPD_THRESHOLD || port->flags & UPF_LOW_LATENCY)
+>>>>>>> upstream/android-13
 		pinfo->rx_fifosize = 1;
 	else
 		pinfo->rx_fifosize = RX_BUF_SIZE;
@@ -532,6 +579,7 @@ static void cpm_uart_set_termios(struct uart_port *port,
 	scval = 0;
 
 	/* byte size */
+<<<<<<< HEAD
 	switch (termios->c_cflag & CSIZE) {
 	case CS5:
 		bits = 5;
@@ -550,6 +598,9 @@ static void cpm_uart_set_termios(struct uart_port *port,
 		bits = 8;
 		break;
 	}
+=======
+	bits = tty_get_char_size(termios->c_cflag);
+>>>>>>> upstream/android-13
 	sbits = bits - 5;
 
 	if (termios->c_cflag & CSTOPB) {
@@ -576,8 +627,11 @@ static void cpm_uart_set_termios(struct uart_port *port,
 	/*
 	 * Set up parity check flag
 	 */
+<<<<<<< HEAD
 #define RELEVANT_IFLAG(iflag) (iflag & (IGNBRK|BRKINT|IGNPAR|PARMRK|INPCK))
 
+=======
+>>>>>>> upstream/android-13
 	port->read_status_mask = (BD_SC_EMPTY | BD_SC_OV);
 	if (termios->c_iflag & INPCK)
 		port->read_status_mask |= BD_SC_FR | BD_SC_PR;
@@ -1116,6 +1170,37 @@ static void cpm_put_poll_char(struct uart_port *port,
 	ch[0] = (char)c;
 	cpm_uart_early_write(pinfo, ch, 1, false);
 }
+<<<<<<< HEAD
+=======
+
+#ifdef CONFIG_SERIAL_CPM_CONSOLE
+static struct uart_port *udbg_port;
+
+static void udbg_cpm_putc(char c)
+{
+	if (c == '\n')
+		cpm_put_poll_char(udbg_port, '\r');
+	cpm_put_poll_char(udbg_port, c);
+}
+
+static int udbg_cpm_getc_poll(void)
+{
+	int c = cpm_get_poll_char(udbg_port);
+
+	return c == NO_POLL_CHAR ? -1 : c;
+}
+
+static int udbg_cpm_getc(void)
+{
+	int c;
+
+	while ((c = udbg_cpm_getc_poll()) == -1)
+		cpu_relax();
+	return c;
+}
+#endif /* CONFIG_SERIAL_CPM_CONSOLE */
+
+>>>>>>> upstream/android-13
 #endif /* CONFIG_CONSOLE_POLL */
 
 static const struct uart_ops cpm_uart_pops = {
@@ -1147,6 +1232,10 @@ static int cpm_uart_init_port(struct device_node *np,
 {
 	const u32 *data;
 	void __iomem *mem, *pram;
+<<<<<<< HEAD
+=======
+	struct device *dev = pinfo->port.dev;
+>>>>>>> upstream/android-13
 	int len;
 	int ret;
 	int i;
@@ -1160,8 +1249,13 @@ static int cpm_uart_init_port(struct device_node *np,
 	if (!pinfo->clk) {
 		data = of_get_property(np, "fsl,cpm-brg", &len);
 		if (!data || len != 4) {
+<<<<<<< HEAD
 			printk(KERN_ERR "CPM UART %s has no/invalid "
 			                "fsl,cpm-brg property.\n", np->name);
+=======
+			printk(KERN_ERR "CPM UART %pOFn has no/invalid "
+			                "fsl,cpm-brg property.\n", np);
+>>>>>>> upstream/android-13
 			return -EINVAL;
 		}
 		pinfo->brg = *data;
@@ -1169,8 +1263,13 @@ static int cpm_uart_init_port(struct device_node *np,
 
 	data = of_get_property(np, "fsl,cpm-command", &len);
 	if (!data || len != 4) {
+<<<<<<< HEAD
 		printk(KERN_ERR "CPM UART %s has no/invalid "
 		                "fsl,cpm-command property.\n", np->name);
+=======
+		printk(KERN_ERR "CPM UART %pOFn has no/invalid "
+		                "fsl,cpm-command property.\n", np);
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 	pinfo->command = *data;
@@ -1206,7 +1305,12 @@ static int cpm_uart_init_port(struct device_node *np,
 	pinfo->port.uartclk = ppc_proc_freq;
 	pinfo->port.mapbase = (unsigned long)mem;
 	pinfo->port.type = PORT_CPM;
+<<<<<<< HEAD
 	pinfo->port.ops = &cpm_uart_pops,
+=======
+	pinfo->port.ops = &cpm_uart_pops;
+	pinfo->port.has_sysrq = IS_ENABLED(CONFIG_SERIAL_CPM_CONSOLE);
+>>>>>>> upstream/android-13
 	pinfo->port.iotype = UPIO_MEM;
 	pinfo->port.fifosize = pinfo->tx_nrfifos * pinfo->tx_fifosize;
 	spin_lock_init(&pinfo->port.lock);
@@ -1218,6 +1322,7 @@ static int cpm_uart_init_port(struct device_node *np,
 	}
 
 	for (i = 0; i < NUM_GPIOS; i++) {
+<<<<<<< HEAD
 		int gpio;
 
 		pinfo->gpios[i] = -1;
@@ -1241,15 +1346,51 @@ static int cpm_uart_init_port(struct device_node *np,
 				continue;
 			}
 			pinfo->gpios[i] = gpio;
+=======
+		struct gpio_desc *gpiod;
+
+		pinfo->gpios[i] = NULL;
+
+		gpiod = devm_gpiod_get_index_optional(dev, NULL, i, GPIOD_ASIS);
+
+		if (IS_ERR(gpiod)) {
+			ret = PTR_ERR(gpiod);
+			goto out_irq;
+		}
+
+		if (gpiod) {
+			if (i == GPIO_RTS || i == GPIO_DTR)
+				ret = gpiod_direction_output(gpiod, 0);
+			else
+				ret = gpiod_direction_input(gpiod);
+			if (ret) {
+				pr_err("can't set direction for gpio #%d: %d\n",
+					i, ret);
+				continue;
+			}
+			pinfo->gpios[i] = gpiod;
+>>>>>>> upstream/android-13
 		}
 	}
 
 #ifdef CONFIG_PPC_EARLY_DEBUG_CPM
+<<<<<<< HEAD
 	udbg_putc = NULL;
+=======
+#ifdef CONFIG_CONSOLE_POLL
+	if (!udbg_port)
+#endif
+		udbg_putc = NULL;
+>>>>>>> upstream/android-13
 #endif
 
 	return cpm_uart_request_port(&pinfo->port);
 
+<<<<<<< HEAD
+=======
+out_irq:
+	irq_dispose_mapping(pinfo->port.irq);
+>>>>>>> upstream/android-13
 out_pram:
 	cpm_uart_unmap_pram(pinfo, pram);
 out_mem:
@@ -1364,6 +1505,18 @@ static int __init cpm_uart_console_setup(struct console *co, char *options)
 	uart_set_options(port, co, baud, parity, bits, flow);
 	cpm_line_cr_cmd(pinfo, CPM_CR_RESTART_TX);
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_CONSOLE_POLL
+	if (!udbg_port) {
+		udbg_port = &pinfo->port;
+		udbg_putc = udbg_cpm_putc;
+		udbg_getc = udbg_cpm_getc;
+		udbg_getc_poll = udbg_cpm_getc_poll;
+	}
+#endif
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1380,6 +1533,10 @@ static struct console cpm_scc_uart_console = {
 
 static int __init cpm_uart_console_init(void)
 {
+<<<<<<< HEAD
+=======
+	cpm_muram_init();
+>>>>>>> upstream/android-13
 	register_console(&cpm_scc_uart_console);
 	return 0;
 }

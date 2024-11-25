@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 
 /*
  * MTD driver for the 28F160F3 Flash Memory (non-CFI) on LART.
@@ -6,10 +10,13 @@
  *
  * Copyright (c) 2001, 2d3D, Inc.
  *
+<<<<<<< HEAD
  * This code is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * References:
  *
  *    [1] 3 Volt Fast Boot Block Flash Memory" Intel Datasheet
@@ -439,7 +446,14 @@ static int flash_read (struct mtd_info *mtd,loff_t from,size_t len,size_t *retle
 	 {
 		int gap = BUSWIDTH - (from & (BUSWIDTH - 1));
 
+<<<<<<< HEAD
 		while (len && gap--) *buf++ = read8 (from++), len--;
+=======
+		while (len && gap--) {
+			*buf++ = read8 (from++);
+			len--;
+		}
+>>>>>>> upstream/android-13
 	 }
 
    /* now we read dwords until we reach a non-dword boundary */
@@ -521,7 +535,14 @@ static int flash_write (struct mtd_info *mtd,loff_t to,size_t len,size_t *retlen
 		i = n = 0;
 
 		while (gap--) tmp[i++] = 0xFF;
+<<<<<<< HEAD
 		while (len && i < BUSWIDTH) tmp[i++] = buf[n++], len--;
+=======
+		while (len && i < BUSWIDTH) {
+			tmp[i++] = buf[n++];
+			len--;
+		}
+>>>>>>> upstream/android-13
 		while (i < BUSWIDTH) tmp[i++] = 0xFF;
 
 		if (!write_dword (aligned,*((__u32 *) tmp))) return (-EIO);

@@ -8,9 +8,15 @@ Overview
 ========
 
 The net_failover driver provides an automated failover mechanism via APIs
+<<<<<<< HEAD
 to create and destroy a failover master netdev and mananges a primary and
 standby slave netdevs that get registered via the generic failover
 infrastructrure.
+=======
+to create and destroy a failover master netdev and manages a primary and
+standby slave netdevs that get registered via the generic failover
+infrastructure.
+>>>>>>> upstream/android-13
 
 The failover netdev acts a master device and controls 2 slave devices. The
 original paravirtual interface is registered as 'standby' slave netdev and
@@ -29,7 +35,11 @@ virtio-net accelerated datapath: STANDBY mode
 =============================================
 
 net_failover enables hypervisor controlled accelerated datapath to virtio-net
+<<<<<<< HEAD
 enabled VMs in a transparent manner with no/minimal guest userspace chanages.
+=======
+enabled VMs in a transparent manner with no/minimal guest userspace changes.
+>>>>>>> upstream/android-13
 
 To support this, the hypervisor needs to enable VIRTIO_NET_F_STANDBY
 feature on the virtio-net interface and assign the same MAC address to both

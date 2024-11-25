@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: ISC
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 2005-2011 Atheros Communications Inc.
  * Copyright (c) 2011-2017 Qualcomm Atheros, Inc.
  * Copyright (c) 2018 The Linux Foundation. All rights reserved.
+<<<<<<< HEAD
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -14,6 +19,8 @@
  * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "hif.h"
@@ -228,11 +235,39 @@ ath10k_ce_shadow_dest_ring_write_index_set(struct ath10k *ar,
 }
 
 static inline void ath10k_ce_src_ring_base_addr_set(struct ath10k *ar,
+<<<<<<< HEAD
 						    u32 ce_ctrl_addr,
 						    unsigned int addr)
 {
 	ath10k_ce_write32(ar, ce_ctrl_addr +
 			  ar->hw_ce_regs->sr_base_addr, addr);
+=======
+						    u32 ce_id,
+						    u64 addr)
+{
+	struct ath10k_ce *ce = ath10k_ce_priv(ar);
+	struct ath10k_ce_pipe *ce_state = &ce->ce_states[ce_id];
+	u32 ce_ctrl_addr = ath10k_ce_base_address(ar, ce_id);
+	u32 addr_lo = lower_32_bits(addr);
+
+	ath10k_ce_write32(ar, ce_ctrl_addr +
+			  ar->hw_ce_regs->sr_base_addr_lo, addr_lo);
+
+	if (ce_state->ops->ce_set_src_ring_base_addr_hi) {
+		ce_state->ops->ce_set_src_ring_base_addr_hi(ar, ce_ctrl_addr,
+							    addr);
+	}
+}
+
+static void ath10k_ce_set_src_ring_base_addr_hi(struct ath10k *ar,
+						u32 ce_ctrl_addr,
+						u64 addr)
+{
+	u32 addr_hi = upper_32_bits(addr) & CE_DESC_ADDR_HI_MASK;
+
+	ath10k_ce_write32(ar, ce_ctrl_addr +
+			  ar->hw_ce_regs->sr_base_addr_hi, addr_hi);
+>>>>>>> upstream/android-13
 }
 
 static inline void ath10k_ce_src_ring_size_set(struct ath10k *ar,
@@ -313,11 +348,44 @@ static inline u32 ath10k_ce_dest_ring_read_index_get(struct ath10k *ar,
 }
 
 static inline void ath10k_ce_dest_ring_base_addr_set(struct ath10k *ar,
+<<<<<<< HEAD
 						     u32 ce_ctrl_addr,
 						     u32 addr)
 {
 	ath10k_ce_write32(ar, ce_ctrl_addr +
 			  ar->hw_ce_regs->dr_base_addr, addr);
+=======
+						     u32 ce_id,
+						     u64 addr)
+{
+	struct ath10k_ce *ce = ath10k_ce_priv(ar);
+	struct ath10k_ce_pipe *ce_state = &ce->ce_states[ce_id];
+	u32 ce_ctrl_addr = ath10k_ce_base_address(ar, ce_id);
+	u32 addr_lo = lower_32_bits(addr);
+
+	ath10k_ce_write32(ar, ce_ctrl_addr +
+			  ar->hw_ce_regs->dr_base_addr_lo, addr_lo);
+
+	if (ce_state->ops->ce_set_dest_ring_base_addr_hi) {
+		ce_state->ops->ce_set_dest_ring_base_addr_hi(ar, ce_ctrl_addr,
+							     addr);
+	}
+}
+
+static void ath10k_ce_set_dest_ring_base_addr_hi(struct ath10k *ar,
+						 u32 ce_ctrl_addr,
+						 u64 addr)
+{
+	u32 addr_hi = upper_32_bits(addr) & CE_DESC_ADDR_HI_MASK;
+	u32 reg_value;
+
+	reg_value = ath10k_ce_read32(ar, ce_ctrl_addr +
+				     ar->hw_ce_regs->dr_base_addr_hi);
+	reg_value &= ~CE_DESC_ADDR_HI_MASK;
+	reg_value |= addr_hi;
+	ath10k_ce_write32(ar, ce_ctrl_addr +
+			  ar->hw_ce_regs->dr_base_addr_hi, reg_value);
+>>>>>>> upstream/android-13
 }
 
 static inline void ath10k_ce_dest_ring_size_set(struct ath10k *ar,
@@ -557,7 +625,11 @@ static int _ath10k_ce_send_nolock_64(struct ath10k_ce_pipe *ce_state,
 
 	addr = (__le32 *)&sdesc.addr;
 
+<<<<<<< HEAD
 	flags |= upper_32_bits(buffer) & CE_DESC_FLAGS_GET_MASK;
+=======
+	flags |= upper_32_bits(buffer) & CE_DESC_ADDR_HI_MASK;
+>>>>>>> upstream/android-13
 	addr[0] = __cpu_to_le32(buffer);
 	addr[1] = __cpu_to_le32(flags);
 	if (flags & CE_SEND_FLAG_GATHER)
@@ -731,7 +803,11 @@ static int __ath10k_ce_rx_post_buf_64(struct ath10k_ce_pipe *pipe,
 		return -ENOSPC;
 
 	desc->addr = __cpu_to_le64(paddr);
+<<<<<<< HEAD
 	desc->addr &= __cpu_to_le64(CE_DESC_37BIT_ADDR_MASK);
+=======
+	desc->addr &= __cpu_to_le64(CE_DESC_ADDR_MASK);
+>>>>>>> upstream/android-13
 
 	desc->nbytes = 0;
 
@@ -1032,8 +1108,13 @@ EXPORT_SYMBOL(ath10k_ce_revoke_recv_next);
  * Guts of ath10k_ce_completed_send_next.
  * The caller takes responsibility for any necessary locking.
  */
+<<<<<<< HEAD
 int ath10k_ce_completed_send_next_nolock(struct ath10k_ce_pipe *ce_state,
 					 void **per_transfer_contextp)
+=======
+static int _ath10k_ce_completed_send_next_nolock(struct ath10k_ce_pipe *ce_state,
+						 void **per_transfer_contextp)
+>>>>>>> upstream/android-13
 {
 	struct ath10k_ce_ring *src_ring = ce_state->src_ring;
 	u32 ctrl_addr = ce_state->ctrl_addr;
@@ -1084,6 +1165,69 @@ int ath10k_ce_completed_send_next_nolock(struct ath10k_ce_pipe *ce_state,
 
 	return 0;
 }
+<<<<<<< HEAD
+=======
+
+static int _ath10k_ce_completed_send_next_nolock_64(struct ath10k_ce_pipe *ce_state,
+						    void **per_transfer_contextp)
+{
+	struct ath10k_ce_ring *src_ring = ce_state->src_ring;
+	u32 ctrl_addr = ce_state->ctrl_addr;
+	struct ath10k *ar = ce_state->ar;
+	unsigned int nentries_mask = src_ring->nentries_mask;
+	unsigned int sw_index = src_ring->sw_index;
+	unsigned int read_index;
+	struct ce_desc_64 *desc;
+
+	if (src_ring->hw_index == sw_index) {
+		/*
+		 * The SW completion index has caught up with the cached
+		 * version of the HW completion index.
+		 * Update the cached HW completion index to see whether
+		 * the SW has really caught up to the HW, or if the cached
+		 * value of the HW index has become stale.
+		 */
+
+		read_index = ath10k_ce_src_ring_read_index_get(ar, ctrl_addr);
+		if (read_index == 0xffffffff)
+			return -ENODEV;
+
+		read_index &= nentries_mask;
+		src_ring->hw_index = read_index;
+	}
+
+	if (ar->hw_params.rri_on_ddr)
+		read_index = ath10k_ce_src_ring_read_index_get(ar, ctrl_addr);
+	else
+		read_index = src_ring->hw_index;
+
+	if (read_index == sw_index)
+		return -EIO;
+
+	if (per_transfer_contextp)
+		*per_transfer_contextp =
+			src_ring->per_transfer_context[sw_index];
+
+	/* sanity */
+	src_ring->per_transfer_context[sw_index] = NULL;
+	desc = CE_SRC_RING_TO_DESC_64(src_ring->base_addr_owner_space,
+				      sw_index);
+	desc->nbytes = 0;
+
+	/* Update sw_index */
+	sw_index = CE_RING_IDX_INCR(nentries_mask, sw_index);
+	src_ring->sw_index = sw_index;
+
+	return 0;
+}
+
+int ath10k_ce_completed_send_next_nolock(struct ath10k_ce_pipe *ce_state,
+					 void **per_transfer_contextp)
+{
+	return ce_state->ops->ce_completed_send_next_nolock(ce_state,
+							    per_transfer_contextp);
+}
+>>>>>>> upstream/android-13
 EXPORT_SYMBOL(ath10k_ce_completed_send_next_nolock);
 
 static void ath10k_ce_extract_desc_data(struct ath10k *ar,
@@ -1205,6 +1349,7 @@ void ath10k_ce_per_engine_service(struct ath10k *ar, unsigned int ce_id)
 	struct ath10k_hw_ce_host_wm_regs *wm_regs = ar->hw_ce_regs->wm_regs;
 	u32 ctrl_addr = ce_state->ctrl_addr;
 
+<<<<<<< HEAD
 	spin_lock_bh(&ce->ce_lock);
 
 	/* Clear the copy-complete interrupts that will be handled here. */
@@ -1212,12 +1357,27 @@ void ath10k_ce_per_engine_service(struct ath10k *ar, unsigned int ce_id)
 					  wm_regs->cc_mask);
 
 	spin_unlock_bh(&ce->ce_lock);
+=======
+	/*
+	 * Clear before handling
+	 *
+	 * Misc CE interrupts are not being handled, but still need
+	 * to be cleared.
+	 *
+	 * NOTE: When the last copy engine interrupt is cleared the
+	 * hardware will go to sleep.  Once this happens any access to
+	 * the CE registers can cause a hardware fault.
+	 */
+	ath10k_ce_engine_int_status_clear(ar, ctrl_addr,
+					  wm_regs->cc_mask | wm_regs->wm_mask);
+>>>>>>> upstream/android-13
 
 	if (ce_state->recv_cb)
 		ce_state->recv_cb(ce_state);
 
 	if (ce_state->send_cb)
 		ce_state->send_cb(ce_state);
+<<<<<<< HEAD
 
 	spin_lock_bh(&ce->ce_lock);
 
@@ -1228,6 +1388,8 @@ void ath10k_ce_per_engine_service(struct ath10k *ar, unsigned int ce_id)
 	ath10k_ce_engine_int_status_clear(ar, ctrl_addr, wm_regs->wm_mask);
 
 	spin_unlock_bh(&ce->ce_lock);
+=======
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(ath10k_ce_per_engine_service);
 
@@ -1278,6 +1440,7 @@ static void ath10k_ce_per_engine_handler_adjust(struct ath10k_ce_pipe *ce_state)
 	ath10k_ce_watermark_intr_disable(ar, ctrl_addr);
 }
 
+<<<<<<< HEAD
 int ath10k_ce_disable_interrupts(struct ath10k *ar)
 {
 	int ce_id;
@@ -1307,6 +1470,57 @@ void ath10k_ce_enable_interrupts(struct ath10k *ar)
 		ce_state  = &ce->ce_states[ce_id];
 		ath10k_ce_per_engine_handler_adjust(ce_state);
 	}
+=======
+void ath10k_ce_disable_interrupt(struct ath10k *ar, int ce_id)
+{
+	struct ath10k_ce *ce = ath10k_ce_priv(ar);
+	struct ath10k_ce_pipe *ce_state;
+	u32 ctrl_addr;
+
+	ce_state  = &ce->ce_states[ce_id];
+	if (ce_state->attr_flags & CE_ATTR_POLL)
+		return;
+
+	ctrl_addr = ath10k_ce_base_address(ar, ce_id);
+
+	ath10k_ce_copy_complete_intr_disable(ar, ctrl_addr);
+	ath10k_ce_error_intr_disable(ar, ctrl_addr);
+	ath10k_ce_watermark_intr_disable(ar, ctrl_addr);
+}
+EXPORT_SYMBOL(ath10k_ce_disable_interrupt);
+
+void ath10k_ce_disable_interrupts(struct ath10k *ar)
+{
+	int ce_id;
+
+	for (ce_id = 0; ce_id < CE_COUNT; ce_id++)
+		ath10k_ce_disable_interrupt(ar, ce_id);
+}
+EXPORT_SYMBOL(ath10k_ce_disable_interrupts);
+
+void ath10k_ce_enable_interrupt(struct ath10k *ar, int ce_id)
+{
+	struct ath10k_ce *ce = ath10k_ce_priv(ar);
+	struct ath10k_ce_pipe *ce_state;
+
+	ce_state  = &ce->ce_states[ce_id];
+	if (ce_state->attr_flags & CE_ATTR_POLL)
+		return;
+
+	ath10k_ce_per_engine_handler_adjust(ce_state);
+}
+EXPORT_SYMBOL(ath10k_ce_enable_interrupt);
+
+void ath10k_ce_enable_interrupts(struct ath10k *ar)
+{
+	int ce_id;
+
+	/* Enable interrupts for copy engine that
+	 * are not using polling mode.
+	 */
+	for (ce_id = 0; ce_id < CE_COUNT; ce_id++)
+		ath10k_ce_enable_interrupt(ar, ce_id);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(ath10k_ce_enable_interrupts);
 
@@ -1336,7 +1550,11 @@ static int ath10k_ce_init_src_ring(struct ath10k *ar,
 		ath10k_ce_src_ring_write_index_get(ar, ctrl_addr);
 	src_ring->write_index &= src_ring->nentries_mask;
 
+<<<<<<< HEAD
 	ath10k_ce_src_ring_base_addr_set(ar, ctrl_addr,
+=======
+	ath10k_ce_src_ring_base_addr_set(ar, ce_id,
+>>>>>>> upstream/android-13
 					 src_ring->base_addr_ce_space);
 	ath10k_ce_src_ring_size_set(ar, ctrl_addr, nentries);
 	ath10k_ce_src_ring_dmax_set(ar, ctrl_addr, attr->src_sz_max);
@@ -1375,7 +1593,11 @@ static int ath10k_ce_init_dest_ring(struct ath10k *ar,
 		ath10k_ce_dest_ring_write_index_get(ar, ctrl_addr);
 	dest_ring->write_index &= dest_ring->nentries_mask;
 
+<<<<<<< HEAD
 	ath10k_ce_dest_ring_base_addr_set(ar, ctrl_addr,
+=======
+	ath10k_ce_dest_ring_base_addr_set(ar, ce_id,
+>>>>>>> upstream/android-13
 					  dest_ring->base_addr_ce_space);
 	ath10k_ce_dest_ring_size_set(ar, ctrl_addr, nentries);
 	ath10k_ce_dest_ring_byte_swap_set(ar, ctrl_addr, 0);
@@ -1416,10 +1638,15 @@ ath10k_ce_alloc_src_ring(struct ath10k *ar, unsigned int ce_id,
 
 	nentries = roundup_pow_of_two(nentries);
 
+<<<<<<< HEAD
 	src_ring = kzalloc(sizeof(*src_ring) +
 			   (nentries *
 			    sizeof(*src_ring->per_transfer_context)),
 			   GFP_KERNEL);
+=======
+	src_ring = kzalloc(struct_size(src_ring, per_transfer_context,
+				       nentries), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (src_ring == NULL)
 		return ERR_PTR(-ENOMEM);
 
@@ -1476,10 +1703,15 @@ ath10k_ce_alloc_src_ring_64(struct ath10k *ar, unsigned int ce_id,
 
 	nentries = roundup_pow_of_two(nentries);
 
+<<<<<<< HEAD
 	src_ring = kzalloc(sizeof(*src_ring) +
 			   (nentries *
 			    sizeof(*src_ring->per_transfer_context)),
 			   GFP_KERNEL);
+=======
+	src_ring = kzalloc(struct_size(src_ring, per_transfer_context,
+				       nentries), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!src_ring)
 		return ERR_PTR(-ENOMEM);
 
@@ -1534,10 +1766,15 @@ ath10k_ce_alloc_dest_ring(struct ath10k *ar, unsigned int ce_id,
 
 	nentries = roundup_pow_of_two(attr->dest_nentries);
 
+<<<<<<< HEAD
 	dest_ring = kzalloc(sizeof(*dest_ring) +
 			    (nentries *
 			     sizeof(*dest_ring->per_transfer_context)),
 			    GFP_KERNEL);
+=======
+	dest_ring = kzalloc(struct_size(dest_ring, per_transfer_context,
+					nentries), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (dest_ring == NULL)
 		return ERR_PTR(-ENOMEM);
 
@@ -1549,10 +1786,17 @@ ath10k_ce_alloc_dest_ring(struct ath10k *ar, unsigned int ce_id,
 	 * coherent DMA are unsupported
 	 */
 	dest_ring->base_addr_owner_space_unaligned =
+<<<<<<< HEAD
 		dma_zalloc_coherent(ar->dev,
 				    (nentries * sizeof(struct ce_desc) +
 				     CE_DESC_RING_ALIGN),
 				    &base_addr, GFP_KERNEL);
+=======
+		dma_alloc_coherent(ar->dev,
+				   (nentries * sizeof(struct ce_desc) +
+				    CE_DESC_RING_ALIGN),
+				   &base_addr, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!dest_ring->base_addr_owner_space_unaligned) {
 		kfree(dest_ring);
 		return ERR_PTR(-ENOMEM);
@@ -1580,10 +1824,15 @@ ath10k_ce_alloc_dest_ring_64(struct ath10k *ar, unsigned int ce_id,
 
 	nentries = roundup_pow_of_two(attr->dest_nentries);
 
+<<<<<<< HEAD
 	dest_ring = kzalloc(sizeof(*dest_ring) +
 			    (nentries *
 			     sizeof(*dest_ring->per_transfer_context)),
 			    GFP_KERNEL);
+=======
+	dest_ring = kzalloc(struct_size(dest_ring, per_transfer_context,
+					nentries), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!dest_ring)
 		return ERR_PTR(-ENOMEM);
 
@@ -1608,9 +1857,12 @@ ath10k_ce_alloc_dest_ring_64(struct ath10k *ar, unsigned int ce_id,
 	/* Correctly initialize memory to 0 to prevent garbage
 	 * data crashing system when download firmware
 	 */
+<<<<<<< HEAD
 	memset(dest_ring->base_addr_owner_space_unaligned, 0,
 	       nentries * sizeof(struct ce_desc_64) + CE_DESC_RING_ALIGN);
 
+=======
+>>>>>>> upstream/android-13
 	dest_ring->base_addr_owner_space =
 			PTR_ALIGN(dest_ring->base_addr_owner_space_unaligned,
 				  CE_DESC_RING_ALIGN);
@@ -1659,7 +1911,11 @@ static void ath10k_ce_deinit_src_ring(struct ath10k *ar, unsigned int ce_id)
 {
 	u32 ctrl_addr = ath10k_ce_base_address(ar, ce_id);
 
+<<<<<<< HEAD
 	ath10k_ce_src_ring_base_addr_set(ar, ctrl_addr, 0);
+=======
+	ath10k_ce_src_ring_base_addr_set(ar, ce_id, 0);
+>>>>>>> upstream/android-13
 	ath10k_ce_src_ring_size_set(ar, ctrl_addr, 0);
 	ath10k_ce_src_ring_dmax_set(ar, ctrl_addr, 0);
 	ath10k_ce_src_ring_highmark_set(ar, ctrl_addr, 0);
@@ -1669,7 +1925,11 @@ static void ath10k_ce_deinit_dest_ring(struct ath10k *ar, unsigned int ce_id)
 {
 	u32 ctrl_addr = ath10k_ce_base_address(ar, ce_id);
 
+<<<<<<< HEAD
 	ath10k_ce_dest_ring_base_addr_set(ar, ctrl_addr, 0);
+=======
+	ath10k_ce_dest_ring_base_addr_set(ar, ce_id, 0);
+>>>>>>> upstream/android-13
 	ath10k_ce_dest_ring_size_set(ar, ctrl_addr, 0);
 	ath10k_ce_dest_ring_highmark_set(ar, ctrl_addr, 0);
 }
@@ -1759,7 +2019,11 @@ void ath10k_ce_dump_registers(struct ath10k *ar,
 	struct ath10k_ce_crash_data ce_data;
 	u32 addr, id;
 
+<<<<<<< HEAD
 	lockdep_assert_held(&ar->data_lock);
+=======
+	lockdep_assert_held(&ar->dump_mutex);
+>>>>>>> upstream/android-13
 
 	ath10k_err(ar, "Copy Engine register dump:\n");
 
@@ -1801,6 +2065,12 @@ static const struct ath10k_ce_ops ce_ops = {
 	.ce_extract_desc_data = ath10k_ce_extract_desc_data,
 	.ce_free_pipe = _ath10k_ce_free_pipe,
 	.ce_send_nolock = _ath10k_ce_send_nolock,
+<<<<<<< HEAD
+=======
+	.ce_set_src_ring_base_addr_hi = NULL,
+	.ce_set_dest_ring_base_addr_hi = NULL,
+	.ce_completed_send_next_nolock = _ath10k_ce_completed_send_next_nolock,
+>>>>>>> upstream/android-13
 };
 
 static const struct ath10k_ce_ops ce_64_ops = {
@@ -1813,6 +2083,12 @@ static const struct ath10k_ce_ops ce_64_ops = {
 	.ce_extract_desc_data = ath10k_ce_extract_desc_data_64,
 	.ce_free_pipe = _ath10k_ce_free_pipe_64,
 	.ce_send_nolock = _ath10k_ce_send_nolock_64,
+<<<<<<< HEAD
+=======
+	.ce_set_src_ring_base_addr_hi = ath10k_ce_set_src_ring_base_addr_hi,
+	.ce_set_dest_ring_base_addr_hi = ath10k_ce_set_dest_ring_base_addr_hi,
+	.ce_completed_send_next_nolock = _ath10k_ce_completed_send_next_nolock_64,
+>>>>>>> upstream/android-13
 };
 
 static void ath10k_ce_set_ops(struct ath10k *ar,
@@ -1908,7 +2184,11 @@ void ath10k_ce_alloc_rri(struct ath10k *ar)
 			  lower_32_bits(ce->paddr_rri));
 	ath10k_ce_write32(ar, ar->hw_ce_regs->ce_rri_high,
 			  (upper_32_bits(ce->paddr_rri) &
+<<<<<<< HEAD
 			  CE_DESC_FLAGS_GET_MASK));
+=======
+			  CE_DESC_ADDR_HI_MASK));
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < CE_COUNT; i++) {
 		ctrl1_regs = ar->hw_ce_regs->ctrl1_regs->addr;
@@ -1917,8 +2197,11 @@ void ath10k_ce_alloc_rri(struct ath10k *ar)
 		value |= ar->hw_ce_regs->upd->mask;
 		ath10k_ce_write32(ar, ce_base_addr + ctrl1_regs, value);
 	}
+<<<<<<< HEAD
 
 	memset(ce->vaddr_rri, 0, CE_COUNT * sizeof(u32));
+=======
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(ath10k_ce_alloc_rri);
 

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * RapidIO enumeration and discovery support
  *
@@ -11,11 +15,14 @@
  * Copyright 2009 Sysgo AG
  * Thomas Moll <thomas.moll@sysgo.com>
  * - Added Input- Output- enable functionality, to allow full communication
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/types.h>
@@ -43,7 +50,11 @@ struct rio_id_table {
 	u16 start;	/* logical minimal id */
 	u32 max;	/* max number of IDs in table */
 	spinlock_t lock;
+<<<<<<< HEAD
 	unsigned long table[0];
+=======
+	unsigned long table[];
+>>>>>>> upstream/android-13
 };
 
 static int next_destid = 0;
@@ -334,7 +345,11 @@ static struct rio_dev *rio_setup_device(struct rio_net *net,
 	size_t size;
 	u32 swpinfo = 0;
 
+<<<<<<< HEAD
 	size = sizeof(struct rio_dev);
+=======
+	size = sizeof(*rdev);
+>>>>>>> upstream/android-13
 	if (rio_mport_read_config_32(port, destid, hopcount,
 				     RIO_PEF_CAR, &result))
 		return NULL;
@@ -342,10 +357,15 @@ static struct rio_dev *rio_setup_device(struct rio_net *net,
 	if (result & (RIO_PEF_SWITCH | RIO_PEF_MULTIPORT)) {
 		rio_mport_read_config_32(port, destid, hopcount,
 					 RIO_SWP_INFO_CAR, &swpinfo);
+<<<<<<< HEAD
 		if (result & RIO_PEF_SWITCH) {
 			size += (RIO_GET_TOTAL_PORTS(swpinfo) *
 				sizeof(rswitch->nextdev[0])) + sizeof(*rswitch);
 		}
+=======
+		if (result & RIO_PEF_SWITCH)
+			size += struct_size(rswitch, nextdev, RIO_GET_TOTAL_PORTS(swpinfo));
+>>>>>>> upstream/android-13
 	}
 
 	rdev = kzalloc(size, GFP_KERNEL);

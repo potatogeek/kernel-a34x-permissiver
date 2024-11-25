@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * GPIOs and interrupts for Palm Treo smartphones
  *
@@ -7,12 +11,16 @@
  *
  * Author:     Tomas Cech <sleep_walker@suse.cz>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
  * find more info at www.hackndev.com
  *
+=======
+ * find more info at www.hackndev.com
+>>>>>>> upstream/android-13
  */
 
 #ifndef _INCLUDE_TREO_H_

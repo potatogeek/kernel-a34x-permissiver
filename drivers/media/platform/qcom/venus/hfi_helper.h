@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2012-2016, The Linux Foundation. All rights reserved.
  * Copyright (C) 2017 Linaro Ltd.
@@ -11,6 +12,12 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (c) 2012-2016, The Linux Foundation. All rights reserved.
+ * Copyright (C) 2017 Linaro Ltd.
+>>>>>>> upstream/android-13
  */
 #ifndef __VENUS_HFI_HELPER_H__
 #define __VENUS_HFI_HELPER_H__
@@ -240,6 +247,10 @@
 #define HFI_RATE_CONTROL_VBR_CFR		0x1000003
 #define HFI_RATE_CONTROL_CBR_VFR		0x1000004
 #define HFI_RATE_CONTROL_CBR_CFR		0x1000005
+<<<<<<< HEAD
+=======
+#define HFI_RATE_CONTROL_CQ			0x1000008
+>>>>>>> upstream/android-13
 
 #define HFI_VIDEO_CODEC_H264			0x00000002
 #define HFI_VIDEO_CODEC_H263			0x00000004
@@ -372,17 +383,56 @@
 #define HFI_HEVC_TIER_MAIN			0x1
 #define HFI_HEVC_TIER_HIGH0			0x2
 
+<<<<<<< HEAD
+=======
+#define HFI_VPX_PROFILE_MAIN			0x00000001
+
+#define HFI_VPX_LEVEL_VERSION_0			0x00000001
+#define HFI_VPX_LEVEL_VERSION_1			0x00000002
+#define HFI_VPX_LEVEL_VERSION_2			0x00000004
+#define HFI_VPX_LEVEL_VERSION_3			0x00000008
+
+/* VP9 Profile 0, 8-bit */
+#define HFI_VP9_PROFILE_P0			0x00000001
+/* VP9 Profile 2, 10-bit */
+#define HFI_VP9_PROFILE_P2_10B			0x00000004
+
+#define HFI_VP9_LEVEL_1				0x00000001
+#define HFI_VP9_LEVEL_11			0x00000002
+#define HFI_VP9_LEVEL_2				0x00000004
+#define HFI_VP9_LEVEL_21			0x00000008
+#define HFI_VP9_LEVEL_3				0x00000010
+#define HFI_VP9_LEVEL_31			0x00000020
+#define HFI_VP9_LEVEL_4				0x00000040
+#define HFI_VP9_LEVEL_41			0x00000080
+#define HFI_VP9_LEVEL_5				0x00000100
+#define HFI_VP9_LEVEL_51			0x00000200
+#define HFI_VP9_LEVEL_6				0x00000400
+#define HFI_VP9_LEVEL_61			0x00000800
+
+>>>>>>> upstream/android-13
 #define HFI_BUFFER_INPUT			0x1
 #define HFI_BUFFER_OUTPUT			0x2
 #define HFI_BUFFER_OUTPUT2			0x3
 #define HFI_BUFFER_INTERNAL_PERSIST		0x4
 #define HFI_BUFFER_INTERNAL_PERSIST_1		0x5
 #define HFI_BUFFER_INTERNAL_SCRATCH(ver)	\
+<<<<<<< HEAD
 	(((ver) == HFI_VERSION_4XX) ? 0x6 : 0x1000001)
 #define HFI_BUFFER_INTERNAL_SCRATCH_1(ver)	\
 	(((ver) == HFI_VERSION_4XX) ? 0x7 : 0x1000005)
 #define HFI_BUFFER_INTERNAL_SCRATCH_2(ver)	\
 	(((ver) == HFI_VERSION_4XX) ? 0x8 : 0x1000006)
+=======
+	(((ver) == HFI_VERSION_4XX ||		\
+	(ver) == HFI_VERSION_6XX) ? 0x6 : 0x1000001)
+#define HFI_BUFFER_INTERNAL_SCRATCH_1(ver)	\
+	(((ver) == HFI_VERSION_4XX ||		\
+	(ver) == HFI_VERSION_6XX) ? 0x7 : 0x1000005)
+#define HFI_BUFFER_INTERNAL_SCRATCH_2(ver)	\
+	(((ver) == HFI_VERSION_4XX ||		\
+	(ver) == HFI_VERSION_6XX) ? 0x8 : 0x1000006)
+>>>>>>> upstream/android-13
 #define HFI_BUFFER_EXTRADATA_INPUT(ver)		\
 	(((ver) == HFI_VERSION_4XX) ? 0xc : 0x1000002)
 #define HFI_BUFFER_EXTRADATA_OUTPUT(ver)	\
@@ -395,9 +445,12 @@
 #define HFI_BUFFER_MODE_RING			0x1000002
 #define HFI_BUFFER_MODE_DYNAMIC			0x1000003
 
+<<<<<<< HEAD
 #define HFI_VENC_PERFMODE_MAX_QUALITY		0x1
 #define HFI_VENC_PERFMODE_POWER_SAVE		0x2
 
+=======
+>>>>>>> upstream/android-13
 /*
  * HFI_PROPERTY_SYS_COMMON_START
  * HFI_DOMAIN_BASE_COMMON + HFI_ARCH_COMMON_OFFSET + 0x0000
@@ -490,12 +543,20 @@
 #define HFI_PROPERTY_PARAM_VENC_MAX_NUM_B_FRAMES		0x2005020
 #define HFI_PROPERTY_PARAM_VENC_H264_VUI_BITSTREAM_RESTRC	0x2005021
 #define HFI_PROPERTY_PARAM_VENC_PRESERVE_TEXT_QUALITY		0x2005023
+<<<<<<< HEAD
+=======
+#define HFI_PROPERTY_PARAM_VENC_H264_TRANSFORM_8X8			0x2005025
+>>>>>>> upstream/android-13
 #define HFI_PROPERTY_PARAM_VENC_HIER_P_MAX_NUM_ENH_LAYER	0x2005026
 #define HFI_PROPERTY_PARAM_VENC_DISABLE_RC_TIMESTAMP		0x2005027
 #define HFI_PROPERTY_PARAM_VENC_INITIAL_QP			0x2005028
 #define HFI_PROPERTY_PARAM_VENC_VPX_ERROR_RESILIENCE_MODE	0x2005029
 #define HFI_PROPERTY_PARAM_VENC_HIER_B_MAX_NUM_ENH_LAYER	0x200502c
 #define HFI_PROPERTY_PARAM_VENC_HIER_P_HYBRID_MODE		0x200502f
+<<<<<<< HEAD
+=======
+#define HFI_PROPERTY_PARAM_VENC_HDR10_PQ_SEI			0x2005036
+>>>>>>> upstream/android-13
 
 /*
  * HFI_PROPERTY_CONFIG_VENC_COMMON_START
@@ -513,6 +574,10 @@
 #define HFI_PROPERTY_CONFIG_VENC_HIER_P_ENH_LAYER		0x200600b
 #define HFI_PROPERTY_CONFIG_VENC_LTRPERIOD			0x200600c
 #define HFI_PROPERTY_CONFIG_VENC_PERF_MODE			0x200600e
+<<<<<<< HEAD
+=======
+#define HFI_PROPERTY_CONFIG_HEIC_FRAME_QUALITY			0x2006014
+>>>>>>> upstream/android-13
 
 /*
  * HFI_PROPERTY_PARAM_VPE_COMMON_START
@@ -529,7 +594,12 @@
 enum hfi_version {
 	HFI_VERSION_1XX,
 	HFI_VERSION_3XX,
+<<<<<<< HEAD
 	HFI_VERSION_4XX
+=======
+	HFI_VERSION_4XX,
+	HFI_VERSION_6XX,
+>>>>>>> upstream/android-13
 };
 
 struct hfi_buffer_info {
@@ -542,6 +612,13 @@ struct hfi_bitrate {
 	u32 layer_id;
 };
 
+<<<<<<< HEAD
+=======
+struct hfi_h264_8x8_transform {
+	u32 enable_type;
+};
+
+>>>>>>> upstream/android-13
 #define HFI_CAPABILITY_FRAME_WIDTH			0x01
 #define HFI_CAPABILITY_FRAME_HEIGHT			0x02
 #define HFI_CAPABILITY_MBS_PER_FRAME			0x03
@@ -559,6 +636,21 @@ struct hfi_bitrate {
 #define HFI_CAPABILITY_LCU_SIZE				0x14
 #define HFI_CAPABILITY_HIER_P_HYBRID_NUM_ENH_LAYERS	0x15
 #define HFI_CAPABILITY_MBS_PER_SECOND_POWERSAVE		0x16
+<<<<<<< HEAD
+=======
+#define HFI_CAPABILITY_I_FRAME_QP			0x20
+#define HFI_CAPABILITY_P_FRAME_QP			0x21
+#define HFI_CAPABILITY_B_FRAME_QP			0x22
+#define HFI_CAPABILITY_RATE_CONTROL_MODES		0x23
+#define HFI_CAPABILITY_BLUR_WIDTH			0x24
+#define HFI_CAPABILITY_BLUR_HEIGHT			0x25
+#define HFI_CAPABILITY_SLICE_BYTE			0x27
+#define HFI_CAPABILITY_SLICE_MB				0x28
+#define HFI_CAPABILITY_MAX_VIDEOCORES			0x2b
+#define HFI_CAPABILITY_MAX_WORKMODES			0x2c
+#define HFI_CAPABILITY_ROTATION				0x2f
+#define HFI_CAPABILITY_COLOR_SPACE_CONVERSION		0x30
+>>>>>>> upstream/android-13
 
 struct hfi_capability {
 	u32 capability_type;
@@ -569,7 +661,11 @@ struct hfi_capability {
 
 struct hfi_capabilities {
 	u32 num_capabilities;
+<<<<<<< HEAD
 	struct hfi_capability data[1];
+=======
+	struct hfi_capability data[];
+>>>>>>> upstream/android-13
 };
 
 #define HFI_DEBUG_MSG_LOW	0x01
@@ -654,10 +750,26 @@ struct hfi_vc1e_perf_cfg_type {
 	u32 search_range_y_subsampled[3];
 };
 
+<<<<<<< HEAD
+=======
+/*
+ * 0 - 7bit -> Luma (def: 16)
+ * 8 - 15bit -> Chroma (def: 128)
+ * format is valid up to v4
+ */
+>>>>>>> upstream/android-13
 struct hfi_conceal_color {
 	u32 conceal_color;
 };
 
+<<<<<<< HEAD
+=======
+struct hfi_conceal_color_v4 {
+	u32 conceal_color_8bit;
+	u32 conceal_color_10bit;
+};
+
+>>>>>>> upstream/android-13
 struct hfi_intra_period {
 	u32 pframes;
 	u32 bframes;
@@ -726,13 +838,25 @@ struct hfi_profile_level {
 
 struct hfi_profile_level_supported {
 	u32 profile_count;
+<<<<<<< HEAD
 	struct hfi_profile_level profile_level[1];
+=======
+	struct hfi_profile_level profile_level[];
+>>>>>>> upstream/android-13
 };
 
 struct hfi_quality_vs_speed {
 	u32 quality_vs_speed;
 };
 
+<<<<<<< HEAD
+=======
+struct hfi_heic_frame_quality {
+	u32 frame_quality;
+	u32 reserved[3];
+};
+
+>>>>>>> upstream/android-13
 struct hfi_quantization {
 	u32 qp_i;
 	u32 qp_p;
@@ -773,12 +897,44 @@ struct hfi_ltr_mark {
 	u32 mark_frame;
 };
 
+<<<<<<< HEAD
+=======
+struct hfi_mastering_display_colour_sei_payload {
+	u32 display_primaries_x[3];
+	u32 display_primaries_y[3];
+	u32 white_point_x;
+	u32 white_point_y;
+	u32 max_display_mastering_luminance;
+	u32 min_display_mastering_luminance;
+};
+
+struct hfi_content_light_level_sei_payload {
+	u32 max_content_light;
+	u32 max_pic_average_light;
+};
+
+struct hfi_hdr10_pq_sei {
+	struct hfi_mastering_display_colour_sei_payload mastering;
+	struct hfi_content_light_level_sei_payload cll;
+};
+
+>>>>>>> upstream/android-13
 struct hfi_framesize {
 	u32 buffer_type;
 	u32 width;
 	u32 height;
 };
 
+<<<<<<< HEAD
+=======
+#define HFI_VENC_PERFMODE_MAX_QUALITY		0x1
+#define HFI_VENC_PERFMODE_POWER_SAVE		0x2
+
+struct hfi_perf_mode {
+	u32 video_perf_mode;
+};
+
+>>>>>>> upstream/android-13
 #define VIDC_CORE_ID_DEFAULT	0
 #define VIDC_CORE_ID_1		1
 #define VIDC_CORE_ID_2		2
@@ -801,6 +957,12 @@ struct hfi_h264_vui_timing_info {
 	u32 time_scale;
 };
 
+<<<<<<< HEAD
+=======
+#define VIDC_BITDEPTH_8		0x00000
+#define VIDC_BITDEPTH_10	0x20002
+
+>>>>>>> upstream/android-13
 struct hfi_bit_depth {
 	u32 buffer_type;
 	u32 bit_depth;
@@ -849,8 +1011,15 @@ struct hfi_extradata_input_crop {
 #define HFI_COLOR_FORMAT_10_BIT_BASE		0x4000
 
 #define HFI_COLOR_FORMAT_YUV420_TP10		0x4002
+<<<<<<< HEAD
 #define HFI_COLOR_FORMAT_NV12_UBWC		0x8002
 #define HFI_COLOR_FORMAT_YUV420_TP10_UBWC	0xc002
+=======
+#define HFI_COLOR_FORMAT_P010			0x4003
+#define HFI_COLOR_FORMAT_NV12_UBWC		0x8002
+#define HFI_COLOR_FORMAT_YUV420_TP10_UBWC	0xc002
+#define HFI_COLOR_FORMAT_P010_UBWC		0xc003
+>>>>>>> upstream/android-13
 #define HFI_COLOR_FORMAT_RGBA8888_UBWC		0x8010
 
 struct hfi_uncompressed_format_select {
@@ -885,13 +1054,21 @@ struct hfi_uncompressed_plane_actual {
 struct hfi_uncompressed_plane_actual_info {
 	u32 buffer_type;
 	u32 num_planes;
+<<<<<<< HEAD
 	struct hfi_uncompressed_plane_actual plane_format[1];
+=======
+	struct hfi_uncompressed_plane_actual plane_format[2];
+>>>>>>> upstream/android-13
 };
 
 struct hfi_uncompressed_plane_actual_constraints_info {
 	u32 buffer_type;
 	u32 num_planes;
+<<<<<<< HEAD
 	struct hfi_uncompressed_plane_constraints plane_format[1];
+=======
+	struct hfi_uncompressed_plane_constraints plane_format[2];
+>>>>>>> upstream/android-13
 };
 
 struct hfi_codec_supported {

@@ -59,11 +59,15 @@ typedef		__u32		uint32_t;
  *
  * blkcnt_t is the type of the inode's block count.
  */
+<<<<<<< HEAD
 #ifdef CONFIG_LBDAF
 typedef u64 sector_t;
 #else
 typedef unsigned long sector_t;
 #endif
+=======
+typedef u64 sector_t;
+>>>>>>> upstream/android-13
 
 /*
  * The type of an index into the pagecache.
@@ -131,8 +135,13 @@ struct hlist_node {
  * weird ABI and we need to ask it explicitly.
  *
  * The alignment is required to guarantee that bits 0 and 1 of @next will be
+<<<<<<< HEAD
  * clear under normal conditions -- as long as we use call_rcu(),
  * call_rcu_bh(), call_rcu_sched(), or call_srcu() to queue callback.
+=======
+ * clear under normal conditions -- as long as we use call_rcu() or
+ * call_srcu() to queue callback.
+>>>>>>> upstream/android-13
  *
  * This guarantee is important for few reasons:
  *  - future call_rcu_lazy() will make use of lower bits in the pointer;

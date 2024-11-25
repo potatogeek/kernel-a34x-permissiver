@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2012 ST-Ericsson AB
  *
@@ -7,6 +8,11 @@
  *
  * http://www.opensource.org/licenses/gpl-license.html
  * http://www.gnu.org/copyleft/gpl.html
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright 2012 ST-Ericsson AB
+>>>>>>> upstream/android-13
  */
 
 #include <dt-bindings/interrupt-controller/irq.h>
@@ -44,6 +50,11 @@
 				interrupt-controller;
 				vcc-supply = <&db8500_vsmps2_reg>;
 				vio-supply = <&db8500_vsmps2_reg>;
+<<<<<<< HEAD
+=======
+				pinctrl-names = "default";
+				pinctrl-0 = <&stmpe_stuib_mode>;
+>>>>>>> upstream/android-13
 
 				wakeup-source;
 				st,autosleep-timeout = <1024>;
@@ -132,6 +143,18 @@
 		};
 
 		pinctrl {
+<<<<<<< HEAD
+=======
+			/* Pull up this GPIO pin */
+			stmpe {
+				stmpe_stuib_mode: stmpe_stuib {
+					stuib_cfg {
+						ste,pins = "GPIO218_AH11";
+						ste,config = <&gpio_in_pu>;
+					};
+				};
+			};
+>>>>>>> upstream/android-13
 			prox {
 				prox_stuib_mode: prox_stuib {
 					stuib_cfg {
@@ -190,5 +213,21 @@
 				};
 			};
 		};
+<<<<<<< HEAD
+=======
+
+		mcde@a0350000 {
+			status = "okay";
+
+			dsi@a0351000 {
+				panel {
+					compatible = "samsung,s6d16d0";
+					reg = <0>;
+					vdd1-supply = <&ab8500_ldo_aux1_reg>;
+					reset-gpios = <&gpio2 1 GPIO_ACTIVE_LOW>;
+				};
+			};
+		};
+>>>>>>> upstream/android-13
 	};
 };

@@ -112,6 +112,7 @@ DECLARE_PER_CPU(char[256], iucv_dbf_txt_buf);
  */
 #define PRINTK_HEADER " iucv: "       /* for debugging */
 
+<<<<<<< HEAD
 /* dummy device to make sure netiucv_pm functions are called */
 static struct device *netiucv_dev;
 
@@ -128,10 +129,13 @@ static const struct dev_pm_ops netiucv_pm_ops = {
 	.restore = netiucv_pm_restore_thaw,
 };
 
+=======
+>>>>>>> upstream/android-13
 static struct device_driver netiucv_driver = {
 	.owner = THIS_MODULE,
 	.name = "netiucv",
 	.bus  = &iucv_bus,
+<<<<<<< HEAD
 	.pm = &netiucv_pm_ops,
 };
 
@@ -151,6 +155,8 @@ static struct iucv_handler netiucv_handler = {
 	.path_resumed	  = netiucv_callback_connres,
 	.message_pending  = netiucv_callback_rx,
 	.message_complete = netiucv_callback_txdone
+=======
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -213,7 +219,10 @@ struct netiucv_priv {
 	fsm_instance            *fsm;
         struct iucv_connection  *conn;
 	struct device           *dev;
+<<<<<<< HEAD
 	int			 pm_state;
+=======
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -792,6 +801,19 @@ static void conn_action_txdone(fsm_instance *fi, int event, void *arg)
 	}
 }
 
+<<<<<<< HEAD
+=======
+static struct iucv_handler netiucv_handler = {
+	.path_pending	  = netiucv_callback_connreq,
+	.path_complete	  = netiucv_callback_connack,
+	.path_severed	  = netiucv_callback_connrej,
+	.path_quiesced	  = netiucv_callback_connsusp,
+	.path_resumed	  = netiucv_callback_connres,
+	.message_pending  = netiucv_callback_rx,
+	.message_complete = netiucv_callback_txdone,
+};
+
+>>>>>>> upstream/android-13
 static void conn_action_connaccept(fsm_instance *fi, int event, void *arg)
 {
 	struct iucv_event *ev = arg;
@@ -1275,6 +1297,7 @@ static int netiucv_close(struct net_device *dev)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int netiucv_pm_prepare(struct device *dev)
 {
 	IUCV_DBF_TEXT(trace, 3, __func__);
@@ -1341,6 +1364,8 @@ out:
 	return rc;
 }
 
+=======
+>>>>>>> upstream/android-13
 /**
  * Start transmission of a packet.
  * Called from generic network device layer.
@@ -2156,7 +2181,10 @@ static void __exit netiucv_exit(void)
 		netiucv_unregister_device(dev);
 	}
 
+<<<<<<< HEAD
 	device_unregister(netiucv_dev);
+=======
+>>>>>>> upstream/android-13
 	driver_unregister(&netiucv_driver);
 	iucv_unregister(&netiucv_handler, 1);
 	iucv_unregister_dbf_views();
@@ -2182,6 +2210,7 @@ static int __init netiucv_init(void)
 		IUCV_DBF_TEXT_(setup, 2, "ret %d from driver_register\n", rc);
 		goto out_iucv;
 	}
+<<<<<<< HEAD
 	/* establish dummy device */
 	netiucv_dev = kzalloc(sizeof(struct device), GFP_KERNEL);
 	if (!netiucv_dev) {
@@ -2203,6 +2232,12 @@ static int __init netiucv_init(void)
 
 out_driver:
 	driver_unregister(&netiucv_driver);
+=======
+
+	netiucv_banner();
+	return rc;
+
+>>>>>>> upstream/android-13
 out_iucv:
 	iucv_unregister(&netiucv_handler, 1);
 out_dbf:

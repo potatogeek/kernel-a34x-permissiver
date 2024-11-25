@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *	Bus error event handling code for 5000-series systems equipped
  *	with parity error detection logic, i.e. DECstation/DECsystem
@@ -6,11 +10,14 @@
  *	(KN04-CA) systems.
  *
  *	Copyright (c) 2005  Maciej W. Rozycki
+<<<<<<< HEAD
  *
  *	This program is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU General Public License
  *	as published by the Free Software Foundation; either version
  *	2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>

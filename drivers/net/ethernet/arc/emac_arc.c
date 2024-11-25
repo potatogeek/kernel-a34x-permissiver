@@ -1,9 +1,16 @@
+<<<<<<< HEAD
 /**
  * emac_arc.c - ARC EMAC specific glue layer
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/**
+ * DOC: emac_arc.c - ARC EMAC specific glue layer
+>>>>>>> upstream/android-13
  *
  * Copyright (C) 2014 Romain Perier
  *
  * Romain Perier  <romain.perier@gmail.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,6 +21,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/etherdevice.h>
@@ -24,14 +33,24 @@
 #include "emac.h"
 
 #define DRV_NAME    "emac_arc"
+<<<<<<< HEAD
 #define DRV_VERSION "1.0"
+=======
+>>>>>>> upstream/android-13
 
 static int emac_arc_probe(struct platform_device *pdev)
 {
 	struct device *dev = &pdev->dev;
+<<<<<<< HEAD
 	struct net_device *ndev;
 	struct arc_emac_priv *priv;
 	int interface, err;
+=======
+	struct arc_emac_priv *priv;
+	phy_interface_t interface;
+	struct net_device *ndev;
+	int err;
+>>>>>>> upstream/android-13
 
 	if (!dev->of_node)
 		return -ENODEV;
@@ -44,11 +63,22 @@ static int emac_arc_probe(struct platform_device *pdev)
 
 	priv = netdev_priv(ndev);
 	priv->drv_name = DRV_NAME;
+<<<<<<< HEAD
 	priv->drv_version = DRV_VERSION;
 
 	interface = of_get_phy_mode(dev->of_node);
 	if (interface < 0)
 		interface = PHY_INTERFACE_MODE_MII;
+=======
+
+	err = of_get_phy_mode(dev->of_node, &interface);
+	if (err) {
+		if (err == -ENODEV)
+			interface = PHY_INTERFACE_MODE_MII;
+		else
+			goto out_netdev;
+	}
+>>>>>>> upstream/android-13
 
 	priv->clk = devm_clk_get(dev, "hclk");
 	if (IS_ERR(priv->clk)) {

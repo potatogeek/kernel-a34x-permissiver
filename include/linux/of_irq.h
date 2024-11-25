@@ -32,10 +32,14 @@ static inline int of_irq_parse_oldworld(struct device_node *device, int index,
 }
 #endif /* CONFIG_PPC32 && CONFIG_PPC_PMAC */
 
+<<<<<<< HEAD
 extern int of_irq_domain_map(const struct irq_fwspec *in, struct irq_fwspec *out);
 extern int of_irq_parse_raw(const __be32 *addr, struct of_phandle_args *out_irq);
 extern int of_irq_parse_one(struct device_node *device, int index,
 			  struct of_phandle_args *out_irq);
+=======
+extern int of_irq_parse_raw(const __be32 *addr, struct of_phandle_args *out_irq);
+>>>>>>> upstream/android-13
 extern unsigned int irq_create_of_mapping(struct of_phandle_args *irq_data);
 extern int of_irq_to_resource(struct device_node *dev, int index,
 			      struct resource *r);
@@ -43,6 +47,11 @@ extern int of_irq_to_resource(struct device_node *dev, int index,
 extern void of_irq_init(const struct of_device_id *matches);
 
 #ifdef CONFIG_OF_IRQ
+<<<<<<< HEAD
+=======
+extern int of_irq_parse_one(struct device_node *device, int index,
+			  struct of_phandle_args *out_irq);
+>>>>>>> upstream/android-13
 extern int of_irq_count(struct device_node *dev);
 extern int of_irq_get(struct device_node *dev, int index);
 extern int of_irq_get_byname(struct device_node *dev, const char *name);
@@ -53,10 +62,23 @@ extern struct irq_domain *of_msi_get_domain(struct device *dev,
 					    struct device_node *np,
 					    enum irq_domain_bus_token token);
 extern struct irq_domain *of_msi_map_get_device_domain(struct device *dev,
+<<<<<<< HEAD
 						       u32 rid);
 extern void of_msi_configure(struct device *dev, struct device_node *np);
 u32 of_msi_map_rid(struct device *dev, struct device_node *msi_np, u32 rid_in);
 #else
+=======
+							u32 id,
+							u32 bus_token);
+extern void of_msi_configure(struct device *dev, struct device_node *np);
+u32 of_msi_map_id(struct device *dev, struct device_node *msi_np, u32 id_in);
+#else
+static inline int of_irq_parse_one(struct device_node *device, int index,
+				   struct of_phandle_args *out_irq)
+{
+	return -EINVAL;
+}
+>>>>>>> upstream/android-13
 static inline int of_irq_count(struct device_node *dev)
 {
 	return 0;
@@ -86,17 +108,28 @@ static inline struct irq_domain *of_msi_get_domain(struct device *dev,
 	return NULL;
 }
 static inline struct irq_domain *of_msi_map_get_device_domain(struct device *dev,
+<<<<<<< HEAD
 							      u32 rid)
+=======
+						u32 id, u32 bus_token)
+>>>>>>> upstream/android-13
 {
 	return NULL;
 }
 static inline void of_msi_configure(struct device *dev, struct device_node *np)
 {
 }
+<<<<<<< HEAD
 static inline u32 of_msi_map_rid(struct device *dev,
 				 struct device_node *msi_np, u32 rid_in)
 {
 	return rid_in;
+=======
+static inline u32 of_msi_map_id(struct device *dev,
+				 struct device_node *msi_np, u32 id_in)
+{
+	return id_in;
+>>>>>>> upstream/android-13
 }
 #endif
 

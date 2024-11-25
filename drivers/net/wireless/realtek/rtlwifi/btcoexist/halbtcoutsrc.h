@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * Copyright(c) 2009-2012  Realtek Corporation.
@@ -22,6 +23,11 @@
  * Larry Finger <Larry.Finger@lwfinger.net>
  *
  *****************************************************************************/
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+/* Copyright(c) 2009-2012  Realtek Corporation.*/
+
+>>>>>>> upstream/android-13
 #ifndef	__HALBTC_OUT_SRC_H__
 #define __HALBTC_OUT_SRC_H__
 
@@ -700,7 +706,11 @@ struct btc_coexist {
 	bool auto_report_2ant;
 	bool dbg_mode_1ant;
 	bool dbg_mode_2ant;
+<<<<<<< HEAD
 	bool initilized;
+=======
+	bool initialized;
+>>>>>>> upstream/android-13
 	bool stop_coex_dm;
 	bool manual_control;
 	struct btc_statistics statistics;
@@ -785,7 +795,10 @@ void exhalbtc_special_packet_notify(struct btc_coexist *btcoexist, u8 pkt_type);
 void exhalbtc_bt_info_notify(struct btc_coexist *btcoexist, u8 *tmp_buf,
 			     u8 length);
 void exhalbtc_rf_status_notify(struct btc_coexist *btcoexist, u8 type);
+<<<<<<< HEAD
 void exhalbtc_stack_operation_notify(struct btc_coexist *btcoexist, u8 type);
+=======
+>>>>>>> upstream/android-13
 void exhalbtc_halt_notify(struct btc_coexist *btcoexist);
 void exhalbtc_pnp_notify(struct btc_coexist *btcoexist, u8 pnp_state);
 void exhalbtc_coex_dm_switch(struct btc_coexist *btcoexist);

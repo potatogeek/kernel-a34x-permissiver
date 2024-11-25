@@ -155,6 +155,10 @@ enum nlmsgerr_attrs {
 #define NETLINK_LIST_MEMBERSHIPS	9
 #define NETLINK_CAP_ACK			10
 #define NETLINK_EXT_ACK			11
+<<<<<<< HEAD
+=======
+#define NETLINK_GET_STRICT_CHK		12
+>>>>>>> upstream/android-13
 
 struct nl_pktinfo {
 	__u32	group;

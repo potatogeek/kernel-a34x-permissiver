@@ -8,7 +8,11 @@
  * kernel stack during a system call or other kernel entry
  *
  * NOTE! I want to minimize the overhead of system calls, so this
+<<<<<<< HEAD
  * struct has as little information as possible.  I does not have
+=======
+ * struct has as little information as possible. It does not have
+>>>>>>> upstream/android-13
  *
  *  - floating point regs: the kernel doesn't change those
  *  - r9-15: saved by the C compiler

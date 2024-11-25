@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 /*
  *   fs/cifs/xattr.c
+=======
+// SPDX-License-Identifier: LGPL-2.1
+/*
+>>>>>>> upstream/android-13
  *
  *   Copyright (c) International Business Machines  Corp., 2003, 2007
  *   Author(s): Steve French (sfrench@us.ibm.com)
  *
+<<<<<<< HEAD
  *   This library is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU Lesser General Public License as published
  *   by the Free Software Foundation; either version 2.1 of the License, or
@@ -17,6 +23,8 @@
  *   You should have received a copy of the GNU Lesser General Public License
  *   along with this library; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/fs.h>
@@ -30,9 +38,18 @@
 #include "cifs_debug.h"
 #include "cifs_fs_sb.h"
 #include "cifs_unicode.h"
+<<<<<<< HEAD
 
 #define MAX_EA_VALUE_SIZE CIFSMaxBufSize
 #define CIFS_XATTR_CIFS_ACL "system.cifs_acl"
+=======
+#include "cifs_ioctl.h"
+
+#define MAX_EA_VALUE_SIZE CIFSMaxBufSize
+#define CIFS_XATTR_CIFS_ACL "system.cifs_acl" /* DACL only */
+#define CIFS_XATTR_CIFS_NTSD "system.cifs_ntsd" /* owner plus DACL */
+#define CIFS_XATTR_CIFS_NTSD_FULL "system.cifs_ntsd_full" /* owner/DACL/SACL */
+>>>>>>> upstream/android-13
 #define CIFS_XATTR_ATTRIB "cifs.dosattrib"  /* full name: user.cifs.dosattrib */
 #define CIFS_XATTR_CREATETIME "cifs.creationtime"  /* user.cifs.creationtime */
 /*
@@ -40,14 +57,76 @@
  * confusing users and using the 20+ year old term 'cifs' when it is no longer
  * secure, replaced by SMB2 (then even more highly secure SMB3) many years ago
  */
+<<<<<<< HEAD
 #define SMB3_XATTR_CIFS_ACL "system.smb3_acl"
+=======
+#define SMB3_XATTR_CIFS_ACL "system.smb3_acl" /* DACL only */
+#define SMB3_XATTR_CIFS_NTSD "system.smb3_ntsd" /* owner plus DACL */
+#define SMB3_XATTR_CIFS_NTSD_FULL "system.smb3_ntsd_full" /* owner/DACL/SACL */
+>>>>>>> upstream/android-13
 #define SMB3_XATTR_ATTRIB "smb3.dosattrib"  /* full name: user.smb3.dosattrib */
 #define SMB3_XATTR_CREATETIME "smb3.creationtime"  /* user.smb3.creationtime */
 /* BB need to add server (Samba e.g) support for security and trusted prefix */
 
+<<<<<<< HEAD
 enum { XATTR_USER, XATTR_CIFS_ACL, XATTR_ACL_ACCESS, XATTR_ACL_DEFAULT };
 
 static int cifs_xattr_set(const struct xattr_handler *handler,
+=======
+enum { XATTR_USER, XATTR_CIFS_ACL, XATTR_ACL_ACCESS, XATTR_ACL_DEFAULT,
+	XATTR_CIFS_NTSD, XATTR_CIFS_NTSD_FULL };
+
+static int cifs_attrib_set(unsigned int xid, struct cifs_tcon *pTcon,
+			   struct inode *inode, const char *full_path,
+			   const void *value, size_t size)
+{
+	ssize_t rc = -EOPNOTSUPP;
+	__u32 *pattrib = (__u32 *)value;
+	__u32 attrib;
+	FILE_BASIC_INFO info_buf;
+
+	if ((value == NULL) || (size != sizeof(__u32)))
+		return -ERANGE;
+
+	memset(&info_buf, 0, sizeof(info_buf));
+	attrib = *pattrib;
+	info_buf.Attributes = cpu_to_le32(attrib);
+	if (pTcon->ses->server->ops->set_file_info)
+		rc = pTcon->ses->server->ops->set_file_info(inode, full_path,
+				&info_buf, xid);
+	if (rc == 0)
+		CIFS_I(inode)->cifsAttrs = attrib;
+
+	return rc;
+}
+
+static int cifs_creation_time_set(unsigned int xid, struct cifs_tcon *pTcon,
+				  struct inode *inode, const char *full_path,
+				  const void *value, size_t size)
+{
+	ssize_t rc = -EOPNOTSUPP;
+	__u64 *pcreation_time = (__u64 *)value;
+	__u64 creation_time;
+	FILE_BASIC_INFO info_buf;
+
+	if ((value == NULL) || (size != sizeof(__u64)))
+		return -ERANGE;
+
+	memset(&info_buf, 0, sizeof(info_buf));
+	creation_time = *pcreation_time;
+	info_buf.CreationTime = cpu_to_le64(creation_time);
+	if (pTcon->ses->server->ops->set_file_info)
+		rc = pTcon->ses->server->ops->set_file_info(inode, full_path,
+				&info_buf, xid);
+	if (rc == 0)
+		CIFS_I(inode)->createtime = creation_time;
+
+	return rc;
+}
+
+static int cifs_xattr_set(const struct xattr_handler *handler,
+			  struct user_namespace *mnt_userns,
+>>>>>>> upstream/android-13
 			  struct dentry *dentry, struct inode *inode,
 			  const char *name, const void *value,
 			  size_t size, int flags)
@@ -58,7 +137,12 @@ static int cifs_xattr_set(const struct xattr_handler *handler,
 	struct cifs_sb_info *cifs_sb = CIFS_SB(sb);
 	struct tcon_link *tlink;
 	struct cifs_tcon *pTcon;
+<<<<<<< HEAD
 	char *full_path;
+=======
+	const char *full_path;
+	void *page;
+>>>>>>> upstream/android-13
 
 	tlink = cifs_sb_tlink(cifs_sb);
 	if (IS_ERR(tlink))
@@ -66,10 +150,18 @@ static int cifs_xattr_set(const struct xattr_handler *handler,
 	pTcon = tlink_tcon(tlink);
 
 	xid = get_xid();
+<<<<<<< HEAD
 
 	full_path = build_path_from_dentry(dentry);
 	if (full_path == NULL) {
 		rc = -ENOMEM;
+=======
+	page = alloc_dentry_path();
+
+	full_path = build_path_from_dentry(dentry, page);
+	if (IS_ERR(full_path)) {
+		rc = PTR_ERR(full_path);
+>>>>>>> upstream/android-13
 		goto out;
 	}
 	/* return dos attributes as pseudo xattr */
@@ -86,6 +178,26 @@ static int cifs_xattr_set(const struct xattr_handler *handler,
 
 	switch (handler->flags) {
 	case XATTR_USER:
+<<<<<<< HEAD
+=======
+		cifs_dbg(FYI, "%s:setting user xattr %s\n", __func__, name);
+		if ((strcmp(name, CIFS_XATTR_ATTRIB) == 0) ||
+		    (strcmp(name, SMB3_XATTR_ATTRIB) == 0)) {
+			rc = cifs_attrib_set(xid, pTcon, inode, full_path,
+					value, size);
+			if (rc == 0) /* force revalidate of the inode */
+				CIFS_I(inode)->time = 0;
+			break;
+		} else if ((strcmp(name, CIFS_XATTR_CREATETIME) == 0) ||
+			   (strcmp(name, SMB3_XATTR_CREATETIME) == 0)) {
+			rc = cifs_creation_time_set(xid, pTcon, inode,
+					full_path, value, size);
+			if (rc == 0) /* force revalidate of the inode */
+				CIFS_I(inode)->time = 0;
+			break;
+		}
+
+>>>>>>> upstream/android-13
 		if (cifs_sb->mnt_cifs_flags & CIFS_MOUNT_NO_XATTR)
 			goto out;
 
@@ -95,8 +207,14 @@ static int cifs_xattr_set(const struct xattr_handler *handler,
 				cifs_sb->local_nls, cifs_sb);
 		break;
 
+<<<<<<< HEAD
 	case XATTR_CIFS_ACL: {
 #ifdef CONFIG_CIFS_ACL
+=======
+	case XATTR_CIFS_ACL:
+	case XATTR_CIFS_NTSD:
+	case XATTR_CIFS_NTSD_FULL: {
+>>>>>>> upstream/android-13
 		struct cifs_ntsd *pacl;
 
 		if (!value)
@@ -106,6 +224,7 @@ static int cifs_xattr_set(const struct xattr_handler *handler,
 			rc = -ENOMEM;
 		} else {
 			memcpy(pacl, value, size);
+<<<<<<< HEAD
 			if (value &&
 			    pTcon->ses->server->ops->set_acl)
 				rc = pTcon->ses->server->ops->set_acl(pacl,
@@ -113,11 +232,42 @@ static int cifs_xattr_set(const struct xattr_handler *handler,
 						full_path, CIFS_ACL_DACL);
 			else
 				rc = -EOPNOTSUPP;
+=======
+			if (pTcon->ses->server->ops->set_acl) {
+				int aclflags = 0;
+				rc = 0;
+
+				switch (handler->flags) {
+				case XATTR_CIFS_NTSD_FULL:
+					aclflags = (CIFS_ACL_OWNER |
+						    CIFS_ACL_GROUP |
+						    CIFS_ACL_DACL |
+						    CIFS_ACL_SACL);
+					break;
+				case XATTR_CIFS_NTSD:
+					aclflags = (CIFS_ACL_OWNER |
+						    CIFS_ACL_GROUP |
+						    CIFS_ACL_DACL);
+					break;
+				case XATTR_CIFS_ACL:
+				default:
+					aclflags = CIFS_ACL_DACL;
+				}
+
+				rc = pTcon->ses->server->ops->set_acl(pacl,
+					size, inode, full_path, aclflags);
+			} else {
+				rc = -EOPNOTSUPP;
+			}
+>>>>>>> upstream/android-13
 			if (rc == 0) /* force revalidate of the inode */
 				CIFS_I(inode)->time = 0;
 			kfree(pacl);
 		}
+<<<<<<< HEAD
 #endif /* CONFIG_CIFS_ACL */
+=======
+>>>>>>> upstream/android-13
 		break;
 	}
 
@@ -147,7 +297,11 @@ static int cifs_xattr_set(const struct xattr_handler *handler,
 	}
 
 out:
+<<<<<<< HEAD
 	kfree(full_path);
+=======
+	free_dentry_path(page);
+>>>>>>> upstream/android-13
 	free_xid(xid);
 	cifs_put_tlink(tlink);
 	return rc;
@@ -181,7 +335,11 @@ static int cifs_creation_time_get(struct dentry *dentry, struct inode *inode,
 				  void *value, size_t size)
 {
 	ssize_t rc;
+<<<<<<< HEAD
 	__u64 * pcreatetime;
+=======
+	__u64 *pcreatetime;
+>>>>>>> upstream/android-13
 
 	rc = cifs_revalidate_dentry_attr(dentry);
 	if (rc)
@@ -209,7 +367,12 @@ static int cifs_xattr_get(const struct xattr_handler *handler,
 	struct cifs_sb_info *cifs_sb = CIFS_SB(sb);
 	struct tcon_link *tlink;
 	struct cifs_tcon *pTcon;
+<<<<<<< HEAD
 	char *full_path;
+=======
+	const char *full_path;
+	void *page;
+>>>>>>> upstream/android-13
 
 	tlink = cifs_sb_tlink(cifs_sb);
 	if (IS_ERR(tlink))
@@ -217,10 +380,18 @@ static int cifs_xattr_get(const struct xattr_handler *handler,
 	pTcon = tlink_tcon(tlink);
 
 	xid = get_xid();
+<<<<<<< HEAD
 
 	full_path = build_path_from_dentry(dentry);
 	if (full_path == NULL) {
 		rc = -ENOMEM;
+=======
+	page = alloc_dentry_path();
+
+	full_path = build_path_from_dentry(dentry, page);
+	if (IS_ERR(full_path)) {
+		rc = PTR_ERR(full_path);
+>>>>>>> upstream/android-13
 		goto out;
 	}
 
@@ -246,16 +417,37 @@ static int cifs_xattr_get(const struct xattr_handler *handler,
 				full_path, name, value, size, cifs_sb);
 		break;
 
+<<<<<<< HEAD
 	case XATTR_CIFS_ACL: {
 #ifdef CONFIG_CIFS_ACL
 		u32 acllen;
+=======
+	case XATTR_CIFS_ACL:
+	case XATTR_CIFS_NTSD:
+	case XATTR_CIFS_NTSD_FULL: {
+		/*
+		 * fetch owner, DACL, and SACL if asked for full descriptor,
+		 * fetch owner and DACL otherwise
+		 */
+		u32 acllen, extra_info;
+>>>>>>> upstream/android-13
 		struct cifs_ntsd *pacl;
 
 		if (pTcon->ses->server->ops->get_acl == NULL)
 			goto out; /* rc already EOPNOTSUPP */
 
+<<<<<<< HEAD
 		pacl = pTcon->ses->server->ops->get_acl(cifs_sb,
 				inode, full_path, &acllen);
+=======
+		if (handler->flags == XATTR_CIFS_NTSD_FULL) {
+			extra_info = SACL_SECINFO;
+		} else {
+			extra_info = 0;
+		}
+		pacl = pTcon->ses->server->ops->get_acl(cifs_sb,
+				inode, full_path, &acllen, extra_info);
+>>>>>>> upstream/android-13
 		if (IS_ERR(pacl)) {
 			rc = PTR_ERR(pacl);
 			cifs_dbg(VFS, "%s: error %zd getting sec desc\n",
@@ -270,7 +462,10 @@ static int cifs_xattr_get(const struct xattr_handler *handler,
 			rc = acllen;
 			kfree(pacl);
 		}
+<<<<<<< HEAD
 #endif  /* CONFIG_CIFS_ACL */
+=======
+>>>>>>> upstream/android-13
 		break;
 	}
 
@@ -304,7 +499,11 @@ static int cifs_xattr_get(const struct xattr_handler *handler,
 		rc = -EOPNOTSUPP;
 
 out:
+<<<<<<< HEAD
 	kfree(full_path);
+=======
+	free_dentry_path(page);
+>>>>>>> upstream/android-13
 	free_xid(xid);
 	cifs_put_tlink(tlink);
 	return rc;
@@ -317,7 +516,15 @@ ssize_t cifs_listxattr(struct dentry *direntry, char *data, size_t buf_size)
 	struct cifs_sb_info *cifs_sb = CIFS_SB(direntry->d_sb);
 	struct tcon_link *tlink;
 	struct cifs_tcon *pTcon;
+<<<<<<< HEAD
 	char *full_path;
+=======
+	const char *full_path;
+	void *page;
+
+	if (unlikely(cifs_forced_shutdown(cifs_sb)))
+		return -EIO;
+>>>>>>> upstream/android-13
 
 	if (cifs_sb->mnt_cifs_flags & CIFS_MOUNT_NO_XATTR)
 		return -EOPNOTSUPP;
@@ -328,10 +535,18 @@ ssize_t cifs_listxattr(struct dentry *direntry, char *data, size_t buf_size)
 	pTcon = tlink_tcon(tlink);
 
 	xid = get_xid();
+<<<<<<< HEAD
 
 	full_path = build_path_from_dentry(direntry);
 	if (full_path == NULL) {
 		rc = -ENOMEM;
+=======
+	page = alloc_dentry_path();
+
+	full_path = build_path_from_dentry(direntry, page);
+	if (IS_ERR(full_path)) {
+		rc = PTR_ERR(full_path);
+>>>>>>> upstream/android-13
 		goto list_ea_exit;
 	}
 	/* return dos attributes as pseudo xattr */
@@ -345,7 +560,11 @@ ssize_t cifs_listxattr(struct dentry *direntry, char *data, size_t buf_size)
 		rc = pTcon->ses->server->ops->query_all_EAs(xid, pTcon,
 				full_path, NULL, data, buf_size, cifs_sb);
 list_ea_exit:
+<<<<<<< HEAD
 	kfree(full_path);
+=======
+	free_dentry_path(page);
+>>>>>>> upstream/android-13
 	free_xid(xid);
 	cifs_put_tlink(tlink);
 	return rc;
@@ -386,6 +605,50 @@ static const struct xattr_handler smb3_acl_xattr_handler = {
 	.set = cifs_xattr_set,
 };
 
+<<<<<<< HEAD
+=======
+static const struct xattr_handler cifs_cifs_ntsd_xattr_handler = {
+	.name = CIFS_XATTR_CIFS_NTSD,
+	.flags = XATTR_CIFS_NTSD,
+	.get = cifs_xattr_get,
+	.set = cifs_xattr_set,
+};
+
+/*
+ * Although this is just an alias for the above, need to move away from
+ * confusing users and using the 20 year old term 'cifs' when it is no
+ * longer secure and was replaced by SMB2/SMB3 a long time ago, and
+ * SMB3 and later are highly secure.
+ */
+static const struct xattr_handler smb3_ntsd_xattr_handler = {
+	.name = SMB3_XATTR_CIFS_NTSD,
+	.flags = XATTR_CIFS_NTSD,
+	.get = cifs_xattr_get,
+	.set = cifs_xattr_set,
+};
+
+static const struct xattr_handler cifs_cifs_ntsd_full_xattr_handler = {
+	.name = CIFS_XATTR_CIFS_NTSD_FULL,
+	.flags = XATTR_CIFS_NTSD_FULL,
+	.get = cifs_xattr_get,
+	.set = cifs_xattr_set,
+};
+
+/*
+ * Although this is just an alias for the above, need to move away from
+ * confusing users and using the 20 year old term 'cifs' when it is no
+ * longer secure and was replaced by SMB2/SMB3 a long time ago, and
+ * SMB3 and later are highly secure.
+ */
+static const struct xattr_handler smb3_ntsd_full_xattr_handler = {
+	.name = SMB3_XATTR_CIFS_NTSD_FULL,
+	.flags = XATTR_CIFS_NTSD_FULL,
+	.get = cifs_xattr_get,
+	.set = cifs_xattr_set,
+};
+
+
+>>>>>>> upstream/android-13
 static const struct xattr_handler cifs_posix_acl_access_xattr_handler = {
 	.name = XATTR_NAME_POSIX_ACL_ACCESS,
 	.flags = XATTR_ACL_ACCESS,
@@ -405,6 +668,13 @@ const struct xattr_handler *cifs_xattr_handlers[] = {
 	&cifs_os2_xattr_handler,
 	&cifs_cifs_acl_xattr_handler,
 	&smb3_acl_xattr_handler, /* alias for above since avoiding "cifs" */
+<<<<<<< HEAD
+=======
+	&cifs_cifs_ntsd_xattr_handler,
+	&smb3_ntsd_xattr_handler, /* alias for above since avoiding "cifs" */
+	&cifs_cifs_ntsd_full_xattr_handler,
+	&smb3_ntsd_full_xattr_handler, /* alias for above since avoiding "cifs" */
+>>>>>>> upstream/android-13
 	&cifs_posix_acl_access_xattr_handler,
 	&cifs_posix_acl_default_xattr_handler,
 	NULL

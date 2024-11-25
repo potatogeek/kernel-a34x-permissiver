@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2016 IBM Corporation
  *
@@ -9,11 +13,14 @@
  * for Family "2.0" and written the event data in little endian.
  * With that, it doesn't need any endian conversion for structure
  * content.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/seq_file.h>
@@ -37,6 +44,7 @@
  *
  * Returns size of the event. If it is an invalid event, returns 0.
  */
+<<<<<<< HEAD
 static size_t calc_tpm2_event_size(struct tcg_pcr_event2 *event,
 				   struct tcg_pcr_event *event_header)
 {
@@ -86,6 +94,12 @@ static size_t calc_tpm2_event_size(struct tcg_pcr_event2 *event,
 		return 0;
 
 	return size;
+=======
+static size_t calc_tpm2_event_size(struct tcg_pcr_event2_head *event,
+				   struct tcg_pcr_event *event_header)
+{
+	return __calc_tpm2_event_size(event, event_header, false);
+>>>>>>> upstream/android-13
 }
 
 static void *tpm2_bios_measurements_start(struct seq_file *m, loff_t *pos)
@@ -95,13 +109,21 @@ static void *tpm2_bios_measurements_start(struct seq_file *m, loff_t *pos)
 	void *addr = log->bios_event_log;
 	void *limit = log->bios_event_log_end;
 	struct tcg_pcr_event *event_header;
+<<<<<<< HEAD
 	struct tcg_pcr_event2 *event;
+=======
+	struct tcg_pcr_event2_head *event;
+>>>>>>> upstream/android-13
 	size_t size;
 	int i;
 
 	event_header = addr;
+<<<<<<< HEAD
 	size = sizeof(struct tcg_pcr_event) - sizeof(event_header->event)
 		+ event_header->event_size;
+=======
+	size = struct_size(event_header, event, event_header->event_size);
+>>>>>>> upstream/android-13
 
 	if (*pos == 0) {
 		if (addr + size < limit) {
@@ -136,7 +158,11 @@ static void *tpm2_bios_measurements_next(struct seq_file *m, void *v,
 					 loff_t *pos)
 {
 	struct tcg_pcr_event *event_header;
+<<<<<<< HEAD
 	struct tcg_pcr_event2 *event;
+=======
+	struct tcg_pcr_event2_head *event;
+>>>>>>> upstream/android-13
 	struct tpm_chip *chip = m->private;
 	struct tpm_bios_log *log = &chip->log;
 	void *limit = log->bios_event_log_end;
@@ -147,8 +173,13 @@ static void *tpm2_bios_measurements_next(struct seq_file *m, void *v,
 	event_header = log->bios_event_log;
 
 	if (v == SEQ_START_TOKEN) {
+<<<<<<< HEAD
 		event_size = sizeof(struct tcg_pcr_event) -
 			sizeof(event_header->event) + event_header->event_size;
+=======
+		event_size = struct_size(event_header, event,
+					 event_header->event_size);
+>>>>>>> upstream/android-13
 		marker = event_header;
 	} else {
 		event = v;
@@ -180,14 +211,23 @@ static int tpm2_binary_bios_measurements_show(struct seq_file *m, void *v)
 	struct tpm_chip *chip = m->private;
 	struct tpm_bios_log *log = &chip->log;
 	struct tcg_pcr_event *event_header = log->bios_event_log;
+<<<<<<< HEAD
 	struct tcg_pcr_event2 *event = v;
+=======
+	struct tcg_pcr_event2_head *event = v;
+>>>>>>> upstream/android-13
 	void *temp_ptr;
 	size_t size;
 
 	if (v == SEQ_START_TOKEN) {
+<<<<<<< HEAD
 		size = sizeof(struct tcg_pcr_event) -
 			sizeof(event_header->event) + event_header->event_size;
 
+=======
+		size = struct_size(event_header, event,
+				   event_header->event_size);
+>>>>>>> upstream/android-13
 		temp_ptr = event_header;
 
 		if (size > 0)

@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * PowerPC 64-bit swsusp implementation
  *
  * Copyright 2006 Johannes Berg <johannes@sipsolutions.net>
+<<<<<<< HEAD
  *
  * GPLv2
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <asm/iommu.h>

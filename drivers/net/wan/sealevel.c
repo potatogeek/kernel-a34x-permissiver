@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *	Sealevel Systems 4021 driver.
  *
@@ -5,11 +6,18 @@
  *	modify it under the terms of the GNU General Public License
  *	as published by the Free Software Foundation; either version
  *	2 of the License, or (at your option) any later version.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*	Sealevel Systems 4021 driver.
+>>>>>>> upstream/android-13
  *
  *	(c) Copyright 1999, 2001 Alan Cox
  *	(c) Copyright 2001 Red Hat Inc.
  *	Generic HDLC port Copyright (C) 2008 Krzysztof Halasa <khc@pm.waw.pl>
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -34,32 +42,50 @@
 #include <asm/byteorder.h>
 #include "z85230.h"
 
+<<<<<<< HEAD
 
 struct slvl_device
 {
+=======
+struct slvl_device {
+>>>>>>> upstream/android-13
 	struct z8530_channel *chan;
 	int channel;
 };
 
+<<<<<<< HEAD
 
 struct slvl_board
 {
+=======
+struct slvl_board {
+>>>>>>> upstream/android-13
 	struct slvl_device dev[2];
 	struct z8530_dev board;
 	int iobase;
 };
 
+<<<<<<< HEAD
 /*
  *	Network driver support routines
  */
 
 static inline struct slvl_device* dev_to_chan(struct net_device *dev)
+=======
+ /*	Network driver support routines */
+
+static inline struct slvl_device *dev_to_chan(struct net_device *dev)
+>>>>>>> upstream/android-13
 {
 	return (struct slvl_device *)dev_to_hdlc(dev)->priv;
 }
 
+<<<<<<< HEAD
 /*
  *	Frame receive. Simple for our card as we do HDLC and there
+=======
+/*	Frame receive. Simple for our card as we do HDLC and there
+>>>>>>> upstream/android-13
  *	is no funny garbage involved
  */
 
@@ -73,9 +99,13 @@ static void sealevel_input(struct z8530_channel *c, struct sk_buff *skb)
 	netif_rx(skb);
 }
 
+<<<<<<< HEAD
 /*
  *	We've been placed in the UP state
  */
+=======
+ /*	We've been placed in the UP state */
+>>>>>>> upstream/android-13
 
 static int sealevel_open(struct net_device *d)
 {
@@ -83,6 +113,7 @@ static int sealevel_open(struct net_device *d)
 	int err = -1;
 	int unit = slvl->channel;
 
+<<<<<<< HEAD
 	/*
 	 *	Link layer up.
 	 */
@@ -94,6 +125,17 @@ static int sealevel_open(struct net_device *d)
 		case 1:
 			err = z8530_sync_open(d, slvl->chan);
 			break;
+=======
+	 /*	Link layer up. */
+
+	switch (unit) {
+	case 0:
+		err = z8530_sync_dma_open(d, slvl->chan);
+		break;
+	case 1:
+		err = z8530_sync_open(d, slvl->chan);
+		break;
+>>>>>>> upstream/android-13
 	}
 
 	if (err)
@@ -102,21 +144,33 @@ static int sealevel_open(struct net_device *d)
 	err = hdlc_open(d);
 	if (err) {
 		switch (unit) {
+<<<<<<< HEAD
 			case 0:
 				z8530_sync_dma_close(d, slvl->chan);
 				break;
 			case 1:
 				z8530_sync_close(d, slvl->chan);
 				break;
+=======
+		case 0:
+			z8530_sync_dma_close(d, slvl->chan);
+			break;
+		case 1:
+			z8530_sync_close(d, slvl->chan);
+			break;
+>>>>>>> upstream/android-13
 		}
 		return err;
 	}
 
 	slvl->chan->rx_function = sealevel_input;
 
+<<<<<<< HEAD
 	/*
 	 *	Go go go
 	 */
+=======
+>>>>>>> upstream/android-13
 	netif_start_queue(d);
 	return 0;
 }
@@ -126,9 +180,13 @@ static int sealevel_close(struct net_device *d)
 	struct slvl_device *slvl = dev_to_chan(d);
 	int unit = slvl->channel;
 
+<<<<<<< HEAD
 	/*
 	 *	Discard new frames
 	 */
+=======
+	/*	Discard new frames */
+>>>>>>> upstream/android-13
 
 	slvl->chan->rx_function = z8530_null_rx;
 
@@ -136,16 +194,26 @@ static int sealevel_close(struct net_device *d)
 	netif_stop_queue(d);
 
 	switch (unit) {
+<<<<<<< HEAD
 		case 0:
 			z8530_sync_dma_close(d, slvl->chan);
 			break;
 		case 1:
 			z8530_sync_close(d, slvl->chan);
 			break;
+=======
+	case 0:
+		z8530_sync_dma_close(d, slvl->chan);
+		break;
+	case 1:
+		z8530_sync_close(d, slvl->chan);
+		break;
+>>>>>>> upstream/android-13
 	}
 	return 0;
 }
 
+<<<<<<< HEAD
 static int sealevel_ioctl(struct net_device *d, struct ifreq *ifr, int cmd)
 {
 	/* struct slvl_device *slvl=dev_to_chan(d);
@@ -159,6 +227,12 @@ static int sealevel_ioctl(struct net_device *d, struct ifreq *ifr, int cmd)
 
 static netdev_tx_t sealevel_queue_xmit(struct sk_buff *skb,
 					     struct net_device *d)
+=======
+/*	Passed network frames, fire them downwind. */
+
+static netdev_tx_t sealevel_queue_xmit(struct sk_buff *skb,
+				       struct net_device *d)
+>>>>>>> upstream/android-13
 {
 	return z8530_queue_xmit(dev_to_chan(d)->chan, skb);
 }
@@ -175,12 +249,20 @@ static const struct net_device_ops sealevel_ops = {
 	.ndo_open       = sealevel_open,
 	.ndo_stop       = sealevel_close,
 	.ndo_start_xmit = hdlc_start_xmit,
+<<<<<<< HEAD
 	.ndo_do_ioctl   = sealevel_ioctl,
+=======
+	.ndo_siocwandev = hdlc_ioctl,
+>>>>>>> upstream/android-13
 };
 
 static int slvl_setup(struct slvl_device *sv, int iobase, int irq)
 {
 	struct net_device *dev = alloc_hdlcdev(sv);
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	if (!dev)
 		return -1;
 
@@ -200,10 +282,14 @@ static int slvl_setup(struct slvl_device *sv, int iobase, int irq)
 	return 0;
 }
 
+<<<<<<< HEAD
 
 /*
  *	Allocate and setup Sealevel board.
  */
+=======
+/*	Allocate and setup Sealevel board. */
+>>>>>>> upstream/android-13
 
 static __init struct slvl_board *slvl_init(int iobase, int irq,
 					   int txdma, int rxdma, int slow)
@@ -211,9 +297,13 @@ static __init struct slvl_board *slvl_init(int iobase, int irq,
 	struct z8530_dev *dev;
 	struct slvl_board *b;
 
+<<<<<<< HEAD
 	/*
 	 *	Get the needed I/O space
 	 */
+=======
+	/*	Get the needed I/O space */
+>>>>>>> upstream/android-13
 
 	if (!request_region(iobase, 8, "Sealevel 4021")) {
 		pr_warn("I/O 0x%X already in use\n", iobase);
@@ -232,17 +322,25 @@ static __init struct slvl_board *slvl_init(int iobase, int irq,
 
 	dev = &b->board;
 
+<<<<<<< HEAD
 	/*
 	 *	Stuff in the I/O addressing
 	 */
+=======
+	/*	Stuff in the I/O addressing */
+>>>>>>> upstream/android-13
 
 	dev->active = 0;
 
 	b->iobase = iobase;
 
+<<<<<<< HEAD
 	/*
 	 *	Select 8530 delays for the old board
 	 */
+=======
+	/*	Select 8530 delays for the old board */
+>>>>>>> upstream/android-13
 
 	if (slow)
 		iobase |= Z8530_PORT_SLEEP;
@@ -255,6 +353,7 @@ static __init struct slvl_board *slvl_init(int iobase, int irq,
 	dev->chanA.irqs = &z8530_nop;
 	dev->chanB.irqs = &z8530_nop;
 
+<<<<<<< HEAD
 	/*
 	 *	Assert DTR enable DMA
 	 */
@@ -264,6 +363,15 @@ static __init struct slvl_board *slvl_init(int iobase, int irq,
 
 	/* We want a fast IRQ for this device. Actually we'd like an even faster
 	   IRQ ;) - This is one driver RtLinux is made for */
+=======
+	/*	Assert DTR enable DMA */
+
+	outb(3 | (1 << 7), b->iobase + 4);
+
+	/* We want a fast IRQ for this device. Actually we'd like an even faster
+	 * IRQ ;) - This is one driver RtLinux is made for
+	 */
+>>>>>>> upstream/android-13
 
 	if (request_irq(irq, z8530_interrupt, 0,
 			"SeaLevel", dev) < 0) {
@@ -287,9 +395,13 @@ static __init struct slvl_board *slvl_init(int iobase, int irq,
 
 	disable_irq(irq);
 
+<<<<<<< HEAD
 	/*
 	 *	Begin normal initialise
 	 */
+=======
+	/*	Begin normal initialise */
+>>>>>>> upstream/android-13
 
 	if (z8530_init(dev) != 0) {
 		pr_err("Z8530 series device not found\n");
@@ -304,9 +416,13 @@ static __init struct slvl_board *slvl_init(int iobase, int irq,
 		z8530_channel_load(&dev->chanB, z8530_hdlc_kilostream_85230);
 	}
 
+<<<<<<< HEAD
 	/*
 	 *	Now we can take the IRQ
 	 */
+=======
+	/*	Now we can take the IRQ */
+>>>>>>> upstream/android-13
 
 	enable_irq(irq);
 
@@ -343,6 +459,10 @@ static void __exit slvl_shutdown(struct slvl_board *b)
 
 	for (u = 0; u < 2; u++) {
 		struct net_device *d = b->dev[u].chan->netdevice;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 		unregister_hdlc_device(d);
 		free_netdev(d);
 	}
@@ -356,12 +476,20 @@ static void __exit slvl_shutdown(struct slvl_board *b)
 	kfree(b);
 }
 
+<<<<<<< HEAD
 
 static int io=0x238;
 static int txdma=1;
 static int rxdma=3;
 static int irq=5;
 static bool slow=false;
+=======
+static int io = 0x238;
+static int txdma = 1;
+static int rxdma = 3;
+static int irq = 5;
+static bool slow;
+>>>>>>> upstream/android-13
 
 module_param_hw(io, int, ioport, 0);
 MODULE_PARM_DESC(io, "The I/O base of the Sealevel card");

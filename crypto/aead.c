@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * AEAD: Authenticated Encryption with Associated Data
  *
  * This file provides API support for AEAD algorithms.
  *
  * Copyright (c) 2007-2015 Herbert Xu <herbert@gondor.apana.org.au>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -25,6 +30,18 @@
 #include <linux/seq_file.h>
 #include <linux/cryptouser.h>
 #include <linux/compiler.h>
+=======
+ */
+
+#include <crypto/internal/aead.h>
+#include <linux/errno.h>
+#include <linux/init.h>
+#include <linux/kernel.h>
+#include <linux/module.h>
+#include <linux/slab.h>
+#include <linux/seq_file.h>
+#include <linux/cryptouser.h>
+>>>>>>> upstream/android-13
 #include <net/netlink.h>
 
 #include "internal.h"
@@ -75,7 +92,12 @@ int crypto_aead_setauthsize(struct crypto_aead *tfm, unsigned int authsize)
 {
 	int err;
 
+<<<<<<< HEAD
 	if (authsize > crypto_aead_maxauthsize(tfm))
+=======
+	if ((!authsize && crypto_aead_maxauthsize(tfm)) ||
+	    authsize > crypto_aead_maxauthsize(tfm))
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	if (crypto_aead_alg(tfm)->setauthsize) {
@@ -89,6 +111,45 @@ int crypto_aead_setauthsize(struct crypto_aead *tfm, unsigned int authsize)
 }
 EXPORT_SYMBOL_GPL(crypto_aead_setauthsize);
 
+<<<<<<< HEAD
+=======
+int crypto_aead_encrypt(struct aead_request *req)
+{
+	struct crypto_aead *aead = crypto_aead_reqtfm(req);
+	struct crypto_alg *alg = aead->base.__crt_alg;
+	unsigned int cryptlen = req->cryptlen;
+	int ret;
+
+	crypto_stats_get(alg);
+	if (crypto_aead_get_flags(aead) & CRYPTO_TFM_NEED_KEY)
+		ret = -ENOKEY;
+	else
+		ret = crypto_aead_alg(aead)->encrypt(req);
+	crypto_stats_aead_encrypt(cryptlen, alg, ret);
+	return ret;
+}
+EXPORT_SYMBOL_GPL(crypto_aead_encrypt);
+
+int crypto_aead_decrypt(struct aead_request *req)
+{
+	struct crypto_aead *aead = crypto_aead_reqtfm(req);
+	struct crypto_alg *alg = aead->base.__crt_alg;
+	unsigned int cryptlen = req->cryptlen;
+	int ret;
+
+	crypto_stats_get(alg);
+	if (crypto_aead_get_flags(aead) & CRYPTO_TFM_NEED_KEY)
+		ret = -ENOKEY;
+	else if (req->cryptlen < crypto_aead_authsize(aead))
+		ret = -EINVAL;
+	else
+		ret = crypto_aead_alg(aead)->decrypt(req);
+	crypto_stats_aead_decrypt(cryptlen, alg, ret);
+	return ret;
+}
+EXPORT_SYMBOL_GPL(crypto_aead_decrypt);
+
+>>>>>>> upstream/android-13
 static void crypto_aead_exit_tfm(struct crypto_tfm *tfm)
 {
 	struct crypto_aead *aead = __crypto_aead_cast(tfm);
@@ -121,13 +182,21 @@ static int crypto_aead_report(struct sk_buff *skb, struct crypto_alg *alg)
 	struct crypto_report_aead raead;
 	struct aead_alg *aead = container_of(alg, struct aead_alg, base);
 
+<<<<<<< HEAD
 	strncpy(raead.type, "aead", sizeof(raead.type));
 	strncpy(raead.geniv, "<none>", sizeof(raead.geniv));
+=======
+	memset(&raead, 0, sizeof(raead));
+
+	strscpy(raead.type, "aead", sizeof(raead.type));
+	strscpy(raead.geniv, "<none>", sizeof(raead.geniv));
+>>>>>>> upstream/android-13
 
 	raead.blocksize = alg->cra_blocksize;
 	raead.maxauthsize = aead->maxauthsize;
 	raead.ivsize = aead->ivsize;
 
+<<<<<<< HEAD
 	if (nla_put(skb, CRYPTOCFGA_REPORT_AEAD,
 		    sizeof(struct crypto_report_aead), &raead))
 		goto nla_put_failure;
@@ -135,6 +204,9 @@ static int crypto_aead_report(struct sk_buff *skb, struct crypto_alg *alg)
 
 nla_put_failure:
 	return -EMSGSIZE;
+=======
+	return nla_put(skb, CRYPTOCFGA_REPORT_AEAD, sizeof(raead), &raead);
+>>>>>>> upstream/android-13
 }
 #else
 static int crypto_aead_report(struct sk_buff *skb, struct crypto_alg *alg)
@@ -162,11 +234,14 @@ static void crypto_aead_free_instance(struct crypto_instance *inst)
 {
 	struct aead_instance *aead = aead_instance(inst);
 
+<<<<<<< HEAD
 	if (!aead->free) {
 		inst->tmpl->free(inst);
 		return;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	aead->free(aead);
 }
 
@@ -184,6 +259,7 @@ static const struct crypto_type crypto_aead_type = {
 	.tfmsize = offsetof(struct crypto_aead, base),
 };
 
+<<<<<<< HEAD
 static int aead_geniv_setkey(struct crypto_aead *tfm,
 			     const u8 *key, unsigned int keylen)
 {
@@ -345,6 +421,14 @@ int crypto_grab_aead(struct crypto_aead_spawn *spawn, const char *name,
 {
 	spawn->base.frontend = &crypto_aead_type;
 	return crypto_grab_spawn(&spawn->base, name, type, mask);
+=======
+int crypto_grab_aead(struct crypto_aead_spawn *spawn,
+		     struct crypto_instance *inst,
+		     const char *name, u32 type, u32 mask)
+{
+	spawn->base.frontend = &crypto_aead_type;
+	return crypto_grab_spawn(&spawn->base, inst, name, type, mask);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(crypto_grab_aead);
 
@@ -425,6 +509,12 @@ int aead_register_instance(struct crypto_template *tmpl,
 {
 	int err;
 
+<<<<<<< HEAD
+=======
+	if (WARN_ON(!inst->free))
+		return -EINVAL;
+
+>>>>>>> upstream/android-13
 	err = aead_prepare_alg(&inst->alg);
 	if (err)
 		return err;

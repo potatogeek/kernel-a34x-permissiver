@@ -38,6 +38,7 @@ config REPLICATE_KTEXT
 	  Say Y here to enable replicating the kernel text across multiple
 	  nodes in a NUMA cluster.  This trades memory for speed.
 
+<<<<<<< HEAD
 config REPLICATE_EXHANDLERS
 	bool "Exception handler replication support"
 	depends on SGI_IP27
@@ -45,3 +46,5 @@ config REPLICATE_EXHANDLERS
 	  Say Y here to enable replicating the kernel exception handlers
 	  across multiple nodes in a NUMA cluster. This trades memory for
 	  speed.
+=======
+>>>>>>> upstream/android-13

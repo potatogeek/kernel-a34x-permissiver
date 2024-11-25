@@ -385,7 +385,12 @@ void tcp_update_metrics(struct sock *sk)
 
 	if (tcp_in_initial_slowstart(tp)) {
 		/* Slow start still did not finish. */
+<<<<<<< HEAD
 		if (!tcp_metric_locked(tm, TCP_METRIC_SSTHRESH)) {
+=======
+		if (!net->ipv4.sysctl_tcp_no_ssthresh_metrics_save &&
+		    !tcp_metric_locked(tm, TCP_METRIC_SSTHRESH)) {
+>>>>>>> upstream/android-13
 			val = tcp_metric_get(tm, TCP_METRIC_SSTHRESH);
 			if (val && (tp->snd_cwnd >> 1) > val)
 				tcp_metric_set(tm, TCP_METRIC_SSTHRESH,
@@ -400,7 +405,12 @@ void tcp_update_metrics(struct sock *sk)
 	} else if (!tcp_in_slow_start(tp) &&
 		   icsk->icsk_ca_state == TCP_CA_Open) {
 		/* Cong. avoidance phase, cwnd is reliable. */
+<<<<<<< HEAD
 		if (!tcp_metric_locked(tm, TCP_METRIC_SSTHRESH))
+=======
+		if (!net->ipv4.sysctl_tcp_no_ssthresh_metrics_save &&
+		    !tcp_metric_locked(tm, TCP_METRIC_SSTHRESH))
+>>>>>>> upstream/android-13
 			tcp_metric_set(tm, TCP_METRIC_SSTHRESH,
 				       max(tp->snd_cwnd >> 1, tp->snd_ssthresh));
 		if (!tcp_metric_locked(tm, TCP_METRIC_CWND)) {
@@ -416,7 +426,12 @@ void tcp_update_metrics(struct sock *sk)
 			tcp_metric_set(tm, TCP_METRIC_CWND,
 				       (val + tp->snd_ssthresh) >> 1);
 		}
+<<<<<<< HEAD
 		if (!tcp_metric_locked(tm, TCP_METRIC_SSTHRESH)) {
+=======
+		if (!net->ipv4.sysctl_tcp_no_ssthresh_metrics_save &&
+		    !tcp_metric_locked(tm, TCP_METRIC_SSTHRESH)) {
+>>>>>>> upstream/android-13
 			val = tcp_metric_get(tm, TCP_METRIC_SSTHRESH);
 			if (val && tp->snd_ssthresh > val)
 				tcp_metric_set(tm, TCP_METRIC_SSTHRESH,
@@ -441,6 +456,10 @@ void tcp_init_metrics(struct sock *sk)
 {
 	struct dst_entry *dst = __sk_dst_get(sk);
 	struct tcp_sock *tp = tcp_sk(sk);
+<<<<<<< HEAD
+=======
+	struct net *net = sock_net(sk);
+>>>>>>> upstream/android-13
 	struct tcp_metrics_block *tm;
 	u32 val, crtt = 0; /* cached RTT scaled by 8 */
 
@@ -458,7 +477,12 @@ void tcp_init_metrics(struct sock *sk)
 	if (tcp_metric_locked(tm, TCP_METRIC_CWND))
 		tp->snd_cwnd_clamp = tcp_metric_get(tm, TCP_METRIC_CWND);
 
+<<<<<<< HEAD
 	val = tcp_metric_get(tm, TCP_METRIC_SSTHRESH);
+=======
+	val = net->ipv4.sysctl_tcp_no_ssthresh_metrics_save ?
+	      0 : tcp_metric_get(tm, TCP_METRIC_SSTHRESH);
+>>>>>>> upstream/android-13
 	if (val) {
 		tp->snd_ssthresh = val;
 		if (tp->snd_ssthresh > tp->snd_cwnd_clamp)
@@ -512,6 +536,7 @@ reset:
 
 		inet_csk(sk)->icsk_rto = TCP_TIMEOUT_FALLBACK;
 	}
+<<<<<<< HEAD
 	/* Cut cwnd down to 1 per RFC5681 if SYN or SYN-ACK has been
 	 * retransmitted. In light of RFC6298 more aggressive 1sec
 	 * initRTO, we only reset cwnd when more than 1 SYN/SYN-ACK
@@ -522,6 +547,8 @@ reset:
 	else
 		tp->snd_cwnd = tcp_init_cwnd(tp, dst);
 	tp->snd_cwnd_stamp = tcp_jiffies32;
+=======
+>>>>>>> upstream/android-13
 }
 
 bool tcp_peer_is_proven(struct request_sock *req, struct dst_entry *dst)
@@ -658,7 +685,11 @@ static int tcp_metrics_fill_info(struct sk_buff *msg,
 	{
 		int n = 0;
 
+<<<<<<< HEAD
 		nest = nla_nest_start(msg, TCP_METRICS_ATTR_VALS);
+=======
+		nest = nla_nest_start_noflag(msg, TCP_METRICS_ATTR_VALS);
+>>>>>>> upstream/android-13
 		if (!nest)
 			goto nla_put_failure;
 		for (i = 0; i < TCP_METRIC_MAX_KERNEL + 1; i++) {
@@ -892,7 +923,11 @@ static void tcp_metrics_flush_all(struct net *net)
 		pp = &hb->chain;
 		for (tm = deref_locked(*pp); tm; tm = deref_locked(*pp)) {
 			match = net ? net_eq(tm_net(tm), net) :
+<<<<<<< HEAD
 				!refcount_read(&tm_net(tm)->count);
+=======
+				!refcount_read(&tm_net(tm)->ns.count);
+>>>>>>> upstream/android-13
 			if (match) {
 				*pp = tm->tcpm_next;
 				kfree_rcu(tm, rcu_head);
@@ -948,6 +983,7 @@ static int tcp_metrics_nl_cmd_del(struct sk_buff *skb, struct genl_info *info)
 	return 0;
 }
 
+<<<<<<< HEAD
 static const struct genl_ops tcp_metrics_nl_ops[] = {
 	{
 		.cmd = TCP_METRICS_CMD_GET,
@@ -959,6 +995,19 @@ static const struct genl_ops tcp_metrics_nl_ops[] = {
 		.cmd = TCP_METRICS_CMD_DEL,
 		.doit = tcp_metrics_nl_cmd_del,
 		.policy = tcp_metrics_nl_policy,
+=======
+static const struct genl_small_ops tcp_metrics_nl_ops[] = {
+	{
+		.cmd = TCP_METRICS_CMD_GET,
+		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+		.doit = tcp_metrics_nl_cmd_get,
+		.dumpit = tcp_metrics_nl_dump,
+	},
+	{
+		.cmd = TCP_METRICS_CMD_DEL,
+		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+		.doit = tcp_metrics_nl_cmd_del,
+>>>>>>> upstream/android-13
 		.flags = GENL_ADMIN_PERM,
 	},
 };
@@ -968,10 +1017,18 @@ static struct genl_family tcp_metrics_nl_family __ro_after_init = {
 	.name		= TCP_METRICS_GENL_NAME,
 	.version	= TCP_METRICS_GENL_VERSION,
 	.maxattr	= TCP_METRICS_ATTR_MAX,
+<<<<<<< HEAD
 	.netnsok	= true,
 	.module		= THIS_MODULE,
 	.ops		= tcp_metrics_nl_ops,
 	.n_ops		= ARRAY_SIZE(tcp_metrics_nl_ops),
+=======
+	.policy = tcp_metrics_nl_policy,
+	.netnsok	= true,
+	.module		= THIS_MODULE,
+	.small_ops	= tcp_metrics_nl_ops,
+	.n_small_ops	= ARRAY_SIZE(tcp_metrics_nl_ops),
+>>>>>>> upstream/android-13
 };
 
 static unsigned int tcpmhash_entries;
@@ -1000,7 +1057,11 @@ static int __net_init tcp_net_metrics_init(struct net *net)
 
 	slots = tcpmhash_entries;
 	if (!slots) {
+<<<<<<< HEAD
 		if (totalram_pages >= 128 * 1024)
+=======
+		if (totalram_pages() >= 128 * 1024)
+>>>>>>> upstream/android-13
 			slots = 16 * 1024;
 		else
 			slots = 8 * 1024;

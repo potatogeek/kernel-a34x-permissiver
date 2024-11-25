@@ -1,10 +1,17 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * AD5592R Digital <-> Analog converters driver
  *
  * Copyright 2014-2016 Analog Devices Inc.
  * Author: Paul Cercueil <paul.cercueil@analog.com>
+<<<<<<< HEAD
  *
  * Licensed under the GPL-2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/bitops.h>
@@ -16,7 +23,10 @@
 #include <linux/regulator/consumer.h>
 #include <linux/gpio/consumer.h>
 #include <linux/gpio/driver.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/property.h>
 
 #include <dt-bindings/iio/adi,ad5592r.h>
@@ -158,7 +168,10 @@ static void ad5592r_gpio_cleanup(struct ad5592r_state *st)
 static int ad5592r_reset(struct ad5592r_state *st)
 {
 	struct gpio_desc *gpio;
+<<<<<<< HEAD
 	struct iio_dev *iio_dev = iio_priv_to_dev(st);
+=======
+>>>>>>> upstream/android-13
 
 	gpio = devm_gpiod_get_optional(st->dev, "reset", GPIOD_OUT_LOW);
 	if (IS_ERR(gpio))
@@ -168,10 +181,17 @@ static int ad5592r_reset(struct ad5592r_state *st)
 		udelay(1);
 		gpiod_set_value(gpio, 1);
 	} else {
+<<<<<<< HEAD
 		mutex_lock(&iio_dev->mlock);
 		/* Writing this magic value resets the device */
 		st->ops->reg_write(st, AD5592R_REG_RESET, 0xdac);
 		mutex_unlock(&iio_dev->mlock);
+=======
+		mutex_lock(&st->lock);
+		/* Writing this magic value resets the device */
+		st->ops->reg_write(st, AD5592R_REG_RESET, 0xdac);
+		mutex_unlock(&st->lock);
+>>>>>>> upstream/android-13
 	}
 
 	udelay(250);
@@ -199,7 +219,10 @@ static int ad5592r_set_channel_modes(struct ad5592r_state *st)
 	const struct ad5592r_rw_ops *ops = st->ops;
 	int ret;
 	unsigned i;
+<<<<<<< HEAD
 	struct iio_dev *iio_dev = iio_priv_to_dev(st);
+=======
+>>>>>>> upstream/android-13
 	u8 pulldown = 0, tristate = 0, dac = 0, adc = 0;
 	u16 read_back;
 
@@ -224,7 +247,10 @@ static int ad5592r_set_channel_modes(struct ad5592r_state *st)
 			break;
 
 		case CH_MODE_UNUSED:
+<<<<<<< HEAD
 			/* fall-through */
+=======
+>>>>>>> upstream/android-13
 		default:
 			switch (st->channel_offstate[i]) {
 			case CH_OFFSTATE_OUT_TRISTATE:
@@ -241,7 +267,10 @@ static int ad5592r_set_channel_modes(struct ad5592r_state *st)
 				break;
 
 			case CH_OFFSTATE_PULLDOWN:
+<<<<<<< HEAD
 				/* fall-through */
+=======
+>>>>>>> upstream/android-13
 			default:
 				pulldown |= BIT(i);
 				break;
@@ -249,7 +278,11 @@ static int ad5592r_set_channel_modes(struct ad5592r_state *st)
 		}
 	}
 
+<<<<<<< HEAD
 	mutex_lock(&iio_dev->mlock);
+=======
+	mutex_lock(&st->lock);
+>>>>>>> upstream/android-13
 
 	/* Pull down unused pins to GND */
 	ret = ops->reg_write(st, AD5592R_REG_PULLDOWN, pulldown);
@@ -287,7 +320,11 @@ static int ad5592r_set_channel_modes(struct ad5592r_state *st)
 		ret = -EIO;
 
 err_unlock:
+<<<<<<< HEAD
 	mutex_unlock(&iio_dev->mlock);
+=======
+	mutex_unlock(&st->lock);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -316,11 +353,19 @@ static int ad5592r_write_raw(struct iio_dev *iio_dev,
 		if (!chan->output)
 			return -EINVAL;
 
+<<<<<<< HEAD
 		mutex_lock(&iio_dev->mlock);
 		ret = st->ops->write_dac(st, chan->channel, val);
 		if (!ret)
 			st->cached_dac[chan->channel] = val;
 		mutex_unlock(&iio_dev->mlock);
+=======
+		mutex_lock(&st->lock);
+		ret = st->ops->write_dac(st, chan->channel, val);
+		if (!ret)
+			st->cached_dac[chan->channel] = val;
+		mutex_unlock(&st->lock);
+>>>>>>> upstream/android-13
 		return ret;
 	case IIO_CHAN_INFO_SCALE:
 		if (chan->type == IIO_VOLTAGE) {
@@ -335,12 +380,20 @@ static int ad5592r_write_raw(struct iio_dev *iio_dev,
 			else
 				return -EINVAL;
 
+<<<<<<< HEAD
 			mutex_lock(&iio_dev->mlock);
+=======
+			mutex_lock(&st->lock);
+>>>>>>> upstream/android-13
 
 			ret = st->ops->reg_read(st, AD5592R_REG_CTRL,
 						&st->cached_gp_ctrl);
 			if (ret < 0) {
+<<<<<<< HEAD
 				mutex_unlock(&iio_dev->mlock);
+=======
+				mutex_unlock(&st->lock);
+>>>>>>> upstream/android-13
 				return ret;
 			}
 
@@ -362,7 +415,11 @@ static int ad5592r_write_raw(struct iio_dev *iio_dev,
 
 			ret = st->ops->reg_write(st, AD5592R_REG_CTRL,
 						 st->cached_gp_ctrl);
+<<<<<<< HEAD
 			mutex_unlock(&iio_dev->mlock);
+=======
+			mutex_unlock(&st->lock);
+>>>>>>> upstream/android-13
 
 			return ret;
 		}
@@ -380,6 +437,7 @@ static int ad5592r_read_raw(struct iio_dev *iio_dev,
 {
 	struct ad5592r_state *st = iio_priv(iio_dev);
 	u16 read_val;
+<<<<<<< HEAD
 	int ret;
 
 	switch (m) {
@@ -390,26 +448,52 @@ static int ad5592r_read_raw(struct iio_dev *iio_dev,
 			ret = st->ops->read_adc(st, chan->channel, &read_val);
 			if (ret)
 				goto unlock;
+=======
+	int ret, mult;
+
+	switch (m) {
+	case IIO_CHAN_INFO_RAW:
+		if (!chan->output) {
+			mutex_lock(&st->lock);
+			ret = st->ops->read_adc(st, chan->channel, &read_val);
+			mutex_unlock(&st->lock);
+			if (ret)
+				return ret;
+>>>>>>> upstream/android-13
 
 			if ((read_val >> 12 & 0x7) != (chan->channel & 0x7)) {
 				dev_err(st->dev, "Error while reading channel %u\n",
 						chan->channel);
+<<<<<<< HEAD
 				ret = -EIO;
 				goto unlock;
+=======
+				return -EIO;
+>>>>>>> upstream/android-13
 			}
 
 			read_val &= GENMASK(11, 0);
 
 		} else {
+<<<<<<< HEAD
 			read_val = st->cached_dac[chan->channel];
+=======
+			mutex_lock(&st->lock);
+			read_val = st->cached_dac[chan->channel];
+			mutex_unlock(&st->lock);
+>>>>>>> upstream/android-13
 		}
 
 		dev_dbg(st->dev, "Channel %u read: 0x%04hX\n",
 				chan->channel, read_val);
 
 		*val = (int) read_val;
+<<<<<<< HEAD
 		ret = IIO_VAL_INT;
 		break;
+=======
+		return IIO_VAL_INT;
+>>>>>>> upstream/android-13
 	case IIO_CHAN_INFO_SCALE:
 		*val = ad5592r_get_vref(st);
 
@@ -418,6 +502,7 @@ static int ad5592r_read_raw(struct iio_dev *iio_dev,
 			*val = div_s64_rem(tmp, 1000000000LL, val2);
 
 			return IIO_VAL_INT_PLUS_MICRO;
+<<<<<<< HEAD
 		} else {
 			int mult;
 
@@ -440,11 +525,36 @@ static int ad5592r_read_raw(struct iio_dev *iio_dev,
 		ret = ad5592r_get_vref(st);
 
 		mutex_lock(&iio_dev->mlock);
+=======
+		}
+
+		mutex_lock(&st->lock);
+
+		if (chan->output)
+			mult = !!(st->cached_gp_ctrl &
+				AD5592R_REG_CTRL_DAC_RANGE);
+		else
+			mult = !!(st->cached_gp_ctrl &
+				AD5592R_REG_CTRL_ADC_RANGE);
+
+		mutex_unlock(&st->lock);
+
+		*val *= ++mult;
+
+		*val2 = chan->scan_type.realbits;
+
+		return IIO_VAL_FRACTIONAL_LOG2;
+	case IIO_CHAN_INFO_OFFSET:
+		ret = ad5592r_get_vref(st);
+
+		mutex_lock(&st->lock);
+>>>>>>> upstream/android-13
 
 		if (st->cached_gp_ctrl & AD5592R_REG_CTRL_ADC_RANGE)
 			*val = (-34365 * 25) / ret;
 		else
 			*val = (-75365 * 25) / ret;
+<<<<<<< HEAD
 		ret =  IIO_VAL_INT;
 		break;
 	default:
@@ -454,6 +564,15 @@ static int ad5592r_read_raw(struct iio_dev *iio_dev,
 unlock:
 	mutex_unlock(&iio_dev->mlock);
 	return ret;
+=======
+
+		mutex_unlock(&st->lock);
+
+		return IIO_VAL_INT;
+	default:
+		return -EINVAL;
+	}
+>>>>>>> upstream/android-13
 }
 
 static int ad5592r_write_raw_get_fmt(struct iio_dev *indio_dev,
@@ -488,11 +607,19 @@ static ssize_t ad5592r_show_scale_available(struct iio_dev *iio_dev,
 		st->scale_avail[1][0], st->scale_avail[1][1]);
 }
 
+<<<<<<< HEAD
 static struct iio_chan_spec_ext_info ad5592r_ext_info[] = {
 	{
 	 .name = "scale_available",
 	 .read = ad5592r_show_scale_available,
 	 .shared = true,
+=======
+static const struct iio_chan_spec_ext_info ad5592r_ext_info[] = {
+	{
+	 .name = "scale_available",
+	 .read = ad5592r_show_scale_available,
+	 .shared = IIO_SHARED_BY_TYPE,
+>>>>>>> upstream/android-13
 	 },
 	{},
 };
@@ -512,11 +639,19 @@ static void ad5592r_setup_channel(struct iio_dev *iio_dev,
 	chan->ext_info = ad5592r_ext_info;
 }
 
+<<<<<<< HEAD
 static int ad5592r_alloc_channels(struct ad5592r_state *st)
 {
 	unsigned i, curr_channel = 0,
 		 num_channels = st->num_channels;
 	struct iio_dev *iio_dev = iio_priv_to_dev(st);
+=======
+static int ad5592r_alloc_channels(struct iio_dev *iio_dev)
+{
+	struct ad5592r_state *st = iio_priv(iio_dev);
+	unsigned i, curr_channel = 0,
+		 num_channels = st->num_channels;
+>>>>>>> upstream/android-13
 	struct iio_chan_spec *channels;
 	struct fwnode_handle *child;
 	u32 reg, tmp;
@@ -531,7 +666,11 @@ static int ad5592r_alloc_channels(struct ad5592r_state *st)
 		if (!ret)
 			st->channel_modes[reg] = tmp;
 
+<<<<<<< HEAD
 		fwnode_property_read_u32(child, "adi,off-state", &tmp);
+=======
+		ret = fwnode_property_read_u32(child, "adi,off-state", &tmp);
+>>>>>>> upstream/android-13
 		if (!ret)
 			st->channel_offstate[reg] = tmp;
 	}
@@ -622,11 +761,19 @@ int ad5592r_probe(struct device *dev, const char *name,
 			return ret;
 	}
 
+<<<<<<< HEAD
 	iio_dev->dev.parent = dev;
+=======
+>>>>>>> upstream/android-13
 	iio_dev->name = name;
 	iio_dev->info = &ad5592r_info;
 	iio_dev->modes = INDIO_DIRECT_MODE;
 
+<<<<<<< HEAD
+=======
+	mutex_init(&st->lock);
+
+>>>>>>> upstream/android-13
 	ad5592r_init_scales(st, ad5592r_get_vref(st));
 
 	ret = ad5592r_reset(st);
@@ -638,7 +785,11 @@ int ad5592r_probe(struct device *dev, const char *name,
 	if (ret)
 		goto error_disable_reg;
 
+<<<<<<< HEAD
 	ret = ad5592r_alloc_channels(st);
+=======
+	ret = ad5592r_alloc_channels(iio_dev);
+>>>>>>> upstream/android-13
 	if (ret)
 		goto error_disable_reg;
 

@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright 2017 Broadcom. All Rights Reserved.
  * The term "Broadcom" refers to Broadcom Limited and/or its subsidiaries.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2
  * as published by the Free Software Foundation. The full GNU General
@@ -10,6 +15,10 @@
  * Contact Information:
  * linux-drivers@broadcom.com
  *
+=======
+ * Contact Information:
+ * linux-drivers@broadcom.com
+>>>>>>> upstream/android-13
  */
 
 #include <scsi/iscsi_proto.h>
@@ -520,7 +529,11 @@ int beiscsi_process_mcc_compl(struct be_ctrl_info *ctrl,
 		 **/
 		tag_mem = &ctrl->ptag_state[tag].tag_mem_state;
 		if (tag_mem->size) {
+<<<<<<< HEAD
 			pci_free_consistent(ctrl->pdev, tag_mem->size,
+=======
+			dma_free_coherent(&ctrl->pdev->dev, tag_mem->size,
+>>>>>>> upstream/android-13
 					tag_mem->va, tag_mem->dma);
 			tag_mem->size = 0;
 		}
@@ -963,7 +976,11 @@ int beiscsi_cmd_q_destroy(struct be_ctrl_info *ctrl, struct be_queue_info *q,
  * @ctrl: ptr to ctrl_info
  * @cq: Completion Queue
  * @dq: Default Queue
+<<<<<<< HEAD
  * @lenght: ring size
+=======
+ * @length: ring size
+>>>>>>> upstream/android-13
  * @entry_size: size of each entry in DEFQ
  * @is_header: Header or Data DEFQ
  * @ulp_num: Bind to which ULP
@@ -1269,12 +1286,21 @@ int beiscsi_check_supported_fw(struct be_ctrl_info *ctrl,
 	struct be_sge *sge = nonembedded_sgl(wrb);
 	int status = 0;
 
+<<<<<<< HEAD
 	nonemb_cmd.va = pci_alloc_consistent(ctrl->pdev,
 				sizeof(struct be_mgmt_controller_attributes),
 				&nonemb_cmd.dma);
 	if (nonemb_cmd.va == NULL) {
 		beiscsi_log(phba, KERN_ERR, BEISCSI_LOG_INIT,
 			    "BG_%d : pci_alloc_consistent failed in %s\n",
+=======
+	nonemb_cmd.va = dma_alloc_coherent(&ctrl->pdev->dev,
+				sizeof(struct be_mgmt_controller_attributes),
+				&nonemb_cmd.dma, GFP_KERNEL);
+	if (nonemb_cmd.va == NULL) {
+		beiscsi_log(phba, KERN_ERR, BEISCSI_LOG_INIT,
+			    "BG_%d : dma_alloc_coherent failed in %s\n",
+>>>>>>> upstream/android-13
 			    __func__);
 		return -ENOMEM;
 	}
@@ -1314,7 +1340,11 @@ int beiscsi_check_supported_fw(struct be_ctrl_info *ctrl,
 			    "BG_%d :  Failed in beiscsi_check_supported_fw\n");
 	mutex_unlock(&ctrl->mbox_lock);
 	if (nonemb_cmd.va)
+<<<<<<< HEAD
 		pci_free_consistent(ctrl->pdev, nonemb_cmd.size,
+=======
+		dma_free_coherent(&ctrl->pdev->dev, nonemb_cmd.size,
+>>>>>>> upstream/android-13
 				    nonemb_cmd.va, nonemb_cmd.dma);
 
 	return status;

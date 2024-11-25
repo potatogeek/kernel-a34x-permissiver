@@ -318,7 +318,11 @@ int qmi_txn_init(struct qmi_handle *qmi, struct qmi_txn *txn,
 	txn->dest = c_struct;
 
 	mutex_lock(&qmi->txn_lock);
+<<<<<<< HEAD
 	ret = idr_alloc_cyclic(&qmi->txns, txn, 0, INT_MAX, GFP_KERNEL);
+=======
+	ret = idr_alloc_cyclic(&qmi->txns, txn, 0, U16_MAX, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		pr_err("failed to allocate transaction id\n");
 
@@ -345,8 +349,12 @@ int qmi_txn_wait(struct qmi_txn *txn, unsigned long timeout)
 	struct qmi_handle *qmi = txn->qmi;
 	int ret;
 
+<<<<<<< HEAD
 	ret = wait_for_completion_interruptible_timeout(&txn->completion,
 							timeout);
+=======
+	ret = wait_for_completion_timeout(&txn->completion, timeout);
+>>>>>>> upstream/android-13
 
 	mutex_lock(&qmi->txn_lock);
 	mutex_lock(&txn->lock);
@@ -354,9 +362,13 @@ int qmi_txn_wait(struct qmi_txn *txn, unsigned long timeout)
 	mutex_unlock(&txn->lock);
 	mutex_unlock(&qmi->txn_lock);
 
+<<<<<<< HEAD
 	if (ret < 0)
 		return ret;
 	else if (ret == 0)
+=======
+	if (ret == 0)
+>>>>>>> upstream/android-13
 		return -ETIMEDOUT;
 	else
 		return txn->result;
@@ -658,8 +670,17 @@ int qmi_handle_init(struct qmi_handle *qmi, size_t recv_buf_size,
 
 	qmi->sock = qmi_sock_create(qmi, &qmi->sq);
 	if (IS_ERR(qmi->sock)) {
+<<<<<<< HEAD
 		pr_err("failed to create QMI socket\n");
 		ret = PTR_ERR(qmi->sock);
+=======
+		if (PTR_ERR(qmi->sock) == -EAFNOSUPPORT) {
+			ret = -EPROBE_DEFER;
+		} else {
+			pr_err("failed to create QMI socket\n");
+			ret = PTR_ERR(qmi->sock);
+		}
+>>>>>>> upstream/android-13
 		goto err_destroy_wq;
 	}
 

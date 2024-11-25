@@ -7,7 +7,12 @@
 
 #define COMMON_FILE_PERMS COMMON_FILE_SOCK_PERMS, "unlink", "link", \
     "rename", "execute", "quotaon", "mounton", "audit_access", \
+<<<<<<< HEAD
     "open", "execmod"
+=======
+	"open", "execmod", "watch", "watch_mount", "watch_sb", \
+	"watch_with_perm", "watch_reads"
+>>>>>>> upstream/android-13
 
 #define COMMON_SOCK_PERMS COMMON_FILE_SOCK_PERMS, "bind", "connect", \
     "listen", "accept", "getopt", "setopt", "shutdown", "recvfrom",  \
@@ -26,9 +31,16 @@
 	    "audit_control", "setfcap"
 
 #define COMMON_CAP2_PERMS  "mac_override", "mac_admin", "syslog", \
+<<<<<<< HEAD
 		"wake_alarm", "block_suspend", "audit_read"
 
 #if CAP_LAST_CAP > CAP_AUDIT_READ
+=======
+		"wake_alarm", "block_suspend", "audit_read", "perfmon", "bpf", \
+		"checkpoint_restore"
+
+#if CAP_LAST_CAP > CAP_CHECKPOINT_RESTORE
+>>>>>>> upstream/android-13
 #error New capability defined, please update COMMON_CAP2_PERMS.
 #endif
 
@@ -60,7 +72,11 @@ struct security_class_mapping secclass_map[] = {
 	{ "filesystem",
 	  { "mount", "remount", "unmount", "getattr",
 	    "relabelfrom", "relabelto", "associate", "quotamod",
+<<<<<<< HEAD
 	    "quotaget", NULL } },
+=======
+	    "quotaget", "watch", NULL } },
+>>>>>>> upstream/android-13
 	{ "file",
 	  { COMMON_FILE_PERMS,
 	    "execute_no_trans", "entrypoint", NULL } },
@@ -241,6 +257,7 @@ struct security_class_mapping secclass_map[] = {
 	{ "infiniband_endport",
 	  { "manage_subnet", NULL } },
 	{ "bpf",
+<<<<<<< HEAD
 	  {"map_create", "map_read", "map_write", "prog_load", "prog_run"} },
 	{ "xdp_socket",
 	  { COMMON_SOCK_PERMS, NULL } },
@@ -250,5 +267,23 @@ struct security_class_mapping secclass_map[] = {
   };
 
 #if PF_MAX > 45
+=======
+	  { "map_create", "map_read", "map_write", "prog_load", "prog_run",
+	    NULL } },
+	{ "xdp_socket",
+	  { COMMON_SOCK_PERMS, NULL } },
+	{ "mctp_socket",
+	  { COMMON_SOCK_PERMS, NULL } },
+	{ "perf_event",
+	  { "open", "cpu", "kernel", "tracepoint", "read", "write", NULL } },
+	{ "lockdown",
+	  { "integrity", "confidentiality", NULL } },
+	{ "anon_inode",
+	  { COMMON_FILE_PERMS, NULL } },
+	{ NULL }
+  };
+
+#if PF_MAX > 46
+>>>>>>> upstream/android-13
 #error New address family defined, please update secclass_map.
 #endif

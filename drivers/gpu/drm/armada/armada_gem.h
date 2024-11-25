@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2012 Russell King
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) 2012 Russell King
+>>>>>>> upstream/android-13
  */
 #ifndef ARMADA_GEM_H
 #define ARMADA_GEM_H
@@ -24,8 +30,11 @@ struct armada_gem_object {
 	void			*update_data;
 };
 
+<<<<<<< HEAD
 extern const struct vm_operations_struct armada_gem_vm_ops;
 
+=======
+>>>>>>> upstream/android-13
 #define drm_to_armada_gem(o) container_of(o, struct armada_gem_object, obj)
 
 void armada_gem_free_object(struct drm_gem_object *);
@@ -35,8 +44,12 @@ struct armada_gem_object *armada_gem_alloc_private_object(struct drm_device *,
 	size_t);
 int armada_gem_dumb_create(struct drm_file *, struct drm_device *,
 	struct drm_mode_create_dumb *);
+<<<<<<< HEAD
 struct dma_buf *armada_gem_prime_export(struct drm_device *dev,
 	struct drm_gem_object *obj, int flags);
+=======
+struct dma_buf *armada_gem_prime_export(struct drm_gem_object *obj, int flags);
+>>>>>>> upstream/android-13
 struct drm_gem_object *armada_gem_prime_import(struct drm_device *,
 	struct dma_buf *);
 int armada_gem_map_import(struct armada_gem_object *);

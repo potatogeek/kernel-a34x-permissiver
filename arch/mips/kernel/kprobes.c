@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  Kernel Probes (KProbes)
  *  arch/mips/kernel/kprobes.c
@@ -8,6 +12,7 @@
  *  Some portions copied from the powerpc version.
  *
  *   Copyright (C) IBM Corporation, 2002, 2004
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -21,6 +26,8 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kprobes.h>
@@ -98,9 +105,15 @@ int __kprobes arch_prepare_kprobe(struct kprobe *p)
 		goto out;
 	}
 
+<<<<<<< HEAD
 	if ((probe_kernel_read(&prev_insn, p->addr - 1,
 				sizeof(mips_instruction)) == 0) &&
 				insn_has_delayslot(prev_insn)) {
+=======
+	if (copy_from_kernel_nofault(&prev_insn, p->addr - 1,
+			sizeof(mips_instruction)) == 0 &&
+	    insn_has_delayslot(prev_insn)) {
+>>>>>>> upstream/android-13
 		pr_notice("Kprobes for branch delayslot are not supported\n");
 		ret = -EINVAL;
 		goto out;
@@ -232,7 +245,11 @@ static int evaluate_branch_instruction(struct kprobe *p, struct pt_regs *regs,
 
 unaligned:
 	pr_notice("%s: unaligned epc - sending SIGBUS.\n", current->comm);
+<<<<<<< HEAD
 	force_sig(SIGBUS, current);
+=======
+	force_sig(SIGBUS);
+>>>>>>> upstream/android-13
 	return -EFAULT;
 
 }
@@ -410,14 +427,21 @@ out:
 	return 1;
 }
 
+<<<<<<< HEAD
 static inline int kprobe_fault_handler(struct pt_regs *regs, int trapnr)
+=======
+int kprobe_fault_handler(struct pt_regs *regs, int trapnr)
+>>>>>>> upstream/android-13
 {
 	struct kprobe *cur = kprobe_running();
 	struct kprobe_ctlblk *kcb = get_kprobe_ctlblk();
 
+<<<<<<< HEAD
 	if (cur->fault_handler && cur->fault_handler(cur, regs, trapnr))
 		return 1;
 
+=======
+>>>>>>> upstream/android-13
 	if (kcb->kprobe_status & KPROBE_HIT_SS) {
 		resume_execution(cur, regs, kcb);
 		regs->cp0_status |= kcb->kprobe_old_SR;
@@ -489,6 +513,10 @@ void __kprobes arch_prepare_kretprobe(struct kretprobe_instance *ri,
 				      struct pt_regs *regs)
 {
 	ri->ret_addr = (kprobe_opcode_t *) regs->regs[31];
+<<<<<<< HEAD
+=======
+	ri->fp = NULL;
+>>>>>>> upstream/android-13
 
 	/* Replace the return addr with trampoline addr */
 	regs->regs[31] = (unsigned long)kretprobe_trampoline;
@@ -500,6 +528,7 @@ void __kprobes arch_prepare_kretprobe(struct kretprobe_instance *ri,
 static int __kprobes trampoline_probe_handler(struct kprobe *p,
 						struct pt_regs *regs)
 {
+<<<<<<< HEAD
 	struct kretprobe_instance *ri = NULL;
 	struct hlist_head *head, empty_rp;
 	struct hlist_node *tmp;
@@ -551,6 +580,10 @@ static int __kprobes trampoline_probe_handler(struct kprobe *p,
 		hlist_del(&ri->hlist);
 		kfree(ri);
 	}
+=======
+	instruction_pointer(regs) = __kretprobe_trampoline_handler(regs,
+						kretprobe_trampoline, NULL);
+>>>>>>> upstream/android-13
 	/*
 	 * By returning a non-zero value, we are telling
 	 * kprobe_handler() that we don't want the post_handler

@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * ST Thermal Sensor Driver for memory mapped sensors.
  * Author: Ajit Pal Singh <ajitpal.singh@st.com>
  *
  * Copyright (C) 2003-2014 STMicroelectronics (R&D) Limited
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/of.h>
@@ -98,10 +105,15 @@ static int st_mmap_register_enable_irq(struct st_thermal_sensor *sensor)
 	int ret;
 
 	sensor->irq = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (sensor->irq < 0) {
 		dev_err(dev, "failed to register IRQ\n");
 		return sensor->irq;
 	}
+=======
+	if (sensor->irq < 0)
+		return sensor->irq;
+>>>>>>> upstream/android-13
 
 	ret = devm_request_threaded_irq(dev, sensor->irq,
 					NULL, st_mmap_thermal_trip_handler,
@@ -125,6 +137,7 @@ static int st_mmap_regmap_init(struct st_thermal_sensor *sensor)
 {
 	struct device *dev = sensor->dev;
 	struct platform_device *pdev = to_platform_device(dev);
+<<<<<<< HEAD
 	struct resource *res;
 
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
@@ -138,6 +151,12 @@ static int st_mmap_regmap_init(struct st_thermal_sensor *sensor)
 		dev_err(dev, "failed to remap IO\n");
 		return PTR_ERR(sensor->mmio_base);
 	}
+=======
+
+	sensor->mmio_base = devm_platform_get_and_ioremap_resource(pdev, 0, NULL);
+	if (IS_ERR(sensor->mmio_base))
+		return PTR_ERR(sensor->mmio_base);
+>>>>>>> upstream/android-13
 
 	sensor->regmap = devm_regmap_init_mmio(dev, sensor->mmio_base,
 				&st_416mpe_regmap_config);

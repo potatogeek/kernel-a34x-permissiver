@@ -17,6 +17,10 @@
 #define __TEGRA_USB_PHY_H
 
 #include <linux/clk.h>
+<<<<<<< HEAD
+=======
+#include <linux/gpio.h>
+>>>>>>> upstream/android-13
 #include <linux/reset.h>
 #include <linux/usb/otg.h>
 
@@ -76,8 +80,16 @@ struct tegra_usb_phy {
 	struct usb_phy u_phy;
 	bool is_legacy_phy;
 	bool is_ulpi_phy;
+<<<<<<< HEAD
 	int reset_gpio;
 	struct reset_control *pad_rst;
+=======
+	struct gpio_desc *reset_gpio;
+	struct reset_control *pad_rst;
+	bool wakeup_enabled;
+	bool pad_wakeup;
+	bool powered_on;
+>>>>>>> upstream/android-13
 };
 
 void tegra_usb_phy_preresume(struct usb_phy *phy);

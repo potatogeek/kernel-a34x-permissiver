@@ -1,5 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0+
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * dwc3-st.c Support for dwc3 platform devices on ST Microelectronics platforms
  *
  * This is a small driver for the dwc3 to provide the glue logic
@@ -206,8 +210,13 @@ static int st_dwc3_probe(struct platform_device *pdev)
 	if (!dwc3_data)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "reg-glue");
 	dwc3_data->glue_base = devm_ioremap_resource(dev, res);
+=======
+	dwc3_data->glue_base =
+		devm_platform_ioremap_resource_byname(pdev, "reg-glue");
+>>>>>>> upstream/android-13
 	if (IS_ERR(dwc3_data->glue_base))
 		return PTR_ERR(dwc3_data->glue_base);
 
@@ -255,24 +264,41 @@ static int st_dwc3_probe(struct platform_device *pdev)
 	if (!child) {
 		dev_err(&pdev->dev, "failed to find dwc3 core node\n");
 		ret = -ENODEV;
+<<<<<<< HEAD
 		goto undo_softreset;
+=======
+		goto err_node_put;
+>>>>>>> upstream/android-13
 	}
 
 	/* Allocate and initialize the core */
 	ret = of_platform_populate(node, NULL, NULL, dev);
 	if (ret) {
 		dev_err(dev, "failed to add dwc3 core\n");
+<<<<<<< HEAD
 		goto undo_softreset;
+=======
+		goto err_node_put;
+>>>>>>> upstream/android-13
 	}
 
 	child_pdev = of_find_device_by_node(child);
 	if (!child_pdev) {
 		dev_err(dev, "failed to find dwc3 core device\n");
 		ret = -ENODEV;
+<<<<<<< HEAD
 		goto undo_softreset;
 	}
 
 	dwc3_data->dr_mode = usb_get_dr_mode(&child_pdev->dev);
+=======
+		goto err_node_put;
+	}
+
+	dwc3_data->dr_mode = usb_get_dr_mode(&child_pdev->dev);
+	of_node_put(child);
+	platform_device_put(child_pdev);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Configure the USB port as device or host according to the static
@@ -292,6 +318,11 @@ static int st_dwc3_probe(struct platform_device *pdev)
 	platform_set_drvdata(pdev, dwc3_data);
 	return 0;
 
+<<<<<<< HEAD
+=======
+err_node_put:
+	of_node_put(child);
+>>>>>>> upstream/android-13
 undo_softreset:
 	reset_control_assert(dwc3_data->rstc_rst);
 undo_powerdown:

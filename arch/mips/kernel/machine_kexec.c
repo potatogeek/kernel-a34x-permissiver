@@ -1,14 +1,25 @@
+<<<<<<< HEAD
 /*
  * machine_kexec.c for kexec
  * Created by <nschichan@corp.free.fr> on Thu Oct 12 15:15:06 2006
  *
  * This source code is licensed under the GNU General Public License,
  * Version 2.  See the file COPYING for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * machine_kexec.c for kexec
+ * Created by <nschichan@corp.free.fr> on Thu Oct 12 15:15:06 2006
+>>>>>>> upstream/android-13
  */
 #include <linux/compiler.h>
 #include <linux/kexec.h>
 #include <linux/mm.h>
 #include <linux/delay.h>
+<<<<<<< HEAD
+=======
+#include <linux/libfdt.h>
+>>>>>>> upstream/android-13
 
 #include <asm/cacheflush.h>
 #include <asm/page.h>
@@ -19,15 +30,29 @@ extern const size_t relocate_new_kernel_size;
 extern unsigned long kexec_start_address;
 extern unsigned long kexec_indirection_page;
 
+<<<<<<< HEAD
 int (*_machine_kexec_prepare)(struct kimage *) = NULL;
 void (*_machine_kexec_shutdown)(void) = NULL;
 void (*_machine_crash_shutdown)(struct pt_regs *regs) = NULL;
 #ifdef CONFIG_SMP
 void (*relocated_kexec_smp_wait) (void *);
+=======
+static unsigned long reboot_code_buffer;
+
+#ifdef CONFIG_SMP
+static void (*relocated_kexec_smp_wait)(void *);
+
+>>>>>>> upstream/android-13
 atomic_t kexec_ready_to_reboot = ATOMIC_INIT(0);
 void (*_crash_smp_send_stop)(void) = NULL;
 #endif
 
+<<<<<<< HEAD
+=======
+void (*_machine_kexec_shutdown)(void) = NULL;
+void (*_machine_crash_shutdown)(struct pt_regs *regs) = NULL;
+
+>>>>>>> upstream/android-13
 static void kexec_image_info(const struct kimage *kimage)
 {
 	unsigned long i;
@@ -48,13 +73,68 @@ static void kexec_image_info(const struct kimage *kimage)
 	}
 }
 
+<<<<<<< HEAD
 int
 machine_kexec_prepare(struct kimage *kimage)
 {
+=======
+#ifdef CONFIG_UHI_BOOT
+
+static int uhi_machine_kexec_prepare(struct kimage *kimage)
+{
+	int i;
+
+	/*
+	 * In case DTB file is not passed to the new kernel, a flat device
+	 * tree will be created by kexec tool. It holds modified command
+	 * line for the new kernel.
+	 */
+	for (i = 0; i < kimage->nr_segments; i++) {
+		struct fdt_header fdt;
+
+		if (kimage->segment[i].memsz <= sizeof(fdt))
+			continue;
+
+		if (copy_from_user(&fdt, kimage->segment[i].buf, sizeof(fdt)))
+			continue;
+
+		if (fdt_check_header(&fdt))
+			continue;
+
+		kexec_args[0] = -2;
+		kexec_args[1] = (unsigned long)
+			phys_to_virt((unsigned long)kimage->segment[i].mem);
+		break;
+	}
+
+	return 0;
+}
+
+int (*_machine_kexec_prepare)(struct kimage *) = uhi_machine_kexec_prepare;
+
+#else
+
+int (*_machine_kexec_prepare)(struct kimage *) = NULL;
+
+#endif /* CONFIG_UHI_BOOT */
+
+int
+machine_kexec_prepare(struct kimage *kimage)
+{
+#ifdef CONFIG_SMP
+	if (!kexec_nonboot_cpu_func())
+		return -EINVAL;
+#endif
+
+>>>>>>> upstream/android-13
 	kexec_image_info(kimage);
 
 	if (_machine_kexec_prepare)
 		return _machine_kexec_prepare(kimage);
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -63,11 +143,47 @@ machine_kexec_cleanup(struct kimage *kimage)
 {
 }
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_SMP
+static void kexec_shutdown_secondary(void *param)
+{
+	int cpu = smp_processor_id();
+
+	if (!cpu_online(cpu))
+		return;
+
+	/* We won't be sent IPIs any more. */
+	set_cpu_online(cpu, false);
+
+	local_irq_disable();
+	while (!atomic_read(&kexec_ready_to_reboot))
+		cpu_relax();
+
+	kexec_reboot();
+
+	/* NOTREACHED */
+}
+#endif
+
+>>>>>>> upstream/android-13
 void
 machine_shutdown(void)
 {
 	if (_machine_kexec_shutdown)
 		_machine_kexec_shutdown();
+<<<<<<< HEAD
+=======
+
+#ifdef CONFIG_SMP
+	smp_call_function(kexec_shutdown_secondary, NULL, 0);
+
+	while (num_online_cpus() > 1) {
+		cpu_relax();
+		mdelay(1);
+	}
+#endif
+>>>>>>> upstream/android-13
 }
 
 void
@@ -79,12 +195,65 @@ machine_crash_shutdown(struct pt_regs *regs)
 		default_machine_crash_shutdown(regs);
 }
 
+<<<<<<< HEAD
 typedef void (*noretfun_t)(void) __noreturn;
+=======
+#ifdef CONFIG_SMP
+void kexec_nonboot_cpu_jump(void)
+{
+	local_flush_icache_range((unsigned long)relocated_kexec_smp_wait,
+				 reboot_code_buffer + relocate_new_kernel_size);
+
+	relocated_kexec_smp_wait(NULL);
+}
+#endif
+
+void kexec_reboot(void)
+{
+	void (*do_kexec)(void) __noreturn;
+
+	/*
+	 * We know we were online, and there will be no incoming IPIs at
+	 * this point. Mark online again before rebooting so that the crash
+	 * analysis tool will see us correctly.
+	 */
+	set_cpu_online(smp_processor_id(), true);
+
+	/* Ensure remote CPUs observe that we're online before rebooting. */
+	smp_mb__after_atomic();
+
+#ifdef CONFIG_SMP
+	if (smp_processor_id() > 0) {
+		/*
+		 * Instead of cpu_relax() or wait, this is needed for kexec
+		 * smp reboot. Kdump usually doesn't require an smp new
+		 * kernel, but kexec may do.
+		 */
+		kexec_nonboot_cpu();
+
+		/* NOTREACHED */
+	}
+#endif
+
+	/*
+	 * Make sure we get correct instructions written by the
+	 * machine_kexec() CPU.
+	 */
+	local_flush_icache_range(reboot_code_buffer,
+				 reboot_code_buffer + relocate_new_kernel_size);
+
+	do_kexec = (void *)reboot_code_buffer;
+	do_kexec();
+}
+>>>>>>> upstream/android-13
 
 void
 machine_kexec(struct kimage *image)
 {
+<<<<<<< HEAD
 	unsigned long reboot_code_buffer;
+=======
+>>>>>>> upstream/android-13
 	unsigned long entry;
 	unsigned long *ptr;
 
@@ -128,6 +297,10 @@ machine_kexec(struct kimage *image)
 
 	printk("Will call new kernel at %08lx\n", image->start);
 	printk("Bye ...\n");
+<<<<<<< HEAD
+=======
+	/* Make reboot code buffer available to the boot CPU. */
+>>>>>>> upstream/android-13
 	__flush_cache_all();
 #ifdef CONFIG_SMP
 	/* All secondary cpus now may jump to kexec_wait cycle */
@@ -136,5 +309,9 @@ machine_kexec(struct kimage *image)
 	smp_wmb();
 	atomic_set(&kexec_ready_to_reboot, 1);
 #endif
+<<<<<<< HEAD
 	((noretfun_t) reboot_code_buffer)();
+=======
+	kexec_reboot();
+>>>>>>> upstream/android-13
 }

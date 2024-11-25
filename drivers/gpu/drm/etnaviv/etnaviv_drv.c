@@ -4,8 +4,22 @@
  */
 
 #include <linux/component.h>
+<<<<<<< HEAD
 #include <linux/of_platform.h>
 #include <drm/drm_of.h>
+=======
+#include <linux/dma-mapping.h>
+#include <linux/module.h>
+#include <linux/of_platform.h>
+#include <linux/uaccess.h>
+
+#include <drm/drm_debugfs.h>
+#include <drm/drm_drv.h>
+#include <drm/drm_file.h>
+#include <drm/drm_ioctl.h>
+#include <drm/drm_of.h>
+#include <drm/drm_prime.h>
+>>>>>>> upstream/android-13
 
 #include "etnaviv_cmdbuf.h"
 #include "etnaviv_drv.h"
@@ -41,12 +55,17 @@ static int etnaviv_open(struct drm_device *dev, struct drm_file *file)
 {
 	struct etnaviv_drm_private *priv = dev->dev_private;
 	struct etnaviv_file_private *ctx;
+<<<<<<< HEAD
 	int i;
+=======
+	int ret, i;
+>>>>>>> upstream/android-13
 
 	ctx = kzalloc(sizeof(*ctx), GFP_KERNEL);
 	if (!ctx)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	for (i = 0; i < ETNA_MAX_PIPES; i++) {
 		struct etnaviv_gpu *gpu = priv->gpu[i];
 		struct drm_sched_rq *rq;
@@ -55,12 +74,37 @@ static int etnaviv_open(struct drm_device *dev, struct drm_file *file)
 			rq = &gpu->sched.sched_rq[DRM_SCHED_PRIORITY_NORMAL];
 			drm_sched_entity_init(&ctx->sched_entity[i],
 					      &rq, 1, NULL);
+=======
+	ctx->mmu = etnaviv_iommu_context_init(priv->mmu_global,
+					      priv->cmdbuf_suballoc);
+	if (!ctx->mmu) {
+		ret = -ENOMEM;
+		goto out_free;
+	}
+
+	for (i = 0; i < ETNA_MAX_PIPES; i++) {
+		struct etnaviv_gpu *gpu = priv->gpu[i];
+		struct drm_gpu_scheduler *sched;
+
+		if (gpu) {
+			sched = &gpu->sched;
+			drm_sched_entity_init(&ctx->sched_entity[i],
+					      DRM_SCHED_PRIORITY_NORMAL, &sched,
+					      1, NULL);
+>>>>>>> upstream/android-13
 			}
 	}
 
 	file->driver_priv = ctx;
 
 	return 0;
+<<<<<<< HEAD
+=======
+
+out_free:
+	kfree(ctx);
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static void etnaviv_postclose(struct drm_device *dev, struct drm_file *file)
@@ -72,6 +116,7 @@ static void etnaviv_postclose(struct drm_device *dev, struct drm_file *file)
 	for (i = 0; i < ETNA_MAX_PIPES; i++) {
 		struct etnaviv_gpu *gpu = priv->gpu[i];
 
+<<<<<<< HEAD
 		if (gpu) {
 			mutex_lock(&gpu->lock);
 			if (gpu->lastctx == ctx)
@@ -82,6 +127,14 @@ static void etnaviv_postclose(struct drm_device *dev, struct drm_file *file)
 		}
 	}
 
+=======
+		if (gpu)
+			drm_sched_entity_destroy(&ctx->sched_entity[i]);
+	}
+
+	etnaviv_iommu_context_put(ctx->mmu);
+
+>>>>>>> upstream/android-13
 	kfree(ctx);
 }
 
@@ -113,12 +166,38 @@ static int etnaviv_mm_show(struct drm_device *dev, struct seq_file *m)
 static int etnaviv_mmu_show(struct etnaviv_gpu *gpu, struct seq_file *m)
 {
 	struct drm_printer p = drm_seq_file_printer(m);
+<<<<<<< HEAD
 
 	seq_printf(m, "Active Objects (%s):\n", dev_name(gpu->dev));
 
 	mutex_lock(&gpu->mmu->lock);
 	drm_mm_print(&gpu->mmu->mm, &p);
 	mutex_unlock(&gpu->mmu->lock);
+=======
+	struct etnaviv_iommu_context *mmu_context;
+
+	seq_printf(m, "Active Objects (%s):\n", dev_name(gpu->dev));
+
+	/*
+	 * Lock the GPU to avoid a MMU context switch just now and elevate
+	 * the refcount of the current context to avoid it disappearing from
+	 * under our feet.
+	 */
+	mutex_lock(&gpu->lock);
+	mmu_context = gpu->mmu_context;
+	if (mmu_context)
+		etnaviv_iommu_context_get(mmu_context);
+	mutex_unlock(&gpu->lock);
+
+	if (!mmu_context)
+		return 0;
+
+	mutex_lock(&mmu_context->lock);
+	drm_mm_print(&mmu_context->mm, &p);
+	mutex_unlock(&mmu_context->lock);
+
+	etnaviv_iommu_context_put(mmu_context);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -197,6 +276,7 @@ static struct drm_info_list etnaviv_debugfs_list[] = {
 		{"ring", show_each_gpu, 0, etnaviv_ring_show},
 };
 
+<<<<<<< HEAD
 static int etnaviv_debugfs_init(struct drm_minor *minor)
 {
 	struct drm_device *dev = minor->dev;
@@ -212,6 +292,13 @@ static int etnaviv_debugfs_init(struct drm_minor *minor)
 	}
 
 	return ret;
+=======
+static void etnaviv_debugfs_init(struct drm_minor *minor)
+{
+	drm_debugfs_create_files(etnaviv_debugfs_list,
+				 ARRAY_SIZE(etnaviv_debugfs_list),
+				 minor->debugfs_root, minor);
+>>>>>>> upstream/android-13
 }
 #endif
 
@@ -249,11 +336,14 @@ static int etnaviv_ioctl_gem_new(struct drm_device *dev, void *data,
 			args->flags, &args->handle);
 }
 
+<<<<<<< HEAD
 #define TS(t) ((struct timespec){ \
 	.tv_sec = (t).tv_sec, \
 	.tv_nsec = (t).tv_nsec \
 })
 
+=======
+>>>>>>> upstream/android-13
 static int etnaviv_ioctl_gem_cpu_prep(struct drm_device *dev, void *data,
 		struct drm_file *file)
 {
@@ -268,9 +358,15 @@ static int etnaviv_ioctl_gem_cpu_prep(struct drm_device *dev, void *data,
 	if (!obj)
 		return -ENOENT;
 
+<<<<<<< HEAD
 	ret = etnaviv_gem_cpu_prep(obj, args->op, &TS(args->timeout));
 
 	drm_gem_object_put_unlocked(obj);
+=======
+	ret = etnaviv_gem_cpu_prep(obj, args->op, &args->timeout);
+
+	drm_gem_object_put(obj);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -291,7 +387,11 @@ static int etnaviv_ioctl_gem_cpu_fini(struct drm_device *dev, void *data,
 
 	ret = etnaviv_gem_cpu_fini(obj);
 
+<<<<<<< HEAD
 	drm_gem_object_put_unlocked(obj);
+=======
+	drm_gem_object_put(obj);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -311,7 +411,11 @@ static int etnaviv_ioctl_gem_info(struct drm_device *dev, void *data,
 		return -ENOENT;
 
 	ret = etnaviv_gem_mmap_offset(obj, &args->offset);
+<<<<<<< HEAD
 	drm_gem_object_put_unlocked(obj);
+=======
+	drm_gem_object_put(obj);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -321,7 +425,11 @@ static int etnaviv_ioctl_wait_fence(struct drm_device *dev, void *data,
 {
 	struct drm_etnaviv_wait_fence *args = data;
 	struct etnaviv_drm_private *priv = dev->dev_private;
+<<<<<<< HEAD
 	struct timespec *timeout = &TS(args->timeout);
+=======
+	struct drm_etnaviv_timespec *timeout = &args->timeout;
+>>>>>>> upstream/android-13
 	struct etnaviv_gpu *gpu;
 
 	if (args->flags & ~(ETNA_WAIT_NONBLOCK))
@@ -345,7 +453,10 @@ static int etnaviv_ioctl_gem_userptr(struct drm_device *dev, void *data,
 	struct drm_file *file)
 {
 	struct drm_etnaviv_gem_userptr *args = data;
+<<<<<<< HEAD
 	int access;
+=======
+>>>>>>> upstream/android-13
 
 	if (args->flags & ~(ETNA_USERPTR_READ|ETNA_USERPTR_WRITE) ||
 	    args->flags == 0)
@@ -357,12 +468,16 @@ static int etnaviv_ioctl_gem_userptr(struct drm_device *dev, void *data,
 	    args->user_ptr & ~PAGE_MASK)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	if (args->flags & ETNA_USERPTR_WRITE)
 		access = VERIFY_WRITE;
 	else
 		access = VERIFY_READ;
 
 	if (!access_ok(access, (void __user *)(unsigned long)args->user_ptr,
+=======
+	if (!access_ok((void __user *)(unsigned long)args->user_ptr,
+>>>>>>> upstream/android-13
 		       args->user_size))
 		return -EFAULT;
 
@@ -376,7 +491,11 @@ static int etnaviv_ioctl_gem_wait(struct drm_device *dev, void *data,
 {
 	struct etnaviv_drm_private *priv = dev->dev_private;
 	struct drm_etnaviv_gem_wait *args = data;
+<<<<<<< HEAD
 	struct timespec *timeout = &TS(args->timeout);
+=======
+	struct drm_etnaviv_timespec *timeout = &args->timeout;
+>>>>>>> upstream/android-13
 	struct drm_gem_object *obj;
 	struct etnaviv_gpu *gpu;
 	int ret;
@@ -400,7 +519,11 @@ static int etnaviv_ioctl_gem_wait(struct drm_device *dev, void *data,
 
 	ret = etnaviv_gem_wait_bo(gpu, obj, timeout);
 
+<<<<<<< HEAD
 	drm_gem_object_put_unlocked(obj);
+=======
+	drm_gem_object_put(obj);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -442,6 +565,7 @@ static int etnaviv_ioctl_pm_query_sig(struct drm_device *dev, void *data,
 static const struct drm_ioctl_desc etnaviv_ioctls[] = {
 #define ETNA_IOCTL(n, func, flags) \
 	DRM_IOCTL_DEF_DRV(ETNAVIV_##n, etnaviv_ioctl_##func, flags)
+<<<<<<< HEAD
 	ETNA_IOCTL(GET_PARAM,    get_param,    DRM_AUTH|DRM_RENDER_ALLOW),
 	ETNA_IOCTL(GEM_NEW,      gem_new,      DRM_AUTH|DRM_RENDER_ALLOW),
 	ETNA_IOCTL(GEM_INFO,     gem_info,     DRM_AUTH|DRM_RENDER_ALLOW),
@@ -493,6 +617,31 @@ static struct drm_driver etnaviv_drm_driver = {
 	.gem_prime_vmap     = etnaviv_gem_prime_vmap,
 	.gem_prime_vunmap   = etnaviv_gem_prime_vunmap,
 	.gem_prime_mmap     = etnaviv_gem_prime_mmap,
+=======
+	ETNA_IOCTL(GET_PARAM,    get_param,    DRM_RENDER_ALLOW),
+	ETNA_IOCTL(GEM_NEW,      gem_new,      DRM_RENDER_ALLOW),
+	ETNA_IOCTL(GEM_INFO,     gem_info,     DRM_RENDER_ALLOW),
+	ETNA_IOCTL(GEM_CPU_PREP, gem_cpu_prep, DRM_RENDER_ALLOW),
+	ETNA_IOCTL(GEM_CPU_FINI, gem_cpu_fini, DRM_RENDER_ALLOW),
+	ETNA_IOCTL(GEM_SUBMIT,   gem_submit,   DRM_RENDER_ALLOW),
+	ETNA_IOCTL(WAIT_FENCE,   wait_fence,   DRM_RENDER_ALLOW),
+	ETNA_IOCTL(GEM_USERPTR,  gem_userptr,  DRM_RENDER_ALLOW),
+	ETNA_IOCTL(GEM_WAIT,     gem_wait,     DRM_RENDER_ALLOW),
+	ETNA_IOCTL(PM_QUERY_DOM, pm_query_dom, DRM_RENDER_ALLOW),
+	ETNA_IOCTL(PM_QUERY_SIG, pm_query_sig, DRM_RENDER_ALLOW),
+};
+
+DEFINE_DRM_GEM_FOPS(fops);
+
+static const struct drm_driver etnaviv_drm_driver = {
+	.driver_features    = DRIVER_GEM | DRIVER_RENDER,
+	.open               = etnaviv_open,
+	.postclose           = etnaviv_postclose,
+	.prime_handle_to_fd = drm_gem_prime_handle_to_fd,
+	.prime_fd_to_handle = drm_gem_prime_fd_to_handle,
+	.gem_prime_import_sg_table = etnaviv_gem_prime_import_sg_table,
+	.gem_prime_mmap     = drm_gem_prime_mmap,
+>>>>>>> upstream/android-13
 #ifdef CONFIG_DEBUG_FS
 	.debugfs_init       = etnaviv_debugfs_init,
 #endif
@@ -503,7 +652,11 @@ static struct drm_driver etnaviv_drm_driver = {
 	.desc               = "etnaviv DRM",
 	.date               = "20151214",
 	.major              = 1,
+<<<<<<< HEAD
 	.minor              = 2,
+=======
+	.minor              = 3,
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -523,27 +676,50 @@ static int etnaviv_bind(struct device *dev)
 	if (!priv) {
 		dev_err(dev, "failed to allocate private data\n");
 		ret = -ENOMEM;
+<<<<<<< HEAD
 		goto out_unref;
 	}
 	drm->dev_private = priv;
 
 	dev->dma_parms = &priv->dma_parms;
+=======
+		goto out_put;
+	}
+	drm->dev_private = priv;
+
+>>>>>>> upstream/android-13
 	dma_set_max_seg_size(dev, SZ_2G);
 
 	mutex_init(&priv->gem_lock);
 	INIT_LIST_HEAD(&priv->gem_list);
 	priv->num_gpus = 0;
+<<<<<<< HEAD
+=======
+	priv->shm_gfp_mask = GFP_HIGHUSER | __GFP_RETRY_MAYFAIL | __GFP_NOWARN;
+
+	priv->cmdbuf_suballoc = etnaviv_cmdbuf_suballoc_new(drm->dev);
+	if (IS_ERR(priv->cmdbuf_suballoc)) {
+		dev_err(drm->dev, "Failed to create cmdbuf suballocator\n");
+		ret = PTR_ERR(priv->cmdbuf_suballoc);
+		goto out_free_priv;
+	}
+>>>>>>> upstream/android-13
 
 	dev_set_drvdata(dev, drm);
 
 	ret = component_bind_all(dev, drm);
 	if (ret < 0)
+<<<<<<< HEAD
 		goto out_bind;
+=======
+		goto out_destroy_suballoc;
+>>>>>>> upstream/android-13
 
 	load_gpu(drm);
 
 	ret = drm_dev_register(drm, 0);
 	if (ret)
+<<<<<<< HEAD
 		goto out_register;
 
 	return 0;
@@ -554,6 +730,20 @@ out_bind:
 	kfree(priv);
 out_unref:
 	drm_dev_unref(drm);
+=======
+		goto out_unbind;
+
+	return 0;
+
+out_unbind:
+	component_unbind_all(dev, drm);
+out_destroy_suballoc:
+	etnaviv_cmdbuf_suballoc_destroy(priv->cmdbuf_suballoc);
+out_free_priv:
+	kfree(priv);
+out_put:
+	drm_dev_put(drm);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -567,12 +757,20 @@ static void etnaviv_unbind(struct device *dev)
 
 	component_unbind_all(dev, drm);
 
+<<<<<<< HEAD
 	dev->dma_parms = NULL;
+=======
+	etnaviv_cmdbuf_suballoc_destroy(priv->cmdbuf_suballoc);
+>>>>>>> upstream/android-13
 
 	drm->dev_private = NULL;
 	kfree(priv);
 
+<<<<<<< HEAD
 	drm_dev_unref(drm);
+=======
+	drm_dev_put(drm);
+>>>>>>> upstream/android-13
 }
 
 static const struct component_master_ops etnaviv_master_ops = {
@@ -706,7 +904,11 @@ static void __exit etnaviv_exit(void)
 module_exit(etnaviv_exit);
 
 MODULE_AUTHOR("Christian Gmeiner <christian.gmeiner@gmail.com>");
+<<<<<<< HEAD
 MODULE_AUTHOR("Russell King <rmk+kernel@arm.linux.org.uk>");
+=======
+MODULE_AUTHOR("Russell King <rmk+kernel@armlinux.org.uk>");
+>>>>>>> upstream/android-13
 MODULE_AUTHOR("Lucas Stach <l.stach@pengutronix.de>");
 MODULE_DESCRIPTION("etnaviv DRM Driver");
 MODULE_LICENSE("GPL v2");

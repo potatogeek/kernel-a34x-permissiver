@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -7,6 +8,10 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+>>>>>>> upstream/android-13
  *
  * Copyright (C) 2012 ARM Limited
  */
@@ -140,7 +145,11 @@ static int vexpress_reset_probe(struct platform_device *pdev)
 	case FUNC_REBOOT:
 		ret = _vexpress_register_restart_handler(&pdev->dev);
 		break;
+<<<<<<< HEAD
 	};
+=======
+	}
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -153,9 +162,13 @@ static struct platform_driver vexpress_reset_driver = {
 		.suppress_bind_attrs = true,
 	},
 };
+<<<<<<< HEAD
 
 static int __init vexpress_reset_init(void)
 {
 	return platform_driver_register(&vexpress_reset_driver);
 }
 device_initcall(vexpress_reset_init);
+=======
+builtin_platform_driver(vexpress_reset_driver);
+>>>>>>> upstream/android-13

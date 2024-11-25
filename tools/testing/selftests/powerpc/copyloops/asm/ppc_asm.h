@@ -25,6 +25,10 @@
 
 #define _GLOBAL(A) FUNC_START(test_ ## A)
 #define _GLOBAL_TOC(A) _GLOBAL(A)
+<<<<<<< HEAD
+=======
+#define _GLOBAL_TOC_KASAN(A) _GLOBAL(A)
+>>>>>>> upstream/android-13
 
 #define PPC_MTOCRF(A, B)	mtocrf A, B
 

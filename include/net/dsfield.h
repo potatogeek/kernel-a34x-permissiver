@@ -21,7 +21,11 @@ static inline __u8 ipv4_get_dsfield(const struct iphdr *iph)
 
 static inline __u8 ipv6_get_dsfield(const struct ipv6hdr *ipv6h)
 {
+<<<<<<< HEAD
 	return ntohs(*(const __be16 *)ipv6h) >> 4;
+=======
+	return ntohs(*(__force const __be16 *)ipv6h) >> 4;
+>>>>>>> upstream/android-13
 }
 
 

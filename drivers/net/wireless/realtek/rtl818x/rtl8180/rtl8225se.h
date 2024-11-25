@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 
 /* Definitions for RTL8187SE hardware
  *
@@ -10,10 +14,13 @@
  * Also based on the rtl8187 driver, which is:
  * Copyright 2007 Michael Wu <flamingice@sourmilk.net>
  * Copyright 2007 Andrea Merello <andrea.merello@gmail.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef RTL8187SE_RTL8225_H

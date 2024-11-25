@@ -22,6 +22,7 @@
 #include <linux/serial_core.h>
 #include <linux/interrupt.h>
 #include <linux/bitops.h>
+<<<<<<< HEAD
 #include <linux/time.h>
 #include <linux/clocksource.h>
 #include <linux/clockchips.h>
@@ -37,12 +38,29 @@
 #include <linux/uaccess.h>
 #include <asm/pgtable.h>
 #include <asm/page.h>
+=======
+#include <linux/io.h>
+#include <linux/export.h>
+#include <linux/cpu.h>
+#include <linux/pci.h>
+#include <linux/sched_clock.h>
+#include <linux/soc/ixp4xx/cpu.h>
+#include <linux/irqchip/irq-ixp4xx.h>
+#include <linux/platform_data/timer-ixp4xx.h>
+#include <linux/dma-map-ops.h>
+#include <mach/udc.h>
+#include <mach/hardware.h>
+#include <linux/uaccess.h>
+#include <asm/page.h>
+#include <asm/exception.h>
+>>>>>>> upstream/android-13
 #include <asm/irq.h>
 #include <asm/system_misc.h>
 #include <asm/mach/map.h>
 #include <asm/mach/irq.h>
 #include <asm/mach/time.h>
 
+<<<<<<< HEAD
 #define IXP4XX_TIMER_FREQ 66666000
 
 /*
@@ -58,6 +76,33 @@ static void __init ixp4xx_clocksource_init(void);
 static void __init ixp4xx_clockevent_init(void);
 static struct clock_event_device clockevent_ixp4xx;
 
+=======
+#include "irqs.h"
+
+u32 ixp4xx_read_feature_bits(void)
+{
+	u32 val = ~__raw_readl(IXP4XX_EXP_CFG2);
+
+	if (cpu_is_ixp42x_rev_a0())
+		return IXP42X_FEATURE_MASK & ~(IXP4XX_FEATURE_RCOMP |
+					       IXP4XX_FEATURE_AES);
+	if (cpu_is_ixp42x())
+		return val & IXP42X_FEATURE_MASK;
+	if (cpu_is_ixp43x())
+		return val & IXP43X_FEATURE_MASK;
+	return val & IXP46X_FEATURE_MASK;
+}
+EXPORT_SYMBOL(ixp4xx_read_feature_bits);
+
+void ixp4xx_write_feature_bits(u32 value)
+{
+	__raw_writel(~value, IXP4XX_EXP_CFG2);
+}
+EXPORT_SYMBOL(ixp4xx_write_feature_bits);
+
+#define IXP4XX_TIMER_FREQ 66666000
+
+>>>>>>> upstream/android-13
 /*************************************************************************
  * IXP4xx chipset I/O mapping
  *************************************************************************/
@@ -77,11 +122,14 @@ static struct map_desc ixp4xx_io_desc[] __initdata = {
 		.pfn		= __phys_to_pfn(IXP4XX_PCI_CFG_BASE_PHYS),
 		.length		= IXP4XX_PCI_CFG_REGION_SIZE,
 		.type		= MT_DEVICE
+<<<<<<< HEAD
 	}, {	/* Queue Manager */
 		.virtual	= (unsigned long)IXP4XX_QMGR_BASE_VIRT,
 		.pfn		= __phys_to_pfn(IXP4XX_QMGR_BASE_PHYS),
 		.length		= IXP4XX_QMGR_REGION_SIZE,
 		.type		= MT_DEVICE
+=======
+>>>>>>> upstream/android-13
 	},
 };
 
@@ -90,6 +138,7 @@ void __init ixp4xx_map_io(void)
   	iotable_init(ixp4xx_io_desc, ARRAY_SIZE(ixp4xx_io_desc));
 }
 
+<<<<<<< HEAD
 /*
  * GPIO-functions
  */
@@ -272,12 +321,17 @@ void __init ixp4xx_init_irq(void)
 {
 	int i = 0;
 
+=======
+void __init ixp4xx_init_irq(void)
+{
+>>>>>>> upstream/android-13
 	/*
 	 * ixp4xx does not implement the XScale PWRMODE register
 	 * so it must not call cpu_do_idle().
 	 */
 	cpu_idle_poll_ctrl(true);
 
+<<<<<<< HEAD
 	/* Route all sources to IRQ instead of FIQ */
 	*IXP4XX_ICLR = 0x0;
 
@@ -342,6 +396,17 @@ void __init ixp4xx_timer_init(void)
 
 	ixp4xx_clocksource_init();
 	ixp4xx_clockevent_init();
+=======
+	ixp4xx_irq_init(IXP4XX_INTC_BASE_PHYS,
+			(cpu_is_ixp46x() || cpu_is_ixp43x()));
+}
+
+void __init ixp4xx_timer_init(void)
+{
+	return ixp4xx_timer_setup(IXP4XX_TIMER_BASE_PHYS,
+				  IRQ_IXP4XX_TIMER1,
+				  IXP4XX_TIMER_FREQ);
+>>>>>>> upstream/android-13
 }
 
 static struct pxa2xx_udc_mach_info ixp4xx_udc_info;
@@ -364,6 +429,27 @@ static struct resource ixp4xx_udc_resources[] = {
 	},
 };
 
+<<<<<<< HEAD
+=======
+static struct resource ixp4xx_gpio_resource[] = {
+	{
+		.start = IXP4XX_GPIO_BASE_PHYS,
+		.end = IXP4XX_GPIO_BASE_PHYS + 0xfff,
+		.flags = IORESOURCE_MEM,
+	},
+};
+
+static struct platform_device ixp4xx_gpio_device = {
+	.name           = "ixp4xx-gpio",
+	.id             = -1,
+	.dev = {
+		.coherent_dma_mask      = DMA_BIT_MASK(32),
+	},
+	.resource = ixp4xx_gpio_resource,
+	.num_resources  = ARRAY_SIZE(ixp4xx_gpio_resource),
+};
+
+>>>>>>> upstream/android-13
 /*
  * USB device controller. The IXP4xx uses the same controller as PXA25X,
  * so we just use the same device.
@@ -378,7 +464,65 @@ static struct platform_device ixp4xx_udc_device = {
 	},
 };
 
+<<<<<<< HEAD
 static struct platform_device *ixp4xx_devices[] __initdata = {
+=======
+static struct resource ixp4xx_npe_resources[] = {
+	{
+		.start = IXP4XX_NPEA_BASE_PHYS,
+		.end = IXP4XX_NPEA_BASE_PHYS + 0xfff,
+		.flags = IORESOURCE_MEM,
+	},
+	{
+		.start = IXP4XX_NPEB_BASE_PHYS,
+		.end = IXP4XX_NPEB_BASE_PHYS + 0xfff,
+		.flags = IORESOURCE_MEM,
+	},
+	{
+		.start = IXP4XX_NPEC_BASE_PHYS,
+		.end = IXP4XX_NPEC_BASE_PHYS + 0xfff,
+		.flags = IORESOURCE_MEM,
+	},
+
+};
+
+static struct platform_device ixp4xx_npe_device = {
+	.name           = "ixp4xx-npe",
+	.id             = -1,
+	.num_resources  = ARRAY_SIZE(ixp4xx_npe_resources),
+	.resource       = ixp4xx_npe_resources,
+};
+
+static struct resource ixp4xx_qmgr_resources[] = {
+	{
+		.start = IXP4XX_QMGR_BASE_PHYS,
+		.end = IXP4XX_QMGR_BASE_PHYS + 0x3fff,
+		.flags = IORESOURCE_MEM,
+	},
+	{
+		.start = IRQ_IXP4XX_QM1,
+		.end = IRQ_IXP4XX_QM1,
+		.flags = IORESOURCE_IRQ,
+	},
+	{
+		.start = IRQ_IXP4XX_QM2,
+		.end = IRQ_IXP4XX_QM2,
+		.flags = IORESOURCE_IRQ,
+	},
+};
+
+static struct platform_device ixp4xx_qmgr_device = {
+	.name           = "ixp4xx-qmgr",
+	.id             = -1,
+	.num_resources  = ARRAY_SIZE(ixp4xx_qmgr_resources),
+	.resource       = ixp4xx_qmgr_resources,
+};
+
+static struct platform_device *ixp4xx_devices[] __initdata = {
+	&ixp4xx_npe_device,
+	&ixp4xx_qmgr_device,
+	&ixp4xx_gpio_device,
+>>>>>>> upstream/android-13
 	&ixp4xx_udc_device,
 };
 
@@ -395,6 +539,30 @@ static struct resource ixp46x_i2c_resources[] = {
 	}
 };
 
+<<<<<<< HEAD
+=======
+/* A single 32-bit register on IXP46x */
+#define IXP4XX_HWRANDOM_BASE_PHYS	0x70002100
+
+static struct resource ixp46x_hwrandom_resource[] = {
+	{
+		.start = IXP4XX_HWRANDOM_BASE_PHYS,
+		.end = IXP4XX_HWRANDOM_BASE_PHYS + 0x3,
+		.flags = IORESOURCE_MEM,
+	},
+};
+
+static struct platform_device ixp46x_hwrandom_device = {
+	.name           = "ixp4xx-hwrandom",
+	.id             = -1,
+	.dev = {
+		.coherent_dma_mask      = DMA_BIT_MASK(32),
+	},
+	.resource = ixp46x_hwrandom_resource,
+	.num_resources  = ARRAY_SIZE(ixp46x_hwrandom_resource),
+};
+
+>>>>>>> upstream/android-13
 /*
  * I2C controller. The IXP46x uses the same block as the IOP3xx, so
  * we just use the same device name.
@@ -406,13 +574,34 @@ static struct platform_device ixp46x_i2c_controller = {
 	.resource	= ixp46x_i2c_resources
 };
 
+<<<<<<< HEAD
 static struct platform_device *ixp46x_devices[] __initdata = {
 	&ixp46x_i2c_controller
+=======
+static struct resource ixp46x_ptp_resources[] = {
+	DEFINE_RES_MEM(IXP4XX_TIMESYNC_BASE_PHYS, SZ_4K),
+	DEFINE_RES_IRQ_NAMED(IRQ_IXP4XX_GPIO8, "master"),
+	DEFINE_RES_IRQ_NAMED(IRQ_IXP4XX_GPIO7, "slave"),
+};
+
+static struct platform_device ixp46x_ptp = {
+	.name		= "ptp-ixp46x",
+	.id		= -1,
+	.resource	= ixp46x_ptp_resources,
+	.num_resources	= ARRAY_SIZE(ixp46x_ptp_resources),
+};
+
+static struct platform_device *ixp46x_devices[] __initdata = {
+	&ixp46x_hwrandom_device,
+	&ixp46x_i2c_controller,
+	&ixp46x_ptp,
+>>>>>>> upstream/android-13
 };
 
 unsigned long ixp4xx_exp_bus_size;
 EXPORT_SYMBOL(ixp4xx_exp_bus_size);
 
+<<<<<<< HEAD
 static int ixp4xx_gpio_direction_input(struct gpio_chip *chip, unsigned gpio)
 {
 	gpio_line_config(gpio, IXP4XX_GPIO_IN);
@@ -455,13 +644,43 @@ static struct gpio_chip ixp4xx_gpio_chip = {
 	.ngpio			= 16,
 };
 
+=======
+static struct platform_device_info ixp_dev_info __initdata = {
+	.name		= "ixp4xx_crypto",
+	.id		= 0,
+	.dma_mask	= DMA_BIT_MASK(32),
+};
+
+static int __init ixp_crypto_register(void)
+{
+	struct platform_device *pdev;
+
+	if (!(~(*IXP4XX_EXP_CFG2) & (IXP4XX_FEATURE_HASH |
+				IXP4XX_FEATURE_AES | IXP4XX_FEATURE_DES))) {
+		printk(KERN_ERR "ixp_crypto: No HW crypto available\n");
+		return -ENODEV;
+	}
+
+	pdev = platform_device_register_full(&ixp_dev_info);
+	if (IS_ERR(pdev))
+		return PTR_ERR(pdev);
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 void __init ixp4xx_sys_init(void)
 {
 	ixp4xx_exp_bus_size = SZ_16M;
 
 	platform_add_devices(ixp4xx_devices, ARRAY_SIZE(ixp4xx_devices));
 
+<<<<<<< HEAD
 	gpiochip_add_data(&ixp4xx_gpio_chip, NULL);
+=======
+	if (IS_ENABLED(CONFIG_CRYPTO_DEV_IXP4XX))
+		ixp_crypto_register();
+>>>>>>> upstream/android-13
 
 	if (cpu_is_ixp46x()) {
 		int region;
@@ -481,6 +700,7 @@ void __init ixp4xx_sys_init(void)
 			ixp4xx_exp_bus_size >> 20);
 }
 
+<<<<<<< HEAD
 /*
  * sched_clock()
  */
@@ -578,6 +798,10 @@ static void __init ixp4xx_clockevent_init(void)
 	clockevents_config_and_register(&clockevent_ixp4xx, IXP4XX_TIMER_FREQ,
 					0xf, 0xfffffffe);
 }
+=======
+unsigned long ixp4xx_timer_freq = IXP4XX_TIMER_FREQ;
+EXPORT_SYMBOL(ixp4xx_timer_freq);
+>>>>>>> upstream/android-13
 
 void ixp4xx_restart(enum reboot_mode mode, const char *cmd)
 {

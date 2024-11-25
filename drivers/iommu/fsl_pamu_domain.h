@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -14,6 +15,12 @@
  *
  * Copyright (C) 2013 Freescale Semiconductor, Inc.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ *
+ * Copyright (C) 2013 Freescale Semiconductor, Inc.
+>>>>>>> upstream/android-13
  */
 
 #ifndef __FSL_PAMU_DOMAIN_H
@@ -21,6 +28,7 @@
 
 #include "fsl_pamu.h"
 
+<<<<<<< HEAD
 struct dma_window {
 	phys_addr_t paddr;
 	u64 size;
@@ -71,6 +79,12 @@ struct fsl_dma_domain {
 	u32				stash_id;
 	struct pamu_stash_attribute	dma_stash;
 	u32				snoop_id;
+=======
+struct fsl_dma_domain {
+	/* list of devices associated with the domain */
+	struct list_head		devices;
+	u32				stash_id;
+>>>>>>> upstream/android-13
 	struct iommu_domain		iommu_domain;
 	spinlock_t			domain_lock;
 };

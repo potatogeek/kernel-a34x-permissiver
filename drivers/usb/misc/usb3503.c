@@ -7,11 +7,18 @@
 
 #include <linux/clk.h>
 #include <linux/i2c.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
 #include <linux/delay.h>
 #include <linux/slab.h>
 #include <linux/module.h>
 #include <linux/of_gpio.h>
+=======
+#include <linux/gpio/consumer.h>
+#include <linux/delay.h>
+#include <linux/slab.h>
+#include <linux/module.h>
+>>>>>>> upstream/android-13
 #include <linux/platform_device.h>
 #include <linux/platform_data/usb3503.h>
 #include <linux/regmap.h>
@@ -47,19 +54,33 @@ struct usb3503 {
 	struct device		*dev;
 	struct clk		*clk;
 	u8	port_off_mask;
+<<<<<<< HEAD
 	int	gpio_intn;
 	int	gpio_reset;
 	int	gpio_connect;
+=======
+	struct gpio_desc	*intn;
+	struct gpio_desc 	*reset;
+	struct gpio_desc 	*connect;
+>>>>>>> upstream/android-13
 	bool	secondary_ref_clk;
 };
 
 static int usb3503_reset(struct usb3503 *hub, int state)
 {
+<<<<<<< HEAD
 	if (!state && gpio_is_valid(hub->gpio_connect))
 		gpio_set_value_cansleep(hub->gpio_connect, 0);
 
 	if (gpio_is_valid(hub->gpio_reset))
 		gpio_set_value_cansleep(hub->gpio_reset, state);
+=======
+	if (!state && hub->connect)
+		gpiod_set_value_cansleep(hub->connect, 0);
+
+	if (hub->reset)
+		gpiod_set_value_cansleep(hub->reset, !state);
+>>>>>>> upstream/android-13
 
 	/* Wait T_HUBINIT == 4ms for hub logic to stabilize */
 	if (state)
@@ -115,8 +136,13 @@ static int usb3503_connect(struct usb3503 *hub)
 		}
 	}
 
+<<<<<<< HEAD
 	if (gpio_is_valid(hub->gpio_connect))
 		gpio_set_value_cansleep(hub->gpio_connect, 1);
+=======
+	if (hub->connect)
+		gpiod_set_value_cansleep(hub->connect, 1);
+>>>>>>> upstream/android-13
 
 	hub->mode = USB3503_MODE_HUB;
 	dev_info(dev, "switched to HUB mode\n");
@@ -163,16 +189,25 @@ static int usb3503_probe(struct usb3503 *hub)
 	int err;
 	u32 mode = USB3503_MODE_HUB;
 	const u32 *property;
+<<<<<<< HEAD
+=======
+	enum gpiod_flags flags;
+>>>>>>> upstream/android-13
 	int len;
 
 	if (pdata) {
 		hub->port_off_mask	= pdata->port_off_mask;
+<<<<<<< HEAD
 		hub->gpio_intn		= pdata->gpio_intn;
 		hub->gpio_connect	= pdata->gpio_connect;
 		hub->gpio_reset		= pdata->gpio_reset;
 		hub->mode		= pdata->initial_mode;
 	} else if (np) {
 		struct clk *clk;
+=======
+		hub->mode		= pdata->initial_mode;
+	} else if (np) {
+>>>>>>> upstream/android-13
 		u32 rate = 0;
 		hub->port_off_mask = 0;
 
@@ -198,6 +233,7 @@ static int usb3503_probe(struct usb3503 *hub)
 			}
 		}
 
+<<<<<<< HEAD
 		clk = devm_clk_get(dev, "refclk");
 		if (IS_ERR(clk) && PTR_ERR(clk) != -ENOENT) {
 			dev_err(dev, "unable to request refclk (%ld)\n",
@@ -222,10 +258,34 @@ static int usb3503_probe(struct usb3503 *hub)
 			if (err) {
 				dev_err(dev,
 					"unable to enable reference clock\n");
+=======
+		hub->clk = devm_clk_get_optional(dev, "refclk");
+		if (IS_ERR(hub->clk)) {
+			dev_err(dev, "unable to request refclk (%ld)\n",
+					PTR_ERR(hub->clk));
+			return PTR_ERR(hub->clk);
+		}
+
+		if (rate != 0) {
+			err = clk_set_rate(hub->clk, rate);
+			if (err) {
+				dev_err(dev,
+					"unable to set reference clock rate to %d\n",
+					(int)rate);
+>>>>>>> upstream/android-13
 				return err;
 			}
 		}
 
+<<<<<<< HEAD
+=======
+		err = clk_prepare_enable(hub->clk);
+		if (err) {
+			dev_err(dev, "unable to enable reference clock\n");
+			return err;
+		}
+
+>>>>>>> upstream/android-13
 		property = of_get_property(np, "disabled-ports", &len);
 		if (property && (len / sizeof(u32)) > 0) {
 			int i;
@@ -236,6 +296,7 @@ static int usb3503_probe(struct usb3503 *hub)
 			}
 		}
 
+<<<<<<< HEAD
 		hub->gpio_intn	= of_get_named_gpio(np, "intn-gpios", 0);
 		if (hub->gpio_intn == -EPROBE_DEFER)
 			return -EPROBE_DEFER;
@@ -245,10 +306,13 @@ static int usb3503_probe(struct usb3503 *hub)
 		hub->gpio_reset = of_get_named_gpio(np, "reset-gpios", 0);
 		if (hub->gpio_reset == -EPROBE_DEFER)
 			return -EPROBE_DEFER;
+=======
+>>>>>>> upstream/android-13
 		of_property_read_u32(np, "initial-mode", &mode);
 		hub->mode = mode;
 	}
 
+<<<<<<< HEAD
 	if (hub->port_off_mask && !hub->regmap)
 		dev_err(dev, "Ports disabled with no control interface\n");
 
@@ -289,6 +353,36 @@ static int usb3503_probe(struct usb3503 *hub)
 		}
 	}
 
+=======
+	if (hub->secondary_ref_clk)
+		flags = GPIOD_OUT_LOW;
+	else
+		flags = GPIOD_OUT_HIGH;
+	hub->intn = devm_gpiod_get_optional(dev, "intn", flags);
+	if (IS_ERR(hub->intn))
+		return PTR_ERR(hub->intn);
+	if (hub->intn)
+		gpiod_set_consumer_name(hub->intn, "usb3503 intn");
+
+	hub->connect = devm_gpiod_get_optional(dev, "connect", GPIOD_OUT_LOW);
+	if (IS_ERR(hub->connect))
+		return PTR_ERR(hub->connect);
+	if (hub->connect)
+		gpiod_set_consumer_name(hub->connect, "usb3503 connect");
+
+	hub->reset = devm_gpiod_get_optional(dev, "reset", GPIOD_OUT_HIGH);
+	if (IS_ERR(hub->reset))
+		return PTR_ERR(hub->reset);
+	if (hub->reset) {
+		/* Datasheet defines a hardware reset to be at least 100us */
+		usleep_range(100, 10000);
+		gpiod_set_consumer_name(hub->reset, "usb3503 reset");
+	}
+
+	if (hub->port_off_mask && !hub->regmap)
+		dev_err(dev, "Ports disabled with no control interface\n");
+
+>>>>>>> upstream/android-13
 	usb3503_switch_mode(hub, hub->mode);
 
 	dev_info(dev, "%s: probed in %s mode\n", __func__,
@@ -324,8 +418,12 @@ static int usb3503_i2c_remove(struct i2c_client *i2c)
 	struct usb3503 *hub;
 
 	hub = i2c_get_clientdata(i2c);
+<<<<<<< HEAD
 	if (hub->clk)
 		clk_disable_unprepare(hub->clk);
+=======
+	clk_disable_unprepare(hub->clk);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -348,12 +446,17 @@ static int usb3503_platform_remove(struct platform_device *pdev)
 	struct usb3503 *hub;
 
 	hub = platform_get_drvdata(pdev);
+<<<<<<< HEAD
 	if (hub->clk)
 		clk_disable_unprepare(hub->clk);
+=======
+	clk_disable_unprepare(hub->clk);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_PM_SLEEP
 static int usb3503_i2c_suspend(struct device *dev)
 {
@@ -364,10 +467,17 @@ static int usb3503_i2c_suspend(struct device *dev)
 
 	if (hub->clk)
 		clk_disable_unprepare(hub->clk);
+=======
+static int __maybe_unused usb3503_suspend(struct usb3503 *hub)
+{
+	usb3503_switch_mode(hub, USB3503_MODE_STANDBY);
+	clk_disable_unprepare(hub->clk);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static int usb3503_i2c_resume(struct device *dev)
 {
 	struct i2c_client *client = to_i2c_client(dev);
@@ -376,15 +486,53 @@ static int usb3503_i2c_resume(struct device *dev)
 	if (hub->clk)
 		clk_prepare_enable(hub->clk);
 
+=======
+static int __maybe_unused usb3503_resume(struct usb3503 *hub)
+{
+	clk_prepare_enable(hub->clk);
+>>>>>>> upstream/android-13
 	usb3503_switch_mode(hub, hub->mode);
 
 	return 0;
 }
+<<<<<<< HEAD
 #endif
+=======
+
+static int __maybe_unused usb3503_i2c_suspend(struct device *dev)
+{
+	struct i2c_client *client = to_i2c_client(dev);
+
+	return usb3503_suspend(i2c_get_clientdata(client));
+}
+
+static int __maybe_unused usb3503_i2c_resume(struct device *dev)
+{
+	struct i2c_client *client = to_i2c_client(dev);
+
+	return usb3503_resume(i2c_get_clientdata(client));
+}
+
+static int __maybe_unused usb3503_platform_suspend(struct device *dev)
+{
+	return usb3503_suspend(dev_get_drvdata(dev));
+}
+
+static int __maybe_unused usb3503_platform_resume(struct device *dev)
+{
+	return usb3503_resume(dev_get_drvdata(dev));
+}
+>>>>>>> upstream/android-13
 
 static SIMPLE_DEV_PM_OPS(usb3503_i2c_pm_ops, usb3503_i2c_suspend,
 		usb3503_i2c_resume);
 
+<<<<<<< HEAD
+=======
+static SIMPLE_DEV_PM_OPS(usb3503_platform_pm_ops, usb3503_platform_suspend,
+		usb3503_platform_resume);
+
+>>>>>>> upstream/android-13
 static const struct i2c_device_id usb3503_id[] = {
 	{ USB3503_I2C_NAME, 0 },
 	{ }
@@ -403,7 +551,11 @@ MODULE_DEVICE_TABLE(of, usb3503_of_match);
 static struct i2c_driver usb3503_i2c_driver = {
 	.driver = {
 		.name = USB3503_I2C_NAME,
+<<<<<<< HEAD
 		.pm = &usb3503_i2c_pm_ops,
+=======
+		.pm = pm_ptr(&usb3503_i2c_pm_ops),
+>>>>>>> upstream/android-13
 		.of_match_table = of_match_ptr(usb3503_of_match),
 	},
 	.probe		= usb3503_i2c_probe,
@@ -415,6 +567,10 @@ static struct platform_driver usb3503_platform_driver = {
 	.driver = {
 		.name = USB3503_I2C_NAME,
 		.of_match_table = of_match_ptr(usb3503_of_match),
+<<<<<<< HEAD
+=======
+		.pm = pm_ptr(&usb3503_platform_pm_ops),
+>>>>>>> upstream/android-13
 	},
 	.probe		= usb3503_platform_probe,
 	.remove		= usb3503_platform_remove,
@@ -425,6 +581,7 @@ static int __init usb3503_init(void)
 	int err;
 
 	err = i2c_add_driver(&usb3503_i2c_driver);
+<<<<<<< HEAD
 	if (err != 0)
 		pr_err("usb3503: Failed to register I2C driver: %d\n", err);
 
@@ -432,6 +589,20 @@ static int __init usb3503_init(void)
 	if (err != 0)
 		pr_err("usb3503: Failed to register platform driver: %d\n",
 		       err);
+=======
+	if (err) {
+		pr_err("usb3503: Failed to register I2C driver: %d\n", err);
+		return err;
+	}
+
+	err = platform_driver_register(&usb3503_platform_driver);
+	if (err) {
+		pr_err("usb3503: Failed to register platform driver: %d\n",
+		       err);
+		i2c_del_driver(&usb3503_i2c_driver);
+		return err;
+	}
+>>>>>>> upstream/android-13
 
 	return 0;
 }

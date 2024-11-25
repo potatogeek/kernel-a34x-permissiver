@@ -513,7 +513,11 @@ static int e1000_set_eeprom(struct net_device *netdev,
 	memcpy(ptr, bytes, eeprom->len);
 
 	for (i = 0; i < last_word - first_word + 1; i++)
+<<<<<<< HEAD
 		eeprom_buff[i] = cpu_to_le16(eeprom_buff[i]);
+=======
+		cpu_to_le16s(&eeprom_buff[i]);
+>>>>>>> upstream/android-13
 
 	ret_val = e1000_write_eeprom(hw, first_word,
 				     last_word - first_word + 1, eeprom_buff);
@@ -533,8 +537,11 @@ static void e1000_get_drvinfo(struct net_device *netdev,
 
 	strlcpy(drvinfo->driver,  e1000_driver_name,
 		sizeof(drvinfo->driver));
+<<<<<<< HEAD
 	strlcpy(drvinfo->version, e1000_driver_version,
 		sizeof(drvinfo->version));
+=======
+>>>>>>> upstream/android-13
 
 	strlcpy(drvinfo->bus_info, pci_name(adapter->pdev),
 		sizeof(drvinfo->bus_info));
@@ -936,8 +943,12 @@ static void e1000_free_desc_rings(struct e1000_adapter *adapter)
 						 txdr->buffer_info[i].dma,
 						 txdr->buffer_info[i].length,
 						 DMA_TO_DEVICE);
+<<<<<<< HEAD
 			if (txdr->buffer_info[i].skb)
 				dev_kfree_skb(txdr->buffer_info[i].skb);
+=======
+			dev_kfree_skb(txdr->buffer_info[i].skb);
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -992,8 +1003,13 @@ static int e1000_setup_desc_rings(struct e1000_adapter *adapter)
 
 	txdr->size = txdr->count * sizeof(struct e1000_tx_desc);
 	txdr->size = ALIGN(txdr->size, 4096);
+<<<<<<< HEAD
 	txdr->desc = dma_zalloc_coherent(&pdev->dev, txdr->size, &txdr->dma,
 					 GFP_KERNEL);
+=======
+	txdr->desc = dma_alloc_coherent(&pdev->dev, txdr->size, &txdr->dma,
+					GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!txdr->desc) {
 		ret_val = 2;
 		goto err_nomem;
@@ -1050,8 +1066,13 @@ static int e1000_setup_desc_rings(struct e1000_adapter *adapter)
 	}
 
 	rxdr->size = rxdr->count * sizeof(struct e1000_rx_desc);
+<<<<<<< HEAD
 	rxdr->desc = dma_zalloc_coherent(&pdev->dev, rxdr->size, &rxdr->dma,
 					 GFP_KERNEL);
+=======
+	rxdr->desc = dma_alloc_coherent(&pdev->dev, rxdr->size, &rxdr->dma,
+					GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!rxdr->desc) {
 		ret_val = 6;
 		goto err_nomem;
@@ -1359,8 +1380,13 @@ static void e1000_create_lbtest_frame(struct sk_buff *skb,
 	memset(skb->data, 0xFF, frame_size);
 	frame_size &= ~1;
 	memset(&skb->data[frame_size / 2], 0xAA, frame_size / 2 - 1);
+<<<<<<< HEAD
 	memset(&skb->data[frame_size / 2 + 10], 0xBE, 1);
 	memset(&skb->data[frame_size / 2 + 12], 0xAF, 1);
+=======
+	skb->data[frame_size / 2 + 10] = 0xBE;
+	skb->data[frame_size / 2 + 12] = 0xAF;
+>>>>>>> upstream/android-13
 }
 
 static int e1000_check_lbtest_frame(const unsigned char *data,
@@ -1742,7 +1768,13 @@ static int e1000_set_phys_id(struct net_device *netdev,
 }
 
 static int e1000_get_coalesce(struct net_device *netdev,
+<<<<<<< HEAD
 			      struct ethtool_coalesce *ec)
+=======
+			      struct ethtool_coalesce *ec,
+			      struct kernel_ethtool_coalesce *kernel_coal,
+			      struct netlink_ext_ack *extack)
+>>>>>>> upstream/android-13
 {
 	struct e1000_adapter *adapter = netdev_priv(netdev);
 
@@ -1758,7 +1790,13 @@ static int e1000_get_coalesce(struct net_device *netdev,
 }
 
 static int e1000_set_coalesce(struct net_device *netdev,
+<<<<<<< HEAD
 			      struct ethtool_coalesce *ec)
+=======
+			      struct ethtool_coalesce *ec,
+			      struct kernel_ethtool_coalesce *kernel_coal,
+			      struct netlink_ext_ack *extack)
+>>>>>>> upstream/android-13
 {
 	struct e1000_adapter *adapter = netdev_priv(netdev);
 	struct e1000_hw *hw = &adapter->hw;
@@ -1853,6 +1891,10 @@ static void e1000_get_strings(struct net_device *netdev, u32 stringset,
 }
 
 static const struct ethtool_ops e1000_ethtool_ops = {
+<<<<<<< HEAD
+=======
+	.supported_coalesce_params = ETHTOOL_COALESCE_RX_USECS,
+>>>>>>> upstream/android-13
 	.get_drvinfo		= e1000_get_drvinfo,
 	.get_regs_len		= e1000_get_regs_len,
 	.get_regs		= e1000_get_regs,

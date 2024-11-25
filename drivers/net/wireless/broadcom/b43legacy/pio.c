@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
 
   Broadcom B43legacy wireless driver
@@ -6,6 +10,7 @@
 
   Copyright (c) 2005 Michael Buesch <m@bues.ch>
 
+<<<<<<< HEAD
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation; either version 2 of the License, or
@@ -20,6 +25,8 @@
   along with this program; see the file COPYING.  If not, write to
   the Free Software Foundation, Inc., 51 Franklin Steet, Fifth Floor,
   Boston, MA 02110-1301, USA.
+=======
+>>>>>>> upstream/android-13
 
 */
 
@@ -277,9 +284,15 @@ static int pio_tx_packet(struct b43legacy_pio_txpacket *packet)
 	return 0;
 }
 
+<<<<<<< HEAD
 static void tx_tasklet(unsigned long d)
 {
 	struct b43legacy_pioqueue *queue = (struct b43legacy_pioqueue *)d;
+=======
+static void tx_tasklet(struct tasklet_struct *t)
+{
+	struct b43legacy_pioqueue *queue = from_tasklet(queue, t, txtask);
+>>>>>>> upstream/android-13
 	struct b43legacy_wldev *dev = queue->dev;
 	unsigned long flags;
 	struct b43legacy_pio_txpacket *packet, *tmp_packet;
@@ -344,8 +357,12 @@ struct b43legacy_pioqueue *b43legacy_setup_pioqueue(struct b43legacy_wldev *dev,
 	INIT_LIST_HEAD(&queue->txfree);
 	INIT_LIST_HEAD(&queue->txqueue);
 	INIT_LIST_HEAD(&queue->txrunning);
+<<<<<<< HEAD
 	tasklet_init(&queue->txtask, tx_tasklet,
 		     (unsigned long)queue);
+=======
+	tasklet_setup(&queue->txtask, tx_tasklet);
+>>>>>>> upstream/android-13
 
 	value = b43legacy_read32(dev, B43legacy_MMIO_MACCTL);
 	value &= ~B43legacy_MACCTL_BE;

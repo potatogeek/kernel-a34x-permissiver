@@ -57,6 +57,10 @@
 #define __LINUX_VIDEODEV2_H
 
 #include <linux/time.h>     /* need struct timeval */
+<<<<<<< HEAD
+=======
+#include <linux/kernel.h>
+>>>>>>> upstream/android-13
 #include <uapi/linux/videodev2.h>
 
 #endif /* __LINUX_VIDEODEV2_H */

@@ -15,6 +15,14 @@ u32 prandom_u32(void)
 	abort();
 }
 
+<<<<<<< HEAD
+=======
+void print_irqtrace_events(struct task_struct *curr)
+{
+	abort();
+}
+
+>>>>>>> upstream/android-13
 static struct new_utsname *init_utsname(void)
 {
 	static struct new_utsname n = (struct new_utsname) {

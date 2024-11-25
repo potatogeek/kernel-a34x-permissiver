@@ -91,10 +91,45 @@ static int ti_clk_mux_set_parent(struct clk_hw *hw, u8 index)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+/**
+ * clk_mux_save_context - Save the parent selcted in the mux
+ * @hw: pointer  struct clk_hw
+ *
+ * Save the parent mux value.
+ */
+static int clk_mux_save_context(struct clk_hw *hw)
+{
+	struct clk_omap_mux *mux = to_clk_omap_mux(hw);
+
+	mux->saved_parent = ti_clk_mux_get_parent(hw);
+	return 0;
+}
+
+/**
+ * clk_mux_restore_context - Restore the parent in the mux
+ * @hw: pointer  struct clk_hw
+ *
+ * Restore the saved parent mux value.
+ */
+static void clk_mux_restore_context(struct clk_hw *hw)
+{
+	struct clk_omap_mux *mux = to_clk_omap_mux(hw);
+
+	ti_clk_mux_set_parent(hw, mux->saved_parent);
+}
+
+>>>>>>> upstream/android-13
 const struct clk_ops ti_clk_mux_ops = {
 	.get_parent = ti_clk_mux_get_parent,
 	.set_parent = ti_clk_mux_set_parent,
 	.determine_rate = __clk_mux_determine_rate,
+<<<<<<< HEAD
+=======
+	.save_context = clk_mux_save_context,
+	.restore_context = clk_mux_restore_context,
+>>>>>>> upstream/android-13
 };
 
 static struct clk *_register_mux(struct device *dev, const char *name,
@@ -105,7 +140,11 @@ static struct clk *_register_mux(struct device *dev, const char *name,
 {
 	struct clk_omap_mux *mux;
 	struct clk *clk;
+<<<<<<< HEAD
 	struct clk_init_data init = {};
+=======
+	struct clk_init_data init;
+>>>>>>> upstream/android-13
 
 	/* allocate the mux */
 	mux = kzalloc(sizeof(*mux), GFP_KERNEL);
@@ -114,7 +153,11 @@ static struct clk *_register_mux(struct device *dev, const char *name,
 
 	init.name = name;
 	init.ops = &ti_clk_mux_ops;
+<<<<<<< HEAD
 	init.flags = flags | CLK_IS_BASIC;
+=======
+	init.flags = flags;
+>>>>>>> upstream/android-13
 	init.parent_names = parent_names;
 	init.num_parents = num_parents;
 
@@ -135,6 +178,7 @@ static struct clk *_register_mux(struct device *dev, const char *name,
 	return clk;
 }
 
+<<<<<<< HEAD
 struct clk *ti_clk_register_mux(struct ti_clk *setup)
 {
 	struct ti_clk_mux *mux;
@@ -166,6 +210,8 @@ struct clk *ti_clk_register_mux(struct ti_clk *setup)
 			     mux_flags, NULL);
 }
 
+=======
+>>>>>>> upstream/android-13
 /**
  * of_mux_clk_setup - Setup function for simple mux rate clock
  * @node: DT node for the clock
@@ -186,7 +232,11 @@ static void of_mux_clk_setup(struct device_node *node)
 
 	num_parents = of_clk_get_parent_count(node);
 	if (num_parents < 2) {
+<<<<<<< HEAD
 		pr_err("mux-clock %s must have parents\n", node->name);
+=======
+		pr_err("mux-clock %pOFn must have parents\n", node);
+>>>>>>> upstream/android-13
 		return;
 	}
 	parent_names = kzalloc((sizeof(char *) * num_parents), GFP_KERNEL);
@@ -278,7 +328,11 @@ static void __init of_ti_composite_mux_clk_setup(struct device_node *node)
 	num_parents = of_clk_get_parent_count(node);
 
 	if (num_parents < 2) {
+<<<<<<< HEAD
 		pr_err("%s must have parents\n", node->name);
+=======
+		pr_err("%pOFn must have parents\n", node);
+>>>>>>> upstream/android-13
 		goto cleanup;
 	}
 

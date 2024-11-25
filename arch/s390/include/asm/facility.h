@@ -13,7 +13,14 @@
 #include <linux/preempt.h>
 #include <asm/lowcore.h>
 
+<<<<<<< HEAD
 #define MAX_FACILITY_BIT (sizeof(((struct lowcore *)0)->stfle_fac_list) * 8)
+=======
+#define MAX_FACILITY_BIT (sizeof(stfle_fac_list) * 8)
+
+extern u64 stfle_fac_list[16];
+extern u64 alt_stfle_fac_list[16];
+>>>>>>> upstream/android-13
 
 static inline void __set_facility(unsigned long nr, void *facilities)
 {
@@ -44,7 +51,11 @@ static inline int __test_facility(unsigned long nr, void *facilities)
 }
 
 /*
+<<<<<<< HEAD
  * The test_facility function uses the bit odering where the MSB is bit 0.
+=======
+ * The test_facility function uses the bit ordering where the MSB is bit 0.
+>>>>>>> upstream/android-13
  * That makes it easier to query facility bits with the bit number as
  * documented in the Principles of Operation.
  */
@@ -56,11 +67,16 @@ static inline int test_facility(unsigned long nr)
 		if (__test_facility(nr, &facilities_als))
 			return 1;
 	}
+<<<<<<< HEAD
 	return __test_facility(nr, &S390_lowcore.stfle_fac_list);
+=======
+	return __test_facility(nr, &stfle_fac_list);
+>>>>>>> upstream/android-13
 }
 
 static inline unsigned long __stfle_asm(u64 *stfle_fac_list, int size)
 {
+<<<<<<< HEAD
 	register unsigned long reg0 asm("0") = size - 1;
 
 	asm volatile(
@@ -68,6 +84,17 @@ static inline unsigned long __stfle_asm(u64 *stfle_fac_list, int size)
 		: "+d" (reg0)
 		: "a" (stfle_fac_list)
 		: "memory", "cc");
+=======
+	unsigned long reg0 = size - 1;
+
+	asm volatile(
+		"	lgr	0,%[reg0]\n"
+		"	.insn	s,0xb2b00000,%[list]\n" /* stfle */
+		"	lgr	%[reg0],0\n"
+		: [reg0] "+&d" (reg0), [list] "+Q" (*stfle_fac_list)
+		:
+		: "memory", "cc", "0");
+>>>>>>> upstream/android-13
 	return reg0;
 }
 
@@ -76,6 +103,7 @@ static inline unsigned long __stfle_asm(u64 *stfle_fac_list, int size)
  * @stfle_fac_list: array where facility list can be stored
  * @size: size of passed in array in double words
  */
+<<<<<<< HEAD
 static inline void stfle(u64 *stfle_fac_list, int size)
 {
 	unsigned long nr;
@@ -87,11 +115,34 @@ static inline void stfle(u64 *stfle_fac_list, int size)
 	nr = 4; /* bytes stored by stfl */
 	memcpy(stfle_fac_list, &S390_lowcore.stfl_fac_list, 4);
 	if (S390_lowcore.stfl_fac_list & 0x01000000) {
+=======
+static inline void __stfle(u64 *stfle_fac_list, int size)
+{
+	unsigned long nr;
+	u32 stfl_fac_list;
+
+	asm volatile(
+		"	stfl	0(0)\n"
+		: "=m" (S390_lowcore.stfl_fac_list));
+	stfl_fac_list = S390_lowcore.stfl_fac_list;
+	memcpy(stfle_fac_list, &stfl_fac_list, 4);
+	nr = 4; /* bytes stored by stfl */
+	if (stfl_fac_list & 0x01000000) {
+>>>>>>> upstream/android-13
 		/* More facility bits available with stfle */
 		nr = __stfle_asm(stfle_fac_list, size);
 		nr = min_t(unsigned long, (nr + 1) * 8, size * 8);
 	}
 	memset((char *) stfle_fac_list + nr, 0, size * 8 - nr);
+<<<<<<< HEAD
+=======
+}
+
+static inline void stfle(u64 *stfle_fac_list, int size)
+{
+	preempt_disable();
+	__stfle(stfle_fac_list, size);
+>>>>>>> upstream/android-13
 	preempt_enable();
 }
 

@@ -10,12 +10,17 @@
 #include <asm/ppc-opcode.h>
 #include <asm/firmware.h>
 #include <asm/feature-fixups.h>
+<<<<<<< HEAD
+=======
+#include <asm/extable.h>
+>>>>>>> upstream/android-13
 
 #ifdef __ASSEMBLY__
 
 #define SZL			(BITS_PER_LONG/8)
 
 /*
+<<<<<<< HEAD
  * Stuff for accurate CPU time accounting.
  * These macros handle transitions between user and system state
  * in exception entry and exit and accumulate time to the
@@ -70,6 +75,8 @@ END_FW_FTR_SECTION_IFSET(FW_FEATURE_SPLPAR)
 #endif /* CONFIG_VIRT_CPU_ACCOUNTING_NATIVE */
 
 /*
+=======
+>>>>>>> upstream/android-13
  * Macros for storing registers into and loading registers from
  * exception frames.
  */
@@ -180,7 +187,16 @@ END_FW_FTR_SECTION_IFSET(FW_FEATURE_SPLPAR)
 #define VCPU_GPR(n)	__VCPU_GPR(__REG_##n)
 
 #ifdef __KERNEL__
+<<<<<<< HEAD
 #ifdef CONFIG_PPC64
+=======
+
+/*
+ * We use __powerpc64__ here because we want the compat VDSO to use the 32-bit
+ * version below in the else case of the ifdef.
+ */
+#ifdef __powerpc64__
+>>>>>>> upstream/android-13
 
 #define STACKFRAMESIZE 256
 #define __STK_REG(i)   (112 + ((i)-14)*8)
@@ -251,6 +267,11 @@ n:
 
 #define _GLOBAL_TOC(name) _GLOBAL(name)
 
+<<<<<<< HEAD
+=======
+#define DOTSYM(a)	a
+
+>>>>>>> upstream/android-13
 #endif
 
 /*
@@ -306,23 +327,71 @@ n:
 
 /* Be careful, this will clobber the lr register. */
 #define LOAD_REG_ADDR_PIC(reg, name)		\
+<<<<<<< HEAD
 	bl	0f;				\
+=======
+	bcl	20,31,$+4;			\
+>>>>>>> upstream/android-13
 0:	mflr	reg;				\
 	addis	reg,reg,(name - 0b)@ha;		\
 	addi	reg,reg,(name - 0b)@l;
 
+<<<<<<< HEAD
 #ifdef __powerpc64__
 #ifdef HAVE_AS_ATHIGH
+=======
+#if defined(__powerpc64__) && defined(HAVE_AS_ATHIGH)
+>>>>>>> upstream/android-13
 #define __AS_ATHIGH high
 #else
 #define __AS_ATHIGH h
 #endif
+<<<<<<< HEAD
 #define LOAD_REG_IMMEDIATE(reg,expr)		\
 	lis     reg,(expr)@highest;		\
 	ori     reg,reg,(expr)@higher;	\
 	rldicr  reg,reg,32,31;		\
 	oris    reg,reg,(expr)@__AS_ATHIGH;	\
 	ori     reg,reg,(expr)@l;
+=======
+
+.macro __LOAD_REG_IMMEDIATE_32 r, x
+	.if (\x) >= 0x8000 || (\x) < -0x8000
+		lis \r, (\x)@__AS_ATHIGH
+		.if (\x) & 0xffff != 0
+			ori \r, \r, (\x)@l
+		.endif
+	.else
+		li \r, (\x)@l
+	.endif
+.endm
+
+.macro __LOAD_REG_IMMEDIATE r, x
+	.if (\x) >= 0x80000000 || (\x) < -0x80000000
+		__LOAD_REG_IMMEDIATE_32 \r, (\x) >> 32
+		sldi	\r, \r, 32
+		.if (\x) & 0xffff0000 != 0
+			oris \r, \r, (\x)@__AS_ATHIGH
+		.endif
+		.if (\x) & 0xffff != 0
+			ori \r, \r, (\x)@l
+		.endif
+	.else
+		__LOAD_REG_IMMEDIATE_32 \r, \x
+	.endif
+.endm
+
+#ifdef __powerpc64__
+
+#define LOAD_REG_IMMEDIATE(reg, expr) __LOAD_REG_IMMEDIATE reg, expr
+
+#define LOAD_REG_IMMEDIATE_SYM(reg, tmp, expr)	\
+	lis	tmp, (expr)@highest;		\
+	lis	reg, (expr)@__AS_ATHIGH;	\
+	ori	tmp, tmp, (expr)@higher;	\
+	ori	reg, reg, (expr)@l;		\
+	rldimi	reg, tmp, 32, 0
+>>>>>>> upstream/android-13
 
 #define LOAD_REG_ADDR(reg,name)			\
 	ld	reg,name@got(r2)
@@ -335,11 +404,21 @@ n:
 
 #else /* 32-bit */
 
+<<<<<<< HEAD
 #define LOAD_REG_IMMEDIATE(reg,expr)		\
 	lis	reg,(expr)@ha;		\
 	addi	reg,reg,(expr)@l;
 
 #define LOAD_REG_ADDR(reg,name)		LOAD_REG_IMMEDIATE(reg, name)
+=======
+#define LOAD_REG_IMMEDIATE(reg, expr) __LOAD_REG_IMMEDIATE_32 reg, expr
+
+#define LOAD_REG_IMMEDIATE_SYM(reg,expr)		\
+	lis	reg,(expr)@ha;		\
+	addi	reg,reg,(expr)@l;
+
+#define LOAD_REG_ADDR(reg,name)		LOAD_REG_IMMEDIATE_SYM(reg, name)
+>>>>>>> upstream/android-13
 
 #define LOAD_REG_ADDRBASE(reg, name)	lis	reg,name@ha
 #define ADDROFF(name)			name@l
@@ -350,6 +429,7 @@ n:
 #endif
 
 /* various errata or part fixups */
+<<<<<<< HEAD
 #ifdef CONFIG_PPC601_SYNC_FIX
 #define SYNC				\
 BEGIN_FTR_SECTION			\
@@ -370,6 +450,8 @@ END_FTR_SECTION_IFSET(CPU_FTR_601)
 #define ISYNC_601
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #if defined(CONFIG_PPC_CELL) || defined(CONFIG_PPC_FSL_BOOK3E)
 #define MFTB(dest)			\
 90:	mfspr dest, SPRN_TBRL;		\
@@ -391,6 +473,7 @@ END_FTR_SECTION_NESTED(CPU_FTR_CELL_TB_BUG, CPU_FTR_CELL_TB_BUG, 96)
 
 #ifndef CONFIG_SMP
 #define TLBSYNC
+<<<<<<< HEAD
 #else /* CONFIG_SMP */
 /* tlbsync is not implemented on 601 */
 #define TLBSYNC				\
@@ -398,6 +481,10 @@ BEGIN_FTR_SECTION			\
 	tlbsync;			\
 	sync;				\
 END_FTR_SECTION_IFCLR(CPU_FTR_601)
+=======
+#else
+#define TLBSYNC		tlbsync; sync
+>>>>>>> upstream/android-13
 #endif
 
 #ifdef CONFIG_PPC64
@@ -480,6 +567,7 @@ END_FTR_SECTION_IFCLR(CPU_FTR_601)
 	ori	rd,rd,((KERNELBASE>>48)&0xFFFF);\
 	rotldi	rd,rd,48
 #else
+<<<<<<< HEAD
 /*
  * On APUS (Amiga PowerPC cpu upgrade board), we don't know the
  * physical base address of RAM at compile time.
@@ -512,6 +600,19 @@ END_FTR_SECTION_IFCLR(CPU_FTR_601)
 #else
 #define RFI		rfi; b .	/* Prevent prefetch past rfi */
 #endif
+=======
+#define toreal(rd)	tophys(rd,rd)
+#define fromreal(rd)	tovirt(rd,rd)
+
+#define tophys(rd, rs)	addis	rd, rs, -PAGE_OFFSET@h
+#define tovirt(rd, rs)	addis	rd, rs, PAGE_OFFSET@h
+#endif
+
+#ifdef CONFIG_PPC_BOOK3S_64
+#define MTMSRD(r)	mtmsrd	r
+#define MTMSR_EERI(reg)	mtmsrd	reg,1
+#else
+>>>>>>> upstream/android-13
 #define MTMSRD(r)	mtmsr	r
 #define MTMSR_EERI(reg)	mtmsr	reg
 #endif
@@ -752,6 +853,11 @@ END_FTR_SECTION_IFCLR(CPU_FTR_601)
 #define N_SLINE	68
 #define N_SO	100
 
+<<<<<<< HEAD
+=======
+#define RFSCV	.long 0x4c0000a4
+
+>>>>>>> upstream/android-13
 /*
  * Create an endian fixup trampoline
  *
@@ -771,7 +877,11 @@ END_FTR_SECTION_IFCLR(CPU_FTR_601)
 #define FIXUP_ENDIAN
 #else
 /*
+<<<<<<< HEAD
  * This version may be used in in HV or non-HV context.
+=======
+ * This version may be used in HV or non-HV context.
+>>>>>>> upstream/android-13
  * MSR[EE] must be disabled.
  */
 #define FIXUP_ENDIAN						   \
@@ -811,6 +921,7 @@ END_FTR_SECTION_IFCLR(CPU_FTR_601)
 
 #endif /*  __ASSEMBLY__ */
 
+<<<<<<< HEAD
 /*
  * Helper macro for exception table entries
  */
@@ -819,6 +930,21 @@ END_FTR_SECTION_IFCLR(CPU_FTR_601)
 	stringify_in_c(.balign 4;)		\
 	stringify_in_c(.long (_fault) - . ;)	\
 	stringify_in_c(.long (_target) - . ;)	\
+=======
+#define SOFT_MASK_TABLE(_start, _end)		\
+	stringify_in_c(.section __soft_mask_table,"a";)\
+	stringify_in_c(.balign 8;)		\
+	stringify_in_c(.llong (_start);)	\
+	stringify_in_c(.llong (_end);)		\
+	stringify_in_c(.previous)
+
+#define RESTART_TABLE(_start, _end, _target)	\
+	stringify_in_c(.section __restart_table,"a";)\
+	stringify_in_c(.balign 8;)		\
+	stringify_in_c(.llong (_start);)	\
+	stringify_in_c(.llong (_end);)		\
+	stringify_in_c(.llong (_target);)	\
+>>>>>>> upstream/android-13
 	stringify_in_c(.previous)
 
 #ifdef CONFIG_PPC_FSL_BOOK3E

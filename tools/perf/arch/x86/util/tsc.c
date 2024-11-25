@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0
+<<<<<<< HEAD
 #include <stdbool.h>
 #include <errno.h>
 
@@ -38,6 +39,11 @@ int perf_read_tsc_conversion(const struct perf_event_mmap_page *pc,
 
 	return 0;
 }
+=======
+#include <linux/types.h>
+
+#include "../../../util/tsc.h"
+>>>>>>> upstream/android-13
 
 u64 rdtsc(void)
 {
@@ -47,6 +53,7 @@ u64 rdtsc(void)
 
 	return low | ((u64)high) << 32;
 }
+<<<<<<< HEAD
 
 int perf_event__synth_time_conv(const struct perf_event_mmap_page *pc,
 				struct perf_tool *tool,
@@ -80,3 +87,5 @@ int perf_event__synth_time_conv(const struct perf_event_mmap_page *pc,
 
 	return process(tool, &event, NULL, machine);
 }
+=======
+>>>>>>> upstream/android-13

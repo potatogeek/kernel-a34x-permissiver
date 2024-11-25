@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * arch/arm/mach-ep93xx/clock.c
  * Clock control for Cirrus EP93xx chips.
  *
  * Copyright (C) 2006 Lennert Buytenhek <buytenh@wantstofly.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or (at
  * your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) "ep93xx " KBUILD_MODNAME ": " fmt
@@ -20,8 +27,14 @@
 #include <linux/io.h>
 #include <linux/spinlock.h>
 #include <linux/clkdev.h>
+<<<<<<< HEAD
 
 #include <mach/hardware.h>
+=======
+#include <linux/soc/cirrus/ep93xx.h>
+
+#include "hardware.h"
+>>>>>>> upstream/android-13
 
 #include <asm/div64.h>
 

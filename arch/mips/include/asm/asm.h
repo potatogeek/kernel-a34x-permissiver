@@ -20,6 +20,7 @@
 #include <asm/sgidefs.h>
 #include <asm/asm-eva.h>
 
+<<<<<<< HEAD
 #ifndef CAT
 #ifdef __STDC__
 #define __CAT(str1, str2) str1##str2
@@ -44,12 +45,32 @@
 #define CPRESTORE(register)
 #define CPADD(register)
 #define CPLOAD(register)
+=======
+#ifndef __VDSO__
+/*
+ * Emit CFI data in .debug_frame sections, not .eh_frame sections.
+ * We don't do DWARF unwinding at runtime, so only the offline DWARF
+ * information is useful to anyone. Note we should change this if we
+ * ever decide to enable DWARF unwinding at runtime.
+ */
+#define CFI_SECTIONS	.cfi_sections .debug_frame
+#else
+ /*
+  * For the vDSO, emit both runtime unwind information and debug
+  * symbols for the .dbg file.
+  */
+#define CFI_SECTIONS
+>>>>>>> upstream/android-13
 #endif
 
 /*
  * LEAF - declare leaf routine
  */
 #define LEAF(symbol)					\
+<<<<<<< HEAD
+=======
+		CFI_SECTIONS;				\
+>>>>>>> upstream/android-13
 		.globl	symbol;				\
 		.align	2;				\
 		.type	symbol, @function;		\
@@ -62,6 +83,10 @@ symbol:		.frame	sp, 0, ra;			\
  * NESTED - declare nested routine entry point
  */
 #define NESTED(symbol, framesize, rpc)			\
+<<<<<<< HEAD
+=======
+		CFI_SECTIONS;				\
+>>>>>>> upstream/android-13
 		.globl	symbol;				\
 		.align	2;				\
 		.type	symbol, @function;		\
@@ -100,10 +125,22 @@ symbol:		.insn
 		.globl	symbol;				\
 symbol		=	value
 
+<<<<<<< HEAD
 #define PANIC(msg)					\
 		.set	push;				\
 		.set	reorder;			\
 		PTR_LA	a0, 8f;				 \
+=======
+#define TEXT(msg)					\
+		.pushsection .data;			\
+8:		.asciiz msg;				\
+		.popsection;
+
+#define ASM_PANIC(msg)					\
+		.set	push;				\
+		.set	reorder;			\
+		PTR_LA	a0, 8f;				\
+>>>>>>> upstream/android-13
 		jal	panic;				\
 9:		b	9b;				\
 		.set	pop;				\
@@ -113,6 +150,7 @@ symbol		=	value
  * Print formatted string
  */
 #ifdef CONFIG_PRINTK
+<<<<<<< HEAD
 #define PRINT(string)					\
 		.set	push;				\
 		.set	reorder;			\
@@ -219,6 +257,19 @@ symbol		=	value
 		movz	rd, rs, rt
 #endif /* MIPS IV, MIPS V, MIPS32 or MIPS64 */
 
+=======
+#define ASM_PRINT(string)				\
+		.set	push;				\
+		.set	reorder;			\
+		PTR_LA	a0, 8f;				\
+		jal	_printk;			\
+		.set	pop;				\
+		TEXT(string)
+#else
+#define ASM_PRINT(string)
+#endif
+
+>>>>>>> upstream/android-13
 /*
  * Stack alignment
  */
@@ -318,7 +369,13 @@ symbol		=	value
 #define LONG_SRA	sra
 #define LONG_SRAV	srav
 
+<<<<<<< HEAD
 #define LONG		.word
+=======
+#ifdef __ASSEMBLY__
+#define LONG		.word
+#endif
+>>>>>>> upstream/android-13
 #define LONGSIZE	4
 #define LONGMASK	3
 #define LONGLOG		2
@@ -341,7 +398,13 @@ symbol		=	value
 #define LONG_SRA	dsra
 #define LONG_SRAV	dsrav
 
+<<<<<<< HEAD
 #define LONG		.dword
+=======
+#ifdef __ASSEMBLY__
+#define LONG		.dword
+#endif
+>>>>>>> upstream/android-13
 #define LONGSIZE	8
 #define LONGMASK	7
 #define LONGLOG		3
@@ -370,7 +433,11 @@ symbol		=	value
 
 #define PTR_SCALESHIFT	2
 
+<<<<<<< HEAD
 #define PTR		.word
+=======
+#define PTR_WD		.word
+>>>>>>> upstream/android-13
 #define PTRSIZE		4
 #define PTRLOG		2
 #endif
@@ -395,7 +462,11 @@ symbol		=	value
 
 #define PTR_SCALESHIFT	3
 
+<<<<<<< HEAD
 #define PTR		.dword
+=======
+#define PTR_WD		.dword
+>>>>>>> upstream/android-13
 #define PTRSIZE		8
 #define PTRLOG		3
 #endif

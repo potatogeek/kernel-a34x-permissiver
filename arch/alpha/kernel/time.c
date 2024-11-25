@@ -242,7 +242,11 @@ common_init_rtc(void)
 	outb(0x31, 0x42);
 	outb(0x13, 0x42);
 
+<<<<<<< HEAD
 	init_rtc_irq();
+=======
+	init_rtc_irq(NULL);
+>>>>>>> upstream/android-13
 }
 
 
@@ -396,9 +400,13 @@ time_init(void)
 	if (alpha_using_qemu) {
 		clocksource_register_hz(&qemu_cs, NSEC_PER_SEC);
 		init_qemu_clockevent();
+<<<<<<< HEAD
 
 		timer_irqaction.handler = qemu_timer_interrupt;
 		init_rtc_irq();
+=======
+		init_rtc_irq(qemu_timer_interrupt);
+>>>>>>> upstream/android-13
 		return;
 	}
 

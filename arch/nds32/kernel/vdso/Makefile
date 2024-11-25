@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #
 # Building a vDSO image for AArch64.
 #
@@ -11,24 +15,37 @@ obj-vdso := note.o datapage.o sigreturn.o gettimeofday.o
 targets := $(obj-vdso) vdso.so vdso.so.dbg
 obj-vdso := $(addprefix $(obj)/, $(obj-vdso))
 
+<<<<<<< HEAD
 ccflags-y := -shared -fno-common -fno-builtin
 ccflags-y += -nostdlib -Wl,-soname=linux-vdso.so.1 \
 		$(call cc-ldoption, -Wl$(comma)--hash-style=sysv)
 ccflags-y += -fPIC -Wl,-shared -g
+=======
+ccflags-y := -shared -fno-common -fno-builtin -nostdlib -fPIC -Wl,-shared -g \
+	-Wl,-soname=linux-vdso.so.1 -Wl,--hash-style=sysv
+>>>>>>> upstream/android-13
 
 # Disable gcov profiling for VDSO code
 GCOV_PROFILE := n
 
 
 obj-y += vdso.o
+<<<<<<< HEAD
 extra-y += vdso.lds
+=======
+targets += vdso.lds
+>>>>>>> upstream/android-13
 CPPFLAGS_vdso.lds += -P -C -U$(ARCH)
 
 # Force dependency
 $(obj)/vdso.o : $(obj)/vdso.so
 
 # Link rule for the .so file, .lds has to be first
+<<<<<<< HEAD
 $(obj)/vdso.so.dbg: $(src)/vdso.lds $(obj-vdso)
+=======
+$(obj)/vdso.so.dbg: $(obj)/vdso.lds $(obj-vdso) FORCE
+>>>>>>> upstream/android-13
 	$(call if_changed,vdsold)
 
 
@@ -40,9 +57,13 @@ $(obj)/%.so: $(obj)/%.so.dbg FORCE
 # Generate VDSO offsets using helper script
 gen-vdsosym := $(srctree)/$(src)/gen_vdso_offsets.sh
 quiet_cmd_vdsosym = VDSOSYM $@
+<<<<<<< HEAD
 define cmd_vdsosym
 	$(NM) $< | $(gen-vdsosym) | LC_ALL=C sort > $@
 endef
+=======
+      cmd_vdsosym = $(NM) $< | $(gen-vdsosym) | LC_ALL=C sort > $@
+>>>>>>> upstream/android-13
 
 include/generated/vdso-offsets.h: $(obj)/vdso.so.dbg FORCE
 	$(call if_changed,vdsosym)
@@ -65,7 +86,11 @@ gettimeofday.o : gettimeofday.c FORCE
 
 # Actual build commands
 quiet_cmd_vdsold = VDSOL   $@
+<<<<<<< HEAD
       cmd_vdsold = $(CC) $(c_flags) -Wl,-n -Wl,-T $^ -o $@
+=======
+      cmd_vdsold = $(CC) $(c_flags) -Wl,-n -Wl,-T $(real-prereqs) -o $@
+>>>>>>> upstream/android-13
 quiet_cmd_vdsoas = VDSOA   $@
       cmd_vdsoas = $(CC) $(a_flags) -c -o $@ $<
 quiet_cmd_vdsocc = VDSOA   $@

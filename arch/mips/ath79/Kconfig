@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: GPL-2.0
 if ATH79
 
+<<<<<<< HEAD
 menu "Atheros AR71XX/AR724X/AR913X machine selection"
 
 config ATH79_MACH_AP121
@@ -80,6 +81,14 @@ config SOC_AR71XX
 
 config SOC_AR724X
 	select HW_HAS_PCI
+=======
+config SOC_AR71XX
+	select HAVE_PCI
+	def_bool n
+
+config SOC_AR724X
+	select HAVE_PCI
+>>>>>>> upstream/android-13
 	select PCI_AR724X if PCI
 	def_bool n
 
@@ -90,12 +99,20 @@ config SOC_AR933X
 	def_bool n
 
 config SOC_AR934X
+<<<<<<< HEAD
 	select HW_HAS_PCI
+=======
+	select HAVE_PCI
+>>>>>>> upstream/android-13
 	select PCI_AR724X if PCI
 	def_bool n
 
 config SOC_QCA955X
+<<<<<<< HEAD
 	select HW_HAS_PCI
+=======
+	select HAVE_PCI
+>>>>>>> upstream/android-13
 	select PCI_AR724X if PCI
 	def_bool n
 

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 config DRM_TILCDC
 	tristate "DRM Support for TI LCDC Display Controller"
 	depends on DRM && OF && ARM
@@ -8,7 +12,10 @@ config DRM_TILCDC
 	select DRM_PANEL_BRIDGE
 	select VIDEOMODE_HELPERS
 	select BACKLIGHT_CLASS_DEVICE
+<<<<<<< HEAD
 	select BACKLIGHT_LCD_SUPPORT
+=======
+>>>>>>> upstream/android-13
 	help
 	  Choose this option if you have an TI SoC with LCDC display
 	  controller, for example AM33xx in beagle-bone, DA8xx, or

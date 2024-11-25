@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  *  linux/arch/arm/mach-omap1/ams-delta-fiq-handler.S
  *
@@ -7,23 +11,37 @@
  *  Copyright (C) 2004 Pete Trapps
  *  Copyright (C) 2006 Matt Callow
  *  Copyright (C) 2010 Janusz Krzysztofik
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2
  * as published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/linkage.h>
 #include <linux/platform_data/ams-delta-fiq.h>
+<<<<<<< HEAD
 
 #include <asm/assembler.h>
 #include <mach/board-ams-delta.h>
 
 #include "ams-delta-fiq.h"
+=======
+#include <linux/platform_data/gpio-omap.h>
+
+#include <asm/assembler.h>
+#include <asm/irq.h>
+
+#include "ams-delta-fiq.h"
+#include "board-ams-delta.h"
+>>>>>>> upstream/android-13
 #include "iomap.h"
 #include "soc.h"
 
 /*
+<<<<<<< HEAD
  * GPIO related definitions, copied from arch/arm/plat-omap/gpio.c.
  * Unfortunately, those were not placed in a separate header file.
  */
@@ -35,6 +53,12 @@
 #define OMAP1510_GPIO_INT_MASK		0x10
 #define OMAP1510_GPIO_INT_STATUS	0x14
 #define OMAP1510_GPIO_PIN_CONTROL	0x18
+=======
+ * OMAP1510 GPIO related symbol copied from arch/arm/mach-omap1/gpio15xx.c.
+ * Unfortunately, it was not placed in a separate header file.
+ */
+#define OMAP1510_GPIO_BASE		0xFFFCE000
+>>>>>>> upstream/android-13
 
 /* GPIO register bitmasks */
 #define KEYBRD_DATA_MASK		(0x1 << AMS_DELTA_GPIO_PIN_KEYBRD_DATA)

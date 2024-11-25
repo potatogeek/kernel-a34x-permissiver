@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 #ifndef _DRIVERS_VIRTIO_VIRTIO_PCI_COMMON_H
 #define _DRIVERS_VIRTIO_VIRTIO_PCI_COMMON_H
 /*
@@ -13,10 +17,13 @@
  *  Anthony Liguori  <aliguori@us.ibm.com>
  *  Rusty Russell <rusty@rustcorp.com.au>
  *  Michael S. Tsirkin <mst@redhat.com>
+<<<<<<< HEAD
  *
  * This work is licensed under the terms of the GNU GPL, version 2 or later.
  * See the COPYING file in the top-level directory.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -28,6 +35,10 @@
 #include <linux/virtio_config.h>
 #include <linux/virtio_ring.h>
 #include <linux/virtio_pci.h>
+<<<<<<< HEAD
+=======
+#include <linux/virtio_pci_modern.h>
+>>>>>>> upstream/android-13
 #include <linux/highmem.h>
 #include <linux/spinlock.h>
 
@@ -46,11 +57,16 @@ struct virtio_pci_vq_info {
 struct virtio_pci_device {
 	struct virtio_device vdev;
 	struct pci_dev *pci_dev;
+<<<<<<< HEAD
+=======
+	struct virtio_pci_modern_device mdev;
+>>>>>>> upstream/android-13
 
 	/* In legacy mode, these two point to within ->legacy. */
 	/* Where to read and clear interrupt */
 	u8 __iomem *isr;
 
+<<<<<<< HEAD
 	/* Modern only fields */
 	/* The IO mapping for the PCI config space (non-legacy mode) */
 	struct virtio_pci_common_cfg __iomem *common;
@@ -71,6 +87,8 @@ struct virtio_pci_device {
 
 	int modern_bars;
 
+=======
+>>>>>>> upstream/android-13
 	/* Legacy only field */
 	/* the IO mapping for the PCI config space */
 	void __iomem *ioaddr;

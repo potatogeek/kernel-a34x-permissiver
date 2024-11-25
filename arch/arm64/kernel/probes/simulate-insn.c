@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * arch/arm64/kernel/probes/simulate-insn.c
  *
  * Copyright (C) 2013 Linaro Limited.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -11,6 +16,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/bitops.h>
@@ -18,6 +25,10 @@
 #include <linux/kprobes.h>
 
 #include <asm/ptrace.h>
+<<<<<<< HEAD
+=======
+#include <asm/traps.h>
+>>>>>>> upstream/android-13
 
 #include "simulate-insn.h"
 

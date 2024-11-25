@@ -16,6 +16,10 @@
 #include <linux/overflow.h>
 #include <linux/types.h>
 #include <linux/workqueue.h>
+<<<<<<< HEAD
+=======
+#include <linux/percpu-refcount.h>
+>>>>>>> upstream/android-13
 
 
 /*
@@ -115,6 +119,13 @@
 /* Objects are reclaimable */
 #define SLAB_RECLAIM_ACCOUNT	((slab_flags_t __force)0x00020000U)
 #define SLAB_TEMPORARY		SLAB_RECLAIM_ACCOUNT	/* Objects are short-lived */
+<<<<<<< HEAD
+=======
+
+/* Slab deactivation flag */
+#define SLAB_DEACTIVATED	((slab_flags_t __force)0x10000000U)
+
+>>>>>>> upstream/android-13
 /*
  * ZERO_SIZE_PTR will be returned for zero sized kmalloc requests.
  *
@@ -150,10 +161,13 @@ struct kmem_cache *kmem_cache_create_usercopy(const char *name,
 void kmem_cache_destroy(struct kmem_cache *);
 int kmem_cache_shrink(struct kmem_cache *);
 
+<<<<<<< HEAD
 void memcg_create_kmem_cache(struct mem_cgroup *, struct kmem_cache *);
 void memcg_deactivate_kmem_caches(struct mem_cgroup *);
 void memcg_destroy_kmem_caches(struct mem_cgroup *);
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Please use this macro to create slab caches. Simply specify the
  * name of the structure and maybe some flags that are listed above.
@@ -180,11 +194,23 @@ void memcg_destroy_kmem_caches(struct mem_cgroup *);
 /*
  * Common kmalloc functions provided by all allocators
  */
+<<<<<<< HEAD
 void * __must_check __krealloc(const void *, size_t, gfp_t);
 void * __must_check krealloc(const void *, size_t, gfp_t);
 void kfree(const void *);
 void kzfree(const void *);
 size_t ksize(const void *);
+=======
+void * __must_check krealloc(const void *, size_t, gfp_t);
+void kfree(const void *);
+void kfree_sensitive(const void *);
+size_t __ksize(const void *);
+size_t ksize(const void *);
+#ifdef CONFIG_PRINTK
+bool kmem_valid_obj(void *object);
+void kmem_dump_obj(void *object);
+#endif
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_HAVE_HARDENED_USERCOPY_ALLOCATOR
 void __check_heap_object(const void *ptr, unsigned long n, struct page *page,
@@ -276,7 +302,11 @@ static inline void __check_heap_object(const void *ptr, unsigned long n,
 #define KMALLOC_MAX_SIZE	(1UL << KMALLOC_SHIFT_MAX)
 /* Maximum size for which we actually use a slab cache */
 #define KMALLOC_MAX_CACHE_SIZE	(1UL << KMALLOC_SHIFT_HIGH)
+<<<<<<< HEAD
 /* Maximum order allocatable via the slab allocagtor */
+=======
+/* Maximum order allocatable via the slab allocator */
+>>>>>>> upstream/android-13
 #define KMALLOC_MAX_ORDER	(KMALLOC_SHIFT_MAX - PAGE_SHIFT)
 
 /*
@@ -300,9 +330,27 @@ static inline void __check_heap_object(const void *ptr, unsigned long n,
 /*
  * Whenever changing this, take care of that kmalloc_type() and
  * create_kmalloc_caches() still work as intended.
+<<<<<<< HEAD
  */
 enum kmalloc_cache_type {
 	KMALLOC_NORMAL = 0,
+=======
+ *
+ * KMALLOC_NORMAL can contain only unaccounted objects whereas KMALLOC_CGROUP
+ * is for accounted but unreclaimable and non-dma objects. All the other
+ * kmem caches can have both accounted and unaccounted objects.
+ */
+enum kmalloc_cache_type {
+	KMALLOC_NORMAL = 0,
+#ifndef CONFIG_ZONE_DMA
+	KMALLOC_DMA = KMALLOC_NORMAL,
+#endif
+#ifndef CONFIG_MEMCG_KMEM
+	KMALLOC_CGROUP = KMALLOC_NORMAL,
+#else
+	KMALLOC_CGROUP,
+#endif
+>>>>>>> upstream/android-13
 	KMALLOC_RECLAIM,
 #ifdef CONFIG_ZONE_DMA
 	KMALLOC_DMA,
@@ -314,6 +362,7 @@ enum kmalloc_cache_type {
 extern struct kmem_cache *
 kmalloc_caches[NR_KMALLOC_TYPES][KMALLOC_SHIFT_HIGH + 1];
 
+<<<<<<< HEAD
 static __always_inline enum kmalloc_cache_type kmalloc_type(gfp_t flags)
 {
 #ifdef CONFIG_ZONE_DMA
@@ -332,6 +381,38 @@ static __always_inline enum kmalloc_cache_type kmalloc_type(gfp_t flags)
 #else
 	return flags & __GFP_RECLAIMABLE ? KMALLOC_RECLAIM : KMALLOC_NORMAL;
 #endif
+=======
+/*
+ * Define gfp bits that should not be set for KMALLOC_NORMAL.
+ */
+#define KMALLOC_NOT_NORMAL_BITS					\
+	(__GFP_RECLAIMABLE |					\
+	(IS_ENABLED(CONFIG_ZONE_DMA)   ? __GFP_DMA : 0) |	\
+	(IS_ENABLED(CONFIG_MEMCG_KMEM) ? __GFP_ACCOUNT : 0))
+
+static __always_inline enum kmalloc_cache_type kmalloc_type(gfp_t flags)
+{
+	/*
+	 * The most common case is KMALLOC_NORMAL, so test for it
+	 * with a single branch for all the relevant flags.
+	 */
+	if (likely((flags & KMALLOC_NOT_NORMAL_BITS) == 0))
+		return KMALLOC_NORMAL;
+
+	/*
+	 * At least one of the flags has to be set. Their priorities in
+	 * decreasing order are:
+	 *  1) __GFP_DMA
+	 *  2) __GFP_RECLAIMABLE
+	 *  3) __GFP_ACCOUNT
+	 */
+	if (IS_ENABLED(CONFIG_ZONE_DMA) && (flags & __GFP_DMA))
+		return KMALLOC_DMA;
+	if (!IS_ENABLED(CONFIG_MEMCG_KMEM) || (flags & __GFP_RECLAIMABLE))
+		return KMALLOC_RECLAIM;
+	else
+		return KMALLOC_CGROUP;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -341,8 +422,19 @@ static __always_inline enum kmalloc_cache_type kmalloc_type(gfp_t flags)
  * 1 =  65 .. 96 bytes
  * 2 = 129 .. 192 bytes
  * n = 2^(n-1)+1 .. 2^n
+<<<<<<< HEAD
  */
 static __always_inline unsigned int kmalloc_index(size_t size)
+=======
+ *
+ * Note: __kmalloc_index() is compile-time optimized, and not runtime optimized;
+ * typical usage is via kmalloc_index() and therefore evaluated at compile-time.
+ * Callers where !size_is_constant should only be test modules, where runtime
+ * overheads of __kmalloc_index() can be tolerated.  Also see kmalloc_slab().
+ */
+static __always_inline unsigned int __kmalloc_index(size_t size,
+						    bool size_is_constant)
+>>>>>>> upstream/android-13
 {
 	if (!size)
 		return 0;
@@ -377,12 +469,25 @@ static __always_inline unsigned int kmalloc_index(size_t size)
 	if (size <=  8 * 1024 * 1024) return 23;
 	if (size <=  16 * 1024 * 1024) return 24;
 	if (size <=  32 * 1024 * 1024) return 25;
+<<<<<<< HEAD
 	if (size <=  64 * 1024 * 1024) return 26;
 	BUG();
+=======
+
+	if ((IS_ENABLED(CONFIG_CC_IS_GCC) || CONFIG_CLANG_VERSION >= 110000)
+	    && !IS_ENABLED(CONFIG_PROFILE_ALL_BRANCHES) && size_is_constant)
+		BUILD_BUG_ON_MSG(1, "unexpected size in kmalloc_index()");
+	else
+		BUG();
+>>>>>>> upstream/android-13
 
 	/* Will never be reached. Needed because the compiler may complain */
 	return -1;
 }
+<<<<<<< HEAD
+=======
+#define kmalloc_index(s) __kmalloc_index(s, true)
+>>>>>>> upstream/android-13
 #endif /* !CONFIG_SLOB */
 
 void *__kmalloc(size_t size, gfp_t flags) __assume_kmalloc_alignment __malloc;
@@ -488,6 +593,7 @@ static __always_inline void *kmalloc_large(size_t size, gfp_t flags)
  * kmalloc is the normal method of allocating memory
  * for objects smaller than page size in the kernel.
  *
+<<<<<<< HEAD
  * The @flags argument may be one of:
  *
  * %GFP_USER - Allocate memory on behalf of user.  May sleep.
@@ -510,10 +616,37 @@ static __always_inline void *kmalloc_large(size_t size, gfp_t flags)
  * %GFP_DMA - Allocation suitable for DMA.
  *   Should only be used for kmalloc() caches. Otherwise, use a
  *   slab created with SLAB_DMA.
+=======
+ * The allocated object address is aligned to at least ARCH_KMALLOC_MINALIGN
+ * bytes. For @size of power of two bytes, the alignment is also guaranteed
+ * to be at least to the size.
+ *
+ * The @flags argument may be one of the GFP flags defined at
+ * include/linux/gfp.h and described at
+ * :ref:`Documentation/core-api/mm-api.rst <mm-api-gfp-flags>`
+ *
+ * The recommended usage of the @flags is described at
+ * :ref:`Documentation/core-api/memory-allocation.rst <memory_allocation>`
+ *
+ * Below is a brief outline of the most useful GFP flags
+ *
+ * %GFP_KERNEL
+ *	Allocate normal kernel ram. May sleep.
+ *
+ * %GFP_NOWAIT
+ *	Allocation will not sleep.
+ *
+ * %GFP_ATOMIC
+ *	Allocation will not sleep.  May use emergency pools.
+ *
+ * %GFP_HIGHUSER
+ *	Allocate memory from high memory on behalf of user.
+>>>>>>> upstream/android-13
  *
  * Also it is possible to set different flags by OR'ing
  * in one or more of the following additional @flags:
  *
+<<<<<<< HEAD
  * %__GFP_HIGH - This allocation has high priority and may use emergency pools.
  *
  * %__GFP_NOFAIL - Indicate that this allocation is in no way allowed to fail
@@ -530,6 +663,25 @@ static __always_inline void *kmalloc_large(size_t size, gfp_t flags)
  * There are other flags available as well, but these are not intended
  * for general use, and so are not documented here. For a full list of
  * potential flags, always refer to linux/gfp.h.
+=======
+ * %__GFP_HIGH
+ *	This allocation has high priority and may use emergency pools.
+ *
+ * %__GFP_NOFAIL
+ *	Indicate that this allocation is in no way allowed to fail
+ *	(think twice before using).
+ *
+ * %__GFP_NORETRY
+ *	If memory is not immediately available,
+ *	then give up at once.
+ *
+ * %__GFP_NOWARN
+ *	If allocation fails, don't issue any warnings.
+ *
+ * %__GFP_RETRY_MAYFAIL
+ *	Try really hard to succeed the allocation but fail
+ *	eventually.
+>>>>>>> upstream/android-13
  */
 static __always_inline void *kmalloc(size_t size, gfp_t flags)
 {
@@ -553,6 +705,7 @@ static __always_inline void *kmalloc(size_t size, gfp_t flags)
 	return __kmalloc(size, flags);
 }
 
+<<<<<<< HEAD
 /*
  * Determine size used for the nth kmalloc cache.
  * return size or 0 if a kmalloc cache for that
@@ -573,6 +726,8 @@ static __always_inline unsigned int kmalloc_size(unsigned int n)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static __always_inline void *kmalloc_node(size_t size, gfp_t flags, int node)
 {
 #ifndef CONFIG_SLOB
@@ -591,6 +746,7 @@ static __always_inline void *kmalloc_node(size_t size, gfp_t flags, int node)
 	return __kmalloc_node(size, flags, node);
 }
 
+<<<<<<< HEAD
 struct memcg_cache_array {
 	struct rcu_head rcu;
 	struct kmem_cache *entries[0];
@@ -654,6 +810,8 @@ struct memcg_cache_params {
 
 int memcg_update_all_caches(int num_memcgs);
 
+=======
+>>>>>>> upstream/android-13
 /**
  * kmalloc_array - allocate memory for an array.
  * @n: number of elements.
@@ -672,6 +830,27 @@ static inline void *kmalloc_array(size_t n, size_t size, gfp_t flags)
 }
 
 /**
+<<<<<<< HEAD
+=======
+ * krealloc_array - reallocate memory for an array.
+ * @p: pointer to the memory chunk to reallocate
+ * @new_n: new number of elements to alloc
+ * @new_size: new size of a single member of the array
+ * @flags: the type of memory to allocate (see kmalloc)
+ */
+static __must_check inline void *
+krealloc_array(void *p, size_t new_n, size_t new_size, gfp_t flags)
+{
+	size_t bytes;
+
+	if (unlikely(check_mul_overflow(new_n, new_size, &bytes)))
+		return NULL;
+
+	return krealloc(p, bytes, flags);
+}
+
+/**
+>>>>>>> upstream/android-13
  * kcalloc - allocate memory for an array. The memory is set to zero.
  * @n: number of elements.
  * @size: element size.

@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  cx18 mailbox functions
  *
  *  Copyright (C) 2007  Hans Verkuil <hverkuil@xs4all.nl>
  *  Copyright (C) 2008  Andy Walls <awalls@md.metrocast.net>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -16,6 +21,11 @@
  */
 
 #include <stdarg.h>
+=======
+ */
+
+#include <linux/bitops.h>
+>>>>>>> upstream/android-13
 
 #include "cx18-driver.h"
 #include "cx18-io.h"
@@ -197,7 +207,11 @@ static void cx18_mdl_send_to_videobuf(struct cx18_stream *s,
 	}
 
 	if (dispatch) {
+<<<<<<< HEAD
 		v4l2_get_timestamp(&vb_buf->vb.ts);
+=======
+		vb_buf->vb.ts = ktime_get_ns();
+>>>>>>> upstream/android-13
 		list_del(&vb_buf->vb.queue);
 		vb_buf->vb.state = VIDEOBUF_DONE;
 		wake_up(&vb_buf->vb.done);

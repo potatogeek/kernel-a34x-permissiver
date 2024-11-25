@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #include <media/rc-map.h>
 #include <linux/module.h>
 
@@ -9,6 +13,7 @@ static struct rc_map_table twinhan_vp1027[] = {
 	{ 0x1c, KEY_EPG },
 	{ 0x04, KEY_LIST },
 
+<<<<<<< HEAD
 	{ 0x03, KEY_1 },
 	{ 0x01, KEY_2 },
 	{ 0x06, KEY_3 },
@@ -19,6 +24,18 @@ static struct rc_map_table twinhan_vp1027[] = {
 	{ 0x19, KEY_8 },
 	{ 0x1b, KEY_9 },
 	{ 0x15, KEY_0 },
+=======
+	{ 0x03, KEY_NUMERIC_1 },
+	{ 0x01, KEY_NUMERIC_2 },
+	{ 0x06, KEY_NUMERIC_3 },
+	{ 0x09, KEY_NUMERIC_4 },
+	{ 0x1d, KEY_NUMERIC_5 },
+	{ 0x1f, KEY_NUMERIC_6 },
+	{ 0x0d, KEY_NUMERIC_7 },
+	{ 0x19, KEY_NUMERIC_8 },
+	{ 0x1b, KEY_NUMERIC_9 },
+	{ 0x15, KEY_NUMERIC_0 },
+>>>>>>> upstream/android-13
 
 	{ 0x0c, KEY_CANCEL },
 	{ 0x4a, KEY_CLEAR },

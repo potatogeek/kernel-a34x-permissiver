@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Core driver access RC5T583 power management chip.
  *
@@ -6,6 +10,7 @@
  *
  * Based on code
  *	Copyright (C) 2011 RICOH COMPANY,LTD
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -19,11 +24,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/interrupt.h>
 #include <linux/irq.h>
 #include <linux/kernel.h>
+<<<<<<< HEAD
 #include <linux/module.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/init.h>
 #include <linux/err.h>
 #include <linux/slab.h>
@@ -298,8 +308,11 @@ static const struct i2c_device_id rc5t583_i2c_id[] = {
 	{}
 };
 
+<<<<<<< HEAD
 MODULE_DEVICE_TABLE(i2c, rc5t583_i2c_id);
 
+=======
+>>>>>>> upstream/android-13
 static struct i2c_driver rc5t583_i2c_driver = {
 	.driver = {
 		   .name = "rc5t583",
@@ -313,6 +326,7 @@ static int __init rc5t583_i2c_init(void)
 	return i2c_add_driver(&rc5t583_i2c_driver);
 }
 subsys_initcall(rc5t583_i2c_init);
+<<<<<<< HEAD
 
 static void __exit rc5t583_i2c_exit(void)
 {
@@ -324,3 +338,5 @@ module_exit(rc5t583_i2c_exit);
 MODULE_AUTHOR("Laxman Dewangan <ldewangan@nvidia.com>");
 MODULE_DESCRIPTION("RICOH RC5T583 power management system device driver");
 MODULE_LICENSE("GPL v2");
+=======
+>>>>>>> upstream/android-13

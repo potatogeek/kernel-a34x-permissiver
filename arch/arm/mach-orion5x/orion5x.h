@@ -31,13 +31,21 @@
  * fc000000	device bus mappings (cs0/cs1)
  *
  * virt		phys		size
+<<<<<<< HEAD
  * fe000000	f1000000	1M	on-chip peripheral registers
+=======
+ * fec00000	f1000000	1M	on-chip peripheral registers
+>>>>>>> upstream/android-13
  * fee00000	f2000000	64K	PCIe I/O space
  * fee10000	f2100000	64K	PCI I/O space
  * fd000000	f0000000	16M	PCIe WA space (Orion-1/Orion-NAS only)
  ****************************************************************************/
 #define ORION5X_REGS_PHYS_BASE		0xf1000000
+<<<<<<< HEAD
 #define ORION5X_REGS_VIRT_BASE		IOMEM(0xfe000000)
+=======
+#define ORION5X_REGS_VIRT_BASE		IOMEM(0xfec00000)
+>>>>>>> upstream/android-13
 #define ORION5X_REGS_SIZE		SZ_1M
 
 #define ORION5X_PCIE_IO_PHYS_BASE	0xf2000000

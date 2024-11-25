@@ -61,7 +61,11 @@ Intel GVT-g Host Support(vGPU device model)
 Workarounds
 -----------
 
+<<<<<<< HEAD
 .. kernel-doc:: drivers/gpu/drm/i915/intel_workarounds.c
+=======
+.. kernel-doc:: drivers/gpu/drm/i915/gt/intel_workarounds.c
+>>>>>>> upstream/android-13
    :doc: Hardware workarounds
 
 Display Hardware Handling
@@ -82,6 +86,7 @@ change.
 Frontbuffer Tracking
 --------------------
 
+<<<<<<< HEAD
 .. kernel-doc:: drivers/gpu/drm/i915/intel_frontbuffer.c
    :doc: frontbuffer tracking
 
@@ -101,6 +106,24 @@ Display FIFO Underrun Reporting
    :doc: fifo underrun handling
 
 .. kernel-doc:: drivers/gpu/drm/i915/intel_fifo_underrun.c
+=======
+.. kernel-doc:: drivers/gpu/drm/i915/display/intel_frontbuffer.c
+   :doc: frontbuffer tracking
+
+.. kernel-doc:: drivers/gpu/drm/i915/display/intel_frontbuffer.h
+   :internal:
+
+.. kernel-doc:: drivers/gpu/drm/i915/display/intel_frontbuffer.c
+   :internal:
+
+Display FIFO Underrun Reporting
+-------------------------------
+
+.. kernel-doc:: drivers/gpu/drm/i915/display/intel_fifo_underrun.c
+   :doc: fifo underrun handling
+
+.. kernel-doc:: drivers/gpu/drm/i915/display/intel_fifo_underrun.c
+>>>>>>> upstream/android-13
    :internal:
 
 Plane Configuration
@@ -115,12 +138,27 @@ panel self refresh.
 Atomic Plane Helpers
 --------------------
 
+<<<<<<< HEAD
 .. kernel-doc:: drivers/gpu/drm/i915/intel_atomic_plane.c
    :doc: atomic plane helpers
 
 .. kernel-doc:: drivers/gpu/drm/i915/intel_atomic_plane.c
    :internal:
 
+=======
+.. kernel-doc:: drivers/gpu/drm/i915/display/intel_atomic_plane.c
+   :doc: atomic plane helpers
+
+.. kernel-doc:: drivers/gpu/drm/i915/display/intel_atomic_plane.c
+   :internal:
+
+Asynchronous Page Flip
+----------------------
+
+.. kernel-doc:: drivers/gpu/drm/i915/display/intel_display.c
+   :doc: asynchronous flip implementation
+
+>>>>>>> upstream/android-13
 Output Probing
 --------------
 
@@ -132,19 +170,33 @@ probing, so those sections fully apply.
 Hotplug
 -------
 
+<<<<<<< HEAD
 .. kernel-doc:: drivers/gpu/drm/i915/intel_hotplug.c
    :doc: Hotplug
 
 .. kernel-doc:: drivers/gpu/drm/i915/intel_hotplug.c
+=======
+.. kernel-doc:: drivers/gpu/drm/i915/display/intel_hotplug.c
+   :doc: Hotplug
+
+.. kernel-doc:: drivers/gpu/drm/i915/display/intel_hotplug.c
+>>>>>>> upstream/android-13
    :internal:
 
 High Definition Audio
 ---------------------
 
+<<<<<<< HEAD
 .. kernel-doc:: drivers/gpu/drm/i915/intel_audio.c
    :doc: High Definition Audio over HDMI and Display Port
 
 .. kernel-doc:: drivers/gpu/drm/i915/intel_audio.c
+=======
+.. kernel-doc:: drivers/gpu/drm/i915/display/intel_audio.c
+   :doc: High Definition Audio over HDMI and Display Port
+
+.. kernel-doc:: drivers/gpu/drm/i915/display/intel_audio.c
+>>>>>>> upstream/android-13
    :internal:
 
 .. kernel-doc:: include/drm/i915_component.h
@@ -153,33 +205,55 @@ High Definition Audio
 Intel HDMI LPE Audio Support
 ----------------------------
 
+<<<<<<< HEAD
 .. kernel-doc:: drivers/gpu/drm/i915/intel_lpe_audio.c
    :doc: LPE Audio integration for HDMI or DP playback
 
 .. kernel-doc:: drivers/gpu/drm/i915/intel_lpe_audio.c
+=======
+.. kernel-doc:: drivers/gpu/drm/i915/display/intel_lpe_audio.c
+   :doc: LPE Audio integration for HDMI or DP playback
+
+.. kernel-doc:: drivers/gpu/drm/i915/display/intel_lpe_audio.c
+>>>>>>> upstream/android-13
    :internal:
 
 Panel Self Refresh PSR (PSR/SRD)
 --------------------------------
 
+<<<<<<< HEAD
 .. kernel-doc:: drivers/gpu/drm/i915/intel_psr.c
    :doc: Panel Self Refresh (PSR/SRD)
 
 .. kernel-doc:: drivers/gpu/drm/i915/intel_psr.c
+=======
+.. kernel-doc:: drivers/gpu/drm/i915/display/intel_psr.c
+   :doc: Panel Self Refresh (PSR/SRD)
+
+.. kernel-doc:: drivers/gpu/drm/i915/display/intel_psr.c
+>>>>>>> upstream/android-13
    :internal:
 
 Frame Buffer Compression (FBC)
 ------------------------------
 
+<<<<<<< HEAD
 .. kernel-doc:: drivers/gpu/drm/i915/intel_fbc.c
    :doc: Frame Buffer Compression (FBC)
 
 .. kernel-doc:: drivers/gpu/drm/i915/intel_fbc.c
+=======
+.. kernel-doc:: drivers/gpu/drm/i915/display/intel_fbc.c
+   :doc: Frame Buffer Compression (FBC)
+
+.. kernel-doc:: drivers/gpu/drm/i915/display/intel_fbc.c
+>>>>>>> upstream/android-13
    :internal:
 
 Display Refresh Rate Switching (DRRS)
 -------------------------------------
 
+<<<<<<< HEAD
 .. kernel-doc:: drivers/gpu/drm/i915/intel_dp.c
    :doc: Display Refresh Rate Switching (DRRS)
 
@@ -199,11 +273,33 @@ Display Refresh Rate Switching (DRRS)
    :functions: intel_edp_drrs_flush
 
 .. kernel-doc:: drivers/gpu/drm/i915/intel_dp.c
+=======
+.. kernel-doc:: drivers/gpu/drm/i915/display/intel_drrs.c
+   :doc: Display Refresh Rate Switching (DRRS)
+
+.. kernel-doc:: drivers/gpu/drm/i915/display/intel_drrs.c
+   :functions: intel_dp_set_drrs_state
+
+.. kernel-doc:: drivers/gpu/drm/i915/display/intel_drrs.c
+   :functions: intel_edp_drrs_enable
+
+.. kernel-doc:: drivers/gpu/drm/i915/display/intel_drrs.c
+   :functions: intel_edp_drrs_disable
+
+.. kernel-doc:: drivers/gpu/drm/i915/display/intel_drrs.c
+   :functions: intel_edp_drrs_invalidate
+
+.. kernel-doc:: drivers/gpu/drm/i915/display/intel_drrs.c
+   :functions: intel_edp_drrs_flush
+
+.. kernel-doc:: drivers/gpu/drm/i915/display/intel_drrs.c
+>>>>>>> upstream/android-13
    :functions: intel_dp_drrs_init
 
 DPIO
 ----
 
+<<<<<<< HEAD
 .. kernel-doc:: drivers/gpu/drm/i915/intel_dpio_phy.c
    :doc: DPIO
 
@@ -214,11 +310,24 @@ CSR firmware support for DMC
    :doc: csr support for dmc
 
 .. kernel-doc:: drivers/gpu/drm/i915/intel_csr.c
+=======
+.. kernel-doc:: drivers/gpu/drm/i915/display/intel_dpio_phy.c
+   :doc: DPIO
+
+DMC Firmware Support
+--------------------
+
+.. kernel-doc:: drivers/gpu/drm/i915/display/intel_dmc.c
+   :doc: DMC Firmware Support
+
+.. kernel-doc:: drivers/gpu/drm/i915/display/intel_dmc.c
+>>>>>>> upstream/android-13
    :internal:
 
 Video BIOS Table (VBT)
 ----------------------
 
+<<<<<<< HEAD
 .. kernel-doc:: drivers/gpu/drm/i915/intel_bios.c
    :doc: Video BIOS Table (VBT)
 
@@ -226,20 +335,37 @@ Video BIOS Table (VBT)
    :internal:
 
 .. kernel-doc:: drivers/gpu/drm/i915/intel_vbt_defs.h
+=======
+.. kernel-doc:: drivers/gpu/drm/i915/display/intel_bios.c
+   :doc: Video BIOS Table (VBT)
+
+.. kernel-doc:: drivers/gpu/drm/i915/display/intel_bios.c
+   :internal:
+
+.. kernel-doc:: drivers/gpu/drm/i915/display/intel_vbt_defs.h
+>>>>>>> upstream/android-13
    :internal:
 
 Display clocks
 --------------
 
+<<<<<<< HEAD
 .. kernel-doc:: drivers/gpu/drm/i915/intel_cdclk.c
    :doc: CDCLK / RAWCLK
 
 .. kernel-doc:: drivers/gpu/drm/i915/intel_cdclk.c
+=======
+.. kernel-doc:: drivers/gpu/drm/i915/display/intel_cdclk.c
+   :doc: CDCLK / RAWCLK
+
+.. kernel-doc:: drivers/gpu/drm/i915/display/intel_cdclk.c
+>>>>>>> upstream/android-13
    :internal:
 
 Display PLLs
 ------------
 
+<<<<<<< HEAD
 .. kernel-doc:: drivers/gpu/drm/i915/intel_dpll_mgr.c
    :doc: Display PLLs
 
@@ -247,6 +373,24 @@ Display PLLs
    :internal:
 
 .. kernel-doc:: drivers/gpu/drm/i915/intel_dpll_mgr.h
+=======
+.. kernel-doc:: drivers/gpu/drm/i915/display/intel_dpll_mgr.c
+   :doc: Display PLLs
+
+.. kernel-doc:: drivers/gpu/drm/i915/display/intel_dpll_mgr.c
+   :internal:
+
+.. kernel-doc:: drivers/gpu/drm/i915/display/intel_dpll_mgr.h
+   :internal:
+
+Display State Buffer
+--------------------
+
+.. kernel-doc:: drivers/gpu/drm/i915/display/intel_dsb.c
+   :doc: DSB
+
+.. kernel-doc:: drivers/gpu/drm/i915/display/intel_dsb.c
+>>>>>>> upstream/android-13
    :internal:
 
 Memory Management and Command Submission
@@ -323,10 +467,63 @@ for execution also include a list of all locations within buffers that
 refer to GPU-addresses so that the kernel can edit the buffer correctly.
 This process is dubbed relocation.
 
+<<<<<<< HEAD
 GEM BO Management Implementation Details
 ----------------------------------------
 
 .. kernel-doc:: drivers/gpu/drm/i915/i915_vma.h
+=======
+Locking Guidelines
+------------------
+
+.. note::
+   This is a description of how the locking should be after
+   refactoring is done. Does not necessarily reflect what the locking
+   looks like while WIP.
+
+#. All locking rules and interface contracts with cross-driver interfaces
+   (dma-buf, dma_fence) need to be followed.
+
+#. No struct_mutex anywhere in the code
+
+#. dma_resv will be the outermost lock (when needed) and ww_acquire_ctx
+   is to be hoisted at highest level and passed down within i915_gem_ctx
+   in the call chain
+
+#. While holding lru/memory manager (buddy, drm_mm, whatever) locks
+   system memory allocations are not allowed
+
+	* Enforce this by priming lockdep (with fs_reclaim). If we
+	  allocate memory while holding these looks we get a rehash
+	  of the shrinker vs. struct_mutex saga, and that would be
+	  real bad.
+
+#. Do not nest different lru/memory manager locks within each other.
+   Take them in turn to update memory allocations, relying on the object’s
+   dma_resv ww_mutex to serialize against other operations.
+
+#. The suggestion for lru/memory managers locks is that they are small
+   enough to be spinlocks.
+
+#. All features need to come with exhaustive kernel selftests and/or
+   IGT tests when appropriate
+
+#. All LMEM uAPI paths need to be fully restartable (_interruptible()
+   for all locks/waits/sleeps)
+
+	* Error handling validation through signal injection.
+	  Still the best strategy we have for validating GEM uAPI
+          corner cases.
+	  Must be excessively used in the IGT, and we need to check
+	  that we really have full path coverage of all error cases.
+
+	* -EDEADLK handling with ww_mutex
+
+GEM BO Management Implementation Details
+----------------------------------------
+
+.. kernel-doc:: drivers/gpu/drm/i915/i915_vma_types.h
+>>>>>>> upstream/android-13
    :doc: Virtual Memory Address
 
 Buffer Object Eviction
@@ -349,7 +546,11 @@ of buffer object caches. Shrinking is used to make main memory
 available. Note that this is mostly orthogonal to evicting buffer
 objects, which has the goal to make space in gpu virtual address spaces.
 
+<<<<<<< HEAD
 .. kernel-doc:: drivers/gpu/drm/i915/i915_gem_shrinker.c
+=======
+.. kernel-doc:: drivers/gpu/drm/i915/gem/i915_gem_shrinker.c
+>>>>>>> upstream/android-13
    :internal:
 
 Batchbuffer Parsing
@@ -361,6 +562,7 @@ Batchbuffer Parsing
 .. kernel-doc:: drivers/gpu/drm/i915/i915_cmd_parser.c
    :internal:
 
+<<<<<<< HEAD
 Batchbuffer Pools
 -----------------
 
@@ -389,6 +591,31 @@ Global GTT views
 ----------------
 
 .. kernel-doc:: drivers/gpu/drm/i915/i915_gem_gtt.c
+=======
+User Batchbuffer Execution
+--------------------------
+
+.. kernel-doc:: drivers/gpu/drm/i915/gem/i915_gem_context_types.h
+
+.. kernel-doc:: drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
+   :doc: User command execution
+
+Scheduling
+----------
+.. kernel-doc:: drivers/gpu/drm/i915/i915_scheduler_types.h
+   :functions: i915_sched_engine
+
+Logical Rings, Logical Ring Contexts and Execlists
+--------------------------------------------------
+
+.. kernel-doc:: drivers/gpu/drm/i915/gt/intel_execlists_submission.c
+   :doc: Logical Rings, Logical Ring Contexts and Execlists
+
+Global GTT views
+----------------
+
+.. kernel-doc:: drivers/gpu/drm/i915/i915_vma_types.h
+>>>>>>> upstream/android-13
    :doc: Global GTT views
 
 .. kernel-doc:: drivers/gpu/drm/i915/i915_gem_gtt.c
@@ -397,24 +624,37 @@ Global GTT views
 GTT Fences and Swizzling
 ------------------------
 
+<<<<<<< HEAD
 .. kernel-doc:: drivers/gpu/drm/i915/i915_gem_fence_reg.c
+=======
+.. kernel-doc:: drivers/gpu/drm/i915/gt/intel_ggtt_fencing.c
+>>>>>>> upstream/android-13
    :internal:
 
 Global GTT Fence Handling
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
+<<<<<<< HEAD
 .. kernel-doc:: drivers/gpu/drm/i915/i915_gem_fence_reg.c
+=======
+.. kernel-doc:: drivers/gpu/drm/i915/gt/intel_ggtt_fencing.c
+>>>>>>> upstream/android-13
    :doc: fence register handling
 
 Hardware Tiling and Swizzling Details
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+<<<<<<< HEAD
 .. kernel-doc:: drivers/gpu/drm/i915/i915_gem_fence_reg.c
+=======
+.. kernel-doc:: drivers/gpu/drm/i915/gt/intel_ggtt_fencing.c
+>>>>>>> upstream/android-13
    :doc: tiling swizzling details
 
 Object Tiling IOCTLs
 --------------------
 
+<<<<<<< HEAD
 .. kernel-doc:: drivers/gpu/drm/i915/i915_gem_tiling.c
    :internal:
 
@@ -426,11 +666,34 @@ WOPCM
 
 WOPCM Layout
 ------------
+=======
+.. kernel-doc:: drivers/gpu/drm/i915/gem/i915_gem_tiling.c
+   :internal:
+
+.. kernel-doc:: drivers/gpu/drm/i915/gem/i915_gem_tiling.c
+   :doc: buffer object tiling
+
+Microcontrollers
+================
+
+Starting from gen9, three microcontrollers are available on the HW: the
+graphics microcontroller (GuC), the HEVC/H.265 microcontroller (HuC) and the
+display microcontroller (DMC). The driver is responsible for loading the
+firmwares on the microcontrollers; the GuC and HuC firmwares are transferred
+to WOPCM using the DMA engine, while the DMC firmware is written through MMIO.
+
+WOPCM
+-----
+
+WOPCM Layout
+~~~~~~~~~~~~
+>>>>>>> upstream/android-13
 
 .. kernel-doc:: drivers/gpu/drm/i915/intel_wopcm.c
    :doc: WOPCM Layout
 
 GuC
+<<<<<<< HEAD
 ===
 
 GuC-specific firmware loader
@@ -459,6 +722,68 @@ GuC Address Space
 
 .. kernel-doc:: drivers/gpu/drm/i915/intel_guc.c
    :doc: GuC Address Space
+=======
+---
+
+.. kernel-doc:: drivers/gpu/drm/i915/gt/uc/intel_guc.c
+   :doc: GuC
+
+GuC Firmware Layout
+~~~~~~~~~~~~~~~~~~~
+
+.. kernel-doc:: drivers/gpu/drm/i915/gt/uc/intel_uc_fw_abi.h
+   :doc: Firmware Layout
+
+GuC Memory Management
+~~~~~~~~~~~~~~~~~~~~~
+
+.. kernel-doc:: drivers/gpu/drm/i915/gt/uc/intel_guc.c
+   :doc: GuC Memory Management
+.. kernel-doc:: drivers/gpu/drm/i915/gt/uc/intel_guc.c
+   :functions: intel_guc_allocate_vma
+
+
+GuC-specific firmware loader
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. kernel-doc:: drivers/gpu/drm/i915/gt/uc/intel_guc_fw.c
+   :internal:
+
+GuC-based command submission
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. kernel-doc:: drivers/gpu/drm/i915/gt/uc/intel_guc_submission.c
+   :doc: GuC-based command submission
+
+GuC ABI
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. kernel-doc:: drivers/gpu/drm/i915/gt/uc/abi/guc_messages_abi.h
+.. kernel-doc:: drivers/gpu/drm/i915/gt/uc/abi/guc_communication_mmio_abi.h
+.. kernel-doc:: drivers/gpu/drm/i915/gt/uc/abi/guc_communication_ctb_abi.h
+.. kernel-doc:: drivers/gpu/drm/i915/gt/uc/abi/guc_actions_abi.h
+
+HuC
+---
+.. kernel-doc:: drivers/gpu/drm/i915/gt/uc/intel_huc.c
+   :doc: HuC
+.. kernel-doc:: drivers/gpu/drm/i915/gt/uc/intel_huc.c
+   :functions: intel_huc_auth
+
+HuC Memory Management
+~~~~~~~~~~~~~~~~~~~~~
+
+.. kernel-doc:: drivers/gpu/drm/i915/gt/uc/intel_huc.c
+   :doc: HuC Memory Management
+
+HuC Firmware Layout
+~~~~~~~~~~~~~~~~~~~
+The HuC FW layout is the same as the GuC one, see `GuC Firmware Layout`_
+
+DMC
+---
+See `DMC Firmware Support`_
+>>>>>>> upstream/android-13
 
 Tracing
 =======
@@ -478,12 +803,15 @@ i915_context_create and i915_context_free
 .. kernel-doc:: drivers/gpu/drm/i915/i915_trace.h
    :doc: i915_context_create and i915_context_free tracepoints
 
+<<<<<<< HEAD
 switch_mm
 ---------
 
 .. kernel-doc:: drivers/gpu/drm/i915/i915_trace.h
    :doc: switch_mm tracepoint
 
+=======
+>>>>>>> upstream/android-13
 Perf
 ====
 
@@ -526,9 +854,15 @@ i915 Perf Stream
 This section covers the stream-semantics-agnostic structures and functions
 for representing an i915 perf stream FD and associated file operations.
 
+<<<<<<< HEAD
 .. kernel-doc:: drivers/gpu/drm/i915/i915_drv.h
    :functions: i915_perf_stream
 .. kernel-doc:: drivers/gpu/drm/i915/i915_drv.h
+=======
+.. kernel-doc:: drivers/gpu/drm/i915/i915_perf_types.h
+   :functions: i915_perf_stream
+.. kernel-doc:: drivers/gpu/drm/i915/i915_perf_types.h
+>>>>>>> upstream/android-13
    :functions: i915_perf_stream_ops
 
 .. kernel-doc:: drivers/gpu/drm/i915/i915_perf.c
@@ -553,7 +887,11 @@ for representing an i915 perf stream FD and associated file operations.
 i915 Perf Observation Architecture Stream
 -----------------------------------------
 
+<<<<<<< HEAD
 .. kernel-doc:: drivers/gpu/drm/i915/i915_drv.h
+=======
+.. kernel-doc:: drivers/gpu/drm/i915/i915_perf_types.h
+>>>>>>> upstream/android-13
    :functions: i915_oa_ops
 
 .. kernel-doc:: drivers/gpu/drm/i915/i915_perf.c
@@ -569,15 +907,47 @@ i915 Perf Observation Architecture Stream
 .. kernel-doc:: drivers/gpu/drm/i915/i915_perf.c
    :functions: i915_oa_poll_wait
 
+<<<<<<< HEAD
 All i915 Perf Internals
 -----------------------
 
 This section simply includes all currently documented i915 perf internals, in
 no particular order, but may include some more minor utilities or platform
+=======
+Other i915 Perf Internals
+-------------------------
+
+This section simply includes all other currently documented i915 perf internals,
+in no particular order, but may include some more minor utilities or platform
+>>>>>>> upstream/android-13
 specific details than found in the more high-level sections.
 
 .. kernel-doc:: drivers/gpu/drm/i915/i915_perf.c
    :internal:
+<<<<<<< HEAD
+=======
+   :no-identifiers:
+       i915_perf_init
+       i915_perf_fini
+       i915_perf_register
+       i915_perf_unregister
+       i915_perf_open_ioctl
+       i915_perf_release
+       i915_perf_add_config_ioctl
+       i915_perf_remove_config_ioctl
+       read_properties_unlocked
+       i915_perf_open_ioctl_locked
+       i915_perf_destroy_locked
+       i915_perf_read i915_perf_ioctl
+       i915_perf_enable_locked
+       i915_perf_disable_locked
+       i915_perf_poll i915_perf_poll_locked
+       i915_oa_stream_init i915_oa_read
+       i915_oa_stream_enable
+       i915_oa_stream_disable
+       i915_oa_wait_unlocked
+       i915_oa_poll_wait
+>>>>>>> upstream/android-13
 
 Style
 =====

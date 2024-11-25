@@ -454,14 +454,33 @@ static const struct nand_op_parser tegra_nand_op_parser = NAND_OP_PARSER(
 		NAND_OP_PARSER_PAT_DATA_IN_ELEM(true, 4)),
 	);
 
+<<<<<<< HEAD
+=======
+static void tegra_nand_select_target(struct nand_chip *chip,
+				     unsigned int die_nr)
+{
+	struct tegra_nand_chip *nand = to_tegra_chip(chip);
+	struct tegra_nand_controller *ctrl = to_tegra_ctrl(chip->controller);
+
+	ctrl->cur_cs = nand->cs[die_nr];
+}
+
+>>>>>>> upstream/android-13
 static int tegra_nand_exec_op(struct nand_chip *chip,
 			      const struct nand_operation *op,
 			      bool check_only)
 {
+<<<<<<< HEAD
+=======
+	if (!check_only)
+		tegra_nand_select_target(chip, op->cs);
+
+>>>>>>> upstream/android-13
 	return nand_op_parser_exec_op(chip, &tegra_nand_op_parser, op,
 				      check_only);
 }
 
+<<<<<<< HEAD
 static void tegra_nand_select_chip(struct mtd_info *mtd, int die_nr)
 {
 	struct nand_chip *chip = mtd_to_nand(mtd);
@@ -478,12 +497,18 @@ static void tegra_nand_select_chip(struct mtd_info *mtd, int die_nr)
 	ctrl->cur_cs = nand->cs[die_nr];
 }
 
+=======
+>>>>>>> upstream/android-13
 static void tegra_nand_hw_ecc(struct tegra_nand_controller *ctrl,
 			      struct nand_chip *chip, bool enable)
 {
 	struct tegra_nand_chip *nand = to_tegra_chip(chip);
 
+<<<<<<< HEAD
 	if (chip->ecc.algo == NAND_ECC_BCH && enable)
+=======
+	if (chip->ecc.algo == NAND_ECC_ALGO_BCH && enable)
+>>>>>>> upstream/android-13
 		writel_relaxed(nand->bch_config, ctrl->regs + BCH_CONFIG);
 	else
 		writel_relaxed(0, ctrl->regs + BCH_CONFIG);
@@ -504,6 +529,11 @@ static int tegra_nand_page_xfer(struct mtd_info *mtd, struct nand_chip *chip,
 	u32 addr1, cmd, dma_ctrl;
 	int ret;
 
+<<<<<<< HEAD
+=======
+	tegra_nand_select_target(chip, chip->cur_cs);
+
+>>>>>>> upstream/android-13
 	if (read) {
 		writel_relaxed(NAND_CMD_READ0, ctrl->regs + CMD_REG1);
 		writel_relaxed(NAND_CMD_READSTART, ctrl->regs + CMD_REG2);
@@ -615,44 +645,79 @@ err_unmap_dma_page:
 	return ret;
 }
 
+<<<<<<< HEAD
 static int tegra_nand_read_page_raw(struct mtd_info *mtd,
 				    struct nand_chip *chip, u8 *buf,
 				    int oob_required, int page)
 {
+=======
+static int tegra_nand_read_page_raw(struct nand_chip *chip, u8 *buf,
+				    int oob_required, int page)
+{
+	struct mtd_info *mtd = nand_to_mtd(chip);
+>>>>>>> upstream/android-13
 	void *oob_buf = oob_required ? chip->oob_poi : NULL;
 
 	return tegra_nand_page_xfer(mtd, chip, buf, oob_buf,
 				    mtd->oobsize, page, true);
 }
 
+<<<<<<< HEAD
 static int tegra_nand_write_page_raw(struct mtd_info *mtd,
 				     struct nand_chip *chip, const u8 *buf,
 				     int oob_required, int page)
 {
+=======
+static int tegra_nand_write_page_raw(struct nand_chip *chip, const u8 *buf,
+				     int oob_required, int page)
+{
+	struct mtd_info *mtd = nand_to_mtd(chip);
+>>>>>>> upstream/android-13
 	void *oob_buf = oob_required ? chip->oob_poi : NULL;
 
 	return tegra_nand_page_xfer(mtd, chip, (void *)buf, oob_buf,
 				     mtd->oobsize, page, false);
 }
 
+<<<<<<< HEAD
 static int tegra_nand_read_oob(struct mtd_info *mtd, struct nand_chip *chip,
 			       int page)
 {
+=======
+static int tegra_nand_read_oob(struct nand_chip *chip, int page)
+{
+	struct mtd_info *mtd = nand_to_mtd(chip);
+
+>>>>>>> upstream/android-13
 	return tegra_nand_page_xfer(mtd, chip, NULL, chip->oob_poi,
 				    mtd->oobsize, page, true);
 }
 
+<<<<<<< HEAD
 static int tegra_nand_write_oob(struct mtd_info *mtd, struct nand_chip *chip,
 				int page)
 {
+=======
+static int tegra_nand_write_oob(struct nand_chip *chip, int page)
+{
+	struct mtd_info *mtd = nand_to_mtd(chip);
+
+>>>>>>> upstream/android-13
 	return tegra_nand_page_xfer(mtd, chip, NULL, chip->oob_poi,
 				    mtd->oobsize, page, false);
 }
 
+<<<<<<< HEAD
 static int tegra_nand_read_page_hwecc(struct mtd_info *mtd,
 				      struct nand_chip *chip, u8 *buf,
 				      int oob_required, int page)
 {
+=======
+static int tegra_nand_read_page_hwecc(struct nand_chip *chip, u8 *buf,
+				      int oob_required, int page)
+{
+	struct mtd_info *mtd = nand_to_mtd(chip);
+>>>>>>> upstream/android-13
 	struct tegra_nand_controller *ctrl = to_tegra_ctrl(chip->controller);
 	struct tegra_nand_chip *nand = to_tegra_chip(chip);
 	void *oob_buf = oob_required ? chip->oob_poi : NULL;
@@ -716,7 +781,11 @@ static int tegra_nand_read_page_hwecc(struct mtd_info *mtd,
 		 * erased or if error correction just failed for all sub-
 		 * pages.
 		 */
+<<<<<<< HEAD
 		ret = tegra_nand_read_oob(mtd, chip, page);
+=======
+		ret = tegra_nand_read_oob(chip, page);
+>>>>>>> upstream/android-13
 		if (ret < 0)
 			return ret;
 
@@ -759,10 +828,17 @@ static int tegra_nand_read_page_hwecc(struct mtd_info *mtd,
 	}
 }
 
+<<<<<<< HEAD
 static int tegra_nand_write_page_hwecc(struct mtd_info *mtd,
 				       struct nand_chip *chip, const u8 *buf,
 				       int oob_required, int page)
 {
+=======
+static int tegra_nand_write_page_hwecc(struct nand_chip *chip, const u8 *buf,
+				       int oob_required, int page)
+{
+	struct mtd_info *mtd = nand_to_mtd(chip);
+>>>>>>> upstream/android-13
 	struct tegra_nand_controller *ctrl = to_tegra_ctrl(chip->controller);
 	void *oob_buf = oob_required ? chip->oob_poi : NULL;
 	int ret;
@@ -813,10 +889,16 @@ static void tegra_nand_setup_timing(struct tegra_nand_controller *ctrl,
 	writel_relaxed(reg, ctrl->regs + TIMING_2);
 }
 
+<<<<<<< HEAD
 static int tegra_nand_setup_data_interface(struct mtd_info *mtd, int csline,
 					const struct nand_data_interface *conf)
 {
 	struct nand_chip *chip = mtd_to_nand(mtd);
+=======
+static int tegra_nand_setup_interface(struct nand_chip *chip, int csline,
+				      const struct nand_interface_config *conf)
+{
+>>>>>>> upstream/android-13
 	struct tegra_nand_controller *ctrl = to_tegra_ctrl(chip->controller);
 	const struct nand_sdr_timings *timings;
 
@@ -841,7 +923,14 @@ static int tegra_nand_get_strength(struct nand_chip *chip, const int *strength,
 				   int strength_len, int bits_per_step,
 				   int oobsize)
 {
+<<<<<<< HEAD
 	bool maximize = chip->ecc.options & NAND_ECC_MAXIMIZE;
+=======
+	struct nand_device *base = mtd_to_nanddev(nand_to_mtd(chip));
+	const struct nand_ecc_props *requirements =
+		nanddev_get_ecc_requirements(base);
+	bool maximize = base->ecc.user_conf.flags & NAND_ECC_MAXIMIZE_STRENGTH;
+>>>>>>> upstream/android-13
 	int i;
 
 	/*
@@ -856,7 +945,11 @@ static int tegra_nand_get_strength(struct nand_chip *chip, const int *strength,
 		} else {
 			strength_sel = strength[i];
 
+<<<<<<< HEAD
 			if (strength_sel < chip->ecc_strength_ds)
+=======
+			if (strength_sel < requirements->strength)
+>>>>>>> upstream/android-13
 				continue;
 		}
 
@@ -878,7 +971,11 @@ static int tegra_nand_select_strength(struct nand_chip *chip, int oobsize)
 	int strength_len, bits_per_step;
 
 	switch (chip->ecc.algo) {
+<<<<<<< HEAD
 	case NAND_ECC_RS:
+=======
+	case NAND_ECC_ALGO_RS:
+>>>>>>> upstream/android-13
 		bits_per_step = BITS_PER_STEP_RS;
 		if (chip->options & NAND_IS_BOOT_MEDIUM) {
 			strength = rs_strength_bootable;
@@ -888,7 +985,11 @@ static int tegra_nand_select_strength(struct nand_chip *chip, int oobsize)
 			strength_len = ARRAY_SIZE(rs_strength);
 		}
 		break;
+<<<<<<< HEAD
 	case NAND_ECC_BCH:
+=======
+	case NAND_ECC_ALGO_BCH:
+>>>>>>> upstream/android-13
 		bits_per_step = BITS_PER_STEP_BCH;
 		if (chip->options & NAND_IS_BOOT_MEDIUM) {
 			strength = bch_strength_bootable;
@@ -909,6 +1010,11 @@ static int tegra_nand_select_strength(struct nand_chip *chip, int oobsize)
 static int tegra_nand_attach_chip(struct nand_chip *chip)
 {
 	struct tegra_nand_controller *ctrl = to_tegra_ctrl(chip->controller);
+<<<<<<< HEAD
+=======
+	const struct nand_ecc_props *requirements =
+		nanddev_get_ecc_requirements(&chip->base);
+>>>>>>> upstream/android-13
 	struct tegra_nand_chip *nand = to_tegra_chip(chip);
 	struct mtd_info *mtd = nand_to_mtd(chip);
 	int bits_per_step;
@@ -917,12 +1023,21 @@ static int tegra_nand_attach_chip(struct nand_chip *chip)
 	if (chip->bbt_options & NAND_BBT_USE_FLASH)
 		chip->bbt_options |= NAND_BBT_NO_OOB;
 
+<<<<<<< HEAD
 	chip->ecc.mode = NAND_ECC_HW;
 	chip->ecc.size = 512;
 	chip->ecc.steps = mtd->writesize / chip->ecc.size;
 	if (chip->ecc_step_ds != 512) {
 		dev_err(ctrl->dev, "Unsupported step size %d\n",
 			chip->ecc_step_ds);
+=======
+	chip->ecc.engine_type = NAND_ECC_ENGINE_TYPE_ON_HOST;
+	chip->ecc.size = 512;
+	chip->ecc.steps = mtd->writesize / chip->ecc.size;
+	if (requirements->step_size != 512) {
+		dev_err(ctrl->dev, "Unsupported step size %d\n",
+			requirements->step_size);
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -936,6 +1051,7 @@ static int tegra_nand_attach_chip(struct nand_chip *chip)
 	if (chip->options & NAND_BUSWIDTH_16)
 		nand->config |= CONFIG_BUS_WIDTH_16;
 
+<<<<<<< HEAD
 	if (chip->ecc.algo == NAND_ECC_UNKNOWN) {
 		if (mtd->writesize < 2048)
 			chip->ecc.algo = NAND_ECC_RS;
@@ -944,6 +1060,16 @@ static int tegra_nand_attach_chip(struct nand_chip *chip)
 	}
 
 	if (chip->ecc.algo == NAND_ECC_BCH && mtd->writesize < 2048) {
+=======
+	if (chip->ecc.algo == NAND_ECC_ALGO_UNKNOWN) {
+		if (mtd->writesize < 2048)
+			chip->ecc.algo = NAND_ECC_ALGO_RS;
+		else
+			chip->ecc.algo = NAND_ECC_ALGO_BCH;
+	}
+
+	if (chip->ecc.algo == NAND_ECC_ALGO_BCH && mtd->writesize < 2048) {
+>>>>>>> upstream/android-13
 		dev_err(ctrl->dev, "BCH supports 2K or 4K page size only\n");
 		return -EINVAL;
 	}
@@ -953,7 +1079,11 @@ static int tegra_nand_attach_chip(struct nand_chip *chip)
 		if (ret < 0) {
 			dev_err(ctrl->dev,
 				"No valid strength found, minimum %d\n",
+<<<<<<< HEAD
 				chip->ecc_strength_ds);
+=======
+				requirements->strength);
+>>>>>>> upstream/android-13
 			return ret;
 		}
 
@@ -964,7 +1094,11 @@ static int tegra_nand_attach_chip(struct nand_chip *chip)
 			   CONFIG_SKIP_SPARE_SIZE_4;
 
 	switch (chip->ecc.algo) {
+<<<<<<< HEAD
 	case NAND_ECC_RS:
+=======
+	case NAND_ECC_ALGO_RS:
+>>>>>>> upstream/android-13
 		bits_per_step = BITS_PER_STEP_RS * chip->ecc.strength;
 		mtd_set_ooblayout(mtd, &tegra_nand_oob_rs_ops);
 		nand->config_ecc |= CONFIG_HW_ECC | CONFIG_ECC_SEL |
@@ -985,7 +1119,11 @@ static int tegra_nand_attach_chip(struct nand_chip *chip)
 			return -EINVAL;
 		}
 		break;
+<<<<<<< HEAD
 	case NAND_ECC_BCH:
+=======
+	case NAND_ECC_ALGO_BCH:
+>>>>>>> upstream/android-13
 		bits_per_step = BITS_PER_STEP_BCH * chip->ecc.strength;
 		mtd_set_ooblayout(mtd, &tegra_nand_oob_bch_ops);
 		nand->bch_config = BCH_ENABLE;
@@ -1014,7 +1152,11 @@ static int tegra_nand_attach_chip(struct nand_chip *chip)
 	}
 
 	dev_info(ctrl->dev, "Using %s with strength %d per 512 byte step\n",
+<<<<<<< HEAD
 		 chip->ecc.algo == NAND_ECC_BCH ? "BCH" : "RS",
+=======
+		 chip->ecc.algo == NAND_ECC_ALGO_BCH ? "BCH" : "RS",
+>>>>>>> upstream/android-13
 		 chip->ecc.strength);
 
 	chip->ecc.bytes = DIV_ROUND_UP(bits_per_step, BITS_PER_BYTE);
@@ -1053,6 +1195,11 @@ static int tegra_nand_attach_chip(struct nand_chip *chip)
 
 static const struct nand_controller_ops tegra_nand_controller_ops = {
 	.attach_chip = &tegra_nand_attach_chip,
+<<<<<<< HEAD
+=======
+	.exec_op = tegra_nand_exec_op,
+	.setup_interface = tegra_nand_setup_interface,
+>>>>>>> upstream/android-13
 };
 
 static int tegra_nand_chips_init(struct device *dev,
@@ -1114,10 +1261,14 @@ static int tegra_nand_chips_init(struct device *dev,
 	if (!mtd->name)
 		mtd->name = "tegra_nand";
 
+<<<<<<< HEAD
 	chip->options = NAND_NO_SUBPAGE_WRITE | NAND_USE_BOUNCE_BUFFER;
 	chip->exec_op = tegra_nand_exec_op;
 	chip->select_chip = tegra_nand_select_chip;
 	chip->setup_data_interface = tegra_nand_setup_data_interface;
+=======
+	chip->options = NAND_NO_SUBPAGE_WRITE | NAND_USES_DMA;
+>>>>>>> upstream/android-13
 
 	ret = nand_scan(chip, 1);
 	if (ret)

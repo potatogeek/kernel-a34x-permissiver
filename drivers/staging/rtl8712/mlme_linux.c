@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /******************************************************************************
  * mlme_linux.c
  *
  * Copyright(c) 2007 - 2010 Realtek Corporation. All rights reserved.
  * Linux device driver for RTL8192SU
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
  * published by the Free Software Foundation.
@@ -17,6 +22,8 @@
  * this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA
  *
+=======
+>>>>>>> upstream/android-13
  * Modifications for inclusion into the Linux staging tree are
  * Copyright(c) 2010 Larry Finger. All rights reserved.
  *
@@ -72,12 +79,17 @@ static void wdg_timeout_handler (struct timer_list *t)
 	struct _adapter *adapter =
 		from_timer(adapter, t, mlmepriv.wdg_timer);
 
+<<<<<<< HEAD
 	_r8712_wdg_timeout_handler(adapter);
+=======
+	r8712_wdg_wk_cmd(adapter);
+>>>>>>> upstream/android-13
 
 	mod_timer(&adapter->mlmepriv.wdg_timer,
 		  jiffies + msecs_to_jiffies(2000));
 }
 
+<<<<<<< HEAD
 void r8712_init_mlme_timer(struct _adapter *padapter)
 {
 	struct	mlme_priv *pmlmepriv = &padapter->mlmepriv;
@@ -88,6 +100,18 @@ void r8712_init_mlme_timer(struct _adapter *padapter)
 	timer_setup(&pmlmepriv->scan_to_timer, _scan_timeout_handler, 0);
 	timer_setup(&pmlmepriv->dhcp_timer, dhcp_timeout_handler, 0);
 	timer_setup(&pmlmepriv->wdg_timer, wdg_timeout_handler, 0);
+=======
+void r8712_init_mlme_timer(struct _adapter *adapter)
+{
+	struct	mlme_priv *mlmepriv = &adapter->mlmepriv;
+
+	timer_setup(&mlmepriv->assoc_timer, join_timeout_handler, 0);
+	timer_setup(&mlmepriv->sitesurveyctrl.sitesurvey_ctrl_timer,
+		    sitesurvey_ctrl_handler, 0);
+	timer_setup(&mlmepriv->scan_to_timer, _scan_timeout_handler, 0);
+	timer_setup(&mlmepriv->dhcp_timer, dhcp_timeout_handler, 0);
+	timer_setup(&mlmepriv->wdg_timer, wdg_timeout_handler, 0);
+>>>>>>> upstream/android-13
 }
 
 void r8712_os_indicate_connect(struct _adapter *adapter)
@@ -131,6 +155,7 @@ void r8712_os_indicate_disconnect(struct _adapter *adapter)
 		adapter->securitypriv.btkip_countermeasure =
 					 backupTKIPCountermeasure;
 	} else { /*reset values in securitypriv*/
+<<<<<<< HEAD
 		struct security_priv *psec_priv = &adapter->securitypriv;
 
 		psec_priv->AuthAlgrthm = 0; /*open system*/
@@ -141,6 +166,18 @@ void r8712_os_indicate_disconnect(struct _adapter *adapter)
 		psec_priv->ndisauthtype = Ndis802_11AuthModeOpen;
 		psec_priv->ndisencryptstatus = Ndis802_11WEPDisabled;
 		psec_priv->wps_phase = false;
+=======
+		struct security_priv *sec_priv = &adapter->securitypriv;
+
+		sec_priv->AuthAlgrthm = 0; /*open system*/
+		sec_priv->PrivacyAlgrthm = _NO_PRIVACY_;
+		sec_priv->PrivacyKeyIndex = 0;
+		sec_priv->XGrpPrivacy = _NO_PRIVACY_;
+		sec_priv->XGrpKeyid = 1;
+		sec_priv->ndisauthtype = Ndis802_11AuthModeOpen;
+		sec_priv->ndisencryptstatus = Ndis802_11WEPDisabled;
+		sec_priv->wps_phase = false;
+>>>>>>> upstream/android-13
 	}
 }
 

@@ -562,11 +562,17 @@ static int bman_create_portal(struct bman_portal *portal,
 		dev_err(c->dev, "request_irq() failed\n");
 		goto fail_irq;
 	}
+<<<<<<< HEAD
 	if (c->cpu != -1 && irq_can_set_affinity(c->irq) &&
 	    irq_set_affinity(c->irq, cpumask_of(c->cpu))) {
 		dev_err(c->dev, "irq_set_affinity() failed\n");
 		goto fail_affinity;
 	}
+=======
+
+	if (dpaa_set_portal_irq_affinity(c->dev, c->irq, c->cpu))
+		goto fail_affinity;
+>>>>>>> upstream/android-13
 
 	/* Need RCR to be empty before continuing */
 	ret = bm_rcr_get_fill(p);
@@ -637,6 +643,7 @@ int bman_p_irqsource_add(struct bman_portal *p, u32 bits)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int bm_shutdown_pool(u32 bpid)
 {
 	struct bm_mc_command *bm_cmd;
@@ -644,11 +651,23 @@ static int bm_shutdown_pool(u32 bpid)
 
 	while (1) {
 		struct bman_portal *p = get_affine_portal();
+=======
+int bm_shutdown_pool(u32 bpid)
+{
+	int err = 0;
+	struct bm_mc_command *bm_cmd;
+	union bm_mc_result *bm_res;
+
+
+	struct bman_portal *p = get_affine_portal();
+	while (1) {
+>>>>>>> upstream/android-13
 		/* Acquire buffers until empty */
 		bm_cmd = bm_mc_start(&p->p);
 		bm_cmd->bpid = bpid;
 		bm_mc_commit(&p->p, BM_MCC_VERB_CMD_ACQUIRE | 1);
 		if (!bm_mc_result_timeout(&p->p, &bm_res)) {
+<<<<<<< HEAD
 			put_affine_portal();
 			pr_crit("BMan Acquire Command timedout\n");
 			return -ETIMEDOUT;
@@ -662,6 +681,20 @@ static int bm_shutdown_pool(u32 bpid)
 	}
 
 	return 0;
+=======
+			pr_crit("BMan Acquire Command timedout\n");
+			err = -ETIMEDOUT;
+			goto done;
+		}
+		if (!(bm_res->verb & BM_MCR_VERB_ACQUIRE_BUFCOUNT)) {
+			/* Pool is empty */
+			goto done;
+		}
+	}
+done:
+	put_affine_portal();
+	return err;
+>>>>>>> upstream/android-13
 }
 
 struct gen_pool *bm_bpalloc;
@@ -710,7 +743,10 @@ struct bman_pool *bman_new_pool(void)
 	return pool;
 err:
 	bm_release_bpid(bpid);
+<<<<<<< HEAD
 	kfree(pool);
+=======
+>>>>>>> upstream/android-13
 	return NULL;
 }
 EXPORT_SYMBOL(bman_new_pool);

@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Adding PCI-E MSI support for PPC4XX SoCs.
  *
  * Copyright (c) 2010, Applied Micro Circuits Corporation
  * Authors:	Tirumala R Marri <tmarri@apm.com>
  *		Feng Kan <fkan@apm.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -19,6 +24,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/irq.h>

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * drivers/extcon/extcon.c - External Connector (extcon) framework.
  *
@@ -11,6 +15,7 @@
  * based on android/drivers/switch/switch_class.c
  * Copyright (C) 2008 Google, Inc.
  * Author: Mike Lockwood <lockwood@android.com>
+<<<<<<< HEAD
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -20,6 +25,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -487,6 +494,7 @@ int extcon_sync(struct extcon_dev *edev, unsigned int id)
 }
 EXPORT_SYMBOL_GPL(extcon_sync);
 
+<<<<<<< HEAD
 int extcon_blocking_sync(struct extcon_dev *edev, unsigned int id, bool val)
 {
 	int index;
@@ -502,6 +510,8 @@ int extcon_blocking_sync(struct extcon_dev *edev, unsigned int id, bool val)
 }
 EXPORT_SYMBOL(extcon_blocking_sync);
 
+=======
+>>>>>>> upstream/android-13
 /**
  * extcon_get_state() - Get the state of an external connector.
  * @edev:	the extcon device
@@ -509,7 +519,11 @@ EXPORT_SYMBOL(extcon_blocking_sync);
  *
  * Returns 0 if success or error number if fail.
  */
+<<<<<<< HEAD
 int extcon_get_state(struct extcon_dev *edev, const unsigned int id)
+=======
+int extcon_get_state(struct extcon_dev *edev, unsigned int id)
+>>>>>>> upstream/android-13
 {
 	int index, state;
 	unsigned long flags;
@@ -643,7 +657,11 @@ int extcon_get_property(struct extcon_dev *edev, unsigned int id,
 	unsigned long flags;
 	int index, ret = 0;
 
+<<<<<<< HEAD
 	*prop_val = (union extcon_property_value)(0);
+=======
+	*prop_val = (union extcon_property_value){0};
+>>>>>>> upstream/android-13
 
 	if (!edev)
 		return -EINVAL;
@@ -923,7 +941,11 @@ int extcon_register_notifier(struct extcon_dev *edev, unsigned int id,
 			     struct notifier_block *nb)
 {
 	unsigned long flags;
+<<<<<<< HEAD
 	int ret, idx = -EINVAL;
+=======
+	int ret, idx;
+>>>>>>> upstream/android-13
 
 	if (!edev || !nb)
 		return -EINVAL;
@@ -940,6 +962,7 @@ int extcon_register_notifier(struct extcon_dev *edev, unsigned int id,
 }
 EXPORT_SYMBOL_GPL(extcon_register_notifier);
 
+<<<<<<< HEAD
 int extcon_register_blocking_notifier(struct extcon_dev *edev, unsigned int id,
 			struct notifier_block *nb)
 {
@@ -972,6 +995,8 @@ int extcon_unregister_blocking_notifier(struct extcon_dev *edev,
 }
 EXPORT_SYMBOL(extcon_unregister_blocking_notifier);
 
+=======
+>>>>>>> upstream/android-13
 /**
  * extcon_unregister_notifier() - Unregister a notifier block from the extcon.
  * @edev:	the extcon device
@@ -1170,7 +1195,10 @@ int extcon_dev_register(struct extcon_dev *edev)
 			(unsigned long)atomic_inc_return(&edev_no));
 
 	if (edev->max_supported) {
+<<<<<<< HEAD
 		char buf[10];
+=======
+>>>>>>> upstream/android-13
 		char *str;
 		struct extcon_cable *cable;
 
@@ -1184,9 +1212,13 @@ int extcon_dev_register(struct extcon_dev *edev)
 		for (index = 0; index < edev->max_supported; index++) {
 			cable = &edev->cables[index];
 
+<<<<<<< HEAD
 			snprintf(buf, 10, "cable.%d", index);
 			str = kzalloc(strlen(buf) + 1,
 				      GFP_KERNEL);
+=======
+			str = kasprintf(GFP_KERNEL, "cable.%d", index);
+>>>>>>> upstream/android-13
 			if (!str) {
 				for (index--; index >= 0; index--) {
 					cable = &edev->cables[index];
@@ -1196,7 +1228,10 @@ int extcon_dev_register(struct extcon_dev *edev)
 
 				goto err_alloc_cables;
 			}
+<<<<<<< HEAD
 			strcpy(str, buf);
+=======
+>>>>>>> upstream/android-13
 
 			cable->edev = edev;
 			cable->cable_index = index;
@@ -1219,7 +1254,10 @@ int extcon_dev_register(struct extcon_dev *edev)
 	}
 
 	if (edev->max_supported && edev->mutually_exclusive) {
+<<<<<<< HEAD
 		char buf[80];
+=======
+>>>>>>> upstream/android-13
 		char *name;
 
 		/* Count the size of mutually_exclusive array */
@@ -1244,9 +1282,14 @@ int extcon_dev_register(struct extcon_dev *edev)
 		}
 
 		for (index = 0; edev->mutually_exclusive[index]; index++) {
+<<<<<<< HEAD
 			sprintf(buf, "0x%x", edev->mutually_exclusive[index]);
 			name = kzalloc(strlen(buf) + 1,
 				       GFP_KERNEL);
+=======
+			name = kasprintf(GFP_KERNEL, "0x%x",
+					 edev->mutually_exclusive[index]);
+>>>>>>> upstream/android-13
 			if (!name) {
 				for (index--; index >= 0; index--) {
 					kfree(edev->d_attrs_muex[index].attr.
@@ -1257,7 +1300,10 @@ int extcon_dev_register(struct extcon_dev *edev)
 				ret = -ENOMEM;
 				goto err_muex;
 			}
+<<<<<<< HEAD
 			strcpy(name, buf);
+=======
+>>>>>>> upstream/android-13
 			sysfs_attr_init(&edev->d_attrs_muex[index].attr);
 			edev->d_attrs_muex[index].attr.name = name;
 			edev->d_attrs_muex[index].attr.mode = 0000;
@@ -1307,6 +1353,7 @@ int extcon_dev_register(struct extcon_dev *edev)
 		goto err_dev;
 	}
 
+<<<<<<< HEAD
 	edev->bnh = devm_kzalloc(&edev->dev,
 			sizeof(*edev->bnh) * edev->max_supported, GFP_KERNEL);
 	if (!edev->bnh) {
@@ -1314,6 +1361,8 @@ int extcon_dev_register(struct extcon_dev *edev)
 		goto err_dev;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	for (index = 0; index < edev->max_supported; index++)
 		RAW_INIT_NOTIFIER_HEAD(&edev->nh[index]);
 

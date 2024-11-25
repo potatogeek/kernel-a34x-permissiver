@@ -71,7 +71,10 @@ static unsigned int tx_start = 10;
 static unsigned int tx_stop = 5;
 
 struct ntb_netdev {
+<<<<<<< HEAD
 	struct list_head list;
+=======
+>>>>>>> upstream/android-13
 	struct pci_dev *pdev;
 	struct net_device *ndev;
 	struct ntb_transport_qp *qp;
@@ -81,8 +84,11 @@ struct ntb_netdev {
 #define	NTB_TX_TIMEOUT_MS	1000
 #define	NTB_RXQ_SIZE		100
 
+<<<<<<< HEAD
 static LIST_HEAD(dev_list);
 
+=======
+>>>>>>> upstream/android-13
 static void ntb_netdev_event_handler(void *data, int link_is_up)
 {
 	struct net_device *ndev = data;
@@ -452,7 +458,11 @@ static int ntb_netdev_probe(struct device *client_dev)
 	if (rc)
 		goto err1;
 
+<<<<<<< HEAD
 	list_add(&dev->list, &dev_list);
+=======
+	dev_set_drvdata(client_dev, ndev);
+>>>>>>> upstream/android-13
 	dev_info(&pdev->dev, "%s created\n", ndev->name);
 	return 0;
 
@@ -465,6 +475,7 @@ err:
 
 static void ntb_netdev_remove(struct device *client_dev)
 {
+<<<<<<< HEAD
 	struct ntb_dev *ntb;
 	struct net_device *ndev;
 	struct pci_dev *pdev;
@@ -486,6 +497,10 @@ static void ntb_netdev_remove(struct device *client_dev)
 	list_del(&dev->list);
 
 	ndev = dev->ndev;
+=======
+	struct net_device *ndev = dev_get_drvdata(client_dev);
+	struct ntb_netdev *dev = netdev_priv(ndev);
+>>>>>>> upstream/android-13
 
 	unregister_netdev(ndev);
 	ntb_transport_free_queue(dev->qp);

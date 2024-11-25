@@ -26,13 +26,21 @@ static __init bool ocelot_detect(void)
 	tlb_probe_hazard();
 	idx = read_c0_index();
 	if (idx < 0)
+<<<<<<< HEAD
 		return 0;
+=======
+		return false;
+>>>>>>> upstream/android-13
 
 	/* A TLB entry exists, lets assume its usable and check the CHIP ID */
 	rev = __raw_readl((void __iomem *)DEVCPU_GCB_CHIP_REGS_CHIP_ID);
 
 	if ((rev & CHIP_ID_PART_ID) != OCELOT_PART_ID)
+<<<<<<< HEAD
 		return 0;
+=======
+		return false;
+>>>>>>> upstream/android-13
 
 	/* Copy command line from bootloader early for Initrd detection */
 	if (fw_arg0 < 10 && (fw_arg1 & 0xFFF00000) == 0x80000000) {
@@ -44,14 +52,22 @@ static __init bool ocelot_detect(void)
 			strcpy(arcs_cmdline, prom_argv[1]);
 	}
 
+<<<<<<< HEAD
 	return 1;
+=======
+	return true;
+>>>>>>> upstream/android-13
 }
 
 static void __init ocelot_earlyprintk_init(void)
 {
 	void __iomem *uart_base;
 
+<<<<<<< HEAD
 	uart_base = ioremap_nocache(UART_UART, 0x20);
+=======
+	uart_base = ioremap(UART_UART, 0x20);
+>>>>>>> upstream/android-13
 	setup_8250_early_printk_port((unsigned long)uart_base, 2, 50000);
 }
 

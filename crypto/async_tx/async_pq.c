@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright(c) 2007 Yuri Tikhonov <yur@emcraft.com>
  * Copyright(c) 2009 Intel Corporation
@@ -18,6 +19,12 @@
  *
  * The full GNU General Public License is included in this distribution in the
  * file called COPYING.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright(c) 2007 Yuri Tikhonov <yur@emcraft.com>
+ * Copyright(c) 2009 Intel Corporation
+>>>>>>> upstream/android-13
  */
 #include <linux/kernel.h>
 #include <linux/interrupt.h>
@@ -120,7 +127,11 @@ do_async_gen_syndrome(struct dma_chan *chan,
  * do_sync_gen_syndrome - synchronously calculate a raid6 syndrome
  */
 static void
+<<<<<<< HEAD
 do_sync_gen_syndrome(struct page **blocks, unsigned int offset, int disks,
+=======
+do_sync_gen_syndrome(struct page **blocks, unsigned int *offsets, int disks,
+>>>>>>> upstream/android-13
 		     size_t len, struct async_submit_ctl *submit)
 {
 	void **srcs;
@@ -137,7 +148,12 @@ do_sync_gen_syndrome(struct page **blocks, unsigned int offset, int disks,
 			BUG_ON(i > disks - 3); /* P or Q can't be zero */
 			srcs[i] = (void*)raid6_empty_zero_page;
 		} else {
+<<<<<<< HEAD
 			srcs[i] = page_address(blocks[i]) + offset;
+=======
+			srcs[i] = page_address(blocks[i]) + offsets[i];
+
+>>>>>>> upstream/android-13
 			if (i < disks - 2) {
 				stop = i;
 				if (start == -1)
@@ -154,10 +170,30 @@ do_sync_gen_syndrome(struct page **blocks, unsigned int offset, int disks,
 	async_tx_sync_epilog(submit);
 }
 
+<<<<<<< HEAD
 /**
  * async_gen_syndrome - asynchronously calculate a raid6 syndrome
  * @blocks: source blocks from idx 0..disks-3, P @ disks-2 and Q @ disks-1
  * @offset: common offset into each block (src and dest) to start transaction
+=======
+static inline bool
+is_dma_pq_aligned_offs(struct dma_device *dev, unsigned int *offs,
+				     int src_cnt, size_t len)
+{
+	int i;
+
+	for (i = 0; i < src_cnt; i++) {
+		if (!is_dma_pq_aligned(dev, offs[i], 0, len))
+			return false;
+	}
+	return true;
+}
+
+/**
+ * async_gen_syndrome - asynchronously calculate a raid6 syndrome
+ * @blocks: source blocks from idx 0..disks-3, P @ disks-2 and Q @ disks-1
+ * @offsets: offset array into each block (src and dest) to start transaction
+>>>>>>> upstream/android-13
  * @disks: number of blocks (including missing P or Q, see below)
  * @len: length of operation in bytes
  * @submit: submission/completion modifiers
@@ -176,7 +212,11 @@ do_sync_gen_syndrome(struct page **blocks, unsigned int offset, int disks,
  * path.
  */
 struct dma_async_tx_descriptor *
+<<<<<<< HEAD
 async_gen_syndrome(struct page **blocks, unsigned int offset, int disks,
+=======
+async_gen_syndrome(struct page **blocks, unsigned int *offsets, int disks,
+>>>>>>> upstream/android-13
 		   size_t len, struct async_submit_ctl *submit)
 {
 	int src_cnt = disks - 2;
@@ -195,7 +235,11 @@ async_gen_syndrome(struct page **blocks, unsigned int offset, int disks,
 	if (unmap && !(submit->flags & ASYNC_TX_PQ_XOR_DST) &&
 	    (src_cnt <= dma_maxpq(device, 0) ||
 	     dma_maxpq(device, DMA_PREP_CONTINUE) > 0) &&
+<<<<<<< HEAD
 	    is_dma_pq_aligned(device, offset, 0, len)) {
+=======
+	    is_dma_pq_aligned_offs(device, offsets, disks, len)) {
+>>>>>>> upstream/android-13
 		struct dma_async_tx_descriptor *tx;
 		enum dma_ctrl_flags dma_flags = 0;
 		unsigned char coefs[MAX_DISKS];
@@ -212,8 +256,13 @@ async_gen_syndrome(struct page **blocks, unsigned int offset, int disks,
 		for (i = 0, j = 0; i < src_cnt; i++) {
 			if (blocks[i] == NULL)
 				continue;
+<<<<<<< HEAD
 			unmap->addr[j] = dma_map_page(device->dev, blocks[i], offset,
 						      len, DMA_TO_DEVICE);
+=======
+			unmap->addr[j] = dma_map_page(device->dev, blocks[i],
+						offsets[i], len, DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 			coefs[j] = raid6_gfexp[i];
 			unmap->to_cnt++;
 			j++;
@@ -226,7 +275,12 @@ async_gen_syndrome(struct page **blocks, unsigned int offset, int disks,
 		unmap->bidi_cnt++;
 		if (P(blocks, disks))
 			unmap->addr[j++] = dma_map_page(device->dev, P(blocks, disks),
+<<<<<<< HEAD
 							offset, len, DMA_BIDIRECTIONAL);
+=======
+							P(offsets, disks),
+							len, DMA_BIDIRECTIONAL);
+>>>>>>> upstream/android-13
 		else {
 			unmap->addr[j++] = 0;
 			dma_flags |= DMA_PREP_PQ_DISABLE_P;
@@ -235,7 +289,12 @@ async_gen_syndrome(struct page **blocks, unsigned int offset, int disks,
 		unmap->bidi_cnt++;
 		if (Q(blocks, disks))
 			unmap->addr[j++] = dma_map_page(device->dev, Q(blocks, disks),
+<<<<<<< HEAD
 						       offset, len, DMA_BIDIRECTIONAL);
+=======
+							Q(offsets, disks),
+							len, DMA_BIDIRECTIONAL);
+>>>>>>> upstream/android-13
 		else {
 			unmap->addr[j++] = 0;
 			dma_flags |= DMA_PREP_PQ_DISABLE_Q;
@@ -256,6 +315,7 @@ async_gen_syndrome(struct page **blocks, unsigned int offset, int disks,
 
 	if (!P(blocks, disks)) {
 		P(blocks, disks) = pq_scribble_page;
+<<<<<<< HEAD
 		BUG_ON(len + offset > PAGE_SIZE);
 	}
 	if (!Q(blocks, disks)) {
@@ -263,6 +323,15 @@ async_gen_syndrome(struct page **blocks, unsigned int offset, int disks,
 		BUG_ON(len + offset > PAGE_SIZE);
 	}
 	do_sync_gen_syndrome(blocks, offset, disks, len, submit);
+=======
+		P(offsets, disks) = 0;
+	}
+	if (!Q(blocks, disks)) {
+		Q(blocks, disks) = pq_scribble_page;
+		Q(offsets, disks) = 0;
+	}
+	do_sync_gen_syndrome(blocks, offsets, disks, len, submit);
+>>>>>>> upstream/android-13
 
 	return NULL;
 }
@@ -286,6 +355,10 @@ pq_val_chan(struct async_submit_ctl *submit, struct page **blocks, int disks, si
  * @len: length of operation in bytes
  * @pqres: on val failure SUM_CHECK_P_RESULT and/or SUM_CHECK_Q_RESULT are set
  * @spare: temporary result buffer for the synchronous case
+<<<<<<< HEAD
+=======
+ * @s_off: spare buffer page offset
+>>>>>>> upstream/android-13
  * @submit: submission / completion modifiers
  *
  * The same notes from async_gen_syndrome apply to the 'blocks',
@@ -294,9 +367,15 @@ pq_val_chan(struct async_submit_ctl *submit, struct page **blocks, int disks, si
  * specified.
  */
 struct dma_async_tx_descriptor *
+<<<<<<< HEAD
 async_syndrome_val(struct page **blocks, unsigned int offset, int disks,
 		   size_t len, enum sum_check_flags *pqres, struct page *spare,
 		   struct async_submit_ctl *submit)
+=======
+async_syndrome_val(struct page **blocks, unsigned int *offsets, int disks,
+		   size_t len, enum sum_check_flags *pqres, struct page *spare,
+		   unsigned int s_off, struct async_submit_ctl *submit)
+>>>>>>> upstream/android-13
 {
 	struct dma_chan *chan = pq_val_chan(submit, blocks, disks, len);
 	struct dma_device *device = chan ? chan->device : NULL;
@@ -311,7 +390,11 @@ async_syndrome_val(struct page **blocks, unsigned int offset, int disks,
 		unmap = dmaengine_get_unmap_data(device->dev, disks, GFP_NOWAIT);
 
 	if (unmap && disks <= dma_maxpq(device, 0) &&
+<<<<<<< HEAD
 	    is_dma_pq_aligned(device, offset, 0, len)) {
+=======
+	    is_dma_pq_aligned_offs(device, offsets, disks, len)) {
+>>>>>>> upstream/android-13
 		struct device *dev = device->dev;
 		dma_addr_t pq[2];
 		int i, j = 0, src_cnt = 0;
@@ -323,7 +406,11 @@ async_syndrome_val(struct page **blocks, unsigned int offset, int disks,
 		for (i = 0; i < disks-2; i++)
 			if (likely(blocks[i])) {
 				unmap->addr[j] = dma_map_page(dev, blocks[i],
+<<<<<<< HEAD
 							      offset, len,
+=======
+							      offsets[i], len,
+>>>>>>> upstream/android-13
 							      DMA_TO_DEVICE);
 				coefs[j] = raid6_gfexp[i];
 				unmap->to_cnt++;
@@ -336,7 +423,11 @@ async_syndrome_val(struct page **blocks, unsigned int offset, int disks,
 			dma_flags |= DMA_PREP_PQ_DISABLE_P;
 		} else {
 			pq[0] = dma_map_page(dev, P(blocks, disks),
+<<<<<<< HEAD
 					     offset, len,
+=======
+					     P(offsets, disks), len,
+>>>>>>> upstream/android-13
 					     DMA_TO_DEVICE);
 			unmap->addr[j++] = pq[0];
 			unmap->to_cnt++;
@@ -346,7 +437,11 @@ async_syndrome_val(struct page **blocks, unsigned int offset, int disks,
 			dma_flags |= DMA_PREP_PQ_DISABLE_Q;
 		} else {
 			pq[1] = dma_map_page(dev, Q(blocks, disks),
+<<<<<<< HEAD
 					     offset, len,
+=======
+					     Q(offsets, disks), len,
+>>>>>>> upstream/android-13
 					     DMA_TO_DEVICE);
 			unmap->addr[j++] = pq[1];
 			unmap->to_cnt++;
@@ -371,7 +466,13 @@ async_syndrome_val(struct page **blocks, unsigned int offset, int disks,
 		async_tx_submit(chan, tx, submit);
 	} else {
 		struct page *p_src = P(blocks, disks);
+<<<<<<< HEAD
 		struct page *q_src = Q(blocks, disks);
+=======
+		unsigned int p_off = P(offsets, disks);
+		struct page *q_src = Q(blocks, disks);
+		unsigned int q_off = Q(offsets, disks);
+>>>>>>> upstream/android-13
 		enum async_tx_flags flags_orig = submit->flags;
 		dma_async_tx_callback cb_fn_orig = submit->cb_fn;
 		void *scribble = submit->scribble;
@@ -397,27 +498,51 @@ async_syndrome_val(struct page **blocks, unsigned int offset, int disks,
 		if (p_src) {
 			init_async_submit(submit, ASYNC_TX_XOR_ZERO_DST, NULL,
 					  NULL, NULL, scribble);
+<<<<<<< HEAD
 			tx = async_xor(spare, blocks, offset, disks-2, len, submit);
 			async_tx_quiesce(&tx);
 			p = page_address(p_src) + offset;
 			s = page_address(spare) + offset;
+=======
+			tx = async_xor_offs(spare, s_off,
+					blocks, offsets, disks-2, len, submit);
+			async_tx_quiesce(&tx);
+			p = page_address(p_src) + p_off;
+			s = page_address(spare) + s_off;
+>>>>>>> upstream/android-13
 			*pqres |= !!memcmp(p, s, len) << SUM_CHECK_P;
 		}
 
 		if (q_src) {
 			P(blocks, disks) = NULL;
 			Q(blocks, disks) = spare;
+<<<<<<< HEAD
 			init_async_submit(submit, 0, NULL, NULL, NULL, scribble);
 			tx = async_gen_syndrome(blocks, offset, disks, len, submit);
 			async_tx_quiesce(&tx);
 			q = page_address(q_src) + offset;
 			s = page_address(spare) + offset;
+=======
+			Q(offsets, disks) = s_off;
+			init_async_submit(submit, 0, NULL, NULL, NULL, scribble);
+			tx = async_gen_syndrome(blocks, offsets, disks,
+					len, submit);
+			async_tx_quiesce(&tx);
+			q = page_address(q_src) + q_off;
+			s = page_address(spare) + s_off;
+>>>>>>> upstream/android-13
 			*pqres |= !!memcmp(q, s, len) << SUM_CHECK_Q;
 		}
 
 		/* restore P, Q and submit */
 		P(blocks, disks) = p_src;
+<<<<<<< HEAD
 		Q(blocks, disks) = q_src;
+=======
+		P(offsets, disks) = p_off;
+		Q(blocks, disks) = q_src;
+		Q(offsets, disks) = q_off;
+>>>>>>> upstream/android-13
 
 		submit->cb_fn = cb_fn_orig;
 		submit->cb_param = cb_param_orig;

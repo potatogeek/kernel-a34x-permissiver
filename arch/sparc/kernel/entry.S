@@ -10,6 +10,10 @@
 
 #include <linux/linkage.h>
 #include <linux/errno.h>
+<<<<<<< HEAD
+=======
+#include <linux/pgtable.h>
+>>>>>>> upstream/android-13
 
 #include <asm/head.h>
 #include <asm/asi.h>
@@ -20,7 +24,10 @@
 #include <asm/psr.h>
 #include <asm/vaddrs.h>
 #include <asm/page.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/winmacro.h>
 #include <asm/signal.h>
 #include <asm/obio.h>
@@ -869,6 +876,7 @@ flush_patch_two:
 	ld	[%curptr + TI_TASK], %o4
 	rd	%psr, %g4
 	WRITE_PAUSE
+<<<<<<< HEAD
 	mov	SIGCHLD, %o0			! arg0:	clone flags
 	rd	%wim, %g5
 	WRITE_PAUSE
@@ -877,6 +885,13 @@ flush_patch_two:
 	add	%sp, STACKFRAME_SZ, %o2		! arg2:	pt_regs ptr
 	mov	0, %o3
 	call	sparc_do_fork
+=======
+	rd	%wim, %g5
+	WRITE_PAUSE
+	std	%g4, [%o4 + AOFF_task_thread + AOFF_thread_fork_kpsr]
+	add	%sp, STACKFRAME_SZ, %o0
+	call	sparc_fork
+>>>>>>> upstream/android-13
 	 mov	%l5, %o7
 
 	/* Whee, kernel threads! */
@@ -888,6 +903,7 @@ flush_patch_three:
 	ld	[%curptr + TI_TASK], %o4
 	rd	%psr, %g4
 	WRITE_PAUSE
+<<<<<<< HEAD
 
 	/* arg0,1: flags,usp  -- loaded already */
 	cmp	%o1, 0x0			! Is new_usp NULL?
@@ -901,6 +917,13 @@ flush_patch_three:
 	add	%sp, STACKFRAME_SZ, %o2		! arg2:	pt_regs ptr
 	mov	0, %o3
 	call	sparc_do_fork
+=======
+	rd	%wim, %g5
+	WRITE_PAUSE
+	std	%g4, [%o4 + AOFF_task_thread + AOFF_thread_fork_kpsr]
+	add	%sp, STACKFRAME_SZ, %o0
+	call	sparc_clone
+>>>>>>> upstream/android-13
 	 mov	%l5, %o7
 
 	/* Whee, real vfork! */
@@ -914,6 +937,7 @@ flush_patch_four:
 	rd	%wim, %g5
 	WRITE_PAUSE
 	std	%g4, [%o4 + AOFF_task_thread + AOFF_thread_fork_kpsr]
+<<<<<<< HEAD
 	sethi	%hi(0x4000 | 0x0100 | SIGCHLD), %o0
 	mov	%fp, %o1
 	or	%o0, %lo(0x4000 | 0x0100 | SIGCHLD), %o0
@@ -921,6 +945,11 @@ flush_patch_four:
 	mov	0, %o3
 	jmpl	%l1 + %lo(sparc_do_fork), %g0
 	 add	%sp, STACKFRAME_SZ, %o2
+=======
+	sethi	%hi(sparc_vfork), %l1
+	jmpl	%l1 + %lo(sparc_vfork), %g0
+	 add	%sp, STACKFRAME_SZ, %o0
+>>>>>>> upstream/android-13
 
         .align  4
 linux_sparc_ni_syscall:
@@ -1009,7 +1038,11 @@ do_syscall:
 	andcc	%l5, _TIF_SYSCALL_TRACE, %g0
 	mov	%i4, %o4
 	bne	linux_syscall_trace
+<<<<<<< HEAD
 	 mov	%i0, %l5
+=======
+	 mov	%i0, %l6
+>>>>>>> upstream/android-13
 2:
 	call	%l7
 	 mov	%i5, %o5
@@ -1018,16 +1051,27 @@ do_syscall:
 	st	%o0, [%sp + STACKFRAME_SZ + PT_I0]
 
 ret_sys_call:
+<<<<<<< HEAD
 	ld	[%curptr + TI_FLAGS], %l6
+=======
+	ld	[%curptr + TI_FLAGS], %l5
+>>>>>>> upstream/android-13
 	cmp	%o0, -ERESTART_RESTARTBLOCK
 	ld	[%sp + STACKFRAME_SZ + PT_PSR], %g3
 	set	PSR_C, %g2
 	bgeu	1f
+<<<<<<< HEAD
 	 andcc	%l6, _TIF_SYSCALL_TRACE, %g0
 
 	/* System call success, clear Carry condition code. */
 	andn	%g3, %g2, %g3
 	clr	%l6
+=======
+	 andcc	%l5, _TIF_SYSCALL_TRACE, %g0
+
+	/* System call success, clear Carry condition code. */
+	andn	%g3, %g2, %g3
+>>>>>>> upstream/android-13
 	st	%g3, [%sp + STACKFRAME_SZ + PT_PSR]	
 	bne	linux_syscall_trace2
 	 ld	[%sp + STACKFRAME_SZ + PT_NPC], %l1 /* pc = npc */
@@ -1042,7 +1086,10 @@ ret_sys_call:
 	sub	%g0, %o0, %o0
 	or	%g3, %g2, %g3
 	st	%o0, [%sp + STACKFRAME_SZ + PT_I0]
+<<<<<<< HEAD
 	mov	1, %l6
+=======
+>>>>>>> upstream/android-13
 	st	%g3, [%sp + STACKFRAME_SZ + PT_PSR]
 	bne	linux_syscall_trace2
 	 ld	[%sp + STACKFRAME_SZ + PT_NPC], %l1 /* pc = npc */

@@ -5,8 +5,11 @@
 #include <stdio.h>
 #include <stdarg.h>
 
+<<<<<<< HEAD
 #include "../util/cache.h"
 
+=======
+>>>>>>> upstream/android-13
 struct ui_helpline {
 	void (*pop)(void);
 	void (*push)(const char *msg);

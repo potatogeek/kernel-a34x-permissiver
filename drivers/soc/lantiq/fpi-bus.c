@@ -1,7 +1,12 @@
+<<<<<<< HEAD
 /*
  *  This program is free software; you can redistribute it and/or modify it
  *  under the terms of the GNU General Public License version 2 as published
  *  by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+>>>>>>> upstream/android-13
  *
  *  Copyright (C) 2011-2015 John Crispin <blogic@phrozen.org>
  *  Copyright (C) 2015 Martin Blumenstingl <martin.blumenstingl@googlemail.com>
@@ -30,14 +35,21 @@ static int ltq_fpi_probe(struct platform_device *pdev)
 {
 	struct device *dev = &pdev->dev;
 	struct device_node *np = dev->of_node;
+<<<<<<< HEAD
 	struct resource *res_xbar;
+=======
+>>>>>>> upstream/android-13
 	struct regmap *rcu_regmap;
 	void __iomem *xbar_membase;
 	u32 rcu_ahb_endianness_reg_offset;
 	int ret;
 
+<<<<<<< HEAD
 	res_xbar = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	xbar_membase = devm_ioremap_resource(dev, res_xbar);
+=======
+	xbar_membase = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(xbar_membase))
 		return PTR_ERR(xbar_membase);
 

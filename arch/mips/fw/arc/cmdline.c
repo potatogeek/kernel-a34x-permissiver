@@ -17,6 +17,15 @@
 
 #undef DEBUG_CMDLINE
 
+<<<<<<< HEAD
+=======
+/*
+ * A 32-bit ARC PROM pass arguments and environment as 32-bit pointer.
+ * These macro take care of sign extension.
+ */
+#define prom_argv(index) ((char *) (long)argv[(index)])
+
+>>>>>>> upstream/android-13
 static char *ignored[] = {
 	"ConsoleIn=",
 	"ConsoleOut=",
@@ -32,14 +41,22 @@ static char *used_arc[][2] = {
 	{ "OSLoadOptions=", "" }
 };
 
+<<<<<<< HEAD
 static char * __init move_firmware_args(char* cp)
+=======
+static char __init *move_firmware_args(int argc, LONG *argv, char *cp)
+>>>>>>> upstream/android-13
 {
 	char *s;
 	int actr, i;
 
 	actr = 1; /* Always ignore argv[0] */
 
+<<<<<<< HEAD
 	while (actr < prom_argc) {
+=======
+	while (actr < argc) {
+>>>>>>> upstream/android-13
 		for(i = 0; i < ARRAY_SIZE(used_arc); i++) {
 			int len = strlen(used_arc[i][0]);
 
@@ -64,7 +81,11 @@ static char * __init move_firmware_args(char* cp)
 	return cp;
 }
 
+<<<<<<< HEAD
 void __init prom_init_cmdline(void)
+=======
+void __init prom_init_cmdline(int argc, LONG *argv)
+>>>>>>> upstream/android-13
 {
 	char *cp;
 	int actr, i;
@@ -76,9 +97,15 @@ void __init prom_init_cmdline(void)
 	 * Move ARC variables to the beginning to make sure they can be
 	 * overridden by later arguments.
 	 */
+<<<<<<< HEAD
 	cp = move_firmware_args(cp);
 
 	while (actr < prom_argc) {
+=======
+	cp = move_firmware_args(argc, argv, cp);
+
+	while (actr < argc) {
+>>>>>>> upstream/android-13
 		for (i = 0; i < ARRAY_SIZE(ignored); i++) {
 			int len = strlen(ignored[i]);
 

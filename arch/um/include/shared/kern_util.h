@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2000 - 2007 Jeff Dike (jdike@{addtoit,linux.intel}.com)
  * Licensed under the GPL
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+/*
+ * Copyright (C) 2000 - 2007 Jeff Dike (jdike@{addtoit,linux.intel}.com)
+>>>>>>> upstream/android-13
  */
 
 #ifndef __KERN_UTIL_H__
@@ -33,12 +39,20 @@ extern int handle_page_fault(unsigned long address, unsigned long ip,
 			     int is_write, int is_user, int *code_out);
 
 extern unsigned int do_IRQ(int irq, struct uml_pt_regs *regs);
+<<<<<<< HEAD
 extern int smp_sigio_handler(void);
+=======
+>>>>>>> upstream/android-13
 extern void initial_thread_cb(void (*proc)(void *), void *arg);
 extern int is_syscall(unsigned long addr);
 
 extern void timer_handler(int sig, struct siginfo *unused_si, struct uml_pt_regs *regs);
 
+<<<<<<< HEAD
+=======
+extern void uml_pm_wake(void);
+
+>>>>>>> upstream/android-13
 extern int start_uml(void);
 extern void paging_init(void);
 
@@ -66,5 +80,9 @@ extern void bus_handler(int sig, struct siginfo *si, struct uml_pt_regs *regs);
 extern void winch(int sig, struct siginfo *unused_si, struct uml_pt_regs *regs);
 extern void fatal_sigsegv(void) __attribute__ ((noreturn));
 
+<<<<<<< HEAD
+=======
+void um_idle_sleep(void);
+>>>>>>> upstream/android-13
 
 #endif

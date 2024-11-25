@@ -1,7 +1,15 @@
+<<<<<<< HEAD
 /*
  * CPU frequency scaling for DaVinci
  *
  * Copyright (C) 2009 Texas Instruments Incorporated - http://www.ti.com/
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * CPU frequency scaling for DaVinci
+ *
+ * Copyright (C) 2009 Texas Instruments Incorporated - https://www.ti.com/
+>>>>>>> upstream/android-13
  *
  * Based on linux/arch/arm/plat-omap/cpu-omap.c. Original Copyright follows:
  *
@@ -13,16 +21,20 @@
  * Copyright (C) 2007-2008 Texas Instruments, Inc.
  * Updated to support OMAP3
  * Rajendra Nayak <rnayak@ti.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/types.h>
 #include <linux/cpufreq.h>
 #include <linux/init.h>
 #include <linux/err.h>
 #include <linux/clk.h>
+<<<<<<< HEAD
 #include <linux/platform_device.h>
 #include <linux/export.h>
 
@@ -30,6 +42,12 @@
 #include <mach/cpufreq.h>
 #include <mach/common.h>
 
+=======
+#include <linux/platform_data/davinci-cpufreq.h>
+#include <linux/platform_device.h>
+#include <linux/export.h>
+
+>>>>>>> upstream/android-13
 struct davinci_cpufreq {
 	struct device *dev;
 	struct clk *armclk;
@@ -96,11 +114,20 @@ static int davinci_cpu_init(struct cpufreq_policy *policy)
 	 * Setting the latency to 2000 us to accommodate addition of drivers
 	 * to pre/post change notification list.
 	 */
+<<<<<<< HEAD
 	return cpufreq_generic_init(policy, freq_table, 2000 * 1000);
 }
 
 static struct cpufreq_driver davinci_driver = {
 	.flags		= CPUFREQ_STICKY | CPUFREQ_NEED_INITIAL_FREQ_CHECK,
+=======
+	cpufreq_generic_init(policy, freq_table, 2000 * 1000);
+	return 0;
+}
+
+static struct cpufreq_driver davinci_driver = {
+	.flags		= CPUFREQ_NEED_INITIAL_FREQ_CHECK,
+>>>>>>> upstream/android-13
 	.verify		= cpufreq_generic_frequency_table_verify,
 	.target_index	= davinci_target,
 	.get		= cpufreq_generic_get,

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2016 Mellanox Technologies Ltd. All rights reserved.
  * Copyright (c) 2015 System Fabric Works, Inc. All rights reserved.
@@ -29,6 +30,12 @@
  * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
+=======
+// SPDX-License-Identifier: GPL-2.0 OR Linux-OpenIB
+/*
+ * Copyright (c) 2016 Mellanox Technologies Ltd. All rights reserved.
+ * Copyright (c) 2015 System Fabric Works, Inc. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/vmalloc.h>
@@ -36,17 +43,24 @@
 #include "rxe_loc.h"
 #include "rxe_queue.h"
 
+<<<<<<< HEAD
 int do_mmap_info(struct rxe_dev *rxe,
 		 struct mminfo __user *outbuf,
 		 struct ib_ucontext *context,
 		 struct rxe_queue_buf *buf,
 		 size_t buf_size,
 		 struct rxe_mmap_info **ip_p)
+=======
+int do_mmap_info(struct rxe_dev *rxe, struct mminfo __user *outbuf,
+		 struct ib_udata *udata, struct rxe_queue_buf *buf,
+		 size_t buf_size, struct rxe_mmap_info **ip_p)
+>>>>>>> upstream/android-13
 {
 	int err;
 	struct rxe_mmap_info *ip = NULL;
 
 	if (outbuf) {
+<<<<<<< HEAD
 		ip = rxe_create_mmap_info(rxe, buf_size, context, buf);
 		if (!ip)
 			goto err1;
@@ -54,6 +68,18 @@ int do_mmap_info(struct rxe_dev *rxe,
 		err = copy_to_user(outbuf, &ip->info, sizeof(ip->info));
 		if (err)
 			goto err2;
+=======
+		ip = rxe_create_mmap_info(rxe, buf_size, udata, buf);
+		if (IS_ERR(ip)) {
+			err = PTR_ERR(ip);
+			goto err1;
+		}
+
+		if (copy_to_user(outbuf, &ip->info, sizeof(ip->info))) {
+			err = -EFAULT;
+			goto err2;
+		}
+>>>>>>> upstream/android-13
 
 		spin_lock_bh(&rxe->pending_lock);
 		list_add(&ip->pending_mmaps, &rxe->pending_mmaps);
@@ -67,7 +93,11 @@ int do_mmap_info(struct rxe_dev *rxe,
 err2:
 	kfree(ip);
 err1:
+<<<<<<< HEAD
 	return -EINVAL;
+=======
+	return err;
+>>>>>>> upstream/android-13
 }
 
 inline void rxe_queue_reset(struct rxe_queue *q)
@@ -79,9 +109,14 @@ inline void rxe_queue_reset(struct rxe_queue *q)
 	memset(q->buf->data, 0, q->buf_size - sizeof(struct rxe_queue_buf));
 }
 
+<<<<<<< HEAD
 struct rxe_queue *rxe_queue_init(struct rxe_dev *rxe,
 				 int *num_elem,
 				 unsigned int elem_size)
+=======
+struct rxe_queue *rxe_queue_init(struct rxe_dev *rxe, int *num_elem,
+			unsigned int elem_size, enum queue_type type)
+>>>>>>> upstream/android-13
 {
 	struct rxe_queue *q;
 	size_t buf_size;
@@ -91,11 +126,19 @@ struct rxe_queue *rxe_queue_init(struct rxe_dev *rxe,
 	if (*num_elem < 0)
 		goto err1;
 
+<<<<<<< HEAD
 	q = kmalloc(sizeof(*q), GFP_KERNEL);
+=======
+	q = kzalloc(sizeof(*q), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!q)
 		goto err1;
 
 	q->rxe = rxe;
+<<<<<<< HEAD
+=======
+	q->type = type;
+>>>>>>> upstream/android-13
 
 	/* used in resize, only need to copy used part of queue */
 	q->elem_size = elem_size;
@@ -138,6 +181,7 @@ err1:
 static int resize_finish(struct rxe_queue *q, struct rxe_queue *new_q,
 			 unsigned int num_elem)
 {
+<<<<<<< HEAD
 	if (!queue_empty(q) && (num_elem < queue_count(q)))
 		return -EINVAL;
 
@@ -146,6 +190,17 @@ static int resize_finish(struct rxe_queue *q, struct rxe_queue *new_q,
 		       new_q->elem_size);
 		advance_producer(new_q);
 		advance_consumer(q);
+=======
+	if (!queue_empty(q, q->type) && (num_elem < queue_count(q, q->type)))
+		return -EINVAL;
+
+	while (!queue_empty(q, q->type)) {
+		memcpy(producer_addr(new_q, new_q->type),
+					consumer_addr(q, q->type),
+					new_q->elem_size);
+		advance_producer(new_q, new_q->type);
+		advance_consumer(q, q->type);
+>>>>>>> upstream/android-13
 	}
 
 	swap(*q, *new_q);
@@ -153,12 +208,18 @@ static int resize_finish(struct rxe_queue *q, struct rxe_queue *new_q,
 	return 0;
 }
 
+<<<<<<< HEAD
 int rxe_queue_resize(struct rxe_queue *q,
 		     unsigned int *num_elem_p,
 		     unsigned int elem_size,
 		     struct ib_ucontext *context,
 		     struct mminfo __user *outbuf,
 		     spinlock_t *producer_lock,
+=======
+int rxe_queue_resize(struct rxe_queue *q, unsigned int *num_elem_p,
+		     unsigned int elem_size, struct ib_udata *udata,
+		     struct mminfo __user *outbuf, spinlock_t *producer_lock,
+>>>>>>> upstream/android-13
 		     spinlock_t *consumer_lock)
 {
 	struct rxe_queue *new_q;
@@ -166,11 +227,19 @@ int rxe_queue_resize(struct rxe_queue *q,
 	int err;
 	unsigned long flags = 0, flags1;
 
+<<<<<<< HEAD
 	new_q = rxe_queue_init(q->rxe, &num_elem, elem_size);
 	if (!new_q)
 		return -ENOMEM;
 
 	err = do_mmap_info(new_q->rxe, outbuf, context, new_q->buf,
+=======
+	new_q = rxe_queue_init(q->rxe, &num_elem, elem_size, q->type);
+	if (!new_q)
+		return -ENOMEM;
+
+	err = do_mmap_info(new_q->rxe, outbuf, udata, new_q->buf,
+>>>>>>> upstream/android-13
 			   new_q->buf_size, &new_q->ip);
 	if (err) {
 		vfree(new_q->buf);

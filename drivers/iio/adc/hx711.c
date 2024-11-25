@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * HX711: analog to digital converter for weight sensor module
  *
  * Copyright (c) 2016 Andreas Klinger <ak@it-klinger.de>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,6 +17,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/err.h>
 #include <linux/kernel.h>
@@ -32,6 +39,10 @@
 
 /* gain to pulse and scale conversion */
 #define HX711_GAIN_MAX		3
+<<<<<<< HEAD
+=======
+#define HX711_RESET_GAIN	128
+>>>>>>> upstream/android-13
 
 struct hx711_gain_to_scale {
 	int			gain;
@@ -94,9 +105,15 @@ struct hx711_data {
 	struct mutex		lock;
 	/*
 	 * triggered buffer
+<<<<<<< HEAD
 	 * 2x32-bit channel + 64-bit timestamp
 	 */
 	u32			buffer[4];
+=======
+	 * 2x32-bit channel + 64-bit naturally aligned timestamp
+	 */
+	u32			buffer[4] __aligned(8);
+>>>>>>> upstream/android-13
 	/*
 	 * delay after a rising edge on SCK until the data is ready DOUT
 	 * this is dependent on the hx711 where the datasheet tells a
@@ -194,8 +211,12 @@ static int hx711_wait_for_ready(struct hx711_data *hx711_data)
 
 static int hx711_reset(struct hx711_data *hx711_data)
 {
+<<<<<<< HEAD
 	int ret;
 	int val = gpiod_get_value(hx711_data->gpiod_dout);
+=======
+	int val = hx711_wait_for_ready(hx711_data);
+>>>>>>> upstream/android-13
 
 	if (val) {
 		/*
@@ -211,6 +232,7 @@ static int hx711_reset(struct hx711_data *hx711_data)
 		msleep(10);
 		gpiod_set_value(hx711_data->gpiod_pd_sck, 0);
 
+<<<<<<< HEAD
 		ret = hx711_wait_for_ready(hx711_data);
 		if (ret)
 			return ret;
@@ -227,6 +249,12 @@ static int hx711_reset(struct hx711_data *hx711_data)
 		 * for not mixing gain pulses with the clock
 		 */
 		val = hx711_wait_for_ready(hx711_data);
+=======
+		val = hx711_wait_for_ready(hx711_data);
+
+		/* after a reset the gain is 128 */
+		hx711_data->gain_set = HX711_RESET_GAIN;
+>>>>>>> upstream/android-13
 	}
 
 	return val;
@@ -572,7 +600,10 @@ static int hx711_probe(struct platform_device *pdev)
 	platform_set_drvdata(pdev, indio_dev);
 
 	indio_dev->name = "hx711";
+<<<<<<< HEAD
 	indio_dev->dev.parent = &pdev->dev;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->info = &hx711_iio_info;
 	indio_dev->modes = INDIO_DIRECT_MODE;
 	indio_dev->channels = hx711_chan_spec;

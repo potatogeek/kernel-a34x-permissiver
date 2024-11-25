@@ -1,5 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * debugfs interface for sunrpc
  *
  * (c) 2014 Jeff Layton <jlayton@primarydata.com>
@@ -8,6 +12,7 @@
 #include <linux/debugfs.h>
 #include <linux/sunrpc/sched.h>
 #include <linux/sunrpc/clnt.h>
+<<<<<<< HEAD
 #include "netns.h"
 
 static struct dentry *topdir;
@@ -17,6 +22,16 @@ static struct dentry *rpc_xprt_dir;
 
 unsigned int rpc_inject_disconnect;
 
+=======
+
+#include "netns.h"
+#include "fail.h"
+
+static struct dentry *topdir;
+static struct dentry *rpc_clnt_dir;
+static struct dentry *rpc_xprt_dir;
+
+>>>>>>> upstream/android-13
 static int
 tasks_show(struct seq_file *f, void *v)
 {
@@ -33,7 +48,11 @@ tasks_show(struct seq_file *f, void *v)
 
 	seq_printf(f, "%5u %04x %6d 0x%x 0x%x %8ld %ps %sv%u %s a:%ps q:%s\n",
 		task->tk_pid, task->tk_flags, task->tk_status,
+<<<<<<< HEAD
 		clnt->cl_clid, xid, task->tk_timeout, task->tk_ops,
+=======
+		clnt->cl_clid, xid, rpc_task_timeout(task), task->tk_ops,
+>>>>>>> upstream/android-13
 		clnt->cl_program->name, clnt->cl_vers, rpc_proc_name(task),
 		task->tk_action, rpc_waitq);
 	return 0;
@@ -91,7 +110,11 @@ static int tasks_open(struct inode *inode, struct file *filp)
 		struct seq_file *seq = filp->private_data;
 		struct rpc_clnt *clnt = seq->private = inode->i_private;
 
+<<<<<<< HEAD
 		if (!atomic_inc_not_zero(&clnt->cl_count)) {
+=======
+		if (!refcount_inc_not_zero(&clnt->cl_count)) {
+>>>>>>> upstream/android-13
 			seq_release(inode, filp);
 			ret = -EINVAL;
 		}
@@ -118,16 +141,49 @@ static const struct file_operations tasks_fops = {
 	.release	= tasks_release,
 };
 
+<<<<<<< HEAD
+=======
+static int do_xprt_debugfs(struct rpc_clnt *clnt, struct rpc_xprt *xprt, void *numv)
+{
+	int len;
+	char name[24]; /* enough for "../../rpc_xprt/ + 8 hex digits + NULL */
+	char link[9]; /* enough for 8 hex digits + NULL */
+	int *nump = numv;
+
+	if (IS_ERR_OR_NULL(xprt->debugfs))
+		return 0;
+	len = snprintf(name, sizeof(name), "../../rpc_xprt/%s",
+		       xprt->debugfs->d_name.name);
+	if (len >= sizeof(name))
+		return -1;
+	if (*nump == 0)
+		strcpy(link, "xprt");
+	else {
+		len = snprintf(link, sizeof(link), "xprt%d", *nump);
+		if (len >= sizeof(link))
+			return -1;
+	}
+	debugfs_create_symlink(link, clnt->cl_debugfs, name);
+	(*nump)++;
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 void
 rpc_clnt_debugfs_register(struct rpc_clnt *clnt)
 {
 	int len;
+<<<<<<< HEAD
 	char name[24]; /* enough for "../../rpc_xprt/ + 8 hex digits + NULL */
 	struct rpc_xprt *xprt;
 
 	/* Already registered? */
 	if (clnt->cl_debugfs || !rpc_clnt_dir)
 		return;
+=======
+	char name[9]; /* enough for 8 hex digits + NULL */
+	int xprtnum = 0;
+>>>>>>> upstream/android-13
 
 	len = snprintf(name, sizeof(name), "%x", clnt->cl_clid);
 	if (len >= sizeof(name))
@@ -135,6 +191,7 @@ rpc_clnt_debugfs_register(struct rpc_clnt *clnt)
 
 	/* make the per-client dir */
 	clnt->cl_debugfs = debugfs_create_dir(name, rpc_clnt_dir);
+<<<<<<< HEAD
 	if (!clnt->cl_debugfs)
 		return;
 
@@ -164,6 +221,14 @@ rpc_clnt_debugfs_register(struct rpc_clnt *clnt)
 out_err:
 	debugfs_remove_recursive(clnt->cl_debugfs);
 	clnt->cl_debugfs = NULL;
+=======
+
+	/* make tasks file */
+	debugfs_create_file("tasks", S_IFREG | 0400, clnt->cl_debugfs, clnt,
+			    &tasks_fops);
+
+	rpc_clnt_iterate_for_each_xprt(clnt, do_xprt_debugfs, &xprtnum);
+>>>>>>> upstream/android-13
 }
 
 void
@@ -226,9 +291,12 @@ rpc_xprt_debugfs_register(struct rpc_xprt *xprt)
 	static atomic_t	cur_id;
 	char		name[9]; /* 8 hex digits + NULL term */
 
+<<<<<<< HEAD
 	if (!rpc_xprt_dir)
 		return;
 
+=======
+>>>>>>> upstream/android-13
 	id = (unsigned int)atomic_inc_return(&cur_id);
 
 	len = snprintf(name, sizeof(name), "%x", id);
@@ -237,6 +305,7 @@ rpc_xprt_debugfs_register(struct rpc_xprt *xprt)
 
 	/* make the per-client dir */
 	xprt->debugfs = debugfs_create_dir(name, rpc_xprt_dir);
+<<<<<<< HEAD
 	if (!xprt->debugfs)
 		return;
 
@@ -248,6 +317,12 @@ rpc_xprt_debugfs_register(struct rpc_xprt *xprt)
 	}
 
 	atomic_set(&xprt->inject_disconnect, rpc_inject_disconnect);
+=======
+
+	/* make tasks file */
+	debugfs_create_file("info", S_IFREG | 0400, xprt->debugfs, xprt,
+			    &xprt_info_fops);
+>>>>>>> upstream/android-13
 }
 
 void
@@ -257,6 +332,7 @@ rpc_xprt_debugfs_unregister(struct rpc_xprt *xprt)
 	xprt->debugfs = NULL;
 }
 
+<<<<<<< HEAD
 static int
 fault_open(struct inode *inode, struct file *filp)
 {
@@ -323,13 +399,42 @@ inject_fault_dir(struct dentry *topdir)
 
 	return faultdir;
 }
+=======
+#if IS_ENABLED(CONFIG_FAIL_SUNRPC)
+struct fail_sunrpc_attr fail_sunrpc = {
+	.attr			= FAULT_ATTR_INITIALIZER,
+};
+EXPORT_SYMBOL_GPL(fail_sunrpc);
+
+static void fail_sunrpc_init(void)
+{
+	struct dentry *dir;
+
+	dir = fault_create_debugfs_attr("fail_sunrpc", NULL,
+					&fail_sunrpc.attr);
+
+	debugfs_create_bool("ignore-client-disconnect", S_IFREG | 0600, dir,
+			    &fail_sunrpc.ignore_client_disconnect);
+
+	debugfs_create_bool("ignore-server-disconnect", S_IFREG | 0600, dir,
+			    &fail_sunrpc.ignore_server_disconnect);
+}
+#else
+static void fail_sunrpc_init(void)
+{
+}
+#endif
+>>>>>>> upstream/android-13
 
 void __exit
 sunrpc_debugfs_exit(void)
 {
 	debugfs_remove_recursive(topdir);
 	topdir = NULL;
+<<<<<<< HEAD
 	rpc_fault_dir = NULL;
+=======
+>>>>>>> upstream/android-13
 	rpc_clnt_dir = NULL;
 	rpc_xprt_dir = NULL;
 }
@@ -338,6 +443,7 @@ void __init
 sunrpc_debugfs_init(void)
 {
 	topdir = debugfs_create_dir("sunrpc", NULL);
+<<<<<<< HEAD
 	if (!topdir)
 		return;
 
@@ -359,4 +465,12 @@ out_remove:
 	topdir = NULL;
 	rpc_fault_dir = NULL;
 	rpc_clnt_dir = NULL;
+=======
+
+	rpc_clnt_dir = debugfs_create_dir("rpc_clnt", topdir);
+
+	rpc_xprt_dir = debugfs_create_dir("rpc_xprt", topdir);
+
+	fail_sunrpc_init();
+>>>>>>> upstream/android-13
 }

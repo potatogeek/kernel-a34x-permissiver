@@ -120,7 +120,11 @@ int check_ancestor_cgroup_ids(int prog_id)
 	int err = 0;
 	int map_fd;
 
+<<<<<<< HEAD
 	expected_ids[0] = 0x100000001;	/* root cgroup */
+=======
+	expected_ids[0] = get_cgroup_id("/..");	/* root cgroup */
+>>>>>>> upstream/android-13
 	expected_ids[1] = get_cgroup_id("");
 	expected_ids[2] = get_cgroup_id(CGROUP_PATH);
 	expected_ids[3] = 0; /* non-existent cgroup */
@@ -160,6 +164,7 @@ int main(int argc, char **argv)
 		exit(EXIT_FAILURE);
 	}
 
+<<<<<<< HEAD
 	if (setup_cgroup_environment())
 		goto err;
 
@@ -168,6 +173,10 @@ int main(int argc, char **argv)
 		goto err;
 
 	if (join_cgroup(CGROUP_PATH))
+=======
+	cgfd = cgroup_setup_and_join(CGROUP_PATH);
+	if (cgfd < 0)
+>>>>>>> upstream/android-13
 		goto err;
 
 	if (send_packet(argv[1]))

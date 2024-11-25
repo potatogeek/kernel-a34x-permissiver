@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Core, IRQ and I2C device driver for DA9061 and DA9062 PMICs
  * Copyright (C) 2015-2017  Dialog Semiconductor
@@ -11,6 +12,12 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Core, IRQ and I2C device driver for DA9061 and DA9062 PMICs
+ * Copyright (C) 2015-2017  Dialog Semiconductor
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -18,6 +25,10 @@
 #include <linux/init.h>
 #include <linux/device.h>
 #include <linux/interrupt.h>
+<<<<<<< HEAD
+=======
+#include <linux/of_device.h>
+>>>>>>> upstream/android-13
 #include <linux/regmap.h>
 #include <linux/irq.h>
 #include <linux/mfd/core.h>
@@ -30,6 +41,12 @@
 #define	DA9062_REG_EVENT_B_OFFSET	1
 #define	DA9062_REG_EVENT_C_OFFSET	2
 
+<<<<<<< HEAD
+=======
+#define	DA9062_IRQ_LOW	0
+#define	DA9062_IRQ_HIGH	1
+
+>>>>>>> upstream/android-13
 static struct regmap_irq da9061_irqs[] = {
 	/* EVENT A */
 	[DA9061_IRQ_ONKEY] = {
@@ -166,6 +183,7 @@ static struct regmap_irq_chip da9062_irq_chip = {
 	.ack_base = DA9062AA_EVENT_A,
 };
 
+<<<<<<< HEAD
 static struct resource da9061_core_resources[] = {
 	DEFINE_RES_IRQ_NAMED(DA9061_IRQ_VDD_WARN, "VDD_WARN"),
 };
@@ -183,6 +201,25 @@ static struct resource da9061_wdt_resources[] = {
 };
 
 static struct resource da9061_onkey_resources[] = {
+=======
+static const struct resource da9061_core_resources[] = {
+	DEFINE_RES_IRQ_NAMED(DA9061_IRQ_VDD_WARN, "VDD_WARN"),
+};
+
+static const struct resource da9061_regulators_resources[] = {
+	DEFINE_RES_IRQ_NAMED(DA9061_IRQ_LDO_LIM, "LDO_LIM"),
+};
+
+static const struct resource da9061_thermal_resources[] = {
+	DEFINE_RES_IRQ_NAMED(DA9061_IRQ_TEMP, "THERMAL"),
+};
+
+static const struct resource da9061_wdt_resources[] = {
+	DEFINE_RES_IRQ_NAMED(DA9061_IRQ_WDG_WARN, "WD_WARN"),
+};
+
+static const struct resource da9061_onkey_resources[] = {
+>>>>>>> upstream/android-13
 	DEFINE_RES_IRQ_NAMED(DA9061_IRQ_ONKEY, "ONKEY"),
 };
 
@@ -217,6 +254,7 @@ static const struct mfd_cell da9061_devs[] = {
 	},
 };
 
+<<<<<<< HEAD
 static struct resource da9062_core_resources[] = {
 	DEFINE_RES_NAMED(DA9062_IRQ_VDD_WARN, 1, "VDD_WARN", IORESOURCE_IRQ),
 };
@@ -234,14 +272,48 @@ static struct resource da9062_wdt_resources[] = {
 };
 
 static struct resource da9062_rtc_resources[] = {
+=======
+static const struct resource da9062_core_resources[] = {
+	DEFINE_RES_NAMED(DA9062_IRQ_VDD_WARN, 1, "VDD_WARN", IORESOURCE_IRQ),
+};
+
+static const struct resource da9062_regulators_resources[] = {
+	DEFINE_RES_NAMED(DA9062_IRQ_LDO_LIM, 1, "LDO_LIM", IORESOURCE_IRQ),
+};
+
+static const struct resource da9062_thermal_resources[] = {
+	DEFINE_RES_NAMED(DA9062_IRQ_TEMP, 1, "THERMAL", IORESOURCE_IRQ),
+};
+
+static const struct resource da9062_wdt_resources[] = {
+	DEFINE_RES_NAMED(DA9062_IRQ_WDG_WARN, 1, "WD_WARN", IORESOURCE_IRQ),
+};
+
+static const struct resource da9062_rtc_resources[] = {
+>>>>>>> upstream/android-13
 	DEFINE_RES_NAMED(DA9062_IRQ_ALARM, 1, "ALARM", IORESOURCE_IRQ),
 	DEFINE_RES_NAMED(DA9062_IRQ_TICK, 1, "TICK", IORESOURCE_IRQ),
 };
 
+<<<<<<< HEAD
 static struct resource da9062_onkey_resources[] = {
 	DEFINE_RES_NAMED(DA9062_IRQ_ONKEY, 1, "ONKEY", IORESOURCE_IRQ),
 };
 
+=======
+static const struct resource da9062_onkey_resources[] = {
+	DEFINE_RES_NAMED(DA9062_IRQ_ONKEY, 1, "ONKEY", IORESOURCE_IRQ),
+};
+
+static const struct resource da9062_gpio_resources[] = {
+	DEFINE_RES_NAMED(DA9062_IRQ_GPI0, 1, "GPI0", IORESOURCE_IRQ),
+	DEFINE_RES_NAMED(DA9062_IRQ_GPI1, 1, "GPI1", IORESOURCE_IRQ),
+	DEFINE_RES_NAMED(DA9062_IRQ_GPI2, 1, "GPI2", IORESOURCE_IRQ),
+	DEFINE_RES_NAMED(DA9062_IRQ_GPI3, 1, "GPI3", IORESOURCE_IRQ),
+	DEFINE_RES_NAMED(DA9062_IRQ_GPI4, 1, "GPI4", IORESOURCE_IRQ),
+};
+
+>>>>>>> upstream/android-13
 static const struct mfd_cell da9062_devs[] = {
 	{
 		.name		= "da9062-core",
@@ -275,7 +347,17 @@ static const struct mfd_cell da9062_devs[] = {
 		.name		= "da9062-onkey",
 		.num_resources	= ARRAY_SIZE(da9062_onkey_resources),
 		.resources	= da9062_onkey_resources,
+<<<<<<< HEAD
 		.of_compatible = "dlg,da9062-onkey",
+=======
+		.of_compatible	= "dlg,da9062-onkey",
+	},
+	{
+		.name		= "da9062-gpio",
+		.num_resources	= ARRAY_SIZE(da9062_gpio_resources),
+		.resources	= da9062_gpio_resources,
+		.of_compatible	= "dlg,da9062-gpio",
+>>>>>>> upstream/android-13
 	},
 };
 
@@ -364,6 +446,36 @@ static int da9062_get_device_type(struct da9062 *chip)
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+static u32 da9062_configure_irq_type(struct da9062 *chip, int irq, u32 *trigger)
+{
+	u32 irq_type = 0;
+	struct irq_data *irq_data = irq_get_irq_data(irq);
+
+	if (!irq_data) {
+		dev_err(chip->dev, "Invalid IRQ: %d\n", irq);
+		return -EINVAL;
+	}
+	*trigger = irqd_get_trigger_type(irq_data);
+
+	switch (*trigger) {
+	case IRQ_TYPE_LEVEL_HIGH:
+		irq_type = DA9062_IRQ_HIGH;
+		break;
+	case IRQ_TYPE_LEVEL_LOW:
+		irq_type = DA9062_IRQ_LOW;
+		break;
+	default:
+		dev_warn(chip->dev, "Unsupported IRQ type: %d\n", *trigger);
+		return -EINVAL;
+	}
+	return regmap_update_bits(chip->regmap, DA9062AA_CONFIG_A,
+			DA9062AA_IRQ_TYPE_MASK,
+			irq_type << DA9062AA_IRQ_TYPE_SHIFT);
+}
+
+>>>>>>> upstream/android-13
 static const struct regmap_range da9061_aa_readable_ranges[] = {
 	regmap_reg_range(DA9062AA_PAGE_CON, DA9062AA_STATUS_B),
 	regmap_reg_range(DA9062AA_STATUS_D, DA9062AA_EVENT_C),
@@ -383,6 +495,10 @@ static const struct regmap_range da9061_aa_readable_ranges[] = {
 	regmap_reg_range(DA9062AA_VBUCK1_A, DA9062AA_VBUCK4_A),
 	regmap_reg_range(DA9062AA_VBUCK3_A, DA9062AA_VBUCK3_A),
 	regmap_reg_range(DA9062AA_VLDO1_A, DA9062AA_VLDO4_A),
+<<<<<<< HEAD
+=======
+	regmap_reg_range(DA9062AA_CONFIG_A, DA9062AA_CONFIG_A),
+>>>>>>> upstream/android-13
 	regmap_reg_range(DA9062AA_VBUCK1_B, DA9062AA_VBUCK4_B),
 	regmap_reg_range(DA9062AA_VBUCK3_B, DA9062AA_VBUCK3_B),
 	regmap_reg_range(DA9062AA_VLDO1_B, DA9062AA_VLDO4_B),
@@ -412,6 +528,10 @@ static const struct regmap_range da9061_aa_writeable_ranges[] = {
 	regmap_reg_range(DA9062AA_VBUCK1_A, DA9062AA_VBUCK4_A),
 	regmap_reg_range(DA9062AA_VBUCK3_A, DA9062AA_VBUCK3_A),
 	regmap_reg_range(DA9062AA_VLDO1_A, DA9062AA_VLDO4_A),
+<<<<<<< HEAD
+=======
+	regmap_reg_range(DA9062AA_CONFIG_A, DA9062AA_CONFIG_A),
+>>>>>>> upstream/android-13
 	regmap_reg_range(DA9062AA_VBUCK1_B, DA9062AA_VBUCK4_B),
 	regmap_reg_range(DA9062AA_VBUCK3_B, DA9062AA_VBUCK3_B),
 	regmap_reg_range(DA9062AA_VLDO1_B, DA9062AA_VLDO4_B),
@@ -585,18 +705,26 @@ static int da9062_i2c_probe(struct i2c_client *i2c,
 	const struct i2c_device_id *id)
 {
 	struct da9062 *chip;
+<<<<<<< HEAD
 	const struct of_device_id *match;
+=======
+>>>>>>> upstream/android-13
 	unsigned int irq_base;
 	const struct mfd_cell *cell;
 	const struct regmap_irq_chip *irq_chip;
 	const struct regmap_config *config;
 	int cell_num;
+<<<<<<< HEAD
+=======
+	u32 trigger_type = 0;
+>>>>>>> upstream/android-13
 	int ret;
 
 	chip = devm_kzalloc(&i2c->dev, sizeof(*chip), GFP_KERNEL);
 	if (!chip)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	if (i2c->dev.of_node) {
 		match = of_match_node(da9062_dt_ids, i2c->dev.of_node);
 		if (!match)
@@ -606,6 +734,12 @@ static int da9062_i2c_probe(struct i2c_client *i2c,
 	} else {
 		chip->chip_type = id->driver_data;
 	}
+=======
+	if (i2c->dev.of_node)
+		chip->chip_type = (uintptr_t)of_device_get_match_data(&i2c->dev);
+	else
+		chip->chip_type = id->driver_data;
+>>>>>>> upstream/android-13
 
 	i2c_set_clientdata(i2c, chip);
 	chip->dev = &i2c->dev;
@@ -649,10 +783,22 @@ static int da9062_i2c_probe(struct i2c_client *i2c,
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	ret = regmap_add_irq_chip(chip->regmap, i2c->irq,
 			IRQF_TRIGGER_LOW | IRQF_ONESHOT | IRQF_SHARED,
 			-1, irq_chip,
 			&chip->regmap_irq);
+=======
+	ret = da9062_configure_irq_type(chip, i2c->irq, &trigger_type);
+	if (ret < 0) {
+		dev_err(chip->dev, "Failed to configure IRQ type\n");
+		return ret;
+	}
+
+	ret = regmap_add_irq_chip(chip->regmap, i2c->irq,
+			trigger_type | IRQF_SHARED | IRQF_ONESHOT,
+			-1, irq_chip, &chip->regmap_irq);
+>>>>>>> upstream/android-13
 	if (ret) {
 		dev_err(chip->dev, "Failed to request IRQ %d: %d\n",
 			i2c->irq, ret);
@@ -693,7 +839,11 @@ MODULE_DEVICE_TABLE(i2c, da9062_i2c_id);
 static struct i2c_driver da9062_i2c_driver = {
 	.driver = {
 		.name = "da9062",
+<<<<<<< HEAD
 		.of_match_table = of_match_ptr(da9062_dt_ids),
+=======
+		.of_match_table = da9062_dt_ids,
+>>>>>>> upstream/android-13
 	},
 	.probe    = da9062_i2c_probe,
 	.remove   = da9062_i2c_remove,

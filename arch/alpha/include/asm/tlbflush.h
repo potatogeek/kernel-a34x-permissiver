@@ -5,7 +5,10 @@
 #include <linux/mm.h>
 #include <linux/sched.h>
 #include <asm/compiler.h>
+<<<<<<< HEAD
 #include <asm/pgalloc.h>
+=======
+>>>>>>> upstream/android-13
 
 #ifndef __EXTERN_INLINE
 #define __EXTERN_INLINE extern inline

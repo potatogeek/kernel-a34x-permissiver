@@ -40,7 +40,11 @@ struct stat {
 	uid_t		st_uid;
 	gid_t		st_gid;
 	unsigned long	st_rdev;
+<<<<<<< HEAD
 	off_t		st_size;
+=======
+	long		st_size;
+>>>>>>> upstream/android-13
 	unsigned long	st_blksize;
 	unsigned long	st_blocks;
 	unsigned long	st_atime;

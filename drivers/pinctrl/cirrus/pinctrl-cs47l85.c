@@ -1,12 +1,19 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Pinctrl for Cirrus Logic CS47L85
  *
  * Copyright (C) 2016-2017 Cirrus Logic
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by the
  * Free Software Foundation; version 2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/err.h>

@@ -30,8 +30,11 @@
 #include <linux/spinlock.h>
 #include <linux/soundcard.h>
 #include <linux/slab.h>
+<<<<<<< HEAD
 #include <linux/vmalloc.h>
 #include <linux/proc_fs.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/module.h>
 #include <sound/core.h>
 #include <sound/pcm.h>
@@ -116,6 +119,10 @@ static void em28xx_audio_isocirq(struct urb *urb)
 		stride = runtime->frame_bits >> 3;
 
 		for (i = 0; i < urb->number_of_packets; i++) {
+<<<<<<< HEAD
+=======
+			unsigned long flags;
+>>>>>>> upstream/android-13
 			int length =
 			    urb->iso_frame_desc[i].actual_length / stride;
 			cp = (unsigned char *)urb->transfer_buffer +
@@ -137,7 +144,11 @@ static void em28xx_audio_isocirq(struct urb *urb)
 				       length * stride);
 			}
 
+<<<<<<< HEAD
 			snd_pcm_stream_lock(substream);
+=======
+			snd_pcm_stream_lock_irqsave(substream, flags);
+>>>>>>> upstream/android-13
 
 			dev->adev.hwptr_done_capture += length;
 			if (dev->adev.hwptr_done_capture >=
@@ -153,7 +164,11 @@ static void em28xx_audio_isocirq(struct urb *urb)
 				period_elapsed = 1;
 			}
 
+<<<<<<< HEAD
 			snd_pcm_stream_unlock(substream);
+=======
+			snd_pcm_stream_unlock_irqrestore(substream, flags);
+>>>>>>> upstream/android-13
 		}
 		if (period_elapsed)
 			snd_pcm_period_elapsed(substream);
@@ -192,6 +207,7 @@ static int em28xx_init_audio_isoc(struct em28xx *dev)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int snd_pcm_alloc_vmalloc_buffer(struct snd_pcm_substream *subs,
 					size_t size)
 {
@@ -214,6 +230,8 @@ static int snd_pcm_alloc_vmalloc_buffer(struct snd_pcm_substream *subs,
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static const struct snd_pcm_hardware snd_em28xx_hw_capture = {
 	.info = SNDRV_PCM_INFO_BLOCK_TRANSFER |
 		SNDRV_PCM_INFO_MMAP           |
@@ -341,17 +359,21 @@ static int snd_em28xx_pcm_close(struct snd_pcm_substream *substream)
 	}
 
 	em28xx_audio_analog_set(dev);
+<<<<<<< HEAD
 	if (substream->runtime->dma_area) {
 		dprintk("freeing\n");
 		vfree(substream->runtime->dma_area);
 		substream->runtime->dma_area = NULL;
 	}
+=======
+>>>>>>> upstream/android-13
 	mutex_unlock(&dev->lock);
 	kref_put(&dev->ref, em28xx_free_device);
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static int snd_em28xx_hw_capture_params(struct snd_pcm_substream *substream,
 					struct snd_pcm_hw_params *hw_params)
 {
@@ -398,6 +420,8 @@ static int snd_em28xx_hw_capture_free(struct snd_pcm_substream *substream)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int snd_em28xx_prepare(struct snd_pcm_substream *substream)
 {
 	struct em28xx *dev = snd_pcm_substream_chip(substream);
@@ -436,6 +460,7 @@ static int snd_em28xx_capture_trigger(struct snd_pcm_substream *substream,
 		return -ENODEV;
 
 	switch (cmd) {
+<<<<<<< HEAD
 	case SNDRV_PCM_TRIGGER_PAUSE_RELEASE: /* fall through */
 	case SNDRV_PCM_TRIGGER_RESUME: /* fall through */
 	case SNDRV_PCM_TRIGGER_START:
@@ -443,6 +468,15 @@ static int snd_em28xx_capture_trigger(struct snd_pcm_substream *substream,
 		break;
 	case SNDRV_PCM_TRIGGER_PAUSE_PUSH: /* fall through */
 	case SNDRV_PCM_TRIGGER_SUSPEND: /* fall through */
+=======
+	case SNDRV_PCM_TRIGGER_PAUSE_RELEASE:
+	case SNDRV_PCM_TRIGGER_RESUME:
+	case SNDRV_PCM_TRIGGER_START:
+		atomic_set(&dev->adev.stream_started, 1);
+		break;
+	case SNDRV_PCM_TRIGGER_PAUSE_PUSH:
+	case SNDRV_PCM_TRIGGER_SUSPEND:
+>>>>>>> upstream/android-13
 	case SNDRV_PCM_TRIGGER_STOP:
 		atomic_set(&dev->adev.stream_started, 0);
 		break;
@@ -471,6 +505,7 @@ static snd_pcm_uframes_t snd_em28xx_capture_pointer(struct snd_pcm_substream
 	return hwptr_done;
 }
 
+<<<<<<< HEAD
 static struct page *snd_pcm_get_vmalloc_page(struct snd_pcm_substream *subs,
 					     unsigned long offset)
 {
@@ -479,6 +514,8 @@ static struct page *snd_pcm_get_vmalloc_page(struct snd_pcm_substream *subs,
 	return vmalloc_to_page(pageptr);
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * AC97 volume control support
  */
@@ -665,9 +702,15 @@ static int em28xx_cvol_new(struct snd_card *card, struct em28xx *dev,
 	struct snd_kcontrol_new tmp;
 
 	memset(&tmp, 0, sizeof(tmp));
+<<<<<<< HEAD
 	tmp.iface = SNDRV_CTL_ELEM_IFACE_MIXER,
 	tmp.private_value = id,
 	tmp.name  = ctl_name,
+=======
+	tmp.iface = SNDRV_CTL_ELEM_IFACE_MIXER;
+	tmp.private_value = id;
+	tmp.name  = ctl_name;
+>>>>>>> upstream/android-13
 
 	/* Add Mute Control */
 	sprintf(ctl_name, "%s Switch", name);
@@ -682,16 +725,26 @@ static int em28xx_cvol_new(struct snd_card *card, struct em28xx *dev,
 		ctl_name, id);
 
 	memset(&tmp, 0, sizeof(tmp));
+<<<<<<< HEAD
 	tmp.iface = SNDRV_CTL_ELEM_IFACE_MIXER,
 	tmp.private_value = id,
 	tmp.name  = ctl_name,
+=======
+	tmp.iface = SNDRV_CTL_ELEM_IFACE_MIXER;
+	tmp.private_value = id;
+	tmp.name  = ctl_name;
+>>>>>>> upstream/android-13
 
 	/* Add Volume Control */
 	sprintf(ctl_name, "%s Volume", name);
 	tmp.get   = em28xx_vol_get;
 	tmp.put   = em28xx_vol_put;
 	tmp.info  = em28xx_vol_info;
+<<<<<<< HEAD
 	tmp.tlv.p = em28xx_db_scale,
+=======
+	tmp.tlv.p = em28xx_db_scale;
+>>>>>>> upstream/android-13
 	kctl = snd_ctl_new1(&tmp, dev);
 	err = snd_ctl_add(card, kctl);
 	if (err < 0)
@@ -708,6 +761,7 @@ static int em28xx_cvol_new(struct snd_card *card, struct em28xx *dev,
 static const struct snd_pcm_ops snd_em28xx_pcm_capture = {
 	.open      = snd_em28xx_capture_open,
 	.close     = snd_em28xx_pcm_close,
+<<<<<<< HEAD
 	.ioctl     = snd_pcm_lib_ioctl,
 	.hw_params = snd_em28xx_hw_capture_params,
 	.hw_free   = snd_em28xx_hw_capture_free,
@@ -715,6 +769,11 @@ static const struct snd_pcm_ops snd_em28xx_pcm_capture = {
 	.trigger   = snd_em28xx_capture_trigger,
 	.pointer   = snd_em28xx_capture_pointer,
 	.page      = snd_pcm_get_vmalloc_page,
+=======
+	.prepare   = snd_em28xx_prepare,
+	.trigger   = snd_em28xx_capture_trigger,
+	.pointer   = snd_em28xx_capture_pointer,
+>>>>>>> upstream/android-13
 };
 
 static void em28xx_audio_free_urb(struct em28xx *dev)
@@ -842,11 +901,19 @@ static int em28xx_audio_urb_init(struct em28xx *dev)
 
 	dev->adev.transfer_buffer = kcalloc(num_urb,
 					    sizeof(*dev->adev.transfer_buffer),
+<<<<<<< HEAD
 					    GFP_ATOMIC);
 	if (!dev->adev.transfer_buffer)
 		return -ENOMEM;
 
 	dev->adev.urb = kcalloc(num_urb, sizeof(*dev->adev.urb), GFP_ATOMIC);
+=======
+					    GFP_KERNEL);
+	if (!dev->adev.transfer_buffer)
+		return -ENOMEM;
+
+	dev->adev.urb = kcalloc(num_urb, sizeof(*dev->adev.urb), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!dev->adev.urb) {
 		kfree(dev->adev.transfer_buffer);
 		return -ENOMEM;
@@ -859,14 +926,22 @@ static int em28xx_audio_urb_init(struct em28xx *dev)
 		int j, k;
 		void *buf;
 
+<<<<<<< HEAD
 		urb = usb_alloc_urb(npackets, GFP_ATOMIC);
+=======
+		urb = usb_alloc_urb(npackets, GFP_KERNEL);
+>>>>>>> upstream/android-13
 		if (!urb) {
 			em28xx_audio_free_urb(dev);
 			return -ENOMEM;
 		}
 		dev->adev.urb[i] = urb;
 
+<<<<<<< HEAD
 		buf = usb_alloc_coherent(udev, npackets * ep_size, GFP_ATOMIC,
+=======
+		buf = usb_alloc_coherent(udev, npackets * ep_size, GFP_KERNEL,
+>>>>>>> upstream/android-13
 					 &urb->transfer_dma);
 		if (!buf) {
 			dev_err(&dev->intf->dev,
@@ -936,6 +1011,7 @@ static int em28xx_audio_init(struct em28xx *dev)
 		goto card_free;
 
 	snd_pcm_set_ops(pcm, SNDRV_PCM_STREAM_CAPTURE, &snd_em28xx_pcm_capture);
+<<<<<<< HEAD
 	pcm->info_flags = 0;
 	pcm->private_data = dev;
 	strcpy(pcm->name, "Empia 28xx Capture");
@@ -943,6 +1019,16 @@ static int em28xx_audio_init(struct em28xx *dev)
 	strcpy(card->driver, "Em28xx-Audio");
 	strcpy(card->shortname, "Em28xx Audio");
 	strcpy(card->longname, "Empia Em28xx Audio");
+=======
+	snd_pcm_set_managed_buffer_all(pcm, SNDRV_DMA_TYPE_VMALLOC, NULL, 0, 0);
+	pcm->info_flags = 0;
+	pcm->private_data = dev;
+	strscpy(pcm->name, "Empia 28xx Capture", sizeof(pcm->name));
+
+	strscpy(card->driver, "Em28xx-Audio", sizeof(card->driver));
+	strscpy(card->shortname, "Em28xx Audio", sizeof(card->shortname));
+	strscpy(card->longname, "Empia Em28xx Audio", sizeof(card->longname));
+>>>>>>> upstream/android-13
 
 	INIT_WORK(&adev->wq_trigger, audio_trigger);
 

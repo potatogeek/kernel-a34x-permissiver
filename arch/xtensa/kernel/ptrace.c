@@ -12,26 +12,234 @@
  * Marc Gauthier<marc@tensilica.com> <marc@alumni.uwaterloo.ca>
  */
 
+<<<<<<< HEAD
+=======
+#include <linux/audit.h>
+>>>>>>> upstream/android-13
 #include <linux/errno.h>
 #include <linux/hw_breakpoint.h>
 #include <linux/kernel.h>
 #include <linux/mm.h>
 #include <linux/perf_event.h>
 #include <linux/ptrace.h>
+<<<<<<< HEAD
 #include <linux/sched.h>
 #include <linux/sched/task_stack.h>
+=======
+#include <linux/regset.h>
+#include <linux/sched.h>
+#include <linux/sched/task_stack.h>
+#include <linux/seccomp.h>
+>>>>>>> upstream/android-13
 #include <linux/security.h>
 #include <linux/signal.h>
 #include <linux/smp.h>
 #include <linux/tracehook.h>
 #include <linux/uaccess.h>
 
+<<<<<<< HEAD
 #include <asm/coprocessor.h>
 #include <asm/elf.h>
 #include <asm/page.h>
 #include <asm/pgtable.h>
 #include <asm/ptrace.h>
 
+=======
+#define CREATE_TRACE_POINTS
+#include <trace/events/syscalls.h>
+
+#include <asm/coprocessor.h>
+#include <asm/elf.h>
+#include <asm/page.h>
+#include <asm/ptrace.h>
+
+static int gpr_get(struct task_struct *target,
+		   const struct user_regset *regset,
+		   struct membuf to)
+{
+	struct pt_regs *regs = task_pt_regs(target);
+	struct user_pt_regs newregs = {
+		.pc = regs->pc,
+		.ps = regs->ps & ~(1 << PS_EXCM_BIT),
+		.lbeg = regs->lbeg,
+		.lend = regs->lend,
+		.lcount = regs->lcount,
+		.sar = regs->sar,
+		.threadptr = regs->threadptr,
+		.windowbase = regs->windowbase,
+		.windowstart = regs->windowstart,
+		.syscall = regs->syscall,
+	};
+
+	memcpy(newregs.a,
+	       regs->areg + XCHAL_NUM_AREGS - regs->windowbase * 4,
+	       regs->windowbase * 16);
+	memcpy(newregs.a + regs->windowbase * 4,
+	       regs->areg,
+	       (WSBITS - regs->windowbase) * 16);
+
+	return membuf_write(&to, &newregs, sizeof(newregs));
+}
+
+static int gpr_set(struct task_struct *target,
+		   const struct user_regset *regset,
+		   unsigned int pos, unsigned int count,
+		   const void *kbuf, const void __user *ubuf)
+{
+	int ret;
+	struct user_pt_regs newregs = {0};
+	struct pt_regs *regs;
+	const u32 ps_mask = PS_CALLINC_MASK | PS_OWB_MASK;
+
+	ret = user_regset_copyin(&pos, &count, &kbuf, &ubuf, &newregs, 0, -1);
+	if (ret)
+		return ret;
+
+	if (newregs.windowbase >= XCHAL_NUM_AREGS / 4)
+		return -EINVAL;
+
+	regs = task_pt_regs(target);
+	regs->pc = newregs.pc;
+	regs->ps = (regs->ps & ~ps_mask) | (newregs.ps & ps_mask);
+	regs->lbeg = newregs.lbeg;
+	regs->lend = newregs.lend;
+	regs->lcount = newregs.lcount;
+	regs->sar = newregs.sar;
+	regs->threadptr = newregs.threadptr;
+
+	if (newregs.syscall)
+		regs->syscall = newregs.syscall;
+
+	if (newregs.windowbase != regs->windowbase ||
+	    newregs.windowstart != regs->windowstart) {
+		u32 rotws, wmask;
+
+		rotws = (((newregs.windowstart |
+			   (newregs.windowstart << WSBITS)) >>
+			  newregs.windowbase) &
+			 ((1 << WSBITS) - 1)) & ~1;
+		wmask = ((rotws ? WSBITS + 1 - ffs(rotws) : 0) << 4) |
+			(rotws & 0xF) | 1;
+		regs->windowbase = newregs.windowbase;
+		regs->windowstart = newregs.windowstart;
+		regs->wmask = wmask;
+	}
+
+	memcpy(regs->areg + XCHAL_NUM_AREGS - newregs.windowbase * 4,
+	       newregs.a, newregs.windowbase * 16);
+	memcpy(regs->areg, newregs.a + newregs.windowbase * 4,
+	       (WSBITS - newregs.windowbase) * 16);
+
+	return 0;
+}
+
+static int tie_get(struct task_struct *target,
+		   const struct user_regset *regset,
+		   struct membuf to)
+{
+	int ret;
+	struct pt_regs *regs = task_pt_regs(target);
+	struct thread_info *ti = task_thread_info(target);
+	elf_xtregs_t *newregs = kzalloc(sizeof(elf_xtregs_t), GFP_KERNEL);
+
+	if (!newregs)
+		return -ENOMEM;
+
+	newregs->opt = regs->xtregs_opt;
+	newregs->user = ti->xtregs_user;
+
+#if XTENSA_HAVE_COPROCESSORS
+	/* Flush all coprocessor registers to memory. */
+	coprocessor_flush_all(ti);
+	newregs->cp0 = ti->xtregs_cp.cp0;
+	newregs->cp1 = ti->xtregs_cp.cp1;
+	newregs->cp2 = ti->xtregs_cp.cp2;
+	newregs->cp3 = ti->xtregs_cp.cp3;
+	newregs->cp4 = ti->xtregs_cp.cp4;
+	newregs->cp5 = ti->xtregs_cp.cp5;
+	newregs->cp6 = ti->xtregs_cp.cp6;
+	newregs->cp7 = ti->xtregs_cp.cp7;
+#endif
+	ret = membuf_write(&to, newregs, sizeof(*newregs));
+	kfree(newregs);
+	return ret;
+}
+
+static int tie_set(struct task_struct *target,
+		   const struct user_regset *regset,
+		   unsigned int pos, unsigned int count,
+		   const void *kbuf, const void __user *ubuf)
+{
+	int ret;
+	struct pt_regs *regs = task_pt_regs(target);
+	struct thread_info *ti = task_thread_info(target);
+	elf_xtregs_t *newregs = kzalloc(sizeof(elf_xtregs_t), GFP_KERNEL);
+
+	if (!newregs)
+		return -ENOMEM;
+
+	ret = user_regset_copyin(&pos, &count, &kbuf, &ubuf,
+				 newregs, 0, -1);
+
+	if (ret)
+		goto exit;
+	regs->xtregs_opt = newregs->opt;
+	ti->xtregs_user = newregs->user;
+
+#if XTENSA_HAVE_COPROCESSORS
+	/* Flush all coprocessors before we overwrite them. */
+	coprocessor_flush_all(ti);
+	coprocessor_release_all(ti);
+	ti->xtregs_cp.cp0 = newregs->cp0;
+	ti->xtregs_cp.cp1 = newregs->cp1;
+	ti->xtregs_cp.cp2 = newregs->cp2;
+	ti->xtregs_cp.cp3 = newregs->cp3;
+	ti->xtregs_cp.cp4 = newregs->cp4;
+	ti->xtregs_cp.cp5 = newregs->cp5;
+	ti->xtregs_cp.cp6 = newregs->cp6;
+	ti->xtregs_cp.cp7 = newregs->cp7;
+#endif
+exit:
+	kfree(newregs);
+	return ret;
+}
+
+enum xtensa_regset {
+	REGSET_GPR,
+	REGSET_TIE,
+};
+
+static const struct user_regset xtensa_regsets[] = {
+	[REGSET_GPR] = {
+		.core_note_type = NT_PRSTATUS,
+		.n = sizeof(struct user_pt_regs) / sizeof(u32),
+		.size = sizeof(u32),
+		.align = sizeof(u32),
+		.regset_get = gpr_get,
+		.set = gpr_set,
+	},
+	[REGSET_TIE] = {
+		.core_note_type = NT_PRFPREG,
+		.n = sizeof(elf_xtregs_t) / sizeof(u32),
+		.size = sizeof(u32),
+		.align = sizeof(u32),
+		.regset_get = tie_get,
+		.set = tie_set,
+	},
+};
+
+static const struct user_regset_view user_xtensa_view = {
+	.name = "xtensa",
+	.e_machine = EM_XTENSA,
+	.regsets = xtensa_regsets,
+	.n = ARRAY_SIZE(xtensa_regsets)
+};
+
+const struct user_regset_view *task_user_regset_view(struct task_struct *task)
+{
+	return &user_xtensa_view;
+}
+>>>>>>> upstream/android-13
 
 void user_enable_single_step(struct task_struct *child)
 {
@@ -54,6 +262,7 @@ void ptrace_disable(struct task_struct *child)
 
 static int ptrace_getregs(struct task_struct *child, void __user *uregs)
 {
+<<<<<<< HEAD
 	struct pt_regs *regs = task_pt_regs(child);
 	xtensa_gregset_t __user *gregset = uregs;
 	unsigned long wb = regs->windowbase;
@@ -76,10 +285,15 @@ static int ptrace_getregs(struct task_struct *child, void __user *uregs)
 			   gregset->a + ((wb * 4 + i) % XCHAL_NUM_AREGS));
 
 	return 0;
+=======
+	return copy_regset_to_user(child, &user_xtensa_view, REGSET_GPR,
+				   0, sizeof(xtensa_gregset_t), uregs);
+>>>>>>> upstream/android-13
 }
 
 static int ptrace_setregs(struct task_struct *child, void __user *uregs)
 {
+<<<<<<< HEAD
 	struct pt_regs *regs = task_pt_regs(child);
 	xtensa_gregset_t *gregset = uregs;
 	const unsigned long ps_mask = PS_CALLINC_MASK | PS_OWB_MASK;
@@ -179,10 +393,21 @@ static int ptrace_getxregs(struct task_struct *child, void __user *uregs)
 			      sizeof(xtregs->user));
 
 	return ret ? -EFAULT : 0;
+=======
+	return copy_regset_from_user(child, &user_xtensa_view, REGSET_GPR,
+				     0, sizeof(xtensa_gregset_t), uregs);
+}
+
+static int ptrace_getxregs(struct task_struct *child, void __user *uregs)
+{
+	return copy_regset_to_user(child, &user_xtensa_view, REGSET_TIE,
+				   0, sizeof(elf_xtregs_t), uregs);
+>>>>>>> upstream/android-13
 }
 
 static int ptrace_setxregs(struct task_struct *child, void __user *uregs)
 {
+<<<<<<< HEAD
 	struct thread_info *ti = task_thread_info(child);
 	struct pt_regs *regs = task_pt_regs(child);
 	elf_xtregs_t *xtregs = uregs;
@@ -209,6 +434,10 @@ static int ptrace_setxregs(struct task_struct *child, void __user *uregs)
 				sizeof(xtregs->user));
 
 	return ret ? -EFAULT : 0;
+=======
+	return copy_regset_from_user(child, &user_xtensa_view, REGSET_TIE,
+				     0, sizeof(elf_xtregs_t), uregs);
+>>>>>>> upstream/android-13
 }
 
 static int ptrace_peekusr(struct task_struct *child, long regno,
@@ -447,20 +676,26 @@ long arch_ptrace(struct task_struct *child, long request,
 	void __user *datap = (void __user *) data;
 
 	switch (request) {
+<<<<<<< HEAD
 	case PTRACE_PEEKTEXT:	/* read word at location addr. */
 	case PTRACE_PEEKDATA:
 		ret = generic_ptrace_peekdata(child, addr, data);
 		break;
 
+=======
+>>>>>>> upstream/android-13
 	case PTRACE_PEEKUSR:	/* read register specified by addr. */
 		ret = ptrace_peekusr(child, addr, datap);
 		break;
 
+<<<<<<< HEAD
 	case PTRACE_POKETEXT:	/* write the word at location addr. */
 	case PTRACE_POKEDATA:
 		ret = generic_ptrace_pokedata(child, addr, data);
 		break;
 
+=======
+>>>>>>> upstream/android-13
 	case PTRACE_POKEUSR:	/* write register specified by addr. */
 		ret = ptrace_pokeusr(child, addr, data);
 		break;
@@ -497,6 +732,7 @@ long arch_ptrace(struct task_struct *child, long request,
 	return ret;
 }
 
+<<<<<<< HEAD
 unsigned long do_syscall_trace_enter(struct pt_regs *regs)
 {
 	if (test_thread_flag(TIF_SYSCALL_TRACE) &&
@@ -504,12 +740,48 @@ unsigned long do_syscall_trace_enter(struct pt_regs *regs)
 		return -1;
 
 	return regs->areg[2];
+=======
+void do_syscall_trace_leave(struct pt_regs *regs);
+int do_syscall_trace_enter(struct pt_regs *regs)
+{
+	if (regs->syscall == NO_SYSCALL)
+		regs->areg[2] = -ENOSYS;
+
+	if (test_thread_flag(TIF_SYSCALL_TRACE) &&
+	    tracehook_report_syscall_entry(regs)) {
+		regs->areg[2] = -ENOSYS;
+		regs->syscall = NO_SYSCALL;
+		return 0;
+	}
+
+	if (regs->syscall == NO_SYSCALL ||
+	    secure_computing() == -1) {
+		do_syscall_trace_leave(regs);
+		return 0;
+	}
+
+	if (test_thread_flag(TIF_SYSCALL_TRACEPOINT))
+		trace_sys_enter(regs, syscall_get_nr(current, regs));
+
+	audit_syscall_entry(regs->syscall, regs->areg[6],
+			    regs->areg[3], regs->areg[4],
+			    regs->areg[5]);
+	return 1;
+>>>>>>> upstream/android-13
 }
 
 void do_syscall_trace_leave(struct pt_regs *regs)
 {
 	int step;
 
+<<<<<<< HEAD
+=======
+	audit_syscall_exit(regs);
+
+	if (test_thread_flag(TIF_SYSCALL_TRACEPOINT))
+		trace_sys_exit(regs, regs_return_value(regs));
+
+>>>>>>> upstream/android-13
 	step = test_thread_flag(TIF_SINGLESTEP);
 
 	if (step || test_thread_flag(TIF_SYSCALL_TRACE))

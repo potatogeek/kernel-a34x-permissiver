@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2012 Red Hat
  *
@@ -5,6 +9,7 @@
  * Copyright (C) 2009 Roberto De Ioris <roberto@unbit.it>
  * Copyright (C) 2009 Jaya Kumar <jayakumar.lkml@gmail.com>
  * Copyright (C) 2009 Bernie Thompson <bernie@plugable.com>
+<<<<<<< HEAD
 
  * This file is subject to the terms and conditions of the GNU General Public
  * License v2. See the file COPYING in the main directory of this archive for
@@ -17,6 +22,24 @@
 #include <drm/drm_plane_helper.h>
 #include "udl_drv.h"
 
+=======
+ */
+
+#include <drm/drm_atomic_helper.h>
+#include <drm/drm_crtc_helper.h>
+#include <drm/drm_damage_helper.h>
+#include <drm/drm_fourcc.h>
+#include <drm/drm_gem_atomic_helper.h>
+#include <drm/drm_gem_framebuffer_helper.h>
+#include <drm/drm_gem_shmem_helper.h>
+#include <drm/drm_modeset_helper_vtables.h>
+#include <drm/drm_vblank.h>
+
+#include "udl_drv.h"
+
+#define UDL_COLOR_DEPTH_16BPP	0
+
+>>>>>>> upstream/android-13
 /*
  * All DisplayLink bulk operations start with 0xAF, followed by specific code
  * All operations are written to buffers which then later get sent to device
@@ -40,6 +63,7 @@ static char *udl_vidreg_unlock(char *buf)
 	return udl_set_register(buf, 0xFF, 0xFF);
 }
 
+<<<<<<< HEAD
 /*
  * On/Off for driving the DisplayLink framebuffer to the display
  *  0x00 H and V sync on
@@ -65,6 +89,11 @@ static char *udl_set_blank(char *buf, int dpms_mode)
 	}
 
 	return udl_set_register(buf, 0x1f, reg);
+=======
+static char *udl_set_blank_mode(char *buf, u8 mode)
+{
+	return udl_set_register(buf, UDL_REG_BLANK_MODE, mode);
+>>>>>>> upstream/android-13
 }
 
 static char *udl_set_color_depth(char *buf, u8 selection)
@@ -230,11 +259,23 @@ static char *udl_dummy_render(char *wrptr)
 static int udl_crtc_write_mode_to_hw(struct drm_crtc *crtc)
 {
 	struct drm_device *dev = crtc->dev;
+<<<<<<< HEAD
 	struct udl_device *udl = dev->dev_private;
+=======
+	struct udl_device *udl = to_udl(dev);
+>>>>>>> upstream/android-13
 	struct urb *urb;
 	char *buf;
 	int retval;
 
+<<<<<<< HEAD
+=======
+	if (udl->mode_buf_len == 0) {
+		DRM_ERROR("No mode set\n");
+		return -EINVAL;
+	}
+
+>>>>>>> upstream/android-13
 	urb = udl_get_urb(dev);
 	if (!urb)
 		return -ENOMEM;
@@ -247,6 +288,7 @@ static int udl_crtc_write_mode_to_hw(struct drm_crtc *crtc)
 	return retval;
 }
 
+<<<<<<< HEAD
 
 static void udl_crtc_dpms(struct drm_crtc *crtc, int mode)
 {
@@ -321,6 +363,137 @@ static int udl_crtc_mode_set(struct drm_crtc *crtc,
 	* controller * associated with the display. There are 2 base
 	* pointers, currently, we only * use the 16 bpp segment.
 	*/
+=======
+static long udl_log_cpp(unsigned int cpp)
+{
+	if (WARN_ON(!is_power_of_2(cpp)))
+		return -EINVAL;
+	return __ffs(cpp);
+}
+
+static int udl_aligned_damage_clip(struct drm_rect *clip, int x, int y,
+				   int width, int height)
+{
+	int x1, x2;
+
+	if (WARN_ON_ONCE(x < 0) ||
+	    WARN_ON_ONCE(y < 0) ||
+	    WARN_ON_ONCE(width < 0) ||
+	    WARN_ON_ONCE(height < 0))
+		return -EINVAL;
+
+	x1 = ALIGN_DOWN(x, sizeof(unsigned long));
+	x2 = ALIGN(width + (x - x1), sizeof(unsigned long)) + x1;
+
+	clip->x1 = x1;
+	clip->y1 = y;
+	clip->x2 = x2;
+	clip->y2 = y + height;
+
+	return 0;
+}
+
+static int udl_handle_damage(struct drm_framebuffer *fb, const struct dma_buf_map *map,
+			     int x, int y, int width, int height)
+{
+	struct drm_device *dev = fb->dev;
+	void *vaddr = map->vaddr; /* TODO: Use mapping abstraction properly */
+	int i, ret;
+	char *cmd;
+	struct urb *urb;
+	struct drm_rect clip;
+	int log_bpp;
+
+	ret = udl_log_cpp(fb->format->cpp[0]);
+	if (ret < 0)
+		return ret;
+	log_bpp = ret;
+
+	ret = udl_aligned_damage_clip(&clip, x, y, width, height);
+	if (ret)
+		return ret;
+	else if ((clip.x2 > fb->width) || (clip.y2 > fb->height))
+		return -EINVAL;
+
+	ret = drm_gem_fb_begin_cpu_access(fb, DMA_FROM_DEVICE);
+	if (ret)
+		return ret;
+
+	urb = udl_get_urb(dev);
+	if (!urb) {
+		ret = -ENOMEM;
+		goto out_drm_gem_fb_end_cpu_access;
+	}
+	cmd = urb->transfer_buffer;
+
+	for (i = clip.y1; i < clip.y2; i++) {
+		const int line_offset = fb->pitches[0] * i;
+		const int byte_offset = line_offset + (clip.x1 << log_bpp);
+		const int dev_byte_offset = (fb->width * i + clip.x1) << log_bpp;
+		const int byte_width = (clip.x2 - clip.x1) << log_bpp;
+		ret = udl_render_hline(dev, log_bpp, &urb, (char *)vaddr,
+				       &cmd, byte_offset, dev_byte_offset,
+				       byte_width);
+		if (ret)
+			goto out_drm_gem_fb_end_cpu_access;
+	}
+
+	if (cmd > (char *)urb->transfer_buffer) {
+		/* Send partial buffer remaining before exiting */
+		int len;
+		if (cmd < (char *)urb->transfer_buffer + urb->transfer_buffer_length)
+			*cmd++ = 0xAF;
+		len = cmd - (char *)urb->transfer_buffer;
+		ret = udl_submit_urb(dev, urb, len);
+	} else {
+		udl_urb_completion(urb);
+	}
+
+	ret = 0;
+
+out_drm_gem_fb_end_cpu_access:
+	drm_gem_fb_end_cpu_access(fb, DMA_FROM_DEVICE);
+	return ret;
+}
+
+/*
+ * Simple display pipeline
+ */
+
+static const uint32_t udl_simple_display_pipe_formats[] = {
+	DRM_FORMAT_RGB565,
+	DRM_FORMAT_XRGB8888,
+};
+
+static enum drm_mode_status
+udl_simple_display_pipe_mode_valid(struct drm_simple_display_pipe *pipe,
+				   const struct drm_display_mode *mode)
+{
+	return MODE_OK;
+}
+
+static void
+udl_simple_display_pipe_enable(struct drm_simple_display_pipe *pipe,
+			       struct drm_crtc_state *crtc_state,
+			       struct drm_plane_state *plane_state)
+{
+	struct drm_crtc *crtc = &pipe->crtc;
+	struct drm_device *dev = crtc->dev;
+	struct drm_framebuffer *fb = plane_state->fb;
+	struct udl_device *udl = to_udl(dev);
+	struct drm_display_mode *mode = &crtc_state->mode;
+	struct drm_shadow_plane_state *shadow_plane_state = to_drm_shadow_plane_state(plane_state);
+	char *buf;
+	char *wrptr;
+	int color_depth = UDL_COLOR_DEPTH_16BPP;
+
+	buf = (char *)udl->mode_buf;
+
+	/* This first section has to do with setting the base address on the
+	 * controller associated with the display. There are 2 base
+	 * pointers, currently, we only use the 16 bpp segment.
+	 */
+>>>>>>> upstream/android-13
 	wrptr = udl_vidreg_lock(buf);
 	wrptr = udl_set_color_depth(wrptr, color_depth);
 	/* set base for 16bpp segment to 0 */
@@ -328,12 +501,18 @@ static int udl_crtc_mode_set(struct drm_crtc *crtc,
 	/* set base for 8bpp segment to end of fb */
 	wrptr = udl_set_base8bpp(wrptr, 2 * mode->vdisplay * mode->hdisplay);
 
+<<<<<<< HEAD
 	wrptr = udl_set_vid_cmds(wrptr, adjusted_mode);
 	wrptr = udl_set_blank(wrptr, DRM_MODE_DPMS_ON);
+=======
+	wrptr = udl_set_vid_cmds(wrptr, mode);
+	wrptr = udl_set_blank_mode(wrptr, UDL_BLANK_MODE_ON);
+>>>>>>> upstream/android-13
 	wrptr = udl_vidreg_unlock(wrptr);
 
 	wrptr = udl_dummy_render(wrptr);
 
+<<<<<<< HEAD
 	if (old_fb) {
 		struct udl_framebuffer *uold_fb = to_udl_fb(old_fb);
 		uold_fb->active_16 = false;
@@ -425,12 +604,90 @@ static int udl_crtc_init(struct drm_device *dev)
 static const struct drm_mode_config_funcs udl_mode_funcs = {
 	.fb_create = udl_fb_user_fb_create,
 	.output_poll_changed = NULL,
+=======
+	udl->mode_buf_len = wrptr - buf;
+
+	udl_handle_damage(fb, &shadow_plane_state->data[0], 0, 0, fb->width, fb->height);
+
+	if (!crtc_state->mode_changed)
+		return;
+
+	/* enable display */
+	udl_crtc_write_mode_to_hw(crtc);
+}
+
+static void
+udl_simple_display_pipe_disable(struct drm_simple_display_pipe *pipe)
+{
+	struct drm_crtc *crtc = &pipe->crtc;
+	struct drm_device *dev = crtc->dev;
+	struct urb *urb;
+	char *buf;
+
+	urb = udl_get_urb(dev);
+	if (!urb)
+		return;
+
+	buf = (char *)urb->transfer_buffer;
+	buf = udl_vidreg_lock(buf);
+	buf = udl_set_blank_mode(buf, UDL_BLANK_MODE_POWERDOWN);
+	buf = udl_vidreg_unlock(buf);
+	buf = udl_dummy_render(buf);
+
+	udl_submit_urb(dev, urb, buf - (char *)urb->transfer_buffer);
+}
+
+static void
+udl_simple_display_pipe_update(struct drm_simple_display_pipe *pipe,
+			       struct drm_plane_state *old_plane_state)
+{
+	struct drm_plane_state *state = pipe->plane.state;
+	struct drm_shadow_plane_state *shadow_plane_state = to_drm_shadow_plane_state(state);
+	struct drm_framebuffer *fb = state->fb;
+	struct drm_rect rect;
+
+	if (!fb)
+		return;
+
+	if (drm_atomic_helper_damage_merged(old_plane_state, state, &rect))
+		udl_handle_damage(fb, &shadow_plane_state->data[0], rect.x1, rect.y1,
+				  rect.x2 - rect.x1, rect.y2 - rect.y1);
+}
+
+static const struct drm_simple_display_pipe_funcs udl_simple_display_pipe_funcs = {
+	.mode_valid = udl_simple_display_pipe_mode_valid,
+	.enable = udl_simple_display_pipe_enable,
+	.disable = udl_simple_display_pipe_disable,
+	.update = udl_simple_display_pipe_update,
+	DRM_GEM_SIMPLE_DISPLAY_PIPE_SHADOW_PLANE_FUNCS,
+};
+
+/*
+ * Modesetting
+ */
+
+static const struct drm_mode_config_funcs udl_mode_funcs = {
+	.fb_create = drm_gem_fb_create_with_dirty,
+	.atomic_check  = drm_atomic_helper_check,
+	.atomic_commit = drm_atomic_helper_commit,
+>>>>>>> upstream/android-13
 };
 
 int udl_modeset_init(struct drm_device *dev)
 {
+<<<<<<< HEAD
 	struct drm_encoder *encoder;
 	drm_mode_config_init(dev);
+=======
+	size_t format_count = ARRAY_SIZE(udl_simple_display_pipe_formats);
+	struct udl_device *udl = to_udl(dev);
+	struct drm_connector *connector;
+	int ret;
+
+	ret = drmm_mode_config_init(dev);
+	if (ret)
+		return ret;
+>>>>>>> upstream/android-13
 
 	dev->mode_config.min_width = 640;
 	dev->mode_config.min_height = 480;
@@ -439,6 +696,7 @@ int udl_modeset_init(struct drm_device *dev)
 	dev->mode_config.max_height = 2048;
 
 	dev->mode_config.prefer_shadow = 0;
+<<<<<<< HEAD
 	dev->mode_config.preferred_depth = 24;
 
 	dev->mode_config.funcs = &udl_mode_funcs;
@@ -468,3 +726,26 @@ void udl_modeset_cleanup(struct drm_device *dev)
 {
 	drm_mode_config_cleanup(dev);
 }
+=======
+	dev->mode_config.preferred_depth = 16;
+
+	dev->mode_config.funcs = &udl_mode_funcs;
+
+	connector = udl_connector_init(dev);
+	if (IS_ERR(connector))
+		return PTR_ERR(connector);
+
+	format_count = ARRAY_SIZE(udl_simple_display_pipe_formats);
+
+	ret = drm_simple_display_pipe_init(dev, &udl->display_pipe,
+					   &udl_simple_display_pipe_funcs,
+					   udl_simple_display_pipe_formats,
+					   format_count, NULL, connector);
+	if (ret)
+		return ret;
+
+	drm_mode_config_reset(dev);
+
+	return 0;
+}
+>>>>>>> upstream/android-13

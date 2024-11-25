@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2009, Microsoft Corporation.
  *
@@ -13,10 +14,20 @@
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, see <http://www.gnu.org/licenses/>.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2009, Microsoft Corporation.
+ *
+>>>>>>> upstream/android-13
  * Authors:
  *   Haiyang Zhang <haiyangz@microsoft.com>
  *   Hank Janssen  <hjanssen@microsoft.com>
  */
+<<<<<<< HEAD
+=======
+#include <linux/ethtool.h>
+>>>>>>> upstream/android-13
 #include <linux/kernel.h>
 #include <linux/sched.h>
 #include <linux/wait.h>
@@ -36,7 +47,11 @@
 
 static void rndis_set_multicast(struct work_struct *w);
 
+<<<<<<< HEAD
 #define RNDIS_EXT_LEN PAGE_SIZE
+=======
+#define RNDIS_EXT_LEN HV_HYP_PAGE_SIZE
+>>>>>>> upstream/android-13
 struct rndis_request {
 	struct list_head list_ent;
 	struct completion  wait_event;
@@ -137,6 +152,7 @@ static void put_rndis_request(struct rndis_device *dev,
 }
 
 static void dump_rndis_message(struct net_device *netdev,
+<<<<<<< HEAD
 			       const struct rndis_message *rndis_msg)
 {
 	switch (rndis_msg->ndis_msg_type) {
@@ -201,6 +217,91 @@ static void dump_rndis_message(struct net_device *netdev,
 			rndis_msg->msg.indicate_status.status,
 			rndis_msg->msg.indicate_status.status_buflen,
 			rndis_msg->msg.indicate_status.status_buf_offset);
+=======
+			       const struct rndis_message *rndis_msg,
+			       const void *data)
+{
+	switch (rndis_msg->ndis_msg_type) {
+	case RNDIS_MSG_PACKET:
+		if (rndis_msg->msg_len - RNDIS_HEADER_SIZE >= sizeof(struct rndis_packet)) {
+			const struct rndis_packet *pkt = data + RNDIS_HEADER_SIZE;
+			netdev_dbg(netdev, "RNDIS_MSG_PACKET (len %u, "
+				   "data offset %u data len %u, # oob %u, "
+				   "oob offset %u, oob len %u, pkt offset %u, "
+				   "pkt len %u\n",
+				   rndis_msg->msg_len,
+				   pkt->data_offset,
+				   pkt->data_len,
+				   pkt->num_oob_data_elements,
+				   pkt->oob_data_offset,
+				   pkt->oob_data_len,
+				   pkt->per_pkt_info_offset,
+				   pkt->per_pkt_info_len);
+		}
+		break;
+
+	case RNDIS_MSG_INIT_C:
+		if (rndis_msg->msg_len - RNDIS_HEADER_SIZE >=
+				sizeof(struct rndis_initialize_complete)) {
+			const struct rndis_initialize_complete *init_complete =
+				data + RNDIS_HEADER_SIZE;
+			netdev_dbg(netdev, "RNDIS_MSG_INIT_C "
+				"(len %u, id 0x%x, status 0x%x, major %d, minor %d, "
+				"device flags %d, max xfer size 0x%x, max pkts %u, "
+				"pkt aligned %u)\n",
+				rndis_msg->msg_len,
+				init_complete->req_id,
+				init_complete->status,
+				init_complete->major_ver,
+				init_complete->minor_ver,
+				init_complete->dev_flags,
+				init_complete->max_xfer_size,
+				init_complete->max_pkt_per_msg,
+				init_complete->pkt_alignment_factor);
+		}
+		break;
+
+	case RNDIS_MSG_QUERY_C:
+		if (rndis_msg->msg_len - RNDIS_HEADER_SIZE >=
+				sizeof(struct rndis_query_complete)) {
+			const struct rndis_query_complete *query_complete =
+				data + RNDIS_HEADER_SIZE;
+			netdev_dbg(netdev, "RNDIS_MSG_QUERY_C "
+				"(len %u, id 0x%x, status 0x%x, buf len %u, "
+				"buf offset %u)\n",
+				rndis_msg->msg_len,
+				query_complete->req_id,
+				query_complete->status,
+				query_complete->info_buflen,
+				query_complete->info_buf_offset);
+		}
+		break;
+
+	case RNDIS_MSG_SET_C:
+		if (rndis_msg->msg_len - RNDIS_HEADER_SIZE + sizeof(struct rndis_set_complete)) {
+			const struct rndis_set_complete *set_complete =
+				data + RNDIS_HEADER_SIZE;
+			netdev_dbg(netdev,
+				"RNDIS_MSG_SET_C (len %u, id 0x%x, status 0x%x)\n",
+				rndis_msg->msg_len,
+				set_complete->req_id,
+				set_complete->status);
+		}
+		break;
+
+	case RNDIS_MSG_INDICATE:
+		if (rndis_msg->msg_len - RNDIS_HEADER_SIZE >=
+				sizeof(struct rndis_indicate_status)) {
+			const struct rndis_indicate_status *indicate_status =
+				data + RNDIS_HEADER_SIZE;
+			netdev_dbg(netdev, "RNDIS_MSG_INDICATE "
+				"(len %u, status 0x%x, buf len %u, buf offset %u)\n",
+				rndis_msg->msg_len,
+				indicate_status->status,
+				indicate_status->status_buflen,
+				indicate_status->status_buf_offset);
+		}
+>>>>>>> upstream/android-13
 		break;
 
 	default:
@@ -226,6 +327,7 @@ static int rndis_filter_send_request(struct rndis_device *dev,
 	packet->page_buf_cnt = 1;
 
 	pb[0].pfn = virt_to_phys(&req->request_msg) >>
+<<<<<<< HEAD
 					PAGE_SHIFT;
 	pb[0].len = req->request_msg.msg_len;
 	pb[0].offset =
@@ -238,6 +340,19 @@ static int rndis_filter_send_request(struct rndis_device *dev,
 			pb[0].offset;
 		pb[1].pfn = virt_to_phys((void *)&req->request_msg
 			+ pb[0].len) >> PAGE_SHIFT;
+=======
+					HV_HYP_PAGE_SHIFT;
+	pb[0].len = req->request_msg.msg_len;
+	pb[0].offset = offset_in_hvpage(&req->request_msg);
+
+	/* Add one page_buf when request_msg crossing page boundary */
+	if (pb[0].offset + pb[0].len > HV_HYP_PAGE_SIZE) {
+		packet->page_buf_cnt++;
+		pb[0].len = HV_HYP_PAGE_SIZE -
+			pb[0].offset;
+		pb[1].pfn = virt_to_phys((void *)&req->request_msg
+			+ pb[0].len) >> HV_HYP_PAGE_SHIFT;
+>>>>>>> upstream/android-13
 		pb[1].offset = 0;
 		pb[1].len = req->request_msg.msg_len -
 			pb[0].len;
@@ -246,7 +361,11 @@ static int rndis_filter_send_request(struct rndis_device *dev,
 	trace_rndis_send(dev->ndev, 0, &req->request_msg);
 
 	rcu_read_lock_bh();
+<<<<<<< HEAD
 	ret = netvsc_send(dev->ndev, packet, NULL, pb, NULL);
+=======
+	ret = netvsc_send(dev->ndev, packet, NULL, pb, NULL, false);
+>>>>>>> upstream/android-13
 	rcu_read_unlock_bh();
 
 	return ret;
@@ -257,11 +376,27 @@ static void rndis_set_link_state(struct rndis_device *rdev,
 {
 	u32 link_status;
 	struct rndis_query_complete *query_complete;
+<<<<<<< HEAD
+=======
+	u32 msg_len = request->response_msg.msg_len;
+
+	/* Ensure the packet is big enough to access its fields */
+	if (msg_len - RNDIS_HEADER_SIZE < sizeof(struct rndis_query_complete))
+		return;
+>>>>>>> upstream/android-13
 
 	query_complete = &request->response_msg.msg.query_complete;
 
 	if (query_complete->status == RNDIS_STATUS_SUCCESS &&
+<<<<<<< HEAD
 	    query_complete->info_buflen == sizeof(u32)) {
+=======
+	    query_complete->info_buflen >= sizeof(u32) &&
+	    query_complete->info_buf_offset >= sizeof(*query_complete) &&
+	    msg_len - RNDIS_HEADER_SIZE >= query_complete->info_buf_offset &&
+	    msg_len - RNDIS_HEADER_SIZE - query_complete->info_buf_offset
+			>= query_complete->info_buflen) {
+>>>>>>> upstream/android-13
 		memcpy(&link_status, (void *)((unsigned long)query_complete +
 		       query_complete->info_buf_offset), sizeof(u32));
 		rdev->link_state = link_status != 0;
@@ -270,8 +405,15 @@ static void rndis_set_link_state(struct rndis_device *rdev,
 
 static void rndis_filter_receive_response(struct net_device *ndev,
 					  struct netvsc_device *nvdev,
+<<<<<<< HEAD
 					  const struct rndis_message *resp)
 {
+=======
+					  struct rndis_message *resp,
+					  void *data)
+{
+	u32 *req_id = &resp->msg.init_complete.req_id;
+>>>>>>> upstream/android-13
 	struct rndis_device *dev = nvdev->extension;
 	struct rndis_request *request = NULL;
 	bool found = false;
@@ -286,14 +428,34 @@ static void rndis_filter_receive_response(struct net_device *ndev,
 		return;
 	}
 
+<<<<<<< HEAD
+=======
+	/* Ensure the packet is big enough to read req_id. Req_id is the 1st
+	 * field in any request/response message, so the payload should have at
+	 * least sizeof(u32) bytes
+	 */
+	if (resp->msg_len - RNDIS_HEADER_SIZE < sizeof(u32)) {
+		netdev_err(ndev, "rndis msg_len too small: %u\n",
+			   resp->msg_len);
+		return;
+	}
+
+	/* Copy the request ID into nvchan->recv_buf */
+	*req_id = *(u32 *)(data + RNDIS_HEADER_SIZE);
+
+>>>>>>> upstream/android-13
 	spin_lock_irqsave(&dev->request_lock, flags);
 	list_for_each_entry(request, &dev->req_list, list_ent) {
 		/*
 		 * All request/response message contains RequestId as the 1st
 		 * field
 		 */
+<<<<<<< HEAD
 		if (request->request_msg.msg.init_req.req_id
 		    == resp->msg.init_complete.req_id) {
+=======
+		if (request->request_msg.msg.init_req.req_id == *req_id) {
+>>>>>>> upstream/android-13
 			found = true;
 			break;
 		}
@@ -303,8 +465,15 @@ static void rndis_filter_receive_response(struct net_device *ndev,
 	if (found) {
 		if (resp->msg_len <=
 		    sizeof(struct rndis_message) + RNDIS_EXT_LEN) {
+<<<<<<< HEAD
 			memcpy(&request->response_msg, resp,
 			       resp->msg_len);
+=======
+			memcpy(&request->response_msg, resp, RNDIS_HEADER_SIZE + sizeof(*req_id));
+			memcpy((void *)&request->response_msg + RNDIS_HEADER_SIZE + sizeof(*req_id),
+			       data + RNDIS_HEADER_SIZE + sizeof(*req_id),
+			       resp->msg_len - RNDIS_HEADER_SIZE - sizeof(*req_id));
+>>>>>>> upstream/android-13
 			if (request->request_msg.ndis_msg_type ==
 			    RNDIS_MSG_QUERY && request->request_msg.msg.
 			    query_req.oid == RNDIS_OID_GEN_MEDIA_CONNECT_STATUS)
@@ -333,7 +502,11 @@ static void rndis_filter_receive_response(struct net_device *ndev,
 		netdev_err(ndev,
 			"no rndis request found for this response "
 			"(id 0x%x res type 0x%x)\n",
+<<<<<<< HEAD
 			resp->msg.init_complete.req_id,
+=======
+			*req_id,
+>>>>>>> upstream/android-13
 			resp->ndis_msg_type);
 	}
 }
@@ -342,7 +515,14 @@ static void rndis_filter_receive_response(struct net_device *ndev,
  * Get the Per-Packet-Info with the specified type
  * return NULL if not found.
  */
+<<<<<<< HEAD
 static inline void *rndis_get_ppi(struct rndis_packet *rpkt, u32 type)
+=======
+static inline void *rndis_get_ppi(struct net_device *ndev,
+				  struct rndis_packet *rpkt,
+				  u32 rpkt_len, u32 type, u8 internal,
+				  u32 ppi_size, void *data)
+>>>>>>> upstream/android-13
 {
 	struct rndis_per_packet_info *ppi;
 	int len;
@@ -350,6 +530,7 @@ static inline void *rndis_get_ppi(struct rndis_packet *rpkt, u32 type)
 	if (rpkt->per_pkt_info_offset == 0)
 		return NULL;
 
+<<<<<<< HEAD
 	ppi = (struct rndis_per_packet_info *)((ulong)rpkt +
 		rpkt->per_pkt_info_offset);
 	len = rpkt->per_pkt_info_len;
@@ -357,6 +538,50 @@ static inline void *rndis_get_ppi(struct rndis_packet *rpkt, u32 type)
 	while (len > 0) {
 		if (ppi->type == type)
 			return (void *)((ulong)ppi + ppi->ppi_offset);
+=======
+	/* Validate info_offset and info_len */
+	if (rpkt->per_pkt_info_offset < sizeof(struct rndis_packet) ||
+	    rpkt->per_pkt_info_offset > rpkt_len) {
+		netdev_err(ndev, "Invalid per_pkt_info_offset: %u\n",
+			   rpkt->per_pkt_info_offset);
+		return NULL;
+	}
+
+	if (rpkt->per_pkt_info_len < sizeof(*ppi) ||
+	    rpkt->per_pkt_info_len > rpkt_len - rpkt->per_pkt_info_offset) {
+		netdev_err(ndev, "Invalid per_pkt_info_len: %u\n",
+			   rpkt->per_pkt_info_len);
+		return NULL;
+	}
+
+	ppi = (struct rndis_per_packet_info *)((ulong)rpkt +
+		rpkt->per_pkt_info_offset);
+	/* Copy the PPIs into nvchan->recv_buf */
+	memcpy(ppi, data + RNDIS_HEADER_SIZE + rpkt->per_pkt_info_offset, rpkt->per_pkt_info_len);
+	len = rpkt->per_pkt_info_len;
+
+	while (len > 0) {
+		/* Validate ppi_offset and ppi_size */
+		if (ppi->size > len) {
+			netdev_err(ndev, "Invalid ppi size: %u\n", ppi->size);
+			continue;
+		}
+
+		if (ppi->ppi_offset >= ppi->size) {
+			netdev_err(ndev, "Invalid ppi_offset: %u\n", ppi->ppi_offset);
+			continue;
+		}
+
+		if (ppi->type == type && ppi->internal == internal) {
+			/* ppi->size should be big enough to hold the returned object. */
+			if (ppi->size - ppi->ppi_offset < ppi_size) {
+				netdev_err(ndev, "Invalid ppi: size %u ppi_offset %u\n",
+					   ppi->size, ppi->ppi_offset);
+				continue;
+			}
+			return (void *)((ulong)ppi + ppi->ppi_offset);
+		}
+>>>>>>> upstream/android-13
 		len -= ppi->size;
 		ppi = (struct rndis_per_packet_info *)((ulong)ppi + ppi->size);
 	}
@@ -364,21 +589,100 @@ static inline void *rndis_get_ppi(struct rndis_packet *rpkt, u32 type)
 	return NULL;
 }
 
+<<<<<<< HEAD
 static int rndis_filter_receive_data(struct net_device *ndev,
 				     struct netvsc_device *nvdev,
 				     struct vmbus_channel *channel,
 				     struct rndis_message *msg,
 				     u32 data_buflen)
+=======
+static inline
+void rsc_add_data(struct netvsc_channel *nvchan,
+		  const struct ndis_pkt_8021q_info *vlan,
+		  const struct ndis_tcp_ip_checksum_info *csum_info,
+		  const u32 *hash_info,
+		  void *data, u32 len)
+{
+	u32 cnt = nvchan->rsc.cnt;
+
+	if (cnt) {
+		nvchan->rsc.pktlen += len;
+	} else {
+		/* The data/values pointed by vlan, csum_info and hash_info are shared
+		 * across the different 'fragments' of the RSC packet; store them into
+		 * the packet itself.
+		 */
+		if (vlan != NULL) {
+			memcpy(&nvchan->rsc.vlan, vlan, sizeof(*vlan));
+			nvchan->rsc.ppi_flags |= NVSC_RSC_VLAN;
+		} else {
+			nvchan->rsc.ppi_flags &= ~NVSC_RSC_VLAN;
+		}
+		if (csum_info != NULL) {
+			memcpy(&nvchan->rsc.csum_info, csum_info, sizeof(*csum_info));
+			nvchan->rsc.ppi_flags |= NVSC_RSC_CSUM_INFO;
+		} else {
+			nvchan->rsc.ppi_flags &= ~NVSC_RSC_CSUM_INFO;
+		}
+		nvchan->rsc.pktlen = len;
+		if (hash_info != NULL) {
+			nvchan->rsc.hash_info = *hash_info;
+			nvchan->rsc.ppi_flags |= NVSC_RSC_HASH_INFO;
+		} else {
+			nvchan->rsc.ppi_flags &= ~NVSC_RSC_HASH_INFO;
+		}
+	}
+
+	nvchan->rsc.data[cnt] = data;
+	nvchan->rsc.len[cnt] = len;
+	nvchan->rsc.cnt++;
+}
+
+static int rndis_filter_receive_data(struct net_device *ndev,
+				     struct netvsc_device *nvdev,
+				     struct netvsc_channel *nvchan,
+				     struct rndis_message *msg,
+				     void *data, u32 data_buflen)
+>>>>>>> upstream/android-13
 {
 	struct rndis_packet *rndis_pkt = &msg->msg.pkt;
 	const struct ndis_tcp_ip_checksum_info *csum_info;
 	const struct ndis_pkt_8021q_info *vlan;
+<<<<<<< HEAD
 	u32 data_offset;
 	void *data;
+=======
+	const struct rndis_pktinfo_id *pktinfo_id;
+	const u32 *hash_info;
+	u32 data_offset, rpkt_len;
+	bool rsc_more = false;
+	int ret;
+
+	/* Ensure data_buflen is big enough to read header fields */
+	if (data_buflen < RNDIS_HEADER_SIZE + sizeof(struct rndis_packet)) {
+		netdev_err(ndev, "invalid rndis pkt, data_buflen too small: %u\n",
+			   data_buflen);
+		return NVSP_STAT_FAIL;
+	}
+
+	/* Copy the RNDIS packet into nvchan->recv_buf */
+	memcpy(rndis_pkt, data + RNDIS_HEADER_SIZE, sizeof(*rndis_pkt));
+
+	/* Validate rndis_pkt offset */
+	if (rndis_pkt->data_offset >= data_buflen - RNDIS_HEADER_SIZE) {
+		netdev_err(ndev, "invalid rndis packet offset: %u\n",
+			   rndis_pkt->data_offset);
+		return NVSP_STAT_FAIL;
+	}
+>>>>>>> upstream/android-13
 
 	/* Remove the rndis header and pass it back up the stack */
 	data_offset = RNDIS_HEADER_SIZE + rndis_pkt->data_offset;
 
+<<<<<<< HEAD
+=======
+	rpkt_len = data_buflen - RNDIS_HEADER_SIZE;
+>>>>>>> upstream/android-13
 	data_buflen -= data_offset;
 
 	/*
@@ -393,6 +697,7 @@ static int rndis_filter_receive_data(struct net_device *ndev,
 		return NVSP_STAT_FAIL;
 	}
 
+<<<<<<< HEAD
 	vlan = rndis_get_ppi(rndis_pkt, IEEE_8021Q_INFO);
 
 	csum_info = rndis_get_ppi(rndis_pkt, TCPIP_CHKSUM_PKTINFO);
@@ -407,10 +712,64 @@ static int rndis_filter_receive_data(struct net_device *ndev,
 	return netvsc_recv_callback(ndev, nvdev, channel,
 				    data, rndis_pkt->data_len,
 				    csum_info, vlan);
+=======
+	vlan = rndis_get_ppi(ndev, rndis_pkt, rpkt_len, IEEE_8021Q_INFO, 0, sizeof(*vlan),
+			     data);
+
+	csum_info = rndis_get_ppi(ndev, rndis_pkt, rpkt_len, TCPIP_CHKSUM_PKTINFO, 0,
+				  sizeof(*csum_info), data);
+
+	hash_info = rndis_get_ppi(ndev, rndis_pkt, rpkt_len, NBL_HASH_VALUE, 0,
+				  sizeof(*hash_info), data);
+
+	pktinfo_id = rndis_get_ppi(ndev, rndis_pkt, rpkt_len, RNDIS_PKTINFO_ID, 1,
+				   sizeof(*pktinfo_id), data);
+
+	/* Identify RSC frags, drop erroneous packets */
+	if (pktinfo_id && (pktinfo_id->flag & RNDIS_PKTINFO_SUBALLOC)) {
+		if (pktinfo_id->flag & RNDIS_PKTINFO_1ST_FRAG)
+			nvchan->rsc.cnt = 0;
+		else if (nvchan->rsc.cnt == 0)
+			goto drop;
+
+		rsc_more = true;
+
+		if (pktinfo_id->flag & RNDIS_PKTINFO_LAST_FRAG)
+			rsc_more = false;
+
+		if (rsc_more && nvchan->rsc.is_last)
+			goto drop;
+	} else {
+		nvchan->rsc.cnt = 0;
+	}
+
+	if (unlikely(nvchan->rsc.cnt >= NVSP_RSC_MAX))
+		goto drop;
+
+	/* Put data into per channel structure.
+	 * Also, remove the rndis trailer padding from rndis packet message
+	 * rndis_pkt->data_len tell us the real data length, we only copy
+	 * the data packet to the stack, without the rndis trailer padding
+	 */
+	rsc_add_data(nvchan, vlan, csum_info, hash_info,
+		     data + data_offset, rndis_pkt->data_len);
+
+	if (rsc_more)
+		return NVSP_STAT_SUCCESS;
+
+	ret = netvsc_recv_callback(ndev, nvdev, nvchan);
+	nvchan->rsc.cnt = 0;
+
+	return ret;
+
+drop:
+	return NVSP_STAT_FAIL;
+>>>>>>> upstream/android-13
 }
 
 int rndis_filter_receive(struct net_device *ndev,
 			 struct netvsc_device *net_dev,
+<<<<<<< HEAD
 			 struct vmbus_channel *channel,
 			 void *data, u32 buflen)
 {
@@ -424,16 +783,55 @@ int rndis_filter_receive(struct net_device *ndev,
 	case RNDIS_MSG_PACKET:
 		return rndis_filter_receive_data(ndev, net_dev, channel,
 						 rndis_msg, buflen);
+=======
+			 struct netvsc_channel *nvchan,
+			 void *data, u32 buflen)
+{
+	struct net_device_context *net_device_ctx = netdev_priv(ndev);
+	struct rndis_message *rndis_msg = nvchan->recv_buf;
+
+	if (buflen < RNDIS_HEADER_SIZE) {
+		netdev_err(ndev, "Invalid rndis_msg (buflen: %u)\n", buflen);
+		return NVSP_STAT_FAIL;
+	}
+
+	/* Copy the RNDIS msg header into nvchan->recv_buf */
+	memcpy(rndis_msg, data, RNDIS_HEADER_SIZE);
+
+	/* Validate incoming rndis_message packet */
+	if (rndis_msg->msg_len < RNDIS_HEADER_SIZE ||
+	    buflen < rndis_msg->msg_len) {
+		netdev_err(ndev, "Invalid rndis_msg (buflen: %u, msg_len: %u)\n",
+			   buflen, rndis_msg->msg_len);
+		return NVSP_STAT_FAIL;
+	}
+
+	if (netif_msg_rx_status(net_device_ctx))
+		dump_rndis_message(ndev, rndis_msg, data);
+
+	switch (rndis_msg->ndis_msg_type) {
+	case RNDIS_MSG_PACKET:
+		return rndis_filter_receive_data(ndev, net_dev, nvchan,
+						 rndis_msg, data, buflen);
+>>>>>>> upstream/android-13
 	case RNDIS_MSG_INIT_C:
 	case RNDIS_MSG_QUERY_C:
 	case RNDIS_MSG_SET_C:
 		/* completion msgs */
+<<<<<<< HEAD
 		rndis_filter_receive_response(ndev, net_dev, rndis_msg);
+=======
+		rndis_filter_receive_response(ndev, net_dev, rndis_msg, data);
+>>>>>>> upstream/android-13
 		break;
 
 	case RNDIS_MSG_INDICATE:
 		/* notification msgs */
+<<<<<<< HEAD
 		netvsc_linkstatus_callback(ndev, rndis_msg);
+=======
+		netvsc_linkstatus_callback(ndev, rndis_msg, data, buflen);
+>>>>>>> upstream/android-13
 		break;
 	default:
 		netdev_err(ndev,
@@ -454,6 +852,10 @@ static int rndis_filter_query_device(struct rndis_device *dev,
 	u32 inresult_size = *result_size;
 	struct rndis_query_request *query;
 	struct rndis_query_complete *query_complete;
+<<<<<<< HEAD
+=======
+	u32 msg_len;
+>>>>>>> upstream/android-13
 	int ret = 0;
 
 	if (!result)
@@ -521,8 +923,24 @@ static int rndis_filter_query_device(struct rndis_device *dev,
 
 	/* Copy the response back */
 	query_complete = &request->response_msg.msg.query_complete;
+<<<<<<< HEAD
 
 	if (query_complete->info_buflen > inresult_size) {
+=======
+	msg_len = request->response_msg.msg_len;
+
+	/* Ensure the packet is big enough to access its fields */
+	if (msg_len - RNDIS_HEADER_SIZE < sizeof(struct rndis_query_complete)) {
+		ret = -1;
+		goto cleanup;
+	}
+
+	if (query_complete->info_buflen > inresult_size ||
+	    query_complete->info_buf_offset < sizeof(*query_complete) ||
+	    msg_len - RNDIS_HEADER_SIZE < query_complete->info_buf_offset ||
+	    msg_len - RNDIS_HEADER_SIZE - query_complete->info_buf_offset
+			< query_complete->info_buflen) {
+>>>>>>> upstream/android-13
 		ret = -1;
 		goto cleanup;
 	}
@@ -657,7 +1075,11 @@ cleanup:
 	return ret;
 }
 
+<<<<<<< HEAD
 static int
+=======
+int
+>>>>>>> upstream/android-13
 rndis_filter_set_offload_params(struct net_device *ndev,
 				struct netvsc_device *nvdev,
 				struct ndis_offload_params *req_offloads)
@@ -852,10 +1274,15 @@ static int rndis_filter_set_packet_filter(struct rndis_device *dev,
 	set = &request->request_msg.msg.set_req;
 	set->oid = RNDIS_OID_GEN_CURRENT_PACKET_FILTER;
 	set->info_buflen = sizeof(u32);
+<<<<<<< HEAD
 	set->info_buf_offset = sizeof(struct rndis_set_request);
 
 	memcpy((void *)(unsigned long)set + sizeof(struct rndis_set_request),
 	       &new_filter, sizeof(u32));
+=======
+	set->info_buf_offset = offsetof(typeof(*set), info_buf);
+	memcpy(set->info_buf, &new_filter, sizeof(u32));
+>>>>>>> upstream/android-13
 
 	ret = rndis_filter_send_request(dev, request);
 	if (ret == 0) {
@@ -1060,6 +1487,14 @@ static void netvsc_sc_open(struct vmbus_channel *new_sc)
 	/* Set the channel before opening.*/
 	nvchan->channel = new_sc;
 
+<<<<<<< HEAD
+=======
+	new_sc->next_request_id_callback = vmbus_next_request_id;
+	new_sc->request_addr_callback = vmbus_request_addr;
+	new_sc->rqstor_size = netvsc_rqstor_size(netvsc_ring_bytes);
+	new_sc->max_pkt_size = NETVSC_MAX_PKT_SIZE;
+
+>>>>>>> upstream/android-13
 	ret = vmbus_open(new_sc, netvsc_ring_bytes,
 			 netvsc_ring_bytes, NULL, 0,
 			 netvsc_channel_cb, nvchan);
@@ -1111,6 +1546,14 @@ int rndis_set_subchannel(struct net_device *ndev,
 		return -EIO;
 	}
 
+<<<<<<< HEAD
+=======
+	/* Check that number of allocated sub channel is within the expected range */
+	if (init_packet->msg.v5_msg.subchn_comp.num_subchannels > nvdev->num_chn - 1) {
+		netdev_err(ndev, "invalid number of allocated sub channel\n");
+		return -EINVAL;
+	}
+>>>>>>> upstream/android-13
 	nvdev->num_chn = 1 +
 		init_packet->msg.v5_msg.subchn_comp.num_subchannels;
 
@@ -1118,7 +1561,14 @@ int rndis_set_subchannel(struct net_device *ndev,
 	wait_event(nvdev->subchan_open,
 		   atomic_read(&nvdev->open_chn) == nvdev->num_chn);
 
+<<<<<<< HEAD
 	/* ignore failues from setting rss parameters, still have channels */
+=======
+	for (i = 0; i < VRSS_SEND_TAB_SIZE; i++)
+		ndev_ctx->tx_table[i] = i % nvdev->num_chn;
+
+	/* ignore failures from setting rss parameters, still have channels */
+>>>>>>> upstream/android-13
 	if (dev_info)
 		rndis_filter_set_rss_param(rdev, dev_info->rss_key);
 	else
@@ -1127,9 +1577,12 @@ int rndis_set_subchannel(struct net_device *ndev,
 	netif_set_real_num_tx_queues(ndev, nvdev->num_chn);
 	netif_set_real_num_rx_queues(ndev, nvdev->num_chn);
 
+<<<<<<< HEAD
 	for (i = 0; i < VRSS_SEND_TAB_SIZE; i++)
 		ndev_ctx->tx_table[i] = i % nvdev->num_chn;
 
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1160,6 +1613,11 @@ static int rndis_netdev_set_hwcaps(struct rndis_device *rndis_device,
 
 	/* Compute tx offload settings based on hw capabilities */
 	net->hw_features |= NETIF_F_RXCSUM;
+<<<<<<< HEAD
+=======
+	net->hw_features |= NETIF_F_SG;
+	net->hw_features |= NETIF_F_RXHASH;
+>>>>>>> upstream/android-13
 
 	if ((hwcaps.csum.ip4_txcsum & NDIS_TXCSUM_ALL_TCP4) == NDIS_TXCSUM_ALL_TCP4) {
 		/* Can checksum TCP */
@@ -1203,6 +1661,21 @@ static int rndis_netdev_set_hwcaps(struct rndis_device *rndis_device,
 		}
 	}
 
+<<<<<<< HEAD
+=======
+	if (hwcaps.rsc.ip4 && hwcaps.rsc.ip6) {
+		net->hw_features |= NETIF_F_LRO;
+
+		if (net->features & NETIF_F_LRO) {
+			offloads.rsc_ip_v4 = NDIS_OFFLOAD_PARAMETERS_RSC_ENABLED;
+			offloads.rsc_ip_v6 = NDIS_OFFLOAD_PARAMETERS_RSC_ENABLED;
+		} else {
+			offloads.rsc_ip_v4 = NDIS_OFFLOAD_PARAMETERS_RSC_DISABLED;
+			offloads.rsc_ip_v6 = NDIS_OFFLOAD_PARAMETERS_RSC_DISABLED;
+		}
+	}
+
+>>>>>>> upstream/android-13
 	/* In case some hw_features disappeared we need to remove them from
 	 * net->features list as they're no longer supported.
 	 */

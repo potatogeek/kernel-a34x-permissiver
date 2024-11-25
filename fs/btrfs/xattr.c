@@ -76,9 +76,14 @@ out:
 	return ret;
 }
 
+<<<<<<< HEAD
 static int do_setxattr(struct btrfs_trans_handle *trans,
 		       struct inode *inode, const char *name,
 		       const void *value, size_t size, int flags)
+=======
+int btrfs_setxattr(struct btrfs_trans_handle *trans, struct inode *inode,
+		   const char *name, const void *value, size_t size, int flags)
+>>>>>>> upstream/android-13
 {
 	struct btrfs_dir_item *di = NULL;
 	struct btrfs_root *root = BTRFS_I(inode)->root;
@@ -87,6 +92,11 @@ static int do_setxattr(struct btrfs_trans_handle *trans,
 	size_t name_len = strlen(name);
 	int ret = 0;
 
+<<<<<<< HEAD
+=======
+	ASSERT(trans);
+
+>>>>>>> upstream/android-13
 	if (name_len + size > BTRFS_MAX_XATTR_SIZE(root->fs_info))
 		return -ENOSPC;
 
@@ -174,7 +184,11 @@ static int do_setxattr(struct btrfs_trans_handle *trans,
 		char *ptr;
 
 		if (size > old_data_len) {
+<<<<<<< HEAD
 			if (btrfs_leaf_free_space(fs_info, leaf) <
+=======
+			if (btrfs_leaf_free_space(leaf) <
+>>>>>>> upstream/android-13
 			    (size - old_data_len)) {
 				ret = -ENOSPC;
 				goto out;
@@ -184,17 +198,27 @@ static int do_setxattr(struct btrfs_trans_handle *trans,
 		if (old_data_len + name_len + sizeof(*di) == item_size) {
 			/* No other xattrs packed in the same leaf item. */
 			if (size > old_data_len)
+<<<<<<< HEAD
 				btrfs_extend_item(fs_info, path,
 						  size - old_data_len);
 			else if (size < old_data_len)
 				btrfs_truncate_item(fs_info, path,
 						    data_size, 1);
+=======
+				btrfs_extend_item(path, size - old_data_len);
+			else if (size < old_data_len)
+				btrfs_truncate_item(path, data_size, 1);
+>>>>>>> upstream/android-13
 		} else {
 			/* There are other xattrs packed in the same item. */
 			ret = btrfs_delete_one_dir_name(trans, root, path, di);
 			if (ret)
 				goto out;
+<<<<<<< HEAD
 			btrfs_extend_item(fs_info, path, data_size);
+=======
+			btrfs_extend_item(path, data_size);
+>>>>>>> upstream/android-13
 		}
 
 		item = btrfs_item_nr(slot);
@@ -214,12 +238,21 @@ static int do_setxattr(struct btrfs_trans_handle *trans,
 	}
 out:
 	btrfs_free_path(path);
+<<<<<<< HEAD
+=======
+	if (!ret) {
+		set_bit(BTRFS_INODE_COPY_EVERYTHING,
+			&BTRFS_I(inode)->runtime_flags);
+		clear_bit(BTRFS_INODE_NO_XATTRS, &BTRFS_I(inode)->runtime_flags);
+	}
+>>>>>>> upstream/android-13
 	return ret;
 }
 
 /*
  * @value: "" makes the attribute to empty, NULL removes it
  */
+<<<<<<< HEAD
 int btrfs_setxattr(struct btrfs_trans_handle *trans,
 		     struct inode *inode, const char *name,
 		     const void *value, size_t size, int flags)
@@ -238,16 +271,61 @@ int btrfs_setxattr(struct btrfs_trans_handle *trans,
 		return PTR_ERR(trans);
 
 	ret = do_setxattr(trans, inode, name, value, size, flags);
+=======
+int btrfs_setxattr_trans(struct inode *inode, const char *name,
+			 const void *value, size_t size, int flags)
+{
+	struct btrfs_root *root = BTRFS_I(inode)->root;
+	struct btrfs_trans_handle *trans;
+	const bool start_trans = (current->journal_info == NULL);
+	int ret;
+
+	if (start_trans) {
+		/*
+		 * 1 unit for inserting/updating/deleting the xattr
+		 * 1 unit for the inode item update
+		 */
+		trans = btrfs_start_transaction(root, 2);
+		if (IS_ERR(trans))
+			return PTR_ERR(trans);
+	} else {
+		/*
+		 * This can happen when smack is enabled and a directory is being
+		 * created. It happens through d_instantiate_new(), which calls
+		 * smack_d_instantiate(), which in turn calls __vfs_setxattr() to
+		 * set the transmute xattr (XATTR_NAME_SMACKTRANSMUTE) on the
+		 * inode. We have already reserved space for the xattr and inode
+		 * update at btrfs_mkdir(), so just use the transaction handle.
+		 * We don't join or start a transaction, as that will reset the
+		 * block_rsv of the handle and trigger a warning for the start
+		 * case.
+		 */
+		ASSERT(strncmp(name, XATTR_SECURITY_PREFIX,
+			       XATTR_SECURITY_PREFIX_LEN) == 0);
+		trans = current->journal_info;
+	}
+
+	ret = btrfs_setxattr(trans, inode, name, value, size, flags);
+>>>>>>> upstream/android-13
 	if (ret)
 		goto out;
 
 	inode_inc_iversion(inode);
 	inode->i_ctime = current_time(inode);
+<<<<<<< HEAD
 	set_bit(BTRFS_INODE_COPY_EVERYTHING, &BTRFS_I(inode)->runtime_flags);
 	ret = btrfs_update_inode(trans, root, inode);
 	BUG_ON(ret);
 out:
 	btrfs_end_transaction(trans);
+=======
+	ret = btrfs_update_inode(trans, root, BTRFS_I(inode));
+	if (ret)
+		btrfs_abort_transaction(trans, ret);
+out:
+	if (start_trans)
+		btrfs_end_transaction(trans);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -365,21 +443,61 @@ static int btrfs_xattr_handler_get(const struct xattr_handler *handler,
 }
 
 static int btrfs_xattr_handler_set(const struct xattr_handler *handler,
+<<<<<<< HEAD
+=======
+				   struct user_namespace *mnt_userns,
+>>>>>>> upstream/android-13
 				   struct dentry *unused, struct inode *inode,
 				   const char *name, const void *buffer,
 				   size_t size, int flags)
 {
 	name = xattr_full_name(handler, name);
+<<<<<<< HEAD
 	return btrfs_setxattr(NULL, inode, name, buffer, size, flags);
 }
 
 static int btrfs_xattr_handler_set_prop(const struct xattr_handler *handler,
+=======
+	return btrfs_setxattr_trans(inode, name, buffer, size, flags);
+}
+
+static int btrfs_xattr_handler_set_prop(const struct xattr_handler *handler,
+					struct user_namespace *mnt_userns,
+>>>>>>> upstream/android-13
 					struct dentry *unused, struct inode *inode,
 					const char *name, const void *value,
 					size_t size, int flags)
 {
+<<<<<<< HEAD
 	name = xattr_full_name(handler, name);
 	return btrfs_set_prop(inode, name, value, size, flags);
+=======
+	int ret;
+	struct btrfs_trans_handle *trans;
+	struct btrfs_root *root = BTRFS_I(inode)->root;
+
+	name = xattr_full_name(handler, name);
+	ret = btrfs_validate_prop(name, value, size);
+	if (ret)
+		return ret;
+
+	trans = btrfs_start_transaction(root, 2);
+	if (IS_ERR(trans))
+		return PTR_ERR(trans);
+
+	ret = btrfs_set_prop(trans, inode, name, value, size, flags);
+	if (!ret) {
+		inode_inc_iversion(inode);
+		inode->i_ctime = current_time(inode);
+		ret = btrfs_update_inode(trans, root, BTRFS_I(inode));
+		if (ret)
+			btrfs_abort_transaction(trans, ret);
+	}
+
+	btrfs_end_transaction(trans);
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static const struct xattr_handler btrfs_security_xattr_handler = {
@@ -419,10 +537,17 @@ const struct xattr_handler *btrfs_xattr_handlers[] = {
 };
 
 static int btrfs_initxattrs(struct inode *inode,
+<<<<<<< HEAD
 			    const struct xattr *xattr_array, void *fs_info)
 {
 	const struct xattr *xattr;
 	struct btrfs_trans_handle *trans = fs_info;
+=======
+			    const struct xattr *xattr_array, void *fs_private)
+{
+	struct btrfs_trans_handle *trans = fs_private;
+	const struct xattr *xattr;
+>>>>>>> upstream/android-13
 	unsigned int nofs_flag;
 	char *name;
 	int err = 0;
@@ -442,7 +567,11 @@ static int btrfs_initxattrs(struct inode *inode,
 		strcpy(name, XATTR_SECURITY_PREFIX);
 		strcpy(name + XATTR_SECURITY_PREFIX_LEN, xattr->name);
 		err = btrfs_setxattr(trans, inode, name, xattr->value,
+<<<<<<< HEAD
 				xattr->value_len, 0);
+=======
+				     xattr->value_len, 0);
+>>>>>>> upstream/android-13
 		kfree(name);
 		if (err < 0)
 			break;

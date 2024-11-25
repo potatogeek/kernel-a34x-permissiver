@@ -1,3 +1,8 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+#include <linux/ethtool.h>
+>>>>>>> upstream/android-13
 #include <linux/module.h>
 #include <linux/kernel.h>
 #include <linux/netdevice.h>
@@ -6,6 +11,7 @@
 #include <linux/if_arp.h>
 #include <net/rtnetlink.h>
 
+<<<<<<< HEAD
 struct pcpu_lstats {
 	u64 packets;
 	u64 bytes;
@@ -21,6 +27,11 @@ static netdev_tx_t nlmon_xmit(struct sk_buff *skb, struct net_device *dev)
 	stats->bytes += len;
 	stats->packets++;
 	u64_stats_update_end(&stats->syncp);
+=======
+static netdev_tx_t nlmon_xmit(struct sk_buff *skb, struct net_device *dev)
+{
+	dev_lstats_add(dev, skb->len);
+>>>>>>> upstream/android-13
 
 	dev_kfree_skb(skb);
 
@@ -61,6 +72,7 @@ static int nlmon_close(struct net_device *dev)
 static void
 nlmon_get_stats64(struct net_device *dev, struct rtnl_link_stats64 *stats)
 {
+<<<<<<< HEAD
 	int i;
 	u64 bytes = 0, packets = 0;
 
@@ -80,6 +92,11 @@ nlmon_get_stats64(struct net_device *dev, struct rtnl_link_stats64 *stats)
 		packets += tpackets;
 		bytes += tbytes;
 	}
+=======
+	u64 packets, bytes;
+
+	dev_lstats_read(dev, &packets, &bytes);
+>>>>>>> upstream/android-13
 
 	stats->rx_packets = packets;
 	stats->tx_packets = 0;

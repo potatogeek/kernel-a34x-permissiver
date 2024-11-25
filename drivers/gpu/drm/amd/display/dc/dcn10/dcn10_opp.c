@@ -23,6 +23,11 @@
  *
  */
 
+<<<<<<< HEAD
+=======
+#include <linux/slab.h>
+
+>>>>>>> upstream/android-13
 #include "dm_services.h"
 #include "dcn10_opp.h"
 #include "reg_helper.h"
@@ -166,7 +171,14 @@ static void opp1_set_pixel_encoding(
 		REG_UPDATE(FMT_CONTROL, FMT_PIXEL_ENCODING, 0);
 		break;
 	case PIXEL_ENCODING_YCBCR422:
+<<<<<<< HEAD
 		REG_UPDATE(FMT_CONTROL, FMT_PIXEL_ENCODING, 1);
+=======
+		REG_UPDATE_3(FMT_CONTROL,
+				FMT_PIXEL_ENCODING, 1,
+				FMT_SUBSAMPLING_MODE, 2,
+				FMT_CBCR_BIT_REDUCTION_BYPASS, 0);
+>>>>>>> upstream/android-13
 		break;
 	case PIXEL_ENCODING_YCBCR420:
 		REG_UPDATE(FMT_CONTROL, FMT_PIXEL_ENCODING, 2);
@@ -235,6 +247,12 @@ void opp1_set_dyn_expansion(
 			FMT_DYNAMIC_EXP_EN, 0,
 			FMT_DYNAMIC_EXP_MODE, 0);
 
+<<<<<<< HEAD
+=======
+	if (opp->dyn_expansion == DYN_EXPANSION_DISABLE)
+		return;
+
+>>>>>>> upstream/android-13
 	/*00 - 10-bit -> 12-bit dynamic expansion*/
 	/*01 - 8-bit  -> 12-bit dynamic expansion*/
 	if (signal == SIGNAL_TYPE_HDMI_TYPE_A ||
@@ -365,6 +383,12 @@ void opp1_program_oppbuf(
 	 */
 	REG_UPDATE(OPPBUF_CONTROL, OPPBUF_PIXEL_REPETITION, oppbuf->pixel_repetition);
 
+<<<<<<< HEAD
+=======
+	/* Controls the number of padded pixels at the end of a segment */
+	if (REG(OPPBUF_CONTROL1))
+		REG_UPDATE(OPPBUF_CONTROL1, OPPBUF_NUM_SEGMENT_PADDED_PIXELS, oppbuf->num_segment_padded_pixels);
+>>>>>>> upstream/android-13
 }
 
 void opp1_pipe_clock_control(struct output_pixel_processor *opp, bool enable)
@@ -391,6 +415,12 @@ static const struct opp_funcs dcn10_opp_funcs = {
 		.opp_program_bit_depth_reduction = opp1_program_bit_depth_reduction,
 		.opp_program_stereo = opp1_program_stereo,
 		.opp_pipe_clock_control = opp1_pipe_clock_control,
+<<<<<<< HEAD
+=======
+		.opp_set_disp_pattern_generator = NULL,
+		.opp_program_dpg_dimensions = NULL,
+		.dpg_is_blanked = NULL,
+>>>>>>> upstream/android-13
 		.opp_destroy = opp1_destroy
 };
 

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2017 Netronome Systems, Inc.
  *
@@ -30,6 +31,10 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+=======
+// SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+/* Copyright (C) 2017-2018 Netronome Systems, Inc. */
+>>>>>>> upstream/android-13
 
 #include <linux/etherdevice.h>
 #include <linux/lockdep.h>
@@ -52,6 +57,12 @@
 
 #define NFP_FLOWER_ALLOWED_VER 0x0001000000010000UL
 
+<<<<<<< HEAD
+=======
+#define NFP_MIN_INT_PORT_ID	1
+#define NFP_MAX_INT_PORT_ID	256
+
+>>>>>>> upstream/android-13
 static const char *nfp_flower_extra_cap(struct nfp_app *app, struct nfp_net *nn)
 {
 	return "FLOWER";
@@ -62,6 +73,181 @@ static enum devlink_eswitch_mode eswitch_mode_get(struct nfp_app *app)
 	return DEVLINK_ESWITCH_MODE_SWITCHDEV;
 }
 
+<<<<<<< HEAD
+=======
+static int
+nfp_flower_lookup_internal_port_id(struct nfp_flower_priv *priv,
+				   struct net_device *netdev)
+{
+	struct net_device *entry;
+	int i, id = 0;
+
+	rcu_read_lock();
+	idr_for_each_entry(&priv->internal_ports.port_ids, entry, i)
+		if (entry == netdev) {
+			id = i;
+			break;
+		}
+	rcu_read_unlock();
+
+	return id;
+}
+
+static int
+nfp_flower_get_internal_port_id(struct nfp_app *app, struct net_device *netdev)
+{
+	struct nfp_flower_priv *priv = app->priv;
+	int id;
+
+	id = nfp_flower_lookup_internal_port_id(priv, netdev);
+	if (id > 0)
+		return id;
+
+	idr_preload(GFP_ATOMIC);
+	spin_lock_bh(&priv->internal_ports.lock);
+	id = idr_alloc(&priv->internal_ports.port_ids, netdev,
+		       NFP_MIN_INT_PORT_ID, NFP_MAX_INT_PORT_ID, GFP_ATOMIC);
+	spin_unlock_bh(&priv->internal_ports.lock);
+	idr_preload_end();
+
+	return id;
+}
+
+u32 nfp_flower_get_port_id_from_netdev(struct nfp_app *app,
+				       struct net_device *netdev)
+{
+	int ext_port;
+
+	if (nfp_netdev_is_nfp_repr(netdev)) {
+		return nfp_repr_get_port_id(netdev);
+	} else if (nfp_flower_internal_port_can_offload(app, netdev)) {
+		ext_port = nfp_flower_get_internal_port_id(app, netdev);
+		if (ext_port < 0)
+			return 0;
+
+		return nfp_flower_internal_port_get_port_id(ext_port);
+	}
+
+	return 0;
+}
+
+static struct net_device *
+nfp_flower_get_netdev_from_internal_port_id(struct nfp_app *app, int port_id)
+{
+	struct nfp_flower_priv *priv = app->priv;
+	struct net_device *netdev;
+
+	rcu_read_lock();
+	netdev = idr_find(&priv->internal_ports.port_ids, port_id);
+	rcu_read_unlock();
+
+	return netdev;
+}
+
+static void
+nfp_flower_free_internal_port_id(struct nfp_app *app, struct net_device *netdev)
+{
+	struct nfp_flower_priv *priv = app->priv;
+	int id;
+
+	id = nfp_flower_lookup_internal_port_id(priv, netdev);
+	if (!id)
+		return;
+
+	spin_lock_bh(&priv->internal_ports.lock);
+	idr_remove(&priv->internal_ports.port_ids, id);
+	spin_unlock_bh(&priv->internal_ports.lock);
+}
+
+static int
+nfp_flower_internal_port_event_handler(struct nfp_app *app,
+				       struct net_device *netdev,
+				       unsigned long event)
+{
+	if (event == NETDEV_UNREGISTER &&
+	    nfp_flower_internal_port_can_offload(app, netdev))
+		nfp_flower_free_internal_port_id(app, netdev);
+
+	return NOTIFY_OK;
+}
+
+static void nfp_flower_internal_port_init(struct nfp_flower_priv *priv)
+{
+	spin_lock_init(&priv->internal_ports.lock);
+	idr_init(&priv->internal_ports.port_ids);
+}
+
+static void nfp_flower_internal_port_cleanup(struct nfp_flower_priv *priv)
+{
+	idr_destroy(&priv->internal_ports.port_ids);
+}
+
+static struct nfp_flower_non_repr_priv *
+nfp_flower_non_repr_priv_lookup(struct nfp_app *app, struct net_device *netdev)
+{
+	struct nfp_flower_priv *priv = app->priv;
+	struct nfp_flower_non_repr_priv *entry;
+
+	ASSERT_RTNL();
+
+	list_for_each_entry(entry, &priv->non_repr_priv, list)
+		if (entry->netdev == netdev)
+			return entry;
+
+	return NULL;
+}
+
+void
+__nfp_flower_non_repr_priv_get(struct nfp_flower_non_repr_priv *non_repr_priv)
+{
+	non_repr_priv->ref_count++;
+}
+
+struct nfp_flower_non_repr_priv *
+nfp_flower_non_repr_priv_get(struct nfp_app *app, struct net_device *netdev)
+{
+	struct nfp_flower_priv *priv = app->priv;
+	struct nfp_flower_non_repr_priv *entry;
+
+	entry = nfp_flower_non_repr_priv_lookup(app, netdev);
+	if (entry)
+		goto inc_ref;
+
+	entry = kzalloc(sizeof(*entry), GFP_KERNEL);
+	if (!entry)
+		return NULL;
+
+	entry->netdev = netdev;
+	list_add(&entry->list, &priv->non_repr_priv);
+
+inc_ref:
+	__nfp_flower_non_repr_priv_get(entry);
+	return entry;
+}
+
+void
+__nfp_flower_non_repr_priv_put(struct nfp_flower_non_repr_priv *non_repr_priv)
+{
+	if (--non_repr_priv->ref_count)
+		return;
+
+	list_del(&non_repr_priv->list);
+	kfree(non_repr_priv);
+}
+
+void
+nfp_flower_non_repr_priv_put(struct nfp_app *app, struct net_device *netdev)
+{
+	struct nfp_flower_non_repr_priv *entry;
+
+	entry = nfp_flower_non_repr_priv_lookup(app, netdev);
+	if (!entry)
+		return;
+
+	__nfp_flower_non_repr_priv_put(entry);
+}
+
+>>>>>>> upstream/android-13
 static enum nfp_repr_type
 nfp_flower_repr_get_type_and_port(struct nfp_app *app, u32 port_id, u8 *port)
 {
@@ -84,12 +270,28 @@ nfp_flower_repr_get_type_and_port(struct nfp_app *app, u32 port_id, u8 *port)
 }
 
 static struct net_device *
+<<<<<<< HEAD
 nfp_flower_repr_get(struct nfp_app *app, u32 port_id)
+=======
+nfp_flower_dev_get(struct nfp_app *app, u32 port_id, bool *redir_egress)
+>>>>>>> upstream/android-13
 {
 	enum nfp_repr_type repr_type;
 	struct nfp_reprs *reprs;
 	u8 port = 0;
 
+<<<<<<< HEAD
+=======
+	/* Check if the port is internal. */
+	if (FIELD_GET(NFP_FLOWER_CMSG_PORT_TYPE, port_id) ==
+	    NFP_FLOWER_CMSG_PORT_TYPE_OTHER_PORT) {
+		if (redir_egress)
+			*redir_egress = true;
+		port = FIELD_GET(NFP_FLOWER_CMSG_PORT_PHYS_PORT_NUM, port_id);
+		return nfp_flower_get_netdev_from_internal_port_id(app, port);
+	}
+
+>>>>>>> upstream/android-13
 	repr_type = nfp_flower_repr_get_type_and_port(app, port_id, &port);
 	if (repr_type > NFP_REPR_TYPE_MAX)
 		return NULL;
@@ -137,16 +339,25 @@ static int
 nfp_flower_wait_repr_reify(struct nfp_app *app, atomic_t *replies, int tot_repl)
 {
 	struct nfp_flower_priv *priv = app->priv;
+<<<<<<< HEAD
 	int err;
+=======
+>>>>>>> upstream/android-13
 
 	if (!tot_repl)
 		return 0;
 
 	lockdep_assert_held(&app->pf->lock);
+<<<<<<< HEAD
 	err = wait_event_interruptible_timeout(priv->reify_wait_queue,
 					       atomic_read(replies) >= tot_repl,
 					       msecs_to_jiffies(10));
 	if (err <= 0) {
+=======
+	if (!wait_event_timeout(priv->reify_wait_queue,
+				atomic_read(replies) >= tot_repl,
+				NFP_FL_REPLY_TIMEOUT)) {
+>>>>>>> upstream/android-13
 		nfp_warn(app->cpp, "Not all reprs responded to reify\n");
 		return -EIO;
 	}
@@ -176,6 +387,7 @@ nfp_flower_repr_netdev_stop(struct nfp_app *app, struct nfp_repr *repr)
 	return nfp_flower_cmsg_portmod(repr, false, repr->netdev->mtu, false);
 }
 
+<<<<<<< HEAD
 static int
 nfp_flower_repr_netdev_init(struct nfp_app *app, struct net_device *netdev)
 {
@@ -184,15 +396,20 @@ nfp_flower_repr_netdev_init(struct nfp_app *app, struct net_device *netdev)
 					  netdev_priv(netdev));
 }
 
+=======
+>>>>>>> upstream/android-13
 static void
 nfp_flower_repr_netdev_clean(struct nfp_app *app, struct net_device *netdev)
 {
 	struct nfp_repr *repr = netdev_priv(netdev);
 
 	kfree(repr->app_priv);
+<<<<<<< HEAD
 
 	tc_setup_cb_egdev_unregister(netdev, nfp_flower_setup_tc_egress_cb,
 				     netdev_priv(netdev));
+=======
+>>>>>>> upstream/android-13
 }
 
 static void
@@ -265,6 +482,10 @@ nfp_flower_spawn_vnic_reprs(struct nfp_app *app,
 
 		nfp_repr = netdev_priv(repr);
 		nfp_repr->app_priv = repr_priv;
+<<<<<<< HEAD
+=======
+		repr_priv->nfp_repr = nfp_repr;
+>>>>>>> upstream/android-13
 
 		/* For now we only support 1 PF */
 		WARN_ON(repr_type == NFP_REPR_TYPE_PF && i);
@@ -382,6 +603,10 @@ nfp_flower_spawn_phy_reprs(struct nfp_app *app, struct nfp_flower_priv *priv)
 
 		nfp_repr = netdev_priv(repr);
 		nfp_repr->app_priv = repr_priv;
+<<<<<<< HEAD
+=======
+		repr_priv->nfp_repr = nfp_repr;
+>>>>>>> upstream/android-13
 
 		port = nfp_port_alloc(app, NFP_PORT_PHYS_PORT, repr);
 		if (IS_ERR(port)) {
@@ -522,11 +747,90 @@ err_clear_nn:
 	return err;
 }
 
+<<<<<<< HEAD
 static int nfp_flower_init(struct nfp_app *app)
 {
 	const struct nfp_pf *pf = app->pf;
 	struct nfp_flower_priv *app_priv;
 	u64 version, features;
+=======
+static void nfp_flower_wait_host_bit(struct nfp_app *app)
+{
+	unsigned long err_at;
+	u64 feat;
+	int err;
+
+	/* Wait for HOST_ACK flag bit to propagate */
+	err_at = jiffies + msecs_to_jiffies(100);
+	do {
+		feat = nfp_rtsym_read_le(app->pf->rtbl,
+					 "_abi_flower_combined_features_global",
+					 &err);
+		if (time_is_before_eq_jiffies(err_at)) {
+			nfp_warn(app->cpp,
+				 "HOST_ACK bit not propagated in FW.\n");
+			break;
+		}
+		usleep_range(1000, 2000);
+	} while (!err && !(feat & NFP_FL_FEATS_HOST_ACK));
+
+	if (err)
+		nfp_warn(app->cpp,
+			 "Could not read global features entry from FW\n");
+}
+
+static int nfp_flower_sync_feature_bits(struct nfp_app *app)
+{
+	struct nfp_flower_priv *app_priv = app->priv;
+	int err;
+
+	/* Tell the firmware of the host supported features. */
+	err = nfp_rtsym_write_le(app->pf->rtbl, "_abi_flower_host_mask",
+				 app_priv->flower_ext_feats |
+				 NFP_FL_FEATS_HOST_ACK);
+	if (!err)
+		nfp_flower_wait_host_bit(app);
+	else if (err != -ENOENT)
+		return err;
+
+	/* Tell the firmware that the driver supports lag. */
+	err = nfp_rtsym_write_le(app->pf->rtbl,
+				 "_abi_flower_balance_sync_enable", 1);
+	if (!err) {
+		app_priv->flower_en_feats |= NFP_FL_ENABLE_LAG;
+		nfp_flower_lag_init(&app_priv->nfp_lag);
+	} else if (err == -ENOENT) {
+		nfp_warn(app->cpp, "LAG not supported by FW.\n");
+	} else {
+		return err;
+	}
+
+	if (app_priv->flower_ext_feats & NFP_FL_FEATS_FLOW_MOD) {
+		/* Tell the firmware that the driver supports flow merging. */
+		err = nfp_rtsym_write_le(app->pf->rtbl,
+					 "_abi_flower_merge_hint_enable", 1);
+		if (!err) {
+			app_priv->flower_en_feats |= NFP_FL_ENABLE_FLOW_MERGE;
+			nfp_flower_internal_port_init(app_priv);
+		} else if (err == -ENOENT) {
+			nfp_warn(app->cpp,
+				 "Flow merge not supported by FW.\n");
+		} else {
+			return err;
+		}
+	} else {
+		nfp_warn(app->cpp, "Flow mod/merge not supported by FW.\n");
+	}
+
+	return 0;
+}
+
+static int nfp_flower_init(struct nfp_app *app)
+{
+	u64 version, features, ctx_count, num_mems;
+	const struct nfp_pf *pf = app->pf;
+	struct nfp_flower_priv *app_priv;
+>>>>>>> upstream/android-13
 	int err;
 
 	if (!pf->eth_tbl) {
@@ -550,6 +854,36 @@ static int nfp_flower_init(struct nfp_app *app)
 		return err;
 	}
 
+<<<<<<< HEAD
+=======
+	num_mems = nfp_rtsym_read_le(app->pf->rtbl, "CONFIG_FC_HOST_CTX_SPLIT",
+				     &err);
+	if (err) {
+		nfp_warn(app->cpp,
+			 "FlowerNIC: unsupported host context memory: %d\n",
+			 err);
+		err = 0;
+		num_mems = 1;
+	}
+
+	if (!FIELD_FIT(NFP_FL_STAT_ID_MU_NUM, num_mems) || !num_mems) {
+		nfp_warn(app->cpp,
+			 "FlowerNIC: invalid host context memory: %llu\n",
+			 num_mems);
+		return -EINVAL;
+	}
+
+	ctx_count = nfp_rtsym_read_le(app->pf->rtbl, "CONFIG_FC_HOST_CTX_COUNT",
+				      &err);
+	if (err) {
+		nfp_warn(app->cpp,
+			 "FlowerNIC: unsupported host context count: %d\n",
+			 err);
+		err = 0;
+		ctx_count = BIT(17);
+	}
+
+>>>>>>> upstream/android-13
 	/* We need to ensure hardware has enough flower capabilities. */
 	if (version != NFP_FLOWER_ALLOWED_VER) {
 		nfp_warn(app->cpp, "FlowerNIC: unsupported firmware version\n");
@@ -560,6 +894,12 @@ static int nfp_flower_init(struct nfp_app *app)
 	if (!app_priv)
 		return -ENOMEM;
 
+<<<<<<< HEAD
+=======
+	app_priv->total_mem_units = num_mems;
+	app_priv->active_mem_unit = 0;
+	app_priv->stats_ring_size = roundup_pow_of_two(ctx_count);
+>>>>>>> upstream/android-13
 	app->priv = app_priv;
 	app_priv->app = app;
 	skb_queue_head_init(&app_priv->cmsg_skbs_high);
@@ -570,7 +910,11 @@ static int nfp_flower_init(struct nfp_app *app)
 	init_waitqueue_head(&app_priv->mtu_conf.wait_q);
 	spin_lock_init(&app_priv->mtu_conf.lock);
 
+<<<<<<< HEAD
 	err = nfp_flower_metadata_init(app);
+=======
+	err = nfp_flower_metadata_init(app, ctx_count, num_mems);
+>>>>>>> upstream/android-13
 	if (err)
 		goto err_free_app_priv;
 
@@ -580,6 +924,7 @@ static int nfp_flower_init(struct nfp_app *app)
 	if (err)
 		app_priv->flower_ext_feats = 0;
 	else
+<<<<<<< HEAD
 		app_priv->flower_ext_feats = features;
 
 	/* Tell the firmware that the driver supports lag. */
@@ -597,6 +942,26 @@ static int nfp_flower_init(struct nfp_app *app)
 	return 0;
 
 err_cleanup_metadata:
+=======
+		app_priv->flower_ext_feats = features & NFP_FL_FEATS_HOST;
+
+	err = nfp_flower_sync_feature_bits(app);
+	if (err)
+		goto err_cleanup;
+
+	if (app_priv->flower_ext_feats & NFP_FL_FEATS_VF_RLIM)
+		nfp_flower_qos_init(app);
+
+	INIT_LIST_HEAD(&app_priv->indr_block_cb_priv);
+	INIT_LIST_HEAD(&app_priv->non_repr_priv);
+	app_priv->pre_tun_rule_cnt = 0;
+
+	return 0;
+
+err_cleanup:
+	if (app_priv->flower_en_feats & NFP_FL_ENABLE_LAG)
+		nfp_flower_lag_cleanup(&app_priv->nfp_lag);
+>>>>>>> upstream/android-13
 	nfp_flower_metadata_cleanup(app);
 err_free_app_priv:
 	vfree(app->priv);
@@ -611,9 +976,21 @@ static void nfp_flower_clean(struct nfp_app *app)
 	skb_queue_purge(&app_priv->cmsg_skbs_low);
 	flush_work(&app_priv->cmsg_work);
 
+<<<<<<< HEAD
 	if (app_priv->flower_ext_feats & NFP_FL_FEATS_LAG)
 		nfp_flower_lag_cleanup(&app_priv->nfp_lag);
 
+=======
+	if (app_priv->flower_ext_feats & NFP_FL_FEATS_VF_RLIM)
+		nfp_flower_qos_cleanup(app);
+
+	if (app_priv->flower_en_feats & NFP_FL_ENABLE_LAG)
+		nfp_flower_lag_cleanup(&app_priv->nfp_lag);
+
+	if (app_priv->flower_en_feats & NFP_FL_ENABLE_FLOW_MERGE)
+		nfp_flower_internal_port_cleanup(app_priv);
+
+>>>>>>> upstream/android-13
 	nfp_flower_metadata_cleanup(app);
 	vfree(app->priv);
 	app->priv = NULL;
@@ -636,7 +1013,11 @@ nfp_flower_repr_change_mtu(struct nfp_app *app, struct net_device *netdev,
 {
 	struct nfp_flower_priv *app_priv = app->priv;
 	struct nfp_repr *repr = netdev_priv(netdev);
+<<<<<<< HEAD
 	int err, ack;
+=======
+	int err;
+>>>>>>> upstream/android-13
 
 	/* Only need to config FW for physical port MTU change. */
 	if (repr->port->type != NFP_PORT_PHYS_PORT)
@@ -663,11 +1044,17 @@ nfp_flower_repr_change_mtu(struct nfp_app *app, struct net_device *netdev,
 	}
 
 	/* Wait for fw to ack the change. */
+<<<<<<< HEAD
 	ack = wait_event_timeout(app_priv->mtu_conf.wait_q,
 				 nfp_flower_check_ack(app_priv),
 				 msecs_to_jiffies(10));
 
 	if (!ack) {
+=======
+	if (!wait_event_timeout(app_priv->mtu_conf.wait_q,
+				nfp_flower_check_ack(app_priv),
+				NFP_FL_REPLY_TIMEOUT)) {
+>>>>>>> upstream/android-13
 		spin_lock_bh(&app_priv->mtu_conf.lock);
 		app_priv->mtu_conf.requested_val = 0;
 		spin_unlock_bh(&app_priv->mtu_conf.lock);
@@ -683,6 +1070,7 @@ static int nfp_flower_start(struct nfp_app *app)
 	struct nfp_flower_priv *app_priv = app->priv;
 	int err;
 
+<<<<<<< HEAD
 	if (app_priv->flower_ext_feats & NFP_FL_FEATS_LAG) {
 		err = nfp_flower_lag_reset(&app_priv->nfp_lag);
 		if (err)
@@ -694,16 +1082,65 @@ static int nfp_flower_start(struct nfp_app *app)
 	}
 
 	return nfp_tunnel_config_start(app);
+=======
+	if (app_priv->flower_en_feats & NFP_FL_ENABLE_LAG) {
+		err = nfp_flower_lag_reset(&app_priv->nfp_lag);
+		if (err)
+			return err;
+	}
+
+	err = flow_indr_dev_register(nfp_flower_indr_setup_tc_cb, app);
+	if (err)
+		return err;
+
+	err = nfp_tunnel_config_start(app);
+	if (err)
+		goto err_tunnel_config;
+
+	return 0;
+
+err_tunnel_config:
+	flow_indr_dev_unregister(nfp_flower_indr_setup_tc_cb, app,
+				 nfp_flower_setup_indr_tc_release);
+	return err;
+>>>>>>> upstream/android-13
 }
 
 static void nfp_flower_stop(struct nfp_app *app)
 {
+<<<<<<< HEAD
 	struct nfp_flower_priv *app_priv = app->priv;
 
 	if (app_priv->flower_ext_feats & NFP_FL_FEATS_LAG)
 		unregister_netdevice_notifier(&app_priv->nfp_lag.lag_nb);
 
 	nfp_tunnel_config_stop(app);
+=======
+	nfp_tunnel_config_stop(app);
+
+	flow_indr_dev_unregister(nfp_flower_indr_setup_tc_cb, app,
+				 nfp_flower_setup_indr_tc_release);
+}
+
+static int
+nfp_flower_netdev_event(struct nfp_app *app, struct net_device *netdev,
+			unsigned long event, void *ptr)
+{
+	struct nfp_flower_priv *app_priv = app->priv;
+	int ret;
+
+	if (app_priv->flower_en_feats & NFP_FL_ENABLE_LAG) {
+		ret = nfp_flower_lag_netdev_event(app_priv, netdev, event, ptr);
+		if (ret & NOTIFY_STOP_MASK)
+			return ret;
+	}
+
+	ret = nfp_flower_internal_port_event_handler(app, netdev, event);
+	if (ret & NOTIFY_STOP_MASK)
+		return ret;
+
+	return nfp_tunnel_mac_event_handler(app, netdev, event, ptr);
+>>>>>>> upstream/android-13
 }
 
 const struct nfp_app_type app_flower = {
@@ -724,7 +1161,10 @@ const struct nfp_app_type app_flower = {
 	.vnic_init	= nfp_flower_vnic_init,
 	.vnic_clean	= nfp_flower_vnic_clean,
 
+<<<<<<< HEAD
 	.repr_init	= nfp_flower_repr_netdev_init,
+=======
+>>>>>>> upstream/android-13
 	.repr_preclean	= nfp_flower_repr_netdev_preclean,
 	.repr_clean	= nfp_flower_repr_netdev_clean,
 
@@ -734,13 +1174,22 @@ const struct nfp_app_type app_flower = {
 	.start		= nfp_flower_start,
 	.stop		= nfp_flower_stop,
 
+<<<<<<< HEAD
+=======
+	.netdev_event	= nfp_flower_netdev_event,
+
+>>>>>>> upstream/android-13
 	.ctrl_msg_rx	= nfp_flower_cmsg_rx,
 
 	.sriov_enable	= nfp_flower_sriov_enable,
 	.sriov_disable	= nfp_flower_sriov_disable,
 
 	.eswitch_mode_get  = eswitch_mode_get,
+<<<<<<< HEAD
 	.repr_get	= nfp_flower_repr_get,
+=======
+	.dev_get	= nfp_flower_dev_get,
+>>>>>>> upstream/android-13
 
 	.setup_tc	= nfp_flower_setup_tc,
 };

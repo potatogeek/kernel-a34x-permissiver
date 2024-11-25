@@ -1,9 +1,19 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 config CEPH_LIB
 	tristate "Ceph core library"
 	depends on INET
 	select LIBCRC32C
 	select CRYPTO_AES
 	select CRYPTO_CBC
+<<<<<<< HEAD
+=======
+	select CRYPTO_GCM
+	select CRYPTO_HMAC
+	select CRYPTO_SHA256
+>>>>>>> upstream/android-13
 	select CRYPTO
 	select KEYS
 	default n
@@ -12,7 +22,11 @@ config CEPH_LIB
 	  common functionality to both the Ceph filesystem and
 	  to the rados block device (rbd).
 
+<<<<<<< HEAD
 	  More information at http://ceph.newdream.net/.
+=======
+	  More information at https://ceph.io/.
+>>>>>>> upstream/android-13
 
 	  If unsure, say N.
 
@@ -38,6 +52,10 @@ config CEPH_LIB_USE_DNS_RESOLVER
 	  be resolved using the CONFIG_DNS_RESOLVER facility.
 
 	  For information on how to use CONFIG_DNS_RESOLVER consult
+<<<<<<< HEAD
 	  Documentation/networking/dns_resolver.txt
+=======
+	  Documentation/networking/dns_resolver.rst
+>>>>>>> upstream/android-13
 
 	  If unsure, say N.

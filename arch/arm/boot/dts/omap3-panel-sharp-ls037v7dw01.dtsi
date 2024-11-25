@@ -46,7 +46,11 @@
 };
 
 &dss {
+<<<<<<< HEAD
 	status = "ok";
+=======
+	status = "okay";
+>>>>>>> upstream/android-13
 	port {
 		dpi_out: endpoint {
 			remote-endpoint = <&lcd_in>;

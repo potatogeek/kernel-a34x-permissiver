@@ -33,7 +33,11 @@
  */
 
 #include <linux/kernel.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
+=======
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 
 #include <linux/of_fdt.h>
 #include <linux/of_platform.h>

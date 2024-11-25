@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  arch/arm/mach-pxa/include/mach/idp.h
  *
@@ -5,6 +6,12 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ *  arch/arm/mach-pxa/include/mach/idp.h
+ *
+>>>>>>> upstream/android-13
  * Copyright (c) 2001 Cliff Brake, Accelent Systems Inc.
  *
  * 2001-09-13: Cliff Brake <cbrake@accelent.com>

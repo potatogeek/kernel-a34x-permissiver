@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  *  linux/arch/arm/lib/memcpy.S
  *
  *  Author:	Nicolas Pitre
  *  Created:	Sep 28, 2005
  *  Copyright:	MontaVista Software, Inc.
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2 as
  *  published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/linkage.h>
@@ -30,7 +37,11 @@
 	.endm
 
 	.macro ldr1b ptr reg cond=al abort
+<<<<<<< HEAD
 	ldr\cond\()b \reg, [\ptr], #1
+=======
+	ldrb\cond \reg, [\ptr], #1
+>>>>>>> upstream/android-13
 	.endm
 
 	.macro str1w ptr reg abort
@@ -42,7 +53,11 @@
 	.endm
 
 	.macro str1b ptr reg cond=al abort
+<<<<<<< HEAD
 	str\cond\()b \reg, [\ptr], #1
+=======
+	strb\cond \reg, [\ptr], #1
+>>>>>>> upstream/android-13
 	.endm
 
 	.macro enter reg1 reg2
@@ -61,10 +76,20 @@
 
 /* Prototype: void *memcpy(void *dest, const void *src, size_t n); */
 
+<<<<<<< HEAD
 ENTRY(mmiocpy)
 ENTRY(memcpy)
+=======
+ENTRY(__memcpy)
+ENTRY(mmiocpy)
+WEAK(memcpy)
+>>>>>>> upstream/android-13
 
 #include "copy_template.S"
 
 ENDPROC(memcpy)
 ENDPROC(mmiocpy)
+<<<<<<< HEAD
+=======
+ENDPROC(__memcpy)
+>>>>>>> upstream/android-13

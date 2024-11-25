@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2010-2011 Canonical Ltd <jeremy.kerr@canonical.com>
  * Copyright (C) 2011-2012 Linaro Ltd <mturquette@linaro.org>
@@ -6,6 +7,12 @@
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright (C) 2010-2011 Canonical Ltd <jeremy.kerr@canonical.com>
+ * Copyright (C) 2011-2012 Linaro Ltd <mturquette@linaro.org>
+>>>>>>> upstream/android-13
  *
  * Standard functionality for the common clock API.  See Documentation/driver-api/clk.rst
  */
@@ -25,9 +32,12 @@
 #include <linux/pm_runtime.h>
 #include <linux/sched.h>
 #include <linux/clkdev.h>
+<<<<<<< HEAD
 #include <linux/of_platform.h>
 #include <linux/pm_opp.h>
 #include <linux/regulator/consumer.h>
+=======
+>>>>>>> upstream/android-13
 
 #include "clk.h"
 
@@ -50,6 +60,7 @@ static struct hlist_head *all_lists[] = {
 	NULL,
 };
 
+<<<<<<< HEAD
 #ifdef CONFIG_DEBUG_FS
 static struct hlist_head *orphan_list[] = {
 	&clk_orphan_list,
@@ -69,17 +80,37 @@ static LIST_HEAD(clk_rate_change_list);
 
 /***    private data structures    ***/
 
+=======
+/***    private data structures    ***/
+
+struct clk_parent_map {
+	const struct clk_hw	*hw;
+	struct clk_core		*core;
+	const char		*fw_name;
+	const char		*name;
+	int			index;
+};
+
+>>>>>>> upstream/android-13
 struct clk_core {
 	const char		*name;
 	const struct clk_ops	*ops;
 	struct clk_hw		*hw;
 	struct module		*owner;
 	struct device		*dev;
+<<<<<<< HEAD
 	struct clk_core		*parent;
 	const char		**parent_names;
 	struct clk_core		**parents;
 	unsigned int		num_parents;
 	unsigned int		new_parent_index;
+=======
+	struct device_node	*of_node;
+	struct clk_core		*parent;
+	struct clk_parent_map	*parents;
+	u8			num_parents;
+	u8			new_parent_index;
+>>>>>>> upstream/android-13
 	unsigned long		rate;
 	unsigned long		req_rate;
 	unsigned long		new_rate;
@@ -93,8 +124,11 @@ struct clk_core {
 	unsigned int		enable_count;
 	unsigned int		prepare_count;
 	unsigned int		protect_count;
+<<<<<<< HEAD
 	bool			need_handoff_enable;
 	bool			need_handoff_prepare;
+=======
+>>>>>>> upstream/android-13
 	unsigned long		min_rate;
 	unsigned long		max_rate;
 	unsigned long		accuracy;
@@ -109,12 +143,15 @@ struct clk_core {
 	struct hlist_node	debug_node;
 #endif
 	struct kref		ref;
+<<<<<<< HEAD
 	struct clk_vdd_class	*vdd_class;
 	int			vdd_class_vote;
 	int			new_vdd_class_vote;
 	struct list_head	rate_change_node;
 	unsigned long		*rate_max;
 	int			num_rate_max;
+=======
+>>>>>>> upstream/android-13
 };
 
 #define CREATE_TRACE_POINTS
@@ -122,6 +159,10 @@ struct clk_core {
 
 struct clk {
 	struct clk_core	*core;
+<<<<<<< HEAD
+=======
+	struct device *dev;
+>>>>>>> upstream/android-13
 	const char *dev_id;
 	const char *con_id;
 	unsigned long min_rate;
@@ -359,6 +400,7 @@ static struct clk_core *clk_core_lookup(const char *name)
 	return NULL;
 }
 
+<<<<<<< HEAD
 static struct clk_core *clk_core_get_parent_by_index(struct clk_core *core,
 							 u8 index)
 {
@@ -370,6 +412,126 @@ static struct clk_core *clk_core_get_parent_by_index(struct clk_core *core,
 				clk_core_lookup(core->parent_names[index]);
 
 	return core->parents[index];
+=======
+#ifdef CONFIG_OF
+static int of_parse_clkspec(const struct device_node *np, int index,
+			    const char *name, struct of_phandle_args *out_args);
+static struct clk_hw *
+of_clk_get_hw_from_clkspec(struct of_phandle_args *clkspec);
+#else
+static inline int of_parse_clkspec(const struct device_node *np, int index,
+				   const char *name,
+				   struct of_phandle_args *out_args)
+{
+	return -ENOENT;
+}
+static inline struct clk_hw *
+of_clk_get_hw_from_clkspec(struct of_phandle_args *clkspec)
+{
+	return ERR_PTR(-ENOENT);
+}
+#endif
+
+/**
+ * clk_core_get - Find the clk_core parent of a clk
+ * @core: clk to find parent of
+ * @p_index: parent index to search for
+ *
+ * This is the preferred method for clk providers to find the parent of a
+ * clk when that parent is external to the clk controller. The parent_names
+ * array is indexed and treated as a local name matching a string in the device
+ * node's 'clock-names' property or as the 'con_id' matching the device's
+ * dev_name() in a clk_lookup. This allows clk providers to use their own
+ * namespace instead of looking for a globally unique parent string.
+ *
+ * For example the following DT snippet would allow a clock registered by the
+ * clock-controller@c001 that has a clk_init_data::parent_data array
+ * with 'xtal' in the 'name' member to find the clock provided by the
+ * clock-controller@f00abcd without needing to get the globally unique name of
+ * the xtal clk.
+ *
+ *      parent: clock-controller@f00abcd {
+ *              reg = <0xf00abcd 0xabcd>;
+ *              #clock-cells = <0>;
+ *      };
+ *
+ *      clock-controller@c001 {
+ *              reg = <0xc001 0xf00d>;
+ *              clocks = <&parent>;
+ *              clock-names = "xtal";
+ *              #clock-cells = <1>;
+ *      };
+ *
+ * Returns: -ENOENT when the provider can't be found or the clk doesn't
+ * exist in the provider or the name can't be found in the DT node or
+ * in a clkdev lookup. NULL when the provider knows about the clk but it
+ * isn't provided on this system.
+ * A valid clk_core pointer when the clk can be found in the provider.
+ */
+static struct clk_core *clk_core_get(struct clk_core *core, u8 p_index)
+{
+	const char *name = core->parents[p_index].fw_name;
+	int index = core->parents[p_index].index;
+	struct clk_hw *hw = ERR_PTR(-ENOENT);
+	struct device *dev = core->dev;
+	const char *dev_id = dev ? dev_name(dev) : NULL;
+	struct device_node *np = core->of_node;
+	struct of_phandle_args clkspec;
+
+	if (np && (name || index >= 0) &&
+	    !of_parse_clkspec(np, index, name, &clkspec)) {
+		hw = of_clk_get_hw_from_clkspec(&clkspec);
+		of_node_put(clkspec.np);
+	} else if (name) {
+		/*
+		 * If the DT search above couldn't find the provider fallback to
+		 * looking up via clkdev based clk_lookups.
+		 */
+		hw = clk_find_hw(dev_id, name);
+	}
+
+	if (IS_ERR(hw))
+		return ERR_CAST(hw);
+
+	return hw->core;
+}
+
+static void clk_core_fill_parent_index(struct clk_core *core, u8 index)
+{
+	struct clk_parent_map *entry = &core->parents[index];
+	struct clk_core *parent;
+
+	if (entry->hw) {
+		parent = entry->hw->core;
+		/*
+		 * We have a direct reference but it isn't registered yet?
+		 * Orphan it and let clk_reparent() update the orphan status
+		 * when the parent is registered.
+		 */
+		if (!parent)
+			parent = ERR_PTR(-EPROBE_DEFER);
+	} else {
+		parent = clk_core_get(core, index);
+		if (PTR_ERR(parent) == -ENOENT && entry->name)
+			parent = clk_core_lookup(entry->name);
+	}
+
+	/* Only cache it if it's not an error */
+	if (!IS_ERR(parent))
+		entry->core = parent;
+}
+
+static struct clk_core *clk_core_get_parent_by_index(struct clk_core *core,
+							 u8 index)
+{
+	if (!core || index >= core->num_parents || !core->parents)
+		return NULL;
+
+	if (!core->parents[index].core)
+		clk_core_fill_parent_index(core, index);
+
+	return core->parents[index].core;
+>>>>>>> upstream/android-13
 }
 
 struct clk_hw *
@@ -390,6 +552,7 @@ unsigned int __clk_get_enable_count(struct clk *clk)
 
 static unsigned long clk_core_get_rate_nolock(struct clk_core *core)
 {
+<<<<<<< HEAD
 	unsigned long ret;
 
 	if (!core) {
@@ -407,6 +570,20 @@ static unsigned long clk_core_get_rate_nolock(struct clk_core *core)
 
 out:
 	return ret;
+=======
+	if (!core)
+		return 0;
+
+	if (!core->num_parents || core->parent)
+		return core->rate;
+
+	/*
+	 * Clk must have a parent because num_parents > 0 but the parent isn't
+	 * known yet. Best to return 0 as the rate of this clk until we can
+	 * properly recalc the rate based on the parent's rate.
+	 */
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 unsigned long clk_hw_get_rate(const struct clk_hw *hw)
@@ -415,7 +592,11 @@ unsigned long clk_hw_get_rate(const struct clk_hw *hw)
 }
 EXPORT_SYMBOL_GPL(clk_hw_get_rate);
 
+<<<<<<< HEAD
 static unsigned long __clk_get_accuracy(struct clk_core *core)
+=======
+static unsigned long clk_core_get_accuracy_no_lock(struct clk_core *core)
+>>>>>>> upstream/android-13
 {
 	if (!core)
 		return 0;
@@ -423,12 +604,15 @@ static unsigned long __clk_get_accuracy(struct clk_core *core)
 	return core->accuracy;
 }
 
+<<<<<<< HEAD
 unsigned long __clk_get_flags(struct clk *clk)
 {
 	return !clk ? 0 : clk->core->flags;
 }
 EXPORT_SYMBOL_GPL(__clk_get_flags);
 
+=======
+>>>>>>> upstream/android-13
 unsigned long clk_hw_get_flags(const struct clk_hw *hw)
 {
 	return hw->core->flags;
@@ -445,6 +629,10 @@ bool clk_hw_rate_is_protected(const struct clk_hw *hw)
 {
 	return clk_core_rate_is_protected(hw->core);
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(clk_hw_rate_is_protected);
+>>>>>>> upstream/android-13
 
 bool clk_hw_is_enabled(const struct clk_hw *hw)
 {
@@ -547,6 +735,11 @@ static void clk_core_get_boundaries(struct clk_core *core,
 {
 	struct clk *clk_user;
 
+<<<<<<< HEAD
+=======
+	lockdep_assert_held(&prepare_lock);
+
+>>>>>>> upstream/android-13
 	*min_rate = core->min_rate;
 	*max_rate = core->max_rate;
 
@@ -557,6 +750,27 @@ static void clk_core_get_boundaries(struct clk_core *core,
 		*max_rate = min(*max_rate, clk_user->max_rate);
 }
 
+<<<<<<< HEAD
+=======
+static bool clk_core_check_boundaries(struct clk_core *core,
+				      unsigned long min_rate,
+				      unsigned long max_rate)
+{
+	struct clk *user;
+
+	lockdep_assert_held(&prepare_lock);
+
+	if (min_rate > core->max_rate || max_rate < core->min_rate)
+		return false;
+
+	hlist_for_each_entry(user, &core->clks, clks_node)
+		if (min_rate > user->max_rate || max_rate < user->min_rate)
+			return false;
+
+	return true;
+}
+
+>>>>>>> upstream/android-13
 void clk_hw_set_rate_range(struct clk_hw *hw, unsigned long min_rate,
 			   unsigned long max_rate)
 {
@@ -566,6 +780,7 @@ void clk_hw_set_rate_range(struct clk_hw *hw, unsigned long min_rate,
 EXPORT_SYMBOL_GPL(clk_hw_set_rate_range);
 
 /*
+<<<<<<< HEAD
  * Aggregate the rate of all the enabled child nodes and exclude that
  * of the child node for which this request was made.
  */
@@ -589,6 +804,17 @@ EXPORT_SYMBOL_GPL(clk_aggregate_rate);
  * Helper for finding best parent to provide a given frequency. This can be used
  * directly as a determine_rate callback (e.g. for a mux), or from a more
  * complex clock that may combine a mux with other operations.
+=======
+ * __clk_mux_determine_rate - clk_ops::determine_rate implementation for a mux type clk
+ * @hw: mux type clk to determine rate on
+ * @req: rate request, also used to return preferred parent and frequencies
+ *
+ * Helper for finding best parent to provide a given frequency. This can be used
+ * directly as a determine_rate callback (e.g. for a mux), or from a more
+ * complex clock that may combine a mux with other operations.
+ *
+ * Returns: 0 on success, -EERROR value on error
+>>>>>>> upstream/android-13
  */
 int __clk_mux_determine_rate(struct clk_hw *hw,
 			     struct clk_rate_request *req)
@@ -604,6 +830,7 @@ int __clk_mux_determine_rate_closest(struct clk_hw *hw,
 }
 EXPORT_SYMBOL_GPL(__clk_mux_determine_rate_closest);
 
+<<<<<<< HEAD
 /*
  *  Find the voltage level required for a given clock rate.
  */
@@ -799,6 +1026,8 @@ static bool clk_is_rate_level_valid(struct clk_core *core, unsigned long rate)
 	return level >= 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 /***        clk api        ***/
 
 static void clk_core_rate_unprotect(struct clk_core *core)
@@ -907,7 +1136,11 @@ static void clk_core_rate_restore_protect(struct clk_core *core, int count)
  * clk_rate_exclusive_get - get exclusivity over the clk rate control
  * @clk: the clk over which the exclusity of rate control is requested
  *
+<<<<<<< HEAD
  * clk_rate_exlusive_get() begins a critical section during which a clock
+=======
+ * clk_rate_exclusive_get() begins a critical section during which a clock
+>>>>>>> upstream/android-13
  * consumer cannot tolerate any other consumer making any operation on the
  * clock which could result in a rate change or rate glitch. Exclusive clocks
  * cannot have their rate changed, either directly or indirectly due to changes
@@ -966,6 +1199,7 @@ static void clk_core_unprepare(struct clk_core *core)
 	clk_pm_runtime_put(core);
 
 	trace_clk_unprepare_complete(core);
+<<<<<<< HEAD
 
 	if (core->vdd_class) {
 		clk_unvote_vdd_level(core->vdd_class, core->vdd_class_vote);
@@ -973,6 +1207,8 @@ static void clk_core_unprepare(struct clk_core *core)
 		core->new_vdd_class_vote = 0;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	clk_core_unprepare(core->parent);
 }
 
@@ -1023,6 +1259,7 @@ static int clk_core_prepare(struct clk_core *core)
 
 		trace_clk_prepare(core);
 
+<<<<<<< HEAD
 		ret = clk_vote_rate_vdd(core, core->rate);
 		if (ret) {
 			clk_core_unprepare(core->parent);
@@ -1034,17 +1271,24 @@ static int clk_core_prepare(struct clk_core *core)
 			core->new_vdd_class_vote = core->vdd_class_vote;
 		}
 
+=======
+>>>>>>> upstream/android-13
 		if (core->ops->prepare)
 			ret = core->ops->prepare(core->hw);
 
 		trace_clk_prepare_complete(core);
 
+<<<<<<< HEAD
 		if (ret) {
 			clk_unvote_rate_vdd(core, core->rate);
 			core->vdd_class_vote = 0;
 			core->new_vdd_class_vote = 0;
 			goto unprepare;
 		}
+=======
+		if (ret)
+			goto unprepare;
+>>>>>>> upstream/android-13
 	}
 
 	core->prepare_count++;
@@ -1205,6 +1449,104 @@ static int clk_core_enable_lock(struct clk_core *core)
 }
 
 /**
+<<<<<<< HEAD
+=======
+ * clk_gate_restore_context - restore context for poweroff
+ * @hw: the clk_hw pointer of clock whose state is to be restored
+ *
+ * The clock gate restore context function enables or disables
+ * the gate clocks based on the enable_count. This is done in cases
+ * where the clock context is lost and based on the enable_count
+ * the clock either needs to be enabled/disabled. This
+ * helps restore the state of gate clocks.
+ */
+void clk_gate_restore_context(struct clk_hw *hw)
+{
+	struct clk_core *core = hw->core;
+
+	if (core->enable_count)
+		core->ops->enable(hw);
+	else
+		core->ops->disable(hw);
+}
+EXPORT_SYMBOL_GPL(clk_gate_restore_context);
+
+static int clk_core_save_context(struct clk_core *core)
+{
+	struct clk_core *child;
+	int ret = 0;
+
+	hlist_for_each_entry(child, &core->children, child_node) {
+		ret = clk_core_save_context(child);
+		if (ret < 0)
+			return ret;
+	}
+
+	if (core->ops && core->ops->save_context)
+		ret = core->ops->save_context(core->hw);
+
+	return ret;
+}
+
+static void clk_core_restore_context(struct clk_core *core)
+{
+	struct clk_core *child;
+
+	if (core->ops && core->ops->restore_context)
+		core->ops->restore_context(core->hw);
+
+	hlist_for_each_entry(child, &core->children, child_node)
+		clk_core_restore_context(child);
+}
+
+/**
+ * clk_save_context - save clock context for poweroff
+ *
+ * Saves the context of the clock register for powerstates in which the
+ * contents of the registers will be lost. Occurs deep within the suspend
+ * code.  Returns 0 on success.
+ */
+int clk_save_context(void)
+{
+	struct clk_core *clk;
+	int ret;
+
+	hlist_for_each_entry(clk, &clk_root_list, child_node) {
+		ret = clk_core_save_context(clk);
+		if (ret < 0)
+			return ret;
+	}
+
+	hlist_for_each_entry(clk, &clk_orphan_list, child_node) {
+		ret = clk_core_save_context(clk);
+		if (ret < 0)
+			return ret;
+	}
+
+	return 0;
+}
+EXPORT_SYMBOL_GPL(clk_save_context);
+
+/**
+ * clk_restore_context - restore clock context after poweroff
+ *
+ * Restore the saved clock context upon resume.
+ *
+ */
+void clk_restore_context(void)
+{
+	struct clk_core *core;
+
+	hlist_for_each_entry(core, &clk_root_list, child_node)
+		clk_core_restore_context(core);
+
+	hlist_for_each_entry(core, &clk_orphan_list, child_node)
+		clk_core_restore_context(core);
+}
+EXPORT_SYMBOL_GPL(clk_restore_context);
+
+/**
+>>>>>>> upstream/android-13
  * clk_enable - ungate a clock
  * @clk: the clk being ungated
  *
@@ -1226,6 +1568,30 @@ int clk_enable(struct clk *clk)
 }
 EXPORT_SYMBOL_GPL(clk_enable);
 
+<<<<<<< HEAD
+=======
+/**
+ * clk_is_enabled_when_prepared - indicate if preparing a clock also enables it.
+ * @clk: clock source
+ *
+ * Returns true if clk_prepare() implicitly enables the clock, effectively
+ * making clk_enable()/clk_disable() no-ops, false otherwise.
+ *
+ * This is of interest mainly to power management code where actually
+ * disabling the clock also requires unpreparing it to have any material
+ * effect.
+ *
+ * Regardless of the value returned here, the caller must always invoke
+ * clk_enable() or clk_prepare_enable()  and counterparts for usage counts
+ * to be right.
+ */
+bool clk_is_enabled_when_prepared(struct clk *clk)
+{
+	return clk && !(clk->core->ops->enable && clk->core->ops->disable);
+}
+EXPORT_SYMBOL_GPL(clk_is_enabled_when_prepared);
+
+>>>>>>> upstream/android-13
 static int clk_core_prepare_enable(struct clk_core *core)
 {
 	int ret;
@@ -1247,11 +1613,15 @@ static void clk_core_disable_unprepare(struct clk_core *core)
 	clk_core_unprepare_lock(core);
 }
 
+<<<<<<< HEAD
 #if (!defined(CONFIG_MACH_MT6779) \
 	&& !defined(CONFIG_MACH_MT6739) \
 	&& !defined(CONFIG_MACH_MT6768) \
 	&& !defined(CONFIG_MACH_MT6785))
 static void clk_unprepare_unused_subtree(struct clk_core *core)
+=======
+static void __init clk_unprepare_unused_subtree(struct clk_core *core)
+>>>>>>> upstream/android-13
 {
 	struct clk_core *child;
 
@@ -1264,6 +1634,7 @@ static void clk_unprepare_unused_subtree(struct clk_core *core)
 	    !(core->flags & CLK_DONT_HOLD_STATE))
 		return;
 
+<<<<<<< HEAD
 	/*
 	 * setting CLK_ENABLE_HAND_OFF flag triggers this conditional
 	 *
@@ -1277,6 +1648,8 @@ static void clk_unprepare_unused_subtree(struct clk_core *core)
 		clk_core_unprepare(core);
 	}
 
+=======
+>>>>>>> upstream/android-13
 	if (core->prepare_count)
 		return;
 
@@ -1298,7 +1671,11 @@ static void clk_unprepare_unused_subtree(struct clk_core *core)
 	clk_pm_runtime_put(core);
 }
 
+<<<<<<< HEAD
 static void clk_disable_unused_subtree(struct clk_core *core)
+=======
+static void __init clk_disable_unused_subtree(struct clk_core *core)
+>>>>>>> upstream/android-13
 {
 	struct clk_core *child;
 	unsigned long flags;
@@ -1312,6 +1689,7 @@ static void clk_disable_unused_subtree(struct clk_core *core)
 	    !(core->flags & CLK_DONT_HOLD_STATE))
 		return;
 
+<<<<<<< HEAD
 	/*
 	 * setting CLK_ENABLE_HAND_OFF flag triggers this conditional
 	 *
@@ -1327,6 +1705,8 @@ static void clk_disable_unused_subtree(struct clk_core *core)
 		clk_enable_unlock(flags);
 	}
 
+=======
+>>>>>>> upstream/android-13
 	if (core->flags & CLK_OPS_PARENT_ENABLE)
 		clk_core_prepare_enable(core->parent);
 
@@ -1362,9 +1742,14 @@ unprepare_out:
 	if (core->flags & CLK_OPS_PARENT_ENABLE)
 		clk_core_disable_unprepare(core->parent);
 }
+<<<<<<< HEAD
 #endif
 
 static bool clk_ignore_unused;
+=======
+
+static bool clk_ignore_unused __initdata;
+>>>>>>> upstream/android-13
 static int __init clk_ignore_unused_setup(char *__unused)
 {
 	clk_ignore_unused = true;
@@ -1372,6 +1757,7 @@ static int __init clk_ignore_unused_setup(char *__unused)
 }
 __setup("clk_ignore_unused", clk_ignore_unused_setup);
 
+<<<<<<< HEAD
 static int clk_disable_unused(void)
 {
 
@@ -1381,17 +1767,25 @@ static int clk_disable_unused(void)
 	&& !defined(CONFIG_MACH_MT6785))
 	struct clk_core *core;
 #endif
+=======
+static int __init clk_disable_unused(void)
+{
+	struct clk_core *core;
+>>>>>>> upstream/android-13
 
 	if (clk_ignore_unused) {
 		pr_warn("clk: Not disabling unused clocks\n");
 		return 0;
 	}
 
+<<<<<<< HEAD
 
 #if (!defined(CONFIG_MACH_MT6779) \
 	&& !defined(CONFIG_MACH_MT6739) \
 	&& !defined(CONFIG_MACH_MT6768) \
 	&& !defined(CONFIG_MACH_MT6785))
+=======
+>>>>>>> upstream/android-13
 	clk_prepare_lock();
 
 	hlist_for_each_entry(core, &clk_root_list, child_node)
@@ -1407,7 +1801,11 @@ static int clk_disable_unused(void)
 		clk_unprepare_unused_subtree(core);
 
 	clk_prepare_unlock();
+<<<<<<< HEAD
 #endif
+=======
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 late_initcall_sync(clk_disable_unused);
@@ -1455,7 +1853,11 @@ static int clk_core_determine_round_nolock(struct clk_core *core,
 		return 0;
 
 	/*
+<<<<<<< HEAD
 	 * At this point, core protection will be disabled if
+=======
+	 * At this point, core protection will be disabled
+>>>>>>> upstream/android-13
 	 * - if the provider is not protected at all
 	 * - if the calling consumer is the only one which has exclusivity
 	 *   over the provider
@@ -1498,10 +1900,14 @@ static void clk_core_init_rate_req(struct clk_core * const core,
 
 static bool clk_core_can_round(struct clk_core * const core)
 {
+<<<<<<< HEAD
 	if (core->ops->determine_rate || core->ops->round_rate)
 		return true;
 
 	return false;
+=======
+	return core->ops->determine_rate || core->ops->round_rate;
+>>>>>>> upstream/android-13
 }
 
 static int clk_core_round_rate_nolock(struct clk_core *core,
@@ -1543,6 +1949,24 @@ int __clk_determine_rate(struct clk_hw *hw, struct clk_rate_request *req)
 }
 EXPORT_SYMBOL_GPL(__clk_determine_rate);
 
+<<<<<<< HEAD
+=======
+/**
+ * clk_hw_round_rate() - round the given rate for a hw clk
+ * @hw: the hw clk for which we are rounding a rate
+ * @rate: the rate which is to be rounded
+ *
+ * Takes in a rate as input and rounds it to a rate that the clk can actually
+ * use.
+ *
+ * Context: prepare_lock must be held.
+ *          For clk providers to call from within clk_ops such as .round_rate,
+ *          .determine_rate.
+ *
+ * Return: returns rounded rate of hw clk if clk supports round_rate operation
+ *         else returns the parent rate.
+ */
+>>>>>>> upstream/android-13
 unsigned long clk_hw_round_rate(struct clk_hw *hw, unsigned long rate)
 {
 	int ret;
@@ -1664,6 +2088,7 @@ static void __clk_recalc_accuracies(struct clk_core *core)
 		__clk_recalc_accuracies(child);
 }
 
+<<<<<<< HEAD
 static long clk_core_get_accuracy(struct clk_core *core)
 {
 	unsigned long accuracy;
@@ -1676,6 +2101,14 @@ static long clk_core_get_accuracy(struct clk_core *core)
 	clk_prepare_unlock();
 
 	return accuracy;
+=======
+static long clk_core_get_accuracy_recalc(struct clk_core *core)
+{
+	if (core && (core->flags & CLK_GET_ACCURACY_NOCACHE))
+		__clk_recalc_accuracies(core);
+
+	return clk_core_get_accuracy_no_lock(core);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -1689,10 +2122,23 @@ static long clk_core_get_accuracy(struct clk_core *core)
  */
 long clk_get_accuracy(struct clk *clk)
 {
+<<<<<<< HEAD
 	if (!clk)
 		return 0;
 
 	return clk_core_get_accuracy(clk->core);
+=======
+	long accuracy;
+
+	if (!clk)
+		return 0;
+
+	clk_prepare_lock();
+	accuracy = clk_core_get_accuracy_recalc(clk->core);
+	clk_prepare_unlock();
+
+	return accuracy;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(clk_get_accuracy);
 
@@ -1746,6 +2192,7 @@ static void __clk_recalc_rates(struct clk_core *core, unsigned long msg)
 		__clk_recalc_rates(child, msg);
 }
 
+<<<<<<< HEAD
 static unsigned long clk_core_get_rate(struct clk_core *core)
 {
 	unsigned long rate;
@@ -1759,6 +2206,14 @@ static unsigned long clk_core_get_rate(struct clk_core *core)
 	clk_prepare_unlock();
 
 	return rate;
+=======
+static unsigned long clk_core_get_rate_recalc(struct clk_core *core)
+{
+	if (core && (core->flags & CLK_GET_RATE_NOCACHE))
+		__clk_recalc_rates(core, 0);
+
+	return clk_core_get_rate_nolock(core);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -1771,10 +2226,23 @@ static unsigned long clk_core_get_rate(struct clk_core *core)
  */
 unsigned long clk_get_rate(struct clk *clk)
 {
+<<<<<<< HEAD
 	if (!clk)
 		return 0;
 
 	return clk_core_get_rate(clk->core);
+=======
+	unsigned long rate;
+
+	if (!clk)
+		return 0;
+
+	clk_prepare_lock();
+	rate = clk_core_get_rate_recalc(clk->core);
+	clk_prepare_unlock();
+
+	return rate;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(clk_get_rate);
 
@@ -1786,6 +2254,7 @@ static int clk_fetch_parent_index(struct clk_core *core,
 	if (!parent)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	for (i = 0; i < core->num_parents; i++)
 		if (clk_core_get_parent_by_index(core, i) == parent)
 			return i;
@@ -1793,6 +2262,61 @@ static int clk_fetch_parent_index(struct clk_core *core,
 	return -EINVAL;
 }
 
+=======
+	for (i = 0; i < core->num_parents; i++) {
+		/* Found it first try! */
+		if (core->parents[i].core == parent)
+			return i;
+
+		/* Something else is here, so keep looking */
+		if (core->parents[i].core)
+			continue;
+
+		/* Maybe core hasn't been cached but the hw is all we know? */
+		if (core->parents[i].hw) {
+			if (core->parents[i].hw == parent->hw)
+				break;
+
+			/* Didn't match, but we're expecting a clk_hw */
+			continue;
+		}
+
+		/* Maybe it hasn't been cached (clk_set_parent() path) */
+		if (parent == clk_core_get(core, i))
+			break;
+
+		/* Fallback to comparing globally unique names */
+		if (core->parents[i].name &&
+		    !strcmp(parent->name, core->parents[i].name))
+			break;
+	}
+
+	if (i == core->num_parents)
+		return -EINVAL;
+
+	core->parents[i].core = parent;
+	return i;
+}
+
+/**
+ * clk_hw_get_parent_index - return the index of the parent clock
+ * @hw: clk_hw associated with the clk being consumed
+ *
+ * Fetches and returns the index of parent clock. Returns -EINVAL if the given
+ * clock does not have a current parent.
+ */
+int clk_hw_get_parent_index(struct clk_hw *hw)
+{
+	struct clk_hw *parent = clk_hw_get_parent(hw);
+
+	if (WARN_ON(parent == NULL))
+		return -EINVAL;
+
+	return clk_fetch_parent_index(hw->core, parent->core);
+}
+EXPORT_SYMBOL_GPL(clk_hw_get_parent_index);
+
+>>>>>>> upstream/android-13
 static void clk_core_hold_state(struct clk_core *core)
 {
 	if (core->need_sync || !core->boot_enabled)
@@ -2001,6 +2525,7 @@ out:
 	return ret;
 }
 
+<<<<<<< HEAD
 /*
  * Vote for the voltage level required for core->new_rate.  Keep track of all
  * clocks with a changed voltage level in clk_rate_change_list.
@@ -2054,6 +2579,14 @@ static int clk_calc_subtree(struct clk_core *core, unsigned long new_rate,
 	if (ret)
 		return ret;
 
+=======
+static void clk_calc_subtree(struct clk_core *core, unsigned long new_rate,
+			     struct clk_core *new_parent, u8 p_index)
+{
+	struct clk_core *child;
+
+	core->new_rate = new_rate;
+>>>>>>> upstream/android-13
 	core->new_parent = new_parent;
 	core->new_parent_index = p_index;
 	/* include clk in new parent's PRE_RATE_CHANGE notifications */
@@ -2063,12 +2596,17 @@ static int clk_calc_subtree(struct clk_core *core, unsigned long new_rate,
 
 	hlist_for_each_entry(child, &core->children, child_node) {
 		child->new_rate = clk_recalc(child, new_rate);
+<<<<<<< HEAD
 		ret = clk_calc_subtree(child, child->new_rate, NULL, 0);
 		if (ret)
 			return ret;
 	}
 
 	return 0;
+=======
+		clk_calc_subtree(child, child->new_rate, NULL, 0);
+	}
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -2147,6 +2685,7 @@ static struct clk_core *clk_calc_new_rates(struct clk_core *core,
 		}
 	}
 
+<<<<<<< HEAD
 	/*
 	 * Certain PLLs only have 16 bits to program the fractional divider.
 	 * Hence the programmed rate might be slightly different than the
@@ -2164,6 +2703,14 @@ out:
 	ret = clk_calc_subtree(core, new_rate, parent, p_index);
 	if (ret)
 		return NULL;
+=======
+	if ((core->flags & CLK_SET_RATE_PARENT) && parent &&
+	    best_parent_rate != parent->rate)
+		top = clk_calc_new_rates(parent, best_parent_rate);
+
+out:
+	clk_calc_subtree(core, new_rate, parent, p_index);
+>>>>>>> upstream/android-13
 
 	return top;
 }
@@ -2188,6 +2735,16 @@ static struct clk_core *clk_propagate_rate_change(struct clk_core *core,
 			fail_clk = core;
 	}
 
+<<<<<<< HEAD
+=======
+	if (core->ops->pre_rate_change) {
+		ret = core->ops->pre_rate_change(core->hw, core->rate,
+						 core->new_rate);
+		if (ret)
+			fail_clk = core;
+	}
+
+>>>>>>> upstream/android-13
 	hlist_for_each_entry(child, &core->children, child_node) {
 		/* Skip children who will be reparented to another clock */
 		if (child->new_parent && child->new_parent != core)
@@ -2211,7 +2768,11 @@ static struct clk_core *clk_propagate_rate_change(struct clk_core *core,
  * walk down a subtree and set the new rates notifying the rate
  * change on the way
  */
+<<<<<<< HEAD
 static int clk_change_rate(struct clk_core *core)
+=======
+static void clk_change_rate(struct clk_core *core)
+>>>>>>> upstream/android-13
 {
 	struct clk_core *child;
 	struct hlist_node *tmp;
@@ -2220,7 +2781,10 @@ static int clk_change_rate(struct clk_core *core)
 	bool skip_set_rate = false;
 	struct clk_core *old_parent;
 	struct clk_core *parent = NULL;
+<<<<<<< HEAD
 	int rc = 0;
+=======
+>>>>>>> upstream/android-13
 
 	old_rate = core->rate;
 
@@ -2232,6 +2796,7 @@ static int clk_change_rate(struct clk_core *core)
 		best_parent_rate = core->parent->rate;
 	}
 
+<<<<<<< HEAD
 	rc = clk_pm_runtime_get(core);
 	if (rc)
 		return rc;
@@ -2247,6 +2812,16 @@ static int clk_change_rate(struct clk_core *core)
 
 	trace_clk_set_rate(core, core->new_rate);
 
+=======
+	if (clk_pm_runtime_get(core))
+		return;
+
+	if (core->flags & CLK_SET_RATE_UNGATE) {
+		clk_core_prepare(core);
+		clk_core_enable_lock(core);
+	}
+
+>>>>>>> upstream/android-13
 	if (core->new_parent && core->new_parent != core->parent) {
 		old_parent = __clk_set_parent_before(core, core->new_parent);
 		trace_clk_set_parent(core, core->new_parent);
@@ -2267,6 +2842,7 @@ static int clk_change_rate(struct clk_core *core)
 	if (core->flags & CLK_OPS_PARENT_ENABLE)
 		clk_core_prepare_enable(parent);
 
+<<<<<<< HEAD
 	if (!skip_set_rate && core->ops->set_rate) {
 		rc = core->ops->set_rate(core->hw, core->new_rate,
 						best_parent_rate);
@@ -2275,17 +2851,27 @@ static int clk_change_rate(struct clk_core *core)
 			goto err_set_rate;
 		}
 	}
+=======
+	trace_clk_set_rate(core, core->new_rate);
+
+	if (!skip_set_rate && core->ops->set_rate)
+		core->ops->set_rate(core->hw, core->new_rate, best_parent_rate);
+>>>>>>> upstream/android-13
 
 	trace_clk_set_rate_complete(core, core->new_rate);
 
 	core->rate = clk_recalc(core, best_parent_rate);
 
 	if (core->flags & CLK_SET_RATE_UNGATE) {
+<<<<<<< HEAD
 		unsigned long flags;
 
 		flags = clk_enable_lock();
 		clk_core_disable(core);
 		clk_enable_unlock(flags);
+=======
+		clk_core_disable_lock(core);
+>>>>>>> upstream/android-13
 		clk_core_unprepare(core);
 	}
 
@@ -2298,6 +2884,12 @@ static int clk_change_rate(struct clk_core *core)
 	if (core->flags & CLK_RECALC_NEW_RATES)
 		(void)clk_calc_new_rates(core, core->new_rate);
 
+<<<<<<< HEAD
+=======
+	if (core->ops->post_rate_change)
+		core->ops->post_rate_change(core->hw, old_rate, core->rate);
+
+>>>>>>> upstream/android-13
 	/*
 	 * Use safe iteration, as change_rate can actually swap parents
 	 * for certain clock types.
@@ -2306,18 +2898,28 @@ static int clk_change_rate(struct clk_core *core)
 		/* Skip children who will be reparented to another clock */
 		if (child->new_parent && child->new_parent != core)
 			continue;
+<<<<<<< HEAD
 		rc = clk_change_rate(child);
 		if (rc)
 			goto err_set_rate;
+=======
+		clk_change_rate(child);
+>>>>>>> upstream/android-13
 	}
 
 	/* handle the new child who might not be in core->children yet */
 	if (core->new_child)
+<<<<<<< HEAD
 		rc = clk_change_rate(core->new_child);
 
 err_set_rate:
 	clk_pm_runtime_put(core);
 	return rc;
+=======
+		clk_change_rate(core->new_child);
+
+	clk_pm_runtime_put(core);
+>>>>>>> upstream/android-13
 }
 
 static unsigned long clk_core_req_round_rate_nolock(struct clk_core *core,
@@ -2347,6 +2949,7 @@ static unsigned long clk_core_req_round_rate_nolock(struct clk_core *core,
 	return ret ? 0 : req.rate;
 }
 
+<<<<<<< HEAD
 /*
  * Unvote for the voltage level required for each core->new_vdd_class_vote in
  * clk_rate_change_list.  This is used when undoing voltage requests after an
@@ -2411,12 +3014,15 @@ static void clk_cleanup_vdd_votes(void)
 	}
 }
 
+=======
+>>>>>>> upstream/android-13
 static int clk_core_set_rate_nolock(struct clk_core *core,
 				    unsigned long req_rate)
 {
 	struct clk_core *top, *fail_clk;
 	unsigned long rate;
 	int ret = 0;
+<<<<<<< HEAD
 	/*
 	 * The prepare lock ensures mutual exclusion with other tasks.
 	 * set_rate_nesting_count is a static so that it can be incremented in
@@ -2426,6 +3032,8 @@ static int clk_core_set_rate_nolock(struct clk_core *core,
 	 * function completes.
 	 */
 	static unsigned int set_rate_nesting_count;
+=======
+>>>>>>> upstream/android-13
 
 	if (!core)
 		return 0;
@@ -2440,6 +3048,7 @@ static int clk_core_set_rate_nolock(struct clk_core *core,
 	if (clk_core_rate_is_protected(core))
 		return -EBUSY;
 
+<<<<<<< HEAD
 	set_rate_nesting_count++;
 
 	/* calculate new rates and get the topmost changed clock */
@@ -2452,10 +3061,21 @@ static int clk_core_set_rate_nolock(struct clk_core *core,
 	ret = clk_pm_runtime_get(core);
 	if (ret)
 		goto pre_rate_change_err;
+=======
+	/* calculate new rates and get the topmost changed clock */
+	top = clk_calc_new_rates(core, req_rate);
+	if (!top)
+		return -EINVAL;
+
+	ret = clk_pm_runtime_get(core);
+	if (ret)
+		return ret;
+>>>>>>> upstream/android-13
 
 	/* notify that we are about to change rates */
 	fail_clk = clk_propagate_rate_change(top, PRE_RATE_CHANGE);
 	if (fail_clk) {
+<<<<<<< HEAD
 		pr_debug("%s: failed to set %s clock to run at %lu\n", __func__,
 				fail_clk->name, req_rate);
 		clk_propagate_rate_change(top, ABORT_RATE_CHANGE);
@@ -2499,6 +3119,23 @@ pre_rate_change_err:
 	}
 
 	return ret;
+=======
+		pr_debug("%s: failed to set %s rate\n", __func__,
+				fail_clk->name);
+		clk_propagate_rate_change(top, ABORT_RATE_CHANGE);
+		ret = -EBUSY;
+		goto err;
+	}
+
+	/* change the rates */
+	clk_change_rate(top);
+
+	core->req_rate = req_rate;
+err:
+	clk_pm_runtime_put(core);
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -2547,7 +3184,11 @@ int clk_set_rate(struct clk *clk, unsigned long rate)
 EXPORT_SYMBOL_GPL(clk_set_rate);
 
 /**
+<<<<<<< HEAD
  * clk_set_rate_exclusive - specify a new rate get exclusive control
+=======
+ * clk_set_rate_exclusive - specify a new rate and get exclusive control
+>>>>>>> upstream/android-13
  * @clk: the clk whose rate is being changed
  * @rate: the new rate for clk
  *
@@ -2555,7 +3196,11 @@ EXPORT_SYMBOL_GPL(clk_set_rate);
  * within a critical section
  *
  * This can be used initially to ensure that at least 1 consumer is
+<<<<<<< HEAD
  * statisfied when several consumers are competing for exclusivity over the
+=======
+ * satisfied when several consumers are competing for exclusivity over the
+>>>>>>> upstream/android-13
  * same clock provider.
  *
  * The exclusivity is not applied if setting the rate failed.
@@ -2609,6 +3254,11 @@ int clk_set_rate_range(struct clk *clk, unsigned long min, unsigned long max)
 	if (!clk)
 		return 0;
 
+<<<<<<< HEAD
+=======
+	trace_clk_set_rate_range(clk->core, min, max);
+
+>>>>>>> upstream/android-13
 	if (min > max) {
 		pr_err("%s: clk %s dev %s con %s: invalid range [%lu, %lu]\n",
 		       __func__, clk->core->name, clk->dev_id, clk->con_id,
@@ -2627,6 +3277,14 @@ int clk_set_rate_range(struct clk *clk, unsigned long min, unsigned long max)
 	clk->min_rate = min;
 	clk->max_rate = max;
 
+<<<<<<< HEAD
+=======
+	if (!clk_core_check_boundaries(clk->core, min, max)) {
+		ret = -EINVAL;
+		goto out;
+	}
+
+>>>>>>> upstream/android-13
 	rate = clk_core_get_rate_nolock(clk->core);
 	if (rate < min || rate > max) {
 		/*
@@ -2655,6 +3313,10 @@ int clk_set_rate_range(struct clk *clk, unsigned long min, unsigned long max)
 		}
 	}
 
+<<<<<<< HEAD
+=======
+out:
+>>>>>>> upstream/android-13
 	if (clk->exclusive_count)
 		clk_core_rate_protect(clk->core);
 
@@ -2676,6 +3338,11 @@ int clk_set_min_rate(struct clk *clk, unsigned long rate)
 	if (!clk)
 		return 0;
 
+<<<<<<< HEAD
+=======
+	trace_clk_set_min_rate(clk->core, rate);
+
+>>>>>>> upstream/android-13
 	return clk_set_rate_range(clk, rate, clk->max_rate);
 }
 EXPORT_SYMBOL_GPL(clk_set_min_rate);
@@ -2692,6 +3359,11 @@ int clk_set_max_rate(struct clk *clk, unsigned long rate)
 	if (!clk)
 		return 0;
 
+<<<<<<< HEAD
+=======
+	trace_clk_set_max_rate(clk->core, rate);
+
+>>>>>>> upstream/android-13
 	return clk_set_rate_range(clk, clk->min_rate, rate);
 }
 EXPORT_SYMBOL_GPL(clk_set_max_rate);
@@ -2757,6 +3429,10 @@ void clk_hw_reparent(struct clk_hw *hw, struct clk_hw *new_parent)
 bool clk_has_parent(struct clk *clk, struct clk *parent)
 {
 	struct clk_core *core, *parent_core;
+<<<<<<< HEAD
+=======
+	int i;
+>>>>>>> upstream/android-13
 
 	/* NULL clocks should be nops, so return success if either is NULL. */
 	if (!clk || !parent)
@@ -2769,8 +3445,16 @@ bool clk_has_parent(struct clk *clk, struct clk *parent)
 	if (core->parent == parent_core)
 		return true;
 
+<<<<<<< HEAD
 	return match_string(core->parent_names, core->num_parents,
 			    parent_core->name) >= 0;
+=======
+	for (i = 0; i < core->num_parents; i++)
+		if (!strcmp(core->parents[i].name, parent_core->name))
+			return true;
+
+	return false;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(clk_has_parent);
 
@@ -2786,10 +3470,17 @@ static int clk_core_set_parent_nolock(struct clk_core *core,
 	if (!core)
 		return 0;
 
+<<<<<<< HEAD
 	if (core->parent == parent && !(core->flags & CLK_IS_MEASURE))
 		return 0;
 
 	/* verify ops for for multi-parent clks */
+=======
+	if (core->parent == parent)
+		return 0;
+
+	/* verify ops for multi-parent clks */
+>>>>>>> upstream/android-13
 	if (core->num_parents > 1 && !core->ops->set_parent)
 		return -EPERM;
 
@@ -2839,6 +3530,15 @@ runtime_put:
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+int clk_hw_set_parent(struct clk_hw *hw, struct clk_hw *parent)
+{
+	return clk_core_set_parent_nolock(hw->core, parent->core);
+}
+EXPORT_SYMBOL_GPL(clk_hw_set_parent);
+
+>>>>>>> upstream/android-13
 /**
  * clk_set_parent - switch the parent of a mux clk
  * @clk: the mux clk whose input we are switching
@@ -2957,12 +3657,23 @@ static int clk_core_get_phase(struct clk_core *core)
 {
 	int ret;
 
+<<<<<<< HEAD
 	clk_prepare_lock();
 	/* Always try to update cached phase if possible */
 	if (core->ops->get_phase)
 		core->phase = core->ops->get_phase(core->hw);
 	ret = core->phase;
 	clk_prepare_unlock();
+=======
+	lockdep_assert_held(&prepare_lock);
+	if (!core->ops->get_phase)
+		return 0;
+
+	/* Always try to update cached phase if possible */
+	ret = core->ops->get_phase(core->hw);
+	if (ret >= 0)
+		core->phase = ret;
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -2976,10 +3687,23 @@ static int clk_core_get_phase(struct clk_core *core)
  */
 int clk_get_phase(struct clk *clk)
 {
+<<<<<<< HEAD
 	if (!clk)
 		return 0;
 
 	return clk_core_get_phase(clk->core);
+=======
+	int ret;
+
+	if (!clk)
+		return 0;
+
+	clk_prepare_lock();
+	ret = clk_core_get_phase(clk->core);
+	clk_prepare_unlock();
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(clk_get_phase);
 
@@ -3175,6 +3899,7 @@ bool clk_is_match(const struct clk *p, const struct clk *q)
 }
 EXPORT_SYMBOL_GPL(clk_is_match);
 
+<<<<<<< HEAD
 int clk_set_flags(struct clk *clk, unsigned long flags)
 {
 	if (!clk)
@@ -3243,6 +3968,8 @@ void sec_clock_debug_print_enabled(void)
 EXPORT_SYMBOL(sec_clock_debug_print_enabled);
 #endif /* CONFIG_SEC_PM  */
 
+=======
+>>>>>>> upstream/android-13
 /***        debugfs support        ***/
 
 #ifdef CONFIG_DEBUG_FS
@@ -3253,6 +3980,7 @@ static int inited = 0;
 static DEFINE_MUTEX(clk_debug_lock);
 static HLIST_HEAD(clk_debug_list);
 
+<<<<<<< HEAD
 static void clk_summary_show_one(struct seq_file *s, struct clk_core *c,
 				 int level)
 {
@@ -3266,6 +3994,39 @@ static void clk_summary_show_one(struct seq_file *s, struct clk_core *c,
 		   clk_core_get_rate(c), clk_core_get_accuracy(c),
 		   clk_core_get_phase(c),
 		   clk_core_get_scaled_duty_cycle(c, 100000));
+=======
+static struct hlist_head *orphan_list[] = {
+	&clk_orphan_list,
+	NULL,
+};
+
+static void clk_summary_show_one(struct seq_file *s, struct clk_core *c,
+				 int level)
+{
+	int phase;
+
+	seq_printf(s, "%*s%-*s %7d %8d %8d %11lu %10lu ",
+		   level * 3 + 1, "",
+		   30 - level * 3, c->name,
+		   c->enable_count, c->prepare_count, c->protect_count,
+		   clk_core_get_rate_recalc(c),
+		   clk_core_get_accuracy_recalc(c));
+
+	phase = clk_core_get_phase(c);
+	if (phase >= 0)
+		seq_printf(s, "%5d", phase);
+	else
+		seq_puts(s, "-----");
+
+	seq_printf(s, " %6d", clk_core_get_scaled_duty_cycle(c, 100000));
+
+	if (c->ops->is_enabled)
+		seq_printf(s, " %9c\n", clk_core_is_enabled(c) ? 'Y' : 'N');
+	else if (!c->ops->enable)
+		seq_printf(s, " %9c\n", 'Y');
+	else
+		seq_printf(s, " %9c\n", '?');
+>>>>>>> upstream/android-13
 }
 
 static void clk_summary_show_subtree(struct seq_file *s, struct clk_core *c,
@@ -3273,9 +4034,12 @@ static void clk_summary_show_subtree(struct seq_file *s, struct clk_core *c,
 {
 	struct clk_core *child;
 
+<<<<<<< HEAD
 	if (!c)
 		return;
 
+=======
+>>>>>>> upstream/android-13
 	clk_summary_show_one(s, c, level);
 
 	hlist_for_each_entry(child, &c->children, child_node)
@@ -3287,9 +4051,15 @@ static int clk_summary_show(struct seq_file *s, void *data)
 	struct clk_core *c;
 	struct hlist_head **lists = (struct hlist_head **)s->private;
 
+<<<<<<< HEAD
 	seq_puts(s, "                                 enable  prepare  protect                                duty\n");
 	seq_puts(s, "   clock                          count    count    count        rate   accuracy phase  cycle\n");
 	seq_puts(s, "---------------------------------------------------------------------------------------------\n");
+=======
+	seq_puts(s, "                                 enable  prepare  protect                                duty  hardware\n");
+	seq_puts(s, "   clock                          count    count    count        rate   accuracy phase  cycle    enable\n");
+	seq_puts(s, "-------------------------------------------------------------------------------------------------------\n");
+>>>>>>> upstream/android-13
 
 	clk_prepare_lock();
 
@@ -3305,17 +4075,34 @@ DEFINE_SHOW_ATTRIBUTE(clk_summary);
 
 static void clk_dump_one(struct seq_file *s, struct clk_core *c, int level)
 {
+<<<<<<< HEAD
 	if (!c)
 		return;
+=======
+	int phase;
+	unsigned long min_rate, max_rate;
+
+	clk_core_get_boundaries(c, &min_rate, &max_rate);
+>>>>>>> upstream/android-13
 
 	/* This should be JSON format, i.e. elements separated with a comma */
 	seq_printf(s, "\"%s\": { ", c->name);
 	seq_printf(s, "\"enable_count\": %d,", c->enable_count);
 	seq_printf(s, "\"prepare_count\": %d,", c->prepare_count);
 	seq_printf(s, "\"protect_count\": %d,", c->protect_count);
+<<<<<<< HEAD
 	seq_printf(s, "\"rate\": %lu,", clk_core_get_rate(c));
 	seq_printf(s, "\"accuracy\": %lu,", clk_core_get_accuracy(c));
 	seq_printf(s, "\"phase\": %d,", clk_core_get_phase(c));
+=======
+	seq_printf(s, "\"rate\": %lu,", clk_core_get_rate_recalc(c));
+	seq_printf(s, "\"min_rate\": %lu,", min_rate);
+	seq_printf(s, "\"max_rate\": %lu,", max_rate);
+	seq_printf(s, "\"accuracy\": %lu,", clk_core_get_accuracy_recalc(c));
+	phase = clk_core_get_phase(c);
+	if (phase >= 0)
+		seq_printf(s, "\"phase\": %d,", phase);
+>>>>>>> upstream/android-13
 	seq_printf(s, "\"duty_cycle\": %u",
 		   clk_core_get_scaled_duty_cycle(c, 100000));
 }
@@ -3324,9 +4111,12 @@ static void clk_dump_subtree(struct seq_file *s, struct clk_core *c, int level)
 {
 	struct clk_core *child;
 
+<<<<<<< HEAD
 	if (!c)
 		return;
 
+=======
+>>>>>>> upstream/android-13
 	clk_dump_one(s, c, level);
 
 	hlist_for_each_entry(child, &c->children, child_node) {
@@ -3362,6 +4152,69 @@ static int clk_dump_show(struct seq_file *s, void *data)
 }
 DEFINE_SHOW_ATTRIBUTE(clk_dump);
 
+<<<<<<< HEAD
+=======
+#define CLOCK_ALLOW_WRITE_DEBUGFS
+#ifdef CLOCK_ALLOW_WRITE_DEBUGFS
+/*
+ * This can be dangerous, therefore don't provide any real compile time
+ * configuration option for this feature.
+ * People who want to use this will need to modify the source code directly.
+ */
+static int clk_rate_set(void *data, u64 val)
+{
+	struct clk_core *core = data;
+	int ret;
+
+	clk_prepare_lock();
+	ret = clk_core_set_rate_nolock(core, val);
+	clk_prepare_unlock();
+
+	return ret;
+}
+
+#define clk_rate_mode	0644
+
+static int clk_prepare_enable_set(void *data, u64 val)
+{
+	struct clk_core *core = data;
+	int ret = 0;
+
+	if (val)
+		ret = clk_prepare_enable(core->hw->clk);
+	else
+		clk_disable_unprepare(core->hw->clk);
+
+	return ret;
+}
+
+static int clk_prepare_enable_get(void *data, u64 *val)
+{
+	struct clk_core *core = data;
+
+	*val = core->enable_count && core->prepare_count;
+	return 0;
+}
+
+DEFINE_DEBUGFS_ATTRIBUTE(clk_prepare_enable_fops, clk_prepare_enable_get,
+			 clk_prepare_enable_set, "%llu\n");
+
+#else
+#define clk_rate_set	NULL
+#define clk_rate_mode	0444
+#endif
+
+static int clk_rate_get(void *data, u64 *val)
+{
+	struct clk_core *core = data;
+
+	*val = core->rate;
+	return 0;
+}
+
+DEFINE_DEBUGFS_ATTRIBUTE(clk_rate_fops, clk_rate_get, clk_rate_set, "%llu\n");
+
+>>>>>>> upstream/android-13
 static const struct {
 	unsigned long flag;
 	const char *name;
@@ -3371,7 +4224,10 @@ static const struct {
 	ENTRY(CLK_SET_PARENT_GATE),
 	ENTRY(CLK_SET_RATE_PARENT),
 	ENTRY(CLK_IGNORE_UNUSED),
+<<<<<<< HEAD
 	ENTRY(CLK_IS_BASIC),
+=======
+>>>>>>> upstream/android-13
 	ENTRY(CLK_GET_RATE_NOCACHE),
 	ENTRY(CLK_SET_RATE_NO_REPARENT),
 	ENTRY(CLK_GET_ACCURACY_NOCACHE),
@@ -3404,20 +4260,77 @@ static int clk_flags_show(struct seq_file *s, void *data)
 }
 DEFINE_SHOW_ATTRIBUTE(clk_flags);
 
+<<<<<<< HEAD
+=======
+static void possible_parent_show(struct seq_file *s, struct clk_core *core,
+				 unsigned int i, char terminator)
+{
+	struct clk_core *parent;
+
+	/*
+	 * Go through the following options to fetch a parent's name.
+	 *
+	 * 1. Fetch the registered parent clock and use its name
+	 * 2. Use the global (fallback) name if specified
+	 * 3. Use the local fw_name if provided
+	 * 4. Fetch parent clock's clock-output-name if DT index was set
+	 *
+	 * This may still fail in some cases, such as when the parent is
+	 * specified directly via a struct clk_hw pointer, but it isn't
+	 * registered (yet).
+	 */
+	parent = clk_core_get_parent_by_index(core, i);
+	if (parent)
+		seq_puts(s, parent->name);
+	else if (core->parents[i].name)
+		seq_puts(s, core->parents[i].name);
+	else if (core->parents[i].fw_name)
+		seq_printf(s, "<%s>(fw)", core->parents[i].fw_name);
+	else if (core->parents[i].index >= 0)
+		seq_puts(s,
+			 of_clk_get_parent_name(core->of_node,
+						core->parents[i].index));
+	else
+		seq_puts(s, "(missing)");
+
+	seq_putc(s, terminator);
+}
+
+>>>>>>> upstream/android-13
 static int possible_parents_show(struct seq_file *s, void *data)
 {
 	struct clk_core *core = s->private;
 	int i;
 
 	for (i = 0; i < core->num_parents - 1; i++)
+<<<<<<< HEAD
 		seq_printf(s, "%s ", core->parent_names[i]);
 
 	seq_printf(s, "%s\n", core->parent_names[i]);
+=======
+		possible_parent_show(s, core, i, ' ');
+
+	possible_parent_show(s, core, i, '\n');
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 DEFINE_SHOW_ATTRIBUTE(possible_parents);
 
+<<<<<<< HEAD
+=======
+static int current_parent_show(struct seq_file *s, void *data)
+{
+	struct clk_core *core = s->private;
+
+	if (core->parent)
+		seq_printf(s, "%s\n", core->parent->name);
+
+	return 0;
+}
+DEFINE_SHOW_ATTRIBUTE(current_parent);
+
+>>>>>>> upstream/android-13
 static int clk_duty_cycle_show(struct seq_file *s, void *data)
 {
 	struct clk_core *core = s->private;
@@ -3429,6 +4342,37 @@ static int clk_duty_cycle_show(struct seq_file *s, void *data)
 }
 DEFINE_SHOW_ATTRIBUTE(clk_duty_cycle);
 
+<<<<<<< HEAD
+=======
+static int clk_min_rate_show(struct seq_file *s, void *data)
+{
+	struct clk_core *core = s->private;
+	unsigned long min_rate, max_rate;
+
+	clk_prepare_lock();
+	clk_core_get_boundaries(core, &min_rate, &max_rate);
+	clk_prepare_unlock();
+	seq_printf(s, "%lu\n", min_rate);
+
+	return 0;
+}
+DEFINE_SHOW_ATTRIBUTE(clk_min_rate);
+
+static int clk_max_rate_show(struct seq_file *s, void *data)
+{
+	struct clk_core *core = s->private;
+	unsigned long min_rate, max_rate;
+
+	clk_prepare_lock();
+	clk_core_get_boundaries(core, &min_rate, &max_rate);
+	clk_prepare_unlock();
+	seq_printf(s, "%lu\n", max_rate);
+
+	return 0;
+}
+DEFINE_SHOW_ATTRIBUTE(clk_max_rate);
+
+>>>>>>> upstream/android-13
 static void clk_debug_create_one(struct clk_core *core, struct dentry *pdentry)
 {
 	struct dentry *root;
@@ -3439,7 +4383,14 @@ static void clk_debug_create_one(struct clk_core *core, struct dentry *pdentry)
 	root = debugfs_create_dir(core->name, pdentry);
 	core->dentry = root;
 
+<<<<<<< HEAD
 	debugfs_create_ulong("clk_rate", 0444, root, &core->rate);
+=======
+	debugfs_create_file("clk_rate", clk_rate_mode, root, core,
+			    &clk_rate_fops);
+	debugfs_create_file("clk_min_rate", 0444, root, core, &clk_min_rate_fops);
+	debugfs_create_file("clk_max_rate", 0444, root, core, &clk_max_rate_fops);
+>>>>>>> upstream/android-13
 	debugfs_create_ulong("clk_accuracy", 0444, root, &core->accuracy);
 	debugfs_create_u32("clk_phase", 0444, root, &core->phase);
 	debugfs_create_file("clk_flags", 0444, root, core, &clk_flags_fops);
@@ -3449,6 +4400,17 @@ static void clk_debug_create_one(struct clk_core *core, struct dentry *pdentry)
 	debugfs_create_u32("clk_notifier_count", 0444, root, &core->notifier_count);
 	debugfs_create_file("clk_duty_cycle", 0444, root, core,
 			    &clk_duty_cycle_fops);
+<<<<<<< HEAD
+=======
+#ifdef CLOCK_ALLOW_WRITE_DEBUGFS
+	debugfs_create_file("clk_prepare_enable", 0644, root, core,
+			    &clk_prepare_enable_fops);
+#endif
+
+	if (core->num_parents > 0)
+		debugfs_create_file("clk_parent", 0444, root, core,
+				    &current_parent_fops);
+>>>>>>> upstream/android-13
 
 	if (core->num_parents > 1)
 		debugfs_create_file("clk_possible_parents", 0444, root, core,
@@ -3528,15 +4490,63 @@ static int __init clk_debug_init(void)
 late_initcall(clk_debug_init);
 #else
 static inline void clk_debug_register(struct clk_core *core) { }
+<<<<<<< HEAD
 static inline void clk_debug_reparent(struct clk_core *core,
 				      struct clk_core *new_parent)
 {
 }
+=======
+>>>>>>> upstream/android-13
 static inline void clk_debug_unregister(struct clk_core *core)
 {
 }
 #endif
 
+<<<<<<< HEAD
+=======
+static void clk_core_reparent_orphans_nolock(void)
+{
+	struct clk_core *orphan;
+	struct hlist_node *tmp2;
+
+	/*
+	 * walk the list of orphan clocks and reparent any that newly finds a
+	 * parent.
+	 */
+	hlist_for_each_entry_safe(orphan, tmp2, &clk_orphan_list, child_node) {
+		struct clk_core *parent = __clk_init_parent(orphan);
+
+		/*
+		 * We need to use __clk_set_parent_before() and _after() to
+		 * to properly migrate any prepare/enable count of the orphan
+		 * clock. This is important for CLK_IS_CRITICAL clocks, which
+		 * are enabled during init but might not have a parent yet.
+		 */
+		if (parent) {
+			/* update the clk tree topology */
+			__clk_set_parent_before(orphan, parent);
+			__clk_set_parent_after(orphan, parent, NULL);
+			__clk_recalc_accuracies(orphan);
+			__clk_recalc_rates(orphan, 0);
+			__clk_core_update_orphan_hold_state(orphan);
+
+			/*
+			 * __clk_init_parent() will set the initial req_rate to
+			 * 0 if the clock doesn't have clk_ops::recalc_rate and
+			 * is an orphan when it's registered.
+			 *
+			 * 'req_rate' is used by clk_set_rate_range() and
+			 * clk_put() to trigger a clk_set_rate() call whenever
+			 * the boundaries are modified. Let's make sure
+			 * 'req_rate' is set to something non-zero so that
+			 * clk_set_rate_range() doesn't drop the frequency.
+			 */
+			orphan->req_rate = orphan->rate;
+		}
+	}
+}
+
+>>>>>>> upstream/android-13
 /**
  * __clk_core_init - initialize the data structures in a struct clk_core
  * @core:	clk_core being initialized
@@ -3546,16 +4556,34 @@ static inline void clk_debug_unregister(struct clk_core *core)
  */
 static int __clk_core_init(struct clk_core *core)
 {
+<<<<<<< HEAD
 	int i, ret;
 	struct clk_core *orphan;
 	struct hlist_node *tmp2;
 	unsigned long rate;
+=======
+	int ret;
+	struct clk_core *parent;
+	unsigned long rate;
+	int phase;
+>>>>>>> upstream/android-13
 
 	if (!core)
 		return -EINVAL;
 
 	clk_prepare_lock();
 
+<<<<<<< HEAD
+=======
+	/*
+	 * Set hw->core after grabbing the prepare_lock to synchronize with
+	 * callers of clk_core_fill_parent_index() where we treat hw->core
+	 * being NULL as the clk not being registered yet. This is crucial so
+	 * that clks aren't parented until their parent is fully registered.
+	 */
+	core->hw->core = core;
+
+>>>>>>> upstream/android-13
 	ret = clk_pm_runtime_get(core);
 	if (ret)
 		goto unlock;
@@ -3600,6 +4628,7 @@ static int __clk_core_init(struct clk_core *core)
 		goto out;
 	}
 
+<<<<<<< HEAD
 	/* throw a WARN if any entries in parent_names are NULL */
 	for (i = 0; i < core->num_parents; i++)
 		WARN(!core->parent_names[i],
@@ -3607,6 +4636,29 @@ static int __clk_core_init(struct clk_core *core)
 				__func__, core->name);
 
 	core->parent = __clk_init_parent(core);
+=======
+	/*
+	 * optional platform-specific magic
+	 *
+	 * The .init callback is not used by any of the basic clock types, but
+	 * exists for weird hardware that must perform initialization magic for
+	 * CCF to get an accurate view of clock for any other callbacks. It may
+	 * also be used needs to perform dynamic allocations. Such allocation
+	 * must be freed in the terminate() callback.
+	 * This callback shall not be used to initialize the parameters state,
+	 * such as rate, parent, etc ...
+	 *
+	 * If it exist, this callback should called before any other callback of
+	 * the clock
+	 */
+	if (core->ops->init) {
+		ret = core->ops->init(core->hw);
+		if (ret)
+			goto out;
+	}
+
+	parent = core->parent = __clk_init_parent(core);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Populate core->parent if parent has already been clk_core_init'd. If
@@ -3618,10 +4670,16 @@ static int __clk_core_init(struct clk_core *core)
 	 * clocks and re-parent any that are children of the clock currently
 	 * being clk_init'd.
 	 */
+<<<<<<< HEAD
 	if (core->parent) {
 		hlist_add_head(&core->child_node,
 				&core->parent->children);
 		core->orphan = core->parent->orphan;
+=======
+	if (parent) {
+		hlist_add_head(&core->child_node, &parent->children);
+		core->orphan = parent->orphan;
+>>>>>>> upstream/android-13
 	} else if (!core->num_parents) {
 		hlist_add_head(&core->child_node, &clk_root_list);
 		core->orphan = false;
@@ -3631,6 +4689,7 @@ static int __clk_core_init(struct clk_core *core)
 	}
 
 	/*
+<<<<<<< HEAD
 	 * optional platform-specific magic
 	 *
 	 * The .init callback is not used by any of the basic clock types, but
@@ -3642,6 +4701,8 @@ static int __clk_core_init(struct clk_core *core)
 		core->ops->init(core->hw);
 
 	/*
+=======
+>>>>>>> upstream/android-13
 	 * Set clk's accuracy.  The preferred method is to use
 	 * .recalc_accuracy. For simple clocks and lazy developers the default
 	 * fallback is to use the parent's accuracy.  If a clock doesn't have a
@@ -3650,13 +4711,20 @@ static int __clk_core_init(struct clk_core *core)
 	 */
 	if (core->ops->recalc_accuracy)
 		core->accuracy = core->ops->recalc_accuracy(core->hw,
+<<<<<<< HEAD
 					__clk_get_accuracy(core->parent));
 	else if (core->parent)
 		core->accuracy = core->parent->accuracy;
+=======
+					clk_core_get_accuracy_no_lock(parent));
+	else if (parent)
+		core->accuracy = parent->accuracy;
+>>>>>>> upstream/android-13
 	else
 		core->accuracy = 0;
 
 	/*
+<<<<<<< HEAD
 	 * Set clk's phase.
 	 * Since a phase is by definition relative to its parent, just
 	 * query the current clock phase, or just assume it's in phase.
@@ -3665,6 +4733,19 @@ static int __clk_core_init(struct clk_core *core)
 		core->phase = core->ops->get_phase(core->hw);
 	else
 		core->phase = 0;
+=======
+	 * Set clk's phase by clk_core_get_phase() caching the phase.
+	 * Since a phase is by definition relative to its parent, just
+	 * query the current clock phase, or just assume it's in phase.
+	 */
+	phase = clk_core_get_phase(core);
+	if (phase < 0) {
+		ret = phase;
+		pr_warn("%s: Failed to get phase for clk '%s'\n", __func__,
+			core->name);
+		goto out;
+	}
+>>>>>>> upstream/android-13
 
 	/*
 	 * Set clk's duty cycle.
@@ -3679,9 +4760,15 @@ static int __clk_core_init(struct clk_core *core)
 	 */
 	if (core->ops->recalc_rate)
 		rate = core->ops->recalc_rate(core->hw,
+<<<<<<< HEAD
 				clk_core_get_rate_nolock(core->parent));
 	else if (core->parent)
 		rate = core->parent->rate;
+=======
+				clk_core_get_rate_nolock(parent));
+	else if (parent)
+		rate = parent->rate;
+>>>>>>> upstream/android-13
 	else
 		rate = 0;
 	core->rate = core->req_rate = rate;
@@ -3694,6 +4781,7 @@ static int __clk_core_init(struct clk_core *core)
 	 * reparenting clocks
 	 */
 	if (core->flags & CLK_IS_CRITICAL) {
+<<<<<<< HEAD
 		unsigned long flags;
 
 		clk_core_prepare(core);
@@ -3779,13 +4867,41 @@ static int __clk_core_init(struct clk_core *core)
 			clk_enable_unlock(flags);
 		}
 	}
+=======
+		ret = clk_core_prepare(core);
+		if (ret) {
+			pr_warn("%s: critical clk '%s' failed to prepare\n",
+			       __func__, core->name);
+			goto out;
+		}
+
+		ret = clk_core_enable_lock(core);
+		if (ret) {
+			pr_warn("%s: critical clk '%s' failed to enable\n",
+			       __func__, core->name);
+			clk_core_unprepare(core);
+			goto out;
+		}
+	}
+
+	clk_core_hold_state(core);
+	clk_core_reparent_orphans_nolock();
+
+>>>>>>> upstream/android-13
 
 	kref_init(&core->ref);
 out:
 	clk_pm_runtime_put(core);
 unlock:
+<<<<<<< HEAD
 	if (ret)
 		hlist_del_init(&core->child_node);
+=======
+	if (ret) {
+		hlist_del_init(&core->child_node);
+		core->hw->core = NULL;
+	}
+>>>>>>> upstream/android-13
 
 	clk_prepare_unlock();
 
@@ -3795,24 +4911,66 @@ unlock:
 	return ret;
 }
 
+<<<<<<< HEAD
 struct clk *__clk_create_clk(struct clk_hw *hw, const char *dev_id,
+=======
+/**
+ * clk_core_link_consumer - Add a clk consumer to the list of consumers in a clk_core
+ * @core: clk to add consumer to
+ * @clk: consumer to link to a clk
+ */
+static void clk_core_link_consumer(struct clk_core *core, struct clk *clk)
+{
+	clk_prepare_lock();
+	hlist_add_head(&clk->clks_node, &core->clks);
+	clk_prepare_unlock();
+}
+
+/**
+ * clk_core_unlink_consumer - Remove a clk consumer from the list of consumers in a clk_core
+ * @clk: consumer to unlink
+ */
+static void clk_core_unlink_consumer(struct clk *clk)
+{
+	lockdep_assert_held(&prepare_lock);
+	hlist_del(&clk->clks_node);
+}
+
+/**
+ * alloc_clk - Allocate a clk consumer, but leave it unlinked to the clk_core
+ * @core: clk to allocate a consumer for
+ * @dev_id: string describing device name
+ * @con_id: connection ID string on device
+ *
+ * Returns: clk consumer left unlinked from the consumer list
+ */
+static struct clk *alloc_clk(struct clk_core *core, const char *dev_id,
+>>>>>>> upstream/android-13
 			     const char *con_id)
 {
 	struct clk *clk;
 
+<<<<<<< HEAD
 	/* This is to allow this function to be chained to others */
 	if (IS_ERR_OR_NULL(hw))
 		return ERR_CAST(hw);
 
+=======
+>>>>>>> upstream/android-13
 	clk = kzalloc(sizeof(*clk), GFP_KERNEL);
 	if (!clk)
 		return ERR_PTR(-ENOMEM);
 
+<<<<<<< HEAD
 	clk->core = hw->core;
+=======
+	clk->core = core;
+>>>>>>> upstream/android-13
 	clk->dev_id = dev_id;
 	clk->con_id = kstrdup_const(con_id, GFP_KERNEL);
 	clk->max_rate = ULONG_MAX;
 
+<<<<<<< HEAD
 	clk_prepare_lock();
 	hlist_add_head(&clk->clks_node, &hw->core->clks);
 	clk_prepare_unlock();
@@ -3827,11 +4985,26 @@ void __clk_free_clk(struct clk *clk)
 	hlist_del(&clk->clks_node);
 	clk_prepare_unlock();
 
+=======
+	return clk;
+}
+
+/**
+ * free_clk - Free a clk consumer
+ * @clk: clk consumer to free
+ *
+ * Note, this assumes the clk has been unlinked from the clk_core consumer
+ * list.
+ */
+static void free_clk(struct clk *clk)
+{
+>>>>>>> upstream/android-13
 	kfree_const(clk->con_id);
 	kfree(clk);
 }
 
 /**
+<<<<<<< HEAD
  * clk_register - allocate a new clock, register it and return an opaque cookie
  * @dev: device that is registering this clock
  * @hw: link to hardware-specific clock data
@@ -3847,27 +5020,207 @@ struct clk *clk_register(struct device *dev, struct clk_hw *hw)
 	int i, ret;
 	struct clk_core *core;
 
+=======
+ * clk_hw_create_clk: Allocate and link a clk consumer to a clk_core given
+ * a clk_hw
+ * @dev: clk consumer device
+ * @hw: clk_hw associated with the clk being consumed
+ * @dev_id: string describing device name
+ * @con_id: connection ID string on device
+ *
+ * This is the main function used to create a clk pointer for use by clk
+ * consumers. It connects a consumer to the clk_core and clk_hw structures
+ * used by the framework and clk provider respectively.
+ */
+struct clk *clk_hw_create_clk(struct device *dev, struct clk_hw *hw,
+			      const char *dev_id, const char *con_id)
+{
+	struct clk *clk;
+	struct clk_core *core;
+
+	/* This is to allow this function to be chained to others */
+	if (IS_ERR_OR_NULL(hw))
+		return ERR_CAST(hw);
+
+	core = hw->core;
+	clk = alloc_clk(core, dev_id, con_id);
+	if (IS_ERR(clk))
+		return clk;
+	clk->dev = dev;
+
+	if (!try_module_get(core->owner)) {
+		free_clk(clk);
+		return ERR_PTR(-ENOENT);
+	}
+
+	kref_get(&core->ref);
+	clk_core_link_consumer(core, clk);
+
+	return clk;
+}
+
+/**
+ * clk_hw_get_clk - get clk consumer given an clk_hw
+ * @hw: clk_hw associated with the clk being consumed
+ * @con_id: connection ID string on device
+ *
+ * Returns: new clk consumer
+ * This is the function to be used by providers which need
+ * to get a consumer clk and act on the clock element
+ * Calls to this function must be balanced with calls clk_put()
+ */
+struct clk *clk_hw_get_clk(struct clk_hw *hw, const char *con_id)
+{
+	struct device *dev = hw->core->dev;
+	const char *name = dev ? dev_name(dev) : NULL;
+
+	return clk_hw_create_clk(dev, hw, name, con_id);
+}
+EXPORT_SYMBOL(clk_hw_get_clk);
+
+static int clk_cpy_name(const char **dst_p, const char *src, bool must_exist)
+{
+	const char *dst;
+
+	if (!src) {
+		if (must_exist)
+			return -EINVAL;
+		return 0;
+	}
+
+	*dst_p = dst = kstrdup_const(src, GFP_KERNEL);
+	if (!dst)
+		return -ENOMEM;
+
+	return 0;
+}
+
+static int clk_core_populate_parent_map(struct clk_core *core,
+					const struct clk_init_data *init)
+{
+	u8 num_parents = init->num_parents;
+	const char * const *parent_names = init->parent_names;
+	const struct clk_hw **parent_hws = init->parent_hws;
+	const struct clk_parent_data *parent_data = init->parent_data;
+	int i, ret = 0;
+	struct clk_parent_map *parents, *parent;
+
+	if (!num_parents)
+		return 0;
+
+	/*
+	 * Avoid unnecessary string look-ups of clk_core's possible parents by
+	 * having a cache of names/clk_hw pointers to clk_core pointers.
+	 */
+	parents = kcalloc(num_parents, sizeof(*parents), GFP_KERNEL);
+	core->parents = parents;
+	if (!parents)
+		return -ENOMEM;
+
+	/* Copy everything over because it might be __initdata */
+	for (i = 0, parent = parents; i < num_parents; i++, parent++) {
+		parent->index = -1;
+		if (parent_names) {
+			/* throw a WARN if any entries are NULL */
+			WARN(!parent_names[i],
+				"%s: invalid NULL in %s's .parent_names\n",
+				__func__, core->name);
+			ret = clk_cpy_name(&parent->name, parent_names[i],
+					   true);
+		} else if (parent_data) {
+			parent->hw = parent_data[i].hw;
+			parent->index = parent_data[i].index;
+			ret = clk_cpy_name(&parent->fw_name,
+					   parent_data[i].fw_name, false);
+			if (!ret)
+				ret = clk_cpy_name(&parent->name,
+						   parent_data[i].name,
+						   false);
+		} else if (parent_hws) {
+			parent->hw = parent_hws[i];
+		} else {
+			ret = -EINVAL;
+			WARN(1, "Must specify parents if num_parents > 0\n");
+		}
+
+		if (ret) {
+			do {
+				kfree_const(parents[i].name);
+				kfree_const(parents[i].fw_name);
+			} while (--i >= 0);
+			kfree(parents);
+
+			return ret;
+		}
+	}
+
+	return 0;
+}
+
+static void clk_core_free_parent_map(struct clk_core *core)
+{
+	int i = core->num_parents;
+
+	if (!core->num_parents)
+		return;
+
+	while (--i >= 0) {
+		kfree_const(core->parents[i].name);
+		kfree_const(core->parents[i].fw_name);
+	}
+
+	kfree(core->parents);
+}
+
+static struct clk *
+__clk_register(struct device *dev, struct device_node *np, struct clk_hw *hw)
+{
+	int ret;
+	struct clk_core *core;
+	const struct clk_init_data *init = hw->init;
+
+	/*
+	 * The init data is not supposed to be used outside of registration path.
+	 * Set it to NULL so that provider drivers can't use it either and so that
+	 * we catch use of hw->init early on in the core.
+	 */
+	hw->init = NULL;
+
+>>>>>>> upstream/android-13
 	core = kzalloc(sizeof(*core), GFP_KERNEL);
 	if (!core) {
 		ret = -ENOMEM;
 		goto fail_out;
 	}
 
+<<<<<<< HEAD
 	core->name = kstrdup_const(hw->init->name, GFP_KERNEL);
+=======
+	core->name = kstrdup_const(init->name, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!core->name) {
 		ret = -ENOMEM;
 		goto fail_name;
 	}
 
+<<<<<<< HEAD
 	if (WARN_ON(!hw->init->ops)) {
 		ret = -EINVAL;
 		goto fail_ops;
 	}
 	core->ops = hw->init->ops;
+=======
+	if (WARN_ON(!init->ops)) {
+		ret = -EINVAL;
+		goto fail_ops;
+	}
+	core->ops = init->ops;
+>>>>>>> upstream/android-13
 
 	if (dev && pm_runtime_enabled(dev))
 		core->rpm_enabled = true;
 	core->dev = dev;
+<<<<<<< HEAD
 	if (dev && dev->driver)
 		core->owner = dev->driver->owner;
 	core->hw = hw;
@@ -3917,10 +5270,40 @@ struct clk *clk_register(struct device *dev, struct clk_hw *hw)
 		goto fail_parents;
 	}
 
+=======
+	core->of_node = np;
+	if (dev && dev->driver)
+		core->owner = dev->driver->owner;
+	core->hw = hw;
+	core->flags = init->flags;
+	core->num_parents = init->num_parents;
+	core->min_rate = 0;
+	core->max_rate = ULONG_MAX;
+
+	ret = clk_core_populate_parent_map(core, init);
+	if (ret)
+		goto fail_parents;
+
+	INIT_HLIST_HEAD(&core->clks);
+
+	/*
+	 * Don't call clk_hw_create_clk() here because that would pin the
+	 * provider module to itself and prevent it from ever being removed.
+	 */
+	hw->clk = alloc_clk(core, NULL, NULL);
+	if (IS_ERR(hw->clk)) {
+		ret = PTR_ERR(hw->clk);
+		goto fail_create_clk;
+	}
+
+	clk_core_link_consumer(core, hw->clk);
+
+>>>>>>> upstream/android-13
 	ret = __clk_core_init(core);
 	if (!ret)
 		return hw->clk;
 
+<<<<<<< HEAD
 	__clk_free_clk(hw->clk);
 	hw->clk = NULL;
 
@@ -3931,6 +5314,18 @@ fail_parent_names_copy:
 		kfree_const(core->parent_names[i]);
 	kfree(core->parent_names);
 fail_parent_names:
+=======
+	clk_prepare_lock();
+	clk_core_unlink_consumer(hw->clk);
+	clk_prepare_unlock();
+
+	free_clk(hw->clk);
+	hw->clk = NULL;
+
+fail_create_clk:
+	clk_core_free_parent_map(core);
+fail_parents:
+>>>>>>> upstream/android-13
 fail_ops:
 	kfree_const(core->name);
 fail_name:
@@ -3938,6 +5333,49 @@ fail_name:
 fail_out:
 	return ERR_PTR(ret);
 }
+<<<<<<< HEAD
+=======
+
+/**
+ * dev_or_parent_of_node() - Get device node of @dev or @dev's parent
+ * @dev: Device to get device node of
+ *
+ * Return: device node pointer of @dev, or the device node pointer of
+ * @dev->parent if dev doesn't have a device node, or NULL if neither
+ * @dev or @dev->parent have a device node.
+ */
+static struct device_node *dev_or_parent_of_node(struct device *dev)
+{
+	struct device_node *np;
+
+	if (!dev)
+		return NULL;
+
+	np = dev_of_node(dev);
+	if (!np)
+		np = dev_of_node(dev->parent);
+
+	return np;
+}
+
+/**
+ * clk_register - allocate a new clock, register it and return an opaque cookie
+ * @dev: device that is registering this clock
+ * @hw: link to hardware-specific clock data
+ *
+ * clk_register is the *deprecated* interface for populating the clock tree with
+ * new clock nodes. Use clk_hw_register() instead.
+ *
+ * Returns: a pointer to the newly allocated struct clk which
+ * cannot be dereferenced by driver code but may be used in conjunction with the
+ * rest of the clock API.  In the event of an error clk_register will return an
+ * error code; drivers must test for an error code after calling clk_register.
+ */
+struct clk *clk_register(struct device *dev, struct clk_hw *hw)
+{
+	return __clk_register(dev, dev_or_parent_of_node(dev), hw);
+}
+>>>>>>> upstream/android-13
 EXPORT_SYMBOL_GPL(clk_register);
 
 /**
@@ -3952,14 +5390,40 @@ EXPORT_SYMBOL_GPL(clk_register);
  */
 int clk_hw_register(struct device *dev, struct clk_hw *hw)
 {
+<<<<<<< HEAD
 	return PTR_ERR_OR_ZERO(clk_register(dev, hw));
 }
 EXPORT_SYMBOL_GPL(clk_hw_register);
 
+=======
+	return PTR_ERR_OR_ZERO(__clk_register(dev, dev_or_parent_of_node(dev),
+			       hw));
+}
+EXPORT_SYMBOL_GPL(clk_hw_register);
+
+/*
+ * of_clk_hw_register - register a clk_hw and return an error code
+ * @node: device_node of device that is registering this clock
+ * @hw: link to hardware-specific clock data
+ *
+ * of_clk_hw_register() is the primary interface for populating the clock tree
+ * with new clock nodes when a struct device is not available, but a struct
+ * device_node is. It returns an integer equal to zero indicating success or
+ * less than zero indicating failure. Drivers must test for an error code after
+ * calling of_clk_hw_register().
+ */
+int of_clk_hw_register(struct device_node *node, struct clk_hw *hw)
+{
+	return PTR_ERR_OR_ZERO(__clk_register(NULL, node, hw));
+}
+EXPORT_SYMBOL_GPL(of_clk_hw_register);
+
+>>>>>>> upstream/android-13
 /* Free memory allocated for a clock. */
 static void __clk_release(struct kref *ref)
 {
 	struct clk_core *core = container_of(ref, struct clk_core, ref);
+<<<<<<< HEAD
 	int i = core->num_parents;
 
 	lockdep_assert_held(&prepare_lock);
@@ -3969,6 +5433,12 @@ static void __clk_release(struct kref *ref)
 		kfree_const(core->parent_names[i]);
 
 	kfree(core->parent_names);
+=======
+
+	lockdep_assert_held(&prepare_lock);
+
+	clk_core_free_parent_map(core);
+>>>>>>> upstream/android-13
 	kfree_const(core->name);
 	kfree(core);
 }
@@ -4015,8 +5485,13 @@ static void clk_core_evict_parent_cache_subtree(struct clk_core *root,
 	struct clk_core *child;
 
 	for (i = 0; i < root->num_parents; i++)
+<<<<<<< HEAD
 		if (root->parents[i] == target)
 			root->parents[i] = NULL;
+=======
+		if (root->parents[i].core == target)
+			root->parents[i].core = NULL;
+>>>>>>> upstream/android-13
 
 	hlist_for_each_entry(child, &root->children, child_node)
 		clk_core_evict_parent_cache_subtree(child, target);
@@ -4043,6 +5518,10 @@ static void clk_core_evict_parent_cache(struct clk_core *core)
 void clk_unregister(struct clk *clk)
 {
 	unsigned long flags;
+<<<<<<< HEAD
+=======
+	const struct clk_ops *ops;
+>>>>>>> upstream/android-13
 
 	if (!clk || WARN_ON_ONCE(IS_ERR(clk)))
 		return;
@@ -4051,7 +5530,12 @@ void clk_unregister(struct clk *clk)
 
 	clk_prepare_lock();
 
+<<<<<<< HEAD
 	if (clk->core->ops == &clk_nodrv_ops) {
+=======
+	ops = clk->core->ops;
+	if (ops == &clk_nodrv_ops) {
+>>>>>>> upstream/android-13
 		pr_err("%s: unregistered clock: %s\n", __func__,
 		       clk->core->name);
 		goto unlock;
@@ -4064,6 +5548,12 @@ void clk_unregister(struct clk *clk)
 	clk->core->ops = &clk_nodrv_ops;
 	clk_enable_unlock(flags);
 
+<<<<<<< HEAD
+=======
+	if (ops->terminate)
+		ops->terminate(clk->core->hw);
+
+>>>>>>> upstream/android-13
 	if (!hlist_empty(&clk->core->children)) {
 		struct clk_core *child;
 		struct hlist_node *t;
@@ -4087,6 +5577,10 @@ void clk_unregister(struct clk *clk)
 					__func__, clk->core->name);
 
 	kref_put(&clk->core->ref, __clk_release);
+<<<<<<< HEAD
+=======
+	free_clk(clk);
+>>>>>>> upstream/android-13
 unlock:
 	clk_prepare_unlock();
 }
@@ -4102,16 +5596,25 @@ void clk_hw_unregister(struct clk_hw *hw)
 }
 EXPORT_SYMBOL_GPL(clk_hw_unregister);
 
+<<<<<<< HEAD
 static void devm_clk_release(struct device *dev, void *res)
+=======
+static void devm_clk_unregister_cb(struct device *dev, void *res)
+>>>>>>> upstream/android-13
 {
 	clk_unregister(*(struct clk **)res);
 }
 
+<<<<<<< HEAD
 static void devm_clk_hw_release(struct device *dev, void *res)
+=======
+static void devm_clk_hw_unregister_cb(struct device *dev, void *res)
+>>>>>>> upstream/android-13
 {
 	clk_hw_unregister(*(struct clk_hw **)res);
 }
 
+<<<<<<< HEAD
 #define MAX_LEN_OPP_HANDLE	50
 #define LEN_OPP_HANDLE		16
 
@@ -4272,21 +5775,34 @@ err_derive_device_list:
 	kfree(device_list);
 }
 
+=======
+>>>>>>> upstream/android-13
 /**
  * devm_clk_register - resource managed clk_register()
  * @dev: device that is registering this clock
  * @hw: link to hardware-specific clock data
  *
+<<<<<<< HEAD
  * Managed clk_register(). Clocks returned from this function are
  * automatically clk_unregister()ed on driver detach. See clk_register() for
  * more information.
+=======
+ * Managed clk_register(). This function is *deprecated*, use devm_clk_hw_register() instead.
+ *
+ * Clocks returned from this function are automatically clk_unregister()ed on
+ * driver detach. See clk_register() for more information.
+>>>>>>> upstream/android-13
  */
 struct clk *devm_clk_register(struct device *dev, struct clk_hw *hw)
 {
 	struct clk *clk;
 	struct clk **clkp;
 
+<<<<<<< HEAD
 	clkp = devres_alloc(devm_clk_release, sizeof(*clkp), GFP_KERNEL);
+=======
+	clkp = devres_alloc(devm_clk_unregister_cb, sizeof(*clkp), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!clkp)
 		return ERR_PTR(-ENOMEM);
 
@@ -4298,7 +5814,10 @@ struct clk *devm_clk_register(struct device *dev, struct clk_hw *hw)
 		devres_free(clkp);
 	}
 
+<<<<<<< HEAD
 	clk_populate_clock_opp_table(dev->of_node, hw);
+=======
+>>>>>>> upstream/android-13
 	return clk;
 }
 EXPORT_SYMBOL_GPL(devm_clk_register);
@@ -4317,7 +5836,11 @@ int devm_clk_hw_register(struct device *dev, struct clk_hw *hw)
 	struct clk_hw **hwp;
 	int ret;
 
+<<<<<<< HEAD
 	hwp = devres_alloc(devm_clk_hw_release, sizeof(*hwp), GFP_KERNEL);
+=======
+	hwp = devres_alloc(devm_clk_hw_unregister_cb, sizeof(*hwp), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!hwp)
 		return -ENOMEM;
 
@@ -4329,7 +5852,10 @@ int devm_clk_hw_register(struct device *dev, struct clk_hw *hw)
 		devres_free(hwp);
 	}
 
+<<<<<<< HEAD
 	clk_populate_clock_opp_table(dev->of_node, hw);
+=======
+>>>>>>> upstream/android-13
 	return ret;
 }
 EXPORT_SYMBOL_GPL(devm_clk_hw_register);
@@ -4353,6 +5879,10 @@ static int devm_clk_hw_match(struct device *dev, void *res, void *data)
 
 /**
  * devm_clk_unregister - resource managed clk_unregister()
+<<<<<<< HEAD
+=======
+ * @dev: device that is unregistering the clock data
+>>>>>>> upstream/android-13
  * @clk: clock to unregister
  *
  * Deallocate a clock allocated with devm_clk_register(). Normally
@@ -4361,7 +5891,11 @@ static int devm_clk_hw_match(struct device *dev, void *res, void *data)
  */
 void devm_clk_unregister(struct device *dev, struct clk *clk)
 {
+<<<<<<< HEAD
 	WARN_ON(devres_release(dev, devm_clk_release, devm_clk_match, clk));
+=======
+	WARN_ON(devres_release(dev, devm_clk_unregister_cb, devm_clk_match, clk));
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(devm_clk_unregister);
 
@@ -4376,11 +5910,16 @@ EXPORT_SYMBOL_GPL(devm_clk_unregister);
  */
 void devm_clk_hw_unregister(struct device *dev, struct clk_hw *hw)
 {
+<<<<<<< HEAD
 	WARN_ON(devres_release(dev, devm_clk_hw_release, devm_clk_hw_match,
+=======
+	WARN_ON(devres_release(dev, devm_clk_hw_unregister_cb, devm_clk_hw_match,
+>>>>>>> upstream/android-13
 				hw));
 }
 EXPORT_SYMBOL_GPL(devm_clk_hw_unregister);
 
+<<<<<<< HEAD
 /*
  * clkdev helpers
  */
@@ -4398,6 +5937,55 @@ int __clk_get(struct clk *clk)
 }
 
 /* keep in sync with __clk_free_clk */
+=======
+static void devm_clk_release(struct device *dev, void *res)
+{
+	clk_put(*(struct clk **)res);
+}
+
+/**
+ * devm_clk_hw_get_clk - resource managed clk_hw_get_clk()
+ * @dev: device that is registering this clock
+ * @hw: clk_hw associated with the clk being consumed
+ * @con_id: connection ID string on device
+ *
+ * Managed clk_hw_get_clk(). Clocks got with this function are
+ * automatically clk_put() on driver detach. See clk_put()
+ * for more information.
+ */
+struct clk *devm_clk_hw_get_clk(struct device *dev, struct clk_hw *hw,
+				const char *con_id)
+{
+	struct clk *clk;
+	struct clk **clkp;
+
+	/* This should not happen because it would mean we have drivers
+	 * passing around clk_hw pointers instead of having the caller use
+	 * proper clk_get() style APIs
+	 */
+	WARN_ON_ONCE(dev != hw->core->dev);
+
+	clkp = devres_alloc(devm_clk_release, sizeof(*clkp), GFP_KERNEL);
+	if (!clkp)
+		return ERR_PTR(-ENOMEM);
+
+	clk = clk_hw_get_clk(hw, con_id);
+	if (!IS_ERR(clk)) {
+		*clkp = clk;
+		devres_add(dev, clkp);
+	} else {
+		devres_free(clkp);
+	}
+
+	return clk;
+}
+EXPORT_SYMBOL_GPL(devm_clk_hw_get_clk);
+
+/*
+ * clkdev helpers
+ */
+
+>>>>>>> upstream/android-13
 void __clk_put(struct clk *clk)
 {
 	struct module *owner;
@@ -4431,8 +6019,12 @@ void __clk_put(struct clk *clk)
 
 	module_put(owner);
 
+<<<<<<< HEAD
 	kfree_const(clk->con_id);
 	kfree(clk);
+=======
+	free_clk(clk);
+>>>>>>> upstream/android-13
 }
 
 /***        clk rate change notifiers        ***/
@@ -4537,13 +6129,65 @@ int clk_notifier_unregister(struct clk *clk, struct notifier_block *nb)
 }
 EXPORT_SYMBOL_GPL(clk_notifier_unregister);
 
+<<<<<<< HEAD
 #ifdef CONFIG_OF
+=======
+struct clk_notifier_devres {
+	struct clk *clk;
+	struct notifier_block *nb;
+};
+
+static void devm_clk_notifier_release(struct device *dev, void *res)
+{
+	struct clk_notifier_devres *devres = res;
+
+	clk_notifier_unregister(devres->clk, devres->nb);
+}
+
+int devm_clk_notifier_register(struct device *dev, struct clk *clk,
+			       struct notifier_block *nb)
+{
+	struct clk_notifier_devres *devres;
+	int ret;
+
+	devres = devres_alloc(devm_clk_notifier_release,
+			      sizeof(*devres), GFP_KERNEL);
+
+	if (!devres)
+		return -ENOMEM;
+
+	ret = clk_notifier_register(clk, nb);
+	if (!ret) {
+		devres->clk = clk;
+		devres->nb = nb;
+	} else {
+		devres_free(devres);
+	}
+
+	return ret;
+}
+EXPORT_SYMBOL_GPL(devm_clk_notifier_register);
+
+#ifdef CONFIG_OF
+static void clk_core_reparent_orphans(void)
+{
+	clk_prepare_lock();
+	clk_core_reparent_orphans_nolock();
+	clk_prepare_unlock();
+}
+
+>>>>>>> upstream/android-13
 /**
  * struct of_clk_provider - Clock provider registration structure
  * @link: Entry in global list of clock providers
  * @node: Pointer to device tree node of clock provider
  * @get: Get clock callback.  Returns NULL or a struct clk for the
  *       given clock specifier
+<<<<<<< HEAD
+=======
+ * @get_hw: Get clk_hw callback.  Returns NULL, ERR_PTR or a
+ *       struct clk_hw for the given clock specifier
+>>>>>>> upstream/android-13
  * @data: context pointer to be passed into @get callback
  */
 struct of_clk_provider {
@@ -4555,8 +6199,14 @@ struct of_clk_provider {
 	void *data;
 };
 
+<<<<<<< HEAD
 static const struct of_device_id __clk_of_table_sentinel
 	__used __section(__clk_of_table_end);
+=======
+extern struct of_device_id __clk_of_table;
+static const struct of_device_id __clk_of_table_sentinel
+	__used __section("__clk_of_table_end");
+>>>>>>> upstream/android-13
 
 static LIST_HEAD(of_clk_providers);
 static DEFINE_MUTEX(of_clk_mutex);
@@ -4608,6 +6258,11 @@ EXPORT_SYMBOL_GPL(of_clk_hw_onecell_get);
  * @np: Device node pointer associated with clock provider
  * @clk_src_get: callback for decoding clock
  * @data: context pointer for @clk_src_get callback.
+<<<<<<< HEAD
+=======
+ *
+ * This function is *deprecated*. Use of_clk_add_hw_provider() instead.
+>>>>>>> upstream/android-13
  */
 int of_clk_add_provider(struct device_node *np,
 			struct clk *(*clk_src_get)(struct of_phandle_args *clkspec,
@@ -4617,6 +6272,12 @@ int of_clk_add_provider(struct device_node *np,
 	struct of_clk_provider *cp;
 	int ret;
 
+<<<<<<< HEAD
+=======
+	if (!np)
+		return 0;
+
+>>>>>>> upstream/android-13
 	cp = kzalloc(sizeof(*cp), GFP_KERNEL);
 	if (!cp)
 		return -ENOMEM;
@@ -4630,10 +6291,20 @@ int of_clk_add_provider(struct device_node *np,
 	mutex_unlock(&of_clk_mutex);
 	pr_debug("Added clock from %pOF\n", np);
 
+<<<<<<< HEAD
+=======
+	clk_core_reparent_orphans();
+
+>>>>>>> upstream/android-13
 	ret = of_clk_set_defaults(np, true);
 	if (ret < 0)
 		of_clk_del_provider(np);
 
+<<<<<<< HEAD
+=======
+	fwnode_dev_initialized(&np->fwnode, true);
+
+>>>>>>> upstream/android-13
 	return ret;
 }
 EXPORT_SYMBOL_GPL(of_clk_add_provider);
@@ -4652,6 +6323,12 @@ int of_clk_add_hw_provider(struct device_node *np,
 	struct of_clk_provider *cp;
 	int ret;
 
+<<<<<<< HEAD
+=======
+	if (!np)
+		return 0;
+
+>>>>>>> upstream/android-13
 	cp = kzalloc(sizeof(*cp), GFP_KERNEL);
 	if (!cp)
 		return -ENOMEM;
@@ -4665,10 +6342,20 @@ int of_clk_add_hw_provider(struct device_node *np,
 	mutex_unlock(&of_clk_mutex);
 	pr_debug("Added clk_hw provider from %pOF\n", np);
 
+<<<<<<< HEAD
+=======
+	clk_core_reparent_orphans();
+
+>>>>>>> upstream/android-13
 	ret = of_clk_set_defaults(np, true);
 	if (ret < 0)
 		of_clk_del_provider(np);
 
+<<<<<<< HEAD
+=======
+	fwnode_dev_initialized(&np->fwnode, true);
+
+>>>>>>> upstream/android-13
 	return ret;
 }
 EXPORT_SYMBOL_GPL(of_clk_add_hw_provider);
@@ -4678,6 +6365,42 @@ static void devm_of_clk_release_provider(struct device *dev, void *res)
 	of_clk_del_provider(*(struct device_node **)res);
 }
 
+<<<<<<< HEAD
+=======
+/*
+ * We allow a child device to use its parent device as the clock provider node
+ * for cases like MFD sub-devices where the child device driver wants to use
+ * devm_*() APIs but not list the device in DT as a sub-node.
+ */
+static struct device_node *get_clk_provider_node(struct device *dev)
+{
+	struct device_node *np, *parent_np;
+
+	np = dev->of_node;
+	parent_np = dev->parent ? dev->parent->of_node : NULL;
+
+	if (!of_find_property(np, "#clock-cells", NULL))
+		if (of_find_property(parent_np, "#clock-cells", NULL))
+			np = parent_np;
+
+	return np;
+}
+
+/**
+ * devm_of_clk_add_hw_provider() - Managed clk provider node registration
+ * @dev: Device acting as the clock provider (used for DT node and lifetime)
+ * @get: callback for decoding clk_hw
+ * @data: context pointer for @get callback
+ *
+ * Registers clock provider for given device's node. If the device has no DT
+ * node or if the device node lacks of clock provider information (#clock-cells)
+ * then the parent device's node is scanned for this information. If parent node
+ * has the #clock-cells then it is used in registration. Provider is
+ * automatically released at device exit.
+ *
+ * Return: 0 on success or an errno on failure.
+ */
+>>>>>>> upstream/android-13
 int devm_of_clk_add_hw_provider(struct device *dev,
 			struct clk_hw *(*get)(struct of_phandle_args *clkspec,
 					      void *data),
@@ -4691,7 +6414,11 @@ int devm_of_clk_add_hw_provider(struct device *dev,
 	if (!ptr)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	np = dev->of_node;
+=======
+	np = get_clk_provider_node(dev);
+>>>>>>> upstream/android-13
 	ret = of_clk_add_hw_provider(np, get, data);
 	if (!ret) {
 		*ptr = np;
@@ -4712,10 +6439,20 @@ void of_clk_del_provider(struct device_node *np)
 {
 	struct of_clk_provider *cp;
 
+<<<<<<< HEAD
+=======
+	if (!np)
+		return;
+
+>>>>>>> upstream/android-13
 	mutex_lock(&of_clk_mutex);
 	list_for_each_entry(cp, &of_clk_providers, link) {
 		if (cp->node == np) {
 			list_del(&cp->link);
+<<<<<<< HEAD
+=======
+			fwnode_dev_initialized(&np->fwnode, false);
+>>>>>>> upstream/android-13
 			of_node_put(cp->node);
 			kfree(cp);
 			break;
@@ -4735,17 +6472,108 @@ static int devm_clk_provider_match(struct device *dev, void *res, void *data)
 	return *np == data;
 }
 
+<<<<<<< HEAD
 void devm_of_clk_del_provider(struct device *dev)
 {
 	int ret;
 
 	ret = devres_release(dev, devm_of_clk_release_provider,
 			     devm_clk_provider_match, dev->of_node);
+=======
+/**
+ * devm_of_clk_del_provider() - Remove clock provider registered using devm
+ * @dev: Device to whose lifetime the clock provider was bound
+ */
+void devm_of_clk_del_provider(struct device *dev)
+{
+	int ret;
+	struct device_node *np = get_clk_provider_node(dev);
+
+	ret = devres_release(dev, devm_of_clk_release_provider,
+			     devm_clk_provider_match, np);
+>>>>>>> upstream/android-13
 
 	WARN_ON(ret);
 }
 EXPORT_SYMBOL(devm_of_clk_del_provider);
 
+<<<<<<< HEAD
+=======
+/**
+ * of_parse_clkspec() - Parse a DT clock specifier for a given device node
+ * @np: device node to parse clock specifier from
+ * @index: index of phandle to parse clock out of. If index < 0, @name is used
+ * @name: clock name to find and parse. If name is NULL, the index is used
+ * @out_args: Result of parsing the clock specifier
+ *
+ * Parses a device node's "clocks" and "clock-names" properties to find the
+ * phandle and cells for the index or name that is desired. The resulting clock
+ * specifier is placed into @out_args, or an errno is returned when there's a
+ * parsing error. The @index argument is ignored if @name is non-NULL.
+ *
+ * Example:
+ *
+ * phandle1: clock-controller@1 {
+ *	#clock-cells = <2>;
+ * }
+ *
+ * phandle2: clock-controller@2 {
+ *	#clock-cells = <1>;
+ * }
+ *
+ * clock-consumer@3 {
+ *	clocks = <&phandle1 1 2 &phandle2 3>;
+ *	clock-names = "name1", "name2";
+ * }
+ *
+ * To get a device_node for `clock-controller@2' node you may call this
+ * function a few different ways:
+ *
+ *   of_parse_clkspec(clock-consumer@3, -1, "name2", &args);
+ *   of_parse_clkspec(clock-consumer@3, 1, NULL, &args);
+ *   of_parse_clkspec(clock-consumer@3, 1, "name2", &args);
+ *
+ * Return: 0 upon successfully parsing the clock specifier. Otherwise, -ENOENT
+ * if @name is NULL or -EINVAL if @name is non-NULL and it can't be found in
+ * the "clock-names" property of @np.
+ */
+static int of_parse_clkspec(const struct device_node *np, int index,
+			    const char *name, struct of_phandle_args *out_args)
+{
+	int ret = -ENOENT;
+
+	/* Walk up the tree of devices looking for a clock property that matches */
+	while (np) {
+		/*
+		 * For named clocks, first look up the name in the
+		 * "clock-names" property.  If it cannot be found, then index
+		 * will be an error code and of_parse_phandle_with_args() will
+		 * return -EINVAL.
+		 */
+		if (name)
+			index = of_property_match_string(np, "clock-names", name);
+		ret = of_parse_phandle_with_args(np, "clocks", "#clock-cells",
+						 index, out_args);
+		if (!ret)
+			break;
+		if (name && index >= 0)
+			break;
+
+		/*
+		 * No matching clock found on this node.  If the parent node
+		 * has a "clock-ranges" property, then we can try one of its
+		 * clocks.
+		 */
+		np = np->parent;
+		if (np && !of_get_property(np, "clock-ranges", NULL))
+			break;
+		index = 0;
+	}
+
+	return ret;
+}
+
+>>>>>>> upstream/android-13
 static struct clk_hw *
 __of_clk_get_hw_from_provider(struct of_clk_provider *provider,
 			      struct of_phandle_args *clkspec)
@@ -4761,21 +6589,33 @@ __of_clk_get_hw_from_provider(struct of_clk_provider *provider,
 	return __clk_get_hw(clk);
 }
 
+<<<<<<< HEAD
 struct clk *__of_clk_get_from_provider(struct of_phandle_args *clkspec,
 				       const char *dev_id, const char *con_id)
 {
 	struct of_clk_provider *provider;
 	struct clk *clk = ERR_PTR(-EPROBE_DEFER);
 	struct clk_hw *hw;
+=======
+static struct clk_hw *
+of_clk_get_hw_from_clkspec(struct of_phandle_args *clkspec)
+{
+	struct of_clk_provider *provider;
+	struct clk_hw *hw = ERR_PTR(-EPROBE_DEFER);
+>>>>>>> upstream/android-13
 
 	if (!clkspec)
 		return ERR_PTR(-EINVAL);
 
+<<<<<<< HEAD
 	/* Check if we have such a provider in our array */
+=======
+>>>>>>> upstream/android-13
 	mutex_lock(&of_clk_mutex);
 	list_for_each_entry(provider, &of_clk_providers, link) {
 		if (provider->node == clkspec->np) {
 			hw = __of_clk_get_hw_from_provider(provider, clkspec);
+<<<<<<< HEAD
 			clk = __clk_create_clk(hw, dev_id, con_id);
 		}
 
@@ -4786,11 +6626,19 @@ struct clk *__of_clk_get_from_provider(struct of_phandle_args *clkspec,
 			}
 
 			break;
+=======
+			if (!IS_ERR(hw))
+				break;
+>>>>>>> upstream/android-13
 		}
 	}
 	mutex_unlock(&of_clk_mutex);
 
+<<<<<<< HEAD
 	return clk;
+=======
+	return hw;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -4803,17 +6651,80 @@ struct clk *__of_clk_get_from_provider(struct of_phandle_args *clkspec,
  */
 struct clk *of_clk_get_from_provider(struct of_phandle_args *clkspec)
 {
+<<<<<<< HEAD
 	return __of_clk_get_from_provider(clkspec, NULL, __func__);
 }
 EXPORT_SYMBOL_GPL(of_clk_get_from_provider);
 
+=======
+	struct clk_hw *hw = of_clk_get_hw_from_clkspec(clkspec);
+
+	return clk_hw_create_clk(NULL, hw, NULL, __func__);
+}
+EXPORT_SYMBOL_GPL(of_clk_get_from_provider);
+
+struct clk_hw *of_clk_get_hw(struct device_node *np, int index,
+			     const char *con_id)
+{
+	int ret;
+	struct clk_hw *hw;
+	struct of_phandle_args clkspec;
+
+	ret = of_parse_clkspec(np, index, con_id, &clkspec);
+	if (ret)
+		return ERR_PTR(ret);
+
+	hw = of_clk_get_hw_from_clkspec(&clkspec);
+	of_node_put(clkspec.np);
+
+	return hw;
+}
+
+static struct clk *__of_clk_get(struct device_node *np,
+				int index, const char *dev_id,
+				const char *con_id)
+{
+	struct clk_hw *hw = of_clk_get_hw(np, index, con_id);
+
+	return clk_hw_create_clk(NULL, hw, dev_id, con_id);
+}
+
+struct clk *of_clk_get(struct device_node *np, int index)
+{
+	return __of_clk_get(np, index, np->full_name, NULL);
+}
+EXPORT_SYMBOL(of_clk_get);
+
+/**
+ * of_clk_get_by_name() - Parse and lookup a clock referenced by a device node
+ * @np: pointer to clock consumer node
+ * @name: name of consumer's clock input, or NULL for the first clock reference
+ *
+ * This function parses the clocks and clock-names properties,
+ * and uses them to look up the struct clk from the registered list of clock
+ * providers.
+ */
+struct clk *of_clk_get_by_name(struct device_node *np, const char *name)
+{
+	if (!np)
+		return ERR_PTR(-ENOENT);
+
+	return __of_clk_get(np, 0, np->full_name, name);
+}
+EXPORT_SYMBOL(of_clk_get_by_name);
+
+>>>>>>> upstream/android-13
 /**
  * of_clk_get_parent_count() - Count the number of clocks a device node has
  * @np: device node to count
  *
  * Returns: The number of clocks that are possible parents of this node
  */
+<<<<<<< HEAD
 unsigned int of_clk_get_parent_count(struct device_node *np)
+=======
+unsigned int of_clk_get_parent_count(const struct device_node *np)
+>>>>>>> upstream/android-13
 {
 	int count;
 
@@ -4825,7 +6736,11 @@ unsigned int of_clk_get_parent_count(struct device_node *np)
 }
 EXPORT_SYMBOL_GPL(of_clk_get_parent_count);
 
+<<<<<<< HEAD
 const char *of_clk_get_parent_name(struct device_node *np, int index)
+=======
+const char *of_clk_get_parent_name(const struct device_node *np, int index)
+>>>>>>> upstream/android-13
 {
 	struct of_phandle_args clkspec;
 	struct property *prop;
@@ -4965,8 +6880,13 @@ static int parent_ready(struct device_node *np)
  *
  * Return: error code or zero on success
  */
+<<<<<<< HEAD
 int of_clk_detect_critical(struct device_node *np,
 					  int index, unsigned long *flags)
+=======
+int of_clk_detect_critical(struct device_node *np, int index,
+			   unsigned long *flags)
+>>>>>>> upstream/android-13
 {
 	struct property *prop;
 	const __be32 *cur;

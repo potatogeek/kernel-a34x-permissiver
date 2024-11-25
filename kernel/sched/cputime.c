@@ -1,8 +1,16 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Simple CPU accounting cgroup controller
  */
 #include <linux/cpufreq_times.h>
 #include "sched.h"
+<<<<<<< HEAD
+=======
+#include <trace/hooks/sched.h>
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_IRQ_TIME_ACCOUNTING
 
@@ -18,6 +26,10 @@
  * compromise in place of having locks on each irq in account_system_time.
  */
 DEFINE_PER_CPU(struct irqtime, cpu_irqtime);
+<<<<<<< HEAD
+=======
+EXPORT_PER_CPU_SYMBOL_GPL(cpu_irqtime);
+>>>>>>> upstream/android-13
 
 static int sched_clock_irqtime;
 
@@ -44,6 +56,7 @@ static void irqtime_account_delta(struct irqtime *irqtime, u64 delta,
 }
 
 /*
+<<<<<<< HEAD
  * Called before incrementing preempt_count on {soft,}irq_enter
  * and before decrementing preempt_count on {soft,}irq_exit.
  */
@@ -52,6 +65,18 @@ void irqtime_account_irq(struct task_struct *curr)
 	struct irqtime *irqtime = this_cpu_ptr(&cpu_irqtime);
 	s64 delta;
 	int cpu;
+=======
+ * Called after incrementing preempt_count on {soft,}irq_enter
+ * and before decrementing preempt_count on {soft,}irq_exit.
+ */
+void irqtime_account_irq(struct task_struct *curr, unsigned int offset)
+{
+	struct irqtime *irqtime = this_cpu_ptr(&cpu_irqtime);
+	unsigned int pc;
+	s64 delta;
+	int cpu;
+	bool irq_start = true;
+>>>>>>> upstream/android-13
 
 	if (!sched_clock_irqtime)
 		return;
@@ -59,6 +84,10 @@ void irqtime_account_irq(struct task_struct *curr)
 	cpu = smp_processor_id();
 	delta = sched_clock_cpu(cpu) - irqtime->irq_start_time;
 	irqtime->irq_start_time += delta;
+<<<<<<< HEAD
+=======
+	pc = irq_count() - offset;
+>>>>>>> upstream/android-13
 
 	/*
 	 * We do not account for softirq time from ksoftirqd here.
@@ -66,12 +95,30 @@ void irqtime_account_irq(struct task_struct *curr)
 	 * in that case, so as not to confuse scheduler with a special task
 	 * that do not consume any time, but still wants to run.
 	 */
+<<<<<<< HEAD
 	if (hardirq_count())
 		irqtime_account_delta(irqtime, delta, CPUTIME_IRQ);
 	else if (in_serving_softirq() && curr != this_cpu_ksoftirqd())
 		irqtime_account_delta(irqtime, delta, CPUTIME_SOFTIRQ);
 }
 EXPORT_SYMBOL_GPL(irqtime_account_irq);
+=======
+	if (pc & HARDIRQ_MASK) {
+		irqtime_account_delta(irqtime, delta, CPUTIME_IRQ);
+		irq_start = false;
+	} else if ((pc & SOFTIRQ_OFFSET) && curr != this_cpu_ksoftirqd()) {
+		irqtime_account_delta(irqtime, delta, CPUTIME_SOFTIRQ);
+		irq_start = false;
+	}
+
+	trace_android_rvh_account_irq(curr, cpu, delta);
+
+	if (irq_start)
+		trace_android_rvh_account_irq_start(curr, cpu, delta);
+	else
+		trace_android_rvh_account_irq_end(curr, cpu, delta);
+}
+>>>>>>> upstream/android-13
 
 static u64 irqtime_tick_accounted(u64 maxtime)
 {
@@ -150,10 +197,17 @@ void account_guest_time(struct task_struct *p, u64 cputime)
 
 	/* Add guest time to cpustat. */
 	if (task_nice(p) > 0) {
+<<<<<<< HEAD
 		cpustat[CPUTIME_NICE] += cputime;
 		cpustat[CPUTIME_GUEST_NICE] += cputime;
 	} else {
 		cpustat[CPUTIME_USER] += cputime;
+=======
+		task_group_account_field(p, CPUTIME_NICE, cputime);
+		cpustat[CPUTIME_GUEST_NICE] += cputime;
+	} else {
+		task_group_account_field(p, CPUTIME_USER, cputime);
+>>>>>>> upstream/android-13
 		cpustat[CPUTIME_GUEST] += cputime;
 	}
 }
@@ -361,7 +415,11 @@ void thread_group_cputime(struct task_struct *tsk, struct task_cputime *times)
  * softirq as those do not count in task exec_runtime any more.
  */
 static void irqtime_account_process_tick(struct task_struct *p, int user_tick,
+<<<<<<< HEAD
 					 struct rq *rq, int ticks)
+=======
+					 int ticks)
+>>>>>>> upstream/android-13
 {
 	u64 other, cputime = TICK_NSEC * ticks;
 
@@ -387,43 +445,71 @@ static void irqtime_account_process_tick(struct task_struct *p, int user_tick,
 		account_system_index_time(p, cputime, CPUTIME_SOFTIRQ);
 	} else if (user_tick) {
 		account_user_time(p, cputime);
+<<<<<<< HEAD
 	} else if (p == rq->idle) {
+=======
+	} else if (p == this_rq()->idle) {
+>>>>>>> upstream/android-13
 		account_idle_time(cputime);
 	} else if (p->flags & PF_VCPU) { /* System time or guest time */
 		account_guest_time(p, cputime);
 	} else {
 		account_system_index_time(p, cputime, CPUTIME_SYSTEM);
 	}
+<<<<<<< HEAD
+=======
+	trace_android_vh_irqtime_account_process_tick(p, this_rq(), user_tick, ticks);
+>>>>>>> upstream/android-13
 }
 
 static void irqtime_account_idle_ticks(int ticks)
 {
+<<<<<<< HEAD
 	struct rq *rq = this_rq();
 
 	irqtime_account_process_tick(current, 0, rq, ticks);
+=======
+	irqtime_account_process_tick(current, 0, ticks);
+>>>>>>> upstream/android-13
 }
 #else /* CONFIG_IRQ_TIME_ACCOUNTING */
 static inline void irqtime_account_idle_ticks(int ticks) { }
 static inline void irqtime_account_process_tick(struct task_struct *p, int user_tick,
+<<<<<<< HEAD
 						struct rq *rq, int nr_ticks) { }
+=======
+						int nr_ticks) { }
+>>>>>>> upstream/android-13
 #endif /* CONFIG_IRQ_TIME_ACCOUNTING */
 
 /*
  * Use precise platform statistics if available:
  */
+<<<<<<< HEAD
 #ifdef CONFIG_VIRT_CPU_ACCOUNTING
 # ifndef __ARCH_HAS_VTIME_TASK_SWITCH
 void vtime_common_task_switch(struct task_struct *prev)
+=======
+#ifdef CONFIG_VIRT_CPU_ACCOUNTING_NATIVE
+
+# ifndef __ARCH_HAS_VTIME_TASK_SWITCH
+void vtime_task_switch(struct task_struct *prev)
+>>>>>>> upstream/android-13
 {
 	if (is_idle_task(prev))
 		vtime_account_idle(prev);
 	else
+<<<<<<< HEAD
 		vtime_account_system(prev);
+=======
+		vtime_account_kernel(prev);
+>>>>>>> upstream/android-13
 
 	vtime_flush(prev);
 	arch_vtime_task_switch(prev);
 }
 # endif
+<<<<<<< HEAD
 #endif /* CONFIG_VIRT_CPU_ACCOUNTING */
 
 
@@ -446,6 +532,24 @@ void vtime_account_irq_enter(struct task_struct *tsk)
 }
 EXPORT_SYMBOL_GPL(vtime_account_irq_enter);
 #endif /* __ARCH_HAS_VTIME_ACCOUNT */
+=======
+
+void vtime_account_irq(struct task_struct *tsk, unsigned int offset)
+{
+	unsigned int pc = irq_count() - offset;
+
+	if (pc & HARDIRQ_OFFSET) {
+		vtime_account_hardirq(tsk);
+	} else if (pc & SOFTIRQ_OFFSET) {
+		vtime_account_softirq(tsk);
+	} else if (!IS_ENABLED(CONFIG_HAVE_VIRT_CPU_ACCOUNTING_IDLE) &&
+		   is_idle_task(tsk)) {
+		vtime_account_idle(tsk);
+	} else {
+		vtime_account_kernel(tsk);
+	}
+}
+>>>>>>> upstream/android-13
 
 void cputime_adjust(struct task_cputime *curr, struct prev_cputime *prev,
 		    u64 *ut, u64 *st)
@@ -470,6 +574,10 @@ void thread_group_cputime_adjusted(struct task_struct *p, u64 *ut, u64 *st)
 	*ut = cputime.utime;
 	*st = cputime.stime;
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(thread_group_cputime_adjusted);
+>>>>>>> upstream/android-13
 
 #else /* !CONFIG_VIRT_CPU_ACCOUNTING_NATIVE: */
 
@@ -481,6 +589,7 @@ void thread_group_cputime_adjusted(struct task_struct *p, u64 *ut, u64 *st)
 void account_process_tick(struct task_struct *p, int user_tick)
 {
 	u64 cputime, steal;
+<<<<<<< HEAD
 	struct rq *rq = this_rq();
 
 	if (vtime_accounting_cpu_enabled())
@@ -488,6 +597,15 @@ void account_process_tick(struct task_struct *p, int user_tick)
 
 	if (sched_clock_irqtime) {
 		irqtime_account_process_tick(p, user_tick, rq, 1);
+=======
+
+	if (vtime_accounting_enabled_this_cpu())
+		return;
+	trace_android_vh_account_task_time(p, this_rq(), user_tick);
+
+	if (sched_clock_irqtime) {
+		irqtime_account_process_tick(p, user_tick, 1);
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -501,7 +619,11 @@ void account_process_tick(struct task_struct *p, int user_tick)
 
 	if (user_tick)
 		account_user_time(p, cputime);
+<<<<<<< HEAD
 	else if ((p != rq->idle) || (irq_count() != HARDIRQ_OFFSET))
+=======
+	else if ((p != this_rq()->idle) || (irq_count() != HARDIRQ_OFFSET))
+>>>>>>> upstream/android-13
 		account_system_time(p, HARDIRQ_OFFSET, cputime);
 	else
 		account_idle_time(cputime);
@@ -531,6 +653,7 @@ void account_idle_ticks(unsigned long ticks)
 }
 
 /*
+<<<<<<< HEAD
  * Perform (stime * rtime) / total, but avoid multiplication overflow by
  * loosing precision when the numbers are big.
  */
@@ -575,6 +698,8 @@ drop_precision:
 }
 
 /*
+=======
+>>>>>>> upstream/android-13
  * Adjust tick based cputime random precision against scheduler runtime
  * accounting.
  *
@@ -620,7 +745,11 @@ void cputime_adjust(struct task_cputime *curr, struct prev_cputime *prev,
 
 	/*
 	 * If either stime or utime are 0, assume all runtime is userspace.
+<<<<<<< HEAD
 	 * Once a task gets some ticks, the monotonicy code at 'update:'
+=======
+	 * Once a task gets some ticks, the monotonicity code at 'update:'
+>>>>>>> upstream/android-13
 	 * will ensure things converge to the observed ratio.
 	 */
 	if (stime == 0) {
@@ -633,7 +762,11 @@ void cputime_adjust(struct task_cputime *curr, struct prev_cputime *prev,
 		goto update;
 	}
 
+<<<<<<< HEAD
 	stime = scale_stime(stime, rtime, stime + utime);
+=======
+	stime = mul_u64_u64_div_u64(stime, rtime, stime + utime);
+>>>>>>> upstream/android-13
 
 update:
 	/*
@@ -684,6 +817,11 @@ void thread_group_cputime_adjusted(struct task_struct *p, u64 *ut, u64 *st)
 	thread_group_cputime(p, &cputime);
 	cputime_adjust(&cputime, &p->signal->prev_cputime, ut, st);
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(thread_group_cputime_adjusted);
+
+>>>>>>> upstream/android-13
 #endif /* !CONFIG_VIRT_CPU_ACCOUNTING_NATIVE */
 
 #ifdef CONFIG_VIRT_CPU_ACCOUNTING_GEN
@@ -717,8 +855,13 @@ static u64 get_vtime_delta(struct vtime *vtime)
 	return delta - other;
 }
 
+<<<<<<< HEAD
 static void __vtime_account_system(struct task_struct *tsk,
 				   struct vtime *vtime)
+=======
+static void vtime_account_system(struct task_struct *tsk,
+				 struct vtime *vtime)
+>>>>>>> upstream/android-13
 {
 	vtime->stime += get_vtime_delta(vtime);
 	if (vtime->stime >= TICK_NSEC) {
@@ -737,7 +880,21 @@ static void vtime_account_guest(struct task_struct *tsk,
 	}
 }
 
+<<<<<<< HEAD
 void vtime_account_system(struct task_struct *tsk)
+=======
+static void __vtime_account_kernel(struct task_struct *tsk,
+				   struct vtime *vtime)
+{
+	/* We might have scheduled out from guest path */
+	if (vtime->state == VTIME_GUEST)
+		vtime_account_guest(tsk, vtime);
+	else
+		vtime_account_system(tsk, vtime);
+}
+
+void vtime_account_kernel(struct task_struct *tsk)
+>>>>>>> upstream/android-13
 {
 	struct vtime *vtime = &tsk->vtime;
 
@@ -745,11 +902,15 @@ void vtime_account_system(struct task_struct *tsk)
 		return;
 
 	write_seqcount_begin(&vtime->seqcount);
+<<<<<<< HEAD
 	/* We might have scheduled out from guest path */
 	if (tsk->flags & PF_VCPU)
 		vtime_account_guest(tsk, vtime);
 	else
 		__vtime_account_system(tsk, vtime);
+=======
+	__vtime_account_kernel(tsk, vtime);
+>>>>>>> upstream/android-13
 	write_seqcount_end(&vtime->seqcount);
 }
 
@@ -758,7 +919,11 @@ void vtime_user_enter(struct task_struct *tsk)
 	struct vtime *vtime = &tsk->vtime;
 
 	write_seqcount_begin(&vtime->seqcount);
+<<<<<<< HEAD
 	__vtime_account_system(tsk, vtime);
+=======
+	vtime_account_system(tsk, vtime);
+>>>>>>> upstream/android-13
 	vtime->state = VTIME_USER;
 	write_seqcount_end(&vtime->seqcount);
 }
@@ -788,8 +953,14 @@ void vtime_guest_enter(struct task_struct *tsk)
 	 * that can thus safely catch up with a tickless delta.
 	 */
 	write_seqcount_begin(&vtime->seqcount);
+<<<<<<< HEAD
 	__vtime_account_system(tsk, vtime);
 	tsk->flags |= PF_VCPU;
+=======
+	vtime_account_system(tsk, vtime);
+	tsk->flags |= PF_VCPU;
+	vtime->state = VTIME_GUEST;
+>>>>>>> upstream/android-13
 	write_seqcount_end(&vtime->seqcount);
 }
 EXPORT_SYMBOL_GPL(vtime_guest_enter);
@@ -801,6 +972,10 @@ void vtime_guest_exit(struct task_struct *tsk)
 	write_seqcount_begin(&vtime->seqcount);
 	vtime_account_guest(tsk, vtime);
 	tsk->flags &= ~PF_VCPU;
+<<<<<<< HEAD
+=======
+	vtime->state = VTIME_SYS;
+>>>>>>> upstream/android-13
 	write_seqcount_end(&vtime->seqcount);
 }
 EXPORT_SYMBOL_GPL(vtime_guest_exit);
@@ -810,19 +985,43 @@ void vtime_account_idle(struct task_struct *tsk)
 	account_idle_time(get_vtime_delta(&tsk->vtime));
 }
 
+<<<<<<< HEAD
 void arch_vtime_task_switch(struct task_struct *prev)
+=======
+void vtime_task_switch_generic(struct task_struct *prev)
+>>>>>>> upstream/android-13
 {
 	struct vtime *vtime = &prev->vtime;
 
 	write_seqcount_begin(&vtime->seqcount);
+<<<<<<< HEAD
 	vtime->state = VTIME_INACTIVE;
+=======
+	if (vtime->state == VTIME_IDLE)
+		vtime_account_idle(prev);
+	else
+		__vtime_account_kernel(prev, vtime);
+	vtime->state = VTIME_INACTIVE;
+	vtime->cpu = -1;
+>>>>>>> upstream/android-13
 	write_seqcount_end(&vtime->seqcount);
 
 	vtime = &current->vtime;
 
 	write_seqcount_begin(&vtime->seqcount);
+<<<<<<< HEAD
 	vtime->state = VTIME_SYS;
 	vtime->starttime = sched_clock();
+=======
+	if (is_idle_task(current))
+		vtime->state = VTIME_IDLE;
+	else if (current->flags & PF_VCPU)
+		vtime->state = VTIME_GUEST;
+	else
+		vtime->state = VTIME_SYS;
+	vtime->starttime = sched_clock();
+	vtime->cpu = smp_processor_id();
+>>>>>>> upstream/android-13
 	write_seqcount_end(&vtime->seqcount);
 }
 
@@ -833,8 +1032,14 @@ void vtime_init_idle(struct task_struct *t, int cpu)
 
 	local_irq_save(flags);
 	write_seqcount_begin(&vtime->seqcount);
+<<<<<<< HEAD
 	vtime->state = VTIME_SYS;
 	vtime->starttime = sched_clock();
+=======
+	vtime->state = VTIME_IDLE;
+	vtime->starttime = sched_clock();
+	vtime->cpu = cpu;
+>>>>>>> upstream/android-13
 	write_seqcount_end(&vtime->seqcount);
 	local_irq_restore(flags);
 }
@@ -852,7 +1057,11 @@ u64 task_gtime(struct task_struct *t)
 		seq = read_seqcount_begin(&vtime->seqcount);
 
 		gtime = t->gtime;
+<<<<<<< HEAD
 		if (vtime->state == VTIME_SYS && t->flags & PF_VCPU)
+=======
+		if (vtime->state == VTIME_GUEST)
+>>>>>>> upstream/android-13
 			gtime += vtime->gtime + vtime_delta(vtime);
 
 	} while (read_seqcount_retry(&vtime->seqcount, seq));
@@ -883,13 +1092,19 @@ void task_cputime(struct task_struct *t, u64 *utime, u64 *stime)
 		*utime = t->utime;
 		*stime = t->stime;
 
+<<<<<<< HEAD
 		/* Task is sleeping, nothing to add */
 		if (vtime->state == VTIME_INACTIVE || is_idle_task(t))
+=======
+		/* Task is sleeping or idle, nothing to add */
+		if (vtime->state < VTIME_SYS)
+>>>>>>> upstream/android-13
 			continue;
 
 		delta = vtime_delta(vtime);
 
 		/*
+<<<<<<< HEAD
 		 * Task runs either in user or kernel space, add pending nohz time to
 		 * the right place.
 		 */
@@ -899,4 +1114,228 @@ void task_cputime(struct task_struct *t, u64 *utime, u64 *stime)
 			*stime += vtime->stime + delta;
 	} while (read_seqcount_retry(&vtime->seqcount, seq));
 }
+=======
+		 * Task runs either in user (including guest) or kernel space,
+		 * add pending nohz time to the right place.
+		 */
+		if (vtime->state == VTIME_SYS)
+			*stime += vtime->stime + delta;
+		else
+			*utime += vtime->utime + delta;
+	} while (read_seqcount_retry(&vtime->seqcount, seq));
+}
+
+static int vtime_state_fetch(struct vtime *vtime, int cpu)
+{
+	int state = READ_ONCE(vtime->state);
+
+	/*
+	 * We raced against a context switch, fetch the
+	 * kcpustat task again.
+	 */
+	if (vtime->cpu != cpu && vtime->cpu != -1)
+		return -EAGAIN;
+
+	/*
+	 * Two possible things here:
+	 * 1) We are seeing the scheduling out task (prev) or any past one.
+	 * 2) We are seeing the scheduling in task (next) but it hasn't
+	 *    passed though vtime_task_switch() yet so the pending
+	 *    cputime of the prev task may not be flushed yet.
+	 *
+	 * Case 1) is ok but 2) is not. So wait for a safe VTIME state.
+	 */
+	if (state == VTIME_INACTIVE)
+		return -EAGAIN;
+
+	return state;
+}
+
+static u64 kcpustat_user_vtime(struct vtime *vtime)
+{
+	if (vtime->state == VTIME_USER)
+		return vtime->utime + vtime_delta(vtime);
+	else if (vtime->state == VTIME_GUEST)
+		return vtime->gtime + vtime_delta(vtime);
+	return 0;
+}
+
+static int kcpustat_field_vtime(u64 *cpustat,
+				struct task_struct *tsk,
+				enum cpu_usage_stat usage,
+				int cpu, u64 *val)
+{
+	struct vtime *vtime = &tsk->vtime;
+	unsigned int seq;
+
+	do {
+		int state;
+
+		seq = read_seqcount_begin(&vtime->seqcount);
+
+		state = vtime_state_fetch(vtime, cpu);
+		if (state < 0)
+			return state;
+
+		*val = cpustat[usage];
+
+		/*
+		 * Nice VS unnice cputime accounting may be inaccurate if
+		 * the nice value has changed since the last vtime update.
+		 * But proper fix would involve interrupting target on nice
+		 * updates which is a no go on nohz_full (although the scheduler
+		 * may still interrupt the target if rescheduling is needed...)
+		 */
+		switch (usage) {
+		case CPUTIME_SYSTEM:
+			if (state == VTIME_SYS)
+				*val += vtime->stime + vtime_delta(vtime);
+			break;
+		case CPUTIME_USER:
+			if (task_nice(tsk) <= 0)
+				*val += kcpustat_user_vtime(vtime);
+			break;
+		case CPUTIME_NICE:
+			if (task_nice(tsk) > 0)
+				*val += kcpustat_user_vtime(vtime);
+			break;
+		case CPUTIME_GUEST:
+			if (state == VTIME_GUEST && task_nice(tsk) <= 0)
+				*val += vtime->gtime + vtime_delta(vtime);
+			break;
+		case CPUTIME_GUEST_NICE:
+			if (state == VTIME_GUEST && task_nice(tsk) > 0)
+				*val += vtime->gtime + vtime_delta(vtime);
+			break;
+		default:
+			break;
+		}
+	} while (read_seqcount_retry(&vtime->seqcount, seq));
+
+	return 0;
+}
+
+u64 kcpustat_field(struct kernel_cpustat *kcpustat,
+		   enum cpu_usage_stat usage, int cpu)
+{
+	u64 *cpustat = kcpustat->cpustat;
+	u64 val = cpustat[usage];
+	struct rq *rq;
+	int err;
+
+	if (!vtime_accounting_enabled_cpu(cpu))
+		return val;
+
+	rq = cpu_rq(cpu);
+
+	for (;;) {
+		struct task_struct *curr;
+
+		rcu_read_lock();
+		curr = rcu_dereference(rq->curr);
+		if (WARN_ON_ONCE(!curr)) {
+			rcu_read_unlock();
+			return cpustat[usage];
+		}
+
+		err = kcpustat_field_vtime(cpustat, curr, usage, cpu, &val);
+		rcu_read_unlock();
+
+		if (!err)
+			return val;
+
+		cpu_relax();
+	}
+}
+EXPORT_SYMBOL_GPL(kcpustat_field);
+
+static int kcpustat_cpu_fetch_vtime(struct kernel_cpustat *dst,
+				    const struct kernel_cpustat *src,
+				    struct task_struct *tsk, int cpu)
+{
+	struct vtime *vtime = &tsk->vtime;
+	unsigned int seq;
+
+	do {
+		u64 *cpustat;
+		u64 delta;
+		int state;
+
+		seq = read_seqcount_begin(&vtime->seqcount);
+
+		state = vtime_state_fetch(vtime, cpu);
+		if (state < 0)
+			return state;
+
+		*dst = *src;
+		cpustat = dst->cpustat;
+
+		/* Task is sleeping, dead or idle, nothing to add */
+		if (state < VTIME_SYS)
+			continue;
+
+		delta = vtime_delta(vtime);
+
+		/*
+		 * Task runs either in user (including guest) or kernel space,
+		 * add pending nohz time to the right place.
+		 */
+		if (state == VTIME_SYS) {
+			cpustat[CPUTIME_SYSTEM] += vtime->stime + delta;
+		} else if (state == VTIME_USER) {
+			if (task_nice(tsk) > 0)
+				cpustat[CPUTIME_NICE] += vtime->utime + delta;
+			else
+				cpustat[CPUTIME_USER] += vtime->utime + delta;
+		} else {
+			WARN_ON_ONCE(state != VTIME_GUEST);
+			if (task_nice(tsk) > 0) {
+				cpustat[CPUTIME_GUEST_NICE] += vtime->gtime + delta;
+				cpustat[CPUTIME_NICE] += vtime->gtime + delta;
+			} else {
+				cpustat[CPUTIME_GUEST] += vtime->gtime + delta;
+				cpustat[CPUTIME_USER] += vtime->gtime + delta;
+			}
+		}
+	} while (read_seqcount_retry(&vtime->seqcount, seq));
+
+	return 0;
+}
+
+void kcpustat_cpu_fetch(struct kernel_cpustat *dst, int cpu)
+{
+	const struct kernel_cpustat *src = &kcpustat_cpu(cpu);
+	struct rq *rq;
+	int err;
+
+	if (!vtime_accounting_enabled_cpu(cpu)) {
+		*dst = *src;
+		return;
+	}
+
+	rq = cpu_rq(cpu);
+
+	for (;;) {
+		struct task_struct *curr;
+
+		rcu_read_lock();
+		curr = rcu_dereference(rq->curr);
+		if (WARN_ON_ONCE(!curr)) {
+			rcu_read_unlock();
+			*dst = *src;
+			return;
+		}
+
+		err = kcpustat_cpu_fetch_vtime(dst, src, curr, cpu);
+		rcu_read_unlock();
+
+		if (!err)
+			return;
+
+		cpu_relax();
+	}
+}
+EXPORT_SYMBOL_GPL(kcpustat_cpu_fetch);
+
+>>>>>>> upstream/android-13
 #endif /* CONFIG_VIRT_CPU_ACCOUNTING_GEN */

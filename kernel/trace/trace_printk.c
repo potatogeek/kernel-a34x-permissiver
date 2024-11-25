@@ -6,6 +6,10 @@
  *
  */
 #include <linux/seq_file.h>
+<<<<<<< HEAD
+=======
+#include <linux/security.h>
+>>>>>>> upstream/android-13
 #include <linux/uaccess.h>
 #include <linux/kernel.h>
 #include <linux/ftrace.h>
@@ -18,6 +22,31 @@
 
 #include "trace.h"
 
+<<<<<<< HEAD
+=======
+static noinline void tracing_mark_write(int type, const char *str)
+{
+	if (!tracing_is_on())
+		return;
+
+	switch (type) {
+	case TRACING_MARK_TYPE_BEGIN:
+		trace_printk("B|%d|%s\n", current->tgid, str);
+		break;
+	case TRACING_MARK_TYPE_END:
+		trace_printk("E|%d|%s\n", current->tgid, str);
+		break;
+	default:
+		break;
+	}
+}
+
+void tracing_mark_write_helper(int type, const char *str)
+{
+	tracing_mark_write(type, str);
+}
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_MODULES
 
 /*
@@ -95,7 +124,11 @@ static int module_trace_bprintk_format_notify(struct notifier_block *self,
 		if (val == MODULE_STATE_COMING)
 			hold_module_trace_bprintk_format(start, end);
 	}
+<<<<<<< HEAD
 	return 0;
+=======
+	return NOTIFY_OK;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -115,7 +148,11 @@ static int module_trace_bprintk_format_notify(struct notifier_block *self,
  * section, then we need to read the link list pointers. The trick is
  * we pass the address of the string to the seq function just like
  * we do for the kernel core formats. To get back the structure that
+<<<<<<< HEAD
  * holds the format, we simply use containerof() and then go to the
+=======
+ * holds the format, we simply use container_of() and then go to the
+>>>>>>> upstream/android-13
  * next format in the list.
  */
 static const char **
@@ -173,7 +210,11 @@ __init static int
 module_trace_bprintk_format_notify(struct notifier_block *self,
 		unsigned long val, void *data)
 {
+<<<<<<< HEAD
 	return 0;
+=======
+	return NOTIFY_OK;
+>>>>>>> upstream/android-13
 }
 static inline const char **
 find_next_mod_format(int start_index, void *v, const char **fmt, loff_t *pos)
@@ -250,6 +291,20 @@ int __ftrace_vprintk(unsigned long ip, const char *fmt, va_list ap)
 }
 EXPORT_SYMBOL_GPL(__ftrace_vprintk);
 
+<<<<<<< HEAD
+=======
+bool trace_is_tracepoint_string(const char *str)
+{
+	const char **ptr = __start___tracepoint_str;
+
+	for (ptr = __start___tracepoint_str; ptr < __stop___tracepoint_str; ptr++) {
+		if (str == *ptr)
+			return true;
+	}
+	return false;
+}
+
+>>>>>>> upstream/android-13
 static const char **find_next(void *v, loff_t *pos)
 {
 	const char **fmt = v;
@@ -305,7 +360,11 @@ static int t_show(struct seq_file *m, void *v)
 	if (!*fmt)
 		return 0;
 
+<<<<<<< HEAD
 	seq_printf(m, "0x%pK : \"", *(void **)fmt);
+=======
+	seq_printf(m, "0x%lx : \"", *(unsigned long *)fmt);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Tabs and new lines need to be converted.
@@ -348,6 +407,15 @@ static const struct seq_operations show_format_seq_ops = {
 static int
 ftrace_formats_open(struct inode *inode, struct file *file)
 {
+<<<<<<< HEAD
+=======
+	int ret;
+
+	ret = security_locked_down(LOCKDOWN_TRACEFS);
+	if (ret)
+		return ret;
+
+>>>>>>> upstream/android-13
 	return seq_open(file, &show_format_seq_ops);
 }
 
@@ -360,6 +428,7 @@ static const struct file_operations ftrace_formats_fops = {
 
 static __init int init_trace_printk_function_export(void)
 {
+<<<<<<< HEAD
 	struct dentry *d_tracer;
 
 	d_tracer = tracing_init_dentry();
@@ -367,6 +436,15 @@ static __init int init_trace_printk_function_export(void)
 		return 0;
 
 	trace_create_file("printk_formats", 0444, d_tracer,
+=======
+	int ret;
+
+	ret = tracing_init_dentry();
+	if (ret)
+		return 0;
+
+	trace_create_file("printk_formats", 0444, NULL,
+>>>>>>> upstream/android-13
 				    NULL, &ftrace_formats_fops);
 
 	return 0;

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /* arch/arm/mach-s3c2410/include/mach/debug-macro.S
  *
  * Debugging macro include header
@@ -6,10 +10,13 @@
  *  Copyright (C) 2005 Simtec Electronics
  *
  *  Moved from linux/arch/arm/kernel/debug.S by Ben Dooks
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
 */
 
 #include <linux/serial_s3c.h>

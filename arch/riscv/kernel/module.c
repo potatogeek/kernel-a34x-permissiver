@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -8,6 +9,10 @@
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+>>>>>>> upstream/android-13
  *
  *  Copyright (C) 2017 Zihao Yu
  */
@@ -18,9 +23,28 @@
 #include <linux/moduleloader.h>
 #include <linux/vmalloc.h>
 #include <linux/sizes.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
 #include <asm/sections.h>
 
+=======
+#include <linux/pgtable.h>
+#include <asm/sections.h>
+
+/*
+ * The auipc+jalr instruction pair can reach any PC-relative offset
+ * in the range [-2^31 - 2^11, 2^31 - 2^11)
+ */
+static bool riscv_insn_valid_32bit_offset(ptrdiff_t val)
+{
+#ifdef CONFIG_32BIT
+	return true;
+#else
+	return (-(1L << 31) - (1L << 11)) <= val && val < ((1L << 31) - (1L << 11));
+#endif
+}
+
+>>>>>>> upstream/android-13
 static int apply_r_riscv_32_rela(struct module *me, u32 *location, Elf_Addr v)
 {
 	if (v != (u32)v) {
@@ -103,7 +127,11 @@ static int apply_r_riscv_pcrel_hi20_rela(struct module *me, u32 *location,
 	ptrdiff_t offset = (void *)v - (void *)location;
 	s32 hi20;
 
+<<<<<<< HEAD
 	if (offset != (s32)offset) {
+=======
+	if (!riscv_insn_valid_32bit_offset(offset)) {
+>>>>>>> upstream/android-13
 		pr_err(
 		  "%s: target %016llx can not be addressed by the 32-bit offset from PC = %p\n",
 		  me->name, (long long)v, location);
@@ -145,7 +173,11 @@ static int apply_r_riscv_hi20_rela(struct module *me, u32 *location,
 {
 	s32 hi20;
 
+<<<<<<< HEAD
 	if (IS_ENABLED(CMODEL_MEDLOW)) {
+=======
+	if (IS_ENABLED(CONFIG_CMODEL_MEDLOW)) {
+>>>>>>> upstream/android-13
 		pr_err(
 		  "%s: target %016llx can not be addressed by the 32-bit offset from PC = %p\n",
 		  me->name, (long long)v, location);
@@ -205,10 +237,16 @@ static int apply_r_riscv_call_plt_rela(struct module *me, u32 *location,
 				       Elf_Addr v)
 {
 	ptrdiff_t offset = (void *)v - (void *)location;
+<<<<<<< HEAD
 	s32 fill_v = offset;
 	u32 hi20, lo12;
 
 	if (offset != fill_v) {
+=======
+	u32 hi20, lo12;
+
+	if (!riscv_insn_valid_32bit_offset(offset)) {
+>>>>>>> upstream/android-13
 		/* Only emit the plt entry if offset over 32-bit range */
 		if (IS_ENABLED(CONFIG_MODULE_SECTIONS)) {
 			offset = module_emit_plt_entry(me, v);
@@ -232,10 +270,16 @@ static int apply_r_riscv_call_rela(struct module *me, u32 *location,
 				   Elf_Addr v)
 {
 	ptrdiff_t offset = (void *)v - (void *)location;
+<<<<<<< HEAD
 	s32 fill_v = offset;
 	u32 hi20, lo12;
 
 	if (offset != fill_v) {
+=======
+	u32 hi20, lo12;
+
+	if (!riscv_insn_valid_32bit_offset(offset)) {
+>>>>>>> upstream/android-13
 		pr_err(
 		  "%s: target %016llx can not be addressed by the 32-bit offset from PC = %p\n",
 		  me->name, (long long)v, location);
@@ -271,6 +315,16 @@ static int apply_r_riscv_add32_rela(struct module *me, u32 *location,
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static int apply_r_riscv_add64_rela(struct module *me, u32 *location,
+				    Elf_Addr v)
+{
+	*(u64 *)location += (u64)v;
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static int apply_r_riscv_sub32_rela(struct module *me, u32 *location,
 				    Elf_Addr v)
 {
@@ -278,6 +332,16 @@ static int apply_r_riscv_sub32_rela(struct module *me, u32 *location,
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static int apply_r_riscv_sub64_rela(struct module *me, u32 *location,
+				    Elf_Addr v)
+{
+	*(u64 *)location -= (u64)v;
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static int (*reloc_handlers_rela[]) (struct module *me, u32 *location,
 				Elf_Addr v) = {
 	[R_RISCV_32]			= apply_r_riscv_32_rela,
@@ -298,7 +362,13 @@ static int (*reloc_handlers_rela[]) (struct module *me, u32 *location,
 	[R_RISCV_RELAX]			= apply_r_riscv_relax_rela,
 	[R_RISCV_ALIGN]			= apply_r_riscv_align_rela,
 	[R_RISCV_ADD32]			= apply_r_riscv_add32_rela,
+<<<<<<< HEAD
 	[R_RISCV_SUB32]			= apply_r_riscv_sub32_rela,
+=======
+	[R_RISCV_ADD64]			= apply_r_riscv_add64_rela,
+	[R_RISCV_SUB32]			= apply_r_riscv_sub32_rela,
+	[R_RISCV_SUB64]			= apply_r_riscv_sub64_rela,
+>>>>>>> upstream/android-13
 };
 
 int apply_relocate_add(Elf_Shdr *sechdrs, const char *strtab,
@@ -327,8 +397,13 @@ int apply_relocate_add(Elf_Shdr *sechdrs, const char *strtab,
 			/* Ignore unresolved weak symbol */
 			if (ELF_ST_BIND(sym->st_info) == STB_WEAK)
 				continue;
+<<<<<<< HEAD
 			pr_warning("%s: Unknown symbol %s\n",
 				   me->name, strtab + sym->st_name);
+=======
+			pr_warn("%s: Unknown symbol %s\n",
+				me->name, strtab + sym->st_name);
+>>>>>>> upstream/android-13
 			return -ENOENT;
 		}
 
@@ -400,6 +475,7 @@ int apply_relocate_add(Elf_Shdr *sechdrs, const char *strtab,
 }
 
 #if defined(CONFIG_MMU) && defined(CONFIG_64BIT)
+<<<<<<< HEAD
 #define VMALLOC_MODULE_START \
 	 max(PFN_ALIGN((unsigned long)&_end - SZ_2G), VMALLOC_START)
 void *module_alloc(unsigned long size)
@@ -407,6 +483,13 @@ void *module_alloc(unsigned long size)
 	return __vmalloc_node_range(size, 1, VMALLOC_MODULE_START,
 				    VMALLOC_END, GFP_KERNEL,
 				    PAGE_KERNEL_EXEC, 0, NUMA_NO_NODE,
+=======
+void *module_alloc(unsigned long size)
+{
+	return __vmalloc_node_range(size, 1, MODULES_VADDR,
+				    MODULES_END, GFP_KERNEL,
+				    PAGE_KERNEL, 0, NUMA_NO_NODE,
+>>>>>>> upstream/android-13
 				    __builtin_return_address(0));
 }
 #endif

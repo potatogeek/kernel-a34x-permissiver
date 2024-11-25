@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /* SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note */
+=======
+/* SPDX-License-Identifier: GPL-2.0-only WITH Linux-syscall-note */
+>>>>>>> upstream/android-13
 /*
  * linux/can/netlink.h
  *
@@ -40,15 +44,25 @@ struct can_bittiming {
 };
 
 /*
+<<<<<<< HEAD
  * CAN harware-dependent bit-timing constant
+=======
+ * CAN hardware-dependent bit-timing constant
+>>>>>>> upstream/android-13
  *
  * Used for calculating and checking bit-timing parameters
  */
 struct can_bittiming_const {
 	char name[16];		/* Name of the CAN controller hardware */
+<<<<<<< HEAD
 	__u32 tseg1_min;	/* Time segement 1 = prop_seg + phase_seg1 */
 	__u32 tseg1_max;
 	__u32 tseg2_min;	/* Time segement 2 = phase_seg2 */
+=======
+	__u32 tseg1_min;	/* Time segment 1 = prop_seg + phase_seg1 */
+	__u32 tseg1_max;
+	__u32 tseg2_min;	/* Time segment 2 = phase_seg2 */
+>>>>>>> upstream/android-13
 	__u32 tseg2_max;
 	__u32 sjw_max;		/* Synchronisation jump width */
 	__u32 brp_min;		/* Bit-rate prescaler */
@@ -100,6 +114,10 @@ struct can_ctrlmode {
 #define CAN_CTRLMODE_FD			0x20	/* CAN FD mode */
 #define CAN_CTRLMODE_PRESUME_ACK	0x40	/* Ignore missing CAN ACKs */
 #define CAN_CTRLMODE_FD_NON_ISO		0x80	/* CAN FD in non-ISO mode */
+<<<<<<< HEAD
+=======
+#define CAN_CTRLMODE_CC_LEN8_DLC	0x100	/* Classic CAN DLC option */
+>>>>>>> upstream/android-13
 
 /*
  * CAN device statistics

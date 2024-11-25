@@ -161,9 +161,17 @@
 			};
 
 			timer2: dual-timer@2000 {
+<<<<<<< HEAD
 				compatible = "arm,sp804";
 				reg = <0x2000 0x1000>;
 				clocks = <&sysclk>;
+=======
+				compatible = "arm,sp804", "arm,primecell";
+				reg = <0x2000 0x1000>;
+				clocks = <&sysclk>, <&sysclk>, <&sysclk>;
+				clock-names = "timer0clk", "timer1clk",
+					       "apb_pclk";
+>>>>>>> upstream/android-13
 				interrupts = <10>;
 				status = "disabled";
 			};
@@ -171,7 +179,11 @@
 			uart0: serial@4000 {
 				compatible = "arm,mps2-uart";
 				reg = <0x4000 0x1000>;
+<<<<<<< HEAD
 				interrupts = <0 1 12>;
+=======
+				interrupts = <0>, <1>, <12>;
+>>>>>>> upstream/android-13
 				clocks = <&sysclk>;
 				status = "disabled";
 			};
@@ -179,7 +191,11 @@
 			uart1: serial@5000 {
 				compatible = "arm,mps2-uart";
 				reg = <0x5000 0x1000>;
+<<<<<<< HEAD
 				interrupts = <2 3 12>;
+=======
+				interrupts = <2>, <3>, <12>;
+>>>>>>> upstream/android-13
 				clocks = <&sysclk>;
 				status = "disabled";
 			};
@@ -187,7 +203,11 @@
 			uart2: serial@6000 {
 				compatible = "arm,mps2-uart";
 				reg = <0x6000 0x1000>;
+<<<<<<< HEAD
 				interrupts = <4 5 12>;
+=======
+				interrupts = <4>, <5>, <12>;
+>>>>>>> upstream/android-13
 				clocks = <&sysclk>;
 				status = "disabled";
 			};
@@ -197,8 +217,13 @@
 				arm,primecell-periphid = <0x00141805>;
 				reg = <0x8000 0x1000>;
 				interrupts = <0>;
+<<<<<<< HEAD
 				clocks = <&sysclk>;
 				clock-names = "apb_pclk";
+=======
+				clocks = <&sysclk>, <&sysclk>;
+				clock-names = "wdog_clk", "apb_pclk";
+>>>>>>> upstream/android-13
 				status = "disabled";
 			};
 		};

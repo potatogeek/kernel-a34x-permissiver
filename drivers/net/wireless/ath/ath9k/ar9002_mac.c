@@ -267,7 +267,11 @@ ar9002_set_txdesc(struct ath_hw *ah, void *ds, struct ath_tx_info *i)
 	switch (i->aggr) {
 	case AGGR_BUF_FIRST:
 		ctl6 |= SM(i->aggr_len, AR_AggrLen);
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case AGGR_BUF_MIDDLE:
 		ctl1 |= AR_IsAggr | AR_MoreAggr;
 		ctl6 |= SM(i->ndelim, AR_PadDelim);

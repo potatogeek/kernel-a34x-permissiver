@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  Copyright (C) 2000 Russell King
  *
@@ -5,6 +6,13 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  */
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ *  Copyright (C) 2000 Russell King
+ */
+#include <asm/vmlinux.lds.h>
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_CPU_ENDIAN_BE8
 #define ZIMAGE_MAGIC(x) ( (((x) >> 24) & 0x000000ff) | \
@@ -20,8 +28,16 @@ ENTRY(_start)
 SECTIONS
 {
   /DISCARD/ : {
+<<<<<<< HEAD
     *(.ARM.exidx*)
     *(.ARM.extab*)
+=======
+    COMMON_DISCARDS
+    *(.ARM.exidx*)
+    *(.ARM.extab*)
+    *(.note.*)
+    *(.rel.*)
+>>>>>>> upstream/android-13
     /*
      * Discard any r/w data - this produces a link error if we have any,
      * which is required for PIC decompression.  Local data generates
@@ -39,6 +55,7 @@ SECTIONS
     *(.start)
     *(.text)
     *(.text.*)
+<<<<<<< HEAD
     *(.fixup)
     *(.gnu.warning)
     *(.glue_7t)
@@ -50,6 +67,18 @@ SECTIONS
     LONG(ZIMAGE_MAGIC(0x5a534c4b))
     LONG(ZIMAGE_MAGIC(__piggy_size_addr - _start))
     LONG(ZIMAGE_MAGIC(_kernel_bss_size))
+=======
+    ARM_STUBS_TEXT
+  }
+  .table : ALIGN(4) {
+    _table_start = .;
+    LONG(ZIMAGE_MAGIC(6))
+    LONG(ZIMAGE_MAGIC(0x5a534c4b))
+    LONG(ZIMAGE_MAGIC(__piggy_size_addr - _start))
+    LONG(ZIMAGE_MAGIC(_kernel_bss_size))
+    LONG(ZIMAGE_MAGIC(TEXT_OFFSET))
+    LONG(ZIMAGE_MAGIC(MALLOC_SIZE))
+>>>>>>> upstream/android-13
     LONG(0)
     _table_end = .;
   }
@@ -67,9 +96,17 @@ SECTIONS
   _etext = .;
 
   .got.plt		: { *(.got.plt) }
+<<<<<<< HEAD
   _got_start = .;
   .got			: { *(.got) }
   _got_end = .;
+=======
+#ifndef CONFIG_EFI_STUB
+  _got_start = .;
+  .got			: { *(.got) }
+  _got_end = .;
+#endif
+>>>>>>> upstream/android-13
 
   /* ensure the zImage file size is always a multiple of 64 bits */
   /* (without a dummy byte, ld just ignores the empty section) */
@@ -78,11 +115,21 @@ SECTIONS
 #ifdef CONFIG_EFI_STUB
   .data : ALIGN(4096) {
     __pecoff_data_start = .;
+<<<<<<< HEAD
+=======
+    _got_start = .;
+    *(.got)
+    _got_end = .;
+>>>>>>> upstream/android-13
     /*
      * The EFI stub always executes from RAM, and runs strictly before the
      * decompressor, so we can make an exception for its r/w data, and keep it
      */
+<<<<<<< HEAD
     *(.data.efistub)
+=======
+    *(.data.efistub .bss.efistub)
+>>>>>>> upstream/android-13
     __pecoff_data_end = .;
 
     /*
@@ -127,6 +174,7 @@ SECTIONS
   PROVIDE(__pecoff_data_size = ALIGN(512) - ADDR(.data));
   PROVIDE(__pecoff_end = ALIGN(512));
 
+<<<<<<< HEAD
   .stab 0		: { *(.stab) }
   .stabstr 0		: { *(.stabstr) }
   .stab.excl 0		: { *(.stab.excl) }
@@ -134,5 +182,12 @@ SECTIONS
   .stab.index 0		: { *(.stab.index) }
   .stab.indexstr 0	: { *(.stab.indexstr) }
   .comment 0		: { *(.comment) }
+=======
+  STABS_DEBUG
+  DWARF_DEBUG
+  ARM_DETAILS
+
+  ARM_ASSERTS
+>>>>>>> upstream/android-13
 }
 ASSERT(_edata_real == _edata, "error: zImage file size is incorrect");

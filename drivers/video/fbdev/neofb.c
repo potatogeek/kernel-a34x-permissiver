@@ -70,7 +70,10 @@
 
 #include <asm/io.h>
 #include <asm/irq.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <video/vga.h>
 #include <video/neomagic.h>
 
@@ -586,7 +589,11 @@ neofb_check_var(struct fb_var_screeninfo *var, struct fb_info *info)
 
 	DBG("neofb_check_var");
 
+<<<<<<< HEAD
 	if (PICOS2KHZ(var->pixclock) > par->maxClock)
+=======
+	if (var->pixclock && PICOS2KHZ(var->pixclock) > par->maxClock)
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	/* Is the mode larger than the LCD panel? */
@@ -1610,7 +1617,11 @@ neofb_cursor(struct fb_info *info, struct fb_cursor *cursor)
 }
 */
 
+<<<<<<< HEAD
 static struct fb_ops neofb_ops = {
+=======
+static const struct fb_ops neofb_ops = {
+>>>>>>> upstream/android-13
 	.owner		= THIS_MODULE,
 	.fb_open	= neofb_open,
 	.fb_release	= neofb_release,
@@ -1844,7 +1855,10 @@ static int neo_init_hw(struct fb_info *info)
 	struct neofb_par *par = info->par;
 	int videoRam = 896;
 	int maxClock = 65000;
+<<<<<<< HEAD
 	int CursorMem = 1024;
+=======
+>>>>>>> upstream/android-13
 	int CursorOff = 0x100;
 
 	DBG("neo_init_hw");
@@ -1896,19 +1910,28 @@ static int neo_init_hw(struct fb_info *info)
 	case FB_ACCEL_NEOMAGIC_NM2070:
 	case FB_ACCEL_NEOMAGIC_NM2090:
 	case FB_ACCEL_NEOMAGIC_NM2093:
+<<<<<<< HEAD
 		CursorMem = 2048;
+=======
+>>>>>>> upstream/android-13
 		CursorOff = 0x100;
 		break;
 	case FB_ACCEL_NEOMAGIC_NM2097:
 	case FB_ACCEL_NEOMAGIC_NM2160:
+<<<<<<< HEAD
 		CursorMem = 1024;
+=======
+>>>>>>> upstream/android-13
 		CursorOff = 0x100;
 		break;
 	case FB_ACCEL_NEOMAGIC_NM2200:
 	case FB_ACCEL_NEOMAGIC_NM2230:
 	case FB_ACCEL_NEOMAGIC_NM2360:
 	case FB_ACCEL_NEOMAGIC_NM2380:
+<<<<<<< HEAD
 		CursorMem = 1024;
+=======
+>>>>>>> upstream/android-13
 		CursorOff = 0x1000;
 
 		par->neo2200 = (Neo2200 __iomem *) par->mmio_vbase;
@@ -2123,6 +2146,7 @@ static void neofb_remove(struct pci_dev *dev)
 	DBG("neofb_remove");
 
 	if (info) {
+<<<<<<< HEAD
 		/*
 		 * If unregister_framebuffer fails, then
 		 * we will be leaving hooks that could cause
@@ -2131,6 +2155,9 @@ static void neofb_remove(struct pci_dev *dev)
 		if (unregister_framebuffer(info))
 			printk(KERN_WARNING
 			       "neofb: danger danger!  Oopsen imminent!\n");
+=======
+		unregister_framebuffer(info);
+>>>>>>> upstream/android-13
 
 		neo_unmap_video(info);
 		fb_destroy_modedb(info->monspecs.modedb);

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * wm8971.c  --  WM8971 ALSA SoC Audio driver
  *
@@ -6,11 +10,14 @@
  * Author: Kenneth Kiraly <kiraly@lab126.com>
  *
  * Based on wm8753.c by Liam Girdwood
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute  it and/or modify it
  *  under  the terms of  the GNU General  Public License as published by the
  *  Free Software Foundation;  either version 2 of the  License, or (at your
  *  option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -512,8 +519,13 @@ static int wm8971_pcm_hw_params(struct snd_pcm_substream *substream,
 {
 	struct snd_soc_component *component = dai->component;
 	struct wm8971_priv *wm8971 = snd_soc_component_get_drvdata(component);
+<<<<<<< HEAD
 	u16 iface = snd_soc_component_read32(component, WM8971_IFACE) & 0x1f3;
 	u16 srate = snd_soc_component_read32(component, WM8971_SRATE) & 0x1c0;
+=======
+	u16 iface = snd_soc_component_read(component, WM8971_IFACE) & 0x1f3;
+	u16 srate = snd_soc_component_read(component, WM8971_SRATE) & 0x1c0;
+>>>>>>> upstream/android-13
 	int coeff = get_coeff(wm8971->sysclk, params_rate(params));
 
 	/* bit size */
@@ -540,10 +552,17 @@ static int wm8971_pcm_hw_params(struct snd_pcm_substream *substream,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int wm8971_mute(struct snd_soc_dai *dai, int mute)
 {
 	struct snd_soc_component *component = dai->component;
 	u16 mute_reg = snd_soc_component_read32(component, WM8971_ADCDAC) & 0xfff7;
+=======
+static int wm8971_mute(struct snd_soc_dai *dai, int mute, int direction)
+{
+	struct snd_soc_component *component = dai->component;
+	u16 mute_reg = snd_soc_component_read(component, WM8971_ADCDAC) & 0xfff7;
+>>>>>>> upstream/android-13
 
 	if (mute)
 		snd_soc_component_write(component, WM8971_ADCDAC, mute_reg | 0x8);
@@ -565,7 +584,11 @@ static int wm8971_set_bias_level(struct snd_soc_component *component,
 	enum snd_soc_bias_level level)
 {
 	struct wm8971_priv *wm8971 = snd_soc_component_get_drvdata(component);
+<<<<<<< HEAD
 	u16 pwr_reg = snd_soc_component_read32(component, WM8971_PWR1) & 0xfe3e;
+=======
+	u16 pwr_reg = snd_soc_component_read(component, WM8971_PWR1) & 0xfe3e;
+>>>>>>> upstream/android-13
 
 	switch (level) {
 	case SND_SOC_BIAS_ON:
@@ -606,9 +629,16 @@ static int wm8971_set_bias_level(struct snd_soc_component *component,
 
 static const struct snd_soc_dai_ops wm8971_dai_ops = {
 	.hw_params	= wm8971_pcm_hw_params,
+<<<<<<< HEAD
 	.digital_mute	= wm8971_mute,
 	.set_fmt	= wm8971_set_dai_fmt,
 	.set_sysclk	= wm8971_set_dai_sysclk,
+=======
+	.mute_stream	= wm8971_mute,
+	.set_fmt	= wm8971_set_dai_fmt,
+	.set_sysclk	= wm8971_set_dai_sysclk,
+	.no_capture_mute = 1,
+>>>>>>> upstream/android-13
 };
 
 static struct snd_soc_dai_driver wm8971_dai = {

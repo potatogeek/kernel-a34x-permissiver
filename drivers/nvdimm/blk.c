@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * NVDIMM Block Window Driver
  * Copyright (c) 2014, Intel Corporation.
@@ -10,6 +11,12 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * NVDIMM Block Window Driver
+ * Copyright (c) 2014, Intel Corporation.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/blkdev.h>
@@ -170,10 +177,17 @@ static int nsblk_do_bvec(struct nd_namespace_blk *nsblk,
 	return err;
 }
 
+<<<<<<< HEAD
 static blk_qc_t nd_blk_make_request(struct request_queue *q, struct bio *bio)
 {
 	struct bio_integrity_payload *bip;
 	struct nd_namespace_blk *nsblk;
+=======
+static blk_qc_t nd_blk_submit_bio(struct bio *bio)
+{
+	struct bio_integrity_payload *bip;
+	struct nd_namespace_blk *nsblk = bio->bi_bdev->bd_disk->private_data;
+>>>>>>> upstream/android-13
 	struct bvec_iter iter;
 	unsigned long start;
 	struct bio_vec bvec;
@@ -184,9 +198,16 @@ static blk_qc_t nd_blk_make_request(struct request_queue *q, struct bio *bio)
 		return BLK_QC_T_NONE;
 
 	bip = bio_integrity(bio);
+<<<<<<< HEAD
 	nsblk = q->queuedata;
 	rw = bio_data_dir(bio);
 	do_acct = nd_iostat_start(bio, &start);
+=======
+	rw = bio_data_dir(bio);
+	do_acct = blk_queue_io_stat(bio->bi_bdev->bd_disk->queue);
+	if (do_acct)
+		start = bio_start_io_acct(bio);
+>>>>>>> upstream/android-13
 	bio_for_each_segment(bvec, bio, iter) {
 		unsigned int len = bvec.bv_len;
 
@@ -203,7 +224,11 @@ static blk_qc_t nd_blk_make_request(struct request_queue *q, struct bio *bio)
 		}
 	}
 	if (do_acct)
+<<<<<<< HEAD
 		nd_iostat_end(bio, start);
+=======
+		bio_end_io_acct(bio, start);
+>>>>>>> upstream/android-13
 
 	bio_endio(bio);
 	return BLK_QC_T_NONE;
@@ -232,6 +257,7 @@ static int nsblk_rw_bytes(struct nd_namespace_common *ndns,
 
 static const struct block_device_operations nd_blk_fops = {
 	.owner = THIS_MODULE,
+<<<<<<< HEAD
 	.revalidate_disk = nvdimm_revalidate_disk,
 };
 
@@ -244,19 +270,32 @@ static void nd_blk_release_disk(void *disk)
 {
 	del_gendisk(disk);
 	put_disk(disk);
+=======
+	.submit_bio =  nd_blk_submit_bio,
+};
+
+static void nd_blk_release_disk(void *disk)
+{
+	del_gendisk(disk);
+	blk_cleanup_disk(disk);
+>>>>>>> upstream/android-13
 }
 
 static int nsblk_attach_disk(struct nd_namespace_blk *nsblk)
 {
 	struct device *dev = &nsblk->common.dev;
 	resource_size_t available_disk_size;
+<<<<<<< HEAD
 	struct request_queue *q;
+=======
+>>>>>>> upstream/android-13
 	struct gendisk *disk;
 	u64 internal_nlba;
 
 	internal_nlba = div_u64(nsblk->size, nsblk_internal_lbasize(nsblk));
 	available_disk_size = internal_nlba * nsblk_sector_size(nsblk);
 
+<<<<<<< HEAD
 	q = blk_alloc_queue(GFP_KERNEL);
 	if (!q)
 		return -ENOMEM;
@@ -279,6 +318,20 @@ static int nsblk_attach_disk(struct nd_namespace_blk *nsblk)
 	disk->flags		= GENHD_FL_EXT_DEVT;
 	nvdimm_namespace_disk_name(&nsblk->common, disk->disk_name);
 
+=======
+	disk = blk_alloc_disk(NUMA_NO_NODE);
+	if (!disk)
+		return -ENOMEM;
+
+	disk->fops		= &nd_blk_fops;
+	disk->private_data	= nsblk;
+	nvdimm_namespace_disk_name(&nsblk->common, disk->disk_name);
+
+	blk_queue_max_hw_sectors(disk->queue, UINT_MAX);
+	blk_queue_logical_block_size(disk->queue, nsblk_sector_size(nsblk));
+	blk_queue_flag_set(QUEUE_FLAG_NONROT, disk->queue);
+
+>>>>>>> upstream/android-13
 	if (devm_add_action_or_reset(dev, nd_blk_release_disk, disk))
 		return -ENOMEM;
 
@@ -290,8 +343,13 @@ static int nsblk_attach_disk(struct nd_namespace_blk *nsblk)
 	}
 
 	set_capacity(disk, available_disk_size >> SECTOR_SHIFT);
+<<<<<<< HEAD
 	device_add_disk(dev, disk);
 	revalidate_disk(disk);
+=======
+	device_add_disk(dev, disk, NULL);
+	nvdimm_check_and_set_ro(disk);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -318,11 +376,18 @@ static int nd_blk_probe(struct device *dev)
 		return nsblk_attach_disk(nsblk);
 }
 
+<<<<<<< HEAD
 static int nd_blk_remove(struct device *dev)
 {
 	if (is_nd_btt(dev))
 		nvdimm_namespace_detach_btt(to_nd_btt(dev));
 	return 0;
+=======
+static void nd_blk_remove(struct device *dev)
+{
+	if (is_nd_btt(dev))
+		nvdimm_namespace_detach_btt(to_nd_btt(dev));
+>>>>>>> upstream/android-13
 }
 
 static struct nd_device_driver nd_blk_driver = {

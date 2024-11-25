@@ -28,6 +28,7 @@
  *    Jerome Glisse <glisse@freedesktop.org>
  *    Dave Airlie
  */
+<<<<<<< HEAD
 #include <linux/seq_file.h>
 #include <linux/atomic.h>
 #include <linux/wait.h>
@@ -37,6 +38,22 @@
 #include <drm/drmP.h>
 #include "radeon_reg.h"
 #include "radeon.h"
+=======
+
+#include <linux/atomic.h>
+#include <linux/firmware.h>
+#include <linux/kref.h>
+#include <linux/sched/signal.h>
+#include <linux/seq_file.h>
+#include <linux/slab.h>
+#include <linux/wait.h>
+
+#include <drm/drm_device.h>
+#include <drm/drm_file.h>
+
+#include "radeon.h"
+#include "radeon_reg.h"
+>>>>>>> upstream/android-13
 #include "radeon_trace.h"
 
 /*
@@ -45,7 +62,11 @@
  * for GPU/CPU synchronization.  When the fence is written,
  * it is expected that all buffers associated with that fence
  * are no longer in use by the associated ring on the GPU and
+<<<<<<< HEAD
  * that the the relevant GPU caches have been flushed.  Whether
+=======
+ * that the relevant GPU caches have been flushed.  Whether
+>>>>>>> upstream/android-13
  * we use a scratch register or memory location depends on the asic
  * and whether writeback is enabled.
  */
@@ -151,7 +172,11 @@ int radeon_fence_emit(struct radeon_device *rdev,
 	return 0;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * radeon_fence_check_signaled - callback from fence_queue
  *
  * this function is called with fence_queue lock held, which is also used
@@ -283,7 +308,11 @@ static void radeon_fence_check_lockup(struct work_struct *work)
 		return;
 	}
 
+<<<<<<< HEAD
 	if (fence_drv->delayed_irq && rdev->ddev->irq_enabled) {
+=======
+	if (fence_drv->delayed_irq && rdev->irq.installed) {
+>>>>>>> upstream/android-13
 		unsigned long irqflags;
 
 		fence_drv->delayed_irq = false;
@@ -377,7 +406,11 @@ static bool radeon_fence_is_signaled(struct dma_fence *f)
 
 /**
  * radeon_fence_enable_signaling - enable signalling on fence
+<<<<<<< HEAD
  * @fence: fence
+=======
+ * @f: fence
+>>>>>>> upstream/android-13
  *
  * This function is called with fence_queue lock held, and adds a callback
  * to fence_queue that checks if this fence is signaled, and if so it
@@ -859,8 +892,13 @@ int radeon_fence_driver_start_ring(struct radeon_device *rdev, int ring)
 	}
 	radeon_fence_write(rdev, atomic64_read(&rdev->fence_drv[ring].last_seq), ring);
 	rdev->fence_drv[ring].initialized = true;
+<<<<<<< HEAD
 	dev_info(rdev->dev, "fence driver on ring %d use gpu addr 0x%016llx and cpu addr 0x%p\n",
 		 ring, rdev->fence_drv[ring].gpu_addr, rdev->fence_drv[ring].cpu_addr);
+=======
+	dev_info(rdev->dev, "fence driver on ring %d use gpu addr 0x%016llx\n",
+		 ring, rdev->fence_drv[ring].gpu_addr);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -900,9 +938,14 @@ static void radeon_fence_driver_init_ring(struct radeon_device *rdev, int ring)
  * Not all asics have all rings, so each asic will only
  * start the fence driver on the rings it has using
  * radeon_fence_driver_start_ring().
+<<<<<<< HEAD
  * Returns 0 for success.
  */
 int radeon_fence_driver_init(struct radeon_device *rdev)
+=======
+ */
+void radeon_fence_driver_init(struct radeon_device *rdev)
+>>>>>>> upstream/android-13
 {
 	int ring;
 
@@ -910,10 +953,15 @@ int radeon_fence_driver_init(struct radeon_device *rdev)
 	for (ring = 0; ring < RADEON_NUM_RINGS; ring++) {
 		radeon_fence_driver_init_ring(rdev, ring);
 	}
+<<<<<<< HEAD
 	if (radeon_debugfs_fence_init(rdev)) {
 		dev_err(rdev->dev, "fence debugfs file creation failed\n");
 	}
 	return 0;
+=======
+
+	radeon_debugfs_fence_init(rdev);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -967,11 +1015,17 @@ void radeon_fence_driver_force_completion(struct radeon_device *rdev, int ring)
  * Fence debugfs
  */
 #if defined(CONFIG_DEBUG_FS)
+<<<<<<< HEAD
 static int radeon_debugfs_fence_info(struct seq_file *m, void *data)
 {
 	struct drm_info_node *node = (struct drm_info_node *)m->private;
 	struct drm_device *dev = node->minor->dev;
 	struct radeon_device *rdev = dev->dev_private;
+=======
+static int radeon_debugfs_fence_info_show(struct seq_file *m, void *data)
+{
+	struct radeon_device *rdev = (struct radeon_device *)m->private;
+>>>>>>> upstream/android-13
 	int i, j;
 
 	for (i = 0; i < RADEON_NUM_RINGS; ++i) {
@@ -995,11 +1049,16 @@ static int radeon_debugfs_fence_info(struct seq_file *m, void *data)
 	return 0;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * radeon_debugfs_gpu_reset - manually trigger a gpu reset
  *
  * Manually trigger a gpu reset at the next fence wait.
  */
+<<<<<<< HEAD
 static int radeon_debugfs_gpu_reset(struct seq_file *m, void *data)
 {
 	struct drm_info_node *node = (struct drm_info_node *) m->private;
@@ -1008,12 +1067,21 @@ static int radeon_debugfs_gpu_reset(struct seq_file *m, void *data)
 
 	down_read(&rdev->exclusive_lock);
 	seq_printf(m, "%d\n", rdev->needs_reset);
+=======
+static int radeon_debugfs_gpu_reset(void *data, u64 *val)
+{
+	struct radeon_device *rdev = (struct radeon_device *)data;
+
+	down_read(&rdev->exclusive_lock);
+	*val = rdev->needs_reset;
+>>>>>>> upstream/android-13
 	rdev->needs_reset = true;
 	wake_up_all(&rdev->fence_queue);
 	up_read(&rdev->exclusive_lock);
 
 	return 0;
 }
+<<<<<<< HEAD
 
 static struct drm_info_list radeon_debugfs_fence_list[] = {
 	{"radeon_fence_info", &radeon_debugfs_fence_info, 0, NULL},
@@ -1027,6 +1095,24 @@ int radeon_debugfs_fence_init(struct radeon_device *rdev)
 	return radeon_debugfs_add_files(rdev, radeon_debugfs_fence_list, 2);
 #else
 	return 0;
+=======
+DEFINE_SHOW_ATTRIBUTE(radeon_debugfs_fence_info);
+DEFINE_DEBUGFS_ATTRIBUTE(radeon_debugfs_gpu_reset_fops,
+			 radeon_debugfs_gpu_reset, NULL, "%lld\n");
+#endif
+
+void radeon_debugfs_fence_init(struct radeon_device *rdev)
+{
+#if defined(CONFIG_DEBUG_FS)
+	struct dentry *root = rdev->ddev->primary->debugfs_root;
+
+	debugfs_create_file("radeon_gpu_reset", 0444, root, rdev,
+			    &radeon_debugfs_gpu_reset_fops);
+	debugfs_create_file("radeon_fence_info", 0444, root, rdev,
+			    &radeon_debugfs_fence_info_fops);
+
+
+>>>>>>> upstream/android-13
 #endif
 }
 

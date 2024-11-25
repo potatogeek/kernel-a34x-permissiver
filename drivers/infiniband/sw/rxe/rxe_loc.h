@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2016 Mellanox Technologies Ltd. All rights reserved.
  * Copyright (c) 2015 System Fabric Works, Inc. All rights reserved.
@@ -29,12 +30,22 @@
  * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
+=======
+/* SPDX-License-Identifier: GPL-2.0 OR Linux-OpenIB */
+/*
+ * Copyright (c) 2016 Mellanox Technologies Ltd. All rights reserved.
+ * Copyright (c) 2015 System Fabric Works, Inc. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #ifndef RXE_LOC_H
 #define RXE_LOC_H
 
 /* rxe_av.c */
+<<<<<<< HEAD
+=======
+void rxe_init_av(struct rdma_ah_attr *attr, struct rxe_av *av);
+>>>>>>> upstream/android-13
 
 int rxe_av_chk_attr(struct rxe_dev *rxe, struct rdma_ah_attr *attr);
 
@@ -52,11 +63,20 @@ int rxe_cq_chk_attr(struct rxe_dev *rxe, struct rxe_cq *cq,
 		    int cqe, int comp_vector);
 
 int rxe_cq_from_init(struct rxe_dev *rxe, struct rxe_cq *cq, int cqe,
+<<<<<<< HEAD
 		     int comp_vector, struct ib_ucontext *context,
 		     struct rxe_create_cq_resp __user *uresp);
 
 int rxe_cq_resize_queue(struct rxe_cq *cq, int new_cqe,
 			struct rxe_resize_cq_resp __user *uresp);
+=======
+		     int comp_vector, struct ib_udata *udata,
+		     struct rxe_create_cq_resp __user *uresp);
+
+int rxe_cq_resize_queue(struct rxe_cq *cq, int new_cqe,
+			struct rxe_resize_cq_resp __user *uresp,
+			struct ib_udata *udata);
+>>>>>>> upstream/android-13
 
 int rxe_cq_post(struct rxe_cq *cq, struct rxe_cqe *cqe, int solicited);
 
@@ -90,14 +110,20 @@ struct rxe_mmap_info {
 
 void rxe_mmap_release(struct kref *ref);
 
+<<<<<<< HEAD
 struct rxe_mmap_info *rxe_create_mmap_info(struct rxe_dev *dev,
 					   u32 size,
 					   struct ib_ucontext *context,
 					   void *obj);
+=======
+struct rxe_mmap_info *rxe_create_mmap_info(struct rxe_dev *dev, u32 size,
+					   struct ib_udata *udata, void *obj);
+>>>>>>> upstream/android-13
 
 int rxe_mmap(struct ib_ucontext *context, struct vm_area_struct *vma);
 
 /* rxe_mr.c */
+<<<<<<< HEAD
 enum copy_direction {
 	to_mem_obj,
 	from_mem_obj,
@@ -149,6 +175,42 @@ int rxe_prepare(struct rxe_dev *rxe, struct rxe_pkt_info *pkt,
 enum rdma_link_layer rxe_link_layer(struct rxe_dev *rxe, unsigned int port_num);
 const char *rxe_parent_name(struct rxe_dev *rxe, unsigned int port_num);
 struct device *rxe_dma_device(struct rxe_dev *rxe);
+=======
+u8 rxe_get_next_key(u32 last_key);
+void rxe_mr_init_dma(struct rxe_pd *pd, int access, struct rxe_mr *mr);
+int rxe_mr_init_user(struct rxe_pd *pd, u64 start, u64 length, u64 iova,
+		     int access, struct rxe_mr *mr);
+int rxe_mr_init_fast(struct rxe_pd *pd, int max_pages, struct rxe_mr *mr);
+int rxe_mr_copy(struct rxe_mr *mr, u64 iova, void *addr, int length,
+		enum rxe_mr_copy_dir dir);
+int copy_data(struct rxe_pd *pd, int access, struct rxe_dma_info *dma,
+	      void *addr, int length, enum rxe_mr_copy_dir dir);
+void *iova_to_vaddr(struct rxe_mr *mr, u64 iova, int length);
+struct rxe_mr *lookup_mr(struct rxe_pd *pd, int access, u32 key,
+			 enum rxe_mr_lookup_type type);
+int mr_check_range(struct rxe_mr *mr, u64 iova, size_t length);
+int advance_dma_data(struct rxe_dma_info *dma, unsigned int length);
+int rxe_invalidate_mr(struct rxe_qp *qp, u32 rkey);
+int rxe_reg_fast_mr(struct rxe_qp *qp, struct rxe_send_wqe *wqe);
+int rxe_dereg_mr(struct ib_mr *ibmr, struct ib_udata *udata);
+void rxe_mr_cleanup(struct rxe_pool_entry *arg);
+
+/* rxe_mw.c */
+int rxe_alloc_mw(struct ib_mw *ibmw, struct ib_udata *udata);
+int rxe_dealloc_mw(struct ib_mw *ibmw);
+int rxe_bind_mw(struct rxe_qp *qp, struct rxe_send_wqe *wqe);
+int rxe_invalidate_mw(struct rxe_qp *qp, u32 rkey);
+struct rxe_mw *rxe_lookup_mw(struct rxe_qp *qp, int access, u32 rkey);
+void rxe_mw_cleanup(struct rxe_pool_entry *arg);
+
+/* rxe_net.c */
+struct sk_buff *rxe_init_packet(struct rxe_dev *rxe, struct rxe_av *av,
+				int paylen, struct rxe_pkt_info *pkt);
+int rxe_prepare(struct rxe_pkt_info *pkt, struct sk_buff *skb);
+int rxe_xmit_packet(struct rxe_qp *qp, struct rxe_pkt_info *pkt,
+		    struct sk_buff *skb);
+const char *rxe_parent_name(struct rxe_dev *rxe, unsigned int port_num);
+>>>>>>> upstream/android-13
 int rxe_mcast_add(struct rxe_dev *rxe, union ib_gid *mgid);
 int rxe_mcast_delete(struct rxe_dev *rxe, union ib_gid *mgid);
 
@@ -158,7 +220,11 @@ int rxe_qp_chk_init(struct rxe_dev *rxe, struct ib_qp_init_attr *init);
 int rxe_qp_from_init(struct rxe_dev *rxe, struct rxe_qp *qp, struct rxe_pd *pd,
 		     struct ib_qp_init_attr *init,
 		     struct rxe_create_qp_resp __user *uresp,
+<<<<<<< HEAD
 		     struct ib_pd *ibpd);
+=======
+		     struct ib_pd *ibpd, struct ib_udata *udata);
+>>>>>>> upstream/android-13
 
 int rxe_qp_to_init(struct rxe_qp *qp, struct ib_qp_init_attr *init);
 
@@ -196,7 +262,11 @@ static inline int qp_mtu(struct rxe_qp *qp)
 	if (qp->ibqp.qp_type == IB_QPT_RC || qp->ibqp.qp_type == IB_QPT_UC)
 		return qp->attr.path_mtu;
 	else
+<<<<<<< HEAD
 		return RXE_PORT_MAX_MTU;
+=======
+		return IB_MTU_4096;
+>>>>>>> upstream/android-13
 }
 
 static inline int rcv_wqe_size(int max_sge)
@@ -224,20 +294,31 @@ int rxe_srq_chk_attr(struct rxe_dev *rxe, struct rxe_srq *srq,
 		     struct ib_srq_attr *attr, enum ib_srq_attr_mask mask);
 
 int rxe_srq_from_init(struct rxe_dev *rxe, struct rxe_srq *srq,
+<<<<<<< HEAD
 		      struct ib_srq_init_attr *init,
 		      struct ib_ucontext *context,
+=======
+		      struct ib_srq_init_attr *init, struct ib_udata *udata,
+>>>>>>> upstream/android-13
 		      struct rxe_create_srq_resp __user *uresp);
 
 int rxe_srq_from_attr(struct rxe_dev *rxe, struct rxe_srq *srq,
 		      struct ib_srq_attr *attr, enum ib_srq_attr_mask mask,
+<<<<<<< HEAD
 		      struct rxe_modify_srq_cmd *ucmd);
 
 void rxe_release(struct kref *kref);
+=======
+		      struct rxe_modify_srq_cmd *ucmd, struct ib_udata *udata);
+
+void rxe_dealloc(struct ib_device *ib_dev);
+>>>>>>> upstream/android-13
 
 int rxe_completer(void *arg);
 int rxe_requester(void *arg);
 int rxe_responder(void *arg);
 
+<<<<<<< HEAD
 u32 rxe_icrc_hdr(struct rxe_pkt_info *pkt, struct sk_buff *skb);
 
 void rxe_resp_queue_pkt(struct rxe_dev *rxe,
@@ -245,12 +326,23 @@ void rxe_resp_queue_pkt(struct rxe_dev *rxe,
 
 void rxe_comp_queue_pkt(struct rxe_dev *rxe,
 			struct rxe_qp *qp, struct sk_buff *skb);
+=======
+/* rxe_icrc.c */
+int rxe_icrc_init(struct rxe_dev *rxe);
+int rxe_icrc_check(struct sk_buff *skb, struct rxe_pkt_info *pkt);
+void rxe_icrc_generate(struct sk_buff *skb, struct rxe_pkt_info *pkt);
+
+void rxe_resp_queue_pkt(struct rxe_qp *qp, struct sk_buff *skb);
+
+void rxe_comp_queue_pkt(struct rxe_qp *qp, struct sk_buff *skb);
+>>>>>>> upstream/android-13
 
 static inline unsigned int wr_opcode_mask(int opcode, struct rxe_qp *qp)
 {
 	return rxe_wr_opcode_info[opcode].mask[qp->ibqp.qp_type];
 }
 
+<<<<<<< HEAD
 static inline int rxe_xmit_packet(struct rxe_dev *rxe, struct rxe_qp *qp,
 				  struct rxe_pkt_info *pkt, struct sk_buff *skb)
 {
@@ -293,4 +385,6 @@ done:
 	return err;
 }
 
+=======
+>>>>>>> upstream/android-13
 #endif /* RXE_LOC_H */

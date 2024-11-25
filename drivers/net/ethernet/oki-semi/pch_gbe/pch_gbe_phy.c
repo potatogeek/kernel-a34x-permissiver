@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 1999 - 2010 Intel Corporation.
  * Copyright (C) 2010 OKI SEMICONDUCTOR Co., LTD.
  *
  * This code was derived from the Intel e1000e Linux driver.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,6 +20,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "pch_gbe.h"
@@ -312,9 +319,13 @@ void pch_gbe_phy_init_setting(struct pch_gbe_hw *hw)
 	int ret;
 	u16 mii_reg;
 
+<<<<<<< HEAD
 	ret = mii_ethtool_gset(&adapter->mii, &cmd);
 	if (ret)
 		netdev_err(adapter->netdev, "Error: mii_ethtool_gset\n");
+=======
+	mii_ethtool_gset(&adapter->mii, &cmd);
+>>>>>>> upstream/android-13
 
 	ethtool_cmd_speed_set(&cmd, hw->mac.link_speed);
 	cmd.duplex = hw->mac.link_duplex;

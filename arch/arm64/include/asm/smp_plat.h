@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Definitions specific to SMP platforms.
  *
  * Copyright (C) 2013 ARM Ltd.
+<<<<<<< HEAD
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -14,6 +19,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __ASM_SMP_PLAT_H
@@ -21,6 +28,10 @@
 
 #include <linux/cpumask.h>
 
+<<<<<<< HEAD
+=======
+#include <asm/smp.h>
+>>>>>>> upstream/android-13
 #include <asm/types.h>
 
 struct mpidr_hash {
@@ -37,11 +48,14 @@ static inline u32 mpidr_hash_size(void)
 }
 
 /*
+<<<<<<< HEAD
  * Logical CPU mapping.
  */
 extern u64 __cpu_logical_map[NR_CPUS];
 #define cpu_logical_map(cpu)    __cpu_logical_map[cpu]
 /*
+=======
+>>>>>>> upstream/android-13
  * Retrieve logical cpu index corresponding to a given MPIDR.Aff*
  *  - mpidr: MPIDR.Aff* bits to be used for the look-up
  *

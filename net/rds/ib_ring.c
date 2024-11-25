@@ -141,7 +141,11 @@ int rds_ib_ring_low(struct rds_ib_work_ring *ring)
 }
 
 /*
+<<<<<<< HEAD
  * returns the oldest alloced ring entry.  This will be the next one
+=======
+ * returns the oldest allocated ring entry.  This will be the next one
+>>>>>>> upstream/android-13
  * freed.  This can't be called if there are none allocated.
  */
 u32 rds_ib_ring_oldest(struct rds_ib_work_ring *ring)

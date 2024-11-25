@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * New ATA layer SC1200 driver		Alan Cox <alan@lxorguk.ukuu.org.uk>
  *
@@ -13,6 +17,7 @@
  *
  * Development of this chipset driver was funded
  * by the nice folks at National Semiconductor.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -27,6 +32,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -206,8 +213,14 @@ static int sc1200_qc_defer(struct ata_queued_cmd *qc)
 }
 
 static struct scsi_host_template sc1200_sht = {
+<<<<<<< HEAD
 	ATA_BMDMA_SHT(DRV_NAME),
 	.sg_tablesize	= LIBATA_DUMB_MAX_PRD,
+=======
+	ATA_BASE_SHT(DRV_NAME),
+	.sg_tablesize	= LIBATA_DUMB_MAX_PRD,
+	.dma_boundary	= ATA_DMA_BOUNDARY,
+>>>>>>> upstream/android-13
 };
 
 static struct ata_port_operations sc1200_port_ops = {

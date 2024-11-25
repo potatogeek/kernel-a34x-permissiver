@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * AD5755, AD5755-1, AD5757, AD5735, AD5737 Digital to analog converters driver
  *
  * Copyright 2012 Analog Devices Inc.
+<<<<<<< HEAD
  *
  * Licensed under the GPL-2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/device.h>
@@ -83,6 +90,10 @@ struct ad5755_chip_info {
  * @pwr_down:	bitmask which contains  hether a channel is powered down or not
  * @ctrl:	software shadow of the channel ctrl registers
  * @channels:	iio channel spec for the device
+<<<<<<< HEAD
+=======
+ * @lock:	lock to protect the data buffer during SPI ops
+>>>>>>> upstream/android-13
  * @data:	spi transfer buffers
  */
 struct ad5755_state {
@@ -91,6 +102,10 @@ struct ad5755_state {
 	unsigned int			pwr_down;
 	unsigned int			ctrl[AD5755_NUM_CHANNELS];
 	struct iio_chan_spec		channels[AD5755_NUM_CHANNELS];
+<<<<<<< HEAD
+=======
+	struct mutex			lock;
+>>>>>>> upstream/android-13
 
 	/*
 	 * DMA (thus cache coherency maintenance) requires the
@@ -175,11 +190,20 @@ static int ad5755_write_ctrl_unlocked(struct iio_dev *indio_dev,
 static int ad5755_write(struct iio_dev *indio_dev, unsigned int reg,
 	unsigned int val)
 {
+<<<<<<< HEAD
 	int ret;
 
 	mutex_lock(&indio_dev->mlock);
 	ret = ad5755_write_unlocked(indio_dev, reg, val);
 	mutex_unlock(&indio_dev->mlock);
+=======
+	struct ad5755_state *st = iio_priv(indio_dev);
+	int ret;
+
+	mutex_lock(&st->lock);
+	ret = ad5755_write_unlocked(indio_dev, reg, val);
+	mutex_unlock(&st->lock);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -187,11 +211,20 @@ static int ad5755_write(struct iio_dev *indio_dev, unsigned int reg,
 static int ad5755_write_ctrl(struct iio_dev *indio_dev, unsigned int channel,
 	unsigned int reg, unsigned int val)
 {
+<<<<<<< HEAD
 	int ret;
 
 	mutex_lock(&indio_dev->mlock);
 	ret = ad5755_write_ctrl_unlocked(indio_dev, channel, reg, val);
 	mutex_unlock(&indio_dev->mlock);
+=======
+	struct ad5755_state *st = iio_priv(indio_dev);
+	int ret;
+
+	mutex_lock(&st->lock);
+	ret = ad5755_write_ctrl_unlocked(indio_dev, channel, reg, val);
+	mutex_unlock(&st->lock);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -212,7 +245,11 @@ static int ad5755_read(struct iio_dev *indio_dev, unsigned int addr)
 		},
 	};
 
+<<<<<<< HEAD
 	mutex_lock(&indio_dev->mlock);
+=======
+	mutex_lock(&st->lock);
+>>>>>>> upstream/android-13
 
 	st->data[0].d32 = cpu_to_be32(AD5755_READ_FLAG | (addr << 16));
 	st->data[1].d32 = cpu_to_be32(AD5755_NOOP);
@@ -221,7 +258,11 @@ static int ad5755_read(struct iio_dev *indio_dev, unsigned int addr)
 	if (ret >= 0)
 		ret = be32_to_cpu(st->data[1].d32) & 0xffff;
 
+<<<<<<< HEAD
 	mutex_unlock(&indio_dev->mlock);
+=======
+	mutex_unlock(&st->lock);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -247,7 +288,11 @@ static int ad5755_set_channel_pwr_down(struct iio_dev *indio_dev,
 	struct ad5755_state *st = iio_priv(indio_dev);
 	unsigned int mask = BIT(channel);
 
+<<<<<<< HEAD
 	mutex_lock(&indio_dev->mlock);
+=======
+	mutex_lock(&st->lock);
+>>>>>>> upstream/android-13
 
 	if ((bool)(st->pwr_down & mask) == pwr_down)
 		goto out_unlock;
@@ -267,7 +312,11 @@ static int ad5755_set_channel_pwr_down(struct iio_dev *indio_dev,
 	}
 
 out_unlock:
+<<<<<<< HEAD
 	mutex_unlock(&indio_dev->mlock);
+=======
+	mutex_unlock(&st->lock);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -396,8 +445,13 @@ static ssize_t ad5755_read_powerdown(struct iio_dev *indio_dev, uintptr_t priv,
 {
 	struct ad5755_state *st = iio_priv(indio_dev);
 
+<<<<<<< HEAD
 	return sprintf(buf, "%d\n",
 		       (bool)(st->pwr_down & (1 << chan->channel)));
+=======
+	return sysfs_emit(buf, "%d\n",
+			  (bool)(st->pwr_down & (1 << chan->channel)));
+>>>>>>> upstream/android-13
 }
 
 static ssize_t ad5755_write_powerdown(struct iio_dev *indio_dev, uintptr_t priv,
@@ -632,10 +686,16 @@ static struct ad5755_platform_data *ad5755_parse_dt(struct device *dev)
 			}
 		}
 
+<<<<<<< HEAD
 		if (i == ARRAY_SIZE(ad5755_dcdc_freq_table)) {
 			dev_err(dev,
 				"adi,dc-dc-freq out of range selecting 410kHz");
 		}
+=======
+		if (i == ARRAY_SIZE(ad5755_dcdc_freq_table))
+			dev_err(dev,
+				"adi,dc-dc-freq out of range selecting 410kHz\n");
+>>>>>>> upstream/android-13
 	}
 
 	pdata->dc_dc_maxv = AD5755_DC_DC_MAXV_23V;
@@ -646,17 +706,27 @@ static struct ad5755_platform_data *ad5755_parse_dt(struct device *dev)
 				break;
 			}
 		}
+<<<<<<< HEAD
 		if (i == ARRAY_SIZE(ad5755_dcdc_maxv_table)) {
 				dev_err(dev,
 					"adi,dc-dc-maxv out of range selecting 23V");
 		}
+=======
+		if (i == ARRAY_SIZE(ad5755_dcdc_maxv_table))
+				dev_err(dev,
+					"adi,dc-dc-maxv out of range selecting 23V\n");
+>>>>>>> upstream/android-13
 	}
 
 	devnr = 0;
 	for_each_child_of_node(np, pp) {
 		if (devnr >= AD5755_NUM_CHANNELS) {
 			dev_err(dev,
+<<<<<<< HEAD
 				"There is to many channels defined in DT\n");
+=======
+				"There are too many channels defined in DT\n");
+>>>>>>> upstream/android-13
 			goto error_out;
 		}
 
@@ -682,11 +752,18 @@ static struct ad5755_platform_data *ad5755_parse_dt(struct device *dev)
 					break;
 				}
 			}
+<<<<<<< HEAD
 			if (i == ARRAY_SIZE(ad5755_slew_rate_table)) {
 				dev_err(dev,
 					"channel %d slew rate out of range selecting 64kHz",
 					devnr);
 			}
+=======
+			if (i == ARRAY_SIZE(ad5755_slew_rate_table))
+				dev_err(dev,
+					"channel %d slew rate out of range selecting 64kHz\n",
+					devnr);
+>>>>>>> upstream/android-13
 
 			pdata->dac[devnr].slew.step_size = AD5755_SLEW_STEP_SIZE_1;
 			for (i = 0; i < ARRAY_SIZE(ad5755_slew_step_table); i++) {
@@ -696,11 +773,18 @@ static struct ad5755_platform_data *ad5755_parse_dt(struct device *dev)
 					break;
 				}
 			}
+<<<<<<< HEAD
 			if (i == ARRAY_SIZE(ad5755_slew_step_table)) {
 				dev_err(dev,
 					"channel %d slew step size out of range selecting 1 LSB",
 					devnr);
 			}
+=======
+			if (i == ARRAY_SIZE(ad5755_slew_step_table))
+				dev_err(dev,
+					"channel %d slew step size out of range selecting 1 LSB\n",
+					devnr);
+>>>>>>> upstream/android-13
 		} else {
 			pdata->dac[devnr].slew.enable = false;
 			pdata->dac[devnr].slew.rate = AD5755_SLEW_RATE_64k;
@@ -745,12 +829,20 @@ static int ad5755_probe(struct spi_device *spi)
 	st->spi = spi;
 	st->pwr_down = 0xf;
 
+<<<<<<< HEAD
 	indio_dev->dev.parent = &spi->dev;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->name = spi_get_device_id(spi)->name;
 	indio_dev->info = &ad5755_info;
 	indio_dev->modes = INDIO_DIRECT_MODE;
 	indio_dev->num_channels = AD5755_NUM_CHANNELS;
 
+<<<<<<< HEAD
+=======
+	mutex_init(&st->lock);
+
+>>>>>>> upstream/android-13
 	if (spi->dev.of_node)
 		pdata = ad5755_parse_dt(&spi->dev);
 	else

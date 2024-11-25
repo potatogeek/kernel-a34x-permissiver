@@ -52,6 +52,7 @@
 #define SIGRTMAX	_NSIG
 #endif
 
+<<<<<<< HEAD
 /*
  * SA_FLAGS values:
  *
@@ -81,6 +82,8 @@
  *	SA_RESTORER	0x04000000
  */
 
+=======
+>>>>>>> upstream/android-13
 #if !defined MINSIGSTKSZ || !defined SIGSTKSZ
 #define MINSIGSTKSZ	2048
 #define SIGSTKSZ	8192

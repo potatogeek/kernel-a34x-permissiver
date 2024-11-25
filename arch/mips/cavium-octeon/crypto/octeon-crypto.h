@@ -41,7 +41,11 @@ do {							\
  */
 #define read_octeon_64bit_hash_dword(index)		\
 ({							\
+<<<<<<< HEAD
 	u64 __value;					\
+=======
+	__be64 __value;					\
+>>>>>>> upstream/android-13
 							\
 	__asm__ __volatile__ (				\
 	"dmfc2 %[rt],0x0048+" STR(index)		\

@@ -7,6 +7,10 @@
 #include <linux/kernel.h>
 #include <linux/usb.h>
 #include <linux/io.h>
+<<<<<<< HEAD
+=======
+#include <linux/iopoll.h>
+>>>>>>> upstream/android-13
 #include <linux/usb/otg.h>
 #include <linux/usb/ulpi.h>
 
@@ -20,6 +24,7 @@
 
 static int ulpi_viewport_wait(void __iomem *view, u32 mask)
 {
+<<<<<<< HEAD
 	unsigned long usec = 2000;
 
 	while (usec--) {
@@ -30,6 +35,11 @@ static int ulpi_viewport_wait(void __iomem *view, u32 mask)
 	}
 
 	return -ETIMEDOUT;
+=======
+	u32 val;
+
+	return readl_poll_timeout_atomic(view, val, !(val & mask), 1, 2000);
+>>>>>>> upstream/android-13
 }
 
 static int ulpi_viewport_read(struct usb_phy *otg, u32 reg)

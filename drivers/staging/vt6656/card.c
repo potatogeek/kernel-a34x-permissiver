@@ -3,7 +3,10 @@
  * Copyright (c) 1996, 2003 VIA Networking Technologies, Inc.
  * All rights reserved.
  *
+<<<<<<< HEAD
  * File: card.c
+=======
+>>>>>>> upstream/android-13
  * Purpose: Provide functions to setup NIC operation mode
  * Functions:
  *      vnt_set_rspinf - Set RSPINF
@@ -26,6 +29,11 @@
  *
  */
 
+<<<<<<< HEAD
+=======
+#include <linux/bitops.h>
+#include <linux/errno.h>
+>>>>>>> upstream/android-13
 #include "device.h"
 #include "card.h"
 #include "baseband.h"
@@ -44,6 +52,7 @@ static const u16 cw_rxbcntsf_off[MAX_RATE] = {
 	192, 96, 34, 17, 34, 23, 17, 11, 8, 5, 4, 3
 };
 
+<<<<<<< HEAD
 /*
  * Description: Set NIC media channel
  *
@@ -58,11 +67,20 @@ void vnt_set_channel(struct vnt_private *priv, u32 connection_channel)
 {
 	if (connection_channel > CB_MAX_CHANNEL || !connection_channel)
 		return;
+=======
+int vnt_set_channel(struct vnt_private *priv, u32 connection_channel)
+{
+	int ret;
+
+	if (connection_channel > CB_MAX_CHANNEL || !connection_channel)
+		return -EINVAL;
+>>>>>>> upstream/android-13
 
 	/* clear NAV */
 	vnt_mac_reg_bits_on(priv, MAC_REG_MACCR, MACCR_CLRNAV);
 
 	/* Set Channel[7] = 0 to tell H/W channel is changing now. */
+<<<<<<< HEAD
 	vnt_mac_reg_bits_off(priv, MAC_REG_CHANNEL, 0xb0);
 
 	vnt_control_out(priv, MESSAGE_TYPE_SELECT_CHANNEL,
@@ -343,6 +361,78 @@ void vnt_update_ifs(struct vnt_private *priv)
 {
 	u8 max_min = 0;
 	u8 data[4];
+=======
+	vnt_mac_reg_bits_off(priv, MAC_REG_CHANNEL,
+			     (BIT(7) | BIT(5) | BIT(4)));
+
+	ret = vnt_control_out(priv, MESSAGE_TYPE_SELECT_CHANNEL,
+			      connection_channel, 0, 0, NULL);
+	if (ret)
+		return ret;
+
+	return vnt_control_out_u8(priv, MESSAGE_REQUEST_MACREG, MAC_REG_CHANNEL,
+				  (u8)(connection_channel | 0x80));
+}
+
+static const u8 vnt_rspinf_b_short_table[] = {
+	0x70, 0x00, 0x00, 0x00, 0x38, 0x00, 0x09, 0x00,
+	0x15, 0x00, 0x0a, 0x00, 0x0b, 0x00, 0x0b, 0x80
+};
+
+static const u8 vnt_rspinf_b_long_table[] = {
+	0x70, 0x00, 0x00, 0x00, 0x38, 0x00, 0x01, 0x00,
+	0x15, 0x00, 0x02, 0x00, 0x0b, 0x00, 0x03, 0x80
+};
+
+static const u8 vnt_rspinf_a_table[] = {
+	0x9b, 0x18, 0x9f, 0x10, 0x9a, 0x0a, 0x9e, 0x08, 0x99,
+	0x08, 0x9d, 0x04, 0x98, 0x04, 0x9c, 0x04, 0x9c, 0x04
+};
+
+static const u8 vnt_rspinf_gb_table[] = {
+	0x8b, 0x1e, 0x8f, 0x16, 0x8a, 0x12, 0x8e, 0x0e, 0x89,
+	0x0e, 0x8d, 0x0a, 0x88, 0x0a, 0x8c, 0x0a, 0x8c, 0x0a
+};
+
+int vnt_set_rspinf(struct vnt_private *priv, u8 bb_type)
+{
+	const u8 *data;
+	u16 len;
+	int ret;
+
+	if (priv->preamble_type) {
+		data = vnt_rspinf_b_short_table;
+		len = ARRAY_SIZE(vnt_rspinf_b_short_table);
+	} else {
+		data = vnt_rspinf_b_long_table;
+		len = ARRAY_SIZE(vnt_rspinf_b_long_table);
+	}
+
+	 /* RSPINF_b_1 to RSPINF_b_11 */
+	ret = vnt_control_out(priv, MESSAGE_TYPE_WRITE, MAC_REG_RSPINF_B_1,
+			      MESSAGE_REQUEST_MACREG, len, data);
+	if (ret)
+		return ret;
+
+	if (bb_type == BB_TYPE_11A) {
+		data = vnt_rspinf_a_table;
+		len = ARRAY_SIZE(vnt_rspinf_a_table);
+	} else {
+		data = vnt_rspinf_gb_table;
+		len = ARRAY_SIZE(vnt_rspinf_gb_table);
+	}
+
+	/* RSPINF_a_6 to RSPINF_a_72 */
+	return vnt_control_out(priv, MESSAGE_TYPE_WRITE, MAC_REG_RSPINF_A_6,
+			       MESSAGE_REQUEST_MACREG, len, data);
+}
+
+int vnt_update_ifs(struct vnt_private *priv)
+{
+	u8 max_min = 0;
+	u8 data[4];
+	int ret;
+>>>>>>> upstream/android-13
 
 	if (priv->packet_type == PK_TYPE_11A) {
 		priv->slot = C_SLOT_SHORT;
@@ -365,6 +455,7 @@ void vnt_update_ifs(struct vnt_private *priv)
 
 	priv->eifs = C_EIFS;
 
+<<<<<<< HEAD
 	switch (priv->rf_type) {
 	case RF_VT3226D0:
 		if (priv->bb_type != BB_TYPE_11B) {
@@ -397,11 +488,14 @@ void vnt_update_ifs(struct vnt_private *priv)
 		break;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	data[0] = (u8)priv->sifs;
 	data[1] = (u8)priv->difs;
 	data[2] = (u8)priv->eifs;
 	data[3] = (u8)priv->slot;
 
+<<<<<<< HEAD
 	vnt_control_out(priv, MESSAGE_TYPE_WRITE, MAC_REG_SIFS,
 			MESSAGE_REQUEST_MACREG, 4, &data[0]);
 
@@ -409,10 +503,22 @@ void vnt_update_ifs(struct vnt_private *priv)
 
 	vnt_control_out(priv, MESSAGE_TYPE_WRITE, MAC_REG_CWMAXMIN0,
 			MESSAGE_REQUEST_MACREG, 1, &max_min);
+=======
+	ret = vnt_control_out(priv, MESSAGE_TYPE_WRITE, MAC_REG_SIFS,
+			      MESSAGE_REQUEST_MACREG, 4, &data[0]);
+	if (ret)
+		return ret;
+
+	max_min |= 0xa0;
+
+	return vnt_control_out(priv, MESSAGE_TYPE_WRITE, MAC_REG_CWMAXMIN0,
+			       MESSAGE_REQUEST_MACREG, 1, &max_min);
+>>>>>>> upstream/android-13
 }
 
 void vnt_update_top_rates(struct vnt_private *priv)
 {
+<<<<<<< HEAD
 	u8 top_ofdm = RATE_24M, top_cck = RATE_1M;
 	u8 i;
 
@@ -448,6 +554,20 @@ int vnt_ofdm_min_rate(struct vnt_private *priv)
 	}
 
 	return false;
+=======
+	int pos;
+
+	pos = fls(priv->basic_rates & GENMASK(RATE_54M, RATE_6M));
+	priv->top_ofdm_basic_rate = pos ? (pos - 1) : RATE_24M;
+
+	pos = fls(priv->basic_rates & GENMASK(RATE_11M, RATE_1M));
+	priv->top_cck_basic_rate = pos ? (pos - 1) : RATE_1M;
+}
+
+bool vnt_ofdm_min_rate(struct vnt_private *priv)
+{
+	return priv->basic_rates & GENMASK(RATE_54M, RATE_6M) ? true : false;
+>>>>>>> upstream/android-13
 }
 
 u8 vnt_get_pkt_type(struct vnt_private *priv)
@@ -479,6 +599,7 @@ u64 vnt_get_tsf_offset(u8 rx_rate, u64 tsf1, u64 tsf2)
 	return tsf1 - tsf2 - (u64)cw_rxbcntsf_off[rx_rate % MAX_RATE];
 }
 
+<<<<<<< HEAD
 /*
  * Description: Sync. TSF counter to BSS
  *              Get TSF offset and write to HW
@@ -496,6 +617,10 @@ u64 vnt_get_tsf_offset(u8 rx_rate, u64 tsf1, u64 tsf2)
  */
 void vnt_adjust_tsf(struct vnt_private *priv, u8 rx_rate,
 		    u64 time_stamp, u64 local_tsf)
+=======
+int vnt_adjust_tsf(struct vnt_private *priv, u8 rx_rate,
+		   u64 time_stamp, u64 local_tsf)
+>>>>>>> upstream/android-13
 {
 	u64 tsf_offset = 0;
 	u8 data[8];
@@ -511,8 +636,13 @@ void vnt_adjust_tsf(struct vnt_private *priv, u8 rx_rate,
 	data[6] = (u8)(tsf_offset >> 48);
 	data[7] = (u8)(tsf_offset >> 56);
 
+<<<<<<< HEAD
 	vnt_control_out(priv, MESSAGE_TYPE_SET_TSFTBTT,
 			MESSAGE_REQUEST_TSF, 0, 8, data);
+=======
+	return vnt_control_out(priv, MESSAGE_TYPE_SET_TSFTBTT,
+			       MESSAGE_REQUEST_TSF, 0, 8, data);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -587,6 +717,7 @@ u64 vnt_get_next_tbtt(u64 tsf, u16 beacon_interval)
 	return tsf;
 }
 
+<<<<<<< HEAD
 /*
  * Description: Set NIC TSF counter for first Beacon time
  *              Get NEXTTBTT from adjusted TSF and Beacon Interval
@@ -602,6 +733,9 @@ u64 vnt_get_next_tbtt(u64 tsf, u16 beacon_interval)
  *
  */
 void vnt_reset_next_tbtt(struct vnt_private *priv, u16 beacon_interval)
+=======
+int vnt_reset_next_tbtt(struct vnt_private *priv, u16 beacon_interval)
+>>>>>>> upstream/android-13
 {
 	u64 next_tbtt = 0;
 	u8 data[8];
@@ -619,6 +753,7 @@ void vnt_reset_next_tbtt(struct vnt_private *priv, u16 beacon_interval)
 	data[6] = (u8)(next_tbtt >> 48);
 	data[7] = (u8)(next_tbtt >> 56);
 
+<<<<<<< HEAD
 	vnt_control_out(priv, MESSAGE_TYPE_SET_TSFTBTT,
 			MESSAGE_REQUEST_TBTT, 0, 8, data);
 }
@@ -642,6 +777,17 @@ void vnt_update_next_tbtt(struct vnt_private *priv, u64 tsf,
 			  u16 beacon_interval)
 {
 	u8 data[8];
+=======
+	return vnt_control_out(priv, MESSAGE_TYPE_SET_TSFTBTT,
+			       MESSAGE_REQUEST_TBTT, 0, 8, data);
+}
+
+int vnt_update_next_tbtt(struct vnt_private *priv, u64 tsf,
+			 u16 beacon_interval)
+{
+	u8 data[8];
+	int ret;
+>>>>>>> upstream/android-13
 
 	tsf = vnt_get_next_tbtt(tsf, beacon_interval);
 
@@ -654,10 +800,20 @@ void vnt_update_next_tbtt(struct vnt_private *priv, u64 tsf,
 	data[6] = (u8)(tsf >> 48);
 	data[7] = (u8)(tsf >> 56);
 
+<<<<<<< HEAD
 	vnt_control_out(priv, MESSAGE_TYPE_SET_TSFTBTT,
 			MESSAGE_REQUEST_TBTT, 0, 8, data);
 
 	dev_dbg(&priv->usb->dev, "%s TBTT: %8llx\n", __func__, tsf);
+=======
+	ret = vnt_control_out(priv, MESSAGE_TYPE_SET_TSFTBTT,
+			      MESSAGE_REQUEST_TBTT, 0, 8, data);
+	if (ret)
+		return ret;
+
+	dev_dbg(&priv->usb->dev, "%s TBTT: %8llx\n", __func__, tsf);
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -674,7 +830,11 @@ void vnt_update_next_tbtt(struct vnt_private *priv, u64 tsf,
  */
 int vnt_radio_power_off(struct vnt_private *priv)
 {
+<<<<<<< HEAD
 	int ret = true;
+=======
+	int ret = 0;
+>>>>>>> upstream/android-13
 
 	switch (priv->rf_type) {
 	case RF_AL2230:
@@ -683,6 +843,7 @@ int vnt_radio_power_off(struct vnt_private *priv)
 	case RF_VT3226:
 	case RF_VT3226D0:
 	case RF_VT3342A0:
+<<<<<<< HEAD
 		vnt_mac_reg_bits_off(priv, MAC_REG_SOFTPWRCTL,
 				     (SOFTPWRCTL_SWPE2 | SOFTPWRCTL_SWPE3));
 		break;
@@ -694,6 +855,28 @@ int vnt_radio_power_off(struct vnt_private *priv)
 
 	vnt_mac_reg_bits_on(priv, MAC_REG_GPIOCTL1, GPIO3_INTMD);
 
+=======
+		ret = vnt_mac_reg_bits_off(priv, MAC_REG_SOFTPWRCTL,
+					   (SOFTPWRCTL_SWPE2 |
+					    SOFTPWRCTL_SWPE3));
+		break;
+	}
+
+	if (ret)
+		goto end;
+
+	ret = vnt_mac_reg_bits_off(priv, MAC_REG_HOSTCR, HOSTCR_RXON);
+	if (ret)
+		goto end;
+
+	ret = vnt_set_deep_sleep(priv);
+	if (ret)
+		goto end;
+
+	ret = vnt_mac_reg_bits_on(priv, MAC_REG_GPIOCTL1, GPIO3_INTMD);
+
+end:
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -711,11 +894,23 @@ int vnt_radio_power_off(struct vnt_private *priv)
  */
 int vnt_radio_power_on(struct vnt_private *priv)
 {
+<<<<<<< HEAD
 	int ret = true;
 
 	vnt_exit_deep_sleep(priv);
 
 	vnt_mac_reg_bits_on(priv, MAC_REG_HOSTCR, HOSTCR_RXON);
+=======
+	int ret = 0;
+
+	ret = vnt_exit_deep_sleep(priv);
+	if (ret)
+		return ret;
+
+	ret = vnt_mac_reg_bits_on(priv, MAC_REG_HOSTCR, HOSTCR_RXON);
+	if (ret)
+		return ret;
+>>>>>>> upstream/android-13
 
 	switch (priv->rf_type) {
 	case RF_AL2230:
@@ -724,6 +919,7 @@ int vnt_radio_power_on(struct vnt_private *priv)
 	case RF_VT3226:
 	case RF_VT3226D0:
 	case RF_VT3342A0:
+<<<<<<< HEAD
 		vnt_mac_reg_bits_on(priv, MAC_REG_SOFTPWRCTL,
 				    (SOFTPWRCTL_SWPE2 | SOFTPWRCTL_SWPE3));
 		break;
@@ -776,4 +972,71 @@ void vnt_set_bss_mode(struct vnt_private *priv)
 	}
 
 	vnt_set_vga_gain_offset(priv, priv->bb_vga[0]);
+=======
+		ret = vnt_mac_reg_bits_on(priv, MAC_REG_SOFTPWRCTL,
+					  (SOFTPWRCTL_SWPE2 |
+					   SOFTPWRCTL_SWPE3));
+		if (ret)
+			return ret;
+	}
+
+	return vnt_mac_reg_bits_off(priv, MAC_REG_GPIOCTL1, GPIO3_INTMD);
+}
+
+int vnt_set_bss_mode(struct vnt_private *priv)
+{
+	int ret;
+	unsigned char type = priv->bb_type;
+	unsigned char data = 0;
+	unsigned char bb_vga_0 = 0x1c;
+	unsigned char bb_vga_2_3 = 0x00;
+
+	if (priv->rf_type == RF_AIROHA7230 && priv->bb_type == BB_TYPE_11A)
+		type = BB_TYPE_11G;
+
+	ret = vnt_mac_set_bb_type(priv, type);
+	if (ret)
+		return ret;
+
+	priv->packet_type = vnt_get_pkt_type(priv);
+
+	if (priv->bb_type == BB_TYPE_11A) {
+		data = 0x03;
+		bb_vga_0 = 0x20;
+		bb_vga_2_3 = 0x10;
+	} else if (priv->bb_type == BB_TYPE_11B) {
+		data = 0x02;
+	} else if (priv->bb_type == BB_TYPE_11G) {
+		data = 0x08;
+	}
+
+	if (data) {
+		ret = vnt_control_out_u8(priv, MESSAGE_REQUEST_BBREG,
+					 0x88, data);
+		if (ret)
+			return ret;
+	}
+
+	ret = vnt_update_ifs(priv);
+	if (ret)
+		return ret;
+
+	ret = vnt_set_rspinf(priv, priv->bb_type);
+	if (ret)
+		return ret;
+
+	if (priv->rf_type == RF_AIROHA7230) {
+		priv->bb_vga[0] = bb_vga_0;
+
+		ret = vnt_control_out_u8(priv, MESSAGE_REQUEST_BBREG,
+					 0xe7, priv->bb_vga[0]);
+		if (ret)
+			return ret;
+	}
+
+	priv->bb_vga[2] = bb_vga_2_3;
+	priv->bb_vga[3] = bb_vga_2_3;
+
+	return vnt_set_vga_gain_offset(priv, priv->bb_vga[0]);
+>>>>>>> upstream/android-13
 }

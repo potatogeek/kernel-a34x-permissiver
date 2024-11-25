@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2017-2018 Netronome Systems, Inc.
  *
@@ -30,12 +31,20 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+=======
+/* SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause) */
+/* Copyright (C) 2017-2018 Netronome Systems, Inc. */
+>>>>>>> upstream/android-13
 
 #ifndef NFP_BPF_FW_H
 #define NFP_BPF_FW_H 1
 
 #include <linux/bitops.h>
 #include <linux/types.h>
+<<<<<<< HEAD
+=======
+#include "../ccm.h"
+>>>>>>> upstream/android-13
 
 /* Kernel's enum bpf_reg_type is not uABI so people may change it breaking
  * our FW ABI.  In that case we will do translation in the driver.
@@ -52,6 +61,11 @@ enum bpf_cap_tlv_type {
 	NFP_BPF_CAP_TYPE_RANDOM		= 4,
 	NFP_BPF_CAP_TYPE_QUEUE_SELECT	= 5,
 	NFP_BPF_CAP_TYPE_ADJUST_TAIL	= 6,
+<<<<<<< HEAD
+=======
+	NFP_BPF_CAP_TYPE_ABI_VERSION	= 7,
+	NFP_BPF_CAP_TYPE_CMSG_MULTI_ENT	= 8,
+>>>>>>> upstream/android-13
 };
 
 struct nfp_bpf_cap_tlv_func {
@@ -81,6 +95,7 @@ struct nfp_bpf_cap_tlv_maps {
 /*
  * Types defined for map related control messages
  */
+<<<<<<< HEAD
 #define CMSG_MAP_ABI_VERSION		1
 
 enum nfp_bpf_cmsg_type {
@@ -98,6 +113,10 @@ enum nfp_bpf_cmsg_type {
 #define CMSG_TYPE_MAP_REPLY_BIT		7
 #define __CMSG_REPLY(req)		(BIT(CMSG_TYPE_MAP_REPLY_BIT) | (req))
 
+=======
+
+/* BPF ABIv2 fixed-length control message fields */
+>>>>>>> upstream/android-13
 #define CMSG_MAP_KEY_LW			16
 #define CMSG_MAP_VALUE_LW		16
 
@@ -112,6 +131,7 @@ enum nfp_bpf_cmsg_status {
 	CMSG_RC_ERR_MAP_E2BIG		= 7,
 };
 
+<<<<<<< HEAD
 struct cmsg_hdr {
 	u8 type;
 	u8 ver;
@@ -120,11 +140,19 @@ struct cmsg_hdr {
 
 struct cmsg_reply_map_simple {
 	struct cmsg_hdr hdr;
+=======
+struct cmsg_reply_map_simple {
+	struct nfp_ccm_hdr hdr;
+>>>>>>> upstream/android-13
 	__be32 rc;
 };
 
 struct cmsg_req_map_alloc_tbl {
+<<<<<<< HEAD
 	struct cmsg_hdr hdr;
+=======
+	struct nfp_ccm_hdr hdr;
+>>>>>>> upstream/android-13
 	__be32 key_size;		/* in bytes */
 	__be32 value_size;		/* in bytes */
 	__be32 max_entries;
@@ -138,7 +166,11 @@ struct cmsg_reply_map_alloc_tbl {
 };
 
 struct cmsg_req_map_free_tbl {
+<<<<<<< HEAD
 	struct cmsg_hdr hdr;
+=======
+	struct nfp_ccm_hdr hdr;
+>>>>>>> upstream/android-13
 	__be32 tid;
 };
 
@@ -147,6 +179,7 @@ struct cmsg_reply_map_free_tbl {
 	__be32 count;
 };
 
+<<<<<<< HEAD
 struct cmsg_key_value_pair {
 	__be32 key[CMSG_MAP_KEY_LW];
 	__be32 value[CMSG_MAP_VALUE_LW];
@@ -158,21 +191,41 @@ struct cmsg_req_map_op {
 	__be32 count;
 	__be32 flags;
 	struct cmsg_key_value_pair elem[0];
+=======
+struct cmsg_req_map_op {
+	struct nfp_ccm_hdr hdr;
+	__be32 tid;
+	__be32 count;
+	__be32 flags;
+	u8 data[];
+>>>>>>> upstream/android-13
 };
 
 struct cmsg_reply_map_op {
 	struct cmsg_reply_map_simple reply_hdr;
 	__be32 count;
 	__be32 resv;
+<<<<<<< HEAD
 	struct cmsg_key_value_pair elem[0];
 };
 
 struct cmsg_bpf_event {
 	struct cmsg_hdr hdr;
+=======
+	u8 data[];
+};
+
+struct cmsg_bpf_event {
+	struct nfp_ccm_hdr hdr;
+>>>>>>> upstream/android-13
 	__be32 cpu_id;
 	__be64 map_ptr;
 	__be32 data_size;
 	__be32 pkt_size;
+<<<<<<< HEAD
 	u8 data[0];
+=======
+	u8 data[];
+>>>>>>> upstream/android-13
 };
 #endif

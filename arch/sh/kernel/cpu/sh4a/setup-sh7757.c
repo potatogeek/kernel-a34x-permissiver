@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * SH7757 Setup
  *
  * Copyright (C) 2009, 2011  Renesas Solutions Corp.
  *
  *  based on setup-sh7785.c : Copyright (C) 2007  Paul Mundt
+<<<<<<< HEAD
  *
  * This file is subject to the terms and conditions of the GNU General Public
  * License.  See the file "COPYING" in the main directory of this archive
  * for more details.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/platform_device.h>
 #include <linux/init.h>
@@ -22,6 +29,10 @@
 #include <linux/usb/ohci_pdriver.h>
 #include <cpu/dma-register.h>
 #include <cpu/sh7757.h>
+<<<<<<< HEAD
+=======
+#include <asm/platform_early.h>
+>>>>>>> upstream/android-13
 
 static struct plat_sci_port scif2_platform_data = {
 	.scscr		= SCSCR_REIE,
@@ -770,7 +781,11 @@ static struct platform_device *sh7757_early_devices[] __initdata = {
 
 void __init plat_early_device_setup(void)
 {
+<<<<<<< HEAD
 	early_platform_add_devices(sh7757_early_devices,
+=======
+	sh_early_platform_add_devices(sh7757_early_devices,
+>>>>>>> upstream/android-13
 				   ARRAY_SIZE(sh7757_early_devices));
 }
 

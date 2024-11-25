@@ -20,7 +20,11 @@
 #include <linux/udp.h>
 #include <linux/icmpv6.h>
 #include <linux/if_ether.h>
+<<<<<<< HEAD
 #include "bpf_helpers.h"
+=======
+#include <bpf/bpf_helpers.h>
+>>>>>>> upstream/android-13
 #include <string.h>
 
 # define printk(fmt, ...)						\

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
 **	DINO manager
 **
@@ -5,12 +9,17 @@
 **	(c) Copyright 1999 SuSE GmbH
 **	(c) Copyright 1999,2000 Hewlett-Packard Company
 **	(c) Copyright 2000 Grant Grundler
+<<<<<<< HEAD
 **	(c) Copyright 2006 Helge Deller
 **
 **	This program is free software; you can redistribute it and/or modify
 **	it under the terms of the GNU General Public License as published by
 **      the Free Software Foundation; either version 2 of the License, or
 **      (at your option) any later version.
+=======
+**	(c) Copyright 2006-2019 Helge Deller
+**
+>>>>>>> upstream/android-13
 **
 **	This module provides access to Dino PCI bus (config/IOport spaces)
 **	and helps manage Dino IRQ lines.
@@ -59,6 +68,10 @@
 #include <asm/hardware.h>
 
 #include "gsc.h"
+<<<<<<< HEAD
+=======
+#include "iommu.h"
+>>>>>>> upstream/android-13
 
 #undef DINO_DEBUG
 
@@ -144,15 +157,21 @@ struct dino_device
 {
 	struct pci_hba_data	hba;	/* 'C' inheritance - must be first */
 	spinlock_t		dinosaur_pen;
+<<<<<<< HEAD
 	unsigned long		txn_addr; /* EIR addr to generate interrupt */ 
 	u32			txn_data; /* EIR data assign to each dino */ 
 	u32 			imr;	  /* IRQ's which are enabled */ 
+=======
+	u32 			imr;	  /* IRQ's which are enabled */ 
+	struct gsc_irq		gsc_irq;
+>>>>>>> upstream/android-13
 	int			global_irq[DINO_LOCAL_IRQS]; /* map IMR bit to global irq */
 #ifdef DINO_DEBUG
 	unsigned int		dino_irr0; /* save most recent IRQ line stat */
 #endif
 };
 
+<<<<<<< HEAD
 /* Looks nice and keeps the compiler happy */
 #define DINO_DEV(d) ({				\
 	void *__pdata = d;			\
@@ -167,6 +186,11 @@ static int pci_dev_is_behind_card_dino(struct pci_dev *dev)
 
 	dino_dev = DINO_DEV(parisc_walk_tree(dev->bus->bridge));
 	return is_card_dino(&dino_dev->hba.dev->id);
+=======
+static inline struct dino_device *DINO_DEV(struct pci_hba_data *hba)
+{
+	return container_of(hba, struct dino_device, hba);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -352,14 +376,53 @@ static void dino_unmask_irq(struct irq_data *d)
 	if (tmp & DINO_MASK_IRQ(local_irq)) {
 		DBG(KERN_WARNING "%s(): IRQ asserted! (ILR 0x%x)\n",
 				__func__, tmp);
+<<<<<<< HEAD
 		gsc_writel(dino_dev->txn_data, dino_dev->txn_addr);
 	}
 }
 
+=======
+		gsc_writel(dino_dev->gsc_irq.txn_data, dino_dev->gsc_irq.txn_addr);
+	}
+}
+
+#ifdef CONFIG_SMP
+static int dino_set_affinity_irq(struct irq_data *d, const struct cpumask *dest,
+				bool force)
+{
+	struct dino_device *dino_dev = irq_data_get_irq_chip_data(d);
+	struct cpumask tmask;
+	int cpu_irq;
+	u32 eim;
+
+	if (!cpumask_and(&tmask, dest, cpu_online_mask))
+		return -EINVAL;
+
+	cpu_irq = cpu_check_affinity(d, &tmask);
+	if (cpu_irq < 0)
+		return cpu_irq;
+
+	dino_dev->gsc_irq.txn_addr = txn_affinity_addr(d->irq, cpu_irq);
+	eim = ((u32) dino_dev->gsc_irq.txn_addr) | dino_dev->gsc_irq.txn_data;
+	__raw_writel(eim, dino_dev->hba.base_addr+DINO_IAR0);
+
+	irq_data_update_effective_affinity(d, &tmask);
+
+	return IRQ_SET_MASK_OK;
+}
+#endif
+
+>>>>>>> upstream/android-13
 static struct irq_chip dino_interrupt_type = {
 	.name		= "GSC-PCI",
 	.irq_unmask	= dino_unmask_irq,
 	.irq_mask	= dino_mask_irq,
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_SMP
+	.irq_set_affinity = dino_set_affinity_irq,
+#endif
+>>>>>>> upstream/android-13
 };
 
 
@@ -391,7 +454,11 @@ ilr_again:
 		DBG(KERN_DEBUG "%s(%d, %p) mask 0x%x\n",
 			__func__, irq, intr_dev, mask);
 		generic_handle_irq(irq);
+<<<<<<< HEAD
 		mask &= ~(1 << local_irq);
+=======
+		mask &= ~DINO_MASK_IRQ(local_irq);
+>>>>>>> upstream/android-13
 	} while (mask);
 
 	/* Support for level triggered IRQ lines.
@@ -405,9 +472,14 @@ ilr_again:
 	if (mask) {
 		if (--ilr_loop > 0)
 			goto ilr_again;
+<<<<<<< HEAD
 		printk(KERN_ERR "Dino 0x%px: stuck interrupt %d\n",
 		       dino_dev->hba.base_addr, mask);
 		return IRQ_NONE;
+=======
+		pr_warn_ratelimited("Dino 0x%px: stuck interrupt %d\n",
+		       dino_dev->hba.base_addr, mask);
+>>>>>>> upstream/android-13
 	}
 	return IRQ_HANDLED;
 }
@@ -452,6 +524,18 @@ static void quirk_cirrus_cardbus(struct pci_dev *dev)
 DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_CIRRUS, PCI_DEVICE_ID_CIRRUS_6832, quirk_cirrus_cardbus );
 
 #ifdef CONFIG_TULIP
+<<<<<<< HEAD
+=======
+/* Check if PCI device is behind a Card-mode Dino. */
+static int pci_dev_is_behind_card_dino(struct pci_dev *dev)
+{
+	struct dino_device *dino_dev;
+
+	dino_dev = DINO_DEV(parisc_walk_tree(dev->bus->bridge));
+	return is_card_dino(&dino_dev->hba.dev->id);
+}
+
+>>>>>>> upstream/android-13
 static void pci_fixup_tulip(struct pci_dev *dev)
 {
 	if (!pci_dev_is_behind_card_dino(dev))
@@ -811,7 +895,10 @@ static int __init dino_common_init(struct parisc_device *dev,
 {
 	int status;
 	u32 eim;
+<<<<<<< HEAD
 	struct gsc_irq gsc_irq;
+=======
+>>>>>>> upstream/android-13
 	struct resource *res;
 
 	pcibios_register_hba(&dino_dev->hba);
@@ -826,10 +913,15 @@ static int __init dino_common_init(struct parisc_device *dev,
 	**   still only has 11 IRQ input lines - just map some of them
 	**   to a different processor.
 	*/
+<<<<<<< HEAD
 	dev->irq = gsc_alloc_irq(&gsc_irq);
 	dino_dev->txn_addr = gsc_irq.txn_addr;
 	dino_dev->txn_data = gsc_irq.txn_data;
 	eim = ((u32) gsc_irq.txn_addr) | gsc_irq.txn_data;
+=======
+	dev->irq = gsc_alloc_irq(&dino_dev->gsc_irq);
+	eim = ((u32) dino_dev->gsc_irq.txn_addr) | dino_dev->gsc_irq.txn_data;
+>>>>>>> upstream/android-13
 
 	/* 
 	** Dino needs a PA "IRQ" to get a processor's attention.
@@ -892,14 +984,22 @@ static int __init dino_common_init(struct parisc_device *dev,
 #define CUJO_RAVEN_BADPAGE	0x01003000UL
 #define CUJO_FIREHAWK_BADPAGE	0x01607000UL
 
+<<<<<<< HEAD
 static const char *dino_vers[] = {
+=======
+static const char dino_vers[][4] = {
+>>>>>>> upstream/android-13
 	"2.0",
 	"2.1",
 	"3.0",
 	"3.1"
 };
 
+<<<<<<< HEAD
 static const char *cujo_vers[] = {
+=======
+static const char cujo_vers[][4] = {
+>>>>>>> upstream/android-13
 	"1.0",
 	"2.0"
 };
@@ -979,7 +1079,11 @@ static int __init dino_probe(struct parisc_device *dev)
 	}
 
 	dino_dev->hba.dev = dev;
+<<<<<<< HEAD
 	dino_dev->hba.base_addr = ioremap_nocache(hpa, 4096);
+=======
+	dino_dev->hba.base_addr = ioremap(hpa, 4096);
+>>>>>>> upstream/android-13
 	dino_dev->hba.lmmio_space_offset = PCI_F_EXTEND;
 	spin_lock_init(&dino_dev->dinosaur_pen);
 	dino_dev->hba.iommu = ccio_get_iommu(dev);

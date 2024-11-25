@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  linux/arch/arm/mach-mmp/brownstone.c
  *
  *  Support for the Marvell Brownstone Development Platform.
  *
  *  Copyright (C) 2009-2010 Marvell International Ltd.
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2 as
  *  publishhed by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -15,6 +22,10 @@
 #include <linux/platform_device.h>
 #include <linux/io.h>
 #include <linux/gpio-pxa.h>
+<<<<<<< HEAD
+=======
+#include <linux/gpio/machine.h>
+>>>>>>> upstream/android-13
 #include <linux/regulator/machine.h>
 #include <linux/regulator/max8649.h>
 #include <linux/regulator/fixed.h>
@@ -148,8 +159,11 @@ static struct regulator_init_data brownstone_v_5vp_data = {
 static struct fixed_voltage_config brownstone_v_5vp = {
 	.supply_name		= "v_5vp",
 	.microvolts		= 5000000,
+<<<<<<< HEAD
 	.gpio			= GPIO_5V_ENABLE,
 	.enable_high		= 1,
+=======
+>>>>>>> upstream/android-13
 	.enabled_at_boot	= 1,
 	.init_data		= &brownstone_v_5vp_data,
 };
@@ -162,6 +176,18 @@ static struct platform_device brownstone_v_5vp_device = {
 	},
 };
 
+<<<<<<< HEAD
+=======
+static struct gpiod_lookup_table brownstone_v_5vp_gpiod_table = {
+	.dev_id = "reg-fixed-voltage.1", /* .id set to 1 above */
+	.table = {
+		GPIO_LOOKUP("gpio-pxa", GPIO_5V_ENABLE,
+			    NULL, GPIO_ACTIVE_HIGH),
+		{ },
+	},
+};
+
+>>>>>>> upstream/android-13
 static struct max8925_platform_data brownstone_max8925_info = {
 	.irq_base		= MMP_NR_IRQS,
 };
@@ -217,6 +243,10 @@ static void __init brownstone_init(void)
 	mmp2_add_isram(&mmp2_isram_platdata);
 
 	/* enable 5v regulator */
+<<<<<<< HEAD
+=======
+	gpiod_add_lookup_table(&brownstone_v_5vp_gpiod_table);
+>>>>>>> upstream/android-13
 	platform_device_register(&brownstone_v_5vp_device);
 }
 

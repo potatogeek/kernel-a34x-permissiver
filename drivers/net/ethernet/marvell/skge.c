@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * New driver for Marvell Yukon chipset and SysKonnect Gigabit
  * Ethernet adapters. Based on earlier sk98lin, e100 and
@@ -8,6 +12,7 @@
  * those should be done at higher levels.
  *
  * Copyright (C) 2004, 2005 Stephen Hemminger <shemminger@osdl.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +26,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -627,7 +634,13 @@ static inline u32 skge_usecs2clk(const struct skge_hw *hw, u32 usec)
 }
 
 static int skge_get_coalesce(struct net_device *dev,
+<<<<<<< HEAD
 			     struct ethtool_coalesce *ecmd)
+=======
+			     struct ethtool_coalesce *ecmd,
+			     struct kernel_ethtool_coalesce *kernel_coal,
+			     struct netlink_ext_ack *extack)
+>>>>>>> upstream/android-13
 {
 	struct skge_port *skge = netdev_priv(dev);
 	struct skge_hw *hw = skge->hw;
@@ -651,7 +664,13 @@ static int skge_get_coalesce(struct net_device *dev,
 
 /* Note: interrupt timer is per board, but can turn on/off per port */
 static int skge_set_coalesce(struct net_device *dev,
+<<<<<<< HEAD
 			     struct ethtool_coalesce *ecmd)
+=======
+			     struct ethtool_coalesce *ecmd,
+			     struct kernel_ethtool_coalesce *kernel_coal,
+			     struct netlink_ext_ack *extack)
+>>>>>>> upstream/android-13
 {
 	struct skge_port *skge = netdev_priv(dev);
 	struct skge_hw *hw = skge->hw;
@@ -888,6 +907,10 @@ static int skge_set_eeprom(struct net_device *dev, struct ethtool_eeprom *eeprom
 }
 
 static const struct ethtool_ops skge_ethtool_ops = {
+<<<<<<< HEAD
+=======
+	.supported_coalesce_params = ETHTOOL_COALESCE_USECS,
+>>>>>>> upstream/android-13
 	.get_drvinfo	= skge_get_drvinfo,
 	.get_regs_len	= skge_get_regs_len,
 	.get_regs	= skge_get_regs,
@@ -950,10 +973,17 @@ static int skge_rx_setup(struct skge_port *skge, struct skge_element *e,
 	struct skge_rx_desc *rd = e->desc;
 	dma_addr_t map;
 
+<<<<<<< HEAD
 	map = pci_map_single(skge->hw->pdev, skb->data, bufsize,
 			     PCI_DMA_FROMDEVICE);
 
 	if (pci_dma_mapping_error(skge->hw->pdev, map))
+=======
+	map = dma_map_single(&skge->hw->pdev->dev, skb->data, bufsize,
+			     DMA_FROM_DEVICE);
+
+	if (dma_mapping_error(&skge->hw->pdev->dev, map))
+>>>>>>> upstream/android-13
 		return -1;
 
 	rd->dma_lo = lower_32_bits(map);
@@ -1001,10 +1031,17 @@ static void skge_rx_clean(struct skge_port *skge)
 		struct skge_rx_desc *rd = e->desc;
 		rd->control = 0;
 		if (e->skb) {
+<<<<<<< HEAD
 			pci_unmap_single(hw->pdev,
 					 dma_unmap_addr(e, mapaddr),
 					 dma_unmap_len(e, maplen),
 					 PCI_DMA_FROMDEVICE);
+=======
+			dma_unmap_single(&hw->pdev->dev,
+					 dma_unmap_addr(e, mapaddr),
+					 dma_unmap_len(e, maplen),
+					 DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 			dev_kfree_skb(e->skb);
 			e->skb = NULL;
 		}
@@ -1628,7 +1665,11 @@ static void genesis_mac_init(struct skge_hw *hw, int port)
 		xm_write16(hw, port, XM_TX_THR, 512);
 
 	/*
+<<<<<<< HEAD
 	 * Enable the reception of all error frames. This is is
+=======
+	 * Enable the reception of all error frames. This is
+>>>>>>> upstream/android-13
 	 * a necessary evil due to the design of the XMAC. The
 	 * XMAC's receive FIFO is only 8K in size, however jumbo
 	 * frames can be up to 9000 bytes in length. When bad
@@ -2459,7 +2500,11 @@ static int skge_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
 	case SIOCGMIIPHY:
 		data->phy_id = hw->phy_addr;
 
+<<<<<<< HEAD
 		/* fallthru */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case SIOCGMIIREG: {
 		u16 val = 0;
 		spin_lock_bh(&hw->phy_lock);
@@ -2558,20 +2603,32 @@ static int skge_up(struct net_device *dev)
 	rx_size = skge->rx_ring.count * sizeof(struct skge_rx_desc);
 	tx_size = skge->tx_ring.count * sizeof(struct skge_tx_desc);
 	skge->mem_size = tx_size + rx_size;
+<<<<<<< HEAD
 	skge->mem = pci_alloc_consistent(hw->pdev, skge->mem_size, &skge->dma);
+=======
+	skge->mem = dma_alloc_coherent(&hw->pdev->dev, skge->mem_size,
+				       &skge->dma, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!skge->mem)
 		return -ENOMEM;
 
 	BUG_ON(skge->dma & 7);
 
 	if (upper_32_bits(skge->dma) != upper_32_bits(skge->dma + skge->mem_size)) {
+<<<<<<< HEAD
 		dev_err(&hw->pdev->dev, "pci_alloc_consistent region crosses 4G boundary\n");
+=======
+		dev_err(&hw->pdev->dev, "dma_alloc_coherent region crosses 4G boundary\n");
+>>>>>>> upstream/android-13
 		err = -EINVAL;
 		goto free_pci_mem;
 	}
 
+<<<<<<< HEAD
 	memset(skge->mem, 0, skge->mem_size);
 
+=======
+>>>>>>> upstream/android-13
 	err = skge_ring_alloc(&skge->rx_ring, skge->mem, skge->dma);
 	if (err)
 		goto free_pci_mem;
@@ -2638,7 +2695,12 @@ static int skge_up(struct net_device *dev)
 	skge_rx_clean(skge);
 	kfree(skge->rx_ring.start);
  free_pci_mem:
+<<<<<<< HEAD
 	pci_free_consistent(hw->pdev, skge->mem_size, skge->mem, skge->dma);
+=======
+	dma_free_coherent(&hw->pdev->dev, skge->mem_size, skge->mem,
+			  skge->dma);
+>>>>>>> upstream/android-13
 	skge->mem = NULL;
 
 	return err;
@@ -2728,7 +2790,12 @@ static int skge_down(struct net_device *dev)
 
 	kfree(skge->rx_ring.start);
 	kfree(skge->tx_ring.start);
+<<<<<<< HEAD
 	pci_free_consistent(hw->pdev, skge->mem_size, skge->mem, skge->dma);
+=======
+	dma_free_coherent(&hw->pdev->dev, skge->mem_size, skge->mem,
+			  skge->dma);
+>>>>>>> upstream/android-13
 	skge->mem = NULL;
 	return 0;
 }
@@ -2762,8 +2829,13 @@ static netdev_tx_t skge_xmit_frame(struct sk_buff *skb,
 	BUG_ON(td->control & BMU_OWN);
 	e->skb = skb;
 	len = skb_headlen(skb);
+<<<<<<< HEAD
 	map = pci_map_single(hw->pdev, skb->data, len, PCI_DMA_TODEVICE);
 	if (pci_dma_mapping_error(hw->pdev, map))
+=======
+	map = dma_map_single(&hw->pdev->dev, skb->data, len, DMA_TO_DEVICE);
+	if (dma_mapping_error(&hw->pdev->dev, map))
+>>>>>>> upstream/android-13
 		goto mapping_error;
 
 	dma_unmap_addr_set(e, mapaddr, map);
@@ -2843,6 +2915,7 @@ static netdev_tx_t skge_xmit_frame(struct sk_buff *skb,
 
 mapping_unwind:
 	e = skge->tx_ring.to_use;
+<<<<<<< HEAD
 	pci_unmap_single(hw->pdev,
 			 dma_unmap_addr(e, mapaddr),
 			 dma_unmap_len(e, maplen),
@@ -2853,6 +2926,14 @@ mapping_unwind:
 			       dma_unmap_addr(e, mapaddr),
 			       dma_unmap_len(e, maplen),
 			       PCI_DMA_TODEVICE);
+=======
+	dma_unmap_single(&hw->pdev->dev, dma_unmap_addr(e, mapaddr),
+			 dma_unmap_len(e, maplen), DMA_TO_DEVICE);
+	while (i-- > 0) {
+		e = e->next;
+		dma_unmap_page(&hw->pdev->dev, dma_unmap_addr(e, mapaddr),
+			       dma_unmap_len(e, maplen), DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 	}
 
 mapping_error:
@@ -2869,6 +2950,7 @@ static inline void skge_tx_unmap(struct pci_dev *pdev, struct skge_element *e,
 {
 	/* skb header vs. fragment */
 	if (control & BMU_STF)
+<<<<<<< HEAD
 		pci_unmap_single(pdev, dma_unmap_addr(e, mapaddr),
 				 dma_unmap_len(e, maplen),
 				 PCI_DMA_TODEVICE);
@@ -2876,6 +2958,13 @@ static inline void skge_tx_unmap(struct pci_dev *pdev, struct skge_element *e,
 		pci_unmap_page(pdev, dma_unmap_addr(e, mapaddr),
 			       dma_unmap_len(e, maplen),
 			       PCI_DMA_TODEVICE);
+=======
+		dma_unmap_single(&pdev->dev, dma_unmap_addr(e, mapaddr),
+				 dma_unmap_len(e, maplen), DMA_TO_DEVICE);
+	else
+		dma_unmap_page(&pdev->dev, dma_unmap_addr(e, mapaddr),
+			       dma_unmap_len(e, maplen), DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 }
 
 /* Free all buffers in transmit ring */
@@ -2898,7 +2987,11 @@ static void skge_tx_clean(struct net_device *dev)
 	skge->tx_ring.to_clean = e;
 }
 
+<<<<<<< HEAD
 static void skge_tx_timeout(struct net_device *dev)
+=======
+static void skge_tx_timeout(struct net_device *dev, unsigned int txqueue)
+>>>>>>> upstream/android-13
 {
 	struct skge_port *skge = netdev_priv(dev);
 
@@ -2975,8 +3068,14 @@ static void genesis_set_multicast(struct net_device *dev)
 
 static void yukon_add_filter(u8 filter[8], const u8 *addr)
 {
+<<<<<<< HEAD
 	 u32 bit = ether_crc(ETH_ALEN, addr) & 0x3f;
 	 filter[bit/8] |= 1 << (bit%8);
+=======
+	u32 bit = ether_crc(ETH_ALEN, addr) & 0x3f;
+
+	filter[bit / 8] |= 1 << (bit % 8);
+>>>>>>> upstream/android-13
 }
 
 static void yukon_set_multicast(struct net_device *dev)
@@ -3085,6 +3184,7 @@ static struct sk_buff *skge_rx_get(struct net_device *dev,
 		if (!skb)
 			goto resubmit;
 
+<<<<<<< HEAD
 		pci_dma_sync_single_for_cpu(skge->hw->pdev,
 					    dma_unmap_addr(e, mapaddr),
 					    dma_unmap_len(e, maplen),
@@ -3094,6 +3194,17 @@ static struct sk_buff *skge_rx_get(struct net_device *dev,
 					       dma_unmap_addr(e, mapaddr),
 					       dma_unmap_len(e, maplen),
 					       PCI_DMA_FROMDEVICE);
+=======
+		dma_sync_single_for_cpu(&skge->hw->pdev->dev,
+					dma_unmap_addr(e, mapaddr),
+					dma_unmap_len(e, maplen),
+					DMA_FROM_DEVICE);
+		skb_copy_from_linear_data(e->skb, skb->data, len);
+		dma_sync_single_for_device(&skge->hw->pdev->dev,
+					   dma_unmap_addr(e, mapaddr),
+					   dma_unmap_len(e, maplen),
+					   DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 		skge_rx_reuse(e, skge->rx_buf_size);
 	} else {
 		struct skge_element ee;
@@ -3113,10 +3224,16 @@ static struct sk_buff *skge_rx_get(struct net_device *dev,
 			goto resubmit;
 		}
 
+<<<<<<< HEAD
 		pci_unmap_single(skge->hw->pdev,
 				 dma_unmap_addr(&ee, mapaddr),
 				 dma_unmap_len(&ee, maplen),
 				 PCI_DMA_FROMDEVICE);
+=======
+		dma_unmap_single(&skge->hw->pdev->dev,
+				 dma_unmap_addr(&ee, mapaddr),
+				 dma_unmap_len(&ee, maplen), DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 	}
 
 	skb_put(skb, len);
@@ -3355,9 +3472,15 @@ static void skge_error_irq(struct skge_hw *hw)
  * because accessing phy registers requires spin wait which might
  * cause excess interrupt latency.
  */
+<<<<<<< HEAD
 static void skge_extirq(unsigned long arg)
 {
 	struct skge_hw *hw = (struct skge_hw *) arg;
+=======
+static void skge_extirq(struct tasklet_struct *t)
+{
+	struct skge_hw *hw = from_tasklet(hw, t, phy_task);
+>>>>>>> upstream/android-13
 	int port;
 
 	for (port = 0; port < hw->ports; port++) {
@@ -3734,6 +3857,7 @@ static int skge_debug_show(struct seq_file *seq, void *v)
 
 	return 0;
 }
+<<<<<<< HEAD
 
 static int skge_debug_open(struct inode *inode, struct file *file)
 {
@@ -3747,6 +3871,9 @@ static const struct file_operations skge_debug_fops = {
 	.llseek		= seq_lseek,
 	.release	= single_release,
 };
+=======
+DEFINE_SHOW_ATTRIBUTE(skge_debug);
+>>>>>>> upstream/android-13
 
 /*
  * Use network device events to create/remove/rename
@@ -3757,7 +3884,10 @@ static int skge_device_event(struct notifier_block *unused,
 {
 	struct net_device *dev = netdev_notifier_info_to_dev(ptr);
 	struct skge_port *skge;
+<<<<<<< HEAD
 	struct dentry *d;
+=======
+>>>>>>> upstream/android-13
 
 	if (dev->netdev_ops->ndo_open != &skge_up || !skge_debug)
 		goto done;
@@ -3765,6 +3895,7 @@ static int skge_device_event(struct notifier_block *unused,
 	skge = netdev_priv(dev);
 	switch (event) {
 	case NETDEV_CHANGENAME:
+<<<<<<< HEAD
 		if (skge->debugfs) {
 			d = debugfs_rename(skge_debug, skge->debugfs,
 					   skge_debug, dev->name);
@@ -3792,6 +3923,22 @@ static int skge_device_event(struct notifier_block *unused,
 			netdev_info(dev, "debugfs create failed\n");
 		else
 			skge->debugfs = d;
+=======
+		if (skge->debugfs)
+			skge->debugfs = debugfs_rename(skge_debug,
+						       skge->debugfs,
+						       skge_debug, dev->name);
+		break;
+
+	case NETDEV_GOING_DOWN:
+		debugfs_remove(skge->debugfs);
+		skge->debugfs = NULL;
+		break;
+
+	case NETDEV_UP:
+		skge->debugfs = debugfs_create_file(dev->name, 0444, skge_debug,
+						    dev, &skge_debug_fops);
+>>>>>>> upstream/android-13
 		break;
 	}
 
@@ -3806,6 +3953,7 @@ static struct notifier_block skge_notifier = {
 
 static __init void skge_debug_init(void)
 {
+<<<<<<< HEAD
 	struct dentry *ent;
 
 	ent = debugfs_create_dir("skge", NULL);
@@ -3815,6 +3963,10 @@ static __init void skge_debug_init(void)
 	}
 
 	skge_debug = ent;
+=======
+	skge_debug = debugfs_create_dir("skge", NULL);
+
+>>>>>>> upstream/android-13
 	register_netdevice_notifier(&skge_notifier);
 }
 
@@ -3836,7 +3988,11 @@ static const struct net_device_ops skge_netdev_ops = {
 	.ndo_open		= skge_up,
 	.ndo_stop		= skge_down,
 	.ndo_start_xmit		= skge_xmit_frame,
+<<<<<<< HEAD
 	.ndo_do_ioctl		= skge_ioctl,
+=======
+	.ndo_eth_ioctl		= skge_ioctl,
+>>>>>>> upstream/android-13
 	.ndo_get_stats		= skge_get_stats,
 	.ndo_tx_timeout		= skge_tx_timeout,
 	.ndo_change_mtu		= skge_change_mtu,
@@ -3899,7 +4055,11 @@ static struct net_device *skge_devinit(struct skge_hw *hw, int port,
 
 	/* Only used for Genesis XMAC */
 	if (is_genesis(hw))
+<<<<<<< HEAD
 	    timer_setup(&skge->link_timer, xm_link_timer, 0);
+=======
+		timer_setup(&skge->link_timer, xm_link_timer, 0);
+>>>>>>> upstream/android-13
 	else {
 		dev->hw_features = NETIF_F_IP_CSUM | NETIF_F_SG |
 		                   NETIF_F_RXCSUM;
@@ -3941,12 +4101,21 @@ static int skge_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 
 	pci_set_master(pdev);
 
+<<<<<<< HEAD
 	if (!only_32bit_dma && !pci_set_dma_mask(pdev, DMA_BIT_MASK(64))) {
 		using_dac = 1;
 		err = pci_set_consistent_dma_mask(pdev, DMA_BIT_MASK(64));
 	} else if (!(err = pci_set_dma_mask(pdev, DMA_BIT_MASK(32)))) {
 		using_dac = 0;
 		err = pci_set_consistent_dma_mask(pdev, DMA_BIT_MASK(32));
+=======
+	if (!only_32bit_dma && !dma_set_mask(&pdev->dev, DMA_BIT_MASK(64))) {
+		using_dac = 1;
+		err = dma_set_coherent_mask(&pdev->dev, DMA_BIT_MASK(64));
+	} else if (!(err = dma_set_mask(&pdev->dev, DMA_BIT_MASK(32)))) {
+		using_dac = 0;
+		err = dma_set_coherent_mask(&pdev->dev, DMA_BIT_MASK(32));
+>>>>>>> upstream/android-13
 	}
 
 	if (err) {
@@ -3977,9 +4146,15 @@ static int skge_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 	hw->pdev = pdev;
 	spin_lock_init(&hw->hw_lock);
 	spin_lock_init(&hw->phy_lock);
+<<<<<<< HEAD
 	tasklet_init(&hw->phy_task, skge_extirq, (unsigned long) hw);
 
 	hw->regs = ioremap_nocache(pci_resource_start(pdev, 0), 0x4000);
+=======
+	tasklet_setup(&hw->phy_task, skge_extirq);
+
+	hw->regs = ioremap(pci_resource_start(pdev, 0), 0x4000);
+>>>>>>> upstream/android-13
 	if (!hw->regs) {
 		dev_err(&pdev->dev, "cannot map device registers\n");
 		goto err_out_free_hw;
@@ -4104,8 +4279,12 @@ static void skge_remove(struct pci_dev *pdev)
 #ifdef CONFIG_PM_SLEEP
 static int skge_suspend(struct device *dev)
 {
+<<<<<<< HEAD
 	struct pci_dev *pdev = to_pci_dev(dev);
 	struct skge_hw *hw  = pci_get_drvdata(pdev);
+=======
+	struct skge_hw *hw  = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 	int i;
 
 	if (!hw)
@@ -4129,8 +4308,12 @@ static int skge_suspend(struct device *dev)
 
 static int skge_resume(struct device *dev)
 {
+<<<<<<< HEAD
 	struct pci_dev *pdev = to_pci_dev(dev);
 	struct skge_hw *hw  = pci_get_drvdata(pdev);
+=======
+	struct skge_hw *hw  = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 	int i, err;
 
 	if (!hw)

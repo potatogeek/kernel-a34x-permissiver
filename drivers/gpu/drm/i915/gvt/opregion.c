@@ -30,7 +30,11 @@
  * not do like this.
  */
 #define _INTEL_BIOS_PRIVATE
+<<<<<<< HEAD
 #include "intel_vbt_defs.h"
+=======
+#include "display/intel_vbt_defs.h"
+>>>>>>> upstream/android-13
 
 #define OPREGION_SIGNATURE "IntelGraphicsMem"
 #define MBOX_VBT      (1<<3)
@@ -147,15 +151,23 @@ static void virt_vbt_generation(struct vbt *v)
 	/* there's features depending on version! */
 	v->header.version = 155;
 	v->header.header_size = sizeof(v->header);
+<<<<<<< HEAD
 	v->header.vbt_size = sizeof(struct vbt) - sizeof(v->header);
+=======
+	v->header.vbt_size = sizeof(struct vbt);
+>>>>>>> upstream/android-13
 	v->header.bdb_offset = offsetof(struct vbt, bdb_header);
 
 	strcpy(&v->bdb_header.signature[0], "BIOS_DATA_BLOCK");
 	v->bdb_header.version = 186; /* child_dev_size = 33 */
 	v->bdb_header.header_size = sizeof(v->bdb_header);
 
+<<<<<<< HEAD
 	v->bdb_header.bdb_size = sizeof(struct vbt) - sizeof(struct vbt_header)
 		- sizeof(struct bdb_header);
+=======
+	v->bdb_header.bdb_size = sizeof(struct vbt) - sizeof(struct vbt_header);
+>>>>>>> upstream/android-13
 
 	/* general features */
 	v->general_features_header.id = BDB_GENERAL_FEATURES;
@@ -214,7 +226,10 @@ static void virt_vbt_generation(struct vbt *v)
 /**
  * intel_vgpu_init_opregion - initialize the stuff used to emulate opregion
  * @vgpu: a vGPU
+<<<<<<< HEAD
  * @gpa: guest physical address of opregion
+=======
+>>>>>>> upstream/android-13
  *
  * Returns:
  * Zero on success, negative error code if failed.

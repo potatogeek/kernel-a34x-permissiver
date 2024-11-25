@@ -180,7 +180,11 @@ struct cxacru_data {
 	struct mutex poll_state_serialize;
 	enum cxacru_poll_state poll_state;
 
+<<<<<<< HEAD
 	/* contol handles */
+=======
+	/* control handles */
+>>>>>>> upstream/android-13
 	struct mutex cm_serialize;
 	u8 *rcv_buf;
 	u8 *snd_buf;
@@ -230,12 +234,20 @@ CXACRU__ATTR_INIT(_name)
 
 static ssize_t cxacru_sysfs_showattr_u32(u32 value, char *buf)
 {
+<<<<<<< HEAD
 	return snprintf(buf, PAGE_SIZE, "%u\n", value);
+=======
+	return sprintf(buf, "%u\n", value);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t cxacru_sysfs_showattr_s8(s8 value, char *buf)
 {
+<<<<<<< HEAD
 	return snprintf(buf, PAGE_SIZE, "%d\n", value);
+=======
+	return sprintf(buf, "%d\n", value);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t cxacru_sysfs_showattr_dB(s16 value, char *buf)
@@ -255,8 +267,13 @@ static ssize_t cxacru_sysfs_showattr_bool(u32 value, char *buf)
 	static char *str[] = { "no", "yes" };
 
 	if (unlikely(value >= ARRAY_SIZE(str)))
+<<<<<<< HEAD
 		return snprintf(buf, PAGE_SIZE, "%u\n", value);
 	return snprintf(buf, PAGE_SIZE, "%s\n", str[value]);
+=======
+		return sprintf(buf, "%u\n", value);
+	return sprintf(buf, "%s\n", str[value]);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t cxacru_sysfs_showattr_LINK(u32 value, char *buf)
@@ -264,8 +281,13 @@ static ssize_t cxacru_sysfs_showattr_LINK(u32 value, char *buf)
 	static char *str[] = { NULL, "not connected", "connected", "lost" };
 
 	if (unlikely(value >= ARRAY_SIZE(str) || str[value] == NULL))
+<<<<<<< HEAD
 		return snprintf(buf, PAGE_SIZE, "%u\n", value);
 	return snprintf(buf, PAGE_SIZE, "%s\n", str[value]);
+=======
+		return sprintf(buf, "%u\n", value);
+	return sprintf(buf, "%s\n", str[value]);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t cxacru_sysfs_showattr_LINE(u32 value, char *buf)
@@ -275,8 +297,13 @@ static ssize_t cxacru_sysfs_showattr_LINE(u32 value, char *buf)
 		"waiting", "initialising"
 	};
 	if (unlikely(value >= ARRAY_SIZE(str)))
+<<<<<<< HEAD
 		return snprintf(buf, PAGE_SIZE, "%u\n", value);
 	return snprintf(buf, PAGE_SIZE, "%s\n", str[value]);
+=======
+		return sprintf(buf, "%u\n", value);
+	return sprintf(buf, "%s\n", str[value]);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t cxacru_sysfs_showattr_MODU(u32 value, char *buf)
@@ -288,8 +315,13 @@ static ssize_t cxacru_sysfs_showattr_MODU(u32 value, char *buf)
 			"ITU-T G.992.2 (G.LITE)"
 	};
 	if (unlikely(value >= ARRAY_SIZE(str)))
+<<<<<<< HEAD
 		return snprintf(buf, PAGE_SIZE, "%u\n", value);
 	return snprintf(buf, PAGE_SIZE, "%s\n", str[value]);
+=======
+		return sprintf(buf, "%u\n", value);
+	return sprintf(buf, "%s\n", str[value]);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -309,8 +341,12 @@ static ssize_t mac_address_show(struct device *dev,
 	if (instance == NULL || instance->usbatm->atm_dev == NULL)
 		return -ENODEV;
 
+<<<<<<< HEAD
 	return snprintf(buf, PAGE_SIZE, "%pM\n",
 		instance->usbatm->atm_dev->esi);
+=======
+	return sprintf(buf, "%pM\n", instance->usbatm->atm_dev->esi);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t adsl_state_show(struct device *dev,
@@ -326,8 +362,13 @@ static ssize_t adsl_state_show(struct device *dev,
 
 	value = instance->card_info[CXINF_LINE_STARTABLE];
 	if (unlikely(value >= ARRAY_SIZE(str)))
+<<<<<<< HEAD
 		return snprintf(buf, PAGE_SIZE, "%u\n", value);
 	return snprintf(buf, PAGE_SIZE, "%s\n", str[value]);
+=======
+		return sprintf(buf, "%u\n", value);
+	return sprintf(buf, "%s\n", str[value]);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t adsl_state_store(struct device *dev,
@@ -408,7 +449,11 @@ static ssize_t adsl_state_store(struct device *dev,
 		case CXPOLL_STOPPING:
 			/* abort stop request */
 			instance->poll_state = CXPOLL_POLLING;
+<<<<<<< HEAD
 			/* fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case CXPOLL_POLLING:
 		case CXPOLL_SHUTDOWN:
 			/* don't start polling */
@@ -539,6 +584,40 @@ CXACRU_SET_##_action(                                        adsl_config);
 
 CXACRU_ALL_FILES(INIT);
 
+<<<<<<< HEAD
+=======
+static struct attribute *cxacru_attrs[] = {
+	&dev_attr_adsl_config.attr,
+	&dev_attr_adsl_state.attr,
+	&dev_attr_adsl_controller_version.attr,
+	&dev_attr_adsl_headend_environment.attr,
+	&dev_attr_adsl_headend.attr,
+	&dev_attr_modulation.attr,
+	&dev_attr_line_startable.attr,
+	&dev_attr_downstream_hec_errors.attr,
+	&dev_attr_upstream_hec_errors.attr,
+	&dev_attr_downstream_fec_errors.attr,
+	&dev_attr_upstream_fec_errors.attr,
+	&dev_attr_downstream_crc_errors.attr,
+	&dev_attr_upstream_crc_errors.attr,
+	&dev_attr_startup_attempts.attr,
+	&dev_attr_downstream_bits_per_frame.attr,
+	&dev_attr_upstream_bits_per_frame.attr,
+	&dev_attr_transmitter_power.attr,
+	&dev_attr_downstream_attenuation.attr,
+	&dev_attr_upstream_attenuation.attr,
+	&dev_attr_downstream_snr_margin.attr,
+	&dev_attr_upstream_snr_margin.attr,
+	&dev_attr_mac_address.attr,
+	&dev_attr_line_status.attr,
+	&dev_attr_link_status.attr,
+	&dev_attr_upstream_rate.attr,
+	&dev_attr_downstream_rate.attr,
+	NULL,
+};
+ATTRIBUTE_GROUPS(cxacru);
+
+>>>>>>> upstream/android-13
 /* the following three functions are stolen from drivers/usb/core/message.c */
 static void cxacru_blocking_completion(struct urb *urb)
 {
@@ -736,6 +815,7 @@ static int cxacru_card_status(struct cxacru_data *instance)
 	return 0;
 }
 
+<<<<<<< HEAD
 static void cxacru_remove_device_files(struct usbatm_data *usbatm_instance,
 		struct atm_dev *atm_dev)
 {
@@ -747,6 +827,8 @@ static void cxacru_remove_device_files(struct usbatm_data *usbatm_instance,
 	#undef CXACRU_DEVICE_REMOVE_FILE
 }
 
+=======
+>>>>>>> upstream/android-13
 static int cxacru_atm_start(struct usbatm_data *usbatm_instance,
 		struct atm_dev *atm_dev)
 {
@@ -765,6 +847,7 @@ static int cxacru_atm_start(struct usbatm_data *usbatm_instance,
 		return ret;
 	}
 
+<<<<<<< HEAD
 	#define CXACRU_DEVICE_CREATE_FILE(_name) \
 		ret = device_create_file(&intf->dev, &dev_attr_##_name); \
 		if (unlikely(ret)) \
@@ -772,6 +855,8 @@ static int cxacru_atm_start(struct usbatm_data *usbatm_instance,
 	CXACRU_ALL_FILES(CREATE);
 	#undef CXACRU_DEVICE_CREATE_FILE
 
+=======
+>>>>>>> upstream/android-13
 	/* start ADSL */
 	mutex_lock(&instance->adsl_state_serialize);
 	ret = cxacru_cm(instance, CM_REQUEST_CHIP_ADSL_LINE_START, NULL, 0, NULL, 0);
@@ -789,7 +874,11 @@ static int cxacru_atm_start(struct usbatm_data *usbatm_instance,
 	case CXPOLL_STOPPING:
 		/* abort stop request */
 		instance->poll_state = CXPOLL_POLLING;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case CXPOLL_POLLING:
 	case CXPOLL_SHUTDOWN:
 		/* don't start polling */
@@ -798,6 +887,7 @@ static int cxacru_atm_start(struct usbatm_data *usbatm_instance,
 	mutex_unlock(&instance->poll_state_serialize);
 	mutex_unlock(&instance->adsl_state_serialize);
 
+<<<<<<< HEAD
 	printk(KERN_INFO "%s%d: %s %pM\n", atm_dev->type, atm_dev->number,
 			usbatm_instance->description, atm_dev->esi);
 
@@ -809,6 +899,11 @@ fail_sysfs:
 	usb_err(usbatm_instance, "cxacru_atm_start: device_create_file failed (%d)\n", ret);
 	cxacru_remove_device_files(usbatm_instance, atm_dev);
 	return ret;
+=======
+	if (start_polling)
+		cxacru_poll_status(&instance->poll_work.work);
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static void cxacru_poll_status(struct work_struct *work)
@@ -845,6 +940,7 @@ static void cxacru_poll_status(struct work_struct *work)
 
 		switch (instance->adsl_status) {
 		case 0:
+<<<<<<< HEAD
 			atm_printk(KERN_INFO, usbatm, "ADSL state: running\n");
 			break;
 
@@ -854,6 +950,17 @@ static void cxacru_poll_status(struct work_struct *work)
 
 		default:
 			atm_printk(KERN_INFO, usbatm, "Unknown adsl status %02x\n", instance->adsl_status);
+=======
+			atm_info(usbatm, "ADSL state: running\n");
+			break;
+
+		case 1:
+			atm_info(usbatm, "ADSL state: stopped\n");
+			break;
+
+		default:
+			atm_info(usbatm, "Unknown adsl status %02x\n", instance->adsl_status);
+>>>>>>> upstream/android-13
 			break;
 		}
 	}
@@ -1332,7 +1439,10 @@ static struct usbatm_driver cxacru_driver = {
 	.heavy_init	= cxacru_heavy_init,
 	.unbind		= cxacru_unbind,
 	.atm_start	= cxacru_atm_start,
+<<<<<<< HEAD
 	.atm_stop	= cxacru_remove_device_files,
+=======
+>>>>>>> upstream/android-13
 	.bulk_in	= CXACRU_EP_DATA,
 	.bulk_out	= CXACRU_EP_DATA,
 	.rx_padding	= 3,
@@ -1364,7 +1474,12 @@ static struct usb_driver cxacru_usb_driver = {
 	.name		= cxacru_driver_name,
 	.probe		= cxacru_usb_probe,
 	.disconnect	= usbatm_usb_disconnect,
+<<<<<<< HEAD
 	.id_table	= cxacru_usb_ids
+=======
+	.id_table	= cxacru_usb_ids,
+	.dev_groups	= cxacru_groups,
+>>>>>>> upstream/android-13
 };
 
 module_usb_driver(cxacru_usb_driver);

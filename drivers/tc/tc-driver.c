@@ -56,8 +56,13 @@ EXPORT_SYMBOL(tc_unregister_driver);
  * system is in its list of supported devices.  Returns the matching
  * tc_device_id structure or %NULL if there is no match.
  */
+<<<<<<< HEAD
 const struct tc_device_id *tc_match_device(struct tc_driver *tdrv,
 					   struct tc_dev *tdev)
+=======
+static const struct tc_device_id *tc_match_device(struct tc_driver *tdrv,
+						  struct tc_dev *tdev)
+>>>>>>> upstream/android-13
 {
 	const struct tc_device_id *id = tdrv->id_table;
 
@@ -71,7 +76,10 @@ const struct tc_device_id *tc_match_device(struct tc_driver *tdrv,
 	}
 	return NULL;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(tc_match_device);
+=======
+>>>>>>> upstream/android-13
 
 /**
  * tc_bus_match - Tell if a device structure has a matching

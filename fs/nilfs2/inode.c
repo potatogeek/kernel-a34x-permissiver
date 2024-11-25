@@ -14,6 +14,10 @@
 #include <linux/pagemap.h>
 #include <linux/writeback.h>
 #include <linux/uio.h>
+<<<<<<< HEAD
+=======
+#include <linux/fiemap.h>
+>>>>>>> upstream/android-13
 #include "nilfs.h"
 #include "btnode.h"
 #include "segment.h"
@@ -103,10 +107,17 @@ int nilfs_get_block(struct inode *inode, sector_t blkoff,
 				 * However, the page having this block must
 				 * be locked in this case.
 				 */
+<<<<<<< HEAD
 				nilfs_msg(inode->i_sb, KERN_WARNING,
 					  "%s (ino=%lu): a race condition while inserting a data block at offset=%llu",
 					  __func__, inode->i_ino,
 					  (unsigned long long)blkoff);
+=======
+				nilfs_warn(inode->i_sb,
+					   "%s (ino=%lu): a race condition while inserting a data block at offset=%llu",
+					   __func__, inode->i_ino,
+					   (unsigned long long)blkoff);
+>>>>>>> upstream/android-13
 				err = 0;
 			}
 			nilfs_transaction_abort(inode->i_sb);
@@ -145,6 +156,7 @@ static int nilfs_readpage(struct file *file, struct page *page)
 	return mpage_readpage(page, nilfs_get_block);
 }
 
+<<<<<<< HEAD
 /**
  * nilfs_readpages() - implement readpages() method of nilfs_aops {}
  * address_space_operations.
@@ -157,6 +169,11 @@ static int nilfs_readpages(struct file *file, struct address_space *mapping,
 			   struct list_head *pages, unsigned int nr_pages)
 {
 	return mpage_readpages(mapping, pages, nr_pages, nilfs_get_block);
+=======
+static void nilfs_readahead(struct readahead_control *rac)
+{
+	mpage_readahead(rac, nilfs_get_block);
+>>>>>>> upstream/android-13
 }
 
 static int nilfs_writepages(struct address_space *mapping,
@@ -308,7 +325,11 @@ const struct address_space_operations nilfs_aops = {
 	.readpage		= nilfs_readpage,
 	.writepages		= nilfs_writepages,
 	.set_page_dirty		= nilfs_set_page_dirty,
+<<<<<<< HEAD
 	.readpages		= nilfs_readpages,
+=======
+	.readahead		= nilfs_readahead,
+>>>>>>> upstream/android-13
 	.write_begin		= nilfs_write_begin,
 	.write_end		= nilfs_write_end,
 	/* .releasepage		= nilfs_releasepage, */
@@ -356,7 +377,11 @@ struct inode *nilfs_new_inode(struct inode *dir, umode_t mode)
 	/* reference count of i_bh inherits from nilfs_mdt_read_block() */
 
 	atomic64_inc(&root->inodes_count);
+<<<<<<< HEAD
 	inode_init_owner(inode, dir, mode);
+=======
+	inode_init_owner(&init_user_ns, inode, dir, mode);
+>>>>>>> upstream/android-13
 	inode->i_ino = ino;
 	inode->i_mtime = inode->i_atime = inode->i_ctime = current_time(inode);
 
@@ -396,7 +421,12 @@ struct inode *nilfs_new_inode(struct inode *dir, umode_t mode)
 
  failed_after_creation:
 	clear_nlink(inode);
+<<<<<<< HEAD
 	unlock_new_inode(inode);
+=======
+	if (inode->i_state & I_NEW)
+		unlock_new_inode(inode);
+>>>>>>> upstream/android-13
 	iput(inode);  /*
 		       * raw_inode will be deleted through
 		       * nilfs_evict_inode().
@@ -714,9 +744,14 @@ repeat:
 		goto repeat;
 
 failed:
+<<<<<<< HEAD
 	nilfs_msg(ii->vfs_inode.i_sb, KERN_WARNING,
 		  "error %d truncating bmap (ino=%lu)", ret,
 		  ii->vfs_inode.i_ino);
+=======
+	nilfs_warn(ii->vfs_inode.i_sb, "error %d truncating bmap (ino=%lu)",
+		   ret, ii->vfs_inode.i_ino);
+>>>>>>> upstream/android-13
 }
 
 void nilfs_truncate(struct inode *inode)
@@ -813,14 +848,23 @@ void nilfs_evict_inode(struct inode *inode)
 	 */
 }
 
+<<<<<<< HEAD
 int nilfs_setattr(struct dentry *dentry, struct iattr *iattr)
+=======
+int nilfs_setattr(struct user_namespace *mnt_userns, struct dentry *dentry,
+		  struct iattr *iattr)
+>>>>>>> upstream/android-13
 {
 	struct nilfs_transaction_info ti;
 	struct inode *inode = d_inode(dentry);
 	struct super_block *sb = inode->i_sb;
 	int err;
 
+<<<<<<< HEAD
 	err = setattr_prepare(dentry, iattr);
+=======
+	err = setattr_prepare(&init_user_ns, dentry, iattr);
+>>>>>>> upstream/android-13
 	if (err)
 		return err;
 
@@ -835,7 +879,11 @@ int nilfs_setattr(struct dentry *dentry, struct iattr *iattr)
 		nilfs_truncate(inode);
 	}
 
+<<<<<<< HEAD
 	setattr_copy(inode, iattr);
+=======
+	setattr_copy(&init_user_ns, inode, iattr);
+>>>>>>> upstream/android-13
 	mark_inode_dirty(inode);
 
 	if (iattr->ia_valid & ATTR_MODE) {
@@ -851,7 +899,12 @@ out_err:
 	return err;
 }
 
+<<<<<<< HEAD
 int nilfs_permission(struct inode *inode, int mask)
+=======
+int nilfs_permission(struct user_namespace *mnt_userns, struct inode *inode,
+		     int mask)
+>>>>>>> upstream/android-13
 {
 	struct nilfs_root *root = NILFS_I(inode)->i_root;
 
@@ -859,7 +912,11 @@ int nilfs_permission(struct inode *inode, int mask)
 	    root->cno != NILFS_CPTREE_CURRENT_CNO)
 		return -EROFS; /* snapshot is not writable */
 
+<<<<<<< HEAD
 	return generic_permission(inode, mask);
+=======
+	return generic_permission(&init_user_ns, inode, mask);
+>>>>>>> upstream/android-13
 }
 
 int nilfs_load_inode_block(struct inode *inode, struct buffer_head **pbh)
@@ -927,9 +984,15 @@ int nilfs_set_file_dirty(struct inode *inode, unsigned int nr_dirty)
 			 * This will happen when somebody is freeing
 			 * this inode.
 			 */
+<<<<<<< HEAD
 			nilfs_msg(inode->i_sb, KERN_WARNING,
 				  "cannot set file dirty (ino=%lu): the file is being freed",
 				  inode->i_ino);
+=======
+			nilfs_warn(inode->i_sb,
+				   "cannot set file dirty (ino=%lu): the file is being freed",
+				   inode->i_ino);
+>>>>>>> upstream/android-13
 			spin_unlock(&nilfs->ns_inode_lock);
 			return -EINVAL; /*
 					 * NILFS_I_DIRTY may remain for
@@ -950,9 +1013,15 @@ int __nilfs_mark_inode_dirty(struct inode *inode, int flags)
 
 	err = nilfs_load_inode_block(inode, &ibh);
 	if (unlikely(err)) {
+<<<<<<< HEAD
 		nilfs_msg(inode->i_sb, KERN_WARNING,
 			  "cannot mark inode dirty (ino=%lu): error %d loading inode block",
 			  inode->i_ino, err);
+=======
+		nilfs_warn(inode->i_sb,
+			   "cannot mark inode dirty (ino=%lu): error %d loading inode block",
+			   inode->i_ino, err);
+>>>>>>> upstream/android-13
 		return err;
 	}
 	nilfs_update_inode(inode, ibh, flags);
@@ -978,8 +1047,13 @@ void nilfs_dirty_inode(struct inode *inode, int flags)
 	struct nilfs_mdt_info *mdi = NILFS_MDT(inode);
 
 	if (is_bad_inode(inode)) {
+<<<<<<< HEAD
 		nilfs_msg(inode->i_sb, KERN_WARNING,
 			  "tried to mark bad_inode dirty. ignored.");
+=======
+		nilfs_warn(inode->i_sb,
+			   "tried to mark bad_inode dirty. ignored.");
+>>>>>>> upstream/android-13
 		dump_stack();
 		return;
 	}
@@ -1005,7 +1079,11 @@ int nilfs_fiemap(struct inode *inode, struct fiemap_extent_info *fieinfo,
 	unsigned int blkbits = inode->i_blkbits;
 	int ret, n;
 
+<<<<<<< HEAD
 	ret = fiemap_check_flags(fieinfo, FIEMAP_FLAG_SYNC);
+=======
+	ret = fiemap_prep(inode, fieinfo, start, &len, 0);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 

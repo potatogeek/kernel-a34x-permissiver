@@ -1,18 +1,29 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2012 Freescale Semiconductor, Inc.
  *
  * Author: Varun Sethi <varun.sethi@freescale.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; version 2 of the
  * License.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/irq.h>
 #include <linux/smp.h>
 #include <linux/interrupt.h>
+<<<<<<< HEAD
+=======
+#include <linux/irqdomain.h>
+>>>>>>> upstream/android-13
 
 #include <asm/io.h>
 #include <asm/irq.h>
@@ -103,7 +114,10 @@ static irqreturn_t fsl_error_int_handler(int irq, void *data)
 	struct mpic *mpic = (struct mpic *) data;
 	u32 eisr, eimr;
 	int errint;
+<<<<<<< HEAD
 	unsigned int cascade_irq;
+=======
+>>>>>>> upstream/android-13
 
 	eisr = mpic_fsl_err_read(mpic->err_regs, MPIC_ERR_INT_EISR);
 	eimr = mpic_fsl_err_read(mpic->err_regs, MPIC_ERR_INT_EIMR);
@@ -112,6 +126,7 @@ static irqreturn_t fsl_error_int_handler(int irq, void *data)
 		return IRQ_NONE;
 
 	while (eisr) {
+<<<<<<< HEAD
 		errint = __builtin_clz(eisr);
 		cascade_irq = irq_linear_revmap(mpic->irqhost,
 				 mpic->err_int_vecs[errint]);
@@ -119,6 +134,13 @@ static irqreturn_t fsl_error_int_handler(int irq, void *data)
 		if (cascade_irq) {
 			generic_handle_irq(cascade_irq);
 		} else {
+=======
+		int ret;
+		errint = __builtin_clz(eisr);
+		ret = generic_handle_domain_irq(mpic->irqhost,
+						mpic->err_int_vecs[errint]);
+		if (WARN_ON(ret)) {
+>>>>>>> upstream/android-13
 			eimr |=  1 << (31 - errint);
 			mpic_fsl_err_write(mpic->err_regs, eimr);
 		}

@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Linux-DVB Driver for DiBcom's DiB7000M and
  *              first generation DiB7000P-demodulator-family.
  *
  * Copyright (C) 2005-7 DiBcom (http://www.dibcom.fr/)
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU General Public License as
  *	published by the Free Software Foundation, version 2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -369,7 +376,11 @@ static int dib7000m_sad_calib(struct dib7000m_state *state)
 {
 
 /* internal */
+<<<<<<< HEAD
 //	dib7000m_write_word(state, 928, (3 << 14) | (1 << 12) | (524 << 0)); // sampling clock of the SAD is writting in set_bandwidth
+=======
+//	dib7000m_write_word(state, 928, (3 << 14) | (1 << 12) | (524 << 0)); // sampling clock of the SAD is writing in set_bandwidth
+>>>>>>> upstream/android-13
 	dib7000m_write_word(state, 929, (0 << 1) | (0 << 0));
 	dib7000m_write_word(state, 930, 776); // 0.625*3.3 / 4096
 
@@ -811,7 +822,11 @@ static int dib7000m_agc_startup(struct dvb_frontend *demod)
 
 			dib7000m_restart_agc(state);
 
+<<<<<<< HEAD
 			dprintk("SPLIT %p: %hd\n", demod, agc_split);
+=======
+			dprintk("SPLIT %p: %u\n", demod, agc_split);
+>>>>>>> upstream/android-13
 
 			(*agc_state)++;
 			ret = 5;
@@ -928,7 +943,11 @@ static void dib7000m_set_channel(struct dib7000m_state *state, struct dtv_fronte
 	}
 	state->div_sync_wait = (value * 3) / 2 + 32; // add 50% SFN margin + compensate for one DVSY-fifo TODO
 
+<<<<<<< HEAD
 	/* deactive the possibility of diversity reception if extended interleave - not for 7000MC */
+=======
+	/* deactivate the possibility of diversity reception if extended interleave - not for 7000MC */
+>>>>>>> upstream/android-13
 	/* P_dvsy_sync_mode = 0, P_dvsy_sync_enable=1, P_dvcb_comb_mode=2 */
 	if (1 == 1 || state->revision > 0x4000)
 		state->div_force_off = 0;

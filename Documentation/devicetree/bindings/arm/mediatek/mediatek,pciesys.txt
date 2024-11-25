@@ -7,6 +7,10 @@ Required Properties:
 
 - compatible: Should be:
 	- "mediatek,mt7622-pciesys", "syscon"
+<<<<<<< HEAD
+=======
+	- "mediatek,mt7629-pciesys", "syscon"
+>>>>>>> upstream/android-13
 - #clock-cells: Must be 1
 - #reset-cells: Must be 1
 

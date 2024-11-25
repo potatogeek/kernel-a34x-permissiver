@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * drivers/media/radio/si4713-i2c.c
  *
@@ -5,6 +9,7 @@
  *
  * Copyright (c) 2009 Nokia Corporation
  * Contact: Eduardo Valentin <eduardo.valentin@nokia.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,6 +20,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/completion.h>
@@ -95,7 +102,11 @@ MODULE_VERSION("0.0.1");
 #define check_command_failed(status)	(!(status & SI4713_CTS) || \
 					(status & SI4713_ERR))
 /* mute definition */
+<<<<<<< HEAD
 #define set_mute(p)	((p & 1) | ((p & 1) << 1));
+=======
+#define set_mute(p)	(((p) & 1) | (((p) & 1) << 1))
+>>>>>>> upstream/android-13
 
 #ifdef DEBUG
 #define DBG_BUFFER(device, message, buffer, size)			\
@@ -1166,7 +1177,11 @@ static int si4713_s_ctrl(struct v4l2_ctrl *ctrl)
 			 * V4L2_CID_TUNE_POWER_LEVEL. */
 			if (force)
 				break;
+<<<<<<< HEAD
 			/* fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case V4L2_CID_TUNE_POWER_LEVEL:
 			ret = si4713_tx_tune_power(sdev,
 				sdev->tune_pwr_level->val, sdev->tune_ant_cap->val);
@@ -1272,7 +1287,11 @@ static int si4713_g_modulator(struct v4l2_subdev *sd, struct v4l2_modulator *vm)
 	if (vm->index > 0)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	strncpy(vm->name, "FM Modulator", 32);
+=======
+	strscpy(vm->name, "FM Modulator", sizeof(vm->name));
+>>>>>>> upstream/android-13
 	vm->capability = V4L2_TUNER_CAP_STEREO | V4L2_TUNER_CAP_LOW |
 		V4L2_TUNER_CAP_RDS | V4L2_TUNER_CAP_RDS_CONTROLS;
 
@@ -1436,8 +1455,12 @@ static const struct v4l2_ctrl_config si4713_alt_freqs_ctrl = {
  * I2C driver interface
  */
 /* si4713_probe - probe for the device */
+<<<<<<< HEAD
 static int si4713_probe(struct i2c_client *client,
 					const struct i2c_device_id *id)
+=======
+static int si4713_probe(struct i2c_client *client)
+>>>>>>> upstream/android-13
 {
 	struct si4713_device *sdev;
 	struct v4l2_ctrl_handler *hdl;
@@ -1669,7 +1692,11 @@ static struct i2c_driver si4713_i2c_driver = {
 		.name	= "si4713",
 		.of_match_table = of_match_ptr(si4713_of_match),
 	},
+<<<<<<< HEAD
 	.probe		= si4713_probe,
+=======
+	.probe_new	= si4713_probe,
+>>>>>>> upstream/android-13
 	.remove         = si4713_remove,
 	.id_table       = si4713_id,
 };

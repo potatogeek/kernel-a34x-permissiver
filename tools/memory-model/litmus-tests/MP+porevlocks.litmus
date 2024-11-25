@@ -13,11 +13,16 @@ C MP+porevlocks
 
 {}
 
+<<<<<<< HEAD
 P0(int *x, int *y, spinlock_t *mylock)
+=======
+P0(int *buf, int *flag, spinlock_t *mylock) // Consumer
+>>>>>>> upstream/android-13
 {
 	int r0;
 	int r1;
 
+<<<<<<< HEAD
 	r0 = READ_ONCE(*y);
 	spin_lock(mylock);
 	r1 = READ_ONCE(*x);
@@ -33,3 +38,20 @@ P1(int *x, int *y, spinlock_t *mylock)
 }
 
 exists (0:r0=1 /\ 0:r1=0)
+=======
+	r0 = READ_ONCE(*flag);
+	spin_lock(mylock);
+	r1 = READ_ONCE(*buf);
+	spin_unlock(mylock);
+}
+
+P1(int *buf, int *flag, spinlock_t *mylock) // Producer
+{
+	spin_lock(mylock);
+	WRITE_ONCE(*buf, 1);
+	spin_unlock(mylock);
+	WRITE_ONCE(*flag, 1);
+}
+
+exists (0:r0=1 /\ 0:r1=0) (* Bad outcome. *)
+>>>>>>> upstream/android-13

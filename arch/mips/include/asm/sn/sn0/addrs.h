@@ -134,11 +134,14 @@
 
 #define CALIAS_BASE		CAC_BASE
 
+<<<<<<< HEAD
 
 
 #define BRIDGE_REG_PTR(_base, _off)	((volatile bridgereg_t *) \
 	((__psunsigned_t)(_base) + (__psunsigned_t)(_off)))
 
+=======
+>>>>>>> upstream/android-13
 #define SN0_WIDGET_BASE(_nasid, _wid)	(NODE_SWIN_BASE((_nasid), (_wid)))
 
 /* Turn on sable logging for the processors whose bits are set. */

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* Copyright (c) 2015-2018, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -8,6 +9,10 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/* Copyright (c) 2015-2018, The Linux Foundation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #ifndef _DPU_HW_SSPP_H
@@ -35,7 +40,13 @@ struct dpu_hw_pipe;
  */
 #define DPU_SSPP_SCALER ((1UL << DPU_SSPP_SCALER_RGB) | \
 	(1UL << DPU_SSPP_SCALER_QSEED2) | \
+<<<<<<< HEAD
 	(1UL << DPU_SSPP_SCALER_QSEED3))
+=======
+	 (1UL << DPU_SSPP_SCALER_QSEED3) | \
+	 (1UL << DPU_SSPP_SCALER_QSEED3LITE) | \
+	  (1UL << DPU_SSPP_SCALER_QSEED4))
+>>>>>>> upstream/android-13
 
 /**
  * Component indices
@@ -381,7 +392,11 @@ struct dpu_hw_pipe {
 	struct dpu_hw_blk base;
 	struct dpu_hw_blk_reg_map hw;
 	struct dpu_mdss_cfg *catalog;
+<<<<<<< HEAD
 	struct dpu_mdp_cfg *mdp;
+=======
+	const struct dpu_mdp_cfg *mdp;
+>>>>>>> upstream/android-13
 
 	/* Pipe */
 	enum dpu_sspp idx;
@@ -392,6 +407,7 @@ struct dpu_hw_pipe {
 };
 
 /**
+<<<<<<< HEAD
  * dpu_hw_pipe - convert base object dpu_hw_base to container
  * @hw: Pointer to base hardware block
  * return: Pointer to hardware block container
@@ -402,6 +418,8 @@ static inline struct dpu_hw_pipe *to_dpu_hw_pipe(struct dpu_hw_blk *hw)
 }
 
 /**
+=======
+>>>>>>> upstream/android-13
  * dpu_hw_sspp_init - initializes the sspp hw driver object.
  * Should be called once before accessing every pipe.
  * @idx:  Pipe index for which driver object is required

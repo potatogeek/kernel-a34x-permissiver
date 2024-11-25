@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *
  *
@@ -13,6 +14,13 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ *
+ *  Copyright (C) 2005 Mike Isely <isely@pobox.com>
+ *  Copyright (C) 2004 Aurelien Alleaume <slts@free.fr>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/device.h>   // for linux/firmware.h
@@ -294,8 +302,13 @@ rdData[0]);
 		wrData[0] = 0x0;
 		ret = pvr2_encoder_write_words(hdw,MBOX_BASE,wrData,1);
 		break;
+<<<<<<< HEAD
 
 	}; LOCK_GIVE(hdw->ctl_lock);
+=======
+	}
+	LOCK_GIVE(hdw->ctl_lock);
+>>>>>>> upstream/android-13
 
 	return ret;
 }

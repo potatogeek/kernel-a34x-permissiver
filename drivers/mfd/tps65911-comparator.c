@@ -1,15 +1,22 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * tps65910.c  --  TI TPS6591x
  *
  * Copyright 2010 Texas Instruments Inc.
  *
  * Author: Jorge Eduardo Candelaria <jedu@slimlogic.co.uk>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify it
  *  under  the terms of the GNU General  Public License as published by the
  *  Free Software Foundation;  either version 2 of the License, or (at your
  *  option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -74,7 +81,11 @@ static int comp_threshold_set(struct tps65910 *tps65910, int id, int voltage)
 		return -EINVAL;
 
 	val = index << 1;
+<<<<<<< HEAD
 	ret = tps65910_reg_write(tps65910, tps_comp.reg, val);
+=======
+	ret = regmap_write(tps65910->regmap, tps_comp.reg, val);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -85,7 +96,11 @@ static int comp_threshold_get(struct tps65910 *tps65910, int id)
 	unsigned int val;
 	int ret;
 
+<<<<<<< HEAD
 	ret = tps65910_reg_read(tps65910, tps_comp.reg, &val);
+=======
+	ret = regmap_read(tps65910->regmap, tps_comp.reg, &val);
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		return ret;
 

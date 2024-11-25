@@ -3,12 +3,21 @@
 
 #include <linux/hwspinlock.h>
 #include <linux/iio/iio.h>
+<<<<<<< HEAD
 #include <linux/interrupt.h>
 #include <linux/module.h>
+=======
+#include <linux/module.h>
+#include <linux/nvmem-consumer.h>
+>>>>>>> upstream/android-13
 #include <linux/of.h>
 #include <linux/of_device.h>
 #include <linux/platform_device.h>
 #include <linux/regmap.h>
+<<<<<<< HEAD
+=======
+#include <linux/slab.h>
+>>>>>>> upstream/android-13
 
 /* PMIC global registers definition */
 #define SC27XX_MODULE_EN		0xc08
@@ -44,12 +53,25 @@
 /* Bits definitions for SC27XX_ADC_INT_CLR registers */
 #define SC27XX_ADC_IRQ_CLR		BIT(0)
 
+<<<<<<< HEAD
+=======
+/* Bits definitions for SC27XX_ADC_INT_RAW registers */
+#define SC27XX_ADC_IRQ_RAW		BIT(0)
+
+>>>>>>> upstream/android-13
 /* Mask definition for SC27XX_ADC_DATA register */
 #define SC27XX_ADC_DATA_MASK		GENMASK(11, 0)
 
 /* Timeout (ms) for the trylock of hardware spinlocks */
 #define SC27XX_ADC_HWLOCK_TIMEOUT	5000
 
+<<<<<<< HEAD
+=======
+/* Timeout (us) for ADC data conversion according to ADC datasheet */
+#define SC27XX_ADC_RDY_TIMEOUT		1000000
+#define SC27XX_ADC_POLL_RAW_STATUS	500
+
+>>>>>>> upstream/android-13
 /* Maximum ADC channel number */
 #define SC27XX_ADC_CHANNEL_MAX		32
 
@@ -67,10 +89,15 @@ struct sc27xx_adc_data {
 	 * subsystems which will access the unique ADC controller.
 	 */
 	struct hwspinlock *hwlock;
+<<<<<<< HEAD
 	struct completion completion;
 	int channel_scale[SC27XX_ADC_CHANNEL_MAX];
 	u32 base;
 	int value;
+=======
+	int channel_scale[SC27XX_ADC_CHANNEL_MAX];
+	u32 base;
+>>>>>>> upstream/android-13
 	int irq;
 };
 
@@ -87,16 +114,84 @@ struct sc27xx_adc_linear_graph {
  * should use the small-scale graph, and if more than 1.2v, we should use the
  * big-scale graph.
  */
+<<<<<<< HEAD
 static const struct sc27xx_adc_linear_graph big_scale_graph = {
+=======
+static struct sc27xx_adc_linear_graph big_scale_graph = {
+>>>>>>> upstream/android-13
 	4200, 3310,
 	3600, 2832,
 };
 
+<<<<<<< HEAD
 static const struct sc27xx_adc_linear_graph small_scale_graph = {
+=======
+static struct sc27xx_adc_linear_graph small_scale_graph = {
+>>>>>>> upstream/android-13
 	1000, 3413,
 	100, 341,
 };
 
+<<<<<<< HEAD
+=======
+static const struct sc27xx_adc_linear_graph big_scale_graph_calib = {
+	4200, 856,
+	3600, 733,
+};
+
+static const struct sc27xx_adc_linear_graph small_scale_graph_calib = {
+	1000, 833,
+	100, 80,
+};
+
+static int sc27xx_adc_get_calib_data(u32 calib_data, int calib_adc)
+{
+	return ((calib_data & 0xff) + calib_adc - 128) * 4;
+}
+
+static int sc27xx_adc_scale_calibration(struct sc27xx_adc_data *data,
+					bool big_scale)
+{
+	const struct sc27xx_adc_linear_graph *calib_graph;
+	struct sc27xx_adc_linear_graph *graph;
+	struct nvmem_cell *cell;
+	const char *cell_name;
+	u32 calib_data = 0;
+	void *buf;
+	size_t len;
+
+	if (big_scale) {
+		calib_graph = &big_scale_graph_calib;
+		graph = &big_scale_graph;
+		cell_name = "big_scale_calib";
+	} else {
+		calib_graph = &small_scale_graph_calib;
+		graph = &small_scale_graph;
+		cell_name = "small_scale_calib";
+	}
+
+	cell = nvmem_cell_get(data->dev, cell_name);
+	if (IS_ERR(cell))
+		return PTR_ERR(cell);
+
+	buf = nvmem_cell_read(cell, &len);
+	nvmem_cell_put(cell);
+
+	if (IS_ERR(buf))
+		return PTR_ERR(buf);
+
+	memcpy(&calib_data, buf, min(len, sizeof(u32)));
+
+	/* Only need to calibrate the adc values in the linear graph. */
+	graph->adc0 = sc27xx_adc_get_calib_data(calib_data, calib_graph->adc0);
+	graph->adc1 = sc27xx_adc_get_calib_data(calib_data >> 8,
+						calib_graph->adc1);
+
+	kfree(buf);
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static int sc27xx_adc_get_ratio(int channel, int scale)
 {
 	switch (channel) {
@@ -126,9 +221,13 @@ static int sc27xx_adc_read(struct sc27xx_adc_data *data, int channel,
 			   int scale, int *val)
 {
 	int ret;
+<<<<<<< HEAD
 	u32 tmp;
 
 	reinit_completion(&data->completion);
+=======
+	u32 tmp, value, status;
+>>>>>>> upstream/android-13
 
 	ret = hwspin_lock_timeout_raw(data->hwlock, SC27XX_ADC_HWLOCK_TIMEOUT);
 	if (ret) {
@@ -141,6 +240,14 @@ static int sc27xx_adc_read(struct sc27xx_adc_data *data, int channel,
 	if (ret)
 		goto unlock_adc;
 
+<<<<<<< HEAD
+=======
+	ret = regmap_update_bits(data->regmap, data->base + SC27XX_ADC_INT_CLR,
+				 SC27XX_ADC_IRQ_CLR, SC27XX_ADC_IRQ_CLR);
+	if (ret)
+		goto disable_adc;
+
+>>>>>>> upstream/android-13
 	/* Configure the channel id and scale */
 	tmp = (scale << SC27XX_ADC_SCALE_SHIFT) & SC27XX_ADC_SCALE_MASK;
 	tmp |= channel & SC27XX_ADC_CHN_ID_MASK;
@@ -164,7 +271,25 @@ static int sc27xx_adc_read(struct sc27xx_adc_data *data, int channel,
 	if (ret)
 		goto disable_adc;
 
+<<<<<<< HEAD
 	wait_for_completion(&data->completion);
+=======
+	ret = regmap_read_poll_timeout(data->regmap,
+				       data->base + SC27XX_ADC_INT_RAW,
+				       status, (status & SC27XX_ADC_IRQ_RAW),
+				       SC27XX_ADC_POLL_RAW_STATUS,
+				       SC27XX_ADC_RDY_TIMEOUT);
+	if (ret) {
+		dev_err(data->dev, "read adc timeout, status = 0x%x\n", status);
+		goto disable_adc;
+	}
+
+	ret = regmap_read(data->regmap, data->base + SC27XX_ADC_DATA, &value);
+	if (ret)
+		goto disable_adc;
+
+	value &= SC27XX_ADC_DATA_MASK;
+>>>>>>> upstream/android-13
 
 disable_adc:
 	regmap_update_bits(data->regmap, data->base + SC27XX_ADC_CTL,
@@ -173,11 +298,16 @@ unlock_adc:
 	hwspin_unlock_raw(data->hwlock);
 
 	if (!ret)
+<<<<<<< HEAD
 		*val = data->value;
+=======
+		*val = value;
+>>>>>>> upstream/android-13
 
 	return ret;
 }
 
+<<<<<<< HEAD
 static irqreturn_t sc27xx_adc_isr(int irq, void *dev_id)
 {
 	struct sc27xx_adc_data *data = dev_id;
@@ -199,6 +329,8 @@ static irqreturn_t sc27xx_adc_isr(int irq, void *dev_id)
 	return IRQ_HANDLED;
 }
 
+=======
+>>>>>>> upstream/android-13
 static void sc27xx_adc_volt_ratio(struct sc27xx_adc_data *data,
 				  int channel, int scale,
 				  u32 *div_numerator, u32 *div_denominator)
@@ -209,7 +341,11 @@ static void sc27xx_adc_volt_ratio(struct sc27xx_adc_data *data,
 	*div_denominator = ratio & SC27XX_RATIO_DENOMINATOR_MASK;
 }
 
+<<<<<<< HEAD
 static int sc27xx_adc_to_volt(const struct sc27xx_adc_linear_graph *graph,
+=======
+static int sc27xx_adc_to_volt(struct sc27xx_adc_linear_graph *graph,
+>>>>>>> upstream/android-13
 			      int raw_adc)
 {
 	int tmp;
@@ -248,7 +384,11 @@ static int sc27xx_adc_convert_volt(struct sc27xx_adc_data *data, int channel,
 
 	sc27xx_adc_volt_ratio(data, channel, scale, &numerator, &denominator);
 
+<<<<<<< HEAD
 	return (volt * denominator + numerator / 2) / numerator;
+=======
+	return DIV_ROUND_CLOSEST(volt * denominator, numerator);
+>>>>>>> upstream/android-13
 }
 
 static int sc27xx_adc_read_processed(struct sc27xx_adc_data *data,
@@ -273,6 +413,20 @@ static int sc27xx_adc_read_raw(struct iio_dev *indio_dev,
 	int ret, tmp;
 
 	switch (mask) {
+<<<<<<< HEAD
+=======
+	case IIO_CHAN_INFO_RAW:
+		mutex_lock(&indio_dev->mlock);
+		ret = sc27xx_adc_read(data, chan->channel, scale, &tmp);
+		mutex_unlock(&indio_dev->mlock);
+
+		if (ret)
+			return ret;
+
+		*val = tmp;
+		return IIO_VAL_INT;
+
+>>>>>>> upstream/android-13
 	case IIO_CHAN_INFO_PROCESSED:
 		mutex_lock(&indio_dev->mlock);
 		ret = sc27xx_adc_read_processed(data, chan->channel, scale,
@@ -315,16 +469,24 @@ static const struct iio_info sc27xx_info = {
 	.write_raw = &sc27xx_adc_write_raw,
 };
 
+<<<<<<< HEAD
 #define SC27XX_ADC_CHANNEL(index) {				\
 	.type = IIO_VOLTAGE,					\
 	.channel = index,					\
 	.info_mask_separate = BIT(IIO_CHAN_INFO_PROCESSED) |	\
 			      BIT(IIO_CHAN_INFO_SCALE),		\
+=======
+#define SC27XX_ADC_CHANNEL(index, mask) {			\
+	.type = IIO_VOLTAGE,					\
+	.channel = index,					\
+	.info_mask_separate = mask | BIT(IIO_CHAN_INFO_SCALE),	\
+>>>>>>> upstream/android-13
 	.datasheet_name = "CH##index",				\
 	.indexed = 1,						\
 }
 
 static const struct iio_chan_spec sc27xx_channels[] = {
+<<<<<<< HEAD
 	SC27XX_ADC_CHANNEL(0),
 	SC27XX_ADC_CHANNEL(1),
 	SC27XX_ADC_CHANNEL(2),
@@ -357,6 +519,40 @@ static const struct iio_chan_spec sc27xx_channels[] = {
 	SC27XX_ADC_CHANNEL(29),
 	SC27XX_ADC_CHANNEL(30),
 	SC27XX_ADC_CHANNEL(31),
+=======
+	SC27XX_ADC_CHANNEL(0, BIT(IIO_CHAN_INFO_PROCESSED)),
+	SC27XX_ADC_CHANNEL(1, BIT(IIO_CHAN_INFO_PROCESSED)),
+	SC27XX_ADC_CHANNEL(2, BIT(IIO_CHAN_INFO_PROCESSED)),
+	SC27XX_ADC_CHANNEL(3, BIT(IIO_CHAN_INFO_PROCESSED)),
+	SC27XX_ADC_CHANNEL(4, BIT(IIO_CHAN_INFO_PROCESSED)),
+	SC27XX_ADC_CHANNEL(5, BIT(IIO_CHAN_INFO_PROCESSED)),
+	SC27XX_ADC_CHANNEL(6, BIT(IIO_CHAN_INFO_PROCESSED)),
+	SC27XX_ADC_CHANNEL(7, BIT(IIO_CHAN_INFO_PROCESSED)),
+	SC27XX_ADC_CHANNEL(8, BIT(IIO_CHAN_INFO_PROCESSED)),
+	SC27XX_ADC_CHANNEL(9, BIT(IIO_CHAN_INFO_PROCESSED)),
+	SC27XX_ADC_CHANNEL(10, BIT(IIO_CHAN_INFO_PROCESSED)),
+	SC27XX_ADC_CHANNEL(11, BIT(IIO_CHAN_INFO_PROCESSED)),
+	SC27XX_ADC_CHANNEL(12, BIT(IIO_CHAN_INFO_PROCESSED)),
+	SC27XX_ADC_CHANNEL(13, BIT(IIO_CHAN_INFO_PROCESSED)),
+	SC27XX_ADC_CHANNEL(14, BIT(IIO_CHAN_INFO_PROCESSED)),
+	SC27XX_ADC_CHANNEL(15, BIT(IIO_CHAN_INFO_PROCESSED)),
+	SC27XX_ADC_CHANNEL(16, BIT(IIO_CHAN_INFO_PROCESSED)),
+	SC27XX_ADC_CHANNEL(17, BIT(IIO_CHAN_INFO_PROCESSED)),
+	SC27XX_ADC_CHANNEL(18, BIT(IIO_CHAN_INFO_PROCESSED)),
+	SC27XX_ADC_CHANNEL(19, BIT(IIO_CHAN_INFO_PROCESSED)),
+	SC27XX_ADC_CHANNEL(20, BIT(IIO_CHAN_INFO_RAW)),
+	SC27XX_ADC_CHANNEL(21, BIT(IIO_CHAN_INFO_PROCESSED)),
+	SC27XX_ADC_CHANNEL(22, BIT(IIO_CHAN_INFO_PROCESSED)),
+	SC27XX_ADC_CHANNEL(23, BIT(IIO_CHAN_INFO_PROCESSED)),
+	SC27XX_ADC_CHANNEL(24, BIT(IIO_CHAN_INFO_PROCESSED)),
+	SC27XX_ADC_CHANNEL(25, BIT(IIO_CHAN_INFO_PROCESSED)),
+	SC27XX_ADC_CHANNEL(26, BIT(IIO_CHAN_INFO_PROCESSED)),
+	SC27XX_ADC_CHANNEL(27, BIT(IIO_CHAN_INFO_PROCESSED)),
+	SC27XX_ADC_CHANNEL(28, BIT(IIO_CHAN_INFO_PROCESSED)),
+	SC27XX_ADC_CHANNEL(29, BIT(IIO_CHAN_INFO_PROCESSED)),
+	SC27XX_ADC_CHANNEL(30, BIT(IIO_CHAN_INFO_PROCESSED)),
+	SC27XX_ADC_CHANNEL(31, BIT(IIO_CHAN_INFO_PROCESSED)),
+>>>>>>> upstream/android-13
 };
 
 static int sc27xx_adc_enable(struct sc27xx_adc_data *data)
@@ -375,8 +571,17 @@ static int sc27xx_adc_enable(struct sc27xx_adc_data *data)
 	if (ret)
 		goto disable_adc;
 
+<<<<<<< HEAD
 	ret = regmap_update_bits(data->regmap, data->base + SC27XX_ADC_INT_EN,
 				 SC27XX_ADC_IRQ_EN, SC27XX_ADC_IRQ_EN);
+=======
+	/* ADC channel scales' calibration from nvmem device */
+	ret = sc27xx_adc_scale_calibration(data, true);
+	if (ret)
+		goto disable_clk;
+
+	ret = sc27xx_adc_scale_calibration(data, false);
+>>>>>>> upstream/android-13
 	if (ret)
 		goto disable_clk;
 
@@ -396,9 +601,12 @@ static void sc27xx_adc_disable(void *_data)
 {
 	struct sc27xx_adc_data *data = _data;
 
+<<<<<<< HEAD
 	regmap_update_bits(data->regmap, data->base + SC27XX_ADC_INT_EN,
 			   SC27XX_ADC_IRQ_EN, 0);
 
+=======
+>>>>>>> upstream/android-13
 	/* Disable ADC work clock and controller clock */
 	regmap_update_bits(data->regmap, SC27XX_ARM_CLK_EN,
 			   SC27XX_CLK_ADC_EN | SC27XX_CLK_ADC_CLK_EN, 0);
@@ -407,6 +615,7 @@ static void sc27xx_adc_disable(void *_data)
 			   SC27XX_MODULE_ADC_EN, 0);
 }
 
+<<<<<<< HEAD
 static void sc27xx_adc_free_hwlock(void *_data)
 {
 	struct hwspinlock *hwlock = _data;
@@ -417,29 +626,50 @@ static void sc27xx_adc_free_hwlock(void *_data)
 static int sc27xx_adc_probe(struct platform_device *pdev)
 {
 	struct device_node *np = pdev->dev.of_node;
+=======
+static int sc27xx_adc_probe(struct platform_device *pdev)
+{
+	struct device *dev = &pdev->dev;
+	struct device_node *np = dev->of_node;
+>>>>>>> upstream/android-13
 	struct sc27xx_adc_data *sc27xx_data;
 	struct iio_dev *indio_dev;
 	int ret;
 
+<<<<<<< HEAD
 	indio_dev = devm_iio_device_alloc(&pdev->dev, sizeof(*sc27xx_data));
+=======
+	indio_dev = devm_iio_device_alloc(dev, sizeof(*sc27xx_data));
+>>>>>>> upstream/android-13
 	if (!indio_dev)
 		return -ENOMEM;
 
 	sc27xx_data = iio_priv(indio_dev);
 
+<<<<<<< HEAD
 	sc27xx_data->regmap = dev_get_regmap(pdev->dev.parent, NULL);
 	if (!sc27xx_data->regmap) {
 		dev_err(&pdev->dev, "failed to get ADC regmap\n");
+=======
+	sc27xx_data->regmap = dev_get_regmap(dev->parent, NULL);
+	if (!sc27xx_data->regmap) {
+		dev_err(dev, "failed to get ADC regmap\n");
+>>>>>>> upstream/android-13
 		return -ENODEV;
 	}
 
 	ret = of_property_read_u32(np, "reg", &sc27xx_data->base);
 	if (ret) {
+<<<<<<< HEAD
 		dev_err(&pdev->dev, "failed to get ADC base address\n");
+=======
+		dev_err(dev, "failed to get ADC base address\n");
+>>>>>>> upstream/android-13
 		return ret;
 	}
 
 	sc27xx_data->irq = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (sc27xx_data->irq < 0) {
 		dev_err(&pdev->dev, "failed to get ADC irq number\n");
 		return sc27xx_data->irq;
@@ -491,13 +721,51 @@ static int sc27xx_adc_probe(struct platform_device *pdev)
 
 	indio_dev->dev.parent = &pdev->dev;
 	indio_dev->name = dev_name(&pdev->dev);
+=======
+	if (sc27xx_data->irq < 0)
+		return sc27xx_data->irq;
+
+	ret = of_hwspin_lock_get_id(np, 0);
+	if (ret < 0) {
+		dev_err(dev, "failed to get hwspinlock id\n");
+		return ret;
+	}
+
+	sc27xx_data->hwlock = devm_hwspin_lock_request_specific(dev, ret);
+	if (!sc27xx_data->hwlock) {
+		dev_err(dev, "failed to request hwspinlock\n");
+		return -ENXIO;
+	}
+
+	sc27xx_data->dev = dev;
+
+	ret = sc27xx_adc_enable(sc27xx_data);
+	if (ret) {
+		dev_err(dev, "failed to enable ADC module\n");
+		return ret;
+	}
+
+	ret = devm_add_action_or_reset(dev, sc27xx_adc_disable, sc27xx_data);
+	if (ret) {
+		dev_err(dev, "failed to add ADC disable action\n");
+		return ret;
+	}
+
+	indio_dev->name = dev_name(dev);
+>>>>>>> upstream/android-13
 	indio_dev->modes = INDIO_DIRECT_MODE;
 	indio_dev->info = &sc27xx_info;
 	indio_dev->channels = sc27xx_channels;
 	indio_dev->num_channels = ARRAY_SIZE(sc27xx_channels);
+<<<<<<< HEAD
 	ret = devm_iio_device_register(&pdev->dev, indio_dev);
 	if (ret)
 		dev_err(&pdev->dev, "could not register iio (ADC)");
+=======
+	ret = devm_iio_device_register(dev, indio_dev);
+	if (ret)
+		dev_err(dev, "could not register iio (ADC)");
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -506,6 +774,10 @@ static const struct of_device_id sc27xx_adc_of_match[] = {
 	{ .compatible = "sprd,sc2731-adc", },
 	{ }
 };
+<<<<<<< HEAD
+=======
+MODULE_DEVICE_TABLE(of, sc27xx_adc_of_match);
+>>>>>>> upstream/android-13
 
 static struct platform_driver sc27xx_adc_driver = {
 	.probe = sc27xx_adc_probe,

@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Cryptographic API.
  *
  * SHA-3, as specified in
+<<<<<<< HEAD
  * http://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.202.pdf
  *
  * SHA-3 code by Jeff Garzik <jeff@garzik.org>
@@ -12,6 +17,12 @@
  * Software Foundation; either version 2 of the License, or (at your option)•
  * any later version.
  *
+=======
+ * https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.202.pdf
+ *
+ * SHA-3 code by Jeff Garzik <jeff@garzik.org>
+ *               Ard Biesheuvel <ard.biesheuvel@linaro.org>
+>>>>>>> upstream/android-13
  */
 #include <crypto/internal/hash.h>
 #include <linux/init.h>
@@ -294,7 +305,11 @@ static void __exit sha3_generic_mod_fini(void)
 	crypto_unregister_shashes(algs, ARRAY_SIZE(algs));
 }
 
+<<<<<<< HEAD
 module_init(sha3_generic_mod_init);
+=======
+subsys_initcall(sha3_generic_mod_init);
+>>>>>>> upstream/android-13
 module_exit(sha3_generic_mod_fini);
 
 MODULE_LICENSE("GPL");

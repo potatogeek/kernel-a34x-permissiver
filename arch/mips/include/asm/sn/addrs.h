@@ -27,6 +27,7 @@
 
 #ifndef __ASSEMBLY__
 
+<<<<<<< HEAD
 #define PS_UINT_CAST		(unsigned long)
 #define UINT64_CAST		(unsigned long)
 
@@ -37,6 +38,13 @@
 #define PS_UINT_CAST
 #define UINT64_CAST
 #define HUBREG_CAST
+=======
+#define UINT64_CAST		(unsigned long)
+
+#else /* __ASSEMBLY__ */
+
+#define UINT64_CAST
+>>>>>>> upstream/android-13
 
 #endif /* __ASSEMBLY__ */
 
@@ -256,6 +264,7 @@
  *	Otherwise, the recommended approach is to use *_HUB_L() and *_HUB_S().
  *	They're always safe.
  */
+<<<<<<< HEAD
 #define LOCAL_HUB_ADDR(_x)	(HUBREG_CAST (IALIAS_BASE + (_x)))
 #define REMOTE_HUB_ADDR(_n, _x) (HUBREG_CAST (NODE_SWIN_BASE(_n, 1) +	\
 					      0x800000 + (_x)))
@@ -275,10 +284,26 @@
 #define REMOTE_HUB_S(_n, _r, _d)	HUB_S(REMOTE_HUB_ADDR((_n), (_r)), (_d))
 #define REMOTE_HUB_PI_L(_n, _sn, _r)	HUB_L(REMOTE_HUB_PI_ADDR((_n), (_sn), (_r)))
 #define REMOTE_HUB_PI_S(_n, _sn, _r, _d) HUB_S(REMOTE_HUB_PI_ADDR((_n), (_sn), (_r)), (_d))
+=======
+#define LOCAL_HUB_ADDR(_x)	(IALIAS_BASE + (_x))
+#define REMOTE_HUB_ADDR(_n, _x) ((NODE_SWIN_BASE(_n, 1) + 0x800000 + (_x)))
+
+#ifndef __ASSEMBLY__
+
+#define LOCAL_HUB_PTR(_x)	((u64 *)LOCAL_HUB_ADDR((_x)))
+#define REMOTE_HUB_PTR(_n, _x)	((u64 *)REMOTE_HUB_ADDR((_n), (_x)))
+
+#define LOCAL_HUB_L(_r)			__raw_readq(LOCAL_HUB_PTR(_r))
+#define LOCAL_HUB_S(_r, _d)		__raw_writeq((_d), LOCAL_HUB_PTR(_r))
+#define REMOTE_HUB_L(_n, _r)		__raw_readq(REMOTE_HUB_PTR((_n), (_r)))
+#define REMOTE_HUB_S(_n, _r, _d)	__raw_writeq((_d),		\
+						REMOTE_HUB_PTR((_n), (_r)))
+>>>>>>> upstream/android-13
 
 #endif /* !__ASSEMBLY__ */
 
 /*
+<<<<<<< HEAD
  * The following macros are used to get to a hub/bridge register, given
  * the base of the register space.
  */
@@ -292,6 +317,8 @@
 	HUB_S(HUB_REG_PTR((_base), (_off)), (_data))
 
 /*
+=======
+>>>>>>> upstream/android-13
  * Software structure locations -- permanently fixed
  *    See diagram in kldir.h
  */
@@ -387,6 +414,7 @@
 
 #define SYMMON_STK_END(nasid)	(SYMMON_STK_ADDR(nasid, 0) + KLD_SYMMON_STK(nasid)->size)
 
+<<<<<<< HEAD
 /* loading symmon 4k below UNIX. the arcs loader needs the topaddr for a
  * relocatable program
  */
@@ -410,21 +438,29 @@
 	TO_NODE_UNCAC((nasid), PI_ERROR_OFFSET(nasid))
 #define PI_ERROR_SIZE(nasid)	KLD_PI_ERROR(nasid)->size
 
+=======
+>>>>>>> upstream/android-13
 #define NODE_OFFSET_TO_K0(_nasid, _off)					\
 	PHYS_TO_K0((NODE_OFFSET(_nasid) + (_off)) | CAC_BASE)
 #define NODE_OFFSET_TO_K1(_nasid, _off)					\
 	TO_UNCAC((NODE_OFFSET(_nasid) + (_off)) | UNCAC_BASE)
+<<<<<<< HEAD
 #define K0_TO_NODE_OFFSET(_k0addr)					\
 	((__psunsigned_t)(_k0addr) & NODE_ADDRSPACE_MASK)
+=======
+>>>>>>> upstream/android-13
 
 #define KERN_VARS_ADDR(nasid)	KLD_KERN_VARS(nasid)->pointer
 #define KERN_VARS_SIZE(nasid)	KLD_KERN_VARS(nasid)->size
 
+<<<<<<< HEAD
 #define KERN_XP_ADDR(nasid)	KLD_KERN_XP(nasid)->pointer
 #define KERN_XP_SIZE(nasid)	KLD_KERN_XP(nasid)->size
 
 #define GPDA_ADDR(nasid)	TO_NODE_CAC(nasid, GPDA_OFFSET)
 
+=======
+>>>>>>> upstream/android-13
 #endif /* !__ASSEMBLY__ */
 
 

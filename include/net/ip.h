@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * INET		An implementation of the TCP/IP protocol suite for the LINUX
  *		operating system.  INET is implemented using the  BSD Socket
@@ -13,11 +17,14 @@
  *
  * Changes:
  *		Mike McLagan    :       Routing by source
+<<<<<<< HEAD
  *
  *		This program is free software; you can redistribute it and/or
  *		modify it under the terms of the GNU General Public License
  *		as published by the Free Software Foundation; either version
  *		2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef _IP_H
 #define _IP_H
@@ -27,6 +34,10 @@
 #include <linux/in.h>
 #include <linux/skbuff.h>
 #include <linux/jhash.h>
+<<<<<<< HEAD
+=======
+#include <linux/sockptr.h>
+>>>>>>> upstream/android-13
 
 #include <net/inet_sock.h>
 #include <net/route.h>
@@ -34,10 +45,21 @@
 #include <net/flow.h>
 #include <net/flow_dissector.h>
 #include <net/netns/hash.h>
+<<<<<<< HEAD
+=======
+#include <net/lwtunnel.h>
+>>>>>>> upstream/android-13
 
 #define IPV4_MAX_PMTU		65535U		/* RFC 2675, Section 5.1 */
 #define IPV4_MIN_MTU		68			/* RFC 791 */
 
+<<<<<<< HEAD
+=======
+extern unsigned int sysctl_fib_sync_mem;
+extern unsigned int sysctl_fib_sync_mem_min;
+extern unsigned int sysctl_fib_sync_mem_max;
+
+>>>>>>> upstream/android-13
 struct sock;
 
 struct inet_skb_parm {
@@ -53,6 +75,10 @@ struct inet_skb_parm {
 #define IPSKB_DOREDIRECT	BIT(5)
 #define IPSKB_FRAG_PMTU		BIT(6)
 #define IPSKB_L3SLAVE		BIT(7)
+<<<<<<< HEAD
+=======
+#define IPSKB_NOPOLICY		BIT(8)
+>>>>>>> upstream/android-13
 
 	u16			frag_max_size;
 };
@@ -88,6 +114,10 @@ static inline void ipcm_init_sk(struct ipcm_cookie *ipcm,
 {
 	ipcm_init(ipcm);
 
+<<<<<<< HEAD
+=======
+	ipcm->sockc.mark = inet->sk.sk_mark;
+>>>>>>> upstream/android-13
 	ipcm->sockc.tsflags = inet->sk.sk_tsflags;
 	ipcm->oif = inet->sk.sk_bound_dev_if;
 	ipcm->addr = inet->inet_saddr;
@@ -97,7 +127,11 @@ static inline void ipcm_init_sk(struct ipcm_cookie *ipcm,
 #define PKTINFO_SKB_CB(skb) ((struct in_pktinfo *)((skb)->cb))
 
 /* return enslaved device index if relevant */
+<<<<<<< HEAD
 static inline int inet_sdif(struct sk_buff *skb)
+=======
+static inline int inet_sdif(const struct sk_buff *skb)
+>>>>>>> upstream/android-13
 {
 #if IS_ENABLED(CONFIG_NET_L3_MASTER_DEV)
 	if (skb && ipv4_l3mdev_skb(IPCB(skb)->flags))
@@ -149,7 +183,11 @@ int igmp_mc_init(void);
 
 int ip_build_and_send_pkt(struct sk_buff *skb, const struct sock *sk,
 			  __be32 saddr, __be32 daddr,
+<<<<<<< HEAD
 			  struct ip_options_rcu *opt);
+=======
+			  struct ip_options_rcu *opt, u8 tos);
+>>>>>>> upstream/android-13
 int ip_rcv(struct sk_buff *skb, struct net_device *dev, struct packet_type *pt,
 	   struct net_device *orig_dev);
 void ip_list_rcv(struct list_head *head, struct packet_type *pt,
@@ -161,10 +199,52 @@ int ip_output(struct net *net, struct sock *sk, struct sk_buff *skb);
 int ip_mc_output(struct net *net, struct sock *sk, struct sk_buff *skb);
 int ip_do_fragment(struct net *net, struct sock *sk, struct sk_buff *skb,
 		   int (*output)(struct net *, struct sock *, struct sk_buff *));
+<<<<<<< HEAD
 void ip_send_check(struct iphdr *ip);
 int ip_fragment(struct net *net, struct sock *sk, struct sk_buff *skb,
 	    unsigned int mtu,
 	    int (*output)(struct net *, struct sock *, struct sk_buff *));
+=======
+
+struct ip_fraglist_iter {
+	struct sk_buff	*frag;
+	struct iphdr	*iph;
+	int		offset;
+	unsigned int	hlen;
+};
+
+void ip_fraglist_init(struct sk_buff *skb, struct iphdr *iph,
+		      unsigned int hlen, struct ip_fraglist_iter *iter);
+void ip_fraglist_prepare(struct sk_buff *skb, struct ip_fraglist_iter *iter);
+
+static inline struct sk_buff *ip_fraglist_next(struct ip_fraglist_iter *iter)
+{
+	struct sk_buff *skb = iter->frag;
+
+	iter->frag = skb->next;
+	skb_mark_not_on_list(skb);
+
+	return skb;
+}
+
+struct ip_frag_state {
+	bool		DF;
+	unsigned int	hlen;
+	unsigned int	ll_rs;
+	unsigned int	mtu;
+	unsigned int	left;
+	int		offset;
+	int		ptr;
+	__be16		not_last_frag;
+};
+
+void ip_frag_init(struct sk_buff *skb, unsigned int hlen, unsigned int ll_rs,
+		  unsigned int mtu, bool DF, struct ip_frag_state *state);
+struct sk_buff *ip_frag_next(struct sk_buff *skb,
+			     struct ip_frag_state *state);
+
+void ip_send_check(struct iphdr *ip);
+>>>>>>> upstream/android-13
 int __ip_local_out(struct net *net, struct sock *sk, struct sk_buff *skb);
 int ip_local_out(struct net *net, struct sock *sk, struct sk_buff *skb);
 
@@ -195,11 +275,15 @@ struct sk_buff *ip_make_skb(struct sock *sk, struct flowi4 *fl4,
 			    struct ipcm_cookie *ipc, struct rtable **rtp,
 			    struct inet_cork *cork, unsigned int flags);
 
+<<<<<<< HEAD
 static inline int ip_queue_xmit(struct sock *sk, struct sk_buff *skb,
 				struct flowi *fl)
 {
 	return __ip_queue_xmit(sk, skb, fl, inet_sk(sk)->tos);
 }
+=======
+int ip_queue_xmit(struct sock *sk, struct sk_buff *skb, struct flowi *fl);
+>>>>>>> upstream/android-13
 
 static inline struct sk_buff *ip_finish_skb(struct sock *sk, struct flowi4 *fl4)
 {
@@ -244,7 +328,11 @@ void ip_send_unicast_reply(struct sock *sk, struct sk_buff *skb,
 			   const struct ip_options *sopt,
 			   __be32 daddr, __be32 saddr,
 			   const struct ip_reply_arg *arg,
+<<<<<<< HEAD
 			   unsigned int len);
+=======
+			   unsigned int len, u64 transmit_time);
+>>>>>>> upstream/android-13
 
 #define IP_INC_STATS(net, field)	SNMP_INC_STATS64((net)->mib.ip_statistics, field)
 #define __IP_INC_STATS(net, field)	__SNMP_INC_STATS64((net)->mib.ip_statistics, field)
@@ -303,6 +391,7 @@ static inline u64 snmp_fold_field64(void __percpu *mib, int offt, size_t syncp_o
 void inet_get_local_port_range(struct net *net, int *low, int *high);
 
 #ifdef CONFIG_SYSCTL
+<<<<<<< HEAD
 static inline int inet_is_local_reserved_port(struct net *net, int port)
 {
 	if (!net->ipv4.sysctl_local_reserved_ports)
@@ -310,11 +399,28 @@ static inline int inet_is_local_reserved_port(struct net *net, int port)
 	return test_bit(port, net->ipv4.sysctl_local_reserved_ports);
 }
 
+=======
+static inline bool inet_is_local_reserved_port(struct net *net, unsigned short port)
+{
+	if (!net->ipv4.sysctl_local_reserved_ports)
+		return false;
+	return test_bit(port, net->ipv4.sysctl_local_reserved_ports);
+}
+
+static inline bool inet_is_local_unbindable_port(struct net *net, unsigned short port)
+{
+	if (!net->ipv4.sysctl_local_unbindable_ports)
+		return false;
+	return test_bit(port, net->ipv4.sysctl_local_unbindable_ports);
+}
+
+>>>>>>> upstream/android-13
 static inline bool sysctl_dev_name_is_allowed(const char *name)
 {
 	return strcmp(name, "default") != 0  && strcmp(name, "all") != 0;
 }
 
+<<<<<<< HEAD
 static inline int inet_prot_sock(struct net *net)
 {
 	return net->ipv4.sysctl_ip_prot_sock;
@@ -329,6 +435,27 @@ static inline int inet_is_local_reserved_port(struct net *net, int port)
 static inline int inet_prot_sock(struct net *net)
 {
 	return PROT_SOCK;
+=======
+static inline bool inet_port_requires_bind_service(struct net *net, unsigned short port)
+{
+	return port < net->ipv4.sysctl_ip_prot_sock;
+}
+
+#else
+static inline bool inet_is_local_reserved_port(struct net *net, unsigned short port)
+{
+	return false;
+}
+
+static inline bool inet_is_local_unbindable_port(struct net *net, unsigned short port)
+{
+	return false;
+}
+
+static inline bool inet_port_requires_bind_service(struct net *net, unsigned short port)
+{
+	return port < PROT_SOCK;
+>>>>>>> upstream/android-13
 }
 #endif
 
@@ -402,36 +529,106 @@ static inline bool ip_sk_ignore_df(const struct sock *sk)
 static inline unsigned int ip_dst_mtu_maybe_forward(const struct dst_entry *dst,
 						    bool forwarding)
 {
+<<<<<<< HEAD
+=======
+	const struct rtable *rt = container_of(dst, struct rtable, dst);
+>>>>>>> upstream/android-13
 	struct net *net = dev_net(dst->dev);
 	unsigned int mtu;
 
 	if (net->ipv4.sysctl_ip_fwd_use_pmtu ||
 	    ip_mtu_locked(dst) ||
+<<<<<<< HEAD
 	    !forwarding)
 		return dst_mtu(dst);
+=======
+	    !forwarding) {
+		mtu = rt->rt_pmtu;
+		if (mtu && time_before(jiffies, rt->dst.expires))
+			goto out;
+	}
+>>>>>>> upstream/android-13
 
 	/* 'forwarding = true' case should always honour route mtu */
 	mtu = dst_metric_raw(dst, RTAX_MTU);
 	if (mtu)
+<<<<<<< HEAD
 		return mtu;
 
 	return min(READ_ONCE(dst->dev->mtu), IP_MAX_MTU);
+=======
+		goto out;
+
+	mtu = READ_ONCE(dst->dev->mtu);
+
+	if (unlikely(ip_mtu_locked(dst))) {
+		if (rt->rt_uses_gateway && mtu > 576)
+			mtu = 576;
+	}
+
+out:
+	mtu = min_t(unsigned int, mtu, IP_MAX_MTU);
+
+	return mtu - lwtunnel_headroom(dst->lwtstate, mtu);
+>>>>>>> upstream/android-13
 }
 
 static inline unsigned int ip_skb_dst_mtu(struct sock *sk,
 					  const struct sk_buff *skb)
 {
+<<<<<<< HEAD
+=======
+	unsigned int mtu;
+
+>>>>>>> upstream/android-13
 	if (!sk || !sk_fullsock(sk) || ip_sk_use_pmtu(sk)) {
 		bool forwarding = IPCB(skb)->flags & IPSKB_FORWARDED;
 
 		return ip_dst_mtu_maybe_forward(skb_dst(skb), forwarding);
 	}
 
+<<<<<<< HEAD
 	return min(READ_ONCE(skb_dst(skb)->dev->mtu), IP_MAX_MTU);
 }
 
 int ip_metrics_convert(struct net *net, struct nlattr *fc_mx, int fc_mx_len,
 		       u32 *metrics);
+=======
+	mtu = min(READ_ONCE(skb_dst(skb)->dev->mtu), IP_MAX_MTU);
+	return mtu - lwtunnel_headroom(skb_dst(skb)->lwtstate, mtu);
+}
+
+struct dst_metrics *ip_fib_metrics_init(struct net *net, struct nlattr *fc_mx,
+					int fc_mx_len,
+					struct netlink_ext_ack *extack);
+static inline void ip_fib_metrics_put(struct dst_metrics *fib_metrics)
+{
+	if (fib_metrics != &dst_default_metrics &&
+	    refcount_dec_and_test(&fib_metrics->refcnt))
+		kfree(fib_metrics);
+}
+
+/* ipv4 and ipv6 both use refcounted metrics if it is not the default */
+static inline
+void ip_dst_init_metrics(struct dst_entry *dst, struct dst_metrics *fib_metrics)
+{
+	dst_init_metrics(dst, fib_metrics->metrics, true);
+
+	if (fib_metrics != &dst_default_metrics) {
+		dst->_metrics |= DST_METRICS_REFCOUNTED;
+		refcount_inc(&fib_metrics->refcnt);
+	}
+}
+
+static inline
+void ip_dst_metrics_put(struct dst_entry *dst)
+{
+	struct dst_metrics *p = (struct dst_metrics *)DST_METRICS_PTR(dst);
+
+	if (p != &dst_default_metrics && refcount_dec_and_test(&p->refcnt))
+		kfree(p);
+}
+>>>>>>> upstream/android-13
 
 u32 ip_idents_reserve(u32 hash, int segs);
 void __ip_select_ident(struct net *net, struct iphdr *iph, int segs);
@@ -441,6 +638,7 @@ static inline void ip_select_ident_segs(struct net *net, struct sk_buff *skb,
 {
 	struct iphdr *iph = ip_hdr(skb);
 
+<<<<<<< HEAD
 	if ((iph->frag_off & htons(IP_DF)) && !skb->ignore_df) {
 		/* This is only to work around buggy Windows95/2000
 		 * VJ compression implementations.  If the ID field
@@ -454,6 +652,20 @@ static inline void ip_select_ident_segs(struct net *net, struct sk_buff *skb,
 			iph->id = 0;
 		}
 	} else {
+=======
+	/* We had many attacks based on IPID, use the private
+	 * generator as much as we can.
+	 */
+	if (sk && inet_sk(sk)->inet_daddr) {
+		iph->id = htons(inet_sk(sk)->inet_id);
+		inet_sk(sk)->inet_id += segs;
+		return;
+	}
+	if ((iph->frag_off & htons(IP_DF)) && !skb->ignore_df) {
+		iph->id = 0;
+	} else {
+		/* Unfortunately we need the big hammer to get a suitable IPID */
+>>>>>>> upstream/android-13
 		__ip_select_ident(net, iph, segs);
 	}
 }
@@ -653,9 +865,13 @@ int __ip_options_compile(struct net *net, struct ip_options *opt,
 int ip_options_compile(struct net *net, struct ip_options *opt,
 		       struct sk_buff *skb);
 int ip_options_get(struct net *net, struct ip_options_rcu **optp,
+<<<<<<< HEAD
 		   unsigned char *data, int optlen);
 int ip_options_get_from_user(struct net *net, struct ip_options_rcu **optp,
 			     unsigned char __user *data, int optlen);
+=======
+		   sockptr_t data, int optlen);
+>>>>>>> upstream/android-13
 void ip_options_undo(struct ip_options *opt);
 void ip_forward_options(struct sk_buff *skb);
 int ip_options_rcv_srr(struct sk_buff *skb, struct net_device *dev);
@@ -669,6 +885,7 @@ void ip_cmsg_recv_offset(struct msghdr *msg, struct sock *sk,
 			 struct sk_buff *skb, int tlen, int offset);
 int ip_cmsg_send(struct sock *sk, struct msghdr *msg,
 		 struct ipcm_cookie *ipc, bool allow_ipv6);
+<<<<<<< HEAD
 int ip_setsockopt(struct sock *sk, int level, int optname, char __user *optval,
 		  unsigned int optlen);
 int ip_getsockopt(struct sock *sk, int level, int optname, char __user *optval,
@@ -677,6 +894,12 @@ int compat_ip_setsockopt(struct sock *sk, int level, int optname,
 			 char __user *optval, unsigned int optlen);
 int compat_ip_getsockopt(struct sock *sk, int level, int optname,
 			 char __user *optval, int __user *optlen);
+=======
+int ip_setsockopt(struct sock *sk, int level, int optname, sockptr_t optval,
+		  unsigned int optlen);
+int ip_getsockopt(struct sock *sk, int level, int optname, char __user *optval,
+		  int __user *optlen);
+>>>>>>> upstream/android-13
 int ip_ra_control(struct sock *sk, unsigned char on,
 		  void (*destructor)(struct sock *));
 
@@ -707,4 +930,13 @@ static inline bool inetdev_valid_mtu(unsigned int mtu)
 	return likely(mtu >= IPV4_MIN_MTU);
 }
 
+<<<<<<< HEAD
+=======
+void ip_sock_set_freebind(struct sock *sk);
+int ip_sock_set_mtu_discover(struct sock *sk, int val);
+void ip_sock_set_pktinfo(struct sock *sk);
+void ip_sock_set_recverr(struct sock *sk);
+void ip_sock_set_tos(struct sock *sk, int val);
+
+>>>>>>> upstream/android-13
 #endif	/* _IP_H */

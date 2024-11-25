@@ -15,7 +15,12 @@
 /*
  * Get a newly allocated inode to go with a negative dentry.
  */
+<<<<<<< HEAD
 static int orangefs_create(struct inode *dir,
+=======
+static int orangefs_create(struct user_namespace *mnt_userns,
+			struct inode *dir,
+>>>>>>> upstream/android-13
 			struct dentry *dentry,
 			umode_t mode,
 			bool exclusive)
@@ -58,7 +63,10 @@ static int orangefs_create(struct inode *dir,
 		goto out;
 
 	ref = new_op->downcall.resp.create.refn;
+<<<<<<< HEAD
 	op_release(new_op);
+=======
+>>>>>>> upstream/android-13
 
 	inode = orangefs_new_inode(dir->i_sb, dir, S_IFREG | mode, 0, &ref);
 	if (IS_ERR(inode)) {
@@ -77,14 +85,18 @@ static int orangefs_create(struct inode *dir,
 
 	d_instantiate_new(dentry, inode);
 	orangefs_set_timeout(dentry);
+<<<<<<< HEAD
 	ORANGEFS_I(inode)->getattr_time = jiffies - 1;
 	ORANGEFS_I(inode)->getattr_mask = STATX_BASIC_STATS;
+=======
+>>>>>>> upstream/android-13
 
 	gossip_debug(GOSSIP_NAME_DEBUG,
 		     "%s: dentry instantiated for %pd\n",
 		     __func__,
 		     dentry);
 
+<<<<<<< HEAD
 	dir->i_mtime = dir->i_ctime = current_time(dir);
 	memset(&iattr, 0, sizeof iattr);
 	iattr.ia_valid |= ATTR_MTIME;
@@ -92,6 +104,15 @@ static int orangefs_create(struct inode *dir,
 	mark_inode_dirty_sync(dir);
 	ret = 0;
 out:
+=======
+	memset(&iattr, 0, sizeof iattr);
+	iattr.ia_valid |= ATTR_MTIME | ATTR_CTIME;
+	iattr.ia_mtime = iattr.ia_ctime = current_time(dir);
+	__orangefs_setattr(dir, &iattr);
+	ret = 0;
+out:
+	op_release(new_op);
+>>>>>>> upstream/android-13
 	gossip_debug(GOSSIP_NAME_DEBUG,
 		     "%s: %pd: returning %d\n",
 		     __func__,
@@ -157,7 +178,11 @@ static struct dentry *orangefs_lookup(struct inode *dir, struct dentry *dentry,
 		     new_op->downcall.resp.lookup.refn.fs_id,
 		     ret);
 
+<<<<<<< HEAD
 	if (ret >= 0) {
+=======
+	if (ret == 0) {
+>>>>>>> upstream/android-13
 		orangefs_set_timeout(dentry);
 		inode = orangefs_iget(dir->i_sb, &new_op->downcall.resp.lookup.refn);
 	} else if (ret == -ENOENT) {
@@ -210,16 +235,28 @@ static int orangefs_unlink(struct inode *dir, struct dentry *dentry)
 	if (!ret) {
 		drop_nlink(inode);
 
+<<<<<<< HEAD
 		dir->i_mtime = dir->i_ctime = current_time(dir);
 		memset(&iattr, 0, sizeof iattr);
 		iattr.ia_valid |= ATTR_MTIME;
 		orangefs_inode_setattr(dir, &iattr);
 		mark_inode_dirty_sync(dir);
+=======
+		memset(&iattr, 0, sizeof iattr);
+		iattr.ia_valid |= ATTR_MTIME | ATTR_CTIME;
+		iattr.ia_mtime = iattr.ia_ctime = current_time(dir);
+		__orangefs_setattr(dir, &iattr);
+>>>>>>> upstream/android-13
 	}
 	return ret;
 }
 
+<<<<<<< HEAD
 static int orangefs_symlink(struct inode *dir,
+=======
+static int orangefs_symlink(struct user_namespace *mnt_userns,
+		         struct inode *dir,
+>>>>>>> upstream/android-13
 			 struct dentry *dentry,
 			 const char *symname)
 {
@@ -228,7 +265,11 @@ static int orangefs_symlink(struct inode *dir,
 	struct orangefs_object_kref ref;
 	struct inode *inode;
 	struct iattr iattr;
+<<<<<<< HEAD
 	int mode = 755;
+=======
+	int mode = 0755;
+>>>>>>> upstream/android-13
 	int ret;
 
 	gossip_debug(GOSSIP_NAME_DEBUG, "%s: called\n", __func__);
@@ -269,7 +310,10 @@ static int orangefs_symlink(struct inode *dir,
 	}
 
 	ref = new_op->downcall.resp.sym.refn;
+<<<<<<< HEAD
 	op_release(new_op);
+=======
+>>>>>>> upstream/android-13
 
 	inode = orangefs_new_inode(dir->i_sb, dir, S_IFLNK | mode, 0, &ref);
 	if (IS_ERR(inode)) {
@@ -292,14 +336,18 @@ static int orangefs_symlink(struct inode *dir,
 
 	d_instantiate_new(dentry, inode);
 	orangefs_set_timeout(dentry);
+<<<<<<< HEAD
 	ORANGEFS_I(inode)->getattr_time = jiffies - 1;
 	ORANGEFS_I(inode)->getattr_mask = STATX_BASIC_STATS;
+=======
+>>>>>>> upstream/android-13
 
 	gossip_debug(GOSSIP_NAME_DEBUG,
 		     "Inode (Symlink) %pU -> %pd\n",
 		     get_khandle_from_ino(inode),
 		     dentry);
 
+<<<<<<< HEAD
 	dir->i_mtime = dir->i_ctime = current_time(dir);
 	memset(&iattr, 0, sizeof iattr);
 	iattr.ia_valid |= ATTR_MTIME;
@@ -311,6 +359,20 @@ out:
 }
 
 static int orangefs_mkdir(struct inode *dir, struct dentry *dentry, umode_t mode)
+=======
+	memset(&iattr, 0, sizeof iattr);
+	iattr.ia_valid |= ATTR_MTIME | ATTR_CTIME;
+	iattr.ia_mtime = iattr.ia_ctime = current_time(dir);
+	__orangefs_setattr(dir, &iattr);
+	ret = 0;
+out:
+	op_release(new_op);
+	return ret;
+}
+
+static int orangefs_mkdir(struct user_namespace *mnt_userns, struct inode *dir,
+			  struct dentry *dentry, umode_t mode)
+>>>>>>> upstream/android-13
 {
 	struct orangefs_inode_s *parent = ORANGEFS_I(dir);
 	struct orangefs_kernel_op_s *new_op;
@@ -346,7 +408,10 @@ static int orangefs_mkdir(struct inode *dir, struct dentry *dentry, umode_t mode
 	}
 
 	ref = new_op->downcall.resp.mkdir.refn;
+<<<<<<< HEAD
 	op_release(new_op);
+=======
+>>>>>>> upstream/android-13
 
 	inode = orangefs_new_inode(dir->i_sb, dir, S_IFDIR | mode, 0, &ref);
 	if (IS_ERR(inode)) {
@@ -361,8 +426,11 @@ static int orangefs_mkdir(struct inode *dir, struct dentry *dentry, umode_t mode
 
 	d_instantiate_new(dentry, inode);
 	orangefs_set_timeout(dentry);
+<<<<<<< HEAD
 	ORANGEFS_I(inode)->getattr_time = jiffies - 1;
 	ORANGEFS_I(inode)->getattr_mask = STATX_BASIC_STATS;
+=======
+>>>>>>> upstream/android-13
 
 	gossip_debug(GOSSIP_NAME_DEBUG,
 		     "Inode (Directory) %pU -> %pd\n",
@@ -373,6 +441,7 @@ static int orangefs_mkdir(struct inode *dir, struct dentry *dentry, umode_t mode
 	 * NOTE: we have no good way to keep nlink consistent for directories
 	 * across clients; keep constant at 1.
 	 */
+<<<<<<< HEAD
 	dir->i_mtime = dir->i_ctime = current_time(dir);
 	memset(&iattr, 0, sizeof iattr);
 	iattr.ia_valid |= ATTR_MTIME;
@@ -383,12 +452,29 @@ out:
 }
 
 static int orangefs_rename(struct inode *old_dir,
+=======
+	memset(&iattr, 0, sizeof iattr);
+	iattr.ia_valid |= ATTR_MTIME | ATTR_CTIME;
+	iattr.ia_mtime = iattr.ia_ctime = current_time(dir);
+	__orangefs_setattr(dir, &iattr);
+out:
+	op_release(new_op);
+	return ret;
+}
+
+static int orangefs_rename(struct user_namespace *mnt_userns,
+			struct inode *old_dir,
+>>>>>>> upstream/android-13
 			struct dentry *old_dentry,
 			struct inode *new_dir,
 			struct dentry *new_dentry,
 			unsigned int flags)
 {
 	struct orangefs_kernel_op_s *new_op;
+<<<<<<< HEAD
+=======
+	struct iattr iattr;
+>>>>>>> upstream/android-13
 	int ret;
 
 	if (flags)
@@ -398,7 +484,14 @@ static int orangefs_rename(struct inode *old_dir,
 		     "orangefs_rename: called (%pd2 => %pd2) ct=%d\n",
 		     old_dentry, new_dentry, d_count(new_dentry));
 
+<<<<<<< HEAD
 	ORANGEFS_I(new_dentry->d_parent->d_inode)->getattr_time = jiffies - 1;
+=======
+	memset(&iattr, 0, sizeof iattr);
+	iattr.ia_valid |= ATTR_MTIME | ATTR_CTIME;
+	iattr.ia_mtime = iattr.ia_ctime = current_time(new_dir);
+	__orangefs_setattr(new_dir, &iattr);
+>>>>>>> upstream/android-13
 
 	new_op = op_alloc(ORANGEFS_VFS_OP_RENAME);
 	if (!new_op)

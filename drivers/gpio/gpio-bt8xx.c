@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
 
     bt8xx GPIO abuser
@@ -28,6 +32,7 @@
     Copyright (C) 2005, 2006 Michael H. Schimek
     Sponsored by OPQ Systems AB
 
+<<<<<<< HEAD
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or
@@ -41,6 +46,8 @@
     You should have received a copy of the GNU General Public License
     along with this program; if not, write to the Free Software
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
 */
 
 #include <linux/module.h>
@@ -187,13 +194,21 @@ static int bt8xxgpio_probe(struct pci_dev *dev,
 
 	err = pci_enable_device(dev);
 	if (err) {
+<<<<<<< HEAD
 		printk(KERN_ERR "bt8xxgpio: Can't enable device.\n");
+=======
+		dev_err(&dev->dev, "can't enable device.\n");
+>>>>>>> upstream/android-13
 		return err;
 	}
 	if (!devm_request_mem_region(&dev->dev, pci_resource_start(dev, 0),
 				pci_resource_len(dev, 0),
 				"bt8xxgpio")) {
+<<<<<<< HEAD
 		printk(KERN_WARNING "bt8xxgpio: Can't request iomem (0x%llx).\n",
+=======
+		dev_warn(&dev->dev, "can't request iomem (0x%llx).\n",
+>>>>>>> upstream/android-13
 		       (unsigned long long)pci_resource_start(dev, 0));
 		err = -EBUSY;
 		goto err_disable;
@@ -203,7 +218,11 @@ static int bt8xxgpio_probe(struct pci_dev *dev,
 
 	bg->mmio = devm_ioremap(&dev->dev, pci_resource_start(dev, 0), 0x1000);
 	if (!bg->mmio) {
+<<<<<<< HEAD
 		printk(KERN_ERR "bt8xxgpio: ioremap() failed\n");
+=======
+		dev_err(&dev->dev, "ioremap() failed\n");
+>>>>>>> upstream/android-13
 		err = -EIO;
 		goto err_disable;
 	}
@@ -219,7 +238,11 @@ static int bt8xxgpio_probe(struct pci_dev *dev,
 	bt8xxgpio_gpio_setup(bg);
 	err = gpiochip_add_data(&bg->gpio, bg);
 	if (err) {
+<<<<<<< HEAD
 		printk(KERN_ERR "bt8xxgpio: Failed to register GPIOs\n");
+=======
+		dev_err(&dev->dev, "failed to register GPIOs\n");
+>>>>>>> upstream/android-13
 		goto err_disable;
 	}
 

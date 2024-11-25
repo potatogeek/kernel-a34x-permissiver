@@ -1,29 +1,50 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Copyright 2015 Freescale Semiconductor, Inc.
  *
  * Freescale DCU drm device driver
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
 #include <linux/regmap.h>
 
+<<<<<<< HEAD
 #include <drm/drmP.h>
 #include <drm/drm_atomic.h>
 #include <drm/drm_atomic_helper.h>
 #include <drm/drm_crtc.h>
 #include <drm/drm_crtc_helper.h>
+=======
+#include <video/videomode.h>
+
+#include <drm/drm_atomic.h>
+#include <drm/drm_atomic_helper.h>
+#include <drm/drm_crtc.h>
+#include <drm/drm_probe_helper.h>
+#include <drm/drm_vblank.h>
+>>>>>>> upstream/android-13
 
 #include "fsl_dcu_drm_crtc.h"
 #include "fsl_dcu_drm_drv.h"
 #include "fsl_dcu_drm_plane.h"
 
 static void fsl_dcu_drm_crtc_atomic_flush(struct drm_crtc *crtc,
+<<<<<<< HEAD
 					  struct drm_crtc_state *old_crtc_state)
+=======
+					  struct drm_atomic_state *state)
+>>>>>>> upstream/android-13
 {
 	struct drm_device *dev = crtc->dev;
 	struct fsl_dcu_drm_device *fsl_dev = dev->dev_private;
@@ -45,8 +66,15 @@ static void fsl_dcu_drm_crtc_atomic_flush(struct drm_crtc *crtc,
 }
 
 static void fsl_dcu_drm_crtc_atomic_disable(struct drm_crtc *crtc,
+<<<<<<< HEAD
 					struct drm_crtc_state *old_crtc_state)
 {
+=======
+					struct drm_atomic_state *state)
+{
+	struct drm_crtc_state *old_crtc_state = drm_atomic_get_old_crtc_state(state,
+									      crtc);
+>>>>>>> upstream/android-13
 	struct drm_device *dev = crtc->dev;
 	struct fsl_dcu_drm_device *fsl_dev = dev->dev_private;
 
@@ -64,7 +92,11 @@ static void fsl_dcu_drm_crtc_atomic_disable(struct drm_crtc *crtc,
 }
 
 static void fsl_dcu_drm_crtc_atomic_enable(struct drm_crtc *crtc,
+<<<<<<< HEAD
 					   struct drm_crtc_state *old_state)
+=======
+					   struct drm_atomic_state *state)
+>>>>>>> upstream/android-13
 {
 	struct drm_device *dev = crtc->dev;
 	struct fsl_dcu_drm_device *fsl_dev = dev->dev_private;
@@ -85,6 +117,7 @@ static void fsl_dcu_drm_crtc_mode_set_nofb(struct drm_crtc *crtc)
 	struct fsl_dcu_drm_device *fsl_dev = dev->dev_private;
 	struct drm_connector *con = &fsl_dev->connector.base;
 	struct drm_display_mode *mode = &crtc->state->mode;
+<<<<<<< HEAD
 	unsigned int hbp, hfp, hsw, vbp, vfp, vsw, index, pol = 0;
 
 	index = drm_crtc_index(crtc);
@@ -119,6 +152,36 @@ static void fsl_dcu_drm_crtc_mode_set_nofb(struct drm_crtc *crtc)
 	regmap_write(fsl_dev->regmap, DCU_DISP_SIZE,
 		     DCU_DISP_SIZE_DELTA_Y(mode->vdisplay) |
 		     DCU_DISP_SIZE_DELTA_X(mode->hdisplay));
+=======
+	unsigned int pol = 0;
+	struct videomode vm;
+
+	clk_set_rate(fsl_dev->pix_clk, mode->clock * 1000);
+
+	drm_display_mode_to_videomode(mode, &vm);
+
+	/* INV_PXCK as default (most display sample data on rising edge) */
+	if (!(con->display_info.bus_flags & DRM_BUS_FLAG_PIXDATA_DRIVE_POSEDGE))
+		pol |= DCU_SYN_POL_INV_PXCK;
+
+	if (vm.flags & DISPLAY_FLAGS_HSYNC_LOW)
+		pol |= DCU_SYN_POL_INV_HS_LOW;
+
+	if (vm.flags & DISPLAY_FLAGS_VSYNC_LOW)
+		pol |= DCU_SYN_POL_INV_VS_LOW;
+
+	regmap_write(fsl_dev->regmap, DCU_HSYN_PARA,
+		     DCU_HSYN_PARA_BP(vm.hback_porch) |
+		     DCU_HSYN_PARA_PW(vm.hsync_len) |
+		     DCU_HSYN_PARA_FP(vm.hfront_porch));
+	regmap_write(fsl_dev->regmap, DCU_VSYN_PARA,
+		     DCU_VSYN_PARA_BP(vm.vback_porch) |
+		     DCU_VSYN_PARA_PW(vm.vsync_len) |
+		     DCU_VSYN_PARA_FP(vm.vfront_porch));
+	regmap_write(fsl_dev->regmap, DCU_DISP_SIZE,
+		     DCU_DISP_SIZE_DELTA_Y(vm.vactive) |
+		     DCU_DISP_SIZE_DELTA_X(vm.hactive));
+>>>>>>> upstream/android-13
 	regmap_write(fsl_dev->regmap, DCU_SYN_POL, pol);
 	regmap_write(fsl_dev->regmap, DCU_BGND, DCU_BGND_R(0) |
 		     DCU_BGND_G(0) | DCU_BGND_B(0));

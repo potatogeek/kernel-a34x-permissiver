@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* Helpers for initial module or kernel cmdline parsing
    Copyright (C) 2001 Rusty Russell.
 
@@ -14,6 +15,12 @@
     You should have received a copy of the GNU General Public License
     along with this program; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/* Helpers for initial module or kernel cmdline parsing
+   Copyright (C) 2001 Rusty Russell.
+
+>>>>>>> upstream/android-13
 */
 #include <linux/kernel.h>
 #include <linux/string.h>
@@ -24,6 +31,10 @@
 #include <linux/err.h>
 #include <linux/slab.h>
 #include <linux/ctype.h>
+<<<<<<< HEAD
+=======
+#include <linux/security.h>
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_SYSFS
 /* Protects all built-in parameters, modules use their own param_lock */
@@ -108,13 +119,27 @@ bool parameq(const char *a, const char *b)
 	return parameqn(a, b, strlen(a)+1);
 }
 
+<<<<<<< HEAD
 static void param_check_unsafe(const struct kernel_param *kp)
 {
+=======
+static bool param_check_unsafe(const struct kernel_param *kp)
+{
+	if (kp->flags & KERNEL_PARAM_FL_HWPARAM &&
+	    security_locked_down(LOCKDOWN_MODULE_PARAMETERS))
+		return false;
+
+>>>>>>> upstream/android-13
 	if (kp->flags & KERNEL_PARAM_FL_UNSAFE) {
 		pr_notice("Setting dangerous option %s - tainting kernel\n",
 			  kp->name);
 		add_taint(TAINT_USER, LOCKDEP_STILL_OK);
 	}
+<<<<<<< HEAD
+=======
+
+	return true;
+>>>>>>> upstream/android-13
 }
 
 static int parse_one(char *param,
@@ -144,8 +169,15 @@ static int parse_one(char *param,
 			pr_debug("handling %s with %p\n", param,
 				params[i].ops->set);
 			kernel_param_lock(params[i].mod);
+<<<<<<< HEAD
 			param_check_unsafe(&params[i]);
 			err = params[i].ops->set(val, &params[i]);
+=======
+			if (param_check_unsafe(&params[i]))
+				err = params[i].ops->set(val, &params[i]);
+			else
+				err = -EPERM;
+>>>>>>> upstream/android-13
 			kernel_param_unlock(params[i].mod);
 			return err;
 		}
@@ -236,6 +268,7 @@ char *parse_args(const char *doing,
 	EXPORT_SYMBOL(param_ops_##name)
 
 
+<<<<<<< HEAD
 STANDARD_PARAM_DEF(byte,	unsigned char,		"%hhu", kstrtou8);
 STANDARD_PARAM_DEF(short,	short,			"%hi",  kstrtos16);
 STANDARD_PARAM_DEF(ushort,	unsigned short,		"%hu",  kstrtou16);
@@ -244,6 +277,35 @@ STANDARD_PARAM_DEF(uint,	unsigned int,		"%u",   kstrtouint);
 STANDARD_PARAM_DEF(long,	long,			"%li",  kstrtol);
 STANDARD_PARAM_DEF(ulong,	unsigned long,		"%lu",  kstrtoul);
 STANDARD_PARAM_DEF(ullong,	unsigned long long,	"%llu", kstrtoull);
+=======
+STANDARD_PARAM_DEF(byte,	unsigned char,		"%hhu",		kstrtou8);
+STANDARD_PARAM_DEF(short,	short,			"%hi",		kstrtos16);
+STANDARD_PARAM_DEF(ushort,	unsigned short,		"%hu",		kstrtou16);
+STANDARD_PARAM_DEF(int,		int,			"%i",		kstrtoint);
+STANDARD_PARAM_DEF(uint,	unsigned int,		"%u",		kstrtouint);
+STANDARD_PARAM_DEF(long,	long,			"%li",		kstrtol);
+STANDARD_PARAM_DEF(ulong,	unsigned long,		"%lu",		kstrtoul);
+STANDARD_PARAM_DEF(ullong,	unsigned long long,	"%llu",		kstrtoull);
+STANDARD_PARAM_DEF(hexint,	unsigned int,		"%#08x", 	kstrtouint);
+
+int param_set_uint_minmax(const char *val, const struct kernel_param *kp,
+		unsigned int min, unsigned int max)
+{
+	unsigned int num;
+	int ret;
+
+	if (!val)
+		return -EINVAL;
+	ret = kstrtouint(val, 0, &num);
+	if (ret)
+		return ret;
+	if (num < min || num > max)
+		return -EINVAL;
+	*((unsigned int *)kp->arg) = num;
+	return 0;
+}
+EXPORT_SYMBOL_GPL(param_set_uint_minmax);
+>>>>>>> upstream/android-13
 
 int param_set_charp(const char *val, const struct kernel_param *kp)
 {
@@ -532,7 +594,11 @@ struct module_param_attrs
 {
 	unsigned int num;
 	struct attribute_group grp;
+<<<<<<< HEAD
 	struct param_attribute attrs[0];
+=======
+	struct param_attribute attrs[];
+>>>>>>> upstream/android-13
 };
 
 #ifdef CONFIG_SYSFS
@@ -565,8 +631,15 @@ static ssize_t param_attr_store(struct module_attribute *mattr,
 		return -EPERM;
 
 	kernel_param_lock(mk->mod);
+<<<<<<< HEAD
 	param_check_unsafe(attribute->param);
 	err = attribute->param->ops->set(buf, attribute->param);
+=======
+	if (param_check_unsafe(attribute->param))
+		err = attribute->param->ops->set(buf, attribute->param);
+	else
+		err = -EPERM;
+>>>>>>> upstream/android-13
 	kernel_param_unlock(mk->mod);
 	if (!err)
 		return len;
@@ -843,6 +916,7 @@ ssize_t __modver_version_show(struct module_attribute *mattr,
 	return scnprintf(buf, PAGE_SIZE, "%s\n", vattr->version);
 }
 
+<<<<<<< HEAD
 extern const struct module_version_attribute *__start___modver[];
 extern const struct module_version_attribute *__stop___modver[];
 
@@ -855,6 +929,18 @@ static void __init version_sysfs_builtin(void)
 	for (p = __start___modver; p < __stop___modver; p++) {
 		const struct module_version_attribute *vattr = *p;
 
+=======
+extern const struct module_version_attribute __start___modver[];
+extern const struct module_version_attribute __stop___modver[];
+
+static void __init version_sysfs_builtin(void)
+{
+	const struct module_version_attribute *vattr;
+	struct module_kobject *mk;
+	int err;
+
+	for (vattr = __start___modver; vattr < __stop___modver; vattr++) {
+>>>>>>> upstream/android-13
 		mk = locate_module_kobject(vattr->module_name);
 		if (mk) {
 			err = sysfs_create_file(&mk->kobj, &vattr->mattr.attr);
@@ -924,7 +1010,10 @@ static const struct kset_uevent_ops module_uevent_ops = {
 };
 
 struct kset *module_kset;
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(module_kset);
+=======
+>>>>>>> upstream/android-13
 int module_sysfs_initialized;
 
 static void module_kobj_release(struct kobject *kobj)
@@ -937,7 +1026,10 @@ struct kobj_type module_ktype = {
 	.release   =	module_kobj_release,
 	.sysfs_ops =	&module_sysfs_ops,
 };
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(module_ktype);
+=======
+>>>>>>> upstream/android-13
 
 /*
  * param_sysfs_init - wrapper for built-in params support

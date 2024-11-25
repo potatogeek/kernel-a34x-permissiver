@@ -1,10 +1,17 @@
+<<<<<<< HEAD
 /*
  * Glue Code for the AVX assembler implemention of the Cast6 Cipher
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Glue Code for the AVX assembler implementation of the Cast6 Cipher
+>>>>>>> upstream/android-13
  *
  * Copyright (C) 2012 Johannes Goetzfried
  *     <Johannes.Goetzfried@informatik.stud.uni-erlangen.de>
  *
  * Copyright © 2013 Jussi Kivilinna <jussi.kivilinna@iki.fi>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +28,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307
  * USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -30,6 +39,7 @@
 #include <crypto/algapi.h>
 #include <crypto/cast6.h>
 #include <crypto/internal/simd.h>
+<<<<<<< HEAD
 #include <crypto/xts.h>
 #include <asm/crypto/glue_helper.h>
 
@@ -49,6 +59,17 @@ asmlinkage void cast6_xts_enc_8way(struct cast6_ctx *ctx, u8 *dst,
 				   const u8 *src, le128 *iv);
 asmlinkage void cast6_xts_dec_8way(struct cast6_ctx *ctx, u8 *dst,
 				   const u8 *src, le128 *iv);
+=======
+
+#include "ecb_cbc_helpers.h"
+
+#define CAST6_PARALLEL_BLOCKS 8
+
+asmlinkage void cast6_ecb_enc_8way(const void *ctx, u8 *dst, const u8 *src);
+asmlinkage void cast6_ecb_dec_8way(const void *ctx, u8 *dst, const u8 *src);
+
+asmlinkage void cast6_cbc_dec_8way(const void *ctx, u8 *dst, const u8 *src);
+>>>>>>> upstream/android-13
 
 static int cast6_setkey_skcipher(struct crypto_skcipher *tfm,
 				 const u8 *key, unsigned int keylen)
@@ -56,6 +77,7 @@ static int cast6_setkey_skcipher(struct crypto_skcipher *tfm,
 	return cast6_setkey(&tfm->base, key, keylen);
 }
 
+<<<<<<< HEAD
 static void cast6_xts_enc(void *ctx, u128 *dst, const u128 *src, le128 *iv)
 {
 	glue_xts_crypt_128bit_one(ctx, dst, src, iv,
@@ -160,21 +182,43 @@ static const struct common_glue_ctx cast6_dec_xts = {
 static int ecb_encrypt(struct skcipher_request *req)
 {
 	return glue_ecb_req_128bit(&cast6_enc, req);
+=======
+static int ecb_encrypt(struct skcipher_request *req)
+{
+	ECB_WALK_START(req, CAST6_BLOCK_SIZE, CAST6_PARALLEL_BLOCKS);
+	ECB_BLOCK(CAST6_PARALLEL_BLOCKS, cast6_ecb_enc_8way);
+	ECB_BLOCK(1, __cast6_encrypt);
+	ECB_WALK_END();
+>>>>>>> upstream/android-13
 }
 
 static int ecb_decrypt(struct skcipher_request *req)
 {
+<<<<<<< HEAD
 	return glue_ecb_req_128bit(&cast6_dec, req);
+=======
+	ECB_WALK_START(req, CAST6_BLOCK_SIZE, CAST6_PARALLEL_BLOCKS);
+	ECB_BLOCK(CAST6_PARALLEL_BLOCKS, cast6_ecb_dec_8way);
+	ECB_BLOCK(1, __cast6_decrypt);
+	ECB_WALK_END();
+>>>>>>> upstream/android-13
 }
 
 static int cbc_encrypt(struct skcipher_request *req)
 {
+<<<<<<< HEAD
 	return glue_cbc_encrypt_req_128bit(GLUE_FUNC_CAST(__cast6_encrypt),
 					   req);
+=======
+	CBC_WALK_START(req, CAST6_BLOCK_SIZE, -1);
+	CBC_ENC_BLOCK(__cast6_encrypt);
+	CBC_WALK_END();
+>>>>>>> upstream/android-13
 }
 
 static int cbc_decrypt(struct skcipher_request *req)
 {
+<<<<<<< HEAD
 	return glue_cbc_decrypt_req_128bit(&cast6_dec_cbc, req);
 }
 
@@ -227,6 +271,12 @@ static int xts_decrypt(struct skcipher_request *req)
 	return glue_xts_req_128bit(&cast6_dec_xts, req,
 				   XTS_TWEAK_CAST(__cast6_encrypt),
 				   &ctx->tweak_ctx, &ctx->crypt_ctx);
+=======
+	CBC_WALK_START(req, CAST6_BLOCK_SIZE, CAST6_PARALLEL_BLOCKS);
+	CBC_DEC_BLOCK(CAST6_PARALLEL_BLOCKS, cast6_cbc_dec_8way);
+	CBC_DEC_BLOCK(1, __cast6_decrypt);
+	CBC_WALK_END();
+>>>>>>> upstream/android-13
 }
 
 static struct skcipher_alg cast6_algs[] = {
@@ -257,6 +307,7 @@ static struct skcipher_alg cast6_algs[] = {
 		.setkey			= cast6_setkey_skcipher,
 		.encrypt		= cbc_encrypt,
 		.decrypt		= cbc_decrypt,
+<<<<<<< HEAD
 	}, {
 		.base.cra_name		= "__ctr(cast6)",
 		.base.cra_driver_name	= "__ctr-cast6-avx",
@@ -286,6 +337,8 @@ static struct skcipher_alg cast6_algs[] = {
 		.setkey			= xts_cast6_setkey,
 		.encrypt		= xts_encrypt,
 		.decrypt		= xts_decrypt,
+=======
+>>>>>>> upstream/android-13
 	},
 };
 

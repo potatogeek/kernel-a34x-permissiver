@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #include <linux/kernel.h>
 #include <linux/crash_dump.h>
 #include <linux/init.h>
@@ -5,12 +9,15 @@
 #include <linux/export.h>
 
 /*
+<<<<<<< HEAD
  * If we have booted due to a crash, max_pfn will be a very low value. We need
  * to know the amount of memory that the previous kernel used.
  */
 unsigned long saved_max_pfn;
 
 /*
+=======
+>>>>>>> upstream/android-13
  * stores the physical address of elf header of crash image
  *
  * Note: elfcorehdr_addr is not just limited to vmcore. It is also used by

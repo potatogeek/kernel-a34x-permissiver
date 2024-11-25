@@ -3,9 +3,14 @@
  * License.  See the file "COPYING" in the main directory of this archive
  * for more details.
  *
+<<<<<<< HEAD
  * This file contains NUMA specific variables and functions which can
  * be split away from DISCONTIGMEM and are used on NUMA machines with
  * contiguous memory.
+=======
+ * This file contains NUMA specific variables and functions which are used on
+ * NUMA machines with contiguous memory.
+>>>>>>> upstream/android-13
  * 
  *                         2002/08/07 Erich Focht <efocht@ess.nec.de>
  */
@@ -15,7 +20,11 @@
 #include <linux/mm.h>
 #include <linux/node.h>
 #include <linux/init.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
+=======
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 #include <linux/module.h>
 #include <asm/mmzone.h>
 #include <asm/numa.h>
@@ -36,6 +45,15 @@ struct node_cpuid_s node_cpuid[NR_CPUS] =
  */
 u8 numa_slit[MAX_NUMNODES * MAX_NUMNODES];
 
+<<<<<<< HEAD
+=======
+int __node_distance(int from, int to)
+{
+	return slit_distance(from, to);
+}
+EXPORT_SYMBOL(__node_distance);
+
+>>>>>>> upstream/android-13
 /* Identify which cnode a physical address resides on */
 int
 paddr_to_nid(unsigned long paddr)
@@ -52,6 +70,7 @@ paddr_to_nid(unsigned long paddr)
 EXPORT_SYMBOL(paddr_to_nid);
 
 #if defined(CONFIG_SPARSEMEM) && defined(CONFIG_NUMA)
+<<<<<<< HEAD
 /*
  * Because of holes evaluate on section limits.
  * If the section of memory exists, then return the node where the section
@@ -82,6 +101,8 @@ int __meminit __early_pfn_to_nid(unsigned long pfn,
 	return -1;
 }
 
+=======
+>>>>>>> upstream/android-13
 void numa_clear_node(int cpu)
 {
 	unmap_cpu_from_node(cpu, NUMA_NO_NODE);
@@ -100,7 +121,10 @@ int memory_add_physaddr_to_nid(u64 addr)
 		return 0;
 	return nid;
 }
+<<<<<<< HEAD
 
 EXPORT_SYMBOL_GPL(memory_add_physaddr_to_nid);
+=======
+>>>>>>> upstream/android-13
 #endif
 #endif

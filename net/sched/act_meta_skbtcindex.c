@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * net/sched/act_meta_tc_index.c IFE skb->tc_index metadata module
  *
@@ -8,6 +9,13 @@
  *
  * copyright Jamal Hadi Salim (2016)
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * net/sched/act_meta_tc_index.c IFE skb->tc_index metadata module
+ *
+ * copyright Jamal Hadi Salim (2016)
+>>>>>>> upstream/android-13
 */
 
 #include <linux/types.h>

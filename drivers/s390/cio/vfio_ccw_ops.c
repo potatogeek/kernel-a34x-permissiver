@@ -3,13 +3,26 @@
  * Physical device callbacks for vfio_ccw
  *
  * Copyright IBM Corp. 2017
+<<<<<<< HEAD
  *
  * Author(s): Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
  *            Xiao Feng Ren <renxiaof@linux.vnet.ibm.com>
+=======
+ * Copyright Red Hat, Inc. 2019
+ *
+ * Author(s): Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
+ *            Xiao Feng Ren <renxiaof@linux.vnet.ibm.com>
+ *            Cornelia Huck <cohuck@redhat.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/vfio.h>
 #include <linux/mdev.h>
+<<<<<<< HEAD
+=======
+#include <linux/nospec.h>
+#include <linux/slab.h>
+>>>>>>> upstream/android-13
 
 #include "vfio_ccw_private.h"
 
@@ -67,23 +80,42 @@ static int vfio_ccw_mdev_notifier(struct notifier_block *nb,
 	return NOTIFY_DONE;
 }
 
+<<<<<<< HEAD
 static ssize_t name_show(struct kobject *kobj, struct device *dev, char *buf)
+=======
+static ssize_t name_show(struct mdev_type *mtype,
+			 struct mdev_type_attribute *attr, char *buf)
+>>>>>>> upstream/android-13
 {
 	return sprintf(buf, "I/O subchannel (Non-QDIO)\n");
 }
 static MDEV_TYPE_ATTR_RO(name);
 
+<<<<<<< HEAD
 static ssize_t device_api_show(struct kobject *kobj, struct device *dev,
 			       char *buf)
+=======
+static ssize_t device_api_show(struct mdev_type *mtype,
+			       struct mdev_type_attribute *attr, char *buf)
+>>>>>>> upstream/android-13
 {
 	return sprintf(buf, "%s\n", VFIO_DEVICE_API_CCW_STRING);
 }
 static MDEV_TYPE_ATTR_RO(device_api);
 
+<<<<<<< HEAD
 static ssize_t available_instances_show(struct kobject *kobj,
 					struct device *dev, char *buf)
 {
 	struct vfio_ccw_private *private = dev_get_drvdata(dev);
+=======
+static ssize_t available_instances_show(struct mdev_type *mtype,
+					struct mdev_type_attribute *attr,
+					char *buf)
+{
+	struct vfio_ccw_private *private =
+		dev_get_drvdata(mtype_get_parent_dev(mtype));
+>>>>>>> upstream/android-13
 
 	return sprintf(buf, "%d\n", atomic_read(&private->avail));
 }
@@ -106,7 +138,11 @@ static struct attribute_group *mdev_type_groups[] = {
 	NULL,
 };
 
+<<<<<<< HEAD
 static int vfio_ccw_mdev_create(struct kobject *kobj, struct mdev_device *mdev)
+=======
+static int vfio_ccw_mdev_create(struct mdev_device *mdev)
+>>>>>>> upstream/android-13
 {
 	struct vfio_ccw_private *private =
 		dev_get_drvdata(mdev_parent_dev(mdev));
@@ -120,6 +156,14 @@ static int vfio_ccw_mdev_create(struct kobject *kobj, struct mdev_device *mdev)
 	private->mdev = mdev;
 	private->state = VFIO_CCW_STATE_IDLE;
 
+<<<<<<< HEAD
+=======
+	VFIO_CCW_MSG_EVENT(2, "mdev %pUl, sch %x.%x.%04x: create\n",
+			   mdev_uuid(mdev), private->sch->schid.cssid,
+			   private->sch->schid.ssid,
+			   private->sch->schid.sch_no);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -128,6 +172,14 @@ static int vfio_ccw_mdev_remove(struct mdev_device *mdev)
 	struct vfio_ccw_private *private =
 		dev_get_drvdata(mdev_parent_dev(mdev));
 
+<<<<<<< HEAD
+=======
+	VFIO_CCW_MSG_EVENT(2, "mdev %pUl, sch %x.%x.%04x: remove\n",
+			   mdev_uuid(mdev), private->sch->schid.cssid,
+			   private->sch->schid.ssid,
+			   private->sch->schid.sch_no);
+
+>>>>>>> upstream/android-13
 	if ((private->state != VFIO_CCW_STATE_NOT_OPER) &&
 	    (private->state != VFIO_CCW_STATE_STANDBY)) {
 		if (!vfio_ccw_sch_quiesce(private->sch))
@@ -142,11 +194,16 @@ static int vfio_ccw_mdev_remove(struct mdev_device *mdev)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int vfio_ccw_mdev_open(struct mdev_device *mdev)
+=======
+static int vfio_ccw_mdev_open_device(struct mdev_device *mdev)
+>>>>>>> upstream/android-13
 {
 	struct vfio_ccw_private *private =
 		dev_get_drvdata(mdev_parent_dev(mdev));
 	unsigned long events = VFIO_IOMMU_NOTIFY_DMA_UNMAP;
+<<<<<<< HEAD
 
 	private->nb.notifier_call = vfio_ccw_mdev_notifier;
 
@@ -155,6 +212,39 @@ static int vfio_ccw_mdev_open(struct mdev_device *mdev)
 }
 
 static void vfio_ccw_mdev_release(struct mdev_device *mdev)
+=======
+	int ret;
+
+	private->nb.notifier_call = vfio_ccw_mdev_notifier;
+
+	ret = vfio_register_notifier(mdev_dev(mdev), VFIO_IOMMU_NOTIFY,
+				     &events, &private->nb);
+	if (ret)
+		return ret;
+
+	ret = vfio_ccw_register_async_dev_regions(private);
+	if (ret)
+		goto out_unregister;
+
+	ret = vfio_ccw_register_schib_dev_regions(private);
+	if (ret)
+		goto out_unregister;
+
+	ret = vfio_ccw_register_crw_dev_regions(private);
+	if (ret)
+		goto out_unregister;
+
+	return ret;
+
+out_unregister:
+	vfio_ccw_unregister_dev_regions(private);
+	vfio_unregister_notifier(mdev_dev(mdev), VFIO_IOMMU_NOTIFY,
+				 &private->nb);
+	return ret;
+}
+
+static void vfio_ccw_mdev_close_device(struct mdev_device *mdev)
+>>>>>>> upstream/android-13
 {
 	struct vfio_ccw_private *private =
 		dev_get_drvdata(mdev_parent_dev(mdev));
@@ -167,15 +257,44 @@ static void vfio_ccw_mdev_release(struct mdev_device *mdev)
 	}
 
 	cp_free(&private->cp);
+<<<<<<< HEAD
+=======
+	vfio_ccw_unregister_dev_regions(private);
+>>>>>>> upstream/android-13
 	vfio_unregister_notifier(mdev_dev(mdev), VFIO_IOMMU_NOTIFY,
 				 &private->nb);
 }
 
+<<<<<<< HEAD
+=======
+static ssize_t vfio_ccw_mdev_read_io_region(struct vfio_ccw_private *private,
+					    char __user *buf, size_t count,
+					    loff_t *ppos)
+{
+	loff_t pos = *ppos & VFIO_CCW_OFFSET_MASK;
+	struct ccw_io_region *region;
+	int ret;
+
+	if (pos + count > sizeof(*region))
+		return -EINVAL;
+
+	mutex_lock(&private->io_mutex);
+	region = private->io_region;
+	if (copy_to_user(buf, (void *)region + pos, count))
+		ret = -EFAULT;
+	else
+		ret = count;
+	mutex_unlock(&private->io_mutex);
+	return ret;
+}
+
+>>>>>>> upstream/android-13
 static ssize_t vfio_ccw_mdev_read(struct mdev_device *mdev,
 				  char __user *buf,
 				  size_t count,
 				  loff_t *ppos)
 {
+<<<<<<< HEAD
 	struct vfio_ccw_private *private;
 	struct ccw_io_region *region;
 
@@ -188,6 +307,54 @@ static ssize_t vfio_ccw_mdev_read(struct mdev_device *mdev,
 		return -EFAULT;
 
 	return count;
+=======
+	unsigned int index = VFIO_CCW_OFFSET_TO_INDEX(*ppos);
+	struct vfio_ccw_private *private;
+
+	private = dev_get_drvdata(mdev_parent_dev(mdev));
+
+	if (index >= VFIO_CCW_NUM_REGIONS + private->num_regions)
+		return -EINVAL;
+
+	switch (index) {
+	case VFIO_CCW_CONFIG_REGION_INDEX:
+		return vfio_ccw_mdev_read_io_region(private, buf, count, ppos);
+	default:
+		index -= VFIO_CCW_NUM_REGIONS;
+		return private->region[index].ops->read(private, buf, count,
+							ppos);
+	}
+
+	return -EINVAL;
+}
+
+static ssize_t vfio_ccw_mdev_write_io_region(struct vfio_ccw_private *private,
+					     const char __user *buf,
+					     size_t count, loff_t *ppos)
+{
+	loff_t pos = *ppos & VFIO_CCW_OFFSET_MASK;
+	struct ccw_io_region *region;
+	int ret;
+
+	if (pos + count > sizeof(*region))
+		return -EINVAL;
+
+	if (!mutex_trylock(&private->io_mutex))
+		return -EAGAIN;
+
+	region = private->io_region;
+	if (copy_from_user((void *)region + pos, buf, count)) {
+		ret = -EFAULT;
+		goto out_unlock;
+	}
+
+	vfio_ccw_fsm_event(private, VFIO_CCW_EVENT_IO_REQ);
+	ret = (region->ret_code != 0) ? region->ret_code : count;
+
+out_unlock:
+	mutex_unlock(&private->io_mutex);
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static ssize_t vfio_ccw_mdev_write(struct mdev_device *mdev,
@@ -195,6 +362,7 @@ static ssize_t vfio_ccw_mdev_write(struct mdev_device *mdev,
 				   size_t count,
 				   loff_t *ppos)
 {
+<<<<<<< HEAD
 	struct vfio_ccw_private *private;
 	struct ccw_io_region *region;
 
@@ -222,15 +390,55 @@ static int vfio_ccw_mdev_get_device_info(struct vfio_device_info *info)
 {
 	info->flags = VFIO_DEVICE_FLAGS_CCW | VFIO_DEVICE_FLAGS_RESET;
 	info->num_regions = VFIO_CCW_NUM_REGIONS;
+=======
+	unsigned int index = VFIO_CCW_OFFSET_TO_INDEX(*ppos);
+	struct vfio_ccw_private *private;
+
+	private = dev_get_drvdata(mdev_parent_dev(mdev));
+
+	if (index >= VFIO_CCW_NUM_REGIONS + private->num_regions)
+		return -EINVAL;
+
+	switch (index) {
+	case VFIO_CCW_CONFIG_REGION_INDEX:
+		return vfio_ccw_mdev_write_io_region(private, buf, count, ppos);
+	default:
+		index -= VFIO_CCW_NUM_REGIONS;
+		return private->region[index].ops->write(private, buf, count,
+							 ppos);
+	}
+
+	return -EINVAL;
+}
+
+static int vfio_ccw_mdev_get_device_info(struct vfio_device_info *info,
+					 struct mdev_device *mdev)
+{
+	struct vfio_ccw_private *private;
+
+	private = dev_get_drvdata(mdev_parent_dev(mdev));
+	info->flags = VFIO_DEVICE_FLAGS_CCW | VFIO_DEVICE_FLAGS_RESET;
+	info->num_regions = VFIO_CCW_NUM_REGIONS + private->num_regions;
+>>>>>>> upstream/android-13
 	info->num_irqs = VFIO_CCW_NUM_IRQS;
 
 	return 0;
 }
 
 static int vfio_ccw_mdev_get_region_info(struct vfio_region_info *info,
+<<<<<<< HEAD
 					 u16 *cap_type_id,
 					 void **cap_type)
 {
+=======
+					 struct mdev_device *mdev,
+					 unsigned long arg)
+{
+	struct vfio_ccw_private *private;
+	int i;
+
+	private = dev_get_drvdata(mdev_parent_dev(mdev));
+>>>>>>> upstream/android-13
 	switch (info->index) {
 	case VFIO_CCW_CONFIG_REGION_INDEX:
 		info->offset = 0;
@@ -238,24 +446,93 @@ static int vfio_ccw_mdev_get_region_info(struct vfio_region_info *info,
 		info->flags = VFIO_REGION_INFO_FLAG_READ
 			      | VFIO_REGION_INFO_FLAG_WRITE;
 		return 0;
+<<<<<<< HEAD
 	default:
 		return -EINVAL;
 	}
+=======
+	default: /* all other regions are handled via capability chain */
+	{
+		struct vfio_info_cap caps = { .buf = NULL, .size = 0 };
+		struct vfio_region_info_cap_type cap_type = {
+			.header.id = VFIO_REGION_INFO_CAP_TYPE,
+			.header.version = 1 };
+		int ret;
+
+		if (info->index >=
+		    VFIO_CCW_NUM_REGIONS + private->num_regions)
+			return -EINVAL;
+
+		info->index = array_index_nospec(info->index,
+						 VFIO_CCW_NUM_REGIONS +
+						 private->num_regions);
+
+		i = info->index - VFIO_CCW_NUM_REGIONS;
+
+		info->offset = VFIO_CCW_INDEX_TO_OFFSET(info->index);
+		info->size = private->region[i].size;
+		info->flags = private->region[i].flags;
+
+		cap_type.type = private->region[i].type;
+		cap_type.subtype = private->region[i].subtype;
+
+		ret = vfio_info_add_capability(&caps, &cap_type.header,
+					       sizeof(cap_type));
+		if (ret)
+			return ret;
+
+		info->flags |= VFIO_REGION_INFO_FLAG_CAPS;
+		if (info->argsz < sizeof(*info) + caps.size) {
+			info->argsz = sizeof(*info) + caps.size;
+			info->cap_offset = 0;
+		} else {
+			vfio_info_cap_shift(&caps, sizeof(*info));
+			if (copy_to_user((void __user *)arg + sizeof(*info),
+					 caps.buf, caps.size)) {
+				kfree(caps.buf);
+				return -EFAULT;
+			}
+			info->cap_offset = sizeof(*info);
+		}
+
+		kfree(caps.buf);
+
+	}
+	}
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int vfio_ccw_mdev_get_irq_info(struct vfio_irq_info *info)
 {
+<<<<<<< HEAD
 	if (info->index != VFIO_CCW_IO_IRQ_INDEX)
 		return -EINVAL;
 
 	info->count = 1;
 	info->flags = VFIO_IRQ_INFO_EVENTFD;
+=======
+	switch (info->index) {
+	case VFIO_CCW_IO_IRQ_INDEX:
+	case VFIO_CCW_CRW_IRQ_INDEX:
+	case VFIO_CCW_REQ_IRQ_INDEX:
+		info->count = 1;
+		info->flags = VFIO_IRQ_INFO_EVENTFD;
+		break;
+	default:
+		return -EINVAL;
+	}
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
 static int vfio_ccw_mdev_set_irqs(struct mdev_device *mdev,
 				  uint32_t flags,
+<<<<<<< HEAD
+=======
+				  uint32_t index,
+>>>>>>> upstream/android-13
 				  void __user *data)
 {
 	struct vfio_ccw_private *private;
@@ -265,7 +542,24 @@ static int vfio_ccw_mdev_set_irqs(struct mdev_device *mdev,
 		return -EINVAL;
 
 	private = dev_get_drvdata(mdev_parent_dev(mdev));
+<<<<<<< HEAD
 	ctx = &private->io_trigger;
+=======
+
+	switch (index) {
+	case VFIO_CCW_IO_IRQ_INDEX:
+		ctx = &private->io_trigger;
+		break;
+	case VFIO_CCW_CRW_IRQ_INDEX:
+		ctx = &private->crw_trigger;
+		break;
+	case VFIO_CCW_REQ_IRQ_INDEX:
+		ctx = &private->req_trigger;
+		break;
+	default:
+		return -EINVAL;
+	}
+>>>>>>> upstream/android-13
 
 	switch (flags & VFIO_IRQ_SET_DATA_TYPE_MASK) {
 	case VFIO_IRQ_SET_DATA_NONE:
@@ -317,6 +611,46 @@ static int vfio_ccw_mdev_set_irqs(struct mdev_device *mdev,
 	}
 }
 
+<<<<<<< HEAD
+=======
+int vfio_ccw_register_dev_region(struct vfio_ccw_private *private,
+				 unsigned int subtype,
+				 const struct vfio_ccw_regops *ops,
+				 size_t size, u32 flags, void *data)
+{
+	struct vfio_ccw_region *region;
+
+	region = krealloc(private->region,
+			  (private->num_regions + 1) * sizeof(*region),
+			  GFP_KERNEL);
+	if (!region)
+		return -ENOMEM;
+
+	private->region = region;
+	private->region[private->num_regions].type = VFIO_REGION_TYPE_CCW;
+	private->region[private->num_regions].subtype = subtype;
+	private->region[private->num_regions].ops = ops;
+	private->region[private->num_regions].size = size;
+	private->region[private->num_regions].flags = flags;
+	private->region[private->num_regions].data = data;
+
+	private->num_regions++;
+
+	return 0;
+}
+
+void vfio_ccw_unregister_dev_regions(struct vfio_ccw_private *private)
+{
+	int i;
+
+	for (i = 0; i < private->num_regions; i++)
+		private->region[i].ops->release(private, &private->region[i]);
+	private->num_regions = 0;
+	kfree(private->region);
+	private->region = NULL;
+}
+
+>>>>>>> upstream/android-13
 static ssize_t vfio_ccw_mdev_ioctl(struct mdev_device *mdev,
 				   unsigned int cmd,
 				   unsigned long arg)
@@ -337,7 +671,11 @@ static ssize_t vfio_ccw_mdev_ioctl(struct mdev_device *mdev,
 		if (info.argsz < minsz)
 			return -EINVAL;
 
+<<<<<<< HEAD
 		ret = vfio_ccw_mdev_get_device_info(&info);
+=======
+		ret = vfio_ccw_mdev_get_device_info(&info, mdev);
+>>>>>>> upstream/android-13
 		if (ret)
 			return ret;
 
@@ -346,8 +684,11 @@ static ssize_t vfio_ccw_mdev_ioctl(struct mdev_device *mdev,
 	case VFIO_DEVICE_GET_REGION_INFO:
 	{
 		struct vfio_region_info info;
+<<<<<<< HEAD
 		u16 cap_type_id = 0;
 		void *cap_type = NULL;
+=======
+>>>>>>> upstream/android-13
 
 		minsz = offsetofend(struct vfio_region_info, offset);
 
@@ -357,8 +698,12 @@ static ssize_t vfio_ccw_mdev_ioctl(struct mdev_device *mdev,
 		if (info.argsz < minsz)
 			return -EINVAL;
 
+<<<<<<< HEAD
 		ret = vfio_ccw_mdev_get_region_info(&info, &cap_type_id,
 						    &cap_type);
+=======
+		ret = vfio_ccw_mdev_get_region_info(&info, mdev, arg);
+>>>>>>> upstream/android-13
 		if (ret)
 			return ret;
 
@@ -403,7 +748,11 @@ static ssize_t vfio_ccw_mdev_ioctl(struct mdev_device *mdev,
 			return ret;
 
 		data = (void __user *)(arg + minsz);
+<<<<<<< HEAD
 		return vfio_ccw_mdev_set_irqs(mdev, hdr.flags, data);
+=======
+		return vfio_ccw_mdev_set_irqs(mdev, hdr.flags, hdr.index, data);
+>>>>>>> upstream/android-13
 	}
 	case VFIO_DEVICE_RESET:
 		return vfio_ccw_mdev_reset(mdev);
@@ -412,16 +761,49 @@ static ssize_t vfio_ccw_mdev_ioctl(struct mdev_device *mdev,
 	}
 }
 
+<<<<<<< HEAD
+=======
+/* Request removal of the device*/
+static void vfio_ccw_mdev_request(struct mdev_device *mdev, unsigned int count)
+{
+	struct vfio_ccw_private *private = dev_get_drvdata(mdev_parent_dev(mdev));
+
+	if (!private)
+		return;
+
+	if (private->req_trigger) {
+		if (!(count % 10))
+			dev_notice_ratelimited(mdev_dev(private->mdev),
+					       "Relaying device request to user (#%u)\n",
+					       count);
+
+		eventfd_signal(private->req_trigger, 1);
+	} else if (count == 0) {
+		dev_notice(mdev_dev(private->mdev),
+			   "No device request channel registered, blocked until released by user\n");
+	}
+}
+
+>>>>>>> upstream/android-13
 static const struct mdev_parent_ops vfio_ccw_mdev_ops = {
 	.owner			= THIS_MODULE,
 	.supported_type_groups  = mdev_type_groups,
 	.create			= vfio_ccw_mdev_create,
 	.remove			= vfio_ccw_mdev_remove,
+<<<<<<< HEAD
 	.open			= vfio_ccw_mdev_open,
 	.release		= vfio_ccw_mdev_release,
 	.read			= vfio_ccw_mdev_read,
 	.write			= vfio_ccw_mdev_write,
 	.ioctl			= vfio_ccw_mdev_ioctl,
+=======
+	.open_device		= vfio_ccw_mdev_open_device,
+	.close_device		= vfio_ccw_mdev_close_device,
+	.read			= vfio_ccw_mdev_read,
+	.write			= vfio_ccw_mdev_write,
+	.ioctl			= vfio_ccw_mdev_ioctl,
+	.request		= vfio_ccw_mdev_request,
+>>>>>>> upstream/android-13
 };
 
 int vfio_ccw_mdev_reg(struct subchannel *sch)

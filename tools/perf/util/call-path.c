@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * call-path.h: Manipulate a tree data structure containing function call paths
  * Copyright (c) 2014, Intel Corporation.
@@ -11,12 +12,24 @@
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * call-path.h: Manipulate a tree data structure containing function call paths
+ * Copyright (c) 2014, Intel Corporation.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/rbtree.h>
 #include <linux/list.h>
+<<<<<<< HEAD
 
 #include "util.h"
+=======
+#include <linux/zalloc.h>
+#include <stdlib.h>
+
+>>>>>>> upstream/android-13
 #include "call-path.h"
 
 static void call_path__init(struct call_path *cp, struct call_path *parent,
@@ -48,7 +61,11 @@ void call_path_root__free(struct call_path_root *cpr)
 	struct call_path_block *pos, *n;
 
 	list_for_each_entry_safe(pos, n, &cpr->blocks, node) {
+<<<<<<< HEAD
 		list_del(&pos->node);
+=======
+		list_del_init(&pos->node);
+>>>>>>> upstream/android-13
 		free(pos);
 	}
 	free(cpr);

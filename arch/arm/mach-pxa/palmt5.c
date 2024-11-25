@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Hardware definitions for Palm Tungsten|T5
  *
@@ -8,12 +12,16 @@
  *		Justin Kendrick <twilightsentry@gmail.com>
  *		RichardT5 <richard_t5@users.sourceforge.net>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
  * (find more info at www.hackndev.com)
  *
+=======
+ * (find more info at www.hackndev.com)
+>>>>>>> upstream/android-13
  */
 
 #include <linux/platform_device.h>
@@ -27,7 +35,10 @@
 #include <linux/gpio.h>
 #include <linux/wm97xx.h>
 #include <linux/power_supply.h>
+<<<<<<< HEAD
 #include <linux/usb/gpio_vbus.h>
+=======
+>>>>>>> upstream/android-13
 
 #include <asm/mach-types.h>
 #include <asm/mach/arch.h>
@@ -182,6 +193,22 @@ static void __init palmt5_reserve(void)
 	memblock_reserve(0xa0200000, 0x1000);
 }
 
+<<<<<<< HEAD
+=======
+static struct gpiod_lookup_table palmt5_mci_gpio_table = {
+	.dev_id = "pxa2xx-mci.0",
+	.table = {
+		GPIO_LOOKUP("gpio-pxa", GPIO_NR_PALMT5_SD_DETECT_N,
+			    "cd", GPIO_ACTIVE_LOW),
+		GPIO_LOOKUP("gpio-pxa", GPIO_NR_PALMT5_SD_READONLY,
+			    "wp", GPIO_ACTIVE_LOW),
+		GPIO_LOOKUP("gpio-pxa", GPIO_NR_PALMT5_SD_POWER,
+			    "power", GPIO_ACTIVE_HIGH),
+		{ },
+	},
+};
+
+>>>>>>> upstream/android-13
 static void __init palmt5_init(void)
 {
 	pxa2xx_mfp_config(ARRAY_AND_SIZE(palmt5_pin_config));
@@ -189,8 +216,12 @@ static void __init palmt5_init(void)
 	pxa_set_btuart_info(NULL);
 	pxa_set_stuart_info(NULL);
 
+<<<<<<< HEAD
 	palm27x_mmc_init(GPIO_NR_PALMT5_SD_DETECT_N, GPIO_NR_PALMT5_SD_READONLY,
 			GPIO_NR_PALMT5_SD_POWER, 0);
+=======
+	palm27x_mmc_init(&palmt5_mci_gpio_table);
+>>>>>>> upstream/android-13
 	palm27x_pm_init(PALMT5_STR_BASE);
 	palm27x_lcd_init(-1, &palm_320x480_lcd_mode);
 	palm27x_udc_init(GPIO_NR_PALMT5_USB_DETECT_N,

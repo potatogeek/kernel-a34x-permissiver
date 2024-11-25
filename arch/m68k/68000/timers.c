@@ -22,7 +22,10 @@
 #include <linux/clocksource.h>
 #include <linux/rtc.h>
 #include <asm/setup.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/machdep.h>
 #include <asm/MC68VZ328.h>
 
@@ -53,7 +56,10 @@
 #endif
 
 static u32 m68328_tick_cnt;
+<<<<<<< HEAD
 static irq_handler_t timer_interrupt;
+=======
+>>>>>>> upstream/android-13
 
 /***************************************************************************/
 
@@ -63,11 +69,17 @@ static irqreturn_t hw_tick(int irq, void *dummy)
 	TSTAT &= 0;
 
 	m68328_tick_cnt += TICKS_PER_JIFFY;
+<<<<<<< HEAD
 	return timer_interrupt(irq, dummy);
+=======
+	legacy_timer_tick(1);
+	return IRQ_HANDLED;
+>>>>>>> upstream/android-13
 }
 
 /***************************************************************************/
 
+<<<<<<< HEAD
 static struct irqaction m68328_timer_irq = {
 	.name	 = "timer",
 	.flags	 = IRQF_TIMER,
@@ -76,6 +88,8 @@ static struct irqaction m68328_timer_irq = {
 
 /***************************************************************************/
 
+=======
+>>>>>>> upstream/android-13
 static u64 m68328_read_clk(struct clocksource *cs)
 {
 	unsigned long flags;
@@ -100,13 +114,28 @@ static struct clocksource m68328_clk = {
 
 /***************************************************************************/
 
+<<<<<<< HEAD
 void hw_timer_init(irq_handler_t handler)
 {
+=======
+void hw_timer_init(void)
+{
+	int ret;
+
+>>>>>>> upstream/android-13
 	/* disable timer 1 */
 	TCTL = 0;
 
 	/* set ISR */
+<<<<<<< HEAD
 	setup_irq(TMR_IRQ_NUM, &m68328_timer_irq);
+=======
+	ret = request_irq(TMR_IRQ_NUM, hw_tick, IRQF_TIMER, "timer", NULL);
+	if (ret) {
+		pr_err("Failed to request irq %d (timer): %pe\n", TMR_IRQ_NUM,
+		       ERR_PTR(ret));
+	}
+>>>>>>> upstream/android-13
 
 	/* Restart mode, Enable int, Set clock source */
 	TCTL = TCTL_OM | TCTL_IRQEN | CLOCK_SOURCE;
@@ -116,7 +145,10 @@ void hw_timer_init(irq_handler_t handler)
 	/* Enable timer 1 */
 	TCTL |= TCTL_TEN;
 	clocksource_register_hz(&m68328_clk, TICKS_PER_JIFFY*HZ);
+<<<<<<< HEAD
 	timer_interrupt = handler;
+=======
+>>>>>>> upstream/android-13
 }
 
 /***************************************************************************/

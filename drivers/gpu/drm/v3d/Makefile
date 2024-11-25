@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 # Please keep these build lists sorted!
 
 # core driver code
@@ -8,6 +12,10 @@ v3d-y := \
 	v3d_gem.o \
 	v3d_irq.o \
 	v3d_mmu.o \
+<<<<<<< HEAD
+=======
+	v3d_perfmon.o \
+>>>>>>> upstream/android-13
 	v3d_trace_points.o \
 	v3d_sched.o
 

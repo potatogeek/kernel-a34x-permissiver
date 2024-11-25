@@ -3,7 +3,11 @@
  *
  * Name: accommon.h - Common include files for generation of ACPICA source
  *
+<<<<<<< HEAD
  * Copyright (C) 2000 - 2018, Intel Corp.
+=======
+ * Copyright (C) 2000 - 2021, Intel Corp.
+>>>>>>> upstream/android-13
  *
  *****************************************************************************/
 
@@ -13,7 +17,11 @@
 /*
  * Common set of includes for all ACPICA source files.
  * We put them here because we don't want to duplicate them
+<<<<<<< HEAD
  * in the the source code again and again.
+=======
+ * in the source code again and again.
+>>>>>>> upstream/android-13
  *
  * Note: The order of these include files is important.
  */

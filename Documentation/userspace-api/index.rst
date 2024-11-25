@@ -18,8 +18,21 @@ place where this information is gathered.
 
    no_new_privs
    seccomp_filter
+<<<<<<< HEAD
    unshare
    spec_ctrl
+=======
+   landlock
+   unshare
+   spec_ctrl
+   accelerators/ocxl
+   ebpf/index
+   ioctl/index
+   iommu
+   media/index
+   sysfs-platform_profile
+   vduse
+>>>>>>> upstream/android-13
 
 .. only::  subproject and html
 

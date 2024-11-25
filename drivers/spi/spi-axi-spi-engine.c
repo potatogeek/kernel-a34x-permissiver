@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * SPI-Engine SPI controller driver
  * Copyright 2015 Analog Devices Inc.
  *  Author: Lars-Peter Clausen <lars@metafoo.de>
+<<<<<<< HEAD
  *
  * Licensed under the GPL-2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
@@ -164,10 +171,24 @@ static void spi_engine_gen_xfer(struct spi_engine_program *p, bool dry,
 }
 
 static void spi_engine_gen_sleep(struct spi_engine_program *p, bool dry,
+<<<<<<< HEAD
 	struct spi_engine *spi_engine, unsigned int clk_div, unsigned int delay)
 {
 	unsigned int spi_clk = clk_get_rate(spi_engine->ref_clk);
 	unsigned int t;
+=======
+	struct spi_engine *spi_engine, unsigned int clk_div,
+	struct spi_transfer *xfer)
+{
+	unsigned int spi_clk = clk_get_rate(spi_engine->ref_clk);
+	unsigned int t;
+	int delay;
+
+	delay = spi_delay_to_ns(&xfer->delay, xfer);
+	if (delay < 0)
+		return;
+	delay /= 1000;
+>>>>>>> upstream/android-13
 
 	if (delay == 0)
 		return;
@@ -219,8 +240,12 @@ static int spi_engine_compile_message(struct spi_engine *spi_engine,
 			spi_engine_gen_cs(p, dry, spi, true);
 
 		spi_engine_gen_xfer(p, dry, xfer);
+<<<<<<< HEAD
 		spi_engine_gen_sleep(p, dry, spi_engine, clk_div,
 			xfer->delay_usecs);
+=======
+		spi_engine_gen_sleep(p, dry, spi_engine, clk_div, xfer);
+>>>>>>> upstream/android-13
 
 		cs_change = xfer->cs_change;
 		if (list_is_last(&xfer->transfer_list, &msg->transfers))
@@ -461,7 +486,10 @@ static int spi_engine_probe(struct platform_device *pdev)
 	struct spi_engine *spi_engine;
 	struct spi_master *master;
 	unsigned int version;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	int irq;
 	int ret;
 
@@ -481,6 +509,7 @@ static int spi_engine_probe(struct platform_device *pdev)
 
 	spin_lock_init(&spi_engine->lock);
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	spi_engine->base = devm_ioremap_resource(&pdev->dev, res);
 	if (IS_ERR(spi_engine->base)) {
@@ -498,6 +527,8 @@ static int spi_engine_probe(struct platform_device *pdev)
 		goto err_put_master;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	spi_engine->clk = devm_clk_get(&pdev->dev, "s_axi_aclk");
 	if (IS_ERR(spi_engine->clk)) {
 		ret = PTR_ERR(spi_engine->clk);
@@ -518,6 +549,25 @@ static int spi_engine_probe(struct platform_device *pdev)
 	if (ret)
 		goto err_clk_disable;
 
+<<<<<<< HEAD
+=======
+	spi_engine->base = devm_platform_ioremap_resource(pdev, 0);
+	if (IS_ERR(spi_engine->base)) {
+		ret = PTR_ERR(spi_engine->base);
+		goto err_ref_clk_disable;
+	}
+
+	version = readl(spi_engine->base + SPI_ENGINE_REG_VERSION);
+	if (SPI_ENGINE_VERSION_MAJOR(version) != 1) {
+		dev_err(&pdev->dev, "Unsupported peripheral version %u.%u.%c\n",
+			SPI_ENGINE_VERSION_MAJOR(version),
+			SPI_ENGINE_VERSION_MINOR(version),
+			SPI_ENGINE_VERSION_PATCH(version));
+		ret = -ENODEV;
+		goto err_ref_clk_disable;
+	}
+
+>>>>>>> upstream/android-13
 	writel_relaxed(0x00, spi_engine->base + SPI_ENGINE_REG_RESET);
 	writel_relaxed(0xff, spi_engine->base + SPI_ENGINE_REG_INT_PENDING);
 	writel_relaxed(0x00, spi_engine->base + SPI_ENGINE_REG_INT_ENABLE);

@@ -2,7 +2,17 @@
 #ifndef _PARISC_PGTABLE_H
 #define _PARISC_PGTABLE_H
 
+<<<<<<< HEAD
 #include <asm-generic/4level-fixup.h>
+=======
+#include <asm/page.h>
+
+#if CONFIG_PGTABLE_LEVELS == 3
+#include <asm-generic/pgtable-nopud.h>
+#elif CONFIG_PGTABLE_LEVELS == 2
+#include <asm-generic/pgtable-nopmd.h>
+#endif
+>>>>>>> upstream/android-13
 
 #include <asm/fixmap.h>
 
@@ -17,8 +27,11 @@
 #include <asm/processor.h>
 #include <asm/cache.h>
 
+<<<<<<< HEAD
 extern spinlock_t pa_tlb_lock;
 
+=======
+>>>>>>> upstream/android-13
 /*
  * kern_addr_valid(ADDR) tests if ADDR is pointing to valid kernel
  * memory.  For the return value to be meaningful, ADDR must be >=
@@ -34,23 +47,66 @@ extern spinlock_t pa_tlb_lock;
  */
 #define kern_addr_valid(addr)	(1)
 
+<<<<<<< HEAD
 /* Purge data and instruction TLB entries.  Must be called holding
  * the pa_tlb_lock.  The TLB purge instructions are slow on SMP
  * machines since the purge must be broadcast to all CPUs.
+=======
+/* This is for the serialization of PxTLB broadcasts. At least on the N class
+ * systems, only one PxTLB inter processor broadcast can be active at any one
+ * time on the Merced bus. */
+extern spinlock_t pa_tlb_flush_lock;
+#if defined(CONFIG_64BIT) && defined(CONFIG_SMP)
+extern int pa_serialize_tlb_flushes;
+#else
+#define pa_serialize_tlb_flushes        (0)
+#endif
+
+#define purge_tlb_start(flags)  do { \
+	if (pa_serialize_tlb_flushes)	\
+		spin_lock_irqsave(&pa_tlb_flush_lock, flags); \
+	else \
+		local_irq_save(flags);	\
+	} while (0)
+#define purge_tlb_end(flags)	do { \
+	if (pa_serialize_tlb_flushes)	\
+		spin_unlock_irqrestore(&pa_tlb_flush_lock, flags); \
+	else \
+		local_irq_restore(flags); \
+	} while (0)
+
+/* Purge data and instruction TLB entries. The TLB purge instructions
+ * are slow on SMP machines since the purge must be broadcast to all CPUs.
+>>>>>>> upstream/android-13
  */
 
 static inline void purge_tlb_entries(struct mm_struct *mm, unsigned long addr)
 {
+<<<<<<< HEAD
 	mtsp(mm->context, 1);
 	pdtlb(addr);
 	if (unlikely(split_tlb))
 		pitlb(addr);
 }
 
+=======
+	unsigned long flags;
+
+	purge_tlb_start(flags);
+	mtsp(mm->context, 1);
+	pdtlb(addr);
+	pitlb(addr);
+	purge_tlb_end(flags);
+}
+
+extern void __update_cache(pte_t pte);
+
+>>>>>>> upstream/android-13
 /* Certain architectures need to do special things when PTEs
  * within a page table are directly modified.  Thus, the following
  * hook is made available.
  */
+<<<<<<< HEAD
 #define set_pte(pteptr, pteval)                                 \
         do{                                                     \
                 *(pteptr) = (pteval);                           \
@@ -70,16 +126,40 @@ static inline void purge_tlb_entries(struct mm_struct *mm, unsigned long addr)
 			purge_tlb_entries(mm, addr);		\
 		set_pte(ptep, pteval);				\
 		spin_unlock_irqrestore(&pa_tlb_lock, flags);	\
+=======
+#define set_pte(pteptr, pteval)			\
+	do {					\
+		*(pteptr) = (pteval);		\
+		mb();				\
+	} while(0)
+
+#define set_pte_at(mm, addr, pteptr, pteval)	\
+	do {					\
+		if (pte_present(pteval) &&	\
+		    pte_user(pteval))		\
+			__update_cache(pteval);	\
+		*(pteptr) = (pteval);		\
+		purge_tlb_entries(mm, addr);	\
+>>>>>>> upstream/android-13
 	} while (0)
 
 #endif /* !__ASSEMBLY__ */
 
+<<<<<<< HEAD
 #include <asm/page.h>
 
 #define pte_ERROR(e) \
 	printk("%s:%d: bad pte %08lx.\n", __FILE__, __LINE__, pte_val(e))
 #define pmd_ERROR(e) \
 	printk("%s:%d: bad pmd %08lx.\n", __FILE__, __LINE__, (unsigned long)pmd_val(e))
+=======
+#define pte_ERROR(e) \
+	printk("%s:%d: bad pte %08lx.\n", __FILE__, __LINE__, pte_val(e))
+#if CONFIG_PGTABLE_LEVELS == 3
+#define pmd_ERROR(e) \
+	printk("%s:%d: bad pmd %08lx.\n", __FILE__, __LINE__, (unsigned long)pmd_val(e))
+#endif
+>>>>>>> upstream/android-13
 #define pgd_ERROR(e) \
 	printk("%s:%d: bad pgd %08lx.\n", __FILE__, __LINE__, (unsigned long)pgd_val(e))
 
@@ -92,12 +172,19 @@ static inline void purge_tlb_entries(struct mm_struct *mm, unsigned long addr)
 #define KERNEL_INITIAL_SIZE	(1 << KERNEL_INITIAL_ORDER)
 
 #if CONFIG_PGTABLE_LEVELS == 3
+<<<<<<< HEAD
 #define PGD_ORDER	1 /* Number of pages per pgd */
 #define PMD_ORDER	1 /* Number of pages per pmd */
 #define PGD_ALLOC_ORDER	2 /* first pgd contains pmd */
 #else
 #define PGD_ORDER	1 /* Number of pages per pgd */
 #define PGD_ALLOC_ORDER	PGD_ORDER
+=======
+#define PMD_TABLE_ORDER	1
+#define PGD_ORDER	0
+#else
+#define PGD_ORDER	1
+>>>>>>> upstream/android-13
 #endif
 
 /* Definitions for 3rd level (we use PLD here for Page Lower directory
@@ -109,6 +196,7 @@ static inline void purge_tlb_entries(struct mm_struct *mm, unsigned long addr)
 #define PTRS_PER_PTE    (1UL << BITS_PER_PTE)
 
 /* Definitions for 2nd level */
+<<<<<<< HEAD
 #define pgtable_cache_init()	do { } while (0)
 
 #define PMD_SHIFT       (PLD_SHIFT + BITS_PER_PTE)
@@ -124,6 +212,20 @@ static inline void purge_tlb_entries(struct mm_struct *mm, unsigned long addr)
 
 /* Definitions for 1st level */
 #define PGDIR_SHIFT	(PMD_SHIFT + BITS_PER_PMD)
+=======
+#if CONFIG_PGTABLE_LEVELS == 3
+#define PMD_SHIFT       (PLD_SHIFT + BITS_PER_PTE)
+#define PMD_SIZE	(1UL << PMD_SHIFT)
+#define PMD_MASK	(~(PMD_SIZE-1))
+#define BITS_PER_PMD	(PAGE_SHIFT + PMD_TABLE_ORDER - BITS_PER_PMD_ENTRY)
+#define PTRS_PER_PMD    (1UL << BITS_PER_PMD)
+#else
+#define BITS_PER_PMD	0
+#endif
+
+/* Definitions for 1st level */
+#define PGDIR_SHIFT	(PLD_SHIFT + BITS_PER_PTE + BITS_PER_PMD)
+>>>>>>> upstream/android-13
 #if (PGDIR_SHIFT + PAGE_SHIFT + PGD_ORDER - BITS_PER_PGD_ENTRY) > BITS_PER_LONG
 #define BITS_PER_PGD	(BITS_PER_LONG - PGDIR_SHIFT)
 #else
@@ -156,8 +258,11 @@ static inline void purge_tlb_entries(struct mm_struct *mm, unsigned long addr)
  * pgd entries used up by user/kernel:
  */
 
+<<<<<<< HEAD
 #define FIRST_USER_ADDRESS	0UL
 
+=======
+>>>>>>> upstream/android-13
 /* NB: The tlb miss handlers make certain assumptions about the order */
 /*     of the following bits, so be careful (One example, bits 25-31  */
 /*     are moved together in one instruction).                        */
@@ -202,7 +307,11 @@ static inline void purge_tlb_entries(struct mm_struct *mm, unsigned long addr)
 #define _PAGE_HUGE     (1 << xlate_pabit(_PAGE_HPAGE_BIT))
 #define _PAGE_USER     (1 << xlate_pabit(_PAGE_USER_BIT))
 
+<<<<<<< HEAD
 #define _PAGE_TABLE	(_PAGE_PRESENT | _PAGE_READ | _PAGE_WRITE |  _PAGE_DIRTY | _PAGE_ACCESSED)
+=======
+#define _PAGE_TABLE	(_PAGE_PRESENT | _PAGE_READ | _PAGE_WRITE | _PAGE_DIRTY | _PAGE_ACCESSED)
+>>>>>>> upstream/android-13
 #define _PAGE_CHG_MASK	(PAGE_MASK | _PAGE_ACCESSED | _PAGE_DIRTY)
 #define _PAGE_KERNEL_RO	(_PAGE_PRESENT | _PAGE_READ | _PAGE_DIRTY | _PAGE_ACCESSED)
 #define _PAGE_KERNEL_EXEC	(_PAGE_KERNEL_RO | _PAGE_EXEC)
@@ -215,11 +324,17 @@ static inline void purge_tlb_entries(struct mm_struct *mm, unsigned long addr)
  * able to effectively address 40/42/44-bits of physical address space
  * depending on 4k/16k/64k PAGE_SIZE */
 #define _PxD_PRESENT_BIT   31
+<<<<<<< HEAD
 #define _PxD_ATTACHED_BIT  30
 #define _PxD_VALID_BIT     29
 
 #define PxD_FLAG_PRESENT  (1 << xlate_pabit(_PxD_PRESENT_BIT))
 #define PxD_FLAG_ATTACHED (1 << xlate_pabit(_PxD_ATTACHED_BIT))
+=======
+#define _PxD_VALID_BIT     30
+
+#define PxD_FLAG_PRESENT  (1 << xlate_pabit(_PxD_PRESENT_BIT))
+>>>>>>> upstream/android-13
 #define PxD_FLAG_VALID    (1 << xlate_pabit(_PxD_VALID_BIT))
 #define PxD_FLAG_MASK     (0xf)
 #define PxD_FLAG_SHIFT    (4)
@@ -227,6 +342,7 @@ static inline void purge_tlb_entries(struct mm_struct *mm, unsigned long addr)
 
 #ifndef __ASSEMBLY__
 
+<<<<<<< HEAD
 #define PAGE_NONE	__pgprot(_PAGE_PRESENT | _PAGE_USER | _PAGE_ACCESSED)
 #define PAGE_SHARED	__pgprot(_PAGE_PRESENT | _PAGE_USER | _PAGE_READ | _PAGE_WRITE | _PAGE_ACCESSED)
 /* Others seem to make this executable, I don't know if that's correct
@@ -237,12 +353,28 @@ static inline void purge_tlb_entries(struct mm_struct *mm, unsigned long addr)
 #define PAGE_EXECREAD   __pgprot(_PAGE_PRESENT | _PAGE_USER | _PAGE_READ | _PAGE_EXEC |_PAGE_ACCESSED)
 #define PAGE_COPY       PAGE_EXECREAD
 #define PAGE_RWX        __pgprot(_PAGE_PRESENT | _PAGE_USER | _PAGE_READ | _PAGE_WRITE | _PAGE_EXEC |_PAGE_ACCESSED)
+=======
+#define PAGE_NONE	__pgprot(_PAGE_PRESENT | _PAGE_USER)
+#define PAGE_SHARED	__pgprot(_PAGE_PRESENT | _PAGE_USER | _PAGE_READ | _PAGE_WRITE)
+/* Others seem to make this executable, I don't know if that's correct
+   or not.  The stack is mapped this way though so this is necessary
+   in the short term - dhd@linuxcare.com, 2000-08-08 */
+#define PAGE_READONLY	__pgprot(_PAGE_PRESENT | _PAGE_USER | _PAGE_READ)
+#define PAGE_WRITEONLY  __pgprot(_PAGE_PRESENT | _PAGE_USER | _PAGE_WRITE)
+#define PAGE_EXECREAD   __pgprot(_PAGE_PRESENT | _PAGE_USER | _PAGE_READ | _PAGE_EXEC)
+#define PAGE_COPY       PAGE_EXECREAD
+#define PAGE_RWX        __pgprot(_PAGE_PRESENT | _PAGE_USER | _PAGE_READ | _PAGE_WRITE | _PAGE_EXEC)
+>>>>>>> upstream/android-13
 #define PAGE_KERNEL	__pgprot(_PAGE_KERNEL)
 #define PAGE_KERNEL_EXEC	__pgprot(_PAGE_KERNEL_EXEC)
 #define PAGE_KERNEL_RWX	__pgprot(_PAGE_KERNEL_RWX)
 #define PAGE_KERNEL_RO	__pgprot(_PAGE_KERNEL_RO)
 #define PAGE_KERNEL_UNC	__pgprot(_PAGE_KERNEL | _PAGE_NO_CACHE)
+<<<<<<< HEAD
 #define PAGE_GATEWAY    __pgprot(_PAGE_PRESENT | _PAGE_USER | _PAGE_ACCESSED | _PAGE_GATEWAY| _PAGE_READ)
+=======
+#define PAGE_GATEWAY    __pgprot(_PAGE_PRESENT | _PAGE_USER | _PAGE_GATEWAY| _PAGE_READ)
+>>>>>>> upstream/android-13
 
 
 /*
@@ -292,10 +424,15 @@ extern unsigned long *empty_zero_page;
 
 #define pte_none(x)     (pte_val(x) == 0)
 #define pte_present(x)	(pte_val(x) & _PAGE_PRESENT)
+<<<<<<< HEAD
+=======
+#define pte_user(x)	(pte_val(x) & _PAGE_USER)
+>>>>>>> upstream/android-13
 #define pte_clear(mm, addr, xp)  set_pte_at(mm, addr, xp, __pte(0))
 
 #define pmd_flag(x)	(pmd_val(x) & PxD_FLAG_MASK)
 #define pmd_address(x)	((unsigned long)(pmd_val(x) &~ PxD_FLAG_MASK) << PxD_VALUE_SHIFT)
+<<<<<<< HEAD
 #define pgd_flag(x)	(pgd_val(x) & PxD_FLAG_MASK)
 #define pgd_address(x)	((unsigned long)(pgd_val(x) &~ PxD_FLAG_MASK) << PxD_VALUE_SHIFT)
 
@@ -317,11 +454,24 @@ static inline void pmd_clear(pmd_t *pmd) {
 	else
 #endif
 		__pmd_val_set(*pmd,  0);
+=======
+#define pud_flag(x)	(pud_val(x) & PxD_FLAG_MASK)
+#define pud_address(x)	((unsigned long)(pud_val(x) &~ PxD_FLAG_MASK) << PxD_VALUE_SHIFT)
+#define pgd_flag(x)	(pgd_val(x) & PxD_FLAG_MASK)
+#define pgd_address(x)	((unsigned long)(pgd_val(x) &~ PxD_FLAG_MASK) << PxD_VALUE_SHIFT)
+
+#define pmd_none(x)	(!pmd_val(x))
+#define pmd_bad(x)	(!(pmd_flag(x) & PxD_FLAG_VALID))
+#define pmd_present(x)	(pmd_flag(x) & PxD_FLAG_PRESENT)
+static inline void pmd_clear(pmd_t *pmd) {
+		set_pmd(pmd,  __pmd(0));
+>>>>>>> upstream/android-13
 }
 
 
 
 #if CONFIG_PGTABLE_LEVELS == 3
+<<<<<<< HEAD
 #define pgd_page_vaddr(pgd) ((unsigned long) __va(pgd_address(pgd)))
 #define pgd_page(pgd)	virt_to_page((void *)pgd_page_vaddr(pgd))
 
@@ -349,6 +499,19 @@ static inline int pgd_none(pgd_t pgd)		{ return 0; }
 static inline int pgd_bad(pgd_t pgd)		{ return 0; }
 static inline int pgd_present(pgd_t pgd)	{ return 1; }
 static inline void pgd_clear(pgd_t * pgdp)	{ }
+=======
+#define pud_pgtable(pud) ((pmd_t *) __va(pud_address(pud)))
+#define pud_page(pud)	virt_to_page((void *)pud_pgtable(pud))
+
+/* For 64 bit we have three level tables */
+
+#define pud_none(x)     (!pud_val(x))
+#define pud_bad(x)      (!(pud_flag(x) & PxD_FLAG_VALID))
+#define pud_present(x)  (pud_flag(x) & PxD_FLAG_PRESENT)
+static inline void pud_clear(pud_t *pud) {
+	set_pud(pud, __pud(0));
+}
+>>>>>>> upstream/android-13
 #endif
 
 /*
@@ -358,7 +521,10 @@ static inline void pgd_clear(pgd_t * pgdp)	{ }
 static inline int pte_dirty(pte_t pte)		{ return pte_val(pte) & _PAGE_DIRTY; }
 static inline int pte_young(pte_t pte)		{ return pte_val(pte) & _PAGE_ACCESSED; }
 static inline int pte_write(pte_t pte)		{ return pte_val(pte) & _PAGE_WRITE; }
+<<<<<<< HEAD
 static inline int pte_special(pte_t pte)	{ return 0; }
+=======
+>>>>>>> upstream/android-13
 
 static inline pte_t pte_mkclean(pte_t pte)	{ pte_val(pte) &= ~_PAGE_DIRTY; return pte; }
 static inline pte_t pte_mkold(pte_t pte)	{ pte_val(pte) &= ~_PAGE_ACCESSED; return pte; }
@@ -366,7 +532,10 @@ static inline pte_t pte_wrprotect(pte_t pte)	{ pte_val(pte) &= ~_PAGE_WRITE; ret
 static inline pte_t pte_mkdirty(pte_t pte)	{ pte_val(pte) |= _PAGE_DIRTY; return pte; }
 static inline pte_t pte_mkyoung(pte_t pte)	{ pte_val(pte) |= _PAGE_ACCESSED; return pte; }
 static inline pte_t pte_mkwrite(pte_t pte)	{ pte_val(pte) |= _PAGE_WRITE; return pte; }
+<<<<<<< HEAD
 static inline pte_t pte_mkspecial(pte_t pte)	{ return pte; }
+=======
+>>>>>>> upstream/android-13
 
 /*
  * Huge pte definitions.
@@ -412,11 +581,19 @@ static inline pte_t pte_modify(pte_t pte, pgprot_t newprot)
 
 #define pte_page(pte)		(pfn_to_page(pte_pfn(pte)))
 
+<<<<<<< HEAD
 #define pmd_page_vaddr(pmd)	((unsigned long) __va(pmd_address(pmd)))
+=======
+static inline unsigned long pmd_page_vaddr(pmd_t pmd)
+{
+	return ((unsigned long) __va(pmd_address(pmd)));
+}
+>>>>>>> upstream/android-13
 
 #define __pmd_page(pmd) ((unsigned long) __va(pmd_address(pmd)))
 #define pmd_page(pmd)	virt_to_page((void *)__pmd_page(pmd))
 
+<<<<<<< HEAD
 #define pgd_index(address) ((address) >> PGDIR_SHIFT)
 
 /* to find an entry in a page-table-directory */
@@ -446,13 +623,21 @@ static inline pte_t pte_modify(pte_t pte, pgprot_t newprot)
 #define pte_unmap(pte)			do { } while (0)
 #define pte_unmap_nested(pte)		do { } while (0)
 
+=======
+/* Find an entry in the second-level page table.. */
+
+>>>>>>> upstream/android-13
 extern void paging_init (void);
 
 /* Used for deferring calls to flush_dcache_page() */
 
 #define PG_dcache_dirty         PG_arch_1
 
+<<<<<<< HEAD
 extern void update_mmu_cache(struct vm_area_struct *, unsigned long, pte_t *);
+=======
+#define update_mmu_cache(vms,addr,ptep) __update_cache(*ptep)
+>>>>>>> upstream/android-13
 
 /* Encode and de-code a swap entry */
 
@@ -468,11 +653,15 @@ extern void update_mmu_cache(struct vm_area_struct *, unsigned long, pte_t *);
 static inline int ptep_test_and_clear_young(struct vm_area_struct *vma, unsigned long addr, pte_t *ptep)
 {
 	pte_t pte;
+<<<<<<< HEAD
 	unsigned long flags;
+=======
+>>>>>>> upstream/android-13
 
 	if (!pte_young(*ptep))
 		return 0;
 
+<<<<<<< HEAD
 	spin_lock_irqsave(&pa_tlb_lock, flags);
 	pte = *ptep;
 	if (!pte_young(pte)) {
@@ -482,6 +671,13 @@ static inline int ptep_test_and_clear_young(struct vm_area_struct *vma, unsigned
 	purge_tlb_entries(vma->vm_mm, addr);
 	set_pte(ptep, pte_mkold(pte));
 	spin_unlock_irqrestore(&pa_tlb_lock, flags);
+=======
+	pte = *ptep;
+	if (!pte_young(pte)) {
+		return 0;
+	}
+	set_pte_at(vma->vm_mm, addr, ptep, pte_mkold(pte));
+>>>>>>> upstream/android-13
 	return 1;
 }
 
@@ -489,6 +685,7 @@ struct mm_struct;
 static inline pte_t ptep_get_and_clear(struct mm_struct *mm, unsigned long addr, pte_t *ptep)
 {
 	pte_t old_pte;
+<<<<<<< HEAD
 	unsigned long flags;
 
 	spin_lock_irqsave(&pa_tlb_lock, flags);
@@ -497,17 +694,26 @@ static inline pte_t ptep_get_and_clear(struct mm_struct *mm, unsigned long addr,
 		purge_tlb_entries(mm, addr);
 	set_pte(ptep, __pte(0));
 	spin_unlock_irqrestore(&pa_tlb_lock, flags);
+=======
+
+	old_pte = *ptep;
+	set_pte_at(mm, addr, ptep, __pte(0));
+>>>>>>> upstream/android-13
 
 	return old_pte;
 }
 
 static inline void ptep_set_wrprotect(struct mm_struct *mm, unsigned long addr, pte_t *ptep)
 {
+<<<<<<< HEAD
 	unsigned long flags;
 	spin_lock_irqsave(&pa_tlb_lock, flags);
 	purge_tlb_entries(mm, addr);
 	set_pte(ptep, pte_wrprotect(*ptep));
 	spin_unlock_irqrestore(&pa_tlb_lock, flags);
+=======
+	set_pte_at(mm, addr, ptep, pte_wrprotect(*ptep));
+>>>>>>> upstream/android-13
 }
 
 #define pte_same(A,B)	(pte_val(A) == pte_val(B))
@@ -548,6 +754,9 @@ extern void arch_report_meminfo(struct seq_file *m);
 #define __HAVE_ARCH_PTEP_GET_AND_CLEAR
 #define __HAVE_ARCH_PTEP_SET_WRPROTECT
 #define __HAVE_ARCH_PTE_SAME
+<<<<<<< HEAD
 #include <asm-generic/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 
 #endif /* _PARISC_PGTABLE_H */

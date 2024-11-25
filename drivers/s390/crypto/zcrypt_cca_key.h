@@ -1,7 +1,10 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
+<<<<<<< HEAD
  *  zcrypt 2.1.0
  *
+=======
+>>>>>>> upstream/android-13
  *  Copyright IBM Corp. 2001, 2006
  *  Author(s): Robert Burroughs
  *	       Eric Rossman (edrossma@us.ibm.com)

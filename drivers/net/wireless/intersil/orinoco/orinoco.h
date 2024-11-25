@@ -207,7 +207,11 @@ int orinoco_open(struct net_device *dev);
 int orinoco_stop(struct net_device *dev);
 void orinoco_set_multicast_list(struct net_device *dev);
 int orinoco_change_mtu(struct net_device *dev, int new_mtu);
+<<<<<<< HEAD
 void orinoco_tx_timeout(struct net_device *dev);
+=======
+void orinoco_tx_timeout(struct net_device *dev, unsigned int txqueue);
+>>>>>>> upstream/android-13
 
 /********************************************************************/
 /* Locking and synchronization functions                            */

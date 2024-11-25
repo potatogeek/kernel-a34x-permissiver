@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  linux/arch/arm/kernel/time.c
  *
  *  Copyright (C) 1991, 1992, 1995  Linus Torvalds
  *  Modifications for ARM (C) 1994-2001 Russell King
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
@@ -12,6 +17,12 @@
  *  reading the RTC at bootup, etc...
  */
 #include <linux/clk-provider.h>
+=======
+ *  This file contains the ARM-specific time handling details:
+ *  reading the RTC at bootup, etc...
+ */
+#include <linux/clockchips.h>
+>>>>>>> upstream/android-13
 #include <linux/clocksource.h>
 #include <linux/errno.h>
 #include <linux/export.h>
@@ -19,6 +30,10 @@
 #include <linux/interrupt.h>
 #include <linux/irq.h>
 #include <linux/kernel.h>
+<<<<<<< HEAD
+=======
+#include <linux/of_clk.h>
+>>>>>>> upstream/android-13
 #include <linux/profile.h>
 #include <linux/sched.h>
 #include <linux/sched_clock.h>
@@ -62,6 +77,7 @@ unsigned long profile_pc(struct pt_regs *regs)
 EXPORT_SYMBOL(profile_pc);
 #endif
 
+<<<<<<< HEAD
 #ifndef CONFIG_GENERIC_CLOCKEVENTS
 /*
  * Kernel system timer support.
@@ -76,6 +92,8 @@ void timer_tick(void)
 }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 static void dummy_clock_access(struct timespec64 *ts)
 {
 	ts->tv_sec = 0;
@@ -110,5 +128,9 @@ void __init time_init(void)
 		of_clk_init(NULL);
 #endif
 		timer_probe();
+<<<<<<< HEAD
+=======
+		tick_setup_hrtimer_broadcast();
+>>>>>>> upstream/android-13
 	}
 }

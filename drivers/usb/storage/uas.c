@@ -279,6 +279,7 @@ static bool uas_evaluate_response_iu(struct response_iu *riu, struct scsi_cmnd *
 
 	switch (response_code) {
 	case RC_INCORRECT_LUN:
+<<<<<<< HEAD
 		cmnd->result = DID_BAD_TARGET << 16;
 		break;
 	case RC_TMF_SUCCEEDED:
@@ -290,6 +291,19 @@ static bool uas_evaluate_response_iu(struct response_iu *riu, struct scsi_cmnd *
 	default:
 		uas_log_cmd_state(cmnd, "response iu", response_code);
 		cmnd->result = DID_ERROR << 16;
+=======
+		set_host_byte(cmnd, DID_BAD_TARGET);
+		break;
+	case RC_TMF_SUCCEEDED:
+		set_host_byte(cmnd, DID_OK);
+		break;
+	case RC_TMF_NOT_SUPPORTED:
+		set_host_byte(cmnd, DID_TARGET_FAILURE);
+		break;
+	default:
+		uas_log_cmd_state(cmnd, "response iu", response_code);
+		set_host_byte(cmnd, DID_ERROR);
+>>>>>>> upstream/android-13
 		break;
 	}
 
@@ -396,13 +410,18 @@ static void uas_data_cmplt(struct urb *urb)
 	struct scsi_cmnd *cmnd = urb->context;
 	struct uas_cmd_info *cmdinfo = (void *)&cmnd->SCp;
 	struct uas_dev_info *devinfo = (void *)cmnd->device->hostdata;
+<<<<<<< HEAD
 	struct scsi_data_buffer *sdb = NULL;
+=======
+	struct scsi_data_buffer *sdb = &cmnd->sdb;
+>>>>>>> upstream/android-13
 	unsigned long flags;
 	int status = urb->status;
 
 	spin_lock_irqsave(&devinfo->lock, flags);
 
 	if (cmdinfo->data_in_urb == urb) {
+<<<<<<< HEAD
 		sdb = scsi_in(cmnd);
 		cmdinfo->state &= ~DATA_IN_URB_INFLIGHT;
 		cmdinfo->data_in_urb = NULL;
@@ -415,6 +434,14 @@ static void uas_data_cmplt(struct urb *urb)
 		WARN_ON_ONCE(1);
 		goto out;
 	}
+=======
+		cmdinfo->state &= ~DATA_IN_URB_INFLIGHT;
+		cmdinfo->data_in_urb = NULL;
+	} else if (cmdinfo->data_out_urb == urb) {
+		cmdinfo->state &= ~DATA_OUT_URB_INFLIGHT;
+		cmdinfo->data_out_urb = NULL;
+	}
+>>>>>>> upstream/android-13
 
 	if (devinfo->resetting)
 		goto out;
@@ -429,9 +456,15 @@ static void uas_data_cmplt(struct urb *urb)
 		if (status != -ENOENT && status != -ECONNRESET && status != -ESHUTDOWN)
 			uas_log_cmd_state(cmnd, "data cmplt err", status);
 		/* error: no data transfered */
+<<<<<<< HEAD
 		sdb->resid = sdb->length;
 	} else {
 		sdb->resid = sdb->length - urb->actual_length;
+=======
+		scsi_set_resid(cmnd, sdb->length);
+	} else {
+		scsi_set_resid(cmnd, sdb->length - urb->actual_length);
+>>>>>>> upstream/android-13
 	}
 	uas_try_complete(cmnd, __func__);
 out:
@@ -454,8 +487,12 @@ static struct urb *uas_alloc_data_urb(struct uas_dev_info *devinfo, gfp_t gfp,
 	struct usb_device *udev = devinfo->udev;
 	struct uas_cmd_info *cmdinfo = (void *)&cmnd->SCp;
 	struct urb *urb = usb_alloc_urb(0, gfp);
+<<<<<<< HEAD
 	struct scsi_data_buffer *sdb = (dir == DMA_FROM_DEVICE)
 		? scsi_in(cmnd) : scsi_out(cmnd);
+=======
+	struct scsi_data_buffer *sdb = &cmnd->sdb;
+>>>>>>> upstream/android-13
 	unsigned int pipe = (dir == DMA_FROM_DEVICE)
 		? devinfo->data_in_pipe : devinfo->data_out_pipe;
 
@@ -667,7 +704,11 @@ static int uas_queuecommand_lck(struct scsi_cmnd *cmnd,
 	spin_lock_irqsave(&devinfo->lock, flags);
 
 	if (devinfo->resetting) {
+<<<<<<< HEAD
 		cmnd->result = DID_ERROR << 16;
+=======
+		set_host_byte(cmnd, DID_ERROR);
+>>>>>>> upstream/android-13
 		cmnd->scsi_done(cmnd);
 		goto zombie;
 	}
@@ -694,9 +735,16 @@ static int uas_queuecommand_lck(struct scsi_cmnd *cmnd,
 		break;
 	case DMA_BIDIRECTIONAL:
 		cmdinfo->state |= ALLOC_DATA_IN_URB | SUBMIT_DATA_IN_URB;
+<<<<<<< HEAD
 		/* fall through */
 	case DMA_TO_DEVICE:
 		cmdinfo->state |= ALLOC_DATA_OUT_URB | SUBMIT_DATA_OUT_URB;
+=======
+		fallthrough;
+	case DMA_TO_DEVICE:
+		cmdinfo->state |= ALLOC_DATA_OUT_URB | SUBMIT_DATA_OUT_URB;
+		break;
+>>>>>>> upstream/android-13
 	case DMA_NONE:
 		break;
 	}
@@ -711,7 +759,11 @@ static int uas_queuecommand_lck(struct scsi_cmnd *cmnd,
 	 * of queueing, no matter how fatal the error
 	 */
 	if (err == -ENODEV) {
+<<<<<<< HEAD
 		cmnd->result = DID_ERROR << 16;
+=======
+		set_host_byte(cmnd, DID_ERROR);
+>>>>>>> upstream/android-13
 		cmnd->scsi_done(cmnd);
 		goto zombie;
 	}
@@ -917,8 +969,13 @@ static struct scsi_host_template uas_host_template = {
 	.eh_abort_handler = uas_eh_abort_handler,
 	.eh_device_reset_handler = uas_eh_device_reset_handler,
 	.this_id = -1,
+<<<<<<< HEAD
 	.sg_tablesize = SG_NONE,
 	.skip_settle_delay = 1,
+=======
+	.skip_settle_delay = 1,
+	.dma_boundary = PAGE_SIZE - 1,
+>>>>>>> upstream/android-13
 };
 
 #define UNUSUAL_DEV(id_vendor, id_product, bcdDeviceMin, bcdDeviceMax, \
@@ -1289,5 +1346,9 @@ module_init(uas_init);
 module_exit(uas_exit);
 
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
+=======
+MODULE_IMPORT_NS(USB_STORAGE);
+>>>>>>> upstream/android-13
 MODULE_AUTHOR(
 	"Hans de Goede <hdegoede@redhat.com>, Matthew Wilcox and Sarah Sharp");

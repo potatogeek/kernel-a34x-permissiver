@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Handles the M-Systems DiskOnChip G3 chip
  *
  * Copyright (C) 2011 Robert Jarzmik
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +22,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -661,7 +668,11 @@ static int doc_ecc_bch_fix_data(struct docg3 *docg3, void *buf, u8 *hwecc)
 
 	for (i = 0; i < DOC_ECC_BCH_SIZE; i++)
 		ecc[i] = bitrev8(hwecc[i]);
+<<<<<<< HEAD
 	numerrs = decode_bch(docg3->cascade->bch, NULL,
+=======
+	numerrs = bch_decode(docg3->cascade->bch, NULL,
+>>>>>>> upstream/android-13
 			     DOC_ECC_BCH_COVERED_BYTES,
 			     NULL, ecc, NULL, errorpos);
 	BUG_ON(numerrs == -EINVAL);
@@ -830,7 +841,11 @@ static void doc_read_page_finish(struct docg3 *docg3)
 
 /**
  * calc_block_sector - Calculate blocks, pages and ofs.
+<<<<<<< HEAD
 
+=======
+ *
+>>>>>>> upstream/android-13
  * @from: offset in flash
  * @block0: first plane block index calculated
  * @block1: second plane block index calculated
@@ -1603,7 +1618,11 @@ static void doc_unregister_sysfs(struct platform_device *pdev,
 /*
  * Debug sysfs entries
  */
+<<<<<<< HEAD
 static int dbg_flashctrl_show(struct seq_file *s, void *p)
+=======
+static int flashcontrol_show(struct seq_file *s, void *p)
+>>>>>>> upstream/android-13
 {
 	struct docg3 *docg3 = (struct docg3 *)s->private;
 
@@ -1623,9 +1642,15 @@ static int dbg_flashctrl_show(struct seq_file *s, void *p)
 
 	return 0;
 }
+<<<<<<< HEAD
 DEBUGFS_RO_ATTR(flashcontrol, dbg_flashctrl_show);
 
 static int dbg_asicmode_show(struct seq_file *s, void *p)
+=======
+DEFINE_SHOW_ATTRIBUTE(flashcontrol);
+
+static int asic_mode_show(struct seq_file *s, void *p)
+>>>>>>> upstream/android-13
 {
 	struct docg3 *docg3 = (struct docg3 *)s->private;
 
@@ -1660,9 +1685,15 @@ static int dbg_asicmode_show(struct seq_file *s, void *p)
 	seq_puts(s, ")\n");
 	return 0;
 }
+<<<<<<< HEAD
 DEBUGFS_RO_ATTR(asic_mode, dbg_asicmode_show);
 
 static int dbg_device_id_show(struct seq_file *s, void *p)
+=======
+DEFINE_SHOW_ATTRIBUTE(asic_mode);
+
+static int device_id_show(struct seq_file *s, void *p)
+>>>>>>> upstream/android-13
 {
 	struct docg3 *docg3 = (struct docg3 *)s->private;
 	int id;
@@ -1674,9 +1705,15 @@ static int dbg_device_id_show(struct seq_file *s, void *p)
 	seq_printf(s, "DeviceId = %d\n", id);
 	return 0;
 }
+<<<<<<< HEAD
 DEBUGFS_RO_ATTR(device_id, dbg_device_id_show);
 
 static int dbg_protection_show(struct seq_file *s, void *p)
+=======
+DEFINE_SHOW_ATTRIBUTE(device_id);
+
+static int protection_show(struct seq_file *s, void *p)
+>>>>>>> upstream/android-13
 {
 	struct docg3 *docg3 = (struct docg3 *)s->private;
 	int protect, dps0, dps0_low, dps0_high, dps1, dps1_low, dps1_high;
@@ -1726,7 +1763,11 @@ static int dbg_protection_show(struct seq_file *s, void *p)
 		   !!(dps1 & DOC_DPS_KEY_OK));
 	return 0;
 }
+<<<<<<< HEAD
 DEBUGFS_RO_ATTR(protection, dbg_protection_show);
+=======
+DEFINE_SHOW_ATTRIBUTE(protection);
+>>>>>>> upstream/android-13
 
 static void __init doc_dbg_register(struct mtd_info *floor)
 {
@@ -1767,8 +1808,13 @@ static int __init doc_set_driver_info(int chip_id, struct mtd_info *mtd)
 
 	switch (chip_id) {
 	case DOC_CHIPID_G3:
+<<<<<<< HEAD
 		mtd->name = kasprintf(GFP_KERNEL, "docg3.%d",
 				      docg3->device_id);
+=======
+		mtd->name = devm_kasprintf(docg3->dev, GFP_KERNEL, "docg3.%d",
+					   docg3->device_id);
+>>>>>>> upstream/android-13
 		if (!mtd->name)
 			return -ENOMEM;
 		docg3->max_block = 2047;
@@ -1797,10 +1843,16 @@ static int __init doc_set_driver_info(int chip_id, struct mtd_info *mtd)
 
 /**
  * doc_probe_device - Check if a device is available
+<<<<<<< HEAD
  * @base: the io space where the device is probed
  * @floor: the floor of the probed device
  * @dev: the device
  * @cascade: the cascade of chips this devices will belong to
+=======
+ * @cascade: the cascade of chips this devices will belong to
+ * @floor: the floor of the probed device
+ * @dev: the device
+>>>>>>> upstream/android-13
  *
  * Checks whether a device at the specified IO range, and floor is available.
  *
@@ -1872,7 +1924,11 @@ nomem3:
 nomem2:
 	kfree(docg3);
 nomem1:
+<<<<<<< HEAD
 	return ERR_PTR(ret);
+=======
+	return ret ? ERR_PTR(ret) : NULL;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -1886,7 +1942,10 @@ static void doc_release_device(struct mtd_info *mtd)
 	mtd_device_unregister(mtd);
 	kfree(docg3->bbt);
 	kfree(docg3);
+<<<<<<< HEAD
 	kfree(mtd->name);
+=======
+>>>>>>> upstream/android-13
 	kfree(mtd);
 }
 
@@ -1999,8 +2058,13 @@ static int __init docg3_probe(struct platform_device *pdev)
 		return ret;
 	cascade->base = base;
 	mutex_init(&cascade->lock);
+<<<<<<< HEAD
 	cascade->bch = init_bch(DOC_ECC_BCH_M, DOC_ECC_BCH_T,
 			     DOC_ECC_BCH_PRIMPOLY);
+=======
+	cascade->bch = bch_init(DOC_ECC_BCH_M, DOC_ECC_BCH_T,
+				DOC_ECC_BCH_PRIMPOLY, false);
+>>>>>>> upstream/android-13
 	if (!cascade->bch)
 		return ret;
 
@@ -2036,7 +2100,11 @@ notfound:
 	ret = -ENODEV;
 	dev_info(dev, "No supported DiskOnChip found\n");
 err_probe:
+<<<<<<< HEAD
 	free_bch(cascade->bch);
+=======
+	bch_free(cascade->bch);
+>>>>>>> upstream/android-13
 	for (floor = 0; floor < DOC_MAX_NBFLOORS; floor++)
 		if (cascade->floors[floor])
 			doc_release_device(cascade->floors[floor]);
@@ -2060,7 +2128,11 @@ static int docg3_release(struct platform_device *pdev)
 		if (cascade->floors[floor])
 			doc_release_device(cascade->floors[floor]);
 
+<<<<<<< HEAD
 	free_bch(docg3->cascade->bch);
+=======
+	bch_free(docg3->cascade->bch);
+>>>>>>> upstream/android-13
 	return 0;
 }
 

@@ -390,7 +390,11 @@ jvmti_write_code(void *agent, char const *sym,
 		rec.p.total_size += size;
 
 	/*
+<<<<<<< HEAD
 	 * If JVM is multi-threaded, nultiple concurrent calls to agent
+=======
+	 * If JVM is multi-threaded, multiple concurrent calls to agent
+>>>>>>> upstream/android-13
 	 * may be possible, so protect file writes
 	 */
 	flockfile(fp);
@@ -457,7 +461,11 @@ jvmti_write_debug_info(void *agent, uint64_t code,
 	rec.p.total_size = size;
 
 	/*
+<<<<<<< HEAD
 	 * If JVM is multi-threaded, nultiple concurrent calls to agent
+=======
+	 * If JVM is multi-threaded, multiple concurrent calls to agent
+>>>>>>> upstream/android-13
 	 * may be possible, so protect file writes
 	 */
 	flockfile(fp);

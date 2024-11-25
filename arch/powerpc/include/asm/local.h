@@ -17,7 +17,11 @@ typedef struct
 
 #define LOCAL_INIT(i)	{ (i) }
 
+<<<<<<< HEAD
 static __inline__ long local_read(local_t *l)
+=======
+static __inline__ long local_read(const local_t *l)
+>>>>>>> upstream/android-13
 {
 	return READ_ONCE(l->v);
 }

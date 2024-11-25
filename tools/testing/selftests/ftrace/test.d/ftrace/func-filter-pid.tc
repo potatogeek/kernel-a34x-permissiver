@@ -1,10 +1,16 @@
 #!/bin/sh
 # SPDX-License-Identifier: GPL-2.0
 # description: ftrace - function pid filters
+<<<<<<< HEAD
+=======
+# requires: set_ftrace_pid set_ftrace_filter function:tracer
+# flags: instance
+>>>>>>> upstream/android-13
 
 # Make sure that function pid matching filter works.
 # Also test it on an instance directory
 
+<<<<<<< HEAD
 if ! grep -q function available_tracers; then
     echo "no function tracer configured"
     exit_unsupported
@@ -20,6 +26,8 @@ if [ ! -f set_ftrace_filter ]; then
     exit_unsupported
 fi
 
+=======
+>>>>>>> upstream/android-13
 do_function_fork=1
 
 if [ ! -f options/function-fork ]; then
@@ -35,12 +43,15 @@ if [ $do_function_fork -eq 1 ]; then
 fi
 
 do_reset() {
+<<<<<<< HEAD
     reset_tracer
     clear_trace
     enable_tracing
     echo > set_ftrace_filter
     echo > set_ftrace_pid
 
+=======
+>>>>>>> upstream/android-13
     if [ $do_function_fork -eq 0 ]; then
 	return
     fi
@@ -54,15 +65,22 @@ fail() { # msg
     exit_fail
 }
 
+<<<<<<< HEAD
 yield() {
     ping localhost -c 1 || sleep .001 || usleep 1 || sleep 1
 }
 
+=======
+>>>>>>> upstream/android-13
 do_test() {
     disable_tracing
 
     echo do_execve* > set_ftrace_filter
+<<<<<<< HEAD
     echo *do_fork >> set_ftrace_filter
+=======
+    echo $FUNCTION_FORK >> set_ftrace_filter
+>>>>>>> upstream/android-13
 
     echo $PID > set_ftrace_pid
     echo function > current_tracer
@@ -106,6 +124,7 @@ do_test() {
 }
 
 do_test
+<<<<<<< HEAD
 
 mkdir instances/foo
 cd instances/foo
@@ -113,6 +132,8 @@ do_test
 cd ../../
 rmdir instances/foo
 
+=======
+>>>>>>> upstream/android-13
 do_reset
 
 exit 0

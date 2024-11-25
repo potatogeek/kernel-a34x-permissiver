@@ -4,6 +4,11 @@
 //
 // Copyright (c) 2013-15, Intel Corporation.
 
+<<<<<<< HEAD
+=======
+#include <linux/export.h>
+#include <linux/module.h>
+>>>>>>> upstream/android-13
 #include <sound/soc-acpi.h>
 
 struct snd_soc_acpi_mach *
@@ -32,7 +37,11 @@ static acpi_status snd_soc_acpi_find_package(acpi_handle handle, u32 level,
 					     void *context, void **ret)
 {
 	struct acpi_device *adev;
+<<<<<<< HEAD
 	acpi_status status = AE_OK;
+=======
+	acpi_status status;
+>>>>>>> upstream/android-13
 	struct snd_soc_acpi_package_context *pkg_ctx = context;
 
 	pkg_ctx->data_valid = false;

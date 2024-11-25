@@ -1,5 +1,9 @@
 /*
+<<<<<<< HEAD
  * Copyright (C) 2012-2019, Samsung Electronics Co., Ltd.
+=======
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd All Rights Reserved
+>>>>>>> upstream/android-13
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -24,6 +28,10 @@ enum {
 	TZ_IWIO_CONNECT_PANIC_DUMP,
 	TZ_IWIO_CONNECT_SOCKET_EVENTS,
 	TZ_IWIO_CONNECT_SOCKET,
+<<<<<<< HEAD
+=======
+	TZ_IWIO_CONNECT_KMEMLEAK,
+>>>>>>> upstream/android-13
 	TZ_IWIO_CONNECT_CNT
 };
 

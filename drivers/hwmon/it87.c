@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  it87.c - Part of lm_sensors, Linux kernel modules for hardware
  *           monitoring.
@@ -37,6 +41,7 @@
  *
  *  Copyright (C) 2001 Chris Gauthron
  *  Copyright (C) 2005-2010 Jean Delvare <jdelvare@suse.de>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -47,6 +52,8 @@
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -1990,7 +1997,11 @@ static SENSOR_DEVICE_ATTR(in9_label, S_IRUGO, show_label, NULL, 3);
 static umode_t it87_in_is_visible(struct kobject *kobj,
 				  struct attribute *attr, int index)
 {
+<<<<<<< HEAD
 	struct device *dev = container_of(kobj, struct device, kobj);
+=======
+	struct device *dev = kobj_to_dev(kobj);
+>>>>>>> upstream/android-13
 	struct it87_data *data = dev_get_drvdata(dev);
 	int i = index / 5;	/* voltage index */
 	int a = index % 5;	/* attribute index */
@@ -2074,7 +2085,11 @@ static const struct attribute_group it87_group_in = {
 static umode_t it87_temp_is_visible(struct kobject *kobj,
 				    struct attribute *attr, int index)
 {
+<<<<<<< HEAD
 	struct device *dev = container_of(kobj, struct device, kobj);
+=======
+	struct device *dev = kobj_to_dev(kobj);
+>>>>>>> upstream/android-13
 	struct it87_data *data = dev_get_drvdata(dev);
 	int i = index / 7;	/* temperature index */
 	int a = index % 7;	/* attribute index */
@@ -2135,7 +2150,11 @@ static const struct attribute_group it87_group_temp = {
 static umode_t it87_is_visible(struct kobject *kobj,
 			       struct attribute *attr, int index)
 {
+<<<<<<< HEAD
 	struct device *dev = container_of(kobj, struct device, kobj);
+=======
+	struct device *dev = kobj_to_dev(kobj);
+>>>>>>> upstream/android-13
 	struct it87_data *data = dev_get_drvdata(dev);
 
 	if ((index == 2 || index == 3) && !data->has_vid)
@@ -2167,7 +2186,11 @@ static const struct attribute_group it87_group = {
 static umode_t it87_fan_is_visible(struct kobject *kobj,
 				   struct attribute *attr, int index)
 {
+<<<<<<< HEAD
 	struct device *dev = container_of(kobj, struct device, kobj);
+=======
+	struct device *dev = kobj_to_dev(kobj);
+>>>>>>> upstream/android-13
 	struct it87_data *data = dev_get_drvdata(dev);
 	int i = index / 5;	/* fan index */
 	int a = index % 5;	/* attribute index */
@@ -2238,7 +2261,11 @@ static const struct attribute_group it87_group_fan = {
 static umode_t it87_pwm_is_visible(struct kobject *kobj,
 				   struct attribute *attr, int index)
 {
+<<<<<<< HEAD
 	struct device *dev = container_of(kobj, struct device, kobj);
+=======
+	struct device *dev = kobj_to_dev(kobj);
+>>>>>>> upstream/android-13
 	struct it87_data *data = dev_get_drvdata(dev);
 	int i = index / 4;	/* pwm index */
 	int a = index % 4;	/* attribute index */
@@ -2299,7 +2326,11 @@ static const struct attribute_group it87_group_pwm = {
 static umode_t it87_auto_pwm_is_visible(struct kobject *kobj,
 					struct attribute *attr, int index)
 {
+<<<<<<< HEAD
 	struct device *dev = container_of(kobj, struct device, kobj);
+=======
+	struct device *dev = kobj_to_dev(kobj);
+>>>>>>> upstream/android-13
 	struct it87_data *data = dev_get_drvdata(dev);
 	int i = index / 11;	/* pwm index */
 	int a = index % 11;	/* attribute index */

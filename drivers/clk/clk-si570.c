@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Driver for Silicon Labs Si570/Si571 Programmable XO/VCXO
  *
  * Copyright (C) 2010, 2011 Ericsson AB.
  * Copyright (C) 2011 Guenter Roeck.
+<<<<<<< HEAD
  * Copyright (C) 2011 - 2013 Xilinx Inc.
  *
  * Author: Guenter Roeck <guenter.roeck@ericsson.com>
@@ -17,6 +22,12 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+ * Copyright (C) 2011 - 2021 Xilinx Inc.
+ *
+ * Author: Guenter Roeck <guenter.roeck@ericsson.com>
+ *	   Sören Brinkmann <soren.brinkmann@xilinx.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
@@ -132,14 +143,28 @@ static int si570_get_divs(struct clk_si570 *data, u64 *rfreq,
  * si570_get_defaults() - Get default values
  * @data:	Driver data structure
  * @fout:	Factory frequency output
+<<<<<<< HEAD
  * Returns 0 on success, negative errno otherwise.
  */
 static int si570_get_defaults(struct clk_si570 *data, u64 fout)
+=======
+ * @skip_recall:	If true, don't recall NVM into RAM
+ * Returns 0 on success, negative errno otherwise.
+ */
+static int si570_get_defaults(struct clk_si570 *data, u64 fout,
+			      bool skip_recall)
+>>>>>>> upstream/android-13
 {
 	int err;
 	u64 fdco;
 
+<<<<<<< HEAD
 	regmap_write(data->regmap, SI570_REG_CONTROL, SI570_CNTRL_RECALL);
+=======
+	if (!skip_recall)
+		regmap_write(data->regmap, SI570_REG_CONTROL,
+			     SI570_CNTRL_RECALL);
+>>>>>>> upstream/android-13
 
 	err = si570_get_divs(data, &data->rfreq, &data->n1, &data->hs_div);
 	if (err)
@@ -407,8 +432,14 @@ static int si570_probe(struct i2c_client *client,
 		const struct i2c_device_id *id)
 {
 	struct clk_si570 *data;
+<<<<<<< HEAD
 	struct clk_init_data init = {};
 	u32 initial_fout, factory_fout, stability;
+=======
+	struct clk_init_data init;
+	u32 initial_fout, factory_fout, stability;
+	bool skip_recall;
+>>>>>>> upstream/android-13
 	int err;
 	enum clk_si570_variant variant = id->driver_data;
 
@@ -450,6 +481,12 @@ static int si570_probe(struct i2c_client *client,
 		return err;
 	}
 
+<<<<<<< HEAD
+=======
+	skip_recall = of_property_read_bool(client->dev.of_node,
+					    "silabs,skip-recall");
+
+>>>>>>> upstream/android-13
 	data->regmap = devm_regmap_init_i2c(client, &si570_regmap_config);
 	if (IS_ERR(data->regmap)) {
 		dev_err(&client->dev, "failed to allocate register map\n");
@@ -457,7 +494,11 @@ static int si570_probe(struct i2c_client *client,
 	}
 
 	i2c_set_clientdata(client, data);
+<<<<<<< HEAD
 	err = si570_get_defaults(data, factory_fout);
+=======
+	err = si570_get_defaults(data, factory_fout, skip_recall);
+>>>>>>> upstream/android-13
 	if (err)
 		return err;
 

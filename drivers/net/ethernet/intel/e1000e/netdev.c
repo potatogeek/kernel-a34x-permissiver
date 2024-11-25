@@ -25,6 +25,7 @@
 #include <linux/pm_runtime.h>
 #include <linux/aer.h>
 #include <linux/prefetch.h>
+<<<<<<< HEAD
 
 #include "e1000.h"
 
@@ -33,6 +34,13 @@
 #define DRV_VERSION "3.2.6" DRV_EXTRAVERSION
 char e1000e_driver_name[] = "e1000e";
 const char e1000e_driver_version[] = DRV_VERSION;
+=======
+#include <linux/suspend.h>
+
+#include "e1000.h"
+
+char e1000e_driver_name[] = "e1000e";
+>>>>>>> upstream/android-13
 
 #define DEFAULT_MSG_ENABLE (NETIF_MSG_DRV|NETIF_MSG_PROBE|NETIF_MSG_LINK)
 static int debug = -1;
@@ -54,6 +62,11 @@ static const struct e1000_info *e1000_info_tbl[] = {
 	[board_pch_lpt]		= &e1000_pch_lpt_info,
 	[board_pch_spt]		= &e1000_pch_spt_info,
 	[board_pch_cnp]		= &e1000_pch_cnp_info,
+<<<<<<< HEAD
+=======
+	[board_pch_tgp]		= &e1000_pch_tgp_info,
+	[board_pch_adp]		= &e1000_pch_adp_info,
+>>>>>>> upstream/android-13
 };
 
 struct e1000_reg_info {
@@ -466,6 +479,10 @@ rx_ring_summary:
 
 /**
  * e1000_desc_unused - calculate if we have unused descriptors
+<<<<<<< HEAD
+=======
+ * @ring: pointer to ring struct to perform calculation on
+>>>>>>> upstream/android-13
  **/
 static int e1000_desc_unused(struct e1000_ring *ring)
 {
@@ -542,6 +559,10 @@ static void e1000e_rx_hwtstamp(struct e1000_adapter *adapter, u32 status,
 /**
  * e1000_receive_skb - helper function to handle Rx indications
  * @adapter: board private structure
+<<<<<<< HEAD
+=======
+ * @netdev: pointer to netdev struct
+>>>>>>> upstream/android-13
  * @staterr: descriptor extended error and status field as written by hardware
  * @vlan: descriptor vlan field as written by hardware (no le/be conversion)
  * @skb: pointer to sk_buff to be indicated to stack
@@ -566,8 +587,12 @@ static void e1000_receive_skb(struct e1000_adapter *adapter,
  * e1000_rx_checksum - Receive Checksum Offload
  * @adapter: board private structure
  * @status_err: receive descriptor status and error fields
+<<<<<<< HEAD
  * @csum: receive descriptor csum field
  * @sk_buff: socket buffer with received data
+=======
+ * @skb: socket buffer with received data
+>>>>>>> upstream/android-13
  **/
 static void e1000_rx_checksum(struct e1000_adapter *adapter, u32 status_err,
 			      struct sk_buff *skb)
@@ -638,6 +663,11 @@ static void e1000e_update_tdt_wa(struct e1000_ring *tx_ring, unsigned int i)
 /**
  * e1000_alloc_rx_buffers - Replace used receive buffers
  * @rx_ring: Rx descriptor ring
+<<<<<<< HEAD
+=======
+ * @cleaned_count: number to reallocate
+ * @gfp: flags for allocation
+>>>>>>> upstream/android-13
  **/
 static void e1000_alloc_rx_buffers(struct e1000_ring *rx_ring,
 				   int cleaned_count, gfp_t gfp)
@@ -706,6 +736,11 @@ map_skb:
 /**
  * e1000_alloc_rx_buffers_ps - Replace used receive buffers; packet split
  * @rx_ring: Rx descriptor ring
+<<<<<<< HEAD
+=======
+ * @cleaned_count: number to reallocate
+ * @gfp: flags for allocation
+>>>>>>> upstream/android-13
  **/
 static void e1000_alloc_rx_buffers_ps(struct e1000_ring *rx_ring,
 				      int cleaned_count, gfp_t gfp)
@@ -809,6 +844,10 @@ no_buffers:
  * e1000_alloc_jumbo_rx_buffers - Replace used jumbo receive buffers
  * @rx_ring: Rx descriptor ring
  * @cleaned_count: number of buffers to allocate this pass
+<<<<<<< HEAD
+=======
+ * @gfp: flags for allocation
+>>>>>>> upstream/android-13
  **/
 
 static void e1000_alloc_jumbo_rx_buffers(struct e1000_ring *rx_ring,
@@ -898,6 +937,11 @@ static inline void e1000_rx_hash(struct net_device *netdev, __le32 rss,
 /**
  * e1000_clean_rx_irq - Send received data up the network stack
  * @rx_ring: Rx descriptor ring
+<<<<<<< HEAD
+=======
+ * @work_done: output parameter for indicating completed work
+ * @work_to_do: how many packets we can clean
+>>>>>>> upstream/android-13
  *
  * the return value indicates whether actual cleaning was done, there
  * is no guarantee that everything was cleaned
@@ -1292,6 +1336,11 @@ static bool e1000_clean_tx_irq(struct e1000_ring *tx_ring)
 /**
  * e1000_clean_rx_irq_ps - Send received data up the network stack; packet split
  * @rx_ring: Rx descriptor ring
+<<<<<<< HEAD
+=======
+ * @work_done: output parameter for indicating completed work
+ * @work_to_do: how many packets we can clean
+>>>>>>> upstream/android-13
  *
  * the return value indicates whether actual cleaning was done, there
  * is no guarantee that everything was cleaned
@@ -1482,9 +1531,12 @@ next_desc:
 	return cleaned;
 }
 
+<<<<<<< HEAD
 /**
  * e1000_consume_page - helper function
  **/
+=======
+>>>>>>> upstream/android-13
 static void e1000_consume_page(struct e1000_buffer *bi, struct sk_buff *skb,
 			       u16 length)
 {
@@ -1496,7 +1548,13 @@ static void e1000_consume_page(struct e1000_buffer *bi, struct sk_buff *skb,
 
 /**
  * e1000_clean_jumbo_rx_irq - Send received data up the network stack; legacy
+<<<<<<< HEAD
  * @adapter: board private structure
+=======
+ * @rx_ring: Rx descriptor ring
+ * @work_done: output parameter for indicating completed work
+ * @work_to_do: how many packets we can clean
+>>>>>>> upstream/android-13
  *
  * the return value indicates whether actual cleaning was done, there
  * is no guarantee that everything was cleaned
@@ -1959,6 +2017,10 @@ static irqreturn_t e1000_intr_msix_rx(int __always_unused irq, void *data)
 
 /**
  * e1000_configure_msix - Configure MSI-X hardware
+<<<<<<< HEAD
+=======
+ * @adapter: board private structure
+>>>>>>> upstream/android-13
  *
  * e1000_configure_msix sets up the hardware to properly
  * generate MSI-X interrupts.
@@ -2037,6 +2099,10 @@ void e1000e_reset_interrupt_capability(struct e1000_adapter *adapter)
 
 /**
  * e1000e_set_interrupt_capability - set MSI or MSI-X if supported
+<<<<<<< HEAD
+=======
+ * @adapter: board private structure
+>>>>>>> upstream/android-13
  *
  * Attempt to configure interrupts using the best available
  * capabilities of the hardware and kernel.
@@ -2072,7 +2138,11 @@ void e1000e_set_interrupt_capability(struct e1000_adapter *adapter)
 			e1000e_reset_interrupt_capability(adapter);
 		}
 		adapter->int_mode = E1000E_INT_MODE_MSI;
+<<<<<<< HEAD
 		/* Fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case E1000E_INT_MODE_MSI:
 		if (!pci_enable_msi(adapter->pdev)) {
 			adapter->flags |= FLAG_MSI_ENABLED;
@@ -2080,7 +2150,11 @@ void e1000e_set_interrupt_capability(struct e1000_adapter *adapter)
 			adapter->int_mode = E1000E_INT_MODE_LEGACY;
 			e_err("Failed to initialize MSI interrupts.  Falling back to legacy interrupts.\n");
 		}
+<<<<<<< HEAD
 		/* Fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case E1000E_INT_MODE_LEGACY:
 		/* Don't do anything; this is the system default */
 		break;
@@ -2092,6 +2166,10 @@ void e1000e_set_interrupt_capability(struct e1000_adapter *adapter)
 
 /**
  * e1000_request_msix - Initialize MSI-X interrupts
+<<<<<<< HEAD
+=======
+ * @adapter: board private structure
+>>>>>>> upstream/android-13
  *
  * e1000_request_msix allocates MSI-X vectors and requests interrupts from the
  * kernel.
@@ -2145,6 +2223,10 @@ static int e1000_request_msix(struct e1000_adapter *adapter)
 
 /**
  * e1000_request_irq - initialize interrupts
+<<<<<<< HEAD
+=======
+ * @adapter: board private structure
+>>>>>>> upstream/android-13
  *
  * Attempts to configure interrupts using the best available
  * capabilities of the hardware and kernel.
@@ -2205,6 +2287,10 @@ static void e1000_free_irq(struct e1000_adapter *adapter)
 
 /**
  * e1000_irq_disable - Mask off interrupt generation on the NIC
+<<<<<<< HEAD
+=======
+ * @adapter: board private structure
+>>>>>>> upstream/android-13
  **/
 static void e1000_irq_disable(struct e1000_adapter *adapter)
 {
@@ -2227,6 +2313,10 @@ static void e1000_irq_disable(struct e1000_adapter *adapter)
 
 /**
  * e1000_irq_enable - Enable default interrupt generation settings
+<<<<<<< HEAD
+=======
+ * @adapter: board private structure
+>>>>>>> upstream/android-13
  **/
 static void e1000_irq_enable(struct e1000_adapter *adapter)
 {
@@ -2297,14 +2387,24 @@ void e1000e_release_hw_control(struct e1000_adapter *adapter)
 
 /**
  * e1000_alloc_ring_dma - allocate memory for a ring structure
+<<<<<<< HEAD
+=======
+ * @adapter: board private structure
+ * @ring: ring struct for which to allocate dma
+>>>>>>> upstream/android-13
  **/
 static int e1000_alloc_ring_dma(struct e1000_adapter *adapter,
 				struct e1000_ring *ring)
 {
 	struct pci_dev *pdev = adapter->pdev;
 
+<<<<<<< HEAD
 	ring->desc = dma_zalloc_coherent(&pdev->dev, ring->size, &ring->dma,
 					 GFP_KERNEL);
+=======
+	ring->desc = dma_alloc_coherent(&pdev->dev, ring->size, &ring->dma,
+					GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!ring->desc)
 		return -ENOMEM;
 
@@ -2472,7 +2572,10 @@ void e1000e_free_rx_resources(struct e1000_ring *rx_ring)
 
 /**
  * e1000_update_itr - update the dynamic ITR value based on statistics
+<<<<<<< HEAD
  * @adapter: pointer to adapter
+=======
+>>>>>>> upstream/android-13
  * @itr_setting: current adapter->itr
  * @packets: the number of packets during this measurement interval
  * @bytes: the number of bytes during this measurement interval
@@ -2649,9 +2752,15 @@ err:
 /**
  * e1000e_poll - NAPI Rx polling callback
  * @napi: struct associated with this polling callback
+<<<<<<< HEAD
  * @weight: number of packets driver is allowed to process this poll
  **/
 static int e1000e_poll(struct napi_struct *napi, int weight)
+=======
+ * @budget: number of packets driver is allowed to process this poll
+ **/
+static int e1000e_poll(struct napi_struct *napi, int budget)
+>>>>>>> upstream/android-13
 {
 	struct e1000_adapter *adapter = container_of(napi, struct e1000_adapter,
 						     napi);
@@ -2665,6 +2774,7 @@ static int e1000e_poll(struct napi_struct *napi, int weight)
 	    (adapter->rx_ring->ims_val & adapter->tx_ring->ims_val))
 		tx_cleaned = e1000_clean_tx_irq(adapter->tx_ring);
 
+<<<<<<< HEAD
 	adapter->clean_rx(adapter->rx_ring, &work_done, weight);
 
 	if (!tx_cleaned)
@@ -2675,6 +2785,19 @@ static int e1000e_poll(struct napi_struct *napi, int weight)
 		if (adapter->itr_setting & 3)
 			e1000_set_itr(adapter);
 		napi_complete_done(napi, work_done);
+=======
+	adapter->clean_rx(adapter->rx_ring, &work_done, budget);
+
+	if (!tx_cleaned || work_done == budget)
+		return budget;
+
+	/* Exit the polling mode, but don't re-enable interrupts if stack might
+	 * poll us due to busy-polling
+	 */
+	if (likely(napi_complete_done(napi, work_done))) {
+		if (adapter->itr_setting & 3)
+			e1000_set_itr(adapter);
+>>>>>>> upstream/android-13
 		if (!test_bit(__E1000_DOWN, &adapter->state)) {
 			if (adapter->msix_entries)
 				ew32(IMS, adapter->rx_ring->ims_val);
@@ -3013,12 +3136,21 @@ static void e1000_configure_tx(struct e1000_adapter *adapter)
 	}
 }
 
+<<<<<<< HEAD
+=======
+#define PAGE_USE_COUNT(S) (((S) >> PAGE_SHIFT) + \
+			   (((S) & (PAGE_SIZE - 1)) ? 1 : 0))
+
+>>>>>>> upstream/android-13
 /**
  * e1000_setup_rctl - configure the receive control registers
  * @adapter: Board private structure
  **/
+<<<<<<< HEAD
 #define PAGE_USE_COUNT(S) (((S) >> PAGE_SHIFT) + \
 			   (((S) & (PAGE_SIZE - 1)) ? 1 : 0))
+=======
+>>>>>>> upstream/android-13
 static void e1000_setup_rctl(struct e1000_adapter *adapter)
 {
 	struct e1000_hw *hw = &adapter->hw;
@@ -3137,10 +3269,17 @@ static void e1000_setup_rctl(struct e1000_adapter *adapter)
 		switch (adapter->rx_ps_pages) {
 		case 3:
 			psrctl |= PAGE_SIZE << E1000_PSRCTL_BSIZE3_SHIFT;
+<<<<<<< HEAD
 			/* fall-through */
 		case 2:
 			psrctl |= PAGE_SIZE << E1000_PSRCTL_BSIZE2_SHIFT;
 			/* fall-through */
+=======
+			fallthrough;
+		case 2:
+			psrctl |= PAGE_SIZE << E1000_PSRCTL_BSIZE2_SHIFT;
+			fallthrough;
+>>>>>>> upstream/android-13
 		case 1:
 			psrctl |= PAGE_SIZE >> E1000_PSRCTL_BSIZE1_SHIFT;
 			break;
@@ -3205,7 +3344,11 @@ static void e1000_configure_rx(struct e1000_adapter *adapter)
 	if (!(adapter->flags2 & FLAG2_NO_DISABLE_RX))
 		ew32(RCTL, rctl & ~E1000_RCTL_EN);
 	e1e_flush();
+<<<<<<< HEAD
 	usleep_range(10000, 20000);
+=======
+	usleep_range(10000, 11000);
+>>>>>>> upstream/android-13
 
 	if (adapter->flags2 & FLAG2_DMA_BURST) {
 		/* set the writeback threshold (only takes effect if the RDTR
@@ -3277,10 +3420,17 @@ static void e1000_configure_rx(struct e1000_adapter *adapter)
 
 		dev_info(&adapter->pdev->dev,
 			 "Some CPU C-states have been disabled in order to enable jumbo frames\n");
+<<<<<<< HEAD
 		pm_qos_update_request(&adapter->pm_qos_req, lat);
 	} else {
 		pm_qos_update_request(&adapter->pm_qos_req,
 				      PM_QOS_DEFAULT_VALUE);
+=======
+		cpu_latency_qos_update_request(&adapter->pm_qos_req, lat);
+	} else {
+		cpu_latency_qos_update_request(&adapter->pm_qos_req,
+					       PM_QOS_DEFAULT_VALUE);
+>>>>>>> upstream/android-13
 	}
 
 	/* Enable Receives */
@@ -3532,6 +3682,13 @@ s32 e1000e_get_base_timinca(struct e1000_adapter *adapter, u32 *timinca)
 		adapter->cc.shift = shift;
 		break;
 	case e1000_pch_cnp:
+<<<<<<< HEAD
+=======
+	case e1000_pch_tgp:
+	case e1000_pch_adp:
+	case e1000_pch_mtp:
+	case e1000_pch_lnp:
+>>>>>>> upstream/android-13
 		if (er32(TSYNCRXCTL) & E1000_TSYNCRXCTL_SYSCFI) {
 			/* Stable 24MHz frequency */
 			incperiod = INCPERIOD_24MHZ;
@@ -3567,6 +3724,10 @@ s32 e1000e_get_base_timinca(struct e1000_adapter *adapter, u32 *timinca)
 /**
  * e1000e_config_hwtstamp - configure the hwtstamp registers and enable/disable
  * @adapter: board private structure
+<<<<<<< HEAD
+=======
+ * @config: timestamp configuration
+>>>>>>> upstream/android-13
  *
  * Outgoing time stamping can be enabled and disabled. Play nice and
  * disable it when requested, although it shouldn't cause any overhead
@@ -3635,9 +3796,14 @@ static int e1000e_config_hwtstamp(struct e1000_adapter *adapter,
 		is_l2 = true;
 		break;
 	case HWTSTAMP_FILTER_PTP_V2_L4_SYNC:
+<<<<<<< HEAD
 		/* Hardware cannot filter just V2 L4 Sync messages;
 		 * fall-through to V2 (both L2 and L4) Sync.
 		 */
+=======
+		/* Hardware cannot filter just V2 L4 Sync messages */
+		fallthrough;
+>>>>>>> upstream/android-13
 	case HWTSTAMP_FILTER_PTP_V2_SYNC:
 		/* Also time stamps V2 Path Delay Request/Response. */
 		tsync_rx_ctl |= E1000_TSYNCRXCTL_TYPE_L2_L4_V2;
@@ -3646,9 +3812,14 @@ static int e1000e_config_hwtstamp(struct e1000_adapter *adapter,
 		is_l4 = true;
 		break;
 	case HWTSTAMP_FILTER_PTP_V2_L4_DELAY_REQ:
+<<<<<<< HEAD
 		/* Hardware cannot filter just V2 L4 Delay Request messages;
 		 * fall-through to V2 (both L2 and L4) Delay Request.
 		 */
+=======
+		/* Hardware cannot filter just V2 L4 Delay Request messages */
+		fallthrough;
+>>>>>>> upstream/android-13
 	case HWTSTAMP_FILTER_PTP_V2_DELAY_REQ:
 		/* Also time stamps V2 Path Delay Request/Response. */
 		tsync_rx_ctl |= E1000_TSYNCRXCTL_TYPE_L2_L4_V2;
@@ -3658,9 +3829,14 @@ static int e1000e_config_hwtstamp(struct e1000_adapter *adapter,
 		break;
 	case HWTSTAMP_FILTER_PTP_V2_L4_EVENT:
 	case HWTSTAMP_FILTER_PTP_V2_L2_EVENT:
+<<<<<<< HEAD
 		/* Hardware cannot filter just V2 L4 or L2 Event messages;
 		 * fall-through to all V2 (both L2 and L4) Events.
 		 */
+=======
+		/* Hardware cannot filter just V2 L4 or L2 Event messages */
+		fallthrough;
+>>>>>>> upstream/android-13
 	case HWTSTAMP_FILTER_PTP_V2_EVENT:
 		tsync_rx_ctl |= E1000_TSYNCRXCTL_TYPE_EVENT_V2;
 		config->rx_filter = HWTSTAMP_FILTER_PTP_V2_EVENT;
@@ -3672,6 +3848,10 @@ static int e1000e_config_hwtstamp(struct e1000_adapter *adapter,
 		 * Delay Request messages but not both so fall-through to
 		 * time stamp all packets.
 		 */
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case HWTSTAMP_FILTER_NTP_ALL:
 	case HWTSTAMP_FILTER_ALL:
 		is_l2 = true;
@@ -3772,6 +3952,10 @@ void e1000e_power_up_phy(struct e1000_adapter *adapter)
 
 /**
  * e1000_power_down_phy - Power down the PHY
+<<<<<<< HEAD
+=======
+ * @adapter: board private structure
+>>>>>>> upstream/android-13
  *
  * Power down the PHY so no link is implied when interface is down.
  * The PHY cannot be powered down if management or WoL is active.
@@ -3784,6 +3968,10 @@ static void e1000_power_down_phy(struct e1000_adapter *adapter)
 
 /**
  * e1000_flush_tx_ring - remove all descriptors from the tx_ring
+<<<<<<< HEAD
+=======
+ * @adapter: board private structure
+>>>>>>> upstream/android-13
  *
  * We want to clear all pending descriptors from the TX ring.
  * zeroing happens when the HW reads the regs. We  assign the ring itself as
@@ -3803,7 +3991,11 @@ static void e1000_flush_tx_ring(struct e1000_adapter *adapter)
 	tdt = er32(TDT(0));
 	BUG_ON(tdt != tx_ring->next_to_use);
 	tx_desc =  E1000_TX_DESC(*tx_ring, tx_ring->next_to_use);
+<<<<<<< HEAD
 	tx_desc->buffer_addr = tx_ring->dma;
+=======
+	tx_desc->buffer_addr = cpu_to_le64(tx_ring->dma);
+>>>>>>> upstream/android-13
 
 	tx_desc->lower.data = cpu_to_le32(txd_lower | size);
 	tx_desc->upper.data = 0;
@@ -3813,12 +4005,19 @@ static void e1000_flush_tx_ring(struct e1000_adapter *adapter)
 	if (tx_ring->next_to_use == tx_ring->count)
 		tx_ring->next_to_use = 0;
 	ew32(TDT(0), tx_ring->next_to_use);
+<<<<<<< HEAD
 	mmiowb();
+=======
+>>>>>>> upstream/android-13
 	usleep_range(200, 250);
 }
 
 /**
  * e1000_flush_rx_ring - remove all descriptors from the rx_ring
+<<<<<<< HEAD
+=======
+ * @adapter: board private structure
+>>>>>>> upstream/android-13
  *
  * Mark all descriptors in the RX ring as consumed and disable the rx ring
  */
@@ -3851,6 +4050,10 @@ static void e1000_flush_rx_ring(struct e1000_adapter *adapter)
 
 /**
  * e1000_flush_desc_rings - remove all descriptors from the descriptor rings
+<<<<<<< HEAD
+=======
+ * @adapter: board private structure
+>>>>>>> upstream/android-13
  *
  * In i219, the descriptor rings must be emptied before resetting the HW
  * or before changing the device state to D3 during runtime (runtime PM).
@@ -3933,6 +4136,10 @@ static void e1000e_systim_reset(struct e1000_adapter *adapter)
 
 /**
  * e1000e_reset - bring the hardware into a known good state
+<<<<<<< HEAD
+=======
+ * @adapter: board private structure
+>>>>>>> upstream/android-13
  *
  * This function boots the hardware and enables some settings that
  * require a configuration cycle of the hardware - those cannot be
@@ -4019,7 +4226,11 @@ void e1000e_reset(struct e1000_adapter *adapter)
 			fc->low_water = fc->high_water - 8;
 			break;
 		}
+<<<<<<< HEAD
 		/* fall-through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		hwm = min(((pba << 10) * 9 / 10),
 			  ((pba << 10) - adapter->max_frame_size));
@@ -4044,12 +4255,24 @@ void e1000e_reset(struct e1000_adapter *adapter)
 	case e1000_pch_lpt:
 	case e1000_pch_spt:
 	case e1000_pch_cnp:
+<<<<<<< HEAD
 		fc->refresh_time = 0x0400;
+=======
+	case e1000_pch_tgp:
+	case e1000_pch_adp:
+	case e1000_pch_mtp:
+	case e1000_pch_lnp:
+		fc->refresh_time = 0xFFFF;
+		fc->pause_time = 0xFFFF;
+>>>>>>> upstream/android-13
 
 		if (adapter->netdev->mtu <= ETH_DATA_LEN) {
 			fc->high_water = 0x05C20;
 			fc->low_water = 0x05048;
+<<<<<<< HEAD
 			fc->pause_time = 0x0650;
+=======
+>>>>>>> upstream/android-13
 			break;
 		}
 
@@ -4270,7 +4493,11 @@ void e1000e_down(struct e1000_adapter *adapter, bool reset)
 
 	/* flush both disables and wait for them to finish */
 	e1e_flush();
+<<<<<<< HEAD
 	usleep_range(10000, 20000);
+=======
+	usleep_range(10000, 11000);
+>>>>>>> upstream/android-13
 
 	e1000_irq_disable(adapter);
 
@@ -4308,7 +4535,11 @@ void e1000e_reinit_locked(struct e1000_adapter *adapter)
 {
 	might_sleep();
 	while (test_and_set_bit(__E1000_RESETTING, &adapter->state))
+<<<<<<< HEAD
 		usleep_range(1000, 2000);
+=======
+		usleep_range(1000, 1100);
+>>>>>>> upstream/android-13
 	e1000e_down(adapter, true);
 	e1000e_up(adapter);
 	clear_bit(__E1000_RESETTING, &adapter->state);
@@ -4317,13 +4548,24 @@ void e1000e_reinit_locked(struct e1000_adapter *adapter)
 /**
  * e1000e_sanitize_systim - sanitize raw cycle counter reads
  * @hw: pointer to the HW structure
+<<<<<<< HEAD
  * @systim: time value read, sanitized and returned
+=======
+ * @systim: PHC time value read, sanitized and returned
+ * @sts: structure to hold system time before and after reading SYSTIML,
+ * may be NULL
+>>>>>>> upstream/android-13
  *
  * Errata for 82574/82583 possible bad bits read from SYSTIMH/L:
  * check to see that the time is incrementing at a reasonable
  * rate and is a multiple of incvalue.
  **/
+<<<<<<< HEAD
 static u64 e1000e_sanitize_systim(struct e1000_hw *hw, u64 systim)
+=======
+static u64 e1000e_sanitize_systim(struct e1000_hw *hw, u64 systim,
+				  struct ptp_system_timestamp *sts)
+>>>>>>> upstream/android-13
 {
 	u64 time_delta, rem, temp;
 	u64 systim_next;
@@ -4333,7 +4575,13 @@ static u64 e1000e_sanitize_systim(struct e1000_hw *hw, u64 systim)
 	incvalue = er32(TIMINCA) & E1000_TIMINCA_INCVALUE_MASK;
 	for (i = 0; i < E1000_MAX_82574_SYSTIM_REREADS; i++) {
 		/* latch SYSTIMH on read of SYSTIML */
+<<<<<<< HEAD
 		systim_next = (u64)er32(SYSTIML);
+=======
+		ptp_read_system_prets(sts);
+		systim_next = (u64)er32(SYSTIML);
+		ptp_read_system_postts(sts);
+>>>>>>> upstream/android-13
 		systim_next |= (u64)er32(SYSTIMH) << 32;
 
 		time_delta = systim_next - systim;
@@ -4351,6 +4599,7 @@ static u64 e1000e_sanitize_systim(struct e1000_hw *hw, u64 systim)
 }
 
 /**
+<<<<<<< HEAD
  * e1000e_cyclecounter_read - read raw cycle counter (used by time counter)
  * @cc: cyclecounter structure
  **/
@@ -4360,6 +4609,18 @@ static u64 e1000e_cyclecounter_read(const struct cyclecounter *cc)
 						     cc);
 	struct e1000_hw *hw = &adapter->hw;
 	u32 systimel, systimeh;
+=======
+ * e1000e_read_systim - read SYSTIM register
+ * @adapter: board private structure
+ * @sts: structure which will contain system time before and after reading
+ * SYSTIML, may be NULL
+ **/
+u64 e1000e_read_systim(struct e1000_adapter *adapter,
+		       struct ptp_system_timestamp *sts)
+{
+	struct e1000_hw *hw = &adapter->hw;
+	u32 systimel, systimel_2, systimeh;
+>>>>>>> upstream/android-13
 	u64 systim;
 	/* SYSTIMH latching upon SYSTIML read does not work well.
 	 * This means that if SYSTIML overflows after we read it but before
@@ -4367,11 +4628,23 @@ static u64 e1000e_cyclecounter_read(const struct cyclecounter *cc)
 	 * will experience a huge non linear increment in the systime value
 	 * to fix that we test for overflow and if true, we re-read systime.
 	 */
+<<<<<<< HEAD
 	systimel = er32(SYSTIML);
 	systimeh = er32(SYSTIMH);
 	/* Is systimel is so large that overflow is possible? */
 	if (systimel >= (u32)0xffffffff - E1000_TIMINCA_INCVALUE_MASK) {
 		u32 systimel_2 = er32(SYSTIML);
+=======
+	ptp_read_system_prets(sts);
+	systimel = er32(SYSTIML);
+	ptp_read_system_postts(sts);
+	systimeh = er32(SYSTIMH);
+	/* Is systimel is so large that overflow is possible? */
+	if (systimel >= (u32)0xffffffff - E1000_TIMINCA_INCVALUE_MASK) {
+		ptp_read_system_prets(sts);
+		systimel_2 = er32(SYSTIML);
+		ptp_read_system_postts(sts);
+>>>>>>> upstream/android-13
 		if (systimel > systimel_2) {
 			/* There was an overflow, read again SYSTIMH, and use
 			 * systimel_2
@@ -4384,12 +4657,31 @@ static u64 e1000e_cyclecounter_read(const struct cyclecounter *cc)
 	systim |= (u64)systimeh << 32;
 
 	if (adapter->flags2 & FLAG2_CHECK_SYSTIM_OVERFLOW)
+<<<<<<< HEAD
 		systim = e1000e_sanitize_systim(hw, systim);
+=======
+		systim = e1000e_sanitize_systim(hw, systim, sts);
+>>>>>>> upstream/android-13
 
 	return systim;
 }
 
 /**
+<<<<<<< HEAD
+=======
+ * e1000e_cyclecounter_read - read raw cycle counter (used by time counter)
+ * @cc: cyclecounter structure
+ **/
+static u64 e1000e_cyclecounter_read(const struct cyclecounter *cc)
+{
+	struct e1000_adapter *adapter = container_of(cc, struct e1000_adapter,
+						     cc);
+
+	return e1000e_read_systim(adapter, NULL);
+}
+
+/**
+>>>>>>> upstream/android-13
  * e1000_sw_init - Initialize general software structures (struct e1000_adapter)
  * @adapter: board private structure to initialize
  *
@@ -4609,8 +4901,12 @@ int e1000e_open(struct net_device *netdev)
 		e1000_update_mng_vlan(adapter);
 
 	/* DMA latency requirement to workaround jumbo issue */
+<<<<<<< HEAD
 	pm_qos_add_request(&adapter->pm_qos_req, PM_QOS_CPU_DMA_LATENCY,
 			   PM_QOS_DEFAULT_VALUE);
+=======
+	cpu_latency_qos_add_request(&adapter->pm_qos_req, PM_QOS_DEFAULT_VALUE);
+>>>>>>> upstream/android-13
 
 	/* before we allocate an interrupt, we must be ready to handle it.
 	 * Setting DEBUG_SHIRQ in the kernel makes it fire an interrupt
@@ -4652,7 +4948,11 @@ int e1000e_open(struct net_device *netdev)
 	return 0;
 
 err_req_irq:
+<<<<<<< HEAD
 	pm_qos_remove_request(&adapter->pm_qos_req);
+=======
+	cpu_latency_qos_remove_request(&adapter->pm_qos_req);
+>>>>>>> upstream/android-13
 	e1000e_release_hw_control(adapter);
 	e1000_power_down_phy(adapter);
 	e1000e_free_rx_resources(adapter->rx_ring);
@@ -4683,18 +4983,30 @@ int e1000e_close(struct net_device *netdev)
 	int count = E1000_CHECK_RESET_COUNT;
 
 	while (test_bit(__E1000_RESETTING, &adapter->state) && count--)
+<<<<<<< HEAD
 		usleep_range(10000, 20000);
+=======
+		usleep_range(10000, 11000);
+>>>>>>> upstream/android-13
 
 	WARN_ON(test_bit(__E1000_RESETTING, &adapter->state));
 
 	pm_runtime_get_sync(&pdev->dev);
 
+<<<<<<< HEAD
 	if (!test_bit(__E1000_DOWN, &adapter->state)) {
+=======
+	if (netif_device_present(netdev)) {
+>>>>>>> upstream/android-13
 		e1000e_down(adapter, true);
 		e1000_free_irq(adapter);
 
 		/* Link status message must follow this format */
+<<<<<<< HEAD
 		pr_info("%s NIC Link is Down\n", adapter->netdev->name);
+=======
+		netdev_info(netdev, "NIC Link is Down\n");
+>>>>>>> upstream/android-13
 	}
 
 	napi_disable(&adapter->napi);
@@ -4716,7 +5028,11 @@ int e1000e_close(struct net_device *netdev)
 	    !test_bit(__E1000_TESTING, &adapter->state))
 		e1000e_release_hw_control(adapter);
 
+<<<<<<< HEAD
 	pm_qos_remove_request(&adapter->pm_qos_req);
+=======
+	cpu_latency_qos_remove_request(&adapter->pm_qos_req);
+>>>>>>> upstream/android-13
 
 	pm_runtime_put_sync(&pdev->dev);
 
@@ -4789,7 +5105,11 @@ static void e1000e_update_phy_task(struct work_struct *work)
 
 /**
  * e1000_update_phy_info - timre call-back to update PHY info
+<<<<<<< HEAD
  * @data: pointer to adapter cast into an unsigned long
+=======
+ * @t: pointer to timer_list containing private info adapter
+>>>>>>> upstream/android-13
  *
  * Need to wait a few seconds after link up to get diagnostic information from
  * the phy
@@ -5044,12 +5364,22 @@ static void e1000_print_link_info(struct e1000_adapter *adapter)
 	u32 ctrl = er32(CTRL);
 
 	/* Link status message must follow this format for user tools */
+<<<<<<< HEAD
 	pr_info("%s NIC Link is Up %d Mbps %s Duplex, Flow Control: %s\n",
 		adapter->netdev->name, adapter->link_speed,
 		adapter->link_duplex == FULL_DUPLEX ? "Full" : "Half",
 		(ctrl & E1000_CTRL_TFCE) && (ctrl & E1000_CTRL_RFCE) ? "Rx/Tx" :
 		(ctrl & E1000_CTRL_RFCE) ? "Rx" :
 		(ctrl & E1000_CTRL_TFCE) ? "Tx" : "None");
+=======
+	netdev_info(adapter->netdev,
+		    "NIC Link is Up %d Mbps %s Duplex, Flow Control: %s\n",
+		    adapter->link_speed,
+		    adapter->link_duplex == FULL_DUPLEX ? "Full" : "Half",
+		    (ctrl & E1000_CTRL_TFCE) && (ctrl & E1000_CTRL_RFCE) ? "Rx/Tx" :
+		    (ctrl & E1000_CTRL_RFCE) ? "Rx" :
+		    (ctrl & E1000_CTRL_TFCE) ? "Tx" : "None");
+>>>>>>> upstream/android-13
 }
 
 static bool e1000e_has_link(struct e1000_adapter *adapter)
@@ -5128,7 +5458,11 @@ static void e1000e_check_82574_phy_workaround(struct e1000_adapter *adapter)
 
 /**
  * e1000_watchdog - Timer Call-back
+<<<<<<< HEAD
  * @data: pointer to adapter cast into an unsigned long
+=======
+ * @t: pointer to timer_list containing private info adapter
+>>>>>>> upstream/android-13
  **/
 static void e1000_watchdog(struct timer_list *t)
 {
@@ -5149,8 +5483,14 @@ static void e1000_watchdog_task(struct work_struct *work)
 	struct e1000_mac_info *mac = &adapter->hw.mac;
 	struct e1000_phy_info *phy = &adapter->hw.phy;
 	struct e1000_ring *tx_ring = adapter->tx_ring;
+<<<<<<< HEAD
 	struct e1000_hw *hw = &adapter->hw;
 	u32 link, tctl;
+=======
+	u32 dmoff_exit_timeout = 100, tries = 0;
+	struct e1000_hw *hw = &adapter->hw;
+	u32 link, tctl, pcim_state;
+>>>>>>> upstream/android-13
 
 	if (test_bit(__E1000_DOWN, &adapter->state))
 		return;
@@ -5175,6 +5515,26 @@ static void e1000_watchdog_task(struct work_struct *work)
 			/* Cancel scheduled suspend requests. */
 			pm_runtime_resume(netdev->dev.parent);
 
+<<<<<<< HEAD
+=======
+			/* Checking if MAC is in DMoff state*/
+			if (er32(FWSM) & E1000_ICH_FWSM_FW_VALID) {
+				pcim_state = er32(STATUS);
+				while (pcim_state & E1000_STATUS_PCIM_STATE) {
+					if (tries++ == dmoff_exit_timeout) {
+						e_dbg("Error in exiting dmoff\n");
+						break;
+					}
+					usleep_range(10000, 20000);
+					pcim_state = er32(STATUS);
+
+					/* Checking if MAC exited DMoff state */
+					if (!(pcim_state & E1000_STATUS_PCIM_STATE))
+						e1000_phy_hw_reset(&adapter->hw);
+				}
+			}
+
+>>>>>>> upstream/android-13
 			/* update snapshot of PHY registers on LSC */
 			e1000_phy_read_status(adapter);
 			mac->ops.get_link_up_info(&adapter->hw,
@@ -5280,7 +5640,11 @@ static void e1000_watchdog_task(struct work_struct *work)
 			adapter->link_speed = 0;
 			adapter->link_duplex = 0;
 			/* Link status message must follow this format */
+<<<<<<< HEAD
 			pr_info("%s NIC Link is Down\n", adapter->netdev->name);
+=======
+			netdev_info(netdev, "NIC Link is Down\n");
+>>>>>>> upstream/android-13
 			netif_carrier_off(netdev);
 			netif_stop_queue(netdev);
 			if (!test_bit(__E1000_DOWN, &adapter->state))
@@ -5422,10 +5786,14 @@ static int e1000_tso(struct e1000_ring *tx_ring, struct sk_buff *skb,
 		cmd_length = E1000_TXD_CMD_IP;
 		ipcse = skb_transport_offset(skb) - 1;
 	} else if (skb_is_gso_v6(skb)) {
+<<<<<<< HEAD
 		ipv6_hdr(skb)->payload_len = 0;
 		tcp_hdr(skb)->check = ~csum_ipv6_magic(&ipv6_hdr(skb)->saddr,
 						       &ipv6_hdr(skb)->daddr,
 						       0, IPPROTO_TCP, 0);
+=======
+		tcp_v6_gso_csum_prep(skb);
+>>>>>>> upstream/android-13
 		ipcse = 0;
 	}
 	ipcss = skb_network_offset(skb);
@@ -5554,9 +5922,14 @@ static int e1000_tx_map(struct e1000_ring *tx_ring, struct sk_buff *skb,
 	}
 
 	for (f = 0; f < nr_frags; f++) {
+<<<<<<< HEAD
 		const struct skb_frag_struct *frag;
 
 		frag = &skb_shinfo(skb)->frags[f];
+=======
+		const skb_frag_t *frag = &skb_shinfo(skb)->frags[f];
+
+>>>>>>> upstream/android-13
 		len = skb_frag_size(frag);
 		offset = 0;
 
@@ -5881,19 +6254,26 @@ static netdev_tx_t e1000_xmit_frame(struct sk_buff *skb,
 				     DIV_ROUND_UP(PAGE_SIZE,
 						  adapter->tx_fifo_limit) + 2));
 
+<<<<<<< HEAD
 		if (!skb->xmit_more ||
+=======
+		if (!netdev_xmit_more() ||
+>>>>>>> upstream/android-13
 		    netif_xmit_stopped(netdev_get_tx_queue(netdev, 0))) {
 			if (adapter->flags2 & FLAG2_PCIM2PCI_ARBITER_WA)
 				e1000e_update_tdt_wa(tx_ring,
 						     tx_ring->next_to_use);
 			else
 				writel(tx_ring->next_to_use, tx_ring->tail);
+<<<<<<< HEAD
 
 			/* we need this if more than one processor can write
 			 * to our tail at a time, it synchronizes IO on
 			 *IA64/Altix systems
 			 */
 			mmiowb();
+=======
+>>>>>>> upstream/android-13
 		}
 	} else {
 		dev_kfree_skb_any(skb);
@@ -5907,8 +6287,14 @@ static netdev_tx_t e1000_xmit_frame(struct sk_buff *skb,
 /**
  * e1000_tx_timeout - Respond to a Tx Hang
  * @netdev: network interface device structure
+<<<<<<< HEAD
  **/
 static void e1000_tx_timeout(struct net_device *netdev)
+=======
+ * @txqueue: index of the hung queue (unused)
+ **/
+static void e1000_tx_timeout(struct net_device *netdev, unsigned int __always_unused txqueue)
+>>>>>>> upstream/android-13
 {
 	struct e1000_adapter *adapter = netdev_priv(netdev);
 
@@ -5938,7 +6324,11 @@ static void e1000_reset_task(struct work_struct *work)
 }
 
 /**
+<<<<<<< HEAD
  * e1000_get_stats64 - Get System Network Statistics
+=======
+ * e1000e_get_stats64 - Get System Network Statistics
+>>>>>>> upstream/android-13
  * @netdev: network interface device structure
  * @stats: rtnl_link_stats64 pointer
  *
@@ -6011,10 +6401,18 @@ static int e1000_change_mtu(struct net_device *netdev, int new_mtu)
 	}
 
 	while (test_and_set_bit(__E1000_RESETTING, &adapter->state))
+<<<<<<< HEAD
 		usleep_range(1000, 2000);
 	/* e1000e_down -> e1000e_reset dependent on max_frame_size & mtu */
 	adapter->max_frame_size = max_frame;
 	e_info("changing MTU from %d to %d\n", netdev->mtu, new_mtu);
+=======
+		usleep_range(1000, 1100);
+	/* e1000e_down -> e1000e_reset dependent on max_frame_size & mtu */
+	adapter->max_frame_size = max_frame;
+	netdev_dbg(netdev, "changing MTU from %d to %d\n",
+		   netdev->mtu, new_mtu);
+>>>>>>> upstream/android-13
 	netdev->mtu = new_mtu;
 
 	pm_runtime_get_sync(netdev->dev.parent);
@@ -6110,9 +6508,15 @@ static int e1000_mii_ioctl(struct net_device *netdev, struct ifreq *ifr,
 }
 
 /**
+<<<<<<< HEAD
  * e1000e_hwtstamp_ioctl - control hardware time stamping
  * @netdev: network interface device structure
  * @ifreq: interface request
+=======
+ * e1000e_hwtstamp_set - control hardware time stamping
+ * @netdev: network interface device structure
+ * @ifr: interface request
+>>>>>>> upstream/android-13
  *
  * Outgoing time stamping can be enabled and disabled. Play nice and
  * disable it when requested, although it shouldn't cause any overhead
@@ -6280,6 +6684,7 @@ fl_out:
 	pm_runtime_put_sync(netdev->dev.parent);
 }
 
+<<<<<<< HEAD
 static int e1000e_pm_freeze(struct device *dev)
 {
 	struct net_device *netdev = pci_get_drvdata(to_pci_dev(dev));
@@ -6292,6 +6697,298 @@ static int e1000e_pm_freeze(struct device *dev)
 
 		while (test_bit(__E1000_RESETTING, &adapter->state) && count--)
 			usleep_range(10000, 20000);
+=======
+/* S0ix implementation */
+static void e1000e_s0ix_entry_flow(struct e1000_adapter *adapter)
+{
+	struct e1000_hw *hw = &adapter->hw;
+	u32 mac_data;
+	u16 phy_data;
+
+	if (er32(FWSM) & E1000_ICH_FWSM_FW_VALID &&
+	    hw->mac.type >= e1000_pch_adp) {
+		/* Request ME configure the device for S0ix */
+		mac_data = er32(H2ME);
+		mac_data |= E1000_H2ME_START_DPG;
+		mac_data &= ~E1000_H2ME_EXIT_DPG;
+		ew32(H2ME, mac_data);
+	} else {
+		/* Request driver configure the device to S0ix */
+		/* Disable the periodic inband message,
+		 * don't request PCIe clock in K1 page770_17[10:9] = 10b
+		 */
+		e1e_rphy(hw, HV_PM_CTRL, &phy_data);
+		phy_data &= ~HV_PM_CTRL_K1_CLK_REQ;
+		phy_data |= BIT(10);
+		e1e_wphy(hw, HV_PM_CTRL, phy_data);
+
+		/* Make sure we don't exit K1 every time a new packet arrives
+		 * 772_29[5] = 1 CS_Mode_Stay_In_K1
+		 */
+		e1e_rphy(hw, I217_CGFREG, &phy_data);
+		phy_data |= BIT(5);
+		e1e_wphy(hw, I217_CGFREG, phy_data);
+
+		/* Change the MAC/PHY interface to SMBus
+		 * Force the SMBus in PHY page769_23[0] = 1
+		 * Force the SMBus in MAC CTRL_EXT[11] = 1
+		 */
+		e1e_rphy(hw, CV_SMB_CTRL, &phy_data);
+		phy_data |= CV_SMB_CTRL_FORCE_SMBUS;
+		e1e_wphy(hw, CV_SMB_CTRL, phy_data);
+		mac_data = er32(CTRL_EXT);
+		mac_data |= E1000_CTRL_EXT_FORCE_SMBUS;
+		ew32(CTRL_EXT, mac_data);
+
+		/* DFT control: PHY bit: page769_20[0] = 1
+		 * page769_20[7] - PHY PLL stop
+		 * page769_20[8] - PHY go to the electrical idle
+		 * page769_20[9] - PHY serdes disable
+		 * Gate PPW via EXTCNF_CTRL - set 0x0F00[7] = 1
+		 */
+		e1e_rphy(hw, I82579_DFT_CTRL, &phy_data);
+		phy_data |= BIT(0);
+		phy_data |= BIT(7);
+		phy_data |= BIT(8);
+		phy_data |= BIT(9);
+		e1e_wphy(hw, I82579_DFT_CTRL, phy_data);
+
+		mac_data = er32(EXTCNF_CTRL);
+		mac_data |= E1000_EXTCNF_CTRL_GATE_PHY_CFG;
+		ew32(EXTCNF_CTRL, mac_data);
+
+		/* Enable the Dynamic Power Gating in the MAC */
+		mac_data = er32(FEXTNVM7);
+		mac_data |= BIT(22);
+		ew32(FEXTNVM7, mac_data);
+
+		/* Disable disconnected cable conditioning for Power Gating */
+		mac_data = er32(DPGFR);
+		mac_data |= BIT(2);
+		ew32(DPGFR, mac_data);
+
+		/* Don't wake from dynamic Power Gating with clock request */
+		mac_data = er32(FEXTNVM12);
+		mac_data |= BIT(12);
+		ew32(FEXTNVM12, mac_data);
+
+		/* Ungate PGCB clock */
+		mac_data = er32(FEXTNVM9);
+		mac_data &= ~BIT(28);
+		ew32(FEXTNVM9, mac_data);
+
+		/* Enable K1 off to enable mPHY Power Gating */
+		mac_data = er32(FEXTNVM6);
+		mac_data |= BIT(31);
+		ew32(FEXTNVM6, mac_data);
+
+		/* Enable mPHY power gating for any link and speed */
+		mac_data = er32(FEXTNVM8);
+		mac_data |= BIT(9);
+		ew32(FEXTNVM8, mac_data);
+
+		/* Enable the Dynamic Clock Gating in the DMA and MAC */
+		mac_data = er32(CTRL_EXT);
+		mac_data |= E1000_CTRL_EXT_DMA_DYN_CLK_EN;
+		ew32(CTRL_EXT, mac_data);
+
+		/* No MAC DPG gating SLP_S0 in modern standby
+		 * Switch the logic of the lanphypc to use PMC counter
+		 */
+		mac_data = er32(FEXTNVM5);
+		mac_data |= BIT(7);
+		ew32(FEXTNVM5, mac_data);
+	}
+
+	/* Disable the time synchronization clock */
+	mac_data = er32(FEXTNVM7);
+	mac_data |= BIT(31);
+	mac_data &= ~BIT(0);
+	ew32(FEXTNVM7, mac_data);
+
+	/* Dynamic Power Gating Enable */
+	mac_data = er32(CTRL_EXT);
+	mac_data |= BIT(3);
+	ew32(CTRL_EXT, mac_data);
+
+	/* Check MAC Tx/Rx packet buffer pointers.
+	 * Reset MAC Tx/Rx packet buffer pointers to suppress any
+	 * pending traffic indication that would prevent power gating.
+	 */
+	mac_data = er32(TDFH);
+	if (mac_data)
+		ew32(TDFH, 0);
+	mac_data = er32(TDFT);
+	if (mac_data)
+		ew32(TDFT, 0);
+	mac_data = er32(TDFHS);
+	if (mac_data)
+		ew32(TDFHS, 0);
+	mac_data = er32(TDFTS);
+	if (mac_data)
+		ew32(TDFTS, 0);
+	mac_data = er32(TDFPC);
+	if (mac_data)
+		ew32(TDFPC, 0);
+	mac_data = er32(RDFH);
+	if (mac_data)
+		ew32(RDFH, 0);
+	mac_data = er32(RDFT);
+	if (mac_data)
+		ew32(RDFT, 0);
+	mac_data = er32(RDFHS);
+	if (mac_data)
+		ew32(RDFHS, 0);
+	mac_data = er32(RDFTS);
+	if (mac_data)
+		ew32(RDFTS, 0);
+	mac_data = er32(RDFPC);
+	if (mac_data)
+		ew32(RDFPC, 0);
+}
+
+static void e1000e_s0ix_exit_flow(struct e1000_adapter *adapter)
+{
+	struct e1000_hw *hw = &adapter->hw;
+	bool firmware_bug = false;
+	u32 mac_data;
+	u16 phy_data;
+	u32 i = 0;
+
+	if (er32(FWSM) & E1000_ICH_FWSM_FW_VALID &&
+	    hw->mac.type >= e1000_pch_adp) {
+		/* Request ME unconfigure the device from S0ix */
+		mac_data = er32(H2ME);
+		mac_data &= ~E1000_H2ME_START_DPG;
+		mac_data |= E1000_H2ME_EXIT_DPG;
+		ew32(H2ME, mac_data);
+
+		/* Poll up to 2.5 seconds for ME to unconfigure DPG.
+		 * If this takes more than 1 second, show a warning indicating a
+		 * firmware bug
+		 */
+		while (!(er32(EXFWSM) & E1000_EXFWSM_DPG_EXIT_DONE)) {
+			if (i > 100 && !firmware_bug)
+				firmware_bug = true;
+
+			if (i++ == 250) {
+				e_dbg("Timeout (firmware bug): %d msec\n",
+				      i * 10);
+				break;
+			}
+
+			usleep_range(10000, 11000);
+		}
+		if (firmware_bug)
+			e_warn("DPG_EXIT_DONE took %d msec. This is a firmware bug\n",
+			       i * 10);
+		else
+			e_dbg("DPG_EXIT_DONE cleared after %d msec\n", i * 10);
+	} else {
+		/* Request driver unconfigure the device from S0ix */
+
+		/* Disable the Dynamic Power Gating in the MAC */
+		mac_data = er32(FEXTNVM7);
+		mac_data &= 0xFFBFFFFF;
+		ew32(FEXTNVM7, mac_data);
+
+		/* Disable mPHY power gating for any link and speed */
+		mac_data = er32(FEXTNVM8);
+		mac_data &= ~BIT(9);
+		ew32(FEXTNVM8, mac_data);
+
+		/* Disable K1 off */
+		mac_data = er32(FEXTNVM6);
+		mac_data &= ~BIT(31);
+		ew32(FEXTNVM6, mac_data);
+
+		/* Disable Ungate PGCB clock */
+		mac_data = er32(FEXTNVM9);
+		mac_data |= BIT(28);
+		ew32(FEXTNVM9, mac_data);
+
+		/* Cancel not waking from dynamic
+		 * Power Gating with clock request
+		 */
+		mac_data = er32(FEXTNVM12);
+		mac_data &= ~BIT(12);
+		ew32(FEXTNVM12, mac_data);
+
+		/* Cancel disable disconnected cable conditioning
+		 * for Power Gating
+		 */
+		mac_data = er32(DPGFR);
+		mac_data &= ~BIT(2);
+		ew32(DPGFR, mac_data);
+
+		/* Disable the Dynamic Clock Gating in the DMA and MAC */
+		mac_data = er32(CTRL_EXT);
+		mac_data &= 0xFFF7FFFF;
+		ew32(CTRL_EXT, mac_data);
+
+		/* Revert the lanphypc logic to use the internal Gbe counter
+		 * and not the PMC counter
+		 */
+		mac_data = er32(FEXTNVM5);
+		mac_data &= 0xFFFFFF7F;
+		ew32(FEXTNVM5, mac_data);
+
+		/* Enable the periodic inband message,
+		 * Request PCIe clock in K1 page770_17[10:9] =01b
+		 */
+		e1e_rphy(hw, HV_PM_CTRL, &phy_data);
+		phy_data &= 0xFBFF;
+		phy_data |= HV_PM_CTRL_K1_CLK_REQ;
+		e1e_wphy(hw, HV_PM_CTRL, phy_data);
+
+		/* Return back configuration
+		 * 772_29[5] = 0 CS_Mode_Stay_In_K1
+		 */
+		e1e_rphy(hw, I217_CGFREG, &phy_data);
+		phy_data &= 0xFFDF;
+		e1e_wphy(hw, I217_CGFREG, phy_data);
+
+		/* Change the MAC/PHY interface to Kumeran
+		 * Unforce the SMBus in PHY page769_23[0] = 0
+		 * Unforce the SMBus in MAC CTRL_EXT[11] = 0
+		 */
+		e1e_rphy(hw, CV_SMB_CTRL, &phy_data);
+		phy_data &= ~CV_SMB_CTRL_FORCE_SMBUS;
+		e1e_wphy(hw, CV_SMB_CTRL, phy_data);
+		mac_data = er32(CTRL_EXT);
+		mac_data &= ~E1000_CTRL_EXT_FORCE_SMBUS;
+		ew32(CTRL_EXT, mac_data);
+	}
+
+	/* Disable Dynamic Power Gating */
+	mac_data = er32(CTRL_EXT);
+	mac_data &= 0xFFFFFFF7;
+	ew32(CTRL_EXT, mac_data);
+
+	/* Enable the time synchronization clock */
+	mac_data = er32(FEXTNVM7);
+	mac_data &= ~BIT(31);
+	mac_data |= BIT(0);
+	ew32(FEXTNVM7, mac_data);
+}
+
+static int e1000e_pm_freeze(struct device *dev)
+{
+	struct net_device *netdev = dev_get_drvdata(dev);
+	struct e1000_adapter *adapter = netdev_priv(netdev);
+	bool present;
+
+	rtnl_lock();
+
+	present = netif_device_present(netdev);
+	netif_device_detach(netdev);
+
+	if (present && netif_running(netdev)) {
+		int count = E1000_CHECK_RESET_COUNT;
+
+		while (test_bit(__E1000_RESETTING, &adapter->state) && count--)
+			usleep_range(10000, 11000);
+>>>>>>> upstream/android-13
 
 		WARN_ON(test_bit(__E1000_RESETTING, &adapter->state));
 
@@ -6299,6 +6996,11 @@ static int e1000e_pm_freeze(struct device *dev)
 		e1000e_down(adapter, false);
 		e1000_free_irq(adapter);
 	}
+<<<<<<< HEAD
+=======
+	rtnl_unlock();
+
+>>>>>>> upstream/android-13
 	e1000e_reset_interrupt_capability(adapter);
 
 	/* Allow time for pending master requests to run */
@@ -6471,7 +7173,11 @@ static void __e1000e_disable_aspm(struct pci_dev *pdev, u16 state, int locked)
 	case PCIE_LINK_STATE_L0S:
 	case PCIE_LINK_STATE_L0S | PCIE_LINK_STATE_L1:
 		aspm_dis_mask |= PCI_EXP_LNKCTL_ASPM_L0S;
+<<<<<<< HEAD
 		/* fall-through - can't have L1 without L0s */
+=======
+		fallthrough; /* can't have L1 without L0s */
+>>>>>>> upstream/android-13
 	case PCIE_LINK_STATE_L1:
 		aspm_dis_mask |= PCI_EXP_LNKCTL_ASPM_L1;
 		break;
@@ -6540,7 +7246,11 @@ static void e1000e_disable_aspm(struct pci_dev *pdev, u16 state)
 }
 
 /**
+<<<<<<< HEAD
  * e1000e_disable_aspm_locked   Disable ASPM states.
+=======
+ * e1000e_disable_aspm_locked - Disable ASPM states.
+>>>>>>> upstream/android-13
  * @pdev: pointer to PCI device struct
  * @state: bit-mask of ASPM states to disable
  *
@@ -6552,7 +7262,34 @@ static void e1000e_disable_aspm_locked(struct pci_dev *pdev, u16 state)
 	__e1000e_disable_aspm(pdev, state, 1);
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_PM
+=======
+static int e1000e_pm_thaw(struct device *dev)
+{
+	struct net_device *netdev = dev_get_drvdata(dev);
+	struct e1000_adapter *adapter = netdev_priv(netdev);
+	int rc = 0;
+
+	e1000e_set_interrupt_capability(adapter);
+
+	rtnl_lock();
+	if (netif_running(netdev)) {
+		rc = e1000_request_irq(adapter);
+		if (rc)
+			goto err_irq;
+
+		e1000e_up(adapter);
+	}
+
+	netif_device_attach(netdev);
+err_irq:
+	rtnl_unlock();
+
+	return rc;
+}
+
+>>>>>>> upstream/android-13
 static int __e1000_resume(struct pci_dev *pdev)
 {
 	struct net_device *netdev = pci_get_drvdata(pdev);
@@ -6618,6 +7355,7 @@ static int __e1000_resume(struct pci_dev *pdev)
 	return 0;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_PM_SLEEP
 static int e1000e_pm_thaw(struct device *dev)
 {
@@ -6644,26 +7382,81 @@ static int e1000e_pm_suspend(struct device *dev)
 	struct pci_dev *pdev = to_pci_dev(dev);
 	int rc;
 
+=======
+static __maybe_unused int e1000e_pm_prepare(struct device *dev)
+{
+	return pm_runtime_suspended(dev) &&
+		pm_suspend_via_firmware();
+}
+
+static __maybe_unused int e1000e_pm_suspend(struct device *dev)
+{
+	struct net_device *netdev = pci_get_drvdata(to_pci_dev(dev));
+	struct e1000_adapter *adapter = netdev_priv(netdev);
+	struct pci_dev *pdev = to_pci_dev(dev);
+	struct e1000_hw *hw = &adapter->hw;
+	u16 phy_data;
+	int rc;
+
+	if (er32(FWSM) & E1000_ICH_FWSM_FW_VALID &&
+	    hw->mac.type >= e1000_pch_adp) {
+		/* Mask OEM Bits / Gig Disable / Restart AN (772_26[12] = 1) */
+		e1e_rphy(hw, I217_MEMPWR, &phy_data);
+		phy_data |= I217_MEMPWR_MOEM;
+		e1e_wphy(hw, I217_MEMPWR, phy_data);
+
+		/* Disable LCD reset */
+		hw->phy.reset_disable = true;
+	}
+
+>>>>>>> upstream/android-13
 	e1000e_flush_lpic(pdev);
 
 	e1000e_pm_freeze(dev);
 
 	rc = __e1000_shutdown(pdev, false);
+<<<<<<< HEAD
 	if (rc)
 		e1000e_pm_thaw(dev);
+=======
+	if (rc) {
+		e1000e_pm_thaw(dev);
+	} else {
+		/* Introduce S0ix implementation */
+		if (adapter->flags2 & FLAG2_ENABLE_S0IX_FLOWS)
+			e1000e_s0ix_entry_flow(adapter);
+	}
+>>>>>>> upstream/android-13
 
 	return rc;
 }
 
+<<<<<<< HEAD
 static int e1000e_pm_resume(struct device *dev)
 {
 	struct pci_dev *pdev = to_pci_dev(dev);
 	int rc;
 
+=======
+static __maybe_unused int e1000e_pm_resume(struct device *dev)
+{
+	struct net_device *netdev = pci_get_drvdata(to_pci_dev(dev));
+	struct e1000_adapter *adapter = netdev_priv(netdev);
+	struct pci_dev *pdev = to_pci_dev(dev);
+	struct e1000_hw *hw = &adapter->hw;
+	u16 phy_data;
+	int rc;
+
+	/* Introduce S0ix implementation */
+	if (adapter->flags2 & FLAG2_ENABLE_S0IX_FLOWS)
+		e1000e_s0ix_exit_flow(adapter);
+
+>>>>>>> upstream/android-13
 	rc = __e1000_resume(pdev);
 	if (rc)
 		return rc;
 
+<<<<<<< HEAD
 	return e1000e_pm_thaw(dev);
 }
 #endif /* CONFIG_PM_SLEEP */
@@ -6672,6 +7465,25 @@ static int e1000e_pm_runtime_idle(struct device *dev)
 {
 	struct pci_dev *pdev = to_pci_dev(dev);
 	struct net_device *netdev = pci_get_drvdata(pdev);
+=======
+	if (er32(FWSM) & E1000_ICH_FWSM_FW_VALID &&
+	    hw->mac.type >= e1000_pch_adp) {
+		/* Unmask OEM Bits / Gig Disable / Restart AN 772_26[12] = 0 */
+		e1e_rphy(hw, I217_MEMPWR, &phy_data);
+		phy_data &= ~I217_MEMPWR_MOEM;
+		e1e_wphy(hw, I217_MEMPWR, phy_data);
+
+		/* Enable LCD reset */
+		hw->phy.reset_disable = false;
+	}
+
+	return e1000e_pm_thaw(dev);
+}
+
+static __maybe_unused int e1000e_pm_runtime_idle(struct device *dev)
+{
+	struct net_device *netdev = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 	struct e1000_adapter *adapter = netdev_priv(netdev);
 	u16 eee_lp;
 
@@ -6685,7 +7497,11 @@ static int e1000e_pm_runtime_idle(struct device *dev)
 	return -EBUSY;
 }
 
+<<<<<<< HEAD
 static int e1000e_pm_runtime_resume(struct device *dev)
+=======
+static __maybe_unused int e1000e_pm_runtime_resume(struct device *dev)
+>>>>>>> upstream/android-13
 {
 	struct pci_dev *pdev = to_pci_dev(dev);
 	struct net_device *netdev = pci_get_drvdata(pdev);
@@ -6702,7 +7518,11 @@ static int e1000e_pm_runtime_resume(struct device *dev)
 	return rc;
 }
 
+<<<<<<< HEAD
 static int e1000e_pm_runtime_suspend(struct device *dev)
+=======
+static __maybe_unused int e1000e_pm_runtime_suspend(struct device *dev)
+>>>>>>> upstream/android-13
 {
 	struct pci_dev *pdev = to_pci_dev(dev);
 	struct net_device *netdev = pci_get_drvdata(pdev);
@@ -6712,7 +7532,11 @@ static int e1000e_pm_runtime_suspend(struct device *dev)
 		int count = E1000_CHECK_RESET_COUNT;
 
 		while (test_bit(__E1000_RESETTING, &adapter->state) && count--)
+<<<<<<< HEAD
 			usleep_range(10000, 20000);
+=======
+			usleep_range(10000, 11000);
+>>>>>>> upstream/android-13
 
 		WARN_ON(test_bit(__E1000_RESETTING, &adapter->state));
 
@@ -6727,7 +7551,10 @@ static int e1000e_pm_runtime_suspend(struct device *dev)
 
 	return 0;
 }
+<<<<<<< HEAD
 #endif /* CONFIG_PM */
+=======
+>>>>>>> upstream/android-13
 
 static void e1000_shutdown(struct pci_dev *pdev)
 {
@@ -6811,19 +7638,29 @@ static void e1000_netpoll(struct net_device *netdev)
 static pci_ers_result_t e1000_io_error_detected(struct pci_dev *pdev,
 						pci_channel_state_t state)
 {
+<<<<<<< HEAD
 	struct net_device *netdev = pci_get_drvdata(pdev);
 	struct e1000_adapter *adapter = netdev_priv(netdev);
 
 	netif_device_detach(netdev);
+=======
+	e1000e_pm_freeze(&pdev->dev);
+>>>>>>> upstream/android-13
 
 	if (state == pci_channel_io_perm_failure)
 		return PCI_ERS_RESULT_DISCONNECT;
 
+<<<<<<< HEAD
 	if (netif_running(netdev))
 		e1000e_down(adapter, true);
 	pci_disable_device(pdev);
 
 	/* Request a slot slot reset. */
+=======
+	pci_disable_device(pdev);
+
+	/* Request a slot reset. */
+>>>>>>> upstream/android-13
 	return PCI_ERS_RESULT_NEED_RESET;
 }
 
@@ -6868,8 +7705,11 @@ static pci_ers_result_t e1000_io_slot_reset(struct pci_dev *pdev)
 		result = PCI_ERS_RESULT_RECOVERED;
 	}
 
+<<<<<<< HEAD
 	pci_cleanup_aer_uncorrect_error_status(pdev);
 
+=======
+>>>>>>> upstream/android-13
 	return result;
 }
 
@@ -6888,10 +7728,14 @@ static void e1000_io_resume(struct pci_dev *pdev)
 
 	e1000_init_manageability_pt(adapter);
 
+<<<<<<< HEAD
 	if (netif_running(netdev))
 		e1000e_up(adapter);
 
 	netif_device_attach(netdev);
+=======
+	e1000e_pm_thaw(&pdev->dev);
+>>>>>>> upstream/android-13
 
 	/* If the controller has AMT, do not set DRV_LOAD until the interface
 	 * is up.  For all other cases, let the f/w know that the h/w is now
@@ -6999,7 +7843,11 @@ static int e1000_set_features(struct net_device *netdev,
 	else
 		e1000e_reset(adapter);
 
+<<<<<<< HEAD
 	return 0;
+=======
+	return 1;
+>>>>>>> upstream/android-13
 }
 
 static const struct net_device_ops e1000e_netdev_ops = {
@@ -7010,7 +7858,11 @@ static const struct net_device_ops e1000e_netdev_ops = {
 	.ndo_set_rx_mode	= e1000e_set_rx_mode,
 	.ndo_set_mac_address	= e1000_set_mac,
 	.ndo_change_mtu		= e1000_change_mtu,
+<<<<<<< HEAD
 	.ndo_do_ioctl		= e1000_ioctl,
+=======
+	.ndo_eth_ioctl		= e1000_ioctl,
+>>>>>>> upstream/android-13
 	.ndo_tx_timeout		= e1000_tx_timeout,
 	.ndo_validate_addr	= eth_validate_addr,
 
@@ -7334,6 +8186,12 @@ static int e1000_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 	if (!(adapter->flags & FLAG_HAS_AMT))
 		e1000e_get_hw_control(adapter);
 
+<<<<<<< HEAD
+=======
+	if (hw->mac.type >= e1000_pch_cnp)
+		adapter->flags2 |= FLAG2_ENABLE_S0IX_FLOWS;
+
+>>>>>>> upstream/android-13
 	strlcpy(netdev->name, "eth%d", sizeof(netdev->name));
 	err = register_netdev(netdev);
 	if (err)
@@ -7344,9 +8202,15 @@ static int e1000_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 
 	e1000_print_device_info(adapter);
 
+<<<<<<< HEAD
 	dev_pm_set_driver_flags(&pdev->dev, DPM_FLAG_NEVER_SKIP);
 
 	if (pci_dev_run_wake(pdev) && hw->mac.type < e1000_pch_cnp)
+=======
+	dev_pm_set_driver_flags(&pdev->dev, DPM_FLAG_SMART_PREPARE);
+
+	if (pci_dev_run_wake(pdev) && hw->mac.type != e1000_pch_cnp)
+>>>>>>> upstream/android-13
 		pm_runtime_put_noidle(&pdev->dev);
 
 	return 0;
@@ -7369,6 +8233,10 @@ err_flashmap:
 err_ioremap:
 	free_netdev(netdev);
 err_alloc_etherdev:
+<<<<<<< HEAD
+=======
+	pci_disable_pcie_error_reporting(pdev);
+>>>>>>> upstream/android-13
 	pci_release_mem_regions(pdev);
 err_pci_reg:
 err_dma:
@@ -7381,7 +8249,11 @@ err_dma:
  * @pdev: PCI device information struct
  *
  * e1000_remove is called by the PCI subsystem to alert the driver
+<<<<<<< HEAD
  * that it should release a PCI device.  The could be caused by a
+=======
+ * that it should release a PCI device.  This could be caused by a
+>>>>>>> upstream/android-13
  * Hot-Plug event, or because the driver is going to be removed from
  * memory.
  **/
@@ -7389,15 +8261,22 @@ static void e1000_remove(struct pci_dev *pdev)
 {
 	struct net_device *netdev = pci_get_drvdata(pdev);
 	struct e1000_adapter *adapter = netdev_priv(netdev);
+<<<<<<< HEAD
 	bool down = test_bit(__E1000_DOWN, &adapter->state);
+=======
+>>>>>>> upstream/android-13
 
 	e1000e_ptp_remove(adapter);
 
 	/* The timers may be rescheduled, so explicitly disable them
 	 * from being rescheduled.
 	 */
+<<<<<<< HEAD
 	if (!down)
 		set_bit(__E1000_DOWN, &adapter->state);
+=======
+	set_bit(__E1000_DOWN, &adapter->state);
+>>>>>>> upstream/android-13
 	del_timer_sync(&adapter->watchdog_timer);
 	del_timer_sync(&adapter->phy_info_timer);
 
@@ -7415,9 +8294,12 @@ static void e1000_remove(struct pci_dev *pdev)
 		}
 	}
 
+<<<<<<< HEAD
 	/* Don't lie to e1000_close() down the road. */
 	if (!down)
 		clear_bit(__E1000_DOWN, &adapter->state);
+=======
+>>>>>>> upstream/android-13
 	unregister_netdev(netdev);
 
 	if (pci_dev_run_wake(pdev))
@@ -7547,6 +8429,37 @@ static const struct pci_device_id e1000_pci_tbl[] = {
 	{ PCI_VDEVICE(INTEL, E1000_DEV_ID_PCH_ICP_I219_V8), board_pch_cnp },
 	{ PCI_VDEVICE(INTEL, E1000_DEV_ID_PCH_ICP_I219_LM9), board_pch_cnp },
 	{ PCI_VDEVICE(INTEL, E1000_DEV_ID_PCH_ICP_I219_V9), board_pch_cnp },
+<<<<<<< HEAD
+=======
+	{ PCI_VDEVICE(INTEL, E1000_DEV_ID_PCH_CMP_I219_LM10), board_pch_cnp },
+	{ PCI_VDEVICE(INTEL, E1000_DEV_ID_PCH_CMP_I219_V10), board_pch_cnp },
+	{ PCI_VDEVICE(INTEL, E1000_DEV_ID_PCH_CMP_I219_LM11), board_pch_cnp },
+	{ PCI_VDEVICE(INTEL, E1000_DEV_ID_PCH_CMP_I219_V11), board_pch_cnp },
+	{ PCI_VDEVICE(INTEL, E1000_DEV_ID_PCH_CMP_I219_LM12), board_pch_spt },
+	{ PCI_VDEVICE(INTEL, E1000_DEV_ID_PCH_CMP_I219_V12), board_pch_spt },
+	{ PCI_VDEVICE(INTEL, E1000_DEV_ID_PCH_TGP_I219_LM13), board_pch_tgp },
+	{ PCI_VDEVICE(INTEL, E1000_DEV_ID_PCH_TGP_I219_V13), board_pch_tgp },
+	{ PCI_VDEVICE(INTEL, E1000_DEV_ID_PCH_TGP_I219_LM14), board_pch_tgp },
+	{ PCI_VDEVICE(INTEL, E1000_DEV_ID_PCH_TGP_I219_V14), board_pch_tgp },
+	{ PCI_VDEVICE(INTEL, E1000_DEV_ID_PCH_TGP_I219_LM15), board_pch_tgp },
+	{ PCI_VDEVICE(INTEL, E1000_DEV_ID_PCH_TGP_I219_V15), board_pch_tgp },
+	{ PCI_VDEVICE(INTEL, E1000_DEV_ID_PCH_RPL_I219_LM23), board_pch_adp },
+	{ PCI_VDEVICE(INTEL, E1000_DEV_ID_PCH_RPL_I219_V23), board_pch_adp },
+	{ PCI_VDEVICE(INTEL, E1000_DEV_ID_PCH_ADP_I219_LM16), board_pch_adp },
+	{ PCI_VDEVICE(INTEL, E1000_DEV_ID_PCH_ADP_I219_V16), board_pch_adp },
+	{ PCI_VDEVICE(INTEL, E1000_DEV_ID_PCH_ADP_I219_LM17), board_pch_adp },
+	{ PCI_VDEVICE(INTEL, E1000_DEV_ID_PCH_ADP_I219_V17), board_pch_adp },
+	{ PCI_VDEVICE(INTEL, E1000_DEV_ID_PCH_RPL_I219_LM22), board_pch_adp },
+	{ PCI_VDEVICE(INTEL, E1000_DEV_ID_PCH_RPL_I219_V22), board_pch_adp },
+	{ PCI_VDEVICE(INTEL, E1000_DEV_ID_PCH_MTP_I219_LM18), board_pch_adp },
+	{ PCI_VDEVICE(INTEL, E1000_DEV_ID_PCH_MTP_I219_V18), board_pch_adp },
+	{ PCI_VDEVICE(INTEL, E1000_DEV_ID_PCH_MTP_I219_LM19), board_pch_adp },
+	{ PCI_VDEVICE(INTEL, E1000_DEV_ID_PCH_MTP_I219_V19), board_pch_adp },
+	{ PCI_VDEVICE(INTEL, E1000_DEV_ID_PCH_LNP_I219_LM20), board_pch_adp },
+	{ PCI_VDEVICE(INTEL, E1000_DEV_ID_PCH_LNP_I219_V20), board_pch_adp },
+	{ PCI_VDEVICE(INTEL, E1000_DEV_ID_PCH_LNP_I219_LM21), board_pch_adp },
+	{ PCI_VDEVICE(INTEL, E1000_DEV_ID_PCH_LNP_I219_V21), board_pch_adp },
+>>>>>>> upstream/android-13
 
 	{ 0, 0, 0, 0, 0, 0, 0 }	/* terminate list */
 };
@@ -7554,6 +8467,10 @@ MODULE_DEVICE_TABLE(pci, e1000_pci_tbl);
 
 static const struct dev_pm_ops e1000_pm_ops = {
 #ifdef CONFIG_PM_SLEEP
+<<<<<<< HEAD
+=======
+	.prepare	= e1000e_pm_prepare,
+>>>>>>> upstream/android-13
 	.suspend	= e1000e_pm_suspend,
 	.resume		= e1000e_pm_resume,
 	.freeze		= e1000e_pm_freeze,
@@ -7586,8 +8503,12 @@ static struct pci_driver e1000_driver = {
  **/
 static int __init e1000_init_module(void)
 {
+<<<<<<< HEAD
 	pr_info("Intel(R) PRO/1000 Network Driver - %s\n",
 		e1000e_driver_version);
+=======
+	pr_info("Intel(R) PRO/1000 Network Driver\n");
+>>>>>>> upstream/android-13
 	pr_info("Copyright(c) 1999 - 2015 Intel Corporation.\n");
 
 	return pci_register_driver(&e1000_driver);
@@ -7608,7 +8529,11 @@ module_exit(e1000_exit_module);
 
 MODULE_AUTHOR("Intel Corporation, <linux.nics@intel.com>");
 MODULE_DESCRIPTION("Intel(R) PRO/1000 Network Driver");
+<<<<<<< HEAD
 MODULE_LICENSE("GPL");
 MODULE_VERSION(DRV_VERSION);
+=======
+MODULE_LICENSE("GPL v2");
+>>>>>>> upstream/android-13
 
 /* netdev.c */

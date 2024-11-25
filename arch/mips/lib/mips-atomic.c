@@ -15,7 +15,11 @@
 #include <linux/export.h>
 #include <linux/stringify.h>
 
+<<<<<<< HEAD
 #if !defined(CONFIG_CPU_MIPSR2) && !defined(CONFIG_CPU_MIPSR6)
+=======
+#if !defined(CONFIG_CPU_HAS_DIEI)
+>>>>>>> upstream/android-13
 
 /*
  * For cli() we have to insert nops to make sure that the new value
@@ -37,7 +41,11 @@
  */
 notrace void arch_local_irq_disable(void)
 {
+<<<<<<< HEAD
 	preempt_disable();
+=======
+	preempt_disable_notrace();
+>>>>>>> upstream/android-13
 
 	__asm__ __volatile__(
 	"	.set	push						\n"
@@ -53,7 +61,11 @@ notrace void arch_local_irq_disable(void)
 	: /* no inputs */
 	: "memory");
 
+<<<<<<< HEAD
 	preempt_enable();
+=======
+	preempt_enable_notrace();
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(arch_local_irq_disable);
 
@@ -61,7 +73,11 @@ notrace unsigned long arch_local_irq_save(void)
 {
 	unsigned long flags;
 
+<<<<<<< HEAD
 	preempt_disable();
+=======
+	preempt_disable_notrace();
+>>>>>>> upstream/android-13
 
 	__asm__ __volatile__(
 	"	.set	push						\n"
@@ -78,7 +94,11 @@ notrace unsigned long arch_local_irq_save(void)
 	: /* no inputs */
 	: "memory");
 
+<<<<<<< HEAD
 	preempt_enable();
+=======
+	preempt_enable_notrace();
+>>>>>>> upstream/android-13
 
 	return flags;
 }
@@ -88,7 +108,11 @@ notrace void arch_local_irq_restore(unsigned long flags)
 {
 	unsigned long __tmp1;
 
+<<<<<<< HEAD
 	preempt_disable();
+=======
+	preempt_disable_notrace();
+>>>>>>> upstream/android-13
 
 	__asm__ __volatile__(
 	"	.set	push						\n"
@@ -106,8 +130,16 @@ notrace void arch_local_irq_restore(unsigned long flags)
 	: "0" (flags)
 	: "memory");
 
+<<<<<<< HEAD
 	preempt_enable();
 }
 EXPORT_SYMBOL(arch_local_irq_restore);
 
 #endif /* !CONFIG_CPU_MIPSR2 && !CONFIG_CPU_MIPSR6 */
+=======
+	preempt_enable_notrace();
+}
+EXPORT_SYMBOL(arch_local_irq_restore);
+
+#endif /* !CONFIG_CPU_HAS_DIEI */
+>>>>>>> upstream/android-13

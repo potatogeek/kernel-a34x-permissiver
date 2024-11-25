@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *   Tascam US-16x08 ALSA driver
  *
  *   Copyright (c) 2016 by Detlef Urban (onkel@paraair.de)
+<<<<<<< HEAD
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -13,6 +18,8 @@
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *   GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/slab.h>
@@ -339,7 +346,11 @@ static int snd_us16x08_bus_put(struct snd_kcontrol *kcontrol,
 		elem->cached |= 1;
 		elem->cache_val[0] = val;
 	} else {
+<<<<<<< HEAD
 		usb_audio_dbg(chip, "Failed to set buss param, err:%d\n", err);
+=======
+		usb_audio_dbg(chip, "Failed to set bus parameter, err:%d\n", err);
+>>>>>>> upstream/android-13
 	}
 
 	return err > 0 ? 1 : 0;
@@ -770,7 +781,11 @@ static int snd_us16x08_meter_put(struct snd_kcontrol *kcontrol,
 	return 1;
 }
 
+<<<<<<< HEAD
 static struct snd_kcontrol_new snd_us16x08_ch_boolean_ctl = {
+=======
+static const struct snd_kcontrol_new snd_us16x08_ch_boolean_ctl = {
+>>>>>>> upstream/android-13
 	.iface = SNDRV_CTL_ELEM_IFACE_MIXER,
 	.access = SNDRV_CTL_ELEM_ACCESS_READWRITE,
 	.count = 16,
@@ -780,7 +795,11 @@ static struct snd_kcontrol_new snd_us16x08_ch_boolean_ctl = {
 	.private_value = SND_US16X08_KCSET(SND_US16X08_NO_BIAS, 1, 0, 1)
 };
 
+<<<<<<< HEAD
 static struct snd_kcontrol_new snd_us16x08_ch_int_ctl = {
+=======
+static const struct snd_kcontrol_new snd_us16x08_ch_int_ctl = {
+>>>>>>> upstream/android-13
 	.iface = SNDRV_CTL_ELEM_IFACE_MIXER,
 	.access = SNDRV_CTL_ELEM_ACCESS_READWRITE,
 	.count = 16,
@@ -790,7 +809,11 @@ static struct snd_kcontrol_new snd_us16x08_ch_int_ctl = {
 	.private_value = SND_US16X08_KCSET(SND_US16X08_FADER_BIAS, 1, 0, 133)
 };
 
+<<<<<<< HEAD
 static struct snd_kcontrol_new snd_us16x08_pan_int_ctl = {
+=======
+static const struct snd_kcontrol_new snd_us16x08_pan_int_ctl = {
+>>>>>>> upstream/android-13
 	.iface = SNDRV_CTL_ELEM_IFACE_MIXER,
 	.access = SNDRV_CTL_ELEM_ACCESS_READWRITE,
 	.count = 16,
@@ -800,7 +823,11 @@ static struct snd_kcontrol_new snd_us16x08_pan_int_ctl = {
 	.private_value = SND_US16X08_KCSET(SND_US16X08_FADER_BIAS, 1, 0, 255)
 };
 
+<<<<<<< HEAD
 static struct snd_kcontrol_new snd_us16x08_master_ctl = {
+=======
+static const struct snd_kcontrol_new snd_us16x08_master_ctl = {
+>>>>>>> upstream/android-13
 	.iface = SNDRV_CTL_ELEM_IFACE_MIXER,
 	.access = SNDRV_CTL_ELEM_ACCESS_READWRITE,
 	.count = 1,
@@ -810,7 +837,11 @@ static struct snd_kcontrol_new snd_us16x08_master_ctl = {
 	.private_value = SND_US16X08_KCSET(SND_US16X08_FADER_BIAS, 1, 0, 133)
 };
 
+<<<<<<< HEAD
 static struct snd_kcontrol_new snd_us16x08_route_ctl = {
+=======
+static const struct snd_kcontrol_new snd_us16x08_route_ctl = {
+>>>>>>> upstream/android-13
 	.iface = SNDRV_CTL_ELEM_IFACE_MIXER,
 	.access = SNDRV_CTL_ELEM_ACCESS_READWRITE,
 	.count = 8,
@@ -820,7 +851,11 @@ static struct snd_kcontrol_new snd_us16x08_route_ctl = {
 	.private_value = SND_US16X08_KCSET(SND_US16X08_NO_BIAS, 1, 0, 9)
 };
 
+<<<<<<< HEAD
 static struct snd_kcontrol_new snd_us16x08_bus_ctl = {
+=======
+static const struct snd_kcontrol_new snd_us16x08_bus_ctl = {
+>>>>>>> upstream/android-13
 	.iface = SNDRV_CTL_ELEM_IFACE_MIXER,
 	.access = SNDRV_CTL_ELEM_ACCESS_READWRITE,
 	.count = 1,
@@ -830,7 +865,11 @@ static struct snd_kcontrol_new snd_us16x08_bus_ctl = {
 	.private_value = SND_US16X08_KCSET(SND_US16X08_NO_BIAS, 1, 0, 1)
 };
 
+<<<<<<< HEAD
 static struct snd_kcontrol_new snd_us16x08_compswitch_ctl = {
+=======
+static const struct snd_kcontrol_new snd_us16x08_compswitch_ctl = {
+>>>>>>> upstream/android-13
 	.iface = SNDRV_CTL_ELEM_IFACE_MIXER,
 	.access = SNDRV_CTL_ELEM_ACCESS_READWRITE,
 	.count = 16,
@@ -840,7 +879,11 @@ static struct snd_kcontrol_new snd_us16x08_compswitch_ctl = {
 	.private_value = SND_US16X08_KCSET(SND_US16X08_NO_BIAS, 1, 0, 1)
 };
 
+<<<<<<< HEAD
 static struct snd_kcontrol_new snd_us16x08_comp_threshold_ctl = {
+=======
+static const struct snd_kcontrol_new snd_us16x08_comp_threshold_ctl = {
+>>>>>>> upstream/android-13
 	.iface = SNDRV_CTL_ELEM_IFACE_MIXER,
 	.access = SNDRV_CTL_ELEM_ACCESS_READWRITE,
 	.count = 16,
@@ -851,7 +894,11 @@ static struct snd_kcontrol_new snd_us16x08_comp_threshold_ctl = {
 	0, 0x20)
 };
 
+<<<<<<< HEAD
 static struct snd_kcontrol_new snd_us16x08_comp_ratio_ctl = {
+=======
+static const struct snd_kcontrol_new snd_us16x08_comp_ratio_ctl = {
+>>>>>>> upstream/android-13
 	.iface = SNDRV_CTL_ELEM_IFACE_MIXER,
 	.access = SNDRV_CTL_ELEM_ACCESS_READWRITE,
 	.count = 16,
@@ -862,7 +909,11 @@ static struct snd_kcontrol_new snd_us16x08_comp_ratio_ctl = {
 	sizeof(ratio_map) - 1), /*max*/
 };
 
+<<<<<<< HEAD
 static struct snd_kcontrol_new snd_us16x08_comp_gain_ctl = {
+=======
+static const struct snd_kcontrol_new snd_us16x08_comp_gain_ctl = {
+>>>>>>> upstream/android-13
 	.iface = SNDRV_CTL_ELEM_IFACE_MIXER,
 	.access = SNDRV_CTL_ELEM_ACCESS_READWRITE,
 	.count = 16,
@@ -872,7 +923,11 @@ static struct snd_kcontrol_new snd_us16x08_comp_gain_ctl = {
 	.private_value = SND_US16X08_KCSET(SND_US16X08_NO_BIAS, 1, 0, 0x14)
 };
 
+<<<<<<< HEAD
 static struct snd_kcontrol_new snd_us16x08_comp_attack_ctl = {
+=======
+static const struct snd_kcontrol_new snd_us16x08_comp_attack_ctl = {
+>>>>>>> upstream/android-13
 	.iface = SNDRV_CTL_ELEM_IFACE_MIXER,
 	.access = SNDRV_CTL_ELEM_ACCESS_READWRITE,
 	.count = 16,
@@ -883,7 +938,11 @@ static struct snd_kcontrol_new snd_us16x08_comp_attack_ctl = {
 	SND_US16X08_KCSET(SND_US16X08_COMP_ATTACK_BIAS, 1, 0, 0xc6),
 };
 
+<<<<<<< HEAD
 static struct snd_kcontrol_new snd_us16x08_comp_release_ctl = {
+=======
+static const struct snd_kcontrol_new snd_us16x08_comp_release_ctl = {
+>>>>>>> upstream/android-13
 	.iface = SNDRV_CTL_ELEM_IFACE_MIXER,
 	.access = SNDRV_CTL_ELEM_ACCESS_READWRITE,
 	.count = 16,
@@ -894,7 +953,11 @@ static struct snd_kcontrol_new snd_us16x08_comp_release_ctl = {
 	SND_US16X08_KCSET(SND_US16X08_COMP_RELEASE_BIAS, 1, 0, 0x63),
 };
 
+<<<<<<< HEAD
 static struct snd_kcontrol_new snd_us16x08_eq_gain_ctl = {
+=======
+static const struct snd_kcontrol_new snd_us16x08_eq_gain_ctl = {
+>>>>>>> upstream/android-13
 	.iface = SNDRV_CTL_ELEM_IFACE_MIXER,
 	.access = SNDRV_CTL_ELEM_ACCESS_READWRITE,
 	.count = 16,
@@ -904,7 +967,11 @@ static struct snd_kcontrol_new snd_us16x08_eq_gain_ctl = {
 	.private_value = SND_US16X08_KCSET(SND_US16X08_NO_BIAS, 1, 0, 24),
 };
 
+<<<<<<< HEAD
 static struct snd_kcontrol_new snd_us16x08_eq_low_freq_ctl = {
+=======
+static const struct snd_kcontrol_new snd_us16x08_eq_low_freq_ctl = {
+>>>>>>> upstream/android-13
 	.iface = SNDRV_CTL_ELEM_IFACE_MIXER,
 	.access = SNDRV_CTL_ELEM_ACCESS_READWRITE,
 	.count = 16,
@@ -914,7 +981,11 @@ static struct snd_kcontrol_new snd_us16x08_eq_low_freq_ctl = {
 	.private_value = SND_US16X08_KCSET(SND_US16X08_NO_BIAS, 1, 0, 0x1F),
 };
 
+<<<<<<< HEAD
 static struct snd_kcontrol_new snd_us16x08_eq_mid_freq_ctl = {
+=======
+static const struct snd_kcontrol_new snd_us16x08_eq_mid_freq_ctl = {
+>>>>>>> upstream/android-13
 	.iface = SNDRV_CTL_ELEM_IFACE_MIXER,
 	.access = SNDRV_CTL_ELEM_ACCESS_READWRITE,
 	.count = 16,
@@ -924,7 +995,11 @@ static struct snd_kcontrol_new snd_us16x08_eq_mid_freq_ctl = {
 	.private_value = SND_US16X08_KCSET(SND_US16X08_NO_BIAS, 1, 0, 0x3F)
 };
 
+<<<<<<< HEAD
 static struct snd_kcontrol_new snd_us16x08_eq_mid_width_ctl = {
+=======
+static const struct snd_kcontrol_new snd_us16x08_eq_mid_width_ctl = {
+>>>>>>> upstream/android-13
 	.iface = SNDRV_CTL_ELEM_IFACE_MIXER,
 	.access = SNDRV_CTL_ELEM_ACCESS_READWRITE,
 	.count = 16,
@@ -934,7 +1009,11 @@ static struct snd_kcontrol_new snd_us16x08_eq_mid_width_ctl = {
 	.private_value = SND_US16X08_KCSET(SND_US16X08_NO_BIAS, 1, 0, 0x06)
 };
 
+<<<<<<< HEAD
 static struct snd_kcontrol_new snd_us16x08_eq_high_freq_ctl = {
+=======
+static const struct snd_kcontrol_new snd_us16x08_eq_high_freq_ctl = {
+>>>>>>> upstream/android-13
 	.iface = SNDRV_CTL_ELEM_IFACE_MIXER,
 	.access = SNDRV_CTL_ELEM_ACCESS_READWRITE,
 	.count = 16,
@@ -945,7 +1024,11 @@ static struct snd_kcontrol_new snd_us16x08_eq_high_freq_ctl = {
 	SND_US16X08_KCSET(SND_US16X08_EQ_HIGHFREQ_BIAS, 1, 0, 0x1F)
 };
 
+<<<<<<< HEAD
 static struct snd_kcontrol_new snd_us16x08_eq_switch_ctl = {
+=======
+static const struct snd_kcontrol_new snd_us16x08_eq_switch_ctl = {
+>>>>>>> upstream/android-13
 	.iface = SNDRV_CTL_ELEM_IFACE_MIXER,
 	.access = SNDRV_CTL_ELEM_ACCESS_READWRITE,
 	.count = 16,
@@ -955,7 +1038,11 @@ static struct snd_kcontrol_new snd_us16x08_eq_switch_ctl = {
 	.private_value = SND_US16X08_KCSET(SND_US16X08_NO_BIAS, 1, 0, 1)
 };
 
+<<<<<<< HEAD
 static struct snd_kcontrol_new snd_us16x08_meter_ctl = {
+=======
+static const struct snd_kcontrol_new snd_us16x08_meter_ctl = {
+>>>>>>> upstream/android-13
 	.iface = SNDRV_CTL_ELEM_IFACE_MIXER,
 	.access = SNDRV_CTL_ELEM_ACCESS_READWRITE,
 	.count = 1,
@@ -1086,7 +1173,11 @@ static int add_new_ctl(struct usb_mixer_interface *mixer,
 	else
 		kctl->private_free = snd_usb_mixer_elem_free;
 
+<<<<<<< HEAD
 	strlcpy(kctl->id.name, name, sizeof(kctl->id.name));
+=======
+	strscpy(kctl->id.name, name, sizeof(kctl->id.name));
+>>>>>>> upstream/android-13
 
 	err = snd_usb_mixer_add_control(&elem->head, kctl);
 	if (err < 0)
@@ -1119,7 +1210,11 @@ static const struct snd_us16x08_control_params eq_controls[] = {
 		.control_id = SND_US16X08_ID_EQLOWFREQ,
 		.type = USB_MIXER_U8,
 		.num_channels = 16,
+<<<<<<< HEAD
 		.name = "EQ Low Frequence",
+=======
+		.name = "EQ Low Frequency",
+>>>>>>> upstream/android-13
 	},
 	{ /* EQ mid low gain */
 		.kcontrol_new = &snd_us16x08_eq_gain_ctl,
@@ -1133,7 +1228,11 @@ static const struct snd_us16x08_control_params eq_controls[] = {
 		.control_id = SND_US16X08_ID_EQLOWMIDFREQ,
 		.type = USB_MIXER_U8,
 		.num_channels = 16,
+<<<<<<< HEAD
 		.name = "EQ MidLow Frequence",
+=======
+		.name = "EQ MidLow Frequency",
+>>>>>>> upstream/android-13
 	},
 	{ /* EQ mid low Q */
 		.kcontrol_new = &snd_us16x08_eq_mid_width_ctl,
@@ -1154,7 +1253,11 @@ static const struct snd_us16x08_control_params eq_controls[] = {
 		.control_id = SND_US16X08_ID_EQHIGHMIDFREQ,
 		.type = USB_MIXER_U8,
 		.num_channels = 16,
+<<<<<<< HEAD
 		.name = "EQ MidHigh Frequence",
+=======
+		.name = "EQ MidHigh Frequency",
+>>>>>>> upstream/android-13
 	},
 	{ /* EQ mid high Q */
 		.kcontrol_new = &snd_us16x08_eq_mid_width_ctl,
@@ -1175,7 +1278,11 @@ static const struct snd_us16x08_control_params eq_controls[] = {
 		.control_id = SND_US16X08_ID_EQHIGHFREQ,
 		.type = USB_MIXER_U8,
 		.num_channels = 16,
+<<<<<<< HEAD
 		.name = "EQ High Frequence",
+=======
+		.name = "EQ High Frequency",
+>>>>>>> upstream/android-13
 	},
 };
 

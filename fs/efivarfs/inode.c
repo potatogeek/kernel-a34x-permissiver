@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2012 Red Hat, Inc.
  * Copyright (C) 2012 Jeremy Kerr <jeremy.kerr@canonical.com>
@@ -5,6 +6,12 @@
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2012 Red Hat, Inc.
+ * Copyright (C) 2012 Jeremy Kerr <jeremy.kerr@canonical.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/efi.h>
@@ -13,9 +20,18 @@
 #include <linux/kmemleak.h>
 #include <linux/slab.h>
 #include <linux/uuid.h>
+<<<<<<< HEAD
 
 #include "internal.h"
 
+=======
+#include <linux/fileattr.h>
+
+#include "internal.h"
+
+static const struct inode_operations efivarfs_file_inode_operations;
+
+>>>>>>> upstream/android-13
 struct inode *efivarfs_get_inode(struct super_block *sb,
 				const struct inode *dir, int mode,
 				dev_t dev, bool is_removable)
@@ -29,6 +45,10 @@ struct inode *efivarfs_get_inode(struct super_block *sb,
 		inode->i_flags = is_removable ? 0 : S_IMMUTABLE;
 		switch (mode & S_IFMT) {
 		case S_IFREG:
+<<<<<<< HEAD
+=======
+			inode->i_op = &efivarfs_file_inode_operations;
+>>>>>>> upstream/android-13
 			inode->i_fop = &efivarfs_file_operations;
 			break;
 		case S_IFDIR:
@@ -69,8 +89,13 @@ bool efivarfs_valid_name(const char *str, int len)
 	return uuid_is_valid(s);
 }
 
+<<<<<<< HEAD
 static int efivarfs_create(struct inode *dir, struct dentry *dentry,
 			  umode_t mode, bool excl)
+=======
+static int efivarfs_create(struct user_namespace *mnt_userns, struct inode *dir,
+			   struct dentry *dentry, umode_t mode, bool excl)
+>>>>>>> upstream/android-13
 {
 	struct inode *inode = NULL;
 	struct efivar_entry *var;
@@ -141,3 +166,46 @@ const struct inode_operations efivarfs_dir_inode_operations = {
 	.unlink = efivarfs_unlink,
 	.create = efivarfs_create,
 };
+<<<<<<< HEAD
+=======
+
+static int
+efivarfs_fileattr_get(struct dentry *dentry, struct fileattr *fa)
+{
+	unsigned int i_flags;
+	unsigned int flags = 0;
+
+	i_flags = d_inode(dentry)->i_flags;
+	if (i_flags & S_IMMUTABLE)
+		flags |= FS_IMMUTABLE_FL;
+
+	fileattr_fill_flags(fa, flags);
+
+	return 0;
+}
+
+static int
+efivarfs_fileattr_set(struct user_namespace *mnt_userns,
+		      struct dentry *dentry, struct fileattr *fa)
+{
+	unsigned int i_flags = 0;
+
+	if (fileattr_has_fsx(fa))
+		return -EOPNOTSUPP;
+
+	if (fa->flags & ~FS_IMMUTABLE_FL)
+		return -EOPNOTSUPP;
+
+	if (fa->flags & FS_IMMUTABLE_FL)
+		i_flags |= S_IMMUTABLE;
+
+	inode_set_flags(d_inode(dentry), i_flags, S_IMMUTABLE);
+
+	return 0;
+}
+
+static const struct inode_operations efivarfs_file_inode_operations = {
+	.fileattr_get = efivarfs_fileattr_get,
+	.fileattr_set = efivarfs_fileattr_set,
+};
+>>>>>>> upstream/android-13

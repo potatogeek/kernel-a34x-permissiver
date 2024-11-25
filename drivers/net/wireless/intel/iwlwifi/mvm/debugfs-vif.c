@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * This file is provided under a dual BSD/GPLv2 license.  When using or
@@ -66,6 +67,15 @@
  *****************************************************************************/
 #include "mvm.h"
 #include "fw/api/tof.h"
+=======
+// SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause
+/*
+ * Copyright (C) 2012-2014, 2018-2021 Intel Corporation
+ * Copyright (C) 2013-2015 Intel Mobile Communications GmbH
+ * Copyright (C) 2016-2017 Intel Deutschland GmbH
+ */
+#include "mvm.h"
+>>>>>>> upstream/android-13
 #include "debugfs.h"
 
 static void iwl_dbgfs_update_pm(struct iwl_mvm *mvm,
@@ -521,7 +531,11 @@ static ssize_t iwl_dbgfs_os_device_timediff_read(struct file *file,
 	int pos = 0;
 
 	mutex_lock(&mvm->mutex);
+<<<<<<< HEAD
 	iwl_mvm_get_sync_time(mvm, &curr_gp2, &curr_os);
+=======
+	iwl_mvm_get_sync_time(mvm, CLOCK_BOOTTIME, &curr_gp2, &curr_os, NULL);
+>>>>>>> upstream/android-13
 	mutex_unlock(&mvm->mutex);
 
 	do_div(curr_os, NSEC_PER_USEC);
@@ -531,6 +545,7 @@ static ssize_t iwl_dbgfs_os_device_timediff_read(struct file *file,
 	return simple_read_from_buffer(user_buf, count, ppos, buf, pos);
 }
 
+<<<<<<< HEAD
 static ssize_t iwl_dbgfs_tof_enable_write(struct ieee80211_vif *vif,
 					  char *buf,
 					  size_t count, loff_t *ppos)
@@ -1276,6 +1291,8 @@ static ssize_t iwl_dbgfs_tof_range_response_read(struct file *file,
 	return ret;
 }
 
+=======
+>>>>>>> upstream/android-13
 static ssize_t iwl_dbgfs_low_latency_write(struct ieee80211_vif *vif, char *buf,
 					   size_t count, loff_t *ppos)
 {
@@ -1297,12 +1314,49 @@ static ssize_t iwl_dbgfs_low_latency_write(struct ieee80211_vif *vif, char *buf,
 	return count;
 }
 
+<<<<<<< HEAD
+=======
+static ssize_t
+iwl_dbgfs_low_latency_force_write(struct ieee80211_vif *vif, char *buf,
+				  size_t count, loff_t *ppos)
+{
+	struct iwl_mvm_vif *mvmvif = iwl_mvm_vif_from_mac80211(vif);
+	struct iwl_mvm *mvm = mvmvif->mvm;
+	u8 value;
+	int ret;
+
+	ret = kstrtou8(buf, 0, &value);
+	if (ret)
+		return ret;
+
+	if (value > NUM_LOW_LATENCY_FORCE)
+		return -EINVAL;
+
+	mutex_lock(&mvm->mutex);
+	if (value == LOW_LATENCY_FORCE_UNSET) {
+		iwl_mvm_update_low_latency(mvm, vif, false,
+					   LOW_LATENCY_DEBUGFS_FORCE);
+		iwl_mvm_update_low_latency(mvm, vif, false,
+					   LOW_LATENCY_DEBUGFS_FORCE_ENABLE);
+	} else {
+		iwl_mvm_update_low_latency(mvm, vif,
+					   value == LOW_LATENCY_FORCE_ON,
+					   LOW_LATENCY_DEBUGFS_FORCE);
+		iwl_mvm_update_low_latency(mvm, vif, true,
+					   LOW_LATENCY_DEBUGFS_FORCE_ENABLE);
+	}
+	mutex_unlock(&mvm->mutex);
+	return count;
+}
+
+>>>>>>> upstream/android-13
 static ssize_t iwl_dbgfs_low_latency_read(struct file *file,
 					  char __user *user_buf,
 					  size_t count, loff_t *ppos)
 {
 	struct ieee80211_vif *vif = file->private_data;
 	struct iwl_mvm_vif *mvmvif = iwl_mvm_vif_from_mac80211(vif);
+<<<<<<< HEAD
 	char buf[30] = {};
 	int len;
 
@@ -1311,6 +1365,27 @@ static ssize_t iwl_dbgfs_low_latency_read(struct file *file,
 			!!(mvmvif->low_latency & LOW_LATENCY_TRAFFIC),
 			!!(mvmvif->low_latency & LOW_LATENCY_DEBUGFS),
 			!!(mvmvif->low_latency & LOW_LATENCY_VCMD));
+=======
+	char format[] = "traffic=%d\ndbgfs=%d\nvcmd=%d\nvif_type=%d\n"
+			"dbgfs_force_enable=%d\ndbgfs_force=%d\nactual=%d\n";
+
+	/*
+	 * all values in format are boolean so the size of format is enough
+	 * for holding the result string
+	 */
+	char buf[sizeof(format) + 1] = {};
+	int len;
+
+	len = scnprintf(buf, sizeof(buf) - 1, format,
+			!!(mvmvif->low_latency & LOW_LATENCY_TRAFFIC),
+			!!(mvmvif->low_latency & LOW_LATENCY_DEBUGFS),
+			!!(mvmvif->low_latency & LOW_LATENCY_VCMD),
+			!!(mvmvif->low_latency & LOW_LATENCY_VIF_TYPE),
+			!!(mvmvif->low_latency &
+			   LOW_LATENCY_DEBUGFS_FORCE_ENABLE),
+			!!(mvmvif->low_latency & LOW_LATENCY_DEBUGFS_FORCE),
+			!!(mvmvif->low_latency_actual));
+>>>>>>> upstream/android-13
 	return simple_read_from_buffer(user_buf, count, ppos, buf, len);
 }
 
@@ -1448,6 +1523,7 @@ static ssize_t iwl_dbgfs_quota_min_read(struct file *file,
 	return simple_read_from_buffer(user_buf, count, ppos, buf, len);
 }
 
+<<<<<<< HEAD
 static const char * const chanwidths[] = {
 	[NL80211_CHAN_WIDTH_20_NOHT] = "noht",
 	[NL80211_CHAN_WIDTH_20] = "ht20",
@@ -1457,14 +1533,21 @@ static const char * const chanwidths[] = {
 	[NL80211_CHAN_WIDTH_160] = "vht160",
 };
 
+=======
+>>>>>>> upstream/android-13
 #define MVM_DEBUGFS_WRITE_FILE_OPS(name, bufsz) \
 	_MVM_DEBUGFS_WRITE_FILE_OPS(name, bufsz, struct ieee80211_vif)
 #define MVM_DEBUGFS_READ_WRITE_FILE_OPS(name, bufsz) \
 	_MVM_DEBUGFS_READ_WRITE_FILE_OPS(name, bufsz, struct ieee80211_vif)
 #define MVM_DEBUGFS_ADD_FILE_VIF(name, parent, mode) do {		\
+<<<<<<< HEAD
 		if (!debugfs_create_file(#name, mode, parent, vif,	\
 					 &iwl_dbgfs_##name##_ops))	\
 			goto err;					\
+=======
+		debugfs_create_file(#name, mode, parent, vif,		\
+				    &iwl_dbgfs_##name##_ops);		\
+>>>>>>> upstream/android-13
 	} while (0)
 
 MVM_DEBUGFS_READ_FILE_OPS(mac_params);
@@ -1472,6 +1555,7 @@ MVM_DEBUGFS_READ_FILE_OPS(tx_pwr_lmt);
 MVM_DEBUGFS_READ_WRITE_FILE_OPS(pm_params, 32);
 MVM_DEBUGFS_READ_WRITE_FILE_OPS(bf_params, 256);
 MVM_DEBUGFS_READ_WRITE_FILE_OPS(low_latency, 10);
+<<<<<<< HEAD
 MVM_DEBUGFS_READ_WRITE_FILE_OPS(uapsd_misbehaving, 20);
 MVM_DEBUGFS_READ_WRITE_FILE_OPS(rx_phyinfo, 10);
 MVM_DEBUGFS_READ_WRITE_FILE_OPS(tof_enable, 32);
@@ -1480,6 +1564,11 @@ MVM_DEBUGFS_READ_WRITE_FILE_OPS(tof_range_req_ext, 32);
 MVM_DEBUGFS_READ_WRITE_FILE_OPS(tof_range_abort, 32);
 MVM_DEBUGFS_READ_FILE_OPS(tof_range_response);
 MVM_DEBUGFS_READ_WRITE_FILE_OPS(tof_responder_params, 32);
+=======
+MVM_DEBUGFS_WRITE_FILE_OPS(low_latency_force, 10);
+MVM_DEBUGFS_READ_WRITE_FILE_OPS(uapsd_misbehaving, 20);
+MVM_DEBUGFS_READ_WRITE_FILE_OPS(rx_phyinfo, 10);
+>>>>>>> upstream/android-13
 MVM_DEBUGFS_READ_WRITE_FILE_OPS(quota_min, 32);
 MVM_DEBUGFS_READ_FILE_OPS(os_device_timediff);
 
@@ -1498,8 +1587,12 @@ void iwl_mvm_vif_dbgfs_register(struct iwl_mvm *mvm, struct ieee80211_vif *vif)
 		return;
 
 	mvmvif->dbgfs_dir = debugfs_create_dir("iwlmvm", dbgfs_dir);
+<<<<<<< HEAD
 
 	if (!mvmvif->dbgfs_dir) {
+=======
+	if (IS_ERR_OR_NULL(mvmvif->dbgfs_dir)) {
+>>>>>>> upstream/android-13
 		IWL_ERR(mvm, "Failed to create debugfs directory under %pd\n",
 			dbgfs_dir);
 		return;
@@ -1513,6 +1606,10 @@ void iwl_mvm_vif_dbgfs_register(struct iwl_mvm *mvm, struct ieee80211_vif *vif)
 	MVM_DEBUGFS_ADD_FILE_VIF(tx_pwr_lmt, mvmvif->dbgfs_dir, 0400);
 	MVM_DEBUGFS_ADD_FILE_VIF(mac_params, mvmvif->dbgfs_dir, 0400);
 	MVM_DEBUGFS_ADD_FILE_VIF(low_latency, mvmvif->dbgfs_dir, 0600);
+<<<<<<< HEAD
+=======
+	MVM_DEBUGFS_ADD_FILE_VIF(low_latency_force, mvmvif->dbgfs_dir, 0600);
+>>>>>>> upstream/android-13
 	MVM_DEBUGFS_ADD_FILE_VIF(uapsd_misbehaving, mvmvif->dbgfs_dir, 0600);
 	MVM_DEBUGFS_ADD_FILE_VIF(rx_phyinfo, mvmvif->dbgfs_dir, 0600);
 	MVM_DEBUGFS_ADD_FILE_VIF(quota_min, mvmvif->dbgfs_dir, 0600);
@@ -1522,6 +1619,7 @@ void iwl_mvm_vif_dbgfs_register(struct iwl_mvm *mvm, struct ieee80211_vif *vif)
 	    mvmvif == mvm->bf_allowed_vif)
 		MVM_DEBUGFS_ADD_FILE_VIF(bf_params, mvmvif->dbgfs_dir, 0600);
 
+<<<<<<< HEAD
 	if (fw_has_capa(&mvm->fw->ucode_capa, IWL_UCODE_TLV_CAPA_TOF_SUPPORT) &&
 	    !vif->p2p && (vif->type != NL80211_IFTYPE_P2P_DEVICE)) {
 		if (IWL_MVM_TOF_IS_RESPONDER && vif->type == NL80211_IFTYPE_AP)
@@ -1540,6 +1638,8 @@ void iwl_mvm_vif_dbgfs_register(struct iwl_mvm *mvm, struct ieee80211_vif *vif)
 					 0400);
 	}
 
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * Create symlink for convenience pointing to interface specific
 	 * debugfs entries for the driver. For example, under
@@ -1553,12 +1653,15 @@ void iwl_mvm_vif_dbgfs_register(struct iwl_mvm *mvm, struct ieee80211_vif *vif)
 
 	mvmvif->dbgfs_slink = debugfs_create_symlink(dbgfs_dir->d_name.name,
 						     mvm->debugfs_dir, buf);
+<<<<<<< HEAD
 	if (!mvmvif->dbgfs_slink)
 		IWL_ERR(mvm, "Can't create debugfs symbolic link under %pd\n",
 			dbgfs_dir);
 	return;
 err:
 	IWL_ERR(mvm, "Can't create debugfs entity\n");
+=======
+>>>>>>> upstream/android-13
 }
 
 void iwl_mvm_vif_dbgfs_clean(struct iwl_mvm *mvm, struct ieee80211_vif *vif)

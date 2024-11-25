@@ -1,7 +1,12 @@
+<<<<<<< HEAD
 /*
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published
  * by the Free Software Foundation.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+>>>>>>> upstream/android-13
  *
  * Parts of this file are based on Ralink's 2.6.21 BSP
  *
@@ -35,6 +40,7 @@
 #define SYSTEM_CONFIG_CPUCLK_280	0x2
 #define SYSTEM_CONFIG_CPUCLK_300	0x3
 
+<<<<<<< HEAD
 #define RT2880_GPIO_MODE_I2C		BIT(0)
 #define RT2880_GPIO_MODE_UART0		BIT(1)
 #define RT2880_GPIO_MODE_SPI		BIT(2)
@@ -44,6 +50,8 @@
 #define RT2880_GPIO_MODE_SDRAM		BIT(6)
 #define RT2880_GPIO_MODE_PCI		BIT(7)
 
+=======
+>>>>>>> upstream/android-13
 #define CLKCFG_SRAM_CS_N_WDT		BIT(9)
 
 #define RT2880_SDRAM_BASE		0x08000000

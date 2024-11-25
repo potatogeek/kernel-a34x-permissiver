@@ -21,7 +21,11 @@ endif
 drop-sections := .reginfo .mdebug .comment .note .pdr .options .MIPS.options
 strip-flags   := $(addprefix --remove-section=,$(drop-sections))
 
+<<<<<<< HEAD
 hostprogs-y := elf2ecoff
+=======
+hostprogs := elf2ecoff
+>>>>>>> upstream/android-13
 
 suffix-y			:= bin
 suffix-$(CONFIG_KERNEL_BZIP2)	:= bz2
@@ -115,7 +119,11 @@ endif
 targets += vmlinux.its.S
 
 quiet_cmd_its_cat = CAT     $@
+<<<<<<< HEAD
       cmd_its_cat = cat $(filter-out $(PHONY), $^) >$@
+=======
+      cmd_its_cat = cat $(real-prereqs) >$@
+>>>>>>> upstream/android-13
 
 $(obj)/vmlinux.its.S: $(addprefix $(srctree)/arch/mips/$(PLATFORM)/,$(ITS_INPUTS)) FORCE
 	$(call if_changed,its_cat)
@@ -160,7 +168,11 @@ targets += vmlinux.lzo.itb
 quiet_cmd_itb-image = ITB     $@
       cmd_itb-image = \
 		env PATH="$(objtree)/scripts/dtc:$(PATH)" \
+<<<<<<< HEAD
 		$(CONFIG_SHELL) $(MKIMAGE) \
+=======
+		$(BASH) $(MKIMAGE) \
+>>>>>>> upstream/android-13
 		-D "-I dts -O dtb -p 500 \
 			--include $(objtree)/arch/mips \
 			--warning no-unit_address_vs_reg" \

@@ -5,6 +5,7 @@ Boot time memory management
 Early system initialization cannot use "normal" memory management
 simply because it is not set up yet. But there is still need to
 allocate memory for various data structures, for instance for the
+<<<<<<< HEAD
 physical page allocator. To address this, a specialized allocator
 called the :ref:`Boot Memory Allocator <bootmem>`, or bootmem, was
 introduced. Several years later PowerPC developers added a "Logical
@@ -28,11 +29,20 @@ statically by the architectures' Kconfig files.
 Whichever allocator is used, it is the responsibility of the
 architecture specific initialization to set it up in
 :c:func:`setup_arch` and tear it down in :c:func:`mem_init` functions.
+=======
+physical page allocator.
+
+A specialized allocator called ``memblock`` performs the
+boot time memory management. The architecture specific initialization
+must set it up in :c:func:`setup_arch` and tear it down in
+:c:func:`mem_init` functions.
+>>>>>>> upstream/android-13
 
 Once the early memory management is available it offers a variety of
 functions and macros for memory allocations. The allocation request
 may be directed to the first (and probably the only) node or to a
 particular node in a NUMA system. There are API variants that panic
+<<<<<<< HEAD
 when an allocation fails and those that don't. And more recent and
 advanced memblock even allows controlling its own behaviour.
 
@@ -53,6 +63,14 @@ Memory Manager" `book`_)
 
 Memblock
 ========
+=======
+when an allocation fails and those that don't.
+
+Memblock also offers a variety of APIs that control its own behaviour.
+
+Memblock Overview
+=================
+>>>>>>> upstream/android-13
 
 .. kernel-doc:: mm/memblock.c
    :doc: memblock overview
@@ -61,6 +79,7 @@ Memblock
 Functions and structures
 ========================
 
+<<<<<<< HEAD
 Common API
 ----------
 
@@ -81,6 +100,8 @@ These interfaces available only with bootmem, i.e when ``CONFIG_NO_BOOTMEM=n``
 Memblock specific API
 ---------------------
 
+=======
+>>>>>>> upstream/android-13
 Here is the description of memblock data structures, functions and
 macros. Some of them are actually internal, but since they are
 documented it would be silly to omit them. Besides, reading the
@@ -89,4 +110,8 @@ really happens under the hood.
 
 .. kernel-doc:: include/linux/memblock.h
 .. kernel-doc:: mm/memblock.c
+<<<<<<< HEAD
    :nodocs:
+=======
+   :functions:
+>>>>>>> upstream/android-13

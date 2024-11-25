@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 #
 # MOST Networking configuration
 #
@@ -6,7 +10,11 @@ config MOST_NET
 	tristate "Net"
 	depends on NET
 
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  Say Y here if you want to commumicate via a networking device.
 
 	  To compile this driver as a module, choose M here: the

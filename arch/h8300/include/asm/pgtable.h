@@ -1,10 +1,14 @@
 /* SPDX-License-Identifier: GPL-2.0 */
 #ifndef _H8300_PGTABLE_H
 #define _H8300_PGTABLE_H
+<<<<<<< HEAD
 #define __ARCH_USE_5LEVEL_HACK
 #include <asm-generic/pgtable-nopud.h>
 #include <asm-generic/pgtable.h>
 #define pgtable_cache_init()   do { } while (0)
+=======
+#include <asm-generic/pgtable-nopud.h>
+>>>>>>> upstream/android-13
 extern void paging_init(void);
 #define PAGE_NONE		__pgprot(0)    /* these mean nothing to NO_MM */
 #define PAGE_SHARED		__pgprot(0)    /* these mean nothing to NO_MM */
@@ -35,11 +39,14 @@ extern unsigned int kobjsize(const void *objp);
 extern int is_in_rom(unsigned long);
 
 /*
+<<<<<<< HEAD
  * No page table caches to initialise
  */
 #define pgtable_cache_init()   do { } while (0)
 
 /*
+=======
+>>>>>>> upstream/android-13
  * All 32bit addresses are effectively valid for vmalloc...
  * Sort of meaningless for non-VM targets.
  */

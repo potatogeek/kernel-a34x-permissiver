@@ -29,7 +29,11 @@ struct mux_pkt_header {
 	__le32 seq_num;
 	__le32 payload_size;
 	__le16 packet_type;
+<<<<<<< HEAD
 	unsigned char data[0];
+=======
+	unsigned char data[];
+>>>>>>> upstream/android-13
 };
 
 struct mux_tx {

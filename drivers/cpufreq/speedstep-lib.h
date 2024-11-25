@@ -1,8 +1,15 @@
+<<<<<<< HEAD
 /*
  * (C) 2002 - 2003 Dominik Brodowski <linux@brodo.de>
  *
  *  Licensed under the terms of the GNU GPL License version 2.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * (C) 2002 - 2003 Dominik Brodowski <linux@brodo.de>
+ *
+>>>>>>> upstream/android-13
  *  Library for common functions for Intel SpeedStep v.1 and v.2 support
  *
  *  BIG FAT DISCLAIMER: Work in progress code. Possibly *dangerous*

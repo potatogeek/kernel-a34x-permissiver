@@ -57,8 +57,13 @@ static inline void __ipv4_confirm_neigh(struct net_device *dev, u32 key)
 		unsigned long now = jiffies;
 
 		/* avoid dirtying neighbour */
+<<<<<<< HEAD
 		if (n->confirmed != now)
 			n->confirmed = now;
+=======
+		if (READ_ONCE(n->confirmed) != now)
+			WRITE_ONCE(n->confirmed, now);
+>>>>>>> upstream/android-13
 	}
 	rcu_read_unlock_bh();
 }
@@ -71,6 +76,10 @@ void arp_send(int type, int ptype, __be32 dest_ip,
 	      const unsigned char *src_hw, const unsigned char *th);
 int arp_mc_map(__be32 addr, u8 *haddr, struct net_device *dev, int dir);
 void arp_ifdown(struct net_device *dev);
+<<<<<<< HEAD
+=======
+int arp_invalidate(struct net_device *dev, __be32 ip, bool force);
+>>>>>>> upstream/android-13
 
 struct sk_buff *arp_create(int type, int ptype, __be32 dest_ip,
 			   struct net_device *dev, __be32 src_ip,

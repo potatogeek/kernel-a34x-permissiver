@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
 
   Broadcom B43 wireless driver
@@ -6,6 +10,7 @@
   Copyright (c) 2008-2009 Michael Buesch <m@bues.ch>
   Copyright (c) 2009 Gábor Stefanik <netrolller.3d@gmail.com>
 
+<<<<<<< HEAD
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation; either version 2 of the License, or
@@ -23,6 +28,12 @@
 
 */
 
+=======
+
+*/
+
+#include <linux/cordic.h>
+>>>>>>> upstream/android-13
 #include <linux/slab.h>
 
 #include "b43.h"
@@ -82,7 +93,11 @@ static void b43_lpphy_op_free(struct b43_wldev *dev)
 	dev->phy.lp = NULL;
 }
 
+<<<<<<< HEAD
 /* http://bcm-v4.sipsolutions.net/802.11/PHY/LP/ReadBandSrom */
+=======
+/* https://bcm-v4.sipsolutions.net/802.11/PHY/LP/ReadBandSrom */
+>>>>>>> upstream/android-13
 static void lpphy_read_band_sprom(struct b43_wldev *dev)
 {
 	struct ssb_sprom *sprom = dev->dev->bus_sprom;
@@ -1780,9 +1795,15 @@ static void lpphy_start_tx_tone(struct b43_wldev *dev, s32 freq, u16 max)
 {
 	struct b43_phy_lp *lpphy = dev->phy.lp;
 	u16 buf[64];
+<<<<<<< HEAD
 	int i, samples = 0, angle = 0;
 	int rotation = (((36 * freq) / 20) << 16) / 100;
 	struct b43_c32 sample;
+=======
+	int i, samples = 0, theta = 0;
+	int rotation = (((36 * freq) / 20) << 16) / 100;
+	struct cordic_iq sample;
+>>>>>>> upstream/android-13
 
 	lpphy->tx_tone_freq = freq;
 
@@ -1798,10 +1819,17 @@ static void lpphy_start_tx_tone(struct b43_wldev *dev, s32 freq, u16 max)
 	}
 
 	for (i = 0; i < samples; i++) {
+<<<<<<< HEAD
 		sample = b43_cordic(angle);
 		angle += rotation;
 		buf[i] = CORDIC_CONVERT((sample.i * max) & 0xFF) << 8;
 		buf[i] |= CORDIC_CONVERT((sample.q * max) & 0xFF);
+=======
+		sample = cordic_calc_iq(CORDIC_FIXED(theta));
+		theta += rotation;
+		buf[i] = CORDIC_FLOAT((sample.i * max) & 0xFF) << 8;
+		buf[i] |= CORDIC_FLOAT((sample.q * max) & 0xFF);
+>>>>>>> upstream/android-13
 	}
 
 	b43_lptab_write_bulk(dev, B43_LPTAB16(5, 0), samples, buf);
@@ -1825,12 +1853,15 @@ static void lpphy_stop_tx_tone(struct b43_wldev *dev)
 }
 
 
+<<<<<<< HEAD
 static void lpphy_papd_cal(struct b43_wldev *dev, struct lpphy_tx_gains gains,
 			   int mode, bool useindex, u8 index)
 {
 	//TODO
 }
 
+=======
+>>>>>>> upstream/android-13
 static void lpphy_papd_cal_txpwr(struct b43_wldev *dev)
 {
 	struct b43_phy_lp *lpphy = dev->phy.lp;
@@ -1847,11 +1878,14 @@ static void lpphy_papd_cal_txpwr(struct b43_wldev *dev)
 
 	lpphy_set_tx_power_control(dev, B43_LPPHY_TXPCTL_OFF);
 
+<<<<<<< HEAD
 	if (dev->dev->chip_id == 0x4325 && dev->dev->chip_rev == 0)
 		lpphy_papd_cal(dev, oldgains, 0, 1, 30);
 	else
 		lpphy_papd_cal(dev, oldgains, 0, 1, 65);
 
+=======
+>>>>>>> upstream/android-13
 	if (old_afe_ovr)
 		lpphy_set_tx_gains(dev, oldgains);
 	lpphy_set_bb_mult(dev, old_bbmult);

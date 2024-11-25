@@ -11,20 +11,39 @@
 #include <linux/cpu.h>
 #include <linux/cpuidle.h>
 #include <linux/mutex.h>
+<<<<<<< HEAD
+=======
+#include <linux/module.h>
+>>>>>>> upstream/android-13
 #include <linux/pm_qos.h>
 
 #include "cpuidle.h"
 
+<<<<<<< HEAD
 LIST_HEAD(cpuidle_governors);
 struct cpuidle_governor *cpuidle_curr_governor;
 
 /**
  * __cpuidle_find_governor - finds a governor of the specified name
+=======
+char param_governor[CPUIDLE_NAME_LEN];
+
+LIST_HEAD(cpuidle_governors);
+struct cpuidle_governor *cpuidle_curr_governor;
+struct cpuidle_governor *cpuidle_prev_governor;
+
+/**
+ * cpuidle_find_governor - finds a governor of the specified name
+>>>>>>> upstream/android-13
  * @str: the name
  *
  * Must be called with cpuidle_lock acquired.
  */
+<<<<<<< HEAD
 static struct cpuidle_governor * __cpuidle_find_governor(const char *str)
+=======
+struct cpuidle_governor *cpuidle_find_governor(const char *str)
+>>>>>>> upstream/android-13
 {
 	struct cpuidle_governor *gov;
 
@@ -84,11 +103,22 @@ int cpuidle_register_governor(struct cpuidle_governor *gov)
 		return -ENODEV;
 
 	mutex_lock(&cpuidle_lock);
+<<<<<<< HEAD
 	if (__cpuidle_find_governor(gov->name) == NULL) {
 		ret = 0;
 		list_add_tail(&gov->governor_list, &cpuidle_governors);
 		if (!cpuidle_curr_governor ||
 		    cpuidle_curr_governor->rating < gov->rating)
+=======
+	if (cpuidle_find_governor(gov->name) == NULL) {
+		ret = 0;
+		list_add_tail(&gov->governor_list, &cpuidle_governors);
+		if (!cpuidle_curr_governor ||
+		    !strncasecmp(param_governor, gov->name, CPUIDLE_NAME_LEN) ||
+		    (cpuidle_curr_governor->rating < gov->rating &&
+		     strncasecmp(param_governor, cpuidle_curr_governor->name,
+				 CPUIDLE_NAME_LEN)))
+>>>>>>> upstream/android-13
 			cpuidle_switch_governor(gov);
 	}
 	mutex_unlock(&cpuidle_lock);
@@ -101,6 +131,7 @@ EXPORT_SYMBOL_GPL(cpuidle_register_governor);
  * cpuidle_governor_latency_req - Compute a latency constraint for CPU
  * @cpu: Target CPU
  */
+<<<<<<< HEAD
 int cpuidle_governor_latency_req(unsigned int cpu)
 {
 	int global_req = pm_qos_request(PM_QOS_CPU_DMA_LATENCY);
@@ -109,3 +140,17 @@ int cpuidle_governor_latency_req(unsigned int cpu)
 
 	return device_req < global_req ? device_req : global_req;
 }
+=======
+s64 cpuidle_governor_latency_req(unsigned int cpu)
+{
+	struct device *device = get_cpu_device(cpu);
+	int device_req = dev_pm_qos_raw_resume_latency(device);
+	int global_req = cpu_latency_qos_limit();
+
+	if (device_req > global_req)
+		device_req = global_req;
+
+	return (s64)device_req * NSEC_PER_USEC;
+}
+EXPORT_SYMBOL_GPL(cpuidle_governor_latency_req);
+>>>>>>> upstream/android-13

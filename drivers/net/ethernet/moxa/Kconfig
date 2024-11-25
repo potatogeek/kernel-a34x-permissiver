@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #
 # MOXART device configuration
 #
@@ -6,7 +10,11 @@ config NET_VENDOR_MOXART
 	bool "MOXA ART devices"
 	default y
 	depends on (ARM && ARCH_MOXART)
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  If you have a network (Ethernet) card belonging to this class, say Y.
 
 	  Note that the answer to this question doesn't directly affect the
@@ -20,7 +28,11 @@ config ARM_MOXART_ETHER
 	tristate "MOXART Ethernet support"
 	depends on ARM && ARCH_MOXART
 	select NET_CORE
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  If you wish to compile a kernel for a hardware with MOXA ART SoC and
 	  want to use the internal ethernet then you should answer Y to this.
 

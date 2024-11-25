@@ -85,7 +85,11 @@ static void fpga_irq_handle(struct irq_desc *desc)
 		unsigned int irq = ffs(status) - 1;
 
 		status &= ~(1 << irq);
+<<<<<<< HEAD
 		generic_handle_irq(irq_find_mapping(f->domain, irq));
+=======
+		generic_handle_domain_irq(f->domain, irq);
+>>>>>>> upstream/android-13
 	} while (status);
 
 out:
